@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+import inquirer from 'inquirer';
 import yaml from 'js-yaml';
 import fetch from 'node-fetch';
 import path from 'path';
@@ -11,6 +12,23 @@ interface CollectedSkill {
   category: string;
   skill: string;
   files: { name: string; content: string }[];
+}
+
+interface NPMRegistryResponse {
+  version: string;
+}
+
+interface GitHubRepoResponse {
+  default_branch: string;
+}
+
+interface RemoteMetadata {
+  categories: {
+    [key: string]: {
+      version?: string;
+      tag_prefix?: string;
+    };
+  };
 }
 
 export class SyncCommand {
@@ -27,7 +45,13 @@ export class SyncCommand {
 
     try {
       const fileContent = await fs.readFile(configPath, 'utf8');
-      const config = yaml.load(fileContent) as SkillConfig;
+      let config = yaml.load(fileContent) as SkillConfig;
+
+      // 1. Check for CLI updates
+      await this.checkCLIUpdate();
+
+      // 2. Check for skill updates before syncing
+      config = await this.checkForUpdates(config, configPath);
 
       console.log(pc.cyan(`🚀 Syncing skills from ${config.registry}...`));
 
@@ -43,6 +67,134 @@ export class SyncCommand {
     } catch (error) {
       console.error(pc.red('❌ Failed to sync skills:'), error);
     }
+  }
+
+  private async checkCLIUpdate() {
+    try {
+      const pkgPath = path.join(__dirname, '../../package.json');
+      if (!fs.existsSync(pkgPath)) return;
+
+      const pkg = await fs.readJson(pkgPath);
+      const currentVersion = pkg.version;
+
+      const res = await fetch(
+        'https://registry.npmjs.org/agent-skills-standard/latest',
+      );
+      if (res.ok) {
+        const remoteData = (await res.json()) as NPMRegistryResponse;
+        const latestVersion = remoteData.version;
+
+        if (currentVersion !== latestVersion) {
+          console.log(
+            pc.magenta(
+              `\n🎁 A newer CLI version is available: ${currentVersion} -> ${latestVersion}`,
+            ),
+          );
+          console.log(
+            pc.magenta(
+              `   Run ${pc.bold(
+                'npm install -g agent-skills-standard',
+              )} to update.\n`,
+            ),
+          );
+        }
+      }
+    } catch {
+      // Silent fail for CLI update check
+    }
+  }
+
+  private async checkForUpdates(
+    config: SkillConfig,
+    configPath: string,
+  ): Promise<SkillConfig> {
+    const githubMatch = config.registry.match(/github\.com\/([^/]+)\/([^/]+)/i);
+    if (!githubMatch) return config;
+
+    const [owner, repo] = githubMatch.slice(1);
+
+    try {
+      console.log(pc.gray('🔍 Checking for skill updates...'));
+
+      // 1. Get default branch
+      const repoRes = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}`,
+      );
+      if (!repoRes.ok) return config;
+      const repoData = (await repoRes.json()) as GitHubRepoResponse;
+      const defaultBranch = repoData.default_branch || 'main';
+
+      // 2. Fetch remote metadata.json
+      const metaUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${defaultBranch}/skills/metadata.json`;
+      const metaRes = await fetch(metaUrl);
+      if (!metaRes.ok) return config;
+      const remoteMeta = (await metaRes.json()) as RemoteMetadata;
+
+      const updates: { category: string; from: string; to: string }[] = [];
+
+      for (const [cat, catConfig] of Object.entries(config.skills)) {
+        if (!catConfig.enabled) continue;
+
+        const remoteCat = remoteMeta.categories?.[cat];
+        if (!remoteCat || !remoteCat.version || !remoteCat.tag_prefix) continue;
+
+        const latestTag = `${remoteCat.tag_prefix}${remoteCat.version}`;
+        const currentRef = catConfig.ref || 'main';
+
+        // Update if ref is different and doesn't explicitly contain the latest version string
+        if (
+          currentRef !== latestTag &&
+          !currentRef.includes(remoteCat.version)
+        ) {
+          updates.push({
+            category: cat,
+            from: currentRef,
+            to: latestTag,
+          });
+        }
+      }
+
+      if (updates.length > 0) {
+        console.log(pc.yellow(`\n💡 ${updates.length} update(s) available:`));
+        updates.forEach((u) => {
+          console.log(
+            pc.gray(
+              `  - ${pc.cyan(u.category)}: ${u.from} -> ${pc.green(u.to)}`,
+            ),
+          );
+        });
+
+        const { updateAll } = await inquirer.prompt([
+          {
+            type: 'confirm',
+            name: 'updateAll',
+            message:
+              'Would you like to update your .skillsrc to the latest versions?',
+            default: true,
+          },
+        ]);
+
+        if (updateAll) {
+          for (const u of updates) {
+            config.skills[u.category].ref = u.to;
+          }
+
+          // Save back to .skillsrc
+          await fs.writeFile(configPath, yaml.dump(config));
+          console.log(pc.green('✅ .skillsrc updated successfully.\n'));
+        }
+      } else {
+        console.log(pc.gray('✨ All skills are up to date.\n'));
+      }
+    } catch {
+      console.log(
+        pc.gray(
+          '  (Could not check for updates, proceeding with current versions)',
+        ),
+      );
+    }
+
+    return config;
   }
 
   private async assembleFromRemote(
@@ -222,7 +374,7 @@ export class SyncCommand {
               continue;
             }
 
-            await fs.writeFile(targetFilePath, fileItem.content);
+            await fs.outputFile(targetFilePath, fileItem.content);
           }
         }
         console.log(pc.gray(`  - Updated ${basePath}/ (${agentDef.name})`));

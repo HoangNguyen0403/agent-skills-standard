@@ -3,65 +3,77 @@
 [![NPM Version](https://img.shields.io/npm/v/agent-skills-standard.svg?style=flat-square)](https://www.npmjs.com/package/agent-skills-standard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/blob/main/LICENSE)
 
-**Stop wasting your context window. The open standard for High-Density AI coding instructions.**
+**The engine behind High-Density AI coding. Command your AI assistants with professional standards.**
 
-The `agent-skills-standard` CLI is the official tool to manage, sync, and version-control engineering standards across all major AI agents (**Cursor, Claude, Copilot, Antigravity, and custom LLM workflows**).
+The `agent-skills-standard` CLI is the official command-line tool to manage, sync, and version-control engineering standards across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Antigravity, and more**).
 
 ---
 
-## ⚡ Why use this?
+## 💡 What does this tool do?
 
-Modern AI coding agents (like Cursor or Claude) are powerful, but managing project-wide rules manually is painful:
+If the **Agent Skills Standard** is the "instruction manual" for your AI, this CLI is the **delivery truck** that brings those instructions to your project.
 
-1. **Context Bloat**: Giant rules files consume too many tokens.
-2. **Sync Hell**: Team members often have outdated or inconsistent rules.
-3. **Vague Instructions**: Human-prose rules are often ignored by LLMs during complex tasks.
+### Why you need this CLI
 
-**Agent Skills Standard** solves this by treating prompt instructions as **versioned dependencies**.
+- **For Developers**: No more copy-pasting `.cursorrules` or manual file management. One command keeps your AI updated.
+- **For Non-IT/Tech Leads**: Quickly set up a new project with the same professional standards used by senior engineers.
+- **For Teams**: Ensure every developer’s AI tool (Cursor, Claude, Copilot) behaves the same way across the entire codebase.
+
+---
+
+## ⚡ The Problem: "The Context Wall"
+
+Modern AI coding agents are powerful, but they have major flaws:
+
+1. **Memory Drain**: Giant rule files consume **30% - 50% of the AI's memory**, making it less effective for actual coding.
+2. **Version Chaos**: Team members often have different "best practices," leading to inconsistent code.
+3. **Wordy Prosa**: Human-style instructions are token-heavy and often ignored by AI during complex logical tasks.
+
+**Agent Skills Standard** solves this by treating prompt instructions as **versioned dependencies**, similar to how you manage software libraries.
 
 ---
 
 ## 🚀 Installation
 
-Install globally or use via `npx`:
+You can run the tool instantly without installing, or install it globally for convenience:
 
 ```bash
-# Global installation
-npm install -g agent-skills-standard
-
-# Or use directly with npx
+# Use instantly (Recommended)
 npx agent-skills-standard sync
+
+# Or install globally
+npm install -g agent-skills-standard
 ```
 
 ---
 
-## 🛠 Usage
+## 🛠 Basic Commands
 
-### 1. Initialize your project
+### 1. Setup Your Project
 
-Detect your project stack and create a configuration file.
+Run this once to detect your project type and choose which "skills" you want your AI to have.
 
 ```bash
-agent-skills-standard init
+npx agent-skills-standard init
 ```
 
-### 2. Sync skills
+### 2. Boost Your AI
 
-Fetch the latest **High-Density Skills** from the registry and distribute them to your agent folders (e.g., `.cursor/rules/`, `.github/skills/`).
+Run this to fetch the latest high-density instructions and install them into your hidden agent folders (like `.cursor/skills/` or `.github/skills/`).
 
 ```bash
-agent-skills-standard sync
+npx agent-skills-standard sync
+
 ```
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-- **🎯 Token Economy**: Uses a "Split-Context" pattern to only load core rules by default, saving your context window.
-- **🚀 High-Density Syntax**: Imperative, keyword-rich instructions that provide **40% better instruction density** than standard prose.
-- **🛡️ Multi-Agent Support**: Out-of-the-box mapping for Cursor, Claude Dev, GitHub Copilot, and more.
-- **🔒 Secure Overrides**: Lock specific files in your project (`custom_overrides`) so they never get overwritten by the central registry.
-- **📊 Semantic Tagging**: Skills are tagged with logic that tells the AI *exactly* when to apply them.
+- **🎯 Efficiency First**: Uses a "Search-on-Demand" pattern that only loads information when the AI needs it, saving its "brain power" for your code.
+- **🚀 High-Density Instructions**: Optimized syntax that is **40% more compact** than standard English.
+- **🛡️ Universal Support**: Works out-of-the-box with Cursor, Claude, GitHub Copilot, and more.
+- **🔒 Secure Protection**: Mark specific files as "Locked" (overrides) so the CLI never changes your custom tweaks.
 
 ---
 

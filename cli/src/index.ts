@@ -10,7 +10,7 @@ program
   .description(
     'A CLI to manage and sync AI agent skills for Cursor, Claude, Copilot, and more.',
   )
-  .version('1.0.0');
+  .version('1.0.5');
 
 program
   .command('init')

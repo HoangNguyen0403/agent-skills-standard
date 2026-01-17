@@ -39,9 +39,15 @@ export const SUPPORTED_AGENTS: AgentDefinition[] = [
   },
   {
     id: 'openai',
-    name: 'OpenAI/Generic',
+    name: 'OpenAI',
     path: '.codex/skills',
     detectionFiles: ['.codex'],
+  },
+  {
+    id: 'opencode',
+    name: 'OpenCode',
+    path: '.opencode/skills',
+    detectionFiles: ['.opencode'],
   },
 ];
 
