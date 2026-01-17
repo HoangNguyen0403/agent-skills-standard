@@ -5,7 +5,8 @@ metadata:
   labels: [javascript, language, es6, modern-js]
   triggers:
     files: ['**/*.js', '**/*.mjs', '**/*.cjs']
-    keywords: [const, let, arrow, async, await, promise, destructuring, spread, class]
+    keywords:
+      [const, let, arrow, async, await, promise, destructuring, spread, class]
 ---
 
 # JavaScript Language Patterns
@@ -16,73 +17,48 @@ Modern JavaScript standards for clean, maintainable code.
 
 ## Implementation Guidelines
 
-- **Variables**: Use `const` by default. Use `let` only when reassignment is needed. Never use `var`.
-- **Functions**: Prefer arrow functions for callbacks. Use function declarations for top-level functions.
-- **Async/Await**: Prefer `async/await` over raw Promises. Always handle errors with try/catch.
-- **Destructuring**: Use destructuring for objects and arrays to improve readability.
-- **Spread Operator**: Use spread (`...`) for copying arrays/objects and function arguments.
-- **Template Literals**: Use template literals for string interpolation instead of concatenation.
-- **Optional Chaining**: Use `?.` to safely access nested properties.
-- **Nullish Coalescing**: Use `??` instead of `||` for default values to avoid falsy value issues.
-- **Array Methods**: Use `map`, `filter`, `reduce`, `find`, `some`, `every` instead of loops.
-- **Modules**: Use ES6 modules (`import`/`export`) instead of CommonJS (`require`).
-- **Classes**: Use class syntax for object-oriented programming. Use `#` for private fields.
+- **Variables**: `const` default. `let` if needed. No `var`.
+- **Functions**: Arrows for callbacks. Declarations for top-level.
+- **Async**: `async/await` + `try/catch`.
+- **Objects**: Destructuring, Spread `...`, Optional Chain `?.`, Nullish `??`.
+- **Strings**: Template literals `${}`.
+- **Arrays**: `map`, `filter`, `reduce`. No loops.
+- **Modules**: ESM `import`/`export`.
+- **Classes**: Use `#private` fields.
 
 ## Anti-Patterns
 
-- **No `var`**: Never use `var`. Use `const` or `let`.
-- **No `==`**: Use strict equality `===` and `!==`.
-- **No `new Object()`**: Use object literals `{}` and array literals `[]`.
-- **No Callback Hell**: Use `async/await` instead of nested callbacks.
-- **No Mutation**: Avoid mutating function arguments. Return new values instead.
+- **No `var`**: Block scope only.
+- **No `==`**: Strict `===`.
+- **No `new Object()`**: Use literals `{}`.
+- **No Callbacks**: Promisify everything.
+- **No Mutation**: Immutability first.
 
 ## Code
 
 ```javascript
-// Modern variable declarations
-const MAX_USERS = 100;
-let currentCount = 0;
+// Modern Syntax
+const [x, ...rest] = items;
+const name = user?.profile?.name ?? 'Guest';
 
-// Arrow functions
-const double = (x) => x * 2;
-const users = data.map(user => ({ ...user, active: true }));
-
-// Destructuring
-const { name, email } = user;
-const [first, second, ...rest] = items;
-
-// Optional chaining and nullish coalescing
-const userName = user?.profile?.name ?? 'Guest';
-
-// Async/await
-async function fetchUser(id) {
+// Async
+async function getUser(id) {
   try {
-    const response = await fetch(`/api/users/${id}`);
-    const user = await response.json();
-    return user;
-  } catch (error) {
-    console.error('Failed to fetch user:', error);
-    throw error;
+    const res = await fetch(`/api/${id}`);
+    return res.json();
+  } catch (err) {
+    console.error(err);
+    throw err;
   }
 }
 
-// Modern classes
-class UserService {
-  #apiKey; // Private field
-
-  constructor(apiKey) {
-    this.#apiKey = apiKey;
-  }
-
-  async getUser(id) {
-    // Implementation
+// Class + Private
+class Service {
+  #key;
+  constructor(k) {
+    this.#key = k;
   }
 }
-
-// Array methods
-const activeUsers = users.filter(user => user.active);
-const totalAge = users.reduce((sum, user) => sum + user.age, 0);
-const hasAdmin = users.some(user => user.role === 'admin');
 ```
 
 ## Reference & Examples

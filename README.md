@@ -81,13 +81,13 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 
 ### 🔹 Current Support (v1.0.0)
 
-| Category            | Skills Included                                                          | Status     |
-| :------------------ | :----------------------------------------------------------------------- | :--------- |
-| **💙 Flutter**      | Clean Arch, BLoC, AutoRoute, Performance, Testing, Security, Retrofit... | **Stable** |
-| **🎯 Dart**         | Idiomatic Patterns, Advanced Tooling, Build Runner...                    | **Stable** |
-| **🔷 TypeScript**   | Type Safety, Security, Best Practices, ESLint/Testing Configuration...  | **Stable** |
-| **🟨 JavaScript**   | Modern ES2022+ Patterns, Async/Await, Functional Programming...         | **Stable** |
-| **⚛️ React**        | Hooks, State Management, Performance, Security, Testing...               | **Stable** |
+| Category          | Skills Included                                                          | Status     |
+| :---------------- | :----------------------------------------------------------------------- | :--------- |
+| **💙 Flutter**    | Clean Arch, BLoC, AutoRoute, Performance, Testing, Security, Retrofit... | **Stable** |
+| **🎯 Dart**       | Idiomatic Patterns, Advanced Tooling, Build Runner...                    | **Stable** |
+| **🔷 TypeScript** | Type Safety, Security, Best Practices, ESLint/Testing Configuration...   | **Stable** |
+| **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional Programming...          | **Stable** |
+| **⚛️ React**      | Hooks, State Management, Performance, Security, Testing...               | **Stable** |
 
 ### 🔹 Ongoing Development (Q1 2026)
 
@@ -127,6 +127,7 @@ The CLI will sync this exact structure effectively to your agent configuration:
 | Agent           | Target Path       | Integration Method                     |
 | :-------------- | :---------------- | :------------------------------------- |
 | **Cursor**      | `.cursor/skills/` | Automatic discovery via `.cursorrules` |
+| **Trae**        | `.trae/skills/`   | Automatic discovery                    |
 | **Claude Code** | `.claude/skills/` | Referenced in `CLAUDE.md`              |
 | **Copilot**     | `.github/skills/` | Native skill integration               |
 | **OpenAI**      | `.codex/skills/`  | Native skill integration               |

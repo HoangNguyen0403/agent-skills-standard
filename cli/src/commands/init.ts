@@ -16,16 +16,46 @@ export class InitCommand {
   async run() {
     const configPath = path.join(process.cwd(), '.skillsrc');
 
+    // Load package.json for dependency checks
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    let packageDeps: Record<string, string> = {};
+    if (await fs.pathExists(packageJsonPath)) {
+      try {
+        const pkg = await fs.readJson(packageJsonPath);
+        packageDeps = { ...pkg.dependencies, ...pkg.devDependencies };
+      } catch (e) {
+        console.error(
+          pc.red(
+            `❌ Failed to read package.json: ${e instanceof Error ? e.message : String(e)}`,
+          ),
+        );
+      }
+    }
+
     // Project detection
     const detectionResults: Record<string, boolean> = {};
     for (const framework of SUPPORTED_FRAMEWORKS) {
       let detected = false;
+
+      // 1. Check characteristic files
       for (const file of framework.detectionFiles) {
         if (await fs.pathExists(file)) {
           detected = true;
           break;
         }
       }
+
+      // 2. Check dependencies (if not yet detected)
+      if (
+        !detected &&
+        framework.detectionDependencies &&
+        framework.detectionDependencies.length > 0
+      ) {
+        detected = framework.detectionDependencies.some((dep) =>
+          Object.prototype.hasOwnProperty.call(packageDeps, dep),
+        );
+      }
+
       detectionResults[framework.id] = detected;
     }
 

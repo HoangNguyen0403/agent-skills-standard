@@ -40,8 +40,8 @@ Core language idioms and patterns.
 Modern TypeScript standards for type-safe development.
 
 - [**Language Patterns**](typescript/language/SKILL.md) (P0) - Types, Generics, Type Guards.
-- [**Best Practices**](typescript/best-practices/SKILL.md) (P1) - Naming, Modules, Conventions.
 - [**Security**](typescript/security/SKILL.md) (P0) - Input Validation, Auth, Secrets.
+- [**Best Practices**](typescript/best-practices/SKILL.md) (P1) - Naming, Modules, Conventions.
 - [**Tooling**](typescript/tooling/SKILL.md) (P1) - ESLint, Testing, Build Tools.
 
 ### 🟨 JavaScript (Language)
@@ -58,9 +58,11 @@ Modern React development patterns.
 
 - [**Component Patterns**](react/component-patterns/SKILL.md) (P0) - Function Components, Composition.
 - [**State Management**](react/state-management/SKILL.md) (P0) - useState, Context, Zustand.
+- [**TypeScript**](react/typescript/SKILL.md) (P0) - React-specific Types.
+- [**Security**](react/security/SKILL.md) (P0) - XSS Prevention, Auth Patterns.
 - [**Hooks**](react/hooks/SKILL.md) (P1) - Custom Hooks, Best Practices.
 - [**Performance**](react/performance/SKILL.md) (P1) - Memoization, Code Splitting.
-- [**Security**](react/security/SKILL.md) (P0) - XSS Prevention, Auth Patterns.
+- [**Tooling**](react/tooling/SKILL.md) (P1) - Debugging & Profiling.
 - [**Testing**](react/testing/SKILL.md) (P2) - React Testing Library, Jest.
 
 ### 🚀 Coming Soon
@@ -69,6 +71,8 @@ Modern React development patterns.
 - **Go** (Language)
 - **Next.js** (Framework)
 - **Angular** (Framework)
+- **Java** (Language)
+- **Kotlin** (Language)
 
 ---
 
@@ -81,6 +85,6 @@ To add or update a skill:
 3. **Naming**: Category folders must be lowercase. Skill folders use `kebab-case`.
 4. **Discovery**: Ensure the `triggers` in the YAML frontmatter are accurate for the AI agent to pick it up.
 5. **Priority**:
-    - **P0**: Foundational (Architecture, Types, Security).
-    - **P1**: Operational (Performance, Idioms, UI).
-    - **P2**: Maintenance (Testing, Tooling, Docs).
+   - **P0**: Foundational (Architecture, Types, Security).
+   - **P1**: Operational (Performance, Idioms, UI).
+   - **P2**: Maintenance (Testing, Tooling, Docs).

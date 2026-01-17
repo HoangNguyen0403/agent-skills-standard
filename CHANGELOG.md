@@ -5,46 +5,44 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [cli-v1.0.7] - 2026-01-17
+## [1.1.0] - 2026-01-17
 
-**Category**: CLI Tool
+**Category**: Web Stack Skills (React, TypeScript, JavaScript) & CLI Infrastructure
 
-### Added
+### Added (Web Stack)
 
-- Introduced `ags` as a short alias for the `agent-skills-standard` command for easier usage (e.g., `ags sync`).
+#### React Skills (v1.0.0)
 
-## [cli-v1.0.6] - 2026-01-17
+- **component-patterns** - Composition, Error Boundaries, and modern syntax.
+- **hooks** - Custom hook standards and dependency management.
+- **performance** - Optimization strategies (RSC, Suspense, Virtualization).
+- **security** - XSS prevention and clean auth patterns.
+- **state-management** - State colocation and server-state handling.
+- **testing** - User-centric testing with Vitest/RTL.
+- **tooling** - Debugging and profiling workflows.
+- **typescript** - Strict typing for Props, Refs, and Events.
 
-**Category**: CLI Tool
+#### TypeScript Skills (v1.0.0)
 
-### Improved
+- **best-practices** - Code organization and naming conventions.
+- **language** - Advanced types, generics, and strict mode usage.
+- **security** - Type-safe validation and secure data handling.
+- **tooling** - Configuration for ESLint, testing, and builds.
 
-- Switched to a nested folder structure (e.g., `skills/flutter/bloc`) for better organization and scalability, replacing the previous flat structure (`skills/flutter-bloc`).
-- Enhanced Security: Replaced all `execSync` calls with `execFileSync` to prevent potential command injection vulnerabilities (CWE-78/CWE-88).
+#### JavaScript Skills (v1.0.0)
 
-### Fixed
+- **best-practices** - Modern ES patterns and error handling.
+- **language** - Async flows, modules, and functional patterns.
+- **tooling** - Environment setup and linting standards.
 
-- Documentation updates to reflect the new nested directory structure.
+### Improved (CLI v1.0.5 - v1.1.0)
 
-## [cli-v1.0.5] - 2026-01-17
+#### Features & Agents
 
-**Category**: CLI Tool
-
-### Added
-
-- Created `release-utils.ts` for automated release management including smart changelog generation.
-- Integrated "Update Discovery" in `sync` command to notify users of newer CLI or Skill versions.
-- Added GitHub Actions CI workflow for automated ESLint, Prettier, and Build verification.
-
-### Fixed
-
-- Resolved `ENOENT` error during `sync` command when writing to nested subdirectories (e.g., `references/`).
-- Fixed ESM/TypeScript configuration issues in the CLI release scripts.
-
-### Improved
-
-- Enhanced root and CLI `README.md` documentation with professional analogies and stakeholder-specific value propositions.
-- Decoupled versioning logic: CLI and separate Skill categories (Flutter, Dart, etc.) now maintain independent version numbers.
+- **Trae Support**: Added first-class support for `Trae` agent (`.trae/skills` and auto-detection).
+- **Smart Detection**: Enhanced framework logic to scan `package.json` dependencies (React, NestJS, Next.js, React Native).
+- **Nested Structure**: Migrated to scalable nested folders (e.g., `skills/flutter/bloc` vs `skills/flutter-bloc`).
+- **Short Alias**: Added `ags` command for quicker CLI access.
 
 ---
 

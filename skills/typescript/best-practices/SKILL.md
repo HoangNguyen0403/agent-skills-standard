@@ -37,32 +37,42 @@ Idiomatic patterns for writing clean, maintainable TypeScript code.
   - Use `private`/`protected`/`public` modifiers explicitly
   - Prefer composition over inheritance
   - Use `readonly` for properties that don't change after construction
-- **Optional Properties**: Use `?:` for optional properties, not `| undefined`
-- **Type Imports**: Use `import type` for type-only imports to enable better tree-shaking
+- **Exhaustiveness Checking**: Use `never` type in `switch` cases.
+- **Assertion Functions**: Use `asserts` for runtime type validation.
+- **Optional Properties**: Use `?:`, not `| undefined`.
+- **Type Imports**: Use `import type` for tree-shaking.
 
 ## Anti-Patterns
 
-- **No Default Exports**: Avoid `export default` - use named exports
-- **No Implicit Returns**: Always specify return types for functions
-- **No Unused Variables**: Enable `noUnusedLocals` and `noUnusedParameters`
-- **No `require`**: Use ES6 `import` statements only
-- **No Empty Interfaces**: Don't create interfaces with no properties
+- **No Default Exports**: Use named exports.
+- **No Implicit Returns**: Specify return types.
+- **No Unused Variables**: Enable `noUnusedLocals`.
+- **No `require`**: Use ES6 `import`.
+- **No Empty Interfaces**: Use `type` or non-empty interface.
 
 ## Code
 
-```typescript
-// Good naming conventions
-interface UserProfile {
+````typescript
+// Named Export + Immutable Interface
+export interface User {
   readonly id: string;
   name: string;
-  email: string;
 }
 
-const MAX_RETRIES = 3;
+// Exhaustive Check
+function getStatus(s: 'ok' | 'fail') {
+  switch (s) {
+    case 'ok': return 'OK';
+    case 'fail': return 'Fail';
+    default: const _chk: never = s; return _chk;
+  }
+}
 
-// Named exports
-export class UserService {
-  private readonly repository: UserRepository;
+// Assertion
+function assertDefined<T>(val: T): asserts val is NonNullable<T> {
+  if (val == null) throw new Error("Defined expected");
+}
+```  private readonly repository: UserRepository;
 
   constructor(repository: UserRepository) {
     this.repository = repository;
@@ -86,7 +96,7 @@ import { Logger } from '@/utils/logger';
 
 // Type-only imports
 import type { Request, Response } from 'express';
-```
+````
 
 ## Reference & Examples
 

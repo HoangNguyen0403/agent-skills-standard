@@ -16,83 +16,37 @@ Essential tooling for JavaScript development.
 
 ## Implementation Guidelines
 
-- **Linting**:
-  - Use ESLint with recommended rules
-  - Configure for ES6+ and your environment (Node, browser)
-  - Enable automatic fixing on save
-- **Formatting**:
-  - Use Prettier for consistent code style
-  - Run on save and pre-commit
-  - Configure to match team preferences
-- **Testing**:
-  - Use Jest or Vitest for unit testing
-  - Write tests alongside code (co-location)
-  - Aim for >80% coverage on critical paths
-- **Build Tools**:
-  - Use Vite for modern applications
-  - Use esbuild or Rollup for libraries
-  - Optimize for production builds
-- **Package Manager**: Use npm, yarn, or pnpm consistently
+- **Linting**: ESLint (Rec + Prettier). Fix on save.
+- **Formatting**: Prettier. Run on save/commit.
+- **Testing**: Jest/Vitest. Co-locate tests. >80% cov.
+- **Build**: Vite (Apps), Rollup (Libs).
+- **Pkg Manager**: Sync versions (`npm`/`yarn`/`pnpm`).
 
 ## Anti-Patterns
 
-- **No Inconsistent Formatting**: Always use a formatter
-- **No Skipping Tests**: Write tests for new features
-- **No Committing Lint Errors**: Fix linting issues before commit
+- **No Formatting Wars**: Prettier rules.
+- **No Untested Code**: TDD/Post-code tests.
+- **No Dirty Commits**: Lint before push.
 
 ## Configuration
 
 ```javascript
 // .eslintrc.js
 module.exports = {
-  env: {
-    node: true,
-    es2022: true,
-  },
-  extends: [
-    'eslint:recommended',
-    'prettier',
-  ],
-  parserOptions: {
-    ecmaVersion: 2022,
-    sourceType: 'module',
-  },
-  rules: {
-    'no-console': 'warn',
-    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    'prefer-const': 'error',
-    'no-var': 'error',
-  },
+  extends: ['eslint:recommended', 'prettier'],
+  rules: { 'no-console': 'warn', 'prefer-const': 'error' },
 };
 ```
 
 ```json
 // .prettierrc
-{
-  "semi": true,
-  "trailingComma": "es5",
-  "singleQuote": true,
-  "printWidth": 80,
-  "tabWidth": 2
-}
+{ "semi": true, "singleQuote": true, "printWidth": 80 }
 ```
 
 ```javascript
 // jest.config.js
 export default {
-  testEnvironment: 'node',
-  collectCoverageFrom: [
-    'src/**/*.js',
-    '!src/**/*.test.js',
-  ],
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
-    },
-  },
+  coverageThreshold: { global: { lines: 80 } },
 };
 ```
 

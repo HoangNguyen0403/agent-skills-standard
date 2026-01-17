@@ -16,90 +16,44 @@ Standards for building scalable, maintainable React components.
 
 ## Implementation Guidelines
 
-- **Function Components**: Always use function components with hooks. Never use class components for new code.
-- **Composition**: Favor composition over inheritance. Use props.children and component composition.
-- **Props**: Define explicit prop types with TypeScript or PropTypes. Destructure props in parameters.
-- **Component Size**: Keep components small and focused (< 250 lines). Extract logic into custom hooks.
-- **Naming**: Use PascalCase for components. Prefix custom hooks with `use`.
-- **File Structure**: One component per file. Co-locate tests, styles, and related files.
-- **Export**: Use named exports for better refactoring support.
-- **Fragments**: Use `<>...</>` short syntax for fragments when no key is needed.
-- **Conditional Rendering**: Use ternary operators or `&&` for simple conditions. Extract complex logic.
+- **Function Components**: Only hooks. No classes.
+- **Composition**: Use `children` prop. Avoid inheritance.
+- **Props**: Explicit TS interfaces. Destructure in params.
+- **Boolean Props**: Shorthand `<Cmp isVisible />` vs `isVisible={true}`.
+- **Imports**: Group: `Built-in` -> `External` -> `Internal` -> `Styles`.
+- **Error Boundaries**: Wrap app/features with `react-error-boundary`.
+- **Size**: Small (< 250 lines). One component per file.
+- **Naming**: `PascalCase` components. `use*` hooks.
+- **Exports**: Named exports only.
+- **Conditionals**: Ternary (`Cond ? <A/> : <B/>`) over `&&` for rendering consistency.
+- **Hoisting**: Extract static JSX/Objects outside component to prevent recreation.
 
 ## Anti-Patterns
 
-- **No Class Components**: Don't use class components. Use function components with hooks.
-- **No Prop Drilling**: Don't pass props through multiple levels. Use Context or state management.
-- **No Anonymous Components**: Don't define components inside other components.
-- **No Index as Key**: Don't use array index as `key` prop unless list is static.
-- **No Inline Functions in JSX**: Extract event handlers to avoid unnecessary re-renders.
+- **No Classes**: Use hooks.
+- **No Prop Drilling**: Use Context/Zustand.
+- **No Nested Definitions**: Define components at top level.
+- **No Index Keys**: Use stable IDs.
+- **No Inline Handlers**: Define before return.
 
 ## Code
 
-```jsx
-// Good component structure
-import { useState } from 'react';
-import { Button } from './Button';
-import styles from './UserCard.module.css';
-
-interface UserCardProps {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
-  onEdit: (userId: string) => void;
-}
-
-export function UserCard({ user, onEdit }: UserCardProps) {
-  const [expanded, setExpanded] = useState(false);
-
-  const handleEdit = () => {
-    onEdit(user.id);
-  };
-
+```tsx
+// Composition
+export function Layout({ children, aside }: LayoutProps) {
   return (
-    <div className={styles.card}>
-      <h3>{user.name}</h3>
-      {expanded && <p>{user.email}</p>}
-      <Button onClick={handleEdit}>Edit</Button>
-      <Button onClick={() => setExpanded(!expanded)}>
-        {expanded ? 'Collapse' : 'Expand'}
-      </Button>
-    </div>
-  );
-}
-
-// Composition pattern
-export function Layout({ children, sidebar }) {
-  return (
-    <div className="layout">
-      <aside>{sidebar}</aside>
+    <div className='grid'>
+      <aside>{aside}</aside>
       <main>{children}</main>
     </div>
   );
 }
 
-// Compound component pattern
-export function Select({ children }) {
-  const [value, setValue] = useState('');
-  
-  return (
-    <select value={value} onChange={e => setValue(e.target.value)}>
-      {children}
-    </select>
-  );
+// Compound Component
+export function Select({ children }: { children: ReactNode }) {
+  return <select>{children}</select>;
 }
-
-Select.Option = function SelectOption({ value, children }) {
-  return <option value={value}>{children}</option>;
-};
-
-// Usage
-<Select>
-  <Select.Option value="1">Option 1</Select.Option>
-  <Select.Option value="2">Option 2</Select.Option>
-</Select>
+Select.Option = ({ val, children }) => <option value={val}>{children}</option>;
 ```
 
 ## Reference & Examples

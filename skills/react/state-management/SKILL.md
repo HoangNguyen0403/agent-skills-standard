@@ -1,126 +1,56 @@
 ---
 name: React State Management
-description: State management patterns and best practices for React applications.
+description: Standards for managing local, global, and server state.
 metadata:
-  labels: [react, state, context, redux, zustand]
+  labels: [react, state, redux, zustand, context]
   triggers:
-    files: ['**/*.jsx', '**/*.tsx']
-    keywords: [useState, useReducer, context, redux, zustand, state, store]
+    files: ['**/*.tsx', '**/*.jsx']
+    keywords: [state, useReducer, context, store, props]
 ---
 
 # React State Management
 
 ## **Priority: P0 (CRITICAL)**
 
-Standards for managing state in React applications.
+Choosing the right tool for state scope.
 
 ## Implementation Guidelines
 
-- **Local State**: Use `useState` for component-local state. Use `useReducer` for complex state logic.
-- **Global State**:
-  - Use Context API for low-frequency updates (theme, auth, locale)
-  - Use Zustand or Redux Toolkit for high-frequency updates and complex state
-  - Avoid Context for performance-critical state
-- **State Colocation**: Keep state as close to where it's used as possible. Lift state only when necessary.
-- **Immutability**: Always create new state objects/arrays. Never mutate state directly.
-- **Derived State**: Derive computed values during render. Don't store derived state.
-- **Server State**: Use TanStack Query (React Query) or SWR for server state management.
-- **Form State**: Use React Hook Form or Formik for complex forms.
+- **Local**: `useState`. `useReducer` if complex (state machine).
+- **Derived**: `const fullName = first + last`. No state sync.
+- **Context**: DI, Theming, Auth. Not for high-freq data.
+- **Global**: Zustand/Redux for app-wide complex flow.
+- **Server Cache**: Use `React.cache` (RSC) to dedupe requests per render.
+- **Server State**: React Query / SWR / Apollo. Cache != UI State.
+- **URL**: Store filter/sort params in URL (Source of Truth).
+- **Immutability**: Never mutate. Use spread or Immer.
 
 ## Anti-Patterns
 
-- **No Direct Mutation**: Don't mutate state. Use spread operators or immutable update patterns.
-- **No Excessive Context**: Don't put everything in Context. Split contexts by domain.
-- **No useEffect for Derived State**: Derive values during render, don't use effects.
-- **No Mixing State Types**: Separate server state from client state.
+- **No Prop Drilling > 2**: Use Context/Composition.
+- **No Mirroring Refs**: Don't copy props to state.
+- **No Multi-Source**: Single Source of Truth.
+- **No Context Abuse**: Context causes full-tree re-render.
 
 ## Code
 
-```jsx
-import { useState, useReducer, createContext, useContext } from 'react';
-
-// Local state with useState
-function Counter() {
-  const [count, setCount] = useState(0);
-  
+```tsx
+// Derived State (Efficient)
+function List({ items, filter }) {
+  // Correct: Calculated on fly
+  const visible = items.filter((i) => i.includes(filter));
   return (
-    <div>
-      <p>Count: {count}</p>
-      <button onClick={() => setCount(count + 1)}>Increment</button>
-    </div>
-  );
-}
-
-// Complex state with useReducer
-function todoReducer(state, action) {
-  switch (action.type) {
-    case 'ADD':
-      return [...state, { id: Date.now(), text: action.text, done: false }];
-    case 'TOGGLE':
-      return state.map(todo =>
-        todo.id === action.id ? { ...todo, done: !todo.done } : todo
-      );
-    case 'DELETE':
-      return state.filter(todo => todo.id !== action.id);
-    default:
-      return state;
-  }
-}
-
-function TodoList() {
-  const [todos, dispatch] = useReducer(todoReducer, []);
-  
-  return (
-    <div>
-      {todos.map(todo => (
-        <div key={todo.id}>
-          <input
-            type="checkbox"
-            checked={todo.done}
-            onChange={() => dispatch({ type: 'TOGGLE', id: todo.id })}
-          />
-          <span>{todo.text}</span>
-          <button onClick={() => dispatch({ type: 'DELETE', id: todo.id })}>
-            Delete
-          </button>
-        </div>
+    <ul>
+      {visible.map((i) => (
+        <li key={i}>{i}</li>
       ))}
-    </div>
+    </ul>
   );
 }
 
-// Context for global state
-const AuthContext = createContext();
-
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-
-  const login = async (credentials) => {
-    const userData = await api.login(credentials);
-    setUser(userData);
-  };
-
-  const logout = () => setUser(null);
-
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
-  return context;
-}
+// Zustand (Global)
+const useStore = create((set) => ({
+  count: 0,
+  inc: () => set((s) => ({ count: s.count + 1 })),
+}));
 ```
-
-## Reference & Examples
-
-For Zustand, Redux Toolkit, and TanStack Query patterns:
-See [references/REFERENCE.md](references/REFERENCE.md).
-
-## Related Topics
-
-hooks | component-patterns | performance

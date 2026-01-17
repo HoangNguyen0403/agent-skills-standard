@@ -1,126 +1,63 @@
 ---
 name: React Performance
-description: Performance optimization patterns for React applications.
+description: Optimization strategies for React applications (Client & Server).
 metadata:
-  labels: [react, performance, optimization, memoization]
+  labels: [react, performance, optimization, nextjs]
   triggers:
-    files: ['**/*.jsx', '**/*.tsx']
-    keywords: [memo, useMemo, useCallback, lazy, Suspense, performance]
+    files: ['**/*.tsx', '**/*.jsx']
+    keywords: [waterfall, bundle, lazy, suspense, dynamic]
 ---
 
 # React Performance
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
-Performance optimization strategies for React applications.
+Strategies to minimize waterfalls, bundle size, and render cost.
 
-## Implementation Guidelines
+## Elimination of Waterfalls (P0)
 
-- **Measure First**: Use React DevTools Profiler before optimizing. Don't premature optimize.
-- **Memoization**:
-  - Use `React.memo` for expensive components that re-render with same props
-  - Use `useMemo` for expensive calculations
-  - Use `useCallback` for functions passed to memoized children
-- **Code Splitting**:
-  - Use `React.lazy` and `Suspense` for route-based splitting
-  - Split large components and third-party libraries
-- **Lists**: Always use stable `key` props. Avoid index as key for dynamic lists.
-- **Virtual Scrolling**: Use libraries like `react-window` or `@tanstack/react-virtual` for long lists.
-- **Images**: Use lazy loading, optimize sizes, use modern formats (WebP, AVIF).
-- **Bundle Size**: Tree-shake unused code. Monitor bundle size with bundler analysis.
+- **Parallel Data**: Use `Promise.all` for independent fetches. Avoid sequential `await`.
+- **Preload**: Start fetches before render (in event handlers or route loaders).
+- **Suspense**: Use Suspense boundaries to stream partial content.
+
+## Bundle Optimization (P0)
+
+- **No Barrel Files**: Import directly `import { Btn } from './Btn'` vs `import { Btn } from './components'`.
+- **Lazy Load**: `React.lazy` / `next/dynamic` for heavy components (Charts, Modals).
+- **Defer**: Load 3rd-party scripts (Analytics) after hydration.
+
+## Rendering & Re-renders (P1)
+
+- **Isolation**: Move state down. Isolate heavy UI updates.
+- **Virtualization**: `react-window` for lists > 50 items.
+- **Content Visibility**: `content-visibility: auto` for off-screen CSS content.
+- **Static Hoisting**: Extract static objects/JSX outside component scope.
+- **Transitions**: `startTransition` for non-urgent UI updates.
+
+## Server Performance (RSC) (P1)
+
+- **Caching**: `React.cache` for per-request deduplication.
+- **Serialization**: Minimize props passing to Client Components (only IDs/primitives).
 
 ## Anti-Patterns
 
-- **No Premature Optimization**: Don't optimize without measuring first.
-- **No Overuse of Memoization**: Memoization has costs. Use only when needed.
-- **No Inline Object/Array Props**: Extract to constants or useMemo to prevent re-renders.
-- **No Anonymous Functions in Deps**: Define functions outside or use useCallback.
+- **No `export *`**: Breaks tree-shaking.
+- **No Sequential Await**: Causes waterfalls.
+- **No Inline Objects**: `style={{}}` breaks strict equality checks (if memoized).
+- **No Heavy Libs**: Avoid moment/lodash (use dayjs/radash).
 
 ## Code
 
-```jsx
-import { memo, useMemo, useCallback, lazy, Suspense } from 'react';
+```tsx
+// Parallel Fetching (Good)
+const [user, posts] = await Promise.all([getUser(), getPosts()]);
 
-// Memoized component
-export const ExpensiveComponent = memo(function ExpensiveComponent({ data }) {
-  return <div>{/* Expensive rendering logic */}</div>;
-});
+// Bundle Optimized Import (Good)
+import { Button } from './components/Button'; // Not from './components'
 
-// useMemo for expensive calculations
-function DataTable({ data }) {
-  const sortedData = useMemo(() => {
-    return data.slice().sort((a, b) => a.value - b.value);
-  }, [data]);
-
-  return <table>{/* Render sortedData */}</table>;
-}
-
-// useCallback for functions passed to children
-function Parent() {
-  const [count, setCount] = useState(0);
-
-  const handleClick = useCallback(() => {
-    setCount(c => c + 1);
-  }, []);
-
-  return <MemoizedChild onClick={handleClick} />;
-}
-
-// Code splitting with lazy and Suspense
-const Dashboard = lazy(() => import('./Dashboard'));
-const Settings = lazy(() => import('./Settings'));
-
-function App() {
-  return (
-    <Suspense fallback={<Loading />}>
-      <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/settings" element={<Settings />} />
-      </Routes>
-    </Suspense>
-  );
-}
-
-// Virtual scrolling for long lists
-import { useVirtualizer } from '@tanstack/react-virtual';
-
-function VirtualList({ items }) {
-  const parentRef = useRef();
-
-  const virtualizer = useVirtualizer({
-    count: items.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 50,
-  });
-
-  return (
-    <div ref={parentRef} style={{ height: '400px', overflow: 'auto' }}>
-      <div style={{ height: virtualizer.getTotalSize() }}>
-        {virtualizer.getVirtualItems().map(virtualItem => (
-          <div
-            key={virtualItem.key}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              transform: `translateY(${virtualItem.start}px)`,
-            }}
-          >
-            {items[virtualItem.index]}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+// Static Hoist (Good)
+const STATIC_CONFIG = { theme: 'dark' };
+function Component() {
+  return <div config={STATIC_CONFIG} />;
 }
 ```
-
-## Reference & Examples
-
-For profiling, bundle analysis, and advanced optimization:
-See [references/REFERENCE.md](references/REFERENCE.md).
-
-## Related Topics
-
-component-patterns | hooks | state-management

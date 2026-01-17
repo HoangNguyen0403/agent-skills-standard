@@ -5,7 +5,8 @@ metadata:
   labels: [security, typescript, validation, sanitization]
   triggers:
     files: ['**/*.ts', '**/*.tsx']
-    keywords: [validate, sanitize, xss, injection, auth, password, secret, token]
+    keywords:
+      [validate, sanitize, xss, injection, auth, password, secret, token]
 ---
 
 # TypeScript Security
@@ -16,71 +17,36 @@ Security standards for TypeScript applications based on OWASP guidelines.
 
 ## Implementation Guidelines
 
-- **Input Validation**: Validate all external input using libraries like `zod`, `joi`, or `class-validator`.
-- **Sanitization**: Sanitize user input to prevent XSS. Use libraries like `DOMPurify` for HTML.
-- **Secrets Management**: Never hardcode secrets. Use environment variables or secret managers.
-- **SQL Injection**: Use parameterized queries or ORMs (TypeORM, Prisma) to prevent SQL injection.
-- **Authentication**: Use secure password hashing (bcrypt, argon2). Implement proper session management.
-- **Authorization**: Implement role-based access control (RBAC). Validate permissions on every request.
-- **HTTPS Only**: Always use HTTPS in production. Set secure cookies (`httpOnly`, `secure`, `sameSite`).
-- **Rate Limiting**: Implement rate limiting to prevent brute force and DDoS attacks.
-- **Dependency Security**: Regularly audit dependencies with `npm audit` or `yarn audit`.
-- **Type Safety**: Leverage TypeScript's type system to prevent runtime errors and vulnerabilities.
+- **Validation**: Validate all inputs with `zod`/`joi`/`class-validator`.
+- **Sanitization**: Use `DOMPurify` for HTML. Prevent XSS.
+- **Secrets**: Use env vars. Never hardcode.
+- **SQL Injection**: Use parameterized queries or ORMs (Prisma/TypeORM).
+- **Auth**: Use `bcrypt` for hashing. Implement strict RBAC.
+- **HTTPS**: Enforce HTTPS. Set `secure`, `httpOnly`, `sameSite` cookies.
+- **Rate Limit**: Prevent brute-force/DDoS.
+- **Deps**: Audit with `npm audit`.
 
 ## Anti-Patterns
 
-- **No `eval()`**: Never use `eval()` or `Function()` constructor with user input.
-- **No Plaintext Secrets**: Do not commit secrets to version control.
-- **No Client-Side Validation Only**: Always validate on the server side.
-- **No Trust User Input**: Treat all user input as untrusted.
+- **No `eval()`**: Avoid dynamic execution.
+- **No Plaintext**: Never commit secrets.
+- **No Trust**: Validate everything server-side.
 
 ## Code
 
 ```typescript
-import { z } from 'zod';
-import bcrypt from 'bcrypt';
-
-// Input validation with Zod
+// Validation (Zod)
 const UserSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8).max(100),
-  age: z.number().int().positive().max(150),
+  pass: z.string().min(8),
 });
 
-type UserInput = z.infer<typeof UserSchema>;
-
-async function createUser(input: unknown): Promise<void> {
-  // Validate input
-  const validatedInput = UserSchema.parse(input);
-  
-  // Hash password
-  const hashedPassword = await bcrypt.hash(validatedInput.password, 10);
-  
-  // Use parameterized query (example with Prisma)
-  await prisma.user.create({
-    data: {
-      email: validatedInput.email,
-      password: hashedPassword,
-      age: validatedInput.age,
-    },
-  });
-}
-
-// Secure cookie configuration
-const cookieOptions = {
+// Secure Cookie
+const cookieOpts = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
+  secure: process.env.NODE_ENV === 'prod',
   sameSite: 'strict' as const,
-  maxAge: 24 * 60 * 60 * 1000, // 24 hours
 };
-
-// Rate limiting (example with express-rate-limit)
-import rateLimit from 'express-rate-limit';
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-});
 ```
 
 ## Reference & Examples

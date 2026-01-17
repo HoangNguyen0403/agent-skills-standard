@@ -16,94 +16,42 @@ Conventions and patterns for writing maintainable JavaScript.
 
 ## Implementation Guidelines
 
-- **Naming Conventions**:
-  - camelCase for variables, functions, and methods
-  - PascalCase for classes and constructors
-  - UPPER_SNAKE_CASE for constants
-  - Descriptive names over abbreviations
-- **Error Handling**:
-  - Always handle errors in async functions
-  - Throw Error objects, not strings
-  - Use custom error classes for specific error types
-- **Comments**:
-  - Write self-documenting code
-  - Use JSDoc for functions and classes
-  - Explain "why", not "what"
-- **File Organization**:
-  - One component/class per file
-  - Group related files in directories
-  - Use index.js for public API exports
-- **Modules**:
-  - Prefer named exports over default exports
-  - Import in order: external -> internal -> relative
-  - Keep modules small and focused (Single Responsibility)
+- **Naming**: `camelCase` (vars/funcs), `PascalCase` (classes), `UPPER_SNAKE` (constants).
+- **Errors**: Throw `Error` objects only. Handle all async errors.
+- **Comments**: JSDoc for APIs. Explain "why" not "what".
+- **Files**: One entity per file. `index.js` for exports.
+- **Modules**: Named exports only. Order: Ext -> Int -> Rel.
 
 ## Anti-Patterns
 
-- **No Global Variables**: Avoid polluting global scope
-- **No Magic Numbers**: Use named constants
-- **No Deep Nesting**: Extract nested logic into functions
-- **No Long Functions**: Keep functions under 50 lines
-- **No Side Effects**: Functions should be predictable
+- **No Globals**: Encapsulate state.
+- **No Magic Numbers**: Use `const`.
+- **No Nesting**: Guard clauses/early returns.
+- **No Defaults**: Use named exports.
+- **No Side Effects**: Keep functions pure.
 
 ## Code
 
 ```javascript
-// Named constants
-const HTTP_STATUS = {
-  OK: 200,
-  NOT_FOUND: 404,
-  SERVER_ERROR: 500,
-};
+// Constants
+const STATUS = { OK: 200, ERROR: 500 };
 
-// Custom error classes
-class ValidationError extends Error {
-  constructor(message, field) {
-    super(message);
-    this.name = 'ValidationError';
-    this.field = field;
+// Errors
+class APIError extends Error {
+  constructor(msg, code) {
+    super(msg);
+    this.code = code;
   }
 }
 
-// JSDoc documentation
-/**
- * Fetches user data from the API
- * @param {string} userId - The user ID
- * @returns {Promise<Object>} User object
- * @throws {ValidationError} If userId is invalid
- */
-async function getUser(userId) {
-  if (!userId) {
-    throw new ValidationError('User ID is required', 'userId');
-  }
-  
-  try {
-    const response = await fetch(`/api/users/${userId}`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Failed to fetch user:', error);
-    throw error;
-  }
+// Async + JDoc
+/** @throws {APIError} */
+export async function getData(id) {
+  if (!id) throw new APIError('Missing ID', 400);
+  const res = await fetch(`/api/${id}`);
+  if (!res.ok) throw new APIError('Failed', res.status);
+  return res.json();
 }
-
-// Module organization
-export class UserService {
-  constructor(apiClient) {
-    this.apiClient = apiClient;
-  }
-
-  async findById(id) {
-    return this.apiClient.get(`/users/${id}`);
-  }
-}
-
-// Named exports
-export { getUser, UserService };
 ```
 
 ## Reference & Examples

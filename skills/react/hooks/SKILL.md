@@ -1,151 +1,60 @@
 ---
 name: React Hooks
-description: Modern React hooks patterns and best practices.
+description: Best practices for React Hooks usage and custom hook creation.
 metadata:
-  labels: [react, hooks, custom-hooks]
+  labels: [react, hooks, custom-hooks, useeffect]
   triggers:
-    files: ['**/*.jsx', '**/*.tsx']
-    keywords: [useState, useEffect, useCallback, useMemo, useRef, useContext, custom hook]
+    files: ['**/*.tsx', '**/*.jsx']
+    keywords: [useEffect, useCallback, useMemo, useRef, custom hook]
 ---
 
 # React Hooks
 
 ## **Priority: P1 (OPERATIONAL)**
 
-Best practices for using React hooks effectively.
+Effective usage of React Hooks.
 
 ## Implementation Guidelines
 
-- **Rules of Hooks**:
-  - Call hooks at the top level only (not in loops, conditions, or nested functions)
-  - Call hooks only from React functions (components or custom hooks)
-- **useState**: Use for component state. Initialize with function for expensive computations.
-- **useEffect**:
-  - Declare all dependencies in the array
-  - Return cleanup function for subscriptions/timers
-  - Use separate effects for unrelated concerns
-- **useCallback**: Memoize functions passed to children. Include all dependencies.
-- **useMemo**: Memoize expensive calculations. Don't overuse.
-- **useRef**: Use for mutable values that don't trigger re-renders, DOM access, and previous values.
-- **Custom Hooks**: Extract reusable logic. Prefix with `use`. Return what component needs.
+- **Rules**: Top-level only. Only in React functions.
+- **`useEffect`**: Sync with external systems ONLY. Cleanup required.
+- **`useRef`**: Mutable state without re-renders (DOM, timers, tracking).
+- **`useMemo`/`Callback`**: Measure first. Use for stable refs or heavy computation.
+- **Dependencies**: Exhaustive deps always. Fix logic, don't disable linter.
+- **Custom Hooks**: Extract shared logic. Prefix `use*`.
+- **Refs as Escape Hatch**: Access imperative APIs (focus, scroll).
+- **Stability**: Use `useLatest` pattern (ref) for event handlers to avoid dependency changes.
+- **Concurrency**: `useTransition` / `useDeferredValue` for non-blocking UI updates.
+- **Initialization**: Lazy state `useState(() => expensive())`.
 
 ## Anti-Patterns
 
-- **No Missing Dependencies**: Always include all dependencies in useEffect/useCallback/useMemo.
-- **No useEffect for Everything**: Don't use useEffect when you can derive values during render.
-- **No Stale Closures**: Be aware of closure issues in callbacks. Use refs or functional updates.
-- **No Ignoring ESLint**: Don't disable exhaustive-deps rule. Fix the underlying issue.
+- **No Effects for Data Flow**: Derive state in render.
+- **No Missing Deps**: Causes stale closures.
+- **No Complex Effects**: Split into multiple simple effects.
+- **No Oversubscription**: Check `why-did-you-render`.
 
 ## Code
 
-```jsx
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-
-// useState with function initializer
-function ExpensiveComponent() {
-  const [data, setData] = useState(() => {
-    return expensiveOperation();
-  });
-}
-
-// useEffect with cleanup
-function Timer() {
-  const [seconds, setSeconds] = useState(0);
+```tsx
+// Custom Hook
+function useWindowSize() {
+  const [size, setSize] = useState({ w: 0, h: 0 });
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setSeconds(s => s + 1);
-    }, 1000);
+    const onResize = () =>
+      setSize({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []); // Empty = mount only
 
-    return () => clearInterval(interval);
-  }, []); // Empty deps - run once
-
-  return <div>{seconds}</div>;
+  return size;
 }
 
-// useCallback for memoized functions
-function Parent() {
-  const [count, setCount] = useState(0);
-
-  const handleClick = useCallback(() => {
-    setCount(c => c + 1);
-  }, []);
-
-  return <Child onClick={handleClick} />;
-}
-
-// useMemo for expensive calculations
-function DataProcessor({ items }) {
-  const processedData = useMemo(() => {
-    return items.map(item => expensiveTransform(item));
-  }, [items]);
-
-  return <div>{processedData.length} items</div>;
-}
-
-// useRef for mutable values and DOM access
-function InputFocus() {
-  const inputRef = useRef(null);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  return <input ref={inputRef} />;
-}
-
-// Custom hook
-function useFetch(url) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function fetchData() {
-      try {
-        const response = await fetch(url);
-        const json = await response.json();
-        
-        if (!cancelled) {
-          setData(json);
-          setLoading(false);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err);
-          setLoading(false);
-        }
-      }
-    }
-
-    fetchData();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [url]);
-
-  return { data, loading, error };
-}
-
-// Usage
-function UserProfile({ userId }) {
-  const { data, loading, error } = useFetch(`/api/users/${userId}`);
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
-  return <div>{data.name}</div>;
-}
+// Lazy Init
+const [state, setState] = useState(() => computeExpensiveValue());
 ```
 
 ## Reference & Examples
 
-For advanced custom hooks and patterns:
 See [references/REFERENCE.md](references/REFERENCE.md).
-
-## Related Topics
-
-component-patterns | state-management | performance
