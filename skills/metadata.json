@@ -1,0 +1,23 @@
+{
+  "global": {
+    "author": "Hoang Nguyen",
+    "repository": "https://github.com/HoangNguyen0403/agent-skills-standard"
+  },
+  "categories": {
+    "flutter": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-16",
+      "tag_prefix": "flutter-v"
+    },
+    "dart": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-15",
+      "tag_prefix": "dart-v"
+    },
+    "nestjs": {},
+    "golang": {},
+    "nextjs": {},
+    "react": {},
+    "angular": {}
+  }
+}
