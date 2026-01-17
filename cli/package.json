@@ -1,6 +1,6 @@
 {
   "name": "agent-skills",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A CLI to manage and sync AI agent skills for Cursor, Claude, Copilot, and more.",
   "main": "dist/index.js",
   "bin": {
@@ -17,9 +17,10 @@
     "release-skill:dry": "ts-node scripts/release-skill.ts --dry-run",
     "release-cli": "ts-node scripts/release-cli.ts",
     "release-cli:dry": "ts-node scripts/release-cli.ts --dry-run",
+    "publish:dry": "pnpm publish --dry-run --no-git-checks",
     "format": "prettier --write \"src/**/*.ts\" \"scripts/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\" --fix",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "pnpm build"
   },
   "keywords": [
     "ai",

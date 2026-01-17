@@ -8,6 +8,10 @@ on:
       - 'dart-v*'
       - 'nestjs-v*'
       - 'nextjs-v*'
+      - 'angular-v*'
+      - 'golang-v*'
+      - 'typescript-v*'
+      - 'javascript-v*'
 
 jobs:
   # 1. CLI Release (NPM)
@@ -21,15 +25,20 @@ jobs:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
       - name: Build CLI
         working-directory: ./cli
         run: |
-          npm ci
-          npm run build
+          pnpm install --frozen-lockfile
+          pnpm build
 
       - name: Publish to NPM
         working-directory: ./cli
-        run: npm publish --access public
+        run: pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
