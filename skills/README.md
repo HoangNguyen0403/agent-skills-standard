@@ -35,12 +35,40 @@ Core language idioms and patterns.
 - [**Best Practices**](dart/best-practices/SKILL.md) (P1) - Scoping, Imports, Config.
 - [**Tooling**](dart/tooling/SKILL.md) (P1) - Linting, Formatting, Analysis.
 
+### 🔷 TypeScript (Language)
+
+Modern TypeScript standards for type-safe development.
+
+- [**Language Patterns**](typescript/language/SKILL.md) (P0) - Types, Generics, Type Guards.
+- [**Best Practices**](typescript/best-practices/SKILL.md) (P1) - Naming, Modules, Conventions.
+- [**Security**](typescript/security/SKILL.md) (P0) - Input Validation, Auth, Secrets.
+- [**Tooling**](typescript/tooling/SKILL.md) (P1) - ESLint, Testing, Build Tools.
+
+### 🟨 JavaScript (Language)
+
+Modern JavaScript (ES2022+) patterns.
+
+- [**Language Patterns**](javascript/language/SKILL.md) (P0) - Modern Syntax, Async/Await.
+- [**Best Practices**](javascript/best-practices/SKILL.md) (P1) - Conventions, Error Handling.
+- [**Tooling**](javascript/tooling/SKILL.md) (P1) - ESLint, Jest, Build Tools.
+
+### ⚛️ React (Framework)
+
+Modern React development patterns.
+
+- [**Component Patterns**](react/component-patterns/SKILL.md) (P0) - Function Components, Composition.
+- [**State Management**](react/state-management/SKILL.md) (P0) - useState, Context, Zustand.
+- [**Hooks**](react/hooks/SKILL.md) (P1) - Custom Hooks, Best Practices.
+- [**Performance**](react/performance/SKILL.md) (P1) - Memoization, Code Splitting.
+- [**Security**](react/security/SKILL.md) (P0) - XSS Prevention, Auth Patterns.
+- [**Testing**](react/testing/SKILL.md) (P2) - React Testing Library, Jest.
+
 ### 🚀 Coming Soon
 
-- **TypeScript** (Language)
 - **NestJS** (Framework)
 - **Go** (Language)
 - **Next.js** (Framework)
+- **Angular** (Framework)
 
 ---
 
