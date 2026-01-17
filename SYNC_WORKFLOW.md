@@ -1,10 +1,10 @@
 # CLI Sync Workflow Documentation
 
-This document explains how to use the `agent-skills` CLI to automatically sync Flutter and Dart agent skills from the central repository to your project.
+This document explains how to use the `agent-skills-standard` CLI to automatically sync Flutter and Dart agent skills from the central repository to your project.
 
 ## Overview
 
-The `agent-skills` CLI provides automated version management for agent skills, allowing teams to:
+The `agent-skills-standard` CLI provides automated version management for agent skills, allowing teams to:
 
 - Initialize project-specific skill configurations.
 - Sync specific versions of skills using Git tags.
@@ -21,10 +21,10 @@ The CLI can be run directly via `npx` or installed globally:
 
 ```bash
 # Run without installation
-npx agent-skills <command>
+npx agent-skills-standard <command>
 
 # Or install globally
-npm install -g agent-skills
+npm install -g agent-skills-standard
 ```
 
 ### 2. Initialization
@@ -32,7 +32,7 @@ npm install -g agent-skills
 To start using the standard in your project, run the `init` command. This will create a `.skillsrc` file in your root directory.
 
 ```bash
-agent-skills init
+agent-skills-standard init
 ```
 
 The CLI will ask you:
@@ -74,7 +74,7 @@ skills:
 
 ## CLI Sync Behavior
 
-When you run `agent-skills sync`, the tool follows a **Selective Sync** strategy.
+When you run `agent-skills-standard sync`, the tool follows a **Selective Sync** strategy.
 
 ### 1. Progressive Disclosure (Token Efficiency)
 
@@ -90,12 +90,12 @@ Agents load `SKILL.md` automatically. They only read the `references/` if the co
 
 The CLI automatically maps registry folders to agent-specific hidden directories:
 
-| Agent | Output Path |
-| :--- | :--- |
-| **Antigravity** | `.agent/skills/external/` |
-| **Cursor** | `.cursor/skills/` |
-| **GitHub Copilot** | `.github/skills/` |
-| **Claude Code** | `.claude/skills/` |
+| Agent              | Output Path               |
+| :----------------- | :------------------------ |
+| **Antigravity**    | `.agent/skills/external/` |
+| **Cursor**         | `.cursor/skills/`         |
+| **GitHub Copilot** | `.github/skills/`         |
+| **Claude Code**    | `.claude/skills/`         |
 
 ### 3. Step-by-Step Logic
 
@@ -113,7 +113,7 @@ The CLI is designed to coexist with your own custom skills.
 
 ### 1. Merging with Existing Skills
 
-The `agent-skills sync` command **adds** folders to your agent's skills directory. It does not delete or "wipe" your existing custom skills.
+The `agent-skills-standard sync` command **adds** folders to your agent's skills directory. It does not delete or "wipe" your existing custom skills.
 
 - If you have a custom folder `.cursor/skills/my-project-specific-rules/`, it will remain untouched.
 - If you have a folder that matches a registry skill name (e.g., `flutter-performance`), only the files we manage (`SKILL.md`, `references/`, etc.) will be updated.
@@ -126,7 +126,7 @@ If there are specific files or entire skill folders managed by the registry that
 custom_overrides:
   # Protect a single file
   - .cursor/skills/flutter-bloc-state-management/SKILL.md
-  
+
   # Protect an entire skill folder (and all its references)
   - .cursor/skills/flutter-performance/
 ```
@@ -140,7 +140,7 @@ The sync tool will skip any file or directory listed in this array, allowing you
 ### Initialize a Project
 
 ```bash
-$ agent-skills init
+$ agent-skills-standard init
 
 ? Select AI Agents to support: Cursor, GitHub Copilot
 ? Enable Flutter skills? Yes
@@ -154,7 +154,7 @@ $ agent-skills init
 ### Sync Skills
 
 ```bash
-$ agent-skills sync
+$ agent-skills-standard sync
 
 🚀 Syncing skills from https://github.com/HoangNguyen0403/agent-skills-standard...
   - Discovering flutter skills via GitHub API (flutter-v1.0.0)...
@@ -208,7 +208,7 @@ Tags in the registry follow the `semver` standard combined with the category:
 
 ### `Error: .skillsrc not found`
 
-Run `agent-skills init` first to generate the configuration.
+Run `agent-skills-standard init` first to generate the configuration.
 
 ### `Failed to fetch remote skills (Status: 404)`
 

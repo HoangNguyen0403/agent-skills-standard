@@ -6,7 +6,7 @@ import { SyncCommand } from './commands/sync';
 const program = new Command();
 
 program
-  .name('agent-skills')
+  .name('agent-skills-standard')
   .description(
     'A CLI to manage and sync AI agent skills for Cursor, Claude, Copilot, and more.',
   )
