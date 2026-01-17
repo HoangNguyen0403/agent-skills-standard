@@ -86,7 +86,10 @@ The CLI connects to the [Official Skills Registry](https://github.com/HoangNguye
 
 - **Flutter**: Clean Architecture, BLoC, AutoRoute, Performance, Security.
 - **Dart**: Idiomatic Patterns, Advanced Tooling.
-- **NestJS/Next.js**: (Coming Soon)
+- **TypeScript/JavaScript**: Best practices, Security, Tooling.
+- **React**: Hooks, Patterns, Performance.
+- **NestJS**: Architecture, Microservices, Security.
+- **Next.js**: App Router, RSC, FSD Architecture.
 - **Golang**: (Coming Soon)
 
 ---

@@ -4,7 +4,11 @@ import yaml from 'js-yaml';
 import fetch from 'node-fetch';
 import path from 'path';
 import pc from 'picocolors';
-import { SUPPORTED_AGENTS, SUPPORTED_FRAMEWORKS } from '../constants';
+import {
+  Framework,
+  SUPPORTED_AGENTS,
+  SUPPORTED_FRAMEWORKS,
+} from '../constants';
 import { SkillConfig } from '../models/config';
 import {
   GitHubTreeItem,
@@ -176,16 +180,16 @@ export class InitCommand {
       },
     ]);
 
-    const frameworkId = answers.framework as string;
+    const framework = answers.framework as string;
     const selectedFramework = SUPPORTED_FRAMEWORKS.find(
-      (f) => f.id === frameworkId,
+      (f) => f.id === framework,
     );
-    const isSupported = supportedCategories.includes(frameworkId);
+    const isSupported = supportedCategories.includes(framework);
 
     if (!isSupported) {
       console.log(
         pc.yellow(
-          `\nNotice: Skills for ${frameworkId} are not yet strictly defined and will be added soon.`,
+          `\nNotice: Skills for ${framework} are not yet strictly defined and will be added soon.`,
         ),
       );
       console.log(
@@ -196,9 +200,14 @@ export class InitCommand {
     }
 
     const neededSkills = new Set<string>();
-    neededSkills.add(frameworkId);
+    neededSkills.add(framework);
     if (selectedFramework) {
       selectedFramework.languages.forEach((l) => neededSkills.add(l));
+    }
+
+    // Special case: Next.js and React Native imply React
+    if (framework === Framework.NextJS || framework === Framework.ReactNative) {
+      neededSkills.add(Framework.React);
     }
 
     const config: SkillConfig = {
@@ -233,12 +242,12 @@ export class InitCommand {
 
     await fs.writeFile(configPath, yaml.dump(config));
     console.log(pc.green('\n✅ Initialized .skillsrc with your preferences!'));
-    console.log(pc.gray(`   Selected framework: ${frameworkId}`));
+    console.log(pc.gray(`   Selected framework: ${framework}`));
     console.log(
       pc.gray(
         `   Auto-enabled languages: ${
           Array.from(neededSkills)
-            .filter((s) => s !== frameworkId)
+            .filter((s) => s !== framework)
             .join(', ') || 'none'
         }`,
       ),

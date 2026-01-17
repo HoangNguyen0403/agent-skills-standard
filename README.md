@@ -79,7 +79,7 @@ The CLI fetched the latest **High-Density Skills** and distributed them into you
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
 
-### 🔹 Current Support (v1.0.0)
+### 🔹 Current Support (v1.1.1)
 
 | Category          | Skills Included                                                          | Status     |
 | :---------------- | :----------------------------------------------------------------------- | :--------- |
@@ -89,10 +89,10 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional Programming...          | **Stable** |
 | **⚛️ React**      | Hooks, State Management, Performance, Security, Testing...               | **Stable** |
 | **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Database Scaling...         | **Stable** |
+| **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, Optimization, FSD Arch...     | **Stable** |
 
 ### 🔹 Ongoing Development (Q1 2026)
 
-- **🔵 Next.js**: Server Components, App Router, TanStack Query, SSR/SSG.
 - **🐹 Golang**: Clean Hexagonal Architecture, Gin/Fiber standards.
 - **🅰️ Angular**: Standalone Components, Signals, NgRx patterns.
 - **☕ Spring Boot**: Pro-grade Java standards for enterprise agents.
@@ -147,11 +147,13 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 
 ## 🗺 Roadmap
 
-- [x] **Flutter & Dart Core** (v1.0.0 released)
-- [x] **Registry CLI Tooling** (v1.0.0 released)
-- [x] **TypeScript / JavaScript / React Registry** (v1.0.0 released)
-- [ ] **NestJS / Next.js Registry** (Q1 2026)
-- [ ] **Golang / Angular Registry** (Q2 2026)
+- [x] **CLI Tooling** (v1.1.1 released)
+- [x] **Flutter** (v1.0.0 released)
+- [x] **Dart Core** (v1.0.1 released)
+- [x] **Web Stack (TS/JS/React)** (v1.0.0 released)
+- [x] **NestJS** (v1.0.0 released)
+- [x] **Next.js** (v1.0.0 released)
+- [ ] **Golang / Angular** (Q1 2026)
 - [ ] **Agent Skills Dashboard** (Web UI for browsing standards)
 
 ---
