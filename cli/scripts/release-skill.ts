@@ -80,11 +80,31 @@ async function main() {
         type: 'input',
         name: 'customVer',
         message: 'Enter version (X.Y.Z):',
-        validate: (input) =>
-          /^\d+\.\d+\.\d+$/.test(input) ? true : 'Format must be X.Y.Z',
+        default: currentVersion,
+        validate: (input) => {
+          if (!/^\d+\.\d+\.\d+$/.test(input)) return 'Format must be X.Y.Z';
+          return true;
+        },
       },
     ]);
     finalVersion = customVer;
+  }
+
+  if (finalVersion === currentVersion) {
+    const { proceedSame } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'proceedSame',
+        message: pc.yellow(
+          `Version ${finalVersion} is the same as current. Continue anyway?`,
+        ),
+        default: false,
+      },
+    ]);
+    if (!proceedSame) {
+      console.log(pc.yellow('Cancelled.'));
+      return;
+    }
   }
 
   const tagName = `${tagPrefix}${finalVersion}`;
@@ -259,11 +279,28 @@ async function main() {
     console.log(pc.gray('Executing git operations...'));
 
     execSync(`git add ${METADATA_PATH}`, { cwd: ROOT_DIR });
-    execSync(`git commit -m "chore(release): ${tagName}"`, { cwd: ROOT_DIR });
-    console.log(pc.green('✅ Committed metadata change'));
 
-    execSync(`git tag ${tagName}`, { cwd: ROOT_DIR });
-    console.log(pc.green(`✅ Created tag ${tagName}`));
+    // Check if there's anything to commit
+    const status = execSync('git status --porcelain', {
+      cwd: ROOT_DIR,
+      encoding: 'utf-8',
+    });
+
+    if (status.trim().length > 0) {
+      execSync(`git commit -m "chore(release): ${tagName}"`, { cwd: ROOT_DIR });
+      console.log(pc.green('✅ Committed changes'));
+    } else {
+      console.log(pc.yellow('  (No changes to commit)'));
+    }
+
+    // Check if tag exists
+    try {
+      execSync(`git rev-parse ${tagName}`, { stdio: 'ignore', cwd: ROOT_DIR });
+      console.log(pc.yellow(`  (Tag ${tagName} already exists, skipping tag)`));
+    } catch {
+      execSync(`git tag ${tagName}`, { cwd: ROOT_DIR });
+      console.log(pc.green(`✅ Created tag ${tagName}`));
+    }
 
     console.log(pc.cyan('\n⚠️  Pushing to remote...'));
     execSync(`git push && git push origin ${tagName}`, { cwd: ROOT_DIR });

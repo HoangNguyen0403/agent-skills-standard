@@ -1,6 +1,6 @@
 {
   "name": "agent-skills",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A CLI to manage and sync AI agent skills for Cursor, Claude, Copilot, and more.",
   "main": "dist/index.js",
   "bin": {

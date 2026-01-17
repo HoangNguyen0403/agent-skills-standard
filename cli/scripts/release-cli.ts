@@ -57,11 +57,31 @@ async function main() {
         type: 'input',
         name: 'customVer',
         message: 'Enter version (X.Y.Z):',
-        validate: (input) =>
-          /^\d+\.\d+\.\d+$/.test(input) ? true : 'Format must be X.Y.Z',
+        default: currentVersion,
+        validate: (input) => {
+          if (!/^\d+\.\d+\.\d+$/.test(input)) return 'Format must be X.Y.Z';
+          return true;
+        },
       },
     ]);
     finalVersion = customVer;
+  }
+
+  if (finalVersion === currentVersion) {
+    const { proceedSame } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'proceedSame',
+        message: pc.yellow(
+          `Version ${finalVersion} is the same as current. Continue anyway?`,
+        ),
+        default: false,
+      },
+    ]);
+    if (!proceedSame) {
+      console.log(pc.yellow('Cancelled.'));
+      return;
+    }
   }
 
   const tagName = `${tagPrefix}${finalVersion}`;
@@ -213,8 +233,25 @@ async function main() {
     cmdRun(`git add ${relPkg}`);
     if (changelogEntry) cmdRun(`git add ${relChange}`);
 
-    cmdRun(`git commit -m "chore(release): ${tagName}"`);
-    cmdRun(`git tag ${tagName}`);
+    // Check if there's anything to commit
+    const status = execSync('git status --porcelain', {
+      cwd: ROOT_DIR,
+      encoding: 'utf-8',
+    });
+
+    if (status.trim().length > 0) {
+      cmdRun(`git commit -m "chore(release): ${tagName}"`);
+    } else {
+      console.log(pc.yellow('  (No changes to commit)'));
+    }
+
+    // Check if tag exists
+    try {
+      execSync(`git rev-parse ${tagName}`, { stdio: 'ignore', cwd: ROOT_DIR });
+      console.log(pc.yellow(`  (Tag ${tagName} already exists, skipping tag)`));
+    } catch {
+      cmdRun(`git tag ${tagName}`);
+    }
 
     console.log(pc.cyan('\n⚠️  Pushing to remote...'));
     cmdRun(`git push && git push origin ${tagName}`);
