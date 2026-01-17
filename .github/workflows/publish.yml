@@ -13,6 +13,9 @@ on:
       - 'typescript-v*'
       - 'javascript-v*'
 
+permissions:
+  contents: write
+
 jobs:
   # 1. CLI Release (NPM)
   publish-cli:
@@ -90,8 +93,9 @@ jobs:
           TAG_INFO_VERSION: ${{ steps.tag_info.outputs.version }}
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_name }}
           name: '${{ steps.tag_info.outputs.category }} ${{ steps.tag_info.outputs.version }}'
           body: |
             New skills update for **${{ steps.tag_info.outputs.category }}**.
