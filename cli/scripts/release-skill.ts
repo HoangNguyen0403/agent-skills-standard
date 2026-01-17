@@ -1,9 +1,14 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import fs from 'fs-extra';
 import inquirer from 'inquirer';
 import path from 'path';
 import pc from 'picocolors';
-import { getGitLogs, getSmartChangelog } from './release-utils';
+import {
+  getGitLogs,
+  getSmartChangelog,
+  updateChangelog,
+  updateSkillVersion,
+} from './release-utils';
 
 const ROOT_DIR = path.resolve(__dirname, '../..');
 const METADATA_PATH = path.join(ROOT_DIR, 'skills/metadata.json');
@@ -13,9 +18,7 @@ const isDryRun = process.argv.includes('--dry-run');
 const noEdit = process.argv.includes('--no-edit');
 
 async function main() {
-  console.log(
-    pc.bold(pc.blue('\n🚀 Agent Skills Standard - Release Manager\n')),
-  );
+  console.log(pc.bold(pc.blue('\n🚀 Agent Skills - Skill Release Manager\n')));
 
   if (isDryRun) {
     console.log(pc.magenta('🔍 DRY RUN MODE ENABLED'));
@@ -33,7 +36,7 @@ async function main() {
     {
       type: 'list',
       name: 'category',
-      message: 'Which skill category would you like to release?',
+      message: 'Which skill category are you releasing?',
       choices: categories.map((c) => ({
         name: `${c} (Current: ${
           metadata.categories[c].version || 'Unreleased'
@@ -44,12 +47,28 @@ async function main() {
   ]);
 
   const currentVersion = metadata.categories[category].version || '0.0.0';
-  const tagPrefix = metadata.categories[category].tag_prefix || `${category}-v`;
+  const tagPrefix =
+    metadata.categories[category].tag_prefix || `skill-${category}-v`;
 
-  console.log(pc.gray(`\nCurrent version: ${currentVersion}`));
-  console.log(pc.gray(`Tag prefix: ${tagPrefix}`));
+  console.log(
+    pc.gray(`\nCurrent version for ${pc.cyan(category)}: ${currentVersion}`),
+  );
 
-  const [major, minor, patch] = currentVersion.split('.').map(Number);
+  const versionMatch = String(currentVersion)
+    .trim()
+    .match(/^(\d+)\.(\d+)\.(\d+)$/);
+  if (!versionMatch) {
+    console.error(
+      pc.red(
+        `❌ Invalid version "${currentVersion}" for category "${category}". ` +
+          'Expected format: X.Y.Z (e.g., 1.2.3).',
+      ),
+    );
+    process.exit(1);
+  }
+  const major = Number(versionMatch[1]);
+  const minor = Number(versionMatch[2]);
+  const patch = Number(versionMatch[3]);
 
   const choices = [
     {
@@ -61,7 +80,7 @@ async function main() {
       value: `${major}.${minor + 1}.0`,
     },
     { name: `Major (${major + 1}.0.0)`, value: `${major + 1}.0.0` },
-    { name: 'Custom Input', value: 'custom' }, // Added custom option
+    { name: 'Custom Input', value: 'custom' },
   ];
 
   const { nextVersion } = await inquirer.prompt([
@@ -90,43 +109,25 @@ async function main() {
     finalVersion = customVer;
   }
 
-  if (finalVersion === currentVersion) {
-    const { proceedSame } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'proceedSame',
-        message: pc.yellow(
-          `Version ${finalVersion} is the same as current. Continue anyway?`,
-        ),
-        default: false,
-      },
-    ]);
-    if (!proceedSame) {
-      console.log(pc.yellow('Cancelled.'));
-      return;
-    }
-  }
-
   const tagName = `${tagPrefix}${finalVersion}`;
 
-  // Changelog Update
-  let changelogEntry = '';
+  // 2. Generate Release Notes
+  let notes = '';
   if (fs.existsSync(CHANGELOG_PATH)) {
-    const { updateChangelog } = await inquirer.prompt([
+    const { shouldUpdateChangelog } = await inquirer.prompt([
       {
         type: 'confirm',
-        name: 'updateChangelog',
+        name: 'shouldUpdateChangelog',
         message: 'Update CHANGELOG.md?',
         default: true,
       },
     ]);
 
-    if (updateChangelog) {
-      // Attempt to auto-generate logs from git history
+    if (shouldUpdateChangelog) {
       let defaultNotes = '### Added\n- ';
       try {
         const prevTag = `${tagPrefix}${currentVersion}`;
-        const logs = getGitLogs(prevTag, `skills/${category}`);
+        const logs = getGitLogs(prevTag, `skills/${category}/`);
         if (logs) {
           defaultNotes = getSmartChangelog(logs);
         } else {
@@ -134,10 +135,10 @@ async function main() {
         }
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        console.error(pc.red(`❌ Failed to update changelog: ${msg}`));
+        console.error(pc.red(`❌ Failed to auto-generate logs: ${msg}`));
       }
 
-      let notes = defaultNotes;
+      notes = defaultNotes;
 
       if (!noEdit) {
         const response = await inquirer.prompt([
@@ -155,69 +156,49 @@ async function main() {
           pc.gray('   (Using auto-generated notes due to --no-edit)'),
         );
       }
-
-      if (notes && notes.trim().length > 0) {
-        changelogEntry = `## [${tagName}] - ${
-          new Date().toISOString().split('T')[0]
-        }\n**Category**: ${category}\n\n${notes.trim()}\n\n`;
-      }
     }
   }
 
   // DRY RUN / PLAN PREVIEW
   console.log(pc.bold(pc.yellow('\n👀 Dry Run / Release Plan:')));
 
-  console.log(pc.bold('1. Update Metadata:'));
-  console.log(pc.dim(`   File: ${METADATA_PATH}`));
-  console.log(`   ${category}: ${currentVersion} -> ${pc.green(finalVersion)}`);
+  console.log(pc.bold(`1. Update Version for ${pc.cyan(category)}:`));
+  console.log(pc.dim(`   - skills/metadata.json`));
+  console.log(`   Version: ${currentVersion} -> ${pc.green(finalVersion)}`);
 
   console.log(pc.bold('\n2. Update Changelog:'));
-  if (changelogEntry) {
+  if (notes) {
     console.log(pc.dim(`   File: ${CHANGELOG_PATH}`));
-    console.log(pc.dim('   --- Entry Preview ---'));
+    console.log(pc.dim('   --- Preview ---'));
+    console.log(
+      pc.cyan(`   ## [${tagName}] - ${new Date().toISOString().split('T')[0]}`),
+    );
+    console.log(pc.cyan(`   **Category**: ${category.toUpperCase()} Skills\n`));
     console.log(
       pc.cyan(
-        changelogEntry
-          .trim()
+        notes
           .split('\n')
           .map((l) => '   ' + l)
           .join('\n'),
       ),
     );
-    console.log(pc.dim('   ---------------------'));
   } else {
     console.log(pc.dim('   (Skipped)'));
   }
 
   console.log(pc.bold('\n3. Git Operations:'));
-
-  // Use relative paths for display cleanly
-  const relMeta = path.relative(ROOT_DIR, METADATA_PATH);
-  const relChange = path.relative(ROOT_DIR, CHANGELOG_PATH);
-
   const commands = [
-    `git add ${relMeta}`,
-    changelogEntry ? `git add ${relChange}` : '',
+    `git add .`,
     `git commit -m "chore(release): ${tagName}"`,
     `git tag ${tagName}`,
     `git push && git push origin ${tagName}`,
-  ].filter(Boolean);
+  ];
 
   commands.forEach((cmd) => console.log(pc.dim(`   $ ${cmd}`)));
-  console.log(''); // spacer
+  console.log('');
 
   if (isDryRun) {
     console.log(pc.magenta('\n✨ Dry run complete. No changes were made.'));
-
-    console.log(pc.bold('\n📋 Manual Command (Copy & Paste):'));
-    console.log(pc.cyan(`cd ${ROOT_DIR} && \\`));
-    console.log(pc.cyan(commands.join(' && \\\n')));
-
-    console.log(
-      pc.gray(
-        '\nRun without --dry-run to have this script execute them for you.',
-      ),
-    );
     return;
   }
 
@@ -225,9 +206,7 @@ async function main() {
     {
       type: 'confirm',
       name: 'confirm',
-      message: `Everything looks good? Execute release for ${pc.green(
-        tagName,
-      )}?`,
+      message: `Execute release for ${pc.green(tagName)}?`,
       default: false,
     },
   ]);
@@ -237,79 +216,54 @@ async function main() {
     return;
   }
 
-  // Update Metadata
-  metadata.categories[category].version = finalVersion;
-  metadata.categories[category].last_updated = new Date()
-    .toISOString()
-    .split('T')[0];
-  metadata.categories[category].tag_prefix = tagPrefix; // Ensure prefix is saved
-
-  await fs.writeJson(METADATA_PATH, metadata, { spaces: 2 });
-  console.log(pc.green(`\n✅ Updated metadata.json`));
-
-  // Update Changelog
-  if (changelogEntry) {
-    try {
-      const currentChangelog = await fs.readFile(CHANGELOG_PATH, 'utf-8');
-      const splitIndex = currentChangelog.indexOf('## [');
-
-      if (splitIndex !== -1) {
-        const newContent =
-          currentChangelog.slice(0, splitIndex) +
-          changelogEntry +
-          currentChangelog.slice(splitIndex);
-        await fs.writeFile(CHANGELOG_PATH, newContent);
-        console.log(pc.green(`✅ Updated CHANGELOG.md`));
-        execSync(`git add ${CHANGELOG_PATH}`, { cwd: ROOT_DIR });
-      } else {
-        console.warn(
-          pc.yellow(
-            `⚠️  Could not find insertion point in CHANGELOG.md (looking for '## [')`,
-          ),
-        );
-      }
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      console.error(pc.red(`❌ Failed to update changelog: ${msg}`));
-    }
-  }
-
-  // Git Operations
+  // Execute
   try {
+    await updateSkillVersion(ROOT_DIR, category, finalVersion);
+
+    if (notes) {
+      await updateChangelog(
+        CHANGELOG_PATH,
+        tagName,
+        `${category.toUpperCase()} Skills`,
+        notes,
+      );
+    }
+
     console.log(pc.gray('Executing git operations...'));
 
-    execSync(`git add ${METADATA_PATH}`, { cwd: ROOT_DIR });
+    const gitRun = (args: string[]) =>
+      execFileSync('git', args, { cwd: ROOT_DIR, stdio: 'inherit' });
 
-    // Check if there's anything to commit
-    const status = execSync('git status --porcelain', {
+    gitRun(['add', '.']);
+
+    const status = execFileSync('git', ['status', '--porcelain'], {
       cwd: ROOT_DIR,
       encoding: 'utf-8',
     });
 
     if (status.trim().length > 0) {
-      execSync(`git commit -m "chore(release): ${tagName}"`, { cwd: ROOT_DIR });
-      console.log(pc.green('✅ Committed changes'));
+      gitRun(['commit', '-m', `chore(release): ${tagName}`]);
     } else {
       console.log(pc.yellow('  (No changes to commit)'));
     }
 
-    // Check if tag exists
     try {
-      execSync(`git rev-parse ${tagName}`, { stdio: 'ignore', cwd: ROOT_DIR });
+      execFileSync('git', ['rev-parse', tagName], {
+        stdio: 'ignore',
+        cwd: ROOT_DIR,
+      });
       console.log(pc.yellow(`  (Tag ${tagName} already exists, skipping tag)`));
     } catch {
-      execSync(`git tag ${tagName}`, { cwd: ROOT_DIR });
-      console.log(pc.green(`✅ Created tag ${tagName}`));
+      gitRun(['tag', tagName]);
     }
 
     console.log(pc.cyan('\n⚠️  Pushing to remote...'));
-    execSync(`git push && git push origin ${tagName}`, { cwd: ROOT_DIR });
-    console.log(pc.green(`✅ Pushed changes and tag!`));
+    gitRun(['push']);
+    gitRun(['push', 'origin', tagName]);
 
-    console.log(pc.bold(pc.magenta(`\n🎉 Release ${tagName} is live!`)));
-    console.log(pc.gray('The GitHub Action workflow should trigger shortly.'));
+    console.log(pc.bold(pc.magenta(`\n🎉 Skill Release ${tagName} is live!`)));
   } catch (error) {
-    console.error(pc.red(`\n❌ Git operation failed:`));
+    console.error(pc.red(`\n❌ Release operation failed:`));
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
   }

@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A CLI to manage and sync AI agent skills standard for Cursor, Claude, Copilot, and more.",
   "main": "dist/index.js",
   "bin": {
@@ -19,7 +19,9 @@
     "release-cli:dry": "ts-node scripts/release-cli.ts --dry-run",
     "publish:dry": "pnpm publish --dry-run --no-git-checks",
     "format": "prettier --write \"src/**/*.ts\" \"scripts/**/*.ts\"",
-    "lint": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\" --fix",
+    "format:check": "prettier --check \"src/**/*.ts\" \"scripts/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\" --fix",
+    "lint:check": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\"",
     "prepublishOnly": "pnpm build"
   },
   "keywords": [
