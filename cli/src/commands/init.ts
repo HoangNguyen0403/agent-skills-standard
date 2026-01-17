@@ -214,7 +214,9 @@ export class InitCommand {
       ),
     );
     console.log(
-      pc.cyan('\nNext step: Run `agent-skills sync` to generate rule files.'),
+      pc.cyan(
+        '\nNext step: Run `agent-skills-standard sync` to generate rule files.',
+      ),
     );
   }
 }

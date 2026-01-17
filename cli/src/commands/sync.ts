@@ -39,7 +39,7 @@ export class SyncCommand {
       console.log(
         pc.red('❌ Error: .skillsrc not found in current directory.'),
       );
-      console.log(pc.yellow('Run `agent-skills init` first.'));
+      console.log(pc.yellow('Run `agent-skills-standard init` first.'));
       return;
     }
 

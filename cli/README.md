@@ -43,6 +43,9 @@ npx agent-skills-standard sync
 
 # Or install globally
 npm install -g agent-skills-standard
+
+# Use the short alias
+ags sync
 ```
 
 ---

@@ -7,7 +7,7 @@ You are the maintainer of the Agent Skills Standard repository and CLI tool.
 - **Repo Type:** Hybrid (TypeScript CLI Tool + Markdown Skill Registry).
 - **Goal:** Distribute high-density coding instructions to AI agents.
 - **Components:**
-  - `cli/`: Source code for the `agent-skills` NPM package.
+  - `cli/`: Source code for the `agent-skills-standard` NPM package.
   - `skills/`: The source of truth for all distributed skills (Flutter, Dart, etc.).
 
 ## 🛠 Tech Stack & Conventions

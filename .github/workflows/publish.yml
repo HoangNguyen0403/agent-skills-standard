@@ -102,6 +102,6 @@ jobs:
 
             Checkout the changelog or sync in your project:
             ```bash
-            agent-skills sync
+            agent-skills-standard sync
             ```
           generate_release_notes: true

@@ -1,10 +1,11 @@
 {
   "name": "agent-skills-standard",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A CLI to manage and sync AI agent skills standard for Cursor, Claude, Copilot, and more.",
   "main": "dist/index.js",
   "bin": {
-    "agent-skills-standard": "dist/index.js"
+    "agent-skills-standard": "dist/index.js",
+    "ags": "dist/index.js"
   },
   "files": [
     "dist"
