@@ -27,7 +27,7 @@ Modern AI coding agents are powerful, but they have major flaws:
 
 1. **Memory Drain**: Giant rule files consume **30% - 50% of the AI's memory**, making it less effective for actual coding.
 2. **Version Chaos**: Team members often have different "best practices," leading to inconsistent code.
-3. **Wordy Prosa**: Human-style instructions are token-heavy and often ignored by AI during complex logical tasks.
+3. **Wordy Prose**: Human-style instructions are token-heavy and often ignored by AI during complex logical tasks.
 
 **Agent Skills Standard** solves this by treating prompt instructions as **versioned dependencies**, similar to how you manage software libraries.
 

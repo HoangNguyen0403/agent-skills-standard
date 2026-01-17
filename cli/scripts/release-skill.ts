@@ -54,7 +54,21 @@ async function main() {
     pc.gray(`\nCurrent version for ${pc.cyan(category)}: ${currentVersion}`),
   );
 
-  const [major, minor, patch] = currentVersion.split('.').map(Number);
+  const versionMatch = String(currentVersion)
+    .trim()
+    .match(/^(\d+)\.(\d+)\.(\d+)$/);
+  if (!versionMatch) {
+    console.error(
+      pc.red(
+        `❌ Invalid version "${currentVersion}" for category "${category}". ` +
+          'Expected format: X.Y.Z (e.g., 1.2.3).',
+      ),
+    );
+    process.exit(1);
+  }
+  const major = Number(versionMatch[1]);
+  const minor = Number(versionMatch[2]);
+  const patch = Number(versionMatch[3]);
 
   const choices = [
     {

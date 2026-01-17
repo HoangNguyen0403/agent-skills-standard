@@ -108,7 +108,9 @@ export class SyncCommand {
     config: SkillConfig,
     configPath: string,
   ): Promise<SkillConfig> {
-    const githubMatch = config.registry.match(/github\.com\/([^/]+)\/([^/]+)/i);
+    const githubMatch = config.registry.match(
+      /github\.com\/([^/]+)\/([^/.]+)(?:\.git)?/i,
+    );
     if (!githubMatch) return config;
 
     const [owner, repo] = githubMatch.slice(1);
