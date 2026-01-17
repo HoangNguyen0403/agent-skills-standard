@@ -67,7 +67,24 @@ export async function updateChangelog(
   category: string,
   notes: string,
 ): Promise<void> {
-  const date = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split('T')[0];
+  let date = today;
+  try {
+    // Ensure the changelog date is not later than the latest commit date.
+    const latestCommitDate = execSync('git log -1 --format=%cs', {
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .trim()
+      .split('T')[0];
+    // Both dates are in ISO format (YYYY-MM-DD), so string comparison is safe.
+    if (latestCommitDate && latestCommitDate < date) {
+      date = latestCommitDate;
+    }
+  } catch {
+    // If Git is unavailable or the command fails, fall back to today's date.
+  }
+
   const changelogEntry = `## [${tagName}] - ${date}\n**Category**: ${category}\n\n${notes.trim()}\n\n`;
 
   try {
@@ -118,7 +135,7 @@ export async function updateCLIVersion(
   if (fs.existsSync(indexPath)) {
     const content = await fs.readFile(indexPath, 'utf-8');
     const updatedContent = content.replace(
-      /\.version\(['"]\d+\.\d+\.\d+['"]\)/,
+      /\.version\(['"][0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?['"]\)/,
       `.version('${version}')`,
     );
     await fs.writeFile(indexPath, updatedContent);

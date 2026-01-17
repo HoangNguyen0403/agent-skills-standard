@@ -100,7 +100,7 @@ export class SyncCommand {
         }
       }
     } catch {
-      // Silent fail for CLI update check
+      console.error(pc.yellow('⚠️ CLI update check failed (non-fatal):'));
     }
   }
 
@@ -113,7 +113,9 @@ export class SyncCommand {
     );
     if (!githubMatch) return config;
 
-    const [owner, repo] = githubMatch.slice(1);
+    const owner = githubMatch[1];
+    const repo = githubMatch[2];
+    if (!owner || !repo) return config;
 
     try {
       console.log(pc.gray('🔍 Checking for skill updates...'));
@@ -144,10 +146,7 @@ export class SyncCommand {
         const currentRef = catConfig.ref || 'main';
 
         // Update if ref is different and doesn't explicitly contain the latest version string
-        if (
-          currentRef !== latestTag &&
-          !currentRef.includes(remoteCat.version)
-        ) {
+        if (currentRef !== latestTag) {
           updates.push({
             category: cat,
             from: currentRef,
