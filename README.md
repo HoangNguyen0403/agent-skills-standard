@@ -88,10 +88,10 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | **🔷 TypeScript** | Type Safety, Security, Best Practices, ESLint/Testing Configuration...   | **Stable** |
 | **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional Programming...          | **Stable** |
 | **⚛️ React**      | Hooks, State Management, Performance, Security, Testing...               | **Stable** |
+| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Database Scaling...         | **Stable** |
 
 ### 🔹 Ongoing Development (Q1 2026)
 
-- **🟢 NestJS**: Auth (JWT/Passport), Microservices, CQRS, TypeORM/Prisma.
 - **🔵 Next.js**: Server Components, App Router, TanStack Query, SSR/SSG.
 - **🐹 Golang**: Clean Hexagonal Architecture, Gin/Fiber standards.
 - **🅰️ Angular**: Standalone Components, Signals, NgRx patterns.

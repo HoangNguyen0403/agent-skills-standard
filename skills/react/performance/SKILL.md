@@ -29,10 +29,16 @@ Strategies to minimize waterfalls, bundle size, and render cost.
 ## Rendering & Re-renders (P1)
 
 - **Isolation**: Move state down. Isolate heavy UI updates.
+- **Context Splitting**: Split Context into `StateContext` (Data) and `DispatchContext` (Actions) to prevent consumers from re-rendering just because they need a setter.
+- **Stability**: Use `useMemo` for passing objects/arrays to children to preserve referential equality checks (`React.memo`).
 - **Virtualization**: `react-window` for lists > 50 items.
 - **Content Visibility**: `content-visibility: auto` for off-screen CSS content.
 - **Static Hoisting**: Extract static objects/JSX outside component scope.
 - **Transitions**: `startTransition` for non-urgent UI updates.
+
+## Parallelization (P1)
+
+- **Web Workers**: Move heavy computation (Encryption, Image processing, Large Data Sorting) off the main thread using `Comlink` or `Worker`.
 
 ## Server Performance (RSC) (P1)
 
