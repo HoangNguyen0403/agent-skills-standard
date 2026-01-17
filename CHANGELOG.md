@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Created `release-utils.ts` for automated release management including smart changelog generation.
 - Integrated "Update Discovery" in `sync` command to notify users of newer CLI or Skill versions.
+- Added GitHub Actions CI workflow for automated ESLint, Prettier, and Build verification.
 
 ### Fixed
 
@@ -26,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [clo-v1.0.0] - 2026-01-15
+## [1.0.0] - 2026-01-15
 
 **Category**: Flutter Framework Skills & Dart Programming Language Skills
 
