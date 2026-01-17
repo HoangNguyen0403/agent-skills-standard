@@ -85,15 +85,17 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | :------------------ | :----------------------------------------------------------------------- | :--------- |
 | **💙 Flutter**      | Clean Arch, BLoC, AutoRoute, Performance, Testing, Security, Retrofit... | **Stable** |
 | **🎯 Dart**         | Idiomatic Patterns, Advanced Tooling, Build Runner...                    | **Stable** |
-| **🏢 Architecture** | Feature-based vs Layer-based Clean Architecture                          | **Stable** |
+| **🔷 TypeScript**   | Type Safety, Security, Best Practices, ESLint/Testing Configuration...  | **Stable** |
+| **🟨 JavaScript**   | Modern ES2022+ Patterns, Async/Await, Functional Programming...         | **Stable** |
+| **⚛️ React**        | Hooks, State Management, Performance, Security, Testing...               | **Stable** |
 
 ### 🔹 Ongoing Development (Q1 2026)
 
 - **🟢 NestJS**: Auth (JWT/Passport), Microservices, CQRS, TypeORM/Prisma.
-- **⚛️ React / Next.js**: Server Components, TanStack Query, Atomic Design.
+- **🔵 Next.js**: Server Components, App Router, TanStack Query, SSR/SSG.
 - **🐹 Golang**: Clean Hexagonal Architecture, Gin/Fiber standards.
+- **🅰️ Angular**: Standalone Components, Signals, NgRx patterns.
 - **☕ Spring Boot**: Pro-grade Java standards for enterprise agents.
-- **🍎 Swift / iOS**: Modular architecture for Large-scale mobile projects.
 
 > [!TIP]
 > **Enterprise Ready**: You can host your own **Private Skills Registry** on GitHub and point the CLI to it via the `registry` field in your `.skillsrc`.
@@ -146,8 +148,9 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 
 - [x] **Flutter & Dart Core** (v1.0.0 released)
 - [x] **Registry CLI Tooling** (v1.0.0 released)
-- [ ] **TypeScript / NestJS Registry** (Q1 2026)
-- [ ] **React / Next.js Registry** (Q1 2026)
+- [x] **TypeScript / JavaScript / React Registry** (v1.0.0 released)
+- [ ] **NestJS / Next.js Registry** (Q1 2026)
+- [ ] **Golang / Angular Registry** (Q2 2026)
 - [ ] **Agent Skills Dashboard** (Web UI for browsing standards)
 
 ---
