@@ -1,6 +1,6 @@
 # Agent Skills Standard 🚀
 
-[![NPM Version](https://img.shields.io/npm/v/agent-skills.svg?style=flat-square)](https://www.npmjs.com/package/agent-skills)
+[![NPM Version](https://img.shields.io/npm/v/agent-skills-standard.svg?style=flat-square)](https://www.npmjs.com/package/agent-skills-standard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/HoangNguyen0403/agent-skills-standard?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/stargazers)
 [![Standard](https://img.shields.io/badge/Standard-Agent--Skills--1.0-FD971F?style=flat-square)](https://agentskills.io/)
@@ -25,7 +25,7 @@ Agent Skills Standard solves this by treating prompt instructions as **versioned
 
 - **🎯 Progressive Disclosure**: A "Split-Context" pattern where the agent only loads core rules (`SKILL.md`) by default, and only fetches heavy code examples (`references/`) when strictly necessary.
 - **🚀 High-Density Tokens**: We use an imperative, keyword-rich syntax that provides **40% better instruction density** than standard prose.
-- **🔁 One-Click Sync**: `agent-skills sync` ensures your IDE, your terminal agent, and your CI/CD all share the exact same engineering DNA.
+- **🔁 One-Click Sync**: `agent-skills-standard sync` ensures your IDE, your terminal agent, and your CI/CD all share the exact same engineering DNA.
 
 ---
 
@@ -45,7 +45,7 @@ Consume engineering standards in your project instantly.
 ### 1. Run the CLI
 
 ```bash
-npx agent-skills init
+npx agent-skills-standard init
 ```
 
 *The interactive wizard will detect your stack and setup your `.skillsrc`.*
@@ -53,7 +53,7 @@ npx agent-skills init
 ### 2. Sync Standards
 
 ```bash
-npx agent-skills sync
+npx agent-skills-standard sync
 ```
 
 **What happened?**
