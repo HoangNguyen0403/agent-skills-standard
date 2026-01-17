@@ -10,6 +10,7 @@ export interface FrameworkDefinition {
   name: string;
   languages: string[];
   detectionFiles: string[];
+  detectionDependencies?: string[];
 }
 
 export const SUPPORTED_AGENTS: AgentDefinition[] = [
@@ -18,6 +19,12 @@ export const SUPPORTED_AGENTS: AgentDefinition[] = [
     name: 'Cursor',
     path: '.cursor/skills',
     detectionFiles: ['.cursor', '.cursorrules'],
+  },
+  {
+    id: 'trae',
+    name: 'Trae',
+    path: '.trae/skills',
+    detectionFiles: ['.trae'],
   },
   {
     id: 'claude',
@@ -62,7 +69,8 @@ export const SUPPORTED_FRAMEWORKS: FrameworkDefinition[] = [
     id: 'nestjs',
     name: 'NestJS',
     languages: ['typescript', 'javascript'],
-    detectionFiles: ['package.json'], // Can be improved with scanning package.json contents
+    detectionFiles: ['nest-cli.json'],
+    detectionDependencies: ['@nestjs/core'],
   },
   {
     id: 'golang',
@@ -75,18 +83,21 @@ export const SUPPORTED_FRAMEWORKS: FrameworkDefinition[] = [
     name: 'Next.js',
     languages: ['typescript', 'javascript'],
     detectionFiles: ['next.config.js', 'next.config.mjs'],
+    detectionDependencies: ['next'],
   },
   {
     id: 'react',
     name: 'React',
     languages: ['typescript', 'javascript'],
-    detectionFiles: ['package.json'],
+    detectionFiles: [],
+    detectionDependencies: ['react', 'react-dom'],
   },
   {
     id: 'react-native',
     name: 'React Native',
     languages: ['typescript', 'javascript'],
-    detectionFiles: [],
+    detectionFiles: ['metro.config.js'],
+    detectionDependencies: ['react-native'],
   },
   {
     id: 'angular',

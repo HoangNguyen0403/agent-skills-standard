@@ -14,10 +14,24 @@
       "last_updated": "2026-01-17",
       "tag_prefix": "dart-v"
     },
+    "typescript": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-17",
+      "tag_prefix": "typescript-v"
+    },
+    "javascript": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-17",
+      "tag_prefix": "javascript-v"
+    },
+    "react": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-17",
+      "tag_prefix": "react-v"
+    },
     "nestjs": {},
     "golang": {},
     "nextjs": {},
-    "react": {},
     "angular": {}
   }
 }
