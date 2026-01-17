@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import fs from 'fs-extra';
 import inquirer from 'inquirer';
 import path from 'path';
@@ -207,33 +207,37 @@ async function main() {
 
     console.log(pc.gray('Executing git operations...'));
 
-    const cmdRun = (cmd: string) =>
-      execSync(cmd, { cwd: ROOT_DIR, stdio: 'inherit' });
+    const gitRun = (args: string[]) =>
+      execFileSync('git', args, { cwd: ROOT_DIR, stdio: 'inherit' });
 
-    cmdRun(`git add .`);
+    gitRun(['add', '.']);
 
     // Check if there's anything to commit
-    const status = execSync('git status --porcelain', {
+    const status = execFileSync('git', ['status', '--porcelain'], {
       cwd: ROOT_DIR,
       encoding: 'utf-8',
     });
 
     if (status.trim().length > 0) {
-      cmdRun(`git commit -m "chore(release): ${tagName}"`);
+      gitRun(['commit', '-m', `chore(release): ${tagName}`]);
     } else {
       console.log(pc.yellow('  (No changes to commit)'));
     }
 
     // Check if tag exists
     try {
-      execSync(`git rev-parse ${tagName}`, { stdio: 'ignore', cwd: ROOT_DIR });
+      execFileSync('git', ['rev-parse', tagName], {
+        stdio: 'ignore',
+        cwd: ROOT_DIR,
+      });
       console.log(pc.yellow(`  (Tag ${tagName} already exists, skipping tag)`));
     } catch {
-      cmdRun(`git tag ${tagName}`);
+      gitRun(['tag', tagName]);
     }
 
     console.log(pc.cyan('\n⚠️  Pushing to remote...'));
-    cmdRun(`git push && git push origin ${tagName}`);
+    gitRun(['push']);
+    gitRun(['push', 'origin', tagName]);
 
     console.log(pc.bold(pc.magenta(`\n🎉 CLI Release ${tagName} is live!`)));
   } catch (error) {

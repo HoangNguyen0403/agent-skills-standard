@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
@@ -51,9 +51,10 @@ export function getSmartChangelog(logs: string): string {
 
 export function getGitLogs(prevTag: string, filterPath: string): string {
   try {
-    execSync(`git rev-parse "${prevTag}"`, { stdio: 'ignore' });
-    return execSync(
-      `git log "${prevTag}"..HEAD --pretty=format:"- %s" -- ${filterPath}`,
+    execFileSync('git', ['rev-parse', prevTag], { stdio: 'ignore' });
+    return execFileSync(
+      'git',
+      ['log', `${prevTag}..HEAD`, '--pretty=format:- %s', '--', filterPath],
       { encoding: 'utf-8' },
     ).trim();
   } catch {
@@ -71,10 +72,14 @@ export async function updateChangelog(
   let date = today;
   try {
     // Ensure the changelog date is not later than the latest commit date.
-    const latestCommitDate = execSync('git log -1 --format=%cs', {
-      encoding: 'utf-8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    })
+    const latestCommitDate = execFileSync(
+      'git',
+      ['log', '-1', '--format=%cs'],
+      {
+        encoding: 'utf-8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      },
+    )
       .trim()
       .split('T')[0];
     // Both dates are in ISO format (YYYY-MM-DD), so string comparison is safe.
