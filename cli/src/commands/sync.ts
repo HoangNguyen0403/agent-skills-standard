@@ -347,8 +347,8 @@ export class SyncCommand {
         await fs.ensureDir(basePath);
 
         for (const skill of skills) {
-          const skillFolderName = `${skill.category}-${skill.skill}`;
-          const skillPath = path.join(basePath, skillFolderName);
+          // Use nested structure: category/skill (e.g. flutter/bloc)
+          const skillPath = path.join(basePath, skill.category, skill.skill);
           await fs.ensureDir(skillPath);
 
           for (const fileItem of skill.files) {
