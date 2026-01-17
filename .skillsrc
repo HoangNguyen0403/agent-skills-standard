@@ -1,0 +1,10 @@
+registry: https://github.com/HoangNguyen0403/agent-skills-standard
+skills:
+  flutter:
+    ref: flutter-v1.0.0
+    enabled: true
+    # Optional: Granularly include/exclude sub-skills
+    # exclude: ['state-management'] # Skip BLoC if using GetX/Riverpod
+  dart:
+    ref: dart-v1.0.0
+    enabled: true

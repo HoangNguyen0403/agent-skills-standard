@@ -1,0 +1,60 @@
+{
+  "name": "agent-skills",
+  "version": "1.0.0",
+  "description": "A CLI to manage and sync AI agent skills for Cursor, Claude, Copilot, and more.",
+  "main": "dist/index.js",
+  "bin": {
+    "agent-skills": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "release-skill": "ts-node scripts/release-skill.ts",
+    "release-skill:dry": "ts-node scripts/release-skill.ts --dry-run",
+    "release-cli": "ts-node scripts/release-cli.ts",
+    "release-cli:dry": "ts-node scripts/release-cli.ts --dry-run",
+    "format": "prettier --write \"src/**/*.ts\" \"scripts/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\" --fix",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "cursor",
+    "claude",
+    "copilot",
+    "cli",
+    "antigravity"
+  ],
+  "author": "Hoang Nguyen",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "fs-extra": "^11.2.0",
+    "inquirer": "^9.2.12",
+    "js-yaml": "^4.1.0",
+    "node-fetch": "^2.7.0",
+    "picocolors": "^1.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/fs-extra": "^11.0.4",
+    "@types/inquirer": "^9.0.7",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.10.5",
+    "@types/node-fetch": "^2.6.9",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.0.0",
+    "jiti": "^2.6.1",
+    "prettier": "3.8.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.53.0"
+  }
+}
