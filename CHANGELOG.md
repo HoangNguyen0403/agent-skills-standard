@@ -5,6 +5,19 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [cli-v1.0.6] - 2026-01-17
+
+**Category**: CLI Tool
+
+### Improved
+
+- Switched to a nested folder structure (e.g., `skills/flutter/bloc`) for better organization and scalability, replacing the previous flat structure (`skills/flutter-bloc`).
+- Enhanced Security: Replaced all `execSync` calls with `execFileSync` to prevent potential command injection vulnerabilities (CWE-78/CWE-88).
+
+### Fixed
+
+- Documentation updates to reflect the new nested directory structure.
+
 ## [cli-v1.0.5] - 2026-01-17
 
 **Category**: CLI Tool

@@ -106,10 +106,18 @@ The standard follows a strict directory structure designed for **Token Economy**
 
 ```text
 skills/
+└── flutter/                        # Category
+    └── bloc-state-management/      # Skill
+        ├── SKILL.md                # Core Rules (High Density)
+        └── references/             # Heavy Examples (Loaded only on demand)
+```
+
+The CLI will sync this exact structure effectively to your agent configuration:
+
+```text
+.cursor/skills/
 └── flutter/
     └── bloc-state-management/
-        ├── SKILL.md       # Core Rules (High Density)
-        └── references/    # Heavy Examples (Loaded only on demand)
 ```
 
 ### IDE Mapping
