@@ -42,7 +42,20 @@ skills/
 
 Required sections in `SKILL.md`:
 
-1. **Frontmatter** (YAML): Metadata for the CLI/Agent.
+1. **Frontmatter (Mandatory)**: Must include `name`, `description`, `labels`, and `triggers`.
+
+   ```yaml
+   ---
+   name: Skill Name
+   description: Short description.
+   metadata:
+     labels: [tag1, tag2]
+     triggers:
+       files: ['**/*.ext']
+       keywords: [term1, term2]
+   ---
+   ```
+
 2. **Priority**: P0 (Critical), P1 (Standard), or P2 (Optional).
 3. **Structure**: ASCII tree of expected file layout.
 4. **Guidelines**: Bullet points of "Do this".

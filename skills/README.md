@@ -58,6 +58,19 @@ Modern React development patterns.
 
 - [**Component Patterns**](react/component-patterns/SKILL.md) (P0) - Function Components, Composition.
 - [**State Management**](react/state-management/SKILL.md) (P0) - useState, Context, Zustand.
+
+### 🦁 NestJS (Framework)
+
+Enterprise-grade Node.js backend development.
+
+- [**Architecture**](nestjs/architecture/SKILL.md) (P0) - Modules, DI, Scalability.
+- [**Controllers & Services**](nestjs/controllers-services/SKILL.md) (P0) - Layer separation standards.
+- [**Database**](nestjs/database/SKILL.md) (P0) - TypeORM, Prisma, Mongoose patterns.
+- [**Security**](nestjs/security/SKILL.md) (P0) - Auth, Guards, Headers.
+- [**Configuration**](nestjs/configuration/SKILL.md) (P1) - Environment management.
+- [**Error Handling**](nestjs/error-handling/SKILL.md) (P1) - Global filters.
+- [**Performance**](nestjs/performance/SKILL.md) (P1) - Fastify, Caching.
+- [**Testing**](nestjs/testing/SKILL.md) (P2) - Unit & E2E strategies.
 - [**TypeScript**](react/typescript/SKILL.md) (P0) - React-specific Types.
 - [**Security**](react/security/SKILL.md) (P0) - XSS Prevention, Auth Patterns.
 - [**Hooks**](react/hooks/SKILL.md) (P1) - Custom Hooks, Best Practices.

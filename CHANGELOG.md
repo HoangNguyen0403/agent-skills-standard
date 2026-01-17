@@ -5,7 +5,21 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2026-01-17
+## [1.1.0] - 2026-01-18
+
+### Added (NestJS Skills v1.1.0)
+
+Includes 18 specialized High-Density skills for Enterprise Backend Development.
+
+- **Architecture Standards** - Module organization, Dependency Injection (`ConfigurableModuleBuilder`), and Project Structure.
+- **Database & Scaling** - Selection Framework (Postgres vs Mongo), Connection Multiplexing (PgBouncer), and Sharding strategies.
+- **Real-Time & WebSockets** - Decision matrix for WebSockets vs SSE vs Long Polling, and Redis Adapter scaling.
+- **Security Hardening** - JWT best practices, CSRF, Helmet, Rate Limiting, and key rotation.
+- **Microservices Transport** - gRPC for internal, RabbitMQ/Kafka for events, and Monorepo contracts standard.
+- **Search & CQRS** - ElasticSearch integration patterns and dual-write prevention.
+- **Performance Tuning** - Fastify adapter default, Compression, and Scope management.
+- **Observability** - Structured Logging (Pino) and Prometheus metrics standards.
+- **Deployment** - Docker multi-stage builds and Kubernetes graceful shutdown hooks.
 
 **Category**: Web Stack Skills (React, TypeScript, JavaScript) & CLI Infrastructure
 

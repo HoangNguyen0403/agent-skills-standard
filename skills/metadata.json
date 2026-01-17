@@ -29,7 +29,11 @@
       "last_updated": "2026-01-17",
       "tag_prefix": "react-v"
     },
-    "nestjs": {},
+    "nestjs": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-18",
+      "tag_prefix": "nestjs-v"
+    },
     "golang": {},
     "nextjs": {},
     "angular": {}
