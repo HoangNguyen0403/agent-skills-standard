@@ -59,7 +59,7 @@ Files inside slices (e.g., `features/login/*`) must follow these standard segmen
 
 1. **Refactor Later**: Don't start with `entities/`. Put logic in `features/` or `pages/` (slices) first. Extract to `entities/` only when strictly reused.
 2. **Auth is Shared**: User session/tokens often belong in `shared/auth` or `shared/session`, not `entities/user`, because they are app-wide context distinct from the business entity "User".
-3. **CRUD in Shared**: Simple API endpoints (CRUD) without complex domain logic logic should go in `shared/api/endpoints/`. Don't create an entity just to wrap a fetch call.
+3. **CRUD in Shared**: Simple API endpoints (CRUD) without complex domain logic should go in `shared/api/endpoints/`. Don't create an entity just to wrap a fetch call.
 
 ## Layer Responsibilities
 

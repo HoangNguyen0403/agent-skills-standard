@@ -5,7 +5,7 @@ metadata:
   labels: [nextjs, styling, tailwind, css]
   triggers:
     files: ['**/*.css', 'tailwind.config.ts', '**/components/ui/*.tsx']
-    keywords: [tailwind, css modules, styled-components, clsx, cls]
+    keywords: [tailwind, css modules, styled-components, clsx, cn]
 ---
 
 # Styling & UI Performance

@@ -21,7 +21,7 @@ Use Sub-path Routing (`/en`, `/de`) and Server Components for translations.
 2. **Server-Side Translation**: Load dictionary files (`en.json`) in Server Components.
    - _Why_: Reduces client bundle size. No huge JSON blobs sent to browser.
 3. **Middleware Detection**: Use `middleware.ts` to detect `Accept-Language` headers and redirect users to their preferred locale.
-4. **Type Safety**: Use robust typing for translation keys to prevents broken text UI.
+4. **Type Safety**: Use robust typing for translation keys to prevent broken text UI.
 
 ## Implementation Pattern
 

@@ -2,7 +2,7 @@
 name: Next.js Server Actions
 description: Mutations, Form handling, and RPC-style calls.
 metadata:
-  labels: [nextjs, actions, actions, mutations]
+  labels: [nextjs, actions, mutations]
   triggers:
     files: ['**/actions.ts', '**/*.tsx']
     keywords: [use server, Server Action, revalidatePath, useFormStatus]
