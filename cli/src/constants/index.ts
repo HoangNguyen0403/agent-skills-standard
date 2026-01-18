@@ -6,6 +6,8 @@ export enum Agent {
   Antigravity = 'antigravity',
   OpenAI = 'openai',
   OpenCode = 'opencode',
+  Gemini = 'gemini',
+  Roo = 'roo',
 }
 
 export enum Framework {
@@ -83,6 +85,20 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         name: 'OpenCode',
         path: '.opencode/skills',
         detectionFiles: ['.opencode'],
+      };
+    case Agent.Gemini:
+      return {
+        id,
+        name: 'Gemini',
+        path: '.gemini/skills',
+        detectionFiles: ['.gemini'],
+      };
+    case Agent.Roo:
+      return {
+        id,
+        name: 'Roo Code',
+        path: '.roo/skills',
+        detectionFiles: ['.roo'],
       };
   }
 };

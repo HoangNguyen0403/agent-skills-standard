@@ -7,11 +7,11 @@
 
 **The open standard for High-Density AI coding instructions. Make your AI smarter, faster, and more consistent.**
 
-Agent Skills Standard is a modular framework to distribute, sync, and version-control engineering standards across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Antigravity, and custom LLM workflows**).
+Agent Skills Standard is a modular framework to distribute, sync, and version-control engineering standards across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Gemini, Antigravity, and custom LLM workflows**).
 
 ---
 
-## 💡 What is this in Plain English?
+## 💡 What is this?
 
 Think of Agent Skills Standard as a **universal instruction manual** for your AI assistant.
 
@@ -124,14 +124,17 @@ The CLI will sync this exact structure effectively to your agent configuration:
 
 ### IDE Mapping
 
-| Agent           | Target Path       | Integration Method                     |
-| :-------------- | :---------------- | :------------------------------------- |
-| **Cursor**      | `.cursor/skills/` | Automatic discovery via `.cursorrules` |
-| **Trae**        | `.trae/skills/`   | Automatic discovery                    |
-| **Claude Code** | `.claude/skills/` | Referenced in `CLAUDE.md`              |
-| **Copilot**     | `.github/skills/` | Native skill integration               |
-| **OpenAI**      | `.codex/skills/`  | Native skill integration               |
-| **Antigravity** | `.agent/skills/`  | Native skill integration               |
+| Agent           | Target Path         | Integration Method                     |
+| :-------------- | :------------------ | :------------------------------------- |
+| **Cursor**      | `.cursor/skills/`   | Automatic discovery via `.cursorrules` |
+| **Trae**        | `.trae/skills/`     | Automatic discovery                    |
+| **Claude Code** | `.claude/skills/`   | Referenced in `CLAUDE.md`              |
+| **Copilot**     | `.github/skills/`   | Automatic discovery                    |
+| **OpenAI**      | `.codex/skills/`    | Automatic discovery                    |
+| **Antigravity** | `.agent/skills/`    | Automatic discovery                    |
+| **Gemini**      | `.gemini/skills/`   | Automatic discovery                    |
+| **Roo Code**    | `.roo/skills/`      | Automatic discovery                    |
+| **OpenCode**    | `.opencode/skills/` | Automatic discovery                    |
 
 ---
 

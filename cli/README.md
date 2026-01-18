@@ -5,7 +5,7 @@
 
 **The engine behind High-Density AI coding. Command your AI assistants with professional standards.**
 
-The `agent-skills-standard` CLI is the official command-line tool to manage, sync, and version-control engineering standards across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Antigravity, and more**).
+The `agent-skills-standard` CLI is the official command-line tool to manage, sync, and version-control engineering standards across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Gemini, Roo Code, OpenCode, and more**).
 
 ---
 

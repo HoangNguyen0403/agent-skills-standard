@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Smart Initialization** - Automatically includes `react` skill when initializing `Next.js` or `React Native` projects.
 - **Internal Refactor** - Migrated framework and agent identifiers to Enums for better type safety and extensibility.
+- **New Agents** - Added support for **Gemini**, **Roo Code**, and **OpenCode**.
 
 ### Added (Next.js Skills v1.0.0)
 
