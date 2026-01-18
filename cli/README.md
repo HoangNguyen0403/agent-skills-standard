@@ -5,7 +5,7 @@
 
 **The engine behind High-Density AI coding. Command your AI assistants with professional standards.**
 
-The `agent-skills-standard` CLI is the official command-line tool to manage, sync, and version-control engineering standards across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Antigravity, and more**).
+The `agent-skills-standard` CLI is the official command-line tool to manage, sync, and version-control engineering standards across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Gemini, Roo Code, OpenCode, and more**).
 
 ---
 
@@ -86,7 +86,10 @@ The CLI connects to the [Official Skills Registry](https://github.com/HoangNguye
 
 - **Flutter**: Clean Architecture, BLoC, AutoRoute, Performance, Security.
 - **Dart**: Idiomatic Patterns, Advanced Tooling.
-- **NestJS/Next.js**: (Coming Soon)
+- **TypeScript/JavaScript**: Best practices, Security, Tooling.
+- **React**: Hooks, Patterns, Performance.
+- **NestJS**: Architecture, Microservices, Security.
+- **Next.js**: App Router, RSC, FSD Architecture.
 - **Golang**: (Coming Soon)
 
 ---

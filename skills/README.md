@@ -58,6 +58,12 @@ Modern React development patterns.
 
 - [**Component Patterns**](react/component-patterns/SKILL.md) (P0) - Function Components, Composition.
 - [**State Management**](react/state-management/SKILL.md) (P0) - useState, Context, Zustand.
+- [**TypeScript**](react/typescript/SKILL.md) (P0) - React-specific Types.
+- [**Security**](react/security/SKILL.md) (P0) - XSS Prevention, Auth Patterns.
+- [**Hooks**](react/hooks/SKILL.md) (P1) - Custom Hooks, Best Practices.
+- [**Performance**](react/performance/SKILL.md) (P1) - Memoization, Code Splitting.
+- [**Tooling**](react/tooling/SKILL.md) (P1) - Debugging & Profiling.
+- [**Testing**](react/testing/SKILL.md) (P2) - React Testing Library, Jest.
 
 ### 🦁 NestJS (Framework)
 
@@ -71,18 +77,28 @@ Enterprise-grade Node.js backend development.
 - [**Error Handling**](nestjs/error-handling/SKILL.md) (P1) - Global filters.
 - [**Performance**](nestjs/performance/SKILL.md) (P1) - Fastify, Caching.
 - [**Testing**](nestjs/testing/SKILL.md) (P2) - Unit & E2E strategies.
-- [**TypeScript**](react/typescript/SKILL.md) (P0) - React-specific Types.
-- [**Security**](react/security/SKILL.md) (P0) - XSS Prevention, Auth Patterns.
-- [**Hooks**](react/hooks/SKILL.md) (P1) - Custom Hooks, Best Practices.
-- [**Performance**](react/performance/SKILL.md) (P1) - Memoization, Code Splitting.
-- [**Tooling**](react/tooling/SKILL.md) (P1) - Debugging & Profiling.
-- [**Testing**](react/testing/SKILL.md) (P2) - React Testing Library, Jest.
+
+### ▲ Next.js (Framework)
+
+Modern fullstack React framework standards (App Router).
+
+- [**App Router**](nextjs/app-router/SKILL.md) (P0) - Routing conventions, Layouts, Loading.
+- [**Server Components**](nextjs/server-components/SKILL.md) (P0) - RSC patterns, "use client" boundaries.
+- [**Rendering**](nextjs/rendering/SKILL.md) (P0) - SSG, SSR, PPR, Streaming.
+- [**Data Fetching**](nextjs/data-fetching/SKILL.md) (P0) - Extended fetch, Caching control.
+- [**Authentication**](nextjs/authentication/SKILL.md) (P0) - Auth.js / Middleware patterns.
+- [**Data Access Layer**](nextjs/data-access-layer/SKILL.md) (P1) - DAL patterns & DTOs.
+- [**Caching**](nextjs/caching/SKILL.md) (P1) - Request & Data caching layers.
+- [**Styling**](nextjs/styling/SKILL.md) (P1) - Tailwind, Fonts, CSS-in-JS constraints.
+- [**Optimization**](nextjs/optimization/SKILL.md) (P1) - Images, Scripts, Core Web Vitals.
+- [**Server Actions**](nextjs/server-actions/SKILL.md) (P1) - Mutations & Forms.
+- [**Internationalization**](nextjs/internationalization/SKILL.md) (P2) - i18n routing.
+- [**Architecture**](nextjs/architecture/SKILL.md) (P2) - Feature-Sliced Design (FSD).
+- [**State Management**](nextjs/state-management/SKILL.md) (P2) - URL-state, avoiding global stores.
 
 ### 🚀 Coming Soon
 
-- **NestJS** (Framework)
 - **Go** (Language)
-- **Next.js** (Framework)
 - **Angular** (Framework)
 - **Java** (Language)
 - **Kotlin** (Language)

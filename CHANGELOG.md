@@ -5,6 +5,34 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-01-18
+
+**Category**: Fullstack Framework (Next.js) & CLI Improvements
+
+### Added (CLI v1.1.1)
+
+- **Smart Initialization** - Automatically includes `react` skill when initializing `Next.js` or `React Native` projects.
+- **Internal Refactor** - Migrated framework and agent identifiers to Enums for better type safety and extensibility.
+- **New Agents** - Added support for **Gemini**, **Roo Code**, and **OpenCode**.
+
+### Added (Next.js Skills v1.0.0)
+
+Comprehensive guide for App Router architecture and React Server Components.
+
+- **App Router** - File conventions (`layout`, `loading`, `error`), Route Groups, and Dynamic Routes.
+- **Architecture (FSD)** - Feature-Sliced Design adapter for Next.js (App -> Widgets -> Features -> Entities), including "Excessive Entities" prevention rules.
+- **Server Components** - "use client" directives, composition patterns, and serialization boundaries.
+- **Data Fetching** - Extended `fetch` API, Caching strategies (`force-cache`, `no-store`), and ISR patterns.
+- **Server Actions** - Progressive forms, mutations, and `useFormStatus` hooks.
+- **Rendering Strategies** - Static (SSG), Dynamic (SSR), Streaming, and Partial Prerendering (PPR).
+- **Data Access Layer** - Security boundaries, DTO transformation, and API Gateway BFF patterns.
+- **State Management** - Best practices for Granular State, URL-driven state, and avoiding global stores.
+- **Internationalization (i18n)** - Middleware redirection, Sub-path routing (`[lang]`), and Type-safe dictionaries.
+- **Authentication** - HttpOnly Cookie pattern (vs LocalStorage) and Middleware protection.
+- **Styling & UI** - Zero-runtime CSS (Tailwind), RSC compatibility, and `clsx`/`tailwind-merge` patterns.
+- **Caching Architecture** - The 4 Layers (Memoization, Data Cache, Full Route, Router) and `unstable_cache` patterns.
+- **Optimization** - Core Web Vitals monitoring, built-in components, and Metadata API.
+
 ## [1.1.0] - 2026-01-18
 
 ### Added (NestJS Skills v1.1.0)
