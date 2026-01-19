@@ -18,11 +18,11 @@ Reference: [Robot Pattern Implementation](./robot-pattern.md)
 
 ### Updated Example: Testing a Login Screen
 
-````dart
+```dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mocktail/mocktail.dart';
-import 'test_robots/login_robot.dart'; // Import your robot
+import 'robots/login_robot.dart'; // Import your robot
 
 void main() {
   late MockAuthBloc mockAuthBloc;
@@ -70,12 +70,14 @@ void main() {
     ))).called(1);
   });
 }
+```
 
 ## Handling Screen Variability
 
 One of the most common mistakes is testing only on the default 800x600 surface.
 
 ### 1. Multi-Screen Golden Tests
+
 Use `golden_toolkit` to verify responsive layouts across multiple devices.
 
 ```dart
@@ -84,7 +86,7 @@ testGoldens('Login Screen responsive layout', (tester) async {
     ..overrideDevicesForAllScenarios(devices: [
       Device.phone,
       Device.iphone11,
-      Device.tabletPotrait,
+      Device.tabletPortrait,
       Device.tabletLandscape,
     ])
     ..addScenario(
@@ -95,7 +97,7 @@ testGoldens('Login Screen responsive layout', (tester) async {
   await tester.pumpDeviceBuilder(builder);
   await screenMatchesGolden(tester, 'login_screen_responsive');
 });
-````
+```
 
 ### 2. Manual Screen Resizing
 

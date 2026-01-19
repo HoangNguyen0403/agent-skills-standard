@@ -247,7 +247,6 @@ export class InitCommand {
 
       // Only rely on declared dependencies for detection.
       const used = skill.packages.some((p) => projectDeps.has(p));
-      entry.enabled = used;
 
       // If not used, add to parent framework's exclude list so users
       // see which sub-skills were disabled by detection and can opt-in.
@@ -267,7 +266,7 @@ export class InitCommand {
 # skill locally and don't want the CLI to overwrite it.
 #
 # Run 'ags list-skills' to view all available skills.
-\n`;
+`;
     await fs.writeFile(configPath, commentHeader + yaml.dump(config));
     console.log(pc.green('\n✅ Initialized .skillsrc with your preferences!'));
     console.log(pc.gray(`   Selected framework: ${framework}`));

@@ -37,7 +37,7 @@ assets/
 ## Anti-Patterns
 
 - **Hardcoding**: No raw strings in UI; use keys.
-- **Manual L10n**: Avoid standard `Localizations.of`; use GetX or \`easy_localization\` context methods.
+- **Manual L10n**: Avoid standard `Localizations.of`; use GetX or `easy_localization` context methods.
 - **Desync**: Keep keys identical across all locale files.
 
 ## Reference & Examples

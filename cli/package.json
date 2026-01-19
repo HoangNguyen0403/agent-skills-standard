@@ -39,7 +39,7 @@
   "dependencies": {
     "commander": "^11.1.0",
     "fs-extra": "^11.2.0",
-    "inquirer": "^9.2.12",
+    "inquirer": "^8.2.5",
     "js-yaml": "^4.1.0",
     "node-fetch": "^2.7.0",
     "picocolors": "^1.0.0"
@@ -47,7 +47,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@types/fs-extra": "^11.0.4",
-    "@types/inquirer": "^9.0.7",
+    "@types/inquirer": "^8.2.5",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.10.5",
     "@types/node-fetch": "^2.6.9",

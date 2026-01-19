@@ -18,7 +18,7 @@ class UserController extends GetxController {
 Obx(() => Text(controller.name.value));
 ```
 
-### 2. Simple (update() + GetBuilder)
+### 2. Simple state management
 
 Best for: Large objects, low-frequency updates, or reducing memory overhead of many streams.
 

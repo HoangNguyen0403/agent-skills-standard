@@ -35,7 +35,7 @@ final user = UserBuilder().withId('99').build();
 
 We prefer `mocktail` over `mockito` for its null-safety and simplicity.
 
-````dart
+```dart
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
@@ -81,13 +81,16 @@ void main() {
     });
   });
 }
+```
 
 ## Best Practices & Anti-Patterns (DCM)
 
 Avoid common testing mistakes identified by Dart Code Metrics.
 
 ### 1. Assertions are Mandatory
+
 Never write a test that just "runs" without verifying anything.
+
 ```dart
 // BAD
 test('fetchUser runs', () async {
@@ -100,7 +103,7 @@ test('fetchUser returns data', () async {
   final result = await repo.fetchUser();
   expect(result, isNotNull); // ✅ Always verify result
 });
-````
+```
 
 ### 2. Use Proper Matchers
 

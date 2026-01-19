@@ -21,11 +21,26 @@ export async function buildProjectDeps(): Promise<Set<string>> {
   if (await fs.pathExists(pubspecPath)) {
     try {
       const loaded = await fs.readFile(pubspecPath, 'utf8');
-      // simple parse: look for dependency keys at line-start (conservative)
+      // simple parse: only collect keys inside dependencies/dev_dependencies sections
       const lines = loaded.split(/\r?\n/);
+      let currentSection: 'dependencies' | 'dev_dependencies' | null = null;
+      let sectionIndent: number | null = null;
       for (const line of lines) {
-        const m = line.match(/^\s*([a-zA-Z0-9_\-@\\/]+):/);
-        if (m) set.add(m[1]);
+        const sectionMatch = line.match(/^(\s*)(dependencies|dev_dependencies)\s*:/);
+        if (sectionMatch) {
+          currentSection = sectionMatch[2] as 'dependencies' | 'dev_dependencies';
+          sectionIndent = sectionMatch[1].length;
+          continue;
+        }
+        if (!currentSection || sectionIndent === null) continue;
+        const entryMatch = line.match(/^(\s*)([a-zA-Z0-9_\-@\\/]+)\s*:/);
+        if (!entryMatch) continue;
+        const indent = entryMatch[1].length;
+        const key = entryMatch[2];
+        // only include keys that are nested under the current section and are not known non-packages
+        if (indent > sectionIndent && key !== 'sdk' && key !== 'flutter') {
+          set.add(key);
+        }
       }
     } catch {
       // ignore

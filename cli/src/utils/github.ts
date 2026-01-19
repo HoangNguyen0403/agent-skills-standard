@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import { GitHubTreeResponse } from '../models/types';
 
 export function parseRegistryUrl(registryUrl: string) {
-  const m = registryUrl.match(/github\.com\/(?:www\.)?([^/]+)\/([^/]+)/i);
+  const m = registryUrl.match(/github\.com\/([^/]+)\/([^/]+)/i);
   if (!m) return null;
   return { owner: m[1], repo: m[2].replace(/\.git$/, '') };
 }

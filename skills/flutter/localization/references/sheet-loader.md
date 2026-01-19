@@ -16,7 +16,7 @@ sheet_loader_localization:
   output_format: 'json' # Can be csv or json
 ```
 
-## Typical Sheet Format(<https://docs.google.com/spreadsheets/d/1v2Y3e0Uvn0JTwHvsduNT70u7Fy9TG43DIcZYJxPu1ZA/edit?gid=1013756643#gid=1013756643>)
+## Typical Sheet Format ([example sheet](https://docs.google.com/spreadsheets/d/1v2Y3e0Uvn0JTwHvsduNT70u7Fy9TG43DIcZYJxPu1ZA/edit?gid=1013756643#gid=1013756643))
 
 | key            | en            | vi         |
 | :------------- | :------------ | :--------- |
