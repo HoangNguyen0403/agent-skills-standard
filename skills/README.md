@@ -23,7 +23,8 @@ High-density standards for modern Flutter development.
 - [**Error Handling**](flutter/error-handling/SKILL.md) (P1) - Functional error handling.
 - [**Retrofit Networking**](flutter/retrofit-networking/SKILL.md) (P1) - API client standards.
 - [**Dependency Injection**](flutter/dependency-injection/SKILL.md) (P1) - GetIt & Provider patterns.
-- [**Testing**](flutter/testing/SKILL.md) (P2) - Unit, Widget & Integration.
+- [**CI/CD**](flutter/cicd/SKILL.md) (P1) - GitHub Actions, Fastlane, Automation.
+- [**Testing**](flutter/testing/SKILL.md) (P1) - Unit, Widget & Integration Strategies.
 - [**AutoRoute Navigation**](flutter/auto-route-navigation/SKILL.md) (P2) - Type-safe routing.
 - [**GoRouter Navigation**](flutter/go-router-navigation/SKILL.md) (P2) - URI-based routing.
 

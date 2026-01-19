@@ -18,26 +18,27 @@ Ensuring code reliability through multi-layered testing strategies.
 
 ```text
 test/
-├── unit/ # Business logic & mapping
-├── widget/ # UI component behavior
+├── unit/ # Business logic & mapping (Blocs, Repositories, UseCases)
+├── widget/ # UI component behavior (Screens, Widgets)
 └── integration/ # End-to-end flows
 ```
 
 ## Implementation Guidelines
 
+- **Testing Pyramid**: Maintain ~70% Unit Tests, ~20% Widget Tests, ~10% Integration Tests.
 - **Mocks**: Use `mocktail` for type-safe, boilerplate-free mocking.
-- **Unit Tests**: Focus on Repositories and Use Cases. Verify all success/failure paths.
+- **Unit Tests**: Test logic in isolation. Verify all edge cases (Success, Failure, Exception).
+- **Widget Tests**: Test high-value interactions (Button clicks, Error states, Loading indicators).
 - **BLoC Tests**: Use `blocTest` to verify state emission sequences.
-- **Widget Tests**: Test high-value components (Buttons clicking, Loading indicators showing).
-- **Robot Pattern**: Encapsulate widget interaction logic in "Robot" classes for readable tests.
 - **Code Coverage**: Aim for 80%+ coverage on Domain and Presentation (Logic) layers.
-- **Golden Tests**: Use for complex UI layouts to prevent visual regressions (Alchemist).
 
-## Reference & Examples
+## Deep Dive References
 
-For BLoC testing templates and Robot pattern examples:
-See [references/REFERENCE.md](references/REFERENCE.md).
+- [Unit Testing Strategies](./references/unit-testing.md) (Test Data Builders, Mocktail)
+- [Widget Testing Strategies](./references/widget-testing.md) (Robot Pattern)
+- [Integration Testing](./references/integration-testing.md) (Shared Robots, Real Device)
+- [Robot Pattern Implementation](./references/robot-pattern.md)
 
 ## Related Topics
 
-layer-based-clean-architecture | dependency-injection
+layer-based-clean-architecture | dependency-injection | cicd

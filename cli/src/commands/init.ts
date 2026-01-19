@@ -6,21 +6,20 @@ import path from 'path';
 import pc from 'picocolors';
 import {
   Framework,
+  SKILL_DETECTION_REGISTRY,
   SUPPORTED_AGENTS,
   SUPPORTED_FRAMEWORKS,
 } from '../constants';
 import { SkillConfig } from '../models/config';
-import {
-  GitHubTreeItem,
-  GitHubTreeResponse,
-  RegistryMetadata,
-} from '../models/types';
+import { GitHubTreeItem, RegistryMetadata } from '../models/types';
+import { fetchRepoTree, parseRegistryUrl } from '../utils/github';
+import { buildProjectDeps } from '../utils/project';
 
 export class InitCommand {
   async run() {
     const configPath = path.join(process.cwd(), '.skillsrc');
 
-    // Load package.json for dependency checks
+    // Load package.json for dependency checks (for framework detection)
     const packageJsonPath = path.join(process.cwd(), 'package.json');
     let packageDeps: Record<string, string> = {};
     if (await fs.pathExists(packageJsonPath)) {
@@ -87,38 +86,30 @@ export class InitCommand {
     let supportedCategories = ['flutter', 'dart'];
     let metadata: Partial<RegistryMetadata> = {};
 
-    const treeUrl =
-      'https://api.github.com/repos/HoangNguyen0403/agent-skills-standard/git/trees/main?recursive=1';
-    const metadataUrl =
-      'https://raw.githubusercontent.com/HoangNguyen0403/agent-skills-standard/main/skills/metadata.json';
-
+    // Attempt to discover available categories and registry metadata from the canonical registry
     try {
-      const [treeRes, metadataRes] = await Promise.all([
-        fetch(treeUrl, {
-          headers: { Accept: 'application/vnd.github.v3+json' },
-        }),
-        fetch(metadataUrl),
-      ]);
-
-      if (metadataRes.ok) {
-        metadata = (await metadataRes.json()) as RegistryMetadata;
-      }
-
-      if (treeRes.ok) {
-        const treeData = (await treeRes.json()) as GitHubTreeResponse;
-        const allFiles = treeData.tree || [];
-        // Extract top-level folders in skills/
-        const categories = new Set<string>();
-        allFiles.forEach((f: GitHubTreeItem) => {
-          if (f.path.startsWith('skills/') && f.type === 'tree') {
-            const parts = f.path.split('/');
-            if (parts.length === 2) {
-              categories.add(parts[1]);
+      const defaultRegistry =
+        'https://github.com/HoangNguyen0403/agent-skills-standard';
+      const parsed = parseRegistryUrl(defaultRegistry);
+      if (parsed) {
+        const treeResult = await fetchRepoTree(parsed.owner, parsed.repo);
+        if (treeResult && Array.isArray(treeResult.data.tree)) {
+          const allFiles = treeResult.data.tree || [];
+          const categories = new Set<string>();
+          allFiles.forEach((f: GitHubTreeItem) => {
+            if (f.path.startsWith('skills/') && f.type === 'tree') {
+              const parts = f.path.split('/');
+              if (parts.length === 2) categories.add(parts[1]);
             }
+          });
+          if (categories.size > 0) supportedCategories = Array.from(categories);
+
+          // Try to fetch metadata.json at the resolved branch
+          const metaUrl = `https://raw.githubusercontent.com/${parsed.owner}/${parsed.repo}/${treeResult.branch}/skills/metadata.json`;
+          const metaRes = await fetch(metaUrl);
+          if (metaRes.ok) {
+            metadata = (await metaRes.json()) as RegistryMetadata;
           }
-        });
-        if (categories.size > 0) {
-          supportedCategories = Array.from(categories);
         }
       }
     } catch (e) {
@@ -210,6 +201,10 @@ export class InitCommand {
       neededSkills.add(Framework.React);
     }
 
+    // Add framework-specific skills from the registry to potential skills
+    const frameworkSkills = SKILL_DETECTION_REGISTRY[framework] || [];
+    frameworkSkills.forEach((s) => neededSkills.add(s.id));
+
     const config: SkillConfig = {
       registry: answers.registry,
       agents: answers.agents,
@@ -222,6 +217,9 @@ export class InitCommand {
     const allKnownCategories = [
       ...SUPPORTED_FRAMEWORKS.map((f) => f.id),
       ...SUPPORTED_FRAMEWORKS.flatMap((f) => f.languages),
+      ...Object.values(SKILL_DETECTION_REGISTRY).flatMap((skills) =>
+        skills.map((s) => s.id),
+      ),
     ];
 
     for (const skill of [...new Set(allKnownCategories)]) {
@@ -240,7 +238,36 @@ export class InitCommand {
       }
     }
 
-    await fs.writeFile(configPath, yaml.dump(config));
+    // Detect common framework skills and disable them if not used
+    const projectDeps = await buildProjectDeps();
+
+    for (const skill of frameworkSkills) {
+      const entry = config.skills[skill.id];
+      if (!entry) continue;
+
+      // Only rely on declared dependencies for detection.
+      const used = skill.packages.some((p) => projectDeps.has(p));
+
+      // If not used, add to parent framework's exclude list so users
+      // see which sub-skills were disabled by detection and can opt-in.
+      if (!used) {
+        const parent = config.skills[framework] || { enabled: true };
+        const excludes = parent.exclude ? [...parent.exclude] : [];
+        if (!excludes.includes(skill.id)) excludes.push(skill.id);
+        parent.exclude = excludes;
+        config.skills[framework] = parent;
+      }
+    }
+
+    const commentHeader = `# Auto-detected configuration generated by agent-skills-standard init
+#
+# 'exclude': IDs of sub-skills to skip during sync (auto-populated with undetected skills).
+# 'custom_overrides': IDs of skills to PROTECT. Use this if you have modified a standard 
+# skill locally and don't want the CLI to overwrite it.
+#
+# Run 'ags list-skills' to view all available skills.
+`;
+    await fs.writeFile(configPath, commentHeader + yaml.dump(config));
     console.log(pc.green('\n✅ Initialized .skillsrc with your preferences!'));
     console.log(pc.gray(`   Selected framework: ${framework}`));
     console.log(
@@ -258,4 +285,6 @@ export class InitCommand {
       ),
     );
   }
+
+  // project dependency discovery is handled by `cli/src/utils/project.buildProjectDeps`
 }

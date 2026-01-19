@@ -5,6 +5,38 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-01-19
+
+**Category**: Flutter Skill Expansion & CLI Refinement
+
+### Added (Flutter Skills v1.1.0)
+
+Major expansion of the Flutter ecosystem with new reactive patterns, legacy support, and automation.
+
+- **GetX State Management** - Reactive patterns (`.obs`), `Obx`, `GetxController`, and `Binding` lifecycle standards.
+- **GetX Navigation** - Context-less routing, `GetMiddleware` guards, and centralized `AppPages` configuration.
+- **Riverpod 2.0 State Management** - Reactive patterns using `riverpod_generator`, `AsyncNotifier`, and strict immutable models with `freezed`.
+- **Testing Standards** - Comprehensive guidelines for Unit, Widget (Robot Pattern), and BLoC testing using `mocktail` and `bloc_test`.
+- **Localization (easy_localization)** - Standardized JSON-based translation, `.tr()` extension usage, and plurals.
+- **Google Sheets Automation** - Integration with `sheet_loader_localization` to sync translations from remote sheets to local assets.
+- **Navigator v1** - Legacy/Imperative routing support with `onGenerateRoute` and `RouteSettings` extraction.
+- **Equatable Integration** - Added `Equatable` as a lightweight state-comparison alternative to `freezed` when code generation is not preferred.
+
+### Changed (Flutter Skills v1.1.0)
+
+- **State Management Priority** - Established hierarchy: `freezed` is prioritized for complex apps, while `Equatable` is recommended if the library is present in `pubspec.yaml`.
+- **Reference Expansion** - Added detailed code references for all new patterns (Bindings, Middleware, Sheet Loaders).
+
+### Added (CLI v1.1.2)
+
+- **Auto-Detection for GetX** - CLI now detects `get` dependency and auto-enables GetX state/nav skills.
+- **Auto-Detection for Localization** - CLI now detects `easy_localization` and enables the localization skill.
+- **Navigator v1 Default** - Added basic Navigator v1 detection for all Flutter projects.
+
+### Fixed (CLI v1.1.2)
+
+- **Node.js ESM Conflict** - Resolved `ERR_REQUIRE_ESM` by downgrading `inquirer` to v8 for CommonJS compatibility. (Fixes [#11](https://github.com/HoangNguyen0403/agent-skills-standard/issues/11))
+
 ## [1.1.1] - 2026-01-18
 
 **Category**: Fullstack Framework (Next.js) & CLI Improvements

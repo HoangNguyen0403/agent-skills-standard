@@ -75,21 +75,46 @@ The CLI fetched the latest **High-Density Skills** and distributed them into you
 
 ---
 
+## ⚙️ Configuration (`.skillsrc`)
+
+The `.skillsrc` file allows you to customize how skills are synced to your project.
+
+```yaml
+registry: https://github.com/HoangNguyen0403/agent-skills-standard
+agents: [cursor, copilot]
+skills:
+  flutter:
+    enabled: true
+    ref: flutter-v1.1.0
+    # 🚫 Exclude specific sub-skills from being synced
+    exclude: ['getx-navigation']
+    # 🔒 Protect local modifications from being overwritten
+    custom_overrides: ['bloc-state-management']
+```
+
+### Key Options
+
+- **`exclude`**: A list of skill IDs to skip during synchronization. Useful if you want the main framework guidelines but use a different library for a specific sub-task (e.g., excluding `auto-route` if you use `go_router`).
+- **`custom_overrides`**: A list of skill IDs that the CLI should **never** overwrite. Use this when you have modified a standard skill locally to fit your project's unique needs. The CLI will detect these and preserve your local version.
+- **`ref`**: Specify a specific version or tag of the skills from the registry.
+
+---
+
 ## 🌍 Registry Ecosystem
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
 
-### 🔹 Current Support (v1.1.1)
+### 🔹 Current Support (v1.1.2)
 
-| Category          | Skills Included                                                          | Status     |
-| :---------------- | :----------------------------------------------------------------------- | :--------- |
-| **💙 Flutter**    | Clean Arch, BLoC, AutoRoute, Performance, Testing, Security, Retrofit... | **Stable** |
-| **🎯 Dart**       | Idiomatic Patterns, Advanced Tooling, Build Runner...                    | **Stable** |
-| **🔷 TypeScript** | Type Safety, Security, Best Practices, ESLint/Testing Configuration...   | **Stable** |
-| **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional Programming...          | **Stable** |
-| **⚛️ React**      | Hooks, State Management, Performance, Security, Testing...               | **Stable** |
-| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Database Scaling...         | **Stable** |
-| **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, Optimization, FSD Arch...     | **Stable** |
+| Category          | Skills Included                                                                                 | Status     |
+| :---------------- | :---------------------------------------------------------------------------------------------- | :--------- |
+| **💙 Flutter**    | Clean Arch, BLoC, Riverpod, Testing, GetX (Nav/State), Navigator v1, Localization, AutoRoute... | **Stable** |
+| **🎯 Dart**       | Idiomatic Patterns, Advanced Tooling, Build Runner...                                           | **Stable** |
+| **🔷 TypeScript** | Type Safety, Security, Best Practices, ESLint/Testing Configuration...                          | **Stable** |
+| **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional Programming...                                 | **Stable** |
+| **⚛️ React**      | Hooks, State Management, Performance, Security, Testing...                                      | **Stable** |
+| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Database Scaling...                                | **Stable** |
+| **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, Optimization, FSD Arch...                            | **Stable** |
 
 ### 🔹 Ongoing Development (Q1 2026)
 
@@ -150,8 +175,8 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 
 ## 🗺 Roadmap
 
-- [x] **CLI Tooling** (v1.1.1 released)
-- [x] **Flutter** (v1.0.0 released)
+- [x] **CLI Tooling** (v1.1.2 released)
+- [x] **Flutter** (v1.1.0 released)
 - [x] **Dart Core** (v1.0.1 released)
 - [x] **Web Stack (TS/JS/React)** (v1.0.0 released)
 - [x] **NestJS** (v1.0.0 released)

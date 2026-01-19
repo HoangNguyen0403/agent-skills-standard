@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import { InitCommand } from './commands/init';
+import { ListSkillsCommand } from './commands/list-skills';
 import { SyncCommand } from './commands/sync';
 
 const program = new Command();
@@ -10,7 +11,7 @@ program
   .description(
     'A CLI to manage and sync AI agent skills for Cursor, Claude, Copilot, and more.',
   )
-  .version('1.1.1');
+  .version('1.1.2');
 
 program
   .command('init')
@@ -26,6 +27,14 @@ program
   .action(async () => {
     const sync = new SyncCommand();
     await sync.run();
+  });
+
+program
+  .command('list-skills')
+  .description('List available framework skills and detection status')
+  .action(async () => {
+    const cmd = new ListSkillsCommand();
+    await cmd.run();
   });
 
 program.parse();
