@@ -26,9 +26,13 @@ export async function buildProjectDeps(): Promise<Set<string>> {
       let currentSection: 'dependencies' | 'dev_dependencies' | null = null;
       let sectionIndent: number | null = null;
       for (const line of lines) {
-        const sectionMatch = line.match(/^(\s*)(dependencies|dev_dependencies)\s*:/);
+        const sectionMatch = line.match(
+          /^(\s*)(dependencies|dev_dependencies)\s*:/,
+        );
         if (sectionMatch) {
-          currentSection = sectionMatch[2] as 'dependencies' | 'dev_dependencies';
+          currentSection = sectionMatch[2] as
+            | 'dependencies'
+            | 'dev_dependencies';
           sectionIndent = sectionMatch[1].length;
           continue;
         }
