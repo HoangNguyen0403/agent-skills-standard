@@ -167,3 +167,5 @@ export const SUPPORTED_AGENTS: AgentDefinition[] =
 export const SUPPORTED_FRAMEWORKS: FrameworkDefinition[] = Object.values(
   Framework,
 ).map(getFrameworkDefinition);
+
+export { SKILL_DETECTION_REGISTRY, SkillDetection } from './skills';

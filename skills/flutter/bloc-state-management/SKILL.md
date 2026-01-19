@@ -1,18 +1,27 @@
 ---
 name: Flutter BLoC State Management
-description: Standards for predictable state management using flutter_bloc and freezed.
+description: Standards for predictable state management using flutter_bloc, freezed, and equatable.
 metadata:
-  labels: [state-management, bloc, cubit, freezed]
+  labels: [state-management, bloc, cubit, freezed, equatable]
   triggers:
     files: ['**_bloc.dart', '**_cubit.dart', '**_state.dart', '**_event.dart']
-    keywords: [BlocProvider, BlocBuilder, BlocListener, Cubit, Emitter, transformer]
+    keywords:
+      [
+        BlocProvider,
+        BlocBuilder,
+        BlocListener,
+        Cubit,
+        Emitter,
+        transformer,
+        Equatable,
+      ]
 ---
 
 # BLoC State Management
 
 ## **Priority: P0 (CRITICAL)**
 
-Predictable state management separating business logic from UI using `bloc` and `freezed`.
+Predictable state management separating business logic from UI using `bloc`, `freezed`, or `equatable`.
 
 ## Structure
 
@@ -20,16 +29,19 @@ Predictable state management separating business logic from UI using `bloc` and 
 presentation/blocs/
 ├── auth/
 │   ├── auth_bloc.dart
-│   ├── auth_event.dart # (@freezed)
-│   └── auth_state.dart # (@freezed)
+│   ├── auth_event.dart # (@freezed or Equatable)
+│   └── auth_state.dart # (@freezed or Equatable)
 ```
 
 ## Implementation Guidelines
 
-- **States & Events**: Use `@freezed`. Choose strategy:
-  - **Union State**: (initial, loading, success) for exclusive UI phases.
-  - **Property-based State**: (Option<$Either>, bool isSubmitting) for Forms and complex data.
-- **State Properties**: Use `Status` enums or sealed classes.
+- **States & Events**: Default to `@freezed` (Priority). Use `Equatable` if the library is present in `pubspec.yaml`.
+  - **freezed**: Use for union states (initial, loading, success) and automatic `copyWith`.
+  - **Equatable**: Apply if code generation (build_runner) is avoided or `equatable` is the only comparison library in `pubspec.yaml`.
+  - Choose strategy:
+    - **Union State**: Exclusive UI phases (loading vs data).
+    - **Property-based State**: Complex forms (Option<$Either>, flags).
+- **State Properties**: Use enums, sealed classes, or `Status` objects.
 - **Error Handling**: Use `Failure` objects; avoid throwing exceptions.
 - **Async Data**: Use `emit.forEach` or `emit.onEach` for streams.
 - **Concurrency**: Use `transformer` (restartable, droppable) for event debouncing.

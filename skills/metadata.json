@@ -5,8 +5,8 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.0.0",
-      "last_updated": "2026-01-17",
+      "version": "1.1.0",
+      "last_updated": "2026-01-19",
       "tag_prefix": "flutter-v"
     },
     "dart": {
