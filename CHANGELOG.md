@@ -33,6 +33,10 @@ Major expansion of the Flutter ecosystem with new reactive patterns, legacy supp
 - **Auto-Detection for Localization** - CLI now detects `easy_localization` and enables the localization skill.
 - **Navigator v1 Default** - Added basic Navigator v1 detection for all Flutter projects.
 
+### Fixed (CLI v1.1.2)
+
+- **Node.js ESM Conflict** - Resolved `ERR_REQUIRE_ESM` by downgrading `inquirer` to v8 for CommonJS compatibility. (Fixes [#11](https://github.com/HoangNguyen0403/agent-skills-standard/issues/11))
+
 ## [1.1.1] - 2026-01-18
 
 **Category**: Fullstack Framework (Next.js) & CLI Improvements
