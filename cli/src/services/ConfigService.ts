@@ -93,11 +93,15 @@ export class ConfigService {
       const used = skill.packages.some((p) => projectDeps.has(p));
 
       if (!used) {
+        // Add to parent's exclude list
         const parent = config.skills[framework] || {};
         const excludes = parent.exclude ? [...parent.exclude] : [];
         if (!excludes.includes(skill.id)) excludes.push(skill.id);
         parent.exclude = excludes;
         config.skills[framework] = parent;
+
+        // Remove the unused sub-skill from top-level skills
+        delete config.skills[skill.id];
       }
     }
   }

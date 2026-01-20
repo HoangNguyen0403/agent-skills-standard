@@ -34,13 +34,11 @@
       "last_updated": "2026-01-17",
       "tag_prefix": "nestjs-v"
     },
-    "golang": {},
     "nextjs": {
       "version": "1.0.0",
       "last_updated": "2026-01-18",
       "tag_prefix": "nextjs-v"
     },
-    "angular": {},
     "common": {
       "version": "1.0.0",
       "last_updated": "2026-01-20",

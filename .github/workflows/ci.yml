@@ -38,3 +38,29 @@ jobs:
       - name: Type Check & Build
         working-directory: ./cli
         run: pnpm build
+
+  validate-skills:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        working-directory: ./cli
+        run: pnpm install --frozen-lockfile
+
+      - name: Build CLI for validation
+        working-directory: ./cli
+        run: pnpm build
+
+      - name: Validate skill format and structure
+        run: |
+          # Use the CLI validate command
+          ./cli/dist/index.js validate
