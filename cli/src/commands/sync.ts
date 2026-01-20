@@ -55,9 +55,7 @@ export class SyncCommand {
 
       console.log(pc.cyan(`🚀 Syncing skills from ${config.registry}...`));
 
-      const enabledCategories = Object.entries(config.skills)
-        .filter(([, value]) => value.enabled)
-        .map(([key]) => key);
+      const enabledCategories = Object.keys(config.skills);
 
       const skills = await this.assembleFromRemote(enabledCategories, config);
 
@@ -137,8 +135,6 @@ export class SyncCommand {
       const updates: { category: string; from: string; to: string }[] = [];
 
       for (const [cat, catConfig] of Object.entries(config.skills)) {
-        if (!catConfig.enabled) continue;
-
         const remoteCat = remoteMeta.categories?.[cat];
         if (!remoteCat || !remoteCat.version || !remoteCat.tag_prefix) continue;
 

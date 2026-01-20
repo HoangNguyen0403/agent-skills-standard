@@ -40,6 +40,11 @@
       "last_updated": "2026-01-18",
       "tag_prefix": "nextjs-v"
     },
-    "angular": {}
+    "angular": {},
+    "common": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-20",
+      "tag_prefix": "common-v"
+    }
   }
 }

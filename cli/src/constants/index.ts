@@ -8,6 +8,7 @@ export enum Agent {
   OpenCode = 'opencode',
   Gemini = 'gemini',
   Roo = 'roo',
+  Windsurf = 'windsurf',
 }
 
 export enum Framework {
@@ -19,6 +20,8 @@ export enum Framework {
   ReactNative = 'react-native',
   Angular = 'angular',
 }
+
+export const UNIVERSAL_SKILLS = ['common'];
 
 export interface AgentDefinition {
   id: Agent;
@@ -99,6 +102,13 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         name: 'Roo Code',
         path: '.roo/skills',
         detectionFiles: ['.roo'],
+      };
+    case Agent.Windsurf:
+      return {
+        id,
+        name: 'Windsurf',
+        path: '.windsurf/skills',
+        detectionFiles: ['.windsurf', '.windsurfrules'],
       };
   }
 };

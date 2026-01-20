@@ -5,6 +5,37 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-01-20
+
+**Category**: Universal "Common" Skills & Windsurf Support
+
+### Added (Common Skills v1.0.0)
+
+Major expansion of framework-agnostic standards to ensure high-quality software engineering across all languages.
+
+- **Universal Common Category** - Added 7 new universal skill modules that apply to any framework/project.
+- **Security Standards** - Zero Trust architecture, Least Privilege access, and Injection prevention (SQL/XSS) guidelines.
+- **Performance Engineering** - Resource management (Memory/CPU), Network I/O optimization, and UI virtualization standards.
+- **System Design & Architecture** - SoC (Separation of Concerns), Loose Coupling, DIP, and clean architecture implementation logic.
+- **Best Practices (Enriched)** - Added Guard Clauses, Naming Conventions, and Modular Design standards.
+- **Documentation Standards** - Code comments, READMEs, Architecture Decision Records (ADRs), and API documentation guidelines.
+- **Quality Assurance (Enriched)** - Integrated Red-Green-Refactor TDD cycle and PR feedback standards.
+- **Git & Collaboration (Enriched)** - Mandatory high-density **Git Rebase** and linear history workflows.
+- **Reference Repository** - Added heavyweight code examples for all common skills in lazy-loaded `/references` subfolders where applicable.
+
+### Added (CLI v1.2.0)
+
+- **Windsurf Support** - Full support for the **Windsurf** agent with auto-detection of `.windsurf` and `.windsurfrules`.
+- **Auto-Common Sync** - `ags init` now automatically includes the `common` skill category for all new projects.
+- **Token Optimization Report** - Added `EFFECTIVENESS.md` documenting the verifiable **4-10x token savings** of the high-density standard.
+
+### Changed (CLI v1.2.0)
+
+- **Architecture Refactor** - Migrated `InitCommand` to a service-based architecture (`DetectionService`, `RegistryService`, `ConfigService`) following SOLID principles for better maintainability.
+- **Simplified Configuration** - Removed the redundant `enabled: true/false` flag from `.skillsrc`. The CLI now follows a "Presence = Active" pattern for skills.
+- **Improved Initialization** - Enhanced sub-skill detection logic to automatically populate the `exclude` list for parent frameworks, giving users clearer visibility and control.
+- **Centralized Universal Skills** - Implemented `UNIVERSAL_SKILLS` registry to ensure global standards (like `common`) are consistently applied across all framework types.
+
 ## [1.1.2] - 2026-01-19
 
 **Category**: Flutter Skill Expansion & CLI Refinement
