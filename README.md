@@ -7,7 +7,7 @@
 
 **The open standard for High-Density AI coding instructions. Make your AI smarter, faster, and more consistent.**
 
-Agent Skills Standard is a modular framework to distribute, sync, and version-control engineering standards across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Gemini, Antigravity, and custom LLM workflows**).
+Agent Skills Standard is a modular framework to distribute, sync, and version-control engineering standards across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Windsurf, Gemini, Antigravity, and custom LLM workflows**).
 
 ---
 
@@ -104,17 +104,18 @@ skills:
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
 
-### 🔹 Current Support (v1.1.2)
+### 🔹 Current Support (v1.2.0)
 
-| Category          | Skills Included                                                                                 | Status     |
-| :---------------- | :---------------------------------------------------------------------------------------------- | :--------- |
-| **💙 Flutter**    | Clean Arch, BLoC, Riverpod, Testing, GetX (Nav/State), Navigator v1, Localization, AutoRoute... | **Stable** |
-| **🎯 Dart**       | Idiomatic Patterns, Advanced Tooling, Build Runner...                                           | **Stable** |
-| **🔷 TypeScript** | Type Safety, Security, Best Practices, ESLint/Testing Configuration...                          | **Stable** |
-| **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional Programming...                                 | **Stable** |
-| **⚛️ React**      | Hooks, State Management, Performance, Security, Testing...                                      | **Stable** |
-| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Database Scaling...                                | **Stable** |
-| **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, Optimization, FSD Arch...                            | **Stable** |
+| Category          | Skills Included                                                                                 | Status      |
+| :---------------- | :---------------------------------------------------------------------------------------------- | :---------- |
+| **🌐 Common**     | SOLID, Security, Perf Engineering, TDD, System Design, Git Rebase, ADRs...                      | **Updated** |
+| **💙 Flutter**    | Clean Arch, BLoC, Riverpod, Testing, GetX (Nav/State), Navigator v1, Localization, AutoRoute... | **Stable**  |
+| **🎯 Dart**       | Idiomatic Patterns, Advanced Tooling, Build Runner...                                           | **Stable**  |
+| **🔷 TypeScript** | Type Safety, Security, Best Practices, ESLint/Testing Configuration...                          | **Stable**  |
+| **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional Programming...                                 | **Stable**  |
+| **⚛️ React**      | Hooks, State Management, Performance, Security, Testing...                                      | **Stable**  |
+| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Database Scaling...                                | **Stable**  |
+| **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, Optimization, FSD Arch...                            | **Stable**  |
 
 ### 🔹 Ongoing Development (Q1 2026)
 
@@ -159,6 +160,7 @@ The CLI will sync this exact structure effectively to your agent configuration:
 | **Antigravity** | `.agent/skills/`    | Automatic discovery                    |
 | **Gemini**      | `.gemini/skills/`   | Automatic discovery                    |
 | **Roo Code**    | `.roo/skills/`      | Automatic discovery                    |
+| **Windsurf**    | `.windsurf/skills/` | Automatic discovery                    |
 | **OpenCode**    | `.opencode/skills/` | Automatic discovery                    |
 
 ---
@@ -175,8 +177,11 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 
 ## 🗺 Roadmap
 
-- [x] **CLI Tooling** (v1.1.2 released)
+- [x] **CLI Tooling** (v1.2.0 released)
+- [x] **Universal "Common" Skills** (v1.1.0 released)
 - [x] **Flutter** (v1.1.0 released)
+- [ ] **Golang / Angular** (Q1 2026)
+- [ ] **Spring Boot** (Q2 2026)
 - [x] **Dart Core** (v1.0.1 released)
 - [x] **Web Stack (TS/JS/React)** (v1.0.0 released)
 - [x] **NestJS** (v1.0.0 released)

@@ -191,6 +191,7 @@ export class InitCommand {
     }
 
     const neededSkills = new Set<string>();
+    neededSkills.add('common'); // Universal best practices
     neededSkills.add(framework);
     if (selectedFramework) {
       selectedFramework.languages.forEach((l) => neededSkills.add(l));
