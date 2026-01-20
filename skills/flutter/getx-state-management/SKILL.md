@@ -2,7 +2,7 @@
 name: Flutter GetX State Management
 description: Simple and powerful reactive state management using GetX.
 metadata:
-  labels: [state-management, getx, controller, reactive]
+  labels: [flutter, state-management, getx, controller, reactive]
   triggers:
     files: ['**_controller.dart', '**/bindings/*.dart']
     keywords:
@@ -66,11 +66,6 @@ class UserView extends GetView<UserController> {
 }
 ```
 
-## Reference & Examples
-
-For DI Bindings and Reactive patterns:
-See [references/binding-example.md](references/binding-example.md) and [references/reactive-vs-simple.md](references/reactive-vs-simple.md).
-
 ## Related Topics
 
-getx-navigation | feature-based-clean-architecture | dependency-injection
+getx-navigation | layer-based-clean-architecture | dependency-injection

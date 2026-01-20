@@ -2,7 +2,7 @@
 name: Flutter Riverpod State Management
 description: Reactive state management using Riverpod 2.0 with code generation.
 metadata:
-  labels: [state-management, riverpod, dependency-injection, reactive]
+  labels: [flutter, state-management, riverpod, dependency-injection, reactive]
   triggers:
     files: ['**_provider.dart', '**_notifier.dart']
     keywords: [riverpod, ProviderScope, ConsumerWidget, Notifier, AsyncValue, ref.watch, @riverpod]
@@ -19,10 +19,9 @@ Type-safe, compile-time safe reactive state management using `riverpod` and `riv
 ```text
 lib/
 ├── providers/ # Global providers and services
-└── features/
-    └── user/
-        ├── providers/ # Feature-specific providers
-        └── models/    # @freezed domain models
+└── features/user/
+    ├── providers/ # Feature-specific providers
+    └── models/    # @freezed domain models
 ```
 
 ## Implementation Guidelines
@@ -43,11 +42,6 @@ lib/
 - **Context Access**: Never pass `BuildContext` into a Notifier/Provider.
 - **Dynamic Providers**: Avoid local provider instantiation; keep them global.
 
-## Reference & Examples
-
-For architecture details, best practices, and testing overrides:
-See [references/architecture.md](references/architecture.md), [references/best-practices.md](references/best-practices.md), and [references/testing.md](references/testing.md).
-
 ## Related Topics
 
-feature-based-clean-architecture | dependency-injection | testing
+layer-based-clean-architecture | dependency-injection | testing

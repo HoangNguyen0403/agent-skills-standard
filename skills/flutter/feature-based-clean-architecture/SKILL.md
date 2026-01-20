@@ -5,7 +5,8 @@ metadata:
   labels: [architecture, clean-architecture, feature-driven, ddd, modularity]
   triggers:
     files: ['lib/features/**']
-    keywords: [feature, domain, infrastructure, application, presentation, modular]
+    keywords:
+      [feature, domain, infrastructure, application, presentation, modular]
 ---
 
 # Feature-Based Clean Architecture

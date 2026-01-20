@@ -8,7 +8,11 @@ metadata:
     keywords: [StatelessWidget, const, Theme, ListView]
 ---
 
-# UI & Widgets (P1)
+# UI & Widgets
+
+## **Priority: P1 (OPERATIONAL)**
+
+Standards for building reusable, performant Flutter widgets and UI components.
 
 - **State**: Use `StatelessWidget` by default. `StatefulWidget` only for local state/controllers.
 - **Composition**: Extract UI into small, atomic `const` widgets.

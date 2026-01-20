@@ -10,7 +10,9 @@ metadata:
 
 # OpenAPI & Documentation
 
-## Swagger (OpenAPI)
+## **Priority: P2 (MAINTENANCE)**
+
+Automated API documentation and OpenAPI standards.
 
 - **Automation**: **ALWAYS** use the Nest CLI Plugin (`@nestjs/swagger/plugin`).
   - **Benefit**: Auto-generates `@ApiProperty` for DTOs and response types. Reduces boilerplate by 50%.

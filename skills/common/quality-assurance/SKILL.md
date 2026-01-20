@@ -1,6 +1,19 @@
+---
+name: Quality Assurance Standards
+description: Standards for maintaining code hygiene, automated checks, and testing integrity.
+metadata:
+  labels: [quality-assurance, testing, linting, code-quality]
+  triggers:
+    keywords: [test, qa, lint, quality, assurance]
+---
+
 # Quality Assurance - High-Density Standards
 
 Standards for maintaining code hygiene, automated checks, and testing integrity.
+
+## **Priority: P1 (MAINTENANCE)**
+
+Standards for maintaining code quality, automated checks, and testing integrity.
 
 ## 🔍 Code Quality & Linting
 

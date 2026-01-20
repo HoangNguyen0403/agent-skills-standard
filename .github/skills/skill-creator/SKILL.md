@@ -96,6 +96,71 @@ Required sections in `SKILL.md` (keep under 500 lines):
 5. **Anti-Patterns**: Bullet points of "Don't do this"
 6. **Reference Links**: Links to `references/` files (lazy loading)
 
+## ⚠️ CRITICAL: Package Detection & Skill Separation
+
+**🚨 NEVER consolidate skills that serve different packages/libraries.**
+
+### The Core Design Principle
+
+Skills are **intentionally separated by package/library** for CLI detection, **NOT** for redundancy. The CLI automatically detects installed packages and applies relevant skills.
+
+### ❌ WRONG: Consolidation Breaks Detection
+
+```text
+# DON'T DO THIS - Breaks package detection
+skills/flutter/state-management/SKILL.md  # Covers BLoC + Riverpod + GetX
+```
+
+### ✅ RIGHT: Separate Skills Per Package
+
+```text
+skills/flutter/bloc-state-management/SKILL.md      # flutter_bloc package
+skills/flutter/riverpod-state-management/SKILL.md   # riverpod package
+skills/flutter/getx-state-management/SKILL.md       # getx package
+```
+
+### Why This Separation Matters
+
+1. **Package Detection**: CLI scans `package.json`/`pubspec.yaml` and activates skills based on installed packages
+2. **Team Choice**: Different teams prefer different libraries (BLoC for predictability, Riverpod for type safety, GetX for simplicity)
+3. **Migration Paths**: Teams can switch between approaches without losing guidance
+4. **Focused Guidance**: Each library gets accurate, specific instructions
+
+### Decision Framework - Ask These Questions
+
+**BEFORE consolidating ANY skills:**
+
+1. ✅ Do these skills target **different packages/libraries**?
+2. ✅ Are they triggered by **different package installations**?
+3. ✅ Do they serve **different team preferences/use cases**?
+4. ✅ Would consolidation **break CLI package detection**?
+
+**If ANY answer is NO → KEEP SKILLS SEPARATE**
+
+### Real Example From Our Codebase
+
+**Navigation Skills (Flutter):**
+
+- `go-router-navigation` → triggered by `go_router` package
+- `auto-route-navigation` → triggered by `auto_route` package
+- `navigator-v1-navigation` → triggered by built-in `Navigator`
+
+**State Management Skills (Flutter):**
+
+- `bloc-state-management` → triggered by `flutter_bloc` package
+- `riverpod-state-management` → triggered by `riverpod` package
+- `getx-state-management` → triggered by `getx` package
+
+### Validation Warning
+
+The CLI will warn you if consolidation risks are detected:
+
+```bash
+⚠️ Potential consolidation risk: Multiple similar skills found in flutter/
+```
+
+**Treat these warnings seriously - they indicate potential package detection breakage.**
+
 ## Resource Organization (Token-Saving)
 
 ### **scripts/** - Executable Code

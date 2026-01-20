@@ -10,6 +10,10 @@ metadata:
 
 # NestJS Database Standards
 
+## **Priority: P0 (FOUNDATIONAL)**
+
+Database integration patterns and ORM standards for NestJS applications.
+
 ## Selection Framework
 
 ### 1. Data Structure Analysis (The "What")

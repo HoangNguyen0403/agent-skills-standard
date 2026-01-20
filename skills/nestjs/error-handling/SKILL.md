@@ -10,7 +10,9 @@ metadata:
 
 # NestJS Error Handling Standards
 
-## Global Exception Filter
+## **Priority: P1 (OPERATIONAL)**
+
+Global error handling and exception management patterns.
 
 - **Requirement**: Centralize error formatting.
 - **Platform Agnostic**: Do **not** import `Request`/`Response` from Express/Fastify types directly.

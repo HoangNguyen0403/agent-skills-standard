@@ -10,6 +10,10 @@ metadata:
 
 # NestJS Configuration Standards
 
+## **Priority: P1 (OPERATIONAL)**
+
+Environment configuration and validation patterns for NestJS applications.
+
 ## Setup
 
 1. **Library**: Use `@nestjs/config`.

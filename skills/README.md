@@ -9,7 +9,19 @@ Each skill must follow the standard directory structure:
 
 ## 🛠 Active Categories
 
-### 🎯 Flutter (Framework)
+### � Common (Universal)
+
+Cross-framework standards and best practices applicable to all development.
+
+- [**Best Practices**](common/best-practices/SKILL.md) (P0) - SOLID, Clean Code, KISS/DRY/YAGNI.
+- [**Security Standards**](common/security-standards/SKILL.md) (P0) - Universal security protocols.
+- [**System Design**](common/system-design/SKILL.md) (P0) - Architecture & scalability patterns.
+- [**Git Collaboration**](common/git-collaboration/SKILL.md) (P1) - Version control & team workflows.
+- [**Performance Engineering**](common/performance-engineering/SKILL.md) (P1) - Optimization & monitoring.
+- [**Quality Assurance**](common/quality-assurance/SKILL.md) (P1) - Code hygiene & testing standards.
+- [**Documentation**](common/documentation/SKILL.md) (P1) - Code comments & technical docs.
+
+### �🎯 Flutter (Framework)
 
 High-density standards for modern Flutter development.
 
@@ -74,9 +86,19 @@ Enterprise-grade Node.js backend development.
 - [**Controllers & Services**](nestjs/controllers-services/SKILL.md) (P0) - Layer separation standards.
 - [**Database**](nestjs/database/SKILL.md) (P0) - TypeORM, Prisma, Mongoose patterns.
 - [**Security**](nestjs/security/SKILL.md) (P0) - Auth, Guards, Headers.
+- [**File Uploads**](nestjs/file-uploads/SKILL.md) (P0) - Secure file handling patterns.
+- [**Transport**](nestjs/transport/SKILL.md) (P0) - Microservices communication.
+- [**API Standards**](nestjs/api-standards/SKILL.md) (P1) - Response wrapping, pagination.
 - [**Configuration**](nestjs/configuration/SKILL.md) (P1) - Environment management.
 - [**Error Handling**](nestjs/error-handling/SKILL.md) (P1) - Global filters.
 - [**Performance**](nestjs/performance/SKILL.md) (P1) - Fastify, Caching.
+- [**Observability**](nestjs/observability/SKILL.md) (P1) - Logging, monitoring.
+- [**Real-Time**](nestjs/real-time/SKILL.md) (P1) - WebSocket patterns.
+- [**Scheduling**](nestjs/scheduling/SKILL.md) (P1) - Background jobs.
+- [**Search**](nestjs/search/SKILL.md) (P1) - Full-text search patterns.
+- [**Caching**](nestjs/caching/SKILL.md) (P1) - Request & data caching.
+- [**Deployment**](nestjs/deployment/SKILL.md) (P1) - Docker, Kubernetes patterns.
+- [**Documentation**](nestjs/documentation/SKILL.md) (P2) - OpenAPI/Swagger automation.
 - [**Testing**](nestjs/testing/SKILL.md) (P2) - Unit & E2E strategies.
 
 ### ▲ Next.js (Framework)

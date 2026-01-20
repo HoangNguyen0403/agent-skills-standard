@@ -14,6 +14,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
+    "validate": "cd .. && node cli/dist/index.js validate",
+    "validate:all": "cd .. && node cli/dist/index.js validate --all",
     "release-skill": "ts-node scripts/release-skill.ts",
     "release-skill:dry": "ts-node scripts/release-skill.ts --dry-run",
     "release-cli": "ts-node scripts/release-cli.ts",

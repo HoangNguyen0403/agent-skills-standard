@@ -10,6 +10,10 @@ metadata:
 
 # NestJS Architecture Standards
 
+## **Priority: P0 (FOUNDATIONAL)**
+
+Core architectural patterns and dependency injection standards for scalable NestJS applications.
+
 ## Core Principles
 
 1. **Modularity**: Every feature **must** be encapsulated in its own `@Module`.

@@ -1,4 +1,15 @@
+---
+name: System Design & Architecture Standards
+description: Universal architectural standards for building robust, scalable, and maintainable systems.
+metadata:
+  labels: [system-design, architecture, scalability, reliability]
+  triggers:
+    keywords: [architecture, design, system, scalability]
+---
+
 # System Design & Architecture Standards
+
+## **Priority: P0 (FOUNDATIONAL)**
 
 Universal architectural standards for building robust, scalable, and maintainable systems.
 

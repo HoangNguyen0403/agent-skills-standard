@@ -10,6 +10,10 @@ metadata:
 
 # NestJS Controllers & Services Standards
 
+## **Priority: P0 (FOUNDATIONAL)**
+
+Layer separation standards and dependency injection patterns for NestJS applications.
+
 ## Controllers
 
 - **Role**: Handler only. Delegate **all** logic to Services.

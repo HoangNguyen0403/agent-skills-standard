@@ -10,6 +10,10 @@ metadata:
 
 # Caching & Redis Standards
 
+## **Priority: P1 (OPERATIONAL)**
+
+Caching strategies and Redis integration patterns for high-performance NestJS applications.
+
 ## Caching Strategy
 
 - **Layering**: Use **Multi-Level Caching** for high-traffic read endpoints.

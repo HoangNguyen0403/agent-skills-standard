@@ -10,7 +10,9 @@ metadata:
 
 # Search Engine & Full-Text
 
-## Strategy
+## **Priority: P1 (OPERATIONAL)**
+
+Full-text search implementation with Elasticsearch and database patterns.
 
 - **Pattern**: **CQRS (Command Query Responsibility Segregation)**.
   - **Write**: To Primary Database (Postgres/MySQL). Source of Truth.
