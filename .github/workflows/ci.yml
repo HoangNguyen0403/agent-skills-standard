@@ -63,4 +63,4 @@ jobs:
       - name: Validate skill format and structure
         run: |
           # Use the CLI validate command
-          ./cli/dist/index.js validate
+          node ./cli/dist/index.js validate
