@@ -21,6 +21,8 @@ export enum Framework {
   Angular = 'angular',
 }
 
+export const UNIVERSAL_SKILLS = ['common'];
+
 export interface AgentDefinition {
   id: Agent;
   name: string;

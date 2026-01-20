@@ -25,15 +25,9 @@ Universal principles for clean, maintainable, and robust code across all environ
 
 ## 🛡 Security & Performance Foundations
 
-- **Sanitation**: Always validate external input (API, User, Env) to prevent Injection/XSS.
+- **Sanitization**: Always validate external input (API, User, Env) to prevent Injection/XSS.
 - **Early Return**: Guard clauses first to minimize nesting and improve readability.
 - **Lazy Loading**: Defer heavy initialization or data fetching until actually needed.
-
-## 📚 References
-
-- [Code Structure & Modular Design Examples](references/CODE_STRUCTURE.md)
-- [Skill Token Economy & Effectiveness](references/EFFECTIVENESS.md)
-
 - **Resource Cleanup**: Always close streams, file handles, and database connections to prevent leaks.
 
 ## 🧱 Error Handling
@@ -41,3 +35,8 @@ Universal principles for clean, maintainable, and robust code across all environ
 - **Predictable Failures**: Use custom exception types over generic Catch-Alls.
 - **Graceful Degradation**: Fallback values/UI for non-critical failures.
 - **Log Context**: Log actionable metadata (ID, State) along with errors. Avoid silent failures.
+
+## 📚 References
+
+- [Code Structure & Modular Design Examples](references/CODE_STRUCTURE.md)
+- [Skill Token Economy & Effectiveness](references/EFFECTIVENESS.md)

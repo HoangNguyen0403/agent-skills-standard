@@ -5,15 +5,12 @@ agents:
   - claude
 skills:
   flutter:
-    enabled: true
     ref: flutter-v1.1.0
     # 🚫 Sub-skills to skip during sync (e.g., if you don't use them)
     # exclude: ['getx-navigation', 'riverpod-state-management']
     # 🔒 Local skills to PROTECT from being overwritten by sync
     custom_overrides: ['bloc-state-management']
   dart:
-    enabled: true
     ref: dart-v1.0.1
   typescript:
-    enabled: true
     ref: typescript-v1.0.0

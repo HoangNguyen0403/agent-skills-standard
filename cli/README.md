@@ -71,6 +71,30 @@ npx agent-skills-standard sync
 
 ---
 
+## ⚙️ Configuration (`.skillsrc`)
+
+The `.skillsrc` file allows you to customize how skills are synced to your project.
+
+```yaml
+registry: https://github.com/HoangNguyen0403/agent-skills-standard
+agents: [cursor, copilot]
+skills:
+  flutter:
+    ref: flutter-v1.1.0
+    # 🚫 Exclude specific sub-skills from being synced
+    exclude: ['getx-navigation']
+    # 🔒 Protect local modifications from being overwritten
+    custom_overrides: ['bloc-state-management']
+```
+
+### Key Options
+
+- **`exclude`**: A list of skill IDs to skip during synchronization. Useful if you want the main framework guidelines but use a different library for a specific sub-task (e.g., excluding `auto-route` if you use `go_router`).
+- **`custom_overrides`**: A list of skill IDs that the CLI should **never** overwrite. Use this when you have modified a standard skill locally to fit your project's unique needs. The CLI will detect these and preserve your local version.
+- **`ref`**: Specify a specific version or tag of the skills from the registry.
+
+---
+
 ## ✨ Key Features
 
 - **🎯 Efficiency First**: Uses a "Search-on-Demand" pattern that only loads information when the AI needs it, saving its "brain power" for your code.

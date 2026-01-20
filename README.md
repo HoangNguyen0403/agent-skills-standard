@@ -84,7 +84,6 @@ registry: https://github.com/HoangNguyen0403/agent-skills-standard
 agents: [cursor, copilot]
 skills:
   flutter:
-    enabled: true
     ref: flutter-v1.1.0
     # 🚫 Exclude specific sub-skills from being synced
     exclude: ['getx-navigation']
@@ -178,15 +177,14 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 ## 🗺 Roadmap
 
 - [x] **CLI Tooling** (v1.2.0 released)
-- [x] **Universal "Common" Skills** (v1.1.0 released)
+- [x] **Universal "Common" Skills** (v1.0.0 released)
 - [x] **Flutter** (v1.1.0 released)
-- [ ] **Golang / Angular** (Q1 2026)
-- [ ] **Spring Boot** (Q2 2026)
 - [x] **Dart Core** (v1.0.1 released)
 - [x] **Web Stack (TS/JS/React)** (v1.0.0 released)
 - [x] **NestJS** (v1.0.0 released)
 - [x] **Next.js** (v1.0.0 released)
 - [ ] **Golang / Angular** (Q1 2026)
+- [ ] **Spring Boot** (Q1 2026)
 - [ ] **Agent Skills Dashboard** (Web UI for browsing standards)
 
 ---
