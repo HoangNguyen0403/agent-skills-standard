@@ -33,15 +33,11 @@ jobs:
         with:
           version: 10
 
-      - name: Build CLI
-        working-directory: ./cli
+      - name: Build and Publish CLI
         run: |
           pnpm install --frozen-lockfile
           pnpm build
-
-      - name: Publish to NPM
-        working-directory: ./cli
-        run: pnpm publish --access public --no-git-checks
+          pnpm -C cli publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

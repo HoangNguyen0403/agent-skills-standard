@@ -10,10 +10,13 @@ import {
 } from '../constants';
 import { SkillConfig } from '../models/config';
 import { GitHubTreeItem } from '../models/types';
-import { fetchRepoTree, parseRegistryUrl } from '../utils/github';
-import { buildProjectDeps } from '../utils/project';
+import { DetectionService } from '../services/DetectionService';
+import { GithubService } from '../services/GithubService';
 
 export class ListSkillsCommand {
+  private detectionService = new DetectionService();
+  private githubService = new GithubService(process.env.GITHUB_TOKEN);
+
   async run() {
     const choices = SUPPORTED_FRAMEWORKS.map((f) => ({
       name: f.name,
@@ -30,7 +33,7 @@ export class ListSkillsCommand {
       },
     ]);
 
-    const projectDeps = await buildProjectDeps();
+    const projectDeps = await this.detectionService.getProjectDeps();
 
     console.log(pc.green(`\nAvailable skills for ${framework}:`));
 
@@ -48,11 +51,19 @@ export class ListSkillsCommand {
     // Try to fetch the repo tree to list all skills under skills/<framework>/
     let skillFolders: string[] = [];
     try {
-      const parsed = parseRegistryUrl(registryUrl);
+      const parsed = this.parseRegistryUrl(registryUrl);
       if (parsed) {
-        const treeResult = await fetchRepoTree(parsed.owner, parsed.repo);
-        if (treeResult && Array.isArray(treeResult.data.tree)) {
-          const allFiles = treeResult.data.tree || [];
+        // We assume 'main' branch if not specified (legacy behavior of fetchRepoTree handled default,
+        // but for listing skills, 'main' is a safe default for now or we could fetch repo info)
+        // I'll stick to 'main' to keep it simple as in RegistryService refactor.
+        const treeResult = await this.githubService.getRepoTree(
+          parsed.owner,
+          parsed.repo,
+          'main',
+        );
+
+        if (treeResult && Array.isArray(treeResult.tree)) {
+          const allFiles = treeResult.tree || [];
           skillFolders = Array.from(
             new Set(
               allFiles
@@ -92,5 +103,11 @@ export class ListSkillsCommand {
     console.log(
       '\nTip: Use the .skillsrc exclude array to disable/enable sub-skills before running sync.',
     );
+  }
+
+  private parseRegistryUrl(registryUrl: string) {
+    const m = registryUrl.match(/github\.com\/([^/]+)\/([^/]+)/i);
+    if (!m) return null;
+    return { owner: m[1], repo: m[2].replace(/\.git$/, '') };
   }
 }

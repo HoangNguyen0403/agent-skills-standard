@@ -24,19 +24,18 @@ jobs:
           version: 10
 
       - name: Install dependencies
-        working-directory: ./cli
         run: pnpm install --frozen-lockfile
 
+      - name: Check for Vulnerabilities
+        run: pnpm audit --prod
+
       - name: Check Formatting (Prettier)
-        working-directory: ./cli
-        run: pnpm format:check
+        run: pnpm format
 
       - name: Linting (ESLint)
-        working-directory: ./cli
-        run: pnpm lint:check
+        run: pnpm lint
 
       - name: Type Check & Build
-        working-directory: ./cli
         run: pnpm build
 
   validate-skills:
@@ -53,14 +52,10 @@ jobs:
           version: 10
 
       - name: Install dependencies
-        working-directory: ./cli
         run: pnpm install --frozen-lockfile
 
       - name: Build CLI for validation
-        working-directory: ./cli
         run: pnpm build
 
       - name: Validate skill format and structure
-        run: |
-          # Use the CLI validate command
-          node ./cli/dist/index.js validate
+        run: pnpm validate

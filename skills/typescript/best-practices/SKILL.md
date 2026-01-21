@@ -49,59 +49,17 @@ Idiomatic patterns for writing clean, maintainable TypeScript code.
 - **No Unused Variables**: Enable `noUnusedLocals`.
 - **No `require`**: Use ES6 `import`.
 - **No Empty Interfaces**: Use `type` or non-empty interface.
-
-## Code
-
-````typescript
-// Named Export + Immutable Interface
-export interface User {
-  readonly id: string;
-  name: string;
-}
-
-// Exhaustive Check
-function getStatus(s: 'ok' | 'fail') {
-  switch (s) {
-    case 'ok': return 'OK';
-    case 'fail': return 'Fail';
-    default: const _chk: never = s; return _chk;
-  }
-}
-
-// Assertion
-function assertDefined<T>(val: T): asserts val is NonNullable<T> {
-  if (val == null) throw new Error("Defined expected");
-}
-```  private readonly repository: UserRepository;
-
-  constructor(repository: UserRepository) {
-    this.repository = repository;
-  }
-
-  async getUser(id: string): Promise<UserProfile> {
-    try {
-      return await this.repository.findById(id);
-    } catch (error) {
-      throw new Error(`Failed to get user: ${error.message}`);
-    }
-  }
-}
-
-// Organize imports
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-
-import { UserRepository } from '@/repositories/user.repository';
-import { Logger } from '@/utils/logger';
-
-// Type-only imports
-import type { Request, Response } from 'express';
-````
+- **Use any**: Never use `any`, use `unknown` only when necessary.
 
 ## Reference & Examples
 
-For project structure and module organization:
-See [references/REFERENCE.md](references/REFERENCE.md).
+See [references/examples.md](references/examples.md) for code samples including:
+
+- Immutable Interfaces
+- Exhaustiveness Checking
+- Assertion Functions
+- Dependency Injection Patterns
+- Import Organization
 
 ## Related Topics
 

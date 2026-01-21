@@ -5,18 +5,18 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.1.0",
-      "last_updated": "2026-01-19",
+      "version": "1.1.1",
+      "last_updated": "2026-01-21",
       "tag_prefix": "flutter-v"
     },
     "dart": {
-      "version": "1.0.1",
-      "last_updated": "2026-01-17",
+      "version": "1.0.2",
+      "last_updated": "2026-01-21",
       "tag_prefix": "dart-v"
     },
     "typescript": {
-      "version": "1.0.0",
-      "last_updated": "2026-01-17",
+      "version": "1.0.1",
+      "last_updated": "2026-01-21",
       "tag_prefix": "typescript-v"
     },
     "javascript": {
@@ -25,23 +25,23 @@
       "tag_prefix": "javascript-v"
     },
     "react": {
-      "version": "1.0.0",
-      "last_updated": "2026-01-17",
+      "version": "1.0.1",
+      "last_updated": "2026-01-21",
       "tag_prefix": "react-v"
     },
     "nestjs": {
-      "version": "1.0.0",
-      "last_updated": "2026-01-17",
+      "version": "1.0.1",
+      "last_updated": "2026-01-21",
       "tag_prefix": "nestjs-v"
     },
     "nextjs": {
-      "version": "1.0.0",
-      "last_updated": "2026-01-18",
+      "version": "1.0.1",
+      "last_updated": "2026-01-21",
       "tag_prefix": "nextjs-v"
     },
     "common": {
-      "version": "1.0.0",
-      "last_updated": "2026-01-20",
+      "version": "1.1.0",
+      "last_updated": "2026-01-21",
       "tag_prefix": "common-v"
     }
   }

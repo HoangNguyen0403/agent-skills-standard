@@ -7,7 +7,6 @@ import { SUPPORTED_AGENTS, SUPPORTED_FRAMEWORKS } from '../constants';
 import { ConfigService } from '../services/ConfigService';
 import { DetectionService } from '../services/DetectionService';
 import { RegistryService } from '../services/RegistryService';
-import { buildProjectDeps } from '../utils/project';
 
 export class InitCommand {
   private detectionService = new DetectionService();
@@ -99,7 +98,7 @@ export class InitCommand {
       metadata,
     );
 
-    const projectDeps = await buildProjectDeps();
+    const projectDeps = await this.detectionService.getProjectDeps();
     this.configService.applyDependencyExclusions(
       config,
       framework,

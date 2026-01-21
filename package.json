@@ -1,0 +1,21 @@
+{
+  "name": "agent-skills-standard-root",
+  "private": true,
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "build": "pnpm --filter ./cli build",
+    "dev": "pnpm --filter ./cli dev",
+    "lint": "pnpm --filter ./cli lint",
+    "format": "pnpm --filter ./cli format",
+    "format:check": "pnpm --filter ./cli format:check",
+    "lint:check": "pnpm --filter ./cli lint:check",
+    "validate": "node cli/dist/index.js validate",
+    "validate:all": "node cli/dist/index.js validate --all",
+    "test": "pnpm --filter ./cli test",
+    "release-skill": "pnpm --filter ./cli release-skill",
+    "release-cli": "pnpm --filter ./cli release-cli"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

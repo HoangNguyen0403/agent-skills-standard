@@ -35,7 +35,7 @@ lib/features/auth/
 
 ## Implementation Guidelines
 
-- **States & Events**: Use `@freezed` for union states (initial, loading, success) and automatic `copyWith`.
+- **States & Events**: Use `@freezed` for union states. See [references/bloc_templates.md](references/bloc_templates.md).
 - **Error Handling**: Use `Failure` objects; avoid throwing exceptions.
 - **Async Data**: Use `emit.forEach` for streams.
 - **Concurrency**: Use `transformer` for event debouncing.
