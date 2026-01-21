@@ -1,4 +1,4 @@
-import { Framework } from './index';
+import { Framework } from './enums';
 
 /**
  * SkillDetection defines how to automatically enable a skill based on project dependencies.

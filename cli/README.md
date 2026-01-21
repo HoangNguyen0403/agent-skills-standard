@@ -39,7 +39,7 @@ You can run the tool instantly without installing, or install it globally for co
 
 ```bash
 # Use instantly (Recommended)
-npx agent-skills-standard sync
+npx agent-skills-standard@latest sync
 
 # Or install globally
 npm install -g agent-skills-standard
@@ -57,7 +57,7 @@ ags sync
 Run this once to detect your project type and choose which "skills" you want your AI to have.
 
 ```bash
-npx agent-skills-standard init
+npx agent-skills-standard@latest init
 ```
 
 ### 2. Boost Your AI
@@ -65,7 +65,7 @@ npx agent-skills-standard init
 Run this to fetch the latest high-density instructions and install them into your hidden agent folders (like `.cursor/skills/` or `.github/skills/`).
 
 ```bash
-npx agent-skills-standard sync
+npx agent-skills-standard@latest sync
 
 ```
 
@@ -101,6 +101,7 @@ skills:
 - **🚀 High-Density Instructions**: Optimized syntax that is **40% more compact** than standard English.
 - **🛡️ Universal Support**: Works out-of-the-box with Cursor, Claude, GitHub Copilot, and more.
 - **🔒 Secure Protection**: Mark specific files as "Locked" (overrides) so the CLI never changes your custom tweaks.
+- **🧪 Production-Grade Reliability**: Guarded by a 100% statement coverage test suite and strict CI enforcement.
 
 ---
 

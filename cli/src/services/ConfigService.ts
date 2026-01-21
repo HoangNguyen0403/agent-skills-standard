@@ -58,6 +58,7 @@ export class ConfigService {
     agents: string[],
     registry: string,
     metadata: Partial<RegistryMetadata>,
+    languages: string[] = [],
   ): SkillConfig {
     const skills: Record<string, CategoryConfig> = {};
 
@@ -67,6 +68,15 @@ export class ConfigService {
         ? `${metadata.categories[framework].tag_prefix || ''}${metadata.categories[framework].version}`
         : 'main',
     };
+
+    // Add associated languages (e.g., typescript, javascript)
+    for (const lang of languages) {
+      if (metadata.categories?.[lang]) {
+        skills[lang] = {
+          ref: `${metadata.categories[lang].tag_prefix || ''}${metadata.categories[lang].version}`,
+        };
+      }
+    }
 
     // Add common category if available
     if (metadata.categories?.['common']) {

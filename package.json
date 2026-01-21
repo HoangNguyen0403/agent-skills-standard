@@ -12,6 +12,7 @@
     "validate": "node cli/dist/index.js validate",
     "validate:all": "node cli/dist/index.js validate --all",
     "test": "pnpm --filter ./cli test",
+    "test:coverage": "pnpm --filter ./cli test:coverage",
     "release-skill": "pnpm --filter ./cli release-skill",
     "release-cli": "pnpm --filter ./cli release-cli"
   },

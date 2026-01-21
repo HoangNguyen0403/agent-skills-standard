@@ -65,7 +65,7 @@ Consume engineering standards in your project instantly.
 ### 1. Run the CLI
 
 ```bash
-npx agent-skills-standard init
+npx agent-skills-standard@latest init
 ```
 
 _The interactive wizard will detect your stack and setup your `.skillsrc`._
@@ -73,7 +73,7 @@ _The interactive wizard will detect your stack and setup your `.skillsrc`._
 ### 2. Sync Standards
 
 ```bash
-npx agent-skills-standard sync
+npx agent-skills-standard@latest sync
 ```
 
 **What happened?**
@@ -82,7 +82,7 @@ The CLI fetched the latest **High-Density Skills** and distributed them into you
 ### 3. Validate Skills (For Contributors)
 
 ```bash
-npx agent-skills-standard validate
+npx agent-skills-standard@latest validate
 ```
 
 **What it does:**
@@ -122,7 +122,7 @@ If the CLI complains about configuration format:
 
 - Ensure `registry` is a valid URL.
 - Ensure `skills` is a map of categories to config objects.
-- Run `npx agent-skills-standard init` to generate a fresh valid config.
+- Run `npx agent-skills-standard@latest init` to generate a fresh valid config.
 
 ---
 

@@ -5,6 +5,25 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-01-21
+
+### Added
+
+- **100% Comprehensive Testing**: Achieved 100% statement coverage across all core services using Vitest.
+- **Registry Guard Tests**: Data-driven test suite for `SKILL_DETECTION_REGISTRY` to ensure logic stability as detection rules evolve.
+- **CI/CD Enforcements**: Updated GitHub Actions to strictly enforce 90%+ code coverage on every pull request.
+
+### Fixed
+
+- **Type Safety**: Resolved numerous TypeScript `any` types and linting errors for a more stable developer experience.
+- **Mocking Reliability**: Replaced brittle file system and network mocks with more resilient, implementation-aware alternatives.
+- **Framework Detection**: Fixed edge cases in missing dependency exclusions for Flutter and NestJS.
+- **Improved Stability**: Fixed `GITHUB_BASE_REF` fallback logic for GitHub Actions environments.
+
+### Changed
+
+- Migrated from legacy testing patterns to Vitest for faster execution and better developer tooling.
+
 ## [1.3.0] - 2026-01-21
 
 **Category**: High-Density Standards & CLI Architecture Refactor

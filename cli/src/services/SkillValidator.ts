@@ -1,5 +1,4 @@
 import { execSync } from 'child_process';
-import console from 'console';
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
