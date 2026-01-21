@@ -74,7 +74,7 @@ skills/
 
 ## Content Sections (Token-Budgeted)
 
-Required sections in `SKILL.md` (keep under 500 lines):
+Required sections in `SKILL.md`:
 
 1. **Frontmatter (Mandatory)**: Metadata for triggering (100 words max)
 
@@ -95,6 +95,15 @@ Required sections in `SKILL.md` (keep under 500 lines):
 4. **Guidelines**: Bullet points of "Do this" (imperative)
 5. **Anti-Patterns**: Bullet points of "Don't do this"
 6. **Reference Links**: Links to `references/` files (lazy loading)
+
+## Size Limits (Strict)
+
+| Element                    | Limit    | Action if Exceeded       |
+| -------------------------- | -------- | ------------------------ |
+| SKILL.md total             | 70 lines | Extract to references/   |
+| Inline code block          | 10 lines | Move to references/      |
+| Anti-pattern item          | 15 words | Compress to imperative   |
+| Description after Priority | 0 lines  | Remove (use frontmatter) |
 
 ## Resource Organization (Token-Saving)
 
@@ -143,13 +152,26 @@ Required sections in `SKILL.md` (keep under 500 lines):
 2. Test across different agents
 3. Measure token consumption
 
+### Validation Checklist
+
+Before finalizing, verify:
+
+- [ ] SKILL.md ≤70 lines (ideal: 40-60)
+- [ ] No inline code >10 lines
+- [ ] No repeated frontmatter content
+- [ ] Anti-patterns use imperative format
+- [ ] Complex examples in references/
+
 ## Anti-Patterns (Token Wasters)
 
 - **Verbose Explanations**: "This is important because..." → Delete
 - **Redundant Context**: Same info in multiple places
-- **Large Inline Code**: Move to references/ or scripts/
+- **Large Inline Code**: Move code >10 lines to references/
 - **Conversational Style**: "Let's see how to..." → "Do this:"
 - **Over-Engineering**: Complex structure for simple skills
+- **Redundant Descriptions**: Do not repeat frontmatter `description` after `## Priority`
+- **Oversized Skills**: SKILL.md >70 lines → Extract to references/
+- **Long Anti-Patterns**: Use `**No X**: Do Y, not Z.` (max 15 words)
 
 ## Reference & Examples
 

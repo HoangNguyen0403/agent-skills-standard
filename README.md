@@ -3,12 +3,12 @@
 [![NPM Version](https://img.shields.io/npm/v/agent-skills-standard.svg?style=flat-square)](https://www.npmjs.com/package/agent-skills-standard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/HoangNguyen0403/agent-skills-standard?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/stargazers)
-[![common](https://img.shields.io/badge/common-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.1.0)
+[![common](https://img.shields.io/badge/common-v1.1.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.1.1)
 [![flutter](https://img.shields.io/badge/flutter-v1.1.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/flutter-v1.1.1)
 [![dart](https://img.shields.io/badge/dart-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/dart-v1.0.2)
-[![typescript](https://img.shields.io/badge/typescript-v1.0.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/typescript-v1.0.1)
-[![react](https://img.shields.io/badge/react-v1.0.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-v1.0.1)
-[![nestjs](https://img.shields.io/badge/nestjs-v1.0.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.0.1)
+[![typescript](https://img.shields.io/badge/typescript-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/typescript-v1.0.2)
+[![react](https://img.shields.io/badge/react-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-v1.0.2)
+[![nestjs](https://img.shields.io/badge/nestjs-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.0.2)
 [![nextjs](https://img.shields.io/badge/nextjs-v1.0.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nextjs-v1.0.1)
 
 **The open standard for High-Density AI coding instructions. Make your AI smarter, faster, and more consistent.**
@@ -130,17 +130,17 @@ If the CLI complains about configuration format:
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
 
-### 🔹 Current Support (v1.3.0)
+### 🔹 Current Support (v1.3.2)
 
 | Category          | Key Modules                                           | Version  |
 | :---------------- | :---------------------------------------------------- | :------- |
-| **🌐 Common**     | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.1.0` |
+| **🌐 Common**     | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.1.1` |
 | **💙 Flutter**    | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.1` |
 | **🎯 Dart**       | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.2` |
-| **🔷 TypeScript** | Type Safety, Security, Best Practices, Tooling        | `v1.0.1` |
+| **🔷 TypeScript** | Type Safety, Security, Best Practices, Tooling        | `v1.0.2` |
 | **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.0` |
-| **⚛️ React**      | Hooks, State Management, Performance, Security        | `v1.0.1` |
-| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.1` |
+| **⚛️ React**      | Hooks, State Management, Performance, Security        | `v1.0.2` |
+| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.2` |
 | **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` |
 
 ### 🔹 Ongoing Development (Q1 2026)

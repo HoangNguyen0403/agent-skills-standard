@@ -7,42 +7,90 @@
     "flutter": {
       "version": "1.1.1",
       "last_updated": "2026-01-21",
-      "tag_prefix": "flutter-v"
+      "tag_prefix": "flutter-v",
+      "token_metrics": {
+        "total_skills": 19,
+        "total_tokens": 7663,
+        "avg_tokens_per_skill": 403,
+        "largest_skill": "getx-navigation (565 tokens)"
+      }
     },
     "dart": {
       "version": "1.0.2",
       "last_updated": "2026-01-21",
-      "tag_prefix": "dart-v"
+      "tag_prefix": "dart-v",
+      "token_metrics": {
+        "total_skills": 3,
+        "total_tokens": 1028,
+        "avg_tokens_per_skill": 343,
+        "largest_skill": "language (516 tokens)"
+      }
     },
     "typescript": {
-      "version": "1.0.1",
+      "version": "1.0.2",
       "last_updated": "2026-01-21",
-      "tag_prefix": "typescript-v"
+      "tag_prefix": "typescript-v",
+      "token_metrics": {
+        "total_skills": 4,
+        "total_tokens": 1602,
+        "avg_tokens_per_skill": 401,
+        "largest_skill": "language (482 tokens)"
+      }
     },
     "javascript": {
       "version": "1.0.0",
       "last_updated": "2026-01-17",
-      "tag_prefix": "javascript-v"
+      "tag_prefix": "javascript-v",
+      "token_metrics": {
+        "total_skills": 3,
+        "total_tokens": 1170,
+        "avg_tokens_per_skill": 390,
+        "largest_skill": "language (418 tokens)"
+      }
     },
     "react": {
-      "version": "1.0.1",
+      "version": "1.0.2",
       "last_updated": "2026-01-21",
-      "tag_prefix": "react-v"
+      "tag_prefix": "react-v",
+      "token_metrics": {
+        "total_skills": 8,
+        "total_tokens": 3092,
+        "avg_tokens_per_skill": 387,
+        "largest_skill": "performance (648 tokens)"
+      }
     },
     "nestjs": {
-      "version": "1.0.1",
+      "version": "1.0.2",
       "last_updated": "2026-01-21",
-      "tag_prefix": "nestjs-v"
+      "tag_prefix": "nestjs-v",
+      "token_metrics": {
+        "total_skills": 18,
+        "total_tokens": 8970,
+        "avg_tokens_per_skill": 498,
+        "largest_skill": "architecture (861 tokens)"
+      }
     },
     "nextjs": {
       "version": "1.0.1",
       "last_updated": "2026-01-21",
-      "tag_prefix": "nextjs-v"
+      "tag_prefix": "nextjs-v",
+      "token_metrics": {
+        "total_skills": 13,
+        "total_tokens": 6550,
+        "avg_tokens_per_skill": 504,
+        "largest_skill": "rendering (991 tokens)"
+      }
     },
     "common": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "last_updated": "2026-01-21",
-      "tag_prefix": "common-v"
+      "tag_prefix": "common-v",
+      "token_metrics": {
+        "total_skills": 7,
+        "total_tokens": 3759,
+        "avg_tokens_per_skill": 537,
+        "largest_skill": "git-collaboration (641 tokens)"
+      }
     }
   }
 }
