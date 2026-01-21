@@ -19,7 +19,7 @@ interface JWTPayload {
 
 export class AuthService {
   private readonly secret: string;
-  
+
   constructor() {
     this.secret = process.env.JWT_SECRET!;
     if (!this.secret) {
@@ -54,27 +54,31 @@ import express from 'express';
 const app = express();
 
 // Security headers
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:', 'https:'],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
     },
-  },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true,
-  },
-}));
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+  }),
+);
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || [],
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || [],
+    credentials: true,
+  }),
+);
 ```
 
 ## Role-Based Access Control
@@ -102,11 +106,11 @@ function hasPermission(role: Role, permission: Permission): boolean {
 function requirePermission(permission: Permission) {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = req.user; // Assume user is set by auth middleware
-    
+
     if (!user || !hasPermission(user.role, permission)) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    
+
     next();
   };
 }

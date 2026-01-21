@@ -1,6 +1,5 @@
-#!/usr/bin/env node
-
 import { execSync } from 'child_process';
+import console from 'console';
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
@@ -22,12 +21,18 @@ interface ValidationSummary {
 export class SkillValidator {
   private results: SkillValidationResult[] = [];
 
-  async run(validateAll: boolean = false): Promise<void> {
-    const summary = await this.validateAllSkills(validateAll);
-    this.printSummary(summary);
-
-    if (summary.failed > 0) {
-      process.exit(1);
+  async run(validateAll: boolean = false): Promise<number> {
+    try {
+      const summary = await this.validateAllSkills(validateAll);
+      this.printSummary(summary);
+      return summary.failed > 0 ? 1 : 0;
+    } catch (error) {
+      console.error(
+        pc.red(
+          `❌ Validation error: ${error instanceof Error ? error.stack : error}`,
+        ),
+      );
+      return 1;
     }
   }
 
@@ -37,8 +42,7 @@ export class SkillValidator {
     const skillsDir = path.join(process.cwd(), 'skills');
 
     if (!(await fs.pathExists(skillsDir))) {
-      console.error(pc.red('❌ skills/ directory not found'));
-      process.exit(1);
+      throw new Error('skills/ directory not found');
     }
 
     // Find SKILL.md files
@@ -106,10 +110,16 @@ export class SkillValidator {
 
       // In CI (GitHub Actions), compare against the base branch
       if (process.env.GITHUB_BASE_REF) {
+        // Ensure the base branch is fetched
+        try {
+          execSync(`git fetch origin ${process.env.GITHUB_BASE_REF} --depth=1`);
+        } catch {
+          // Fallback if fetch fails
+        }
         gitCommand = `git diff --name-only origin/${process.env.GITHUB_BASE_REF}...HEAD`;
       } else {
-        // Local development: compare against previous commit
-        gitCommand = 'git diff --name-only HEAD~1';
+        // Local development: compare against HEAD
+        gitCommand = 'git diff --name-only HEAD';
       }
 
       const gitOutput = execSync(gitCommand, {
@@ -223,7 +233,9 @@ export class SkillValidator {
       const skillDir = path.dirname(skillFile);
       await this.validateSkillDirectory(skillDir, result);
     } catch (error) {
-      result.errors.push(`Failed to read file: ${error}`);
+      result.errors.push(
+        `Failed to read or validate file: ${error instanceof Error ? error.message : error}`,
+      );
       result.passed = false;
     }
 
@@ -257,12 +269,6 @@ export class SkillValidator {
         );
       }
     }
-
-    // Check assets directory (just ensure it exists if referenced)
-    const assetsDir = path.join(skillDir, 'assets');
-    if (await fs.pathExists(assetsDir)) {
-      // Assets are for templates, no specific validation needed beyond existence
-    }
   }
 
   private async validateMetadata(): Promise<void> {
@@ -270,15 +276,13 @@ export class SkillValidator {
 
     try {
       if (!(await fs.pathExists(metadataPath))) {
-        console.log(pc.red('❌ skills/metadata.json not found'));
-        process.exit(1);
+        throw new Error('skills/metadata.json not found');
       }
 
       const metadata = await fs.readJson(metadataPath);
 
       if (!metadata.categories) {
-        console.log(pc.red('❌ metadata.json missing "categories" field'));
-        process.exit(1);
+        throw new Error('metadata.json missing "categories" field');
       }
 
       for (const [category, config] of Object.entries(metadata.categories)) {
@@ -290,13 +294,15 @@ export class SkillValidator {
         const catConfig = config as CategoryConfig;
 
         if (!catConfig.version) {
-          console.log(pc.red(`❌ Category "${category}" missing version`));
-          process.exit(1);
+          throw new Error(
+            `Category "${category}" missing version in metadata.json`,
+          );
         }
 
         if (!catConfig.tag_prefix) {
-          console.log(pc.red(`❌ Category "${category}" missing tag_prefix`));
-          process.exit(1);
+          throw new Error(
+            `Category "${category}" missing tag_prefix in metadata.json`,
+          );
         }
 
         console.log(
@@ -306,8 +312,9 @@ export class SkillValidator {
         );
       }
     } catch (error) {
-      console.log(pc.red(`❌ Failed to validate metadata.json: ${error}`));
-      process.exit(1);
+      throw new Error(
+        `Metadata validation failed: ${error instanceof Error ? error.message : error}`,
+      );
     }
   }
 
@@ -336,7 +343,6 @@ export class SkillValidator {
     console.log(pc.blue('📊 VALIDATION SUMMARY'));
     console.log('='.repeat(50));
 
-    console.log(`Total skills: ${summary.total}`);
     console.log(pc.green(`Passed: ${summary.passed}`));
     console.log(pc.red(`Failed: ${summary.failed}`));
 

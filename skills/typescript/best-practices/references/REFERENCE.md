@@ -9,7 +9,7 @@ Project structure and advanced patterns.
 
 ## Project Structure
 
-```
+```typescript
 src/
 ├── domain/           # Business logic (entities, value objects)
 │   ├── user/

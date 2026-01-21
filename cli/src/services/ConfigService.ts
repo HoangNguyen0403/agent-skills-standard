@@ -2,6 +2,7 @@ import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
 import { z } from 'zod';
+import { SKILL_DETECTION_REGISTRY } from '../constants';
 import { CategoryConfig, SkillConfig } from '../models/config';
 import { RegistryMetadata } from '../models/types';
 
@@ -83,15 +84,33 @@ export class ConfigService {
   }
 
   applyDependencyExclusions(
-    _config: SkillConfig,
-    _framework: string,
-    _projectDeps: Set<string>,
+    config: SkillConfig,
+    framework: string,
+    projectDeps: Set<string>,
   ) {
-    void _config;
-    void _framework;
-    void _projectDeps;
-    // Simple logic: If a framework skill implies a dependency that isn't in projectDeps, exclude it?
-    // Or conversely, if we have specific mapping logic.
-    // For now, I'll restore a basic placeholder logic or simple heuristics.
+    const category = config.skills[framework];
+    if (!category) return;
+
+    const exclusions = new Set<string>(category.exclude || []);
+
+    // mapping of "sub-skill identifier" to "package keywords"
+    // from the centralized SKILL_DETECTION_REGISTRY
+    const detections = SKILL_DETECTION_REGISTRY[framework] || [];
+
+    for (const detection of detections) {
+      const hasDep = Array.from(projectDeps).some((d) =>
+        detection.packages.some((pkg) =>
+          d.toLowerCase().includes(pkg.toLowerCase()),
+        ),
+      );
+
+      if (!hasDep) {
+        exclusions.add(detection.id);
+      }
+    }
+
+    if (exclusions.size > 0) {
+      category.exclude = Array.from(exclusions);
+    }
   }
 }

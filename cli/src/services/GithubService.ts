@@ -72,6 +72,21 @@ export class GithubService {
     }
   }
 
+  async getRepoInfo(
+    owner: string,
+    repo: string,
+  ): Promise<{ default_branch: string } | null> {
+    const url = `${this.baseUrl}/repos/${owner}/${repo}`;
+    try {
+      const res = await fetch(url, { headers: this.headers });
+      if (!res.ok) return null;
+      return (await res.json()) as { default_branch: string };
+    } catch (error) {
+      console.error(pc.red(`Failed to fetch repo info: ${error}`));
+      return null;
+    }
+  }
+
   /**
    * Downloads multiple files concurrently with a limit.
    */

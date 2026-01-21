@@ -40,9 +40,9 @@ export class SyncCommand {
       console.log(pc.green('✅ All skills synced successfully!'));
     } catch (error) {
       if (error instanceof Error) {
-        console.error(pc.red('❌ Syn failed:'), error.message);
+        console.error(pc.red('❌ Sync failed:'), error.message);
       } else {
-        console.error(pc.red('❌ Syn failed:'), String(error));
+        console.error(pc.red('❌ Sync failed:'), String(error));
       }
     }
   }

@@ -1,46 +1,63 @@
 ---
 name: Agent Skills Architecture
-description: Core design principles and architecture of the Agent Skills Standard system.
+description: Foundational "High-Density" standard for token-optimized agent instructions and CLI-based automated activation.
 metadata:
-  labels:
-    [meta, architecture, system-design, skills-organization, package-detection]
+  labels: [architecture, high-density, meta, optimization, cli-integration]
   triggers:
-    files: ['ARCHITECTURE.md', 'metadata.json']
+    files: ['.skillsrc', 'metadata.json', 'SKILL.md']
     keywords:
       [
-        skills architecture,
-        package detection,
+        skill architecture,
+        high-density standard,
+        modular skills,
+        dependency exclusion,
         skill separation,
-        consolidation,
-        agent skills standard,
       ]
 ---
 
-# Agent Skills Standard - Architecture
+# Agent Skills Architecture Standard
 
-## **Priority: P0 (FOUNDATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
-Core design principles: **Separation by Package** and **Progressive Disclosure**.
+The primary goal is **Maximum Information Density** and **Automated Precision**.
 
-## 🎯 Core Design Principle
+## 🏗️ Core Architectural Pillars
 
-**Skills are separated by package/library for CLI detection.**
+### 1. **Separation by Package (Granularity)**
 
-See [../../.github/skills/skill-creator/references/package-detection.md](../../skill-creator/references/package-detection.md) for the detailed rationale.
+- **Rule**: Separate skills based on specific library/framework dependencies.
+- **Goal**: Avoid context pollution. Don't load "Riverpod" instructions into a "BLoC" project.
+- **Example**: `flutter/bloc-state-management` vs `flutter/riverpod-state-management`.
 
-## 📦 Package Detection System
+### 2. **Presence = Active (Simplified Configuration)**
 
-The CLI automatically detects installed packages (`package.json`, `pubspec.yaml`) and applies relevant skills.
+- **Logic**: If a skill is listed in `.skillsrc`, it is considered active.
+- **Standard**: Remove legacy `enabled` flags. Control activation via inclusion/exclusion lists.
 
-## 🛡️ Validation & Standards
+### 3. **CLI Detection & Dynamic Exclusion**
 
-All skills must adhere to the **Skill Creator Standard**.
+- **Mechanism**: The CLI (`ags`) maps `package.json`/`pubspec.yaml` dependencies to skill IDs.
+- **Exclusion**: Irrelevant sub-skills are automatically added to the `exclude` list during initialization if their corresponding packages are missing.
 
-See [../../.github/skills/skill-creator/SKILL.md](../../skill-creator/SKILL.md) for authoring rules.
+### 4. **Progressive Disclosure (Three-Level Loading)**
 
-## 📋 Quick Commands
+- **Level 1 (Metadata)**: Triggers activation via high-precision keywords/files.
+- **Level 2 (SKILL.md Body)**: Core imperative logic (<500 lines). No conversational fluff.
+- **Level 3 (References)**: Detailed examples, complex patterns, scripts. Lazy-loaded on-demand.
 
-```bash
-pnpm validate:all  # Validate all skills
-pnpm list-skills   # List all separated skills
-```
+## 📦 ID & Naming Standards
+
+- **Category**: Lowercase letters (e.g., `flutter`, `nestjs`).
+- **Skill ID**: Kebab-case, must match the directory name.
+- **Registry ID**: Must match the Skill ID for automated CLI detection/exclusion.
+
+## 📋 High-Density Writing Style
+
+- **Imperative Mood**: Use "Use X", "Avoid Y". No "Please" or "You should".
+- **Token Compression**: Skip articles ("the", "a") where possible. Use bullet points > paragraphs.
+- **Anti-Patterns**: Avoid conversational intros ("In this skill, we see...").
+
+## 🔗 Internal References
+
+- [Skill Creator Standard](../../skill-creator/SKILL.md) - Detailed authoring rules.
+- [Resource Organization](../../skill-creator/references/resource-organization.md) - Folder structure best practices.

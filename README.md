@@ -86,7 +86,7 @@ npx agent-skills-standard validate
 ```
 
 **What it does:**
-Validates all skills for format compliance, and structural integrity. Ensures skills follow our High-Density standards before merging.
+Validates all skills for format compliance and structural integrity. Ensures skills follow our High-Density standards before merging.
 
 ---
 
