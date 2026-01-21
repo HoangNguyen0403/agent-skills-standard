@@ -77,31 +77,21 @@ export class InitCommand {
       },
     ]);
 
-    const framework = answers.framework as string;
-    if (!supportedCategories.includes(framework)) {
-      console.log(
-        pc.yellow(
-          `\nNotice: Skills for ${framework} are not yet strictly defined and will be added soon.`,
-        ),
-      );
-      console.log(
-        pc.gray(
-          'The CLI will still generate rule files with global standards.\n',
-        ),
-      );
-    }
+    const frameworkId = answers.framework as string;
+    const frameworkDef = SUPPORTED_FRAMEWORKS.find((f) => f.id === frameworkId);
 
     const config = this.configService.buildInitialConfig(
-      framework,
+      frameworkId,
       answers.agents,
       answers.registry,
       metadata,
+      frameworkDef?.languages || [],
     );
 
     const projectDeps = await this.detectionService.getProjectDeps();
     this.configService.applyDependencyExclusions(
       config,
-      framework,
+      frameworkId,
       projectDeps,
     );
 
@@ -117,7 +107,7 @@ export class InitCommand {
     await fs.writeFile(configPath, commentHeader + yaml.dump(config));
 
     console.log(pc.green('\n✅ Initialized .skillsrc with your preferences!'));
-    console.log(pc.gray(`   Selected framework: ${framework}`));
+    console.log(pc.gray(`   Selected framework: ${frameworkId}`));
     console.log(
       pc.cyan(
         '\nNext step: Run `agent-skills-standard sync` to generate rule files.',

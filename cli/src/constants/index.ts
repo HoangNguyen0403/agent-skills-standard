@@ -1,25 +1,6 @@
-export enum Agent {
-  Cursor = 'cursor',
-  Trae = 'trae',
-  Claude = 'claude',
-  Copilot = 'copilot',
-  Antigravity = 'antigravity',
-  OpenAI = 'openai',
-  OpenCode = 'opencode',
-  Gemini = 'gemini',
-  Roo = 'roo',
-  Windsurf = 'windsurf',
-}
+import { Agent, Framework } from './enums';
 
-export enum Framework {
-  Flutter = 'flutter',
-  NestJS = 'nestjs',
-  Golang = 'golang',
-  NextJS = 'nextjs',
-  React = 'react',
-  ReactNative = 'react-native',
-  Angular = 'angular',
-}
+export { Agent, Framework };
 
 export const UNIVERSAL_SKILLS = ['common'];
 
