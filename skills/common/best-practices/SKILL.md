@@ -7,13 +7,9 @@ metadata:
     keywords: [solid, kiss, dry, yagni, naming, conventions]
 ---
 
-# Global Best Practices - High-Density Standards
-
-Universal principles for clean, maintainable, and robust code across all environments.
+# Global Best Practices
 
 ## **Priority: P0 (FOUNDATIONAL)**
-
-Foundational principles for clean, maintainable, and robust code across all environments.
 
 ## 🏗 SOLID & Architectural Principles
 

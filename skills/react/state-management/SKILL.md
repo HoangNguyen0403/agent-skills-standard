@@ -32,25 +32,11 @@ Choosing the right tool for state scope.
 - **No Multi-Source**: Single Source of Truth.
 - **No Context Abuse**: Context causes full-tree re-render.
 
-## Code
+## Reference & Examples
 
-```tsx
-// Derived State (Efficient)
-function List({ items, filter }) {
-  // Correct: Calculated on fly
-  const visible = items.filter((i) => i.includes(filter));
-  return (
-    <ul>
-      {visible.map((i) => (
-        <li key={i}>{i}</li>
-      ))}
-    </ul>
-  );
-}
+For Zustand, Redux Toolkit, and TanStack Query patterns:
+See [references/REFERENCE.md](references/REFERENCE.md).
 
-// Zustand (Global)
-const useStore = create((set) => ({
-  count: 0,
-  inc: () => set((s) => ({ count: s.count + 1 })),
-}));
-```
+## Related Topics
+
+hooks | component-patterns | performance

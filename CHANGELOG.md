@@ -7,11 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.1] - 2026-01-21
 
-### Added
+**Category**: Content-Level Optimization & Token Economy Guardrails
 
+### Added (CLI v1.3.2)
+
+- **Token Measurement Engine** - New `calculate-tokens` script to automate character-based token estimation across all skills.
+- **Metadata Automation** - Integrated `token_metrics` into `metadata.json` for real-time tracking of skill efficiency.
 - **100% Comprehensive Testing**: Achieved 100% statement coverage across all core services using Vitest.
 - **Registry Guard Tests**: Data-driven test suite for `SKILL_DETECTION_REGISTRY` to ensure logic stability as detection rules evolve.
 - **CI/CD Enforcements**: Updated GitHub Actions to strictly enforce 90%+ code coverage on every pull request.
+
+### Updated (Common Skills v1.1.1)
+
+- **Enhanced skill-creator** - Added strict size limits (≤70 lines), anti-patterns for redundancy, and a pre-release validation checklist.
+- **Compressed System Design** - Refined universal architecture guidelines with 10% higher density.
+- **Unified Best Practices** - Removed redundant descriptions and standardized imperative format.
+
+### Updated (Framework Skills v1.0.2)
+
+- **NestJS Security** - Significant optimization (90 → 57 lines) via progressive disclosure. Extracted complex implementation code to `references/implementation.md`.
+- **React State Management** - Reduced context window footprint by 26% by moving redundant codebase examples to references.
+- **TypeScript Best Practices** - Applied imperative compression to naming and function standards, reducing line count by 30%.
 
 ### Fixed
 

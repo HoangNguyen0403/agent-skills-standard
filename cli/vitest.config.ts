@@ -16,6 +16,7 @@ export default defineConfig({
         'src/index.ts',
         'src/models/**',
         'src/constants/**',
+        'src/scripts/**',
       ],
       thresholds: {
         lines: 90,
