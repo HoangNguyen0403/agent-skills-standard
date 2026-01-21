@@ -19,6 +19,7 @@ export enum Framework {
   React = 'react',
   ReactNative = 'react-native',
   Angular = 'angular',
+  Rails = 'rails',
 }
 
 export const UNIVERSAL_SKILLS = ['common'];
@@ -167,6 +168,19 @@ export const getFrameworkDefinition = (id: Framework): FrameworkDefinition => {
         name: 'Angular',
         languages: ['typescript'],
         detectionFiles: ['angular.json'],
+      };
+    case Framework.Rails:
+      return {
+        id,
+        name: 'Ruby on Rails',
+        languages: ['ruby'],
+        detectionFiles: [
+          'Gemfile',
+          'config/application.rb',
+          'config/environment.rb',
+          'bin/rails',
+        ],
+        detectionDependencies: ['rails'],
       };
   }
 };

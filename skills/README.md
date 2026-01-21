@@ -97,6 +97,25 @@ Modern fullstack React framework standards (App Router).
 - [**Architecture**](nextjs/architecture/SKILL.md) (P2) - Feature-Sliced Design (FSD).
 - [**State Management**](nextjs/state-management/SKILL.md) (P2) - URL-state, avoiding global stores.
 
+### 💎 Ruby (Language)
+
+Core Ruby standards.
+
+- [**Language**](ruby/language/SKILL.md) (P0) - Idioms and fundamentals.
+- [**Best Practices**](ruby/best-practices/SKILL.md) (P1) - Maintainability and boundaries.
+- [**Tooling**](ruby/tooling/SKILL.md) (P1) - Bundler, RuboCop, CI checks.
+
+### 🛤 Ruby on Rails (Framework)
+
+Rails standards for web applications and APIs.
+
+- [**Best Practices**](rails/best-practices/SKILL.md) (P0) - Transactions, locking, correctness.
+- [**Architecture**](rails/architecture/SKILL.md) (P0) - Boundaries and conventions.
+- [**Security**](rails/security/SKILL.md) (P0) - Params, secrets, OWASP.
+- [**Testing**](rails/testing/SKILL.md) (P1) - RSpec/Minitest guidance.
+- [**RSpec**](rails/rspec/SKILL.md) (P1) - RSpec conventions for Rails.
+- [**RuboCop**](rails/rubocop/SKILL.md) (P1) - Linting rules for Rails codebases.
+
 ### 🚀 Coming Soon
 
 - **Go** (Language)

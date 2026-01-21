@@ -62,4 +62,13 @@ export const SKILL_DETECTION_REGISTRY: Record<string, SkillDetection[]> = {
       packages: ['@nestjs/passport', 'passport', 'helmet'],
     },
   ],
+  [Framework.Rails]: [
+    { id: 'authentication', packages: ['devise'] },
+    { id: 'background-jobs', packages: ['sidekiq', 'resque', 'delayed_job'] },
+    { id: 'api', packages: ['rack-cors', 'jbuilder'] },
+    { id: 'testing', packages: ['rspec-rails', 'minitest'] },
+    { id: 'linting', packages: ['rubocop', 'standard'] },
+    { id: 'rspec', packages: ['rspec-rails', 'rspec'] },
+    { id: 'rubocop', packages: ['rubocop'] },
+  ],
 };

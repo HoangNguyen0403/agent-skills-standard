@@ -183,6 +183,7 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 - [x] **Web Stack (TS/JS/React)** (v1.0.0 released)
 - [x] **NestJS** (v1.0.0 released)
 - [x] **Next.js** (v1.0.0 released)
+- [x] **Ruby / Ruby on Rails** (v1.0.0 released)
 - [ ] **Golang / Angular** (Q1 2026)
 - [ ] **Spring Boot** (Q1 2026)
 - [ ] **Agent Skills Dashboard** (Web UI for browsing standards)

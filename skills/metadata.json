@@ -41,6 +41,16 @@
       "tag_prefix": "nextjs-v"
     },
     "angular": {},
+    "ruby": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-21",
+      "tag_prefix": "ruby-v"
+    },
+    "rails": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-21",
+      "tag_prefix": "rails-v"
+    },
     "common": {
       "version": "1.0.0",
       "last_updated": "2026-01-20",
