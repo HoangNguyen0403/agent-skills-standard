@@ -10,7 +10,9 @@ metadata:
 
 # File Upload Patterns
 
-## Security (Input Validation)
+## **Priority: P0 (FOUNDATIONAL)**
+
+Secure file upload handling with validation and storage patterns.
 
 - **Magic Bytes**: NEVER trust `content-type` header or file extension.
   - **Tool**: Use `file-type` or `mmmagic` to verify the actual buffer signature.

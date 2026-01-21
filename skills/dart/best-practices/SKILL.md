@@ -8,7 +8,11 @@ metadata:
     keywords: [import, final, const, var, global]
 ---
 
-# Dart Best Practices (P1)
+# Dart Best Practices
+
+## **Priority: P1 (OPERATIONAL)**
+
+Best practices for writing clean, maintainable Dart code.
 
 - **Scoping**:
   - No global variables.

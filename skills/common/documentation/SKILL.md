@@ -1,6 +1,19 @@
+---
+name: Documentation Standards
+description: Essential rules for code comments, READMEs, and technical documentation.
+metadata:
+  labels: [documentation, comments, docstrings, readme]
+  triggers:
+    keywords: [comment, docstring, readme, documentation]
+---
+
 # Documentation Standards - High-Density Standards
 
 Essential rules for code comments, READMEs, and technical documentation.
+
+## **Priority: P2 (MAINTENANCE)**
+
+Essential rules for maintaining proper code comments, READMEs, and technical documentation.
 
 ## 📝 Code Comments (Inline Docs)
 

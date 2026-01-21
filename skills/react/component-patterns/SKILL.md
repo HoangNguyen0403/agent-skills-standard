@@ -36,30 +36,9 @@ Standards for building scalable, maintainable React components.
 - **No Index Keys**: Use stable IDs.
 - **No Inline Handlers**: Define before return.
 
-## Code
-
-```tsx
-// Composition
-export function Layout({ children, aside }: LayoutProps) {
-  return (
-    <div className='grid'>
-      <aside>{aside}</aside>
-      <main>{children}</main>
-    </div>
-  );
-}
-
-// Compound Component
-export function Select({ children }: { children: ReactNode }) {
-  return <select>{children}</select>;
-}
-Select.Option = ({ val, children }) => <option value={val}>{children}</option>;
-```
-
 ## Reference & Examples
 
-For advanced patterns (HOCs, Render Props, Compound Components):
-See [references/REFERENCE.md](references/REFERENCE.md).
+See [references/patterns.md](references/patterns.md) for Composition, Compound Components, and Render Props examples.
 
 ## Related Topics
 

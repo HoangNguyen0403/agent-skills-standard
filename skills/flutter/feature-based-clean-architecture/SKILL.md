@@ -5,7 +5,8 @@ metadata:
   labels: [architecture, clean-architecture, feature-driven, ddd, modularity]
   triggers:
     files: ['lib/features/**']
-    keywords: [feature, domain, infrastructure, application, presentation, modular]
+    keywords:
+      [feature, domain, infrastructure, application, presentation, modular]
 ---
 
 # Feature-Based Clean Architecture
@@ -16,15 +17,7 @@ Standard for modular Clean Architecture organized by business features in `lib/f
 
 ## Structure
 
-```text
-lib/
-├── features/ <feature_name>/
-│   ├── domain/ # Business Logic (Pure Dart): entities, interfaces, use_cases
-│   ├── data/ # Implementation: data_sources, dtos, repositories
-│   └── presentation/ # UI & State: blocs, pages, widgets
-├── core/ # Shared infrastructure & utilities
-└── shared/ # Common UI components & shared entities
-```
+See [references/folder-structure.md](references/folder-structure.md) for the complete directory blueprint.
 
 ## Implementation Guidelines
 

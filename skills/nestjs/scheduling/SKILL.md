@@ -10,7 +10,9 @@ metadata:
 
 # Task Scheduling & Jobs
 
-## Distributed Cron (Critical)
+## **Priority: P1 (OPERATIONAL)**
+
+Background job processing and scheduled task patterns.
 
 - **Problem**: `@Cron()` runs on **every** instance. In K8s with 3 pods, your "Daily Report" runs 3 times.
 - **Solution**: **Distributed Locking** using Redis.

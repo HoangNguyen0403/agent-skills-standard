@@ -5,6 +5,36 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-01-21
+
+**Category**: High-Density Standards & CLI Architecture Refactor
+
+### Added (Common Skills v1.1.0)
+
+- **Enhanced Skill Creator** - Major improvements with three-level loading system (Core, Examples, Resources) and lifecycle documentation.
+- **Architecture References** - Added comprehensive templates and lifecycle guides for skill developers.
+- **Service Refactor** - Migrated universal architecture guidelines to standard modules.
+
+### Updated (Framework & Language Skills)
+
+- **Flutter Skills (v1.1.1)** - Refined BLoC, GetX, and Riverpod patterns with enhanced triggers and modular references.
+- **Dart Skills (v1.0.2)** - Updated best practices and language patterns for better agent decision masking.
+- **TypeScript/React Skills (v1.0.1)** - Enriched type-safety standards, hooks documentation, and security best practices.
+- **NestJS Skills (v1.0.1)** - Major update to skill triggers (v1 & v2) across all 18 enterprise modules for precise agent activation.
+- **Next.js Skills (v1.0.1)** - Improved App Router and RSC guidelines with optimized token economy.
+
+### Changed (CLI v1.3.0)
+
+- **Service-Based Architecture** - Fully migrated CLI commands to a modular service pattern (`DetectionService`, `RegistryService`, `GithubService`, `ConfigService`) for better maintainability and testability.
+- **Improved Skill Discovery** - Integrated `GithubService` for more robust remote skill listing and metadata fetching.
+- **Simplified Configuration (Breaking)** - Removed the redundant `enabled` flag. The CLI now follows a "Presence = Active" pattern for skills in `.skillsrc`.
+- **Enhanced Validation** - The `validate` command now performs deeper structural checks and token efficiency analysis.
+
+### Fixed (CLI v1.3.0)
+
+- **CLI Validation Fix** - Corrected the `validate` command to properly use `node` for execution across different environments.
+- **Dependency Exclusions** - Refined the initial configuration logic to better exclude unnecessary sub-skills based on project dependencies.
+
 ## [1.2.0] - 2026-01-20
 
 **Category**: Universal "Common" Skills & Windsurf Support
@@ -35,6 +65,8 @@ Major expansion of framework-agnostic standards to ensure high-quality software 
 - **Simplified Configuration** - Removed the redundant `enabled: true/false` flag from `.skillsrc`. The CLI now follows a "Presence = Active" pattern for skills.
 - **Improved Initialization** - Enhanced sub-skill detection logic to automatically populate the `exclude` list for parent frameworks, giving users clearer visibility and control.
 - **Centralized Universal Skills** - Implemented `UNIVERSAL_SKILLS` registry to ensure global standards (like `common`) are consistently applied across all framework types.
+- **Enhanced Skill Creator** - Major improvements to the `skill-creator` skill with token-optimized guidelines, three-level loading system, comprehensive lifecycle documentation, and resource organization strategies inspired by Anthropics' best practices.
+- **Skill Validation System** - Added `validate` command to CLI with automated checks for token efficiency, format compliance, and structural integrity. Integrated into CI pipeline to ensure quality standards.
 
 ## [1.1.2] - 2026-01-19
 

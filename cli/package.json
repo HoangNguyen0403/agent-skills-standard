@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "A CLI to manage and sync AI agent skills standard for Cursor, Claude, Copilot, Windsurf, and more.",
   "main": "dist/index.js",
   "bin": {
@@ -15,13 +15,10 @@
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "release-skill": "ts-node scripts/release-skill.ts",
-    "release-skill:dry": "ts-node scripts/release-skill.ts --dry-run",
     "release-cli": "ts-node scripts/release-cli.ts",
-    "release-cli:dry": "ts-node scripts/release-cli.ts --dry-run",
-    "publish:dry": "pnpm publish --dry-run --no-git-checks",
     "format": "prettier --write \"src/**/*.ts\" \"scripts/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"scripts/**/*.ts\"",
-    "lint:fix": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\" --fix",
+    "lint": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\" --fix",
     "lint:check": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\"",
     "prepublishOnly": "pnpm build"
   },
@@ -41,8 +38,8 @@
     "fs-extra": "^11.2.0",
     "inquirer": "^8.2.5",
     "js-yaml": "^4.1.0",
-    "node-fetch": "^2.7.0",
-    "picocolors": "^1.0.0"
+    "picocolors": "^1.0.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
@@ -50,7 +47,6 @@
     "@types/inquirer": "^8.2.5",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.10.5",
-    "@types/node-fetch": "^2.6.9",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",

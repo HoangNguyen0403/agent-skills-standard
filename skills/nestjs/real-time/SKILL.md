@@ -10,7 +10,9 @@ metadata:
 
 # Real-Time & WebSockets
 
-## Selection Strategy (Critical)
+## **Priority: P1 (OPERATIONAL)**
+
+WebSocket and real-time communication patterns with NestJS.
 
 - **WebSockets (Bi-directional)**: Use for Chat, Multiplayer Games, Collaborative Editing.
   - _High Complexity_: Requires custom scaling (Redis Adapter) and sticky sessions (sometimes).

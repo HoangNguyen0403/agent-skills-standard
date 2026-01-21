@@ -20,21 +20,41 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Install dependencies
-        working-directory: ./cli
         run: pnpm install --frozen-lockfile
 
+      - name: Check for Vulnerabilities
+        run: pnpm audit --prod
+
       - name: Check Formatting (Prettier)
-        working-directory: ./cli
-        run: pnpm format:check
+        run: pnpm format
 
       - name: Linting (ESLint)
-        working-directory: ./cli
-        run: pnpm lint:check
+        run: pnpm lint
 
       - name: Type Check & Build
-        working-directory: ./cli
         run: pnpm build
+
+  validate-skills:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build CLI for validation
+        run: pnpm build
+
+      - name: Validate skill format and structure
+        run: pnpm validate

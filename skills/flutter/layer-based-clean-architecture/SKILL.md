@@ -5,7 +5,8 @@ metadata:
   labels: [architecture, clean-architecture, layers, ddd]
   triggers:
     files: ['lib/domain/**', 'lib/infrastructure/**', 'lib/application/**']
-    keywords: [domain, infrastructure, application, presentation, layers, dto, mapper]
+    keywords:
+      [domain, infrastructure, application, presentation, layers, dto, mapper]
 ---
 
 # Layer-Based Clean Architecture

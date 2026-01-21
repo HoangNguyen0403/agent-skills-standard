@@ -2,7 +2,7 @@
 name: Flutter BLoC State Management
 description: Standards for predictable state management using flutter_bloc, freezed, and equatable.
 metadata:
-  labels: [state-management, bloc, cubit, freezed, equatable]
+  labels: [flutter, state-management, bloc, cubit, freezed, equatable]
   triggers:
     files: ['**_bloc.dart', '**_cubit.dart', '**_state.dart', '**_event.dart']
     keywords:
@@ -21,13 +21,13 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-Predictable state management separating business logic from UI using `bloc`, `freezed`, or `equatable`.
+Predictable state management separating business logic from UI using `flutter_bloc`, `freezed`, or `equatable`.
 
 ## Structure
 
 ```text
-presentation/blocs/
-├── auth/
+lib/features/auth/
+├── bloc/
 │   ├── auth_bloc.dart
 │   ├── auth_event.dart # (@freezed or Equatable)
 │   └── auth_state.dart # (@freezed or Equatable)
@@ -35,16 +35,10 @@ presentation/blocs/
 
 ## Implementation Guidelines
 
-- **States & Events**: Default to `@freezed` (Priority). Use `Equatable` if the library is present in `pubspec.yaml`.
-  - **freezed**: Use for union states (initial, loading, success) and automatic `copyWith`.
-  - **Equatable**: Apply if code generation (build_runner) is avoided or `equatable` is the only comparison library in `pubspec.yaml`.
-  - Choose strategy:
-    - **Union State**: Exclusive UI phases (loading vs data).
-    - **Property-based State**: Complex forms (Option<$Either>, flags).
-- **State Properties**: Use enums, sealed classes, or `Status` objects.
+- **States & Events**: Use `@freezed` for union states. See [references/bloc_templates.md](references/bloc_templates.md).
 - **Error Handling**: Use `Failure` objects; avoid throwing exceptions.
-- **Async Data**: Use `emit.forEach` or `emit.onEach` for streams.
-- **Concurrency**: Use `transformer` (restartable, droppable) for event debouncing.
+- **Async Data**: Use `emit.forEach` for streams.
+- **Concurrency**: Use `transformer` for event debouncing.
 - **Testing**: Use `blocTest` for state transition verification.
 - **Injection**: Register BLoCs as `@injectable` (Factory).
 
@@ -54,11 +48,6 @@ presentation/blocs/
 - **No UI Logic**: Do not perform calculations or data formatting inside `BlocBuilder`.
 - **No Cross-Bloc Reference**: Do not pass a BLoC instance into another BLoC; use streams or the UI layer to coordinate.
 
-## Reference & Examples
-
-For full BLoC/Cubit implementations and concurrency patterns:
-See [references/REFERENCE.md](references/REFERENCE.md).
-
 ## Related Topics
 
-feature-based-clean-architecture | dependency-injection
+layer-based-clean-architecture | dependency-injection | error-handling

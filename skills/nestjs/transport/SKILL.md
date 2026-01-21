@@ -10,7 +10,9 @@ metadata:
 
 # Microservices & Transport Standards
 
-## Transport Strategies
+## **Priority: P0 (FOUNDATIONAL)**
+
+Microservices communication patterns and transport layer standards.
 
 - **Synchronous (RPC)**: Use **gRPC** for low-latency, internal service-to-service calls.
   - **Why**: 10x faster than REST/JSON, centralized `.proto` contracts.

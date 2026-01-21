@@ -10,7 +10,9 @@ metadata:
 
 # NestJS Security Standards
 
-## Authentication
+## **Priority: P0 (FOUNDATIONAL)**
+
+Authentication, authorization, and security best practices for NestJS applications.
 
 - **Strategies**: Use `@nestjs/passport` with `passport-jwt`.
 - **JWT Hardening**:

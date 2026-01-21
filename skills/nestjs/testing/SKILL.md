@@ -10,7 +10,9 @@ metadata:
 
 # NestJS Testing Standards
 
-## Strategy
+## **Priority: P2 (MAINTENANCE)**
+
+Unit testing, integration testing, and E2E testing patterns for NestJS applications.
 
 1. **Unit Tests**: Isolated logic (Services). Mock **all** dependencies (`jest.fn()`).
 2. **E2E Tests**: Full lifecycle (`test/app.e2e-spec.ts`).

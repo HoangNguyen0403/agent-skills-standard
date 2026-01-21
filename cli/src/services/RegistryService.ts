@@ -1,8 +1,13 @@
-import fetch from 'node-fetch';
 import { GitHubTreeItem, RegistryMetadata } from '../models/types';
-import { fetchRepoTree, parseRegistryUrl } from '../utils/github';
+import { GithubService } from './GithubService';
 
 export class RegistryService {
+  private githubService: GithubService;
+
+  constructor() {
+    this.githubService = new GithubService(process.env.GITHUB_TOKEN);
+  }
+
   async discoverRegistry(
     registryUrl: string,
   ): Promise<{ categories: string[]; metadata: Partial<RegistryMetadata> }> {
@@ -10,11 +15,25 @@ export class RegistryService {
     let metadata: Partial<RegistryMetadata> = {};
 
     try {
-      const parsed = parseRegistryUrl(registryUrl);
+      const parsed = this.parseRegistryUrl(registryUrl);
       if (parsed) {
-        const treeResult = await fetchRepoTree(parsed.owner, parsed.repo);
-        if (treeResult && Array.isArray(treeResult.data.tree)) {
-          const allFiles = treeResult.data.tree || [];
+        let branch = 'main';
+        const repoInfo = await this.githubService.getRepoInfo(
+          parsed.owner,
+          parsed.repo,
+        );
+        if (repoInfo && repoInfo.default_branch) {
+          branch = repoInfo.default_branch;
+        }
+
+        const treeResult = await this.githubService.getRepoTree(
+          parsed.owner,
+          parsed.repo,
+          branch,
+        );
+
+        if (treeResult && Array.isArray(treeResult.tree)) {
+          const allFiles = treeResult.tree || [];
           const foundCategories = new Set<string>();
           allFiles.forEach((f: GitHubTreeItem) => {
             if (f.path.startsWith('skills/') && f.type === 'tree') {
@@ -25,10 +44,14 @@ export class RegistryService {
           if (foundCategories.size > 0)
             categories = Array.from(foundCategories);
 
-          const metaUrl = `https://raw.githubusercontent.com/${parsed.owner}/${parsed.repo}/${treeResult.branch}/skills/metadata.json`;
-          const metaRes = await fetch(metaUrl);
-          if (metaRes.ok) {
-            metadata = (await metaRes.json()) as RegistryMetadata;
+          const metaContent = await this.githubService.getRawFile(
+            parsed.owner,
+            parsed.repo,
+            branch,
+            'skills/metadata.json',
+          );
+          if (metaContent) {
+            metadata = JSON.parse(metaContent) as RegistryMetadata;
           }
         }
       }
@@ -37,5 +60,11 @@ export class RegistryService {
     }
 
     return { categories, metadata };
+  }
+
+  private parseRegistryUrl(registryUrl: string) {
+    const m = registryUrl.match(/github\.com\/([^/]+)\/([^/]+)/i);
+    if (!m) return null;
+    return { owner: m[1], repo: m[2].replace(/\.git$/, '') };
   }
 }

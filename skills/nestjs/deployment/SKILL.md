@@ -10,6 +10,10 @@ metadata:
 
 # Deployment & Ops Standards
 
+## **Priority: P1 (OPERATIONAL)**
+
+Docker optimization and production deployment standards for NestJS applications.
+
 ## Docker Optimization
 
 - **Multi-Stage Builds**: Mandatory.

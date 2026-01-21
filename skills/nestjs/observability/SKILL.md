@@ -10,7 +10,9 @@ metadata:
 
 # Observability Standards
 
-## Structured Logging
+## **Priority: P1 (OPERATIONAL)**
+
+Logging, monitoring, and observability patterns for production applications.
 
 - **Standard**: Use `nestjs-pino` for high-performance JSON logging.
   - **Why**: Node's built-in `console.log` is blocking and unstructured.

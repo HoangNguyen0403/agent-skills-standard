@@ -8,7 +8,11 @@ metadata:
     keywords: [const, buildWhen, ListView.builder, Isolate, RepaintBoundary]
 ---
 
-# Performance (P1)
+# Performance
+
+## **Priority: P1 (OPERATIONAL)**
+
+Performance optimization techniques for smooth 60fps Flutter applications.
 
 - **Rebuilds**: Use `const` widgets and `buildWhen` / `select` for granular updates.
 - **Lists**: Always use `ListView.builder` for item recycling.

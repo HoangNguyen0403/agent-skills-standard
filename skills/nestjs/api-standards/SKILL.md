@@ -10,6 +10,10 @@ metadata:
 
 # NestJS API Standards & Common Patterns
 
+## **Priority: P1 (OPERATIONAL)**
+
+Standardized API response patterns and common NestJS conventions.
+
 ## Generic Response Wrapper
 
 - **Concept**: Standardize all successful API responses.

@@ -3,7 +3,13 @@
 [![NPM Version](https://img.shields.io/npm/v/agent-skills-standard.svg?style=flat-square)](https://www.npmjs.com/package/agent-skills-standard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/HoangNguyen0403/agent-skills-standard?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/stargazers)
-[![Standard](https://img.shields.io/badge/Standard-Agent--Skills--1.0-FD971F?style=flat-square)](https://agentskills.io/)
+[![common](https://img.shields.io/badge/common-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.1.0)
+[![flutter](https://img.shields.io/badge/flutter-v1.1.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/flutter-v1.1.1)
+[![dart](https://img.shields.io/badge/dart-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/dart-v1.0.2)
+[![typescript](https://img.shields.io/badge/typescript-v1.0.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/typescript-v1.0.1)
+[![react](https://img.shields.io/badge/react-v1.0.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-v1.0.1)
+[![nestjs](https://img.shields.io/badge/nestjs-v1.0.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.0.1)
+[![nextjs](https://img.shields.io/badge/nextjs-v1.0.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nextjs-v1.0.1)
 
 **The open standard for High-Density AI coding instructions. Make your AI smarter, faster, and more consistent.**
 
@@ -73,6 +79,15 @@ npx agent-skills-standard sync
 **What happened?**
 The CLI fetched the latest **High-Density Skills** and distributed them into your hidden agent folders (e.g., `.cursor/skills/`, `.github/skills/`). Your AI is now "upgraded" with your team's standards.
 
+### 3. Validate Skills (For Contributors)
+
+```bash
+npx agent-skills-standard validate
+```
+
+**What it does:**
+Validates all skills for format compliance and structural integrity. Ensures skills follow our High-Density standards before merging.
+
 ---
 
 ## ⚙️ Configuration (`.skillsrc`)
@@ -99,22 +114,34 @@ skills:
 
 ---
 
+## ❓ Troubleshooting
+
+### Invalid .skillsrc
+
+If the CLI complains about configuration format:
+
+- Ensure `registry` is a valid URL.
+- Ensure `skills` is a map of categories to config objects.
+- Run `npx agent-skills-standard init` to generate a fresh valid config.
+
+---
+
 ## 🌍 Registry Ecosystem
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
 
-### 🔹 Current Support (v1.2.0)
+### 🔹 Current Support (v1.3.0)
 
-| Category          | Skills Included                                                                                 | Status      |
-| :---------------- | :---------------------------------------------------------------------------------------------- | :---------- |
-| **🌐 Common**     | SOLID, Security, Perf Engineering, TDD, System Design, Git Rebase, ADRs...                      | **Updated** |
-| **💙 Flutter**    | Clean Arch, BLoC, Riverpod, Testing, GetX (Nav/State), Navigator v1, Localization, AutoRoute... | **Stable**  |
-| **🎯 Dart**       | Idiomatic Patterns, Advanced Tooling, Build Runner...                                           | **Stable**  |
-| **🔷 TypeScript** | Type Safety, Security, Best Practices, ESLint/Testing Configuration...                          | **Stable**  |
-| **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional Programming...                                 | **Stable**  |
-| **⚛️ React**      | Hooks, State Management, Performance, Security, Testing...                                      | **Stable**  |
-| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Database Scaling...                                | **Stable**  |
-| **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, Optimization, FSD Arch...                            | **Stable**  |
+| Category          | Key Modules                                           | Version  |
+| :---------------- | :---------------------------------------------------- | :------- |
+| **🌐 Common**     | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.1.0` |
+| **💙 Flutter**    | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.1` |
+| **🎯 Dart**       | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.2` |
+| **🔷 TypeScript** | Type Safety, Security, Best Practices, Tooling        | `v1.0.1` |
+| **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.0` |
+| **⚛️ React**      | Hooks, State Management, Performance, Security        | `v1.0.1` |
+| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.1` |
+| **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` |
 
 ### 🔹 Ongoing Development (Q1 2026)
 
@@ -176,13 +203,13 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 
 ## 🗺 Roadmap
 
-- [x] **CLI Tooling** (v1.2.0 released)
-- [x] **Universal "Common" Skills** (v1.0.0 released)
-- [x] **Flutter** (v1.1.0 released)
-- [x] **Dart Core** (v1.0.1 released)
-- [x] **Web Stack (TS/JS/React)** (v1.0.0 released)
-- [x] **NestJS** (v1.0.0 released)
-- [x] **Next.js** (v1.0.0 released)
+- [x] **CLI Tooling** (v1.3.0 released)
+- [x] **Universal "Common" Skills** (v1.1.0 released)
+- [x] **Flutter** (v1.1.1 released)
+- [x] **Dart Core** (v1.0.2 released)
+- [x] **Web Stack (TS/JS/React)** (v1.0.1 released)
+- [x] **NestJS** (v1.0.1 released)
+- [x] **Next.js** (v1.0.1 released)
 - [ ] **Golang / Angular** (Q1 2026)
 - [ ] **Spring Boot** (Q1 2026)
 - [ ] **Agent Skills Dashboard** (Web UI for browsing standards)

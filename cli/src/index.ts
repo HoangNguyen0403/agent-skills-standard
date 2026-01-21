@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import { InitCommand } from './commands/init';
 import { ListSkillsCommand } from './commands/list-skills';
 import { SyncCommand } from './commands/sync';
+import { ValidateCommand } from './commands/validate-skills';
 
 const program = new Command();
 
@@ -35,6 +36,15 @@ program
   .action(async () => {
     const cmd = new ListSkillsCommand();
     await cmd.run();
+  });
+
+program
+  .command('validate')
+  .description('Validate skill format and token efficiency standards')
+  .option('--all', 'Validate all skills instead of only changed ones')
+  .action(async (options) => {
+    const cmd = new ValidateCommand();
+    await cmd.run(options);
   });
 
 program.parse();

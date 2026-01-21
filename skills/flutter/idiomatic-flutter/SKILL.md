@@ -8,7 +8,11 @@ metadata:
     keywords: [context.mounted, SizedBox, Gap, composition, shrink]
 ---
 
-# Idiomatic Flutter (P1)
+# Idiomatic Flutter
+
+## **Priority: P1 (OPERATIONAL)**
+
+Modern Flutter layout patterns and composition techniques.
 
 - **Async Gaps**: Check `if (context.mounted)` before using `BuildContext` after `await`.
 - **Composition**: Extract complex UI into small widgets. Avoid deep nesting or large helper methods.

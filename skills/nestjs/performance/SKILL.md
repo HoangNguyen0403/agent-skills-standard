@@ -10,7 +10,9 @@ metadata:
 
 # Performance Tuning
 
-## Network & Runtime
+## **Priority: P1 (OPERATIONAL)**
+
+High-performance patterns and optimization techniques for NestJS applications.
 
 - **Adapter**: Use `FastifyAdapter` instead of Express (2x throughput).
 - **Compression**: Enable Gzip/Brotli compression.
