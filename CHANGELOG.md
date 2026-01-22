@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Category**: Content-Level Optimization & Token Economy Guardrails and Workflow Automation & Code Review Standards
 
-### Added (CLI v1.3.2)
+### Added (CLI v1.3.1)
 
 - **Token Measurement Engine** - New `calculate-tokens` script to automate character-based token estimation across all skills.
 - **Metadata Automation** - Integrated `token_metrics` into `metadata.json` for real-time tracking of skill efficiency.
