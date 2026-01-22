@@ -170,19 +170,24 @@ async function main() {
       if (!line.includes('|')) continue;
 
       for (const category of categories) {
-        // Match the category name inside bold markers (e.g., **common**)
+        // Create a flexible regex: "nextjs" -> /next.*js/i to match "Next.js"
+        const flexibleCategory = category.split('').join('.*');
         const categoryMatch = new RegExp(
-          `\\*\\*.*${category}.*\\*\\*`,
+          `\\*\\*.*${flexibleCategory}.*\\*\\*`,
           'i',
         ).test(line);
+
         if (categoryMatch) {
           const metrics = results[category];
           const cells = line.split('|');
 
           if (cells.length >= 6) {
             // Update Skills (index 4) and Avg. Footprint (index 5)
+            // Desired format: | 10     | ~503 tokens    |
             cells[4] = ` ${metrics.totalSkills}`.padEnd(8);
-            cells[5] = ` ~${metrics.avgTokensPerSkill} tokens `.padEnd(19);
+            cells[5] = ` ~${metrics.avgTokensPerSkill} tokens `
+              .trimEnd()
+              .padEnd(16);
 
             lines[i] = cells.join('|');
             updated = true;

@@ -164,16 +164,16 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 
 | Category          | Key Modules                                           | Version  | Skills | Avg. Footprint |
 | :---------------- | :---------------------------------------------------- | :------- | :----- | :------------- |
-| **🌐 Common**     | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.2.0` | 10     | ~503 tokens       |
-| **💙 Flutter**    | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.1` | 19     | ~403 tokens       |
-| **🎯 Dart**       | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.2` | 3      | ~343 tokens       |
-| **🔷 TypeScript** | Type Safety, Security, Best Practices, Tooling        | `v1.0.2` | 4      | ~401 tokens       |
-| **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.0` | 3      | ~390 tokens       |
-| **⚛️ React**      | Hooks, State Management, Performance, Security        | `v1.0.2` | 8      | ~387 tokens       |
-| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.2` | 18     | ~498 tokens       |
-| **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` | 13     | ~500 tokens    |
-| **🐹 Golang**     | Clean Architecture, API Design, Concurrency, SQL      | `v1.0.0` | 9      | ~346 tokens       |
-| **🅰️ Angular**    | Standalone, Signals, Control Flow, SSR, Testing       | `v1.0.0` | 14     | ~272 tokens       |
+| **🌐 Common**     | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.2.0` | 10     | ~503 tokens    |
+| **💙 Flutter**    | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.1` | 19     | ~403 tokens    |
+| **🎯 Dart**       | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.2` | 3      | ~343 tokens    |
+| **🔷 TypeScript** | Type Safety, Security, Best Practices, Tooling        | `v1.0.2` | 4      | ~401 tokens    |
+| **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.0` | 3      | ~390 tokens    |
+| **⚛️ React**      | Hooks, State Management, Performance, Security        | `v1.0.2` | 8      | ~387 tokens    |
+| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.2` | 18     | ~498 tokens    |
+| **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` | 13     | ~504 tokens    |
+| **🐹 Golang**     | Clean Architecture, API Design, Concurrency, SQL      | `v1.0.0` | 9      | ~346 tokens    |
+| **🅰️ Angular**    | Standalone, Signals, Control Flow, SSR, Testing       | `v1.0.0` | 14     | ~272 tokens    |
 
 ### 🔹 Ongoing Development (Q1 2026)
 
