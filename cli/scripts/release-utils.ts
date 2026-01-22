@@ -90,7 +90,7 @@ export async function updateChangelog(
     // If Git is unavailable or the command fails, fall back to today's date.
   }
 
-  const changelogEntry = `## [${tagName}] - ${date}\n**Category**: ${category}\n\n${notes.trim()}\n\n`;
+  const changelogEntry = `## [${tagName}] - ${date}\n\n**Category**: ${category}\n\n${notes.trim()}\n\n`;
 
   try {
     const currentChangelog = await fs.readFile(changelogPath, 'utf-8');

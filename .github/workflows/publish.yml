@@ -12,6 +12,8 @@ on:
       - 'golang-v*'
       - 'typescript-v*'
       - 'javascript-v*'
+      - 'common-v*'
+      - 'react-v*'
 
 permissions:
   contents: write

@@ -171,7 +171,9 @@ async function main() {
     console.log(pc.dim(`   File: ${CHANGELOG_PATH}`));
     console.log(pc.dim('   --- Preview ---'));
     console.log(
-      pc.cyan(`   ## [${tagName}] - ${new Date().toISOString().split('T')[0]}`),
+      pc.cyan(
+        `\n   ## [${tagName}] - ${new Date().toISOString().split('T')[0]}\n`,
+      ),
     );
     console.log(pc.cyan(`   **Category**: ${category.toUpperCase()} Skills\n`));
     console.log(
