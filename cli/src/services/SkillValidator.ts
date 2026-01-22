@@ -213,12 +213,30 @@ export class SkillValidator {
         }
       }
 
-      // Check for conversational style (basic heuristic)
-      const conversationalPatterns =
-        /(you should|please|let's|we can|I recommend)/gi;
-      if (conversationalPatterns.test(body)) {
+      // Check for conversational style in instructions (ignoring code blocks)
+      const bodyLines = body.split('\n');
+      let isInCodeBlock = false;
+      let hasConversationalStyle = false;
+
+      for (const line of bodyLines) {
+        if (line.trim().startsWith('```')) {
+          isInCodeBlock = !isInCodeBlock;
+          continue;
+        }
+        if (isInCodeBlock) continue;
+
+        // Target bullet points and numbered lists that start with conversational phrases
+        const conversationalPatterns =
+          /^(?:\s*[-*+]\s*|\s*\d+\.\s*)(?:you should|please|let's|we can|I recommend)/i;
+        if (conversationalPatterns.test(line)) {
+          hasConversationalStyle = true;
+          break;
+        }
+      }
+
+      if (hasConversationalStyle) {
         result.warnings.push(
-          'Consider using imperative mood instead of conversational style',
+          'Consider using imperative mood instead of conversational style in instructions',
         );
       }
 

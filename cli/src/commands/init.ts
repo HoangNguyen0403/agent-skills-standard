@@ -3,7 +3,11 @@ import inquirer from 'inquirer';
 import yaml from 'js-yaml';
 import path from 'path';
 import pc from 'picocolors';
-import { SUPPORTED_AGENTS, SUPPORTED_FRAMEWORKS } from '../constants';
+import {
+  DEFAULT_REGISTER,
+  SUPPORTED_AGENTS,
+  SUPPORTED_FRAMEWORKS,
+} from '../constants';
 import { ConfigService } from '../services/ConfigService';
 import { DetectionService } from '../services/DetectionService';
 import { RegistryService } from '../services/RegistryService';
@@ -22,10 +26,8 @@ export class InitCommand {
     const shouldCheck = (id: string) =>
       anyAgentDetected ? agentDetection[id] : true;
 
-    const defaultRegistry =
-      'https://github.com/HoangNguyen0403/agent-skills-standard';
     const { categories: supportedCategories, metadata } =
-      await this.registryService.discoverRegistry(defaultRegistry);
+      await this.registryService.discoverRegistry(DEFAULT_REGISTER);
 
     const choices = SUPPORTED_FRAMEWORKS.map((f) => ({
       name: supportedCategories.includes(f.id)
@@ -73,7 +75,7 @@ export class InitCommand {
         type: 'input',
         name: 'registry',
         message: 'Skills Registry URL:',
-        default: defaultRegistry,
+        default: DEFAULT_REGISTER,
       },
     ]);
 

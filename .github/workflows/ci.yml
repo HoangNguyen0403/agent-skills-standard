@@ -73,3 +73,13 @@ jobs:
 
       - name: Validate skill format and structure
         run: pnpm validate
+
+      - name: Check if Token Metrics are in-sync
+        run: |
+          pnpm calculate-tokens
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "❌ Token metrics or README are out of sync! Please run 'pnpm calculate-tokens' locally and commit the changes."
+            git status --porcelain
+            exit 1
+          fi
+          echo "✅ Token metrics are synchronized."
