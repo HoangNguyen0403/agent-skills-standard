@@ -11,6 +11,7 @@
 [![nestjs](https://img.shields.io/badge/nestjs-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.0.2)
 [![nextjs](https://img.shields.io/badge/nextjs-v1.0.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nextjs-v1.0.1)
 [![golang](https://img.shields.io/badge/golang-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/golang-v1.0.0)
+[![angular](https://img.shields.io/badge/angular-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/angular-v1.0.0)
 
 **The open standard for High-Density AI coding instructions. Make your AI smarter, faster, and more consistent.**
 
@@ -159,7 +160,7 @@ If the CLI complains about configuration format:
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
 
-### 🔹 Current Support (v1.3.1)
+### 🔹 Current Support (v1.4.0)
 
 | Category          | Key Modules                                           | Version  | Skills | Avg. Footprint |
 | :---------------- | :---------------------------------------------------- | :------- | :----- | :------------- |
@@ -172,11 +173,10 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.2` | 18      | ~498 tokens    |
 | **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` | 13     | ~500 tokens    |
 | **🐹 Golang**     | Clean Architecture, API Design, Concurrency, SQL      | `v1.0.0` | 9      | ~346 tokens    |
+| **🅰️ Angular**    | Standalone, Signals, Control Flow, SSR, Testing       | `v1.0.0` | 14      | ~272 tokens    |
 
 ### 🔹 Ongoing Development (Q1 2026)
 
-- **🐹 Golang**: Clean Hexagonal Architecture, Gin/Fiber standards.
-- **🅰️ Angular**: Standalone Components, Signals, NgRx patterns.
 - **☕ Spring Boot**: Pro-grade Java standards for enterprise agents.
 
 > [!TIP]
@@ -241,7 +241,7 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 - [x] **NestJS** (v1.0.1 released)
 - [x] **Next.js** (v1.0.1 released)
 - [x] **Golang** (v1.0.0 released)
-- [ ] **Angular** (Q1 2026)
+- [x] **Angular** (v1.0.0 released)
 - [ ] **Spring Boot** (Q1 2026)
 
 - [ ] **Agent Skills Dashboard** (Web UI for browsing standards)

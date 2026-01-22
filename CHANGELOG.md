@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.2] - 2026-01-22
 
+**Category**: Angular Expert Standards & Modern v17+ Patterns
+
+### Added (Angular Skills v1.0.0)
+
+- **Modern Angular Core** - 14 new high-density skills covering Angular v17+ features.
+- **Signals & State** - Full transition to `signal()`, `computed()`, and `effect()` patterns with Signal Store integration.
+- **Standalone API** - Strictly Enforced Standalone components, pipes, and directives (elimination of legacy `NgModule`).
+- **New Control Flow** - Standardized usage of `@if`, `@for`, and `@switch` syntax.
+- **Functional Patterns** - Migration to `HttpInterceptorFn`, `CanActivateFn`, and `inject()` based DI.
+- **Performance & Defer** - Native support for `@defer` views, `OnPush` detection, and `NgOptimizedImage`.
+- **SSR & Hydration** - Hydration-ready standards with `TransferState` and platform-aware lifecycle hooks.
+- **Testing Harnesses** - Standardized `ComponentTestHarness` and `TestBed` provider mocking patterns.
+- **Strict Coding Standards** - Enforced file size limits (<400 lines) and function length (<75 lines) for cleaner architecture.
+
 **Category**: Golang Expert Standards & Clean Architecture
 
 ### Added (Golang Skills v1.0.0)
