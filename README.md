@@ -160,7 +160,7 @@ If the CLI complains about configuration format:
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
 
-### 🔹 Current Support (v1.4.0)
+### 🔹 Current Support (v1.3.2)
 
 | Category          | Key Modules                                           | Version  | Skills | Avg. Footprint |
 | :---------------- | :---------------------------------------------------- | :------- | :----- | :------------- |
@@ -178,6 +178,10 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 ### 🔹 Ongoing Development (Q1 2026)
 
 - **☕ Spring Boot**: Pro-grade Java standards for enterprise agents.
+- **☕ Android Native**: Pro-grade Android standards for enterprise agents.
+- **☕ iOS Native**: Pro-grade iOS standards for enterprise agents.
+- **☕ Kotlin**: Pro-grade Kotlin standards for enterprise agents.
+- **☕ SwiftUI**: Pro-grade SwiftUI standards for enterprise agents.
 
 > [!TIP]
 > **Enterprise Ready**: You can host your own **Private Skills Registry** on GitHub and point the CLI to it via the `registry` field in your `.skillsrc`.
@@ -243,6 +247,10 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 - [x] **Golang** (v1.0.0 released)
 - [x] **Angular** (v1.0.0 released)
 - [ ] **Spring Boot** (Q1 2026)
+- [ ] **Android Native** (Q1 2026)
+- [ ] **iOS Native** (Q1 2026)
+- [ ] **Kotlin** (Q1 2026)
+- [ ] **SwiftUI** (Q1 2026)
 
 - [ ] **Agent Skills Dashboard** (Web UI for browsing standards)
 
