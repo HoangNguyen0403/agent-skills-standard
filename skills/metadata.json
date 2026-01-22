@@ -91,6 +91,17 @@
         "avg_tokens_per_skill": 503,
         "largest_skill": "quality-assurance (668 tokens)"
       }
+    },
+    "golang": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-22",
+      "tag_prefix": "golang-v",
+      "token_metrics": {
+        "total_skills": 9,
+        "total_tokens": 3112,
+        "avg_tokens_per_skill": 346,
+        "largest_skill": "architecture (444 tokens)"
+      }
     }
   }
 }
