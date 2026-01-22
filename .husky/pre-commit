@@ -1,0 +1,10 @@
+# Run token calculation to ensure documentation and metadata are up to date
+echo "📊 Syncing token metrics..."
+pnpm calculate-tokens
+
+# Stage the updated files
+git add skills/metadata.json README.md
+
+# Run core validation to ensure skill integrity
+echo "🔍 Validating skills..."
+pnpm validate

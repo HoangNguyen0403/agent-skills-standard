@@ -156,6 +156,33 @@ async function main() {
   // Write updated metadata
   fs.writeFileSync(METADATA_PATH, JSON.stringify(metadata, null, 2) + '\n');
   console.log('✅ Updated metadata.json with token_metrics');
+
+  // Update README.md table
+  const readmePath = path.join(__dirname, '../../../README.md');
+  if (fs.existsSync(readmePath)) {
+    let readmeContent = fs.readFileSync(readmePath, 'utf-8');
+
+    for (const category of categories) {
+      const metrics = results[category];
+      const version = metadata.categories[category].version;
+
+      // Find the row for this category (case-insensitive for emojis)
+      // Standardizes on the format: | **ICON Category** | Key Modules | Version | Skills | Avg. Footprint |
+      const regex = new RegExp(
+        `(\\|\\s*\\*\\*.*${category}.*\\*\\*\\s*\\|.*\\|\\s*\`v?${version}\`\\s*\\|)\\s*\\d+\\s*\\|\\s*~?\\d+\\s*tokens\\s*\\|`,
+        'i',
+      );
+
+      const replacement = `$1 ${metrics.totalSkills}      | ~${metrics.avgTokensPerSkill} tokens    |`;
+
+      if (readmeContent.match(regex)) {
+        readmeContent = readmeContent.replace(regex, replacement);
+      }
+    }
+
+    fs.writeFileSync(readmePath, readmeContent);
+    console.log('✅ Updated README.md support table');
+  }
 }
 
 main().catch(console.error);

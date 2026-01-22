@@ -58,7 +58,35 @@ Agent Skills Standard treats instructions as **versioned dependencies**, much li
 
 ---
 
-## 🚀 Quick Start (Get running in 60s)
+## � Token Economy & Optimization
+
+To ensure AI efficiency, this project follows a strict **Token Economy**. Every skill is audited for its footprint in the AI's context window.
+
+### 📏 Our Standards
+
+- **High-Density**: Core rules in `SKILL.md` are kept under **70 lines**.
+- **Efficiency**: Target **< 500 tokens** per primary skill file.
+- **Progressive Disclosure**: Heavy examples, checklists, and implementation guides are moved to the `references/` directory and are only loaded by the agent when specific context matches.
+
+### 🛠️ Token Calculation
+
+We provide a built-in tool in the CLI to estimate and track the token footprint:
+
+```bash
+pnpm calculate-tokens
+```
+
+This command:
+
+1. Scans all `SKILL.md` files in the registry.
+2. Calculates character-based token estimates.
+3. Updates `skills/metadata.json` with category metrics (total tokens, avg/skill, and identifying the largest skills).
+
+By maintaining a "Lean Registry," we ensure that your AI assistant remains fast and focused, preserving the majority of its context window for your actual project code.
+
+---
+
+## �🚀 Quick Start (Get running in 60s)
 
 Consume engineering standards in your project instantly.
 
@@ -132,16 +160,16 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 
 ### 🔹 Current Support (v1.3.2)
 
-| Category          | Key Modules                                           | Version  |
-| :---------------- | :---------------------------------------------------- | :------- |
-| **🌐 Common**     | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.1.1` |
-| **💙 Flutter**    | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.1` |
-| **🎯 Dart**       | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.2` |
-| **🔷 TypeScript** | Type Safety, Security, Best Practices, Tooling        | `v1.0.2` |
-| **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.0` |
-| **⚛️ React**      | Hooks, State Management, Performance, Security        | `v1.0.2` |
-| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.2` |
-| **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` |
+| Category          | Key Modules                                           | Version  | Skills | Avg. Footprint |
+| :---------------- | :---------------------------------------------------- | :------- | :----- | :------------- |
+| **🌐 Common**     | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.1.1` | 8      | ~522 tokens    |
+| **💙 Flutter**    | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.1` | 19      | ~403 tokens    |
+| **🎯 Dart**       | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.2` | 3      | ~343 tokens    |
+| **🔷 TypeScript** | Type Safety, Security, Best Practices, Tooling        | `v1.0.2` | 4      | ~401 tokens    |
+| **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.0` | 3      | ~390 tokens    |
+| **⚛️ React**      | Hooks, State Management, Performance, Security        | `v1.0.2` | 8      | ~387 tokens    |
+| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.2` | 18      | ~498 tokens    |
+| **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` | 13     | ~500 tokens    |
 
 ### 🔹 Ongoing Development (Q1 2026)
 

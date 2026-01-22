@@ -21,9 +21,13 @@
     "test:coverage": "pnpm --filter ./cli test:coverage",
     "release-skill": "pnpm --filter ./cli release-skill",
     "release-cli": "pnpm --filter ./cli release-cli",
-    "calculate-tokens": "pnpm --filter ./cli calculate-tokens"
+    "calculate-tokens": "pnpm --filter ./cli calculate-tokens",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
   }
 }

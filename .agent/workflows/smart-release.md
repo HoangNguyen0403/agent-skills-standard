@@ -25,14 +25,21 @@ Use this workflow to automate the tedious parts of a release.
    - **Skills**: If `skills/<category>/` changes exist, recommend a **PATCH** for that category.
    - **Root**: If only `README.md` or root docs changed, consider skipping version bump.
 
-3. **Update Artifacts**:
+3. **Synchronize Metrics**:
+   Run the token calculation to ensure documentation and metadata are up to date:
+
+   ```bash
+   pnpm calculate-tokens
+   ```
+
+4. **Update Artifacts**:
    Apply high-density edits to:
    - `cli/package.json` & `cli/src/index.ts` (Version bump).
    - `skills/metadata.json` (Version & `last_updated` bump).
    - `CHANGELOG.md` (Add structured entry under "Unreleased" or new tag).
    - `README.md` (Update version badges in the support table).
 
-4. **Review & Commit**:
+5. **Review & Commit**:
    - Present a summary of all changes to the user.
    - // turbo
      ```bash
