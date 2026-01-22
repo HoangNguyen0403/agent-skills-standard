@@ -158,7 +158,7 @@ If the CLI complains about configuration format:
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
 
-### 🔹 Current Support (v1.3.2)
+### 🔹 Current Support (v1.3.1)
 
 | Category          | Key Modules                                           | Version  | Skills | Avg. Footprint |
 | :---------------- | :---------------------------------------------------- | :------- | :----- | :------------- |
