@@ -5,6 +5,11 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [common-v1.1.2] - 2026-01-22
+**Category**: COMMON Skills
+
+- **Code Review Expert** - Principal Engineer standard for high-quality, readable AI code reviews. Supports universal logic with framework context awareness.
+
 ## [1.3.1] - 2026-01-22
 
 **Category**: Content-Level Optimization & Token Economy Guardrails and Workflow Automation & Code Review Standards
@@ -19,10 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Smart Release Workflow** - Unified automation for versioning, changelog generation, and README updates.
 - **Improved Pattern Detection** - Refined `SkillValidator` to ignore code blocks and precisely target conversational instructions.
 - **Centralized Registry** - Introduced `DEFAULT_REGISTER` for better maintainability and environment flexibility.
-
-### Added (Common Skills v1.1.1)
-
-- **Code Review Expert** - Principal Engineer standard for high-quality, readable AI code reviews. Supports universal logic with framework context awareness.
 
 ### Updated (Common Skills v1.1.1)
 
