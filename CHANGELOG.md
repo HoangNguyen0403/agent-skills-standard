@@ -5,6 +5,23 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] - 2026-01-22
+
+**Category**: QA Engineering, TDD & Debugging Standards
+
+### Added (Common Skills v1.2.0)
+
+- **TDD Expert Skill** - Strict Red-Green-Refactor cycle enforcement with AAA (Arrange-Act-Assert) pattern and F.I.R.S.T. principles.
+- **Debugging Expert Skill** - Evidence-based troubleshooting using the **Scientific Method** (Observe -> Hypothesize -> Experiment -> Fix).
+- **Bug Report Template** - Standardized template for reproducible and high-context bug reporting.
+- **Test Pyramid Integration** - Explicit standards for Unit (70%), Integration (20%), and E2E (10%) testing levels.
+- **Risk-Based Testing** - Prioritization strategies targeting critical business paths and data integrity.
+
+### Updated (Common Skills v1.2.0)
+
+- **Code Review Refinement** - Standardized review request template and integrated implementation planning phase into the workflow.
+- **Quality Assurance** - Refactored to remove redundant TDD cycles and bridge coverage with dedicated skills.
+
 ## [1.3.1] - 2026-01-22
 
 **Category**: Content-Level Optimization & Token Economy Guardrails and Workflow Automation & Code Review Standards
