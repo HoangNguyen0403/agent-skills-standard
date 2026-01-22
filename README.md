@@ -3,7 +3,7 @@
 [![NPM Version](https://img.shields.io/npm/v/agent-skills-standard.svg?style=flat-square)](https://www.npmjs.com/package/agent-skills-standard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/HoangNguyen0403/agent-skills-standard?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/stargazers)
-[![common](https://img.shields.io/badge/common-v1.1.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.1.1)
+[![common](https://img.shields.io/badge/common-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.2.0)
 [![flutter](https://img.shields.io/badge/flutter-v1.1.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/flutter-v1.1.1)
 [![dart](https://img.shields.io/badge/dart-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/dart-v1.0.2)
 [![typescript](https://img.shields.io/badge/typescript-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/typescript-v1.0.2)
@@ -162,7 +162,7 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 
 | Category          | Key Modules                                           | Version  | Skills | Avg. Footprint |
 | :---------------- | :---------------------------------------------------- | :------- | :----- | :------------- |
-| **🌐 Common**     | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.1.1` | 8      | ~522 tokens    |
+| **🌐 Common**     | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.2.0` | 10      | ~503 tokens    |
 | **💙 Flutter**    | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.1` | 19      | ~403 tokens    |
 | **🎯 Dart**       | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.2` | 3      | ~343 tokens    |
 | **🔷 TypeScript** | Type Safety, Security, Best Practices, Tooling        | `v1.0.2` | 4      | ~401 tokens    |

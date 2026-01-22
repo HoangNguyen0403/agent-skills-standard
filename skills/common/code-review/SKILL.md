@@ -34,18 +34,22 @@ See [references/checklist.md](references/checklist.md) for full inspection list.
 **1. Summary**: One sentence on overall quality/impact.
 **2. Categorized Findings**:
 
-```markdown
+````markdown
 ### 🔴 [BLOCKER]
 
 - **File**: `auth.ts`
 - **Issue**: SQL Injection risk in `login`.
 - **Suggestion**: Use parameterized query.
+  ```typescript
+  // Recommended Fix
+  db.query('SELECT * FROM users WHERE id = $1', [userId]);
+  ```
+````
 
 ### 🟢 [NIT]
 
 - **File**: `utils.ts`
-- **Issue**: Rename `d` to `days`.
-```
+- **Issue**: Rename `d` to `days` for clarity.
 
 See [references/output-format.md](references/output-format.md) for templates.
 

@@ -4,7 +4,7 @@ description: Run an AI-assisted PR code review using the Code Review Expert skil
 
 # AI Code Review Workflow
 
-1. **Scope**: Ask user to select review scope:
+1. **Scope**: Ask user to select review scope (Tip: Use [Request Template](../skills/common/code-review/references/request-template.md) for context):
    - **(A) Diff Review**:
      ```bash
      git fetch origin <base> && git diff origin/<base>...HEAD
@@ -20,3 +20,10 @@ description: Run an AI-assisted PR code review using the Code Review Expert skil
    - **Context**: Cross-check with active framework skills (e.g. Flutter, React) if detected.
 
 3. **Report**: Output results using the **Standard Review Format** (BLOCKER/MAJOR/NIT).
+
+4. **Implementation Planning**:
+   - Ask the user if they want to implement the feedback.
+   - If **YES**:
+     - Parse the report into a checklist.
+     - Add/Update the specific items in `task.md`.
+     - Recommend using `skills/common/tdd/SKILL.md` if code changes are required.
