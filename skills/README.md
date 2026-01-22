@@ -14,6 +14,7 @@ Each skill must follow the standard directory structure:
 Cross-framework standards and best practices applicable to all development.
 
 - [**Best Practices**](common/best-practices/SKILL.md) (P0) - SOLID, Clean Code, KISS/DRY/YAGNI.
+- [**Code Review**](common/code-review/SKILL.md) (P1) - Principal Engineer review standards.
 - [**Security Standards**](common/security-standards/SKILL.md) (P0) - Universal security protocols.
 - [**System Design**](common/system-design/SKILL.md) (P0) - Architecture & scalability patterns.
 - [**Git Collaboration**](common/git-collaboration/SKILL.md) (P1) - Version control & team workflows.

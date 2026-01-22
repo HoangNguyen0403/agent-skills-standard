@@ -5,9 +5,9 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.1] - 2026-01-21
+## [1.3.1] - 2026-01-22
 
-**Category**: Content-Level Optimization & Token Economy Guardrails
+**Category**: Content-Level Optimization & Token Economy Guardrails and Workflow Automation & Code Review Standards
 
 ### Added (CLI v1.3.2)
 
@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **100% Comprehensive Testing**: Achieved 100% statement coverage across all core services using Vitest.
 - **Registry Guard Tests**: Data-driven test suite for `SKILL_DETECTION_REGISTRY` to ensure logic stability as detection rules evolve.
 - **CI/CD Enforcements**: Updated GitHub Actions to strictly enforce 90%+ code coverage on every pull request.
+- **Smart Release Workflow** - Unified automation for versioning, changelog generation, and README updates.
+- **Improved Pattern Detection** - Refined `SkillValidator` to ignore code blocks and precisely target conversational instructions.
+- **Centralized Registry** - Introduced `DEFAULT_REGISTER` for better maintainability and environment flexibility.
+
+### Added (Common Skills v1.1.1)
+
+- **Code Review Expert** - Principal Engineer standard for high-quality, readable AI code reviews. Supports universal logic with framework context awareness.
 
 ### Updated (Common Skills v1.1.1)
 
@@ -35,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Mocking Reliability**: Replaced brittle file system and network mocks with more resilient, implementation-aware alternatives.
 - **Framework Detection**: Fixed edge cases in missing dependency exclusions for Flutter and NestJS.
 - **Improved Stability**: Fixed `GITHUB_BASE_REF` fallback logic for GitHub Actions environments.
+- **Async Consistencies** - Migrated `calculate-tokens` script to `fs-extra` for non-blocking I/O alignment.
+- **Validation Accuracy** - Reduced false positive warnings in skill validation for valid conversational comments.
 
 ### Changed
 

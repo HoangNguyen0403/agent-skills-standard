@@ -6,7 +6,7 @@
  * Uses character-based approximation: ~4 characters = 1 token (cl100k_base average)
  */
 
-import * as fs from 'fs';
+import fs from 'fs-extra';
 import * as path from 'path';
 
 const SKILLS_DIR = path.join(__dirname, '../../../skills');
