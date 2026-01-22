@@ -298,16 +298,31 @@ describe('SkillValidator', () => {
       expect(result.errors[0]).toContain('Description too long');
     });
 
-    it('should warn on conversational style', async () => {
+    it('should warn on conversational style in instructions', async () => {
       vi.mocked(fs.readFile).mockImplementation(() =>
         Promise.resolve(
-          '---\nname: N\ndescription: D\n---\n## **Priority: 1**\nYou should do this.' as unknown as Buffer,
+          '---\nname: N\ndescription: D\n---\n## **Priority: 1**\n- You should do this.' as unknown as Buffer,
         ),
       );
       // @ts-expect-error - private method
       const result = await validator.validateSkill('skills/warn/SKILL.md');
       expect(result.passed).toBe(true);
       expect(result.warnings[0]).toContain('Consider using imperative mood');
+    });
+
+    it('should ignore conversational style inside code blocks', async () => {
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve(
+          '---\nname: N\ndescription: D\n---\n## **Priority: 1**\n```\n- Please note: You should do this.\n```' as unknown as Buffer,
+        ),
+      );
+      // @ts-expect-error - private method
+      const result = await validator.validateSkill('skills/ok/SKILL.md');
+      expect(result.passed).toBe(true);
+      // It might still have a warning about references dir, but not the conversational one
+      expect(result.warnings.some((w) => w.includes('imperative mood'))).toBe(
+        false,
+      );
     });
 
     it('should fail if missing priority section', async () => {
