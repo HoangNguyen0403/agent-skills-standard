@@ -5,7 +5,7 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.0] - 2026-01-22
+## [1.3.2] - 2026-01-22
 
 **Category**: Golang Expert Standards & Clean Architecture
 
@@ -20,8 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Structured Database & SQL** - Repository patterns, connection pooling, and `sqlc` readiness.
 - **Observability & Logging** - Standardized `log/slog` patterns for structured, leveled logging.
 - **Strict Error Handling** - idiomatic error wrapping, sentinel errors, and unwrapping patterns.
-
-## [1.3.2] - 2026-01-22
 
 **Category**: QA Engineering, TDD & Debugging Standards
 
