@@ -16,36 +16,36 @@
       }
     },
     "dart": {
-      "version": "1.0.2",
-      "last_updated": "2026-01-21",
+      "version": "1.0.3",
+      "last_updated": "2026-01-23",
       "tag_prefix": "dart-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1028,
-        "avg_tokens_per_skill": 343,
-        "largest_skill": "language (516 tokens)"
+        "total_tokens": 1052,
+        "avg_tokens_per_skill": 351,
+        "largest_skill": "language (540 tokens)"
       }
     },
     "typescript": {
-      "version": "1.0.2",
-      "last_updated": "2026-01-21",
+      "version": "1.0.3",
+      "last_updated": "2026-01-23",
       "tag_prefix": "typescript-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 1602,
-        "avg_tokens_per_skill": 401,
-        "largest_skill": "language (482 tokens)"
+        "total_tokens": 1624,
+        "avg_tokens_per_skill": 406,
+        "largest_skill": "language (504 tokens)"
       }
     },
     "javascript": {
-      "version": "1.0.0",
-      "last_updated": "2026-01-17",
+      "version": "1.0.1",
+      "last_updated": "2026-01-23",
       "tag_prefix": "javascript-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1170,
-        "avg_tokens_per_skill": 390,
-        "largest_skill": "language (418 tokens)"
+        "total_tokens": 1182,
+        "avg_tokens_per_skill": 394,
+        "largest_skill": "language (430 tokens)"
       }
     },
     "react": {
@@ -112,6 +112,17 @@
         "total_tokens": 3811,
         "avg_tokens_per_skill": 272,
         "largest_skill": "components (347 tokens)"
+      }
+    },
+    "java": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-23",
+      "tag_prefix": "java-v",
+      "token_metrics": {
+        "total_skills": 5,
+        "total_tokens": 2601,
+        "avg_tokens_per_skill": 520,
+        "largest_skill": "language (628 tokens)"
       }
     }
   }
