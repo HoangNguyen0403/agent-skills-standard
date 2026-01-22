@@ -160,28 +160,46 @@ async function main() {
   // Update README.md table
   const readmePath = path.join(__dirname, '../../../README.md');
   if (fs.existsSync(readmePath)) {
-    let readmeContent = fs.readFileSync(readmePath, 'utf-8');
+    const readmeContent = fs.readFileSync(readmePath, 'utf-8');
 
-    for (const category of categories) {
-      const metrics = results[category];
-      const version = metadata.categories[category].version;
+    const lines = readmeContent.split('\n');
+    let updated = false;
 
-      // Find the row for this category (case-insensitive for emojis)
-      // Standardizes on the format: | **ICON Category** | Key Modules | Version | Skills | Avg. Footprint |
-      const regex = new RegExp(
-        `(\\|\\s*\\*\\*.*${category}.*\\*\\*\\s*\\|.*\\|\\s*\`v?${version}\`\\s*\\|)\\s*\\d+\\s*\\|\\s*~?\\d+\\s*tokens\\s*\\|`,
-        'i',
-      );
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (!line.includes('|')) continue;
 
-      const replacement = `$1 ${metrics.totalSkills}      | ~${metrics.avgTokensPerSkill} tokens    |`;
+      for (const category of categories) {
+        // Create a flexible regex: "nextjs" -> /next.*js/i to match "Next.js"
+        const flexibleCategory = category.split('').join('.*');
+        const categoryMatch = new RegExp(
+          `\\*\\*.*${flexibleCategory}.*\\*\\*`,
+          'i',
+        ).test(line);
 
-      if (readmeContent.match(regex)) {
-        readmeContent = readmeContent.replace(regex, replacement);
+        if (categoryMatch) {
+          const metrics = results[category];
+          const cells = line.split('|');
+
+          if (cells.length >= 6) {
+            // Update Skills (index 4) and Avg. Footprint (index 5)
+            // Desired format: | 10     | ~503 tokens    |
+            cells[4] = ` ${metrics.totalSkills}`.padEnd(8);
+            cells[5] = ` ~${metrics.avgTokensPerSkill} tokens `
+              .trimEnd()
+              .padEnd(16);
+
+            lines[i] = cells.join('|');
+            updated = true;
+          }
+        }
       }
     }
 
-    fs.writeFileSync(readmePath, readmeContent);
-    console.log('✅ Updated README.md support table');
+    if (updated) {
+      fs.writeFileSync(readmePath, lines.join('\n'));
+      console.log('✅ Updated README.md support table');
+    }
   }
 }
 

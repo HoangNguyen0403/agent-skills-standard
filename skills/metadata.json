@@ -102,6 +102,17 @@
         "avg_tokens_per_skill": 346,
         "largest_skill": "architecture (444 tokens)"
       }
+    },
+    "angular": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-22",
+      "tag_prefix": "angular-v",
+      "token_metrics": {
+        "total_skills": 14,
+        "total_tokens": 3811,
+        "avg_tokens_per_skill": 272,
+        "largest_skill": "components (347 tokens)"
+      }
     }
   }
 }

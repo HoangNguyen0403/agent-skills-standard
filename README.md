@@ -11,6 +11,7 @@
 [![nestjs](https://img.shields.io/badge/nestjs-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.0.2)
 [![nextjs](https://img.shields.io/badge/nextjs-v1.0.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nextjs-v1.0.1)
 [![golang](https://img.shields.io/badge/golang-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/golang-v1.0.0)
+[![angular](https://img.shields.io/badge/angular-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/angular-v1.0.0)
 
 **The open standard for High-Density AI coding instructions. Make your AI smarter, faster, and more consistent.**
 
@@ -159,25 +160,28 @@ If the CLI complains about configuration format:
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
 
-### 🔹 Current Support (v1.3.1)
+### 🔹 Current Support (v1.3.2)
 
 | Category          | Key Modules                                           | Version  | Skills | Avg. Footprint |
 | :---------------- | :---------------------------------------------------- | :------- | :----- | :------------- |
-| **🌐 Common**     | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.2.0` | 10      | ~503 tokens    |
-| **💙 Flutter**    | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.1` | 19      | ~403 tokens    |
+| **🌐 Common**     | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.2.0` | 10     | ~503 tokens    |
+| **💙 Flutter**    | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.1` | 19     | ~403 tokens    |
 | **🎯 Dart**       | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.2` | 3      | ~343 tokens    |
 | **🔷 TypeScript** | Type Safety, Security, Best Practices, Tooling        | `v1.0.2` | 4      | ~401 tokens    |
 | **🟨 JavaScript** | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.0` | 3      | ~390 tokens    |
 | **⚛️ React**      | Hooks, State Management, Performance, Security        | `v1.0.2` | 8      | ~387 tokens    |
-| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.2` | 18      | ~498 tokens    |
-| **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` | 13     | ~500 tokens    |
+| **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.2` | 18     | ~498 tokens    |
+| **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` | 13     | ~504 tokens    |
 | **🐹 Golang**     | Clean Architecture, API Design, Concurrency, SQL      | `v1.0.0` | 9      | ~346 tokens    |
+| **🅰️ Angular**    | Standalone, Signals, Control Flow, SSR, Testing       | `v1.0.0` | 14     | ~272 tokens    |
 
 ### 🔹 Ongoing Development (Q1 2026)
 
-- **🐹 Golang**: Clean Hexagonal Architecture, Gin/Fiber standards.
-- **🅰️ Angular**: Standalone Components, Signals, NgRx patterns.
 - **☕ Spring Boot**: Pro-grade Java standards for enterprise agents.
+- **☕ Android Native**: Pro-grade Android standards for enterprise agents.
+- **☕ iOS Native**: Pro-grade iOS standards for enterprise agents.
+- **☕ Kotlin**: Pro-grade Kotlin standards for enterprise agents.
+- **☕ SwiftUI**: Pro-grade SwiftUI standards for enterprise agents.
 
 > [!TIP]
 > **Enterprise Ready**: You can host your own **Private Skills Registry** on GitHub and point the CLI to it via the `registry` field in your `.skillsrc`.
@@ -241,8 +245,12 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 - [x] **NestJS** (v1.0.1 released)
 - [x] **Next.js** (v1.0.1 released)
 - [x] **Golang** (v1.0.0 released)
-- [ ] **Angular** (Q1 2026)
+- [x] **Angular** (v1.0.0 released)
 - [ ] **Spring Boot** (Q1 2026)
+- [ ] **Android Native** (Q1 2026)
+- [ ] **iOS Native** (Q1 2026)
+- [ ] **Kotlin** (Q1 2026)
+- [ ] **SwiftUI** (Q1 2026)
 
 - [ ] **Agent Skills Dashboard** (Web UI for browsing standards)
 
