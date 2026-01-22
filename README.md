@@ -10,6 +10,7 @@
 [![react](https://img.shields.io/badge/react-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-v1.0.2)
 [![nestjs](https://img.shields.io/badge/nestjs-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.0.2)
 [![nextjs](https://img.shields.io/badge/nextjs-v1.0.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nextjs-v1.0.1)
+[![golang](https://img.shields.io/badge/golang-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/golang-v1.0.0)
 
 **The open standard for High-Density AI coding instructions. Make your AI smarter, faster, and more consistent.**
 
@@ -170,6 +171,7 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | **⚛️ React**      | Hooks, State Management, Performance, Security        | `v1.0.2` | 8      | ~387 tokens    |
 | **🦁 NestJS**     | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.2` | 18      | ~498 tokens    |
 | **▲ Next.js**     | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` | 13     | ~500 tokens    |
+| **🐹 Golang**     | Clean Architecture, API Design, Concurrency, SQL      | `v1.0.0` | 9      | ~346 tokens    |
 
 ### 🔹 Ongoing Development (Q1 2026)
 
@@ -238,8 +240,10 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 - [x] **Web Stack (TS/JS/React)** (v1.0.1 released)
 - [x] **NestJS** (v1.0.1 released)
 - [x] **Next.js** (v1.0.1 released)
-- [ ] **Golang / Angular** (Q1 2026)
+- [x] **Golang** (v1.0.0 released)
+- [ ] **Angular** (Q1 2026)
 - [ ] **Spring Boot** (Q1 2026)
+
 - [ ] **Agent Skills Dashboard** (Web UI for browsing standards)
 
 ---

@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.2] - 2026-01-22
 
+**Category**: Golang Expert Standards & Clean Architecture
+
+### Added (Golang Skills v1.0.0)
+
+- **Comprehensive Golang Registry** - Added 9 new high-density skills for professional Go development.
+- **Clean Architecture & DDD** - Enterprise-ready standards for domain-driven design and hexagonal project layouts.
+- **Idiomatic Go & Style** - "Effective Go" inspired guidelines for naming, interface design, and constructors.
+- **Robust API Design** - Middlewares, routing (stdlib/Echo), and graceful shutdown patterns.
+- **Advanced Concurrency** - Safe goroutine management, channel patterns, and deep `context` integration.
+- **TDD & Mocking** - Table-driven tests, parallel execution, and dependency-inversion-based mocking strategies.
+- **Structured Database & SQL** - Repository patterns, connection pooling, and `sqlc` readiness.
+- **Observability & Logging** - Standardized `log/slog` patterns for structured, leveled logging.
+- **Strict Error Handling** - idiomatic error wrapping, sentinel errors, and unwrapping patterns.
+
 **Category**: QA Engineering, TDD & Debugging Standards
 
 ### Added (Common Skills v1.2.0)
