@@ -5,7 +5,8 @@ metadata:
   labels: [dart, language, idioms]
   triggers:
     files: ['**/*.dart']
-    keywords: [sealed, record, switch, pattern, extension, final, late, async, await]
+    keywords:
+      [sealed, record, switch, pattern, extension, final, late, async, await]
 ---
 
 # Dart Language Patterns
@@ -25,6 +26,7 @@ Modern Dart standards for safety, performance, and readability.
 - **Wildcards (3.7+)**: Use `_` for unused variables in declarations and patterns.
 - **Tear-offs**: Prefer using tear-offs (e.g., `list.forEach(print)`) over anonymous lambdas (e.g., `list.forEach((e) => print(e))`).
 - **Asynchrony**: Prefer `async/await` over raw `Future.then`. Use `unawaited` for fire-and-forget logic if necessary.
+- **Encapsulation**: Use `_` prefix for library-private members. Prefer `final` properties.
 - **Collections**: Use `collection-if`, `collection-for`, and spread operators `...`.
 
 ## Anti-Patterns

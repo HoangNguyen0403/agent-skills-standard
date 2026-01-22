@@ -23,8 +23,8 @@ Modern JavaScript standards for clean, maintainable code.
 - **Objects**: Destructuring, Spread `...`, Optional Chain `?.`, Nullish `??`.
 - **Strings**: Template literals `${}`.
 - **Arrays**: `map`, `filter`, `reduce`. No loops.
-- **Modules**: ESM `import`/`export`.
-- **Classes**: Use `#private` fields.
+- **Modules**: ESM `import`/`export`. Export only what is necessary.
+- **Classes**: Use `#private` fields for true privacy.
 
 ## Anti-Patterns
 

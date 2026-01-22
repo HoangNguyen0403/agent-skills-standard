@@ -5,6 +5,24 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-01-23
+
+**Category**: Java Expert Standards & Meta-Workflow Creation
+
+### Added (Java Skills v1.0.0)
+
+- **Modern Java Core** - 5 new high-density skills covering Java 21+ features (Records, Pattern Matching, Text Blocks).
+- **Virtual Threads & Concurrency** - Full support for Project Loom and Structured Concurrency patterns.
+- **Testing & Assertions** - Standardized usage of JUnit 5 and AssertJ with Mockito integration templates.
+- **Tooling & Build** - Best practices for Maven and Gradle (Kotlin DSL) with version management.
+- **Meta-Workflow** - Added `create-skillset` workflow to standardize future framework additions.
+
+### Changed
+
+- **Dart (v1.0.3)**: Added explicit Access Modifier guidance (library-private prefix).
+- **TypeScript (v1.0.3)**: Added explicit Access Modifier guidance (private/protected and #private).
+- **JavaScript (v1.0.1)**: Added explicit Access Modifier guidance (#private fields).
+
 ## [1.3.2] - 2026-01-22
 
 **Category**: Angular Expert Standards & Modern v17+ Patterns
