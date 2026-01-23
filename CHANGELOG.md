@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.0] - 2026-01-23
 
+**Category**: Kotlin Expert Standards & Tooling
+
+### Added (Kotlin Skills v1.0.0)
+
+- **Modern Kotlin Core** - 4 new high-density skills covering Kotlin 1.9+ features (Null Safety, Extensions, Scope Functions).
+- **Coroutines & Flow** - Structured Concurrency standards (`viewModelScope`, `StateFlow`) and anti-patterns.
+- **Best Practices** - Backing Properties, Immutability, and Functional patterns.
+- **Tooling** - Gradle Kotlin DSL (`.kts`), Detekt, and MockK integration.
+
 **Category**: Java Expert Standards & Meta-Workflow Creation
 
 ### Added (Java Skills v1.0.0)
