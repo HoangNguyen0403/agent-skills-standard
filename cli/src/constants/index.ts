@@ -195,6 +195,21 @@ export const getFrameworkDefinition = (id: Framework): FrameworkDefinition => {
           java: ['src/main/java'],
         },
       };
+    case Framework.iOS:
+      return {
+        id,
+        name: 'iOS (Swift/SwiftUI)',
+        languages: ['swift'],
+        detectionFiles: [
+          'Podfile',
+          'Package.swift',
+          'project.pbxproj',
+          'Info.plist',
+        ],
+        languageDetection: {
+          swift: ['.swift'],
+        },
+      };
   }
 };
 

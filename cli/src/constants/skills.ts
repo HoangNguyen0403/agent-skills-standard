@@ -95,4 +95,26 @@ export const SKILL_DETECTION_REGISTRY: Record<string, SkillDetection[]> = {
       packages: ['kotlinx-coroutines-android'],
     },
   ],
+  [Framework.iOS]: [
+    {
+      id: 'networking',
+      packages: ['Alamofire', 'Moya'],
+    },
+    {
+      id: 'dependency-injection',
+      packages: ['Swinject', 'Resolver'],
+    },
+    {
+      id: 'persistence',
+      packages: ['Realm', 'CoreData', 'SQLite.swift'],
+    },
+    {
+      id: 'state-management',
+      packages: ['ComposableArchitecture', 'CombineRuntime'],
+    },
+    {
+      id: 'ui-navigation',
+      packages: ['Coordinator', 'Router'],
+    },
+  ],
 };

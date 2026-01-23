@@ -21,4 +21,5 @@ export enum Framework {
   Angular = 'angular',
   SpringBoot = 'spring-boot',
   Android = 'android',
+  iOS = 'ios',
 }
