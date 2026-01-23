@@ -135,6 +135,17 @@
         "avg_tokens_per_skill": 520,
         "largest_skill": "language (628 tokens)"
       }
+    },
+    "spring-boot": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-23",
+      "tag_prefix": "spring-boot-v",
+      "token_metrics": {
+        "total_skills": 10,
+        "total_tokens": 3392,
+        "avg_tokens_per_skill": 339,
+        "largest_skill": "architecture (451 tokens)"
+      }
     }
   }
 }

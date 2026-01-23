@@ -24,7 +24,11 @@ Use this workflow to generate a new category of High-Density Skills for a langua
    mkdir -p skills/<category>/{language,best-practices,tooling}
    ```
 
-3. **Drafting (High-Density Standard)**:
+3. **Pre-Drafting Strategy (The Verbosity Check)**:
+   - **Analyze Verbosity**: If target language is verbose (Java, Go, C#, XML), **Default to Reference Extraction**.
+   - **Rule**: Do not attempt to fit code > 5 lines inline. Plan for `references/implementation.md` immediately.
+
+4. **Drafting (High-Density Standard)**:
    - Create `SKILL.md` for each module.
    - **CONSTRAINT**: Keep content < 500 tokens (~70 lines).
    - **Structure**:
@@ -34,11 +38,11 @@ Use this workflow to generate a new category of High-Density Skills for a langua
      - `Anti-Patterns`: What to avoid.
      - `Code`: Concise, modern examples.
 
-4. **Reference Compression**:
+5. **Reference Compression**:
    - Move heavy examples/checklists to `references/*.md`.
    - Link to references from the main `SKILL.md`.
 
-5. **Validation**:
+6. **Validation**:
    - Run the CLI validator to ensure compliance.
    - // turbo
 
@@ -48,7 +52,7 @@ Use this workflow to generate a new category of High-Density Skills for a langua
 
    - Run the code-review workflow to ensure the code in good shape
 
-6. **Token Calculation**:
+7. **Token Calculation**:
    - Verify token footprint.
    - // turbo
 
@@ -56,5 +60,5 @@ Use this workflow to generate a new category of High-Density Skills for a langua
    pnpm calculate-tokens
    ```
 
-7. **Finalize**:
+8. **Finalize**:
    - Run `smart-release` workflow to update the related distribution artifacts and version metadata.

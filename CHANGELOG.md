@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.0] - 2026-01-23
 
+**Category**: Spring Boot Expert Standards & Tooling with Enterprise & Production-Ready modules
+
+### Added (Spring Boot Skillset (v1.1.0))
+
+- **Architecture**: Domain-driven packaging, clean architecture rules, Record-based DTOs.
+- **Best Practices**: Constructor injection, type-safe configuration (`@ConfigurationProperties`), structured logging.
+- **Data Access**: JPA performance optimization (Solved N+1, Projections, EntityGraphs).
+- **Testing**: Testcontainers with `@ServiceConnection` (Boot 3.1+), Slice Testing strategy (`@WebMvcTest`).
+- **Security**: Spring Security 6 Lambda DSL, Hardening (CSRF/HSTS), Method Security.
+- **Microservices**: Sync (Feign) vs Async (Cloud Stream), "Shared Library" contracts pattern.
+- **Observability**: Micrometer Tracing (Correlation IDs), Structured JSON Logging.
+- **Deployment**: GraalVM Native Images, Docker Layering (`bootBuildImage`), Graceful Shutdown.
+- **Scheduling**: Distributed Locking using ShedLock, ThreadPool configuration.
+- **API Design**: OpenAPI (Swagger), URI Versioning, RFC 7807 ProblemDetails.
+
 **Category**: Kotlin Expert Standards & Tooling
 
 ### Added (Kotlin Skills v1.0.0)
