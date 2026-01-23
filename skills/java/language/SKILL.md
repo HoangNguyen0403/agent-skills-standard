@@ -29,11 +29,11 @@ Modern Java (21+) standards for concise, immutable, and expressive code.
 
 ## Anti-Patterns
 
-- **No `null`**: Never return `null` or pass `null`. Use `Optional` or empty collections.
-- **No Raw Types**: Always use generics `List<String>`, never `List`.
-- **No Old Switch**: Avoid fall-through switch statements (`:`). Use expressions (`->`).
-- **No `get/set` Boilerplate**: Use Records.
-- **No `synchronized`**: Use `java.util.concurrent` locks or Virtual Threads.
+- **No `null`**: `**No Nulls**: Return Optional or empty collections; avoid null parameters.`
+- **No Raw Types**: `**Use Generics**: Never use raw types like List.`
+- **No Old Switch**: `**No Fall-through**: Use Switch Expressions ->.`
+- **Boilerplate**: `**No manual get/set**: Use Records or value objects.`
+- **Blocking**: `**No synchronized**: Use java.util.concurrent utilities or Virtual Threads.`
 
 ## Code
 

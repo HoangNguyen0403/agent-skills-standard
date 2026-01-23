@@ -22,3 +22,9 @@ Modern Flutter layout patterns and composition techniques.
   - Intrinsic: Avoid `IntrinsicWidth/Height`; use `Stack` + `FractionallySizedBox` for overlays.
 - **Optimization**: Use `ColoredBox`/`Padding`/`DecoratedBox` instead of `Container` when possible.
 - **Themes**: Use extensions for `Theme.of(context)` access.
+
+## 🚫 Anti-Patterns
+
+- **Missing Mounted Check**: `**No context usage after await**: Always check if (context.mounted).`
+- **Helper Methods for UI**: `**No Widget functions**: Use specialized Widget classes for better performance/profiling.`
+- **Direct Controller Access**: `**No UI-Logic coupling**: Use BLoC/Signals to decouple UI from State.`

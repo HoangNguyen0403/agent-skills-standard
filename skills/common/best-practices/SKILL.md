@@ -45,6 +45,13 @@ metadata:
 - **Graceful Degradation**: Fallback values/UI for non-critical failures.
 - **Log Context**: Log actionable metadata (ID, State) along with errors. Avoid silent failures.
 
+## 🚫 Anti-Patterns
+
+- **Magic Numbers**: `**No Hardcoded Constants**: Use named constants or config.`
+- **Pyramid of Doom**: `**No Deep Nesting**: Use guard clauses and early returns.`
+- **Mutable Globals**: `**No Global State**: Use dependency injection or state management.`
+- **Silent Failures**: `**No Empty Catch**: Always handle, log, or rethrow errors.`
+
 ## 📚 References
 
 - [Code Structure & Modular Design Examples](references/CODE_STRUCTURE.md)

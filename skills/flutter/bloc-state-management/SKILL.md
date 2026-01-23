@@ -44,9 +44,9 @@ lib/features/auth/
 
 ## Anti-Patterns
 
-- **No Manual Emit**: Do not call `emit()` inside `Future.then`; always use `await` or `emit.forEach`.
-- **No UI Logic**: Do not perform calculations or data formatting inside `BlocBuilder`.
-- **No Cross-Bloc Reference**: Do not pass a BLoC instance into another BLoC; use streams or the UI layer to coordinate.
+- **No Manual Emit**: `**Avoid .then()**: Do not call emit() inside Future.then; always use await or emit.forEach.`
+- **No UI Logic**: `**Logic in Builder**: Do not perform calculations or data formatting inside BlocBuilder.`
+- **No Cross-Bloc Reference**: `**Tight Coupling**: Do not pass a BLoC instance into another BLoC; use streams to coordinate.`
 
 ## Related Topics
 

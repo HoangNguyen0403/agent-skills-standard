@@ -35,6 +35,13 @@ Universal security protocols for building safe and resilient software across all
 - **Data Minimization**: Collect and store only the absolute minimum data required for the business logic.
 - **Logging**: Maintain audit logs for sensitive operations (Auth, Deletion, Admin changes).
 
+## 🚫 Anti-Patterns
+
+- **Hardcoded Secrets**: `**No Secrets in Git**: Use Secret Managers or Env variables.`
+- **Raw SQL**: `**No String Concatenation**: Use Parameterized queries or ORMs.`
+- **Leaking Context**: `**No Stacktraces in Prod**: Return generic error codes to clients.`
+- **Insecure Defaults**: `**No Default Passwords**: Force rotation and strong entropy.`
+
 ## 📚 References
 
 - [Vulnerability Remediation & Secure Patterns](references/VULNERABILITY_REMEDIATION.md)

@@ -20,6 +20,12 @@ Performance optimization techniques for smooth 60fps Flutter applications.
 - **Repaints**: Use `RepaintBoundary` for complex animations. Use `debugRepaintRainbowEnabled` to debug.
 - **Images**: Use `CachedNetworkImage` + `memCacheWidth`. `precachePicture` for SVGs.
 
+## 🚫 Anti-Patterns
+
+- **Large Rebuilds**: `**No SetState at Root**: Use granular builders (BlocBuilder, Consumer).`
+- **Logic in Build**: `**No Heavy Work in body**: Perform parsing/sorting in the Business Layer.`
+- **Missing Const**: `**No Dynamic Leaf Widgets**: Use const where possible.`
+
 ```dart
 BlocBuilder<UserBloc, UserState>(
   buildWhen: (p, c) => p.id != c.id,

@@ -10,8 +10,8 @@
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 19,
-        "total_tokens": 7663,
-        "avg_tokens_per_skill": 403,
+        "total_tokens": 7937,
+        "avg_tokens_per_skill": 418,
         "largest_skill": "getx-navigation (565 tokens)"
       }
     },
@@ -87,9 +87,9 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 5030,
-        "avg_tokens_per_skill": 503,
-        "largest_skill": "quality-assurance (668 tokens)"
+        "total_tokens": 5328,
+        "avg_tokens_per_skill": 533,
+        "largest_skill": "quality-assurance (782 tokens)"
       }
     },
     "golang": {
@@ -120,9 +120,9 @@
       "tag_prefix": "kotlin-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 1960,
-        "avg_tokens_per_skill": 490,
-        "largest_skill": "language (539 tokens)"
+        "total_tokens": 1977,
+        "avg_tokens_per_skill": 494,
+        "largest_skill": "language (556 tokens)"
       }
     },
     "java": {
@@ -131,9 +131,9 @@
       "tag_prefix": "java-v",
       "token_metrics": {
         "total_skills": 5,
-        "total_tokens": 2601,
-        "avg_tokens_per_skill": 520,
-        "largest_skill": "language (628 tokens)"
+        "total_tokens": 2609,
+        "avg_tokens_per_skill": 522,
+        "largest_skill": "language (636 tokens)"
       }
     },
     "spring-boot": {
@@ -153,9 +153,31 @@
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 19,
-        "total_tokens": 5239,
-        "avg_tokens_per_skill": 276,
-        "largest_skill": "architecture (321 tokens)"
+        "total_tokens": 5271,
+        "avg_tokens_per_skill": 277,
+        "largest_skill": "security (329 tokens)"
+      }
+    },
+    "swift": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-23",
+      "tag_prefix": "swift-v",
+      "token_metrics": {
+        "total_skills": 8,
+        "total_tokens": 2829,
+        "avg_tokens_per_skill": 354,
+        "largest_skill": "testing (394 tokens)"
+      }
+    },
+    "ios": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-23",
+      "tag_prefix": "ios-v",
+      "token_metrics": {
+        "total_skills": 11,
+        "total_tokens": 4698,
+        "avg_tokens_per_skill": 427,
+        "largest_skill": "localization (475 tokens)"
       }
     }
   }

@@ -15,6 +15,9 @@
 [![kotlin](https://img.shields.io/badge/kotlin-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/kotlin-v1.0.0)
 [![java](https://img.shields.io/badge/java-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/java-v1.0.0)
 [![spring-boot](https://img.shields.io/badge/spring--boot-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/spring-boot-v1.0.0)
+[![android](https://img.shields.io/badge/android-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/android-v1.0.0)
+[![swift](https://img.shields.io/badge/swift-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/swift-v1.0.0)
+[![ios](https://img.shields.io/badge/ios-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/ios-v1.0.0)
 
 **The open standard for High-Density AI coding instructions. Make your AI smarter, faster, and more consistent.**
 
@@ -171,24 +174,21 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | Category           | Key Modules                                           | Version  | Skills | Avg. Footprint |
 | :----------------- | :---------------------------------------------------- | :------- | :----- | :------------- |
 | **☕ Spring Boot** | Architecture, Security, Data, Test, Microservices     | `v1.0.0` | 10     | ~339 tokens    |
-| **🌐 Common**      | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.2.0` | 10     | ~503 tokens    |
-| **💙 Flutter**     | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.1` | 19     | ~403 tokens    |
+| **🌐 Common**      | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.2.0` | 10     | ~533 tokens    |
+| **💙 Flutter**     | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.1` | 19     | ~418 tokens    |
 | **🎯 Dart**        | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.3` | 3      | ~351 tokens    |
-| **☕ Java**        | Modern Syntax, Virtual Threads, Testing, Tooling      | `v1.0.0` | 5      | ~520 tokens    |
+| **☕ Java**        | Modern Syntax, Virtual Threads, Testing, Tooling      | `v1.0.0` | 5      | ~522 tokens    |
 | **🔷 TypeScript**  | Type Safety, Security, Best Practices, Tooling        | `v1.0.3` | 4      | ~406 tokens    |
-| **🟨 JavaScript**  | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.1` | 5      | ~520 tokens    |
+| **🟨 JavaScript**  | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.1` | 5      | ~522 tokens    |
 | **⚛️ React**       | Hooks, State Management, Performance, Security        | `v1.0.2` | 8      | ~387 tokens    |
 | **🦁 NestJS**      | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.2` | 18     | ~498 tokens    |
 | **▲ Next.js**      | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` | 13     | ~504 tokens    |
 | **🐹 Golang**      | Clean Architecture, API Design, Concurrency, SQL      | `v1.0.0` | 9      | ~346 tokens    |
-| **🐘 Kotlin**      | Idiomatic Patterns, Coroutines, Flow, Tooling         | `v1.0.0` | 4      | ~490 tokens    |
+| **🐘 Kotlin**      | Idiomatic Patterns, Coroutines, Flow, Tooling         | `v1.0.0` | 4      | ~494 tokens    |
 | **🅰️ Angular**     | Standalone, Signals, Control Flow, SSR, Testing       | `v1.0.0` | 14     | ~272 tokens    |
-
-### 🔹 Ongoing Development (Q1 2026)
-
-- **☕ Android Native**: Pro-grade Android standards for enterprise agents.
-- **☕ iOS Native**: Pro-grade iOS standards for enterprise agents.
-- **☕ SwiftUI**: Pro-grade SwiftUI standards for enterprise agents.
+| **🤖 Android**     | Architecture, Compose, DI, Perf, Testing, WorkManager | `v1.0.0` | 19     | ~277 tokens    |
+| **🍎 Swift**       | Language, Memory, Concurrency, SwiftUI, Testing       | `v1.0.0` | 8      | ~354 tokens    |
+| **📱 iOS**         | Arch, UI, Lifecycle, Security, Perf, Networking, DI   | `v1.0.0` | 11     | ~427 tokens    |
 
 > [!TIP]
 > **Enterprise Ready**: You can host your own **Private Skills Registry** on GitHub and point the CLI to it via the `registry` field in your `.skillsrc`.
@@ -255,9 +255,8 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 - [x] **Angular** (v1.0.0 released)
 - [x] **Kotlin** (v1.0.0 released)
 - [x] **Spring Boot** (v1.1.0 released)
-- [ ] **Android Native** (Q1 2026)
-- [ ] **iOS Native** (Q1 2026)
-- [ ] **SwiftUI** (Q1 2026)
+- [x] **Android Native** (v1.0.0 released)
+- [x] **iOS Native & SwiftUI** (v1.0.0 released)
 
 - [ ] **Agent Skills Dashboard** (Web UI for browsing standards)
 

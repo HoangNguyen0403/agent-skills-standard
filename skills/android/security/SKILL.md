@@ -37,6 +37,7 @@ metadata:
 
 - **Logging**: `**No Sensitive Logs**: Strip logs in Release.`
 - **Root Detection**: `**Avoid Homebrew**: Use Play Integrity API.`
+- **URL Construction**: `**No Raw String Concatenation**: Use Uri.Builder or HttpUrl (OkHttp) to prevent parameter injection.`
 
 ## References
 

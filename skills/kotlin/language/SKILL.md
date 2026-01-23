@@ -26,10 +26,10 @@ Modern, idiomatic Kotlin standards for safety and conciseness.
 
 ## Anti-Patterns
 
-- **Not-null Assertion (`!!`)**: Never use `!!` in production code. Use `requireNotNull` or safe calls.
-- **Java-isms**: Avoid `get/set` prefixes. Use properties. Avoid `static` (use `companion object` or top-level).
-- **Lateinit Abuse**: Avoid `lateinit var`. Prefer nullable `var` or `lazy` delegates.
-- **Empty Catch**: Never swallow exceptions.
+- **Not-null Assertion (`!!`)**: `**No !!**: Never use in production code; use safe calls or requireNotNull.`
+- **Java-isms**: `**No get/set prefixes**: Use properties. Prefer top-level functions over companion object statics.`
+- **Lateinit Abuse**: `**Avoid lateinit var**: Prefer nullable types or lazy delegates.`
+- **Empty Catch**: `**No Silenced Errors**: Never swallow exceptions without logging or handling.`
 
 ## Code
 

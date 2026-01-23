@@ -39,6 +39,13 @@ test/
 - [Integration Testing](./references/integration-testing.md) (Shared Robots, Real Device)
 - [Robot Pattern Implementation](./references/robot-pattern.md)
 
+## 🚫 Anti-Patterns
+
+- **Thread Sleep**: `**No Future.delayed**: Use FakeAsync or expectations for deterministic timing.`
+- **Missing Assertions**: `**No "Execution Only" Tests**: A test without an expect() call is invalid.`
+- **Over-Mocking**: `**No Mocking Data Classes**: Use real instances for Entities/Models; mock only I/O.`
+- **Test Pollution**: `**No Shared State**: Ensure every test is Independent (FIRST).`
+
 ## Related Topics
 
 layer-based-clean-architecture | dependency-injection | cicd
