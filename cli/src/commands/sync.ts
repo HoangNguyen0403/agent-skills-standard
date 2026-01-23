@@ -130,24 +130,39 @@ export class SyncCommand {
         );
         for (const absSkill of absoluteIncludes) {
           const [targetCat, targetSkill] = absSkill.split('/');
-          if (targetCat && targetSkill && !foldersToSync.includes(absSkill)) {
-            // Check if this skill actually exists in the target category (lazy discovery)
-            const exists = treeData.tree.some((f) =>
-              f.path.startsWith(`skills/${targetCat}/${targetSkill}/`),
-            );
-
-            if (exists) {
-              foldersToSync.push(absSkill);
-            } else {
-              // If it doesn't exist in current tree, we might need a separate discovery
-              // but since all skills are in the same repo, we can just use the treeData we already have
-              // which contains the entire repo structure if ref is same.
-              // Most categories use 'main' or specific version tags.
-              console.log(
-                pc.yellow(
-                  `    ⚠️  Absolute include ${absSkill} not found in repository tree.`,
+          if (targetCat && targetSkill) {
+            if (targetSkill === '*') {
+              // Include ALL skills from target category
+              const catSkills = Array.from(
+                new Set(
+                  treeData.tree
+                    .filter((f) => f.path.startsWith(`skills/${targetCat}/`))
+                    .map((f) => f.path.split('/')[2])
+                    .filter(Boolean),
                 ),
               );
+
+              for (const s of catSkills) {
+                const fullPath = `${targetCat}/${s}`;
+                if (!foldersToSync.includes(fullPath)) {
+                  foldersToSync.push(fullPath);
+                }
+              }
+            } else if (!foldersToSync.includes(absSkill)) {
+              // Include SPECIFIC skill
+              const exists = treeData.tree.some((f) =>
+                f.path.startsWith(`skills/${targetCat}/${targetSkill}/`),
+              );
+
+              if (exists) {
+                foldersToSync.push(absSkill);
+              } else {
+                console.log(
+                  pc.yellow(
+                    `    ⚠️  Absolute include ${absSkill} not found in repository tree.`,
+                  ),
+                );
+              }
             }
           }
         }
