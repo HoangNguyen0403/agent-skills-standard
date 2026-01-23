@@ -115,7 +115,10 @@ The CLI connects to the [Official Skills Registry](https://github.com/HoangNguye
 - **React**: Hooks, Patterns, Performance.
 - **NestJS**: Architecture, Microservices, Security.
 - **Next.js**: App Router, RSC, FSD Architecture.
-- **Golang**: (Coming Soon)
+- **Golang**: Clean Architecture, API Design, Concurrency.
+- **Angular**: Standalone, Signals, Control Flow.
+- **Kotlin**: Idiomatic Patterns, Coroutines, Flow.
+- **Spring Boot**: Architecture, Security, Data, Test.
 
 ---
 
