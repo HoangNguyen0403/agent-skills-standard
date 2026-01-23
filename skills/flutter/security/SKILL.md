@@ -18,7 +18,7 @@ Standards for basic mobile security and PII protection.
 
 - **Secure Storage**: Use `flutter_secure_storage` for tokens/PII. Never use `shared_preferences`.
 - **Hardcoding**: Never store API keys or secrets in Dart code. Use `--dart-define` or `.env`.
-- **Obfuscation**: Always release with `--obfuscate` and `--split-debug-info`.
+- **Obfuscation**: Always release with `--obfuscate` and `--split-debug-info`. Note: This is a deterrent, not cryptographic protection. For sensitive logic, move to backend.
 - **SSL Pinning**: For high-security apps, use `dio_certificate_pinning`.
 - **Root Detection**: Use `flutter_jailbreak_detection` for financial/sensitive applications.
 - **PII Masking**: Mask sensitive data (email, phone) in logs and analytics.
@@ -30,4 +30,4 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 
 ## Related Topics
 
-layer-based-clean-architecture | performance
+common/security-standards | layer-based-clean-architecture | performance

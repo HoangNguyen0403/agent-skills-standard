@@ -256,5 +256,42 @@ describe('GithubService', () => {
       expect(results).toHaveLength(1);
       expect(results[0].path).toBe('ok-file');
     });
+
+    it('should handle empty task list', async () => {
+      const results = await githubService.downloadFilesConcurrent([]);
+      expect(results).toEqual([]);
+    });
+
+    it('should handle undefined task if shift returns nothing (line 104 coverage)', async () => {
+      // @ts-expect-error - testing defensive logic
+      const results = await githubService.downloadFilesConcurrent([undefined]);
+      expect(results).toEqual([]);
+    });
+  });
+
+  describe('parseGitHubUrl', () => {
+    it('should correctly parse valid GitHub URLs', () => {
+      const result = GithubService.parseGitHubUrl(
+        'https://github.com/HoangNguyen0403/agent-skills-standard',
+      );
+      expect(result).toEqual({
+        owner: 'HoangNguyen0403',
+        repo: 'agent-skills-standard',
+      });
+    });
+
+    it('should handle .git suffix', () => {
+      const result = GithubService.parseGitHubUrl(
+        'https://github.com/owner/repo.git',
+      );
+      expect(result).toEqual({ owner: 'owner', repo: 'repo' });
+    });
+
+    it('should return null for invalid URLs', () => {
+      expect(GithubService.parseGitHubUrl('invalid-url')).toBeNull();
+      expect(
+        GithubService.parseGitHubUrl('https://gitlab.com/owner/repo'),
+      ).toBeNull();
+    });
   });
 });

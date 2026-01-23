@@ -99,7 +99,15 @@ export class SkillValidator {
       }
     };
 
-    await findRecursive(skillsDir);
+    try {
+      await findRecursive(skillsDir);
+    } catch (error) {
+      if (process.env.DEBUG) {
+        console.warn(
+          `Failed to scan skills directory: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    }
     return skillFiles;
   }
 

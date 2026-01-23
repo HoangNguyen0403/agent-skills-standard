@@ -42,10 +42,11 @@ function useWindowSize() {
   const [size, setSize] = useState({ w: 0, h: 0 });
 
   useEffect(() => {
-    const onResize = () =>
+    function handleResize() {
       setSize({ w: window.innerWidth, h: window.innerHeight });
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    }
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []); // Empty = mount only
 
   return size;

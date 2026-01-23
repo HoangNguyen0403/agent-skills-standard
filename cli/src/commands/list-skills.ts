@@ -4,6 +4,7 @@ import yaml from 'js-yaml';
 import path from 'path';
 import pc from 'picocolors';
 import {
+  DEFAULT_REGISTER,
   Framework,
   SKILL_DETECTION_REGISTRY,
   SUPPORTED_FRAMEWORKS,
@@ -38,9 +39,7 @@ export class ListSkillsCommand {
     console.log(pc.green(`\nAvailable skills for ${framework}:`));
 
     // Determine registry URL (from .skillsrc or default)
-    const defaultRegistry =
-      'https://github.com/HoangNguyen0403/agent-skills-standard';
-    let registryUrl = defaultRegistry;
+    let registryUrl = DEFAULT_REGISTER;
     const configPath = path.join(process.cwd(), '.skillsrc');
     if (await fs.pathExists(configPath)) {
       const raw = await fs.readFile(configPath, 'utf8');
@@ -51,7 +50,7 @@ export class ListSkillsCommand {
     // Try to fetch the repo tree to list all skills under skills/<framework>/
     let skillFolders: string[] = [];
     try {
-      const parsed = this.parseRegistryUrl(registryUrl);
+      const parsed = GithubService.parseGitHubUrl(registryUrl);
       if (parsed) {
         // We assume 'main' branch if not specified (legacy behavior of fetchRepoTree handled default,
         // but for listing skills, 'main' is a safe default for now or we could fetch repo info)
@@ -103,11 +102,5 @@ export class ListSkillsCommand {
     console.log(
       '\nTip: Use the .skillsrc exclude array to disable/enable sub-skills before running sync.',
     );
-  }
-
-  private parseRegistryUrl(registryUrl: string) {
-    const m = registryUrl.match(/github\.com\/([^/]+)\/([^/]+)/i);
-    if (!m) return null;
-    return { owner: m[1], repo: m[2].replace(/\.git$/, '') };
   }
 }

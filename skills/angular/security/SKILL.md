@@ -27,3 +27,7 @@ metadata:
 ## References
 
 - [Security Best Practices](references/security-best-practices.md)
+
+## Related Topics
+
+common/security-standards | components

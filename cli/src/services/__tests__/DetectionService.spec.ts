@@ -1,5 +1,5 @@
 import fs from 'fs-extra';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DetectionService } from '../DetectionService';
 
 vi.mock('fs-extra');
@@ -202,6 +202,7 @@ dependencies {
           return Promise.resolve([
             { name: 'build.gradle', isDirectory: () => false },
             { name: 'app', isDirectory: () => true },
+            { name: 'node_modules', isDirectory: () => true }, // Should be ignored (line 167)
           ] as any);
         }
         if (dir.endsWith('app')) {
@@ -221,6 +222,19 @@ dependencies {
 
       const deps = await detectionService.getProjectDeps();
       expect(deps.has('androidx.compose.ui')).toBe(true);
+      expect(fs.readdir).not.toHaveBeenCalledWith(
+        expect.stringContaining('node_modules'),
+        expect.any(Object),
+      );
+    });
+
+    it('should respect recursion depth limit (line 158 coverage)', async () => {
+      vi.mocked(fs.readdir).mockResolvedValue([
+        { name: 'sub', isDirectory: () => true },
+      ] as any);
+      // @ts-expect-error - private method
+      await detectionService.parseGradleDependencies('/tmp/test');
+      expect(fs.readdir).toHaveBeenCalled();
     });
 
     it('should collect dependencies from Version Catalogs (libs.versions.toml)', async () => {
@@ -367,6 +381,106 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 
       const langs = await detectionService.detectLanguages(framework);
       expect(langs).toEqual(['javascript']);
+    });
+  });
+
+  describe('debug logging', () => {
+    const originalEnv = process.env;
+
+    beforeEach(() => {
+      process.env = { ...originalEnv };
+      vi.spyOn(console, 'debug').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      process.env = originalEnv;
+    });
+
+    it('should log debug info on package.json error when DEBUG is set', async () => {
+      process.env.DEBUG = 'true';
+      vi.mocked(fs.pathExists).mockImplementation((p) =>
+        Promise.resolve(p.endsWith('package.json')),
+      );
+      vi.mocked(fs.readJson).mockRejectedValue(new Error('Internal error'));
+
+      // @ts-expect-error - testing private method
+      await detectionService.parsePackageJson(process.cwd());
+      expect(console.debug).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to parse package.json'),
+        expect.any(Error),
+      );
+    });
+
+    it('should log debug info on package.json read failure (line 246 coverage)', async () => {
+      process.env.DEBUG = 'true';
+      vi.mocked(fs.pathExists).mockImplementation((p) =>
+        p.endsWith('package.json'),
+      );
+      vi.mocked(fs.readJson).mockRejectedValue(new Error('Read error'));
+
+      // @ts-expect-error - private method
+      await detectionService.getPackageDeps();
+      expect(console.debug).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to read package.json'),
+        expect.any(Error),
+      );
+    });
+
+    it('should log debug info on pubspec.yaml error when DEBUG is set', async () => {
+      process.env.DEBUG = 'true';
+      vi.mocked(fs.pathExists).mockImplementation((p) =>
+        Promise.resolve(p.endsWith('pubspec.yaml')),
+      );
+      vi.mocked(fs.readFile).mockRejectedValue(new Error('IO error'));
+
+      // @ts-expect-error - testing private method
+      await detectionService.parsePubspecYaml(process.cwd());
+      expect(console.debug).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to parse pubspec.yaml'),
+        expect.any(Error),
+      );
+    });
+
+    it('should log debug info on gradle scan error when DEBUG is set', async () => {
+      process.env.DEBUG = 'true';
+      vi.mocked(fs.readdir).mockRejectedValue(new Error('Dir error'));
+
+      // @ts-expect-error - testing private method
+      await detectionService.parseGradleDependencies(process.cwd());
+      expect(console.debug).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to scan gradle dependencies'),
+        expect.any(Error),
+      );
+    });
+
+    it('should log debug info on version catalogs error when DEBUG is set', async () => {
+      process.env.DEBUG = 'true';
+      vi.mocked(fs.pathExists).mockImplementation((p) =>
+        Promise.resolve(p.endsWith('libs.versions.toml')),
+      );
+      vi.mocked(fs.readFile).mockRejectedValue(new Error('Parse error'));
+
+      // @ts-expect-error - testing private method
+      await detectionService.parseVersionCatalogs(process.cwd());
+      expect(console.debug).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to parse version catalogs'),
+        expect.any(Error),
+      );
+    });
+
+    it('should log debug info on maven pom error when DEBUG is set', async () => {
+      process.env.DEBUG = 'true';
+      vi.mocked(fs.pathExists).mockImplementation((p) =>
+        Promise.resolve(p.endsWith('pom.xml')),
+      );
+      vi.mocked(fs.readFile).mockRejectedValue(new Error('XML error'));
+
+      // @ts-expect-error - testing private method
+      await detectionService.parseMavenPom(process.cwd());
+      expect(console.debug).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to parse maven pom'),
+        expect.any(Error),
+      );
     });
   });
 });

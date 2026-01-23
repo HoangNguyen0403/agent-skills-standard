@@ -15,7 +15,7 @@ metadata:
 
 # Android Security Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Guidelines
 
@@ -35,10 +35,14 @@ metadata:
 
 ## Anti-Patterns
 
-- **Logging**: `**No Sensitive Logs**: Strip logs in Release.`
-- **Root Detection**: `**Avoid Homebrew**: Use Play Integrity API.`
-- **URL Construction**: `**No Raw String Concatenation**: Use Uri.Builder or HttpUrl (OkHttp) to prevent parameter injection.`
+- **No Sensitive Logs**: Strip logs in Release builds.
+- **No Homebrew Root Detection**: Use Play Integrity API instead.
+- **No Raw URL String Concatenation**: Use `Uri.Builder` or `HttpUrl` (OkHttp) to prevent parameter injection.
 
 ## References
 
 - [Setup Examples](references/implementation.md)
+
+## Related Topics
+
+common/security-standards | architecture

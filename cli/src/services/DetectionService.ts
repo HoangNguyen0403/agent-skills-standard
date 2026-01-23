@@ -104,8 +104,9 @@ export class DetectionService {
         ...(pkg.devDependencies || {}),
       };
       Object.keys(deps).forEach((k) => set.add(k));
-    } catch {
-      /* ignore */
+    } catch (error) {
+      if (process.env.DEBUG)
+        console.debug('Failed to parse package.json:', error);
     }
     return set;
   }
@@ -141,8 +142,9 @@ export class DetectionService {
           set.add(key);
         }
       }
-    } catch {
-      /* ignore */
+    } catch (error) {
+      if (process.env.DEBUG)
+        console.debug('Failed to parse pubspec.yaml:', error);
     }
     return set;
   }
@@ -175,8 +177,9 @@ export class DetectionService {
             }
           }
         }
-      } catch {
-        /* ignore */
+      } catch (error) {
+        if (process.env.DEBUG)
+          console.debug('Failed to scan gradle dependencies:', error);
       }
     };
 
@@ -204,8 +207,9 @@ export class DetectionService {
         while ((match = groupRegex.exec(content)) !== null) {
           set.add(match[1]);
         }
-      } catch {
-        /* ignore */
+      } catch (error) {
+        if (process.env.DEBUG)
+          console.debug('Failed to parse version catalogs:', error);
       }
     }
     return set;
@@ -224,8 +228,8 @@ export class DetectionService {
       while ((match = regex.exec(content)) !== null) {
         set.add(match[1]);
       }
-    } catch {
-      /* ignore */
+    } catch (error) {
+      if (process.env.DEBUG) console.debug('Failed to parse maven pom:', error);
     }
     return set;
   }
@@ -237,7 +241,9 @@ export class DetectionService {
       try {
         const pkg = await fs.readJson(packageJsonPath);
         return { ...pkg.dependencies, ...pkg.devDependencies };
-      } catch {
+      } catch (error) {
+        if (process.env.DEBUG)
+          console.debug('Failed to read package.json:', error);
         return {};
       }
     }

@@ -56,4 +56,4 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 
 ## Related Topics
 
-best-practices | language
+common/security-standards | best-practices | language

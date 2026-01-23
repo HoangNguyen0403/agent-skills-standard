@@ -247,4 +247,8 @@ async function main() {
   }
 }
 
-main().catch(console.error);
+main().catch((error) => {
+  console.error(pc.red(`\n❌ Fatal error:`));
+  console.error(error instanceof Error ? error.stack : String(error));
+  process.exit(1);
+});
