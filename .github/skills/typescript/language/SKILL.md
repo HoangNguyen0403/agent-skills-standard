@@ -40,6 +40,7 @@ Modern TypeScript standards for type-safe, maintainable code.
 - **Template Literals**: `on${Capitalize<string>}`.
 - **Discriminated Unions**: Literal `kind` property.
 - **Advanced**: Mapped, Conditional, Indexed types.
+- **Access**: Default `public`. Use `private`/`protected` or `#private` for internals.
 - **Branded Types**: `string & { __brand: 'Id' }`.
 
 ## Anti-Patterns

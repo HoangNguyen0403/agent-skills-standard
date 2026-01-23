@@ -38,7 +38,7 @@ Security standards for TypeScript applications based on OWASP guidelines.
 // Validation (Zod)
 const UserSchema = z.object({
   email: z.string().email(),
-  pasword: z.string().min(8),
+  password: z.string().min(8),
 });
 
 // Secure Cookie
