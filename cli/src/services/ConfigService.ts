@@ -123,4 +123,45 @@ export class ConfigService {
       category.exclude = Array.from(exclusions);
     }
   }
+
+  /**
+   * Automatically re-enables skills that were previously excluded if their dependencies
+   * are now present in the project.
+   */
+  reconcileDependencies(
+    config: SkillConfig,
+    framework: string,
+    projectDeps: Set<string>,
+  ): string[] {
+    const category = config.skills[framework];
+    if (!category || !category.exclude) return [];
+
+    const reenabled: string[] = [];
+    const detections = SKILL_DETECTION_REGISTRY[framework] || [];
+    const currentExclusions = new Set(category.exclude);
+
+    for (const detection of detections) {
+      if (currentExclusions.has(detection.id)) {
+        const hasDep = Array.from(projectDeps).some((d) =>
+          detection.packages.some((pkg) =>
+            d.toLowerCase().includes(pkg.toLowerCase()),
+          ),
+        );
+
+        if (hasDep) {
+          currentExclusions.delete(detection.id);
+          reenabled.push(detection.id);
+        }
+      }
+    }
+
+    if (reenabled.length > 0) {
+      category.exclude = Array.from(currentExclusions);
+      if (category.exclude.length === 0) {
+        delete category.exclude;
+      }
+    }
+
+    return reenabled;
+  }
 }

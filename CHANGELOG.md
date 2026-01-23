@@ -5,6 +5,29 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-01-23
+
+**Category**: Dynamic Skill Re-detection & Multi-module Android Support
+
+### Added (CLI v1.5.0)
+
+- **🔄 Dynamic Skill Re-detection** - Automatically re-enables excluded skills if matching dependencies (Retrofit, Room, BLoC, etc.) are added to the project.
+- **📂 Recursive Gradle Detection** - Scans sub-modules (up to 3 levels deep) to find dependencies in complex Android projects.
+- **📦 Version Catalog Support** - Native parsing for `libs.versions.toml` files.
+- **🏗️ Refactored Detection Logic** - Clean architecture implementation of dependency parsers using specialized strategies for better maintainability.
+- **Maven Improvement** - Enhanced `pom.xml` detection and dependency parsing.
+
+### Added (Android Native Skillset v1.1.0)
+
+- **Comprehensive Release** - 19 high-density skills covering Modern (Compose) and Legacy (XML) development.
+- **Paradigm Coverage** - UDF, Clean Architecture, Jetpack Compose, DI (Hilt), and Navigation standards.
+- **Reliability** - Verified with automated Gradle/TOML dependency parsing logic.
+
+### Changed
+
+- **Android (v1.1.0)**: Initial production release.
+- **Networking (Android)**: Clarified anti-patterns for `kotlinx.serialization` integration.
+
 ## [1.4.0] - 2026-01-23
 
 **Category**: Spring Boot Expert Standards & Tooling with Enterprise & Production-Ready modules

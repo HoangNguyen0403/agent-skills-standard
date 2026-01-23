@@ -304,4 +304,86 @@ describe('ConfigService', () => {
       },
     );
   });
+
+  describe('reconcileDependencies', () => {
+    it('should re-enable skills if dependencies are found', () => {
+      const config: SkillConfig = {
+        registry: 'https://example.com',
+        agents: ['cursor'],
+        skills: {
+          android: {
+            ref: 'v1.0.0',
+            exclude: ['networking', 'persistence'],
+          },
+        },
+        custom_overrides: [],
+      };
+
+      // networking is detected by 'retrofit'
+      // persistence is detected by 'androidx.room:room-runtime'
+      const projectDeps = new Set(['retrofit', 'some-other-dep']);
+
+      const reenabled = configService.reconcileDependencies(
+        config,
+        'android',
+        projectDeps,
+      );
+
+      expect(reenabled).toEqual(['networking']);
+      const category = config.skills.android as CategoryConfig;
+      expect(category.exclude).toEqual(['persistence']);
+    });
+
+    it('should remove exclude key if all skills are re-enabled', () => {
+      const config: SkillConfig = {
+        registry: 'https://example.com',
+        agents: ['cursor'],
+        skills: {
+          android: {
+            ref: 'v1.0.0',
+            exclude: ['networking'],
+          },
+        },
+        custom_overrides: [],
+      };
+
+      const projectDeps = new Set(['retrofit']);
+
+      const reenabled = configService.reconcileDependencies(
+        config,
+        'android',
+        projectDeps,
+      );
+
+      expect(reenabled).toEqual(['networking']);
+      const category = config.skills.android as CategoryConfig;
+      expect(category.exclude).toBeUndefined();
+    });
+
+    it('should return empty if no skills are re-enabled', () => {
+      const config: SkillConfig = {
+        registry: 'https://example.com',
+        agents: ['cursor'],
+        skills: {
+          android: {
+            ref: 'v1.0.0',
+            exclude: ['persistence'],
+          },
+        },
+        custom_overrides: [],
+      };
+
+      const projectDeps = new Set(['some-other-dep']);
+
+      const reenabled = configService.reconcileDependencies(
+        config,
+        'android',
+        projectDeps,
+      );
+
+      expect(reenabled).toEqual([]);
+      const category = config.skills.android as CategoryConfig;
+      expect(category.exclude).toEqual(['persistence']);
+    });
+  });
 });

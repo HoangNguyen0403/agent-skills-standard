@@ -20,6 +20,7 @@ export interface FrameworkDefinition {
   languages: string[];
   detectionFiles: string[];
   detectionDependencies?: string[];
+  languageDetection?: Record<string, string[]>;
 }
 
 export const getAgentDefinition = (id: Agent): AgentDefinition => {
@@ -113,6 +114,10 @@ export const getFrameworkDefinition = (id: Framework): FrameworkDefinition => {
         languages: ['typescript', 'javascript'],
         detectionFiles: ['nest-cli.json'],
         detectionDependencies: ['@nestjs/core'],
+        languageDetection: {
+          typescript: ['tsconfig.json'],
+          javascript: ['jsconfig.json'],
+        },
       };
     case Framework.Golang:
       return {
@@ -128,6 +133,10 @@ export const getFrameworkDefinition = (id: Framework): FrameworkDefinition => {
         languages: ['typescript', 'javascript'],
         detectionFiles: ['next.config.js', 'next.config.mjs'],
         detectionDependencies: ['next'],
+        languageDetection: {
+          typescript: ['tsconfig.json'],
+          javascript: ['jsconfig.json'],
+        },
       };
     case Framework.React:
       return {
@@ -136,6 +145,10 @@ export const getFrameworkDefinition = (id: Framework): FrameworkDefinition => {
         languages: ['typescript', 'javascript'],
         detectionFiles: [],
         detectionDependencies: ['react', 'react-dom'],
+        languageDetection: {
+          typescript: ['tsconfig.json'],
+          javascript: ['jsconfig.json'],
+        },
       };
     case Framework.ReactNative:
       return {
@@ -144,6 +157,10 @@ export const getFrameworkDefinition = (id: Framework): FrameworkDefinition => {
         languages: ['typescript', 'javascript'],
         detectionFiles: ['metro.config.js'],
         detectionDependencies: ['react-native'],
+        languageDetection: {
+          typescript: ['tsconfig.json'],
+          javascript: ['jsconfig.json'],
+        },
       };
     case Framework.Angular:
       return {
@@ -151,6 +168,32 @@ export const getFrameworkDefinition = (id: Framework): FrameworkDefinition => {
         name: 'Angular',
         languages: ['typescript'],
         detectionFiles: ['angular.json'],
+      };
+    case Framework.SpringBoot:
+      return {
+        id,
+        name: 'Spring Boot',
+        languages: ['java', 'kotlin'],
+        detectionFiles: ['pom.xml', 'build.gradle', 'build.gradle.kts'],
+        languageDetection: {
+          kotlin: ['src/main/kotlin', 'build.gradle.kts'],
+          java: ['src/main/java'],
+        },
+      };
+    case Framework.Android:
+      return {
+        id,
+        name: 'Android',
+        languages: ['kotlin', 'java'],
+        detectionFiles: [
+          'build.gradle',
+          'build.gradle.kts',
+          'AndroidManifest.xml',
+        ],
+        languageDetection: {
+          kotlin: ['src/main/kotlin', 'build.gradle.kts'],
+          java: ['src/main/java'],
+        },
       };
   }
 };
