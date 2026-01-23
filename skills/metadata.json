@@ -6,7 +6,7 @@
   "categories": {
     "flutter": {
       "version": "1.1.1",
-      "last_updated": "2026-01-23",
+      "last_updated": "2026-01-21",
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 19,
@@ -50,7 +50,7 @@
     },
     "react": {
       "version": "1.0.2",
-      "last_updated": "2026-01-23",
+      "last_updated": "2026-01-21",
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
@@ -61,7 +61,7 @@
     },
     "nestjs": {
       "version": "1.0.2",
-      "last_updated": "2026-01-23",
+      "last_updated": "2026-01-21",
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 18,
@@ -72,7 +72,7 @@
     },
     "nextjs": {
       "version": "1.0.1",
-      "last_updated": "2026-01-23",
+      "last_updated": "2026-01-21",
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 13,
@@ -83,7 +83,7 @@
     },
     "common": {
       "version": "1.2.0",
-      "last_updated": "2026-01-23",
+      "last_updated": "2026-01-22",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 10,
@@ -94,7 +94,7 @@
     },
     "golang": {
       "version": "1.0.0",
-      "last_updated": "2026-01-23",
+      "last_updated": "2026-01-22",
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 9,
@@ -105,7 +105,7 @@
     },
     "angular": {
       "version": "1.0.0",
-      "last_updated": "2026-01-23",
+      "last_updated": "2026-01-22",
       "tag_prefix": "angular-v",
       "token_metrics": {
         "total_skills": 14,
@@ -148,7 +148,7 @@
       }
     },
     "android": {
-      "version": "1.1.0",
+      "version": "1.0.0",
       "last_updated": "2026-01-23",
       "tag_prefix": "android-v",
       "token_metrics": {
