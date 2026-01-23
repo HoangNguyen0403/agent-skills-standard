@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*SecurityConfig.java', '**/*Filter.java']
     keywords: [security-filter-chain, lambda-dsl, csrf, cors]
-options:
-  - version: 3.x
 ---
 
 # Spring Boot Security Standards

@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['Dockerfile', 'compose.yml']
     keywords: [docker-layer, native-image, graceful-shutdown]
-options:
-  - version: 3.x
 ---
 
 # Spring Boot Deployment Standards

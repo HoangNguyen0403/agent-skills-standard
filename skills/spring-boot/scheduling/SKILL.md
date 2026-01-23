@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*Scheduler.java', '**/*Job.java']
     keywords: [scheduled, shedlock, cron]
-options:
-  - version: 3.x
 ---
 
 # Spring Boot Scheduling Standards

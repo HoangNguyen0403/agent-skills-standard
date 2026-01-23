@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*Controller.java']
     keywords: [openapi, swagger, versioning, problemdetails]
-options:
-  - version: 3.x
 ---
 
 # Spring Boot API Design Standards

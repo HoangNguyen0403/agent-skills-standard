@@ -142,9 +142,20 @@
       "tag_prefix": "spring-boot-v",
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 3392,
-        "avg_tokens_per_skill": 339,
-        "largest_skill": "architecture (451 tokens)"
+        "total_tokens": 3323,
+        "avg_tokens_per_skill": 332,
+        "largest_skill": "architecture (443 tokens)"
+      }
+    },
+    "android": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-23",
+      "tag_prefix": "android-v",
+      "token_metrics": {
+        "total_skills": 19,
+        "total_tokens": 5239,
+        "avg_tokens_per_skill": 276,
+        "largest_skill": "architecture (321 tokens)"
       }
     }
   }

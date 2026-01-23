@@ -82,12 +82,16 @@ export class InitCommand {
     const frameworkId = answers.framework as string;
     const frameworkDef = SUPPORTED_FRAMEWORKS.find((f) => f.id === frameworkId);
 
+    const languages = frameworkDef
+      ? await this.detectionService.detectLanguages(frameworkDef)
+      : [];
+
     const config = this.configService.buildInitialConfig(
       frameworkId,
       answers.agents,
       answers.registry,
       metadata,
-      frameworkDef?.languages || [],
+      languages,
     );
 
     const projectDeps = await this.detectionService.getProjectDeps();

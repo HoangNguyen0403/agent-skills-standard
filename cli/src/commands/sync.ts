@@ -4,6 +4,7 @@ import pc from 'picocolors';
 import { SUPPORTED_AGENTS } from '../constants';
 import { SkillConfig } from '../models/config';
 import { ConfigService } from '../services/ConfigService';
+import { DetectionService } from '../services/DetectionService';
 import { GithubService } from '../services/GithubService';
 
 interface CollectedSkill {
@@ -24,6 +25,33 @@ export class SyncCommand {
         console.log(pc.red('❌ Error: .skillsrc not found. Run `init` first.'));
         return;
       }
+
+      // --- DYNAMIC RE-DETECTION ---
+      const detectionService = new DetectionService();
+      const projectDeps = await detectionService.getProjectDeps();
+      let configChanged = false;
+
+      const categoriesToReconcile = Object.keys(config.skills);
+      for (const cat of categoriesToReconcile) {
+        const reenabled = this.configService.reconcileDependencies(
+          config,
+          cat,
+          projectDeps,
+        );
+        if (reenabled.length > 0) {
+          console.log(
+            pc.yellow(
+              `✨ Dynamic Re-detection: Re-enabling [${reenabled.join(', ')}] in '${cat}' category.`,
+            ),
+          );
+          configChanged = true;
+        }
+      }
+
+      if (configChanged) {
+        await this.configService.saveConfig(config);
+      }
+      // ----------------------------
 
       // 2. Check for updates
       config = await this.checkForUpdates(config);

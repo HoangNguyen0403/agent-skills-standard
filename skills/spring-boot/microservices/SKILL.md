@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*Client.java', '**/*Consumer.java']
     keywords: [feign-client, spring-cloud-stream, rabbitmq, resilience4j]
-options:
-  - version: 3.x
 ---
 
 # Spring Boot Microservices Standards

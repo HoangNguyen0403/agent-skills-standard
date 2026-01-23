@@ -14,6 +14,12 @@ on:
       - 'javascript-v*'
       - 'common-v*'
       - 'react-v*'
+      - 'react-native-v*'
+      - 'java-v*'
+      - 'kotlin-v*'
+      - 'spring-boot-v*'
+      - 'android-v*'
+      - 'ios-v*'
 
 permissions:
   contents: write
@@ -53,8 +59,8 @@ jobs:
         id: tag_info
         run: |
           TAG_NAME=${GITHUB_REF#refs/tags/}
-          CATEGORY=$(echo $TAG_NAME | cut -d'-' -f1)
-          VERSION=$(echo $TAG_NAME | cut -d'-' -f2,3) # Capture v1.0.0
+          CATEGORY=${TAG_NAME%-v*}
+          VERSION=${TAG_NAME##*-}
           echo "category=$CATEGORY" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 

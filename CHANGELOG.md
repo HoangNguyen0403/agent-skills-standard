@@ -7,9 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.0] - 2026-01-23
 
+**Category**: Dynamic Skill Re-detection & Multi-module Android Support
+
+### Added (CLI v1.4.0)
+
+- **🔄 Dynamic Skill Re-detection** - Automatically re-enables excluded skills if matching dependencies (Retrofit, Room, BLoC, etc.) are added to the project.
+- **📂 Recursive Gradle Detection** - Scans sub-modules (up to 3 levels deep) to find dependencies in complex Android projects.
+- **📦 Version Catalog Support** - Native parsing for `libs.versions.toml` files.
+- **🏗️ Refactored Detection Logic** - Clean architecture implementation of dependency parsers using specialized strategies for better maintainability.
+- **Maven Improvement** - Enhanced `pom.xml` detection and dependency parsing.
+
+### Added (Android Native Skillset v1.0.0)
+
+- **Comprehensive Release** - 19 high-density skills covering Modern (Compose) and Legacy (XML) development.
+- **Paradigm Coverage** - UDF, Clean Architecture, Jetpack Compose, DI (Hilt), and Navigation standards.
+- **Reliability** - Verified with automated Gradle/TOML dependency parsing logic.
+
 **Category**: Spring Boot Expert Standards & Tooling with Enterprise & Production-Ready modules
 
-### Added (Spring Boot Skillset (v1.1.0))
+### Added (Spring Boot Skillset (v1.0.0))
 
 - **Architecture**: Domain-driven packaging, clean architecture rules, Record-based DTOs.
 - **Best Practices**: Constructor injection, type-safe configuration (`@ConfigurationProperties`), structured logging.

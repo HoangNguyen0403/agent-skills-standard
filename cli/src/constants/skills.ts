@@ -62,4 +62,37 @@ export const SKILL_DETECTION_REGISTRY: Record<string, SkillDetection[]> = {
       packages: ['@nestjs/passport', 'passport', 'helmet'],
     },
   ],
+  [Framework.Android]: [
+    {
+      id: 'compose',
+      packages: ['androidx.compose.ui'],
+    },
+    {
+      id: 'navigation',
+      packages: ['androidx.navigation:navigation-compose'],
+    },
+    {
+      id: 'legacy-navigation',
+      packages: [
+        'androidx.navigation:navigation-fragment',
+        'androidx.navigation:navigation-ui',
+      ],
+    },
+    {
+      id: 'di',
+      packages: ['hilt-android', 'dagger-android'],
+    },
+    {
+      id: 'persistence',
+      packages: ['androidx.room:room-runtime'],
+    },
+    {
+      id: 'networking',
+      packages: ['retrofit'],
+    },
+    {
+      id: 'concurrency',
+      packages: ['kotlinx-coroutines-android'],
+    },
+  ],
 };

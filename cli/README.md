@@ -33,6 +33,36 @@ Modern AI coding agents are powerful, but they have major flaws:
 
 ---
 
+## 🛠 The Solution: Digital DNA for AI
+
+Agent Skills Standard treats instructions as **versioned dependencies**, much like software libraries.
+
+- **🎯 Smart Loading**: We use a "Search-on-Demand" pattern. The AI only looks at detailed examples when it specifically needs them, saving its memory for your actual code.
+- **🚀 High-Density Language**: We use a specialized "Compressed Syntax" that is **40% more efficient** than normal English. This means the AI understands more while using fewer resources.
+- **🔁 One-Click Sync**: A single command ensures your AI tool stays up-to-date with your team's latest standards.
+
+---
+
+## ✨ Features
+
+- **🛡️ Multi-Agent Support**: Out-of-the-box mapping for Cursor, Claude Dev, GitHub Copilot, and more.
+- **📦 Modular Registry**: Don't load everything. Only enable the skills your project actually uses (e.g., `Flutter + BLoC + Clean Architecture`).
+- **🔄 Dynamic Re-detection**: Automatically re-enables excluded skills if matching dependencies (like `Retrofit`, `Room`, or `Navigation`) are added to your project.
+- **🔒 Secure Overrides**: Lock specific files in your project so they never get overwritten by the central registry.
+- **📊 Semantic Tagging**: Skills are tagged with triggers that tell the AI _exactly_ when to apply them.
+
+---
+
+## � Token Economy & Optimization
+
+To ensure AI efficiency, this project follows a strict **Token Economy**. Every skill is audited for its footprint in the AI's context window.
+
+### 📏 Our Standards
+
+- **High-Density**: Core rules in `SKILL.md` are kept under **70 lines**.
+- **Efficiency**: Target **< 500 tokens** per primary skill file.
+- **Progressive Disclosure**: Heavy examples, checklists, and implementation guides are moved to the `references/` directory and are only loaded by the agent when specific context matches.
+
 ## 🚀 Installation
 
 You can run the tool instantly without installing, or install it globally for convenience:

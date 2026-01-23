@@ -58,6 +58,7 @@ Agent Skills Standard treats instructions as **versioned dependencies**, much li
 
 - **🛡️ Multi-Agent Support**: Out-of-the-box mapping for Cursor, Claude Dev, GitHub Copilot, and more.
 - **📦 Modular Registry**: Don't load everything. Only enable the skills your project actually uses (e.g., `Flutter + BLoC + Clean Architecture`).
+- **🔄 Dynamic Re-detection**: Automatically re-enables excluded skills if matching dependencies (like `Retrofit`, `Room`, or `Navigation`) are added to your project.
 - **🔒 Secure Overrides**: Lock specific files in your project so they never get overwritten by the central registry.
 - **📊 Semantic Tagging**: Skills are tagged with triggers that tell the AI _exactly_ when to apply them.
 
@@ -110,7 +111,9 @@ npx agent-skills-standard@latest sync
 ```
 
 **What happened?**
-The CLI fetched the latest **High-Density Skills** and distributed them into your hidden agent folders (e.g., `.cursor/skills/`, `.github/skills/`). Your AI is now "upgraded" with your team's standards.
+
+1. **Dynamic Re-detection**: The CLI scans your project dependencies (e.g., `build.gradle`, `pubspec.yaml`, `package.json`). If you've recently added a library that matches an excluded skill, the CLI will automatically re-enable it and update your `.skillsrc`.
+2. **Distribution**: The CLI fetched the latest **High-Density Skills** and distributed them into your hidden agent folders (e.g., `.cursor/skills/`, `.github/skills/`). Your AI is now "upgraded" with your team's standards.
 
 ### 3. Validate Skills (For Contributors)
 

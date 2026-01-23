@@ -19,4 +19,6 @@ export enum Framework {
   React = 'react',
   ReactNative = 'react-native',
   Angular = 'angular',
+  SpringBoot = 'spring-boot',
+  Android = 'android',
 }

@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*Repository.java', '**/*Entity.java']
     keywords: [jpa-repository, entity-graph, transactional, n-plus-1]
-options:
-  - version: 3.x
 ---
 
 # Spring Boot Data Access

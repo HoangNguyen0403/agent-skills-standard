@@ -137,5 +137,236 @@ dev_dependencies:
       const deps = await detectionService.getProjectDeps();
       expect(deps.size).toBe(0);
     });
+
+    it('should collect dependencies from build.gradle', async () => {
+      const mockGradle = `
+dependencies {
+    implementation 'androidx.compose.ui:ui:1.5.0'
+    api "androidx.navigation:navigation-compose:2.7.0"
+}
+`;
+      vi.mocked(fs.readdir).mockImplementation((dir: any) => {
+        if (dir === process.cwd()) {
+          return Promise.resolve([
+            { name: 'build.gradle', isDirectory: () => false },
+          ] as any);
+        }
+        return Promise.resolve([]);
+      });
+
+      vi.mocked(fs.readFile).mockImplementation((path: any) => {
+        if (path.endsWith('build.gradle')) {
+          return Promise.resolve(mockGradle as unknown as Buffer);
+        }
+        return Promise.resolve('' as unknown as Buffer);
+      });
+
+      const deps = await detectionService.getProjectDeps();
+      expect(deps.has('androidx.compose.ui')).toBe(true);
+      expect(deps.has('androidx.navigation')).toBe(true);
+    });
+
+    it('should collect dependencies from build.gradle.kts', async () => {
+      const mockGradleKts = `
+dependencies {
+    implementation("androidx.room:room-runtime:2.5.0")
+    ksp("androidx.room:room-compiler:2.5.0")
+}
+`;
+      vi.mocked(fs.readdir).mockImplementation((dir: any) => {
+        if (dir === process.cwd()) {
+          return Promise.resolve([
+            { name: 'build.gradle.kts', isDirectory: () => false },
+          ] as any);
+        }
+        return Promise.resolve([]);
+      });
+
+      vi.mocked(fs.readFile).mockImplementation((path: any) => {
+        if (path.endsWith('build.gradle.kts')) {
+          return Promise.resolve(mockGradleKts as unknown as Buffer);
+        }
+        return Promise.resolve('' as unknown as Buffer);
+      });
+
+      const deps = await detectionService.getProjectDeps();
+      expect(deps.has('androidx.room')).toBe(true);
+    });
+
+    it('should collect dependencies from recursive build.gradle files (multi-module)', async () => {
+      const mockRootGradle = `// Empty root`;
+      const mockAppGradle = `dependencies { implementation 'androidx.compose.ui:ui:1.5.0' }`;
+
+      vi.mocked(fs.readdir).mockImplementation((dir: any) => {
+        if (dir === process.cwd()) {
+          return Promise.resolve([
+            { name: 'build.gradle', isDirectory: () => false },
+            { name: 'app', isDirectory: () => true },
+          ] as any);
+        }
+        if (dir.endsWith('app')) {
+          return Promise.resolve([
+            { name: 'build.gradle', isDirectory: () => false },
+          ] as any);
+        }
+        return Promise.resolve([]);
+      });
+
+      vi.mocked(fs.readFile).mockImplementation((path: any) => {
+        if (path.endsWith('app/build.gradle')) {
+          return Promise.resolve(mockAppGradle as unknown as Buffer);
+        }
+        return Promise.resolve(mockRootGradle as unknown as Buffer);
+      });
+
+      const deps = await detectionService.getProjectDeps();
+      expect(deps.has('androidx.compose.ui')).toBe(true);
+    });
+
+    it('should collect dependencies from Version Catalogs (libs.versions.toml)', async () => {
+      const mockToml = `
+[libraries]
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+`;
+      vi.mocked(fs.pathExists).mockImplementation((p: string) => {
+        return Promise.resolve(p.endsWith('libs.versions.toml'));
+      });
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve(mockToml as unknown as Buffer),
+      );
+
+      const deps = await detectionService.getProjectDeps();
+      expect(deps.has('com.squareup.retrofit2')).toBe(true);
+      expect(deps.has('androidx.room')).toBe(true);
+    });
+
+    it('should collect dependencies from pom.xml', async () => {
+      const mockPom = `
+<project>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+    </dependencies>
+</project>
+`;
+      vi.mocked(fs.pathExists).mockImplementation((p: string) => {
+        return Promise.resolve(p.endsWith('pom.xml'));
+      });
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve(mockPom as unknown as Buffer),
+      );
+
+      const deps = await detectionService.getProjectDeps();
+      expect(deps.has('spring-boot-starter-web')).toBe(true);
+    });
+  });
+
+  describe('detectLanguages', () => {
+    it('should return default languages if no detection rules defined', async () => {
+      const framework = {
+        id: 'golang' as any,
+        name: 'Go',
+        languages: ['go'],
+        detectionFiles: ['go.mod'],
+      };
+      const langs = await detectionService.detectLanguages(framework);
+      expect(langs).toEqual(['go']);
+    });
+
+    it('should detect Kotlin for Spring Boot if src/main/kotlin exists', async () => {
+      const framework = {
+        id: 'spring-boot' as any,
+        name: 'Spring Boot',
+        languages: ['java', 'kotlin'],
+        detectionFiles: ['pom.xml'],
+        languageDetection: {
+          kotlin: ['src/main/kotlin'],
+          java: ['src/main/java'],
+        },
+      };
+      vi.mocked(fs.pathExists).mockImplementation((p: string) => {
+        return Promise.resolve(p.endsWith('src/main/kotlin'));
+      });
+
+      const langs = await detectionService.detectLanguages(framework);
+      expect(langs).toEqual(['kotlin']);
+    });
+
+    it('should detect Java for Spring Boot if src/main/java exists', async () => {
+      const framework = {
+        id: 'spring-boot' as any,
+        name: 'Spring Boot',
+        languages: ['java', 'kotlin'],
+        detectionFiles: ['pom.xml'],
+        languageDetection: {
+          kotlin: ['src/main/kotlin'],
+          java: ['src/main/java'],
+        },
+      };
+      vi.mocked(fs.pathExists).mockImplementation((p: string) => {
+        return Promise.resolve(p.endsWith('src/main/java'));
+      });
+
+      const langs = await detectionService.detectLanguages(framework);
+      expect(langs).toEqual(['java']);
+    });
+
+    it('should return all default languages if no language-specific files found', async () => {
+      const framework = {
+        id: 'spring-boot' as any,
+        name: 'Spring Boot',
+        languages: ['java', 'kotlin'],
+        detectionFiles: ['pom.xml'],
+        languageDetection: {
+          kotlin: ['src/main/kotlin'],
+          java: ['src/main/java'],
+        },
+      };
+      vi.mocked(fs.pathExists).mockResolvedValue();
+
+      const langs = await detectionService.detectLanguages(framework);
+      expect(langs).toEqual(['java', 'kotlin']);
+    });
+
+    it('should detect TypeScript for NestJS if tsconfig.json exists', async () => {
+      const framework = {
+        id: 'nestjs' as any,
+        name: 'NestJS',
+        languages: ['typescript', 'javascript'],
+        detectionFiles: ['nest-cli.json'],
+        languageDetection: {
+          typescript: ['tsconfig.json'],
+          javascript: ['jsconfig.json'],
+        },
+      };
+      vi.mocked(fs.pathExists).mockImplementation((p: string) => {
+        return Promise.resolve(p.endsWith('tsconfig.json'));
+      });
+
+      const langs = await detectionService.detectLanguages(framework);
+      expect(langs).toEqual(['typescript']);
+    });
+
+    it('should detect JavaScript for NestJS if jsconfig.json exists', async () => {
+      const framework = {
+        id: 'nestjs' as any,
+        name: 'NestJS',
+        languages: ['typescript', 'javascript'],
+        detectionFiles: ['nest-cli.json'],
+        languageDetection: {
+          typescript: ['tsconfig.json'],
+          javascript: ['jsconfig.json'],
+        },
+      };
+      vi.mocked(fs.pathExists).mockImplementation((p: string) => {
+        return Promise.resolve(p.endsWith('jsconfig.json'));
+      });
+
+      const langs = await detectionService.detectLanguages(framework);
+      expect(langs).toEqual(['javascript']);
+    });
   });
 });
