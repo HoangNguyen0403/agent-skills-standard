@@ -11,19 +11,10 @@ agents:
   - copilot
   - antigravity
 skills:
-  common:
-    ref: common-v1.1.0
-  nestjs:
-    ref: nestjs-v1.0.1
-    exclude:
-      - caching
-      - database
-      - security
   typescript:
-    ref: typescript-v1.0.1
+    ref: typescript-v1.0.3
   javascript:
-    ref: javascript-v1.0.0
-  caching: {}
-  database: {}
-  security: {}
+    ref: javascript-v1.0.1
+  common:
+    ref: common-v1.2.0
 custom_overrides: []

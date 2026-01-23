@@ -1,6 +1,19 @@
+---
+name: Security Standards
+description: Universal security protocols for building safe and resilient software.
+metadata:
+  labels: [security, encryption, authentication, authorization]
+  triggers:
+    keywords: [security, encrypt, authenticate, authorize]
+---
+
 # Security Standards - High-Density Standards
 
 Universal security protocols for building safe and resilient software.
+
+## **Priority: P0 (FOUNDATIONAL)**
+
+Universal security protocols for building safe and resilient software across all environments.
 
 ## 🛡 Data Safeguarding
 

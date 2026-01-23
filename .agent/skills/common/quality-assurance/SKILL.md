@@ -1,6 +1,19 @@
+---
+name: Quality Assurance Standards
+description: Standards for maintaining code hygiene, automated checks, and testing integrity.
+metadata:
+  labels: [quality-assurance, testing, linting, code-quality]
+  triggers:
+    keywords: [test, qa, lint, quality, assurance]
+---
+
 # Quality Assurance - High-Density Standards
 
 Standards for maintaining code hygiene, automated checks, and testing integrity.
+
+## **Priority: P1 (MAINTENANCE)**
+
+Standards for maintaining code quality, automated checks, and testing integrity.
 
 ## 🔍 Code Quality & Linting
 
@@ -12,9 +25,20 @@ Standards for maintaining code hygiene, automated checks, and testing integrity.
 ## 🧪 Testing & TDD
 
 - **F-I-R-S-T**: Test must be Fast, Independent, Repeatable, Self-Validating, and Timely.
-- **Red-Green-Refactor**: Write a failing test (Red), make it pass (Green), then clean up (Refactor).
+- **TDD (Red-Green-Refactor)**: See our dedicated [TDD Skill](../tdd/SKILL.md) for strict cycle enforcement.
 - **Edge Cases**: Always test null/empty states, boundary limits, and error conditions.
 - **Mock Dependencies**: Isolate code by mocking external systems (APIs, DBs) to ensure deterministic results.
+
+## 🔺 The Test Pyramid
+
+- **Unit Tests (70%)**: Fast, isolated, test individual functions/classes. (TDD focus).
+- **Integration Tests (20%)**: Test interactions between modules (e.g., Service + DB).
+- **E2E Tests (10%)**: Slow, realistic, test user flows from UI to Backend.
+
+## 🎯 Risk-Based Testing
+
+- **Prioritize Critical Paths**: Login, Payments, Data Integrity must have the highest coverage.
+- **Impact Analysis**: Ask "What happens if this fails?" If the answer is "Data Loss", test it thoroughly.
 
 ## 🛠 Refactoring & Code Reviews
 

@@ -22,10 +22,10 @@ Act as a **Principal Engineer**. Focus on logic, security, and architecture. Be 
 
 ## Review Checklist (Summary)
 
-1. **Shields Up (Security)**: Injection? Auth? Secrets?
-2. **Performance**: Big O? N+1 queries? Memory leaks?
-3. **Correctness**: Requirements met? Edge cases?
-4. **Clean Code**: DRY? SOLID? Intent-revealing names?
+1.  **Shields Up (Security)**: Injection? Auth? Secrets?
+2.  **Performance**: Big O? N+1 queries? Memory leaks?
+3.  **Correctness**: Requirements met? Edge cases?
+4.  **Clean Code**: DRY? SOLID? Intent-revealing names?
 
 See [references/checklist.md](references/checklist.md) for full inspection list.
 
@@ -34,18 +34,22 @@ See [references/checklist.md](references/checklist.md) for full inspection list.
 **1. Summary**: One sentence on overall quality/impact.
 **2. Categorized Findings**:
 
-```markdown
+````markdown
 ### 🔴 [BLOCKER]
 
 - **File**: `auth.ts`
 - **Issue**: SQL Injection risk in `login`.
 - **Suggestion**: Use parameterized query.
+  ```typescript
+  // Recommended Fix
+  db.query('SELECT * FROM users WHERE id = $1', [userId]);
+  ```
+````
 
 ### 🟢 [NIT]
 
 - **File**: `utils.ts`
-- **Issue**: Rename `d` to `days`.
-```
+- **Issue**: Rename `d` to `days` for clarity.
 
 See [references/output-format.md](references/output-format.md) for templates.
 

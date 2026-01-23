@@ -1,6 +1,19 @@
+---
+name: Git & Collaboration Standards
+description: Universal standards for version control, branching, and team collaboration.
+metadata:
+  labels: [git, collaboration, commits, branching]
+  triggers:
+    keywords: [commit, branch, merge, pull-request, git]
+---
+
 # Git & Collaboration - High-Density Standards
 
 Universal standards for version control, branching, and team collaboration.
+
+## **Priority: P0 (OPERATIONAL)**
+
+Universal standards for effective version control, branching strategies, and team collaboration.
 
 ## 📝 Commit Messages (Conventional Commits)
 

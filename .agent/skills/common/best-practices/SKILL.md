@@ -1,6 +1,15 @@
-# Global Best Practices - High-Density Standards
+---
+name: Global Best Practices
+description: Universal principles for clean, maintainable, and robust code across all environments.
+metadata:
+  labels: [best-practices, solid, clean-code, architecture]
+  triggers:
+    keywords: [solid, kiss, dry, yagni, naming, conventions]
+---
 
-Universal principles for clean, maintainable, and robust code across all environments.
+# Global Best Practices
+
+## **Priority: P0 (FOUNDATIONAL)**
 
 ## 🏗 SOLID & Architectural Principles
 
