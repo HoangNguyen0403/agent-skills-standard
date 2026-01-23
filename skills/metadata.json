@@ -114,6 +114,17 @@
         "largest_skill": "components (347 tokens)"
       }
     },
+    "kotlin": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-23",
+      "tag_prefix": "kotlin-v",
+      "token_metrics": {
+        "total_skills": 4,
+        "total_tokens": 1960,
+        "avg_tokens_per_skill": 490,
+        "largest_skill": "language (539 tokens)"
+      }
+    },
     "java": {
       "version": "1.0.0",
       "last_updated": "2026-01-23",
