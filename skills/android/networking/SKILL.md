@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*Api.kt', '**/*Service.kt', '**/*Client.kt']
     keywords: ['Retrofit', 'OkHttpClient', '@GET', '@POST']
-options:
-  - version: 1.0.0
 ---
 
 # Android Networking Standards

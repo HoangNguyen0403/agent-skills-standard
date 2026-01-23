@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*Test.java']
     keywords: [webmvctest, datajpatest, testcontainers, assertj]
-options:
-  - version: 3.x
 ---
 
 # Spring Boot Testing Standards

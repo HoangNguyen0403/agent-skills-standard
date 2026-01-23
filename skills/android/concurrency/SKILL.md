@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*.kt']
     keywords: ['suspend', 'viewModelScope', 'lifecycleScope', 'Flow']
-options:
-  - version: 1.0.0
 ---
 
 # Android Concurrency Standards

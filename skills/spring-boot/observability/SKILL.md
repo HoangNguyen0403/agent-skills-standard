@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['logback-spring.xml', 'application.properties']
     keywords: [micrometer, tracing, correlation-id, mdc]
-options:
-  - version: 3.x
 ---
 
 # Spring Boot Observability

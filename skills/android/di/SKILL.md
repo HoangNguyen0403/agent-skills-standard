@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*Module.kt', '**/*Component.kt']
     keywords: ['@HiltAndroidApp', '@Inject', '@Provides', '@Binds']
-options:
-  - version: 1.0.0
 ---
 
 # Android Dependency Injection (Hilt)

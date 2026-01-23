@@ -11,8 +11,6 @@ metadata:
         'cleartextTrafficPermitted',
         'intent-filter',
       ]
-options:
-  - version: 1.0.0
 ---
 
 # Android Security Standards

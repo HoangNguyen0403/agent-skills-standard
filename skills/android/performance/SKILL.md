@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*Benchmark.kt', '**/*Initializer.kt']
     keywords: ['BaselineProfile', 'JankStats', 'recomposition']
-options:
-  - version: 1.0.0
 ---
 
 # Android Performance Standards

@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*Activity.kt', '**/*WebView*.kt', 'AndroidManifest.xml']
     keywords: ['Intent', 'WebView', 'FileProvider', 'javaScriptEnabled']
-options:
-  - version: 1.0.0
 ---
 
 # Android Legacy Security Standards

@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*Fragment.kt', '**/*Activity.kt']
     keywords: ['repeatOnLifecycle', 'launchWhenStarted']
-options:
-  - version: 1.0.0
 ---
 
 # Android Legacy State Standards

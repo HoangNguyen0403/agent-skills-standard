@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['navigation/*.xml']
     keywords: ['findNavController', 'NavDirections', 'navArgs']
-options:
-  - version: 1.0.0
 ---
 
 # Android Legacy Navigation Standards

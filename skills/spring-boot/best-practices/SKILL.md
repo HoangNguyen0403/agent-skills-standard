@@ -7,8 +7,6 @@ metadata:
     files: ['application.properties', '**/*Service.java']
     keywords:
       [autowired, requiredargsconstructor, configuration-properties, slf4j]
-options:
-  - version: 3.x
 ---
 
 # Spring Boot Best Practices

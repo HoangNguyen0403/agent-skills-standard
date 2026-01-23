@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['layout/*.xml', '**/*Binding.java', '**/*Binding.kt']
     keywords: ['ViewBinding', 'ConstraintLayout', 'RecyclerView']
-options:
-  - version: 1.0.0
 ---
 
 # Android XML Views Standards

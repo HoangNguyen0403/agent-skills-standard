@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*Dao.kt', '**/*Database.kt', '**/*Entity.kt']
     keywords: ['@Dao', '@Entity', 'RoomDatabase']
-options:
-  - version: 1.0.0
 ---
 
 # Android Persistence Standards

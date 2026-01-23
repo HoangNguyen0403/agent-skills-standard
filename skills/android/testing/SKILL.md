@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*Test.kt', '**/*Rule.kt']
     keywords: ['@Test', 'runTest', 'composeTestRule']
-options:
-  - version: 1.0.0
 ---
 
 # Android Testing Standards

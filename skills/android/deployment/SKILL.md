@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['build.gradle.kts', 'proguard-rules.pro']
     keywords: ['signingConfigs', 'proguard', 'minifyEnabled', '.aab']
-options:
-  - version: 1.0.0
 ---
 
 # Android Deployment Standards

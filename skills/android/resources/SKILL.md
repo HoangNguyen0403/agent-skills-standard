@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['strings.xml', '**/*Screen.kt']
     keywords: ['stringResource', 'plurals', 'R.string']
-options:
-  - version: 1.0.0
 ---
 
 # Android Resources Standards

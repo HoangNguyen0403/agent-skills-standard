@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['pom.xml', 'build.gradle']
     keywords: [structure, layering, dto, controller]
-options:
-  - version: 3.x
 ---
 
 # Spring Boot Architecture Standards
@@ -25,9 +23,9 @@ options:
 
 ### Layer Responsibilities
 
-1.  **Controller (Web)**: Handle HTTP, Validation (`@Valid`), DTO mapping. Delegate logic to Service.
-2.  **Service (Business)**: Transaction boundaries, orchestration. Returns Domain/DTOs.
-3.  **Repository (Data)**: Database interactions only. Returns Entities/Projections.
+1. **Controller (Web)**: Handle HTTP, Validation (`@Valid`), DTO mapping. Delegate logic to Service.
+2. **Service (Business)**: Transaction boundaries, orchestration. Returns Domain/DTOs.
+3. **Repository (Data)**: Database interactions only. Returns Entities/Projections.
 
 ### API Design
 

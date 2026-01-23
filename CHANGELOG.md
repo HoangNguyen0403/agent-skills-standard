@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Category**: Spring Boot Expert Standards & Tooling with Enterprise & Production-Ready modules
 
-### Added (Spring Boot Skillset (v1.1.0))
+### Added (Spring Boot Skillset (v1.0.0))
 
 - **Architecture**: Domain-driven packaging, clean architecture rules, Record-based DTOs.
 - **Best Practices**: Constructor injection, type-safe configuration (`@ConfigurationProperties`), structured logging.

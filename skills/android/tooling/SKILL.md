@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['build.gradle.kts', 'detekt.yml']
     keywords: ['detekt', 'ktlint', 'lint']
-options:
-  - version: 1.0.0
 ---
 
 # Android Tooling Standards

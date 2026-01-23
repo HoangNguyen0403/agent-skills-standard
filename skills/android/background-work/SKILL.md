@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*Worker.kt']
     keywords: ['CoroutineWorker', 'WorkManager', 'doWork']
-options:
-  - version: 1.0.0
 ---
 
 # Android Background Work Standards

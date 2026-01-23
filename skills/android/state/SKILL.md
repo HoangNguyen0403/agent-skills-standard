@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*ViewModel.kt', '**/*UiState.kt']
     keywords: [viewmodel, stateflow, livedata, uistate]
-options:
-  - version: 1.0.0
 ---
 
 # Android State Management

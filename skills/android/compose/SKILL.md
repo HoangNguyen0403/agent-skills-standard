@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*.kt']
     keywords: ['@Composable', 'Modifier', 'Column', 'Row']
-options:
-  - version: 1.0.0
 ---
 
 # Jetpack Compose Standards

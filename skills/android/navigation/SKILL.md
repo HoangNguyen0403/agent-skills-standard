@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['**/*NavHost.kt', '**/*Graph.kt']
     keywords: ['NavHost', 'navController', '@Serializable']
-options:
-  - version: 1.0.0
 ---
 
 # Android Navigation Standards

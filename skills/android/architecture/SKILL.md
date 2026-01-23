@@ -6,8 +6,6 @@ metadata:
   triggers:
     files: ['build.gradle.kts', 'settings.gradle.kts']
     keywords: [clean-architecture, module, layers, domain]
-options:
-  - version: 1.0.0
 ---
 
 # Android Architecture Standards
