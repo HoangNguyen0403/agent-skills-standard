@@ -9,7 +9,7 @@ Each skill must follow the standard directory structure:
 
 ## 🛠 Active Categories
 
-### � Common (Universal)
+### 🌐 Common (Universal)
 
 Cross-framework standards and best practices applicable to all development.
 

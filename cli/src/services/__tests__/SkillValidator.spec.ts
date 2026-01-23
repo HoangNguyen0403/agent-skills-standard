@@ -382,6 +382,43 @@ describe('SkillValidator', () => {
         ),
       ).toBe(false);
     });
+
+    it('should handle missing scripts directory (line 276 coverage)', async () => {
+      vi.mocked(fs.pathExists).mockImplementation(async (p) => {
+        if (typeof p === 'string' && p.includes('scripts')) return false;
+        return true;
+      });
+      // @ts-expect-error - private method
+      const result = await validator.validateSkill('skills/test/SKILL.md');
+      expect(
+        result.warnings.some((w) => w.includes('Script without standard')),
+      ).toBe(false);
+    });
+
+    it('should not warn if references directory does not exist (line 288 coverage)', async () => {
+      vi.mocked(fs.pathExists).mockImplementation(async (p) => {
+        if (typeof p === 'string' && p.includes('references')) return false;
+        return true;
+      });
+      // @ts-expect-error - private method
+      const result = await validator.validateSkill('skills/test/SKILL.md');
+      expect(
+        result.warnings.some((w) => w.includes('References directory')),
+      ).toBe(false);
+    });
+
+    it('should not warn if references directory has md files (line 291 coverage)', async () => {
+      vi.mocked(fs.readdir).mockImplementation(async (p) => {
+        if (typeof p === 'string' && p.includes('references'))
+          return ['doc.md'] as any;
+        return [];
+      });
+      // @ts-expect-error - private method
+      const result = await validator.validateSkill('skills/test/SKILL.md');
+      expect(
+        result.warnings.some((w) => w.includes('contains no .md files')),
+      ).toBe(false);
+    });
   });
 
   describe('validateMetadata', () => {
@@ -429,6 +466,16 @@ describe('SkillValidator', () => {
         'missing tag_prefix',
       );
     });
+
+    it('should handle non-Error objects in metadata validation (line 341 coverage)', async () => {
+      vi.mocked(fs.readJson).mockImplementation(() => {
+        throw 'String error';
+      });
+      // @ts-expect-error - private method
+      await expect(validator.validateMetadata()).rejects.toThrow(
+        'Metadata validation failed: String error',
+      );
+    });
   });
 
   describe('printSummary', () => {
@@ -467,6 +514,41 @@ describe('SkillValidator', () => {
       // @ts-expect-error - private method
       const files = await validator.findSkillFiles('skills');
       expect(files).toHaveLength(2);
+    });
+
+    it('should ignore folder scanning errors', async () => {
+      vi.mocked(fs.readdir).mockImplementation(async (path) => {
+        if (typeof path === 'string' && path.endsWith('skills'))
+          return ['subdir'] as any;
+        throw new Error('Scan failed');
+      });
+      vi.mocked(fs.stat).mockResolvedValue({ isDirectory: () => true } as any);
+
+      // @ts-expect-error - private method
+      const files = await validator.findSkillFiles('skills');
+      expect(files).toEqual([]);
+    });
+
+    it('should handle non-Error objects in folder scanning catch block', async () => {
+      vi.mocked(fs.readdir).mockImplementation(async () => {
+        throw 'Unknown error';
+      });
+      // @ts-expect-error - private method
+      const files = await validator.findSkillFiles('skills');
+      expect(files).toEqual([]);
+    });
+
+    it('should log warning when scan fails and DEBUG is set (line 106 coverage)', async () => {
+      process.env.DEBUG = 'true';
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.mocked(fs.readdir).mockRejectedValue(new Error('Scan error'));
+
+      // @ts-expect-error - private method
+      await validator.findSkillFiles('skills');
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to scan skills directory'),
+      );
+      warnSpy.mockRestore();
     });
   });
 });

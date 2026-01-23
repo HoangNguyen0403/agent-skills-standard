@@ -11,6 +11,14 @@ describe('RegistryService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     registryService = new RegistryService();
+
+    // Mock the static method
+    vi.mocked(GithubService.parseGitHubUrl).mockImplementation((url) => {
+      if (url === 'invalid-url') return null;
+      const m = url.match(/github\.com\/([^/]+)\/([^/]+)/i);
+      if (!m) return null;
+      return { owner: m[1], repo: m[2].replace(/\.git$/, '') };
+    });
   });
 
   describe('discoverRegistry', () => {
@@ -47,6 +55,28 @@ describe('RegistryService', () => {
 
       expect(result.categories).toContain('nestjs');
       expect(result.metadata.categories?.flutter?.version).toBe('1.0.0');
+    });
+
+    it('should ignore nested skills/ paths (line 41 coverage)', async () => {
+      const mockRepoInfo = { default_branch: 'main' };
+      const mockTree = {
+        tree: [
+          { path: 'skills/flutter', type: 'tree' },
+          { path: 'skills/flutter/nested', type: 'tree' }, // Should be ignored (parts.length === 3)
+        ],
+      };
+      vi.mocked(GithubService.prototype.getRepoInfo).mockResolvedValue(
+        mockRepoInfo,
+      );
+      vi.mocked(GithubService.prototype.getRepoTree).mockResolvedValue(
+        mockTree as any,
+      );
+      vi.mocked(GithubService.prototype.getRawFile).mockResolvedValue(null);
+
+      const result = await registryService.discoverRegistry(
+        'https://github.com/o/r',
+      );
+      expect(result.categories).toEqual(['flutter']);
     });
 
     it('should handle repoInfo without default_branch', async () => {
@@ -109,6 +139,25 @@ describe('RegistryService', () => {
 
       expect(result.categories).toEqual(['flutter', 'dart']);
       expect(result.metadata).toEqual({});
+    });
+
+    it('should log warning when discovery fails and DEBUG is set', async () => {
+      const originalDebug = process.env.DEBUG;
+      process.env.DEBUG = 'true';
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      vi.mocked(GithubService.prototype.getRepoInfo).mockRejectedValue(
+        new Error('Fail'),
+      );
+
+      await registryService.discoverRegistry('https://github.com/o/r');
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Registry discovery failed'),
+      );
+
+      warnSpy.mockRestore();
+      process.env.DEBUG = originalDebug;
     });
 
     it('should return defaults if URL is invalid', async () => {

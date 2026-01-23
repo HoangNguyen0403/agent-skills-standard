@@ -11,7 +11,7 @@ metadata:
 
 # iOS Security Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Guidelines
 
@@ -19,7 +19,7 @@ metadata:
 
 - **Keychain**: Use for sensitive tokens, passwords, and identifiers (UUIDs). Never store in `UserDefaults`.
 - **Valet**: Use high-level wrappers like SwiftKeychainWrapper or Valet to avoid raw Security.framework C-APIs.
-- **Biometrics**: Use `LocalAuthentication` for FaceID/TouchID. Check logic with `canEvaluatePolicy` before evaluating.
+- **Biometrics**: Use `LocalAuthentication` for FaceID/TouchID. Verify availability with `canEvaluatePolicy(_:error:)` before evaluation.
 
 ### Data Protection
 
@@ -40,3 +40,7 @@ metadata:
 ## References
 
 - [Keychain & Biometrics Implementation](references/implementation.md)
+
+## Related Topics
+
+common/security-standards | architecture

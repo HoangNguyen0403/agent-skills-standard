@@ -1,6 +1,5 @@
 export interface GitHubTreeItem {
   path: string;
-  mode: string;
   type: 'blob' | 'tree';
   sha: string;
   size?: number;

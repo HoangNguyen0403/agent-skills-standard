@@ -44,3 +44,7 @@ function SafeHtml({ content }) {
 const safeUrl = url.startsWith('javascript:') ? '#' : url;
 <a href={safeUrl}>Link</a>;
 ```
+
+## Related Topics
+
+common/security-standards | typescript/security | component-patterns

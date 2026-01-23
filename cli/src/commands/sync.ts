@@ -85,13 +85,13 @@ export class SyncCommand {
     config: SkillConfig,
   ): Promise<CollectedSkill[]> {
     const collected: CollectedSkill[] = [];
-    const githubMatch = config.registry.match(/github\.com\/([^/]+)\/([^/]+)/i);
+    const githubMatch = GithubService.parseGitHubUrl(config.registry);
 
     if (!githubMatch) {
       console.log(pc.red('Error: Only GitHub registries supported.'));
       return [];
     }
-    const [owner, repo] = githubMatch.slice(1);
+    const { owner, repo } = githubMatch;
 
     for (const category of categories) {
       const catConfig = config.skills[category];

@@ -95,28 +95,38 @@ export class GithubService {
     concurrency: number = 10,
   ): Promise<{ path: string; content: string }[]> {
     const results: { path: string; content: string }[] = [];
+    const pool = [...tasks];
     const executing: Promise<void>[] = [];
 
-    for (const task of tasks) {
-      const p = this.getRawFile(
-        task.owner,
-        task.repo,
-        task.ref,
-        task.path,
-      ).then((content) => {
+    const worker = async () => {
+      while (pool.length > 0) {
+        const task = pool.shift();
+        if (!task) break;
+
+        const content = await this.getRawFile(
+          task.owner,
+          task.repo,
+          task.ref,
+          task.path,
+        );
         if (content !== null) {
           results.push({ path: task.path, content });
         }
-      });
-
-      executing.push(p);
-
-      if (executing.length >= concurrency) {
-        await Promise.race(executing);
       }
+    };
+
+    // Spawn workers
+    for (let i = 0; i < Math.min(concurrency, tasks.length); i++) {
+      executing.push(worker());
     }
 
     await Promise.all(executing);
     return results;
+  }
+
+  static parseGitHubUrl(url: string): { owner: string; repo: string } | null {
+    const m = url.match(/github\.com\/([^/]+)\/([^/]+)/i);
+    if (!m) return null;
+    return { owner: m[1], repo: m[2].replace(/\.git$/, '') };
   }
 }

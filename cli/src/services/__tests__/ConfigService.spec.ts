@@ -385,5 +385,61 @@ describe('ConfigService', () => {
       const category = config.skills.android as CategoryConfig;
       expect(category.exclude).toEqual(['persistence']);
     });
+
+    it('should return empty if category or exclude list is missing', () => {
+      const config: SkillConfig = {
+        registry: 'https://example.com',
+        agents: ['cursor'],
+        skills: {},
+      };
+      expect(
+        configService.reconcileDependencies(config, 'unknown', new Set()),
+      ).toEqual([]);
+    });
+
+    it('should handle unknown framework in reconcileDependencies (line 140 coverage)', () => {
+      const config: SkillConfig = {
+        registry: 'url',
+        agents: [],
+        skills: {
+          unknown: { ref: 'main', exclude: ['something'] },
+        },
+      };
+      const reenabled = configService.reconcileDependencies(
+        config,
+        'unknown',
+        new Set(),
+      );
+      expect(reenabled).toEqual([]);
+    });
+  });
+
+  describe('applyDependencyExclusions extra coverage', () => {
+    it('should handle unknown framework (line 108 coverage)', () => {
+      const config: SkillConfig = {
+        registry: 'url',
+        agents: [],
+        skills: { unknown: { ref: 'main' } },
+      };
+      configService.applyDependencyExclusions(config, 'unknown', new Set());
+      expect(config.skills.unknown.exclude).toBeUndefined();
+    });
+
+    it('should not add exclude key if exclusions are empty (line 122 coverage)', () => {
+      const config: SkillConfig = {
+        registry: 'url',
+        agents: [],
+        skills: { nestjs: { ref: 'main' } },
+      };
+      // Satisfy all nestjs detections to have zero exclusions
+      const deps = new Set([
+        '@nestjs/core',
+        '@nestjs/cache-manager',
+        '@nestjs/typeorm',
+        '@nestjs/passport',
+      ]);
+      configService.applyDependencyExclusions(config, 'nestjs', deps);
+      expect(config.skills.nestjs.exclude).toBeUndefined();
+    });
   });
 });

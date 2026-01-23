@@ -10,7 +10,7 @@ metadata:
 
 # NestJS Security Standards
 
-## **Priority: P0 (FOUNDATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
 ## Authentication (JWT)
 
@@ -55,3 +55,7 @@ metadata:
 - **No SSRF**: Allowlist domains for all outgoing HTTP requests.
 - **No SQLi**: Use ORM; avoid raw `query()` with string concatenation.
 - **No XSS**: Sanitize HTML input with `dompurify`.
+
+## Related Topics
+
+common/security-standards | architecture | database

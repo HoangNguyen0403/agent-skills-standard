@@ -11,9 +11,7 @@ metadata:
 
 Universal security protocols for building safe and resilient software.
 
-## **Priority: P0 (FOUNDATIONAL)**
-
-Universal security protocols for building safe and resilient software across all environments.
+## **Priority: P0 (CRITICAL)**
 
 ## 🛡 Data Safeguarding
 

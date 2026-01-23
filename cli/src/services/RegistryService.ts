@@ -15,7 +15,7 @@ export class RegistryService {
     let metadata: Partial<RegistryMetadata> = {};
 
     try {
-      const parsed = this.parseRegistryUrl(registryUrl);
+      const parsed = GithubService.parseGitHubUrl(registryUrl);
       if (parsed) {
         let branch = 'main';
         const repoInfo = await this.githubService.getRepoInfo(
@@ -55,16 +55,12 @@ export class RegistryService {
           }
         }
       }
-    } catch {
-      // Return defaults on error
+    } catch (error) {
+      if (process.env.DEBUG) {
+        console.warn(`[RegistryService] Registry discovery failed: ${error}`);
+      }
     }
 
     return { categories, metadata };
-  }
-
-  private parseRegistryUrl(registryUrl: string) {
-    const m = registryUrl.match(/github\.com\/([^/]+)\/([^/]+)/i);
-    if (!m) return null;
-    return { owner: m[1], repo: m[2].replace(/\.git$/, '') };
   }
 }

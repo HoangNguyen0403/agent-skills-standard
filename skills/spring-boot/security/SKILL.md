@@ -10,7 +10,7 @@ metadata:
 
 # Spring Boot Security Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Guidelines
 
@@ -19,6 +19,12 @@ metadata:
 - **Lambda DSL**: ALWAYS use Lambda DSL (`.authorizeHttpRequests(auth -> ...)`) for readability.
 - **SecurityFilterChain**: Expose as `@Bean`. Do not extend `WebSecurityConfigurerAdapter`.
 - **Statelessness**: Enforce `SessionCreationPolicy.STATELESS` for REST APIs.
+
+### JWT Best Practices
+
+- **Algorithm**: Enforce `RS256` or `HS256`. **Reject `none` algorithm** explicitly in JWT configuration.
+- **Claims**: Validate `iss`, `aud`, and `exp` claims.
+- **Tokens**: Short-lived access tokens (15m), secure refresh tokens.
 
 ### Hardening
 
@@ -41,3 +47,7 @@ metadata:
 ## References
 
 - [Implementation Examples](references/implementation.md)
+
+## Related Topics
+
+common/security-standards | architecture

@@ -5,6 +5,54 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2026-01-23
+
+**Category**: Test Coverage Excellence & Security Standards Consistency
+
+### Added (CLI v1.4.1)
+
+- **🧪 100% Line Coverage Achieved** - Comprehensive test improvements across all service files.
+- **Test Suite Expansion** - Added 12 new test cases covering edge cases and error paths (166 total tests, up from 154).
+- **Coverage Details**:
+  - `ConfigService`: 100% branches, 100% lines (67 tests)
+  - `GithubService`: 100% branches, 100% lines (21 tests)
+  - `DetectionService`: 95.31% branches, 100% lines (28 tests)
+  - `RegistryService`: 95.83% branches, 100% lines (8 tests)
+  - `SkillValidator`: 94.73% branches, 100% lines (42 tests)
+- **Defensive Programming** - Added tests for recursion depth limits, error logging, and edge case handling.
+
+### Added (Golang Skills v1.0.2)
+
+- **Security Expert Skill** - Comprehensive security standards covering:
+  - `crypto/rand` vs `math/rand` enforcement
+  - SQL injection prevention with parameterized queries
+  - Password hashing (bcrypt/argon2)
+  - JWT validation with algorithm enforcement
+  - Secret management best practices
+- **Reference Implementation** - Full code examples for security patterns in `references/implementation.md`.
+
+### Fixed (Security Skills - All Frameworks)
+
+- **Standardized Priority Labels** - All security skills now use consistent `## **Priority: P0 (CRITICAL)**` format.
+  - Affected: Android, iOS, NestJS, Spring Boot, Common, TypeScript (7 skills)
+- **Android Security Markdown** - Fixed malformed anti-patterns section with broken nested backticks.
+- **Spring Boot JWT Validation** - Added explicit JWT algorithm validation guidance (reject `none` algorithm).
+- **Flutter Obfuscation Caveat** - Added realistic expectations about obfuscation limits.
+- **iOS Biometrics Phrasing** - Improved `canEvaluatePolicy(_:error:)` description.
+- **Cross-References** - Added "Related Topics" linking all framework security skills to `common/security-standards`:
+  - Flutter, React, NestJS, Android, iOS, Spring Boot, TypeScript, Angular, Next.js
+- **Next.js Auth Links** - Simplified verbose reference link format.
+- **React Hooks Example** - Changed to named function for better DevTools clarity.
+- **README Emoji** - Fixed broken emoji character (� → 🌐).
+- **Common Security** - Removed redundant subtitle (saved 12 tokens).
+
+### Changed
+
+- **Token Metrics Updated** - Recalculated for all 159 skills (64,003 tokens total).
+  - Golang: 3,570 tokens (357 avg, largest: security 458 tokens)
+  - Spring Boot: 3,405 tokens (up from 3,323 due to JWT additions)
+  - Android: 5,282 tokens (up from 5,271 due to markdown fixes)
+
 ## [1.4.0] - 2026-01-23
 
 **Category**: Dynamic Skill Re-detection & Multi-module Android Support
