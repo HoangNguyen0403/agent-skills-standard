@@ -123,11 +123,47 @@ export class SyncCommand {
         return true;
       });
 
-      for (const skill of foldersToSync) {
+      // --- NEW: Cross-category Absolute Includes ---
+      if (catConfig.include) {
+        const absoluteIncludes = catConfig.include.filter((i) =>
+          i.includes('/'),
+        );
+        for (const absSkill of absoluteIncludes) {
+          const [targetCat, targetSkill] = absSkill.split('/');
+          if (targetCat && targetSkill && !foldersToSync.includes(absSkill)) {
+            // Check if this skill actually exists in the target category (lazy discovery)
+            const exists = treeData.tree.some((f) =>
+              f.path.startsWith(`skills/${targetCat}/${targetSkill}/`),
+            );
+
+            if (exists) {
+              foldersToSync.push(absSkill);
+            } else {
+              // If it doesn't exist in current tree, we might need a separate discovery
+              // but since all skills are in the same repo, we can just use the treeData we already have
+              // which contains the entire repo structure if ref is same.
+              // Most categories use 'main' or specific version tags.
+              console.log(
+                pc.yellow(
+                  `    ⚠️  Absolute include ${absSkill} not found in repository tree.`,
+                ),
+              );
+            }
+          }
+        }
+      }
+      // ----------------------------------------------
+
+      for (const absOrRelSkill of foldersToSync) {
+        const isAbsolute = absOrRelSkill.includes('/');
+        const [sourceCat, skill] = isAbsolute
+          ? absOrRelSkill.split('/')
+          : [category, absOrRelSkill];
+
         // Gather files for this skill
         const skillSourceFiles = treeData.tree.filter(
           (f) =>
-            f.path.startsWith(`skills/${category}/${skill}/`) &&
+            f.path.startsWith(`skills/${sourceCat}/${skill}/`) &&
             f.type === 'blob',
         );
 
@@ -140,7 +176,10 @@ export class SyncCommand {
             path: f.path,
           }))
           .filter((t) => {
-            const relative = t.path.replace(`skills/${category}/${skill}/`, '');
+            const relative = t.path.replace(
+              `skills/${sourceCat}/${skill}/`,
+              '',
+            );
             return (
               relative === 'SKILL.md' ||
               relative.startsWith('references/') ||
@@ -155,16 +194,16 @@ export class SyncCommand {
 
         if (files.length > 0) {
           collected.push({
-            category,
+            category: sourceCat, // Use source category for placement
             skill,
             files: files.map((f) => ({
-              name: f.path.replace(`skills/${category}/${skill}/`, ''),
+              name: f.path.replace(`skills/${sourceCat}/${skill}/`, ''),
               content: f.content,
             })),
           });
           console.log(
             pc.gray(
-              `    + Fetched ${category}/${skill} (${files.length} files)`,
+              `    + Fetched ${sourceCat}/${skill} (${files.length} files)`,
             ),
           );
         }

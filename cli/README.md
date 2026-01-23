@@ -113,6 +113,8 @@ skills:
     ref: flutter-v1.1.0
     # 🚫 Exclude specific sub-skills from being synced
     exclude: ['getx-navigation']
+    # ➕ Include specific skills (supports cross-category 'category/skill' syntax)
+    include: ['bloc-state-management', 'react/hooks']
     # 🔒 Protect local modifications from being overwritten
     custom_overrides: ['bloc-state-management']
 ```

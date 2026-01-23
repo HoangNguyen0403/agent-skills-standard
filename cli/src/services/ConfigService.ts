@@ -69,6 +69,11 @@ export class ConfigService {
         : 'main',
     };
 
+    // Specialized Logic: React Native projects should include React hooks/patterns by default
+    if (framework === 'react-native' && metadata.categories?.['react']) {
+      skills[framework].include = ['react/hooks', 'react/component-patterns'];
+    }
+
     // Add associated languages (e.g., typescript, javascript)
     for (const lang of languages) {
       if (metadata.categories?.[lang]) {
