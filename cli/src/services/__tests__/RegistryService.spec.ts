@@ -168,4 +168,44 @@ describe('RegistryService', () => {
       expect(GithubService.prototype.getRepoInfo).not.toHaveBeenCalled();
     });
   });
+
+  describe('getFrameworkSkills', () => {
+    it('should return skill names for a framework', async () => {
+      const mockTree = {
+        tree: [
+          { path: 'skills/flutter/bloc/SKILL.md', type: 'blob' },
+          { path: 'skills/flutter/provider/SKILL.md', type: 'blob' },
+          { path: 'skills/react/hooks/SKILL.md', type: 'blob' },
+        ],
+      };
+      vi.mocked(GithubService.prototype.getRepoTree).mockResolvedValue(
+        mockTree as any,
+      );
+
+      const skills = await registryService.getFrameworkSkills(
+        'https://github.com/o/r',
+        'flutter',
+      );
+      expect(skills).toEqual(['bloc', 'provider']);
+    });
+
+    it('should return empty list if fetch fails', async () => {
+      vi.mocked(GithubService.prototype.getRepoTree).mockRejectedValue(
+        new Error('Fail'),
+      );
+      const skills = await registryService.getFrameworkSkills(
+        'https://github.com/o/r',
+        'flutter',
+      );
+      expect(skills).toEqual([]);
+    });
+
+    it('should return empty list if URL is invalid', async () => {
+      const skills = await registryService.getFrameworkSkills(
+        'invalid-url',
+        'flutter',
+      );
+      expect(skills).toEqual([]);
+    });
+  });
 });

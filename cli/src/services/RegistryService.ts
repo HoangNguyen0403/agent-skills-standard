@@ -63,4 +63,35 @@ export class RegistryService {
 
     return { categories, metadata };
   }
+
+  async getFrameworkSkills(
+    registryUrl: string,
+    framework: string,
+  ): Promise<string[]> {
+    try {
+      const parsed = GithubService.parseGitHubUrl(registryUrl);
+      if (!parsed) return [];
+
+      const treeResult = await this.githubService.getRepoTree(
+        parsed.owner,
+        parsed.repo,
+        'main',
+      );
+
+      if (!treeResult || !Array.isArray(treeResult.tree)) return [];
+
+      return Array.from(
+        new Set(
+          treeResult.tree
+            .filter((f: GitHubTreeItem) =>
+              f.path.startsWith(`skills/${framework}/`),
+            )
+            .map((f: GitHubTreeItem) => f.path.split('/')[2])
+            .filter(Boolean),
+        ),
+      );
+    } catch {
+      return [];
+    }
+  }
 }

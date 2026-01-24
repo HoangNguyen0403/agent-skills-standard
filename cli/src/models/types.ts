@@ -28,3 +28,9 @@ export interface RegistryMetadata {
     [key: string]: CategoryMetadata;
   };
 }
+
+export interface CollectedSkill {
+  category: string;
+  skill: string;
+  files: { name: string; content: string }[];
+}

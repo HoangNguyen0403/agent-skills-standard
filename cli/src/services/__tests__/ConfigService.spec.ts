@@ -203,6 +203,28 @@ describe('ConfigService', () => {
       );
       expect(config.skills.unknown.ref).toBe('main');
     });
+
+    it('should include react patterns by default for react-native framework', () => {
+      const metadata: RegistryMetadata = {
+        global: { author: 'test', repository: 'test' },
+        categories: {
+          'react-native': { version: '1.0.0', tag_prefix: 'v' },
+          react: { version: '1.0.0', tag_prefix: 'v' },
+        },
+      };
+
+      const config = configService.buildInitialConfig(
+        'react-native',
+        ['cursor'],
+        'https://registry.com',
+        metadata,
+      );
+
+      expect(config.skills['react-native']?.include).toEqual([
+        'react/hooks',
+        'react/component-patterns',
+      ]);
+    });
   });
 
   describe('applyDependencyExclusions', () => {
@@ -440,6 +462,28 @@ describe('ConfigService', () => {
       ]);
       configService.applyDependencyExclusions(config, 'nestjs', deps);
       expect(config.skills.nestjs.exclude).toBeUndefined();
+    });
+  });
+
+  describe('getRegistryUrl', () => {
+    it('should return default registry if .skillsrc missing', async () => {
+      vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(false));
+      const url = await configService.getRegistryUrl('/tmp');
+      expect(url).toContain('github.com');
+    });
+
+    it('should return registry from config if exists', async () => {
+      vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(true));
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve('registry: https://custom.com\nskills: {}' as any),
+      );
+      vi.mocked(yaml.load).mockReturnValue({
+        registry: 'https://custom.com',
+        skills: {},
+      });
+
+      const url = await configService.getRegistryUrl('/tmp');
+      expect(url).toBe('https://custom.com');
     });
   });
 });

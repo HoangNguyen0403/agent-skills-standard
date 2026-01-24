@@ -482,5 +482,53 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
         expect.any(Error),
       );
     });
+
+    it('should NOT log debug info when DEBUG is not set', async () => {
+      process.env.DEBUG = undefined;
+      vi.mocked(fs.pathExists).mockImplementation((p) =>
+        Promise.resolve(p.endsWith('package.json')),
+      );
+      vi.mocked(fs.readJson).mockRejectedValue(new Error('Internal error'));
+
+      expect(console.debug).not.toHaveBeenCalled();
+    });
+
+    it('should NOT log debug info for version catalogs when DEBUG is not set', async () => {
+      process.env.DEBUG = undefined;
+      vi.mocked(fs.pathExists).mockImplementation((p) =>
+        Promise.resolve(p.endsWith('libs.versions.toml')),
+      );
+      vi.mocked(fs.readFile).mockRejectedValue(new Error('Parse error'));
+
+      // @ts-expect-error - testing private method
+      await detectionService.parseVersionCatalogs(process.cwd());
+      expect(console.debug).not.toHaveBeenCalled();
+    });
+
+    it('should NOT log debug info for maven pom when DEBUG is not set', async () => {
+      process.env.DEBUG = undefined;
+      vi.mocked(fs.pathExists).mockImplementation((p) =>
+        Promise.resolve(p.endsWith('pom.xml')),
+      );
+      vi.mocked(fs.readFile).mockRejectedValue(new Error('XML error'));
+
+      // @ts-expect-error - testing private method
+      await detectionService.parseMavenPom(process.cwd());
+      expect(console.debug).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('parseGradleDependencies extra branches', () => {
+    it('should cover else branch for non-gradle files', async () => {
+      vi.mocked(fs.readdir).mockImplementation(async () => {
+        return [{ name: 'README.md', isDirectory: () => false }] as any;
+      });
+
+      // @ts-expect-error - private method
+      const deps = await detectionService.parseGradleDependencies(
+        process.cwd(),
+      );
+      expect(deps.size).toBe(0);
+    });
   });
 });

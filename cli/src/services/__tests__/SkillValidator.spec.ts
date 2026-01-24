@@ -70,14 +70,24 @@ describe('SkillValidator', () => {
       expect(exitCode).toBe(1);
     });
 
-    it('should return 1 when an exception occurs', async () => {
-      // Use mockRejectedValueOnce to ensure it doesn't affect other tests
+    it('should return 1 when an exception occurs (Error object)', async () => {
       vi.spyOn(validator, 'validateAllSkills').mockRejectedValueOnce(
         new Error('Fatal'),
       );
       const exitCode = await validator.run(true);
       expect(exitCode).toBe(1);
-      expect(console.error).toHaveBeenCalled();
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining('Validation error: Error: Fatal'),
+      );
+    });
+
+    it('should return 1 when an exception occurs (string error)', async () => {
+      vi.spyOn(validator, 'validateAllSkills').mockRejectedValueOnce('Fatal');
+      const exitCode = await validator.run(true);
+      expect(exitCode).toBe(1);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining('Validation error: Fatal'),
+      );
     });
   });
 
@@ -320,9 +330,9 @@ describe('SkillValidator', () => {
       const result = await validator.validateSkill('skills/ok/SKILL.md');
       expect(result.passed).toBe(true);
       // It might still have a warning about references dir, but not the conversational one
-      expect(result.warnings.some((w) => w.includes('imperative mood'))).toBe(
-        false,
-      );
+      expect(
+        result.warnings.some((w: any) => w.includes('imperative mood')),
+      ).toBe(false);
     });
 
     it('should fail if missing priority section', async () => {
@@ -348,7 +358,7 @@ describe('SkillValidator', () => {
       // @ts-expect-error - private method
       const result = await validator.validateSkill('skills/test/SKILL.md');
       expect(
-        result.warnings.some((w) =>
+        result.warnings.some((w: any) =>
           w.includes('Script without standard extension'),
         ),
       ).toBe(true);
@@ -364,7 +374,7 @@ describe('SkillValidator', () => {
       // @ts-expect-error - private method
       const result = await validator.validateSkill('skills/test/SKILL.md');
       expect(
-        result.warnings.some((w) => w.includes('contains no .md files')),
+        result.warnings.some((w: any) => w.includes('contains no .md files')),
       ).toBe(true);
     });
 
@@ -377,13 +387,13 @@ describe('SkillValidator', () => {
       // @ts-expect-error - private method
       const result = await validator.validateSkill('skills/test/SKILL.md');
       expect(
-        result.warnings.some((w) =>
+        result.warnings.some((w: any) =>
           w.includes('Script without standard extension'),
         ),
       ).toBe(false);
     });
 
-    it('should handle missing scripts directory (line 276 coverage)', async () => {
+    it('should handle missing scripts directory', async () => {
       vi.mocked(fs.pathExists).mockImplementation(async (p) => {
         if (typeof p === 'string' && p.includes('scripts')) return false;
         return true;
@@ -391,11 +401,11 @@ describe('SkillValidator', () => {
       // @ts-expect-error - private method
       const result = await validator.validateSkill('skills/test/SKILL.md');
       expect(
-        result.warnings.some((w) => w.includes('Script without standard')),
+        result.warnings.some((w: any) => w.includes('Script without standard')),
       ).toBe(false);
     });
 
-    it('should not warn if references directory does not exist (line 288 coverage)', async () => {
+    it('should not warn if references directory does not exist', async () => {
       vi.mocked(fs.pathExists).mockImplementation(async (p) => {
         if (typeof p === 'string' && p.includes('references')) return false;
         return true;
@@ -403,11 +413,11 @@ describe('SkillValidator', () => {
       // @ts-expect-error - private method
       const result = await validator.validateSkill('skills/test/SKILL.md');
       expect(
-        result.warnings.some((w) => w.includes('References directory')),
+        result.warnings.some((w: any) => w.includes('References directory')),
       ).toBe(false);
     });
 
-    it('should not warn if references directory has md files (line 291 coverage)', async () => {
+    it('should not warn if references directory has md files', async () => {
       vi.mocked(fs.readdir).mockImplementation(async (p) => {
         if (typeof p === 'string' && p.includes('references'))
           return ['doc.md'] as any;
@@ -416,7 +426,7 @@ describe('SkillValidator', () => {
       // @ts-expect-error - private method
       const result = await validator.validateSkill('skills/test/SKILL.md');
       expect(
-        result.warnings.some((w) => w.includes('contains no .md files')),
+        result.warnings.some((w: any) => w.includes('contains no .md files')),
       ).toBe(false);
     });
   });
@@ -467,7 +477,7 @@ describe('SkillValidator', () => {
       );
     });
 
-    it('should handle non-Error objects in metadata validation (line 341 coverage)', async () => {
+    it('should handle non-Error objects in metadata validation', async () => {
       vi.mocked(fs.readJson).mockImplementation(() => {
         throw 'String error';
       });
@@ -516,6 +526,32 @@ describe('SkillValidator', () => {
       expect(files).toHaveLength(2);
     });
 
+    it('should skip non-SKILL.md files', async () => {
+      vi.mocked(fs.readdir).mockImplementation(async () => {
+        return ['other.txt'] as any;
+      });
+      vi.mocked(fs.stat).mockResolvedValue({ isDirectory: () => false } as any);
+
+      // @ts-expect-error - private method
+      const files = await validator.findSkillFiles('skills');
+      expect(files).toHaveLength(0);
+    });
+
+    it('should handle passed skill without warnings in validateAllSkills', async () => {
+      vi.spyOn(validator as any, 'findSkillFiles').mockResolvedValue([
+        'skills/ok/SKILL.md',
+      ]);
+      vi.spyOn(validator as any, 'validateSkill').mockResolvedValue({
+        file: 'skills/ok/SKILL.md',
+        errors: [],
+        warnings: [],
+        passed: true,
+      });
+
+      const summary = await validator.validateAllSkills(true);
+      expect(summary.passed).toBe(1);
+    });
+
     it('should ignore folder scanning errors', async () => {
       vi.mocked(fs.readdir).mockImplementation(async (path) => {
         if (typeof path === 'string' && path.endsWith('skills'))
@@ -538,7 +574,7 @@ describe('SkillValidator', () => {
       expect(files).toEqual([]);
     });
 
-    it('should log warning when scan fails and DEBUG is set (line 106 coverage)', async () => {
+    it('should log warning when scan fails and DEBUG is set', async () => {
       process.env.DEBUG = 'true';
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       vi.mocked(fs.readdir).mockRejectedValue(new Error('Scan error'));
@@ -547,6 +583,19 @@ describe('SkillValidator', () => {
       await validator.findSkillFiles('skills');
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Failed to scan skills directory'),
+      );
+      warnSpy.mockRestore();
+    });
+
+    it('should handle non-Error objects in folder scanning and log them', async () => {
+      process.env.DEBUG = 'true';
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.mocked(fs.readdir).mockRejectedValue('String error');
+
+      // @ts-expect-error - private method
+      await validator.findSkillFiles('skills');
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('String error'),
       );
       warnSpy.mockRestore();
     });

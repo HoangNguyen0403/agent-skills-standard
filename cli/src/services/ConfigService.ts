@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
 import { z } from 'zod';
-import { SKILL_DETECTION_REGISTRY } from '../constants';
+import { DEFAULT_REGISTER, SKILL_DETECTION_REGISTRY } from '../constants';
 import { CategoryConfig, SkillConfig } from '../models/config';
 import { RegistryMetadata } from '../models/types';
 
@@ -168,5 +168,10 @@ export class ConfigService {
     }
 
     return reenabled;
+  }
+
+  async getRegistryUrl(cwd: string = process.cwd()): Promise<string> {
+    const config = await this.loadConfig(cwd).catch(() => null);
+    return config?.registry || DEFAULT_REGISTER;
   }
 }
