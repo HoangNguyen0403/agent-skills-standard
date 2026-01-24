@@ -7,19 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.1] - 2026-01-23
 
-**Category**: Test Coverage Excellence & Security Standards Consistency
+**Category**: CLI Architectural Refactor & SOLID Principles Enforcement & Security Standards Consistency & React Native Support
 
 ### Added (CLI v1.4.1)
 
-- **🧪 100% Line Coverage Achieved** - Comprehensive test improvements across all service files.
 - **Test Suite Expansion** - Added 12 new test cases covering edge cases and error paths (166 total tests, up from 154).
-- **Coverage Details**:
-  - `ConfigService`: 100% branches, 100% lines (67 tests)
-  - `GithubService`: 100% branches, 100% lines (21 tests)
-  - `DetectionService`: 95.31% branches, 100% lines (28 tests)
-  - `RegistryService`: 95.83% branches, 100% lines (8 tests)
-  - `SkillValidator`: 94.73% branches, 100% lines (42 tests)
 - **Defensive Programming** - Added tests for recursion depth limits, error logging, and edge case handling.
+- **🏗️ Architectural Overhaul** - Refactored all core CLI commands (`init`, `sync`, `list-skills`) to use **Dependency Injection (DI)**.
+- **🛠️ New Service Layer** - Introduced specialized services to separate domain logic from CLI interaction:
+  - `InitService`: Manages environment detection and bootstrapping logic.
+  - `SyncService`: Centralized business logic for skill discovery and file projection.
+  - `SkillService`: Unified logic for skill listing and status detection.
+- **📦 Centralized Configuration** - Unified registry URL resolution and config building in `ConfigService`.
+- **🧪 Enhanced Test Robustness** - Achieved near-perfect test quality and maintainability:
+  - **DI-Mocking Pattern**: All command tests now use type-safe injection, removing `any` usage and private field manipulation.
+  - **Zero Linter Errors**: Resolved all TSLint/ESLint issues in the test suite.
+  - **100% Line Coverage**: Maintained across all core services and commands (221 total tests).
+- **🛡️ Type Safety** - Enforced strict typing for CLI prompts and configuration assembly.
 
 ### Added (Golang Skills v1.0.2)
 
@@ -30,6 +34,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - JWT validation with algorithm enforcement
   - Secret management best practices
 - **Reference Implementation** - Full code examples for security patterns in `references/implementation.md`.
+
+### Added (React Native Skillset v1.0.0)
+
+- **Comprehensive Release** - 10 new high-density skills for professional React Native development.
+- **Architecture & Patterns** - Clean architecture, Component composition, and Hooks standards.
+- **State & Navigation** - Modern state management patterns and React Navigation best practices.
+- **Mobile Expertise** - Platform-specific logic (Native Modules), Security (Keychain), and Performance optimization.
+- **DevOps** - Standardized Deployment workflows including CodePush integration.
+- **Testing** - Comprehensive testing standards with React Native Testing Library and Jest.
 
 ### Fixed (Security Skills - All Frameworks)
 

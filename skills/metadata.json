@@ -59,6 +59,17 @@
         "largest_skill": "performance (648 tokens)"
       }
     },
+    "react-native": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-23",
+      "tag_prefix": "react-native-v",
+      "token_metrics": {
+        "total_skills": 10,
+        "total_tokens": 4832,
+        "avg_tokens_per_skill": 483,
+        "largest_skill": "architecture (571 tokens)"
+      }
+    },
     "nestjs": {
       "version": "1.0.2",
       "last_updated": "2026-01-21",

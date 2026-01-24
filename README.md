@@ -8,6 +8,7 @@
 [![dart](https://img.shields.io/badge/dart-v1.0.3-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/dart-v1.0.3)
 [![typescript](https://img.shields.io/badge/typescript-v1.0.3-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/typescript-v1.0.3)
 [![react](https://img.shields.io/badge/react-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-v1.0.2)
+[![react-native](https://img.shields.io/badge/react--native-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-native-v1.0.0)
 [![nestjs](https://img.shields.io/badge/nestjs-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.0.2)
 [![nextjs](https://img.shields.io/badge/nextjs-v1.0.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nextjs-v1.0.1)
 [![golang](https://img.shields.io/badge/golang-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/golang-v1.0.2)
@@ -141,15 +142,24 @@ skills:
     ref: flutter-v1.1.0
     # 🚫 Exclude specific sub-skills from being synced
     exclude: ['getx-navigation']
+    # ➕ Include specific skills (supports cross-category 'category/skill' or 'category/*' syntax)
+    include:
+      - 'bloc-state-management'
+      - 'react/hooks'
+      - 'common/*'
     # 🔒 Protect local modifications from being overwritten
     custom_overrides: ['bloc-state-management']
 ```
 
 ### Key Options
 
-- **`exclude`**: A list of skill IDs to skip during synchronization. Useful if you want the main framework guidelines but use a different library for a specific sub-task (e.g., excluding `auto-route` if you use `go_router`).
-- **`custom_overrides`**: A list of skill IDs that the CLI should **never** overwrite. Use this when you have modified a standard skill locally to fit your project's unique needs. The CLI will detect these and preserve your local version.
-- **`ref`**: Specify a specific version or tag of the skills from the registry.
+- **`exclude`**: A list of skill IDs to skip during synchronization.
+- **`include`**: A list of skill IDs to fetch. Supports:
+  - **Relative Path**: `bloc-state-management` (from current category)
+  - **Absolute Path**: `react/hooks` (pull specific skill from another category)
+  - **Glob Path**: `common/*` (pull ALL skills from another category)
+- **`custom_overrides`**: A list of skill IDs that the CLI should **never** overwrite.
+- **`ref`**: Specify a specific version or tag for the skills.
 
 ---
 
@@ -171,24 +181,25 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 
 ### 🔹 Current Support (v1.4.1)
 
-| Category           | Key Modules                                           | Version  | Skills | Avg. Footprint |
-| :----------------- | :---------------------------------------------------- | :------- | :----- | :------------- |
-| **☕ Spring Boot** | Architecture, Security, Data, Test, Microservices     | `v1.0.0` | 10     | ~339 tokens    |
-| **🌐 Common**      | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.2.0` | 10     | ~530 tokens    |
-| **💙 Flutter**     | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.1` | 19     | ~419 tokens    |
-| **🎯 Dart**        | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.3` | 3      | ~351 tokens    |
-| **☕ Java**        | Modern Syntax, Virtual Threads, Testing, Tooling      | `v1.0.0` | 5      | ~522 tokens    |
-| **🔷 TypeScript**  | Type Safety, Security, Best Practices, Tooling        | `v1.0.3` | 4      | ~408 tokens    |
-| **🟨 JavaScript**  | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.1` | 5      | ~522 tokens    |
-| **⚛️ React**       | Hooks, State Management, Performance, Security        | `v1.0.2` | 8      | ~390 tokens    |
-| **🦁 NestJS**      | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.2` | 18     | ~499 tokens    |
-| **▲ Next.js**      | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` | 13     | ~503 tokens    |
-| **🐹 Golang**      | Clean Architecture, API Design, Concurrency, Security | `v1.0.2` | 10     | ~357 tokens    |
-| **🐘 Kotlin**      | Idiomatic Patterns, Coroutines, Flow, Tooling         | `v1.0.0` | 4      | ~494 tokens    |
-| **🅰️ Angular**     | Standalone, Signals, Control Flow, SSR, Testing       | `v1.0.0` | 14     | ~273 tokens    |
-| **🤖 Android**     | Architecture, Compose, DI, Perf, Testing, WorkManager | `v1.0.0` | 19     | ~278 tokens    |
-| **🍎 Swift**       | Language, Memory, Concurrency, SwiftUI, Testing       | `v1.0.0` | 8      | ~354 tokens    |
-| **📱 iOS**         | Arch, UI, Lifecycle, Security, Perf, Networking, DI   | `v1.0.0` | 11     | ~429 tokens    |
+| Category            | Key Modules                                           | Version  | Skills | Avg. Footprint |
+| :------------------ | :---------------------------------------------------- | :------- | :----- | :------------- |
+| **☕ Spring Boot**  | Architecture, Security, Data, Test, Microservices     | `v1.0.0` | 10     | ~339 tokens    |
+| **🌐 Common**       | SOLID, Security, Perf Engineering, TDD, Architecture  | `v1.2.0` | 10     | ~530 tokens    |
+| **💙 Flutter**      | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.1` | 19     | ~419 tokens    |
+| **🎯 Dart**         | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.3` | 3      | ~351 tokens    |
+| **☕ Java**         | Modern Syntax, Virtual Threads, Testing, Tooling      | `v1.0.0` | 5      | ~522 tokens    |
+| **🔷 TypeScript**   | Type Safety, Security, Best Practices, Tooling        | `v1.0.3` | 4      | ~408 tokens    |
+| **🟨 JavaScript**   | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.1` | 5      | ~522 tokens    |
+| **⚛️ React**        | Hooks, State Management, Performance, Security        | `v1.0.2` | 8      | ~390 tokens    |
+| **📱 React Native** | Arch, Perf, Navigation, Security, Deployment          | `v1.0.0` | 8      | ~390 tokens    |
+| **🦁 NestJS**       | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.2` | 18     | ~499 tokens    |
+| **▲ Next.js**       | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` | 13     | ~503 tokens    |
+| **🐹 Golang**       | Clean Architecture, API Design, Concurrency, Security | `v1.0.2` | 10     | ~357 tokens    |
+| **🐘 Kotlin**       | Idiomatic Patterns, Coroutines, Flow, Tooling         | `v1.0.0` | 4      | ~494 tokens    |
+| **🅰️ Angular**      | Standalone, Signals, Control Flow, SSR, Testing       | `v1.0.0` | 14     | ~273 tokens    |
+| **🤖 Android**      | Architecture, Compose, DI, Perf, Testing, WorkManager | `v1.0.0` | 19     | ~278 tokens    |
+| **🍎 Swift**        | Language, Memory, Concurrency, SwiftUI, Testing       | `v1.0.0` | 8      | ~354 tokens    |
+| **📱 iOS**          | Arch, UI, Lifecycle, Security, Perf, Networking, DI   | `v1.0.0` | 11     | ~429 tokens    |
 
 > [!TIP]
 > **Enterprise Ready**: You can host your own **Private Skills Registry** on GitHub and point the CLI to it via the `registry` field in your `.skillsrc`.
@@ -257,6 +268,7 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 - [x] **Spring Boot** (v1.1.0 released)
 - [x] **Android Native** (v1.0.0 released)
 - [x] **iOS Native & SwiftUI** (v1.0.0 released)
+- [x] **React Native** (v1.0.0 released)
 
 - [ ] **Agent Skills Dashboard** (Web UI for browsing standards)
 

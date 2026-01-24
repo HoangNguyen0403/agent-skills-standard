@@ -117,4 +117,26 @@ export const SKILL_DETECTION_REGISTRY: Record<string, SkillDetection[]> = {
       packages: ['Coordinator', 'Router'],
     },
   ],
+  [Framework.ReactNative]: [
+    {
+      id: 'navigation',
+      packages: ['@react-navigation/native'],
+    },
+    {
+      id: 'state-management',
+      packages: ['zustand', '@reduxjs/toolkit'],
+    },
+    {
+      id: 'deployment',
+      packages: ['react-native-code-push', 'expo-updates'],
+    },
+    {
+      id: 'security',
+      packages: ['react-native-keychain', 'react-native-ssl-pinning'],
+    },
+    {
+      id: 'performance',
+      packages: ['react-native-fast-image'],
+    },
+  ],
 };

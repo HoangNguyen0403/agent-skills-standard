@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
 import { z } from 'zod';
-import { SKILL_DETECTION_REGISTRY } from '../constants';
+import { DEFAULT_REGISTER, SKILL_DETECTION_REGISTRY } from '../constants';
 import { CategoryConfig, SkillConfig } from '../models/config';
 import { RegistryMetadata } from '../models/types';
 
@@ -68,6 +68,11 @@ export class ConfigService {
         ? `${metadata.categories[framework].tag_prefix || ''}${metadata.categories[framework].version}`
         : 'main',
     };
+
+    // Specialized Logic: React Native projects should include React hooks/patterns by default
+    if (framework === 'react-native' && metadata.categories?.['react']) {
+      skills[framework].include = ['react/hooks', 'react/component-patterns'];
+    }
 
     // Add associated languages (e.g., typescript, javascript)
     for (const lang of languages) {
@@ -163,5 +168,10 @@ export class ConfigService {
     }
 
     return reenabled;
+  }
+
+  async getRegistryUrl(cwd: string = process.cwd()): Promise<string> {
+    const config = await this.loadConfig(cwd).catch(() => null);
+    return config?.registry || DEFAULT_REGISTER;
   }
 }

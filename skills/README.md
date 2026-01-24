@@ -79,6 +79,21 @@ Modern React development patterns.
 - [**Tooling**](react/tooling/SKILL.md) (P1) - Debugging & Profiling.
 - [**Testing**](react/testing/SKILL.md) (P2) - React Testing Library, Jest.
 
+### 📱 React Native (Framework)
+
+Mobile app standards for iOS and Android.
+
+- [**Architecture**](react-native/architecture/SKILL.md) (P0) - Feature-first, module boundaries.
+- [**Components**](react-native/components/SKILL.md) (P0) - Pattern-driven UI.
+- [**Performance**](react-native/performance/SKILL.md) (P0) - 60fps & bundle optimization.
+- [**Navigation**](react-native/navigation/SKILL.md) (P0) - Type-safe routing (React Navigation).
+- [**Security**](react-native/security/SKILL.md) (P0) - Mobile threat safety & secure storage.
+- [**State Management**](react-native/state-management/SKILL.md) (P1) - Context, Zustand, RTK.
+- [**Styling**](react-native/styling/SKILL.md) (P1) - Flexbox & Design Systems.
+- [**Platform-Specific**](react-native/platform-specific/SKILL.md) (P1) - Native modules & bridge logic.
+- [**Testing**](react-native/testing/SKILL.md) (P1) - Unit & Integration (RNTL).
+- [**Deployment**](react-native/deployment/SKILL.md) (P2) - CodePush, EAS, Fastlane.
+
 ### 🦁 NestJS (Framework)
 
 Enterprise-grade Node.js backend development.

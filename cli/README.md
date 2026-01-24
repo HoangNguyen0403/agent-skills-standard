@@ -113,15 +113,24 @@ skills:
     ref: flutter-v1.1.0
     # 🚫 Exclude specific sub-skills from being synced
     exclude: ['getx-navigation']
+    # ➕ Include specific skills (supports cross-category 'category/skill' or 'category/*' syntax)
+    include:
+      - 'bloc-state-management'
+      - 'react/hooks'
+      - 'common/*'
     # 🔒 Protect local modifications from being overwritten
     custom_overrides: ['bloc-state-management']
 ```
 
 ### Key Options
 
-- **`exclude`**: A list of skill IDs to skip during synchronization. Useful if you want the main framework guidelines but use a different library for a specific sub-task (e.g., excluding `auto-route` if you use `go_router`).
-- **`custom_overrides`**: A list of skill IDs that the CLI should **never** overwrite. Use this when you have modified a standard skill locally to fit your project's unique needs. The CLI will detect these and preserve your local version.
-- **`ref`**: Specify a specific version or tag of the skills from the registry.
+- **`exclude`**: A list of skill IDs to skip during synchronization.
+- **`include`**: A list of skill IDs to fetch. Supports:
+  - **Relative Path**: `bloc-state-management` (from current category)
+  - **Absolute Path**: `react/hooks` (pull specific skill from another category)
+  - **Glob Path**: `common/*` (pull ALL skills from another category)
+- **`custom_overrides`**: A list of skill IDs that the CLI should **never** overwrite.
+- **`ref`**: Specify a specific version or tag for the skills.
 
 ---
 
