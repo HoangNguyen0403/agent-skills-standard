@@ -11,7 +11,7 @@ COPY pnpm-lock.yaml package.json pnpm-workspace.yaml ./
 COPY server/package.json ./server/
 
 # Install dependencies (utilizing workspace caching)
-RUN pnpm install --filter ./server
+RUN pnpm install --filter ./server --ignore-scripts
 
 # Copy server source
 COPY server/ ./server/
@@ -34,7 +34,7 @@ COPY --from=builder /app/server/package.json ./server/
 COPY --from=builder /app/server/dist ./server/dist
 
 # Install production dependencies only
-RUN pnpm install --prod --filter ./server
+RUN pnpm install --prod --filter ./server --ignore-scripts
 
 # Enforce dynamic port for Cloud environments
 ENV PORT=3000
