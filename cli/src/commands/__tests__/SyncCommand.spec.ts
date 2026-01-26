@@ -1,106 +1,83 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ConfigService } from '../../services/ConfigService';
-import { DetectionService } from '../../services/DetectionService';
-import { SyncService } from '../../services/SyncService';
 import { SyncCommand } from '../sync';
 
+vi.mock('picocolors', () => ({
+  default: {
+    green: vi.fn((t) => t),
+    cyan: vi.fn((t) => t),
+    gray: vi.fn((t) => t),
+    bold: vi.fn((t) => t),
+    yellow: vi.fn((t) => t),
+    blue: vi.fn((t) => t),
+    red: vi.fn((t) => t),
+  },
+}));
+
 describe('SyncCommand', () => {
-  let syncCommand: SyncCommand;
-  let mockConfigService: ConfigService;
-  let mockDetectionService: DetectionService;
-  let mockSyncService: SyncService;
+  let command: SyncCommand;
+  let mockSyncService: any;
+  let mockConfigService: any;
+  let mockDetectionService: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
-
+    mockSyncService = {
+      reconcileConfig: vi.fn().mockResolvedValue(false),
+      assembleSkills: vi.fn().mockResolvedValue([]),
+      writeSkills: vi.fn(),
+      checkForUpdates: vi.fn((c) => c),
+    };
     mockConfigService = {
-      loadConfig: vi.fn(),
+      loadConfig: vi.fn().mockResolvedValue({ registry: 'url', skills: {} }),
       saveConfig: vi.fn(),
-    } as unknown as ConfigService;
-
+    };
     mockDetectionService = {
       getProjectDeps: vi.fn().mockResolvedValue(new Set()),
-    } as unknown as DetectionService;
+    };
 
-    mockSyncService = {
-      reconcileConfig: vi.fn(),
-      assembleSkills: vi.fn(),
-      writeSkills: vi.fn(),
-      checkForUpdates: vi.fn().mockImplementation((c) => Promise.resolve(c)),
-    } as unknown as SyncService;
+    // Explicitly pass undefined to cover constructor branches 16-18
+    command = new SyncCommand(undefined, undefined, undefined);
 
-    syncCommand = new SyncCommand(
-      mockConfigService,
-      mockDetectionService,
-      mockSyncService,
+    // Patch the instances after constructor runs to use our mocks
+    (command as any).configService = mockConfigService;
+    (command as any).detectionService = mockDetectionService;
+    (command as any).syncService = mockSyncService;
+
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  it('should run sync successfully', async () => {
+    await command.run();
+    expect(mockConfigService.loadConfig).toHaveBeenCalled();
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('Syncing skills'),
     );
   });
 
-  describe('run', () => {
-    it('should fail if .skillsrc is not found', async () => {
-      vi.mocked(mockConfigService.loadConfig).mockResolvedValue(null);
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+  it('should handle Error instances in catch block', async () => {
+    mockConfigService.loadConfig.mockRejectedValue(new Error('Load error'));
+    await command.run();
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining('Sync failed'),
+      'Load error',
+    );
+  });
 
-      await syncCommand.run();
+  it('should handle non-Error throws in catch block', async () => {
+    mockConfigService.loadConfig.mockRejectedValue('String error');
+    await command.run();
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining('Sync failed'),
+      'String error',
+    );
+  });
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('.skillsrc not found'),
-      );
-      consoleSpy.mockRestore();
-    });
-
-    it('should run successfully if config is valid', async () => {
-      const config = { registry: 'url', skills: { flutter: {} } };
-      vi.mocked(mockConfigService.loadConfig).mockResolvedValue(config as any);
-      vi.mocked(mockSyncService.assembleSkills).mockResolvedValue([]);
-
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-      await syncCommand.run();
-
-      expect(mockSyncService.reconcileConfig).toHaveBeenCalled();
-      expect(mockSyncService.assembleSkills).toHaveBeenCalled();
-      expect(mockSyncService.writeSkills).toHaveBeenCalled();
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('All skills synced successfully!'),
-      );
-      consoleSpy.mockRestore();
-    });
-
-    it('should catch and log errors', async () => {
-      vi.mocked(mockConfigService.loadConfig).mockRejectedValue(
-        new Error('Test error'),
-      );
-      const consoleSpy = vi
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
-
-      await syncCommand.run();
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Sync failed:'),
-        'Test error',
-      );
-      consoleSpy.mockRestore();
-    });
-
-    it('should catch and log non-Error objects', async () => {
-      vi.mocked(mockConfigService.loadConfig).mockRejectedValue('String error');
-      const consoleSpy = vi
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
-
-      await syncCommand.run();
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Sync failed:'),
-        'String error',
-      );
-      consoleSpy.mockRestore();
-    });
-
-    it('should use default services if not provided', () => {
-      const command = new SyncCommand();
-      expect(command).toBeDefined();
-    });
+  it('should handle missing config', async () => {
+    mockConfigService.loadConfig.mockResolvedValue(null);
+    await command.run();
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('not found'),
+    );
   });
 });

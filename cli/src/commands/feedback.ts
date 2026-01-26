@@ -83,7 +83,7 @@ export class FeedbackCommand {
   }
 
   private async submit(data: FeedbackData) {
-    const apiUrl = await this.feedbackService.getApiUrl();
+    const apiUrl = this.feedbackService.getApiUrl();
 
     if (!apiUrl) {
       console.log(pc.yellow('\n⚠️  Feedback API not configured.'));
@@ -91,9 +91,7 @@ export class FeedbackCommand {
         pc.gray(
           'Please set the ' +
             pc.bold('FEEDBACK_API_URL') +
-            ' environment variable or ' +
-            pc.bold('feedback_url') +
-            ' in .skillsrc.',
+            ' environment variable.',
         ),
       );
       return;

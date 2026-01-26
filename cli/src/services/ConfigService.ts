@@ -17,7 +17,6 @@ const SkillConfigSchema = z.object({
       exclude: z.array(z.string()).optional(),
     }),
   ),
-  feedback_url: z.string().url().optional(),
   custom_overrides: z.array(z.string()).optional(),
 });
 

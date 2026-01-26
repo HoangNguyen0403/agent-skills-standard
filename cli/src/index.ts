@@ -1,11 +1,32 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 import { FeedbackCommand } from './commands/feedback';
 import { InitCommand } from './commands/init';
 import { ListSkillsCommand } from './commands/list-skills';
 import { SyncCommand } from './commands/sync';
 import { ValidateCommand } from './commands/validate-skills';
+
+// Load .env from current directory (standard)
+dotenv.config();
+
+// Also try to load from the CLI directory itself (for development)
+const cliEnv = path.join(__dirname, '../.env');
+if (fs.existsSync(cliEnv)) {
+  dotenv.config({ path: cliEnv });
+}
+
+// And finally from the project root if we can find it
+let currentDir = process.cwd();
+while (currentDir !== path.parse(currentDir).root) {
+  if (fs.existsSync(path.join(currentDir, 'pnpm-workspace.yaml'))) {
+    dotenv.config({ path: path.join(currentDir, '.env') });
+    break;
+  }
+  currentDir = path.dirname(currentDir);
+}
 
 const program = new Command();
 

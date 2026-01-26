@@ -13,6 +13,5 @@ export interface SkillConfig {
   skills: {
     [key: string]: SkillEntry;
   };
-  feedback_url?: string;
   custom_overrides?: string[];
 }

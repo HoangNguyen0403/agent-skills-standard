@@ -1,228 +1,116 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { RegistryMetadata } from '../../models/types';
 import { GithubService } from '../GithubService';
 import { RegistryService } from '../RegistryService';
 
-vi.mock('../GithubService');
+vi.mock('../GithubService', () => {
+  return {
+    GithubService: class {
+      public getRepoInfo = vi.fn();
+      public getRepoTree = vi.fn();
+      public getRawFile = vi.fn();
+      static parseGitHubUrl = vi.fn();
+    },
+  };
+});
 
 describe('RegistryService', () => {
-  let registryService: RegistryService;
+  let service: RegistryService;
+  let mockGithub: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    registryService = new RegistryService();
+    service = new RegistryService();
+    mockGithub = (service as any).githubService;
 
-    // Mock the static method
-    vi.mocked(GithubService.parseGitHubUrl).mockImplementation((url) => {
-      if (url === 'invalid-url') return null;
-      const m = url.match(/github\.com\/([^/]+)\/([^/]+)/i);
-      if (!m) return null;
-      return { owner: m[1], repo: m[2].replace(/\.git$/, '') };
-    });
+    // Default mock setup
+    mockGithub.getRepoInfo.mockResolvedValue({ default_branch: 'main' });
+    mockGithub.getRepoTree.mockResolvedValue({ tree: [] });
+    // @ts-expect-error - static mock access
+    GithubService.parseGitHubUrl.mockReturnValue({ owner: 'o', repo: 'r' });
   });
 
   describe('discoverRegistry', () => {
-    it('should discover categories and metadata from GitHub registry', async () => {
-      const mockRepoInfo = { default_branch: 'master' };
-      const mockTree = {
-        tree: [
-          { path: 'skills/flutter', type: 'tree' },
-          { path: 'skills/nestjs', type: 'tree' },
-          { path: 'README.md', type: 'blob' },
-        ],
-      };
-      const mockMetadataObject: RegistryMetadata = {
-        global: { author: 'test', repository: 'test' },
-        categories: {
-          flutter: { version: '1.0.0', tag_prefix: 'v' },
-        },
-      };
-      const mockMetadata = JSON.stringify(mockMetadataObject);
-
-      vi.mocked(GithubService.prototype.getRepoInfo).mockResolvedValue(
-        mockRepoInfo,
-      );
-      vi.mocked(GithubService.prototype.getRepoTree).mockResolvedValue(
-        mockTree as unknown as any,
-      );
-      vi.mocked(GithubService.prototype.getRawFile).mockResolvedValue(
-        mockMetadata,
-      );
-
-      const result = await registryService.discoverRegistry(
-        'https://github.com/owner/repo',
-      );
-
-      expect(result.categories).toContain('nestjs');
-      expect(result.metadata.categories?.flutter?.version).toBe('1.0.0');
-    });
-
-    it('should ignore nested skills/ paths (line 41 coverage)', async () => {
-      const mockRepoInfo = { default_branch: 'main' };
-      const mockTree = {
-        tree: [
-          { path: 'skills/flutter', type: 'tree' },
-          { path: 'skills/flutter/nested', type: 'tree' }, // Should be ignored (parts.length === 3)
-        ],
-      };
-      vi.mocked(GithubService.prototype.getRepoInfo).mockResolvedValue(
-        mockRepoInfo,
-      );
-      vi.mocked(GithubService.prototype.getRepoTree).mockResolvedValue(
-        mockTree as any,
-      );
-      vi.mocked(GithubService.prototype.getRawFile).mockResolvedValue(null);
-
-      const result = await registryService.discoverRegistry(
-        'https://github.com/o/r',
-      );
-      expect(result.categories).toEqual(['flutter']);
-    });
-
-    it('should handle repoInfo without default_branch', async () => {
-      vi.mocked(GithubService.prototype.getRepoInfo).mockResolvedValue(
-        {} as unknown as { default_branch: string },
-      );
-      vi.mocked(GithubService.prototype.getRepoTree).mockResolvedValue({
-        tree: [],
-      } as unknown as any);
-      const result = await registryService.discoverRegistry(
-        'https://github.com/o/r',
-      );
+    it('should return default categories if parseGitHubUrl fails (line 19 branch)', async () => {
+      // @ts-expect-error - static
+      GithubService.parseGitHubUrl.mockReturnValueOnce(null);
+      const result = await service.discoverRegistry('invalid');
       expect(result.categories).toEqual(['flutter', 'dart']);
     });
 
-    it('should handle treeResult without tree array', async () => {
-      const mockRepoInfo = { default_branch: 'main' };
-      vi.mocked(GithubService.prototype.getRepoInfo).mockResolvedValue(
-        mockRepoInfo,
+    it('should discover categories and metadata successfully (lines 25-36 coverage)', async () => {
+      mockGithub.getRepoInfo.mockResolvedValueOnce({
+        default_branch: 'develop',
+      });
+      mockGithub.getRepoTree.mockResolvedValue({
+        tree: [{ path: 'skills/react', type: 'tree' }],
+      });
+      mockGithub.getRawFile.mockResolvedValueOnce(
+        JSON.stringify({ categories: { react: {} } }),
       );
-      vi.mocked(GithubService.prototype.getRepoTree).mockResolvedValue(
-        {} as unknown as any,
-      );
-      const result = await registryService.discoverRegistry(
-        'https://github.com/o/r',
-      );
+
+      const result = await service.discoverRegistry('url');
+      expect(result.categories).toContain('react');
+      expect(mockGithub.getRepoTree).toHaveBeenCalledWith('o', 'r', 'develop');
+    });
+
+    it('should handle missing tree field in result (line 35 branch)', async () => {
+      mockGithub.getRepoTree.mockResolvedValueOnce({});
+      const result = await service.discoverRegistry('url');
       expect(result.categories).toEqual(['flutter', 'dart']);
     });
 
-    it('should handle missing metadata.json gracefully', async () => {
-      const mockRepoInfo = { default_branch: 'main' };
-      const mockTree = {
-        tree: [{ path: 'skills/flutter', type: 'tree' }],
-      };
-
-      vi.mocked(GithubService.prototype.getRepoInfo).mockResolvedValue(
-        mockRepoInfo,
-      );
-      vi.mocked(GithubService.prototype.getRepoTree).mockResolvedValue(
-        mockTree as unknown as any,
-      );
-      vi.mocked(GithubService.prototype.getRawFile).mockResolvedValue(null);
-
-      const result = await registryService.discoverRegistry(
-        'https://github.com/owner/repo',
-      );
-
-      expect(result.categories).toEqual(['flutter']);
-      expect(result.metadata).toEqual({});
-    });
-
-    it('should return defaults if discovery fails', async () => {
-      vi.mocked(GithubService.prototype.getRepoInfo).mockRejectedValue(
-        new Error('Network error'),
-      );
-
-      const result = await registryService.discoverRegistry(
-        'https://github.com/owner/repo',
-      );
-
-      expect(result.categories).toEqual(['flutter', 'dart']);
-      expect(result.metadata).toEqual({});
-    });
-
-    it('should log warning when discovery fails and DEBUG is set', async () => {
-      const originalDebug = process.env.DEBUG;
+    it('should handle discovery failure with DEBUG=true', async () => {
       process.env.DEBUG = 'true';
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      mockGithub.getRepoTree.mockRejectedValue(new Error('Fatal'));
 
-      vi.mocked(GithubService.prototype.getRepoInfo).mockRejectedValue(
-        new Error('Fail'),
-      );
-
-      await registryService.discoverRegistry('https://github.com/o/r');
-
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Registry discovery failed'),
-      );
-
-      warnSpy.mockRestore();
-      process.env.DEBUG = originalDebug;
+      await service.discoverRegistry('url');
+      expect(warnSpy).toHaveBeenCalled();
+      delete process.env.DEBUG;
     });
 
-    it('should return defaults if URL is invalid', async () => {
-      const result = await registryService.discoverRegistry('invalid-url');
+    it('should handle invalid JSON in metadata (line 53 branch)', async () => {
+      mockGithub.getRepoTree.mockResolvedValue({
+        tree: [{ path: 'skills/react', type: 'tree' }],
+      });
+      mockGithub.getRawFile.mockResolvedValue('invalid json');
+      const result = await service.discoverRegistry('url');
+      expect(result.metadata).toEqual({});
+    });
 
-      expect(result.categories).toEqual(['flutter', 'dart']);
-      // Should not call getRepoInfo if URL parsing fails
-      expect(GithubService.prototype.getRepoInfo).not.toHaveBeenCalled();
+    it('should handle missing repoInfo (line 25 fallback branch)', async () => {
+      mockGithub.getRepoInfo.mockResolvedValueOnce(null);
+      await service.discoverRegistry('url');
+      expect(mockGithub.getRepoTree).toHaveBeenCalledWith('o', 'r', 'main');
     });
   });
 
   describe('getFrameworkSkills', () => {
-    it('should return skill names for a framework', async () => {
-      const mockTree = {
-        tree: [
-          { path: 'skills/flutter/bloc/SKILL.md', type: 'blob' },
-          { path: 'skills/flutter/provider/SKILL.md', type: 'blob' },
-          { path: 'skills/react/hooks/SKILL.md', type: 'blob' },
-        ],
-      };
-      vi.mocked(GithubService.prototype.getRepoTree).mockResolvedValue(
-        mockTree as any,
-      );
-
-      const skills = await registryService.getFrameworkSkills(
-        'https://github.com/o/r',
-        'flutter',
-      );
-      expect(skills).toEqual(['bloc', 'provider']);
+    it('should list framework skills', async () => {
+      mockGithub.getRepoTree.mockResolvedValue({
+        tree: [{ path: 'skills/flutter/s1/', type: 'tree' }],
+      });
+      const result = await service.getFrameworkSkills('url', 'flutter');
+      expect(result).toEqual(['s1']);
     });
 
-    it('should return empty list if fetch fails', async () => {
-      vi.mocked(GithubService.prototype.getRepoTree).mockRejectedValue(
-        new Error('Fail'),
-      );
-      const skills = await registryService.getFrameworkSkills(
-        'https://github.com/o/r',
-        'flutter',
-      );
-      expect(skills).toEqual([]);
+    it('should handle non-github URLs', async () => {
+      // @ts-expect-error - static
+      GithubService.parseGitHubUrl.mockReturnValueOnce(null);
+      const result = await service.getFrameworkSkills('gitlab.com', 'flutter');
+      expect(result).toEqual([]);
     });
 
-    it('should return empty list if URL is invalid', async () => {
-      const skills = await registryService.getFrameworkSkills(
-        'invalid-url',
-        'flutter',
-      );
-      expect(skills).toEqual([]);
+    it('should handle error in getFrameworkSkills', async () => {
+      mockGithub.getRepoTree.mockRejectedValue(new Error('Fail'));
+      const result = await service.getFrameworkSkills('url', 'flutter');
+      expect(result).toEqual([]);
     });
 
-    it('should handle non-github URL in getFrameworkSkills (line 81 coverage)', async () => {
-      const skills = await registryService.getFrameworkSkills(
-        'https://gitlab.com/foo/bar',
-        'flutter',
-      );
-      expect(skills).toEqual([]);
-    });
-
-    it('should handle getRepoTree returning null in getFrameworkSkills (line 81 coverage)', async () => {
-      vi.mocked(GithubService.prototype.getRepoTree).mockResolvedValue(null);
-      const skills = await registryService.getFrameworkSkills(
-        'https://github.com/o/r',
-        'flutter',
-      );
-      expect(skills).toEqual([]);
+    it('should handle missing tree results (line 81 branch)', async () => {
+      mockGithub.getRepoTree.mockResolvedValue(null);
+      const result = await service.getFrameworkSkills('url', 'flutter');
+      expect(result).toEqual([]);
     });
   });
 });

@@ -142,7 +142,8 @@ export class SkillValidator {
       // Filter for SKILL.md files in skills directory
       const changedSkillFiles = changedFiles
         .filter(
-          (file: string) => file.startsWith('skills/') && file.endsWith('SKILL.md'),
+          (file: string) =>
+            file.startsWith('skills/') && file.endsWith('SKILL.md'),
         )
         .map((file: string) => path.join(rootDir, file));
 
@@ -156,7 +157,8 @@ export class SkillValidator {
         .filter((line) => line.trim() !== '');
       const untrackedSkillFiles = untrackedFiles
         .filter(
-          (file: string) => file.startsWith('skills/') && file.endsWith('SKILL.md'),
+          (file: string) =>
+            file.startsWith('skills/') && file.endsWith('SKILL.md'),
         )
         .map((file: string) => path.join(rootDir, file));
 

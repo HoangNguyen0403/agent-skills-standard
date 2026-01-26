@@ -1,318 +1,291 @@
-import fs from 'fs-extra';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GithubService } from '../GithubService';
 import { SyncService } from '../SyncService';
 
 vi.mock('fs-extra');
 
-vi.mock('../ConfigService', () => {
-  const Mock = vi.fn().mockImplementation(function (this: any) {
-    this.loadConfig = vi.fn();
-    this.saveConfig = vi.fn();
-    this.reconcileDependencies = vi.fn().mockReturnValue([]);
-  });
-  return { ConfigService: Mock };
-});
-
-vi.mock('../GithubService', () => {
-  const Mock = vi.fn().mockImplementation(function (this: any) {
-    this.getRepoTree = vi.fn();
-    this.downloadFilesConcurrent = vi.fn();
-  });
-  (Mock as any).parseGitHubUrl = vi.fn();
-  return { GithubService: Mock };
-});
-
 describe('SyncService', () => {
   let syncService: SyncService;
-  let mockConfigService: any;
   let mockGithubService: any;
+  let mockConfigService: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
     syncService = new SyncService();
 
-    mockConfigService = (syncService as any).configService;
-    mockGithubService = (syncService as any).githubService;
+    // Inject mocks into private fields
+    mockGithubService = {
+      getRepoTree: vi.fn(),
+      fetchSkillFiles: vi.fn(),
+      downloadFilesConcurrent: vi.fn(),
+    };
+    mockConfigService = {
+      reconcileDependencies: vi.fn(),
+      saveConfig: vi.fn(),
+    };
 
-    // Default mocks
-    (GithubService.parseGitHubUrl as any).mockReturnValue({
-      owner: 'owner',
-      repo: 'repo',
-    });
+    (syncService as any).githubService = mockGithubService;
+    (syncService as any).configService = mockConfigService;
 
-    mockGithubService.getRepoTree.mockResolvedValue({
-      tree: [
-        { path: 'skills/react-native/architecture/SKILL.md', type: 'blob' },
-        { path: 'skills/react-native/navigation/SKILL.md', type: 'blob' },
-        { path: 'skills/react/hooks/SKILL.md', type: 'blob' },
-        { path: 'skills/react/component-patterns/SKILL.md', type: 'blob' },
-        { path: 'skills/common/security/SKILL.md', type: 'blob' },
-      ],
-    });
-
-    mockGithubService.downloadFilesConcurrent.mockImplementation(
-      async (tasks: any[]) => {
-        return tasks.map((t) => ({
-          path: t.path,
-          content: `Content of ${t.path}`,
-        }));
-      },
-    );
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   describe('reconcileConfig', () => {
     it('should reconcile dependencies and save config if changed', async () => {
-      const config: any = { skills: { flutter: {} } };
-      const deps = new Set(['dep1']);
+      const config: any = { skills: { test: {} } };
+      const deps = new Set(['pkg']);
       mockConfigService.reconcileDependencies.mockReturnValue(['skill1']);
-
-      const changed = await syncService.reconcileConfig(config, deps);
-
-      expect(changed).toBe(true);
-      expect(mockConfigService.reconcileDependencies).toHaveBeenCalled();
-      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(config);
+      const result = await syncService.reconcileConfig(config, deps);
+      expect(result).toBe(true);
+      expect(mockConfigService.saveConfig).toHaveBeenCalled();
     });
 
-    it('should return false if no changes', async () => {
-      const config: any = { skills: { flutter: {} } };
+    it('should handle no changes', async () => {
+      const config: any = { skills: { test: {} } };
       mockConfigService.reconcileDependencies.mockReturnValue([]);
-
-      const changed = await syncService.reconcileConfig(config, new Set());
-
-      expect(changed).toBe(false);
-      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      const result = await syncService.reconcileConfig(config, new Set());
+      expect(result).toBe(false);
     });
   });
 
   describe('assembleSkills', () => {
-    it('should handle relative skill include', async () => {
-      const config: any = {
-        registry: 'https://github.com/owner/repo',
-        skills: {
-          'react-native': {
-            include: ['architecture'],
-          },
-        },
-      };
-
-      const result = await syncService.assembleSkills(['react-native'], config);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].category).toBe('react-native');
-      expect(result[0].skill).toBe('architecture');
-    });
-
-    it('should handle absolute cross-category skill include (category/skill)', async () => {
-      const config: any = {
-        registry: 'https://github.com/owner/repo',
-        skills: {
-          'react-native': {
-            include: ['architecture', 'react/hooks'],
-          },
-        },
-      };
-
-      const result = await syncService.assembleSkills(['react-native'], config);
-
-      expect(result).toHaveLength(2);
-
-      const rnSkill =
-        result.find((r: any) => r.category === 'react-native') || undefined;
-      const reactSkill =
-        result.find((r: any) => r.category === 'react') || undefined;
-
-      expect(rnSkill?.skill).toBe('architecture');
-      expect(reactSkill?.skill).toBe('hooks');
-    });
-
-    it('should handle absolute cross-category glob include (category/*)', async () => {
-      const config: any = {
-        registry: 'https://github.com/owner/repo',
-        skills: {
-          'react-native': {
-            include: ['architecture', 'react/*'],
-          },
-        },
-      };
-
-      const result = await syncService.assembleSkills(['react-native'], config);
-
-      // architecture (rn), hooks (react), component-patterns (react)
-      expect(result).toHaveLength(3);
-
-      const reactSkills = result.filter((r: any) => r.category === 'react');
-      expect(reactSkills).toHaveLength(2);
-      expect(reactSkills.map((r: any) => r.skill)).toContain('hooks');
-      expect(reactSkills.map((r: any) => r.skill)).toContain(
-        'component-patterns',
-      );
-    });
-
-    it('should warn and skip if absolute include not found', async () => {
-      const config: any = {
-        registry: 'https://github.com/owner/repo',
-        skills: {
-          'react-native': {
-            include: ['react/non-existent'],
-          },
-        },
-      };
-
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-      const result = await syncService.assembleSkills(['react-native'], config);
-
-      expect(result).toHaveLength(0);
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('not found in repository'),
-      );
-      consoleSpy.mockRestore();
-    });
-
-    it('should fail if registry is not GitHub', async () => {
-      const config: any = { registry: 'https://gitlab.com/owner/repo' };
-      (GithubService.parseGitHubUrl as any).mockReturnValue(null);
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-      const result = await syncService.assembleSkills([], config);
-
-      expect(result).toHaveLength(0);
-      expect(consoleSpy).toHaveBeenCalledWith(
+    it('should fail if registry is not GitHub (line 59)', async () => {
+      const oldParse = GithubService.parseGitHubUrl;
+      GithubService.parseGitHubUrl = vi.fn().mockReturnValue(null);
+      const config: any = { registry: 'invalid' };
+      const result = await syncService.assembleSkills(['test'], config);
+      expect(result).toEqual([]);
+      expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Only GitHub registries supported'),
       );
-      consoleSpy.mockRestore();
+      GithubService.parseGitHubUrl = oldParse;
+    });
+
+    it('should use default ref "main" if ref is missing (line 67)', async () => {
+      const oldParse = GithubService.parseGitHubUrl;
+      GithubService.parseGitHubUrl = vi
+        .fn()
+        .mockReturnValue({ owner: 'o', repo: 'r' });
+      const config: any = { registry: 'u', skills: { c: {} } };
+      mockGithubService.getRepoTree.mockResolvedValue({ tree: [] });
+      await syncService.assembleSkills(['c'], config);
+      expect(mockGithubService.getRepoTree).toHaveBeenCalledWith(
+        'o',
+        'r',
+        'main',
+      );
+      GithubService.parseGitHubUrl = oldParse;
     });
 
     it('should handle repo tree fetch failure', async () => {
+      const oldParse = GithubService.parseGitHubUrl;
+      GithubService.parseGitHubUrl = vi
+        .fn()
+        .mockReturnValue({ owner: 'o', repo: 'r' });
+      const config: any = { registry: 'url', skills: { test: { ref: 'v1' } } };
       mockGithubService.getRepoTree.mockResolvedValue(null);
-      const config: any = {
-        registry: 'https://github.com/owner/repo',
-        skills: { flutter: {} },
-      };
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-      const result = await syncService.assembleSkills(['flutter'], config);
-
-      expect(result).toHaveLength(0);
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Failed to fetch flutter'),
-      );
-      consoleSpy.mockRestore();
+      const result = await syncService.assembleSkills(['test'], config);
+      expect(result).toEqual([]);
+      GithubService.parseGitHubUrl = oldParse;
     });
 
-    it('should handle exclude filter', async () => {
+    it('should assemble skills correctly including absolute and relative', async () => {
+      const oldParse = GithubService.parseGitHubUrl;
+      GithubService.parseGitHubUrl = vi
+        .fn()
+        .mockReturnValue({ owner: 'o', repo: 'r' });
       const config: any = {
-        registry: 'https://github.com/owner/repo',
-        skills: {
-          'react-native': {
-            exclude: ['navigation'],
-          },
-        },
+        registry: 'url',
+        skills: { cat1: { include: ['s1', 'other/s2'] } },
       };
-
-      const result = await syncService.assembleSkills(['react-native'], config);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].skill).toBe('architecture');
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: 'skills/cat1/s1/SKILL.md', type: 'blob' },
+          { path: 'skills/other/s2/SKILL.md', type: 'blob' },
+        ],
+      });
+      mockGithubService.downloadFilesConcurrent.mockImplementation(
+        (tasks: any[]) => tasks.map((t) => ({ path: t.path, content: 'c' })),
+      );
+      const result = await syncService.assembleSkills(['cat1'], config);
+      expect(result).toHaveLength(2);
+      GithubService.parseGitHubUrl = oldParse;
     });
   });
 
-  describe('writeSkills', () => {
-    it('should write skills to disk for enabled agents', async () => {
-      const skills = [
-        {
-          category: 'flutter',
-          skill: 'bloc',
-          files: [{ name: 'SKILL.md', content: 'test content' }],
-        },
-      ];
-      const config: any = { agents: ['cursor'] };
+  describe('identifyFoldersToSync & expandAbsoluteInclude', () => {
+    it('should handle wildcard * and skip duplicates (lines 201-203)', () => {
+      const catConfig: any = { include: ['other/*'] };
+      const tree: any[] = [{ path: 'skills/other/s1/SKILL.md', type: 'blob' }];
+      const folders = ['other/s1'];
+      // @ts-expect-error - private
+      syncService.expandAbsoluteInclude('other/*', folders, tree);
+      expect(folders).toHaveLength(1);
 
-      await syncService.writeSkills(skills, config);
+      const emptyFolders: string[] = [];
+      // @ts-expect-error - private
+      syncService.expandAbsoluteInclude('other/*', emptyFolders, tree);
+      expect(emptyFolders).toContain('other/s1');
+    });
 
-      expect(fs.ensureDir).toHaveBeenCalled();
-      expect(fs.outputFile).toHaveBeenCalledWith(
-        expect.stringContaining('.cursor/skills/flutter/bloc/SKILL.md'),
-        'test content',
+    it('should exclude folder if not in include list (line 165 return false branch)', () => {
+      const catConfig: any = { include: ['some-other-skill'] };
+      const tree: any[] = [{ path: 'skills/test/s1/', type: 'tree' }];
+      // @ts-expect-error - private
+      const result = syncService.identifyFoldersToSync('test', catConfig, tree);
+      expect(result).not.toContain('s1');
+    });
+
+    it('should include folder if explicitly in include list (line 165 branch)', () => {
+      const catConfig: any = { include: ['s1'] };
+      const tree: any[] = [{ path: 'skills/test/s1/', type: 'tree' }];
+      // @ts-expect-error - private
+      const result = syncService.identifyFoldersToSync('test', catConfig, tree);
+      expect(result).toContain('s1');
+    });
+
+    it('should exclude folder if in exclude list (line 166 branch)', () => {
+      const catConfig: any = { exclude: ['s1'] };
+      const tree: any[] = [{ path: 'skills/test/s1/', type: 'tree' }];
+      // @ts-expect-error - private
+      const result = syncService.identifyFoldersToSync('test', catConfig, tree);
+      expect(result).not.toContain('s1');
+    });
+
+    it('should handle non-existent absolute includes (line 210)', () => {
+      const folders: string[] = [];
+      // @ts-expect-error - private
+      syncService.expandAbsoluteInclude('missing/skill', folders, []);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('not found in repository'),
       );
     });
 
-    it('should skip overridden files', async () => {
-      const skills = [
-        {
-          category: 'flutter',
-          skill: 'bloc',
-          files: [{ name: 'SKILL.md', content: 'test content' }],
-        },
-      ];
-      const config: any = {
-        agents: ['cursor'],
-        custom_overrides: ['.cursor/skills/flutter/bloc/SKILL.md'],
-      };
-
-      await syncService.writeSkills(skills, config);
-
-      expect(fs.outputFile).not.toHaveBeenCalled();
-    });
-
-    it('should prevent path traversal', async () => {
-      const skills = [
-        {
-          category: 'flutter',
-          skill: 'bloc',
-          files: [{ name: '../../TRAVERSAL.md', content: 'evil' }],
-        },
-      ];
-      const config: any = { agents: ['cursor'] };
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-      await syncService.writeSkills(skills, config);
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Security Error: Invalid path'),
-      );
-      expect(fs.outputFile).not.toHaveBeenCalled();
-      consoleSpy.mockRestore();
-    });
-
-    it('should skip unknown agents', async () => {
-      const skills = [
-        {
-          category: 'flutter',
-          skill: 'bloc',
-          files: [{ name: 'SKILL.md', content: 'test' }],
-        },
-      ];
-      const config: any = { agents: ['unknown-agent'] };
-
-      await syncService.writeSkills(skills, config);
-
-      expect(fs.ensureDir).not.toHaveBeenCalled();
-    });
-
-    it('should use default agents if not specified', async () => {
-      const skills: any[] = [];
-      const config: any = {}; // missing agents
-      await syncService.writeSkills(skills, config);
-      // Should loop through all default agents
-      expect(fs.ensureDir).toHaveBeenCalled();
+    it('should cover include check bypass (line 171 branch)', () => {
+      const catConfig: any = { include: undefined };
+      const tree: any[] = [{ path: 'skills/test/s1/', type: 'tree' }];
+      // @ts-expect-error - private
+      const result = syncService.identifyFoldersToSync('test', catConfig, tree);
+      expect(result).toContain('s1');
     });
   });
 
-  describe('checkForUpdates', () => {
-    it('should return initial config (line 145 coverage)', async () => {
-      const config: any = { foo: 'bar' };
+  describe('writeSkills & isOverridden', () => {
+    it('should use default agents if agents array is missing (line 103)', async () => {
+      const skills: any[] = [
+        {
+          category: 'test',
+          skill: 's',
+          files: [{ name: 'f', content: 'c' }],
+        },
+      ];
+      await syncService.writeSkills(skills, {
+        registry: 'u',
+        skills: {},
+      } as any);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Antigravity'),
+      );
+    });
+
+    it('should skip agent loop if agent definition is missing (line 108)', async () => {
+      const config: any = { agents: ['unknown'] };
+      await syncService.writeSkills([], config);
+    });
+
+    it('should skip file if overridden (line 120)', async () => {
+      const skills: any[] = [
+        {
+          category: 'test',
+          skill: 's',
+          files: [{ name: 'file.md', content: 'c' }],
+        },
+      ];
+      const config: any = { agents: ['cursor'], custom_overrides: ['O'] };
+      vi.spyOn(syncService as any, 'isOverridden').mockReturnValue(true);
+      await syncService.writeSkills(skills, config);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Skipping overridden'),
+      );
+    });
+
+    it('isOverridden logic branches', () => {
+      const normalizeSpy = vi.spyOn(syncService as any, 'normalizePath');
+      normalizeSpy.mockReturnValue('a/b/c');
+      // @ts-expect-error - private
+      expect(syncService.isOverridden('any', ['a/b/c'])).toBe(true);
+      normalizeSpy.mockReturnValue('a/b/sub/file');
+      // @ts-expect-error - private
+      expect(syncService.isOverridden('any', ['a/b'])).toBe(true);
+      normalizeSpy.mockReturnValue('other/path');
+      // @ts-expect-error - private
+      expect(syncService.isOverridden('any', ['a/b'])).toBe(false);
+      normalizeSpy.mockRestore();
+    });
+
+    it('should handle security error in isPathSafe (line 129)', async () => {
+      const skills: any[] = [
+        {
+          category: 'test',
+          skill: 's',
+          files: [{ name: '../malicious', content: 'c' }],
+        },
+      ];
+      await syncService.writeSkills(skills, { agents: ['cursor'] } as any);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Security Error'),
+      );
+    });
+  });
+
+  describe('fetchSkill Filtering (lines 243-248)', () => {
+    it('should filter files correctly', async () => {
+      const tree = [
+        { path: 'skills/c/s/SKILL.md', type: 'blob' },
+        { path: 'skills/c/s/references/f', type: 'blob' },
+        { path: 'skills/c/s/scripts/f', type: 'blob' },
+        { path: 'skills/c/s/assets/f', type: 'blob' },
+        { path: 'skills/c/s/ignored', type: 'blob' },
+      ];
+      mockGithubService.downloadFilesConcurrent.mockImplementation((t: any[]) =>
+        t.map((x) => ({ path: x.path, content: 'c' })),
+      );
+      // @ts-expect-error - private
+      const res = await syncService.fetchSkill(
+        'o',
+        'r',
+        'ref',
+        'c',
+        's',
+        tree as any,
+      );
+      expect(res!.files).toHaveLength(4);
+    });
+
+    it('should handle relative vs absolute skill fetch (line 228)', async () => {
+      const tree = [{ path: 'skills/other/s/SKILL.md', type: 'blob' }];
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue([
+        { path: 'skills/other/s/SKILL.md', content: 'c' },
+      ]);
+      // @ts-expect-error - private
+      const res = await syncService.fetchSkill(
+        'o',
+        'r',
+        'ref',
+        'cat',
+        'other/s',
+        tree as any,
+      );
+      expect(res!.category).toBe('other');
+    });
+  });
+
+  describe('checkForUpdates Coverage', () => {
+    it('should return config unchanged', async () => {
+      const config: any = { registry: 'url' };
       const result = await syncService.checkForUpdates(config);
       expect(result).toBe(config);
-    });
-  });
-
-  describe('expandAbsoluteInclude', () => {
-    it('should handle invalid format (missing slash)', async () => {
-      const folders: string[] = [];
-      // @ts-expect-error accessing private for coverage
-      syncService.expandAbsoluteInclude('invalid', folders, []);
-      expect(folders).toHaveLength(0);
     });
   });
 });

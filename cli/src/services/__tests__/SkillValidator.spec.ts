@@ -601,3 +601,57 @@ describe('SkillValidator', () => {
     });
   });
 });
+
+describe('SkillValidator - Root Discovery & Path Normalization', () => {
+  let validator: SkillValidator;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    validator = new SkillValidator();
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+  });
+
+  it('should find project root when pnpm-workspace.yaml exists', () => {
+    const cwdSpy = vi
+      .spyOn(process, 'cwd')
+      .mockReturnValue('/app/packages/cli');
+    vi.mocked(fs.existsSync).mockImplementation((p: any) => {
+      return p === '/app/pnpm-workspace.yaml';
+    });
+
+    // @ts-expect-error - private method
+    const root = validator.findProjectRoot();
+    expect(root).toBe('/app');
+    cwdSpy.mockRestore();
+  });
+
+  it('should find project root when .git exists', () => {
+    const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue('/app/src');
+    vi.mocked(fs.existsSync).mockImplementation((p: any) => {
+      return p === '/app/.git';
+    });
+
+    // @ts-expect-error - private method
+    const root = validator.findProjectRoot();
+    expect(root).toBe('/app');
+    cwdSpy.mockRestore();
+  });
+
+  it('should fallback to process.cwd() if no markers found', () => {
+    const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue('/app');
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+
+    // @ts-expect-error - private method
+    const root = validator.findProjectRoot();
+    expect(root).toBe('/app');
+    cwdSpy.mockRestore();
+  });
+
+  it('should normalize path relative to project root', () => {
+    // @ts-expect-error - private method
+    vi.spyOn(validator, 'findProjectRoot').mockReturnValue('/app');
+    // @ts-expect-error - private method
+    const normalized = validator.normalizePath('/app/skills/test/SKILL.md');
+    expect(normalized).toBe('skills/test/SKILL.md');
+  });
+});

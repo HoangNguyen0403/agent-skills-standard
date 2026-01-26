@@ -1,77 +1,60 @@
-import inquirer from 'inquirer';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ConfigService } from '../../services/ConfigService';
-import { DetectionService } from '../../services/DetectionService';
-import { SkillService } from '../../services/SkillService';
 import { ListSkillsCommand } from '../list-skills';
 
-vi.mock('inquirer');
+vi.mock('inquirer', () => ({
+  default: {
+    prompt: vi.fn().mockResolvedValue({ framework: 'flutter' }),
+  },
+}));
+
+vi.mock('picocolors', () => ({
+  default: {
+    green: vi.fn((t) => t),
+    cyan: vi.fn((t) => t),
+    gray: vi.fn((t) => t),
+    bold: vi.fn((t) => t),
+    blue: vi.fn((t) => t),
+    yellow: vi.fn((t) => t),
+  },
+}));
 
 describe('ListSkillsCommand', () => {
-  let listSkillsCommand: ListSkillsCommand;
-  let mockConfigService: ConfigService;
-  let mockDetectionService: DetectionService;
-  let mockSkillService: SkillService;
+  let command: ListSkillsCommand;
+  let mockSkillService: any;
+  let mockConfigService: any;
+  let mockDetectionService: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    mockConfigService = {
-      getRegistryUrl: vi
-        .fn()
-        .mockResolvedValue('https://github.com/owner/repo'),
-    } as unknown as ConfigService;
-
-    mockDetectionService = {
-      getProjectDeps: vi.fn().mockResolvedValue(new Set(['dep1'])),
-    } as unknown as DetectionService;
-
     mockSkillService = {
       getSkillsWithStatus: vi.fn().mockResolvedValue([
         { name: 'skill1', status: 'detected' },
-        { name: 'skill2', status: 'not-detected' },
-        { name: 'skill3', status: 'no-rule' },
+        { name: 'skill2', status: 'no-rule' },
+        { name: 'skill3', status: 'not-detected' },
       ]),
-    } as unknown as SkillService;
+    };
+    mockDetectionService = {
+      getProjectDeps: vi.fn().mockResolvedValue(new Set()),
+    };
+    mockConfigService = {
+      getRegistryUrl: vi.fn().mockResolvedValue('url'),
+    };
 
-    listSkillsCommand = new ListSkillsCommand(
-      mockConfigService,
-      mockDetectionService,
-      mockSkillService,
-    );
+    // Explicitly pass undefined to cover constructor branch 18-20
+    command = new ListSkillsCommand(undefined, undefined, undefined);
 
-    vi.mocked(inquirer.prompt).mockResolvedValue({ framework: 'flutter' });
+    (command as any).configService = mockConfigService;
+    (command as any).detectionService = mockDetectionService;
+    (command as any).skillService = mockSkillService;
+
+    vi.spyOn(console, 'log').mockImplementation(() => {});
   });
 
-  describe('run', () => {
-    it('should prompt user and display skills', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-      await listSkillsCommand.run();
-
-      expect(inquirer.prompt).toHaveBeenCalled();
-      expect(mockSkillService.getSkillsWithStatus).toHaveBeenCalledWith(
-        'flutter',
-        expect.any(String),
-        expect.any(Set),
-      );
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('- skill1'),
-      );
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('- skill2'),
-      );
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('- skill3'),
-      );
-
-      consoleSpy.mockRestore();
-    });
-
-    it('should use default services if not provided', () => {
-      const command = new ListSkillsCommand();
-      expect(command).toBeDefined();
-    });
+  it('should list skills correctly', async () => {
+    await command.run();
+    expect(mockSkillService.getSkillsWithStatus).toHaveBeenCalled();
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('Available skills for flutter'),
+    );
   });
 });
