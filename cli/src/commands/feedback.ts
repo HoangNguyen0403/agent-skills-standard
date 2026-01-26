@@ -1,0 +1,119 @@
+import inquirer from 'inquirer';
+import pc from 'picocolors';
+import { FeedbackData, FeedbackService } from '../services/FeedbackService';
+
+/**
+ * Command for automated skill feedback reporting.
+ * Follows KISS: Minimal user output, focusing on functional submission.
+ */
+export class FeedbackCommand {
+  private feedbackService: FeedbackService;
+
+  constructor(feedbackService?: FeedbackService) {
+    this.feedbackService = feedbackService || new FeedbackService();
+  }
+
+  async run(options: {
+    skill?: string;
+    issue?: string;
+    model?: string;
+    context?: string;
+    suggestion?: string;
+  }) {
+    console.log(pc.bold(pc.blue('\n📣 Agent Skills Feedback Reporter\n')));
+
+    let { skill, issue, model, context, suggestion } = options;
+
+    // Interactive mode if mandatory options are missing
+    if (!skill || !issue) {
+      const answers = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'skill',
+          message:
+            'Which skill ID has the issue? (e.g., flutter/bloc-state-management)',
+          when: !skill,
+          validate: (input) =>
+            input.trim().length > 0 || 'Skill ID is required',
+        },
+        {
+          type: 'input',
+          name: 'issue',
+          message: 'What is the issue? (Brief description)',
+          when: !issue,
+          validate: (input) =>
+            input.trim().length > 0 || 'Issue description is required',
+        },
+        {
+          type: 'input',
+          name: 'model',
+          message: 'AI Model name (optional, e.g., Claude 3.5 Sonnet)',
+          when: !model,
+        },
+        {
+          type: 'input',
+          name: 'context',
+          message: 'Any extra context? (optional, e.g., framework versions)',
+          when: !context,
+        },
+        {
+          type: 'input',
+          name: 'suggestion',
+          message: 'Any suggested improvement? (optional)',
+          when: !suggestion,
+        },
+      ]);
+
+      skill = skill || answers.skill;
+      issue = issue || answers.issue;
+      model = model || answers.model;
+      context = context || answers.context;
+      suggestion = suggestion || answers.suggestion;
+
+      await this.submit({
+        skill: skill!,
+        issue: issue!,
+        model,
+        context,
+        suggestion,
+      });
+    } else {
+      await this.submit({ skill, issue, model, context, suggestion });
+    }
+  }
+
+  private async submit(data: FeedbackData) {
+    if (!process.env.FEEDBACK_API_URL) {
+      console.log(pc.yellow('\n⚠️  Feedback API not configured.'));
+      console.log(
+        pc.gray(
+          'Please set the ' +
+            pc.bold('FEEDBACK_API_URL') +
+            ' environment variable to enable automatic feedback.',
+        ),
+      );
+      console.log(
+        pc.gray(
+          'Example: export FEEDBACK_API_URL=https://your-backend.com/api/feedback\n',
+        ),
+      );
+      return;
+    }
+
+    console.log(pc.gray('📤 Sending feedback...'));
+
+    const success = await this.feedbackService.submit(data);
+
+    if (success) {
+      console.log(pc.green('\n✅ Feedback has been sent successfully!'));
+      console.log(
+        pc.gray('Thank you for helping improve the Agent Skills Standard.\n'),
+      );
+    } else {
+      console.log(pc.red('\n❌ Failed to send feedback.'));
+      console.log(
+        pc.gray('Please try again later or check your internet connection.\n'),
+      );
+    }
+  }
+}

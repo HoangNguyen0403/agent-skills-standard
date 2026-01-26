@@ -1,0 +1,78 @@
+name: 🐛 Bug Report
+description: Report a bug or issue with the Agent Skills Standard
+title: '[Bug] '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue!
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: Which part of the project has the issue?
+      options:
+        - CLI Tool
+        - Skill Content
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear description of what the bug is
+      placeholder: 'When I run `ags sync`, it fails with...'
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this issue?
+      placeholder: |
+        1. Run `ags init`
+        2. Select Flutter framework
+        3. Run `ags sync`
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of agent-skills-standard are you using?
+      placeholder: '1.4.1'
+    validations:
+      required: false
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Node version, etc.
+      placeholder: 'macOS 14.2, Node 20.10.0'
+    validations:
+      required: false

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/HoangNguyen0403/agent-skills-standard/discussions
+    about: Ask questions, share ideas, or discuss the project
+  - name: 📚 Documentation
+    url: https://github.com/HoangNguyen0403/agent-skills-standard#readme
+    about: Read the full documentation

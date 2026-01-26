@@ -63,6 +63,58 @@ To ensure AI efficiency, this project follows a strict **Token Economy**. Every 
 - **Efficiency**: Target **< 500 tokens** per primary skill file.
 - **Progressive Disclosure**: Heavy examples, checklists, and implementation guides are moved to the `references/` directory and are only loaded by the agent when specific context matches.
 
+## 🔒 Privacy & Feedback
+
+### Feedback Reporter Skill
+
+By default, the CLI syncs a `common/feedback-reporter` skill that enables you to report when AI makes mistakes or when skill guidance needs improvement. **This helps us improve skills for everyone.**
+
+**What Gets Shared (Only if AI Agent Report):**
+
+- Skill category/name
+- Issue description AI Agent write
+- Optional context AI Agent provide
+- AI Agent Model
+- **NO code, NO project details, NO personal information**
+
+**How to Opt-Out:**
+Add to `.skillsrc`:
+
+```yaml
+skills:
+  common:
+    exclude: ['feedback-reporter']
+```
+
+**How to Report Issues:**
+Use structured comments:
+
+```typescript
+// @agent-skills-feedback
+// Skill: react/hooks
+// Issue: AI suggested unsafe pattern
+// Suggestion: Add guidance for this case
+```
+
+**Privacy First**: We never collect usage telemetry or analytics. Feedback is only shared if you explicitly trigger it.
+
+#### Manual Feedback
+
+If you notice a skill needs improvement, you can manually send feedback using:
+
+```bash
+ags feedback
+```
+
+Or via structured comments in your code:
+
+```typescript
+// @agent-skills-feedback
+// Skill: react/hooks
+// Issue: AI suggested unsafe pattern
+// Suggestion: Add guidance for this case
+```
+
 ## 🚀 Installation
 
 You can run the tool instantly without installing, or install it globally for convenience:
