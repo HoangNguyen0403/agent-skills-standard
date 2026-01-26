@@ -5,6 +5,39 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2026-01-26
+
+**Category**: Automated Feedback System & 100% Test Coverage & Monorepo Path Robustness
+
+### Added (CLI v1.4.2)
+
+- **`ags feedback` Command** - Integrated automated reporting for skill improvement:
+  - Interactive prompts for skill ID, issues, and suggested improvements.
+  - Runtime environment detection for dynamic configuration.
+  - Zero-token-exposure proxy submission for security.
+- **🛡️ 100% Test Coverage** - Achieved absolute line coverage across all 13 CLI files:
+  - Added robust validation for interactive prompts.
+  - Verified edge cases for framework detection and remote registry fallbacks.
+  - Refined mocking strategies for implementation-agnostic verification.
+- **🧭 Workspace-Aware Validation** - Improved `SkillValidator` to robustly detect project root:
+  - Automatic `pnpm-workspace.yaml` discovery.
+  - Support for multi-package execution without path confusion.
+  - Clean execution from both root and sub-package contexts.
+
+### Added (Common Skills v1.2.2)
+
+- **Feedback Reporter Skill** - Specialized skill to guide AI agents in reporting their own performance:
+  - Structured prompt injection for self-correction feedback loop.
+  - Mandatory issue type categorization for faster triage.
+  - Seamless integration with the `ags feedback` CLI component.
+
+### Infrastructure
+
+- **Cloud-Native Deployment** - Streamlined server architecture for Render.com:
+  - Standalone Docker builds with script-injection protection (ignore-scripts).
+  - Removal of redundant Nginx/Certbot boilerplate in favor of managed platform SSL.
+  - Enhanced deployment automation via `server-v*` GitHub Action tags.
+
 ## [1.4.1] - 2026-01-23
 
 **Category**: CLI Architectural Refactor & SOLID Principles Enforcement & Security Standards Consistency & React Native Support
