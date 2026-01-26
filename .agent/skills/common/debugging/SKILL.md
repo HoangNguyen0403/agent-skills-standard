@@ -15,14 +15,14 @@ Systematic, evidence-based troubleshooting. Do not guess; prove.
 
 ## 🔬 The Scientific Method
 
-1.  **OBSERVE**: Gather data. What exactly is happening?
+1. **OBSERVE**: Gather data. What exactly is happening?
     - Logs, Stack Traces, Screenshots, Steps to Reproduce.
-2.  **HYPOTHESIZE**: Formulate a theory. "I think X is causing Y because Z."
-3.  **EXPERIMENT**: Test the theory.
+2. **HYPOTHESIZE**: Formulate a theory. "I think X is causing Y because Z."
+3. **EXPERIMENT**: Test the theory.
     - Create a reproduction case.
     - Change _one variable at a time_ to validate the hypothesis.
-4.  **FIX**: Implement the solution once the root cause is proven.
-5.  **VERIFY**: Ensure the fix works and doesn't introduce regressions.
+4. **FIX**: Implement the solution once the root cause is proven.
+5. **VERIFY**: Ensure the fix works and doesn't introduce regressions.
 
 ## 🚫 Anti-Patterns
 

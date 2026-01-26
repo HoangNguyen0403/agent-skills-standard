@@ -53,6 +53,13 @@ Standards for maintaining code quality, automated checks, and testing integrity.
 - **Documentation**: Keep public APIs documented. Use triple-slash/JSDoc.
 - **Strict Dependencies**: Lock versions in `pubspec.lock` / `package-lock.json` / `pnpm-lock.yaml`.
 
+## 🚫 Anti-Patterns
+
+- **Broken Window**: `**No Ignoring Warnings**: Leaving "small" lint errors leads to codebase rot.`
+- **Testing Implementation**: `**No Testing Internals**: Changes to private methods shouldn't break tests.`
+- **Manual QA Dependency**: `**No "Test-Last"**: Verification must be automated and continuous, not a final manual gate.`
+- **Magic Strings**: `**No Hardcoded IDs**: Use constants or generated keys for accessibility/test IDs.`
+
 ## 📚 References
 
 - [TDD Cycle & Feedback Examples](references/TDD_FEEDBACK.md)
