@@ -12,42 +12,31 @@ metadata:
 
 ## **Priority: P1 (HIGH)**
 
-Standardized practices for automated testing and TDD in PHP.
+## Structure
+
+```text
+tests/
+├── Unit/
+├── Integration/
+└── Feature/
+```
 
 ## Implementation Guidelines
 
-- **Framework Choice**: Use **PHPUnit** for standard enterprise projects or **Pest** for a modern, expressive DX.
-- **TDD Cycle**: Follow the Red-Green-Refactor cycle. Write a failing test before implementing logic.
-- **Unit Testing**: Test classes in isolation. Use **Mockery** or PHPUnit mocks to stub dependencies.
-- **Assertions**: Use strict assertions (e.g., `assertSame`, `assertCount`). Avoid generic `assertTrue` where specific ones exist.
-- **Data Providers**: Use `@dataProvider` (PHPUnit) or `with()` (Pest) to run tests against multiple data sets.
-- **Component Specific**:
-  - **Models**: Focus on business logic and validation.
-  - **Services**: Mock external APIs and repositories.
-  - **Controllers**: Use integration tests to verify status codes and JSON structures.
+- **Pest/PHPUnit**: Use Pest for DX or PHPUnit for legacy parity.
+- **TDD Flow**: Follow Red-Green-Refactor cycle for new logic.
+- **Isolation**: Mock dependencies via **Mockery** or PHPUnit mocks.
+- **Strict Assertions**: Favor `assertSame` over `assertTrue`.
+- **Data Providers**: Run tests against multiple sets via `@dataProvider`.
+- **Categorize**: Separate Unit (isolated) from Integration (DB/API).
 
 ## Anti-Patterns
 
-- **Testing Private Methods**: Test public behavior only. Private methods are implementation details.
-- **Fragile Mocks**: Avoid "mocking everything"; mock only the boundaries of your system.
-- **Slow Tests**: Keep unit tests fast by avoiding real database or network calls (use sqlite in-memory or mocks).
-- **Ignoring Coverage**: Ensure critical paths have coverage, but aim for quality over "100% metrics".
+- **Testing Private**: **No Private Testing**: Validate public behavior only.
+- **Over-Mocking**: **No Brittle Mocks**: Mock system boundaries only.
+- **Blocking Tests**: **No Networking**: Use in-memory DBs and mocks.
+- **Metric Chasing**: **No 100% Mania**: Prioritize quality over coverage.
 
-## Code
+## References
 
-```php
-// Pest Example
-test('user can be created', function () {
-    $repo = mock(UserRepository::class);
-    $repo->shouldReceive('save')->once()->andReturn(true);
-
-    $service = new UserService($repo);
-    expect($service->create(['name' => 'Hoang']))->toBeTrue();
-});
-
-// PHPUnit Example
-public function test_math_logic(): void
-{
-    $this->assertSame(4, 2 + 2);
-}
-```
+- [Testing Patterns & Mocks](references/implementation.md)

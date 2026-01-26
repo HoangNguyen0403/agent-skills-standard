@@ -12,44 +12,32 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-Modern PHP error handling using the exception hierarchy and PSR-3 logging.
+## Structure
+
+```text
+src/
+└── Exceptions/
+    ├── {Domain}Exception.php
+    └── Handler.php
+```
 
 ## Implementation Guidelines
 
-- **Exception-Oriented**: Prefer throwing exceptions over returning `false` or null for error conditions.
-- **Throwable Interface**: Use `Throwable` when catching both Errors and Exceptions (PHP 7+).
-- **Custom Exceptions**: Create domain-specific exceptions (e.g., `UserNotFoundException`) by extending `RuntimeException` or `LogicException`.
-- **Granular Catching**: Use multiple `catch` blocks for specific exception types. Use multi-catch (`catch (TypeA | TypeB $e)`) where logic is identical.
-- **Finally Block**: Use `finally` to ensure resource cleanup (e.g., closing file handles) regardless of success/failure.
-- **Global Handler**: Set a global exception handler via `set_exception_handler` for uncaught exceptions in entry points.
-- **PSR-3 Logging**: Log all critical errors and exceptions using a PSR-3 compliant logger (e.g., Monolog).
+- **Exception-Driven**: Prefer throwing exceptions over returning `false`.
+- **Throwable Interface**: Catch `Throwable` for both Errors and Exceptions.
+- **Custom Exceptions**: Extend `RuntimeException` for domain-specific errors.
+- **Multi-catch**: Use `catch (TypeA | TypeB $e)` for identical handling.
+- **Finally Cleanup**: Use `finally` to ensure resource release.
+- **Global Handling**: Set `set_exception_handler` in entry points.
+- **PSR-3 Logging**: Log critical faults using standard loggers.
 
 ## Anti-Patterns
 
-- **Error Suppression**: Never use the `@` operator. It hides critical bugs and hurts performance.
-- **Empty Catch Blocks**: Never catch an exception without logging it or handling it.
-- **Exception for Flow**: Do not use exceptions for regular application control flow.
-- **Displaying Errors**: Never set `display_errors` to `On` in production; always log them instead.
+- **Error Suppression**: **No @**: Avoid suppressing errors with `@`.
+- **Silent Catch**: **No Empty Catches**: Log or handle all caught exceptions.
+- **Logic Flow**: **No Flow Control**: Don't use exceptions for expected logic.
+- **Panic Display**: **No display_errors**: Log to file, never to production screen.
 
-## Code
+## References
 
-```php
-declare(strict_types=1);
-
-namespace App\Services;
-
-use App\Exceptions\DatabaseException;
-use Throwable;
-
-try {
-    $result = $db->query("...");
-} catch (DatabaseException $e) {
-    $logger->error('Database failed: ' . $e->getMessage());
-    throw new ServiceUnavailableException('Service is down', 0, $e);
-} catch (Throwable $e) {
-    $logger->critical('Unexpected error', ['exception' => $e]);
-    // Graceful fallback
-} finally {
-    $db->disconnect();
-}
-```
+- [Exception & Logging Patterns](references/implementation.md)

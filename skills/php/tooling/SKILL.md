@@ -12,38 +12,40 @@ metadata:
 
 ## **Priority: P2 (MEDIUM)**
 
-PHP ecosystem tooling, dependency management, and static analysis standards.
+## Structure
+
+```text
+project/
+├── composer.json
+├── phpstan.neon
+└── .php-cs-fixer.php
+```
 
 ## Implementation Guidelines
 
-- **Composer Lock**: Always commit `composer.lock` to ensure environment parity across all stages.
-- **Autoloading**: Strictly follow PSR-4 autoloading in `composer.json` for both `src/` and `tests/`.
-- **Static Analysis**: Integrate **PHPStan** or **Psalm** into your CI pipeline (level 5+ required).
-- **Code Linting**: Use **PHP CS Fixer** or **Pint** to enforce PSR-12 and custom style rules.
-- **Debugging**: Use **Xdebug** for profiling and step-through debugging.
-- **Composer Scripts**: Define common workflows (lint, analyze, build) in the `scripts` section of `composer.json`.
+- **Composer Lock**: Commit `composer.lock` for environment parity.
+- **PSR-4**: Strictly map namespaces to `src/` and `tests/`.
+- **Static Analysis**: Integrate **PHPStan** (level 5+) in CI.
+- **Linting**: Automate PSR-12 enforcement via **PHP CS Fixer**.
+- **Debugging**: Use **Xdebug** for profiling; avoid `var_dump`.
+- **Scripts**: Define `lint`, `analyze`, `test` in `composer.json`.
 
 ## Anti-Patterns
 
-- **Manual Requires**: Never use `require` for application classes; rely on Composer.
-- **Ignoring Lock Diffs**: Never merge a `composer.lock` change without reviewing the specific version bumps involved.
-- **Production Xdebug**: Ensure Xdebug is disabled in production environments for security and performance.
-- **Vendor Commits**: Never commit the `vendor/` directory.
+- **Manual Requires**: **No Manual Require**: Rely on Composer autoload.
+- **Blind Updates**: **No Blind Updating**: Review `composer.lock` diffs.
+- **Production Debug**: **No Prod Xdebug**: Disable debugging in live env.
+- **Vendor Commits**: **No Vendor Check-in**: Exclude `vendor/` from git.
 
 ## Code
 
 ```json
 {
-  "name": "vendor/app",
   "autoload": {
-    "psr-4": {
-      "App\\": "src/"
-    }
+    "psr-4": { "App\\": "src/" }
   },
   "scripts": {
-    "lint": "php-cs-fixer fix",
-    "analyze": "phpstan analyze",
-    "test": "phpunit"
+    "analyze": "phpstan analyze"
   }
 }
 ```

@@ -12,49 +12,32 @@ metadata:
 
 ## **Priority: P1 (HIGH)**
 
-PHP best practices, PSR standards, and code quality guidelines for maintainable code.
+## Structure
+
+```text
+src/
+├── {Domain}/             # e.g., Services, Repositories
+└── Helpers/              # Pure functions/Traits
+```
 
 ## Implementation Guidelines
 
-- **PSR-12**: Strictly follow PSR-12 for coding style (indentation, braces, spacing).
-- **Autoloading**: Use PSR-4 for class autoloading via Composer.
-- **Namespacing**: Organize code into logical namespaces reflecting the directory structure.
-- **PascalCase Classes**: Use `PascalCase` for all class names (e.g., `UserRepository`).
-- **camelCase Methods**: Use `camelCase` for methods and variables (e.g., `getUserData`).
-- **SNAKE_CASE Constants**: Use `SNAKE_CASE` for class constants (e.g., `MAX_RETRIES`).
-- **DRY Principle**: Extract repetitive logic into reusable methods or traits.
-- **Solid Design**: Use interfaces to decouple dependencies and follow SRP.
+- **PSR-12**: Follow PSR-12 for coding style (indent, braces, space).
+- **Autoloading**: Use PSR-4 via Composer.
+- **Namespacing**: Map namespaces to directory structure.
+- **PascalCase**: Use for all class names.
+- **camelCase**: Use for methods and variables.
+- **SNAKE_CASE**: Use for class constants.
+- **DRY Logic**: Extract repetitive logic into traits/methods.
+- **SOLID**: Use interfaces for decoupling and SRP adherence.
 
 ## Anti-Patterns
 
-- **God Classes**: Avoid classes that do too much (violation of SRP).
-- **Magic Numbers**: Avoid hardcoding values; use class constants.
-- **Deep Nesting**: Avoid `if/else` nesting deeper than 3 levels; use guard clauses.
-- **Direct Output**: Never `echo` or `print` directly within business logic.
+- **God Classes**: **No Monoliths**: Avoid classes with multiple responsibilities.
+- **Magic Numbers**: **No Hardcoding**: Use class constants for config values.
+- **Deep Nesting**: **No Nesting**: Guard clauses over nested if/else.
+- **Direct Output**: **No Echo**: Return data; let controller handle response.
 
-## Code
+## References
 
-```php
-declare(strict_types=1);
-
-namespace App\Services;
-
-use App\Interfaces\LoggerInterface;
-
-class NotificationService
-{
-    private const NOTIFICATION_LIMIT = 5;
-
-    public function __construct(
-        private LoggerInterface $logger,
-    ) {}
-
-    public function sendBatch(array $users): void
-    {
-        if (count($users) > self::NOTIFICATION_LIMIT) {
-            $this->logger->warn('Batch size exceeded');
-        }
-        // ... implementation
-    }
-}
-```
+- [Clean Code Patterns](references/implementation.md)

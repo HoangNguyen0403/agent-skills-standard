@@ -197,9 +197,9 @@
       "tag_prefix": "php-v",
       "token_metrics": {
         "total_skills": 7,
-        "total_tokens": 3336,
-        "avg_tokens_per_skill": 477,
-        "largest_skill": "error-handling (536 tokens)"
+        "total_tokens": 2224,
+        "avg_tokens_per_skill": 318,
+        "largest_skill": "error-handling (341 tokens)"
       }
     }
   }

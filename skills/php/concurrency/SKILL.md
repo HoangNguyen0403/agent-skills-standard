@@ -12,36 +12,30 @@ metadata:
 
 ## **Priority: P2 (MEDIUM)**
 
-Standards for cooperative multitasking and non-blocking I/O in modern PHP.
+## Structure
+
+```text
+src/
+└── Async/
+    ├── Schedulers/
+    └── Clients/
+```
 
 ## Implementation Guidelines
 
-- **Fibers (PHP 8.1+)**: Use `Fiber` for low-level cooperative multitasking within a single thread.
-- **Cooperative Yielding**: Use `Fiber::suspend()` to yield control and `Fiber::resume()` to continue execution.
-- **I/O Bound Focus**: Reserve concurrency for I/O operations (HTTP requests, DB queries). Avoid for CPU-intensive tasks.
-- **Event Loops**: For complex async applications, leverage frameworks like **Amp** or **ReactPHP** which abstract Fiber management.
-- **Stateless Fibers**: Ensure individual Fibers are self-contained and manage their own state/errors.
-- **Incremental Adoption**: Start by offloading a single bottleneck (e.g., concurrent HTTP calls) rather than a full async refactor.
+- **Fibers**: Use `Fiber` for low-level cooperative multitasking (8.1+).
+- **Yield Control**: Apply `Fiber::suspend()` to yield within Fibers.
+- **I/O Bound**: Target I/O tasks only; avoid for CPU intensive work.
+- **Frameworks**: Prefer **Amp** or **ReactPHP** for complex events.
+- **Self-Contained**: Ensure Fibers manage their own state/exceptions.
+- **Incremental**: Refactor single bottlenecks before full async.
 
 ## Anti-Patterns
 
-- **Invisible Concurrency**: Avoid deep Fiber suspensions that make execution flow hard to track.
-- **Blocking inside Fiber**: Never perform blocking I/O (e.g., `file_get_contents` on a slow URL) inside a Fiber without a supporting event loop.
-- **Manual Scheduler**: Avoid writing your own Fiber scheduler unless building a low-level framework.
+- **Implicit Flows**: **No Deep Suspend**: Keep Fiber logic traceable.
+- **Internal Blocking**: **No Blocking I/O**: Don't block inside Fibers.
+- **Custom Schedulers**: **No DIY Schedulers**: Use proven async libs.
 
-## Code
+## References
 
-```php
-// Concurrent HTTP fetching example (Conceptual)
-$fiber = new Fiber(function (string $url): void {
-    $data = CustomHttpClient::get($url); // Should call Fiber::suspend() internally
-    Fiber::suspend($data);
-});
-
-// Main loop control
-$fiber->start('https://api.example.com');
-while ($fiber->isSuspended()) {
-    // Perform other work...
-    $result = $fiber->resume();
-}
-```
+- [Fiber Implementation Guide](references/implementation.md)
