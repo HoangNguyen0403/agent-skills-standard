@@ -16,6 +16,7 @@
     "dev": "ts-node src/index.ts",
     "release-skill": "ts-node scripts/release-skill.ts",
     "release-cli": "ts-node scripts/release-cli.ts",
+    "release-server": "ts-node scripts/release-server.ts",
     "calculate-tokens": "ts-node src/scripts/calculate-tokens.ts",
     "format": "prettier --write \"src/**/*.ts\" \"scripts/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"scripts/**/*.ts\"",
