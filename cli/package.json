@@ -61,12 +61,11 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "globals": "^17.0.0",
-    "jiti": "^2.6.1",
     "prettier": "3.8.0",
     "ts-node": "^10.9.2",
-    "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.53.0",
+    "vite": "^7.0.0",
     "vitest": "^4.0.17"
   }
 }
