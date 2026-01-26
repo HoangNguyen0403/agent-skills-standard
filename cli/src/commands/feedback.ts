@@ -33,7 +33,7 @@ export class FeedbackCommand {
           message:
             'Which skill ID has the issue? (e.g., flutter/bloc-state-management)',
           when: !skill,
-          validate: (input) =>
+          validate: (input: string) =>
             input.trim().length > 0 || 'Skill ID is required',
         },
         {
@@ -41,7 +41,7 @@ export class FeedbackCommand {
           name: 'issue',
           message: 'What is the issue? (Brief description)',
           when: !issue,
-          validate: (input) =>
+          validate: (input: string) =>
             input.trim().length > 0 || 'Issue description is required',
         },
         {
@@ -64,11 +64,11 @@ export class FeedbackCommand {
         },
       ]);
 
-      skill = skill || answers.skill;
-      issue = issue || answers.issue;
-      model = model || answers.model;
-      context = context || answers.context;
-      suggestion = suggestion || answers.suggestion;
+      skill = skill || (answers.skill as string);
+      issue = issue || (answers.issue as string);
+      model = model || (answers.model as string);
+      context = context || (answers.context as string);
+      suggestion = suggestion || (answers.suggestion as string);
 
       await this.submit({
         skill: skill!,
@@ -83,7 +83,9 @@ export class FeedbackCommand {
   }
 
   private async submit(data: FeedbackData) {
-    if (!process.env.FEEDBACK_API_URL) {
+    const apiUrl = process.env.FEEDBACK_API_URL;
+
+    if (!apiUrl) {
       console.log(pc.yellow('\n⚠️  Feedback API not configured.'));
       console.log(
         pc.gray(
@@ -94,13 +96,13 @@ export class FeedbackCommand {
       );
       console.log(
         pc.gray(
-          'Example: export FEEDBACK_API_URL=https://your-backend.com/api/feedback\n',
+          'Example: export FEEDBACK_API_URL=https://your-backend.com/feedback\n',
         ),
       );
       return;
     }
 
-    console.log(pc.gray('📤 Sending feedback...'));
+    console.log(pc.gray(`📤 Sending feedback to ${apiUrl}...`));
 
     const success = await this.feedbackService.submit(data);
 

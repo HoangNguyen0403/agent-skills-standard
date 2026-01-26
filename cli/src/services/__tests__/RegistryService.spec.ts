@@ -207,5 +207,22 @@ describe('RegistryService', () => {
       );
       expect(skills).toEqual([]);
     });
+
+    it('should handle non-github URL in getFrameworkSkills (line 81 coverage)', async () => {
+      const skills = await registryService.getFrameworkSkills(
+        'https://gitlab.com/foo/bar',
+        'flutter',
+      );
+      expect(skills).toEqual([]);
+    });
+
+    it('should handle getRepoTree returning null in getFrameworkSkills (line 81 coverage)', async () => {
+      vi.mocked(GithubService.prototype.getRepoTree).mockResolvedValue(null);
+      const skills = await registryService.getFrameworkSkills(
+        'https://github.com/o/r',
+        'flutter',
+      );
+      expect(skills).toEqual([]);
+    });
   });
 });

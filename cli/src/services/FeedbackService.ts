@@ -1,5 +1,3 @@
-import { FEEDBACK_API_URL } from '../constants';
-
 export interface FeedbackData {
   skill: string;
   issue: string;
@@ -21,12 +19,13 @@ export class FeedbackService {
    * @returns boolean indicating submission success
    */
   async submit(data: FeedbackData): Promise<boolean> {
-    if (!FEEDBACK_API_URL) {
+    const apiUrl = process.env.FEEDBACK_API_URL;
+    if (!apiUrl) {
       return false;
     }
 
     try {
-      const response = await fetch(FEEDBACK_API_URL, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

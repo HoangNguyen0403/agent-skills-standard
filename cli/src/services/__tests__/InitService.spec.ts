@@ -101,5 +101,22 @@ describe('InitService', () => {
         expect.stringContaining('Auto-detected configuration'),
       );
     });
+
+    it('should handle unsupported framework by defaulting languages to empty (line 75 coverage)', async () => {
+      const answers = {
+        framework: 'unsupported-framework',
+        agents: ['cursor'],
+        registry: 'url',
+      };
+      await initService.buildAndSaveConfig(answers, {}, '/tmp');
+      expect(mockDetectionService.detectLanguages).not.toHaveBeenCalled();
+      expect(mockConfigService.buildInitialConfig).toHaveBeenCalledWith(
+        'unsupported-framework',
+        expect.any(Array),
+        expect.any(String),
+        expect.any(Object),
+        [], // Empty languages
+      );
+    });
   });
 });

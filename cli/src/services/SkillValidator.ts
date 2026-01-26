@@ -38,10 +38,11 @@ export class SkillValidator {
   async validateAllSkills(
     validateAll: boolean = false,
   ): Promise<ValidationSummary> {
-    const skillsDir = path.join(process.cwd(), 'skills');
+    const rootDir = this.findProjectRoot();
+    const skillsDir = path.join(rootDir, 'skills');
 
     if (!(await fs.pathExists(skillsDir))) {
-      throw new Error('skills/ directory not found');
+      throw new Error(`skills/ directory not found (searched at ${skillsDir})`);
     }
 
     // Find SKILL.md files
@@ -112,6 +113,7 @@ export class SkillValidator {
   }
 
   private async findChangedSkillFiles(): Promise<string[]> {
+    const rootDir = this.findProjectRoot();
     try {
       let gitCommand: string;
 
@@ -130,6 +132,7 @@ export class SkillValidator {
       }
 
       const gitOutput = execSync(gitCommand, {
+        cwd: rootDir,
         encoding: 'utf8',
       });
       const changedFiles = gitOutput
@@ -139,23 +142,23 @@ export class SkillValidator {
       // Filter for SKILL.md files in skills directory
       const changedSkillFiles = changedFiles
         .filter(
-          (file) => file.startsWith('skills/') && file.endsWith('SKILL.md'),
+          (file: string) => file.startsWith('skills/') && file.endsWith('SKILL.md'),
         )
-        .map((file) => path.join(process.cwd(), file));
+        .map((file: string) => path.join(rootDir, file));
 
       // Also include untracked SKILL.md files
       const untrackedOutput = execSync(
         'git ls-files --others --exclude-standard',
-        { encoding: 'utf8' },
+        { cwd: rootDir, encoding: 'utf8' },
       );
       const untrackedFiles = untrackedOutput
         .split('\n')
         .filter((line) => line.trim() !== '');
       const untrackedSkillFiles = untrackedFiles
         .filter(
-          (file) => file.startsWith('skills/') && file.endsWith('SKILL.md'),
+          (file: string) => file.startsWith('skills/') && file.endsWith('SKILL.md'),
         )
-        .map((file) => path.join(process.cwd(), file));
+        .map((file: string) => path.join(rootDir, file));
 
       return [...changedSkillFiles, ...untrackedSkillFiles];
     } catch (error) {
@@ -169,8 +172,9 @@ export class SkillValidator {
   private async validateSkill(
     skillFile: string,
   ): Promise<SkillValidationResult> {
+    const rootDir = this.findProjectRoot();
     const result: SkillValidationResult = {
-      file: path.relative(process.cwd(), skillFile),
+      file: path.relative(rootDir, skillFile),
       errors: [],
       warnings: [],
       passed: true,
@@ -297,7 +301,8 @@ export class SkillValidator {
   }
 
   private async validateMetadata(): Promise<void> {
-    const metadataPath = path.join(process.cwd(), 'skills', 'metadata.json');
+    const rootDir = this.findProjectRoot();
+    const metadataPath = path.join(rootDir, 'skills', 'metadata.json');
 
     try {
       if (!(await fs.pathExists(metadataPath))) {
@@ -386,5 +391,23 @@ export class SkillValidator {
         );
       }
     }
+  }
+
+  private normalizePath(p: string): string {
+    return path.relative(this.findProjectRoot(), p).replace(/\\/g, '/');
+  }
+
+  private findProjectRoot(): string {
+    let currentDir = process.cwd();
+    while (currentDir !== path.parse(currentDir).root) {
+      if (
+        fs.existsSync(path.join(currentDir, 'pnpm-workspace.yaml')) ||
+        fs.existsSync(path.join(currentDir, '.git'))
+      ) {
+        return currentDir;
+      }
+      currentDir = path.dirname(currentDir);
+    }
+    return process.cwd();
   }
 }
