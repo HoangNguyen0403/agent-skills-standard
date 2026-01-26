@@ -190,6 +190,17 @@
         "avg_tokens_per_skill": 429,
         "largest_skill": "localization (475 tokens)"
       }
+    },
+    "php": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-26",
+      "tag_prefix": "php-v",
+      "token_metrics": {
+        "total_skills": 7,
+        "total_tokens": 3336,
+        "avg_tokens_per_skill": 477,
+        "largest_skill": "error-handling (536 tokens)"
+      }
     }
   }
 }

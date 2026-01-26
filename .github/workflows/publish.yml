@@ -21,6 +21,7 @@ on:
       - 'android-v*'
       - 'ios-v*'
       - 'swift-v*'
+      - 'php-v*'
 
 permissions:
   contents: write
