@@ -105,7 +105,7 @@
     },
     "golang": {
       "version": "1.0.2",
-      "last_updated": "2026-01-23",
+      "last_updated": "2026-01-26",
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 10,
