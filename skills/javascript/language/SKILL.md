@@ -13,8 +13,6 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-Modern JavaScript standards for clean, maintainable code.
-
 ## Implementation Guidelines
 
 - **Variables**: `const` default. `let` if needed. No `var`.
@@ -41,18 +39,13 @@ Modern JavaScript standards for clean, maintainable code.
 const [x, ...rest] = items;
 const name = user?.profile?.name ?? 'Guest';
 
-// Async
+// Async + Error Handling
 async function getUser(id) {
-  try {
-    const res = await fetch(`/api/${id}`);
-    return res.json();
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
+  const res = await fetch(`/api/${id}`);
+  return res.json(); // Errors propagate
 }
 
-// Class + Private
+// Private Fields
 class Service {
   #key;
   constructor(k) {

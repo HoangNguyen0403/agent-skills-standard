@@ -13,8 +13,6 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-Reactive and lightweight state management separating business logic from UI using `GetX`.
-
 ## Structure
 
 ```text

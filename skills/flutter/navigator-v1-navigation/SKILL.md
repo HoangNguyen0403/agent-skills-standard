@@ -12,8 +12,6 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-Standard imperative navigation system built into Flutter using `Navigator` and `MaterialPageRoute`.
-
 ## Implementation Guidelines
 
 - **Standard Push**: Use `Navigator.of(context).push(MaterialPageRoute(builder: (_) => Screen()))`.
@@ -63,7 +61,6 @@ Navigator.pushNamed(
 
 ## Reference & Examples
 
-For centralized `onGenerateRoute` implementation:
 See [references/on-generate-route.md](references/on-generate-route.md).
 
 ## Related Topics

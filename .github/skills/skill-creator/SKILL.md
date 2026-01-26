@@ -104,6 +104,8 @@ Required sections in `SKILL.md`:
 | Inline code block          | 10 lines | Move to references/      |
 | Anti-pattern item          | 15 words | Compress to imperative   |
 | Description after Priority | 0 lines  | Remove (use frontmatter) |
+| Tables                     | 8 rows   | Extract to references/   |
+| Explanatory sections       | 10 lines | Extract to references/   |
 
 ## Resource Organization (Token-Saving)
 
@@ -159,8 +161,10 @@ Before finalizing, verify:
 - [ ] SKILL.md ≤70 lines (ideal: 40-60)
 - [ ] No inline code >10 lines
 - [ ] No repeated frontmatter content
-- [ ] Anti-patterns use imperative format
+- [ ] Anti-patterns use strict format (see below)
 - [ ] Complex examples in references/
+- [ ] Tables >8 rows moved to references/
+- [ ] No description redundancy after Priority
 
 ## Anti-Patterns (Token Wasters)
 
@@ -171,7 +175,43 @@ Before finalizing, verify:
 - **Over-Engineering**: Complex structure for simple skills
 - **Redundant Descriptions**: Do not repeat frontmatter `description` after `## Priority`
 - **Oversized Skills**: SKILL.md >70 lines → Extract to references/
-- **Long Anti-Patterns**: Use `**No X**: Do Y, not Z.` (max 15 words)
+- **Nested Formatting**: Avoid `**Bold**: \`**More Bold**\`` - causes visual noise
+- **Verbose Anti-Patterns**: See strict format below
+
+### Anti-Pattern Format (Strict)
+
+Format: `**No X**: Do Y[, not Z]. [Optional context, max 15 words total]`
+
+**Examples**:
+
+```markdown
+❌ Verbose (24 words):
+
+- **No Manual Emit**: `**Avoid .then()**: Do not call emit() inside Future.then; always use await or emit.forEach.`
+
+✅ Compressed (11 words):
+
+- **No .then()**: Use `await` or `emit.forEach()` to emit states.
+
+❌ Verbose (18 words):
+
+- **No UI Logic**: `**Logic in Builder**: Do not perform calculations or data formatting inside BlocBuilder.`
+
+✅ Compressed (9 words):
+
+- **No Logic in Builder**: Perform calculations in BLoC, not UI.
+```
+
+### Progressive Disclosure Checklist
+
+Extract to `references/` when:
+
+- [ ] Code examples >10 lines
+- [ ] Tables >8 rows
+- [ ] Explanatory sections >10 lines
+- [ ] Multiple code variants/alternatives
+- [ ] Detailed performance benchmarks
+- [ ] Step-by-step tutorials
 
 ## Reference & Examples
 

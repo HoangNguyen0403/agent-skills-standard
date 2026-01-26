@@ -12,18 +12,11 @@ metadata:
 
 ## **Priority: P2 (MEDIUM)**
 
-Prefer Server State (URL) and Local State over Global Stores.
-
 ## Principles
 
-1. **URL as Source of Truth**: For any state that should be shareable or persistent (Search queries, Filters, Pagination, Tabs), use the URL Search Params.
-   - _Why_: Keeps state syncable across refreshes and shareable links.
-   - _Tool_: `useSearchParams` hook.
-2. **Colocation**: Keep state as close to the component as possible. **Do not lift state** unless necessary to share between siblings.
-   - _Bad_: `App` component holding `searchTerm` for a `SearchBar` nested 5 levels deep.
-   - _Good_: `SearchBar` has internal state, or `MainContent` holds it if it needs to pass to siblings.
-3. **No Global Store Default**: Avoid Redux/Zustand for simple apps. Be skeptical of adding a library.
-   - _Use Cases for Global Store_: Complex interactors like a Music Player (persists across navigation), Shopping Cart (shared everywhere).
+1. **URL as Source of Truth**: For shareable/persistent state (Search, Filters, Pagination), use URL params with `useSearchParams`.
+2. **Colocation**: Keep state close to components. Lift only when sharing between siblings.
+3. **No Global Store Default**: Avoid Redux/Zustand for simple apps. Use only for complex cross-cutting concerns (Music Player, Shopping Cart).
 
 ## Patterns
 

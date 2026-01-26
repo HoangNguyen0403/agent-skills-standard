@@ -20,17 +20,9 @@ priority: 'P1'
 
 ## Detection & Execution
 
-**Trigger immediately on:**
+**Trigger on**: Deviation from loaded skill | Pattern exists but not applied | Test/lint failed | User corrected code | Conflicting skills | Unclear guidance | Re-implemented existing pattern
 
-- Loaded skill but chose different approach
-- Skill pattern exists but didn't apply
-- Test/lint failed from following skill
-- User corrected your skill-based code
-- Multiple skills conflict
-- Skill unclear for scenario
-- Re-implemented existing skill pattern
-
-**Before ANY code change:** Check loaded skills → Following exactly? → If NO, report why.
+**Before code changes**: Check loaded skills → Following exactly? → If NO, report.
 
 ## Command
 

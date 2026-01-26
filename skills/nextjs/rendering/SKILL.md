@@ -12,80 +12,59 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-Understanding how Next.js renders content determines performance and cost.
+Choose rendering strategy based on data freshness and scaling needs. See [Strategy Matrix](references/strategy-matrix.md).
 
-## Strategy Selection Matrix (Scaling & Cost)
+## Implementation Guidelines
 
-| Strategy | Ideal For              | Data Freshness       | Performance (TTFB)          | Scaling Risk                         |
-| :------- | :--------------------- | :------------------- | :-------------------------- | :----------------------------------- |
-| **SSG**  | Marketing, Docs, Blogs | Build Time           | **Instant** (CDN)           | **None**                             |
-| **ISR**  | E-commerce, CMS        | Periodic (e.g., 60s) | **Instant** (CDN)           | **Low** (Background Rebuilds)        |
-| **SSR**  | Dashboards, Auth Gates | Real-Time (Request)  | **Slow** (Waits for Server) | **Critical** (1 Request = 1 Compute) |
-| **PPR**  | Personalized Apps      | Hybrid               | **Instant** (Shell)         | **Medium** (Streaming Holes)         |
+### Static Rendering (SSG) - **Default**
 
-## Scaling Patterns
+- **Behavior**: Rendered at build time
+- **Use**: Marketing, blogs, docs
+- **Dynamic Routes**: Use `generateStaticParams` for `/blog/[slug]`
 
-### 1. The "Static Shell" Pattern (Preferred)
+### Dynamic Rendering (SSR)
 
-- **Goal**: Make most of the page **Static** to hit the CDN cache.
-- **Pattern**:
-  - Render the generic layout (Logo, Footer, Navigation) as **Static**.
-  - Wrap personalized/slow components (User Profile, Cart Count, Recommendations) in `<Suspense>`.
-- **Result**: **TTFB (Time to First Byte)** is near-instant (~50ms) because the shell is cached. User perception is fast, even if DB is slow.
+- **Behavior**: Rendered per request
+- **Triggers**: `cookies()`, `headers()`, `searchParams`, `fetch(..., { cache: 'no-store' })`, `export const dynamic = 'force-dynamic'`
 
-### 2. Avoiding "SSR Waterfalls"
+### Streaming (Suspense)
 
-- **Problem**: In naive SSR, the server waits for _every_ fetch to finish before sending _any_ HTML.
-  - _Scenario_: DB Call (200ms) + Auth Check (100ms) + 3rd Party API (500ms) = Blank screen for 800ms.
-- **Solution**:
-  - Move slow fetches **down** the component tree into Suspense boundaries.
-  - Do not `await` everything in the root `page.tsx`.
+- **Problem**: SSR blocks entire page
+- **Solution**: Wrap slow components in `<Suspense>` to stream progressively
 
-## 1. Static Rendering (SSG) - **Default**
+```tsx
+<Suspense fallback={<Skeleton />}>
+  <SlowDashboard />
+</Suspense>
+```
 
-- **Behavior**: Routes are rendered at **build time**.
-- **Usage**: Marketing pages, Blogs, Documentation.
-- **Dynamic Routes**: Use `generateStaticParams` to generate static pages for dynamic paths (e.g., `/blog/[slug]`).
+### Incremental Static Regeneration (ISR)
 
-  ```tsx
-  export async function generateStaticParams() {
-    const posts = await getPosts();
-    return posts.map((post) => ({ slug: post.slug }));
-  }
-  ```
+- **Behavior**: Update static content post-build
+- **Time-based**: `export const revalidate = 3600;` (layout/page)
+- **On-Demand**: `revalidatePath('/posts')` (Server Actions/Webhooks)
 
-## 2. Dynamic Rendering (SSR)
+### Partial Prerendering (PPR) - _Experimental_
 
-- **Behavior**: Routes are rendered at **request time**.
-- **Triggers**:
-  - Using Dynamic Functions: `cookies()`, `headers()`, `searchParams`.
-  - Using Dynamic Fetch: `fetch(..., { cache: 'no-store' })`.
-  - Explicit Config: `export const dynamic = 'force-dynamic'`.
+- **Behavior**: Static shell + dynamic holes
+- **Config**: `export const experimental_ppr = true`
 
-## 3. Streaming (Suspense)
+## Scaling Best Practices
 
-- **Problem**: SSR blocks the entire page until all data is ready.
-- **Solution**: Wrap slow components in `<Suspense>`. Next.js instantly sends the initial HTML (static shell) and streams the slow content later.
+- **Static Shell Pattern**: Render layout as Static, wrap personalized parts in `<Suspense>`. See [Scaling Patterns](references/scaling-patterns.md).
+- **Avoid SSR Waterfalls**: Push fetches down component tree, don't `await` all in root `page.tsx`.
 
-  ```tsx
-  <Suspense fallback={<Skeleton />}>
-    <SlowDashboard />
-  </Suspense>
-  ```
+## Runtime
 
-## 4. Incremental Static Regeneration (ISR)
+- **Node.js (Default)**: Full API support
+- **Edge**: `export const runtime = 'edge'` - Limited API, instant start, lower cost
 
-- **Behavior**: Update static content after build time without rebuilding the entire site.
-- **Time-based**: `export const revalidate = 3600;` (in layout/page) or `{ next: { revalidate: 3600 } }` (in fetch).
-- **On-Demand**: `revalidatePath('/posts')` via Server Actions or Webhooks.
+## Anti-Patterns
 
-## 5. Partial Prerendering (PPR) - _Experimental_
+- **No Root Awaits**: Don't `await` all fetches in `page.tsx` - causes waterfall delays.
+- **No SSR for Static**: Don't use `force-dynamic` for content that rarely changes.
 
-- **Concept**: Combines Static shell + Dynamic holes.
-- **Config**: `export const experimental_ppr = true`.
-- **Behavior**: The build generates a static shell for the route (served instantly from Edge), and dynamic parts stream in.
+## References
 
-## Runtime Configuration
-
-- **Node.js (Default)**: Full Node.js API support.
-- **Edge**: `export const runtime = 'edge'`. Limited API, starts instantly, lower cost.
+- [Strategy Selection Matrix](references/strategy-matrix.md)
+- [Scaling Patterns & Performance](references/scaling-patterns.md)
