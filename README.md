@@ -19,6 +19,7 @@
 [![android](https://img.shields.io/badge/android-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/android-v1.0.0)
 [![swift](https://img.shields.io/badge/swift-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/swift-v1.0.0)
 [![ios](https://img.shields.io/badge/ios-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/ios-v1.0.0)
+[![php](https://img.shields.io/badge/php-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/php-v1.0.0)
 [![laravel](https://img.shields.io/badge/laravel-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/laravel-v1.0.0)
 
 **The open standard for High-Density AI coding instructions. Make your AI smarter, faster, and more consistent.**

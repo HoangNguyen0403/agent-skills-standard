@@ -153,13 +153,6 @@ Expert standards for scalable Laravel 11.x/12.x applications.
 - [**Sessions & Middleware**](laravel/sessions-middleware/SKILL.md) (P1) - Scalable session management.
 - [**Tooling**](laravel/tooling/SKILL.md) (P2) - Artisan, Vite, & Pint optimization.
 
-### 🚀 Coming Soon
-
-- **Go** (Language)
-- **Angular** (Framework)
-- **Java** (Language)
-- **Kotlin** (Language)
-
 ---
 
 ## ✍️ Contribution Guide
