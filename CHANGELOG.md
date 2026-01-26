@@ -11,13 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added (Laravel Skillset v1.0.0)
 
-- **Comprehensive Release** - 6 new high-density skills for modern Laravel 11.x/12.x development.
-- **Architecture** - Standards for Slim Controllers, Service/Action classes, and Form Requests.
-- **Eloquent** - Advanced ORM patterns including N+1 prevention, scopes, and performance chunking.
-- **Security** - Hardened input validation, authorization policies, and safe environment handling.
-- **API** - Modern JSON transformation via API Resources and Sanctum/Passport standards.
-- **Testing** - TDD standards for Pest and PHPUnit with data factories and MSW/Mockery.
-- **Tooling** - Artisan custom commands, Vite asset bundling, and Pint/Horizon integration.
+- **Comprehensive Release** - 10 new high-density skills for modern Laravel 11.x/12.x development.
+- **Clean Architecture** - Domain-Driven Design (DDD), Actions, DTOs, and Repository patterns.
+- **Background Processing** - Expert standards for Queues, Jobs, Events, and Batching/Chaining.
+- **Database Expert** - Advanced Query Builder, Redis caching, and Read/Write scalability.
+- **Sessions & Middleware** - Hardened driver configuration and security header middleware.
+- **Foundational Pillars** - Architecture, Eloquent, Security, API, Testing, and Tooling.
 
 ### Added (Next.js Skillset Expansion)
 
