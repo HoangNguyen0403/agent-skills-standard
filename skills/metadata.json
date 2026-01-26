@@ -97,9 +97,9 @@
       "last_updated": "2026-01-26",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 12,
-        "total_tokens": 6766,
-        "avg_tokens_per_skill": 564,
+        "total_skills": 11,
+        "total_tokens": 5996,
+        "avg_tokens_per_skill": 545,
         "largest_skill": "quality-assurance (782 tokens)"
       }
     },
