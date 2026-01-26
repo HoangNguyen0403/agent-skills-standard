@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.1] - 2026-01-26
 
+**Category**: Systematic Token Optimization & Adaptive Model Selection & Sub-Agent Delegation Protocol
+
+### Added (Common Skills v1.2.4)
+
+### Changed (Skill Registry v1.5.2)
+
+- **⚡ Global Token Optimization** - Achieved **98.6% compliance** with the 70-line limit:
+  - **Next.js Rendering**: Refactored (91 → 70 lines) using progressive disclosure (Strategy Matrix/Scaling Patterns).
+  - **Removed Redundancy**: Deleted descriptions after Priority sections in Flutter, TS, JS, NestJS, and Common categories.
+  - **Compressed Patterns**: Rewrote verbose anti-patterns into high-density imperative format.
+- **🛡️ Enhanced Creator Standards** - Updated `skill-creator` with stricter formatting rules and progressive disclosure checklists.
+
+### Changed (Infrastructure)
+
+- **📊 Metrics Update** - Recalculated token fingerprints for all 191 skills (~76k tokens total).
+
 **Category**: Enhanced Feedback Automation & Build-Time Configuration & PHP/Laravel Expert Standards & Next.js Expansion
 
 ### Added (Laravel Skillset v1.0.0)

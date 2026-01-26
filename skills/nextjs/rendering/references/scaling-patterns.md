@@ -68,7 +68,7 @@ In naive SSR implementations, the server waits for **every** data fetch to compl
 
 **Example Scenario**:
 
-```
+```bash
 Database Call:     200ms
 Auth Check:        100ms
 3rd Party API:     500ms

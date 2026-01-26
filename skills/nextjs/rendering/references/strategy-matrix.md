@@ -13,28 +13,28 @@ Choose the right rendering strategy based on your requirements for data freshnes
 
 ## Decision Guide
 
-### Use SSG when:
+### Use SSG when
 
 - Content changes infrequently (e.g., blog posts, marketing pages)
 - All users see the same content
 - Maximum performance is critical (CDN edge caching)
 - Zero scaling concerns
 
-### Use ISR when:
+### Use ISR when
 
 - Content updates periodically but not in real-time
 - You have many pages and rebuilding all is expensive
 - E-commerce product pages, CMS content
 - Balance between freshness and performance
 
-### Use SSR when:
+### Use SSR when
 
 - Data must be fresh on every request
 - User-specific content (dashboards, auth gates)
 - Cannot be cached (personalized data)
 - Accept slower TTFB for real-time accuracy
 
-### Use PPR when:
+### Use PPR when
 
 - Mix of static shell and dynamic content
 - Want instant perceived performance
