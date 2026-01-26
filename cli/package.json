@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "A CLI to manage and sync AI agent skills standard for Cursor, Claude, Copilot, Windsurf, and more.",
   "main": "dist/index.js",
   "bin": {
@@ -11,7 +11,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "vite build",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "release-skill": "ts-node scripts/release-skill.ts",
@@ -61,11 +61,11 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "globals": "^17.0.0",
-    "jiti": "^2.6.1",
     "prettier": "3.8.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.53.0",
+    "vite": "^7.0.0",
     "vitest": "^4.0.17"
   }
 }

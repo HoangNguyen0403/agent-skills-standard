@@ -40,14 +40,17 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
 
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Build and Publish CLI
         working-directory: cli
         run: |
-          pnpm install --frozen-lockfile
           pnpm build
           npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          FEEDBACK_API_URL: ${{ secrets.FEEDBACK_API_URL }}
 
   # 2. Skill Registry Release (GitHub Release)
   publish-skills:

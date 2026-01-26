@@ -41,4 +41,38 @@ export class CreateFeedbackDto {
   @IsString()
   @IsOptional()
   suggestion?: string;
+
+  @ApiPropertyOptional({
+    description: 'Exact quote from skill that was violated (AI auto-report)',
+    example: 'Always include cleanup for event listeners',
+  })
+  @IsString()
+  @IsOptional()
+  skillInstruction?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'What AI actually did instead of following skill (AI auto-report)',
+    example: 'Created useEffect without return statement',
+  })
+  @IsString()
+  @IsOptional()
+  actualAction?: string;
+
+  @ApiPropertyOptional({
+    description: 'Why AI chose this approach instead (AI auto-report)',
+    example: 'Missed cleanup requirement in skill',
+  })
+  @IsString()
+  @IsOptional()
+  decisionReason?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Comma-separated list of currently loaded skills (platform-provided)',
+    example: 'react/hooks,react/lifecycle',
+  })
+  @IsString()
+  @IsOptional()
+  loadedSkills?: string;
 }

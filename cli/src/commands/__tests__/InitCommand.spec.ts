@@ -26,13 +26,11 @@ describe('InitCommand', () => {
     mockInitService = {
       initializeProject: vi.fn().mockResolvedValue(true),
       getInitializationContext: vi.fn().mockResolvedValue({}),
-      getPromptChoices: vi
-        .fn()
-        .mockReturnValue({
-          frameworkChoices: [],
-          agentChoices: [],
-          defaultFramework: 'none',
-        }),
+      getPromptChoices: vi.fn().mockReturnValue({
+        frameworkChoices: [],
+        agentChoices: [],
+        defaultFramework: 'none',
+      }),
       buildAndSaveConfig: vi.fn().mockResolvedValue(undefined),
     };
     mockRegistryService = {

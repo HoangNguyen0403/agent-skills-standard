@@ -1,32 +1,14 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import dotenv from 'dotenv';
-import fs from 'fs';
-import path from 'path';
 import { FeedbackCommand } from './commands/feedback';
 import { InitCommand } from './commands/init';
 import { ListSkillsCommand } from './commands/list-skills';
 import { SyncCommand } from './commands/sync';
 import { ValidateCommand } from './commands/validate-skills';
 
-// Load .env from current directory (standard)
+// Load .env from current directory (for development and other env vars)
 dotenv.config();
-
-// Also try to load from the CLI directory itself (for development)
-const cliEnv = path.join(__dirname, '../.env');
-if (fs.existsSync(cliEnv)) {
-  dotenv.config({ path: cliEnv });
-}
-
-// And finally from the project root if we can find it
-let currentDir = process.cwd();
-while (currentDir !== path.parse(currentDir).root) {
-  if (fs.existsSync(path.join(currentDir, 'pnpm-workspace.yaml'))) {
-    dotenv.config({ path: path.join(currentDir, '.env') });
-    break;
-  }
-  currentDir = path.dirname(currentDir);
-}
 
 const program = new Command();
 
@@ -35,7 +17,7 @@ program
   .description(
     'A CLI to manage and sync AI agent skills for Cursor, Claude, Copilot, Windsurf, and more.',
   )
-  .version('1.5.0');
+  .version('1.5.1');
 
 program
   .command('init')
@@ -78,9 +60,25 @@ program
     'The skill ID (e.g., flutter/bloc-state-management)',
   )
   .option('--issue <issue>', 'Brief description of the issue')
-  .option('--model <model>', 'The AI agent model (e.g., Claude 3.5 Sonnet)')
-  .option('--context <context>', 'Additional context (e.g. framework version)')
+  .option('--model <model>', 'AI agent model (e.g., Claude 3.5 Sonnet)')
+  .option('--context <context>', 'Additional context (e.g., framework version)')
   .option('--suggestion <suggestion>', 'Suggested improvement')
+  .option(
+    '--skill-instruction <instruction>',
+    'Exact quote from skill that was violated (AI auto-report)',
+  )
+  .option(
+    '--actual-action <action>',
+    'What you actually did instead of following skill (AI auto-report)',
+  )
+  .option(
+    '--decision-reason <reason>',
+    'Why you chose this approach instead (AI auto-report)',
+  )
+  .option(
+    '--loaded-skills <skills>',
+    'Comma-separated list of currently loaded skills (platform-provided)',
+  )
   .action(async (options: Record<string, string>) => {
     const cmd = new FeedbackCommand();
     await cmd.run(options);

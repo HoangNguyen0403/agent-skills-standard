@@ -5,6 +5,35 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-01-26
+
+**Category**: Enhanced Feedback Automation & Build-Time Configuration
+
+### Added (CLI v1.5.1)
+
+- **🚀 Build-Time Configuration** - Implemented Vite-based environment variable injection:
+  - `FEEDBACK_API_URL` is now baked into the production bundle during build.
+  - Zero-config usage for `npx` users while maintaining runtime overrides.
+  - Migrated from `tsup` to `vite` for more robust Node.js SSR/Lib bundling.
+- **🤖 Enhanced Feedback Automation** - Added new fields for 100% automated skill reporting:
+  - `--skill-instruction`: Quotes the exact skill guideline violated.
+  - `--actual-action`: Describes what the AI agent did instead.
+  - `--decision-reason`: Captures the AI's rationale for deviation.
+  - `--loaded-skills`: Tracks active skills at the time of the issue.
+
+### Added (Common Skills v1.2.2)
+
+- **Optimized Feedback Reporter** - Major refactor for token efficiency and detection logic:
+  - **Self-Monitoring Protocol**: Added explicit instructions for AI agents to check adherence _before_ code execution.
+  - **Observable Triggers**: Replaced generic triggers with specific behavioral patterns (e.g., 'deviated from loaded skill').
+  - **Token Optimization**: 58% reduction in skill size while increasing actionable context.
+
+### Infrastructure
+
+- **Server-Side Compatibility** - Updated DTOs and Services to support the new automated feedback fields:
+  - GitHub issues now display structured "What skill said" vs "What AI did" comparisons.
+  - Conditionally formatted issue bodies for cleaner stakeholder triage.
+
 ## [1.5.0] - 2026-01-26
 
 **Category**: Automated Feedback System & 100% Test Coverage & Build/Path Robustness

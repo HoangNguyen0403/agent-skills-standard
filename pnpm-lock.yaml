@@ -17,9 +17,6 @@ importers:
       husky:
         specifier: ^9.1.7
         version: 9.1.7
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@types/node@20.19.30)(typescript@5.9.3)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -81,9 +78,6 @@ importers:
       globals:
         specifier: ^17.0.0
         version: 17.0.0
-      jiti:
-        specifier: ^2.6.1
-        version: 2.6.1
       prettier:
         specifier: 3.8.0
         version: 3.8.0
@@ -96,6 +90,9 @@ importers:
       typescript-eslint:
         specifier: ^8.53.0
         version: 8.53.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.1(@types/node@20.19.30)(jiti@2.6.1)(terser@5.46.0)
       vitest:
         specifier: ^4.0.17
         version: 4.0.17(@types/node@20.19.30)(jiti@2.6.1)(terser@5.46.0)
@@ -7026,7 +7023,8 @@ snapshots:
       - supports-color
       - ts-node
 
-  jiti@2.6.1: {}
+  jiti@2.6.1:
+    optional: true
 
   joycon@3.1.1: {}
 

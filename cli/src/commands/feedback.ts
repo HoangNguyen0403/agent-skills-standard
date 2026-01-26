@@ -19,10 +19,24 @@ export class FeedbackCommand {
     model?: string;
     context?: string;
     suggestion?: string;
+    skillInstruction?: string;
+    actualAction?: string;
+    decisionReason?: string;
+    loadedSkills?: string;
   }) {
     console.log(pc.bold(pc.blue('\n📣 Agent Skills Feedback Reporter\n')));
 
-    let { skill, issue, model, context, suggestion } = options;
+    let {
+      skill,
+      issue,
+      model,
+      context,
+      suggestion,
+      skillInstruction,
+      actualAction,
+      decisionReason,
+      loadedSkills,
+    } = options;
 
     // Interactive mode if mandatory options are missing
     if (!skill || !issue) {
@@ -62,6 +76,30 @@ export class FeedbackCommand {
           message: 'Any suggested improvement? (optional)',
           when: !suggestion,
         },
+        {
+          type: 'input',
+          name: 'skillInstruction',
+          message: 'Exact quote from skill (optional)',
+          when: !skillInstruction,
+        },
+        {
+          type: 'input',
+          name: 'actualAction',
+          message: 'What you did instead (optional)',
+          when: !actualAction,
+        },
+        {
+          type: 'input',
+          name: 'decisionReason',
+          message: 'Why you chose this approach (optional)',
+          when: !decisionReason,
+        },
+        {
+          type: 'input',
+          name: 'loadedSkills',
+          message: 'All active skills (optional)',
+          when: !loadedSkills,
+        },
       ]);
 
       skill = skill || (answers.skill as string);
@@ -69,6 +107,11 @@ export class FeedbackCommand {
       model = model || (answers.model as string);
       context = context || (answers.context as string);
       suggestion = suggestion || (answers.suggestion as string);
+      skillInstruction =
+        skillInstruction || (answers.skillInstruction as string);
+      actualAction = actualAction || (answers.actualAction as string);
+      decisionReason = decisionReason || (answers.decisionReason as string);
+      loadedSkills = loadedSkills || (answers.loadedSkills as string);
 
       await this.submit({
         skill: skill!,
@@ -76,9 +119,23 @@ export class FeedbackCommand {
         model,
         context,
         suggestion,
+        skillInstruction,
+        actualAction,
+        decisionReason,
+        loadedSkills,
       });
     } else {
-      await this.submit({ skill, issue, model, context, suggestion });
+      await this.submit({
+        skill,
+        issue,
+        model,
+        context,
+        suggestion,
+        skillInstruction,
+        actualAction,
+        decisionReason,
+        loadedSkills,
+      });
     }
   }
 
