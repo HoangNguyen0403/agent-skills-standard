@@ -86,9 +86,9 @@
       "last_updated": "2026-01-21",
       "tag_prefix": "nextjs-v",
       "token_metrics": {
-        "total_skills": 13,
-        "total_tokens": 6544,
-        "avg_tokens_per_skill": 503,
+        "total_skills": 16,
+        "total_tokens": 7568,
+        "avg_tokens_per_skill": 473,
         "largest_skill": "rendering (991 tokens)"
       }
     },
@@ -189,6 +189,28 @@
         "total_tokens": 4720,
         "avg_tokens_per_skill": 429,
         "largest_skill": "localization (475 tokens)"
+      }
+    },
+    "php": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-26",
+      "tag_prefix": "php-v",
+      "token_metrics": {
+        "total_skills": 7,
+        "total_tokens": 2224,
+        "avg_tokens_per_skill": 318,
+        "largest_skill": "error-handling (341 tokens)"
+      }
+    },
+    "laravel": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-26",
+      "tag_prefix": "laravel-v",
+      "token_metrics": {
+        "total_skills": 10,
+        "total_tokens": 3608,
+        "avg_tokens_per_skill": 361,
+        "largest_skill": "clean-architecture (430 tokens)"
       }
     }
   }

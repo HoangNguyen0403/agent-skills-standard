@@ -7,7 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.1] - 2026-01-26
 
-**Category**: Enhanced Feedback Automation & Build-Time Configuration
+**Category**: Enhanced Feedback Automation & Build-Time Configuration & PHP/Laravel Expert Standards & Next.js Expansion
+
+### Added (Laravel Skillset v1.0.0)
+
+- **Comprehensive Release** - 10 new high-density skills for modern Laravel 11.x/12.x development.
+- **Clean Architecture** - Domain-Driven Design (DDD), Actions, DTOs, and Repository patterns.
+- **Background Processing** - Expert standards for Queues, Jobs, Events, and Batching/Chaining.
+- **Database Expert** - Advanced Query Builder, Redis caching, and Read/Write scalability.
+- **Sessions & Middleware** - Hardened driver configuration and security header middleware.
+- **Foundational Pillars** - Architecture, Eloquent, Security, API, Testing, and Tooling.
+
+### Added (Next.js v1.0.2 - Skillset Expansion)
+
+- **Testing** - New high-density module for Vitest, RTL, and Playwright for App Router.
+- **Security** - New module for Server Action validation, Zod integration, and Data Boundaries (DTOs).
+- **Tooling** - New module for Turbopack optimization, Standalone builds, and CI/CD best practices.
+
+### Added (PHP Skillset v1.0.0)
+
+- **Comprehensive Release** - 7 new high-density skills for modern PHP 8.x development.
+- **Language & Features** - PHP 8.1+ patterns: Constructor promotion, Match expressions, Readonly properties, and Strict Typing.
+- **Error Handling** - Modern Exception hierarchies (`Throwable`), Custom Exceptions, and PSR-3 logging standards.
+- **Security** - Strict PDO prepared statements, Argon2id password hashing, and XSS/CSRF hardened patterns.
+- **Concurrency** - Non-blocking I/O standards using Fibers and event-loop awareness.
+- **Testing** - TDD standards for PHPUnit and Pest with advanced mocking patterns.
+- **Best Practices** - PSR-12 coding standards, PSR-4 autoloading, and SOLID principles.
+- **Tooling** - Dependency management (Composer), Static Analysis (PHPStan/Psalm), and Linting workflows.
 
 ### Added (CLI v1.5.1)
 

@@ -139,4 +139,22 @@ export const SKILL_DETECTION_REGISTRY: Record<string, SkillDetection[]> = {
       packages: ['react-native-fast-image'],
     },
   ],
+  [Framework.Laravel]: [
+    {
+      id: 'api',
+      packages: ['laravel/sanctum', 'laravel/passport'],
+    },
+    {
+      id: 'background-processing',
+      packages: ['laravel/horizon'],
+    },
+    {
+      id: 'testing',
+      packages: ['pestphp/pest', 'phpunit/phpunit'],
+    },
+    {
+      id: 'tooling',
+      packages: ['laravel/pint', 'laravel/sail'],
+    },
+  ],
 };

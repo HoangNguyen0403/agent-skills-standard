@@ -131,16 +131,27 @@ Modern fullstack React framework standards (App Router).
 - [**Styling**](nextjs/styling/SKILL.md) (P1) - Tailwind, Fonts, CSS-in-JS constraints.
 - [**Optimization**](nextjs/optimization/SKILL.md) (P1) - Images, Scripts, Core Web Vitals.
 - [**Server Actions**](nextjs/server-actions/SKILL.md) (P1) - Mutations & Forms.
+- [**Testing**](nextjs/testing/SKILL.md) (P1) - Vitest & Playwright standards.
+- [**Security**](nextjs/security/SKILL.md) (P0) - Action safety & DTOs.
+- [**Tooling**](nextjs/tooling/SKILL.md) (P2) - Turbopack & Standalone builds.
 - [**Internationalization**](nextjs/internationalization/SKILL.md) (P2) - i18n routing.
 - [**Architecture**](nextjs/architecture/SKILL.md) (P2) - Feature-Sliced Design (FSD).
 - [**State Management**](nextjs/state-management/SKILL.md) (P2) - URL-state, avoiding global stores.
 
-### 🚀 Coming Soon
+### 🐘 Laravel (Framework)
 
-- **Go** (Language)
-- **Angular** (Framework)
-- **Java** (Language)
-- **Kotlin** (Language)
+Expert standards for scalable Laravel 11.x/12.x applications.
+
+- [**Clean Architecture**](laravel/clean-architecture/SKILL.md) (P0) - DDD, Actions, and DTO patterns.
+- [**Architecture**](laravel/architecture/SKILL.md) (P0) - Slim controllers & Service layer.
+- [**Security**](laravel/security/SKILL.md) (P0) - Hardened input & Policy authorization.
+- [**Eloquent**](laravel/eloquent/SKILL.md) (P0) - N+1 prevention & reusable scopes.
+- [**Background Processing**](laravel/background-processing/SKILL.md) (P1) - Queues, Jobs, & Events.
+- [**Database Expert**](laravel/database-expert/SKILL.md) (P1) - Advanced SQL & Redis caching.
+- [**API**](laravel/api/SKILL.md) (P1) - Resources & modern auth standards.
+- [**Testing**](laravel/testing/SKILL.md) (P1) - Integrated Pest & TDD standards.
+- [**Sessions & Middleware**](laravel/sessions-middleware/SKILL.md) (P1) - Scalable session management.
+- [**Tooling**](laravel/tooling/SKILL.md) (P2) - Artisan, Vite, & Pint optimization.
 
 ---
 

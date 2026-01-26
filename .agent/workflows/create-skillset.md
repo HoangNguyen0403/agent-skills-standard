@@ -8,6 +8,9 @@ Use this workflow to generate a new category of High-Density Skills for a langua
 
 ## Steps
 
+> [!IMPORTANT]
+> All skills MUST strictly follow the [.agent/skills/skill-creator/SKILL.md](file:///Users/nguyenhuyhoang/OtherProjects/agent-skills-standard/.agent/skills/skill-creator/SKILL.md) standard.
+
 1. **Scope & Definition**:
    - **Persona**: Adopt the persona of a **Principal Software Engineer** and Subject Matter Expert (SME).
    - **Input**: The user provides the **Target Name** (e.g., `spring-boot`), **Target Version** (e.g., `3.x`), and **Reference Documents/URLs**.
@@ -33,24 +36,25 @@ Use this workflow to generate a new category of High-Density Skills for a langua
    - **CONSTRAINT**: Keep content < 500 tokens (~70 lines).
    - **Structure**:
      - `Metadata`: Triggers, Keywords.
-     - `Priority`: P0/P1/P2.
-     - `Implementation Guidelines`: Imperative, positive rules.
-     - `Anti-Patterns`: What to avoid.
-     - `Code`: Concise, modern examples.
+     - `Priority`: `## **Priority: Px (LEVEL)**` format.
+     - `Structure`: ASCII tree of the expected file/folder layout.
+     - `Implementation Guidelines`: **Imperative Compression** (verb-first, no fluff).
+     - `Anti-Patterns`: Max 15 words per item. Use `**No X**: Do Y, not Z.`
+     - `Code`: Inline only if < 10 lines. Use `References` for anything larger.
 
 5. **Reference Compression**:
    - Move heavy examples/checklists to `references/*.md`.
    - Link to references from the main `SKILL.md`.
 
 6. **Validation**:
-   - Run the CLI validator to ensure compliance.
+   - Run the CLI validator (full check) to ensure absolute compliance.
    - // turbo
 
    ```bash
-   npx agent-skills-standard validate
+   pnpm --filter ./cli run dev validate --all
    ```
 
-   - Run the code-review workflow to ensure the code in good shape
+   - Run the code-review workflow to ensure code examples are high quality.
 
 7. **Token Calculation**:
    - Verify token footprint.

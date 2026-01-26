@@ -211,6 +211,18 @@ export const getFrameworkDefinition = (id: Framework): FrameworkDefinition => {
           swift: ['.swift'],
         },
       };
+    case Framework.Laravel:
+      return {
+        id,
+        name: 'Laravel',
+        languages: ['php', 'javascript'],
+        detectionFiles: ['composer.json', 'artisan'],
+        detectionDependencies: ['laravel/framework'],
+        languageDetection: {
+          php: ['.php'],
+          javascript: ['resources/js', 'vite.config.js'],
+        },
+      };
   }
 };
 
