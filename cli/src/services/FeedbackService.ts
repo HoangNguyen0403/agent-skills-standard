@@ -1,9 +1,20 @@
 export interface FeedbackData {
+  // Required fields
   skill: string;
   issue: string;
+
+  // Optional - User/AI provided
   context?: string;
   model?: string;
   suggestion?: string;
+
+  // Optional - AI self-report (for automation)
+  skillInstruction?: string; // Exact quote from skill
+  actualAction?: string; // What AI did instead
+  decisionReason?: string; // Why AI chose this approach
+
+  // Optional - Platform-provided (future)
+  loadedSkills?: string; // Comma-separated list of active skills
 }
 
 /**
