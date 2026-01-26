@@ -7,6 +7,8 @@ export const UNIVERSAL_SKILLS = ['common'];
 export const DEFAULT_REGISTER =
   'https://github.com/HoangNguyen0403/agent-skills-standard';
 
+export const FEEDBACK_API_URL = process.env.FEEDBACK_API_URL;
+
 export interface AgentDefinition {
   id: Agent;
   name: string;

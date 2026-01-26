@@ -1,0 +1,65 @@
+name: 🤖 AI Self-Learning Feedback
+description: Automated feedback from AI agents when they encounter unclear or conflicting skill guidance
+title: "[AI Feedback] "
+labels: ["ai-feedback", "skill-improvement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## AI-Detected Skill Issue
+        
+        This issue was automatically created by an AI agent when it detected uncertain, conflicting, or problematic skill guidance.
+        
+  - type: input
+    id: skill
+    attributes:
+      label: Skill Reference
+      description: Which skill has the issue? (format: category/skill-name)
+      placeholder: "react/hooks"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: issue
+    attributes:
+      label: Issue Description
+      description: What problem did the AI encounter?
+      placeholder: "Conflicting guidance on useEffect dependency arrays..."
+    validations:
+      required: true
+      
+  - type: input
+    id: context
+    attributes:
+      label: Context
+      description: Framework version, specific scenario, or environment
+      placeholder: "React 18.2, strict mode enabled"
+    validations:
+      required: false
+      
+  - type: input
+    id: ai_model
+    attributes:
+      label: AI Agent Model
+      description: Which AI model encountered this issue? (helps identify model-specific patterns)
+      placeholder: "Claude 3.5 Sonnet, GPT-4, Gemini 2.0, etc."
+    validations:
+      required: false
+      
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested Improvement
+      description: How could the skill guidance be improved?
+      placeholder: "Add explicit pattern for exhaustive-deps lint rule..."
+    validations:
+      required: false
+      
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy Acknowledgment
+      description: By submitting this feedback, you confirm that no code, project details, or personal information are included.
+      options:
+        - label: This feedback contains only skill references and issue descriptions
+          required: true

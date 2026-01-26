@@ -93,13 +93,13 @@
       }
     },
     "common": {
-      "version": "1.2.0",
-      "last_updated": "2026-01-22",
+      "version": "1.2.1",
+      "last_updated": "2026-01-24",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 10,
-        "total_tokens": 5303,
-        "avg_tokens_per_skill": 530,
+        "total_skills": 11,
+        "total_tokens": 5748,
+        "avg_tokens_per_skill": 523,
         "largest_skill": "quality-assurance (782 tokens)"
       }
     },

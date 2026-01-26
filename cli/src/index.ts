@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
+import { FeedbackCommand } from './commands/feedback';
 import { InitCommand } from './commands/init';
 import { ListSkillsCommand } from './commands/list-skills';
 import { SyncCommand } from './commands/sync';
@@ -44,6 +45,22 @@ program
   .option('--all', 'Validate all skills instead of only changed ones')
   .action(async (options) => {
     const cmd = new ValidateCommand();
+    await cmd.run(options);
+  });
+
+program
+  .command('feedback')
+  .description('Report skill improvement opportunities or AI agent mistakes')
+  .option(
+    '--skill <skill>',
+    'The skill ID (e.g., flutter/bloc-state-management)',
+  )
+  .option('--issue <issue>', 'Brief description of the issue')
+  .option('--model <model>', 'The AI agent model (e.g., Claude 3.5 Sonnet)')
+  .option('--context <context>', 'Additional context (e.g. framework version)')
+  .option('--suggestion <suggestion>', 'Suggested improvement')
+  .action(async (options: Record<string, string>) => {
+    const cmd = new FeedbackCommand();
     await cmd.run(options);
   });
 

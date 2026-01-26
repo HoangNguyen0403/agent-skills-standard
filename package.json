@@ -28,6 +28,9 @@
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "husky": "^9.1.7"
+    "@types/node": "^20.19.30",
+    "husky": "^9.1.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }

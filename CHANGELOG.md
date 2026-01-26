@@ -44,6 +44,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **DevOps** - Standardized Deployment workflows including CodePush integration.
 - **Testing** - Comprehensive testing standards with React Native Testing Library and Jest.
 
+### Added (Common Skills v1.2.1)
+
+- **Feedback Reporter Skill** - Enables users and AI agents to report skill improvement opportunities:
+  - Structured `@agent-skills-feedback` annotation format
+  - Self-reporting protocol for AI when uncertain about guidance
+  - Privacy-first design with opt-out controls
+  - No telemetry or analytics collection
+  - GitHub integration for community-driven skill improvements
+
 ### Fixed (Security Skills - All Frameworks)
 
 - **Standardized Priority Labels** - All security skills now use consistent `## **Priority: P0 (CRITICAL)**` format.
