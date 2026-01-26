@@ -19,6 +19,7 @@
 [![android](https://img.shields.io/badge/android-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/android-v1.0.0)
 [![swift](https://img.shields.io/badge/swift-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/swift-v1.0.0)
 [![ios](https://img.shields.io/badge/ios-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/ios-v1.0.0)
+[![laravel](https://img.shields.io/badge/laravel-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/laravel-v1.0.0)
 
 **The open standard for High-Density AI coding instructions. Make your AI smarter, faster, and more consistent.**
 
@@ -246,7 +247,8 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | **⚛️ React**        | Hooks, State Management, Performance, Security        | `v1.0.2` | 8      | ~390 tokens    |
 | **📱 React Native** | Arch, Perf, Navigation, Security, Deployment          | `v1.0.0` | 8      | ~390 tokens    |
 | **🦁 NestJS**       | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.2` | 18     | ~499 tokens    |
-| **▲ Next.js**       | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` | 16     | ~473 tokens    |
+| **▲ Next.js**       | App Router, Server Actions, Testing, Security, FSD    | `v1.0.2` | 16     | ~473 tokens    |
+| **🐘 Laravel**      | Clean Arch, Eloquent, Security, Jobs, Redis, API      | `v1.0.0` | 10     | ~361 tokens    |
 | **🐹 Golang**       | Clean Architecture, API Design, Concurrency, Security | `v1.0.2` | 10     | ~357 tokens    |
 | **🐘 Kotlin**       | Idiomatic Patterns, Coroutines, Flow, Tooling         | `v1.0.0` | 4      | ~494 tokens    |
 | **🅰️ Angular**      | Standalone, Signals, Control Flow, SSR, Testing       | `v1.0.0` | 14     | ~273 tokens    |
@@ -322,6 +324,7 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 - [x] **Android Native** (v1.0.0 released)
 - [x] **iOS Native & SwiftUI** (v1.0.0 released)
 - [x] **React Native** (v1.0.0 released)
+- [x] **Laravel Expert** (v1.0.0 released)
 
 - [ ] **Agent Skills Dashboard** (Web UI for browsing standards)
 

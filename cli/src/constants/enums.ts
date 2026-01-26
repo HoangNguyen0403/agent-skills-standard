@@ -22,4 +22,5 @@ export enum Framework {
   SpringBoot = 'spring-boot',
   Android = 'android',
   iOS = 'ios',
+  Laravel = 'laravel',
 }

@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Sessions & Middleware** - Hardened driver configuration and security header middleware.
 - **Foundational Pillars** - Architecture, Eloquent, Security, API, Testing, and Tooling.
 
-### Added (Next.js Skillset Expansion)
+### Added (Next.js v1.0.2 - Skillset Expansion)
 
 - **Testing** - New high-density module for Vitest, RTL, and Playwright for App Router.
 - **Security** - New module for Server Action validation, Zod integration, and Data Boundaries (DTOs).

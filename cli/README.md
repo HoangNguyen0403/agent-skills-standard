@@ -213,6 +213,7 @@ The CLI connects to the [Official Skills Registry](https://github.com/HoangNguye
 - **Angular**: Standalone, Signals, Control Flow.
 - **Kotlin**: Idiomatic Patterns, Coroutines, Flow.
 - **Spring Boot**: Architecture, Security, Data, Test.
+- **Laravel**: Clean Arch, Eloquent, Security, Jobs, Redis, API.
 - **Android Native**: Architecture, Compose, DI, Performance, Testing, WorkManager.
 - **iOS Native**: Architecture, UI/Layout, Lifecycle, Security, Performance.
 
