@@ -155,9 +155,41 @@ async function main() {
     const gitRun = (args: string[]) =>
       execFileSync('git', args, { cwd: ROOT_DIR, stdio: 'inherit' });
 
+    console.log(pc.gray('\n📦 Preparing git commit...'));
     gitRun(['add', '.']);
-    gitRun(['commit', '-m', `chore(release): ${tagName}`]);
-    gitRun(['tag', tagName]);
+
+    // Check if there's anything to commit
+    const status = execFileSync('git', ['status', '--porcelain'], {
+      cwd: ROOT_DIR,
+      encoding: 'utf-8',
+    });
+
+    if (status.trim().length > 0) {
+      gitRun(['commit', '-m', `chore(release): ${tagName}`]);
+    } else {
+      console.log(pc.yellow('  (No changes to commit)'));
+    }
+
+    // Check if tag already exists
+    try {
+      execFileSync('git', ['rev-parse', tagName], { stdio: 'ignore' });
+      console.log(pc.yellow(`\n⚠️  Tag ${tagName} already exists locally.`));
+      const { overwriteTag } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'overwriteTag',
+          message: 'Force recreate tag?',
+          default: false,
+        },
+      ]);
+      if (overwriteTag) {
+        gitRun(['tag', '-f', tagName]);
+      } else {
+        console.log(pc.yellow('Using existing tag.'));
+      }
+    } catch {
+      gitRun(['tag', tagName]);
+    }
 
     console.log(pc.cyan('\n⚠️  Pushing to remote...'));
     gitRun(['push']);
