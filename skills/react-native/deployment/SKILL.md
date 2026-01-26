@@ -64,7 +64,7 @@ eas build --platform ios --profile production
 
 ## Reference & Examples
 
-See [references/codepush-setup.md](references/codepush-setup.md) for CodePush integration, EAS profiles, and Fastlane release scripts.
+See [references/codepush-setup.md](references/codepush-setup.md).
 
 ## Related Topics
 

@@ -21,8 +21,6 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-Predictable state management separating business logic from UI using `flutter_bloc`, `freezed`, or `equatable`.
-
 ## Structure
 
 ```text
@@ -44,9 +42,9 @@ lib/features/auth/
 
 ## Anti-Patterns
 
-- **No Manual Emit**: `**Avoid .then()**: Do not call emit() inside Future.then; always use await or emit.forEach.`
-- **No UI Logic**: `**Logic in Builder**: Do not perform calculations or data formatting inside BlocBuilder.`
-- **No Cross-Bloc Reference**: `**Tight Coupling**: Do not pass a BLoC instance into another BLoC; use streams to coordinate.`
+- **No .then()**: Use `await` or `emit.forEach()` to emit states.
+- **No Logic in Builder**: Perform calculations in BLoC, not inside `BlocBuilder`.
+- **No BLoC-to-BLoC**: Use streams to coordinate BLoCs, not direct references.
 
 ## Related Topics
 

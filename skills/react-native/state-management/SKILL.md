@@ -36,9 +36,9 @@ export function ThemeProvider({ children }: Props) {
 }
 
 export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (!context) throw new Error('useTheme must be within ThemeProvider');
-  return context;
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error('useTheme must be within ThemeProvider');
+  return ctx;
 }
 ```
 
@@ -64,7 +64,7 @@ const count = useStore((state) => state.count);
 
 ## Reference & Examples
 
-See [references/REFERENCE.md](references/REFERENCE.md) for Zustand Persistence, RTK Thunks, and Query Optimistic Updates.
+See [references/REFERENCE.md](references/REFERENCE.md).
 
 ## Related Topics
 

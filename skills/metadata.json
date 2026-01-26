@@ -5,13 +5,13 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.1.1",
-      "last_updated": "2026-01-21",
+      "version": "1.1.2",
+      "last_updated": "2026-01-26",
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 19,
-        "total_tokens": 7968,
-        "avg_tokens_per_skill": 419,
+        "total_tokens": 7847,
+        "avg_tokens_per_skill": 413,
         "largest_skill": "getx-navigation (565 tokens)"
       }
     },
@@ -27,25 +27,25 @@
       }
     },
     "typescript": {
-      "version": "1.0.3",
-      "last_updated": "2026-01-23",
+      "version": "1.0.4",
+      "last_updated": "2026-01-26",
       "tag_prefix": "typescript-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 1631,
-        "avg_tokens_per_skill": 408,
-        "largest_skill": "language (504 tokens)"
+        "total_tokens": 1613,
+        "avg_tokens_per_skill": 403,
+        "largest_skill": "language (486 tokens)"
       }
     },
     "javascript": {
-      "version": "1.0.1",
-      "last_updated": "2026-01-23",
+      "version": "1.0.2",
+      "last_updated": "2026-01-26",
       "tag_prefix": "javascript-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1182,
-        "avg_tokens_per_skill": 394,
-        "largest_skill": "language (430 tokens)"
+        "total_tokens": 1158,
+        "avg_tokens_per_skill": 386,
+        "largest_skill": "best-practices (407 tokens)"
       }
     },
     "react": {
@@ -60,46 +60,46 @@
       }
     },
     "react-native": {
-      "version": "1.0.0",
-      "last_updated": "2026-01-24",
+      "version": "1.0.1",
+      "last_updated": "2026-01-26",
       "tag_prefix": "react-native-v",
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 4832,
-        "avg_tokens_per_skill": 483,
+        "total_tokens": 4795,
+        "avg_tokens_per_skill": 480,
         "largest_skill": "architecture (571 tokens)"
       }
     },
     "nestjs": {
-      "version": "1.0.2",
-      "last_updated": "2026-01-21",
+      "version": "1.0.3",
+      "last_updated": "2026-01-26",
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 8987,
-        "avg_tokens_per_skill": 499,
-        "largest_skill": "architecture (861 tokens)"
+        "total_tokens": 8963,
+        "avg_tokens_per_skill": 498,
+        "largest_skill": "architecture (837 tokens)"
       }
     },
     "nextjs": {
-      "version": "1.0.2",
+      "version": "1.0.3",
       "last_updated": "2026-01-26",
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 16,
-        "total_tokens": 7568,
-        "avg_tokens_per_skill": 473,
-        "largest_skill": "rendering (991 tokens)"
+        "total_tokens": 7010,
+        "avg_tokens_per_skill": 438,
+        "largest_skill": "caching (733 tokens)"
       }
     },
     "common": {
-      "version": "1.2.3",
+      "version": "1.2.4",
       "last_updated": "2026-01-26",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 6022,
-        "avg_tokens_per_skill": 547,
+        "total_tokens": 5996,
+        "avg_tokens_per_skill": 545,
         "largest_skill": "quality-assurance (782 tokens)"
       }
     },
