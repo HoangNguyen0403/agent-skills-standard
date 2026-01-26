@@ -1,6 +1,5 @@
 import inquirer from 'inquirer';
 import pc from 'picocolors';
-import { FEEDBACK_API_URL } from '../constants';
 import { FeedbackData, FeedbackService } from '../services/FeedbackService';
 
 /**
@@ -84,7 +83,9 @@ export class FeedbackCommand {
   }
 
   private async submit(data: FeedbackData) {
-    if (!FEEDBACK_API_URL) {
+    const apiUrl = process.env.FEEDBACK_API_URL;
+
+    if (!apiUrl) {
       console.log(pc.yellow('\n⚠️  Feedback API not configured.'));
       console.log(
         pc.gray(
@@ -101,7 +102,7 @@ export class FeedbackCommand {
       return;
     }
 
-    console.log(pc.gray(`📤 Sending feedback to ${FEEDBACK_API_URL}...`));
+    console.log(pc.gray(`📤 Sending feedback to ${apiUrl}...`));
 
     const success = await this.feedbackService.submit(data);
 

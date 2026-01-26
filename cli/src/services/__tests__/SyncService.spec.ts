@@ -298,4 +298,21 @@ describe('SyncService', () => {
       expect(fs.ensureDir).toHaveBeenCalled();
     });
   });
+
+  describe('checkForUpdates', () => {
+    it('should return initial config (line 145 coverage)', async () => {
+      const config: any = { foo: 'bar' };
+      const result = await syncService.checkForUpdates(config);
+      expect(result).toBe(config);
+    });
+  });
+
+  describe('expandAbsoluteInclude', () => {
+    it('should handle invalid format (missing slash)', async () => {
+      const folders: string[] = [];
+      // @ts-expect-error accessing private for coverage
+      syncService.expandAbsoluteInclude('invalid', folders, []);
+      expect(folders).toHaveLength(0);
+    });
+  });
 });

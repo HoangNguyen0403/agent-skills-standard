@@ -85,5 +85,14 @@ describe('SkillService', () => {
 
       expect(result[0].status).toBe('not-detected');
     });
+
+    it('should handle unknown framework in getSkillsWithStatus (line 23 coverage)', async () => {
+      const result = await skillService.getSkillsWithStatus(
+        'non-existent-framework',
+        'url',
+        new Set(),
+      );
+      expect(result).toEqual([]);
+    });
   });
 });

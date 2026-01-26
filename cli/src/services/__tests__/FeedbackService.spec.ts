@@ -1,20 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { FEEDBACK_API_URL } from '../../constants';
 import { FeedbackService } from '../FeedbackService';
-
-vi.mock('../../constants', () => ({
-  FEEDBACK_API_URL:
-    process.env.FEEDBACK_API_URL || 'https://test-api.com/feedback',
-}));
 
 global.fetch = vi.fn();
 
 describe('FeedbackService', () => {
   let feedbackService: FeedbackService;
+  const TEST_API_URL = 'https://test-api.com/feedback';
 
   beforeEach(() => {
     vi.clearAllMocks();
     feedbackService = new FeedbackService();
+    // Ensure the environment variable is set for the tests
+    process.env.FEEDBACK_API_URL = TEST_API_URL;
   });
 
   describe('submit', () => {
@@ -33,7 +30,7 @@ describe('FeedbackService', () => {
 
       expect(result).toBe(true);
       expect(fetch).toHaveBeenCalledWith(
-        FEEDBACK_API_URL,
+        TEST_API_URL,
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
@@ -65,6 +62,21 @@ describe('FeedbackService', () => {
       expect(result).toBe(false);
     });
 
+    it('should return false if FEEDBACK_API_URL is missing', async () => {
+      const original = process.env.FEEDBACK_API_URL;
+      delete process.env.FEEDBACK_API_URL;
+
+      const result = await feedbackService.submit({
+        skill: 'react/hooks',
+        issue: 'Test issue',
+      });
+
+      expect(result).toBe(false);
+      expect(fetch).not.toHaveBeenCalled();
+
+      process.env.FEEDBACK_API_URL = original;
+    });
+
     it('should handle network errors', async () => {
       vi.mocked(fetch).mockRejectedValue(new Error('Network error'));
 
@@ -89,8 +101,8 @@ describe('FeedbackService', () => {
         suggestion: 'Add SafeBuildContext pattern',
       });
 
-      const callArg = vi.mocked(fetch).mock.calls[0][1];
-      const body = JSON.parse(callArg?.body as string);
+      const callArgs = vi.mocked(fetch).mock.calls[0];
+      const body = JSON.parse(callArgs[1]?.body as string);
 
       expect(body).toEqual({
         skill: 'flutter/bloc',
@@ -113,8 +125,8 @@ describe('FeedbackService', () => {
 
       expect(result).toBe(true);
 
-      const callArg = vi.mocked(fetch).mock.calls[0][1];
-      const body = JSON.parse(callArg?.body as string);
+      const callArgs = vi.mocked(fetch).mock.calls[0];
+      const body = JSON.parse(callArgs[1]?.body as string);
 
       expect(body.skill).toBe('react/hooks');
       expect(body.issue).toBe('Minimal issue');

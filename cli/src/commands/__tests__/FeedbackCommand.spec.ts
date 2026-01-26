@@ -132,5 +132,35 @@ describe('FeedbackCommand', () => {
 
       expect(skillPrompt?.when).toBe(false);
     });
+
+    it('should validate skill input (line 37 coverage)', async () => {
+      vi.mocked(inquirer.prompt).mockResolvedValue({
+        skill: 'flutter/bloc',
+        issue: 'Interactive issue',
+      });
+
+      await feedbackCommand.run({});
+
+      const promptCall = vi.mocked(inquirer.prompt).mock.calls[0][0] as any[];
+      const skillPrompt = promptCall.find((q: any) => q.name === 'skill');
+
+      expect(skillPrompt?.validate('')).toBe('Skill ID is required');
+      expect(skillPrompt?.validate('valid')).toBe(true);
+    });
+
+    it('should validate issue input (line 45 coverage)', async () => {
+      vi.mocked(inquirer.prompt).mockResolvedValue({
+        skill: 'flutter/bloc',
+        issue: 'Interactive issue',
+      });
+
+      await feedbackCommand.run({});
+
+      const promptCall = vi.mocked(inquirer.prompt).mock.calls[0][0] as any[];
+      const issuePrompt = promptCall.find((q: any) => q.name === 'issue');
+
+      expect(issuePrompt?.validate('  ')).toBe('Issue description is required');
+      expect(issuePrompt?.validate('valid')).toBe(true);
+    });
   });
 });
