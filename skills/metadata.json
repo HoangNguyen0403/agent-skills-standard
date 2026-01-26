@@ -82,8 +82,8 @@
       }
     },
     "nextjs": {
-      "version": "1.0.1",
-      "last_updated": "2026-01-21",
+      "version": "1.0.2",
+      "last_updated": "2026-01-26",
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 16,
