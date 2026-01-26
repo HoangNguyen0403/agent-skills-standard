@@ -5,29 +5,23 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.3] - 2026-01-26
+## [1.4.2] - 2026-01-26
 
-**Category**: Automated Feedback System & 100% Test Coverage & Build Robustness Fix
+**Category**: Automated Feedback System & 100% Test Coverage & Build/Path Robustness
 
-### Fixed (CLI v1.4.3)
-
-- **Command Visibility Fix** - Resolved issue where `feedback` and `validate` commands were missing from the production build due to malformed `dist/` structure.
-- **Root Path Detection** - Hardened `SkillValidator` to handle complex monorepo pathing correctly.
-
-### Added (CLI v1.4.3)
+### Added (CLI v1.4.2)
 
 - **`ags feedback` Command** - Integrated automated reporting for skill improvement:
   - Interactive prompts for skill ID, issues, and suggested improvements.
-  - Runtime environment detection for dynamic configuration.
-  - Zero-token-exposure proxy submission for security.
-- **🛡️ 100% Test Coverage** - Achieved absolute line coverage across all 13 CLI files:
-  - Added robust validation for interactive prompts.
-  - Verified edge cases for framework detection and remote registry fallbacks.
-  - Refined mocking strategies for implementation-agnostic verification.
-- **🧭 Workspace-Aware Validation** - Improved `SkillValidator` to robustly detect project root:
-  - Automatic `pnpm-workspace.yaml` discovery.
-  - Support for multi-package execution without path confusion.
-  - Clean execution from both root and sub-package contexts.
+  - Automatic environment detection (loads `.env` via `dotenv`).
+  - Zero-token-exposure proxy submission to Render.com backend.
+- **🛡️ 100% Test Coverage** - Achieved absolute line coverage across all 13 CLI files.
+- **🧭 Workspace-Aware Validation** - Improved `SkillValidator` to robustly detect project root.
+
+### Fixed (CLI v1.4.2)
+
+- **Command Visibility Fix** - Resolved issue where `feedback` and `validate` were missing from build.
+- **Environment Discovery** - Added support for loading `FEEDBACK_API_URL` from local `.env`.
 
 ### Added (Common Skills v1.2.2)
 

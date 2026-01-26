@@ -1,3 +1,5 @@
+import { ConfigService } from './ConfigService';
+
 export interface FeedbackData {
   skill: string;
   issue: string;
@@ -11,6 +13,19 @@ export interface FeedbackData {
  * Follows SOLID & KISS: Strictly handles API communication.
  */
 export class FeedbackService {
+  constructor(private configService: ConfigService = new ConfigService()) {}
+
+  /**
+   * Resolves the API URL using Priority: ENV > .skillsrc
+   */
+  async getApiUrl(): Promise<string | undefined> {
+    const envUrl = process.env.FEEDBACK_API_URL;
+    if (envUrl) return envUrl;
+
+    const config = await this.configService.loadConfig().catch(() => null);
+    return config?.feedback_url;
+  }
+
   /**
    * Submits feedback data to the backend for automatic GitHub Issue creation.
    * Internal proxy handles GitHub tokens, keeping client-side logic tokenless.
@@ -19,10 +34,8 @@ export class FeedbackService {
    * @returns boolean indicating submission success
    */
   async submit(data: FeedbackData): Promise<boolean> {
-    const apiUrl = process.env.FEEDBACK_API_URL;
-    if (!apiUrl) {
-      return false;
-    }
+    const apiUrl = await this.getApiUrl();
+    if (!apiUrl) return false;
 
     try {
       const response = await fetch(apiUrl, {

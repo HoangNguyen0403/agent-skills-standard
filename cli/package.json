@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard",
-  "version": "1.4.3",
+  "version": "1.4.2",
   "description": "A CLI to manage and sync AI agent skills standard for Cursor, Claude, Copilot, Windsurf, and more.",
   "main": "dist/index.js",
   "bin": {
@@ -42,6 +42,7 @@
   "license": "MIT",
   "dependencies": {
     "commander": "^11.1.0",
+    "dotenv": "^17.2.3",
     "fs-extra": "^11.2.0",
     "inquirer": "^8.2.5",
     "js-yaml": "^4.1.0",
@@ -50,6 +51,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
+    "@types/dotenv": "^8.2.3",
     "@types/fs-extra": "^11.0.4",
     "@types/inquirer": "^8.2.5",
     "@types/js-yaml": "^4.0.9",

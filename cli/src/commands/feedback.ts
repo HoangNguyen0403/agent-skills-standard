@@ -83,7 +83,7 @@ export class FeedbackCommand {
   }
 
   private async submit(data: FeedbackData) {
-    const apiUrl = process.env.FEEDBACK_API_URL;
+    const apiUrl = await this.feedbackService.getApiUrl();
 
     if (!apiUrl) {
       console.log(pc.yellow('\n⚠️  Feedback API not configured.'));
@@ -91,12 +91,9 @@ export class FeedbackCommand {
         pc.gray(
           'Please set the ' +
             pc.bold('FEEDBACK_API_URL') +
-            ' environment variable to enable automatic feedback.',
-        ),
-      );
-      console.log(
-        pc.gray(
-          'Example: export FEEDBACK_API_URL=https://your-backend.com/feedback\n',
+            ' environment variable or ' +
+            pc.bold('feedback_url') +
+            ' in .skillsrc.',
         ),
       );
       return;
@@ -114,7 +111,9 @@ export class FeedbackCommand {
     } else {
       console.log(pc.red('\n❌ Failed to send feedback.'));
       console.log(
-        pc.gray('Please try again later or check your internet connection.\n'),
+        pc.gray(
+          `Please check that the Feedback API is reachable: ${pc.cyan(apiUrl)}\n`,
+        ),
       );
     }
   }

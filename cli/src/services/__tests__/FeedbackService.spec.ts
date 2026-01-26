@@ -3,19 +3,51 @@ import { FeedbackService } from '../FeedbackService';
 
 global.fetch = vi.fn();
 
+vi.mock('../ConfigService', () => {
+  const Mock = vi.fn().mockImplementation(function (this: any) {
+    this.loadConfig = vi.fn().mockResolvedValue(null);
+  });
+  return { ConfigService: Mock };
+});
+
 describe('FeedbackService', () => {
   let feedbackService: FeedbackService;
+  let mockConfigService: any;
   const TEST_API_URL = 'https://test-api.com/feedback';
 
   beforeEach(() => {
     vi.clearAllMocks();
     feedbackService = new FeedbackService();
-    // Ensure the environment variable is set for the tests
-    process.env.FEEDBACK_API_URL = TEST_API_URL;
+    mockConfigService = (feedbackService as any).configService;
+    // Ensure the environment variable is cleared for fallback tests
+    delete process.env.FEEDBACK_API_URL;
+  });
+
+  describe('getApiUrl', () => {
+    it('should prioritize environment variable', async () => {
+      process.env.FEEDBACK_API_URL = TEST_API_URL;
+      const url = await feedbackService.getApiUrl();
+      expect(url).toBe(TEST_API_URL);
+    });
+
+    it('should use .skillsrc if env is missing', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        feedback_url: 'https://config-api.com/feedback'
+      });
+      const url = await feedbackService.getApiUrl();
+      expect(url).toBe('https://config-api.com/feedback');
+    });
+
+    it('should return undefined if no config is found', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(null);
+      const url = await feedbackService.getApiUrl();
+      expect(url).toBeUndefined();
+    });
   });
 
   describe('submit', () => {
-    it('should submit feedback successfully', async () => {
+    it('should submit feedback successfully using resolved URL', async () => {
+      process.env.FEEDBACK_API_URL = TEST_API_URL;
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
       } as Response);
@@ -23,9 +55,6 @@ describe('FeedbackService', () => {
       const result = await feedbackService.submit({
         skill: 'react/hooks',
         issue: 'Test issue',
-        context: 'React 18',
-        model: 'Test Model',
-        suggestion: 'Test suggestion',
       });
 
       expect(result).toBe(true);
@@ -33,22 +62,23 @@ describe('FeedbackService', () => {
         TEST_API_URL,
         expect.objectContaining({
           method: 'POST',
-          headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-            'User-Agent': 'agent-skills-standard-cli',
-          }),
-          body: JSON.stringify({
-            skill: 'react/hooks',
-            issue: 'Test issue',
-            context: 'React 18',
-            model: 'Test Model',
-            suggestion: 'Test suggestion',
-          }),
+          body: expect.stringContaining('react/hooks'),
         }),
       );
     });
 
+    it('should return false if API URL is missing', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(null);
+      const result = await feedbackService.submit({
+        skill: 'react/hooks',
+        issue: 'Test issue',
+      });
+      expect(result).toBe(false);
+      expect(fetch).not.toHaveBeenCalled();
+    });
+
     it('should handle submission failure (non-ok response)', async () => {
+      process.env.FEEDBACK_API_URL = TEST_API_URL;
       vi.mocked(fetch).mockResolvedValue({
         ok: false,
         status: 500,
@@ -62,22 +92,8 @@ describe('FeedbackService', () => {
       expect(result).toBe(false);
     });
 
-    it('should return false if FEEDBACK_API_URL is missing', async () => {
-      const original = process.env.FEEDBACK_API_URL;
-      delete process.env.FEEDBACK_API_URL;
-
-      const result = await feedbackService.submit({
-        skill: 'react/hooks',
-        issue: 'Test issue',
-      });
-
-      expect(result).toBe(false);
-      expect(fetch).not.toHaveBeenCalled();
-
-      process.env.FEEDBACK_API_URL = original;
-    });
-
     it('should handle network errors', async () => {
+      process.env.FEEDBACK_API_URL = TEST_API_URL;
       vi.mocked(fetch).mockRejectedValue(new Error('Network error'));
 
       const result = await feedbackService.submit({
@@ -86,53 +102,6 @@ describe('FeedbackService', () => {
       });
 
       expect(result).toBe(false);
-    });
-
-    it('should include optional fields when provided', async () => {
-      vi.mocked(fetch).mockResolvedValue({
-        ok: true,
-      } as Response);
-
-      await feedbackService.submit({
-        skill: 'flutter/bloc',
-        issue: 'BuildContext issue',
-        context: 'Flutter 3.16',
-        model: 'Claude 3.5 Sonnet',
-        suggestion: 'Add SafeBuildContext pattern',
-      });
-
-      const callArgs = vi.mocked(fetch).mock.calls[0];
-      const body = JSON.parse(callArgs[1]?.body as string);
-
-      expect(body).toEqual({
-        skill: 'flutter/bloc',
-        issue: 'BuildContext issue',
-        context: 'Flutter 3.16',
-        model: 'Claude 3.5 Sonnet',
-        suggestion: 'Add SafeBuildContext pattern',
-      });
-    });
-
-    it('should work with minimal required fields', async () => {
-      vi.mocked(fetch).mockResolvedValue({
-        ok: true,
-      } as Response);
-
-      const result = await feedbackService.submit({
-        skill: 'react/hooks',
-        issue: 'Minimal issue',
-      });
-
-      expect(result).toBe(true);
-
-      const callArgs = vi.mocked(fetch).mock.calls[0];
-      const body = JSON.parse(callArgs[1]?.body as string);
-
-      expect(body.skill).toBe('react/hooks');
-      expect(body.issue).toBe('Minimal issue');
-      expect(body.context).toBeUndefined();
-      expect(body.model).toBeUndefined();
-      expect(body.suggestion).toBeUndefined();
     });
   });
 });

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
+import 'dotenv/config';
 import { FeedbackCommand } from './commands/feedback';
 import { InitCommand } from './commands/init';
 import { ListSkillsCommand } from './commands/list-skills';
@@ -13,7 +14,7 @@ program
   .description(
     'A CLI to manage and sync AI agent skills for Cursor, Claude, Copilot, Windsurf, and more.',
   )
-  .version('1.4.3');
+  .version('1.4.2');
 
 program
   .command('init')
