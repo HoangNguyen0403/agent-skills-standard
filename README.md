@@ -246,7 +246,7 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | **⚛️ React**        | Hooks, State Management, Performance, Security        | `v1.0.2` | 8      | ~390 tokens    |
 | **📱 React Native** | Arch, Perf, Navigation, Security, Deployment          | `v1.0.0` | 8      | ~390 tokens    |
 | **🦁 NestJS**       | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.2` | 18     | ~499 tokens    |
-| **▲ Next.js**       | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` | 13     | ~503 tokens    |
+| **▲ Next.js**       | App Router, Server Actions, RSC, Metadata, FSD        | `v1.0.1` | 16     | ~473 tokens    |
 | **🐹 Golang**       | Clean Architecture, API Design, Concurrency, Security | `v1.0.2` | 10     | ~357 tokens    |
 | **🐘 Kotlin**       | Idiomatic Patterns, Coroutines, Flow, Tooling         | `v1.0.0` | 4      | ~494 tokens    |
 | **🅰️ Angular**      | Standalone, Signals, Control Flow, SSR, Testing       | `v1.0.0` | 14     | ~273 tokens    |

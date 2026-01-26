@@ -7,7 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.1] - 2026-01-26
 
-**Category**: Enhanced Feedback Automation & Build-Time Configuration & PHP Expert Standards
+**Category**: Enhanced Feedback Automation & Build-Time Configuration & PHP/Laravel Expert Standards & Next.js Expansion
+
+### Added (Laravel Skillset v1.0.0)
+
+- **Comprehensive Release** - 6 new high-density skills for modern Laravel 11.x/12.x development.
+- **Architecture** - Standards for Slim Controllers, Service/Action classes, and Form Requests.
+- **Eloquent** - Advanced ORM patterns including N+1 prevention, scopes, and performance chunking.
+- **Security** - Hardened input validation, authorization policies, and safe environment handling.
+- **API** - Modern JSON transformation via API Resources and Sanctum/Passport standards.
+- **Testing** - TDD standards for Pest and PHPUnit with data factories and MSW/Mockery.
+- **Tooling** - Artisan custom commands, Vite asset bundling, and Pint/Horizon integration.
+
+### Added (Next.js Skillset Expansion)
+
+- **Testing** - New high-density module for Vitest, RTL, and Playwright for App Router.
+- **Security** - New module for Server Action validation, Zod integration, and Data Boundaries (DTOs).
+- **Tooling** - New module for Turbopack optimization, Standalone builds, and CI/CD best practices.
 
 ### Added (PHP Skillset v1.0.0)
 
