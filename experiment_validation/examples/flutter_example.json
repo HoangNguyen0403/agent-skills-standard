@@ -1,0 +1,24 @@
+{
+  "project": {
+    "name": "flutter-demo-validation",
+    "repoUrl": "https://github.com/flutter/samples",
+    "branch": "main",
+    "framework": "flutter"
+  },
+  "scenarios": [
+    {
+      "title": "Refactor to BLoC",
+      "prompt": "Refactor the Counter app in `provider_counter` to use `flutter_bloc`. Ensure the logic is separated from the UI.",
+      "successCriteria": [
+        "Uses BlocBuilder/BlocProvider",
+        "No setState used",
+        "Events/States defined separately"
+      ]
+    },
+    {
+      "title": "Add Unit Test",
+      "prompt": "Create a test for the new CounterBloc to verify increment and decrement logic.",
+      "successCriteria": ["Uses bloc_test package", "Mocks dependencies if any"]
+    }
+  ]
+}
