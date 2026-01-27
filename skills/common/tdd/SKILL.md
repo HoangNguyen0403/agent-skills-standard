@@ -7,26 +7,31 @@ description: Enforces Test-Driven Development (Red-Green-Refactor) for rigorous 
 
 ## **Priority: P1 (OPERATIONAL)**
 
-## The Cycle (Red-Green-Refactor)
+## **The Iron Law**
 
-1.  **RED (Write Failing Test)**: Write a minimal test and confirm it fails.
-2.  **GREEN (Make It Pass)**: Write the simplest code to make the test pass.
-3.  **REFACTOR (Clean Up)**: Improve code without changing behavior.
+> **NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST.**
+> If you wrote code before the test: **Delete it.** Start over. No "adapting" or keeping as reference.
 
-## Core Patterns
+## **The TDD Cycle**
 
-- **AAA (Arrange-Act-Assert)**: Structure every test case in three distinct phases.
-- **F.I.R.S.T.**: Tests must be Fast, Independent, Repeatable, Self-Validating, and Thorough.
+1. **RED**: Write a minimal failing test. **Verify failure** (Expected error, not typo).
+2. **GREEN**: Write the simplest code to pass. **Verify pass** (Pristine output).
+3. **REFACTOR**: Clean up code while staying green.
 
-## The Iron Laws
+## **Core Principles**
 
-1.  **Never** write production code unless you have a failing test (The Iron Law).
-2.  **Never** skip the "Red" phase (verifying logic by watching it fail).
-3.  **Never** leave the code in a broken state at the end of a session.
+- **Watch it Fail**: If you didn't see it fail, you didn't prove the test works.
+- **Minimalism**: Don't add features/options beyond the current test (YAGNI).
+- **Real Over Mock**: Prefer real dependencies unless they are slow/flaky. Avoid [Anti-Patterns](references/testing_anti_patterns.md).
 
-## Verification Checklist
+## **Verification Checklist**
 
-- [ ] New function/feature has a corresponding test case?
-- [ ] Did you see the test fail first?
-- [ ] Does the code handle edge cases defined in tests?
-- [ ] Are mocks used only when strictly necessary? (See [Anti-Patterns](references/anti-patterns.md))
+- [ ] Every new function/method has a failing test first?
+- [ ] Failure message was expected (feature missing, not setup error)?
+- [ ] Minimal code implemented (no over-engineering)?
+- [ ] [Common Pitfalls](references/testing_anti_patterns.md) avoided?
+
+## **Expert References**
+
+- [TDD Patterns & Discovery Protocols](references/tdd_patterns.md)
+- [Testing Anti-Patterns (Safety First)](references/testing_anti_patterns.md)

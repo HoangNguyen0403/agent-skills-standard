@@ -14,13 +14,28 @@ metadata:
 
 Fetch data directly in Server Components using `async/await`.
 
-## Fetch API Extensions
+- **Static (Build-time)**: `fetch('https://api.com')` -> `cache: 'force-cache'`. Use for external REST APIs.
+- **Dynamic (Request-time)**: `fetch('...', { cache: 'no-store' })` or use `cookies()`.
+- **Revalidated**: `fetch('...', { next: { revalidate: 60 } })`.
 
-Next.js extends the native `fetch` API for granular caching control.
+## **The Modern Pattern: Direct Data Access**
 
-- **Static (Default)**: `fetch('https://api.com')` -> `cache: 'force-cache'`. Built at build time.
-- **Dynamic**: `fetch('...', { cache: 'no-store' })`. Fetched on every request.
-- **Revalidated (ISR)**: `fetch('...', { next: { revalidate: 60 } })`. Cached for 60s.
+> [!IMPORTANT]
+> Do NOT fetch your own API Routes from Server Components. Access the database or service layer directly.
+
+```tsx
+// Service layer function
+export async function getPosts() {
+  'use cache'; // Next.js 16 caching
+  return db.posts.findMany();
+}
+
+// Server Component
+export default async function Page() {
+  const posts = await getPosts();
+  return <PostList posts={posts} />;
+}
+```
 
 ## Patterns
 

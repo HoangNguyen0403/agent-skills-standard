@@ -99,6 +99,11 @@ export class InitService {
 # skill locally and don't want the CLI to overwrite it.
 #
 # Run 'ags list-skills' to view all available skills.
+#
+# TIP: For Jira/Zephyr automation and requirement analysis, manually add:
+# skills:
+#   quality-engineering: { ref: quality-engineering-v1.0.0 }
+#
 `;
     const configPath = path.join(cwd, '.skillsrc');
     await fs.writeFile(configPath, commentHeader + yaml.dump(config));

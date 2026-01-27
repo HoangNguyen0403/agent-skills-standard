@@ -1,0 +1,22 @@
+{
+  "projectKey": "PROJ",
+  "name": "Order_Verify payment term on item details screen when Enable Payment Terms is OFF",
+  "objective": "Platform: Web and Mobile. Market: VN. Verify that payment terms are displayed correctly when the feature is disabled.",
+  "precondition": "- User is in Sang/Phyto/Metro Health\n- User is EZ Rx user (Customer, Admin)\n- Enable Payment Terms is ON\n- Disable Payment Terms Display for Customer is OFF",
+  "folder": "/EZ Rx/Regression Test Suite/Common test cases (use for All market)/Order history/Item detail",
+  "priorityName": "High",
+  "statusName": "Approved",
+  "component": "Ordering",
+  "labels": ["EZRX-39448", "VN-Market"],
+  "customFields": {
+    "Roles": ["Root admin", "ZP admin", "Client user", "Client admin"],
+    "Platform": ["Web and Mobile", "Web", "Mobile"]
+  },
+  "steps": [
+    {
+      "step": "Navigate to {Screen}",
+      "data": "{Input parameters}",
+      "result": "{Expected observability}"
+    }
+  ]
+}
