@@ -33,11 +33,11 @@ export const SKILL_DETECTION_REGISTRY: Record<string, SkillDetection[]> = {
     },
     {
       id: 'getx-navigation',
-      packages: ['get'],
+      packages: ['get'], // Special handling for exact match required
     },
     {
       id: 'getx-state-management',
-      packages: ['get'],
+      packages: ['get'], // Special handling for exact match required
     },
     {
       id: 'localization',
@@ -46,6 +46,10 @@ export const SKILL_DETECTION_REGISTRY: Record<string, SkillDetection[]> = {
     {
       id: 'retrofit-networking',
       packages: ['retrofit'],
+    },
+    {
+      id: 'navigator-v1-navigation',
+      packages: ['flutter'], // Always enabled for Flutter
     },
   ],
   [Framework.NestJS]: [

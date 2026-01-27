@@ -114,9 +114,15 @@ export class ConfigService {
 
     for (const detection of detections) {
       const hasDep = Array.from(projectDeps).some((d) =>
-        detection.packages.some((pkg) =>
-          d.toLowerCase().includes(pkg.toLowerCase()),
-        ),
+        detection.packages.some((pkg) => {
+          const depLower = d.toLowerCase();
+          const pkgLower = pkg.toLowerCase();
+          // Use exact match for short package names to avoid false positives (e.g., 'get' matching 'widget')
+          if (pkg.length <= 3) {
+            return depLower === pkgLower;
+          }
+          return depLower.includes(pkgLower);
+        }),
       );
 
       if (!hasDep) {
@@ -148,9 +154,14 @@ export class ConfigService {
     for (const detection of detections) {
       if (currentExclusions.has(detection.id)) {
         const hasDep = Array.from(projectDeps).some((d) =>
-          detection.packages.some((pkg) =>
-            d.toLowerCase().includes(pkg.toLowerCase()),
-          ),
+          detection.packages.some((pkg) => {
+            const depLower = d.toLowerCase();
+            const pkgLower = pkg.toLowerCase();
+            if (pkg.length <= 3) {
+              return depLower === pkgLower;
+            }
+            return depLower.includes(pkgLower);
+          }),
         );
 
         if (hasDep) {
