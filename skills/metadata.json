@@ -82,25 +82,36 @@
       }
     },
     "nextjs": {
-      "version": "1.0.3",
-      "last_updated": "2026-01-26",
+      "version": "1.1.0",
+      "last_updated": "2026-01-27",
       "tag_prefix": "nextjs-v",
       "token_metrics": {
-        "total_skills": 16,
-        "total_tokens": 7010,
-        "avg_tokens_per_skill": 438,
-        "largest_skill": "caching (733 tokens)"
+        "total_skills": 17,
+        "total_tokens": 7754,
+        "avg_tokens_per_skill": 456,
+        "largest_skill": "rendering (724 tokens)"
       }
     },
     "common": {
-      "version": "1.2.4",
-      "last_updated": "2026-01-26",
+      "version": "1.3.0",
+      "last_updated": "2026-01-27",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 11,
-        "total_tokens": 5996,
-        "avg_tokens_per_skill": 545,
-        "largest_skill": "quality-assurance (782 tokens)"
+        "total_skills": 10,
+        "total_tokens": 5287,
+        "avg_tokens_per_skill": 529,
+        "largest_skill": "best-practices (714 tokens)"
+      }
+    },
+    "quality-engineering": {
+      "version": "1.0.0",
+      "last_updated": "2026-01-27",
+      "tag_prefix": "quality-engineering-v",
+      "token_metrics": {
+        "total_skills": 4,
+        "total_tokens": 1775,
+        "avg_tokens_per_skill": 444,
+        "largest_skill": "zephyr-test-generation (585 tokens)"
       }
     },
     "golang": {

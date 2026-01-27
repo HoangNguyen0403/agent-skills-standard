@@ -25,15 +25,17 @@ Before applying optimizations, identify bottlenecks using:
 
 ## Images (`next/image`)
 
-- **Component**: `<Image src="..." alt="..." width={500} height={300} />`.
-- **Features**: Automatic resizing, lazy loading, format conversion (WebP/AVIF), and CLS prevention (placeholder sizing).
-- **Remote**: Must configure `images.remotePatterns` in `next.config.js` for external URLs.
+- **Pattern**: Always use `next/image` to prevent CLS. Use `priority` for LCP images.
+- **Responsive**: Use `sizes` (e.g., `(max-width: 768px) 100vw, 33vw`) to avoid downloading oversized images.
+- **Constraints**:
+  - Remote domains **must** be in `next.config.js` `remotePatterns`.
+  - Use `placeholder="blur"` for local images (automatic) or remote (manual `blurDataURL`).
+  - Use `fill` with `object-fit` for parent-relative sizing.
 
 ## Fonts (`next/font`)
 
-- **Local**: `localFont({ src: ... })`.
-- **Google**: `Inter({ subsets: ['latin'] })`.
-- **Why**: Self-hosts fonts at build time. Zero Layout Shift.
+- **Strategy**: Self-host Google Fonts or local files via `next/font`.
+- **Optimization**: Zero layout shift, no network requests for font files at runtime. Apply classes to `<body>` or specific elements.
 
 ## Metadata (SEO)
 

@@ -35,12 +35,35 @@ export async function createPost(formData: FormData) {
 - **Event Handler**: `onClick={() => createPost(data)}`.
 - **Pending State**: Use `useFormStatus` hook (must be inside a component rendered within the form).
 
-## Validation & Error Handling
+## **P1: Operational Standard**
 
-- **Zod**: Always validate `FormData` or arguments on the server.
-- **Return Values**: Return serializable objects `{ success: boolean, error?: string }` to handle feedback on Client.
+### **1. Secure & Validate**
 
-## Security
+Always validate inputs and authorization within the action.
 
-- **Authentication**: Check `auth()` (e.g., NextAuth) session inside every Server Action.
-- **Closure**: Be careful with closures in Server Actions defined inside Components (they capture context encrypted). Prefer defining actions in separate files (`actions.ts`).
+```tsx
+'use server';
+export async function updateProfile(prevState: any, formData: FormData) {
+  const session = await auth();
+  if (!session) throw new Error('Unauthorized');
+
+  const validatedFields = ProfileSchema.safeParse(
+    Object.fromEntries(formData.entries()),
+  );
+  if (!validatedFields.success)
+    return { errors: validatedFields.error.flatten().fieldErrors };
+
+  // mutation...
+  revalidatePath('/profile');
+  return { success: true };
+}
+```
+
+### **2. Pending States**
+
+Use `useActionState` (React 19/Next.js 15+) for state handling and `useFormStatus` for button loading states.
+
+## **Constraints**
+
+- **Closures**: Avoid defining actions inside components to prevent hidden closure encryption overhead and serialization bugs.
+- **Redirection**: Use `redirect()` for success navigation; it throws an error that Next.js catches to handle the redirect.

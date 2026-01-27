@@ -47,7 +47,7 @@ Choose rendering strategy based on data freshness and scaling needs. See [Strate
 ### Partial Prerendering (PPR) - _Experimental_
 
 - **Behavior**: Static shell + dynamic holes
-- **Config**: `export const experimental_ppr = true`
+- **Config**: `cacheComponents: true` in `next.config.ts` (Next.js 16+) or `experimental: { ppr: 'incremental' }` (Next.js 15).
 
 ## Scaling Best Practices
 
@@ -59,12 +59,21 @@ Choose rendering strategy based on data freshness and scaling needs. See [Strate
 - **Node.js (Default)**: Full API support
 - **Edge**: `export const runtime = 'edge'` - Limited API, instant start, lower cost
 
+## Error Handling & Hydration
+
+- **Error Boundaries**: Use `error.tsx` (Client Component) to catch runtime errors. Must include a `reset()` function.
+- **Hydration Safety**: To prevent "Hydration failed" errors:
+  - Avoid `typeof window` or `Date.now()` during initial render.
+  - Use `useEffect` + `useState(false)` to defer client-only content.
+  - Avoid invalid HTML nesting (e.g., `<p><div>...</div></p>`).
+
 ## Anti-Patterns
 
-- **No Root Awaits**: Don't `await` all fetches in `page.tsx` - causes waterfall delays.
-- **No SSR for Static**: Don't use `force-dynamic` for content that rarely changes.
+- **No Root Awaits**: Don't `await` all fetches in `page.tsx` - causes waterfall delays. Use Streaming.
+- **Mixed Content**: Avoid passing non-serializable data from Server to Client (see [RSC Boundaries](../architecture/references/RSC_BOUNDARIES.md)).
 
 ## References
 
 - [Strategy Selection Matrix](references/strategy-matrix.md)
 - [Scaling Patterns & Performance](references/scaling-patterns.md)
+- [**Suspense Bailout Rules**](references/SUSPENSE_BAILOUT.md)

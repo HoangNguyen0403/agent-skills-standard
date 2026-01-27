@@ -5,6 +5,33 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2026-01-27
+
+**Category**: Next.js 15/16 Vercel Standards Audit & Quality Engineering Expansion
+
+### Added (Quality Engineering v1.0.0)
+
+- **Comprehensive Release** - Introduced a new specialized category for high-density requirement analysis.
+- **Business Analysis** - Standards for logic truth tables, domain modeling, and Jira user story parsing.
+- **Zephyr Test Generation** - Automated test case creation from business requirements with impact analysis.
+- **Jira Integration** - Operational standards for bi-directional requirement mapping.
+
+### Changed (Next.js v1.1.0 - Major Audit)
+
+- **Next.js 15/16 Alignment** - Integrated Vercel's latest best practices for Async APIs (`params`, `searchParams`, `cookies`, `headers`).
+- **Cache Components** - Full integration of the `'use cache'` directive and Cache Component architecture.
+- **Advanced Routing** - Standardized Parallel Routes, Intercepting Routes, and Suspense Bailout protocols.
+- **Architectural Hardening** - New references for RSC Boundaries, Runtime Selection (Edge/Node), and Bundling.
+
+### Changed (Common Skills v1.3.0)
+
+- **TDD & Testing Hardening** - Split QA into QE, added explicit "Iron Laws" for TDD and testing anti-patterns.
+- **Security Protocols** - Added dedicated reference for Injection Testing (SQLi/HTMLi).
+
+### Changed (CLI v1.5.2)
+
+- **`.skillsrc` Enhancement** - Improved initialization template with opt-in guidance for Quality Engineering skills.
+
 ## [1.5.1] - 2026-01-26
 
 **Category**: Systematic Token Optimization & Adaptive Model Selection & Sub-Agent Delegation Protocol

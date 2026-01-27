@@ -137,7 +137,8 @@ export class SkillValidator {
       });
       const changedFiles = gitOutput
         .split('\n')
-        .filter((line) => line.trim() !== '');
+        .filter((line) => line.trim() !== '')
+        .filter((file) => fs.existsSync(path.join(rootDir, file)));
 
       // Filter for SKILL.md files in skills directory
       const changedSkillFiles = changedFiles
