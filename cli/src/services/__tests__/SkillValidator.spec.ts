@@ -14,6 +14,7 @@ describe('SkillValidator', () => {
     vi.clearAllMocks();
     // Default happy path mocks
     vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(true));
+    vi.mocked(fs.existsSync).mockReturnValue(true);
     // @ts-expect-error - mock types
     vi.mocked(fs.stat).mockResolvedValue({ isDirectory: () => false });
     vi.mocked(fs.readJson).mockResolvedValue({
@@ -220,6 +221,27 @@ describe('SkillValidator', () => {
       // @ts-expect-error - private method
       const files = await validator.findChangedSkillFiles();
       expect(files).toEqual([]);
+    });
+
+    it('should filter out files that no longer exist on disk', async () => {
+      delete process.env.GITHUB_BASE_REF;
+      vi.mocked(execSync).mockImplementation((cmd: string) => {
+        if (typeof cmd === 'string' && cmd.includes('diff'))
+          return 'skills/existing/SKILL.md\nskills/deleted/SKILL.md\n';
+        if (typeof cmd === 'string' && cmd.includes('ls-files')) return '';
+        return '';
+      });
+
+      // Mock existsSync to return true for 'existing' and false for 'deleted'
+      vi.mocked(fs.existsSync).mockImplementation((p: any) => {
+        return typeof p === 'string' && p.includes('existing');
+      });
+
+      // @ts-expect-error - private method
+      const files = await validator.findChangedSkillFiles();
+      expect(files).toHaveLength(1);
+      expect(files[0]).toContain('skills/existing/SKILL.md');
+      expect(files.some((f) => f.includes('deleted'))).toBe(false);
     });
   });
 
