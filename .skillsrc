@@ -6,13 +6,18 @@
 # skill locally and don't want the CLI to overwrite it.
 #
 # Run 'ags list-skills' to view all available skills.
+#
+# TIP: For Jira/Zephyr automation and requirement analysis, manually add:
+# skills:
+#   quality-engineering: { ref: quality-engineering-v1.0.0 }
+#
 registry: https://github.com/HoangNguyen0403/agent-skills-standard
 agents:
   - copilot
   - antigravity
 skills:
   typescript:
-    ref: typescript-v1.0.4
+    ref: typescript-v1.0.5
   common:
-    ref: common-v1.3.0
+    ref: common-v1.4.0
 custom_overrides: []

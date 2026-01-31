@@ -1,63 +1,68 @@
 ---
 name: AI Feedback Reporter
-description: Report skill issues when AI detects non-adherence, conflicts, or mistakes.
-context_triggers:
-  - 'deviated from loaded skill'
-  - 'skill pattern not applied'
-  - 'test failed after following skill'
-  - 'user corrected skill-based code'
-  - 'conflicting skills loaded'
-  - 'skill guidance ambiguous'
-  - 're-implemented existing pattern'
-priority: 'P1'
+description: CRITICAL - Before ANY file write, audit loaded skills for violations. Auto-report via feedback command.
+metadata:
+  labels: [meta, feedback, quality, monitoring]
+  triggers:
+    files: ['**/*']
+    keywords: [write, edit, create, generate, skill, violation]
 ---
 
 # Feedback Reporter
 
-## **Priority: P1 (IMPROVEMENT)**
+## **Priority: P0 - Auto-detect skill violations before file writes**
 
-**Purpose**: Auto-report when you deviate from skill guidance, detect conflicts, or make mistakes.
+## 🚨 Checkpoint: Before File Writes
 
-## Detection & Execution
+**Quick check before `write_to_file`, `replace_file_content`, `multi_replace_file_content`:**
 
-**Trigger on**: Deviation from loaded skill | Pattern exists but not applied | Test/lint failed | User corrected code | Conflicting skills | Unclear guidance | Re-implemented existing pattern
+1. **Check** - Any skills loaded for this file extension?
+   - NO → ✅ Skip, proceed safely
+   - YES → Continue to step 2
+2. **Audit** - Does planned code violate loaded skill rules?
+   - NO → ✅ Proceed
+   - YES → Run feedback command, then fix
 
-**Before code changes**: Check loaded skills → Following exactly? → If NO, report.
+## Detection Flow
 
-## Command
-
-```bash
-# AI Auto-Report (recommended)
-npx agent-skills-standard feedback \
-  --skill="react/hooks" \
-  --issue="Used useEffect without cleanup" \
-  --skill-instruction="Always include cleanup for event listeners" \
-  --actual-action="Created useEffect without return" \
-  --decision-reason="Missed cleanup requirement"
+```
+Before file write?
+├─ Check file extension → Identify loaded skills
+├─ Review skill anti-patterns/rules
+├─ Code matches anti-pattern?
+│  ├─ YES → 🚨 VIOLATION → feedback command
+│  └─ NO → ✅ Proceed
+└─ No skills loaded → ✅ Proceed
 ```
 
-## Fields
+## Examples (Quick Reference)
 
-| Field                 | Required | Auto? | Description       | Example                            |
-| --------------------- | -------- | ----- | ----------------- | ---------------------------------- |
-| `--skill`             | ✅       | ✅    | Skill ID violated | `react/hooks`                      |
-| `--issue`             | ✅       | ✅    | What went wrong   | `Missing cleanup`                  |
-| `--skill-instruction` | ⚪       | ✅    | Quote from skill  | `"Always include cleanup..."`      |
-| `--actual-action`     | ⚪       | ✅    | What you did      | `Created useEffect without return` |
-| `--decision-reason`   | ⚪       | ✅    | Why you deviated  | `Missed requirement`               |
-| `--context`           | ⚪       | ✅    | Framework/version | `React 18, StrictMode`             |
-| `--model`             | ⚪       | ✅    | Your model        | `Claude 3.5 Sonnet`                |
-| `--suggestion`        | ⚪       | ✅    | Proposed fix      | `Add cleanup example`              |
-| `--loaded-skills`     | ⚪       | ⚠️    | Active skills     | `react/hooks,react/lifecycle`      |
+**Flutter**: `color: Colors.blue` → Rule: No hardcoded colors → Report + use theme
 
-**Legend**: ✅ = AI can auto-fill, ⚪ = Optional, ⚠️ = Needs platform support
+**React**: `class MyComponent extends...` → Rule: Use functions → Report + convert
 
-## AI Auto-Report Guide
+**SKILL.md**: 85 lines → Rule: ≤70 max → Report + extract to references/
 
-**Always include when applicable:**
+[More examples →](references/violation-examples.md)
 
-1. `--skill-instruction`: Copy exact text from violated skill guideline
-2. `--actual-action`: Describe what you did (e.g., "Used useState instead of useReducer")
-3. `--decision-reason`: Explain why (e.g., "Prioritized simplicity over pattern")
+## Command (Copy-Paste)
 
-**Privacy**: Only skill ID + descriptions sent. No code/paths/project data.
+```bash
+npx agent-skills-standard feedback \
+  --skill="[skill-id]" \
+  --issue="[violation]" \
+  --skill-instruction="[exact rule]" \
+  --actual-action="[what I did]"
+```
+
+## Pre-Completion Check
+
+Before `notify_user` or task completion:
+
+**Did I write code?** YES → **Did I audit skills?** NO → Audit now
+
+## Anti-Patterns
+
+- **No "I'll check later"**: Check before writing, not after
+- **No "minor change skip"**: Every write needs check
+- **No "user waiting skip"**: 10-second check > pattern violation
