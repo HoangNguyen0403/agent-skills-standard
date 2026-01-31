@@ -5,6 +5,7 @@ import { FeedbackCommand } from './commands/feedback';
 import { InitCommand } from './commands/init';
 import { ListSkillsCommand } from './commands/list-skills';
 import { SyncCommand } from './commands/sync';
+import { UpgradeCommand } from './commands/upgrade';
 import { ValidateCommand } from './commands/validate-skills';
 
 // Load .env from current directory (for development and other env vars)
@@ -81,6 +82,15 @@ program
   )
   .action(async (options: Record<string, string>) => {
     const cmd = new FeedbackCommand();
+    await cmd.run(options);
+  });
+
+program
+  .command('upgrade')
+  .description('Upgrade the CLI to the latest version')
+  .option('--dry-run', 'Check for updates without installing')
+  .action(async (options) => {
+    const cmd = new UpgradeCommand();
     await cmd.run(options);
   });
 

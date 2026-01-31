@@ -77,6 +77,7 @@ Agent Skills Standard treats instructions as **versioned dependencies**, much li
 - `sync`: Sync skills from remote registry and automatically update the `AGENTS.md` index.
 - `validate`: Validate skill format and token standards.
 - `feedback`: Report skill violations or improvements.
+- `upgrade`: Upgrade the CLI to the latest version.
 
 ---
 

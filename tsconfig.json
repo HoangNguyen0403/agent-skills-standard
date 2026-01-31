@@ -9,6 +9,7 @@
     "declaration": true,
     "types": ["node"],
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "noEmit": true
   },
   "include": ["cli/src/**/*", "cli/scripts/**/*", "skills/**/scripts/*.ts"],

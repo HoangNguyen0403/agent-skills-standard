@@ -46,10 +46,11 @@ Agent Skills Standard treats instructions as **versioned dependencies**, much li
 ## ✨ Features
 
 - **🛡️ Multi-Agent Support**: Out-of-the-box mapping for Cursor, Claude Dev, GitHub Copilot, and more.
-- **📦 Modular Registry**: Don't load everything. Only enable the skills your project actually uses (e.g., `Flutter + BLoC + Clean Architecture`).
-- **🔄 Dynamic Re-detection**: Automatically re-enables excluded skills if matching dependencies (like `Retrofit`, `Room`, or `Navigation`) are added to your project.
-- **🔒 Secure Overrides**: Lock specific files in your project so they never get overwritten by the central registry.
-- **📊 Semantic Tagging**: Skills are tagged with triggers that tell the AI _exactly_ when to apply them.
+- **📦 Modular Registry**: Don't load everything. Only enable the skills your project actually uses.
+- **⚡ Proactive Activation (Universal)**: Generates a compressed index in `AGENTS.md` for 100% activation reliability across Cursor, Windsurf, Claude Code, and more.
+- **🔄 Dynamic Re-detection**: Automatically re-enables skills if matching dependencies are added.
+- **🔒 Secure Overrides**: Lock specific files so they never get overwritten.
+- **📊 Semantic Tagging**: Skills tagged with triggers for exact application.
 
 ---
 

@@ -129,4 +129,23 @@ export class GithubService {
     if (!m) return null;
     return { owner: m[1], repo: m[2].replace(/\.git$/, '') };
   }
+
+  async getLatestPackageVersion(
+    owner: string,
+    repo: string,
+  ): Promise<string | null> {
+    const pkgJson = await this.getRawFile(
+      owner,
+      repo,
+      'main',
+      'cli/package.json',
+    );
+    if (!pkgJson) return null;
+    try {
+      const pkg = JSON.parse(pkgJson);
+      return pkg.version;
+    } catch {
+      return null;
+    }
+  }
 }
