@@ -111,50 +111,53 @@ describe('IndexGeneratorService', () => {
   });
 
   describe('bridge', () => {
-    it('should create native rule files if they do not exist', async () => {
+    it('should create native rule files for each agent', async () => {
       const rootDir = '/root';
-      const agents = ['cursor' as any];
+      const agents = ['antigravity' as any, 'cursor' as any, 'copilot' as any];
 
-      (fs.pathExists as any).mockResolvedValue(false);
       (fs.ensureDir as any).mockResolvedValue(undefined);
 
       await service.bridge(rootDir, agents);
 
+      // Verify Antigravity rule
       expect(fs.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('.cursorrules'),
-        expect.stringContaining('### 🛠 Agent Skills Standard'),
+        expect.stringContaining(
+          '/root/.agent/rules/agent-skill-standard-rule.md',
+        ),
+        expect.stringContaining('# 🛠 Agent Skills Standard'),
+      );
+
+      // Verify Cursor rule with frontmatter
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining(
+          '/root/.cursor/rules/agent-skill-standard-rule.mdc',
+        ),
+        expect.stringMatching(
+          /^---\ndescription:.*globs: \["\*\*\/\*"\].*---/s,
+        ),
+      );
+
+      // Verify Copilot rule with frontmatter and .instructions.md extension
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining(
+          '/root/.github/instructions/agent-skill-standard-rule.instructions.md',
+        ),
+        expect.stringMatching(/^---\ndescription:.*applyTo: "\*\*\/\*".*---/s),
       );
     });
 
-    it('should replace existing bridge if markers found', async () => {
+    it('should handle ruleFile as a specific file by using its directory', async () => {
       const rootDir = '/root';
-      const agents = ['cursor' as any];
+      const agents = ['roo' as any]; // Roo uses .roo/rules/
 
-      (fs.pathExists as any).mockResolvedValue(true);
-      (fs.readFile as any).mockResolvedValue(
-        '<!-- SKILLS_BRIDGE_START -->old<!-- SKILLS_BRIDGE_END -->\nuser content',
+      await service.bridge(rootDir, agents);
+
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining(
+          '/root/.roo/rules/agent-skill-standard-rule.md',
+        ),
+        expect.stringContaining('# 🛠 Agent Skills Standard'),
       );
-
-      await service.bridge(rootDir, agents);
-
-      const call = vi.mocked(fs.writeFile).mock.calls[0];
-      expect(call[1]).toContain('### 🛠 Agent Skills Standard');
-      expect(call[1]).not.toContain('old');
-      expect(call[1]).toContain('user content');
-    });
-
-    it('should prepend bridge if markers not found', async () => {
-      const rootDir = '/root';
-      const agents = ['cursor' as any];
-
-      (fs.pathExists as any).mockResolvedValue(true);
-      (fs.readFile as any).mockResolvedValue('user content');
-
-      await service.bridge(rootDir, agents);
-
-      const call = vi.mocked(fs.writeFile).mock.calls[0];
-      expect(call[1]).toContain('### 🛠 Agent Skills Standard');
-      expect(call[1]).toContain('user content');
     });
   });
 

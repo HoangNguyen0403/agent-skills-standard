@@ -73,38 +73,63 @@ export class IndexGeneratorService {
   }
 
   /**
-   * Bridges native agent rule files (e.g. .cursorrules) to AGENTS.md.
+   * Bridges native agent rule files to AGENTS.md.
+   * Creates a dedicated discovery file in the agent's rules directory.
    */
   async bridge(rootDir: string, agents: Agent[]): Promise<void> {
-    const markerStart = '<!-- SKILLS_BRIDGE_START -->';
-    const markerEnd = '<!-- SKILLS_BRIDGE_END -->';
-    const bridgeMessage = [
-      markerStart,
-      '### 🛠 Agent Skills Standard',
-      'This project uses a modular skills library for specialized engineering tasks.',
-      'ALWAYS consult the consolidated index in AGENTS.md to identify relevant triggers before acting.',
-      markerEnd,
-    ].join('\n');
+    const fileNameBase = 'agent-skill-standard-rule';
 
     for (const agentId of agents) {
       const def = getAgentDefinition(agentId);
-      const ruleFilePath = path.join(rootDir, def.ruleFile);
+      const isCursor = agentId === Agent.Cursor;
+      const isAntigravity = agentId === Agent.Antigravity;
+      const isCopilot = agentId === Agent.Copilot;
 
-      // Ensure directory exists (mostly for files like .github/...)
+      let extension = '.md';
+      if (isCursor) extension = '.mdc';
+      if (isCopilot) extension = '.instructions.md';
+
+      const fileName = `${fileNameBase}${extension}`;
+
+      // If ruleFile is a specific file path (legacy), we use its directory.
+      // Otherwise, we use it as the target directory.
+      const ruleTargetDir =
+        def.ruleFile.endsWith('.md') || def.ruleFile.endsWith('.mdc')
+          ? path.dirname(def.ruleFile)
+          : def.ruleFile;
+
+      const ruleFilePath = path.join(rootDir, ruleTargetDir, fileName);
+
+      // Ensure directory exists
       await fs.ensureDir(path.dirname(ruleFilePath));
 
       let content = '';
-      if (await fs.pathExists(ruleFilePath)) {
-        content = await fs.readFile(ruleFilePath, 'utf8');
-        if (content.includes(markerStart) && content.includes(markerEnd)) {
-          const regex = new RegExp(`${markerStart}[\\s\\S]*${markerEnd}`);
-          content = content.replace(regex, bridgeMessage);
-        } else {
-          content = `${bridgeMessage}\n\n${content}`;
+
+      if (isCursor || isAntigravity || isCopilot) {
+        const description =
+          'Rule for Agent Skills Standard - Always consult AGENTS.md for consolidated project context and technical triggers.';
+        const contentLines = ['---', `description: ${description}`];
+
+        if (isCursor || isAntigravity) {
+          contentLines.push('globs: ["**/*"]', 'alwaysApply: true');
+        } else if (isCopilot) {
+          contentLines.push('applyTo: "**/*"');
         }
-      } else {
-        content = `${bridgeMessage}\n`;
+
+        contentLines.push('---', '', '');
+        content = contentLines.join('\n');
       }
+
+      content += [
+        '# 🛠 Agent Skills Standard',
+        '',
+        'This project uses a modular skills library for specialized engineering tasks.',
+        '',
+        '> [!IMPORTANT]',
+        '> ALWAYS consult the consolidated index in **AGENTS.md** to identify relevant triggers before acting.',
+        '',
+        'The `AGENTS.md` file contains mapping between project files and the specific agent skills located in the respective agent-specific folders (e.g., `.cursor/skills`, `.claude/skills`).',
+      ].join('\n');
 
       await fs.writeFile(ruleFilePath, content);
     }

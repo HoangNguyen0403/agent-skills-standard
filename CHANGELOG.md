@@ -5,6 +5,22 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.2] - 2026-02-01
+
+**Category**: Hybrid Rule Injection & GitHub Copilot Optimization
+
+### Added (CLI v1.6.2)
+
+- **🚀 Hybrid Rule Injection**: Implemented a new "Discovery Pointer" strategy for agent rules.
+  - Instead of prepending to existing rule files, the CLI now creates a dedicated `agent-skill-standard-rule.md` (or `.mdc`) in the agent's rules directory.
+  - Standardized naming across all agents to avoid file pollution and conflicts.
+- **🤖 GitHub Copilot Specialized Support**:
+  - Automatically generates `.instructions.md` files in `.github/instructions/`.
+  - Injects YAML frontmatter with `applyTo: "**/*"` for repository-wide skill discovery.
+- **✨ Cursor & Antigravity Enhancements**:
+  - Specialized YAML frontmatter for `.mdc` and `.agent` rules with `globs: ["**/*"]` and `alwaysApply: true`.
+- **🛠️ Robust Rule Scoping**: Improved directory detection for rule targets, ensuring hidden folders (dots) are treated as directories, not files.
+
 ## [1.6.1] - 2026-02-01
 
 **Category**: Skill Indexing Robustness & Bug Fixes
