@@ -289,7 +289,7 @@ describe('SyncService', () => {
         .mockReturnValue({ owner: 'o', repo: 'r' });
       mockGithubService.getRawFile.mockResolvedValue(
         JSON.stringify({
-          cat1: 'cat1/s1|t1|d1\ncat1/s2|t2|d2',
+          cat1: '| cat1/s1 | t1 | d1\n| cat1/s2 | t2 | d2',
         }),
       );
 
@@ -326,7 +326,7 @@ describe('SyncService', () => {
         .fn()
         .mockReturnValue({ owner: 'o', repo: 'r' });
       mockGithubService.getRawFile.mockResolvedValue(
-        JSON.stringify({ cat1: 'cat1/s1|t1|d1' }),
+        JSON.stringify({ cat1: '| cat1/s1 | t1 | d1' }),
       );
 
       const config: any = { registry: 'url', skills: { cat1: {} } };

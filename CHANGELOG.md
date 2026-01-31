@@ -5,6 +5,17 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2026-02-01
+
+**Category**: Skill Indexing Robustness & Bug Fixes
+
+### Fixed (CLI v1.6.1)
+
+- **🩹 AGENTS.md Indexing Fix**: Resolved a critical parsing bug in `SyncService.applyIndices` where skill IDs were incorrectly extracted from markdown table rows.
+  - Corrected row splitting logic to skip leading pipe characters.
+  - Added whitespace trimming for robust Skill ID matching against synced skills.
+  - Verified across multiple frameworks (Flutter, NestJS, React).
+
 ## [1.6.0] - 2026-01-31
 
 **Category**: Global Skill Compliance Audit & Progressive Disclosure Architecture & CLI Type-Safety

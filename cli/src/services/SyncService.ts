@@ -197,7 +197,7 @@ export class SyncService {
                 .map((s) => `${s.category}/${s.skill}`),
             );
             const filteredLines = lines.filter((line) => {
-              const skillId = line.split('|')[0];
+              const skillId = line.split('|')[1]?.trim(); // Rows start with | ID | ...
               return syncedIds.has(skillId);
             });
             entries.push(...filteredLines);
