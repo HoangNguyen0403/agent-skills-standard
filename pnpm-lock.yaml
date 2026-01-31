@@ -11,9 +11,6 @@ importers:
 
   .:
     devDependencies:
-      '@types/fs-extra':
-        specifier: ^11.0.4
-        version: 11.0.4
       '@types/node':
         specifier: ^20.19.30
         version: 20.19.30
