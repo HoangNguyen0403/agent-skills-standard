@@ -23,24 +23,20 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-Modern TypeScript standards for type-safe, maintainable code.
-
 ## Implementation Guidelines
 
 - **Type Annotations**: Explicit params/returns. Infer locals.
 - **Interfaces vs Types**: `interface` for APIs. `type` for unions.
-- **Strict Mode**: `strict: true`.
-- **Null Safety**: `?.` and `??`.
-- **Enums**: Literal unions or `as const`.
+- **Strict Mode**: `strict: true`. Null Safety: `?.` and `??`.
+- **Enums**: Literal unions or `as const`. **No runtime `enum`**.
 - **Generics**: Reusable, type-safe code.
 - **Type Guards**: `typeof`, `instanceof`, predicates.
 - **Utility Types**: `Partial`, `Pick`, `Omit`, `Record`.
-- **Immutability**: `readonly` arrays/objects.
-- **Const Assertions**: `as const` and `satisfies`.
+- **Immutability**: `readonly` arrays/objects. Const Assertions: `as const`, `satisfies`.
 - **Template Literals**: `on${Capitalize<string>}`.
 - **Discriminated Unions**: Literal `kind` property.
 - **Advanced**: Mapped, Conditional, Indexed types.
-- **Access**: Default `public`. Use `private`/`protected` or `#private` for internals.
+- **Access**: Default `public`. Use `private`/`protected` or `#private`.
 - **Branded Types**: `string & { __brand: 'Id' }`.
 
 ## Anti-Patterns

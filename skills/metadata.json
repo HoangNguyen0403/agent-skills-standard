@@ -9,10 +9,10 @@
       "last_updated": "2026-01-26",
       "tag_prefix": "flutter-v",
       "token_metrics": {
-        "total_skills": 19,
-        "total_tokens": 7847,
-        "avg_tokens_per_skill": 413,
-        "largest_skill": "getx-navigation (565 tokens)"
+        "total_skills": 22,
+        "total_tokens": 8778,
+        "avg_tokens_per_skill": 399,
+        "largest_skill": "layer-based-clean-architecture (521 tokens)"
       }
     },
     "dart": {
@@ -64,9 +64,9 @@
       "last_updated": "2026-01-26",
       "tag_prefix": "react-native-v",
       "token_metrics": {
-        "total_skills": 10,
-        "total_tokens": 4795,
-        "avg_tokens_per_skill": 480,
+        "total_skills": 13,
+        "total_tokens": 5650,
+        "avg_tokens_per_skill": 435,
         "largest_skill": "architecture (571 tokens)"
       }
     },
@@ -76,9 +76,9 @@
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 8963,
-        "avg_tokens_per_skill": 498,
-        "largest_skill": "architecture (837 tokens)"
+        "total_tokens": 8533,
+        "avg_tokens_per_skill": 474,
+        "largest_skill": "documentation (836 tokens)"
       }
     },
     "nextjs": {
@@ -87,9 +87,9 @@
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 17,
-        "total_tokens": 7754,
-        "avg_tokens_per_skill": 456,
-        "largest_skill": "rendering (724 tokens)"
+        "total_tokens": 7190,
+        "avg_tokens_per_skill": 423,
+        "largest_skill": "architecture (670 tokens)"
       }
     },
     "common": {
@@ -97,9 +97,9 @@
       "last_updated": "2026-01-27",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 10,
-        "total_tokens": 5287,
-        "avg_tokens_per_skill": 529,
+        "total_skills": 12,
+        "total_tokens": 5869,
+        "avg_tokens_per_skill": 489,
         "largest_skill": "best-practices (714 tokens)"
       }
     },
@@ -174,10 +174,10 @@
       "last_updated": "2026-01-23",
       "tag_prefix": "android-v",
       "token_metrics": {
-        "total_skills": 19,
-        "total_tokens": 5282,
-        "avg_tokens_per_skill": 278,
-        "largest_skill": "security (340 tokens)"
+        "total_skills": 22,
+        "total_tokens": 6338,
+        "avg_tokens_per_skill": 288,
+        "largest_skill": "android-design-system (438 tokens)"
       }
     },
     "swift": {
@@ -196,9 +196,9 @@
       "last_updated": "2026-01-23",
       "tag_prefix": "ios-v",
       "token_metrics": {
-        "total_skills": 11,
-        "total_tokens": 4720,
-        "avg_tokens_per_skill": 429,
+        "total_skills": 14,
+        "total_tokens": 5752,
+        "avg_tokens_per_skill": 411,
         "largest_skill": "localization (475 tokens)"
       }
     },

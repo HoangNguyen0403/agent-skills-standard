@@ -21,23 +21,12 @@ metadata:
 - **Redux Toolkit**: Complex apps with time-travel debugging needs.
 - **Server State**: Use `@tanstack/react-query` for API data (caching, refetching).
 
-## Context Pattern
-
 ```tsx
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: Props) {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-}
-
 export function useTheme() {
   const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error('useTheme must be within ThemeProvider');
+  if (!ctx) throw new Error('useTheme must be inside ThemeProvider');
   return ctx;
 }
 ```

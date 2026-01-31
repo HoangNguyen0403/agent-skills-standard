@@ -2,7 +2,11 @@ import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SKILL_DETECTION_REGISTRY, SkillDetection } from '../../constants';
+import {
+  Agent,
+  SKILL_DETECTION_REGISTRY,
+  SkillDetection,
+} from '../../constants';
 import { CategoryConfig, SkillConfig } from '../../models/config';
 import { RegistryMetadata } from '../../models/types';
 import { ConfigService } from '../ConfigService';
@@ -34,7 +38,7 @@ describe('ConfigService', () => {
       const mockConfig: SkillConfig = {
         registry: 'https://example.com',
         skills: {},
-        agents: ['cursor'],
+        agents: [Agent.Cursor],
         custom_overrides: [],
       };
 
@@ -75,7 +79,7 @@ describe('ConfigService', () => {
       const mockConfig: SkillConfig = {
         registry: 'https://example.com',
         skills: {},
-        agents: ['cursor'],
+        agents: [Agent.Cursor],
         custom_overrides: [],
       };
       vi.mocked(yaml.dump).mockReturnValue('mock yaml');
@@ -102,13 +106,13 @@ describe('ConfigService', () => {
 
       const config = configService.buildInitialConfig(
         'flutter',
-        ['cursor'],
+        [Agent.Cursor],
         'https://registry.com',
         metadata,
       );
 
       expect(config.registry).toBe('https://registry.com');
-      expect(config.agents).toEqual(['cursor']);
+      expect(config.agents).toEqual([Agent.Cursor]);
       expect(config.skills.flutter?.ref).toBe('v1.0.0');
       expect(config.skills.common?.ref).toBe('1.2.0');
     });
@@ -123,7 +127,7 @@ describe('ConfigService', () => {
 
       const config = configService.buildInitialConfig(
         'flutter',
-        ['cursor'],
+        [Agent.Cursor],
         'https://registry.com',
         metadata,
       );
@@ -142,7 +146,7 @@ describe('ConfigService', () => {
 
       const config = configService.buildInitialConfig(
         'flutter',
-        ['cursor'],
+        [Agent.Cursor],
         'https://registry.com',
         metadata,
         ['typescript'],
@@ -163,7 +167,7 @@ describe('ConfigService', () => {
 
       const config = configService.buildInitialConfig(
         'flutter',
-        ['cursor'],
+        [Agent.Cursor],
         'https://registry.com',
         metadata,
         ['typescript', 'nonexistent'],
@@ -215,7 +219,7 @@ describe('ConfigService', () => {
 
       const config = configService.buildInitialConfig(
         'react-native',
-        ['cursor'],
+        [Agent.Cursor],
         'https://registry.com',
         metadata,
       );
@@ -231,7 +235,7 @@ describe('ConfigService', () => {
     it('should add exclusions for missing dependencies', () => {
       const config: SkillConfig = {
         registry: 'https://example.com',
-        agents: ['cursor'],
+        agents: [Agent.Cursor],
         skills: {
           flutter: { ref: 'v1.0.0' },
         },
@@ -250,7 +254,7 @@ describe('ConfigService', () => {
     it('should do nothing if category does not exist', () => {
       const config: SkillConfig = {
         registry: 'https://example.com',
-        agents: ['cursor'],
+        agents: [Agent.Cursor],
         skills: {},
         custom_overrides: [],
       };
@@ -261,7 +265,7 @@ describe('ConfigService', () => {
     it('should handle category with existing empty exclusions (branch coverage)', () => {
       const config: SkillConfig = {
         registry: 'https://example.com',
-        agents: ['cursor'],
+        agents: [Agent.Cursor],
         skills: {
           flutter: { ref: 'v1.0.0', exclude: [] },
         },
@@ -282,7 +286,7 @@ describe('ConfigService', () => {
             it(`should exclude ${detection.id} when dependencies ${JSON.stringify(detection.packages)} are missing`, () => {
               const config: SkillConfig = {
                 registry: 'https://example.com',
-                agents: ['cursor'],
+                agents: [Agent.Cursor],
                 skills: {
                   [framework]: { ref: 'v1.0.0' },
                 },
@@ -303,7 +307,7 @@ describe('ConfigService', () => {
             it(`should NOT exclude ${detection.id} when dependency ${detection.packages[0]} is present`, () => {
               const config: SkillConfig = {
                 registry: 'https://example.com',
-                agents: ['cursor'],
+                agents: [Agent.Cursor],
                 skills: {
                   [framework]: { ref: 'v1.0.0' },
                 },
@@ -331,7 +335,7 @@ describe('ConfigService', () => {
     it('should re-enable skills if dependencies are found', () => {
       const config: SkillConfig = {
         registry: 'https://example.com',
-        agents: ['cursor'],
+        agents: [Agent.Cursor],
         skills: {
           android: {
             ref: 'v1.0.0',
@@ -359,7 +363,7 @@ describe('ConfigService', () => {
     it('should remove exclude key if all skills are re-enabled', () => {
       const config: SkillConfig = {
         registry: 'https://example.com',
-        agents: ['cursor'],
+        agents: [Agent.Cursor],
         skills: {
           android: {
             ref: 'v1.0.0',
@@ -385,7 +389,7 @@ describe('ConfigService', () => {
     it('should return empty if no skills are re-enabled', () => {
       const config: SkillConfig = {
         registry: 'https://example.com',
-        agents: ['cursor'],
+        agents: [Agent.Cursor],
         skills: {
           android: {
             ref: 'v1.0.0',
@@ -411,7 +415,7 @@ describe('ConfigService', () => {
     it('should return empty if category or exclude list is missing', () => {
       const config: SkillConfig = {
         registry: 'https://example.com',
-        agents: ['cursor'],
+        agents: [Agent.Cursor],
         skills: {},
       };
       expect(
@@ -433,6 +437,51 @@ describe('ConfigService', () => {
         new Set(),
       );
       expect(reenabled).toEqual([]);
+    });
+
+    it('should handle short package names (length <= 3) for exact match', () => {
+      const config: SkillConfig = {
+        registry: 'url',
+        agents: [],
+        skills: {
+          android: {
+            ref: 'v1.0.0',
+            exclude: ['networking'],
+          },
+        },
+      };
+      // Mock a detection with a short package name
+      // 'retrofit' is long, but let's assume 'net' for networking
+      // Wait, let's use a real one if possible, or just mock the registry
+      // Actually, I can just use a fictional framework or mock the registry constant
+      // But it's easier to just pass a dep that matches a short pkg if it exists.
+      // In android networking uses 'retrofit' (long).
+      // Let's check common.
+
+      // I'll just use a test-specific mock of the registry
+      const originalRegistry = { ...SKILL_DETECTION_REGISTRY };
+      (SKILL_DETECTION_REGISTRY as any)['test-short'] = [
+        { id: 'short-skill', packages: ['io'] },
+      ];
+
+      const testConfig: SkillConfig = {
+        registry: 'url',
+        agents: [],
+        skills: {
+          'test-short': { ref: 'main', exclude: ['short-skill'] },
+        },
+      };
+
+      const reenabled = configService.reconcileDependencies(
+        testConfig,
+        'test-short',
+        new Set(['io']),
+      );
+
+      expect(reenabled).toEqual(['short-skill']);
+
+      // Cleanup
+      delete (SKILL_DETECTION_REGISTRY as any)['test-short'];
     });
   });
 

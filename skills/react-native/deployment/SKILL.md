@@ -21,11 +21,8 @@ metadata:
 - **Install**: `npm install react-native-code-push`
 - **Limitations**: Cannot update native code (Obj-C, Java, Swift, Kotlin).
 
-### EAS Update (Expo)
-
-- **Expo Projects**: Built-in OTA updates.
+- **Expo Projects**: Built-in OTA updates via channels (dev, staging, prod).
 - **Install**: `expo install expo-updates`
-- **Channels**: Separate channels for dev, staging, production.
 
 ## Build Configurations
 

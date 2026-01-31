@@ -33,22 +33,22 @@ To use the automated pipeline, you first need to create the service on Render:
 1. **Create a New Web Service**: In your Render Dashboard, click "New" > "Web Service".
 2. **Connect Your Repository**: Select this GitHub repository.
 3. **Configure Runtime**:
-    - **Language**: Select **`Docker`**.
-    - **Docker Command**: Leave as default (it will use our `Dockerfile`).
-    - **Docker Context**: Set to `.` (the root of the repo).
-    - **Dockerfile Path**: Set to `server/Dockerfile`.
+   - **Language**: Select **`Docker`**.
+   - **Docker Command**: Leave as default (it will use our `Dockerfile`).
+   - **Docker Context**: Set to `.` (the root of the repo).
+   - **Dockerfile Path**: Set to `server/Dockerfile`.
 4. **Environment Variables**: Add the following in the Render "Environment" tab:
-    - `GITHUB_TOKEN`: Your personal access token.
-    - `GITHUB_OWNER`: `HoangNguyen0403`.
-    - `GITHUB_REPO`: `agent-skills-standard`.
-    - `NODE_ENV`: `production`.
+   - `GITHUB_TOKEN`: Your personal access token.
+   - `GITHUB_OWNER`: `HoangNguyen0403`.
+   - `GITHUB_REPO`: `agent-skills-standard`.
+   - `NODE_ENV`: `production`.
 5. **Disable Auto-Deploy**: Go to "Settings" > "General" and set **Auto-Deploy** to **`No`**.
-    - _Why?_ We want to control deployments only via our `server-v*` tags using the GitHub Action.
+   - _Why?_ We want to control deployments only via our `server-v*` tags using the GitHub Action.
 6. **Capture the Deploy Hook**:
-    - Go to "Settings" > "Deploy Hook".
-    - Copy the unique URL provided.
-    - Go to your GitHub Repo > "Settings" > "Secrets and variables" > "Actions".
-    - Create a new secret called `RENDER_DEPLOY_HOOK_URL` and paste the URL there.
+   - Go to "Settings" > "Deploy Hook".
+   - Copy the unique URL provided.
+   - Go to your GitHub Repo > "Settings" > "Secrets and variables" > "Actions".
+   - Create a new secret called `RENDER_DEPLOY_HOOK_URL` and paste the URL there.
 
 ## 8. Automated Release Pipeline (Render.com)
 

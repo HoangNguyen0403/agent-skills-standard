@@ -14,61 +14,31 @@ metadata:
 
 Fetch data directly in Server Components using `async/await`.
 
-- **Static (Build-time)**: `fetch('https://api.com')` -> `cache: 'force-cache'`. Use for external REST APIs.
-- **Dynamic (Request-time)**: `fetch('...', { cache: 'no-store' })` or use `cookies()`.
-- **Revalidated**: `fetch('...', { next: { revalidate: 60 } })`.
+## Strategies
 
-## **The Modern Pattern: Direct Data Access**
-
-> [!IMPORTANT]
-> Do NOT fetch your own API Routes from Server Components. Access the database or service layer directly.
-
-```tsx
-// Service layer function
-export async function getPosts() {
-  'use cache'; // Next.js 16 caching
-  return db.posts.findMany();
-}
-
-// Server Component
-export default async function Page() {
-  const posts = await getPosts();
-  return <PostList posts={posts} />;
-}
-```
+- **Static**: Build-time. `fetch(url, { cache: 'force-cache' })`.
+- **Dynamic**: Request-time. `fetch(url, { cache: 'no-store' })` or `cookies()`.
+- **Revalidated**: `fetch(url, { next: { revalidate: 60 } })`.
 
 ## Patterns
 
-- **Colocation**: Fetch data where it's used. Next.js automatically deduplicates requests for the same URL in the same render pass.
+- **Direct Access**: Call DB/Service layer directly. **Do not fetch your own /api routes.**
+- **Colocation**: Fetch exactly where data is needed.
 - **Parallel**: Use `Promise.all()` to prevent waterfalls.
-
-  ```tsx
-  const [user, posts] = await Promise.all([getUser(), getPosts()]);
-  ```
-
-- **Blocking**: To prevent UI blocking, wrap the component in `<Suspense>` and stream the result.
+- **Client-Side**: Use SWR/React Query for live/per-user data (no SEO).
 
 ## Revalidation
 
-- **Path**: `revalidatePath('/blog/[slug]')` - Purges cache for specific route.
-- **Tag**: `revalidateTag('collection')` - Purges all fetches tagged with `next: { tags: ['collection'] }`.
-
-## Client-Side Fetching (Live Data)
-
-Server Components are the default, but for live/user-specific data that doesn't need SEO:
-
-- **SWR / TanStack Query**: PREFERRED over `useEffect`. Handles caching, polling, and deduplication automatically.
-
-  ```tsx
-  'use client';
-  import useSWR from 'swr';
-
-  // Good: "Stale-While-Revalidate" - Fast UI, then updates
-  const { data } = useSWR('/api/user', fetcher);
-  ```
-
-- **Anti-Pattern**: Do not use `useEffect` to fetch data if you can avoid it. It causes "Flash of Loading Content" and waterfalls.
+- **Path**: `revalidatePath('/path')` - Purge cache for a route.
+- **Tag**: `revalidateTag('key')` - Purge by tag.
 
 ## Anti-Patterns
 
-- **API Routes**: Don't fetch your own API Routes (`/api/...`) from Server Components. Call the DB/Service function directly.
+- **No Root Awaits**: Avoid blocking the entire page. Use `<Suspense>`.
+- **No useEffect**: Avoid manual fetching in client effects.
+- **Internal API**: Never call `/api/...` from Server Components.
+
+## Examples & References
+
+- [Usage Examples](references/usage-examples.md)
+- [Caching Documentation](https://nextjs.org/docs/app/building-your-application/caching)

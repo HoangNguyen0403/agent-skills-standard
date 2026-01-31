@@ -1,11 +1,12 @@
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
-import { SUPPORTED_AGENTS } from '../constants';
+import { Agent, SUPPORTED_AGENTS } from '../constants';
 import { SkillConfig, SkillEntry } from '../models/config';
 import { CollectedSkill, GitHubTreeItem } from '../models/types';
 import { ConfigService } from './ConfigService';
 import { GithubService } from './GithubService';
+import { IndexGeneratorService } from './IndexGeneratorService';
 
 export class SyncService {
   private configService = new ConfigService();
@@ -137,6 +138,100 @@ export class SyncService {
         }
       }
       console.log(pc.gray(`  - Updated ${basePath}/ (${agentDef.name})`));
+    }
+  }
+
+  /**
+   * Automatically applies framework-specific indices to AGENTS.md.
+   * @param config The skill configuration
+   * @param syncedSkills Optional list of skills that were just synced. If provided, only these will be indexed.
+   */
+  async applyIndices(
+    config: SkillConfig,
+    syncedSkills?: CollectedSkill[],
+    enabledAgents: Agent[] = [],
+  ) {
+    const githubMatch = GithubService.parseGitHubUrl(config.registry);
+    if (!githubMatch) return;
+
+    const { owner, repo } = githubMatch;
+    // Extract ref from first available skill category or default to main
+    const firstCategory = Object.keys(config.skills)[0];
+    const ref =
+      (firstCategory ? config.skills[firstCategory].ref : null) || 'main';
+
+    console.log(pc.cyan('🔍 Updating Agent Skills index...'));
+
+    try {
+      // 1. Fetch pre-generated indices
+      const indexJson = await this.githubService.getRawFile(
+        owner,
+        repo,
+        ref,
+        'skills/index.json',
+      );
+
+      if (!indexJson) {
+        console.log(
+          pc.yellow('  ⚠️  No pre-generated index found on registry.'),
+        );
+        return;
+      }
+
+      const frameworkIndices = JSON.parse(indexJson) as Record<string, string>;
+      const enabledCategories = Object.keys(config.skills);
+      const entries: string[] = [];
+
+      // 2. Aggregate and Filter entries
+      for (const category of enabledCategories) {
+        if (frameworkIndices[category]) {
+          const lines = frameworkIndices[category]
+            .split('\n')
+            .filter((l) => l.trim().length > 0);
+
+          if (syncedSkills) {
+            // Filter: Only include lines if the skill ID (first column) was synced
+            const syncedIds = new Set(
+              syncedSkills
+                .filter((s) => s.category === category)
+                .map((s) => `${s.category}/${s.skill}`),
+            );
+            const filteredLines = lines.filter((line) => {
+              const skillId = line.split('|')[0];
+              return syncedIds.has(skillId);
+            });
+            entries.push(...filteredLines);
+          } else {
+            entries.push(...lines);
+          }
+        }
+      }
+
+      if (entries.length === 0) {
+        console.log(pc.gray('  - No matching skills found to index.'));
+        return;
+      }
+
+      // 3. Assemble and Inject
+      const generator = new IndexGeneratorService();
+      const header = [
+        '# Agent Skills Index',
+        '',
+        'IMPORTANT: Prefer retrieval-led reasoning. Consult skill files before acting.',
+        '',
+        '| Skill ID | Triggers | Description |',
+        '| :--- | :--- | :--- |',
+      ].join('\n');
+
+      const indexContent = `${header}\n${entries.join('\n')}\n`;
+      await generator.inject(process.cwd(), indexContent);
+      await generator.bridge(process.cwd(), enabledAgents);
+
+      console.log(
+        pc.green(`  ✅ AGENTS.md index updated (${entries.length} skills).`),
+      );
+    } catch (error) {
+      console.log(pc.yellow(`  ⚠️  Failed to update index: ${error}`));
     }
   }
 

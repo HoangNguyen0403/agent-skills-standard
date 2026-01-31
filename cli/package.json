@@ -20,6 +20,8 @@
     "validate": "ts-node src/index.ts validate",
     "validate:all": "ts-node src/index.ts validate --all",
     "calculate-tokens": "ts-node src/scripts/calculate-tokens.ts",
+    "generate-indices": "ts-node src/scripts/generate-indices.ts",
+    "audit:skills": "ts-node src/scripts/audit-skills.ts",
     "format": "prettier --write \"src/**/*.ts\" \"scripts/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"scripts/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\" --fix",

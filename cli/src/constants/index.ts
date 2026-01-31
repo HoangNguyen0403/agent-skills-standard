@@ -12,6 +12,7 @@ export interface AgentDefinition {
   id: Agent;
   name: string;
   path: string;
+  ruleFile: string;
   detectionFiles: string[];
 }
 
@@ -31,6 +32,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         id,
         name: 'Cursor',
         path: '.cursor/skills',
+        ruleFile: '.cursorrules',
         detectionFiles: ['.cursor', '.cursorrules'],
       };
     case Agent.Trae:
@@ -38,6 +40,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         id,
         name: 'Trae',
         path: '.trae/skills',
+        ruleFile: '.traerules',
         detectionFiles: ['.trae'],
       };
     case Agent.Claude:
@@ -45,6 +48,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         id,
         name: 'Claude Code',
         path: '.claude/skills',
+        ruleFile: 'CLAUDE.md',
         detectionFiles: ['.claude', 'CLAUDE.md'],
       };
     case Agent.Copilot:
@@ -52,6 +56,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         id,
         name: 'GitHub Copilot',
         path: '.github/skills',
+        ruleFile: '.github/copilot-instructions.md',
         detectionFiles: ['.github'],
       };
     case Agent.Antigravity:
@@ -59,6 +64,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         id,
         name: 'Antigravity',
         path: '.agent/skills',
+        ruleFile: '.agentrules',
         detectionFiles: ['.agent'],
       };
     case Agent.OpenAI:
@@ -66,6 +72,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         id,
         name: 'OpenAI',
         path: '.codex/skills',
+        ruleFile: '.codexrules',
         detectionFiles: ['.codex'],
       };
     case Agent.OpenCode:
@@ -73,6 +80,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         id,
         name: 'OpenCode',
         path: '.opencode/skills',
+        ruleFile: '.opencoderules',
         detectionFiles: ['.opencode'],
       };
     case Agent.Gemini:
@@ -80,6 +88,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         id,
         name: 'Gemini',
         path: '.gemini/skills',
+        ruleFile: '.geminirules',
         detectionFiles: ['.gemini'],
       };
     case Agent.Roo:
@@ -87,6 +96,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         id,
         name: 'Roo Code',
         path: '.roo/skills',
+        ruleFile: '.clinerules',
         detectionFiles: ['.roo'],
       };
     case Agent.Windsurf:
@@ -94,6 +104,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         id,
         name: 'Windsurf',
         path: '.windsurf/skills',
+        ruleFile: '.windsurfrules',
         detectionFiles: ['.windsurf', '.windsurfrules'],
       };
   }

@@ -11,6 +11,9 @@ importers:
 
   .:
     devDependencies:
+      '@types/fs-extra':
+        specifier: ^11.0.4
+        version: 11.0.4
       '@types/node':
         specifier: ^20.19.30
         version: 20.19.30
@@ -5309,7 +5312,7 @@ snapshots:
   '@types/fs-extra@11.0.4':
     dependencies:
       '@types/jsonfile': 6.1.4
-      '@types/node': 20.19.30
+      '@types/node': 22.19.7
 
   '@types/http-errors@2.0.5': {}
 
@@ -5339,7 +5342,7 @@ snapshots:
 
   '@types/jsonfile@6.1.4':
     dependencies:
-      '@types/node': 20.19.30
+      '@types/node': 22.19.7
 
   '@types/methods@1.1.4': {}
 

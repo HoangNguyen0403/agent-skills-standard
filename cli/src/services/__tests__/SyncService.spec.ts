@@ -18,6 +18,7 @@ describe('SyncService', () => {
       getRepoTree: vi.fn(),
       fetchSkillFiles: vi.fn(),
       downloadFilesConcurrent: vi.fn(),
+      getRawFile: vi.fn(),
     };
     mockConfigService = {
       reconcileDependencies: vi.fn(),
@@ -50,7 +51,7 @@ describe('SyncService', () => {
   });
 
   describe('assembleSkills', () => {
-    it('should fail if registry is not GitHub (line 59)', async () => {
+    it('should fail if registry is not GitHub', async () => {
       const oldParse = GithubService.parseGitHubUrl;
       GithubService.parseGitHubUrl = vi.fn().mockReturnValue(null);
       const config: any = { registry: 'invalid' };
@@ -62,7 +63,7 @@ describe('SyncService', () => {
       GithubService.parseGitHubUrl = oldParse;
     });
 
-    it('should use default ref "main" if ref is missing (line 67)', async () => {
+    it('should use default ref "main" if ref is missing', async () => {
       const oldParse = GithubService.parseGitHubUrl;
       GithubService.parseGitHubUrl = vi
         .fn()
@@ -115,8 +116,7 @@ describe('SyncService', () => {
   });
 
   describe('identifyFoldersToSync & expandAbsoluteInclude', () => {
-    it('should handle wildcard * and skip duplicates (lines 201-203)', () => {
-      const catConfig: any = { include: ['other/*'] };
+    it('should handle wildcard * and skip duplicates', () => {
       const tree: any[] = [{ path: 'skills/other/s1/SKILL.md', type: 'blob' }];
       const folders = ['other/s1'];
       // @ts-expect-error - private
@@ -129,7 +129,7 @@ describe('SyncService', () => {
       expect(emptyFolders).toContain('other/s1');
     });
 
-    it('should exclude folder if not in include list (line 165 return false branch)', () => {
+    it('should exclude folder if not in include list', () => {
       const catConfig: any = { include: ['some-other-skill'] };
       const tree: any[] = [{ path: 'skills/test/s1/', type: 'tree' }];
       // @ts-expect-error - private
@@ -137,7 +137,7 @@ describe('SyncService', () => {
       expect(result).not.toContain('s1');
     });
 
-    it('should include folder if explicitly in include list (line 165 branch)', () => {
+    it('should include folder if explicitly in include list', () => {
       const catConfig: any = { include: ['s1'] };
       const tree: any[] = [{ path: 'skills/test/s1/', type: 'tree' }];
       // @ts-expect-error - private
@@ -145,7 +145,7 @@ describe('SyncService', () => {
       expect(result).toContain('s1');
     });
 
-    it('should exclude folder if in exclude list (line 166 branch)', () => {
+    it('should exclude folder if in exclude list', () => {
       const catConfig: any = { exclude: ['s1'] };
       const tree: any[] = [{ path: 'skills/test/s1/', type: 'tree' }];
       // @ts-expect-error - private
@@ -153,7 +153,7 @@ describe('SyncService', () => {
       expect(result).not.toContain('s1');
     });
 
-    it('should handle non-existent absolute includes (line 210)', () => {
+    it('should handle non-existent absolute includes', () => {
       const folders: string[] = [];
       // @ts-expect-error - private
       syncService.expandAbsoluteInclude('missing/skill', folders, []);
@@ -162,7 +162,7 @@ describe('SyncService', () => {
       );
     });
 
-    it('should cover include check bypass (line 171 branch)', () => {
+    it('should cover include check bypass', () => {
       const catConfig: any = { include: undefined };
       const tree: any[] = [{ path: 'skills/test/s1/', type: 'tree' }];
       // @ts-expect-error - private
@@ -172,7 +172,7 @@ describe('SyncService', () => {
   });
 
   describe('writeSkills & isOverridden', () => {
-    it('should use default agents if agents array is missing (line 103)', async () => {
+    it('should use default agents if agents array is missing', async () => {
       const skills: any[] = [
         {
           category: 'test',
@@ -189,12 +189,12 @@ describe('SyncService', () => {
       );
     });
 
-    it('should skip agent loop if agent definition is missing (line 108)', async () => {
+    it('should skip agent loop if agent definition is missing', async () => {
       const config: any = { agents: ['unknown'] };
       await syncService.writeSkills([], config);
     });
 
-    it('should skip file if overridden (line 120)', async () => {
+    it('should skip file if overridden', async () => {
       const skills: any[] = [
         {
           category: 'test',
@@ -224,7 +224,7 @@ describe('SyncService', () => {
       normalizeSpy.mockRestore();
     });
 
-    it('should handle security error in isPathSafe (line 129)', async () => {
+    it('should handle security error in isPathSafe', async () => {
       const skills: any[] = [
         {
           category: 'test',
@@ -239,7 +239,7 @@ describe('SyncService', () => {
     });
   });
 
-  describe('fetchSkill Filtering (lines 243-248)', () => {
+  describe('fetchSkill Filtering', () => {
     it('should filter files correctly', async () => {
       const tree = [
         { path: 'skills/c/s/SKILL.md', type: 'blob' },
@@ -263,7 +263,7 @@ describe('SyncService', () => {
       expect(res!.files).toHaveLength(4);
     });
 
-    it('should handle relative vs absolute skill fetch (line 228)', async () => {
+    it('should handle relative vs absolute skill fetch', async () => {
       const tree = [{ path: 'skills/other/s/SKILL.md', type: 'blob' }];
       mockGithubService.downloadFilesConcurrent.mockResolvedValue([
         { path: 'skills/other/s/SKILL.md', content: 'c' },
@@ -278,6 +278,98 @@ describe('SyncService', () => {
         tree as any,
       );
       expect(res!.category).toBe('other');
+    });
+  });
+
+  describe('applyIndices', () => {
+    it('should filter entries by syncedSkills', async () => {
+      const oldParse = GithubService.parseGitHubUrl;
+      GithubService.parseGitHubUrl = vi
+        .fn()
+        .mockReturnValue({ owner: 'o', repo: 'r' });
+      mockGithubService.getRawFile.mockResolvedValue(
+        JSON.stringify({
+          cat1: 'cat1/s1|t1|d1\ncat1/s2|t2|d2',
+        }),
+      );
+
+      const config: any = { registry: 'url', skills: { cat1: {} } };
+      const syncedSkills: any[] = [{ category: 'cat1', skill: 's1' }];
+
+      await syncService.applyIndices(config, syncedSkills);
+
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('index updated (1 skills)'),
+      );
+      GithubService.parseGitHubUrl = oldParse;
+    });
+
+    it('should handle no pre-generated index', async () => {
+      const oldParse = GithubService.parseGitHubUrl;
+      GithubService.parseGitHubUrl = vi
+        .fn()
+        .mockReturnValue({ owner: 'o', repo: 'r' });
+      mockGithubService.getRawFile.mockResolvedValue(null);
+      const config: any = { registry: 'url', skills: { cat1: {} } };
+      await syncService.applyIndices(config);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('No pre-generated index found'),
+      );
+      GithubService.parseGitHubUrl = oldParse;
+    });
+  });
+
+  describe('applyIndices Variants', () => {
+    it('should include all entries if syncedSkills is missing', async () => {
+      const oldParse = GithubService.parseGitHubUrl;
+      GithubService.parseGitHubUrl = vi
+        .fn()
+        .mockReturnValue({ owner: 'o', repo: 'r' });
+      mockGithubService.getRawFile.mockResolvedValue(
+        JSON.stringify({ cat1: 'cat1/s1|t1|d1' }),
+      );
+
+      const config: any = { registry: 'url', skills: { cat1: {} } };
+      await syncService.applyIndices(config, undefined);
+
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('index updated (1 skills)'),
+      );
+      GithubService.parseGitHubUrl = oldParse;
+    });
+
+    it('should skip if no entries found', async () => {
+      const oldParse = GithubService.parseGitHubUrl;
+      GithubService.parseGitHubUrl = vi
+        .fn()
+        .mockReturnValue({ owner: 'o', repo: 'r' });
+      mockGithubService.getRawFile.mockResolvedValue(
+        JSON.stringify({ cat1: '' }),
+      );
+
+      const config: any = { registry: 'url', skills: { cat1: {} } };
+      await syncService.applyIndices(config, []);
+
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('No matching skills'),
+      );
+      GithubService.parseGitHubUrl = oldParse;
+    });
+
+    it('should handle errors in applyIndices', async () => {
+      const oldParse = GithubService.parseGitHubUrl;
+      GithubService.parseGitHubUrl = vi
+        .fn()
+        .mockReturnValue({ owner: 'o', repo: 'r' });
+      mockGithubService.getRawFile.mockRejectedValue(new Error('Fetch fail'));
+
+      const config: any = { registry: 'url', skills: { cat1: {} } };
+      await syncService.applyIndices(config, []);
+
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to update index'),
+      );
+      GithubService.parseGitHubUrl = oldParse;
     });
   });
 

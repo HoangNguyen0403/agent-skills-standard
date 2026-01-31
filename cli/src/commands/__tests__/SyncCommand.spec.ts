@@ -25,6 +25,7 @@ describe('SyncCommand', () => {
       reconcileConfig: vi.fn().mockResolvedValue(false),
       assembleSkills: vi.fn().mockResolvedValue([]),
       writeSkills: vi.fn(),
+      applyIndices: vi.fn(),
       checkForUpdates: vi.fn((c) => c),
     };
     mockConfigService = {
@@ -52,6 +53,9 @@ describe('SyncCommand', () => {
     expect(mockConfigService.loadConfig).toHaveBeenCalled();
     expect(console.log).toHaveBeenCalledWith(
       expect.stringContaining('Syncing skills'),
+    );
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('All skills synced successfully'),
     );
   });
 

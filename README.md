@@ -63,14 +63,24 @@ Agent Skills Standard treats instructions as **versioned dependencies**, much li
 ## ✨ Features
 
 - **🛡️ Multi-Agent Support**: Out-of-the-box mapping for Cursor, Claude Dev, GitHub Copilot, and more.
-- **📦 Modular Registry**: Don't load everything. Only enable the skills your project actually uses (e.g., `Flutter + BLoC + Clean Architecture`).
-- **🔄 Dynamic Re-detection**: Automatically re-enables excluded skills if matching dependencies (like `Retrofit`, `Room`, or `Navigation`) are added to your project.
-- **🔒 Secure Overrides**: Lock specific files in your project so they never get overwritten by the central registry.
-- **📊 Semantic Tagging**: Skills are tagged with triggers that tell the AI _exactly_ when to apply them.
+- **📦 Modular Registry**: Don't load everything. Only enable the skills your project actually uses.
+- **⚡ Proactive Activation (Universal)**: Generates a compressed index in `AGENTS.md` for 100% activation reliability across Cursor, Windsurf, Claude Code, and more.
+- **🔄 Dynamic Re-detection**: Automatically re-enables skills if matching dependencies are added.
+- **🔒 Secure Overrides**: Lock specific files so they never get overwritten.
+- **📊 Semantic Tagging**: Skills tagged with triggers for exact application.
 
 ---
 
-## � Token Economy & Optimization
+## 🛠️ CLI Commands
+
+- `init`: Initialize a fresh `.skillsrc` config.
+- `sync`: Sync skills from remote registry and automatically update the `AGENTS.md` index.
+- `validate`: Validate skill format and token standards.
+- `feedback`: Report skill violations or improvements.
+
+---
+
+## ✨ Token Economy & Optimization
 
 To ensure AI efficiency, this project follows a strict **Token Economy**. Every skill is audited for its footprint in the AI's context window.
 
@@ -151,7 +161,7 @@ Or via structured comments in your code:
 
 ---
 
-## �🚀 Quick Start (Get running in 60s)
+## 🚀 Quick Start (Get running in 60s)
 
 Consume engineering standards in your project instantly.
 
@@ -169,19 +179,11 @@ _The interactive wizard will detect your stack and setup your `.skillsrc`._
 npx agent-skills-standard@latest sync
 ```
 
-**What happened?**
+### 3. Automatic Activation
 
-1. **Dynamic Re-detection**: The CLI scans your project dependencies (e.g., `build.gradle`, `pubspec.yaml`, `package.json`). If you've recently added a library that matches an excluded skill, the CLI will automatically re-enable it and update your `.skillsrc`.
-2. **Distribution**: The CLI fetched the latest **High-Density Skills** and distributed them into your hidden agent folders (e.g., `.cursor/skills/`, `.github/skills/`). Your AI is now "upgraded" with your team's standards.
+Whenever you run `sync`, the CLI automatically updates `AGENTS.md` in your project root with a compressed index of your enabled skills.
 
-### 3. Validate Skills (For Contributors)
-
-```bash
-npx agent-skills-standard@latest validate
-```
-
-**What it does:**
-Validates all skills for format compliance and structural integrity. Ensures skills follow our High-Density standards before merging.
+This `AGENTS.md` file serves as a **universal entry point** that helps all AI agents proactively understand when to trigger specific skills based on your project context.
 
 ---
 
@@ -239,24 +241,24 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | Category                   | Key Modules                                           | Version  | Skills | Avg. Footprint |
 | :------------------------- | :---------------------------------------------------- | :------- | :----- | :------------- |
 | **☕ Spring Boot**         | Architecture, Security, Data, Test, Microservices     | `v1.0.0` | 10     | ~339 tokens    |
-| **🌐 Common**              | SOLID, Security (SQLi/HTMLi), TDD, Anti-Patterns      | `v1.3.0` | 10     | ~529 tokens    |
-| **🧠 Quality Engineering** | Business Analysis, Jira, Zephyr, QA Automation        | `v1.0.0` | 4      | ~500 tokens    |
-| **💙 Flutter**             | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.2` | 19     | ~413 tokens    |
+| **🌐 Common**              | SOLID, Security (SQLi/HTMLi), TDD, Anti-Patterns      | `v1.3.0` | 12     | ~489 tokens    |
+| **🌐 Quality Engineering** | Business Analysis, Jira, Zephyr, QA Automation        | `v1.0.0` | 4      | ~500 tokens    |
+| **💙 Flutter**             | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.2` | 22     | ~399 tokens    |
 | **🎯 Dart**                | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.3` | 3      | ~351 tokens    |
 | **☕ Java**                | Modern Syntax, Virtual Threads, Testing, Tooling      | `v1.0.0` | 5      | ~522 tokens    |
 | **🔷 TypeScript**          | Type Safety, Security, Best Practices, Tooling        | `v1.0.4` | 4      | ~403 tokens    |
 | **🟨 JavaScript**          | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.2` | 5      | ~522 tokens    |
 | **⚛️ React**               | Hooks, State Management, Performance, Security        | `v1.0.2` | 8      | ~390 tokens    |
 | **📱 React Native**        | Arch, Perf, Navigation, Security, Deployment          | `v1.0.1` | 8      | ~390 tokens    |
-| **🦁 NestJS**              | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.3` | 18     | ~498 tokens    |
-| **▲ Next.js**              | App Router (v15), Caching (v16), Bundling, Debug      | `v1.1.0` | 17     | ~456 tokens    |
+| **🦁 NestJS**              | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.3` | 18     | ~474 tokens    |
+| **▲ Next.js**              | App Router (v15), Caching (v16), Bundling, Debug      | `v1.1.0` | 17     | ~423 tokens    |
 | **🐘 Laravel**             | Clean Arch, Eloquent, Security, Jobs, Redis, API      | `v1.0.0` | 10     | ~361 tokens    |
 | **🐹 Golang**              | Clean Architecture, API Design, Concurrency, Security | `v1.0.2` | 10     | ~357 tokens    |
 | **🐘 Kotlin**              | Idiomatic Patterns, Coroutines, Flow, Tooling         | `v1.0.0` | 4      | ~494 tokens    |
 | **🅰️ Angular**             | Standalone, Signals, Control Flow, SSR, Testing       | `v1.0.0` | 14     | ~273 tokens    |
-| **🤖 Android**             | Architecture, Compose, DI, Perf, Testing, WorkManager | `v1.0.0` | 19     | ~278 tokens    |
+| **🤖 Android**             | Architecture, Compose, DI, Perf, Testing, WorkManager | `v1.0.0` | 22     | ~288 tokens    |
 | **🍎 Swift**               | Language, Memory, Concurrency, SwiftUI, Testing       | `v1.0.0` | 8      | ~354 tokens    |
-| **📱 iOS**                 | Arch, UI, Lifecycle, Security, Perf, Networking, DI   | `v1.0.0` | 11     | ~429 tokens    |
+| **📱 iOS**                 | Arch, UI, Lifecycle, Security, Perf, Networking, DI   | `v1.0.0` | 14     | ~411 tokens    |
 
 > [!TIP]
 > **Quality Engineering (Opt-in)**: Advanced skills like `business-analysis` or `zephyr-test-generation` are in the **quality-engineering** category and are NOT synced by default to keep context lean. To use them, manually add the category to your `.skillsrc`:
@@ -315,6 +317,17 @@ Interested in adding standards for **NestJS, Golang, or React**? We follow a str
 1. **Propose a Skill**: Open an issue with your draft [High-Density Content](skills/README.md).
 2. **Develop Locally**: Fork and add your category to `skills/`.
 3. **Submit PR**: Our CI/CD will validate the metadata integrity before merging.
+
+### Local Development Testing
+
+To test your changes locally before publishing to NPM:
+
+```bash
+# In your test project directory, point npx to your local CLI folder
+npx /path/to/agent-skills-standard/cli sync
+```
+
+This is the recommended way to verify that skill injections and discovery bridges (like `.cursorrules`) work correctly in a real project environment.
 
 ## 📄 License & Credits
 
