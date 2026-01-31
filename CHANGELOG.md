@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (CLI v1.6.0)
 
+- **⚡ Agent Activation Index (`AGENTS.md`)**: New high-density index generator that creates/injects a centralized skill manifest for 100% activation reliability in Cursor, Windsurf, and Claude Code.
+- **🔗 Unified Semantic Triggering**: Logic to bridge native agent rule files (`.cursorrules`, etc.) to the `AGENTS.md` index using compressed metadata.
 - **🛡️ Type-Safety Hardening**: Fixed critical `Agent` enum and `ConfigService` type mismatches.
 - **📊 Optimized Metrics**: Improved token calculation accuracy and metadata synchronization.
 
