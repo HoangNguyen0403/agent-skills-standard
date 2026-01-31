@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
-import { SUPPORTED_AGENTS, SUPPORTED_FRAMEWORKS } from '../constants';
+import { Agent, SUPPORTED_AGENTS, SUPPORTED_FRAMEWORKS } from '../constants';
 import { RegistryMetadata } from '../models/types';
 import { ConfigService } from './ConfigService';
 import { DetectionService } from './DetectionService';
@@ -13,7 +13,7 @@ export interface InitContext {
 
 export interface InitAnswers {
   framework: string;
-  agents: string[];
+  agents: Agent[];
   registry: string;
 }
 

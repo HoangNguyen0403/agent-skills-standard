@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard-root",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "private": true,
   "packageManager": "pnpm@10.0.0",
   "pnpm": {
@@ -16,7 +16,7 @@
     "format:check": "pnpm -r format:check",
     "lint:check": "pnpm -r lint:check",
     "validate": "pnpm --filter ./cli validate",
-    "validate:all": "pnpm --filter ./cli validate:all",
+    "validate:all": "pnpm --filter ./cli validate:all && pnpm audit:skills",
     "test": "pnpm --filter ./cli test",
     "test:coverage": "pnpm --filter ./cli test:coverage",
     "release-skill": "pnpm --filter ./cli release-skill",
@@ -26,6 +26,8 @@
     "server:build": "pnpm --filter ./server build",
     "server:start": "pnpm --filter ./server start:prod",
     "calculate-tokens": "pnpm --filter ./cli calculate-tokens",
+    "generate-indices": "pnpm --filter ./cli generate-indices",
+    "audit:skills": "pnpm --filter ./cli audit:skills",
     "prepare": "husky"
   },
   "engines": {

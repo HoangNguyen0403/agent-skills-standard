@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
     "module": "CommonJS",
     "strict": true,
     "esModuleInterop": true,
@@ -9,6 +9,7 @@
     "declaration": true,
     "types": ["node"],
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "noEmit": true
   },
   "include": ["cli/src/**/*", "cli/scripts/**/*", "skills/**/scripts/*.ts"],

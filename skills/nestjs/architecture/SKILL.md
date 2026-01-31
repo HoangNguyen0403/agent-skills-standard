@@ -14,57 +14,33 @@ metadata:
 
 ## Core Principles
 
-1. **Modularity**: Every feature **must** be encapsulated in its own `@Module`.
-   - **Do**: `users.module.ts`, `auth.module.ts`.
-   - **Don't**: Everything in `app.module.ts`.
-2. **Dependency Injection (DI)**: Invert control. Never manually instantiate classes (e.g., `new Service()`).
-   - **Use**: Constructor injection `constructor(private readonly service: Service)`.
-3. **Scalability**: Use **Feature Modules** for domain logic and **Core/Shared Modules** for reusable utilities.
+- **Modularity**: Domain logic **must** be encapsulated in `@Module` files.
+- **DI**: Use constructor injection. Never use `new` for services/providers.
+- **Scalability**: Layer via Feature, Core (Global), and Shared (Stateless) modules.
 
-## Module Configuration
+## Module Strategies
 
-### Dynamic Modules
+- **Dynamic Modules**: Use `ConfigurableModuleBuilder`. See [Advanced Patterns](references/advanced-patterns.md).
+- **Circular Deps**: Use `forwardRef()` or re-architect to a shared common module.
+- **Shutdown Hooks**: Enable via `app.enableShutdownHooks()` in `main.ts`.
 
-- **Modern Pattern**: Use `ConfigurableModuleBuilder` class to auto-generate `forRoot`/`register` methods properly.
-- **Reference**: See [Dynamic Module Builder Implementation](references/dynamic-module.md) for the boilerplate code.
-  - **Conventions**:
-    - `forRoot`: Global configurations (Db, Config).
-    - `register`: Per-instance configurations.
-    - `forFeature`: Extending a module with specific providers/entities.
+## Provider Scopes
 
-### Circular Dependencies
+- **Singleton (Default)**: Use for 99% of use cases.
+- **Request Scope**: Bubbles up to controllers. High overhead. Use `Durable Providers` for multi-tenancy.
 
-- **Avoid**: Re-architect to move shared logic to a common module.
-- **Constraint**: If unavoidable, use `forwardRef(() => ModuleName)` on **both** sides of the import.
+## Project Organization
 
-## Advanced Providers
+- **Feature Modules**: Domain Logic (`UsersModule`, `AuthModule`).
+- **Shared Module**: Stateless utilities. Re-exported.
+- **Core Module**: Global infrastructure (Guards, Interceptors). Import ONLY in `AppModule`.
 
-- **Factory Providers**: Use `useFactory` heavily for providers dependent on configuration or async operations.
-- **Aliasing**: Use `useExisting` to provide backward compatibility or abstract different implementations.
+## Observability & Health
 
-## Scopes & Lifecycle
+- **Terminus**: Implement `/health` checks for DB, Cache, and Memory.
+- **Pino**: Use JSON logging with `req-id` traces for all requests.
 
-- **Default**: **Singleton**. Best performance.
-- **Request Scope**: Use `Scope.REQUEST` sparingly.
-  - **Performance Warning**: Request scope **bubbles up**. If a Service is request-scoped, every controller injecting it becomes request-scoped, triggering re-instantiation per request (~5-10% latency overhead).
-- **Multi-tenancy**: If request-scope is needed (e.g. Tenant ID header), use **Durable Providers** (`durable: true`) with `ContextIdFactory` to reuse DI sub-trees.
-- **Shutdown**: `SIGTERM` doesn't trigger cleanup by default.
-  - **Mandatory**: Call `app.enableShutdownHooks()` in `main.ts`.
+## References
 
-## Structure & Organization
-
-- **Feature Modules**: Domain logic (`ShopModule`, `AuthModule`). Encapsulated.
-- **Shared Module**: Reusable providers (`DateService`, `MathService`) exported to other modules. **Stateless**.
-- **Core Module**:
-  - **Role**: Global infrastructure setup ONE TIME (Interceptors, Filters, Loggers).
-  - **Rule**: Import `CoreModule` **only** in `AppModule`.
-  - **Contents**: `APP_INTERCEPTOR`, `APP_FILTER`, `APP_GUARD` providers.
-
-## Reliability & Observability
-
-- **Health Checks**: Mandatory for K8s/Docker.
-  - **Tool**: Use `@nestjs/terminus`. Expose `/health` endpoint checking DB, Cache (Redis), and Memory.
-- **Structured Logging**:
-  - **Warning**: Default NestJS logger is unstructured text.
-  - **Standard**: Use `nestjs-pino` for JSON-formatted logs with automatic `req-id` correlation and request duration tracking.
-  - **Context**: Inject `Logger` into services to keep traces connected.
+- [Advanced Patterns](references/advanced-patterns.md)
+- [Dynamic Modules](references/dynamic-module.md)

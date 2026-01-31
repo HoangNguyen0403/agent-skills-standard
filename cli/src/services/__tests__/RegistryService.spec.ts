@@ -59,6 +59,23 @@ describe('RegistryService', () => {
       expect(result.categories).toEqual(['flutter', 'dart']);
     });
 
+    it('should handle tree being null (line 36 coverage)', async () => {
+      mockGithub.getRepoTree.mockResolvedValueOnce({ tree: null });
+      const result = await service.discoverRegistry('url');
+      expect(result.categories).toEqual(['flutter', 'dart']);
+    });
+
+    it('should ignore deep paths or non-category paths (line 41 coverage)', async () => {
+      mockGithub.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: 'skills/flutter/extra', type: 'tree' }, // 3 parts, should be ignored
+          { path: 'not-skills/react', type: 'tree' }, // wrong prefix
+        ],
+      });
+      const result = await service.discoverRegistry('url');
+      expect(result.categories).toEqual(['flutter', 'dart']);
+    });
+
     it('should handle discovery failure with DEBUG=true', async () => {
       process.env.DEBUG = 'true';
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});

@@ -1,3 +1,5 @@
+import { Agent } from '../constants';
+
 export interface SkillEntry {
   ref?: string;
   exclude?: string[];
@@ -9,7 +11,7 @@ export type CategoryConfig = SkillEntry;
 
 export interface SkillConfig {
   registry: string;
-  agents: string[];
+  agents: Agent[];
   skills: {
     [key: string]: SkillEntry;
   };

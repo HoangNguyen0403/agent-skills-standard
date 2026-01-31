@@ -6,12 +6,6 @@
       "*": ["node_modules/*"]
     }
   },
-  "include": [
-    "src/**/*",
-    "scripts/**/*",
-    "vitest.config.ts",
-    "vite.config.ts",
-    "eslint.config.mts"
-  ],
+  "include": ["src/**/*", "scripts/**/*", "vitest.config.ts", "vite.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

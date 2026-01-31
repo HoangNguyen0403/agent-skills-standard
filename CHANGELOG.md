@@ -5,7 +5,39 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.5.2] - 2026-01-27
+## [1.6.0] - 2026-01-31
+
+**Category**: Global Skill Compliance Audit & Progressive Disclosure Architecture & CLI Type-Safety
+
+### Changed (⚡ Skill Registry v1.6.0)
+
+- **⚖️ 100% Token Compliance** - Successfully refactored and compressed all 208 skills to meet the **< 70-line limit**:
+  - **Progressive Disclosure**: Extracted heavyweight implementation patterns and code blocks into `references/` directories.
+  - **Categories Audited**: Flutter, Android, iOS, React Native, Next.js, NestJS, and Common Skills.
+- **🎨 Refined Mobile Patterns**:
+  - **Common**: Integrated high-density animation and UX core guidelines.
+  - **Flutter**: Optimized GetX navigation and state management triggers.
+  - **React Native**: Modularized DLS, Deployment, and State Management patterns.
+- **🛠️ Refined Backend Patterns**:
+  - **NestJS**: Streamlined architecture and modularity standards.
+  - **Next.js**: Enhanced rendering and data fetching guidelines for App Router.
+
+### Changed (CLI v1.6.0)
+
+- **⚡ Agent Activation Index (`AGENTS.md`)**: New high-density index generator that creates/injects a centralized skill manifest for 100% activation reliability in Cursor, Windsurf, and Claude Code.
+- **🔗 Unified Semantic Triggering**: Logic to bridge native agent rule files (`.cursorrules`, etc.) to the `AGENTS.md` index using compressed metadata.
+- **🛡️ Type-Safety Hardening**: Fixed critical `Agent` enum and `ConfigService` type mismatches.
+- **📊 Optimized Metrics**: Improved token calculation accuracy and metadata synchronization.
+
+### Versions
+
+- **Common Skills**: v1.4.0 (Minor)
+- **Flutter Skills**: v1.2.0 (Minor)
+- **React Native Skills**: v1.1.0 (Minor)
+- **Android Skills**: v1.0.1 (Patch)
+- **iOS Skills**: v1.0.1 (Patch)
+- **NestJS Skills**: v1.0.4 (Patch)
+- **Next.js Skills**: v1.1.1 (Patch)
 
 **Category**: Next.js 15/16 Vercel Standards Audit & Quality Engineering Expansion
 

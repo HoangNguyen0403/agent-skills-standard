@@ -2,13 +2,17 @@ import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
 import { z } from 'zod';
-import { DEFAULT_REGISTER, SKILL_DETECTION_REGISTRY } from '../constants';
+import {
+  Agent,
+  DEFAULT_REGISTER,
+  SKILL_DETECTION_REGISTRY,
+} from '../constants';
 import { CategoryConfig, SkillConfig } from '../models/config';
 import { RegistryMetadata } from '../models/types';
 
 const SkillConfigSchema = z.object({
   registry: z.string().url(),
-  agents: z.array(z.string()).optional(),
+  agents: z.array(z.nativeEnum(Agent)).optional(),
   skills: z.record(
     z.string(), // Category name
     z.object({
@@ -55,7 +59,7 @@ export class ConfigService {
 
   buildInitialConfig(
     framework: string,
-    agents: string[],
+    agents: Agent[],
     registry: string,
     metadata: Partial<RegistryMetadata>,
     languages: string[] = [],

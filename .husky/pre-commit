@@ -1,9 +1,10 @@
-# Run token calculation to ensure documentation and metadata are up to date
-echo "📊 Syncing token metrics..."
+# Run token calculation and index generation to ensure registry metadata is up to date
+echo "📊 Syncing metrics and indices..."
 pnpm calculate-tokens
+pnpm generate-indices
 
 # Stage the updated files
-git add skills/metadata.json README.md
+git add skills/metadata.json skills/index.json README.md
 
 # Run core validation to ensure skill integrity
 echo "🔍 Validating skills..."

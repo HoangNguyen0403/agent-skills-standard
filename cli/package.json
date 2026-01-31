@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard",
-  "version": "1.5.3",
+  "version": "1.6.0",
   "description": "A CLI to manage and sync AI agent skills standard for Cursor, Claude, Copilot, Windsurf, and more.",
   "main": "dist/index.js",
   "bin": {
@@ -20,6 +20,8 @@
     "validate": "ts-node src/index.ts validate",
     "validate:all": "ts-node src/index.ts validate --all",
     "calculate-tokens": "ts-node src/scripts/calculate-tokens.ts",
+    "generate-indices": "ts-node src/scripts/generate-indices.ts",
+    "audit:skills": "ts-node src/scripts/audit-skills.ts",
     "format": "prettier --write \"src/**/*.ts\" \"scripts/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"scripts/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\" --fix",
@@ -55,7 +57,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/inquirer": "^8.2.5",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.19.30",
+    "@types/node": "^25.1.0",
     "@vitest/coverage-v8": "^4.0.17",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",

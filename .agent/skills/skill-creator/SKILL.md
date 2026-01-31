@@ -30,9 +30,9 @@ Every word costs tokens. Design skills for maximum information/token ratio:
 ### **Three-Level Loading System**
 
 ```ts
-Level 1: Metadata (100 words) → Always loaded
-Level 2: SKILL.md Body (500 lines) → When triggered
-Level 3: References/Scripts/Assets → As needed
+Level 1: Metadata (Triggers) → AGENTS.md index (Proactive Activation)
+Level 2: SKILL.md Body (70 lines) → Core guidelines (When triggered)
+Level 3: References/Scripts/Assets → Deep knowledge (On-demand only)
 ```
 
 ## Directory Structure
@@ -76,16 +76,18 @@ skills/
 
 Required sections in `SKILL.md`:
 
-1. **Frontmatter (Mandatory)**: Metadata for triggering (100 words max)
+1. **Frontmatter (Mandatory)**: Metadata for proactive activation.
 
    ```yaml
    ---
    name: Skill Name
-   description: What it does + when to use it (triggers activation)
+   description: 1-sentence purpose
    metadata:
      labels: [tag1, tag2]
      triggers:
-       files: ['**/*.ext']
+       # Patterns that suggest context for this skill
+       files: ['**/*.ext', 'characteristic-file.json']
+       # Keywords that indicate work in this area
        keywords: [term1, term2]
    ---
    ```
@@ -147,6 +149,8 @@ Required sections in `SKILL.md`:
 1. Write imperative guidelines
 2. Compress examples to essentials
 3. Test context window fit
+4. **Validate: `scripts/validate-skill.sh path/to/SKILL.md`**
+5. Fix violations before completing
 
 ### **Phase 4: Validation (Token Testing)**
 

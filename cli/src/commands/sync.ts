@@ -46,6 +46,9 @@ export class SyncCommand {
       // 5. Write skills to target agents
       await this.syncService.writeSkills(skills, config);
 
+      // 6. Automatically apply framework-specific indices to AGENTS.md
+      await this.syncService.applyIndices(config, skills, config.agents);
+
       console.log(pc.green('✅ All skills synced successfully!'));
     } catch (error) {
       if (error instanceof Error) {
