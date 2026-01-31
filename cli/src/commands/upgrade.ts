@@ -1,13 +1,8 @@
 import { execSync } from 'child_process';
 import pc from 'picocolors';
 import pkg from '../../package.json';
-import { GithubService } from '../services/GithubService';
 
 export class UpgradeCommand {
-  private githubService = new GithubService();
-  private owner = 'HoangNguyen0403';
-  private repo = 'agent-skills-standard';
-
   async run(options: { dryRun?: boolean }) {
     console.log(pc.cyan('🔍 Checking for updates...'));
 
@@ -45,14 +40,15 @@ export class UpgradeCommand {
       return;
     }
 
-    console.log(pc.yellow(`📦 Upgrading to v${latestVersion}...`));
+    const pm = this.detectPackageManager();
+    const upgradeCmd = this.getUpgradeCommand(pm);
+
+    console.log(pc.yellow(`📦 Upgrading to v${latestVersion} using ${pm}...`));
 
     try {
-      // We assume global installation for the upgrade command to make sense
-      const command = 'npm install -g agent-skills-standard@latest';
-      console.log(pc.gray(`  Running: ${command}`));
+      console.log(pc.gray(`  Running: ${upgradeCmd}`));
 
-      execSync(command, { stdio: 'inherit' });
+      execSync(upgradeCmd, { stdio: 'inherit' });
 
       console.log(pc.green(`✅ Successfully upgraded to v${latestVersion}!`));
       console.log(
@@ -60,16 +56,66 @@ export class UpgradeCommand {
           "Please restart your terminal if the version doesn't update immediately.",
         ),
       );
-    } catch (error) {
-      console.error(
-        pc.red('❌ Upgrade failed:'),
-        error instanceof Error ? error.message : String(error),
-      );
+    } catch {
+      console.log('\n' + pc.red('❌ Automatic upgrade failed.'));
+      this.printManualInstructions(pm);
+    }
+  }
+
+  private detectPackageManager(): 'npm' | 'pnpm' | 'yarn' {
+    const userAgent = process.env.npm_config_user_agent || '';
+    if (userAgent.includes('pnpm')) return 'pnpm';
+    if (userAgent.includes('yarn')) return 'yarn';
+
+    // Fallback: Check for existing binaries
+    try {
+      execSync('pnpm --version', { stdio: 'ignore' });
+      return 'pnpm';
+    } catch {
+      try {
+        execSync('yarn --version', { stdio: 'ignore' });
+        return 'yarn';
+      } catch {
+        return 'npm';
+      }
+    }
+  }
+
+  private getUpgradeCommand(pm: 'npm' | 'pnpm' | 'yarn'): string {
+    switch (pm) {
+      case 'pnpm':
+        return 'pnpm add -g agent-skills-standard@latest';
+      case 'yarn':
+        return 'yarn global add agent-skills-standard@latest';
+      default:
+        return 'npm install -g agent-skills-standard@latest';
+    }
+  }
+
+  private printManualInstructions(pm: 'npm' | 'pnpm' | 'yarn') {
+    const isWindows = process.platform === 'win32';
+    const sudoPrefix = isWindows ? '' : 'sudo ';
+
+    console.log(pc.yellow('Possible reasons:'));
+    console.log(pc.gray(' - Permission denied (requires sudo/administrator)'));
+    console.log(pc.gray(' - Network connectivity issues'));
+    console.log(pc.gray(` - ${pm} is not configured for global installs`));
+
+    console.log(
+      '\n' + pc.cyan('👉 Please run the following command manually:'),
+    );
+    console.log(
+      pc.white(pc.bold(`  ${sudoPrefix}${this.getUpgradeCommand(pm)}`)),
+    );
+
+    if (pm !== 'npm') {
+      console.log(pc.gray('\nAlternative (npm):'));
       console.log(
-        pc.yellow(
-          'Tip: You might need to run with sudo if you encounter permission errors.',
-        ),
+        pc.gray(`  ${sudoPrefix}npm install -g agent-skills-standard@latest`),
       );
     }
+
+    console.log(pc.gray('\nOr run via npx (no install required):'));
+    console.log(pc.gray(`  npx agent-skills-standard@latest sync`));
   }
 }
