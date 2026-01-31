@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { InitService } from '../InitService';
+import { Agent } from '../../constants';
+import { InitAnswers, InitService } from '../InitService';
 
 vi.mock('fs-extra');
 
@@ -85,9 +86,9 @@ describe('InitService', () => {
 
   describe('buildAndSaveConfig', () => {
     it('should build, refine, and save configuration to disk', async () => {
-      const answers = {
+      const answers: InitAnswers = {
         framework: 'flutter',
-        agents: ['cursor'],
+        agents: [Agent.Cursor],
         registry: 'https://github.com/owner/repo',
       };
       const metadata = { categories: { flutter: { version: '1.0.0' } } };
@@ -103,9 +104,9 @@ describe('InitService', () => {
     });
 
     it('should handle unsupported framework by defaulting languages to empty (line 75 coverage)', async () => {
-      const answers = {
+      const answers: InitAnswers = {
         framework: 'unsupported-framework',
-        agents: ['cursor'],
+        agents: [Agent.Cursor],
         registry: 'url',
       };
       await initService.buildAndSaveConfig(answers, {}, '/tmp');

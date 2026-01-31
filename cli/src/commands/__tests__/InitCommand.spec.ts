@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { InitCommand } from '../init';
 import fs from 'fs-extra';
 import inquirer from 'inquirer';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { InitCommand } from '../init';
 
 vi.mock('fs-extra');
 vi.mock('inquirer');
@@ -47,7 +47,7 @@ describe('InitCommand', () => {
 
     vi.spyOn(console, 'log').mockImplementation(() => {});
 
-    vi.mocked(fs.pathExists).mockResolvedValue(false);
+    vi.spyOn(fs, 'pathExists').mockResolvedValue(false as never);
     vi.mocked(inquirer.prompt).mockResolvedValue({
       framework: 'react',
       agents: ['cursor'],
@@ -64,7 +64,7 @@ describe('InitCommand', () => {
   });
 
   it('should handle existing config and abort if requested', async () => {
-    vi.mocked(fs.pathExists).mockResolvedValue(true);
+    vi.spyOn(fs, 'pathExists').mockResolvedValue(true as never);
     vi.mocked(inquirer.prompt).mockResolvedValue({ overwrite: false });
 
     await command.run();
@@ -75,7 +75,7 @@ describe('InitCommand', () => {
   });
 
   it('should handle existing config and overwrite if requested', async () => {
-    vi.mocked(fs.pathExists).mockResolvedValue(true);
+    vi.spyOn(fs, 'pathExists').mockResolvedValue(true as never);
     // Sequence for multiple prompts
     vi.mocked(inquirer.prompt)
       .mockResolvedValueOnce({ overwrite: true })
