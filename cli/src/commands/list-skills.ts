@@ -32,6 +32,22 @@ export class ListSkillsCommand {
     // 1. Get framework choice from user
     let framework = options.framework;
 
+    // Validate framework if provided via options
+    if (framework) {
+      const isSupported = SUPPORTED_FRAMEWORKS.some((f) => f.id === framework);
+      if (!isSupported) {
+        const validFrameworks = SUPPORTED_FRAMEWORKS.map((f) => f.id).join(
+          ', ',
+        );
+        console.error(
+          pc.red(
+            `Invalid framework "${framework}". Supported frameworks are: ${validFrameworks}.`,
+          ),
+        );
+        process.exit(1);
+      }
+    }
+
     if (!framework) {
       const choices = SUPPORTED_FRAMEWORKS.map((f) => ({
         name: f.name,

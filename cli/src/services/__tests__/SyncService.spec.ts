@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
+import { SkillConfig } from '../../models/config';
 import { GithubService } from '../GithubService';
 import { IndexGeneratorService } from '../IndexGeneratorService';
 import { SyncService } from '../SyncService';
@@ -13,8 +14,8 @@ vi.mock('../IndexGeneratorService');
 
 describe('SyncService', () => {
   let syncService: SyncService;
-  let mockGithubService: any;
-  let mockConfigService: any;
+  let mockGithubService: Record<string, any>;
+  let mockConfigService: Record<string, any>;
 
   // Define mock methods for IndexGenerator
   const mockGenerate = vi.fn();
@@ -63,7 +64,7 @@ describe('SyncService', () => {
 
   describe('reconcileConfig', () => {
     it('should reconcile dependencies and save config if changed', async () => {
-      const config: any = { skills: { test: {} } };
+      const config = { skills: { test: {} } } as unknown as SkillConfig;
       const deps = new Set(['pkg']);
       mockConfigService.reconcileDependencies.mockReturnValue(['skill1']);
       const result = await syncService.reconcileConfig(config, deps);
@@ -72,7 +73,7 @@ describe('SyncService', () => {
     });
 
     it('should handle no changes', async () => {
-      const config: any = { skills: { test: {} } };
+      const config = { skills: { test: {} } } as unknown as SkillConfig;
       mockConfigService.reconcileDependencies.mockReturnValue([]);
       const result = await syncService.reconcileConfig(config, new Set());
       expect(result).toBe(false);
@@ -83,7 +84,7 @@ describe('SyncService', () => {
     it('should fail if registry is not GitHub', async () => {
       const oldParse = GithubService.parseGitHubUrl;
       GithubService.parseGitHubUrl = vi.fn().mockReturnValue(null);
-      const config: any = { registry: 'invalid' };
+      const config = { registry: 'invalid' } as unknown as SkillConfig;
       const result = await syncService.assembleSkills(['test'], config);
       expect(result).toEqual([]);
       expect(console.log).toHaveBeenCalledWith(
@@ -97,7 +98,10 @@ describe('SyncService', () => {
       GithubService.parseGitHubUrl = vi
         .fn()
         .mockReturnValue({ owner: 'o', repo: 'r' });
-      const config: any = { registry: 'u', skills: { c: {} } };
+      const config = {
+        registry: 'u',
+        skills: { c: {} },
+      } as unknown as SkillConfig;
       mockGithubService.getRepoTree.mockResolvedValue({ tree: [] });
       await syncService.assembleSkills(['c'], config);
       expect(mockGithubService.getRepoTree).toHaveBeenCalledWith(
@@ -113,7 +117,10 @@ describe('SyncService', () => {
       GithubService.parseGitHubUrl = vi
         .fn()
         .mockReturnValue({ owner: 'o', repo: 'r' });
-      const config: any = { registry: 'url', skills: { test: { ref: 'v1' } } };
+      const config = {
+        registry: 'url',
+        skills: { test: { ref: 'v1' } },
+      } as unknown as SkillConfig;
       mockGithubService.getRepoTree.mockResolvedValue(null);
       const result = await syncService.assembleSkills(['test'], config);
       expect(result).toEqual([]);
@@ -125,10 +132,10 @@ describe('SyncService', () => {
       GithubService.parseGitHubUrl = vi
         .fn()
         .mockReturnValue({ owner: 'o', repo: 'r' });
-      const config: any = {
+      const config = {
         registry: 'url',
         skills: { cat1: { include: ['s1', 'other/s2'] } },
-      };
+      } as unknown as SkillConfig;
       mockGithubService.getRepoTree.mockResolvedValue({
         tree: [
           { path: 'skills/cat1/s1/SKILL.md', type: 'blob' },
@@ -136,7 +143,8 @@ describe('SyncService', () => {
         ],
       });
       mockGithubService.downloadFilesConcurrent.mockImplementation(
-        (tasks: any[]) => tasks.map((t) => ({ path: t.path, content: 'c' })),
+        (tasks: { path: string }[]) =>
+          tasks.map((t) => ({ path: t.path, content: 'c' })),
       );
       const result = await syncService.assembleSkills(['cat1'], config);
       expect(result).toHaveLength(2);
@@ -146,7 +154,9 @@ describe('SyncService', () => {
 
   describe('identifyFoldersToSync & expandAbsoluteInclude', () => {
     it('should handle wildcard * and skip duplicates', () => {
-      const tree: any[] = [{ path: 'skills/other/s1/SKILL.md', type: 'blob' }];
+      const tree = [
+        { path: 'skills/other/s1/SKILL.md', type: 'blob' },
+      ] as any[];
       const folders = ['other/s1'];
       // @ts-expect-error - private
       syncService.expandAbsoluteInclude('other/*', folders, tree);
@@ -159,24 +169,26 @@ describe('SyncService', () => {
     });
 
     it('should exclude folder if not in include list', () => {
-      const catConfig: any = { include: ['some-other-skill'] };
-      const tree: any[] = [{ path: 'skills/test/s1/', type: 'tree' }];
+      const catConfig = {
+        include: ['some-other-skill'],
+      } as any;
+      const tree = [{ path: 'skills/test/s1/', type: 'tree' }] as any[];
       // @ts-expect-error - private
       const result = syncService.identifyFoldersToSync('test', catConfig, tree);
       expect(result).not.toContain('s1');
     });
 
     it('should include folder if explicitly in include list', () => {
-      const catConfig: any = { include: ['s1'] };
-      const tree: any[] = [{ path: 'skills/test/s1/', type: 'tree' }];
+      const catConfig = { include: ['s1'] } as any;
+      const tree = [{ path: 'skills/test/s1/', type: 'tree' }] as any[];
       // @ts-expect-error - private
       const result = syncService.identifyFoldersToSync('test', catConfig, tree);
       expect(result).toContain('s1');
     });
 
     it('should exclude folder if in exclude list', () => {
-      const catConfig: any = { exclude: ['s1'] };
-      const tree: any[] = [{ path: 'skills/test/s1/', type: 'tree' }];
+      const catConfig = { exclude: ['s1'] } as any;
+      const tree = [{ path: 'skills/test/s1/', type: 'tree' }] as any[];
       // @ts-expect-error - private
       const result = syncService.identifyFoldersToSync('test', catConfig, tree);
       expect(result).not.toContain('s1');
@@ -192,8 +204,8 @@ describe('SyncService', () => {
     });
 
     it('should cover include check bypass', () => {
-      const catConfig: any = { include: undefined };
-      const tree: any[] = [{ path: 'skills/test/s1/', type: 'tree' }];
+      const catConfig = { include: undefined } as any;
+      const tree = [{ path: 'skills/test/s1/', type: 'tree' }] as any[];
       // @ts-expect-error - private
       const result = syncService.identifyFoldersToSync('test', catConfig, tree);
       expect(result).toContain('s1');
@@ -202,36 +214,39 @@ describe('SyncService', () => {
 
   describe('writeSkills & isOverridden', () => {
     it('should use default agents if agents array is missing', async () => {
-      const skills: any[] = [
+      const skills = [
         {
           category: 'test',
           skill: 's',
           files: [{ name: 'f', content: 'c' }],
         },
-      ];
+      ] as any[];
       await syncService.writeSkills(skills, {
         registry: 'u',
         skills: {},
-      } as any);
+      } as unknown as SkillConfig);
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Antigravity'),
       );
     });
 
     it('should skip agent loop if agent definition is missing', async () => {
-      const config: any = { agents: ['unknown'] };
+      const config = { agents: ['unknown'] } as unknown as SkillConfig;
       await syncService.writeSkills([], config);
     });
 
     it('should skip file if overridden', async () => {
-      const skills: any[] = [
+      const skills = [
         {
           category: 'test',
           skill: 's',
           files: [{ name: 'file.md', content: 'c' }],
         },
-      ];
-      const config: any = { agents: ['cursor'], custom_overrides: ['O'] };
+      ] as any[];
+      const config = {
+        agents: ['cursor'],
+        custom_overrides: ['O'],
+      } as unknown as SkillConfig;
       vi.spyOn(syncService as any, 'isOverridden').mockReturnValue(true);
       await syncService.writeSkills(skills, config);
       expect(console.log).toHaveBeenCalledWith(
@@ -254,14 +269,16 @@ describe('SyncService', () => {
     });
 
     it('should handle security error in isPathSafe', async () => {
-      const skills: any[] = [
+      const skills = [
         {
           category: 'test',
           skill: 's',
           files: [{ name: '../malicious', content: 'c' }],
         },
-      ];
-      await syncService.writeSkills(skills, { agents: ['cursor'] } as any);
+      ] as any[];
+      await syncService.writeSkills(skills, {
+        agents: ['cursor'],
+      } as unknown as SkillConfig);
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Security Error'),
       );
@@ -277,8 +294,9 @@ describe('SyncService', () => {
         { path: 'skills/c/s/assets/f', type: 'blob' },
         { path: 'skills/c/s/ignored', type: 'blob' },
       ];
-      mockGithubService.downloadFilesConcurrent.mockImplementation((t: any[]) =>
-        t.map((x) => ({ path: x.path, content: 'c' })),
+      mockGithubService.downloadFilesConcurrent.mockImplementation(
+        (t: { path: string }[]) =>
+          t.map((x) => ({ path: x.path, content: 'c' })),
       );
       // @ts-expect-error - private
       const res = await syncService.fetchSkill(
@@ -312,11 +330,11 @@ describe('SyncService', () => {
 
   describe('applyIndices', () => {
     it('should generate and inject index using local files (Happy Path)', async () => {
-      const config: any = {
+      const config = {
         registry: 'url',
         skills: { cat1: {} },
         agents: [Agent.Cursor],
-      };
+      } as unknown as SkillConfig;
 
       await syncService.applyIndices(config, [Agent.Cursor]);
 
@@ -336,11 +354,11 @@ describe('SyncService', () => {
     });
 
     it('should handle IndexGenerator errors', async () => {
-      const config: any = {
+      const config = {
         registry: 'url',
         skills: { cat1: {} },
         agents: [Agent.Cursor],
-      };
+      } as unknown as SkillConfig;
 
       // Force error on generate
       mockGenerate.mockRejectedValueOnce(new Error('Gen fail'));
@@ -355,34 +373,37 @@ describe('SyncService', () => {
 
   describe('assembleWorkflows', () => {
     it('should return empty if workflows are disabled in config', async () => {
-      const config: any = { workflows: false };
+      const config = { workflows: false } as unknown as SkillConfig;
       const result = await syncService.assembleWorkflows(config);
       expect(result).toEqual([]);
     });
 
     it('should return empty if registry URL is invalid', async () => {
-      const config: any = { workflows: true, registry: 'invalid' };
+      const config = {
+        workflows: true,
+        registry: 'invalid',
+      } as unknown as SkillConfig;
       const result = await syncService.assembleWorkflows(config);
       expect(result).toEqual([]);
     });
 
     it('should return empty if fetching tree fails', async () => {
-      const config: any = {
+      const config = {
         workflows: true,
         registry: 'https://github.com/o/r',
         skills: { c: { ref: 'main' } },
-      };
-      (syncService as any).githubService.getRepoTree.mockResolvedValue(null);
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoTree.mockResolvedValue(null);
       const result = await syncService.assembleWorkflows(config);
       expect(result).toEqual([]);
     });
 
     it('should fetch all workflows if config.workflows is true and use default branch', async () => {
-      const config: any = {
+      const config = {
         workflows: true,
         registry: 'https://github.com/o/r',
         skills: { c: { ref: 'v1' } },
-      };
+      } as unknown as SkillConfig;
       const treeData = {
         tree: [
           { path: '.agent/workflows/w1.md' },
@@ -411,11 +432,11 @@ describe('SyncService', () => {
     });
 
     it('should fetch specific workflows if config.workflows is an array', async () => {
-      const config: any = {
+      const config = {
         workflows: ['w1'],
         registry: 'https://github.com/o/r',
         skills: { c: { ref: 'main' } },
-      };
+      } as unknown as SkillConfig;
       const treeData = {
         tree: [
           { path: '.agent/workflows/w1.md' },
@@ -440,16 +461,16 @@ describe('SyncService', () => {
 
   describe('checkForUpdates', () => {
     it('should return null if registry is invalid', async () => {
-      const config: any = { registry: 'invalid' };
+      const config = { registry: 'invalid' } as unknown as SkillConfig;
       const result = await syncService.checkForUpdates(config);
       expect(result).toBeNull();
     });
 
     it('should return null if metadata.json is missing', async () => {
-      const config: any = {
+      const config = {
         registry: 'https://github.com/o/r',
         skills: { ts: { ref: 'v1' } },
-      };
+      } as unknown as SkillConfig;
       mockGithubService.getRepoInfo.mockResolvedValue({
         default_branch: 'main',
       });
@@ -459,13 +480,13 @@ describe('SyncService', () => {
     });
 
     it('should return updates if versions differ', async () => {
-      const config: any = {
+      const config = {
         registry: 'https://github.com/o/r',
         skills: {
           ts: { ref: 'ts-v1.0.0' },
           common: { ref: 'common-v1.0.0' },
         },
-      };
+      } as unknown as SkillConfig;
       const metadata = {
         categories: {
           ts: { version: '1.1.0', tag_prefix: 'ts-v' },
@@ -484,10 +505,10 @@ describe('SyncService', () => {
     });
 
     it('should return null if everything is up to date', async () => {
-      const config: any = {
+      const config = {
         registry: 'https://github.com/o/r',
         skills: { ts: { ref: 'ts-v1.0.0' } },
-      };
+      } as unknown as SkillConfig;
       const metadata = {
         categories: {
           ts: { version: '1.0.0', tag_prefix: 'ts-v' },
@@ -507,12 +528,12 @@ describe('SyncService', () => {
 
   describe('writeWorkflows', () => {
     it('should write workflows to .agent/workflows', async () => {
-      const workflows: any[] = [
+      const workflows = [
         {
           skill: 'workflows',
           files: [{ name: 'w1.md', content: 'content' }],
         },
-      ];
+      ] as any[];
       await syncService.writeWorkflows(workflows);
       expect(fs.outputFile).toHaveBeenCalledWith(
         expect.stringContaining('.agent/workflows/w1.md'),
@@ -523,7 +544,7 @@ describe('SyncService', () => {
     it('should skip non-workflow skills and do nothing if empty', async () => {
       await syncService.writeWorkflows([]);
       await syncService.writeWorkflows([
-        { skill: 'other', files: [], category: 'other' },
+        { skill: 'other', files: [], category: 'other' } as any,
       ]);
       expect(fs.outputFile).not.toHaveBeenCalled();
     });
@@ -531,21 +552,21 @@ describe('SyncService', () => {
 
   describe('applyIndices Edge Cases', () => {
     it('should default to all agents if no agents are enabled', async () => {
-      const config: any = {
+      const config = {
         registry: 'url',
         skills: {},
         agents: [],
-      };
+      } as unknown as SkillConfig;
       await syncService.applyIndices(config, []);
       expect(mockGenerate).toHaveBeenCalled();
     });
 
     it('should do nothing if agent definition is not found', async () => {
-      const config: any = {
+      const config = {
         registry: 'url',
         skills: {},
         agents: [],
-      };
+      } as unknown as SkillConfig;
       await syncService.applyIndices(config, [
         'unknown-agent' as unknown as Agent,
       ]);

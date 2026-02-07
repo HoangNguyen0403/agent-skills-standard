@@ -53,15 +53,24 @@ export class SyncCommand {
 
         let update = options.yes;
         if (update === undefined) {
-          const answer = await inquirer.prompt([
-            {
-              type: 'confirm',
-              name: 'update',
-              message: 'Do you want to update .skillsrc with these versions?',
-              default: true,
-            },
-          ]);
-          update = answer.update;
+          if (!process.stdin.isTTY) {
+            console.log(
+              pc.cyan(
+                'ℹ️  Non-interactive environment detected. Skipping version updates. Use --yes to auto-confirm.',
+              ),
+            );
+            update = false;
+          } else {
+            const answer = await inquirer.prompt([
+              {
+                type: 'confirm',
+                name: 'update',
+                message: 'Do you want to update .skillsrc with these versions?',
+                default: true,
+              },
+            ]);
+            update = answer.update;
+          }
         }
 
         if (update) {

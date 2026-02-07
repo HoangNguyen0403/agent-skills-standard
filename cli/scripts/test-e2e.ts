@@ -10,7 +10,8 @@ const TEMP_DIR = path.join(CLI_ROOT, 'temp_e2e_test');
 async function runCommand(command: string, cwd: string = TEMP_DIR) {
   console.log(pc.cyan(`\n> Running: agent-skills-standard ${command}`));
   try {
-    execSync(`node ${DIST_PATH} ${command}`, {
+    // Wrap DIST_PATH in quotes to handle spaces and prevent injection
+    execSync(`node "${DIST_PATH}" ${command}`, {
       cwd,
       stdio: 'inherit',
     });
@@ -46,7 +47,11 @@ async function main() {
       registry: 'https://github.com/HoangNguyen0403/agent-skills-standard',
       agents: ['antigravity'],
       skills: {
-        flutter: { ref: 'main' },
+        // Limit checkout to a few skills to optimize test time and avoid rate limits
+        flutter: {
+          ref: 'main',
+          include: ['flutter-navigation', 'widgets'],
+        },
       },
       workflows: true, // Enable workflows for advanced sync test
     };
