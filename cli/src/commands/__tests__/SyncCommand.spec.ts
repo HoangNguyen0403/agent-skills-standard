@@ -1,5 +1,12 @@
+import inquirer from 'inquirer';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SyncCommand } from '../sync';
+
+vi.mock('inquirer', () => ({
+  default: {
+    prompt: vi.fn(),
+  },
+}));
 
 vi.mock('picocolors', () => ({
   default: {
@@ -26,12 +33,17 @@ describe('SyncCommand', () => {
       assembleSkills: vi.fn().mockResolvedValue([]),
       writeSkills: vi.fn(),
       applyIndices: vi.fn(),
-      checkForUpdates: vi.fn((c) => c),
+      checkForUpdates: vi.fn().mockResolvedValue(null),
       assembleWorkflows: vi.fn().mockResolvedValue([]),
       writeWorkflows: vi.fn(),
     };
     mockConfigService = {
-      loadConfig: vi.fn().mockResolvedValue({ registry: 'url', skills: {} }),
+      loadConfig: vi.fn().mockResolvedValue({
+        registry: 'url',
+        skills: {
+          common: { ref: 'v1.0.0' },
+        },
+      }),
       saveConfig: vi.fn(),
     };
     mockDetectionService = {
@@ -85,5 +97,73 @@ describe('SyncCommand', () => {
     expect(console.log).toHaveBeenCalledWith(
       expect.stringContaining('not found'),
     );
+  });
+
+  describe('Update Flows', () => {
+    beforeEach(() => {
+      mockSyncService.checkForUpdates.mockReset();
+    });
+
+    it('should prompt user and update config when updates are found', async () => {
+      mockSyncService.checkForUpdates.mockResolvedValue({
+        common: 'v1.1.0',
+      });
+      (inquirer.prompt as any).mockResolvedValue({ update: true });
+
+      await command.run();
+
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('New skill versions detected'),
+      );
+      expect(inquirer.prompt).toHaveBeenCalled();
+      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skills: {
+            common: { ref: 'v1.1.0' },
+          },
+        }),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('.skillsrc updated'),
+      );
+    });
+
+    it('should not update config if user rejects updates', async () => {
+      mockSyncService.checkForUpdates.mockResolvedValue({
+        common: 'v1.1.0',
+      });
+      (inquirer.prompt as any).mockResolvedValue({ update: false });
+
+      await command.run();
+
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('New skill versions detected'),
+      );
+      expect(inquirer.prompt).toHaveBeenCalled();
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Skipping version updates'),
+      );
+    });
+
+    it('should auto-update config when --yes flag is provided', async () => {
+      mockSyncService.checkForUpdates.mockResolvedValue({
+        common: 'v1.1.0',
+      });
+
+      await command.run({ yes: true });
+
+      expect(inquirer.prompt).not.toHaveBeenCalled();
+      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skills: {
+            common: { ref: 'v1.1.0' },
+          },
+        }),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('.skillsrc updated'),
+      );
+    });
   });
 });
