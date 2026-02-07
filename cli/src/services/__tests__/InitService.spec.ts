@@ -103,6 +103,23 @@ describe('InitService', () => {
       );
     });
 
+    it('should include workflows if Antigravity agent is selected', async () => {
+      const answers: InitAnswers = {
+        framework: 'flutter',
+        agents: [Agent.Antigravity],
+        registry: 'url',
+      };
+      await initService.buildAndSaveConfig(answers, {}, '/tmp');
+      expect(mockConfigService.buildInitialConfig).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Array),
+        expect.any(String),
+        expect.any(Object),
+        expect.any(Array),
+        expect.arrayContaining(['code-review']), // Default workflows
+      );
+    });
+
     it('should handle unsupported framework by defaulting languages to empty (line 75 coverage)', async () => {
       const answers: InitAnswers = {
         framework: 'unsupported-framework',

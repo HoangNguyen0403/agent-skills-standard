@@ -1,6 +1,8 @@
 import fs from 'fs-extra';
 import inquirer from 'inquirer';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
+import { InitService } from '../../services/InitService';
+import { RegistryService } from '../../services/RegistryService';
 import { InitCommand } from '../init';
 
 vi.mock('fs-extra');
@@ -18,8 +20,8 @@ vi.mock('picocolors', () => ({
 
 describe('InitCommand', () => {
   let command: InitCommand;
-  let mockInitService: any;
-  let mockRegistryService: any;
+  let mockInitService: Mocked<InitService>;
+  let mockRegistryService: Mocked<RegistryService>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -32,18 +34,21 @@ describe('InitCommand', () => {
         defaultFramework: 'none',
       }),
       buildAndSaveConfig: vi.fn().mockResolvedValue(undefined),
-    };
+    } as unknown as Mocked<InitService>;
     mockRegistryService = {
       discoverRegistry: vi
         .fn()
         .mockResolvedValue({ categories: [], metadata: {} }),
-    };
+    } as unknown as Mocked<RegistryService>;
 
     // Explicitly pass undefined to cover constructor 14-15
     command = new InitCommand(undefined, undefined);
 
-    (command as any).initService = mockInitService;
-    (command as any).registryService = mockRegistryService;
+    // Patch the instances after constructor runs to use our mocks
+    // @ts-expect-error - testing private instance patching
+    command.initService = mockInitService;
+    // @ts-expect-error - testing private instance patching
+    command.registryService = mockRegistryService;
 
     vi.spyOn(console, 'log').mockImplementation(() => {});
 

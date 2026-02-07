@@ -1,5 +1,16 @@
 import inquirer from 'inquirer';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
+import { ConfigService } from '../../services/ConfigService';
+import { DetectionService } from '../../services/DetectionService';
+import { SyncService } from '../../services/SyncService';
 import { SyncCommand } from '../sync';
 
 vi.mock('inquirer', () => ({
@@ -22,9 +33,9 @@ vi.mock('picocolors', () => ({
 
 describe('SyncCommand', () => {
   let command: SyncCommand;
-  let mockSyncService: any;
-  let mockConfigService: any;
-  let mockDetectionService: any;
+  let mockSyncService: Mocked<SyncService>;
+  let mockConfigService: Mocked<ConfigService>;
+  let mockDetectionService: Mocked<DetectionService>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -36,7 +47,7 @@ describe('SyncCommand', () => {
       checkForUpdates: vi.fn().mockResolvedValue(null),
       assembleWorkflows: vi.fn().mockResolvedValue([]),
       writeWorkflows: vi.fn(),
-    };
+    } as unknown as Mocked<SyncService>;
     mockConfigService = {
       loadConfig: vi.fn().mockResolvedValue({
         registry: 'url',
@@ -45,18 +56,21 @@ describe('SyncCommand', () => {
         },
       }),
       saveConfig: vi.fn(),
-    };
+    } as unknown as Mocked<ConfigService>;
     mockDetectionService = {
       getProjectDeps: vi.fn().mockResolvedValue(new Set()),
-    };
+    } as unknown as Mocked<DetectionService>;
 
     // Explicitly pass undefined to cover constructor branches 16-18
     command = new SyncCommand(undefined, undefined, undefined);
 
     // Patch the instances after constructor runs to use our mocks
-    (command as any).configService = mockConfigService;
-    (command as any).detectionService = mockDetectionService;
-    (command as any).syncService = mockSyncService;
+    // @ts-expect-error - testing private instance patching
+    command.configService = mockConfigService;
+    // @ts-expect-error - testing private instance patching
+    command.detectionService = mockDetectionService;
+    // @ts-expect-error - testing private instance patching
+    command.syncService = mockSyncService;
 
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -100,15 +114,25 @@ describe('SyncCommand', () => {
   });
 
   describe('Update Flows', () => {
+    let originalIsTTY: boolean | undefined;
+
     beforeEach(() => {
       mockSyncService.checkForUpdates.mockReset();
+      originalIsTTY = process.stdin.isTTY;
+      process.stdin.isTTY = true;
+    });
+
+    afterEach(() => {
+      if (originalIsTTY !== undefined) {
+        process.stdin.isTTY = originalIsTTY;
+      }
     });
 
     it('should prompt user and update config when updates are found', async () => {
       mockSyncService.checkForUpdates.mockResolvedValue({
         common: 'v1.1.0',
       });
-      (inquirer.prompt as any).mockResolvedValue({ update: true });
+      vi.mocked(inquirer.prompt).mockResolvedValue({ update: true });
 
       await command.run();
 
@@ -132,7 +156,7 @@ describe('SyncCommand', () => {
       mockSyncService.checkForUpdates.mockResolvedValue({
         common: 'v1.1.0',
       });
-      (inquirer.prompt as any).mockResolvedValue({ update: false });
+      vi.mocked(inquirer.prompt).mockResolvedValue({ update: false });
 
       await command.run();
 
@@ -163,6 +187,21 @@ describe('SyncCommand', () => {
       );
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('.skillsrc updated'),
+      );
+    });
+
+    it('should skip updates in non-interactive environment', async () => {
+      process.stdin.isTTY = false;
+      mockSyncService.checkForUpdates.mockResolvedValue({
+        common: 'v1.1.0',
+      });
+
+      await command.run();
+
+      expect(inquirer.prompt).not.toHaveBeenCalled();
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Non-interactive environment detected'),
       );
     });
   });

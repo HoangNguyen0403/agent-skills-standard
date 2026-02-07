@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Agent } from '../../constants';
 import { IndexGeneratorService } from '../IndexGeneratorService';
 
 vi.mock('fs-extra');
@@ -64,6 +65,26 @@ describe('IndexGeneratorService', () => {
 
       const result = await service.generate('/skills', ['common']);
       expect(result).toContain('# Agent Skills Index');
+    });
+
+    it('should skip skills with invalid frontmatter', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue(['invalid-skill']);
+      (fs.readFile as any).mockResolvedValue('No frontmatter here');
+
+      const result = await service.generate('/skills', ['common']);
+      expect(result).not.toContain('common/invalid-skill');
+    });
+
+    it('should skip skills where SKILL.md is missing in directory', async () => {
+      (fs.pathExists as any).mockImplementation(async (p: string) => {
+        if (p.endsWith('SKILL.md')) return false;
+        return true;
+      });
+      (fs.readdir as any).mockResolvedValue(['skill']);
+
+      const result = await service.generate('/skills', ['common']);
+      expect(result).not.toContain('common/skill');
     });
   });
 
@@ -148,7 +169,28 @@ describe('IndexGeneratorService', () => {
 
     it('should handle ruleFile as a specific file by using its directory', async () => {
       const rootDir = '/root';
-      const agents = ['roo' as any]; // Roo uses .roo/rules/
+      const agents = ['trae' as any];
+
+      // Assuming trae.ruleFile is '.trae/rules' (a directory) in actual constants
+      await service.bridge(rootDir, agents);
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        expect.stringContaining('/root/.trae/rules/'),
+        expect.any(String),
+      );
+    });
+
+    it('should generate bridge rules for multiple agents', async () => {
+      const rootDir = '/root';
+      const agents = [Agent.Cursor, Agent.Copilot];
+
+      await service.bridge(rootDir, agents);
+
+      expect(fs.outputFile).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle agents with specific directory rules (Roo/Trae)', async () => {
+      const rootDir = '/root';
+      const agents = ['roo' as any];
 
       await service.bridge(rootDir, agents);
 

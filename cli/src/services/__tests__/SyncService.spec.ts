@@ -235,6 +235,35 @@ describe('SyncService', () => {
       await syncService.writeSkills([], config);
     });
 
+    it('should fallback to all agents if no agents are configured and none are detected (line 122 coverage)', async () => {
+      vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(false));
+      const config = { agents: [], custom_overrides: [] } as any;
+      const skills = [
+        {
+          category: 'cat',
+          skill: 's',
+          files: [{ name: 'f.md', content: 'c' }],
+        },
+      ];
+      await syncService.writeSkills(skills, config);
+      expect(fs.ensureDir).toHaveBeenCalled();
+    });
+
+    it('should skip writing if path is not safe (line 173 coverage)', async () => {
+      const skills = [
+        {
+          category: 'cat',
+          skill: 's',
+          files: [{ name: '../../unsafe.md', content: 'c' }],
+        },
+      ];
+      const config = { agents: [Agent.Cursor] } as any;
+      await syncService.writeSkills(skills, config);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Security Error'),
+      );
+    });
+
     it('should skip file if overridden', async () => {
       const skills = [
         {
@@ -369,6 +398,19 @@ describe('SyncService', () => {
         expect.stringContaining('Failed to update index'),
       );
     });
+
+    it('should auto-detect agents if none specified (line 294-297 coverage)', async () => {
+      vi.mocked(fs.pathExists).mockImplementationOnce(() =>
+        Promise.resolve(true),
+      ); // first agent exists
+      const config = {
+        agents: [],
+        skills: { flutter: {} },
+      } as any;
+
+      await syncService.applyIndices(config);
+      expect(mockGenerate).toHaveBeenCalled();
+    });
   });
 
   describe('assembleWorkflows', () => {
@@ -378,10 +420,10 @@ describe('SyncService', () => {
       expect(result).toEqual([]);
     });
 
-    it('should return empty if registry URL is invalid', async () => {
+    it('should return empty if registry URL is invalid (line 215 coverage)', async () => {
       const config = {
         workflows: true,
-        registry: 'invalid',
+        registry: 'https://gitlab.com',
       } as unknown as SkillConfig;
       const result = await syncService.assembleWorkflows(config);
       expect(result).toEqual([]);
@@ -459,6 +501,37 @@ describe('SyncService', () => {
     });
   });
 
+  describe('writeWorkflows', () => {
+    it('should skip if no workflows provided', async () => {
+      await syncService.writeWorkflows([]);
+      expect(fs.outputFile).not.toHaveBeenCalled();
+    });
+
+    it('should skip if skill is not "workflows" (line 284 coverage)', async () => {
+      await syncService.writeWorkflows([
+        { skill: 'invalid', files: [] },
+      ] as any);
+      expect(fs.outputFile).not.toHaveBeenCalled();
+    });
+
+    it('should write workflow files to local .agent/workflows', async () => {
+      const workflows = [
+        {
+          skill: 'workflows',
+          files: [{ name: 'test.md', content: 'content' }],
+        },
+      ];
+      await syncService.writeWorkflows(workflows as any);
+      expect(fs.ensureDir).toHaveBeenCalledWith(
+        expect.stringContaining('.agent'),
+      );
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        expect.stringContaining('test.md'),
+        'content',
+      );
+    });
+  });
+
   describe('checkForUpdates', () => {
     it('should return null if registry is invalid', async () => {
       const config = { registry: 'invalid' } as unknown as SkillConfig;
@@ -522,6 +595,32 @@ describe('SyncService', () => {
 
       const result = await syncService.checkForUpdates(config);
 
+      expect(result).toBeNull();
+    });
+
+    it('should handle errors and log in debug mode (line 392 coverage)', async () => {
+      process.env.DEBUG = 'true';
+      const config = { registry: 'https://github.com/o/r' } as any;
+      mockGithubService.getRepoInfo.mockRejectedValue(new Error('Fatal'));
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const result = await syncService.checkForUpdates(config);
+      expect(result).toBeNull();
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Update check failed'),
+      );
+      delete process.env.DEBUG;
+    });
+
+    it('should ignore categories not present in metadata (line 377 coverage)', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        skills: { unknown: { ref: 'v1' } },
+      } as any;
+      mockGithubService.getRawFile.mockResolvedValue(
+        JSON.stringify({ categories: {} }),
+      );
+      const result = await syncService.checkForUpdates(config);
       expect(result).toBeNull();
     });
   });

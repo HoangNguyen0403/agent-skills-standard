@@ -290,13 +290,6 @@ export class SyncService {
       }
     }
 
-    if (agents.length === 0) {
-      console.log(
-        pc.yellow('  ⚠️  No agents enabled, skipping index generation.'),
-      );
-      return;
-    }
-
     console.log(pc.cyan('🔍 Updating Agent Skills index...'));
 
     // We use the path of the first enabled agent as the source of truth for generating the index.
