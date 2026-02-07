@@ -96,12 +96,15 @@ async function generate() {
   );
 
   // Also update AGENTS.md
+  // Update AGENTS.md in the repository root (one level up)
+  const repoRoot = path.join(process.cwd(), '..');
   const generator = new IndexGeneratorService();
   const indexContent = generator.assembleIndex(
     Object.values(frameworkIndices).flatMap((s) => s.split('\n')),
   );
-  await generator.inject(process.cwd(), indexContent);
-  console.log('✅ Updated AGENTS.md');
+
+  await generator.inject(repoRoot, indexContent);
+  console.log('✅ Updated AGENTS.md in repo root');
 }
 
 generate().catch(console.error);
