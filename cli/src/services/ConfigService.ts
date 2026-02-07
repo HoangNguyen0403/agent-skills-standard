@@ -22,6 +22,7 @@ const SkillConfigSchema = z.object({
     }),
   ),
   custom_overrides: z.array(z.string()).optional(),
+  workflows: z.union([z.boolean(), z.array(z.string())]).optional(),
 });
 
 /**

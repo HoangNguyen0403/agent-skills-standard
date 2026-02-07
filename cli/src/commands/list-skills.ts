@@ -28,22 +28,29 @@ export class ListSkillsCommand {
    * Executes the skill listing flow.
    * Prompts for framework selection, fetches matching skills from the registry, and displays their status.
    */
-  async run() {
+  async run(options: { framework?: string } = {}) {
     // 1. Get framework choice from user
-    const choices = SUPPORTED_FRAMEWORKS.map((f) => ({
-      name: f.name,
-      value: f.id,
-    }));
+    let framework = options.framework;
 
-    const { framework } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'framework',
-        message: 'Select framework to list available skills for:',
-        choices,
-        default: choices.find((c) => c.value === Framework.Flutter)?.value,
-      },
-    ]);
+    if (!framework) {
+      const choices = SUPPORTED_FRAMEWORKS.map((f) => ({
+        name: f.name,
+        value: f.id,
+      }));
+
+      const answer = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'framework',
+          message: 'Select framework to list available skills for:',
+          choices,
+          default: choices.find((c) => c.value === Framework.Flutter)?.value,
+        },
+      ]);
+      framework = answer.framework;
+    }
+
+    if (!framework) return;
 
     // 2. Load context
     const projectDeps = await this.detectionService.getProjectDeps();

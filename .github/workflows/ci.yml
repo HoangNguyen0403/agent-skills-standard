@@ -49,6 +49,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Run Unit Tests with Coverage
         run: pnpm test:coverage
+      - name: Run E2E Tests
+        run: pnpm test:e2e
 
   validate-skills:
     runs-on: ubuntu-latest

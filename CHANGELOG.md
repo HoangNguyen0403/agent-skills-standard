@@ -5,6 +5,24 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.4] - 2026-02-07
+
+**Category**: Workflow Automation & E2E Verification Expansion
+
+### Added (CLI v1.6.4)
+
+- **🤖 Agent Workflows**: Added support for syncing executable workflows (`.md` files) from `.agent/workflows`.
+  - Configurable via `workflows: true` in `.skillsrc`.
+  - Automatically fetches and updates workflows from the registry.
+- **✨ Enhanced CLI UX**:
+  - `list-skills`: Added `--framework` flag for non-interactive filtering.
+  - `sync`: Added `--yes` flag to bypass confirmation prompts.
+- **🛡️ E2E Test Expansion**:
+  - Expanded test suite to cover `list-skills`, `version`, `help`, and `validate` commands.
+  - Added verification for workflow synchronization.
+- **🐛 Bug Fixes**:
+  - Fixed `ConfigService` schema validation to correctly accept the `workflows` property.
+
 ## [1.6.3] - 2026-02-07
 
 **Category**: Documentation Governance & CLI/Server Hardening & Skillset Expansion

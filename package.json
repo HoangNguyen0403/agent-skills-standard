@@ -29,6 +29,7 @@
     "generate-indices": "pnpm --filter ./cli generate-indices",
     "audit:skills": "pnpm --filter ./cli audit:skills",
     "docs:scan": "pnpm --filter ./cli docs:scan src ../server/src",
+    "test:e2e": "pnpm --filter ./cli test:e2e",
     "prepare": "husky"
   },
   "engines": {

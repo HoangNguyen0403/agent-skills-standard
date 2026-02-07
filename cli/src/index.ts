@@ -18,7 +18,7 @@ program
   .description(
     'A CLI to manage and sync AI agent skills for Cursor, Claude, Copilot, Windsurf, and more.',
   )
-  .version('1.6.3');
+  .version('1.6.4');
 
 program
   .command('init')
@@ -31,17 +31,22 @@ program
 program
   .command('sync')
   .description('Sync skills to AI Agent skill directories')
-  .action(async () => {
+  .option(
+    '-y, --yes',
+    'Automatically confirm interactive prompts (e.g. update versions)',
+  )
+  .action(async (options) => {
     const sync = new SyncCommand();
-    await sync.run();
+    await sync.run(options);
   });
 
 program
   .command('list-skills')
   .description('List available framework skills and detection status')
-  .action(async () => {
+  .option('-f, --framework <framework>', 'The framework to list skills for')
+  .action(async (options) => {
     const cmd = new ListSkillsCommand();
-    await cmd.run();
+    await cmd.run(options);
   });
 
 program

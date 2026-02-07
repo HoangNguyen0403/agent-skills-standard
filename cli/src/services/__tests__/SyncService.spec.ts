@@ -47,6 +47,7 @@ describe('SyncService', () => {
       fetchSkillFiles: vi.fn(),
       downloadFilesConcurrent: vi.fn(),
       getRawFile: vi.fn(),
+      getRepoInfo: vi.fn(),
     };
     mockConfigService = {
       reconcileDependencies: vi.fn(),
@@ -352,14 +353,6 @@ describe('SyncService', () => {
     });
   });
 
-  describe('checkForUpdates Coverage', () => {
-    it('should return config unchanged', async () => {
-      const config: any = { registry: 'url' };
-      const result = await syncService.checkForUpdates(config);
-      expect(result).toBe(config);
-    });
-  });
-
   describe('assembleWorkflows', () => {
     it('should return empty if workflows are disabled in config', async () => {
       const config: any = { workflows: false };
@@ -384,11 +377,11 @@ describe('SyncService', () => {
       expect(result).toEqual([]);
     });
 
-    it('should fetch all workflows if config.workflows is true', async () => {
+    it('should fetch all workflows if config.workflows is true and use default branch', async () => {
       const config: any = {
         workflows: true,
         registry: 'https://github.com/o/r',
-        skills: { c: { ref: 'main' } },
+        skills: { c: { ref: 'v1' } },
       };
       const treeData = {
         tree: [
@@ -397,17 +390,22 @@ describe('SyncService', () => {
           { path: 'other/file.md' },
         ],
       };
-      (syncService as any).githubService.getRepoTree.mockResolvedValue(
-        treeData,
-      );
-      (
-        syncService as any
-      ).githubService.downloadFilesConcurrent.mockResolvedValue([
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'develop',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue(treeData);
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue([
         { path: '.agent/workflows/w1.md', content: 'c1' },
       ]);
 
       const result = await syncService.assembleWorkflows(config);
 
+      expect(mockGithubService.getRepoInfo).toHaveBeenCalledWith('o', 'r');
+      expect(mockGithubService.getRepoTree).toHaveBeenCalledWith(
+        'o',
+        'r',
+        'develop',
+      );
       expect(result).toHaveLength(1);
       expect(result[0].skill).toBe('workflows');
     });
@@ -424,22 +422,86 @@ describe('SyncService', () => {
           { path: '.agent/workflows/w2.md' },
         ],
       };
-      (syncService as any).githubService.getRepoTree.mockResolvedValue(
-        treeData,
-      );
-      (
-        syncService as any
-      ).githubService.downloadFilesConcurrent.mockResolvedValue([]);
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue(treeData);
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue([]);
 
       await syncService.assembleWorkflows(config);
 
-      expect(
-        (syncService as any).githubService.downloadFilesConcurrent,
-      ).toHaveBeenCalledWith(
+      expect(mockGithubService.downloadFilesConcurrent).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({ path: '.agent/workflows/w1.md' }),
         ]),
       );
+    });
+  });
+
+  describe('checkForUpdates', () => {
+    it('should return null if registry is invalid', async () => {
+      const config: any = { registry: 'invalid' };
+      const result = await syncService.checkForUpdates(config);
+      expect(result).toBeNull();
+    });
+
+    it('should return null if metadata.json is missing', async () => {
+      const config: any = {
+        registry: 'https://github.com/o/r',
+        skills: { ts: { ref: 'v1' } },
+      };
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRawFile.mockResolvedValue(null);
+      const result = await syncService.checkForUpdates(config);
+      expect(result).toBeNull();
+    });
+
+    it('should return updates if versions differ', async () => {
+      const config: any = {
+        registry: 'https://github.com/o/r',
+        skills: {
+          ts: { ref: 'ts-v1.0.0' },
+          common: { ref: 'common-v1.0.0' },
+        },
+      };
+      const metadata = {
+        categories: {
+          ts: { version: '1.1.0', tag_prefix: 'ts-v' },
+          common: { version: '1.0.0', tag_prefix: 'common-v' },
+        },
+      };
+
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRawFile.mockResolvedValue(JSON.stringify(metadata));
+
+      const result = await syncService.checkForUpdates(config);
+
+      expect(result).toEqual({ ts: 'ts-v1.1.0' });
+    });
+
+    it('should return null if everything is up to date', async () => {
+      const config: any = {
+        registry: 'https://github.com/o/r',
+        skills: { ts: { ref: 'ts-v1.0.0' } },
+      };
+      const metadata = {
+        categories: {
+          ts: { version: '1.0.0', tag_prefix: 'ts-v' },
+        },
+      };
+
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRawFile.mockResolvedValue(JSON.stringify(metadata));
+
+      const result = await syncService.checkForUpdates(config);
+
+      expect(result).toBeNull();
     });
   });
 

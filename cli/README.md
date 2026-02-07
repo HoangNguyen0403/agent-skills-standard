@@ -51,6 +51,7 @@ Agent Skills Standard treats instructions as **versioned dependencies**, much li
 - **🔄 Dynamic Re-detection**: Automatically re-enables skills if matching dependencies are added.
 - **🔒 Secure Overrides**: Lock specific files so they never get overwritten.
 - **📊 Semantic Tagging**: Skills tagged with triggers for exact application.
+- **🤖 Agent Workflows**: Sync executable workflows (.md files) that agents can follow to perform complex tasks.
 
 ---
 
@@ -176,6 +177,8 @@ skills:
       - 'common/*'
     # 🔒 Protect local modifications from being overwritten
     custom_overrides: ['bloc-state-management']
+  # 🤖 Optional: Sync workflows to .agent/workflows/
+  workflows: true
 ```
 
 ### Key Options

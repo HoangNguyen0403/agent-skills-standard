@@ -1,3 +1,4 @@
+import inquirer from 'inquirer';
 import pc from 'picocolors';
 import { ConfigService } from '../services/ConfigService';
 import { DetectionService } from '../services/DetectionService';
@@ -26,10 +27,10 @@ export class SyncCommand {
    * Executes the synchronization flow.
    * Reconciles dependencies, fetches skills and workflows from the registry, and updates AGENTS.md.
    */
-  async run() {
+  async run(options: { yes?: boolean } = {}) {
     try {
       // 1. Load Config
-      let config = await this.configService.loadConfig();
+      const config = await this.configService.loadConfig();
       if (!config) {
         console.log(pc.red('❌ Error: .skillsrc not found. Run `init` first.'));
         return;
@@ -39,8 +40,42 @@ export class SyncCommand {
       const projectDeps = await this.detectionService.getProjectDeps();
       await this.syncService.reconcileConfig(config, projectDeps);
 
-      // 3. Check for updates (Simplified for now)
-      config = await this.syncService.checkForUpdates(config);
+      // 3. Check for updates
+      const updates = await this.syncService.checkForUpdates(config);
+
+      if (updates) {
+        console.log(pc.yellow('\n🚀 New skill versions detected:'));
+        for (const [cat, ref] of Object.entries(updates)) {
+          console.log(
+            pc.gray(`  - ${cat}: ${config.skills[cat].ref} -> ${ref}`),
+          );
+        }
+
+        let update = options.yes;
+        if (update === undefined) {
+          const answer = await inquirer.prompt([
+            {
+              type: 'confirm',
+              name: 'update',
+              message: 'Do you want to update .skillsrc with these versions?',
+              default: true,
+            },
+          ]);
+          update = answer.update;
+        }
+
+        if (update) {
+          for (const [cat, ref] of Object.entries(updates)) {
+            config.skills[cat].ref = ref;
+          }
+          await this.configService.saveConfig(config);
+          console.log(pc.green('✅ .skillsrc updated.'));
+        } else {
+          console.log(
+            pc.cyan('ℹ️  Skipping version updates, staying on pinned refs.'),
+          );
+        }
+      }
 
       console.log(pc.cyan(`🚀 Syncing skills from ${config.registry}...`));
 
