@@ -5,7 +5,7 @@ description: Core standards for unit, widget, and integration testing in Flutter
 
 # Flutter Testing Standards
 
-## Priority: P0 (CRITICAL)
+## **Priority: P0 (CRITICAL)**
 
 Strict guidelines for maintaining a high-quality, reliable, and fast test suite.
 

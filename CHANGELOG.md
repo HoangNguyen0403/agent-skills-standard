@@ -34,10 +34,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Versions
 
 - **Common Skills**: v1.5.0 (Minor)
-- **Flutter Skills**: v1.3.0 (Minor)
-- **NestJS Skills**: v1.1.0 (Minor)
-- **Angular Skills**: v1.1.0 (Minor)
-- **iOS Skills**: v1.1.0 (Minor)
+- **Framework Skills**:
+  - **Flutter**: v1.3.0 (Minor)
+  - **NestJS**: v1.1.0 (Minor)
+  - **Angular**: v1.1.0 (Minor)
+  - **iOS**: v1.1.0 (Minor)
+  - **Spring Boot**: v1.0.1 (Patch)
+  - **Android**: v1.0.2 (Patch)
+- **Language Skills**:
+  - **Dart**: v1.0.4 (Patch)
+  - **TypeScript**: v1.0.6 (Patch)
+  - **Kotlin**: v1.0.1 (Patch)
 - **CLI/Server**: v1.6.3 (Patch)
 
 ## [1.6.2] - 2026-02-01

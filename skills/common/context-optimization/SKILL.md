@@ -8,7 +8,7 @@ metadata:
     keywords: [reduce tokens, optimize context, summarize history, clear output]
 ---
 
-## Priority: P1 (OPTIMIZATION)
+## **Priority: P1 (OPTIMIZATION)**
 
 Manage the Attention Budget. Treat context as a scarce resource.
 

@@ -8,7 +8,7 @@ metadata:
     keywords: [RLS, Row Level Security, childId, isolation, access policy]
 ---
 
-## Priority: P0
+## **Priority: P0 (CRITICAL)**
 
 Strict multi-tenant isolation. All child-centric data must be secured via PostgreSQL RLS and service-level validation.
 
