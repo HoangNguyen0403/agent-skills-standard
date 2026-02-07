@@ -68,3 +68,40 @@ void main() {
   ...
 }
 ```
+
+## Safe Argument Matching
+
+Avoid using `any()` and `registerFallbackValue` as they bypass type safety and can lead to silent failures or brittle tests.
+
+### ❌ BAD: Unsafe Matchers
+
+```dart
+// Requires registerFallbackValue(MyParams()) if MyParams is a custom class
+when(() => repository.fetchData(any())).thenAnswer(...);
+
+// Unsafe: bypasses parameter verification
+verify(() => service.logAction(any())).called(1);
+```
+
+### ✅ GOOD: Explicit Matchers
+
+```dart
+// Use specific values when possible
+when(() => repository.fetchData(const MyParams(id: '123'))).thenAnswer(...);
+
+// Use anyNamed() for named parameters
+verify(() => service.performTask(
+  id: anyNamed('id'),
+  priority: 1,
+)).called(1);
+
+// Use type-specific matchers or equality
+verify(() => logger.log(
+  message: argThat(startsWith('Error')),
+  level: LogLevel.error,
+)).called(1);
+```
+
+### Why avoid `registerFallbackValue`?
+
+It often indicates that the test is not being specific enough about the data it expects. Relying on global fallback values makes tests harder to follow and can hide bugs where the wrong type of object is being passed to a mock.

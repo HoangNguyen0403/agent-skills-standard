@@ -484,7 +484,9 @@ describe('SyncService', () => {
         skills: {},
         agents: [],
       };
-      await syncService.applyIndices(config, ['unknown-agent' as any]);
+      await syncService.applyIndices(config, [
+        'unknown-agent' as unknown as Agent,
+      ]);
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('not found'),
       );

@@ -244,7 +244,7 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | **☕ Spring Boot**         | Architecture, Security, Data, Test, Microservices     | `v1.0.0` | 10     | ~339 tokens    |
 | **🌐 Common**              | SOLID, Security (SQLi/HTMLi), TDD, Anti-Patterns      | `v1.3.0` | 14     | ~494 tokens    |
 | **🌐 Quality Engineering** | Business Analysis, Jira, Zephyr, QA Automation        | `v1.0.0` | 4      | ~500 tokens    |
-| **💙 Flutter**             | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.2` | 21     | ~409 tokens    |
+| **💙 Flutter**             | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.2` | 21     | ~414 tokens    |
 | **🎯 Dart**                | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.3` | 3      | ~435 tokens    |
 | **☕ Java**                | Modern Syntax, Virtual Threads, Testing, Tooling      | `v1.0.0` | 5      | ~522 tokens    |
 | **🔷 TypeScript**          | Type Safety, Security, Best Practices, Tooling        | `v1.0.4` | 4      | ~627 tokens    |

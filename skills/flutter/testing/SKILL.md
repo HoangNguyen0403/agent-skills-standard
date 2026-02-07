@@ -22,6 +22,7 @@ Strict guidelines for maintaining a high-quality, reliable, and fast test suite.
 
 - **Rule**: All shared components (Blocs, Repos/Services) must use shared mocks.
 - **Location**: `test/shared/`
+- **Safe Matchers**: Avoid `any()` and `registerFallbackValue`. Use specific matchers or `anyNamed()` for named parameters.
 - **Reference**: [Mocking Standards (Detailed)](references/mocking_standards.md)
 
 ## Directory Structure
@@ -40,3 +41,4 @@ test/
 - **No Logic in Tests**: Test logic, don't reimplement it.
 - **No Flaky Tests**: Avoid `Future.delayed` or reliance on external state.
 - **No Local Mocks**: See [Mocking Standards](references/mocking_standards.md).
+- **No Unsafe Matchers**: Avoid `any()` (use specific types/matchers) and `registerFallbackValue`.
