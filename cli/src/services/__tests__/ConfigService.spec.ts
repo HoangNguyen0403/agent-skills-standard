@@ -87,7 +87,7 @@ describe('ConfigService', () => {
       await configService.saveConfig(mockConfig, mockCwd);
 
       expect(yaml.dump).toHaveBeenCalledWith(mockConfig);
-      expect(fs.writeFile).toHaveBeenCalledWith(
+      expect(fs.outputFile).toHaveBeenCalledWith(
         path.join(mockCwd, '.skillsrc'),
         'mock yaml',
       );

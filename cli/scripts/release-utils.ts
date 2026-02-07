@@ -101,7 +101,7 @@ export async function updateChangelog(
         currentChangelog.slice(0, splitIndex) +
         changelogEntry +
         currentChangelog.slice(splitIndex);
-      await fs.writeFile(changelogPath, newContent);
+      await fs.outputFile(changelogPath, newContent);
       console.log(pc.green(`✅ Updated CHANGELOG.md`));
     } else {
       // If no entries yet, append after header
@@ -112,7 +112,7 @@ export async function updateChangelog(
         currentChangelog.slice(0, insertAt) +
         changelogEntry +
         currentChangelog.slice(insertAt);
-      await fs.writeFile(changelogPath, newContent);
+      await fs.outputFile(changelogPath, newContent);
       console.log(pc.green(`✅ Initialized CHANGELOG.md with first entry`));
     }
   } catch (e) {
@@ -143,7 +143,7 @@ export async function updateCLIVersion(
       /\.version\(['"][0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?['"]\)/,
       `.version('${version}')`,
     );
-    await fs.writeFile(indexPath, updatedContent);
+    await fs.outputFile(indexPath, updatedContent);
     console.log(pc.green(`✅ Updated cli/src/index.ts version to ${version}`));
   }
 }

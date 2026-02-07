@@ -97,7 +97,7 @@ describe('InitService', () => {
 
       expect(mockConfigService.buildInitialConfig).toHaveBeenCalled();
       expect(mockConfigService.applyDependencyExclusions).toHaveBeenCalled();
-      expect(fs.writeFile).toHaveBeenCalledWith(
+      expect(fs.outputFile).toHaveBeenCalledWith(
         expect.stringContaining('.skillsrc'),
         expect.stringContaining('Auto-detected configuration'),
       );

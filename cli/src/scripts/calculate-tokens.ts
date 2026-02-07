@@ -154,7 +154,7 @@ async function main() {
   console.log('═══════════════════════════════════════\n');
 
   // Write updated metadata
-  fs.writeFileSync(METADATA_PATH, JSON.stringify(metadata, null, 2) + '\n');
+  fs.outputFileSync(METADATA_PATH, JSON.stringify(metadata, null, 2) + '\n');
   console.log('✅ Updated metadata.json with token_metrics');
 
   // Update README.md table
@@ -197,7 +197,7 @@ async function main() {
     }
 
     if (updated) {
-      fs.writeFileSync(readmePath, lines.join('\n'));
+      fs.outputFileSync(readmePath, lines.join('\n'));
       console.log('✅ Updated README.md support table');
     }
   }

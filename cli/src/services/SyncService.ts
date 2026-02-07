@@ -106,8 +106,32 @@ export class SyncService {
    * Writes collected skills to target agent paths.
    */
   async writeSkills(skills: CollectedSkill[], config: SkillConfig) {
-    const agents = config.agents || SUPPORTED_AGENTS.map((a) => a.id);
+    let agents = config.agents;
     const overrides = config.custom_overrides || [];
+
+    // If no agents explicitly configured, fallback to content-based detection
+    // We only sync to agents that ALREADY have a directory created.
+    if (!agents || agents.length === 0) {
+      agents = [];
+      for (const def of SUPPORTED_AGENTS) {
+        if (def.path && (await fs.pathExists(def.path))) {
+          agents.push(def.id);
+        }
+      }
+
+      if (
+        agents.length === 0 &&
+        (!config.agents || config.agents.length === 0)
+      ) {
+        // If detection failed and config is empty, we default to ALL (Bootstrap mode)
+        // OR we warn. Given 'ags sync' might be first run, maybe we should respect .skillsrc?
+        // But invalid config shouldn't blow up workspace.
+        // Let's default to primary supported agents if truly nothing exists,
+        // but typically 'init' sets the config.
+        // For safety/strictness:
+        agents = SUPPORTED_AGENTS.map((a) => a.id);
+      }
+    }
 
     for (const agentId of agents) {
       const agentDef = SUPPORTED_AGENTS.find((a) => a.id === agentId);
@@ -239,12 +263,25 @@ export class SyncService {
    * @param enabledAgents Optional list of agents to generate index for. Defaults to config agents.
    */
   async applyIndices(config: SkillConfig, enabledAgents: Agent[] = []) {
-    const agents =
+    let agents =
       enabledAgents && enabledAgents.length > 0
         ? enabledAgents
         : config.agents && config.agents.length > 0
           ? config.agents
-          : SUPPORTED_AGENTS.map((a) => a.id);
+          : [];
+
+    // Auto-detect if no agents specified
+    if (agents.length === 0) {
+      for (const def of SUPPORTED_AGENTS) {
+        if (def.path && (await fs.pathExists(def.path))) {
+          agents.push(def.id);
+        }
+      }
+      // If still empty, default to all (bootstrap)
+      if (agents.length === 0) {
+        agents = SUPPORTED_AGENTS.map((a) => a.id);
+      }
+    }
 
     if (agents.length === 0) {
       console.log(

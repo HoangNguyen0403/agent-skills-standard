@@ -69,7 +69,7 @@ export class ConfigService {
     cwd: string = process.cwd(),
   ): Promise<void> {
     const configPath = path.join(cwd, '.skillsrc');
-    await fs.writeFile(configPath, yaml.dump(config));
+    await fs.outputFile(configPath, yaml.dump(config));
   }
 
   /**

@@ -79,7 +79,7 @@ export class IndexGeneratorService {
         content = `<!-- SKILLS_INDEX_START -->\n${indexContent}\n<!-- SKILLS_INDEX_END -->\n`;
       }
 
-      await fs.writeFile(targetPath, content);
+      await fs.outputFile(targetPath, content);
     }
   }
 
@@ -144,7 +144,7 @@ export class IndexGeneratorService {
         'The `AGENTS.md` file contains mapping between project files and the specific agent skills located in the respective agent-specific folders (e.g., `.cursor/skills`, `.claude/skills`).',
       ].join('\n');
 
-      await fs.writeFile(ruleFilePath, content);
+      await fs.outputFile(ruleFilePath, content);
     }
   }
 

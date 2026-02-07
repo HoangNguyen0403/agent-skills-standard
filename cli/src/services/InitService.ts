@@ -139,6 +139,6 @@ export class InitService {
 #
 `;
     const configPath = path.join(cwd, '.skillsrc');
-    await fs.writeFile(configPath, commentHeader + yaml.dump(config));
+    await fs.outputFile(configPath, commentHeader + yaml.dump(config));
   }
 }
