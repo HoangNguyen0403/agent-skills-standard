@@ -48,8 +48,8 @@ export const SKILL_DETECTION_REGISTRY: Record<string, SkillDetection[]> = {
       packages: ['retrofit'],
     },
     {
-      id: 'navigator-v1-navigation',
-      packages: ['flutter'], // Always enabled for Flutter
+      id: 'dependency-injection',
+      packages: ['get_it', 'injectable'],
     },
   ],
   [Framework.NestJS]: [

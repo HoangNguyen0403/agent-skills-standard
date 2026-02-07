@@ -242,24 +242,24 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | Category                   | Key Modules                                           | Version  | Skills | Avg. Footprint |
 | :------------------------- | :---------------------------------------------------- | :------- | :----- | :------------- |
 | **☕ Spring Boot**         | Architecture, Security, Data, Test, Microservices     | `v1.0.0` | 10     | ~339 tokens    |
-| **🌐 Common**              | SOLID, Security (SQLi/HTMLi), TDD, Anti-Patterns      | `v1.3.0` | 12     | ~489 tokens    |
+| **🌐 Common**              | SOLID, Security (SQLi/HTMLi), TDD, Anti-Patterns      | `v1.3.0` | 14     | ~494 tokens    |
 | **🌐 Quality Engineering** | Business Analysis, Jira, Zephyr, QA Automation        | `v1.0.0` | 4      | ~500 tokens    |
-| **💙 Flutter**             | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.2` | 22     | ~399 tokens    |
-| **🎯 Dart**                | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.3` | 3      | ~351 tokens    |
+| **💙 Flutter**             | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.1.2` | 21     | ~409 tokens    |
+| **🎯 Dart**                | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.3` | 3      | ~435 tokens    |
 | **☕ Java**                | Modern Syntax, Virtual Threads, Testing, Tooling      | `v1.0.0` | 5      | ~522 tokens    |
-| **🔷 TypeScript**          | Type Safety, Security, Best Practices, Tooling        | `v1.0.4` | 4      | ~403 tokens    |
+| **🔷 TypeScript**          | Type Safety, Security, Best Practices, Tooling        | `v1.0.4` | 4      | ~627 tokens    |
 | **🟨 JavaScript**          | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.2` | 5      | ~522 tokens    |
-| **⚛️ React**               | Hooks, State Management, Performance, Security        | `v1.0.2` | 8      | ~390 tokens    |
-| **📱 React Native**        | Arch, Perf, Navigation, Security, Deployment          | `v1.0.1` | 8      | ~390 tokens    |
-| **🦁 NestJS**              | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.3` | 18     | ~474 tokens    |
+| **⚛️ React**               | Hooks, State Management, Performance, Security        | `v1.0.2` | 8      | ~396 tokens    |
+| **📱 React Native**        | Arch, Perf, Navigation, Security, Deployment          | `v1.0.1` | 8      | ~396 tokens    |
+| **🦁 NestJS**              | Architecture, Microservices, Security, CQRS, Scalling | `v1.0.3` | 21     | ~474 tokens    |
 | **▲ Next.js**              | App Router (v15), Caching (v16), Bundling, Debug      | `v1.1.0` | 17     | ~423 tokens    |
 | **🐘 Laravel**             | Clean Arch, Eloquent, Security, Jobs, Redis, API      | `v1.0.0` | 10     | ~361 tokens    |
-| **🐹 Golang**              | Clean Architecture, API Design, Concurrency, Security | `v1.0.2` | 10     | ~357 tokens    |
-| **🐘 Kotlin**              | Idiomatic Patterns, Coroutines, Flow, Tooling         | `v1.0.0` | 4      | ~494 tokens    |
-| **🅰️ Angular**             | Standalone, Signals, Control Flow, SSR, Testing       | `v1.0.0` | 14     | ~273 tokens    |
-| **🤖 Android**             | Architecture, Compose, DI, Perf, Testing, WorkManager | `v1.0.0` | 22     | ~288 tokens    |
+| **🐹 Golang**              | Clean Architecture, API Design, Concurrency, Security | `v1.0.2` | 10     | ~351 tokens    |
+| **🐘 Kotlin**              | Idiomatic Patterns, Coroutines, Flow, Tooling         | `v1.0.0` | 4      | ~453 tokens    |
+| **🅰️ Angular**             | Standalone, Signals, Control Flow, SSR, Testing       | `v1.0.0` | 15     | ~276 tokens    |
+| **🤖 Android**             | Architecture, Compose, DI, Perf, Testing, WorkManager | `v1.0.0` | 22     | ~290 tokens    |
 | **🍎 Swift**               | Language, Memory, Concurrency, SwiftUI, Testing       | `v1.0.0` | 8      | ~354 tokens    |
-| **📱 iOS**                 | Arch, UI, Lifecycle, Security, Perf, Networking, DI   | `v1.0.0` | 14     | ~411 tokens    |
+| **📱 iOS**                 | Arch, UI, Lifecycle, Security, Perf, Networking, DI   | `v1.0.0` | 15     | ~404 tokens    |
 
 > [!TIP]
 > **Quality Engineering (Opt-in)**: Advanced skills like `business-analysis` or `zephyr-test-generation` are in the **quality-engineering** category and are NOT synced by default to keep context lean. To use them, manually add the category to your `.skillsrc`:

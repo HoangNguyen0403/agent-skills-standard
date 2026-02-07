@@ -18,6 +18,8 @@ Standards for building reusable, performant Flutter widgets and UI components.
 - **Composition**: Extract UI into small, atomic `const` widgets.
 - **Theming**: Use `Theme.of(context)`. No hardcoded colors.
 - **Layout**: Use `Flex` + `Gap/SizedBox`.
+- **Widget Keys**: All interactive elements must use keys from `widget_keys.dart`.
+- **File Size**: If a UI file exceeds ~80 lines, extract sub-widgets into private classes.
 - **Specialized**:
   - `SelectionArea`: For multi-widget text selection.
   - `InteractiveViewer`: For zoom/pan.

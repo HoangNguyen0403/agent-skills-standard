@@ -27,6 +27,8 @@ describe('SyncCommand', () => {
       writeSkills: vi.fn(),
       applyIndices: vi.fn(),
       checkForUpdates: vi.fn((c) => c),
+      assembleWorkflows: vi.fn().mockResolvedValue([]),
+      writeWorkflows: vi.fn(),
     };
     mockConfigService = {
       loadConfig: vi.fn().mockResolvedValue({ registry: 'url', skills: {} }),

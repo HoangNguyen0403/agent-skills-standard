@@ -1,0 +1,225 @@
+<!-- SKILLS_INDEX_START -->
+# Agent Skills Index
+
+## **Rule Zero: Zero-Trust Engineering**
+
+🚨 **IMPORTANT:** Never assume existing code follows the standard. Existing files may contain legacy technical debt or non-compliant patterns (e.g., hardcoded colors).
+
+- **Skill Authority:** Loaded skills always override existing code patterns.
+- **Retrieval-First:** Before writing a single line of code, identify and read relevant skill files listed below.
+- **Audit Before Write:** Audit every file write against the `common/feedback-reporter` skill.
+
+IMPORTANT: Prefer retrieval-led reasoning. Consult skill files before acting.
+
+| Skill ID | Triggers | Description |
+| :--- | :--- | :--- |
+| android/android-design-system | `**/*Screen.kt,**/ui/theme/**,**/compose/**,MaterialTheme,Color,Typography,Modifier,Composable` | Enforce Material Design 3 and design token usage in Jetpack Compose apps. |
+| android/android-navigation | `**/*Screen.kt,**/*Activity.kt,**/NavGraph.kt,NavController,NavHost,composable,navArgument,deepLinks` | Navigation for Android using Jetpack Compose Navigation and App Links. |
+| android/android-notifications | `**/*Notification*.kt,**/MainActivity.kt,FirebaseMessaging,NotificationCompat,NotificationChannel,FCM` | Push notifications for Android using Firebase Cloud Messaging and NotificationCompat. |
+| android/architecture | `build.gradle.kts,settings.gradle.kts,clean-architecture,module,layers,domain` | 🚨 Standards for Clean Architecture, Modularization, and Unidirectional Data Flow |
+| android/background-work | `**/*Worker.kt,CoroutineWorker,WorkManager,doWork` | Standards for WorkManager and Background Processing |
+| android/compose | `**/*.kt,@Composable,Modifier,Column,Row` | 🚨 Standards for high-performance Declarative UI and State Hoisting. |
+| android/concurrency | `**/*.kt,suspend,viewModelScope,lifecycleScope,Flow` | 🚨 Standards for Coroutines, Flow, and Threading |
+| android/deployment | `build.gradle.kts,proguard-rules.pro,signingConfigs,proguard,minifyEnabled,.aab` | 🚨 Standards for App Distribution (Signing, Obfuscation, App Bundles) |
+| android/di | `**/*Module.kt,**/*Component.kt,@HiltAndroidApp,@Inject,@Provides,@Binds` | 🚨 Standards for Hilt Setup, Scoping, and Modules |
+| android/legacy-navigation | `navigation/*.xml,findNavController,NavDirections,navArgs` | Standards for Jetpack Navigation Component (XML) and SafeArgs |
+| android/legacy-security | `**/*Activity.kt,**/*WebView*.kt,AndroidManifest.xml,Intent,WebView,FileProvider,javaScriptEnabled` | 🚨 Standards for Intents, WebViews, and FileProvider |
+| android/legacy-state | `**/*Fragment.kt,**/*Activity.kt,repeatOnLifecycle,launchWhenStarted` | Standards for State integration with Views using Coroutines and Lifecycle |
+| android/navigation | `**/*NavHost.kt,**/*Graph.kt,NavHost,navController,@Serializable` | 🚨 Standards for Jetpack Navigation Compose (Type-safe) |
+| android/networking | `**/*Api.kt,**/*Service.kt,**/*Client.kt,Retrofit,OkHttpClient,@GET,@POST` | 🚨 Standards for Retrofit, OkHttp, and API Communication |
+| android/performance | `**/*Benchmark.kt,**/*Initializer.kt,BaselineProfile,JankStats,recomposition` | Standards for Baseline Profiles, Startup Time, and UI Rendering |
+| android/persistence | `**/*Dao.kt,**/*Database.kt,**/*Entity.kt,@Dao,@Entity,RoomDatabase` | 🚨 Standards for Room Database and DataStore |
+| android/resources | `strings.xml,**/*Screen.kt,stringResource,plurals,R.string` | Standards for Strings, Drawables, and Localization |
+| android/security | `network_security_config.xml,AndroidManifest.xml,EncryptedSharedPreferences,cleartextTrafficPermitted,intent-filter` | 🚨 Standards for Data Encryption, Network Security, and Permissions |
+| android/state | `**/*ViewModel.kt,**/*UiState.kt,viewmodel,stateflow,livedata,uistate` | 🚨 Standards for ViewModel, StateFlow, and UI State Patterns |
+| android/testing | `**/*Test.kt,**/*Rule.kt,@Test,runTest,composeTestRule` | 🚨 Standards for Unit Tests, UI Tests (Compose), and Hilt Integration |
+| android/tooling | `build.gradle.kts,detekt.yml,detekt,ktlint,lint` | Standards for Static Analysis (Detekt, Ktlint) and CI/CD Checks |
+| android/xml-views | `layout/*.xml,**/*Binding.java,**/*Binding.kt,ViewBinding,ConstraintLayout,RecyclerView` | Standards for ViewBinding, RecyclerView, and XML Layouts |
+| angular/architecture | `angular.json,src/app/**,angular folder structure,feature module,core module` | 🚨 Standards for Angular project structure, feature modules, and lazy loading. |
+| angular/component-patterns | `**/*.component.ts,**/*.component.html,ChangeDetectionStrategy,OnPush,Input,Output` | 🚨 Standards for OnPush components and strict Signals usage. |
+| angular/dependency-injection | `**/*.service.ts,**/*.ts,angular inject,providedIn,injection token` | 🚨 Best practices for DI, inject() usage, and providers. |
+| angular/directives-pipes | `**/*.directive.ts,**/*.pipe.ts,hostDirectives,PipeTransform,pure` | Composition patterns using HostDirectives and Pure Pipes. |
+| angular/forms | `**/*.ts,**/*.html,FormBuilder,FormGroup,FormControl,Validators` | Standards for Typed Reactive Forms and Validators. |
+| angular/http-client | `**/*.service.ts,**/*.interceptor.ts,HttpClient,HttpInterceptorFn,withInterceptors` | Best practices for HttpClient, Interceptors, and API interactions. |
+| angular/routing | `*.routes.ts,angular router,loadComponent,canActivate,resolver` | 🚨 Standards for Angular Router, Lazy Loading, and Guards. |
+| angular/rxjs-interop | `**/*.ts,toSignal,toObservable,takeUntilDestroyed,rxjs angular` | Bridging Observables and Signals using toSignal and toObservable. |
+| angular/security | `**/*.ts,**/*.html,DomSanitizer,innerHTML,bypassSecurityTrust,CSP` | 🚨 Security best practices for Angular (XSS, CSP, Route Guards). |
+| angular/ssr | `**/*.server.ts,server.ts,hydration,transferState,afterNextRender,isPlatformServer` | Hydration, TransferState, and Prerendering standards. |
+| angular/state-management | `**/*.store.ts,**/state/**,angular signals,signal store,computed,effect` | Signals-based state management and NgRx Signal Store. |
+| angular/style-guide | `**/*.ts,angular style,naming convention,file structure` | 🚨 Naming conventions, file structure, and coding standards for Angular projects. |
+| angular/testing | `**/*.spec.ts,TestBed,ComponentFixture,TestHarness,provideHttpClientTesting` | Standards for Component Test Harnesses and TestBed. |
+| common/best-practices | `solid,kiss,dry,yagni,naming,conventions` | 🚨 Universal principles for clean, maintainable, and robust code across all environments. |
+| common/code-review | `review,pr,critique,analyze code` | Standards for high-quality, persona-driven code reviews. |
+| common/context-optimization | `*.log,chat-history.json,reduce tokens,optimize context,summarize history,clear output` | Techniques to maximize context window efficiency, reduce latency, and prevent 'lost in middle' issues through strategic masking and compaction. |
+| common/debugging | `debug,fix bug,crash,error,exception,troubleshooting` | Systematic troubleshooting using the Scientific Method (Observe, Hypothesize, Experiment, Fix). |
+| common/documentation | `comment,docstring,readme,documentation` | Essential rules for code comments, READMEs, and technical documentation. |
+| common/feedback-reporter | `**/*,write,edit,create,generate,skill,violation` | 🚨 CRITICAL - Before ANY file write, audit loaded skills for violations. Auto-report via feedback command. |
+| common/git-collaboration | `commit,branch,merge,pull-request,git` | 🚨 Universal standards for version control, branching, and team collaboration. |
+| common/mobile-animation | `**/*_page.dart,**/*_screen.dart,**/*.swift,**/*Activity.kt,**/*Screen.tsx,Animation,AnimationController,Animated,MotionLayout,transition,gesture` | Motion design principles for mobile apps. Covers timing curves, transitions, gestures, and performance-conscious animations. |
+| common/mobile-ux-core | `**/*_page.dart,**/*_screen.dart,**/*_view.dart,**/*.swift,**/*Activity.kt,**/*Screen.tsx,mobile,responsive,SafeArea,touch,gesture,viewport` | 🚨 Universal mobile UX principles for touch-first interfaces. Enforces touch targets, safe areas, and mobile-specific interaction patterns. |
+| common/performance-engineering | `performance,optimize,profile,scalability` | Universal standards for high-performance software development across all frameworks. |
+| common/product-requirements | `PRD.md,specs/*.md,create prd,draft requirements,new feature spec` | 🚨 Expert process for gathering requirements and drafting PRDs (Iterative Discovery). |
+| common/security-standards | `security,encrypt,authenticate,authorize` | 🚨 Universal security protocols for building safe and resilient software. |
+| common/system-design | `architecture,design,system,scalability` | 🚨 Universal architectural standards for building robust, scalable, and maintainable systems. |
+| common/tdd | `` | Enforces Test-Driven Development (Red-Green-Refactor) for rigorous code quality. |
+| dart/best-practices | `**/*.dart,import,final,const,var,global` | General purity standards for Dart development. |
+| dart/language | `**/*.dart,sealed,record,switch,pattern,extension,final,late,async,await` | 🚨 Modern Dart standards (3.x+) including null safety and patterns. |
+| dart/tooling | `analysis_options.yaml,pubspec.yaml,build.yaml,analysis_options,lints,format,build_runner,cider,husky` | Standards for analysis, linting, formatting, and automation. |
+| flutter/auto-route-navigation | `**/router.dart,**/app_router.dart,AutoRoute,AutoRouter,router,guards,navigate,push` | Typed routing, nested routes, and guards using auto_route. |
+| flutter/bloc-state-management | `**_bloc.dart,**_cubit.dart,**_state.dart,**_event.dart,BlocProvider,BlocBuilder,BlocListener,Cubit,Emitter` | 🚨 Standards for predictable state management using flutter_bloc, freezed, and equatable. |
+| flutter/cicd | `.github/workflows/**.yml,fastlane/**,android/fastlane/**,ios/fastlane/**,ci,cd,pipeline,build,deploy,release,action,workflow` | Continuous Integration and Deployment standards for Flutter apps. |
+| flutter/dependency-injection | `**/injection.dart,**/locator.dart,GetIt,injectable,singleton,module,lazySingleton,factory` | Standards for automated service locator setup using injectable and get_it. |
+| flutter/error-handling | `lib/domain/**,lib/infrastructure/**,Either,fold,Left,Right,Failure,dartz` | Functional error handling using Dartz and Either. |
+| flutter/feature-based-clean-architecture | `lib/features/**,feature,domain,infrastructure,application,presentation,modular` | 🚨 Standards for organizing code by feature at the root level to improve scalability and maintainability. |
+| flutter/flutter-design-system | `**/theme/**,**/*_theme.dart,**/*_colors.dart,**/*_dls/**,**/foundation/**,ThemeData,ColorScheme,AppColors,VColors,VSpacing,AppTheme,design token` | 🚨 Enforce strict Design Language System (DLS) adherence. Prevents hardcoded colors, spacing, and typography. Detects and uses project tokens. |
+| flutter/flutter-navigation | `**/*_route.dart,**/*_router.dart,**/main.dart,Navigator,GoRouter,routes,deep link,go_router,AutoRoute` | Flutter navigation patterns including go_router, deep linking, and named routes for Flutter apps. |
+| flutter/flutter-notifications | `**/*notification*.dart,**/main.dart,FirebaseMessaging,FlutterLocalNotificationsPlugin,FCM,notification,push` | Push notifications and local notifications for Flutter using Firebase Cloud Messaging and flutter_local_notifications. |
+| flutter/getx-navigation | `**/app_pages.dart,**/app_routes.dart,GetPage,Get.to,Get.off,Get.offAll,Get.toNamed,GetMiddleware` | 🚨 Context-less navigation, named routes, and middleware using GetX. |
+| flutter/getx-state-management | `**_controller.dart,**/bindings/*.dart,GetxController,Obx,GetBuilder,.obs,Get.put,Get.find,Get.lazyPut` | 🚨 Simple and powerful reactive state management using GetX. |
+| flutter/go-router-navigation | `**/router.dart,**/app_router.dart,GoRouter,GoRoute,StatefulShellRoute,redirection,typed-routes` | 🚨 Typed routes, route state, and redirection using go_router. |
+| flutter/idiomatic-flutter | `lib/presentation/**/*.dart,context.mounted,SizedBox,Gap,composition,shrink` | Modern layout and widget composition standards. |
+| flutter/layer-based-clean-architecture | `lib/domain/**,lib/infrastructure/**,lib/application/**,domain,infrastructure,application,presentation,layers,dto,mapper` | 🚨 Standards for separation of concerns, layer dependency rules, and DDD in Flutter. |
+| flutter/localization | `**/assets/translations/*.json,**/assets/langs/*.csv,main.dart,localization,multi-language,translation,tr(),easy_localization,sheet_loader` | Standards for multi-language support using easy_localization with CSV or JSON. |
+| flutter/performance | `lib/presentation/**,pubspec.yaml,const,buildWhen,ListView.builder,Isolate,RepaintBoundary` | Optimization standards for rebuilds and memory. |
+| flutter/retrofit-networking | `**/data_sources/**,**/api/**,Retrofit,Dio,RestClient,GET,POST,Interceptor,refreshing` | 🚨 HTTP networking standards using Dio and Retrofit with Auth interceptors. |
+| flutter/security | `lib/infrastructure/**,pubspec.yaml,secure_storage,obfuscate,jailbreak,pinning,PII,OWASP` | 🚨 Security standards for Flutter applications based on OWASP Mobile. |
+| flutter/testing | `` | 🚨 Core standards for unit, widget, and integration testing in Flutter. |
+| flutter/widgets | `**_page.dart,**_screen.dart,**/widgets/**,StatelessWidget,const,Theme,ListView` | Principles for maintainable UI components. |
+| golang/api-server | `cmd/server/*.go,internal/adapter/handler/**,http server,rest api,gin,echo,middleware` | 🚨 Standards for building HTTP services, REST APIs, and middleware in Golang. |
+| golang/architecture | `go.mod,internal/**,architecture,structure,folder layout,clean arch,dependency injection` | 🚨 Standards for structural design, Clean Architecture, and project layout in Golang. |
+| golang/concurrency | `**/*.go,goroutine,go keyword,channel,mutex,waitgroup,context` | 🚨 Standards for safe concurrent programming using Goroutines, Channels, and Context. |
+| golang/configuration | `configs/**,cmd/**,configuration,env var,viper,koanf` | Standards for application configuration using environment variables and libraries. |
+| golang/database | `internal/adapter/repository/**,database,sql,postgres,gorm,sqlc,pgx` | 🚨 Standards for database interaction, connection pooling, and repository patterns in Golang. |
+| golang/error-handling | `**/*.go,error,fmt.errorf,errors.is,errors.as` | 🚨 Standards for error wrapping, checking, and definition in Golang. |
+| golang/language | `**/*.go,go.mod,golang,go code,style,idiomatic` | 🚨 Core idioms, style guides, and best practices for writing idiomatic Go code. |
+| golang/logging | `go.mod,pkg/logger/**,logging,slog,structured logging,zap` | Standards for structured logging and observability in Golang. |
+| golang/security | `**/*.go,crypto/rand,sql,sanitize,jwt,bcrypt,validation` | 🚨 Security standards for Go backend services (Input Validation, Crypto, SQL Injection Prevention). |
+| golang/testing | `**/*_test.go,testing,unit tests,go test,mocking,testify` | 🚨 Standards for unit testing, table-driven tests, and mocking in Golang. |
+| ios/app-lifecycle | `AppDelegate.swift,SceneDelegate.swift,didFinishLaunchingWithOptions,willConnectTo,backgroundTask,Shortcut,UserActivity` | 🚨 Standards for AppDelegate, SceneDelegate, Deep Linking, and Background Tasks. |
+| ios/architecture | `**/*ViewModel.swift,**/*Coordinator.swift,**/*ViewController.swift,MVVM,Coordinator,ViewState,Output,Input` | 🚨 Standards for MVVM, Coordinators, and Clean Architecture (VIP/VIPER). |
+| ios/deployment | `Fastfile,Appfile,Matchfile,ios_bundle_id,provisioning_profile,testflight` | Standards for Provisioning, Signing, and Fastlane. |
+| ios/ios-design-system | `**/*View.swift,**/Theme/**,**/DesignSystem/**,Color,Font,SwiftUI,ViewModifier,Theme` | Enforce design token usage in SwiftUI apps. Covers Colors, Spacing, Typography using iOS Human Interface Guidelines. |
+| ios/ios-navigation | `**/*View.swift,**/*App.swift,NavigationStack,NavigationLink,onOpenURL,universalLink,NSUserActivity` | SwiftUI navigation and deep linking using NavigationStack and Universal Links. |
+| ios/ios-notifications | `**/*Notification*.swift,**/*AppDelegate.swift,UNUserNotificationCenter,APNS,UNNotificationRequest,deviceToken` | Push notifications for iOS using UserNotifications framework and APNS. |
+| ios/localization | `**/*.stringcatalog,**/*.xcassets,**/*.strings,LocalizedStringResource,NSLocalizedString,String(localized:)` | Standards for String Catalogs, L10n, and Asset Management. |
+| ios/networking | `**/*Service.swift,**/*API.swift,**/*Client.swift,URLSession,Alamofire,Moya,URLRequest,URLComponents,Codable` | 🚨 Standards for URLSession, Alamofire, and API communication. |
+| ios/performance | `**/*.swift,Instruments,Allocations,Leaks,dequeueReusableCell` | 🚨 Standards for Instruments, Memory Management, and Optimization. |
+| ios/persistence | `**/*.xcdatamodeld,**/*Model.swift,PersistentContainer,FetchRequest,ManagedObject,Query,ModelContainer,Repository` | 🚨 Standards for SwiftData, Core Data, and Local Storage. |
+| ios/security | `**/*.swift,SecItemAdd,kSecClassGenericPassword,LAContext,LocalAuthentication` | 🚨 Standards for Keychain, Biometrics, and Data Protection. |
+| ios/swiftui | `**/*View.swift,View,State,Binding,EnvironmentObject` | 🚨 Standards for declarative UI construction and data flow in iOS. |
+| ios/ui-navigation | `**/*View.swift,**/*.xib,**/*.storyboard,NSLayoutConstraint,UIStackView,SnapKit,layoutSubviews` | 🚨 Standards for UIKit, Auto Layout, and Apple Human Interface Guidelines. |
+| java/best-practices | `**/*.java,refactor,clean code,smells,patterns,design` | Core engineering principles inspired by Effective Java and Clean Code. |
+| java/concurrency | `**/*.java,thread,async,future,executor,synchronized,lock,await` | Modern concurrency patterns using Virtual Threads and Structured Concurrency. |
+| java/language | `**/*.java,pom.xml,build.gradle,record,switch,sealed,var,virtual thread,stream,optional` | 🚨 Modern Java standards (21+) including Records, Pattern Matching, and Virtual Threads. |
+| java/testing | `**/*Test.java,**/*IT.java,test,assert,mock,verify,junit` | 🚨 Modern testing practices using JUnit 5, AssertJ, and Mockito. |
+| java/tooling | `pom.xml,build.gradle,build.gradle.kts,build,dependency,plugin,sdk,lint` | Standards for build tools (Maven/Gradle) and static analysis. |
+| javascript/best-practices | `**/*.js,**/*.mjs,module,import,export,error,validation` | Idiomatic JavaScript patterns and conventions for maintainable code. |
+| javascript/language | `**/*.js,**/*.mjs,**/*.cjs,const,let,arrow,async,await,promise,destructuring,spread,class` | 🚨 Modern JavaScript (ES2022+) patterns for clean, maintainable code. |
+| javascript/tooling | `.eslintrc.*,jest.config.*,package.json,eslint,prettier,jest,test,lint,build` | Development tools, linting, and testing for JavaScript projects. |
+| kotlin/best-practices | `**/*.kt,apply,let,run,also,with,backing property,collection` | Core patterns for robust Kotlin code (Scope Functions, Backing Properties). |
+| kotlin/coroutines | `**/*.kt,suspend,CoroutineScope,launch,async,Flow` | 🚨 Standards for safe, structured concurrency in Kotlin. |
+| kotlin/language | `**/*.kt,**/*.kts,val,var,,extension,data class,sealed,when` | 🚨 idiomatic Kotlin 1.9+ standards (Null Safety, Expressions, Extensions). |
+| kotlin/tooling | `build.gradle.kts,libs.versions.toml,detekt.yml,gradle,kts,detekt,mockk,junit` | Build tools (Gradle KTS), Static Analysis (Detekt), and Testing standards. |
+| laravel/api | `routes/api.php,app/Http/Resources/**/*.php,resource,collection,sanctum,passport,cors` | REST and JSON API standards for modern Laravel backends. |
+| laravel/architecture | `app/Http/Controllers/**/*.php,routes/*.php,controller,service,action,request,container` | 🚨 Core architectural standards for scalable Laravel applications. |
+| laravel/background-processing | `app/Jobs/**/*.php,app/Events/**/*.php,app/Listeners/**/*.php,ShouldQueue,dispatch,batch,chain,listener` | Scalable asynchronous workflows using Queues, Jobs, and Events. |
+| laravel/clean-architecture | `app/Domains/**/*.php,app/Providers/*.php,domain,dto,repository,contract,adapter` | Expert patterns for DDD, DTOs, and Ports & Adapters in Laravel. |
+| laravel/database-expert | `config/database.php,database/migrations/*.php,join,aggregate,subquery,selectRaw,Cache` | Expert patterns for advanced queries, Redis caching, and database scalability. |
+| laravel/eloquent | `app/Models/**/*.php,scope,with,eager,chunk,model` | 🚨 Advanced Eloquent ORM patterns for performance and query reuse. |
+| laravel/security | `app/Policies/**/*.php,config/*.php,policy,gate,authorize,env,config` | 🚨 Security standards for hardening Laravel applications. |
+| laravel/sessions-middleware | `app/Http/Middleware/**/*.php,config/session.php,session,driver,handle,headers,csrf` | Expert standards for session drivers, security headers, and middleware logic. |
+| laravel/testing | `tests/**/*.php,phpunit.xml,feature,unit,mock,factory,sqlite` | Automated testing standards with Pest and PHPUnit. |
+| laravel/tooling | `package.json,composer.json,vite.config.js,artisan,vite,horizon,pint,blade` | Ecosystem management, Artisan, and asset bundling. |
+| nestjs/api-standards | `**/*.controller.ts,**/*.dto.ts,ApiResponse,Pagination,TransformInterceptor` | Response wrapping, pagination, and error standardization. |
+| nestjs/architecture | `**/*.module.ts,main.ts,NestFactory,Module,Controller,Injectable` | 🚨 Standards for scalable, modular NestJS backend architecture. |
+| nestjs/caching | `**/*.service.ts,**/*.interceptor.ts,CacheInterceptor,CacheTTL,Redis,stale-while-revalidate` | Multi-level caching, Invalidation patterns, and Stampede protection. |
+| nestjs/configuration | `.env,app.module.ts,**/config.ts,ConfigModule,Joi,env` | Environment variables validation and ConfigModule setup. |
+| nestjs/controllers-services | `**/*.controller.ts,**/*.service.ts,Controller,Injectable,ExecutionContext,createParamDecorator` | 🚨 Controller/Service separation and Custom Decorators. |
+| nestjs/database | `**/*.entity.ts,prisma/schema.prisma,TypeOrmModule,PrismaService,MongooseModule,Repository` | 🚨 Data access patterns, Scaling, Migrations, and ORM selection. |
+| nestjs/deployment | `Dockerfile,k8s/**,helm/**,Dockerfile,max-old-space-size,shutdown hooks` | Docker builds, Memory tuning, and Graceful shutdown. |
+| nestjs/documentation | `main.ts,**/*.dto.ts,DocumentBuilder,SwaggerModule,ApiProperty,ApiResponse` | Swagger automation and Generic response documentation. |
+| nestjs/error-handling | `**/*.filter.ts,main.ts,ExceptionFilter,Catch,HttpException` | Global Exception Filters and standard error formats. |
+| nestjs/file-uploads | `**/*.controller.ts,FileInterceptor,Multer,S3,UploadedFile` | 🚨 Secure file handling, Validation, and S3 streaming. |
+| nestjs/nestjs-bullmq | `package.json,**/*.module.ts,queue,backlog,background job,async task,worker` | 🚨 Standard workflow for implementing background jobs using BullMQ in NestJS. |
+| nestjs/nestjs-notification | `notification.service.ts,notification.entity.ts,notification,push,fcm,alert,reminder` | 🚨 Standards for defining Notification Types, Service Architecture, and FCM Integration. |
+| nestjs/observability | `main.ts,**/*.module.ts,nestjs-pino,Prometheus,Logger,reqId` | Structured logging (Pino) and Prometheus metrics. |
+| nestjs/performance | `main.ts,FastifyAdapter,compression,SINGLETON,REQUEST scope` | Fastify adapter, Scope management, and Compression. |
+| nestjs/real-time | `**/*.gateway.ts,**/*.controller.ts,WebSocketGateway,SubscribeMessage,Sse,Socket.io` | WebSocket and SSE selection strategies and scaling. |
+| nestjs/search | `**/*.service.ts,**/search/**,Elasticsearch,CQRS,Synchronization` | Elasticsearch integration and Sync patterns. |
+| nestjs/security | `**/*.guard.ts,**/*.strategy.ts,**/auth/**,Passport,JWT,AuthGuard,CSRF,Helmet` | 🚨 Authentication, RBAC, and Hardening standards. |
+| nestjs/security-isolation | `src/modules/**,SECURITY.md,src/migrations/**,RLS,Row Level Security,childId,isolation,access policy` | 🚨 Standards for enforcing multi-tenant isolation and PostgreSQL Row Level Security (RLS) across child-centric domains. |
+| nestjs/testing | `**/*.spec.ts,test/**,Test.createTestingModule,supertest,jest` | Unit and E2E testing strategies with Docker. |
+| nestjs/transport | `main.ts,**/*.controller.ts,Transport.GRPC,Transport.RMQ,MicroserviceOptions` | 🚨 gRPC, RabbitMQ standards and Monorepo contracts. |
+| nextjs/app-router | `app/**/page.tsx,app/**/layout.tsx,app/**/loading.tsx,App Router,Layout,Route Group,parallel routes` | 🚨 File-system routing, Layouts, and Route Groups. |
+| nextjs/architecture | `src/features/**,src/entities/**,src/widgets/**,FSD,Feature Sliced Design,slices,segments` | Scalable project structure using Feature-Sliced Design (FSD). |
+| nextjs/authentication | `middleware.ts,**/auth.ts,**/login/page.tsx,cookie,jwt,session,localstorage,auth` | 🚨 Secure token storage (HttpOnly Cookies) and Middleware patterns. |
+| nextjs/caching | `**/page.tsx,**/layout.tsx,**/action.ts,unstable_cache,revalidateTag,Router Cache,Data Cache` | The 4 layers of caching (Memoization, Data Cache, Full Route, Router Cache). |
+| nextjs/data-access-layer | `**/lib/data.ts,**/services/*.ts,**/dal/**,DAL,Data Access Layer,server-only,DTO` | Secure, reusable data access patterns with DTOs and Taint checks. |
+| nextjs/data-fetching | `**/*.tsx,**/service.ts,fetch,revalidate,no-store,force-cache` | 🚨 Fetch API, Caching, and Revalidation strategies. |
+| nextjs/internationalization | `middleware.ts,app/[lang]/**,messages/*.json,i18n,locale,translation,next-intl,redirect` | Best practices for multi-language handling, locale routing, and detection middleware. |
+| nextjs/optimization | `**/layout.tsx,**/page.tsx,next/image,next/font,metadata,generateMetadata` | Image, Font, Script, and Metadata optimization strategies. |
+| nextjs/rendering | `**/page.tsx,**/layout.tsx,generateStaticParams,dynamic,dynamicParams,PPR,streaming` | 🚨 SSG, SSR, ISR, Streaming, and Partial Prerendering (PPR). |
+| nextjs/security | `app/**/actions.ts,middleware.ts,action,boundary,sanitize,auth,jose` | 🚨 Core security standards for App Router and Server Actions. |
+| nextjs/server-actions | `**/actions.ts,**/*.tsx,use server,Server Action,revalidatePath,useFormStatus` | Mutations, Form handling, and RPC-style calls. |
+| nextjs/server-components | `**/*.tsx,**/*.jsx,use client,Server Component,Client Component,hydration` | 🚨 RSC usage, "use client" directive, and Component Purity. |
+| nextjs/state-management | `**/hooks/*.ts,**/store.ts,**/components/*.tsx,useState,useContext,zustand,redux` | Best practices for managing state (Server URL vs Client Hooks). |
+| nextjs/styling | `**/*.css,tailwind.config.ts,**/components/ui/*.tsx,tailwind,css modules,styled-components,clsx,cn` | Zero-runtime CSS strategies (Tailwind) and RSC compatibility. |
+| nextjs/testing | `**/*.test.{ts,tsx},cypress/**,tests/**,vitest,playwright,msw,testing-library` | Unit, Integration, and E2E testing standards for App Router. |
+| nextjs/tooling | `next.config.js,package.json,Dockerfile,turbopack,output,standalone,lint,telemetry` | Ecosystem optimization, deployment, and developer flow. |
+| nextjs/upgrade | `package.json,next upgrade,migration guide,codemod` | Next.js version migrations using official guides and codemods. |
+| php/best-practices | `**/*.php,psr-12,camelCase,PascalCase,dry,solid` | PHP best practices, PSR standards, and code quality guidelines. |
+| php/concurrency | `**/*.php,Fiber,suspend,resume,non-blocking,async` | Handling concurrency and non-blocking I/O in modern PHP. |
+| php/error-handling | `**/*.php,try,catch,finally,Throwable,set_exception_handler` | 🚨 Modern PHP error and exception handling standards. |
+| php/language | `**/*.php,declare,readonly,match,constructor,promotion,types` | 🚨 Core PHP language standards and modern 8.x features. |
+| php/security | `**/*.php,pdo,password_hash,htmlentities,filter_var` | 🚨 PHP security standards for database access, password handling, and input validation. |
+| php/testing | `tests/**/*.php,phpunit.xml,phpunit,pest,mock,assert,tdd` | Unit and integration testing standards for PHP applications. |
+| php/tooling | `composer.json,composer,lock,phpstan,xdebug` | PHP ecosystem tooling, dependency management, and static analysis. |
+| quality-engineering/business-analysis | `**/user_story.md,**/requirements.md,**/jira_*.xml,analyze requirements,scenario decomposition,logic conflict,technical impact` | 🚨 Standard for deep requirement investigation, logic validation, and technical impact mapping. |
+| quality-engineering/jira-integration | `**/jira_*.xml,**/test_case.json,jira issue,link zephyr,jira details,jira mcp` | Standards for retrieving Jira issue details and linking Zephyr test cases back to Jira. |
+| quality-engineering/quality-assurance | `**/*.feature,**/*.test.ts,**/test_plan.md,test case,qa,bug report,testing standard` | Standards for creating high-quality, granular manual test cases and QA processes. |
+| quality-engineering/zephyr-test-generation | `**/*.feature,**/user_story.md,generate test cases,update zephyr,jira validation,impact analysis` | Workflow for generating or updating Zephyr Scale Test Cases from requirements. |
+| react/component-patterns | `**/*.jsx,**/*.tsx,component,props,children,composition,hoc,render-props` | 🚨 Modern React component architecture and composition patterns. |
+| react/hooks | `**/*.tsx,**/*.jsx,useEffect,useCallback,useMemo,useState` | 🚨 Standards for efficient React functional components and hooks usage. |
+| react/performance | `**/*.tsx,**/*.jsx,waterfall,bundle,lazy,suspense,dynamic` | 🚨 Optimization strategies for React applications (Client & Server). |
+| react/security | `**/*.tsx,**/*.jsx,dangerouslySetInnerHTML,token,auth,xss` | 🚨 Security practices for React (XSS, Auth, Dependencies). |
+| react/state-management | `**/*.tsx,**/*.jsx,state,useReducer,context,store,props` | 🚨 Standards for managing local, global, and server state. |
+| react/testing | `**/*.test.tsx,**/*.spec.tsx,render,screen,userEvent,expect` | Testing strategies with RTL and Jest/Vitest. |
+| react/tooling | `package.json,devtool,bundle,strict mode,profile` | Debugging, build analysis, and ecosystem tools. |
+| react/typescript | `**/*.tsx,ReactNode,FC,PropsWithChildren,ComponentProps` | TypeScript patterns specific to React components and hooks. |
+| react-native/architecture | `src/**/*.tsx,src/**/*.ts,app.json,feature,module,directory structure,separation of concerns` | 🚨 Feature-first project structure and separation of concerns for scalable React Native apps. |
+| react-native/components | `**/*.tsx,**/*.jsx,component,props,children,composition,presentational,container` | 🚨 Modern component patterns using function components and composition. |
+| react-native/deployment | `app.json,eas.json,android/app/build.gradle,ios/**,deployment,codepush,eas,release,build,fastlane` | OTA updates with CodePush, EAS Build, and release configurations. |
+| react-native/navigation | `**/*Navigation*.tsx,src/navigation/**,navigation,react-navigation,stack,tab,drawer,deep link` | 🚨 React Navigation 6+ standards for stack, tab, and deep linking. |
+| react-native/performance | `**/*.tsx,**/*.ts,FlatList,memo,useMemo,useCallback,performance,optimization` | 🚨 Optimization strategies for smooth 60fps mobile apps. |
+| react-native/platform-specific | `**/*.tsx,**/*.ts,**/*.ios.*,**/*.android.*,Platform,Platform.select,native-module,ios,android` | Handling iOS and Android differences with Platform API and native modules. |
+| react-native/react-native-dls | `**/*Screen.tsx,**/*Component.tsx,**/theme/**,**/styles/**,StyleSheet,styled-components,theme,colors,spacing` | Enforce design token usage in React Native. Prevents hardcoded styles, encourages theme and design system consistency. |
+| react-native/react-native-navigation | `**/App.tsx,**/*Navigator.tsx,**/*Screen.tsx,NavigationContainer,createStackNavigator,createBottomTabNavigator,linking,deep link` | Navigation and deep linking for React Native using React Navigation. |
+| react-native/react-native-notifications | `**/*notification*.ts,**/*notification*.tsx,**/App.tsx,Notifications,messaging,FCM,expo-notifications,react-native-firebase` | Push notifications for React Native using React Native Firebase or Expo Notifications. |
+| react-native/security | `**/*.tsx,**/*.ts,security,keychain,secure-storage,deep-link,certificate-pinning` | 🚨 Secure storage, deep linking security, and certificate pinning for mobile apps. |
+| react-native/state-management | `**/*.tsx,**/*.ts,useState,useContext,zustand,redux,state-management` | Local and global state patterns with Context, Zustand, and Redux Toolkit. |
+| react-native/styling | `**/*.tsx,**/*.ts,StyleSheet,style,theme,responsive,flexbox` | StyleSheet API, Flexbox, theming, and responsive design. |
+| react-native/testing | `**/*.test.tsx,**/*.spec.tsx,__tests__/**,test,testing,jest,render,fireEvent,waitFor` | Jest and React Native Testing Library for component and integration tests. |
+| spring-boot/api-design | `**/*Controller.java,openapi,swagger,versioning,problemdetails` | 🚨 Standards for OpenAPI, Versioning, and Global Error Handling |
+| spring-boot/architecture | `pom.xml,build.gradle,structure,layering,dto,controller` | 🚨 Standards for project structure, layering, and API design in Spring Boot 3+ applications |
+| spring-boot/best-practices | `application.properties,**/*Service.java,autowired,requiredargsconstructor,configuration-properties,slf4j` | 🚨 Core coding standards, dependency injection, and configuration for Spring Boot 3 |
+| spring-boot/data-access | `**/*Repository.java,**/*Entity.java,jpa-repository,entity-graph,transactional,n-plus-1` | 🚨 Best practices for JPA, Hibernate, and Database interactions in Spring Boot |
+| spring-boot/deployment | `Dockerfile,compose.yml,docker-layer,native-image,graceful-shutdown` | 🚨 Standards for GraalVM Native Images, Docker, and Graceful Shutdown |
+| spring-boot/microservices | `**/*Client.java,**/*Consumer.java,feign-client,spring-cloud-stream,rabbitmq,resilience4j` | 🚨 Standards for synchronous (Feign) and asynchronous (Cloud Stream) communication |
+| spring-boot/observability | `logback-spring.xml,application.properties,micrometer,tracing,correlation-id,mdc` | 🚨 Standards for Micrometer, Distributed Tracing, and Structured Logging |
+| spring-boot/scheduling | `**/*Scheduler.java,**/*Job.java,scheduled,shedlock,cron` | 🚨 Standards for scheduled tasks and distributed locking with ShedLock |
+| spring-boot/security | `**/*SecurityConfig.java,**/*Filter.java,security-filter-chain,lambda-dsl,csrf,cors` | 🚨 Spring Security 6+ standards, Lambda DSL, and Hardening |
+| spring-boot/testing | `**/*Test.java,webmvctest,datajpatest,testcontainers,assertj` | 🚨 Standards for unit, integration, and slice testing in Spring Boot 3 |
+| swift/best-practices | `**/*.swift,guard,let,struct,final` | 🚨 Standards for Guard, Value Types, Immutability, and Naming |
+| swift/concurrency | `**/*.swift,async,await,actor,Task,MainActor` | 🚨 Standards for async/await, Actors, Task Groups, and MainActor |
+| swift/error-handling | `**/*.swift,throws,try,catch,Result,Error` | 🚨 Standards for Throwing Functions, Result Type, and Never |
+| swift/language | `**/*.swift,protocol,extension,optional,guard,enum` | 🚨 Standards for Optionals, Protocols, Extensions, and Type Safety |
+| swift/memory-management | `**/*.swift,weak,unowned,capture,deinit,retain` | 🚨 Standards for ARC, Weak/Unowned References, and Capture Lists |
+| swift/swiftui | `**/*.swift,@State,@Binding,@ObservedObject,View,body` | 🚨 Standards for State Management, View Lifecycle, and Property Wrappers |
+| swift/testing | `**/*Tests.swift,XCTestCase,XCTestExpectation,XCTAssert` | 🚨 Standards for XCTest, Async Tests, and Test Organization |
+| swift/tooling | `Package.swift,.swiftlint.yml,package,target,dependency` | 🚨 Standards for SPM, Build Configs, and Code Quality |
+| typescript/best-practices | `**/*.ts,**/*.tsx,class,function,module,import,export,async,promise` | Idiomatic TypeScript patterns for clean, maintainable code. |
+| typescript/language | `**/*.ts,**/*.tsx,tsconfig.json,type,interface,generic,enum,union,intersection,readonly,const,namespace` | 🚨 Modern TypeScript standards for type safety, performance, and maintainability. |
+| typescript/security | `**/*.ts,**/*.tsx,validate,sanitize,xss,injection,auth,password,secret,token` | 🚨 Secure coding practices for building safe TypeScript applications. |
+| typescript/tooling | `tsconfig.json,.eslintrc.*,jest.config.*,package.json,eslint,prettier,jest,vitest,build,compile,lint` | Development tools, linting, and build configuration for TypeScript projects. |
+
+<!-- SKILLS_INDEX_END -->

@@ -28,6 +28,9 @@ Modern Dart standards for safety, performance, and readability.
 - **Asynchrony**: Prefer `async/await` over raw `Future.then`. Use `unawaited` for fire-and-forget logic if necessary.
 - **Encapsulation**: Use `_` prefix for library-private members. Prefer `final` properties.
 - **Collections**: Use `collection-if`, `collection-for`, and spread operators `...`.
+- **Safe List Access**: Prefer `.firstOrNull`, `.lastOrNull`, or `.elementAtOrNull(i)`.
+- **No dynamic**: Use `Object` or generics instead of `dynamic`.
+- **Type Aliases**: Use `typedef` for complex IDs or callbacks.
 
 ## Anti-Patterns
 

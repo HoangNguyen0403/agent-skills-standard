@@ -23,13 +23,13 @@ metadata:
 
 ## Standard Project Layout
 
-- `cmd/`: Application entry points (e.g., `cmd/server/main.go`).
-- `internal/`: Private application code. Not importable by other modules.
-  - `internal/domain/`: Entities, Business Rules (Pure Go, no heavy imports).
-  - `internal/usecase/`: Application Logic (Interactors).
-  - `internal/adapter/`: Database, HTTP, GRPC adapters.
-- `pkg/`: Library code ok to use by external applications.
-- `configs/`: Configuration files.
+See [Standard Project Layout](references/project-layout.md) for directory tree.
+
+### Layer Rules
+
+- **Domain**: Inner-most. No deps.
+- **UseCase**: Depends on Domain.
+- **Adapter**: Outer-most. Depends on UseCase/Domain.
 
 ## Guidelines
 

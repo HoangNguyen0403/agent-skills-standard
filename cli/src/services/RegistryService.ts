@@ -1,6 +1,11 @@
+import path from 'path';
 import { GitHubTreeItem, RegistryMetadata } from '../models/types';
 import { GithubService } from './GithubService';
 
+/**
+ * Service for discovering and querying the skill registry (repository).
+ * It identifies available categories, metadata, and framework-specific skills.
+ */
 export class RegistryService {
   private githubService: GithubService;
 
@@ -8,9 +13,17 @@ export class RegistryService {
     this.githubService = new GithubService(process.env.GITHUB_TOKEN);
   }
 
-  async discoverRegistry(
-    registryUrl: string,
-  ): Promise<{ categories: string[]; metadata: Partial<RegistryMetadata> }> {
+  /**
+   * Discovers the registry structure by scanning the repository tree.
+   * Identifies available categories, global metadata, and workflows.
+   * @param registryUrl The GitHub URL of the registry
+   * @returns Discovered registry components
+   */
+  async discoverRegistry(registryUrl: string): Promise<{
+    categories: string[];
+    metadata: Partial<RegistryMetadata>;
+    workflows: string[];
+  }> {
     let categories: string[] = ['flutter', 'dart'];
     let metadata: Partial<RegistryMetadata> = {};
 
@@ -44,6 +57,14 @@ export class RegistryService {
           if (foundCategories.size > 0)
             categories = Array.from(foundCategories);
 
+          const workflows = allFiles
+            .filter(
+              (f) =>
+                f.path.startsWith('.agent/workflows/') &&
+                f.path.endsWith('.md'),
+            )
+            .map((f) => path.basename(f.path, '.md'));
+
           const metaContent = await this.githubService.getRawFile(
             parsed.owner,
             parsed.repo,
@@ -53,6 +74,8 @@ export class RegistryService {
           if (metaContent) {
             metadata = JSON.parse(metaContent) as RegistryMetadata;
           }
+
+          return { categories, metadata, workflows };
         }
       }
     } catch (error) {
@@ -61,9 +84,15 @@ export class RegistryService {
       }
     }
 
-    return { categories, metadata };
+    return { categories, metadata, workflows: [] };
   }
 
+  /**
+   * Fetches a list of available skill folders for a specific framework.
+   * @param registryUrl The GitHub URL of the registry
+   * @param framework The framework ID to query
+   * @returns List of skill folder names
+   */
   async getFrameworkSkills(
     registryUrl: string,
     framework: string,

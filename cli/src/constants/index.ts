@@ -7,6 +7,8 @@ export const UNIVERSAL_SKILLS = ['common'];
 export const DEFAULT_REGISTER =
   'https://github.com/HoangNguyen0403/agent-skills-standard';
 
+export const DEFAULT_WORKFLOWS = ['code-review', 'plan-feature'];
+
 // Configurable via ENV or hardcoded for production convenience
 export interface AgentDefinition {
   id: Agent;

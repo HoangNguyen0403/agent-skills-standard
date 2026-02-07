@@ -2,7 +2,15 @@ import { execSync } from 'child_process';
 import pc from 'picocolors';
 import pkg from '../../package.json';
 
+/**
+ * Command for upgrading the `agent-skills-standard` CLI to the latest version.
+ * It checks the latest version on npm and performs the upgrade using the detected package manager.
+ */
 export class UpgradeCommand {
+  /**
+   * Executes the upgrade flow.
+   * @param options Command options, including `dryRun` to check for updates without installing.
+   */
   async run(options: { dryRun?: boolean }) {
     console.log(pc.cyan('🔍 Checking for updates...'));
 

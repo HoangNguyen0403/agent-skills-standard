@@ -5,7 +5,7 @@ This reference demonstrates the "Base Class" pattern for Integration Tests using
 > [!TIP]
 > Use this pattern to avoid spinning up new containers for every test class. Reusing containers significantly speeds up test suites.
 
-```java
+````java
 package com.example.demo;
 
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,9 +36,41 @@ public abstract class BaseIntegrationTest {
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16")
         .withReuse(true); // experimental feature to keep container alive across runs
 }
+
+## Slice Test Templates
+
+### Web Layer (@WebMvcTest)
+
+```java
+@WebMvcTest(UserController.class)
+class UserControllerTest {
+    @Autowired MockMvc mvc;
+    @MockBean UserService service;
+
+    @Test
+    void shouldReturnUser() throws Exception {
+        when(service.findById(1L)).thenReturn(new User(1L, "Alice"));
+
+        mvc.perform(get("/users/1"))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.name").value("Alice"));
+    }
+}
+````
+
+### Data Layer (@DataJpaTest)
+
+```java
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = Replace.NONE)
+@Import(TestcontainersConfig.class)
+class UserRepositoryTest {
+    @Autowired UserRepository repo;
+
+    @Test
+    void shouldPersistUser() {
+        repo.save(new User("Bob"));
+        assertThat(repo.findByName("Bob")).isPresent();
+    }
+}
 ```
-
-## Why this is better
-
-1.  **@ServiceConnection**: Removes need for verbose `@DynamicPropertySource`.
-2.  **Singleton Containers**: By making the container `static` and putting it in a Base Class (or using the Singleton pattern), you pay the startup cost only once per suite, not per test class.

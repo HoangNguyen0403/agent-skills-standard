@@ -49,7 +49,7 @@ describe('IndexGeneratorService', () => {
     it('should handle missing categories or skills', async () => {
       (fs.pathExists as any).mockResolvedValue(false);
       const result = await service.generate('/skills', ['missing']);
-      expect(result).toContain('# Index');
+      expect(result).toContain('# Agent Skills Index');
       // Check for absence of data rows (rows that look like category/skill|)
       const lines = result.split('\n');
       const dataRows = lines.filter((l) => l.includes('/') && l.includes('|'));
@@ -63,7 +63,7 @@ describe('IndexGeneratorService', () => {
       (fs.readdir as any).mockResolvedValue(['skill']);
 
       const result = await service.generate('/skills', ['common']);
-      expect(result).toContain('# Index');
+      expect(result).toContain('# Agent Skills Index');
     });
   });
 
@@ -106,7 +106,7 @@ describe('IndexGeneratorService', () => {
       const entries = ['cat/skill|desc'];
       const result = service.assembleIndex(entries);
       expect(result).toContain('cat/skill|desc');
-      expect(result).toContain('# Index');
+      expect(result).toContain('# Agent Skills Index');
     });
   });
 
@@ -190,6 +190,17 @@ describe('IndexGeneratorService', () => {
       expect(entry).toContain('🚨d');
       // Check strict format ID|Desc
       expect(entry).toBe('cat/skill|🚨d');
+    });
+    it('should truncate long descriptions to 12 chars', async () => {
+      const metadata = {
+        name: 'n',
+        description: 'This is a very long description that should be truncated',
+        priority: 'P1',
+        triggers: {},
+      };
+      const entry = (service as any).formatEntry('cat', 'skill', metadata);
+      expect(entry).toContain('This is a v…');
+      expect(entry.split('|')[1].length).toBeLessThanOrEqual(13); // 12 chars + potential emoji
     });
   });
 });

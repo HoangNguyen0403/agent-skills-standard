@@ -16,26 +16,33 @@ metadata:
 
 ### Configuration (Spring Security 6+)
 
-- **Lambda DSL**: ALWAYS use Lambda DSL (`.authorizeHttpRequests(auth -> ...)`) for readability.
+- **Lambda DSL**: ALWAYS use Lambda DSL.
 - **SecurityFilterChain**: Expose as `@Bean`. Do not extend `WebSecurityConfigurerAdapter`.
 - **Statelessness**: Enforce `SessionCreationPolicy.STATELESS` for REST APIs.
 
+#### Golden Snippet
+
+See [Security Configuration](references/implementation.md) for full `SecurityFilterChain` example.
+
+### Authentication vs Authorization
+
+- **Authentication**: Validation of credentials (Who are you?). Use `AuthenticationManager` or `JwtDecoder`.
+- **Authorization**: Verification of access rights (Can you do this?). Use `@PreAuthorize`.
+
 ### JWT Best Practices
 
-- **Algorithm**: Enforce `RS256` or `HS256`. **Reject `none` algorithm** explicitly in JWT configuration.
-- **Claims**: Validate `iss`, `aud`, and `exp` claims.
-- **Tokens**: Short-lived access tokens (15m), secure refresh tokens.
+- **Algorithm**: Enforce `RS256` or `HS256`. **Reject `none` algorithm**.
+- **Claims**: Validate `iss`, `aud`, and `exp`.
+- **Tokens**: Short-lived access tokens (15m), secure refresh tokens (httpOnly cookie).
 
-### Hardening
+### Hardening Checklist
 
-- **CSRF**: Disable for stateless APIs. Enable + Cookie for Browser Apps.
-- **CORS**: Explain allowed origins. NEVER use `*` with credentials.
-- **Headers**: Enable default headers (HSTS, Content-Type-Options).
-
-### Authorization
-
-- **Method Security**: Use `@EnableMethodSecurity`.
-- **Annotations**: Prefer `@PreAuthorize` over URL matching.
+- [ ] **CSRF**: Disabled for pure APIs? Enabled + Cookie for Browser Apps?
+- [ ] **CORS**: Specific origins permitted? No `*` with credentials?
+- [ ] **Headers**: HSTS, Content-Type-Options, X-Frame-Options enabled?
+- [ ] **Secrets**: No hardcoded keys? Loaded from Vault/Env?
+- [ ] **Rate Limiting**: Applied on login/expensive endpoints?
+- [ ] **Dependencies**: Scanned for CVEs?
 
 ## Anti-Patterns
 

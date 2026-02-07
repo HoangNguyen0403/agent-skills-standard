@@ -5,6 +5,10 @@ import { ConfigService } from '../services/ConfigService';
 import { DetectionService } from '../services/DetectionService';
 import { SkillService } from '../services/SkillService';
 
+/**
+ * Command for listing available skills in the registry.
+ * It detects the project's dependencies and identifies which skills have matching rules.
+ */
 export class ListSkillsCommand {
   private configService: ConfigService;
   private detectionService: DetectionService;
@@ -20,6 +24,10 @@ export class ListSkillsCommand {
     this.skillService = skillService || new SkillService();
   }
 
+  /**
+   * Executes the skill listing flow.
+   * Prompts for framework selection, fetches matching skills from the registry, and displays their status.
+   */
   async run() {
     // 1. Get framework choice from user
     const choices = SUPPORTED_FRAMEWORKS.map((f) => ({

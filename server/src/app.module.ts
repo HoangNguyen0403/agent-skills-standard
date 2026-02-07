@@ -21,4 +21,8 @@ import { HealthModule } from './health/health.module';
     FeedbackModule,
   ],
 })
+/**
+ * The root application module for the agent-skills-standard server.
+ * Orchestrates configuration, rate limiting, and core domain modules.
+ */
 export class AppModule {}

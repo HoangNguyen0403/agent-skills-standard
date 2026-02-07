@@ -1,16 +1,44 @@
+import fs from 'fs-extra';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Agent } from '../../constants';
 import { GithubService } from '../GithubService';
+import { IndexGeneratorService } from '../IndexGeneratorService';
 import { SyncService } from '../SyncService';
 
+// Mock fs-extra
 vi.mock('fs-extra');
+
+// Mock IndexGeneratorService
+vi.mock('../IndexGeneratorService');
 
 describe('SyncService', () => {
   let syncService: SyncService;
   let mockGithubService: any;
   let mockConfigService: any;
 
+  // Define mock methods for IndexGenerator
+  const mockGenerate = vi.fn();
+  const mockInject = vi.fn();
+  const mockBridge = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Reset implementations
+    mockGenerate.mockResolvedValue('index content');
+    mockInject.mockResolvedValue(undefined);
+    mockBridge.mockResolvedValue(undefined);
+
+    // Setup IndexGeneratorService mock implementation
+    // Setup IndexGeneratorService mock implementation
+    (IndexGeneratorService as any).mockImplementation(function () {
+      return {
+        generate: mockGenerate,
+        inject: mockInject,
+        bridge: mockBridge,
+      };
+    });
+
     syncService = new SyncService();
 
     // Inject mocks into private fields
@@ -282,94 +310,45 @@ describe('SyncService', () => {
   });
 
   describe('applyIndices', () => {
-    it('should filter entries by syncedSkills', async () => {
-      const oldParse = GithubService.parseGitHubUrl;
-      GithubService.parseGitHubUrl = vi
-        .fn()
-        .mockReturnValue({ owner: 'o', repo: 'r' });
-      mockGithubService.getRawFile.mockResolvedValue(
-        JSON.stringify({
-          cat1: '| cat1/s1 | t1 | d1\n| cat1/s2 | t2 | d2',
-        }),
+    it('should generate and inject index using local files (Happy Path)', async () => {
+      const config: any = {
+        registry: 'url',
+        skills: { cat1: {} },
+        agents: [Agent.Cursor],
+      };
+
+      await syncService.applyIndices(config, [Agent.Cursor]);
+
+      expect(IndexGeneratorService).toHaveBeenCalled();
+
+      // Verify methods were called on the mock instance
+      expect(mockGenerate).toHaveBeenCalledWith(
+        expect.any(String), // baseDir path
+        ['cat1'], // categories
       );
-
-      const config: any = { registry: 'url', skills: { cat1: {} } };
-      const syncedSkills: any[] = [{ category: 'cat1', skill: 's1' }];
-
-      await syncService.applyIndices(config, syncedSkills);
+      expect(mockInject).toHaveBeenCalledWith(process.cwd(), 'index content');
+      expect(mockBridge).toHaveBeenCalled();
 
       expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('index updated (1 skills)'),
+        expect.stringContaining('index updated'),
       );
-      GithubService.parseGitHubUrl = oldParse;
     });
 
-    it('should handle no pre-generated index', async () => {
-      const oldParse = GithubService.parseGitHubUrl;
-      GithubService.parseGitHubUrl = vi
-        .fn()
-        .mockReturnValue({ owner: 'o', repo: 'r' });
-      mockGithubService.getRawFile.mockResolvedValue(null);
-      const config: any = { registry: 'url', skills: { cat1: {} } };
+    it('should handle IndexGenerator errors', async () => {
+      const config: any = {
+        registry: 'url',
+        skills: { cat1: {} },
+        agents: [Agent.Cursor],
+      };
+
+      // Force error on generate
+      mockGenerate.mockRejectedValueOnce(new Error('Gen fail'));
+
       await syncService.applyIndices(config);
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('No pre-generated index found'),
-      );
-      GithubService.parseGitHubUrl = oldParse;
-    });
-  });
-
-  describe('applyIndices Variants', () => {
-    it('should include all entries if syncedSkills is missing', async () => {
-      const oldParse = GithubService.parseGitHubUrl;
-      GithubService.parseGitHubUrl = vi
-        .fn()
-        .mockReturnValue({ owner: 'o', repo: 'r' });
-      mockGithubService.getRawFile.mockResolvedValue(
-        JSON.stringify({ cat1: '| cat1/s1 | t1 | d1' }),
-      );
-
-      const config: any = { registry: 'url', skills: { cat1: {} } };
-      await syncService.applyIndices(config, undefined);
-
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('index updated (1 skills)'),
-      );
-      GithubService.parseGitHubUrl = oldParse;
-    });
-
-    it('should skip if no entries found', async () => {
-      const oldParse = GithubService.parseGitHubUrl;
-      GithubService.parseGitHubUrl = vi
-        .fn()
-        .mockReturnValue({ owner: 'o', repo: 'r' });
-      mockGithubService.getRawFile.mockResolvedValue(
-        JSON.stringify({ cat1: '' }),
-      );
-
-      const config: any = { registry: 'url', skills: { cat1: {} } };
-      await syncService.applyIndices(config, []);
-
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('No matching skills'),
-      );
-      GithubService.parseGitHubUrl = oldParse;
-    });
-
-    it('should handle errors in applyIndices', async () => {
-      const oldParse = GithubService.parseGitHubUrl;
-      GithubService.parseGitHubUrl = vi
-        .fn()
-        .mockReturnValue({ owner: 'o', repo: 'r' });
-      mockGithubService.getRawFile.mockRejectedValue(new Error('Fetch fail'));
-
-      const config: any = { registry: 'url', skills: { cat1: {} } };
-      await syncService.applyIndices(config, []);
 
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Failed to update index'),
       );
-      GithubService.parseGitHubUrl = oldParse;
     });
   });
 
@@ -378,6 +357,138 @@ describe('SyncService', () => {
       const config: any = { registry: 'url' };
       const result = await syncService.checkForUpdates(config);
       expect(result).toBe(config);
+    });
+  });
+
+  describe('assembleWorkflows', () => {
+    it('should return empty if workflows are disabled in config', async () => {
+      const config: any = { workflows: false };
+      const result = await syncService.assembleWorkflows(config);
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty if registry URL is invalid', async () => {
+      const config: any = { workflows: true, registry: 'invalid' };
+      const result = await syncService.assembleWorkflows(config);
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty if fetching tree fails', async () => {
+      const config: any = {
+        workflows: true,
+        registry: 'https://github.com/o/r',
+        skills: { c: { ref: 'main' } },
+      };
+      (syncService as any).githubService.getRepoTree.mockResolvedValue(null);
+      const result = await syncService.assembleWorkflows(config);
+      expect(result).toEqual([]);
+    });
+
+    it('should fetch all workflows if config.workflows is true', async () => {
+      const config: any = {
+        workflows: true,
+        registry: 'https://github.com/o/r',
+        skills: { c: { ref: 'main' } },
+      };
+      const treeData = {
+        tree: [
+          { path: '.agent/workflows/w1.md' },
+          { path: '.agent/workflows/w2.md' },
+          { path: 'other/file.md' },
+        ],
+      };
+      (syncService as any).githubService.getRepoTree.mockResolvedValue(
+        treeData,
+      );
+      (
+        syncService as any
+      ).githubService.downloadFilesConcurrent.mockResolvedValue([
+        { path: '.agent/workflows/w1.md', content: 'c1' },
+      ]);
+
+      const result = await syncService.assembleWorkflows(config);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].skill).toBe('workflows');
+    });
+
+    it('should fetch specific workflows if config.workflows is an array', async () => {
+      const config: any = {
+        workflows: ['w1'],
+        registry: 'https://github.com/o/r',
+        skills: { c: { ref: 'main' } },
+      };
+      const treeData = {
+        tree: [
+          { path: '.agent/workflows/w1.md' },
+          { path: '.agent/workflows/w2.md' },
+        ],
+      };
+      (syncService as any).githubService.getRepoTree.mockResolvedValue(
+        treeData,
+      );
+      (
+        syncService as any
+      ).githubService.downloadFilesConcurrent.mockResolvedValue([]);
+
+      await syncService.assembleWorkflows(config);
+
+      expect(
+        (syncService as any).githubService.downloadFilesConcurrent,
+      ).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ path: '.agent/workflows/w1.md' }),
+        ]),
+      );
+    });
+  });
+
+  describe('writeWorkflows', () => {
+    it('should write workflows to .agent/workflows', async () => {
+      const workflows: any[] = [
+        {
+          skill: 'workflows',
+          files: [{ name: 'w1.md', content: 'content' }],
+        },
+      ];
+      await syncService.writeWorkflows(workflows);
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        expect.stringContaining('.agent/workflows/w1.md'),
+        'content',
+      );
+    });
+
+    it('should skip non-workflow skills and do nothing if empty', async () => {
+      await syncService.writeWorkflows([]);
+      await syncService.writeWorkflows([
+        { skill: 'other', files: [], category: 'other' },
+      ]);
+      expect(fs.outputFile).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('applyIndices Edge Cases', () => {
+    it('should default to all agents if no agents are enabled', async () => {
+      const config: any = {
+        registry: 'url',
+        skills: {},
+        agents: [],
+      };
+      await syncService.applyIndices(config, []);
+      expect(mockGenerate).toHaveBeenCalled();
+    });
+
+    it('should do nothing if agent definition is not found', async () => {
+      const config: any = {
+        registry: 'url',
+        skills: {},
+        agents: [],
+      };
+      await syncService.applyIndices(config, ['unknown-agent' as any]);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('not found'),
+      );
+      expect(mockGenerate).not.toHaveBeenCalled();
     });
   });
 });

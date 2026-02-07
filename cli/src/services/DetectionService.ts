@@ -6,7 +6,15 @@ import {
   SUPPORTED_FRAMEWORKS,
 } from '../constants';
 
+/**
+ * Service for detecting project frameworks, languages, AI agents, and dependencies.
+ * It uses a combination of file existence checks and package metadata analysis.
+ */
 export class DetectionService {
+  /**
+   * Detects supported frameworks based on characteristic files and dependencies.
+   * @returns A record of framework IDs and their detection status (boolean)
+   */
   async detectFrameworks(): Promise<Record<string, boolean>> {
     const packageDeps = await this.getPackageDeps();
 
@@ -38,6 +46,11 @@ export class DetectionService {
     return results;
   }
 
+  /**
+   * Detects programming languages associated with a specific framework.
+   * @param framework The framework definition to use for detection
+   * @returns Array of detected language IDs
+   */
   async detectLanguages(framework: FrameworkDefinition): Promise<string[]> {
     if (!framework.languageDetection) {
       return framework.languages;
@@ -60,6 +73,10 @@ export class DetectionService {
       : framework.languages;
   }
 
+  /**
+   * Detects enabled AI agents in the workspace by looking for their configuration files.
+   * @returns A record of agent IDs and their detection status (boolean)
+   */
   async detectAgents(): Promise<Record<string, boolean>> {
     const results: Record<string, boolean> = {};
     for (const agent of SUPPORTED_AGENTS) {
@@ -75,6 +92,10 @@ export class DetectionService {
     return results;
   }
 
+  /**
+   * Aggregates project dependencies from various build systems (NPM, Pub, Gradle, Maven).
+   * @returns A set of all detected package names/identifiers
+   */
   async getProjectDeps(): Promise<Set<string>> {
     const cwd = process.cwd();
     const results = await Promise.all([

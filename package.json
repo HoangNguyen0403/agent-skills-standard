@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard-root",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "private": true,
   "packageManager": "pnpm@10.0.0",
   "pnpm": {
@@ -28,6 +28,7 @@
     "calculate-tokens": "pnpm --filter ./cli calculate-tokens",
     "generate-indices": "pnpm --filter ./cli generate-indices",
     "audit:skills": "pnpm --filter ./cli audit:skills",
+    "docs:scan": "pnpm --filter ./cli docs:scan src ../server/src",
     "prepare": "husky"
   },
   "engines": {

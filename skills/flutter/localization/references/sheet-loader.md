@@ -12,8 +12,15 @@ sheet_loader_localization:
   # Google Sheet ID (find in the URL of your sheet)
   doc_id: 'your_google_sheet_id_here'
   sheet_id: '0' # Usually 0 for first sheet
-  output_path: 'assets/translations'
-  output_format: 'json' # Can be csv or json
+  output_path: 'assets/langs' # For CSV format
+  output_format: 'csv' # Use 'json' for JSON format
+```
+
+**Alternative for JSON:**
+
+```yaml
+output_path: 'assets/translations'
+output_format: 'json'
 ```
 
 ## Typical Sheet Format ([example sheet](https://docs.google.com/spreadsheets/d/1v2Y3e0Uvn0JTwHvsduNT70u7Fy9TG43DIcZYJxPu1ZA/edit?gid=1013756643#gid=1013756643))

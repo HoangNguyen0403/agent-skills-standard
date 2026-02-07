@@ -1,20 +1,29 @@
+/**
+ * Structure of the feedback data payload submitted to the backend.
+ * Contains both required issue details and optional context gathered by the AI.
+ */
 export interface FeedbackData {
-  // Required fields
+  /** The specific skill ID that had the issue */
   skill: string;
+  /** Detailed description of the problem */
   issue: string;
 
-  // Optional - User/AI provided
+  /** Multi-line context about where the error occurred */
   context?: string;
+  /** The AI model used when the issue was detected */
   model?: string;
+  /** Proposed fix or improvement */
   suggestion?: string;
 
-  // Optional - AI self-report (for automation)
-  skillInstruction?: string; // Exact quote from skill
-  actualAction?: string; // What AI did instead
-  decisionReason?: string; // Why AI chose this approach
+  /** Exact instruction from the skill that was misinterpreted */
+  skillInstruction?: string;
+  /** What the AI actually did instead of following the skill */
+  actualAction?: string;
+  /** Rationale for choosing the incorrect path */
+  decisionReason?: string;
 
-  // Optional - Platform-provided (future)
-  loadedSkills?: string; // Comma-separated list of active skills
+  /** List of other active skills at the time of the error */
+  loadedSkills?: string;
 }
 
 /**

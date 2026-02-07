@@ -31,6 +31,9 @@ metadata:
   - `snake_case`: Variables/Functions (Python/Ruby).
   - `PascalCase`: Classes/Types (universal).
   - `kebab-case`: Files/CSS/URLs.
+- **Function Size**: Keep functions small (target < 20 lines) and single-responsibility.
+- **Guard Clauses**: Prefer early returns to avoid deep nesting (Pyramid of Doom).
+- **Comments**: Explain **why**, not **what**. Refactor unclear code before commenting.
 
 ## 🛡 Security & Performance Foundations
 
@@ -44,6 +47,13 @@ metadata:
 - **Predictable Failures**: Use custom exception types over generic Catch-Alls.
 - **Graceful Degradation**: Fallback values/UI for non-critical failures.
 - **Log Context**: Log actionable metadata (ID, State) along with errors. Avoid silent failures.
+
+## ♻️ Safe Refactoring Workflow
+
+- **Tests First**: Run tests before refactors; keep changes atomic.
+- **Find Usages**: Locate all call sites before renaming or moving code.
+- **Layer Moves**: Business logic belongs in Domain/Application, not UI.
+- **Commit Often**: Prefer small, reviewable refactors over large rewrites.
 
 ## 🚫 Anti-Patterns
 

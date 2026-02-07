@@ -8,6 +8,11 @@ import { ConfigService } from './ConfigService';
 import { GithubService } from './GithubService';
 import { IndexGeneratorService } from './IndexGeneratorService';
 
+/**
+ * Service responsible for synchronizing agent skills and workflows from a remote registry
+ * to the local workspace. It handles dependency reconciliation, folder identification,
+ * and writing files to appropriate agent search paths.
+ */
 export class SyncService {
   private configService = new ConfigService();
   private githubService = new GithubService(process.env.GITHUB_TOKEN);
@@ -142,94 +147,140 @@ export class SyncService {
   }
 
   /**
-   * Automatically applies framework-specific indices to AGENTS.md.
-   * @param config The skill configuration
-   * @param syncedSkills Optional list of skills that were just synced. If provided, only these will be indexed.
+   * Assembles workflows from the remote registry.
    */
-  async applyIndices(
-    config: SkillConfig,
-    syncedSkills?: CollectedSkill[],
-    enabledAgents: Agent[] = [],
-  ) {
+  async assembleWorkflows(config: SkillConfig): Promise<CollectedSkill[]> {
+    if (!config.workflows) return [];
+
     const githubMatch = GithubService.parseGitHubUrl(config.registry);
-    if (!githubMatch) return;
+    if (!githubMatch) return [];
 
     const { owner, repo } = githubMatch;
-    // Extract ref from first available skill category or default to main
+    // Use the ref from the first skill category or default to main
     const firstCategory = Object.keys(config.skills)[0];
     const ref =
       (firstCategory ? config.skills[firstCategory].ref : null) || 'main';
 
+    console.log(pc.gray(`  - Discovering workflows (${ref})...`));
+
+    const treeData = await this.githubService.getRepoTree(owner, repo, ref);
+    if (!treeData) {
+      console.log(pc.red(`    ❌ Failed to fetch workflows@${ref}.`));
+      return [];
+    }
+
+    const workflowFiles = treeData.tree.filter((f) => {
+      if (!f.path.startsWith('.agent/workflows/') || !f.path.endsWith('.md'))
+        return false;
+
+      // Filter based on config
+      if (typeof config.workflows === 'boolean') return config.workflows;
+
+      if (Array.isArray(config.workflows)) {
+        const fileName = path.basename(f.path, '.md');
+        return config.workflows.includes(fileName);
+      }
+
+      return false;
+    });
+
+    const downloadTasks = workflowFiles.map((f) => ({
+      owner,
+      repo,
+      ref,
+      path: f.path,
+    }));
+
+    const files =
+      await this.githubService.downloadFilesConcurrent(downloadTasks);
+
+    if (files.length > 0) {
+      console.log(pc.gray(`    + Fetched ${files.length} workflows`));
+      // Treat workflows as a special "skill" for easier writing
+      return [
+        {
+          category: '.agent',
+          skill: 'workflows',
+          files: files.map((f) => ({
+            name: path.basename(f.path),
+            content: f.content,
+          })),
+        },
+      ];
+    }
+
+    return [];
+  }
+
+  /**
+   * Writes collected workflows to the .agent/workflows directory.
+   */
+  async writeWorkflows(workflows: CollectedSkill[]) {
+    if (workflows.length === 0) return;
+
+    const workflowPath = path.join(process.cwd(), '.agent', 'workflows');
+    await fs.ensureDir(workflowPath);
+
+    for (const wf of workflows) {
+      if (wf.skill !== 'workflows') continue;
+
+      for (const fileItem of wf.files) {
+        const targetFilePath = path.join(workflowPath, fileItem.name);
+        await fs.outputFile(targetFilePath, fileItem.content);
+        console.log(pc.gray(`    + Wrote ${fileItem.name}`));
+      }
+    }
+    console.log(pc.green(`  ✅ Workflows synced to .agent/workflows/`));
+  }
+
+  /**
+   * Automatically applies framework-specific indices to AGENTS.md.
+   * @param config The skill configuration
+   * @param enabledAgents Optional list of agents to generate index for. Defaults to config agents.
+   */
+  async applyIndices(config: SkillConfig, enabledAgents: Agent[] = []) {
+    const agents =
+      enabledAgents && enabledAgents.length > 0
+        ? enabledAgents
+        : config.agents && config.agents.length > 0
+          ? config.agents
+          : SUPPORTED_AGENTS.map((a) => a.id);
+
+    if (agents.length === 0) {
+      console.log(
+        pc.yellow('  ⚠️  No agents enabled, skipping index generation.'),
+      );
+      return;
+    }
+
     console.log(pc.cyan('🔍 Updating Agent Skills index...'));
 
-    try {
-      // 1. Fetch pre-generated indices
-      const indexJson = await this.githubService.getRawFile(
-        owner,
-        repo,
-        ref,
-        'skills/index.json',
-      );
+    // We use the path of the first enabled agent as the source of truth for generating the index.
+    // Since sync writes the same content to all agents, any one of them represents the complete set of skills.
+    const primaryAgentId = agents[0];
+    const agentDef = SUPPORTED_AGENTS.find((a) => a.id === primaryAgentId);
 
-      if (!indexJson) {
-        console.log(
-          pc.yellow('  ⚠️  No pre-generated index found on registry.'),
-        );
-        return;
-      }
-
-      const frameworkIndices = JSON.parse(indexJson) as Record<string, string>;
-      const enabledCategories = Object.keys(config.skills);
-      const entries: string[] = [];
-
-      // 2. Aggregate and Filter entries
-      for (const category of enabledCategories) {
-        if (frameworkIndices[category]) {
-          const lines = frameworkIndices[category]
-            .split('\n')
-            .filter((l) => l.trim().length > 0);
-
-          if (syncedSkills) {
-            // Filter: Only include lines if the skill ID (first column) was synced
-            const syncedIds = new Set(
-              syncedSkills
-                .filter((s) => s.category === category)
-                .map((s) => `${s.category}/${s.skill}`),
-            );
-            const filteredLines = lines.filter((line) => {
-              const skillId = line.split('|')[1]?.trim(); // Rows start with | ID | ...
-              return syncedIds.has(skillId);
-            });
-            entries.push(...filteredLines);
-          } else {
-            entries.push(...lines);
-          }
-        }
-      }
-
-      if (entries.length === 0) {
-        console.log(pc.gray('  - No matching skills found to index.'));
-        return;
-      }
-
-      // 3. Assemble and Inject
-      const generator = new IndexGeneratorService();
-      const header = [
-        '# Agent Skills Index',
-        '',
-        'IMPORTANT: Prefer retrieval-led reasoning. Consult skill files before acting.',
-        '',
-        '| Skill ID | Triggers | Description |',
-        '| :--- | :--- | :--- |',
-      ].join('\n');
-
-      const indexContent = `${header}\n${entries.join('\n')}\n`;
-      await generator.inject(process.cwd(), indexContent);
-      await generator.bridge(process.cwd(), enabledAgents);
-
+    if (!agentDef) {
       console.log(
-        pc.green(`  ✅ AGENTS.md index updated (${entries.length} skills).`),
+        pc.yellow(`  ⚠️  Agent definition not found for ${primaryAgentId}.`),
       );
+      return;
+    }
+
+    const baseDir = path.join(process.cwd(), agentDef.path);
+    const enabledCategories = Object.keys(config.skills);
+
+    try {
+      // Generate index from local files (includes both synced and existing user skills)
+      const generator = new IndexGeneratorService();
+
+      const indexContent = await generator.generate(baseDir, enabledCategories);
+
+      // Inject into AGENTS.md
+      await generator.inject(process.cwd(), indexContent);
+      await generator.bridge(process.cwd(), agents);
+
+      console.log(pc.green(`  ✅ AGENTS.md index updated.`));
     } catch (error) {
       console.log(pc.yellow(`  ⚠️  Failed to update index: ${error}`));
     }

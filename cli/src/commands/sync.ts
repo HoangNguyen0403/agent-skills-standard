@@ -3,6 +3,10 @@ import { ConfigService } from '../services/ConfigService';
 import { DetectionService } from '../services/DetectionService';
 import { SyncService } from '../services/SyncService';
 
+/**
+ * Command for synchronizing skills and workflows from the remote registry to the local workspace.
+ * It handles configuration re-detection, fetching files, writing to disk, and updating indices.
+ */
 export class SyncCommand {
   private configService: ConfigService;
   private detectionService: DetectionService;
@@ -18,6 +22,10 @@ export class SyncCommand {
     this.syncService = syncService || new SyncService();
   }
 
+  /**
+   * Executes the synchronization flow.
+   * Reconciles dependencies, fetches skills and workflows from the registry, and updates AGENTS.md.
+   */
   async run() {
     try {
       // 1. Load Config
@@ -43,11 +51,15 @@ export class SyncCommand {
         config,
       );
 
-      // 5. Write skills to target agents
+      // 4b. Assemble workflows
+      const workflows = await this.syncService.assembleWorkflows(config);
+
+      // 5. Write skills and workflows to target
       await this.syncService.writeSkills(skills, config);
+      await this.syncService.writeWorkflows(workflows);
 
       // 6. Automatically apply framework-specific indices to AGENTS.md
-      await this.syncService.applyIndices(config, skills, config.agents);
+      await this.syncService.applyIndices(config, config.agents);
 
       console.log(pc.green('✅ All skills synced successfully!'));
     } catch (error) {

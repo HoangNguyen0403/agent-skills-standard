@@ -8,6 +8,10 @@ import { Octokit } from 'octokit';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 
 @Injectable()
+/**
+ * Service for managing AI skill feedback in the backend.
+ * Handles issue creation in the designated GitHub repository.
+ */
 export class FeedbackService {
   private readonly logger = new Logger(FeedbackService.name);
   private readonly octokit: Octokit;
@@ -28,6 +32,11 @@ export class FeedbackService {
     );
   }
 
+  /**
+   * Formats and submits a new feedback issue to GitHub.
+   * @param dto The feedback data
+   * @returns The URL of the created issue
+   */
   async createIssue(dto: CreateFeedbackDto) {
     try {
       const body = this.formatIssueBody(dto);

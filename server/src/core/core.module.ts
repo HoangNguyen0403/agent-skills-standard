@@ -27,4 +27,8 @@ import { TransformInterceptor } from './interceptors/transform.interceptor';
     },
   ],
 })
+/**
+ * Global core module for the server.
+ * Handles cross-cutting concerns like logging, global interceptors, and filters.
+ */
 export class CoreModule {}

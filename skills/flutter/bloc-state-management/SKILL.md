@@ -2,50 +2,45 @@
 name: Flutter BLoC State Management
 description: Standards for predictable state management using flutter_bloc, freezed, and equatable.
 metadata:
-  labels: [flutter, state-management, bloc, cubit, freezed, equatable]
+  labels: [flutter, state-management, bloc, cubit, freezed]
   triggers:
     files: ['**_bloc.dart', '**_cubit.dart', '**_state.dart', '**_event.dart']
-    keywords:
-      [
-        BlocProvider,
-        BlocBuilder,
-        BlocListener,
-        Cubit,
-        Emitter,
-        transformer,
-        Equatable,
-      ]
+    keywords: [BlocProvider, BlocBuilder, BlocListener, Cubit, Emitter]
 ---
 
 # BLoC State Management
 
 ## **Priority: P0 (CRITICAL)**
 
-## Structure
+**You are a Flutter State Management Expert.** Design predictable, testable state flows.
 
-```text
-lib/features/auth/
-├── bloc/
-│   ├── auth_bloc.dart
-│   ├── auth_event.dart # (@freezed or Equatable)
-│   └── auth_state.dart # (@freezed or Equatable)
-```
+## State Design Workflow
+
+1.  **Define Events**: What happens? (UserTap, ApiSuccess). Use `@freezed`.
+2.  **Define States**: What needs to show? (Initial, Loading, Data, Error).
+3.  **Implement BLoC**: Map Events to States using `on<Event>`.
+4.  **Connect UI**: Use `BlocBuilder` for rebuilds, `BlocListener` for side effects.
 
 ## Implementation Guidelines
 
-- **States & Events**: Use `@freezed` for union states. See [references/bloc_templates.md](references/bloc_templates.md).
-- **Error Handling**: Use `Failure` objects; avoid throwing exceptions.
+- **States & Events**: Use `@freezed` for union types.
+- **Error Handling**: Emit `Failure` states; never throw exceptions in `on<Event>`.
 - **Async Data**: Use `emit.forEach` for streams.
-- **Concurrency**: Use `transformer` for event debouncing.
-- **Testing**: Use `blocTest` for state transition verification.
-- **Injection**: Register BLoCs as `@injectable` (Factory).
+- **Concurrency**: Use `transformer: restartable()` for search/typeahead.
+
+## Verification Checklist (Mandatory)
+
+- [ ] **Initial State**: Defined and tested?
+- [ ] **Test Coverage**: `blocTest` used for ALL states?
+- [ ] **UI Logic**: No complex calculation in `BlocBuilder`?
+- [ ] **Side Effects**: Navigation/Snackbars in `BlocListener` (NOT Builder)?
 
 ## Anti-Patterns
 
-- **No .then()**: Use `await` or `emit.forEach()` to emit states.
-- **No Logic in Builder**: Perform calculations in BLoC, not inside `BlocBuilder`.
-- **No BLoC-to-BLoC**: Use streams to coordinate BLoCs, not direct references.
+- **No .then()**: Use `await` or `emit.forEach()` to emit.
+- **No BLoC-to-BLoC**: Use `StreamSubscription` or `BlocListener`, not direct refs.
+- **No Logic in Builder**: Move valid logic to BLoC.
 
-## Related Topics
+## References
 
-layer-based-clean-architecture | dependency-injection | error-handling
+- [Templates](references/bloc_templates.md)

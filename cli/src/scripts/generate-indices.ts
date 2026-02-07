@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
+import { IndexGeneratorService } from '../services/IndexGeneratorService';
 
 interface SkillMetadata {
   name: string;
@@ -93,6 +94,14 @@ async function generate() {
   console.log(
     `✅ Generated indices for ${Object.keys(frameworkIndices).length} frameworks in skills/index.json`,
   );
+
+  // Also update AGENTS.md
+  const generator = new IndexGeneratorService();
+  const indexContent = generator.assembleIndex(
+    Object.values(frameworkIndices).flatMap((s) => s.split('\n')),
+  );
+  await generator.inject(process.cwd(), indexContent);
+  console.log('✅ Updated AGENTS.md');
 }
 
 generate().catch(console.error);

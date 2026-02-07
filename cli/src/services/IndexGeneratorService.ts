@@ -13,9 +13,17 @@ interface SkillMetadata {
   };
 }
 
+/**
+ * Service for generating and managing the Agent Skills Index in markdown format.
+ * It handles parsing skill metadata, injecting the index into documentation,
+ * and bridging agent-specific rule files.
+ */
 export class IndexGeneratorService {
   /**
-   * Generates a markdown index of available skills.
+   * Generates a markdown index of available skills across multiple categories.
+   * @param baseDir The base directory containing categories and skills
+   * @param frameworks List of framework categories to include in the index
+   * @returns A formatted markdown string representing the index
    */
   async generate(baseDir: string, frameworks: string[]): Promise<string> {
     const categories = ['common', ...frameworks];
@@ -42,7 +50,10 @@ export class IndexGeneratorService {
   }
 
   /**
-   * Injects the index into target files (e.g., AGENTS.md).
+   * Injects the generated index into target documentation files (e.g., AGENTS.md).
+   * It uses HTML comments as markers for safe injection and replacement.
+   * @param rootDir Project root directory
+   * @param indexContent The markdown content to inject
    */
   async inject(rootDir: string, indexContent: string): Promise<void> {
     const targets = ['AGENTS.md'];
@@ -73,8 +84,10 @@ export class IndexGeneratorService {
   }
 
   /**
-   * Bridges native agent rule files to AGENTS.md.
-   * Creates a dedicated discovery file in the agent's rules directory.
+   * Bridges native agent rule files to AGENTS.md by creating discovery instructions.
+   * Creates agent-specific rule files (e.g., .mdc, .instructions.md) in their respective directories.
+   * @param rootDir Project root directory
+   * @param agents List of agents to generate rules for
    */
   async bridge(rootDir: string, agents: Agent[]): Promise<void> {
     const fileNameBase = 'agent-skill-standard-rule';
@@ -193,12 +206,27 @@ export class IndexGeneratorService {
     return `${id}|${prefix}${desc}`;
   }
 
+  /**
+   * Assembles the full index markdown including headers and Zero-Trust rules.
+   * @param entries List of formatted skill entries
+   * @returns Complete markdown index string
+   */
   public assembleIndex(entries: string[]): string {
     const header = [
-      '# Index',
-      'Retrieval-led reasoning required.',
-      'ID|Desc',
-      ':--|:--',
+      '# Agent Skills Index',
+      '',
+      '## **Rule Zero: Zero-Trust Engineering**',
+      '',
+      '🚨 **IMPORTANT:** Never assume existing code follows the standard. Existing files may contain legacy technical debt or non-compliant patterns (e.g., hardcoded colors).',
+      '',
+      '- **Skill Authority:** Loaded skills always override existing code patterns.',
+      '- **Retrieval-First:** Before writing a single line of code, identify and read relevant skill files listed below.',
+      '- **Audit Before Write:** Audit every file write against the `common/feedback-reporter` skill.',
+      '',
+      'IMPORTANT: Prefer retrieval-led reasoning. Consult skill files before acting.',
+      '',
+      '| Skill ID | Triggers | Description |',
+      '| :--- | :--- | :--- |',
     ].join('\n');
 
     return `${header}\n${entries.join('\n')}\n`;

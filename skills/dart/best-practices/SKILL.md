@@ -20,6 +20,14 @@ Best practices for writing clean, maintainable Dart code.
 - **Immutability**: Use `const` > `final` > `var`.
 - **Config**: Use `--dart-define` for secrets. Never hardcode API keys.
 - **Naming**: Follow [effective-dart](https://dart.dev/guides/language/effective-dart) (PascalCase classes, camelCase members).
+- **Strings**: Prefer single quotes; use double quotes only for interpolation needs.
+- **Trailing Commas**: Always use trailing commas for multi-line literals/params.
+- **Expression Bodies**: Prefer `=>` for single-expression functions/getters.
+- **Collections**:
+  - Use `.map`, `.where`, `.fold`, `.any` over manual loops when clarity improves.
+  - Type empty collections (`<String>[]`, `<String, User>{}`) to avoid `dynamic`.
+  - Use collection `if`/`for` and spread operators for composable lists/maps.
+- **Async**: Always `await` futures unless intentionally fire-and-forget.
 
 ```dart
 import 'models/user.dart'; // Good

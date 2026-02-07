@@ -23,9 +23,13 @@ Layer separation standards and dependency injection patterns for NestJS applicat
   - **Pattern**: Create typed decorators like `@CurrentUser()`, `@DeviceIp()`.
 
   ```typescript
+  import { RequestWithUser } from 'src/common/interfaces/request.interface';
+
   export const CurrentUser = createParamDecorator(
-    (data: unknown, ctx: ExecutionContext) =>
-      ctx.switchToHttp().getRequest().user,
+    (data: unknown, ctx: ExecutionContext): User => {
+      const request = ctx.switchToHttp().getRequest<RequestWithUser>();
+      return request.user;
+    },
   );
   ```
 

@@ -14,11 +14,17 @@ metadata:
 
 ## Implementation Guidelines
 
-### Test Strategy
+### TDD Workflow
 
-- **Unit First**: Prioritize pure unit tests (Mockito) over Context tests.
-- **Slice Testing**: Use `@WebMvcTest` (Controllers) and `@DataJpaTest` (Repos) to reduce build time.
-- **Integration**: Use `@SpringBootTest` only for critical end-to-end flows.
+1.  **Red**: Write a failing test (e.g., `returns 404`).
+2.  **Green**: Implement minimal code to pass.
+3.  **Refactor**: Clean up while keeping tests green.
+4.  **Coverage**: Verify with JaCoCo.
+
+### Best Practices
+
+- **Real Infrastructure**: Use **Testcontainers** for DB/Queues. See [Integration Template](references/testing-template.md).
+- **Slice Testing**: See [Slice Test Templates](references/testing-template.md#slice-tests) for `@WebMvcTest` / `@DataJpaTest`.
 
 ### Best Practices
 

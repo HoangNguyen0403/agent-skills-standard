@@ -7,13 +7,22 @@ import {
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+/**
+ * Standard interface for all API responses.
+ */
 export interface ResponseWrapper<T> {
+  /** The HTTP status code of the response */
   statusCode: number;
+  /** The payload of the response */
   data: T;
+  /** Optional metadata about the response */
   meta?: Record<string, unknown>;
 }
 
 @Injectable()
+/**
+ * Global interceptor that wraps all successful responses in a standard `ResponseWrapper`.
+ */
 export class TransformInterceptor<T> implements NestInterceptor<
   T,
   ResponseWrapper<T>

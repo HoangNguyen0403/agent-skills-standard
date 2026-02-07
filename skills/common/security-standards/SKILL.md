@@ -19,6 +19,7 @@ Universal security protocols for building safe and resilient software.
 - **Least Privilege**: Grant minimum necessary permissions to users, services, and containers.
 - **No Hardcoded Secrets**: Use environment variables or secret managers. Never commit keys or passwords.
 - **Encryption**: Use modern, collision-resistant algorithms (AES-256 for data-at-rest; TLS 1.3 for data-in-transit).
+- **PII Logging**: Never log PII (email, phone, names). Mask sensitive fields before logging.
 
 ## 🧱 Secure Coding Practices
 

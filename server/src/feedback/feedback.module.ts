@@ -8,4 +8,7 @@ import { FeedbackService } from './feedback.service';
   controllers: [FeedbackController],
   providers: [FeedbackService],
 })
+/**
+ * Module responsible for handling AI skill feedback.
+ */
 export class FeedbackModule {}

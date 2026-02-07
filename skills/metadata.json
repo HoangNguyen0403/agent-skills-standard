@@ -5,36 +5,36 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.2.0",
-      "last_updated": "2026-01-31",
+      "version": "1.3.0",
+      "last_updated": "2026-02-07",
       "tag_prefix": "flutter-v",
       "token_metrics": {
-        "total_skills": 22,
-        "total_tokens": 8778,
-        "avg_tokens_per_skill": 399,
+        "total_skills": 21,
+        "total_tokens": 8582,
+        "avg_tokens_per_skill": 409,
         "largest_skill": "layer-based-clean-architecture (521 tokens)"
       }
     },
     "dart": {
-      "version": "1.0.3",
-      "last_updated": "2026-01-27",
+      "version": "1.0.4",
+      "last_updated": "2026-02-07",
       "tag_prefix": "dart-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1052,
-        "avg_tokens_per_skill": 351,
-        "largest_skill": "language (540 tokens)"
+        "total_tokens": 1305,
+        "avg_tokens_per_skill": 435,
+        "largest_skill": "language (595 tokens)"
       }
     },
     "typescript": {
-      "version": "1.0.5",
-      "last_updated": "2026-01-31",
+      "version": "1.0.6",
+      "last_updated": "2026-02-07",
       "tag_prefix": "typescript-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 1613,
-        "avg_tokens_per_skill": 403,
-        "largest_skill": "language (486 tokens)"
+        "total_tokens": 2506,
+        "avg_tokens_per_skill": 627,
+        "largest_skill": "language (1031 tokens)"
       }
     },
     "javascript": {
@@ -54,8 +54,8 @@
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 3118,
-        "avg_tokens_per_skill": 390,
+        "total_tokens": 3168,
+        "avg_tokens_per_skill": 396,
         "largest_skill": "performance (648 tokens)"
       }
     },
@@ -71,12 +71,12 @@
       }
     },
     "nestjs": {
-      "version": "1.0.4",
-      "last_updated": "2026-01-31",
+      "version": "1.1.0",
+      "last_updated": "2026-02-07",
       "tag_prefix": "nestjs-v",
       "token_metrics": {
-        "total_skills": 18,
-        "total_tokens": 8533,
+        "total_skills": 21,
+        "total_tokens": 9958,
         "avg_tokens_per_skill": 474,
         "largest_skill": "documentation (836 tokens)"
       }
@@ -93,14 +93,14 @@
       }
     },
     "common": {
-      "version": "1.4.0",
-      "last_updated": "2026-01-31",
+      "version": "1.5.0",
+      "last_updated": "2026-02-07",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 12,
-        "total_tokens": 5869,
-        "avg_tokens_per_skill": 489,
-        "largest_skill": "best-practices (714 tokens)"
+        "total_skills": 14,
+        "total_tokens": 6912,
+        "avg_tokens_per_skill": 494,
+        "largest_skill": "best-practices (860 tokens)"
       }
     },
     "quality-engineering": {
@@ -120,30 +120,30 @@
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 3570,
-        "avg_tokens_per_skill": 357,
+        "total_tokens": 3511,
+        "avg_tokens_per_skill": 351,
         "largest_skill": "security (458 tokens)"
       }
     },
     "angular": {
-      "version": "1.0.0",
-      "last_updated": "2026-01-22",
+      "version": "1.1.0",
+      "last_updated": "2026-02-07",
       "tag_prefix": "angular-v",
       "token_metrics": {
-        "total_skills": 14,
-        "total_tokens": 3826,
-        "avg_tokens_per_skill": 273,
+        "total_skills": 15,
+        "total_tokens": 4138,
+        "avg_tokens_per_skill": 276,
         "largest_skill": "components (347 tokens)"
       }
     },
     "kotlin": {
-      "version": "1.0.0",
-      "last_updated": "2026-01-23",
+      "version": "1.0.1",
+      "last_updated": "2026-02-07",
       "tag_prefix": "kotlin-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 1977,
-        "avg_tokens_per_skill": 494,
+        "total_tokens": 1812,
+        "avg_tokens_per_skill": 453,
         "largest_skill": "language (556 tokens)"
       }
     },
@@ -159,24 +159,24 @@
       }
     },
     "spring-boot": {
-      "version": "1.0.0",
-      "last_updated": "2026-01-23",
+      "version": "1.0.1",
+      "last_updated": "2026-02-07",
       "tag_prefix": "spring-boot-v",
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 3405,
-        "avg_tokens_per_skill": 341,
-        "largest_skill": "architecture (443 tokens)"
+        "total_tokens": 3542,
+        "avg_tokens_per_skill": 354,
+        "largest_skill": "security (513 tokens)"
       }
     },
     "android": {
-      "version": "1.0.1",
-      "last_updated": "2026-01-31",
+      "version": "1.0.2",
+      "last_updated": "2026-02-07",
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 6338,
-        "avg_tokens_per_skill": 288,
+        "total_tokens": 6382,
+        "avg_tokens_per_skill": 290,
         "largest_skill": "android-design-system (438 tokens)"
       }
     },
@@ -192,13 +192,13 @@
       }
     },
     "ios": {
-      "version": "1.0.1",
-      "last_updated": "2026-01-31",
+      "version": "1.1.0",
+      "last_updated": "2026-02-07",
       "tag_prefix": "ios-v",
       "token_metrics": {
-        "total_skills": 14,
-        "total_tokens": 5752,
-        "avg_tokens_per_skill": 411,
+        "total_skills": 15,
+        "total_tokens": 6057,
+        "avg_tokens_per_skill": 404,
         "largest_skill": "localization (475 tokens)"
       }
     },

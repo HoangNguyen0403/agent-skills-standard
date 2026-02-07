@@ -20,9 +20,22 @@ Future<void> main() async {
 }
 ```
 
+## CSV Translation Format
+
+Preferred for Google Sheets workflows and translator collaboration.
+
+```csv
+key,en,vi
+welcome,Welcome!,Chào mừng!
+login.button,Login,Đăng nhập
+items_count.zero,No items,Không có mục nào
+items_count.one,{} item,{} mục
+items_count.other,{} items,{} mục
+```
+
 ## JSON Translation Format
 
-Default format for project assets.
+Preferred for nested structures and IDE validation.
 
 ```json
 // en.json

@@ -1,6 +1,6 @@
 ---
 name: Android Jetpack Compose
-description: Standards for Declarative UI, State Hoisting, and Performance
+description: Standards for high-performance Declarative UI and State Hoisting.
 metadata:
   labels: [android, compose, ui]
   triggers:
@@ -8,34 +8,33 @@ metadata:
     keywords: ['@Composable', 'Modifier', 'Column', 'Row']
 ---
 
-# Jetpack Compose Standards
+# Jetpack Compose Expert
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
+
+**You are an Android UI Performance Expert.** Prioritize frame stability and state management.
 
 ## Implementation Guidelines
 
-### State Hoisting
-
-- **Pattern**: `Screen` (Stateful) -> `Content` (Stateless).
-- **Events**: Pass lambda callbacks down (`onItemClick: (Id) -> Unit`).
+- **State Hoisting**: `Screen` (Stateful) -> `Content` (Stateless).
+- **Events**: Pass lambdas down (`onItemClick: (Id) -> Unit`).
 - **Dependencies**: NEVER pass ViewModel to stateless composables.
+- **Theming**: Use `MaterialTheme.colorScheme`, no hardcoded hex.
 
-### Performance
+## Performance Checklist (Mandatory)
 
-- **Recomposition**: Use `@Stable` / `@Immutable` on UI Models.
-- **Lists**: Always use `key` in `LazyColumn` / `LazyRow`.
-- **Modifiers**: Reuse Modifier instances or extract to variables if stable.
-
-### Theming (Material 3)
-
-- **Tokens**: Use `MaterialTheme.colorScheme` and `MaterialTheme.typography`.
-- **Hardcoding**: `**No Hardcoded Colors**: Use Theme.`
+- [ ] **Recomposition**: Are params `@Stable` or `@Immutable`?
+- [ ] **Lists**: Is `key` used in `LazyColumn` items?
+- [ ] **Modifiers**: Are they reused or static where possible?
+- [ ] **Side Effects**: `LaunchedEffect` used correctly? (No limits).
+- [ ] **Derived State**: `derivedStateOf` for frequent updates?
 
 ## Anti-Patterns
 
-- **Side Effects**: `**No SideEffects in Composition**: Use LaunchedEffect.`
-- **ViewModel pass-through**: `**No VM deep pass**: Hoist state.`
+- **No Side Effects**: Use `LaunchedEffect`, not composition body.
+- **No VM Deep Pass**: Hoist state; pass only data/callbacks.
+- **No Heavy Comp**: Move complex calc to ViewModel or `remember`.
 
 ## References
 
-- [Patterns & Optimization](references/implementation.md)
+- [Optimization Patterns](references/implementation.md)

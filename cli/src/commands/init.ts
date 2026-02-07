@@ -6,6 +6,10 @@ import { DEFAULT_REGISTER } from '../constants';
 import { InitAnswers, InitService } from '../services/InitService';
 import { RegistryService } from '../services/RegistryService';
 
+/**
+ * Command for initializing the agent-skills-standard configuration in a project.
+ * It guides the user through environment detection and creates the `.skillsrc` file.
+ */
 export class InitCommand {
   private initService: InitService;
   private registryService: RegistryService;
@@ -15,6 +19,10 @@ export class InitCommand {
     this.registryService = registryService || new RegistryService();
   }
 
+  /**
+   * Executes the initialization flow.
+   * Checks for existing config, discovers the environment, prompts the user, and saves the configuration.
+   */
   async run() {
     const configPath = path.join(process.cwd(), '.skillsrc');
 

@@ -5,6 +5,41 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.3] - 2026-02-07
+
+**Category**: Documentation Governance & CLI/Server Hardening & Skillset Expansion
+
+### Added (CLI v1.6.3)
+
+- **📝 Documentation Governance**:
+  - Implemented `docs:scan` specialized script to detect missing JSDoc documentation across CLI and Server codebases.
+  - Integrated documentation coverage scanning into the CI pipeline via GitHub Actions.
+  - Created `/update-docs` automated workflow for agentic documentation maintenance.
+- **🛡️ Full Codebase Documentation**: Achieved 100% JSDoc coverage for both CLI (services, commands, models) and Server (modules, controllers, filters, interceptors).
+- **🏗️ Architectural Hardening**:
+  - Investigated and cleaned up `SyncService.ts`, removing the unused `syncedSkills` parameter and its corresponding test overhead.
+  - Improved type safety across CLI models and command interfaces.
+
+### Added (Registry v1.6.3)
+
+- **🚀 Skillset Expansion**:
+  - **iOS**: Introduced **SwiftUI** expert standards for modern iOS development.
+  - **Angular**: Added **Component Patterns** with Signal-aware architecture guidelines.
+  - **NestJS**: Expanded with **BullMQ**, **Notification**, and **Security Isolation** specialized modules.
+  - **Common**: Integrated **Context Optimization** and **Product Requirements** engineering standards.
+- **🧹 Cleanup & Refinement**:
+  - **Flutter**: Modernized localization standards with `sheet_loader` integration. Removed legacy `navigator-v1` in favor of declarative routing.
+  - **Global**: Recalculated token metrics for all 214 skills, maintaining < 70-line limit across the registry.
+
+### Versions
+
+- **Common Skills**: v1.5.0 (Minor)
+- **Flutter Skills**: v1.3.0 (Minor)
+- **NestJS Skills**: v1.1.0 (Minor)
+- **Angular Skills**: v1.1.0 (Minor)
+- **iOS Skills**: v1.1.0 (Minor)
+- **CLI/Server**: v1.6.3 (Patch)
+
 ## [1.6.2] - 2026-02-01
 
 **Category**: Hybrid Rule Injection & GitHub Copilot Optimization

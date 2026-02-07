@@ -14,10 +14,17 @@ metadata:
 
 ## Principles
 
-- **Table-Driven Tests**: The idiomatic way to write tests in Go.
-- **Subtests (`t.Run`)**: Run table entries as subtests for better reporting.
-- **Parallel Usage**: Use `t.Parallel()` for independent tests to speed up execution.
-- **Mock Interfaces**: Mock at the boundaries (interfaces).
+## Guidelines
+
+### TDD Workflow
+
+1.  **Red**: Write a failing table-driven test case.
+2.  **Green**: Implement logic to pass.
+3.  **Refactor**: Simplify code.
+
+### Golden Snippet
+
+See [Table-Driven Tests](references/table-driven-tests.md) for full template.
 
 ## Tools
 

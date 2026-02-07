@@ -1,51 +1,42 @@
 ---
 name: Flutter Testing Standards
-description: Unit, widget, and integration testing using mocktail and bloc_test.
-metadata:
-  labels: [testing, junit, mocktail, bloc_test, golden-tests]
-  triggers:
-    files: ['**/test/**.dart']
-    keywords: [test, group, expect, mocktail, blocTest, when, any]
+description: Core standards for unit, widget, and integration testing in Flutter.
 ---
 
-# Testing Standards
+# Flutter Testing Standards
 
-## **Priority: P1 (HIGH)**
+## Priority: P0 (CRITICAL)
 
-Ensuring code reliability through multi-layered testing strategies.
+Strict guidelines for maintaining a high-quality, reliable, and fast test suite.
 
-## Structure
+## Core Rules
+
+1.  **Test Pyramid**: Prioritize Unit Tests > Widget Tests > Integration Tests.
+2.  **Naming Convention**: Use `should <expected behavior> when <condition>` or `feature_test.dart`.
+3.  **Mocking**: Strict separation of concerns using shared mocks.
+4.  **AAA Pattern**: Arrange, Act, Assert in all tests.
+
+## Mocking Standards
+
+**Do not define local mocks for shared components.**
+
+- **Rule**: All shared components (Blocs, Repos/Services) must use shared mocks.
+- **Location**: `test/shared/`
+- **Reference**: [Mocking Standards (Detailed)](references/mocking_standards.md)
+
+## Directory Structure
 
 ```text
 test/
-├── unit/ # Business logic & mapping (Blocs, Repositories, UseCases)
-├── widget/ # UI component behavior (Screens, Widgets)
-└── integration/ # End-to-end flows
+├── features/           # Feature-specific tests
+├── shared/             # Shared mocks and fixtures
+│   ├── mock_blocs.dart
+│   └── mock_repositories.dart
+└── core/               # Core utility tests
 ```
 
-## Implementation Guidelines
+## Anti-Patterns
 
-- **Testing Pyramid**: Maintain ~70% Unit Tests, ~20% Widget Tests, ~10% Integration Tests.
-- **Mocks**: Use `mocktail` for type-safe, boilerplate-free mocking.
-- **Unit Tests**: Test logic in isolation. Verify all edge cases (Success, Failure, Exception).
-- **Widget Tests**: Test high-value interactions (Button clicks, Error states, Loading indicators).
-- **BLoC Tests**: Use `blocTest` to verify state emission sequences.
-- **Code Coverage**: Aim for 80%+ coverage on Domain and Presentation (Logic) layers.
-
-## Deep Dive References
-
-- [Unit Testing Strategies](./references/unit-testing.md) (Test Data Builders, Mocktail)
-- [Widget Testing Strategies](./references/widget-testing.md) (Robot Pattern)
-- [Integration Testing](./references/integration-testing.md) (Shared Robots, Real Device)
-- [Robot Pattern Implementation](./references/robot-pattern.md)
-
-## 🚫 Anti-Patterns
-
-- **Thread Sleep**: `**No Future.delayed**: Use FakeAsync or expectations for deterministic timing.`
-- **Missing Assertions**: `**No "Execution Only" Tests**: A test without an expect() call is invalid.`
-- **Over-Mocking**: `**No Mocking Data Classes**: Use real instances for Entities/Models; mock only I/O.`
-- **Test Pollution**: `**No Shared State**: Ensure every test is Independent (FIRST).`
-
-## Related Topics
-
-layer-based-clean-architecture | dependency-injection | cicd
+- **No Logic in Tests**: Test logic, don't reimplement it.
+- **No Flaky Tests**: Avoid `Future.delayed` or reliance on external state.
+- **No Local Mocks**: See [Mocking Standards](references/mocking_standards.md).

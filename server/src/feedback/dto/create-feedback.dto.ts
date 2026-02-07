@@ -1,6 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
+/**
+ * Data Transfer Object for creating new feedback.
+ * Includes validation rules and Swagger documentation.
+ */
 export class CreateFeedbackDto {
   @ApiProperty({
     description: 'The skill category/identifier',

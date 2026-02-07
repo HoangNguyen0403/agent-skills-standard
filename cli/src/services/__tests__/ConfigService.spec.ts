@@ -229,6 +229,18 @@ describe('ConfigService', () => {
         'react/component-patterns',
       ]);
     });
+
+    it('should include workflows in initial config if provided', () => {
+      const config = configService.buildInitialConfig(
+        'flutter',
+        [],
+        'url',
+        {},
+        [],
+        ['workflow-1'],
+      );
+      expect(config.workflows).toEqual(['workflow-1']);
+    });
   });
 
   describe('applyDependencyExclusions', () => {

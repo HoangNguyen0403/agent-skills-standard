@@ -23,6 +23,10 @@ Standards for code quality, formatting, and generation.
 - **CI Pipeline**: All PRs MUST pass `analyze`, `format`, and `test` steps.
 - **Imports**: Group imports: `dart:`, `package:`, then relative.
 - **Documentation**: Use `///` for public APIs. Link symbols using `[Class]`.
+- **Linting Commands**:
+  - `flutter analyze --fatal-infos --fatal-warnings`
+  - `dart run dart_code_metrics:metrics analyze lib`
+- **Pre-commit**: Keep `lefthook.yml` in sync with analyze/format/metrics commands.
 
 ## Code
 

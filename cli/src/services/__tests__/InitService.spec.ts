@@ -117,6 +117,7 @@ describe('InitService', () => {
         expect.any(String),
         expect.any(Object),
         [], // Empty languages
+        [], // Empty workflows
       );
     });
   });

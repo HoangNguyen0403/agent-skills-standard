@@ -5,6 +5,9 @@ import { FeedbackService } from './feedback.service';
 
 @ApiTags('feedback')
 @Controller('feedback')
+/**
+ * Controller for handling AI skill feedback submissions.
+ */
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
@@ -13,6 +16,10 @@ export class FeedbackController {
   @ApiResponse({ status: 201, description: 'Feedback received successfully' })
   @ApiResponse({ status: 500, description: 'GitHub Issue creation failed' })
   @HttpCode(HttpStatus.CREATED)
+  /**
+   * Receives feedback from the CLI and delegates to FeedbackService for issue creation.
+   * @param createFeedbackDto The validated feedback payload
+   */
   async create(@Body() createFeedbackDto: CreateFeedbackDto) {
     return this.feedbackService.createIssue(createFeedbackDto);
   }

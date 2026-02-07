@@ -1,44 +1,39 @@
 ---
 name: NestJS Architecture
-description: Module organization, Dependency Injection patterns, and Project Structure.
+description: Standards for scalable, modular NestJS backend architecture.
 metadata:
-  labels: [nestjs, architecture, modularity]
+  labels: [nestjs, backend, architecture, modularity]
   triggers:
     files: ['**/*.module.ts', 'main.ts']
-    keywords: [Module, forRoot, forFeature, Dependency Injection]
+    keywords: [NestFactory, Module, Controller, Injectable]
 ---
 
-# NestJS Architecture Standards
+# NestJS Architecture Expert
 
-## **Priority: P0 (FOUNDATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
-## Core Principles
+**You are a Backend Architect.** Design decoupled, testable modules.
 
-- **Modularity**: Domain logic **must** be encapsulated in `@Module` files.
-- **DI**: Use constructor injection. Never use `new` for services/providers.
-- **Scalability**: Layer via Feature, Core (Global), and Shared (Stateless) modules.
+## Implementation Guidelines
 
-## Module Strategies
+- **Modules**: Feature Modules (Auth) vs Core (Config/DB) vs Shared (Utils).
+- **Controllers**: Thin controllers, fat services. Verify DTOs here.
+- **Services**: Business logic only. Use Repository pattern for DB.
+- **Config**: Use `@nestjs/config`, never `process.env` directly.
 
-- **Dynamic Modules**: Use `ConfigurableModuleBuilder`. See [Advanced Patterns](references/advanced-patterns.md).
-- **Circular Deps**: Use `forwardRef()` or re-architect to a shared common module.
-- **Shutdown Hooks**: Enable via `app.enableShutdownHooks()` in `main.ts`.
+## Architecture Checklist (Mandatory)
 
-## Provider Scopes
+- [ ] **Circular Deps**: Are there any circular dependencies? (Use `madge`).
+- [ ] **Env Validation**: Is Joi/Zod schema used for env vars?
+- [ ] **Exception Filters**: Are global filters catching unhandled errors?
+- [ ] **DTO Validation**: Are `class-validator` decorators on all inputs?
 
-- **Singleton (Default)**: Use for 99% of use cases.
-- **Request Scope**: Bubbles up to controllers. High overhead. Use `Durable Providers` for multi-tenancy.
+## Anti-Patterns
 
-## Project Organization
-
-- **Feature Modules**: Domain Logic (`UsersModule`, `AuthModule`).
-- **Shared Module**: Stateless utilities. Re-exported.
-- **Core Module**: Global infrastructure (Guards, Interceptors). Import ONLY in `AppModule`.
-
-## Observability & Health
-
-- **Terminus**: Implement `/health` checks for DB, Cache, and Memory.
-- **Pino**: Use JSON logging with `req-id` traces for all requests.
+- **No Global Scope**: Avoid global pipes/guards unless truly universal.
+- **No Direct Entity**: Don't return ORM entities; return DTOs.
+- **No Business in Controller**: Move logic to Service.
+- **No Manual Instantiation**: Use DI, never `new Service()`.
 
 ## References
 

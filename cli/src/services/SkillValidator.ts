@@ -17,9 +17,18 @@ interface ValidationSummary {
   warnings: number;
 }
 
+/**
+ * Service for validating skill files (SKILL.md) and repository metadata.
+ * Enforces size limits, frontmatter requirements, and imperative instruction style.
+ */
 export class SkillValidator {
   private results: SkillValidationResult[] = [];
 
+  /**
+   * Runs the complete validation suite.
+   * @param validateAll Whether to validate all skills or just changed ones
+   * @returns Exit code (0 for success, 1 for failure)
+   */
   async run(validateAll: boolean = false): Promise<number> {
     try {
       const summary = await this.validateAllSkills(validateAll);
@@ -35,6 +44,11 @@ export class SkillValidator {
     }
   }
 
+  /**
+   * Validates all identified skill files in the repository.
+   * @param validateAll Whether to validate all skills or just changed ones
+   * @returns Summary of validation results
+   */
   async validateAllSkills(
     validateAll: boolean = false,
   ): Promise<ValidationSummary> {

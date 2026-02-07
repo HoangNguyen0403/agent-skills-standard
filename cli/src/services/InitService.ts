@@ -1,28 +1,48 @@
 import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
-import { Agent, SUPPORTED_AGENTS, SUPPORTED_FRAMEWORKS } from '../constants';
+import {
+  Agent,
+  DEFAULT_WORKFLOWS,
+  SUPPORTED_AGENTS,
+  SUPPORTED_FRAMEWORKS,
+} from '../constants';
 import { RegistryMetadata } from '../models/types';
 import { ConfigService } from './ConfigService';
 import { DetectionService } from './DetectionService';
 
+/**
+ * Contextual data gathered during project discovery to inform the initialization prompt.
+ */
 export interface InitContext {
+  /** Map of framework IDs and whether they were detected in the workspace */
   frameworkDetection: Record<string, boolean>;
+  /** Map of agent IDs and whether they were detected in the workspace */
   agentDetection: Record<string, boolean>;
 }
-
+/**
+ * User responses gathered from the initialization prompt.
+ */
 export interface InitAnswers {
+  /** The primary framework ID chosen by the user */
   framework: string;
+  /** List of AI agents to enable for the project */
   agents: Agent[];
+  /** The URL of the skill registry to use */
   registry: string;
 }
 
+/**
+ * Service for orchestrating the project initialization process.
+ * Handles environment discovery, prompt choice generation, and initial config creation.
+ */
 export class InitService {
   private detectionService = new DetectionService();
   private configService = new ConfigService();
 
   /**
-   * Performs environmental discovery for initialization.
+   * Performs environmental discovery to identify existing frameworks and agents.
+   * @returns An InitContext containing detection results
    */
   async getInitializationContext(): Promise<InitContext> {
     const [frameworkDetection, agentDetection] = await Promise.all([
@@ -34,7 +54,10 @@ export class InitService {
   }
 
   /**
-   * Formats detection and registry data into UI-ready choices.
+   * Transforms the initialization context and registry metadata into choices for the interactive prompt.
+   * @param context The discovered initialization context
+   * @param supportedCategories List of categories currently supported by the registry
+   * @returns Formatted choices and the default framework ID
    */
   getPromptChoices(context: InitContext, supportedCategories: string[]) {
     const anyAgentDetected = Object.values(context.agentDetection).some(
@@ -58,11 +81,18 @@ export class InitService {
       SUPPORTED_FRAMEWORKS.find((f) => context.frameworkDetection[f.id])?.id ||
       'flutter';
 
-    return { frameworkChoices, agentChoices, defaultFramework };
+    return {
+      frameworkChoices,
+      agentChoices,
+      defaultFramework,
+    };
   }
 
   /**
-   * Orchestrates building and saving the initial configuration.
+   * Orchestrates the construction, validation, and saving of the initial `.skillsrc` configuration.
+   * @param answers The user's prompt responses
+   * @param metadata Registry metadata for versioning
+   * @param cwd Current working directory
    */
   async buildAndSaveConfig(
     answers: InitAnswers,
@@ -76,12 +106,15 @@ export class InitService {
       ? await this.detectionService.detectLanguages(frameworkDef)
       : [];
 
+    const includeWorkflows = answers.agents.includes(Agent.Antigravity);
+
     const config = this.configService.buildInitialConfig(
       frameworkId,
       answers.agents,
       answers.registry,
       metadata,
       languages,
+      includeWorkflows ? DEFAULT_WORKFLOWS : [],
     );
 
     const projectDeps = await this.detectionService.getProjectDeps();

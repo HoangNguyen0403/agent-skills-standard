@@ -19,6 +19,11 @@ Performance optimization techniques for smooth 60fps Flutter applications.
 - **Heavy Tasks**: Use `compute()` or `Isolates` for parsing/logic.
 - **Repaints**: Use `RepaintBoundary` for complex animations. Use `debugRepaintRainbowEnabled` to debug.
 - **Images**: Use `CachedNetworkImage` + `memCacheWidth`. `precachePicture` for SVGs.
+- **Keys**: Provide `ValueKey` for list items and stable IDs for reconciliation.
+- **Resource Cleanup**: Dispose controllers/streams in `dispose()`.
+- **Pagination**: Default to 20 items per page for network lists.
+- **Build Purity**: Keep `build` methods free of heavy work; move logic to BLoC/Application.
+- **Image Resizing**: Always set `maxWidth`/`maxHeight` when loading images.
 
 ## 🚫 Anti-Patterns
 

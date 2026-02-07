@@ -24,7 +24,17 @@ const SkillConfigSchema = z.object({
   custom_overrides: z.array(z.string()).optional(),
 });
 
+/**
+ * Service for managing the `.skillsrc` configuration file.
+ * Handles loading, saving, and initial construction of the configuration based on project metadata.
+ */
 export class ConfigService {
+  /**
+   * Loads and validates the skill configuration from the workspace.
+   * @param cwd Current working directory
+   * @returns The parsed SkillConfig or null if not found
+   * @throws Error if the configuration format is invalid
+   */
   async loadConfig(cwd: string = process.cwd()): Promise<SkillConfig | null> {
     const configPath = path.join(cwd, '.skillsrc');
 
@@ -49,6 +59,11 @@ export class ConfigService {
     }
   }
 
+  /**
+   * Saves the provided configuration to the `.skillsrc` file.
+   * @param config The configuration to save
+   * @param cwd Current working directory
+   */
   async saveConfig(
     config: SkillConfig,
     cwd: string = process.cwd(),
@@ -57,12 +72,23 @@ export class ConfigService {
     await fs.writeFile(configPath, yaml.dump(config));
   }
 
+  /**
+   * Constructs an initial configuration object based on project analysis.
+   * @param framework The primary framework detected
+   * @param agents List of enabled AI agents
+   * @param registry Registry URL
+   * @param metadata Registry metadata for versioning and prefixes
+   * @param languages Detected programming languages
+   * @param workflows List of workflow names to sync
+   * @returns A fresh SkillConfig object
+   */
   buildInitialConfig(
     framework: string,
     agents: Agent[],
     registry: string,
     metadata: Partial<RegistryMetadata>,
     languages: string[] = [],
+    workflows: string[] = [],
   ): SkillConfig {
     const skills: Record<string, CategoryConfig> = {};
 
@@ -99,9 +125,16 @@ export class ConfigService {
       agents,
       skills,
       custom_overrides: [],
+      workflows: workflows.length > 0 ? workflows : true, // Array if specific, true if empty/default
     };
   }
 
+  /**
+   * Identifies sub-skills to exclude based on the absence of their required package dependencies.
+   * @param config The current configuration
+   * @param framework The framework to analyze
+   * @param projectDeps Current set of project dependencies
+   */
   applyDependencyExclusions(
     config: SkillConfig,
     framework: string,
@@ -185,6 +218,10 @@ export class ConfigService {
     return reenabled;
   }
 
+  /**
+   * Retrieves the registry URL from configuration or returns the default.
+   * @param cwd Current working directory
+   */
   async getRegistryUrl(cwd: string = process.cwd()): Promise<string> {
     const config = await this.loadConfig(cwd).catch(() => null);
     return config?.registry || DEFAULT_REGISTER;

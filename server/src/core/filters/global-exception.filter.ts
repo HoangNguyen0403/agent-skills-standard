@@ -15,6 +15,10 @@ interface ExceptionResponse {
 }
 
 @Catch()
+/**
+ * Global exception filter that catches all unhandled exceptions.
+ * Standardizes the error response format and logs errors based on status code.
+ */
 export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalExceptionFilter.name);
 

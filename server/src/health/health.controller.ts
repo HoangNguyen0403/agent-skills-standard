@@ -8,6 +8,10 @@ import {
 
 @ApiTags('health')
 @Controller('health')
+/**
+ * Controller for health check endpoints.
+ * Used by cloud platforms and monitoring tools to verify server availability.
+ */
 export class HealthController {
   constructor(
     private health: HealthCheckService,
@@ -17,6 +21,9 @@ export class HealthController {
   @Get()
   @HealthCheck()
   @ApiOperation({ summary: 'Check server health' })
+  /**
+   * Performs multiple health indicators checks (memory heap).
+   */
   check() {
     return this.health.check([
       () => this.memory.checkHeap('memory_heap', 150 * 1024 * 1024),
