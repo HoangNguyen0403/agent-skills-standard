@@ -230,6 +230,24 @@ describe('SyncService', () => {
       );
     });
 
+    it('should write skills to .kiro/skills/ when Kiro agent is configured', async () => {
+      const skills = [
+        {
+          category: 'test',
+          skill: 's',
+          files: [{ name: 'SKILL.md', content: 'content' }],
+        },
+      ] as any[];
+      const config = {
+        agents: [Agent.Kiro],
+        custom_overrides: [],
+      } as unknown as SkillConfig;
+      await syncService.writeSkills(skills, config);
+      expect(fs.ensureDir).toHaveBeenCalledWith(
+        expect.stringContaining('.kiro/skills'),
+      );
+    });
+
     it('should skip agent loop if agent definition is missing', async () => {
       const config = { agents: ['unknown'] } as unknown as SkillConfig;
       await syncService.writeSkills([], config);

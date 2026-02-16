@@ -65,6 +65,15 @@ describe('DetectionService', () => {
       const results = await detectionService.detectAgents();
       expect(results.cursor).toBe(false);
     });
+
+    it('should detect Kiro if .kiro exists', async () => {
+      vi.mocked(fs.pathExists).mockImplementation((p: string) => {
+        return Promise.resolve(p.endsWith('.kiro'));
+      });
+
+      const results = await detectionService.detectAgents();
+      expect(results.kiro).toBe(true);
+    });
   });
 
   describe('getProjectDeps', () => {

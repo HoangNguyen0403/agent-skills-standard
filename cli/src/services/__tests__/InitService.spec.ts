@@ -82,6 +82,17 @@ describe('InitService', () => {
       const choices = initService.getPromptChoices(context, []);
       expect(choices.agentChoices.every((a) => a.checked)).toBe(true);
     });
+
+    it('should include Kiro in agent choices', () => {
+      const context = {
+        frameworkDetection: {},
+        agentDetection: { kiro: true },
+      };
+      const choices = initService.getPromptChoices(context, []);
+      const kiroChoice = choices.agentChoices.find((a) => a.value === 'kiro');
+      expect(kiroChoice).toBeDefined();
+      expect(kiroChoice?.checked).toBe(true);
+    });
   });
 
   describe('buildAndSaveConfig', () => {
