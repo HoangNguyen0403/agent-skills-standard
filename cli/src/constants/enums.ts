@@ -9,6 +9,7 @@ export enum Agent {
   Gemini = 'gemini',
   Roo = 'roo',
   Windsurf = 'windsurf',
+  Kiro = 'kiro',
 }
 
 export enum Framework {

@@ -24,7 +24,7 @@
 
 **The open standard for High-Density AI coding instructions. Make your AI smarter, faster, and more consistent.**
 
-Agent Skills Standard is a modular framework to distribute, sync, and version-control engineering standards across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Windsurf, Gemini, Antigravity, and custom LLM workflows**).
+Agent Skills Standard is a modular framework to distribute, sync, and version-control engineering standards across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Windsurf, Kiro, Gemini, Antigravity, and custom LLM workflows**).
 
 ---
 
@@ -197,7 +197,7 @@ The `.skillsrc` file allows you to customize how skills are synced to your proje
 
 ```yaml
 registry: https://github.com/HoangNguyen0403/agent-skills-standard
-agents: [cursor, copilot]
+agents: [cursor, copilot, kiro]
 skills:
   flutter:
     ref: flutter-v1.1.0
@@ -317,6 +317,7 @@ The CLI will sync this exact structure effectively to your agent configuration:
 | **Trae**       | `.trae/skills/`     | Automatic discovery                    |
 | **Claude Code**| `.claude/skills/`   | Referenced in `CLAUDE.md`             |
 | **Copilot**    | `.github/skills/`   | Automatic discovery                    |
+| **Kiro**       | `.kiro/skills/`     | Automatic discovery                    |
 | **OpenAI**     | `.codex/skills/`    | Automatic discovery                    |
 | **Antigravity**| `.agent/skills/`    | Automatic discovery                    |
 | **Gemini**     | `.gemini/skills/`   | Automatic discovery                    |

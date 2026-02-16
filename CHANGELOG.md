@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Category**: Index Robustness & Formatting & Skill Filtering
 
+### Added (CLI v1.6.5)
+
+- **Support for Kiro IDE**: Added Kiro to the list of supported AI agents/IDEs.
+
 ### Fixed (CLI v1.6.5)
 
 - **🩹 Agent Index Duplication Fix**:

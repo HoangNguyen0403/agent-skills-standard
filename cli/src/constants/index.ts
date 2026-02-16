@@ -109,6 +109,14 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         ruleFile: '.windsurf/rules',
         detectionFiles: ['.windsurf', '.windsurfrules'],
       };
+    case Agent.Kiro:
+      return {
+        id,
+        name: 'Kiro',
+        path: '.kiro/skills',
+        ruleFile: '.kiro/rules',
+        detectionFiles: ['.kiro'],
+      };
   }
 };
 
@@ -246,4 +254,5 @@ export const SUPPORTED_FRAMEWORKS: FrameworkDefinition[] = Object.values(
   Framework,
 ).map(getFrameworkDefinition);
 
-export { SKILL_DETECTION_REGISTRY, SkillDetection } from './skills';
+export { SKILL_DETECTION_REGISTRY } from './skills';
+export type { SkillDetection } from './skills';
