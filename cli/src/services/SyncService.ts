@@ -141,11 +141,15 @@ export class SyncService {
       const agentDef = SUPPORTED_AGENTS.find((a) => a.id === agentId);
       if (!agentDef || !agentDef.path) continue;
 
+      const isKiro = agentId === Agent.Kiro;
       const basePath = agentDef.path;
       await fs.ensureDir(basePath);
 
       for (const skill of skills) {
-        const skillPath = path.join(basePath, skill.category, skill.skill);
+        const kiroFolder = `${skill.category}-${skill.skill}`;
+        const skillPath = isKiro
+          ? path.join(basePath, kiroFolder)
+          : path.join(basePath, skill.category, skill.skill);
         await fs.ensureDir(skillPath);
 
         for (const fileItem of skill.files) {
@@ -167,7 +171,12 @@ export class SyncService {
             continue;
           }
 
-          await fs.outputFile(targetFilePath, fileItem.content);
+          let content = fileItem.content;
+          if (isKiro && fileItem.name === 'SKILL.md') {
+            content = this.transformSkillForKiro(content, skill.category);
+          }
+
+          await fs.outputFile(targetFilePath, content);
         }
       }
       console.log(pc.gray(`  - Updated ${basePath}/ (${agentDef.name})`));
@@ -494,6 +503,26 @@ export class SyncService {
         content: f.content,
       })),
     };
+  }
+
+  private transformSkillForKiro(content: string, category: string): string {
+    const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+    if (!frontmatterMatch) return content;
+
+    const frontmatter = frontmatterMatch[1];
+    const body = content.slice(frontmatterMatch[0].length);
+
+    const nameMatch = frontmatter.match(/^name:\s*(.+)$/m);
+    const originalName = nameMatch ? nameMatch[1].trim() : '';
+
+    const descMatch = frontmatter.match(/^description:\s*(.+)$/m);
+    const description = descMatch ? descMatch[1].trim() : '';
+
+    const categoryLabel = category.charAt(0).toUpperCase() + category.slice(1);
+    const displayName = `${categoryLabel} - ${originalName}`;
+
+    const newFrontmatter = `---\nname: ${displayName}\ndescription: ${description}\n---`;
+    return newFrontmatter + body;
   }
 
   private isOverridden(targetPath: string, overrides: string[]): boolean {
