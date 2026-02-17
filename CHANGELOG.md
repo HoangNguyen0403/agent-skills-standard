@@ -5,13 +5,21 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.6] - 2026-02-17
+
+**Category**: Kiro IDE Support
+
+### Added (CLI v1.6.6)
+
+- **Support for Kiro IDE**: Added Kiro to the list of supported AI agents/IDEs.
+  - Agent enum: `Kiro = 'kiro'`
+  - Skills path: `.kiro/skills`
+  - Steering file: `.kiro/steering`
+  - Detection: `.kiro` directory
+
 ## [1.6.5] - 2026-02-07
 
 **Category**: Index Robustness & Formatting & Skill Filtering
-
-### Added (CLI v1.6.5)
-
-- **Support for Kiro IDE**: Added Kiro to the list of supported AI agents/IDEs.
 
 ### Fixed (CLI v1.6.5)
 
