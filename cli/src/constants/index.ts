@@ -114,7 +114,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         id,
         name: 'Kiro',
         path: '.kiro/skills',
-        ruleFile: '.kiro/rules',
+        ruleFile: '.kiro/steering',
         detectionFiles: ['.kiro'],
       };
   }
