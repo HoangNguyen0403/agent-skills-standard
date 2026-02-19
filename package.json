@@ -5,7 +5,8 @@
   "packageManager": "pnpm@10.0.0",
   "pnpm": {
     "overrides": {
-      "lodash": "^4.17.23"
+      "lodash": "^4.17.23",
+      "qs": "^6.15.0"
     }
   },
   "scripts": {
