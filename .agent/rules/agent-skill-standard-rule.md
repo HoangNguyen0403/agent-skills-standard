@@ -1,7 +1,7 @@
 ---
-trigger: glob
 description: Rule for Agent Skills Standard - Always consult AGENTS.md for consolidated project context and technical triggers.
 globs: ["**/*"]
+alwaysApply: true
 ---
 
 # 🛠 Agent Skills Standard
