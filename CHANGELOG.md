@@ -5,7 +5,30 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.6.6] - 2026-02-17
+## [1.6.6] - 2026-02-19
+
+**Category**: Flutter Design System & NestJS Testing Improvements
+
+### Changed (Flutter Skills v1.3.1)
+
+- **Adaptive Design System**: Added "Phase 0: Context Discovery" to validation logic.
+  - Enforces checking `Theme.of(context)` before falling back to static tokens.
+  - Prevents rigid token usage in adaptive theme environments.
+
+### Changed (NestJS Skills v1.1.1)
+
+- **Testing Standards**: Added explicit reference links to `testing/references/patterns.md` for extended mocking examples.
+
+### Changed (CLI v1.6.6)
+
+- **Index Bridging**: Refined rule generation logic in `IndexGeneratorService` to support consistent frontmatter injection across all agents.
+
+### Versions
+
+- **Framework Skills**:
+  - **Flutter**: v1.3.1 (Patch)
+  - **NestJS**: v1.1.1 (Patch)
+- **CLI/Server**: v1.6.6 (Patch)
 
 **Category**: Kiro IDE Support
 
@@ -179,6 +202,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`.skillsrc` Enhancement** - Improved initialization template with opt-in guidance for Quality Engineering skills.
 
+<details>
+<summary>v1.5.x History</summary>
+
 ## [1.5.1] - 2026-01-26
 
 **Category**: Systematic Token Optimization & Adaptive Model Selection & Sub-Agent Delegation Protocol
@@ -281,6 +307,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Standalone Docker builds with script-injection protection (ignore-scripts).
   - Removal of redundant Nginx/Certbot boilerplate in favor of managed platform SSL.
   - Enhanced deployment automation via `server-v*` GitHub Action tags.
+
+</details>
+
+<details>
+<summary>v1.4.x History</summary>
 
 ## [1.4.1] - 2026-01-23
 
@@ -410,6 +441,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **TypeScript (v1.0.3)**: Added explicit Access Modifier guidance (private/protected and #private).
 - **JavaScript (v1.0.1)**: Added explicit Access Modifier guidance (#private fields).
 
+</details>
+
+<details>
+<summary>v1.3.x History</summary>
+
 ## [1.3.2] - 2026-01-22
 
 **Category**: Angular Expert Standards & Modern v17+ Patterns
@@ -526,6 +562,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CLI Validation Fix** - Corrected the `validate` command to properly use `node` for execution across different environments.
 - **Dependency Exclusions** - Refined the initial configuration logic to better exclude unnecessary sub-skills based on project dependencies.
 
+</details>
+
+<details>
+<summary>v1.2.x History</summary>
+
 ## [1.2.0] - 2026-01-20
 
 **Category**: Universal "Common" Skills & Windsurf Support
@@ -558,6 +599,11 @@ Major expansion of framework-agnostic standards to ensure high-quality software 
 - **Centralized Universal Skills** - Implemented `UNIVERSAL_SKILLS` registry to ensure global standards (like `common`) are consistently applied across all framework types.
 - **Enhanced Skill Creator** - Major improvements to the `skill-creator` skill with token-optimized guidelines, three-level loading system, comprehensive lifecycle documentation, and resource organization strategies inspired by Anthropics' best practices.
 - **Skill Validation System** - Added `validate` command to CLI with automated checks for token efficiency, format compliance, and structural integrity. Integrated into CI pipeline to ensure quality standards.
+
+</details>
+
+<details>
+<summary>v1.1.x History</summary>
 
 ## [1.1.2] - 2026-01-19
 
@@ -674,6 +720,11 @@ Includes 18 specialized High-Density skills for Enterprise Backend Development.
 
 ---
 
+</details>
+
+<details>
+<summary>v1.0.x History</summary>
+
 ## [1.0.0] - 2026-01-15
 
 **Category**: Flutter Framework Skills & Dart Programming Language Skills
@@ -727,3 +778,5 @@ Includes 18 specialized High-Density skills for Enterprise Backend Development.
 
 **Maintainer**: Hoang Nguyen  
 **Registry**: <https://github.com/HoangNguyen0403/agent-skills-standard>
+
+</details>

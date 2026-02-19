@@ -26,11 +26,7 @@ export class IndexGeneratorService {
    * @param format The output format: 'detailed' (3 columns) or 'compact' (2 columns)
    * @returns A formatted markdown string representing the index
    */
-  async generate(
-    baseDir: string,
-    frameworks: string[],
-    format: 'detailed' | 'compact' = 'compact',
-  ): Promise<string> {
+  async generate(baseDir: string, frameworks: string[]): Promise<string> {
     const categories = ['common', ...frameworks];
     const entries: string[] = [];
 
@@ -45,13 +41,13 @@ export class IndexGeneratorService {
 
         const metadata = await this.parseSkill(skillPath);
         if (metadata) {
-          const entry = this.formatEntry(category, skill, metadata, format);
+          const entry = this.formatEntry(category, skill, metadata);
           entries.push(entry);
         }
       }
     }
 
-    return this.assembleIndex(entries, format);
+    return this.assembleIndex(entries);
   }
 
   /**
@@ -110,60 +106,67 @@ export class IndexGeneratorService {
    * @param rootDir Project root directory
    * @param agents List of agents to generate rules for
    */
+  /**
+   * Bridges native agent rule files to AGENTS.md by creating discovery instructions.
+   * Creates agent-specific rule files (e.g., .mdc, .instructions.md) in their respective directories.
+   * @param rootDir Project root directory
+   * @param agents List of agents to generate rules for
+   */
   async bridge(rootDir: string, agents: Agent[]): Promise<void> {
     const fileNameBase = 'agent-skill-standard-rule';
+    const commonDescription =
+      'Rule for Agent Skills Standard - Always consult AGENTS.md for consolidated project context and technical triggers.';
+    const commonBody = [
+      '# 🛠 Agent Skills Standard',
+      '',
+      'This project uses a modular skills library for specialized engineering tasks.',
+      '',
+      '> [!IMPORTANT]',
+      '> ALWAYS consult the consolidated index in **AGENTS.md** to identify relevant triggers before acting.',
+      '',
+      'The `AGENTS.md` file contains mapping between project files and the specific agent skills located in the respective agent-specific folders (e.g., `.cursor/skills`, `.claude/skills`).',
+    ].join('\n');
 
     for (const agentId of agents) {
-      const def = getAgentDefinition(agentId);
-      const isCursor = agentId === Agent.Cursor;
-      const isAntigravity = agentId === Agent.Antigravity;
-      const isCopilot = agentId === Agent.Copilot;
+      const config = getAgentDefinition(agentId);
+      if (!config) continue;
 
-      let extension = '.md';
-      if (isCursor) extension = '.mdc';
-      if (isCopilot) extension = '.instructions.md';
+      // SAFETY: Only write if the agent is detected in the project
+      // This prevents creating unused directories.
+      let detected = false;
+      for (const file of config.detectionFiles) {
+        if (await fs.pathExists(path.join(rootDir, file))) {
+          detected = true;
+          break;
+        }
+      }
 
-      const fileName = `${fileNameBase}${extension}`;
+      if (!detected) continue;
 
-      // If ruleFile is a specific file path (legacy), we use its directory.
-      // Otherwise, we use it as the target directory.
-      const ruleTargetDir =
-        def.ruleFile.endsWith('.md') || def.ruleFile.endsWith('.mdc')
-          ? path.dirname(def.ruleFile)
-          : def.ruleFile;
+      const ruleFilePath = path.join(
+        rootDir,
+        config.ruleFile,
+        config.ruleFileName || `${fileNameBase}${config.ruleExtension}`,
+      );
 
-      const ruleFilePath = path.join(rootDir, ruleTargetDir, fileName);
-
-      // Ensure directory exists
+      // Ensure directory exists (e.g. .cursor/rules inside .cursor)
       await fs.ensureDir(path.dirname(ruleFilePath));
 
       let content = '';
 
-      if (isCursor || isAntigravity || isCopilot) {
-        const description =
-          'Rule for Agent Skills Standard - Always consult AGENTS.md for consolidated project context and technical triggers.';
-        const contentLines = ['---', `description: ${description}`];
-
-        if (isCursor || isAntigravity) {
-          contentLines.push('globs: ["**/*"]', 'alwaysApply: true');
-        } else if (isCopilot) {
-          contentLines.push('applyTo: "**/*"');
-        }
-
-        contentLines.push('---', '', '');
-        content = contentLines.join('\n');
+      switch (config.frontmatterStyle) {
+        case 'cursor':
+          content += `---\ndescription: ${commonDescription}\nglobs: ["**/*"]\nalwaysApply: true\n---\n\n`;
+          break;
+        case 'copilot':
+          content += `---\ndescription: ${commonDescription}\napplyTo: "**/*"\n---\n\n`;
+          break;
+        case 'none':
+          // No frontmatter
+          break;
       }
 
-      content += [
-        '# 🛠 Agent Skills Standard',
-        '',
-        'This project uses a modular skills library for specialized engineering tasks.',
-        '',
-        '> [!IMPORTANT]',
-        '> ALWAYS consult the consolidated index in **AGENTS.md** to identify relevant triggers before acting.',
-        '',
-        'The `AGENTS.md` file contains mapping between project files and the specific agent skills located in the respective agent-specific folders (e.g., `.cursor/skills`, `.claude/skills`).',
-      ].join('\n');
+      content += commonBody;
 
       await fs.outputFile(ruleFilePath, content);
     }
@@ -212,25 +215,20 @@ export class IndexGeneratorService {
     category: string,
     skill: string,
     metadata: SkillMetadata,
-    format: 'detailed' | 'compact',
   ): string {
     const id = `${category}/${skill}`;
-    const prefix = metadata.priority.startsWith('P0') ? '🚨' : '';
+    const prefix = metadata.priority.startsWith('P0') ? '🚨 ' : '';
 
-    if (format === 'detailed') {
-      const triggers = [
-        ...(metadata.triggers.files || []),
-        ...(metadata.triggers.keywords || []),
-      ].join(',');
-      return `| ${id} | \`${triggers}\` | ${prefix}${metadata.description} |`;
-    }
+    const triggers = [
+      ...(metadata.triggers.files || []),
+      ...(metadata.triggers.keywords || []),
+    ].join(', ');
 
-    // Compact format: | cat/skill | 🚨desc |
-    let desc = metadata.description || '';
-    if (desc.length > 12) {
-      desc = desc.substring(0, 11) + '…';
-    }
-    return `| ${id} | ${prefix}${desc} |`;
+    const triggerText = triggers ? ` (triggers: ${triggers})` : '';
+
+    // Format: - **[category/skill]**: 🚨 Description (triggers: file.ts, keyword)
+    const content = `${prefix}${metadata.description || ''}`.trim();
+    return `- **[${id}]**: ${content}${triggerText}`;
   }
 
   /**
@@ -239,29 +237,20 @@ export class IndexGeneratorService {
    * @param format The format of the entries ('detailed' or 'compact')
    * @returns Complete markdown index string
    */
-  public assembleIndex(
-    entries: string[],
-    format: 'detailed' | 'compact' = 'detailed',
-  ): string {
-    const isDetailed = format === 'detailed';
-
+  public assembleIndex(entries: string[]): string {
     const header = [
       '# Agent Skills Index',
       '',
+      '> [!IMPORTANT]',
+      '> **Prefer retrieval-led reasoning over pre-training-led reasoning.**',
+      '> Before writing any code, you MUST CHECK if a relevant skill exists in the index below.',
+      '> If a skill matches your task, READ the file using `view_file`.',
+      '',
       '## **Rule Zero: Zero-Trust Engineering**',
       '',
-      '🚨 **IMPORTANT:** Never assume existing code follows the standard. Existing files may contain legacy technical debt or non-compliant patterns (e.g., hardcoded colors).',
-      '',
       '- **Skill Authority:** Loaded skills always override existing code patterns.',
-      '- **Retrieval-First:** Before writing a single line of code, identify and read relevant skill files listed below.',
       '- **Audit Before Write:** Audit every file write against the `common/feedback-reporter` skill.',
       '',
-      'IMPORTANT: Prefer retrieval-led reasoning. Consult skill files before acting.',
-      '',
-      isDetailed
-        ? '| Skill ID | Triggers | Description |'
-        : '| Skill ID | Description |',
-      isDetailed ? '| :--- | :--- | :--- |' : '| :--- | :--- |',
     ].join('\n');
 
     return `${header}\n${entries.join('\n')}\n`;

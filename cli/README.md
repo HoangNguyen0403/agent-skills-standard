@@ -43,6 +43,20 @@ Agent Skills Standard treats instructions as **versioned dependencies**, much li
 
 ---
 
+## 🛡️ Security & Trust
+
+We take security seriously. Here is what you need to know about how the CLI works:
+
+- **No Hidden Scripts**: The CLI `sync` command only downloads **text files** (Markdown/JSON). It does _not_ download or execute binaries, scripts, or unknown code.
+- **No "Code Injection"**: When we say "injection", we mean **Prompt Injection** (adding context to the AI's conversation history), NOT code injection (running malware).
+- **Transparent Operations**:
+  - The CLI fetches a standard directory structure from the [official registry](https://github.com/HoangNguyen0403/agent-skills-standard).
+  - It copies these text files to your local `.cursor/skills` or `.agent/skills` folder.
+  - It updates `AGENTS.md` (a text file index).
+  - **That is it.** No background services, no daemons, no hidden network calls.
+
+---
+
 ## ✨ Features
 
 - **🛡️ Multi-Agent Support**: Out-of-the-box mapping for Cursor, Claude Dev, GitHub Copilot, and more.

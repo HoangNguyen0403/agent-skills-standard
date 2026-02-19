@@ -15,6 +15,9 @@ export interface AgentDefinition {
   name: string;
   path: string;
   ruleFile: string;
+  ruleExtension: string;
+  ruleFileName?: string;
+  frontmatterStyle: 'cursor' | 'copilot' | 'none';
   detectionFiles: string[];
 }
 
@@ -35,6 +38,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         name: 'Cursor',
         path: '.cursor/skills',
         ruleFile: '.cursor/rules',
+        ruleExtension: '.mdc',
+        frontmatterStyle: 'cursor',
         detectionFiles: ['.cursor', '.cursorrules'],
       };
     case Agent.Trae:
@@ -43,6 +48,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         name: 'Trae',
         path: '.trae/skills',
         ruleFile: '.trae/rules',
+        ruleExtension: '.mdc',
+        frontmatterStyle: 'cursor',
         detectionFiles: ['.trae'],
       };
     case Agent.Claude:
@@ -50,7 +57,10 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         id,
         name: 'Claude Code',
         path: '.claude/skills',
-        ruleFile: '.claude/rules',
+        ruleFile: '.', // Root directory for CLAUDE.md
+        ruleExtension: '.md',
+        ruleFileName: 'CLAUDE.md',
+        frontmatterStyle: 'none',
         detectionFiles: ['.claude', 'CLAUDE.md'],
       };
     case Agent.Copilot:
@@ -59,6 +69,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         name: 'GitHub Copilot',
         path: '.github/skills',
         ruleFile: '.github/instructions',
+        ruleExtension: '.instructions.md',
+        frontmatterStyle: 'copilot',
         detectionFiles: ['.github'],
       };
     case Agent.Antigravity:
@@ -67,6 +79,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         name: 'Antigravity',
         path: '.agent/skills',
         ruleFile: '.agent/rules',
+        ruleExtension: '.md',
+        frontmatterStyle: 'cursor',
         detectionFiles: ['.agent'],
       };
     case Agent.OpenAI:
@@ -75,6 +89,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         name: 'OpenAI',
         path: '.codex/skills',
         ruleFile: '.codex/rules',
+        ruleExtension: '.md',
+        frontmatterStyle: 'cursor',
         detectionFiles: ['.codex'],
       };
     case Agent.OpenCode:
@@ -83,6 +99,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         name: 'OpenCode',
         path: '.opencode/skills',
         ruleFile: '.opencode/rules',
+        ruleExtension: '.md',
+        frontmatterStyle: 'cursor',
         detectionFiles: ['.opencode'],
       };
     case Agent.Gemini:
@@ -91,6 +109,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         name: 'Gemini',
         path: '.gemini/skills',
         ruleFile: '.gemini/rules',
+        ruleExtension: '.md',
+        frontmatterStyle: 'cursor',
         detectionFiles: ['.gemini'],
       };
     case Agent.Roo:
@@ -99,6 +119,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         name: 'Roo Code',
         path: '.roo/skills',
         ruleFile: '.roo/rules',
+        ruleExtension: '.md',
+        frontmatterStyle: 'cursor',
         detectionFiles: ['.roo'],
       };
     case Agent.Windsurf:
@@ -107,6 +129,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         name: 'Windsurf',
         path: '.windsurf/skills',
         ruleFile: '.windsurf/rules',
+        ruleExtension: '.md',
+        frontmatterStyle: 'cursor',
         detectionFiles: ['.windsurf', '.windsurfrules'],
       };
     case Agent.Kiro:
@@ -114,7 +138,9 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         id,
         name: 'Kiro',
         path: '.kiro/skills',
-        ruleFile: '.kiro/steering',
+        ruleFile: '.kiro/rules', // Changed from steering to match AGENT_CONFIGS
+        ruleExtension: '.md',
+        frontmatterStyle: 'cursor',
         detectionFiles: ['.kiro'],
       };
   }

@@ -14,35 +14,33 @@
 <!-- SKILLS_INDEX_START -->
 # Agent Skills Index
 
+> [!IMPORTANT]
+> **Prefer retrieval-led reasoning over pre-training-led reasoning.**
+> Before writing any code, you MUST CHECK if a relevant skill exists in the index below.
+> If a skill matches your task, READ the file using `view_file`.
+
 ## **Rule Zero: Zero-Trust Engineering**
 
-🚨 **IMPORTANT:** Never assume existing code follows the standard. Existing files may contain legacy technical debt or non-compliant patterns (e.g., hardcoded colors).
-
 - **Skill Authority:** Loaded skills always override existing code patterns.
-- **Retrieval-First:** Before writing a single line of code, identify and read relevant skill files listed below.
 - **Audit Before Write:** Audit every file write against the `common/feedback-reporter` skill.
 
-IMPORTANT: Prefer retrieval-led reasoning. Consult skill files before acting.
-
-| Skill ID | Triggers | Description |
-| :--- | :--- | :--- |
-| common/best-practices | `solid,kiss,dry,yagni,naming,conventions` | 🚨 Universal principles for clean, maintainable, and robust code across all environments. |
-| common/code-review | `review,pr,critique,analyze code` | Standards for high-quality, persona-driven code reviews. |
-| common/context-optimization | `*.log,chat-history.json,reduce tokens,optimize context,summarize history,clear output` | Techniques to maximize context window efficiency, reduce latency, and prevent 'lost in middle' issues through strategic masking and compaction. |
-| common/debugging | `debug,fix bug,crash,error,exception,troubleshooting` | Systematic troubleshooting using the Scientific Method (Observe, Hypothesize, Experiment, Fix). |
-| common/documentation | `comment,docstring,readme,documentation` | Essential rules for code comments, READMEs, and technical documentation. |
-| common/feedback-reporter | `**/*,write,edit,create,generate,skill,violation` | 🚨 CRITICAL - Before ANY file write, audit loaded skills for violations. Auto-report via feedback command. |
-| common/git-collaboration | `commit,branch,merge,pull-request,git` | 🚨 Universal standards for version control, branching, and team collaboration. |
-| common/mobile-animation | `**/*_page.dart,**/*_screen.dart,**/*.swift,**/*Activity.kt,**/*Screen.tsx,Animation,AnimationController,Animated,MotionLayout,transition,gesture` | Motion design principles for mobile apps. Covers timing curves, transitions, gestures, and performance-conscious animations. |
-| common/mobile-ux-core | `**/*_page.dart,**/*_screen.dart,**/*_view.dart,**/*.swift,**/*Activity.kt,**/*Screen.tsx,mobile,responsive,SafeArea,touch,gesture,viewport` | 🚨 Universal mobile UX principles for touch-first interfaces. Enforces touch targets, safe areas, and mobile-specific interaction patterns. |
-| common/performance-engineering | `performance,optimize,profile,scalability` | Universal standards for high-performance software development across all frameworks. |
-| common/product-requirements | `PRD.md,specs/*.md,create prd,draft requirements,new feature spec` | 🚨 Expert process for gathering requirements and drafting PRDs (Iterative Discovery). |
-| common/security-standards | `security,encrypt,authenticate,authorize` | 🚨 Universal security protocols for building safe and resilient software. |
-| common/system-design | `architecture,design,system,scalability` | 🚨 Universal architectural standards for building robust, scalable, and maintainable systems. |
-| common/tdd | `` | Enforces Test-Driven Development (Red-Green-Refactor) for rigorous code quality. |
-| typescript/best-practices | `**/*.ts,**/*.tsx,class,function,module,import,export,async,promise` | Idiomatic TypeScript patterns for clean, maintainable code. |
-| typescript/language | `**/*.ts,**/*.tsx,tsconfig.json,type,interface,generic,enum,union,intersection,readonly,const,namespace` | 🚨 Modern TypeScript standards for type safety, performance, and maintainability. |
-| typescript/security | `**/*.ts,**/*.tsx,validate,sanitize,xss,injection,auth,password,secret,token` | 🚨 Secure coding practices for building safe TypeScript applications. |
-| typescript/tooling | `tsconfig.json,.eslintrc.*,jest.config.*,package.json,eslint,prettier,jest,vitest,build,compile,lint` | Development tools, linting, and build configuration for TypeScript projects. |
+- **[common/best-practices]**: 🚨 Universal principles for clean, maintainable, and robust code across all environments. (triggers: solid, kiss, dry, yagni, naming, conventions)
+- **[common/code-review]**: Standards for high-quality, persona-driven code reviews. (triggers: review, pr, critique, analyze code)
+- **[common/context-optimization]**: Techniques to maximize context window efficiency, reduce latency, and prevent 'lost in middle' issues through strategic masking and compaction. (triggers: *.log, chat-history.json, reduce tokens, optimize context, summarize history, clear output)
+- **[common/debugging]**: Systematic troubleshooting using the Scientific Method (Observe, Hypothesize, Experiment, Fix). (triggers: debug, fix bug, crash, error, exception, troubleshooting)
+- **[common/documentation]**: Essential rules for code comments, READMEs, and technical documentation. (triggers: comment, docstring, readme, documentation)
+- **[common/feedback-reporter]**: 🚨 CRITICAL - Before ANY file write, audit loaded skills for violations. Auto-report via feedback command. (triggers: **/*, write, edit, create, generate, skill, violation)
+- **[common/git-collaboration]**: 🚨 Universal standards for version control, branching, and team collaboration. (triggers: commit, branch, merge, pull-request, git)
+- **[common/mobile-animation]**: Motion design principles for mobile apps. Covers timing curves, transitions, gestures, and performance-conscious animations. (triggers: **/*_page.dart, **/*_screen.dart, **/*.swift, **/*Activity.kt, **/*Screen.tsx, Animation, AnimationController, Animated, MotionLayout, transition, gesture)
+- **[common/mobile-ux-core]**: 🚨 Universal mobile UX principles for touch-first interfaces. Enforces touch targets, safe areas, and mobile-specific interaction patterns. (triggers: **/*_page.dart, **/*_screen.dart, **/*_view.dart, **/*.swift, **/*Activity.kt, **/*Screen.tsx, mobile, responsive, SafeArea, touch, gesture, viewport)
+- **[common/performance-engineering]**: Universal standards for high-performance software development across all frameworks. (triggers: performance, optimize, profile, scalability)
+- **[common/product-requirements]**: 🚨 Expert process for gathering requirements and drafting PRDs (Iterative Discovery). (triggers: PRD.md, specs/*.md, create prd, draft requirements, new feature spec)
+- **[common/security-standards]**: 🚨 Universal security protocols for building safe and resilient software. (triggers: security, encrypt, authenticate, authorize)
+- **[common/system-design]**: 🚨 Universal architectural standards for building robust, scalable, and maintainable systems. (triggers: architecture, design, system, scalability)
+- **[common/tdd]**: Enforces Test-Driven Development (Red-Green-Refactor) for rigorous code quality.
+- **[typescript/best-practices]**: Idiomatic TypeScript patterns for clean, maintainable code. (triggers: **/*.ts, **/*.tsx, class, function, module, import, export, async, promise)
+- **[typescript/language]**: 🚨 Modern TypeScript standards for type safety, performance, and maintainability. (triggers: **/*.ts, **/*.tsx, tsconfig.json, type, interface, generic, enum, union, intersection, readonly, const, namespace)
+- **[typescript/security]**: 🚨 Secure coding practices for building safe TypeScript applications. (triggers: **/*.ts, **/*.tsx, validate, sanitize, xss, injection, auth, password, secret, token)
+- **[typescript/tooling]**: Development tools, linting, and build configuration for TypeScript projects. (triggers: tsconfig.json, .eslintrc.*, jest.config.*, package.json, eslint, prettier, jest, vitest, build, compile, lint)
 
 <!-- SKILLS_INDEX_END -->

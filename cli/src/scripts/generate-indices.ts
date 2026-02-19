@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
+import { Agent } from '../constants';
 import { IndexGeneratorService } from '../services/IndexGeneratorService';
 
 interface SkillMetadata {
@@ -76,11 +77,14 @@ async function generate() {
         const triggers = [
           ...(metadata.triggers.files || []),
           ...(metadata.triggers.keywords || []),
-        ].join(',');
+        ].join(', ');
+
+        const triggerText = triggers ? ` (triggers: ${triggers})` : '';
         const prefix = metadata.priority.startsWith('P0') ? '🚨 ' : '';
-        entries.push(
-          `| ${id} | \`${triggers}\` | ${prefix}${metadata.description} |`,
-        );
+
+        // Format: - **[category/skill]**: 🚨 Description (triggers: file.ts, keyword)
+        const content = `${prefix}${metadata.description || ''}`.trim();
+        entries.push(`- **[${id}]**: ${content}${triggerText}`);
       }
     }
 
@@ -127,10 +131,23 @@ async function generate() {
     )
     .flatMap(([, s]) => s.split('\n'));
 
-  const indexContent = generator.assembleIndex(allEntries, 'detailed');
+  const indexContent = generator.assembleIndex(allEntries);
 
   await generator.inject(repoRoot, indexContent);
   console.log('✅ Updated AGENTS.md in repo root');
+
+  const agents = [
+    Agent.Cursor,
+    Agent.Windsurf,
+    Agent.Trae,
+    Agent.Roo,
+    Agent.Kiro,
+    Agent.Antigravity,
+    Agent.Claude,
+    Agent.Copilot,
+  ];
+  await generator.bridge(repoRoot, agents);
+  console.log('✅ Updated agent rule files');
 }
 
 generate().catch(console.error);

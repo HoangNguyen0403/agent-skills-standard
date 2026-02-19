@@ -1,5 +1,17 @@
 # Flutter Design System Usage Patterns
 
+## 0. Context Discovery
+
+Before choosing a token, investigate the root configuration:
+
+```dart
+// Check main.dart
+MaterialApp(
+  theme: VThemeData.light().toThemeData(), // ← This tells you to use theme.textTheme
+  ...
+)
+```
+
 ## 1. Mandatory Token Usage
 
 ### Colors
@@ -43,11 +55,21 @@ EdgeInsets.all(VSpacing.lg)
 TextStyle(fontSize: 20, fontWeight: FontWeight.bold)
 ```
 
-✅ **Enforced**:
+✅ **Enforced (Preferred for UI)**:
 
 ```dart
-Text('Title', style: VTypography.heading6)
+// Always prefer theme from context for dynamic Dark/Light mode support
+final theme = Theme.of(context);
+Text('Title', style: theme.textTheme.headlineSmall)
 Text('Body', style: theme.textTheme.bodyMedium)
+```
+
+⚠️ **Static Tokens (Internal/Theme Definition only)**:
+
+```dart
+// Use only if context is unavailable or defining the theme itself
+import 'package:v_dls/v_dls.dart';
+VTypography.heading6
 ```
 
 ### Borders

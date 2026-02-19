@@ -30,11 +30,20 @@ metadata:
 
 Zero tolerance for hardcoded design values.
 
+## **Phase 0: Context Discovery (MANDATORY)**
+
+Before any UI refactoring, you MUST identify the project's Theme Archetype:
+
+1.  **Check `main.dart`**: Look for `MaterialApp` theme configuration.
+2.  **Determine Pattern**:
+    - **Theme-Driven (Adaptive)**: If you see `VThemeData(...).toThemeData()` or extensive `ThemeData` overrides, you MUST use `Theme.of(context).textTheme` or `theme.textTheme` for feature code.
+    - **Token-Driven (Static)**: Only use static tokens (`VTypography.*`) if there is no global theme bridge or if you are defining the theme itself.
+
 ## Guidelines
 
 - **Colors**: Use tokens (`VColors.*`, `AppColors.*`), never `Color(0xFF...)` or `Colors.red`.
 - **Spacing**: Use tokens (`VSpacing.*`), never magic numbers like `16` or `24`.
-- **Typography**: Use tokens (`VTypography.*`, `textTheme.*`), never inline `TextStyle`.
+- **Typography**: Prioritize `theme.textTheme.*` for adaptive UI. Use `VTypography.*` tokens only for theme definitions or non-contextual logic. Never use inline `TextStyle`.
 - **Borders**: Use tokens (`VBorders.*`), never raw `BorderRadius.`
 - **Components**: Use DLS widgets (`VButton`) over raw Material widgets (`ElevatedButton`) if available.
 

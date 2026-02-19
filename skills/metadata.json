@@ -5,14 +5,14 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.3.0",
+      "version": "1.3.1",
       "last_updated": "2026-02-07",
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 8696,
-        "avg_tokens_per_skill": 414,
-        "largest_skill": "layer-based-clean-architecture (521 tokens)"
+        "total_tokens": 8860,
+        "avg_tokens_per_skill": 422,
+        "largest_skill": "flutter-design-system (566 tokens)"
       }
     },
     "dart": {
@@ -71,13 +71,13 @@
       }
     },
     "nestjs": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "last_updated": "2026-02-07",
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 9958,
-        "avg_tokens_per_skill": 474,
+        "total_tokens": 9994,
+        "avg_tokens_per_skill": 476,
         "largest_skill": "documentation (836 tokens)"
       }
     },

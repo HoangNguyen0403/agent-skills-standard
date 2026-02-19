@@ -86,12 +86,15 @@ Container(
   padding: EdgeInsets.all(AppTheme.kPadding12),
   child: Text(
     'Title',
-    style: GoogleFonts.notoSans(
-      fontSize: AppTheme.kTextH1,
+    // ✅ PREFERRED: Use theme context for adaptive support
+    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
       fontWeight: FontWeight.bold,
     ),
   ),
 )
+
+// ❌ AVOID (Raw token compositing in UI):
+// style: GoogleFonts.notoSans(fontSize: AppTheme.kTextH1, ...)
 ```
 
 ## When to Use This Pattern

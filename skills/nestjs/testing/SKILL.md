@@ -1,42 +1,46 @@
 ---
 name: NestJS Testing
-description: Unit and E2E testing strategies with Docker.
+description: Unit and E2E testing with Jest, mocking strategies, and database isolation patterns.
 metadata:
   labels: [nestjs, testing, jest, e2e]
   triggers:
-    files: ['**/*.spec.ts', 'test/**']
-    keywords: [Test.createTestingModule, supertest, jest]
+    files: ['**/*.spec.ts', 'test/**/*.e2e-spec.ts']
+    keywords: [Test.createTestingModule, supertest, jest, beforeEach]
 ---
 
-# NestJS Testing Standards
+# NestJS Testing
 
 ## **Priority: P2 (MAINTENANCE)**
 
-Unit testing, integration testing, and E2E testing patterns for NestJS applications.
+## Structure
 
-1. **Unit Tests**: Isolated logic (Services). Mock **all** dependencies (`jest.fn()`).
-2. **E2E Tests**: Full lifecycle (`test/app.e2e-spec.ts`).
-   - **Rule**: Use a **real** Test Database (Docker). Never mock the database in E2E.
-   - **Idempotency**: **Mandatory** cleanup. Use a transaction rollback strategy or explicit `TRUNCATE` in `afterEach` to ensure tests don't leak state.
-
-## E2E Best Practices (Pro)
-
-- **Overriding**: Use `.overrideProvider(AuthGuard).useValue({ canActivate: () => true })` to bypass security in functional flow tests.
-- **Factories**: Use Factory patterns (e.g. `mockUserFactory()`) to generate DTOs/Entities. Avoid hardcoded JSON literals.
-
-## Tools
-
-- **Runner**: Jest (swc/ts-jest).
-- **Mocks**: `jest.fn()`, `jest.spyOn()`.
-
-## Setup Pattern
-
-```typescript
-// Standard Setup
-const module: TestingModule = await Test.createTestingModule({
-  providers: [
-    UsersService,
-    { provide: getRepositoryToken(User), useValue: mockRepo },
-  ],
-}).compile();
 ```
+src/**/*.spec.ts      # Unit tests (isolated logic)
+test/**/*.e2e-spec.ts # E2E tests (full app flows)
+```
+
+## Unit Testing
+
+- **Setup**: Use `Test.createTestingModule()` with mocked providers
+- **Mocks**: Mock all dependencies via `{ provide: X, useValue: mockX }`
+- **Pattern**: AAA (Arrange-Act-Assert)
+- **Cleanup**: Call `jest.clearAllMocks()` in `afterEach`
+
+## E2E Testing
+
+- **Database**: Use real test DB (Docker). Never mock DB in E2E.
+- **Cleanup**: Mandatory. Use transaction rollback or `TRUNCATE` in `afterEach`.
+- **App Init**: Create app in `beforeAll`, close in `afterAll`
+- **Guards**: Override via `.overrideGuard(X).useValue({ canActivate: () => true })`
+
+## Anti-Patterns
+
+- **No Private Tests**: Test via public methods, not `service['privateMethod']`.
+- **No DB Mocks in E2E**: Use real DB with cleanup. Mocks defeat E2E purpose.
+- **No Shared State**: Call `jest.clearAllMocks()` in `afterEach`. Random failures otherwise.
+- **No Resource Leaks**: Always close app and DB in `afterAll`.
+
+## References
+
+Setup examples, mocking patterns, E2E flows, test builders, coverage config:
+[references/patterns.md](references/patterns.md)

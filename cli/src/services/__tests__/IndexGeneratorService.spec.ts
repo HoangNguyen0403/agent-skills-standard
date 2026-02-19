@@ -43,8 +43,8 @@ describe('IndexGeneratorService', () => {
 
       const result = await service.generate(baseDir, frameworks);
 
-      expect(result).toContain('| common/base | 🚨Desc |');
-      expect(result).toContain('| flutter/bloc | 🚨Desc |');
+      expect(result).toContain('- **[common/base]**: 🚨 Desc');
+      expect(result).toContain('- **[flutter/bloc]**: 🚨 Desc');
     });
 
     it('should handle missing categories or skills', async () => {
@@ -138,83 +138,97 @@ describe('IndexGeneratorService', () => {
   });
 
   describe('assembleIndex', () => {
-    it('should format entries into a table', () => {
-      const entries = ['cat/skill|desc'];
+    it('should format entries into a list', () => {
+      const entries = ['- **[cat/skill]**: desc'];
       const result = service.assembleIndex(entries);
-      expect(result).toContain('cat/skill|desc');
+      expect(result).toContain('- **[cat/skill]**: desc');
       expect(result).toContain('# Agent Skills Index');
+      expect(result).toContain(
+        '> **Prefer retrieval-led reasoning over pre-training-led reasoning.**',
+      );
     });
   });
 
   describe('bridge', () => {
-    it('should create native rule files for each agent', async () => {
+    it('should create correct rule files for all supported agents', async () => {
       const rootDir = '/root';
-      const agents = ['antigravity' as any, 'cursor' as any, 'copilot' as any];
+      const agents = [
+        Agent.Cursor,
+        Agent.Windsurf,
+        Agent.Trae,
+        Agent.Roo,
+        Agent.Kiro,
+        Agent.Antigravity,
+        Agent.Claude,
+        Agent.Copilot,
+      ];
 
       (fs.ensureDir as any).mockResolvedValue(undefined);
+      // Mock pathExists to return TRUE to simulate detected agents
+      (fs.pathExists as any).mockResolvedValue(true);
 
       await service.bridge(rootDir, agents);
 
-      // Verify Antigravity rule
-      expect(fs.outputFile).toHaveBeenCalledWith(
-        expect.stringContaining(
-          '/root/.agent/rules/agent-skill-standard-rule.md',
-        ),
-        expect.stringContaining('# 🛠 Agent Skills Standard'),
-      );
+      // Helper to find call for a specific path
+      const findCall = (pathPart: string) =>
+        vi
+          .mocked(fs.outputFile)
+          .mock.calls.find((call) => (call[0] as string).includes(pathPart));
 
-      // Verify Cursor rule with frontmatter
-      expect(fs.outputFile).toHaveBeenCalledWith(
-        expect.stringContaining(
-          '/root/.cursor/rules/agent-skill-standard-rule.mdc',
-        ),
-        expect.stringMatching(
-          /^---\ndescription:.*globs: \["\*\*\/\*"\].*---/s,
-        ),
+      // Cursor
+      const cursorCall = findCall(
+        '.cursor/rules/agent-skill-standard-rule.mdc',
       );
+      expect(cursorCall).toBeDefined();
+      expect(cursorCall![1]).toContain('globs: ["**/*"]');
 
-      // Verify Copilot rule with frontmatter and .instructions.md extension
-      expect(fs.outputFile).toHaveBeenCalledWith(
-        expect.stringContaining(
-          '/root/.github/instructions/agent-skill-standard-rule.instructions.md',
-        ),
-        expect.stringMatching(/^---\ndescription:.*applyTo: "\*\*\/\*".*---/s),
+      const copilotCall = findCall(
+        '.github/instructions/agent-skill-standard-rule.instructions.md',
       );
+      expect(copilotCall).toBeDefined();
+
+      // ... match others implicitly via the fact that we passed all agents and forced them
+      // We can check a few representative ones
+      expect(findCall('.windsurf/rules')).toBeDefined();
+      expect(findCall('.trae/rules')).toBeDefined();
+      expect(findCall('.roo/rules')).toBeDefined();
+      expect(findCall('CLAUDE.md')).toBeDefined();
     });
 
-    it('should handle ruleFile as a specific file by using its directory', async () => {
+    it('should SKIP agents if their detection files do not exist', async () => {
       const rootDir = '/root';
-      const agents = ['trae' as any];
+      const agents = [Agent.Cursor, Agent.Roo];
 
-      // Assuming trae.ruleFile is '.trae/rules' (a directory) in actual constants
+      // Mock pathExists to return FALSE
+      (fs.pathExists as any).mockResolvedValue(false);
+
       await service.bridge(rootDir, agents);
+
+      expect(fs.outputFile).not.toHaveBeenCalled();
+    });
+
+    it('should WRITE agents if their detection files exist', async () => {
+      const rootDir = '/root';
+      const agents = [Agent.Cursor];
+
+      // Mock pathExists to return TRUE for .cursor detection
+      (fs.pathExists as any).mockImplementation(async (p: string) => {
+        if (p.endsWith('.cursor') || p.endsWith('.cursorrules')) return true;
+        return false;
+      });
+
+      await service.bridge(rootDir, agents);
+
       expect(fs.outputFile).toHaveBeenCalledWith(
-        expect.stringContaining('/root/.trae/rules/'),
+        expect.stringContaining('.cursor/rules/agent-skill-standard-rule.mdc'),
         expect.any(String),
       );
     });
 
-    it('should generate bridge rules for multiple agents', async () => {
+    it('should ignore unknown agents', async () => {
       const rootDir = '/root';
-      const agents = [Agent.Cursor, Agent.Copilot];
-
-      await service.bridge(rootDir, agents);
-
-      expect(fs.outputFile).toHaveBeenCalledTimes(2);
-    });
-
-    it('should handle agents with specific directory rules (Roo/Trae)', async () => {
-      const rootDir = '/root';
-      const agents = ['roo' as any];
-
-      await service.bridge(rootDir, agents);
-
-      expect(fs.outputFile).toHaveBeenCalledWith(
-        expect.stringContaining(
-          '/root/.roo/rules/agent-skill-standard-rule.md',
-        ),
-        expect.stringContaining('# 🛠 Agent Skills Standard'),
-      );
+      await service.bridge(rootDir, ['unknown-agent' as Agent]);
+      expect(fs.outputFile).not.toHaveBeenCalled();
     });
   });
 
@@ -243,31 +257,26 @@ describe('IndexGeneratorService', () => {
         priority: 'P0 - URRGENT',
         triggers: {},
       };
-      const entry = (service as any).formatEntry(
-        'cat',
-        'skill',
-        metadata,
-        'compact',
-      );
-      expect(entry).toContain('🚨d');
-      // Check strict format | ID | Desc |
-      expect(entry).toBe('| cat/skill | 🚨d |');
+      const entry = (service as any).formatEntry('cat', 'skill', metadata);
+      expect(entry).toContain('🚨 d');
+      // Check strict format - **[id]**: 🚨 Description
+      expect(entry).toBe('- **[cat/skill]**: 🚨 d');
     });
-    it('should truncate long descriptions to 12 chars', async () => {
+    it('should NOT truncate long descriptions in list format', async () => {
       const metadata = {
         name: 'n',
         description: 'This is a very long description that should be truncated',
         priority: 'P1',
         triggers: {},
       };
-      const entry = (service as any).formatEntry(
-        'cat',
-        'skill',
-        metadata,
-        'compact',
+      const entry = (service as any).formatEntry('cat', 'skill', metadata);
+      // Description is not truncated in new format
+      expect(entry).toContain(
+        'This is a very long description that should be truncated',
       );
-      expect(entry).toContain('This is a v…');
-      expect(entry).toBe('| cat/skill | This is a v… |');
+      expect(entry).toBe(
+        '- **[cat/skill]**: This is a very long description that should be truncated',
+      );
     });
   });
 });

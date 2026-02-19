@@ -141,13 +141,18 @@ class VButton extends StatelessWidget {
         // ✅ Border from tokens
         shape: VBorders.rectangleMd,  // 8px radius
 
-        // ✅ Typography from tokens
+        // ✅ Typography (In DLS Package: use tokens)
         textStyle: VTypography.buttonMedium,
       ),
       child: content,
     );
   }
 }
+
+// ⚠️ APP USAGE (Feature Code)
+// Always prefer Theme.of(context) over VTypography constants for Dark/Light mode
+final theme = Theme.of(context);
+Text('Hello', style: theme.textTheme.bodyMedium)
 
 // Usage
 VButton.primary(

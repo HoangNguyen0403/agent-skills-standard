@@ -4,12 +4,12 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/HoangNguyen0403/agent-skills-standard?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/stargazers)
 [![common](https://img.shields.io/badge/common-v1.5.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.5.0)
-[![flutter](https://img.shields.io/badge/flutter-v1.3.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/flutter-v1.3.0)
+[![flutter](https://img.shields.io/badge/flutter-v1.3.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/flutter-v1.3.1)
 [![dart](https://img.shields.io/badge/dart-v1.0.4-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/dart-v1.0.4)
 [![typescript](https://img.shields.io/badge/typescript-v1.0.6-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/typescript-v1.0.6)
 [![react](https://img.shields.io/badge/react-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-v1.0.2)
 [![react-native](https://img.shields.io/badge/react--native-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-native-v1.1.0)
-[![nestjs](https://img.shields.io/badge/nestjs-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.1.0)
+[![nestjs](https://img.shields.io/badge/nestjs-v1.1.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.1.1)
 [![nextjs](https://img.shields.io/badge/nextjs-v1.1.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nextjs-v1.1.1)
 [![golang](https://img.shields.io/badge/golang-v1.0.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/golang-v1.0.2)
 [![angular](https://img.shields.io/badge/angular-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/angular-v1.1.0)
@@ -59,6 +59,17 @@ Agent Skills Standard treats instructions as **versioned dependencies**, much li
 - **🎯 Smart Loading**: We use a "Search-on-Demand" pattern. The AI only looks at detailed examples when it specifically needs them, saving its memory for your actual code.
 - **🚀 High-Density Language**: We use a specialized "Compressed Syntax" that is **40% more efficient** than normal English. This means the AI understands more while using fewer resources.
 - **🔁 One-Click Sync**: A single command ensures your AI tool stays up-to-date with your team's latest standards.
+
+---
+
+## 🛡️ Security & Trust
+
+We understand that "injecting" instructions into your AI can sound risky. Here is how we keep you safe:
+
+- **No Code Execution**: Skills are pure Markdown/JSON files. They contain _text instructions_ for the AI, not executable code. They cannot run commands on your machine.
+- **Open Source**: The entire registry is open source. You can audit every skill file on GitHub before using it.
+- **Sandboxed**: The CLI tool (`agent-skills-standard`) runs in user space to download text files. The "skills" themselves run inside the AI's isolated context window, not as OS processes.
+- **Privacy**: We do not collect any code or project data. Feedback is only sent if you manually trigger the `feedback` command or strongly opt-in.
 
 ---
 
@@ -259,14 +270,14 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | **☕ Spring Boot**         | Architecture, Security, Data, Test, Microservices     | `v1.0.0` | 10     | ~339 tokens    |
 | **🌐 Common**              | SOLID, Security (SQLi/HTMLi), TDD, Anti-Patterns      | `v1.5.0` | 14     | ~494 tokens    |
 | **🌐 Quality Engineering** | Business Analysis, Jira, Zephyr, QA Automation        | `v1.0.0` | 4      | ~500 tokens    |
-| **💙 Flutter**             | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.3.0` | 21     | ~414 tokens    |
+| **💙 Flutter**             | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.3.1` | 21     | ~422 tokens    |
 | **🎯 Dart**                | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.4` | 3      | ~435 tokens    |
 | **☕ Java**                | Modern Syntax, Virtual Threads, Testing, Tooling      | `v1.0.0` | 5      | ~522 tokens    |
 | **🔷 TypeScript**          | Type Safety, Security, Best Practices, Tooling        | `v1.0.6` | 4      | ~627 tokens    |
 | **🟨 JavaScript**          | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.0` | 5      | ~522 tokens    |
 | **⚛️ React**               | Hooks, State Management, Performance, Security        | `v1.0.2` | 8      | ~396 tokens    |
 | **📱 React Native**        | Arch, Perf, Navigation, Security, Deployment          | `v1.0.2` | 8      | ~396 tokens    |
-| **🦁 NestJS**              | Architecture, Microservices, Security, CQRS, Scalling | `v1.1.0` | 21     | ~474 tokens    |
+| **🦁 NestJS**              | Architecture, Microservices, Security, CQRS, Scalling | `v1.1.1` | 21     | ~476 tokens    |
 | **▲ Next.js**              | App Router (v15), Caching (v16), Bundling, Debug      | `v1.1.1` | 17     | ~423 tokens    |
 | **🐘 Laravel**             | Clean Arch, Eloquent, Security, Jobs, Redis, API      | `v1.0.0` | 10     | ~361 tokens    |
 | **🐹 Golang**              | Clean Architecture, API Design, Concurrency, Security | `v1.0.2` | 10     | ~351 tokens    |
@@ -311,19 +322,19 @@ The CLI will sync this exact structure effectively to your agent configuration:
 
 ### IDE Mapping
 
-| Agent          | Target Path         | Integration Method                     |
-| :------------- | :------------------ | :------------------------------------- |
-| **Cursor**     | `.cursor/skills/`   | Automatic discovery via `.cursorrules` |
-| **Trae**       | `.trae/skills/`     | Automatic discovery                    |
-| **Claude Code**| `.claude/skills/`   | Referenced in `CLAUDE.md`             |
-| **Copilot**    | `.github/skills/`   | Automatic discovery                    |
-| **Kiro**       | `.kiro/skills/`     | Automatic discovery                    |
-| **OpenAI**     | `.codex/skills/`    | Automatic discovery                    |
-| **Antigravity**| `.agent/skills/`    | Automatic discovery                    |
-| **Gemini**     | `.gemini/skills/`   | Automatic discovery                    |
-| **Roo Code**   | `.roo/skills/`      | Automatic discovery                    |
-| **Windsurf**   | `.windsurf/skills/` | Automatic discovery                    |
-| **OpenCode**   | `.opencode/skills/` | Automatic discovery                    |
+| Agent           | Target Path         | Integration Method                     |
+| :-------------- | :------------------ | :------------------------------------- |
+| **Cursor**      | `.cursor/skills/`   | Automatic discovery via `.cursorrules` |
+| **Trae**        | `.trae/skills/`     | Automatic discovery                    |
+| **Claude Code** | `.claude/skills/`   | Referenced in `CLAUDE.md`              |
+| **Copilot**     | `.github/skills/`   | Automatic discovery                    |
+| **Kiro**        | `.kiro/skills/`     | Automatic discovery                    |
+| **OpenAI**      | `.codex/skills/`    | Automatic discovery                    |
+| **Antigravity** | `.agent/skills/`    | Automatic discovery                    |
+| **Gemini**      | `.gemini/skills/`   | Automatic discovery                    |
+| **Roo Code**    | `.roo/skills/`      | Automatic discovery                    |
+| **Windsurf**    | `.windsurf/skills/` | Automatic discovery                    |
+| **OpenCode**    | `.opencode/skills/` | Automatic discovery                    |
 
 ---
 
