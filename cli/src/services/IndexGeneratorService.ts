@@ -23,7 +23,6 @@ export class IndexGeneratorService {
    * Generates a markdown index of available skills across multiple categories.
    * @param baseDir The base directory containing categories and skills
    * @param frameworks List of framework categories to include in the index
-   * @param format The output format: 'detailed' (3 columns) or 'compact' (2 columns)
    * @returns A formatted markdown string representing the index
    */
   async generate(baseDir: string, frameworks: string[]): Promise<string> {
@@ -100,12 +99,6 @@ export class IndexGeneratorService {
     }
   }
 
-  /**
-   * Bridges native agent rule files to AGENTS.md by creating discovery instructions.
-   * Creates agent-specific rule files (e.g., .mdc, .instructions.md) in their respective directories.
-   * @param rootDir Project root directory
-   * @param agents List of agents to generate rules for
-   */
   /**
    * Bridges native agent rule files to AGENTS.md by creating discovery instructions.
    * Creates agent-specific rule files (e.g., .mdc, .instructions.md) in their respective directories.
