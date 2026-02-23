@@ -31,7 +31,7 @@ Every word costs tokens. Design skills for maximum information/token ratio:
 
 ```ts
 Level 1: Metadata (100 words) → Always loaded
-Level 2: SKILL.md Body (500 lines) → When triggered
+Level 2: SKILL.md Body (100 lines) → When triggered
 Level 3: References/Scripts/Assets → As needed
 ```
 
@@ -41,7 +41,7 @@ Level 3: References/Scripts/Assets → As needed
 skills/
 └── {category}/                     # e.g., "flutter" (lowercase)
     └── {skill-name}/               # e.g., "bloc-state-management" (kebab-case)
-        ├── SKILL.md                # Core Logic (High Density, <500 lines)
+        ├── SKILL.md                # Core Logic (High Density, <100 lines)
         ├── scripts/                # Executable code (Deterministic tasks)
         │   └── automation.py
         ├── references/             # Heavy Examples (Lazy loaded)
@@ -98,14 +98,14 @@ Required sections in `SKILL.md`:
 
 ## Size Limits (Strict)
 
-| Element                    | Limit    | Action if Exceeded       |
-| -------------------------- | -------- | ------------------------ |
-| SKILL.md total             | 70 lines | Extract to references/   |
-| Inline code block          | 10 lines | Move to references/      |
-| Anti-pattern item          | 15 words | Compress to imperative   |
-| Description after Priority | 0 lines  | Remove (use frontmatter) |
-| Tables                     | 8 rows   | Extract to references/   |
-| Explanatory sections       | 10 lines | Extract to references/   |
+| Element                    | Limit     | Action if Exceeded       |
+| -------------------------- | --------- | ------------------------ |
+| SKILL.md total             | 100 lines | Extract to references/   |
+| Inline code block          | 10 lines  | Move to references/      |
+| Anti-pattern item          | 15 words  | Compress to imperative   |
+| Description after Priority | 0 lines   | Remove (use frontmatter) |
+| Tables                     | 8 rows    | Extract to references/   |
+| Explanatory sections       | 10 lines  | Extract to references/   |
 
 ## Resource Organization (Token-Saving)
 
@@ -158,7 +158,7 @@ Required sections in `SKILL.md`:
 
 Before finalizing, verify:
 
-- [ ] SKILL.md ≤70 lines (ideal: 40-60)
+- [ ] SKILL.md ≤100 lines (ideal: 40-60)
 - [ ] No inline code >10 lines
 - [ ] No repeated frontmatter content
 - [ ] Anti-patterns use strict format (see below)
@@ -174,7 +174,7 @@ Before finalizing, verify:
 - **Conversational Style**: "Let's see how to..." → "Do this:"
 - **Over-Engineering**: Complex structure for simple skills
 - **Redundant Descriptions**: Do not repeat frontmatter `description` after `## Priority`
-- **Oversized Skills**: SKILL.md >70 lines → Extract to references/
+- **Oversized Skills**: SKILL.md >100 lines → Extract to references/
 - **Nested Formatting**: Avoid `**Bold**: \`**More Bold**\`` - causes visual noise
 - **Verbose Anti-Patterns**: See strict format below
 

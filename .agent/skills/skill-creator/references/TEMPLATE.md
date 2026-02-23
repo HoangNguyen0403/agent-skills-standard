@@ -47,7 +47,7 @@ For automation scripts: [scripts/automation.py](scripts/automation.py)
 
 ## Token Budget Checklist
 
-- [ ] SKILL.md under 500 lines
+- [ ] SKILL.md under 100 lines
 - [ ] Frontmatter under 100 words
 - [ ] No verbose explanations
 - [ ] Complex code moved to references/

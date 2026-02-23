@@ -27,10 +27,14 @@ This document outlines the architectural design and service-layer organization o
 
 ## Tooling & Verification
 
-| Service                 | Responsibility                                                                          |
-| :---------------------- | :-------------------------------------------------------------------------------------- |
-| `SkillValidator`        | Enforces standards for skill structure in the repository (SKILL.md, metadata).          |
-| `IndexGeneratorService` | Generates `AGENTS.md` index and bridges rules into agent-specific formats (.mdc, etc.). |
+| Service                 | Responsibility                                                                            |
+| :---------------------- | :---------------------------------------------------------------------------------------- |
+| `SkillValidator`        | Orchestrates skill repository validation, leveraging discrete rules via the Rule Pattern. |
+| `GitService`            | Encapsulates Git operations (finding root, detecting changed/untracked files).            |
+| `SkillDiscoveryService` | Handles the traversal and filtering logic to discover skill files within the repository.  |
+| `IndexGeneratorService` | Parses skill metadata and generates the formatting for the centralized `AGENTS.md` index. |
+| `AgentBridgeService`    | Handles bridging rules into agent-specific system formats (e.g., `.mdc`, `.cursorrules`). |
+| `MarkdownUtils`         | Utility for safely injecting HTML-markered content into documentation files.              |
 
 ## Design Principles
 

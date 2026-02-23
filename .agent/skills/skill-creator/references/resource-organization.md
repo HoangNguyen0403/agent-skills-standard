@@ -6,7 +6,7 @@ Strategic use of directories to maximize token efficiency and context management
 
 ```json
 Level 1: Metadata (Always) → ~100 words
-Level 2: SKILL.md (Triggered) → <500 lines
+Level 2: SKILL.md (Triggered) → <100 lines
 Level 3: Resources (Lazy) → As needed
 ```
 
@@ -15,7 +15,7 @@ Level 3: Resources (Lazy) → As needed
 ### **SKILL.md** (Required)
 
 **Loading Level**: 2 (Triggered)
-**Token Budget**: <500 lines
+**Token Budget**: <100 lines
 **Purpose**: Core workflow and essential guidance
 
 **Content Strategy**:
@@ -196,7 +196,7 @@ api-integration/
 
 ### Structure Validation
 
-- [ ] SKILL.md exists and <500 lines
+- [ ] SKILL.md exists and <100 lines
 - [ ] Resources organized by purpose
 - [ ] Clear separation of concerns
 - [ ] No content duplication
@@ -242,7 +242,7 @@ api-integration/
 
 ### Optimization Triggers
 
-- SKILL.md > 500 lines → Split to references/
+- SKILL.md > 100 lines → Split to references/
 - Frequent manual steps → Create scripts/
 - Large template usage → Move to assets/
 - Slow activation → Review trigger specificity

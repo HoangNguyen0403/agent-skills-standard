@@ -38,11 +38,17 @@ describe('GitService', () => {
       const root = gitService.findProjectRoot('/fake/dir/path');
       expect(root).toBe('/fake');
     });
+    it('should fall back to startDir if no root found', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+      const root = gitService.findProjectRoot('/fake/dir/path');
+      expect(root).toBe('/fake/dir/path');
+    });
   });
 
   describe('getChangedFiles', () => {
     afterEach(() => {
       delete process.env.GITHUB_BASE_REF;
+      delete process.env.DEBUG;
     });
 
     it('should use diff against base ref in CI', () => {
@@ -99,9 +105,30 @@ describe('GitService', () => {
       const files = gitService.getChangedFiles('/app');
       expect(files).toEqual([]);
     });
+
+    it('should log warning on git error if DEBUG is set', () => {
+      process.env.DEBUG = '1';
+      const consoleWarnSpy = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
+      vi.mocked(execSync).mockImplementation(() => {
+        throw new Error('Git fail');
+      });
+      const files = gitService.getChangedFiles('/app');
+      expect(files).toEqual([]);
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'Git failure while getting changed files:',
+        expect.any(Error),
+      );
+      consoleWarnSpy.mockRestore();
+    });
   });
 
   describe('getUntrackedFiles', () => {
+    afterEach(() => {
+      delete process.env.DEBUG;
+    });
+
     it('should return untracked files', () => {
       vi.mocked(execSync).mockReturnValue('untracked.ts\n' as any);
       vi.mocked(fs.existsSync).mockReturnValue(true);
@@ -120,6 +147,23 @@ describe('GitService', () => {
       });
       const files = gitService.getUntrackedFiles('/app');
       expect(files).toEqual([]);
+    });
+
+    it('should log warning on git error if DEBUG is set', () => {
+      process.env.DEBUG = '1';
+      const consoleWarnSpy = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
+      vi.mocked(execSync).mockImplementation(() => {
+        throw new Error('Git fail');
+      });
+      const files = gitService.getUntrackedFiles('/app');
+      expect(files).toEqual([]);
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'Git failure while getting untracked files:',
+        expect.any(Error),
+      );
+      consoleWarnSpy.mockRestore();
     });
   });
 });

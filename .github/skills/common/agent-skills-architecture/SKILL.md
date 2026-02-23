@@ -42,7 +42,7 @@ The primary goal is **Maximum Information Density** and **Automated Precision**.
 ### 4. **Progressive Disclosure (Three-Level Loading)**
 
 - **Level 1 (Metadata)**: Triggers activation via high-precision keywords/files.
-- **Level 2 (SKILL.md Body)**: Core imperative logic (<500 lines). No conversational fluff.
+- **Level 2 (SKILL.md Body)**: Core imperative logic (<100 lines). No conversational fluff.
 - **Level 3 (References)**: Detailed examples, complex patterns, scripts. Lazy-loaded on-demand.
 
 ## 📦 ID & Naming Standards

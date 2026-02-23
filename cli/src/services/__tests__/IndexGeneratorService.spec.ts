@@ -133,5 +133,19 @@ describe('IndexGeneratorService', () => {
         '- **[cat/skill]**: This is a very long description that should be truncated',
       );
     });
+
+    it('should handle missing name and description in metadata gracefully', async () => {
+      const fmContent =
+        '---\nmetadata:\n  triggers: {}\n---\n## **Priority: P1**';
+      (fs.readFile as any).mockResolvedValue(fmContent);
+      (yaml.load as any).mockReturnValue({ metadata: { triggers: {} } });
+
+      const res = await (service as any).parseSkill('/cat/skill/SKILL.md');
+      expect(res!.name).toBe('');
+      expect(res!.description).toBe('');
+
+      const entry = (service as any).formatEntry('cat', 'skill', res);
+      expect(entry).toBe('- **[cat/skill]**: ');
+    });
   });
 });

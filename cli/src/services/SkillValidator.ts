@@ -36,7 +36,7 @@ export class SkillValidator {
   private skillDiscovery = new SkillDiscoveryService();
   private gitService = new GitService();
   private rules: ValidationRule[] = [
-    new SizeRule(500),
+    new SizeRule(),
     new FrontmatterRule(),
     new InstructionsStyleRule(),
     new PriorityRule(),

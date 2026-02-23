@@ -30,7 +30,7 @@ Level 1 (Always Loaded - 100 words):
 ├── name + description (triggers activation)
 └── metadata (labels, triggers)
 
-Level 2 (When Triggered - 500 lines):
+Level 2 (When Triggered - 100 lines):
 ├── Core workflow (SKILL.md body)
 ├── Essential guidelines
 └── Anti-patterns
@@ -78,7 +78,7 @@ metadata:
 
 ### Validation Checklist
 
-- [ ] SKILL.md < 500 lines
+- [ ] SKILL.md < 100 lines
 - [ ] Frontmatter < 100 words
 - [ ] No redundant information
 - [ ] Complex examples in references/

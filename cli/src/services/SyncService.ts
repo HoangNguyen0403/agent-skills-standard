@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
-import { Agent, AgentDefinition, SUPPORTED_AGENTS } from '../constants';
+import { Agent, SUPPORTED_AGENTS } from '../constants';
 import { SkillConfig, SkillEntry } from '../models/config';
 import {
   CollectedSkill,
@@ -115,13 +115,7 @@ export class SyncService {
       await fs.ensureDir(basePath);
 
       for (const skill of skills) {
-        await this.writeSkillForAgent(
-          agentId,
-          agentDef,
-          skill,
-          overrides,
-          basePath,
-        );
+        await this.writeSkillForAgent(agentId, skill, overrides, basePath);
       }
       console.log(pc.gray(`  - Updated ${basePath}/ (${agentDef.name})`));
     }
@@ -143,7 +137,6 @@ export class SyncService {
 
   private async writeSkillForAgent(
     agentId: string,
-    agentDef: AgentDefinition,
     skill: CollectedSkill,
     overrides: string[],
     basePath: string,

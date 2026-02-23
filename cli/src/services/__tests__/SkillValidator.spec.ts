@@ -129,12 +129,38 @@ describe('SkillValidator', () => {
         'metadata.json not found',
       );
     });
+
+    it('should fail if missing version or tag_prefix in categories', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      vi.mocked(fs.readJson).mockResolvedValue({
+        categories: {
+          test: { version: '1.0.0' }, // missing tag_prefix
+        },
+      });
+      await expect((validator as any).validateMetadata('/app')).rejects.toThrow(
+        'Category "test" missing required fields (version, tag_prefix) in metadata.json',
+      );
+    });
   });
 
   describe('printSummary', () => {
     it('should print correctly', () => {
       validator.printSummary({ total: 1, passed: 1, failed: 0, warnings: 0 });
       expect(console.log).toHaveBeenCalled();
+    });
+
+    it('should print correctly with warnings', () => {
+      validator.printSummary({ total: 1, passed: 1, failed: 0, warnings: 1 });
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('warnings found'),
+      );
+    });
+
+    it('should print correctly with failures', () => {
+      validator.printSummary({ total: 1, passed: 0, failed: 1, warnings: 0 });
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Validation failed!'),
+      );
     });
   });
 });

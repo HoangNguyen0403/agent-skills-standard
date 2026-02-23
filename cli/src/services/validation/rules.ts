@@ -7,7 +7,7 @@ import { RuleResult, ValidationRule } from './types';
  */
 export class SizeRule implements ValidationRule {
   name = 'Size Limit';
-  constructor(private maxLines: number = 500) {}
+  constructor(private maxLines: number = 100) {}
 
   async validate(content: string): Promise<RuleResult> {
     const lines = content.split('\n');

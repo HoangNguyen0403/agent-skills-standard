@@ -455,6 +455,32 @@ describe('ConfigService', () => {
       expect(config.skills.database?.exclude).not.toContain('redis');
     });
 
+    it('should re-enable new category without exclusions if all dependencies strictly met', () => {
+      const config: SkillConfig = {
+        registry: 'https://example.com',
+        agents: [Agent.Cursor],
+        skills: {},
+      };
+
+      const originalRegistry = { ...SKILL_DETECTION_REGISTRY };
+      (SKILL_DETECTION_REGISTRY as any)['test-new'] = [
+        { id: 'sub-skill', packages: ['needed-dep'] },
+      ];
+
+      const projectDeps = new Set(['needed-dep']);
+
+      const reenabled = configService.reconcileDependencies(
+        config,
+        projectDeps,
+      );
+
+      expect(reenabled).toContain('test-new');
+      expect(config.skills['test-new']).toBeDefined();
+      expect(config.skills['test-new'].exclude).toBeUndefined();
+
+      delete (SKILL_DETECTION_REGISTRY as any)['test-new'];
+    });
+
     it('should return empty if no skills are re-enabled', () => {
       const config: SkillConfig = {
         registry: 'https://example.com',

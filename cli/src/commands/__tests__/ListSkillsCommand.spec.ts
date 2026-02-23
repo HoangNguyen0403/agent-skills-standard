@@ -90,4 +90,10 @@ describe('ListSkillsCommand', () => {
     );
     expect(process.exit).toHaveBeenCalledWith(1);
   });
+
+  it('should return if no framework is selected from prompt', async () => {
+    vi.mocked(inquirer.prompt).mockResolvedValue({ framework: undefined });
+    await command.run();
+    expect(mockSkillService.getSkillsWithStatus).not.toHaveBeenCalled();
+  });
 });

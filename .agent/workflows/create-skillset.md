@@ -33,7 +33,7 @@ Use this workflow to generate a new category of High-Density Skills for a langua
 
 4. **Drafting (High-Density Standard)**:
    - Create `SKILL.md` for each module.
-   - **CONSTRAINT**: Keep content < 500 tokens (~70 lines).
+   - **CONSTRAINT**: Keep content < 500 tokens (~100 lines).
    - **Structure**:
      - `Metadata`: Triggers, Keywords.
      - `Priority`: `## **Priority: Px (LEVEL)**` format.
