@@ -12,8 +12,15 @@ async function bootstrap() {
   app.use(helmet());
 
   // 2. CORS Configuration
+  const origins = process.env.CORS_ORIGINS?.split(',') || [];
+  if (origins.length === 0 && process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'CORS_ORIGINS environment variable is mandatory in production',
+    );
+  }
+
   app.enableCors({
-    origin: process.env.CORS_ORIGINS?.split(',') || '*',
+    origin: origins.length > 0 ? origins : false, // Disallows all if no origins provided and not in production (or throws above if in production)
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });

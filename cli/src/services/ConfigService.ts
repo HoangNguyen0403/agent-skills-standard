@@ -4,7 +4,9 @@ import path from 'path';
 import { z } from 'zod';
 import {
   Agent,
+  BACKEND_FRAMEWORKS,
   DEFAULT_REGISTER,
+  Framework,
   SKILL_DETECTION_REGISTRY,
 } from '../constants';
 import { CategoryConfig, SkillConfig } from '../models/config';
@@ -121,6 +123,18 @@ export class ConfigService {
       };
     }
 
+    // Add database category for backend frameworks
+    if (
+      BACKEND_FRAMEWORKS.includes(framework as Framework) &&
+      metadata.categories?.['database']
+    ) {
+      skills['database'] = {
+        ref: metadata.categories['database'].version
+          ? `${metadata.categories['database'].tag_prefix || ''}${metadata.categories['database'].version}`
+          : 'main',
+      };
+    }
+
     return {
       registry,
       agents,
@@ -132,65 +146,19 @@ export class ConfigService {
 
   /**
    * Identifies sub-skills to exclude based on the absence of their required package dependencies.
+   * Scans all categories defined in the config.
    * @param config The current configuration
-   * @param framework The framework to analyze
    * @param projectDeps Current set of project dependencies
    */
-  applyDependencyExclusions(
-    config: SkillConfig,
-    framework: string,
-    projectDeps: Set<string>,
-  ) {
-    const category = config.skills[framework];
-    if (!category) return;
+  applyDependencyExclusions(config: SkillConfig, projectDeps: Set<string>) {
+    for (const categoryId in config.skills) {
+      const category = config.skills[categoryId];
+      const detections = SKILL_DETECTION_REGISTRY[categoryId] || [];
+      if (detections.length === 0) continue;
 
-    const exclusions = new Set<string>(category.exclude || []);
+      const exclusions = new Set<string>(category.exclude || []);
 
-    // mapping of "sub-skill identifier" to "package keywords"
-    // from the centralized SKILL_DETECTION_REGISTRY
-    const detections = SKILL_DETECTION_REGISTRY[framework] || [];
-
-    for (const detection of detections) {
-      const hasDep = Array.from(projectDeps).some((d) =>
-        detection.packages.some((pkg) => {
-          const depLower = d.toLowerCase();
-          const pkgLower = pkg.toLowerCase();
-          // Use exact match for short package names to avoid false positives (e.g., 'get' matching 'widget')
-          if (pkg.length <= 3) {
-            return depLower === pkgLower;
-          }
-          return depLower.includes(pkgLower);
-        }),
-      );
-
-      if (!hasDep) {
-        exclusions.add(detection.id);
-      }
-    }
-
-    if (exclusions.size > 0) {
-      category.exclude = Array.from(exclusions);
-    }
-  }
-
-  /**
-   * Automatically re-enables skills that were previously excluded if their dependencies
-   * are now present in the project.
-   */
-  reconcileDependencies(
-    config: SkillConfig,
-    framework: string,
-    projectDeps: Set<string>,
-  ): string[] {
-    const category = config.skills[framework];
-    if (!category || !category.exclude) return [];
-
-    const reenabled: string[] = [];
-    const detections = SKILL_DETECTION_REGISTRY[framework] || [];
-    const currentExclusions = new Set(category.exclude);
-
-    for (const detection of detections) {
-      if (currentExclusions.has(detection.id)) {
+      for (const detection of detections) {
         const hasDep = Array.from(projectDeps).some((d) =>
           detection.packages.some((pkg) => {
             const depLower = d.toLowerCase();
@@ -202,21 +170,65 @@ export class ConfigService {
           }),
         );
 
-        if (hasDep) {
-          currentExclusions.delete(detection.id);
-          reenabled.push(detection.id);
+        if (!hasDep) {
+          exclusions.add(detection.id);
         }
       }
-    }
 
-    if (reenabled.length > 0) {
-      category.exclude = Array.from(currentExclusions);
-      if (category.exclude.length === 0) {
-        delete category.exclude;
+      if (exclusions.size > 0) {
+        category.exclude = Array.from(exclusions);
+      }
+    }
+  }
+
+  /**
+   * Automatically re-enables skills that were previously excluded if their dependencies
+   * are now present in the project. Scans all categories.
+   */
+  reconcileDependencies(
+    config: SkillConfig,
+    projectDeps: Set<string>,
+  ): string[] {
+    const totalReenabled: string[] = [];
+
+    for (const categoryId in config.skills) {
+      const category = config.skills[categoryId];
+      if (!category || !category.exclude) continue;
+
+      const reenabled: string[] = [];
+      const detections = SKILL_DETECTION_REGISTRY[categoryId] || [];
+      const currentExclusions = new Set(category.exclude);
+
+      for (const detection of detections) {
+        if (currentExclusions.has(detection.id)) {
+          const hasDep = Array.from(projectDeps).some((d) =>
+            detection.packages.some((pkg) => {
+              const depLower = d.toLowerCase();
+              const pkgLower = pkg.toLowerCase();
+              if (pkg.length <= 3) {
+                return depLower === pkgLower;
+              }
+              return depLower.includes(pkgLower);
+            }),
+          );
+
+          if (hasDep) {
+            currentExclusions.delete(detection.id);
+            reenabled.push(`${categoryId}/${detection.id}`);
+          }
+        }
+      }
+
+      if (reenabled.length > 0) {
+        category.exclude = Array.from(currentExclusions);
+        if (category.exclude.length === 0) {
+          delete category.exclude;
+        }
+        totalReenabled.push(...reenabled);
       }
     }
 
-    return reenabled;
+    return totalReenabled;
   }
 
   /**

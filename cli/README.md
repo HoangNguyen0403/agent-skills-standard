@@ -240,6 +240,7 @@ The CLI connects to the [Official Skills Registry](https://github.com/HoangNguye
 ## 🔗 Links
 
 - **Registry Source**: [GitHub Repository](https://github.com/HoangNguyen0403/agent-skills-standard)
+- **CLI Architecture**: [Internal Services & Design](ARCHITECTURE.md)
 - **Standard Specs**: [Documentation](https://github.com/HoangNguyen0403/agent-skills-standard#📂-standard-specification)
 - **Issues**: [Report a bug](https://github.com/HoangNguyen0403/agent-skills-standard/issues)
 

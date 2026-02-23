@@ -160,5 +160,23 @@ export const SKILL_DETECTION_REGISTRY: Record<string, SkillDetection[]> = {
       id: 'tooling',
       packages: ['laravel/pint', 'laravel/sail'],
     },
+    {
+      id: 'database-expert',
+      packages: ['laravel/framework'], // Always present, but used for sub-skill mapping
+    },
+  ],
+  database: [
+    {
+      id: 'postgresql',
+      packages: ['pg', 'pgx', 'postgres', 'sequelize', 'typeorm', 'prisma'],
+    },
+    {
+      id: 'mongodb',
+      packages: ['mongodb', 'mongoose'],
+    },
+    {
+      id: 'redis',
+      packages: ['redis', 'ioredis', 'predis'],
+    },
   ],
 };

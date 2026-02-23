@@ -29,26 +29,18 @@ export class SyncService {
     config: SkillConfig,
     projectDeps: Set<string>,
   ): Promise<boolean> {
-    let configChanged = false;
-    const categoriesToReconcile = Object.keys(config.skills);
-
-    for (const cat of categoriesToReconcile) {
-      const reenabled = this.configService.reconcileDependencies(
-        config,
-        cat,
-        projectDeps,
-      );
-      if (reenabled.length > 0) {
-        console.log(
-          pc.yellow(
-            `✨ Dynamic Re-detection: Re-enabling [${reenabled.join(', ')}] in '${cat}' category.`,
-          ),
-        );
-        configChanged = true;
-      }
-    }
+    const reenabled = this.configService.reconcileDependencies(
+      config,
+      projectDeps,
+    );
+    const configChanged = reenabled.length > 0;
 
     if (configChanged) {
+      console.log(
+        pc.yellow(
+          `✨ Dynamic Re-detection: Re-enabling [${reenabled.join(', ')}].`,
+        ),
+      );
       await this.configService.saveConfig(config);
     }
 

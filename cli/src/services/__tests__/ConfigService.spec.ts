@@ -230,6 +230,26 @@ describe('ConfigService', () => {
       ]);
     });
 
+    it('should auto-include database category for backend frameworks', () => {
+      const metadata: RegistryMetadata = {
+        global: { author: 'test', repository: 'test' },
+        categories: {
+          nestjs: { version: '1.0.0', tag_prefix: 'v' },
+          database: { version: '1.0.0', tag_prefix: 'v' },
+        },
+      };
+
+      const config = configService.buildInitialConfig(
+        'nestjs',
+        [Agent.Cursor],
+        'https://registry.com',
+        metadata,
+      );
+
+      expect(config.skills.database).toBeDefined();
+      expect(config.skills.database?.ref).toBe('v1.0.0');
+    });
+
     it('should include workflows in initial config if provided', () => {
       const config = configService.buildInitialConfig(
         'flutter',
@@ -255,12 +275,33 @@ describe('ConfigService', () => {
       };
       const projectDeps = new Set(['flutter_bloc']);
 
-      configService.applyDependencyExclusions(config, 'flutter', projectDeps);
+      configService.applyDependencyExclusions(config, projectDeps);
 
       const category = config.skills.flutter as CategoryConfig;
       expect(category.exclude).toBeDefined();
       expect(category.exclude).toContain('riverpod-state-management');
       expect(category.exclude).not.toContain('bloc-state-management');
+    });
+
+    it('should handle multiple categories in applyDependencyExclusions', () => {
+      const config: SkillConfig = {
+        registry: 'https://example.com',
+        agents: [Agent.Cursor],
+        skills: {
+          nestjs: { ref: 'v1.0.0' },
+          database: { ref: 'v1.0.0' },
+        },
+        custom_overrides: [],
+      };
+
+      // nestjs networking requires @nestjs/passport
+      // database postgresql requires pg or postgres
+      const projectDeps = new Set(['@nestjs/passport']);
+
+      configService.applyDependencyExclusions(config, projectDeps);
+
+      expect(config.skills.nestjs?.exclude).not.toContain('networking');
+      expect(config.skills.database?.exclude).toContain('postgresql');
     });
 
     it('should do nothing if category does not exist', () => {
@@ -270,7 +311,7 @@ describe('ConfigService', () => {
         skills: {},
         custom_overrides: [],
       };
-      configService.applyDependencyExclusions(config, 'flutter', new Set());
+      configService.applyDependencyExclusions(config, new Set());
       expect(config.skills).toEqual({});
     });
 
@@ -284,7 +325,7 @@ describe('ConfigService', () => {
         custom_overrides: [],
       };
       // Should add exclusions to the empty list
-      configService.applyDependencyExclusions(config, 'flutter', new Set());
+      configService.applyDependencyExclusions(config, new Set());
       const category = config.skills.flutter as CategoryConfig;
       expect(category.exclude?.length).toBeGreaterThan(0);
     });
@@ -306,11 +347,7 @@ describe('ConfigService', () => {
               };
               const projectDeps = new Set(['some-other-dep']);
 
-              configService.applyDependencyExclusions(
-                config,
-                framework,
-                projectDeps,
-              );
+              configService.applyDependencyExclusions(config, projectDeps);
 
               const category = config.skills[framework] as CategoryConfig;
               expect(category.exclude).toContain(detection.id);
@@ -328,11 +365,7 @@ describe('ConfigService', () => {
               // Simulate presence of the first package in the detection list
               const projectDeps = new Set([detection.packages[0], 'other-dep']);
 
-              configService.applyDependencyExclusions(
-                config,
-                framework,
-                projectDeps,
-              );
+              configService.applyDependencyExclusions(config, projectDeps);
 
               const category = config.skills[framework] as CategoryConfig;
               expect(category.exclude || []).not.toContain(detection.id);
@@ -363,11 +396,10 @@ describe('ConfigService', () => {
 
       const reenabled = configService.reconcileDependencies(
         config,
-        'android',
         projectDeps,
       );
 
-      expect(reenabled).toEqual(['networking']);
+      expect(reenabled).toEqual(['android/networking']);
       const category = config.skills.android as CategoryConfig;
       expect(category.exclude).toEqual(['persistence']);
     });
@@ -389,11 +421,10 @@ describe('ConfigService', () => {
 
       const reenabled = configService.reconcileDependencies(
         config,
-        'android',
         projectDeps,
       );
 
-      expect(reenabled).toEqual(['networking']);
+      expect(reenabled).toEqual(['android/networking']);
       const category = config.skills.android as CategoryConfig;
       expect(category.exclude).toBeUndefined();
     });
@@ -415,7 +446,6 @@ describe('ConfigService', () => {
 
       const reenabled = configService.reconcileDependencies(
         config,
-        'android',
         projectDeps,
       );
 
@@ -430,9 +460,9 @@ describe('ConfigService', () => {
         agents: [Agent.Cursor],
         skills: {},
       };
-      expect(
-        configService.reconcileDependencies(config, 'unknown', new Set()),
-      ).toEqual([]);
+      expect(configService.reconcileDependencies(config, new Set())).toEqual(
+        [],
+      );
     });
 
     it('should handle unknown framework in reconcileDependencies (line 140 coverage)', () => {
@@ -443,11 +473,7 @@ describe('ConfigService', () => {
           unknown: { ref: 'main', exclude: ['something'] },
         },
       };
-      const reenabled = configService.reconcileDependencies(
-        config,
-        'unknown',
-        new Set(),
-      );
+      const reenabled = configService.reconcileDependencies(config, new Set());
       expect(reenabled).toEqual([]);
     });
 
@@ -486,11 +512,10 @@ describe('ConfigService', () => {
 
       const reenabled = configService.reconcileDependencies(
         testConfig,
-        'test-short',
         new Set(['io']),
       );
 
-      expect(reenabled).toEqual(['short-skill']);
+      expect(reenabled).toEqual(['test-short/short-skill']);
 
       // Cleanup
       delete (SKILL_DETECTION_REGISTRY as any)['test-short'];
@@ -504,7 +529,7 @@ describe('ConfigService', () => {
         agents: [],
         skills: { unknown: { ref: 'main' } },
       };
-      configService.applyDependencyExclusions(config, 'unknown', new Set());
+      configService.applyDependencyExclusions(config, new Set());
       expect(config.skills.unknown.exclude).toBeUndefined();
     });
 
@@ -521,7 +546,7 @@ describe('ConfigService', () => {
         '@nestjs/typeorm',
         '@nestjs/passport',
       ]);
-      configService.applyDependencyExclusions(config, 'nestjs', deps);
+      configService.applyDependencyExclusions(config, deps);
       expect(config.skills.nestjs.exclude).toBeUndefined();
     });
   });

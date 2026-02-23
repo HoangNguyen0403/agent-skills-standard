@@ -5,6 +5,34 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.7] - 2026-02-24
+
+**Category**: Database Auto-Detection & Multi-Category Filtering
+
+### Added (CLI v1.6.7)
+
+- **🗄️ Database Skill Auto-Detection**: Automatically includes the `database` category when a backend framework (NestJS, Go, Laravel, or Spring Boot) is detected during `ags init`.
+- **🔄 Multi-Category Dependency Management**: Refactored `ConfigService` to handle dependency exclusions and reconciliation across all enabled categories in a single pass.
+- **📚 CLI Service Documentation**: Created comprehensive architectural documentation in `cli/src/services/README.md` to assist developers and AI agents.
+
+### Changed (NestJS Skills v1.1.2)
+
+- **🔄 CI/CD Migration Integration**: Updated database standards to include production-ready migration strategies via CI/CD pipelines.
+  - Added explicit guidance for `migration:run` in pre/post-deploy jobs.
+  - Standardized TypeORM Entity-to-Migration generation workflow.
+
+### Changed (Common Skills v1.5.1)
+
+- **🧹 General Maintenance**: Minor improvements to documentation and trigger consistency across common skill modules.
+
+### Changed (CLI v1.6.7)
+
+- **🧪 Unit Test Expansion**: Fixed and expanded `ConfigService` test suite to cover multi-category logic and auto-detection, achieving 100% path coverage for these features.
+
+### Versions
+
+- **CLI/Server**: v1.6.7 (Patch)
+
 ## [1.6.6] - 2026-02-19
 
 **Category**: Flutter Design System & NestJS Testing Improvements
@@ -25,10 +53,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Versions
 
+- **Common Skills**: v1.5.1 (Patch)
 - **Framework Skills**:
   - **Flutter**: v1.3.1 (Patch)
-  - **NestJS**: v1.1.1 (Patch)
-- **CLI/Server**: v1.6.6 (Patch)
+  - **NestJS**: v1.1.2 (Patch)
+- **CLI/Server**: v1.6.7 (Patch)
 
 **Category**: Kiro IDE Support
 

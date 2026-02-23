@@ -71,13 +71,13 @@
       }
     },
     "nestjs": {
-      "version": "1.1.1",
-      "last_updated": "2026-02-19",
+      "version": "1.1.2",
+      "last_updated": "2026-02-24",
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 9994,
-        "avg_tokens_per_skill": 476,
+        "total_tokens": 10167,
+        "avg_tokens_per_skill": 484,
         "largest_skill": "documentation (836 tokens)"
       }
     },
@@ -93,13 +93,13 @@
       }
     },
     "common": {
-      "version": "1.5.0",
-      "last_updated": "2026-02-07",
+      "version": "1.5.1",
+      "last_updated": "2026-02-24",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 14,
-        "total_tokens": 6912,
-        "avg_tokens_per_skill": 494,
+        "total_skills": 15,
+        "total_tokens": 7338,
+        "avg_tokens_per_skill": 489,
         "largest_skill": "best-practices (860 tokens)"
       }
     },
@@ -222,6 +222,17 @@
         "total_tokens": 3608,
         "avg_tokens_per_skill": 361,
         "largest_skill": "clean-architecture (430 tokens)"
+      }
+    },
+    "database": {
+      "version": "1.0.0",
+      "last_updated": "2026-02-24",
+      "tag_prefix": "database-v",
+      "token_metrics": {
+        "total_skills": 3,
+        "total_tokens": 1909,
+        "avg_tokens_per_skill": 636,
+        "largest_skill": "postgresql (709 tokens)"
       }
     }
   }

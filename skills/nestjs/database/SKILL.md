@@ -33,8 +33,12 @@ See [references/persistence_strategy.md](references/persistence_strategy.md) for
 ## Migrations
 
 - **Never** use `synchronize: true` in production.
-- **Execution**: Run via init container or CD step.
-- **Zero-Downtime**: Use Expand-Contract pattern (Add -> Backfill -> Drop).
+- **Generation**: Whenever a TypeORM entity (`.entity.ts`) is modified, a migration **MUST** be generated using `pnpm migration:generate`.
+- **Audit**: Always inspect the generated migration file to ensure it matches the entity changes before applying.
+- **Production Strategies**:
+  - **CI/CD Integration (Recommended)**: Run `pnpm migration:run` in a pre-deploy or post-deploy job (e.g., GitHub Actions, GitLab CI). Ensure the production environment variables are correctly set.
+  - **Manual SQL (For restricted DB access)**: Use `typeorm migration:show` to get the SQL or simply copy the `up` method's SQL into a management tool (like Supabase SQL Editor). Always track manual runs in the `migrations` metadata table.
+- **Zero-Downtime**: Use Expand-Contract pattern (Add -> Backfill -> Drop) for destructive changes.
 - **Seeding**: Use factories for dev data; only static dicts for prod.
 
 ## Best Practices

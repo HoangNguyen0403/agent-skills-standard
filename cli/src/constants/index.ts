@@ -3,11 +3,21 @@ import { Agent, Framework } from './enums';
 export { Agent, Framework };
 
 export const UNIVERSAL_SKILLS = ['common'];
+export const BACKEND_FRAMEWORKS: Framework[] = [
+  Framework.NestJS,
+  Framework.Golang,
+  Framework.SpringBoot,
+  Framework.Laravel,
+];
 
 export const DEFAULT_REGISTER =
   'https://github.com/HoangNguyen0403/agent-skills-standard';
 
-export const DEFAULT_WORKFLOWS = ['code-review', 'plan-feature'];
+export const DEFAULT_WORKFLOWS = [
+  'code-review',
+  'codebase-review',
+  'plan-feature',
+];
 
 // Configurable via ENV or hardcoded for production convenience
 export interface AgentDefinition {
