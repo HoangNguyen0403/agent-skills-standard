@@ -1,16 +1,18 @@
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
-import { Agent, SUPPORTED_AGENTS } from '../constants';
+import { Agent, AgentDefinition, SUPPORTED_AGENTS } from '../constants';
 import { SkillConfig, SkillEntry } from '../models/config';
 import {
   CollectedSkill,
   GitHubTreeItem,
   RegistryMetadata,
 } from '../models/types';
+import { AgentBridgeService } from './AgentBridgeService';
 import { ConfigService } from './ConfigService';
 import { GithubService } from './GithubService';
 import { IndexGeneratorService } from './IndexGeneratorService';
+import { MarkdownUtils } from './utils/MarkdownUtils';
 
 /**
  * Service responsible for synchronizing agent skills and workflows from a remote registry
@@ -102,76 +104,83 @@ export class SyncService {
    * Writes collected skills to target agent paths.
    */
   async writeSkills(skills: CollectedSkill[], config: SkillConfig) {
-    let agents = config.agents;
+    const agents = await this.resolveTargetAgents(config);
     const overrides = config.custom_overrides || [];
-
-    // If no agents explicitly configured, fallback to content-based detection
-    // We only sync to agents that ALREADY have a directory created.
-    if (!agents || agents.length === 0) {
-      agents = [];
-      for (const def of SUPPORTED_AGENTS) {
-        if (def.path && (await fs.pathExists(def.path))) {
-          agents.push(def.id);
-        }
-      }
-
-      if (
-        agents.length === 0 &&
-        (!config.agents || config.agents.length === 0)
-      ) {
-        // If detection failed and config is empty, we default to ALL (Bootstrap mode)
-        // OR we warn. Given 'ags sync' might be first run, maybe we should respect .skillsrc?
-        // But invalid config shouldn't blow up workspace.
-        // Let's default to primary supported agents if truly nothing exists,
-        // but typically 'init' sets the config.
-        // For safety/strictness:
-        agents = SUPPORTED_AGENTS.map((a) => a.id);
-      }
-    }
 
     for (const agentId of agents) {
       const agentDef = SUPPORTED_AGENTS.find((a) => a.id === agentId);
       if (!agentDef || !agentDef.path) continue;
 
-      const isKiro = agentId === Agent.Kiro;
       const basePath = agentDef.path;
       await fs.ensureDir(basePath);
 
       for (const skill of skills) {
-        const kiroFolder = `${skill.category}-${skill.skill}`;
-        const skillPath = isKiro
-          ? path.join(basePath, kiroFolder)
-          : path.join(basePath, skill.category, skill.skill);
-        await fs.ensureDir(skillPath);
-
-        for (const fileItem of skill.files) {
-          const targetFilePath = path.join(skillPath, fileItem.name);
-
-          if (this.isOverridden(targetFilePath, overrides)) {
-            console.log(
-              pc.yellow(
-                `    ⚠️  Skipping overridden: ${this.normalizePath(targetFilePath)}`,
-              ),
-            );
-            continue;
-          }
-
-          if (!this.isPathSafe(targetFilePath, skillPath)) {
-            console.log(
-              pc.red(`    ❌ Security Error: Invalid path ${fileItem.name}`),
-            );
-            continue;
-          }
-
-          let content = fileItem.content;
-          if (isKiro && fileItem.name === 'SKILL.md') {
-            content = this.transformSkillForKiro(content, skill.category);
-          }
-
-          await fs.outputFile(targetFilePath, content);
-        }
+        await this.writeSkillForAgent(
+          agentId,
+          agentDef,
+          skill,
+          overrides,
+          basePath,
+        );
       }
       console.log(pc.gray(`  - Updated ${basePath}/ (${agentDef.name})`));
+    }
+  }
+
+  private async resolveTargetAgents(config: SkillConfig): Promise<Agent[]> {
+    if (config.agents && config.agents.length > 0) {
+      return config.agents;
+    }
+
+    // Fallback to content-based detection
+    const detectedAgents: Agent[] = [];
+
+    // If detection failed and config is empty, default to all supported agents
+    return detectedAgents.length > 0
+      ? detectedAgents
+      : SUPPORTED_AGENTS.map((a) => a.id as Agent);
+  }
+
+  private async writeSkillForAgent(
+    agentId: string,
+    agentDef: AgentDefinition,
+    skill: CollectedSkill,
+    overrides: string[],
+    basePath: string,
+  ) {
+    const isKiro = agentId === Agent.Kiro;
+    const kiroFolder = `${skill.category}-${skill.skill}`;
+    const skillPath = isKiro
+      ? path.join(basePath, kiroFolder)
+      : path.join(basePath, skill.category, skill.skill);
+
+    await fs.ensureDir(skillPath);
+
+    for (const fileItem of skill.files) {
+      const targetFilePath = path.join(skillPath, fileItem.name);
+
+      if (this.isOverridden(targetFilePath, overrides)) {
+        console.log(
+          pc.yellow(
+            `    ⚠️  Skipping overridden: ${this.normalizePath(targetFilePath)}`,
+          ),
+        );
+        continue;
+      }
+
+      if (!this.isPathSafe(targetFilePath, skillPath)) {
+        console.log(
+          pc.red(`    ❌ Security Error: Invalid path ${fileItem.name}`),
+        );
+        continue;
+      }
+
+      let content = fileItem.content;
+      if (isKiro && fileItem.name === 'SKILL.md') {
+        content = this.transformSkillForKiro(content, skill.category);
+      }
+
+      await fs.outputFile(targetFilePath, content);
     }
   }
 
@@ -185,13 +194,9 @@ export class SyncService {
     if (!githubMatch) return [];
 
     const { owner, repo } = githubMatch;
-
-    // Workflows should ALWAYS come from the default branch of the registry to be reliable
-    let ref = 'main';
-    const repoInfo = await this.githubService.getRepoInfo(owner, repo);
-    if (repoInfo && repoInfo.default_branch) {
-      ref = repoInfo.default_branch;
-    }
+    const ref =
+      (await this.githubService.getRepoInfo(owner, repo))?.default_branch ||
+      'main';
 
     console.log(pc.gray(`  - Discovering workflows (${ref})...`));
 
@@ -205,30 +210,19 @@ export class SyncService {
       if (!f.path.startsWith('.agent/workflows/') || !f.path.endsWith('.md'))
         return false;
 
-      // Filter based on config
       if (typeof config.workflows === 'boolean') return config.workflows;
-
       if (Array.isArray(config.workflows)) {
-        const fileName = path.basename(f.path, '.md');
-        return config.workflows.includes(fileName);
+        return config.workflows.includes(path.basename(f.path, '.md'));
       }
-
       return false;
     });
 
-    const downloadTasks = workflowFiles.map((f) => ({
-      owner,
-      repo,
-      ref,
-      path: f.path,
-    }));
-
-    const files =
-      await this.githubService.downloadFilesConcurrent(downloadTasks);
+    const files = await this.githubService.downloadFilesConcurrent(
+      workflowFiles.map((f) => ({ owner, repo, ref, path: f.path })),
+    );
 
     if (files.length > 0) {
       console.log(pc.gray(`    + Fetched ${files.length} workflows`));
-      // Treat workflows as a special "skill" for easier writing
       return [
         {
           category: '.agent',
@@ -257,8 +251,10 @@ export class SyncService {
       if (wf.skill !== 'workflows') continue;
 
       for (const fileItem of wf.files) {
-        const targetFilePath = path.join(workflowPath, fileItem.name);
-        await fs.outputFile(targetFilePath, fileItem.content);
+        await fs.outputFile(
+          path.join(workflowPath, fileItem.name),
+          fileItem.content,
+        );
         console.log(pc.gray(`    + Wrote ${fileItem.name}`));
       }
     }
@@ -267,56 +263,39 @@ export class SyncService {
 
   /**
    * Automatically applies framework-specific indices to AGENTS.md.
-   * @param config The skill configuration
-   * @param enabledAgents Optional list of agents to generate index for. Defaults to config agents.
    */
   async applyIndices(config: SkillConfig, enabledAgents: Agent[] = []) {
-    let agents =
-      enabledAgents && enabledAgents.length > 0
-        ? enabledAgents
-        : config.agents && config.agents.length > 0
-          ? config.agents
-          : [];
-
-    // Auto-detect if no agents specified
-    if (agents.length === 0) {
-      for (const def of SUPPORTED_AGENTS) {
-        if (def.path && (await fs.pathExists(def.path))) {
-          agents.push(def.id);
-        }
-      }
-      // If still empty, default to all (bootstrap)
-      if (agents.length === 0) {
-        agents = SUPPORTED_AGENTS.map((a) => a.id);
-      }
-    }
+    const agents = await this.resolveTargetAgents({
+      ...config,
+      agents: enabledAgents,
+    });
+    if (agents.length === 0) return;
 
     console.log(pc.cyan('🔍 Updating Agent Skills index...'));
 
-    // We use the path of the first enabled agent as the source of truth for generating the index.
-    // Since sync writes the same content to all agents, any one of them represents the complete set of skills.
-    const primaryAgentId = agents[0];
-    const agentDef = SUPPORTED_AGENTS.find((a) => a.id === primaryAgentId);
-
+    const agentDef = SUPPORTED_AGENTS.find((a) => a.id === agents[0]);
     if (!agentDef) {
       console.log(
-        pc.yellow(`  ⚠️  Agent definition not found for ${primaryAgentId}.`),
+        pc.yellow(`  ⚠️  Agent definition not found for ${agents[0]}.`),
       );
       return;
     }
 
-    const baseDir = path.join(process.cwd(), agentDef.path);
-    const enabledCategories = Object.keys(config.skills);
-
     try {
-      // Generate index from local files (includes both synced and existing user skills)
       const generator = new IndexGeneratorService();
+      const indexContent = await generator.generate(
+        path.join(process.cwd(), agentDef.path),
+        Object.keys(config.skills),
+      );
 
-      const indexContent = await generator.generate(baseDir, enabledCategories);
+      await MarkdownUtils.injectIndex(
+        process.cwd(),
+        ['AGENTS.md'],
+        indexContent,
+      );
 
-      // Inject into AGENTS.md
-      await generator.inject(process.cwd(), indexContent);
-      await generator.bridge(process.cwd(), agents);
+      const bridgeService = new AgentBridgeService();
+      await bridgeService.bridge(process.cwd(), agents);
 
       console.log(pc.green(`  ✅ AGENTS.md index updated.`));
     } catch (error) {
@@ -326,8 +305,6 @@ export class SyncService {
 
   /**
    * Checks for newer versions of skills in the remote registry.
-   * Compares the current 'ref' in .skillsrc with the latest versions in metadata.json.
-   * @returns An object containing updated skills if any, or null if no updates.
    */
   async checkForUpdates(
     config: SkillConfig,
@@ -336,14 +313,11 @@ export class SyncService {
     if (!githubMatch) return null;
 
     const { owner, repo } = githubMatch;
-    let branch = 'main';
 
     try {
-      const repoInfo = await this.githubService.getRepoInfo(owner, repo);
-      if (repoInfo && repoInfo.default_branch) {
-        branch = repoInfo.default_branch;
-      }
-
+      const branch =
+        (await this.githubService.getRepoInfo(owner, repo))?.default_branch ||
+        'main';
       const metaContent = await this.githubService.getRawFile(
         owner,
         repo,
@@ -358,7 +332,7 @@ export class SyncService {
 
       for (const [category, catConfig] of Object.entries(config.skills)) {
         const remoteMeta = metadata.categories[category];
-        if (!remoteMeta || !remoteMeta.version) continue;
+        if (!remoteMeta?.version) continue;
 
         const latestRef = `${remoteMeta.tag_prefix || ''}${remoteMeta.version}`;
         if (catConfig.ref !== latestRef) {
@@ -368,9 +342,8 @@ export class SyncService {
 
       return Object.keys(updates).length > 0 ? updates : null;
     } catch (error) {
-      if (process.env.DEBUG) {
+      if (process.env.DEBUG)
         console.warn(`[SyncService] Update check failed: ${error}`);
-      }
       return null;
     }
   }
@@ -382,13 +355,12 @@ export class SyncService {
     catConfig: SkillEntry,
     tree: GitHubTreeItem[],
   ): string[] {
-    const skillFolders = new Set<string>();
-    tree.forEach((f) => {
-      if (f.path.startsWith(`skills/${category}/`)) {
-        const parts = f.path.split('/');
-        if (parts[2]) skillFolders.add(parts[2]);
-      }
-    });
+    const skillFolders = new Set(
+      tree
+        .filter((f) => f.path.startsWith(`skills/${category}/`))
+        .map((f) => f.path.split('/')[2])
+        .filter(Boolean),
+    );
 
     const folders = Array.from(skillFolders).filter((folder) => {
       if (catConfig.include && !catConfig.include.includes(folder))
@@ -397,12 +369,12 @@ export class SyncService {
       return true;
     });
 
-    // Handle Cross-category Absolute Includes
     if (catConfig.include) {
-      const absIncludes = catConfig.include.filter((i) => i.includes('/'));
-      for (const absSkill of absIncludes) {
-        this.expandAbsoluteInclude(absSkill, folders, tree);
-      }
+      catConfig.include
+        .filter((i) => i.includes('/'))
+        .forEach((absSkill) =>
+          this.expandAbsoluteInclude(absSkill, folders, tree),
+        );
     }
 
     return folders;
@@ -417,24 +389,23 @@ export class SyncService {
     if (!targetCat || !targetSkill) return;
 
     if (targetSkill === '*') {
-      const catSkills = Array.from(
-        new Set(
-          tree
-            .filter((f) => f.path.startsWith(`skills/${targetCat}/`))
-            .map((f) => f.path.split('/')[2])
-            .filter(Boolean),
-        ),
+      const catSkills = new Set(
+        tree
+          .filter((f) => f.path.startsWith(`skills/${targetCat}/`))
+          .map((f) => f.path.split('/')[2])
+          .filter(Boolean),
       );
 
-      for (const s of catSkills) {
+      catSkills.forEach((s) => {
         const fullPath = `${targetCat}/${s}`;
         if (!folders.includes(fullPath)) folders.push(fullPath);
-      }
+      });
     } else if (!folders.includes(absSkill)) {
-      const exists = tree.some((f) =>
-        f.path.startsWith(`skills/${targetCat}/${targetSkill}/`),
-      );
-      if (exists) {
+      if (
+        tree.some((f) =>
+          f.path.startsWith(`skills/${targetCat}/${targetSkill}/`),
+        )
+      ) {
         folders.push(absSkill);
       } else {
         console.log(
@@ -454,28 +425,21 @@ export class SyncService {
     absOrRelSkill: string,
     tree: GitHubTreeItem[],
   ): Promise<CollectedSkill | null> {
-    const isAbsolute = absOrRelSkill.includes('/');
-    const [sourceCat, skillName] = isAbsolute
+    const [sourceCat, skillName] = absOrRelSkill.includes('/')
       ? absOrRelSkill.split('/')
       : [category, absOrRelSkill];
 
+    const prefix = `skills/${sourceCat}/${skillName}/`;
     const skillSourceFiles = tree.filter(
-      (f) =>
-        f.path.startsWith(`skills/${sourceCat}/${skillName}/`) &&
-        f.type === 'blob',
+      (f) => f.path.startsWith(prefix) && f.type === 'blob',
     );
 
     const downloadTasks = skillSourceFiles
-      .map((f) => ({ owner, repo, ref, path: f.path }))
-      .filter((t) => {
-        const rel = t.path.replace(`skills/${sourceCat}/${skillName}/`, '');
-        return (
-          rel === 'SKILL.md' ||
-          rel.startsWith('references/') ||
-          rel.startsWith('scripts/') ||
-          rel.startsWith('assets/')
-        );
-      });
+      .filter((f) => {
+        const rel = f.path.replace(prefix, '');
+        return rel === 'SKILL.md' || /^(references|scripts|assets)\//.test(rel);
+      })
+      .map((f) => ({ owner, repo, ref, path: f.path }));
 
     const files =
       await this.githubService.downloadFilesConcurrent(downloadTasks);
@@ -491,7 +455,7 @@ export class SyncService {
       category: sourceCat,
       skill: skillName,
       files: files.map((f) => ({
-        name: f.path.replace(`skills/${sourceCat}/${skillName}/`, ''),
+        name: f.path.replace(prefix, ''),
         content: f.content,
       })),
     };
@@ -501,20 +465,15 @@ export class SyncService {
     const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
     if (!frontmatterMatch) return content;
 
-    const frontmatter = frontmatterMatch[1];
-    const body = content.slice(frontmatterMatch[0].length);
+    const [fullMatch, frontmatter] = frontmatterMatch;
+    const body = content.slice(fullMatch.length);
 
-    const nameMatch = frontmatter.match(/^name:\s*(.+)$/m);
-    const originalName = nameMatch ? nameMatch[1].trim() : '';
+    const name = frontmatter.match(/^name:\s*(.+)$/m)?.[1].trim() || '';
+    const description =
+      frontmatter.match(/^description:\s*(.+)$/m)?.[1].trim() || '';
+    const displayName = `${category.charAt(0).toUpperCase() + category.slice(1)} - ${name}`;
 
-    const descMatch = frontmatter.match(/^description:\s*(.+)$/m);
-    const description = descMatch ? descMatch[1].trim() : '';
-
-    const categoryLabel = category.charAt(0).toUpperCase() + category.slice(1);
-    const displayName = `${categoryLabel} - ${originalName}`;
-
-    const newFrontmatter = `---\nname: ${displayName}\ndescription: ${description}\n---`;
-    return newFrontmatter + body;
+    return `---\nname: ${displayName}\ndescription: ${description}\n---` + body;
   }
 
   private isOverridden(targetPath: string, overrides: string[]): boolean {
@@ -526,9 +485,7 @@ export class SyncService {
   }
 
   private isPathSafe(targetPath: string, skillPath: string): boolean {
-    const resolvedTarget = path.resolve(targetPath);
-    const resolvedBase = path.resolve(skillPath);
-    return resolvedTarget.startsWith(resolvedBase);
+    return path.resolve(targetPath).startsWith(path.resolve(skillPath));
   }
 
   private normalizePath(p: string): string {

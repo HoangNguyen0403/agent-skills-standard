@@ -399,7 +399,7 @@ describe('ConfigService', () => {
         projectDeps,
       );
 
-      expect(reenabled).toEqual(['android/networking']);
+      expect(reenabled).toContain('android/networking');
       const category = config.skills.android as CategoryConfig;
       expect(category.exclude).toEqual(['persistence']);
     });
@@ -424,9 +424,35 @@ describe('ConfigService', () => {
         projectDeps,
       );
 
-      expect(reenabled).toEqual(['android/networking']);
+      expect(reenabled).toContain('android/networking');
       const category = config.skills.android as CategoryConfig;
       expect(category.exclude).toBeUndefined();
+    });
+
+    it('should automatically add "database" category if dependencies are found', () => {
+      const config: SkillConfig = {
+        registry: 'https://example.com',
+        agents: [Agent.Cursor],
+        skills: {
+          nestjs: { ref: 'v1.0.0' },
+        },
+      };
+
+      // redis is a dependency for database/redis
+      const projectDeps = new Set(['redis']);
+
+      const reenabled = configService.reconcileDependencies(
+        config,
+        projectDeps,
+      );
+
+      expect(reenabled).toContain('database');
+      expect(config.skills.database).toBeDefined();
+      expect(config.skills.database?.ref).toBe('main');
+      // Sub-skills not found should be excluded
+      expect(config.skills.database?.exclude).toContain('postgresql');
+      expect(config.skills.database?.exclude).toContain('mongodb');
+      expect(config.skills.database?.exclude).not.toContain('redis');
     });
 
     it('should return empty if no skills are re-enabled', () => {

@@ -2,7 +2,9 @@ import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
 import { Agent } from '../constants';
+import { AgentBridgeService } from '../services/AgentBridgeService';
 import { IndexGeneratorService } from '../services/IndexGeneratorService';
+import { MarkdownUtils } from '../services/utils/MarkdownUtils';
 
 interface SkillMetadata {
   name: string;
@@ -133,7 +135,8 @@ async function generate() {
 
   const indexContent = generator.assembleIndex(allEntries);
 
-  await generator.inject(repoRoot, indexContent);
+  await MarkdownUtils.injectIndex(repoRoot, ['AGENTS.md'], indexContent);
+
   console.log('✅ Updated AGENTS.md in repo root');
 
   const agents = [
@@ -146,7 +149,9 @@ async function generate() {
     Agent.Claude,
     Agent.Copilot,
   ];
-  await generator.bridge(repoRoot, agents);
+
+  const bridgeService = new AgentBridgeService();
+  await bridgeService.bridge(repoRoot, agents);
   console.log('✅ Updated agent rule files');
 }
 

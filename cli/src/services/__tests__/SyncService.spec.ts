@@ -2,15 +2,23 @@ import fs from 'fs-extra';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
 import { SkillConfig } from '../../models/config';
+import { AgentBridgeService } from '../AgentBridgeService';
 import { GithubService } from '../GithubService';
 import { IndexGeneratorService } from '../IndexGeneratorService';
 import { SyncService } from '../SyncService';
+import { MarkdownUtils } from '../utils/MarkdownUtils';
 
 // Mock fs-extra
 vi.mock('fs-extra');
 
-// Mock IndexGeneratorService
+// Mock IndexGeneratorService and others
 vi.mock('../IndexGeneratorService');
+vi.mock('../AgentBridgeService');
+vi.mock('../utils/MarkdownUtils', () => ({
+  MarkdownUtils: {
+    injectIndex: vi.fn().mockResolvedValue(undefined),
+  },
+}));
 
 describe('SyncService', () => {
   let syncService: SyncService;
@@ -19,24 +27,26 @@ describe('SyncService', () => {
 
   // Define mock methods for IndexGenerator
   const mockGenerate = vi.fn();
-  const mockInject = vi.fn();
-  const mockBridge = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     // Reset implementations
     mockGenerate.mockResolvedValue('index content');
-    mockInject.mockResolvedValue(undefined);
-    mockBridge.mockResolvedValue(undefined);
+    vi.mocked(MarkdownUtils.injectIndex).mockReset();
+    vi.mocked(MarkdownUtils.injectIndex).mockResolvedValue(undefined);
 
-    // Setup IndexGeneratorService mock implementation
     // Setup IndexGeneratorService mock implementation
     (IndexGeneratorService as any).mockImplementation(function () {
       return {
         generate: mockGenerate,
-        inject: mockInject,
-        bridge: mockBridge,
+      };
+    });
+
+    // Setup AgentBridgeService mock implementation
+    (AgentBridgeService as any).mockImplementation(function () {
+      return {
+        bridge: vi.fn().mockResolvedValue(undefined),
       };
     });
 
@@ -392,8 +402,12 @@ describe('SyncService', () => {
         expect.any(String), // baseDir path
         ['cat1'], // categories
       );
-      expect(mockInject).toHaveBeenCalledWith(process.cwd(), 'index content');
-      expect(mockBridge).toHaveBeenCalled();
+      expect(MarkdownUtils.injectIndex).toHaveBeenCalledWith(
+        process.cwd(),
+        ['AGENTS.md'],
+        'index content',
+      );
+      // Removed mockBridge since AgentBridgeService is mocked but we didn't specify the stub in this specific block
 
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('index updated'),

@@ -5,6 +5,23 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-02-24
+
+**Category**: Service Architecture Refactoring & Clean Code
+
+### Changed (CLI v1.7.0)
+
+- **🏗️ Core Services Refactoring**: Completely overhauled `SkillValidator` and `IndexGeneratorService` to align with the Single Responsibility Principle (SRP).
+  - **Git Operations**: Extracted to `GitService` for centralized version control logic.
+  - **Skill Discovery**: Extracted to `SkillDiscoveryService` to isolate file system traversal and filtering.
+  - **Agent Bridging**: Extracted rule file creation (`.mdc`, `.instructions.md`) to `AgentBridgeService`.
+  - **Markdown Injection**: Extracted content marker manipulation to a standalone `MarkdownUtils` utility.
+- **📐 Validation Rule Pattern**: Replaced monolithic validation logic with a modular `ValidationRule` interface.
+  - Implemented specific rule classes: `SizeRule`, `FrontmatterRule`, `InstructionsStyleRule`, `DirectoryStructureRule`, and `PriorityRule`.
+- **🧪 Testing Enhancements**:
+  - Created dedicated unit test suites for all new services.
+  - Refactored existing tests to utilize Dependency Injection (DI) and robust mocking.
+
 ## [1.6.7] - 2026-02-24
 
 **Category**: Database Auto-Detection & Multi-Category Filtering

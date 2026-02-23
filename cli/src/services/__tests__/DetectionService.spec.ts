@@ -405,7 +405,7 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
       process.env = originalEnv;
     });
 
-    it('should log debug info on package.json error when DEBUG is set', async () => {
+    it('should log debug info on package.json parsing failure', async () => {
       process.env.DEBUG = 'true';
       vi.mocked(fs.pathExists).mockImplementation((p) =>
         Promise.resolve(p.endsWith('package.json')),
@@ -413,14 +413,14 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
       vi.mocked(fs.readJson).mockRejectedValue(new Error('Internal error'));
 
       // @ts-expect-error - testing private method
-      await detectionService.parsePackageJson(process.cwd());
+      await detectionService.readPackageJsonDeps(process.cwd());
       expect(console.debug).toHaveBeenCalledWith(
-        expect.stringContaining('Failed to parse package.json'),
+        expect.stringContaining('Failed to read package.json'),
         expect.any(Error),
       );
     });
 
-    it('should log debug info on package.json read failure (line 246 coverage)', async () => {
+    it('should log debug info on package.json read failure', async () => {
       process.env.DEBUG = 'true';
       vi.mocked(fs.pathExists).mockImplementation((p) =>
         p.endsWith('package.json'),
@@ -428,7 +428,7 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
       vi.mocked(fs.readJson).mockRejectedValue(new Error('Read error'));
 
       // @ts-expect-error - private method
-      await detectionService.getPackageDeps();
+      await detectionService.readPackageJsonDeps(process.cwd());
       expect(console.debug).toHaveBeenCalledWith(
         expect.stringContaining('Failed to read package.json'),
         expect.any(Error),

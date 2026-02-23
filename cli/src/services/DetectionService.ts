@@ -16,19 +16,15 @@ export class DetectionService {
    * @returns A record of framework IDs and their detection status (boolean)
    */
   async detectFrameworks(): Promise<Record<string, boolean>> {
-    const packageDeps = await this.getPackageDeps();
+    const packageDepsMap = await this.readPackageJsonDeps(process.cwd());
 
-    const results: Record<string, boolean> = {};
-    for (const framework of SUPPORTED_FRAMEWORKS) {
-      let detected = false;
-
-      // 1. Check characteristic files
-      for (const file of framework.detectionFiles) {
-        if (await fs.pathExists(path.join(process.cwd(), file))) {
-          detected = true;
-          break;
-        }
-      }
+    const detectionPromises = SUPPORTED_FRAMEWORKS.map(async (framework) => {
+      // 1. Check characteristic files in parallel
+      const fileChecks = framework.detectionFiles.map((file) =>
+        fs.pathExists(path.join(process.cwd(), file)),
+      );
+      const fileResults = await Promise.all(fileChecks);
+      let detected = fileResults.some((exists) => exists);
 
       // 2. Check dependencies (if not yet detected)
       if (
@@ -37,13 +33,18 @@ export class DetectionService {
         framework.detectionDependencies.length > 0
       ) {
         detected = framework.detectionDependencies.some((dep) =>
-          Object.prototype.hasOwnProperty.call(packageDeps, dep),
+          Object.prototype.hasOwnProperty.call(packageDepsMap, dep),
         );
       }
 
-      results[framework.id] = detected;
-    }
-    return results;
+      return { id: framework.id, detected };
+    });
+
+    const results = await Promise.all(detectionPromises);
+    return results.reduce(
+      (acc, { id, detected }) => ({ ...acc, [id]: detected }),
+      {},
+    );
   }
 
   /**
@@ -56,17 +57,23 @@ export class DetectionService {
       return framework.languages;
     }
 
-    const detectedLanguages: string[] = [];
-    for (const [lang, files] of Object.entries(
+    const languageEntries = Object.entries(
       framework.languageDetection as Record<string, string[]>,
-    )) {
-      for (const file of files) {
-        if (await fs.pathExists(path.join(process.cwd(), file))) {
-          detectedLanguages.push(lang);
-          break;
-        }
-      }
-    }
+    );
+
+    const detectionResults = await Promise.all(
+      languageEntries.map(async ([lang, files]) => {
+        const fileChecks = files.map((file) =>
+          fs.pathExists(path.join(process.cwd(), file)),
+        );
+        const results = await Promise.all(fileChecks);
+        return { lang, detected: results.some((exists) => exists) };
+      }),
+    );
+
+    const detectedLanguages = detectionResults
+      .filter((r) => r.detected)
+      .map((r) => r.lang);
 
     return detectedLanguages.length > 0
       ? detectedLanguages
@@ -78,18 +85,19 @@ export class DetectionService {
    * @returns A record of agent IDs and their detection status (boolean)
    */
   async detectAgents(): Promise<Record<string, boolean>> {
-    const results: Record<string, boolean> = {};
-    for (const agent of SUPPORTED_AGENTS) {
-      let detected = false;
-      for (const file of agent.detectionFiles) {
-        if (await fs.pathExists(path.join(process.cwd(), file))) {
-          detected = true;
-          break;
-        }
-      }
-      results[agent.id] = detected;
-    }
-    return results;
+    const detectionPromises = SUPPORTED_AGENTS.map(async (agent) => {
+      const fileChecks = agent.detectionFiles.map((file) =>
+        fs.pathExists(path.join(process.cwd(), file)),
+      );
+      const results = await Promise.all(fileChecks);
+      return { id: agent.id, detected: results.some((exists) => exists) };
+    });
+
+    const results = await Promise.all(detectionPromises);
+    return results.reduce(
+      (acc, { id, detected }) => ({ ...acc, [id]: detected }),
+      {},
+    );
   }
 
   /**
@@ -114,22 +122,27 @@ export class DetectionService {
   }
 
   private async parsePackageJson(cwd: string): Promise<Set<string>> {
-    const set = new Set<string>();
+    const depsMap = await this.readPackageJsonDeps(cwd);
+    return new Set(Object.keys(depsMap));
+  }
+
+  private async readPackageJsonDeps(
+    cwd: string,
+  ): Promise<Record<string, string>> {
     const packageJsonPath = path.join(cwd, 'package.json');
-    if (!(await fs.pathExists(packageJsonPath))) return set;
+    if (!(await fs.pathExists(packageJsonPath))) return {};
 
     try {
       const pkg = await fs.readJson(packageJsonPath);
-      const deps = {
+      return {
         ...(pkg.dependencies || {}),
         ...(pkg.devDependencies || {}),
       };
-      Object.keys(deps).forEach((k) => set.add(k));
     } catch (error) {
       if (process.env.DEBUG)
-        console.debug('Failed to parse package.json:', error);
+        console.debug('Failed to read package.json:', error);
+      return {};
     }
-    return set;
   }
 
   private async parsePubspecYaml(cwd: string): Promise<Set<string>> {
@@ -176,22 +189,31 @@ export class DetectionService {
       /(?:implementation|api|ksp|kapt|annotationProcessor|compileOnly|runtimeOnly)\s*\(?\s*['"]([^'":\s]+)(?::[^'"]*)?['"]\s*\)?/g;
 
     const scanDir = async (dir: string, depth: number) => {
-      if (depth > 3) return;
+      if (depth > 2) return; // Reduced depth for performance
       try {
         const entries = await fs.readdir(dir, { withFileTypes: true });
         for (const entry of entries) {
-          const fullPath = path.join(dir, entry.name);
           if (entry.isDirectory()) {
             if (
-              ['node_modules', '.git', 'build', '.gradle'].includes(entry.name)
+              [
+                'node_modules',
+                '.git',
+                'build',
+                '.gradle',
+                'ios',
+                'macos',
+              ].includes(entry.name)
             )
               continue;
-            await scanDir(fullPath, depth + 1);
+            await scanDir(path.join(dir, entry.name), depth + 1);
           } else if (
             entry.name === 'build.gradle' ||
             entry.name === 'build.gradle.kts'
           ) {
-            const content = await fs.readFile(fullPath, 'utf8');
+            const content = await fs.readFile(
+              path.join(dir, entry.name),
+              'utf8',
+            );
             let match;
             while ((match = gradleRegex.exec(content)) !== null) {
               set.add(match[1]);
@@ -253,21 +275,5 @@ export class DetectionService {
       if (process.env.DEBUG) console.debug('Failed to parse maven pom:', error);
     }
     return set;
-  }
-
-  // kept for internal usage if needed, or can be replaced by getProjectDeps
-  private async getPackageDeps(): Promise<Record<string, string>> {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    if (await fs.pathExists(packageJsonPath)) {
-      try {
-        const pkg = await fs.readJson(packageJsonPath);
-        return { ...pkg.dependencies, ...pkg.devDependencies };
-      } catch (error) {
-        if (process.env.DEBUG)
-          console.debug('Failed to read package.json:', error);
-        return {};
-      }
-    }
-    return {};
   }
 }

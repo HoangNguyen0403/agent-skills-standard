@@ -151,6 +151,8 @@ export class ConfigService {
    * @param projectDeps Current set of project dependencies
    */
   applyDependencyExclusions(config: SkillConfig, projectDeps: Set<string>) {
+    const depsArray = Array.from(projectDeps);
+
     for (const categoryId in config.skills) {
       const category = config.skills[categoryId];
       const detections = SKILL_DETECTION_REGISTRY[categoryId] || [];
@@ -159,18 +161,7 @@ export class ConfigService {
       const exclusions = new Set<string>(category.exclude || []);
 
       for (const detection of detections) {
-        const hasDep = Array.from(projectDeps).some((d) =>
-          detection.packages.some((pkg) => {
-            const depLower = d.toLowerCase();
-            const pkgLower = pkg.toLowerCase();
-            if (pkg.length <= 3) {
-              return depLower === pkgLower;
-            }
-            return depLower.includes(pkgLower);
-          }),
-        );
-
-        if (!hasDep) {
+        if (!this.hasDependency(detection.packages, depsArray)) {
           exclusions.add(detection.id);
         }
       }
@@ -190,45 +181,77 @@ export class ConfigService {
     projectDeps: Set<string>,
   ): string[] {
     const totalReenabled: string[] = [];
+    const allKnownCategories = Object.keys(SKILL_DETECTION_REGISTRY);
+    const depsArray = Array.from(projectDeps);
 
-    for (const categoryId in config.skills) {
-      const category = config.skills[categoryId];
-      if (!category || !category.exclude) continue;
-
-      const reenabled: string[] = [];
+    for (const categoryId of allKnownCategories) {
+      let category = config.skills[categoryId];
       const detections = SKILL_DETECTION_REGISTRY[categoryId] || [];
+      if (detections.length === 0) continue;
+
+      const isNewCategory = !category;
+      if (isNewCategory) {
+        const shouldEnableCategory = detections.some((detection) =>
+          this.hasDependency(detection.packages, depsArray),
+        );
+
+        if (shouldEnableCategory) {
+          config.skills[categoryId] = { ref: 'main' };
+          category = config.skills[categoryId];
+
+          const exclusions = detections
+            .filter((d) => !this.hasDependency(d.packages, depsArray))
+            .map((d) => d.id);
+
+          if (exclusions.length > 0) {
+            category.exclude = exclusions;
+          }
+          totalReenabled.push(categoryId);
+        }
+        continue;
+      }
+
+      // Existing category reconciliation
+      if (!category.exclude) continue;
+
       const currentExclusions = new Set(category.exclude);
+      const reenabled: string[] = [];
 
       for (const detection of detections) {
-        if (currentExclusions.has(detection.id)) {
-          const hasDep = Array.from(projectDeps).some((d) =>
-            detection.packages.some((pkg) => {
-              const depLower = d.toLowerCase();
-              const pkgLower = pkg.toLowerCase();
-              if (pkg.length <= 3) {
-                return depLower === pkgLower;
-              }
-              return depLower.includes(pkgLower);
-            }),
-          );
-
-          if (hasDep) {
-            currentExclusions.delete(detection.id);
-            reenabled.push(`${categoryId}/${detection.id}`);
-          }
+        if (
+          currentExclusions.has(detection.id) &&
+          this.hasDependency(detection.packages, depsArray)
+        ) {
+          currentExclusions.delete(detection.id);
+          reenabled.push(`${categoryId}/${detection.id}`);
         }
       }
 
       if (reenabled.length > 0) {
-        category.exclude = Array.from(currentExclusions);
-        if (category.exclude.length === 0) {
-          delete category.exclude;
-        }
+        category.exclude =
+          currentExclusions.size > 0
+            ? Array.from(currentExclusions)
+            : undefined;
         totalReenabled.push(...reenabled);
       }
     }
 
     return totalReenabled;
+  }
+
+  /**
+   * Checks if any of the provided packages are present in the project dependencies.
+   */
+  private hasDependency(packages: string[], projectDeps: string[]): boolean {
+    return projectDeps.some((d) =>
+      packages.some((pkg) => {
+        const depLower = d.toLowerCase();
+        const pkgLower = pkg.toLowerCase();
+        return pkg.length <= 3
+          ? depLower === pkgLower
+          : depLower.includes(pkgLower);
+      }),
+    );
   }
 
   /**
