@@ -10,6 +10,7 @@ import {
 } from '../models/types';
 import { AgentBridgeService } from './AgentBridgeService';
 import { ConfigService } from './ConfigService';
+import { DetectionService } from './DetectionService';
 import { GithubService } from './GithubService';
 import { IndexGeneratorService } from './IndexGeneratorService';
 import { MarkdownUtils } from './utils/MarkdownUtils';
@@ -21,6 +22,7 @@ import { MarkdownUtils } from './utils/MarkdownUtils';
  */
 export class SyncService {
   private configService = new ConfigService();
+  private detectionService = new DetectionService();
   private githubService = new GithubService(process.env.GITHUB_TOKEN);
 
   /**
@@ -127,7 +129,10 @@ export class SyncService {
     }
 
     // Fallback to content-based detection
-    const detectedAgents: Agent[] = [];
+    const agentMap = await this.detectionService.detectAgents();
+    const detectedAgents = Object.entries(agentMap)
+      .filter(([, detected]) => detected)
+      .map(([id]) => id as Agent);
 
     // If detection failed and config is empty, default to all supported agents
     return detectedAgents.length > 0

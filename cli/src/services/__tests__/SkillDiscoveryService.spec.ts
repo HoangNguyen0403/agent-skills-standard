@@ -42,6 +42,25 @@ describe('SkillDiscoveryService', () => {
       const files = await discovery.findAllSkills('skills');
       expect(files).toEqual([]);
     });
+
+    it('should continue discovery even if some directories fail to read', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      vi.mocked(fs.readdir).mockImplementation(async (dir: any) => {
+        if (dir === 'skills') return ['fail-dir', 'SKILL.md'] as any;
+        if (dir === 'skills/fail-dir') throw new Error('Permission denied');
+        return [];
+      });
+      vi.mocked(fs.stat).mockImplementation(
+        async (p: any) =>
+          ({
+            isDirectory: () => p === 'skills/fail-dir',
+          }) as any,
+      );
+
+      const files = await discovery.findAllSkills('skills');
+      expect(files).toHaveLength(1);
+      expect(files[0]).toBe(path.join('skills', 'SKILL.md'));
+    });
   });
 
   describe('findChangedSkills', () => {

@@ -13,6 +13,7 @@ vi.mock('fs-extra');
 
 // Mock IndexGeneratorService and others
 vi.mock('../IndexGeneratorService');
+vi.mock('../DetectionService');
 vi.mock('../AgentBridgeService');
 vi.mock('../utils/MarkdownUtils', () => ({
   MarkdownUtils: {
@@ -64,9 +65,13 @@ describe('SyncService', () => {
       reconcileDependencies: vi.fn(),
       saveConfig: vi.fn(),
     };
+    const mockDetectionService = {
+      detectAgents: vi.fn().mockResolvedValue({}),
+    };
 
     (syncService as any).githubService = mockGithubService;
     (syncService as any).configService = mockConfigService;
+    (syncService as any).detectionService = mockDetectionService;
 
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -264,7 +269,7 @@ describe('SyncService', () => {
     });
 
     it('should fallback to all agents if no agents are configured and none are detected (line 122 coverage)', async () => {
-      vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(false));
+      (syncService as any).detectionService.detectAgents.mockResolvedValue({});
       const config = { agents: [], custom_overrides: [] } as any;
       const skills = [
         {
@@ -275,6 +280,40 @@ describe('SyncService', () => {
       ];
       await syncService.writeSkills(skills, config);
       expect(fs.ensureDir).toHaveBeenCalled();
+      // Should mention multiple agents as it falls back to all
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Cursor'),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Antigravity'),
+      );
+    });
+
+    it('should sync only to detected agents if no config provided', async () => {
+      (syncService as any).detectionService.detectAgents.mockResolvedValue({
+        [Agent.Cursor]: true,
+      });
+      const config = { agents: [], custom_overrides: [] } as any;
+      const skills = [
+        {
+          category: 'cat',
+          skill: 's',
+          files: [{ name: 'f.md', content: 'c' }],
+        },
+      ];
+      await syncService.writeSkills(skills, config);
+      expect(fs.ensureDir).toHaveBeenCalledWith(
+        expect.stringContaining('.cursor/skills'),
+      );
+      expect(fs.ensureDir).not.toHaveBeenCalledWith(
+        expect.stringContaining('.agent/skills'),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Cursor'),
+      );
+      expect(console.log).not.toHaveBeenCalledWith(
+        expect.stringContaining('Antigravity'),
+      );
     });
 
     it('should skip writing if path is not safe (line 173 coverage)', async () => {
@@ -432,9 +471,9 @@ describe('SyncService', () => {
     });
 
     it('should auto-detect agents if none specified (line 294-297 coverage)', async () => {
-      vi.mocked(fs.pathExists).mockImplementationOnce(() =>
-        Promise.resolve(true),
-      ); // first agent exists
+      (syncService as any).detectionService.detectAgents.mockResolvedValue({
+        [Agent.Cursor]: true,
+      });
       const config = {
         agents: [],
         skills: { flutter: {} },

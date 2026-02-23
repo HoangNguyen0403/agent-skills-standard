@@ -73,7 +73,8 @@ export class InstructionsStyleRule implements ValidationRule {
   name = 'Instruction Style';
 
   async validate(content: string): Promise<RuleResult> {
-    const body = content.split('---\n')[2] || '';
+    const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+    const body = frontmatterMatch ? frontmatterMatch[2] : content;
     const bodyLines = body.split('\n');
     let isInCodeBlock = false;
     let hasConversationalStyle = false;

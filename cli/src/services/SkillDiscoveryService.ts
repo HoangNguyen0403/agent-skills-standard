@@ -18,16 +18,28 @@ export class SkillDiscoveryService {
     const skillFiles: string[] = [];
 
     const findRecursive = async (dir: string) => {
-      const items = await fs.readdir(dir);
+      try {
+        const items = await fs.readdir(dir);
 
-      for (const item of items) {
-        const fullPath = path.join(dir, item);
-        const stat = await fs.stat(fullPath);
+        for (const item of items) {
+          const fullPath = path.join(dir, item);
+          try {
+            const stat = await fs.stat(fullPath);
 
-        if (stat.isDirectory()) {
-          await findRecursive(fullPath);
-        } else if (item === 'SKILL.md') {
-          skillFiles.push(fullPath);
+            if (stat.isDirectory()) {
+              await findRecursive(fullPath);
+            } else if (item === 'SKILL.md') {
+              skillFiles.push(fullPath);
+            }
+          } catch (error) {
+            if (process.env.DEBUG) {
+              console.warn(`Failed to stat path: ${fullPath}`, error);
+            }
+          }
+        }
+      } catch (error) {
+        if (process.env.DEBUG) {
+          console.warn(`Failed to read directory: ${dir}`, error);
         }
       }
     };
