@@ -41,7 +41,13 @@ For the specific directory layout and layer definitions, see the reference docum
 - [**Runtime Selection (Edge/Node)**](references/RUNTIME_SELECTION.md)
 - [**Debug Tricks & MCP**](references/DEBUG_TRICKS.md)
 
-## Integration with Next.js Core
+## Architecture Checklist (Mandatory)
+
+- [ ] **Layer Imports**: Does any layer import from a layer ABOVE it? (App > Widgets > Features > Entities > Shared)
+- [ ] **Page Logic**: Is `page.tsx` thin, containing only Widgets/Features and zero `useEffect`/`fetch`?
+- [ ] **RSC Boundaries**: Are Server Components isolated from Client Components with proper 'use client' boundaries?
+- [ ] **Public API**: Is all access to a slice performed via the top-level `index.ts` (public API)?
+- [ ] **Cross-Slice**: Do slices within the same layer (e.g., two features) import from each other directly? (Prohibited)
 
 - **Server Actions**: Place them in the `model/` folder of a Feature (e.g., `features/auth/model/actions.ts`).
 - **Data Access (DAL)**: Place logic in the `model/` folder of an Entity (e.g., `entities/user/model/dal.ts`).

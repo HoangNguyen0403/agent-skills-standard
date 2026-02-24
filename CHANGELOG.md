@@ -5,6 +5,42 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.7] - 2026-02-24
+
+**Category**: Skill Standardization & Feedback Loop Hardening & Battle-Test Workflow
+
+#### Added
+
+- **🛡️ Battle-Test Workflow**: New automated workflow for comprehensive skill auditing against registry standards.
+- **🔄 Feedback Loop Integration**: Mandatory Skill Feedback Sweep in `code-review` and `codebase-review` workflows.
+
+#### Changed (Skills)
+
+- **⚡ Feedback Reporter (v1.5.2)**: Major overhaul. Reduced line count by 40% (<70 lines), hardened triggers, and added mandatory pre-completion gate.
+- **📐 Global Architecture Standardization**: Standardized architecture skills across Android, iOS, Go, Spring Boot, Angular, and React Native.
+- **🏗️ Content Depth Improvements**: Added specialized reference checklists for Android Compose, Go Testing, and Spring Boot Security.
+- **🎯 Trigger Threshold Expansion**: Hardened activation triggers for `common/security-standards` and `quality-engineering/quality-assurance`.
+
+#### Changed (CLI v1.7.1)
+
+- **📚 Documentation Update**: Achieved 100% JSDoc coverage for core services via `/update-docs` workflow.
+- **🏗️ Service Hardening**: Improved `IndexGeneratorService` and `SkillValidator` robustness.
+
+#### Versions
+
+- **Common Skills**: v1.5.2 (Patch)
+- **Framework Skills**:
+  - **Android**: v1.0.3 (Patch)
+  - **Angular**: v1.1.1 (Patch)
+  - **Golang**: v1.0.3 (Patch)
+  - **iOS**: v1.1.1 (Patch)
+  - **Next.js**: v1.1.2 (Patch)
+  - **Quality Engineering**: v1.0.1 (Patch)
+  - **React Native**: v1.1.1 (Patch)
+  - **React**: v1.0.3 (Patch)
+  - **Spring Boot**: v1.0.2 (Patch)
+- **CLI/Server**: v1.7.1 (Patch)
+
 ## [1.7.0] - 2026-02-24
 
 **Category**: Service Architecture Refactoring & Clean Code

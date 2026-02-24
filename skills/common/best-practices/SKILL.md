@@ -31,7 +31,12 @@ metadata:
   - `snake_case`: Variables/Functions (Python/Ruby).
   - `PascalCase`: Classes/Types (universal).
   - `kebab-case`: Files/CSS/URLs.
-- **Function Size**: Keep functions small (target < 20 lines) and single-responsibility.
+- **Function Size**: Keep functions small (target < 30 lines) and single-responsibility.
+- **File Size**: Maintain manageable file lengths to reduce cognitive load and agent noise:
+  - **Logic/Services**: Target < 600 LOC. (Critical Breach: 800)
+  - **Utilities/Helpers**: Target < 400 LOC. (Critical Breach: 600)
+  - **Unit Tests**: Target < 1200 LOC.
+  - **Integration Tests**: Target < 2000 LOC.
 - **Guard Clauses**: Prefer early returns to avoid deep nesting (Pyramid of Doom).
 - **Comments**: Explain **why**, not **what**. Refactor unclear code before commenting.
 
@@ -57,10 +62,10 @@ metadata:
 
 ## 🚫 Anti-Patterns
 
-- **Magic Numbers**: `**No Hardcoded Constants**: Use named constants or config.`
-- **Pyramid of Doom**: `**No Deep Nesting**: Use guard clauses and early returns.`
-- **Mutable Globals**: `**No Global State**: Use dependency injection or state management.`
-- **Silent Failures**: `**No Empty Catch**: Always handle, log, or rethrow errors.`
+- **No Hardcoded Constants**: Use named constants or config.
+- **No Deep Nesting**: Use guard clauses and early returns.
+- **No Global State**: Use dependency injection or state management.
+- **No Empty Catch**: Always handle, log, or rethrow errors.
 
 ## 📚 References
 

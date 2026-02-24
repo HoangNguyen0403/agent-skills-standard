@@ -12,17 +12,31 @@ import {
 } from './validation/rules';
 import { ValidationRule } from './validation/types';
 
+/**
+ * Result of validating a single skill file.
+ */
 export interface SkillValidationResult {
+  /** Relative path to the skill file. */
   file: string;
+  /** List of validation error messages. */
   errors: string[];
+  /** List of validation warning messages. */
   warnings: string[];
+  /** Whether the file passed all mandatory validation rules. */
   passed: boolean;
 }
 
+/**
+ * Aggregated summary of all validation results.
+ */
 export interface ValidationSummary {
+  /** Total number of skills validated. */
   total: number;
+  /** Number of skills that passed validation. */
   passed: number;
+  /** Number of skills that failed validation. */
   failed: number;
+  /** Cumulative number of warnings across all skills. */
   warnings: number;
 }
 

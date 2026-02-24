@@ -46,10 +46,10 @@ See [Security Configuration](references/implementation.md) for full `SecurityFil
 
 ## Anti-Patterns
 
-- **Adapter Extension**: `**No Adapter**: Use SecurityFilterChain bean.`
-- **Chained Calls**: `**No .and()**: Use Lambda DSL.`
-- **Hardcoded Secrets**: `**No Secrets**: Use Vault/Env.`
-- **Legacy Matchers**: `**No antMatchers**: Use requestMatchers.`
+- **No Adapter**: Use `SecurityFilterChain` bean instead of extending legacy classes.
+- **No .and()**: Use Lambda DSL for configuration.
+- **No Secrets**: Load from Vault or Environment variables (never git).
+- **No antMatchers**: Use `requestMatchers` (Spring Security 6+).
 
 ## References
 

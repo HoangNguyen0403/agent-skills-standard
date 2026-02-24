@@ -37,7 +37,13 @@ See [Standard Project Layout](references/project-layout.md) for directory tree.
 - **Inversion of Control**: Service depends on `Repository` interface, not `SQLRepository` struct.
 - **Wire up in Main**: Main function composes the dependency graph.
 
-## References
+## Verification Checklist (Mandatory)
+
+- [ ] **No Globals**: Are there any global singletons or package-level variables being mutated?
+- [ ] **DI**: Are dependencies explicitly passed via constructors?
+- [ ] **Interfaces**: Are interfaces defined at the consumer side (where they are used)?
+- [ ] **Layering**: Does `internal/domain` have zero external dependencies?
+- [ ] **Composition**: Are dependencies wired together in `main.go`?
 
 - [Standard Project Layout](references/project-layout.md)
 - [Clean Architecture Layers](references/clean-arch.md)

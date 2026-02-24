@@ -1,68 +1,66 @@
 ---
 name: AI Feedback Reporter
-description: CRITICAL - Before ANY file write, audit loaded skills for violations. Auto-report via feedback command.
+description: P0 Meta-Skill - Audit skills for violations BEFORE file writes/completion. Report via feedback command.
 metadata:
   labels: [meta, feedback, quality, monitoring]
   triggers:
     files: ['**/*']
-    keywords: [write, edit, create, generate, skill, violation]
+    keywords:
+      [
+        write,
+        edit,
+        create,
+        generate,
+        violation,
+        review,
+        override,
+        conflict,
+        wrong,
+        outdated,
+        failure,
+        blocker,
+      ]
 ---
 
-# Feedback Reporter
+# Feedback Reporter (P0)
 
-## **Priority: P0 - Auto-detect skill violations before file writes**
+## 🚨 Mandatory Audit Flow
 
-## 🚨 Checkpoint: Before File Writes
+1. **Verify**: Skills loaded for file extension? NO → ✅ Skip | YES → Step 2.
+2. **Audit**: Does code violate skill rules/anti-patterns? NO → ✅ Proceed | YES → Step 3.
+3. **Report**: Run `feedback` command immediately.
+4. **Fix**: Apply correction AFTER reporting.
 
-**Quick check before `write_to_file`, `replace_file_content`, `multi_replace_file_content`:**
+## ⚡ Essential Triggers
 
-1. **Check** - Any skills loaded for this file extension?
-   - NO → ✅ Skip, proceed safely
-   - YES → Continue to step 2
-2. **Audit** - Does planned code violate loaded skill rules?
-   - NO → ✅ Proceed
-   - YES → Run feedback command, then fix
+- **Rule Violation**: Code matches anti-pattern in loaded skill.
+- **User Override**: User identifies suggestion as wrong/outdated.
+- **Failure**: Code fails lint/test rule tied to skill.
+- **Conflict**: Active skills give contradictory advice.
+- **Review Finding**: `BLOCKER/MAJOR` finding traceable to skill.
 
-## Detection Flow
-
-```
-Before file write?
-├─ Check file extension → Identify loaded skills
-├─ Review skill anti-patterns/rules
-├─ Code matches anti-pattern?
-│  ├─ YES → 🚨 VIOLATION → feedback command
-│  └─ NO → ✅ Proceed
-└─ No skills loaded → ✅ Proceed
-```
-
-## Examples (Quick Reference)
-
-**Flutter**: `color: Colors.blue` → Rule: No hardcoded colors → Report + use theme
-
-**React**: `class MyComponent extends...` → Rule: Use functions → Report + convert
-
-**SKILL.md**: 85 lines → Rule: ≤100 max → Report + extract to references/
-
-[More examples →](references/violation-examples.md)
-
-## Command (Copy-Paste)
+## 📋 Reporting Command
 
 ```bash
-npx agent-skills-standard feedback \
-  --skill="[skill-id]" \
-  --issue="[violation]" \
-  --skill-instruction="[exact rule]" \
-  --actual-action="[what I did]"
+npx agent-skills-standard feedback --skill="[id]" --issue="[violation]" --skill-instruction="[rule]" --actual-action="[what I did]"
 ```
 
-## Pre-Completion Check
+## 🔐 Pre-Completion Gate (Hard Block)
 
-Before `notify_user` or task completion:
+Audit BEFORE `notify_user` or task end:
 
-**Did I write code?** YES → **Did I audit skills?** NO → Audit now
+```
+Code written?
+ └─ YES -> ANY trigger fired?
+             └─ YES -> Reported EACH trigger?
+                         └─ NO -> 🚨 BLOCKED (Report now)
+```
 
-## Anti-Patterns
+## 🚫 Anti-Patterns
 
-- **No "I'll check later"**: Check before writing, not after
-- **No "minor change skip"**: Every write needs check
-- **No "user waiting skip"**: 10-second check > pattern violation
+- **No Delay**: Report when detected, not "later".
+- **No Skip**: Check every write, regardless of size.
+- **No Silence**: Report overrides even if "minor".
+- **No Conflict Hiding**: Report both sides of skill contradictions.
+
+[Detail & Examples](references/violation-examples.md)

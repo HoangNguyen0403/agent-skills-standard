@@ -190,7 +190,67 @@ npx agent-skills-standard feedback \
   --suggestion="Add security disclaimer and reference react/security skill"
 ```
 
-## Validation Checklist
+## Scenario 8: Code Review BLOCKER Traces to Skill Gap
+
+**Setup:**
+
+- `/code-review` runs on a PR
+- A BLOCKER finding is identified that a loaded skill should have caught
+
+**Test Conversation:**
+
+```
+Code review finds:
+🔴 [BLOCKER] auth/auth.service.ts — Password stored in plain text before hashing
+Active skill: common/security-standards
+Skill rule: "Hash passwords with Argon2id before storage"
+```
+
+**Expected Behavior:**
+
+```bash
+# AI runs feedback immediately after producing the BLOCKER:
+npx agent-skills-standard feedback \
+  --skill="common/security-standards" \
+  --issue="Security skill active but did not prevent plain-text password storage" \
+  --skill-instruction="Hash passwords with Argon2id before storage" \
+  --actual-action="Plain text password passed to DB before hashing step" \
+  --suggestion="Add anti-pattern: **No Plain Passwords**: Hash before any DB/log operation"
+```
+
+**Why this matters**: The skill was loaded, the rule existed, but the agent still wrote violating code. That's a trigger clarity or priority failure — report it.
+
+---
+
+## Scenario 9: User Override (Highest-Signal Feedback)
+
+**Setup:**
+
+- Agent provides a code suggestion based on a loaded skill
+- User explicitly corrects it
+
+**Test Conversation:**
+
+```
+AI: "Use @Transactional on the Controller method to wrap the request."
+User: "No, @Transactional belongs on the Service layer, not the Controller."
+```
+
+**Expected Behavior:**
+
+```bash
+# AI runs feedback IMMEDIATELY upon receiving the correction:
+npx agent-skills-standard feedback \
+  --skill="spring-boot/architecture" \
+  --issue="Suggested @Transactional on Controller — violates layer separation" \
+  --skill-instruction="Business transactions must be bounded in Service layer" \
+  --actual-action="Suggested adding @Transactional to controller method" \
+  --suggestion="Add anti-pattern: **No Transactional Controller**: Move @Transactional to Service layer"
+```
+
+**Why this matters**: User overrides are the highest-quality signal in the system. Every correction means the skill was unclear, wrong, or missing the exact rule. Never dismiss or defer reporting after a correction.
+
+---
 
 ✅ **Trigger Activation**: Skill loads when context contains trigger keywords  
 ✅ **Detection**: AI recognizes one of the 4 detection conditions  

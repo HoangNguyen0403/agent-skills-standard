@@ -27,3 +27,24 @@ description: Run an AI-assisted PR code review using the Code Review Expert skil
      - Parse the report into a checklist.
      - Add/Update the specific items in `task.md`.
      - Recommend using `skills/common/tdd/SKILL.md` if code changes are required.
+
+5. **🔁 Skill Feedback Sweep (Mandatory)**:
+
+   For each **🔴 BLOCKER** or **🟠 MAJOR** finding, ask:
+
+   > _"Was there an active skill that should have prevented this violation?"_
+   - **YES** → Run the feedback command immediately:
+     ```bash
+     npx agent-skills-standard feedback \
+       --skill="[category/skill-id]" \
+       --issue="[specific finding from review]" \
+       --skill-instruction="[exact rule the skill has or is missing]" \
+       --actual-action="[what the code did instead]" \
+       --suggestion="[proposed improvement to skill]"
+     ```
+   - **NO** → Note it: _no relevant skill exists yet_ → Consider if a new skill should be created.
+
+   > [!IMPORTANT]
+   > This step is **not optional**. Every BLOCKER that traces to a known skill pattern is a signal
+   > that the skill either: (a) didn't trigger correctly, (b) had the wrong rule, or (c) is missing from `.skillsrc`.
+   > All three are upstream skill quality problems that must be reported.

@@ -5,12 +5,12 @@ metadata:
   labels: [spring-boot, architecture, layering]
   triggers:
     files: ['pom.xml', 'build.gradle']
-    keywords: [structure, layering, dto, controller]
+    keywords: [structure, layering, dto, controller, @RestController, @Service, @Repository, @Entity, @Bean, @Configuration]
 ---
 
 # Spring Boot Architecture Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Guidelines
 
@@ -33,12 +33,18 @@ metadata:
 - **Validation**: Use Jakarta Bean Validation (`@NotNull`, `@Size`) on DTOs.
 - **Response**: Use `ResponseEntity` for explicit status or `ResponseStatusException`.
 
-## Anti-Patterns
+## Verification Checklist (Mandatory)
 
-- **Fat Controllers**: Business logic in Controllers.
-- **Leaking Entities**: Returning JPA Entities in APIs (LazyInitException risk).
-- **Circular Dependencies**: Services depending on each other (Use Events to decouple).
-- **God Classes**: Putting all logic in one `*Service`.
+- [ ] **No Entities in API**: Are all API responses using DTOs/Records instead of JPA Entities?
+- [ ] **Validation**: Are `@Valid` and Jakarta Bean Validation constraints present on all input DTOs?
+- [ ] **Layer coupling**: Do Services depend on Controllers? (Prohibited)
+- [ ] **Transactionality**: Are business transactions correctly bounded with `@Transactional` in the Service layer?
+- [ ] **Error Details**: Is `ProblemDetails` used for consistent error responses?
+
+- **No Fat Controllers**: Move business logic to Services.
+- **No Leaking Entities**: Use DTOs instead of JPA Entities in APIs.
+- **No Circular Dependencies**: Use Events or refactor to decouple services.
+- **No God Classes**: Split large services into single-responsibility components.
 
 ## References
 

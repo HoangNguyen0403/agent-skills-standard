@@ -45,10 +45,69 @@ export class SyncService {
           `✨ Dynamic Re-detection: Re-enabling [${reenabled.join(', ')}].`,
         ),
       );
-      await this.configService.saveConfig(config);
     }
 
     return configChanged;
+  }
+
+  /**
+   * Reconciles workflows by discovering new ones in the registry and adding them to the config.
+   */
+  async reconcileWorkflows(config: SkillConfig): Promise<boolean> {
+    const githubMatch = GithubService.parseGitHubUrl(config.registry);
+    if (!githubMatch) return false;
+
+    const { owner, repo } = githubMatch;
+    const ref =
+      (await this.githubService.getRepoInfo(owner, repo))?.default_branch ||
+      'main';
+
+    const treeData = await this.githubService.getRepoTree(owner, repo, ref);
+    if (!treeData) return false;
+
+    const availableWorkflows = treeData.tree
+      .filter(
+        (f) => f.path.startsWith('.agent/workflows/') && f.path.endsWith('.md'),
+      )
+      .map((f) => path.basename(f.path, '.md'));
+
+    if (availableWorkflows.length === 0) return false;
+
+    let changed = false;
+
+    if (Array.isArray(config.workflows)) {
+      const currentWorkflows = new Set(config.workflows);
+      const newWorkflows = availableWorkflows.filter(
+        (wf) => !currentWorkflows.has(wf),
+      );
+
+      if (newWorkflows.length > 0) {
+        config.workflows.push(...newWorkflows);
+        console.log(
+          pc.yellow(
+            `✨ New Workflows Discovered: Adding [${newWorkflows.join(', ')}] to .skillsrc.`,
+          ),
+        );
+        changed = true;
+      }
+    } else if (config.workflows === undefined || config.workflows === true) {
+      // If it was true or undefined, we might want to convert it to an array if we want explicit tracking
+      // but usually 'true' means 'all'. However, the request says "not sync the new workflow to update to skillsrc"
+      // which implies the user wants them explicitly listed in .skillsrc if they are using Antigravity.
+
+      const agents = await this.resolveTargetAgents(config);
+      if (agents.includes(Agent.Antigravity)) {
+        config.workflows = availableWorkflows;
+        console.log(
+          pc.yellow(
+            `✨ Workflows Initialized: Adding [${availableWorkflows.join(', ')}] to .skillsrc.`,
+          ),
+        );
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**

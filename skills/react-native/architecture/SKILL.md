@@ -5,7 +5,18 @@ metadata:
   labels: [react-native, architecture, structure, features]
   triggers:
     files: ['src/**/*.tsx', 'src/**/*.ts', 'app.json']
-    keywords: [feature, module, directory structure, separation of concerns]
+    keywords:
+      [
+        feature,
+        module,
+        directory structure,
+        separation of concerns,
+        Expo,
+        React Navigation,
+        StyleSheet.create,
+        react-native,
+        mobile architecture,
+      ]
 ---
 
 # React Native Architecture
@@ -50,7 +61,19 @@ src/
 - **No Circular Deps**: Features should not import from each other directly.
 - **No Deep Nesting**: Max 3 levels deep.
 
-## Reference & Examples
+## Navigation Strategy
+
+- **Expo Router**: Use for new projects, web-parity, and file-based routing.
+- **React Navigation**: Use for complex deep-linking, legacy apps, or high-customization needs.
+
+## Verification Checklist (Mandatory)
+
+- [ ] **Feature-First**: Is the file inside a feature directory?
+- [ ] **Colocation**: Are hooks/services colocated with screens?
+- [ ] **Logic-Free Screens**: Is there any business logic in the screen component?
+- [ ] **Navigation Choice**: Does the project use the navigation strategy defined above?
+
+## References
 
 See [references/folder-structure.md](references/folder-structure.md) for full directory tree, path mapping, and service layer patterns.
 

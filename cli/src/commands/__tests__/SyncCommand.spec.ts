@@ -47,6 +47,7 @@ describe('SyncCommand', () => {
       checkForUpdates: vi.fn().mockResolvedValue(null),
       assembleWorkflows: vi.fn().mockResolvedValue([]),
       writeWorkflows: vi.fn(),
+      reconcileWorkflows: vi.fn().mockResolvedValue(false),
     } as unknown as Mocked<SyncService>;
     mockConfigService = {
       loadConfig: vi.fn().mockResolvedValue({
@@ -85,6 +86,13 @@ describe('SyncCommand', () => {
     expect(console.log).toHaveBeenCalledWith(
       expect.stringContaining('All skills synced successfully'),
     );
+  });
+
+  it('should save config when new workflows are discovered during reconciliation', async () => {
+    mockSyncService.reconcileWorkflows.mockResolvedValue(true);
+    await command.run();
+    expect(mockSyncService.reconcileWorkflows).toHaveBeenCalled();
+    expect(mockConfigService.saveConfig).toHaveBeenCalled();
   });
 
   it('should handle Error instances in catch block', async () => {

@@ -13,6 +13,8 @@ interface SkillMetadata {
   triggers: {
     files?: string[];
     keywords?: string[];
+    composite?: string[];
+    exclude?: string[];
   };
 }
 
@@ -30,6 +32,8 @@ async function parseSkill(skillPath: string): Promise<SkillMetadata | null> {
         triggers?: {
           files?: string[];
           keywords?: string[];
+          composite?: string[];
+          exclude?: string[];
         };
       };
     };
@@ -79,6 +83,12 @@ async function generate() {
         const triggers = [
           ...(metadata.triggers.files || []),
           ...(metadata.triggers.keywords || []),
+          ...(metadata.triggers.composite
+            ? metadata.triggers.composite.map((c) => `+${c}`)
+            : []),
+          ...(metadata.triggers.exclude
+            ? metadata.triggers.exclude.map((e) => `!${e}`)
+            : []),
         ].join(', ');
 
         const triggerText = triggers ? ` (triggers: ${triggers})` : '';
@@ -126,14 +136,18 @@ async function generate() {
   }
 
   const generator = new IndexGeneratorService();
-  const allEntries = Object.entries(frameworkIndices)
+  const allEntries = new Set<string>();
+
+  Object.entries(frameworkIndices)
     .filter(
       ([category]) =>
         !enabledCategories || enabledCategories.includes(category),
     )
-    .flatMap(([, s]) => s.split('\n'));
+    .forEach(([, s]) => {
+      s.split('\n').forEach((entry) => allEntries.add(entry));
+    });
 
-  const indexContent = generator.assembleIndex(allEntries);
+  const indexContent = generator.assembleIndex(Array.from(allEntries));
 
   await MarkdownUtils.injectIndex(repoRoot, ['AGENTS.md'], indexContent);
 

@@ -38,7 +38,16 @@ export class SyncCommand {
 
       // 2. Dynamic Update Configuration (Re-detection)
       const projectDeps = await this.detectionService.getProjectDeps();
-      await this.syncService.reconcileConfig(config, projectDeps);
+      const skillsChanged = await this.syncService.reconcileConfig(
+        config,
+        projectDeps,
+      );
+      const workflowsChanged =
+        await this.syncService.reconcileWorkflows(config);
+
+      if (skillsChanged || workflowsChanged) {
+        await this.configService.saveConfig(config);
+      }
 
       // 3. Check for updates
       const updates = await this.syncService.checkForUpdates(config);

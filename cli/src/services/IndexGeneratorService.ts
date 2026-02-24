@@ -2,13 +2,26 @@ import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
 
+/**
+ * Metadata structure for a skill, extracted from the frontmatter and content of a SKILL.md file.
+ */
 export interface SkillMetadata {
+  /** The human-readable name of the skill. */
   name: string;
+  /** A brief summary of what the skill covers. */
   description: string;
+  /** The priority level (e.g., P0, P1) determining its critical importance. */
   priority: string;
+  /** Trigger conditions for when this skill should be activated. */
   triggers: {
+    /** Glob patterns of files that trigger this skill. */
     files?: string[];
+    /** List of keywords that trigger this skill. */
     keywords?: string[];
+    /** Other skill IDs that, when active, also trigger this skill. */
+    composite?: string[];
+    /** Patterns to explicitly exclude from triggering this skill. */
+    exclude?: string[];
   };
 }
 
@@ -26,8 +39,8 @@ export class IndexGeneratorService {
    * @returns A formatted markdown string representing the index
    */
   async generate(baseDir: string, frameworks: string[]): Promise<string> {
-    const categories = ['common', ...frameworks];
-    const entries: string[] = [];
+    const categories = Array.from(new Set(['common', ...frameworks]));
+    const entries = new Set<string>();
 
     for (const category of categories) {
       const categoryPath = path.join(baseDir, category);
@@ -41,12 +54,12 @@ export class IndexGeneratorService {
         const metadata = await this.parseSkill(skillPath);
         if (metadata) {
           const entry = this.formatEntry(category, skill, metadata);
-          entries.push(entry);
+          entries.add(entry);
         }
       }
     }
 
-    return this.assembleIndex(entries);
+    return this.assembleIndex(Array.from(entries));
   }
 
   /**
@@ -124,11 +137,17 @@ export class IndexGeneratorService {
     const triggers = [
       ...(metadata.triggers.files || []),
       ...(metadata.triggers.keywords || []),
+      ...(metadata.triggers.composite
+        ? metadata.triggers.composite.map((c) => `+${c}`)
+        : []),
+      ...(metadata.triggers.exclude
+        ? metadata.triggers.exclude.map((e) => `!${e}`)
+        : []),
     ].join(', ');
 
     const triggerText = triggers ? ` (triggers: ${triggers})` : '';
 
-    // Format: - **[category/skill]**: 🚨 Description (triggers: file.ts, keyword)
+    // Format: - **[category/skill]**: 🚨 Description (triggers: file.ts, keyword, +composite, !exclude)
     const content = `${prefix}${metadata.description || ''}`.trim();
     return `- **[${id}]**: ${content}${triggerText}`;
   }

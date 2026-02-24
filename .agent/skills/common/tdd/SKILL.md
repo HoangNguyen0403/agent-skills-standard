@@ -1,6 +1,18 @@
 ---
 name: tdd
 description: Enforces Test-Driven Development (Red-Green-Refactor) for rigorous code quality.
+metadata:
+  labels: [testing, quality, tdd, productivity]
+  triggers:
+    keywords: [test, spec, tdd, red-green-refactor, failing test, test first]
+    files:
+      [
+        '**/*.spec.ts',
+        '**/*.test.ts',
+        '**/*_test.dart',
+        '**/*_test.go',
+        '**/*.test.py',
+      ]
 ---
 
 # Test-Driven Development (TDD)

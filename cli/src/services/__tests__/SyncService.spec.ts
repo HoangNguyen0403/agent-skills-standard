@@ -84,13 +84,72 @@ describe('SyncService', () => {
       mockConfigService.reconcileDependencies.mockReturnValue(['skill1']);
       const result = await syncService.reconcileConfig(config, deps);
       expect(result).toBe(true);
-      expect(mockConfigService.saveConfig).toHaveBeenCalled();
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
     });
 
     it('should handle no changes', async () => {
       const config = { skills: { test: {} } } as unknown as SkillConfig;
       mockConfigService.reconcileDependencies.mockReturnValue([]);
       const result = await syncService.reconcileConfig(config, new Set());
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('reconcileWorkflows', () => {
+    it('should discover and add new workflows if config.workflows is an array', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        workflows: ['existing'],
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: '.agent/workflows/existing.md' },
+          { path: '.agent/workflows/new.md' },
+        ],
+      });
+
+      const result = await syncService.reconcileWorkflows(config);
+
+      expect(result).toBe(true);
+      expect(config.workflows).toContain('existing');
+      expect(config.workflows).toContain('new');
+    });
+
+    it('should initialize workflows if undefined and Antigravity is enabled', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        agents: [Agent.Antigravity],
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [{ path: '.agent/workflows/w1.md' }],
+      });
+
+      const result = await syncService.reconcileWorkflows(config);
+
+      expect(result).toBe(true);
+      expect(config.workflows).toEqual(['w1']);
+    });
+
+    it('should return false if no new workflows found', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        workflows: ['w1'],
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [{ path: '.agent/workflows/w1.md' }],
+      });
+
+      const result = await syncService.reconcileWorkflows(config);
+
       expect(result).toBe(false);
     });
   });

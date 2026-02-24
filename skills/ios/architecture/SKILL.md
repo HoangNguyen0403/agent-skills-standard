@@ -15,7 +15,7 @@ metadata:
 
 # iOS Architecture Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Guidelines
 
@@ -38,10 +38,16 @@ metadata:
 
 ## Anti-Patterns
 
-- **Massive View Controller**: `**No Logic in VC**: Move business logic to ViewModel/Interactor.`
-- **Violating Encapsulation**: `**No Public ViewModel State**: Keep state private(set) or using publishers.`
-- **Direct Navigation**: `**No self.navigationController?.push(...)**: Use a Coordinator.`
+- **No Logic in VC**: Move business logic to ViewModel/Interactor.
+- **No Public ViewModel State**: Keep state private(set) or using publishers.
+- **No Direct Navigation**: Use a Coordinator for screen transitions.
 
-## References
+## Verification Checklist (Mandatory)
+
+- [ ] **Pure ViewModel**: Does the ViewModel have any `UIKit` imports? (Prohibited)
+- [ ] **Navigation**: Is `navigationController` used directly in the VC for transitions? (Use Coordinator)
+- [ ] **State Access**: Is ViewModel state exposed as `public var`? (Use `private(set)` or publishers)
+- [ ] **Deallocation**: Are child coordinators correctly removed from the parent's collection on finish?
+- [ ] **VIP Unidirection**: Is the data flow unidirectional (View -> Interactor -> Presenter -> View)?
 
 - [MVVM-C & VIP Implementation](references/implementation.md)

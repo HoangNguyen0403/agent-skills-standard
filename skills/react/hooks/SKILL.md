@@ -5,7 +5,18 @@ metadata:
   labels: [react, hooks, performance, frontend]
   triggers:
     files: ['**/*.tsx', '**/*.jsx']
-    keywords: [useEffect, useCallback, useMemo, useState]
+    keywords:
+      [
+        useEffect,
+        useCallback,
+        useMemo,
+        useState,
+        useRef,
+        useContext,
+        useReducer,
+        useLayoutEffect,
+        custom hook,
+      ]
 ---
 
 # React Hooks Expert

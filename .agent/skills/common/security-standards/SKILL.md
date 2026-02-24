@@ -4,7 +4,27 @@ description: Universal security protocols for building safe and resilient softwa
 metadata:
   labels: [security, encryption, authentication, authorization]
   triggers:
-    keywords: [security, encrypt, authenticate, authorize]
+    files:
+      [
+        '.env*',
+        'Dockerfile',
+        'docker-compose*.yml',
+        '.github/workflows/*.yml',
+        '**/*.env',
+      ]
+    keywords:
+      [
+        security,
+        encrypt,
+        authenticate,
+        authorize,
+        vulnerability,
+        CVE,
+        secret,
+        token,
+        code-review,
+      ]
+    composite: [feedback-reporter]
 ---
 
 # Security Standards - High-Density Standards
@@ -35,10 +55,10 @@ Universal security protocols for building safe and resilient software.
 
 ## 🚫 Anti-Patterns
 
-- **Hardcoded Secrets**: `**No Secrets in Git**: Use Secret Managers or Env variables.`
-- **Raw SQL**: `**No String Concatenation**: Use Parameterized queries or ORMs.`
-- **Leaking Context**: `**No Stacktraces in Prod**: Return generic error codes to clients.`
-- **Insecure Defaults**: `**No Default Passwords**: Force rotation and strong entropy.`
+- **No Secrets in Git**: Use Secret Managers or Env variables.
+- **No String Concatenation**: Use Parameterized queries or ORMs.
+- **No Stacktraces in Prod**: Return generic error codes to clients.
+- **No Default Passwords**: Force rotation and strong entropy.
 
 ## 📚 References
 

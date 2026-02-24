@@ -10,7 +10,7 @@ metadata:
 
 # Android Architecture Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Guidelines
 
@@ -31,12 +31,21 @@ metadata:
 - **Events**: UI -> ViewModel (Events).
 - **State**: ViewModel -> UI (StateFlow<UiState>).
 
+### Jetpack Compose
+
+- **Hosting**: Are you using `setContent` in Activity? (No XML Layouts)
+- **State**: Is state hoisted to ViewModel using `collectAsStateWithLifecycle`?
+- **Unidirectional**: Are events passed UP and state passed DOWN?
+- **Recomposition**: Are Composables stable? (Check for unstable types in parameters)
+- **Navigation**: Is `Compose Navigation` using Type-Safe destinations?
+
 ## Anti-Patterns
 
-- **God Activity**: `**No Logic in/Activity**: Host Navigation only.`
-- **Direct Repos**: `**No Repo in UI**: Use Type-Safe ViewModels.`
-- **Android in Domain**: `**No Context in Domain**: Keep Logic Pure.`
+- **No Logic in Activity**: Host Navigation only.
+- **No Repo in UI**: Use Type-Safe ViewModels.
+- **No Context in Domain**: Keep Logic Pure.
 
 ## References
 
 - [Structure & Examples](references/implementation.md)
+- [Jetpack Compose Best Practices](references/compose-standards.md)

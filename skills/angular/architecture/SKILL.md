@@ -4,8 +4,16 @@ description: Standards for Angular project structure, feature modules, and lazy 
 metadata:
   labels: [angular, architecture, structure, modules]
   triggers:
-    files: ['angular.json', 'src/app/**']
-    keywords: [angular folder structure, feature module, core module]
+    files: ['angular.json']
+    keywords:
+      [
+        angular components,
+        standalone,
+        feature module,
+        lazy loading,
+        loadComponent,
+        loadChildren,
+      ]
 ---
 
 # Angular Architecture
@@ -29,6 +37,12 @@ metadata:
 - **Flat Modules**: Avoid deep nesting of modules.
 - **Barrel Files**: Use carefully. Prefer direct imports for better tree-shaking in some build tools (though modern bundlers handle barrels well).
 
-## References
+## Verification Checklist (Mandatory)
+
+- [ ] **Lazy Loading**: Are all feature routes using `loadComponent` or `loadChildren`?
+- [ ] **Standalone**: Are components, pipes, and directives standalone?
+- [ ] **Core/Shared**: Are global services in `core/` and reusable UI in `shared/`?
+- [ ] **Smart/Dumb**: Are presentational components logic-free with only @Input/@Output?
+- [ ] **Signals**: Are you using Signals for local state where applicable (Angular 16+)?
 
 - [Folder Structure](references/folder-structure.md)

@@ -5,7 +5,19 @@ metadata:
   labels: [qa, testing, best-practices]
   triggers:
     files: ['**/*.feature', '**/*.test.ts', '**/test_plan.md']
-    keywords: [test case, qa, bug report, testing standard]
+    keywords:
+      [
+        test case,
+        qa,
+        bug report,
+        testing standard,
+        zephyr,
+        jira ticket,
+        acceptance criteria,
+        test scenario,
+        manual test,
+      ]
+    exclude: ['src/**/*.ts', 'src/**/*.js', 'src/**/*.tsx', 'src/**/*.jsx']
 ---
 
 # Quality Assurance Standards

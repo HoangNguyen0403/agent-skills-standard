@@ -22,6 +22,14 @@ metadata:
 2.  **Green**: Implement logic to pass.
 3.  **Refactor**: Simplify code.
 
+## Verification Checklist (Mandatory)
+
+- [ ] **Table-Driven**: Are multiple scenarios handled in a single test function via tables?
+- [ ] **Coverage**: Does the test cover edge cases (nil, error, empty)?
+- [ ] **No Side Effects**: Are global states reset or avoided?
+- [ ] **Error Checking**: Are errors asserted for both existence (`assert.Error`) and content?
+- [ ] **Subtests**: Are subtests named descriptively?
+
 ### Golden Snippet
 
 See [Table-Driven Tests](references/table-driven-tests.md) for full template.
@@ -41,8 +49,9 @@ See [Table-Driven Tests](references/table-driven-tests.md) for full template.
 
 ## Anti-Patterns
 
-- **Sleeping in tests**: Use channels/waitgroups or retry logic.
-- **Testing implementation details**: Test public behavior/interface.
+- **No Manual Mocks**: Use `mockery` for boilerplate-heavy mocks.
+- **No Assert in Loop**: Use `t.Run` to isolate failures within table-driven loops.
+- **No Global Mocks**: Define mocks locally or within test scope to avoid state leakage.
 
 ## References
 
