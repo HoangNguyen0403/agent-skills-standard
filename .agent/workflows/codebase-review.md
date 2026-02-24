@@ -5,7 +5,6 @@ description: Review an entire codebase against framework best practices and gene
 # 🔍 Codebase Review Workflow
 
 > **Goal**: Auto-detect framework(s) or core language, dynamically load matching skills, review the codebase with **extreme token efficiency**, and output a UX-friendly report with a weighted score and improvement roadmap.
-
 > [!IMPORTANT]
 > **Token Efficiency First**:
 >
@@ -34,20 +33,21 @@ find . -maxdepth 2 -not -path '*/.*' -not -path '*/node_modules/*' -not -path '*
 
 ## Step 2 — Framework/Language Detection & Skill Discovery
 
-1.  **Identify Framework or Core Language**:
-    | If found... | Then category is... |
-    |---|---|
-    | `pubspec.yaml` | **Flutter** |
-    | `nest-cli.json` or `@nestjs/core` in deps | **NestJS** |
-    | `next` in deps | **Next.js** |
-    | `react` in deps | **React** |
-    | `angular.json` | **Angular** |
-    | `go.mod` | **Golang** |
-    | `typescript` in deps | **Core TypeScript** |
-    | `package.json` | **Core JavaScript** |
+1. **Identify Framework or Core Language**:
 
-2.  **Read Registry**: `cat skills/index.json`
-3.  **Match Keys**: Map discovery to registry keys:
+   | If found...                               | Then category is... |
+   | ----------------------------------------- | ------------------- |
+   | `pubspec.yaml`                            | **Flutter**         |
+   | `nest-cli.json` or `@nestjs/core` in deps | **NestJS**          |
+   | `next` in deps                            | **Next.js**         |
+   | `react` in deps                           | **React**           |
+   | `angular.json`                            | **Angular**         |
+   | `go.mod`                                  | **Golang**          |
+   | `typescript` in deps                      | **Core TypeScript** |
+   | `package.json`                            | **Core JavaScript** |
+
+2. **Read Registry**: `cat skills/index.json`
+3. **Match Keys**: Map discovery to registry keys:
 
 | Detected Category | Registry Keys to Load                     |
 | ----------------- | ----------------------------------------- |
@@ -59,7 +59,7 @@ find . -maxdepth 2 -not -path '*/.*' -not -path '*/node_modules/*' -not -path '*
 | Core TypeScript   | `typescript`, `common`                    |
 | Core JavaScript   | `javascript`, `common`                    |
 
-4.  **List Skills**: Collect all skill IDs from those categories.
+1. **List Skills**: Collect all skill IDs from those categories.
 
 ---
 
@@ -140,11 +140,11 @@ grep -rE "\+.*SELECT|\+.*INSERT|\+.*UPDATE|\+.*DELETE|query\(.*\+|fmt\.Sprintf.*
   echo "NestJS routes: ${total} total, ${guarded} guarded"
 }
 # Spring Boot (Java)
-[ -f pom.xml ] || [ -f build.gradle.kts ] && {
+if [ -f pom.xml ] || [ -f build.gradle.kts ]; then
   total=$(grep -rE "@(GetMapping|PostMapping|PutMapping|DeleteMapping|RequestMapping)" . --include="*.java" | wc -l)
   guarded=$(grep -rE "@(PreAuthorize|Secured|WithMockUser)" . --include="*.java" | wc -l)
   echo "Spring routes: ${total} total, ${guarded} guarded"
-}
+fi
 # Go (gin/chi/echo/stdlib)
 [ -f go.mod ] && {
   total=$(grep -rE "(GET|POST|PUT|DELETE|PATCH)|router\.(GET|POST)" . --include="*.go" | wc -l)
@@ -164,8 +164,12 @@ grep -rE "\+.*SELECT|\+.*INSERT|\+.*UPDATE|\+.*DELETE|query\(.*\+|fmt\.Sprintf.*
 # Java / Maven
 [ -f pom.xml ] && mvn dependency:list 2>/dev/null | grep "WARN\|ERROR" | head -20
 # Java / Gradle
-[ -f build.gradle ] || [ -f build.gradle.kts ] && \
+if [ -f build.gradle ]; then
+  # Prefer Groovy build.gradle when both files exist; Gradle uses this by default.
   ./gradlew dependencies --configuration runtimeClasspath 2>/dev/null | grep "FAILED\|->.*" | head -20
+elif [ -f build.gradle.kts ]; then
+  ./gradlew dependencies --configuration runtimeClasspath 2>/dev/null | grep "FAILED\|->.*" | head -20
+fi
 # Python
 [ -f requirements.txt ] && pip-audit 2>/dev/null || \
   [ -f pyproject.toml ] && pip-audit 2>/dev/null
@@ -210,9 +214,9 @@ grep -rE "e\.printStackTrace|getMessage\(\).*response|getStackTrace" \
 Pick **one** representative file from the core logic layer (e.g., one controller, one service, or one main function).
 Verify:
 
-1.  **Typing**: Is it strongly typed or using `any`?
-2.  **Error Handling**: Is it following the skill's recommended pattern?
-3.  **Doc Quality**: Are exported symbols documented?
+1. **Typing**: Is it strongly typed or using `any`?
+2. **Error Handling**: Is it following the skill's recommended pattern?
+3. **Doc Quality**: Are exported symbols documented?
 
 ---
 
@@ -238,7 +242,7 @@ Instead of just one global score, break the report down into **Primary Criteria 
 
 ---
 
-```
+```bash
 ╔══════════════════════════════════════════════════════════╗
 ║              🔍 CODEBASE REVIEW REPORT                   ║
 ║  Project: [name]         Overall Score: [X / 100]        ║

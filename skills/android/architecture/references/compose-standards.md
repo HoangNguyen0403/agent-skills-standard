@@ -2,7 +2,7 @@
 
 ## State Management
 
-- **State Hoising**: Pass state as parameters and hoist events (lambdas) up to the caller to make composables stateless and testable.
+- **State Hoisting**: Pass state as parameters and hoist events (lambdas) up to the caller to make composables stateless and testable.
 - **collectAsStateWithLifecycle**: Always use `collectAsStateWithLifecycle()` from `androidx.lifecycle:lifecycle-runtime-compose` to observe Flow in UI to avoid resource leaks in background.
 - **Immutable Models**: Use `@Immutable` or `@Stable` on UI models to help Compose compiler optimize recompositions.
 

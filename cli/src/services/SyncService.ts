@@ -91,9 +91,9 @@ export class SyncService {
         changed = true;
       }
     } else if (config.workflows === undefined || config.workflows === true) {
-      // If it was true or undefined, we might want to convert it to an array if we want explicit tracking
-      // but usually 'true' means 'all'. However, the request says "not sync the new workflow to update to skillsrc"
-      // which implies the user wants them explicitly listed in .skillsrc if they are using Antigravity.
+      // If workflows is true or undefined, it normally means "all" workflows.
+      // When Antigravity is enabled, we convert this to an explicit list so all discovered workflows
+      // are materialized into .skillsrc for clear, explicit tracking.
 
       const agents = await this.resolveTargetAgents(config);
       if (agents.includes(Agent.Antigravity)) {

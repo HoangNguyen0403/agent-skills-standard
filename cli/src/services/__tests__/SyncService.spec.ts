@@ -78,7 +78,7 @@ describe('SyncService', () => {
   });
 
   describe('reconcileConfig', () => {
-    it('should reconcile dependencies and save config if changed', async () => {
+    it('should return true when dependencies are reconciled', async () => {
       const config = { skills: { test: {} } } as unknown as SkillConfig;
       const deps = new Set(['pkg']);
       mockConfigService.reconcileDependencies.mockReturnValue(['skill1']);
