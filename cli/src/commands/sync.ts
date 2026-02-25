@@ -109,7 +109,7 @@ export class SyncCommand {
 
       // 5. Write skills and workflows to target
       await this.syncService.writeSkills(skills, config);
-      await this.syncService.writeWorkflows(workflows);
+      await this.syncService.writeWorkflows(workflows, config);
 
       // 6. Automatically apply framework-specific indices to AGENTS.md
       await this.syncService.applyIndices(config, config.agents);

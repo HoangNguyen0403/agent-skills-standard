@@ -32,9 +32,9 @@
       "tag_prefix": "typescript-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 2506,
-        "avg_tokens_per_skill": 627,
-        "largest_skill": "language (1031 tokens)"
+        "total_tokens": 2051,
+        "avg_tokens_per_skill": 513,
+        "largest_skill": "tooling (593 tokens)"
       }
     },
     "javascript": {
@@ -71,13 +71,13 @@
       }
     },
     "nestjs": {
-      "version": "1.1.2",
-      "last_updated": "2026-02-23",
+      "version": "1.1.3",
+      "last_updated": "2026-02-25",
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 10167,
-        "avg_tokens_per_skill": 484,
+        "total_tokens": 10887,
+        "avg_tokens_per_skill": 518,
         "largest_skill": "documentation (836 tokens)"
       }
     },
@@ -93,13 +93,13 @@
       }
     },
     "common": {
-      "version": "1.5.2",
-      "last_updated": "2026-02-24",
+      "version": "1.5.3",
+      "last_updated": "2026-02-25",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 15,
-        "total_tokens": 7395,
-        "avg_tokens_per_skill": 493,
+        "total_skills": 17,
+        "total_tokens": 8904,
+        "avg_tokens_per_skill": 524,
         "largest_skill": "best-practices (915 tokens)"
       }
     },
@@ -225,14 +225,14 @@
       }
     },
     "database": {
-      "version": "1.0.0",
-      "last_updated": "2026-02-23",
+      "version": "1.0.1",
+      "last_updated": "2026-02-25",
       "tag_prefix": "database-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1909,
-        "avg_tokens_per_skill": 636,
-        "largest_skill": "postgresql (709 tokens)"
+        "total_tokens": 1988,
+        "avg_tokens_per_skill": 663,
+        "largest_skill": "postgresql (788 tokens)"
       }
     }
   }

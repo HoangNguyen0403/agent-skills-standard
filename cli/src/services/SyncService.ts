@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
-import { Agent, SUPPORTED_AGENTS } from '../constants';
+import { Agent, DEFAULT_WORKFLOWS, SUPPORTED_AGENTS } from '../constants';
 import { SkillConfig, SkillEntry } from '../models/config';
 import {
   CollectedSkill,
@@ -76,25 +76,24 @@ export class SyncService {
     let changed = false;
 
     if (Array.isArray(config.workflows)) {
-      const currentWorkflows = new Set(config.workflows);
+      // If workflows is an array, we respect the user's explicit list.
+      // We automatically add new workflows discovered in the registry.
+      const currentWorkflows = config.workflows as string[];
       const newWorkflows = availableWorkflows.filter(
-        (wf) => !currentWorkflows.has(wf),
+        (wf) =>
+          !currentWorkflows.includes(wf) && DEFAULT_WORKFLOWS.includes(wf),
       );
 
       if (newWorkflows.length > 0) {
-        config.workflows.push(...newWorkflows);
+        config.workflows = [...currentWorkflows, ...newWorkflows];
         console.log(
           pc.yellow(
-            `✨ New Workflows Discovered: Adding [${newWorkflows.join(', ')}] to .skillsrc.`,
+            `✨ Workflows Discovered: Adding [${newWorkflows.join(', ')}] to .skillsrc.`,
           ),
         );
         changed = true;
       }
     } else if (config.workflows === undefined || config.workflows === true) {
-      // If workflows is true or undefined, it normally means "all" workflows.
-      // When Antigravity is enabled, we convert this to an explicit list so all discovered workflows
-      // are materialized into .skillsrc for clear, explicit tracking.
-
       const agents = await this.resolveTargetAgents(config);
       if (agents.includes(Agent.Antigravity)) {
         config.workflows = availableWorkflows;
@@ -183,7 +182,7 @@ export class SyncService {
   }
 
   private async resolveTargetAgents(config: SkillConfig): Promise<Agent[]> {
-    if (config.agents && config.agents.length > 0) {
+    if (config.agents !== undefined) {
       return config.agents;
     }
 
@@ -247,6 +246,12 @@ export class SyncService {
   async assembleWorkflows(config: SkillConfig): Promise<CollectedSkill[]> {
     if (!config.workflows) return [];
 
+    // Only sync workflows if Antigravity agent is enabled
+    const agents = await this.resolveTargetAgents(config);
+    if (!agents.includes(Agent.Antigravity)) {
+      return [];
+    }
+
     const githubMatch = GithubService.parseGitHubUrl(config.registry);
     if (!githubMatch) return [];
 
@@ -298,20 +303,35 @@ export class SyncService {
   /**
    * Writes collected workflows to the .agent/workflows directory.
    */
-  async writeWorkflows(workflows: CollectedSkill[]) {
+  async writeWorkflows(workflows: CollectedSkill[], config: SkillConfig) {
     if (workflows.length === 0) return;
 
+    // Only write workflows if Antigravity agent is enabled
+    const agents = await this.resolveTargetAgents(config);
+    if (!agents.includes(Agent.Antigravity)) {
+      return;
+    }
+
     const workflowPath = path.join(process.cwd(), '.agent', 'workflows');
+    const overrides = config.custom_overrides || [];
     await fs.ensureDir(workflowPath);
 
     for (const wf of workflows) {
       if (wf.skill !== 'workflows') continue;
 
       for (const fileItem of wf.files) {
-        await fs.outputFile(
-          path.join(workflowPath, fileItem.name),
-          fileItem.content,
-        );
+        const targetFilePath = path.join(workflowPath, fileItem.name);
+
+        if (this.isOverridden(targetFilePath, overrides)) {
+          console.log(
+            pc.yellow(
+              `    ⚠️  Skipping overridden: ${this.normalizePath(targetFilePath)}`,
+            ),
+          );
+          continue;
+        }
+
+        await fs.outputFile(targetFilePath, fileItem.content);
         console.log(pc.gray(`    + Wrote ${fileItem.name}`));
       }
     }
@@ -321,10 +341,10 @@ export class SyncService {
   /**
    * Automatically applies framework-specific indices to AGENTS.md.
    */
-  async applyIndices(config: SkillConfig, enabledAgents: Agent[] = []) {
+  async applyIndices(config: SkillConfig, agentsOverride?: Agent[]) {
     const agents = await this.resolveTargetAgents({
       ...config,
-      agents: enabledAgents,
+      agents: agentsOverride ?? config.agents,
     });
     if (agents.length === 0) return;
 

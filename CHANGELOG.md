@@ -5,6 +5,36 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.2] - 2026-02-25
+
+**Category**: Workflow Robustness & CLI Sync Logic Hardening & Skill Standardization
+
+#### Added
+
+- **🛡️ Workflow Lite Fallbacks**: Implemented logic in `codebase-review` to use basic grep/find patterns if specialized skills are missing, ensuring a baseline audit for all projects.
+- **📚 Level 3 Reference Material**: Created `references/PATTERNS.md` and `references/REMEDIATION.md` for Architecture and Security audits, keeping primary skills lean.
+
+#### Fixed (CLI v1.7.2)
+
+- **🔄 Sync Logic Hardening**: Fixed `ags sync` to respect explicitly empty agent lists (`agents: []`) and skip workflow/skill discovery when Antigravity is disabled.
+- **📦 Database Auto-Detection**: Fixed `ags init` to consistently detect database needs and auto-configure matching skills for NestJS, Go, and Spring Boot.
+- **🛠️ Detection Persistence**: Resolved issue where skills excluded during init would sometimes reappear during sync incorrectly.
+
+#### Changed (Skills)
+
+- **📐 Architecture Audit (v1.5.3)**: Standardized to Skill Creator format. Added deep-dive protocols for Web, Mobile, and Backend ecosystems.
+- **🛡️ Security Audit (v1.5.3)**: Standardized to Skill Creator format. Added imperative adversarial probing protocols and remediations.
+- **🗄️ PostgreSQL Database (v1.0.1)**: Improved metadata clarity and hardened migration audit guidelines.
+- **🦁 NestJS Integration (v1.1.3)**: Enhanced trigger reliability and documentation consistency across all 21 modules.
+
+#### Versions
+
+- **Common Skills**: v1.5.3 (Patch)
+- **Framework Skills**:
+  - **NestJS**: v1.1.3 (Patch)
+- **Database Skills**: v1.0.1 (Patch)
+- **CLI/Server**: v1.7.2 (Patch)
+
 ## [1.1.7] - 2026-02-24
 
 **Category**: Skill Standardization & Feedback Loop Hardening & Battle-Test Workflow

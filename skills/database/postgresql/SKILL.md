@@ -1,61 +1,53 @@
 ---
-name: PostgreSQL Best Practices
-description: Expert rules for performant, secure, and scalable PostgreSQL database design and querying.
+name: PostgreSQL Database
+description: Data access patterns, Scaling, Migrations, and ORM selection.
 metadata:
-  labels: [postgresql, database, sql, performance, security, rls]
+  labels: [nestjs, database, typeorm, prisma, mongodb]
   triggers:
-    files:
-      ['**/*.sql', '**/migrations/*', 'schema.prisma', '**/typeorm/*.entity.ts']
-    keywords: [postgres, sql, migration, index, rls, database]
+    files: ['**/*.entity.ts', 'prisma/schema.prisma']
+    keywords: [TypeOrmModule, PrismaService, MongooseModule, Repository]
 ---
 
-# PostgreSQL Best Practices
+# NestJS Database Standards
 
-## **Priority: P0 (CRITICAL)**
+## **Priority: P0 (FOUNDATIONAL)**
 
-## Guidelines
+Database integration patterns and ORM standards for NestJS applications.
 
-- **Indexing**:
-  - Default to **B-Tree**. Use **GIN** for `jsonb`/`tsvector`.
-  - Index Foreign Keys (FKs) manually; Postgres doesn't do it auto.
-  - Use **Partial Indexes** (`WHERE status = 'active'`) for sparse data.
-  - **Covering Indexes**: `INCLUDE (col)` to avoid heap lookups.
-- **Data Types**:
-  - IDs: Use `bigint` or `uuid`. Avoid `int` (overflow risk).
-  - Text: Use `text`. Avoid `char(n)` (padding) or `varchar(n)` (useless limit).
-  - Time: Use `timestamptz`. Avoid `timestamp` (timezone confusion).
-  - Money: Use `numeric`. Avoid `money` (locale issues) or `float` (precision loss).
-- **Security (RLS)**:
-  - **Enable Always**: `ALTER TABLE x ENABLE ROW LEVEL SECURITY;`.
-  - **Policies**: Wrap `auth.uid()` or session checks in `(SELECT ...)` optimization.
-  - **Principle of Least Privilege**: Grant specific permissions, not `ALL`.
-- **Query Performance**:
-  - **No `SELECT *`**: Fetch only needed columns.
-  - **Pagination**: Use Cursor-based (`WHERE id > last_id`) vs OFFSET (O(n)).
-  - **Transactions**: Keep short. Avoid long-running idle transactions.
-  - **Upsert**: Use `INSERT ... ON CONFLICT DO UPDATE`.
-- **Concurrency**:
-  - **Isolation**: Understand `READ COMMITTED` (default) vs `REPEATABLE READ`.
-  - **Locking**: Avoid explicit locks (`LOCK TABLE`). Use strict row-level locks (`FOR UPDATE`) sparingly.
-  - **Deadlocks**: Order your updates consistently (e.g., sort by ID) to prevent them.
-- **Monitoring**:
-  - **Enable**: `pg_stat_statements` extension for query analysis.
-  - **Logging**: Log slow queries (`log_min_duration_statement = 1000ms`).
-- **Connection Management**:
-  - **Pooling**: Use a pooler (PgBouncer) for production. Keep transactions short.
+## Selection Strategy
 
-## Anti-Patterns
+See [references/persistence_strategy.md](references/persistence_strategy.md) for database selection matrix and scaling patterns (Connection Pooling, Sharding).
 
-- **No `NOT IN`**: Use `NOT EXISTS` or `LEFT JOIN / IS NULL` (NULL handling).
-- **No `serial`**: Use `GENERATED ALWAYS AS IDENTITY`.
-- **No Unindexed FKs**: Causes locking issues on cascading deletes.
-- **No Logic in DB**: Keep complex logic in app layer (unless performance critical).
-- **No `BETWEEN` for Time**: Use `>= start AND < end` (exclusive end).
-- **No `count(*)` on Big Tables**: Use `pg_class.reltuples` estimate.
-- **No Upper Case**: Use snake_case for all identifiers.
+## Patterns
 
-## References
+- **Repository Pattern**: Isolate database logic.
+  - **TypeORM**: Inject `@InjectRepository(Entity)`.
+  - **Prisma**: Create a comprehensive `PrismaService`.
+- **Abstraction**: Services should call Repositories, not raw SQL queries.
 
-- [Best Practices Guide](references/best-practices.md)
-- [Anti-Patterns details](references/anti-patterns.md)
-- [Review Checklist](references/checklist.md)
+## Configuration (TypeORM)
+
+- **Async Loading**: Always use `TypeOrmModule.forRootAsync` to load secrets from `ConfigService`.
+- **Sync**: Set `synchronize: false` in production; use migrations instead.
+
+## Migrations
+
+- **Never** use `synchronize: true` in production.
+- **Generation**: Whenever a TypeORM entity (`.entity.ts`) is modified, a migration **MUST** be generated using `pnpm migration:generate`.
+- **Audit**: Always inspect the generated migration file to ensure it matches the entity changes before applying.
+- **Production Strategies**:
+  - **CI/CD Integration (Recommended)**: Run `pnpm migration:run` in a pre-deploy or post-deploy job (e.g., GitHub Actions, GitLab CI). Ensure the production environment variables are correctly set.
+  - **Manual SQL (For restricted DB access)**: Use `typeorm migration:show` to get the SQL or simply copy the `up` method's SQL into a management tool (like Supabase SQL Editor). Always track manual runs in the `migrations` metadata table.
+- **Zero-Downtime**: Use Expand-Contract pattern (Add -> Backfill -> Drop) for destructive changes.
+- **Seeding**: Use factories for dev data; only static dicts for prod.
+- **Row-Level Security (RLS)**: `typeorm migration:generate` **cannot** detect RLS policies (`CREATE POLICY`). You **MUST** use `migration:create` and write raw `queryRunner.query()` SQL to define and version-control RLS policies.
+
+## Best Practices
+
+1. **Pagination**: Mandatory. Use limit/offset or cursor-based pagination.
+2. **Indexing**: Define indexes in code (decorators/schema) for frequently filtered columns (`where`, `order by`).
+3. **Transactions**: Use `QueryRunner` (TypeORM) or `$transaction` (Prisma) for all multi-step mutations to ensure atomicity.
+4. **Row-Level Security (RLS) Performance**:
+   - RLS adds a small overhead to _every_ query on the table because the database must evaluate the policy conditions (e.g., `WHERE tenant_id = current_setting('app.tenant_id')`).
+   - **Mitigation**: ALWAYS create an index on the columns used in your RLS policies (usually `user_id` or `tenant_id`).
+   - **Warning**: Avoid complex `JOIN`s or subqueries inside the RLS policy definition itself, as this can multiply execution time heavily. Keep policies simple (direct column comparisons).

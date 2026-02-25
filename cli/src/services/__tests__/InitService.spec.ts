@@ -21,6 +21,7 @@ vi.mock('../ConfigService', () => {
       .fn()
       .mockReturnValue({ registry: 'url', skills: {} });
     this.applyDependencyExclusions = vi.fn();
+    this.reconcileDependencies = vi.fn();
   });
   return { ConfigService: Mock };
 });
@@ -74,13 +75,13 @@ describe('InitService', () => {
       expect(agentChoiceCopilot?.checked).toBe(false);
     });
 
-    it('should check all agents if none are detected', () => {
+    it('should not check any agents if none are detected', () => {
       const context = {
         frameworkDetection: {},
         agentDetection: { cursor: false, copilot: false },
       };
       const choices = initService.getPromptChoices(context, []);
-      expect(choices.agentChoices.every((a) => a.checked)).toBe(true);
+      expect(choices.agentChoices.every((a) => !a.checked)).toBe(true);
     });
 
     it('should include Kiro in agent choices', () => {

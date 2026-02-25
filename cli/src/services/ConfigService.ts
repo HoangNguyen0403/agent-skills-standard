@@ -140,7 +140,7 @@ export class ConfigService {
       agents,
       skills,
       custom_overrides: [],
-      workflows: workflows.length > 0 ? workflows : true, // Array if specific, true if empty/default
+      workflows: workflows.length > 0 ? workflows : false, // Array if specific, false if empty
     };
   }
 

@@ -38,3 +38,13 @@ Docker optimization and production deployment standards for NestJS applications.
 - **Database Migrations**:
   - **Anti-Pattern**: Running migration in `main.ts` on startup.
   - **Pro Pattern**: Use an **Init Container** in Kubernetes that runs `npm run typeorm:migration:run` before the app container starts.
+
+## Environment Variables & CI/CD
+
+- **CI/CD Pipelines (GitHub, GitLab, Azure, etc.)**:
+  - If you modify `src/config/env.validation.ts` to add a new environment variable, you **MUST** map it explicitly in your deployment pipeline/infrastructure-as-code.
+  - **Platform Context**:
+    - **Cloud Run/ECS**: Variables must be explicitly passed in the service definition.
+    - **Kubernetes**: New variables must be added to the `Deployment` manifest or `ConfigMap`/`Secret`.
+    - **Lambda/Serverless**: Must be added to `serverless.yml` or provider console.
+  - **Fundamental Rule**: Application code configuration changes are "breaking changes" for the infrastructure layer. Never assume environment inheritance.

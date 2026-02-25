@@ -58,5 +58,9 @@ High-performance patterns and optimization techniques for NestJS applications.
 
 ## Profiling & Scaling
 
+- **API Overhead vs DB Execution**: Use an "Execution Bucket" strategy to continuously benchmark `Total Duration`, `DB Execution Time`, and `API Overhead`.
+  - **Total Baseline**: Excellent (< 50ms), Acceptable (< 200ms), Poor (> 500ms). _Exception: Authentication routes (e.g. bcrypt/argon2) should take 300-500ms intentionally._
+  - **DB DB Execution Baseline**: Excellent (< 5ms), Acceptable (< 30ms), Poor (> 100ms - implies missing index or N+1 problem).
+  - **API Overhead Baseline**: Excellent (< 20ms), Poor (> 100ms - implies heavy synchronous processing or serialization blocking Node's event loop).
 - **Offloading**: Move CPU-heavy tasks (Image processing, Crypto) to `worker_threads`.
 - **Clustering**: For non-containerized environments, use `ClusterModule` to utilize all CPU cores. In K8s, prefer ReplicaSets.

@@ -26,6 +26,15 @@ Logging, monitoring, and observability patterns for production applications.
   - `nestjs-pino` handles this automatically using `AsyncLocalStorage`.
   - **Propagation**: Pass `x-request-id` to downstream microservices/database queries key to trace flows.
 
+## API Overhead & Database Benchmarking
+
+- **Execution Bucket Strategy**: When performance profiling is enabled, utilize global interceptors combined with `AsyncLocalStorage` to split and expose latency into logical buckets.
+- **Headers**: Expose the metrics via HTTP Headers on the response for immediate feedback during development or testing:
+  - `X-Response-Duration-Ms` (Total execution time)
+  - `X-DB-Execution-Ms` (Time spent exclusively in database queries, tracked via TypeORM loggers)
+  - `X-API-Overhead-Ms` (Time spent in NestJS interceptors, guards, and serialization)
+- **Security**: Only enable performance headers and detailed SQL benchmarking in development or when a specific feature flag (`ENABLE_PERFORMANCE_BENCHMARK`) is explicitly active.
+
 ## Metrics
 
 - **Exposure**: Use `@willsoto/nestjs-prometheus` to expose `/metrics` for Prometheus scraping.

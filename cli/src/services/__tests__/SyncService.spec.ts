@@ -96,26 +96,28 @@ describe('SyncService', () => {
   });
 
   describe('reconcileWorkflows', () => {
-    it('should discover and add new workflows if config.workflows is an array', async () => {
+    it('should discover and add new workflows from DEFAULT_WORKFLOWS if config.workflows is an array', async () => {
       const config = {
         registry: 'https://github.com/o/r',
-        workflows: ['existing'],
+        workflows: ['code-review'],
       } as unknown as SkillConfig;
       mockGithubService.getRepoInfo.mockResolvedValue({
         default_branch: 'main',
       });
       mockGithubService.getRepoTree.mockResolvedValue({
         tree: [
-          { path: '.agent/workflows/existing.md' },
-          { path: '.agent/workflows/new.md' },
+          { path: '.agent/workflows/code-review.md' },
+          { path: '.agent/workflows/plan-feature.md' },
+          { path: '.agent/workflows/custom.md' },
         ],
       });
 
       const result = await syncService.reconcileWorkflows(config);
 
       expect(result).toBe(true);
-      expect(config.workflows).toContain('existing');
-      expect(config.workflows).toContain('new');
+      expect(config.workflows).toContain('code-review');
+      expect(config.workflows).toContain('plan-feature');
+      expect(config.workflows).not.toContain('custom');
     });
 
     it('should initialize workflows if undefined and Antigravity is enabled', async () => {
@@ -329,7 +331,7 @@ describe('SyncService', () => {
 
     it('should fallback to all agents if no agents are configured and none are detected (line 122 coverage)', async () => {
       (syncService as any).detectionService.detectAgents.mockResolvedValue({});
-      const config = { agents: [], custom_overrides: [] } as any;
+      const config = { agents: undefined, custom_overrides: [] } as any;
       const skills = [
         {
           category: 'cat',
@@ -348,11 +350,25 @@ describe('SyncService', () => {
       );
     });
 
+    it('should NOT fallback to all agents if agents is explicitly empty', async () => {
+      (syncService as any).detectionService.detectAgents.mockResolvedValue({});
+      const config = { agents: [], custom_overrides: [] } as any;
+      const skills = [
+        {
+          category: 'cat',
+          skill: 's',
+          files: [{ name: 'f.md', content: 'c' }],
+        },
+      ];
+      await syncService.writeSkills(skills, config);
+      expect(fs.ensureDir).not.toHaveBeenCalled();
+    });
+
     it('should sync only to detected agents if no config provided', async () => {
       (syncService as any).detectionService.detectAgents.mockResolvedValue({
         [Agent.Cursor]: true,
       });
-      const config = { agents: [], custom_overrides: [] } as any;
+      const config = { agents: undefined, custom_overrides: [] } as any;
       const skills = [
         {
           category: 'cat',
@@ -534,7 +550,7 @@ describe('SyncService', () => {
         [Agent.Cursor]: true,
       });
       const config = {
-        agents: [],
+        agents: undefined,
         skills: { flutter: {} },
       } as any;
 
@@ -633,14 +649,15 @@ describe('SyncService', () => {
 
   describe('writeWorkflows', () => {
     it('should skip if no workflows provided', async () => {
-      await syncService.writeWorkflows([]);
+      await syncService.writeWorkflows([], {} as SkillConfig);
       expect(fs.outputFile).not.toHaveBeenCalled();
     });
 
     it('should skip if skill is not "workflows" (line 284 coverage)', async () => {
-      await syncService.writeWorkflows([
-        { skill: 'invalid', files: [] },
-      ] as any);
+      await syncService.writeWorkflows(
+        [{ skill: 'invalid', files: [] }] as any,
+        {} as any,
+      );
       expect(fs.outputFile).not.toHaveBeenCalled();
     });
 
@@ -651,7 +668,7 @@ describe('SyncService', () => {
           files: [{ name: 'test.md', content: 'content' }],
         },
       ];
-      await syncService.writeWorkflows(workflows as any);
+      await syncService.writeWorkflows(workflows as any, {} as any);
       expect(fs.ensureDir).toHaveBeenCalledWith(
         expect.stringContaining('.agent'),
       );
@@ -763,7 +780,7 @@ describe('SyncService', () => {
           files: [{ name: 'w1.md', content: 'content' }],
         },
       ] as any[];
-      await syncService.writeWorkflows(workflows);
+      await syncService.writeWorkflows(workflows, {} as any);
       expect(fs.outputFile).toHaveBeenCalledWith(
         expect.stringContaining('.agent/workflows/w1.md'),
         'content',
@@ -771,10 +788,11 @@ describe('SyncService', () => {
     });
 
     it('should skip non-workflow skills and do nothing if empty', async () => {
-      await syncService.writeWorkflows([]);
-      await syncService.writeWorkflows([
-        { skill: 'other', files: [], category: 'other' } as any,
-      ]);
+      await syncService.writeWorkflows([], {} as any);
+      await syncService.writeWorkflows(
+        [{ skill: 'other', files: [], category: 'other' } as any],
+        {} as any,
+      );
       expect(fs.outputFile).not.toHaveBeenCalled();
     });
   });
@@ -784,17 +802,27 @@ describe('SyncService', () => {
       const config = {
         registry: 'url',
         skills: {},
+        agents: undefined,
+      } as unknown as SkillConfig;
+      await syncService.applyIndices(config);
+      expect(mockGenerate).toHaveBeenCalled();
+    });
+
+    it('should NOT default to all agents if agents is explicitly empty', async () => {
+      const config = {
+        registry: 'url',
+        skills: {},
         agents: [],
       } as unknown as SkillConfig;
       await syncService.applyIndices(config, []);
-      expect(mockGenerate).toHaveBeenCalled();
+      expect(mockGenerate).not.toHaveBeenCalled();
     });
 
     it('should do nothing if agent definition is not found', async () => {
       const config = {
         registry: 'url',
         skills: {},
-        agents: [],
+        agents: undefined,
       } as unknown as SkillConfig;
       await syncService.applyIndices(config, [
         'unknown-agent' as unknown as Agent,
