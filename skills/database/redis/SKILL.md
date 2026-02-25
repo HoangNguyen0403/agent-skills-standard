@@ -1,6 +1,6 @@
 ---
 name: Redis Best Practices
-description: Expert rules for caching, key manangement, and performance in Redis.
+description: Expert rules for caching, key management, and performance in Redis.
 metadata:
   labels: [redis, cache, key-value, performance]
   triggers:

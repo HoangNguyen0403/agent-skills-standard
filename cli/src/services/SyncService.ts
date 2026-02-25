@@ -54,6 +54,14 @@ export class SyncService {
    * Reconciles workflows by discovering new ones in the registry and adding them to the config.
    */
   async reconcileWorkflows(config: SkillConfig): Promise<boolean> {
+    if (config.workflows === false) return false;
+
+    // Only reconcile workflows if Antigravity agent is enabled
+    const agents = await this.resolveTargetAgents(config);
+    if (!agents.includes(Agent.Antigravity)) {
+      return false;
+    }
+
     const githubMatch = GithubService.parseGitHubUrl(config.registry);
     if (!githubMatch) return false;
 
@@ -77,7 +85,7 @@ export class SyncService {
 
     if (Array.isArray(config.workflows)) {
       // If workflows is an array, we respect the user's explicit list.
-      // We automatically add new workflows discovered in the registry.
+      // We automatically add new default workflows discovered in the registry.
       const currentWorkflows = config.workflows as string[];
       const newWorkflows = availableWorkflows.filter(
         (wf) =>

@@ -2,21 +2,21 @@
 name: PostgreSQL Database
 description: Data access patterns, Scaling, Migrations, and ORM selection.
 metadata:
-  labels: [nestjs, database, typeorm, prisma, mongodb]
+  labels: [nestjs, database, postgresql, typeorm, prisma]
   triggers:
-    files: ['**/*.entity.ts', 'prisma/schema.prisma']
-    keywords: [TypeOrmModule, PrismaService, MongooseModule, Repository]
+    files: ['**/*.entity.ts', 'prisma/schema.prisma', '**/migrations/*.sql']
+    keywords: [TypeOrmModule, PrismaService, PostgresModule, Repository]
 ---
 
-# NestJS Database Standards
+# PostgreSQL Database Standards
 
 ## **Priority: P0 (FOUNDATIONAL)**
 
-Database integration patterns and ORM standards for NestJS applications.
+Integration patterns and ORM standards for PostgreSQL applications.
 
 ## Selection Strategy
 
-See [references/persistence_strategy.md](references/persistence_strategy.md) for database selection matrix and scaling patterns (Connection Pooling, Sharding).
+See [references/best-practices.md](references/best-practices.md) for database selection matrix and scaling patterns (Connection Pooling, Sharding).
 
 ## Patterns
 

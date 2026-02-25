@@ -270,7 +270,7 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | Category                   | Key Modules                                           | Version  | Skills | Avg. Footprint |
 | :------------------------- | :---------------------------------------------------- | :------- | :----- | :------------- |
 | **🌐 Common**              | SOLID, Security (SQLi/HTMLi), TDD, Anti-Patterns      | `v1.5.3` | 17     | ~524 tokens    |
-| **🗄️ Database**            | PostgreSQL, MongoDB, Redis, Migrations, Query Opt     | `v1.0.1` | 3      | ~663 tokens    |
+| **🗄️ Database**            | PostgreSQL, MongoDB, Redis, Migrations, Query Opt     | `v1.0.1` | 3      | ~664 tokens    |
 | **🌐 Quality Engineering** | Business Analysis, Jira, Zephyr, QA Automation        | `v1.0.1` | 4      | ~500 tokens    |
 | **💙 Flutter**             | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.3.1` | 21     | ~422 tokens    |
 | **🎯 Dart**                | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.4` | 3      | ~435 tokens    |
@@ -279,7 +279,7 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | **🟨 JavaScript**          | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.0` | 5      | ~522 tokens    |
 | **⚛️ React**               | Hooks, State Management, Performance, Security        | `v1.0.3` | 8      | ~401 tokens    |
 | **📱 React Native**        | Arch, Perf, Navigation, Security, Deployment          | `v1.0.3` | 8      | ~401 tokens    |
-| **🦁 NestJS**              | Architecture, Microservices, Security, CQRS, Scalling | `v1.1.3` | 21     | ~518 tokens    |
+| **🦁 NestJS**              | Architecture, Microservices, Security, CQRS, Scaling  | `v1.1.3` | 21     | ~518 tokens    |
 | **▲ Next.js**              | App Router (v15), Caching (v16), Bundling, Debug      | `v1.1.2` | 17     | ~431 tokens    |
 | **🐘 Laravel**             | Clean Arch, Eloquent, Security, Jobs, Redis, API      | `v1.0.0` | 10     | ~361 tokens    |
 | **🐹 Golang**              | Clean Architecture, API Design, Concurrency, Security | `v1.0.3` | 10     | ~375 tokens    |

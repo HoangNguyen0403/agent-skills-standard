@@ -5,7 +5,8 @@ description: Review an entire codebase against framework best practices and gene
 # 🔍 Codebase Review Workflow
 
 > **Goal**: Auto-detect ecosystem, dynamically load matching skills, and perform a high-efficiency review with a weighted score and improvement roadmap.
-> [!IMPORTANT] > **Token Efficiency First**:
+> [!IMPORTANT]
+> **Token Efficiency First**:
 >
 > - Use `grep -c` or `wc -l` for metrics.
 > - Summarize findings internally; do not repeat skill rules verbatim.

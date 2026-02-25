@@ -230,9 +230,9 @@
       "tag_prefix": "database-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1988,
-        "avg_tokens_per_skill": 663,
-        "largest_skill": "postgresql (788 tokens)"
+        "total_tokens": 1991,
+        "avg_tokens_per_skill": 664,
+        "largest_skill": "postgresql (791 tokens)"
       }
     }
   }
