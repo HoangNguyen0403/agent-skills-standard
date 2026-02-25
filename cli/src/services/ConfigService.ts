@@ -175,7 +175,7 @@ export class ConfigService {
       for (const detection of detections) {
         const hasDeps = this.hasDependency(detection.packages, depsArray);
         const hasDirs = this.hasFiles(detection.files, cwd);
-        if (!hasDeps && !hasDirs) {
+        if (!hasDeps || !hasDirs) {
           exclusions.add(detection.id);
         }
       }
@@ -208,7 +208,7 @@ export class ConfigService {
       if (isNewCategory) {
         const shouldEnableCategory = detections.some(
           (detection) =>
-            this.hasDependency(detection.packages, depsArray) ||
+            this.hasDependency(detection.packages, depsArray) &&
             this.hasFiles(detection.files, cwd),
         );
 
@@ -241,7 +241,7 @@ export class ConfigService {
       for (const detection of detections) {
         if (
           currentExclusions.has(detection.id) &&
-          this.hasDependency(detection.packages, depsArray) ||
+          this.hasDependency(detection.packages, depsArray) &&
           this.hasFiles(detection.files, cwd)
         ) {
           currentExclusions.delete(detection.id);
