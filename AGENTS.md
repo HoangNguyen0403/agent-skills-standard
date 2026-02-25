@@ -41,6 +41,7 @@
 - **[common/security-standards]**: 🚨 Universal security protocols for building safe and resilient software. (triggers: security, encrypt, authenticate, authorize)
 - **[common/system-design]**: 🚨 Universal architectural standards for building robust, scalable, and maintainable systems. (triggers: architecture, design, system, scalability)
 - **[common/tdd]**: Enforces Test-Driven Development (Red-Green-Refactor) for rigorous code quality.
+- **[common/workflow-writing]**: 🚨 Rules for writing concise, token-efficient workflow and skill files. Prevents over-building that requires costly optimization passes. (triggers: .agent/workflows/*.md, SKILL.md, create workflow, write workflow, new skill, new workflow)
 - **[typescript/best-practices]**: Idiomatic TypeScript patterns for clean, maintainable code. (triggers: **/*.ts, **/*.tsx, class, function, module, import, export, async, promise)
 - **[typescript/language]**: 🚨 Modern TypeScript standards for type safety, performance, and maintainability. (triggers: **/*.ts, **/*.tsx, tsconfig.json, type, interface, generic, enum, union, intersection, readonly, const, namespace)
 - **[typescript/security]**: 🚨 Secure coding practices for building safe TypeScript applications. (triggers: **/*.ts, **/*.tsx, validate, sanitize, xss, injection, auth, password, secret, token)
