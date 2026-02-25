@@ -12,6 +12,9 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
+> [!WARNING]
+> This skill covers **App Router** data fetching (`fetch`). If the project uses the `pages/` directory, you MUST use `getServerSideProps` or `getStaticProps` instead. Ignore this file's native `fetch` caching advice.
+
 Fetch data directly in Server Components using `async/await`.
 
 ## Strategies

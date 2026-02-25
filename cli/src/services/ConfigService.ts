@@ -6,6 +6,7 @@ import {
   Agent,
   BACKEND_FRAMEWORKS,
   DEFAULT_REGISTER,
+  FRONTEND_REACT_FRAMEWORKS,
   Framework,
   SKILL_DETECTION_REGISTRY,
 } from '../constants';
@@ -102,9 +103,16 @@ export class ConfigService {
         : 'main',
     };
 
-    // Specialized Logic: React Native projects should include React hooks/patterns by default
-    if (framework === 'react-native' && metadata.categories?.['react']) {
-      skills[framework].include = ['react/hooks', 'react/component-patterns'];
+    // Specialized Logic: Frontend React-based projects must inherently sync the React category natively.
+    if (
+      FRONTEND_REACT_FRAMEWORKS.includes(framework as Framework) &&
+      metadata.categories?.['react']
+    ) {
+      skills['react'] = {
+        ref: metadata.categories['react'].version
+          ? `${metadata.categories['react'].tag_prefix || ''}${metadata.categories['react'].version}`
+          : 'main',
+      };
     }
 
     // Add associated languages (e.g., typescript, javascript)
@@ -150,7 +158,11 @@ export class ConfigService {
    * @param config The current configuration
    * @param projectDeps Current set of project dependencies
    */
-  applyDependencyExclusions(config: SkillConfig, projectDeps: Set<string>) {
+  applyDependencyExclusions(
+    config: SkillConfig,
+    projectDeps: Set<string>,
+    cwd: string = process.cwd(),
+  ) {
     const depsArray = Array.from(projectDeps);
 
     for (const categoryId in config.skills) {
@@ -161,7 +173,9 @@ export class ConfigService {
       const exclusions = new Set<string>(category.exclude || []);
 
       for (const detection of detections) {
-        if (!this.hasDependency(detection.packages, depsArray)) {
+        const hasDeps = this.hasDependency(detection.packages, depsArray);
+        const hasDirs = this.hasFiles(detection.files, cwd);
+        if (!hasDeps || !hasDirs) {
           exclusions.add(detection.id);
         }
       }
@@ -179,6 +193,7 @@ export class ConfigService {
   reconcileDependencies(
     config: SkillConfig,
     projectDeps: Set<string>,
+    cwd: string = process.cwd(),
   ): string[] {
     const totalReenabled: string[] = [];
     const allKnownCategories = Object.keys(SKILL_DETECTION_REGISTRY);
@@ -191,8 +206,10 @@ export class ConfigService {
 
       const isNewCategory = !category;
       if (isNewCategory) {
-        const shouldEnableCategory = detections.some((detection) =>
-          this.hasDependency(detection.packages, depsArray),
+        const shouldEnableCategory = detections.some(
+          (detection) =>
+            this.hasDependency(detection.packages, depsArray) &&
+            this.hasFiles(detection.files, cwd),
         );
 
         if (shouldEnableCategory) {
@@ -200,7 +217,11 @@ export class ConfigService {
           category = config.skills[categoryId];
 
           const exclusions = detections
-            .filter((d) => !this.hasDependency(d.packages, depsArray))
+            .filter(
+              (d) =>
+                !this.hasDependency(d.packages, depsArray) ||
+                !this.hasFiles(d.files, cwd),
+            )
             .map((d) => d.id);
 
           if (exclusions.length > 0) {
@@ -220,7 +241,8 @@ export class ConfigService {
       for (const detection of detections) {
         if (
           currentExclusions.has(detection.id) &&
-          this.hasDependency(detection.packages, depsArray)
+          this.hasDependency(detection.packages, depsArray) &&
+          this.hasFiles(detection.files, cwd)
         ) {
           currentExclusions.delete(detection.id);
           reenabled.push(`${categoryId}/${detection.id}`);
@@ -240,16 +262,42 @@ export class ConfigService {
   }
 
   /**
-   * Checks if any of the provided packages are present in the project dependencies.
+   * Checks if ANY of the required files exist in the project directory.
+   */
+  private hasFiles(files: string[] | undefined, cwd: string): boolean {
+    if (!files || files.length === 0) return true; // If no files required, assume condition met
+    for (const file of files) {
+      if (fs.existsSync(path.join(cwd, file))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Checks if ANY of the required dependencies are found in the project.
    */
   private hasDependency(packages: string[], projectDeps: string[]): boolean {
+    if (packages.length === 0) return true; // If no packages are required, condition met
     return projectDeps.some((d) =>
       packages.some((pkg) => {
         const depLower = d.toLowerCase();
         const pkgLower = pkg.toLowerCase();
-        return pkg.length <= 3
-          ? depLower === pkgLower
-          : depLower.includes(pkgLower);
+
+        // Exact match
+        if (depLower === pkgLower) return true;
+
+        // Skip fuzzy matching for short names to avoid noise
+        if (pkg.length <= 3) return false;
+
+        // Handle scoped packages: @scope/package matches package
+        if (depLower.includes('/') && depLower.split('/').pop() === pkgLower)
+          return true;
+
+        // Handle framework-prefixed packages (e.g. @nestjs/core, flask-cors)
+        // Only match if the package is a standalone word in the dependency name
+        const parts = depLower.split(/[-/_]/);
+        return parts.includes(pkgLower);
       }),
     );
   }

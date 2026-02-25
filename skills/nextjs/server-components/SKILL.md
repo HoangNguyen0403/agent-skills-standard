@@ -4,13 +4,17 @@ description: RSC usage, "use client" directive, and Component Purity.
 metadata:
   labels: [nextjs, rsc, components]
   triggers:
-    files: ['**/*.tsx', '**/*.jsx']
+    files:
+      ['app/**/*.tsx', 'src/app/**/*.tsx', 'app/**/*.jsx', 'src/app/**/*.jsx']
     keywords: [use client, Server Component, Client Component, hydration]
 ---
 
 # Server & Client Components
 
 ## **Priority: P0 (CRITICAL)**
+
+> [!WARNING]
+> If the project uses the `pages/` directory instead of the App Router, **ignore** this skill entirely.
 
 Next.js (App Router) uses React Server Components (RSC) by default.
 

@@ -129,13 +129,13 @@ describe('SyncService', () => {
         default_branch: 'main',
       });
       mockGithubService.getRepoTree.mockResolvedValue({
-        tree: [{ path: '.agent/workflows/w1.md' }],
+        tree: [{ path: '.agent/workflows/code-review.md' }],
       });
 
       const result = await syncService.reconcileWorkflows(config);
 
       expect(result).toBe(true);
-      expect(config.workflows).toEqual(['w1']);
+      expect(config.workflows).toEqual(['code-review']);
     });
 
     it('should return false if no new workflows found', async () => {

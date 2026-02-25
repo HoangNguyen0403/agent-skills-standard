@@ -19,8 +19,17 @@ Prioritize **Zero-Runtime** CSS for Server Components.
 | Library                    | Verdict            | Reason                                             |
 | :------------------------- | :----------------- | :------------------------------------------------- |
 | **Tailwind / shadcn**      | **Preferred (P1)** | Zero-runtime, RSC compatible. Best for App Router. |
-| **CSS Modules**            | **Recommended**    | Scoped, zero-runtime.                              |
+| **CSS Modules / SCSS**     | **Recommended**    | Scoped, zero-runtime. Good for legacy projects.    |
+| **Ant Design**             | **Supported**      | Use with Client Component wrappers for RSCs.       |
 | **MUI / Chakra (Runtime)** | **Avoid**          | Forces `use client` widely. Degrades performance.  |
+
+## Library Patterns
+
+For specific library setups, see:
+
+- [references/scss.md](references/scss.md)
+- [references/ant-design.md](references/ant-design.md)
+- [references/tailwind.md](references/tailwind.md) (Tailwind/shadcn)
 
 ## Patterns
 

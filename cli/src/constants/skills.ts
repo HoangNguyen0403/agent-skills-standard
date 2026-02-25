@@ -8,6 +8,8 @@ export interface SkillDetection {
   id: string;
   /** List of npm or pub packages that indicate this skill is used */
   packages: string[];
+  /** Optional list of root folder/file paths (relative to cwd). If any exist, the skill is detected. */
+  files?: string[];
 }
 
 /**
@@ -70,10 +72,12 @@ export const SKILL_DETECTION_REGISTRY: Record<string, SkillDetection[]> = {
     {
       id: 'compose',
       packages: ['androidx.compose.ui'],
+      files: ['android', 'build.gradle', 'build.gradle.kts'],
     },
     {
       id: 'navigation',
       packages: ['androidx.navigation:navigation-compose'],
+      files: ['android', 'build.gradle', 'build.gradle.kts'],
     },
     {
       id: 'legacy-navigation',
@@ -81,44 +85,54 @@ export const SKILL_DETECTION_REGISTRY: Record<string, SkillDetection[]> = {
         'androidx.navigation:navigation-fragment',
         'androidx.navigation:navigation-ui',
       ],
+      files: ['android', 'build.gradle', 'build.gradle.kts'],
     },
     {
       id: 'di',
       packages: ['hilt-android', 'dagger-android'],
+      files: ['android', 'build.gradle', 'build.gradle.kts'],
     },
     {
       id: 'persistence',
       packages: ['androidx.room:room-runtime'],
+      files: ['android', 'build.gradle', 'build.gradle.kts'],
     },
     {
       id: 'networking',
       packages: ['retrofit'],
+      files: ['android', 'build.gradle', 'build.gradle.kts'],
     },
     {
       id: 'concurrency',
       packages: ['kotlinx-coroutines-android'],
+      files: ['android', 'build.gradle', 'build.gradle.kts'],
     },
   ],
   [Framework.iOS]: [
     {
       id: 'networking',
       packages: ['Alamofire', 'Moya'],
+      files: ['ios', 'Podfile', 'Package.swift'],
     },
     {
       id: 'dependency-injection',
       packages: ['Swinject', 'Resolver'],
+      files: ['ios', 'Podfile', 'Package.swift'],
     },
     {
       id: 'persistence',
       packages: ['Realm', 'CoreData', 'SQLite.swift'],
+      files: ['ios', 'Podfile', 'Package.swift'],
     },
     {
       id: 'state-management',
       packages: ['ComposableArchitecture', 'CombineRuntime'],
+      files: ['ios', 'Podfile', 'Package.swift'],
     },
     {
       id: 'ui-navigation',
       packages: ['Coordinator', 'Router'],
+      files: ['ios', 'Podfile', 'Package.swift'],
     },
   ],
   [Framework.ReactNative]: [
@@ -163,6 +177,65 @@ export const SKILL_DETECTION_REGISTRY: Record<string, SkillDetection[]> = {
     {
       id: 'database-expert',
       packages: ['laravel/framework'], // Always present, but used for sub-skill mapping
+    },
+  ],
+  [Framework.NextJS]: [
+    {
+      id: 'pages-router',
+      packages: [],
+      files: ['pages', 'src/pages'],
+    },
+    {
+      id: 'server-components',
+      packages: [],
+      files: ['app', 'src/app'],
+    },
+    {
+      id: 'server-actions',
+      packages: [],
+      files: ['app', 'src/app'],
+    },
+    {
+      id: 'data-fetching',
+      packages: [],
+      files: ['app', 'src/app'],
+    },
+    {
+      id: 'i18n',
+      packages: ['next-intl', 'react-intl', 'next-translate', 'i18next'],
+      files: [
+        'middleware.ts',
+        'app/[lang]',
+        'pages/[locale]',
+        'next.config.js',
+      ],
+    },
+  ],
+  [Framework.React]: [
+    {
+      id: 'styling',
+      packages: ['tailwind', 'antd', 'sass', 'styled-components', 'emotion'],
+    },
+    {
+      id: 'state-management',
+      packages: [
+        'redux',
+        '@reduxjs/toolkit',
+        'zustand',
+        'mobx',
+        'recoil',
+        'jotai',
+      ],
+    },
+    {
+      id: 'testing',
+      packages: [
+        'jest',
+        'vitest',
+        '@testing-library/react',
+        'cypress',
+        'playwright',
+      ],
     },
   ],
   database: [

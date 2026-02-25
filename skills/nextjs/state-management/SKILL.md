@@ -64,3 +64,10 @@ If you need "Live" data on the client (e.g., polling stock prices, chat), do not
 // Automated caching, deduplication, and revalidation
 const { data, error } = useSWR('/api/user', fetcher);
 ```
+
+## Library Patterns
+
+For specific state management patterns, see:
+
+- [references/redux.md](references/redux.md)
+- [references/zustand.md](references/zustand.md)

@@ -10,6 +10,11 @@ export const BACKEND_FRAMEWORKS: Framework[] = [
   Framework.Laravel,
 ];
 
+export const FRONTEND_REACT_FRAMEWORKS: Framework[] = [
+  Framework.NextJS,
+  Framework.ReactNative,
+];
+
 export const DEFAULT_REGISTER =
   'https://github.com/HoangNguyen0403/agent-skills-standard';
 
@@ -17,6 +22,7 @@ export const DEFAULT_WORKFLOWS = [
   'code-review',
   'codebase-review',
   'plan-feature',
+  'skill-benchmark'
 ];
 
 // Configurable via ENV or hardcoded for production convenience

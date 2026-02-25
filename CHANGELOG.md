@@ -5,6 +5,28 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.3] - 2026-02-25
+
+**Category**: Skill Optimization & Next.js Pages Router Support & Workflow Standard
+
+#### Added
+
+- **⚡ Workflow Writing Standard**: New P0 skill (`common/workflow-writing`) to enforce conciseness and token efficiency in all registry files.
+- **▲ Next.js Pages Router Support**: Added deep-dive standards for Redux and Zustand in legacy Pages Router environments.
+- **📊 Benchmark Workflow v2**: Complete rewrite of the `/skill-benchmark` workflow—now framework-agnostic with auto-Trap selection and Skill Applicability Reporting.
+
+#### Changed (Skills)
+
+- **⚛️ Redux/Zustand refs**: Standardized Next.js state management with official style guide patterns and hydration-safe hooks.
+- **📈 Skill Applicability Report**: Added automated `.skillsrc` exclusion recommendations to the benchmark output.
+
+#### Versions
+
+- **Common Skills**: v1.5.4 (Patch)
+- **Framework Skills**:
+  - **Next.js**: v1.1.3 (Patch)
+- **CLI/Server**: v1.7.3 (Patch)
+
 ## [1.7.2] - 2026-02-25
 
 **Category**: Workflow Robustness & CLI Sync Logic Hardening & Skill Standardization

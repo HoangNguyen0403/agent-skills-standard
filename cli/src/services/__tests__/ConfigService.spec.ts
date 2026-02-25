@@ -208,7 +208,7 @@ describe('ConfigService', () => {
       expect(config.skills.unknown.ref).toBe('main');
     });
 
-    it('should include react patterns by default for react-native framework', () => {
+    it('should explicitly map the react category by default for frontend react frameworks', () => {
       const metadata: RegistryMetadata = {
         global: { author: 'test', repository: 'test' },
         categories: {
@@ -224,10 +224,7 @@ describe('ConfigService', () => {
         metadata,
       );
 
-      expect(config.skills['react-native']?.include).toEqual([
-        'react/hooks',
-        'react/component-patterns',
-      ]);
+      expect(config.skills['react']?.ref).toEqual('v1.0.0');
     });
 
     it('should auto-include database category for backend frameworks', () => {
@@ -353,7 +350,7 @@ describe('ConfigService', () => {
               expect(category.exclude).toContain(detection.id);
             });
 
-            it(`should NOT exclude ${detection.id} when dependency ${detection.packages[0]} is present`, () => {
+            it(`should NOT exclude ${detection.id} when dependencies/files are present`, () => {
               const config: SkillConfig = {
                 registry: 'https://example.com',
                 agents: [Agent.Cursor],
@@ -362,13 +359,21 @@ describe('ConfigService', () => {
                 },
                 custom_overrides: [],
               };
-              // Simulate presence of the first package in the detection list
-              const projectDeps = new Set([detection.packages[0], 'other-dep']);
+              // Simulate presence of the first package in the detection list if it exists
+              const projectDeps = new Set(
+                detection.packages.length > 0 ? [detection.packages[0]] : [],
+              );
+
+              // Mock fs.existsSync to simulate filesystem matches for file-based exclusions
+              vi.mocked(fs.existsSync).mockReturnValue(true);
 
               configService.applyDependencyExclusions(config, projectDeps);
 
               const category = config.skills[framework] as CategoryConfig;
               expect(category.exclude || []).not.toContain(detection.id);
+
+              // Cleanup the mock so it doesn't leak into other tests
+              vi.mocked(fs.existsSync).mockReset();
             });
           });
         });
@@ -394,6 +399,9 @@ describe('ConfigService', () => {
       // persistence is detected by 'androidx.room:room-runtime'
       const projectDeps = new Set(['retrofit', 'some-other-dep']);
 
+      // Mock fs.existsSync to satisfy mobile folder requirements
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+
       const reenabled = configService.reconcileDependencies(
         config,
         projectDeps,
@@ -402,6 +410,8 @@ describe('ConfigService', () => {
       expect(reenabled).toContain('android/networking');
       const category = config.skills.android as CategoryConfig;
       expect(category.exclude).toEqual(['persistence']);
+
+      vi.mocked(fs.existsSync).mockReset();
     });
 
     it('should remove exclude key if all skills are re-enabled', () => {
@@ -419,6 +429,9 @@ describe('ConfigService', () => {
 
       const projectDeps = new Set(['retrofit']);
 
+      // Mock fs.existsSync to satisfy mobile folder requirements
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+
       const reenabled = configService.reconcileDependencies(
         config,
         projectDeps,
@@ -427,6 +440,8 @@ describe('ConfigService', () => {
       expect(reenabled).toContain('android/networking');
       const category = config.skills.android as CategoryConfig;
       expect(category.exclude).toBeUndefined();
+
+      vi.mocked(fs.existsSync).mockReset();
     });
 
     it('should automatically add "database" category if dependencies are found', () => {

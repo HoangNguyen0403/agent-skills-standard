@@ -3,14 +3,14 @@
 [![NPM Version](https://img.shields.io/npm/v/agent-skills-standard.svg?style=flat-square)](https://www.npmjs.com/package/agent-skills-standard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/HoangNguyen0403/agent-skills-standard?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/stargazers)
-[![common](https://img.shields.io/badge/common-v1.5.3-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.5.3)
+[![common](https://img.shields.io/badge/common-v1.5.4-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.5.4)
 [![flutter](https://img.shields.io/badge/flutter-v1.3.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/flutter-v1.3.1)
 [![dart](https://img.shields.io/badge/dart-v1.0.4-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/dart-v1.0.4)
 [![typescript](https://img.shields.io/badge/typescript-v1.0.6-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/typescript-v1.0.6)
 [![react](https://img.shields.io/badge/react-v1.0.3-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-v1.0.3)
 [![react-native](https://img.shields.io/badge/react--native-v1.1.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-native-v1.1.1)
 [![nestjs](https://img.shields.io/badge/nestjs-v1.1.3-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.1.3)
-[![nextjs](https://img.shields.io/badge/nextjs-v1.1.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nextjs-v1.1.2)
+[![nextjs](https://img.shields.io/badge/nextjs-v1.1.3-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nextjs-v1.1.3)
 [![golang](https://img.shields.io/badge/golang-v1.0.3-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/golang-v1.0.3)
 [![angular](https://img.shields.io/badge/angular-v1.1.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/angular-v1.1.1)
 [![kotlin](https://img.shields.io/badge/kotlin-v1.0.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/kotlin-v1.0.1)
@@ -87,6 +87,7 @@ Every skill in this registry is audited for its footprint in the AI's context wi
 
 | Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                 |
 | ------- | ---------- | ------ | ---------- | ----------- | -------------------------------------- |
+| v1.7.3  | 2026-02-25 | 222    | 418        | 89%         | [Report](benchmarks/archive/v1.7.3.md) |
 | v1.7.2  | 2026-02-25 | 220    | 413        | 89%         | [Report](benchmarks/archive/v1.7.2.md) |
 
 ### Why this matters
@@ -102,6 +103,7 @@ Sending a 3,600+ token architect prompt vs. a 413-token skill reduces your **API
 
 - **🛡️ Multi-Agent Support**: Out-of-the-box mapping for Cursor, Claude Dev, GitHub Copilot, and more.
 - **📦 Modular Registry**: Don't load everything. Only enable the skills your project actually uses.
+- **🧩 Framework Composition**: Keeps core tools like `react` separated from framework skills like `nextjs` or `react-native`. The CLI seamlessly detects React dependencies and downloads both sets of rules, avoiding bloated definitions while ensuring complete coverage.
 - **⚡ Proactive Activation (Universal)**: Generates a compressed index in `AGENTS.md` for 100% activation reliability across Cursor, Windsurf, Claude Code, and more.
 - **🔄 Dynamic Re-detection**: Automatically re-enables skills if matching dependencies are added.
 - **🔒 Secure Overrides**: Lock specific files so they never get overwritten.
@@ -288,11 +290,11 @@ If the CLI complains about configuration format:
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
 
-### 🔹 Registry Ecosystem (v1.7.2)
+### 🔹 Registry Ecosystem (v1.7.3)
 
 | Category            | Key Modules                   | Version  | Skills | Avg. Footprint |
 | :------------------ | :---------------------------- | :------- | :----- | :------------- |
-| **🌐 Common**       | SOLID, TDD, Anti-Patterns     | `v1.5.3` | 17     | ~524 tokens    |
+| **🌐 Common**       | SOLID, TDD, Workflow Writing  | `v1.5.4` | 18     | ~527 tokens    |
 | **🗄️ Database**     | PostgreSQL, MongoDB, Redis    | `v1.0.1` | 3      | ~664 tokens    |
 | **🌐 Quality**      | BA, Jira, Zephyr, QA          | `v1.0.1` | 4      | ~458 tokens    |
 | **💙 Flutter**      | Clean Arch, BLoC, Riverpod    | `v1.3.1` | 21     | ~422 tokens    |
@@ -303,7 +305,7 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | **⚛️ React**        | Hooks, State, Performance     | `v1.0.3` | 8      | ~401 tokens    |
 | **📱 React Native** | Arch, Perf, Nav, Security     | `v1.0.3` | 8      | ~401 tokens    |
 | **🦁 NestJS**       | Arch, Microservices, CQRS     | `v1.1.3` | 21     | ~518 tokens    |
-| **▲ Next.js**       | App Router, RSC, FSD          | `v1.1.2` | 17     | ~431 tokens    |
+| **▲ Next.js**       | App Router, RSC, Pages Router | `v1.1.3` | 18     | ~485 tokens    |
 | **🐹 Golang**       | Concurrency, API Design       | `v1.0.3` | 10     | ~375 tokens    |
 | **🐘 Kotlin**       | Coroutines, Flow, Tooling     | `v1.0.1` | 4      | ~453 tokens    |
 | **🅰️ Angular**      | Standalone, Signals           | `v1.1.1` | 15     | ~285 tokens    |

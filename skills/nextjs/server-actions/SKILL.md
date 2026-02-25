@@ -4,13 +4,22 @@ description: Mutations, Form handling, and RPC-style calls.
 metadata:
   labels: [nextjs, actions, mutations]
   triggers:
-    files: ['**/actions.ts', '**/*.tsx']
+    files:
+      [
+        'app/**/actions.ts',
+        'src/app/**/actions.ts',
+        'app/**/*.tsx',
+        'src/app/**/*.tsx',
+      ]
     keywords: [use server, Server Action, revalidatePath, useFormStatus]
 ---
 
 # Server Actions
 
 ## **Priority: P1 (HIGH)**
+
+> [!WARNING]
+> If the project uses the `pages/` directory instead of the App Router, **ignore** this skill entirely.
 
 Handle form submissions and mutations without creating API endpoints.
 

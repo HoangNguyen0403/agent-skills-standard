@@ -104,10 +104,13 @@ export class SyncService {
     } else if (config.workflows === undefined || config.workflows === true) {
       const agents = await this.resolveTargetAgents(config);
       if (agents.includes(Agent.Antigravity)) {
-        config.workflows = availableWorkflows;
+        const defaultWorkflows = availableWorkflows.filter((wf) =>
+          DEFAULT_WORKFLOWS.includes(wf),
+        );
+        config.workflows = defaultWorkflows;
         console.log(
           pc.yellow(
-            `✨ Workflows Initialized: Adding [${availableWorkflows.join(', ')}] to .skillsrc.`,
+            `✨ Workflows Initialized: Adding [${defaultWorkflows.join(', ')}] to .skillsrc.`,
           ),
         );
         changed = true;
