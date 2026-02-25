@@ -24,6 +24,7 @@
 - **Skill Authority:** Loaded skills always override existing code patterns.
 - **Audit Before Write:** Audit every file write against the `common/feedback-reporter` skill.
 
+- **[common/architecture-audit]**: Protocol for auditing structural debt, logic leakage, and fragmentation across Web, Mobile, and Backend. (triggers: package.json, pubspec.yaml, go.mod, pom.xml, nest-cli.json, architecture audit, code review, tech debt, logic leakage, refactor)
 - **[common/architecture-diagramming]**: Standards for creating clear, effective, and formalized software architecture diagrams (C4, UML). (triggers: ARCHITECTURE.md, **/*.mermaid, **/*.drawio, diagram, architecture, c4, system design, mermaid)
 - **[common/best-practices]**: 🚨 Universal principles for clean, maintainable, and robust code across all environments. (triggers: solid, kiss, dry, yagni, naming, conventions)
 - **[common/code-review]**: Standards for high-quality, persona-driven code reviews. (triggers: review, pr, critique, analyze code)
@@ -36,6 +37,7 @@
 - **[common/mobile-ux-core]**: 🚨 Universal mobile UX principles for touch-first interfaces. Enforces touch targets, safe areas, and mobile-specific interaction patterns. (triggers: **/*_page.dart, **/*_screen.dart, **/*_view.dart, **/*.swift, **/*Activity.kt, **/*Screen.tsx, mobile, responsive, SafeArea, touch, gesture, viewport)
 - **[common/performance-engineering]**: Universal standards for high-performance software development across all frameworks. (triggers: performance, optimize, profile, scalability)
 - **[common/product-requirements]**: 🚨 Expert process for gathering requirements and drafting PRDs (Iterative Discovery). (triggers: PRD.md, specs/*.md, create prd, draft requirements, new feature spec)
+- **[common/security-audit]**: 🚨 Adversarial security probing and vulnerability assessments across Node, Go, Dart, Java, Python, and Rust. (triggers: package.json, go.mod, pubspec.yaml, pom.xml, Dockerfile, security audit, vulnerability scan, secrets detection, injection probe, pentest)
 - **[common/security-standards]**: 🚨 Universal security protocols for building safe and resilient software. (triggers: security, encrypt, authenticate, authorize)
 - **[common/system-design]**: 🚨 Universal architectural standards for building robust, scalable, and maintainable systems. (triggers: architecture, design, system, scalability)
 - **[common/tdd]**: Enforces Test-Driven Development (Red-Green-Refactor) for rigorous code quality.
