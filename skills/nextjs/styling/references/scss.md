@@ -17,7 +17,7 @@ const path = require('path');
 
 module.exports = {
   sassOptions: {
-    includePaths: [path.join(__currentDir, 'styles')],
+    includePaths: [path.join(__dirname, 'styles')],
     prependData: `@import "variables.scss";`, // Auto-inject variables into every module
   },
 };
