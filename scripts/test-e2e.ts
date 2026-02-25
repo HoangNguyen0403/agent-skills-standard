@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
 
-const CLI_ROOT = path.resolve(__dirname, '..');
+const CLI_ROOT = path.resolve(__dirname, '../cli');
 const DIST_PATH = path.join(CLI_ROOT, 'dist', 'index.js');
 const TEMP_DIR = path.join(CLI_ROOT, 'temp_e2e_test');
 

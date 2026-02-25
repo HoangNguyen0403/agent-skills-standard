@@ -6,20 +6,19 @@ import pc from 'picocolors';
 import {
   getGitLogs,
   getSmartChangelog,
-  updateCLIVersion,
   updateChangelog,
 } from './release-utils';
 
-const ROOT_DIR = path.resolve(__dirname, '../..');
-const CLI_DIR = path.join(ROOT_DIR, 'cli');
-const PACKAGE_JSON_PATH = path.join(CLI_DIR, 'package.json');
+const ROOT_DIR = path.resolve(__dirname, '..');
+const SERVER_DIR = path.join(ROOT_DIR, 'server');
+const PACKAGE_JSON_PATH = path.join(SERVER_DIR, 'package.json');
 const CHANGELOG_PATH = path.join(ROOT_DIR, 'CHANGELOG.md');
 
 const isDryRun = process.argv.includes('--dry-run');
 const noEdit = process.argv.includes('--no-edit');
 
 async function main() {
-  console.log(pc.bold(pc.blue('\n🚀 Agent Skills CLI - Release Manager\n')));
+  console.log(pc.bold(pc.blue('\n🚀 Agent Skills Server - Release Manager\n')));
 
   if (isDryRun) {
     console.log(pc.magenta('🔍 DRY RUN MODE ENABLED'));
@@ -27,9 +26,9 @@ async function main() {
 
   const pkg = await fs.readJson(PACKAGE_JSON_PATH);
   const currentVersion = pkg.version;
-  const tagPrefix = 'cli-v';
+  const tagPrefix = 'server-v';
 
-  console.log(pc.gray(`\nCurrent CLI version: ${currentVersion}`));
+  console.log(pc.gray(`\nCurrent Server version: ${currentVersion}`));
 
   const [major, minor, patch] = currentVersion.split('.').map(Number);
 
@@ -72,23 +71,6 @@ async function main() {
     finalVersion = customVer;
   }
 
-  if (finalVersion === currentVersion) {
-    const { proceedSame } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'proceedSame',
-        message: pc.yellow(
-          `Version ${finalVersion} is the same as current. Continue anyway?`,
-        ),
-        default: false,
-      },
-    ]);
-    if (!proceedSame) {
-      console.log(pc.yellow('Cancelled.'));
-      return;
-    }
-  }
-
   const tagName = `${tagPrefix}${finalVersion}`;
 
   // Changelog Update Logic
@@ -107,15 +89,14 @@ async function main() {
       let defaultNotes = '### Added\n- ';
       try {
         const prevTag = `${tagPrefix}${currentVersion}`;
-        const logs = getGitLogs(prevTag, 'cli/');
+        const logs = getGitLogs(prevTag, 'server/');
         if (logs) {
           defaultNotes = getSmartChangelog(logs);
         } else {
-          defaultNotes = '### Initial Release';
+          defaultNotes = '### Initial Server Release';
         }
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        console.error(pc.red(`❌ Failed to auto-generate logs: ${msg}`));
+      } catch {
+        defaultNotes = '### Server Update';
       }
 
       notes = defaultNotes;
@@ -131,55 +112,17 @@ async function main() {
           },
         ]);
         notes = response.notes;
-      } else {
-        console.log(
-          pc.gray('   (Using auto-generated notes due to --no-edit)'),
-        );
       }
     }
   }
 
-  // DRY RUN / PLAN PREVIEW
-  console.log(pc.bold(pc.yellow('\n👀 Dry Run / Release Plan:')));
-
-  console.log(pc.bold('1. Update Versions:'));
-  console.log(pc.dim(`   - cli/package.json`));
-  console.log(pc.dim(`   - cli/src/index.ts`));
+  // Preview
+  console.log(pc.bold(pc.yellow('\n👀 Release Plan:')));
   console.log(`   Version: ${currentVersion} -> ${pc.green(finalVersion)}`);
-
-  console.log(pc.bold('\n2. Update Changelog:'));
-  if (notes) {
-    console.log(pc.dim(`   File: ${CHANGELOG_PATH}`));
-    console.log(pc.dim('   --- Preview ---'));
-    console.log(
-      pc.cyan(`   ## [${tagName}] - ${new Date().toISOString().split('T')[0]}`),
-    );
-    console.log(pc.cyan(`   **Category**: CLI Tool\n`));
-    console.log(
-      pc.cyan(
-        notes
-          .split('\n')
-          .map((l) => '   ' + l)
-          .join('\n'),
-      ),
-    );
-  } else {
-    console.log(pc.dim('   (Skipped)'));
-  }
-
-  console.log(pc.bold('\n3. Git Operations:'));
-  const commands = [
-    `git add .`,
-    `git commit -m "chore(release): ${tagName}"`,
-    `git tag ${tagName}`,
-    `git push && git push origin ${tagName}`,
-  ];
-
-  commands.forEach((cmd) => console.log(pc.dim(`   $ ${cmd}`)));
-  console.log('');
+  console.log(`   Tag: ${pc.cyan(tagName)}`);
 
   if (isDryRun) {
-    console.log(pc.magenta('\n✨ Dry run complete. No changes were made.'));
+    console.log(pc.magenta('\n✨ Dry run complete.'));
     return;
   }
 
@@ -187,7 +130,7 @@ async function main() {
     {
       type: 'confirm',
       name: 'confirm',
-      message: `Execute CLI release for ${pc.green(tagName)}?`,
+      message: `Execute server release for ${pc.green(tagName)}?`,
       default: false,
     },
   ]);
@@ -199,17 +142,20 @@ async function main() {
 
   // Execute
   try {
-    await updateCLIVersion(ROOT_DIR, finalVersion);
+    // 1. Update package.json
+    pkg.version = finalVersion;
+    await fs.writeJson(PACKAGE_JSON_PATH, pkg, { spaces: 2 });
 
+    // 2. Update Changelog
     if (notes) {
-      await updateChangelog(CHANGELOG_PATH, tagName, 'CLI Tool', notes);
+      await updateChangelog(CHANGELOG_PATH, tagName, 'Feedback Server', notes);
     }
 
-    console.log(pc.gray('Executing git operations...'));
-
+    // 3. Git operations
     const gitRun = (args: string[]) =>
       execFileSync('git', args, { cwd: ROOT_DIR, stdio: 'inherit' });
 
+    console.log(pc.gray('\n📦 Preparing git commit...'));
     gitRun(['add', '.']);
 
     // Check if there's anything to commit
@@ -224,13 +170,23 @@ async function main() {
       console.log(pc.yellow('  (No changes to commit)'));
     }
 
-    // Check if tag exists
+    // Check if tag already exists
     try {
-      execFileSync('git', ['rev-parse', tagName], {
-        stdio: 'ignore',
-        cwd: ROOT_DIR,
-      });
-      console.log(pc.yellow(`  (Tag ${tagName} already exists, skipping tag)`));
+      execFileSync('git', ['rev-parse', tagName], { stdio: 'ignore' });
+      console.log(pc.yellow(`\n⚠️  Tag ${tagName} already exists locally.`));
+      const { overwriteTag } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'overwriteTag',
+          message: 'Force recreate tag?',
+          default: false,
+        },
+      ]);
+      if (overwriteTag) {
+        gitRun(['tag', '-f', tagName]);
+      } else {
+        console.log(pc.yellow('Using existing tag.'));
+      }
     } catch {
       gitRun(['tag', tagName]);
     }
@@ -239,7 +195,12 @@ async function main() {
     gitRun(['push']);
     gitRun(['push', 'origin', tagName]);
 
-    console.log(pc.bold(pc.magenta(`\n🎉 CLI Release ${tagName} is live!`)));
+    console.log(
+      pc.bold(pc.magenta(`\n🎉 Server Release ${tagName} triggered!`)),
+    );
+    console.log(
+      pc.gray('The GitHub Action will now handle the Render.com deployment.\n'),
+    );
   } catch (error) {
     console.error(pc.red(`\n❌ Release operation failed:`));
     console.error(error instanceof Error ? error.message : String(error));
@@ -247,8 +208,4 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(pc.red(`\n❌ Fatal error:`));
-  console.error(error instanceof Error ? error.stack : String(error));
-  process.exit(1);
-});
+main().catch(console.error);

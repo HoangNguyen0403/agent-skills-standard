@@ -6,69 +6,32 @@ import pc from 'picocolors';
 import {
   getGitLogs,
   getSmartChangelog,
+  updateCLIVersion,
   updateChangelog,
-  updateSkillVersion,
 } from './release-utils';
 
-const ROOT_DIR = path.resolve(__dirname, '../..');
-const METADATA_PATH = path.join(ROOT_DIR, 'skills/metadata.json');
+const ROOT_DIR = path.resolve(__dirname, '..');
+const CLI_DIR = path.join(ROOT_DIR, 'cli');
+const PACKAGE_JSON_PATH = path.join(CLI_DIR, 'package.json');
 const CHANGELOG_PATH = path.join(ROOT_DIR, 'CHANGELOG.md');
 
 const isDryRun = process.argv.includes('--dry-run');
 const noEdit = process.argv.includes('--no-edit');
 
 async function main() {
-  console.log(pc.bold(pc.blue('\n🚀 Agent Skills - Skill Release Manager\n')));
+  console.log(pc.bold(pc.blue('\n🚀 Agent Skills CLI - Release Manager\n')));
 
   if (isDryRun) {
     console.log(pc.magenta('🔍 DRY RUN MODE ENABLED'));
   }
 
-  if (!fs.existsSync(METADATA_PATH)) {
-    console.error(pc.red(`❌ Metadata file not found at ${METADATA_PATH}`));
-    process.exit(1);
-  }
+  const pkg = await fs.readJson(PACKAGE_JSON_PATH);
+  const currentVersion = pkg.version;
+  const tagPrefix = 'cli-v';
 
-  const metadata = await fs.readJson(METADATA_PATH);
-  const categories = Object.keys(metadata.categories);
+  console.log(pc.gray(`\nCurrent CLI version: ${currentVersion}`));
 
-  const { category } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'category',
-      message: 'Which skill category are you releasing?',
-      choices: categories.map((c) => ({
-        name: `${c} (Current: ${
-          metadata.categories[c].version || 'Unreleased'
-        })`,
-        value: c,
-      })),
-    },
-  ]);
-
-  const currentVersion = metadata.categories[category].version || '0.0.0';
-  const tagPrefix =
-    metadata.categories[category].tag_prefix || `skill-${category}-v`;
-
-  console.log(
-    pc.gray(`\nCurrent version for ${pc.cyan(category)}: ${currentVersion}`),
-  );
-
-  const versionMatch = String(currentVersion)
-    .trim()
-    .match(/^(\d+)\.(\d+)\.(\d+)$/);
-  if (!versionMatch) {
-    console.error(
-      pc.red(
-        `❌ Invalid version "${currentVersion}" for category "${category}". ` +
-          'Expected format: X.Y.Z (e.g., 1.2.3).',
-      ),
-    );
-    process.exit(1);
-  }
-  const major = Number(versionMatch[1]);
-  const minor = Number(versionMatch[2]);
-  const patch = Number(versionMatch[3]);
+  const [major, minor, patch] = currentVersion.split('.').map(Number);
 
   const choices = [
     {
@@ -109,9 +72,26 @@ async function main() {
     finalVersion = customVer;
   }
 
+  if (finalVersion === currentVersion) {
+    const { proceedSame } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'proceedSame',
+        message: pc.yellow(
+          `Version ${finalVersion} is the same as current. Continue anyway?`,
+        ),
+        default: false,
+      },
+    ]);
+    if (!proceedSame) {
+      console.log(pc.yellow('Cancelled.'));
+      return;
+    }
+  }
+
   const tagName = `${tagPrefix}${finalVersion}`;
 
-  // 2. Generate Release Notes
+  // Changelog Update Logic
   let notes = '';
   if (fs.existsSync(CHANGELOG_PATH)) {
     const { shouldUpdateChangelog } = await inquirer.prompt([
@@ -127,7 +107,7 @@ async function main() {
       let defaultNotes = '### Added\n- ';
       try {
         const prevTag = `${tagPrefix}${currentVersion}`;
-        const logs = getGitLogs(prevTag, `skills/${category}/`);
+        const logs = getGitLogs(prevTag, 'cli/');
         if (logs) {
           defaultNotes = getSmartChangelog(logs);
         } else {
@@ -162,8 +142,9 @@ async function main() {
   // DRY RUN / PLAN PREVIEW
   console.log(pc.bold(pc.yellow('\n👀 Dry Run / Release Plan:')));
 
-  console.log(pc.bold(`1. Update Version for ${pc.cyan(category)}:`));
-  console.log(pc.dim(`   - skills/metadata.json`));
+  console.log(pc.bold('1. Update Versions:'));
+  console.log(pc.dim(`   - cli/package.json`));
+  console.log(pc.dim(`   - cli/src/index.ts`));
   console.log(`   Version: ${currentVersion} -> ${pc.green(finalVersion)}`);
 
   console.log(pc.bold('\n2. Update Changelog:'));
@@ -171,11 +152,9 @@ async function main() {
     console.log(pc.dim(`   File: ${CHANGELOG_PATH}`));
     console.log(pc.dim('   --- Preview ---'));
     console.log(
-      pc.cyan(
-        `\n   ## [${tagName}] - ${new Date().toISOString().split('T')[0]}\n`,
-      ),
+      pc.cyan(`   ## [${tagName}] - ${new Date().toISOString().split('T')[0]}`),
     );
-    console.log(pc.cyan(`   **Category**: ${category.toUpperCase()} Skills\n`));
+    console.log(pc.cyan(`   **Category**: CLI Tool\n`));
     console.log(
       pc.cyan(
         notes
@@ -208,7 +187,7 @@ async function main() {
     {
       type: 'confirm',
       name: 'confirm',
-      message: `Execute release for ${pc.green(tagName)}?`,
+      message: `Execute CLI release for ${pc.green(tagName)}?`,
       default: false,
     },
   ]);
@@ -220,15 +199,10 @@ async function main() {
 
   // Execute
   try {
-    await updateSkillVersion(ROOT_DIR, category, finalVersion);
+    await updateCLIVersion(ROOT_DIR, finalVersion);
 
     if (notes) {
-      await updateChangelog(
-        CHANGELOG_PATH,
-        tagName,
-        `${category.toUpperCase()} Skills`,
-        notes,
-      );
+      await updateChangelog(CHANGELOG_PATH, tagName, 'CLI Tool', notes);
     }
 
     console.log(pc.gray('Executing git operations...'));
@@ -238,6 +212,7 @@ async function main() {
 
     gitRun(['add', '.']);
 
+    // Check if there's anything to commit
     const status = execFileSync('git', ['status', '--porcelain'], {
       cwd: ROOT_DIR,
       encoding: 'utf-8',
@@ -249,6 +224,7 @@ async function main() {
       console.log(pc.yellow('  (No changes to commit)'));
     }
 
+    // Check if tag exists
     try {
       execFileSync('git', ['rev-parse', tagName], {
         stdio: 'ignore',
@@ -263,7 +239,7 @@ async function main() {
     gitRun(['push']);
     gitRun(['push', 'origin', tagName]);
 
-    console.log(pc.bold(pc.magenta(`\n🎉 Skill Release ${tagName} is live!`)));
+    console.log(pc.bold(pc.magenta(`\n🎉 CLI Release ${tagName} is live!`)));
   } catch (error) {
     console.error(pc.red(`\n❌ Release operation failed:`));
     console.error(error instanceof Error ? error.message : String(error));
@@ -271,4 +247,8 @@ async function main() {
   }
 }
 
-main().catch(console.error);
+main().catch((error) => {
+  console.error(pc.red(`\n❌ Fatal error:`));
+  console.error(error instanceof Error ? error.stack : String(error));
+  process.exit(1);
+});

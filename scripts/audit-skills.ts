@@ -3,8 +3,8 @@ import path from 'path';
 import pc from 'picocolors';
 
 async function main() {
-  // Adjusted for running from 'cli' directory
-  const skillsDir = path.join(process.cwd(), '..', 'skills');
+  // Look for skills directory in the repository root
+  const skillsDir = path.join(__dirname, '../skills');
 
   if (!(await fs.pathExists(skillsDir))) {
     console.error(pc.red(`Skills directory not found at ${skillsDir}`));

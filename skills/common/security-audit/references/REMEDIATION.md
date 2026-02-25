@@ -8,9 +8,9 @@ Standard protocols for fixing critical security findings identified during a Sec
 
 **Fix**:
 
-1.  **Immediate**: Rotate the leaked secret (API key, password, etc.).
-2.  **Implementation**: Move the secret to an environment variable (`.env`) or a Secret Manager (AWS Secrets Manager, Doppler).
-3.  **Removal**: Use `git-filter-repo` or BFG Repo-Cleaner to remove the secret from git history.
+1. **Immediate**: Rotate the leaked secret (API key, password, etc.).
+2. **Implementation**: Move the secret to an environment variable (`.env`) or a Secret Manager (AWS Secrets Manager, Doppler).
+3. **Removal**: Use `git-filter-repo` or BFG Repo-Cleaner to remove the secret from git history.
 
 ### 2. PII / Secret Log Leakage
 

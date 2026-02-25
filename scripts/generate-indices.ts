@@ -1,10 +1,10 @@
 import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
-import { Agent } from '../constants';
-import { AgentBridgeService } from '../services/AgentBridgeService';
-import { IndexGeneratorService } from '../services/IndexGeneratorService';
-import { MarkdownUtils } from '../services/utils/MarkdownUtils';
+import { Agent } from '../cli/src/constants';
+import { AgentBridgeService } from '../cli/src/services/AgentBridgeService';
+import { IndexGeneratorService } from '../cli/src/services/IndexGeneratorService';
+import { MarkdownUtils } from '../cli/src/services/utils/MarkdownUtils';
 
 interface SkillMetadata {
   name: string;
@@ -54,8 +54,9 @@ async function parseSkill(skillPath: string): Promise<SkillMetadata | null> {
 }
 
 async function generate() {
-  // Look for skills directory in the workspace root
-  const skillsDir = path.join(process.cwd(), '..', 'skills');
+  // Look for skills directory in the repository root
+  const repoRoot = path.join(__dirname, '..');
+  const skillsDir = path.join(repoRoot, 'skills');
 
   if (!(await fs.pathExists(skillsDir))) {
     throw new Error(`Skills directory not found at ${skillsDir}`);
@@ -112,8 +113,7 @@ async function generate() {
   );
 
   // Also update AGENTS.md
-  // Update AGENTS.md in the repository root (one level up)
-  const repoRoot = path.join(process.cwd(), '..');
+  // Already have repoRoot from above
 
   // Filter AGENTS.md content based on .skillsrc enabled categories
   let enabledCategories: string[] | null = null;

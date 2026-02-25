@@ -9,7 +9,7 @@
 import fs from 'fs-extra';
 import * as path from 'path';
 
-const SKILLS_DIR = path.join(__dirname, '../../../skills');
+const SKILLS_DIR = path.join(__dirname, '../skills');
 const METADATA_PATH = path.join(SKILLS_DIR, 'metadata.json');
 const CHARS_PER_TOKEN = 4; // Approximate ratio for cl100k_base tokenizer
 
@@ -158,7 +158,7 @@ async function main() {
   console.log('✅ Updated metadata.json with token_metrics');
 
   // Update README.md table
-  const readmePath = path.join(__dirname, '../../../README.md');
+  const readmePath = path.join(__dirname, '../README.md');
   if (fs.existsSync(readmePath)) {
     const readmeContent = fs.readFileSync(readmePath, 'utf-8');
 

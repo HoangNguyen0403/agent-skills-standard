@@ -20,6 +20,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **📦 Database Auto-Detection**: Fixed `ags init` to consistently detect database needs and auto-configure matching skills for NestJS, Go, and Spring Boot.
 - **🛠️ Detection Persistence**: Resolved issue where skills excluded during init would sometimes reappear during sync incorrectly.
 
+#### 📊 Benchmark & Token Economy (v1.0.0)
+
+- **📈 Performance Audit**: Launched the first official high-density benchmark, verifying **89% token savings** vs. traditional technical prompts.
+- **📄 High-Density Report**: Created `benchmark-report.md` with per-category breakdowns, collapsible tables, and quality rubrics.
+- **🛡️ Quality Rubric (0-10)**: Implemented a verifiable structural scoring system for all 220 skills in the registry.
+- **💰 Cost Explainability**: Added models pricing comparison and monthly savings projections for enterprise scale.
+
+#### Changed (UX & Documentation)
+
+- **🚀 README Integration**: Added "Efficiency & Benchmark" sections to root and CLI READMEs with visual "token occupancy" badges.
+
 #### Changed (Skills)
 
 - **📐 Architecture Audit (v1.5.3)**: Standardized to Skill Creator format. Added deep-dive protocols for Web, Mobile, and Backend ecosystems.

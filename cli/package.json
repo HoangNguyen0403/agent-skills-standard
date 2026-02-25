@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "A CLI to manage and sync AI agent skills standard for Cursor, Claude, Copilot, Windsurf, and more.",
   "main": "dist/index.js",
   "bin": {
@@ -13,24 +13,16 @@
   "scripts": {
     "build": "vite build",
     "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts",
-    "release-skill": "ts-node scripts/release-skill.ts",
-    "release-cli": "ts-node scripts/release-cli.ts",
-    "release-server": "ts-node scripts/release-server.ts",
-    "validate": "ts-node src/index.ts validate",
-    "validate:all": "ts-node src/index.ts validate --all",
-    "calculate-tokens": "ts-node src/scripts/calculate-tokens.ts",
-    "generate-indices": "ts-node src/scripts/generate-indices.ts",
-    "audit:skills": "ts-node src/scripts/audit-skills.ts",
-    "docs:scan": "ts-node scripts/scan-docs.ts",
-    "format": "prettier --write \"src/**/*.ts\" \"scripts/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\" \"scripts/**/*.ts\"",
-    "lint": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\" --fix",
-    "lint:check": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\"",
+    "dev": "tsx src/index.ts",
+    "validate": "tsx src/index.ts validate",
+    "validate:all": "tsx src/index.ts validate --all",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "lint:check": "eslint \"src/**/*.ts\"",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "ts-node scripts/test-e2e.ts",
     "prepublishOnly": "pnpm build"
   },
   "keywords": [
@@ -54,21 +46,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
-    "@types/dotenv": "^8.2.3",
-    "@types/fs-extra": "^11.0.4",
-    "@types/inquirer": "^8.2.5",
-    "@types/js-yaml": "^4.0.9",
-    "@types/node": "^25.1.0",
     "@vitest/coverage-v8": "^4.0.17",
-    "eslint": "^9.39.2",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.5",
-    "globals": "^17.0.0",
-    "prettier": "3.8.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.53.0",
     "vite": "^7.0.0",
     "vitest": "^4.0.17"
   }

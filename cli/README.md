@@ -57,7 +57,16 @@ We take security seriously. Here is what you need to know about how the CLI work
 
 ---
 
-## ✨ Features
+## 📊 Efficiency & Benchmark
+
+Every skill delivered by this CLI is audited for its footprint in the AI's context window.
+
+| Metric             | Savings (vs. Heavy Prompt) | Avg. Footprint | Quality |
+| ------------------ | -------------------------: | -------------- | ------- |
+| **Global Average** |            **89% Savings** | ~413 tokens    | 8.9/10  |
+
+> [!IMPORTANT]
+> **Context is Currency**: By reducing instruction overhead by **89%**, you free up your AI's memory and budget for complex logic and large codebases.
 
 - **🛡️ Multi-Agent Support**: Out-of-the-box mapping for Cursor, Claude Dev, GitHub Copilot, and more.
 - **📦 Modular Registry**: Don't load everything. Only enable the skills your project actually uses.
@@ -68,6 +77,13 @@ We take security seriously. Here is what you need to know about how the CLI work
 - **🤖 Agent Workflows**: Sync executable workflows (.md files) that agents can follow to perform complex tasks.
 
 ---
+
+#### 📜 Benchmark History
+
+| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
+| --- | --- | --- | --- | --- | --- |
+| v1.7.3 | 2026-02-25 | 220 | 413 | 89% | [Report](benchmarks/archive/v1.7.3.md) |
+| v1.7.2 | 2026-02-25 | 220 | 413 | 89% | [Report](benchmarks/archive/v1.7.2.md) |
 
 ## � Token Economy & Optimization
 
@@ -215,32 +231,29 @@ skills:
 - **🔒 Secure Protection**: Mark specific files as "Locked" (overrides) so the CLI never changes your custom tweaks.
 - **🧪 Production-Grade Reliability**: Guarded by a 100% statement coverage test suite and strict CI enforcement.
 
----
+### 🔹 Supported Stacks (Token Audited)
 
-## 🌍 Supported Stacks
+| Category        | Typical Savings | Avg. Footprint                                                                   | Status        |
+| :-------------- | :-------------- | :------------------------------------------------------------------------------- | :------------ |
+| **Flutter**     | 88%             | `422` ![tokens](https://img.shields.io/badge/tokens-422-green?style=flat-square) | ✅ Stable     |
+| **NestJS**      | 85%             | `518` ![tokens](https://img.shields.io/badge/tokens-518-blue?style=flat-square)  | ✅ Production |
+| **Next.js**     | 89%             | `431` ![tokens](https://img.shields.io/badge/tokens-431-green?style=flat-square) | ✅ Stable     |
+| **React**       | 90%             | `401` ![tokens](https://img.shields.io/badge/tokens-401-green?style=flat-square) | ✅ Stable     |
+| **Golang**      | 90%             | `375` ![tokens](https://img.shields.io/badge/tokens-375-green?style=flat-square) | ✅ Stable     |
+| **Android**     | 92%             | `295` ![tokens](https://img.shields.io/badge/tokens-295-green?style=flat-square) | ✅ Production |
+| **iOS**         | 90%             | `411` ![tokens](https://img.shields.io/badge/tokens-411-green?style=flat-square) | ✅ Production |
+| **Laravel**     | 91%             | `361` ![tokens](https://img.shields.io/badge/tokens-361-green?style=flat-square) | ✅ Stable     |
+| **Spring Boot** | 92%             | `369` ![tokens](https://img.shields.io/badge/tokens-369-green?style=flat-square) | ✅ Stable     |
 
-The CLI connects to the [Official Skills Registry](https://github.com/HoangNguyen0403/agent-skills-standard), which currently supports:
-
-- **Flutter**: Clean Architecture, BLoC, AutoRoute, Performance, Security.
-- **Dart**: Idiomatic Patterns, Advanced Tooling.
-- **TypeScript/JavaScript**: Best practices, Security, Tooling.
-- **React**: Hooks, Patterns, Performance.
-- **NestJS**: Architecture, Microservices, Security.
-- **Next.js**: App Router, RSC, FSD Architecture.
-- **Golang**: Clean Architecture, API Design, Concurrency.
-- **Angular**: Standalone, Signals, Control Flow.
-- **Kotlin**: Idiomatic Patterns, Coroutines, Flow.
-- **Spring Boot**: Architecture, Security, Data, Test.
-- **Laravel**: Clean Arch, Eloquent, Security, Jobs, Redis, API.
-- **Android Native**: Architecture, Compose, DI, Performance, Testing, WorkManager.
-- **iOS Native**: Architecture, UI/Layout, Lifecycle, Security, Performance.
+> [!TIP]
+> Run `ags benchmark` (coming soon) or check the [root report](../benchmark-report.md) for full scientific methodology.
 
 ---
 
 ## 🔗 Links
 
 - **Registry Source**: [GitHub Repository](https://github.com/HoangNguyen0403/agent-skills-standard)
-- **CLI Architecture**: [Internal Services & Design](ARCHITECTURE.md)
+- **CLI Architecture**: [Internal Services & Design](https://github.com/HoangNguyen0403/agent-skills-standard/blob/develop/cli/ARCHITECTURE.md)
 - **Standard Specs**: [Documentation](https://github.com/HoangNguyen0403/agent-skills-standard#📂-standard-specification)
 - **Issues**: [Report a bug](https://github.com/HoangNguyen0403/agent-skills-standard/issues)
 

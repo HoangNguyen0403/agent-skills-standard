@@ -75,6 +75,30 @@ We understand that "injecting" instructions into your AI can sound risky. Here i
 
 ---
 
+## 📊 Efficiency & Benchmark
+
+Every skill in this registry is audited for its footprint in the AI's context window. Our goal is **High-Density Logic, Low-Token Footprint**.
+
+| Metric             | Savings (vs. Heavy Prompt) | Avg. Footprint | Quality |
+| ------------------ | -------------------------: | -------------- | ------- |
+| **Global Average** |            **89% Savings** | `v1.0.3` | 10     | ~375 tokens    
+
+#### 📜 Benchmark History
+
+| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
+| --- | --- | --- | --- | --- | --- |
+| v1.7.3 | 2026-02-25 | 220 | 413 | 89% | [Report](benchmarks/archive/v1.7.3.md) |
+| v1.7.2 | 2026-02-25 | 220 | 413 | 89% | [Report](benchmarks/archive/v1.7.2.md) |
+
+### Why this matters
+
+Sending a 3,600+ token architect prompt vs. a 413-token skill reduces your **API costs by ~9x** and leaves **80% more memory** for your actual code.
+
+> [!TIP]
+> **View the Full Audit**: See the per-skill breakdown and methodology in the [Full Benchmark Report](./benchmark-report.md).
+
+---
+
 ## ✨ Features
 
 - **🛡️ Multi-Agent Support**: Out-of-the-box mapping for Cursor, Claude Dev, GitHub Copilot, and more.
@@ -265,31 +289,32 @@ If the CLI complains about configuration format:
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
 
-### 🔹 Current Support (v1.7.2)
+### 🔹 Registry Ecosystem (v1.7.2)
 
-| Category                   | Key Modules                                           | Version  | Skills | Avg. Footprint |
-| :------------------------- | :---------------------------------------------------- | :------- | :----- | :------------- |
-| **🌐 Common**              | SOLID, Security (SQLi/HTMLi), TDD, Anti-Patterns      | `v1.5.3` | 17     | ~524 tokens    |
-| **🗄️ Database**            | PostgreSQL, MongoDB, Redis, Migrations, Query Opt     | `v1.0.1` | 3      | ~664 tokens    |
-| **🌐 Quality Engineering** | Business Analysis, Jira, Zephyr, QA Automation        | `v1.0.1` | 4      | ~500 tokens    |
-| **💙 Flutter**             | Clean Arch, BLoC, Riverpod, Testing, GetX, Nav v1     | `v1.3.1` | 21     | ~422 tokens    |
-| **🎯 Dart**                | Idiomatic Patterns, Advanced Tooling, Build Runner    | `v1.0.4` | 3      | ~435 tokens    |
-| **☕ Java**                | Modern Syntax, Virtual Threads, Testing, Tooling      | `v1.0.0` | 5      | ~522 tokens    |
-| **🔷 TypeScript**          | Type Safety, Security, Best Practices, Tooling        | `v1.0.6` | 4      | ~513 tokens    |
-| **🟨 JavaScript**          | Modern ES2022+ Patterns, Async/Await, Functional      | `v1.0.0` | 5      | ~522 tokens    |
-| **⚛️ React**               | Hooks, State Management, Performance, Security        | `v1.0.3` | 8      | ~401 tokens    |
-| **📱 React Native**        | Arch, Perf, Navigation, Security, Deployment          | `v1.0.3` | 8      | ~401 tokens    |
-| **🦁 NestJS**              | Architecture, Microservices, Security, CQRS, Scaling  | `v1.1.3` | 21     | ~518 tokens    |
-| **▲ Next.js**              | App Router (v15), Caching (v16), Bundling, Debug      | `v1.1.2` | 17     | ~431 tokens    |
-| **🐘 Laravel**             | Clean Arch, Eloquent, Security, Jobs, Redis, API      | `v1.0.0` | 10     | ~361 tokens    |
-| **🐹 Golang**              | Clean Architecture, API Design, Concurrency, Security | `v1.0.3` | 10     | ~375 tokens    |
-| **🐘 Kotlin**              | Idiomatic Patterns, Coroutines, Flow, Tooling         | `v1.0.1` | 4      | ~453 tokens    |
-| **🅰️ Angular**             | Standalone, Signals, Control Flow, SSR, Testing       | `v1.1.1` | 15     | ~285 tokens    |
-| **☕ Spring Boot**         | Architecture, Security, Data, Test, Microservices     | `v1.0.2` | 10     | ~354 tokens    |
-| **🤖 Android**             | Architecture, Compose, DI, Perf, Testing, WorkManager | `v1.0.3` | 22     | ~295 tokens    |
-| **🍎 Swift**               | Language, Memory, Concurrency, SwiftUI, Testing       | `v1.0.0` | 8      | ~354 tokens    |
-| **📱 iOS**                 | Arch, UI, Lifecycle, Security, Perf, Networking, DI   | `v1.1.1` | 15     | ~411 tokens    |
-| **🐘 PHP**                 | Modern Patterns, Error Handling, Tooling              | `v1.0.0` | 7      | ~318 tokens    |
+| Category            | Key Modules                   | Version  | Skills | Avg. Footprint                                                                    |
+| :------------------ | :---------------------------- | :------- | :----- | :-------------------------------------------------------------------------------- |
+| **🌐 Common**       | SOLID, TDD, Anti-Patterns     | `v1.5.3` | 17     | ~524 tokens    |
+| **🗄️ Database**     | PostgreSQL, MongoDB, Redis    | `v1.0.1` | 3      | ~664 tokens    |
+| **🌐 Quality**      | BA, Jira, Zephyr, QA          | `v1.0.1` | 4      | `458` ![tokens](https://img.shields.io/badge/tokens-458-blue?style=flat-square)   |
+| **💙 Flutter**      | Clean Arch, BLoC, Riverpod    | `v1.3.1` | 21     | ~422 tokens    |
+| **🎯 Dart**         | Idiomatic, Advanced Tooling   | `v1.0.4` | 3      | ~435 tokens    |
+| **☕ Java**         | Virtual Threads, Testing      | `v1.0.0` | 5      | ~522 tokens    |
+| **🔷 TypeScript**   | Type Safety, Security         | `v1.0.6` | 4      | ~513 tokens    |
+| **🟨 JavaScript**   | Modern ES2022+ Patterns       | `v1.0.0` | 5      | ~522 tokens    |
+| **⚛️ React**        | Hooks, State, Performance     | `v1.0.3` | 8      | ~401 tokens    |
+| **📱 React Native** | Arch, Perf, Nav, Security     | `v1.0.3` | 8      | ~401 tokens    |
+| **🦁 NestJS**       | Arch, Microservices, CQRS     | `v1.1.3` | 21     | ~518 tokens    |
+| **▲ Next.js**       | App Router, RSC, FSD          | `v1.1.2` | 17     | ~431 tokens    |
+| **🐹 Golang**       | Concurrency, API Design       | `v1.0.3` | 10     | ~375 tokens    |
+| **🐘 Kotlin**       | Coroutines, Flow, Tooling     | `v1.0.1` | 4      | ~453 tokens    |
+| **🅰️ Angular**      | Standalone, Signals           | `v1.1.1` | 15     | ~285 tokens    |
+| **🍃 Spring Boot**  | Security, Data, Microservices | `v1.0.2` | 10     | `369` ![tokens](https://img.shields.io/badge/tokens-369-green?style=flat-square)  |
+| **🤖 Android**      | Compose, DI, Perf, Testing    | `v1.0.3` | 22     | ~295 tokens    |
+| **🍎 Swift**        | Concurrency, SwiftUI, Test    | `v1.0.0` | 8      | ~354 tokens    |
+| **🍏 iOS**          | Arch, Nav, Perf, DI           | `v1.1.1` | 15     | ~411 tokens    |
+| **🐘 PHP**          | Modern Patterns, Error        | `v1.0.0` | 7      | ~318 tokens    |
+| **🚀 Laravel**      | Eloquent, Jobs, Security      | `v1.0.0` | 10     | ~361 tokens    |
+| **🗄️ Database**     | SQL Opt, Migrations           | `v1.0.1` | 3      | ~664 tokens    |
 
 > [!TIP]
 > **Quality Engineering (Opt-in)**: Advanced skills like `business-analysis` or `zephyr-test-generation` are in the **quality-engineering** category and are NOT synced by default to keep context lean. To use them, manually add the category to your `.skillsrc`:
