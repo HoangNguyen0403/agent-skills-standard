@@ -6,7 +6,8 @@
   "pnpm": {
     "overrides": {
       "lodash": "^4.17.23",
-      "qs": "^6.15.0"
+      "qs": "^6.15.0",
+      "multer": ">=2.1.0"
     }
   },
   "scripts": {
