@@ -4,7 +4,19 @@ description: Universal principles for clean, maintainable, and robust code acros
 metadata:
   labels: [best-practices, solid, clean-code, architecture]
   triggers:
-    keywords: [solid, kiss, dry, yagni, naming, conventions]
+    files:
+      [
+        '**/*.ts',
+        '**/*.tsx',
+        '**/*.go',
+        '**/*.dart',
+        '**/*.java',
+        '**/*.kt',
+        '**/*.swift',
+        '**/*.py',
+      ]
+    keywords:
+      [solid, kiss, dry, yagni, naming, conventions, refactor, clean code]
 ---
 
 # Global Best Practices

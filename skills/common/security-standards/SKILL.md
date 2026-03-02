@@ -5,6 +5,17 @@ metadata:
   labels: [security, encryption, authentication, authorization]
   triggers:
     keywords: [security, encrypt, authenticate, authorize]
+    files:
+      [
+        '**/*.ts',
+        '**/*.tsx',
+        '**/*.go',
+        '**/*.dart',
+        '**/*.java',
+        '**/*.kt',
+        '**/*.swift',
+        '**/*.py',
+      ]
 ---
 
 # Security Standards - High-Density Standards

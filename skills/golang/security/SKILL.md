@@ -22,7 +22,7 @@ metadata:
 ### Cryptography
 
 - **Random**: ALWAYS use `crypto/rand`, NEVER `math/rand` for security-sensitive operations (tokens, keys, IVs).
-- **Hashing**: Use `bcrypt` or `argon2` for password hashing. Avoid MD5/SHA1.
+- **Hashing**: Use **Argon2id** for password hashing (`golang.org/x/crypto/argon2`). Do NOT use bcrypt (weaker) or MD5/SHA1 (insecure). Recommended params: `time=1, memory=64MB, threads=4`.
 - **Encryption**: Use `crypto/aes` with GCM mode for authenticated encryption.
 
 ### SQL Injection Prevention
@@ -32,7 +32,7 @@ metadata:
 
 ### Authentication
 
-- **JWT**: Use `golang-jwt/jwt` v5+. Validate `alg`, `iss`, `aud`, `exp` claims.
+- **JWT**: Use `golang-jwt/jwt` v5+. Enforce `RS256` (preferred) or `HS256`. **Reject `none` and symmetric algorithms for multi-service auth**. Validate `alg`, `iss`, `aud`, `exp` claims.
 - **Sessions**: Use secure, httpOnly cookies with `gorilla/sessions`.
 
 ### Secret Management
@@ -44,7 +44,7 @@ metadata:
 
 - **No `math/rand` for Security**: RNG is predictable. Use `crypto/rand`.
 - **No `fmt.Sprintf()` for SQL**: Causes SQL injection. Use placeholders.
-- **No MD5 for Passwords**: Use `bcrypt` or `argon2id`.
+- **No bcrypt or MD5 for Passwords**: Use `argon2id` exclusively.
 - **No Exposed Error Details**: Don't leak stack traces to clients in production.
 
 ## References

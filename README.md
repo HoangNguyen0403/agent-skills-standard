@@ -3,15 +3,15 @@
 [![NPM Version](https://img.shields.io/npm/v/agent-skills-standard.svg?style=flat-square)](https://www.npmjs.com/package/agent-skills-standard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/HoangNguyen0403/agent-skills-standard?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/stargazers)
-[![common](https://img.shields.io/badge/common-v1.5.4-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.5.4)
-[![flutter](https://img.shields.io/badge/flutter-v1.3.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/flutter-v1.3.1)
+[![common](https://img.shields.io/badge/common-v1.6.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.6.0)
+[![flutter](https://img.shields.io/badge/flutter-v1.3.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/flutter-v1.3.2)
 [![dart](https://img.shields.io/badge/dart-v1.0.4-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/dart-v1.0.4)
-[![typescript](https://img.shields.io/badge/typescript-v1.0.6-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/typescript-v1.0.6)
-[![react](https://img.shields.io/badge/react-v1.0.3-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-v1.0.3)
+[![typescript](https://img.shields.io/badge/typescript-v1.0.7-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/typescript-v1.0.7)
+[![react](https://img.shields.io/badge/react-v1.0.4-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-v1.0.4)
 [![react-native](https://img.shields.io/badge/react--native-v1.1.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-native-v1.1.1)
-[![nestjs](https://img.shields.io/badge/nestjs-v1.1.3-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.1.3)
+[![nestjs](https://img.shields.io/badge/nestjs-v1.1.4-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.1.4)
 [![nextjs](https://img.shields.io/badge/nextjs-v1.1.3-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nextjs-v1.1.3)
-[![golang](https://img.shields.io/badge/golang-v1.0.3-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/golang-v1.0.3)
+[![golang](https://img.shields.io/badge/golang-v1.0.4-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/golang-v1.0.4)
 [![angular](https://img.shields.io/badge/angular-v1.1.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/angular-v1.1.1)
 [![kotlin](https://img.shields.io/badge/kotlin-v1.0.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/kotlin-v1.0.1)
 [![java](https://img.shields.io/badge/java-v1.0.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/java-v1.0.0)
@@ -81,12 +81,13 @@ Every skill in this registry is audited for its footprint in the AI's context wi
 
 | Metric             | Savings (vs. Heavy Prompt) | Avg. Footprint | Quality |
 | ------------------ | -------------------------: | -------------- | ------- | ----------- |
-| **Global Average** |            **89% Savings** | `v1.0.3` | 10     | ~375 tokens    |
+| **Global Average** |            **89% Savings** | `v1.0.4` | 10     | ~380 tokens    |
 
 #### 📜 Benchmark History
 
 | Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                 |
 | ------- | ---------- | ------ | ---------- | ----------- | -------------------------------------- |
+| v1.8.0  | 2026-03-02 | 228    | 443        | 88%         | [Report](benchmarks/archive/v1.8.0.md) |
 | v1.7.3  | 2026-02-25 | 222    | 418        | 89%         | [Report](benchmarks/archive/v1.7.3.md) |
 | v1.7.2  | 2026-02-25 | 220    | 413        | 89%         | [Report](benchmarks/archive/v1.7.2.md) |
 
@@ -290,23 +291,23 @@ If the CLI complains about configuration format:
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
 
-### 🔹 Registry Ecosystem (v1.7.3)
+### 🔹 Registry Ecosystem (v1.8.0)
 
 | Category            | Key Modules                   | Version  | Skills | Avg. Footprint |
 | :------------------ | :---------------------------- | :------- | :----- | :------------- |
-| **🌐 Common**       | SOLID, TDD, Workflow Writing  | `v1.5.4` | 18     | ~527 tokens    |
+| **🌐 Common**       | SOLID, TDD, Workflow Writing  | `v1.6.0` | 24     | ~637 tokens    |
 | **🗄️ Database**     | PostgreSQL, MongoDB, Redis    | `v1.0.1` | 3      | ~664 tokens    |
 | **🌐 Quality**      | BA, Jira, Zephyr, QA          | `v1.0.1` | 4      | ~458 tokens    |
-| **💙 Flutter**      | Clean Arch, BLoC, Riverpod    | `v1.3.1` | 21     | ~422 tokens    |
+| **💙 Flutter**      | Clean Arch, BLoC, Riverpod    | `v1.3.2` | 21     | ~446 tokens    |
 | **🎯 Dart**         | Idiomatic, Advanced Tooling   | `v1.0.4` | 3      | ~435 tokens    |
 | **☕ Java**         | Virtual Threads, Testing      | `v1.0.0` | 5      | ~522 tokens    |
-| **🔷 TypeScript**   | Type Safety, Security         | `v1.0.6` | 4      | ~513 tokens    |
+| **🔷 TypeScript**   | Type Safety, Security         | `v1.0.7` | 4      | ~521 tokens    |
 | **🟨 JavaScript**   | Modern ES2022+ Patterns       | `v1.0.0` | 5      | ~522 tokens    |
-| **⚛️ React**        | Hooks, State, Performance     | `v1.0.3` | 8      | ~401 tokens    |
-| **📱 React Native** | Arch, Perf, Nav, Security     | `v1.0.3` | 8      | ~401 tokens    |
-| **🦁 NestJS**       | Arch, Microservices, CQRS     | `v1.1.3` | 21     | ~518 tokens    |
+| **⚛️ React**        | Hooks, State, Performance     | `v1.0.4` | 8      | ~403 tokens    |
+| **📱 React Native** | Arch, Perf, Nav, Security     | `v1.0.4` | 8      | ~403 tokens    |
+| **🦁 NestJS**       | Arch, Microservices, CQRS     | `v1.1.4` | 21     | ~527 tokens    |
 | **▲ Next.js**       | App Router, RSC, Pages Router | `v1.1.3` | 18     | ~485 tokens    |
-| **🐹 Golang**       | Concurrency, API Design       | `v1.0.3` | 10     | ~375 tokens    |
+| **🐹 Golang**       | Concurrency, API Design       | `v1.0.4` | 10     | ~380 tokens    |
 | **🐘 Kotlin**       | Coroutines, Flow, Tooling     | `v1.0.1` | 4      | ~453 tokens    |
 | **🅰️ Angular**      | Standalone, Signals           | `v1.1.1` | 15     | ~285 tokens    |
 | **🍃 Spring Boot**  | Security, Data, Microservices | `v1.0.2` | 10     | ~369 tokens    |

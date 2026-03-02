@@ -1,120 +1,169 @@
-# Widget Testing Strategies
+# Widget Testing
 
-Widget tests verify the UI and interaction of valid widgets in a simulated environment (headless).
+Verify UI and interactions in a headless simulated environment.
 
 ## Core Rules
 
-1. **Wrapper**: Always wrap widgets in `MaterialApp`/`CupertinoApp` to provide Theme/Navigator context.
+1. **Wrapper**: Always use `TestWrapper.init()` + `tester.pumpLocalizedWidget(...)` for proper Theme/Navigator/Localization context.
 2. **Pump**:
    - `pump()`: Triggers a frame.
    - `pumpAndSettle()`: Wait for all animations to complete.
+   - `settle: false` + manual `pump()`: Use when testing state transitions (`whenListen`) or loading states with infinite animations.
 3. **Finders**: Use semantic finders (`find.text`, `find.byKey`, `find.byType`) to locate elements.
+4. **Imports**: Always import `package:flutter/material.dart` when tests reference Material widgets (`Scaffold`, `Switch`, `Icon`, `Icons`).
 
-## Advanced: The Robot Pattern
+## TestWrapper Setup Pattern
 
-For complex screens, avoid scattering `find.by...` references throughout your tests. Use a **Robot** to encapsulate UI interactions.
-
-Reference: [Robot Pattern Implementation](./robot-pattern.md)
-
-### Updated Example: Testing a Login Screen
+Every widget test file must follow this setup:
 
 ```dart
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'robots/login_robot.dart'; // Import your robot
+
+import '../../shared/mock_blocs.dart';
+import '../../shared/widgets/test_wrapper.dart';
+import '../../robots/<feature>/<screen>_robot.dart';
 
 void main() {
-  late MockAuthBloc mockAuthBloc;
+  late MockFeatureBloc mockBloc;
+
+  setUpAll(() async {
+    await TestWrapper.init();
+  });
 
   setUp(() {
-    mockAuthBloc = MockAuthBloc();
-    when(() => mockAuthBloc.state).thenReturn(AuthInitial());
+    mockBloc = MockFeatureBloc();
+    // ⚠️ ALWAYS stub initial state — prevents null errors
+    when(() => mockBloc.state).thenReturn(const FeatureState.initial());
+    when(() => mockBloc.stream).thenAnswer((_) => Stream.empty());
   });
 
-  Widget createWidget() {
-    return MaterialApp(
-      home: BlocProvider<AuthBloc>.value(
-        value: mockAuthBloc,
-        child: LoginScreen(),
-      ),
-    );
-  }
-
-  testWidgets('shows loading indicator when state is Loading', (tester) async {
-    // ARRANGE
-    when(() => mockAuthBloc.state).thenReturn(AuthLoading());
-    final robot = LoginRobot(tester);
-
-    // ACT
-    await tester.pumpWidget(createWidget());
-
-    // ASSERT
-    robot.expectLoadingVisible();
+  group('FeatureScreen', () {
+    testWidgets('renders initial state', (tester) async {
+      final robot = FeatureRobot(tester);
+      await robot.pumpScreen(featureBloc: mockBloc);
+      robot.expectScreenVisible();
+    });
   });
 
-  testWidgets('triggers login event on button tap', (tester) async {
-    // ARRANGE
-    final robot = LoginRobot(tester);
-    await tester.pumpWidget(createWidget());
-
-    // ACT
-    await robot.enterEmail('test@example.com');
-    await robot.enterPassword('password123');
-    await robot.tapLogin();
-
-    // ASSERT
-    verify(() => mockAuthBloc.add(LoginSubmitted(
-      email: 'test@example.com',
-      password: 'password123'
-    ))).called(1);
+  group('Edge cases', () {
+    testWidgets('handles error state', (tester) async {
+      when(() => mockBloc.state).thenReturn(
+        const FeatureState(status: AppStatus.error, error: 'Network error'),
+      );
+      final robot = FeatureRobot(tester);
+      await robot.pumpScreen(featureBloc: mockBloc);
+      robot.expectTextVisible('Network error');
+    });
   });
 }
 ```
 
-## Handling Screen Variability
+## GetIt Registration
 
-One of the most common mistakes is testing only on the default 800x600 surface.
-
-### 1. Multi-Screen Golden Tests
-
-Use `golden_toolkit` to verify responsive layouts across multiple devices.
+Use when widget creates blocs via `getIt<MyBloc>()` internally:
 
 ```dart
-testGoldens('Login Screen responsive layout', (tester) async {
-  final builder = DeviceBuilder()
-    ..overrideDevicesForAllScenarios(devices: [
-      Device.phone,
-      Device.iphone11,
-      Device.tabletPortrait,
-      Device.tabletLandscape,
-    ])
-    ..addScenario(
-      widget: LoginScreen(),
-      name: 'Default State',
-    );
+setUpAll(() async {
+  await TestWrapper.init();
+  // Register mock in GetIt so widget's BlocProvider(create: ...) finds it
+  getIt.registerFactory<AdBloc>(() => mockAdBloc);
+});
 
-  await tester.pumpDeviceBuilder(builder);
-  await screenMatchesGolden(tester, 'login_screen_responsive');
+tearDownAll(() {
+  getIt.reset();
 });
 ```
 
-### 2. Manual Screen Resizing
+**Rule:** Constructor param → `pumpScreen(bloc: mockBloc)`. Internal `getIt<>()` → register in GetIt.
 
-If not using goldens, explicitly force screen sizes to test overflows.
+## State Transitions with whenListen
+
+Test reactions to state changes (snackbars, navigation, loading):
 
 ```dart
-testWidgets('Login on small screen', (tester) async {
-  // Set Surface Size to a small phone
-  tester.binding.window.physicalSizeTestValue = Size(320, 480);
-  tester.binding.window.devicePixelRatioTestValue = 1.0;
-  addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+testWidgets('shows snackbar on error', (tester) async {
+  whenListen(
+    mockBloc,
+    Stream.fromIterable([
+      const FeatureState(status: AppStatus.loading),
+      const FeatureState(status: AppStatus.error, error: 'Failed'),
+    ]),
+    initialState: const FeatureState(),
+  );
 
-  await tester.pumpWidget(createWidget());
-
-  // Verify no overflow errors
-  expect(tester.takeException(), isNull);
-  // Using a custom finder to check if something is visible only on scroll
-  await tester.scrollUntilVisible(find.text('Login'), 50);
+  final robot = FeatureRobot(tester);
+  await robot.pumpScreen(featureBloc: mockBloc, settle: false);
+  robot.expectSnackbarVisible();
 });
+```
+
+## Common Pitfalls
+
+### 1. Text Casing Mismatch
+
+Widgets transform text (`.toUpperCase()`, `.tr()`, `.capitalize()`). Check widget source:
+
+```dart
+// Widget code: Text(status.name.toUpperCase())
+// ❌ Wrong assertion
+robot.expectTextVisible('Active');
+// ✅ Correct assertion
+robot.expectTextVisible('ACTIVE');
+```
+
+### 2. Missing Material Import
+
+Required when tests reference `Scaffold`, `Switch`, `Icon`, `Icons`:
+
+```dart
+// ❌ Missing import causes "undefined" errors
+import 'package:flutter_test/flutter_test.dart';
+
+// ✅ Add flutter/material.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+```
+
+### 3. Overflow in Tests
+
+Default test surface: 800×600. Long text or complex layouts overflow:
+
+```dart
+// ❌ This will cause RenderFlex overflow in test
+await robot.pumpDialog(message: 'A' * 500);
+
+// ✅ Use realistic text lengths or resize surface
+tester.view.physicalSize = const Size(1080, 1920);
+tester.view.devicePixelRatio = 1.0;
+addTearDown(() => tester.view.resetPhysicalSize());
+```
+
+### 4. Null State Errors
+
+Mock blocs return null for `.state` by default. Always stub in `setUp`:
+
+```dart
+setUp(() {
+  mockBloc = MockFeatureBloc();
+  // ⚠️ Without this, widget tests crash with null errors
+  when(() => mockBloc.state).thenReturn(const FeatureState.initial());
+});
+```
+
+### 5. Loading State Timeout
+
+`pumpAndSettle()` hangs on infinite animations (spinners, shimmer):
+
+```dart
+// ❌ Hangs forever on CircularProgressIndicator
+await tester.pumpAndSettle();
+
+// ✅ Use settle: false + manual pump
+await robot.pumpScreen(bloc: mockBloc, settle: false);
+await tester.pump();
+await tester.pump();
+expect(find.byType(Scaffold), findsWidgets);
 ```

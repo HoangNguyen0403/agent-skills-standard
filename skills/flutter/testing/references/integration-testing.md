@@ -1,128 +1,192 @@
 # Advanced Integration Testing
 
-Expert strategies for running "hard" tests (Native, Network, Time) reliably on CI.
+Expert strategies for running Patrol integration tests with Robot Pattern enforcement.
 
-## The Core Problem
+## 🚨 File Placement
 
-Standard flutter `integration_test` struggles with:
+Integration tests (`*_integration_test.dart`) belong **ONLY** in `integration_test/`.
 
-1. **Native UI**: Permission dialogs, Notifications, Dark Mode toggles.
-2. **WebViews**: Logging in via 3rd party identity providers.
-3. **Flakiness**: `pumpAndSettle` hanging on infinite animations.
+- **NEVER** place `_integration_test.dart` in `test/features/`.
+- Widget tests using `testWidgets`, `MockBloc`, `flutter_test` are **widget tests** — use `_test.dart`.
+- Only `patrolTest`, `$.native.*`, or real device tests belong here.
+- See [Test Organization](test-organization.md) for full classification.
 
-## Recommended Tool: Patrol
+## 🚨 Robot Pattern is MANDATORY
 
-[Patrol](https://pub.dev/packages/patrol) extends Flutter's testing capabilities to interact with the OS.
+Integration tests MUST use robot classes for ALL assertions and interactions.
 
-### Why Patrol?
+**Allowed in test body:**
 
-- **Native Interactions**: `$.native.tap()` to query OS/native views.
-- **Improved Finders**: `$(#email)` instead of `find.byKey(Key('email'))`.
-- **Better Waiters**: `waitUntilVisible()` handles spinners correctly (unlike `pumpAndSettle`).
+- `$.native.*` — native OS interactions (never in robot)
+- Navigation helper calls returning `bool`
+- Robot instantiation: `final robot = FeatureRobot($.tester)`
+- Robot method calls: `robot.expectXxxVisible()`, `await robot.tapXxx()`
 
-### Setup
+**NOT allowed in test body:**
 
-1. Add dependency: `dev_dependencies: patrol: ^3.0.0`
-2. Create test file: `integration_test/app_test.dart`
+**NOT allowed in test body:**
+
+- `find.byType(...)` — move to robot method
+- `expect(find.*, ...)` — move to robot method
+- `$.tester.tap(find.*)` — move to robot method
+- Direct `v_dls` widget references — robot handles DLS awareness
+
+## Integration Test File Structure
 
 ```dart
+import 'package:flutter/material.dart';         // Only if BackButton/Icons needed
+import 'package:flutter_test/flutter_test.dart'; // Only if test body uses find/Finder
+import 'package:our_children/main.dart' as app;
 import 'package:patrol/patrol.dart';
 
+import '../../test/robots/<feature>/<robot>.dart';
+import '../helpers/auth_helper.dart';
+
 void main() {
-  patrolTest(
-    'Login and accept permissions',
-    nativeAutomation: true, // Enable native controls
-    ($) async {
-      await $.pumpWidgetAndSettle(MyApp());
+  // ── Navigation Helper (infrastructure — raw find OK) ──────────
+  Future<bool> navigateToFeature(PatrolIntegrationTester $) async {
+    app.main();
+    await $.pumpAndSettle(timeout: const Duration(seconds: 10));
+    final loggedIn = await IntegrationAuthHelper.loginOrSkip($);
+    if (!loggedIn) return false;
+    await IntegrationAuthHelper.waitForDashboard($);
+    // ... scroll + find entry point ...
+    return true;
+  }
 
-      // 1. Flutter Interaction (Concise Syntax)
-      await $(#emailField).enterText('user@test.com');
-      await $(#passwordField).enterText('password123');
-      await $('Login').tap();
+  // ── Tests (robot-only assertions) ─────────────────────────────
+  patrolTest('screen renders with app bar', ($) async {
+    final ok = await navigateToFeature($);
+    if (!ok) return;
+    final robot = FeatureRobot($.tester);
+    robot.expectVAppBarVisible();
+    robot.expectContentVisible();
+  });
 
-      // 2. Native Interaction (The Killer Feature)
-      if (await $.native.isPermissionDialogVisible()) {
-        await $.native.grantPermissionWhenInUse();
-      }
-
-      // 3. WebViews (if needed)
-      // await $.native.tap(Selector(text: 'Accept Cookies'));
-    },
-  );
+  patrolTest('back returns to previous screen', ($) async {
+    final ok = await navigateToFeature($);
+    if (!ok) return;
+    final robot = FeatureRobot($.tester);
+    await robot.tapBackButton();
+    final navRobot = NavigationBarScreenRobot($.tester);
+    navRobot.expectBottomNavBarVisible();
+  });
 }
 ```
 
-## Strategy 1: Real Environment (End-to-End)
+## Auth Helper Pattern (REQUIRED)
 
-Run tests against a real staging/dev backend to verify the full system. Do **not** mock the HTTP client in Integration Tests unless strictly necessary for hermeticity.
-
-```bash
-# Run with Patrol
-patrol test -t integration_test/app_test.dart --dart-define=ENV=staging
-```
+Shared `IntegrationAuthHelper` in `integration_test/helpers/auth_helper.dart`:
 
 ```dart
-// main.dart
-void main() {
-  final env = String.fromEnvironment('ENV', defaultValue: 'prod');
-  runApp(MyApp(config: Config.fromEnv(env)));
-}
-```
+class IntegrationAuthHelper {
+  IntegrationAuthHelper._();
+  static const _testEmail = String.fromEnvironment('TEST_EMAIL', defaultValue: '');
+  static const _testPassword = String.fromEnvironment('TEST_PASSWORD', defaultValue: '');
+  static bool get hasCredentials => _testEmail.isNotEmpty && _testPassword.isNotEmpty;
 
-## Strategy 2: Robust Waiters
+  /// Returns true on success, false if no credentials.
+  static Future<bool> loginOrSkip(PatrolIntegrationTester $) async {
+    if (!hasCredentials) return false;
+    final robot = LoginRobot($.tester);  // ← Uses robot, not raw find
+    try { robot.verifyLoginScreenVisible(); } catch (_) { return true; }
+    await robot.loginWith(email: _testEmail, password: _testPassword);
+    return true;
+  }
 
-Avoid `pumpAndSettle()` for any screen with a `CircularProgressIndicator` or Lottie animation, as it will timeout waiting for the "animation" to settle.
-
-**Use Patrol's `waitUntilVisible`**:
-
-```dart
-// BAD
-// await $.pumpAndSettle(); // Times out if a spinner is running
-
-// GOOD
-await $('Welcome Home').waitUntilVisible(timeout: Duration(seconds: 10));
-```
-
-**Legacy (If not using Patrol)**:
-You must write a custom extension to pump frames manually.
-
-```dart
-extension PumpUntilFound on WidgetTester {
-  Future<void> pumpUntilFound(Finder finder) async {
-    while (!any(finder)) {
-      await pump(const Duration(milliseconds: 100));
-    }
+  static Future<void> waitForDashboard(PatrolIntegrationTester $) async {
+    await $.pumpAndSettle(timeout: const Duration(seconds: 15));
   }
 }
 ```
 
-## Strategy 3: Handling Long Delays
+### Credential Passing
 
-For flows involving long waits (e.g., "Verification code expires in 5 minutes"), waiting real time is impractical.
+```bash
+patrol test \
+  --target integration_test/app_test.dart \
+  --dart-define=TEST_EMAIL=user@staging.com \
+  --dart-define=TEST_PASSWORD=StrongPass1!
+```
 
-**Approach**: Configure the app to use shorter durations in non-production environments.
+## Navigation Helper Patterns
+
+### Tab Navigation (Bottom Nav)
 
 ```dart
-// Code
-class TimerWidget extends StatelessWidget {
-  final Duration duration; // Configurable
-  const TimerWidget({this.duration = const Duration(minutes: 5)});
+Future<bool> navigateToTab(PatrolIntegrationTester $, int tabIndex) async {
+  app.main();
+  await $.pumpAndSettle(timeout: const Duration(seconds: 10));
+  final loggedIn = await IntegrationAuthHelper.loginOrSkip($);
+  if (!loggedIn) return false;
+  await IntegrationAuthHelper.waitForDashboard($);
+  final navBar = find.byType(VBottomNavBar);
+  if (navBar.evaluate().isEmpty) return false;
+  await $.tester.tap(find.byIcon(tabIcons[tabIndex]));
+  await $.pumpAndSettle();
+  return true;
 }
-
-// Test
-await $.pumpWidget(TimerWidget(duration: Duration(seconds: 1)));
-await $('Resend Code').waitUntilVisible(); // Done instantly
 ```
 
-## Strategy 4: Debugging Failures
-
-Patrol automatically handles taking screenshots on failure if configured, but you can also do it manually.
+### Deep Screen (via dashboard scroll)
 
 ```dart
-// Patrol automatically captures screenshots on failure in `patrol test` output.
-// No boilerplate needed.
+Future<bool> navigateToDeepScreen(PatrolIntegrationTester $) async {
+  // ... login + wait for dashboard ...
+  final refreshIndicator = find.byType(RefreshIndicator);
+  if (refreshIndicator.evaluate().isNotEmpty) {
+    await $.tester.drag(refreshIndicator, const Offset(0, -300));
+    await $.pumpAndSettle();
+  }
+  final target = find.textContaining('Feature');
+  if (target.evaluate().isEmpty) return false;
+  await $.tester.ensureVisible(target.first);
+  await $.tester.tap(target.first);
+  await $.pumpAndSettle();
+  return true;
+}
 ```
+
+### Navigation Helper Rules
+
+- Return `bool` — `false` means skip test gracefully.
+- Place at top of test file, NOT inside `patrolTest`.
+- Navigation infrastructure may use raw `find.*` — test body must NOT.
+- One helper per deep screen; reuse across all tests in the file.
+
+## Patrol Tips
+
+- `$.native.tap()` for OS-level dialogs — never in robot class.
+- `waitUntilVisible()` instead of `pumpAndSettle()` for screens with spinners.
+- `nativeAutomation: true` to enable native interactions (permissions, notifications).
+- Run: `patrol test -t integration_test/app_test.dart --dart-define=ENV=staging`
+
+## Import Hygiene
+
+```dart
+// ✅ Minimal — robot handles DLS widget references
+import 'package:patrol/patrol.dart';
+import '../../test/robots/feature/feature_robot.dart';
+import '../helpers/auth_helper.dart';
+
+// ❌ Avoid — robot handles VTextField/VAppBar assertions
+import 'package:v_dls/v_dls.dart';
+
+// Only import material.dart when test body uses BackButton/Icons
+// Only import flutter_test when test body uses find/Finder/expect
+```
+
+## Integration Test Coverage Checklist
+
+Each feature integration test should cover:
+
+- [ ] Screen renders (app bar, content, or empty state)
+- [ ] Primary action works (FAB, submit button, etc.)
+- [ ] Secondary navigation (tabs, history, filters)
+- [ ] Back navigation returns to previous screen
+- [ ] Auth-protected: uses `IntegrationAuthHelper.loginOrSkip($)`
+- [ ] All assertions via robot — zero raw `find.*` in test body
 
 ## Related Topics
 
-[Robot Pattern](./robot-pattern.md) | [Github Actions](../../cicd/references/github-actions.md)
+[Robot Pattern](./robot-pattern.md) | [Widget Testing](./widget-testing.md) | [Test Organization](./test-organization.md)

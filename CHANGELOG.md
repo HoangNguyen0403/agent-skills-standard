@@ -5,22 +5,77 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-03-02
+
+**Category**: Common Skills Gap Closure & CLI Smart Exclusions
+
+### Added (Skills)
+
+- **♿ `common/accessibility`**: New P1 skill — WCAG 2.2 Level AA standards for web UI agents: semantic HTML, ARIA usage rules, keyboard navigation, color contrast ratios, and CI testing gate (`axe-core`). Scoped to frontend file patterns (`*.tsx`, `*.jsx`, `*.html`, `*.vue`, `*.component.html`).
+- **📡 `common/api-design`**: New P1 skill — REST API conventions covering HTTP verb semantics, status code correctness, URL design, versioning strategy, cursor-based pagination, and OpenAPI 3.1 contract requirements. Scoped to controller/router/handler file patterns.
+- **🛡️ `common/error-handling`**: New P1 skill — Cross-cutting error design standards: HTTP error response envelope, error classification by layer, wrapping vs. replacement rules, boundary placement, and error code naming. Scoped to service/handler/controller backend file patterns.
+- **📊 `common/observability`**: New P1 skill — Backend observability standards: structured JSON logging (required fields), OpenTelemetry distributed tracing (W3C `traceparent`), metric naming conventions, SLO definitions, and correlation ID propagation. Scoped to backend service file patterns.
+- **� `common/session-retrospective`**: New meta-skill — Self-learning protocol for AI agents. At the end of any multi-step task with user corrections, the agent analyzes the conversation to detect skill gaps, missing rules, or violated standards, then proposes targeted skill improvements to prevent repeat rework. Includes `references/methodology.md`.
+- **🛠️ `common/skill-creator`**: New meta-skill — Standards for creating new high-density agent skills with optimal token economy. Includes `references/TEMPLATE.md` (scaffold), `references/lifecycle.md` (review → publish flow), and `references/resource-organization.md` (when and how to use `references/` sub-files).
+- **�📐 `common/system-design` references**: Added `references/distributed-systems.md` (CAP theorem, consistency models, event-driven patterns) and `references/resilience-patterns.md` (circuit breakers, bulkheads, idempotency) — keeping the primary SKILL.md lean while providing depth.
+
+### Changed (Skills)
+
+- **🔧 Trigger Hardening**: Added file-glob triggers to `common/best-practices`, `common/security-standards`, `common/performance-engineering`, and `common/tdd` — these foundational skills now fire automatically on source file edits, not just keyword matches.
+- **⚡ `common/performance-engineering`**: Elevated from P1 to P0 — performance regressions have direct business impact equivalent to security issues.
+- **✅ `common/tdd`**: Expanded with minimum coverage threshold (80%), AAA (Arrange-Act-Assert) structure guidance, language-specific runner commands, and mock-vs-real dependency decision rules.
+- **🌐 `AGENTS.md`**: Added conflict resolution protocol — when two skills conflict, apply the more specific skill (framework > language > common); same-specificity conflicts defer to `common/security-standards` for security and `common/best-practices` for design decisions.
+
+### Fixed (Security)
+
+- **🔐 `golang/security`**: Enforced Argon2id over bcrypt for password hashing — harmonized with `nestjs/security` for consistent polyglot security posture. Added explicit `RS256` / `HS256` JWT algorithm enforcement and `none` rejection.
+- **🍪 `typescript/security`**: Fixed `NODE_ENV === 'prod'` (always `false` in production) → `NODE_ENV === 'production'` in secure cookie configuration, preventing cookies being transmitted over HTTP in production deployments.
+
+### Changed (Framework Skills)
+
+- **🧪 `flutter/testing`**: Major rewrite of testing skill and all references. Added `test-organization.md` (new), `widget-keys.md` (new), significantly expanded `robot-pattern.md`, `widget-testing.md`, `integration-testing.md`, and `mocking_standards.md` with up-to-date patterns.
+- **🧪 `nestjs/testing`**: Added `improve-coverage.md` and `strict-typescript-testing.md` reference files. Updated `patterns.md` with additional test patterns.
+- **⚛️ `react/state-management`**: Clarified skill boundary — `hooks` skill covers primitive API usage (`useMemo`, `useCallback`); this skill covers architectural state decisions (Context, Zustand, Redux). Added `useMemo` on context value guidance. Removed overlapping Anti-Patterns section.
+- **🔐 `golang/security`**: Enforced Argon2id (time=1, memory=64MB, threads=4) over bcrypt. Added `RS256`/`HS256` JWT algorithm enforcement with `none` rejection for multi-service auth.
+- **🍪 `typescript/security`**: Fixed `NODE_ENV === 'production'` cookie guard.
+
+### Added (CLI)
+
+- **📦 Framework-aware common skill exclusions**: `ags init` now auto-populates `common.exclude` in `.skillsrc` based on the detected framework type, eliminating irrelevant skills from agent context:
+  - **Backend** (NestJS, Go, Spring Boot, Laravel): excludes `accessibility`, `mobile-animation`, `mobile-ux-core`
+  - **Frontend** (React, Next.js, Angular): excludes `observability`, `mobile-animation`, `mobile-ux-core`
+  - **Mobile** (Flutter, Android, iOS, React Native): excludes `accessibility`, `api-design`, `observability`
+- **`getFrameworkType()` helper**: New exported function in `constants/` — classifies any framework ID into `'backend' | 'frontend' | 'mobile' | null`. Replaces inline nested ternary in `ConfigService`.
+- **`FRONTEND_FRAMEWORKS`, `MOBILE_FRAMEWORKS` constants**: Explicit framework category arrays for React/Angular/Next.js and Flutter/Android/iOS/React Native respectively.
+- **New tests**: `constants/__tests__/index.spec.ts` (5 tests for `getFrameworkType`); 9 new `ConfigService` tests covering exclusion correctness per framework type including edge cases (unknown framework, missing common metadata).
+
+### Versions
+
+- **Common Skills**: v1.6.0 (Minor — 6 new skills added)
+- **Framework Skills**:
+  - **Flutter**: v1.3.2 (Patch)
+  - **Golang**: v1.0.4 (Patch)
+  - **NestJS**: v1.1.4 (Patch)
+  - **React**: v1.0.4 (Patch)
+  - **TypeScript**: v1.0.7 (Patch)
+- **CLI**: v1.8.0 (Minor)
+
 ## [1.7.3] - 2026-02-25
 
 **Category**: Skill Optimization & Next.js Pages Router Support & Workflow Standard
 
-#### Added
+### Added
 
 - **⚡ Workflow Writing Standard**: New P0 skill (`common/workflow-writing`) to enforce conciseness and token efficiency in all registry files.
 - **▲ Next.js Pages Router Support**: Added deep-dive standards for Redux and Zustand in legacy Pages Router environments.
 - **📊 Benchmark Workflow v2**: Complete rewrite of the `/skill-benchmark` workflow—now framework-agnostic with auto-Trap selection and Skill Applicability Reporting.
 
-#### Changed (Skills)
+### Changed (Skills)
 
 - **⚛️ Redux/Zustand refs**: Standardized Next.js state management with official style guide patterns and hydration-safe hooks.
 - **📈 Skill Applicability Report**: Added automated `.skillsrc` exclusion recommendations to the benchmark output.
 
-#### Versions
+### Versions
 
 - **Common Skills**: v1.5.4 (Patch)
 - **Framework Skills**:
@@ -31,7 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Category**: Workflow Robustness & CLI Sync Logic Hardening & Skill Standardization
 
-#### Added
+### Added
 
 - **🛡️ Workflow Lite Fallbacks**: Implemented logic in `codebase-review` to use basic grep/find patterns if specialized skills are missing, ensuring a baseline audit for all projects.
 - **📚 Level 3 Reference Material**: Created `references/PATTERNS.md` and `references/REMEDIATION.md` for Architecture and Security audits, keeping primary skills lean.
@@ -42,25 +97,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **📦 Database Auto-Detection**: Fixed `ags init` to consistently detect database needs and auto-configure matching skills for NestJS, Go, and Spring Boot.
 - **🛠️ Detection Persistence**: Resolved issue where skills excluded during init would sometimes reappear during sync incorrectly.
 
-#### 📊 Benchmark & Token Economy (v1.0.0)
+### 📊 Benchmark & Token Economy (v1.0.0)
 
 - **📈 Performance Audit**: Launched the first official high-density benchmark, verifying **89% token savings** vs. traditional technical prompts.
 - **📄 High-Density Report**: Created `benchmark-report.md` with per-category breakdowns, collapsible tables, and quality rubrics.
 - **🛡️ Quality Rubric (0-10)**: Implemented a verifiable structural scoring system for all 220 skills in the registry.
 - **💰 Cost Explainability**: Added models pricing comparison and monthly savings projections for enterprise scale.
 
-#### Changed (UX & Documentation)
+### Changed (UX & Documentation)
 
 - **🚀 README Integration**: Added "Efficiency & Benchmark" sections to root and CLI READMEs with visual "token occupancy" badges.
 
-#### Changed (Skills)
+### Changed (Skills)
 
 - **📐 Architecture Audit (v1.5.3)**: Standardized to Skill Creator format. Added deep-dive protocols for Web, Mobile, and Backend ecosystems.
 - **🛡️ Security Audit (v1.5.3)**: Standardized to Skill Creator format. Added imperative adversarial probing protocols and remediations.
 - **🗄️ PostgreSQL Database (v1.0.1)**: Improved metadata clarity and hardened migration audit guidelines.
 - **🦁 NestJS Integration (v1.1.3)**: Enhanced trigger reliability and documentation consistency across all 21 modules.
 
-#### Versions
+### Versions
 
 - **Common Skills**: v1.5.3 (Patch)
 - **Framework Skills**:
@@ -72,24 +127,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Category**: Skill Standardization & Feedback Loop Hardening & Battle-Test Workflow
 
-#### Added
+### Added
 
 - **🛡️ Battle-Test Workflow**: New automated workflow for comprehensive skill auditing against registry standards.
 - **🔄 Feedback Loop Integration**: Mandatory Skill Feedback Sweep in `code-review` and `codebase-review` workflows.
 
-#### Changed (Skills)
+### Changed (Skills)
 
 - **⚡ Feedback Reporter (v1.5.2)**: Major overhaul. Reduced line count by 40% (<70 lines), hardened triggers, and added mandatory pre-completion gate.
 - **📐 Global Architecture Standardization**: Standardized architecture skills across Android, iOS, Go, Spring Boot, Angular, and React Native.
 - **🏗️ Content Depth Improvements**: Added specialized reference checklists for Android Compose, Go Testing, and Spring Boot Security.
 - **🎯 Trigger Threshold Expansion**: Hardened activation triggers for `common/security-standards` and `quality-engineering/quality-assurance`.
 
-#### Changed (CLI v1.7.1)
+### Changed (CLI v1.7.1)
 
 - **📚 Documentation Update**: Achieved 100% JSDoc coverage for core services via `/update-docs` workflow.
 - **🏗️ Service Hardening**: Improved `IndexGeneratorService` and `SkillValidator` robustness.
 
-#### Versions
+### Versions
 
 - **Common Skills**: v1.5.2 (Patch)
 - **Framework Skills**:

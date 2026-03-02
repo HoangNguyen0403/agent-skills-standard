@@ -71,7 +71,7 @@ void main() {
 
     test('should return Failure when repository fails', () async {
       // ARRANGE
-      when(() => mockRepo.getUser(any())).thenThrow(ServerException());
+      when(() => mockRepo.getUser('1')).thenThrow(ServerException());
 
       // ACT
       final call = useCase('1');

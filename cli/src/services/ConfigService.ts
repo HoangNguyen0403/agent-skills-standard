@@ -5,10 +5,14 @@ import { z } from 'zod';
 import {
   Agent,
   BACKEND_FRAMEWORKS,
+  COMMON_SKILL_EXCLUDES,
   DEFAULT_REGISTER,
-  FRONTEND_REACT_FRAMEWORKS,
   Framework,
+  FrameworkDefinition,
+  FRONTEND_REACT_FRAMEWORKS,
+  getFrameworkType,
   SKILL_DETECTION_REGISTRY,
+  SUPPORTED_FRAMEWORKS,
 } from '../constants';
 import { CategoryConfig, SkillConfig } from '../models/config';
 import { RegistryMetadata } from '../models/types';
@@ -124,10 +128,16 @@ export class ConfigService {
       }
     }
 
-    // Add common category if available
+    // Add common category if available, with framework-appropriate exclusions
     if (metadata.categories?.['common']) {
+      const frameworkType = getFrameworkType(framework);
+      const commonExcludes = frameworkType
+        ? COMMON_SKILL_EXCLUDES[frameworkType]
+        : [];
+
       skills['common'] = {
         ref: `${metadata.categories['common'].tag_prefix || ''}${metadata.categories['common'].version}`,
+        ...(commonExcludes.length > 0 && { exclude: commonExcludes }),
       };
     }
 
@@ -206,6 +216,21 @@ export class ConfigService {
 
       const isNewCategory = !category;
       if (isNewCategory) {
+        // First check if this is a supported framework and we don't have its base dependencies
+        const frameworkDef = SUPPORTED_FRAMEWORKS.find(
+          (f: FrameworkDefinition) => f.id === categoryId,
+        );
+        if (frameworkDef) {
+          const hasBaseDeps = frameworkDef.detectionDependencies
+            ? this.hasDependency(frameworkDef.detectionDependencies, depsArray)
+            : true;
+          const hasBaseFiles = this.hasFiles(frameworkDef.detectionFiles, cwd);
+
+          if (!hasBaseDeps && !hasBaseFiles) {
+            continue; // Skip enabling this category if its base framework isn't detected
+          }
+        }
+
         const shouldEnableCategory = detections.some(
           (detection) =>
             this.hasDependency(detection.packages, depsArray) &&

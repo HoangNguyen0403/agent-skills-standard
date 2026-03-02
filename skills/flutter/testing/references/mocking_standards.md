@@ -1,33 +1,107 @@
 # Mocking Standards
 
-## Overview
-
-To maintain a clean and maintainable test suite, we follow strict guidelines for defining and using mock classes. This skill enforces the use of shared mocks for common components to avoid duplication and inconsistencies.
+Strict guidelines for mock classes. Use shared mocks for all cross-feature components — no duplication.
 
 ## Rules
 
 ### 1. No Local Mocks for Shared Components (CRITICAL)
 
-Do NOT define mock classes (e.g., `MockMyBloc`, `MockMyRepository`) inside individual test files if the component is used across multiple features or is a core architectural component (like Blocs, Repositories, Services).
+Do NOT define `MockMyBloc`, `MockMyRepository` in individual test files. Shared components (Blocs, Repositories, Services) use shared mocks only.
 
-### 2. Use Shared Mock Files
+### 2. Shared Mock Files
 
-All mocks for shared components must be defined in the `test/shared/` directory.
+Define all mocks in `test/shared/`:
 
-| Component Type   | Shared Mock File                     |
-| :--------------- | :----------------------------------- |
-| **Blocs**        | `test/shared/mock_blocs.dart`        |
-| **Data Sources** | `test/shared/mock_datasources.dart`  |
-| **Repositories** | `test/shared/mock_repositories.dart` |
-| **Services**     | `test/shared/mock_services.dart`     |
+| Component Type   | Shared Mock File                          |
+| :--------------- | :---------------------------------------- |
+| **Blocs**        | `test/shared/mock_blocs.dart`             |
+| **Data Sources** | `test/shared/mock_datasources.dart`       |
+| **Repositories** | `test/shared/mock_repositories.dart`      |
+| **Services**     | `test/shared/mock_services.dart`          |
+| **External**     | `test/shared/mock_external_services.dart` |
 
 ### 3. Check Before Creating
 
-Before creating a new mock, check the `test/shared/` directory to see if it already exists.
+Check `test/shared/` before adding a new mock. Add to the appropriate shared file if missing.
 
-### 4. Add to Shared
+## Bloc State Stubbing (CRITICAL)
 
-If a mock is needed and doesn't exist, add it to the appropriate shared file in `test/shared/` and then import it in your test file.
+Mock blocs return `null` for `.state` by default → widget crashes. **Always** stub in `setUp`:
+
+```dart
+setUp(() {
+  mockBloc = MockFeatureBloc();
+  // ⚠️ CRITICAL: Without these, widget tests crash with null errors
+  when(() => mockBloc.state).thenReturn(const FeatureState.initial());
+  when(() => mockBloc.stream).thenAnswer((_) => Stream.empty());
+});
+```
+
+### Stub All Dependent Blocs
+
+```dart
+setUp(() {
+  mockAuthBloc = MockAuthBloc();
+  mockSubscriptionBloc = MockSubscriptionBloc();
+
+  when(() => mockAuthBloc.state).thenReturn(const AuthState(...));
+  when(() => mockSubscriptionBloc.state).thenReturn(const SubscriptionState.initial());
+});
+```
+
+### Override Per Test
+
+```dart
+testWidgets('premium user sees premium UI', (tester) async {
+  // Override the default state set in setUp
+  when(() => mockBloc.state).thenReturn(
+    const FeatureState(isPremium: true),
+  );
+  // ... rest of test
+});
+```
+
+## GetIt Registration
+
+Use when widget creates bloc via `getIt<MyBloc>()` internally:
+
+```dart
+setUpAll(() async {
+  await TestWrapper.init();
+  // Register mock so widget's BlocProvider(create: ...) finds it
+  getIt.registerFactory<AdBloc>(() => mockAdBloc);
+});
+
+tearDownAll(() {
+  getIt.reset();
+});
+```
+
+**Rule:** Constructor param → `BlocProvider.value`. Internal `getIt<>()` → register in GetIt.
+
+## External Service Mocking
+
+Create Fake implementations for non-bloc services:
+
+```dart
+// test/shared/mock_external_services.dart
+class FakeImagePickerService implements ImagePickerService {
+  int pickImageCallCount = 0;
+
+  @override
+  Future<String?> pickImage() async {
+    pickImageCallCount++;
+    return 'test.jpg';
+  }
+}
+```
+
+Register in `setUpAll`:
+
+```dart
+fakeImagePickerService = FakeImagePickerService();
+getIt.registerLazySingleton<ImagePickerService>(() => fakeImagePickerService);
+```
 
 ## Examples
 
@@ -71,16 +145,13 @@ void main() {
 
 ## Safe Argument Matching
 
-Avoid using `any()` and `registerFallbackValue` as they bypass type safety and can lead to silent failures or brittle tests.
-
-### ❌ BAD: Unsafe Matchers
+Prohibit `any()` / `anyNamed()` — bypass type safety, cause silent failures. Use specific values or typed matchers.
 
 ```dart
-// Requires registerFallbackValue(MyParams()) if MyParams is a custom class
+// ❌ BAD: Unsafe Matchers
 when(() => repository.fetchData(any())).thenAnswer(...);
-
-// Unsafe: bypasses parameter verification
 verify(() => service.logAction(any())).called(1);
+verify(() => service.performTask(id: anyNamed('id'))).called(1);
 ```
 
 ### ✅ GOOD: Explicit Matchers
@@ -89,10 +160,16 @@ verify(() => service.logAction(any())).called(1);
 // Use specific values when possible
 when(() => repository.fetchData(const MyParams(id: '123'))).thenAnswer(...);
 
-// Use anyNamed() for named parameters
+// For named parameters, use specific values or type matchers
 verify(() => service.performTask(
-  id: anyNamed('id'),
+  id: 'task_1',
   priority: 1,
+)).called(1);
+
+// Use isA<Type>() for broad but type-safe matching
+verify(() => service.performTask(
+  id: isA<String>(),
+  priority: isA<int>(),
 )).called(1);
 
 // Use type-specific matchers or equality
@@ -102,6 +179,13 @@ verify(() => logger.log(
 )).called(1);
 ```
 
-### Why avoid `registerFallbackValue`?
+### Flexible Verification
 
-It often indicates that the test is not being specific enough about the data it expects. Relying on global fallback values makes tests harder to follow and can hide bugs where the wrong type of object is being passed to a mock.
+Use `greaterThan` when bloc events fire multiple times (e.g., rebuilds):
+
+```dart
+// ✅ Handles multiple calls from widget rebuilds
+verify(
+  () => mockBloc.add(const FeatureEvent.init(isPremium: false)),
+).called(greaterThan(0));
+```

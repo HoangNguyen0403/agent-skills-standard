@@ -41,10 +41,10 @@ npx vitest run --coverage
 
 Skills are the core value of this project.
 
-1.  **Draft**: Use `pnpm list-skills` or check `skills/metadata.json` to see existing categories.
-2.  **Create**: Add your category folder in `skills/`.
-3.  **Validate**: Ensure `SKILL.md` is under 500 tokens (check with `pnpm calculate-tokens`).
-4.  **Reference**: Heavy content goes to `references/`.
+1. **Draft**: Use `pnpm list-skills` or check `skills/metadata.json` to see existing categories.
+2. **Create**: Add your category folder in `skills/`.
+3. **Validate**: Ensure `SKILL.md` is under 500 tokens (check with `pnpm calculate-tokens`).
+4. **Reference**: Heavy content goes to `references/`.
 
 ## 4. Release Process
 

@@ -9,7 +9,7 @@ blocTest<AuthBloc, AuthState>(
   'emits [loading, authenticated] when login is successful',
   build: () {
     // Stub the repository
-    when(() => mockAuthRepo.login(any(), any()))
+    when(() => mockAuthRepo.login('test@email.com', 'pass123'))
         .thenAnswer((_) async => Right(mockUser));
     return AuthBloc(mockAuthRepo);
   },

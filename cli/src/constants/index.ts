@@ -10,10 +10,51 @@ export const BACKEND_FRAMEWORKS: Framework[] = [
   Framework.Laravel,
 ];
 
+export const FRONTEND_FRAMEWORKS: Framework[] = [
+  Framework.React,
+  Framework.NextJS,
+  Framework.Angular,
+];
+
+export const MOBILE_FRAMEWORKS: Framework[] = [
+  Framework.Flutter,
+  Framework.Android,
+  Framework.iOS,
+  Framework.ReactNative,
+];
+
 export const FRONTEND_REACT_FRAMEWORKS: Framework[] = [
   Framework.NextJS,
   Framework.ReactNative,
 ];
+
+/**
+ * Sub-skills to exclude from the `common` category based on the selected framework type.
+ * Backend: exclude web-only and mobile-only skills.
+ * Frontend: exclude backend-only and mobile-only skills.
+ * Mobile: exclude web-only and backend-only skills.
+ */
+export const COMMON_SKILL_EXCLUDES: Record<
+  'backend' | 'frontend' | 'mobile',
+  string[]
+> = {
+  backend: ['accessibility', 'mobile-animation', 'mobile-ux-core'],
+  frontend: ['observability', 'mobile-animation', 'mobile-ux-core'],
+  mobile: ['accessibility', 'api-design', 'observability'],
+};
+
+/**
+ * Classifies a framework ID into its platform type for skill exclusion purposes.
+ * Returns null for unknown/hybrid frameworks — no exclusions are applied.
+ */
+export function getFrameworkType(
+  framework: string,
+): 'backend' | 'frontend' | 'mobile' | null {
+  if (BACKEND_FRAMEWORKS.includes(framework as Framework)) return 'backend';
+  if (MOBILE_FRAMEWORKS.includes(framework as Framework)) return 'mobile';
+  if (FRONTEND_FRAMEWORKS.includes(framework as Framework)) return 'frontend';
+  return null;
+}
 
 export const DEFAULT_REGISTER =
   'https://github.com/HoangNguyen0403/agent-skills-standard';
@@ -22,7 +63,7 @@ export const DEFAULT_WORKFLOWS = [
   'code-review',
   'codebase-review',
   'plan-feature',
-  'skill-benchmark'
+  'skill-benchmark',
 ];
 
 // Configurable via ENV or hardcoded for production convenience

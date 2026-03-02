@@ -258,6 +258,153 @@ describe('ConfigService', () => {
       );
       expect(config.workflows).toEqual(['workflow-1']);
     });
+
+    describe('common skill exclusions by framework type', () => {
+      const commonMetadata: RegistryMetadata = {
+        global: { author: 'test', repository: 'test' },
+        categories: {
+          common: { version: '1.4.0', tag_prefix: 'common-v' },
+        },
+      };
+
+      it('should exclude web-only and mobile-only skills for backend frameworks (nestjs)', () => {
+        const config = configService.buildInitialConfig(
+          'nestjs',
+          [Agent.Cursor],
+          'https://registry.com',
+          commonMetadata,
+        );
+        expect(config.skills.common?.exclude).toEqual(
+          expect.arrayContaining([
+            'accessibility',
+            'mobile-animation',
+            'mobile-ux-core',
+          ]),
+        );
+        expect(config.skills.common?.exclude).not.toContain('observability');
+        expect(config.skills.common?.exclude).not.toContain('api-design');
+      });
+
+      it('should exclude web-only and mobile-only skills for backend frameworks (golang)', () => {
+        const config = configService.buildInitialConfig(
+          'golang',
+          [Agent.Cursor],
+          'https://registry.com',
+          commonMetadata,
+        );
+        expect(config.skills.common?.exclude).toEqual(
+          expect.arrayContaining([
+            'accessibility',
+            'mobile-animation',
+            'mobile-ux-core',
+          ]),
+        );
+      });
+
+      it('should exclude backend-only and mobile-only skills for frontend frameworks (react)', () => {
+        const config = configService.buildInitialConfig(
+          'react',
+          [Agent.Cursor],
+          'https://registry.com',
+          commonMetadata,
+        );
+        expect(config.skills.common?.exclude).toEqual(
+          expect.arrayContaining([
+            'observability',
+            'mobile-animation',
+            'mobile-ux-core',
+          ]),
+        );
+        expect(config.skills.common?.exclude).not.toContain('accessibility');
+        expect(config.skills.common?.exclude).not.toContain('api-design');
+      });
+
+      it('should exclude backend-only and mobile-only skills for frontend frameworks (angular)', () => {
+        const config = configService.buildInitialConfig(
+          'angular',
+          [Agent.Cursor],
+          'https://registry.com',
+          commonMetadata,
+        );
+        expect(config.skills.common?.exclude).toEqual(
+          expect.arrayContaining([
+            'observability',
+            'mobile-animation',
+            'mobile-ux-core',
+          ]),
+        );
+      });
+
+      it('should exclude web-only and backend-only skills for mobile frameworks (flutter)', () => {
+        const config = configService.buildInitialConfig(
+          'flutter',
+          [Agent.Cursor],
+          'https://registry.com',
+          commonMetadata,
+        );
+        expect(config.skills.common?.exclude).toEqual(
+          expect.arrayContaining([
+            'accessibility',
+            'api-design',
+            'observability',
+          ]),
+        );
+        expect(config.skills.common?.exclude).not.toContain('mobile-animation');
+        expect(config.skills.common?.exclude).not.toContain('mobile-ux-core');
+      });
+
+      it('should exclude web-only and backend-only skills for mobile frameworks (android)', () => {
+        const config = configService.buildInitialConfig(
+          'android',
+          [Agent.Cursor],
+          'https://registry.com',
+          commonMetadata,
+        );
+        expect(config.skills.common?.exclude).toEqual(
+          expect.arrayContaining([
+            'accessibility',
+            'api-design',
+            'observability',
+          ]),
+        );
+      });
+
+      it('should exclude web-only and backend-only skills for mobile frameworks (ios)', () => {
+        const config = configService.buildInitialConfig(
+          'ios',
+          [Agent.Cursor],
+          'https://registry.com',
+          commonMetadata,
+        );
+        expect(config.skills.common?.exclude).toEqual(
+          expect.arrayContaining([
+            'accessibility',
+            'api-design',
+            'observability',
+          ]),
+        );
+      });
+
+      it('should not set exclude on common if framework type is unknown', () => {
+        const config = configService.buildInitialConfig(
+          'unknown-framework',
+          [Agent.Cursor],
+          'https://registry.com',
+          commonMetadata,
+        );
+        expect(config.skills.common?.exclude).toBeUndefined();
+      });
+
+      it('should not set exclude on common if common category is absent from metadata', () => {
+        const config = configService.buildInitialConfig(
+          'nestjs',
+          [Agent.Cursor],
+          'https://registry.com',
+          { global: { author: 'test', repository: 'test' }, categories: {} },
+        );
+        expect(config.skills.common).toBeUndefined();
+      });
+    });
   });
 
   describe('applyDependencyExclusions', () => {

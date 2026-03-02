@@ -23,14 +23,9 @@ Choosing the right tool for state scope.
 - **Server Cache**: Use `React.cache` (RSC) to dedupe requests per render.
 - **Server State**: React Query / SWR / Apollo. Cache != UI State.
 - **URL**: Store filter/sort params in URL (Source of Truth).
-- **Immutability**: Never mutate. Use spread or Immer.
+- **Immutability**: Never mutate. Use spread or Immer. Use `useMemo` on context value to prevent unnecessary re-renders (primitive performance tuning belongs in `hooks` skill).
 
-## Anti-Patterns
-
-- **No Prop Drilling > 2**: Use Context/Composition.
-- **No Mirroring Refs**: Don't copy props to state.
-- **No Multi-Source**: Single Source of Truth.
-- **No Context Abuse**: Context causes full-tree re-render.
+> **Boundary note**: `hooks` skill covers primitive API usage (`useMemo`, `useCallback` rules). This skill covers _architectural_ state decisions — which tool to use for which state scope.
 
 ## Reference & Examples
 

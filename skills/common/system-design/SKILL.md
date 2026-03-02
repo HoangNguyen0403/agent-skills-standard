@@ -33,13 +33,18 @@ metadata:
 
 ## Distributed Systems
 
-- **CAP**: Trade-off Consistency/Availability/Partition tolerance.
-- **Idempotency**: Operations repeatable without side effects.
-- **Circuit Breaker**: Fail fast on failing services.
-- **Eventual Consistency**: Design for async data sync.
+- **CAP**: Trade-off Consistency/Availability/Partition tolerance. See [CAP & Consistency Patterns](references/distributed-systems.md).
+- **Idempotency**: Operations repeatable without side effects. See [Idempotency Patterns](references/distributed-systems.md#idempotency).
+- **Circuit Breaker**: Fail fast on failing services. See [Resilience Patterns](references/resilience-patterns.md).
+- **Eventual Consistency**: Design for async data sync. See [CAP & Consistency Patterns](references/distributed-systems.md#eventual-consistency).
 
 ## Documentation & Evolution
 
 - **Design Docs**: Write specs before major implementations.
 - **Versioning**: Version APIs/schemas for backward compatibility.
 - **Extensibility**: Use Strategy/Factory for future changes.
+
+## References
+
+- [Distributed Systems & CAP Theorem](references/distributed-systems.md)
+- [Resilience Patterns (Circuit Breaker, Bulkhead, Retry)](references/resilience-patterns.md)

@@ -29,9 +29,31 @@ export interface SkillMetadata {
  * Service for generating the Agent Skills Index in markdown format.
  * It handles parsing skill metadata and structuring the markdown document.
  *
+ * Composite rules are registry-owned: loaded from `skills/metadata.json` at
+ * index-generation time. Adding a new foundational skill or pattern requires
+ * only a change to `metadata.json` — no CLI source edit or release needed.
+ *
  * Injection and bridging are handled by MarkdownUtils and AgentBridgeService respectively.
  */
 export class IndexGeneratorService {
+  /**
+   * Loads foundational composite rules from the registry's metadata.json.
+   * Falls back to an empty map if the file is missing or malformed.
+   */
+  private async loadFoundationalRules(
+    baseDir: string,
+  ): Promise<Record<string, string[]>> {
+    try {
+      const metaPath = path.join(baseDir, 'metadata.json');
+      const raw = await fs.readFile(metaPath, 'utf8');
+      const parsed = JSON.parse(raw) as {
+        foundational_composite_rules?: Record<string, string[]>;
+      };
+      return parsed.foundational_composite_rules ?? {};
+    } catch {
+      return {};
+    }
+  }
   /**
    * Generates a markdown index of available skills across multiple categories.
    * @param baseDir The base directory containing categories and skills
@@ -41,6 +63,7 @@ export class IndexGeneratorService {
   async generate(baseDir: string, frameworks: string[]): Promise<string> {
     const categories = Array.from(new Set(['common', ...frameworks]));
     const entries = new Set<string>();
+    const foundationalRules = await this.loadFoundationalRules(baseDir);
 
     for (const category of categories) {
       const categoryPath = path.join(baseDir, category);
@@ -53,7 +76,12 @@ export class IndexGeneratorService {
 
         const metadata = await this.parseSkill(skillPath);
         if (metadata) {
-          const entry = this.formatEntry(category, skill, metadata);
+          const entry = this.formatEntry(
+            category,
+            skill,
+            metadata,
+            foundationalRules,
+          );
           entries.add(entry);
         }
       }
@@ -82,6 +110,13 @@ export class IndexGeneratorService {
       '- **Skill Authority:** Loaded skills always override existing code patterns.',
       '- **Audit Before Write:** Audit every file write against the `common/feedback-reporter` skill.',
       '',
+      '## **Reading This Index**',
+      '',
+      'Each entry lists `(triggers: ...)` conditions. Three trigger types:',
+      '- **File globs** (`**/*.ts`) — activate when working with matching files.',
+      '- **Keywords** (`auth`, `refactor`) — activate when these appear in the task.',
+      '- **Composite** (`+other/skill`) — activate THIS skill whenever `other/skill` is also active. Used by foundational skills to co-load with their framework peers automatically.',
+      '',
     ].join('\n');
 
     return `${header}\n${entries.join('\n')}\n`;
@@ -103,6 +138,8 @@ export class IndexGeneratorService {
           triggers?: {
             files?: string[];
             keywords?: string[];
+            composite?: string[];
+            exclude?: string[];
           };
         };
       };
@@ -119,6 +156,8 @@ export class IndexGeneratorService {
           (fm.metadata?.triggers as {
             files?: string[];
             keywords?: string[];
+            composite?: string[];
+            exclude?: string[];
           }) || {},
       };
     } catch {
@@ -126,20 +165,49 @@ export class IndexGeneratorService {
     }
   }
 
+  /**
+   * Derives foundational composite IDs for a skill based on registry-owned naming rules.
+   * Only applies to non-common skills. Deduplicates against explicit composites.
+   */
+  private deriveFoundationalComposites(
+    category: string,
+    skill: string,
+    explicitComposites: string[],
+    rules: Record<string, string[]>,
+  ): string[] {
+    if (category === 'common') return [];
+    const derived: string[] = [];
+    for (const [foundational, patterns] of Object.entries(rules)) {
+      const matches = patterns.some((p) => skill.includes(p));
+      if (matches && !explicitComposites.includes(foundational)) {
+        derived.push(foundational);
+      }
+    }
+    return derived;
+  }
+
   private formatEntry(
     category: string,
     skill: string,
     metadata: SkillMetadata,
+    foundationalRules: Record<string, string[]> = {},
   ): string {
     const id = `${category}/${skill}`;
     const prefix = metadata.priority.startsWith('P0') ? '🚨 ' : '';
 
+    const explicitComposites = metadata.triggers.composite || [];
+    const autoComposites = this.deriveFoundationalComposites(
+      category,
+      skill,
+      explicitComposites,
+      foundationalRules,
+    );
+    const allComposites = [...explicitComposites, ...autoComposites];
+
     const triggers = [
       ...(metadata.triggers.files || []),
       ...(metadata.triggers.keywords || []),
-      ...(metadata.triggers.composite
-        ? metadata.triggers.composite.map((c) => `+${c}`)
-        : []),
+      ...(allComposites.length ? allComposites.map((c) => `+${c}`) : []),
       ...(metadata.triggers.exclude
         ? metadata.triggers.exclude.map((e) => `!${e}`)
         : []),

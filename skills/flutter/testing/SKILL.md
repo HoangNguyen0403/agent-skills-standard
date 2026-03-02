@@ -1,44 +1,76 @@
 ---
 name: Flutter Testing Standards
-description: Core standards for unit, widget, and integration testing in Flutter.
+description: Unit, widget, and integration testing with robots, widget keys, and Patrol.
+metadata:
+  labels: [testing, patrol, robot-pattern, widget-keys, integration-test]
+  triggers:
+    files:
+      [
+        '**/test/**.dart',
+        '**/integration_test/**.dart',
+        '**/robots/**.dart',
+        'lib/core/keys/**.dart',
+      ]
+    keywords: [test, patrol, robot, WidgetKeys, patrolTest, blocTest, mocktail]
 ---
 
 # Flutter Testing Standards
 
 ## **Priority: P0 (CRITICAL)**
 
-Strict guidelines for maintaining a high-quality, reliable, and fast test suite.
-
 ## Core Rules
 
-1.  **Test Pyramid**: Prioritize Unit Tests > Widget Tests > Integration Tests.
-2.  **Naming Convention**: Use `should <expected behavior> when <condition>` or `feature_test.dart`.
-3.  **Mocking**: Strict separation of concerns using shared mocks.
-4.  **AAA Pattern**: Arrange, Act, Assert in all tests.
+1. **Test Pyramid**: Unit > Widget > Integration.
+2. **Naming**: `should <behavior> when <condition>`.
+3. **AAA**: Arrange, Act, Assert in all tests.
+4. **Shared Mocks**: `test/shared/` only — no local mocks.
+5. **File Placement**: `_integration_test.dart` ONLY in `integration_test/`.
+6. **Robot-First**: ALL UI assertions/interactions via `*Robot` — never raw `find.*`/`expect()` in test body.
 
-## Mocking Standards
+## Test Organization ([ref](references/test-organization.md))
 
-**Do not define local mocks for shared components.**
+- Widget tests → `test/features/<feature>/*_test.dart`.
+- Integration → `integration_test/<feature>/*_integration_test.dart`.
+- Patrol: share robots via import; native `$.native.*` in test file, not robot.
+- Group: core tests + `Edge cases` group per file.
+- Cover: empty/null, errors, loading, boundary values, role variants.
 
-- **Rule**: All shared components (Blocs, Repos/Services) must use shared mocks.
-- **Location**: `test/shared/`
-- **Safe Matchers**: Avoid `any()` and `registerFallbackValue`. Use specific matchers or `anyNamed()` for named parameters.
-- **Reference**: [Mocking Standards (Detailed)](references/mocking_standards.md)
+## Widget Keys ([ref](references/widget-keys.md))
 
-## Directory Structure
+- `abstract final class` in `lib/core/keys/<feature>/`. Import barrel only.
+- Format: `<feature>.<screen>.<element>`. Never inline `Key('string')`.
 
-```text
-test/
-├── features/           # Feature-specific tests
-├── shared/             # Shared mocks and fixtures
-│   ├── mock_blocs.dart
-│   └── mock_repositories.dart
-└── core/               # Core utility tests
-```
+## Robot Pattern ([ref](references/robot-pattern.md))
+
+- All interactions/assertions in `*Robot` — never inline in tests.
+- Accept `WidgetTester`; shared by widget + Patrol integration tests.
+- Symmetric: every `expectXxxVisible()` needs `expectXxxNotVisible()`.
+- Widget tests: include `pumpScreen(bloc:, settle:)` helper.
+- Integration tests: methods work without `pumpScreen` (real app running).
+- Integration robots: provide `expectVAppBarVisible()`, `tapBackButton()`, `expectContentVisible()`.
+
+## Integration Testing ([ref](references/integration-testing.md))
+
+- Use `IntegrationAuthHelper.loginOrSkip($)` for authenticated flows.
+- Extract navigation-to-deep-screen into helper functions returning `bool`.
+- Create robot: `final robot = FeatureRobot($.tester)` — same class as widget tests.
+- Only `$.native.*` and navigation helpers may remain inline in test body.
+- No `v_dls` imports in tests when robots handle all assertions.
+
+## Widget Testing & Mocking ([ref](references/widget-testing.md)) ([mocking](references/mocking_standards.md))
+
+- `TestWrapper.init()` in `setUpAll` + `tester.pumpLocalizedWidget(...)`.
+- Stub `bloc.state` + `bloc.stream` in `setUp`. GetIt when bloc created internally.
+- `whenListen` for transitions; `settle: false` for loading/stream states.
+- Shared mocks in `test/shared/`. Prohibit `any()` / `anyNamed()`.
+- Stub ALL dependent blocs. Fake classes for external services.
 
 ## Anti-Patterns
 
-- **No Logic in Tests**: Test logic, don't reimplement it.
-- **No Flaky Tests**: Avoid `Future.delayed` or reliance on external state.
-- **No Local Mocks**: See [Mocking Standards](references/mocking_standards.md).
-- **No Unsafe Matchers**: Avoid `any()` (use specific types/matchers) and `registerFallbackValue`.
+- **No inline Key**: Use `WidgetKeys` constant. **No `any()`**: Use typed matchers.
+- **No local mocks**: Use `test/shared/`. **No missing bloc stub**: Stub `state` + `stream`.
+- **No test-body logic**: Move `find.*`/`expect()` to robot. **No raw find in integration tests**.
+- **No `_integration_test.dart` in `test/`**: Rename or merge.
+- **No unused imports**: Remove `v_dls` when robots handle assertions. Check Material import needs.
+- **No happy-path-only**: Add `Edge cases` group. **No one-sided assertions**: Add `expectNotVisible` pairs.
+- **No unchecked text casing**: Verify `.toUpperCase()`, `.tr()` in source.

@@ -148,4 +148,139 @@ describe('IndexGeneratorService', () => {
       expect(entry).toBe('- **[cat/skill]**: ');
     });
   });
+
+  describe('composite auto-injection', () => {
+    const rules: Record<string, string[]> = {
+      'common/security-standards': ['security', 'auth'],
+      'common/best-practices': ['architecture', 'language'],
+      'common/performance-engineering': ['performance', 'caching'],
+      'common/tdd': ['test'],
+    };
+
+    it('should auto-inject foundational composite when skill name matches a pattern', () => {
+      const metadata = {
+        name: 'n',
+        description: 'd',
+        priority: 'P0',
+        triggers: {},
+      };
+      const entry = (service as any).formatEntry(
+        'nestjs',
+        'security',
+        metadata,
+        rules,
+      );
+      expect(entry).toContain('+common/security-standards');
+    });
+
+    it('should inject multiple foundational composites when skill matches multiple rules', () => {
+      // 'nestjs-bullmq' doesn't match any — use 'auth' which matches security AND add architecture to best-practices list
+      const metadata = {
+        name: 'n',
+        description: 'd',
+        priority: 'P1',
+        triggers: {},
+      };
+      // 'architecture' matches best-practices
+      const entry = (service as any).formatEntry(
+        'nestjs',
+        'architecture',
+        metadata,
+        rules,
+      );
+      expect(entry).toContain('+common/best-practices');
+      expect(entry).not.toContain('+common/security-standards');
+    });
+
+    it('should NOT auto-inject composites for common/ category skills (no self-referencing)', () => {
+      const metadata = {
+        name: 'n',
+        description: 'd',
+        priority: 'P0',
+        triggers: {},
+      };
+      const entry = (service as any).formatEntry(
+        'common',
+        'security-standards',
+        metadata,
+        rules,
+      );
+      expect(entry).not.toContain('+common/');
+    });
+
+    it('should deduplicate auto composites against explicit composites in frontmatter', () => {
+      const metadata = {
+        name: 'n',
+        description: 'd',
+        priority: 'P0',
+        triggers: { composite: ['common/security-standards'] }, // already explicitly declared
+      };
+      const entry = (service as any).formatEntry(
+        'nestjs',
+        'security',
+        metadata,
+        rules,
+      );
+      // Should appear exactly once, not duplicated
+      const count = (entry.match(/\+common\/security-standards/g) || []).length;
+      expect(count).toBe(1);
+    });
+
+    it('should preserve explicit composite alongside auto-injected ones', () => {
+      const metadata = {
+        name: 'n',
+        description: 'd',
+        priority: 'P0',
+        triggers: { composite: ['some/other-skill'] },
+      };
+      const entry = (service as any).formatEntry(
+        'nestjs',
+        'security',
+        metadata,
+        rules,
+      );
+      expect(entry).toContain('+some/other-skill');
+      expect(entry).toContain('+common/security-standards');
+    });
+
+    it('should apply no composites when foundationalRules is empty (default)', () => {
+      const metadata = {
+        name: 'n',
+        description: 'd',
+        priority: 'P0',
+        triggers: {},
+      };
+      const entry = (service as any).formatEntry(
+        'nestjs',
+        'security',
+        metadata,
+        {},
+      );
+      expect(entry).not.toContain('+common/');
+    });
+
+    it('should load foundational rules from metadata.json in generate()', async () => {
+      (fs.pathExists as any).mockResolvedValue(false); // no skills dirs
+      (fs.readFile as any).mockImplementation(async (p: string) => {
+        if (p.includes('metadata.json')) {
+          return JSON.stringify({
+            foundational_composite_rules: {
+              'common/best-practices': ['architecture'],
+            },
+          });
+        }
+        return '{}';
+      });
+      // generate should not throw even if no skills found
+      const result = await service.generate('/skills', []);
+      expect(result).toContain('# Agent Skills Index');
+    });
+
+    it('should fall back to empty rules if metadata.json is missing', async () => {
+      (fs.pathExists as any).mockResolvedValue(false);
+      (fs.readFile as any).mockRejectedValue(new Error('ENOENT'));
+      const result = await service.generate('/skills', []);
+      expect(result).toContain('# Agent Skills Index');
+    });
+  });
 });

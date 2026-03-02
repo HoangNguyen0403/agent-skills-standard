@@ -44,13 +44,10 @@ function createMockRepository<T>() {
 ```typescript
 describe('AuthService', () => {
   let service: AuthService;
-  let mockUsersService: any;
-  let mockJwtService: any;
+  const mockUsersService = { findByEmail: jest.fn(), update: jest.fn() };
+  const mockJwtService = { sign: jest.fn(), verify: jest.fn() };
 
   beforeEach(async () => {
-    mockUsersService = { findByEmail: jest.fn(), update: jest.fn() };
-    mockJwtService = { sign: jest.fn(), verify: jest.fn() };
-
     const module = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -79,11 +76,10 @@ describe('AuthService', () => {
 ```typescript
 describe('JwtAuthGuard', () => {
   let guard: JwtAuthGuard;
-  let mockReflector: any;
+  const mockReflector = { getAllAndOverride: jest.fn() };
 
   beforeEach(() => {
-    mockReflector = { getAllAndOverride: jest.fn() };
-    guard = new JwtAuthGuard(mockReflector);
+    guard = new JwtAuthGuard(mockReflector as unknown as Reflector);
   });
 
   it('should allow public routes', () => {
@@ -98,7 +94,7 @@ function createMockContext() {
     switchToHttp: () => ({ getRequest: () => ({ user: { id: 1 } }) }),
     getHandler: () => ({}),
     getClass: () => ({}),
-  } as any;
+  } as unknown as ExecutionContext;
 }
 ```
 
@@ -174,7 +170,7 @@ describe('Auth Flow (e2e)', () => {
 
 ### Database Cleanup Strategies
 
-**Option 1: Transaction Rollback (Fast)**
+#### Option 1: Transaction Rollback (Fast)
 
 ```typescript
 let queryRunner: QueryRunner;
@@ -190,7 +186,7 @@ afterEach(async () => {
 });
 ```
 
-**Option 2: Explicit Truncate**
+#### Option 2: Explicit Truncate
 
 ```typescript
 afterEach(async () => {

@@ -50,6 +50,8 @@ describe('AgentBridgeService', () => {
         '.github/instructions/agent-skill-standard-rule.instructions.md',
       );
       expect(copilotCall).toBeDefined();
+      expect(copilotCall![1]).toContain('## Self-Learning Protocol');
+      expect(copilotCall![1]).toContain('common/session-retrospective');
 
       // ... match others implicitly via the fact that we passed all agents and forced them
       // We can check a few representative ones
