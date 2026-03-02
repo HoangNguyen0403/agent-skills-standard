@@ -35,6 +35,11 @@ class LoginRobot {
     await tester.pump();
   }
 
+  Future<void> enterPassword(String password) async {
+    await tester.enterText(find.byKey(LoginWidgetKeys.passwordField), password);
+    await tester.pump();
+  }
+
   Future<void> tapLoginButton() async {
     await tester.ensureVisible(find.byKey(LoginWidgetKeys.submitButton));
     await tester.tap(find.byKey(LoginWidgetKeys.submitButton));
@@ -45,6 +50,21 @@ class LoginRobot {
     await enterEmail(email);
     await enterPassword(password);
     await tapLoginButton();
+  }
+
+  /// Pumps the login screen with required bloc providers.
+  /// Set [settle] to false for tests using whenListen or loading states.
+  Future<void> pumpScreen({
+    required MockAuthBloc authBloc,
+    bool settle = true,
+  }) async {
+    await tester.pumpWidget(
+      BlocProvider<AuthBloc>.value(
+        value: authBloc,
+        child: const LoginScreen(),
+      ),
+    );
+    if (settle) await tester.pumpAndSettle();
   }
 
   // ─── Assertions ────────────────────────────────────────────────

@@ -1,4 +1,3 @@
-````markdown
 ---
 description: Systematic workflow for improving test coverage to a target threshold
 ---
@@ -9,40 +8,49 @@ description: Systematic workflow for improving test coverage to a target thresho
    Check current threshold in `package.json` → `jest.coverageThreshold.global`.
 
 2. **Baseline**: Run coverage and capture current metrics.
+
    ```bash
    pnpm test:cov 2>&1 | tail -20
    ```
+
    Record: Stmts, Branches, Funcs, Lines percentages.
 
 3. **Identify Gaps**: Parse coverage report for files below target.
+
    ```bash
    # Find files with <90% coverage
-   pnpm test:cov --coverageReporters=text 2>&1 | grep -E '\|\s+[0-7][0-9]\.' 
+   pnpm test:cov --coverageReporters=text 2>&1 | grep -E '\|\s+[0-7][0-9]\.'
    ```
+
    Prioritize by: (A) core business logic, (B) most-used services, (C) utilities.
 
 4. **Enhance Tests** (per file):
    - **Read the source file** — understand all branches, edge cases
    - **Read existing spec** (if any) — identify untested paths
    - **Verify DTO/entity shapes** — read actual class before writing mocks
-   - Write tests following **[Strict TypeScript Testing](../skills/nestjs/testing/references/strict-typescript-testing.md)**
+   - Write tests following **[Strict TypeScript Testing](./strict-typescript-testing.md)**
    - Focus on branches: `if/else`, `switch`, `try/catch`, `??`, `?.`, ternaries
 
 5. **Lint Check**: After each batch of spec changes:
+
    ```bash
    npx eslint --no-warn-ignored <changed-spec-files>
    ```
+
    Fix immediately — **NO `eslint-disable`**, **NO `as any`**.
 
 6. **Verify Tests Pass**:
+
    ```bash
    npx jest --testPathPattern="<pattern>" --no-coverage
    ```
 
 7. **Re-measure Coverage**:
+
    ```bash
    pnpm test:cov
    ```
+
    Compare against baseline. If threshold not met, return to step 3.
 
 8. **Final Validation**:
@@ -63,5 +71,3 @@ description: Systematic workflow for improving test coverage to a target thresho
 - [nestjs/testing](../skills/nestjs/testing/SKILL.md) — Test patterns and structure
 - [typescript/best-practices](../skills/typescript/best-practices/SKILL.md) — No `any`, no lint-disable
 - [common/tdd](../skills/common/tdd/SKILL.md) — Red-Green-Refactor cycle
-
-````

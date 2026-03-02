@@ -62,5 +62,4 @@ On duplicate key: return stored result without re-processing.
 INSERT INTO payments (id, amount, status)
 VALUES ($1, $2, 'pending')
 ON CONFLICT (id) DO NOTHING;
-`ON CONFLICT (id) DO NOTHING;
 ```
