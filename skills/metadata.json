@@ -232,8 +232,8 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 24,
-        "total_tokens": 15283,
-        "avg_tokens_per_skill": 637,
+        "total_tokens": 15577,
+        "avg_tokens_per_skill": 649,
         "largest_skill": "accessibility (1020 tokens)"
       }
     },

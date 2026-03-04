@@ -1,11 +1,23 @@
 ---
 name: Skill Creator
-description: Standards for creating new High-Density Agent Skills with optimal token economy.
+description: Standards for creating, testing, and optimizing Agent Skills. Use when creating, improving, catching regressions, measuring trigger rates, or writing eval cases for any skill.
 metadata:
-  labels: [meta, standard, instruction-design, token-efficient]
+  labels: [meta, standard, instruction-design, token-efficient, eval, testing]
   triggers:
-    files: ['SKILL.md', 'metadata.json']
-    keywords: [create skill, new standard, writing rules, high density]
+    files: ['SKILL.md', 'metadata.json', 'evals/evals.json']
+    keywords:
+      [
+        create skill,
+        new standard,
+        writing rules,
+        high density,
+        test skill,
+        eval skill,
+        trigger rate,
+        optimize description,
+        skill regression,
+        improve skill,
+      ]
 ---
 
 # Agent Skill Creator Standard
@@ -55,9 +67,22 @@ Strict guidelines for High-Density Agent Skills. Maximize info/token ratio.
 - **Oversized Skills**: If SKILL.md >100 lines, extract step-by-step guides and complex scenarios to `references/`.
 - **Nested Formatting**: Avoid `**Bold**: \`**More Bold**\``.
 
+## Test, Measure & Iterate
+
+After writing a skill draft, validate it before shipping:
+
+1. **Write eval cases**: Create `evals/evals.json` with 2–3 realistic prompts (see [testing.md](references/testing.md)).
+2. **Design trigger queries**: Generate 8–10 should-trigger and 8–10 should-not-trigger queries to measure description accuracy.
+3. **Optimize description**: Make it "pushy" — list explicit trigger contexts, not just what it does.
+4. **Catch regressions**: Snapshot the skill before editing; compare before/after outputs for existing test cases.
+5. **Iterate**: Re-run evals after each change; stop when trigger rate ≥ 80% on held-out queries.
+
+> See [Testing, Trigger Rate & Regression Guide](references/testing.md) for eval schema, query design rules, and regression protocol.
+
 ## Resources & Deep Knowledge
 
 - [Resource Organization & Directory Structure](references/resource-organization.md)
 - [Skill Creation Lifecycle](references/lifecycle.md)
 - [Anti-Patterns Details](references/anti-patterns.md)
 - [Creation Template](references/TEMPLATE.md)
+- [Testing, Trigger Rate & Regression Guide](references/testing.md)
