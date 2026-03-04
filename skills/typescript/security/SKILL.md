@@ -1,6 +1,6 @@
 ---
 name: TypeScript Security
-description: Secure coding practices for building safe TypeScript applications.
+description: Secure coding practices for TypeScript. Use when validating input, handling auth tokens, sanitizing data, or managing secrets and sensitive configuration.
 metadata:
   labels: [security, typescript, validation, sanitization]
   triggers:

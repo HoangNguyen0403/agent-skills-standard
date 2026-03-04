@@ -1,6 +1,6 @@
 ---
 name: TypeScript Language Patterns
-description: Modern TypeScript standards for type safety, performance, and maintainability.
+description: Modern TypeScript standards for type safety and maintainability. Use when working with types, interfaces, generics, enums, unions, or tsconfig settings.
 metadata:
   labels: [typescript, language, types, generics]
   triggers:

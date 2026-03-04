@@ -1,6 +1,6 @@
 ---
 name: TypeScript Tooling
-description: Development tools, linting, and build configuration for TypeScript projects.
+description: Development tools, linting, and build config for TypeScript. Use when configuring ESLint, Prettier, Jest, Vitest, tsconfig, or any TS build tooling.
 metadata:
   labels: [tooling, typescript, eslint, prettier, testing]
   triggers:

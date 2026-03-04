@@ -1,6 +1,6 @@
 ---
 name: System Design & Architecture Standards
-description: Universal architectural standards for building robust, scalable, and maintainable systems.
+description: Universal architectural standards for robust, scalable systems. Use when designing new features, evaluating architecture, or resolving scalability concerns.
 metadata:
   labels: [system-design, architecture, scalability, reliability]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Performance Engineering Standards
-description: Universal standards for high-performance software development across all frameworks.
+description: Universal standards for high-performance development. Use when optimizing, reducing latency, fixing memory leaks, profiling, or improving throughput.
 metadata:
   labels: [performance, optimization, scalability, profiling]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Documentation Standards
-description: Essential rules for code comments, READMEs, and technical documentation.
+description: Essential rules for code comments, READMEs, and technical docs. Use when adding comments, writing docstrings, creating READMEs, or updating any documentation.
 metadata:
   labels: [documentation, comments, docstrings, readme]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Code Review Expert
-description: Standards for high-quality, persona-driven code reviews.
+description: Standards for high-quality, persona-driven code reviews. Use when reviewing PRs, critiquing code quality, or analyzing changes for team feedback.
 metadata:
   labels: [common, review, quality, best-practices]
   triggers:

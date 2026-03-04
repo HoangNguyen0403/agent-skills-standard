@@ -1,6 +1,6 @@
 ---
 name: Debugging Expert
-description: Systematic troubleshooting using the Scientific Method (Observe, Hypothesize, Experiment, Fix).
+description: Systematic troubleshooting using the Scientific Method. Use when debugging crashes, tracing errors, diagnosing unexpected behavior, or investigating exceptions.
 metadata:
   labels: [debugging, troubleshooting, bug-fixing, root-cause]
   triggers:

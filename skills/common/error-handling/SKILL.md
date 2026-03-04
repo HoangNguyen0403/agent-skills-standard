@@ -1,6 +1,6 @@
 ---
 name: Common Error Handling
-description: Cross-cutting standards for error design, response shapes, error codes, and boundary placement.
+description: Cross-cutting standards for error design, response shapes, error codes, and boundary placement. Use when handling errors, designing exception flows, or standardizing error responses.
 metadata:
   labels: [error-handling, exceptions, resilience, api-errors]
   triggers:

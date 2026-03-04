@@ -1,6 +1,6 @@
 ---
 name: Global Best Practices
-description: Universal principles for clean, maintainable, and robust code across all environments.
+description: Universal clean-code principles for any environment. Use when writing functions, designing classes, or applying SOLID/DRY/KISS patterns to any codebase.
 metadata:
   labels: [best-practices, solid, clean-code, architecture]
   triggers:

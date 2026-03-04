@@ -1,6 +1,6 @@
 ---
 name: TypeScript Best Practices
-description: Idiomatic TypeScript patterns for clean, maintainable code.
+description: Idiomatic TypeScript patterns for clean, maintainable code. Use when writing or refactoring TypeScript classes, functions, modules, or async logic.
 metadata:
   labels: [typescript, best-practices, idioms, conventions]
   triggers:

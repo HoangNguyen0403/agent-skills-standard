@@ -1,6 +1,6 @@
 ---
 name: Product Requirements
-description: Expert process for gathering requirements and drafting PRDs (Iterative Discovery).
+description: Expert process for gathering requirements and drafting PRDs (Iterative Discovery). Use when creating a PRD, speccing a new feature, or clarifying requirements.
 metadata:
   labels: [prd, requirements, planning, product]
   triggers:

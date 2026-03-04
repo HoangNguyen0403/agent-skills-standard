@@ -1,6 +1,6 @@
 ---
 name: Session Retrospective
-description: Analyze conversation corrections to detect skill gaps and auto-improve the skills library.
+description: Analyze conversation corrections to detect skill gaps and auto-improve the skills library. Use after any session with user corrections, rework, or retrospective requests.
 metadata:
   labels: [meta, self-learning, feedback, quality, continuous-improvement]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Common Observability
-description: Standards for structured logging, distributed tracing, and metrics across all backend services.
+description: Standards for structured logging, distributed tracing, and metrics across all backend services. Use when adding logs, setting up tracing, or implementing service observability.
 metadata:
   labels: [observability, logging, tracing, metrics, opentelemetry]
   triggers:

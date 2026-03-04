@@ -295,13 +295,13 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 
 | Category            | Key Modules                   | Version  | Skills | Avg. Footprint |
 | :------------------ | :---------------------------- | :------- | :----- | :------------- |
-| **🌐 Common**       | SOLID, TDD, Workflow Writing  | `v1.6.0` | 24     | ~649 tokens    |
+| **🌐 Common**       | SOLID, TDD, Workflow Writing  | `v1.6.0` | 24     | ~659 tokens    |
 | **🗄️ Database**     | PostgreSQL, MongoDB, Redis    | `v1.0.1` | 3      | ~664 tokens    |
 | **🌐 Quality**      | BA, Jira, Zephyr, QA          | `v1.0.1` | 4      | ~458 tokens    |
 | **💙 Flutter**      | Clean Arch, BLoC, Riverpod    | `v1.3.2` | 21     | ~446 tokens    |
 | **🎯 Dart**         | Idiomatic, Advanced Tooling   | `v1.0.4` | 3      | ~435 tokens    |
 | **☕ Java**         | Virtual Threads, Testing      | `v1.0.0` | 5      | ~522 tokens    |
-| **🔷 TypeScript**   | Type Safety, Security         | `v1.0.7` | 4      | ~521 tokens    |
+| **🔷 TypeScript**   | Type Safety, Security         | `v1.0.7` | 4      | ~541 tokens    |
 | **🟨 JavaScript**   | Modern ES2022+ Patterns       | `v1.0.0` | 5      | ~522 tokens    |
 | **⚛️ React**        | Hooks, State, Performance     | `v1.0.4` | 8      | ~403 tokens    |
 | **📱 React Native** | Arch, Perf, Nav, Security     | `v1.0.4` | 8      | ~403 tokens    |

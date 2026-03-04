@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: Enforces Test-Driven Development (Red-Green-Refactor) for rigorous code quality.
+description: Enforces Test-Driven Development (Red-Green-Refactor). Use when writing unit tests, implementing TDD, or improving test coverage for any feature.
 metadata:
   labels: [tdd, testing, quality, red-green-refactor]
   triggers:

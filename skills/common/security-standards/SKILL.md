@@ -1,6 +1,6 @@
 ---
 name: Security Standards
-description: Universal security protocols for building safe and resilient software.
+description: Universal security protocols for safe, resilient software. Use when implementing authentication, encryption, authorization, or any security-sensitive feature.
 metadata:
   labels: [security, encryption, authentication, authorization]
   triggers:

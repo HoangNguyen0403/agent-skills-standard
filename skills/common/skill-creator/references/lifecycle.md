@@ -72,18 +72,20 @@ metadata:
     keywords: [bloc, state management, reactive ui]
 ```
 
-## Phase 4: Validation (Token Testing)
+## Phase 4: Validation (Token Testing + Skill Testing)
 
-**Goal**: Ensure skill works efficiently across all agents.
+**Goal**: Ensure skill works efficiently and triggers reliably.
 
 ### Validation Checklist
 
 - [ ] SKILL.md < 100 lines
-- [ ] Frontmatter < 100 words
+- [ ] Frontmatter < 100 words, description ≤ 200 chars and "pushy"
 - [ ] No redundant information
 - [ ] Complex examples in references/
 - [ ] Deterministic tasks in scripts/
 - [ ] Templates in assets/
+- [ ] Eval cases written in `evals/evals.json`
+- [ ] Trigger rate ≥ 80% on should-trigger query set
 
 ### Testing Across Agents
 
@@ -92,11 +94,19 @@ metadata:
 3. **Claude**: Check context window efficiency
 4. **GitHub Copilot**: Validate .github/skills/ sync
 
+### Skill Effectiveness Testing
+
+See [testing.md](testing.md) for the full process including:
+- Writing `evals/evals.json` eval cases
+- Designing should-trigger / should-not-trigger query sets
+- Measuring and optimizing trigger rate
+- Catching regressions before shipping
+
 ### Performance Metrics
 
 - **Loading Speed**: Time to activate skill
 - **Token Usage**: Measure context consumption
-- **Relevance**: False positive/negative rate
+- **Trigger Rate**: % of should-trigger queries that activate the skill (target ≥ 80%)
 - **User Satisfaction**: Does it solve the problem?
 
 ## Phase 5: Iteration (Continuous Optimization)
