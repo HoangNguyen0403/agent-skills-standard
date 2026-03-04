@@ -291,26 +291,26 @@ If the CLI complains about configuration format:
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
 
-### 🔹 Registry Ecosystem (v1.8.2)
+### 🔹 Registry Ecosystem (v1.9.0)
 
 | Category            | Key Modules                   | Version  | Skills | Avg. Footprint |
 | :------------------ | :---------------------------- | :------- | :----- | :------------- |
 | **🌐 Common**       | SOLID, TDD, Workflow Writing  | `v1.7.0` | 24     | ~659 tokens    |
 | **🗄️ Database**     | PostgreSQL, MongoDB, Redis    | `v1.1.0` | 3      | ~688 tokens    |
-| **🌐 Quality**      | BA, Jira, Zephyr, QA          | `v1.0.1` | 4      | ~458 tokens    |
+| **🌐 Quality**      | BA, Jira, Zephyr, QA          | `v1.1.0` | 4      | ~458 tokens    |
 | **💙 Flutter**      | Clean Arch, BLoC, Riverpod    | `v1.4.0` | 21     | ~465 tokens    |
 | **🎯 Dart**         | Idiomatic, Advanced Tooling   | `v1.1.0` | 3      | ~459 tokens    |
 | **☕ Java**         | Virtual Threads, Testing      | `v1.1.0` | 5      | ~543 tokens    |
 | **🔷 TypeScript**   | Type Safety, Security         | `v1.1.0` | 4      | ~541 tokens    |
 | **🟨 JavaScript**   | Modern ES2022+ Patterns       | `v1.1.0` | 5      | ~543 tokens    |
 | **⚛️ React**        | Hooks, State, Performance     | `v1.1.0` | 8      | ~427 tokens    |
-| **📱 React Native** | Arch, Perf, Nav, Security     | `v1.1.0` | 8      | ~427 tokens    |
+| **📱 React Native** | Arch, Perf, Nav, Security     | `v1.2.0` | 13     | ~469 tokens    |
 | **🦁 NestJS**       | Arch, Microservices, CQRS     | `v1.2.0` | 21     | ~547 tokens    |
 | **▲ Next.js**       | App Router, RSC, Pages Router | `v1.2.0` | 18     | ~506 tokens    |
 | **🐹 Golang**       | Concurrency, API Design       | `v1.1.0` | 10     | ~398 tokens    |
 | **🐘 Kotlin**       | Coroutines, Flow, Tooling     | `v1.1.0` | 4      | ~475 tokens    |
 | **🅰️ Angular**      | Standalone, Signals           | `v1.2.0` | 15     | ~307 tokens    |
-| **🍃 Spring Boot**  | Security, Data, Microservices | `v1.0.2` | 10     | ~369 tokens    |
+| **🍃 Spring Boot**  | Security, Data, Microservices | `v1.1.0` | 10     | ~369 tokens    |
 | **🤖 Android**      | Compose, DI, Perf, Testing    | `v1.1.0` | 22     | ~315 tokens    |
 | **🍎 Swift**        | Concurrency, SwiftUI, Test    | `v1.1.0` | 8      | ~377 tokens    |
 | **🍏 iOS**          | Arch, Nav, Perf, DI           | `v1.2.0` | 15     | ~431 tokens    |
@@ -323,7 +323,7 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 >
 > ```yaml
 > skills:
->   quality-engineering: { ref: quality-engineering-v1.0.0 }
+>   quality-engineering: { ref: quality-engineering-v1.1.0 }
 > ```
 >
 > [!TIP]
