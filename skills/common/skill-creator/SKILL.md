@@ -14,7 +14,8 @@ metadata:
         test skill,
         eval skill,
         trigger rate,
-        optimize description,
+        optimize,
+        description,
         skill regression,
         improve skill,
       ]

@@ -296,7 +296,6 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | Category            | Key Modules                   | Version  | Skills | Avg. Footprint |
 | :------------------ | :---------------------------- | :------- | :----- | :------------- |
 | **🌐 Common**       | SOLID, TDD, Workflow Writing  | `v1.7.0` | 24     | ~659 tokens    |
-| **🗄️ Database**     | PostgreSQL, MongoDB, Redis    | `v1.1.0` | 3      | ~688 tokens    |
 | **🌐 Quality**      | BA, Jira, Zephyr, QA          | `v1.1.0` | 4      | ~458 tokens    |
 | **💙 Flutter**      | Clean Arch, BLoC, Riverpod    | `v1.4.0` | 21     | ~465 tokens    |
 | **🎯 Dart**         | Idiomatic, Advanced Tooling   | `v1.1.0` | 3      | ~459 tokens    |
@@ -304,7 +303,7 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | **🔷 TypeScript**   | Type Safety, Security         | `v1.1.0` | 4      | ~541 tokens    |
 | **🟨 JavaScript**   | Modern ES2022+ Patterns       | `v1.1.0` | 5      | ~543 tokens    |
 | **⚛️ React**        | Hooks, State, Performance     | `v1.1.0` | 8      | ~427 tokens    |
-| **📱 React Native** | Arch, Perf, Nav, Security     | `v1.2.0` | 13     | ~469 tokens    |
+| **📱 React Native** | Arch, Perf, Nav, Security     | `v1.1.0` | 8      | ~427 tokens    |
 | **🦁 NestJS**       | Arch, Microservices, CQRS     | `v1.2.0` | 21     | ~547 tokens    |
 | **▲ Next.js**       | App Router, RSC, Pages Router | `v1.2.0` | 18     | ~506 tokens    |
 | **🐹 Golang**       | Concurrency, API Design       | `v1.1.0` | 10     | ~398 tokens    |

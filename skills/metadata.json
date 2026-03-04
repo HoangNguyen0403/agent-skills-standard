@@ -232,7 +232,7 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 24,
-        "total_tokens": 15823,
+        "total_tokens": 15825,
         "avg_tokens_per_skill": 659,
         "largest_skill": "error-handling (1035 tokens)"
       }
