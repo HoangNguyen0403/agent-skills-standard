@@ -33,14 +33,20 @@ export class AgentBridgeService {
         'This project uses a modular skills library for specialized engineering tasks.',
         '',
         '> [!IMPORTANT]',
-        '> ALWAYS consult the consolidated index in **AGENTS.md** to identify relevant triggers before acting.',
+        '> **MANDATORY: At the start of EVERY session, read `AGENTS.md` to load the skill index.**',
+        '> Then identify all skills whose triggers match the current task before writing any code.',
         '',
-        'The `AGENTS.md` file contains mapping between project files and the specific agent skills located in the respective agent-specific folders (e.g., `.cursor/skills`, `.claude/skills`).',
+        '## Skill Activation Protocol',
+        '',
+        '1. **On session start** → Read `AGENTS.md` (skill index with triggers).',
+        '2. **On every task** → Check file globs and keywords against the index.',
+        '3. **On skill match** → Read the full `SKILL.md` file before acting.',
+        '4. **On file write** → Audit against `common/feedback-reporter` skill.',
         '',
         '## Self-Learning Protocol',
         '',
         `At the end of any multi-step task with user corrections, load and run **[common/session-retrospective](${prefix}common/session-retrospective/SKILL.md)** to capture skill gaps and prevent repeat rework.`,
-      ].join('\\n');
+      ].join('\n');
 
       // SAFETY: Only write if the agent is detected in the project
       // This prevents creating unused directories.

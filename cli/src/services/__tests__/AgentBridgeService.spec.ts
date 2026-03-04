@@ -65,6 +65,10 @@ describe('AgentBridgeService', () => {
       expect(copilotCall![1]).toContain(
         '(../skills/common/session-retrospective/SKILL.md)',
       );
+      // Ensure proper newlines (not literal \n strings) for readability
+      expect(copilotCall![1]).toMatch(/\n## Self-Learning Protocol/);
+      expect(copilotCall![1]).toMatch(/\n## Skill Activation Protocol/);
+      expect(copilotCall![1]).toContain('MANDATORY: At the start of EVERY session');
 
       // Check remaining
       expect(findCall('.windsurf/rules')).toBeDefined();
