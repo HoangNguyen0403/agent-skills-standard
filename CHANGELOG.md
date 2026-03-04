@@ -5,7 +5,51 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.8.2] - 2026-03-02
+## [1.9.0] - 2026-03-04
+
+**Category**: Universal Trigger-Rate Optimization & Skill-Creator Enhancement
+
+### Changed (Skills — All Categories)
+
+- **🎯 Pushy Descriptions (228 skills)**: Applied explicit `"Use when…"` trigger clause to every skill description across all 21 categories. Previously passive descriptions (e.g., "Standards for WorkManager and Background Processing") now include concrete activation contexts (e.g., "Use when implementing background tasks, scheduled work, or long-running operations in Android."), making agents more reliably activate the correct skill from the description alone.
+- **🧪 `common/skill-creator`**: Improved to cover test generation, regression catching, and trigger-rate measurement & optimization:
+  - Added **Test, Measure & Iterate** section with a 5-step validation workflow targeting ≥80% trigger accuracy.
+  - Added 6 new trigger keywords: `test skill`, `eval skill`, `trigger rate`, `optimize description`, `skill regression`, `improve skill`.
+  - New `references/testing.md`: Documents `evals/evals.json` schema, should-trigger / should-not-trigger query design, "pushy" description optimization (before/after examples), and regression-catching protocol.
+  - Updated `references/lifecycle.md` Phase 4: validation checklist now requires eval cases and ≥80% trigger-rate target.
+
+### Fixed (CLI)
+
+- **🔀 `AgentBridgeService` Newline Bug**: Fixed `.join('\\n')` → `.join('\n')` so all generated rule files (`.cursor/rules/*.mdc`, `.github/instructions/*.md`, `.agent/rules/*.md`, etc.) now contain real line breaks instead of literal `\n` sequences. The entire rule body was previously collapsed into a single unformatted line, making the Skill Activation Protocol nearly unparseable by agents.
+- **📋 Skill Activation Protocol**: Updated the generated rule body content with an explicit 4-step ordered checklist replacing the passive "ALWAYS consult AGENTS.md" instruction, ensuring agents follow a deterministic skill-loading sequence.
+
+### Versions
+
+- **Common Skills**: v1.7.0 (Minor — skill-creator enhancements, universal description improvements)
+- **Framework Skills**:
+  - **Android**: v1.1.0 (Minor)
+  - **Angular**: v1.2.0 (Minor)
+  - **Dart**: v1.1.0 (Minor)
+  - **Flutter**: v1.4.0 (Minor)
+  - **Golang**: v1.1.0 (Minor)
+  - **iOS**: v1.2.0 (Minor)
+  - **Java**: v1.1.0 (Minor)
+  - **JavaScript**: v1.1.0 (Minor)
+  - **Kotlin**: v1.1.0 (Minor)
+  - **Laravel**: v1.1.0 (Minor)
+  - **NestJS**: v1.2.0 (Minor)
+  - **Next.js**: v1.2.0 (Minor)
+  - **PHP**: v1.1.0 (Minor)
+  - **Quality Engineering**: v1.1.0 (Minor)
+  - **React**: v1.1.0 (Minor)
+  - **React Native**: v1.2.0 (Minor)
+  - **Spring Boot**: v1.1.0 (Minor)
+  - **Swift**: v1.1.0 (Minor)
+  - **TypeScript**: v1.1.0 (Minor)
+  - **Database**: v1.1.0 (Minor)
+- **CLI**: v1.9.0 (Minor)
+
+
 
 **Category**: Agent Detection Restoration & Rule Integrity
 
