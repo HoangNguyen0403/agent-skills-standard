@@ -1,6 +1,6 @@
 ---
 name: Concurrency
-description: Standards for safe concurrent programming using Goroutines, Channels, and Context.
+description: Standards for safe concurrent programming using Goroutines, Channels, and Context. Use when implementing concurrency with Goroutines, Channels, or Context in Go.
 metadata:
   labels: [golang, concurrency, goroutines, channels, context, sync]
   triggers:

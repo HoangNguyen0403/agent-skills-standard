@@ -1,6 +1,6 @@
 ---
 name: Next.js Rendering Strategies
-description: SSG, SSR, ISR, Streaming, and Partial Prerendering (PPR).
+description: SSG, SSR, ISR, Streaming, and Partial Prerendering (PPR). Use when choosing a rendering strategy (SSG, SSR, ISR, PPR, or Streaming) in Next.js.
 metadata:
   labels: [nextjs, rendering, isr, ssr, ssg]
   triggers:

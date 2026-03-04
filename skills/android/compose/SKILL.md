@@ -1,6 +1,6 @@
 ---
 name: Android Jetpack Compose
-description: Standards for high-performance Declarative UI and State Hoisting.
+description: Standards for high-performance Declarative UI and State Hoisting. Use when building Jetpack Compose UIs or managing composable state in Android.
 metadata:
   labels: [android, compose, ui]
   triggers:

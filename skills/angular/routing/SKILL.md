@@ -1,6 +1,6 @@
 ---
 name: Routing
-description: Standards for Angular Router, Lazy Loading, and Guards.
+description: Standards for Angular Router, Lazy Loading, and Guards. Use when configuring Angular routes, lazy-loaded modules, route guards, or resolvers.
 metadata:
   labels: [angular, routing, guards, lazy-loading]
   triggers:

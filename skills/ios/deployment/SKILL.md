@@ -1,6 +1,6 @@
 ---
 name: iOS Deployment
-description: Standards for Provisioning, Signing, and Fastlane.
+description: Standards for Provisioning, Signing, and Fastlane. Use when provisioning iOS apps, managing code signing, or automating deployments with Fastlane.
 metadata:
   labels: [ios, deployment, fastlane, provisioning]
   triggers:

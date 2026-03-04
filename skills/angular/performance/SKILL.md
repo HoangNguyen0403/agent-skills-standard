@@ -1,6 +1,6 @@
 ---
 name: Performance
-description: Optimization techniques including OnPush, @defer, and Image Optimization.
+description: Optimization techniques including OnPush, @defer, and Image Optimization. Use when optimizing Angular rendering, deferring blocks, or improving Core Web Vitals.
 metadata:
   labels: [angular, performance, optimization, onpush]
   triggers:

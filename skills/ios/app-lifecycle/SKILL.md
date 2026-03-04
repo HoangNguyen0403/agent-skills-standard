@@ -1,6 +1,6 @@
 ---
 name: iOS App Lifecycle
-description: Standards for AppDelegate, SceneDelegate, Deep Linking, and Background Tasks.
+description: Standards for AppDelegate, SceneDelegate, Deep Linking, and Background Tasks. Use when managing iOS app lifecycle, deep linking, or background task scheduling.
 metadata:
   labels: [ios, lifecycle, scenedelegate, background-tasks]
   triggers:

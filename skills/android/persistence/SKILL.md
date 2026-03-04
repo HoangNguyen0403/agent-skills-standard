@@ -1,6 +1,6 @@
 ---
 name: Android Persistence
-description: Standards for Room Database and DataStore
+description: Standards for Room Database and DataStore. Use when implementing Room database schemas or DataStore preferences in Android.
 metadata:
   labels: [android, persistence, room, database]
   triggers:

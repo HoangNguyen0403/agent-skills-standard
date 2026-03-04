@@ -1,6 +1,6 @@
 ---
 name: Testing
-description: Standards for Component Test Harnesses and TestBed.
+description: Standards for Component Test Harnesses and TestBed. Use when writing Angular component tests with TestBed or Component Harnesses.
 metadata:
   labels: [angular, testing, harness, testbed]
   triggers:

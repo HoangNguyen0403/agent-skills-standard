@@ -1,6 +1,6 @@
 ---
 name: JavaScript Best Practices
-description: Idiomatic JavaScript patterns and conventions for maintainable code.
+description: Idiomatic JavaScript patterns and conventions for maintainable code. Use when writing or refactoring JavaScript following idiomatic patterns and conventions.
 metadata:
   labels: [javascript, best-practices, conventions, code-quality]
   triggers:

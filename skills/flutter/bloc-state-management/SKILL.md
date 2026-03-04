@@ -1,6 +1,6 @@
 ---
 name: Flutter BLoC State Management
-description: Standards for predictable state management using flutter_bloc, freezed, and equatable.
+description: Standards for predictable state management using flutter_bloc, freezed, and equatable. Use when implementing BLoC pattern for state management in Flutter.
 metadata:
   labels: [flutter, state-management, bloc, cubit, freezed]
   triggers:

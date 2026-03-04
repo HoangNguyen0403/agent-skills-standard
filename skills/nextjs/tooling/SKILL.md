@@ -1,6 +1,6 @@
 ---
 name: Next.js Tooling
-description: Ecosystem optimization, deployment, and developer flow.
+description: Ecosystem optimization, deployment, and developer flow. Use when configuring Next.js build optimization, deployment settings, or developer tooling.
 metadata:
   labels: [nextjs, turbopack, deployment, ci, vercel]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Flutter Localization
-description: Standards for multi-language support using easy_localization with CSV or JSON.
+description: Standards for multi-language support using easy_localization with CSV or JSON. Use when adding localization or multi-language support to Flutter apps.
 metadata:
   labels: [localization, l10n, i18n, easy_localization, csv]
   triggers:

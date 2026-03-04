@@ -1,6 +1,6 @@
 ---
 name: Next.js Optimization
-description: Image, Font, Script, and Metadata optimization strategies.
+description: Image, Font, Script, and Metadata optimization strategies. Use when optimizing Next.js images, fonts, scripts, or page metadata for performance.
 metadata:
   labels: [nextjs, optimization, seo, performance]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: NestJS Architecture
-description: Standards for scalable, modular NestJS backend architecture.
+description: Standards for scalable, modular NestJS backend architecture. Use when designing module boundaries, feature modules, or scalable NestJS architecture.
 metadata:
   labels: [nestjs, backend, architecture, modularity]
   triggers:

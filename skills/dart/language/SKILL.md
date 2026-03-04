@@ -1,6 +1,6 @@
 ---
 name: Dart Language Patterns
-description: Modern Dart standards (3.x+) including null safety and patterns.
+description: Modern Dart standards (3.x+) including null safety and patterns. Use when working with Dart 3.x null safety, records, patterns, or sealed classes.
 metadata:
   labels: [dart, language, idioms]
   triggers:

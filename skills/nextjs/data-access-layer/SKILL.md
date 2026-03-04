@@ -1,6 +1,6 @@
 ---
 name: Next.js Data Access Layer
-description: Secure, reusable data access patterns with DTOs and Taint checks.
+description: Secure, reusable data access patterns with DTOs and Taint checks. Use when building a data access layer with DTOs and server-side taint checking in Next.js.
 metadata:
   labels: [nextjs, dal, architecture, security]
   triggers:

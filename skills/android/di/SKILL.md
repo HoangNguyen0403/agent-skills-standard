@@ -1,6 +1,6 @@
 ---
 name: Android Dependency Injection (Hilt)
-description: Standards for Hilt Setup, Scoping, and Modules
+description: Standards for Hilt Setup, Scoping, and Modules. Use when setting up Hilt dependency injection, component scoping, or modules in Android.
 metadata:
   labels: [android, di, hilt, dagger]
   triggers:

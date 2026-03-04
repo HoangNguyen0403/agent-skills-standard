@@ -1,6 +1,6 @@
 ---
 name: NestJS Security
-description: Authentication, RBAC, and Hardening standards.
+description: Authentication, RBAC, and Hardening standards. Use when implementing JWT auth, RBAC guards, or security hardening in NestJS.
 metadata:
   labels: [nestjs, security, auth, jwt]
   triggers:

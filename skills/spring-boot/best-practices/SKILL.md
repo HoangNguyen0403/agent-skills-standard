@@ -1,6 +1,6 @@
 ---
 name: Spring Boot Best Practices
-description: Core coding standards, dependency injection, and configuration for Spring Boot 3
+description: Core coding standards, dependency injection, and configuration for Spring Boot 3. Use when applying Spring Boot 3 coding standards or configuring dependency injection.
 metadata:
   labels: [spring-boot, best-practices, dependency-injection]
   triggers:

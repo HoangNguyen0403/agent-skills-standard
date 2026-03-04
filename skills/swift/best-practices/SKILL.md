@@ -1,6 +1,6 @@
 ---
 name: Swift Best Practices
-description: Standards for Guard, Value Types, Immutability, and Naming
+description: Standards for Guard, Value Types, Immutability, and Naming. Use when writing idiomatic Swift using guard, value types, immutability, or naming conventions.
 metadata:
   labels: [swift, best-practices, guard, immutability]
   triggers:

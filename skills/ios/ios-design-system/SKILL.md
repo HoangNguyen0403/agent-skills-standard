@@ -1,6 +1,6 @@
 ---
 name: iOS Design System (SwiftUI)
-description: Enforce design token usage in SwiftUI apps. Covers Colors, Spacing, Typography using iOS Human Interface Guidelines.
+description: Enforce design token usage in SwiftUI apps using iOS Human Interface Guidelines. Use when implementing design tokens, colors, or typography in SwiftUI.
 metadata:
   labels: [ios, swiftui, dls, design-tokens, hig]
   triggers:

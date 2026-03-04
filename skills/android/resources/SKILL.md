@@ -1,6 +1,6 @@
 ---
 name: Android Resources & Localization
-description: Standards for Strings, Drawables, and Localization
+description: Standards for Strings, Drawables, and Localization. Use when managing Android resources, drawables, or adding localization support.
 metadata:
   labels: [android, resources, localization, xml]
   triggers:

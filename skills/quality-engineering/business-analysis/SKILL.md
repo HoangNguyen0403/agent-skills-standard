@@ -1,6 +1,6 @@
 ---
 name: Business Analysis
-description: Standard for deep requirement investigation, logic validation, and technical impact mapping.
+description: Standard for deep requirement investigation, logic validation, and technical impact mapping. Use when investigating requirements, validating business rules, or mapping technical impact.
 metadata:
   labels: [ba, requirement-analysis, logic-validation, technical-impact]
   triggers:

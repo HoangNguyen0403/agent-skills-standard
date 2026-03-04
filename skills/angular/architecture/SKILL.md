@@ -1,6 +1,6 @@
 ---
 name: Architecture
-description: Standards for Angular project structure, feature modules, and lazy loading.
+description: Standards for Angular project structure, feature modules, and lazy loading. Use when structuring Angular apps, defining feature modules, or configuring lazy loading.
 metadata:
   labels: [angular, architecture, structure, modules]
   triggers:

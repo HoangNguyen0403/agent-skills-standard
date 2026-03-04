@@ -1,6 +1,6 @@
 ---
 name: NestJS File Uploads
-description: Secure file handling, Validation, and S3 streaming.
+description: Secure file handling, Validation, and S3 streaming. Use when implementing secure file uploads, validation, or S3 streaming in NestJS.
 metadata:
   labels: [nestjs, upload, multer, s3]
   triggers:

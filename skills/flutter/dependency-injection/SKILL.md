@@ -1,6 +1,6 @@
 ---
 name: Flutter Dependency Injection (Injectable)
-description: Standards for automated service locator setup using injectable and get_it.
+description: Standards for automated service locator setup using injectable and get_it. Use when configuring dependency injection with injectable and get_it in Flutter.
 metadata:
   labels: [dependency-injection, injectable, get_it]
   triggers:

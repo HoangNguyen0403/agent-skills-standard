@@ -1,6 +1,6 @@
 ---
 name: Configuration
-description: Standards for application configuration using environment variables and libraries.
+description: Standards for application configuration using environment variables and libraries. Use when managing Go application config with environment variables or viper.
 metadata:
   labels: [golang, config, env, viper]
   triggers:

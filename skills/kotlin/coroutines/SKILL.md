@@ -1,6 +1,6 @@
 ---
 name: Kotlin Coroutines Expert
-description: Standards for safe, structured concurrency in Kotlin.
+description: Standards for safe, structured concurrency in Kotlin. Use when implementing Kotlin Coroutines, structured concurrency, or Flow in Android or backend.
 metadata:
   labels: [kotlin, concurrency, coroutines, async]
   triggers:

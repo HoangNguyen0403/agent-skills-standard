@@ -1,6 +1,6 @@
 ---
 name: React Component Patterns
-description: Modern React component architecture and composition patterns.
+description: Modern React component architecture and composition patterns. Use when designing reusable React components, applying composition patterns, or structuring component hierarchies.
 metadata:
   labels: [react, components, composition, patterns]
   triggers:

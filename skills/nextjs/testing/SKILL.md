@@ -1,6 +1,6 @@
 ---
 name: Next.js Testing
-description: Unit, Integration, and E2E testing standards for App Router.
+description: Unit, Integration, and E2E testing standards for App Router. Use when writing unit, integration, or Playwright E2E tests for a Next.js App Router project.
 metadata:
   labels: [nextjs, testing, vitest, playwright, msw]
   triggers:

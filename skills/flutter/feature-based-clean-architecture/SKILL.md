@@ -1,6 +1,6 @@
 ---
 name: Flutter Feature-Based Clean Architecture
-description: Standards for organizing code by feature at the root level to improve scalability and maintainability.
+description: Standards for organizing Flutter code by feature for scalability. Use when structuring a Flutter project with feature-based clean architecture.
 metadata:
   labels: [architecture, clean-architecture, feature-driven, ddd, modularity]
   triggers:

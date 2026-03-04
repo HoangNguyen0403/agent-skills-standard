@@ -1,6 +1,6 @@
 ---
 name: Flutter GetX Navigation
-description: Context-less navigation, named routes, and middleware using GetX.
+description: Context-less navigation, named routes, and middleware using GetX. Use when implementing navigation or route middleware with GetX in Flutter.
 metadata:
   labels: [navigation, getx, routing, middleware]
   triggers:

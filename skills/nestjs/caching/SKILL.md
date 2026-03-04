@@ -1,6 +1,6 @@
 ---
 name: NestJS Caching & Redis
-description: Multi-level caching, Invalidation patterns, and Stampede protection.
+description: Multi-level caching, Invalidation patterns, and Stampede protection. Use when implementing multi-level caching or cache invalidation strategies in NestJS.
 metadata:
   labels: [nestjs, caching, redis, performance]
   triggers:

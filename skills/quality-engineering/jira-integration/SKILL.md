@@ -1,6 +1,6 @@
 ---
 name: Jira Integration
-description: Standards for retrieving Jira issue details and linking Zephyr test cases back to Jira.
+description: Standards for retrieving Jira issue details and linking Zephyr test cases back to Jira. Use when retrieving Jira issues or linking Zephyr test cases to Jira tickets.
 metadata:
   labels: [jira, zephyr, integration, traceability]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: NestJS Configuration
-description: Environment variables validation and ConfigModule setup.
+description: Environment variables validation and ConfigModule setup. Use when validating environment variables with Joi/Zod or configuring ConfigModule in NestJS.
 metadata:
   labels: [nestjs, config, env]
   triggers:

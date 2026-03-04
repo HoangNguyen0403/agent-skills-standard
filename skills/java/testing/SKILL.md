@@ -1,6 +1,6 @@
 ---
 name: Java Testing Standards
-description: Modern testing practices using JUnit 5, AssertJ, and Mockito.
+description: Modern testing practices using JUnit 5, AssertJ, and Mockito. Use when writing JUnit 5 tests, AssertJ assertions, or Mockito mocks in Java.
 metadata:
   labels: [java, testing, junit, assertj, mockito]
   triggers:

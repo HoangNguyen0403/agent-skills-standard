@@ -1,6 +1,6 @@
 ---
 name: Flutter AutoRoute Navigation
-description: Typed routing, nested routes, and guards using auto_route.
+description: Typed routing, nested routes, and guards using auto_route. Use when implementing typed navigation, nested routes, or route guards with auto_route in Flutter.
 metadata:
   labels: [navigation, auto-route, routing]
   triggers:

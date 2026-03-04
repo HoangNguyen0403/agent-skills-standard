@@ -1,6 +1,6 @@
 ---
 name: iOS Localization & Assets
-description: Standards for String Catalogs, L10n, and Asset Management.
+description: Standards for String Catalogs, L10n, and Asset Management. Use when adding multi-language support using iOS String Catalogs or L10n workflows.
 metadata:
   labels: [ios, localization, l10n, assets, xcassets]
   triggers:

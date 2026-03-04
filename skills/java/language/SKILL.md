@@ -1,6 +1,6 @@
 ---
 name: Java Language Patterns
-description: Modern Java standards (21+) including Records, Pattern Matching, and Virtual Threads.
+description: Modern Java standards (21+) including Records, Pattern Matching, and Virtual Threads. Use when working with Java 21+ Records, sealed classes, or pattern matching features.
 metadata:
   labels: [java, language, jdk21, modern-java]
   triggers:

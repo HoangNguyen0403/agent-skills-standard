@@ -1,6 +1,6 @@
 ---
 name: iOS Architecture
-description: Standards for MVVM, Coordinators, and Clean Architecture (VIP/VIPER).
+description: Standards for MVVM, Coordinators, and Clean Architecture (VIP/VIPER). Use when applying MVVM, Coordinators, or VIP/VIPER architecture in iOS apps.
 metadata:
   labels: [ios, architecture, mvvm, coordinator, vips]
   triggers:

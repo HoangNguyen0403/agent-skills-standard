@@ -1,6 +1,6 @@
 ---
 name: React Native Performance
-description: Optimization strategies for smooth 60fps mobile apps.
+description: Optimization strategies for smooth 60fps mobile apps. Use when optimizing React Native app performance, reducing re-renders, or fixing frame drops.
 metadata:
   labels: [react-native, performance, optimization, flatlist]
   triggers:

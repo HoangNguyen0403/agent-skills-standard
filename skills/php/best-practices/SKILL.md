@@ -1,6 +1,6 @@
 ---
 name: PHP Best Practices
-description: PHP best practices, PSR standards, and code quality guidelines.
+description: PHP best practices, PSR standards, and code quality guidelines. Use when writing PHP following PSR standards, SOLID principles, or improving code quality.
 metadata:
   labels: [php, psr, best-practices]
   triggers:

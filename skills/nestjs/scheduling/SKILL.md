@@ -1,6 +1,6 @@
 ---
 name: NestJS Scheduling
-description: Distributed cron jobs and locking patterns.
+description: Distributed cron jobs and locking patterns. Use when implementing scheduled tasks or distributed locking patterns in NestJS.
 metadata:
   labels: [nestjs, cron, scheduling, redis]
   triggers:

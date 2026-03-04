@@ -1,6 +1,6 @@
 ---
 name: NestJS Database
-description: Data access patterns, Scaling, Migrations, and ORM selection.
+description: Data access patterns, Scaling, Migrations, and ORM selection. Use when implementing TypeORM/Prisma repositories, migrations, or database patterns in NestJS.
 metadata:
   labels: [nestjs, database, typeorm, prisma, mongodb]
   triggers:

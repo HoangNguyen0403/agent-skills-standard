@@ -1,6 +1,6 @@
 ---
 name: Data Isolation & RLS Security
-description: Standards for enforcing multi-tenant isolation and PostgreSQL Row Level Security (RLS) across child-centric domains.
+description: Standards for multi-tenant isolation and PostgreSQL Row Level Security. Use when enforcing tenant isolation or PostgreSQL RLS in NestJS multi-tenant apps.
 metadata:
   labels: [security, rls, isolation, authorization, postgresql]
   triggers:

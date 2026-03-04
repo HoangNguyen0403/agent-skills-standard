@@ -1,6 +1,6 @@
 ---
 name: React Native Testing
-description: Jest and React Native Testing Library for component and integration tests.
+description: Jest and React Native Testing Library for component and integration tests. Use when writing Jest or React Native Testing Library tests for React Native components.
 metadata:
   labels: [react-native, testing, jest, testing-library]
   triggers:

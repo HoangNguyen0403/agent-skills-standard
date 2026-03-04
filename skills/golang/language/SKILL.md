@@ -1,6 +1,6 @@
 ---
 name: Language
-description: Core idioms, style guides, and best practices for writing idiomatic Go code.
+description: Core idioms, style guides, and best practices for writing idiomatic Go code. Use when writing Go code following official style guides and idiomatic patterns.
 metadata:
   labels: [golang, style, idioms, best-practices]
   triggers:

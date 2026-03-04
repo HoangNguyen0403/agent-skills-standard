@@ -1,6 +1,6 @@
 ---
 name: SwiftUI Expert
-description: Standards for declarative UI construction and data flow in iOS.
+description: Standards for declarative UI construction and data flow in iOS. Use when building declarative SwiftUI views or managing data flow with property wrappers.
 metadata:
   labels: [ios, swiftui, ui]
   triggers:

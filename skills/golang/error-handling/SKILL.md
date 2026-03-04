@@ -1,6 +1,6 @@
 ---
 name: Error Handling
-description: Standards for error wrapping, checking, and definition in Golang.
+description: Standards for error wrapping, checking, and definition in Golang. Use when wrapping errors, defining sentinel errors, or handling errors idiomatically in Go.
 metadata:
   labels: [golang, error-handling, errors]
   triggers:

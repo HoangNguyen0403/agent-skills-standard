@@ -1,6 +1,6 @@
 ---
 name: Zephyr Test Generation
-description: Workflow for generating or updating Zephyr Scale Test Cases from requirements.
+description: Workflow for generating or updating Zephyr Scale Test Cases from requirements. Use when generating or updating Zephyr Scale test cases from user stories or requirements.
 metadata:
   labels: [zephyr, test-generation, jira, regression-analysis]
   triggers:

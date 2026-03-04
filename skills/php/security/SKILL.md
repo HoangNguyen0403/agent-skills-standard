@@ -1,6 +1,6 @@
 ---
 name: PHP Security
-description: PHP security standards for database access, password handling, and input validation.
+description: PHP security standards for database access, password handling, and input validation. Use when securing PHP apps against SQL injection, XSS, or weak password storage.
 metadata:
   labels: [php, security, pdo, hashing]
   triggers:

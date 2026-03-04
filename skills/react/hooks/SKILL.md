@@ -1,6 +1,6 @@
 ---
 name: React Hooks Expert
-description: Standards for efficient React functional components and hooks usage.
+description: Standards for efficient React functional components and hooks usage. Use when writing custom hooks, optimizing useEffect, or working with useMemo/useCallback in React.
 metadata:
   labels: [react, hooks, performance, frontend]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: iOS Performance
-description: Standards for Instruments, Memory Management, and Optimization.
+description: Standards for Instruments, Memory Management, and Optimization. Use when profiling iOS apps with Instruments or optimizing memory and rendering.
 metadata:
   labels: [ios, performance, instruments, leaks]
   triggers:

@@ -81,7 +81,7 @@ Every skill in this registry is audited for its footprint in the AI's context wi
 
 | Metric             | Savings (vs. Heavy Prompt) | Avg. Footprint | Quality |
 | ------------------ | -------------------------: | -------------- | ------- | ----------- |
-| **Global Average** |            **89% Savings** | `v1.0.4` | 10     | ~380 tokens    |
+| **Global Average** |            **89% Savings** | `v1.0.4` | 10     | ~398 tokens    |
 
 #### 📜 Benchmark History
 
@@ -296,27 +296,27 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | Category            | Key Modules                   | Version  | Skills | Avg. Footprint |
 | :------------------ | :---------------------------- | :------- | :----- | :------------- |
 | **🌐 Common**       | SOLID, TDD, Workflow Writing  | `v1.6.0` | 24     | ~659 tokens    |
-| **🗄️ Database**     | PostgreSQL, MongoDB, Redis    | `v1.0.1` | 3      | ~664 tokens    |
+| **🗄️ Database**     | PostgreSQL, MongoDB, Redis    | `v1.0.1` | 3      | ~688 tokens    |
 | **🌐 Quality**      | BA, Jira, Zephyr, QA          | `v1.0.1` | 4      | ~458 tokens    |
-| **💙 Flutter**      | Clean Arch, BLoC, Riverpod    | `v1.3.2` | 21     | ~446 tokens    |
-| **🎯 Dart**         | Idiomatic, Advanced Tooling   | `v1.0.4` | 3      | ~435 tokens    |
-| **☕ Java**         | Virtual Threads, Testing      | `v1.0.0` | 5      | ~522 tokens    |
+| **💙 Flutter**      | Clean Arch, BLoC, Riverpod    | `v1.3.2` | 21     | ~465 tokens    |
+| **🎯 Dart**         | Idiomatic, Advanced Tooling   | `v1.0.4` | 3      | ~459 tokens    |
+| **☕ Java**         | Virtual Threads, Testing      | `v1.0.0` | 5      | ~543 tokens    |
 | **🔷 TypeScript**   | Type Safety, Security         | `v1.0.7` | 4      | ~541 tokens    |
-| **🟨 JavaScript**   | Modern ES2022+ Patterns       | `v1.0.0` | 5      | ~522 tokens    |
-| **⚛️ React**        | Hooks, State, Performance     | `v1.0.4` | 8      | ~403 tokens    |
-| **📱 React Native** | Arch, Perf, Nav, Security     | `v1.0.4` | 8      | ~403 tokens    |
-| **🦁 NestJS**       | Arch, Microservices, CQRS     | `v1.1.4` | 21     | ~527 tokens    |
-| **▲ Next.js**       | App Router, RSC, Pages Router | `v1.1.3` | 18     | ~485 tokens    |
-| **🐹 Golang**       | Concurrency, API Design       | `v1.0.4` | 10     | ~380 tokens    |
-| **🐘 Kotlin**       | Coroutines, Flow, Tooling     | `v1.0.1` | 4      | ~453 tokens    |
-| **🅰️ Angular**      | Standalone, Signals           | `v1.1.1` | 15     | ~285 tokens    |
+| **🟨 JavaScript**   | Modern ES2022+ Patterns       | `v1.0.0` | 5      | ~543 tokens    |
+| **⚛️ React**        | Hooks, State, Performance     | `v1.0.4` | 8      | ~427 tokens    |
+| **📱 React Native** | Arch, Perf, Nav, Security     | `v1.0.4` | 8      | ~427 tokens    |
+| **🦁 NestJS**       | Arch, Microservices, CQRS     | `v1.1.4` | 21     | ~547 tokens    |
+| **▲ Next.js**       | App Router, RSC, Pages Router | `v1.1.3` | 18     | ~506 tokens    |
+| **🐹 Golang**       | Concurrency, API Design       | `v1.0.4` | 10     | ~398 tokens    |
+| **🐘 Kotlin**       | Coroutines, Flow, Tooling     | `v1.0.1` | 4      | ~475 tokens    |
+| **🅰️ Angular**      | Standalone, Signals           | `v1.1.1` | 15     | ~307 tokens    |
 | **🍃 Spring Boot**  | Security, Data, Microservices | `v1.0.2` | 10     | ~369 tokens    |
-| **🤖 Android**      | Compose, DI, Perf, Testing    | `v1.0.3` | 22     | ~295 tokens    |
-| **🍎 Swift**        | Concurrency, SwiftUI, Test    | `v1.0.0` | 8      | ~354 tokens    |
-| **🍏 iOS**          | Arch, Nav, Perf, DI           | `v1.1.1` | 15     | ~411 tokens    |
-| **🐘 PHP**          | Modern Patterns, Error        | `v1.0.0` | 7      | ~318 tokens    |
-| **🚀 Laravel**      | Eloquent, Jobs, Security      | `v1.0.0` | 10     | ~361 tokens    |
-| **🗄️ Database**     | SQL Opt, Migrations           | `v1.0.1` | 3      | ~664 tokens    |
+| **🤖 Android**      | Compose, DI, Perf, Testing    | `v1.0.3` | 22     | ~315 tokens    |
+| **🍎 Swift**        | Concurrency, SwiftUI, Test    | `v1.0.0` | 8      | ~377 tokens    |
+| **🍏 iOS**          | Arch, Nav, Perf, DI           | `v1.1.1` | 15     | ~431 tokens    |
+| **🐘 PHP**          | Modern Patterns, Error        | `v1.0.0` | 7      | ~340 tokens    |
+| **🚀 Laravel**      | Eloquent, Jobs, Security      | `v1.0.0` | 10     | ~383 tokens    |
+| **🗄️ Database**     | SQL Opt, Migrations           | `v1.0.1` | 3      | ~688 tokens    |
 
 > [!TIP]
 > **Quality Engineering (Opt-in)**: Advanced skills like `business-analysis` or `zephyr-test-generation` are in the **quality-engineering** category and are NOT synced by default to keep context lean. To use them, manually add the category to your `.skillsrc`:

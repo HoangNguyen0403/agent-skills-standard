@@ -1,6 +1,6 @@
 ---
 name: Flutter Error Handling
-description: Functional error handling using Dartz and Either.
+description: Functional error handling using Dartz and Either. Use when implementing functional error handling, Either monad, or failure types in Flutter.
 metadata:
   labels: [error-handling, dartz, functional]
   triggers:

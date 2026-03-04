@@ -1,6 +1,6 @@
 ---
 name: Flutter Performance
-description: Optimization standards for rebuilds and memory.
+description: Optimization standards for rebuilds and memory. Use when optimizing Flutter widget rebuilds, reducing memory usage, or improving rendering performance.
 metadata:
   labels: [performance]
   triggers:

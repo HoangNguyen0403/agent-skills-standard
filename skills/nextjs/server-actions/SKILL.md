@@ -1,6 +1,6 @@
 ---
 name: Next.js Server Actions
-description: Mutations, Form handling, and RPC-style calls.
+description: Mutations, Form handling, and RPC-style calls. Use when implementing Server Actions, form mutations, or RPC-style data mutations in Next.js.
 metadata:
   labels: [nextjs, actions, mutations]
   triggers:

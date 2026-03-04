@@ -1,6 +1,6 @@
 ---
 name: Logging
-description: Standards for structured logging and observability in Golang.
+description: Standards for structured logging and observability in Golang. Use when adding structured logging or tracing to Go services.
 metadata:
   labels: [golang, logging, slog, zap, observability]
   triggers:

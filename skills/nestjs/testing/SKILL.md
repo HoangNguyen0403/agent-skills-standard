@@ -1,6 +1,6 @@
 ---
 name: NestJS Testing
-description: Unit and E2E testing with Jest, mocking strategies, and database isolation patterns.
+description: Unit and E2E testing with Jest, mocking strategies, and database isolation. Use when writing NestJS unit tests, E2E tests with supertest, or mock providers.
 metadata:
   labels: [nestjs, testing, jest, e2e]
   triggers:

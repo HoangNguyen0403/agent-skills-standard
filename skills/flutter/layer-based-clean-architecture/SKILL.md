@@ -1,6 +1,6 @@
 ---
 name: Flutter Layer-based Clean Architecture + DDD
-description: Standards for separation of concerns, layer dependency rules, and DDD in Flutter.
+description: Standards for separation of concerns, layer dependency rules, and DDD in Flutter. Use when applying DDD or layer-based clean architecture in Flutter.
 metadata:
   labels: [architecture, clean-architecture, layers, ddd]
   triggers:

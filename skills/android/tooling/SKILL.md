@@ -1,6 +1,6 @@
 ---
 name: Android Tooling & Linting
-description: Standards for Static Analysis (Detekt, Ktlint) and CI/CD Checks
+description: Standards for Static Analysis (Detekt, Ktlint) and CI/CD Checks. Use when configuring Detekt, Ktlint, lint rules, or CI/CD for Android projects.
 metadata:
   labels: [android, tooling, lint, detekt]
   triggers:

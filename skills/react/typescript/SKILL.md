@@ -1,6 +1,6 @@
 ---
 name: React TypeScript
-description: TypeScript patterns specific to React components and hooks.
+description: TypeScript patterns specific to React components and hooks. Use when typing React props, hooks, event handlers, or component generics in TypeScript.
 metadata:
   labels: [react, typescript, types]
   triggers:

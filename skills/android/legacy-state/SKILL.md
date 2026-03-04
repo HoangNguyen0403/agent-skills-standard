@@ -1,6 +1,6 @@
 ---
 name: Android Legacy State
-description: Standards for State integration with Views using Coroutines and Lifecycle
+description: Standards for State integration with Views using Coroutines and Lifecycle. Use when managing state with ViewModels and Lifecycle-aware coroutines in Android.
 metadata:
   labels: [android, state, views, lifecycle]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Flutter Testing Standards
-description: Unit, widget, and integration testing with robots, widget keys, and Patrol.
+description: Unit, widget, and integration testing with robots, widget keys, and Patrol. Use when writing Flutter unit tests, widget tests, or integration tests with Patrol.
 metadata:
   labels: [testing, patrol, robot-pattern, widget-keys, integration-test]
   triggers:

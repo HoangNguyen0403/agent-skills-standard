@@ -1,6 +1,6 @@
 ---
 name: Spring Boot Scheduling
-description: Standards for scheduled tasks and distributed locking with ShedLock
+description: Standards for scheduled tasks and distributed locking with ShedLock. Use when implementing @Scheduled tasks or distributed locking with ShedLock in Spring Boot.
 metadata:
   labels: [spring-boot, scheduling, job]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: iOS Dependency Injection
-description: Standards for Protocol-based DI, Property Wrappers, and Factory/Needle.
+description: Standards for Protocol-based DI, Property Wrappers, and Factory/Needle. Use when configuring dependency injection or factory patterns in iOS.
 metadata:
   labels: [ios, di, dependency-injection, injection, modularity]
   triggers:

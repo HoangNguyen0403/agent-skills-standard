@@ -1,6 +1,6 @@
 ---
 name: Spring Boot Deployment
-description: Standards for GraalVM Native Images, Docker, and Graceful Shutdown
+description: Standards for GraalVM Native Images, Docker, and Graceful Shutdown. Use when deploying Spring Boot apps as GraalVM native images, containers, or configuring shutdown.
 metadata:
   labels: [spring-boot, deployment, docker, graalvm]
   triggers:

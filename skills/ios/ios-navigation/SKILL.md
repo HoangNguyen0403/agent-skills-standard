@@ -1,6 +1,6 @@
 ---
 name: iOS Navigation
-description: SwiftUI navigation and deep linking using NavigationStack and Universal Links.
+description: SwiftUI navigation and deep linking using NavigationStack and Universal Links. Use when implementing NavigationStack or Universal Links deep linking in iOS.
 metadata:
   labels: [ios, swiftui, navigation, deep-linking, universal-links]
   triggers:

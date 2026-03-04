@@ -1,6 +1,6 @@
 ---
 name: Kotlin Best Practices
-description: Core patterns for robust Kotlin code (Scope Functions, Backing Properties).
+description: Core patterns for robust Kotlin code (Scope Functions, Backing Properties). Use when writing Kotlin code using scope functions, extension functions, or data classes.
 metadata:
   labels: [kotlin, best-practices, clean-code]
   triggers:

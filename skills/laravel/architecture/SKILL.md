@@ -1,6 +1,6 @@
 ---
 name: Laravel Architecture
-description: Core architectural standards for scalable Laravel applications.
+description: Core architectural standards for scalable Laravel applications. Use when structuring service layers, repositories, or scalable architecture in Laravel.
 metadata:
   labels: [laravel, architecture, srp, service-layer]
   triggers:

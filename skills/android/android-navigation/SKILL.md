@@ -1,6 +1,6 @@
 ---
 name: Android Navigation
-description: Navigation for Android using Jetpack Compose Navigation and App Links.
+description: Navigation for Android using Jetpack Compose Navigation and App Links. Use when implementing navigation flows, deep links, or backstack handling in Android.
 metadata:
   labels: [android, compose, navigation, deep-linking, app-links]
   triggers:

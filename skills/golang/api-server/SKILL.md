@@ -1,6 +1,6 @@
 ---
 name: API Server
-description: Standards for building HTTP services, REST APIs, and middleware in Golang.
+description: Standards for building HTTP services, REST APIs, and middleware in Golang. Use when building Go HTTP servers, REST APIs, or custom middleware.
 metadata:
   labels: [golang, http, api, rest, middleware]
   triggers:

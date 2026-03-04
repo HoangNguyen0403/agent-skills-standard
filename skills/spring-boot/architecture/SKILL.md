@@ -1,6 +1,6 @@
 ---
 name: Spring Boot Architecture
-description: Standards for project structure, layering, and API design in Spring Boot 3+ applications
+description: Standards for project structure and layering in Spring Boot 3+ applications. Use when structuring Spring Boot 3 projects, defining layers, or applying architecture patterns.
 metadata:
   labels: [spring-boot, architecture, layering]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Idiomatic Flutter
-description: Modern layout and widget composition standards.
+description: Modern layout and widget composition standards. Use when composing Flutter widget trees, managing layout constraints, or following idiomatic Flutter patterns.
 metadata:
   labels: [flutter, clean-code, widgets]
   triggers:

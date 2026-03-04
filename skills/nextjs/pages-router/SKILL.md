@@ -1,6 +1,6 @@
 ---
 name: Next.js Pages Router & Architecture
-description: Legacy routing, getServerSideProps conventions, and strict architectural constraints (FSD).
+description: Legacy routing, getServerSideProps conventions, and strict architectural constraints. Use when working with the legacy Next.js Pages Router or getServerSideProps.
 metadata:
   labels: [nextjs, routing, pages-router, architecture, legacy, react]
   triggers:

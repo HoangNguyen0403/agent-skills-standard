@@ -1,6 +1,6 @@
 ---
 name: NestJS BullMQ Implementation
-description: Standard workflow for implementing background jobs using BullMQ in NestJS.
+description: Standard workflow for implementing background jobs using BullMQ in NestJS. Use when adding queue-based background job processing with BullMQ to NestJS.
 metadata:
   labels: [nestjs, bullmq, background-jobs, queue, redis]
   triggers:

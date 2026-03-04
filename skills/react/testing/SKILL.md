@@ -1,6 +1,6 @@
 ---
 name: React Testing
-description: Testing strategies with RTL and Jest/Vitest.
+description: Testing strategies with RTL and Jest/Vitest. Use when writing React component tests with React Testing Library, Jest, or Vitest.
 metadata:
   labels: [react, testing, jest, vitest]
   triggers:

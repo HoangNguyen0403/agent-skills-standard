@@ -1,6 +1,6 @@
 ---
 name: Testing
-description: Standards for unit testing, table-driven tests, and mocking in Golang.
+description: Standards for unit testing, table-driven tests, and mocking in Golang. Use when writing Go unit tests, table-driven tests, or using mock interfaces.
 metadata:
   labels: [golang, testing, tdd, mocking, unit-tests]
   triggers:

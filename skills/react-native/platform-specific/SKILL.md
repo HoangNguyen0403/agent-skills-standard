@@ -1,6 +1,6 @@
 ---
 name: React Native Platform-Specific Code
-description: Handling iOS and Android differences with Platform API and native modules.
+description: Handling iOS and Android differences with Platform API and native modules. Use when handling platform-specific behavior or integrating native modules in React Native.
 metadata:
   labels: [react-native, platform, ios, android, native-modules]
   triggers:

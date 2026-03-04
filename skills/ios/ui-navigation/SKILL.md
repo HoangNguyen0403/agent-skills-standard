@@ -1,6 +1,6 @@
 ---
 name: iOS UI & Layout
-description: Standards for UIKit, Auto Layout, and Apple Human Interface Guidelines.
+description: Standards for UIKit, Auto Layout, and Apple Human Interface Guidelines. Use when implementing UIKit navigation, Auto Layout constraints, or HIG compliance.
 metadata:
   labels: [ios, uikit, autolayout, snapkit, layouts]
   triggers:

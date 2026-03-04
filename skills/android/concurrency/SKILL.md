@@ -1,6 +1,6 @@
 ---
 name: Android Concurrency
-description: Standards for Coroutines, Flow, and Threading
+description: Standards for Coroutines, Flow, and Threading. Use when working with async operations, Coroutines, or Flow in Android.
 metadata:
   labels: [android, concurrency, coroutines, flow]
   triggers:

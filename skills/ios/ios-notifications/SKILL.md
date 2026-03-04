@@ -1,6 +1,6 @@
 ---
 name: iOS Notifications
-description: Push notifications for iOS using UserNotifications framework and APNS.
+description: Push notifications for iOS using UserNotifications framework and APNS. Use when integrating APNS push notifications in iOS applications.
 metadata:
   labels: [ios, apns, notifications, push, user-notifications]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Security
-description: Security best practices for Angular (XSS, CSP, Route Guards).
+description: Security best practices for Angular (XSS, CSP, Route Guards). Use when implementing XSS protection, Content Security Policy, or auth guards in Angular.
 metadata:
   labels: [angular, security, xss, csp]
   triggers:

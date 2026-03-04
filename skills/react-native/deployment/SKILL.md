@@ -1,6 +1,6 @@
 ---
 name: React Native Deployment
-description: OTA updates with CodePush, EAS Build, and release configurations.
+description: OTA updates with CodePush, EAS Build, and release configurations. Use when configuring OTA updates, EAS Build, or managing release configs for React Native.
 metadata:
   labels: [react-native, deployment, codepush, expo, eas]
   triggers:

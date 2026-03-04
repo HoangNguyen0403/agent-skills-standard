@@ -1,6 +1,6 @@
 ---
 name: Swift Tooling
-description: Standards for SPM, Build Configs, and Code Quality
+description: Standards for SPM, Build Configs, and Code Quality. Use when managing Swift packages with SPM, configuring build settings, or enforcing Swift code quality.
 metadata:
   labels: [swift, tooling, spm, swiftlint]
   triggers:

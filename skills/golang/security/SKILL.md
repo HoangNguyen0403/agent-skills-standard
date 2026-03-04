@@ -1,6 +1,6 @@
 ---
 name: Golang Security
-description: Security standards for Go backend services (Input Validation, Crypto, SQL Injection Prevention).
+description: Security standards for Go backend services. Use when implementing input validation, crypto, or SQL injection prevention in Go.
 metadata:
   labels: [golang, security, validation, crypto]
   triggers:

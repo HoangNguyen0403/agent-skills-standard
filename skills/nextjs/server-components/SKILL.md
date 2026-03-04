@@ -1,6 +1,6 @@
 ---
 name: Next.js Server Components
-description: RSC usage, "use client" directive, and Component Purity.
+description: RSC usage, 'use client' directive, and Component Purity. Use when working with React Server Components or deciding where to place the 'use client' boundary.
 metadata:
   labels: [nextjs, rsc, components]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: PHP Language Standards
-description: Core PHP language standards and modern 8.x features.
+description: Core PHP language standards and modern 8.x features. Use when working with PHP 8.x features like enums, fibers, readonly properties, or named arguments.
 metadata:
   labels: [php, language, 8.x]
   triggers:

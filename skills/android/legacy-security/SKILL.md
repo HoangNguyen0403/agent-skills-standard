@@ -1,6 +1,6 @@
 ---
 name: Android Legacy Security
-description: Standards for Intents, WebViews, and FileProvider
+description: Standards for Intents, WebViews, and FileProvider. Use when securing Intent handling, WebViews, or FileProvider access in Android.
 metadata:
   labels: [android, security, legacy, intents]
   triggers:

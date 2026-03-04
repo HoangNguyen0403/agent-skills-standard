@@ -1,6 +1,6 @@
 ---
 name: PHP Concurrency
-description: Handling concurrency and non-blocking I/O in modern PHP.
+description: Handling concurrency and non-blocking I/O in modern PHP. Use when implementing concurrent requests, async processing, or non-blocking I/O in PHP.
 metadata:
   labels: [php, concurrency, fibers, async]
   triggers:

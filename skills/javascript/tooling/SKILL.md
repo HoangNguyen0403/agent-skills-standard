@@ -1,6 +1,6 @@
 ---
 name: JavaScript Tooling
-description: Development tools, linting, and testing for JavaScript projects.
+description: Development tools, linting, and testing for JavaScript projects. Use when configuring ESLint, Prettier, or test runners for JavaScript projects.
 metadata:
   labels: [tooling, javascript, eslint, prettier, testing]
   triggers:

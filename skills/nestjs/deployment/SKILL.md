@@ -1,6 +1,6 @@
 ---
 name: NestJS Deployment
-description: Docker builds, Memory tuning, and Graceful shutdown.
+description: Docker builds, Memory tuning, and Graceful shutdown. Use when containerizing NestJS apps, tuning memory, or implementing graceful shutdown.
 metadata:
   labels: [nestjs, deployment, docker, k8s]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Laravel Testing
-description: Automated testing standards with Pest and PHPUnit.
+description: Automated testing standards with Pest and PHPUnit. Use when writing Pest or PHPUnit feature/unit tests in Laravel applications.
 metadata:
   labels: [laravel, testing, pest, phpunit, tdd]
   triggers:

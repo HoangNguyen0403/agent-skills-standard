@@ -1,6 +1,6 @@
 ---
 name: Swift Language
-description: Standards for Optionals, Protocols, Extensions, and Type Safety
+description: Standards for Optionals, Protocols, Extensions, and Type Safety. Use when working with Swift Optionals, Protocols, Extensions, or type-safe APIs.
 metadata:
   labels: [swift, language, optionals, protocols]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Architecture
-description: Standards for structural design, Clean Architecture, and project layout in Golang.
+description: Standards for structural design, Clean Architecture, and project layout in Golang. Use when structuring Go projects or applying Clean Architecture in Go.
 metadata:
   labels: [golang, architecture, clean-arch, project-layout, ddd]
   triggers:

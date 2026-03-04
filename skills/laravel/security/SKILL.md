@@ -1,6 +1,6 @@
 ---
 name: Laravel Security
-description: Security standards for hardening Laravel applications.
+description: Security standards for hardening Laravel applications. Use when securing authentication, authorization, input validation, or CSRF in Laravel.
 metadata:
   labels: [laravel, security, audit, hardening]
   triggers:

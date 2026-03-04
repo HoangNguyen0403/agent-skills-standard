@@ -1,6 +1,6 @@
 ---
 name: React Security
-description: Security practices for React (XSS, Auth, Dependencies).
+description: Security practices for React (XSS, Auth, Dependencies). Use when preventing XSS, securing auth flows, or auditing third-party dependencies in React.
 metadata:
   labels: [react, security, xss, auth]
   triggers:

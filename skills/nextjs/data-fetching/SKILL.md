@@ -1,6 +1,6 @@
 ---
 name: Next.js Data Fetching
-description: Fetch API, Caching, and Revalidation strategies.
+description: Fetch API, Caching, and Revalidation strategies. Use when fetching data, configuring cache behavior, or implementing revalidation in Next.js.
 metadata:
   labels: [nextjs, data-fetching, caching]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: React Native Components
-description: Modern component patterns using function components and composition.
+description: Modern component patterns using function components and composition. Use when building or refactoring React Native function components and composable UI.
 metadata:
   labels: [react-native, components, hooks, patterns]
   triggers:

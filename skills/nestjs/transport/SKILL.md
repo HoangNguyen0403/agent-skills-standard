@@ -1,6 +1,6 @@
 ---
 name: NestJS Microservices
-description: gRPC, RabbitMQ standards and Monorepo contracts.
+description: gRPC, RabbitMQ standards and Monorepo contracts. Use when implementing gRPC microservices, RabbitMQ messaging, or monorepo transport in NestJS.
 metadata:
   labels: [nestjs, microservices, grpc, rabbitmq]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Next.js Authentication
-description: Secure token storage (HttpOnly Cookies) and Middleware patterns.
+description: Secure token storage (HttpOnly Cookies) and Middleware patterns. Use when implementing authentication, secure session storage, or auth middleware in Next.js.
 metadata:
   labels: [nextjs, auth, security, cookies]
   triggers:

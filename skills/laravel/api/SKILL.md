@@ -1,6 +1,6 @@
 ---
 name: Laravel API
-description: REST and JSON API standards for modern Laravel backends.
+description: REST and JSON API standards for modern Laravel backends. Use when designing REST endpoints, API resources, or JSON API responses in Laravel.
 metadata:
   labels: [laravel, api, rest, json, sanctum]
   triggers:

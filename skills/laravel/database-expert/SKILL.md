@@ -1,6 +1,6 @@
 ---
 name: Laravel Database Expert
-description: Expert patterns for advanced queries, Redis caching, and database scalability.
+description: Expert patterns for advanced queries, Redis caching, and database scalability. Use when optimizing Laravel queries, implementing Redis caching, or scaling databases.
 metadata:
   labels: [laravel, database, redis, sql, performance]
   triggers:

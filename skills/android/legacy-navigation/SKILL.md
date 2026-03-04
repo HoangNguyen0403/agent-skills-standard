@@ -1,6 +1,6 @@
 ---
 name: Android Legacy Navigation
-description: Standards for Jetpack Navigation Component (XML) and SafeArgs
+description: Standards for Jetpack Navigation Component (XML) and SafeArgs. Use when working with XML-based Navigation Component or SafeArgs in Android.
 metadata:
   labels: [android, navigation, xml, safeargs]
   triggers:

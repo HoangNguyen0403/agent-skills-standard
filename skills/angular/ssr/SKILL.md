@@ -1,6 +1,6 @@
 ---
 name: SSR (Server-Side Rendering)
-description: Hydration, TransferState, and Prerendering standards.
+description: Hydration, TransferState, and Prerendering standards. Use when implementing Angular Universal SSR, hydration, or static prerendering.
 metadata:
   labels: [angular, ssr, hydration, server-side]
   triggers:

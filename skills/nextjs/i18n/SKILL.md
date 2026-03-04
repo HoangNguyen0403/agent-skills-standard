@@ -1,6 +1,6 @@
 ---
 name: Next.js Internationalization (i18n)
-description: Best practices for multi-language handling, locale routing, and detection strategies across App and Pages Router.
+description: Best practices for multi-language handling, locale routing, and detection strategies across App and Pages Router. Use when adding i18n, locale routing, or language detection in Next.js.
 metadata:
   labels: [nextjs, i18n, routing, middleware]
   triggers:

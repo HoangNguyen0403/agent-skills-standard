@@ -1,6 +1,6 @@
 ---
 name: Android Architecture
-description: Standards for Clean Architecture, Modularization, and Unidirectional Data Flow
+description: Standards for Clean Architecture, Modularization, and Unidirectional Data Flow. Use when designing Android project structure, modularization, or data flow patterns.
 metadata:
   labels: [android, architecture, clean-architecture, mvvm]
   triggers:

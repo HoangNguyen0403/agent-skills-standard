@@ -1,6 +1,6 @@
 ---
 name: PHP Tooling
-description: PHP ecosystem tooling, dependency management, and static analysis.
+description: PHP ecosystem tooling, dependency management, and static analysis. Use when managing Composer dependencies, running PHPStan, or configuring PHP build tools.
 metadata:
   labels: [php, composer, toolchain, static-analysis]
   triggers:

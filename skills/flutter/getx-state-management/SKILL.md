@@ -1,6 +1,6 @@
 ---
 name: Flutter GetX State Management
-description: Simple and powerful reactive state management using GetX.
+description: Simple and powerful reactive state management using GetX. Use when managing reactive state with GetX controllers or observables in Flutter.
 metadata:
   labels: [flutter, state-management, getx, controller, reactive]
   triggers:

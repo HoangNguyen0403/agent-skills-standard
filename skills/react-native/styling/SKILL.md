@@ -1,6 +1,6 @@
 ---
 name: React Native Styling
-description: StyleSheet API, Flexbox, theming, and responsive design.
+description: StyleSheet API, Flexbox, theming, and responsive design. Use when implementing React Native styles, theming, Flexbox layouts, or responsive design.
 metadata:
   labels: [react-native, styling, theme, flexbox, responsive]
   triggers:

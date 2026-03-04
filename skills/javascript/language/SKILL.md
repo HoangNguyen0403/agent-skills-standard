@@ -1,6 +1,6 @@
 ---
 name: JavaScript Language Patterns
-description: Modern JavaScript (ES2022+) patterns for clean, maintainable code.
+description: Modern JavaScript (ES2022+) patterns for clean, maintainable code. Use when working with modern JavaScript features like optional chaining, nullish coalescing, or ESM.
 metadata:
   labels: [javascript, language, es6, modern-js]
   triggers:

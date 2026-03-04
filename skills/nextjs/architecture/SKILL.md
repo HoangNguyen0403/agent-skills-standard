@@ -1,6 +1,6 @@
 ---
 name: Next.js Architecture (FSD)
-description: Scalable project structure using Feature-Sliced Design (FSD).
+description: Scalable project structure using Feature-Sliced Design (FSD). Use when structuring a Next.js project with Feature-Sliced Design architecture.
 metadata:
   labels: [nextjs, architecture, fsd, folder-structure]
   triggers:

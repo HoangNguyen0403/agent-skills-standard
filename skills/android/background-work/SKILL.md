@@ -1,6 +1,6 @@
 ---
 name: Android Background Work
-description: Standards for WorkManager and Background Processing
+description: Standards for WorkManager and Background Processing. Use when implementing background tasks, scheduled work, or long-running operations in Android.
 metadata:
   labels: [android, background, workmanager]
   triggers:

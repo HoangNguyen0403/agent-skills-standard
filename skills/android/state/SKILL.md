@@ -1,6 +1,6 @@
 ---
 name: Android State Management
-description: Standards for ViewModel, StateFlow, and UI State Patterns
+description: Standards for ViewModel, StateFlow, and UI State Patterns. Use when managing UI state with ViewModel, StateFlow, or UiState in Android.
 metadata:
   labels: [android, state, viewmodel, flow]
   triggers:

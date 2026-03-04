@@ -1,6 +1,6 @@
 ---
 name: React Native State Management
-description: Local and global state patterns with Context, Zustand, and Redux Toolkit.
+description: Local and global state patterns with Context, Zustand, and Redux Toolkit. Use when choosing or implementing state management in React Native with Context, Zustand, or Redux.
 metadata:
   labels: [react-native, state, redux, zustand, context]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Flutter Navigation
-description: Flutter navigation patterns including go_router, deep linking, and named routes for Flutter apps.
+description: Flutter navigation patterns including go_router, deep linking, and named routes. Use when implementing navigation, deep linking, or named routes in Flutter.
 metadata:
   labels: [flutter, navigation, routing, deep-linking, go-router]
   triggers:

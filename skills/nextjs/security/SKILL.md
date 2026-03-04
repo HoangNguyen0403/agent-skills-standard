@@ -1,6 +1,6 @@
 ---
 name: Next.js Security
-description: Core security standards for App Router and Server Actions.
+description: Core security standards for App Router and Server Actions. Use when securing Next.js App Router routes, Server Actions, or API endpoints.
 metadata:
   labels: [nextjs, security, rsc, csrf, zod]
   triggers:

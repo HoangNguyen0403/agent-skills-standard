@@ -1,6 +1,6 @@
 ---
 name: Laravel Background Processing
-description: Scalable asynchronous workflows using Queues, Jobs, and Events.
+description: Scalable asynchronous workflows using Queues, Jobs, and Events. Use when implementing queued jobs, event-driven workflows, or async processing in Laravel.
 metadata:
   labels: [laravel, queue, job, events, horizon]
   triggers:

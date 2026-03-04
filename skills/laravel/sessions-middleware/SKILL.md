@@ -1,6 +1,6 @@
 ---
 name: Laravel Sessions & Middleware
-description: Expert standards for session drivers, security headers, and middleware logic.
+description: Expert standards for session drivers, security headers, and middleware logic. Use when configuring session drivers, security headers, or custom middleware in Laravel.
 metadata:
   labels: [laravel, session, middleware, security, high-density]
   triggers:

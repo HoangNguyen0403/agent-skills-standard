@@ -1,6 +1,6 @@
 ---
 name: Kotlin Language Patterns
-description: idiomatic Kotlin 1.9+ standards (Null Safety, Expressions, Extensions).
+description: Idiomatic Kotlin 1.9+ standards (Null Safety, Expressions, Extensions). Use when working with Kotlin null safety, expression syntax, or extension functions.
 metadata:
   labels: [kotlin, language, idioms, null-safety]
   triggers:

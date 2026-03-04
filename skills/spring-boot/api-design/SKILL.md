@@ -1,6 +1,6 @@
 ---
 name: Spring Boot API Design
-description: Standards for OpenAPI, Versioning, and Global Error Handling
+description: Standards for OpenAPI, Versioning, and Global Error Handling. Use when designing Spring Boot APIs with OpenAPI specs, versioning, or global error handling.
 metadata:
   labels: [spring-boot, api, openapi, swagger]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: React Native Navigation
-description: Navigation and deep linking for React Native using React Navigation.
+description: Navigation and deep linking for React Native using React Navigation. Use when setting up navigation stacks or deep linking in React Native with React Navigation.
 metadata:
   labels: [react-native, navigation, routing, deep-linking, react-navigation]
   triggers:

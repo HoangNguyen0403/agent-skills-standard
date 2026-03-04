@@ -1,6 +1,6 @@
 ---
 name: Laravel Tooling
-description: Ecosystem management, Artisan, and asset bundling.
+description: Ecosystem management, Artisan, and asset bundling. Use when managing Composer dependencies, Artisan commands, or Vite asset bundling in Laravel.
 metadata:
   labels: [laravel, artisan, vite, horizon, pint]
   triggers:

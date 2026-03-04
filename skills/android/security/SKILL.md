@@ -1,6 +1,6 @@
 ---
 name: Android Security
-description: Standards for Data Encryption, Network Security, and Permissions
+description: Standards for Data Encryption, Network Security, and Permissions. Use when implementing encryption, network security config, or permission handling in Android.
 metadata:
   labels: [android, security, encryption]
   triggers:

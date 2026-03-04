@@ -1,6 +1,6 @@
 ---
 name: NestJS OpenAPI
-description: Swagger automation and Generic response documentation.
+description: Swagger automation and Generic response documentation. Use when generating OpenAPI/Swagger documentation or documenting NestJS API responses.
 metadata:
   labels: [nestjs, swagger, openapi, docs]
   triggers:

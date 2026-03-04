@@ -1,6 +1,6 @@
 ---
 name: Android Notifications
-description: Push notifications for Android using Firebase Cloud Messaging and NotificationCompat.
+description: Push notifications for Android using Firebase Cloud Messaging and NotificationCompat. Use when integrating FCM or local notifications in Android apps.
 metadata:
   labels: [android, fcm, notifications, push, notification-channels]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Next.js App Router
-description: File-system routing, Layouts, and Route Groups.
+description: File-system routing, Layouts, and Route Groups. Use when implementing App Router routing, nested layouts, or route groups in Next.js.
 metadata:
   labels: [nextjs, routing, app-router]
   triggers:

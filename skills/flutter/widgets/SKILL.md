@@ -1,6 +1,6 @@
 ---
 name: Flutter UI Widgets
-description: Principles for maintainable UI components.
+description: Principles for maintainable UI components. Use when building, refactoring, or reviewing Flutter widget implementations for maintainability.
 metadata:
   labels: [ui, widgets]
   triggers:

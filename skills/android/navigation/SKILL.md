@@ -1,6 +1,6 @@
 ---
 name: Android Navigation
-description: Standards for Jetpack Navigation Compose (Type-safe)
+description: Standards for Jetpack Navigation Compose (Type-safe). Use when implementing type-safe navigation graphs in Jetpack Compose for Android.
 metadata:
   labels: [android, navigation, compose]
   triggers:

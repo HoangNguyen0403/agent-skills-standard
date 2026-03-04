@@ -1,6 +1,6 @@
 ---
 name: State Management
-description: Signals-based state management and NgRx Signal Store.
+description: Signals-based state management and NgRx Signal Store. Use when managing application state with Angular Signals or NgRx Signal Store.
 metadata:
   labels: [angular, state, signals, ngrx, store]
   triggers:

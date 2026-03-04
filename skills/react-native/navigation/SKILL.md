@@ -1,6 +1,6 @@
 ---
 name: React Native Navigation
-description: React Navigation 6+ standards for stack, tab, and deep linking.
+description: React Navigation 6+ standards for stack, tab, and deep linking. Use when implementing React Navigation stacks, tabs, or deep linking in React Native.
 metadata:
   labels: [react-native, navigation, routing, deep-linking]
   triggers:

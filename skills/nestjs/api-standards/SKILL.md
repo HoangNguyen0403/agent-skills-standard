@@ -1,6 +1,6 @@
 ---
 name: NestJS API Standards
-description: Response wrapping, pagination, and error standardization.
+description: Response wrapping, pagination, and error standardization. Use when standardizing API response envelopes, pagination, or error formats in NestJS.
 metadata:
   labels: [nestjs, api, pagination, response]
   triggers:

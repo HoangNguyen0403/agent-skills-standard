@@ -1,6 +1,6 @@
 ---
 name: HTTP Client
-description: Best practices for HttpClient, Interceptors, and API interactions.
+description: Best practices for HttpClient, Interceptors, and API interactions. Use when integrating HttpClient, writing interceptors, or handling API calls in Angular.
 metadata:
   labels: [angular, http, api, interceptors]
   triggers:

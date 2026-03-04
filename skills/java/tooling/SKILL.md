@@ -1,6 +1,6 @@
 ---
 name: Java Tooling Standards
-description: Standards for build tools (Maven/Gradle) and static analysis.
+description: Standards for build tools (Maven/Gradle) and static analysis. Use when configuring Maven/Gradle builds or static analysis tools for Java projects.
 metadata:
   labels: [java, tooling, maven, gradle, checkstyle]
   triggers:

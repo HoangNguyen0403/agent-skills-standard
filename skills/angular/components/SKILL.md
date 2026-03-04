@@ -1,6 +1,6 @@
 ---
 name: Components
-description: Standards for Standalone Components, Signals inputs, and Control Flow.
+description: Standards for Standalone Components, Signals inputs, and Control Flow. Use when building standalone Angular components or implementing @if/@for control flow.
 metadata:
   labels: [angular, components, standalone, signals, control-flow]
   triggers:

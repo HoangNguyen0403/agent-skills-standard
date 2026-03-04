@@ -1,6 +1,6 @@
 ---
 name: Next.js State Management
-description: Best practices for managing state (Server URL vs Client Hooks).
+description: Best practices for managing state (Server URL vs Client Hooks). Use when managing URL state, client state, or global state in a Next.js application.
 metadata:
   labels: [nextjs, state, zustand, context]
   triggers:

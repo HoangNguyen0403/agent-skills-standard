@@ -1,6 +1,6 @@
 ---
 name: React Native Notifications
-description: Push notifications for React Native using React Native Firebase or Expo Notifications.
+description: Push notifications for React Native using Firebase or Expo Notifications. Use when integrating push notifications with Firebase or Expo in React Native.
 metadata:
   labels: [react-native, notifications, fcm, push, expo, firebase]
   triggers:

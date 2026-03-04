@@ -1,6 +1,6 @@
 ---
 name: Spring Boot Testing
-description: Standards for unit, integration, and slice testing in Spring Boot 3
+description: Standards for unit, integration, and slice testing in Spring Boot 3. Use when writing unit tests, integration tests, or slice tests for Spring Boot 3 applications.
 metadata:
   labels: [spring-boot, testing, junit, testcontainers]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Next.js Caching Architecture
-description: The 4 layers of caching (Memoization, Data Cache, Full Route, Router Cache).
+description: The 4 layers of caching in Next.js. Use when configuring request memoization, data cache, full-route cache, or router cache in Next.js.
 metadata:
   labels: [nextjs, caching, isr, revalidation]
   triggers:

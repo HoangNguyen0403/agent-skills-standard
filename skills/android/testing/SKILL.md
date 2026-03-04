@@ -1,6 +1,6 @@
 ---
 name: Android Testing
-description: Standards for Unit Tests, UI Tests (Compose), and Hilt Integration
+description: Standards for Unit Tests, UI Tests (Compose), and Hilt Integration. Use when writing unit tests, Compose UI tests, or Hilt test modules in Android.
 metadata:
   labels: [android, testing, junit, compose-test]
   triggers:

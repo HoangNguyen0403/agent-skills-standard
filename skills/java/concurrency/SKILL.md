@@ -1,6 +1,6 @@
 ---
 name: Java Concurrency
-description: Modern concurrency patterns using Virtual Threads and Structured Concurrency.
+description: Modern concurrency patterns using Virtual Threads and Structured Concurrency. Use when implementing Java Virtual Threads, Structured Concurrency, or concurrent APIs.
 metadata:
   labels: [java, concurrency, threads, async, loom]
   triggers:

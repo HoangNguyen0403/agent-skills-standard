@@ -1,6 +1,6 @@
 ---
 name: React Native Security
-description: Secure storage, deep linking security, and certificate pinning for mobile apps.
+description: Secure storage, deep linking security, and certificate pinning for mobile. Use when implementing secure storage, certificate pinning, or deep link validation in React Native.
 metadata:
   labels: [react-native, security, keychain, secure-storage]
   triggers:

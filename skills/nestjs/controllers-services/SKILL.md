@@ -1,6 +1,6 @@
 ---
 name: NestJS Controllers & Services
-description: Controller/Service separation and Custom Decorators.
+description: Controller/Service separation and Custom Decorators. Use when defining NestJS controllers, services, or custom parameter decorators.
 metadata:
   labels: [nestjs, controller, service]
   triggers:

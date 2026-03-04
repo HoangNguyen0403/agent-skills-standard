@@ -1,6 +1,6 @@
 ---
 name: NestJS Error Handling
-description: Global Exception Filters and standard error formats.
+description: Global Exception Filters and standard error formats. Use when implementing global exception filters or standardizing error responses in NestJS.
 metadata:
   labels: [nestjs, errors, filters]
   triggers:

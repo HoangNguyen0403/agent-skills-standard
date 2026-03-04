@@ -1,6 +1,6 @@
 ---
 name: Database
-description: Standards for database interaction, connection pooling, and repository patterns in Golang.
+description: Standards for database interaction, connection pooling, and repository patterns in Golang. Use when implementing database access, connection pools, or repositories in Go.
 metadata:
   labels: [golang, database, sql, postgres, repository]
   triggers:

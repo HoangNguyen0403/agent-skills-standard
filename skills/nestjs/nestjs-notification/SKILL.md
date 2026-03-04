@@ -1,6 +1,6 @@
 ---
 name: NestJS Notification System
-description: Standards for defining Notification Types, Service Architecture, and FCM Integration.
+description: Standards for Notification Types, Service Architecture, and FCM Integration. Use when building notification services or integrating FCM in NestJS.
 metadata:
   labels: [nestjs, notification, fcm, firebase, typeorm]
   triggers:

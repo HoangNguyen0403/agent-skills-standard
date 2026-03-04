@@ -1,6 +1,6 @@
 ---
 name: Dependency Injection
-description: Best practices for DI, inject() usage, and providers.
+description: Best practices for DI, inject() usage, and providers. Use when configuring Angular dependency injection, using inject(), or defining providers.
 metadata:
   labels: [angular, di, injection, providers]
   triggers:

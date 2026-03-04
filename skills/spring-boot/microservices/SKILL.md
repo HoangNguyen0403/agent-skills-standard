@@ -1,6 +1,6 @@
 ---
 name: Spring Boot Microservices
-description: Standards for synchronous (Feign) and asynchronous (Cloud Stream) communication
+description: Standards for Feign clients and asynchronous messaging with Spring Cloud Stream. Use when implementing Feign HTTP clients or async event messaging in Spring Boot microservices.
 metadata:
   labels: [spring-boot, microservices, feign, kafka]
   triggers:

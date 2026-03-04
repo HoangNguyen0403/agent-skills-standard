@@ -1,6 +1,6 @@
 ---
 name: Android Networking
-description: Standards for Retrofit, OkHttp, and API Communication
+description: Standards for Retrofit, OkHttp, and API Communication. Use when integrating Retrofit, OkHttp, or API clients in Android apps.
 metadata:
   labels: [android, networking, retrofit, okhttp]
   triggers:

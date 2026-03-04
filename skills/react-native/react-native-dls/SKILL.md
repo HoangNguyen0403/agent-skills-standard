@@ -1,6 +1,6 @@
 ---
 name: React Native Design System
-description: Enforce design token usage in React Native. Prevents hardcoded styles, encourages theme and design system consistency.
+description: Enforce design token usage in React Native. Use when enforcing a design system, preventing hardcoded styles, or implementing theme tokens in React Native.
 metadata:
   labels: [react-native, dls, design-tokens, theme, styling]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Android Performance
-description: Standards for Baseline Profiles, Startup Time, and UI Rendering
+description: Standards for Baseline Profiles, Startup Time, and UI Rendering. Use when optimizing app startup, jank, or UI rendering performance in Android.
 metadata:
   labels: [android, performance, baseline-profile, startup]
   triggers:

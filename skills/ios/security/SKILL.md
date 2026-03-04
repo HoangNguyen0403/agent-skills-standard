@@ -1,6 +1,6 @@
 ---
 name: iOS Security
-description: Standards for Keychain, Biometrics, and Data Protection.
+description: Standards for Keychain, Biometrics, and Data Protection. Use when implementing Keychain storage, Face ID/Touch ID, or data protection in iOS.
 metadata:
   labels: [ios, security, keychain, encryption]
   triggers:

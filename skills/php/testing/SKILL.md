@@ -1,6 +1,6 @@
 ---
 name: PHP Testing
-description: Unit and integration testing standards for PHP applications.
+description: Unit and integration testing standards for PHP applications. Use when writing PHPUnit unit tests or integration tests for PHP applications.
 metadata:
   labels: [php, testing, phpunit, pest, tdd]
   triggers:

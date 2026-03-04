@@ -1,6 +1,6 @@
 ---
 name: Flutter Security
-description: Security standards for Flutter applications based on OWASP Mobile.
+description: Security standards for Flutter applications based on OWASP Mobile. Use when applying OWASP Mobile security standards or securing a Flutter application.
 metadata:
   labels: [security, owasp, pii, encryption]
   triggers:

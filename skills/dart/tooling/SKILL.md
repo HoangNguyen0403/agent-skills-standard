@@ -1,6 +1,6 @@
 ---
 name: Dart Tooling & CI
-description: Standards for analysis, linting, formatting, and automation.
+description: Standards for analysis, linting, formatting, and automation. Use when configuring analysis_options.yaml, dart fix, dart format, or build_runner in Dart projects.
 metadata:
   labels: [tooling, linting, automation]
   triggers:

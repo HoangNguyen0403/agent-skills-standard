@@ -1,6 +1,6 @@
 ---
 name: PHP Error Handling
-description: Modern PHP error and exception handling standards.
+description: Modern PHP error and exception handling standards. Use when implementing exception hierarchies, error handlers, or custom exceptions in PHP.
 metadata:
   labels: [php, exceptions, error-handling, psr-3]
   triggers:

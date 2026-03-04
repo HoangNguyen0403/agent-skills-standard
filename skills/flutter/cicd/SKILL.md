@@ -1,6 +1,6 @@
 ---
 name: Flutter CI/CD
-description: Continuous Integration and Deployment standards for Flutter apps.
+description: Continuous Integration and Deployment standards for Flutter apps. Use when setting up CI/CD pipelines, automated testing, or deployment workflows for Flutter.
 metadata:
   labels: [cicd, github-actions, automation, codemagic, fastlane]
   triggers:

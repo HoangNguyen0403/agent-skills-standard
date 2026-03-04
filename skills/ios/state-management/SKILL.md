@@ -1,6 +1,6 @@
 ---
 name: iOS State Management
-description: Standards for Combine, Observation, and Reactive Programming.
+description: Standards for Combine, Observation, and Reactive Programming. Use when managing state with Combine, @Observable, or reactive patterns in iOS.
 metadata:
   labels: [ios, state, combine, observation, reactive, observation-framework]
   triggers:

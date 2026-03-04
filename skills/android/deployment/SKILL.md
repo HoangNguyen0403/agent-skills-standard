@@ -1,6 +1,6 @@
 ---
 name: Android Deployment
-description: Standards for App Distribution (Signing, Obfuscation, App Bundles)
+description: Standards for App Distribution (Signing, Obfuscation, App Bundles). Use when signing, obfuscating, or building Android App Bundles for distribution.
 metadata:
   labels: [android, deployment, release, proguard]
   triggers:

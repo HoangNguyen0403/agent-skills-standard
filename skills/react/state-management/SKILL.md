@@ -1,6 +1,6 @@
 ---
 name: React State Management
-description: Standards for managing local, global, and server state.
+description: Standards for managing local, global, and server state. Use when choosing or implementing state management (Context, Zustand, Redux, React Query) in React.
 metadata:
   labels: [react, state, redux, zustand, context]
   triggers:

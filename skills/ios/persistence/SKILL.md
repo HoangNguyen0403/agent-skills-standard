@@ -1,6 +1,6 @@
 ---
 name: iOS Persistence
-description: Standards for SwiftData, Core Data, and Local Storage.
+description: Standards for SwiftData, Core Data, and Local Storage. Use when implementing SwiftData, Core Data models, or local persistence in iOS.
 metadata:
   labels: [ios, persistence, swiftdata, coredata, sqlite]
   triggers:

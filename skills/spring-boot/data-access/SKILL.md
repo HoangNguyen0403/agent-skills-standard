@@ -1,6 +1,6 @@
 ---
 name: Spring Boot Data Access
-description: Best practices for JPA, Hibernate, and Database interactions in Spring Boot
+description: Best practices for JPA, Hibernate, and Database interactions in Spring Boot. Use when implementing JPA entities, repositories, or database access in Spring Boot.
 metadata:
   labels: [spring-boot, jpa, hibernate, database]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Laravel Eloquent
-description: Advanced Eloquent ORM patterns for performance and query reuse.
+description: Advanced Eloquent ORM patterns for performance and query reuse. Use when working with Eloquent relationships, scopes, or advanced query optimization in Laravel.
 metadata:
   labels: [laravel, eloquent, orm, database]
   triggers:

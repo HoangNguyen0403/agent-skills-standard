@@ -1,6 +1,6 @@
 ---
 name: iOS Networking
-description: Standards for URLSession, Alamofire, and API communication.
+description: Standards for URLSession, Alamofire, and API communication. Use when implementing URLSession networking, Alamofire, or API clients in iOS.
 metadata:
   labels: [ios, networking, urlsession, alamofire, codable]
   triggers:

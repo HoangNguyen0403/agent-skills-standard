@@ -1,6 +1,6 @@
 ---
 name: Next.js Styling & UI Performance
-description: Zero-runtime CSS strategies (Tailwind) and RSC compatibility.
+description: Zero-runtime CSS strategies (Tailwind) and RSC compatibility. Use when implementing Tailwind CSS or zero-runtime styling compatible with React Server Components.
 metadata:
   labels: [nextjs, styling, tailwind, css]
   triggers:

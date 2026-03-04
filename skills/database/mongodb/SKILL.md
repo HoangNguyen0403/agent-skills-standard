@@ -1,6 +1,6 @@
 ---
 name: MongoDB Best Practices
-description: Expert rules for schema design, indexing, and performance in MongoDB (NoSQL).
+description: Expert rules for schema design, indexing, and performance in MongoDB. Use when designing MongoDB schemas, creating indexes, or optimizing NoSQL query performance.
 metadata:
   labels: [mongodb, nosql, mongoose, database, performance]
   triggers:

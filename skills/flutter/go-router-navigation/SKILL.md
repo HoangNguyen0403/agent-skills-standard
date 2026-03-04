@@ -1,6 +1,6 @@
 ---
 name: Flutter GoRouter Navigation
-description: Typed routes, route state, and redirection using go_router.
+description: Typed routes, route state, and redirection using go_router. Use when implementing go_router typed routes, guards, or redirects in Flutter.
 metadata:
   labels: [navigation, go-router, routing]
   triggers:

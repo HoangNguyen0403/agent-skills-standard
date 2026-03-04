@@ -1,6 +1,6 @@
 ---
 name: next-upgrade
-description: Next.js version migrations using official guides and codemods.
+description: Next.js version migrations using official guides and codemods. Use when migrating a Next.js project to a new major version using codemods.
 metadata:
   labels: [nextjs, upgrade, migration, codemods]
   triggers:

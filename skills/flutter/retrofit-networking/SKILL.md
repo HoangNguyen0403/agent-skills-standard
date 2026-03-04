@@ -1,6 +1,6 @@
 ---
 name: Flutter Networking (Retrofit & Dio)
-description: HTTP networking standards using Dio and Retrofit with Auth interceptors.
+description: HTTP networking standards using Dio and Retrofit with Auth interceptors. Use when integrating Dio, Retrofit, or API auth interceptors in Flutter.
 metadata:
   labels: [networking, retrofit, dio]
   triggers:

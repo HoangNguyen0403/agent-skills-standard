@@ -1,6 +1,6 @@
 ---
 name: Flutter Riverpod State Management
-description: Reactive state management using Riverpod 2.0 with code generation.
+description: Reactive state management using Riverpod 2.0 with code generation. Use when managing state with Riverpod providers or using riverpod_generator in Flutter.
 metadata:
   labels: [flutter, state-management, riverpod, dependency-injection, reactive]
   triggers:

@@ -1,6 +1,6 @@
 ---
 name: Directives & Pipes
-description: Composition patterns using HostDirectives and Pure Pipes.
+description: Composition patterns using HostDirectives and Pure Pipes. Use when creating attribute directives with HostDirectives or writing pure pipes in Angular.
 metadata:
   labels: [angular, directives, pipes, composition]
   triggers:

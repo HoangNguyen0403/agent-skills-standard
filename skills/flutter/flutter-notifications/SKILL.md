@@ -1,6 +1,6 @@
 ---
 name: Flutter Notifications
-description: Push notifications and local notifications for Flutter using Firebase Cloud Messaging and flutter_local_notifications.
+description: Push and local notifications for Flutter using FCM and flutter_local_notifications. Use when integrating push or local notifications in Flutter apps.
 metadata:
   labels: [flutter, notifications, fcm, firebase, push, local-notifications]
   triggers:

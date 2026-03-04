@@ -1,6 +1,6 @@
 ---
 name: React Native Architecture
-description: Feature-first project structure and separation of concerns for scalable React Native apps.
+description: Feature-first project structure and separation of concerns for React Native. Use when structuring a React Native project or applying clean architecture patterns.
 metadata:
   labels: [react-native, architecture, structure, features]
   triggers:

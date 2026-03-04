@@ -1,6 +1,6 @@
 ---
 name: React Performance
-description: Optimization strategies for React applications (Client & Server).
+description: Optimization strategies for React applications (Client & Server). Use when optimizing React rendering performance, reducing re-renders, or improving bundle size.
 metadata:
   labels: [react, performance, optimization, nextjs]
   triggers:

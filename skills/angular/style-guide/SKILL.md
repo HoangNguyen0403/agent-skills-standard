@@ -1,6 +1,6 @@
 ---
 name: Angular Style Guide
-description: Naming conventions, file structure, and coding standards for Angular projects.
+description: Naming conventions, file structure, and coding standards for Angular projects. Use when naming Angular files, organizing project structure, or following Angular style guide.
 metadata:
   labels: [angular, style, naming, structure]
   triggers:

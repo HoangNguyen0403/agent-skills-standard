@@ -1,6 +1,6 @@
 ---
 name: Android XML Views
-description: Standards for ViewBinding, RecyclerView, and XML Layouts
+description: Standards for ViewBinding, RecyclerView, and XML Layouts. Use when implementing XML layouts, ViewBinding, or RecyclerView adapters in Android.
 metadata:
   labels: [android, xml, views, viewbinding]
   triggers:

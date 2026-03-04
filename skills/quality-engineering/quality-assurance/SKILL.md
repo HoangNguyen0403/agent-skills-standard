@@ -1,6 +1,6 @@
 ---
 name: Quality Assurance
-description: Standards for creating high-quality, granular manual test cases and QA processes.
+description: Standards for creating high-quality, granular manual test cases and QA processes. Use when creating manual test cases, defining QA processes, or reviewing test coverage.
 metadata:
   labels: [qa, testing, best-practices]
   triggers:

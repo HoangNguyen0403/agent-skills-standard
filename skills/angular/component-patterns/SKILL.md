@@ -1,6 +1,6 @@
 ---
 name: Angular Component Expert
-description: Standards for OnPush components and strict Signals usage.
+description: Standards for OnPush components and strict Signals usage. Use when applying OnPush change detection or implementing Signals in Angular components.
 metadata:
   labels: [angular, components, performance, frontend]
   triggers:

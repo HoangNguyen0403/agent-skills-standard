@@ -1,6 +1,6 @@
 ---
 name: NestJS Search & CQRS
-description: Elasticsearch integration and Sync patterns.
+description: Elasticsearch integration and Sync patterns. Use when integrating Elasticsearch or implementing search index sync in NestJS.
 metadata:
   labels: [nestjs, search, elasticsearch, cqrs]
   triggers:

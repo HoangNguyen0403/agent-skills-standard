@@ -1,6 +1,6 @@
 ---
 name: Swift Testing
-description: Standards for XCTest, Async Tests, and Test Organization
+description: Standards for XCTest, Async Tests, and Test Organization. Use when writing XCTest cases, async tests, or organizing test suites in Swift.
 metadata:
   labels: [swift, testing, xctest, async-testing]
   triggers:

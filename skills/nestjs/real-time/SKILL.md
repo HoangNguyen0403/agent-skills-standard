@@ -1,6 +1,6 @@
 ---
 name: NestJS Real-Time
-description: WebSocket and SSE selection strategies and scaling.
+description: WebSocket and SSE selection strategies and scaling. Use when implementing WebSocket gateways or Server-Sent Events in NestJS.
 metadata:
   labels: [nestjs, websockets, sse, socket.io]
   triggers:
