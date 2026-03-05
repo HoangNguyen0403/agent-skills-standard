@@ -63,10 +63,10 @@ Every skill delivered by this CLI is audited for its footprint in the AI's conte
 
 | Metric             | Savings (vs. Heavy Prompt) | Avg. Footprint | Quality |
 | ------------------ | -------------------------: | -------------- | ------- |
-| **Global Average** |            **89% Savings** | ~413 tokens    | 8.9/10  |
+| **Global Average** |            **88% Savings** | ~457 tokens    | 8.9/10  |
 
 > [!IMPORTANT]
-> **Context is Currency**: By reducing instruction overhead by **89%**, you free up your AI's memory and budget for complex logic and large codebases.
+> **Context is Currency**: By reducing instruction overhead by **88%**, you free up your AI's memory and budget for complex logic and large codebases.
 
 - **🛡️ Multi-Agent Support**: Out-of-the-box mapping for Cursor, Claude Dev, GitHub Copilot, and more.
 - **📦 Modular Registry**: Don't load everything. Only enable the skills your project actually uses.
@@ -78,13 +78,13 @@ Every skill delivered by this CLI is audited for its footprint in the AI's conte
 
 ---
 
-#### 📜 Benchmark History
+### 📜 Benchmark History
 
-| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
-| --- | --- | --- | --- | --- | --- |
-| v1.9.1 | 2026-03-05 | 228 | 457 | 88% | [Report](benchmarks/archive/v1.9.1.md) |
-| v1.9.0 | 2026-03-05 | 228 | 457 | 88% | [Report](benchmarks/archive/v1.9.0.md) |
-| v1.8.0 | 2026-03-02 | 228 | 443 | 88% | [Report](benchmarks/archive/v1.8.0.md) |
+| Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                 |
+| ------- | ---------- | ------ | ---------- | ----------- | -------------------------------------- |
+| v1.9.1  | 2026-03-05 | 228    | 457        | 88%         | [Report](benchmarks/archive/v1.9.1.md) |
+| v1.9.0  | 2026-03-05 | 228    | 457        | 88%         | [Report](benchmarks/archive/v1.9.0.md) |
+| v1.8.0  | 2026-03-02 | 228    | 443        | 88%         | [Report](benchmarks/archive/v1.8.0.md) |
 
 ## � Token Economy & Optimization
 

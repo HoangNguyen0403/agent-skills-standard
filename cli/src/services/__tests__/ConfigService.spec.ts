@@ -769,8 +769,13 @@ describe('ConfigService', () => {
         custom_overrides: [],
       };
 
-      // Simulate Android dependencies that would normally trigger enablement
-      const projectDeps = new Set(['androidx.compose.ui', 'retrofit']);
+      // Simulate Android/iOS dependencies that would normally trigger enablement
+      const projectDeps = new Set([
+        'androidx.compose.ui',
+        'retrofit',
+        'UIKit',
+        'Alamofire',
+      ]);
 
       // Mock fs.existsSync to satisfy platform folder requirements
       vi.mocked(fs.existsSync).mockReturnValue(true);
@@ -782,7 +787,9 @@ describe('ConfigService', () => {
       );
 
       expect(reenabled).not.toContain('android');
+      expect(reenabled).not.toContain('ios');
       expect(config.skills.android).toBeUndefined();
+      expect(config.skills.ios).toBeUndefined();
 
       vi.mocked(fs.existsSync).mockReset();
     });
