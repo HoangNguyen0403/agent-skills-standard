@@ -4,6 +4,7 @@ import path from 'path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   Agent,
+  Framework,
   SKILL_DETECTION_REGISTRY,
   SkillDetection,
 } from '../../constants';
@@ -643,6 +644,29 @@ describe('ConfigService', () => {
       delete (SKILL_DETECTION_REGISTRY as any)['test-new'];
     });
 
+    it('should NOT auto-enable react framework in a nestjs project if react base deps are missing', () => {
+      const config: SkillConfig = {
+        registry: 'https://example.com',
+        agents: [Agent.Cursor],
+        skills: {
+          nestjs: { ref: 'main' },
+        },
+      };
+
+      // 'jest' is a detection package for react/testing, but since react base deps are missing,
+      // the react framework should NOT be auto-enabled.
+      const projectDeps = new Set(['jest', '@nestjs/core']);
+
+      const reenabled = configService.reconcileDependencies(
+        config,
+        projectDeps,
+        mockCwd,
+      );
+
+      expect(reenabled).not.toContain('react');
+      expect(config.skills.react).toBeUndefined();
+    });
+
     it('should return empty if no skills are re-enabled', () => {
       const config: SkillConfig = {
         registry: 'https://example.com',
@@ -733,6 +757,34 @@ describe('ConfigService', () => {
 
       // Cleanup
       delete (SKILL_DETECTION_REGISTRY as any)['test-short'];
+    });
+
+    it('should NOT auto-enable android/ios if flutter is already present', () => {
+      const config: SkillConfig = {
+        registry: 'https://example.com',
+        agents: [Agent.Antigravity],
+        skills: {
+          [Framework.Flutter]: { ref: 'main' },
+        },
+        custom_overrides: [],
+      };
+
+      // Simulate Android dependencies that would normally trigger enablement
+      const projectDeps = new Set(['androidx.compose.ui', 'retrofit']);
+
+      // Mock fs.existsSync to satisfy platform folder requirements
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+
+      const reenabled = configService.reconcileDependencies(
+        config,
+        projectDeps,
+        mockCwd,
+      );
+
+      expect(reenabled).not.toContain('android');
+      expect(config.skills.android).toBeUndefined();
+
+      vi.mocked(fs.existsSync).mockReset();
     });
   });
 

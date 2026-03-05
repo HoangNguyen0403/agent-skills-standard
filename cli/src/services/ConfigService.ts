@@ -209,8 +209,23 @@ export class ConfigService {
     const allKnownCategories = Object.keys(SKILL_DETECTION_REGISTRY);
     const depsArray = Array.from(projectDeps);
 
+    const activeFrameworks = Object.keys(config.skills);
+    const hasMetaFramework = activeFrameworks.some((f) =>
+      [Framework.Flutter, Framework.ReactNative].includes(f as Framework),
+    );
+
     for (const categoryId of allKnownCategories) {
       let category = config.skills[categoryId];
+
+      // Skip platform-specific categories if a meta-framework is already present
+      // unless the category is already active (we still want to reconcile its sub-skills)
+      if (
+        hasMetaFramework &&
+        [Framework.Android, Framework.iOS].includes(categoryId as Framework)
+      ) {
+        if (!category) continue;
+      }
+
       const detections = SKILL_DETECTION_REGISTRY[categoryId] || [];
       if (detections.length === 0) continue;
 
@@ -221,10 +236,22 @@ export class ConfigService {
           (f: FrameworkDefinition) => f.id === categoryId,
         );
         if (frameworkDef) {
-          const hasBaseDeps = frameworkDef.detectionDependencies
-            ? this.hasDependency(frameworkDef.detectionDependencies, depsArray)
-            : true;
-          const hasBaseFiles = this.hasFiles(frameworkDef.detectionFiles, cwd);
+          const hasBaseDeps =
+            frameworkDef.detectionDependencies &&
+            frameworkDef.detectionDependencies.length > 0
+              ? this.hasDependency(
+                  frameworkDef.detectionDependencies,
+                  depsArray,
+                )
+              : false;
+
+          const hasBaseFiles =
+            frameworkDef.detectionFiles &&
+            frameworkDef.detectionFiles.length > 0
+              ? frameworkDef.detectionFiles.some((file) =>
+                  fs.existsSync(path.join(cwd, file)),
+                )
+              : false;
 
           if (!hasBaseDeps && !hasBaseFiles) {
             continue; // Skip enabling this category if its base framework isn't detected

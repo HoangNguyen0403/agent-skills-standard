@@ -82,9 +82,9 @@ Every skill delivered by this CLI is audited for its footprint in the AI's conte
 
 | Version | Date | Skills | Avg Tokens | Savings (%) | Report |
 | --- | --- | --- | --- | --- | --- |
+| v1.9.1 | 2026-03-05 | 228 | 457 | 88% | [Report](benchmarks/archive/v1.9.1.md) |
+| v1.9.0 | 2026-03-05 | 228 | 457 | 88% | [Report](benchmarks/archive/v1.9.0.md) |
 | v1.8.0 | 2026-03-02 | 228 | 443 | 88% | [Report](benchmarks/archive/v1.8.0.md) |
-| v1.7.3 | 2026-02-25 | 222 | 418 | 89% | [Report](benchmarks/archive/v1.7.3.md) |
-| v1.7.2 | 2026-02-25 | 220 | 413 | 89% | [Report](benchmarks/archive/v1.7.2.md) |
 
 ## � Token Economy & Optimization
 

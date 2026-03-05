@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-02T07:18:50.897Z",
+  "lastUpdated": "2026-03-05T05:13:34.524Z",
   "records": [
     {
       "version": "1.7.2",
@@ -27,6 +27,24 @@
       "savingsPctHeavy": 88,
       "avgQuality": 8.9,
       "reportPath": "benchmarks/archive/v1.8.0.md"
+    },
+    {
+      "version": "1.9.0",
+      "date": "2026-03-05T05:13:12.524Z",
+      "totalSkills": 228,
+      "avgTokens": 457,
+      "savingsPctHeavy": 88,
+      "avgQuality": 8.9,
+      "reportPath": "benchmarks/archive/v1.9.0.md"
+    },
+    {
+      "version": "1.9.1",
+      "date": "2026-03-05T05:13:34.524Z",
+      "totalSkills": 228,
+      "avgTokens": 457,
+      "savingsPctHeavy": 88,
+      "avgQuality": 8.9,
+      "reportPath": "benchmarks/archive/v1.9.1.md"
     }
   ]
 }

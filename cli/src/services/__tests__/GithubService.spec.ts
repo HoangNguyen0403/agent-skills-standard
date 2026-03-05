@@ -1,8 +1,10 @@
+import fetch from 'cross-fetch';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GithubService } from '../GithubService';
 
-// Mock global fetch
-global.fetch = vi.fn();
+vi.mock('cross-fetch', () => ({
+  default: vi.fn(),
+}));
 
 describe('GithubService', () => {
   let githubService: GithubService;

@@ -1,3 +1,4 @@
+import fetch from 'cross-fetch';
 import pc from 'picocolors';
 import { GitHubTreeResponse } from '../models/types';
 

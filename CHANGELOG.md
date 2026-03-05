@@ -5,6 +5,19 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.1] - 2026-03-05
+
+**Category**: Intermittent Fetch Failure & Framework Detection Fix
+
+### Fixed (CLI)
+
+- **🌐 Fetch Reliability**: Replaced Node's native `fetch` with `cross-fetch` in `GithubService` to resolve `TypeError: fetch failed` errors during `ags sync` on environments with strict IPv6 or DNS buffering (Node 18+ Vite bundle issue).
+- **🔎 Framework Detection Accuracy**: Fixed `ConfigService.reconcileDependencies()` to accurately skip auto-detection of base frameworks (like `React`) if their core dependencies (`react`, `react-dom`) are missing, even when sub-skill dependencies (like `jest` for `testing`) are present. This prevents NestJS projects from incorrectly inheriting React skills.
+
+### Versions
+
+- **CLI**: v1.9.1 (Patch)
+
 ## [1.9.0] - 2026-03-04
 
 **Category**: Universal Trigger-Rate Optimization & Skill-Creator Enhancement
@@ -48,8 +61,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **TypeScript**: v1.1.0 (Minor)
   - **Database**: v1.1.0 (Minor)
 - **CLI**: v1.9.0 (Minor)
-
-
 
 **Category**: Agent Detection Restoration & Rule Integrity
 
