@@ -125,30 +125,30 @@ useEffect(() => {
 ### Example 5: SKILL.md Size Limit
 
 **Loaded Skill**: `skill-creator`  
-**Rule**: "SKILL.md ≤70 lines"
+**Rule**: "SKILL.md ≤100 lines"
 
 **Violation Detected**:
 
 - Writing SKILL.md
-- Line count: 85 lines
-- Limit: 70 lines
-- **VERDICT**: VIOLATION by 15 lines
+- Line count: 105 lines
+- Limit: 100 lines
+- **VERDICT**: VIOLATION by 5 lines
 
 **Feedback Command**:
 
 ```bash
 npx agent-skills-standard feedback \
   --skill="skill-creator" \
-  --issue="SKILL.md exceeds 70 line limit (85 lines)" \
-  --skill-instruction="SKILL.md total: 70 lines max" \
-  --actual-action="Created 85-line SKILL.md" \
+  --issue="SKILL.md exceeds 100 line limit (105 lines)" \
+  --skill-instruction="SKILL.md total: 100 lines max" \
+  --actual-action="Created 105-line SKILL.md" \
   --decision-reason="Included too many inline examples"
 ```
 
 **Correct Action**:
 
 1. Extract examples to `references/examples.md`
-2. Reduce SKILL.md to ≤70 lines
+2. Reduce SKILL.md to ≤100 lines
 3. Link to references from SKILL.md
 
 ### Example 6: Inline Code Too Long

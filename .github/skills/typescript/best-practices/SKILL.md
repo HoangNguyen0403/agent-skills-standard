@@ -1,6 +1,6 @@
 ---
 name: TypeScript Best Practices
-description: Idiomatic TypeScript patterns for clean, maintainable code.
+description: Idiomatic TypeScript patterns for clean, maintainable code. Use when writing or refactoring TypeScript classes, functions, modules, or async logic.
 metadata:
   labels: [typescript, best-practices, idioms, conventions]
   triggers:
@@ -30,7 +30,9 @@ metadata:
 - **No Unused Variables**: Enable `noUnusedLocals`.
 - **No `require`**: Use ES6 `import`.
 - **No Empty Interfaces**: Use `type` or non-empty interface.
-- **Use any**: Never use `any`, use `unknown` only when necessary.
+- **No `any`**: NEVER use `any`. Force strict typing or use `unknown` with explicit casting.
+- **Mocking Strategy**: In tests, use `jest.Mocked<T>` and cast values using `value as unknown as T` to satisfy strict linting without compromising type safety.
+- **NO LINT DISABLE**: You are strictly PROHIBITED from using `eslint-disable` or `ts-ignore` comments. Fix underlying issues.
 
 ## Reference & Examples
 

@@ -41,7 +41,7 @@ Before file write?
 
 **React**: `class MyComponent extends...` → Rule: Use functions → Report + convert
 
-**SKILL.md**: 85 lines → Rule: ≤70 max → Report + extract to references/
+**SKILL.md**: 105 lines → Rule: ≤100 lines max → Report + extract to references/
 
 [More examples →](references/violation-examples.md)
 

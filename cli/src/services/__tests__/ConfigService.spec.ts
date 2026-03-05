@@ -793,6 +793,41 @@ describe('ConfigService', () => {
 
       vi.mocked(fs.existsSync).mockReset();
     });
+
+    it('should NOT auto-enable android/ios if flutter is newly enabled in the SAME run', () => {
+      const config: SkillConfig = {
+        registry: 'https://example.com',
+        agents: [Agent.Antigravity],
+        skills: {}, // Flutter NOT initially present
+        custom_overrides: [],
+      };
+
+      // Dependencies that trigger Flutter AND Android/iOS
+      // Flutter must appear before android/ios in SKILL_DETECTION_REGISTRY for this to test the fix
+      const projectDeps = new Set([
+        'flutter_riverpod', // Should enable Flutter via sub-skill detection
+        'androidx.compose.ui', // Would enable Android if not for Flutter
+        'Alamofire', // Would enable iOS if not for Flutter
+      ]);
+
+      // Mock fs.existsSync to satisfy all detectionRequirements
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+
+      const reenabled = configService.reconcileDependencies(
+        config,
+        projectDeps,
+        mockCwd,
+      );
+
+      expect(reenabled).toContain('flutter');
+      expect(reenabled).not.toContain('android');
+      expect(reenabled).not.toContain('ios');
+      expect(config.skills.flutter).toBeDefined();
+      expect(config.skills.android).toBeUndefined();
+      expect(config.skills.ios).toBeUndefined();
+
+      vi.mocked(fs.existsSync).mockReset();
+    });
   });
 
   describe('applyDependencyExclusions extra coverage', () => {

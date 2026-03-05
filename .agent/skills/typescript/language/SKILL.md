@@ -1,6 +1,6 @@
 ---
 name: TypeScript Language Patterns
-description: Modern TypeScript standards for type safety, performance, and maintainability.
+description: Modern TypeScript standards for type safety and maintainability. Use when working with types, interfaces, generics, enums, unions, or tsconfig settings.
 metadata:
   labels: [typescript, language, types, generics]
   triggers:
@@ -41,10 +41,17 @@ metadata:
 
 ## Anti-Patterns
 
-- **No `any`**: Use `unknown`.
+- **No `any`**: NEVER use `any`. Use `unknown` or specific interfaces.
 - **No `Function`**: Use signature `() => void`.
 - **No `enum`**: Runtime cost.
 - **No `!`**: Use narrowing.
+- **NO LINT DISABLE**: PROHIBITED. Fix issues properly.
+
+## Testing
+
+- **Mocking**: Use `jest.Mocked<T>` or `as unknown as T`.
+- **Checklist**: Check method existence, match error constants, satisfy required properties.
+- **References**: See [references/TESTING.md](references/TESTING.md) for common issues/solutions.
 
 ## Code
 

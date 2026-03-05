@@ -1,6 +1,6 @@
 ---
 name: Git & Collaboration Standards
-description: Universal standards for version control, branching, and team collaboration.
+description: Universal standards for version control, branching, and team collaboration. Use when writing commits, creating branches, merging, or opening pull requests.
 metadata:
   labels: [git, collaboration, commits, branching]
   triggers:

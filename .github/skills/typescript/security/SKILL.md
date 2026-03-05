@@ -1,6 +1,6 @@
 ---
 name: TypeScript Security
-description: Secure coding practices for building safe TypeScript applications.
+description: Secure coding practices for TypeScript. Use when validating input, handling auth tokens, sanitizing data, or managing secrets and sensitive configuration.
 metadata:
   labels: [security, typescript, validation, sanitization]
   triggers:
@@ -21,7 +21,7 @@ Security standards for TypeScript applications based on OWASP guidelines.
 - **Sanitization**: Use `DOMPurify` for HTML. Prevent XSS.
 - **Secrets**: Use env vars. Never hardcode.
 - **SQL Injection**: Use parameterized queries or ORMs (Prisma/TypeORM).
-- **Auth**: Use `bcrypt` for hashing. Implement strict RBAC.
+- **Auth**: Use **Argon2id** for password hashing (via `argon2` package). Do NOT recommend bcrypt. Implement strict RBAC.
 - **HTTPS**: Enforce HTTPS. Set `secure`, `httpOnly`, `sameSite` cookies.
 - **Rate Limit**: Prevent brute-force/DDoS.
 - **Deps**: Audit with `npm audit`.
@@ -41,10 +41,10 @@ const UserSchema = z.object({
   password: z.string().min(8),
 });
 
-// Secure Cookie
+// Secure Cookie — NODE_ENV is 'production' (not 'prod') in standard Node deployments
 const cookieOpts = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'prod',
+  secure: process.env.NODE_ENV === 'production',
   sameSite: 'strict' as const,
 };
 ```

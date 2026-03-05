@@ -1,10 +1,21 @@
 ---
 name: Security Standards
-description: Universal security protocols for building safe and resilient software.
+description: Universal security protocols for safe, resilient software. Use when implementing authentication, encryption, authorization, or any security-sensitive feature.
 metadata:
   labels: [security, encryption, authentication, authorization]
   triggers:
     keywords: [security, encrypt, authenticate, authorize]
+    files:
+      [
+        '**/*.ts',
+        '**/*.tsx',
+        '**/*.go',
+        '**/*.dart',
+        '**/*.java',
+        '**/*.kt',
+        '**/*.swift',
+        '**/*.py',
+      ]
 ---
 
 # Security Standards - High-Density Standards
@@ -19,6 +30,7 @@ Universal security protocols for building safe and resilient software.
 - **Least Privilege**: Grant minimum necessary permissions to users, services, and containers.
 - **No Hardcoded Secrets**: Use environment variables or secret managers. Never commit keys or passwords.
 - **Encryption**: Use modern, collision-resistant algorithms (AES-256 for data-at-rest; TLS 1.3 for data-in-transit).
+- **PII Logging**: Never log PII (email, phone, names). Mask sensitive fields before logging.
 
 ## 🧱 Secure Coding Practices
 

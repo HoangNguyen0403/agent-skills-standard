@@ -209,12 +209,11 @@ export class ConfigService {
     const allKnownCategories = Object.keys(SKILL_DETECTION_REGISTRY);
     const depsArray = Array.from(projectDeps);
 
-    const activeFrameworks = Object.keys(config.skills);
-    const hasMetaFramework = activeFrameworks.some((f) =>
-      [Framework.Flutter, Framework.ReactNative].includes(f as Framework),
-    );
-
     for (const categoryId of allKnownCategories) {
+      const hasMetaFramework = Object.keys(config.skills).some((f) =>
+        [Framework.Flutter, Framework.ReactNative].includes(f as Framework),
+      );
+
       let category = config.skills[categoryId];
 
       // Skip platform-specific categories if a meta-framework is already present

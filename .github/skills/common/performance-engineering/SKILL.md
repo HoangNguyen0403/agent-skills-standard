@@ -1,17 +1,38 @@
 ---
 name: Performance Engineering Standards
-description: Universal standards for high-performance software development across all frameworks.
+description: Universal standards for high-performance development. Use when optimizing, reducing latency, fixing memory leaks, profiling, or improving throughput.
 metadata:
   labels: [performance, optimization, scalability, profiling]
   triggers:
-    keywords: [performance, optimize, profile, scalability]
+    keywords:
+      [
+        performance,
+        optimize,
+        profile,
+        scalability,
+        latency,
+        throughput,
+        memory leak,
+        bottleneck,
+      ]
+    files:
+      [
+        '**/*.ts',
+        '**/*.tsx',
+        '**/*.go',
+        '**/*.dart',
+        '**/*.java',
+        '**/*.kt',
+        '**/*.swift',
+        '**/*.py',
+      ]
 ---
 
 # Performance Engineering Standards
 
 Universal standards for high-performance software development across all frameworks.
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
 Universal standards for building high-performance software across all frameworks and languages.
 

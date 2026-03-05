@@ -1,6 +1,6 @@
 ---
 name: Documentation Standards
-description: Essential rules for code comments, READMEs, and technical documentation.
+description: Essential rules for code comments, READMEs, and technical docs. Use when adding comments, writing docstrings, creating READMEs, or updating any documentation.
 metadata:
   labels: [documentation, comments, docstrings, readme]
   triggers:
@@ -21,6 +21,8 @@ Essential rules for maintaining proper code comments, READMEs, and technical doc
 - **Docstrings**: Use triple-slash (Dart/Swift) or standard JSDoc (TS/JS) for all public functions and classes.
 - **Maintenance**: Delete "commented-out" code immediately; use Git history for retrieval.
 - **TODOs**: Use `TODO(username): description` or `FIXME` to track technical debt with ownership.
+- **Workarounds**: Document hacks and removal conditions (e.g., backend bug, version target).
+- **Performance Notes**: Explain trade-offs only when performance-driven changes are made.
 
 ## 📖 README Essentials
 

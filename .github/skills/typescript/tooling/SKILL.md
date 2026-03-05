@@ -1,6 +1,6 @@
 ---
 name: TypeScript Tooling
-description: Development tools, linting, and build configuration for TypeScript projects.
+description: Development tools, linting, and build config for TypeScript. Use when configuring ESLint, Prettier, Jest, Vitest, tsconfig, or any TS build tooling.
 metadata:
   labels: [tooling, typescript, eslint, prettier, testing]
   triggers:
@@ -28,6 +28,37 @@ Essential tooling for TypeScript development and maintenance.
 - **No Disable**: Avoid `// eslint-disable`.
 - **No Skip**: Avoid `skipLibCheck: true` if possible.
 - **No Ignore**: Use `@ts-expect-error` > `@ts-ignore`.
+
+## ESLint Configuration
+
+### Strict Mode Requirement
+
+**CRITICAL**: Every file in the project, including tests (`.spec.ts`), must adhere to strict type-checked rules. NEVER turn off `@typescript-eslint/no-explicit-any` or `no-unsafe-*` rules.
+
+### Common Linting Issues & Solutions
+
+#### Request Object Typing
+
+**Problem**: Using `any` for Express request objects or creating duplicate inline interfaces.
+**Solution**: Use the centralized interfaces in `src/common/interfaces/request.interface.ts`.
+
+```typescript
+import { RequestWithUser } from 'src/common/interfaces/request.interface';
+```
+
+#### Unused Parameters
+
+**Problem**: Function parameters marked as unused by linter.
+**Solution**: Prefix the parameter with an underscore (e.g., `_data`) or remove it. NEVER use `eslint-disable`.
+
+#### Test Mock Typing
+
+**Problem**: Jest mocks triggering unsafe type warnings when `expect.any()` or custom mocks are used.
+**Solution**: Cast the mock or expectation using `as unknown as TargetType`.
+
+```typescript
+mockRepo.save.mockResolvedValue(result as unknown as User);
+```
 
 ## Configuration
 
