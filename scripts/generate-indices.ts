@@ -115,37 +115,13 @@ async function generate() {
   // Also update AGENTS.md
   // Already have repoRoot from above
 
-  // Filter AGENTS.md content based on .skillsrc enabled categories
-  let enabledCategories: string[] | null = null;
-  const skillsrcPath = path.join(repoRoot, '.skillsrc');
-  if (await fs.pathExists(skillsrcPath)) {
-    try {
-      const skillsrcContent = await fs.readFile(skillsrcPath, 'utf8');
-      const skillsrc = yaml.load(skillsrcContent) as {
-        skills?: Record<string, unknown>;
-      };
-      if (skillsrc && skillsrc.skills) {
-        enabledCategories = Object.keys(skillsrc.skills);
-        console.log(
-          `🔍 Filtering AGENTS.md to categories: ${enabledCategories.join(', ')}`,
-        );
-      }
-    } catch {
-      console.warn(`⚠️ Failed to parse .skillsrc, including all categories.`);
-    }
-  }
-
   const generator = new IndexGeneratorService();
   const allEntries = new Set<string>();
 
-  Object.entries(frameworkIndices)
-    .filter(
-      ([category]) =>
-        !enabledCategories || enabledCategories.includes(category),
-    )
-    .forEach(([, s]) => {
-      s.split('\n').forEach((entry) => allEntries.add(entry));
-    });
+  // Include all skill categories in the repository index
+  Object.values(frameworkIndices).forEach((s) => {
+    s.split('\n').forEach((entry) => allEntries.add(entry));
+  });
 
   const indexContent = generator.assembleIndex(Array.from(allEntries));
 

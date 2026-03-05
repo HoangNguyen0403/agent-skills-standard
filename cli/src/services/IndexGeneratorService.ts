@@ -60,14 +60,20 @@ export class IndexGeneratorService {
    * @param frameworks List of framework categories to include in the index
    * @returns A formatted markdown string representing the index
    */
-  async generate(baseDir: string, frameworks: string[]): Promise<string> {
-    const categories = Array.from(new Set(['common', ...frameworks]));
+  async generate(baseDir: string): Promise<string> {
     const entries = new Set<string>();
     const foundationalRules = await this.loadFoundationalRules(baseDir);
 
+    if (!(await fs.pathExists(baseDir))) return this.assembleIndex([]);
+
+    const categories = await fs.readdir(baseDir);
+
     for (const category of categories) {
+      // Skip hidden directories (like .cursor, .agent, etc.)
+      if (category.startsWith('.')) continue;
+
       const categoryPath = path.join(baseDir, category);
-      if (!(await fs.pathExists(categoryPath))) continue;
+      if (!(await fs.stat(categoryPath)).isDirectory()) continue;
 
       const skills = await fs.readdir(categoryPath);
       for (const skill of skills) {

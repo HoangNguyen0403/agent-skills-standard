@@ -373,7 +373,6 @@ export class SyncService {
       const generator = new IndexGeneratorService();
       const indexContent = await generator.generate(
         path.join(process.cwd(), agentDef.path),
-        Object.keys(config.skills),
       );
 
       await MarkdownUtils.injectIndex(

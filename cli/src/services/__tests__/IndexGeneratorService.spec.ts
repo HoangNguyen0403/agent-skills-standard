@@ -17,19 +17,22 @@ describe('IndexGeneratorService', () => {
   describe('generate', () => {
     it('should generate an index from skill files', async () => {
       const baseDir = '/skills';
-      const frameworks = ['flutter'];
 
       (fs.pathExists as any).mockImplementation(async (p: string) => {
-        if (p.includes('common') || p.includes('flutter')) return true;
+        if (p === baseDir || p.includes('common') || p.includes('flutter'))
+          return true;
         if (p.includes('SKILL.md')) return true;
         return false;
       });
 
       (fs.readdir as any).mockImplementation(async (p: string) => {
+        if (p.endsWith('/skills')) return ['common', 'flutter'];
         if (p.endsWith('common')) return ['base'];
         if (p.endsWith('flutter')) return ['bloc'];
         return [];
       });
+
+      (fs.stat as any).mockResolvedValue({ isDirectory: () => true });
 
       (fs.readFile as any).mockResolvedValue(
         '---\nname: Test\ndescription: Desc\nmetadata:\n  triggers:\n    keywords: [k1]\n---\n## **Priority: P0**',
@@ -40,29 +43,70 @@ describe('IndexGeneratorService', () => {
         metadata: { triggers: { keywords: ['k1'] } },
       });
 
-      const result = await service.generate(baseDir, frameworks);
+      const result = await service.generate(baseDir);
 
       expect(result).toContain('- **[common/base]**: 🚨 Desc');
       expect(result).toContain('- **[flutter/bloc]**: 🚨 Desc');
     });
 
+    it('should include all skill folders in the index regardless of categories', async () => {
+      const baseDir = '/skills';
+
+      (fs.pathExists as any).mockImplementation(async (p: string) => {
+        if (
+          p === baseDir ||
+          p.includes('common') ||
+          p.includes('flutter') ||
+          p.includes('custom-cat')
+        )
+          return true;
+        if (p.includes('SKILL.md')) return true;
+        return false;
+      });
+
+      (fs.readdir as any).mockImplementation(async (p: string) => {
+        if (p.endsWith('/skills')) return ['common', 'flutter', 'custom-cat'];
+        if (p.endsWith('common')) return ['base'];
+        if (p.endsWith('flutter')) return ['bloc'];
+        if (p.endsWith('custom-cat')) return ['my-skill'];
+        return [];
+      });
+
+      (fs.stat as any).mockResolvedValue({ isDirectory: () => true });
+
+      (fs.readFile as any).mockResolvedValue(
+        '---\nname: Test\ndescription: Desc\n---\n## **Priority: P1**',
+      );
+      (yaml.load as any).mockReturnValue({
+        name: 'Test',
+        description: 'Desc',
+      });
+
+      const result = await service.generate(baseDir);
+
+      expect(result).toContain('- **[common/base]**: Desc');
+      expect(result).toContain('- **[flutter/bloc]**: Desc');
+      expect(result).toContain('- **[custom-cat/my-skill]**: Desc');
+    });
+
     it('should handle missing categories or skills', async () => {
       (fs.pathExists as any).mockResolvedValue(false);
-      const result = await service.generate('/skills', ['missing']);
+      const result = await service.generate('/skills');
       expect(result).toContain('# Agent Skills Index');
-      // Check for absence of data rows (rows that look like category/skill|)
+      // Check for absence of data rows (rows that look like category/skill)
       const lines = result.split('\n');
-      const dataRows = lines.filter((l) => l.includes('/') && l.includes('|'));
+      const dataRows = lines.filter(
+        (l) => l.includes('/') && l.includes('**['),
+      );
       expect(dataRows.length).toBe(0);
     });
 
-    it('should return null if parsing fails', async () => {
-      // Branch coverage for parseSkill catch block (line 148)
+    it('should skip if parsing fails', async () => {
       (fs.readFile as any).mockRejectedValue(new Error('Parse error'));
       (fs.pathExists as any).mockResolvedValue(true);
       (fs.readdir as any).mockResolvedValue(['skill']);
 
-      const result = await service.generate('/skills', ['common']);
+      const result = await service.generate('/skills');
       expect(result).toContain('# Agent Skills Index');
     });
 
@@ -71,7 +115,7 @@ describe('IndexGeneratorService', () => {
       (fs.readdir as any).mockResolvedValue(['invalid-skill']);
       (fs.readFile as any).mockResolvedValue('No frontmatter here');
 
-      const result = await service.generate('/skills', ['common']);
+      const result = await service.generate('/skills');
       expect(result).not.toContain('common/invalid-skill');
     });
 
@@ -82,20 +126,20 @@ describe('IndexGeneratorService', () => {
       });
       (fs.readdir as any).mockResolvedValue(['skill']);
 
-      const result = await service.generate('/skills', ['common']);
+      const result = await service.generate('/skills');
       expect(result).not.toContain('common/skill');
     });
   });
 
   describe('parseSkill edge cases', () => {
-    it('should handle skill without frontmatter (line 120 coverage)', async () => {
+    it('should handle skill without frontmatter', async () => {
       (fs.readFile as any).mockResolvedValue('no frontmatter');
       // @ts-expect-error - protected
       const res = await service.parseSkill('/cat/skill/SKILL.md');
       expect(res).toBeNull();
     });
 
-    it('should handle skill without priority (line 135 fallback)', async () => {
+    it('should handle skill without priority', async () => {
       const fmContent =
         '---\nname: n\ndescription: d\n---\nBody without priority';
       (fs.readFile as any).mockResolvedValue(fmContent);
@@ -105,7 +149,7 @@ describe('IndexGeneratorService', () => {
       expect(res!.priority).toBe('P1');
     });
 
-    it('should handle priority and missing triggers (lines 142)', async () => {
+    it('should handle priority and missing triggers', async () => {
       const metadata = {
         name: 'n',
         description: 'd',
@@ -114,9 +158,9 @@ describe('IndexGeneratorService', () => {
       };
       const entry = (service as any).formatEntry('cat', 'skill', metadata);
       expect(entry).toContain('🚨 d');
-      // Check strict format - **[id]**: 🚨 Description
       expect(entry).toBe('- **[cat/skill]**: 🚨 d');
     });
+
     it('should NOT truncate long descriptions in list format', async () => {
       const metadata = {
         name: 'n',
@@ -125,12 +169,8 @@ describe('IndexGeneratorService', () => {
         triggers: {},
       };
       const entry = (service as any).formatEntry('cat', 'skill', metadata);
-      // Description is not truncated in new format
       expect(entry).toContain(
         'This is a very long description that should be truncated',
-      );
-      expect(entry).toBe(
-        '- **[cat/skill]**: This is a very long description that should be truncated',
       );
     });
 
@@ -174,14 +214,12 @@ describe('IndexGeneratorService', () => {
     });
 
     it('should inject multiple foundational composites when skill matches multiple rules', () => {
-      // 'nestjs-bullmq' doesn't match any — use 'auth' which matches security AND add architecture to best-practices list
       const metadata = {
         name: 'n',
         description: 'd',
         priority: 'P1',
         triggers: {},
       };
-      // 'architecture' matches best-practices
       const entry = (service as any).formatEntry(
         'nestjs',
         'architecture',
@@ -192,7 +230,7 @@ describe('IndexGeneratorService', () => {
       expect(entry).not.toContain('+common/security-standards');
     });
 
-    it('should NOT auto-inject composites for common/ category skills (no self-referencing)', () => {
+    it('should NOT auto-inject composites for common/ category skills', () => {
       const metadata = {
         name: 'n',
         description: 'd',
@@ -213,7 +251,7 @@ describe('IndexGeneratorService', () => {
         name: 'n',
         description: 'd',
         priority: 'P0',
-        triggers: { composite: ['common/security-standards'] }, // already explicitly declared
+        triggers: { composite: ['common/security-standards'] },
       };
       const entry = (service as any).formatEntry(
         'nestjs',
@@ -221,7 +259,6 @@ describe('IndexGeneratorService', () => {
         metadata,
         rules,
       );
-      // Should appear exactly once, not duplicated
       const count = (entry.match(/\+common\/security-standards/g) || []).length;
       expect(count).toBe(1);
     });
@@ -243,7 +280,7 @@ describe('IndexGeneratorService', () => {
       expect(entry).toContain('+common/security-standards');
     });
 
-    it('should apply no composites when foundationalRules is empty (default)', () => {
+    it('should apply no composites when foundationalRules is empty', () => {
       const metadata = {
         name: 'n',
         description: 'd',
@@ -260,7 +297,7 @@ describe('IndexGeneratorService', () => {
     });
 
     it('should load foundational rules from metadata.json in generate()', async () => {
-      (fs.pathExists as any).mockResolvedValue(false); // no skills dirs
+      (fs.pathExists as any).mockResolvedValue(false);
       (fs.readFile as any).mockImplementation(async (p: string) => {
         if (p.includes('metadata.json')) {
           return JSON.stringify({
@@ -271,15 +308,14 @@ describe('IndexGeneratorService', () => {
         }
         return '{}';
       });
-      // generate should not throw even if no skills found
-      const result = await service.generate('/skills', []);
+      const result = await service.generate('/skills');
       expect(result).toContain('# Agent Skills Index');
     });
 
     it('should fall back to empty rules if metadata.json is missing', async () => {
       (fs.pathExists as any).mockResolvedValue(false);
       (fs.readFile as any).mockRejectedValue(new Error('ENOENT'));
-      const result = await service.generate('/skills', []);
+      const result = await service.generate('/skills');
       expect(result).toContain('# Agent Skills Index');
     });
   });

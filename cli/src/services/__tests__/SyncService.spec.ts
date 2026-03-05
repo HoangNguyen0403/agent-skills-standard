@@ -514,7 +514,6 @@ describe('SyncService', () => {
       // Verify methods were called on the mock instance
       expect(mockGenerate).toHaveBeenCalledWith(
         expect.any(String), // baseDir path
-        ['cat1'], // categories
       );
       expect(MarkdownUtils.injectIndex).toHaveBeenCalledWith(
         process.cwd(),
