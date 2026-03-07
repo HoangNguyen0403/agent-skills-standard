@@ -244,12 +244,12 @@
     },
     "common": {
       "version": "1.7.1",
-      "last_updated": "2026-03-04",
+      "last_updated": "2026-03-07",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 24,
-        "total_tokens": 15989,
-        "avg_tokens_per_skill": 666,
+        "total_tokens": 15997,
+        "avg_tokens_per_skill": 667,
         "largest_skill": "error-handling (1035 tokens)"
       }
     },
@@ -376,7 +376,7 @@
     },
     "database": {
       "version": "1.1.1",
-      "last_updated": "2026-03-04",
+      "last_updated": "2026-03-07",
       "tag_prefix": "database-v",
       "token_metrics": {
         "total_skills": 3,

@@ -296,7 +296,7 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 
 | Category            | Key Modules                   | Version  | Skills | Avg. Footprint |
 | :------------------ | :---------------------------- | :------- | :----- | :------------- |
-| **🌐 Common**       | SOLID, TDD, Workflow Writing  | `v1.7.1` | 24     | ~666 tokens    |
+| **🌐 Common**       | SOLID, TDD, Workflow Writing  | `v1.7.1` | 24     | ~667 tokens    |
 | **🌐 Quality**      | BA, Jira, Zephyr, QA          | `v1.1.0` | 4      | ~480 tokens    |
 | **💙 Flutter**      | Clean Arch, BLoC, Riverpod    | `v1.4.0` | 21     | ~465 tokens    |
 | **🎯 Dart**         | Idiomatic, Advanced Tooling   | `v1.1.0` | 3      | ~459 tokens    |

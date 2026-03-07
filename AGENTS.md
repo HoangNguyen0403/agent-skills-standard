@@ -32,8 +32,8 @@
 
 | Trigger Type | What to match | Required Action |
 |---|---|---|
-| **File glob** (e.g. `**/*.ts`) | Files you are currently editing match the pattern | Call `view_file` on the skill's `SKILL.md` |
-| **Keyword** (e.g. `auth`, `refactor`) | These words appear in the user's request | Call `view_file` on the skill's `SKILL.md` |
+| **File glob** (e.g. `**/*.ts`) | Files you are currently editing match the pattern | Call `view_file` on the skill\'s `SKILL.md` |
+| **Keyword** (e.g. `auth`, `refactor`) | These words appear in the user\'s request | Call `view_file` on the skill\'s `SKILL.md` |
 | **Composite** (e.g. `+other/skill`) | Another listed skill is already active | Also load this skill via `view_file` |
 
 > [!TIP]

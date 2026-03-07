@@ -36,7 +36,7 @@ common/session-retrospective/
 3. **Trigger Miss Check** — For every task in the session, ask: _"Was a relevant skill available but not loaded?"_
    - If yes: record skill ID, indirect phrase used, and fix (add keyword alias to triggers)
 4. **Propose** — One fix per root cause: update skill, update reference, new skill, or new workflow
-5. **Implement** — Apply to all agent dirs. Keep SKILL.md ≤70 lines. Update `AGENTS.md`
+5. **Implement** — Apply to all agent dirs. Keep SKILL.md concise; move large tables to `references/`. Update `AGENTS.md`
 6. **Report** — Output correction count, skills changed, trigger misses found, estimated rounds saved
 
 ## Trigger Miss Output
