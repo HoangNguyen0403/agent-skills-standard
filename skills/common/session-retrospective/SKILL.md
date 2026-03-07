@@ -32,10 +32,27 @@ common/session-retrospective/
 ## Protocol
 
 1. **Extract** — Scan for correction signals (loops, rejections, shape mismatches, lint rework)
-2. **Classify** — Root cause: Skill Missing | Incomplete | Example Contradicts Rule | Workflow Gap
-3. **Propose** — One fix per root cause: update skill, update reference, new skill, or new workflow
-4. **Implement** — Apply to all agent dirs. Keep SKILL.md ≤70 lines. Update `AGENTS.md`
-5. **Report** — Output correction count, skills changed, estimated rounds saved
+2. **Classify** — Root cause: Skill Missing | Incomplete | Example Contradicts Rule | Workflow Gap | **Trigger Miss**
+3. **Trigger Miss Check** — For every task in the session, ask: _"Was a relevant skill available but not loaded?"_
+   - If yes: record skill ID, indirect phrase used, and fix (add keyword alias to triggers)
+4. **Propose** — One fix per root cause: update skill, update reference, new skill, or new workflow
+5. **Implement** — Apply to all agent dirs. Keep SKILL.md ≤70 lines. Update `AGENTS.md`
+6. **Report** — Output correction count, skills changed, trigger misses found, estimated rounds saved
+
+## Trigger Miss Output
+
+Emit this block when a trigger miss is detected:
+
+```json
+{
+  "trigger_miss": {
+    "skill": "category/skill-name",
+    "indirect_phrase": "the exact user wording that should have matched",
+    "root_cause": "keyword_not_in_triggers | glob_not_matched | composite_missing",
+    "fix": "add keyword 'X' to skill triggers | add composite '+Y' to foundational_composite_rules"
+  }
+}
+```
 
 ## Guidelines
 

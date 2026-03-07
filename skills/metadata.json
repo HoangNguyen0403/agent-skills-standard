@@ -135,6 +135,22 @@
       "logging",
       "tracing",
       "metrics"
+    ],
+    "common/mobile-ux-core": [
+      "screen",
+      "page",
+      "view",
+      "activity",
+      "fragment"
+    ],
+    "common/system-design": [
+      "architecture",
+      "migration",
+      "microservices",
+      "transport",
+      "background-work",
+      "background-processing",
+      "clean-architecture"
     ]
   },
   "categories": {
@@ -227,13 +243,13 @@
       }
     },
     "common": {
-      "version": "1.7.0",
+      "version": "1.7.1",
       "last_updated": "2026-03-04",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 24,
-        "total_tokens": 15825,
-        "avg_tokens_per_skill": 659,
+        "total_tokens": 15989,
+        "avg_tokens_per_skill": 666,
         "largest_skill": "error-handling (1035 tokens)"
       }
     },
@@ -359,14 +375,14 @@
       }
     },
     "database": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "last_updated": "2026-03-04",
       "tag_prefix": "database-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 2063,
-        "avg_tokens_per_skill": 688,
-        "largest_skill": "postgresql (815 tokens)"
+        "total_tokens": 2160,
+        "avg_tokens_per_skill": 720,
+        "largest_skill": "postgresql (912 tokens)"
       }
     }
   }

@@ -5,6 +5,33 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.2] - 2026-03-08
+
+**Category**: Trigger Rate Improvements — Stricter Pre-Flight Protocol & AGENTS.md Index Upgrade
+
+### Changed (CLI)
+
+- **⚡ `IndexGeneratorService` — Mandatory Action Table**: Replaced the passive "Reading This Index" section in the generated `AGENTS.md` index with a `[!CRITICAL]` blocking alert and a three-row trigger-type table. Each row explicitly states the **Required Action** (`Call view_file on the skill's SKILL.md`), making it structurally harder for agents to skip skill loading.
+- **💡 Indirect Phrasing Hint**: Added a `[!TIP]` block in the index header with concrete intent-to-keyword examples ("make it faster" → `performance`, "broken query" → `database`, "login flow" → `auth`) so agents match by intent rather than exact wording.
+- **🔒 `AgentBridgeService` — Strict Pre-Flight Protocol**: Updated the generated rule body (written to `.cursor/rules/*.mdc`, `.github/instructions/*.md`, `.agent/rules/*.md`, etc.) to the new Strict Pre-Flight Protocol format with a `[!CRITICAL]` blocking notice and an explicit 4-step checklist including exact tool calls.
+- **🎯 Frontmatter Style**: Standardized single-quote glob syntax (`globs: ['**/*']`) in generated Cursor and Copilot rule frontmatter.
+
+### Changed (Skills — Common)
+
+- **🔄 `common/session-retrospective`**: Added **Trigger Miss** as a first-class root cause category. New step 3 "Trigger Miss Check" requires agents to explicitly ask _"Was a relevant skill available but not loaded?"_ after every session. Added structured `trigger_miss` JSON output block so misses can be aggregated to measure recall over time.
+
+### Changed (Skills — Database & Composite Rules)
+
+- **🌐 `foundational_composite_rules` (metadata.json)**: Added two new foundational anchors:
+  - **`common/mobile-ux-core`** auto-injects into all `screen`, `page`, `view`, `activity`, `fragment` skills (Flutter, iOS, Android, React Native).
+  - **`common/system-design`** auto-injects into `architecture`, `migration`, `microservices`, `background-work`, `clean-architecture` skills.
+
+### Versions
+
+- **CLI**: v1.9.2 (Patch)
+- **Common Skills**: v1.7.1 (Patch)
+- **Database Skills**: v1.1.1 (Patch)
+
 ## [1.9.1] - 2026-03-05
 
 **Category**: Intermittent Fetch Failure & Framework Detection Fix

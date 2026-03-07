@@ -44,7 +44,7 @@ describe('AgentBridgeService', () => {
         '.cursor/rules/agent-skill-standard-rule.mdc',
       );
       expect(cursorCall).toBeDefined();
-      expect(cursorCall![1]).toContain('globs: ["**/*"]');
+      expect(cursorCall![1]).toContain("globs: ['**/*']");
       expect(cursorCall![1]).toContain(
         '(../skills/common/session-retrospective/SKILL.md)',
       );
@@ -67,8 +67,17 @@ describe('AgentBridgeService', () => {
       );
       // Ensure proper newlines (not literal \n strings) for readability
       expect(copilotCall![1]).toMatch(/\n## Self-Learning Protocol/);
-      expect(copilotCall![1]).toMatch(/\n## Skill Activation Protocol/);
-      expect(copilotCall![1]).toContain('MANDATORY: At the start of EVERY session');
+      expect(copilotCall![1]).toMatch(
+        /\n## Strict Pre-Flight Protocol \(Blocking\)/,
+      );
+      expect(copilotCall![1]).toContain(
+        'MANDATORY: At the start of EVERY session',
+      );
+      expect(copilotCall![1]).toContain(
+        'DO NOT WRITE CODE OR ANSWER QUESTIONS UNTIL YOU HAVE COMPLETED THESE STEPS',
+      );
+      expect(copilotCall![1]).toContain('Step 1: Read Index');
+      expect(copilotCall![1]).toContain('Step 4: Audit Output');
 
       // Check remaining
       expect(findCall('.windsurf/rules')).toBeDefined();

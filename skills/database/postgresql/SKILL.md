@@ -42,12 +42,25 @@ See [references/best-practices.md](references/best-practices.md) for database se
 - **Seeding**: Use factories for dev data; only static dicts for prod.
 - **Row-Level Security (RLS)**: `typeorm migration:generate` **cannot** detect RLS policies (`CREATE POLICY`). You **MUST** use `migration:create` and write raw `queryRunner.query()` SQL to define and version-control RLS policies.
 
-## Best Practices
+## SQL Gotchas & Performance Tips
 
-1. **Pagination**: Mandatory. Use limit/offset or cursor-based pagination.
-2. **Indexing**: Define indexes in code (decorators/schema) for frequently filtered columns (`where`, `order by`).
-3. **Transactions**: Use `QueryRunner` (TypeORM) or `$transaction` (Prisma) for all multi-step mutations to ensure atomicity.
-4. **Row-Level Security (RLS) Performance**:
-   - RLS adds a small overhead to _every_ query on the table because the database must evaluate the policy conditions (e.g., `WHERE tenant_id = current_setting('app.tenant_id')`).
-   - **Mitigation**: ALWAYS create an index on the columns used in your RLS policies (usually `user_id` or `tenant_id`).
-   - **Warning**: Avoid complex `JOIN`s or subqueries inside the RLS policy definition itself, as this can multiply execution time heavily. Keep policies simple (direct column comparisons).
+1.  **UPDATE ... FROM Query (PostgreSQL Pitfall)**:
+    - The target table (e.g., `UPDATE "table" t`) **cannot** be referenced inside a `JOIN` within the `FROM` clause.
+    - **Wrong**: `UPDATE "table" t ... FROM "other" o JOIN "table" t2 ON t2.id = t.id ...`
+    - **Right**: Use a comma-separated `FROM` list and move join conditions to the `WHERE` clause.
+      ```sql
+      UPDATE "vaccination_records" vr
+      SET "scheduledDate" = (c."dob" + make_interval(months => vst."targetAgeValue"))::date
+      FROM "children" c, "vaccine_schedule_templates" vst
+      WHERE c."id" = vr."childId"
+        AND vst."id" = vr."scheduleTemplateId";
+      ```
+2.  **Indexing and RLS**:
+    - RLS adds a small overhead to _every_ query. Always index columns used in RLS policies (e.g., `user_id`, `tenant_id`).
+    - Avoid complex `JOIN`s or subqueries inside RLS policy definitions.
+
+## Pagination and Performance
+
+1.  **Pagination**: Mandatory. Use limit/offset or cursor-based pagination.
+2.  **Indexing**: Define indexes in code (decorators/schema) for frequently filtered columns (`where`, `order by`).
+3.  **Transactions**: Use `QueryRunner` (TypeORM) or `$transaction` (Prisma) for all multi-step mutations to ensure atomicity.

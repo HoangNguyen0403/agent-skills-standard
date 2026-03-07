@@ -3,7 +3,7 @@
 [![NPM Version](https://img.shields.io/npm/v/agent-skills-standard.svg?style=flat-square)](https://www.npmjs.com/package/agent-skills-standard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/HoangNguyen0403/agent-skills-standard?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/stargazers)
-[![common](https://img.shields.io/badge/common-v1.7.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.7.0)
+[![common](https://img.shields.io/badge/common-v1.7.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.7.1)
 [![flutter](https://img.shields.io/badge/flutter-v1.4.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/flutter-v1.4.0)
 [![dart](https://img.shields.io/badge/dart-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/dart-v1.1.0)
 [![typescript](https://img.shields.io/badge/typescript-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/typescript-v1.1.0)
@@ -21,7 +21,7 @@
 [![ios](https://img.shields.io/badge/ios-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/ios-v1.2.0)
 [![php](https://img.shields.io/badge/php-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/php-v1.1.0)
 [![laravel](https://img.shields.io/badge/laravel-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/laravel-v1.1.0)
-[![database](https://img.shields.io/badge/database-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/database-v1.1.0)
+[![database](https://img.shields.io/badge/database-v1.1.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/database-v1.1.1)
 [![quality-engineering](https://img.shields.io/badge/quality--engineering-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/quality-engineering-v1.1.0)
 
 **The open standard for High-Density AI coding instructions. Make your AI smarter, faster, and more consistent.**
@@ -87,7 +87,8 @@ Every skill in this registry is audited for its footprint in the AI's context wi
 
 | Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                 |
 | ------- | ---------- | ------ | ---------- | ----------- | -------------------------------------- |
-| v1.9.1  | 2026-03-05 | 228    | 457        | 88%         | [Report](benchmarks/archive/v1.9.1.md) |
+| v1.9.2  | 2026-03-07 | 228    | 458        | 87%         | [Report](benchmarks/archive/v1.9.2.md) |
+| v1.9.1  | 2026-03-07 | 228    | 458        | 87%         | [Report](benchmarks/archive/v1.9.1.md) |
 | v1.9.0  | 2026-03-05 | 228    | 457        | 88%         | [Report](benchmarks/archive/v1.9.0.md) |
 | v1.8.0  | 2026-03-02 | 228    | 443        | 88%         | [Report](benchmarks/archive/v1.8.0.md) |
 
@@ -291,11 +292,11 @@ If the CLI complains about configuration format:
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
 
-### 🔹 Registry Ecosystem (v1.9.1)
+### 🔹 Registry Ecosystem (v1.9.2)
 
 | Category            | Key Modules                   | Version  | Skills | Avg. Footprint |
 | :------------------ | :---------------------------- | :------- | :----- | :------------- |
-| **🌐 Common**       | SOLID, TDD, Workflow Writing  | `v1.7.0` | 24     | ~659 tokens    |
+| **🌐 Common**       | SOLID, TDD, Workflow Writing  | `v1.7.1` | 24     | ~666 tokens    |
 | **🌐 Quality**      | BA, Jira, Zephyr, QA          | `v1.1.0` | 4      | ~480 tokens    |
 | **💙 Flutter**      | Clean Arch, BLoC, Riverpod    | `v1.4.0` | 21     | ~465 tokens    |
 | **🎯 Dart**         | Idiomatic, Advanced Tooling   | `v1.1.0` | 3      | ~459 tokens    |
@@ -315,7 +316,7 @@ The Agent Skills Standard is designed to be the universal language for engineeri
 | **🍏 iOS**          | Arch, Nav, Perf, DI           | `v1.2.0` | 15     | ~431 tokens    |
 | **🐘 PHP**          | Modern Patterns, Error        | `v1.1.0` | 7      | ~340 tokens    |
 | **🚀 Laravel**      | Eloquent, Jobs, Security      | `v1.1.0` | 10     | ~383 tokens    |
-| **🗄️ Database**     | SQL Opt, Migrations           | `v1.1.0` | 3      | ~688 tokens    |
+| **🗄️ Database**     | SQL Opt, Migrations           | `v1.1.1` | 3      | ~720 tokens    |
 
 > [!TIP]
 > **Quality Engineering (Opt-in)**: Advanced skills like `business-analysis` or `zephyr-test-generation` are in the **quality-engineering** category and are NOT synced by default to keep context lean. To use them, manually add the category to your `.skillsrc`:

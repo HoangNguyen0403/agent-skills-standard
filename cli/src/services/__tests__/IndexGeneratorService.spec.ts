@@ -101,6 +101,18 @@ describe('IndexGeneratorService', () => {
       expect(dataRows.length).toBe(0);
     });
 
+    it('should include the mandatory action table in the header', async () => {
+      (fs.pathExists as any).mockResolvedValue(false);
+      const result = await service.generate('/skills');
+      expect(result).toContain('## ⚡ How to Use This Index (Mandatory)');
+      expect(result).toContain('> [!CRITICAL]');
+      expect(result).toContain('you MUST call `view_file`');
+      expect(result).toContain('| Trigger Type |');
+      expect(result).toContain('| Required Action |');
+      expect(result).toContain('Call `view_file` on the skill');
+      expect(result).toContain('Indirect phrasing still counts');
+    });
+
     it('should skip if parsing fails', async () => {
       (fs.readFile as any).mockRejectedValue(new Error('Parse error'));
       (fs.pathExists as any).mockResolvedValue(true);
