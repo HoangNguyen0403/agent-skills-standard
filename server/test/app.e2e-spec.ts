@@ -26,7 +26,8 @@ describe('AppController (e2e)', () => {
         expect(response.text).toContain('Managers');
         expect(response.text).toContain('Contributors');
         expect(response.text).toContain('Supported frameworks');
-        expect(response.text).toContain('react/hooks');
+        expect(response.text).toContain('React');
+        expect(response.text).toContain('skills');
       });
   });
 });

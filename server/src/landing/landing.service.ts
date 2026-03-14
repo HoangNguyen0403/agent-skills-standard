@@ -12,6 +12,7 @@ interface FrameworkEntry {
   label: string;
   skillCount: number;
   skills: SkillEntry[];
+  summary: string;
 }
 
 @Injectable()
@@ -466,10 +467,7 @@ export class LandingService {
               <summary>
                 <span class="framework-summary">
                   <span class="framework-pill">${this.escapeHtml(framework.label)}</span>
-                  <span>${this.escapeHtml(
-                    framework.skills[0]?.description ??
-                      'Skill standards available in this pack.',
-                  )}</span>
+                  <span>${this.escapeHtml(framework.summary)}</span>
                 </span>
                 <span class="count-pill">${framework.skillCount} skills</span>
               </summary>
@@ -511,11 +509,20 @@ export class LandingService {
           .map((line) => this.parseSkillLine(line))
           .filter((skill): skill is SkillEntry => skill !== null);
 
+        if (markdown.trim().length > 0 && skills.length === 0) {
+          throw new InternalServerErrorException(
+            `Unsupported skills index format for ${framework}`,
+          );
+        }
+
         return {
           key: framework,
           label: this.formatFrameworkLabel(framework),
           skillCount: skills.length,
           skills,
+          summary: `Browse the skills currently published in the ${this.formatFrameworkLabel(
+            framework,
+          )} pack.`,
         };
       })
       .filter((framework) => framework.skillCount > 0)
