@@ -16,10 +16,17 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('GET / serves the landing page with supported framework content', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect('Hello World!');
+      .expect('Content-Type', /html/)
+      .expect((response) => {
+        expect(response.text).toContain('Agent Skills Standard');
+        expect(response.text).toContain('Managers');
+        expect(response.text).toContain('Contributors');
+        expect(response.text).toContain('Supported frameworks');
+        expect(response.text).toContain('react/hooks');
+      });
   });
 });
