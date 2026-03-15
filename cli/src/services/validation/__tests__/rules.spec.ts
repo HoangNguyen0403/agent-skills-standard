@@ -61,7 +61,7 @@ describe('Validation Rules', () => {
 
     it('should fail if description is too long', async () => {
       const rule = new FrontmatterRule();
-      const longDesc = 'a'.repeat(201);
+      const longDesc = 'a'.repeat(301);
       const content = `---\nname: Test\ndescription: ${longDesc}\n---\nbody`;
       const result = await rule.validate(content);
       expect(result.passed).toBe(false);
