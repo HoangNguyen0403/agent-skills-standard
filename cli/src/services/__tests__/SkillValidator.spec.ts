@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GitService } from '../GitService';
 import { SkillDiscoveryService } from '../SkillDiscoveryService';
 import { SkillValidator } from '../SkillValidator';
+import { ValidationRule } from '../validation/types';
 
 vi.mock('fs-extra');
 vi.mock('../GitService');
@@ -83,6 +84,36 @@ describe('SkillValidator', () => {
     });
   });
 
+  describe('validateSkill', () => {
+    it('should report failure if file cannot be read', async () => {
+      vi.mocked(fs.readFile).mockRejectedValue(new Error('Read failed'));
+      const result = await (validator as any).validateSkill(
+        'skills/test/SKILL.md',
+      );
+      expect(result.passed).toBe(false);
+      expect(result.errors[0]).toContain('Read failed');
+    });
+
+    it('should collect errors and warnings from rules', async () => {
+      const mockRule: ValidationRule = {
+        name: 'MockRule',
+        validate: vi.fn().mockResolvedValue({
+          passed: false,
+          errors: ['err1'],
+          warnings: ['warn1'],
+        }),
+      };
+      (validator as any).rules = [mockRule];
+
+      const result = await (validator as any).validateSkill(
+        'skills/test/SKILL.md',
+      );
+      expect(result.passed).toBe(false);
+      expect(result.errors).toContain('err1');
+      expect(result.warnings).toContain('warn1');
+    });
+  });
+
   describe('validateAllSkills', () => {
     it('should throw if skills directory is missing', async () => {
       (fs.pathExists as any).mockResolvedValue(false);
@@ -103,19 +134,47 @@ describe('SkillValidator', () => {
       ).toHaveBeenCalled();
     });
 
-    it('should validate skills and print summary', async () => {
+    it('should validate skills and print summary with warnings', async () => {
       vi.mocked(
         SkillDiscoveryService.prototype.findAllSkills,
-      ).mockResolvedValue(['skills/ok/SKILL.md']);
+      ).mockResolvedValue(['skills/warn/SKILL.md']);
+
+      vi.spyOn(validator as any, 'validateSkill').mockResolvedValue({
+        file: 'skills/warn/SKILL.md',
+        passed: true,
+        errors: [],
+        warnings: ['Some warning'],
+      });
+
       const summary = await validator.validateAllSkills(true);
-      expect(summary.total).toBe(1);
-      expect(console.log).toHaveBeenCalled();
+      expect(summary.warnings).toBe(1);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Some warning'),
+      );
+    });
+
+    it('should validate skills and print summary with failures', async () => {
+      vi.mocked(
+        SkillDiscoveryService.prototype.findAllSkills,
+      ).mockResolvedValue(['skills/fail/SKILL.md']);
+
+      vi.spyOn(validator as any, 'validateSkill').mockResolvedValue({
+        file: 'skills/fail/SKILL.md',
+        passed: false,
+        errors: ['Some error'],
+        warnings: [],
+      });
+
+      const summary = await validator.validateAllSkills(true);
+      expect(summary.failed).toBe(1);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Some error'),
+      );
     });
   });
 
   describe('validateMetadata', () => {
     it('should pass for valid metadata', async () => {
-      // Tested indirectly via validateAllSkills, let's call it directly
       await expect(
         (validator as any).validateMetadata('/app'),
       ).resolves.not.toThrow();
@@ -126,7 +185,21 @@ describe('SkillValidator', () => {
         async (p) => !String(p).endsWith('metadata.json'),
       );
       await expect((validator as any).validateMetadata('/app')).rejects.toThrow(
-        'metadata.json not found',
+        'Metadata validation failed: skills/metadata.json not found',
+      );
+    });
+
+    it('should fail if metadata.json is invalid json', async () => {
+      vi.mocked(fs.readJson).mockRejectedValue(new Error('Invalid JSON'));
+      await expect((validator as any).validateMetadata('/app')).rejects.toThrow(
+        'Metadata validation failed: Invalid JSON',
+      );
+    });
+
+    it('should fail if missing categories field', async () => {
+      vi.mocked(fs.readJson).mockResolvedValue({});
+      await expect((validator as any).validateMetadata('/app')).rejects.toThrow(
+        'Metadata validation failed: metadata.json missing "categories" field',
       );
     });
 
@@ -147,6 +220,9 @@ describe('SkillValidator', () => {
     it('should print correctly', () => {
       validator.printSummary({ total: 1, passed: 1, failed: 0, warnings: 0 });
       expect(console.log).toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('All skills passed'),
+      );
     });
 
     it('should print correctly with warnings', () => {

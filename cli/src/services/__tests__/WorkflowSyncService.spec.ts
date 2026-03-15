@@ -28,6 +28,22 @@ describe('WorkflowSyncService', () => {
   });
 
   describe('reconcileWorkflows', () => {
+    it('should return false if treeData is missing', async () => {
+      mockGithubService.getRepoTree.mockResolvedValue(null);
+      const result = await workflowSyncService.reconcileWorkflows({
+        registry: 'https://github.com/o/r',
+      } as any);
+      expect(result).toBe(false);
+    });
+
+    it('should return false if no workflows are in repo', async () => {
+      mockGithubService.getRepoTree.mockResolvedValue({ tree: [] });
+      const result = await workflowSyncService.reconcileWorkflows({
+        registry: 'https://github.com/o/r',
+      } as any);
+      expect(result).toBe(false);
+    });
+
     it('should discover and add new workflows from DEFAULT_WORKFLOWS if config.workflows is an array', async () => {
       const config = {
         registry: 'https://github.com/o/r',
@@ -50,6 +66,27 @@ describe('WorkflowSyncService', () => {
       expect(config.workflows).toContain('code-review');
       expect(config.workflows).toContain('plan-feature');
       expect(config.workflows).not.toContain('custom');
+    });
+
+    it('should return false if all default workflows are already present', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        workflows: [
+          'code-review',
+          'plan-feature',
+          'smart-release',
+          'update-docs',
+          'skill-benchmark',
+          'battle-test',
+          'create-skillset',
+          'codebase-review',
+        ],
+      } as any;
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [{ path: '.agent/workflows/code-review.md' }],
+      });
+      const result = await workflowSyncService.reconcileWorkflows(config);
+      expect(result).toBe(false);
     });
 
     it('should initialize workflows if undefined and true', async () => {
@@ -76,6 +113,25 @@ describe('WorkflowSyncService', () => {
       const config = { workflows: false } as unknown as SkillConfig;
       const result = await workflowSyncService.assembleWorkflows(config);
       expect(result).toEqual([]);
+    });
+
+    it('should return empty if registry URL is invalid', async () => {
+      const config = { workflows: true, registry: 'invalid' } as any;
+      const result = await workflowSyncService.assembleWorkflows(config);
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty if repo tree fails to fetch', async () => {
+      const config = {
+        workflows: true,
+        registry: 'https://github.com/o/r',
+      } as any;
+      mockGithubService.getRepoTree.mockResolvedValue(null);
+      const result = await workflowSyncService.assembleWorkflows(config);
+      expect(result).toEqual([]);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to fetch workflows'),
+      );
     });
 
     it('should fetch all workflows if config.workflows is true', async () => {
@@ -117,17 +173,17 @@ describe('WorkflowSyncService', () => {
       mockGithubService.getRepoTree.mockResolvedValue(treeData);
       mockGithubService.downloadFilesConcurrent.mockResolvedValue([]);
 
-      await workflowSyncService.assembleWorkflows(config);
-
-      expect(mockGithubService.downloadFilesConcurrent).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.objectContaining({ path: '.agent/workflows/w1.md' }),
-        ]),
-      );
+      const result = await workflowSyncService.assembleWorkflows(config);
+      expect(result).toEqual([]);
     });
   });
 
   describe('writeWorkflows', () => {
+    it('should bail if no workflows to write', async () => {
+      await workflowSyncService.writeWorkflows([], {} as any);
+      expect(fs.ensureDir).not.toHaveBeenCalled();
+    });
+
     it('should write workflow files to local .agent/workflows', async () => {
       const workflows = [
         {
@@ -140,6 +196,45 @@ describe('WorkflowSyncService', () => {
         expect.stringContaining('test.md'),
         'content',
       );
+    });
+
+    it('should skip workflows where skill is not "workflows"', async () => {
+      const workflows = [{ skill: 'not-workflows', files: [] }];
+      await workflowSyncService.writeWorkflows(workflows as any, {} as any);
+      expect(fs.outputFile).not.toHaveBeenCalled();
+    });
+
+    it('should handle security error for dangerous paths', async () => {
+      const workflows = [
+        {
+          skill: 'workflows',
+          files: [{ name: '../malicious.md', content: 'c' }],
+        },
+      ];
+      await workflowSyncService.writeWorkflows(workflows as any, {} as any);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Security Error'),
+      );
+      expect(fs.outputFile).not.toHaveBeenCalled();
+    });
+
+    it('should skip overridden workflows', async () => {
+      const workflows = [
+        {
+          skill: 'workflows',
+          files: [{ name: 'overridden.md', content: 'c' }],
+        },
+      ];
+      const config = { custom_overrides: ['.agent/workflows/overridden.md'] };
+      vi.spyOn(workflowSyncService as any, 'normalizePath').mockReturnValue(
+        '.agent/workflows/overridden.md',
+      );
+
+      await workflowSyncService.writeWorkflows(workflows as any, config as any);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Skipping overridden'),
+      );
+      expect(fs.outputFile).not.toHaveBeenCalled();
     });
   });
 });

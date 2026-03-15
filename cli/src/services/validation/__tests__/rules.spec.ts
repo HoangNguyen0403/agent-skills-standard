@@ -92,6 +92,15 @@ describe('Validation Rules', () => {
       const result = await rule.validate(content);
       expect(result.warnings).toHaveLength(0);
     });
+
+    it('should work without frontmatter (line 77 branch)', async () => {
+      const rule = new InstructionsStyleRule();
+      const content = '- please use this';
+      const result = await rule.validate(content);
+      expect(result.warnings).toContain(
+        'Consider using imperative mood instead of conversational style in instructions',
+      );
+    });
   });
 
   describe('PriorityRule', () => {

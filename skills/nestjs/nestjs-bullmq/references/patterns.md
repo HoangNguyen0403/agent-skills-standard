@@ -11,6 +11,7 @@ This file is the **single source of truth** for all BullMQ numeric options. It l
 
 ```typescript
 // src/common/constants/bull-queue.constants.ts
+import { RegisterQueueOptions } from '@nestjs/bullmq';
 
 /** Milliseconds between Redis polls when the queue is empty (BullMQ default: 5 ms).
  *  5 ms = ~200 polls/sec = ~570M Redis commands/day at idle. Use 10 000 ms. */

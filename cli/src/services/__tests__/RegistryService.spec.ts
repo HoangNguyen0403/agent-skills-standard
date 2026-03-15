@@ -140,5 +140,11 @@ describe('RegistryService', () => {
       const result = await service.getFrameworkSkills('url', 'flutter');
       expect(result).toEqual([]);
     });
+
+    it('should handle missing tree array (line 110 coverage)', async () => {
+      mockGithub.getRepoTree.mockResolvedValueOnce({ not_a_tree: [] });
+      const result = await service.getFrameworkSkills('url', 'flutter');
+      expect(result).toEqual([]);
+    });
   });
 });

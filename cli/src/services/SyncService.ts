@@ -130,8 +130,8 @@ export class SyncService {
     const metadataRaw = await this.githubService.getRawFile(
       owner,
       repo,
-      'skills/metadata.json',
       ref,
+      'skills/metadata.json',
     );
     if (!metadataRaw) return {};
 
@@ -139,9 +139,12 @@ export class SyncService {
     const updates: Record<string, string> = {};
 
     for (const [cat, catConfig] of Object.entries(config.skills)) {
-      const remoteVersion = remoteMeta.categories?.[cat]?.version;
-      if (remoteVersion && remoteVersion !== catConfig.ref) {
-        updates[cat] = remoteVersion;
+      const remoteMetaCat = remoteMeta.categories?.[cat];
+      if (!remoteMetaCat?.version) continue;
+
+      const latestRef = `${remoteMetaCat.tag_prefix || ''}${remoteMetaCat.version}`;
+      if (catConfig.ref !== latestRef) {
+        updates[cat] = latestRef;
       }
     }
 

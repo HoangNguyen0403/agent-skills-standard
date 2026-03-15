@@ -828,6 +828,103 @@ describe('ConfigService', () => {
 
       vi.mocked(fs.existsSync).mockReset();
     });
+
+    describe('dependency matching logic (hasDependency)', () => {
+      it('should match scoped packages (@scope/package matches package)', () => {
+        const config: SkillConfig = {
+          registry: 'url',
+          agents: [],
+          skills: {
+            nestjs: { ref: 'main', exclude: ['security'] },
+          },
+        };
+        // @nestjs/passport matches security
+        const projectDeps = new Set(['@nestjs/passport']);
+        const reenabled = configService.reconcileDependencies(
+          config,
+          projectDeps,
+        );
+        expect(reenabled).toContain('nestjs/security');
+      });
+
+      it('should match framework-prefixed packages (nestjs-core matches nestjs)', () => {
+        const config: SkillConfig = {
+          registry: 'url',
+          agents: [],
+          skills: {
+            nestjs: { ref: 'main', exclude: ['networking'] },
+          },
+        };
+        // Mock a detection for nestjs-core if it doesn't exist,
+        // or just use existing logic if it matches.
+        // Actually, let's just use the shared registry and find a case.
+        // Or mock the registry for this test.
+        const originalRegistry = { ...SKILL_DETECTION_REGISTRY };
+        (SKILL_DETECTION_REGISTRY as any)['test-prefix'] = [
+          { id: 'skill', packages: ['myframework'] },
+        ];
+
+        const testConfig: SkillConfig = {
+          registry: 'url',
+          agents: [],
+          skills: {
+            'test-prefix': { ref: 'main', exclude: ['skill'] },
+          },
+        };
+
+        // myframework-plugin matches myframework
+        const reenabled = configService.reconcileDependencies(
+          testConfig,
+          new Set(['myframework-plugin']),
+        );
+        expect(reenabled).toContain('test-prefix/skill');
+
+        delete (SKILL_DETECTION_REGISTRY as any)['test-prefix'];
+      });
+
+      it('should NOT fuzzy match short package names', () => {
+        const config: SkillConfig = {
+          registry: 'url',
+          agents: [],
+          skills: {
+            nestjs: { ref: 'main', exclude: ['networking'] },
+          },
+        };
+        const originalRegistry = { ...SKILL_DETECTION_REGISTRY };
+        (SKILL_DETECTION_REGISTRY as any)['test-short'] = [
+          { id: 'skill', packages: ['io'] },
+        ];
+
+        const testConfig: SkillConfig = {
+          registry: 'url',
+          agents: [],
+          skills: {
+            'test-short': { ref: 'main', exclude: ['skill'] },
+          },
+        };
+
+        // 'socket-io' matches 'io' in parts? Yes.
+        // But what if it's NOT an exact part?
+        // Let's check line 342: if (pkg.length <= 3) return false;
+        // Wait, if parts.includes(pkgLower) is at 351...
+        // Ah, 342 specifically skips the scoped match (345) and part match?
+        // No, 342 returns false early.
+
+        // socket.io should match io because 'io' is a part.
+        // But it should skip the scoped check if pkg.length <= 3.
+
+        // Actually, if pkg.length <= 3, it returns false at 342,
+        // so it NEVER reaches 345 or 351.
+
+        const reenabled = configService.reconcileDependencies(
+          testConfig,
+          new Set(['socket-io']),
+        );
+        expect(reenabled).toEqual([]); // Should NOT match fuzzy for 'io'
+
+        delete (SKILL_DETECTION_REGISTRY as any)['test-short'];
+      });
+    });
   });
 
   describe('applyDependencyExclusions extra coverage', () => {

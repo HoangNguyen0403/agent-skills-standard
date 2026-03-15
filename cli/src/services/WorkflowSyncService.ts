@@ -141,6 +141,13 @@ export class WorkflowSyncService {
       for (const fileItem of wf.files) {
         const targetFilePath = path.join(workflowPath, fileItem.name);
 
+        if (!this.isPathSafe(targetFilePath, workflowPath)) {
+          console.log(
+            pc.red(`    ❌ Security Error: Invalid path ${fileItem.name}`),
+          );
+          continue;
+        }
+
         if (this.isOverridden(targetFilePath, overrides)) {
           console.log(
             pc.yellow(
@@ -155,6 +162,10 @@ export class WorkflowSyncService {
       }
     }
     console.log(pc.green(`  ✅ Workflows synced to .agent/workflows/`));
+  }
+
+  private isPathSafe(targetPath: string, subPath: string): boolean {
+    return path.resolve(targetPath).startsWith(path.resolve(subPath));
   }
 
   private isOverridden(targetPath: string, overrides: string[]): boolean {

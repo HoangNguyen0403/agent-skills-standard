@@ -288,5 +288,61 @@ describe('SkillSyncService', () => {
       );
       expect(res!.category).toBe('other');
     });
+
+    it('should return null if no files were downloaded', async () => {
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue([]);
+      // @ts-expect-error - private
+      const res = await skillSyncService.fetchSkill(
+        'o',
+        'r',
+        'ref',
+        'cat',
+        's',
+        [],
+      );
+      expect(res).toBeNull();
+    });
+  });
+
+  describe('transformSkillForKiro', () => {
+    it('should transform frontmatter correctly', () => {
+      const content = '---\nname: My skill\ndescription: Desc\n---\nBody';
+      // @ts-expect-error - private
+      const res = skillSyncService.transformSkillForKiro(content, 'test');
+      expect(res).toContain('name: Test - My skill');
+      expect(res).toContain('Body');
+    });
+
+    it('should return original content if no frontmatter found', () => {
+      const content = 'No frontmatter';
+      // @ts-expect-error - private
+      const res = skillSyncService.transformSkillForKiro(content, 'test');
+      expect(res).toBe(content);
+    });
+
+    it('should handle missing name/description in frontmatter', () => {
+      const content = '---\nfoo: bar\n---\nBody';
+      // @ts-expect-error - private
+      const res = skillSyncService.transformSkillForKiro(content, 'test');
+      expect(res).toContain('name: Test -');
+      expect(res).toContain('description:');
+    });
+  });
+
+  describe('Utility methods', () => {
+    it('isPathSafe should validate paths correctly', () => {
+      const root = '/app/skills';
+      // @ts-expect-error - private
+      expect(skillSyncService.isPathSafe('/app/skills/safe', root)).toBe(true);
+      // @ts-expect-error - private
+      expect(skillSyncService.isPathSafe('/etc/passwd', root)).toBe(false);
+    });
+
+    it('expandAbsoluteInclude should bail on invalid format', () => {
+      const folders: string[] = [];
+      // @ts-expect-error - private
+      skillSyncService.expandAbsoluteInclude('invalid', folders, []);
+      expect(folders).toHaveLength(0);
+    });
   });
 });

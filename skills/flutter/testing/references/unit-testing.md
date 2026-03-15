@@ -94,7 +94,7 @@ Never write a test that just "runs" without verifying anything.
 // BAD
 test('fetchUser runs', () async {
   await repo.fetchUser();
-  // ❌ No assertion - test passes even logic is broken
+  // ❌ No assertion - test passes even if logic is broken
 });
 
 // GOOD

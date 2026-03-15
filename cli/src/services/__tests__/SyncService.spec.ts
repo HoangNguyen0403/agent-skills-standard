@@ -105,6 +105,13 @@ describe('SyncService', () => {
         config,
       );
     });
+
+    it('should return false if Antigravity agent is not enabled', async () => {
+      const config = { agents: [Agent.Cursor] } as any;
+      const result = await syncService.reconcileWorkflows(config);
+      expect(result).toBe(false);
+      expect(mockWorkflowSyncService.reconcileWorkflows).not.toHaveBeenCalled();
+    });
   });
 
   describe('assembleSkills', () => {
@@ -137,6 +144,32 @@ describe('SyncService', () => {
     });
   });
 
+  describe('assembleWorkflows', () => {
+    it('should return empty array if Antigravity is not in target agents', async () => {
+      const config = { agents: [Agent.Cursor] } as any;
+      const result = await syncService.assembleWorkflows(config);
+      expect(result).toEqual([]);
+      expect(mockWorkflowSyncService.assembleWorkflows).not.toHaveBeenCalled();
+    });
+
+    it('should delegate to workflowSyncService if Antigravity is enabled', async () => {
+      const config = { agents: [Agent.Antigravity] } as any;
+      mockWorkflowSyncService.assembleWorkflows.mockResolvedValue([
+        { skill: 'wf' },
+      ]);
+      const result = await syncService.assembleWorkflows(config);
+      expect(result).toHaveLength(1);
+    });
+  });
+
+  describe('writeWorkflows', () => {
+    it('should do nothing if Antigravity is not enabled', async () => {
+      const config = { agents: [Agent.Cursor] } as any;
+      await syncService.writeWorkflows([], config);
+      expect(mockWorkflowSyncService.writeWorkflows).not.toHaveBeenCalled();
+    });
+  });
+
   describe('applyIndices', () => {
     it('should update index correctly', async () => {
       const config = { agents: [Agent.Cursor], skills: {} } as any;
@@ -147,6 +180,29 @@ describe('SyncService', () => {
       expect(MarkdownUtils.injectIndex).toHaveBeenCalled();
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('index updated'),
+      );
+    });
+
+    it('should log warning for unsupported agent ID', async () => {
+      const config = { agents: ['unsupported-id' as any], skills: {} } as any;
+      await syncService.applyIndices(config, ['unsupported-id' as any]);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Agent definition not found'),
+      );
+    });
+
+    it('should handle index generation failure', async () => {
+      const config = { agents: [Agent.Cursor], skills: {} } as any;
+      vi.mocked(IndexGeneratorService).mockImplementationOnce(function (
+        this: any,
+      ) {
+        this.generate = vi.fn().mockRejectedValue(new Error('Gen failed'));
+        return this;
+      } as any);
+
+      await syncService.applyIndices(config);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to update index: Error: Gen failed'),
       );
     });
   });
@@ -169,6 +225,22 @@ describe('SyncService', () => {
 
       const updates = await syncService.checkForUpdates(config);
       expect(updates).toEqual({ ts: 'v2' });
+    });
+
+    it('should return empty updates if registry URL is invalid', async () => {
+      const config = { registry: 'not-github' } as any;
+      const updates = await syncService.checkForUpdates(config);
+      expect(updates).toEqual({});
+    });
+
+    it('should return empty updates if remote metadata is missing', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        skills: { ts: { ref: 'v1' } },
+      } as any;
+      mockGithubService.getRawFile.mockResolvedValue(null);
+      const updates = await syncService.checkForUpdates(config);
+      expect(updates).toEqual({});
     });
   });
 });
