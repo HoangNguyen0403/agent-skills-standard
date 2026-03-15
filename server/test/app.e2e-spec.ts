@@ -16,18 +16,15 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('GET / serves the landing page with supported framework content', () => {
+  it('GET /health returns the health payload', () => {
     return request(app.getHttpServer())
-      .get('/')
+      .get('/health')
       .expect(200)
-      .expect('Content-Type', /html/)
-      .expect((response) => {
-        expect(response.text).toContain('Agent Skills Standard');
-        expect(response.text).toContain('Managers');
-        expect(response.text).toContain('Contributors');
-        expect(response.text).toContain('Supported frameworks');
-        expect(response.text).toContain('React');
-        expect(response.text).toContain('skills');
+      .expect('Content-Type', /json/)
+      .expect(({ body }) => {
+        expect(body.statusCode).toBe(200);
+        expect(body.data.status).toBe('ok');
+        expect(body.data.info.memory_heap.status).toBe('up');
       });
   });
 });

@@ -124,6 +124,43 @@ Sending a 3,600+ token architect prompt vs. a 413-token skill reduces your **API
 
 ---
 
+## 📚 Skill Catalog
+
+Need to quickly understand what the registry covers without opening the server? Use the GitHub-native catalog views below:
+
+- [**skills/README.md**](./skills/README.md) — curated browseable skill index with direct links to `SKILL.md` files.
+- [**skills/index.json**](./skills/index.json) — generated pack index used by the CLI for discovery-oriented summaries.
+- [**cli/README.md**](./cli/README.md#-registry-catalog) — operator-focused view of what `sync` can install.
+
+### Current Packs (from `skills/index.json`)
+
+| Pack | Skills | Browse |
+| --- | ---: | --- |
+| Android | 22 | [`skills/android/`](./skills/android) |
+| Angular | 13 | [`skills/angular/`](./skills/angular) |
+| Common | 24 | [`skills/common/`](./skills/common) |
+| Dart | 3 | [`skills/dart/`](./skills/dart) |
+| Database | 3 | [`skills/database/`](./skills/database) |
+| Flutter | 20 | [`skills/flutter/`](./skills/flutter) |
+| Go | 10 | [`skills/golang/`](./skills/golang) |
+| iOS | 13 | [`skills/ios/`](./skills/ios) |
+| Java | 5 | [`skills/java/`](./skills/java) |
+| JavaScript | 3 | [`skills/javascript/`](./skills/javascript) |
+| Kotlin | 4 | [`skills/kotlin/`](./skills/kotlin) |
+| Laravel | 10 | [`skills/laravel/`](./skills/laravel) |
+| NestJS | 20 | [`skills/nestjs/`](./skills/nestjs) |
+| Next.js | 18 | [`skills/nextjs/`](./skills/nextjs) |
+| PHP | 7 | [`skills/php/`](./skills/php) |
+| Quality Engineering | 4 | [`skills/quality-engineering/`](./skills/quality-engineering) |
+| React | 8 | [`skills/react/`](./skills/react) |
+| React Native | 13 | [`skills/react-native/`](./skills/react-native) |
+| Spring Boot | 9 | [`skills/spring-boot/`](./skills/spring-boot) |
+| Swift | 8 | [`skills/swift/`](./skills/swift) |
+| TypeScript | 4 | [`skills/typescript/`](./skills/typescript) |
+
+> [!TIP]
+> The counts above are intentionally aligned with the generated registry index so the README stays product-oriented while the detailed skill list stays in the repository source of truth. Refresh them after registry changes by running `corepack pnpm generate-indices` and copying the latest pack totals from `skills/index.json`.
+
 ## ✨ Token Economy & Optimization
 
 To ensure AI efficiency, this project follows a strict **Token Economy**. Every skill is audited for its footprint in the AI's context window.
@@ -291,32 +328,6 @@ If the CLI complains about configuration format:
 ## 🌍 Registry Ecosystem
 
 The Agent Skills Standard is designed to be the universal language for engineering standards.
-
-### 🔹 Registry Ecosystem (v1.9.2)
-
-| Category            | Key Modules                   | Version  | Skills | Avg. Footprint |
-| :------------------ | :---------------------------- | :------- | :----- | :------------- |
-| **🌐 Common**       | SOLID, TDD, Workflow Writing  | `v1.7.1` | 24     | ~667 tokens    |
-| **🌐 Quality**      | BA, Jira, Zephyr, QA          | `v1.1.0` | 4      | ~480 tokens    |
-| **💙 Flutter**      | Clean Arch, BLoC, Riverpod    | `v1.4.0` | 21     | ~465 tokens    |
-| **🎯 Dart**         | Idiomatic, Advanced Tooling   | `v1.1.0` | 3      | ~459 tokens    |
-| **☕ Java**         | Virtual Threads, Testing      | `v1.1.0` | 5      | ~543 tokens    |
-| **🔷 TypeScript**   | Type Safety, Security         | `v1.1.0` | 4      | ~541 tokens    |
-| **🟨 JavaScript**   | Modern ES2022+ Patterns       | `v1.1.0` | 5      | ~543 tokens    |
-| **⚛️ React**        | Hooks, State, Performance     | `v1.1.0` | 8      | ~427 tokens    |
-| **📱 React Native** | Arch, Perf, Nav, Security     | `v1.1.0` | 8      | ~427 tokens    |
-| **🦁 NestJS**       | Arch, Microservices, CQRS     | `v1.2.0` | 21     | ~547 tokens    |
-| **▲ Next.js**       | App Router, RSC, Pages Router | `v1.2.0` | 18     | ~506 tokens    |
-| **🐹 Golang**       | Concurrency, API Design       | `v1.1.0` | 10     | ~398 tokens    |
-| **🐘 Kotlin**       | Coroutines, Flow, Tooling     | `v1.1.0` | 4      | ~475 tokens    |
-| **🅰️ Angular**      | Standalone, Signals           | `v1.2.0` | 15     | ~307 tokens    |
-| **🍃 Spring Boot**  | Security, Data, Microservices | `v1.1.0` | 10     | ~393 tokens    |
-| **🤖 Android**      | Compose, DI, Perf, Testing    | `v1.1.0` | 22     | ~315 tokens    |
-| **🍎 Swift**        | Concurrency, SwiftUI, Test    | `v1.1.0` | 8      | ~377 tokens    |
-| **🍏 iOS**          | Arch, Nav, Perf, DI           | `v1.2.0` | 15     | ~431 tokens    |
-| **🐘 PHP**          | Modern Patterns, Error        | `v1.1.0` | 7      | ~340 tokens    |
-| **🚀 Laravel**      | Eloquent, Jobs, Security      | `v1.1.0` | 10     | ~383 tokens    |
-| **🗄️ Database**     | SQL Opt, Migrations           | `v1.1.1` | 3      | ~720 tokens    |
 
 > [!TIP]
 > **Quality Engineering (Opt-in)**: Advanced skills like `business-analysis` or `zephyr-test-generation` are in the **quality-engineering** category and are NOT synced by default to keep context lean. To use them, manually add the category to your `.skillsrc`:

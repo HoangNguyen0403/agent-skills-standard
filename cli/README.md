@@ -252,6 +252,45 @@ skills:
 
 ---
 
+## 📚 Registry Catalog
+
+The CLI is intentionally lightweight, so the best place to browse the actual skills it can sync is still the repository:
+
+- [**Root README skill catalog**](../README.md#-skill-catalog) for pack-level discovery.
+- [**skills/README.md**](../skills/README.md) for curated per-skill links.
+- [**skills/index.json**](../skills/index.json) for the generated registry index the project keeps in source control.
+
+### Current Syncable Packs
+
+| Pack | Skills |
+| --- | ---: |
+| Android | 22 |
+| Angular | 13 |
+| Common | 24 |
+| Dart | 3 |
+| Database | 3 |
+| Flutter | 20 |
+| Go | 10 |
+| iOS | 13 |
+| Java | 5 |
+| JavaScript | 3 |
+| Kotlin | 4 |
+| Laravel | 10 |
+| NestJS | 20 |
+| Next.js | 18 |
+| PHP | 7 |
+| Quality Engineering | 4 |
+| React | 8 |
+| React Native | 13 |
+| Spring Boot | 9 |
+| Swift | 8 |
+| TypeScript | 4 |
+
+> [!TIP]
+> These counts reflect the generated registry index in `skills/index.json`, so CLI users can inspect the catalog from GitHub without needing the landing page. Refresh them after registry updates by running `corepack pnpm generate-indices` and copying the latest totals from `skills/index.json`.
+
+---
+
 ## 🔗 Links
 
 - **Registry Source**: [GitHub Repository](https://github.com/HoangNguyen0403/agent-skills-standard)

@@ -4,7 +4,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { CoreModule } from './core/core.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { HealthModule } from './health/health.module';
-import { LandingModule } from './landing/landing.module';
 
 @Module({
   imports: [
@@ -20,7 +19,6 @@ import { LandingModule } from './landing/landing.module';
     CoreModule,
     HealthModule,
     FeedbackModule,
-    LandingModule,
   ],
 })
 /**
