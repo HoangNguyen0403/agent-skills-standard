@@ -24,6 +24,28 @@
 - **Skill Authority:** Loaded skills always override existing code patterns.
 - **Audit Before Write:** Audit every file write against the `common/feedback-reporter` skill.
 
+### **The Pre-Write Audit Log (Mandatory)**
+
+Before invoking any file-editing tool (`write_to_file`, `replace_file_content`, `multi_replace_file_content`), the ASSISTANT **MUST** explicitly state in its thought process:
+
+1. **Skills Identified**: List the Skill IDs triggered by the file path or current task keywords.
+2. **Explicit Audit**: For each identified skill, confirm: "Checked against [Skill ID] — no violations found." Or "Violation detected in [Skill ID]: [Issue] — correcting now."
+3. **No-Skill Justification**: If no skills apply, explicitly state: "No project-specific skills applicable to this file/transaction."
+
+### **The Post-Write Self-Scan (Mandatory)**
+
+Immediately **AFTER** any file-editing tool returns, the ASSISTANT **MUST**:
+
+1. **Validate**: Contrast the final file content against ALL active Skill IDs.
+2. **Identify Slips**: Look for "Standard Defaults" (e.g., local mocks, hardcoded styles) that snuck in.
+3. **Self-Correct**: If a violation is found, fix it immediately in the next tool call. DO NOT wait for the user to point it out.
+
+## **Critical Anti-Patterns (Zero-Tolerance)**
+
+- **Reversion to Defaults**: Never use "standard" patterns (generic library calls, local mocks) if a Project Skill (internal utilities, shared fakes) exists.
+- **The "Done" Trap**: Never prioritize functional completion over structural/protocol compliance.
+- **Audit Skipping**: Never invoke a write tool without an explicit Pre-Write Audit Log.
+
 ## ⚡ How to Use This Index (Mandatory)
 
 > [!CRITICAL]
@@ -92,6 +114,7 @@
 - **[common/observability]**: Standards for structured logging, distributed tracing, and metrics across all backend services. Use when adding logs, setting up tracing, or implementing service observability. (triggers: **/*.service.ts, **/*.handler.ts, **/*.middleware.ts, **/*.interceptor.ts, **/*.go, **/*.java, **/*.kt, **/*.py, logging, tracing, metrics, opentelemetry, observability, correlation, structured log, slo)
 - **[common/performance-engineering]**: 🚨 Universal standards for high-performance development. Use when optimizing, reducing latency, fixing memory leaks, profiling, or improving throughput. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, performance, optimize, profile, scalability, latency, throughput, memory leak, bottleneck)
 - **[common/product-requirements]**: 🚨 Expert process for gathering requirements and drafting PRDs (Iterative Discovery). Use when creating a PRD, speccing a new feature, or clarifying requirements. (triggers: PRD.md, specs/*.md, create prd, draft requirements, new feature spec)
+- **[common/protocol-enforcement]**: 🚨 Standards for Red-Team verification and adversarial protocol audit. Use when verifying tasks, performing self-scans, or checking for protocol violations. (triggers: **/*, verify, complete, check, audit, scan, retrospective)
 - **[common/security-audit]**: 🚨 Adversarial security probing and vulnerability assessments across Node, Go, Dart, Java, Python, and Rust. (triggers: package.json, go.mod, pubspec.yaml, pom.xml, Dockerfile, security audit, vulnerability scan, secrets detection, injection probe, pentest)
 - **[common/security-standards]**: 🚨 Universal security protocols for safe, resilient software. Use when implementing authentication, encryption, authorization, or any security-sensitive feature. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, security, encrypt, authenticate, authorize)
 - **[common/session-retrospective]**: Analyze conversation corrections to detect skill gaps and auto-improve the skills library. Use after any session with user corrections, rework, or retrospective requests. (triggers: **/*.spec.ts, **/*.test.ts, SKILL.md, AGENTS.md, retrospective, self-learning, improve skills, session review, correction, rework)
@@ -111,7 +134,7 @@
 - **[flutter/dependency-injection]**: Standards for automated service locator setup using injectable and get_it. Use when configuring dependency injection with injectable and get_it in Flutter. (triggers: **/injection.dart, **/locator.dart, GetIt, injectable, singleton, module, lazySingleton, factory)
 - **[flutter/error-handling]**: Functional error handling using Dartz and Either. Use when implementing functional error handling, Either monad, or failure types in Flutter. (triggers: lib/domain/**, lib/infrastructure/**, Either, fold, Left, Right, Failure, dartz)
 - **[flutter/feature-based-clean-architecture]**: 🚨 Standards for organizing Flutter code by feature for scalability. Use when structuring a Flutter project with feature-based clean architecture. (triggers: lib/features/**, feature, domain, infrastructure, application, presentation, modular)
-- **[flutter/flutter-design-system]**: 🚨 Enforce Design Language System adherence in Flutter. Use when enforcing design tokens, preventing hardcoded colors/spacing, or implementing a DLS in Flutter. (triggers: **/theme/**, **/*_theme.dart, **/*_colors.dart, **/*_dls/**, **/foundation/**, ThemeData, ColorScheme, AppColors, VColors, VSpacing, AppTheme, design token)
+- **[flutter/flutter-design-system]**: 🚨 Enforce Design Language System adherence in Flutter. Use when enforcing design tokens, preventing hardcoded colors/spacing, or implementing a DLS in Flutter. (triggers: **/theme/**, **/*_theme.dart, **/*_colors.dart, **/*_dls/**, **/foundation/**, **/presentation/**, **/ui/**, **/widgets/**, ThemeData, ColorScheme, AppColors, VColors, VSpacing, AppTheme, design token)
 - **[flutter/flutter-navigation]**: Flutter navigation patterns including go_router, deep linking, and named routes. Use when implementing navigation, deep linking, or named routes in Flutter. (triggers: **/*_route.dart, **/*_router.dart, **/main.dart, Navigator, GoRouter, routes, deep link, go_router, AutoRoute)
 - **[flutter/flutter-notifications]**: Push and local notifications for Flutter using FCM and flutter_local_notifications. Use when integrating push or local notifications in Flutter apps. (triggers: **/*notification*.dart, **/main.dart, FirebaseMessaging, FlutterLocalNotificationsPlugin, FCM, notification, push)
 - **[flutter/getx-navigation]**: 🚨 Context-less navigation, named routes, and middleware using GetX. Use when implementing navigation or route middleware with GetX in Flutter. (triggers: **/app_pages.dart, **/app_routes.dart, GetPage, Get.to, Get.off, Get.offAll, Get.toNamed, GetMiddleware)
@@ -180,7 +203,7 @@
 - **[nestjs/documentation]**: Swagger automation and Generic response documentation. Use when generating OpenAPI/Swagger documentation or documenting NestJS API responses. (triggers: main.ts, **/*.dto.ts, DocumentBuilder, SwaggerModule, ApiProperty, ApiResponse)
 - **[nestjs/error-handling]**: Global Exception Filters and standard error formats. Use when implementing global exception filters or standardizing error responses in NestJS. (triggers: **/*.filter.ts, main.ts, ExceptionFilter, Catch, HttpException)
 - **[nestjs/file-uploads]**: 🚨 Secure file handling, Validation, and S3 streaming. Use when implementing secure file uploads, validation, or S3 streaming in NestJS. (triggers: **/*.controller.ts, FileInterceptor, Multer, S3, UploadedFile)
-- **[nestjs/nestjs-bullmq]**: 🚨 Standard workflow for implementing background jobs using BullMQ in NestJS. Use when adding queue-based background job processing with BullMQ to NestJS. (triggers: package.json, **/*.module.ts, queue, backlog, background job, async task, worker)
+- **[nestjs/nestjs-bullmq]**: 🚨 Standard workflow for BullMQ jobs in NestJS. Use for: queue processors, redis-throttler, Upstash limits, idle polling (10s), stalled jobs, and retention. Triggers on: bullmq, processors, registerQueue, drainDelay, stalledInterval, removeOnComplete, Redis outages, or failing background tasks. (triggers: **/*.processor.ts, **/*.module.ts, **/bull-queue.constants.ts, **/redis-throttler*.ts, queue, background job, worker, processor, bullmq, drainDelay, stalledInterval, removeOnComplete, redis limit, upstash, fail-open, throttler)
 - **[nestjs/nestjs-notification]**: 🚨 Standards for Notification Types, Service Architecture, and FCM Integration. Use when building notification services or integrating FCM in NestJS. (triggers: notification.service.ts, notification.entity.ts, notification, push, fcm, alert, reminder)
 - **[nestjs/observability]**: Structured logging (Pino) and Prometheus metrics. Use when adding structured logging with Pino or Prometheus metrics to NestJS services. (triggers: main.ts, **/*.module.ts, nestjs-pino, Prometheus, Logger, reqId)
 - **[nestjs/performance]**: Fastify adapter, Scope management, and Compression. Use when optimizing NestJS performance with Fastify, request-scoped providers, or compression. (triggers: main.ts, FastifyAdapter, compression, SINGLETON, REQUEST scope)

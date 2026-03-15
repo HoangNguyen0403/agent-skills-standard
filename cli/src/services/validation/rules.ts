@@ -54,9 +54,9 @@ export class FrontmatterRule implements ValidationRule {
       result.passed = false;
     } else {
       const descMatch = frontmatter.match(/description:\s*(.+)/);
-      if (descMatch && descMatch[1].length > 200) {
+      if (descMatch && descMatch[1].length > 300) {
         result.errors.push(
-          `Description too long (${descMatch[1].length} chars > 200 limit)`,
+          `Description too long (${descMatch[1].length} chars > 300 limit)`,
         );
         result.passed = false;
       }

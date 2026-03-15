@@ -57,25 +57,41 @@ export class IndexGeneratorService {
   /**
    * Generates a markdown index of available skills across multiple categories.
    * @param baseDir The base directory containing categories and skills
-   * @param frameworks List of framework categories to include in the index
+   * @param allowedCategories List of categories/frameworks to include. If undefined, all found are included.
    * @returns A formatted markdown string representing the index
    */
-  async generate(baseDir: string): Promise<string> {
+  async generate(
+    baseDir: string,
+    allowedCategories?: string[],
+  ): Promise<string> {
     const entries = new Set<string>();
     const foundationalRules = await this.loadFoundationalRules(baseDir);
 
     if (!(await fs.pathExists(baseDir))) return this.assembleIndex([]);
 
-    const categories = await fs.readdir(baseDir);
+    let categories = await fs.readdir(baseDir);
+
+    // Filter categories to only those specified, plus 'common' and hidden dirs rule.
+    categories = categories.filter((category) => {
+      if (category.startsWith('.')) return false;
+      if (
+        allowedCategories &&
+        !allowedCategories.includes(category) &&
+        category !== 'common'
+      ) {
+        return false;
+      }
+      return true;
+    });
+
+    categories.sort();
 
     for (const category of categories) {
-      // Skip hidden directories (like .cursor, .agent, etc.)
-      if (category.startsWith('.')) continue;
-
       const categoryPath = path.join(baseDir, category);
       if (!(await fs.stat(categoryPath)).isDirectory()) continue;
 
       const skills = await fs.readdir(categoryPath);
+      skills.sort();
       for (const skill of skills) {
         const skillPath = path.join(categoryPath, skill, 'SKILL.md');
         if (!(await fs.pathExists(skillPath))) continue;
@@ -116,6 +132,28 @@ export class IndexGeneratorService {
       '- **Skill Authority:** Loaded skills always override existing code patterns.',
       '- **Audit Before Write:** Audit every file write against the `common/feedback-reporter` skill.',
       '',
+      '### **The Pre-Write Audit Log (Mandatory)**',
+      '',
+      'Before invoking any file-editing tool (`write_to_file`, `replace_file_content`, `multi_replace_file_content`), the ASSISTANT **MUST** explicitly state in its thought process:',
+      '',
+      '1. **Skills Identified**: List the Skill IDs triggered by the file path or current task keywords.',
+      '2. **Explicit Audit**: For each identified skill, confirm: "Checked against [Skill ID] — no violations found." Or "Violation detected in [Skill ID]: [Issue] — correcting now."',
+      '3. **No-Skill Justification**: If no skills apply, explicitly state: "No project-specific skills applicable to this file/transaction."',
+      '',
+      '### **The Post-Write Self-Scan (Mandatory)**',
+      '',
+      'Immediately **AFTER** any file-editing tool returns, the ASSISTANT **MUST**:',
+      '',
+      '1. **Validate**: Contrast the final file content against ALL active Skill IDs.',
+      '2. **Identify Slips**: Look for "Standard Defaults" (e.g., local mocks, hardcoded styles) that snuck in.',
+      '3. **Self-Correct**: If a violation is found, fix it immediately in the next tool call. DO NOT wait for the user to point it out.',
+      '',
+      '## **Critical Anti-Patterns (Zero-Tolerance)**',
+      '',
+      '- **Reversion to Defaults**: Never use "standard" patterns (generic library calls, local mocks) if a Project Skill (internal utilities, shared fakes) exists.',
+      '- **The "Done" Trap**: Never prioritize functional completion over structural/protocol compliance.',
+      '- **Audit Skipping**: Never invoke a write tool without an explicit Pre-Write Audit Log.',
+      '',
       '## ⚡ How to Use This Index (Mandatory)',
       '',
       '> [!CRITICAL]',
@@ -141,7 +179,7 @@ export class IndexGeneratorService {
     try {
       const content = await fs.readFile(skillPath, 'utf8');
       const frontmatterMatch = content.match(
-        /^---\n([\s\S]*?)\n---\n([\s\S]*)$/,
+        /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/,
       );
 
       if (!frontmatterMatch) return null;

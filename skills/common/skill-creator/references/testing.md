@@ -13,16 +13,26 @@ Save test cases to `evals/evals.json` next to `SKILL.md`:
       "prompt": "Realistic user task that should invoke this skill",
       "expected_output": "Description of what a correct response looks like",
       "assertions": [
-        { "id": "a1", "description": "Output contains X", "type": "contains", "value": "X" }
+        {
+          "id": "a1",
+          "description": "Output contains X",
+          "type": "contains",
+          "value": "X"
+        }
       ]
     }
+  ],
+  "should_not_trigger": [
+    "Near-miss prompt — shares keywords but needs a different skill",
+    "Another near-miss prompt"
   ]
 }
 ```
 
 **Assertion types**: `contains`, `not_contains`, `matches_regex`, `file_exists`.
 
-Write 2–3 evals per skill. Use prompts a real user would type — specific, with context, not abstract.
+- Write 2–3 `evals` (should-trigger) per skill. Use prompts a real user would type — specific, with context, not abstract.
+- Write 8–10 `should_not_trigger` entries. Focus on near-misses that share keywords but belong to a different skill.
 
 ## 2. Trigger Rate Queries
 

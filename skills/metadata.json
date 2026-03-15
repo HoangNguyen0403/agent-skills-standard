@@ -155,13 +155,13 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.4.0",
-      "last_updated": "2026-03-04",
+      "version": "1.4.1",
+      "last_updated": "2026-03-15",
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 9770,
-        "avg_tokens_per_skill": 465,
+        "total_tokens": 9788,
+        "avg_tokens_per_skill": 466,
         "largest_skill": "testing (918 tokens)"
       }
     },
@@ -221,14 +221,14 @@
       }
     },
     "nestjs": {
-      "version": "1.2.0",
-      "last_updated": "2026-03-04",
+      "version": "1.2.1",
+      "last_updated": "2026-03-15",
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 11485,
-        "avg_tokens_per_skill": 547,
-        "largest_skill": "documentation (858 tokens)"
+        "total_tokens": 11979,
+        "avg_tokens_per_skill": 570,
+        "largest_skill": "nestjs-bullmq (940 tokens)"
       }
     },
     "nextjs": {
@@ -243,13 +243,13 @@
       }
     },
     "common": {
-      "version": "1.7.1",
-      "last_updated": "2026-03-07",
+      "version": "1.7.2",
+      "last_updated": "2026-03-15",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 24,
-        "total_tokens": 15997,
-        "avg_tokens_per_skill": 667,
+        "total_skills": 25,
+        "total_tokens": 16433,
+        "avg_tokens_per_skill": 657,
         "largest_skill": "error-handling (1035 tokens)"
       }
     },

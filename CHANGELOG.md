@@ -5,6 +5,39 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.3] - 2026-03-15
+
+**Category**: Protocol Security & Refactoring Fixes
+
+### Fixed (CLI)
+
+- **⚡ `IndexGeneratorService` — Restored Protocol Header**: Reinstated the critical `[!IMPORTANT]` block at the top of the generated `AGENTS.md` to ensure agents always "Audit Before Write".
+- **🔎 Framework Filtering**: Fixed a regression in `SyncService` where all skills were included regardless of `.skillsrc` config. The index now strictly filters based on the project's activated frameworks.
+- **🐛 Frontmatter Parsing**: Fixed a fragile regex in the Markdown frontmatter parser to handle different line endings (`\r\n` vs `\n`).
+- **🛡️ CLI Testing**: Rectified failing configuration and sync test suites by providing explicit mocks for `skills`.
+
+### Changed (Skills — Common)
+
+- **🛡️ `common/protocol-enforcement`**: Institutionalized the adversarial Red-Team verification skill by moving it from a hidden local directory to the global `skills/common` library.
+
+### Changed (Skills — Flutter)
+
+- **🖼️ `flutter/flutter-design-system`**: Enforced adherence to standard DLS widgets; explicitly banned the usage of generic widgets like `SizedBox` for spacing or hardcoded `Colors.xxx`, ensuring zero UI fragmentation.
+- **🤖 `flutter/testing`**: Re-enforced the "Robot-First" testing pattern, mandating that screens and widgets utilize globally shared keys and explicitly defined Robot classes to isolate test logic from UI implementation details.
+
+### Changed (Skills — NestJS)
+
+- **📨 `nestjs/nestjs-bullmq`**: Upgraded Queue processor standards to prevent idle-polling storms and rate-limiting outages.
+  - Required `drainDelay` and `stalledInterval` optimizations specifically for Upstash Redis.
+  - Structured fail-open patterns for BaseProcessors and Throttlers.
+
+### Versions
+
+- **CLI**: v1.9.3 (Patch)
+- **Common Skills**: v1.7.2 (Patch)
+- **Flutter Skills**: v1.4.1 (Patch)
+- **NestJS Skills**: v1.2.1 (Patch)
+
 ## [1.9.2] - 2026-03-08
 
 **Category**: Trigger Rate Improvements — Stricter Pre-Flight Protocol & AGENTS.md Index Upgrade

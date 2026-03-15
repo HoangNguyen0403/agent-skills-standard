@@ -1,0 +1,102 @@
+{
+  "skill_name": "nestjs-bullmq",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add a new BullMQ processor for sending weekly digest emails in the notifications module.",
+      "expected_output": "Creates processor with drainDelay/stalledInterval options using bull-queue.constants.ts, registerQueue with defaultJobOptions, feature constants file, and try-catch around queue.add() with DB write first.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Uses QUEUE_DRAIN_DELAY_MS in @Processor options",
+          "type": "contains",
+          "value": "QUEUE_DRAIN_DELAY_MS"
+        },
+        {
+          "id": "a2",
+          "description": "Uses QUEUE_STALLED_INTERVAL_MS in @Processor options",
+          "type": "contains",
+          "value": "QUEUE_STALLED_INTERVAL_MS"
+        },
+        {
+          "id": "a3",
+          "description": "registerQueue uses shared queue options helper (includes removeOnComplete)",
+          "type": "contains",
+          "value": "getSharedBullQueueOptions"
+        },
+        {
+          "id": "a4",
+          "description": "queue.add() is wrapped in try-catch",
+          "type": "contains",
+          "value": "try"
+        },
+        {
+          "id": "a5",
+          "description": "Does not inline 10_000 or 60_000 or 50 or 20",
+          "type": "not_contains",
+          "value": "10_000"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Our Upstash Redis hit the 500K daily request limit on a dev server with only one developer. Why and how do we fix it?",
+      "expected_output": "Identifies BullMQ idle polling (drainDelay default 5ms) as root cause, recommends drainDelay: QUEUE_DRAIN_DELAY_MS (10 000 ms) on all processors, recommends local Docker Redis for dev, and explains removeOnComplete for job accumulation.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Mentions drainDelay as root cause",
+          "type": "contains",
+          "value": "drainDelay"
+        },
+        {
+          "id": "a2",
+          "description": "Recommends local Redis for dev",
+          "type": "contains",
+          "value": "local"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions removeOnComplete for job accumulation",
+          "type": "contains",
+          "value": "removeOnComplete"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "When our Redis connection drops, every API endpoint returns 500. How do we prevent this?",
+      "expected_output": "Identifies ThrottlerGuard as global APP_GUARD that propagates Redis errors to all routes, implements fail-open in RedisThrottlerStorage.increment(), and wraps queue.add() in try-catch.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Mentions ThrottlerGuard as the global issue",
+          "type": "contains",
+          "value": "ThrottlerGuard"
+        },
+        {
+          "id": "a2",
+          "description": "Implements fail-open catch block in throttler",
+          "type": "contains",
+          "value": "fail-open"
+        },
+        {
+          "id": "a3",
+          "description": "Does not let throttler throw unhandled",
+          "type": "not_contains",
+          "value": "throw error"
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Create a new REST endpoint for user profile updates",
+    "How do I configure TypeORM entities with relations?",
+    "Add role-based access control with a NestJS guard",
+    "Why is my JWT token expiring too early?",
+    "Set up pagination for the GET /children endpoint",
+    "How should I structure my NestJS module folders?",
+    "Add Swagger documentation to my controller",
+    "Write a Jest unit test for a NestJS service"
+  ]
+}

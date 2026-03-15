@@ -12,6 +12,31 @@ import * as path from 'path';
 const SKILLS_DIR = path.join(__dirname, '../skills');
 const METADATA_PATH = path.join(SKILLS_DIR, 'metadata.json');
 const CHARS_PER_TOKEN = 4; // Approximate ratio for cl100k_base tokenizer
+const HEAVY_BASELINE = 3656; // Reference unit for savings calculation
+
+const CATEGORY_NAME_MAP: Record<string, string> = {
+  common: 'Common Patterns',
+  flutter: 'Flutter',
+  dart: 'Dart',
+  typescript: 'TypeScript',
+  javascript: 'JavaScript',
+  react: 'React',
+  'react-native': 'React Native',
+  nestjs: 'NestJS',
+  nextjs: 'Next.js',
+  angular: 'Angular',
+  android: 'Android',
+  kotlin: 'Kotlin',
+  java: 'Java',
+  'spring-boot': 'Spring Boot',
+  swift: 'Swift',
+  ios: 'iOS',
+  golang: 'Go (Golang)',
+  php: 'PHP',
+  laravel: 'Laravel',
+  database: 'Database',
+  'quality-engineering': 'Quality Engineering',
+};
 
 interface SkillMetrics {
   skillName: string;
@@ -157,68 +182,74 @@ async function main() {
   fs.outputFileSync(METADATA_PATH, JSON.stringify(metadata, null, 2) + '\n');
   console.log('✅ Updated metadata.json with token_metrics');
 
-  // Update README.md table
-  const readmePath = path.join(__dirname, '../README.md');
-  if (fs.existsSync(readmePath)) {
-    const readmeContent = fs.readFileSync(readmePath, 'utf-8');
+  // Update README files
+  const readmePaths = [
+    path.join(__dirname, '../README.md'),
+    path.join(__dirname, '../cli/README.md'),
+  ];
 
-    const lines = readmeContent.split('\n');
-    let updated = false;
+  for (const readmePath of readmePaths) {
+    if (fs.existsSync(readmePath)) {
+      let readmeContent = fs.readFileSync(readmePath, 'utf-8');
+      let updated = false;
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
+      // Update Legacy Table Format (Backward Compatibility)
+      const lines = readmeContent.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        for (const category of categories) {
+          const displayName = CATEGORY_NAME_MAP[category] || category;
+          const flexibleName = displayName
+            .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+            .split(' ')
+            .join('.*');
+          const categoryMatch = new RegExp(`\\| \\*\\*${flexibleName}\\*\\*`, 'i').test(
+            line,
+          );
 
-      for (const category of categories) {
-        // Create a flexible regex: "nextjs" -> /next.*js/i to match "Next.js"
-        const flexibleCategory = category.split('').join('.*');
-        const categoryMatch = new RegExp(
-          `\\*\\*.*${flexibleCategory}.*\\*\\*`,
-          'i',
-        ).test(line);
-
-        if (categoryMatch) {
-          const metrics = results[category];
-          const version = metadata.categories[category]?.version;
-          const cells = line.split('|');
-
-          if (cells.length >= 6) {
-            // Update Version (index 3)
-            if (version) {
-              cells[3] = ` \`v${version}\``.padEnd(10);
-            }
-
-            // Update Skills (index 4) and Avg. Footprint (index 5)
-            // Desired format: | 10     | ~503 tokens    |
-            cells[4] = ` ${metrics.totalSkills}`.padEnd(8);
-            cells[5] = ` ~${metrics.avgTokensPerSkill} tokens `
+          if (categoryMatch && line.split('|').length >= 8) {
+            const metrics = results[category];
+            const version = metadata.categories[category]?.version;
+            const savings = Math.round((1 - metrics.avgTokensPerSkill / HEAVY_BASELINE) * 100);
+            const cells = line.split('|');
+            
+            // Expected indices for 7-data-column table:
+            // | Stack | Modules | Saving | Status | Version | Skills | Footprint |
+            // [0]   [1]     [2]     [3]      [4]      [5]       [6]      [7]       [8]
+            
+            cells[3] = ` **${savings}%** `.padEnd(10);
+            cells[4] = ` Healthy `.padEnd(10);
+            if (version) cells[5] = ` \`v${version}\``.padEnd(10);
+            cells[6] = ` ${metrics.totalSkills}`.padEnd(8);
+            cells[7] = ` ~${metrics.avgTokensPerSkill} tokens `
               .trimEnd()
               .padEnd(16);
-
             lines[i] = cells.join('|');
             updated = true;
           }
-        }
 
-        // Update Badges
-        // [![common](https://img.shields.io/badge/common-v1.4.0-blue...
-        const badgeRegex = new RegExp(`^\\[!\\[${category}\\]`);
-        if (badgeRegex.test(line)) {
-          const version = metadata.categories[category]?.version;
-          if (version) {
-            // Update both badge image URL and link URL
-            lines[i] = line.replace(
-              new RegExp(`${category}-v\\d+\\.\\d+\\.\\d+`, 'g'),
-              `${category}-v${version}`,
-            );
-            updated = true;
+          // Update Badges
+          const badgeRegex = new RegExp(`^\\[!\\[${category}\\]`);
+          if (badgeRegex.test(line)) {
+            const version = metadata.categories[category]?.version;
+            if (version) {
+              lines[i] = line.replace(
+                new RegExp(`${category}-v\\d+\\.\\d+\\.\\d+`, 'g'),
+                `${category}-v${version}`,
+              );
+              updated = true;
+            }
           }
         }
       }
-    }
+      if (updated) {
+        readmeContent = lines.join('\n');
+      }
 
-    if (updated) {
-      fs.outputFileSync(readmePath, lines.join('\n'));
-      console.log('✅ Updated README.md support table');
+      if (updated) {
+        fs.outputFileSync(readmePath, lines.join('\n'));
+        console.log(`✅ Updated ${path.basename(readmePath)} metrics`);
+      }
     }
   }
 }

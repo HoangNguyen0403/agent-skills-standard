@@ -11,6 +11,9 @@ metadata:
         '**/*_colors.dart',
         '**/*_dls/**',
         '**/foundation/**',
+        '**/presentation/**',
+        '**/ui/**',
+        '**/widgets/**',
       ]
     keywords:
       [

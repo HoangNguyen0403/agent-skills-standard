@@ -1,23 +1,67 @@
-# Agent Skills Standard CLI 🚀
+# Agent Skills Standard CLI: Deployment & Sync Engine 🚀
 
 [![NPM Version](https://img.shields.io/npm/v/agent-skills-standard.svg?style=flat-square)](https://www.npmjs.com/package/agent-skills-standard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/blob/main/LICENSE)
 
-**The engine behind High-Density AI coding. Command your AI assistants with professional standards.**
+[![nestjs](https://img.shields.io/badge/nestjs-v1.2.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.2.1)
+[![nextjs](https://img.shields.io/badge/nextjs-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nextjs-v1.2.0)
+[![golang](https://img.shields.io/badge/golang-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/golang-v1.1.0)
+[![angular](https://img.shields.io/badge/angular-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/angular-v1.2.0)
+[![kotlin](https://img.shields.io/badge/kotlin-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/kotlin-v1.1.0)
+[![java](https://img.shields.io/badge/java-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/java-v1.1.0)
+[![spring-boot](https://img.shields.io/badge/spring--boot-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/spring-boot-v1.1.0)
+[![android](https://img.shields.io/badge/android-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/android-v1.1.0)
+[![swift](https://img.shields.io/badge/swift-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/swift-v1.1.0)
+[![ios](https://img.shields.io/badge/ios-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/ios-v1.2.0)
+[![php](https://img.shields.io/badge/php-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/php-v1.1.0)
+[![laravel](https://img.shields.io/badge/laravel-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/laravel-v1.1.0)
+[![database](https://img.shields.io/badge/database-v1.1.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/database-v1.1.1)
+[![quality-engineering](https://img.shields.io/badge/quality--engineering-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/quality-engineering-v1.1.0)
 
-The `agent-skills-standard` CLI is the official command-line tool to manage, sync, and version-control engineering standards across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Gemini, Roo Code, OpenCode, and more**).
+**The heavy-lifting engine for High-Density AI Agent Instructions. Deploy professional standards to any project in seconds.**
+
+The `agent-skills-standard` CLI is the official command-line tool to manage, sync, and version-control engineering standards (often called **"Cursor Rules"** or **"Agent Skills"**) across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Gemini, Roo Code, and more**).
+
+---
+
+## 📌 Table of Contents
+
+- [💡 What does this tool do?](#-what-does-this-tool-do)
+- [🎯 Who is this for?](#-who-is-this-for)
+- [⚡ The Problem: The Context Wall](#-the-problem-the-context-wall)
+- [🛠 The Solution: Digital DNA for AI](#-the-solution-digital-dna-for-ai)
+- [🛡️ Security & Trust](#️-security--trust)
+- [🚀 Quick Start](#-quick-start)
+- [💻 Command Reference](#-command-reference)
+- [🌍 Registry Ecosystem](#-registry-ecosystem)
+- [🏗 Contributing](#-contributing)
+- [❓ FAQ](#-faq)
 
 ---
 
 ## 💡 What does this tool do?
 
-If the **Agent Skills Standard** is the "instruction manual" for your AI, this CLI is the **delivery truck** that brings those instructions to your project.
+If the **Agent Skills Standard** is the "instruction manual" for your AI, this CLI is the **delivery engine** that brings those instructions to your project.
 
-### Why you need this CLI
+### 🎯 Who is this for?
 
-- **For Developers**: No more copy-pasting `.cursorrules` or manual file management. One command keeps your AI updated.
-- **For Non-IT/Tech Leads**: Quickly set up a new project with the same professional standards used by senior engineers.
-- **For Teams**: Ensure every developer’s AI tool (Cursor, Claude, Copilot) behaves the same way across the entire codebase.
+| Role                 | Benefit                                                                             |
+| :------------------- | :---------------------------------------------------------------------------------- |
+| **🚀 Builders**      | No more copy-pasting `.cursorrules`. One command syncs your entire AI workspace.    |
+| **🛡️ Architects**    | Push global engineering standards to every developer's IDE automatically.           |
+| **📈 Organizations** | Standardize AI behavior across your company. Ensure every agent "knows" your stack. |
+
+### 🔄 CLI Sync Workflow
+
+```mermaid
+graph LR
+    A[Developers] -- run ags sync --> B[CLI Engine]
+    B -- fetch --> C[Cloud Registry]
+    C -- deploy --> D[Local IDE Settings]
+    D -- power-up --> E[Expert AI Coding]
+
+    style E fill:#dcfce7,stroke:#166534
+```
 
 ---
 
@@ -61,9 +105,9 @@ We take security seriously. Here is what you need to know about how the CLI work
 
 Every skill delivered by this CLI is audited for its footprint in the AI's context window.
 
-| Metric             | Savings (vs. Heavy Prompt) | Avg. Footprint | Quality |
-| ------------------ | -------------------------: | -------------- | ------- |
-| **Global Average** |            **88% Savings** | ~457 tokens    | 8.9/10  |
+| Metric             | Typical Saving  | Status | Version  | Avg. Footprint |
+| :----------------- | :-------------- | :----- | :------- | :------------- |
+| **Global Average** | **88% Savings** | 10/10  | `v1.1.0` | ~398 tokens    |
 
 > [!IMPORTANT]
 > **Context is Currency**: By reducing instruction overhead by **88%**, you free up your AI's memory and budget for complex logic and large codebases.
@@ -78,14 +122,13 @@ Every skill delivered by this CLI is audited for its footprint in the AI's conte
 
 ---
 
-### 📜 Benchmark History
+#### 📜 Benchmark History
 
-| Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                 |
-| ------- | ---------- | ------ | ---------- | ----------- | -------------------------------------- |
-| v1.9.2  | 2026-03-07 | 228    | 458        | 87%         | [Report](benchmarks/archive/v1.9.2.md) |
-| v1.9.1  | 2026-03-07 | 228    | 458        | 87%         | [Report](benchmarks/archive/v1.9.1.md) |
-| v1.9.0  | 2026-03-05 | 228    | 457        | 88%         | [Report](benchmarks/archive/v1.9.0.md) |
-| v1.8.0  | 2026-03-02 | 228    | 443        | 88%         | [Report](benchmarks/archive/v1.8.0.md) |
+| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
+| --- | --- | --- | --- | --- | --- |
+| v1.9.3 | 2026-03-15 | 229 | 460 | 87% | [Report](benchmarks/archive/v1.9.3.md) |
+| v1.9.2 | 2026-03-07 | 228 | 458 | 87% | [Report](benchmarks/archive/v1.9.2.md) |
+| v1.9.1 | 2026-03-07 | 228 | 458 | 87% | [Report](benchmarks/archive/v1.9.1.md) |
 
 ## � Token Economy & Optimization
 
@@ -233,22 +276,51 @@ skills:
 - **🔒 Secure Protection**: Mark specific files as "Locked" (overrides) so the CLI never changes your custom tweaks.
 - **🧪 Production-Grade Reliability**: Guarded by a 100% statement coverage test suite and strict CI enforcement.
 
-### 🔹 Supported Stacks (Token Audited)
+### 📂 Browse All Available Skills
 
-| Category        | Typical Savings | Avg. Footprint                                                                   | Status        |
-| :-------------- | :-------------- | :------------------------------------------------------------------------------- | :------------ |
-| **Flutter**     | 88%             | `422` ![tokens](https://img.shields.io/badge/tokens-422-green?style=flat-square) | ✅ Stable     |
-| **NestJS**      | 85%             | `518` ![tokens](https://img.shields.io/badge/tokens-518-blue?style=flat-square)  | ✅ Production |
-| **Next.js**     | 89%             | `431` ![tokens](https://img.shields.io/badge/tokens-431-green?style=flat-square) | ✅ Stable     |
-| **React**       | 90%             | `401` ![tokens](https://img.shields.io/badge/tokens-401-green?style=flat-square) | ✅ Stable     |
-| **Golang**      | 90%             | `375` ![tokens](https://img.shields.io/badge/tokens-375-green?style=flat-square) | ✅ Stable     |
-| **Android**     | 92%             | `295` ![tokens](https://img.shields.io/badge/tokens-295-green?style=flat-square) | ✅ Production |
-| **iOS**         | 90%             | `411` ![tokens](https://img.shields.io/badge/tokens-411-green?style=flat-square) | ✅ Production |
-| **Laravel**     | 91%             | `361` ![tokens](https://img.shields.io/badge/tokens-361-green?style=flat-square) | ✅ Stable     |
-| **Spring Boot** | 92%             | `369` ![tokens](https://img.shields.io/badge/tokens-369-green?style=flat-square) | ✅ Stable     |
+The Agent Skills Standard is a modular library designed to be the universal language for engineering standards. Browse the categories below to see the key modules and metrics for each stack.
+
+| Stack / Category        | Key Modules                             | Typical Saving | Status  | Version  | Skills | Avg. Footprint |
+| :---------------------- | :-------------------------------------- | :------------- | :------ | :------- | :----- | :------------- |
+| **Common Patterns**     | Accessibility, Best Practices, Security | **82%**  | Healthy  | `v1.7.2` | 25     | ~657 tokens    |
+| **Flutter**             | BLoC, Riverpod, Clean Architecture      | **87%**  | Healthy  | `v1.4.1` | 21     | ~466 tokens    |
+| **Dart**                | Language, Tooling                       | **87%**  | Healthy  | `v1.1.0` | 3      | ~459 tokens    |
+| **TypeScript**          | Type Safety, Tooling                    | **85%**  | Healthy  | `v1.1.0` | 4      | ~541 tokens    |
+| **JavaScript**          | Functional Programming, Patterns        | **89%**  | Healthy  | `v1.1.0` | 3      | ~408 tokens    |
+| **React**               | React 18+, Hooks, Performance           | **88%**  | Healthy  | `v1.1.0` | 8      | ~427 tokens    |
+| **React Native**        | Architecture, Performance               | **87%**  | Healthy  | `v1.2.0` | 13     | ~469 tokens    |
+| **NestJS**              | Architecture, Security, BullMQ          | **84%**  | Healthy  | `v1.2.1` | 21     | ~570 tokens    |
+| **Next.js**             | App Router, SEO, Performance            | **86%**  | Healthy  | `v1.2.0` | 18     | ~506 tokens    |
+| **Angular**             | Architecture, Signals, RxJS             | **92%**  | Healthy  | `v1.2.0` | 15     | ~307 tokens    |
+| **Android**             | Compose, Architecture, Networking       | **91%**  | Healthy  | `v1.1.0` | 22     | ~315 tokens    |
+| **iOS**                 | Architecture, SwiftUI, Concurrency      | **88%**  | Healthy  | `v1.2.0` | 15     | ~431 tokens    |
+| **Swift**               | Concurrency, Architecture               | **90%**  | Healthy  | `v1.1.0` | 8      | ~377 tokens    |
+| **Kotlin**              | Language, Concurrency                   | **87%**  | Healthy  | `v1.1.0` | 4      | ~475 tokens    |
+| **Java**                | Language, Concurrency                   | **85%**  | Healthy  | `v1.1.0` | 5      | ~543 tokens    |
+| **Spring Boot**         | Architecture, Security                  | **89%**  | Healthy  | `v1.1.0` | 10     | ~393 tokens    |
+| **Go (Golang)**         | Clean Architecture, Security            | **89%**  | Healthy  | `v1.1.0` | 10     | ~398 tokens    |
+| **PHP**                 | Error Handling, PHP 8+                  | **91%**  | Healthy  | `v1.1.0` | 7      | ~340 tokens    |
+| **Laravel**             | Solid Patterns, Clean Architecture      | **90%**  | Healthy  | `v1.1.0` | 10     | ~383 tokens    |
+| **Database**            | PostgreSQL, MongoDB, Redis              | **80%**  | Healthy  | `v1.1.1` | 3      | ~720 tokens    |
+| **Quality Engineering** | BA, TDD, Zephyr, Automation             | **87%**  | Healthy  | `v1.1.0` | 4      | ~480 tokens    |
+
+> [!TIP]
+> **View the Complete Registry**: For a full list of all 160+ skills, visit the [Skills Directory](../skills/README.md).
 
 > [!TIP]
 > Run `ags benchmark` (coming soon) or check the [root report](../benchmark-report.md) for full scientific methodology.
+
+---
+
+## ❓ FAQ
+
+### Do I need to install this globally?
+
+We recommend using `npx agent-skills-standard sync` to always use the latest version without global installation.
+
+### Does it overwrite my custom rules?
+
+No. If you have custom rules in `.cursorrules` or other files, you can use the `Locked` feature or the CLI will intelligently merge them if configured.
 
 ---
 

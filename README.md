@@ -1,15 +1,15 @@
-# Agent Skills Standard 🚀
+# Agent Skills Standard: High-Density AI Agent Instructions & Cursor Rules 🚀
 
 [![NPM Version](https://img.shields.io/npm/v/agent-skills-standard.svg?style=flat-square)](https://www.npmjs.com/package/agent-skills-standard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/HoangNguyen0403/agent-skills-standard?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/stargazers)
-[![common](https://img.shields.io/badge/common-v1.7.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.7.1)
-[![flutter](https://img.shields.io/badge/flutter-v1.4.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/flutter-v1.4.0)
+[![common](https://img.shields.io/badge/common-v1.7.2-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.7.2)
+[![flutter](https://img.shields.io/badge/flutter-v1.4.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/flutter-v1.4.1)
 [![dart](https://img.shields.io/badge/dart-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/dart-v1.1.0)
 [![typescript](https://img.shields.io/badge/typescript-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/typescript-v1.1.0)
 [![react](https://img.shields.io/badge/react-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-v1.1.0)
 [![react-native](https://img.shields.io/badge/react--native-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-native-v1.2.0)
-[![nestjs](https://img.shields.io/badge/nestjs-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.2.0)
+[![nestjs](https://img.shields.io/badge/nestjs-v1.2.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.2.1)
 [![nextjs](https://img.shields.io/badge/nextjs-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nextjs-v1.2.0)
 [![golang](https://img.shields.io/badge/golang-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/golang-v1.1.0)
 [![angular](https://img.shields.io/badge/angular-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/angular-v1.2.0)
@@ -24,9 +24,26 @@
 [![database](https://img.shields.io/badge/database-v1.1.1-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/database-v1.1.1)
 [![quality-engineering](https://img.shields.io/badge/quality--engineering-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/quality-engineering-v1.1.0)
 
-**The open standard for High-Density AI coding instructions. Make your AI smarter, faster, and more consistent.**
+**The open standard for High-Density AI coding instructions & Cursor Rules. Make your AI smarter, faster, and more consistent.**
 
-Agent Skills Standard is a modular framework to distribute, sync, and version-control engineering standards across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Windsurf, Kiro, Gemini, Antigravity, and custom LLM workflows**).
+Agent Skills Standard is the open-source framework to distribute, sync, and version-control engineering standards (often called **"Cursor Rules"** or **"Agent Skills"**) across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Windsurf, Trae, Gemini, Antigravity, and custom LLM workflows**).
+
+---
+
+## 📌 Table of Contents
+
+- [💡 What is this?](#-what-is-this)
+- [🎯 Who is this for?](#-who-is-this-for)
+- [⚡ The Problem: The Context Wall](#-the-problem-the-context-wall)
+- [🛠 The Solution: Digital DNA for AI](#-the-solution-digital-dna-for-ai)
+- [🛡️ Security & Trust](#️-security--trust)
+- [📊 Efficiency & Benchmark](#-efficiency--benchmark)
+- [✨ Features](#-features)
+- [🚀 Quick Start](#-quick-start)
+- [⚙️ Configuration](#-configuration)
+- [🌍 Registry Ecosystem](#-registry-ecosystem)
+- [🏗 Contributing](#-contributing)
+- [❓ FAQ](#-faq)
 
 ---
 
@@ -36,11 +53,31 @@ Think of Agent Skills Standard as a **universal instruction manual** for your AI
 
 Usually, when you use AI for work, you have to constantly remind it of your "house rules" (e.g., _"Make sure to handle errors this way"_ or _"Use this specific layout"_). This project allows teams to package those rules into **"Skills"** that you can plug into any AI tool instantly.
 
-### Why does this matter?
+### 🎯 Who is this for?
 
-- **For Managers**: Ensure your entire team writes high-quality code that follows your company's standards, regardless of which AI tool they use.
-- **For Non-IT Users**: You don't need to know _how_ the rules are written; you just run one command to "upgrade" your AI with professional-grade engineering knowledge.
-- **For Teams**: No more "Hey, why did the AI write it this way?"—everyone's AI uses the same playbook.
+| Role                 | Benefit                                                                                                  |
+| :------------------- | :------------------------------------------------------------------------------------------------------- |
+| **🚀 Builders**      | Stop copy-pasting prompts. Get instant, modular standards directly in your IDE.                          |
+| **🛡️ Architects**    | Scale engineering excellence. Define "house rules" once; sync them to every agent in the team.           |
+| **📈 Organizations** | Lower the technical barrier. Enable non-experts to produce senior-level output via standard "playbooks." |
+
+### 🔄 The Workflow Evolution
+
+```mermaid
+graph LR
+    subgraph "Manual Prompt Engineering"
+    A[Hardcoded Rules] --> B[Wordy Prompts]
+    B --> C[Loss of Logic]
+    end
+
+    subgraph "Agent Skills Standard"
+    D[Compressed DNA] --> E[Smart Loading]
+    E --> F[High-Density AI Logic]
+    end
+
+    style F fill:#dcfce7,stroke:#166534
+    style C fill:#fee2e2,stroke:#991b1b
+```
 
 ---
 
@@ -79,18 +116,17 @@ We understand that "injecting" instructions into your AI can sound risky. Here i
 
 Every skill in this registry is audited for its footprint in the AI's context window. Our goal is **High-Density Logic, Low-Token Footprint**.
 
-| Metric             | Savings (vs. Heavy Prompt) | Avg. Footprint | Quality |
-| ------------------ | -------------------------: | -------------- | ------- | ----------- |
-| **Global Average** |            **88% Savings** | `v1.1.0` | 10     | ~398 tokens    |
+| Metric             |  Typical Saving | Status | Version  | Avg. Footprint |
+| ------------------ | --------------: | :----- | -------- | -------------- |
+| **Global Average** | **88% Savings** | 10/10  | `v1.1.0` | ~398 tokens    |
 
 #### 📜 Benchmark History
 
-| Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                 |
-| ------- | ---------- | ------ | ---------- | ----------- | -------------------------------------- |
-| v1.9.2  | 2026-03-07 | 228    | 458        | 87%         | [Report](benchmarks/archive/v1.9.2.md) |
-| v1.9.1  | 2026-03-07 | 228    | 458        | 87%         | [Report](benchmarks/archive/v1.9.1.md) |
-| v1.9.0  | 2026-03-05 | 228    | 457        | 88%         | [Report](benchmarks/archive/v1.9.0.md) |
-| v1.8.0  | 2026-03-02 | 228    | 443        | 88%         | [Report](benchmarks/archive/v1.8.0.md) |
+| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
+| --- | --- | --- | --- | --- | --- |
+| v1.9.3 | 2026-03-15 | 229 | 460 | 87% | [Report](benchmarks/archive/v1.9.3.md) |
+| v1.9.2 | 2026-03-07 | 228 | 458 | 87% | [Report](benchmarks/archive/v1.9.2.md) |
+| v1.9.1 | 2026-03-07 | 228 | 458 | 87% | [Report](benchmarks/archive/v1.9.1.md) |
 
 ### Why this matters
 
@@ -290,33 +326,34 @@ If the CLI complains about configuration format:
 
 ## 🌍 Registry Ecosystem
 
-The Agent Skills Standard is designed to be the universal language for engineering standards.
+The Agent Skills Standard is a modular library designed to be the universal language for engineering standards. Browse the categories below to see the key modules and metrics for each stack.
 
-### 🔹 Registry Ecosystem (v1.9.2)
+| Stack / Category        | Key Modules                             | Typical Saving | Status  | Version  | Skills | Avg. Footprint |
+| :---------------------- | :-------------------------------------- | :------------- | :------ | :------- | :----- | :------------- |
+| **Common Patterns**     | Accessibility, Best Practices, Security | **82%**  | Healthy  | `v1.7.2` | 25     | ~657 tokens    |
+| **Flutter**             | BLoC, Riverpod, Clean Architecture      | **87%**  | Healthy  | `v1.4.1` | 21     | ~466 tokens    |
+| **Dart**                | Language, Tooling                       | **87%**  | Healthy  | `v1.1.0` | 3      | ~459 tokens    |
+| **TypeScript**          | Type Safety, Tooling                    | **85%**  | Healthy  | `v1.1.0` | 4      | ~541 tokens    |
+| **JavaScript**          | Functional Programming, Patterns        | **89%**  | Healthy  | `v1.1.0` | 3      | ~408 tokens    |
+| **React**               | React 18+, Hooks, Performance           | **88%**  | Healthy  | `v1.1.0` | 8      | ~427 tokens    |
+| **React Native**        | Architecture, Performance               | **87%**  | Healthy  | `v1.2.0` | 13     | ~469 tokens    |
+| **NestJS**              | Architecture, Security, BullMQ          | **84%**  | Healthy  | `v1.2.1` | 21     | ~570 tokens    |
+| **Next.js**             | App Router, SEO, Performance            | **86%**  | Healthy  | `v1.2.0` | 18     | ~506 tokens    |
+| **Angular**             | Architecture, Signals, RxJS             | **92%**  | Healthy  | `v1.2.0` | 15     | ~307 tokens    |
+| **Android**             | Compose, Architecture, Serialization    | **91%**  | Healthy  | `v1.1.0` | 22     | ~315 tokens    |
+| **iOS**                 | Architecture, SwiftUI, Concurrency      | **88%**  | Healthy  | `v1.2.0` | 15     | ~431 tokens    |
+| **Swift**               | Concurrency, Architecture               | **90%**  | Healthy  | `v1.1.0` | 8      | ~377 tokens    |
+| **Kotlin**              | Language, Concurrency                   | **87%**  | Healthy  | `v1.1.0` | 4      | ~475 tokens    |
+| **Java**                | Language, Concurrency                   | **85%**  | Healthy  | `v1.1.0` | 5      | ~543 tokens    |
+| **Spring Boot**         | Architecture, Security                  | **89%**  | Healthy  | `v1.1.0` | 10     | ~393 tokens    |
+| **Go (Golang)**         | Clean Architecture, Security            | **89%**  | Healthy  | `v1.1.0` | 10     | ~398 tokens    |
+| **PHP**                 | Error Handling, PHP 8+                  | **91%**  | Healthy  | `v1.1.0` | 7      | ~340 tokens    |
+| **Laravel**             | Solid Patterns, Clean Architecture      | **90%**  | Healthy  | `v1.1.0` | 10     | ~383 tokens    |
+| **Database**            | PostgreSQL, MongoDB, Redis              | **80%**  | Healthy  | `v1.1.1` | 3      | ~720 tokens    |
+| **Quality Engineering** | BA, TDD, Zephyr, Automation             | **87%**  | Healthy  | `v1.1.0` | 4      | ~480 tokens    |
 
-| Category            | Key Modules                   | Version  | Skills | Avg. Footprint |
-| :------------------ | :---------------------------- | :------- | :----- | :------------- |
-| **🌐 Common**       | SOLID, TDD, Workflow Writing  | `v1.7.1` | 24     | ~667 tokens    |
-| **🌐 Quality**      | BA, Jira, Zephyr, QA          | `v1.1.0` | 4      | ~480 tokens    |
-| **💙 Flutter**      | Clean Arch, BLoC, Riverpod    | `v1.4.0` | 21     | ~465 tokens    |
-| **🎯 Dart**         | Idiomatic, Advanced Tooling   | `v1.1.0` | 3      | ~459 tokens    |
-| **☕ Java**         | Virtual Threads, Testing      | `v1.1.0` | 5      | ~543 tokens    |
-| **🔷 TypeScript**   | Type Safety, Security         | `v1.1.0` | 4      | ~541 tokens    |
-| **🟨 JavaScript**   | Modern ES2022+ Patterns       | `v1.1.0` | 5      | ~543 tokens    |
-| **⚛️ React**        | Hooks, State, Performance     | `v1.1.0` | 8      | ~427 tokens    |
-| **📱 React Native** | Arch, Perf, Nav, Security     | `v1.1.0` | 8      | ~427 tokens    |
-| **🦁 NestJS**       | Arch, Microservices, CQRS     | `v1.2.0` | 21     | ~547 tokens    |
-| **▲ Next.js**       | App Router, RSC, Pages Router | `v1.2.0` | 18     | ~506 tokens    |
-| **🐹 Golang**       | Concurrency, API Design       | `v1.1.0` | 10     | ~398 tokens    |
-| **🐘 Kotlin**       | Coroutines, Flow, Tooling     | `v1.1.0` | 4      | ~475 tokens    |
-| **🅰️ Angular**      | Standalone, Signals           | `v1.2.0` | 15     | ~307 tokens    |
-| **🍃 Spring Boot**  | Security, Data, Microservices | `v1.1.0` | 10     | ~393 tokens    |
-| **🤖 Android**      | Compose, DI, Perf, Testing    | `v1.1.0` | 22     | ~315 tokens    |
-| **🍎 Swift**        | Concurrency, SwiftUI, Test    | `v1.1.0` | 8      | ~377 tokens    |
-| **🍏 iOS**          | Arch, Nav, Perf, DI           | `v1.2.0` | 15     | ~431 tokens    |
-| **🐘 PHP**          | Modern Patterns, Error        | `v1.1.0` | 7      | ~340 tokens    |
-| **🚀 Laravel**      | Eloquent, Jobs, Security      | `v1.1.0` | 10     | ~383 tokens    |
-| **🗄️ Database**     | SQL Opt, Migrations           | `v1.1.1` | 3      | ~720 tokens    |
+> [!TIP]
+> **View the Complete Registry**: For a full list of all 160+ skills, visit the [Skills Directory](./skills/README.md).
 
 > [!TIP]
 > **Quality Engineering (Opt-in)**: Advanced skills like `business-analysis` or `zephyr-test-generation` are in the **quality-engineering** category and are NOT synced by default to keep context lean. To use them, manually add the category to your `.skillsrc`:
@@ -366,6 +403,26 @@ The CLI will sync this exact structure effectively to your agent configuration:
 | **Roo Code**    | `.roo/skills/`      | Automatic discovery                    |
 | **Windsurf**    | `.windsurf/skills/` | Automatic discovery                    |
 | **OpenCode**    | `.opencode/skills/` | Automatic discovery                    |
+
+---
+
+## ❓ FAQ
+
+### Does this work with Cursor or Gemini?
+
+Yes. Agent Skills Standard is designed to be "Agent Agnostic." It generates the specific configuration files (like `.cursorrules` or `.agent/skills`) that these tools read natively.
+
+### How is this different from a system prompt?
+
+System prompts are static and often too long. Agent Skills Standard uses a **Discovery Bridge**. The AI only "looks up" the specific engineering standards it needs for the file you are currently editing, keeping its memory (context window) free for your actual code.
+
+### Is this free?
+
+Yes. The Agent Skills Standard framework and all community skills are open-source and free to use under the MIT license.
+
+### Can I use this for non-coding tasks (e.g., HR, Finance)?
+
+Absolutely. While many skills here are technical, the framework works for any domain where you want an AI agent to follow consistent, high-density instructions.
 
 ---
 

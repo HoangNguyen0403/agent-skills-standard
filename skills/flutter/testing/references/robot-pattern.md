@@ -69,10 +69,10 @@ class LoginRobot {
 
   // ─── Assertions ────────────────────────────────────────────────
   void verifyLoginScreenVisible() =>
-      expect(find.byKey(LoginWidgetKeys.submitButton), findsOneWidget);
+      expect(find.byKey(LoginWidgetKeys.submitButton), findsOne);
 
   void verifyLoginButtonDisabled() =>
-      expect(find.byKey(LoginWidgetKeys.submitButton), findsOneWidget);
+      expect(find.byKey(LoginWidgetKeys.submitButton), findsOne);
 }
 ```
 
@@ -85,7 +85,7 @@ Provide both positive and negative variants. Prevents inline `expect` in tests.
 
 // ✅ GOOD: Symmetric pair
 void expectContentVisible(String text) {
-  expect(find.text(text), findsOneWidget);
+  expect(find.text(text), findsOne);
 }
 
 void expectContentNotVisible(String text) {
@@ -94,7 +94,7 @@ void expectContentNotVisible(String text) {
 
 // ✅ GOOD: Parameterized for dynamic content
 void expectTextVisible(String text) {
-  expect(find.text(text), findsOneWidget);
+  expect(find.text(text), findsOne);
 }
 
 void expectTextNotVisible(String text) {
@@ -103,7 +103,7 @@ void expectTextNotVisible(String text) {
 
 // ❌ BAD: Only positive assertion — forces inline expect in tests
 void expectTitleVisible() {
-  expect(find.text('My Title'), findsOneWidget);
+  expect(find.text('My Title'), findsOne);
 }
 // Missing: expectTitleNotVisible()
 ```
@@ -201,7 +201,7 @@ class FeatureRobot {
 
   // ─── Shared: Assertions (widget + integration) ──────────────
   void expectVAppBarVisible() =>
-      expect(find.byType(VAppBar), findsOneWidget);
+      expect(find.byType(VAppBar), findsOne);
 
   void expectContentVisible() {
     final hasContent =
@@ -211,13 +211,13 @@ class FeatureRobot {
   }
 
   void expectFabVisible() =>
-      expect(find.byType(FloatingActionButton), findsOneWidget);
+      expect(find.byType(FloatingActionButton), findsOne);
 
   void expectLoadingIndicator() =>
-      expect(find.byType(VCircularProgress), findsOneWidget);
+      expect(find.byType(VCircularProgress), findsOne);
 
   void expectTabBarVisible() =>
-      expect(find.byType(TabBar), findsOneWidget);
+      expect(find.byType(TabBar), findsOne);
 
   void expectTextFieldsVisible() =>
       expect(find.byType(VTextField), findsWidgets);
@@ -281,7 +281,7 @@ Future<bool> navigateToFeature(PatrolIntegrationTester $) async {
 // ❌ BAD: Raw find.byType in test body
 patrolTest('shows tab bar', ($) async {
   await navigateToScreen($);
-  expect(find.byType(TabBar), findsOneWidget);  // ← WRONG
+  expect(find.byType(TabBar), findsOne);  // ← WRONG
 });
 
 // ✅ GOOD: Robot method in test body

@@ -7,6 +7,7 @@ Unit tests verify the smallest parts of your application (functions, methods, cl
 1. **Isolation**: External dependencies (API, Database, SharedPreferences) **must** be mocked.
 2. **Scope**: One test file per source file (e.g., `user_repository.dart` -> `user_repository_test.dart`).
 3. **Arrange-Act-Assert (AAA)**: Follow this structure strictly.
+4. **Explicit Matching**: **FORBIDDEN**: `any()` and `registerFallbackValue()`. Always use explicit values or specific instances in `when` and `verify` calls.
 
 ## Advanced Techniques
 
@@ -49,9 +50,6 @@ void main() {
   setUp(() {
     mockRepo = MockUserRepository();
     useCase = GetUserProfileUseCase(mockRepo);
-
-    // Register fallback values if needed
-    registerFallbackValue(User.empty());
   });
 
   // 2. Test Group
@@ -59,6 +57,7 @@ void main() {
     test('should return User when repository succeeds', () async {
       // ARRANGE
       final user = UserBuilder().build();
+      // ✅ Explicit matching of '1'
       when(() => mockRepo.getUser('1')).thenAnswer((_) async => Right(user));
 
       // ACT
@@ -95,7 +94,7 @@ Never write a test that just "runs" without verifying anything.
 // BAD
 test('fetchUser runs', () async {
   await repo.fetchUser();
-  // ❌ No assertion - test passes even if logic is broken
+  // ❌ No assertion - test passes even logic is broken
 });
 
 // GOOD
@@ -127,4 +126,18 @@ expect(stream, emits(1)); // Might finish test before stream emits
 
 // GOOD
 await expectLater(stream, emits(1));
+```
+
+### 4. Forbid `any()` and `registerFallbackValue()`
+
+Using `any()` often leads to brittle tests and requires `registerFallbackValue()` for non-primitive types. Be explicit.
+
+```dart
+// ❌ BAD
+registerFallbackValue(User.empty());
+when(() => mockRepo.updateUser(any())).thenAnswer((_) async => Right(user));
+
+// ✅ GOOD (Use exact instance or managed test data)
+final userToUpdate = UserBuilder().withId('123').build();
+when(() => mockRepo.updateUser(userToUpdate)).thenAnswer((_) async => Right(userToUpdate));
 ```

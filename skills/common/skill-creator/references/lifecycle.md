@@ -79,7 +79,7 @@ metadata:
 ### Validation Checklist
 
 - [ ] SKILL.md < 100 lines
-- [ ] Frontmatter < 100 words, description ≤ 200 chars and "pushy"
+- [ ] Frontmatter < 100 words, description ≤ 300 chars and "pushy"
 - [ ] No redundant information
 - [ ] Complex examples in references/
 - [ ] Deterministic tasks in scripts/
