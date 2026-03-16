@@ -1,13 +1,6 @@
 ---
 name: common-documentation
 description: "Essential rules for code comments, READMEs, and technical docs. Use when adding comments, writing docstrings, creating READMEs, or updating any documentation. (triggers: comment, docstring, readme, documentation)"
-keywords:
-  - comment
-  - docstring
-  - readme
-  - documentation
-files:
-  - "**/*"
 ---
 
 # Documentation Standards - High-Density Standards

@@ -1,14 +1,6 @@
 ---
 name: common-workflow-writing
 description: "Rules for writing concise, token-efficient workflow and skill files. Prevents over-building that requires costly optimization passes. (triggers: .agent/workflows/*.md, SKILL.md, create workflow, write workflow, new skill, new workflow)"
-keywords:
-  - create workflow
-  - write workflow
-  - new skill
-  - new workflow
-files:
-  - ".agent/workflows/*.md"
-  - "SKILL.md"
 ---
 
 # Workflow Writing Standard

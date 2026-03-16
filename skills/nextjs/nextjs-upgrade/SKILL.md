@@ -1,12 +1,6 @@
 ---
 name: nextjs-upgrade
 description: "Next.js version migrations using official guides and codemods. Use when migrating a Next.js project to a new major version using codemods. (triggers: package.json, next upgrade, migration guide, codemod)"
-keywords:
-  - next upgrade
-  - migration guide
-  - codemod
-files:
-  - "package.json"
 ---
 
 # Next.js Upgrade Protocol

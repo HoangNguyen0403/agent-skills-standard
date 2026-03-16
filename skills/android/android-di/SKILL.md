@@ -1,14 +1,6 @@
 ---
 name: android-di
 description: "Standards for Hilt Setup, Scoping, and Modules. Use when setting up Hilt dependency injection, component scoping, or modules in Android. (triggers: **/*Module.kt, **/*Component.kt, @HiltAndroidApp, @Inject, @Provides, @Binds)"
-keywords:
-  - @HiltAndroidApp
-  - @Inject
-  - @Provides
-  - @Binds
-files:
-  - "**/*Module.kt"
-  - "**/*Component.kt"
 ---
 
 # Android Dependency Injection (Hilt)

@@ -1,15 +1,6 @@
 ---
 name: laravel-database-expert
 description: "Expert patterns for advanced queries, Redis caching, and database scalability. Use when optimizing Laravel queries, implementing Redis caching, or scaling databases. (triggers: config/database.php, database/migrations/*.php, join, aggregate, subquery, selectRaw, Cache)"
-keywords:
-  - join
-  - aggregate
-  - subquery
-  - selectRaw
-  - Cache
-files:
-  - "config/database.php"
-  - "database/migrations/*.php"
 ---
 
 # Laravel Database Expert

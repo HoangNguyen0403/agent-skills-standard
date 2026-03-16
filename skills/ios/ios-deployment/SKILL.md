@@ -1,15 +1,6 @@
 ---
 name: ios-deployment
 description: "Standards for Provisioning, Signing, and Fastlane. Use when provisioning iOS apps, managing code signing, or automating deployments with Fastlane. (triggers: Fastfile, Appfile, Matchfile, ios_bundle_id, provisioning_profile, testflight)"
-keywords:
-  - Fastfile
-  - Appfile
-  - Matchfile
-  - ios_bundle_id
-  - provisioning_profile
-  - testflight
-files:
-  - "**/*"
 ---
 
 # iOS Deployment Standards

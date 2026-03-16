@@ -1,15 +1,6 @@
 ---
 name: javascript-best-practices
 description: "Idiomatic JavaScript patterns and conventions for maintainable code. Use when writing or refactoring JavaScript following idiomatic patterns and conventions. (triggers: **/*.js, **/*.mjs, module, import, export, error, validation)"
-keywords:
-  - module
-  - import
-  - export
-  - error
-  - validation
-files:
-  - "**/*.js"
-  - "**/*.mjs"
 ---
 
 # JavaScript Best Practices

@@ -1,17 +1,6 @@
 ---
 name: flutter-navigation
 description: "Flutter navigation patterns including go_router, deep linking, and named routes. Use when implementing navigation, deep linking, or named routes in Flutter. (triggers: **/*_route.dart, **/*_router.dart, **/main.dart, Navigator, GoRouter, routes, deep link, go_router, AutoRoute)"
-keywords:
-  - Navigator
-  - GoRouter
-  - routes
-  - deep link
-  - go_router
-  - AutoRoute
-files:
-  - "**/*_route.dart"
-  - "**/*_router.dart"
-  - "**/main.dart"
 ---
 
 # Flutter Navigation

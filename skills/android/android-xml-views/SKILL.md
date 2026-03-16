@@ -1,14 +1,6 @@
 ---
 name: android-xml-views
 description: "Standards for ViewBinding, RecyclerView, and XML Layouts. Use when implementing XML layouts, ViewBinding, or RecyclerView adapters in Android. (triggers: layout/*.xml, **/*Binding.java, **/*Binding.kt, ViewBinding, ConstraintLayout, RecyclerView)"
-keywords:
-  - ViewBinding
-  - ConstraintLayout
-  - RecyclerView
-files:
-  - "layout/*.xml"
-  - "**/*Binding.java"
-  - "**/*Binding.kt"
 ---
 
 # Android XML Views Standards

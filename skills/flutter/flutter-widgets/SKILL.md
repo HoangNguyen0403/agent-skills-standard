@@ -1,15 +1,6 @@
 ---
 name: flutter-widgets
 description: "Principles for maintainable UI components. Use when building, refactoring, or reviewing Flutter widget implementations for maintainability. (triggers: **_page.dart, **_screen.dart, **/widgets/**, StatelessWidget, const, Theme, ListView)"
-keywords:
-  - StatelessWidget
-  - const
-  - Theme
-  - ListView
-files:
-  - "**_page.dart"
-  - "**_screen.dart"
-  - "**/widgets/**"
 ---
 
 # UI & Widgets

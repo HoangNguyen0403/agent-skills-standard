@@ -1,23 +1,6 @@
 ---
 name: common-api-design
 description: "REST API conventions — HTTP semantics, status codes, versioning, pagination, and OpenAPI standards applicable to any framework. (triggers: **/*.controller.ts, **/*.router.ts, **/*.routes.ts, **/routes/**, **/controllers/**, **/handlers/**, rest api, endpoint, http method, status code, versioning, pagination, openapi, api design, api contract)"
-keywords:
-  - rest api
-  - endpoint
-  - http method
-  - status code
-  - versioning
-  - pagination
-  - openapi
-  - api design
-  - api contract
-files:
-  - "**/*.controller.ts"
-  - "**/*.router.ts"
-  - "**/*.routes.ts"
-  - "**/routes/**"
-  - "**/controllers/**"
-  - "**/handlers/**"
 ---
 
 # Common API Design Standards

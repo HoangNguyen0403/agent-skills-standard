@@ -1,16 +1,11 @@
 # Skill Template (Token-Optimized)
 
-Copy the structure below to start a new skill. Follow the three-level loading system for maximum token efficiency.
+Copy the structure below to start a new skill. Follow the progressive loading system for maximum token efficiency.
 
-````markdown
+```markdown
 ---
 name: { Skill Name }
-description: { What it does + when to use it (triggers activation) }
-metadata:
-  labels: [{ tag1 }, { tag2 }, token-efficient]
-  triggers:
-    files: ['**.{ext}']
-    keywords: [{ keyword1 }, { keyword2 }]
+description: "{ What it does + when to use it }. (triggers: {keyword1}, {keyword2}, {*.ext})"
 ---
 
 # {Skill Name}
@@ -19,64 +14,30 @@ metadata:
 
 {One-line imperative summary of what to do}.
 
-## Structure
+## 🏗 Architecture / Structure
 
-```text
-{project-structure}/
-├── {primary-file}.{ext}
-└── {supporting-files}
+- **{Rule 1}**: {Imperative constraint}.
+- **{Rule 2}**: {Imperative constraint}.
+
+## ⚙️ Implementation Guidelines
+
+- **{Action 1}**: {Imperative instruction}.
+- **{Action 2}**: {Imperative instruction}.
+
+## 🚫 Anti-Patterns
+
+- **No {Bad Pattern}**: {What to do instead}.
+- **Avoid {Bad Pattern}**: {What to do instead}.
+
+## References
+
+- [{Topic Name}](references/deep-dive-topic.md)
 ```
-````
-
-## Implementation Guidelines
-
-- **{Action}**: {Imperative instruction}.
-- **{Action}**: {Imperative instruction}.
-- **{Action}**: {Imperative instruction}.
-
-## Anti-Patterns
-
-- **No {Bad Pattern}**: {Why it wastes tokens}.
-- **Avoid {Bad Pattern}**: {Why it wastes tokens}.
-
-## Reference & Examples
-
-For detailed patterns: [references/patterns.md](references/patterns.md)
-For complex examples: [references/examples.md](references/examples.md)
-For automation scripts: [scripts/automation.py](scripts/automation.py)
 
 ## Token Budget Checklist
 
-- [ ] SKILL.md under 100 lines
-- [ ] Frontmatter under 100 words
-- [ ] No verbose explanations
-- [ ] Complex code moved to references/
-- [ ] Templates in assets/ (never loaded)
-- [ ] Deterministic tasks in scripts/
-
-## Resource Organization
-
-### **scripts/** (If needed)
-
-- Place executable automation here
-- Never loaded into context
-- Use for repetitive, deterministic tasks
-
-### **references/** (If needed)
-
-- Detailed examples and patterns
-- Loaded only when agent requests
-- Keep SKILL.md focused on core workflow
-
-### **assets/** (If needed)
-
-- Boilerplate files and templates
-- Never loaded into context
-- Copied to output when needed
-
-## Creation Phases
-
-1. **Understanding**: Define concrete use cases
-2. **Planning**: Map content to loading levels
-3. **Implementation**: Write compressed guidelines
-4. **Validation**: Test token efficiency across agents
+- [ ] SKILL.md under 100 lines (Ideal: 60-80).
+- [ ] Triggers flattened into `description` frontmatter.
+- [ ] No YAML metadata arrays (`keywords:`, `files:` removed).
+- [ ] No verbose explanations; use bulleted lists.
+- [ ] Complex code blocks (> 10 lines) moved to `references/` directory.

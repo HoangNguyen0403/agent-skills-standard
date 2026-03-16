@@ -1,12 +1,6 @@
 ---
 name: nestjs-scheduling
 description: "Distributed cron jobs and locking patterns. Use when implementing scheduled tasks or distributed locking patterns in NestJS. (triggers: **/*.service.ts, @Cron, CronExpression, ScheduleModule)"
-keywords:
-  - @Cron
-  - CronExpression
-  - ScheduleModule
-files:
-  - "**/*.service.ts"
 ---
 
 # Task Scheduling & Jobs

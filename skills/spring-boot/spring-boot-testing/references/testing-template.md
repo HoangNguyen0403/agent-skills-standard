@@ -58,7 +58,7 @@ class UserControllerTest {
 }
 ````
 
-### Data Layer (@DataJpaTest)
+## Data Layer (@DataJpaTest)
 
 ```java
 @DataJpaTest

@@ -1,14 +1,6 @@
 ---
 name: quality-engineering-zephyr-test-generation
-description: "Workflow for generating or updating Zephyr Scale Test Cases from requirements. Use when generating or updating Zephyr Scale test cases from user stories or requirements. (triggers: **/*.feature, **/user_story.md, generate test cases, update zephyr, jira validation, impact analysis)"
-keywords:
-  - generate test cases
-  - update zephyr
-  - jira validation
-  - impact analysis
-files:
-  - "**/*.feature"
-  - "**/user_story.md"
+description: 'Workflow for generating or updating Zephyr Scale Test Cases from requirements. Use when generating or updating Zephyr Scale test cases from user stories or requirements. (triggers: **/*.feature, **/user_story.md, generate test cases, update zephyr, jira validation, impact analysis)'
 ---
 
 # Zephyr Test Generation Standards
@@ -18,15 +10,15 @@ files:
 ## Workflow: Jira → Zephyr
 
 1.  **Analyze Requirements**:
-    - Identify AC and verify [Actor/Permission Matrix](../business-analysis/references/analysis_patterns.md).
+    - Identify AC and verify [Actor/Permission Matrix](../quality-engineering-business-analysis/references/analysis_patterns.md).
     - **Identify Platform**: Detect if requirement applies to `Web`, `Mobile`, or `Both`.
     - **Identify Market**: Extract Market context (e.g., `VN`, `MY`, `All`).
-    - Use [Business Analysis](../business-analysis/SKILL.md) for logic investigation.
+    - Use [Business Analysis](../quality-engineering-business-analysis/SKILL.md) for logic investigation.
 2.  **Impact Analysis**:
     - Search Zephyr for existing TCs related to the feature.
     - Perform [Impact Study](references/impact_analysis.md) to decide: **Update** or **New**.
 3.  **Draft/Merge TCs**:
-    - For **New**: Create following [Naming Convention](../quality-assurance/SKILL.md).
+    - For **New**: Create following [Naming Convention](../quality-engineering-quality-assurance/SKILL.md).
     - For **Traceability**: Call `create_test_case_issue_link` immediately after creation.
     - For **Update**: Fetch steps and apply deltas.
 4.  **Review**: Ensure no "OR" logic and steps are atomic.

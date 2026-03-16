@@ -1,14 +1,6 @@
 ---
 name: golang-language
 description: "Core idioms, style guides, and best practices for writing idiomatic Go code. Use when writing Go code following official style guides and idiomatic patterns. (triggers: **/*.go, go.mod, golang, go code, style, idiomatic)"
-keywords:
-  - golang
-  - go code
-  - style
-  - idiomatic
-files:
-  - "**/*.go"
-  - "go.mod"
 ---
 
 # Golang Language Standards

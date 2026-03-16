@@ -1,16 +1,6 @@
 ---
 name: java-concurrency
 description: "Modern concurrency patterns using Virtual Threads and Structured Concurrency. Use when implementing Java Virtual Threads, Structured Concurrency, or concurrent APIs. (triggers: **/*.java, thread, async, future, executor, synchronized, lock, await)"
-keywords:
-  - thread
-  - async
-  - future
-  - executor
-  - synchronized
-  - lock
-  - await
-files:
-  - "**/*.java"
 ---
 
 # Java Concurrency

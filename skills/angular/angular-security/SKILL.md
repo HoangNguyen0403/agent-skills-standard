@@ -1,14 +1,6 @@
 ---
 name: angular-security
 description: "Security best practices for Angular (XSS, CSP, Route Guards). Use when implementing XSS protection, Content Security Policy, or auth guards in Angular. (triggers: **/*.ts, **/*.html, DomSanitizer, innerHTML, bypassSecurityTrust, CSP)"
-keywords:
-  - DomSanitizer
-  - innerHTML
-  - bypassSecurityTrust
-  - CSP
-files:
-  - "**/*.ts"
-  - "**/*.html"
 ---
 
 # Security

@@ -1,16 +1,6 @@
 ---
 name: kotlin-language
 description: 'Idiomatic Kotlin 1.9+ standards (Null Safety, Expressions, Extensions). Use when working with Kotlin null safety, expression syntax, or extension functions. (triggers: **/*.kt, **/*.kts, val, var, extension, data class, sealed, when)'
-keywords:
-  - val
-  - var
-  - extension
-  - data class
-  - sealed
-  - when
-files:
-  - "**/*.kt"
-  - "**/*.kts"
 ---
 
 # Kotlin Language Patterns

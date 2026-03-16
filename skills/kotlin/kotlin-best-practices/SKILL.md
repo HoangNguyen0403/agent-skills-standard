@@ -1,16 +1,6 @@
 ---
 name: kotlin-best-practices
 description: "Core patterns for robust Kotlin code (Scope Functions, Backing Properties). Use when writing Kotlin code using scope functions, extension functions, or data classes. (triggers: **/*.kt, apply, let, run, also, with, backing property, collection)"
-keywords:
-  - apply
-  - let
-  - run
-  - also
-  - with
-  - backing property
-  - collection
-files:
-  - "**/*.kt"
 ---
 
 # Kotlin Best Practices

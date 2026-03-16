@@ -1,13 +1,6 @@
 ---
 name: nestjs-performance
 description: "Fastify adapter, Scope management, and Compression. Use when optimizing NestJS performance with Fastify, request-scoped providers, or compression. (triggers: main.ts, FastifyAdapter, compression, SINGLETON, REQUEST scope)"
-keywords:
-  - FastifyAdapter
-  - compression
-  - SINGLETON
-  - REQUEST scope
-files:
-  - "main.ts"
 ---
 
 # Performance Tuning

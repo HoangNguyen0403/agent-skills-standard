@@ -1,14 +1,6 @@
 ---
 name: ios-state-management
 description: "Standards for Combine, Observation, and Reactive Programming. Use when managing state with Combine, @Observable, or reactive patterns in iOS. (triggers: **/*.swift, Observable, @Published, PassthroughSubject, @Observable, @Namespace)"
-keywords:
-  - Observable
-  - @Published
-  - PassthroughSubject
-  - @Observable
-  - @Namespace
-files:
-  - "**/*.swift"
 ---
 
 # iOS State Management Standards

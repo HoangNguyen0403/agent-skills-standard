@@ -1,14 +1,6 @@
 ---
 name: php-error-handling
 description: "Modern PHP error and exception handling standards. Use when implementing exception hierarchies, error handlers, or custom exceptions in PHP. (triggers: **/*.php, try, catch, finally, Throwable, set_exception_handler)"
-keywords:
-  - try
-  - catch
-  - finally
-  - Throwable
-  - set_exception_handler
-files:
-  - "**/*.php"
 ---
 
 # PHP Error Handling

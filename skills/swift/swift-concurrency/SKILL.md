@@ -1,14 +1,6 @@
 ---
 name: swift-concurrency
 description: "Standards for async/await, Actors, Task Groups, and MainActor. Use when implementing Swift async/await, Actors, or structured concurrency in iOS/macOS. (triggers: **/*.swift, async, await, actor, Task, MainActor)"
-keywords:
-  - async
-  - await
-  - actor
-  - Task
-  - MainActor
-files:
-  - "**/*.swift"
 ---
 
 # Swift Concurrency

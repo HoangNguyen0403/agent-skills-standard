@@ -1,16 +1,6 @@
 ---
 name: react-component-patterns
 description: "Modern React component architecture and composition patterns. Use when designing reusable React components, applying composition patterns, or structuring component hierarchies. (triggers: **/*.jsx, **/*.tsx, component, props, children, composition, hoc, render-props)"
-keywords:
-  - component
-  - props
-  - children
-  - composition
-  - hoc
-  - render-props
-files:
-  - "**/*.jsx"
-  - "**/*.tsx"
 ---
 
 # React Component Patterns

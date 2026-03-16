@@ -1,14 +1,6 @@
 ---
 name: common-git-collaboration
 description: "Universal standards for version control, branching, and team collaboration. Use when writing commits, creating branches, merging, or opening pull requests. (triggers: commit, branch, merge, pull-request, git)"
-keywords:
-  - commit
-  - branch
-  - merge
-  - pull-request
-  - git
-files:
-  - "**/*"
 ---
 
 # Git & Collaboration - High-Density Standards

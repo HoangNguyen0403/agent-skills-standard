@@ -1,13 +1,6 @@
 ---
 name: nestjs-api-standards
 description: "Response wrapping, pagination, and error standardization. Use when standardizing API response envelopes, pagination, or error formats in NestJS. (triggers: **/*.controller.ts, **/*.dto.ts, ApiResponse, Pagination, TransformInterceptor)"
-keywords:
-  - ApiResponse
-  - Pagination
-  - TransformInterceptor
-files:
-  - "**/*.controller.ts"
-  - "**/*.dto.ts"
 ---
 
 # NestJS API Standards & Common Patterns

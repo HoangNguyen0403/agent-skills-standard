@@ -1,13 +1,6 @@
 ---
 name: spring-boot-testing
-description: "Standards for unit, integration, and slice testing in Spring Boot 3. Use when writing unit tests, integration tests, or slice tests for Spring Boot 3 applications. (triggers: **/*Test.java, webmvctest, datajpatest, testcontainers, assertj)"
-keywords:
-  - webmvctest
-  - datajpatest
-  - testcontainers
-  - assertj
-files:
-  - "**/*Test.java"
+description: 'Standards for unit, integration, and slice testing in Spring Boot 3. Use when writing unit tests, integration tests, or slice tests for Spring Boot 3 applications. (triggers: **/*Test.java, webmvctest, datajpatest, testcontainers, assertj)'
 ---
 
 # Spring Boot Testing Standards
@@ -26,7 +19,6 @@ files:
 ### Best Practices
 
 - **Real Infrastructure**: Use **Testcontainers** for DB/Queues. See [Integration Template](references/testing-template.md).
-- **Slice Testing**: See [Slice Test Templates](references/testing-template.md#slice-tests) for `@WebMvcTest` / `@DataJpaTest`.
 
 ### Best Practices
 

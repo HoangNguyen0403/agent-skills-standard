@@ -1,16 +1,6 @@
 ---
 name: nestjs-security
 description: "Authentication, RBAC, and Hardening standards. Use when implementing JWT auth, RBAC guards, or security hardening in NestJS. (triggers: **/*.guard.ts, **/*.strategy.ts, **/auth/**, Passport, JWT, AuthGuard, CSRF, Helmet)"
-keywords:
-  - Passport
-  - JWT
-  - AuthGuard
-  - CSRF
-  - Helmet
-files:
-  - "**/*.guard.ts"
-  - "**/*.strategy.ts"
-  - "**/auth/**"
 ---
 
 # NestJS Security Standards

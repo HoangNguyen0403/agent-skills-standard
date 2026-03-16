@@ -1,13 +1,6 @@
 ---
 name: ios-performance
 description: "Standards for Instruments, Memory Management, and Optimization. Use when profiling iOS apps with Instruments or optimizing memory and rendering. (triggers: **/*.swift, Instruments, Allocations, Leaks, dequeueReusableCell)"
-keywords:
-  - Instruments
-  - Allocations
-  - Leaks
-  - dequeueReusableCell
-files:
-  - "**/*.swift"
 ---
 
 # iOS Performance Standards

@@ -1,17 +1,6 @@
 ---
 name: dart-tooling
 description: "Standards for analysis, linting, formatting, and automation. Use when configuring analysis_options.yaml, dart fix, dart format, or build_runner in Dart projects. (triggers: analysis_options.yaml, pubspec.yaml, build.yaml, analysis_options, lints, format, build_runner, cider, husky)"
-keywords:
-  - analysis_options
-  - lints
-  - format
-  - build_runner
-  - cider
-  - husky
-files:
-  - "analysis_options.yaml"
-  - "pubspec.yaml"
-  - "build.yaml"
 ---
 
 # Tooling & CI

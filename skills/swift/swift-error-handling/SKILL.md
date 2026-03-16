@@ -1,14 +1,6 @@
 ---
 name: swift-error-handling
 description: "Standards for Throwing Functions, Result Type, and Never. Use when implementing Swift error throwing, Result<T,E>, or designing error hierarchies. (triggers: **/*.swift, throws, try, catch, Result, Error)"
-keywords:
-  - throws
-  - try
-  - catch
-  - Result
-  - Error
-files:
-  - "**/*.swift"
 ---
 
 # Swift Error Handling

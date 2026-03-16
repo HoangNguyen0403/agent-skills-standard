@@ -1,15 +1,6 @@
 ---
 name: database-postgresql
 description: "Data access patterns, scaling, migrations, and ORM selection for PostgreSQL. Use when designing PostgreSQL schemas, writing migrations, or choosing an ORM. (triggers: **/*.entity.ts, prisma/schema.prisma, **/migrations/*.sql, TypeOrmModule, PrismaService, PostgresModule, Repository)"
-keywords:
-  - TypeOrmModule
-  - PrismaService
-  - PostgresModule
-  - Repository
-files:
-  - "**/*.entity.ts"
-  - "prisma/schema.prisma"
-  - "**/migrations/*.sql"
 ---
 
 # PostgreSQL Database Standards

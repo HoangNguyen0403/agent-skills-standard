@@ -1,14 +1,6 @@
 ---
 name: nestjs-observability
 description: "Structured logging (Pino) and Prometheus metrics. Use when adding structured logging with Pino or Prometheus metrics to NestJS services. (triggers: main.ts, **/*.module.ts, nestjs-pino, Prometheus, Logger, reqId)"
-keywords:
-  - nestjs-pino
-  - Prometheus
-  - Logger
-  - reqId
-files:
-  - "main.ts"
-  - "**/*.module.ts"
 ---
 
 # Observability Standards

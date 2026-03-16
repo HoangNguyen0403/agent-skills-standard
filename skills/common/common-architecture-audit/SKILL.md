@@ -1,18 +1,6 @@
 ---
 name: common-architecture-audit
 description: "Protocol for auditing structural debt, logic leakage, and fragmentation across Web, Mobile, and Backend. (triggers: package.json, pubspec.yaml, go.mod, pom.xml, nest-cli.json, architecture audit, code review, tech debt, logic leakage, refactor)"
-keywords:
-  - architecture audit
-  - code review
-  - tech debt
-  - logic leakage
-  - refactor
-files:
-  - "package.json"
-  - "pubspec.yaml"
-  - "go.mod"
-  - "pom.xml"
-  - "nest-cli.json"
 ---
 
 # Architecture Audit

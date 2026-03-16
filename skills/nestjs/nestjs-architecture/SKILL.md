@@ -1,14 +1,6 @@
 ---
 name: nestjs-architecture
 description: "Standards for scalable, modular NestJS backend architecture. Use when designing module boundaries, feature modules, or scalable NestJS architecture. (triggers: **/*.module.ts, main.ts, NestFactory, Module, Controller, Injectable)"
-keywords:
-  - NestFactory
-  - Module
-  - Controller
-  - Injectable
-files:
-  - "**/*.module.ts"
-  - "main.ts"
 ---
 
 # NestJS Architecture Expert

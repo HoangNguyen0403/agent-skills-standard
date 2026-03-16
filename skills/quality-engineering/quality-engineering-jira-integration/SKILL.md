@@ -1,14 +1,6 @@
 ---
 name: quality-engineering-jira-integration
-description: "Standards for retrieving Jira issue details and linking Zephyr test cases back to Jira. Use when retrieving Jira issues or linking Zephyr test cases to Jira tickets. (triggers: **/jira_*.xml, **/test_case.json, jira issue, link zephyr, jira details, jira mcp)"
-keywords:
-  - jira issue
-  - link zephyr
-  - jira details
-  - jira mcp
-files:
-  - "**/jira_*.xml"
-  - "**/test_case.json"
+description: 'Standards for retrieving Jira issue details and linking Zephyr test cases back to Jira. Use when retrieving Jira issues or linking Zephyr test cases to Jira tickets. (triggers: **/jira_*.xml, **/test_case.json, jira issue, link zephyr, jira details, jira mcp)'
 ---
 
 # Jira Integration Standards
@@ -30,8 +22,8 @@ files:
 
 ## 3. Jira-Zephyr Workflow
 
-1. **Fetch**: Get Jira User Story details via [Jira MCP](../../common/security-standards/SKILL.md).
-2. **Generate**: Create Zephyr Test Case using [Zephyr Generation Skill](../zephyr-test-generation/SKILL.md).
+1. **Fetch**: Get Jira User Story details via [Jira MCP](../../common/common-security-standards/SKILL.md).
+2. **Generate**: Create Zephyr Test Case using [Zephyr Generation Skill](../quality-engineering-zephyr-test-generation/SKILL.md).
 3. **Link**: Use Zephyr MCP tool `create_test_case_issue_link` to bridge the two.
 4. **Notify**: Add a comment to Jira: `Linked Zephyr Test Case: {test_case_key}`.
 
@@ -46,7 +38,6 @@ files:
 - **No Ghosting**: Create tests then link to Jira (Traceability).
 - **No Spam**: Post single comment per link.
 - **No Missing Labels**: Update Jira labels after linking.
-
 
 ## 🚫 Anti-Patterns
 

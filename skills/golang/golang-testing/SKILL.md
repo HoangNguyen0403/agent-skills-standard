@@ -1,14 +1,6 @@
 ---
 name: golang-testing
 description: "Standards for unit testing, table-driven tests, and mocking in Golang. Use when writing Go unit tests, table-driven tests, or using mock interfaces. (triggers: **/*_test.go, testing, unit tests, go test, mocking, testify)"
-keywords:
-  - testing
-  - unit tests
-  - go test
-  - mocking
-  - testify
-files:
-  - "**/*_test.go"
 ---
 
 # Golang Testing Standards

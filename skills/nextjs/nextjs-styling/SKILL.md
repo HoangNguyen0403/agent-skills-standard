@@ -1,16 +1,6 @@
 ---
 name: nextjs-styling
 description: "Zero-runtime CSS strategies (Tailwind) and RSC compatibility. Use when implementing Tailwind CSS or zero-runtime styling compatible with React Server Components. (triggers: **/*.css, tailwind.config.ts, **/components/ui/*.tsx, tailwind, css modules, styled-components, clsx, cn)"
-keywords:
-  - tailwind
-  - css modules
-  - styled-components
-  - clsx
-  - cn
-files:
-  - "**/*.css"
-  - "tailwind.config.ts"
-  - "**/components/ui/*.tsx"
 ---
 
 # Styling & UI Performance

@@ -1,16 +1,6 @@
 ---
 name: nextjs-pages-router
 description: "Legacy routing, getServerSideProps conventions, and strict architectural constraints. Use when working with the legacy Next.js Pages Router or getServerSideProps. (triggers: pages/**/*.tsx, pages/**/*.ts, Pages Router, getServerSideProps, getStaticProps, _app, useRouter, FSD)"
-keywords:
-  - Pages Router
-  - getServerSideProps
-  - getStaticProps
-  - _app
-  - useRouter
-  - FSD
-files:
-  - "pages/**/*.tsx"
-  - "pages/**/*.ts"
 ---
 
 # Next.js Pages Router (Legacy)

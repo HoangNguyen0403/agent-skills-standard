@@ -1,14 +1,6 @@
 ---
 name: swift-language
 description: "Standards for Optionals, Protocols, Extensions, and Type Safety. Use when working with Swift Optionals, Protocols, Extensions, or type-safe APIs. (triggers: **/*.swift, protocol, extension, optional, guard, enum)"
-keywords:
-  - protocol
-  - extension
-  - optional
-  - guard
-  - enum
-files:
-  - "**/*.swift"
 ---
 
 # Swift Language Standards

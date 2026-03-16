@@ -1,13 +1,6 @@
 ---
 name: angular-http-client
 description: "Best practices for HttpClient, Interceptors, and API interactions. Use when integrating HttpClient, writing interceptors, or handling API calls in Angular. (triggers: **/*.service.ts, **/*.interceptor.ts, HttpClient, HttpInterceptorFn, withInterceptors)"
-keywords:
-  - HttpClient
-  - HttpInterceptorFn
-  - withInterceptors
-files:
-  - "**/*.service.ts"
-  - "**/*.interceptor.ts"
 ---
 
 # HTTP Client

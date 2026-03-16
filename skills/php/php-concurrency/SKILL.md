@@ -1,14 +1,6 @@
 ---
 name: php-concurrency
 description: "Handling concurrency and non-blocking I/O in modern PHP. Use when implementing concurrent requests, async processing, or non-blocking I/O in PHP. (triggers: **/*.php, Fiber, suspend, resume, non-blocking, async)"
-keywords:
-  - Fiber
-  - suspend
-  - resume
-  - non-blocking
-  - async
-files:
-  - "**/*.php"
 ---
 
 # PHP Concurrency

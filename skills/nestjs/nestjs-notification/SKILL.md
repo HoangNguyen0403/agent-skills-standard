@@ -1,15 +1,6 @@
 ---
 name: nestjs-notification
 description: "Standards for Notification Types, Service Architecture, and FCM Integration. Use when building notification services or integrating FCM in NestJS. (triggers: notification.service.ts, notification.entity.ts, notification, push, fcm, alert, reminder)"
-keywords:
-  - notification
-  - push
-  - fcm
-  - alert
-  - reminder
-files:
-  - "notification.service.ts"
-  - "notification.entity.ts"
 ---
 
 # NestJS Notification Architecture

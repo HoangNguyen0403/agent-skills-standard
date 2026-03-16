@@ -1,16 +1,6 @@
 ---
 name: nestjs-security-isolation
 description: "Standards for multi-tenant isolation and PostgreSQL Row Level Security. Use when enforcing tenant isolation or PostgreSQL RLS in NestJS multi-tenant apps. (triggers: src/modules/**, SECURITY.md, src/migrations/**, RLS, Row Level Security, childId, isolation, access policy)"
-keywords:
-  - RLS
-  - Row Level Security
-  - childId
-  - isolation
-  - access policy
-files:
-  - "src/modules/**"
-  - "SECURITY.md"
-  - "src/migrations/**"
 ---
 
 ## **Priority: P0 (CRITICAL)**

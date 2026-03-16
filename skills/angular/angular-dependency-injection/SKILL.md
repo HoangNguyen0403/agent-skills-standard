@@ -1,13 +1,6 @@
 ---
 name: angular-dependency-injection
 description: "Best practices for DI, inject() usage, and providers. Use when configuring Angular dependency injection, using inject(), or defining providers. (triggers: **/*.service.ts, **/*.ts, angular inject, providedIn, injection token)"
-keywords:
-  - angular inject
-  - providedIn
-  - injection token
-files:
-  - "**/*.service.ts"
-  - "**/*.ts"
 ---
 
 # Dependency Injection

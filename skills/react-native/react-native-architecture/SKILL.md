@@ -1,20 +1,6 @@
 ---
 name: react-native-architecture
 description: "Feature-first project structure and separation of concerns for React Native. Use when structuring a React Native project or applying clean architecture patterns. (triggers: src/**/*.tsx, src/**/*.ts, app.json, feature, module, directory structure, separation of concerns, Expo, React Navigation, StyleSheet.create, react-native, mobile architecture)"
-keywords:
-  - feature
-  - module
-  - directory structure
-  - separation of concerns
-  - Expo
-  - React Navigation
-  - react-native
-  - mobile architecture
-files:
-  - "src/**/*.tsx"
-  - "src/**/*.ts"
-  - "app.json"
-  - "StyleSheet.create"
 ---
 
 # React Native Architecture

@@ -1,15 +1,6 @@
 ---
 name: react-native-styling
 description: "StyleSheet API, Flexbox, theming, and responsive design. Use when implementing React Native styles, theming, Flexbox layouts, or responsive design. (triggers: **/*.tsx, **/*.ts, StyleSheet, style, theme, responsive, flexbox)"
-keywords:
-  - StyleSheet
-  - style
-  - theme
-  - responsive
-  - flexbox
-files:
-  - "**/*.tsx"
-  - "**/*.ts"
 ---
 
 # React Native Styling

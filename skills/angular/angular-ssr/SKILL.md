@@ -1,14 +1,6 @@
 ---
 name: angular-ssr
 description: "Hydration, TransferState, and Prerendering standards. Use when implementing Angular Universal SSR, hydration, or static prerendering. (triggers: **/*.server.ts, server.ts, hydration, transferState, afterNextRender, isPlatformServer)"
-keywords:
-  - hydration
-  - transferState
-  - afterNextRender
-  - isPlatformServer
-files:
-  - "**/*.server.ts"
-  - "server.ts"
 ---
 
 # SSR (Server-Side Rendering)

@@ -1,15 +1,6 @@
 ---
 name: common-feedback-reporter
 description: "CRITICAL - Before ANY file write, audit loaded skills for violations. Auto-report via feedback command. (triggers: **/*, write, edit, create, generate, skill, violation)"
-keywords:
-  - write
-  - edit
-  - create
-  - generate
-  - skill
-  - violation
-files:
-  - "**/*"
 ---
 
 # Feedback Reporter

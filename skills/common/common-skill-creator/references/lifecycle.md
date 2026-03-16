@@ -65,11 +65,6 @@ Level 3 (Lazy Loaded - Unlimited):
 ```yaml
 name: BLoC State Management
 description: Implement BLoC pattern for Flutter state management. Use when creating reactive UIs with complex state logic, user interactions, or API data handling.
-metadata:
-  labels: [flutter, state-management, reactive]
-  triggers:
-    files: ['**/*_bloc.dart', '**/*_event.dart', '**/*_state.dart']
-    keywords: [bloc, state management, reactive ui]
 ```
 
 ## Phase 4: Validation (Token Testing + Skill Testing)
