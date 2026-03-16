@@ -1146,4 +1146,4 @@ Includes 18 specialized High-Density skills for Enterprise Backend Development.
 **Registry**: <https://github.com/HoangNguyen0403/agent-skills-standard>
 
 </details>
-\n</details>\n
+</details>

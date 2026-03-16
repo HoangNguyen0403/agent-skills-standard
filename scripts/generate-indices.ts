@@ -66,16 +66,10 @@ async function generate() {
       const metadata = await parseSkill(skillPath);
       if (metadata) {
         const id = `${category}/${skill}`;
-        
+
         const prefix = metadata.priority.startsWith('P0') ? '🚨 ' : '';
 
-        // Format: - **[category/skill]**: 🚨 Description (triggers: file.ts, keyword)
-        // Note: We strip ** and _ from the description to prevent markdownlint MD037/MD049 errors 
-        // caused by file globs like (triggers: **/*.ts, _bloc.dart)
-        const cleanDescription = (metadata.description || '')
-          .replace(/\*\*/g, '')
-          .replace(/_/g, '');
-        const content = `${prefix}${cleanDescription}`.trim();
+        const content = `${prefix}${metadata.description || ''}`.trim();
         entries.push(`- **[${id}]**: ${content}`);
       }
     }

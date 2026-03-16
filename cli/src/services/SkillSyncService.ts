@@ -90,17 +90,22 @@ export class SkillSyncService {
       await fs.ensureDir(basePath);
 
       // Clean up orphaned skills inside categories we are syncing
-      for (const category of Object.keys(fetchedSkillsByCategory)) {
-        const categoryPath = path.join(basePath, category);
-        if (await fs.pathExists(categoryPath)) {
-          const existingDirs = await fs.readdir(categoryPath);
-          for (const dir of existingDirs) {
-            // If the folder is not in the newly fetched list, it might be orphaned
-            if (!fetchedSkillsByCategory[category].has(dir)) {
-              const fullPath = path.join(categoryPath, dir);
-              // Do not delete if it's protected by custom_overrides
-              if (!this.isOverridden(fullPath, overrides)) {
-                await fs.remove(fullPath);
+      // Default to prune: true if not specified
+      const shouldPrune = config.prune !== false;
+
+      if (shouldPrune) {
+        for (const category of Object.keys(fetchedSkillsByCategory)) {
+          const categoryPath = path.join(basePath, category);
+          if (await fs.pathExists(categoryPath)) {
+            const existingDirs = await fs.readdir(categoryPath);
+            for (const dir of existingDirs) {
+              // If the folder is not in the newly fetched list, it might be orphaned
+              if (!fetchedSkillsByCategory[category].has(dir)) {
+                const fullPath = path.join(categoryPath, dir);
+                // Do not delete if it's protected by custom_overrides
+                if (!this.isOverridden(fullPath, overrides)) {
+                  await fs.remove(fullPath);
+                }
               }
             }
           }

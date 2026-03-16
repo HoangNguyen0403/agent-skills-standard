@@ -33,4 +33,6 @@ export interface SkillConfig {
   workflows?: boolean | string[];
   /** List of file paths to PROTECT from being overwritten by sync */
   custom_overrides?: string[];
+  /** Whether to delete orphaned skill folders (true by default) */
+  prune?: boolean;
 }

@@ -268,12 +268,7 @@ export class IndexGeneratorService {
 
     const triggerText = triggers ? ` (triggers: ${triggers})` : '';
 
-    // Format: - **[category/skill]**: 🚨 Description (triggers: file.ts, keyword, +composite, !exclude)
-    // Note: We strip ** and _ from the description to prevent markdownlint MD037/MD049 errors
-    const cleanDescription = (metadata.description || '')
-      .replace(/\*\*/g, '')
-      .replace(/_/g, '');
-    const content = `${prefix}${cleanDescription}`.trim();
+    const content = `${prefix}${metadata.description || ''}`.trim();
     return `- **[${id}]**: ${content}${triggerText}`;
   }
 }
