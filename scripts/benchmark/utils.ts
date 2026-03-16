@@ -22,57 +22,52 @@ export function scoreQuality(
     ? fs.readFileSync(skillMdPath, 'utf-8')
     : '';
 
-  // 1. Structured guidelines (≥3 bullet-point lines)
+  const lines = content.split('\n').length;
+
+  // 1. Actionable Constraints
   const bulletLines = (content.match(/^\s*[-*]\s+.+/gm) || []).length;
   if (bulletLines >= 3) {
     score += 2;
-    detail.push('✅ Guidelines: ≥3 bullet points');
+    detail.push('✅ Actionable constraints (≥ 3 bullets)');
   } else {
-    detail.push(`❌ Guidelines: only ${bulletLines} bullet point(s) (need ≥3)`);
+    detail.push('❌ Missing actionable constraints');
   }
 
-  // 2. Anti-patterns section
-  if (/##\s+anti-pattern/i.test(content)) {
+  // 2. Explicit Anti-Patterns
+  if (/##\s+.*Anti-Pattern/i.test(content) || /🚫.*Anti-Pattern/i.test(content)) {
     score += 2;
-    detail.push('✅ Anti-Patterns section present');
+    detail.push('✅ Explicit Anti-Patterns section found');
   } else {
-    detail.push('❌ Anti-Patterns section missing');
+    detail.push('❌ Missing Anti-patterns section');
   }
 
-  // 3. References/examples folder with ≥1 file
-  const refsDir = path.join(skillDir, 'references');
-  const hasRefs =
-    fs.existsSync(refsDir) &&
-    fs.readdirSync(refsDir).filter((f) => !f.startsWith('.')).length > 0;
-  if (hasRefs) {
+  // 3. Context Architecture (Progressive Disclosure OR Extreme Density)
+  const hasReferenceLinks = /\]\(references\/[^)]+\.md\)/i.test(content);
+  if (hasReferenceLinks) {
     score += 2;
-    detail.push('✅ References folder with content');
+    detail.push('✅ Progressive Disclosure (links to references used)');
+  } else if (lines <= 60) {
+    score += 2;
+    detail.push('✅ Efficiency Mastery (ultra-dense ≤ 60 lines)');
   } else {
-    detail.push('❌ No references/ folder (or empty)');
+    detail.push('❌ Bloat Risk (>60 lines with no references linked)');
   }
 
-  // 4. SKILL.md ≤100 lines
-  const lines = content.split('\n').length;
+  // 4. Token Optimality
   if (lines <= 100) {
     score += 2;
-    detail.push(`✅ Token-optimal size: ${lines} lines (≤100)`);
+    detail.push(`✅ Token optimal (${lines} lines)`);
   } else {
-    detail.push(
-      `❌ Oversized: ${lines} lines (>100, move content to references/)`,
-    );
+    detail.push(`❌ Too long (${lines} lines)`);
   }
 
-  // 5. Triggers defined in frontmatter
-  const hasKeywords = /keywords\s*:/i.test(content);
-  const hasFiles = /files\s*:/i.test(content);
-  if (hasKeywords && hasFiles) {
+  // 5. Inline Triggers (Optimized Metadata)
+  const hasOptimizedTriggers = /description:.*\(triggers:.*?\)/i.test(content);
+  if (hasOptimizedTriggers) {
     score += 2;
-    detail.push('✅ Frontmatter triggers: keywords + files defined');
+    detail.push('✅ Inline Triggers ((triggers: ...) found in description)');
   } else {
-    const missing = [!hasKeywords && 'keywords', !hasFiles && 'files']
-      .filter(Boolean)
-      .join(', ');
-    detail.push(`❌ Missing triggers: ${missing}`);
+    detail.push('❌ Missing Inline Triggers in description');
   }
 
   return { score, detail };

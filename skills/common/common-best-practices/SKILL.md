@@ -1,75 +1,28 @@
 ---
 name: common-best-practices
-description: "Universal clean-code principles for any environment. Use when writing functions, designing classes, or applying SOLID/DRY/KISS patterns to any codebase. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, solid, kiss, dry, yagni, naming, conventions, refactor, clean code)"
+description: "Universal clean-code principles for any environment. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, solid, kiss, dry, yagni, naming, conventions, refactor, clean code)"
 ---
 
 # Global Best Practices
 
 ## **Priority: P0 (FOUNDATIONAL)**
 
-## 🏗 SOLID & Architectural Principles
+## 🏗 Core Principles
 
-- **SRP (Single Responsibility)**: One class/function = One reason to change. Separate business logic from delivery (UI/API).
-- **OCP (Open-Closed)**: Extended via composition/interfaces; closed to source modification.
-- **LSP (Liskov)**: Subtypes must be transparently replaceable for base types. Use `@override` carefully.
-- **ISP (Interface Segregation)**: Granular interfaces > "Fat" general-purpose ones.
-- **DIP (Dependency Inversion)**: Depend on abstractions (interfaces), not concretions. Use DI containers.
-- **Modular Design**: Break complex systems into small, independent, and swappable components to reduce cognitive load.
+- **SOLID**: Follow SRP (One reason to change), OCP (Open to extension), LSP, ISP, DIP.
+- **KISS/DRY/YAGNI**: Favor readability. Abstract repeated logic. No "just in case" code.
+- **Naming**: Intention-revealing (`isUserAuthenticated` > `checkUser`). Follow language casing.
 
-## 🧹 Clean Code Standards (KISS/DRY/YAGNI)
+## 🧹 Code Hygiene
 
-- **KISS**: Favor readable, simple logic over "clever" one-liners.
-- **DRY**: Abstract repeated logic into reusable utilities. No magic numbers/strings.
-- **YAGNI**: Implement only current requirements. Avoid "just in case" abstractions.
-- **Meaningful Names**: Use intention-revealing names (`isUserAuthenticated` > `checkUser`).
-- **Naming Conventions**: Follow language-specific standards:
-  - `camelCase`: Variables/Functions (JS/Java/Dart).
-  - `snake_case`: Variables/Functions (Python/Ruby).
-  - `PascalCase`: Classes/Types (universal).
-  - `kebab-case`: Files/CSS/URLs.
-- **Function Size**: Keep functions small (target < 30 lines) and single-responsibility.
-- **File Size**: Maintain manageable file lengths to reduce cognitive load and agent noise:
-  - **Logic/Services**: Target < 600 LOC. (Critical Breach: 800)
-  - **Utilities/Helpers**: Target < 400 LOC. (Critical Breach: 600)
-  - **Unit Tests**: Target < 1200 LOC.
-  - **Integration Tests**: Target < 2000 LOC.
-- **Guard Clauses**: Prefer early returns to avoid deep nesting (Pyramid of Doom).
-- **Comments**: Explain **why**, not **what**. Refactor unclear code before commenting.
-
-## 🛡 Security & Performance Foundations
-
-- **Sanitization**: Always validate external input (API, User, Env) to prevent Injection/XSS.
-- **Early Return**: Guard clauses first to minimize nesting and improve readability.
-- **Lazy Loading**: Defer heavy initialization or data fetching until actually needed.
-- **Resource Cleanup**: Always close streams, file handles, and database connections to prevent leaks.
-
-## 🧱 Error Handling
-
-- **Predictable Failures**: Use custom exception types over generic Catch-Alls.
-- **Graceful Degradation**: Fallback values/UI for non-critical failures.
-- **Log Context**: Log actionable metadata (ID, State) along with errors. Avoid silent failures.
-
-## ♻️ Safe Refactoring Workflow
-
-- **Tests First**: Run tests before refactors; keep changes atomic.
-- **Find Usages**: Locate all call sites before renaming or moving code.
-- **Layer Moves**: Business logic belongs in Domain/Application, not UI.
-- **Commit Often**: Prefer small, reviewable refactors over large rewrites.
+- **Size Limits**: Functions < 30 lines. Services < 600 lines. Utils < 400 lines.
+- **Early Returns**: Use guard clauses to prevent deep nesting.
+- **Comments**: Explain **why**, not **what**. Refactor instead of commenting bad code.
+- **Sanitization**: Validate all external inputs.
 
 ## 🚫 Anti-Patterns
 
-- **No Hardcoded Constants**: Use named constants or config.
-- **No Deep Nesting**: Use guard clauses and early returns.
-- **No Global State**: Use dependency injection or state management.
-- **No Empty Catch**: Always handle, log, or rethrow errors.
-
-## 📚 References
-
-- [Code Structure & Modular Design Examples](references/CODE_STRUCTURE.md)
-- [Skill Token Economy & Effectiveness](references/EFFECTIVENESS.md)
-
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **Hardcoded Constants**: Use named config/constants.
+- **Deep Nesting**: Avoid "Pyramid of Doom".
+- **Global State**: Prefer dependency injection.
+- **Empty Catches**: Always handle, log, or rethrow.

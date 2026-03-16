@@ -5,6 +5,31 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.2] - 2026-03-16
+
+**Category**: Metric Authenticity & Progressive Disclosure
+
+### Added
+
+- **Monorepo Detection**: The CLI `DetectionService` now scans one directory deep from the workspace root, properly identifying frameworks located in subdirectories (e.g. `/frontend`, `/backend`).
+- **No-Auto-Commit Rule**: Added a strict `.agent/rules/no-auto-commit.md` file preventing agents from automatically committing code without explicit user permission.
+
+### Changed (Benchmark & Rubric)
+
+- **Hardened Benchmark Rubric**: The quality scoring metric in `scripts/benchmark/utils.ts` has been rewritten to prevent gaming. It now explicitly validates:
+  - **Progressive Disclosure**: Only awards points for `references/` if the `SKILL.md` actively links to it.
+  - **Context Architecture Mastery**: Ultra-dense files (≤ 60 lines) that do not require external references can now achieve a perfect 10/10 score without needing dummy files.
+  - **Inline Triggers**: Validates the highly-optimized `(triggers: ...)` syntax in the description string instead of relying on legacy YAML arrays.
+- **Skill Optimization**: Applied genuine "Progressive Disclosure" refactoring to the heaviest `SKILL.md` files (`database-postgresql`, `nextjs-pages-router`, `common-error-handling`, etc.) dropping maximum file sizes from ~900+ tokens to ~400 tokens by extracting code blocks into `references/`.
+- **Skill Template**: Overhauled `skills/common/common-skill-creator/references/TEMPLATE.md` to enforce the new token-economy constraints (no YAML bloat, mandatory anti-patterns).
+
+### Fixed
+
+- **Custom Overrides Mapping**: Fixed a bug in `SkillSyncService` and `WorkflowSyncService` where `custom_overrides: ['skill-name']` in `.skillsrc` was failing to properly protect nested file paths.
+- **Removed YAML Bloat**: Stripped all legacy `keywords:` and `files:` arrays across all 229 `SKILL.md` frontmatters.
+
+---
+
 ## [1.10.0] - 2026-03-16
 
 **Category**: Gemini CLI Standard Compliance & Refactoring
