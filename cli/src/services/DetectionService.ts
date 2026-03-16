@@ -18,7 +18,7 @@ export class DetectionService {
   async detectFrameworks(): Promise<Record<string, boolean>> {
     const cwd = process.cwd();
     // Gather root and immediate subdirectories to support monorepos
-    let dirsToScan = [cwd];
+    const dirsToScan = [cwd];
     try {
       const entries = await fs.readdir(cwd, { withFileTypes: true });
       for (const entry of entries) {
@@ -30,7 +30,7 @@ export class DetectionService {
           dirsToScan.push(path.join(cwd, entry.name));
         }
       }
-    } catch (e) {
+    } catch {
       // Ignore
     }
 
