@@ -35,7 +35,7 @@ Cross-framework standards and best practices applicable to all development.
 - [**Debugging**](common/common-debugging/SKILL.md) (P1) - Systematic troubleshooting using the Scientific Method.
 - [**Error Handling**](common/common-error-handling/SKILL.md) (P1) - Cross-cutting standards for error design, response shapes, error codes, and boundary placement.
 - [**Mobile Animation**](common/common-mobile-animation/SKILL.md) (P1) - Motion design principles for mobile apps.
-- [**Observability**](common/common-observability/SKILL.md) (P1) - Standards for structured logging, distributed tracing, and metrics across all backend services.
+- [**Observability**](common/common-observability/SKILL.md) (P1) - Standards for structured logging, distributed tracing, and metrics.
 - [**Session Retrospective**](common/common-session-retrospective/SKILL.md) (P1) - Analyze conversation corrections to detect skill gaps and auto-improve the skills library.
 - [**Tdd**](common/common-tdd/SKILL.md) (P1) - Enforces Test-Driven Development (Red-Green-Refactor).
 - [**Documentation**](common/common-documentation/SKILL.md) (P2) - Essential rules for code comments, READMEs, and technical docs.
