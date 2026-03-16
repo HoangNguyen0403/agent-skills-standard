@@ -1,3 +1,10 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Add local node/npm/pnpm to PATH in case GUI git clients (like GitHub Desktop, Tower, etc.)
+# don't inherit the shell's environment variables.
+export PATH="$HOME/.local/share/pnpm:$HOME/.nvm/versions/node/$(node -v 2>/dev/null)/bin:/usr/local/bin:/opt/homebrew/bin:$PATH"
+
 # Run token calculation and index generation to ensure registry metadata is up to date
 echo "📊 Syncing metrics and indices..."
 pnpm calculate-tokens

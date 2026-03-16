@@ -10,15 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Category**: Gemini CLI Standard Compliance & Refactoring
 
 ### Changed (All Skills)
+
 - **🚀 Native Gemini CLI Compliance**: Migrated all 229 framework skills to strictly adhere to the official Gemini CLI `skill-creator` standard.
 - **📁 Structural Renaming**: All skill subdirectories have been renamed to exactly match their canonical, hyphenated skill name (e.g., `skills/angular/architecture` → `skills/angular/angular-architecture`).
-- **📝 Frontmatter Standardization**: Converted all `SKILL.md` YAML frontmatter `name:` fields to lowercase hyphen-case. 
+- **📝 Frontmatter Standardization**: Converted all `SKILL.md` YAML frontmatter `name:` fields to lowercase hyphen-case.
 - **🔎 Trigger Flattening**: Extracted custom `metadata.triggers` arrays and seamlessly merged them into the single-line `description` string to ensure full native visibility by Gemini CLI without losing routing context.
 
 ### Fixed (CLI & Indexing)
+
 - **🐛 Markdownlint Compliance**: Fixed missing whitespace on ATX headings, improper list spacing, and emphasis character (`_` vs `*`) violations inside `AGENTS.md` and the `IndexGeneratorService`.
 - **📏 Description Length**: Bumped internal validation constraint for skill descriptions from 300 up to `1024` characters to align with Gemini's maximum limit.
-
 
 ## [1.9.3] - 2026-03-15
 
@@ -147,6 +148,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Versions
 
 - **CLI**: v1.8.2 (Patch)
+
+<details>
+<summary>Click to view versions 1.7.x and 1.8.x</summary>
 
 ## [1.8.1] - 2026-03-02
 
@@ -1142,3 +1146,4 @@ Includes 18 specialized High-Density skills for Enterprise Backend Development.
 **Registry**: <https://github.com/HoangNguyen0403/agent-skills-standard>
 
 </details>
+\n</details>\n

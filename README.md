@@ -3,77 +3,48 @@
 [![NPM Version](https://img.shields.io/npm/v/agent-skills-standard.svg?style=flat-square)](https://www.npmjs.com/package/agent-skills-standard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/HoangNguyen0403/agent-skills-standard?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/stargazers)
-[![common](https://img.shields.io/badge/common-v1.8.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/common-v1.8.0)
-[![flutter](https://img.shields.io/badge/flutter-v1.5.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/flutter-v1.5.0)
-[![dart](https://img.shields.io/badge/dart-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/dart-v1.2.0)
-[![typescript](https://img.shields.io/badge/typescript-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/typescript-v1.2.0)
-[![react](https://img.shields.io/badge/react-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-v1.2.0)
-[![react-native](https://img.shields.io/badge/react--native-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/react-native-v1.3.0)
-[![nestjs](https://img.shields.io/badge/nestjs-v1.3.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nestjs-v1.3.0)
-[![nextjs](https://img.shields.io/badge/nextjs-v1.3.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/nextjs-v1.3.0)
-[![golang](https://img.shields.io/badge/golang-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/golang-v1.2.0)
-[![angular](https://img.shields.io/badge/angular-v1.3.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/angular-v1.3.0)
-[![kotlin](https://img.shields.io/badge/kotlin-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/kotlin-v1.2.0)
-[![java](https://img.shields.io/badge/java-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/java-v1.2.0)
-[![spring-boot](https://img.shields.io/badge/spring--boot-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/spring-boot-v1.2.0)
-[![android](https://img.shields.io/badge/android-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/android-v1.2.0)
-[![swift](https://img.shields.io/badge/swift-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/swift-v1.2.0)
-[![ios](https://img.shields.io/badge/ios-v1.3.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/ios-v1.3.0)
-[![php](https://img.shields.io/badge/php-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/php-v1.2.0)
-[![laravel](https://img.shields.io/badge/laravel-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/laravel-v1.2.0)
-[![database](https://img.shields.io/badge/database-v1.2.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/database-v1.2.0)
-[![quality-engineering](https://img.shields.io/badge/quality--engineering-v1.1.0-blue?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/releases/tag/quality-engineering-v1.2.0)
 
-**The open standard for High-Density AI coding instructions & Cursor Rules. Make your AI smarter, faster, and more consistent.**
+**The open standard for High-Density AI coding instructions. Make your AI smarter, faster, and more consistent across your entire team.**
 
-Agent Skills Standard is the open-source framework to distribute, sync, and version-control engineering standards (often called **"Cursor Rules"** or **"Agent Skills"**) across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Windsurf, Trae, Gemini, Antigravity, and custom LLM workflows**).
+Agent Skills Standard is the open-source framework to distribute, sync, and version-control engineering standards (often called **"Cursor Rules"** or **"Agent Skills"**) across all major AI agents (**Cursor, Claude Code, GitHub Copilot, Windsurf, Trae, Gemini, and more**).
 
 ---
 
 ## 📌 Table of Contents
 
-- [💡 What is this?](#-what-is-this)
-- [🎯 Who is this for?](#-who-is-this-for)
-- [⚡ The Problem: The Context Wall](#-the-problem-the-context-wall)
-- [🛠 The Solution: Digital DNA for AI](#-the-solution-digital-dna-for-ai)
-- [🛡️ Security & Trust](#️-security--trust)
-- [📊 Efficiency & Benchmark](#-efficiency--benchmark)
-- [✨ Features](#-features)
-- [🚀 Quick Start](#-quick-start)
-- [⚙️ Configuration](#-configuration)
-- [🌍 Registry Ecosystem](#-registry-ecosystem)
-- [🏗 Contributing](#-contributing)
-- [❓ FAQ](#-faq)
+- [💡 Why use this? (For Managers & Teams)](#-why-use-this-for-managers--teams)
+- [🛡️ Security & Trust (For IT)](#️-security--trust-for-it)
+- [🚀 Quick Start (For Developers)](#-quick-start-for-developers)
+- [🌍 Supported Frameworks](#-supported-frameworks)
+- [⚙️ Configuration (`.skillsrc`)](#️-configuration-skillsrc)
+- [❓ FAQ](#-faq--contributing)
 
 ---
 
-## 💡 What is this?
+## 💡 Why use this? (For Managers & Teams)
 
 Think of Agent Skills Standard as a **universal instruction manual** for your AI assistant.
 
-Usually, when you use AI for work, you have to constantly remind it of your "house rules" (e.g., _"Make sure to handle errors this way"_ or _"Use this specific layout"_). This project allows teams to package those rules into **"Skills"** that you can plug into any AI tool instantly.
+When using AI for work, you constantly have to remind it of your "house rules" (e.g., _"Make sure to handle errors this way"_ or _"Use this specific layout"_). If you feed it too many rules at once, it forgets them or wastes expensive API tokens. If you feed it too few, it writes bad code.
 
-### 🎯 Who is this for?
+This project solves **"The Context Wall"** by packaging rules into high-density **"Skills"** that you can plug into any AI tool instantly.
 
 | Role                 | Benefit                                                                                                  |
 | :------------------- | :------------------------------------------------------------------------------------------------------- |
 | **🚀 Builders**      | Stop copy-pasting prompts. Get instant, modular standards directly in your IDE.                          |
 | **🛡️ Architects**    | Scale engineering excellence. Define "house rules" once; sync them to every agent in the team.           |
 | **📈 Organizations** | Lower the technical barrier. Enable non-experts to produce senior-level output via standard "playbooks." |
+| **💰 Finance/Ops**   | Sending a 3,600+ token architect prompt vs. a 413-token skill reduces **API costs by ~9x**.              |
 
-### 🔄 The Workflow Evolution
+### 🔄 The Workflow
 
 ```mermaid
 graph LR
-    subgraph "Manual Prompt Engineering"
     A[Hardcoded Rules] --> B[Wordy Prompts]
-    B --> C[Loss of Logic]
-    end
+    B --> C[Loss of Logic & High Cost]
 
-    subgraph "Agent Skills Standard"
-    D[Compressed DNA] --> E[Smart Loading]
+    D[Agent Skills] --> E[Smart Loading]
     E --> F[High-Density AI Logic]
-    end
 
     style F fill:#dcfce7,stroke:#166534
     style C fill:#fee2e2,stroke:#991b1b
@@ -81,29 +52,9 @@ graph LR
 
 ---
 
-## ⚡ The Problem: "The Context Wall"
+## 🛡️ Security & Trust (For IT)
 
-Modern AI coding agents are powerful, but they struggle when managing project-wide rules:
-
-1. **Information Overload**: Providing too many instructions at once confuses the AI and makes it forgetful.
-2. **Version Chaos**: Every team member has a different version of "best practices" floating around their local computer.
-3. **Wasted Space**: Long, wordy instructions "eat up" the AI's limited memory (the Context Window), making it more expensive and less effective.
-
----
-
-## 🛠 The Solution: Digital DNA for AI
-
-Agent Skills Standard treats instructions as **versioned dependencies**, much like software libraries.
-
-- **🎯 Smart Loading**: We use a "Search-on-Demand" pattern. The AI only looks at detailed examples when it specifically needs them, saving its memory for your actual code.
-- **🚀 High-Density Language**: We use a specialized "Compressed Syntax" that is **40% more efficient** than normal English. This means the AI understands more while using fewer resources.
-- **🔁 One-Click Sync**: A single command ensures your AI tool stays up-to-date with your team's latest standards.
-
----
-
-## 🛡️ Security & Trust
-
-We understand that "injecting" instructions into your AI can sound risky. Here is how we keep you safe:
+We understand that "injecting" instructions into your AI can sound risky to security teams. Here is how we keep you safe:
 
 - **No Code Execution**: Skills are pure Markdown/JSON files. They contain _text instructions_ for the AI, not executable code. They cannot run commands on your machine.
 - **Open Source**: The entire registry is open source. You can audit every skill file on GitHub before using it.
@@ -112,158 +63,71 @@ We understand that "injecting" instructions into your AI can sound risky. Here i
 
 ---
 
-## 📊 Efficiency & Benchmark
-
-Every skill in this registry is audited for its footprint in the AI's context window. Our goal is **High-Density Logic, Low-Token Footprint**.
-
-| Metric             |  Typical Saving | Status | Version  | Avg. Footprint |
-| ------------------ | --------------: | :----- | -------- | -------------- |
-| **Global Average** | **88% Savings** | 10/10  | `v1.1.0` | ~398 tokens    |
-
-#### 📜 Benchmark History
-
-| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
-| --- | --- | --- | --- | --- | --- |
-| v1.10.0 | 2026-03-16 | 229 | 434 | 88% | [Report](benchmarks/archive/v1.10.0.md) |
-| v1.9.3 | 2026-03-15 | 229 | 460 | 87% | [Report](benchmarks/archive/v1.9.3.md) |
-| v1.9.2 | 2026-03-07 | 228 | 458 | 87% | [Report](benchmarks/archive/v1.9.2.md) |
-
-### Why this matters
-
-Sending a 3,600+ token architect prompt vs. a 413-token skill reduces your **API costs by ~9x** and leaves **80% more memory** for your actual code.
-
-> [!TIP]
-> **View the Full Audit**: See the per-skill breakdown and methodology in the [Full Benchmark Report](./benchmark-report.md).
-
----
-
-## ✨ Features
-
-- **🛡️ Multi-Agent Support**: Out-of-the-box mapping for Cursor, Claude Dev, GitHub Copilot, and more.
-- **📦 Modular Registry**: Don't load everything. Only enable the skills your project actually uses.
-- **🧩 Framework Composition**: Keeps core tools like `react` separated from framework skills like `nextjs` or `react-native`. The CLI seamlessly detects React dependencies and downloads both sets of rules, avoiding bloated definitions while ensuring complete coverage.
-- **⚡ Proactive Activation (Universal)**: Generates a compressed index in `AGENTS.md` for 100% activation reliability across Cursor, Windsurf, Claude Code, and more.
-- **🔄 Dynamic Re-detection**: Automatically re-enables skills if matching dependencies are added.
-- **🔒 Secure Overrides**: Lock specific files so they never get overwritten.
-- **📊 Semantic Tagging**: Skills tagged with triggers for exact application.
-- **🤖 Agent Workflows**: Sync executable workflows (.md files) that agents can follow to perform complex tasks.
-
----
-
-## 🛠️ CLI Commands
-
-- `init`: Initialize a fresh `.skillsrc` config.
-- `sync`: Sync skills from remote registry and automatically update the `AGENTS.md` index.
-- `validate`: Validate skill format and token standards.
-- `feedback`: Report skill violations or improvements.
-- `upgrade`: Upgrade the CLI to the latest version.
-
----
-
-## ✨ Token Economy & Optimization
-
-To ensure AI efficiency, this project follows a strict **Token Economy**. Every skill is audited for its footprint in the AI's context window.
-
-### 📏 Our Standards
-
-- **High-Density**: Core rules in `SKILL.md` are kept under **100 lines**.
-- **Efficiency**: Target **< 500 tokens** per primary skill file.
-- **Progressive Disclosure**: Heavy examples, checklists, and implementation guides are moved to the `references/` directory and are only loaded by the agent when specific context matches.
-
-### 🛠️ Token Calculation
-
-We provide a built-in tool in the CLI to estimate and track the token footprint:
-
-```bash
-pnpm calculate-tokens
-```
-
-This command:
-
-1. Scans all `SKILL.md` files in the registry.
-2. Calculates character-based token estimates.
-3. Updates `skills/metadata.json` with category metrics (total tokens, avg/skill, and identifying the largest skills).
-
-By maintaining a "Lean Registry," we ensure that your AI assistant remains fast and focused, preserving the majority of its context window for your actual project code.
-
----
-
-## 🔒 Privacy & Feedback
-
-### Feedback Reporter Skill
-
-By default, the CLI syncs a `common/feedback-reporter` skill that enables you to report when AI makes mistakes or when skill guidance needs improvement. **This helps us improve skills for everyone.**
-
-**What Gets Shared (Only if You Report):**
-
-- Skill category and name
-- Issue description (written by you or generated by AI)
-- **Skill Instruction**: Exact quote from the skill that was violated
-- **Actual Action**: What the AI did instead
-- **Decision Reason**: Why the AI chose that approach
-- Optional context (framework version, scenario)
-- Optional AI Model name
-- **NO code, NO project details, NO personal information**
-
-**How to Opt-Out:**
-Add to `.skillsrc`:
-
-```yaml
-skills:
-  common:
-    exclude: ['feedback-reporter']
-```
-
-#### Manual Feedback
-
-If you notice a skill needs improvement, you can manually send feedback using (no installation required):
-
-```bash
-npx agent-skills-standard feedback
-```
-
-**How it works:**
-
-- **Cross-Platform**: Works instantly on **Windows, MacOS, and Linux** via `npx`.
-- The CLI attempts to submit your feedback automatically via our **High-Density Feedback Backend** (hosted on Render.com).
-- **No token needed**: We handle the GitHub integration securely on the server.
-
-Or via structured comments in your code:
-
-```typescript
-// @agent-skills-feedback
-// Skill: react/hooks
-// Issue: AI suggested unsafe pattern
-// Suggestion: Add guidance for this case
-```
-
-**Privacy First**: We never collect usage telemetry or analytics. Feedback is only shared if you explicitly trigger it.
-
----
-
-## 🚀 Quick Start (Get running in 60s)
+## 🚀 Quick Start (For Developers)
 
 Consume engineering standards in your project instantly.
 
-### 1. Run the CLI
+### 1. Initialize Your Project
+
+Run this once to detect your stack and setup your `.skillsrc`.
 
 ```bash
 npx agent-skills-standard@latest init
 ```
 
-_The interactive wizard will detect your stack and setup your `.skillsrc`._
-
 ### 2. Sync Standards
+
+Fetch the latest high-density instructions and install them into your hidden agent folders.
 
 ```bash
 npx agent-skills-standard@latest sync
 ```
 
-### 3. Automatic Activation
+### 3. Start Coding
 
-Whenever you run `sync`, the CLI automatically updates `AGENTS.md` in your project root with a compressed index of your enabled skills.
+The CLI automatically updates `AGENTS.md` in your project root. This serves as a universal entry point that helps all AI agents (Cursor, Copilot, etc.) proactively understand when to trigger specific skills based on your project context.
 
-This `AGENTS.md` file serves as a **universal entry point** that helps all AI agents proactively understand when to trigger specific skills based on your project context.
+> [!TIP]
+> **View all CLI Commands**: Run `npx agent-skills-standard@latest --help` for commands like `validate`, `feedback`, and `upgrade`.
+
+---
+
+## 🌍 Supported Frameworks
+
+The Agent Skills Standard is a modular library. We follow a strict **Token Economy**—every skill is audited for its footprint in the AI's context window (averaging ~400 tokens) to save you money.
+
+<details>
+<summary><b>Click to view all 20+ supported frameworks and stacks</b></summary>
+<br>
+
+| Stack / Category        | Key Modules                             | Typical Saving | Status  | Skills |
+| :---------------------- | :-------------------------------------- | :------------- | :------ | :----- |
+| **Common Patterns**     | Accessibility, Best Practices, Security | **83%**        | Healthy | 25     |
+| **Flutter**             | BLoC, Riverpod, Clean Architecture      | **88%**        | Healthy | 21     |
+| **Dart**                | Language, Tooling                       | **88%**        | Healthy | 3      |
+| **TypeScript**          | Type Safety, Tooling                    | **86%**        | Healthy | 4      |
+| **JavaScript**          | Functional Programming, Patterns        | **90%**        | Healthy | 3      |
+| **React**               | React 18+, Hooks, Performance           | **89%**        | Healthy | 8      |
+| **React Native**        | Architecture, Performance               | **88%**        | Healthy | 13     |
+| **NestJS**              | Architecture, Security, BullMQ          | **85%**        | Healthy | 21     |
+| **Next.js**             | App Router, SEO, Performance            | **87%**        | Healthy | 18     |
+| **Angular**             | Architecture, Signals, RxJS             | **92%**        | Healthy | 15     |
+| **Android**             | Compose, Architecture, Serialization    | **92%**        | Healthy | 22     |
+| **iOS**                 | Architecture, SwiftUI, Concurrency      | **89%**        | Healthy | 15     |
+| **Swift**               | Concurrency, Architecture               | **90%**        | Healthy | 8      |
+| **Kotlin**              | Language, Concurrency                   | **88%**        | Healthy | 4      |
+| **Java**                | Language, Concurrency                   | **86%**        | Healthy | 5      |
+| **Spring Boot**         | Architecture, Security                  | **90%**        | Healthy | 10     |
+| **Go (Golang)**         | Clean Architecture, Security            | **90%**        | Healthy | 10     |
+| **PHP**                 | Error Handling, PHP 8+                  | **91%**        | Healthy | 7      |
+| **Laravel**             | Solid Patterns, Clean Architecture      | **90%**        | Healthy | 10     |
+| **Database**            | PostgreSQL, MongoDB, Redis              | **80%**        | Healthy | 3      |
+| **Quality Engineering** | BA, TDD, Zephyr, Automation             | **88%**        | Healthy | 4      |
+
+> [!TIP]
+> **View the Complete Registry**: For a full list of all 160+ individual skills and token metrics, visit the [Skills Directory](./skills/README.md) and [Benchmark Report](./benchmark-report.md).
+
+</details>
 
 ---
 
@@ -278,172 +142,55 @@ skills:
   flutter:
     ref: flutter-v1.1.0
     # 🚫 Exclude specific sub-skills from being synced
-    exclude: ['getx-navigation']
-    # ➕ Include specific skills (supports cross-category 'category/skill' or 'category/*' syntax)
+    exclude: ["getx-navigation"]
+    # ➕ Include specific skills (supports cross-category 'category/skill' syntax)
     include:
-      - 'bloc-state-management'
-      - 'react/hooks'
-      - 'common/*'
+      - "bloc-state-management"
+      - "react/hooks"
     # 🔒 Protect local modifications from being overwritten
-    custom_overrides: ['bloc-state-management']
-  # 🤖 Optional: Sync workflows to .agent/workflows/
-  workflows: true
+    custom_overrides: ["bloc-state-management"]
 ```
-
-### Key Options
-
-- **`exclude`**: A list of skill IDs to skip during synchronization.
-- **`include`**: A list of skill IDs to fetch. Supports:
-  - **Relative Path**: `bloc-state-management` (from current category)
-  - **Absolute Path**: `react/hooks` (pull specific skill from another category)
-  - **Glob Path**: `common/*` (pull ALL skills from another category)
-- **`custom_overrides`**: A list of skill IDs that the CLI should **never** overwrite.
-- **`ref`**: Specify a specific version or tag for the skills.
 
 ### Project-Specific Skills
 
-For project-specific rules that differ from or extend the standard registry skills, create local skills in your agent's skills directory (e.g., `.github/skills/project/` for Copilot). These local skills will not be overwritten during sync operations.
+For project-specific rules that differ from the standard registry, create local skills in your agent's directory (e.g., `.github/skills/project/your-project-standards/SKILL.md`). These local skills will not be overwritten during sync operations.
 
-Example:
-
-Create `.github/skills/project/your-project-standards/SKILL.md` with your custom rules.
-
-This approach ensures your project-specific standards are preserved while benefiting from upstream updates.
-
----
-
-## ❓ Troubleshooting
-
-### Invalid .skillsrc
-
-If the CLI complains about configuration format:
-
-- Ensure `registry` is a valid URL.
-- Ensure `skills` is a map of categories to config objects.
-- Run `npx agent-skills-standard@latest init` to generate a fresh valid config.
-
----
-
-## 🌍 Registry Ecosystem
-
-The Agent Skills Standard is a modular library designed to be the universal language for engineering standards. Browse the categories below to see the key modules and metrics for each stack.
-
-| Stack / Category        | Key Modules                             | Typical Saving | Status  | Version  | Skills | Avg. Footprint |
-| :---------------------- | :-------------------------------------- | :------------- | :------ | :------- | :----- | :------------- |
-| **Common Patterns**     | Accessibility, Best Practices, Security | **83%**  | Healthy  | `v1.8.0` | 25     | ~618 tokens    |
-| **Flutter**             | BLoC, Riverpod, Clean Architecture      | **88%**  | Healthy  | `v1.5.0` | 21     | ~437 tokens    |
-| **Dart**                | Language, Tooling                       | **88%**  | Healthy  | `v1.2.0` | 3      | ~438 tokens    |
-| **TypeScript**          | Type Safety, Tooling                    | **86%**  | Healthy  | `v1.2.0` | 4      | ~510 tokens    |
-| **JavaScript**          | Functional Programming, Patterns        | **90%**  | Healthy  | `v1.2.0` | 3      | ~382 tokens    |
-| **React**               | React 18+, Hooks, Performance           | **89%**  | Healthy  | `v1.2.0` | 8      | ~402 tokens    |
-| **React Native**        | Architecture, Performance               | **88%**  | Healthy  | `v1.3.0` | 13     | ~439 tokens    |
-| **NestJS**              | Architecture, Security, BullMQ          | **85%**  | Healthy  | `v1.3.0` | 21     | ~554 tokens    |
-| **Next.js**             | App Router, SEO, Performance            | **87%**  | Healthy  | `v1.3.0` | 18     | ~480 tokens    |
-| **Angular**             | Architecture, Signals, RxJS             | **92%**  | Healthy  | `v1.3.0` | 15     | ~284 tokens    |
-| **Android**             | Compose, Architecture, Serialization    | **92%**  | Healthy  | `v1.2.0` | 22     | ~290 tokens    |
-| **iOS**                 | Architecture, SwiftUI, Concurrency      | **89%**  | Healthy  | `v1.3.0` | 15     | ~402 tokens    |
-| **Swift**               | Concurrency, Architecture               | **90%**  | Healthy  | `v1.2.0` | 8      | ~353 tokens    |
-| **Kotlin**              | Language, Concurrency                   | **88%**  | Healthy  | `v1.2.0` | 4      | ~450 tokens    |
-| **Java**                | Language, Concurrency                   | **86%**  | Healthy  | `v1.2.0` | 5      | ~518 tokens    |
-| **Spring Boot**         | Architecture, Security                  | **90%**  | Healthy  | `v1.2.0` | 10     | ~369 tokens    |
-| **Go (Golang)**         | Clean Architecture, Security            | **90%**  | Healthy  | `v1.2.0` | 10     | ~377 tokens    |
-| **PHP**                 | Error Handling, PHP 8+                  | **91%**  | Healthy  | `v1.2.0` | 7      | ~319 tokens    |
-| **Laravel**             | Solid Patterns, Clean Architecture      | **90%**  | Healthy  | `v1.2.0` | 10     | ~359 tokens    |
-| **Database**            | PostgreSQL, MongoDB, Redis              | **80%**  | Healthy  | `v1.2.0` | 3      | ~714 tokens    |
-| **Quality Engineering** | BA, TDD, Zephyr, Automation             | **88%**  | Healthy  | `v1.2.0` | 4      | ~450 tokens    |
-
-> [!TIP]
-> **View the Complete Registry**: For a full list of all 160+ skills, visit the [Skills Directory](./skills/README.md).
-
-> [!TIP]
-> **Quality Engineering (Opt-in)**: Advanced skills like `business-analysis` or `zephyr-test-generation` are in the **quality-engineering** category and are NOT synced by default to keep context lean. To use them, manually add the category to your `.skillsrc`:
->
-> ```yaml
-> skills:
->   quality-engineering: { ref: quality-engineering-v1.1.0 }
-> ```
->
 > [!TIP]
 > **Enterprise Ready**: You can host your own **Private Skills Registry** on GitHub and point the CLI to it via the `registry` field in your `.skillsrc`.
 
 ---
 
-## 📂 Standard Specification
+## ❓ FAQ & Contributing
 
-The standard follows a strict directory structure designed for **Token Economy**.
-
-```text
-skills/
-└── flutter/                    # Category
-    └── bloc-state-management/      # Skill
-        ├── SKILL.md                # Core Rules (High Density)
-        └── references/             # Heavy Examples (Loaded only on demand)
-```
-
-The CLI will sync this exact structure effectively to your agent configuration:
-
-```text
-.cursor/skills/
-└── flutter/
-    └── bloc-state-management/
-```
-
-### IDE Mapping
-
-| Agent           | Target Path         | Integration Method                     |
-| :-------------- | :------------------ | :------------------------------------- |
-| **Cursor**      | `.cursor/skills/`   | Automatic discovery via `.cursorrules` |
-| **Trae**        | `.trae/skills/`     | Automatic discovery                    |
-| **Claude Code** | `.claude/skills/`   | Referenced in `CLAUDE.md`              |
-| **Copilot**     | `.github/skills/`   | Automatic discovery                    |
-| **Kiro**        | `.kiro/skills/`     | Automatic discovery                    |
-| **OpenAI**      | `.codex/skills/`    | Automatic discovery                    |
-| **Antigravity** | `.agent/skills/`    | Automatic discovery                    |
-| **Gemini**      | `.gemini/skills/`   | Automatic discovery                    |
-| **Roo Code**    | `.roo/skills/`      | Automatic discovery                    |
-| **Windsurf**    | `.windsurf/skills/` | Automatic discovery                    |
-| **OpenCode**    | `.opencode/skills/` | Automatic discovery                    |
-
----
-
-## ❓ FAQ
-
-### Does this work with Cursor or Gemini?
-
+<details>
+<summary><b>Does this work with Cursor or Gemini?</b></summary>
+<br>
 Yes. Agent Skills Standard is designed to be "Agent Agnostic." It generates the specific configuration files (like `.cursorrules` or `.agent/skills`) that these tools read natively.
+</details>
 
-### How is this different from a system prompt?
+<details>
+<summary><b>How is this different from a system prompt?</b></summary>
+<br>
+System prompts are static and often too long. Agent Skills Standard uses a <b>Discovery Bridge</b>. The AI only "looks up" the specific engineering standards it needs for the file you are currently editing, keeping its memory (context window) free for your actual code.
+</details>
 
-System prompts are static and often too long. Agent Skills Standard uses a **Discovery Bridge**. The AI only "looks up" the specific engineering standards it needs for the file you are currently editing, keeping its memory (context window) free for your actual code.
-
-### Is this free?
-
-Yes. The Agent Skills Standard framework and all community skills are open-source and free to use under the MIT license.
-
-### Can I use this for non-coding tasks (e.g., HR, Finance)?
-
+<details>
+<summary><b>Can I use this for non-coding tasks (e.g., HR, Finance)?</b></summary>
+<br>
 Absolutely. While many skills here are technical, the framework works for any domain where you want an AI agent to follow consistent, high-density instructions.
+</details>
 
----
+<br>
 
-## 🏗 Contributing & Development
+### 🏗 Contributing & Development
 
-Interested in adding standards for **NestJS, Golang, or React**? We follow a strict semantic versioning for every skill category.
+Interested in adding standards for **NestJS, Golang, or React**?
 
 1. **Propose a Skill**: Open an issue with your draft [High-Density Content](skills/README.md).
 2. **Develop Locally**: Fork and add your category to `skills/`.
 3. **Submit PR**: Our CI/CD will validate the metadata integrity before merging.
 
-### Local Development Testing
-
-To test your changes locally before publishing to NPM:
-
-```bash
-# In your test project directory, point npx to your local CLI folder
-npx /path/to/agent-skills-standard/cli sync
-```
-
-This is the recommended way to verify that skill injections and discovery bridges (like `.cursorrules`) work correctly in a real project environment.
+For detailed architecture logic and token calculation scripts, see [CLI Architecture](./cli/ARCHITECTURE.md).
 
 ---
 
@@ -451,5 +198,3 @@ This is the recommended way to verify that skill injections and discovery bridge
 
 - **License**: MIT
 - **Author**: [Hoang Nguyen](https://github.com/HoangNguyen0403)
-
----

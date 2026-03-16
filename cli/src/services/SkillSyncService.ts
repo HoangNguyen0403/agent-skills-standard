@@ -73,12 +73,39 @@ export class SkillSyncService {
   ) {
     const overrides = config.custom_overrides || [];
 
+    // Group skills by category to know which folders to prune
+    const fetchedSkillsByCategory: Record<string, Set<string>> = {};
+    for (const skill of skills) {
+      if (!fetchedSkillsByCategory[skill.category]) {
+        fetchedSkillsByCategory[skill.category] = new Set();
+      }
+      fetchedSkillsByCategory[skill.category].add(skill.skill);
+    }
+
     for (const agentId of agents) {
       const agentDef = SUPPORTED_AGENTS.find((a) => a.id === agentId);
       if (!agentDef || !agentDef.path) continue;
 
       const basePath = agentDef.path;
       await fs.ensureDir(basePath);
+
+      // Clean up orphaned skills inside categories we are syncing
+      for (const category of Object.keys(fetchedSkillsByCategory)) {
+        const categoryPath = path.join(basePath, category);
+        if (await fs.pathExists(categoryPath)) {
+          const existingDirs = await fs.readdir(categoryPath);
+          for (const dir of existingDirs) {
+            // If the folder is not in the newly fetched list, it might be orphaned
+            if (!fetchedSkillsByCategory[category].has(dir)) {
+              const fullPath = path.join(categoryPath, dir);
+              // Do not delete if it's protected by custom_overrides
+              if (!this.isOverridden(fullPath, overrides)) {
+                await fs.remove(fullPath);
+              }
+            }
+          }
+        }
+      }
 
       for (const skill of skills) {
         await this.writeSkillForAgent(agentId, skill, overrides, basePath);
