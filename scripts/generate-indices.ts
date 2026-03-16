@@ -10,12 +10,6 @@ interface SkillMetadata {
   name: string;
   description: string;
   priority: string;
-  triggers: {
-    files?: string[];
-    keywords?: string[];
-    composite?: string[];
-    exclude?: string[];
-  };
 }
 
 async function parseSkill(skillPath: string): Promise<SkillMetadata | null> {
@@ -28,14 +22,6 @@ async function parseSkill(skillPath: string): Promise<SkillMetadata | null> {
     const fm = yaml.load(frontmatterMatch[1]) as unknown as {
       name?: string;
       description?: string;
-      metadata?: {
-        triggers?: {
-          files?: string[];
-          keywords?: string[];
-          composite?: string[];
-          exclude?: string[];
-        };
-      };
     };
     const body = frontmatterMatch[2];
 
@@ -46,7 +32,6 @@ async function parseSkill(skillPath: string): Promise<SkillMetadata | null> {
       name: fm.name || '',
       description: fm.description || '',
       priority,
-      triggers: fm.metadata?.triggers || {},
     };
   } catch {
     return null;
@@ -81,23 +66,12 @@ async function generate() {
       const metadata = await parseSkill(skillPath);
       if (metadata) {
         const id = `${category}/${skill}`;
-        const triggers = [
-          ...(metadata.triggers.files || []),
-          ...(metadata.triggers.keywords || []),
-          ...(metadata.triggers.composite
-            ? metadata.triggers.composite.map((c) => `+${c}`)
-            : []),
-          ...(metadata.triggers.exclude
-            ? metadata.triggers.exclude.map((e) => `!${e}`)
-            : []),
-        ].join(', ');
-
-        const triggerText = triggers ? ` (triggers: ${triggers})` : '';
+        
         const prefix = metadata.priority.startsWith('P0') ? '🚨 ' : '';
 
         // Format: - **[category/skill]**: 🚨 Description (triggers: file.ts, keyword)
         const content = `${prefix}${metadata.description || ''}`.trim();
-        entries.push(`- **[${id}]**: ${content}${triggerText}`);
+        entries.push(`- **[${id}]**: ${content}`);
       }
     }
 

@@ -1,12 +1,6 @@
 ---
-name: iOS Notifications
-description: Push notifications for iOS using UserNotifications framework and APNS. Use when integrating APNS push notifications in iOS applications.
-metadata:
-  labels: [ios, apns, notifications, push, user-notifications]
-  triggers:
-    files: ['**/*Notification*.swift', '**/*AppDelegate.swift']
-    keywords:
-      [UNUserNotificationCenter, APNS, UNNotificationRequest, deviceToken]
+name: ios-notifications
+description: Push notifications for iOS using UserNotifications framework and APNS. Use when integrating APNS push notifications in iOS applications. (triggers: **/*Notification*.swift, **/*AppDelegate.swift, UNUserNotificationCenter, APNS, UNNotificationRequest, deviceToken)
 ---
 
 # iOS Notifications

@@ -104,7 +104,9 @@ describe('IndexGeneratorService', () => {
     it('should include the mandatory Pre-Write Audit Log section', async () => {
       (fs.pathExists as any).mockResolvedValue(false);
       const result = await service.generate('/skills');
-      expect(result).toContain('### **The Pre-Write Audit Log (Mandatory)**');
+      expect(result).toContain(
+        '### **1. The Pre-Write Audit Log (Mandatory)**',
+      );
       expect(result).toContain('Before invoking any file-editing tool');
       expect(result).toContain('1. **Skills Identified**');
       expect(result).toContain('2. **Explicit Audit**');
@@ -114,12 +116,18 @@ describe('IndexGeneratorService', () => {
     it('should include the mandatory action table in the header', async () => {
       (fs.pathExists as any).mockResolvedValue(false);
       const result = await service.generate('/skills');
-      expect(result).toContain('## ⚡ How to Use This Index (Mandatory)');
-      expect(result).toContain('> [!CRITICAL]');
-      expect(result).toContain('you MUST call `view_file`');
+      expect(result).toContain(
+        '## ⚡ How to Find and Use This Index (Mandatory)',
+      );
+      expect(result).toContain(
+        '> [!IMPORTANT] PATH RESOLUTION (Cross-Platform)',
+      );
+      expect(result).toContain('You must prepend the correct base directory');
       expect(result).toContain('| Trigger Type |');
       expect(result).toContain('| Required Action |');
-      expect(result).toContain('Call `view_file` on the skill');
+      expect(result).toContain(
+        'Call `view_file` on `<BASE_DIR>/[Skill ID]/SKILL.md`',
+      );
       expect(result).toContain('Indirect phrasing still counts');
     });
 

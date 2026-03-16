@@ -1,18 +1,6 @@
 ---
-name: iOS Navigation
-description: SwiftUI navigation and deep linking using NavigationStack and Universal Links. Use when implementing NavigationStack or Universal Links deep linking in iOS.
-metadata:
-  labels: [ios, swiftui, navigation, deep-linking, universal-links]
-  triggers:
-    files: ['**/*View.swift', '**/*App.swift']
-    keywords:
-      [
-        NavigationStack,
-        NavigationLink,
-        onOpenURL,
-        universalLink,
-        NSUserActivity,
-      ]
+name: ios-navigation
+description: SwiftUI navigation and deep linking using NavigationStack and Universal Links. Use when implementing NavigationStack or Universal Links deep linking in iOS. (triggers: **/*View.swift, **/*App.swift, NavigationStack, NavigationLink, onOpenURL, universalLink, NSUserActivity)
 ---
 
 # iOS Navigation (SwiftUI)

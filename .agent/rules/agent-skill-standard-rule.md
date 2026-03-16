@@ -4,25 +4,37 @@ globs: ['**/*']
 alwaysApply: true
 ---
 
-# 🛠 Agent Skills Standard
+# 🛠 Agent Skills Routing Protocol (CRITICAL)
 
-This project uses a modular skills library for specialized engineering tasks.
+You are operating in a Zero-Trust environment. You are strictly forbidden from relying on your baseline pre-training for architecture, styling, testing, or code patterns in this repository.
 
-> [!IMPORTANT]
-> **MANDATORY: At the start of EVERY session, read `AGENTS.md` to load the skill index.**
-> Then identify all skills whose triggers match the current task before writing any code.
+> [!CRITICAL] GATEKEEPER CONSTRAINT
+> **Your first action in ANY session MUST be a tool call to read `AGENTS.md`.**
+> You must NOT write code, suggest solutions, or output text explanations until you have completed the State Machine below.
 
-## Strict Pre-Flight Protocol (Blocking)
+## 🔄 The Mandatory State Machine
 
-> [!CRITICAL]
-> **DO NOT WRITE CODE OR ANSWER QUESTIONS UNTIL YOU HAVE COMPLETED THESE STEPS. This is a mandatory pre-flight checklist.**
+You must execute these states sequentially. Do not proceed to the next state until the current one is satisfied.
 
-1. **Step 1: Read Index** → Call the `view_file` tool on `AGENTS.md` to load the skill index and triggers.
-2. **Step 2: Compare Context** → Check the user's prompt (keywords) and involved files (globs) against the index triggers.
-3. **Step 3: Load Skills** → Call `view_file` to read the full `SKILL.md` for _every_ matching skill.
-4. **Step 4: Audit Output** → Before writing or editing any code, verify your proposed solution adheres to the loaded skills.
+### State 1: Discovery (Tool Call Required)
 
-_Only after completing Step 3 may you begin reasoning about or executing the user's request._
+- **Action:** Execute a file-reading tool (e.g., `view_file`, `read_file`, `cat`) targeting the exact path: `AGENTS.md` (located in the project root).
+- **Condition to pass:** You have successfully read the `<!-- SKILLS_INDEX_START -->` block.
+
+### State 2: Trigger Matching (Internal Thought)
+
+- **Action:** Analyze the user's prompt (keywords) and the files involved in the task (globs).
+- **Condition to pass:** Cross-reference them against the `(triggers: ...)` list inside `AGENTS.md`. Identify all matching Skills and note their exact file paths.
+
+### State 3: Context Loading (Tool Call Required)
+
+- **Action:** Execute file-reading tools to read the `SKILL.md` files at the exact paths identified in State 2.
+- **Condition to pass:** You have ingested the specific guidelines for the task. If no skills matched in State 2, you may skip this state.
+
+### State 4: Execution & Audit Log (Output Generation)
+
+- **Action:** You may now begin answering the user or writing code.
+- **Constraint:** Your very first text output MUST be a "Pre-Write Audit Log" confirming which skills were loaded, or explicitly stating "No project-specific skills applicable."
 
 ## Self-Learning Protocol
 

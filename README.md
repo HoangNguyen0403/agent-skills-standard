@@ -330,27 +330,27 @@ The Agent Skills Standard is a modular library designed to be the universal lang
 
 | Stack / Category        | Key Modules                             | Typical Saving | Status  | Version  | Skills | Avg. Footprint |
 | :---------------------- | :-------------------------------------- | :------------- | :------ | :------- | :----- | :------------- |
-| **Common Patterns**     | Accessibility, Best Practices, Security | **82%**  | Healthy  | `v1.7.2` | 25     | ~657 tokens    |
-| **Flutter**             | BLoC, Riverpod, Clean Architecture      | **87%**  | Healthy  | `v1.4.1` | 21     | ~466 tokens    |
-| **Dart**                | Language, Tooling                       | **87%**  | Healthy  | `v1.1.0` | 3      | ~459 tokens    |
-| **TypeScript**          | Type Safety, Tooling                    | **85%**  | Healthy  | `v1.1.0` | 4      | ~541 tokens    |
-| **JavaScript**          | Functional Programming, Patterns        | **89%**  | Healthy  | `v1.1.0` | 3      | ~408 tokens    |
-| **React**               | React 18+, Hooks, Performance           | **88%**  | Healthy  | `v1.1.0` | 8      | ~427 tokens    |
-| **React Native**        | Architecture, Performance               | **87%**  | Healthy  | `v1.2.0` | 13     | ~469 tokens    |
-| **NestJS**              | Architecture, Security, BullMQ          | **84%**  | Healthy  | `v1.2.1` | 21     | ~570 tokens    |
-| **Next.js**             | App Router, SEO, Performance            | **86%**  | Healthy  | `v1.2.0` | 18     | ~506 tokens    |
-| **Angular**             | Architecture, Signals, RxJS             | **92%**  | Healthy  | `v1.2.0` | 15     | ~307 tokens    |
-| **Android**             | Compose, Architecture, Serialization    | **91%**  | Healthy  | `v1.1.0` | 22     | ~315 tokens    |
-| **iOS**                 | Architecture, SwiftUI, Concurrency      | **88%**  | Healthy  | `v1.2.0` | 15     | ~431 tokens    |
-| **Swift**               | Concurrency, Architecture               | **90%**  | Healthy  | `v1.1.0` | 8      | ~377 tokens    |
-| **Kotlin**              | Language, Concurrency                   | **87%**  | Healthy  | `v1.1.0` | 4      | ~475 tokens    |
-| **Java**                | Language, Concurrency                   | **85%**  | Healthy  | `v1.1.0` | 5      | ~543 tokens    |
-| **Spring Boot**         | Architecture, Security                  | **89%**  | Healthy  | `v1.1.0` | 10     | ~393 tokens    |
-| **Go (Golang)**         | Clean Architecture, Security            | **89%**  | Healthy  | `v1.1.0` | 10     | ~398 tokens    |
-| **PHP**                 | Error Handling, PHP 8+                  | **91%**  | Healthy  | `v1.1.0` | 7      | ~340 tokens    |
-| **Laravel**             | Solid Patterns, Clean Architecture      | **90%**  | Healthy  | `v1.1.0` | 10     | ~383 tokens    |
-| **Database**            | PostgreSQL, MongoDB, Redis              | **80%**  | Healthy  | `v1.1.1` | 3      | ~720 tokens    |
-| **Quality Engineering** | BA, TDD, Zephyr, Automation             | **87%**  | Healthy  | `v1.1.0` | 4      | ~480 tokens    |
+| **Common Patterns**     | Accessibility, Best Practices, Security | **83%**  | Healthy  | `v1.7.2` | 25     | ~618 tokens    |
+| **Flutter**             | BLoC, Riverpod, Clean Architecture      | **88%**  | Healthy  | `v1.4.1` | 21     | ~437 tokens    |
+| **Dart**                | Language, Tooling                       | **88%**  | Healthy  | `v1.1.0` | 3      | ~438 tokens    |
+| **TypeScript**          | Type Safety, Tooling                    | **86%**  | Healthy  | `v1.1.0` | 4      | ~510 tokens    |
+| **JavaScript**          | Functional Programming, Patterns        | **90%**  | Healthy  | `v1.1.0` | 3      | ~382 tokens    |
+| **React**               | React 18+, Hooks, Performance           | **89%**  | Healthy  | `v1.1.0` | 8      | ~402 tokens    |
+| **React Native**        | Architecture, Performance               | **88%**  | Healthy  | `v1.2.0` | 13     | ~439 tokens    |
+| **NestJS**              | Architecture, Security, BullMQ          | **85%**  | Healthy  | `v1.2.1` | 21     | ~554 tokens    |
+| **Next.js**             | App Router, SEO, Performance            | **87%**  | Healthy  | `v1.2.0` | 18     | ~480 tokens    |
+| **Angular**             | Architecture, Signals, RxJS             | **92%**  | Healthy  | `v1.2.0` | 15     | ~284 tokens    |
+| **Android**             | Compose, Architecture, Serialization    | **92%**  | Healthy  | `v1.1.0` | 22     | ~290 tokens    |
+| **iOS**                 | Architecture, SwiftUI, Concurrency      | **89%**  | Healthy  | `v1.2.0` | 15     | ~402 tokens    |
+| **Swift**               | Concurrency, Architecture               | **90%**  | Healthy  | `v1.1.0` | 8      | ~353 tokens    |
+| **Kotlin**              | Language, Concurrency                   | **88%**  | Healthy  | `v1.1.0` | 4      | ~450 tokens    |
+| **Java**                | Language, Concurrency                   | **86%**  | Healthy  | `v1.1.0` | 5      | ~518 tokens    |
+| **Spring Boot**         | Architecture, Security                  | **90%**  | Healthy  | `v1.1.0` | 10     | ~369 tokens    |
+| **Go (Golang)**         | Clean Architecture, Security            | **90%**  | Healthy  | `v1.1.0` | 10     | ~377 tokens    |
+| **PHP**                 | Error Handling, PHP 8+                  | **91%**  | Healthy  | `v1.1.0` | 7      | ~319 tokens    |
+| **Laravel**             | Solid Patterns, Clean Architecture      | **90%**  | Healthy  | `v1.1.0` | 10     | ~359 tokens    |
+| **Database**            | PostgreSQL, MongoDB, Redis              | **80%**  | Healthy  | `v1.1.1` | 3      | ~714 tokens    |
+| **Quality Engineering** | BA, TDD, Zephyr, Automation             | **88%**  | Healthy  | `v1.1.0` | 4      | ~450 tokens    |
 
 > [!TIP]
 > **View the Complete Registry**: For a full list of all 160+ skills, visit the [Skills Directory](./skills/README.md).
