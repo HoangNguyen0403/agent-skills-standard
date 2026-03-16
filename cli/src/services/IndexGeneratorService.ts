@@ -266,9 +266,13 @@ export class IndexGeneratorService {
         : []),
     ].join(', ');
 
-    const triggerText = triggers ? ` (triggers: ${triggers})` : '';
+    const triggerText = triggers ? ` (triggers: \`${triggers}\`)` : '';
 
-    const content = `${prefix}${metadata.description || ''}`.trim();
+    let desc = metadata.description || '';
+    // Wrap any inline triggers in backticks as well to avoid formatting issues
+    desc = desc.replace(/\(triggers:\s*`?(.*?)`?\)/g, '(triggers: `$1`)');
+
+    const content = `${prefix}${desc}`.trim();
     return `- **[${id}]**: ${content}${triggerText}`;
   }
 }

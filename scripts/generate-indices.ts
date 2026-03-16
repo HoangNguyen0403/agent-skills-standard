@@ -76,7 +76,11 @@ async function generate() {
 
         const prefix = metadata.priority.startsWith("P0") ? "🚨 " : "";
 
-        const content = `${prefix}${metadata.description || ""}`.trim();
+        let desc = metadata.description || "";
+        // Wrap triggers in backticks to prevent prettier/markdownlint from parsing globs as emphasis
+        desc = desc.replace(/\(triggers:\s*`?(.*?)`?\)/g, '(triggers: `$1`)');
+
+        const content = `${prefix}${desc}`.trim();
         entries.push(`- **[${id}]**: ${content}`);
       }
     }
