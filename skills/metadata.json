@@ -155,8 +155,8 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.4.1",
-      "last_updated": "2026-03-15",
+      "version": "1.5.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 21,
@@ -166,8 +166,8 @@
       }
     },
     "dart": {
-      "version": "1.1.0",
-      "last_updated": "2026-03-04",
+      "version": "1.2.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "dart-v",
       "token_metrics": {
         "total_skills": 3,
@@ -177,8 +177,8 @@
       }
     },
     "typescript": {
-      "version": "1.1.0",
-      "last_updated": "2026-03-04",
+      "version": "1.2.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "typescript-v",
       "token_metrics": {
         "total_skills": 4,
@@ -188,8 +188,8 @@
       }
     },
     "javascript": {
-      "version": "1.1.0",
-      "last_updated": "2026-03-04",
+      "version": "1.2.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "javascript-v",
       "token_metrics": {
         "total_skills": 3,
@@ -199,8 +199,8 @@
       }
     },
     "react": {
-      "version": "1.1.0",
-      "last_updated": "2026-03-04",
+      "version": "1.2.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
@@ -210,8 +210,8 @@
       }
     },
     "react-native": {
-      "version": "1.2.0",
-      "last_updated": "2026-03-04",
+      "version": "1.3.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "react-native-v",
       "token_metrics": {
         "total_skills": 13,
@@ -221,8 +221,8 @@
       }
     },
     "nestjs": {
-      "version": "1.2.1",
-      "last_updated": "2026-03-15",
+      "version": "1.3.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
@@ -232,8 +232,8 @@
       }
     },
     "nextjs": {
-      "version": "1.2.0",
-      "last_updated": "2026-03-04",
+      "version": "1.3.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
@@ -243,8 +243,8 @@
       }
     },
     "common": {
-      "version": "1.7.2",
-      "last_updated": "2026-03-15",
+      "version": "1.8.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 25,
@@ -254,8 +254,8 @@
       }
     },
     "quality-engineering": {
-      "version": "1.1.0",
-      "last_updated": "2026-03-04",
+      "version": "1.2.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 4,
@@ -265,8 +265,8 @@
       }
     },
     "golang": {
-      "version": "1.1.0",
-      "last_updated": "2026-03-04",
+      "version": "1.2.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 10,
@@ -276,8 +276,8 @@
       }
     },
     "angular": {
-      "version": "1.2.0",
-      "last_updated": "2026-03-04",
+      "version": "1.3.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "angular-v",
       "token_metrics": {
         "total_skills": 15,
@@ -287,8 +287,8 @@
       }
     },
     "kotlin": {
-      "version": "1.1.0",
-      "last_updated": "2026-03-04",
+      "version": "1.2.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "kotlin-v",
       "token_metrics": {
         "total_skills": 4,
@@ -298,8 +298,8 @@
       }
     },
     "java": {
-      "version": "1.1.0",
-      "last_updated": "2026-03-04",
+      "version": "1.2.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "java-v",
       "token_metrics": {
         "total_skills": 5,
@@ -309,8 +309,8 @@
       }
     },
     "spring-boot": {
-      "version": "1.1.0",
-      "last_updated": "2026-03-04",
+      "version": "1.2.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "spring-boot-v",
       "token_metrics": {
         "total_skills": 10,
@@ -320,8 +320,8 @@
       }
     },
     "android": {
-      "version": "1.1.0",
-      "last_updated": "2026-03-04",
+      "version": "1.2.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 22,
@@ -331,8 +331,8 @@
       }
     },
     "swift": {
-      "version": "1.1.0",
-      "last_updated": "2026-03-04",
+      "version": "1.2.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
@@ -342,8 +342,8 @@
       }
     },
     "ios": {
-      "version": "1.2.0",
-      "last_updated": "2026-03-04",
+      "version": "1.3.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "ios-v",
       "token_metrics": {
         "total_skills": 15,
@@ -353,8 +353,8 @@
       }
     },
     "php": {
-      "version": "1.1.0",
-      "last_updated": "2026-03-04",
+      "version": "1.2.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "php-v",
       "token_metrics": {
         "total_skills": 7,
@@ -364,8 +364,8 @@
       }
     },
     "laravel": {
-      "version": "1.1.0",
-      "last_updated": "2026-03-04",
+      "version": "1.2.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "laravel-v",
       "token_metrics": {
         "total_skills": 10,
@@ -375,8 +375,8 @@
       }
     },
     "database": {
-      "version": "1.1.1",
-      "last_updated": "2026-03-07",
+      "version": "1.2.0",
+      "last_updated": "2026-03-16",
       "tag_prefix": "database-v",
       "token_metrics": {
         "total_skills": 3,
