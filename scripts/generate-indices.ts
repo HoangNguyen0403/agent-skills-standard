@@ -1,16 +1,14 @@
-import fs from "fs-extra";
-import yaml from "js-yaml";
-import path from "path";
-import { Agent } from "../cli/src/constants";
-import { AgentBridgeService } from "../cli/src/services/AgentBridgeService";
-import { IndexGeneratorService } from "../cli/src/services/IndexGeneratorService";
-import { MarkdownUtils } from "../cli/src/services/utils/MarkdownUtils";
+import fs from 'fs-extra';
+import yaml from 'js-yaml';
+import path from 'path';
+import { Agent } from '../cli/src/constants';
+import { AgentBridgeService } from '../cli/src/services/AgentBridgeService';
+import { IndexGeneratorService } from '../cli/src/services/IndexGeneratorService';
+import { MarkdownUtils } from '../cli/src/services/utils/MarkdownUtils';
 
-function getFirstSentence(text: string): string {
-  if (!text) return "";
-  const match = text.match(/^[^.!?]*[.!?]/);
-  if (match) return match[0];
-  return text.split("\n")[0];
+function getFirstLine(text: string): string {
+  if (!text) return '';
+  return text.split('\n')[0];
 }
 
 interface SkillMetadata {
@@ -21,7 +19,7 @@ interface SkillMetadata {
 
 async function parseSkill(skillPath: string): Promise<SkillMetadata | null> {
   try {
-    const content = await fs.readFile(skillPath, "utf8");
+    const content = await fs.readFile(skillPath, 'utf8');
     const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
 
     if (!frontmatterMatch) return null;
@@ -33,11 +31,11 @@ async function parseSkill(skillPath: string): Promise<SkillMetadata | null> {
     const body = frontmatterMatch[2];
 
     const priorityMatch = body.match(/## \*\*Priority:\s*([^*]+)\*\*/);
-    const priority = priorityMatch ? priorityMatch[1].trim() : "P1";
+    const priority = priorityMatch ? priorityMatch[1].trim() : 'P1';
 
     return {
-      name: fm.name || "",
-      description: fm.description || "",
+      name: fm.name || '',
+      description: fm.description || '',
       priority,
     };
   } catch {
@@ -47,8 +45,8 @@ async function parseSkill(skillPath: string): Promise<SkillMetadata | null> {
 
 async function generate() {
   // Look for skills directory in the repository root
-  const repoRoot = path.join(__dirname, "..");
-  const skillsDir = path.join(repoRoot, "skills");
+  const repoRoot = path.join(__dirname, '..');
+  const skillsDir = path.join(repoRoot, 'skills');
 
   if (!(await fs.pathExists(skillsDir))) {
     throw new Error(`Skills directory not found at ${skillsDir}`);
@@ -56,7 +54,7 @@ async function generate() {
 
   const categories = (await fs.readdir(skillsDir)).filter((f) => {
     const p = path.join(skillsDir, f);
-    return fs.statSync(p).isDirectory() && !f.startsWith(".");
+    return fs.statSync(p).isDirectory() && !f.startsWith('.');
   });
 
   const frameworkIndices: Record<string, string> = {};
@@ -67,16 +65,16 @@ async function generate() {
     const entries: string[] = [];
 
     for (const skill of skills) {
-      const skillPath = path.join(categoryPath, skill, "SKILL.md");
+      const skillPath = path.join(categoryPath, skill, 'SKILL.md');
       if (!(await fs.pathExists(skillPath))) continue;
 
       const metadata = await parseSkill(skillPath);
       if (metadata) {
         const id = `${category}/${skill}`;
 
-        const prefix = metadata.priority.startsWith("P0") ? "🚨 " : "";
+        const prefix = metadata.priority.startsWith('P0') ? '🚨 ' : '';
 
-        let desc = metadata.description || "";
+        let desc = metadata.description || '';
         // Wrap triggers in backticks to prevent prettier/markdownlint from parsing globs as emphasis
         desc = desc.replace(/\(triggers:\s*`?(.*?)`?\)/g, '(triggers: `$1`)');
 
@@ -86,11 +84,11 @@ async function generate() {
     }
 
     if (entries.length > 0) {
-      frameworkIndices[category] = entries.join("\n");
+      frameworkIndices[category] = entries.join('\n');
     }
   }
 
-  const indexPath = path.join(skillsDir, "index.json");
+  const indexPath = path.join(skillsDir, 'index.json');
   await fs.writeJson(indexPath, frameworkIndices, { spaces: 2 });
   console.log(
     `✅ Generated indices for ${Object.keys(frameworkIndices).length} frameworks in skills/index.json`,
@@ -104,14 +102,14 @@ async function generate() {
 
   // Include all skill categories in the repository index
   Object.values(frameworkIndices).forEach((s) => {
-    s.split("\n").forEach((entry) => allEntries.add(entry));
+    s.split('\n').forEach((entry) => allEntries.add(entry));
   });
 
   const indexContent = generator.assembleIndex(Array.from(allEntries));
 
-  await MarkdownUtils.injectIndex(repoRoot, ["AGENTS.md"], indexContent);
+  await MarkdownUtils.injectIndex(repoRoot, ['AGENTS.md'], indexContent);
 
-  console.log("✅ Updated AGENTS.md in repo root");
+  console.log('✅ Updated AGENTS.md in repo root');
 
   const agents = [
     Agent.Cursor,
@@ -126,12 +124,12 @@ async function generate() {
 
   const bridgeService = new AgentBridgeService();
   await bridgeService.bridge(repoRoot, agents);
-  console.log("✅ Updated agent rule files");
+  console.log('✅ Updated agent rule files');
 
   // Update README.md with human-readable index
-  const readmePath = path.join(skillsDir, "README.md");
+  const readmePath = path.join(skillsDir, 'README.md');
   if (await fs.pathExists(readmePath)) {
-    let readmeContent = await fs.readFile(readmePath, "utf8");
+    let readmeContent = await fs.readFile(readmePath, 'utf8');
 
     const categoryRegex = /### ([^\n]+)\n\n([^\n]+)\n/g;
     let match;
@@ -147,11 +145,11 @@ async function generate() {
       }
       let key = keyMatch ? keyMatch[1].toLowerCase() : null;
 
-      if (title.includes("Quality Engineering")) key = "quality-engineering";
-      if (title.includes("Spring Boot")) key = "spring-boot";
-      if (title.includes("Next.js")) key = "nextjs";
-      if (title.includes("React Native")) key = "react-native";
-      if (title.includes("Database")) key = "database";
+      if (title.includes('Quality Engineering')) key = 'quality-engineering';
+      if (title.includes('Spring Boot')) key = 'spring-boot';
+      if (title.includes('Next.js')) key = 'nextjs';
+      if (title.includes('React Native')) key = 'react-native';
+      if (title.includes('Database')) key = 'database';
 
       if (key) {
         categoryMetadata[key] = { title, desc };
@@ -167,7 +165,7 @@ async function generate() {
       }
     }
 
-    let generatedIndex = "";
+    let generatedIndex = '';
 
     for (const [cat, meta] of Object.entries(categoryMetadata)) {
       const catPath = path.join(skillsDir, cat);
@@ -177,24 +175,24 @@ async function generate() {
       const skillEntries: string[] = [];
 
       for (const skill of catSkills) {
-        if (skill.startsWith(".")) continue;
-        const skillPath = path.join(catPath, skill, "SKILL.md");
+        if (skill.startsWith('.')) continue;
+        const skillPath = path.join(catPath, skill, 'SKILL.md');
         if (!(await fs.pathExists(skillPath))) continue;
 
         const info = await parseSkill(skillPath);
         if (info) {
           let formattedName = skill;
-          if (formattedName.startsWith(cat + "-")) {
+          if (formattedName.startsWith(cat + '-')) {
             formattedName = formattedName.substring(cat.length + 1);
           }
           formattedName = formattedName
-            .split("-")
+            .split('-')
             .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-            .join(" ");
+            .join(' ');
 
           const relPath = `${cat}/${skill}/SKILL.md`;
-          const p = info.priority.split(" ")[0];
-          const desc = getFirstSentence(info.description);
+          const p = info.priority.split(' ')[0];
+          const desc = getFirstLine(info.description);
 
           skillEntries.push(
             `- [**${formattedName}**](${relPath}) (${p}) - ${desc}`,
@@ -207,17 +205,17 @@ async function generate() {
         skillEntries.sort((a, b) => {
           const pa = a.match(/\((P[0-9])\)/);
           const pb = b.match(/\((P[0-9])\)/);
-          const pra = pa ? pa[1] : "P9";
-          const prb = pb ? pb[1] : "P9";
+          const pra = pa ? pa[1] : 'P9';
+          const prb = pb ? pb[1] : 'P9';
           if (pra !== prb) return pra.localeCompare(prb);
           return a.localeCompare(b);
         });
-        generatedIndex += skillEntries.join("\n") + "\n\n";
+        generatedIndex += skillEntries.join('\n') + '\n\n';
       }
     }
 
-    const markerStart = "<!-- SKILLS_INDEX_START -->";
-    const markerEnd = "<!-- SKILLS_INDEX_END -->";
+    const markerStart = '<!-- SKILLS_INDEX_START -->';
+    const markerEnd = '<!-- SKILLS_INDEX_END -->';
 
     const startIndex = readmeContent.indexOf(markerStart);
     const endIndex = readmeContent.indexOf(markerEnd);
@@ -226,8 +224,8 @@ async function generate() {
       const pre = readmeContent.substring(0, startIndex + markerStart.length);
       const post = readmeContent.substring(endIndex);
       readmeContent = `${pre}\n${generatedIndex.trim()}\n${post}`;
-      await fs.writeFile(readmePath, readmeContent, "utf8");
-      console.log("✅ Updated skills/README.md with auto-generated index");
+      await fs.writeFile(readmePath, readmeContent, 'utf8');
+      console.log('✅ Updated skills/README.md with auto-generated index');
     }
   }
 }
