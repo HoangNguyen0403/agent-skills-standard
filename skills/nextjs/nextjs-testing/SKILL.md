@@ -1,6 +1,6 @@
 ---
 name: nextjs-testing
-description: Unit, Integration, and E2E testing standards for App Router. Use when writing unit, integration, or Playwright E2E tests for a Next.js App Router project. (triggers: **/*.test.{ts, tsx}, cypress/**, tests/**, vitest, playwright, msw, testing-library)
+description: "Unit, Integration, and E2E testing standards for App Router. Use when writing unit, integration, or Playwright E2E tests for a Next.js App Router project. (triggers: **/*.test.{ts, tsx}, cypress/**, tests/**, vitest, playwright, msw, testing-library)"
 ---
 
 # Next.js Testing

@@ -1,6 +1,6 @@
 ---
 name: ios-swiftui
-description: Standards for declarative UI construction and data flow in iOS. Use when building declarative SwiftUI views or managing data flow with property wrappers. (triggers: **/*View.swift, View, State, Binding, EnvironmentObject)
+description: "Standards for declarative UI construction and data flow in iOS. Use when building declarative SwiftUI views or managing data flow with property wrappers. (triggers: **/*View.swift, View, State, Binding, EnvironmentObject)"
 ---
 
 # SwiftUI Expert

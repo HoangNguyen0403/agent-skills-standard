@@ -1,6 +1,6 @@
 ---
 name: laravel-tooling
-description: Ecosystem management, Artisan, and asset bundling. Use when managing Composer dependencies, Artisan commands, or Vite asset bundling in Laravel. (triggers: package.json, composer.json, vite.config.js, artisan, vite, horizon, pint, blade)
+description: "Ecosystem management, Artisan, and asset bundling. Use when managing Composer dependencies, Artisan commands, or Vite asset bundling in Laravel. (triggers: package.json, composer.json, vite.config.js, artisan, vite, horizon, pint, blade)"
 ---
 
 # Laravel Tooling

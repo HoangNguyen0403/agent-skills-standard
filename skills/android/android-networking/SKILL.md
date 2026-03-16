@@ -1,6 +1,6 @@
 ---
 name: android-networking
-description: Standards for Retrofit, OkHttp, and API Communication. Use when integrating Retrofit, OkHttp, or API clients in Android apps. (triggers: **/*Api.kt, **/*Service.kt, **/*Client.kt, Retrofit, OkHttpClient, @GET, @POST)
+description: "Standards for Retrofit, OkHttp, and API Communication. Use when integrating Retrofit, OkHttp, or API clients in Android apps. (triggers: **/*Api.kt, **/*Service.kt, **/*Client.kt, Retrofit, OkHttpClient, @GET, @POST)"
 ---
 
 # Android Networking Standards

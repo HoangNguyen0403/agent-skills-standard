@@ -1,6 +1,6 @@
 ---
 name: golang-architecture
-description: Standards for structural design, Clean Architecture, and project layout in Golang. Use when structuring Go projects or applying Clean Architecture in Go. (triggers: go.mod, internal/**, architecture, structure, folder layout, clean arch, dependency injection)
+description: "Standards for structural design, Clean Architecture, and project layout in Golang. Use when structuring Go projects or applying Clean Architecture in Go. (triggers: go.mod, internal/**, architecture, structure, folder layout, clean arch, dependency injection)"
 ---
 
 # Golang Architecture Standards

@@ -1,6 +1,6 @@
 ---
 name: angular-forms
-description: Standards for Typed Reactive Forms and Validators. Use when implementing typed reactive forms, custom validators, or form control patterns in Angular. (triggers: **/*.ts, **/*.html, FormBuilder, FormGroup, FormControl, Validators)
+description: "Standards for Typed Reactive Forms and Validators. Use when implementing typed reactive forms, custom validators, or form control patterns in Angular. (triggers: **/*.ts, **/*.html, FormBuilder, FormGroup, FormControl, Validators)"
 ---
 
 # Forms

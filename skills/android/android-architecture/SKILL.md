@@ -1,6 +1,6 @@
 ---
 name: android-architecture
-description: Standards for Clean Architecture, Modularization, and Unidirectional Data Flow. Use when designing Android project structure, modularization, or data flow patterns. (triggers: build.gradle.kts, settings.gradle.kts, clean-architecture, module, layers, domain)
+description: "Standards for Clean Architecture, Modularization, and Unidirectional Data Flow. Use when designing Android project structure, modularization, or data flow patterns. (triggers: build.gradle.kts, settings.gradle.kts, clean-architecture, module, layers, domain)"
 ---
 
 # Android Architecture Standards

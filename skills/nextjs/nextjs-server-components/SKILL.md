@@ -1,6 +1,6 @@
 ---
 name: nextjs-server-components
-description: RSC usage, ''use client'' directive, and Component Purity. Use when working with React Server Components or deciding where to place the ''use client'' boundary. (triggers: app/**/*.tsx, src/app/**/*.tsx, app/**/*.jsx, src/app/**/*.jsx, use client, Server Component, Client Component, hydration)
+description: "RSC usage, ''use client'' directive, and Component Purity. Use when working with React Server Components or deciding where to place the ''use client'' boundary. (triggers: app/**/*.tsx, src/app/**/*.tsx, app/**/*.jsx, src/app/**/*.jsx, use client, Server Component, Client Component, hydration)"
 ---
 
 # Server & Client Components

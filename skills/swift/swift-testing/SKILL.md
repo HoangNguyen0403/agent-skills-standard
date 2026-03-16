@@ -1,6 +1,6 @@
 ---
 name: swift-testing
-description: Standards for XCTest, Async Tests, and Test Organization. Use when writing XCTest cases, async tests, or organizing test suites in Swift. (triggers: **/*Tests.swift, XCTestCase, XCTestExpectation, XCTAssert)
+description: "Standards for XCTest, Async Tests, and Test Organization. Use when writing XCTest cases, async tests, or organizing test suites in Swift. (triggers: **/*Tests.swift, XCTestCase, XCTestExpectation, XCTAssert)"
 ---
 
 # Swift Testing Standards

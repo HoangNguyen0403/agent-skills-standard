@@ -1,6 +1,6 @@
 ---
 name: android-background-work
-description: Standards for WorkManager and Background Processing. Use when implementing background tasks, scheduled work, or long-running operations in Android. (triggers: **/*Worker.kt, CoroutineWorker, WorkManager, doWork)
+description: "Standards for WorkManager and Background Processing. Use when implementing background tasks, scheduled work, or long-running operations in Android. (triggers: **/*Worker.kt, CoroutineWorker, WorkManager, doWork)"
 ---
 
 # Android Background Work Standards

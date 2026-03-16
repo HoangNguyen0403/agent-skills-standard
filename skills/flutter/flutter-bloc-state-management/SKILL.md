@@ -1,6 +1,6 @@
 ---
 name: flutter-bloc-state-management
-description: Standards for predictable state management using flutter_bloc, freezed, and equatable. Use when implementing BLoC pattern for state management in Flutter. (triggers: **_bloc.dart, **_cubit.dart, **_state.dart, **_event.dart, BlocProvider, BlocBuilder, BlocListener, Cubit, Emitter)
+description: "Standards for predictable state management using flutter_bloc, freezed, and equatable. Use when implementing BLoC pattern for state management in Flutter. (triggers: **_bloc.dart, **_cubit.dart, **_state.dart, **_event.dart, BlocProvider, BlocBuilder, BlocListener, Cubit, Emitter)"
 ---
 
 # BLoC State Management

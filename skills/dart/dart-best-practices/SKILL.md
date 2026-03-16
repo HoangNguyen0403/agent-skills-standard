@@ -1,6 +1,6 @@
 ---
 name: dart-best-practices
-description: General purity standards for Dart development. Use when writing idiomatic Dart code, following Dart conventions, or reviewing Dart code quality. (triggers: **/*.dart, import, final, const, var, global)
+description: "General purity standards for Dart development. Use when writing idiomatic Dart code, following Dart conventions, or reviewing Dart code quality. (triggers: **/*.dart, import, final, const, var, global)"
 ---
 
 # Dart Best Practices

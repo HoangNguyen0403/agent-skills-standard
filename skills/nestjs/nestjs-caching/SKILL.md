@@ -1,6 +1,6 @@
 ---
 name: nestjs-caching
-description: Multi-level caching, Invalidation patterns, and Stampede protection. Use when implementing multi-level caching or cache invalidation strategies in NestJS. (triggers: **/*.service.ts, **/*.interceptor.ts, CacheInterceptor, CacheTTL, Redis, stale-while-revalidate)
+description: "Multi-level caching, Invalidation patterns, and Stampede protection. Use when implementing multi-level caching or cache invalidation strategies in NestJS. (triggers: **/*.service.ts, **/*.interceptor.ts, CacheInterceptor, CacheTTL, Redis, stale-while-revalidate)"
 ---
 
 # Caching & Redis Standards

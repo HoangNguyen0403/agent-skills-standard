@@ -1,6 +1,6 @@
 ---
 name: nestjs-transport
-description: gRPC, RabbitMQ standards and Monorepo contracts. Use when implementing gRPC microservices, RabbitMQ messaging, or monorepo transport in NestJS. (triggers: main.ts, **/*.controller.ts, Transport.GRPC, Transport.RMQ, MicroserviceOptions)
+description: "gRPC, RabbitMQ standards and Monorepo contracts. Use when implementing gRPC microservices, RabbitMQ messaging, or monorepo transport in NestJS. (triggers: main.ts, **/*.controller.ts, Transport.GRPC, Transport.RMQ, MicroserviceOptions)"
 ---
 
 # Microservices & Transport Standards

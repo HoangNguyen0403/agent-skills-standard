@@ -1,6 +1,6 @@
 ---
 name: android-state
-description: Standards for ViewModel, StateFlow, and UI State Patterns. Use when managing UI state with ViewModel, StateFlow, or UiState in Android. (triggers: **/*ViewModel.kt, **/*UiState.kt, viewmodel, stateflow, livedata, uistate)
+description: "Standards for ViewModel, StateFlow, and UI State Patterns. Use when managing UI state with ViewModel, StateFlow, or UiState in Android. (triggers: **/*ViewModel.kt, **/*UiState.kt, viewmodel, stateflow, livedata, uistate)"
 ---
 
 # Android State Management

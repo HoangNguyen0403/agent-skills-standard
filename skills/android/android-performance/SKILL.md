@@ -1,6 +1,6 @@
 ---
 name: android-performance
-description: Standards for Baseline Profiles, Startup Time, and UI Rendering. Use when optimizing app startup, jank, or UI rendering performance in Android. (triggers: **/*Benchmark.kt, **/*Initializer.kt, BaselineProfile, JankStats, recomposition)
+description: "Standards for Baseline Profiles, Startup Time, and UI Rendering. Use when optimizing app startup, jank, or UI rendering performance in Android. (triggers: **/*Benchmark.kt, **/*Initializer.kt, BaselineProfile, JankStats, recomposition)"
 ---
 
 # Android Performance Standards

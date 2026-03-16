@@ -1,6 +1,6 @@
 ---
 name: flutter-security
-description: Security standards for Flutter applications based on OWASP Mobile. Use when applying OWASP Mobile security standards or securing a Flutter application. (triggers: lib/infrastructure/**, pubspec.yaml, secure_storage, obfuscate, jailbreak, pinning, PII, OWASP)
+description: "Security standards for Flutter applications based on OWASP Mobile. Use when applying OWASP Mobile security standards or securing a Flutter application. (triggers: lib/infrastructure/**, pubspec.yaml, secure_storage, obfuscate, jailbreak, pinning, PII, OWASP)"
 ---
 
 # Mobile Security

@@ -1,6 +1,6 @@
 ---
 name: kotlin-coroutines
-description: Standards for safe, structured concurrency in Kotlin. Use when implementing Kotlin Coroutines, structured concurrency, or Flow in Android or backend. (triggers: **/*.kt, suspend, CoroutineScope, launch, async, Flow)
+description: "Standards for safe, structured concurrency in Kotlin. Use when implementing Kotlin Coroutines, structured concurrency, or Flow in Android or backend. (triggers: **/*.kt, suspend, CoroutineScope, launch, async, Flow)"
 ---
 
 # Kotlin Coroutines Expert

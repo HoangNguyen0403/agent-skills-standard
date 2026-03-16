@@ -1,6 +1,6 @@
 ---
 name: golang-database
-description: Standards for database interaction, connection pooling, and repository patterns in Golang. Use when implementing database access, connection pools, or repositories in Go. (triggers: internal/adapter/repository/**, database, sql, postgres, gorm, sqlc, pgx)
+description: "Standards for database interaction, connection pooling, and repository patterns in Golang. Use when implementing database access, connection pools, or repositories in Go. (triggers: internal/adapter/repository/**, database, sql, postgres, gorm, sqlc, pgx)"
 ---
 
 # Golang Database Standards

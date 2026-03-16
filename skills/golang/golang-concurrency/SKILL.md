@@ -1,6 +1,6 @@
 ---
 name: golang-concurrency
-description: Standards for safe concurrent programming using Goroutines, Channels, and Context. Use when implementing concurrency with Goroutines, Channels, or Context in Go. (triggers: **/*.go, goroutine, go keyword, channel, mutex, waitgroup, context)
+description: "Standards for safe concurrent programming using Goroutines, Channels, and Context. Use when implementing concurrency with Goroutines, Channels, or Context in Go. (triggers: **/*.go, goroutine, go keyword, channel, mutex, waitgroup, context)"
 ---
 
 # Golang Concurrency Standards

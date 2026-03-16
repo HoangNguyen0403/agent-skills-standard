@@ -1,6 +1,6 @@
 ---
 name: laravel-api
-description: REST and JSON API standards for modern Laravel backends. Use when designing REST endpoints, API resources, or JSON API responses in Laravel. (triggers: routes/api.php, app/Http/Resources/**/*.php, resource, collection, sanctum, passport, cors)
+description: "REST and JSON API standards for modern Laravel backends. Use when designing REST endpoints, API resources, or JSON API responses in Laravel. (triggers: routes/api.php, app/Http/Resources/**/*.php, resource, collection, sanctum, passport, cors)"
 ---
 
 # Laravel API

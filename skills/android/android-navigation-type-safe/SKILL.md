@@ -1,6 +1,6 @@
 ---
 name: android-navigation-type-safe
-description: Standards for Jetpack Navigation Compose (Type-safe). Use when implementing type-safe navigation graphs in Jetpack Compose for Android. (triggers: **/*NavHost.kt, **/*Graph.kt, NavHost, navController, @Serializable)
+description: "Standards for Jetpack Navigation Compose (Type-safe). Use when implementing type-safe navigation graphs in Jetpack Compose for Android. (triggers: **/*NavHost.kt, **/*Graph.kt, NavHost, navController, @Serializable)"
 ---
 
 # Android Navigation Standards

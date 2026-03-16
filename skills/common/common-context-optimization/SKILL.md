@@ -1,6 +1,6 @@
 ---
 name: common-context-optimization
-description: Techniques to maximize context window efficiency, reduce latency, and prevent ''lost in middle'' issues through strategic masking and compaction. (triggers: *.log, chat-history.json, reduce tokens, optimize context, summarize history, clear output)
+description: "Techniques to maximize context window efficiency, reduce latency, and prevent ''lost in middle'' issues through strategic masking and compaction. (triggers: *.log, chat-history.json, reduce tokens, optimize context, summarize history, clear output)"
 ---
 
 ## **Priority: P1 (OPTIMIZATION)**

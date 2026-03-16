@@ -1,6 +1,6 @@
 ---
 name: flutter-feature-based-clean-architecture
-description: Standards for organizing Flutter code by feature for scalability. Use when structuring a Flutter project with feature-based clean architecture. (triggers: lib/features/**, feature, domain, infrastructure, application, presentation, modular)
+description: "Standards for organizing Flutter code by feature for scalability. Use when structuring a Flutter project with feature-based clean architecture. (triggers: lib/features/**, feature, domain, infrastructure, application, presentation, modular)"
 ---
 
 # Feature-Based Clean Architecture

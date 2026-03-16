@@ -1,6 +1,6 @@
 ---
 name: nestjs-search
-description: Elasticsearch integration and Sync patterns. Use when integrating Elasticsearch or implementing search index sync in NestJS. (triggers: **/*.service.ts, **/search/**, Elasticsearch, CQRS, Synchronization)
+description: "Elasticsearch integration and Sync patterns. Use when integrating Elasticsearch or implementing search index sync in NestJS. (triggers: **/*.service.ts, **/search/**, Elasticsearch, CQRS, Synchronization)"
 ---
 
 # Search Engine & Full-Text

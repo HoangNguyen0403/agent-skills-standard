@@ -1,6 +1,6 @@
 ---
 name: react-native-testing
-description: Jest and React Native Testing Library for component and integration tests. Use when writing Jest or React Native Testing Library tests for React Native components. (triggers: **/*.test.tsx, **/*.spec.tsx, __tests__/**, test, testing, jest, render, fireEvent, waitFor)
+description: "Jest and React Native Testing Library for component and integration tests. Use when writing Jest or React Native Testing Library tests for React Native components. (triggers: **/*.test.tsx, **/*.spec.tsx, __tests__/**, test, testing, jest, render, fireEvent, waitFor)"
 ---
 
 # React Native Testing

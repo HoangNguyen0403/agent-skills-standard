@@ -1,6 +1,6 @@
 ---
 name: nextjs-optimization
-description: Image, Font, Script, and Metadata optimization strategies. Use when optimizing Next.js images, fonts, scripts, or page metadata for performance. (triggers: **/layout.tsx, **/page.tsx, next/image, next/font, metadata, generateMetadata)
+description: "Image, Font, Script, and Metadata optimization strategies. Use when optimizing Next.js images, fonts, scripts, or page metadata for performance. (triggers: **/layout.tsx, **/page.tsx, next/image, next/font, metadata, generateMetadata)"
 ---
 
 # Optimization

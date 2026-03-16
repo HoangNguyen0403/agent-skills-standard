@@ -1,6 +1,6 @@
 ---
 name: common-skill-creator
-description: Standards for creating, testing, and optimizing Agent Skills. Use when creating, improving, catching regressions, measuring trigger rates, or writing eval cases for any skill. (triggers: SKILL.md, metadata.json, evals/evals.json, create skill, new standard, writing rules, high density, test skill, eval skill, trigger rate, optimize, description, skill regression, improve skill)
+description: "Standards for creating, testing, and optimizing Agent Skills. Use when creating, improving, catching regressions, measuring trigger rates, or writing eval cases for any skill. (triggers: SKILL.md, metadata.json, evals/evals.json, create skill, new standard, writing rules, high density, test skill, eval skill, trigger rate, optimize, description, skill regression, improve skill)"
 ---
 
 # Agent Skill Creator Standard

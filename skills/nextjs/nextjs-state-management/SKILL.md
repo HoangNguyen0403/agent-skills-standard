@@ -1,6 +1,6 @@
 ---
 name: nextjs-state-management
-description: Best practices for managing state (Server URL vs Client Hooks). Use when managing URL state, client state, or global state in a Next.js application. (triggers: **/hooks/*.ts, **/store.ts, **/components/*.tsx, useState, useContext, zustand, redux)
+description: "Best practices for managing state (Server URL vs Client Hooks). Use when managing URL state, client state, or global state in a Next.js application. (triggers: **/hooks/*.ts, **/store.ts, **/components/*.tsx, useState, useContext, zustand, redux)"
 ---
 
 # State Management

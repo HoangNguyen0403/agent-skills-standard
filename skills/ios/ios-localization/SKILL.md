@@ -1,6 +1,6 @@
 ---
 name: ios-localization
-description: Standards for String Catalogs, L10n, and Asset Management. Use when adding multi-language support using iOS String Catalogs or L10n workflows. (triggers: **/*.stringcatalog, **/*.xcassets, **/*.strings, LocalizedStringResource, NSLocalizedString, String(localized:))
+description: "Standards for String Catalogs, L10n, and Asset Management. Use when adding multi-language support using iOS String Catalogs or L10n workflows. (triggers: **/*.stringcatalog, **/*.xcassets, **/*.strings, LocalizedStringResource, NSLocalizedString, String(localized:))"
 ---
 
 # iOS Localization & Assets Standards

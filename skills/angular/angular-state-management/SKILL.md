@@ -1,6 +1,6 @@
 ---
 name: angular-state-management
-description: Signals-based state management and NgRx Signal Store. Use when managing application state with Angular Signals or NgRx Signal Store. (triggers: **/*.store.ts, **/state/**, angular signals, signal store, computed, effect)
+description: "Signals-based state management and NgRx Signal Store. Use when managing application state with Angular Signals or NgRx Signal Store. (triggers: **/*.store.ts, **/state/**, angular signals, signal store, computed, effect)"
 ---
 
 # State Management

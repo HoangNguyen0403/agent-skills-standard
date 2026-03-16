@@ -1,6 +1,6 @@
 ---
 name: angular-performance
-description: Optimization techniques including OnPush, @defer, and Image Optimization. Use when optimizing Angular rendering, deferring blocks, or improving Core Web Vitals. (triggers: **/*.ts, **/*.html, ChangeDetectionStrategy.OnPush, @defer, NgOptimizedImage, runOutsideAngular)
+description: "Optimization techniques including OnPush, @defer, and Image Optimization. Use when optimizing Angular rendering, deferring blocks, or improving Core Web Vitals. (triggers: **/*.ts, **/*.html, ChangeDetectionStrategy.OnPush, @defer, NgOptimizedImage, runOutsideAngular)"
 ---
 
 # Performance

@@ -1,6 +1,6 @@
 ---
 name: android-concurrency
-description: Standards for Coroutines, Flow, and Threading. Use when working with async operations, Coroutines, or Flow in Android. (triggers: **/*.kt, suspend, viewModelScope, lifecycleScope, Flow)
+description: "Standards for Coroutines, Flow, and Threading. Use when working with async operations, Coroutines, or Flow in Android. (triggers: **/*.kt, suspend, viewModelScope, lifecycleScope, Flow)"
 ---
 
 # Android Concurrency Standards

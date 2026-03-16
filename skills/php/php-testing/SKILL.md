@@ -1,6 +1,6 @@
 ---
 name: php-testing
-description: Unit and integration testing standards for PHP applications. Use when writing PHPUnit unit tests or integration tests for PHP applications. (triggers: tests/**/*.php, phpunit.xml, phpunit, pest, mock, assert, tdd)
+description: "Unit and integration testing standards for PHP applications. Use when writing PHPUnit unit tests or integration tests for PHP applications. (triggers: tests/**/*.php, phpunit.xml, phpunit, pest, mock, assert, tdd)"
 ---
 
 # PHP Testing

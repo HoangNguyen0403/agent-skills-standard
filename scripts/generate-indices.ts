@@ -70,7 +70,12 @@ async function generate() {
         const prefix = metadata.priority.startsWith('P0') ? '🚨 ' : '';
 
         // Format: - **[category/skill]**: 🚨 Description (triggers: file.ts, keyword)
-        const content = `${prefix}${metadata.description || ''}`.trim();
+        // Note: We strip ** and _ from the description to prevent markdownlint MD037/MD049 errors 
+        // caused by file globs like (triggers: **/*.ts, _bloc.dart)
+        const cleanDescription = (metadata.description || '')
+          .replace(/\*\*/g, '')
+          .replace(/_/g, '');
+        const content = `${prefix}${cleanDescription}`.trim();
         entries.push(`- **[${id}]**: ${content}`);
       }
     }

@@ -1,6 +1,6 @@
 ---
 name: java-best-practices
-description: Core engineering principles inspired by Effective Java and Clean Code. Use when applying Effective Java patterns, SOLID principles, or clean code practices in Java. (triggers: **/*.java, refactor, clean code, smells, patterns, design)
+description: "Core engineering principles inspired by Effective Java and Clean Code. Use when applying Effective Java patterns, SOLID principles, or clean code practices in Java. (triggers: **/*.java, refactor, clean code, smells, patterns, design)"
 ---
 
 # Java Best Practices

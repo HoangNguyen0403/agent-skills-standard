@@ -1,6 +1,6 @@
 ---
 name: android-testing
-description: Standards for Unit Tests, UI Tests (Compose), and Hilt Integration. Use when writing unit tests, Compose UI tests, or Hilt test modules in Android. (triggers: **/*Test.kt, **/*Rule.kt, @Test, runTest, composeTestRule)
+description: "Standards for Unit Tests, UI Tests (Compose), and Hilt Integration. Use when writing unit tests, Compose UI tests, or Hilt test modules in Android. (triggers: **/*Test.kt, **/*Rule.kt, @Test, runTest, composeTestRule)"
 ---
 
 # Android Testing Standards
