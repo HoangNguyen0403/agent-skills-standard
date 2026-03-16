@@ -1,6 +1,15 @@
 ---
 name: common-debugging
 description: "Systematic troubleshooting using the Scientific Method. Use when debugging crashes, tracing errors, diagnosing unexpected behavior, or investigating exceptions. (triggers: debug, fix bug, crash, error, exception, troubleshooting)"
+keywords:
+  - debug
+  - fix bug
+  - crash
+  - error
+  - exception
+  - troubleshooting
+files:
+  - "**/*"
 ---
 
 # Debugging Expert
@@ -36,3 +45,9 @@ Systematic, evidence-based troubleshooting. Do not guess; prove.
 ## 📚 References
 
 - [Bug Report Template](references/bug-report-template.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

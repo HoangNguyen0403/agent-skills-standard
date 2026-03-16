@@ -1,6 +1,13 @@
 ---
 name: nestjs-error-handling
 description: "Global Exception Filters and standard error formats. Use when implementing global exception filters or standardizing error responses in NestJS. (triggers: **/*.filter.ts, main.ts, ExceptionFilter, Catch, HttpException)"
+keywords:
+  - ExceptionFilter
+  - Catch
+  - HttpException
+files:
+  - "**/*.filter.ts"
+  - "main.ts"
 ---
 
 # NestJS Error Handling Standards
@@ -50,3 +57,9 @@ Global error handling and exception management patterns.
 
 - **Production**: **NEVER** expose stack traces in HTTP responses (`process.env.NODE_ENV === 'production'`).
 - **Sanitization**: Ensure `ApiException` payloads do not leak internal file paths or raw variable dumps.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

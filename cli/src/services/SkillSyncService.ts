@@ -290,8 +290,13 @@ export class SkillSyncService {
   private isOverridden(targetPath: string, overrides: string[]): boolean {
     const rel = this.normalizePath(targetPath);
     return overrides.some((o) => {
-      const op = o.replace(/\\/g, '/');
-      return rel === op || rel.startsWith(`${op.replace(/\/$/, '')}/`);
+      const op = o.replace(/\\/g, '/').replace(/\/$/, '');
+      return (
+        rel === op ||
+        rel.startsWith(`${op}/`) ||
+        rel.includes(`/${op}/`) ||
+        rel.endsWith(`/${op}`)
+      );
     });
   }
 

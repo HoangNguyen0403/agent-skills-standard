@@ -1,6 +1,18 @@
 ---
 name: common-security-audit
 description: "Adversarial security probing and vulnerability assessments across Node, Go, Dart, Java, Python, and Rust. (triggers: package.json, go.mod, pubspec.yaml, pom.xml, Dockerfile, security audit, vulnerability scan, secrets detection, injection probe, pentest)"
+keywords:
+  - Dockerfile
+  - security audit
+  - vulnerability scan
+  - secrets detection
+  - injection probe
+  - pentest
+files:
+  - "package.json"
+  - "go.mod"
+  - "pubspec.yaml"
+  - "pom.xml"
 ---
 
 # Security Audit
@@ -75,3 +87,9 @@ grep -rE "^FROM .+:latest|^USER root|curl.*sh.*|ADD http" . --include="Dockerfil
 ## 📚 Reference Links
 
 - [Vulnerability Remediation Protocols](references/REMEDIATION.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

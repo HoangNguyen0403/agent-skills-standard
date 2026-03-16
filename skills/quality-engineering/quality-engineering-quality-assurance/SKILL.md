@@ -1,6 +1,24 @@
 ---
 name: quality-engineering-quality-assurance
 description: "Standards for creating high-quality, granular manual test cases and QA processes. Use when creating manual test cases, defining QA processes, or reviewing test coverage. (triggers: **/*.feature, **/*.test.ts, **/test_plan.md, test case, qa, bug report, testing standard, zephyr, jira ticket, acceptance criteria, test scenario, manual test, !src/**/*.ts, !src/**/*.js, !src/**/*.tsx, !src/**/*.jsx)"
+keywords:
+  - test case
+  - qa
+  - bug report
+  - testing standard
+  - zephyr
+  - jira ticket
+  - acceptance criteria
+  - test scenario
+  - manual test
+files:
+  - "**/*.feature"
+  - "**/*.test.ts"
+  - "**/test_plan.md"
+  - "!src/**/*.ts"
+  - "!src/**/*.js"
+  - "!src/**/*.tsx"
+  - "!src/**/*.jsx"
 ---
 
 # Quality Assurance Standards
@@ -29,3 +47,9 @@ description: "Standards for creating high-quality, granular manual test cases an
 ## 4. References
 
 - [Detailed Examples](references/test_case_standards.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

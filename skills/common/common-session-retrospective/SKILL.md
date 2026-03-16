@@ -1,6 +1,18 @@
 ---
 name: common-session-retrospective
 description: "Analyze conversation corrections to detect skill gaps and auto-improve the skills library. Use after any session with user corrections, rework, or retrospective requests. (triggers: **/*.spec.ts, **/*.test.ts, SKILL.md, AGENTS.md, retrospective, self-learning, improve skills, session review, correction, rework)"
+keywords:
+  - retrospective
+  - self-learning
+  - improve skills
+  - session review
+  - correction
+  - rework
+files:
+  - "**/*.spec.ts"
+  - "**/*.test.ts"
+  - "SKILL.md"
+  - "AGENTS.md"
 ---
 
 # Session Retrospective

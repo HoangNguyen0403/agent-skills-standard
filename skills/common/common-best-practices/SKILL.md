@@ -1,6 +1,24 @@
 ---
 name: common-best-practices
 description: "Universal clean-code principles for any environment. Use when writing functions, designing classes, or applying SOLID/DRY/KISS patterns to any codebase. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, solid, kiss, dry, yagni, naming, conventions, refactor, clean code)"
+keywords:
+  - solid
+  - kiss
+  - dry
+  - yagni
+  - naming
+  - conventions
+  - refactor
+  - clean code
+files:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.go"
+  - "**/*.dart"
+  - "**/*.java"
+  - "**/*.kt"
+  - "**/*.swift"
+  - "**/*.py"
 ---
 
 # Global Best Practices
@@ -67,3 +85,9 @@ description: "Universal clean-code principles for any environment. Use when writ
 
 - [Code Structure & Modular Design Examples](references/CODE_STRUCTURE.md)
 - [Skill Token Economy & Effectiveness](references/EFFECTIVENESS.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

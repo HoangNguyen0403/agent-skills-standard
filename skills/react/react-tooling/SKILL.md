@@ -1,6 +1,13 @@
 ---
 name: react-tooling
 description: "Debugging, build analysis, and ecosystem tools. Use when debugging React apps, analyzing bundles, or configuring Vite/webpack for React. (triggers: package.json, devtool, bundle, strict mode, profile)"
+keywords:
+  - devtool
+  - bundle
+  - strict mode
+  - profile
+files:
+  - "package.json"
 ---
 
 # React Tooling
@@ -32,3 +39,9 @@ if (process.env.NODE_ENV === 'development') {
   });
 }
 ```
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

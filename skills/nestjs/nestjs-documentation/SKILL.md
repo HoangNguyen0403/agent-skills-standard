@@ -1,6 +1,14 @@
 ---
 name: nestjs-documentation
 description: "Swagger automation and Generic response documentation. Use when generating OpenAPI/Swagger documentation or documenting NestJS API responses. (triggers: main.ts, **/*.dto.ts, DocumentBuilder, SwaggerModule, ApiProperty, ApiResponse)"
+keywords:
+  - DocumentBuilder
+  - SwaggerModule
+  - ApiProperty
+  - ApiResponse
+files:
+  - "main.ts"
+  - "**/*.dto.ts"
 ---
 
 # OpenAPI & Documentation
@@ -59,3 +67,9 @@ Automated API documentation and OpenAPI standards.
   - **Code**: `@ApiProperty({ enum: MyEnum, enumName: 'MyEnum' })`.
 - **Grouping**: Segregate public vs. internal docs.
   - **Setup**: `SwaggerModule.createDocument(app, config, { include: [AdminModule] })`.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

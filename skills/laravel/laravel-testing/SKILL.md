@@ -1,6 +1,15 @@
 ---
 name: laravel-testing
 description: "Automated testing standards with Pest and PHPUnit. Use when writing Pest or PHPUnit feature/unit tests in Laravel applications. (triggers: tests/**/*.php, phpunit.xml, feature, unit, mock, factory, sqlite)"
+keywords:
+  - feature
+  - unit
+  - mock
+  - factory
+  - sqlite
+files:
+  - "tests/**/*.php"
+  - "phpunit.xml"
 ---
 
 # Laravel Testing

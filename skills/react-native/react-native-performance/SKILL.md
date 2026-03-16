@@ -1,6 +1,16 @@
 ---
 name: react-native-performance
 description: "Optimization strategies for smooth 60fps mobile apps. Use when optimizing React Native app performance, reducing re-renders, or fixing frame drops. (triggers: **/*.tsx, **/*.ts, FlatList, memo, useMemo, useCallback, performance, optimization)"
+keywords:
+  - FlatList
+  - memo
+  - useMemo
+  - useCallback
+  - performance
+  - optimization
+files:
+  - "**/*.tsx"
+  - "**/*.ts"
 ---
 
 # React Native Performance

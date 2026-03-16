@@ -1,6 +1,20 @@
 ---
 name: common-tdd
 description: "Enforces Test-Driven Development (Red-Green-Refactor). Use when writing unit tests, implementing TDD, or improving test coverage for any feature. (triggers: **/*.test.ts, **/*.spec.ts, **/*_test.go, **/*Test.java, **/*_test.dart, **/*_spec.rb, tdd, unit test, write test, red green refactor, failing test, test coverage)"
+keywords:
+  - tdd
+  - unit test
+  - write test
+  - red green refactor
+  - failing test
+  - test coverage
+files:
+  - "**/*.test.ts"
+  - "**/*.spec.ts"
+  - "**/*_test.go"
+  - "**/*Test.java"
+  - "**/*_test.dart"
+  - "**/*_spec.rb"
 ---
 
 # Test-Driven Development (TDD)
@@ -72,3 +86,9 @@ Every test must follow Arrange-Act-Assert:
 - [AAA Example](references/aaa_example.md)
 - [TDD Patterns](references/tdd_patterns.md)
 - [Testing Anti-Patterns](references/testing_anti_patterns.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

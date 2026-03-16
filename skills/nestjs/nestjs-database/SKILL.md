@@ -1,6 +1,14 @@
 ---
 name: nestjs-database
 description: "Data access patterns, Scaling, Migrations, and ORM selection. Use when implementing TypeORM/Prisma repositories, migrations, or database patterns in NestJS. (triggers: **/*.entity.ts, prisma/schema.prisma, TypeOrmModule, PrismaService, MongooseModule, Repository)"
+keywords:
+  - TypeOrmModule
+  - PrismaService
+  - MongooseModule
+  - Repository
+files:
+  - "**/*.entity.ts"
+  - "prisma/schema.prisma"
 ---
 
 # NestJS Database Standards
@@ -41,3 +49,9 @@ See [references/persistence_strategy.md](references/persistence_strategy.md) for
 1. **Pagination**: Mandatory. Use limit/offset or cursor-based pagination.
 2. **Indexing**: Define indexes in code (decorators/schema) for frequently filtered columns (`where`, `order by`).
 3. **Transactions**: Use `QueryRunner` (TypeORM) or `$transaction` (Prisma) for all multi-step mutations to ensure atomicity.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

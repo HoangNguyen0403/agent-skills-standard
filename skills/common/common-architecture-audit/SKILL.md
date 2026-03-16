@@ -1,6 +1,18 @@
 ---
 name: common-architecture-audit
 description: "Protocol for auditing structural debt, logic leakage, and fragmentation across Web, Mobile, and Backend. (triggers: package.json, pubspec.yaml, go.mod, pom.xml, nest-cli.json, architecture audit, code review, tech debt, logic leakage, refactor)"
+keywords:
+  - architecture audit
+  - code review
+  - tech debt
+  - logic leakage
+  - refactor
+files:
+  - "package.json"
+  - "pubspec.yaml"
+  - "go.mod"
+  - "pom.xml"
+  - "nest-cli.json"
 ---
 
 # Architecture Audit
@@ -71,3 +83,9 @@ Check for large metadata or constants impacting IDE performance and binary size.
 ## 📚 Reference Links
 
 - [Architecture Patterns & Remediation Protocols](references/PATTERNS.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

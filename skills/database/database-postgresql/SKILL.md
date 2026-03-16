@@ -1,6 +1,15 @@
 ---
 name: database-postgresql
 description: "Data access patterns, scaling, migrations, and ORM selection for PostgreSQL. Use when designing PostgreSQL schemas, writing migrations, or choosing an ORM. (triggers: **/*.entity.ts, prisma/schema.prisma, **/migrations/*.sql, TypeOrmModule, PrismaService, PostgresModule, Repository)"
+keywords:
+  - TypeOrmModule
+  - PrismaService
+  - PostgresModule
+  - Repository
+files:
+  - "**/*.entity.ts"
+  - "prisma/schema.prisma"
+  - "**/migrations/*.sql"
 ---
 
 # PostgreSQL Database Standards
@@ -60,3 +69,9 @@ See [references/best-practices.md](references/best-practices.md) for database se
 1.  **Pagination**: Mandatory. Use limit/offset or cursor-based pagination.
 2.  **Indexing**: Define indexes in code (decorators/schema) for frequently filtered columns (`where`, `order by`).
 3.  **Transactions**: Use `QueryRunner` (TypeORM) or `$transaction` (Prisma) for all multi-step mutations to ensure atomicity.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

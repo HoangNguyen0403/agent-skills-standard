@@ -1,6 +1,15 @@
 ---
 name: ios-app-lifecycle
 description: "Standards for AppDelegate, SceneDelegate, Deep Linking, and Background Tasks. Use when managing iOS app lifecycle, deep linking, or background task scheduling. (triggers: AppDelegate.swift, SceneDelegate.swift, didFinishLaunchingWithOptions, willConnectTo, backgroundTask, Shortcut, UserActivity)"
+keywords:
+  - didFinishLaunchingWithOptions
+  - willConnectTo
+  - backgroundTask
+  - Shortcut
+  - UserActivity
+files:
+  - "AppDelegate.swift"
+  - "SceneDelegate.swift"
 ---
 
 # iOS App Lifecycle Standards

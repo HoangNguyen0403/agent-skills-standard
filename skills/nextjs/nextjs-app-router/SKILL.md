@@ -1,6 +1,15 @@
 ---
 name: nextjs-app-router
 description: "File-system routing, Layouts, and Route Groups. Use when implementing App Router routing, nested layouts, or route groups in Next.js. (triggers: app/**/page.tsx, app/**/layout.tsx, app/**/loading.tsx, App Router, Layout, Route Group, parallel routes)"
+keywords:
+  - App Router
+  - Layout
+  - Route Group
+  - parallel routes
+files:
+  - "app/**/page.tsx"
+  - "app/**/layout.tsx"
+  - "app/**/loading.tsx"
 ---
 
 # Next.js App Router
@@ -53,3 +62,9 @@ const theme = cookieStore.get('theme');
 - **Colocation**: Keep component files, styles, and tests inside the route folder.
 - **Layouts**: Use Root Layout (`app/layout.tsx`) for `<html>` and `<body>` tags.
 - [**Self-Hosting Standard**](references/SELF_HOSTING.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

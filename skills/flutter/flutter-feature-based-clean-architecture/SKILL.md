@@ -1,6 +1,15 @@
 ---
 name: flutter-feature-based-clean-architecture
 description: "Standards for organizing Flutter code by feature for scalability. Use when structuring a Flutter project with feature-based clean architecture. (triggers: lib/features/**, feature, domain, infrastructure, application, presentation, modular)"
+keywords:
+  - feature
+  - domain
+  - infrastructure
+  - application
+  - presentation
+  - modular
+files:
+  - "lib/features/**"
 ---
 
 # Feature-Based Clean Architecture
@@ -31,3 +40,9 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 ## Related Topics
 
 layer-based-clean-architecture | retrofit-networking | go-router-navigation | bloc-state-management | dependency-injection
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

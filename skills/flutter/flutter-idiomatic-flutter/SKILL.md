@@ -1,6 +1,14 @@
 ---
 name: flutter-idiomatic-flutter
 description: "Modern layout and widget composition standards. Use when composing Flutter widget trees, managing layout constraints, or following idiomatic Flutter patterns. (triggers: lib/presentation/**/*.dart, context.mounted, SizedBox, Gap, composition, shrink)"
+keywords:
+  - SizedBox
+  - Gap
+  - composition
+  - shrink
+files:
+  - "lib/presentation/**/*.dart"
+  - "context.mounted"
 ---
 
 # Idiomatic Flutter
@@ -23,3 +31,9 @@ Modern Flutter layout patterns and composition techniques.
 - **Missing Mounted Check**: `**No context usage after await**: Always check if (context.mounted).`
 - **Helper Methods for UI**: `**No Widget functions**: Use specialized Widget classes for better performance/profiling.`
 - **Direct Controller Access**: `**No UI-Logic coupling**: Use BLoC/Signals to decouple UI from State.`
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

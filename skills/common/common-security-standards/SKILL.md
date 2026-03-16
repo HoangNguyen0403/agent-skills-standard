@@ -1,6 +1,20 @@
 ---
 name: common-security-standards
 description: "Universal security protocols for safe, resilient software. Use when implementing authentication, encryption, authorization, or any security-sensitive feature. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, security, encrypt, authenticate, authorize)"
+keywords:
+  - security
+  - encrypt
+  - authenticate
+  - authorize
+files:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.go"
+  - "**/*.dart"
+  - "**/*.java"
+  - "**/*.kt"
+  - "**/*.swift"
+  - "**/*.py"
 ---
 
 # Security Standards - High-Density Standards
@@ -41,3 +55,9 @@ Universal security protocols for building safe and resilient software.
 
 - [Injection Testing Protocols (SQLi/HTMLi)](references/INJECTION_TESTING.md)
 - [Vulnerability Remediation & Secure Patterns](references/VULNERABILITY_REMEDIATION.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

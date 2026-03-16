@@ -1,6 +1,13 @@
 ---
 name: angular-testing
 description: "Standards for Component Test Harnesses and TestBed. Use when writing Angular component tests with TestBed or Component Harnesses. (triggers: **/*.spec.ts, TestBed, ComponentFixture, TestHarness, provideHttpClientTesting)"
+keywords:
+  - TestBed
+  - ComponentFixture
+  - TestHarness
+  - provideHttpClientTesting
+files:
+  - "**/*.spec.ts"
 ---
 
 # Testing
@@ -21,3 +28,9 @@ description: "Standards for Component Test Harnesses and TestBed. Use when writi
 ## References
 
 - [Harness Pattern](references/harness-pattern.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

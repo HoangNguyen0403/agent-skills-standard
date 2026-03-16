@@ -1,6 +1,14 @@
 ---
 name: android-deployment
 description: "Standards for App Distribution (Signing, Obfuscation, App Bundles). Use when signing, obfuscating, or building Android App Bundles for distribution. (triggers: build.gradle.kts, proguard-rules.pro, signingConfigs, proguard, minifyEnabled, .aab)"
+keywords:
+  - signingConfigs
+  - proguard
+  - minifyEnabled
+files:
+  - "build.gradle.kts"
+  - "proguard-rules.pro"
+  - ".aab"
 ---
 
 # Android Deployment Standards

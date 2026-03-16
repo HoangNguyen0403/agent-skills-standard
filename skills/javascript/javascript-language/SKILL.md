@@ -1,6 +1,20 @@
 ---
 name: javascript-language
 description: "Modern JavaScript (ES2022+) patterns for clean, maintainable code. Use when working with modern JavaScript features like optional chaining, nullish coalescing, or ESM. (triggers: **/*.js, **/*.mjs, **/*.cjs, const, let, arrow, async, await, promise, destructuring, spread, class)"
+keywords:
+  - const
+  - let
+  - arrow
+  - async
+  - await
+  - promise
+  - destructuring
+  - spread
+  - class
+files:
+  - "**/*.js"
+  - "**/*.mjs"
+  - "**/*.cjs"
 ---
 
 # JavaScript Language Patterns

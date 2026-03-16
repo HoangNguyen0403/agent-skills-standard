@@ -1,6 +1,13 @@
 ---
 name: swift-tooling
 description: "Standards for SPM, Build Configs, and Code Quality. Use when managing Swift packages with SPM, configuring build settings, or enforcing Swift code quality. (triggers: Package.swift, .swiftlint.yml, package, target, dependency)"
+keywords:
+  - package
+  - target
+  - dependency
+files:
+  - "Package.swift"
+  - ".swiftlint.yml"
 ---
 
 # Swift Tooling Standards

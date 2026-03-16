@@ -1,6 +1,15 @@
 ---
 name: angular-architecture
 description: "Standards for Angular project structure, feature modules, and lazy loading. Use when structuring Angular apps, defining feature modules, or configuring lazy loading. (triggers: angular.json, angular components, standalone, feature module, lazy loading, loadComponent, loadChildren)"
+keywords:
+  - angular components
+  - standalone
+  - feature module
+  - lazy loading
+  - loadComponent
+  - loadChildren
+files:
+  - "angular.json"
 ---
 
 # Angular Architecture
@@ -33,3 +42,9 @@ description: "Standards for Angular project structure, feature modules, and lazy
 - [ ] **Signals**: Are you using Signals for local state where applicable (Angular 16+)?
 
 - [Folder Structure](references/folder-structure.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

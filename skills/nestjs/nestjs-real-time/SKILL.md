@@ -1,6 +1,14 @@
 ---
 name: nestjs-real-time
 description: "WebSocket and SSE selection strategies and scaling. Use when implementing WebSocket gateways or Server-Sent Events in NestJS. (triggers: **/*.gateway.ts, **/*.controller.ts, WebSocketGateway, SubscribeMessage, Sse, Socket.io)"
+keywords:
+  - WebSocketGateway
+  - SubscribeMessage
+  - Sse
+files:
+  - "**/*.gateway.ts"
+  - "**/*.controller.ts"
+  - "Socket.io"
 ---
 
 # Real-Time & WebSockets
@@ -40,3 +48,9 @@ WebSocket and real-time communication patterns with NestJS.
 - **Gateway != Service**: The `WebSocketGateway` should **only** handle client comms (Join Room, Ack message).
   - **Rule**: Delegate business logic to a Service or Command Bus.
 - **Events**: Use `AsyncApi` or `SocketApi` decorators (from community packages) to document WS events similarly to OpenAPI.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

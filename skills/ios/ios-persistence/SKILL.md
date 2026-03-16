@@ -1,6 +1,16 @@
 ---
 name: ios-persistence
 description: "Standards for SwiftData, Core Data, and Local Storage. Use when implementing SwiftData, Core Data models, or local persistence in iOS. (triggers: **/*.xcdatamodeld, **/*Model.swift, PersistentContainer, FetchRequest, ManagedObject, Query, ModelContainer, Repository)"
+keywords:
+  - PersistentContainer
+  - FetchRequest
+  - ManagedObject
+  - Query
+  - ModelContainer
+  - Repository
+files:
+  - "**/*.xcdatamodeld"
+  - "**/*Model.swift"
 ---
 
 # iOS Persistence Standards

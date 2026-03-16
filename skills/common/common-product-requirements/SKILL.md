@@ -1,6 +1,13 @@
 ---
 name: common-product-requirements
 description: "Expert process for gathering requirements and drafting PRDs (Iterative Discovery). Use when creating a PRD, speccing a new feature, or clarifying requirements. (triggers: PRD.md, specs/*.md, create prd, draft requirements, new feature spec)"
+keywords:
+  - create prd
+  - draft requirements
+  - new feature spec
+files:
+  - "PRD.md"
+  - "specs/*.md"
 ---
 
 # Product Requirements Expert

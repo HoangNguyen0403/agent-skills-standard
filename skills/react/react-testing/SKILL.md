@@ -1,6 +1,14 @@
 ---
 name: react-testing
 description: "Testing strategies with RTL and Jest/Vitest. Use when writing React component tests with React Testing Library, Jest, or Vitest. (triggers: **/*.test.tsx, **/*.spec.tsx, render, screen, userEvent, expect)"
+keywords:
+  - render
+  - screen
+  - userEvent
+  - expect
+files:
+  - "**/*.test.tsx"
+  - "**/*.spec.tsx"
 ---
 
 # React Testing

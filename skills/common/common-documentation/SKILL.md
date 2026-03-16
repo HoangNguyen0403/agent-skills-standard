@@ -1,6 +1,13 @@
 ---
 name: common-documentation
 description: "Essential rules for code comments, READMEs, and technical docs. Use when adding comments, writing docstrings, creating READMEs, or updating any documentation. (triggers: comment, docstring, readme, documentation)"
+keywords:
+  - comment
+  - docstring
+  - readme
+  - documentation
+files:
+  - "**/*"
 ---
 
 # Documentation Standards - High-Density Standards
@@ -38,3 +45,9 @@ Essential rules for maintaining proper code comments, READMEs, and technical doc
 - **Self-Documenting**: Use Swagger/OpenAPI for REST or specialized doc generators for your language.
 - **Examples**: Provide copy-pasteable examples for every major endpoint or utility.
 - **Contract First**: Define the interface before the implementation.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

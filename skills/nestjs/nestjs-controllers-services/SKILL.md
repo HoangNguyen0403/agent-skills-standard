@@ -1,6 +1,14 @@
 ---
 name: nestjs-controllers-services
 description: "Controller/Service separation and Custom Decorators. Use when defining NestJS controllers, services, or custom parameter decorators. (triggers: **/*.controller.ts, **/*.service.ts, Controller, Injectable, ExecutionContext, createParamDecorator)"
+keywords:
+  - Controller
+  - Injectable
+  - ExecutionContext
+  - createParamDecorator
+files:
+  - "**/*.controller.ts"
+  - "**/*.service.ts"
 ---
 
 # NestJS Controllers & Services Standards
@@ -64,3 +72,9 @@ findOne(@Param('id', ParseIntPipe) id: number) { ... }
 
 - **Init**: Use `OnModuleInit` for connection setup.
 - **Destroy**: Use `OnApplicationShutdown` for cleanup. (Requires `enableShutdownHooks()`).
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

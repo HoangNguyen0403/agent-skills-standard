@@ -1,6 +1,15 @@
 ---
 name: ios-dependency-injection
 description: "Standards for Protocol-based DI, Property Wrappers, and Factory/Needle. Use when configuring dependency injection or factory patterns in iOS. (triggers: **/*.swift, @Injected, Resolver, Container, Swinject, register, resolve)"
+keywords:
+  - @Injected
+  - Resolver
+  - Container
+  - Swinject
+  - register
+  - resolve
+files:
+  - "**/*.swift"
 ---
 
 # iOS Dependency Injection Standards

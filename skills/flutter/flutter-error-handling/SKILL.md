@@ -1,6 +1,16 @@
 ---
 name: flutter-error-handling
 description: "Functional error handling using Dartz and Either. Use when implementing functional error handling, Either monad, or failure types in Flutter. (triggers: lib/domain/**, lib/infrastructure/**, Either, fold, Left, Right, Failure, dartz)"
+keywords:
+  - Either
+  - fold
+  - Left
+  - Right
+  - Failure
+  - dartz
+files:
+  - "lib/domain/**"
+  - "lib/infrastructure/**"
 ---
 
 # Error Handling
@@ -31,3 +41,9 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 ## Related Topics
 
 layer-based-clean-architecture | bloc-state-management
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

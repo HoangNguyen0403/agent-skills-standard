@@ -1,6 +1,15 @@
 ---
 name: laravel-clean-architecture
 description: "Expert patterns for DDD, DTOs, and Ports & Adapters in Laravel. Use when applying Domain-Driven Design, DTOs, or ports-and-adapters patterns in Laravel. (triggers: app/Domains/**/*.php, app/Providers/*.php, domain, dto, repository, contract, adapter)"
+keywords:
+  - domain
+  - dto
+  - repository
+  - contract
+  - adapter
+files:
+  - "app/Domains/**/*.php"
+  - "app/Providers/*.php"
 ---
 
 # Laravel Clean Architecture

@@ -1,6 +1,14 @@
 ---
 name: nestjs-caching
 description: "Multi-level caching, Invalidation patterns, and Stampede protection. Use when implementing multi-level caching or cache invalidation strategies in NestJS. (triggers: **/*.service.ts, **/*.interceptor.ts, CacheInterceptor, CacheTTL, Redis, stale-while-revalidate)"
+keywords:
+  - CacheInterceptor
+  - CacheTTL
+  - Redis
+  - stale-while-revalidate
+files:
+  - "**/*.service.ts"
+  - "**/*.interceptor.ts"
 ---
 
 # Caching & Redis Standards
@@ -48,3 +56,9 @@ Caching strategies and Redis integration patterns for high-performance NestJS ap
 
 - **Jitter**: Add random variance to TTLs (e.g., 300s ± 10s) to prevent all keys expiring simultaneously.
 - **Locking**: If a key is missing, **one** process computes it while others wait or return stale. (Complex, often handled by `swr` libraries).
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

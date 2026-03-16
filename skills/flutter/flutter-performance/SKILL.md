@@ -1,6 +1,15 @@
 ---
 name: flutter-performance
 description: "Optimization standards for rebuilds and memory. Use when optimizing Flutter widget rebuilds, reducing memory usage, or improving rendering performance. (triggers: lib/presentation/**, pubspec.yaml, const, buildWhen, ListView.builder, Isolate, RepaintBoundary)"
+keywords:
+  - const
+  - buildWhen
+  - Isolate
+  - RepaintBoundary
+files:
+  - "lib/presentation/**"
+  - "pubspec.yaml"
+  - "ListView.builder"
 ---
 
 # Performance
@@ -32,3 +41,9 @@ BlocBuilder<UserBloc, UserState>(
   builder: (context, state) => Text(state.name),
 )
 ```
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

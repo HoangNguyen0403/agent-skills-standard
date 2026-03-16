@@ -1,6 +1,14 @@
 ---
 name: angular-component-patterns
 description: "Standards for OnPush components and strict Signals usage. Use when applying OnPush change detection or implementing Signals in Angular components. (triggers: **/*.component.ts, **/*.component.html, ChangeDetectionStrategy, OnPush, Input, Output)"
+keywords:
+  - ChangeDetectionStrategy
+  - OnPush
+  - Input
+  - Output
+files:
+  - "**/*.component.ts"
+  - "**/*.component.html"
 ---
 
 # Angular Component Expert

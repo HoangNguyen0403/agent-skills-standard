@@ -1,6 +1,15 @@
 ---
 name: laravel-architecture
 description: "Core architectural standards for scalable Laravel applications. Use when structuring service layers, repositories, or scalable architecture in Laravel. (triggers: app/Http/Controllers/**/*.php, routes/*.php, controller, service, action, request, container)"
+keywords:
+  - controller
+  - service
+  - action
+  - request
+  - container
+files:
+  - "app/Http/Controllers/**/*.php"
+  - "routes/*.php"
 ---
 
 # Laravel Architecture

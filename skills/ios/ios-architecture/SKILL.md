@@ -1,6 +1,16 @@
 ---
 name: ios-architecture
 description: "Standards for MVVM, Coordinators, and Clean Architecture (VIP/VIPER). Use when applying MVVM, Coordinators, or VIP/VIPER architecture in iOS apps. (triggers: **/*ViewModel.swift, **/*Coordinator.swift, **/*ViewController.swift, MVVM, Coordinator, ViewState, Output, Input)"
+keywords:
+  - MVVM
+  - Coordinator
+  - ViewState
+  - Output
+  - Input
+files:
+  - "**/*ViewModel.swift"
+  - "**/*Coordinator.swift"
+  - "**/*ViewController.swift"
 ---
 
 # iOS Architecture Standards

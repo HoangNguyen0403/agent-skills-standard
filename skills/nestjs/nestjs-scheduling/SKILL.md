@@ -1,6 +1,12 @@
 ---
 name: nestjs-scheduling
 description: "Distributed cron jobs and locking patterns. Use when implementing scheduled tasks or distributed locking patterns in NestJS. (triggers: **/*.service.ts, @Cron, CronExpression, ScheduleModule)"
+keywords:
+  - @Cron
+  - CronExpression
+  - ScheduleModule
+files:
+  - "**/*.service.ts"
 ---
 
 # Task Scheduling & Jobs
@@ -34,3 +40,9 @@ Background job processing and scheduled task patterns.
   - **Pattern**: Cron -> Push Job ID to Queue (BullMQ) -> Worker processes it.
   - **Why**: Cron schedulers can get blocked by the Event Loop; Workers are scalable.
 - **Error Handling**: Wrap ALL cron logic in `try/catch`. Uncaught exceptions in a Cron job can crash the entire Node process.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

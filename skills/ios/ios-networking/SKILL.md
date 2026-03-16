@@ -1,6 +1,17 @@
 ---
 name: ios-networking
 description: "Standards for URLSession, Alamofire, and API communication. Use when implementing URLSession networking, Alamofire, or API clients in iOS. (triggers: **/*Service.swift, **/*API.swift, **/*Client.swift, URLSession, Alamofire, Moya, URLRequest, URLComponents, Codable)"
+keywords:
+  - URLSession
+  - Alamofire
+  - Moya
+  - URLRequest
+  - URLComponents
+  - Codable
+files:
+  - "**/*Service.swift"
+  - "**/*API.swift"
+  - "**/*Client.swift"
 ---
 
 # iOS Networking Standards

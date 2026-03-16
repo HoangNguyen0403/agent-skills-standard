@@ -1,6 +1,14 @@
 ---
 name: spring-boot-best-practices
 description: "Core coding standards, dependency injection, and configuration for Spring Boot 3. Use when applying Spring Boot 3 coding standards or configuring dependency injection. (triggers: application.properties, **/*Service.java, autowired, requiredargsconstructor, configuration-properties, slf4j)"
+keywords:
+  - autowired
+  - requiredargsconstructor
+  - configuration-properties
+  - slf4j
+files:
+  - "application.properties"
+  - "**/*Service.java"
 ---
 
 # Spring Boot Best Practices

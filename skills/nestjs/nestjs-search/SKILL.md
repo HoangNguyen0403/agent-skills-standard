@@ -1,6 +1,13 @@
 ---
 name: nestjs-search
 description: "Elasticsearch integration and Sync patterns. Use when integrating Elasticsearch or implementing search index sync in NestJS. (triggers: **/*.service.ts, **/search/**, Elasticsearch, CQRS, Synchronization)"
+keywords:
+  - Elasticsearch
+  - CQRS
+  - Synchronization
+files:
+  - "**/*.service.ts"
+  - "**/search/**"
 ---
 
 # Search Engine & Full-Text
@@ -36,3 +43,9 @@ Full-text search implementation with Elasticsearch and database patterns.
 
 - **E2E**: Do not mock the search engine in critical E2E flows.
 - **Docker**: Spin up `elasticsearch:8` container in the test harness to verify indexing works.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

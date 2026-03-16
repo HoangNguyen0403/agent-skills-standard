@@ -1,6 +1,14 @@
 ---
 name: nestjs-configuration
 description: "Environment variables validation and ConfigModule setup. Use when validating environment variables with Joi/Zod or configuring ConfigModule in NestJS. (triggers: .env, app.module.ts, **/config.ts, ConfigModule, Joi, env)"
+keywords:
+  - ConfigModule
+  - Joi
+  - env
+files:
+  - ".env"
+  - "app.module.ts"
+  - "**/config.ts"
 ---
 
 # NestJS Configuration Standards
@@ -47,3 +55,9 @@ When adding a new environment variable to the application, you **MUST** update a
 2. **`.env.example`**: Add a placeholder value so other developers know about it.
 3. **`.env.development` / `.env.test`**: Add the actual development values.
 4. **CI/CD Pipelines & Infrastructure**: You **MUST** map the new variable in your deployment scripts (e.g., `.github/workflows/*.yml`, `gitlab-ci.yml`, Terraform, or Azure Pipelines). Most modern cloud platforms (Cloud Run, ECS, Kubernetes) require explicit mapping of secrets/env-vars into the container runtime. Failure to do this will cause the production deployment to crash or silently fail.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

@@ -1,6 +1,15 @@
 ---
 name: nextjs-rendering
 description: "SSG, SSR, ISR, Streaming, and Partial Prerendering (PPR). Use when choosing a rendering strategy (SSG, SSR, ISR, PPR, or Streaming) in Next.js. (triggers: **/page.tsx, **/layout.tsx, generateStaticParams, dynamic, dynamicParams, PPR, streaming)"
+keywords:
+  - generateStaticParams
+  - dynamic
+  - dynamicParams
+  - PPR
+  - streaming
+files:
+  - "**/page.tsx"
+  - "**/layout.tsx"
 ---
 
 # Rendering Strategies (App Router)

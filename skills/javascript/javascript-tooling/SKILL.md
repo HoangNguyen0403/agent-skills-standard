@@ -1,6 +1,17 @@
 ---
 name: javascript-tooling
 description: "Development tools, linting, and testing for JavaScript projects. Use when configuring ESLint, Prettier, or test runners for JavaScript projects. (triggers: .eslintrc.*, jest.config.*, package.json, eslint, prettier, jest, test, lint, build)"
+keywords:
+  - eslint
+  - prettier
+  - jest
+  - test
+  - lint
+  - build
+files:
+  - ".eslintrc.*"
+  - "jest.config.*"
+  - "package.json"
 ---
 
 # JavaScript Tooling

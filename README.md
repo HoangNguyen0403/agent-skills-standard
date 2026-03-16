@@ -198,3 +198,11 @@ For detailed architecture logic and token calculation scripts, see [CLI Architec
 
 - **License**: MIT
 - **Author**: [Hoang Nguyen](https://github.com/HoangNguyen0403)
+
+#### 📜 Benchmark History
+
+| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
+| --- | --- | --- | --- | --- | --- |
+| v1.10.0 | 2026-03-16 | 229 | 478 | 87% | [Report](benchmarks/archive/v1.10.0.md) |
+| v1.9.3 | 2026-03-15 | 229 | 460 | 87% | [Report](benchmarks/archive/v1.9.3.md) |
+| v1.9.2 | 2026-03-07 | 228 | 458 | 87% | [Report](benchmarks/archive/v1.9.2.md) |

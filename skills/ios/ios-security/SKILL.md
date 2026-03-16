@@ -1,6 +1,13 @@
 ---
 name: ios-security
 description: "Standards for Keychain, Biometrics, and Data Protection. Use when implementing Keychain storage, Face ID/Touch ID, or data protection in iOS. (triggers: **/*.swift, SecItemAdd, kSecClassGenericPassword, LAContext, LocalAuthentication)"
+keywords:
+  - SecItemAdd
+  - kSecClassGenericPassword
+  - LAContext
+  - LocalAuthentication
+files:
+  - "**/*.swift"
 ---
 
 # iOS Security Standards

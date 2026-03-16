@@ -1,6 +1,13 @@
 ---
 name: angular-directives-pipes
 description: "Composition patterns using HostDirectives and Pure Pipes. Use when creating attribute directives with HostDirectives or writing pure pipes in Angular. (triggers: **/*.directive.ts, **/*.pipe.ts, hostDirectives, PipeTransform, pure)"
+keywords:
+  - hostDirectives
+  - PipeTransform
+  - pure
+files:
+  - "**/*.directive.ts"
+  - "**/*.pipe.ts"
 ---
 
 # Directives & Pipes
@@ -21,3 +28,9 @@ description: "Composition patterns using HostDirectives and Pure Pipes. Use when
 ## References
 
 - [Composition](references/composition.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

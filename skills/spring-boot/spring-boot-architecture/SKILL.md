@@ -1,6 +1,20 @@
 ---
 name: spring-boot-architecture
 description: "Standards for project structure and layering in Spring Boot 3+ applications. Use when structuring Spring Boot 3 projects, defining layers, or applying architecture patterns. (triggers: pom.xml, build.gradle, structure, layering, dto, controller, @RestController, @Service, @Repository, @Entity, @Bean, @Configuration)"
+keywords:
+  - structure
+  - layering
+  - dto
+  - controller
+  - @RestController
+  - @Service
+  - @Repository
+  - @Entity
+  - @Bean
+  - @Configuration
+files:
+  - "pom.xml"
+  - "build.gradle"
 ---
 
 # Spring Boot Architecture Standards
@@ -44,3 +58,9 @@ description: "Standards for project structure and layering in Spring Boot 3+ app
 ## References
 
 - [Implementation Examples](references/implementation.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

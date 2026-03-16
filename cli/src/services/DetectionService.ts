@@ -16,15 +16,47 @@ export class DetectionService {
    * @returns A record of framework IDs and their detection status (boolean)
    */
   async detectFrameworks(): Promise<Record<string, boolean>> {
-    const packageDepsMap = await this.readPackageJsonDeps(process.cwd());
+    const cwd = process.cwd();
+    // Gather root and immediate subdirectories to support monorepos
+    let dirsToScan = [cwd];
+    try {
+      const entries = await fs.readdir(cwd, { withFileTypes: true });
+      for (const entry of entries) {
+        if (
+          entry.isDirectory() &&
+          !entry.name.startsWith('.') &&
+          entry.name !== 'node_modules'
+        ) {
+          dirsToScan.push(path.join(cwd, entry.name));
+        }
+      }
+    } catch (e) {
+      // Ignore
+    }
+
+    const packageDepsMaps = await Promise.all(
+      dirsToScan.map((dir) => this.readPackageJsonDeps(dir)),
+    );
+
+    // Merge all deps
+    const allPackageDeps = {};
+    for (const deps of packageDepsMaps) {
+      Object.assign(allPackageDeps, deps);
+    }
 
     const detectionPromises = SUPPORTED_FRAMEWORKS.map(async (framework) => {
-      // 1. Check characteristic files in parallel
-      const fileChecks = framework.detectionFiles.map((file) =>
-        fs.pathExists(path.join(process.cwd(), file)),
-      );
-      const fileResults = await Promise.all(fileChecks);
-      let detected = fileResults.some((exists) => exists);
+      // 1. Check characteristic files in parallel across all scanned directories
+      let detected = false;
+      for (const dir of dirsToScan) {
+        if (detected) break;
+        const fileChecks = framework.detectionFiles.map((file) =>
+          fs.pathExists(path.join(dir, file)),
+        );
+        const fileResults = await Promise.all(fileChecks);
+        if (fileResults.some((exists) => exists)) {
+          detected = true;
+        }
+      }
 
       // 2. Check dependencies (if not yet detected)
       if (
@@ -33,7 +65,7 @@ export class DetectionService {
         framework.detectionDependencies.length > 0
       ) {
         detected = framework.detectionDependencies.some((dep) =>
-          Object.prototype.hasOwnProperty.call(packageDepsMap, dep),
+          Object.prototype.hasOwnProperty.call(allPackageDeps, dep),
         );
       }
 
@@ -47,11 +79,6 @@ export class DetectionService {
     );
   }
 
-  /**
-   * Detects programming languages associated with a specific framework.
-   * @param framework The framework definition to use for detection
-   * @returns Array of detected language IDs
-   */
   async detectLanguages(framework: FrameworkDefinition): Promise<string[]> {
     if (!framework.languageDetection) {
       return framework.languages;

@@ -1,6 +1,14 @@
 ---
 name: dart-best-practices
 description: "General purity standards for Dart development. Use when writing idiomatic Dart code, following Dart conventions, or reviewing Dart code quality. (triggers: **/*.dart, import, final, const, var, global)"
+keywords:
+  - import
+  - final
+  - const
+  - var
+  - global
+files:
+  - "**/*.dart"
 ---
 
 # Dart Best Practices
@@ -28,3 +36,9 @@ Best practices for writing clean, maintainable Dart code.
 import 'models/user.dart'; // Good
 import 'package:app/models/user.dart'; // Avoid local absolute
 ```
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

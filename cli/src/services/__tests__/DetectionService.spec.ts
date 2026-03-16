@@ -37,6 +37,40 @@ describe('DetectionService', () => {
       expect(results.flutter).toBe(false);
     });
 
+    it('should detect NestJS if @nestjs/core dependency exists in subdirectory', async () => {
+      vi.mocked(fs.readdir).mockResolvedValue([
+        { name: 'backend', isDirectory: () => true },
+        { name: '.git', isDirectory: () => true },
+      ] as any);
+
+      vi.mocked(fs.pathExists).mockImplementation((p: string) => {
+        if (p.endsWith('backend/package.json')) return Promise.resolve(true);
+        if (p.endsWith('package.json')) return Promise.resolve(false);
+        return Promise.resolve(false);
+      });
+
+      vi.mocked(fs.readJson).mockImplementation((p: string) => {
+        if (p.endsWith('backend/package.json')) {
+          return Promise.resolve({
+            dependencies: { '@nestjs/core': '^10.0.0' },
+          });
+        }
+        return Promise.reject(new Error('File not found'));
+      });
+
+      const results = await detectionService.detectFrameworks();
+      expect(results.nestjs).toBe(true);
+    });
+
+    it('should handle missing directory reads gracefully in detectFrameworks', async () => {
+      vi.mocked(fs.readdir).mockRejectedValue(new Error('Permission denied'));
+      vi.mocked(fs.pathExists).mockResolvedValue(false);
+      vi.mocked(fs.readJson).mockResolvedValue({});
+
+      const results = await detectionService.detectFrameworks();
+      expect(results.nestjs).toBe(false);
+    });
+
     it('should return empty deps if package.json read fails', async () => {
       vi.mocked(fs.pathExists).mockImplementation((p: string) => {
         return Promise.resolve(p.endsWith('package.json'));

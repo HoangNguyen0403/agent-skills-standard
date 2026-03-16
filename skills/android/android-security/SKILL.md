@@ -1,6 +1,13 @@
 ---
 name: android-security
 description: "Standards for Data Encryption, Network Security, and Permissions. Use when implementing encryption, network security config, or permission handling in Android. (triggers: network_security_config.xml, AndroidManifest.xml, EncryptedSharedPreferences, cleartextTrafficPermitted, intent-filter)"
+keywords:
+  - EncryptedSharedPreferences
+  - cleartextTrafficPermitted
+  - intent-filter
+files:
+  - "network_security_config.xml"
+  - "AndroidManifest.xml"
 ---
 
 # Android Security Standards

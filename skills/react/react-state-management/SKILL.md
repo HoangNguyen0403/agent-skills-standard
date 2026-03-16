@@ -1,6 +1,15 @@
 ---
 name: react-state-management
 description: "Standards for managing local, global, and server state. Use when choosing or implementing state management (Context, Zustand, Redux, React Query) in React. (triggers: **/*.tsx, **/*.jsx, state, useReducer, context, store, props)"
+keywords:
+  - state
+  - useReducer
+  - context
+  - store
+  - props
+files:
+  - "**/*.tsx"
+  - "**/*.jsx"
 ---
 
 # React State Management
@@ -30,3 +39,9 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 ## Related Topics
 
 hooks | component-patterns | performance
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

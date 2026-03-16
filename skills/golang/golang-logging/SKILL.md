@@ -1,6 +1,14 @@
 ---
 name: golang-logging
 description: "Standards for structured logging and observability in Golang. Use when adding structured logging or tracing to Go services. (triggers: go.mod, pkg/logger/**, logging, slog, structured logging, zap)"
+keywords:
+  - logging
+  - slog
+  - structured logging
+  - zap
+files:
+  - "go.mod"
+  - "pkg/logger/**"
 ---
 
 # Golang Logging Standards
@@ -29,3 +37,9 @@ description: "Standards for structured logging and observability in Golang. Use 
 ## References
 
 - [Slog Patterns](references/slog-patterns.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

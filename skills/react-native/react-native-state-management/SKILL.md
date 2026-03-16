@@ -1,6 +1,15 @@
 ---
 name: react-native-state-management
 description: "Local and global state patterns with Context, Zustand, and Redux Toolkit. Use when choosing or implementing state management in React Native with Context, Zustand, or Redux. (triggers: **/*.tsx, **/*.ts, useState, useContext, zustand, redux, state-management)"
+keywords:
+  - useState
+  - useContext
+  - zustand
+  - redux
+  - state-management
+files:
+  - "**/*.tsx"
+  - "**/*.ts"
 ---
 
 # React Native State Management

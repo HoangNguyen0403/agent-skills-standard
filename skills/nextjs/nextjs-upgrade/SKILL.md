@@ -1,6 +1,12 @@
 ---
 name: nextjs-upgrade
 description: "Next.js version migrations using official guides and codemods. Use when migrating a Next.js project to a new major version using codemods. (triggers: package.json, next upgrade, migration guide, codemod)"
+keywords:
+  - next upgrade
+  - migration guide
+  - codemod
+files:
+  - "package.json"
 ---
 
 # Next.js Upgrade Protocol
@@ -50,3 +56,9 @@ npm install --save-dev @types/react@latest @types/react-dom@latest
 
 - Run `npm run build` immediately after codemods and package updates.
 - Check for "Hydration failed" or "Turbopack" compatibility errors if using `--turbo`.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

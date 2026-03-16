@@ -1,6 +1,13 @@
 ---
 name: common-system-design
 description: "Universal architectural standards for robust, scalable systems. Use when designing new features, evaluating architecture, or resolving scalability concerns. (triggers: architecture, design, system, scalability)"
+keywords:
+  - architecture
+  - design
+  - system
+  - scalability
+files:
+  - "**/*"
 ---
 
 # System Design & Architecture Standards
@@ -44,3 +51,9 @@ description: "Universal architectural standards for robust, scalable systems. Us
 
 - [Distributed Systems & CAP Theorem](references/distributed-systems.md)
 - [Resilience Patterns (Circuit Breaker, Bulkhead, Retry)](references/resilience-patterns.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

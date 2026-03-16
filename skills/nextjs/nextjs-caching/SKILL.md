@@ -1,6 +1,15 @@
 ---
 name: nextjs-caching
 description: "The 4 layers of caching in Next.js. Use when configuring request memoization, data cache, full-route cache, or router cache in Next.js. (triggers: **/page.tsx, **/layout.tsx, **/action.ts, unstable_cache, revalidateTag, Router Cache, Data Cache)"
+keywords:
+  - unstable_cache
+  - revalidateTag
+  - Router Cache
+  - Data Cache
+files:
+  - "**/page.tsx"
+  - "**/layout.tsx"
+  - "**/action.ts"
 ---
 
 # Caching Architecture
@@ -34,3 +43,9 @@ Next.js has 4 distinct caching layers. Understanding them prevents stale data bu
 ## **Implementation Details**
 
 See [Cache Components & PPR](references/CACHE_COMPONENTS.md) for detailed key generation, closure constraints, and invalidation strategies.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

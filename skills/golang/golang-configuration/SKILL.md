@@ -1,6 +1,14 @@
 ---
 name: golang-configuration
 description: "Standards for application configuration using environment variables and libraries. Use when managing Go application config with environment variables or viper. (triggers: configs/**, cmd/**, configuration, env var, viper, koanf)"
+keywords:
+  - configuration
+  - env var
+  - viper
+  - koanf
+files:
+  - "configs/**"
+  - "cmd/**"
 ---
 
 # Golang Configuration Standards
@@ -32,3 +40,9 @@ description: "Standards for application configuration using environment variable
 ## References
 
 - [Config Pattern](references/config-patterns.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

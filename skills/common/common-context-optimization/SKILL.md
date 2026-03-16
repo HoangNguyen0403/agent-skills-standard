@@ -1,6 +1,14 @@
 ---
 name: common-context-optimization
 description: "Techniques to maximize context window efficiency, reduce latency, and prevent ''lost in middle'' issues through strategic masking and compaction. (triggers: *.log, chat-history.json, reduce tokens, optimize context, summarize history, clear output)"
+keywords:
+  - reduce tokens
+  - optimize context
+  - summarize history
+  - clear output
+files:
+  - "*.log"
+  - "chat-history.json"
 ---
 
 ## **Priority: P1 (OPTIMIZATION)**
@@ -40,3 +48,9 @@ Manage the Attention Budget. Treat context as a scarce resource.
 
 - [Observation Masking Patterns](references/masking.md)
 - [Compaction Algorithms](references/compaction.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

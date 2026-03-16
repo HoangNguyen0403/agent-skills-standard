@@ -1,6 +1,15 @@
 ---
 name: flutter-go-router-navigation
 description: "Typed routes, route state, and redirection using go_router. Use when implementing go_router typed routes, guards, or redirects in Flutter. (triggers: **/router.dart, **/app_router.dart, GoRouter, GoRoute, StatefulShellRoute, redirection, typed-routes)"
+keywords:
+  - GoRouter
+  - GoRoute
+  - StatefulShellRoute
+  - redirection
+  - typed-routes
+files:
+  - "**/router.dart"
+  - "**/app_router.dart"
 ---
 
 # GoRouter Navigation
@@ -50,3 +59,9 @@ final router = GoRouter(
 ## Related Topics
 
 layer-based-clean-architecture | auto-route-navigation | security
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

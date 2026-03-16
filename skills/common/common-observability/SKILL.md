@@ -1,6 +1,24 @@
 ---
 name: common-observability
 description: "Standards for structured logging, distributed tracing, and metrics across all backend services. Use when adding logs, setting up tracing, or implementing service observability. (triggers: **/*.service.ts, **/*.handler.ts, **/*.middleware.ts, **/*.interceptor.ts, **/*.go, **/*.java, **/*.kt, **/*.py, logging, tracing, metrics, opentelemetry, observability, correlation, structured log, slo)"
+keywords:
+  - logging
+  - tracing
+  - metrics
+  - opentelemetry
+  - observability
+  - correlation
+  - structured log
+  - slo
+files:
+  - "**/*.service.ts"
+  - "**/*.handler.ts"
+  - "**/*.middleware.ts"
+  - "**/*.interceptor.ts"
+  - "**/*.go"
+  - "**/*.java"
+  - "**/*.kt"
+  - "**/*.py"
 ---
 
 # Common Observability Standards

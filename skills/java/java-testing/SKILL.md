@@ -1,6 +1,15 @@
 ---
 name: java-testing
 description: "Modern testing practices using JUnit 5, AssertJ, and Mockito. Use when writing JUnit 5 tests, AssertJ assertions, or Mockito mocks in Java. (triggers: **/*Test.java, **/*IT.java, test, assert, mock, verify, junit)"
+keywords:
+  - test
+  - assert
+  - mock
+  - verify
+  - junit
+files:
+  - "**/*Test.java"
+  - "**/*IT.java"
 ---
 
 # Java Testing Standards

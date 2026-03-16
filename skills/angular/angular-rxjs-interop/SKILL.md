@@ -1,6 +1,13 @@
 ---
 name: angular-rxjs-interop
 description: "Bridging Observables and Signals using toSignal and toObservable. Use when converting between RxJS Observables and Angular Signals. (triggers: **/*.ts, toSignal, toObservable, takeUntilDestroyed, rxjs angular)"
+keywords:
+  - toSignal
+  - toObservable
+  - takeUntilDestroyed
+  - rxjs angular
+files:
+  - "**/*.ts"
 ---
 
 # RxJS Interop
@@ -24,3 +31,9 @@ description: "Bridging Observables and Signals using toSignal and toObservable. 
 ## References
 
 - [Signals vs Observables](references/observables-vs-signals.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

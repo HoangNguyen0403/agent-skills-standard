@@ -1,6 +1,12 @@
 ---
 name: angular-style-guide
 description: "Naming conventions, file structure, and coding standards for Angular projects. Use when naming Angular files, organizing project structure, or following Angular style guide. (triggers: **/*.ts, angular style, naming convention, file structure)"
+keywords:
+  - angular style
+  - naming convention
+  - file structure
+files:
+  - "**/*.ts"
 ---
 
 # Angular Style Guide

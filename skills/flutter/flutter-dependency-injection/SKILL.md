@@ -1,6 +1,16 @@
 ---
 name: flutter-dependency-injection
 description: "Standards for automated service locator setup using injectable and get_it. Use when configuring dependency injection with injectable and get_it in Flutter. (triggers: **/injection.dart, **/locator.dart, GetIt, injectable, singleton, module, lazySingleton, factory)"
+keywords:
+  - GetIt
+  - injectable
+  - singleton
+  - module
+  - lazySingleton
+  - factory
+files:
+  - "**/injection.dart"
+  - "**/locator.dart"
 ---
 
 # Dependency Injection
@@ -35,3 +45,9 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 ## Related Topics
 
 layer-based-clean-architecture | testing
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

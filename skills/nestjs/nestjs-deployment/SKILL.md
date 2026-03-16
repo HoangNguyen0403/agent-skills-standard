@@ -1,6 +1,14 @@
 ---
 name: nestjs-deployment
 description: "Docker builds, Memory tuning, and Graceful shutdown. Use when containerizing NestJS apps, tuning memory, or implementing graceful shutdown. (triggers: Dockerfile, k8s/**, helm/**, Dockerfile, max-old-space-size, shutdown hooks)"
+keywords:
+  - Dockerfile
+  - Dockerfile
+  - max-old-space-size
+  - shutdown hooks
+files:
+  - "k8s/**"
+  - "helm/**"
 ---
 
 # Deployment & Ops Standards
@@ -43,3 +51,9 @@ Docker optimization and production deployment standards for NestJS applications.
     - **Kubernetes**: New variables must be added to the `Deployment` manifest or `ConfigMap`/`Secret`.
     - **Lambda/Serverless**: Must be added to `serverless.yml` or provider console.
   - **Fundamental Rule**: Application code configuration changes are "breaking changes" for the infrastructure layer. Never assume environment inheritance.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

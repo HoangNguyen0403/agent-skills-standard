@@ -1,6 +1,15 @@
 ---
 name: android-legacy-security
 description: "Standards for Intents, WebViews, and FileProvider. Use when securing Intent handling, WebViews, or FileProvider access in Android. (triggers: **/*Activity.kt, **/*WebView*.kt, AndroidManifest.xml, Intent, WebView, FileProvider, javaScriptEnabled)"
+keywords:
+  - Intent
+  - WebView
+  - FileProvider
+  - javaScriptEnabled
+files:
+  - "**/*Activity.kt"
+  - "**/*WebView*.kt"
+  - "AndroidManifest.xml"
 ---
 
 # Android Legacy Security Standards

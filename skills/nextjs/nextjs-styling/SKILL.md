@@ -1,6 +1,16 @@
 ---
 name: nextjs-styling
 description: "Zero-runtime CSS strategies (Tailwind) and RSC compatibility. Use when implementing Tailwind CSS or zero-runtime styling compatible with React Server Components. (triggers: **/*.css, tailwind.config.ts, **/components/ui/*.tsx, tailwind, css modules, styled-components, clsx, cn)"
+keywords:
+  - tailwind
+  - css modules
+  - styled-components
+  - clsx
+  - cn
+files:
+  - "**/*.css"
+  - "tailwind.config.ts"
+  - "**/components/ui/*.tsx"
 ---
 
 # Styling & UI Performance
@@ -33,3 +43,9 @@ For specific library setups, see:
 2. **Font Optimization**: Use `next/font` to prevent Cumulative Layout Shift (CLS).
    - _Reference_: [Font Setup](references/implementation.md)
 3. **CLS Prevention**: Always specify `width`/`height` on images.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

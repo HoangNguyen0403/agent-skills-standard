@@ -1,6 +1,14 @@
 ---
 name: nextjs-optimization
 description: "Image, Font, Script, and Metadata optimization strategies. Use when optimizing Next.js images, fonts, scripts, or page metadata for performance. (triggers: **/layout.tsx, **/page.tsx, next/image, next/font, metadata, generateMetadata)"
+keywords:
+  - next/image
+  - next/font
+  - metadata
+  - generateMetadata
+files:
+  - "**/layout.tsx"
+  - "**/page.tsx"
 ---
 
 # Optimization
@@ -59,3 +67,9 @@ Before applying optimizations, identify bottlenecks using:
 - **Loading Strategy**: Control when 3rd party scripts load.
   - `strategy="afterInteractive"` (Default): Google Analytics.
   - `strategy="lazyOnload"`: Chat widgets, low priority.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

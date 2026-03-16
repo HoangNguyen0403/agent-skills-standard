@@ -1,6 +1,13 @@
 ---
 name: angular-routing
 description: "Standards for Angular Router, Lazy Loading, and Guards. Use when configuring Angular routes, lazy-loaded modules, route guards, or resolvers. (triggers: *.routes.ts, angular router, loadComponent, canActivate, resolver)"
+keywords:
+  - angular router
+  - loadComponent
+  - canActivate
+  - resolver
+files:
+  - "*.routes.ts"
 ---
 
 # Routing

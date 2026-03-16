@@ -1,6 +1,15 @@
 ---
 name: golang-architecture
 description: "Standards for structural design, Clean Architecture, and project layout in Golang. Use when structuring Go projects or applying Clean Architecture in Go. (triggers: go.mod, internal/**, architecture, structure, folder layout, clean arch, dependency injection)"
+keywords:
+  - architecture
+  - structure
+  - folder layout
+  - clean arch
+  - dependency injection
+files:
+  - "go.mod"
+  - "internal/**"
 ---
 
 # Golang Architecture Standards
@@ -41,3 +50,9 @@ See [Standard Project Layout](references/project-layout.md) for directory tree.
 
 - [Standard Project Layout](references/project-layout.md)
 - [Clean Architecture Layers](references/clean-arch.md)
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

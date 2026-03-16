@@ -1,6 +1,24 @@
 ---
 name: common-performance-engineering
 description: "Universal standards for high-performance development. Use when optimizing, reducing latency, fixing memory leaks, profiling, or improving throughput. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, performance, optimize, profile, scalability, latency, throughput, memory leak, bottleneck)"
+keywords:
+  - performance
+  - optimize
+  - profile
+  - scalability
+  - latency
+  - throughput
+  - memory leak
+  - bottleneck
+files:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.go"
+  - "**/*.dart"
+  - "**/*.java"
+  - "**/*.kt"
+  - "**/*.swift"
+  - "**/*.py"
 ---
 
 # Performance Engineering Standards
@@ -48,3 +66,9 @@ Universal standards for building high-performance software across all frameworks
 - **Benchmarking**: Write micro-benchmarks for performance-critical functions.
 - **SLIs/SLOs**: Define Service Level Indicators (latency, throughput) and Objectives.
 - **Load Testing**: Test system behavior under peak and stress conditions.
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.

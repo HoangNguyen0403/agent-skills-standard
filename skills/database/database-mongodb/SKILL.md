@@ -1,6 +1,16 @@
 ---
 name: database-mongodb
 description: "Expert rules for schema design, indexing, and performance in MongoDB. Use when designing MongoDB schemas, creating indexes, or optimizing NoSQL query performance. (triggers: **/*.ts, **/*.js, **/*.json, mongo, mongoose, objectid, schema, model)"
+keywords:
+  - mongo
+  - mongoose
+  - objectid
+  - schema
+  - model
+files:
+  - "**/*.ts"
+  - "**/*.js"
+  - "**/*.json"
 ---
 
 # MongoDB Best Practices

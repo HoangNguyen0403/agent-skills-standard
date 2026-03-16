@@ -1,6 +1,16 @@
 ---
 name: flutter-security
 description: "Security standards for Flutter applications based on OWASP Mobile. Use when applying OWASP Mobile security standards or securing a Flutter application. (triggers: lib/infrastructure/**, pubspec.yaml, secure_storage, obfuscate, jailbreak, pinning, PII, OWASP)"
+keywords:
+  - secure_storage
+  - obfuscate
+  - jailbreak
+  - pinning
+  - PII
+  - OWASP
+files:
+  - "lib/infrastructure/**"
+  - "pubspec.yaml"
 ---
 
 # Mobile Security
@@ -26,3 +36,9 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 ## Related Topics
 
 common/security-standards | layer-based-clean-architecture | performance
+
+
+## 🚫 Anti-Patterns
+
+- Do NOT use standard patterns if specific project rules exist.
+- Do NOT ignore error handling or edge cases.
