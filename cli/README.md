@@ -139,7 +139,7 @@ No. If you have custom rules in <code>.cursorrules</code> or other files, you ca
 - **Standard Specs**: [Documentation](https://github.com/HoangNguyen0403/agent-skills-standard#📂-standard-specification)
 - **Issues**: [Report a bug](https://github.com/HoangNguyen0403/agent-skills-standard/issues)
 
-#### 📜 Benchmark History
+### 📜 Benchmark History
 
 | Version | Date | Skills | Avg Tokens | Savings (%) | Report |
 | --- | --- | --- | --- | --- | --- |

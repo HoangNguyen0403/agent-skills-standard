@@ -24,7 +24,8 @@ if (!result.success) return res.status(400).json(result.error);
 ## Secure Cookie Options
 
 ```typescript
-// NODE_ENV is 'production' in standard Node deployments (not 'prod')
+// In many Node deployments, production mode uses NODE_ENV === 'production';
+// verify your environment's convention (e.g., 'prod' vs 'production').
 const cookieOpts = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',

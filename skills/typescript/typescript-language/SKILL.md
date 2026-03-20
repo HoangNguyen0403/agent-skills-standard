@@ -25,7 +25,7 @@ description: "Modern TypeScript standards for type safety and maintainability. U
 
 ## Anti-Patterns
 
-- **No `any`**: Use `unknown` or a specific interface.
+- **NEVER use `any`**: Use `unknown` or a specific interface instead.
 - **No `Function`**: Use signature `() => void`.
 - **No `enum`**: Runtime cost.
 - **No `!`**: Use narrowing.

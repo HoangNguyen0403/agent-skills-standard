@@ -94,7 +94,7 @@ function updateReadmeHistory(
   const content = fs.readFileSync(readmePath, 'utf-8');
   const trend = [...history].reverse().slice(0, 3);
 
-  const historyHeader = '#### 📜 Benchmark History';
+  const historyHeader = '### 📜 Benchmark History';
   const tableHeader =
     '| Version | Date | Skills | Avg Tokens | Savings (%) | Report |\n| --- | --- | --- | --- | --- | --- |';
   const tableRows = trend
@@ -107,7 +107,7 @@ function updateReadmeHistory(
   const historySection = `\n\n${historyHeader}\n\n${tableHeader}\n${tableRows}\n`;
 
   // Regex to find and replace the history section if it exists, or append it
-  const historyRegex = /#### 📜 Benchmark History[\s\S]*?(?=\n#|$|####)/;
+  const historyRegex = /### 📜 Benchmark History[\s\S]*?(?=\n#|$|###)/;
 
   let newContent: string;
   if (historyRegex.test(content)) {

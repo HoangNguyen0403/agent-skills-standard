@@ -57,7 +57,7 @@ graph LR
 We understand that "injecting" instructions into your AI can sound risky to security teams. Here is how we keep you safe:
 
 - **No Code Execution**: Skills are pure Markdown/JSON files. They contain _text instructions_ for the AI, not executable code. They cannot run commands on your machine.
-- **Continuous Benchmarking**: Every skill now includes an `evals.json` dataset, used to verify AI adherence to constraints via automated regression testing.
+- **Continuous Benchmarking**: Most skills now include an `evals.json` dataset, used to verify AI adherence to constraints via automated regression testing.
 - **Open Source**: The entire registry is open source. You can audit every skill file on GitHub before using it.
 - **Sandboxed**: The CLI tool (`agent-skills-standard`) runs in user space to download text files. The "skills" themselves run inside the AI's isolated context window, not as OS processes.
 - **Privacy**: We do not collect any code or project data. Feedback is only sent if you manually trigger the `feedback` command or strongly opt-in.
@@ -200,7 +200,7 @@ For detailed architecture logic and token calculation scripts, see [CLI Architec
 - **License**: MIT
 - **Author**: [Hoang Nguyen](https://github.com/HoangNguyen0403)
 
-#### 📜 Benchmark History
+### 📜 Benchmark History
 
 | Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                  |
 | ------- | ---------- | ------ | ---------- | ----------- | --------------------------------------- |

@@ -18,15 +18,16 @@ function Button({ variant = 'primary', ...props }: ButtonProps) {
 ```tsx
 type ListProps<T> = {
   items: T[];
+  getKey: (item: T) => string | number;
   render: (item: T) => ReactNode;
 };
 
-function List<T>({ items, render }: ListProps<T>) {
-  return <ul>{items.map((item, i) => <li key={i}>{render(item)}</li>)}</ul>;
+function List<T>({ items, render, getKey }: ListProps<T>) {
+  return <ul>{items.map((item) => <li key={getKey(item)}>{render(item)}</li>)}</ul>;
 }
 
 // Usage
-<List items={users} render={(u) => <span>{u.name}</span>} />
+<List items={users} getKey={(u) => u.id} render={(u) => <span>{u.name}</span>} />
 ```
 
 ## Hook Ref Typing

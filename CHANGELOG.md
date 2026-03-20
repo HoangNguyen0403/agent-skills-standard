@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Unified Skill Evals**: Introduced `evals/evals.json` across all core categories (React, React Native, TypeScript, Android, Java, Kotlin, Flutter, Dart, iOS, Swift), providing 380+ concrete prompts and assertions for automated testing.
+- **Unified Skill Evals**: Introduced `evals/evals.json` across all core categories (React, React Native, TypeScript, Android, Java, Kotlin, Flutter, Dart, iOS, Swift), providing 90+ concrete prompts and assertions for automated testing.
 - **Progressive Disclosure (Phase 3)**: Extracted all large implementation details and code blocks into `references/` across React, React Native, TypeScript, Java, and Kotlin modules to optimize token economy.
 - **Hardened Anti-Patterns**: Comprehensive update to `Anti-Patterns` sections across the entire library to prevent hallucinations, specifically targeting React Hooks, Type-safety, and native mobile memory management.
 - **Retrospective Schema**: Defined a structured `trigger_miss` JSON schema in `common-session-retrospective` to formalize how agents report and fix missing skill triggers.
