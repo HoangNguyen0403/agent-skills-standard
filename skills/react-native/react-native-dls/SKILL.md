@@ -15,14 +15,12 @@ Enforce design token usage in React Native apps.
 - **Usage**: Import tokens (`colors.primary`) instead of literals (`#000`).
 - **Styling**: Compatible with `StyleSheet` and `styled-components`.
 
-[Usage Examples](references/usage.md)
-
 ## Anti-Patterns
 
 - **No Inline Colors**: Use `'#FF0000'` → Error. Import from `theme/colors`.
 - **No Magic Spacing**: Use `padding: 16` → Error. Use `spacing.md`.
 - **No Inline Fonts**: Define `fontSize: 20` → Error. Use `typography.h1`.
 
-## Related Topics
+## References
 
-mobile-ux-core | react-native/performance
+See [references/usage.md](references/usage.md) for design token usage examples.

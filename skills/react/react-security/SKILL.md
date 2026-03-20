@@ -24,22 +24,6 @@ Preventing vulnerabilities in client-side apps.
 - **No Serialized State**: Don't inject JSON into DOM without escaping.
 - **No Client Logic for Permissions**: Backend must validate.
 
-## Code
+## References
 
-```tsx
-import DOMPurify from 'dompurify';
-
-// Safe HTML Injection
-function SafeHtml({ content }) {
-  const clean = DOMPurify.sanitize(content);
-  return <div dangerouslySetInnerHTML={{ __html: clean }} />;
-}
-
-// Bad Link Prevention
-const safeUrl = url.startsWith('javascript:') ? '#' : url;
-<a href={safeUrl}>Link</a>;
-```
-
-## Related Topics
-
-common/security-standards | typescript/security | component-patterns
+See [references/REFERENCE.md](references/REFERENCE.md) for DOMPurify usage, CSP headers, OAuth2/JWT auth patterns, and CSRF protection.

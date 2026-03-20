@@ -1,0 +1,26 @@
+{
+  "skill_name": "react-typescript",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I type a React component that accepts any native button props plus a custom variant?",
+      "expected_output": "Use ComponentProps<'button'> and extend it: type ButtonProps = ComponentProps<'button'> & { variant?: 'primary' | 'secondary' }. Spread {...props} to forward native props. Avoid React.FC — write function directly with typed params."
+    },
+    {
+      "id": 2,
+      "prompt": "How do I type a generic list component in React TypeScript?",
+      "expected_output": "Use a generic: type ListProps<T> = { items: T[]; render: (item: T) => ReactNode }. Define as function List<T,>({ items, render }: ListProps<T>). The comma after T avoids JSX parsing ambiguity in .tsx files."
+    },
+    {
+      "id": 3,
+      "prompt": "How do I type useRef for a DOM element in TypeScript?",
+      "expected_output": "For DOM refs: useRef<HTMLInputElement>(null) — initial value must be null for DOM elements. For mutable values: useRef<number>(0) — non-null initial. Access via ref.current, check for null before use (ref.current?.focus())."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up strict mode in tsconfig?",
+    "How do I write a discriminated union type?",
+    "How do I set up ESLint for TypeScript?",
+    "How do I implement state management with Zustand?"
+  ]
+}

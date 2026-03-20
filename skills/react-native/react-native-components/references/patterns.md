@@ -2,6 +2,25 @@
 
 Advanced patterns for high-density, reusable mobile components.
 
+## Container / Presentational Split
+
+The most fundamental separation: containers own logic, presentational components own UI.
+
+```tsx
+// Container: data fetching + logic
+function HomeScreen() {
+  const { data, loading } = useFetchPosts();
+  return <PostList posts={data} loading={loading} />;
+}
+
+// Presentational: pure UI, no side effects
+type Props = { posts: Post[]; loading: boolean };
+function PostList({ posts, loading }: Props) {
+  if (loading) return <ActivityIndicator />;
+  return <FlatList data={posts} renderItem={({ item }) => <PostCard post={item} />} />;
+}
+```
+
 ## Higher-Order Components (HOC)
 
 Use HOCs for cross-cutting concerns like authentication or tracking.

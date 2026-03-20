@@ -1,0 +1,26 @@
+{
+  "skill_name": "react-native-components",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I build a reusable card component in React Native that works across multiple features?",
+      "expected_output": "Function component only. Define TypeScript interface for props. Use StyleSheet.create for styles. Destructure props in params. Keep under 250 lines. Export as named export. Place in src/components/ for shared, or feature/components/ for feature-specific."
+    },
+    {
+      "id": 2,
+      "prompt": "My React Native screen has API calls, state management, and JSX all mixed together. How do I clean it up?",
+      "expected_output": "Apply Container/Presentational: container handles data fetching and state via hooks, presentational receives typed props and renders UI. No side effects in presentational. Screen component = container that passes data to sub-components."
+    },
+    {
+      "id": 3,
+      "prompt": "I'm defining a child component inside the parent render function in React Native. Is this a problem?",
+      "expected_output": "Yes — nested component definitions recreate the component on every render, losing state and causing re-mounting. Define all components at the module top level. Use composition (children prop, render props) instead of defining inside render."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up React Navigation?",
+    "How do I implement secure storage in React Native?",
+    "How do I write tests with RNTL?",
+    "How do I configure EAS Build?"
+  ]
+}

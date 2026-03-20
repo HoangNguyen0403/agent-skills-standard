@@ -34,7 +34,7 @@ if (process.env.NODE_ENV === 'development') {
 ```
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No Production Profiling**: Remove `why-did-you-render` and debug tools before production builds.
+- **No Skip StrictMode**: Keep `<React.StrictMode>` in dev to surface side effects early.

@@ -44,10 +44,6 @@ description: "Secure storage, deep linking security, and certificate pinning for
 - **No Plain HTTP**: Always use HTTPS.
 - **No Client-Side Auth**: Validate on backend.
 
-## Reference & Examples
+## References
 
 See [references/keychain-usage.md](references/keychain-usage.md) for Keychain, Biometrics, SSL Pinning, and PII Masking.
-
-## Related Topics
-
-common/security-standards | typescript/security

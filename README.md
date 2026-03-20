@@ -43,7 +43,7 @@ graph LR
     A[Hardcoded Rules] --> B[Wordy Prompts]
     B --> C[Loss of Logic & High Cost]
 
-    D[Agent Skills] --> E[Smart Loading]
+    D[Agent Skills] --> E[Progressive Disclosure]
     E --> F[High-Density AI Logic]
 
     style F fill:#dcfce7,stroke:#166534
@@ -57,6 +57,7 @@ graph LR
 We understand that "injecting" instructions into your AI can sound risky to security teams. Here is how we keep you safe:
 
 - **No Code Execution**: Skills are pure Markdown/JSON files. They contain _text instructions_ for the AI, not executable code. They cannot run commands on your machine.
+- **Continuous Benchmarking**: Every skill now includes an `evals.json` dataset, used to verify AI adherence to constraints via automated regression testing.
 - **Open Source**: The entire registry is open source. You can audit every skill file on GitHub before using it.
 - **Sandboxed**: The CLI tool (`agent-skills-standard`) runs in user space to download text files. The "skills" themselves run inside the AI's isolated context window, not as OS processes.
 - **Privacy**: We do not collect any code or project data. Feedback is only sent if you manually trigger the `feedback` command or strongly opt-in.
@@ -142,13 +143,13 @@ skills:
   flutter:
     ref: flutter-v1.1.0
     # 🚫 Exclude specific sub-skills from being synced
-    exclude: ["getx-navigation"]
+    exclude: ['getx-navigation']
     # ➕ Include specific skills (supports cross-category 'category/skill' syntax)
     include:
-      - "bloc-state-management"
-      - "react/hooks"
+      - 'bloc-state-management'
+      - 'react/hooks'
     # 🔒 Protect local modifications from being overwritten
-    custom_overrides: ["bloc-state-management"]
+    custom_overrides: ['bloc-state-management']
 ```
 
 ### Project-Specific Skills
@@ -201,8 +202,8 @@ For detailed architecture logic and token calculation scripts, see [CLI Architec
 
 #### 📜 Benchmark History
 
-| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
-| --- | --- | --- | --- | --- | --- |
-| v1.10.1 | 2026-03-16 | 229 | 428 | 88% | [Report](benchmarks/archive/v1.10.1.md) |
-| v1.10.0 | 2026-03-16 | 229 | 434 | 88% | [Report](benchmarks/archive/v1.10.0.md) |
-| v1.9.3 | 2026-03-15 | 229 | 460 | 87% | [Report](benchmarks/archive/v1.9.3.md) |
+| Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                  |
+| ------- | ---------- | ------ | ---------- | ----------- | --------------------------------------- |
+| v1.10.1 | 2026-03-16 | 229    | 428        | 88%         | [Report](benchmarks/archive/v1.10.1.md) |
+| v1.10.0 | 2026-03-16 | 229    | 434        | 88%         | [Report](benchmarks/archive/v1.10.0.md) |
+| v1.9.3  | 2026-03-15 | 229    | 460        | 87%         | [Report](benchmarks/archive/v1.9.3.md)  |

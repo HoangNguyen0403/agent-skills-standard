@@ -1,0 +1,26 @@
+{
+  "skill_name": "react-native-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I organize my React Native project as it grows to 20+ screens?",
+      "expected_output": "Feature-first structure: src/features/auth/, src/features/home/. Each feature has screens/, components/, hooks/, services/. Shared code in src/components/, src/hooks/, src/services/. Configure tsconfig paths for absolute imports (@/features, @/components)."
+    },
+    {
+      "id": 2,
+      "prompt": "My React Native screen component has API calls, business logic, and UI all in one 400-line file. How do I refactor it?",
+      "expected_output": "Separate concerns: move API calls to services/, extract logic to custom hooks (useFetchOrders), keep screen as container that renders presentational components. Screen should only connect data to UI. Each file max 250 lines with one clear purpose."
+    },
+    {
+      "id": 3,
+      "prompt": "Should I use Expo Router or React Navigation for my new React Native app?",
+      "expected_output": "Expo Router for new projects needing web parity or file-based routing (like Next.js). React Navigation for complex deep-linking, legacy apps, or high customization. Both are valid — choose based on project needs. Document the choice."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I optimize FlatList performance?",
+    "How do I implement certificate pinning?",
+    "How do I write a unit test for a React Native component?",
+    "How do I set up EAS Build?"
+  ]
+}

@@ -25,24 +25,6 @@ Type-safe React patterns.
 - **No `React.FC`**: Implicit children is deprecated/bad practice.
 - **No `Function`**: Use `(args: T) => void`.
 
-## Code
+## References
 
-```tsx
-// Modern Props
-type ButtonProps = ComponentProps<'button'> & {
-  variant?: 'primary' | 'secondary';
-};
-
-// Generic Component
-type ListProps<T> = {
-  items: T[];
-  render: (item: T) => ReactNode;
-};
-
-function List<T>({ items, render }: ListProps<T>) {
-  return <ul>{items.map(render)}</ul>;
-}
-
-// Hook Ref
-const inputRef = useRef<HTMLInputElement>(null);
-```
+See [references/example.md](references/example.md) for typed props, generic components, and hook ref patterns.

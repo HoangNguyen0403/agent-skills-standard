@@ -68,11 +68,17 @@ mockRepo.save.mockResolvedValue(result as unknown as User);
 }
 ```
 
-## Reference & Examples
+## Verification Workflow (Mandatory)
 
-For testing configuration and CI/CD setup:
-See [references/REFERENCE.md](references/REFERENCE.md).
+After editing any `.ts` / `.tsx` file:
+1. Call `getDiagnostics` (typescript-lsp MCP tool) — surfaces type errors in real time.
+2. Run `tsc --noEmit` in CI — catches project-wide errors LSP may miss.
+3. Run `eslint --fix` — auto-fix formatting and lint violations.
 
-## Related Topics
+`getDiagnostics` is the fastest feedback loop. Use it before every commit on modified files.
 
-best-practices | language
+**LSP Exploration**: Use `getHover` to inspect inferred types inline. Use `getReferences` before renaming any symbol to verify all call sites.
+
+## References
+
+See [references/REFERENCE.md](references/REFERENCE.md) for CI config, test setup, and advanced ESLint rules.

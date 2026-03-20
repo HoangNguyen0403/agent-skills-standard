@@ -46,10 +46,6 @@ description: "Optimization strategies for smooth 60fps mobile apps. Use when opt
 - **No Inline Styles**: Use `StyleSheet.create` (optimized).
 - **No console.log in Production**: Strip with babel plugin.
 
-## Reference & Examples
+## References
 
 See [references/optimization-guide.md](references/optimization-guide.md) for FlatList configuration, memoization rules, and bundle analysis.
-
-## Related Topics
-
-react/performance | common/performance-engineering

@@ -1,0 +1,26 @@
+{
+  "skill_name": "react-native-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I write a test that simulates a button press and checks the result in React Native?",
+      "expected_output": "Use @testing-library/react-native. Render component, query by role (getByRole('button', { name: /increment/i })). Press with fireEvent.press(button). Assert with expect(getByText('Count: 1')).toBeTruthy(). Use findBy* for async state updates."
+    },
+    {
+      "id": 2,
+      "prompt": "How do I mock native modules like AsyncStorage in React Native tests?",
+      "expected_output": "Use jest.mock at the top of the test file: jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock')). For custom modules, mock in __mocks__/ directory. Never call actual native code in unit tests."
+    },
+    {
+      "id": 3,
+      "prompt": "My React Native tests are testing component.state and component.props. Is this correct?",
+      "expected_output": "No — test behavior, not implementation. Query by role/text/label, not internal state. Assert what the user sees, not what's in state. Integration tests are more valuable than unit tests of internals. Never use .instance() or .state() in RNTL tests."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up React Navigation?",
+    "How do I implement certificate pinning?",
+    "How do I configure EAS Build?",
+    "How do I optimize FlatList performance?"
+  ]
+}

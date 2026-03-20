@@ -177,19 +177,19 @@
       }
     },
     "typescript": {
-      "version": "1.2.1",
-      "last_updated": "2026-03-16",
+      "version": "1.3.0",
+      "last_updated": "2026-03-20",
       "tag_prefix": "typescript-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 2040,
-        "avg_tokens_per_skill": 510,
-        "largest_skill": "typescript-tooling (585 tokens)"
+        "total_tokens": 2123,
+        "avg_tokens_per_skill": 531,
+        "largest_skill": "typescript-tooling (709 tokens)"
       }
     },
     "javascript": {
       "version": "1.2.1",
-      "last_updated": "2026-03-16",
+      "last_updated": "2026-03-20",
       "tag_prefix": "javascript-v",
       "token_metrics": {
         "total_skills": 3,
@@ -199,25 +199,25 @@
       }
     },
     "react": {
-      "version": "1.2.1",
-      "last_updated": "2026-03-16",
+      "version": "1.3.0",
+      "last_updated": "2026-03-20",
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 3288,
-        "avg_tokens_per_skill": 411,
-        "largest_skill": "react-performance (648 tokens)"
+        "total_tokens": 3123,
+        "avg_tokens_per_skill": 390,
+        "largest_skill": "react-performance (596 tokens)"
       }
     },
     "react-native": {
-      "version": "1.3.1",
-      "last_updated": "2026-03-16",
+      "version": "1.4.0",
+      "last_updated": "2026-03-20",
       "tag_prefix": "react-native-v",
       "token_metrics": {
         "total_skills": 13,
-        "total_tokens": 5716,
-        "avg_tokens_per_skill": 440,
-        "largest_skill": "react-native-architecture (715 tokens)"
+        "total_tokens": 5001,
+        "avg_tokens_per_skill": 385,
+        "largest_skill": "react-native-architecture (525 tokens)"
       }
     },
     "nestjs": {

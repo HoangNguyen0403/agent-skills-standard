@@ -1,0 +1,31 @@
+{
+  "skill_name": "typescript-language",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "What's the difference between interface and type in TypeScript, and when should I use each?",
+      "expected_output": "Use interface for object shapes/APIs (supports declaration merging, extends). Use type for unions, intersections, mapped types, or conditional types. Both work for simple objects; prefer interface for public APIs."
+    },
+    {
+      "id": 2,
+      "prompt": "How do I create a discriminated union in TypeScript for a Result type that can be success or error?",
+      "expected_output": "Use a literal 'kind' or 'type' discriminant: type Result<T> = { kind: 'ok'; data: T } | { kind: 'err'; error: Error }. Switch on the discriminant to narrow the type safely."
+    },
+    {
+      "id": 3,
+      "prompt": "I'm getting a TypeScript error about 'possibly undefined'. How should I handle nullability?",
+      "expected_output": "Use optional chaining (?.) and nullish coalescing (??). Enable strict mode in tsconfig. Use type narrowing (if checks, typeof, instanceof). Avoid non-null assertion (!) — use narrowing instead."
+    },
+    {
+      "id": 4,
+      "prompt": "How do I use branded types to prevent mixing up different string IDs?",
+      "expected_output": "Use intersection with a brand: type UserId = string & { __brand: 'UserId' }. Create a constructor function to cast. This prevents passing OrderId where UserId is expected at compile time."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up ESLint for my project?",
+    "How do I write a unit test with Jest?",
+    "How do I validate user input with Zod?",
+    "Set up a React component with styled-components"
+  ]
+}

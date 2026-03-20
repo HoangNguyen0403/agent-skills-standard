@@ -50,10 +50,6 @@ test('fetches and displays data', async () => {
 - **No Testing Implementation**: Test behavior, not internals.
 - **No testID Overuse**: Prefer accessible queries.
 
-## Reference & Examples
+## References
 
-See [references/testing-library.md](references/testing-library.md) for RNTL Setup, Mocking Providers, and Integration Flow examples.
-
-## Related Topics
-
-common/quality-assurance | react/testing
+See [references/testing-library.md](references/testing-library.md) for RNTL setup, mocking providers, and integration flow examples.

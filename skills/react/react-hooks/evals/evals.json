@@ -1,0 +1,26 @@
+{
+  "skill_name": "react-hooks",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My useEffect runs infinitely even though I added the object to the dependency array. What's wrong?",
+      "expected_output": "Objects/arrays are recreated each render, causing infinite loops. Fix by memoizing the object with useMemo before putting it in deps, or using useRef to store a stable reference, or restructuring to use primitives in the dependency array."
+    },
+    {
+      "id": 2,
+      "prompt": "When should I use useMemo vs useCallback in React?",
+      "expected_output": "useMemo: cache expensive computed values (heavy calculations, derived data). useCallback: stabilize function references when passed as props to memoized children or used in dependency arrays. Always measure first — premature memoization adds complexity."
+    },
+    {
+      "id": 3,
+      "prompt": "How do I write a custom hook to fetch data that handles loading, error, and cleanup?",
+      "expected_output": "Prefix with use*. Use useState for data/loading/error. Use useEffect with an AbortController for cleanup. Return cleanup function from useEffect. Handle the mounted flag or use AbortController to prevent state updates after unmount."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I structure my React project into features?",
+    "How do I prevent XSS in React?",
+    "How do I write a React Testing Library test?",
+    "How do I configure webpack for my React app?"
+  ]
+}

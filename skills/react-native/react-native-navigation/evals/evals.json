@@ -1,0 +1,26 @@
+{
+  "skill_name": "react-native-navigation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I set up React Navigation with a stack navigator and type-safe navigation?",
+      "expected_output": "Install @react-navigation/native and @react-navigation/native-stack. Define RootStackParamList type with all screen names and params. Wrap app in NavigationContainer. Use createNativeStackNavigator<RootStackParamList>(). Use NativeStackScreenProps for screen prop types."
+    },
+    {
+      "id": 2,
+      "prompt": "How do I set up deep linking in React Navigation so my app opens to the right screen from a URL?",
+      "expected_output": "Configure linking prop in NavigationContainer with config mapping URL patterns to screen names. Handle params via linking.config.screens. Validate all incoming deep link params before fetching data. Configure URL scheme in app.json (Expo) or platform-specific files."
+    },
+    {
+      "id": 3,
+      "prompt": "My deep link passes a userId in the URL and the app crashes if the ID doesn't exist. How do I handle this?",
+      "expected_output": "Validate route.params before fetching. Use optional chaining and check if resource exists. On 404, redirect to a fallback screen (Home or 404 screen). Never trust URL params — treat them as untrusted input. Use error boundaries around deep-linked screens."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I optimize FlatList performance?",
+    "How do I implement push notifications?",
+    "How do I set up EAS Build?",
+    "How do I use StyleSheet.create?"
+  ]
+}

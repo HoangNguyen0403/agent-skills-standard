@@ -1,0 +1,26 @@
+{
+  "skill_name": "react-native-notifications",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I set up Firebase Cloud Messaging push notifications in a bare React Native app?",
+      "expected_output": "Install @react-native-firebase/app and @react-native-firebase/messaging. Configure google-services.json (Android) and GoogleService-Info.plist (iOS). Request notification permissions with a primer dialog before system prompt. Register FCM token on server. Handle all three states: foreground, background, quit."
+    },
+    {
+      "id": 2,
+      "prompt": "My React Native app shows the notification permission dialog immediately on launch and users deny it. How do I fix this?",
+      "expected_output": "Use a primer screen to explain why notifications are needed before requesting system permission. Request only after user understands the value. Check current permission status with messaging().hasPermission(). Never request immediately on cold start."
+    },
+    {
+      "id": 3,
+      "prompt": "How do I handle deep links from push notifications in React Native?",
+      "expected_output": "Handle all three app states: foreground (onMessage), background (onNotificationOpenedApp), quit (getInitialNotification). Extract deep link URL from notification data. Validate payload before navigating. Use React Navigation's navigate after NavigationContainer is ready."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up React Navigation?",
+    "How do I implement secure storage?",
+    "How do I write tests with RNTL?",
+    "How do I reduce FlatList re-renders?"
+  ]
+}

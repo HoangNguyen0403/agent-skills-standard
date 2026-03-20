@@ -1,0 +1,26 @@
+{
+  "skill_name": "react-security",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "A user can submit HTML content that gets rendered on the page. How do I display it safely in React?",
+      "expected_output": "Sanitize with DOMPurify.sanitize() before rendering any HTML. Use a library to strip script tags and event handlers. Render as plain text where possible — inject HTML only when truly required. Set a strict CSP to block injected scripts."
+    },
+    {
+      "id": 2,
+      "prompt": "Where should I store JWT tokens in a React app?",
+      "expected_output": "Store in httpOnly cookies (not accessible via JS, protected from XSS). Never store in localStorage or sessionStorage. Set secure and sameSite:strict on cookies. Implement CSRF protection when using cookies. Token refresh should happen server-side."
+    },
+    {
+      "id": 3,
+      "prompt": "How do I add Content Security Policy to my React app?",
+      "expected_output": "Set CSP headers server-side (or meta tag as fallback). Use default-src self. Avoid unsafe-inline and unsafe-eval. For Next.js, configure in next.config.js middleware. Test with browser DevTools CSP report-only mode first."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I optimize React rendering performance?",
+    "How do I write a compound component?",
+    "How do I configure my tsconfig?",
+    "How do I test a React form with RTL?"
+  ]
+}

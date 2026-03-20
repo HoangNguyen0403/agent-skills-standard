@@ -16,14 +16,12 @@ Navigation and deep linking using React Navigation.
 - **Deep Links**: Configure `linking` prop in `NavigationContainer`.
 - **Validation**: Validate route parameters (`route.params`) before fetching data.
 
-[Routing Patterns](references/routing-patterns.md)
-
 ## Anti-Patterns
 
 - **No Untyped Navigation**: `navigation.navigate('Unknown')` → Error. Use types.
 - **No Manual URL Parsing**: Use `linking.config`, not manual string parsing.
 - **No Unvalidated Deep Links**: Handle invalid IDs gracefully (e.g., redirect to Home/404).
 
-## Related Topics
+## References
 
-react-native-dls | react-native-notifications | mobile-ux-core
+See [references/routing-patterns.md](references/routing-patterns.md) for typed param lists and deep linking config.

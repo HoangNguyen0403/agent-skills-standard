@@ -20,34 +20,16 @@ Security standards for TypeScript applications based on OWASP guidelines.
 - **Rate Limit**: Prevent brute-force/DDoS.
 - **Deps**: Audit with `npm audit`.
 
+## Verification
+
+After typing validation schemas (Zod/joi) or auth guards, call `getDiagnostics` (typescript-lsp) to confirm type narrowing is correct before finalizing.
+
 ## Anti-Patterns
 
 - **No `eval()`**: Avoid dynamic execution.
 - **No Plaintext**: Never commit secrets.
 - **No Trust**: Validate everything server-side.
 
-## Code
+## References
 
-```typescript
-// Validation (Zod)
-const UserSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-});
-
-// Secure Cookie — NODE_ENV is 'production' (not 'prod') in standard Node deployments
-const cookieOpts = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
-};
-```
-
-## Reference & Examples
-
-For authentication patterns and security headers:
-See [references/REFERENCE.md](references/REFERENCE.md).
-
-## Related Topics
-
-common/security-standards | best-practices | language
+See [references/REFERENCE.md](references/REFERENCE.md) for Zod validation, secure cookie setup, JWT auth, security headers, and RBAC patterns.

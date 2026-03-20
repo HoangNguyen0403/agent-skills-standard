@@ -27,12 +27,8 @@ Choosing the right tool for state scope.
 For Zustand, Redux Toolkit, and TanStack Query patterns:
 See [references/REFERENCE.md](references/REFERENCE.md).
 
-## Related Topics
+## Anti-Patterns
 
-hooks | component-patterns | performance
-
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No Context for High-Freq**: Use Zustand/Redux for state that changes frequently.
+- **No State Sync**: Compute derived values during render; avoid `useEffect` to sync state.
+- **No Server Cache as UI State**: React Query/SWR for server data; don't duplicate into `useState`.

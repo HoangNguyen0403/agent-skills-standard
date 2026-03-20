@@ -2,6 +2,34 @@
 
 Deep linking configuration and advanced navigation patterns.
 
+## Typed Navigation Setup
+
+```tsx
+// 1. Define param list
+type RootStackParamList = {
+  Home: undefined;
+  Profile: { userId: string };
+};
+
+// 2. Create typed navigator
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+// 3. Define navigator
+function RootNavigator() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
+    </Stack.Navigator>
+  );
+}
+
+// 4. Type screen props and navigate
+function HomeScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>) {
+  return <Button onPress={() => navigation.navigate('Profile', { userId: '123' })} />;
+}
+```
+
 ## Deep Linking Configuration
 
 ### Universal Links Setup

@@ -31,10 +31,6 @@ Standards for building scalable, maintainable React components.
 - **No Index Keys**: Use stable IDs.
 - **No Inline Handlers**: Define before return.
 
-## Reference & Examples
+## References
 
 See [references/patterns.md](references/patterns.md) for Composition, Compound Components, and Render Props examples.
-
-## Related Topics
-
-hooks | state-management | performance

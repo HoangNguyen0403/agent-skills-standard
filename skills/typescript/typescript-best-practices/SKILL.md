@@ -17,6 +17,7 @@ description: "Idiomatic TypeScript patterns for clean, maintainable code. Use wh
 - **Types**: Use `never` for exhaustiveness, `asserts` for runtime checks.
 - **Optional**: Use `?:`, not `| undefined`.
 - **Imports**: Use `import type` for tree-shaking.
+- **Verify**: After refactoring, call `getDiagnostics` (typescript-lsp) to catch type regressions immediately. See [typescript-tooling](../typescript-tooling/SKILL.md) for the full 3-step verification workflow.
 
 ## Anti-Patterns
 
@@ -25,20 +26,10 @@ description: "Idiomatic TypeScript patterns for clean, maintainable code. Use wh
 - **No Unused Variables**: Enable `noUnusedLocals`.
 - **No `require`**: Use ES6 `import`.
 - **No Empty Interfaces**: Use `type` or non-empty interface.
-- **No `any`**: NEVER use `any`. Force strict typing or use `unknown` with explicit casting.
-- **Mocking Strategy**: In tests, use `jest.Mocked<T>` and cast values using `value as unknown as T` to satisfy strict linting without compromising type safety.
-- **NO LINT DISABLE**: You are strictly PROHIBITED from using `eslint-disable` or `ts-ignore` comments. Fix underlying issues.
+- **No `any`**: Use `unknown` or a specific type.
+- **No Unsafe Mocks**: Cast with `jest.Mocked<T>` or `as unknown as T`.
+- **No eslint-disable**: Fix root cause; never suppress warnings.
 
-## Reference & Examples
+## References
 
-See [references/examples.md](references/examples.md) for code samples including:
-
-- Immutable Interfaces
-- Exhaustiveness Checking
-- Assertion Functions
-- Dependency Injection Patterns
-- Import Organization
-
-## Related Topics
-
-language | tooling | security
+See [references/examples.md](references/examples.md) for Immutable Interfaces, Exhaustiveness Checking, Assertion Functions, DI Patterns, and Import Organization.

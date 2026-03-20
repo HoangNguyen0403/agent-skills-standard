@@ -16,26 +16,6 @@ description: "StyleSheet API, Flexbox, theming, and responsive design. Use when 
 - **Platform Styles**: Use `Platform.select` for conditional styles.
 - **Dark Mode**: Use React Context + `useColorScheme()`.
 
-## Code
-
-```tsx
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16, // Use consistent spacing (8, 12, 16, 24)
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '600',
-    ...Platform.select({
-      ios: { fontFamily: 'SF Pro' },
-      android: { fontFamily: 'Roboto' },
-    }),
-  },
-});
-```
-
 ## Responsive Design
 
 ```tsx
@@ -50,10 +30,6 @@ const isSmall = width < 375;
 - **No Absolute Positioning**: Avoid unless necessary.
 - **No Fixed Widths**: Use flex or percentages.
 
-## Reference & Examples
+## References
 
-See [references/theming.md](references/theming.md) for Design Tokens, Theme Systems, Responsive Scaling, and Shadow Helpers.
-
-## Related Topics
-
-common/best-practices | components
+See [references/theming.md](references/theming.md) for StyleSheet examples, Design Tokens, Theme Systems, Responsive Scaling, and Shadow Helpers.

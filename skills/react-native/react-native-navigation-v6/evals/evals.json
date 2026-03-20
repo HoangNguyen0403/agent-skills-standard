@@ -1,0 +1,26 @@
+{
+  "skill_name": "react-native-navigation-v6",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I create a typed bottom tab navigator with React Navigation 6?",
+      "expected_output": "Define TabParamList type. Use createBottomTabNavigator<TabParamList>(). Type screen props with BottomTabScreenProps<TabParamList, 'Home'>. Set screenOptions at navigator level. Use tabBarIcon for icons. Nest inside the root stack navigator."
+    },
+    {
+      "id": 2,
+      "prompt": "How do I navigate from one screen to another with typed parameters in React Navigation 6?",
+      "expected_output": "Define RootStackParamList with screen name and param shape. Use navigation.navigate('Profile', { userId: '123' }). Type the navigation prop with NativeStackScreenProps or useNavigation<NativeStackNavigationProp<RootStackParamList>>. No untyped string literals."
+    },
+    {
+      "id": 3,
+      "prompt": "How do I configure Universal Links (deep linking) in React Navigation 6?",
+      "expected_output": "Set linking.prefixes with your https domain and custom scheme. Map URL paths to screen names in linking.config.screens. Configure associated domains (iOS) and intent filters (Android). Test with npx uri-scheme open. Validate params before navigation."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I optimize FlatList?",
+    "How do I set up secure storage?",
+    "How do I write RNTL tests?",
+    "How do I set up EAS Build?"
+  ]
+}

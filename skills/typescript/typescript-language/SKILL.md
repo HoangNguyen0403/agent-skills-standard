@@ -25,11 +25,11 @@ description: "Modern TypeScript standards for type safety and maintainability. U
 
 ## Anti-Patterns
 
-- **No `any`**: NEVER use `any`. Use `unknown` or specific interfaces.
+- **No `any`**: Use `unknown` or a specific interface.
 - **No `Function`**: Use signature `() => void`.
 - **No `enum`**: Runtime cost.
 - **No `!`**: Use narrowing.
-- **NO LINT DISABLE**: PROHIBITED. Fix issues properly.
+- **No Lint Disable**: Fix root cause; never suppress.
 
 ## Testing
 
@@ -50,11 +50,11 @@ const cfg = { port: 3000 } satisfies Record<string, number>;
 type Result<T> = { kind: 'ok'; data: T } | { kind: 'err'; error: Error };
 ```
 
-## Reference & Examples
+## Verification
+
+After any type change that crosses module boundaries or involves generics, unions, conditional types, or branded types: call `getDiagnostics` (typescript-lsp MCP tool) to confirm no type errors before finalizing.
+
+## References
 
 For advanced type patterns and utility types:
 See [references/REFERENCE.md](references/REFERENCE.md).
-
-## Related Topics
-
-best-practices | security | tooling

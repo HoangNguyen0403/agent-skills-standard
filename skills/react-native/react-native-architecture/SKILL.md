@@ -9,25 +9,6 @@ description: "Feature-first project structure and separation of concerns for Rea
 
 Feature-first organization for scalable mobile apps.
 
-## Project Structure
-
-```text
-src/
-├── features/          # Feature modules (Home, Auth, Profile)
-│   └── home/
-│       ├── screens/   # Screens for this feature
-│       ├── components/ # Feature-specific components
-│       ├── hooks/     # Feature-specific hooks
-│       └── services/  # Feature-specific business logic
-├── components/        # Shared components
-├── navigation/        # Navigation configuration
-├── services/          # Shared services (API, storage)
-├── hooks/             # Shared custom hooks
-├── utils/             # Utility functions
-├── theme/             # Colors, typography, spacing
-└── types/             # TypeScript types
-```
-
 ## Implementation Guidelines
 
 - **Feature-First**: Organize by feature/module, not by type.
@@ -59,8 +40,4 @@ src/
 
 ## References
 
-See [references/folder-structure.md](references/folder-structure.md) for full directory tree, path mapping, and service layer patterns.
-
-## Related Topics
-
-common/system-design | components | navigation | react/hooks | react/component-patterns
+See [references/folder-structure.md](references/folder-structure.md) for full directory tree, path alias config, and service layer patterns.

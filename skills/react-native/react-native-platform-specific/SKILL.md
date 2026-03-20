@@ -7,24 +7,6 @@ description: "Handling iOS and Android differences with Platform API and native 
 
 ## **Priority: P1 (OPERATIONAL)**
 
-## Platform Detection
-
-```tsx
-import { Platform } from 'react-native';
-
-// Simple Check
-if (Platform.OS === 'ios') {
-  // iOS-specific code
-}
-
-// Object Selection
-const styles = Platform.select({
-  ios: { paddingTop: 20 },
-  android: { paddingTop: 0 },
-  default: { paddingTop: 10 }, // Fallback
-});
-```
-
 ## File Extensions
 
 Use `.ios.` and `.android.` for platform-specific files:
@@ -52,10 +34,6 @@ React Native automatically picks the right file:
 - **No Hardcoded Version Checks**: Use feature detection.
 - **No Ignoring Android**: Test on both platforms.
 
-## Reference & Examples
+## References
 
-See [references/native-modules.md](references/native-modules.md) for Native Bridge (iOS/Android), Expo JSI Modules, and SafeArea handling.
-
-## Related Topics
-
-components | styling
+See [references/native-modules.md](references/native-modules.md) for Platform detection examples, Native Bridge (iOS/Android), Expo JSI Modules, and SafeArea handling.

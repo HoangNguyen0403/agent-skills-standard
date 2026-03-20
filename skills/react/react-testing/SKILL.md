@@ -25,6 +25,10 @@ Reliable tests focusing on user behavior.
 - **No Testing Implementation Details**: Don't check `component.state`.
 - **No Wait**: Use `findBy`, avoid `waitFor` if possible.
 
+## References
+
+See [references/REFERENCE.md](references/REFERENCE.md) for MSW API mocking, Context testing, form testing, and React Router patterns.
+
 ## Code
 
 ```tsx

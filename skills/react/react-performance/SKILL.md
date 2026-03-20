@@ -47,18 +47,6 @@ Strategies to minimize waterfalls, bundle size, and render cost.
 - **No Inline Objects**: `style={{}}` breaks strict equality checks (if memoized).
 - **No Heavy Libs**: Avoid moment/lodash (use dayjs/radash).
 
-## Code
+## References
 
-```tsx
-// Parallel Fetching (Good)
-const [user, posts] = await Promise.all([getUser(), getPosts()]);
-
-// Bundle Optimized Import (Good)
-import { Button } from './components/Button'; // Not from './components'
-
-// Static Hoist (Good)
-const STATIC_CONFIG = { theme: 'dark' };
-function Component() {
-  return <div config={STATIC_CONFIG} />;
-}
-```
+See [references/REFERENCE.md](references/REFERENCE.md) for Profiler usage, bundle analysis, Web Workers, and debounce patterns.

@@ -1,0 +1,26 @@
+{
+  "skill_name": "typescript-best-practices",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I organize imports in a TypeScript file?",
+      "expected_output": "Order: external packages → internal modules → relative imports. Use import type for type-only imports. Named exports only (no default exports). Use eslint-plugin-import to enforce order automatically."
+    },
+    {
+      "id": 2,
+      "prompt": "What's the cleanest way to handle async errors in TypeScript?",
+      "expected_output": "Use async/await with try/catch. For parallel operations, use Promise.all(). Consider a Result type for expected errors. Avoid .then().catch() chains. Type catch(e) as unknown and narrow before use."
+    },
+    {
+      "id": 3,
+      "prompt": "I have a class with some shared state that multiple components need. Should I use a singleton or dependency injection?",
+      "expected_output": "Prefer dependency injection over singletons for testability. Use constructor injection with interfaces. Favor composition over inheritance. If using a DI container, register with explicit lifecycles. Avoid global mutable state."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I configure tsconfig strict mode?",
+    "How do I write a generic type in TypeScript?",
+    "How do I set up Prettier for formatting?",
+    "How do I handle authentication in my app?"
+  ]
+}
