@@ -49,7 +49,9 @@ For the specific directory layout and layer definitions, see the reference docum
 - **UI Components**: Base UI (shadcn) belongs in `shared/ui`. Feature-specific UI belongs in `features/*/ui`.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No cross-slice imports**: Slices in the same layer must not import from each other directly.
+- **No business logic in `page.tsx`**: Pages import Widgets/Features only; zero `useEffect`/`fetch`.
+- **No file-type folders**: Group by domain (`features/auth/`), not type (`components/`, `hooks/`).
+- **No premature Entity creation**: Start in Features; move to Entities only on strict reuse.

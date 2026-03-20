@@ -27,10 +27,10 @@ tests/
 
 ## Anti-Patterns
 
-- **Real Fetches**: **No real network usage**: Always use MSW or mocks.
-- **Shallow Testing**: **No implementation testing**: Test user behavior only.
-- **Slow suites**: **No heavy E2E for unit logic**: Use Vitest for logic.
-- **Global mocks**: **No global state leakage**: Reset mocks after each test.
+- **No real network usage in tests**: Always use MSW handlers or mocks.
+- **No implementation testing**: Test user behavior, not internal methods.
+- **No heavy E2E for unit logic**: Use Vitest for isolated logic tests.
+- **No global state leakage**: Reset MSW handlers and mocks after each test.
 
 ## References
 

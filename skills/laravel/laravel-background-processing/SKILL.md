@@ -28,10 +28,10 @@ app/
 
 ## Anti-Patterns
 
-- **Blocking UX**: **No heavy logic in Request path**: Always defer to Queues.
-- **Raw Models**: **No large job payloads**: Pass model IDs, not full objects.
-- **Implicit Flow**: **No deep event-loop logic**: Keep listener chains shallow.
-- **Silent Failures**: **No unmonitored queues**: Ensure retries and alerts.
+- **No heavy logic in request path**: Defer tasks >100ms to Queues.
+- **No full model in job payload**: Pass IDs; Eloquent fetches on run.
+- **No deep event listener chains**: Keep listener depth shallow.
+- **No unmonitored queues**: Configure retries and Horizon alerts.
 
 ## References
 

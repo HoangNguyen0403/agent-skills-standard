@@ -27,9 +27,9 @@ src/
 
 ## Anti-Patterns
 
-- **Implicit Flows**: **No Deep Suspend**: Keep Fiber logic traceable.
-- **Internal Blocking**: **No Blocking I/O**: Don't block inside Fibers.
-- **Custom Schedulers**: **No DIY Schedulers**: Use proven async libs.
+- **No deeply nested Fiber suspends**: Keep Fiber logic traceable.
+- **No blocking I/O inside Fibers**: Use async-compatible libraries.
+- **No custom scheduler code**: Use Amp or ReactPHP instead.
 
 ## References
 

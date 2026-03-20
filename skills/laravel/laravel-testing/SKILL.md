@@ -27,10 +27,10 @@ tests/
 
 ## Anti-Patterns
 
-- **Real APIs**: **No real network calls**: Always mock or stub.
-- **Global State**: **No state leakage**: Refresh DB between tests.
-- **Manual Insert**: **No DB::table()->insert()**: Use Factories.
-- **Slow Logic**: **No heavy unit tests**: Move to Feature tests.
+- **No real network calls**: Always mock or stub external services.
+- **No state leakage between tests**: Use `RefreshDatabase` trait.
+- **No `DB::table()->insert()`**: Use Eloquent Factories instead.
+- **No heavy computations in unit tests**: Move to Feature layer.
 
 ## References
 

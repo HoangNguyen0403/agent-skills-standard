@@ -1,0 +1,41 @@
+{
+  "skill_name": "php-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write a PHPUnit test for a PHP class",
+      "expected_output": "class OrderServiceTest extends TestCase { public function test_creates_order_with_valid_data(): void { $service = new OrderService(); $result = $service->create(['title' => 'Test']); $this->assertSame('Test', $result->title); } }"
+    },
+    {
+      "id": 2,
+      "prompt": "Use Pest for testing a PHP application",
+      "expected_output": "it('creates an order', function() { $result = (new OrderService())->create(['title' => 'Test']); expect($result->title)->toBe('Test')->and($result->id)->not->toBeNull(); }); cleaner than PHPUnit"
+    },
+    {
+      "id": 3,
+      "prompt": "Mock dependencies in PHP unit tests",
+      "expected_output": "$mock = $this->createMock(PaymentService::class); $mock->expects($this->once())->method('charge')->with(100)->willReturn(true); $service = new OrderService($mock); $service->process($order);"
+    },
+    {
+      "id": 4,
+      "prompt": "Set up data providers in PHPUnit",
+      "expected_output": "#[DataProvider('statusProvider')] public function test_status(string $input, bool $expected): void; public static function statusProvider(): array { return [['active', true], ['inactive', false]]; }"
+    },
+    {
+      "id": 5,
+      "prompt": "Follow TDD in a PHP project",
+      "expected_output": "Red: write failing test for createOrder(); Green: implement minimal OrderService::create() to pass; Refactor: extract validation logic; repeat; use assertSame (strict) over assertEquals"
+    },
+    {
+      "id": 6,
+      "prompt": "Use assertSame vs assertEquals in PHPUnit",
+      "expected_output": "assertSame checks type + value (===): assertSame(1, 1, 'Must be integer'); assertEquals only checks value (==): assertEquals('1', 1) passes; prefer assertSame to avoid type coercion surprises"
+    }
+  ],
+  "should_not_trigger": [
+    "Jest tests for JavaScript React components",
+    "JUnit 5 tests in a Java Spring Boot app",
+    "Go table-driven tests with testify",
+    "Vitest tests for a Next.js application"
+  ]
+}

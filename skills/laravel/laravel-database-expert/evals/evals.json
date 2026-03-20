@@ -1,0 +1,41 @@
+{
+  "skill_name": "laravel-database-expert",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Optimize complex queries in Laravel",
+      "expected_output": "Use joinSub, whereExists, selectRaw with bindings; avoid N+1 with eager loading; add database indexes on join/aggregate columns; use DB::raw() with bindings never string concatenation"
+    },
+    {
+      "id": 2,
+      "prompt": "Use Redis caching with Cache::remember in Laravel",
+      "expected_output": "Cache::remember('posts.all', 3600, fn() => Post::all()); use Cache::tags(['posts'])->remember() for grouped invalidation; never use Cache::flush(); requires Redis driver"
+    },
+    {
+      "id": 3,
+      "prompt": "Set up read/write database splitting in Laravel",
+      "expected_output": "Configure 'read' and 'write' keys in config/database.php mysql connection; Laravel automatically routes SELECT to read, INSERT/UPDATE/DELETE to write connection; no code changes needed"
+    },
+    {
+      "id": 4,
+      "prompt": "Use Cache::tags for grouped cache invalidation in Laravel",
+      "expected_output": "Cache::tags(['posts', 'user:1'])->put('key', $data, 3600); invalidate all posts cache: Cache::tags(['posts'])->flush(); requires Redis or Memcached; never use Cache::flush() globally"
+    },
+    {
+      "id": 5,
+      "prompt": "Advanced SQL with joinSub or whereExists in Laravel",
+      "expected_output": "Use DB::table()->joinSub($subquery, 'alias', 'a.id', '=', 'alias.id'); use whereExists(fn($q) => $q->select(DB::raw(1))->from(...)) instead of whereIn for correlated subqueries"
+    },
+    {
+      "id": 6,
+      "prompt": "Avoid N+1 query issues with subqueries in Laravel",
+      "expected_output": "Use withCount(), withSum(), withAvg() for aggregates instead of loading collection; use addSelect with DB::raw subquery; enable preventLazyLoading() in dev to catch issues"
+    }
+  ],
+  "should_not_trigger": [
+    "Cache queries in NestJS with Redis",
+    "Use Eloquent for basic CRUD operations",
+    "Configure PostgreSQL connection in a Go service",
+    "Database optimization in Spring Boot with JPA"
+  ]
+}

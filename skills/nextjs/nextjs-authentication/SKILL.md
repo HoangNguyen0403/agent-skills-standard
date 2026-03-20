@@ -15,11 +15,12 @@ Use **HttpOnly Cookies** for token storage. **Never** use LocalStorage.
 2. **Access**: Read tokens in Server Components via `cookies().get()`. (Reference: [Reading Tokens](references/auth-implementation.md))
 3. **Protection**: Guard routes in `middleware.ts` before rendering. (Reference: [Middleware Protection](references/auth-implementation.md))
 
-## Anti-Pattern: LocalStorage
+## Anti-Patterns
 
-- **Security Risk**: Vulnerable to XSS.
-- **Performance Hit**: Incompatible with Server Components (RSC). Forces client hydration and causes layout shift.
+- **No LocalStorage for tokens**: XSS-vulnerable; use HttpOnly cookies with `secure: true`.
+- **No client-side session reads**: Read tokens in Server Components via `cookies().get()`.
+- **No unprotected routes**: Guard all auth routes in `middleware.ts` before rendering.
 
-## Related Topics
+## References
 
-common/security-standards | server-components | app-router
+- [Auth Implementation Examples](references/auth-implementation.md)

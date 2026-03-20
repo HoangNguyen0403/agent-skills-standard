@@ -1,0 +1,41 @@
+{
+  "skill_name": "nextjs-styling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Use Tailwind CSS in a Next.js application",
+      "expected_output": "Install tailwindcss + postcss + autoprefixer; configure tailwind.config.ts content paths; use cn() utility (clsx+tailwind-merge) for conditional classes; zero runtime, RSC compatible"
+    },
+    {
+      "id": 2,
+      "prompt": "Set up shadcn/ui components with Next.js",
+      "expected_output": "npx shadcn-ui@latest init; components copied to components/ui/; extend theme in tailwind.config.ts with CSS variable colors; uses Radix UI primitives; customize via variants in component files"
+    },
+    {
+      "id": 3,
+      "prompt": "Use clsx and tailwind-merge for conditional classes",
+      "expected_output": "import { clsx } from 'clsx'; import { twMerge } from 'tailwind-merge'; export function cn(...inputs) { return twMerge(clsx(inputs)); } usage: className={cn('base', isActive && 'bg-blue-500', className)}"
+    },
+    {
+      "id": 4,
+      "prompt": "Add SCSS modules to a Next.js project",
+      "expected_output": "Create Component.module.scss; import styles from './Component.module.scss'; use className={styles.container}; install sass package; classes are auto-scoped; zero runtime overhead"
+    },
+    {
+      "id": 5,
+      "prompt": "Integrate Ant Design with Next.js App Router",
+      "expected_output": "Install @ant-design/nextjs-registry; wrap in <AntdRegistry> Client Component in app/layout.tsx; prevents SSR flash; Ant Design components usable in Server and Client Components with proper wrapping"
+    },
+    {
+      "id": 6,
+      "prompt": "Prevent runtime CSS from breaking Server Components in Next.js",
+      "expected_output": "Avoid MUI, Chakra UI, Emotion (runtime CSS-in-JS); they inject styles via JS at runtime which conflicts with RSC; use Tailwind CSS, CSS Modules, or SCSS instead; all zero-runtime options"
+    }
+  ],
+  "should_not_trigger": [
+    "Tailwind CSS configuration in a Vue.js app",
+    "StyleSheet API in React Native",
+    "CSS-in-JS with emotion in a Gatsby site",
+    "Material UI setup in a Vite React SPA"
+  ]
+}

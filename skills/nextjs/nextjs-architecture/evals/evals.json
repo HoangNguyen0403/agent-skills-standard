@@ -1,0 +1,41 @@
+{
+  "skill_name": "nextjs-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Set up Feature-Sliced Design in Next.js",
+      "expected_output": "Structure: src/{app,widgets,features,entities,shared}/; each layer imports only from layers below (app→widgets→features→entities→shared); slices within same layer never import each other directly"
+    },
+    {
+      "id": 2,
+      "prompt": "Structure a large Next.js project with FSD",
+      "expected_output": "app/ for routing only (page.tsx imports Widgets); widgets/ for page sections; features/ for user interactions (auth, cart); entities/ for reused business models; shared/ for ui/lib/api utilities"
+    },
+    {
+      "id": 3,
+      "prompt": "Organize Next.js code by business domain",
+      "expected_output": "features/auth/ui/LoginForm.tsx + features/auth/model/useLogin.ts — NOT src/components/LoginForm + src/hooks/useLogin; group by what it does (auth) not what it is (component/hook)"
+    },
+    {
+      "id": 4,
+      "prompt": "Define layer hierarchy in FSD (features, entities, shared)",
+      "expected_output": "Import direction strictly: app→widgets→features→entities→shared; never reverse; cross-slice imports at same layer prohibited; access slice internals only via top-level index.ts public API"
+    },
+    {
+      "id": 5,
+      "prompt": "Prevent cross-slice imports in FSD",
+      "expected_output": "features/cart must not import from features/auth directly; extract shared logic to entities/ or shared/; enforce with eslint-plugin-boundaries; cross-slice coupling defeats FSD isolation"
+    },
+    {
+      "id": 6,
+      "prompt": "Where do Server Actions go in Feature-Sliced Design?",
+      "expected_output": "Place in features/[name]/model/actions.ts with 'use server'; DAL functions in entities/[name]/model/dal.ts; never in app/ routes; UI imports actions from feature model layer"
+    }
+  ],
+  "should_not_trigger": [
+    "Set up project structure in Laravel with DDD",
+    "Clean architecture module setup in NestJS",
+    "Feature modules in Angular",
+    "Domain-driven design in Spring Boot"
+  ]
+}

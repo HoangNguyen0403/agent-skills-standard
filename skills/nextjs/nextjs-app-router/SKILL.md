@@ -55,7 +55,9 @@ const theme = cookieStore.get('theme');
 - [**Self-Hosting Standard**](references/SELF_HOSTING.md)
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No unawaited async APIs**: `params`, `cookies()`, `headers()` are Promises in Next.js 15+; always await.
+- **No `'use client'` at tree root**: Place at leaves; keep layouts and pages as Server Components.
+- **No `<html>`/`<body>` in nested layouts**: Only `app/layout.tsx` (root layout) should include them.
+- **No missing `error.tsx`**: Every route segment needs a Client Component error boundary.

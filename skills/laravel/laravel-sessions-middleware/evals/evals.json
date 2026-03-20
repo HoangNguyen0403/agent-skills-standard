@@ -1,0 +1,41 @@
+{
+  "skill_name": "laravel-sessions-middleware",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Configure Redis session driver in Laravel",
+      "expected_output": "Set SESSION_DRIVER=redis in .env; configure redis in config/database.php; install predis/predis; use for production/scaled apps; avoid file driver due to I/O lock issues at scale"
+    },
+    {
+      "id": 2,
+      "prompt": "Create custom middleware in Laravel",
+      "expected_output": "php artisan make:middleware EnsureTokenIsValid; implement handle(Request $request, Closure $next): Response; register in bootstrap/app.php withMiddleware(); keep single responsibility per middleware"
+    },
+    {
+      "id": 3,
+      "prompt": "Add security headers via middleware in Laravel",
+      "expected_output": "Create SecurityHeadersMiddleware; in handle() add HSTS, CSP, X-Frame-Options, X-Content-Type-Options headers to response; register as global middleware in bootstrap/app.php"
+    },
+    {
+      "id": 4,
+      "prompt": "Regenerate session after login in Laravel",
+      "expected_output": "Call $request->session()->regenerate() immediately after successful authentication; prevents session fixation attacks; call $request->session()->invalidate() on logout"
+    },
+    {
+      "id": 5,
+      "prompt": "Apply global middleware in Laravel bootstrap/app.php",
+      "expected_output": "Use withMiddleware(fn($m) => $m->append(MyMiddleware::class)) in bootstrap/app.php; use prepend() for highest priority; avoid heavy computation in global middleware — offload to Services"
+    },
+    {
+      "id": 6,
+      "prompt": "Fix session config not reading from config file in Laravel",
+      "expected_output": "Never access env('SESSION_DRIVER') in code; always use config('session.driver'); clear config cache with php artisan config:clear; set values in .env, read via config() helper"
+    }
+  ],
+  "should_not_trigger": [
+    "Set up session storage in Next.js",
+    "NestJS middleware pipeline setup",
+    "Go HTTP middleware with chi",
+    "Spring Boot filter chain configuration"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "skill_name": "nextjs-rendering",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Choose between SSG, SSR, and ISR in Next.js",
+      "expected_output": "SSG: static data, max performance, no per-request cost; SSR: per-request personalization, always fresh; ISR: revalidate on interval/on-demand; PPR: static shell + Suspense-gated dynamic holes"
+    },
+    {
+      "id": 2,
+      "prompt": "Implement Partial Prerendering (PPR) in Next.js",
+      "expected_output": "Enable experimental.ppr: 'incremental' in next.config.js; export const experimental_ppr = true in page; static shell served instantly from CDN; dynamic Suspense slots stream after shell"
+    },
+    {
+      "id": 3,
+      "prompt": "Use streaming with Suspense in Next.js App Router",
+      "expected_output": "Wrap slow component: <Suspense fallback={<ProductSkeleton/>}><ProductDetails id={id}/></Suspense>; page shell renders immediately; ProductDetails streams when data resolves; prevents page-wide blocking"
+    },
+    {
+      "id": 4,
+      "prompt": "Set up Incremental Static Regeneration in Next.js",
+      "expected_output": "fetch(url, { next: { revalidate: 3600 } }) or export const revalidate = 3600 in page.tsx; on-demand: call revalidatePath('/blog') or revalidateTag('posts') from Server Action after CMS update"
+    },
+    {
+      "id": 5,
+      "prompt": "Fix hydration errors caused by typeof window in Next.js",
+      "expected_output": "Move typeof window check into useEffect(() => { setIsClient(typeof window !== 'undefined'); }, []); or use dynamic(Component, { ssr: false }) for client-only components; avoid Date.now() in initial render"
+    },
+    {
+      "id": 6,
+      "prompt": "Use generateStaticParams for dynamic SSG in Next.js",
+      "expected_output": "export async function generateStaticParams() { const posts = await getPosts(); return posts.map(p => ({ slug: p.slug })); } pre-builds all routes; set export const dynamicParams = false to 404 unknown slugs"
+    }
+  ],
+  "should_not_trigger": [
+    "Rendering strategies in Nuxt.js with useAsyncData",
+    "Server-side rendering in Gatsby with createPages",
+    "SSR in a React app with custom Express server",
+    "Client-side rendering in Flutter Web"
+  ]
+}

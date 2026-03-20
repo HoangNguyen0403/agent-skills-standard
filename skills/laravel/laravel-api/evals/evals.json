@@ -1,0 +1,41 @@
+{
+  "skill_name": "laravel-api",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Build a REST API endpoint in Laravel",
+      "expected_output": "Use ApiResource class extending JsonResource; return new UserResource($user) or UserResource::collection($users); never return raw $model; apply auth:sanctum middleware in routes/api.php"
+    },
+    {
+      "id": 2,
+      "prompt": "Set up API Resources and Collections in Laravel",
+      "expected_output": "php artisan make:resource UserResource; implement toArray() to define output fields; use UserResource::collection($users) for lists; never use response()->json($model) directly"
+    },
+    {
+      "id": 3,
+      "prompt": "How do I use Sanctum for API authentication in Laravel?",
+      "expected_output": "Install sanctum, add HasApiTokens to User, protect routes with auth:sanctum middleware, issue tokens with $user->createToken('token-name')->plainTextToken; use Passport only for OAuth2 flows"
+    },
+    {
+      "id": 4,
+      "prompt": "Add rate limiting to my Laravel API routes",
+      "expected_output": "Define RateLimiter::for('api', fn($req) => Limit::perMinute(60)) in AppServiceProvider; apply throttle:api middleware to route groups in routes/api.php"
+    },
+    {
+      "id": 5,
+      "prompt": "Version my Laravel API with route prefixes",
+      "expected_output": "Group routes in routes/api.php with Route::prefix('v1')->group(...); maintain separate route files per version; use versioned controller namespaces like App\\Http\\Controllers\\Api\\V1"
+    },
+    {
+      "id": 6,
+      "prompt": "Return proper HTTP status codes from Laravel controllers",
+      "expected_output": "Return response(new Resource($model), 201) for create; 204 for delete; 422 is auto-returned from FormRequest validation; 200 for retrieve/update; never use 200 for all responses"
+    }
+  ],
+  "should_not_trigger": [
+    "Create a web route in Laravel with a Blade view",
+    "Build a REST API in NestJS",
+    "Set up Axios in a React project",
+    "How do I authenticate users in a Next.js app?"
+  ]
+}

@@ -30,10 +30,10 @@ app/
 
 ## Anti-Patterns
 
-- **Domain Leak**: **No Eloquent in Controllers**: Use DTOs/Actions to bridge layers.
-- **Array Overload**: **No raw data arrays**: Use typed DTOs for structured data.
-- **Service Bloat**: **No God Services**: Break down large services into granular Actions.
-- **Infrastructure Coupling**: **No hard dependencies**: Depend on abstractions, not concretions.
+- **No Eloquent in Controllers**: Bridge layers with DTOs and Actions.
+- **No raw arrays across layers**: Use typed `readonly` DTOs.
+- **No God Services**: Break into single-responsibility Actions.
+- **No concrete dependencies**: Depend on Interfaces, not implementations.
 
 ## References
 

@@ -27,20 +27,11 @@ project/
 
 ## Anti-Patterns
 
-- **Manual Requires**: **No Manual Require**: Rely on Composer autoload.
-- **Blind Updates**: **No Blind Updating**: Review `composer.lock` diffs.
-- **Production Debug**: **No Prod Xdebug**: Disable debugging in live env.
-- **Vendor Commits**: **No Vendor Check-in**: Exclude `vendor/` from git.
+- **No manual `require`**: Use Composer PSR-4 autoloading only.
+- **No blind composer updates**: Review `composer.lock` diff first.
+- **No Xdebug in production**: Disable the extension in prod env.
+- **No `vendor/` in git**: Exclude via `.gitignore`; use Composer.
 
-## Code
+## References
 
-```json
-{
-  "autoload": {
-    "psr-4": { "App\\": "src/" }
-  },
-  "scripts": {
-    "analyze": "phpstan analyze"
-  }
-}
-```
+- [Composer Config Examples](references/example.md)

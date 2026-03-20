@@ -27,10 +27,10 @@ project/
 
 ## Anti-Patterns
 
-- **Mix Usage**: **No Laravel Mix**: Migrate to Vite for faster HMR.
-- **Raw JS**: **No JS in Blade**: Move to `resources/js`.
-- **Manual CLI**: **No manual DB edits**: Use Artisan or migrations.
-- **Unformatted Code**: **No unstyled merge**: Run `pint` before commit.
+- **No Laravel Mix**: Migrate to Vite for faster HMR.
+- **No JS in Blade templates**: Move scripts to `resources/js`.
+- **No manual DB edits**: Use Artisan commands or migrations.
+- **No unstyled commits**: Run `./vendor/bin/pint` before merging.
 
 ## References
 

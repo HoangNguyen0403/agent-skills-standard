@@ -32,9 +32,9 @@ Fetch data directly in Server Components using `async/await`.
 
 ## Anti-Patterns
 
-- **No Root Awaits**: Avoid blocking the entire page. Use `<Suspense>`.
-- **No useEffect**: Avoid manual fetching in client effects.
-- **Internal API**: Never call `/api/...` from Server Components.
+- **No root-level awaits**: Wrap slow fetches in `<Suspense>` to avoid blocking.
+- **No `useEffect` for data fetching**: Use SWR or React Query for client-side data.
+- **No internal API calls from RSC**: Fetch from DB/service layer directly.
 
 ## Examples & References
 

@@ -1,0 +1,41 @@
+{
+  "skill_name": "laravel-security",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Set up authorization Policies in Laravel",
+      "expected_output": "php artisan make:policy PostPolicy --model=Post; implement update(User $user, Post $post): bool; call $this->authorize('update', $post) in controller; register auto-discovered in AuthServiceProvider"
+    },
+    {
+      "id": 2,
+      "prompt": "Use Gates for permission checks in Laravel",
+      "expected_output": "Gate::define('admin', fn(User $user) => $user->isAdmin()); check with Gate::allows('admin') or @can('admin') in Blade; prefer Policies for model-bound checks, Gates for global permissions"
+    },
+    {
+      "id": 3,
+      "prompt": "Prevent env() usage outside config files in Laravel",
+      "expected_output": "Only call env() inside config/*.php files; access in application code via config('app.key') or config('services.stripe.key'); run php artisan config:cache to validate; never env() in controllers"
+    },
+    {
+      "id": 4,
+      "prompt": "Secure mass assignment with validated() in Laravel",
+      "expected_output": "Use Form Request with rules(); call $request->validated() in controller for Model::create(); define $fillable on model; never pass $request->all() or $request->input() to create()"
+    },
+    {
+      "id": 5,
+      "prompt": "Add CSRF protection to Laravel forms",
+      "expected_output": "Add @csrf directive inside all Blade <form> tags; CSRF middleware active on web routes by default; API routes excluded from CSRF; use ->except(['/webhook']) for third-party callbacks"
+    },
+    {
+      "id": 6,
+      "prompt": "Set up role-based access control in Laravel",
+      "expected_output": "Use Policies with role checks in methods; define Gate::before(fn($u) => $u->isAdmin() ? true : null) for admin bypass; or use spatie/laravel-permission; never inline $user->role === 'admin'"
+    }
+  ],
+  "should_not_trigger": [
+    "JWT authentication in NestJS with Passport",
+    "Spring Security 6 configuration",
+    "OAuth2 setup in a Go service",
+    "CSRF protection in Next.js middleware"
+  ]
+}

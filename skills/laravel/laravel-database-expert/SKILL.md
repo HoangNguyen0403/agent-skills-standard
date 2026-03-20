@@ -29,10 +29,10 @@ app/
 
 ## Anti-Patterns
 
-- **Raw Concatenation**: **No String SQL**: Always use bindings or Query Builder.
-- **Loop Queries**: **No queries in Loops**: Use subqueries or aggregates.
-- **Global Cache Flush**: **No Cache::flush()**: Use tags to target specific groups.
-- **Untracked Redis**: **No ungoverned Redis usage**: Use standard Laravel wrappers.
+- **No string SQL concatenation**: Use bindings or Query Builder.
+- **No queries in loops**: Use subqueries, joins, or aggregates.
+- **No `Cache::flush()`**: Use tags to target specific cache groups.
+- **No direct Redis calls**: Use Laravel Cache wrappers consistently.
 
 ## References
 

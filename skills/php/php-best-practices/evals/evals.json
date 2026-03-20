@@ -1,0 +1,41 @@
+{
+  "skill_name": "php-best-practices",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Follow PSR-12 coding standards in PHP",
+      "expected_output": "4-space indentation; opening braces on same line for functions/methods; one class per file; use statements at top after namespace; run PHP CS Fixer with PSR-12 preset to enforce automatically"
+    },
+    {
+      "id": 2,
+      "prompt": "Apply SOLID principles in PHP",
+      "expected_output": "SRP: one class one responsibility; OCP: extend via interface not modification; DIP: inject dependencies via constructor with interface type-hints; favor composition over inheritance"
+    },
+    {
+      "id": 3,
+      "prompt": "Refactor a God class in PHP",
+      "expected_output": "Identify distinct responsibilities; extract each into its own focused class; use interfaces for dependencies; inject via constructor; test each extracted class independently; keep under ~200 lines"
+    },
+    {
+      "id": 4,
+      "prompt": "Use guard clauses instead of nested if/else in PHP",
+      "expected_output": "Return early for invalid/exceptional conditions: if (!$user) return null; if (!$this->isValid($data)) throw new InvalidArgumentException(); reduces nesting depth; no else after return"
+    },
+    {
+      "id": 5,
+      "prompt": "Extract repetitive logic into PHP traits",
+      "expected_output": "Define trait HasTimestamps with shared methods; use HasTimestamps; in classes that need it; keep traits focused on one behavior; prefer composition (traits/interfaces) over deep inheritance chains"
+    },
+    {
+      "id": 6,
+      "prompt": "Naming conventions for PHP methods and constants",
+      "expected_output": "Classes: PascalCase (UserService); methods/variables: camelCase (getUserById); class constants: SNAKE_CASE (MAX_RETRIES); file names match class name; namespaces mirror directory structure"
+    }
+  ],
+  "should_not_trigger": [
+    "PSR-4 autoloading setup in composer.json",
+    "SOLID principles in a Java Spring application",
+    "TypeScript best practices for interfaces",
+    "Clean code in Go with gofmt"
+  ]
+}

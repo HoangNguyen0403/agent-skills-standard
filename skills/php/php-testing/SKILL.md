@@ -27,10 +27,10 @@ tests/
 
 ## Anti-Patterns
 
-- **Testing Private**: **No Private Testing**: Validate public behavior only.
-- **Over-Mocking**: **No Brittle Mocks**: Mock system boundaries only.
-- **Blocking Tests**: **No Networking**: Use in-memory DBs and mocks.
-- **Metric Chasing**: **No 100% Mania**: Prioritize quality over coverage.
+- **No testing private methods**: Test through public interfaces only.
+- **No over-mocking internals**: Mock only external boundaries.
+- **No real network/DB in unit tests**: Use in-memory databases or mocks.
+- **No coverage-metric chasing**: Prioritize meaningful assertions.
 
 ## References
 

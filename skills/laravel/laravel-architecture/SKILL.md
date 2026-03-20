@@ -29,10 +29,10 @@ app/
 
 ## Anti-Patterns
 
-- **Fat Controllers**: **No logic in Controllers**: Move processing elsewhere.
-- **New Keyword**: **No Manual Instantiation**: Use Service Container via DI.
-- **Inline Validation**: **No $request->validate()**: Favor Form Requests.
-- **Global Helpers**: **No excessive helpers**: Use class-based logic.
+- **No logic in Controllers**: Move to Services or Action classes.
+- **No manual instantiation**: Use Service Container via DI.
+- **No inline `$request->validate()`**: Favor Form Request classes.
+- **No excessive global helpers**: Use class-based logic instead.
 
 ## References
 

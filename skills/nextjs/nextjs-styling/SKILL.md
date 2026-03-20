@@ -35,7 +35,9 @@ For specific library setups, see:
 3. **CLS Prevention**: Always specify `width`/`height` on images.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No runtime CSS-in-JS with RSC**: MUI/Chakra force `'use client'`; prefer Tailwind or CSS Modules.
+- **No `<img>` without dimensions**: Always set `width`/`height` or use `fill` to prevent CLS.
+- **No hardcoded conditional classes**: Use `clsx`+`tailwind-merge` (`cn`) for dynamic styles.
+- **No Google Fonts `<link>` tag**: Use `next/font` for zero-CLS self-hosted fonts.

@@ -1,0 +1,41 @@
+{
+  "skill_name": "laravel-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write a Pest feature test in Laravel",
+      "expected_output": "uses(RefreshDatabase::class); it('creates a post', function() { $response = $this->postJson('/api/posts', ['title' => 'Test']); $response->assertStatus(201)->assertJson(['data' => ['title' => 'Test']]); });"
+    },
+    {
+      "id": 2,
+      "prompt": "Use RefreshDatabase in Laravel tests",
+      "expected_output": "Add uses(RefreshDatabase::class) in Pest or use RefreshDatabase trait in PHPUnit TestCase; database rolled back between each test; use DatabaseTransactions for faster but non-truncating isolation"
+    },
+    {
+      "id": 3,
+      "prompt": "Create Eloquent Factories for test data in Laravel",
+      "expected_output": "php artisan make:factory PostFactory --model=Post; define definition(): array with fake() data; use Post::factory()->count(3)->create(['user_id' => $user->id]) in tests; never DB::table()->insert()"
+    },
+    {
+      "id": 4,
+      "prompt": "Mock external services in Laravel tests",
+      "expected_output": "$this->mock(PaymentService::class)->shouldReceive('charge')->once()->with(100)->andReturn(true); or use $this->spy() for loose verification; never make real network calls in tests"
+    },
+    {
+      "id": 5,
+      "prompt": "Assert HTTP responses in Laravel feature tests",
+      "expected_output": "$response->assertStatus(201)->assertJson(['data' => ['title' => 'Test']])->assertJsonStructure(['data' => ['id', 'title', 'created_at']])->assertHeader('Content-Type', 'application/json')"
+    },
+    {
+      "id": 6,
+      "prompt": "Set up in-memory SQLite for Laravel unit tests",
+      "expected_output": "Set <env name='DB_CONNECTION' value='sqlite'/> and <env name='DB_DATABASE' value=':memory:'/> in phpunit.xml; fast but SQLite lacks some MySQL features; use for unit tests, real DB for feature tests"
+    }
+  ],
+  "should_not_trigger": [
+    "Write Jest tests for a React component",
+    "PHPUnit tests for a Symfony application",
+    "Testing in NestJS with supertest",
+    "Go table-driven tests with testify"
+  ]
+}

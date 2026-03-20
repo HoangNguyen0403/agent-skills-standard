@@ -52,7 +52,9 @@ npm install --save-dev @types/react@latest @types/react-dom@latest
 - Check for "Hydration failed" or "Turbopack" compatibility errors if using `--turbo`.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No major version skipping**: Upgrade one major version at a time (13→14, then 14→15).
+- **No manual breaking-change fixes**: Always run `npx @next/codemod@latest` transforms first.
+- **No assumed caching behavior post-upgrade**: v15 defaults to `no-store`; audit all `fetch` calls.
+- **No async page functions in Pages Router**: `export default async function Page()` is fatal.

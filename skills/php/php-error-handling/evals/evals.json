@@ -1,0 +1,41 @@
+{
+  "skill_name": "php-error-handling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Handle exceptions in PHP with try/catch",
+      "expected_output": "try { } catch (SpecificException $e) { $logger->error($e->getMessage()); } catch (Throwable $e) { $logger->critical($e->getMessage()); } finally { $resource->close(); }; catch specific before generic"
+    },
+    {
+      "id": 2,
+      "prompt": "Create a custom exception class in PHP",
+      "expected_output": "class OrderNotFoundException extends RuntimeException {}; class ValidationException extends DomainException {}; throw new OrderNotFoundException('Order ' . $id . ' not found', 404); catch by type"
+    },
+    {
+      "id": 3,
+      "prompt": "Use set_exception_handler in PHP",
+      "expected_output": "set_exception_handler(function(Throwable $e) { error_log($e->getMessage()); http_response_code(500); echo json_encode(['error' => 'Internal error']); }); call once at application entry point"
+    },
+    {
+      "id": 4,
+      "prompt": "Catch both Errors and Exceptions in PHP",
+      "expected_output": "Use catch (Throwable $e) to catch both Error and Exception subclasses; or use separate blocks: catch (TypeError $e), catch (ParseError $e), catch (Exception $e); Throwable is the root interface"
+    },
+    {
+      "id": 5,
+      "prompt": "Log exceptions with PSR-3 in PHP",
+      "expected_output": "Inject Psr\\Log\\LoggerInterface $logger; call $logger->error($e->getMessage(), ['exception' => $e, 'context' => $context]); never swallow exception silently; always log with context array"
+    },
+    {
+      "id": 6,
+      "prompt": "Use finally block for resource cleanup in PHP",
+      "expected_output": "try { $conn = connect(); $conn->query(); } catch (QueryException $e) { log($e); } finally { $conn?->close(); $file?->close(); }; finally always executes; never return from finally block"
+    }
+  ],
+  "should_not_trigger": [
+    "Error handling in Go with errors.Is and errors.As",
+    "Java exception hierarchy and checked exceptions",
+    "Try/catch in JavaScript with async/await",
+    "Result type in Swift error handling"
+  ]
+}

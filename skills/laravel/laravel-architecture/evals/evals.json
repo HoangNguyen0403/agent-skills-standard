@@ -1,0 +1,41 @@
+{
+  "skill_name": "laravel-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I structure my Laravel controllers?",
+      "expected_output": "Controller delegates to Action or Service class; no business logic inside; use Form Requests for validation; inject dependencies via constructor DI; controller only handles Request/Response"
+    },
+    {
+      "id": 2,
+      "prompt": "Where do I put business logic in a Laravel app?",
+      "expected_output": "Create Action class (e.g., CreateOrderAction) with handle() method in app/Actions/; or Service class in app/Services/; inject via Service Container; keep controllers slim"
+    },
+    {
+      "id": 3,
+      "prompt": "Use Form Requests for validation in Laravel",
+      "expected_output": "php artisan make:request StoreUserRequest; implement authorize() and rules(); type-hint in controller method; call $request->validated() for mass assignment; never use $request->validate() inline"
+    },
+    {
+      "id": 4,
+      "prompt": "Create a Service class in Laravel",
+      "expected_output": "Create app/Services/PaymentService.php; bind interface to implementation in AppServiceProvider; inject via constructor; no Eloquent queries directly in controller; service handles business logic"
+    },
+    {
+      "id": 5,
+      "prompt": "Set up dependency injection in Laravel",
+      "expected_output": "Bind via $this->app->bind(Interface::class, Implementation::class) in AppServiceProvider; type-hint interface in controller __construct or method; Laravel resolves automatically"
+    },
+    {
+      "id": 6,
+      "prompt": "Slim controllers using Actions in Laravel",
+      "expected_output": "Create app/Actions/CreatePost.php with handle(CreatePostData $data): Post; inject Action into controller; controller calls $action->handle($request->validated()); one action per use case"
+    }
+  ],
+  "should_not_trigger": [
+    "Set up routing in Next.js",
+    "Create a NestJS service layer",
+    "Structure a Spring Boot application",
+    "What is MVC in general?"
+  ]
+}

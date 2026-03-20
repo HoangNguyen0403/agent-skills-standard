@@ -26,8 +26,9 @@ Choose rendering strategy based on data freshness and scaling needs. See [Strate
 
 ## Anti-Patterns
 
-- **No Root Awaits**: Avoid waterfalls in `page.tsx`. Use Streaming.
-- **Bailouts**: Understand [Suspense Bailout Rules](references/SUSPENSE_BAILOUT.md).
+- **No root awaits in `page.tsx`**: Wrap slow components in `<Suspense>` to stream.
+- **No SSR for static content**: Use SSG or ISR; reserve SSR for truly dynamic data.
+- **No `typeof window` in initial render**: Use `useEffect` to avoid hydration errors.
 
 ## References
 

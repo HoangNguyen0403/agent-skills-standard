@@ -27,10 +27,10 @@ project/
 
 ## Anti-Patterns
 
-- **Legacy Dev**: **No npm run start for dev**: Use `next dev`.
-- **Large Bundles**: **No missing source-maps**: Analyze via `@next/bundle-analyzer`.
-- **Missing Plugins**: **No custom lint rules**: Use `eslint-plugin-next`.
-- **Production Logs**: **No console.log in prod**: Use structured loggers.
+- **No `npm run start` for dev**: Use `next dev` (or `next dev --turbo`).
+- **No uninspected bundle growth**: Analyze with `@next/bundle-analyzer` before shipping.
+- **No custom ESLint rules over plugin**: Use `eslint-plugin-next` for Next.js-aware linting.
+- **No `console.log` in production**: Use structured loggers (Pino, Winston).
 
 ## References
 

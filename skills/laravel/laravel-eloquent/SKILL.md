@@ -27,10 +27,10 @@ app/
 
 ## Anti-Patterns
 
-- **N+1 Queries**: **No lazy loading**: Never query relationships in loops.
-- **Fat Models**: **No business logic**: Models are for data access only.
-- **Magic Queries**: **No raw SQL**: Use Query Builder or Eloquent.
-- **Select \***: **No excessive data**: Select only required columns.
+- **No lazy loading**: Eager-load with `with()` or `$with`; never in loops.
+- **No business logic in Models**: Move to Services or Actions.
+- **No raw SQL strings**: Use Query Builder or Eloquent methods.
+- **No `select *`**: Specify required columns to limit data transfer.
 
 ## References
 

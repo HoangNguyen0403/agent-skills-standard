@@ -26,10 +26,10 @@ app/Http/
 
 ## Anti-Patterns
 
-- **File Streams**: **No file session driver**: Avoid in scaled apps due to I/O locks.
-- **Env direct**: **No env('SESSION\_...')**: Always use `config('session...')`.
-- **Heavy Bloat**: **No heavy logic in Middleware**: Offload to Services if >10 lines.
-- **Trusting Client**: **No sensitive data in Cookies**: Store in server sessions only.
+- **No file session driver in production**: Use Redis or Memcached instead.
+- **No `env()` for session config**: Use `config('session.*')` instead.
+- **No heavy logic in Middleware**: Delegate complex logic to Services.
+- **No sensitive data in cookies**: Store securely in server sessions only.
 
 ## References
 

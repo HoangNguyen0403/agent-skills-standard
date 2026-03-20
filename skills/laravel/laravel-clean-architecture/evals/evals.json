@@ -1,0 +1,41 @@
+{
+  "skill_name": "laravel-clean-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Implement Domain-Driven Design in Laravel",
+      "expected_output": "Organize by domain: app/Domains/Order/{Actions,DTOs,Contracts}/; never put Eloquent queries in Controllers; Action classes hold use-case logic; bind Contracts to implementations in AppServiceProvider"
+    },
+    {
+      "id": 2,
+      "prompt": "Use DTOs in a Laravel application",
+      "expected_output": "Create readonly class OrderData { public function __construct(public readonly string $title, public readonly int $amount) {} }; pass between layers instead of raw arrays or Eloquent models"
+    },
+    {
+      "id": 3,
+      "prompt": "Set up repository pattern in Laravel",
+      "expected_output": "Create Contracts/OrderRepository interface; implement EloquentOrderRepository; bind in AppServiceProvider via $this->app->bind(OrderRepository::class, EloquentOrderRepository::class); inject interface"
+    },
+    {
+      "id": 4,
+      "prompt": "Organize code by domain in Laravel",
+      "expected_output": "Group by business domain (User, Order, Payment) not by type (Controllers, Models); each domain dir has Actions/, DTOs/, Contracts/ subdirectories; Eloquent models stay in app/Models/"
+    },
+    {
+      "id": 5,
+      "prompt": "Apply clean architecture to a Laravel project",
+      "expected_output": "Layer flow: Controller → Action → Repository Interface → Eloquent; no Eloquent in Controller; DTOs cross boundaries; bind interfaces to implementations in AppServiceProvider"
+    },
+    {
+      "id": 6,
+      "prompt": "Use readonly classes for data transfer in PHP",
+      "expected_output": "readonly class CreateOrderData { public function __construct(public readonly string $customerId, public readonly int $amount) {} }; immutable by default in PHP 8.1+; no raw arrays between layers"
+    }
+  ],
+  "should_not_trigger": [
+    "DDD in a NestJS application",
+    "Repository pattern in Spring Boot with JPA",
+    "Use DTOs in a Go service",
+    "Clean architecture in React"
+  ]
+}

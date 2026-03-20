@@ -1,6 +1,6 @@
 ---
 name: nextjs-pages-router
-description: "Legacy routing, getServerSideProps conventions, and strict architectural constraints. (triggers: pages/**/*.tsx, pages/**/*.ts, Pages Router, getServerSideProps, getStaticProps, _app, useRouter)"
+description: "Legacy routing, getServerSideProps conventions, and strict architectural constraints. Use when working in a Pages Router project with getServerSideProps, getStaticProps, or _app in Next.js. (triggers: pages/**/*.tsx, pages/**/*.ts, Pages Router, getServerSideProps, getStaticProps, _app, useRouter)"
 ---
 
 # Next.js Pages Router (Legacy)
@@ -21,11 +21,11 @@ description: "Legacy routing, getServerSideProps conventions, and strict archite
 - **Server-Side**: Use `getServerSideProps` (SSR) or `getStaticProps` (SSG). Export as standalone async function.
 - **Client-Side**: Rely on SWR, React Query, Redux, or `fetch` in `useEffect`.
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- **Hallucinating Next 13+**: `export default async function Page()` is FATAL. Pages must be synchronous React components.
-- **API Fetching in SSR**: Do NOT do an HTTP fetch to your own `pages/api` endpoint inside SSR. Directly import the service logic instead.
-- **"use client" directives**: Do NOT use them. Everything here is implicitly a client component.
+- **No `async` page exports**: Pages Router pages must be synchronous React components.
+- **No HTTP fetch to own `/api` in SSR**: Import service logic directly in `getServerSideProps`.
+- **No `'use client'` directive**: Pages Router is implicitly client; the directive causes errors.
 
 ## References
 - [Server-Side Props Example](references/server-side-props.md)

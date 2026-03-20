@@ -36,7 +36,9 @@ Next.js has 4 distinct caching layers. Understanding them prevents stale data bu
 See [Cache Components & PPR](references/CACHE_COMPONENTS.md) for detailed key generation, closure constraints, and invalidation strategies.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No `unstable_cache` in Next.js 16+**: Use `'use cache'` directive with `cacheLife()` instead.
+- **No `router.refresh()` for server data**: Prefer `revalidateTag()` for targeted cache busting.
+- **No caching user-specific data at route level**: Wrap personal data in `<Suspense>` with `'use cache'`.
+- **No long-lived cache without tags**: Assign `cacheTag()` for fine-grained invalidation control.

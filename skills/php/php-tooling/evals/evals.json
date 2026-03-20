@@ -1,0 +1,41 @@
+{
+  "skill_name": "php-tooling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Set up PHPStan for static analysis in PHP",
+      "expected_output": "composer require --dev phpstan/phpstan; create phpstan.neon: parameters: { paths: [src], level: 6 }; run vendor/bin/phpstan analyse; integrate in CI; level 5+ recommended for projects"
+    },
+    {
+      "id": 2,
+      "prompt": "Configure PHP CS Fixer for PSR-12",
+      "expected_output": "composer require --dev friendsofphp/php-cs-fixer; create .php-cs-fixer.php with $config->setRules(['@PSR12' => true]); add 'fix' to composer scripts; run before every commit"
+    },
+    {
+      "id": 3,
+      "prompt": "Commit composer.lock for PHP project",
+      "expected_output": "Always commit composer.lock for applications (not for libraries); ensures all environments use identical dependency versions; run composer install in CI (not composer update) to use locked versions"
+    },
+    {
+      "id": 4,
+      "prompt": "Use Composer autoloading with PSR-4",
+      "expected_output": "\"autoload\": {\"psr-4\": {\"App\\\\\": \"src/\"}}; \"autoload-dev\": {\"psr-4\": {\"Tests\\\\\": \"tests/\"}}; run composer dump-autoload; namespaces must mirror directory structure exactly"
+    },
+    {
+      "id": 5,
+      "prompt": "Disable Xdebug in production PHP",
+      "expected_output": "Remove xdebug.so from php.ini production config; or set XDEBUG_MODE=off env var; use separate php.ini per environment; verify with php -m | grep xdebug should return nothing in prod"
+    },
+    {
+      "id": 6,
+      "prompt": "Add analyze and test scripts to composer.json",
+      "expected_output": "\"scripts\": {\"analyze\": \"phpstan analyse\", \"test\": \"phpunit\", \"fix\": \"php-cs-fixer fix\", \"lint\": \"phpcs\", \"check\": [\"@fix\", \"@analyze\", \"@test\"]}; run with composer check"
+    }
+  ],
+  "should_not_trigger": [
+    "Set up ESLint and Prettier for TypeScript",
+    "Configure Detekt for Kotlin static analysis",
+    "Go toolchain with golangci-lint",
+    "Maven build configuration in a Java project"
+  ]
+}

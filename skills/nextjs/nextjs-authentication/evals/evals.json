@@ -1,0 +1,41 @@
+{
+  "skill_name": "nextjs-authentication",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Store JWT in HttpOnly cookies in Next.js",
+      "expected_output": "In Server Action or Route Handler: (await cookies()).set('token', jwt, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: 86400 }); never use localStorage or sessionStorage"
+    },
+    {
+      "id": 2,
+      "prompt": "Protect routes with middleware.ts in Next.js",
+      "expected_output": "export function middleware(req: NextRequest) { const token = req.cookies.get('token'); if (!token) return NextResponse.redirect(new URL('/login', req.url)); }; export const config = { matcher: ['/dashboard/:path*'] }"
+    },
+    {
+      "id": 3,
+      "prompt": "Read auth tokens in Server Components",
+      "expected_output": "import { cookies } from 'next/headers'; const token = (await cookies()).get('token')?.value; validate token and get session; never pass raw token to Client Components"
+    },
+    {
+      "id": 4,
+      "prompt": "Implement login flow with cookies in Next.js",
+      "expected_output": "Server Action validates credentials via DAL; sets HttpOnly cookie with signed JWT; redirects to /dashboard; middleware.ts verifies cookie presence on every protected request before rendering"
+    },
+    {
+      "id": 5,
+      "prompt": "Why not use localStorage for tokens in Next.js?",
+      "expected_output": "localStorage is XSS-vulnerable (any script can read it); incompatible with Server Components (client-only API causes hydration issues); HttpOnly cookies are inaccessible to JS and work with RSC"
+    },
+    {
+      "id": 6,
+      "prompt": "Set up session-based auth in Next.js",
+      "expected_output": "Use next-auth or iron-session; store encrypted session in HttpOnly cookie; validate in middleware.ts; read session in Server Components via getServerSession() or cookies(); no localStorage"
+    }
+  ],
+  "should_not_trigger": [
+    "JWT authentication in NestJS with Passport strategy",
+    "Sanctum token auth in Laravel",
+    "OAuth2 setup in a Go service",
+    "Firebase auth in a React Native app"
+  ]
+}

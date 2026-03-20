@@ -29,22 +29,15 @@ Next.js (App Router) uses React Server Components (RSC) by default.
 ## Composition Patterns
 
 - **Server-in-Client**: You cannot import a Server Component directly into a Client Component.
-  - _Fix_: Pass Server Component as `children` prop to the Client Component.
-
-```tsx
-// ClientWrapper.tsx
-'use client';
-export default function ClientWrapper({ children }) {
-  return <div>{children}</div>;
-}
-
-// Page.tsx (Server)
-<ClientWrapper>
-  <ServerComponent />
-</ClientWrapper>;
-```
+  - _Fix_: Pass Server Component as `children` prop to the Client Component. See [Composition Example](references/example.md).
 
 ## Anti-Patterns
 
-- **Poisoning**: Importing server-only secrets into Client Components (Use `server-only` package to prevent).
-- **Over-fetching**: Passing large data props to Client Components (Serialization cost). Only pass IDs if possible.
+- **No secrets in Client Components**: Use `server-only` package to prevent accidental bundling.
+- **No full DB objects passed to client**: Minimize serialized props; pass IDs when possible.
+- **No `useState`/`useEffect` in Server Components**: These are Client Component-only hooks.
+- **No `'use client'` at tree root**: Push the boundary to leaf components.
+
+## References
+
+- [Server/Client Composition Example](references/example.md)

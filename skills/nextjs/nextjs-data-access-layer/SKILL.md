@@ -28,7 +28,9 @@ Centralize all data access (Database & External APIs) to ensure consistent secur
 - **Client Components**: Cannot import DAL files. Must use Server Actions or Route Handlers as bridges.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No auth checks outside DAL**: Auth verification must live inside DAL functions.
+- **No raw ORM instances returned**: Transform to plain DTO objects before returning.
+- **No `fetch('localhost/api')` in Server Components**: Call DAL functions directly.
+- **No DAL imports in Client Components**: Use Server Actions or Route Handlers as bridges.

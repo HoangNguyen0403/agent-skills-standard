@@ -46,6 +46,6 @@ For detailed setup with common libraries, refer to:
 
 ## Anti-Patterns
 
-- **Hardcoded Strings**: Never commit raw text in JSX. Use translation keys.
-- **Client-Only Translation**: Avoid loading multi-megabyte JSON translation files in the client bundle.
-- **Locale Squatting**: Don't use a different URL structure for different languages (e.g. `domain.com/en` vs `domain.fr`). Stick to sub-paths or domains consistently.
+- **No hardcoded strings in JSX**: Use translation keys; never commit raw text.
+- **No client-side translation bundles**: Load dictionaries server-side with `getMessages()`.
+- **No mixed URL locale patterns**: Use sub-paths or domains consistently.

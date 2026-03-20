@@ -28,10 +28,10 @@ app/
 
 ## Anti-Patterns
 
-- **Raw Models**: **No raw model returns**: Information leakage risk.
-- **Manual JSON**: **No response()->create()**: Use API Resources.
-- **Session Auth**: **No sessions for APIs**: Use Tokens (Sanctum).
-- **Hardcoded URLs**: **No static links in JSON**: Use HATEOAS or route names.
+- **No raw model returns**: Use API Resources; prevents data leakage.
+- **No `response()->json()`**: Use API Resource classes instead.
+- **No session auth for APIs**: Use Sanctum or Passport tokens.
+- **No static URLs in JSON**: Use route names or HATEOAS links.
 
 ## References
 

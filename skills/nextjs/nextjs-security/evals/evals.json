@@ -1,0 +1,41 @@
+{
+  "skill_name": "nextjs-security",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Validate Server Action inputs with Zod in Next.js",
+      "expected_output": "Parse inputs with Zod schema at top of action before any DB call; throw if validation fails; never trust client-sent data; combine with session check to prevent unauthorized mutations"
+    },
+    {
+      "id": 2,
+      "prompt": "Prevent data leaks to Client Components in Next.js",
+      "expected_output": "Import 'server-only' at top of modules with secrets or DB logic; this causes build error if imported in Client Component; never pass full DB rows as props — project only needed fields"
+    },
+    {
+      "id": 3,
+      "prompt": "Protect routes using middleware.ts in Next.js",
+      "expected_output": "Export middleware from middleware.ts; use matcher config to scope protected paths; read session cookie with jose/next-auth; return NextResponse.redirect('/login') if unauthenticated; keep middleware lightweight"
+    },
+    {
+      "id": 4,
+      "prompt": "Mark sensitive logic with server-only in Next.js",
+      "expected_output": "npm install server-only; add `import 'server-only'` at top of file; Next.js throws build error if this module reaches client bundle; use for DB clients, secret env reads, admin logic"
+    },
+    {
+      "id": 5,
+      "prompt": "Sanitize user-provided HTML output in a Next.js app",
+      "expected_output": "Use DOMPurify.sanitize(userHtml) before rendering untrusted markup; prefer JSX text interpolation which auto-escapes by default; raw HTML injection of untrusted content is an XSS risk — sanitize at the boundary"
+    },
+    {
+      "id": 6,
+      "prompt": "Secure environment variables in Next.js",
+      "expected_output": "Server-only secrets: no NEXT_PUBLIC_ prefix; client-safe vars: NEXT_PUBLIC_ prefix only; never import process.env secrets in 'use client' files; validate all env vars at startup with Zod in lib/env.ts"
+    }
+  ],
+  "should_not_trigger": [
+    "Security headers in a Go HTTP server",
+    "NestJS JWT authentication guards",
+    "Laravel policy-based authorization",
+    "OWASP security in Spring Boot"
+  ]
+}

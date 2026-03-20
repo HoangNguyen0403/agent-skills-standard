@@ -30,26 +30,7 @@ const [stats, setStats] = useState({});
 
 ### 2. URL-Driven State (Search/Filter)
 
-```tsx
-// Client Component
-'use client';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-
-export function Search() {
-  const searchParams = useSearchParams();
-  const { replace } = useRouter();
-  const pathname = usePathname();
-
-  function handleSearch(term: string) {
-    const params = new URLSearchParams(searchParams);
-    if (term) params.set('q', term);
-    else params.delete('q');
-
-    // Updates URL -> Server Component re-renders with new params
-    replace(`${pathname}?${params.toString()}`);
-  }
-}
-```
+Use `useSearchParams` + `useRouter` to update URL params. See [URL State Pattern](references/zustand.md).
 
 ### 3. Server State (TanStack Query / SWR)
 
@@ -68,7 +49,9 @@ For specific state management patterns, see:
 - [references/zustand.md](references/zustand.md)
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No global store for simple state**: Use `useState` or URL params; avoid Zustand for basic UI.
+- **No large objects in state**: Decompose into granular primitives to prevent extra re-renders.
+- **No `useEffect` for data fetching**: Use SWR or TanStack Query for server state.
+- **No server state in client stores**: Fetch in RSCs; client stores are for UI-only state.

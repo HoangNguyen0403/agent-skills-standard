@@ -27,10 +27,10 @@ app/
 
 ## Anti-Patterns
 
-- **Raw Env**: **No env() in code**: Access through config to allow caching.
-- **Manual Auth**: **No custom auth logic**: Use Laravel's built-in system.
-- **Unvalidated Mass**: **No unvalidated create**: Always use `validated()`.
-- **Logic in Blade**: **No auth logic in View**: Pass permissions as data.
+- **No `env()` outside config files**: Access via `config()` helper.
+- **No custom auth logic**: Use Laravel's built-in auth system.
+- **No unvalidated mass assignment**: Always call `validated()`.
+- **No auth logic in Blade**: Pass permissions as data from controller.
 
 ## References
 

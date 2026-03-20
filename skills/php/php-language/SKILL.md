@@ -27,10 +27,10 @@ src/
 
 ## Anti-Patterns
 
-- **No Type Context**: Avoid functions without return or parameter types.
-- **Sloppy Comparison**: **No ==**: Use `===` for strict comparison.
-- **Legacy Syntax**: **No switch**: Use `match` for simple value mapping.
-- **Global Scope**: **No Globals**: Never define logic in global namespace.
+- **No untyped functions**: Declare return and parameter types always.
+- **No loose `==` comparison**: Use `===` for strict equality.
+- **No `switch` for value mapping**: Use `match` expressions instead.
+- **No global namespace logic**: Organize in classes and namespaces.
 
 ## References
 

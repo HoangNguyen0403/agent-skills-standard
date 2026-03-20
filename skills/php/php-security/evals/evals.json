@@ -1,0 +1,41 @@
+{
+  "skill_name": "php-security",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Prevent SQL injection in PHP with PDO",
+      "expected_output": "$stmt = $pdo->prepare('SELECT * FROM users WHERE id = :id AND email = :email'); $stmt->execute([':id' => $id, ':email' => $email]); never concatenate user input into SQL strings"
+    },
+    {
+      "id": 2,
+      "prompt": "Hash passwords securely in PHP",
+      "expected_output": "$hash = password_hash($password, PASSWORD_ARGON2ID, ['memory_cost' => 65536, 'time_cost' => 4]); verify with password_verify($input, $hash); never use MD5, SHA1, SHA256 for passwords"
+    },
+    {
+      "id": 3,
+      "prompt": "Escape user output to prevent XSS in PHP",
+      "expected_output": "echo htmlentities($userInput, ENT_QUOTES | ENT_HTML5, 'UTF-8'); or htmlspecialchars() in HTML context; never echo raw $_GET/$_POST/$_COOKIE; sanitize before output AND before storage"
+    },
+    {
+      "id": 4,
+      "prompt": "Validate email input with filter_var in PHP",
+      "expected_output": "if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new InvalidArgumentException(); filter_var($url, FILTER_VALIDATE_URL); filter_var($age, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])"
+    },
+    {
+      "id": 5,
+      "prompt": "Use password_hash with ARGON2ID in PHP",
+      "expected_output": "$hash = password_hash($password, PASSWORD_ARGON2ID); ARGON2ID resistant to GPU and side-channel attacks; auto-includes salt; use password_needs_rehash() to upgrade legacy hashes"
+    },
+    {
+      "id": 6,
+      "prompt": "Secure authentication with password_verify in PHP",
+      "expected_output": "if (!password_verify($inputPassword, $storedHash)) throw new AuthException(); timing-safe comparison built-in; if (password_needs_rehash($hash, PASSWORD_ARGON2ID)) { rehash and update DB }"
+    }
+  ],
+  "should_not_trigger": [
+    "SQL injection prevention in Go with sqlc",
+    "CSRF protection in Laravel middleware",
+    "Secure password storage in NestJS",
+    "Input validation in Spring Boot with Bean Validation"
+  ]
+}

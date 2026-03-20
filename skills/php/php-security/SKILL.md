@@ -28,10 +28,10 @@ src/
 
 ## Anti-Patterns
 
-- **Raw SQL**: **No Concat**: Never build queries with string concatenation.
-- **Weak Hashing**: **No MD5/SHA1**: Use modern algorithms only.
-- **Trusting $\_GET**: **No Raw Input**: Always validate external data.
-- **Error Exposure**: **No Production Errors**: Log errors; don't display them.
+- **No SQL string concatenation**: Use PDO prepared statements only.
+- **No MD5/SHA1 for passwords**: Use `password_hash(PASSWORD_ARGON2ID)`.
+- **No raw `$_GET`/`$_POST`**: Validate all input with `filter_var()` first.
+- **No production error display**: Log to file; never show to users.
 
 ## References
 

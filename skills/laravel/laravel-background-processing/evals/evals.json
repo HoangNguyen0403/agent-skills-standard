@@ -1,0 +1,41 @@
+{
+  "skill_name": "laravel-background-processing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a queued Job in Laravel",
+      "expected_output": "php artisan make:job ProcessOrder; class implements ShouldQueue; implement handle() method; dispatch with ProcessOrder::dispatch($orderId); pass model ID not full Eloquent model"
+    },
+    {
+      "id": 2,
+      "prompt": "Use Laravel Horizon for queue monitoring",
+      "expected_output": "Install via composer; publish config; run php artisan horizon; configure supervisors per queue in config/horizon.php; access /horizon dashboard; never use queue:work in production"
+    },
+    {
+      "id": 3,
+      "prompt": "Dispatch an Event and Listener in Laravel",
+      "expected_output": "php artisan make:event OrderPlaced; php artisan make:listener SendConfirmation --event=OrderPlaced; add ShouldQueue to Listener for async; Event::dispatch(new OrderPlaced($order))"
+    },
+    {
+      "id": 4,
+      "prompt": "Chain multiple jobs in Laravel",
+      "expected_output": "Bus::chain([new ProcessPayment($order), new SendReceipt($order)])->dispatch(); each job runs after previous succeeds; use ->catch(fn => ...) for chain failure handling"
+    },
+    {
+      "id": 5,
+      "prompt": "Implement job batching in Laravel",
+      "expected_output": "Bus::batch([new ImportRow(1), new ImportRow(2)])->then(fn($batch) => ...)->catch(fn => ...)->dispatch(); call $this->batch()->cancel() to abort; track with $batch->progress()"
+    },
+    {
+      "id": 6,
+      "prompt": "Handle failed jobs in Laravel",
+      "expected_output": "Implement public function failed(Throwable $exception) in Job class; set public int $tries = 3 and public int $backoff = 60; run queue:failed-table migration; monitor with Horizon"
+    }
+  ],
+  "should_not_trigger": [
+    "Set up BullMQ queues in NestJS",
+    "Create a background worker in Go",
+    "Schedule a cron job in Spring Boot",
+    "Use Celery for async tasks in Python"
+  ]
+}

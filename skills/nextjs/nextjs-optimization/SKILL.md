@@ -61,7 +61,9 @@ Before applying optimizations, identify bottlenecks using:
   - `strategy="lazyOnload"`: Chat widgets, low priority.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No `<img>` tag**: Use `next/image` to prevent CLS and enable automatic optimization.
+- **No Google Fonts CDN link**: Use `next/font` to self-host and eliminate layout shift.
+- **No metadata in `_document.tsx`**: Use `export const metadata` or `generateMetadata()`.
+- **No 3rd-party scripts in `<head>`**: Use `next/script` with appropriate `strategy`.

@@ -27,10 +27,10 @@ app/
 
 ## Anti-Patterns
 
-- **Raw Props**: **No leaking DB fields**: Use DTOs for client data.
-- **Client Secrets**: **No process.env in client**: Mark as `NEXT_PUBLIC_` only if safe.
-- **Unvalidated Actions**: **No raw JSON actions**: Always validate schema.
-- **Logic in Layouts**: **No auth in shared Layouts**: Insecure; use Middleware.
+- **No leaking DB fields to client**: Use DTOs; never pass raw model objects.
+- **No `process.env` in client bundles**: Mark as `NEXT_PUBLIC_` only if safe to expose.
+- **No unvalidated Server Action inputs**: Always validate with Zod schema.
+- **No auth checks in shared Layouts**: Auth in layouts is insecure; use Middleware.
 
 ## References
 

@@ -1,0 +1,41 @@
+{
+  "skill_name": "nextjs-data-access-layer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Set up a Data Access Layer in Next.js",
+      "expected_output": "Create lib/dal.ts with import 'server-only' at top; export async function getUser(id: string): Promise<UserDTO> { const session = await verifySession(); const user = await db.user.findUnique({where:{id}}); return toDTO(user); }"
+    },
+    {
+      "id": 2,
+      "prompt": "Use server-only package to protect DAL files in Next.js",
+      "expected_output": "import 'server-only' at top of dal.ts and lib/crypto.ts; causes build error if any Client Component imports the file; prevents DB credentials and server logic from reaching client bundle"
+    },
+    {
+      "id": 3,
+      "prompt": "Return DTOs from server functions in Next.js",
+      "expected_output": "Map raw DB result: function toDTO(user: User): UserDTO { return { id: user.id, name: user.name }; }; never return Prisma model instance; prevents accidental serialization of relations or sensitive fields"
+    },
+    {
+      "id": 4,
+      "prompt": "Centralize auth checks in a DAL function",
+      "expected_output": "Auth check inside DAL: const session = await verifySession(); if (!session.userId) redirect('/login'); never rely on caller to check auth; each DAL function is self-contained and secure"
+    },
+    {
+      "id": 5,
+      "prompt": "Avoid fetching own API routes from Server Components",
+      "expected_output": "Never fetch('http://localhost:3000/api/users') from RSC; call DAL function directly: const users = await getUsers(); removes unnecessary HTTP round trip and serialization overhead"
+    },
+    {
+      "id": 6,
+      "prompt": "Build a BFF pattern with Next.js and NestJS",
+      "expected_output": "Pattern A (BFF): DAL fetches from NestJS: const res = await fetch(process.env.API_URL + '/users', { headers: { Authorization } }); Pattern B (Direct): DAL calls Prisma directly; both use import 'server-only'"
+    }
+  ],
+  "should_not_trigger": [
+    "Repository pattern in Laravel with Eloquent",
+    "Data access in Spring Boot with JPA Repository",
+    "GORM repository pattern in Go",
+    "TypeORM repositories in NestJS"
+  ]
+}

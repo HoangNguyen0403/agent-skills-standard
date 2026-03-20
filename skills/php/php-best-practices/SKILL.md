@@ -28,10 +28,10 @@ src/
 
 ## Anti-Patterns
 
-- **God Classes**: **No Monoliths**: Avoid classes with multiple responsibilities.
-- **Magic Numbers**: **No Hardcoding**: Use class constants for config values.
-- **Deep Nesting**: **No Nesting**: Guard clauses over nested if/else.
-- **Direct Output**: **No Echo**: Return data; let controller handle response.
+- **No monolithic classes**: Each class has one responsibility (SRP).
+- **No hardcoded magic numbers**: Define as named class constants.
+- **No deep nesting**: Use guard clauses to return early.
+- **No `echo` in services**: Return data; let the controller output.
 
 ## References
 

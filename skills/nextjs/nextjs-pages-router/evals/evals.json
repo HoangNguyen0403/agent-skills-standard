@@ -1,0 +1,41 @@
+{
+  "skill_name": "nextjs-pages-router",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Implement getServerSideProps in Next.js pages/ directory",
+      "expected_output": "export async function getServerSideProps(context: GetServerSidePropsContext) { const data = await getUser(context.params.id); return { props: { user: toJSON(data) } }; } runs server-side per request"
+    },
+    {
+      "id": 2,
+      "prompt": "Fix async page component in Next.js Pages Router",
+      "expected_output": "Pages Router pages must be synchronous: export default function Page({ data }: PageProps) {}; NEVER export default async function; use getServerSideProps for server data — async page is fatal"
+    },
+    {
+      "id": 3,
+      "prompt": "Use getStaticProps for static generation in Next.js",
+      "expected_output": "export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> { const posts = await getPosts(); return { props: { posts }, revalidate: 3600 }; } built at compile time, ISR with revalidate"
+    },
+    {
+      "id": 4,
+      "prompt": "Create dynamic routes in Next.js pages/ with [id].tsx",
+      "expected_output": "Create pages/posts/[id].tsx; access via router.query.id in client or context.params.id in getServerSideProps; catch-all: pages/posts/[...slug].tsx; optional catch-all: [[...slug]].tsx"
+    },
+    {
+      "id": 5,
+      "prompt": "Set up _app.tsx in Next.js Pages Router",
+      "expected_output": "Create pages/_app.tsx: export default function App({ Component, pageProps }: AppProps) { return <Providers><Component {...pageProps} /></Providers>; }; wraps all pages; global CSS imports here only"
+    },
+    {
+      "id": 6,
+      "prompt": "Why can't I use 'use client' in Pages Router?",
+      "expected_output": "'use client' is an App Router RSC directive; Pages Router has no Server Components concept; everything in pages/ is implicitly client-rendered; using 'use client' in pages/ causes build errors"
+    }
+  ],
+  "should_not_trigger": [
+    "Use app/ directory layouts in Next.js App Router",
+    "Server Components in Next.js App Router",
+    "React Router in a Vite React app",
+    "Routing in Next.js 15 with app/ folder"
+  ]
+}

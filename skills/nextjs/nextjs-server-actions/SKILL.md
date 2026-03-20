@@ -37,25 +37,7 @@ export async function createPost(formData: FormData) {
 
 ### **1. Secure & Validate**
 
-Always validate inputs and authorization within the action.
-
-```tsx
-'use server';
-export async function updateProfile(prevState: any, formData: FormData) {
-  const session = await auth();
-  if (!session) throw new Error('Unauthorized');
-
-  const validatedFields = ProfileSchema.safeParse(
-    Object.fromEntries(formData.entries()),
-  );
-  if (!validatedFields.success)
-    return { errors: validatedFields.error.flatten().fieldErrors };
-
-  // mutation...
-  revalidatePath('/profile');
-  return { success: true };
-}
-```
+Always validate inputs and check authorization within the action. See [Secure Action Example](references/example.md).
 
 ### **2. Pending States**
 
@@ -66,8 +48,9 @@ Use `useActionState` (React 19/Next.js 15+) for state handling and `useFormStatu
 - **Closures**: Avoid defining actions inside components to prevent hidden closure encryption overhead and serialization bugs.
 - **Redirection**: Use `redirect()` for success navigation; it throws an error that Next.js catches to handle the redirect.
 
+## Anti-Patterns
 
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No unvalidated Server Action inputs**: Always validate with Zod before processing.
+- **No skipped auth checks**: Verify session/user inside every action, not just middleware.
+- **No actions defined inside components**: Define in `actions.ts` to avoid closure bugs.
+- **No `redirect()` in try/catch**: `redirect()` throws; catching it suppresses the redirect.

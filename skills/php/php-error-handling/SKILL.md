@@ -28,10 +28,10 @@ src/
 
 ## Anti-Patterns
 
-- **Error Suppression**: **No @**: Avoid suppressing errors with `@`.
-- **Silent Catch**: **No Empty Catches**: Log or handle all caught exceptions.
-- **Logic Flow**: **No Flow Control**: Don't use exceptions for expected logic.
-- **Panic Display**: **No display_errors**: Log to file, never to production screen.
+- **No `@` error suppression**: Handle or log errors explicitly.
+- **No empty catch blocks**: Log or rethrow all caught exceptions.
+- **No exceptions for control flow**: Reserve for unexpected errors only.
+- **No `display_errors` in production**: Log to file; never show users.
 
 ## References
 

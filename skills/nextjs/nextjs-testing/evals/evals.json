@@ -1,0 +1,41 @@
+{
+  "skill_name": "nextjs-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write Vitest unit tests for Next.js components",
+      "expected_output": "import { render, screen } from '@testing-library/react'; it('shows title', () => { render(<PostCard title='Hello'/>); expect(screen.getByText('Hello')).toBeInTheDocument(); }); configure vitest.config.ts with react plugin"
+    },
+    {
+      "id": 2,
+      "prompt": "Set up Playwright E2E tests for a Next.js app",
+      "expected_output": "npx playwright install; test('login flow', async ({ page }) => { await page.goto('/login'); await page.fill('[name=email]', 'user@test.com'); await page.click('button[type=submit]'); await expect(page).toHaveURL('/dashboard'); })"
+    },
+    {
+      "id": 3,
+      "prompt": "Mock API calls with MSW in Next.js tests",
+      "expected_output": "const server = setupServer(http.get('/api/posts', () => HttpResponse.json([{id:1,title:'Test'}]))); beforeAll(() => server.listen()); afterEach(() => server.resetHandlers()); afterAll(() => server.close())"
+    },
+    {
+      "id": 4,
+      "prompt": "Test a Server Component in Next.js",
+      "expected_output": "Use Playwright E2E to test full RSC output end-to-end; for unit testing data layer, test the async function directly (getUser() etc.); RTL cannot render async Server Components — use E2E for RSC behavior"
+    },
+    {
+      "id": 5,
+      "prompt": "Configure test database isolation for Next.js",
+      "expected_output": "Use separate .env.test with TEST_DATABASE_URL; run migrations in globalSetup; wrap each test in transaction + rollback; or use Testcontainers for fully isolated DB per test suite"
+    },
+    {
+      "id": 6,
+      "prompt": "Use React Testing Library with Next.js",
+      "expected_output": "vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => '/' })); render(<Component/>); screen.getByRole('button'); await userEvent.click(button); test behavior not implementation"
+    }
+  ],
+  "should_not_trigger": [
+    "Jest tests in a NestJS application with supertest",
+    "Pest feature tests in a Laravel application",
+    "PHPUnit tests for a PHP class",
+    "XCTest in a Swift iOS app"
+  ]
+}
