@@ -347,8 +347,8 @@
       "tag_prefix": "ios-v",
       "token_metrics": {
         "total_skills": 15,
-        "total_tokens": 5651,
-        "avg_tokens_per_skill": 377,
+        "total_tokens": 5666,
+        "avg_tokens_per_skill": 378,
         "largest_skill": "ios-architecture (571 tokens)"
       }
     },
