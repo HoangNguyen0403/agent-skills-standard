@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-riverpod-state-management",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a Riverpod provider that fetches a list of products from a repository and exposes loading, data, and error states to the UI.",
+      "expected_output": "@riverpod annotation on AsyncNotifier<List<Product>>, build() calls repository.getProducts(), UI uses ref.watch(productsProvider) with .when(data:, loading:, error:)"
+    },
+    {
+      "id": 2,
+      "prompt": "I need a provider that watches the cart count and triggers a navigation side effect when the cart is emptied. How do I do this in Riverpod?",
+      "expected_output": "ref.listen(cartProvider, (prev, next) { if (next.isEmpty) context.go('/empty-cart'); }) in ConsumerWidget build() or ConsumerStatefulWidget — not inside provider itself"
+    },
+    {
+      "id": 3,
+      "prompt": "How do I override a Riverpod provider in widget tests to return a mock repository?",
+      "expected_output": "ProviderScope(overrides: [repositoryProvider.overrideWithValue(MockRepository())], child: MyWidget()) in pumpWidget, use riverpod_lint to catch missing overrides"
+    }
+  ],
+  "should_not_trigger": [
+    "How do I create a BLoC for the cart feature?",
+    "Set up GetX state management with observables",
+    "Add a loading spinner widget to the product list screen",
+    "Write a unit test for the repository layer"
+  ]
+}

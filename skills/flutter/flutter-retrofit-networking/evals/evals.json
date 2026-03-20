@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-retrofit-networking",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a Retrofit client for the orders API that supports GET /orders and POST /orders/{id}/cancel, with proper DTO models.",
+      "expected_output": "@RestApi() abstract class OrderApiClient with @GET('/orders') returning Future<List<OrderDto>> and @POST('/orders/{id}/cancel') with @Path('id'), DTOs using @freezed + @JsonSerializable"
+    },
+    {
+      "id": 2,
+      "prompt": "The app needs to automatically refresh the JWT token when a 401 response is received, then retry the original request.",
+      "expected_output": "AuthInterceptor extending Interceptor, onError locking Dio, calling refreshToken(), updating stored token, then retrying via dio.fetch(err.requestOptions). Use DioException check for 401."
+    },
+    {
+      "id": 3,
+      "prompt": "The server returns an enum field 'status' in the order DTO, but sometimes sends new values we haven't seen before. How do I prevent crashes?",
+      "expected_output": "@JsonKey(unknownEnumValue: OrderStatus.unknown) on the enum field in the DTO, with an 'unknown' fallback value in the OrderStatus enum"
+    }
+  ],
+  "should_not_trigger": [
+    "How do I parse JSON manually from an HTTP response?",
+    "Add error handling in the BLoC for network failures",
+    "Write a unit test for the repository",
+    "Set up GraphQL with ferry or artemis"
+  ]
+}

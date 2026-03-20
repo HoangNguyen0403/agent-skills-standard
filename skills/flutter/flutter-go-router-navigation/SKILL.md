@@ -47,12 +47,13 @@ final router = GoRouter(
 );
 ```
 
+## Anti-Patterns
+
+- ❌ `context.go('/orders/123')` with a raw string path — always use typed `GoRouteData` classes (e.g., `OrderDetailRoute(id: 123).go(context)`)
+- ❌ Auth check inside the page widget's `build()` — redirect logic belongs in the `GoRouter.redirect` callback, not the UI
+- ❌ Multiple `GoRouter` instances — register one global instance in DI and share it throughout the app
+- ❌ Navigating to a deep link without validating the ID in `redirect` — always verify IDs/parameters exist before building the route
+
 ## Related Topics
 
 layer-based-clean-architecture | auto-route-navigation | security
-
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.

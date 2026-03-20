@@ -3,9 +3,7 @@ name: common-security-standards
 description: 'Universal security protocols for safe, resilient software. Use when implementing authentication, encryption, authorization, or any security-sensitive feature. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, security, encrypt, authenticate, authorize)'
 ---
 
-# Security Standards - High-Density Standards
-
-Universal security protocols for building safe and resilient software.
+# Security Standards
 
 ## **Priority: P0 (CRITICAL)**
 
@@ -30,12 +28,12 @@ Universal security protocols for building safe and resilient software.
 - **Data Minimization**: Collect and store only the absolute minimum data required for the business logic.
 - **Logging**: Maintain audit logs for sensitive operations (Auth, Deletion, Admin changes).
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- **Hardcoded Secrets**: `**No Secrets in Git**: Use Secret Managers or Env variables.`
-- **Raw SQL**: `**No String Concatenation**: Use Parameterized queries or ORMs.`
-- **Leaking Context**: `**No Stacktraces in Prod**: Return generic error codes to clients.`
-- **Insecure Defaults**: `**No Default Passwords**: Force rotation and strong entropy.`
+- **No secrets in Git**: Use secret managers or env vars; rotate immediately if exposed.
+- **No raw SQL strings**: Use parameterized queries or ORMs — always.
+- **No stacktraces in prod**: Return generic error codes; log full detail server-side.
+- **No default passwords**: Force rotation on first use with strong entropy requirements.
 
 ## 📚 References
 

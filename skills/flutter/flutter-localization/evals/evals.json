@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-localization",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add multi-language support for English and Vietnamese. Our translators use Google Sheets.",
+      "expected_output": "Use easy_localization with sheet_loader_localization, CSV format in assets/langs/, EasyLocalization wrap in main, tr() extension usage"
+    },
+    {
+      "id": 2,
+      "prompt": "Show a welcome message like 'Hello, John!' where the name is dynamic.",
+      "expected_output": "Use 'hello_user'.tr(args: ['John']) or tr(namedArgs: {'name': 'John'}) with {} placeholder in translation file"
+    },
+    {
+      "id": 3,
+      "prompt": "Show '1 item' vs '3 items' in the cart count — how do I handle plural strings?",
+      "expected_output": "Use 'cart_items'.plural(count) with plural key variants in translation file (zero/one/many or 0/1/2 keys)"
+    }
+  ],
+  "should_not_trigger": [
+    "Add a language toggle button to settings",
+    "How do I format a date in Vietnamese locale?",
+    "Write a test for the settings BLoC",
+    "Set up RTL layout support"
+  ]
+}

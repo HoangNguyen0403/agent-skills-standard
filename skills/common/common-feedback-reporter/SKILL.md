@@ -1,6 +1,6 @@
 ---
 name: common-feedback-reporter
-description: "CRITICAL - Before ANY file write, audit loaded skills for violations. Auto-report via feedback command. (triggers: **/*, write, edit, create, generate, skill, violation)"
+description: "Pre-write skill violation audit. Checks planned code against loaded skill anti-patterns before any file write. Use when writing Flutter/Dart code, editing SKILL.md files, or generating any code where project skills are active. Load as composite alongside other skills. (triggers: skill violation, pre-write audit, audit violations, SKILL.md, **/*.dart, **/*.ts, **/*.tsx)"
 ---
 
 # Feedback Reporter
@@ -40,15 +40,19 @@ Before file write?
 
 [More examples →](references/violation-examples.md)
 
-## Command (Copy-Paste)
+## Violation Report Format
 
-```bash
-npx agent-skills-standard feedback \
-  --skill="[skill-id]" \
-  --issue="[violation]" \
-  --skill-instruction="[exact rule]" \
-  --actual-action="[what I did]"
+When a violation is detected, output this block before fixing:
+
 ```
+🚨 SKILL VIOLATION DETECTED
+Skill: [skill-id]
+Rule: [exact rule text from SKILL.md]
+Violation: [what the planned code does]
+Fix: [corrected approach]
+```
+
+Then apply the fix immediately — do not wait for user confirmation.
 
 ## Pre-Completion Check
 

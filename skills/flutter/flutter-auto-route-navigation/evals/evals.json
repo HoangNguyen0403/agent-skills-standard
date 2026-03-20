@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-auto-route-navigation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to add an auth guard so unauthenticated users trying to access the cart get redirected to the login screen.",
+      "expected_output": "AutoRouteGuard implementation checking auth state, applied to CartRoute in @AutoRouterConfig, redirect to LoginRoute"
+    },
+    {
+      "id": 2,
+      "prompt": "How do I navigate to OrderDetailPage and pass an orderId parameter using auto_route?",
+      "expected_output": "Use generated typed route: context.pushRoute(OrderDetailRoute(orderId: id)), not string-based navigation"
+    },
+    {
+      "id": 3,
+      "prompt": "I have a bottom tab bar with 3 tabs using auto_route. When I switch tabs the scroll position resets — how do I preserve state?",
+      "expected_output": "Use AutoTabsRouter with children routes, IndexedStack preserves state, configure initialRoute and tabs properly"
+    }
+  ],
+  "should_not_trigger": [
+    "Add a back button to the app bar",
+    "How do I pass data between two BLoCs?",
+    "Set up deep linking for push notifications",
+    "Write a widget test for the navigation drawer"
+  ]
+}

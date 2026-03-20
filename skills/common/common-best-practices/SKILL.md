@@ -20,9 +20,14 @@ description: "Universal clean-code principles for any environment. (triggers: **
 - **Comments**: Explain **why**, not **what**. Refactor instead of commenting bad code.
 - **Sanitization**: Validate all external inputs.
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- **Hardcoded Constants**: Use named config/constants.
-- **Deep Nesting**: Avoid "Pyramid of Doom".
-- **Global State**: Prefer dependency injection.
-- **Empty Catches**: Always handle, log, or rethrow.
+- **No hardcoded constants**: Use named config/env vars.
+- **No deep nesting**: Guard clauses eliminate the Pyramid of Doom.
+- **No global state**: Prefer dependency injection.
+- **No empty catches**: Always handle, log, or rethrow.
+
+## References
+
+- [Code Structure Patterns](references/CODE_STRUCTURE.md) — file/function organization
+- [Effectiveness Guide](references/EFFECTIVENESS.md) — practical application examples

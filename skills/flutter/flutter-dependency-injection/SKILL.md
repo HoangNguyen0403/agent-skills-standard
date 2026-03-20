@@ -32,12 +32,14 @@ core/injection/
 For module configuration and initialization templates:
 See [references/REFERENCE.md](references/REFERENCE.md).
 
+## Anti-Patterns
+
+- ❌ `getIt<OrderRepository>()` inside widget `build()` — inject via constructor, not GetIt calls in UI
+- ❌ `@Singleton()` on a BLoC — BLoCs must use `@injectable` (Factory) so state resets per instance
+- ❌ Injecting the concrete class: `OrderRepositoryImpl repo` — always inject the abstract interface
+- ❌ `getIt.registerLazySingleton<X>(() => X())` in production code — use `@injectable` annotations; manual registration is only for tests
+
 ## Related Topics
 
 layer-based-clean-architecture | testing
 
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.

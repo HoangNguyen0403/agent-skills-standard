@@ -1,0 +1,26 @@
+{
+  "skill_name": "dart-tooling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Set up analysis_options.yaml to enforce trailing commas, single quotes, and treat missing required parameters as errors. Also integrate dart_code_metrics.",
+      "expected_output": "analysis_options.yaml with linter rules (require_trailing_commas, prefer_single_quotes), analyzer errors (missing_required_param: error), dart_code_metrics config with max-complexity: 15"
+    },
+    {
+      "id": 2,
+      "prompt": "Every time I run build_runner it fails with 'conflicting outputs' errors on generated .g.dart files. How do I fix this?",
+      "expected_output": "Always run: dart run build_runner build --delete-conflicting-outputs. Explain why: stale generated files from previous runs conflict with new generation. Add this as the project-standard command."
+    },
+    {
+      "id": 3,
+      "prompt": "Set up lefthook to run dart format and flutter analyze automatically before every commit so unformatted code never reaches the PR.",
+      "expected_output": "lefthook.yml with pre-commit hooks: dart format . --line-length 80 and flutter analyze --fatal-infos --fatal-warnings. Show how to install lefthook and verify it runs."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I use sealed classes in Dart 3?",
+    "Add null safety checks to my repository",
+    "Set up a GitHub Actions CI pipeline for Flutter",
+    "Write a unit test for the UserBloc"
+  ]
+}

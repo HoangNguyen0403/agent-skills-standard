@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-go-router-navigation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Set up go_router with typed routes so navigating to the order detail screen requires a strongly-typed orderId parameter.",
+      "expected_output": "@TypedGoRoute<OrderDetailRoute>(path: '/orders/:id') with class OrderDetailRoute extends GoRouteData { final String id; }, navigation via OrderDetailRoute(id: id).go(context)"
+    },
+    {
+      "id": 2,
+      "prompt": "The app needs to redirect unauthenticated users to /login when they try to access /cart or /checkout. How do I implement this with go_router?",
+      "expected_output": "GoRouter redirect callback checking auth state: redirect: (context, state) => isLoggedIn ? null : '/login', applied at router level — not inside the page widget"
+    },
+    {
+      "id": 3,
+      "prompt": "I have a bottom tab bar with Home, Orders, and Profile tabs. Each tab should maintain its own navigation stack when switching between tabs.",
+      "expected_output": "StatefulShellRoute with branches for each tab, IndexedStack or ShellRoute children maintaining independent stacks, typed GoRouteData per tab"
+    }
+  ],
+  "should_not_trigger": [
+    "Set up auto_route with typed route guards",
+    "How do I navigate between screens using GetX?",
+    "Add a slide animation when pushing a new route",
+    "Write a widget test for the router redirect logic"
+  ]
+}

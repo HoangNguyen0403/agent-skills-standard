@@ -1,0 +1,26 @@
+{
+  "skill_name": "quality-engineering-business-analysis",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The AC for EZRX-1234 says 'User can view order history'. Analyze this requirement and identify all missing logic, actor permissions, and edge cases before we write test cases.",
+      "expected_output": "Atomic decomposition of AC into conditions (logged-in vs guest, empty state, pagination), actor matrix (Customer vs Sales Rep vs Admin with different visible orders), platform parity check (Web vs Mobile), edge cases (offline, no orders, expired session), flags undefined states as P0 blockers"
+    },
+    {
+      "id": 2,
+      "prompt": "We have a feature toggle that controls whether the 'Reorder' button is visible. The AC says it shows when the toggle is ON and the order status is Delivered. Map all the logic combinations.",
+      "expected_output": "Truth table with toggle ON/OFF × order status (Delivered/Cancelled/Pending/etc) combinations, flag any undefined states, identify platform parity (same on Web and Mobile?), extract all actors who can see the button"
+    },
+    {
+      "id": 3,
+      "prompt": "The Jira story says 'Only Market VN shows the invoice download button'. What impact analysis should I do before writing test cases?",
+      "expected_output": "Variable identification: Market (VN vs others), actor mapping (which roles can download), platform check (Web/Mobile parity), boundary analysis (what happens in MY/SG markets — hidden or error?), flag whether 'other markets' behavior is undefined"
+    }
+  ],
+  "should_not_trigger": [
+    "Create Zephyr test cases for the checkout flow",
+    "Link EZRX-5678 test cases back to Jira",
+    "Write a Flutter widget test for the order screen",
+    "Generate a test plan for the sprint"
+  ]
+}

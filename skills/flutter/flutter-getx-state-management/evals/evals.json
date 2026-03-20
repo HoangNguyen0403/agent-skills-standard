@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-getx-state-management",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a UserController with GetX that fetches the user profile on init and exposes a reactive loading state and user data to the UI.",
+      "expected_output": "GetxController with final isLoading = false.obs and final user = Rxn<User>(), fetchUser() in onInit(), Obx(() => ...) in view, no BuildContext in controller"
+    },
+    {
+      "id": 2,
+      "prompt": "My GetX controller is being used across multiple screens. How do I make sure it persists while the app is running but gets disposed when no longer needed?",
+      "expected_output": "Get.lazyPut(() => MyController(), fenix: true) in Binding — fenix: true recreates after disposal. Avoid permanent: true. Explain lifecycle: disposed when no views reference it"
+    },
+    {
+      "id": 3,
+      "prompt": "Show an error snackbar from inside a GetxController after an API call fails, without accessing BuildContext.",
+      "expected_output": "Get.snackbar('Error', message) called directly in controller method — no context needed. Or Get.dialog() for modal errors. Never pass BuildContext into controller."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up BlocProvider for the auth feature?",
+    "Write a Riverpod provider that fetches the product list",
+    "Add a loading indicator widget to the screen",
+    "How do I write a unit test for a GetxController?"
+  ]
+}

@@ -32,12 +32,14 @@ Automates code quality checks, testing, and deployment to prevent regressions an
 - [**Advanced Large-Scale Workflow**](references/advanced-workflow.md) - Parallel jobs, Caching, Strict Mode.
 - [**Fastlane Standards**](references/fastlane.md) - Automated Signing & Deployment.
 
+## Anti-Patterns
+
+- ❌ Committing `keystore.jks`, `.p8`, or `.env` files — store all signing credentials in GitHub Secrets or a secure vault
+- ❌ CI job without `timeout-minutes` — hung jobs burn runner minutes; always set an explicit timeout (e.g., 30m)
+- ❌ Manual `version: 1.0.0+42` edits in `pubspec.yaml` — automate via git tags or a version script to prevent human error
+- ❌ Running `flutter analyze` after `flutter build` — analysis is cheap and fast; fail fast by running it before builds/tests
+
 ## Related Topics
 
 flutter/testing | dart/tooling
 
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.

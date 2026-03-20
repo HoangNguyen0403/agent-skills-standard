@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-widgets",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a reusable ProductCard widget with an image, title, price, and an add-to-cart button.",
+      "expected_output": "StatelessWidget with const constructor, super.key, typed parameters, uses Theme.of(context) for styling, key from widget_keys.dart for interactive elements"
+    },
+    {
+      "id": 2,
+      "prompt": "My OrdersScreen file is 350 lines with deeply nested Column/Row/Container widgets. How do I refactor it?",
+      "expected_output": "Extract into private const StatelessWidget classes (not helper methods), each under ~80 lines, no widget-returning functions"
+    },
+    {
+      "id": 3,
+      "prompt": "Show an empty state when there are no orders, with an icon and a 'No orders yet' message.",
+      "expected_output": "Dedicated EmptyState const StatelessWidget or reusable component, avoid building inline in parent's build method, use SizedBox.shrink() pattern"
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up BLoC for the product list?",
+    "Add an animation to the button press",
+    "Write a widget test for the ProductCard",
+    "Set up go_router for navigation"
+  ]
+}

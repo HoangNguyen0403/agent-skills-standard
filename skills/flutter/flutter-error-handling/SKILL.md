@@ -1,6 +1,6 @@
 ---
 name: flutter-error-handling
-description: "Functional error handling using Dartz and Either. Use when implementing functional error handling, Either monad, or failure types in Flutter. (triggers: lib/domain/**, lib/infrastructure/**, Either, fold, Left, Right, Failure, dartz)"
+description: "Functional error handling with Either/Failure. ALWAYS consult when writing repositories, handling exceptions, defining failures, or using Either in any Flutter layer — not just when setting up error handling. (triggers: lib/domain/**, lib/infrastructure/**, Either, fold, Left, Right, Failure, dartz)"
 ---
 
 # Error Handling
@@ -28,12 +28,14 @@ Standardized functional error handling using `dartz` and `freezed` failures.
 For Failure definitions and API error mapping:
 See [references/REFERENCE.md](references/REFERENCE.md).
 
+## Anti-Patterns
+
+- ❌ `try { … } catch (e) { emit(ErrorState()); }` in BLoC — try/catch belongs only in Infrastructure; BLoC receives `Either`, then folds
+- ❌ `Left(Failure('Something went wrong'))` using a plain `String` — define typed `@freezed` Failure subclasses for each domain error
+- ❌ `catch (e) {}` empty catch — always log and propagate; never swallow silently
+- ❌ Throwing `Exception` from a repository — return `Left(Failure)` instead; exceptions must not cross the infrastructure boundary
+
 ## Related Topics
 
 layer-based-clean-architecture | bloc-state-management
 
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.

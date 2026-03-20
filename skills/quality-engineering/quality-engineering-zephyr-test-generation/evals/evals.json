@@ -1,0 +1,26 @@
+{
+  "skill_name": "quality-engineering-zephyr-test-generation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Generate Zephyr test cases for EZRX-3892: 'As a Customer in VN market, I can download invoices from the Order Detail screen. This is Web only.'",
+      "expected_output": "Search Zephyr for existing invoice TCs first. New TCs named '[Web] Invoice_Download invoice on Order Detail when user is Customer (VN)'. Preconditions extracted as bullets. Platform=Web, Market=VN in custom fields. Link TC to EZRX-3892 via create_test_case_issue_link."
+    },
+    {
+      "id": 2,
+      "prompt": "The 'Reorder' button behavior changed in EZRX-4100 — it now only shows for Delivered orders, not Completed. There are existing Zephyr TCs for this feature. What should I do?",
+      "expected_output": "Search Zephyr for existing Reorder TCs. Perform impact analysis: which TCs cover 'Completed' status? Update those TCs with new expected results rather than creating duplicates. Document delta changes in TC description."
+    },
+    {
+      "id": 3,
+      "prompt": "I need to create test cases for a feature that applies to both Web and Mobile but Sales Reps and Customers see different data on the same screen.",
+      "expected_output": "Create separate TCs per actor (no OR): 'Module_Action on Screen when user is Sales Rep' and 'Module_Action on Screen when user is Customer'. No [Platform] prefix since it applies to Both. Populate Roles custom field with correct values per TC."
+    }
+  ],
+  "should_not_trigger": [
+    "Write a Flutter widget test for the order screen",
+    "Analyze the business rules in the AC before writing tests",
+    "Link the Zephyr TC back to the Jira issue",
+    "Set up build_runner for code generation"
+  ]
+}

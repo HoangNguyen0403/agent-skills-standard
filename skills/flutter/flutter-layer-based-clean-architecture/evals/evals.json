@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-layer-based-clean-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a UserRepository that fetches user profile from the API and caches it locally. The UI should never know about Dio or SharedPreferences.",
+      "expected_output": "Domain interface IUserRepository returning Either<Failure, UserEntity>, Infrastructure impl with Dio+DTO mapping, no Dio in domain"
+    },
+    {
+      "id": 2,
+      "prompt": "I have this in my widget: final response = await dio.get('/orders'); — fix this so it follows clean architecture.",
+      "expected_output": "Move Dio call to DataSource, add OrderRepository returning Either<Failure, List<OrderEntity>>, BLoC/Cubit in application layer, widget only reads BLoC state"
+    },
+    {
+      "id": 3,
+      "prompt": "Where should I put the logic that validates if a user can check out based on cart total and available credit?",
+      "expected_output": "Domain layer — either a domain service or a use case / application service, no Flutter/Dio imports, pure Dart"
+    }
+  ],
+  "should_not_trigger": [
+    "How do I animate a list in Flutter?",
+    "Add a BLoC test for the login cubit",
+    "Set up go_router for navigation",
+    "I want to add FCM push notifications"
+  ]
+}

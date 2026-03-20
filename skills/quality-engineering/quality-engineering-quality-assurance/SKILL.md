@@ -1,6 +1,6 @@
 ---
 name: quality-engineering-quality-assurance
-description: "Standards for creating high-quality, granular manual test cases and QA processes. Use when creating manual test cases, defining QA processes, or reviewing test coverage. (triggers: **/*.feature, **/*.test.ts, **/test_plan.md, test case, qa, bug report, testing standard, zephyr, jira ticket, acceptance criteria, test scenario, manual test, !src/**/*.ts, !src/**/*.js, !src/**/*.tsx, !src/**/*.jsx)"
+description: "Manual test case standards: enforce 1-condition-per-TC granularity, Module_Action on Screen when Condition naming, platform prefix rules, and High/Normal/Low priority classification. Use when writing or reviewing manual test cases for Zephyr — to split compound TCs, fix naming violations, assign correct platform tags, or determine bug priority. (triggers: test case, manual test, zephyr, test scenario, naming convention, acceptance criteria)"
 ---
 
 # Quality Assurance Standards
@@ -31,7 +31,9 @@ description: "Standards for creating high-quality, granular manual test cases an
 - [Detailed Examples](references/test_case_standards.md)
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- ❌ `"Verify order flow works"` — too broad; every TC must cover exactly 1 condition on 1 screen
+- ❌ Testing Web and Mobile behavior in a single TC when behavior diverges — split into separate TCs per platform
+- ❌ `Order_Verify page` — name must follow the full pattern: `Module_Action on Screen when Condition`
+- ❌ Marking a cosmetic spacing bug as High priority — reserve High for critical path blockers only

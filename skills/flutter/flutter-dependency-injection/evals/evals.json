@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-dependency-injection",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm adding a new OrderRepository that depends on Dio and a local Hive database. How do I register it with injectable/get_it?",
+      "expected_output": "@LazySingleton on impl, @injectable module for Dio/Hive, register as abstract interface (as: IOrderRepository), constructor injection"
+    },
+    {
+      "id": 2,
+      "prompt": "My CartBloc is keeping old cart state when I navigate away and come back. It should reset each time.",
+      "expected_output": "Change CartBloc registration from @singleton/@lazySingleton to @injectable (Factory) so a new instance is created each time"
+    },
+    {
+      "id": 3,
+      "prompt": "How do I swap out the real AuthRepository with a mock in my widget tests?",
+      "expected_output": "In setUp: getIt.unregister<IAuthRepository>() then getIt.registerLazySingleton<IAuthRepository>(() => MockAuthRepository())"
+    }
+  ],
+  "should_not_trigger": [
+    "How do I pass data between two screens?",
+    "Add a constructor parameter to a widget",
+    "Write a unit test for the login use case",
+    "Set up Firebase dependencies in pubspec.yaml"
+  ]
+}

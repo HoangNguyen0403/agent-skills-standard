@@ -1,0 +1,26 @@
+{
+  "skill_name": "dart-best-practices",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this Dart file — it has global variables, uses var everywhere, and has anonymous lambdas where tear-offs would work. Fix it.",
+      "expected_output": "Replace global mutable vars with class-encapsulated finals or DI, replace var with final/explicit types, replace (e) => fn(e) with tear-off fn, apply trailing commas to multi-line params"
+    },
+    {
+      "id": 2,
+      "prompt": "I have a utility method that's 20 lines with a for loop building a filtered and mapped list. Can I make this more idiomatic Dart?",
+      "expected_output": "Rewrite using chained .where().map().toList(), or collection-for with if. Prefer expression body => if single expression. Use typed empty collection <Type>[] if needed."
+    },
+    {
+      "id": 3,
+      "prompt": "My Dart file imports other files in the same package using 'package:myapp/...' imports everywhere. Is this correct?",
+      "expected_output": "Switch to relative imports for intra-package files (e.g., '../models/user.dart'). Package imports are for external packages only — using them locally triggers the always_use_package_imports or avoid_relative_lib_imports lint."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up BLoC for the product list feature?",
+    "Configure analysis_options.yaml to enable strict linting",
+    "Write a widget test for the login screen",
+    "How do I use sealed classes in Dart 3?"
+  ]
+}

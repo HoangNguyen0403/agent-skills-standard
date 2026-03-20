@@ -3,13 +3,9 @@ name: common-documentation
 description: "Essential rules for code comments, READMEs, and technical docs. Use when adding comments, writing docstrings, creating READMEs, or updating any documentation. (triggers: comment, docstring, readme, documentation)"
 ---
 
-# Documentation Standards - High-Density Standards
-
-Essential rules for code comments, READMEs, and technical documentation.
+# Documentation Standards
 
 ## **Priority: P2 (MAINTENANCE)**
-
-Essential rules for maintaining proper code comments, READMEs, and technical documentation.
 
 ## 📝 Code Comments (Inline Docs)
 
@@ -40,7 +36,8 @@ Essential rules for maintaining proper code comments, READMEs, and technical doc
 - **Contract First**: Define the interface before the implementation.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No "what" comments**: Explain intent, not mechanics. Refactor instead.
+- **No orphan TODOs**: Every TODO needs `(owner)` and a linked ticket.
+- **No out-of-date docs**: Documentation ships with the feature, not after.

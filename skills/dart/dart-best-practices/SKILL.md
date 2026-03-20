@@ -1,6 +1,6 @@
 ---
 name: dart-best-practices
-description: "General purity standards for Dart development. Use when writing idiomatic Dart code, following Dart conventions, or reviewing Dart code quality. (triggers: **/*.dart, import, final, const, var, global)"
+description: "Dart code quality conventions: naming, const/final/var hierarchy, single quotes, trailing commas, collection idioms, tear-offs, and import organization. Use when writing new Dart code or reviewing for style violations — wrong import style, global variables, var misuse, anonymous lambdas where tear-offs fit, or missing trailing commas. (triggers: **/*.dart, naming, convention, trailing comma, import, tear-off)"
 ---
 
 # Dart Best Practices
@@ -30,7 +30,9 @@ import 'package:app/models/user.dart'; // Avoid local absolute
 ```
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- ❌ `var result = fetchOrders()` — use `final` or an explicit type; `var` only for locally obvious types in short scopes
+- ❌ `import 'package:myapp/features/orders/order_model.dart'` within the same package — use relative imports for intra-package files
+- ❌ Top-level mutable `List<Order> cachedOrders = []` — no global mutable state; use DI or encapsulate in a class
+- ❌ `list.forEach((item) => doSomething(item))` — prefer tear-offs: `list.forEach(doSomething)`

@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-getx-navigation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add a middleware in GetX that redirects unauthenticated users to the login screen when they try to access any route in AppPages.",
+      "expected_output": "GetMiddleware subclass with redirect() override, registered in GetPage middlewares list, checks auth state from GetIt/GetX service, returns RouteSettings('/login') when unauthenticated"
+    },
+    {
+      "id": 2,
+      "prompt": "I need to navigate from the cart screen to the checkout screen and clear the back stack so the user can't go back. How do I do this in GetX?",
+      "expected_output": "Get.offAllNamed(Routes.CHECKOUT) or Get.offAll(() => CheckoutView()), using Routes constants — not raw strings"
+    },
+    {
+      "id": 3,
+      "prompt": "Set up AppPages with bindings so the HomeController is created and disposed automatically when the home route is entered and exited.",
+      "expected_output": "GetPage with binding: HomeBinding(), HomeBinding extends Bindings with Get.lazyPut(() => HomeController()), no Get.put() in view"
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up BLoC for the home feature?",
+    "Add a bottom navigation bar with 4 tabs",
+    "Write a widget test for the navigation flow",
+    "How do I deep link to an order screen using go_router?"
+  ]
+}

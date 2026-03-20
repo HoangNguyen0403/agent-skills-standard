@@ -74,7 +74,8 @@ Every test must follow Arrange-Act-Assert:
 - [Testing Anti-Patterns](references/testing_anti_patterns.md)
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No test-after**: Writing tests post-implementation defeats TDD. Delete and restart.
+- **No assertion-free tests**: A test without an assert is not a test.
+- **No testing implementation**: Test behavior and contracts, not internal calls.

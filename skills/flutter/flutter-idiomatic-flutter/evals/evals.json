@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-idiomatic-flutter",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm getting a 'setState called after dispose' error that crashes the app intermittently after async operations.",
+      "expected_output": "Add if (context.mounted) check before using BuildContext after any await, or before calling setState after async gap"
+    },
+    {
+      "id": 2,
+      "prompt": "My build method is 250 lines with nested Column/Row/Container everywhere. How should I refactor it?",
+      "expected_output": "Extract into small const StatelessWidget classes, not helper methods — better for performance profiling and rebuilds; aim for <80 lines per widget file"
+    },
+    {
+      "id": 3,
+      "prompt": "I need 16px spacing between elements — I'm using Padding(padding: EdgeInsets.all(16)) everywhere.",
+      "expected_output": "Use Gap(16) or SizedBox(height: 16) for simple spacing instead of Padding wrapping — simpler and more readable"
+    }
+  ],
+  "should_not_trigger": [
+    "How do I add a BLoC to this screen?",
+    "Set up the router for the app",
+    "Write a unit test for the repository",
+    "Configure dependency injection for the service"
+  ]
+}

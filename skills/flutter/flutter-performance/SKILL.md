@@ -20,11 +20,12 @@ Performance optimization techniques for smooth 60fps Flutter applications.
 - **Build Purity**: Keep `build` methods free of heavy work; move logic to BLoC/Application.
 - **Image Resizing**: Always set `maxWidth`/`maxHeight` when loading images.
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- **Large Rebuilds**: `**No SetState at Root**: Use granular builders (BlocBuilder, Consumer).`
-- **Logic in Build**: `**No Heavy Work in body**: Perform parsing/sorting in the Business Layer.`
-- **Missing Const**: `**No Dynamic Leaf Widgets**: Use const where possible.`
+- ❌ `setState()` at the root/page level to update a single counter — use `BlocBuilder` with `buildWhen` or `context.select()` for granular rebuilds
+- ❌ Sorting/filtering a list inside `build()` — move heavy computation to BLoC or use `compute()`
+- ❌ Non-`const` leaf widgets that never change — always apply `const` to static widgets to skip reconciliation
+- ❌ `Column(children: items.map((e) => ItemWidget(e)).toList())` for large lists — use `ListView.builder` for item recycling
 
 ```dart
 BlocBuilder<UserBloc, UserState>(
@@ -32,9 +33,3 @@ BlocBuilder<UserBloc, UserState>(
   builder: (context, state) => Text(state.name),
 )
 ```
-
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.

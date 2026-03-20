@@ -1,6 +1,6 @@
 ---
 name: flutter-feature-based-clean-architecture
-description: "Standards for organizing Flutter code by feature for scalability. Use when structuring a Flutter project with feature-based clean architecture. (triggers: lib/features/**, feature, domain, infrastructure, application, presentation, modular)"
+description: "Feature-based clean architecture standards. ALWAYS consult when creating or modifying any file under lib/features/ — new features, domain entities, repositories, data sources, or screens. (triggers: lib/features/**, feature, domain, infrastructure, application, presentation)"
 ---
 
 # Feature-Based Clean Architecture
@@ -28,12 +28,14 @@ See [references/folder-structure.md](references/folder-structure.md) for the com
 For feature folder blueprints and cross-layer dependency templates:
 See [references/REFERENCE.md](references/REFERENCE.md).
 
+## Anti-Patterns
+
+- ❌ `import '…/features/orders/data/models/order_dto.dart'` from another feature — only import Domain types across features
+- ❌ `lib/features/orders/domain/widgets/` — never put UI or Data classes inside Domain
+- ❌ `lib/features/orders/sub_orders/` — keep `lib/features/` flat; no nested feature directories
+- ❌ Calling another feature's repository directly from Presentation — route through that feature's BLoC or use-case
+
 ## Related Topics
 
 layer-based-clean-architecture | retrofit-networking | go-router-navigation | bloc-state-management | dependency-injection
 
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.

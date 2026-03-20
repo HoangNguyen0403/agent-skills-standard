@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-bloc-state-management",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to add a search feature to the product list screen. It should debounce user input and cancel the previous request if a new one comes in.",
+      "expected_output": "BLoC with SearchEvent using restartable() transformer, freezed state with loading/data/error, emit.forEach for stream, blocTest coverage"
+    },
+    {
+      "id": 2,
+      "prompt": "The API returns a list of orders. Show a loading spinner while fetching, then display the list, and if it fails show an error message with a retry button.",
+      "expected_output": "Cubit or BLoC with Initial/Loading/Success/Failure states using @freezed, BlocBuilder for UI, error state with Failure type"
+    },
+    {
+      "id": 3,
+      "prompt": "Fix this code — I'm getting a bad state error:\nclass CounterBloc extends Bloc<CounterEvent, int> {\n  CounterBloc() : super(0);\n  void increment() {\n    emit(state + 1).then((_) => print('done'));\n  }\n}",
+      "expected_output": "Remove .then(), use await, register on<CounterEvent> handler properly, note that emit() is not a Future"
+    }
+  ],
+  "should_not_trigger": [
+    "Add a TextField widget to the login screen",
+    "How do I center a widget in Flutter?",
+    "Set up Firebase for this Flutter project",
+    "Write a unit test for a repository that calls an API"
+  ]
+}

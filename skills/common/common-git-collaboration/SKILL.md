@@ -3,13 +3,9 @@ name: common-git-collaboration
 description: "Universal standards for version control, branching, and team collaboration. Use when writing commits, creating branches, merging, or opening pull requests. (triggers: commit, branch, merge, pull-request, git)"
 ---
 
-# Git & Collaboration - High-Density Standards
-
-Universal standards for version control, branching, and team collaboration.
+# Git & Collaboration
 
 ## **Priority: P0 (OPERATIONAL)**
-
-Universal standards for effective version control, branching strategies, and team collaboration.
 
 ## 📝 Commit Messages (Conventional Commits)
 
@@ -47,7 +43,8 @@ Universal standards for effective version control, branching strategies, and tea
 - [Clean Linear History & Rebase Examples](references/CLEAN_HISTORY.md)
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No direct push to main**: All changes via PR, no exceptions.
+- **No mega-commits**: One commit = one logical change. Split large ones.
+- **No secrets in history**: Use `git filter-repo` to purge; rotate the secret.

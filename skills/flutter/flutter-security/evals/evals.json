@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-security",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to store the user's auth token after login. I'm currently using SharedPreferences — is that okay?",
+      "expected_output": "No — use flutter_secure_storage instead, SharedPreferences is unencrypted. Show secure_storage write/read pattern."
+    },
+    {
+      "id": 2,
+      "prompt": "How should I store the API base URL and API key for production vs staging builds?",
+      "expected_output": "Use --dart-define for build-time values, never commit keys to source. Show flutter_dotenv or --dart-define-from-file pattern."
+    },
+    {
+      "id": 3,
+      "prompt": "We're about to release the app to the Play Store. What security steps should we take for the release build?",
+      "expected_output": "Enable --obfuscate + --split-debug-info, verify no secrets in code, review PII in logs, SSL pinning if applicable, root detection for sensitive app"
+    }
+  ],
+  "should_not_trigger": [
+    "Add input validation to the login form",
+    "How do I handle 401 errors from the API?",
+    "Set up Firebase Authentication",
+    "Write a test for the secure storage service"
+  ]
+}

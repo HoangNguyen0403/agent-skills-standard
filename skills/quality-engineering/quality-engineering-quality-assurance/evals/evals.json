@@ -1,0 +1,26 @@
+{
+  "skill_name": "quality-engineering-quality-assurance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write test cases for the 'Add to Cart' button on the Product Detail screen. The button behaves differently when the user is a Sales Rep vs a Customer, and it's only available on Mobile.",
+      "expected_output": "Separate TCs per actor+condition: '[Mobile] Cart_Add item on Product Detail when user is Sales Rep', '[Mobile] Cart_Add item on Product Detail when user is Customer'. 1 TC = 1 condition. No OR logic. Priority High for critical path."
+    },
+    {
+      "id": 2,
+      "prompt": "I have a test case named 'Verify checkout works for all payment methods'. What's wrong with it and how should I split it?",
+      "expected_output": "Violation: multiple conditions ('all payment methods') in one TC. Split into one TC per payment method: 'Checkout_Verify payment on Review Order when Credit Card is selected', 'Checkout_Verify payment on Review Order when Bank Transfer is selected', etc."
+    },
+    {
+      "id": 3,
+      "prompt": "A QA engineer filed a bug where a button label has extra spacing on iOS. What priority should it be and why?",
+      "expected_output": "Low priority — cosmetic/UI polish issue, not a functional blocker. High is reserved for critical path failures or blockers. Normal for standard validation. Explain priority rationale clearly."
+    }
+  ],
+  "should_not_trigger": [
+    "Create Zephyr test cases and push them to Zephyr Scale",
+    "Analyze the business logic in the EZRX-4521 AC",
+    "Write a Patrol integration test for the checkout flow",
+    "Set up a QA automation framework with Playwright"
+  ]
+}

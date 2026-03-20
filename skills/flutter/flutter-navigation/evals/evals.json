@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-navigation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add deep linking so that opening ezrx://orders/123 from a push notification takes the user directly to that order detail screen.",
+      "expected_output": "go_router route with path parameter, AndroidManifest intent-filter and Info.plist CFBundleURLTypes config, redirect validation for order ID"
+    },
+    {
+      "id": 2,
+      "prompt": "I have a bottom tab bar and pressing the back button exits the app instead of switching tabs or going back within the tab.",
+      "expected_output": "Use IndexedStack with StatefulShellRoute in go_router or configure Android back button handling; each tab maintains its own navigation stack"
+    },
+    {
+      "id": 3,
+      "prompt": "The app should redirect unauthenticated users to the login screen when they try to access the cart route.",
+      "expected_output": "go_router redirect callback checking auth state, redirect: (context, state) => isLoggedIn ? null : '/login', not middleware"
+    }
+  ],
+  "should_not_trigger": [
+    "Add an animation when navigating between screens",
+    "How do I pass data from a BLoC to another screen?",
+    "Set up auto_route for typed routing",
+    "Add a back button to the app bar"
+  ]
+}

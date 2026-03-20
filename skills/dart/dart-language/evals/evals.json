@@ -1,0 +1,26 @@
+{
+  "skill_name": "dart-language",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need a function that returns both a success value and an error message without using a custom class. What's the modern Dart way to do this?",
+      "expected_output": "Use a Record type: (String? error, User? data) or named record ({String? error, User? data}). Show destructuring at call site: final (error, data) = fetchUser();"
+    },
+    {
+      "id": 2,
+      "prompt": "I have a Result type with Success and Failure subtypes and I want the compiler to enforce that all cases are handled in a switch. How?",
+      "expected_output": "sealed class Result {} with class Success extends Result and class Failure extends Result, then switch (result) { Success() => ..., Failure() => ... } — compiler errors on missing cases"
+    },
+    {
+      "id": 3,
+      "prompt": "There's a nullable String? in my code and I'm using the ! operator to force-unwrap it everywhere. What's the safer approach?",
+      "expected_output": "Replace ! with ?. (null-aware access), ?? (default value), early return with if (value == null) return, or pattern matching. Only use ! when non-nullability is proven via assert or type narrowing."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I configure analysis_options.yaml for strict mode?",
+    "Set up build_runner for code generation",
+    "Add error handling in the repository using Either",
+    "How do I format my Dart files with dart format?"
+  ]
+}

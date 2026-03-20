@@ -1,6 +1,6 @@
 ---
 name: dart-tooling
-description: "Standards for analysis, linting, formatting, and automation. Use when configuring analysis_options.yaml, dart fix, dart format, or build_runner in Dart projects. (triggers: analysis_options.yaml, pubspec.yaml, build.yaml, analysis_options, lints, format, build_runner, cider, husky)"
+description: "Dart static analysis, linting, formatting, and code-generation standards. Use when touching analysis_options.yaml, running build_runner, configuring dart format line length, setting up DCM metrics, or adding pre-commit hooks via lefthook — and whenever a CI job fails on analyze or format steps. (triggers: analysis_options.yaml, build.yaml, build_runner, lefthook.yml, dart format, dart_code_metrics)"
 ---
 
 # Tooling & CI
@@ -37,12 +37,13 @@ linter:
     - unawaited_futures
 ```
 
+## Anti-Patterns
+
+- ❌ `dart run build_runner build` without `--delete-conflicting-outputs` — causes stale generated file conflicts that break compilation
+- ❌ Running `flutter build` before `flutter analyze` — analyze is fast and cheap; always fail fast by running it first
+- ❌ `// ignore: lint_rule` without an explanation comment — always annotate why the ignore is justified
+- ❌ Skipping `dart format` in pre-commit — unformatted code breaks CI; enforce via `lefthook.yml`
+
 ## Related Topics
 
 language | testing
-
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.

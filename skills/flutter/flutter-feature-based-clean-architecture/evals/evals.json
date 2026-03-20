@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-feature-based-clean-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm adding a new 'promotions' feature. Where should I put the files and how should I structure the folders?",
+      "expected_output": "lib/features/promotions/ with domain/ (entities, failures, repo interface), data/ (DTO, datasource, repo impl), presentation/ (bloc, pages, widgets)"
+    },
+    {
+      "id": 2,
+      "prompt": "The orders feature needs to show the user's loyalty points. The loyalty points are managed by a separate loyalty feature. How should orders access that data?",
+      "expected_output": "Orders depends on LoyaltyRepository interface from loyalty's domain layer only — no cross-feature presentation or data imports"
+    },
+    {
+      "id": 3,
+      "prompt": "Should I put shared utility functions used by multiple features in lib/features/shared/ or somewhere else?",
+      "expected_output": "lib/shared/ or lib/core/ — not inside lib/features/, keep features flat, cross-cutting concerns go in shared/core"
+    }
+  ],
+  "should_not_trigger": [
+    "How do I use BlocBuilder in Flutter?",
+    "Add a test for the LoginBloc",
+    "Fix the navigation so the back button works correctly",
+    "I need to add a loading spinner to the checkout page"
+  ]
+}

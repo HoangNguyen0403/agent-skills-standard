@@ -18,14 +18,9 @@ Modern Flutter layout patterns and composition techniques.
 - **Optimization**: Use `ColoredBox`/`Padding`/`DecoratedBox` instead of `Container` when possible.
 - **Themes**: Use extensions for `Theme.of(context)` access.
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- **Missing Mounted Check**: `**No context usage after await**: Always check if (context.mounted).`
-- **Helper Methods for UI**: `**No Widget functions**: Use specialized Widget classes for better performance/profiling.`
-- **Direct Controller Access**: `**No UI-Logic coupling**: Use BLoC/Signals to decouple UI from State.`
-
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- ❌ No `if (context.mounted)` after `await` — using BuildContext across async gaps causes crashes
+- ❌ `Widget _buildHeader() { … }` helper methods — extract to a `const StatelessWidget` for proper rebuild control and DevTools profiling
+- ❌ Accessing a controller or state directly in a widget (`_controller.data`) — use BLoC/Signals to decouple UI from state
+- ❌ `Container(width: 0, height: 0)` for empty space — use `const SizedBox.shrink()`

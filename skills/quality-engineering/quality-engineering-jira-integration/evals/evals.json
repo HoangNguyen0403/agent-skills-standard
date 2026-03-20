@@ -1,0 +1,26 @@
+{
+  "skill_name": "quality-engineering-jira-integration",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Fetch EZRX-4521 from Jira and tell me its acceptance criteria, labels, linked components, and whether any Zephyr test cases are already linked to it.",
+      "expected_output": "Fetch summary, description, AC fields, component and label list, existing Zephyr links via issue links — flag if has-zephyr-tests label already exists to avoid duplication"
+    },
+    {
+      "id": 2,
+      "prompt": "I just created Zephyr test case EZRX-T892 for the story EZRX-3301. How do I link it back and update Jira so the team knows tests exist?",
+      "expected_output": "Call create_test_case_issue_link with EZRX-T892 → EZRX-3301, add has-zephyr-tests label to EZRX-3301, post comment 'Linked Zephyr Test Case: EZRX-T892' — single comment, not repeated"
+    },
+    {
+      "id": 3,
+      "prompt": "We refactored the checkout feature and some old Zephyr test cases are now outdated. How should I clean up Jira so it reflects the current state?",
+      "expected_output": "Identify outdated Zephyr links on the Jira issue, remove stale links via Jira MCP, update or remove has-zephyr-tests label if no valid TCs remain, post a cleanup comment documenting what was removed and why"
+    }
+  ],
+  "should_not_trigger": [
+    "Analyze the acceptance criteria for EZRX-4521",
+    "Generate new Zephyr test cases from the user story",
+    "Write a widget test for the Jira integration screen",
+    "Set up a CI pipeline that runs tests on every PR"
+  ]
+}

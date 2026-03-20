@@ -1,6 +1,6 @@
 ---
 name: quality-engineering-business-analysis
-description: "Standard for deep requirement investigation, logic validation, and technical impact mapping. Use when investigating requirements, validating business rules, or mapping technical impact. (triggers: **/user_story.md, **/requirements.md, **/jira_*.xml, analyze requirements, scenario decomposition, logic conflict, technical impact)"
+description: "Requirement investigation protocol: atomic AC decomposition, actor/permission matrix, platform parity audit, truth table verification, and edge case discovery. ALWAYS consult before writing test cases or impact analysis — especially for stories with multi-condition AC, feature toggles, market variants (VN/MY/SG), or undefined platform behavior. (triggers: **/user_story.md, acceptance criteria, AC, business rules, jira story, toggle, market)"
 ---
 
 # Business Analysis Standards (Deep Analysis)
@@ -33,7 +33,3 @@ description: "Standard for deep requirement investigation, logic validation, and
 - **No Loose Mapping**: Ensure AC aligns 100% with Technical Impact notes.
 
 
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.

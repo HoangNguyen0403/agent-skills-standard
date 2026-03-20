@@ -33,12 +33,13 @@ core/router/
 For full Router configuration and Auth Guard implementation:
 See [references/REFERENCE.md](references/REFERENCE.md).
 
+## Anti-Patterns
+
+- ❌ `Navigator.pushNamed(context, '/orders/123')` — always use generated typed route classes (e.g., `OrderDetailRoute(id: 123)`)
+- ❌ Authenticated screen without an `AutoRouteGuard` — every protected route must declare a guard; don't rely on UI-level checks alone
+- ❌ `context.router.push(…)` called from a BLoC or repository — navigation is a Presentation concern; emit a state and let the UI navigate
+
 ## Related Topics
 
 go-router-navigation | layer-based-clean-architecture
 
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.

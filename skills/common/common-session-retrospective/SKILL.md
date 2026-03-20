@@ -1,6 +1,6 @@
 ---
 name: common-session-retrospective
-description: "Analyze conversation corrections to detect skill gaps and auto-improve the skills library. Use after any session with user corrections, rework, or retrospective requests. (triggers: **/*.spec.ts, **/*.test.ts, SKILL.md, AGENTS.md, retrospective, self-learning, improve skills, session review, correction, rework)"
+description: 'Analyze conversation corrections to detect skill gaps and auto-improve the skills library. Use after any session with user corrections, rework, or retrospective requests. (triggers: **/*.spec.ts, **/*.test.ts, SKILL.md, AGENTS.md, retrospective, self-learning, improve skills, session review, correction, rework)'
 ---
 
 # Session Retrospective
@@ -28,18 +28,7 @@ common/session-retrospective/
 
 ## Trigger Miss Output
 
-Emit this block when a trigger miss is detected:
-
-```json
-{
-  "trigger_miss": {
-    "skill": "category/skill-name",
-    "indirect_phrase": "the exact user wording that should have matched",
-    "root_cause": "keyword_not_in_triggers | glob_not_matched | composite_missing",
-    "fix": "add keyword 'X' to skill triggers | add composite '+Y' to foundational_composite_rules"
-  }
-}
-```
+Emit a trigger miss block (schema in [references/methodology.md](references/methodology.md#trigger-miss-schema)) for each miss detected.
 
 ## Guidelines
 

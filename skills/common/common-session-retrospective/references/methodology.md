@@ -1,5 +1,18 @@
 # Session Retrospective Methodology
 
+## Trigger Miss Schema
+
+```json
+{
+  "trigger_miss": {
+    "skill": "category/skill-name",
+    "indirect_phrase": "the exact user wording that should have matched",
+    "root_cause": "keyword_not_in_triggers | glob_not_matched | composite_missing",
+    "fix": "add keyword 'X' to skill triggers | add composite '+Y' to foundational_composite_rules"
+  }
+}
+```
+
 Detailed reference for the Session Retrospective skill.
 
 ## Correction Signal Detection

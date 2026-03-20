@@ -1,6 +1,6 @@
 ---
 name: quality-engineering-zephyr-test-generation
-description: 'Workflow for generating or updating Zephyr Scale Test Cases from requirements. Use when generating or updating Zephyr Scale test cases from user stories or requirements. (triggers: **/*.feature, **/user_story.md, generate test cases, update zephyr, jira validation, impact analysis)'
+description: "End-to-end Jira → Zephyr workflow: parse AC, identify platform and market, impact-analyze existing TCs (update vs create new), draft test cases with correct naming/metadata/preconditions, and link back via create_test_case_issue_link. Use when converting a Jira story into Zephyr TCs, or when requirement changes require updating existing TCs rather than creating duplicates. (triggers: **/user_story.md, generate test cases, zephyr, impact analysis, create test case)"
 ---
 
 # Zephyr Test Generation Standards

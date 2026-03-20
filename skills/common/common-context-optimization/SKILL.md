@@ -1,6 +1,6 @@
 ---
 name: common-context-optimization
-description: "Techniques to maximize context window efficiency, reduce latency, and prevent ''lost in middle'' issues through strategic masking and compaction. (triggers: *.log, chat-history.json, reduce tokens, optimize context, summarize history, clear output)"
+description: "Techniques to maximize context window efficiency, reduce latency, and prevent 'lost in middle' issues through strategic masking and compaction. (triggers: *.log, chat-history.json, reduce tokens, optimize context, summarize history, clear output)"
 ---
 
 ## **Priority: P1 (OPTIMIZATION)**
@@ -42,7 +42,8 @@ Manage the Attention Budget. Treat context as a scarce resource.
 - [Compaction Algorithms](references/compaction.md)
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No raw tool dumps**: Mask large outputs immediately after extracting data.
+- **No append-only growth**: Compact every 10 turns to preserve intent over dialogue.
+- **No middle insertions**: Append-only history maximizes KV cache hits.

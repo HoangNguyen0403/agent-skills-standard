@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-design-system",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add a confirm button to the checkout screen with a red background, white text, and 16px font size.",
+      "expected_output": "Use VButton (not ElevatedButton), VColors.* for red, VTypography.* or theme.textTheme for font, no Color(0xFF...) or TextStyle(fontSize: 16)"
+    },
+    {
+      "id": 2,
+      "prompt": "The spacing between list items should be 8 pixels.",
+      "expected_output": "Use VSpacing.xs or equivalent token (not SizedBox(height: 8) magic number), reference the spacing scale from design tokens"
+    },
+    {
+      "id": 3,
+      "prompt": "Add a section heading with font size 24, bold weight, and color #1A1A1A.",
+      "expected_output": "Use theme.textTheme.headlineSmall or VTypography.heading, VColors.* for the color — no inline TextStyle or hex Color literal"
+    }
+  ],
+  "should_not_trigger": [
+    "How do I animate a widget fade-in?",
+    "Add BLoC state for the theme toggle",
+    "Write a test for the product card widget",
+    "Configure go_router for the app"
+  ]
+}

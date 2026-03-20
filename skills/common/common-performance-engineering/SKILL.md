@@ -5,11 +5,7 @@ description: "Universal standards for high-performance development. Use when opt
 
 # Performance Engineering Standards
 
-Universal standards for high-performance software development across all frameworks.
-
 ## **Priority: P0 (CRITICAL)**
-
-Universal standards for building high-performance software across all frameworks and languages.
 
 ## 🚀 Core Principles
 
@@ -50,7 +46,12 @@ Universal standards for building high-performance software across all frameworks
 - **Load Testing**: Test system behavior under peak and stress conditions.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No premature optimization**: Profile first, fix proven bottlenecks only.
+- **No N+1 queries**: Always batch and paginate data-access operations.
+- **No synchronous I/O on main thread**: Async all file/network access.
+
+## References
+
+- [Performance Examples](references/example.md) — profiling patterns, benchmark setup

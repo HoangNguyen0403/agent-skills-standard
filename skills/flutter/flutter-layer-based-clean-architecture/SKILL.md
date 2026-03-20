@@ -1,6 +1,6 @@
 ---
 name: flutter-layer-based-clean-architecture
-description: "Standards for separation of concerns, layer dependency rules, and DDD in Flutter. Use when applying DDD or layer-based clean architecture in Flutter. (triggers: lib/domain/**, lib/infrastructure/**, lib/application/**, domain, infrastructure, application, presentation, layers, dto, mapper)"
+description: "Layer separation and DDD standards. ALWAYS consult when working in lib/domain/, lib/infrastructure/, lib/application/, or lib/presentation/ — for entities, repositories, mappers, BLoCs, or screens. (triggers: lib/domain/**, lib/infrastructure/**, lib/application/**, dto, mapper, Either, Failure)"
 ---
 
 # Layer-Based Clean Architecture

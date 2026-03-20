@@ -1,0 +1,26 @@
+{
+  "skill_name": "flutter-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write a widget test for the checkout button — it should verify the loading spinner appears while processing, then a success message.",
+      "expected_output": "Robot pattern with CheckoutRobot, pumpScreen with mocked CheckoutBloc, whenListen for state transitions, settle:false for loading state, WidgetKeys constants"
+    },
+    {
+      "id": 2,
+      "prompt": "How do I mock the AuthBloc in a widget test for the LoginScreen that uses BlocProvider internally?",
+      "expected_output": "GetIt registration of MockAuthBloc in setUpAll, TestWrapper.init(), stub bloc.state + bloc.stream in setUp, pumpLocalizedWidget"
+    },
+    {
+      "id": 3,
+      "prompt": "Add an integration test that logs in with test credentials, navigates to the orders tab, and verifies the first order card is visible.",
+      "expected_output": "patrolTest with IntegrationAuthHelper.loginOrSkip($), OrdersRobot($.tester).expectFirstOrderVisible(), native interactions via $.native.*"
+    }
+  ],
+  "should_not_trigger": [
+    "How do I add error handling to the repository?",
+    "Create a new BLoC for the cart feature",
+    "Set up CI to run tests automatically",
+    "Add a loading indicator to the login screen"
+  ]
+}

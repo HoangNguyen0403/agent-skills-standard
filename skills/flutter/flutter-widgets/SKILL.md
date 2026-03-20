@@ -33,12 +33,14 @@ class AppButton extends StatelessWidget {
 }
 ```
 
+## Anti-Patterns
+
+- ❌ `setState(() { _orders = await repo.fetch(); })` — server/shared state belongs in a BLoC, not widget state
+- ❌ Widget file over 80 lines without extracting private sub-widget classes — helper methods returning `Widget` are not a substitute
+- ❌ `Key('submit-button')` inline in widget code — all keys must be constants defined in `widget_keys.dart`
+- ❌ `Widget _buildHeader() { … }` helper methods — extract to a `const` `StatelessWidget` private class for proper rebuilding control
+
 ## Related Topics
 
 performance | testing
 
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
