@@ -1,6 +1,6 @@
 ---
 name: nestjs-controllers-services
-description: "Controller/Service separation and Custom Decorators. Use when defining NestJS controllers, services, or custom parameter decorators. (triggers: **/*.controller.ts, **/*.service.ts, Controller, Injectable, ExecutionContext, createParamDecorator)"
+description: 'Controller/Service separation and Custom Decorators. Use when defining NestJS controllers, services, or custom parameter decorators. (triggers: **/*.controller.ts, **/*.service.ts, Controller, Injectable, ExecutionContext, createParamDecorator)'
 ---
 
 # NestJS Controllers & Services Standards
@@ -42,7 +42,7 @@ Layer separation standards and dependency injection patterns for NestJS applicat
 
 - **Standardization**: specific responses should be mapped in **Interceptors**, not Controllers.
   - Use `map()` to wrap success responses (e.g. `{ data: T }`).
-  - Refer to **[API Standards](../api-standards/SKILL.md)** for `PageDto` and `ApiResponse`.
+  - Refer to **[API Standards](../nestjs-api-standards/SKILL.md)** for `PageDto` and `ApiResponse`.
   - Use `catchError()` to map low-level errors (DB constraints) to `HttpException` (e.g. `ConflictException`) _before_ they hit the global filter.
 
 ## Services & Business Logic
@@ -64,7 +64,6 @@ findOne(@Param('id', ParseIntPipe) id: number) { ... }
 
 - **Init**: Use `OnModuleInit` for connection setup.
 - **Destroy**: Use `OnApplicationShutdown` for cleanup. (Requires `enableShutdownHooks()`).
-
 
 ## Anti-Patterns
 

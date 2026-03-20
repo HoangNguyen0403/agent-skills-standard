@@ -15,7 +15,7 @@ Global error handling and exception management patterns.
   - `const { httpAdapter } = this.httpAdapterHost;`
 - **Structure**:
   - Implement strictly typed error responses.
-  - Refer to **[API Standards](../api-standards/SKILL.md)** for `ApiErrorResponse`.
+  - Refer to **[API Standards](../nestjs-api-standards/SKILL.md)** for `ApiErrorResponse`.
 
   ```json
   {

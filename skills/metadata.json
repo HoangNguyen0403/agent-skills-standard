@@ -226,9 +226,9 @@
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 12670,
-        "avg_tokens_per_skill": 603,
-        "largest_skill": "nestjs-performance (879 tokens)"
+        "total_tokens": 12678,
+        "avg_tokens_per_skill": 604,
+        "largest_skill": "nestjs-performance (881 tokens)"
       }
     },
     "nextjs": {
