@@ -23,7 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.10.2] - 2026-03-16
 
 - **Context Architecture Mastery**: Ultra-dense files (≤ 60 lines) that do not require external references can now achieve a perfect 10/10 score without needing dummy files.
-  **Context Architecture Mastery**: Ultra-dense files (≤ 60 lines) that do not require external references can now achieve a perfect 10/10 score without needing dummy files.
 - **Inline Triggers**: Validates the highly-optimized `(triggers: ...)` syntax in the description string instead of relying on legacy YAML arrays.
 - **Skill Optimization**: Applied genuine "Progressive Disclosure" refactoring to the heaviest `SKILL.md` files (`database-postgresql`, `nextjs-pages-router`, `common-error-handling`, etc.) dropping maximum file sizes from ~900+ tokens to ~400 tokens by extracting code blocks into `references/`.
 - **Skill Template**: Overhauled `skills/common/common-skill-creator/references/TEMPLATE.md` to enforce the new token-economy constraints (no YAML bloat, mandatory anti-patterns).
