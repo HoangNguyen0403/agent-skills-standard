@@ -1,0 +1,46 @@
+{
+  "skill_name": "android-navigation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I navigate from a product list screen to a product detail screen in Jetpack Compose and pass the product ID?",
+      "expected_output": "Use NavController.navigate() with a route that includes the ID. Define navArgument in the composable destination. Use sealed class for routes (not raw strings). Validate IDs before loading.",
+      "assertions": [
+        { "id": "a1", "description": "Uses NavController", "type": "contains", "value": "NavController" },
+        { "id": "a2", "description": "Recommends sealed class routes", "type": "contains", "value": "sealed" },
+        { "id": "a3", "description": "Uses navArgument", "type": "contains", "value": "navArgument" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I handle deep links in a Compose Navigation app so they open the correct screen?",
+      "expected_output": "Add intent-filter with autoVerify=true to AndroidManifest.xml. Define deepLinks in the composable destination's NavHost. Validate the argument before rendering content.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions intent-filter in manifest", "type": "contains", "value": "intent-filter" },
+        { "id": "a2", "description": "Defines deepLinks in NavHost", "type": "contains", "value": "deepLinks" },
+        { "id": "a3", "description": "Uses autoVerify", "type": "contains", "value": "autoVerify" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "My Compose screen uses a string like \"product/$id\" as a navigation route. Is that okay?",
+      "expected_output": "No — use a sealed class with a computed route property (e.g., Screen.Product.route). String literals are error-prone and impossible to refactor safely.",
+      "assertions": [
+        { "id": "a1", "description": "Rejects raw string routes", "type": "contains", "value": "string" },
+        { "id": "a2", "description": "Recommends sealed class", "type": "contains", "value": "sealed" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I use @Serializable typed routes with toRoute<T>() in Compose Navigation 2.8+?",
+    "Navigate between fragments using NavController.navigate(R.id.action_to_detail)",
+    "Set up SafeArgs to pass a typed argument between XML fragments",
+    "How do I create nested navigation graphs for XML-based navigation?",
+    "Implement a NavHostFragment in a single-Activity Fragment app",
+    "Handle Fragment back stack manually using FragmentManager",
+    "How do I animate screen transitions in Jetpack Compose Navigation?",
+    "Set up a bottom navigation bar in a Fragment-based app using NavigationUI",
+    "My Composable screen directly accepts a NavController — is that okay?",
+    "Configure type-safe navigation with kotlinx serialization in Navigation 2.8"
+  ]
+}

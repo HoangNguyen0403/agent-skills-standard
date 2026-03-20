@@ -11,7 +11,7 @@ description: "Standards for Strings, Drawables, and Localization. Use when manag
 
 ### Strings
 
-- **No Hardcoding**: UI text MUST be in `strings.xml`.
+- **Define in XML**: All UI text must be in `strings.xml`.
 - **Formatting**: Use format args (`%s`, `%d`) instead of concatenation.
 - **Plurals**: Use `<plurals>` for quantities.
 
@@ -22,8 +22,8 @@ description: "Standards for Strings, Drawables, and Localization. Use when manag
 
 ## Anti-Patterns
 
-- **Concatenation in UI**: `**No String Concat**: Use resource templates.`
-- **Hardcoded Strings**: `**No hardcoded text**: Extract to XML.`
+- **No String Concatenation in UI**: Use format args (`%s`, `%d`) in strings.xml instead.
+- **No Hardcoded UI Text**: All visible strings must be defined in strings.xml.
 
 ## References
 

@@ -1,6 +1,6 @@
 ---
 name: java-tooling
-description: "Standards for build tools (Maven/Gradle) and static analysis. Use when configuring Maven/Gradle builds or static analysis tools for Java projects. (triggers: pom.xml, build.gradle, build.gradle.kts, build, dependency, plugin, sdk, lint)"
+description: "Standards for Maven, Gradle, and static analysis in Java projects. Use when setting up Java build tooling, configuring Spotless or Checkstyle, managing JDK versions with sdkman, writing Dockerfiles for Java services, or adding SpotBugs/SonarLint. (triggers: pom.xml, build.gradle, build.gradle.kts, mvnw, gradlew, .sdkmanrc, spotbugs, checkstyle, spotless, eclipse-temurin)"
 ---
 
 # Java Tooling Standards
@@ -20,32 +20,10 @@ Standardized build and tooling configuration for consistent environments.
 
 ## Anti-Patterns
 
-- **Global Installs**: Relying on system Maven/Gradle. Always use wrappers.
-- **Fat Jars**: Avoid massive uber-jars if possible; prefer layered Docker images for caching.
-- **Snapshot Dependencies**: Do not rely on `-SNAPSHOT` versions in production builds.
+- **No Global Installs**: Always use mvnw/gradlew wrappers; never rely on system Maven/Gradle.
+- **No Fat Jars**: Prefer layered Docker images over uber-jars for better layer caching.
+- **No Snapshots in Prod**: Never use -SNAPSHOT dependency versions in production builds.
 
-## Code
+## References
 
-```kotlin
-// build.gradle.kts (Gradle Kotlin DSL)
-plugins {
-    java
-    id("com.diffplug.spotless") version "6.23.3"
-}
-
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-    }
-}
-
-spotless {
-    java {
-        googleJavaFormat()
-    }
-}
-```
-
-## Related Topics
-
-language | best-practices | testing
+- [Gradle Kotlin DSL & Spotless Setup](references/example.md)

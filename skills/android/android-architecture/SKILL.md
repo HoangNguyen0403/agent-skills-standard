@@ -1,6 +1,6 @@
 ---
 name: android-architecture
-description: "Standards for Clean Architecture, Modularization, and Unidirectional Data Flow. Use when designing Android project structure, modularization, or data flow patterns. (triggers: build.gradle.kts, settings.gradle.kts, clean-architecture, module, layers, domain)"
+description: "Standards for Clean Architecture, Modularization, and Unidirectional Data Flow. Use when anyone sets up Android project structure, asks where code belongs in Clean Architecture layers, discusses modularization (feature/core modules), or questions UDF (events up, state down). (triggers: build.gradle.kts, settings.gradle.kts, clean-architecture, module, layers, domain, UDF, unidirectional, feature module, core module, presentation layer, data layer)"
 ---
 
 # Android Architecture Standards
@@ -37,7 +37,7 @@ description: "Standards for Clean Architecture, Modularization, and Unidirection
 ## Anti-Patterns
 
 - **No Logic in Activity**: Host Navigation only.
-- **No Repo in UI**: Use Type-Safe ViewModels.
+- **No Repo in UI**: Access data exclusively via ViewModel.
 - **No Context in Domain**: Keep Logic Pure.
 
 ## References

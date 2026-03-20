@@ -1,6 +1,6 @@
 ---
 name: kotlin-language
-description: 'Idiomatic Kotlin 1.9+ standards (Null Safety, Expressions, Extensions). Use when working with Kotlin null safety, expression syntax, or extension functions. (triggers: **/*.kt, **/*.kts, val, var, extension, data class, sealed, when)'
+description: "Idiomatic Kotlin 1.9+ standards including null safety, sealed classes, and expression syntax. Use when working with Kotlin null safety, data classes, sealed interfaces, extension functions, or migrating Java code to Kotlin. (triggers: **/*.kt, **/*.kts, val, var, ?., ?:, !!, data class, sealed, when, extension, lazy, lateinit, object)"
 ---
 
 # Kotlin Language Patterns
@@ -13,39 +13,19 @@ Modern, idiomatic Kotlin standards for safety and conciseness.
 
 - **Immutability**: Use `val` by default. Only use `var` if mutation is required locally.
 - **Null Safety**: Use `?` for nullable types. Use safe call `?.` and Elvis `?:` over `!!`.
-- **Expressions**: Prefer expression bodies `fun foo() = ...` for one-liners. Use `if` and `try` as expressions.
-- **Classes**: Use `data class` for DTOs. Use `sealed interface/class` for state hierarchies (Result, UIState).
-- **Extension Functions**: Prefer extensions over utility classes (`StringUtil`). Keep them private/internal if specific to a module.
-- **Named Arguments**: Use named arguments for clarity, especially with booleans or multiple params of same type.
+- **Expressions**: Prefer expression bodies `fun foo() = ...` for one-liners. Use `if`/`try` as expressions.
+- **Classes**: Use `data class` for DTOs. Use `sealed interface/class` for state hierarchies.
+- **Extension Functions**: Prefer over utility classes (`StringUtil`). Keep private/internal if module-specific.
+- **Named Arguments**: Use for clarity, especially with booleans or multiple same-type params.
 - **String Templates**: Use `"$var"` over concatenation. Use `"""` for multiline strings (SQL/JSON).
 
 ## Anti-Patterns
 
-- **Not-null Assertion (`!!`)**: `**No !!**: Never use in production code; use safe calls or requireNotNull.`
-- **Java-isms**: `**No get/set prefixes**: Use properties. Prefer top-level functions over companion object statics.`
-- **Lateinit Abuse**: `**Avoid lateinit var**: Prefer nullable types or lazy delegates.`
-- **Empty Catch**: `**No Silenced Errors**: Never swallow exceptions without logging or handling.`
+- **No !! Operator**: Never use in production; prefer safe calls or requireNotNull.
+- **No Java-isms**: Use properties not get/set; prefer top-level functions over companion object statics.
+- **No Lateinit Abuse**: Prefer nullable types or lazy delegates instead.
+- **No Silenced Errors**: Never swallow exceptions without logging or handling.
 
-## Code
+## References
 
-```kotlin
-// Sealed Class + When Expression
-sealed interface UiState {
-    data object Loading : UiState
-    data class Success(val data: List<String>) : UiState
-    data class Error(val message: String) : UiState
-}
-
-fun render(state: UiState) = when (state) {
-    UiState.Loading -> showLoading()
-    is UiState.Success -> showData(state.data)
-    is UiState.Error -> logError(state.message) // Smart cast
-}
-
-// Extension Function
-private fun String.toSlug(): String = this.lowercase().replace(" ", "-")
-```
-
-## Related Topics
-
-best-practices | coroutines | android
+- [Sealed Class, When Expression & Extension Examples](references/example.md)

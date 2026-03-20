@@ -1,0 +1,46 @@
+{
+  "skill_name": "java-tooling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I enforce Google Java Format automatically in my Gradle build so devs don't have to think about formatting?",
+      "expected_output": "Apply the Spotless Gradle plugin with googleJavaFormat(). Configure it to run in CI as a check and optionally as a pre-commit hook. Spotless fails the build if formatting differs.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends Spotless plugin", "type": "contains", "value": "Spotless" },
+        { "id": "a2", "description": "Uses googleJavaFormat", "type": "contains", "value": "googleJavaFormat" },
+        { "id": "a3", "description": "Integrates with CI", "type": "contains", "value": "CI" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My team uses different Java versions locally and on CI. How do I lock the JDK version for my Java project?",
+      "expected_output": "Use a Gradle Java toolchain or .sdkmanrc file to declare the target JDK version (e.g., Java 21). The toolchain downloads the correct JDK automatically in Gradle. Use sdkman to enforce locally.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends toolchain or .sdkmanrc", "type": "contains", "value": "toolchain" },
+        { "id": "a2", "description": "Specifies Java version", "type": "contains", "value": "21" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I want my Docker image for a Java Spring Boot app to be as small and cacheable as possible. What's the best approach?",
+      "expected_output": "Use multi-stage Docker build. Build stage uses eclipse-temurin:21-jdk, runtime uses eclipse-temurin:21-jre or distroless. Use layered jars (Spring Boot) to maximize layer caching.",
+      "assertions": [
+        { "id": "a1", "description": "Uses multi-stage build", "type": "contains", "value": "multi-stage" },
+        { "id": "a2", "description": "Uses eclipse-temurin or distroless", "type": "contains", "value": "eclipse-temurin" },
+        { "id": "a3", "description": "Mentions layer caching", "type": "contains", "value": "layer" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Add Detekt to my Kotlin project and configure threshold rules",
+    "Set up ktlint with jlleitschuh plugin in build.gradle.kts",
+    "Configure Android lint to treat all warnings as errors in CI",
+    "How do I set up a Gradle version catalog (libs.versions.toml) for Kotlin?",
+    "Write a JUnit 5 test for my OrderService using AssertJ",
+    "How do I set up GitHub Actions to run my Java test suite?",
+    "Configure ProGuard rules to keep reflection classes in Android release",
+    "Add static analysis to my Flutter project using dart analyze",
+    "How do I run Checkstyle only on changed files in a pull request?",
+    "Set up SonarQube quality gate for a Java microservice project"
+  ]
+}

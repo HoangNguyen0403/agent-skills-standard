@@ -22,8 +22,8 @@ description: "Standards for Room Database and DataStore. Use when implementing R
 
 ## Anti-Patterns
 
-- **Main Thread**: `**No IO on Main**: Use Dispatchers.IO (Room helper does this, but verify flow collection).`
-- **Domain Leak**: `**No Entities in UI**: Map to Domain/UI Models.`
+- **No IO on Main Thread**: Room handles dispatchers, but verify Flow is collected off-main.
+- **No @Entity in UI Layer**: Map to Domain or UI models in Repository.
 
 ## References
 

@@ -1,0 +1,46 @@
+{
+  "skill_name": "android-xml-views",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm still using findViewById in my Fragment. What should I use instead in modern Android?",
+      "expected_output": "Use ViewBinding — enable it in build.gradle.kts (buildFeatures { viewBinding = true }). Inflate in onCreateView with FragmentProductBinding.inflate(). No findViewByIds needed.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends ViewBinding", "type": "contains", "value": "ViewBinding" },
+        { "id": "a2", "description": "Rejects findViewById", "type": "contains", "value": "findViewById" },
+        { "id": "a3", "description": "Shows inflate usage", "type": "contains", "value": "inflate" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My RecyclerView Adapter calls notifyDataSetChanged() on every update. Is there a better approach?",
+      "expected_output": "Use ListAdapter which wraps AsyncListDiffer. Provide a DiffUtil.ItemCallback to calculate minimal diffs. Call submitList(newList) — the adapter diffs in the background and animates changes.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends ListAdapter", "type": "contains", "value": "ListAdapter" },
+        { "id": "a2", "description": "Rejects notifyDataSetChanged", "type": "contains", "value": "notifyDataSetChanged" },
+        { "id": "a3", "description": "Uses DiffUtil", "type": "contains", "value": "DiffUtil" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I have deeply nested LinearLayouts in my XML layout causing performance issues. What should I use instead?",
+      "expected_output": "Use ConstraintLayout — it achieves complex layouts with a flat view hierarchy. Avoids the multiple measurement passes caused by nested weights. Reduces overdraw and layout inflation time.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends ConstraintLayout", "type": "contains", "value": "ConstraintLayout" },
+        { "id": "a2", "description": "Explains flat hierarchy benefit", "type": "contains", "value": "flat" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I implement a lazy list in Jetpack Compose with LazyColumn?",
+    "Set up navigation between Composable screens with NavHost",
+    "My Composable recomposes when items change — how do I add keys to LazyColumn?",
+    "How do I create a custom layout in Jetpack Compose using Layout?",
+    "Use Modifier.clickable in a Composable instead of a click listener",
+    "Navigate to a detail Fragment using NavController in an XML Navigation app",
+    "Set up SafeArgs for passing typed arguments in XML navigation graphs",
+    "Use ViewBinding with DataBinding for two-way binding in a Fragment",
+    "How do I animate item additions in a RecyclerView with ItemAnimator?",
+    "Configure a StaggeredGridLayoutManager for a photo grid RecyclerView"
+  ]
+}

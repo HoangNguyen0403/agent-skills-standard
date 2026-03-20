@@ -9,47 +9,20 @@ description: "Enforce Material Design 3 and design token usage in Jetpack Compos
 
 Enforce Material Design 3 tokens in Jetpack Compose. Use `MaterialTheme` for consistency.
 
-## Token Structure
+## Guidelines
 
-```kotlin
-// ui/theme/Color.kt
-val Primary = Color(0xFF2196F3)
-val Secondary = Color(0xFF9C27B0)
-val Background = Color(0xFFFFFFFF)
-
-// ui/theme/Theme.kt
-private val LightColorScheme = lightColorScheme(
-    primary = Primary,
-    secondary = Secondary,
-    background = Background
-)
-
-// ui/theme/Type.kt
-val Typography = Typography(
-    headlineLarge = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
-    bodyMedium = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Normal)
-)
-```
-
-## Usage
-
-```kotlin
-// ❌ FORBIDDEN
-Box(modifier = Modifier.background(Color(0xFF2196F3)))
-Text("Title", fontSize = 32.sp, color = Color.Black)
-
-// ✅ ENFORCED
-Box(modifier = Modifier.background(MaterialTheme.colorScheme.primary))
-Text("Title", style = MaterialTheme.typography.headlineLarge)
-Spacer(modifier = Modifier.height(16.dp)) // Use dp units
-```
+Define `Color.kt`, `Theme.kt`, and `Type.kt` in `ui/theme/`. Map every raw color/type value to `lightColorScheme`/`darkColorScheme` slots. Access all tokens through `MaterialTheme`:
+- Colors → `MaterialTheme.colorScheme.*`
+- Text styles → `MaterialTheme.typography.*`
+- Spacing → `.dp` units consistently
 
 ## Anti-Patterns
 
-- **No Hardcoded Colors**: Use `Color(0xFF...)` → Error. Use `MaterialTheme.colorScheme.*`.
-- **No Inline Typography**: Define `fontSize = 32.sp` → Error. Use `MaterialTheme.typography.*`.
-- **No Magic Spacing**: Use `padding = 16.dp` inline → Acceptable, but consider tokens.
+- **No Hardcoded Colors**: Use `MaterialTheme.colorScheme.*`, not `Color(0xFF...)`.
+- **No Inline Typography**: Use `MaterialTheme.typography.*`, not raw `fontSize = 32.sp`.
+- **No Magic Spacing**: Prefer named `.dp` tokens; avoid unexplained magic numbers.
 
-## Related Topics
+## References
 
-mobile-ux-core | android/compose
+- [Token & Theme Templates](references/implementation.md)
+- [Usage Examples](references/example.md)

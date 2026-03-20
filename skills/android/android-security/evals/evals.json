@@ -1,0 +1,45 @@
+{
+  "skill_name": "android-security",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm storing the user's auth token in regular SharedPreferences. Is that safe?",
+      "expected_output": "No — use EncryptedSharedPreferences from Jetpack Security. Regular SharedPreferences stores data in plaintext on the filesystem. For cryptographic keys, use Android Keystore.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends EncryptedSharedPreferences", "type": "contains", "value": "EncryptedSharedPreferences" },
+        { "id": "a2", "description": "Flags plaintext risk", "type": "contains", "value": "plaintext" },
+        { "id": "a3", "description": "Mentions Android Keystore", "type": "contains", "value": "Keystore" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I prevent my Android app from communicating over HTTP instead of HTTPS?",
+      "expected_output": "Create network_security_config.xml with cleartextTrafficPermitted=\"false\" and reference it in AndroidManifest. This blocks all HTTP traffic. Test with a proxy to verify.",
+      "assertions": [
+        { "id": "a1", "description": "Uses network_security_config.xml", "type": "contains", "value": "network_security_config" },
+        { "id": "a2", "description": "Sets cleartextTrafficPermitted to false", "type": "contains", "value": "cleartextTrafficPermitted" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I have a BroadcastReceiver in my AndroidManifest. A security reviewer flagged android:exported. What should I do?",
+      "expected_output": "Explicitly set android:exported=\"false\" if the receiver is not intended for external apps. If external access is needed, add permission protection with android:permission. Unset exported on API 31+ causes install failure.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends explicit android:exported", "type": "contains", "value": "android:exported" },
+        { "id": "a2", "description": "Defaults to false for internal receivers", "type": "contains", "value": "false" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "My WebView needs JavaScript enabled for a trusted internal page — how do I do it safely?",
+    "Use FileProvider to share a camera photo with another app",
+    "Set up an OkHttp interceptor with certificate pinning for all API calls",
+    "Handle untrusted Intent extras received in my Activity",
+    "Disable allowFileAccess in WebView to prevent file theft",
+    "Detect rooted devices using Play Integrity API in my banking app",
+    "How do I obfuscate my release build with R8 and ProGuard?",
+    "Configure Retrofit to use HTTPS-only endpoints",
+    "Add permission checks before accessing contacts or location",
+    "How do I store files safely so other apps can't read them?"
+  ]
+}

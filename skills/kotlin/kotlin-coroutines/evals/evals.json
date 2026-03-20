@@ -1,0 +1,47 @@
+{
+  "skill_name": "kotlin-coroutines",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My Kotlin code uses GlobalScope.launch to start a background task. My tech lead says this is wrong. Why?",
+      "expected_output": "GlobalScope is unstructured — coroutines launched there are never cancelled, causing memory leaks and uncontrolled background work. Use viewModelScope (Android) or a structured coroutineScope tied to lifecycle.",
+      "assertions": [
+        { "id": "a1", "description": "Explains GlobalScope leak risk", "type": "contains", "value": "leak" },
+        { "id": "a2", "description": "Recommends viewModelScope", "type": "contains", "value": "viewModelScope" },
+        { "id": "a3", "description": "Mentions structured concurrency", "type": "contains", "value": "structured" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My Kotlin coroutine has a long-running loop. How do I make sure it stops when the scope is cancelled?",
+      "expected_output": "Check isActive inside the loop or call yield() to make the coroutine cooperative with cancellation. Without these, the loop ignores CancellationException and keeps running.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions isActive", "type": "contains", "value": "isActive" },
+        { "id": "a2", "description": "Mentions yield()", "type": "contains", "value": "yield" },
+        { "id": "a3", "description": "Explains cancellation cooperation", "type": "contains", "value": "cancel" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I need to inject a coroutine dispatcher so I can swap it in unit tests. How do I do that in Kotlin?",
+      "expected_output": "Create a DispatcherProvider interface with IO/Main/Default properties. Inject via constructor or DI. In production, provide real dispatchers. In tests, inject TestCoroutineDispatcher. Never hardcode Dispatchers.IO.",
+      "assertions": [
+        { "id": "a1", "description": "Uses DispatcherProvider interface", "type": "contains", "value": "DispatcherProvider" },
+        { "id": "a2", "description": "Against hardcoding Dispatchers.IO", "type": "contains", "value": "hardcode" },
+        { "id": "a3", "description": "Mentions test dispatcher", "type": "contains", "value": "test" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Use Java Virtual Threads instead of coroutines for high-throughput I/O",
+    "How do I use CompletableFuture in Java for parallel API calls?",
+    "Set up WorkManager with a CoroutineWorker for background sync",
+    "How do I collect a StateFlow in a Fragment using repeatOnLifecycle?",
+    "Write a Kotlin extension function to convert a list to a map",
+    "Configure Detekt to enforce coroutine usage rules in Kotlin",
+    "Use structured concurrency with StructuredTaskScope in Java 21",
+    "How do I use Kotlin scope functions (let, apply, run) properly?",
+    "How do I hoist state from a Composable to a ViewModel?",
+    "My Flow in a ViewModel is not cancelling — how do I debug it?"
+  ]
+}

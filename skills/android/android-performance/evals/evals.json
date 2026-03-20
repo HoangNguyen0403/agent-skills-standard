@@ -1,0 +1,46 @@
+{
+  "skill_name": "android-performance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My Android app takes 3 seconds to start. How do I reduce the startup time?",
+      "expected_output": "Generate and ship a Baseline Profile. Defer heavy SDK initialisation using App Startup or lazy singletons. Avoid blocking work in Application.onCreate. Use Macrobenchmark to measure.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends Baseline Profile", "type": "contains", "value": "Baseline Profile" },
+        { "id": "a2", "description": "Suggests lazy initialisation", "type": "contains", "value": "lazy" },
+        { "id": "a3", "description": "Warns about Application.onCreate", "type": "contains", "value": "Application" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My LazyColumn scrolling is janky. How do I diagnose and fix UI jank in my Compose app?",
+      "expected_output": "Use Layout Inspector to find unnecessary recompositions. Ensure items have stable keys. Use @Stable/@Immutable on item data classes. Check with JankStats or Perfetto traces.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions Layout Inspector", "type": "contains", "value": "Layout Inspector" },
+        { "id": "a2", "description": "Recommends item keys", "type": "contains", "value": "key" },
+        { "id": "a3", "description": "Mentions JankStats or profiling", "type": "contains", "value": "Jank" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I'm loading large images from the network in a RecyclerView and the app uses too much memory. How do I fix that?",
+      "expected_output": "Use Coil or Glide with proper caching, crossfade, and size constraints. Avoid loading full-resolution images into small views. Use thumbnail or resize options.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends Coil or Glide", "type": "contains", "value": "Coil" },
+        { "id": "a2", "description": "Mentions resizing", "type": "contains", "value": "resize" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I mark a Composable's data class as @Stable to reduce recompositions?",
+    "Configure R8 minification to shrink my APK size",
+    "Set up Detekt to catch performance anti-patterns in Kotlin code",
+    "Reduce the build time of my multi-module Android project",
+    "Write a Benchmark test using Macrobenchmark library",
+    "How do I use derivedStateOf in Compose to avoid redundant calculations?",
+    "Set up WorkManager with backoff for retry on slow network",
+    "Optimize Room queries to avoid loading unnecessary columns",
+    "Configure ProGuard to strip unused classes in release builds",
+    "How do I profile memory usage with Android Profiler?"
+  ]
+}

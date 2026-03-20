@@ -27,8 +27,8 @@ description: "Standards for ViewBinding, RecyclerView, and XML Layouts. Use when
 
 ## Anti-Patterns
 
-- **findViewById**: `**Deprecated**: Use ViewBinding.`
-- **Synthetics**: `**Deprecated**: Remove import kotlinx.android.synthetic.*.`
+- **No findViewById**: Deprecated. Use ViewBinding for all XML layouts.
+- **No kotlin-android-extensions**: Deprecated. Remove all `import kotlinx.android.synthetic.*`.
 
 ## References
 

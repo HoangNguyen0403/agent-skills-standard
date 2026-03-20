@@ -22,8 +22,8 @@ description: "Standards for Jetpack Navigation Compose (Type-safe). Use when imp
 
 ## Anti-Patterns
 
-- **Hardcoded Strings**: `**No String Routes**: Use Typed Objects.`
-- **Passing NavController**: `**No NavController in UI**: Hoist events.`
+- **No String Routes**: Use @Serializable typed objects/classes for destinations.
+- **No NavController in Composables**: Hoist navigation events to screen-level callbacks.
 
 ## References
 

@@ -16,14 +16,12 @@ Navigation and deep linking using Jetpack Compose Navigation.
 - **Deep Links**: Configure `intent-filter` in Manifest and `deepLinks` in NavHost.
 - **Validation**: Validate arguments (e.g., proper IDs) before loading content.
 
-[Patterns & Examples](references/navigation-patterns.md)
-
 ## Anti-Patterns
 
 - **No String Routes**: Use `Screen.Product.route` instead of `"product/$id"`.
 - **No Unvalidated Deep Links**: Check resource existence before rendering.
 - **No Missing Manifest**: Deep links require `autoVerify=true` intent filters.
 
-## Related Topics
+## References
 
-android-design-system | android-notifications | mobile-ux-core
+- [Navigation Patterns](references/navigation-patterns.md)

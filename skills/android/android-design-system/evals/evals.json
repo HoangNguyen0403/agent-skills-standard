@@ -1,0 +1,46 @@
+{
+  "skill_name": "android-design-system",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have hardcoded Color(0xFF6200EE) in my Composable. How should I handle colors properly in a Jetpack Compose app?",
+      "expected_output": "Define all colors in Color.kt, map them to lightColorScheme/darkColorScheme in Theme.kt. Access colors via MaterialTheme.colorScheme.primary — never hardcode hex values.",
+      "assertions": [
+        { "id": "a1", "description": "Rejects hardcoded hex colors", "type": "contains", "value": "hardcode" },
+        { "id": "a2", "description": "Recommends MaterialTheme.colorScheme", "type": "contains", "value": "MaterialTheme.colorScheme" },
+        { "id": "a3", "description": "Mentions Color.kt or Theme.kt", "type": "contains", "value": "Color.kt" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How should I define and use typography in Material Design 3 with Jetpack Compose?",
+      "expected_output": "Define Typography in Type.kt using M3 text style slots. Access via MaterialTheme.typography.bodyLarge etc. Never use raw fontSize = 16.sp inline.",
+      "assertions": [
+        { "id": "a1", "description": "Uses MaterialTheme.typography", "type": "contains", "value": "MaterialTheme.typography" },
+        { "id": "a2", "description": "Mentions Type.kt", "type": "contains", "value": "Type.kt" },
+        { "id": "a3", "description": "Rejects inline raw font sizes", "type": "contains", "value": "fontSize" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I support dark mode in my Jetpack Compose app without duplicating all my color definitions?",
+      "expected_output": "Define lightColorScheme and darkColorScheme in Theme.kt. MaterialTheme detects dark mode automatically. All colors accessed via MaterialTheme.colorScheme update automatically.",
+      "assertions": [
+        { "id": "a1", "description": "Uses lightColorScheme and darkColorScheme", "type": "contains", "value": "darkColorScheme" },
+        { "id": "a2", "description": "Uses MaterialTheme for automatic switching", "type": "contains", "value": "MaterialTheme" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "My Composable recomposes too often — how do I use @Stable to fix it?",
+    "How do I navigate between screens using Jetpack Compose NavHost?",
+    "Pass state from a ViewModel down to a stateless Composable",
+    "Set up a LazyColumn with item keys to prevent recomposition issues",
+    "How do I use LaunchedEffect to trigger a one-time API call when a screen loads?",
+    "Configure spacing tokens in my Flutter design system using the VSpacing class",
+    "Add EncryptedSharedPreferences for storing auth tokens",
+    "How do I handle state hoisting for a search bar Composable?",
+    "Configure string plurals for item counts in strings.xml",
+    "Set up Hilt modules for the data layer"
+  ]
+}

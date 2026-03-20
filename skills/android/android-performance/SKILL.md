@@ -22,8 +22,8 @@ description: "Standards for Baseline Profiles, Startup Time, and UI Rendering. U
 
 ## Anti-Patterns
 
-- **Nested Weights**: `**Avoid Nested Weights**: Use ConstraintLayout (Views) or simple Row/Col (Compose).`
-- **Memory Leaks**: `**Watch Context**: Avoid leaking Activity Context in Singletons.`
+- **No Nested Weights**: Use ConstraintLayout (Views) or Row/Column (Compose) instead.
+- **No Activity Context in Singletons**: Use Application context to prevent memory leaks.
 
 ## References
 

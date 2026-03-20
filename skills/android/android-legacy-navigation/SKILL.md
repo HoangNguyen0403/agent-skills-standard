@@ -21,8 +21,8 @@ description: "Standards for Jetpack Navigation Component (XML) and SafeArgs. Use
 
 ## Anti-Patterns
 
-- **Bundle Keys**: `**No "strings"**: Use SafeArgs generated classes.`
-- **Fragment Transations**: `**No Manual commit()**: Use NavController.`
+- **No Raw String Bundle Keys**: Use SafeArgs generated type-safe classes.
+- **No Manual Fragment commit()**: Use NavController for all navigation.
 
 ## References
 

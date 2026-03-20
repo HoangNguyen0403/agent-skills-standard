@@ -1,0 +1,46 @@
+{
+  "skill_name": "java-concurrency",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have a Java service that makes 3 API calls and I want them to run in parallel. What's the modern Java 21 way to do this?",
+      "expected_output": "Use StructuredTaskScope.ShutdownOnFailure(). Fork each call, scope.join().throwIfFailed(), then get results. Treats all tasks as a single logical unit with automatic cancellation on failure.",
+      "assertions": [
+        { "id": "a1", "description": "Uses StructuredTaskScope", "type": "contains", "value": "StructuredTaskScope" },
+        { "id": "a2", "description": "Uses scope.fork()", "type": "contains", "value": "fork" },
+        { "id": "a3", "description": "Calls join().throwIfFailed()", "type": "contains", "value": "join" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My Java REST server handles thousands of concurrent requests. Should I use a thread pool or Virtual Threads?",
+      "expected_output": "Use Virtual Threads — Executors.newVirtualThreadPerTaskExecutor(). They're lightweight (cheap to create, cheap to block), ideal for I/O-bound workloads. Do NOT pool them — just create one per task.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends Virtual Threads", "type": "contains", "value": "Virtual Thread" },
+        { "id": "a2", "description": "Warns against pooling", "type": "contains", "value": "pool" },
+        { "id": "a3", "description": "Mentions I/O bound workloads", "type": "contains", "value": "I/O" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I'm using synchronized blocks with blocking I/O inside a Java Virtual Thread app. My colleague says this is a problem. Why?",
+      "expected_output": "Blocking inside synchronized pins the carrier thread in Loom — defeats the purpose of virtual threads. Use ReentrantLock instead of synchronized when blocking I/O is needed inside a lock.",
+      "assertions": [
+        { "id": "a1", "description": "Explains carrier thread pinning", "type": "contains", "value": "pin" },
+        { "id": "a2", "description": "Recommends ReentrantLock", "type": "contains", "value": "ReentrantLock" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I use Kotlin coroutines instead of CompletableFuture?",
+    "Write a CoroutineWorker for background sync in Android",
+    "Use viewModelScope to launch a coroutine in my Android ViewModel",
+    "How do I use Flow to emit values from a repository in Kotlin?",
+    "My Java Builder pattern has too many optional fields — how do I clean it up?",
+    "Configure Maven to run integration tests in a separate lifecycle phase",
+    "How do I use @ParameterizedTest with a method source in JUnit 5?",
+    "Switch my Java class to use Optional instead of null returns",
+    "How do I use Spring WebFlux for reactive programming?",
+    "Set up Testcontainers for a PostgreSQL integration test"
+  ]
+}

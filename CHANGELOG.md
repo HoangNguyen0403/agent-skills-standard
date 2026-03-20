@@ -5,20 +5,37 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.11.0] - 2026-03-20
+## [1.10.2] - 2026-03-20
 
-**Category**: Skill Maturity & Anti-Pattern Hardening
+**Category**: Framework Maturity & Universal Skill Hardening
 
 ### Added
 
+- **Universal Skill Evals**: Introduced `evals/evals.json` across all core framework categories (Android, Java, Kotlin, Flutter, Dart) providing 229+ concrete prompts and assertions for automated testing.
 - **Anti-Patterns for All Core Skills**: Added comprehensive `Anti-Patterns` sections to all foundational Flutter, Dart, and Common skills (Security, Performance, TDD, etc.) to prevent common AI hallucinations and architectural leakage.
-- **Skill-Specific Evals**: Introduced `evals/evals.json` across all Flutter and Dart skills, providing concrete should/should-not-trigger scenarios for automated regression testing.
 - **Retrospective Schema**: Defined a structured `trigger_miss` JSON schema in `common-session-retrospective` to formalize how agents report and fix missing skill triggers.
+- **Reference Content Expansion**: Expanded `references/example.md` across Java and Kotlin modules to provide high-fidelity implementation examples for modern language features (Virtual Threads, Records, etc.).
 
 ### Changed
 
+- **Standardized Skill Hardening**: Updated `Anti-Patterns` across all skill folders to be more descriptive and explicit, replacing legacy short codes with full descriptive rules.
+- **Global Description & Trigger Refinement**: Refined skill descriptions and triggers across the entire library to improve agent trigger accuracy and context relevance in large context windows.
 - **High-Density Skill Creator**: Rewritten `common-skill-creator` to enforce a 100-line budget and "Three-Level Loading System" (Frontmatter -> SKILL.md -> references/).
-- **Aggressive Trigger Descriptions**: Updated all Flutter, Dart, and Quality Engineering skill descriptions with "pushy" keyword sets and explicit usage constraints to maximize trigger accuracy in complex context windows.
+
+### Fixed
+
+- **Trigger Formatting**: Corrected backtick formatting for `flutter-localization` triggers in the main index.
+- **Metadata Synchronization**: Incremented all skill category versions to `1.3.1` in `metadata.json` to reflect the library-wide hardening and evaluation update.
+
+### Versions
+
+- **Android Skills**: v1.3.0
+- **Java Skills**: v1.3.0
+- **Kotlin Skills**: v1.3.0
+- **Dart Skills**: v1.3.0
+- **Flutter Skills**: v1.6.0
+- **Common Skills**: v1.9.0
+- **Quality Engineering**: v1.3.0
 
 ## [1.10.2] - 2026-03-16
 

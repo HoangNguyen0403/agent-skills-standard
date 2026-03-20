@@ -1,6 +1,6 @@
 ---
 name: android-deployment
-description: "Standards for App Distribution (Signing, Obfuscation, App Bundles). Use when signing, obfuscating, or building Android App Bundles for distribution. (triggers: build.gradle.kts, proguard-rules.pro, signingConfigs, proguard, minifyEnabled, .aab)"
+description: "Standards for App Distribution (Signing, Obfuscation, App Bundles). Use when configuring Release build types, setting up signing configs, enabling R8/ProGuard minification, adding ProGuard keep rules, or preparing an .aab for Play Store submission. (triggers: build.gradle.kts, proguard-rules.pro, signingConfigs, proguard, minifyEnabled, isMinifyEnabled, isShrinkResources, .aab, releaseKeystore)"
 ---
 
 # Android Deployment Standards
@@ -22,8 +22,8 @@ description: "Standards for App Distribution (Signing, Obfuscation, App Bundles)
 
 ## Anti-Patterns
 
-- **Debug in Release**: `**No Debug Flags**: Ensure debuggable = false.`
-- **Hardcoded Secrets**: `**No Secrets in Repo**: Use local.properties or Env Vars.`
+- **No debuggable=true in Release**: Breaks obfuscation and exposes internal logic.
+- **No Secrets in Repo**: Use local.properties or CI environment variables.
 
 ## References
 

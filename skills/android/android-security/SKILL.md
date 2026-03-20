@@ -1,6 +1,6 @@
 ---
 name: android-security
-description: "Standards for Data Encryption, Network Security, and Permissions. Use when implementing encryption, network security config, or permission handling in Android. (triggers: network_security_config.xml, AndroidManifest.xml, EncryptedSharedPreferences, cleartextTrafficPermitted, intent-filter)"
+description: "Standards for Data Encryption, Network Security, and Permissions. Load whenever API keys, auth tokens, cleartext traffic, android:exported, EncryptedSharedPreferences, certificate pinning, or root detection come up — even if the user just asks 'is this secure'. (triggers: network_security_config.xml, AndroidManifest.xml, EncryptedSharedPreferences, cleartextTrafficPermitted, intent-filter, api key, token storage, certificate pinning, root detection, secure storage)"
 ---
 
 # Android Security Standards
@@ -32,7 +32,5 @@ description: "Standards for Data Encryption, Network Security, and Permissions. 
 ## References
 
 - [Setup Examples](references/implementation.md)
-
-## Related Topics
-
-common/security-standards | architecture
+- [common/common-security-standards] — shared OWASP baselines
+- [android/android-legacy-security] — Intent, WebView, and FileProvider hardening

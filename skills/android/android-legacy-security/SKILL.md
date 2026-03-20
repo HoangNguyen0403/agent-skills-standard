@@ -26,8 +26,8 @@ description: "Standards for Intents, WebViews, and FileProvider. Use when securi
 
 ## Anti-Patterns
 
-- **Implicit Internal**: `**No Implicit for Internal**: Use Explicit Intents (class name).`
-- **World Readable**: `**No MODE_WORLD_READABLE**: SharedPreferences/Files.`
+- **No Implicit Intents Internally**: Use explicit intents with the component class name.
+- **No MODE_WORLD_READABLE**: Never use for SharedPreferences or files.
 
 ## References
 

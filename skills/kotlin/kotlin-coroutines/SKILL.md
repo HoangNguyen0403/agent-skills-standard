@@ -1,6 +1,6 @@
 ---
 name: kotlin-coroutines
-description: "Standards for safe, structured concurrency in Kotlin. Use when implementing Kotlin Coroutines, structured concurrency, or Flow in Android or backend. (triggers: **/*.kt, suspend, CoroutineScope, launch, async, Flow)"
+description: "Standards for safe, structured concurrency in Kotlin. Use when writing suspend functions, choosing coroutine scopes, handling cancellation in loops, selecting between StateFlow and SharedFlow, debugging coroutine leaks, or asked why GlobalScope is dangerous. (triggers: **/*.kt, suspend, CoroutineScope, launch, async, Flow, StateFlow, SharedFlow, viewModelScope, GlobalScope, Dispatchers, isActive, yield, runBlocking)"
 ---
 
 # Kotlin Coroutines Expert
@@ -31,4 +31,4 @@ description: "Standards for safe, structured concurrency in Kotlin. Use when imp
 
 ## References
 
-[references/advanced-patterns.md](references/advanced-patterns.md)
+- [Advanced Patterns & Flow Examples](references/advanced-patterns.md)

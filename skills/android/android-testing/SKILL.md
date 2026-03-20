@@ -1,6 +1,6 @@
 ---
 name: android-testing
-description: "Standards for Unit Tests, UI Tests (Compose), and Hilt Integration. Use when writing unit tests, Compose UI tests, or Hilt test modules in Android. (triggers: **/*Test.kt, **/*Rule.kt, @Test, runTest, composeTestRule)"
+description: "Standards for Unit Tests, UI Tests (Compose), and Hilt Integration. Use whenever writing Android test files or asking about runTest, composeTestRule, HiltAndroidRule, MockK, MainDispatcherRule, @TestInstallIn, or how to test a ViewModel/Composable/Repository in Android. (triggers: **/*Test.kt, **/*Rule.kt, @Test, runTest, composeTestRule, HiltAndroidTest, MockK, createAndroidComposeRule, MainDispatcherRule, @TestInstallIn)"
 ---
 
 # Android Testing Standards
@@ -23,8 +23,8 @@ description: "Standards for Unit Tests, UI Tests (Compose), and Hilt Integration
 
 ## Anti-Patterns
 
-- **Real Network**: `**No Real APIs**: Always mock network calls.`
-- **Flaky Delays**: `**No Thread.sleep**: Use IdlingResource or 'waitUntil'.`
+- **No Real Network in Tests**: Always mock with MockK or fake repositories via @TestInstallIn.
+- **No Thread.sleep**: Use IdlingResource or composeTestRule.waitUntil for async timing.
 
 ## References
 

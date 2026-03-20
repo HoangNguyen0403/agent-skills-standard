@@ -1,0 +1,47 @@
+{
+  "skill_name": "android-concurrency",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Should I use GlobalScope to launch a coroutine in my Android ViewModel?",
+      "expected_output": "Never use GlobalScope. Use viewModelScope — it's lifecycle-aware and cancels automatically when the ViewModel is cleared. GlobalScope leaks and ignores structured concurrency.",
+      "assertions": [
+        { "id": "a1", "description": "Condemns GlobalScope", "type": "contains", "value": "GlobalScope" },
+        { "id": "a2", "description": "Recommends viewModelScope", "type": "contains", "value": "viewModelScope" },
+        { "id": "a3", "description": "Mentions lifecycle-awareness", "type": "contains", "value": "lifecycle" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I make my coroutine dispatcher injectable so I can swap it in tests?",
+      "expected_output": "Create a DispatcherProvider interface with IO/Main/Default properties. Inject it via Hilt. In tests, inject TestCoroutineDispatcher. Never hardcode Dispatchers.IO.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions DispatcherProvider", "type": "contains", "value": "DispatcherProvider" },
+        { "id": "a2", "description": "Against hardcoding Dispatchers.IO", "type": "contains", "value": "hardcode" },
+        { "id": "a3", "description": "Mentions testability", "type": "contains", "value": "test" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "When should I use SharedFlow vs StateFlow in my ViewModel?",
+      "expected_output": "StateFlow for UI state (single current value, replays last). SharedFlow for one-time events (navigation, snackbar) that should not replay. Expose StateFlow via .asStateFlow().",
+      "assertions": [
+        { "id": "a1", "description": "Distinguishes StateFlow from SharedFlow", "type": "contains", "value": "StateFlow" },
+        { "id": "a2", "description": "SharedFlow for events", "type": "contains", "value": "SharedFlow" },
+        { "id": "a3", "description": "Mentions replay behavior", "type": "contains", "value": "replay" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up a PeriodicWorkRequest with network constraints?",
+    "My Composable is recomposing too frequently — how do I stabilize it?",
+    "Configure my Room DAO to return a Flow<List<Product>>",
+    "How do I collect a StateFlow safely in a Fragment using lifecycle?",
+    "My ViewModel exposes LiveData — should I migrate to StateFlow?",
+    "Inject a UseCase into my ViewModel with Hilt",
+    "Handle FCM token refresh in a background service",
+    "How do I write a unit test for a suspend function in a Repository?",
+    "Set up certificate pinning in my network_security_config.xml",
+    "Add Ktlint formatting check to my CI pipeline"
+  ]
+}

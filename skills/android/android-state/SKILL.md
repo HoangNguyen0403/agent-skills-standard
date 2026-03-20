@@ -1,6 +1,6 @@
 ---
 name: android-state
-description: "Standards for ViewModel, StateFlow, and UI State Patterns. Use when managing UI state with ViewModel, StateFlow, or UiState in Android. (triggers: **/*ViewModel.kt, **/*UiState.kt, viewmodel, stateflow, livedata, uistate)"
+description: "Standards for ViewModel, StateFlow, and UI State Patterns. Use whenever someone works with ViewModel files, asks about UiState sealed classes, MutableStateFlow vs LiveData, collectAsStateWithLifecycle, viewModelScope, or exposing state from Android ViewModels — even indirectly. (triggers: **/*ViewModel.kt, **/*UiState.kt, viewmodel, stateflow, livedata, uistate, MutableStateFlow, collectAsState, viewModelScope, UiState)"
 ---
 
 # Android State Management
@@ -27,9 +27,9 @@ description: "Standards for ViewModel, StateFlow, and UI State Patterns. Use whe
 
 ## Anti-Patterns
 
-- **LiveData**: `**No LiveData**: Use StateFlow.`
-- **Mutable State**: `**No Mutable Public**: Expose read-only Flow.`
-- **Context**: `**No Context in VM**: Memory Leak Risk.`
+- **No LiveData for New Code**: Use StateFlow — lifecycle-safe and Compose-compatible.
+- **No Public MutableStateFlow**: Expose only `.asStateFlow()` to consumers.
+- **No Context in ViewModel**: Leaks Activity. Use Application context if truly needed.
 
 ## References
 

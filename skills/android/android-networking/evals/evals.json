@@ -1,0 +1,45 @@
+{
+  "skill_name": "android-networking",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I set up a Retrofit client that attaches a Bearer token to every request using OkHttp?",
+      "expected_output": "Add an OkHttp Interceptor that reads the token and sets Authorization header. Build OkHttpClient with the interceptor. Provide it to Retrofit.Builder(). Token logic lives in the interceptor, not the API interface.",
+      "assertions": [
+        { "id": "a1", "description": "Uses OkHttp Interceptor for auth", "type": "contains", "value": "Interceptor" },
+        { "id": "a2", "description": "Sets Authorization header", "type": "contains", "value": "Authorization" },
+        { "id": "a3", "description": "Logic not in API interface", "type": "not_contains", "value": "@Header" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Should I use Moshi, Gson, or Kotlinx Serialization with Retrofit? What's the recommended approach?",
+      "expected_output": "Use Kotlinx Serialization — it's Kotlin-native, supports sealed classes, and is faster. Add kotlinx-serialization-json and the Retrofit converter. Use @SerialName for field mapping.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends Kotlinx Serialization", "type": "contains", "value": "Kotlinx Serialization" },
+        { "id": "a2", "description": "Mentions @SerialName", "type": "contains", "value": "@SerialName" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "My Retrofit API interface method isn't a suspend function. Is that a problem?",
+      "expected_output": "Yes — all API calls must be suspend functions to avoid blocking the main thread. Non-suspend Retrofit calls block the calling thread. Mark them suspend and call from a coroutine.",
+      "assertions": [
+        { "id": "a1", "description": "Requires suspend", "type": "contains", "value": "suspend" },
+        { "id": "a2", "description": "Warns about main thread blocking", "type": "contains", "value": "main thread" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I secure a WebView against JavaScript-based local file access?",
+    "Configure network_security_config.xml to block HTTP traffic",
+    "Set up certificate pinning for high-security endpoints",
+    "Load an image from a URL in a Composable using Coil",
+    "How do I handle network responses in a WorkManager CoroutineWorker?",
+    "Persist a cached API response using Room database",
+    "Configure ProGuard keep rules for Retrofit interface methods",
+    "How do I show a loading spinner while a network call is in progress?",
+    "Set up an OkHttp MockWebServer for unit tests",
+    "Detect network connectivity changes using ConnectivityManager"
+  ]
+}

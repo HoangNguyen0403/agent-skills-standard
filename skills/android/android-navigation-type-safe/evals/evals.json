@@ -1,0 +1,45 @@
+{
+  "skill_name": "android-navigation-type-safe",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I use type-safe navigation in Jetpack Compose Navigation 2.8 without string routes?",
+      "expected_output": "Define destinations as @Serializable data classes/objects. Use NavHost with typed composable<DestinationType> blocks. Retrieve arguments with backStackEntry.toRoute<T>(). No manual string parsing.",
+      "assertions": [
+        { "id": "a1", "description": "Uses @Serializable", "type": "contains", "value": "@Serializable" },
+        { "id": "a2", "description": "Uses toRoute<T>()", "type": "contains", "value": "toRoute" },
+        { "id": "a3", "description": "No raw strings", "type": "not_contains", "value": "\"product/$" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How should I pass a productId (Long) to a detail screen using type-safe Compose Navigation?",
+      "expected_output": "Define ProductDetail(val productId: Long) as a @Serializable data class. Navigate via navController.navigate(ProductDetail(productId)). Retrieve with toRoute<ProductDetail>().",
+      "assertions": [
+        { "id": "a1", "description": "Uses @Serializable data class", "type": "contains", "value": "@Serializable" },
+        { "id": "a2", "description": "Navigates with object instance", "type": "contains", "value": "navigate(ProductDetail" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "My Compose screen passes a NavController directly into child composables. Is that correct?",
+      "expected_output": "No — NavController should stay at screen level. Hoist navigation callbacks (onNavigateToX: () -> Unit) down to child composables. Never pass NavController inside composable trees.",
+      "assertions": [
+        { "id": "a1", "description": "Rejects NavController in child composables", "type": "contains", "value": "NavController" },
+        { "id": "a2", "description": "Recommends callback hoisting", "type": "contains", "value": "callback" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Navigate using string routes in Compose NavHost with navArgument",
+    "Set up SafeArgs with NavDirections for XML Fragment navigation",
+    "How do I use findNavController in a Fragment for XML-based navigation?",
+    "Add deep link support to my Composable destinations",
+    "Set up bottom navigation using NavigationUI with a Fragment-based app",
+    "How do I use NavBackStackEntry to retrieve arguments in Compose (pre-2.8)?",
+    "Configure navigation animations between Composable screens",
+    "Navigate between screens with a NavGraph defined in XML",
+    "How do I handle conditional navigation (auth guard) in Compose?",
+    "Use Navigation 2.8 with non-Compose (XML Fragment) screens"
+  ]
+}

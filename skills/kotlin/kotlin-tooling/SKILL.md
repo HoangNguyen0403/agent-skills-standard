@@ -1,6 +1,6 @@
 ---
 name: kotlin-tooling
-description: "Build tools (Gradle KTS), Static Analysis (Detekt), and Testing standards. Use when configuring Gradle KTS build scripts, Detekt rules, or Kotlin build tooling. (triggers: build.gradle.kts, libs.versions.toml, detekt.yml, gradle, kts, detekt, mockk, junit)"
+description: "Standards for Gradle Kotlin DSL, Version Catalogs, and MockK for Kotlin projects. Use when configuring build.gradle.kts, setting up libs.versions.toml, adding MockK for tests, or choosing between Kotlin-compatible test assertion libraries. (triggers: build.gradle.kts, libs.versions.toml, detekt.yml, mockk, kts, version catalog, kotest)"
 ---
 
 # Kotlin Tooling Standards
@@ -11,34 +11,18 @@ Consistent build and quality verification tools.
 
 ## Implementation Guidelines
 
-- **Gradle DSL**: Use Kotlin DSL (`build.gradle.kts`) exclusively. It provides type safety and better IDE support.
+- **Gradle DSL**: Use Kotlin DSL (`build.gradle.kts`) exclusively — type safety and better IDE support.
 - **Version Management**: Use Version Catalogs (`libs.versions.toml`).
 - **Linter**: Use **Ktlint** for formatting and **Detekt** for complexity/code-smell analysis.
 - **Testing**: Use **MockK** for mocking (first-class Kotlin support). Use **JUnit 5**.
-- **Assertions**: Use **Truth** or **Kotest Assertions** for fluent reading.
+- **Assertions**: Use **Truth** or **Kotest Assertions** for fluent, readable test output.
 
 ## Anti-Patterns
 
-- **Groovy Gradle**: Avoid legacy `build.gradle` files.
-- **Mockito (Java)**: Avoid Mockito if possible; `when/then` syntax conflicts with Kotlin `when`. Use MockK (`every/verify`).
-- **Hardcoded Versions**: Don't put versions in build files. Use the catalog.
+- **No Groovy Gradle**: Use Kotlin DSL (build.gradle.kts) exclusively; avoid legacy build.gradle.
+- **No Mockito in Kotlin**: `when/then` conflicts with Kotlin `when`; use MockK (`every/verify`).
+- **No Hardcoded Versions**: Manage all versions in libs.versions.toml; never inline in build files.
 
-## Code
+## References
 
-For full `MockK` testing templates and `libs.versions.toml` setup:
-[references/testing-tooling.md](references/testing-tooling.md)
-
-```kotlin
-// Modern Gradle KTS + Version Catalog
-dependencies {
-    implementation(libs.kotlin.stdlib)
-    testImplementation(libs.mockk)
-}
-
-// Concise MockK Verify
-verify(exactly = 1) { repo.getUser("1") }
-```
-
-## Related Topics
-
-best-practices | testing
+- [MockK Templates & libs.versions.toml Setup](references/testing-tooling.md)

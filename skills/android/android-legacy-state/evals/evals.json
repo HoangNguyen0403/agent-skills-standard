@@ -1,0 +1,45 @@
+{
+  "skill_name": "android-legacy-state",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm collecting a StateFlow from my ViewModel inside a Fragment using lifecycleScope.launchWhenStarted. Is there a problem with this?",
+      "expected_output": "Yes — launchWhenStarted is deprecated. It pauses collection but keeps the coroutine alive, wasting resources. Use repeatOnLifecycle(Lifecycle.State.STARTED) instead.",
+      "assertions": [
+        { "id": "a1", "description": "Flags launchWhenStarted as deprecated", "type": "contains", "value": "deprecated" },
+        { "id": "a2", "description": "Recommends repeatOnLifecycle", "type": "contains", "value": "repeatOnLifecycle" },
+        { "id": "a3", "description": "Mentions STARTED state", "type": "contains", "value": "STARTED" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My Fragment is observing LiveData using `observe(this, ...)`. The app crashes when navigating back and the screen updates. How do I fix it?",
+      "expected_output": "Use viewLifecycleOwner instead of this in Fragment observers. 'this' is the Fragment's lifecycle which outlives the view, causing updates to a destroyed view.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends viewLifecycleOwner", "type": "contains", "value": "viewLifecycleOwner" },
+        { "id": "a2", "description": "Explains lifecycle mismatch", "type": "contains", "value": "lifecycle" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Should I use LiveData or StateFlow for new code in my Fragment-based Android app?",
+      "expected_output": "Use StateFlow for all new code — it's lifecycle-neutral, Compose-compatible, and more powerful. If legacy LiveData exists, observe it with viewLifecycleOwner.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends StateFlow for new code", "type": "contains", "value": "StateFlow" },
+        { "id": "a2", "description": "Mentions LiveData as legacy", "type": "contains", "value": "LiveData" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I use collectAsStateWithLifecycle() in a Composable?",
+    "My ViewModel should expose a sealed UiState with Loading/Content/Error",
+    "Pass callbacks down to a stateless Composable instead of the ViewModel",
+    "Use SharedFlow for one-time navigation events from a ViewModel",
+    "How do I hoist state from a child Composable to its Screen parent?",
+    "Configure repeatOnLifecycle in a Composable side effect",
+    "Set up Hilt to inject a ViewModel into a Fragment",
+    "How do I write a unit test for a ViewModel with runTest?",
+    "Observe a Flow emitting a list of products in a Fragment",
+    "How do I set up a NavGraph for Fragment-based navigation?"
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 name: java-best-practices
-description: "Core engineering principles inspired by Effective Java and Clean Code. Use when applying Effective Java patterns, SOLID principles, or clean code practices in Java. (triggers: **/*.java, refactor, clean code, smells, patterns, design)"
+description: "Core Effective Java patterns for robust, maintainable Java code. Use when applying SOLID principles, choosing between inheritance and composition, refactoring Java code smells, or reviewing class design. (triggers: **/*.java, refactor, SOLID, builder, factory, composition, immutable, Optional, checked exception, clean code)"
 ---
 
 # Java Best Practices
@@ -16,45 +16,20 @@ Core engineering principles for robust, maintainable Java systems.
 - **Composition > Inheritance**: Favor `Has-A` over `Is-A`. Avoid deep hierarchies.
 - **Constructors**: Use Static Factory Methods (`User.of()`) over complex constructors.
 - **Builder Pattern**: Use for objects with 4+ parameters.
-- **Exceptions**: Use Checked vs Unchecked wisely. Recoverable -> Checked; Programming Error -> Unchecked.
+- **Exceptions**: Recoverable → Checked; Programming error → Unchecked.
 - **Fail Fast**: Validate parameters (`Objects.requireNonNull`) at the method start.
-- **Interfaces**: Code to interfaces (`List`, `Map`), not implementations (`ArrayList`, `HashMap`).
-- **Dependency Injection**: Invert control. Inject dependencies via constructor.
+- **Interfaces**: Code to interfaces (`List`, `Map`), not implementations (`ArrayList`).
+- **Dependency Injection**: Inject dependencies via constructor; don't create them internally.
 - **Method References**: Use `String::toUpperCase` over `s -> s.toUpperCase()` where readable.
 
 ## Anti-Patterns
 
-- **Return Null**: Returns empty `Optional` or Collection instead.
-- **Empty Catch**: Never swallow exceptions. Log or rethrow.
-- **God Class**: Single Responsibility Principle. Break it down.
-- **Magic Numbers**: Extract constants with meaningful names.
-- **Mutable Statics**: Avoid `public static` fields (Global state).
+- **No Null Returns**: Return Optional<T> or empty collection instead.
+- **No Empty Catch**: Log or rethrow; never swallow exceptions silently.
+- **No God Class**: Split into focused classes following Single Responsibility Principle.
+- **No Magic Numbers**: Extract named constants with clear meaning.
+- **No Mutable Statics**: Avoid public static mutable fields (global state).
 
-## Code
+## References
 
-```java
-// Static Factory + Builder (Implicit via Library or Manual)
-public class Pizza {
-  private final int size;
-  private final boolean cheese;
-
-  private Pizza(Builder b) { ... }
-
-  public static Pizza of(int size) {
-    return new Pizza(size, false);
-  }
-}
-
-// Composition
-public class Service {
-  private final Repository repo; // Injected
-
-  public Service(Repository repo) {
-    this.repo = Objects.requireNonNull(repo);
-  }
-}
-```
-
-## Related Topics
-
-language | concurrency | tooling
+- [Static Factory & Composition Examples](references/example.md)

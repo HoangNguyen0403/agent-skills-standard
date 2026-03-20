@@ -1,0 +1,46 @@
+{
+  "skill_name": "java-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I write a JUnit 5 test for my UserService that uses a Repository dependency?",
+      "expected_output": "Use @ExtendWith(MockitoExtension.class). Annotate the repo field with @Mock, the service with @InjectMocks. Use AssertJ assertThat for assertions. Name test with @DisplayName.",
+      "assertions": [
+        { "id": "a1", "description": "Uses @ExtendWith(MockitoExtension.class)", "type": "contains", "value": "MockitoExtension" },
+        { "id": "a2", "description": "Uses AssertJ assertThat", "type": "contains", "value": "assertThat" },
+        { "id": "a3", "description": "Uses @Mock or @InjectMocks", "type": "contains", "value": "@Mock" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I want to test my Java code with 5 different input values. How do I avoid writing 5 identical test methods?",
+      "expected_output": "Use @ParameterizedTest with @ValueSource, @CsvSource, or @MethodSource. JUnit 5 runs the test once per input. Add @DisplayName to the parameterized test for clarity.",
+      "assertions": [
+        { "id": "a1", "description": "Uses @ParameterizedTest", "type": "contains", "value": "@ParameterizedTest" },
+        { "id": "a2", "description": "Mentions input source annotation", "type": "contains", "value": "Source" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "My Java integration tests need a real PostgreSQL database. How do I set that up without a real server?",
+      "expected_output": "Use Testcontainers — spin up a real Postgres container per test class. Annotate with @Testcontainers and @Container. Name integration tests with *IT.java suffix.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends Testcontainers", "type": "contains", "value": "Testcontainers" },
+        { "id": "a2", "description": "Uses @Container annotation", "type": "contains", "value": "@Container" },
+        { "id": "a3", "description": "Uses *IT.java naming", "type": "contains", "value": "IT.java" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Configure Spotless to format Java code on every commit",
+    "Set up SpotBugs to catch null dereferences in CI",
+    "How do I use Virtual Threads to parallelize my test setup?",
+    "Write a Kotlin unit test using MockK and Truth assertions",
+    "Set up ktlint and Detekt for a Kotlin project",
+    "Use AssertJ for fluent Kotlin assertions in my JUnit tests",
+    "How do I use Cucumber with Java for BDD-style acceptance tests?",
+    "Run tests in parallel using JUnit 5 @Execution(CONCURRENT)",
+    "Set up a test coverage report with JaCoCo in Maven",
+    "Write a Spring Boot integration test with @SpringBootTest"
+  ]
+}

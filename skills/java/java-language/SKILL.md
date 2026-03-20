@@ -1,6 +1,6 @@
 ---
 name: java-language
-description: "Modern Java standards (21+) including Records, Pattern Matching, and Virtual Threads. Use when working with Java 21+ Records, sealed classes, or pattern matching features. (triggers: **/*.java, pom.xml, build.gradle, record, switch, sealed, var, virtual thread, stream, optional)"
+description: "Modern Java 21+ standards including Records, Pattern Matching, and Virtual Threads. Use when working with Java records, sealed classes, switch expressions, text blocks, Optional, or upgrading from older Java versions. (triggers: **/*.java, pom.xml, build.gradle, record, sealed, switch, var, Optional, stream, VirtualThread, instanceof, text block)"
 ---
 
 # Java Language Patterns
@@ -18,41 +18,18 @@ Modern Java (21+) standards for concise, immutable, and expressive code.
 - **Pattern Matching**: Use `instanceof` with binding: `if (obj instanceof String s)`.
 - **Sealed Classes**: Use `sealed interface/class` for restricted hierarchies (Domain Models).
 - **Collections**: Use `List.of()`, `Map.of()`, `Set.of()` for unmodifiable collections.
-- **Streams**: Use `stream()` for transformations. Prefer `toList()` (Java 16+) over `collect(Collectors.toList())`.
-- **Optional**: Return `Optional<T>` over `null`. Use `map`, `filter`, `ifPresent`. Never use `Optional` fields/params.
-- **Virtual Threads**: Prefer `Executors.newVirtualThreadPerTaskExecutor()` for high-throughput I/O.
+- **Streams**: Use `stream()` for transformations. Prefer `toList()` (Java 16+).
+- **Optional**: Return `Optional<T>` over `null`. Never use `Optional` as a field or parameter.
+- **Virtual Threads**: Prefer `Executors.newVirtualThreadPerTaskExecutor()` for I/O.
 
 ## Anti-Patterns
 
-- **No `null`**: `**No Nulls**: Return Optional or empty collections; avoid null parameters.`
-- **No Raw Types**: `**Use Generics**: Never use raw types like List.`
-- **No Old Switch**: `**No Fall-through**: Use Switch Expressions ->.`
-- **Boilerplate**: `**No manual get/set**: Use Records or value objects.`
-- **Blocking**: `**No synchronized**: Use java.util.concurrent utilities or Virtual Threads.`
+- **No Nulls**: Return Optional or empty collections; avoid null parameters.
+- **No Raw Types**: Always use generics; never use raw List or Map.
+- **No Old Switch**: Use switch expressions (->); avoid fall-through.
+- **No Manual get/set**: Use Records or value objects instead.
+- **No synchronized blocks**: Use java.util.concurrent or Virtual Threads instead.
 
-## Code
+## References
 
-```java
-// Record + Pattern Matching
-public record User(String id, String name) {}
-
-public String handle(Object obj) {
-  return switch (obj) {
-    case User(var id, var name) -> "User: " + name; // Record Patterns (Java 21)
-    case String s when s.length() > 5 -> "Long String: " + s;
-    case null -> "It's null";
-    default -> "Unknown";
-  };
-}
-
-// Virtual Threads (Loom)
-try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
-    var userDetails = scope.fork(() -> fetchUser());
-    var orders = scope.fork(() -> fetchOrders());
-    scope.join().throwIfFailed(); // Wait for both
-}
-```
-
-## Related Topics
-
-best-practices | concurrency | testing
+- [Records, Pattern Matching & Virtual Threads](references/example.md)

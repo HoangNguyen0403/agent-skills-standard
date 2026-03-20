@@ -1,6 +1,6 @@
 ---
 name: android-background-work
-description: "Standards for WorkManager and Background Processing. Use when implementing background tasks, scheduled work, or long-running operations in Android. (triggers: **/*Worker.kt, CoroutineWorker, WorkManager, doWork)"
+description: "Standards for WorkManager and Background Processing. Use when creating Worker classes, scheduling tasks with WorkManager, choosing between WorkManager and Foreground Services, or setting up Hilt in workers. (triggers: **/*Worker.kt, CoroutineWorker, WorkManager, doWork, PeriodicWorkRequest, OneTimeWorkRequest, @HiltWorker)"
 ---
 
 # Android Background Work Standards
@@ -21,8 +21,8 @@ description: "Standards for WorkManager and Background Processing. Use when impl
 
 ## Anti-Patterns
 
-- **IntentService**: `**Deprecated**: Use WorkManager.`
-- **Short Jobs**: `**No short background jobs**: Use standard Coroutines in VM.`
+- **No IntentService**: Deprecated. Use WorkManager for all background tasks.
+- **No Short Background Jobs**: Use Coroutines in ViewModel scope instead.
 
 ## References
 

@@ -1,0 +1,47 @@
+{
+  "skill_name": "kotlin-tooling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Should I use Mockito or MockK for mocking in my Kotlin unit tests?",
+      "expected_output": "Use MockK — it's Kotlin-native. Mockito's when/then syntax conflicts with Kotlin's when keyword. MockK uses every { } / verify { } syntax which integrates cleanly with Kotlin idioms.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends MockK", "type": "contains", "value": "MockK" },
+        { "id": "a2", "description": "Explains Mockito conflict", "type": "contains", "value": "when" },
+        { "id": "a3", "description": "Shows MockK syntax", "type": "contains", "value": "every" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My Kotlin project has dependency versions scattered across multiple build.gradle.kts files. How do I centralize them?",
+      "expected_output": "Use a Gradle Version Catalog (libs.versions.toml). Define all versions, libraries, and plugins in one place. Reference as libs.kotlin.stdlib in build files. Type-safe generated accessors.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends Version Catalog", "type": "contains", "value": "libs.versions.toml" },
+        { "id": "a2", "description": "Mentions type-safe accessors", "type": "contains", "value": "libs." },
+        { "id": "a3", "description": "Centralizes versions", "type": "contains", "value": "central" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I have a legacy Groovy build.gradle in my Kotlin project. Should I migrate it to Kotlin DSL?",
+      "expected_output": "Yes — rename to build.gradle.kts and convert to Kotlin DSL. Kotlin DSL provides type safety, IDE auto-complete, and compile-time checks. Groovy DSL has no type safety and poor IDE support.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends Kotlin DSL", "type": "contains", "value": "build.gradle.kts" },
+        { "id": "a2", "description": "Explains type safety benefit", "type": "contains", "value": "type safe" },
+        { "id": "a3", "description": "Rejects Groovy", "type": "contains", "value": "Groovy" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Configure ktlint and Detekt for an Android project specifically",
+    "How do I set up Spotless with Google Java Format in a Gradle project?",
+    "Add SpotBugs to catch null pointer dereferences in my Java code",
+    "Configure a version catalog for an Android multi-module project",
+    "How do I use JUnit 5 with Spring Boot in Kotlin?",
+    "Set up Checkstyle for my Java project in Maven",
+    "How do I configure Gradle for a Kotlin Multiplatform (KMP) project?",
+    "Add a pre-commit hook to run ktlint formatting automatically",
+    "Configure SonarQube for code quality tracking in a Kotlin service",
+    "How do I set up Jacoco code coverage for a Kotlin Spring Boot project?"
+  ]
+}

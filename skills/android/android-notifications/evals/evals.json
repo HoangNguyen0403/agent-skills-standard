@@ -1,0 +1,46 @@
+{
+  "skill_name": "android-notifications",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My push notifications aren't showing on Android 8+ devices. What am I missing?",
+      "expected_output": "Create a NotificationChannel with a unique ID before posting notifications. Channels are required on API 26+. Notifications without a valid channel are silently dropped.",
+      "assertions": [
+        { "id": "a1", "description": "Identifies missing NotificationChannel", "type": "contains", "value": "NotificationChannel" },
+        { "id": "a2", "description": "Mentions API 26", "type": "contains", "value": "26" },
+        { "id": "a3", "description": "Explains silent drop", "type": "contains", "value": "silent" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I implement Firebase Cloud Messaging in my Android app to receive push notifications in the background?",
+      "expected_output": "Implement FirebaseMessagingService with onMessageReceived and onNewToken. Declare it in AndroidManifest with MESSAGING_EVENT intent action. Create NotificationChannel for API 26+.",
+      "assertions": [
+        { "id": "a1", "description": "Implements FirebaseMessagingService", "type": "contains", "value": "FirebaseMessagingService" },
+        { "id": "a2", "description": "Declares in manifest", "type": "contains", "value": "AndroidManifest" },
+        { "id": "a3", "description": "Handles onNewToken", "type": "contains", "value": "onNewToken" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Should I request POST_NOTIFICATIONS permission immediately on app launch for Android 13+?",
+      "expected_output": "No — show a priming dialog explaining the benefit first. Only request system permission after the user understands why. Spamming on launch reduces acceptance rates.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends priming dialog first", "type": "contains", "value": "priming" },
+        { "id": "a2", "description": "Against immediate prompt", "type": "contains", "value": "launch" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Schedule a background sync every 6 hours using WorkManager",
+    "How do I use a Foreground Service for music playback?",
+    "Set up WorkManager with a network constraint to run when connected",
+    "Implement local notifications using flutter_local_notifications in Flutter",
+    "How do I handle an FCM token refresh in a CoroutineWorker?",
+    "Send a push notification from a server to a specific user",
+    "How do I persist notification preferences using DataStore?",
+    "Show a notification from a WorkManager task when sync completes",
+    "Handle intent extras from a notification tap in onCreate and onNewIntent",
+    "Configure Firebase in my Android app for analytics only"
+  ]
+}

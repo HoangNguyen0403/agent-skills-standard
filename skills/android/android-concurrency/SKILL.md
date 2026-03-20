@@ -1,6 +1,6 @@
 ---
 name: android-concurrency
-description: "Standards for Coroutines, Flow, and Threading. Use when working with async operations, Coroutines, or Flow in Android. (triggers: **/*.kt, suspend, viewModelScope, lifecycleScope, Flow)"
+description: "Standards for Coroutines, Flow, and Threading. Use when writing suspend functions, choosing coroutine scopes, switching between StateFlow and SharedFlow, injecting Dispatchers for testability, or debugging threading issues in Android. (triggers: **/*ViewModel.kt, **/*UseCase.kt, **/*Repository.kt, suspend, viewModelScope, lifecycleScope, Flow, coroutine, Dispatcher, DispatcherProvider, GlobalScope)"
 ---
 
 # Android Concurrency Standards
@@ -22,8 +22,8 @@ description: "Standards for Coroutines, Flow, and Threading. Use when working wi
 
 ## Anti-Patterns
 
-- **GlobalScope**: `**No GlobalScope**: Use structured scopes.`
-- **Async/Await**: `**Avoid Async**: Prefer simple suspend functions unless parallel execution is needed.`
+- **No GlobalScope**: Use viewModelScope or lifecycleScope — never GlobalScope.
+- **No async/await by default**: Prefer simple suspend functions; async only for parallel calls.
 
 ## References
 

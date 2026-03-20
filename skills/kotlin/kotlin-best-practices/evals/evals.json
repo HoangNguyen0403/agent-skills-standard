@@ -1,0 +1,46 @@
+{
+  "skill_name": "kotlin-best-practices",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "In Kotlin, when should I use `let` vs `apply` vs `run`? I keep mixing them up.",
+      "expected_output": "apply: object configuration, returns the object. let: transformation or null-safe operation (?.let), returns the result. run: scoped computation, returns result. also: side effects (logging), returns object.",
+      "assertions": [
+        { "id": "a1", "description": "Explains apply", "type": "contains", "value": "apply" },
+        { "id": "a2", "description": "Explains let", "type": "contains", "value": "let" },
+        { "id": "a3", "description": "Mentions return value difference", "type": "contains", "value": "return" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My Kotlin ViewModel has a public MutableStateFlow. My code review flagged this. What's the correct pattern?",
+      "expected_output": "Use the backing property pattern: private val _state = MutableStateFlow(...) and public val state: StateFlow<...> = _state.asStateFlow(). Only ViewModel mutates state internally.",
+      "assertions": [
+        { "id": "a1", "description": "Uses backing property", "type": "contains", "value": "_state" },
+        { "id": "a2", "description": "Exposes asStateFlow()", "type": "contains", "value": "asStateFlow" },
+        { "id": "a3", "description": "Private MutableStateFlow", "type": "contains", "value": "private" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I'm returning a MutableList from a Kotlin repository method. Is that okay?",
+      "expected_output": "No — expose List (read-only interface) publicly. Keep MutableList internal to the class. Callers should not be able to mutate the list externally.",
+      "assertions": [
+        { "id": "a1", "description": "Returns read-only List", "type": "contains", "value": "List" },
+        { "id": "a2", "description": "Keeps MutableList internal", "type": "contains", "value": "MutableList" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I write a suspend function that fetches data from a repository?",
+    "Use StateFlow vs LiveData for my Android ViewModel",
+    "How do I use sealed classes and when expressions in Kotlin?",
+    "Add @Stable to a data class used in a Composable",
+    "How do I use null-safe operators (?. and ?:) in Kotlin?",
+    "Write a Kotlin extension function to parse a date string",
+    "Set up MockK and JUnit 5 for a Kotlin backend project",
+    "Configure Detekt to run on a Kotlin multiplatform project",
+    "How do I handle exceptions in Kotlin coroutines with runCatching?",
+    "Write idiomatic Kotlin for a repository that wraps a Room DAO"
+  ]
+}

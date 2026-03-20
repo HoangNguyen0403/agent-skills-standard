@@ -1,0 +1,46 @@
+{
+  "skill_name": "android-persistence",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I set up a Room database DAO that reactively emits updates whenever my product table changes?",
+      "expected_output": "Return Flow<List<Product>> from the @Query method in the @Dao interface. Collect the flow in the Repository. Room emits automatically on table changes. Insert/update/delete should be suspend.",
+      "assertions": [
+        { "id": "a1", "description": "Returns Flow from DAO", "type": "contains", "value": "Flow" },
+        { "id": "a2", "description": "Uses @Dao annotation", "type": "contains", "value": "@Dao" },
+        { "id": "a3", "description": "Insert/update are suspend", "type": "contains", "value": "suspend" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Should I use SharedPreferences or DataStore for storing user settings in my Android app?",
+      "expected_output": "Use DataStore — either PreferencesDataStore (simple key-value) or ProtoDataStore (type-safe schema). SharedPreferences is synchronous, doesn't support coroutines natively, and has no type safety.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends DataStore", "type": "contains", "value": "DataStore" },
+        { "id": "a2", "description": "Explains SharedPreferences shortcomings", "type": "contains", "value": "SharedPreferences" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Can I pass a Room @Entity directly to my ViewModel to display in the UI?",
+      "expected_output": "No — map @Entity to a Domain model or UI model in the Repository. Leaking Room entities into the UI layer creates a dependency on the data layer and makes refactoring harder.",
+      "assertions": [
+        { "id": "a1", "description": "Rejects @Entity in UI layer", "type": "contains", "value": "@Entity" },
+        { "id": "a2", "description": "Recommends mapping in Repository", "type": "contains", "value": "Repository" },
+        { "id": "a3", "description": "Mentions Domain or UI model", "type": "contains", "value": "model" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Store auth tokens securely using EncryptedSharedPreferences",
+    "Encrypt sensitive data using Android Keystore",
+    "How do I cache API responses in memory using a StateFlow?",
+    "Set up WorkManager to read from a database and sync to server",
+    "How do I inject my Room database into a Hilt module?",
+    "Migrate a SQLite helper to Room with @Migration",
+    "How do I use DataStore in a multi-process app?",
+    "Persist user preferences in Flutter using shared_preferences",
+    "Set up a cache invalidation strategy for offline-first app",
+    "Use DataStore preferences in a CoroutineWorker background task"
+  ]
+}

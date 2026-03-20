@@ -23,9 +23,9 @@ description: "Standards for Retrofit, OkHttp, and API Communication. Use when in
 
 ## Anti-Patterns
 
-- **Main Thread**: `**No Blocking Calls**: Use suspend.`
-- **Logic in API**: `**No Logic in Interface**: Only definitions.`
-- **Missing Content-Type**: `**No Raw Factory**: When using kotlinx.serialization, always explicitly specify "application/json" MediaType in your converter factory.`
+- **No Blocking Network Calls**: All API functions must be suspend.
+- **No Logic in API Interface**: Only declare endpoints — handle errors in Repository.
+- **No Raw Converter Factory**: Explicitly set "application/json" MediaType with kotlinx.serialization.
 
 ## References
 

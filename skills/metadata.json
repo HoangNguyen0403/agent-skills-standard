@@ -287,25 +287,25 @@
       }
     },
     "kotlin": {
-      "version": "1.2.1",
+      "version": "1.3.0",
       "last_updated": "2026-03-16",
       "tag_prefix": "kotlin-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 1801,
-        "avg_tokens_per_skill": 450,
-        "largest_skill": "kotlin-language (551 tokens)"
+        "total_tokens": 1588,
+        "avg_tokens_per_skill": 397,
+        "largest_skill": "kotlin-best-practices (437 tokens)"
       }
     },
     "java": {
-      "version": "1.2.1",
+      "version": "1.3.0",
       "last_updated": "2026-03-16",
       "tag_prefix": "java-v",
       "token_metrics": {
         "total_skills": 5,
-        "total_tokens": 2594,
-        "avg_tokens_per_skill": 519,
-        "largest_skill": "java-language (633 tokens)"
+        "total_tokens": 2195,
+        "avg_tokens_per_skill": 439,
+        "largest_skill": "java-best-practices (479 tokens)"
       }
     },
     "spring-boot": {
@@ -320,14 +320,14 @@
       }
     },
     "android": {
-      "version": "1.2.1",
+      "version": "1.3.0",
       "last_updated": "2026-03-16",
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 6383,
-        "avg_tokens_per_skill": 290,
-        "largest_skill": "android-design-system (426 tokens)"
+        "total_tokens": 6729,
+        "avg_tokens_per_skill": 306,
+        "largest_skill": "android-architecture (472 tokens)"
       }
     },
     "swift": {

@@ -1,0 +1,47 @@
+{
+  "skill_name": "android-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm setting up a new Android project. Where should the business logic for calculating order totals live — in the ViewModel, a UseCase, or the Repository?",
+      "expected_output": "Places business logic in a UseCase in the Domain layer (pure Kotlin, no Android deps). ViewModel orchestrates, Repository handles data access only.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends UseCase for business logic", "type": "contains", "value": "UseCase" },
+        { "id": "a2", "description": "Mentions Domain layer", "type": "contains", "value": "Domain" },
+        { "id": "a3", "description": "Does not put logic in ViewModel", "type": "not_contains", "value": "business logic in the ViewModel" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My Android app is getting large. How should I split it into modules? I have a login screen, a product listing, and a cart.",
+      "expected_output": "Recommends feature modules (:feature:login, :feature:products, :feature:cart) plus core modules (:core:network, :core:ui). App module is the DI root and navigation host.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions feature modules", "type": "contains", "value": ":feature:" },
+        { "id": "a2", "description": "Mentions core modules", "type": "contains", "value": ":core:" },
+        { "id": "a3", "description": "Mentions App module as DI root", "type": "contains", "value": "App" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The UI in my Android app is calling the repository directly from a Composable. Is that a problem?",
+      "expected_output": "Yes — violates Clean Architecture. UI should only access data via ViewModel. Repository belongs in Data layer, not accessible from UI/Composable.",
+      "assertions": [
+        { "id": "a1", "description": "Flags it as a violation", "type": "contains", "value": "violation" },
+        { "id": "a2", "description": "States UI should use ViewModel", "type": "contains", "value": "ViewModel" },
+        { "id": "a3", "description": "References layer separation", "type": "contains", "value": "layer" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I hoist state from a Composable up to its parent?",
+    "Write a ViewModel that exposes a StateFlow of products",
+    "Add an OkHttp interceptor that attaches a Bearer token to all requests",
+    "My Composable recomposes too often — how do I fix that?",
+    "Set up Hilt with @HiltAndroidApp and inject into my ViewModel",
+    "Create a Room DAO for a User entity with insert and query",
+    "How do I navigate to a product detail screen using Compose Navigation?",
+    "Write a CoroutineWorker that syncs data every 6 hours with WorkManager",
+    "My LazyColumn items don't have keys — will that cause issues?",
+    "Configure Detekt to fail the build when a method exceeds 30 lines"
+  ]
+}

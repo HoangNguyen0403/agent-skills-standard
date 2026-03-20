@@ -1,0 +1,47 @@
+{
+  "skill_name": "kotlin-language",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I keep using !! in my Kotlin code to unwrap optionals. My reviewer said never to do that. What should I use instead?",
+      "expected_output": "Use safe call ?. with Elvis ?: for defaults, or requireNotNull() for internal assertions. !! throws NullPointerException at runtime with no context. It's a code smell in production Kotlin.",
+      "assertions": [
+        { "id": "a1", "description": "Rejects !!", "type": "contains", "value": "!!" },
+        { "id": "a2", "description": "Recommends safe call and Elvis", "type": "contains", "value": "?." },
+        { "id": "a3", "description": "Mentions requireNotNull", "type": "contains", "value": "requireNotNull" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I'm migrating Java code to Kotlin and my class has getName(), setName() methods. How should I rewrite it idiomatically?",
+      "expected_output": "Remove get/set prefixes — use Kotlin properties: val name: String. For mutable, var name: String. Use data class for DTOs. Properties are idiomatic; get/set methods are Java-isms.",
+      "assertions": [
+        { "id": "a1", "description": "Uses Kotlin properties", "type": "contains", "value": "property" },
+        { "id": "a2", "description": "Rejects get/set methods", "type": "contains", "value": "get" },
+        { "id": "a3", "description": "Recommends data class", "type": "contains", "value": "data class" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How should I model a Result type in Kotlin that can be Success with data or Failure with an error message?",
+      "expected_output": "Use a sealed interface: sealed interface Result<out T>. Implement as data class Success(val data: T) and data class Failure(val error: String). Use when expression for exhaustive handling.",
+      "assertions": [
+        { "id": "a1", "description": "Uses sealed interface", "type": "contains", "value": "sealed" },
+        { "id": "a2", "description": "Success and Failure subtypes", "type": "contains", "value": "Success" },
+        { "id": "a3", "description": "Uses when expression", "type": "contains", "value": "when" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I use Kotlin coroutines with viewModelScope in my ViewModel?",
+    "Write a Kotlin scope function to configure an OkHttp client",
+    "Use the backing property pattern for a MutableStateFlow in Kotlin",
+    "How do I handle null safety in Dart with nullable types?",
+    "How do I use sealed classes in Java 21 with permits?",
+    "Convert a Java stream to a Kotlin sequence for lazy evaluation",
+    "Write extension functions on Context in Android to simplify resource access",
+    "How do I use Kotlin's lazy delegate for a property that initialises once?",
+    "Add a data class for a Retrofit response body in Kotlin",
+    "How do I use Kotlin inline functions and reified type parameters?"
+  ]
+}

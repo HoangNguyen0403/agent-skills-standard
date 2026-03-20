@@ -1,0 +1,46 @@
+{
+  "skill_name": "android-legacy-security",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm loading a user URL in a WebView. Should I enable JavaScript? What other security settings should I configure?",
+      "expected_output": "Default to javaScriptEnabled = false. Only enable for trusted, controlled domains. Disable allowFileAccess and allowFileAccessFromFileURLs to prevent local file theft via XSS.",
+      "assertions": [
+        { "id": "a1", "description": "Defaults JS to false", "type": "contains", "value": "javaScriptEnabled" },
+        { "id": "a2", "description": "Mentions allowFileAccess", "type": "contains", "value": "allowFileAccess" },
+        { "id": "a3", "description": "Mentions trusted domains", "type": "contains", "value": "trusted" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My app shares a file with an external app using a file:// URI. I'm getting a FileUriExposedException. How do I fix it?",
+      "expected_output": "Use FileProvider. Define it in AndroidManifest.xml, create file_paths.xml with allowed paths, and share content:// URIs via FileProvider.getUriForFile().",
+      "assertions": [
+        { "id": "a1", "description": "Recommends FileProvider", "type": "contains", "value": "FileProvider" },
+        { "id": "a2", "description": "Rejects file:// URIs", "type": "contains", "value": "file://" },
+        { "id": "a3", "description": "Mentions content:// URI", "type": "contains", "value": "content://" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "My Activity receives an implicit Intent with user data. What security checks should I do on the incoming Intent extras?",
+      "expected_output": "Treat all Intent extras as untrusted. Validate and sanitize before use. Verify resolveActivity before starting implicit intents. Don't use MODE_WORLD_READABLE for any files.",
+      "assertions": [
+        { "id": "a1", "description": "Treats extras as untrusted", "type": "contains", "value": "untrusted" },
+        { "id": "a2", "description": "Validates or sanitizes input", "type": "contains", "value": "validat" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I store auth tokens securely using EncryptedSharedPreferences?",
+    "Enable certificate pinning for my Retrofit client",
+    "Configure network_security_config.xml to block cleartext traffic",
+    "Set android:exported=false on my BroadcastReceiver in the manifest",
+    "Detect rooted devices using Play Integrity API",
+    "How do I navigate to a detail screen using SafeArgs in XML Navigation?",
+    "Pass arguments between fragments with NavDirections",
+    "How do I observe a LiveData safely in a Fragment using viewLifecycleOwner?",
+    "My Activity uses a raw string Bundle key to pass a user ID — fix it",
+    "Configure Hilt module for the data layer security components"
+  ]
+}

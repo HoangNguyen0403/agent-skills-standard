@@ -1,0 +1,45 @@
+{
+  "skill_name": "android-resources",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have \"You have 1 items in your cart\" in my strings.xml. How do I handle singular vs plural properly?",
+      "expected_output": "Use <plurals> in strings.xml with 'one' and 'other' quantities. Access with resources.getQuantityString(R.plurals.cart_items, count, count) or pluralStringResource() in Compose.",
+      "assertions": [
+        { "id": "a1", "description": "Uses <plurals>", "type": "contains", "value": "plurals" },
+        { "id": "a2", "description": "Mentions quantity strings", "type": "contains", "value": "getQuantityString" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I'm concatenating strings in Kotlin to build a UI message: \"Hello \" + userName + \"!\". What's the Android best practice?",
+      "expected_output": "Define the string in strings.xml with a format arg: \"Hello %s!\". Use getString(R.string.greeting, userName) or stringResource(R.string.greeting, userName) in Compose. Never concatenate UI strings in code.",
+      "assertions": [
+        { "id": "a1", "description": "Uses format args in strings.xml", "type": "contains", "value": "%s" },
+        { "id": "a2", "description": "Against string concatenation", "type": "contains", "value": "concatenat" },
+        { "id": "a3", "description": "Uses getString or stringResource", "type": "contains", "value": "stringResource" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Should I use PNG or XML drawables for icons in my Android app?",
+      "expected_output": "Prefer VectorDrawables (XML) for icons and simple graphics — they scale to any density without quality loss and have smaller file size. Use PNG only for complex raster images like photos.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends VectorDrawable", "type": "contains", "value": "VectorDrawable" },
+        { "id": "a2", "description": "Explains density independence", "type": "contains", "value": "density" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I use MaterialTheme.colorScheme to apply colors in Compose?",
+    "Set up easy_localization with CSV files in a Flutter app",
+    "How do I localize my Jetpack Compose app into multiple languages?",
+    "Add a custom font to my Compose app using MaterialTheme.typography",
+    "How do I manage translations using ARB files in Flutter?",
+    "Use R.drawable directly in a Compose Image composable",
+    "How do I define design tokens for spacing in my Android theme?",
+    "Load an image from the network using Coil in Compose",
+    "Set dark mode colors using values-night in resources",
+    "Configure lint to flag hardcoded strings in layout XML files"
+  ]
+}

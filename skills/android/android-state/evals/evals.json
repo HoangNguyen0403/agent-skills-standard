@@ -1,0 +1,46 @@
+{
+  "skill_name": "android-state",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My ViewModel exposes a public MutableStateFlow that the UI writes to directly. Is that okay?",
+      "expected_output": "No — expose only the immutable StateFlow via .asStateFlow(). Keep the MutableStateFlow private in the ViewModel. UI should send Events/Intents to the ViewModel, never write to state directly.",
+      "assertions": [
+        { "id": "a1", "description": "Rejects public MutableStateFlow", "type": "contains", "value": "MutableStateFlow" },
+        { "id": "a2", "description": "Uses .asStateFlow()", "type": "contains", "value": "asStateFlow" },
+        { "id": "a3", "description": "Recommends private backing field", "type": "contains", "value": "private" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How should I model loading, success, and error states in my Android ViewModel?",
+      "expected_output": "Use a sealed interface UiState with Loading, Content(data), and Error(message) subtypes. Expose as StateFlow<UiState>. Mark Content data class with @Immutable for Compose stability.",
+      "assertions": [
+        { "id": "a1", "description": "Uses sealed interface", "type": "contains", "value": "sealed" },
+        { "id": "a2", "description": "Has Loading/Content/Error subtypes", "type": "contains", "value": "Loading" },
+        { "id": "a3", "description": "Marks data class @Immutable", "type": "contains", "value": "@Immutable" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I collect a StateFlow from a ViewModel safely in a Jetpack Compose screen?",
+      "expected_output": "Use collectAsStateWithLifecycle() from lifecycle-runtime-compose. It stops collecting when the app goes to background, saving resources. Never use collectAsState() alone — it ignores lifecycle.",
+      "assertions": [
+        { "id": "a1", "description": "Uses collectAsStateWithLifecycle", "type": "contains", "value": "collectAsStateWithLifecycle" },
+        { "id": "a2", "description": "Explains lifecycle benefit", "type": "contains", "value": "lifecycle" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Collect a Flow in a Fragment using repeatOnLifecycle(STARTED)",
+    "Observe LiveData in a Fragment safely using viewLifecycleOwner",
+    "How do I use SharedFlow for one-time navigation events?",
+    "My Composable recomposes when the StateFlow emits — how do I reduce that?",
+    "Set up a CoroutineWorker that reads from a Room database and posts a notification",
+    "How do I use WhileSubscribed(5000) for SharingStarted?",
+    "Hoist state from a child Composable to the parent Screen",
+    "How do I inject a ViewModel into a Fragment using Hilt?",
+    "Use StateFlow in a unit test with runTest",
+    "Handle configuration changes with ViewModel in a multi-activity app"
+  ]
+}

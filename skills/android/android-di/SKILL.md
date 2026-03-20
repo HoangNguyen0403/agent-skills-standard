@@ -26,8 +26,8 @@ description: "Standards for Hilt Setup, Scoping, and Modules. Use when setting u
 
 ## Anti-Patterns
 
-- **Component Manual Creation**: `**No Manual Dagger**: Use Hilt Standard.`
-- **Field Inject in Logic**: `**No Field Inject**: Only in Android Components.`
+- **No Manual Dagger Components**: Use Hilt — it generates all the wiring.
+- **No Field Injection in Logic**: Use constructor injection; field injection only in Android components.
 
 ## References
 

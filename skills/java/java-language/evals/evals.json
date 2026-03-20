@@ -1,0 +1,47 @@
+{
+  "skill_name": "java-language",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have a Java DTO with 5 fields, a no-arg constructor, getters, setters, equals, hashCode, and toString. Is there a cleaner way in Java 21?",
+      "expected_output": "Use a record: `record Product(String id, String name, double price) {}`. Records provide equals, hashCode, toString, and accessor methods automatically. No Lombok needed.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends record", "type": "contains", "value": "record" },
+        { "id": "a2", "description": "Explains automatic methods", "type": "contains", "value": "equals" },
+        { "id": "a3", "description": "Mentions no Lombok needed", "type": "contains", "value": "Lombok" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I have an if/else chain in Java checking instanceof for 4 different types and calling different methods. How do I modernize this?",
+      "expected_output": "Use a switch expression with pattern matching (Java 21): `switch (obj) { case Dog d -> d.bark(); case Cat c -> c.meow(); ... }`. Cleaner than instanceof chains.",
+      "assertions": [
+        { "id": "a1", "description": "Uses switch expression", "type": "contains", "value": "switch" },
+        { "id": "a2", "description": "Uses pattern matching", "type": "contains", "value": "pattern" },
+        { "id": "a3", "description": "Avoids if/else chain", "type": "contains", "value": "instanceof" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I want to model a Payment type in Java that can only be Card, Cash, or Voucher. What's the Java 21 way?",
+      "expected_output": "Use a sealed interface with permits: `sealed interface Payment permits CardPayment, CashPayment, VoucherPayment`. Each subtype is a record or final class. Switch expressions are then exhaustive.",
+      "assertions": [
+        { "id": "a1", "description": "Uses sealed interface", "type": "contains", "value": "sealed" },
+        { "id": "a2", "description": "Uses permits", "type": "contains", "value": "permits" },
+        { "id": "a3", "description": "Mentions exhaustive switch", "type": "contains", "value": "exhaustive" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I use Kotlin sealed classes and when expressions?",
+    "Convert this Java class into idiomatic Kotlin with data class",
+    "Write a JUnit 5 parameterized test for my Java method",
+    "Set up Checkstyle to enforce Google Java Format in my Gradle build",
+    "Configure a Virtual Thread executor for my Spring Boot app",
+    "Use CompletableFuture to run two API calls in parallel in Java",
+    "How do I add Spotless to my Maven pom.xml for formatting?",
+    "Use StructuredTaskScope with ShutdownOnFailure in Java 21",
+    "How do I avoid NullPointerException in Java without Optional?",
+    "Refactor my Java class to use Builder pattern for 6-parameter constructor"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "skill_name": "android-compose",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My Composable keeps recomposing whenever any state changes, even when the data it uses hasn't changed. How do I fix that?",
+      "expected_output": "Mark data classes with @Stable or @Immutable, use derivedStateOf for derived state, ensure LazyColumn items use keys, avoid lambdas that capture unstable references.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions @Stable or @Immutable", "type": "contains", "value": "Stable" },
+        { "id": "a2", "description": "Mentions derivedStateOf", "type": "contains", "value": "derivedStateOf" },
+        { "id": "a3", "description": "Mentions keys in LazyColumn", "type": "contains", "value": "key" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I'm passing my ViewModel directly into a child Composable. Is that the right approach?",
+      "expected_output": "No — pass only data and lambda callbacks down. ViewModel should only be accessed at Screen (stateful) level. Child Composables should be stateless, receiving only what they need.",
+      "assertions": [
+        { "id": "a1", "description": "States not to pass ViewModel to child composables", "type": "contains", "value": "ViewModel" },
+        { "id": "a2", "description": "Recommends passing data and callbacks", "type": "contains", "value": "callback" },
+        { "id": "a3", "description": "Mentions state hoisting", "type": "contains", "value": "hoist" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I'm triggering a side effect inside the composable body (not in a LaunchedEffect). Why is this wrong?",
+      "expected_output": "Side effects in the composition body run on every recomposition, causing unexpected behavior. Use LaunchedEffect for one-time or key-scoped effects, SideEffect for sync, DisposableEffect for cleanup.",
+      "assertions": [
+        { "id": "a1", "description": "Explains recomposition risk", "type": "contains", "value": "recomposit" },
+        { "id": "a2", "description": "Recommends LaunchedEffect", "type": "contains", "value": "LaunchedEffect" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How should I structure my Clean Architecture layers in an Android project?",
+    "Configure SafeArgs to pass a product ID from list to detail screen in XML navigation",
+    "Set up a RecyclerView with a ListAdapter and DiffUtil",
+    "How do I inject a ViewModel using Hilt?",
+    "Schedule a periodic sync with WorkManager",
+    "Store sensitive tokens in EncryptedSharedPreferences",
+    "My RecyclerView scrolls are janky — how do I profile that?",
+    "How do I use repeatOnLifecycle to collect a flow in a Fragment?",
+    "Add a deep link handler to my Jetpack Compose NavHost",
+    "Run Detekt analysis on every pull request in CI"
+  ]
+}

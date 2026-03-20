@@ -17,14 +17,12 @@ Push notifications using Firebase Cloud Messaging.
 - **Intents**: Handle notification taps in both `onCreate` and `onNewIntent`.
 - **Priming**: Show benefit dialog before requesting system permissions.
 
-[Implementation Details](references/implementation.md)
-
 ## Anti-Patterns
 
 - **No Missing Channel**: Notifications fail silently without channels on API 26+.
 - **No Unconditional Requests**: Don't spam permission dialog on first launch.
 - **No Missing Manifest**: Service must be declared with `MESSAGING_EVENT` action.
 
-## Related Topics
+## References
 
-android-navigation | android-design-system | mobile-ux-core
+- [Implementation Details](references/implementation.md)

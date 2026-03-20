@@ -1,0 +1,45 @@
+{
+  "skill_name": "android-legacy-navigation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I pass a product ID safely from a list fragment to a detail fragment using Jetpack Navigation in an XML-based app?",
+      "expected_output": "Use SafeArgs plugin — define the argument in the navigation XML graph, navigate via generated NavDirections class, receive with navArgs<ProductDetailArgs>(). No raw Bundle keys.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends SafeArgs", "type": "contains", "value": "SafeArgs" },
+        { "id": "a2", "description": "Uses NavDirections", "type": "contains", "value": "NavDirections" },
+        { "id": "a3", "description": "Rejects raw Bundle keys", "type": "contains", "value": "Bundle" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Should I use multiple NavHostFragments or nested navigation graphs in my large XML-based Android app?",
+      "expected_output": "Use nested navigation graphs — split into nav_auth.xml, nav_main.xml etc. All hosted by one NavHostFragment. Keeps individual graphs readable and modular.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends nested graphs", "type": "contains", "value": "nested" },
+        { "id": "a2", "description": "Recommends single NavHostFragment", "type": "contains", "value": "NavHostFragment" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I'm using fragment.beginTransaction().replace(...).commit() to navigate between fragments. What's wrong with this?",
+      "expected_output": "Use NavController.navigate() instead. Manual fragment transactions bypass the navigation graph, break backstack management, SafeArgs, and deep link handling.",
+      "assertions": [
+        { "id": "a1", "description": "Recommends NavController", "type": "contains", "value": "NavController" },
+        { "id": "a2", "description": "Explains backstack issue", "type": "contains", "value": "backstack" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I implement type-safe navigation in Jetpack Compose using @Serializable routes?",
+    "Set up a NavHost in Compose with deep link support",
+    "Navigate between Composable screens and pass arguments using navArgument",
+    "How do I handle back navigation in a Jetpack Compose app?",
+    "Use FileProvider to share a file with another app via Intent",
+    "Secure a WebView to prevent JavaScript from accessing local files",
+    "Collect a StateFlow from a ViewModel in a Fragment using repeatOnLifecycle",
+    "How do I define deep links in Jetpack Compose Navigation?",
+    "Set up animated transitions between screens in Compose Navigation",
+    "Add an in-app navigation drawer with NavigationUI in XML"
+  ]
+}
