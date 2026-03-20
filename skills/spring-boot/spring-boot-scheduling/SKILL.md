@@ -22,9 +22,9 @@ description: "Standards for scheduled tasks and distributed locking with ShedLoc
 
 ## Anti-Patterns
 
-- **Default Pool**: `**No Default Pool**: Configure ThreadPool.`
-- **No Locking**: `**No duplicates**: Use Distributed Lock.`
-- **Stateful Tasks**: `**No State**: Assume pod restarts.`
+- **No Default Pool**: Configure dedicated TaskScheduler (default is 1 thread).
+- **No duplicates**: Use ShedLock for distributed cron in multi-pod deployments.
+- **No task state**: Design tasks to be idempotent; assume pod can restart.
 
 ## References
 

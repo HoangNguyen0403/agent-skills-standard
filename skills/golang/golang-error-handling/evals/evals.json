@@ -1,0 +1,37 @@
+{
+  "skill_name": "golang-error-handling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I wrap errors in Go to preserve context?",
+      "expected_output": "Use fmt.Errorf(\"context: %w\", err) to wrap. Use errors.Is() and errors.As() to unwrap. Never just return err without adding context.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions fmt.Errorf with %w", "type": "contains", "value": "%w"},
+        {"id": "a2", "description": "Mentions errors.Is or errors.As", "type": "contains", "value": "errors.Is"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I check if an error is of a specific type in Go?",
+      "expected_output": "Use errors.As() for error types (structs). Use errors.Is() for sentinel errors. Never compare error strings with err.Error() == \"foo\".",
+      "assertions": [
+        {"id": "a1", "description": "Recommends errors.As for type checking", "type": "contains", "value": "errors.As"},
+        {"id": "a2", "description": "Warns against string comparison", "type": "not_contains", "value": "err.Error() =="}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "When is it OK to use panic in Go?",
+      "expected_output": "Only for unrecoverable startup errors or programming invariants. Never panic in library code or as a substitute for error returns. Log and return errors in normal flows.",
+      "assertions": [
+        {"id": "a1", "description": "Limits panic to startup or invariants", "type": "contains", "value": "startup"},
+        {"id": "a2", "description": "Recommends returning errors instead", "type": "contains", "value": "return"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I handle exceptions in Java?",
+    "How do I use try-catch in TypeScript?",
+    "How do I implement NestJS exception filters?"
+  ]
+}

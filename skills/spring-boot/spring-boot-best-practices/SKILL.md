@@ -28,10 +28,10 @@ description: "Core coding standards, dependency injection, and configuration for
 
 ## Anti-Patterns
 
-- **Field Injection**: `**No @Autowired on fields**: Use constructor injection.`
-- **Mutable Components**: `**No Setters**: Use final fields.`
-- **Manual Bean Lookup**: `**No context.getBean()**: Inject dependencies.`
-- **Swallowed Exceptions**: `**No log-and-swallow**: Rethrow or handle cleanly.`
+- **No @Autowired on fields**: Use constructor injection via @RequiredArgsConstructor.
+- **No Setters on dependencies**: Declare all injected fields as final.
+- **No context.getBean()**: Inject dependencies via constructor DI.
+- **No log-and-swallow**: Rethrow or handle exceptions explicitly.
 
 ## References
 

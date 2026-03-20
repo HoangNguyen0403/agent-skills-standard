@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-api-standards",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I standardize API responses in NestJS?",
+      "expected_output": "Use TransformInterceptor to wrap all successful responses in { statusCode, data, meta }. Never return raw ORM entities. Map to Response DTOs first.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions TransformInterceptor", "type": "contains", "value": "Interceptor"},
+        {"id": "a2", "description": "Warns against raw entity exposure", "type": "contains", "value": "DTO"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I validate nested DTO objects in NestJS?",
+      "expected_output": "Use @ValidateNested() combined with @Type(() => TargetDto) from class-transformer on nested properties to trigger deep validation.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions @ValidateNested()", "type": "contains", "value": "ValidateNested"},
+        {"id": "a2", "description": "Mentions @Type decorator", "type": "contains", "value": "Type"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I implement pagination in NestJS APIs?",
+      "expected_output": "Use PageOptionsDto (page/take/order) and PageDto<T> (data/meta). Document with ApiExtraModels + getSchemaPath for generics in Swagger.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions PageDto or PageOptionsDto", "type": "contains", "value": "Page"},
+        {"id": "a2", "description": "Mentions Swagger documentation for generics", "type": "contains", "value": "ApiExtraModels"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up NestJS modules?",
+    "How do I connect NestJS to PostgreSQL?",
+    "How do I structure a Spring Boot API?"
+  ]
+}

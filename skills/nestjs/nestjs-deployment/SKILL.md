@@ -45,7 +45,8 @@ Docker optimization and production deployment standards for NestJS applications.
   - **Fundamental Rule**: Application code configuration changes are "breaking changes" for the infrastructure layer. Never assume environment inheritance.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No migrations in main.ts**: Use K8s Init Containers or pre-deploy CI steps for migration runs.
+- **No root user in Docker**: Always add `USER node` to Dockerfile; running as root is a security risk.
+- **No unbounded Node heap**: Set `--max-old-space-size` to ~75% of container memory limit.

@@ -1,0 +1,37 @@
+{
+  "skill_name": "spring-boot-api-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I set up Swagger/OpenAPI in Spring Boot 3?",
+      "expected_output": "Use springdoc-openapi-starter-webmvc-ui. Use @Operation and @ApiResponse annotations. Enable spring.mvc.problem-details.enabled=true for RFC 7807 error responses.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions springdoc-openapi", "type": "contains", "value": "springdoc"},
+        {"id": "a2", "description": "Mentions @Operation or @ApiResponse", "type": "contains", "value": "Operation"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How should I version my Spring Boot REST API?",
+      "expected_output": "Prefer URI versioning (/api/v1/). Header versioning is hard to test and cache. Use @Deprecated + OpenAPI deprecation flag for old versions.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends URI versioning", "type": "contains", "value": "URI"},
+        {"id": "a2", "description": "Warns against header versioning", "type": "contains", "value": "Header"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I return typed responses instead of Map<String, Object> in Spring Boot?",
+      "expected_output": "Define dedicated DTO record classes for all responses. Never return raw Map<K,V> as it's untyped and bypasses OpenAPI schema generation.",
+      "assertions": [
+        {"id": "a1", "description": "Warns against Map responses", "type": "contains", "value": "Map"},
+        {"id": "a2", "description": "Recommends typed DTO records", "type": "contains", "value": "DTO"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I implement JWT in Spring Boot?",
+    "How do I write a NestJS controller?",
+    "How do I set up Swagger in NestJS?"
+  ]
+}

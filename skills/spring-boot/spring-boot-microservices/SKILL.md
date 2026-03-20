@@ -24,9 +24,9 @@ description: "Standards for Feign clients and asynchronous messaging with Spring
 
 ## Anti-Patterns
 
-- **Direct DB Access**: `**No Shared DB**: Use APIs/Events.`
-- **Coupled Entities**: `**No Shared Entities**: Use DTOs.`
-- **Dist. Monolith**: `**No Sync Chains**: Use Async.`
+- **No Shared DB**: Services must communicate via APIs or Events only.
+- **No Shared Entities**: Share DTOs via Maven BOM, never JPA entities.
+- **No Sync Call Chains**: Use async messaging to prevent distributed monolith.
 
 ## References
 

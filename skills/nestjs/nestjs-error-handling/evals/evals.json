@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-error-handling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I create a global exception filter in NestJS?",
+      "expected_output": "Implement ExceptionFilter with @Catch(). Use HttpAdapterHost (not Express Request/Response imports) for platform-agnostic response. Return standardized ApiErrorResponse shape.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions HttpAdapterHost", "type": "contains", "value": "HttpAdapterHost"},
+        {"id": "a2", "description": "Mentions @Catch decorator", "type": "contains", "value": "Catch"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How should errors flow through NestJS layers?",
+      "expected_output": "Service throws domain errors → Interceptor maps to HttpException (NotFoundException, etc.) → Global Filter formats JSON response. Filters only format, not interpret.",
+      "assertions": [
+        {"id": "a1", "description": "Describes service → interceptor → filter flow", "type": "contains", "value": "Interceptor"},
+        {"id": "a2", "description": "Says filters format not interpret", "type": "contains", "value": "format"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I prevent stack traces from leaking in production NestJS responses?",
+      "expected_output": "Check process.env.NODE_ENV === 'production' in the exception filter. Only include stack in development. Sanitize error payloads to prevent leaking file paths.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions NODE_ENV production check", "type": "contains", "value": "NODE_ENV"},
+        {"id": "a2", "description": "Mentions sanitization", "type": "contains", "value": "sanitiz"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I handle errors in Go?",
+    "How do I validate DTOs in NestJS?",
+    "How do I set up Spring Boot exception handling?"
+  ]
+}

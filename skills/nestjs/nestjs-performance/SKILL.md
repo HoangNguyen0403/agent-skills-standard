@@ -61,7 +61,8 @@ High-performance patterns and optimization techniques for NestJS applications.
 - **Clustering**: For non-containerized environments, use `ClusterModule` to utilize all CPU cores. In K8s, prefer ReplicaSets.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No REQUEST scope without evaluation**: One REQUEST-scoped provider makes the entire chain request-scoped.
+- **No CPU tasks in HTTP handler**: Offload image/crypto work to `worker_threads` or BullMQ.
+- **No unprojected queries**: Always `select: []` the needed columns to avoid serializing unused data.

@@ -36,6 +36,8 @@ description: "Standards for project structure and layering in Spring Boot 3+ app
 - [ ] **Transactionality**: Are business transactions correctly bounded with `@Transactional` in the Service layer?
 - [ ] **Error Details**: Is `ProblemDetails` used for consistent error responses?
 
+## Anti-Patterns
+
 - **No Fat Controllers**: Move business logic to Services.
 - **No Leaking Entities**: Use DTOs instead of JPA Entities in APIs.
 - **No Circular Dependencies**: Use Events or refactor to decouple services.
@@ -44,9 +46,3 @@ description: "Standards for project structure and layering in Spring Boot 3+ app
 ## References
 
 - [Implementation Examples](references/implementation.md)
-
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.

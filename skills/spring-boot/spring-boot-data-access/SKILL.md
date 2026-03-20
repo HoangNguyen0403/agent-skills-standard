@@ -23,9 +23,9 @@ description: "Best practices for JPA, Hibernate, and Database interactions in Sp
 
 ## Anti-Patterns
 
-- **N+1 Selects**: `**No loops in loops**: Fetch eagerly or use graphs.`
-- **Logic in Queries**: `**No complex JPQL**: Use Service logic.`
-- **Returning Streams**: `**No raw Streams**: Use Lists or Page.`
+- **No N+1 Selects**: Use JOIN FETCH or @EntityGraph instead of lazy loops.
+- **No complex JPQL**: Move business logic to the Service layer.
+- **No raw Stream returns**: Return List or Page<T> from repositories.
 
 ## References
 

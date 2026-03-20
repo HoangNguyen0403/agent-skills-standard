@@ -1,6 +1,6 @@
 ---
 name: golang-concurrency
-description: "Standards for safe concurrent programming using Goroutines, Channels, and Context. Use when implementing concurrency with Goroutines, Channels, or Context in Go. (triggers: **/*.go, goroutine, go keyword, channel, mutex, waitgroup, context)"
+description: "Standards for safe concurrent programming using Goroutines, Channels, and Context. Use when implementing concurrency with Goroutines, Channels, or Context in Go. (triggers: goroutine, go keyword, channel, mutex, waitgroup, context, errgroup, race condition)"
 ---
 
 # Golang Concurrency Standards
@@ -34,7 +34,8 @@ description: "Standards for safe concurrent programming using Goroutines, Channe
 - [Context Usage](references/context-usage.md)
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No goroutine leaks**: Every goroutine needs a known exit path.
+- **No global state mutation across goroutines**: Use channels or sync primitives.
+- **No bare goroutines without lifecycle**: Use errgroup or WaitGroup.

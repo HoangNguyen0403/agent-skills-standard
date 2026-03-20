@@ -51,6 +51,7 @@ description: "Authentication, RBAC, and Hardening standards. Use when implementi
 - **No SQLi**: Use ORM; avoid raw `query()` with string concatenation.
 - **No XSS**: Sanitize HTML input with `dompurify`.
 
-## Related Topics
+## References
 
-common/security-standards | architecture | database
+- [Implementation Examples](references/implementation.md)
+- [common/security-standards](./../common/security-standards/SKILL.md)

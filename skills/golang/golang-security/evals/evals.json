@@ -1,0 +1,37 @@
+{
+  "skill_name": "golang-security",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I generate a secure random token in Go?",
+      "expected_output": "Use crypto/rand, never math/rand. math/rand is predictable and not suitable for security-sensitive operations like tokens or keys.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends crypto/rand", "type": "contains", "value": "crypto/rand"},
+        {"id": "a2", "description": "Warns against math/rand", "type": "contains", "value": "math/rand"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I safely hash passwords in Go?",
+      "expected_output": "Use Argon2id from golang.org/x/crypto/argon2. Do NOT use bcrypt (weaker) or MD5/SHA1 (insecure). Recommended params: time=1, memory=64MB, threads=4.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends Argon2id", "type": "contains", "value": "Argon2"},
+        {"id": "a2", "description": "Warns against MD5 or bcrypt", "type": "contains", "value": "bcrypt"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I prevent SQL injection in my Go database queries?",
+      "expected_output": "Always use parameterized queries with $1, $2 placeholders. Never build queries with fmt.Sprintf() or string concatenation.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends parameterized queries", "type": "contains", "value": "parameterized"},
+        {"id": "a2", "description": "Warns against fmt.Sprintf for SQL", "type": "contains", "value": "fmt.Sprintf"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up a Go HTTP server?",
+    "How do I write a Go unit test?",
+    "How do I implement JWT in NestJS?"
+  ]
+}

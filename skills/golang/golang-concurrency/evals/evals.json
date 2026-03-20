@@ -1,0 +1,37 @@
+{
+  "skill_name": "golang-concurrency",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I run multiple Go tasks concurrently and wait for all to finish?",
+      "expected_output": "Use errgroup (golang.org/x/sync/errgroup) as preferred WaitGroup + error propagation. Or sync.WaitGroup. Never start goroutines without known exit path.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions errgroup or WaitGroup", "type": "contains", "value": "errgroup"},
+        {"id": "a2", "description": "Mentions context cancellation", "type": "contains", "value": "ctx"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Should I use a buffered or unbuffered channel?",
+      "expected_output": "Unbuffered for strict synchronization. Buffered only for async decoupling or burst handling. Explains deadlock risk of wrong choice.",
+      "assertions": [
+        {"id": "a1", "description": "Distinguishes buffered vs unbuffered use cases", "type": "contains", "value": "buffered"},
+        {"id": "a2", "description": "Mentions synchronization for unbuffered", "type": "contains", "value": "synchroni"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I detect goroutine leaks in my Go service?",
+      "expected_output": "Run tests with go test -race. Use goleak library. Every goroutine must have a known exit path via context cancellation, channel close, or done signal.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions go test -race", "type": "contains", "value": "-race"},
+        {"id": "a2", "description": "Mentions context or done channel for lifecycle", "type": "contains", "value": "context"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I structure a Go project?",
+    "How do I handle errors in Go?",
+    "How do I write a Go HTTP server?"
+  ]
+}

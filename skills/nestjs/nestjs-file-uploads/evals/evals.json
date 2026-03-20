@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-file-uploads",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I validate uploaded file types in NestJS?",
+      "expected_output": "Never trust the content-type header or file extension. Use file-type or mmmagic to inspect the buffer's magic bytes. Set strict Multer fileSize limits (5MB).",
+      "assertions": [
+        {"id": "a1", "description": "Warns against trusting content-type", "type": "contains", "value": "content-type"},
+        {"id": "a2", "description": "Recommends magic bytes inspection", "type": "contains", "value": "magic"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I handle large file uploads in NestJS without crashing the server?",
+      "expected_output": "Use streaming for files > 10MB. Options: multer-s3 for direct S3 upload, or signed URL pattern where client uploads directly to S3/GCS bypassing the API server.",
+      "assertions": [
+        {"id": "a1", "description": "Warns against MemoryStorage for large files", "type": "contains", "value": "Memory"},
+        {"id": "a2", "description": "Recommends streaming or signed URL", "type": "contains", "value": "stream"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I process uploaded images without blocking NestJS HTTP requests?",
+      "expected_output": "Offload to BullMQ workers. Upload file → Push FileUploadedEvent to queue → Worker downloads, processes (resize/convert), re-uploads. Never process in HTTP request.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions BullMQ or queue", "type": "contains", "value": "queue"},
+        {"id": "a2", "description": "Says not to process in HTTP request", "type": "contains", "value": "worker"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I implement JWT in NestJS?",
+    "How do I upload files to S3 from Go?",
+    "How do I configure NestJS database module?"
+  ]
+}

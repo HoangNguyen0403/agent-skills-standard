@@ -1,0 +1,38 @@
+{
+  "skill_name": "golang-database",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I implement the repository pattern in Go?",
+      "expected_output": "Define UserRepository interface in internal/port/. Implement with concrete SQL struct. Inject interface into services. Use sqlc for type-safe SQL generation.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions repository interface", "type": "contains", "value": "interface"},
+        {"id": "a2", "description": "Mentions sqlc or pgx", "type": "contains", "value": "sqlc"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I configure database connection pooling in Go?",
+      "expected_output": "Set SetMaxOpenConns, SetMaxIdleConns, SetConnMaxLifetime on *sql.DB. Explains tuning rationale.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions SetMaxOpenConns", "type": "contains", "value": "SetMaxOpenConns"},
+        {"id": "a2", "description": "Mentions SetConnMaxLifetime", "type": "contains", "value": "SetConnMaxLifetime"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I handle SQL rows correctly in Go to avoid memory leaks?",
+      "expected_output": "Always defer rows.Close() immediately after sql query. Check rows.Err() after iteration. Use QueryContext with context for timeout/cancellation.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions defer rows.Close()", "type": "contains", "value": "rows.Close"},
+        {"id": "a2", "description": "Mentions rows.Err()", "type": "contains", "value": "rows.Err"},
+        {"id": "a3", "description": "Mentions QueryContext", "type": "contains", "value": "QueryContext"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up a NestJS TypeORM module?",
+    "How do I design a MongoDB schema?",
+    "How do I write a goroutine?"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "skill_name": "spring-boot-scheduling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I implement scheduled tasks in Spring Boot?",
+      "expected_output": "Enable with @EnableScheduling. Use @Scheduled with fixedRate, fixedDelay, or cron expressions. Configure a ThreadPoolTaskScheduler bean for async execution.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions @EnableScheduling", "type": "contains", "value": "EnableScheduling"},
+        {"id": "a2", "description": "Mentions @Scheduled", "type": "contains", "value": "Scheduled"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My Spring Boot @Scheduled job runs multiple times in a cluster. How do I prevent duplicates?",
+      "expected_output": "Use ShedLock or Quartz clustering. ShedLock uses a distributed lock table to ensure only one instance runs the scheduled job. Configure lockAtLeastFor and lockAtMostFor.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends ShedLock or Quartz", "type": "contains", "value": "ShedLock"},
+        {"id": "a2", "description": "Mentions distributed locking", "type": "contains", "value": "lock"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I make Spring Boot scheduled tasks handle failures gracefully?",
+      "expected_output": "Wrap task logic in try/catch. Log errors with context. Use @Retryable for transient failures. Uncaught exceptions stop the scheduler thread.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions try/catch or error handling", "type": "contains", "value": "try"},
+        {"id": "a2", "description": "Mentions @Retryable or retry", "type": "contains", "value": "retry"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I implement @Cron in NestJS?",
+    "How do I schedule tasks in Go?",
+    "How do I configure Spring Security?"
+  ]
+}

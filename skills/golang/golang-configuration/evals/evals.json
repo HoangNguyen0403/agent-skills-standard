@@ -1,0 +1,37 @@
+{
+  "skill_name": "golang-configuration",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I manage config in a Go service with environment variables?",
+      "expected_output": "Define typed Config struct. Load from defaults, optionally from file, then override with env vars. Validate at startup. Use viper, koanf, or caarlos0/env. Never use global vars.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions typed Config struct", "type": "contains", "value": "struct"},
+        {"id": "a2", "description": "Mentions validation or env override", "type": "contains", "value": "validat"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Should I use Viper or Koanf for Go config management?",
+      "expected_output": "Viper is industry standard for complex configs with env/file/remote support. Koanf is lighter and cleaner alternative. caarlos0/env for strict struct tagging.",
+      "assertions": [
+        {"id": "a1", "description": "Compares Viper and Koanf", "type": "contains", "value": "Viper"},
+        {"id": "a2", "description": "Mentions trade-offs", "type": "contains", "value": "Koanf"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I ensure my Go app crashes fast if a required env variable is missing?",
+      "expected_output": "Validate the Config struct immediately after loading. App must fail fast with a descriptive error on missing required vars. Do not proceed to server startup.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions validation at startup", "type": "contains", "value": "startup"},
+        {"id": "a2", "description": "Mentions fail fast or crash", "type": "contains", "value": "crash"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I write a Go HTTP middleware?",
+    "How do I use goroutines safely?",
+    "How do I configure a NestJS ConfigModule?"
+  ]
+}

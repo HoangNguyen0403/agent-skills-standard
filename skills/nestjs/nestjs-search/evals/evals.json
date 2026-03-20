@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-search",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I keep Elasticsearch in sync with my PostgreSQL database in NestJS?",
+      "expected_output": "Use event-driven pattern: service writes to DB → emits EntityUpdated event → handler pushes to BullMQ → worker indexes to ES with retries. Avoid dual writes (inconsistency risk).",
+      "assertions": [
+        {"id": "a1", "description": "Warns against dual writes", "type": "contains", "value": "dual write"},
+        {"id": "a2", "description": "Recommends event-driven sync", "type": "contains", "value": "event"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "When should I use Elasticsearch vs a database index for search?",
+      "expected_output": "Use DB indexes for structured/filtered queries. Use Elasticsearch for full-text search, fuzzy matching, and complex aggregations. ES is the read model in CQRS.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions CQRS separation of concerns", "type": "contains", "value": "CQRS"},
+        {"id": "a2", "description": "Distinguishes full-text vs structured", "type": "contains", "value": "full-text"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I test Elasticsearch integration in NestJS E2E tests?",
+      "expected_output": "Do not mock Elasticsearch in critical E2E tests. Spin up elasticsearch:8 Docker container in the test harness to verify actual indexing behavior.",
+      "assertions": [
+        {"id": "a1", "description": "Warns against mocking ES in E2E", "type": "contains", "value": "mock"},
+        {"id": "a2", "description": "Recommends Docker container for tests", "type": "contains", "value": "Docker"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I configure NestJS database?",
+    "How do I implement full-text search in PostgreSQL?",
+    "How do I add search to a Spring Boot app?"
+  ]
+}

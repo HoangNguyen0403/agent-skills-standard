@@ -31,10 +31,10 @@ description: "Expert rules for caching, key management, and performance in Redis
 
 ## Anti-Patterns
 
-- **Primary DB Fallacy**: Never use Redis as the ONLY source of truth for critical data.
-- **Large Value Blobs**: Avoid single values > 100KB. Break them into smaller keys or use Hashes.
-- **JSON Overhead**: Favor Hashes (`HSET`) for object properties to allow O(1) field access without decoding a full JSON string.
-- **Unmonitored Growth**: Letting keys grow without TTL or proper eviction monitoring.
+- **No sole truth in Redis**: Always persist critical data to a durable primary database.
+- **No large blobs**: Split values > 100KB into smaller keys or use Hashes for field access.
+- **No JSON for objects**: Use `HSET` for object fields to enable O(1) access without full decode.
+- **No TTL-less keys**: Set TTL or eviction policy on all non-permanent keys to prevent unbounded growth.
 
 ## References
 

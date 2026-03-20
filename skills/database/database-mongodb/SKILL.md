@@ -31,9 +31,9 @@ description: "Expert rules for schema design, indexing, and performance in Mongo
 
 ## Anti-Patterns
 
-- **Large Arrays**: Don't let arrays grow unboundedly (`$push` without limit).
-- **Client-Side Filtering**: Don't fetch 1MB document to use 1KB of data.
-- **Deep Nesting**: Avoid >4 levels of nesting (hard to query/update).
+- **No unbounded arrays**: Use `$push` with `$slice` or redesign using the Bucket Pattern.
+- **No client-side filtering**: Project only needed fields; never fetch full docs to filter in memory.
+- **No deep nesting**: Keep nesting ≤4 levels; flatten paths that are frequently queried.
 
 ## References
 

@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-security-isolation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I enforce multi-tenant data isolation in NestJS with PostgreSQL?",
+      "expected_output": "Enable Row Level Security on all child-linked tables. Define RLS policies using current_setting('app.current_user_id'). Use ChildrenService.validateChildAccess before any persistence.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions RLS", "type": "contains", "value": "Row Level Security"},
+        {"id": "a2", "description": "Mentions centralized access validation", "type": "contains", "value": "validateChildAccess"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I created a new table linked to child data. What security steps are required?",
+      "expected_output": "1. Add ENABLE ROW LEVEL SECURITY in migration. 2. Add @Security JSDoc to entity. 3. Update SECURITY.md. 4. Validate childId in service. All 4 steps are mandatory.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions SECURITY.md update", "type": "contains", "value": "SECURITY.md"},
+        {"id": "a2", "description": "Mentions enabling RLS in migration", "type": "contains", "value": "migration"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Is it OK to use /users/:id routes for child data in a multi-tenant NestJS app?",
+      "expected_output": "No. Always scope by :childId in nested routes: /children/:childId/... Data isolation is enforced at controller level via nested routes.",
+      "assertions": [
+        {"id": "a1", "description": "Rejects flat routes for child data", "type": "contains", "value": "childId"},
+        {"id": "a2", "description": "Requires nested route structure", "type": "contains", "value": "nested"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I implement JWT in NestJS?",
+    "How do I set up NestJS module boundaries?",
+    "How do I enable RLS in PostgreSQL without NestJS?"
+  ]
+}

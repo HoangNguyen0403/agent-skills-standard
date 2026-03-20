@@ -1,0 +1,37 @@
+{
+  "skill_name": "spring-boot-deployment",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I create an optimized Docker image for a Spring Boot app?",
+      "expected_output": "Use multi-stage builds. Use layered JARs (spring-boot:repackage with layers) to optimize Docker cache. Use eclipse-temurin or distroless base. Run as non-root user.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions multi-stage builds", "type": "contains", "value": "multi-stage"},
+        {"id": "a2", "description": "Mentions layered JARs or layer caching", "type": "contains", "value": "layer"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I implement health checks for Spring Boot in Kubernetes?",
+      "expected_output": "Use Spring Boot Actuator /actuator/health. Configure liveness (/actuator/health/liveness) and readiness (/actuator/health/readiness) separately via management.endpoint.health.probes.enabled=true.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions Actuator health endpoints", "type": "contains", "value": "actuator"},
+        {"id": "a2", "description": "Distinguishes liveness and readiness", "type": "contains", "value": "liveness"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I manage secrets for a Spring Boot production deployment?",
+      "expected_output": "Never commit secrets to Git. Inject via environment variables, Kubernetes Secrets, or Vault. Use spring.config.import for Vault. Never use application.properties for secrets.",
+      "assertions": [
+        {"id": "a1", "description": "Warns against committing secrets", "type": "contains", "value": "Git"},
+        {"id": "a2", "description": "Recommends Vault or Kubernetes Secrets", "type": "contains", "value": "Vault"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I deploy NestJS to Kubernetes?",
+    "How do I deploy a Go service?",
+    "How do I configure Spring Security?"
+  ]
+}

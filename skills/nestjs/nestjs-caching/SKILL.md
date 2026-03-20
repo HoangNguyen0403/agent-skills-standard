@@ -50,7 +50,8 @@ Caching strategies and Redis integration patterns for high-performance NestJS ap
 - **Locking**: If a key is missing, **one** process computes it while others wait or return stale. (Complex, often handled by `swr` libraries).
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No KEYS in production**: Use SET-based tag grouping for cache invalidation; KEYS is O(N).
+- **No fixed TTLs on grouped caches**: Add jitter (±10s) to prevent simultaneous stampede.
+- **No MemoryStorage for multi-pod**: Use Redis store; in-memory cache is not shared across pods.

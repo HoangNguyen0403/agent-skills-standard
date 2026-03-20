@@ -43,7 +43,8 @@ See [references/persistence_strategy.md](references/persistence_strategy.md) for
 3. **Transactions**: Use `QueryRunner` (TypeORM) or `$transaction` (Prisma) for all multi-step mutations to ensure atomicity.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No synchronize in production**: Use explicit migrations; `synchronize: true` drops and recreates columns.
+- **No raw entity returns from services**: Map to DTOs before leaving the service layer.
+- **No unpaginated list queries**: All list endpoints must implement limit/offset or cursor pagination.

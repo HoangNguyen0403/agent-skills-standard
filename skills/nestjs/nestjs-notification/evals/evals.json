@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-notification",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I send push notifications and save them to the database in NestJS?",
+      "expected_output": "Use Dual-Write: save to DB first, then attempt FCM. Wrap FCM send in try/catch so FCM failure doesn't crash the request. Check fcmToken existence before sending.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions Dual-Write pattern", "type": "contains", "value": "Dual"},
+        {"id": "a2", "description": "Mentions try/catch around FCM", "type": "contains", "value": "try/catch"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How should I type notification types in NestJS?",
+      "expected_output": "Always use a NotificationType enum (e.g., APPOINTMENT_REMINDER) instead of string. Frontend uses the enum for icon/color/routing logic.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends NotificationType enum", "type": "contains", "value": "Enum"},
+        {"id": "a2", "description": "Warns against generic type: string", "type": "contains", "value": "string"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "What data should I put in an FCM push notification payload?",
+      "expected_output": "Keep FCM data payload flat and minimal (IDs only). Store complex data in the DB. Client fetches details on tap/open. Avoid complex nested data in FCM.",
+      "assertions": [
+        {"id": "a1", "description": "Says keep payload minimal with IDs", "type": "contains", "value": "minimal"},
+        {"id": "a2", "description": "Recommends fetching details on open", "type": "contains", "value": "fetch"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I send emails with NestJS?",
+    "How do I implement WebSocket notifications?",
+    "How do I set up Firebase in a Go service?"
+  ]
+}

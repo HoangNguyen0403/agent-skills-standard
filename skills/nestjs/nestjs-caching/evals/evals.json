@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-caching",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I set up multi-level caching in NestJS?",
+      "expected_output": "L1 (in-memory via lru-cache) for config/static data. L2 (Redis via cache-manager-redis-yet) for shared cross-pod data. Use stale-while-revalidate where possible.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions L1 in-memory and L2 Redis", "type": "contains", "value": "Redis"},
+        {"id": "a2", "description": "Mentions cache-manager", "type": "contains", "value": "cache-manager"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I invalidate Redis cache entries by group in NestJS?",
+      "expected_output": "Use SET-based tagging: SADD to group keys, then fetch the set and DEL all tagged keys. Avoid KEYS command (O(N), blocked in production).",
+      "assertions": [
+        {"id": "a1", "description": "Warns against KEYS in production", "type": "contains", "value": "KEYS"},
+        {"id": "a2", "description": "Recommends SET tagging", "type": "contains", "value": "SADD"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I prevent cache stampede in NestJS?",
+      "expected_output": "Add TTL jitter (random variance ±10s) to prevent all keys expiring simultaneously. Use locking: one process computes while others wait or return stale.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions TTL jitter", "type": "contains", "value": "jitter"},
+        {"id": "a2", "description": "Mentions stale-while-revalidate or locking", "type": "contains", "value": "stale"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I configure Redis for persistence?",
+    "How do I write a NestJS guard?",
+    "How do I implement caching in Spring Boot?"
+  ]
+}

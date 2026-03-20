@@ -46,22 +46,8 @@ Automated API documentation and OpenAPI standards.
 - **Compodoc**: Use `@compodoc/compodoc` to generate static documentation of the module graph, services, and dependencies.
   - **Use Case**: New developer onboarding and architectural review.
 
-## Advanced OpenAPI
+## Anti-Patterns
 
-- **Polymorphism**: Use `@ApiExtraModels` and `getSchemaPath` for `oneOf`/`anyOf` union types.
-  - **Pattern**: Register generic/sub-types in controller, refer via schema `$ref`.
-- **File Uploads**: Document `multipart/form-data` explicitly.
-  - **Decorator**: `@ApiConsumes('multipart/form-data')`.
-  - **Body**: `@ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })`.
-- **Authentication**: Specify granular security schemes per route/controller.
-  - **Types**: `@ApiBearerAuth()` or `@ApiSecurity('api-key')`. Match setup in `DocumentBuilder`.
-- **Enums**: Force named enums for reusable schema references.
-  - **Code**: `@ApiProperty({ enum: MyEnum, enumName: 'MyEnum' })`.
-- **Grouping**: Segregate public vs. internal docs.
-  - **Setup**: `SwaggerModule.createDocument(app, config, { include: [AdminModule] })`.
-
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No missing @ApiResponse**: Every controller method must declare its response type and status code.
+- **No /docs in production**: Disable Swagger in production to prevent API schema exposure.
+- **No manual @ApiProperty everywhere**: Use the Nest CLI Swagger plugin to auto-generate from DTOs.

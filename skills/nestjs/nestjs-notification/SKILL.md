@@ -34,7 +34,7 @@ src/modules/notification/
 - **No Blocking FCM**: Never `await` FCM without a `try/catch`. It shouldn't crash the request.
 - **No Complex Data in Push**: Keep FCM `data` payload flat and minimal (IDs only). Fetch details on open.
 
-## Reference & Examples
+## References
 
-- **Service Pattern (Dual-Write)**: [references/service.md](references/service.md)
-- **Type Definitions**: [references/types.md](references/types.md)
+- [Service Pattern (Dual-Write)](references/service.md)
+- [Type Definitions](references/types.md)

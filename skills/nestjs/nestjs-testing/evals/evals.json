@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I write a NestJS unit test for a service?",
+      "expected_output": "Use Test.createTestingModule() with mocked providers via { provide: X, useValue: mockX }. Follow AAA pattern. Call jest.clearAllMocks() in afterEach.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions Test.createTestingModule", "type": "contains", "value": "createTestingModule"},
+        {"id": "a2", "description": "Mentions jest.clearAllMocks", "type": "contains", "value": "clearAllMocks"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Should I mock the database in NestJS E2E tests?",
+      "expected_output": "No. Use a real test database (Docker). Mock defeats E2E purpose. Use transaction rollback or TRUNCATE in afterEach for cleanup. Create app in beforeAll, close in afterAll.",
+      "assertions": [
+        {"id": "a1", "description": "Warns against DB mocks in E2E", "type": "contains", "value": "mock"},
+        {"id": "a2", "description": "Recommends real Docker DB", "type": "contains", "value": "Docker"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I bypass NestJS guards in E2E tests?",
+      "expected_output": "Use .overrideGuard(AuthGuard).useValue({ canActivate: () => true }) in the testing module. Never use any; use jest.Mocked<T> for typed mocks.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions overrideGuard", "type": "contains", "value": "overrideGuard"},
+        {"id": "a2", "description": "Mentions canActivate mock", "type": "contains", "value": "canActivate"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I write Go unit tests?",
+    "How do I write Spring Boot integration tests?",
+    "How do I set up NestJS database module?"
+  ]
+}

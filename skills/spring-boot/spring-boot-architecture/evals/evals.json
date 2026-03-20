@@ -1,0 +1,37 @@
+{
+  "skill_name": "spring-boot-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I structure a Spring Boot project with Clean Architecture?",
+      "expected_output": "Layer by domain: domain (entities, ports), application (use cases), infrastructure (adapters). Domain has no external deps. Use @Service for use cases, repository interfaces in domain.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions domain/application/infrastructure layers", "type": "contains", "value": "domain"},
+        {"id": "a2", "description": "Mentions Clean Architecture or layering", "type": "contains", "value": "layer"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I avoid circular dependencies in Spring Boot?",
+      "expected_output": "Use constructor injection (not field injection). Define interfaces at consumption site. Avoid service-to-service direct calls; use events or ports. Spring DI should wire in Application context.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends constructor injection", "type": "contains", "value": "constructor"},
+        {"id": "a2", "description": "Warns against field injection", "type": "contains", "value": "field injection"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Should I put business logic in Spring Boot controllers?",
+      "expected_output": "No. Controllers are thin: validate input, delegate to @Service, return response. All business logic in Service layer. Never access repository directly from controller.",
+      "assertions": [
+        {"id": "a1", "description": "Says logic goes in @Service", "type": "contains", "value": "Service"},
+        {"id": "a2", "description": "Calls for thin controllers", "type": "contains", "value": "thin"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I structure a NestJS application?",
+    "How do I configure Spring Security?",
+    "How do I write a Spring Boot test?"
+  ]
+}

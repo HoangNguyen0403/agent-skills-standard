@@ -50,6 +50,8 @@ See [Security Configuration](references/implementation.md) for full `SecurityFil
 
 - [Implementation Examples](references/implementation.md)
 
-## Related Topics
+## References
 
-common/security-standards | architecture
+- [Implementation Examples](references/implementation.md)
+- common/security-standards
+- architecture

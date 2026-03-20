@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-transport",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "When should I use gRPC vs RabbitMQ for NestJS microservices communication?",
+      "expected_output": "gRPC for synchronous/low-latency internal RPC (10x faster than REST/JSON, typed .proto contracts). RabbitMQ/Kafka for async event-driven decoupling and fire-and-forget patterns.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends gRPC for synchronous RPC", "type": "contains", "value": "gRPC"},
+        {"id": "a2", "description": "Recommends RabbitMQ for async", "type": "contains", "value": "RabbitMQ"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I handle errors in a NestJS microservice (TCP/RPC)?",
+      "expected_output": "Use RpcException (not HttpException, which is lost over TCP). Apply a global RpcExceptionFilter to transform errors uniformly across all microservices.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends RpcException over HttpException", "type": "contains", "value": "RpcException"},
+        {"id": "a2", "description": "Mentions RpcExceptionFilter", "type": "contains", "value": "RpcExceptionFilter"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I share DTOs between NestJS microservices in a monorepo?",
+      "expected_output": "Store all DTOs, .proto files, and interfaces in a shared libs/contracts library. Services import only from contracts, never from sibling services.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions libs/contracts shared library", "type": "contains", "value": "contracts"},
+        {"id": "a2", "description": "Warns against cross-service imports", "type": "contains", "value": "sibling"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I implement gRPC in Go?",
+    "How do I configure NestJS database?",
+    "How do I set up Spring Boot microservices?"
+  ]
+}

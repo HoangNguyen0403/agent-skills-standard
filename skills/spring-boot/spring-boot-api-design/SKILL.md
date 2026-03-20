@@ -28,9 +28,9 @@ description: "Standards for OpenAPI, Versioning, and Global Error Handling. Use 
 
 ## Anti-Patterns
 
-- **Untyped Response**: `**No Map<K,V>**: Return typed DTOs.`
-- **Header Versioning**: `**No Headers**: Hard to test/cache.`
-- **Undocumented**: `**No hidden APIs**: Use Swagger.`
+- **No Map<K,V> responses**: Return typed DTO records instead.
+- **No Header Versioning**: Use URI versioning; headers are hard to test/cache.
+- **No hidden APIs**: Document all endpoints with Swagger/OpenAPI.
 
 ## References
 

@@ -45,7 +45,8 @@ Logging, monitoring, and observability patterns for production applications.
   - **Memory Check**: Fail if Heap > 300MB (prevent crash loops).
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No console.log**: Use nestjs-pino for async, structured, JSON-formatted logging.
+- **No missing reqId**: Propagate `x-request-id` header to all downstream services and queries.
+- **No perf data in production by default**: Gate benchmarking behind `ENABLE_PERFORMANCE_BENCHMARK` flag.

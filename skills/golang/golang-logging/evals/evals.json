@@ -1,0 +1,37 @@
+{
+  "skill_name": "golang-logging",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "What logging library should I use in my Go service?",
+      "expected_output": "Recommend log/slog (stdlib since Go 1.21) for most cases. Zap for pre-1.21 or extreme throughput. Zerolog for zero-allocation JSON logging.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends slog", "type": "contains", "value": "slog"},
+        {"id": "a2", "description": "Mentions structured logging", "type": "contains", "value": "structured"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I include request IDs in all my Go service logs?",
+      "expected_output": "Pass logger or request context with correlation ID via ctx. Use slog.Attr for structured fields. Include TraceID and RequestID in context.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions context or correlation ID", "type": "contains", "value": "context"},
+        {"id": "a2", "description": "Mentions slog.Attr or structured fields", "type": "contains", "value": "Attr"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Is it OK to call log.Fatal() inside a Go library?",
+      "expected_output": "No. Never call log.Fatal in library code; it terminates the process. Return error instead. Only main() should call os.Exit.",
+      "assertions": [
+        {"id": "a1", "description": "Warns against log.Fatal in libraries", "type": "contains", "value": "log.Fatal"},
+        {"id": "a2", "description": "Recommends returning error", "type": "contains", "value": "return"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up Prometheus metrics in NestJS?",
+    "How do I use console.log in Node.js?",
+    "How do I write a Go HTTP server?"
+  ]
+}

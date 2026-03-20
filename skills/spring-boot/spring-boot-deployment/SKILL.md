@@ -28,9 +28,9 @@ description: "Standards for GraalVM Native Images, Docker, and Graceful Shutdown
 
 ## Anti-Patterns
 
-- **Fat JAR**: `**No Fat JARs in Docker**: Use layers.`
-- **Root User**: `**No Root**: Use restricted user.`
-- **Baked Config**: `**No Baked Secrets**: Use Env/ConfigMaps.`
+- **No Fat JARs in Docker**: Use Layered JAR support for better caching.
+- **No root container user**: Run as restricted user (appuser/nobody).
+- **No baked-in secrets**: Use Env vars or ConfigMaps, never image layers.
 
 ## References
 

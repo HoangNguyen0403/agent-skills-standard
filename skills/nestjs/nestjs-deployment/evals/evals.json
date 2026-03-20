@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-deployment",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I optimize my NestJS Docker image size?",
+      "expected_output": "Use multi-stage builds: build stage installs devDependencies and runs nest build; run stage copies only dist/ and pruned node_modules using node:alpine. Do not run as root (USER node).",
+      "assertions": [
+        {"id": "a1", "description": "Mentions multi-stage builds", "type": "contains", "value": "multi-stage"},
+        {"id": "a2", "description": "Mentions USER node for security", "type": "contains", "value": "USER node"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I set Node.js memory limits in a Kubernetes deployment?",
+      "expected_output": "Explicitly set --max-old-space-size to ~75-80% of K8s memory limit. Container limit is not the same as Node heap. Example: 1GB limit → 800MB old space.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions --max-old-space-size", "type": "contains", "value": "max-old-space-size"},
+        {"id": "a2", "description": "Mentions 75-80% ratio", "type": "contains", "value": "75"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Where should I run TypeORM migrations in a Kubernetes deployment?",
+      "expected_output": "Use K8s Init Container, not main.ts startup. The init container runs migration:run before the app container starts. Never run migrations on every app startup.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends Init Container", "type": "contains", "value": "Init Container"},
+        {"id": "a2", "description": "Warns against migration in main.ts", "type": "contains", "value": "main.ts"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I deploy a Spring Boot app to Docker?",
+    "How do I configure NestJS modules?",
+    "How do I write a Dockerfile for a Go app?"
+  ]
+}

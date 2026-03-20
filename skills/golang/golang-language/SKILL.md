@@ -1,6 +1,6 @@
 ---
 name: golang-language
-description: "Core idioms, style guides, and best practices for writing idiomatic Go code. Use when writing Go code following official style guides and idiomatic patterns. (triggers: **/*.go, go.mod, golang, go code, style, idiomatic)"
+description: "Core idioms, style guides, and best practices for writing idiomatic Go code. Use when writing Go code following official style guides and idiomatic patterns. (triggers: go.mod, golang, go code, idiomatic, gofmt, goimports, iota, golang style)"
 ---
 
 # Golang Language Standards
@@ -26,7 +26,14 @@ description: "Core idioms, style guides, and best practices for writing idiomati
 - **No `_` ignored errors**: Always check and handle errors.
 - **No stutter**: `log.Error`, not `log.LogError`.
 
-## references
+## Verification Workflow (Mandatory)
+
+After writing or modifying Go code:
+1. **`mcp__ide__getDiagnostics`** — catch compile errors and gopls type diagnostics immediately
+2. **`go vet ./...`** — catch common mistakes (printf mismatches, unreachable code, shadowed vars)
+3. **`goimports -w .`** — fix imports and formatting in one pass
+
+## References
 
 - [Idioms](references/idioms.md)
 - [Effective Go Summary](references/effective-go-summary.md)

@@ -36,7 +36,8 @@ Background job processing and scheduled task patterns.
 - **Error Handling**: Wrap ALL cron logic in `try/catch`. Uncaught exceptions in a Cron job can crash the entire Node process.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No unguarded cron logic**: Always wrap in `try/catch`; uncaught exceptions crash the entire Node process.
+- **No direct cron processing**: Push to BullMQ queue; workers are scalable, cron handlers are not.
+- **No bare @Cron in multi-pod**: Use distributed locking (redlock) to prevent duplicate concurrent runs.

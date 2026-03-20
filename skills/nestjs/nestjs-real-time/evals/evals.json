@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-real-time",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "When should I use WebSockets vs Server-Sent Events in NestJS?",
+      "expected_output": "WebSockets for bi-directional (chat, games, collaborative editing). SSE for uni-directional (notifications, live feeds, log streaming). SSE is simpler: standard HTTP, no sticky sessions needed.",
+      "assertions": [
+        {"id": "a1", "description": "Distinguishes WebSocket vs SSE use cases", "type": "contains", "value": "SSE"},
+        {"id": "a2", "description": "Mentions bi-directional vs uni-directional", "type": "contains", "value": "bi-directional"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I scale NestJS WebSockets across multiple Kubernetes pods?",
+      "expected_output": "Use Redis Adapter (@socket.io/redis-adapter). Each pod subscribes via Redis. Without it, client on Pod A won't receive events emitted by Pod B.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions Redis Adapter", "type": "contains", "value": "redis-adapter"},
+        {"id": "a2", "description": "Explains cross-pod event distribution", "type": "contains", "value": "pod"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I authenticate WebSocket connections in NestJS?",
+      "expected_output": "Validate JWT in the handleConnection() lifecycle method. HTTP Guards do not trigger on WS connections efficiently. Disconnect immediately if JWT is invalid.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions handleConnection() for auth", "type": "contains", "value": "handleConnection"},
+        {"id": "a2", "description": "Warns that HTTP Guards don't work for WS", "type": "contains", "value": "Guard"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I implement SSE in Go?",
+    "How do I configure NestJS database?",
+    "How do I set up WebSocket in Spring Boot?"
+  ]
+}

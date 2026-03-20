@@ -1,0 +1,37 @@
+{
+  "skill_name": "spring-boot-observability",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I add structured logging in Spring Boot?",
+      "expected_output": "Use Logback with JSON encoder (logstash-logback-encoder) or Micrometer Logging. Use SLF4J API with LoggerFactory. Include MDC for correlation IDs. Never use System.out.println.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions SLF4J or Logback", "type": "contains", "value": "SLF4J"},
+        {"id": "a2", "description": "Warns against System.out", "type": "contains", "value": "System.out"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I expose Prometheus metrics from Spring Boot?",
+      "expected_output": "Add micrometer-registry-prometheus dependency. Expose /actuator/prometheus endpoint. Configure management.endpoints.web.exposure.include=prometheus,health. Use MeterRegistry for custom metrics.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions micrometer-registry-prometheus", "type": "contains", "value": "prometheus"},
+        {"id": "a2", "description": "Mentions /actuator/prometheus endpoint", "type": "contains", "value": "actuator"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I set up distributed tracing in Spring Boot?",
+      "expected_output": "Add spring-boot-starter-actuator and micrometer-tracing-bridge-otel with opentelemetry-exporter-zipkin/jaeger. Spring Boot 3 auto-configures trace propagation via Micrometer Tracing.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions Micrometer Tracing", "type": "contains", "value": "Micrometer"},
+        {"id": "a2", "description": "Mentions OpenTelemetry or Zipkin", "type": "contains", "value": "OpenTelemetry"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I add logging in NestJS?",
+    "How do I monitor a Go service?",
+    "How do I implement Spring Security?"
+  ]
+}

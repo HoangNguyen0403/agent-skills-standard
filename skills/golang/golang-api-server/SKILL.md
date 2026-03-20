@@ -28,8 +28,9 @@ description: "Standards for building HTTP services, REST APIs, and middleware in
 
 ## Anti-Patterns
 
-- **Business Logic in Handlers**: Handlers should only parse request -> call service -> format response.
-- **Global Router**: Don't use global router variables. Pass router instance.
+- **No business logic in handlers**: Parse request → call service → format response only.
+- **No global router vars**: Pass router instance via constructor or DI.
+- **No missing graceful shutdown**: Always handle SIGTERM to drain in-flight requests.
 
 ## References
 

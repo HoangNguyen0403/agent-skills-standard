@@ -1,0 +1,40 @@
+{
+  "skill": "golang-tooling",
+  "evals": [
+    {
+      "prompt": "How do I run gopls diagnostics in Claude Code for my Go project?",
+      "expected_triggers": true,
+      "keywords": ["gopls", "mcp__ide__getDiagnostics", "diagnostics"]
+    },
+    {
+      "prompt": "Set up golangci-lint for our Go microservice",
+      "expected_triggers": true,
+      "keywords": ["golangci-lint", ".golangci.yml", "linters"]
+    },
+    {
+      "prompt": "What linters should I use for a Go project?",
+      "expected_triggers": true,
+      "keywords": ["golangci-lint", "go vet", "staticcheck", "errcheck"]
+    },
+    {
+      "prompt": "How do I organize imports in Go?",
+      "expected_triggers": true,
+      "keywords": ["goimports", "formatting"]
+    },
+    {
+      "prompt": "What is the verification workflow after writing Go code?",
+      "expected_triggers": true,
+      "keywords": ["go vet", "goimports", "getDiagnostics"]
+    },
+    {
+      "prompt": "Write a REST API handler in Go",
+      "expected_triggers": false,
+      "keywords": []
+    },
+    {
+      "prompt": "Implement a goroutine pool",
+      "expected_triggers": false,
+      "keywords": []
+    }
+  ]
+}

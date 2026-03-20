@@ -1,0 +1,37 @@
+{
+  "skill_name": "spring-boot-security",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I configure Spring Security 6 for a stateless REST API?",
+      "expected_output": "Expose a SecurityFilterChain @Bean with Lambda DSL. Set SessionCreationPolicy.STATELESS. Use requestMatchers (not antMatchers). Do not extend WebSecurityConfigurerAdapter.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions SecurityFilterChain bean", "type": "contains", "value": "SecurityFilterChain"},
+        {"id": "a2", "description": "Mentions STATELESS session policy", "type": "contains", "value": "STATELESS"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I implement JWT authentication in Spring Security 6?",
+      "expected_output": "Use JwtDecoder bean with RS256 or HS256. Reject 'none' algorithm. Validate iss, aud, exp claims. Use short-lived access tokens (15m) and secure httpOnly refresh cookies.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions JwtDecoder or RS256/HS256", "type": "contains", "value": "RS256"},
+        {"id": "a2", "description": "Rejects none algorithm", "type": "contains", "value": "none"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "What security hardening should I apply in Spring Boot?",
+      "expected_output": "Enable HSTS, Content-Type-Options, X-Frame-Options via headers. Disable CSRF for pure APIs. Specific CORS origins (no wildcard). Rate limiting on login. No hardcoded secrets.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions CSRF configuration", "type": "contains", "value": "CSRF"},
+        {"id": "a2", "description": "Mentions CORS specific origins", "type": "contains", "value": "CORS"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I implement JWT in NestJS?",
+    "How do I set up Go security?",
+    "How do I configure Spring Boot database?"
+  ]
+}

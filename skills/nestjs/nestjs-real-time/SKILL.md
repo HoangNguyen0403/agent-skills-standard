@@ -42,7 +42,8 @@ WebSocket and real-time communication patterns with NestJS.
 - **Events**: Use `AsyncApi` or `SocketApi` decorators (from community packages) to document WS events similarly to OpenAPI.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No HTTP guards for WebSocket auth**: Validate JWT in `handleConnection()`; HTTP guards don't trigger on WS.
+- **No WebSocket at scale without Redis adapter**: Without `@socket.io/redis-adapter`, cross-pod events are lost.
+- **No SSE over HTTP/1.1 at scale**: Use HTTP/2 to avoid the 6-connection-per-domain browser limit.

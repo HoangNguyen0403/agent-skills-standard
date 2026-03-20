@@ -30,31 +30,16 @@ Standardized API response patterns and common NestJS conventions.
 
 ## Custom Error Response
 
-- **Standard Error Object**:
-
-  ```typescript
-  export class ApiErrorResponse {
-    @ApiProperty()
-    statusCode: number;
-
-    @ApiProperty()
-    message: string;
-
-    @ApiProperty()
-    error: string;
-
-    @ApiProperty()
-    timestamp: string;
-
-    @ApiProperty()
-    path: string;
-  }
-  ```
-
+- **Standard Error Object**: Define `ApiErrorResponse` with `statusCode`, `message`, `error`, `timestamp`, `path`. See [Error Response Class](references/error-response.md).
 - **Docs**: Apply `@ApiBadRequestResponse({ type: ApiErrorResponse })` globally or per controller.
 
+## Anti-Patterns
 
-## 🚫 Anti-Patterns
+- **No raw entity returns**: Always map to a Response DTO; raw entities leak internal fields.
+- **No unvalidated nested DTOs**: Use `@ValidateNested()` + `@Type()` for all nested object properties.
+- **No generic 200 docs**: Apply `@ApiResponse({ status, type })` with exact types per endpoint.
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+## References
+
+- [Pagination Wrapper](references/pagination-wrapper.md)
+- [Error Response Class](references/error-response.md)

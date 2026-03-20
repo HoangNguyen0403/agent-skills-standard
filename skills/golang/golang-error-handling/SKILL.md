@@ -1,6 +1,6 @@
 ---
 name: golang-error-handling
-description: "Standards for error wrapping, checking, and definition in Golang. Use when wrapping errors, defining sentinel errors, or handling errors idiomatically in Go. (triggers: **/*.go, error, fmt.errorf, errors.is, errors.as)"
+description: "Standards for error wrapping, checking, and definition in Golang. Use when wrapping errors, defining sentinel errors, or handling errors idiomatically in Go. (triggers: fmt.Errorf, errors.Is, errors.As, error wrapping, sentinel error, error handling)"
 ---
 
 # Golang Error Handling Standards
@@ -22,9 +22,9 @@ description: "Standards for error wrapping, checking, and definition in Golang. 
 
 ## Anti-Patterns
 
-- **Check only not nil**: `if err != nil { return err }` -> Loses stack/context context.
-- **String checking**: `err.Error() == "foo"` -> Brittle.
-- **Swallowing errors**: `_ = func()` -> Dangerous.
+- **No bare return err**: Wrap with `fmt.Errorf("context: %w", err)` to preserve call chain.
+- **No string error checks**: Use `errors.Is`/`errors.As`; string comparison is brittle.
+- **No swallowed errors**: Never assign errors to `_`; always handle or propagate.
 
 ## References
 

@@ -66,7 +66,8 @@ findOne(@Param('id', ParseIntPipe) id: number) { ... }
 - **Destroy**: Use `OnApplicationShutdown` for cleanup. (Requires `enableShutdownHooks()`).
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No business logic in controllers**: Delegate everything to Services; controllers only parse and respond.
+- **No req.user access**: Create typed `@CurrentUser()` decorator instead of accessing raw `req`.
+- **No REQUEST scope by default**: Use SINGLETON; it makes the entire injection chain request-scoped.

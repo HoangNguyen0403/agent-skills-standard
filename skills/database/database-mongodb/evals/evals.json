@@ -1,0 +1,39 @@
+{
+  "skill_name": "database-mongodb",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I design a MongoDB schema for storing user posts where each post has many comments?",
+      "expected_output": "Explains Embed vs Reference decision: embed for 1:Few comments, reference for 1:Many. Mentions document 16MB limit. Suggests Bucket Pattern for high-cardinality.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions embed vs reference decision", "type": "contains", "value": "embed"},
+        {"id": "a2", "description": "Mentions ESR rule or indexing", "type": "contains", "value": "index"},
+        {"id": "a3", "description": "Does not suggest unbounded arrays", "type": "not_contains", "value": "$push without limit"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My MongoDB query is slow even with an index. How do I diagnose it?",
+      "expected_output": "Recommends using explain plan, checking nReturned vs keysExamined ratio (~1), checking docsExamined. Mentions ESR rule for compound indexes.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions explain plan", "type": "contains", "value": "explain"},
+        {"id": "a2", "description": "References ESR rule", "type": "contains", "value": "ESR"},
+        {"id": "a3", "description": "Mentions keysExamined or docsExamined", "type": "contains", "value": "Examined"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I paginate MongoDB results efficiently?",
+      "expected_output": "Warns against skip() for large offsets. Recommends cursor/keyset pagination using _id or sort-key comparison.",
+      "assertions": [
+        {"id": "a1", "description": "Warns against skip() at large offsets", "type": "contains", "value": "skip"},
+        {"id": "a2", "description": "Suggests cursor-based pagination", "type": "contains", "value": "cursor"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I create a PostgreSQL index?",
+    "What is Redis eviction policy?",
+    "How do I write a Go HTTP handler?"
+  ]
+}

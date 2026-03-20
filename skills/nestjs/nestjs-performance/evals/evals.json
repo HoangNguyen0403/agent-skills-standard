@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-performance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I improve NestJS throughput significantly?",
+      "expected_output": "Switch from Express to FastifyAdapter (2x throughput). Enable Gzip/Brotli compression. Configure Keep-Alive for upstream HTTP connections. Use SINGLETON scope.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends FastifyAdapter", "type": "contains", "value": "Fastify"},
+        {"id": "a2", "description": "Mentions compression", "type": "contains", "value": "compression"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "When should I use REQUEST scope in NestJS providers?",
+      "expected_output": "Avoid unless absolutely necessary. A single REQUEST-scoped provider makes the entire injection chain request-scoped. Use Durable Providers for multi-tenancy instead.",
+      "assertions": [
+        {"id": "a1", "description": "Warns against REQUEST scope", "type": "contains", "value": "REQUEST"},
+        {"id": "a2", "description": "Mentions Durable Providers as alternative", "type": "contains", "value": "Durable"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I offload CPU-heavy tasks in NestJS?",
+      "expected_output": "Use worker_threads for CPU-heavy work (image processing, crypto). Use BullMQ for async task queues. Never block the HTTP event loop with synchronous heavy work.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions worker_threads", "type": "contains", "value": "worker_threads"},
+        {"id": "a2", "description": "Mentions BullMQ or queue offloading", "type": "contains", "value": "queue"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I optimize Go HTTP server performance?",
+    "How do I implement caching in NestJS?",
+    "How do I scale a Spring Boot app?"
+  ]
+}

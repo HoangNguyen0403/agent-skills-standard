@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-controllers-services",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I create a type-safe @CurrentUser() decorator in NestJS?",
+      "expected_output": "Use createParamDecorator with ExecutionContext. Call ctx.switchToHttp().getRequest<RequestWithUser>(). Return typed user object. Avoid raw req.user access.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions createParamDecorator", "type": "contains", "value": "createParamDecorator"},
+        {"id": "a2", "description": "Mentions ExecutionContext", "type": "contains", "value": "ExecutionContext"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I configure global validation in NestJS?",
+      "expected_output": "Register ValidationPipe globally with whitelist: true, forbidNonWhitelisted: true, transform: true. Use ParseIntPipe/ParseUUIDPipe on ID route params.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions whitelist: true", "type": "contains", "value": "whitelist"},
+        {"id": "a2", "description": "Mentions forbidNonWhitelisted", "type": "contains", "value": "forbidNonWhitelisted"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How should I handle cleanup when a NestJS module is destroyed?",
+      "expected_output": "Implement OnApplicationShutdown interface and call app.enableShutdownHooks() in main.ts. Use OnModuleInit for connection setup.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions OnApplicationShutdown", "type": "contains", "value": "OnApplicationShutdown"},
+        {"id": "a2", "description": "Mentions enableShutdownHooks", "type": "contains", "value": "enableShutdownHooks"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up a NestJS module?",
+    "How do I implement caching in NestJS?",
+    "How do I write a Spring Boot controller?"
+  ]
+}

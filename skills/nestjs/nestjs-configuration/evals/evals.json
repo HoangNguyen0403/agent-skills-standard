@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-configuration",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I validate environment variables at startup in NestJS?",
+      "expected_output": "Use ConfigModule.forRoot with validationSchema using Joi. App must crash immediately if a required var like DATABASE_URL is missing. Use isGlobal: true.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions Joi validation schema", "type": "contains", "value": "Joi"},
+        {"id": "a2", "description": "Mentions crash on missing var", "type": "contains", "value": "required"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I added a new env variable to my NestJS app. What do I need to update?",
+      "expected_output": "Update env.validation.ts, .env.example, .env.development/.env.test, and CI/CD pipeline manifests. Failure to update pipelines will cause production crash.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions env.validation.ts", "type": "contains", "value": "env.validation"},
+        {"id": "a2", "description": "Mentions CI/CD pipeline update", "type": "contains", "value": "CI"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Should I access process.env directly in NestJS services?",
+      "expected_output": "No. Inject ConfigService and use configService.get('KEY'). Use a type-safe wrapper or configuration object. Never access process.env directly.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends ConfigService injection", "type": "contains", "value": "ConfigService"},
+        {"id": "a2", "description": "Warns against process.env direct access", "type": "contains", "value": "process.env"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I configure Viper in Go?",
+    "How do I set up Docker environment variables?",
+    "How do I validate input in NestJS controllers?"
+  ]
+}

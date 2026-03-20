@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-scheduling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My NestJS @Cron job runs 3 times in Kubernetes with 3 pods. How do I fix it?",
+      "expected_output": "Use distributed locking with Redis. Use nestjs-redlock or custom Redis SET NX PX atomic lock. Wrap cron method with @DistributedLock decorator.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends distributed locking", "type": "contains", "value": "lock"},
+        {"id": "a2", "description": "Mentions Redis for the lock", "type": "contains", "value": "Redis"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I make NestJS cron jobs robust against failures?",
+      "expected_output": "Wrap all cron logic in try/catch. Uncaught exceptions in a Cron job can crash the entire Node process. Never perform heavy processing inside the handler — push to BullMQ queue.",
+      "assertions": [
+        {"id": "a1", "description": "Mandates try/catch", "type": "contains", "value": "try/catch"},
+        {"id": "a2", "description": "Warns about process crash on uncaught", "type": "contains", "value": "crash"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Should I process long-running tasks directly in a @Cron handler?",
+      "expected_output": "No. Cron handler should only push a Job ID to BullMQ queue. Workers process the actual task. Cron schedulers can get blocked by the event loop; workers are scalable.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends BullMQ queue delegation", "type": "contains", "value": "queue"},
+        {"id": "a2", "description": "Explains event loop risk for cron", "type": "contains", "value": "event loop"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I use @Scheduled in Spring Boot?",
+    "How do I implement background jobs in Go?",
+    "How do I configure NestJS database?"
+  ]
+}

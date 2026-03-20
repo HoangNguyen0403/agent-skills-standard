@@ -42,7 +42,8 @@ Microservices communication patterns and transport layer standards.
   - **Config**: Apply `useGlobalPipes(new ValidationPipe({ transform: true }))` in the `MicroserviceOptions` setup, not just HTTP app setup.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No cross-service imports**: Services must import only from `libs/contracts`, never from sibling services.
+- **No HttpException in RPC**: Use `RpcException` with a global `RpcExceptionFilter` for microservice errors.
+- **No unversioned message schema**: Add new fields; never change existing field types — consumers will break.

@@ -39,11 +39,13 @@ See [Standard Project Layout](references/project-layout.md) for directory tree.
 - [ ] **Layering**: Does `internal/domain` have zero external dependencies?
 - [ ] **Composition**: Are dependencies wired together in `main.go`?
 
+## Anti-Patterns
+
+- **No Global Singletons**: Use DI; avoid package-level mutable variables.
+- **No Layer Violations**: Domain must not import from adapter/infrastructure layers.
+- **No God Services**: Split large services into single-responsibility components.
+
+## References
+
 - [Standard Project Layout](references/project-layout.md)
 - [Clean Architecture Layers](references/clean-arch.md)
-
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.

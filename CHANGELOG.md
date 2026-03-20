@@ -7,18 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.10.2] - 2026-03-20
 
-**Category**: Unified Hardening (Web, Mobile & Type-Safety)
+**Category**: Extended Backend Hardening & New Tooling
 
 ### Added
 
-- **Unified Skill Evals**: Introduced `evals/evals.json` across all core categories (React, React Native, TypeScript, Android, Java, Kotlin, Flutter, Dart, iOS, Swift), providing 90+ concrete prompts and assertions for automated testing.
+- **New Skill (Golang Tooling)**: Added `golang-tooling` skill to standardize static analysis (golangci-lint), build tags, and benchmarking in Go projects.
+- **Unified Skill Evals (Backend)**: Introduced comprehensive `evals.json` across all Golang, NestJS, and Spring Boot categories (30+ new eval files), providing specialized prompts and assertions for backend reliability.
+- **Unified Skill Evals (Frontend/Mobile)**: Introduced `evals/evals.json` across all core categories (React, React Native, TypeScript, Android, Java, Kotlin, Flutter, Dart, iOS, Swift), providing 90+ concrete prompts and assertions for automated testing.
 - **Progressive Disclosure (Phase 3)**: Extracted all large implementation details and code blocks into `references/` across React, React Native, TypeScript, Java, and Kotlin modules to optimize token economy.
-- **Hardened Anti-Patterns**: Comprehensive update to `Anti-Patterns` sections across the entire library to prevent hallucinations, specifically targeting React Hooks, Type-safety, and native mobile memory management.
+- **Hardened Anti-Patterns**: Comprehensive update to `Anti-Patterns` sections across the entire library (with specific focus on Golang, NestJS, and Spring Boot) to prevent hallucinations and enforce idiomatic patterns.
 - **Retrospective Schema**: Defined a structured `trigger_miss` JSON schema in `common-session-retrospective` to formalize how agents report and fix missing skill triggers.
 
 ### Changed
 
-- **Token Economy Mastery**: Refactored the heaviest skills (React, Next.js, Android) to stay within a 400-500 token budget using the "Three-Level Loading System".
+- **Version Synchronisation (Backend)**: Incremented versions for core backend categories: NestJS updated to `1.4.0`, Golang to `1.3.0`, and Spring Boot to `1.3.0`.
+- **Token Economy Mastery**: Refactored the heaviest skills (React, Next.js, Android, NestJS) to stay within optimized token budgets using the "Three-Level Loading System".
 - **Trigger Optimization**: Significant update to `(triggers: ...)` descriptions for all frameworks to improve intent matching and reduce false negatives in IDE agents.
 - **Metadata Synchronization**: Incremented skill category versions: Android/Java/Kotlin/iOS to `1.4.0`, React/TypeScript/Swift to `1.3.0`, and React Native to `1.4.0`.
 
@@ -28,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Versions
 
+- **NestJS Skills**: v1.4.0
+- **Golang Skills**: v1.3.0
+- **Spring Boot Skills**: v1.3.0
 - **React Skills**: v1.3.0
 - **TypeScript Skills**: v1.3.0
 - **React Native Skills**: v1.4.0

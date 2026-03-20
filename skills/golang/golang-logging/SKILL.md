@@ -31,7 +31,8 @@ description: "Standards for structured logging and observability in Golang. Use 
 - [Slog Patterns](references/slog-patterns.md)
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No fmt.Println in production**: Use slog or zap for structured, leveled logging.
+- **No log.Fatal in libraries**: Return errors; only main() should call os.Exit.
+- **No unstructured log strings**: Include correlation IDs and structured fields via slog.Attr.

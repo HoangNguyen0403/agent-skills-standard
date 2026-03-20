@@ -29,7 +29,7 @@ Strict multi-tenant isolation. All child-centric data must be secured via Postgr
 - **No Stale Docs**: Don't merge RLS changes without updating `SECURITY.md` and entity JSDoc.
 - **No Root IDs**: Don't use `/domain/:id` for child data. Always scope by `:childId`.
 
-## Reference & Examples
+## References
 
 - [Implementation Patterns](references/implementation-patterns.md)
 - [RLS Migration Patterns](references/rls-patterns.md)

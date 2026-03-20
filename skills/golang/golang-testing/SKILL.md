@@ -7,8 +7,6 @@ description: "Standards for unit testing, table-driven tests, and mocking in Gol
 
 ## **Priority: P0 (CRITICAL)**
 
-## Principles
-
 ## Guidelines
 
 ### TDD Workflow

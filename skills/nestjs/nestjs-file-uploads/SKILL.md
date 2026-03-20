@@ -32,7 +32,12 @@ Secure file upload handling with validation and storage patterns.
   3. Worker downloads, resizes/converts, and re-uploads.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No content-type trust**: Always verify file magic bytes; MIME header can be spoofed.
+- **No MemoryStorage for large files**: Use streaming or signed URL pattern for files > 10MB.
+- **No synchronous file processing**: Offload image/video work to BullMQ workers via FileUploadedEvent.
+
+## References
+
+- [Implementation Examples](references/example.md)

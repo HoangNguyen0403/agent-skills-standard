@@ -27,10 +27,11 @@ Integration patterns and ORM standards for PostgreSQL applications.
 - **Indexing**: Define indexes in code for frequently filtered columns. RLS columns MUST be indexed.
 - **Transactions**: Use `QueryRunner` or `$transaction` for multi-step mutations.
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- **N+1 Queries**: Avoid lazy-loading relations inside loops. Use query builders.
-- **Complex RLS Subqueries**: Avoid heavy `JOIN`s inside RLS definitions.
+- **No N+1 queries**: Use query builders or eager-load relations instead of lazy-loading in loops.
+- **No heavy RLS joins**: Keep RLS predicates simple; move complex logic to the query/view layer.
+- **No synchronize in production**: Always run explicit migrations; `synchronize: true` is destructive.
 
 ## References
 - [SQL Gotchas (UPDATE FROM)](references/sql-gotchas.md)

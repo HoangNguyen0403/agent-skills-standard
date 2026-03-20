@@ -1,0 +1,38 @@
+{
+  "skill_name": "database-postgresql",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to add a column to a production PostgreSQL table without downtime. How?",
+      "expected_output": "Describes Expand-Contract pattern: Add column (nullable) → Backfill → Add constraints → Drop old. Never use synchronize:true in production.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions Expand-Contract or zero-downtime migration", "type": "contains", "value": "Expand"},
+        {"id": "a2", "description": "Warns against synchronize:true", "type": "contains", "value": "synchronize"},
+        {"id": "a3", "description": "Mentions migrations", "type": "contains", "value": "migration"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I prevent N+1 query problems with TypeORM?",
+      "expected_output": "Recommends using query builders with joins or eager loading relations. Warns against lazy-loading inside loops.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions query builder or join", "type": "contains", "value": "query builder"},
+        {"id": "a2", "description": "Warns against lazy loading in loops", "type": "contains", "value": "loop"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I implement Row Level Security in PostgreSQL with TypeORM?",
+      "expected_output": "Explains ENABLE ROW LEVEL SECURITY, using queryRunner.query() for raw SQL in migrations since TypeORM cannot detect RLS.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions ENABLE ROW LEVEL SECURITY", "type": "contains", "value": "ENABLE ROW LEVEL SECURITY"},
+        {"id": "a2", "description": "Mentions queryRunner for RLS", "type": "contains", "value": "queryRunner"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I design a MongoDB document?",
+    "What Redis data structure should I use for a leaderboard?",
+    "How do I set up a NestJS module?"
+  ]
+}

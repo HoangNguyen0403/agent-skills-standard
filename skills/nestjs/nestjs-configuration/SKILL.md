@@ -49,7 +49,8 @@ When adding a new environment variable to the application, you **MUST** update a
 4. **CI/CD Pipelines & Infrastructure**: You **MUST** map the new variable in your deployment scripts (e.g., `.github/workflows/*.yml`, `gitlab-ci.yml`, Terraform, or Azure Pipelines). Most modern cloud platforms (Cloud Run, ECS, Kubernetes) require explicit mapping of secrets/env-vars into the container runtime. Failure to do this will cause the production deployment to crash or silently fail.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No unchecked env vars**: Validate all required variables at startup; app must crash if missing.
+- **No committed secrets**: Add `.env*` to `.gitignore`; load values via ConfigService only.
+- **No new vars without CI/CD update**: Always update `env.validation.ts`, `.env.example`, and pipeline manifests.

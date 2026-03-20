@@ -28,9 +28,9 @@ description: "Standards for Micrometer, Distributed Tracing, and Structured Logg
 
 ## Anti-Patterns
 
-- **System.out**: `**No System.out**: Use Slf4j.`
-- **Public Actuator**: `**No Open Actuator**: Secure endpoints.`
-- **Custom Tracing**: `**No DIY Tracing**: Use Micrometer.`
+- **No System.out**: Use @Slf4j for all structured logging.
+- **No open Actuator**: Secure /actuator/** with Admin role.
+- **No DIY tracing**: Use Micrometer with OTel bridge.
 
 ## References
 

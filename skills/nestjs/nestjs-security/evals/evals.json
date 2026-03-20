@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-security",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I implement JWT authentication with NestJS and Passport?",
+      "expected_output": "Use @nestjs/passport with passport-jwt. Enforce RS256 or HS256 (reject 'none'). Short access tokens (15m), long httpOnly refresh tokens (7d). Validate iss and aud claims.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions passport-jwt", "type": "contains", "value": "passport-jwt"},
+        {"id": "a2", "description": "Rejects 'none' algorithm", "type": "contains", "value": "none"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I implement RBAC in NestJS?",
+      "expected_output": "Bind AuthGuard globally via APP_GUARD (deny by default). Use @Public() decorator for open routes. Use Reflector.getAllAndOverride for method/class role merge.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions APP_GUARD for global auth", "type": "contains", "value": "APP_GUARD"},
+        {"id": "a2", "description": "Mentions @Public() decorator", "type": "contains", "value": "Public"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "What security hardening should I apply to a NestJS API?",
+      "expected_output": "Helmet (HSTS, CSP), explicit CORS origins (no *), Redis-backed throttler, CSRF for cookie auth, ClassSerializerInterceptor + @Exclude for sanitization, npm audit in CI.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions Helmet", "type": "contains", "value": "Helmet"},
+        {"id": "a2", "description": "Warns against wildcard CORS", "type": "contains", "value": "CORS"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I implement Spring Security?",
+    "How do I set up JWT in Go?",
+    "How do I configure NestJS database?"
+  ]
+}

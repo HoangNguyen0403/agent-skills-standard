@@ -34,7 +34,8 @@ description: "Standards for application configuration using environment variable
 - [Config Pattern](references/config-patterns.md)
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No hardcoded secrets**: Load all secrets from env vars or a secret manager.
+- **No global config vars**: Return a typed Config struct and inject it via constructors.
+- **No startup without validation**: Crash immediately on missing required env vars.

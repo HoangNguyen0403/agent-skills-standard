@@ -1,0 +1,37 @@
+{
+  "skill_name": "golang-api-server",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I implement graceful shutdown for my Go HTTP server?",
+      "expected_output": "Listens for SIGTERM/SIGINT via signal.NotifyContext. Calls server.Shutdown(ctx) with a timeout context to drain in-flight requests.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions SIGTERM or signal handling", "type": "contains", "value": "SIGTERM"},
+        {"id": "a2", "description": "Mentions server.Shutdown", "type": "contains", "value": "Shutdown"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Should I use gin or echo for my Go REST API?",
+      "expected_output": "Echo is recommended for production REST APIs with excellent middleware support. Gin is a high-performance alternative. Standard lib for zero-dep services.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends Echo for REST APIs", "type": "contains", "value": "Echo"},
+        {"id": "a2", "description": "Mentions middleware support", "type": "contains", "value": "middleware"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How should I structure HTTP middleware in Go?",
+      "expected_output": "Standard: func(next http.Handler) http.Handler. Use for cross-cutting concerns: logging, recovery, CORS, auth, tracing. Pass router via constructor, no global vars.",
+      "assertions": [
+        {"id": "a1", "description": "Shows middleware signature", "type": "contains", "value": "http.Handler"},
+        {"id": "a2", "description": "Warns against global router", "type": "not_contains", "value": "global var"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I write a Go unit test?",
+    "What is the context package used for in Go?",
+    "How do I structure a Flutter widget?"
+  ]
+}

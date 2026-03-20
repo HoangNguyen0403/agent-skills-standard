@@ -18,19 +18,15 @@ description: 'Standards for unit, integration, and slice testing in Spring Boot 
 
 ### Best Practices
 
-- **Real Infrastructure**: Use **Testcontainers** for DB/Queues. See [Integration Template](references/testing-template.md).
-
-### Best Practices
-
-- **Real Infrastructure**: Use **Testcontainers** for DB/Queues. Avoid H2/Embedded.
+- **Real Infrastructure**: Use **Testcontainers** for DB/Queues. See [Integration Template](references/testing-template.md). Avoid H2/Embedded.
 - **Assertions**: Use **AssertJ** (`assertThat`) over JUnit assertions.
 - **Isolation**: Use `@MockBean` for downstream dependencies in Slice Tests.
 
 ## Anti-Patterns
 
-- **Context Reloading**: `**No Dirty Contexts**: Avoid @MockBean in base classes.`
-- **External Calls**: `**No network I/O**: Use WireMock.`
-- **System Out**: `**No System.out**: Use assertions.`
+- **No Dirty Contexts**: Avoid @MockBean in base classes; it reloads context per test.
+- **No network I/O in tests**: Mock external calls with WireMock.
+- **No System.out in tests**: Use AssertJ assertions instead.
 
 ## References
 

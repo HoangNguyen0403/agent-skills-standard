@@ -1,0 +1,37 @@
+{
+  "skill_name": "golang-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I write table-driven tests in Go?",
+      "expected_output": "Define a slice of test cases with name, input, expected fields. Use t.Run() for subtests. Assert with testify. Cover nil, empty, and error cases.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions t.Run for subtests", "type": "contains", "value": "t.Run"},
+        {"id": "a2", "description": "Mentions table or slice of test cases", "type": "contains", "value": "table"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I generate mocks for Go interfaces?",
+      "expected_output": "Use mockery to auto-generate mocks from interfaces. Do not write manual mocks. Define mocks locally in test scope to avoid state leakage.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends mockery", "type": "contains", "value": "mockery"},
+        {"id": "a2", "description": "Warns against manual mocks", "type": "contains", "value": "manual"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I detect race conditions in Go tests?",
+      "expected_output": "Run go test -race. The race detector instruments all memory accesses and reports data races. Should be part of CI pipeline.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions go test -race", "type": "contains", "value": "-race"},
+        {"id": "a2", "description": "Recommends CI integration", "type": "contains", "value": "CI"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I write NestJS unit tests?",
+    "How do I test a React component?",
+    "How do I configure a Go HTTP server?"
+  ]
+}

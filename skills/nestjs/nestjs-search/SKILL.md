@@ -38,7 +38,8 @@ Full-text search implementation with Elasticsearch and database patterns.
 - **Docker**: Spin up `elasticsearch:8` container in the test harness to verify indexing works.
 
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- **No dual writes to DB + ES**: Use event-driven or CDC pattern; dual writes risk partial failure inconsistency.
+- **No Elasticsearch for structured queries**: Use DB indexes for filtering; ES is for full-text and complex search.
+- **No ES mocks in E2E search tests**: Spin up `elasticsearch:8` container to verify indexing behavior accurately.

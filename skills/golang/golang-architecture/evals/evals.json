@@ -1,0 +1,38 @@
+{
+  "skill_name": "golang-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I organize packages in a large Go project?",
+      "expected_output": "Follow standard layout: cmd/, internal/, pkg/. Organize by domain/feature, not by layer. Avoid controllers/, services/ at root. Use Clean Architecture layers.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions internal/ or cmd/ layout", "type": "contains", "value": "internal"},
+        {"id": "a2", "description": "Mentions domain-driven organization", "type": "contains", "value": "domain"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I wire dependencies in a Go app without global singletons?",
+      "expected_output": "Use explicit constructor injection: NewService(repo Repository) *Service. Wire everything in main.go. Define interfaces at the consumer side.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions constructor injection", "type": "contains", "value": "constructor"},
+        {"id": "a2", "description": "Mentions wiring in main", "type": "contains", "value": "main"},
+        {"id": "a3", "description": "Warns against global singletons", "type": "not_contains", "value": "var db ="}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I prevent my domain layer from depending on the database layer?",
+      "expected_output": "Define Repository interfaces in the domain/port layer. Infrastructure implements them. Domain never imports from infrastructure. Inversion of Control.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions interface in domain/port", "type": "contains", "value": "interface"},
+        {"id": "a2", "description": "Mentions inversion of control or dependency inversion", "type": "contains", "value": "depend"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I use goroutines safely?",
+    "What is the Go error handling pattern?",
+    "How do I create a React component?"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-documentation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I reduce Swagger boilerplate in NestJS DTOs?",
+      "expected_output": "Enable the Nest CLI Swagger plugin in nest-cli.json under plugins: [@nestjs/swagger]. It auto-generates @ApiProperty from DTO class fields, reducing boilerplate by 50%.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions CLI plugin", "type": "contains", "value": "plugin"},
+        {"id": "a2", "description": "Mentions nest-cli.json", "type": "contains", "value": "nest-cli.json"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I document a generic paginated response in NestJS Swagger?",
+      "expected_output": "Use ApiExtraModels + getSchemaPath in a custom @ApiPaginatedResponse decorator. Register generic types so Swagger can resolve the T reference.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions ApiExtraModels", "type": "contains", "value": "ApiExtraModels"},
+        {"id": "a2", "description": "Mentions getSchemaPath", "type": "contains", "value": "getSchemaPath"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I generate separate Swagger docs for public vs internal APIs in NestJS?",
+      "expected_output": "Call SwaggerModule.createDocument with include: [PublicModule] for /api/docs and include: [AdminModule] for /admin/docs. Group with @ApiTags on controllers.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions SwaggerModule.createDocument with include", "type": "contains", "value": "include"},
+        {"id": "a2", "description": "Mentions @ApiTags", "type": "contains", "value": "ApiTags"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I write a NestJS guard?",
+    "How do I generate Swagger in Spring Boot?",
+    "How do I write JSDoc for a Go function?"
+  ]
+}

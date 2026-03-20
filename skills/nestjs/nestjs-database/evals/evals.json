@@ -1,0 +1,37 @@
+{
+  "skill_name": "nestjs-database",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I run TypeORM migrations in NestJS production?",
+      "expected_output": "Never use synchronize: true in production. Generate migrations with pnpm migration:generate after entity changes. Run via CI/CD pre-deploy job. Use Expand-Contract for zero-downtime.",
+      "assertions": [
+        {"id": "a1", "description": "Warns against synchronize:true in production", "type": "contains", "value": "synchronize"},
+        {"id": "a2", "description": "Mentions CI/CD for running migrations", "type": "contains", "value": "CI"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I implement the repository pattern with TypeORM in NestJS?",
+      "expected_output": "Inject @InjectRepository(Entity). Services call repositories, not raw SQL. Isolate all database logic in repository classes.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions @InjectRepository", "type": "contains", "value": "InjectRepository"},
+        {"id": "a2", "description": "Says services call repositories", "type": "contains", "value": "Repository"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I implement transactions with TypeORM in NestJS?",
+      "expected_output": "Use QueryRunner for TypeORM or $transaction for Prisma. All multi-step mutations requiring atomicity must use transactions. Never do partial updates without wrapping.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions QueryRunner", "type": "contains", "value": "QueryRunner"},
+        {"id": "a2", "description": "Mentions atomicity", "type": "contains", "value": "atomic"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I implement Redis caching in NestJS?",
+    "How do I use MongoDB with NestJS?",
+    "How do I configure database in a Go service?"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "skill_name": "spring-boot-data-access",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Should I use Spring Data JPA or JOOQ for database access in Spring Boot?",
+      "expected_output": "Spring Data JPA for standard CRUD/simple queries. JOOQ for complex SQL with type-safety. Native queries or Criteria API for medium complexity. Choose based on query complexity.",
+      "assertions": [
+        {"id": "a1", "description": "Distinguishes JPA vs JOOQ use cases", "type": "contains", "value": "JPA"},
+        {"id": "a2", "description": "Mentions type-safety or complex queries", "type": "contains", "value": "complex"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I run database migrations in Spring Boot?",
+      "expected_output": "Use Flyway or Liquibase. Never use spring.jpa.hibernate.ddl-auto=create or update in production. Store migration scripts in db/migration. Run on startup via Spring auto-configuration.",
+      "assertions": [
+        {"id": "a1", "description": "Recommends Flyway or Liquibase", "type": "contains", "value": "Flyway"},
+        {"id": "a2", "description": "Warns against ddl-auto in production", "type": "contains", "value": "ddl-auto"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I configure a database connection pool in Spring Boot?",
+      "expected_output": "Spring Boot defaults to HikariCP. Configure spring.datasource.hikari.maximum-pool-size, minimum-idle, connection-timeout. Tune based on expected concurrent queries and DB limits.",
+      "assertions": [
+        {"id": "a1", "description": "Mentions HikariCP", "type": "contains", "value": "Hikari"},
+        {"id": "a2", "description": "Mentions pool size configuration", "type": "contains", "value": "pool-size"}
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I use TypeORM with NestJS?",
+    "How do I connect Go to PostgreSQL?",
+    "How do I write a Spring Boot controller?"
+  ]
+}
