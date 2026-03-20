@@ -1,6 +1,6 @@
 ---
 name: angular-forms
-description: "Standards for Typed Reactive Forms and Validators. Use when implementing typed reactive forms, custom validators, or form control patterns in Angular. (triggers: **/*.ts, **/*.html, FormBuilder, FormGroup, FormControl, Validators)"
+description: "Standards for Typed Reactive Forms and Validators. Use when implementing typed reactive forms, custom validators, or form control patterns in Angular. (triggers: FormBuilder, FormGroup, FormControl, Validators, reactive forms, typed forms)"
 ---
 
 # Forms
@@ -18,12 +18,12 @@ description: "Standards for Typed Reactive Forms and Validators. Use when implem
 - **Component Store integration**: Sync form value changes to Signal Store/Service if needed.
 - **Split Logic**: Logic for validation should be in custom validator functions, not inside the component.
 
+## Anti-Patterns
+
+- **No Template-Driven Forms**: Use Reactive Forms for any non-trivial inputs.
+- **No untyped FormGroup**: Always use strictly typed `FormGroup<T>`.
+- **No validation in component**: Extract validation into standalone validator functions.
+
 ## References
 
 - [Typed Forms](references/typed-forms.md)
-
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.

@@ -1,6 +1,6 @@
 ---
 name: angular-style-guide
-description: "Naming conventions, file structure, and coding standards for Angular projects. Use when naming Angular files, organizing project structure, or following Angular style guide. (triggers: **/*.ts, angular style, naming convention, file structure)"
+description: "Naming conventions, file structure, and coding standards for Angular projects. Use when naming Angular files, organizing project structure, or following Angular style guide. (triggers: angular style, naming convention, file structure, angular-style-guide)"
 ---
 
 # Angular Style Guide
@@ -25,9 +25,9 @@ description: "Naming conventions, file structure, and coding standards for Angul
 
 ## Anti-Patterns
 
-- **Logic in Templates**: Move complex logic to the component class or a computed signal.
-- **Deep Nesting**: Avoid $>3$ levels of folder nesting.
-- **Prefixing interfaces**: No `IUser`. Use `User`.
+- **No logic in templates**: Move to the component class or a `computed()` signal.
+- **No deep nesting**: Keep folder depth ≤3 levels.
+- **No I-prefix on interfaces**: Name interfaces `User`, not `IUser`.
 
 ## References
 

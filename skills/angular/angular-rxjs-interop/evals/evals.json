@@ -1,0 +1,41 @@
+{
+  "skill_name": "angular-rxjs-interop",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I convert an Observable to a Signal in Angular?",
+      "expected_output": "Use toSignal(observable$, { initialValue: defaultValue }) from @angular/core/rxjs-interop. Call in an injection context (class field or constructor). toSignal auto-unsubscribes on component destroy. Provide initialValue to avoid undefined."
+    },
+    {
+      "id": 2,
+      "prompt": "How do I use toSignal() for HTTP responses in Angular?",
+      "expected_output": "users = toSignal(this.http.get<User[]>('/api/users').pipe(catchError(() => of([]))), { initialValue: [] }). The signal updates whenever the Observable emits. Use in templates as {{ users() }}. Consider httpResource() for simpler reactive HTTP."
+    },
+    {
+      "id": 3,
+      "prompt": "How do I use toObservable() to apply RxJS operators on a Signal?",
+      "expected_output": "Convert signal to Observable: searchResults = toSignal(toObservable(this.query).pipe(debounceTime(300), distinctUntilChanged(), switchMap(q => this.search(q))), { initialValue: [] }). toObservable emits when the signal changes."
+    },
+    {
+      "id": 4,
+      "prompt": "How do I properly unsubscribe from Observables in Angular?",
+      "expected_output": "Use toSignal() which auto-unsubscribes (preferred). For manual subscriptions: use takeUntilDestroyed() in injection context. Inject DestroyRef for imperative cleanup callbacks. Never use a global Subject with takeUntil — it leaks if Subject is never completed."
+    },
+    {
+      "id": 5,
+      "prompt": "How do I use takeUntilDestroyed in Angular?",
+      "expected_output": "Import from @angular/core/rxjs-interop: this.service.data$.pipe(takeUntilDestroyed()).subscribe(...). Must be called in injection context (class field or constructor). For use outside: pass destroyRef = inject(DestroyRef) and call takeUntilDestroyed(destroyRef)."
+    },
+    {
+      "id": 6,
+      "prompt": "How do I handle RxJS debounce on a Signal value change in Angular?",
+      "expected_output": "Convert signal to Observable first: toObservable(this.searchQuery).pipe(debounceTime(300), distinctUntilChanged(), switchMap(q => this.api.search(q))). Then wrap back to signal with toSignal(). This applies RxJS time-based operators to reactive signal changes."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I use RxJS in a Node.js backend service?",
+    "How do I set up Redux Observable middleware?",
+    "How do I use React Query for server state management?",
+    "How do I implement the Observer pattern in Java with listeners?"
+  ]
+}

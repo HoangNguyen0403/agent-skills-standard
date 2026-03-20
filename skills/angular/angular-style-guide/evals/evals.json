@@ -1,0 +1,41 @@
+{
+  "skill_name": "angular-style-guide",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "What naming conventions should I use for Angular files?",
+      "expected_output": "Use kebab-case with type suffix: hero-list.component.ts, auth.service.ts, user.pipe.ts, app.routes.ts. Classes use PascalCase + type suffix: HeroListComponent, AuthService. Directives use camelCase selector: appHighlight."
+    },
+    {
+      "id": 2,
+      "prompt": "How do I name Angular components and services?",
+      "expected_output": "Components: PascalCase + Component suffix (HeroListComponent). Services: PascalCase + Service suffix (HeroService). Pipes: camelCase name (truncate). Directives: camelCase selector with app prefix (appFocusTrap). Files: kebab-case.type.ts."
+    },
+    {
+      "id": 3,
+      "prompt": "What is the LIFT principle in Angular?",
+      "expected_output": "Locate code quickly, Identify files by name, keep the Flattest structure possible, Try to be DRY. Keep files under 400 lines. One component/service per file. Use feature-based folders, not type-based folders (/components, /services at root level)."
+    },
+    {
+      "id": 4,
+      "prompt": "Should I prefix Angular interfaces with I?",
+      "expected_output": "No — do not use IUser or IHero. Name interfaces as User, Hero. The I-prefix is a C# convention not recommended by Angular style guide. TypeScript types and interfaces should read as nouns: User, AuthConfig, RouteData."
+    },
+    {
+      "id": 5,
+      "prompt": "How should I organize barrel files in Angular?",
+      "expected_output": "Use index.ts only for public APIs of specific features or libraries. Avoid deep barrel imports within the same feature — import directly. Barrel files in the wrong places prevent tree-shaking and create circular dependency risks."
+    },
+    {
+      "id": 6,
+      "prompt": "What is the recommended folder structure for Angular projects?",
+      "expected_output": "src/app/core/ (singletons), src/app/shared/ (reusable UI), src/app/features/feature-name/ (lazy-loaded features). Keep folder depth ≤3 levels. Each feature folder contains its own components, services, models, and routes file."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I use prettier to format React code?",
+    "What are the TypeScript naming conventions for variables?",
+    "How do I configure ESLint rules for a Node.js project?",
+    "How do I set up Python PEP8 code style enforcement?"
+  ]
+}

@@ -18,12 +18,12 @@ description: "Composition patterns using HostDirectives and Pure Pipes. Use when
 - **Signal Inputs**: Directives also support signal inputs.
 - **Standalone**: All Pipes and Directives must be standalone.
 
+## Anti-Patterns
+
+- **No @HostBinding/@HostListener**: Use `host: {}` object in `@Directive` decorator instead.
+- **No impure pipes for static transforms**: Keep `pure: true` (default); use `async` pipe for Observables.
+- **No structural directives for conditionals**: Use native `@if`/`@for`/`@switch` block syntax.
+
 ## References
 
 - [Composition](references/composition.md)
-
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.

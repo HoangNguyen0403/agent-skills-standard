@@ -38,9 +38,18 @@ export const COMMON_SKILL_EXCLUDES: Record<
   'backend' | 'frontend' | 'mobile',
   string[]
 > = {
-  backend: ['accessibility', 'mobile-animation', 'mobile-ux-core'],
-  frontend: ['observability', 'mobile-animation', 'mobile-ux-core'],
-  mobile: ['accessibility', 'api-design', 'observability'],
+  backend: [
+    'common-accessibility',
+    'common-mobile-animation',
+    'common-mobile-ux-core',
+  ],
+  frontend: [
+    'common-observability',
+    'common-mobile-animation',
+    'common-mobile-ux-core',
+    'common-ui-design',
+  ],
+  mobile: ['common-accessibility', 'common-api-design', 'common-observability'],
 };
 
 /**

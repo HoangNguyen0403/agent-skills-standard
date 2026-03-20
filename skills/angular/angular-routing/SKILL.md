@@ -20,8 +20,8 @@ description: "Standards for Angular Router, Lazy Loading, and Guards. Use when c
 
 ## Anti-Patterns
 
-- **Logic in Routes**: Keep route definitions clean. Move logic to Guards or Resolvers.
-- **Eager Loading features**: Never direct import feature components in root routes.
+- **No logic in route config**: Move access control and data fetching to dedicated Guards and Resolvers.
+- **No eager feature imports**: Use `loadComponent` or `loadChildren` for all feature routes.
 
 ## References
 

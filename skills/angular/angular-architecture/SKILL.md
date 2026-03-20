@@ -32,10 +32,12 @@ description: "Standards for Angular project structure, feature modules, and lazy
 - [ ] **Smart/Dumb**: Are presentational components logic-free with only @Input/@Output?
 - [ ] **Signals**: Are you using Signals for local state where applicable (Angular 16+)?
 
+## Anti-Patterns
+
+- **No NgModule**: Eliminate NgModule for new code; use standalone components.
+- **No eager feature imports**: Lazy load all features with `loadComponent` or `loadChildren`.
+- **No type-based folders**: Organize by feature, not by `/components`, `/services` top-level dirs.
+
+## References
+
 - [Folder Structure](references/folder-structure.md)
-
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.

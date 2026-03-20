@@ -1,0 +1,41 @@
+{
+  "skill_name": "angular-forms",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I create a typed reactive form in Angular?",
+      "expected_output": "Use FormGroup<T> with a typed interface: FormGroup<{ email: FormControl<string>; password: FormControl<string> }>. Use FormBuilder with nonNullable: true to avoid null in form values. Never use untyped FormGroup."
+    },
+    {
+      "id": 2,
+      "prompt": "How do I use FormBuilder to create a FormGroup?",
+      "expected_output": "Inject FormBuilder with fb = inject(FormBuilder). Use fb.nonNullable.group({ email: ['', Validators.email], password: ['', Validators.required] }). This creates typed controls with nonNullable values."
+    },
+    {
+      "id": 3,
+      "prompt": "How do I write a custom validator for an Angular form?",
+      "expected_output": "Create a standalone validator function: function passwordStrength(control: AbstractControl): ValidationErrors | null { ... }. Pass to Validators array. Extract into a separate file — do not put validation logic inside the component class."
+    },
+    {
+      "id": 4,
+      "prompt": "How do I use nonNullable reactive forms in Angular?",
+      "expected_output": "Use FormBuilder.nonNullable: const form = fb.nonNullable.group({ name: '' }). This ensures form.value returns string instead of string | null. Use nonNullable: true option on individual FormControl for fine-grained control."
+    },
+    {
+      "id": 5,
+      "prompt": "Should I use template-driven or reactive forms in Angular?",
+      "expected_output": "Use Reactive Forms (FormControl, FormGroup) for any non-trivial inputs. Template-driven forms are only acceptable for very simple, single-field cases. Reactive forms are strictly typed, testable, and compose better with Signal stores."
+    },
+    {
+      "id": 6,
+      "prompt": "How do I sync a FormGroup with an Angular Signal Store?",
+      "expected_output": "Use valueChanges.pipe(takeUntilDestroyed()) to subscribe to form changes and call store.update(). Or use effect() watching a signal to patch the form. Keep form logic in the component and validation in standalone validator functions."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I build a controlled form in React with useState?",
+    "How do I validate request bodies in NestJS with class-validator?",
+    "How do I use Zod for runtime schema validation?",
+    "How do I create a Django ModelForm?"
+  ]
+}

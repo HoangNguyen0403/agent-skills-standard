@@ -20,13 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Standardized Anti-Patterns (PHP/Laravel/Next.js)**: Refactored `Anti-Patterns` section across PHP, Laravel, and Next.js skills for better AI enforcement.
-- **Unified Skill Evals (Full Stack)**: Introduced `evals/evals.json` for PHP, Laravel, and Next.js categories (30+ new eval files).
-- **Version Synchronisation (Web Frameworks)**: Incremented versions for core categories: PHP to `1.3.0`, Laravel to `1.3.0`, and Next.js to `1.4.0`.
+- **Standardized Anti-Patterns (PHP/Laravel/Next.js/Angular)**: Refactored `Anti-Patterns` section across PHP, Laravel, Next.js, and Angular skills for better AI enforcement.
+- **Unified Skill Evals (Full Stack)**: Introduced `evals/evals.json` for PHP, Laravel, Next.js, and Angular categories (45+ new eval files).
+- **Version Synchronisation (Web Frameworks)**: Incremented versions for core categories: PHP to `1.3.0`, Laravel to `1.3.0`, Next.js to `1.4.0`, and Angular to `1.3.0`.
 - **Version Synchronisation (Backend)**: Incremented versions for core backend categories: NestJS updated to `1.4.0`, Golang to `1.3.0`, and Spring Boot to `1.3.0`.
-- **Token Economy Mastery**: Refactored the heaviest skills (React, Next.js, Android, NestJS) to stay within optimized token budgets using the "Three-Level Loading System".
+- **Token Economy Mastery**: Refactored the heaviest skills (React, Next.js, Android, NestJS, Angular) to stay within optimized token budgets using the "Three-Level Loading System".
 - **Trigger Optimization**: Significant update to `(triggers: ...)` descriptions for all frameworks to improve intent matching and reduce false negatives in IDE agents.
-- **Metadata Synchronization**: Incremented skill category versions: Android/Java/Kotlin/iOS to `1.4.0`, React/TypeScript/Swift to `1.3.0`, and React Native to `1.4.0`.
+- **Metadata Synchronization**: Incremented skill category versions: Android/Java/Kotlin/iOS to `1.4.0`, React/TypeScript/Swift/Angular to `1.3.0`, and React Native to `1.4.0`.
 
 ### Fixed
 
@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **NextJS Skills**: v1.4.0
 - **Laravel Skills**: v1.3.0
 - **PHP Skills**: v1.3.0
+- **Angular Skills**: v1.3.0
 - **NestJS Skills**: v1.4.0
 - **Golang Skills**: v1.3.0
 - **Spring Boot Skills**: v1.3.0

@@ -1,0 +1,41 @@
+{
+  "skill_name": "angular-directives-pipes",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I create a custom attribute directive in Angular?",
+      "expected_output": "Use @Directive({ standalone: true, selector: '[appHighlight]' }). Inject ElementRef/Renderer2 for DOM access. Define host bindings in host: {} object — not with @HostBinding/@HostListener. Export and import directly in component imports."
+    },
+    {
+      "id": 2,
+      "prompt": "How do I use hostDirectives to compose behaviors in Angular?",
+      "expected_output": "Add hostDirectives: [TooltipDirective] to @Component or @Directive decorator. This applies the directive's behavior without inheritance. Expose inputs/outputs via hostDirectives: [{ directive: TooltipDirective, inputs: ['text'] }]."
+    },
+    {
+      "id": 3,
+      "prompt": "How do I write a pure pipe in Angular?",
+      "expected_output": "Implement PipeTransform with transform() method. Mark as standalone. Pure pipes (default) cache results by input reference — Angular only re-runs them when the reference changes. Do not set pure: false unless handling Observables/Arrays that mutate."
+    },
+    {
+      "id": 4,
+      "prompt": "Working on tooltip.directive.ts — how do I handle host bindings correctly?",
+      "expected_output": "Use the host: {} object in @Directive: host: { '(mouseenter)': 'show()', '(mouseleave)': 'hide()', '[attr.aria-label]': 'text()' }. Never use @HostBinding or @HostListener decorators — they are deprecated patterns."
+    },
+    {
+      "id": 5,
+      "prompt": "How do I make an Angular directive standalone?",
+      "expected_output": "Add standalone: true to @Directive (or omit in Angular 20+). Import directly into the component's imports array that uses it. Do not declare in NgModule. Use ng generate directive to scaffold correctly."
+    },
+    {
+      "id": 6,
+      "prompt": "How do I create a truncate pipe in Angular?",
+      "expected_output": "Create @Pipe({ name: 'truncate', standalone: true }) with transform(value: string, limit = 50): string. Import directly in component imports array. Keep pure: true (default) for caching. Extract complex logic to a utility function."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I create middleware in React?",
+    "How do I write a NestJS interceptor?",
+    "How do I build a Go HTTP middleware?",
+    "How do I style elements using CSS custom properties?"
+  ]
+}

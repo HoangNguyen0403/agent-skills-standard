@@ -1,6 +1,6 @@
 ---
 name: angular-state-management
-description: "Signals-based state management and NgRx Signal Store. Use when managing application state with Angular Signals or NgRx Signal Store. (triggers: **/*.store.ts, **/state/**, angular signals, signal store, computed, effect)"
+description: "Signals-based state management and NgRx Signal Store. Use when managing application state with Angular Signals or NgRx Signal Store. (triggers: **/*.store.ts, **/state/**, angular signals, signal store, computed, effect, linkedSignal)"
 ---
 
 # State Management
@@ -14,6 +14,12 @@ description: "Signals-based state management and NgRx Signal Store. Use when man
 - **Services**: For simple apps, a service with `signal` properties is sufficient.
 - **Signal Store**: For complex features, use `@ngrx/signals` (Signal Store) over Redux boilerplate.
 
+## Modern Signal APIs
+
+- **`linkedSignal()`**: For dependent state that resets when a source changes (e.g., reset selected item when list changes). See references.
+- **`asReadonly()`**: Expose public readonly signals from private writable signals in services.
+- **`untracked()`**: Read a signal inside `computed()`/`effect()` without creating a dependency.
+
 ## Guidelines
 
 - **Immutability**: Treat signal values as immutable. Update using `.set()` or `.update()`.
@@ -21,8 +27,8 @@ description: "Signals-based state management and NgRx Signal Store. Use when man
 
 ## Anti-Patterns
 
-- **Component State**: Avoid heavy state logic in components. Delegate to a Store/Service.
-- **RxJS `BehaviorSubject`**: Deprecated for state (use Signals). Use RxJS only for complex event streams.
+- **No state logic in components**: Delegate to a Signal Store or Service instead.
+- **No `BehaviorSubject` for state**: Use Signals; keep RxJS only for complex event streams.
 
 ## References
 

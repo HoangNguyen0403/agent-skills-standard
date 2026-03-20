@@ -1,6 +1,6 @@
 ---
 name: angular-security
-description: "Security best practices for Angular (XSS, CSP, Route Guards). Use when implementing XSS protection, Content Security Policy, or auth guards in Angular. (triggers: **/*.ts, **/*.html, DomSanitizer, innerHTML, bypassSecurityTrust, CSP)"
+description: "Security best practices for Angular (XSS, CSP, Route Guards). Use when implementing XSS protection, Content Security Policy, or auth guards in Angular. (triggers: DomSanitizer, innerHTML, bypassSecurityTrust, CSP, angular security, route guard)"
 ---
 
 # Security
@@ -19,16 +19,13 @@ description: "Security best practices for Angular (XSS, CSP, Route Guards). Use 
 - **HTTP**: Use Interceptors to attach secure tokens (HttpOnly cookies preferred over LocalStorage tokens).
 - **Secrets**: NEVER store secrets (API keys) in Angular code.
 
+## Anti-Patterns
+
+- **No bypassSecurityTrust**: Trust Angular's sanitization; bypass only for verified static content.
+- **No localStorage for tokens**: Use HttpOnly cookies via interceptors for auth tokens.
+- **No secrets in source**: Never embed API keys or secrets in Angular bundle code.
+
 ## References
 
 - [Security Best Practices](references/security-best-practices.md)
-
-## Related Topics
-
-common/security-standards | components
-
-
-## 🚫 Anti-Patterns
-
-- Do NOT use standard patterns if specific project rules exist.
-- Do NOT ignore error handling or edge cases.
+- common/security-standards

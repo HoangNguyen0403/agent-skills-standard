@@ -1,0 +1,41 @@
+{
+  "skill_name": "angular-security",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I prevent XSS in Angular?",
+      "expected_output": "Angular sanitizes interpolated values by default — {{ userInput }} is safe. Never use [innerHTML] with user content. If you must render HTML, use DomSanitizer.sanitize(SecurityContext.HTML, content). Never call bypassSecurityTrustHtml() on user-provided data."
+    },
+    {
+      "id": 2,
+      "prompt": "How do I safely render HTML content in Angular?",
+      "expected_output": "Only use [innerHTML] for static, trusted content (e.g., CMS content from your own server). Sanitize with DomSanitizer.sanitize() not bypassSecurityTrustHtml(). For user-generated content, display as text with {{ content }} — never as HTML."
+    },
+    {
+      "id": 3,
+      "prompt": "How do I set up a Content Security Policy for an Angular app?",
+      "expected_output": "Configure CSP headers on the server (not in Angular code). Use nonce-based CSP: ng build generates nonce values for inline scripts. Set Content-Security-Policy: default-src 'self'; script-src 'nonce-{nonce}'. Avoid unsafe-inline and unsafe-eval."
+    },
+    {
+      "id": 4,
+      "prompt": "Should I use DomSanitizer bypassSecurityTrustHtml in Angular?",
+      "expected_output": "Only bypass security for content you control (e.g., a trusted CMS). Never bypass for user-provided content. Trust Angular's sanitization — it handles most cases. Audit every bypassSecurityTrust* call in code reviews as a potential XSS vector."
+    },
+    {
+      "id": 5,
+      "prompt": "How do I protect routes with auth guards in Angular?",
+      "expected_output": "Create a functional guard: export const authGuard: CanActivateFn = () => inject(AuthService).isLoggedIn() ? true : inject(Router).createUrlTree(['/login']). Apply to routes: { canActivate: [authGuard] }. Protect all sensitive routes — do not rely on UI hiding alone."
+    },
+    {
+      "id": 6,
+      "prompt": "How do I store auth tokens securely in Angular?",
+      "expected_output": "Use HttpOnly cookies managed by the server — not localStorage or sessionStorage. Tokens in localStorage are accessible via XSS. Use HTTP interceptors to attach cookies automatically. Never store API keys or secrets in Angular source code."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I prevent SQL injection in a PostgreSQL query?",
+    "How do I secure a NestJS API with JWT guards?",
+    "How do I configure HTTPS and TLS certificates in nginx?",
+    "How do I set up CORS in an Express.js server?"
+  ]
+}

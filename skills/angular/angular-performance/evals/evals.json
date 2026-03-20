@@ -1,0 +1,41 @@
+{
+  "skill_name": "angular-performance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I improve Angular change detection performance?",
+      "expected_output": "Use ChangeDetectionStrategy.OnPush on all components. Use Signals for state — they integrate with zoneless Angular. Avoid function calls in templates; use computed() instead. Prepare for zoneless by avoiding Zone.runOutsideAngular hacks."
+    },
+    {
+      "id": 2,
+      "prompt": "How do I use @defer to lazy load a heavy component?",
+      "expected_output": "Wrap heavy components with @defer (on viewport) { <HeavyComponent /> } @placeholder { <Spinner /> }. Use triggers: on viewport, on interaction, on idle, when condition. @defer creates a separate lazy-loaded chunk automatically."
+    },
+    {
+      "id": 3,
+      "prompt": "How do I use NgOptimizedImage for LCP optimization in Angular?",
+      "expected_output": "Import NgOptimizedImage and replace <img src='...'> with <img ngSrc='...' width='800' height='600'>. Add priority attribute for LCP images. This enables lazy loading, responsive srcset, and preconnect hints automatically."
+    },
+    {
+      "id": 4,
+      "prompt": "Should I avoid function calls in Angular templates?",
+      "expected_output": "Yes — {{ calculate() }} re-evaluates on every change detection cycle. Replace with a computed() signal: displayValue = computed(() => this.calculate()). Then use {{ displayValue() }} in the template. Computed() caches until dependencies change."
+    },
+    {
+      "id": 5,
+      "prompt": "How do I prepare Angular for zoneless rendering?",
+      "expected_output": "Use Signals for all reactive state instead of Zone.runOutsideAngular hacks. Set ChangeDetectionStrategy.OnPush on all components. Avoid setTimeout/setInterval side effects — use effect() or RxJS timer instead. Opt into provideExperimentalZonelessChangeDetection()."
+    },
+    {
+      "id": 6,
+      "prompt": "How do I use trackBy in Angular @for loops?",
+      "expected_output": "Use @for (item of items; track item.id) { } — the track expression replaces trackBy. Always provide a stable unique identifier (e.g., item.id). This prevents Angular from destroying and recreating DOM nodes on list updates."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I optimize React rendering with useMemo and React.memo?",
+    "How do I reduce bundle size with webpack tree shaking?",
+    "How do I optimize slow PostgreSQL queries with indexes?",
+    "How do I configure Redis caching for API responses?"
+  ]
+}

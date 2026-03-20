@@ -1,6 +1,6 @@
 ---
 name: angular-performance
-description: "Optimization techniques including OnPush, @defer, and Image Optimization. Use when optimizing Angular rendering, deferring blocks, or improving Core Web Vitals. (triggers: **/*.ts, **/*.html, ChangeDetectionStrategy.OnPush, @defer, NgOptimizedImage, runOutsideAngular)"
+description: "Optimization techniques including OnPush, @defer, and Image Optimization. Use when optimizing Angular rendering, deferring blocks, or improving Core Web Vitals. (triggers: ChangeDetectionStrategy.OnPush, @defer, NgOptimizedImage, runOutsideAngular, OnPush)"
 ---
 
 # Performance
@@ -20,8 +20,8 @@ description: "Optimization techniques including OnPush, @defer, and Image Optimi
 
 ## Anti-Patterns
 
-- **Functions in Template**: `{{ calculate() }}` causes re-evaluation on every change detection cycle. Use `computed()` signals or pure pipes.
-- **Heavy Constructors**: Keep constructors empty. Use `ngOnInit` or effects.
+- **No function calls in template**: Use `computed()` signals or pure pipes to avoid per-cycle re-evaluation.
+- **No logic in constructor**: Initialize state in `ngOnInit` or signal effects instead.
 
 ## References
 

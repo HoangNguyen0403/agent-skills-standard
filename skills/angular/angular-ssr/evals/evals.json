@@ -1,0 +1,41 @@
+{
+  "skill_name": "angular-ssr",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I enable SSR and hydration in Angular?",
+      "expected_output": "Run ng add @angular/ssr. In app.config.ts add provideClientHydration(withEventReplay()) to providers. This enables full app hydration — Angular reuses server-rendered DOM instead of wiping and re-rendering on the client."
+    },
+    {
+      "id": 2,
+      "prompt": "How do I use RenderMode in Angular 17+ server routes?",
+      "expected_output": "Configure in app.routes.server.ts: { path: 'blog/:slug', renderMode: RenderMode.Prerender } for static, { path: 'dashboard', renderMode: RenderMode.Client } for auth-gated SPAs, { path: 'feed', renderMode: RenderMode.Server } for dynamic per-request SSR."
+    },
+    {
+      "id": 3,
+      "prompt": "How do I prevent double-fetching with TransferState in Angular?",
+      "expected_output": "Use withHttpTransferCacheOptions() in provideClientHydration() — it caches HTTP responses from server and replays them on the client. For manual control, use TransferState service to transfer arbitrary data from server to client state."
+    },
+    {
+      "id": 4,
+      "prompt": "How do I safely access window in an Angular SSR app?",
+      "expected_output": "Use afterNextRender(() => { /* window access here */ }) for one-time browser-only code. For recurring access, inject PLATFORM_ID and check isPlatformBrowser(platformId). Never access window/document/localStorage directly in component logic."
+    },
+    {
+      "id": 5,
+      "prompt": "How do I configure incremental hydration with @defer in Angular?",
+      "expected_output": "Use @defer (hydrate on viewport) { <HeavyComponent /> } for lazy hydration. Available triggers: viewport, interaction, idle, timer(ms), immediate, never. Add withEventReplay() to provideClientHydration() to capture user events before hydration completes."
+    },
+    {
+      "id": 6,
+      "prompt": "Working on app.routes.server.ts — how do I set up render modes per route?",
+      "expected_output": "Export serverRoutes: ServerRoute[] with { path, renderMode } per route. Use RenderMode.Prerender for blogs/marketing (build-time HTML), RenderMode.Server for user-specific pages (per-request SSR), RenderMode.Client for authenticated dashboards (SPA)."
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up Next.js server-side rendering with getServerSideProps?",
+    "How do I configure React Server Components?",
+    "How do I deploy a NestJS server to production?",
+    "How do I set up Nuxt.js for Vue SSR?"
+  ]
+}
