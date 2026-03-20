@@ -269,7 +269,7 @@ async increment(key: string, ttl: number, limit: number): Promise<ThrottlerStora
 
 ## 7. Processor vs. Cron — When Both Exist
 
-```bash
+```text
 Cron (runs at 02:00 daily)
   → finds entities needing work
   → calls QueueService.triggerProcessing()

@@ -49,9 +49,5 @@ See [Security Configuration](references/implementation.md) for full `SecurityFil
 ## References
 
 - [Implementation Examples](references/implementation.md)
-
-## References
-
-- [Implementation Examples](references/implementation.md)
 - common/security-standards
 - architecture
