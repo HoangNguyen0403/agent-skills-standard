@@ -14,7 +14,7 @@
     {
       "id": 2,
       "prompt": "How do I make my coroutine dispatcher injectable so I can swap it in tests?",
-      "expected_output": "Create a DispatcherProvider interface with IO/Main/Default properties. Inject it via Hilt. In tests, inject TestCoroutineDispatcher. Never hardcode Dispatchers.IO.",
+      "expected_output": "Create a DispatcherProvider interface with IO/Main/Default properties. Inject it via Hilt. In tests, inject TestDispatcher/StandardTestDispatcher. Never hardcode Dispatchers.IO.",
       "assertions": [
         { "id": "a1", "description": "Mentions DispatcherProvider", "type": "contains", "value": "DispatcherProvider" },
         { "id": "a2", "description": "Against hardcoding Dispatchers.IO", "type": "contains", "value": "hardcode" },

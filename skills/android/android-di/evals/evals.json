@@ -32,7 +32,7 @@
     }
   ],
   "should_not_trigger": [
-    "How do I inject a TestCoroutineDispatcher for unit testing a ViewModel?",
+    "How do I inject a TestDispatcher/StandardTestDispatcher for unit testing a ViewModel?",
     "Set up a fake repository using @TestInstallIn for Compose UI tests",
     "My ViewModel creates a coroutine on GlobalScope — how do I fix that?",
     "How do I scope a Hilt dependency to a Jetpack Navigation graph?",

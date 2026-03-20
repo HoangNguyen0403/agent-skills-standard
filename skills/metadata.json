@@ -336,9 +336,9 @@
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 2823,
-        "avg_tokens_per_skill": 353,
-        "largest_skill": "swift-testing (391 tokens)"
+        "total_tokens": 2696,
+        "avg_tokens_per_skill": 337,
+        "largest_skill": "swift-testing (376 tokens)"
       }
     },
     "ios": {
@@ -347,9 +347,9 @@
       "tag_prefix": "ios-v",
       "token_metrics": {
         "total_skills": 15,
-        "total_tokens": 6042,
-        "avg_tokens_per_skill": 403,
-        "largest_skill": "ios-architecture (567 tokens)"
+        "total_tokens": 5651,
+        "avg_tokens_per_skill": 377,
+        "largest_skill": "ios-architecture (571 tokens)"
       }
     },
     "php": {

@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "How do I unit test a ViewModel that uses viewModelScope to launch a coroutine and emits a StateFlow?",
-      "expected_output": "Use runTest from kotlinx-coroutines-test. Apply MainDispatcherRule to replace Main dispatcher with TestCoroutineDispatcher. Inject DispatcherProvider. Collect StateFlow with turbine or awaitItem.",
+      "expected_output": "Use runTest from kotlinx-coroutines-test. Apply MainDispatcherRule to replace Main dispatcher with TestDispatcher/StandardTestDispatcher. Inject DispatcherProvider. Collect StateFlow with turbine or awaitItem.",
       "assertions": [
         { "id": "a1", "description": "Uses runTest", "type": "contains", "value": "runTest" },
         { "id": "a2", "description": "Uses MainDispatcherRule", "type": "contains", "value": "MainDispatcherRule" },
