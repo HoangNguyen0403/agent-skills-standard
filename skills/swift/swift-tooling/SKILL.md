@@ -29,9 +29,9 @@ description: "Standards for SPM, Build Configs, and Code Quality. Use when manag
 
 ## Anti-Patterns
 
-- **Hardcoded Secrets**: `**No API keys in code**: Use environment variables or build configs.`
-- **Ignoring Lint Errors**: `**No // swiftlint:disable**: Fix the underlying issue.`
-- **Manual Dependency Copying**: `**No manually added frameworks**: Use SPM.`
+- **No API keys in code**: Use environment variables or build configs.
+- **No // swiftlint:disable**: Fix the underlying issue.
+- **No manually added frameworks**: Use SPM.
 
 ## References
 

@@ -1,0 +1,18 @@
+{
+  "skill": "ios-performance",
+  "should_trigger": [
+    "How do I detect memory leaks in my iOS app?",
+    "How do I use Instruments to profile my app?",
+    "How do I avoid blocking the main thread?",
+    "Why is my table view scrolling slow?",
+    "How do I cache images efficiently in iOS?",
+    "How do I use the Time Profiler in Xcode?",
+    "How do I fix a retain cycle in my iOS app?"
+  ],
+  "should_not_trigger": [
+    "How do I set up Fastlane?",
+    "How do I use String Catalogs?",
+    "How do I implement MVVM?",
+    "How do I store a password securely?"
+  ]
+}

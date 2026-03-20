@@ -29,9 +29,9 @@ description: "Standards for ARC, Weak/Unowned References, and Capture Lists. Use
 
 ## Anti-Patterns
 
-- **Strong Delegates**: `**No strong var delegate**: Use weak.`
-- **Missing Capture List**: `**No self in escaping closures**: Use [weak self].`
-- **Unowned Misuse**: `**Avoid unowned**: Use weak unless certain.`
+- **No strong var delegate**: Use weak.
+- **No self in escaping closures**: Use [weak self].
+- **No unowned unless certain**: Default to weak to prevent crashes.
 
 ## References
 

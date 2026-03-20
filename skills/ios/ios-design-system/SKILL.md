@@ -11,48 +11,14 @@ Enforce design token usage in SwiftUI. Follow Apple HIG for iOS-native feel.
 
 ## Token Structure
 
-```swift
-// Theme/Colors.swift
-extension Color {
-    static let appPrimary = Color("Primary") // Asset Catalog
-    static let appSecondary = Color("Secondary")
-    static let appBackground = Color("Background")
-}
-
-// Theme/Spacing.swift
-enum Spacing {
-    static let xs: CGFloat = 4
-    static let sm: CGFloat = 8
-    static let md: CGFloat = 16
-    static let lg: CGFloat = 24
-}
-
-// Theme/Typography.swift
-extension Font {
-    static let appTitle = Font.system(size: 28, weight: .bold)
-    static let appBody = Font.system(size: 16, weight: .regular)
-}
-```
-
-## Usage
-
-```swift
-// ❌ FORBIDDEN
-Text("Hello").foregroundColor(Color(hex: "2196F3"))
-VStack(spacing: 16) { }
-
-// ✅ ENFORCED
-Text("Hello").foregroundColor(.appPrimary)
-VStack(spacing: Spacing.md) { }
-Text("Title").font(.appTitle)
-```
+Define tokens in `Theme/` folder: Colors via Asset Catalog (`Color("Name")`), `Spacing` enum for all margins, `Font` extensions for typography. See [Token Structure & Examples](references/example.md).
 
 ## Anti-Patterns
 
-- **No Hex Colors**: Use `Color(hex: "...")` → Error. Define in asset catalog.
-- **No Magic Spacing**: Use `spacing: 16` → Error. Use `Spacing.md`.
-- **No System Colors for Brand**: Use `Color.blue` for brand → Error. Use `.appPrimary`.
+- **No Hex Colors**: Define in asset catalog, use `Color("Name")`.
+- **No Magic Spacing**: Use `Spacing.md` not `spacing: 16`.
+- **No System Colors for Brand**: Use `.appPrimary` not `Color.blue`.
 
-## Related Topics
+## References
 
-mobile-ux-core | ios/swiftui
+- [Token Structure & Usage Examples](references/example.md)

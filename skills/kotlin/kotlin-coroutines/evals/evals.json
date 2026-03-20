@@ -24,7 +24,7 @@
     {
       "id": 3,
       "prompt": "I need to inject a coroutine dispatcher so I can swap it in unit tests. How do I do that in Kotlin?",
-      "expected_output": "Create a DispatcherProvider interface with IO/Main/Default properties. Inject via constructor or DI. In production, provide real dispatchers. In tests, inject TestCoroutineDispatcher. Never hardcode Dispatchers.IO.",
+      "expected_output": "Create a DispatcherProvider interface with IO/Main/Default properties. Inject via constructor or DI. In production, provide real dispatchers. In tests, inject TestDispatcher/StandardTestDispatcher. Never hardcode Dispatchers.IO.",
       "assertions": [
         { "id": "a1", "description": "Uses DispatcherProvider interface", "type": "contains", "value": "DispatcherProvider" },
         { "id": "a2", "description": "Against hardcoding Dispatchers.IO", "type": "contains", "value": "hardcode" },

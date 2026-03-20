@@ -28,9 +28,9 @@ description: "Standards for Instruments, Memory Management, and Optimization. Us
 
 ## Anti-Patterns
 
-- **CPU work on Main Thread**: `**No parsing/processing on Main**: Use background thread.`
-- **Force Cache Flushes**: `**No redundant cache clears**: Let the system handle low-memory warnings via AppDelegate.`
-- **Retain Cycles**: `**Check for cycles in Instruments**: Use the Leaks instrument frequently.`
+- **No parsing/processing on Main**: Use background thread.
+- **No redundant cache clears**: Let system handle low-memory via AppDelegate.
+- **No undetected retain cycles**: Use Leaks instrument frequently.
 
 ## References
 

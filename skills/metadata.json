@@ -288,7 +288,7 @@
     },
     "kotlin": {
       "version": "1.3.0",
-      "last_updated": "2026-03-16",
+      "last_updated": "2026-03-20",
       "tag_prefix": "kotlin-v",
       "token_metrics": {
         "total_skills": 4,
@@ -299,7 +299,7 @@
     },
     "java": {
       "version": "1.3.0",
-      "last_updated": "2026-03-16",
+      "last_updated": "2026-03-20",
       "tag_prefix": "java-v",
       "token_metrics": {
         "total_skills": 5,
@@ -321,7 +321,7 @@
     },
     "android": {
       "version": "1.3.0",
-      "last_updated": "2026-03-16",
+      "last_updated": "2026-03-20",
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 22,
@@ -331,8 +331,8 @@
       }
     },
     "swift": {
-      "version": "1.2.1",
-      "last_updated": "2026-03-16",
+      "version": "1.3.0",
+      "last_updated": "2026-03-20",
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
@@ -342,8 +342,8 @@
       }
     },
     "ios": {
-      "version": "1.3.1",
-      "last_updated": "2026-03-16",
+      "version": "1.4.0",
+      "last_updated": "2026-03-20",
       "tag_prefix": "ios-v",
       "token_metrics": {
         "total_skills": 15,

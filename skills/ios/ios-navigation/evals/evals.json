@@ -1,0 +1,18 @@
+{
+  "skill": "ios-navigation",
+  "should_trigger": [
+    "How do I use NavigationStack in SwiftUI?",
+    "How do I handle deep links in a SwiftUI app?",
+    "How do I implement Universal Links in iOS?",
+    "How do I navigate programmatically with NavigationPath?",
+    "How do I maintain separate navigation stacks per tab?",
+    "How do I handle onOpenURL in SwiftUI?",
+    "How do I configure Associated Domains for app links?"
+  ],
+  "should_not_trigger": [
+    "How do I use findNavController in Android?",
+    "How do I store data in UserDefaults?",
+    "How do I set up Fastlane?",
+    "How do I use BGTaskScheduler?"
+  ]
+}

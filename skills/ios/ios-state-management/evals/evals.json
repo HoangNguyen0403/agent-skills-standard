@@ -1,0 +1,18 @@
+{
+  "skill": "ios-state-management",
+  "should_trigger": [
+    "How do I use Combine in my iOS app?",
+    "How do I use @Published for ViewModel state?",
+    "How do I avoid memory leaks with Combine subscriptions?",
+    "How do I use the Observation framework in iOS 17?",
+    "How do I update UI on the main thread with Combine?",
+    "When should I use PassthroughSubject?",
+    "How do I replace ObservableObject with @Observable?"
+  ],
+  "should_not_trigger": [
+    "How do I make a network request?",
+    "How do I set up Core Data?",
+    "How do I implement SSL pinning?",
+    "How do I use NavigationStack?"
+  ]
+}

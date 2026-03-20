@@ -1,0 +1,18 @@
+{
+  "skill": "ios-security",
+  "should_trigger": [
+    "How do I store a token securely on iOS?",
+    "How do I use Face ID or Touch ID in my app?",
+    "Should I use UserDefaults for storing passwords?",
+    "How do I implement SSL pinning in iOS?",
+    "How do I use the Keychain in Swift?",
+    "How do I protect files on disk in iOS?",
+    "How do I use LocalAuthentication for biometrics?"
+  ],
+  "should_not_trigger": [
+    "How do I set up Fastlane?",
+    "How do I implement MVVM?",
+    "How do I use BGTaskScheduler?",
+    "How do I localize my app?"
+  ]
+}

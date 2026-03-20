@@ -28,9 +28,9 @@ description: "Standards for Combine, Observation, and Reactive Programming. Use 
 
 ## Anti-Patterns
 
-- **Subscription Leaks**: `**No uncleared subscriptions**: Always use .store(in: &cancellables).`
-- **Main Thread Violation**: `**No UI updates on Background**: Use .receive(on: .main).`
-- **Manual objectWillChange**: `**No manual notifications**: Use @Published or @Observable.`
+- **No uncleared subscriptions**: Always use .store(in: &cancellables).
+- **No UI updates on background**: Use .receive(on: .main).
+- **No manual objectWillChange**: Use @Published or @Observable.
 
 ## References
 

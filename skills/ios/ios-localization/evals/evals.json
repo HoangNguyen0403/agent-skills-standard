@@ -1,0 +1,18 @@
+{
+  "skill": "ios-localization",
+  "should_trigger": [
+    "How do I use String Catalogs in Xcode 15?",
+    "How do I localize my iOS app?",
+    "What is the difference between NSLocalizedString and String(localized:)?",
+    "How do I handle pluralization in iOS?",
+    "How do I format currency respecting the user's locale?",
+    "How do I organize assets in xcassets?",
+    "Should I use SF Symbols or custom icons?"
+  ],
+  "should_not_trigger": [
+    "How do I set up push notifications?",
+    "How do I implement MVVM in iOS?",
+    "How do I use Fastlane for CI?",
+    "How do I implement SSL pinning?"
+  ]
+}

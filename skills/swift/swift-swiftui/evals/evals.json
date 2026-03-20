@@ -1,0 +1,18 @@
+{
+  "skill": "swift-swiftui",
+  "should_trigger": [
+    "When should I use @State vs @Binding in SwiftUI?",
+    "What is the difference between @StateObject and @ObservedObject?",
+    "How do I share data across a view hierarchy in SwiftUI?",
+    "How do I use @EnvironmentObject?",
+    "How do I create a custom ViewModifier in SwiftUI?",
+    "How do I use LazyVStack for performance?",
+    "How do I prevent unnecessary re-renders in SwiftUI?"
+  ],
+  "should_not_trigger": [
+    "How do I use async/await?",
+    "How do I implement SSL pinning?",
+    "How do I configure SwiftLint?",
+    "How do I set up Core Data?"
+  ]
+}

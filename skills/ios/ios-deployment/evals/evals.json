@@ -1,0 +1,18 @@
+{
+  "skill": "ios-deployment",
+  "should_trigger": [
+    "How do I automate iOS signing with Fastlane?",
+    "What is fastlane match and how do I use it?",
+    "How do I upload to TestFlight automatically?",
+    "How do I manage provisioning profiles in CI?",
+    "How do I auto-increment the build number in Fastlane?",
+    "How do I set up lanes in a Fastfile?",
+    "How do I avoid storing certificates in my git repo?"
+  ],
+  "should_not_trigger": [
+    "How do I implement push notifications?",
+    "How do I use Core Data migrations?",
+    "How do I write a unit test in XCTest?",
+    "How do I handle deep links?"
+  ]
+}

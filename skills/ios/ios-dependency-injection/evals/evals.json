@@ -1,0 +1,18 @@
+{
+  "skill": "ios-dependency-injection",
+  "should_trigger": [
+    "How do I set up dependency injection in iOS?",
+    "Should I use Swinject or Factory for DI?",
+    "How do I inject a service into my ViewModel?",
+    "What is the @Injected property wrapper?",
+    "How do I scope dependencies in iOS?",
+    "My app uses Resolver.resolve() everywhere, is that OK?",
+    "How do I register singleton services in a DI container?"
+  ],
+  "should_not_trigger": [
+    "How do I implement MVVM?",
+    "How do I use Instruments to detect memory leaks?",
+    "How do I localize strings in Xcode 15?",
+    "How do I set up Fastlane?"
+  ]
+}

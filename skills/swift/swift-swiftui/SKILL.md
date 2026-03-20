@@ -31,9 +31,9 @@ description: "Standards for State Management, View Lifecycle, and Property Wrapp
 
 ## Anti-Patterns
 
-- **@ObservedObject Ownership**: `**No @ObservedObject for owned objects**: Use @StateObject.`
-- **Heavy body**: `**No logic in body**: Move to computed properties or methods.`
-- **Force Unwrap in Views**: `**No ! in View**: Use if-let or nil coalescing.`
+- **No @ObservedObject for owned objects**: Use @StateObject.
+- **No logic in body**: Move to computed properties or methods.
+- **No ! in View**: Use if-let or nil coalescing.
 
 ## References
 

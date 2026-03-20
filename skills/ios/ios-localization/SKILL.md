@@ -29,9 +29,9 @@ description: "Standards for String Catalogs, L10n, and Asset Management. Use whe
 
 ## Anti-Patterns
 
-- **Manual String Formatting**: `**No manual currency symbol concat**: Use NumberFormatter or .formatted(.currency).`
-- **Loose Asset Files**: `**No loose png/jpg files in repo**: Always use Asset Catalogs.`
-- **Untranslated Keys**: `**No placeholder strings**: Ensure 100% coverage in String Catalogs.`
+- **No manual currency symbol concat**: Use NumberFormatter or .formatted(.currency).
+- **No loose png/jpg files in repo**: Always use Asset Catalogs.
+- **No placeholder strings**: Ensure 100% coverage in String Catalogs.
 
 ## References
 

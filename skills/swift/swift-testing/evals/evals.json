@@ -1,0 +1,18 @@
+{
+  "skill": "swift-testing",
+  "should_trigger": [
+    "How do I write unit tests in Swift?",
+    "How do I test async functions with XCTest?",
+    "How do I use XCTestExpectation?",
+    "How do I name my XCTest methods?",
+    "How do I write UI tests in Xcode?",
+    "How do I mock dependencies in XCTest?",
+    "How do I avoid Thread.sleep in tests?"
+  ],
+  "should_not_trigger": [
+    "How do I implement MVVM?",
+    "How do I use Core Data?",
+    "How do I configure SwiftLint?",
+    "How do I use @MainActor?"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "skill": "ios-networking",
+  "should_trigger": [
+    "How do I make a network request in iOS with URLSession?",
+    "How do I use Alamofire in my iOS app?",
+    "How do I add a Bearer token to all API requests?",
+    "How do I implement SSL pinning in iOS?",
+    "How do I decode JSON with Codable?",
+    "How do I handle a 401 token refresh with Alamofire?",
+    "How do I build a URL with query parameters safely?"
+  ],
+  "should_not_trigger": [
+    "How do I store sensitive data on iOS?",
+    "How do I implement MVVM?",
+    "How do I set up BGTaskScheduler?",
+    "How do I use String Catalogs?"
+  ]
+}

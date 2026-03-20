@@ -1,0 +1,18 @@
+{
+  "skill": "ios-ui-navigation",
+  "should_trigger": [
+    "How do I implement Auto Layout programmatically in iOS?",
+    "How do I use NSLayoutAnchor?",
+    "How do I add haptic feedback in UIKit?",
+    "How do I support Dynamic Type in my UIKit app?",
+    "How do I use UIStackView to simplify layout?",
+    "How do I bridge UIKit views into SwiftUI?",
+    "How do I respect the safe area in my UIView layout?"
+  ],
+  "should_not_trigger": [
+    "How do I implement MVVM?",
+    "How do I store data in Core Data?",
+    "How do I set up push notifications?",
+    "How do I use Fastlane match?"
+  ]
+}

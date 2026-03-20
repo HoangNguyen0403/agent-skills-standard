@@ -29,9 +29,9 @@ description: "Standards for URLSession, Alamofire, and API communication. Use wh
 
 ## Anti-Patterns
 
-- **Main Thread completion**: `**No UI updates in background task**: Always jump to Main thread/MainActor.`
-- **Raw Mapping**: `**No manual JSONSerialization**: Use Codable.`
-- **Missing Timeout**: `**No indefinite wait**: Always set a reasonable timeoutInterval (e.g., 30s).`
+- **No UI updates in background task**: Always dispatch to MainActor.
+- **No manual JSONSerialization**: Use Codable.
+- **No indefinite wait**: Set a reasonable timeoutInterval (e.g., 30s).
 
 ## References
 

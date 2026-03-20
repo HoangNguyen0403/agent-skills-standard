@@ -30,9 +30,9 @@ description: "Standards for UIKit, Auto Layout, and Apple Human Interface Guidel
 
 ## Anti-Patterns
 
-- **Hardcoded Frames**: `**No CGRect(x:y:w:h)**: Use Auto Layout.`
-- **Pyramid of Constraints**: `**No complex constraint logic in VC**: Use UIStackView or custom views.`
-- **Missing Loading States**: `**No Blank Screens**: Use skeleton views or UIActivityIndicatorView.`
+- **No CGRect(x:y:w:h)**: Use Auto Layout.
+- **No complex constraint logic in VC**: Use UIStackView or custom views.
+- **No Blank Screens**: Use skeleton views or UIActivityIndicatorView.
 
 ## References
 

@@ -1,0 +1,18 @@
+{
+  "skill": "ios-design-system",
+  "should_trigger": [
+    "How do I define a color token in SwiftUI?",
+    "Should I use Color.blue or a custom color token?",
+    "How do I create a spacing system in SwiftUI?",
+    "What is the right way to define typography in SwiftUI?",
+    "How do I use Asset Catalog colors in SwiftUI?",
+    "How do I enforce design tokens across my app?",
+    "How do I create a ViewModifier for reusable styles?"
+  ],
+  "should_not_trigger": [
+    "How do I set up Fastlane match?",
+    "How do I use BGTaskScheduler?",
+    "How do I implement MVVM?",
+    "How do I pin SSL certificates in iOS?"
+  ]
+}

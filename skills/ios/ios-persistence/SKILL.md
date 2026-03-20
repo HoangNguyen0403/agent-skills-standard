@@ -29,9 +29,9 @@ description: "Standards for SwiftData, Core Data, and Local Storage. Use when im
 
 ## Anti-Patterns
 
-- **Main Thread Blocking**: `**No heavy I/O on ViewContext**: Use private background contexts.`
-- **Manual String Keys**: `**No string-based predicates**: Use KeyPaths or generated helpers.`
-- **Missing Merge Policies**: `**No merge strategy**: Explicitly set mergePolicy (e.g., mergeByPropertyObjectTrump).`
+- **No heavy I/O on ViewContext**: Use private background contexts.
+- **No string-based predicates**: Use KeyPaths or generated helpers.
+- **No missing merge strategy**: Set mergePolicy explicitly (e.g., mergeByPropertyObjectTrump).
 
 ## References
 

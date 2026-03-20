@@ -1,0 +1,18 @@
+{
+  "skill": "swift-tooling",
+  "should_trigger": [
+    "How do I add a Swift package dependency?",
+    "How do I configure SwiftLint for my project?",
+    "How do I use Package.swift?",
+    "How do I use #if DEBUG in Swift?",
+    "How do I modularize my iOS app using local Swift packages?",
+    "How do I write DocC documentation in Swift?",
+    "How do I manage build configurations with xcconfig files?"
+  ],
+  "should_not_trigger": [
+    "How do I implement MVVM?",
+    "How do I use Core Data?",
+    "How do I use @MainActor?",
+    "How do I implement SSL pinning?"
+  ]
+}

@@ -26,9 +26,9 @@ description: "Standards for Provisioning, Signing, and Fastlane. Use when provis
 
 ## Anti-Patterns
 
-- **Manual Signing on CI**: `**No manual identities on CI**: Use Match.`
-- **Check-in Certificates**: `**No Certs in Repo**: Use a private git repo for Match certificates.`
-- **Hardcoded Versioning**: `**No manual version bumps**: Use Fastlane increment tools.`
+- **No manual identities on CI**: Use Match.
+- **No certs in repo**: Use a private git repo for Match certificates.
+- **No manual version bumps**: Use Fastlane increment tools.
 
 ## References
 

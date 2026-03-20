@@ -1,0 +1,18 @@
+{
+  "skill": "swift-language",
+  "should_trigger": [
+    "How do I safely unwrap optionals in Swift?",
+    "How do I use guard let vs if let?",
+    "What is the difference between protocol and class inheritance in Swift?",
+    "How do I use extension for protocol conformance?",
+    "How do I avoid using Any in Swift?",
+    "How do I use enums with associated values in Swift?",
+    "When should I use struct vs class in Swift?"
+  ],
+  "should_not_trigger": [
+    "How do I use async/await?",
+    "How do I configure SwiftLint?",
+    "How do I set up Fastlane?",
+    "How do I use Instruments for profiling?"
+  ]
+}

@@ -28,3 +28,7 @@ description: "Standards for declarative UI construction and data flow in iOS. Us
 - **No Logic in Body**: Move calculations to ViewModel or computed vars.
 - **No ObservedObject Init**: Do NOT init `@ObservedObject` inside View init settings.
 - **No Hardcoded Sizes**: Use flexible frames and spacers.
+
+## References
+
+- [SwiftUI Views & State](references/example.md)

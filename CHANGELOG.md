@@ -7,31 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.10.2] - 2026-03-20
 
-**Category**: Framework Maturity & Universal Skill Hardening
+**Category**: Unified Hardening (iOS, Swift & Android/JVM)
 
 ### Added
 
-- **Universal Skill Evals**: Introduced `evals/evals.json` across all core framework categories (Android, Java, Kotlin, Flutter, Dart) providing 229+ concrete prompts and assertions for automated testing.
-- **Anti-Patterns for All Core Skills**: Added comprehensive `Anti-Patterns` sections to all foundational Flutter, Dart, and Common skills (Security, Performance, TDD, etc.) to prevent common AI hallucinations and architectural leakage.
+- **iOS & Swift Skill Evals**: Introduced `evals/evals.json` across all iOS and Swift skill categories, providing 160+ concrete prompts and assertions for automated testing.
+- **Universal Skill Evals**: Expanded `evals/evals.json` to 229+ concrete prompts and assertions across all core categories (Android, Java, Kotlin, Flutter, Dart, iOS, Swift).
+- **Anti-Patterns for Native Mobile**: Added and refined `Anti-Patterns` sections for all iOS, Swift, Android, Java, and Kotlin skills to prevent hallucinations and enforce safety-critical patterns.
+- **Foundational Skill Hardening**: Added comprehensive `Anti-Patterns` sections to all foundational Flutter, Dart, and Common skills (Security, Performance, TDD, etc.) to prevent common AI hallucinations and architectural leakage.
 - **Retrospective Schema**: Defined a structured `trigger_miss` JSON schema in `common-session-retrospective` to formalize how agents report and fix missing skill triggers.
 - **Reference Content Expansion**: Expanded `references/example.md` across Java and Kotlin modules to provide high-fidelity implementation examples for modern language features (Virtual Threads, Records, etc.).
 
 ### Changed
 
-- **Standardized Skill Hardening**: Updated `Anti-Patterns` across all skill folders to be more descriptive and explicit, replacing legacy short codes with full descriptive rules.
-- **Global Description & Trigger Refinement**: Refined skill descriptions and triggers across the entire library to improve agent trigger accuracy and context relevance in large context windows.
+- **Standardized Skill Hardening**: Completed the global migration of `Anti-Patterns` across all skill folders, replacing legacy short codes with full descriptive rules.
+- **Trigger Refinement**: Significant update to `(triggers: ...)` descriptions for Android, Kotlin, and Java skills to improve intent matching and reduce false negatives in IDE agents.
+- **Global Description Optimization**: Refined skill descriptions across the entire library to improve agent trigger accuracy and context relevance.
 - **High-Density Skill Creator**: Rewritten `common-skill-creator` to enforce a 100-line budget and "Three-Level Loading System" (Frontmatter -> SKILL.md -> references/).
+- **Metadata Synchronization**: Incremented skill category versions to reflect the unified hardening: Android/Java/Kotlin/iOS to `1.4.0`, Swift to `1.3.0`, and all other core categories to `1.3.1` or higher.
 
 ### Fixed
 
 - **Trigger Formatting**: Corrected backtick formatting for `flutter-localization` triggers in the main index.
-- **Metadata Synchronization**: Incremented all skill category versions to `1.3.1` in `metadata.json` to reflect the library-wide hardening and evaluation update.
 
 ### Versions
 
 - **Android Skills**: v1.3.0
 - **Java Skills**: v1.3.0
 - **Kotlin Skills**: v1.3.0
+- **iOS Skills**: v1.4.0
+- **Swift Skills**: v1.3.0
 - **Dart Skills**: v1.3.0
 - **Flutter Skills**: v1.6.0
 - **Common Skills**: v1.9.0

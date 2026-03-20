@@ -29,9 +29,9 @@ description: "Standards for XCTest, Async Tests, and Test Organization. Use when
 
 ## Anti-Patterns
 
-- **Thread Sleeps**: `**No Thread.sleep**: Use expectations or await.`
-- **Force Unwrapping in Tests**: `**No user!**: Use XCTUnwrap(user) for better failure messages.`
-- **Missing Assertions**: `**Tests must assert**: A test that only runs code is not a test.`
+- **No Thread.sleep**: Use expectations or await.
+- **No force unwrap in tests**: Use XCTUnwrap() for better failure messages.
+- **No assertion-free tests**: A test that only runs code is not a test.
 
 ## References
 

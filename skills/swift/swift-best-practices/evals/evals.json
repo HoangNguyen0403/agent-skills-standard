@@ -1,0 +1,18 @@
+{
+  "skill": "swift-best-practices",
+  "should_trigger": [
+    "How do I use guard for early exit in Swift?",
+    "Should I use struct or class in Swift?",
+    "How do I make my Swift code more idiomatic?",
+    "How do I name Boolean properties in Swift?",
+    "How do I avoid nested if statements?",
+    "Should I use let or var for Swift properties?",
+    "How do I use for-where in Swift?"
+  ],
+  "should_not_trigger": [
+    "How do I set up Fastlane?",
+    "How do I implement Core Data?",
+    "How do I use @MainActor in Swift concurrency?",
+    "How do I use SwiftLint?"
+  ]
+}

@@ -29,9 +29,9 @@ description: "Standards for Optionals, Protocols, Extensions, and Type Safety. U
 
 ## Anti-Patterns
 
-- **Force Unwrapping**: `**No ! operator**: Use safe unwrapping.`
-- **Sentinel Values**: `**No -1 for failure**: Use Optional.`
-- **as! Casting**: `**No Force Cast**: Use conditional cast (as?).`
+- **No ! operator**: Use safe unwrapping.
+- **No -1 for failure**: Use Optional.
+- **No force cast (as!)**: Use conditional cast (as?).
 
 ## References
 

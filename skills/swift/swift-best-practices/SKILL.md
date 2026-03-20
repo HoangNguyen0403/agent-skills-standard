@@ -29,9 +29,9 @@ description: "Standards for Guard, Value Types, Immutability, and Naming. Use wh
 
 ## Anti-Patterns
 
-- **Nested If**: `**No Pyramid of Doom**: Use guard.`
-- **Mutable Globals**: `**No var at Global Scope**: Use constants or dependency injection.`
-- **Force Try**: `**No try!**: Handle errors properly.`
+- **No Pyramid of Doom**: Use guard.
+- **No var at Global Scope**: Use constants or dependency injection.
+- **No try!**: Handle errors properly.
 
 ## References
 

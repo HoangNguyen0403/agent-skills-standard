@@ -28,9 +28,9 @@ description: "Standards for Protocol-based DI, Property Wrappers, and Factory/Ne
 
 ## Anti-Patterns
 
-- **Singletitis**: `**No global Shared singleton access everywhere**: Inject the service via initializer.`
-- **Service Locator**: `**No Resolver.resolve() inside logic**: Pass dependency via constructor or property wrapper.`
-- **Concrete Dependency**: `**No direct class instantiation**: Depend on protocols for testability.`
+- **No global singleton access everywhere**: Inject service via initializer.
+- **No Resolver.resolve() inside logic**: Pass dependency via constructor.
+- **No direct class instantiation**: Depend on protocols for testability.
 
 ## References
 

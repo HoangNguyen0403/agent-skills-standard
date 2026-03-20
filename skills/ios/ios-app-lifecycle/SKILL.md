@@ -27,9 +27,9 @@ description: "Standards for AppDelegate, SceneDelegate, Deep Linking, and Backgr
 
 ## Anti-Patterns
 
-- **Fat AppDelegate**: `**No complex logic in didFinishLaunching**: Use a Bootstrapper service.`
-- **Direct UI in AppDelegate**: `**No UIWindow setup in AppDelegate**: Use SceneDelegate for iOS 13+.`
-- **Blocking Launch**: `**No synchronous network calls in launch**: Move to background thread or defer.`
+- **No complex logic in didFinishLaunching**: Use a Bootstrapper service.
+- **No UIWindow setup in AppDelegate**: Use SceneDelegate for iOS 13+.
+- **No synchronous network calls in launch**: Move to background thread.
 
 ## References
 

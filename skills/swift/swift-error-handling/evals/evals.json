@@ -1,0 +1,18 @@
+{
+  "skill": "swift-error-handling",
+  "should_trigger": [
+    "How do I handle errors in Swift?",
+    "How do I define custom error types in Swift?",
+    "When should I use Result vs throws in Swift?",
+    "How do I use do-catch in Swift?",
+    "How do I use try? and try! in Swift?",
+    "How do I use fatalError in Swift?",
+    "How do I chain Result transformations in Swift?"
+  ],
+  "should_not_trigger": [
+    "How do I use @MainActor?",
+    "How do I store data in Core Data?",
+    "How do I use NavigationStack?",
+    "How do I implement SSL pinning?"
+  ]
+}

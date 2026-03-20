@@ -28,9 +28,9 @@ description: "Standards for Throwing Functions, Result Type, and Never. Use when
 
 ## Anti-Patterns
 
-- **Force Try**: `**No try!**: Use try? or do-catch.`
-- **Silent Failures**: `**No try? without nil check**: Handle or log.`
-- **String Errors**: `**No Error(message)**: Use typed errors.`
+- **No try!**: Use try? or do-catch.
+- **No try? without nil check**: Handle or log.
+- **No Error(message)**: Use typed errors.
 
 ## References
 

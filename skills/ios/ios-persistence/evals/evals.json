@@ -1,0 +1,18 @@
+{
+  "skill": "ios-persistence",
+  "should_trigger": [
+    "How do I use SwiftData in iOS 17?",
+    "How do I set up a Core Data stack?",
+    "How do I perform a Core Data fetch on a background thread?",
+    "What is NSFetchedResultsController?",
+    "How do I do a Core Data migration?",
+    "How do I use @Query in SwiftData?",
+    "How do I batch delete records in Core Data?"
+  ],
+  "should_not_trigger": [
+    "How do I store a token securely?",
+    "How do I make a network request?",
+    "How do I set up push notifications?",
+    "How do I implement MVVM?"
+  ]
+}

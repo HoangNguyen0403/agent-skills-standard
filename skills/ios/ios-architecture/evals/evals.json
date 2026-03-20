@@ -1,0 +1,18 @@
+{
+  "skill": "ios-architecture",
+  "should_trigger": [
+    "How do I implement MVVM in my iOS app?",
+    "Should I use a Coordinator for navigation?",
+    "How do I structure a clean architecture iOS project?",
+    "What is the VIP pattern?",
+    "How do I pass dependencies from Coordinator to ViewModel?",
+    "My ViewController has too much logic, how do I refactor it?",
+    "How should I expose state from a ViewModel?"
+  ],
+  "should_not_trigger": [
+    "How do I pin SSL certificates?",
+    "How do I use SwiftLint?",
+    "How do I request push notification permissions?",
+    "How do I use Core Data?"
+  ]
+}

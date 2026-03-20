@@ -1,0 +1,18 @@
+{
+  "skill": "ios-notifications",
+  "should_trigger": [
+    "How do I set up push notifications in iOS?",
+    "How do I register for APNS in AppDelegate?",
+    "How do I handle a notification tap when the app is in the foreground?",
+    "How do I implement UNUserNotificationCenterDelegate?",
+    "How do I clear the app badge count?",
+    "Should I ask for notification permissions immediately on launch?",
+    "How do I request alert and sound notification permissions?"
+  ],
+  "should_not_trigger": [
+    "How do I navigate between screens in SwiftUI?",
+    "How do I use Fastlane match?",
+    "How do I implement SSL pinning?",
+    "How do I use Core Data migrations?"
+  ]
+}

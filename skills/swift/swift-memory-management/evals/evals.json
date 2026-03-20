@@ -1,0 +1,18 @@
+{
+  "skill": "swift-memory-management",
+  "should_trigger": [
+    "How do I avoid retain cycles in Swift?",
+    "When should I use weak vs unowned in Swift?",
+    "How do I use [weak self] in a closure?",
+    "How does ARC work in Swift?",
+    "How do I implement a delegate pattern without a retain cycle?",
+    "What happens if I use unowned and the object is deallocated?",
+    "How do I capture multiple weak references in a closure?"
+  ],
+  "should_not_trigger": [
+    "How do I use async/await?",
+    "How do I implement MVVM?",
+    "How do I set up Core Data?",
+    "How do I use SwiftLint?"
+  ]
+}

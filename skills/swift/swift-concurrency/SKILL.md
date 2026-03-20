@@ -29,9 +29,9 @@ description: "Standards for async/await, Actors, Task Groups, and MainActor. Use
 
 ## Anti-Patterns
 
-- **Blocking Main Thread**: `**No synchronous work in @MainActor**: Use Task.`
-- **Missing MainActor**: `**UI updates must be @MainActor**: Compiler error.`
-- **Ignoring Cancellation**: `**Check Task.isCancelled**: Respect cancellation.`
+- **No synchronous work in @MainActor**: Use Task.
+- **No UI updates off @MainActor**: Compiler enforces this.
+- **No ignored cancellation**: Check Task.isCancelled and propagate.
 
 ## References
 

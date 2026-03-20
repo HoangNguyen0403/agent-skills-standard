@@ -1,0 +1,18 @@
+{
+  "skill": "ios-swiftui",
+  "should_trigger": [
+    "How do I compose SwiftUI views?",
+    "When should I use @State vs @StateObject?",
+    "How do I provide a PreviewProvider for my SwiftUI view?",
+    "How do I keep my SwiftUI body fast?",
+    "What is the correct order for SwiftUI modifiers?",
+    "How do I extract a subview in SwiftUI?",
+    "My SwiftUI list is slow, how do I optimize it?"
+  ],
+  "should_not_trigger": [
+    "How do I use Core Data?",
+    "How do I implement SSL pinning?",
+    "How do I set up Fastlane?",
+    "How do I register for push notifications?"
+  ]
+}

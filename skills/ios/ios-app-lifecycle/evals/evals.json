@@ -1,0 +1,18 @@
+{
+  "skill": "ios-app-lifecycle",
+  "should_trigger": [
+    "How do I handle deep links in my iOS app?",
+    "What should go in AppDelegate vs SceneDelegate?",
+    "How do I schedule a background fetch task?",
+    "My app is slow to launch, what can I do in didFinishLaunchingWithOptions?",
+    "How do I use BGTaskScheduler for background work?",
+    "How should I handle UserActivity for Universal Links?",
+    "Where should I register for push notifications in my app?"
+  ],
+  "should_not_trigger": [
+    "How do I create a SwiftUI view?",
+    "What is the best way to store data in Core Data?",
+    "How do I make a network request with URLSession?",
+    "Explain Swift optionals"
+  ]
+}
