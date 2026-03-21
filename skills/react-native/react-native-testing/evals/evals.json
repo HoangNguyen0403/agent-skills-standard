@@ -4,7 +4,21 @@
     {
       "id": 1,
       "prompt": "How do I write a test that simulates a button press and checks the result in React Native?",
-      "expected_output": "Use @testing-library/react-native. Render component, query by role (getByRole('button', { name: /increment/i })). Press with fireEvent.press(button). Assert with expect(getByText('Count: 1')).toBeTruthy(). Use findBy* for async state updates."
+      "expected_output": "Use @testing-library/react-native. Render component, query by role (getByRole('button', { name: /increment/i })). Press with fireEvent.press(button). Assert with expect(getByText('Count: 1')).toBeTruthy(). Use findBy* for async state updates.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Render"
+        },
+        {
+          "type": "contains",
+          "value": "Press"
+        },
+        {
+          "type": "contains",
+          "value": "Count"
+        }
+      ]
     },
     {
       "id": 2,
@@ -14,7 +28,21 @@
     {
       "id": 3,
       "prompt": "My React Native tests are testing component.state and component.props. Is this correct?",
-      "expected_output": "No — test behavior, not implementation. Query by role/text/label, not internal state. Assert what the user sees, not what's in state. Integration tests are more valuable than unit tests of internals. Never use .instance() or .state() in RNTL tests."
+      "expected_output": "No — test behavior, not implementation. Query by role/text/label, not internal state. Assert what the user sees, not what's in state. Integration tests are more valuable than unit tests of internals. Never use .instance() or .state() in RNTL tests.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Integration"
+        },
+        {
+          "type": "contains",
+          "value": "RNTL"
+        },
+        {
+          "type": "contains",
+          "value": "test behavior"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

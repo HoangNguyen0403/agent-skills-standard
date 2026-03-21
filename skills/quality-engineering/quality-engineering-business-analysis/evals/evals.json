@@ -4,17 +4,59 @@
     {
       "id": 1,
       "prompt": "The AC for EZRX-1234 says 'User can view order history'. Analyze this requirement and identify all missing logic, actor permissions, and edge cases before we write test cases.",
-      "expected_output": "Atomic decomposition of AC into conditions (logged-in vs guest, empty state, pagination), actor matrix (Customer vs Sales Rep vs Admin with different visible orders), platform parity check (Web vs Mobile), edge cases (offline, no orders, expired session), flags undefined states as P0 blockers"
+      "expected_output": "Atomic decomposition of AC into conditions (logged-in vs guest, empty state, pagination), actor matrix (Customer vs Sales Rep vs Admin with different visible orders), platform parity check (Web vs Mobile), edge cases (offline, no orders, expired session), flags undefined states as P0 blockers",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Atomic"
+        },
+        {
+          "type": "contains",
+          "value": "Customer"
+        },
+        {
+          "type": "contains",
+          "value": "Sales"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "We have a feature toggle that controls whether the 'Reorder' button is visible. The AC says it shows when the toggle is ON and the order status is Delivered. Map all the logic combinations.",
-      "expected_output": "Truth table with toggle ON/OFF × order status (Delivered/Cancelled/Pending/etc) combinations, flag any undefined states, identify platform parity (same on Web and Mobile?), extract all actors who can see the button"
+      "expected_output": "Truth table with toggle ON/OFF × order status (Delivered/Cancelled/Pending/etc) combinations, flag any undefined states, identify platform parity (same on Web and Mobile?), extract all actors who can see the button",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Truth"
+        },
+        {
+          "type": "contains",
+          "value": "Mobile"
+        },
+        {
+          "type": "contains",
+          "value": "Truth table"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "The Jira story says 'Only Market VN shows the invoice download button'. What impact analysis should I do before writing test cases?",
-      "expected_output": "Variable identification: Market (VN vs others), actor mapping (which roles can download), platform check (Web/Mobile parity), boundary analysis (what happens in MY/SG markets — hidden or error?), flag whether 'other markets' behavior is undefined"
+      "expected_output": "Variable identification: Market (VN vs others), actor mapping (which roles can download), platform check (Web/Mobile parity), boundary analysis (what happens in MY/SG markets — hidden or error?), flag whether 'other markets' behavior is undefined",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Variable"
+        },
+        {
+          "type": "contains",
+          "value": "Market"
+        },
+        {
+          "type": "contains",
+          "value": "Mobile"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

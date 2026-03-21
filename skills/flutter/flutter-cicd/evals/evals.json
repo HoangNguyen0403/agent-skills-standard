@@ -4,17 +4,59 @@
     {
       "id": 1,
       "prompt": "Set up a GitHub Actions workflow that runs flutter analyze, tests, and builds an Android AAB on every PR.",
-      "expected_output": "YAML workflow with: flutter setup, pub get cache, flutter analyze, flutter test, flutter build appbundle; proper timeout-minutes set"
+      "expected_output": "YAML workflow with: flutter setup, pub get cache, flutter analyze, flutter test, flutter build appbundle; proper timeout-minutes set",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "YAML"
+        },
+        {
+          "type": "contains",
+          "value": "flutter analyze"
+        },
+        {
+          "type": "contains",
+          "value": "flutter build"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Our CI builds are taking 45 minutes and frequently timing out. How can I speed them up?",
-      "expected_output": "Cache pub deps + gradle + cocoapods, run analyze/format before tests (fail-fast), split Android/iOS into parallel jobs, set timeout-minutes"
+      "expected_output": "Cache pub deps + gradle + cocoapods, run analyze/format before tests (fail-fast), split Android/iOS into parallel jobs, set timeout-minutes",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Cache"
+        },
+        {
+          "type": "contains",
+          "value": "Android"
+        },
+        {
+          "type": "contains",
+          "value": "run analyze/format"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "How should I handle the Play Store signing keystore in GitHub Actions without committing it to the repo?",
-      "expected_output": "Store keystore as base64 GitHub Secret, decode in workflow step, never commit .jks file; reference key.properties via secrets"
+      "expected_output": "Store keystore as base64 GitHub Secret, decode in workflow step, never commit .jks file; reference key.properties via secrets",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Store"
+        },
+        {
+          "type": "contains",
+          "value": "GitHub"
+        },
+        {
+          "type": "contains",
+          "value": "Secret"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

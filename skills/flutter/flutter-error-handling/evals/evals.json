@@ -4,17 +4,59 @@
     {
       "id": 1,
       "prompt": "The API call in my repository throws a DioException when the server returns 401. How should I handle this?",
-      "expected_output": "Catch DioException in infrastructure, map to Left(UnauthorizedFailure()), return Either<Failure, T>, never rethrow to UI"
+      "expected_output": "Catch DioException in infrastructure, map to Left(UnauthorizedFailure()), return Either<Failure, T>, never rethrow to UI",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Catch"
+        },
+        {
+          "type": "contains",
+          "value": "DioException"
+        },
+        {
+          "type": "contains",
+          "value": "Left"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "My BLoC has a try/catch block that catches Exception and emits an error state with e.toString(). Is this the right approach?",
-      "expected_output": "No — try/catch belongs in Infrastructure only. BLoC should call repository returning Either, then fold() to emit Failure state. Remove try/catch from BLoC."
+      "expected_output": "No — try/catch belongs in Infrastructure only. BLoC should call repository returning Either, then fold() to emit Failure state. Remove try/catch from BLoC.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Infrastructure"
+        },
+        {
+          "type": "contains",
+          "value": "BLoC"
+        },
+        {
+          "type": "contains",
+          "value": "Either"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Create a failure type for when the product is out of stock, with a user-facing message.",
-      "expected_output": "@freezed Failure class with OutOfStockFailure case, failureMessage returning TRObject/localized string, in domain/failures/"
+      "expected_output": "@freezed Failure class with OutOfStockFailure case, failureMessage returning TRObject/localized string, in domain/failures/",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Failure"
+        },
+        {
+          "type": "contains",
+          "value": "OutOfStockFailure"
+        },
+        {
+          "type": "contains",
+          "value": "TRObject"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

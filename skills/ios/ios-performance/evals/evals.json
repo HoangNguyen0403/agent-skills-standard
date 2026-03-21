@@ -1,18 +1,68 @@
 {
-  "skill": "ios-performance",
-  "should_trigger": [
-    "How do I detect memory leaks in my iOS app?",
-    "How do I use Instruments to profile my app?",
-    "How do I avoid blocking the main thread?",
-    "Why is my table view scrolling slow?",
-    "How do I cache images efficiently in iOS?",
-    "How do I use the Time Profiler in Xcode?",
-    "How do I fix a retain cycle in my iOS app?"
+  "skill_name": "ios-performance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement ios performance best practices?",
+      "expected_output": "**Instruments**: Regularly use **Allocations** and **Leaks** to detect memory issues.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "dequeueReusableCell"
+        },
+        {
+          "type": "contains",
+          "value": "cellForRowAt"
+        },
+        {
+          "type": "contains",
+          "value": "SDWebImage"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in ios performance?",
+      "expected_output": "**Time Profiler**: Identify heavy CPU tasks and Main Thread stalls.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Kingfisher"
+        },
+        {
+          "type": "contains",
+          "value": "AsyncImage"
+        },
+        {
+          "type": "contains",
+          "value": "SWIFT_TREAT_WARNINGS_AS_ERRORS"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for ios performance.",
+      "expected_output": "**Network instrument**: Analyze request payload sizes and frequency.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Priority: P0"
+        },
+        {
+          "type": "contains",
+          "value": "Instruments"
+        },
+        {
+          "type": "contains",
+          "value": "Allocations"
+        }
+      ]
+    }
   ],
   "should_not_trigger": [
-    "How do I set up Fastlane?",
-    "How do I use String Catalogs?",
-    "How do I implement MVVM?",
-    "How do I store a password securely?"
+    "Set up a basic ios project from scratch",
+    "How do I install ios dependencies?",
+    "What is ios?",
+    "Configure CI/CD for an unrelated platform"
   ]
 }

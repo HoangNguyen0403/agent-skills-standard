@@ -4,17 +4,38 @@
     {
       "id": 1,
       "prompt": "How should I organize my React Native project as it grows to 20+ screens?",
-      "expected_output": "Feature-first structure: src/features/auth/, src/features/home/. Each feature has screens/, components/, hooks/, services/. Shared code in src/components/, src/hooks/, src/services/. Configure tsconfig paths for absolute imports (@/features, @/components)."
+      "expected_output": "Feature-first structure: src/features/auth/, src/features/home/. Each feature has screens/, components/, hooks/, services/. Shared code in src/components/, src/hooks/, src/services/. Configure tsconfig paths for absolute imports (@/features, @/components).",
+      "assertions": [
+        { "type": "contains", "value": "Feature-First" },
+        { "type": "contains", "value": "features/auth/" },
+        { "type": "contains", "value": "absolute imports" },
+        { "type": "contains", "value": "tsconfig.json paths" }
+      ]
     },
     {
       "id": 2,
       "prompt": "My React Native screen component has API calls, business logic, and UI all in one 400-line file. How do I refactor it?",
-      "expected_output": "Separate concerns: move API calls to services/, extract logic to custom hooks (useFetchOrders), keep screen as container that renders presentational components. Screen should only connect data to UI. Each file max 250 lines with one clear purpose."
+      "expected_output": "Separate concerns: move API calls to services/, extract logic to custom hooks (useFetchOrders), keep screen as container that renders presentational components. Screen should only connect data to UI. Each file max 250 lines with one clear purpose.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Separation: UI (screens/components) separate from logic"
+        },
+        { "type": "contains", "value": "extract to hooks" },
+        { "type": "contains", "value": "Single Responsibility" },
+        { "type": "contains", "value": "one clear purpose" }
+      ]
     },
     {
       "id": 3,
       "prompt": "Should I use Expo Router or React Navigation for my new React Native app?",
-      "expected_output": "Expo Router for new projects needing web parity or file-based routing (like Next.js). React Navigation for complex deep-linking, legacy apps, or high customization. Both are valid — choose based on project needs. Document the choice."
+      "expected_output": "Expo Router for new projects needing web parity or file-based routing (like Next.js). React Navigation for complex deep-linking, legacy apps, or high customization. Both are valid — choose based on project needs. Document the choice.",
+      "assertions": [
+        { "type": "contains", "value": "Expo Router" },
+        { "type": "contains", "value": "React Navigation" },
+        { "type": "contains", "value": "web-parity" },
+        { "type": "contains", "value": "file-based routing" }
+      ]
     }
   ],
   "should_not_trigger": [

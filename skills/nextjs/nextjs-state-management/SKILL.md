@@ -7,26 +7,14 @@ description: 'Best practices for managing state (Server URL vs Client Hooks). Us
 
 ## **Priority: P2 (MEDIUM)**
 
-## Principles
+## Implementation Guidelines
 
-1. **URL as Source of Truth**: For shareable/persistent state (Search, Filters, Pagination), use URL params with `useSearchParams`.
-2. **Colocation**: Keep state close to components. Lift only when sharing between siblings.
-3. **No Global Store Default**: Avoid Redux/Zustand for simple apps. Use only for complex cross-cutting concerns (Music Player, Shopping Cart).
-
-## Patterns
-
-### 1. Granular State (Best Practice)
-
-Don't store large objects. Subscribe only to what you need to prevent unnecessary re-renders.
-
-```tsx
-// BAD: Re-renders on any change to 'user'
-const [user, setUser] = useState({ name: '', stats: {}, friends: [] });
-
-// GOOD: Independent states
-const [name, setName] = useState('');
-const [stats, setStats] = useState({});
-```
+- **URL State**: Use the URL as the Single Source of Truth for shareable/persistent state. URL params: shareable across reloads and links. Access via `useSearchParams()` and update with `useRouter()`. Pattern: `const params = new URLSearchParams(searchParams); params.set('q', term); useRouter().replace(...)` .
+- **Server State**: Use **SWR** or **TanStack Query (React Query)** for caching and fetching server data. Avoid syncing server data manually into `useState`.
+- **Client State**: Use Zustand (`create<CartState>()((set) => ({ ... }))`) — use only in 'use client' components — or Jotai for complex, high-frequency UI state. Avoid Prop Drilling by leveraging Context API only for low-frequency data.
+- **Lifting State**: **Colocate state** as close as possible to the component. Only lift to the parent when state is shared between siblings.
+- **Next.js 15+ Integration**: Ensure state updates in **Client Components** don't conflict with server-side rendering logic. Manage **optimistic updates** with the **`useOptimistic`** hook.
+- **State Hydration**: Be careful when initializing state from `localStorage` in Client Components to avoid **Hydration Errors**. Wrap in `useEffect` or use a `mounted` flag.
 
 ### 2. URL-Driven State (Search/Filter)
 
@@ -37,8 +25,10 @@ Use `useSearchParams` + `useRouter` to update URL params. See [URL State Pattern
 If you need "Live" data on the client (e.g., polling stock prices, chat), do not implement `useEffect` fetch manually. Use a library.
 
 ```tsx
-// Automated caching, deduplication, and revalidation
-const { data, error } = useSWR('/api/user', fetcher);
+// Automated caching, deduplication, and revalidation with refreshInterval
+const { data, error } = useSWR('/api/user', fetcher, {
+  refreshInterval: 30000,
+});
 ```
 
 ## Library Patterns

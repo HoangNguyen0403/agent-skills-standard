@@ -4,17 +4,59 @@
     {
       "id": 1,
       "prompt": "Write a widget test for the checkout button — it should verify the loading spinner appears while processing, then a success message.",
-      "expected_output": "Robot pattern with CheckoutRobot, pumpScreen with mocked CheckoutBloc, whenListen for state transitions, settle:false for loading state, WidgetKeys constants"
+      "expected_output": "Robot pattern with CheckoutRobot, pumpScreen with mocked CheckoutBloc, whenListen for state transitions, settle:false for loading state, WidgetKeys constants",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Robot"
+        },
+        {
+          "type": "contains",
+          "value": "CheckoutRobot"
+        },
+        {
+          "type": "contains",
+          "value": "WidgetKeys"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "How do I mock the AuthBloc in a widget test for the LoginScreen that uses BlocProvider internally?",
-      "expected_output": "GetIt registration of MockAuthBloc in setUpAll, TestWrapper.init(), stub bloc.state + bloc.stream in setUp, pumpLocalizedWidget"
+      "expected_output": "GetIt registration of MockAuthBloc in setUpAll, TestWrapper.init(), stub bloc.state + bloc.stream in setUp, pumpLocalizedWidget",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "GetIt"
+        },
+        {
+          "type": "contains",
+          "value": "TestWrapper"
+        },
+        {
+          "type": "contains",
+          "value": "GetIt registration"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Add an integration test that logs in with test credentials, navigates to the orders tab, and verifies the first order card is visible.",
-      "expected_output": "patrolTest with IntegrationAuthHelper.loginOrSkip($), OrdersRobot($.tester).expectFirstOrderVisible(), native interactions via $.native.*"
+      "expected_output": "patrolTest with IntegrationAuthHelper.loginOrSkip($), OrdersRobot($.tester).expectFirstOrderVisible(), native interactions via $.native.*",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "IntegrationAuthHelper"
+        },
+        {
+          "type": "contains",
+          "value": "OrdersRobot"
+        },
+        {
+          "type": "contains",
+          "value": "native interactions"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

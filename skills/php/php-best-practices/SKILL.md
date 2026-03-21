@@ -1,6 +1,6 @@
 ---
 name: php-best-practices
-description: "PHP best practices, PSR standards, and code quality guidelines. Use when writing PHP following PSR standards, SOLID principles, or improving code quality. (triggers: **/*.php, psr-12, camelCase, PascalCase, dry, solid)"
+description: 'PHP best practices, PSR standards, and code quality guidelines. Use when writing PHP following PSR standards, SOLID principles, or improving code quality. (triggers: **/*.php, psr-12, camelCase, PascalCase, dry, solid)'
 ---
 
 # PHP Best Practices
@@ -17,14 +17,23 @@ src/
 
 ## Implementation Guidelines
 
-- **PSR-12**: Follow PSR-12 for coding style (indent, braces, space).
-- **Autoloading**: Use PSR-4 via Composer.
-- **Namespacing**: Map namespaces to directory structure.
-- **PascalCase**: Use for all class names.
-- **camelCase**: Use for methods and variables.
-- **SNAKE_CASE**: Use for class constants.
-- **DRY Logic**: Extract repetitive logic into traits/methods.
-- **SOLID**: Use interfaces for decoupling and SRP adherence.
+### Coding Style (PSR Standards)
+
+- **PSR-12**: Enforce **4-space indentation** and **opening braces on same line** for functions/methods.
+- **Organization**: One class per file; use statements follow the namespace. Run **PHP CS Fixer** with the **PSR-12** preset.
+- **Naming Conventions**: Use **`PascalCase`** (UserService) for classes, **`camelCase`** (getUserById) for methods/variables, and **`SNAKE_CASE`** (MAX_RETRIES) for class constants.
+
+### SOLID Principles in PHP
+
+- **SRP**: Single Responsibility Principle — extract each into its own focused class; keep classes under ~200 lines.
+- **Dependency Inversion**: inject via constructor with interface type-hints. Inject dependencies via constructor for testability. Favor composition over deep inheritance chains.
+- **Separation of Concerns**: Use **Interfaces** for decoupling integrations and logic.
+
+### Logic & Performance
+
+- **Guard Clauses**: Return early for error conditions (e.g., if (!$user) return null); no else after return to reduce nesting depth.
+- **Traits**: Define trait HasTimestamps (e.g., `use HasTimestamps`) for cross-cutting behavior. Keep traits focused and lightweight.
+- **Helper Functions**: Avoid global-namespace logic; organize in classes.
 
 ## Anti-Patterns
 

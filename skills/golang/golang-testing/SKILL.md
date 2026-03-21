@@ -1,6 +1,6 @@
 ---
 name: golang-testing
-description: "Standards for unit testing, table-driven tests, and mocking in Golang. Use when writing Go unit tests, table-driven tests, or using mock interfaces. (triggers: **/*_test.go, testing, unit tests, go test, mocking, testify)"
+description: 'Standards for unit testing, table-driven tests, and mocking in Golang. Use when writing Go unit tests, table-driven tests, or using mock interfaces. (triggers: **/*_test.go, testing, unit tests, go test, mocking, testify)'
 ---
 
 # Golang Testing Standards
@@ -9,19 +9,16 @@ description: "Standards for unit testing, table-driven tests, and mocking in Gol
 
 ## Guidelines
 
-### TDD Workflow
+### TDD & Table-Driven Tests
 
-1.  **Red**: Write a failing table-driven test case.
-2.  **Green**: Implement logic to pass.
-3.  **Refactor**: Simplify code.
-
-## Verification Checklist (Mandatory)
-
-- [ ] **Table-Driven**: Are multiple scenarios handled in a single test function via tables?
-- [ ] **Coverage**: Does the test cover edge cases (nil, error, empty)?
-- [ ] **No Side Effects**: Are global states reset or avoided?
-- [ ] **Error Checking**: Are errors asserted for both existence (`assert.Error`) and content?
-- [ ] **Subtests**: Are subtests named descriptively?
+- **Pattern**: Use **`Table-Driven Tests`** for multi-input scenarios. Use **`t.Run()`** for each test case.
+- **Workflow**: Follow **Red-Green-Refactor**. Write a failing test case before implementing logic.
+- **Mocking**: Use **`Interfaces`** and **`Dependency Injection`**. Avoid complex mocking frameworks; prefer **`manual mocks`** or **`GoMock`**.
+- **Coverage**: Aim for **`> 80%`** line coverage. Run `go test -cover` to audit.
+- **Assertions**: Use **`testify/assert`** or **`testify/require`** for readable checks: `assert.NoError(t, err)`.
+- **Parallelism**: Use **`t.Parallel()`** for non-sequential tests to speed up CI.
+- **Cleanup**: Use **`t.Cleanup()`** to reset state or release resources (DB/Files).
+- **Subtests**: Name each subtest case clearly (`"Valid input"`, `"Missing ID"`, `"Network timeout"`).
 
 ### Golden Snippet
 

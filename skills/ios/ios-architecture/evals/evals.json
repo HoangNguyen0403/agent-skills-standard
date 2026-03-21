@@ -1,18 +1,68 @@
 {
-  "skill": "ios-architecture",
-  "should_trigger": [
-    "How do I implement MVVM in my iOS app?",
-    "Should I use a Coordinator for navigation?",
-    "How do I structure a clean architecture iOS project?",
-    "What is the VIP pattern?",
-    "How do I pass dependencies from Coordinator to ViewModel?",
-    "My ViewController has too much logic, how do I refactor it?",
-    "How should I expose state from a ViewModel?"
+  "skill_name": "ios-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement ios architecture best practices?",
+      "expected_output": "**ViewModel Responsibility**: Handle business logic, formatting, and state. No UIKit imports (except for platform types like `UIImage` if strictly necessary).",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "UIImage"
+        },
+        {
+          "type": "contains",
+          "value": "@Published"
+        },
+        {
+          "type": "contains",
+          "value": "private(set)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in ios architecture?",
+      "expected_output": "**ViewState**: Use a single state object or discrete `@Published` properties for UI updates. **Expose state as `private(set)` or using publishers**.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "navigationController"
+        },
+        {
+          "type": "contains",
+          "value": "UIKit"
+        },
+        {
+          "type": "contains",
+          "value": "public var"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for ios architecture.",
+      "expected_output": "**Inputs/Outputs**: Define explicit protocols or nested types for inputs (events from View) and outputs (state for View).",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Priority: P0 (CRITICAL)"
+        },
+        {
+          "type": "contains",
+          "value": "ViewModel Responsibility"
+        },
+        {
+          "type": "contains",
+          "value": "ViewState"
+        }
+      ]
+    }
   ],
   "should_not_trigger": [
-    "How do I pin SSL certificates?",
-    "How do I use SwiftLint?",
-    "How do I request push notification permissions?",
-    "How do I use Core Data?"
+    "Set up a basic ios project from scratch",
+    "How do I install ios dependencies?",
+    "What is ios?",
+    "Configure CI/CD for an unrelated platform"
   ]
 }

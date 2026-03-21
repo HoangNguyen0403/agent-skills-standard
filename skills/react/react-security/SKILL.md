@@ -1,6 +1,6 @@
 ---
 name: react-security
-description: "Security practices for React (XSS, Auth, Dependencies). Use when preventing XSS, securing auth flows, or auditing third-party dependencies in React. (triggers: **/*.tsx, **/*.jsx, dangerouslySetInnerHTML, token, auth, xss)"
+description: 'Security practices for React (XSS, Auth, Dependencies). Use when preventing XSS, securing auth flows, or auditing third-party dependencies in React. (triggers: **/*.tsx, **/*.jsx, dangerouslySetInnerHTML, token, auth, xss)'
 ---
 
 # React Security
@@ -11,12 +11,13 @@ Preventing vulnerabilities in client-side apps.
 
 ## Implementation Guidelines
 
-- **XSS**: Avoid `dangerouslySetInnerHTML`. Sanitize via `DOMPurify` if needed.
-- **URLs**: Validate `javascript:` protocols in user links.
-- **Auth**: Store tokens in `HttpOnly` cookies. Avoid `localStorage`.
-- **Deps**: Run `npm audit`. Pin versions.
-- **Secrets**: Server-side only. No `.env` secrets in build.
-- **CSP**: Strict Content-Security-Policy headers.
+- **XSS Prevention**: **Never use `dangerouslySetInnerHTML`** without sanitization. Use **`DOMPurify.sanitize(input)`** for all user-provided HTML. Avoid `javascript:` protocols in `href` or `src`.
+- **Authentication**: Store **JWT/Sessions in `HttpOnly` and `Secure` cookies** to prevent theft via XSS. **Never store secrets in `localStorage`** or in the built JS bundle.
+- **Data Flow**: **Escape all serialized state** if injecting into the HTML (e.g., in SSR). Use a **Content Security Policy (CSP)** to restrict script sources and prevent inline execution.
+- **CSRF Protection**: Use **CSRF tokens** for state-changing requests (PUT/POST/DELETE). Implement **SameSite=Strict** cookies where applicable.
+- **Input Sanitization**: Always **validate and sanitize** user inputs on the backend. Frontend validation is for UX only.
+- **Dependency Management**: Run **`npm audit` / `pnpm audit`** regularly. Pin specific dependency versions and use **`npm-check-updates`**.
+- **Security Headers**: Ensure the server sends **`X-Frame-Options: DENY`**, **`X-Content-Type-Options: nosniff`**, and **`Permissions-Policy`**.
 
 ## Anti-Patterns
 

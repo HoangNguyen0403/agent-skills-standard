@@ -1,6 +1,6 @@
 ---
 name: nextjs-rendering
-description: "SSG, SSR, ISR, Streaming, and Partial Prerendering (PPR). Use when choosing a rendering strategy (SSG, SSR, ISR, PPR, or Streaming) in Next.js. (triggers: **/page.tsx, **/layout.tsx, generateStaticParams, dynamic, dynamicParams, PPR, streaming)"
+description: 'SSG, SSR, ISR, Streaming, and Partial Prerendering (PPR). Use when choosing a rendering strategy (SSG, SSR, ISR, PPR, or Streaming) in Next.js. (triggers: **/page.tsx, **/layout.tsx, generateStaticParams, dynamic, dynamicParams, PPR, streaming)'
 ---
 
 # Rendering Strategies (App Router)
@@ -9,20 +9,16 @@ description: "SSG, SSR, ISR, Streaming, and Partial Prerendering (PPR). Use when
 
 Choose rendering strategy based on data freshness and scaling needs. See [Strategy Matrix](references/strategy-matrix.md).
 
-## Guidelines
+## Implementation Guidelines
 
-- **SSG (Default)**: Build-time render. Use `generateStaticParams`.
-- **SSR**: Per-request render. Triggered by `cookies()`, `headers()`, or `cache: 'no-store'`.
-- **Streaming**: Wrap slow components in `<Suspense>` to avoid blocking.
-- **ISR**: Post-build updates. Use `revalidate` (time) or `revalidatePath` (on-demand).
-- **PPR**: Static shell + dynamic holes. Experimental `ppr` config.
-- **Runtime**: Node.js (Full) or Edge (Lighter/Faster).
-
-## Scaling & Hydration
-
-- **Static Shell**: Render layout as static, personalize via Suspense.
-- **Error Boundaries**: Use `error.tsx` with `reset()` to catch runtime errors.
-- **Hydration Safety**: Avoid `typeof window` or `Date.now()` in initial render. Use `useEffect`.
+- **SSG (Static Site Generation)**: Default for App Router. Use **`generateStaticParams`** to pre-render routes at build time. Triggered by **`fetch`** with **`cache: 'force-cache'`**.
+- **SSR (Server-Side Rendering)**: Triggered by **`cookies()`**, **`headers()`**, or **`fetch`** with **`cache: 'no-store'`**. Use for personalized or high-freshness data.
+- **ISR (Incremental Static Regeneration)**: Update static content after build. Use **`revalidate`** (time-based) or **`revalidatePath`** / **`revalidateTag`** (on-demand).
+- **Streaming**: Use **`Suspense`** to wrap slow async components and prevent them from blocking the initial page load. Use **`loading.tsx`** for route-level skeletons.
+- **PPR (Partial Prerendering)**: Combine static shell with dynamic regions in a single HTTP request. Enable **`ppr: true`** in `next.config.js`.
+- **Strategies**: Choose rendering based on **SEO** (SSG/ISR) vs **Interactivity** (Client) vs **Personalization** (SSR). Utilize **`dynamicParams`** to control fallback behavior for uncached routes.
+- **Hydration**: Avoid **Hydration Errors** by not using browser-only values (`window.innerWidth`, `Date.now()`) in the initial render. Use the **`mounted` useEffect pattern**.
+- **Edge Runtime**: Use **`runtime: 'edge'`** for low-latency globally distributed execution where full Node.js APIs are not required.
 
 ## Anti-Patterns
 

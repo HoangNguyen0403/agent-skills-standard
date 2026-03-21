@@ -16,6 +16,9 @@ export interface SkillBenchmark {
   // Quality
   qualityScore: number; // 0–10
   qualityDetail: string[];
+  // Eval coverage
+  evalCount: number; // number of evals in evals.json (0 = no evals)
+  evalAlignmentPct: number; // % of eval "contains" assertions whose value appears in SKILL.md
 }
 
 export interface BenchmarkHistoryRecord {

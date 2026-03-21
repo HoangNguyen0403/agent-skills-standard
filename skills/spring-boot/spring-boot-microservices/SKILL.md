@@ -1,6 +1,6 @@
 ---
 name: spring-boot-microservices
-description: "Standards for Feign clients and asynchronous messaging with Spring Cloud Stream. Use when implementing Feign HTTP clients or async event messaging in Spring Boot microservices. (triggers: **/*Client.java, **/*Consumer.java, feign-client, spring-cloud-stream, rabbitmq, resilience4j)"
+description: 'Standards for Feign clients and asynchronous messaging with Spring Cloud Stream. Use when implementing Feign HTTP clients or async event messaging in Spring Boot microservices. (triggers: **/*Client.java, **/*Consumer.java, feign-client, spring-cloud-stream, rabbitmq, resilience4j)'
 ---
 
 # Spring Boot Microservices Standards
@@ -9,18 +9,25 @@ description: "Standards for Feign clients and asynchronous messaging with Spring
 
 ## Implementation Guidelines
 
-### Sync Communication (REST)
+### Sync Communication (REST & API Interface)
 
-- **Clients**: Use **Spring Cloud OpenFeign** or **Http Interfaces** (Spring 6).
-- **Resilience**: Wrap calls with **Resilience4j** (Circuit Breaker).
-- **Contracts**: Define DTOs in a **Shared Library** (Maven BOM).
-- **Versioning**: Enforce **Semantic Versioning** on shared libs.
+- **Clients**: Use **`Spring Cloud OpenFeign`** or **`HTTP Interfaces`** (Spring 6/Java 21).
+- **Resilience**: Implement **`Resilience4j`** with **`Circuit Breaker`**, **`Retry (Exponential Backoff)`**, and **`RateLimiter`**. Use fallback methods to return cached or default data on failure. Configure timeout values on all Feign clients.
+- **Contracts**: Share **`DTO Records`** via a **`Maven BOM`** or **`API Contract`** module.
+- **Tracing**: Ensure **`Micrometers`** propagation for **Distributed Tracing**.
 
-### Async Communication (Event-Driven)
+### Async Communication (Spring Cloud Stream)
 
-- **Cloud Stream**: Use `java.util.function.Consumer<T>` composition.
-- **Idempotency**: Consumers MUST handle duplicates (DB constraints).
-- **Evolution**: Add fields only. Never rename/remove used fields.
+- **Architecture**: Use **`Message-Driven`** patterns with **`Spring Cloud Stream`**.
+- **Functions**: Define message handlers as **`java.util.function.Function`**, **`Consumer`**, or **`Supplier`**.
+- **Serialization**: Use **`JSON`** or **`Avro`** for events.
+- **Reliability**: Implement **`Dead Letter Queues`** (DLQ) and **`Idempotent`** consumers.
+
+### Data & Isolation
+
+- **DB per Service**: NEVER share databases between microservices.
+- **Shared Libs**: Minimize shared logic to shared DTOs/Clients only.
+- **Discovery**: Use **`Spring Cloud Gateway`** for routing and auth.
 
 ## Anti-Patterns
 

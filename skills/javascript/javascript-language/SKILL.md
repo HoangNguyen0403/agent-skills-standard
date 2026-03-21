@@ -1,6 +1,6 @@
 ---
 name: javascript-language
-description: "Modern JavaScript (ES2022+) patterns for clean, maintainable code. Use when working with modern JavaScript features like optional chaining, nullish coalescing, or ESM. (triggers: **/*.js, **/*.mjs, **/*.cjs, const, let, arrow, async, await, promise, destructuring, spread, class)"
+description: 'Modern JavaScript (ES2022+) patterns for clean, maintainable code. Use when working with modern JavaScript features like optional chaining, nullish coalescing, or ESM. (triggers: **/*.js, **/*.mjs, **/*.cjs, const, let, arrow, async, await, promise, destructuring, spread, class)'
 ---
 
 # JavaScript Language Patterns
@@ -9,21 +9,22 @@ description: "Modern JavaScript (ES2022+) patterns for clean, maintainable code.
 
 ## Implementation Guidelines
 
-- **Variables**: `const` default. `let` if needed. No `var`.
-- **Functions**: Arrows for callbacks. Declarations for top-level.
-- **Async**: `async/await` + `try/catch`.
-- **Objects**: Destructuring, Spread `...`, Optional Chain `?.`, Nullish `??`.
-- **Strings**: Template literals `${}`.
-- **Arrays**: `map`, `filter`, `reduce`. No loops.
-- **Modules**: ESM `import`/`export`. Export only what is necessary.
-- **Classes**: Use `#private` fields for true privacy.
+- **Variables**: const default. let if needed. No var — block scope only.
+- **Functionality**: Use **`Arrow Functions`** for callbacks/inlines; **`Function Declaration`** for core logic.
+- **Async Logic**: Use async/await with try/catch and Promise.all() for parallel operations. ESM import/export only. No Callbacks — promisify everything.
+- **Modern Syntax**: Use Destructuring, Spread (...), Optional Chain ?. and Nullish ?? coalescing.
+- **String Handling**: Use **`Template Literals`** (backticks) for interpolation and multi-line strings.
+- **Data Collections**: Prefer **`map`**, **`filter`**, and **`reduce`** over imperative `for` loops.
+- **Modules**: Standardize on ESM import/export; use Named Exports over Default.
+- **Encapsulation**: Leverage **`#private`** class fields for encapsulation.
+- **Error States**: Throw **`new Error()`** with descriptive messages; never throw strings.
 
 ## Anti-Patterns
 
-- **No `var`**: Block scope only.
+- No var — Block scope only.
 - **No `==`**: Strict `===`.
 - **No `new Object()`**: Use literals `{}`.
-- **No Callbacks**: Promisify everything.
+- No Callbacks: Promisify everything.
 - **No Mutation**: Immutability first.
 
 ## Code

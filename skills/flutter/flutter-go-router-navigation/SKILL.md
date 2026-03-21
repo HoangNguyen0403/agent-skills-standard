@@ -1,6 +1,6 @@
 ---
 name: flutter-go-router-navigation
-description: "Typed routes, route state, and redirection using go_router. Use when implementing go_router typed routes, guards, or redirects in Flutter. (triggers: **/router.dart, **/app_router.dart, GoRouter, GoRoute, StatefulShellRoute, redirection, typed-routes)"
+description: 'Typed routes, route state, and redirection using go_router. Use when implementing go_router typed routes, guards, or redirects in Flutter. (triggers: **/router.dart, **/app_router.dart, GoRouter, GoRoute, StatefulShellRoute, redirection, typed-routes)'
 ---
 
 # GoRouter Navigation
@@ -19,13 +19,14 @@ core/router/
 
 ## Implementation Guidelines
 
-- **Typed Routes**: Always use `GoRouteData` from `go_router_builder`. Never use raw path strings.
+- **Typed Routes**: Always use **GoRouteData** and **@TypedGoRoute** from `go_router_builder`. Never use raw path strings.
+- **Parameters**: Define strongly-typed parameters in the route class (e.g., `class OrderDetailRoute extends GoRouteData { final String id; }`) with paths like **'/orders/:id'**.
 - **Root Router**: One global `GoRouter` instance registered in DI.
 - **Sub-Routes**: Nest related routes using `TypedGoRoute` and children lists.
-- **Redirection**: Handle Auth (Login check) in the `redirect` property of the `GoRouter` config.
-- **Parameters**: Use `@TypedGoRoute` to define paths with `:id` parameters.
+- **Redirection**: Handle Auth (Login check) in the **redirect callback** of the `GoRouter` config: `redirect: (context, state) => isLoggedIn ? null : '/login'`. **Do NOT check auth inside the page widget.**
+- **Tabs**: Use **StatefulShellRoute** with branches for a bottom tab bar (Home, Orders, Profile) so each tab maintains its own navigation stack.
 - **Transitions**: Define standard transitions (Fade, Slide) in `buildPage`.
-- **Navigation**: Use `MyRoute().go(context)` or `MyRoute().push(context)`.
+- **Navigation**: Use **MyRoute().go(context)** or `MyRoute().push(context)`. Using **OrderDetailRoute(id: id).go(context)** is the only allowed way to navigate.
 
 ## Code
 

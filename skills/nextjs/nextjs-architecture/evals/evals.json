@@ -4,32 +4,128 @@
     {
       "id": 1,
       "prompt": "Set up Feature-Sliced Design in Next.js",
-      "expected_output": "Structure: src/{app,widgets,features,entities,shared}/; each layer imports only from layers below (app→widgets→features→entities→shared); slices within same layer never import each other directly"
+      "expected_output": "Structure: src/{app,widgets,features,entities,shared}/; each layer imports only from layers below (app→widgets→features→entities→shared); slices within same layer never import each other directly",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Mentions src/ folder structure",
+          "type": "contains",
+          "value": "src"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions app layer",
+          "type": "contains",
+          "value": "app"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions shared layer",
+          "type": "contains",
+          "value": "shared"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Structure a large Next.js project with FSD",
-      "expected_output": "app/ for routing only (page.tsx imports Widgets); widgets/ for page sections; features/ for user interactions (auth, cart); entities/ for reused business models; shared/ for ui/lib/api utilities"
+      "expected_output": "app/ for routing only (page.tsx imports Widgets); widgets/ for page sections; features/ for user interactions (auth, cart); entities/ for reused business models; shared/ for ui/lib/api utilities",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Mentions widgets layer",
+          "type": "contains",
+          "value": "widgets"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions features layer",
+          "type": "contains",
+          "value": "features"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions entities layer",
+          "type": "contains",
+          "value": "entities"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Organize Next.js code by business domain",
-      "expected_output": "features/auth/ui/LoginForm.tsx + features/auth/model/useLogin.ts — NOT src/components/LoginForm + src/hooks/useLogin; group by what it does (auth) not what it is (component/hook)"
+      "expected_output": "features/auth/ui/LoginForm.tsx + features/auth/model/useLogin.ts — NOT src/components/LoginForm + src/hooks/useLogin; group by what it does (auth) not what it is (component/hook)",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Recommends domain grouping over type folders",
+          "type": "contains",
+          "value": "domain"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions model segment",
+          "type": "contains",
+          "value": "model"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Define layer hierarchy in FSD (features, entities, shared)",
-      "expected_output": "Import direction strictly: app→widgets→features→entities→shared; never reverse; cross-slice imports at same layer prohibited; access slice internals only via top-level index.ts public API"
+      "expected_output": "Import direction strictly: app→widgets→features→entities→shared; never reverse; cross-slice imports at same layer prohibited; access slice internals only via top-level index.ts public API",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Enforces layer hierarchy",
+          "type": "contains",
+          "value": "hierarchy"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions public API (index.ts)",
+          "type": "contains",
+          "value": "public API"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Prevent cross-slice imports in FSD",
-      "expected_output": "features/cart must not import from features/auth directly; extract shared logic to entities/ or shared/; enforce with eslint-plugin-boundaries; cross-slice coupling defeats FSD isolation"
+      "expected_output": "features/cart must not import from features/auth directly; extract shared logic to entities/ or shared/; enforce with eslint-plugin-boundaries; cross-slice coupling defeats FSD isolation",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Prohibits cross-slice imports",
+          "type": "contains",
+          "value": "cross-slice"
+        },
+        {
+          "id": "a2",
+          "description": "Suggests extraction to lower layers",
+          "type": "contains",
+          "value": "isolation"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Where do Server Actions go in Feature-Sliced Design?",
-      "expected_output": "Place in features/[name]/model/actions.ts with 'use server'; DAL functions in entities/[name]/model/dal.ts; never in app/ routes; UI imports actions from feature model layer"
+      "expected_output": "Place in features/[name]/model/actions.ts with 'use server'; DAL functions in entities/[name]/model/dal.ts; never in app/ routes; UI imports actions from feature model layer",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Mentions Server Actions placement",
+          "type": "contains",
+          "value": "Server Actions"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions DAL placement",
+          "type": "contains",
+          "value": "DAL"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

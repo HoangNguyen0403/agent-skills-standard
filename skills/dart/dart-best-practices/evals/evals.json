@@ -4,17 +4,71 @@
     {
       "id": 1,
       "prompt": "Review this Dart file — it has global variables, uses var everywhere, and has anonymous lambdas where tear-offs would work. Fix it.",
-      "expected_output": "Replace global mutable vars with class-encapsulated finals or DI, replace var with final/explicit types, replace (e) => fn(e) with tear-off fn, apply trailing commas to multi-line params"
+      "expected_output": "Replace global mutable vars with class-encapsulated finals or DI, replace var with final/explicit types, replace (e) => fn(e) with tear-off fn, apply trailing commas to multi-line params",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Warns against global variables",
+          "type": "contains",
+          "value": "global"
+        },
+        {
+          "id": "a2",
+          "description": "Suggests tear-offs",
+          "type": "contains",
+          "value": "tear-off"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions trailing commas",
+          "type": "contains",
+          "value": "trailing comma"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "I have a utility method that's 20 lines with a for loop building a filtered and mapped list. Can I make this more idiomatic Dart?",
-      "expected_output": "Rewrite using chained .where().map().toList(), or collection-for with if. Prefer expression body => if single expression. Use typed empty collection <Type>[] if needed."
+      "expected_output": "Rewrite using chained .where().map().toList(), or collection-for with if. Prefer expression body => if single expression. Use typed empty collection <Type>[] if needed.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Suggests collection methods (map/where)",
+          "type": "contains",
+          "value": "map"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions collection if/for",
+          "type": "contains",
+          "value": "collection"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions expression body (=>)",
+          "type": "contains",
+          "value": "=>"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "My Dart file imports other files in the same package using 'package:myapp/...' imports everywhere. Is this correct?",
-      "expected_output": "Switch to relative imports for intra-package files (e.g., '../models/user.dart'). Package imports are for external packages only — using them locally triggers the always_use_package_imports or avoid_relative_lib_imports lint."
+      "expected_output": "Switch to relative imports for intra-package files (e.g., '../models/user.dart'). Package imports are for external packages only — using them locally triggers the always_use_package_imports or avoid_relative_lib_imports lint.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Prefers relative imports for local files",
+          "type": "contains",
+          "value": "relative"
+        },
+        {
+          "id": "a2",
+          "description": "Warns against absolute package imports locally",
+          "type": "contains",
+          "value": "package"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

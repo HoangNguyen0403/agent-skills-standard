@@ -4,32 +4,104 @@
     {
       "id": 1,
       "prompt": "Configure caching in Next.js App Router",
-      "expected_output": "Static: fetch(url, { cache: 'force-cache' }); Dynamic: fetch(url, { cache: 'no-store' }); Revalidated: fetch(url, { next: { revalidate: 60 } }); Next.js 16+: use 'use cache' directive instead of unstable_cache"
+      "expected_output": "Static: fetch(url, { cache: 'force-cache' }); Dynamic: fetch(url, { cache: 'no-store' }); Revalidated: fetch(url, { next: { revalidate: 60 } }); Next.js 16+: use 'use cache' directive instead of unstable_cache",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Static"
+        },
+        {
+          "type": "contains",
+          "value": "Next"
+        },
+        {
+          "type": "contains",
+          "value": "cache: 'force-cache'"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Use revalidateTag for cache invalidation in Next.js",
-      "expected_output": "Tag fetches: fetch(url, { next: { tags: ['posts'] } }); invalidate from Server Action: revalidateTag('posts'); triggers background revalidation; prefer over revalidatePath for fine-grained control"
+      "expected_output": "Tag fetches: fetch(url, { next: { tags: ['posts'] } }); invalidate from Server Action: revalidateTag('posts'); triggers background revalidation; prefer over revalidatePath for fine-grained control",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Server"
+        },
+        {
+          "type": "contains",
+          "value": "Action"
+        },
+        {
+          "type": "contains",
+          "value": "for fine-grained"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Understand the 4 caching layers in Next.js",
-      "expected_output": "1. Request Memoization: React cache() deduplicates per-request; 2. Data Cache: 'use cache'/revalidateTag; 3. Full Route Cache: static HTML prerendering; 4. Router Cache: client-side prefetch store"
+      "expected_output": "1. Request Memoization: React cache() deduplicates per-request; 2. Data Cache: 'use cache'/revalidateTag; 3. Full Route Cache: static HTML prerendering; 4. Router Cache: client-side prefetch store",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Request"
+        },
+        {
+          "type": "contains",
+          "value": "Memoization"
+        },
+        {
+          "type": "contains",
+          "value": "React"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Use 'use cache' directive in Next.js 16",
-      "expected_output": "async function getPosts() { 'use cache'; cacheLife('hours'); cacheTag('posts'); return db.posts.findMany(); }; replaces unstable_cache; attach tags for revalidation; use updateTag() for sync invalidation"
+      "expected_output": "async function getPosts() { 'use cache'; cacheLife('hours'); cacheTag('posts'); return db.posts.findMany(); }; replaces unstable_cache; attach tags for revalidation; use updateTag() for sync invalidation",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "'use cache'"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Prevent stale data in a Next.js app",
-      "expected_output": "After mutation Server Action call: revalidatePath('/posts') for full route or revalidateTag('posts') for tagged data; router.refresh() only for Router Cache (client-side); don't rely on cache: 'no-store' globally"
+      "expected_output": "After mutation Server Action call: revalidatePath('/posts') for full route or revalidateTag('posts') for tagged data; router.refresh() only for Router Cache (client-side); don't rely on cache: 'no-store' globally",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "After"
+        },
+        {
+          "type": "contains",
+          "value": "Server"
+        },
+        {
+          "type": "contains",
+          "value": "Action"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Set up PPR with Suspense and caching in Next.js",
-      "expected_output": "Enable experimental.ppr: 'incremental'; export const experimental_ppr = true in page; static layout renders instantly; wrap dynamic user data in <Suspense fallback={<Skeleton/>}>; add 'use cache' on static data functions"
+      "expected_output": "Enable experimental.ppr: 'incremental'; export const experimental_ppr = true in page; static layout renders instantly; wrap dynamic user data in <Suspense fallback={<Skeleton/>}>; add 'use cache' on static data functions",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Suspense"
+        },
+        {
+          "type": "contains",
+          "value": "'use cache'"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

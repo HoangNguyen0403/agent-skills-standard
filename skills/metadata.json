@@ -160,9 +160,9 @@
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 10254,
-        "avg_tokens_per_skill": 488,
-        "largest_skill": "flutter-testing (874 tokens)"
+        "total_tokens": 10640,
+        "avg_tokens_per_skill": 507,
+        "largest_skill": "flutter-testing (687 tokens)"
       }
     },
     "dart": {
@@ -182,9 +182,9 @@
       "tag_prefix": "typescript-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 2127,
-        "avg_tokens_per_skill": 532,
-        "largest_skill": "typescript-tooling (709 tokens)"
+        "total_tokens": 2607,
+        "avg_tokens_per_skill": 652,
+        "largest_skill": "typescript-tooling (799 tokens)"
       }
     },
     "javascript": {
@@ -193,9 +193,9 @@
       "tag_prefix": "javascript-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1147,
-        "avg_tokens_per_skill": 382,
-        "largest_skill": "javascript-language (405 tokens)"
+        "total_tokens": 1253,
+        "avg_tokens_per_skill": 418,
+        "largest_skill": "javascript-language (511 tokens)"
       }
     },
     "react": {
@@ -204,9 +204,9 @@
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 3150,
-        "avg_tokens_per_skill": 394,
-        "largest_skill": "react-performance (596 tokens)"
+        "total_tokens": 4227,
+        "avg_tokens_per_skill": 528,
+        "largest_skill": "react-performance (691 tokens)"
       }
     },
     "react-native": {
@@ -215,9 +215,9 @@
       "tag_prefix": "react-native-v",
       "token_metrics": {
         "total_skills": 13,
-        "total_tokens": 5001,
-        "avg_tokens_per_skill": 385,
-        "largest_skill": "react-native-architecture (525 tokens)"
+        "total_tokens": 5339,
+        "avg_tokens_per_skill": 411,
+        "largest_skill": "react-native-performance (638 tokens)"
       }
     },
     "nestjs": {
@@ -226,9 +226,9 @@
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 12678,
-        "avg_tokens_per_skill": 604,
-        "largest_skill": "nestjs-performance (881 tokens)"
+        "total_tokens": 12745,
+        "avg_tokens_per_skill": 607,
+        "largest_skill": "nestjs-bullmq (933 tokens)"
       }
     },
     "nextjs": {
@@ -237,8 +237,8 @@
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 8839,
-        "avg_tokens_per_skill": 491,
+        "total_tokens": 11069,
+        "avg_tokens_per_skill": 615,
         "largest_skill": "nextjs-architecture (909 tokens)"
       }
     },
@@ -247,9 +247,9 @@
       "last_updated": "2026-03-20",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 26,
-        "total_tokens": 14832,
-        "avg_tokens_per_skill": 570,
+        "total_skills": 28,
+        "total_tokens": 16398,
+        "avg_tokens_per_skill": 586,
         "largest_skill": "common-accessibility (980 tokens)"
       }
     },
@@ -259,9 +259,9 @@
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 2057,
-        "avg_tokens_per_skill": 514,
-        "largest_skill": "quality-engineering-zephyr-test-generation (647 tokens)"
+        "total_tokens": 2208,
+        "avg_tokens_per_skill": 552,
+        "largest_skill": "quality-engineering-zephyr-test-generation (694 tokens)"
       }
     },
     "golang": {
@@ -270,8 +270,8 @@
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 4702,
-        "avg_tokens_per_skill": 427,
+        "total_tokens": 4860,
+        "avg_tokens_per_skill": 442,
         "largest_skill": "golang-architecture (560 tokens)"
       }
     },
@@ -281,9 +281,9 @@
       "tag_prefix": "angular-v",
       "token_metrics": {
         "total_skills": 16,
-        "total_tokens": 5972,
-        "avg_tokens_per_skill": 373,
-        "largest_skill": "angular-architecture (524 tokens)"
+        "total_tokens": 8603,
+        "avg_tokens_per_skill": 538,
+        "largest_skill": "angular-tooling (675 tokens)"
       }
     },
     "kotlin": {
@@ -292,9 +292,9 @@
       "tag_prefix": "kotlin-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 1588,
-        "avg_tokens_per_skill": 397,
-        "largest_skill": "kotlin-best-practices (437 tokens)"
+        "total_tokens": 1642,
+        "avg_tokens_per_skill": 411,
+        "largest_skill": "kotlin-best-practices (466 tokens)"
       }
     },
     "java": {
@@ -303,9 +303,9 @@
       "tag_prefix": "java-v",
       "token_metrics": {
         "total_skills": 5,
-        "total_tokens": 2195,
-        "avg_tokens_per_skill": 439,
-        "largest_skill": "java-best-practices (479 tokens)"
+        "total_tokens": 2467,
+        "avg_tokens_per_skill": 493,
+        "largest_skill": "java-language (535 tokens)"
       }
     },
     "spring-boot": {
@@ -314,8 +314,8 @@
       "tag_prefix": "spring-boot-v",
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 3694,
-        "avg_tokens_per_skill": 369,
+        "total_tokens": 4370,
+        "avg_tokens_per_skill": 437,
         "largest_skill": "spring-boot-architecture (593 tokens)"
       }
     },
@@ -325,9 +325,9 @@
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 6729,
-        "avg_tokens_per_skill": 306,
-        "largest_skill": "android-architecture (472 tokens)"
+        "total_tokens": 7426,
+        "avg_tokens_per_skill": 338,
+        "largest_skill": "android-legacy-security (514 tokens)"
       }
     },
     "swift": {
@@ -336,9 +336,9 @@
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 2696,
-        "avg_tokens_per_skill": 337,
-        "largest_skill": "swift-testing (376 tokens)"
+        "total_tokens": 3624,
+        "avg_tokens_per_skill": 453,
+        "largest_skill": "swift-best-practices (656 tokens)"
       }
     },
     "ios": {
@@ -347,9 +347,9 @@
       "tag_prefix": "ios-v",
       "token_metrics": {
         "total_skills": 15,
-        "total_tokens": 5666,
-        "avg_tokens_per_skill": 378,
-        "largest_skill": "ios-architecture (571 tokens)"
+        "total_tokens": 6081,
+        "avg_tokens_per_skill": 405,
+        "largest_skill": "ios-architecture (662 tokens)"
       }
     },
     "php": {
@@ -358,9 +358,9 @@
       "tag_prefix": "php-v",
       "token_metrics": {
         "total_skills": 7,
-        "total_tokens": 2176,
-        "avg_tokens_per_skill": 311,
-        "largest_skill": "php-security (335 tokens)"
+        "total_tokens": 3499,
+        "avg_tokens_per_skill": 500,
+        "largest_skill": "php-testing (570 tokens)"
       }
     },
     "laravel": {
@@ -369,9 +369,9 @@
       "tag_prefix": "laravel-v",
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 3504,
-        "avg_tokens_per_skill": 350,
-        "largest_skill": "laravel-clean-architecture (407 tokens)"
+        "total_tokens": 5729,
+        "avg_tokens_per_skill": 573,
+        "largest_skill": "laravel-clean-architecture (635 tokens)"
       }
     },
     "database": {

@@ -1,0 +1,68 @@
+{
+  "skill_name": "javascript-best-practices",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement javascript best practices best practices?",
+      "expected_output": "**Naming**: `camelCase` (vars/funcs), `PascalCase` (classes), `UPPER_SNAKE` (constants).",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "camelCase"
+        },
+        {
+          "type": "contains",
+          "value": "PascalCase"
+        },
+        {
+          "type": "contains",
+          "value": "UPPER_SNAKE"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in javascript best practices?",
+      "expected_output": "**Errors**: Throw `Error` objects only. Handle all async errors.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Error"
+        },
+        {
+          "type": "contains",
+          "value": "index.js"
+        },
+        {
+          "type": "contains",
+          "value": "const"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for javascript best practices.",
+      "expected_output": "**Comments**: JSDoc for APIs. Explain \"why\" not \"what\".",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "/api/${id}"
+        },
+        {
+          "type": "contains",
+          "value": "Priority: P1 (OPERATIONAL)"
+        },
+        {
+          "type": "contains",
+          "value": "Naming"
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Set up a basic javascript project from scratch",
+    "How do I install javascript dependencies?",
+    "What is javascript?",
+    "Configure CI/CD for an unrelated platform"
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 name: golang-language
-description: "Core idioms, style guides, and best practices for writing idiomatic Go code. Use when writing Go code following official style guides and idiomatic patterns. (triggers: go.mod, golang, go code, idiomatic, gofmt, goimports, iota, golang style)"
+description: 'Core idioms, style guides, and best practices for writing idiomatic Go code. Use when writing Go code following official style guides and idiomatic patterns. (triggers: go.mod, golang, go code, idiomatic, gofmt, goimports, iota, golang style)'
 ---
 
 # Golang Language Standards
@@ -9,18 +9,18 @@ description: "Core idioms, style guides, and best practices for writing idiomati
 
 ## Guidelines
 
-- **Fmt**: Run `gofmt` or `goimports` on save.
-- **Naming**: Use `camelCase` for internal, `PascalCase` for exported.
-- **Packages**: Short, lowercase, singular, no underscores (e.g., `net/http` not `net_http`).
-- **Interfaces**: Define where used, not where implemented. Small interfaces (1-2 methods).
-- **Errors**: Return error as last return value. Handle immediately.
-- **Variables**: Short names for small scope (`i`, `ctx`), descriptive for large scope.
-- **Slices**: Prefer slices over arrays. Use `make()` for capacity.
-- **Const**: Use `iota` for enums.
+- **Formatting**: Run **`gofmt`** or **`goimports`** on save. Use **`gopls`** for LSP features.
+- **Naming**: Use **`camelCase`** for internal (unexported) and **`PascalCase`** for public (exported) symbols.
+- **Packages**: Use short, lowercase, singular names (e.g., **`http`**, **`user`**). Avoid `_` or `camelCase` in package names.
+- **Interfaces**: Small interfaces — 1-2 methods max. Define where used (consumer side), not where implemented.
+- **Errors**: Return **`error`** as the last return value. Handle errors **immediately** at the call-site.
+- **Slices**: Use **`make(slice, len, cap)`** to pre-allocate capacity and avoid redundant re-allocations.
+- **Enums**: Use a const block with iota for type-safe enumerations.
+- **Zero Values**: Leverage **`zero-value`** initialization over explicit `nil` checks where possible.
 
 ## Anti-Patterns
 
-- **No `init`**: Use constructors, not `init()`.
+- **No init**: Use constructors (NewService()), not init(). (not init() — it runs implicitly and makes testing harder)
 - **No Globals**: Use DI, not global mutable state.
 - **No `panic`**: Return errors, don't panic.
 - **No `_` ignored errors**: Always check and handle errors.
@@ -29,6 +29,7 @@ description: "Core idioms, style guides, and best practices for writing idiomati
 ## Verification Workflow (Mandatory)
 
 After writing or modifying Go code:
+
 1. **`mcp__ide__getDiagnostics`** — catch compile errors and gopls type diagnostics immediately
 2. **`go vet ./...`** — catch common mistakes (printf mismatches, unreachable code, shadowed vars)
 3. **`goimports -w .`** — fix imports and formatting in one pass

@@ -4,7 +4,7 @@ description: Benchmark AI skill effectiveness by measuring implementation qualit
 
 # 📊 Skill Benchmark Workflow
 
-> **Goal**: Quantify how much active skills improve implementation quality. The agent auto-selects a Legacy Trap, builds a scorecard, refactors, and produces a compliance delta + skill applicability report.
+> **Goal**: Quantify how much active skills improve implementation quality. The agent auto-selects a Legacy Trap, builds a scorecard driven by the skills' own evals, refactors, and produces a compliance delta + skill applicability report.
 
 ---
 
@@ -34,34 +34,39 @@ find src -name "*.ts" -o -name "*.tsx" | xargs wc -l 2>/dev/null | sort -rn | he
 
 ---
 
-## Step 3 — Build Scorecard & Execute
+## Step 3 — Build Eval-Driven Scorecard & Execute
 
-Build the scorecard from active P0/P1 skills, then perform the refactoring in the same step. For each change made, cite the skill rule being applied.
+**Source your scorecard from `evals/evals.json`, not from hardcoded patterns.**
 
-**Scorecard** (fill in only rows relevant to the selected file):
+For each active P0/P1 skill relevant to the selected file:
 
-| Skill              | P-Level | Failure Pattern                   | Success Pattern               |
-| ------------------ | ------- | --------------------------------- | ----------------------------- |
-| Security           | P0      | Hardcoded secrets                 | `process.env.*` or vault      |
-| Architecture       | P0      | Fetch/logic in UI component       | Service layer or custom hook  |
-| Pages Router Guard | P0      | Introduces `app/` patterns        | Stays in `pages/` conventions |
-| State Management   | P1      | Bare `useSelector` / store import | Typed domain hook             |
-| Styling            | P1      | Hardcoded `px` values             | CSS variables / design tokens |
-| i18n               | P1      | Raw JSX strings                   | `FormattedMessage` / `t()`    |
+1. Read `skills/<category>/<skill>/evals/evals.json`
+2. Use the eval `assertions` as the **Success Pattern** column
+3. Use the `not_contains` assertions and SKILL.md anti-patterns as the **Failure Pattern** column
+4. Perform the refactoring, citing the exact skill rule for each change
+
+**Scorecard** (rows generated from active skill evals for the selected file):
+
+| Skill          | P-Level | Failure Pattern (from `not_contains` assertions / Anti-Patterns) | Success Pattern (from `contains` assertions) |
+| -------------- | ------- | ---------------------------------------------------------------- | -------------------------------------------- |
+| _[skill name]_ | P0/P1   | _[anti-pattern or not_contains value]_                           | _[expected assertion value]_                 |
+
+> **Eval Alignment check**: For each skill used, note how many of its eval assertion values appear in SKILL.md. Low alignment (<70%) means the skill may not teach what the eval tests — flag it in Step 6.
 
 ---
 
 ## Step 4 — Benchmark Report
 
-```
+```text
 Task:   [What was refactored]
 File:   [path/to/file]
 Date:   [Date]
 ```
 
-| Criteria  | P-Level | Status | Evidence          |
-| --------- | ------- | ------ | ----------------- |
-| _[Skill]_ | P0/P1   | ✅/❌  | _[One-line note]_ |
+| Criteria      | P-Level | Status | Evidence                |
+| ------------- | ------- | ------ | ----------------------- |
+| _[Skill]_     | P0/P1   | ✅/❌  | _[One-line note]_       |
+| Eval Coverage | —       | ✅/⚠️  | _[X evals, Y% aligned]_ |
 
 **Compliance Score**:
 
@@ -69,17 +74,23 @@ Date:   [Date]
 - After: `Y / N` = **Y%**
 - **Δ Delta: +Z%** 🚀
 
+**Eval Alignment** (with-vs-without-skill proxy):
+
+- Skills with full eval coverage (≥3 evals, ≥2 assertions, has `should_not_trigger`): `A / total`
+- Avg alignment across used skills: `B%`
+- Any skill below 70%: list them → action in Step 6
+
 ---
 
 ## Step 5 — Skill Applicability Report
 
 Evaluate every skill in `AGENTS.md` against the actual project to identify noise.
 
-| Skill          | Applicable?                  | Reason       | Recommendation     |
-| -------------- | ---------------------------- | ------------ | ------------------ |
-| _[skill/name]_ | ✅ YES / ⚠️ NO / ❌ CONFLICT | _[Evidence]_ | Keep / **Exclude** |
+| Skill          | Applicable?                  | Has Evals? | Eval Aligned? | Recommendation     |
+| -------------- | ---------------------------- | ---------- | ------------- | ------------------ |
+| _[skill/name]_ | ✅ YES / ⚠️ NO / ❌ CONFLICT | ✅/❌      | ✅/⚠️/n/a     | Keep / **Exclude** |
 
-**Summary**: `X applicable`, `Y to exclude`
+**Summary**: `X applicable`, `Y to exclude`, `Z with low eval alignment`
 
 ### Suggested .skillsrc Exclusions
 
@@ -103,9 +114,12 @@ database:
 
 For every `❌ FAIL`, identify root cause:
 
-| Failure         | Root Cause                | Fix                                   |
-| --------------- | ------------------------- | ------------------------------------- |
-| Skill ignored   | Trigger not matching file | Refine `packages`/`files` in registry |
-| Rule too vague  | Anti-pattern unclear      | Add explicit "❌ Never do X" example  |
-| Pattern missing | No reference code         | Add to `references/` folder           |
-| Skills conflict | Two skills contradict     | Ensure P0 overrides P1                |
+| Failure            | Root Cause                            | Fix                                                                    |
+| ------------------ | ------------------------------------- | ---------------------------------------------------------------------- |
+| Skill ignored      | Trigger not matching file             | Refine `packages`/`files` in registry                                  |
+| Rule too vague     | Anti-pattern unclear                  | Add `**No X**: Do Y.` line to SKILL.md                                 |
+| Pattern missing    | No reference code                     | Add to `references/` folder                                            |
+| Skills conflict    | Two skills contradict                 | Ensure P0 overrides P1                                                 |
+| Missing evals      | No `evals/evals.json`                 | Create evals with ≥3 prompts, ≥2 assertions each, `should_not_trigger` |
+| Low eval alignment | SKILL.md missing key terms            | Add the missing assertion values from evals into SKILL.md guidelines   |
+| Eval misalignment  | Evals test things skill doesn't teach | Either update SKILL.md to cover them or update evals to match scope    |

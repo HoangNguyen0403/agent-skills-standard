@@ -1,0 +1,68 @@
+{
+  "skill_name": "common-context-optimization",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement common context optimization best practices?",
+      "expected_output": "**Keep**: User Goal, Active Task, Current Errors, Key Decisions.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "references/masking.md"
+        },
+        {
+          "type": "contains",
+          "value": "System Prompt"
+        },
+        {
+          "type": "contains",
+          "value": "Memory File"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in common context optimization?",
+      "expected_output": "**Drop**: Chat chit-chat, intermediate tool calls, corrected assumptions.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "references/compaction.md"
+        },
+        {
+          "type": "contains",
+          "value": "Priority: P1 (OPTIMIZATION)"
+        },
+        {
+          "type": "contains",
+          "value": "Problem"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for common context optimization.",
+      "expected_output": "**Static Prefix**: strict ordering: System -> Tools -> RAG -> User.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Solution"
+        },
+        {
+          "type": "contains",
+          "value": "Identify"
+        },
+        {
+          "type": "contains",
+          "value": "Extract"
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Set up a basic common project from scratch",
+    "How do I install common dependencies?",
+    "What is common?",
+    "Configure CI/CD for an unrelated platform"
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 name: android-legacy-security
-description: "Standards for Intents, WebViews, and FileProvider. Use when securing Intent handling, WebViews, or FileProvider access in Android. (triggers: **/*Activity.kt, **/*WebView*.kt, AndroidManifest.xml, Intent, WebView, FileProvider, javaScriptEnabled)"
+description: 'Standards for Intents, WebViews, and FileProvider. Use when securing Intent handling, WebViews, or FileProvider access in Android. (triggers: **/*Activity.kt, **/*WebView*.kt, AndroidManifest.xml, Intent, WebView, FileProvider, javaScriptEnabled)'
 ---
 
 # Android Legacy Security Standards
@@ -9,20 +9,23 @@ description: "Standards for Intents, WebViews, and FileProvider. Use when securi
 
 ## Implementation Guidelines
 
-### Intents
+### Intents & Components
 
-- **Implicit**: Always verify `resolveActivity` before starting.
-- **Exported**: Verify `android:exported` logic (as per `security` skill).
-- **Data**: Treat all incoming Intent extras as untrusted input.
+- **Visibility**: Set **`android:exported="false"`** in the Manifest for all internal Activities/Services unless explicitly needed for deep links or external integration.
+- **Intents**: Verify **`resolveActivity`** before starting implicit intents. Use **`LocalBroadcastManager`** (legacy) or **`SharedFlow/StateFlow`** for internal communication.
+- **Data**: Treat all incoming **Intent extras as untrusted**. Validate all schema/data types before consumption.
 
 ### WebView
 
-- **JS**: Default to `javaScriptEnabled = false`. Only enable for trusted domains.
-- **File Access**: Disable `allowFileAccess` to prevent local file theft via XSS.
+- **JS**: Default to **`javaScriptEnabled = false`**. Use **`WebViewClient`** and **`WebChromeClient`** to restrict navigation and origin access.
+- **File Access**: Disable **`allowFileAccess`** and **`allowFileAccessFromFileURLs`** to prevent local file theft via XSS.
+- **Bridge**: If creating a **`JavascriptInterface`**, use **`@JavascriptInterface`** (API 17+) and strictly limit the exposed API surface.
 
-### File Exposure
+### Storage & Files
 
-- **FileProvider**: NEVER expose `file://` URIs. Use `FileProvider`.
+- **File Exposure**: **NEVER expose `file://` URIs**. Use **`FileProvider`** (androidx) to generate **`content://`** URIs with temporary permissions.
+- **SharedPreferences**: Use **`EncryptedSharedPreferences`** (Security library) for auth tokens and PII. Never use **`MODE_WORLD_READABLE`** (deprecated/insecure).
+- **Network**: Use **`NetworkSecurityConfig`** to disable **`cleartextTrafficPermitted`** (mandatory for API 28+) and implement **SSL Pinning/Certificate Pinning**.
 
 ## Anti-Patterns
 

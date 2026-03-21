@@ -1,0 +1,42 @@
+{
+  "skill_name": "javascript-language",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I declare variables in modern JavaScript?",
+      "expected_output": "const default. let if needed. No var. Block scope only.",
+      "assertions": [
+        { "type": "contains", "value": "const default" },
+        { "type": "contains", "value": "let if needed" },
+        { "type": "contains", "value": "No var" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I safely access nested object properties if some of them might be missing?",
+      "expected_output": "Optional Chain ?., Nullish Coalescing ??. No manual undefined checks. Intention-revealing naming.",
+      "assertions": [
+        { "type": "contains", "value": "Optional Chain ?." },
+        { "type": "contains", "value": "Nullish ??" },
+        { "type": "contains", "value": "user?.profile?.name" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I handle asynchronous code in modern JavaScript?",
+      "expected_output": "async/await + try/catch. Promisify everything. No callbacks. ESM import/export.",
+      "assertions": [
+        { "type": "contains", "value": "async/await" },
+        { "type": "contains", "value": "try/catch" },
+        { "type": "contains", "value": "No Callbacks" },
+        { "type": "contains", "value": "ESM import/export" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I use Java records?",
+    "How do I use Kotlin sealed classes?",
+    "How do I configure a NestJS module?",
+    "How do I write a SQL query?"
+  ]
+}

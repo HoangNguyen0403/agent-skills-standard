@@ -4,17 +4,51 @@
     {
       "id": 1,
       "prompt": "How do I apply different padding-top values for iOS and Android in React Native?",
-      "expected_output": "Use Platform.select: const styles = { paddingTop: Platform.select({ ios: 20, android: 0, default: 10 }) }. Or use react-native-safe-area-context for dynamic safe area values. Avoid hardcoded values — use SafeAreaView or insets from useSafeAreaInsets."
+      "expected_output": "Use Platform.select: const styles = { paddingTop: Platform.select({ ios: 20, android: 0, default: 10 }) }. Or use react-native-safe-area-context for dynamic safe area values. Avoid hardcoded values — use SafeAreaView or insets from useSafeAreaInsets.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Platform"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "I have a Button component that needs very different implementations on iOS vs Android. How do I split this?",
-      "expected_output": "Use platform-specific file extensions: Button.ios.tsx and Button.android.tsx. React Native auto-selects the right file. Import as just Button — no explicit platform check needed. Use shared Button.tsx as fallback for web or when platforms are similar."
+      "expected_output": "Use platform-specific file extensions: Button.ios.tsx and Button.android.tsx. React Native auto-selects the right file. Import as just Button — no explicit platform check needed. Use shared Button.tsx as fallback for web or when platforms are similar.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Button"
+        },
+        {
+          "type": "contains",
+          "value": "React"
+        },
+        {
+          "type": "contains",
+          "value": "Native"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "How do I access a native module that's only available on iOS in React Native?",
-      "expected_output": "Check Platform.OS === 'ios' before calling the module. Use NativeModules or turbo modules. For Expo, use expo-modules-core. Provide a no-op fallback for Android. Document that the feature is iOS-only. Write platform-specific tests."
+      "expected_output": "Check Platform.OS === 'ios' before calling the module. Use NativeModules or turbo modules. For Expo, use expo-modules-core. Provide a no-op fallback for Android. Document that the feature is iOS-only. Write platform-specific tests.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Check"
+        },
+        {
+          "type": "contains",
+          "value": "Platform"
+        },
+        {
+          "type": "contains",
+          "value": "Expo"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

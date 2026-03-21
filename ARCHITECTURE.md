@@ -6,9 +6,9 @@ This document captures the high-level design, data flow, and key decision record
 
 The system consists of three main components:
 
-1.  **Registry**: A Git repository (or local folder) containing skill definitions (`SKILL.md`).
-2.  **CLI**: The tool that fetches, validates, and syncs these skills to a project.
-3.  **Local Project**: The user's codebase where skills are installed (e.g., `.cursor/skills/`).
+1. **Registry**: A Git repository (or local folder) containing skill definitions (`SKILL.md`).
+2. **CLI**: The tool that fetches, validates, and syncs these skills to a project.
+3. **Local Project**: The user's codebase where skills are installed (e.g., `.cursor/skills/`).
 
 ### Data Flow
 

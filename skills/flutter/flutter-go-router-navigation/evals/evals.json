@@ -4,17 +4,59 @@
     {
       "id": 1,
       "prompt": "Set up go_router with typed routes so navigating to the order detail screen requires a strongly-typed orderId parameter.",
-      "expected_output": "@TypedGoRoute<OrderDetailRoute>(path: '/orders/:id') with class OrderDetailRoute extends GoRouteData { final String id; }, navigation via OrderDetailRoute(id: id).go(context)"
+      "expected_output": "@TypedGoRoute<OrderDetailRoute>(path: '/orders/:id') with class OrderDetailRoute extends GoRouteData { final String id; }, navigation via OrderDetailRoute(id: id).go(context)",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "TypedGoRoute"
+        },
+        {
+          "type": "contains",
+          "value": "OrderDetailRoute"
+        },
+        {
+          "type": "contains",
+          "value": "GoRouteData"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "The app needs to redirect unauthenticated users to /login when they try to access /cart or /checkout. How do I implement this with go_router?",
-      "expected_output": "GoRouter redirect callback checking auth state: redirect: (context, state) => isLoggedIn ? null : '/login', applied at router level — not inside the page widget"
+      "expected_output": "GoRouter redirect callback checking auth state: redirect: (context, state) => isLoggedIn ? null : '/login', applied at router level — not inside the page widget",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "GoRouter"
+        },
+        {
+          "type": "contains",
+          "value": "redirect callback"
+        },
+        {
+          "type": "contains",
+          "value": "inside the"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "I have a bottom tab bar with Home, Orders, and Profile tabs. Each tab should maintain its own navigation stack when switching between tabs.",
-      "expected_output": "StatefulShellRoute with branches for each tab, IndexedStack or ShellRoute children maintaining independent stacks, typed GoRouteData per tab"
+      "expected_output": "StatefulShellRoute with branches for each tab, IndexedStack or ShellRoute children maintaining independent stacks, typed GoRouteData per tab",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "StatefulShellRoute"
+        },
+        {
+          "type": "contains",
+          "value": "ShellRoute"
+        },
+        {
+          "type": "contains",
+          "value": "GoRouteData"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

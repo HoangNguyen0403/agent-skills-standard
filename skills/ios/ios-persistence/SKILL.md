@@ -1,6 +1,6 @@
 ---
 name: ios-persistence
-description: "Standards for SwiftData, Core Data, and Local Storage. Use when implementing SwiftData, Core Data models, or local persistence in iOS. (triggers: **/*.xcdatamodeld, **/*Model.swift, PersistentContainer, FetchRequest, ManagedObject, Query, ModelContainer, Repository)"
+description: 'Standards for SwiftData, Core Data, and Local Storage. Use when implementing SwiftData, Core Data models, or local persistence in iOS. (triggers: **/*.xcdatamodeld, **/*Model.swift, PersistentContainer, FetchRequest, ManagedObject, Query, ModelContainer, Repository)'
 ---
 
 # iOS Persistence Standards
@@ -9,23 +9,25 @@ description: "Standards for SwiftData, Core Data, and Local Storage. Use when im
 
 ## Implementation Guidelines
 
-### SwiftData (iOS 17+)
+### SwiftData (Current iOS 17+)
 
-- **Models**: Use `@Model` macro for pure Swift classes.
-- **Container**: Use `ModelContainer` for schema management. Inject into the environment for SwiftUI apps.
-- **Queries**: Use `@Query` for declarative data fetching in Views.
+- **Models**: Use the **`@Model`** macro for your Swift classes.
+- **Container**: Use **`@MainActor`** for configuring the `ModelContainer`.
+- **UI State**: Use **`@Query`** for reactive data fetching in **SwiftUI** views.
+- **Context API**: Access `modelContext` from the `@Environment` for CRUD (**modelContext.insert**, **modelContext.delete**, **modelContext.save**).
 
-### Core Data (Standard)
+### Core Data (Stable & Large Legacy)
 
-- **Persistent Stack**: Initialize `NSPersistentContainer` in a dedicated `PersistenceController`.
-- **Context Management**: Use `viewContext` for UI tasks and `newBackgroundContext()` for heavy imports to avoid blocking the main thread.
-- **FetchedResultsController**: Use `NSFetchedResultsController` for efficient list management with change tracking.
+- **Mapping**: Define your entities and attributes in the **`.xcdatamodeld`** file.
+- **Stack**: Use **`NSPersistentContainer`** to encapsulate the SQLite store.
+- **Background**: Perform heavy writes on `newBackgroundContext()` to avoid UI lag.
+- **Main Context**: Use **`viewContext`** only for UI thread operations.
 
-### Best Practices
+### Local Persistence (Small Data)
 
-- **Migration**: Always perform lightweight migrations for minor schema changes. Use versioned models for complex migrations.
-- **Threading**: Managed objects are not thread-safe. Always access them on the context's queue (e.g., `perform { ... }`).
-- **Batching**: Use `NSBatchUpdateRequest` or `NSBatchDeleteRequest` for large datasets.
+- **Keychain**: Use for **Auth tokens**, passwords, and PII. Never store sensitive keys in `UserDefaults`.
+- **UserDefaults**: Use for lightweight settings/flags (e.g., `isDarkModeEnabled`).
+- **File System**: Save images or PDFs to the **`Documents`** directory using `Data.write(to:)`.
 
 ## Anti-Patterns
 

@@ -1,0 +1,43 @@
+{
+  "skill_name": "common-best-practices",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this function: function check(u) { if (u.auth == true) { return true; } else { return false; } }",
+      "expected_output": "Naming: intention-revealing (isUserAuthenticated > check). Use guard clauses/early returns. Follow SRP. Intention-revealing naming.",
+      "assertions": [
+        { "type": "contains", "value": "Naming" },
+        { "type": "contains", "value": "Intention-revealing" },
+        { "type": "contains", "value": "guard clauses" },
+        { "type": "contains", "value": "Early Returns" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How should I handle a complex 100-line function with multiple nested if statements?",
+      "expected_output": "Apply SOLID principles (SRP). Use guard clauses to prevent deep nesting. Break into smaller functions (< 30 lines). Avoid the Pyramid of Doom.",
+      "assertions": [
+        { "type": "contains", "value": "SOLID" },
+        { "type": "contains", "value": "guard clauses" },
+        { "type": "contains", "value": "Functions < 30 lines" },
+        { "type": "contains", "value": "No deep nesting" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Should I add comments to explain every line of my code?",
+      "expected_output": "Comments: explain why, not what. Refactor instead of commenting bad code. Intention-revealing naming makes code self-documenting.",
+      "assertions": [
+        { "type": "contains", "value": "explain why, not what" },
+        { "type": "contains", "value": "Refactor instead of commenting" },
+        { "type": "contains", "value": "Naming" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up a React component?",
+    "How do I use WorkManager in Android?",
+    "How do I configure a NestJS module?",
+    "Write a SQL query to join two tables"
+  ]
+}

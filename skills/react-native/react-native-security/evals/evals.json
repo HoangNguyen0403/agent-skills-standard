@@ -4,17 +4,59 @@
     {
       "id": 1,
       "prompt": "Where should I store authentication tokens in a React Native app?",
-      "expected_output": "Use react-native-keychain which stores in iOS Keychain and Android Keystore. Never use AsyncStorage for sensitive data — it is unencrypted. For biometric-protected storage, use Keychain with biometry access control. Tokens must be encrypted at rest."
+      "expected_output": "Use react-native-keychain which stores in iOS Keychain and Android Keystore. Never use AsyncStorage for sensitive data — it is unencrypted. For biometric-protected storage, use Keychain with biometry access control. Tokens must be encrypted at rest.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Keychain"
+        },
+        {
+          "type": "contains",
+          "value": "Android"
+        },
+        {
+          "type": "contains",
+          "value": "Keystore"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "How do I implement certificate pinning in my React Native app that talks to a financial API?",
-      "expected_output": "Use react-native-ssl-pinning. Pin public key hash (preferred) not the certificate to survive cert rotation. Warn: pinning requires app update when certificate rotates — plan the rotation process. Only required for high-security apps (banking, healthcare). Test both valid and invalid cert scenarios."
+      "expected_output": "Use react-native-ssl-pinning. Pin public key hash (preferred) not the certificate to survive cert rotation. Warn: pinning requires app update when certificate rotates — plan the rotation process. Only required for high-security apps (banking, healthcare). Test both valid and invalid cert scenarios.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Warn"
+        },
+        {
+          "type": "contains",
+          "value": "Only"
+        },
+        {
+          "type": "contains",
+          "value": "requires app"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "My React Native app passes an auth token in the deep link URL. Is this a security issue?",
-      "expected_output": "Yes — tokens in URLs appear in logs, browser history, and are accessible to other apps. Use PKCE OAuth flow instead: exchange a short-lived code for a token server-side. Never put sensitive data in deep link URLs. Validate all deep link params before trusting them."
+      "expected_output": "Yes — tokens in URLs appear in logs, browser history, and are accessible to other apps. Use PKCE OAuth flow instead: exchange a short-lived code for a token server-side. Never put sensitive data in deep link URLs. Validate all deep link params before trusting them.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "URLs"
+        },
+        {
+          "type": "contains",
+          "value": "Never"
+        },
+        {
+          "type": "contains",
+          "value": "Validate"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

@@ -4,17 +4,59 @@
     {
       "id": 1,
       "prompt": "I'm getting a 'setState called after dispose' error that crashes the app intermittently after async operations.",
-      "expected_output": "Add if (context.mounted) check before using BuildContext after any await, or before calling setState after async gap"
+      "expected_output": "Add if (context.mounted) check before using BuildContext after any await, or before calling setState after async gap",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "BuildContext"
+        },
+        {
+          "type": "contains",
+          "value": "before using"
+        },
+        {
+          "type": "contains",
+          "value": "using BuildContext"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "My build method is 250 lines with nested Column/Row/Container everywhere. How should I refactor it?",
-      "expected_output": "Extract into small const StatelessWidget classes, not helper methods — better for performance profiling and rebuilds; aim for <80 lines per widget file"
+      "expected_output": "Extract into small const StatelessWidget classes, not helper methods — better for performance profiling and rebuilds; aim for <80 lines per widget file",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Extract"
+        },
+        {
+          "type": "contains",
+          "value": "StatelessWidget"
+        },
+        {
+          "type": "contains",
+          "value": "into small"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "I need 16px spacing between elements — I'm using Padding(padding: EdgeInsets.all(16)) everywhere.",
-      "expected_output": "Use Gap(16) or SizedBox(height: 16) for simple spacing instead of Padding wrapping — simpler and more readable"
+      "expected_output": "Use Gap(16) or SizedBox(height: 16) for simple spacing instead of Padding wrapping — simpler and more readable",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "SizedBox"
+        },
+        {
+          "type": "contains",
+          "value": "Padding"
+        },
+        {
+          "type": "contains",
+          "value": "for simple"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

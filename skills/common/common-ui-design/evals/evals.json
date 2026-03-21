@@ -4,32 +4,112 @@
     {
       "id": 1,
       "prompt": "Build a landing page for an AI security startup",
-      "expected_output": "Commit to aesthetic direction first (e.g., dark brutalist/industrial tone); choose distinctive font pair (e.g., Bebas Neue + IBM Plex Mono); dominant dark background with sharp neon accent; staggered entrance animation on hero text; atmospheric gradient mesh background; avoid Inter/purple-gradient-on-white"
+      "expected_output": "Commit to aesthetic direction first (e.g., dark brutalist/industrial tone); choose distinctive font pair (e.g., Bebas Neue + IBM Plex Mono); dominant dark background with sharp neon accent; staggered entrance animation on hero text; atmospheric gradient mesh background; avoid Inter/purple-gradient-on-white",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Commit"
+        },
+        {
+          "type": "contains",
+          "value": "Plex"
+        },
+        {
+          "type": "contains",
+          "value": "Inter"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Create a dashboard UI for a music streaming app",
-      "expected_output": "Define tone (e.g., playful or luxury/refined); pair display + body fonts; use CSS custom properties for color palette; implement one orchestrated staggered card entrance; break grid with asymmetric layout; gradient mesh or noise texture for depth"
+      "expected_output": "Define tone (e.g., playful or luxury/refined); pair display + body fonts; use CSS custom properties for color palette; implement one orchestrated staggered card entrance; break grid with asymmetric layout; gradient mesh or noise texture for depth",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "CSS custom"
+        },
+        {
+          "type": "contains",
+          "value": "custom properties"
+        },
+        {
+          "type": "contains",
+          "value": "one orchestrated"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Design a settings panel with dark mode",
-      "expected_output": "Commit to minimal/refined tone; use CSS custom properties (--color-bg, --color-surface, --color-accent); pick distinctive body font (not Roboto); subtle hover transitions (transform + box-shadow, 150ms); controlled density layout; avoid scattered micro-interactions"
+      "expected_output": "Commit to minimal/refined tone; use CSS custom properties (--color-bg, --color-surface, --color-accent); pick distinctive body font (not Roboto); subtle hover transitions (transform + box-shadow, 150ms); controlled density layout; avoid scattered micro-interactions",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Commit"
+        },
+        {
+          "type": "contains",
+          "value": "Roboto"
+        },
+        {
+          "type": "contains",
+          "value": "CSS custom"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Build a login form component",
-      "expected_output": "Choose tone (e.g., luxury minimal); distinctive font pair; CSS custom properties for colors; one entrance animation (fadeUp 0.5s); generous negative space or atmospheric background; no purple gradient; prefers-reduced-motion guard"
+      "expected_output": "Choose tone (e.g., luxury minimal); distinctive font pair; CSS custom properties for colors; one entrance animation (fadeUp 0.5s); generous negative space or atmospheric background; no purple gradient; prefers-reduced-motion guard",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Choose"
+        },
+        {
+          "type": "contains",
+          "value": "font pair"
+        },
+        {
+          "type": "contains",
+          "value": "CSS custom"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Make this page look better / improve the design",
-      "expected_output": "Identify current tone and either commit to it fully or pivot to a clear direction; audit typography (replace generic fonts with distinctive pair); add dominant+accent color structure via CSS variables; introduce one orchestrated entrance; break flat layout with depth (shadows, texture, overlap)"
+      "expected_output": "Identify current tone and either commit to it fully or pivot to a clear direction; audit typography (replace generic fonts with distinctive pair); add dominant+accent color structure via CSS variables; introduce one orchestrated entrance; break flat layout with depth (shadows, texture, overlap)",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "one orchestrated"
+        },
+        {
+          "type": "contains",
+          "value": "orchestrated entrance"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Create a marketing homepage for a SaaS product",
-      "expected_output": "Pre-code design thinking: purpose (conversions), tone (editorial or bold minimal), differentiator (one unforgettable visual element); distinctive display+body font pair; dominant color + sharp accent; staggered hero reveal; atmospheric hero background; grid-breaking elements in features section"
+      "expected_output": "Pre-code design thinking: purpose (conversions), tone (editorial or bold minimal), differentiator (one unforgettable visual element); distinctive display+body font pair; dominant color + sharp accent; staggered hero reveal; atmospheric hero background; grid-breaking elements in features section",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "font pair"
+        },
+        {
+          "type": "contains",
+          "value": "dominant color"
+        },
+        {
+          "type": "contains",
+          "value": "sharp accent"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

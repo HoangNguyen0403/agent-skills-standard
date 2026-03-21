@@ -1,0 +1,68 @@
+{
+  "skill_name": "common-system-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement common system design best practices?",
+      "expected_output": "**SoC**: Divide into distinct sections per concern.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Priority: P0 (FOUNDATIONAL)"
+        },
+        {
+          "type": "contains",
+          "value": "SoC"
+        },
+        {
+          "type": "contains",
+          "value": "SSOT"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in common system design?",
+      "expected_output": "**SSOT**: One source, reference elsewhere.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Fail Fast"
+        },
+        {
+          "type": "contains",
+          "value": "Graceful Degradation"
+        },
+        {
+          "type": "contains",
+          "value": "High Cohesion"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for common system design.",
+      "expected_output": "**Fail Fast**: Fail visibly when errors occur.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Loose Coupling"
+        },
+        {
+          "type": "contains",
+          "value": "Layered"
+        },
+        {
+          "type": "contains",
+          "value": "Event-Driven"
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Set up a basic common project from scratch",
+    "How do I install common dependencies?",
+    "What is common?",
+    "Configure CI/CD for an unrelated platform"
+  ]
+}

@@ -4,17 +4,59 @@
     {
       "id": 1,
       "prompt": "My React page loads slowly because it fetches user data, then product data, then recommendations in sequence. How do I fix this?",
-      "expected_output": "Parallel fetching: use Promise.all([getUser(), getProducts(), getRecs()]) instead of sequential awaits. In React Router, put fetches in route loaders. Use Suspense boundaries to show partial content. Avoid request waterfalls."
+      "expected_output": "Parallel fetching: use Promise.all([getUser(), getProducts(), getRecs()]) instead of sequential awaits. In React Router, put fetches in route loaders. Use Suspense boundaries to show partial content. Avoid request waterfalls.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Parallel"
+        },
+        {
+          "type": "contains",
+          "value": "Promise"
+        },
+        {
+          "type": "contains",
+          "value": "React"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "My bundle size is too large. How do I reduce it?",
-      "expected_output": "Avoid barrel files (import directly from component files). Use React.lazy / next/dynamic for heavy components (Charts, Modals). Replace moment with dayjs, lodash with native/radash. Run source-map-explorer or bundle-visualizer. Tree-shake by using named imports."
+      "expected_output": "Avoid barrel files (import directly from component files). Use React.lazy / next/dynamic for heavy components (Charts, Modals). Replace moment with dayjs, lodash with native/radash. Run source-map-explorer or bundle-visualizer. Tree-shake by using named imports.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Avoid"
+        },
+        {
+          "type": "contains",
+          "value": "React"
+        },
+        {
+          "type": "contains",
+          "value": "Charts"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "I have a list of 500+ items and the React app is sluggish when scrolling. What should I do?",
-      "expected_output": "Use react-window or react-virtual for virtualization. Wrap list items in React.memo. Use useMemo for derived list data. Split Context to avoid re-rendering all consumers. Move state as close to its usage as possible."
+      "expected_output": "Use react-window or react-virtual for virtualization. Wrap list items in React.memo. Use useMemo for derived list data. Split Context to avoid re-rendering all consumers. Move state as close to its usage as possible.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Wrap"
+        },
+        {
+          "type": "contains",
+          "value": "React"
+        },
+        {
+          "type": "contains",
+          "value": "Split"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

@@ -1,0 +1,68 @@
+{
+  "skill_name": "common-performance-engineering",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement common performance engineering best practices?",
+      "expected_output": "**Efficiency by Design**: Minimize resource consumption (CPU, Memory, Network) without sacrificing readability.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Set"
+        },
+        {
+          "type": "contains",
+          "value": "List"
+        },
+        {
+          "type": "contains",
+          "value": "Priority: P0 (CRITICAL)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in common performance engineering?",
+      "expected_output": "**Measure First**: Never optimize without a baseline. Use profiling tools before and after changes.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Efficiency by Design"
+        },
+        {
+          "type": "contains",
+          "value": "Measure First"
+        },
+        {
+          "type": "contains",
+          "value": "Scalability"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for common performance engineering.",
+      "expected_output": "**Scalability**: Design systems to handle increased load by optimizing time and space complexity.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Memory Efficiency"
+        },
+        {
+          "type": "contains",
+          "value": "CPU Optimization"
+        },
+        {
+          "type": "contains",
+          "value": "Payload Reduction"
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Set up a basic common project from scratch",
+    "How do I install common dependencies?",
+    "What is common?",
+    "Configure CI/CD for an unrelated platform"
+  ]
+}

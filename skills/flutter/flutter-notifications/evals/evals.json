@@ -4,17 +4,43 @@
     {
       "id": 1,
       "prompt": "Set up FCM push notifications from scratch. What packages do I need and what's the initialization flow?",
-      "expected_output": "firebase_messaging + flutter_local_notifications, FirebaseMessaging.instance setup, handle all 3 states (foreground/background/terminated), request permission with priming dialog"
+      "expected_output": "firebase_messaging + flutter_local_notifications, FirebaseMessaging.instance setup, handle all 3 states (foreground/background/terminated), request permission with priming dialog",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "FirebaseMessaging"
+        },
+        {
+          "type": "contains",
+          "value": "handle all"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "When the app is terminated and the user taps a push notification, it should navigate to a specific order. How do I handle this?",
-      "expected_output": "Use getInitialMessage() in main.dart after Firebase init, validate payload, then navigate after app fully loads — not in the notification handler directly"
+      "expected_output": "Use getInitialMessage() in main.dart after Firebase init, validate payload, then navigate after app fully loads — not in the notification handler directly",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Firebase"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Users are complaining that the notification permission popup appears immediately when they open the app for the first time.",
-      "expected_output": "Show a custom in-app dialog explaining benefits before calling requestPermission(), not on app launch — prime the user first"
+      "expected_output": "Show a custom in-app dialog explaining benefits before calling requestPermission(), not on app launch — prime the user first",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "dialog explaining"
+        },
+        {
+          "type": "contains",
+          "value": "explaining benefits"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

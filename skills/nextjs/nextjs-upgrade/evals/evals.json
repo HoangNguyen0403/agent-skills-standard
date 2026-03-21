@@ -4,32 +4,100 @@
     {
       "id": 1,
       "prompt": "Upgrade Next.js from v14 to v15",
-      "expected_output": "Run npx @next/codemod@latest next-async-request-api . first; then npm install next@15 react@19 react-dom@19; audit all fetch() calls (default changed to no-store); run npm run build to validate"
+      "expected_output": "Run npx @next/codemod@latest next-async-request-api . first; then npm install next@15 react@19 react-dom@19; audit all fetch() calls (default changed to no-store); run npm run build to validate",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "npx @next/codemod@latest"
+        },
+        {
+          "type": "contains",
+          "value": "npm install"
+        },
+        {
+          "type": "contains",
+          "value": "audit all"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Run Next.js codemods for migration",
-      "expected_output": "npx @next/codemod@latest <transform> <path>; transforms: next-async-request-api (v15 params/cookies/headers), built-in-next-font (v13); always run codemods before manually fixing breaking changes"
+      "expected_output": "npx @next/codemod@latest <transform> <path>; transforms: next-async-request-api (v15 params/cookies/headers), built-in-next-font (v13); always run codemods before manually fixing breaking changes",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "npx @next/codemod@latest"
+        },
+        {
+          "type": "contains",
+          "value": "@next/codemod@latest <transform>"
+        },
+        {
+          "type": "contains",
+          "value": "<transform> <path>"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Fix breaking changes after Next.js upgrade",
-      "expected_output": "v15: await all cookies(), headers(), params, searchParams; audit fetch() cache behavior (default changed to no-store); check NEXT_PUBLIC_ env var access; verify React 19 peer deps compatibility"
+      "expected_output": "v15: await all cookies(), headers(), params, searchParams; audit fetch() cache behavior (default changed to no-store); check NEXT_PUBLIC_ env var access; verify React 19 peer deps compatibility",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "React"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Migrate next-async-request-api codemod",
-      "expected_output": "npx @next/codemod@latest next-async-request-api app/; auto-transforms params/searchParams to awaited Promises in page/layout; updates cookies() and headers() calls; review diff before committing"
+      "expected_output": "npx @next/codemod@latest next-async-request-api app/; auto-transforms params/searchParams to awaited Promises in page/layout; updates cookies() and headers() calls; review diff before committing",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "npx @next/codemod@latest"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Update peer dependencies after Next.js version bump",
-      "expected_output": "npm install next@latest react@latest react-dom@latest; npm install --save-dev @types/react@latest @types/react-dom@latest; check third-party libraries for compatibility; run npm run build to validate"
+      "expected_output": "npm install next@latest react@latest react-dom@latest; npm install --save-dev @types/react@latest @types/react-dom@latest; check third-party libraries for compatibility; run npm run build to validate",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "npm install"
+        },
+        {
+          "type": "contains",
+          "value": "install next@latest"
+        },
+        {
+          "type": "contains",
+          "value": "next@latest react@latest"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Why is my fetch not caching after upgrading to Next.js 15?",
-      "expected_output": "Next.js 15 changed default fetch cache from force-cache to no-store; explicitly add cache: 'force-cache' or next: { revalidate: X } to fetches that need caching; audit all fetch() calls in Server Components"
+      "expected_output": "Next.js 15 changed default fetch cache from force-cache to no-store; explicitly add cache: 'force-cache' or next: { revalidate: X } to fetches that need caching; audit all fetch() calls in Server Components",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Next"
+        },
+        {
+          "type": "contains",
+          "value": "cache: 'force-cache'"
+        },
+        {
+          "type": "contains",
+          "value": "audit all"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

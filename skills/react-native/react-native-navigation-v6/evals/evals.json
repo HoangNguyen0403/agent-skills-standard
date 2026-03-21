@@ -4,17 +4,51 @@
     {
       "id": 1,
       "prompt": "How do I create a typed bottom tab navigator with React Navigation 6?",
-      "expected_output": "Define TabParamList type. Use createBottomTabNavigator<TabParamList>(). Type screen props with BottomTabScreenProps<TabParamList, 'Home'>. Set screenOptions at navigator level. Use tabBarIcon for icons. Nest inside the root stack navigator."
+      "expected_output": "Define TabParamList type. Use createBottomTabNavigator<TabParamList>(). Type screen props with BottomTabScreenProps<TabParamList, 'Home'>. Set screenOptions at navigator level. Use tabBarIcon for icons. Nest inside the root stack navigator.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Type"
+        },
+        {
+          "type": "contains",
+          "value": "Nest"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "How do I navigate from one screen to another with typed parameters in React Navigation 6?",
-      "expected_output": "Define RootStackParamList with screen name and param shape. Use navigation.navigate('Profile', { userId: '123' }). Type the navigation prop with NativeStackScreenProps or useNavigation<NativeStackNavigationProp<RootStackParamList>>. No untyped string literals."
+      "expected_output": "Define RootStackParamList with screen name and param shape. Use navigation.navigate('Profile', { userId: '123' }). Type the navigation prop with NativeStackScreenProps or useNavigation<NativeStackNavigationProp<RootStackParamList>>. No untyped string literals.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Type"
+        },
+        {
+          "type": "contains",
+          "value": "NativeStackScreenProps"
+        },
+        {
+          "type": "contains",
+          "value": "NativeStackNavigationProp"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "How do I configure Universal Links (deep linking) in React Navigation 6?",
-      "expected_output": "Set linking.prefixes with your https domain and custom scheme. Map URL paths to screen names in linking.config.screens. Configure associated domains (iOS) and intent filters (Android). Test with npx uri-scheme open. Validate params before navigation."
+      "expected_output": "Set linking.prefixes with your https domain and custom scheme. Map URL paths to screen names in linking.config.screens. Configure associated domains (iOS) and intent filters (Android). Test with npx uri-scheme open. Validate params before navigation.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Android"
+        },
+        {
+          "type": "contains",
+          "value": "Validate"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

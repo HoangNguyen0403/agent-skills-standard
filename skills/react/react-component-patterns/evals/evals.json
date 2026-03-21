@@ -4,17 +4,55 @@
     {
       "id": 1,
       "prompt": "How do I build a compound component for a Tabs UI in React?",
-      "expected_output": "Use context to share active tab state between Tabs, Tabs.List, and Tabs.Panel. Parent Tabs owns state, children consume via useContext. Expose sub-components as Tabs.X properties. Prefer named exports. Keep each sub-component small (<250 lines)."
+      "expected_output": "Use context to share active tab state between Tabs, Tabs.List, and Tabs.Panel. Parent Tabs owns state, children consume via useContext. Expose sub-components as Tabs.X properties. Prefer named exports. Keep each sub-component small (<250 lines).",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Prefer"
+        },
+        {
+          "type": "contains",
+          "value": "Use context"
+        },
+        {
+          "type": "contains",
+          "value": "<250 lines"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "My component has 10 props that all need to be passed down through 3 levels. How should I fix this?",
-      "expected_output": "Avoid prop drilling: use React Context for global/shared data (theme, auth), or Zustand for app-wide state. Consider component composition — lift JSX up so middle components don't need the props at all. Use children prop to pass JSX directly."
+      "expected_output": "Avoid prop drilling: use React Context for global/shared data (theme, auth), or Zustand for app-wide state. Consider component composition — lift JSX up so middle components don't need the props at all. Use children prop to pass JSX directly.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Avoid"
+        },
+        {
+          "type": "contains",
+          "value": "React"
+        },
+        {
+          "type": "contains",
+          "value": "Context"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "What's the best way to share logic between multiple React components?",
-      "expected_output": "Extract shared logic into a custom hook (prefix with use*). For UI + logic reuse, use composition with children or render props. Avoid HOCs unless wrapping third-party components. Never define components inside other components."
+      "expected_output": "Extract shared logic into a custom hook (prefix with use*). For UI + logic reuse, use composition with children or render props. Avoid HOCs unless wrapping third-party components. Never define components inside other components.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Avoid"
+        },
+        {
+          "type": "contains",
+          "value": "define components"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

@@ -4,22 +4,43 @@
     {
       "id": 1,
       "prompt": "What's the difference between interface and type in TypeScript, and when should I use each?",
-      "expected_output": "Use interface for object shapes/APIs (supports declaration merging, extends). Use type for unions, intersections, mapped types, or conditional types. Both work for simple objects; prefer interface for public APIs."
+      "expected_output": "Use interface for object shapes/APIs (supports declaration merging, extends). Use type for unions, intersections, mapped types, or conditional types. Both work for simple objects; prefer interface for public APIs.",
+      "assertions": [
+        { "type": "contains", "value": "interface for APIs" },
+        { "type": "contains", "value": "type for unions" },
+        { "type": "contains", "value": "declaration merging" }
+      ]
     },
     {
       "id": 2,
       "prompt": "How do I create a discriminated union in TypeScript for a Result type that can be success or error?",
-      "expected_output": "Use a literal 'kind' or 'type' discriminant: type Result<T> = { kind: 'ok'; data: T } | { kind: 'err'; error: Error }. Switch on the discriminant to narrow the type safely."
+      "expected_output": "Use a literal 'kind' or 'type' discriminant: type Result<T> = { kind: 'ok'; data: T } | { kind: 'err'; error: Error }. Switch on the discriminant to narrow the type safely.",
+      "assertions": [
+        { "type": "contains", "value": "Discriminated Unions" },
+        { "type": "contains", "value": "literal kind property" },
+        { "type": "contains", "value": "narrow the type safely" }
+      ]
     },
     {
       "id": 3,
       "prompt": "I'm getting a TypeScript error about 'possibly undefined'. How should I handle nullability?",
-      "expected_output": "Use optional chaining (?.) and nullish coalescing (??). Enable strict mode in tsconfig. Use type narrowing (if checks, typeof, instanceof). Avoid non-null assertion (!) — use narrowing instead."
+      "expected_output": "Use optional chaining (?.) and nullish coalescing (??). Enable strict mode in tsconfig. Use type narrowing (if checks, typeof, instanceof). Avoid non-null assertion (!) — use narrowing instead.",
+      "assertions": [
+        { "type": "contains", "value": "strict: true" },
+        { "type": "contains", "value": "?. and ??" },
+        { "type": "contains", "value": "Avoid non-null assertion (!)" },
+        { "type": "contains", "value": "Use narrowing" }
+      ]
     },
     {
       "id": 4,
       "prompt": "How do I use branded types to prevent mixing up different string IDs?",
-      "expected_output": "Use intersection with a brand: type UserId = string & { __brand: 'UserId' }. Create a constructor function to cast. This prevents passing OrderId where UserId is expected at compile time."
+      "expected_output": "Use intersection with a brand: type UserId = string & { __brand: 'UserId' }. Create a constructor function to cast. This prevents passing OrderId where UserId is expected at compile time.",
+      "assertions": [
+        { "type": "contains", "value": "Branded Types" },
+        { "type": "contains", "value": "__brand: 'Id'" },
+        { "type": "contains", "value": "intersection" }
+      ]
     }
   ],
   "should_not_trigger": [

@@ -47,6 +47,10 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
     '**WITH a skill**: The agent loads the SKILL.md file (~400 tokens) — structured, reusable, cached.',
   );
   lines.push('');
+  lines.push(
+    '**Eval Alignment**: % of eval assertion values that appear in SKILL.md. High alignment means the skill actually teaches what the evals test — the static proxy for "with skill > without skill" behavioral improvement.',
+  );
+  lines.push('');
 
   lines.push('## 🔢 Executive Summary');
   lines.push('');
@@ -76,6 +80,22 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
   );
   lines.push(
     `| Avg. Quality Score                | **${summary.avgQualityScore}/10** |`,
+  );
+
+  const skillsWithEvals = skills.filter((s) => s.evalCount > 0).length;
+  const avgAlignment =
+    skillsWithEvals > 0
+      ? Math.round(
+          skills
+            .filter((s) => s.evalCount > 0)
+            .reduce((sum, s) => sum + s.evalAlignmentPct, 0) / skillsWithEvals,
+        )
+      : 0;
+  lines.push(
+    `| Skills with Evals                 | **${skillsWithEvals} / ${summary.totalSkills}** |`,
+  );
+  lines.push(
+    `| Avg. Eval Alignment               | **${avgAlignment}%** (eval assertions covered by SKILL.md) |`,
   );
   lines.push('');
 
@@ -161,17 +181,26 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
     const avgQuality = (
       catSkills.reduce((s, x) => s + x.qualityScore, 0) / catSkills.length
     ).toFixed(1);
+    const catEvalsCount = catSkills.filter((s) => s.evalCount > 0).length;
+    const catAvgAlignment =
+      catEvalsCount > 0
+        ? Math.round(
+            catSkills
+              .filter((s) => s.evalCount > 0)
+              .reduce((s, x) => s + x.evalAlignmentPct, 0) / catEvalsCount,
+          )
+        : 0;
 
     lines.push('<details>');
     lines.push(
-      `<summary><h3>📦 ${cat} (${catSkills.length} skills | avg ${avgTokens} tokens | quality ${avgQuality}/10)</h3></summary>`,
+      `<summary><h3>📦 ${cat} (${catSkills.length} skills | avg ${avgTokens} tokens | quality ${avgQuality}/10 | eval alignment ${catAvgAlignment}%)</h3></summary>`,
     );
     lines.push('');
     lines.push(
-      '| Skill                   | Tokens | Savings (vs Heavy) | Quality |',
+      '| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |',
     );
     lines.push(
-      '| ----------------------- | ------ | ------------------ | ------- |',
+      '| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |',
     );
 
     for (const skill of catSkills.sort(
@@ -182,9 +211,17 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
         heavyPct >= 0
           ? `${bar(heavyPct, 10)} ${heavyPct}%`
           : `⚠️ Overhead ${Math.abs(heavyPct)}%`;
+      const evalDisplay =
+        skill.evalCount === 0 ? '❌ none' : `${skill.evalCount}`;
+      const alignDisplay =
+        skill.evalCount === 0
+          ? 'n/a'
+          : skill.evalAlignmentPct >= 70
+            ? `✅ ${skill.evalAlignmentPct}%`
+            : `⚠️ ${skill.evalAlignmentPct}%`;
 
       lines.push(
-        `| \`${skill.skillName.padEnd(21)}\` | ${skill.tokensWithSkill.toString().padEnd(6)} | ${heavyDisplay.padEnd(18)} | ${skill.qualityScore}/10 |`,
+        `| \`${skill.skillName.padEnd(21)}\` | ${skill.tokensWithSkill.toString().padEnd(6)} | ${heavyDisplay.padEnd(18)} | ${skill.qualityScore}/10 | ${evalDisplay} | ${alignDisplay} |`,
       );
     }
     lines.push('');
@@ -192,18 +229,51 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
     lines.push('');
   }
 
+  // Skills with evals but low alignment — the skill doesn't teach what the evals test
+  const lowAlignment = [...skills]
+    .filter((s) => s.evalCount > 0 && s.evalAlignmentPct < 70)
+    .sort((a, b) => a.evalAlignmentPct - b.evalAlignmentPct);
+
+  if (lowAlignment.length > 0) {
+    lines.push('## ⚠️ Low Eval Alignment — Skills to Review');
+    lines.push('');
+    lines.push(
+      '> These skills have evals but SKILL.md content does not cover ≥70% of what the evals test. The skill may not actually improve agent behavior for its target scenarios.',
+    );
+    lines.push('');
+    lines.push(
+      '| Skill                   | Category | Alignment | Evals | Action |',
+    );
+    lines.push(
+      '| ----------------------- | -------- | --------- | ----- | ------ |',
+    );
+    for (const s of lowAlignment.slice(0, 15)) {
+      lines.push(
+        `| \`${s.skillName.padEnd(21)}\` | ${s.category.padEnd(8)} | ⚠️ ${s.evalAlignmentPct}% | ${s.evalCount} | Add missing terms from eval assertions to SKILL.md |`,
+      );
+    }
+    lines.push('');
+  }
+
   lines.push('## 🏆 Quality Leaders');
   lines.push('');
   lines.push(
-    '| Rank | Skill                   | Category | Quality | Tokens |',
+    '| Rank | Skill                   | Category | Quality | Tokens | Evals | Aligned |',
   );
   lines.push(
-    '| ---- | ----------------------- | -------- | ------- | ------ |',
+    '| ---- | ----------------------- | -------- | ------- | ------ | ----- | ------- |',
   );
   const sorted = [...skills].sort((a, b) => b.qualityScore - a.qualityScore);
   sorted.slice(0, 10).forEach((s, i) => {
+    const evalDisplay = s.evalCount === 0 ? '❌' : `${s.evalCount}`;
+    const alignDisplay =
+      s.evalCount === 0
+        ? 'n/a'
+        : s.evalAlignmentPct >= 70
+          ? `✅ ${s.evalAlignmentPct}%`
+          : `⚠️ ${s.evalAlignmentPct}%`;
     lines.push(
-      `| ${((i + 1).toString() + ' '.repeat(4)).slice(0, 4)} | \`${s.skillName.padEnd(21)}\` | ${s.category.padEnd(8)} | ${s.qualityScore}/10 | ${s.tokensWithSkill} |`,
+      `| ${((i + 1).toString() + ' '.repeat(4)).slice(0, 4)} | \`${s.skillName.padEnd(21)}\` | ${s.category.padEnd(8)} | ${s.qualityScore}/10 | ${s.tokensWithSkill} | ${evalDisplay} | ${alignDisplay} |`,
     );
   });
   lines.push('');
@@ -248,19 +318,23 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
     '| ------ | ------------------------- | ------------------------------------------------------ |',
   );
   lines.push(
-    '| **+2** | **Structured Guidelines** | At least 3 specific instructions/bullet points.        |',
+    '| **+2** | **Structured Guidelines** | At least 3 specific instructions/bullet points.                    |',
   );
   lines.push(
-    '| **+2** | **Anti-Patterns**         | Specifically listing what the LLM should *avoid*.      |',
+    '| **+2** | **Anti-Patterns**         | `## Anti-Patterns` section or `**No X**` inline lines.            |',
   );
   lines.push(
-    '| **+2** | **Reference Examples**    | Presence of a verified `references/` folder with code. |',
+    '| **+2** | **Reference Examples**    | Presence of a verified `references/` folder with code.             |',
   );
   lines.push(
-    '| **+2** | **Token Optimality**      | Entire `SKILL.md` is ≤100 lines (forces brevity).      |',
+    '| **+2** | **Token Optimality**      | Entire `SKILL.md` is ≤100 lines (forces brevity).                  |',
   );
   lines.push(
-    '| **+2** | **Trigger Metadata**      | Proper keywords and file-match triggers defined.       |',
+    '| **+2** | **Eval Coverage**         | ≥3 evals with `should_not_trigger`, ≥2 assertions each. +1 partial.|',
+  );
+  lines.push('');
+  lines.push(
+    '> **Eval Alignment** (reported separately, not scored): % of eval `contains` assertion values that appear in SKILL.md content. Measures whether the skill actually teaches what its evals test — the closest static proxy for **with-skill vs without-skill** behavioral improvement.',
   );
   lines.push('');
 

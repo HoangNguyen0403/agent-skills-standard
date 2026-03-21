@@ -1,6 +1,6 @@
 ---
 name: nextjs-caching
-description: "The 4 layers of caching in Next.js. Use when configuring request memoization, data cache, full-route cache, or router cache in Next.js. (triggers: **/page.tsx, **/layout.tsx, **/action.ts, unstable_cache, revalidateTag, Router Cache, Data Cache)"
+description: 'The 4 layers of caching in Next.js. Use when configuring request memoization, data cache, full-route cache, or router cache in Next.js. (triggers: **/page.tsx, **/layout.tsx, **/action.ts, unstable_cache, revalidateTag, Router Cache, Data Cache)'
 ---
 
 # Caching Architecture
@@ -9,20 +9,15 @@ description: "The 4 layers of caching in Next.js. Use when configuring request m
 
 Next.js has 4 distinct caching layers. Understanding them prevents stale data bugs.
 
-## **Modern Standard: Cache Components (Next.js 16+)**
+## Implementation Guidelines
 
-> [!IMPORTANT]
-> Next.js 16 favors the `'use cache'` directive over `unstable_cache`. Wrap dynamic runtime data in `<Suspense>`.
-
-### **Core Protocol**
-
-1. **Dynamic Shell**: Keep layouts static or cached; use `<Suspense>` for user-specific data.
-2. **Deterministic Cache**: Add `'use cache'` and `cacheLife()` to server functions.
-3. **Invalidation**:
-   - `updateTag()`: Immediate sync reflect.
-   - `revalidateTag()`: Background refresh (SWR).
-
-## **The 4 Caching Layers**
+- **Next.js 15+ Standard**: Use **`fetch`** with **`revalidate: number`** or **`cache: 'force-cache'`** for API calls. Use **`unstable_cache`** or the new **`'use cache'`** (experimental) for custom data stores.
+- **Layers**: Distinguish between **Data Cache** (persistent across requests) and **Request Memoization** (React's lifecycle specific). Use **`cache()`** from React to deduplicate fetches within a single render.
+- **Invalidation**: Use **`revalidatePath('/')`** after mutations or **`revalidateTag('tag-name')`** for granular cache purging.
+- **Client Cache**: Understand the **Router Cache** (in-memory on client) and its 30s-min lifespan. Clear it using **`router.refresh()`**.
+- **Static Assets**: Leverage **`generateStaticParams`** for pre-rendering static routes at build time. Use **ISR (Incremental Static Regeneration)** for content that updates periodically.
+- **Streaming**: Combine **`Suspense`** with **`fetch`** triggers to prevent slow data from blocking the entire page render.
+- **Next.js 16+**: Favor **`'use cache'`** and **`cacheLife()`** over `revalidate: number` where available for deterministic caching.
 
 | Layer                   | Where  | Control                        |
 | :---------------------- | :----- | :----------------------------- |
@@ -34,7 +29,6 @@ Next.js has 4 distinct caching layers. Understanding them prevents stale data bu
 ## **Implementation Details**
 
 See [Cache Components & PPR](references/CACHE_COMPONENTS.md) for detailed key generation, closure constraints, and invalidation strategies.
-
 
 ## Anti-Patterns
 

@@ -1,18 +1,68 @@
 {
-  "skill": "ios-localization",
-  "should_trigger": [
-    "How do I use String Catalogs in Xcode 15?",
-    "How do I localize my iOS app?",
-    "What is the difference between NSLocalizedString and String(localized:)?",
-    "How do I handle pluralization in iOS?",
-    "How do I format currency respecting the user's locale?",
-    "How do I organize assets in xcassets?",
-    "Should I use SF Symbols or custom icons?"
+  "skill_name": "ios-localization",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement ios localization best practices?",
+      "expected_output": "**String Catalogs (.stringcatalog)**: Use for primary localization in Xcode 15+. It provides a visual editor and compile-time checks for missing translations.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "String(localized: \"key\")"
+        },
+        {
+          "type": "contains",
+          "value": "LocalizedStringResource"
+        },
+        {
+          "type": "contains",
+          "value": "NSLocalizedString"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in ios localization?",
+      "expected_output": "**Native Implementation**: Use `String(localized: \"key\")` or `LocalizedStringResource`. Avoid manual `NSLocalizedString` where possible.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Formatted"
+        },
+        {
+          "type": "contains",
+          "value": "Base"
+        },
+        {
+          "type": "contains",
+          "value": "Priority: P1"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for ios localization.",
+      "expected_output": "**Pluralization**: Use String Catalogs' built-in pluralization support instead of complex code logic.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Native Implementation"
+        },
+        {
+          "type": "contains",
+          "value": "Pluralization"
+        },
+        {
+          "type": "contains",
+          "value": "Formatting"
+        }
+      ]
+    }
   ],
   "should_not_trigger": [
-    "How do I set up push notifications?",
-    "How do I implement MVVM in iOS?",
-    "How do I use Fastlane for CI?",
-    "How do I implement SSL pinning?"
+    "Set up a basic ios project from scratch",
+    "How do I install ios dependencies?",
+    "What is ios?",
+    "Configure CI/CD for an unrelated platform"
   ]
 }

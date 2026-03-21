@@ -1,0 +1,68 @@
+{
+  "skill_name": "common-security-audit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement common security audit best practices?",
+      "expected_output": "**Node/TS**: `grep -rE \"console\\.(log|error|warn)\" . --include=\"*.ts\" --include=\"*.js\" | grep -iE \"password|token|secret|private\"`",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "npm audit --audit-level=high"
+        },
+        {
+          "type": "contains",
+          "value": "dart pub outdated --json"
+        },
+        {
+          "type": "contains",
+          "value": "go list -m -u all | grep \"\\[\""
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in common security audit?",
+      "expected_output": "**Go**: `grep -rE \"log\\.(Print|Printf|Println|Fatal)\" . --include=\"*.go\" | grep -iE \"password|token|secret\"`",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "mvn dependency:list"
+        },
+        {
+          "type": "contains",
+          "value": "./gradlew dependencies"
+        },
+        {
+          "type": "contains",
+          "value": "pip-audit"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for common security audit.",
+      "expected_output": "**Dart/Flutter**: `grep -rE \"print\\(|debugPrint\\(\" . --include=\"*.dart\" | grep -iE \"password|token|secret\"`",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "cargo audit"
+        },
+        {
+          "type": "contains",
+          "value": "Priority: P0 (CRITICAL)"
+        },
+        {
+          "type": "contains",
+          "value": "Node/TS"
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Set up a basic common project from scratch",
+    "How do I install common dependencies?",
+    "What is common?",
+    "Configure CI/CD for an unrelated platform"
+  ]
+}

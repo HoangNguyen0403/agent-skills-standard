@@ -1,18 +1,68 @@
 {
-  "skill": "ios-persistence",
-  "should_trigger": [
-    "How do I use SwiftData in iOS 17?",
-    "How do I set up a Core Data stack?",
-    "How do I perform a Core Data fetch on a background thread?",
-    "What is NSFetchedResultsController?",
-    "How do I do a Core Data migration?",
-    "How do I use @Query in SwiftData?",
-    "How do I batch delete records in Core Data?"
+  "skill_name": "ios-persistence",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement ios persistence best practices?",
+      "expected_output": "**Models**: Use the **`@Model`** macro for your Swift classes.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "@Model"
+        },
+        {
+          "type": "contains",
+          "value": "@MainActor"
+        },
+        {
+          "type": "contains",
+          "value": "ModelContainer"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in ios persistence?",
+      "expected_output": "**Container**: Use **`@MainActor`** for configuring the `ModelContainer`.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "@Query"
+        },
+        {
+          "type": "contains",
+          "value": "modelContext"
+        },
+        {
+          "type": "contains",
+          "value": "@Environment"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for ios persistence.",
+      "expected_output": "**UI State**: Use **`@Query`** for reactive data fetching in **SwiftUI** views.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": ".xcdatamodeld"
+        },
+        {
+          "type": "contains",
+          "value": "NSPersistentContainer"
+        },
+        {
+          "type": "contains",
+          "value": "newBackgroundContext()"
+        }
+      ]
+    }
   ],
   "should_not_trigger": [
-    "How do I store a token securely?",
-    "How do I make a network request?",
-    "How do I set up push notifications?",
-    "How do I implement MVVM?"
+    "Set up a basic ios project from scratch",
+    "How do I install ios dependencies?",
+    "What is ios?",
+    "Configure CI/CD for an unrelated platform"
   ]
 }

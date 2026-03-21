@@ -4,17 +4,59 @@
     {
       "id": 1,
       "prompt": "How do I set up over-the-air updates for my React Native app without going through the app store?",
-      "expected_output": "Use CodePush (Microsoft) for bare RN — installs react-native-code-push, deploy JS-only updates via appcenter CLI. For Expo, use expo-updates with channels (dev, staging, prod). OTA cannot update native code — only JS bundles and assets."
+      "expected_output": "Use CodePush (Microsoft) for bare RN — installs react-native-code-push, deploy JS-only updates via appcenter CLI. For Expo, use expo-updates with channels (dev, staging, prod). OTA cannot update native code — only JS bundles and assets.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "CodePush"
+        },
+        {
+          "type": "contains",
+          "value": "Microsoft"
+        },
+        {
+          "type": "contains",
+          "value": "Expo"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "How do I configure development, staging, and production environments in my React Native app?",
-      "expected_output": "Use react-native-config with .env, .env.staging, .env.production files. For Expo, use eas.json build profiles. For bare RN, use productFlavors (Android) and Xcode schemes (iOS). Never commit sensitive keys — use CI secrets."
+      "expected_output": "Use react-native-config with .env, .env.staging, .env.production files. For Expo, use eas.json build profiles. For bare RN, use productFlavors (Android) and Xcode schemes (iOS). Never commit sensitive keys — use CI secrets.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Expo"
+        },
+        {
+          "type": "contains",
+          "value": "Android"
+        },
+        {
+          "type": "contains",
+          "value": "Xcode"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "How do I automate iOS and Android builds for my React Native app?",
-      "expected_output": "Use EAS Build (Expo) for managed workflow. For bare RN, use Fastlane (fastlane ios release, fastlane android release). Integrate with CI/CD (GitHub Actions). Automate version bumping. Store signing certificates in EAS secrets or Fastlane Match."
+      "expected_output": "Use EAS Build (Expo) for managed workflow. For bare RN, use Fastlane (fastlane ios release, fastlane android release). Integrate with CI/CD (GitHub Actions). Automate version bumping. Store signing certificates in EAS secrets or Fastlane Match.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Build"
+        },
+        {
+          "type": "contains",
+          "value": "Expo"
+        },
+        {
+          "type": "contains",
+          "value": "Fastlane"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

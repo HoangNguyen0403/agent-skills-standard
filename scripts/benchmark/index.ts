@@ -48,7 +48,7 @@ function benchmarkSkill(category: string, skillName: string): SkillBenchmark {
     costSavingsHeavy[model] = costUSD(savingsHeavy, price);
   }
 
-  const { score: qualityScore, detail: qualityDetail } = scoreQuality(
+  const { score: qualityScore, detail: qualityDetail, evalCount, evalAlignmentPct } = scoreQuality(
     skillDir,
     skillMdPath,
   );
@@ -68,6 +68,8 @@ function benchmarkSkill(category: string, skillName: string): SkillBenchmark {
     costSavingsHeavy,
     qualityScore,
     qualityDetail,
+    evalCount,
+    evalAlignmentPct,
   };
 }
 
@@ -166,10 +168,13 @@ async function main() {
       const statusIcon = b.savingsPctLight >= 50 ? '✅' : '⚠️';
       const qualityIcon =
         b.qualityScore >= 8 ? '🌟' : b.qualityScore >= 6 ? '✅' : '❌';
+      const evalIcon =
+        b.evalCount === 0 ? '❌' : b.evalAlignmentPct >= 70 ? '✅' : '⚠️';
       console.log(
         `   ${statusIcon} ${entry.name}: ${b.tokensWithSkill} tokens | ` +
           `saves ${b.savingsPctHeavy}% (heavy) | ` +
-          `quality ${qualityIcon} ${b.qualityScore}/10`,
+          `quality ${qualityIcon} ${b.qualityScore}/10 | ` +
+          `evals ${evalIcon} ${b.evalCount} (${b.evalAlignmentPct}% aligned)`,
       );
     }
     console.log('');

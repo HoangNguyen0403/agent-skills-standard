@@ -4,12 +4,36 @@
     {
       "id": 1,
       "prompt": "Validate Server Action inputs with Zod in Next.js",
-      "expected_output": "Parse inputs with Zod schema at top of action before any DB call; throw if validation fails; never trust client-sent data; combine with session check to prevent unauthorized mutations"
+      "expected_output": "Parse inputs with Zod schema at top of action before any DB call; throw if validation fails; never trust client-sent data; combine with session check to prevent unauthorized mutations",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "with Zod"
+        },
+        {
+          "type": "contains",
+          "value": "Zod schema"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Prevent data leaks to Client Components in Next.js",
-      "expected_output": "Import 'server-only' at top of modules with secrets or DB logic; this causes build error if imported in Client Component; never pass full DB rows as props — project only needed fields"
+      "expected_output": "Import 'server-only' at top of modules with secrets or DB logic; this causes build error if imported in Client Component; never pass full DB rows as props — project only needed fields",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Client"
+        },
+        {
+          "type": "contains",
+          "value": "Component"
+        },
+        {
+          "type": "contains",
+          "value": "Client Component"
+        }
+      ]
     },
     {
       "id": 3,
@@ -19,17 +43,47 @@
     {
       "id": 4,
       "prompt": "Mark sensitive logic with server-only in Next.js",
-      "expected_output": "npm install server-only; add `import 'server-only'` at top of file; Next.js throws build error if this module reaches client bundle; use for DB clients, secret env reads, admin logic"
+      "expected_output": "npm install server-only; add `import 'server-only'` at top of file; Next.js throws build error if this module reaches client bundle; use for DB clients, secret env reads, admin logic",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Next"
+        },
+        {
+          "type": "contains",
+          "value": "client bundle"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Sanitize user-provided HTML output in a Next.js app",
-      "expected_output": "Use DOMPurify.sanitize(userHtml) before rendering untrusted markup; prefer JSX text interpolation which auto-escapes by default; raw HTML injection of untrusted content is an XSS risk — sanitize at the boundary"
+      "expected_output": "Use DOMPurify.sanitize(userHtml) before rendering untrusted markup; prefer JSX text interpolation which auto-escapes by default; raw HTML injection of untrusted content is an XSS risk — sanitize at the boundary",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "DOMPurify"
+        },
+        {
+          "type": "contains",
+          "value": "HTML"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Secure environment variables in Next.js",
-      "expected_output": "Server-only secrets: no NEXT_PUBLIC_ prefix; client-safe vars: NEXT_PUBLIC_ prefix only; never import process.env secrets in 'use client' files; validate all env vars at startup with Zod in lib/env.ts"
+      "expected_output": "Server-only secrets: no NEXT_PUBLIC_ prefix; client-safe vars: NEXT_PUBLIC_ prefix only; never import process.env secrets in 'use client' files; validate all env vars at startup with Zod in lib/env.ts",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Server"
+        },
+        {
+          "type": "contains",
+          "value": "with Zod"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

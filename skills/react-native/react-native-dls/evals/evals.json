@@ -4,17 +4,51 @@
     {
       "id": 1,
       "prompt": "I have hardcoded colors like '#FF5733' and fontSize: 16 scattered throughout my React Native components. How do I fix this?",
-      "expected_output": "Create theme/colors.ts, theme/spacing.ts, theme/typography.ts with named tokens. Replace literals with imports: colors.primary, spacing.md, typography.body. Never use hex or number literals in component files. Enforce via code review or ESLint custom rules."
+      "expected_output": "Create theme/colors.ts, theme/spacing.ts, theme/typography.ts with named tokens. Replace literals with imports: colors.primary, spacing.md, typography.body. Never use hex or number literals in component files. Enforce via code review or ESLint custom rules.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Enforce"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "How do I implement a design system that works with both light and dark mode in React Native?",
-      "expected_output": "Define semantic color tokens (background, text, border) not raw colors. Provide light/dark variants. Use useColorScheme() + React Context to expose current theme. Apply tokens via StyleSheet using theme values. Switch theme contextually, not component-by-component."
+      "expected_output": "Define semantic color tokens (background, text, border) not raw colors. Provide light/dark variants. Use useColorScheme() + React Context to expose current theme. Apply tokens via StyleSheet using theme values. Switch theme contextually, not component-by-component.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Define"
+        },
+        {
+          "type": "contains",
+          "value": "React"
+        },
+        {
+          "type": "contains",
+          "value": "StyleSheet"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "How do I prevent developers from hardcoding styles instead of using the design system?",
-      "expected_output": "Document the rule clearly in SKILL.md. Provide theme tokens with good naming (spacing.lg not spacing.24). Write custom ESLint rules if needed. Code review with checklist. Reference design tokens in all examples and templates."
+      "expected_output": "Document the rule clearly in SKILL.md. Provide theme tokens with good naming (spacing.lg not spacing.24). Write custom ESLint rules if needed. Code review with checklist. Reference design tokens in all examples and templates.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Code"
+        },
+        {
+          "type": "contains",
+          "value": "Reference"
+        },
+        {
+          "type": "contains",
+          "value": "theme tokens"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

@@ -1,6 +1,6 @@
 ---
 name: ios-state-management
-description: "Standards for Combine, Observation, and Reactive Programming. Use when managing state with Combine, @Observable, or reactive patterns in iOS. (triggers: **/*.swift, Observable, @Published, PassthroughSubject, @Observable, @Namespace)"
+description: 'Standards for Combine, Observation, and Reactive Programming. Use when managing state with Combine, @Observable, or reactive patterns in iOS. (triggers: **/*.swift, Observable, @Published, PassthroughSubject, @Observable, @Namespace)'
 ---
 
 # iOS State Management Standards
@@ -9,22 +9,23 @@ description: "Standards for Combine, Observation, and Reactive Programming. Use 
 
 ## Implementation Guidelines
 
-### Combine (Reactive)
+### Combine (Reactive States)
 
-- **Publishers**: Use `@Published` for state in ViewModels. Use `PassthroughSubject` for one-time events (Transitions/Alerts).
-- **Memory Management**: Store subscriptions in a `Set<AnyCancellable>`. Ensure they are cleared on deinit.
-- **Operators**: Use operators like `.debounce`, `.filter`, `.map`, and `.flatMap` to transform input stream.
-- **Schedulers**: Always prefix UI property updates with `@MainActor` or use `.receive(on: DispatchQueue.main)`.
+- **Publishers**: Use **`@Published`** for standard state in ViewModels. Use **`PassthroughSubject`** for one-time navigation or alert events.
+- **Memory Management**: Store subscriptions in a **`Set<AnyCancellable>`**. Use **`.store(in: &cancellables)`** to prevent memory leaks and ensure they are cleared on deinit.
+- **Operators**: Use specific operators like **`.debounce`**, **`.filter`**, **`.map`**, and **`.flatMap`** to handle complex input streams.
+- **Schedulers**: Always ensure UI property updates occur on the main thread using **`@MainActor`** or **`.receive(on: DispatchQueue.main)`**.
 
 ### Observation Framework (iOS 17+)
 
-- **@Observable**: Use for modern, macro-based observation. Replace `ObservableObject` in SwiftUI apps.
-- **Binding**: Use `$state` for two-way bindings in SwiftUI. No boilerplate `objectWillChange` calls.
+- **`@Observable`**: Use the **`@Observable`** macro for modern, high-performance observation in **SwiftUI**.
+- **State Properties**: In SwiftUI views, use **`@Bindable`** for two-way bindings with `@Observable` objects.
+- **Namespaces**: Use **`@Namespace`** for match-geometry animations and coordinate space tracking.
 
-### Best Practices
+### Unidirectional Data Flow (UDF)
 
-- **ViewState Unification**: Prefer a single `State` enum or struct (Unidirectional) for complex screens.
-- **Avoid Over-Reactive**: Don't use Combine for simple local flags. Use standard `@State` or variables.
+- **Input/Output**: ViewModels should expose an **`Input`** enum (events) and **`Output`** struct (state) to enforce a clear data direction.
+- **ViewState**: Prefer a single, exhaustive **`ViewState`** enum (e.g., `.loading`, `.success(data)`, `.error(failure)`).
 
 ## Anti-Patterns
 

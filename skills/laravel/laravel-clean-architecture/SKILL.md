@@ -1,6 +1,6 @@
 ---
 name: laravel-clean-architecture
-description: "Expert patterns for DDD, DTOs, and Ports & Adapters in Laravel. Use when applying Domain-Driven Design, DTOs, or ports-and-adapters patterns in Laravel. (triggers: app/Domains/**/*.php, app/Providers/*.php, domain, dto, repository, contract, adapter)"
+description: 'Expert patterns for DDD, DTOs, and Ports & Adapters in Laravel. Use when applying Domain-Driven Design, DTOs, or ports-and-adapters patterns in Laravel. (triggers: app/Domains/**/*.php, app/Providers/*.php, domain, dto, repository, contract, adapter)'
 ---
 
 # Laravel Clean Architecture
@@ -21,12 +21,37 @@ app/
 
 ## Implementation Guidelines
 
-- **Domain Grouping**: Organize code by business domain (e.g., `User`, `Order`) instead of framework types.
-- **DTOs**: Use `readonly` classes to pass data between layers; avoid raw arrays.
-- **Action Classes**: Wrap business logic in single-purpose classes with `handle()` or `execute()`.
-- **Repository Pattern**: Abstract Eloquent queries behind interfaces for easier testing.
-- **Dependency Inversion**: Bind Interfaces to implementations in `AppServiceProvider`.
-- **Model Isolation**: Keep Eloquent models lean; only include relationships and casts.
+### Domain-Driven Design (DDD)
+
+- **Grouping**: Organize code in **`app/Domains/Order/{Actions,DTOs,Contracts}/`**. Group by business domain (**`User, Order, Payment`**) — not by type (Controllers, Models).
+- **Core Models**: Keep standard Eloquent models in **`app/Models/`**.
+- **Separation**: **Never put Eloquent queries in controllers**; delegate to **Action classes** for use-case logic.
+
+### Data Transfer Objects (DTOs)
+
+- **Immutability**: Create typed readonly DTOs:
+  ```php
+  readonly class OrderData {
+      public function __construct(
+          public readonly string $title,
+          public readonly int $amount
+      ) {}
+  }
+  readonly class CreateOrderData {
+      public function __construct(
+          public readonly string $customerId,
+          public readonly int $amount
+      ) {}
+  }
+  ```
+  Immutable by default in PHP 8.1+. DTOs cross boundaries — pass between layers instead of raw arrays or Eloquent models. No raw arrays between layers.
+
+### Repository Pattern & Decoupling
+
+- **Interfaces**: Create **`Contracts/OrderRepository interface`** and implement **`EloquentOrderRepository`**.
+- **Binding**: Bind interfaces to implementations in **`AppServiceProvider`** via **`$this->app->bind(OrderRepository::class, EloquentOrderRepository::class)`**.
+- **Usage**: **Inject interfaces** into your actions/services.
+- **Layer Flow**: Controller → Action → Repository Interface → Eloquent. DTOs cross boundaries at every layer transition.
 
 ## Anti-Patterns
 

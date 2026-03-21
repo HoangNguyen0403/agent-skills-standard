@@ -4,17 +4,51 @@
     {
       "id": 1,
       "prompt": "I need a function that returns both a success value and an error message without using a custom class. What's the modern Dart way to do this?",
-      "expected_output": "Use a Record type: (String? error, User? data) or named record ({String? error, User? data}). Show destructuring at call site: final (error, data) = fetchUser();"
+      "expected_output": "Use a Record type: (String? error, User? data) or named record ({String? error, User? data}). Show destructuring at call site: final (error, data) = fetchUser();",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Record"
+        },
+        {
+          "type": "contains",
+          "value": "String"
+        },
+        {
+          "type": "contains",
+          "value": "Use Record"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "I have a Result type with Success and Failure subtypes and I want the compiler to enforce that all cases are handled in a switch. How?",
-      "expected_output": "sealed class Result {} with class Success extends Result and class Failure extends Result, then switch (result) { Success() => ..., Failure() => ... } — compiler errors on missing cases"
+      "expected_output": "sealed class Result {} with class Success extends Result and class Failure extends Result, then switch (result) { Success() => ..., Failure() => ... } — compiler errors on missing cases",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Result"
+        },
+        {
+          "type": "contains",
+          "value": "Success"
+        },
+        {
+          "type": "contains",
+          "value": "Failure"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "There's a nullable String? in my code and I'm using the ! operator to force-unwrap it everywhere. What's the safer approach?",
-      "expected_output": "Replace ! with ?. (null-aware access), ?? (default value), early return with if (value == null) return, or pattern matching. Only use ! when non-nullability is proven via assert or type narrowing."
+      "expected_output": "Replace ! with ?. (null-aware access), ?? (default value), early return with if (value == null) return, or pattern matching. Only use ! when non-nullability is proven via assert or type narrowing.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Only"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

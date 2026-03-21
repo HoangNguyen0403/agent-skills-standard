@@ -4,17 +4,51 @@
     {
       "id": 1,
       "prompt": "How do I type a React component that accepts any native button props plus a custom variant?",
-      "expected_output": "Use ComponentProps<'button'> and extend it: type ButtonProps = ComponentProps<'button'> & { variant?: 'primary' | 'secondary' }. Spread {...props} to forward native props. Avoid React.FC — write function directly with typed params."
+      "expected_output": "Use ComponentProps<'button'> and extend it: type ButtonProps = ComponentProps<'button'> & { variant?: 'primary' | 'secondary' }. Spread {...props} to forward native props. Avoid React.FC — write function directly with typed params.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "ComponentProps"
+        },
+        {
+          "type": "contains",
+          "value": "Avoid"
+        },
+        {
+          "type": "contains",
+          "value": "React"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "How do I type a generic list component in React TypeScript?",
-      "expected_output": "Use a generic: type ListProps<T> = { items: T[]; render: (item: T) => ReactNode }. Define as function List<T,>({ items, render }: ListProps<T>). The comma after T avoids JSX parsing ambiguity in .tsx files."
+      "expected_output": "Use a generic: type ListProps<T> = { items: T[]; render: (item: T) => ReactNode }. Define as function List<T,>({ items, render }: ListProps<T>). The comma after T avoids JSX parsing ambiguity in .tsx files.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "ListProps"
+        },
+        {
+          "type": "contains",
+          "value": "ReactNode"
+        },
+        {
+          "type": "contains",
+          "value": "List"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "How do I type useRef for a DOM element in TypeScript?",
-      "expected_output": "For DOM refs: useRef<HTMLInputElement>(null) — initial value must be null for DOM elements. For mutable values: useRef<number>(0) — non-null initial. Access via ref.current, check for null before use (ref.current?.focus())."
+      "expected_output": "For DOM refs: useRef<HTMLInputElement>(null) — initial value must be null for DOM elements. For mutable values: useRef<number>(0) — non-null initial. Access via ref.current, check for null before use (ref.current?.focus()).",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "HTMLInputElement"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

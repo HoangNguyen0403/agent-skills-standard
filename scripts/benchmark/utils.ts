@@ -15,7 +15,7 @@ export function costUSD(tokens: number, pricePerMillion: number): number {
 export function scoreQuality(
   skillDir: string,
   skillMdPath: string,
-): { score: number; detail: string[] } {
+): { score: number; detail: string[]; evalCount: number; evalAlignmentPct: number } {
   const detail: string[] = [];
   let score = 0;
   const content = fs.existsSync(skillMdPath)
@@ -34,11 +34,16 @@ export function scoreQuality(
   }
 
   // 2. Explicit Anti-Patterns
-  if (/##\s+.*Anti-Pattern/i.test(content) || /🚫.*Anti-Pattern/i.test(content)) {
+  // Matches: dedicated section heading, legacy 🚫 emoji boilerplate, or updated **No X** inline format
+  const hasAntiPatterns =
+    /##\s+.*Anti-Pattern/i.test(content) ||
+    /🚫.*Anti-Pattern/i.test(content) ||
+    /\*\*No\s+\w/i.test(content);
+  if (hasAntiPatterns) {
     score += 2;
-    detail.push('✅ Explicit Anti-Patterns section found');
+    detail.push('✅ Explicit Anti-Patterns found');
   } else {
-    detail.push('❌ Missing Anti-patterns section');
+    detail.push('❌ Missing Anti-patterns (add ## Anti-Patterns or **No X**: lines)');
   }
 
   // 3. Context Architecture (Progressive Disclosure OR Extreme Density)
@@ -61,14 +66,71 @@ export function scoreQuality(
     detail.push(`❌ Too long (${lines} lines)`);
   }
 
-  // 5. Inline Triggers (Optimized Metadata)
-  const hasOptimizedTriggers = /description:.*\(triggers:.*?\)/i.test(content);
-  if (hasOptimizedTriggers) {
-    score += 2;
-    detail.push('✅ Inline Triggers ((triggers: ...) found in description)');
+  // 5. Eval Coverage & Alignment (replaces Inline Triggers check)
+  //    Measures: do evals exist, are they thorough, and does SKILL.md actually
+  //    teach what the evals test? This is the static proxy for "with vs without skill".
+  const evalsPath = path.join(skillDir, 'evals', 'evals.json');
+  let evalCount = 0;
+  let evalAlignmentPct = 0;
+
+  if (fs.existsSync(evalsPath)) {
+    const evalsData = fs.readJSONSync(evalsPath);
+    const evals: Array<{
+      assertions?: Array<{ type: string; value: string }>;
+    }> = evalsData.evals || [];
+    evalCount = evals.length;
+
+    const hasNotTrigger =
+      Array.isArray(evalsData.should_not_trigger) &&
+      evalsData.should_not_trigger.length > 0;
+    const totalAssertions = evals.reduce(
+      (s, e) => s + (e.assertions?.length || 0),
+      0,
+    );
+    const avgAssertions = evalCount > 0 ? totalAssertions / evalCount : 0;
+
+    // Eval alignment: % of "contains" assertion values that appear in SKILL.md.
+    // A high alignment means the skill actually teaches what the evals test —
+    // the closest static proxy for "with skill > without skill" effectiveness.
+    let containsAssertions = 0;
+    let alignedAssertions = 0;
+    for (const ev of evals) {
+      for (const assertion of ev.assertions || []) {
+        if (assertion.type === 'contains') {
+          containsAssertions++;
+          if (
+            content.toLowerCase().includes(assertion.value.toLowerCase())
+          ) {
+            alignedAssertions++;
+          }
+        }
+      }
+    }
+    evalAlignmentPct =
+      containsAssertions > 0
+        ? Math.round((alignedAssertions / containsAssertions) * 100)
+        : 0;
+
+    const missingParts: string[] = [];
+    if (!hasNotTrigger) missingParts.push('should_not_trigger');
+    if (avgAssertions < 2) missingParts.push('≥2 assertions/eval');
+
+    if (evalCount >= 3 && hasNotTrigger && avgAssertions >= 2) {
+      score += 2;
+      detail.push(
+        `✅ Eval Coverage (${evalCount} evals, ${avgAssertions.toFixed(1)} assertions/eval, ${evalAlignmentPct}% aligned)`,
+      );
+    } else if (evalCount > 0) {
+      score += 1;
+      detail.push(
+        `⚠️ Partial Eval Coverage (${evalCount} evals, missing: ${missingParts.join(', ')}, ${evalAlignmentPct}% aligned)`,
+      );
+    } else {
+      detail.push('❌ Missing evals/evals.json — add eval prompts to measure with/without-skill delta');
+    }
   } else {
-    detail.push('❌ Missing Inline Triggers in description');
+    detail.push('❌ Missing evals/evals.json — add eval prompts to measure with/without-skill delta');
   }
 
-  return { score, detail };
+  return { score, detail, evalCount, evalAlignmentPct };
 }

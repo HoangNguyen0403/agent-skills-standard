@@ -1,6 +1,6 @@
 ---
 name: flutter-retrofit-networking
-description: "HTTP networking standards using Dio and Retrofit with Auth interceptors. Use when integrating Dio, Retrofit, or API auth interceptors in Flutter. (triggers: **/data_sources/**, **/api/**, Retrofit, Dio, RestClient, GET, POST, Interceptor, refreshing)"
+description: 'HTTP networking standards using Dio and Retrofit with Auth interceptors. Use when integrating Dio, Retrofit, or API auth interceptors in Flutter. (triggers: **/data_sources/**, **/api/**, Retrofit, Dio, RestClient, GET, POST, Interceptor, refreshing)'
 ---
 
 # Retrofit & Dio Networking
@@ -23,12 +23,12 @@ infrastructure/
 
 ## Implementation Guidelines
 
-- **Retrofit Clients**: Define abstract classes with `@RestApi()`. Use standard HTTP annotations (`@GET`, `@POST`).
-- **DTOs (Data Transfer Objects)**: Use `@freezed` and `json_serializable` for all response/request bodies.
+- **Retrofit Clients**: Define abstract classes with **@RestApi()**. Use standard HTTP annotations (**@GET('/route')**, **@POST('/route/{id}/cancel')** with **@Path('id')**). Methods must return `Future<DTO>`.
+- **DTOs (Data Transfer Objects)**: Use **@freezed** and **@JsonSerializable** for all response/request bodies.
 - **Mapping**: Data sources MUST map DTOs to Domain Entities (e.g., `userDto.toDomain()`).
-- **Safe Enums**: Always use `@JsonKey(unknownEnumValue: ...)` for DTO enums to prevent crashes when the backend introduces new values.
+- **Safe Enums**: Always use **@JsonKey(unknownEnumValue: OrderStatus.unknown)** for DTO enums with an `unknown` fallback value to prevent crashes when the backend introduces new values.
 - **AuthInterceptor**: Logic for `Authorization: Bearer <token>` injection in `onRequest`.
-- **Token Refresh**: Handle `401 Unauthorized` in `onError` by locking Dio, refreshing, and retrying.
+- **Token Refresh**: Handle **401 Unauthorized** in `onError` by checking `DioException`, **locking Dio**, calling `refreshToken()`, **updating the stored token**, and **retrying** via `dio.fetch(err.requestOptions)`.
 - **Failures**: Map `DioException` to custom `Failure` objects (ServerFailure, NetworkFailure).
 
 ## Anti-Patterns

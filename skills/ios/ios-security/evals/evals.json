@@ -1,18 +1,68 @@
 {
-  "skill": "ios-security",
-  "should_trigger": [
-    "How do I store a token securely on iOS?",
-    "How do I use Face ID or Touch ID in my app?",
-    "Should I use UserDefaults for storing passwords?",
-    "How do I implement SSL pinning in iOS?",
-    "How do I use the Keychain in Swift?",
-    "How do I protect files on disk in iOS?",
-    "How do I use LocalAuthentication for biometrics?"
+  "skill_name": "ios-security",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement ios security best practices?",
+      "expected_output": "**Keychain**: Use for **Auth tokens**, passwords, and PII. Never store in **`UserDefaults`**.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "UserDefaults"
+        },
+        {
+          "type": "contains",
+          "value": "SecItemAdd"
+        },
+        {
+          "type": "contains",
+          "value": "SecItemUpdate"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in ios security?",
+      "expected_output": "**SecItem API**: Use **`SecItemAdd`**, `SecItemUpdate`, and `SecItemDelete` for persistent secure storage. Use **`kSecClassGenericPassword`** for tokens.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "SecItemDelete"
+        },
+        {
+          "type": "contains",
+          "value": "kSecClassGenericPassword"
+        },
+        {
+          "type": "contains",
+          "value": "LocalAuthentication"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for ios security.",
+      "expected_output": "**Biometrics**: Use **`LocalAuthentication`** for **Face ID** or **Touch ID**. Use `LAContext` and verify availability with **`canEvaluatePolicy`** before evaluation.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "LAContext"
+        },
+        {
+          "type": "contains",
+          "value": "canEvaluatePolicy"
+        },
+        {
+          "type": "contains",
+          "value": "Info.plist"
+        }
+      ]
+    }
   ],
   "should_not_trigger": [
-    "How do I set up Fastlane?",
-    "How do I implement MVVM?",
-    "How do I use BGTaskScheduler?",
-    "How do I localize my app?"
+    "Set up a basic ios project from scratch",
+    "How do I install ios dependencies?",
+    "What is ios?",
+    "Configure CI/CD for an unrelated platform"
   ]
 }

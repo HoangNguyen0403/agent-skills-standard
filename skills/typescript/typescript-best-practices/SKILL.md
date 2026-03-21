@@ -1,6 +1,6 @@
 ---
 name: typescript-best-practices
-description: "Idiomatic TypeScript patterns for clean, maintainable code. Use when writing or refactoring TypeScript classes, functions, modules, or async logic. (triggers: **/*.ts, **/*.tsx, class, function, module, import, export, async, promise)"
+description: 'Idiomatic TypeScript patterns for clean, maintainable code. Use when writing or refactoring TypeScript classes, functions, modules, or async logic. (triggers: **/*.ts, **/*.tsx, class, function, module, import, export, async, promise)'
 ---
 
 # TypeScript Best Practices
@@ -9,15 +9,15 @@ description: "Idiomatic TypeScript patterns for clean, maintainable code. Use wh
 
 ## Implementation Guidelines
 
-- **Naming**: Classes/Types=`PascalCase`, vars/funcs=`camelCase`, consts=`UPPER_SNAKE`. Prefix `I` only if needed.
-- **Functions**: Arrows for callbacks; regular for exports. Always type public API returns.
-- **Modules**: Named exports only. Import order: external → internal → relative.
-- **Async**: Use `async/await`, not raw Promises. `Promise.all()` for parallel.
-- **Classes**: Explicit access modifiers. Favor composition. Use `readonly`.
-- **Types**: Use `never` for exhaustiveness, `asserts` for runtime checks.
-- **Optional**: Use `?:`, not `| undefined`.
-- **Imports**: Use `import type` for tree-shaking.
-- **Verify**: After refactoring, call `getDiagnostics` (typescript-lsp) to catch type regressions immediately. See [typescript-tooling](../typescript-tooling/SKILL.md) for the full 3-step verification workflow.
+- **Naming**: Use **`PascalCase`** for Classes/Types/Interfaces, **`camelCase`** for variables/functions, and **`UPPER_SNAKE`** for static constants.
+- **Functions**: Use **`arrow functions`** for callbacks/logic; **`function declaration`** for top-level exports. Always type **`public API`** returns.
+- **Modules**: Use **`Named exports`** ONLY to enable better refactoring/auto-imports.
+- **Async**: Use **`async/await`** with **`Promise.all()`** for parallel execution. Implement **`try-catch`** for error handling; type **`catch(e) as unknown`** and narrow before use. Avoid **`.then().catch()`** chains.
+- **Classes**: Explicitly use **`private`**, **`protected`**, and **`public`** modifiers. Favor **`composition`** over inheritance and **`dependency injection`** with **`constructor injection`** and interfaces over singletons for testability.
+- **Type Safety**: Use **`never`** for exhaustiveness checks in switch-cases.
+- **Optional**: Use **`optional chaining`** (`?.`) and **`nullish coalescing`** (`??`) over manual checks.
+- **Imports**: Enforce **`external packages → internal modules → relative imports`** order automatically via **`eslint-plugin-import`**. Use **`import type`** for interfaces/types to ensure better tree-shaking and zero runtime overhead.
+- **Validation**: Use **`Zod`** or **`Tsoa`** for runtime boundary validation.
 
 ## Anti-Patterns
 

@@ -4,17 +4,51 @@
     {
       "id": 1,
       "prompt": "My React component re-renders too often but I can't figure out why. How do I debug this?",
-      "expected_output": "Install why-did-you-render in dev mode to log unnecessary re-renders. Use React DevTools Profiler to identify expensive renders. Enable 'Highlight Updates' in DevTools. Check for unstable references (inline objects/functions) with useCallback/useMemo."
+      "expected_output": "Install why-did-you-render in dev mode to log unnecessary re-renders. Use React DevTools Profiler to identify expensive renders. Enable 'Highlight Updates' in DevTools. Check for unstable references (inline objects/functions) with useCallback/useMemo.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "React"
+        },
+        {
+          "type": "contains",
+          "value": "DevTools"
+        },
+        {
+          "type": "contains",
+          "value": "Profiler"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "How do I analyze what's taking up space in my React bundle?",
-      "expected_output": "Use source-map-explorer (npm run build then source-map-explorer) or bundle-visualizer. For Vite, use rollup-plugin-visualizer. For webpack, use webpack-bundle-analyzer. Look for duplicate packages, large transitive deps, and unshaken tree."
+      "expected_output": "Use source-map-explorer (npm run build then source-map-explorer) or bundle-visualizer. For Vite, use rollup-plugin-visualizer. For webpack, use webpack-bundle-analyzer. Look for duplicate packages, large transitive deps, and unshaken tree.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Vite"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "How do I set up React DevTools for debugging custom hooks?",
-      "expected_output": "Use useDebugValue inside custom hooks to label them in DevTools: useDebugValue(isOnline ? 'Online' : 'Offline'). Install React DevTools browser extension. For complex hook state, use useDebugValue with a formatter function."
+      "expected_output": "Use useDebugValue inside custom hooks to label them in DevTools: useDebugValue(isOnline ? 'Online' : 'Offline'). Install React DevTools browser extension. For complex hook state, use useDebugValue with a formatter function.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "DevTools"
+        },
+        {
+          "type": "contains",
+          "value": "Online"
+        },
+        {
+          "type": "contains",
+          "value": "Offline"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

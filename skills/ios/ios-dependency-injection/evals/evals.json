@@ -1,18 +1,68 @@
 {
-  "skill": "ios-dependency-injection",
-  "should_trigger": [
-    "How do I set up dependency injection in iOS?",
-    "Should I use Swinject or Factory for DI?",
-    "How do I inject a service into my ViewModel?",
-    "What is the @Injected property wrapper?",
-    "How do I scope dependencies in iOS?",
-    "My app uses Resolver.resolve() everywhere, is that OK?",
-    "How do I register singleton services in a DI container?"
+  "skill_name": "ios-dependency-injection",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement ios dependency injection best practices?",
+      "expected_output": "**Initializer Injection**: Preferred method. Pass dependencies through `init`.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "init"
+        },
+        {
+          "type": "contains",
+          "value": "Factory"
+        },
+        {
+          "type": "contains",
+          "value": "@Injected"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in ios dependency injection?",
+      "expected_output": "**Abstractions**: Inject protocols instead of concrete classes to facilitate testing (Mocks/Stubs).",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Priority: P0"
+        },
+        {
+          "type": "contains",
+          "value": "Initializer Injection"
+        },
+        {
+          "type": "contains",
+          "value": "Abstractions"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for ios dependency injection.",
+      "expected_output": "**Factory**: Use the `Factory` library for lightweight, type-safe navigation-friendly DI.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Swinject"
+        },
+        {
+          "type": "contains",
+          "value": "Injected"
+        },
+        {
+          "type": "contains",
+          "value": "Singleton"
+        }
+      ]
+    }
   ],
   "should_not_trigger": [
-    "How do I implement MVVM?",
-    "How do I use Instruments to detect memory leaks?",
-    "How do I localize strings in Xcode 15?",
-    "How do I set up Fastlane?"
+    "Set up a basic ios project from scratch",
+    "How do I install ios dependencies?",
+    "What is ios?",
+    "Configure CI/CD for an unrelated platform"
   ]
 }

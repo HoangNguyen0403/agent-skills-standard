@@ -1,6 +1,6 @@
 ---
 name: php-error-handling
-description: "Modern PHP error and exception handling standards. Use when implementing exception hierarchies, error handlers, or custom exceptions in PHP. (triggers: **/*.php, try, catch, finally, Throwable, set_exception_handler)"
+description: 'Modern PHP error and exception handling standards. Use when implementing exception hierarchies, error handlers, or custom exceptions in PHP. (triggers: **/*.php, try, catch, finally, Throwable, set_exception_handler)'
 ---
 
 # PHP Error Handling
@@ -18,13 +18,14 @@ src/
 
 ## Implementation Guidelines
 
-- **Exception-Driven**: Prefer throwing exceptions over returning `false`.
-- **Throwable Interface**: Catch `Throwable` for both Errors and Exceptions.
-- **Custom Exceptions**: Extend `RuntimeException` for domain-specific errors.
-- **Multi-catch**: Use `catch (TypeA | TypeB $e)` for identical handling.
-- **Finally Cleanup**: Use `finally` to ensure resource release.
-- **Global Handling**: Set `set_exception_handler` in entry points.
-- **PSR-3 Logging**: Log critical faults using standard loggers.
+- **Exception-Driven**: Favor **`throwing exceptions`** over returning `false` or `null` for error states.
+- **Throwable Interface**: Always catch **`Throwable`** for both PHP 7/8 Errors and Exceptions.
+- **Custom Exceptions**: Extend **`RuntimeException`** or **`LogicException`** for domain-specific errors.
+- **Multi-Catch**: Use Union types in catch blocks: **`catch (DomainException | InvalidArgumentException $e)`**.
+- **Global Handler**: Use **`set_exception_handler`** and **`set_error_handler`** for top-level logging and cleanup.
+- **Finally**: Always use **`finally`** for resource cleanup (e.g., closing file handles, DB connections).
+- **PSR-3 Logging**: Implement **`Psr\Log\LoggerInterface`** for structured error reporting.
+- **Production Guard**: Ensure **`display_errors=Off`** and **`log_errors=On`** in production `php.ini`.
 
 ## Anti-Patterns
 

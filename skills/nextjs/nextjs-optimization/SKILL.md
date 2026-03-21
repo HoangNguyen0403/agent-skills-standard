@@ -1,6 +1,6 @@
 ---
 name: nextjs-optimization
-description: "Image, Font, Script, and Metadata optimization strategies. Use when optimizing Next.js images, fonts, scripts, or page metadata for performance. (triggers: **/layout.tsx, **/page.tsx, next/image, next/font, metadata, generateMetadata)"
+description: 'Image, Font, Script, and Metadata optimization strategies. Use when optimizing Next.js images, fonts, scripts, or page metadata for performance. (triggers: **/layout.tsx, **/page.tsx, next/image, next/font, metadata, generateMetadata)'
 ---
 
 # Optimization
@@ -18,16 +18,15 @@ Before applying optimizations, identify bottlenecks using:
 - **INP (Interaction to Next Paint)**: Responsiveness. Target < 200ms.
 - **Tools**: Chrome DevTools "Performance" tab, `next/speed-insights`, or `React Profiler`.
 
-## Images (`next/image`)
+## Implementation Guidelines
 
-- **Pattern**: Always use `next/image` to prevent CLS. Use `priority` for LCP images.
-- **Responsive**: Use `sizes` (e.g., `(max-width: 768px) 100vw, 33vw`) to avoid downloading oversized images.
-- **Constraints**:
-  - Remote domains **must** be in `next.config.js` `remotePatterns`.
-  - Use `placeholder="blur"` for local images (automatic) or remote (manual `blurDataURL`).
-  - Use `fill` with `object-fit` for parent-relative sizing.
-
-## Fonts (`next/font`)
+- **Images**: Always use **`next/image`** to prevent **CLS (Cumulative Layout Shift)**. Set **`priority`** for above-the-fold images to improve **LCP (Largest Contentful Paint)**. Use **`sizes`** (e.g., `(max-width: 768px) 100vw, 33vw`) and **`placeholder="blur"`** for better UX.
+- **Fonts**: use **`next/font`** (Google or Local) to optimize for **Zero Layout Shift**. This automatically host fonts locally and adds **`font-display: swap`**.
+- **Scripts**: Use **`next/script`** with appropriate strategies: **`beforeInteractive`** (critical), **`afterInteractive`** (default/analytics), or **`lazyOnload`** (lower priority/social widgets/chat).
+- **Metadata**: Define **`static metadata`** or use **`generateMetadata`** (async) for dynamic routes to improve SEO and social sharing. This replaces the legacy `Head` component.
+- **Bundle**: Analyze bundle size with **`@next/bundle-analyzer`**. Prune heavy libraries; use **ESM-tree-shakable** dependencies.
+- **Components**: Use **`dynamic`** imports (Next.js version of `React.lazy`) with **`Suspense`** for large components that are not needed during initial render.
+- **Next.js 15+ Integration**: Enable **`ppr: true` (Partial Prerendering)** in `next.config.js` to combine static shell with dynamic islands.
 
 - **Strategy**: Self-host Google Fonts or local files via `next/font`.
 - **Optimization**: Zero layout shift, no network requests for font files at runtime. Apply classes to `<body>` or specific elements.
@@ -59,7 +58,6 @@ Before applying optimizations, identify bottlenecks using:
 - **Loading Strategy**: Control when 3rd party scripts load.
   - `strategy="afterInteractive"` (Default): Google Analytics.
   - `strategy="lazyOnload"`: Chat widgets, low priority.
-
 
 ## Anti-Patterns
 

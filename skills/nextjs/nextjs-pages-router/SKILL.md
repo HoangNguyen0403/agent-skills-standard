@@ -1,6 +1,6 @@
 ---
 name: nextjs-pages-router
-description: "Legacy routing, getServerSideProps conventions, and strict architectural constraints. Use when working in a Pages Router project with getServerSideProps, getStaticProps, or _app in Next.js. (triggers: pages/**/*.tsx, pages/**/*.ts, Pages Router, getServerSideProps, getStaticProps, _app, useRouter)"
+description: 'Legacy routing, getServerSideProps conventions, and strict architectural constraints. Use when working in a Pages Router project with getServerSideProps, getStaticProps, or _app in Next.js. (triggers: pages/**/*.tsx, pages/**/*.ts, Pages Router, getServerSideProps, getStaticProps, _app, useRouter)'
 ---
 
 # Next.js Pages Router (Legacy)
@@ -10,22 +10,16 @@ description: "Legacy routing, getServerSideProps conventions, and strict archite
 > [!IMPORTANT]
 > The project uses Next.js **Pages Router** (`pages/` directory). Do NOT use App Router features.
 
-## Architecture Constraints
+## Implementation Guidelines
 
-- **Thin Pages**: Files in `pages/` must be extremely thin routing wrappers.
-- **Routing Rules**: Dynamic uses `[id].tsx`, Catch-all uses `[...slug].tsx`.
-- **API Routes**: Code inside `pages/api/` runs strictly on the server.
-
-## Data Fetching
-
-- **Server-Side**: Use `getServerSideProps` (SSR) or `getStaticProps` (SSG). Export as standalone async function.
-- **Client-Side**: Rely on SWR, React Query, Redux, or `fetch` in `useEffect`.
-
-## Anti-Patterns
-
-- **No `async` page exports**: Pages Router pages must be synchronous React components.
-- **No HTTP fetch to own `/api` in SSR**: Import service logic directly in `getServerSideProps`.
-- **No `'use client'` directive**: Pages Router is implicitly client; the directive causes errors.
+- **Routing Architecture**: Use the **`pages/` directory**. Use **`_app.tsx`** for global state/layouts and **`_document.tsx`** for custom HTML attributes. Define dynamic routes using **brackets `[id].tsx`** or **catch-all `[...slug].tsx`**.
+- **Data Fetching (SSR/SSG)**: Use **`getServerSideProps`** (for every request) or **`getStaticProps`** (at build time) with **`getStaticPaths`** for dynamic routes. Export these as standalone **`async` functions**.
+- **Logic Isolation**: Never **`fetch`** your own **`/api`** endpoints from Server-Side hooks. Import the **service layer** or DB logic directly.
+- **Client Hooks**: Use **`useRouter()`** from `next/router` for navigation and access to query params. Use **`router.push()`** or **`<Link>`** for client-side routing.
+- **APIs**: Implement **API Routes** in `pages/api/` for server-only logic or webhooks. Standardize responses with appropriate HTTP status codes.
+- **Next.js 15+ Compatibility**: Be cautious of **Next.js 15 upgrades**; ensure all **`getServerSideProps`** return objects that match the expected `PageProps`.
+- **Styling**: Standardize via **CSS Modules (`*.module.css`)** or **Tailwind CSS**. Avoid global CSS unless imported in `_app.tsx`.
 
 ## References
+
 - [Server-Side Props Example](references/server-side-props.md)

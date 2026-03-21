@@ -1,6 +1,6 @@
 ---
 name: laravel-api
-description: "REST and JSON API standards for modern Laravel backends. Use when designing REST endpoints, API resources, or JSON API responses in Laravel. (triggers: routes/api.php, app/Http/Resources/**/*.php, resource, collection, sanctum, passport, cors)"
+description: 'REST and JSON API standards for modern Laravel backends. Use when designing REST endpoints, API resources, or JSON API responses in Laravel. (triggers: routes/api.php, app/Http/Resources/**/*.php, resource, collection, sanctum, passport, cors)'
 ---
 
 # Laravel API
@@ -19,12 +19,26 @@ app/
 
 ## Implementation Guidelines
 
-- **API Resources**: Always use Resources/Collections for JSON formatting.
-- **RESTful Actions**: Follow standard naming (`index`, `store`, `update`).
-- **Auth**: Use **Sanctum** for SPAs/Mobile or **Passport** for OAuth2.
-- **Status Codes**: Return appropriate HTTP codes (201 Created, 422 Unprocessable).
-- **Versioning**: Prefix routes with version tags (e.g., `api/v1/...`).
-- **Rate Limiting**: Configure `RateLimiter` to protect public endpoints.
+### API Resources & Transformation
+
+- **API Resources**: Always use **`ApiResource`** classes extending **`JsonResource`** for data transformation.
+- **Collections**: Use **`UserResource::collection($users)`** for lists. Never use `response()->json($model)` or return raw models directly.
+- **Data Definition**: Implement **`toArray($request)`** to define specific output fields and prevent sensitive data leakage.
+- **Generation**: Use **`php artisan make:resource UserResource`** to scaffold new resources.
+
+### Authentication & Security
+
+- **Sanctum**: Use **`auth:sanctum`** middleware in `routes/api.php` for SPAs or mobile app authentication.
+- **Traits**: Add the **`HasApiTokens`** trait to your `User` model to enable token-based authentication.
+- **Token Management**: Issue tokens using **`$user->createToken('token-name')->plainTextToken`**.
+- **OAuth2**: Use **Passport** only if standard OAuth2 flows or client grants are required.
+
+### Routing & Performance
+
+- **Versioning**: Group routes with **`Route::prefix('v1')->group(...)`** and use versioned namespaces (e.g., `App\Http\Controllers\Api\V1`).
+- **Rate Limiting**: Define **`RateLimiter::for('api', ...)`** using **`Limit::perMinute(60)`** in **`AppServiceProvider`**.
+- **Middleware**: Apply the **`throttle:api`** middleware to route groups in `routes/api.php`.
+- **Status Codes**: Return 201 for Created, 422 for Validation errors, and 204 for No Content.
 
 ## Anti-Patterns
 

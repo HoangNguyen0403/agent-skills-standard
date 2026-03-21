@@ -4,17 +4,59 @@
     {
       "id": 1,
       "prompt": "My React Native FlatList with 1000 items is slow to scroll. How do I fix it?",
-      "expected_output": "Set windowSize to 5-10 (default 21). Provide getItemLayout for fixed-height items. Set maxToRenderPerBatch to 5-10. Use removeClippedSubviews on Android. Wrap renderItem in useCallback. Wrap item components with React.memo. Use keyExtractor with stable IDs."
+      "expected_output": "Set windowSize to 5-10 (default 21). Provide getItemLayout for fixed-height items. Set maxToRenderPerBatch to 5-10. Use removeClippedSubviews on Android. Wrap renderItem in useCallback. Wrap item components with React.memo. Use keyExtractor with stable IDs.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Provide"
+        },
+        {
+          "type": "contains",
+          "value": "Android"
+        },
+        {
+          "type": "contains",
+          "value": "Wrap"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "My React Native app feels janky and drops frames on lower-end Android devices. What should I check?",
-      "expected_output": "Enable Hermes (default RN 0.70+). Move heavy computation off JS thread. Use Reanimated for smooth animations (runs on UI thread). Check for JS-driven animations. Enable ProGuard/R8 on Android for code shrinking. Profile with Flipper or Android Studio Profiler."
+      "expected_output": "Enable Hermes (default RN 0.70+). Move heavy computation off JS thread. Use Reanimated for smooth animations (runs on UI thread). Check for JS-driven animations. Enable ProGuard/R8 on Android for code shrinking. Profile with Flipper or Android Studio Profiler.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Enable"
+        },
+        {
+          "type": "contains",
+          "value": "Hermes"
+        },
+        {
+          "type": "contains",
+          "value": "Move"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "How do I cache network images to improve React Native performance?",
-      "expected_output": "Use react-native-fast-image instead of built-in Image component. It uses SDWebImage (iOS) and Glide (Android) with proper disk/memory caching. Set resizeMode and fixed dimensions. Use WebP format for smaller file sizes."
+      "expected_output": "Use react-native-fast-image instead of built-in Image component. It uses SDWebImage (iOS) and Glide (Android) with proper disk/memory caching. Set resizeMode and fixed dimensions. Use WebP format for smaller file sizes.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Image"
+        },
+        {
+          "type": "contains",
+          "value": "Android"
+        },
+        {
+          "type": "contains",
+          "value": "WebP"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

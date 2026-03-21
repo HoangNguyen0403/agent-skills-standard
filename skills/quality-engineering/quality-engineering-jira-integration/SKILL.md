@@ -9,22 +9,23 @@ description: "Jira ↔ Zephyr traceability: fetch story AC and components, detec
 
 ## 1. Retrieving Issue Details
 
-- **Fetch Core Info**: Retrieve Summary, Description, Acceptance Criteria, and Labels.
-- **Sibling Analysis**: Identify other Jira issues with the same **Component** or **Labels** to find potentially impacted Zephyr TCs.
-- **Identify Links**: Check for existing links to Zephyr test cases to avoid duplication.
-- **Actor Mapping**: Extract reporter and assignee for context.
+- **Fetch Core Info**: Retrieve **Summary**, **Description**, **Acceptance Criteria (AC)**, and **Components**.
+- **Jira Key**: ALWAYS reference the issue by its unique **Jira Ticket ID** (e.g., `EZRX-123`).
+- **Sibling Analysis**: Identify other Jira issues with the same **Component** or **Market Variants** (VN/MY/SG) to find potentially impacted Zephyr TCs.
+- **Identify Links**: Check for existing links to **Zephyr Test Cases (TC)** to avoid duplication.
+- **Actor Mapping**: Extract reporter, assignee, and **Story Points** for context.
 
 ## 2. Linking Zephyr Test Cases
 
-- **Traceability**: After creating a Zephyr Test Case, link it back to the corresponding Jira Issue.
+- **Traceability**: After creating a Zephyr Test Case, link it back to the corresponding Jira Issue using the **Remote Link** or **Zephyr Issue Link**.
 - **Format**: Use the Zephyr Scale key (e.g., `PROJ-T123`) in the Jira link or comment.
-- **Labels**: Add `has-zephyr-tests` label to the Jira issue once test cases are linked.
+- **Labels**: Apply the **`has-zephyr-tests`** label to the Jira issue once test cases are successfully linked.
 
 ## 3. Jira-Zephyr Workflow
 
-1. **Fetch**: Get Jira User Story details via [Jira MCP](../../common/common-security-standards/SKILL.md).
-2. **Generate**: Create Zephyr Test Case using [Zephyr Generation Skill](../quality-engineering-zephyr-test-generation/SKILL.md).
-3. **Link**: Use Zephyr MCP tool `create_test_case_issue_link` to bridge the two.
+1. **Fetch**: Get Jira User Story details.
+2. **Generate**: Create Zephyr Test Case using the generation skill.
+3. **Link**: Use the tool **`create_test_case_issue_link`** to bridge the two.
 4. **Notify**: Add a comment to Jira: `Linked Zephyr Test Case: {test_case_key}`.
 
 ## 4. Best Practices
@@ -38,4 +39,3 @@ description: "Jira ↔ Zephyr traceability: fetch story AC and components, detec
 - **No Ghosting**: Create tests then link to Jira (Traceability).
 - **No Spam**: Post single comment per link.
 - **No Missing Labels**: Update Jira labels after linking.
-

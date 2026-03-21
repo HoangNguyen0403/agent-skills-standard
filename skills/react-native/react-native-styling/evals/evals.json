@@ -4,17 +4,59 @@
     {
       "id": 1,
       "prompt": "How should I apply styles to React Native components? What's wrong with inline style objects?",
-      "expected_output": "Use StyleSheet.create({}) for all styles. It validates style properties at dev time and can optimize styles in native. Inline style objects create new object references each render. Use StyleSheet.compose or array syntax to merge styles."
+      "expected_output": "Use StyleSheet.create({}) for all styles. It validates style properties at dev time and can optimize styles in native. Inline style objects create new object references each render. Use StyleSheet.compose or array syntax to merge styles.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "StyleSheet"
+        },
+        {
+          "type": "contains",
+          "value": "Inline"
+        },
+        {
+          "type": "contains",
+          "value": "Inline style"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "How do I make my React Native layout adapt to different screen sizes?",
-      "expected_output": "Use useWindowDimensions() hook (re-renders on orientation change) for dynamic sizing. Use Dimensions.get for one-time reads. Use flexbox with flex:1 and percentage widths for fluid layouts. Set breakpoints based on width < 375 for small phones. Avoid fixed pixel dimensions for layout."
+      "expected_output": "Use useWindowDimensions() hook (re-renders on orientation change) for dynamic sizing. Use Dimensions.get for one-time reads. Use flexbox with flex:1 and percentage widths for fluid layouts. Set breakpoints based on width < 375 for small phones. Avoid fixed pixel dimensions for layout.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Dimensions"
+        },
+        {
+          "type": "contains",
+          "value": "Avoid"
+        },
+        {
+          "type": "contains",
+          "value": "percentage widths"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "How do I apply different font families on iOS and Android in React Native?",
-      "expected_output": "Use Platform.select in StyleSheet: fontFamily: Platform.select({ ios: 'SF Pro', android: 'Roboto' }). Load custom fonts with expo-font or react-native-font. Centralize platform font values in theme/typography.ts. Never hardcode font names in components."
+      "expected_output": "Use Platform.select in StyleSheet: fontFamily: Platform.select({ ios: 'SF Pro', android: 'Roboto' }). Load custom fonts with expo-font or react-native-font. Centralize platform font values in theme/typography.ts. Never hardcode font names in components.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Platform"
+        },
+        {
+          "type": "contains",
+          "value": "StyleSheet"
+        },
+        {
+          "type": "contains",
+          "value": "Centralize"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

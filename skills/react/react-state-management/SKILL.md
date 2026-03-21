@@ -1,6 +1,6 @@
 ---
 name: react-state-management
-description: "Standards for managing local, global, and server state. Use when choosing or implementing state management (Context, Zustand, Redux, React Query) in React. (triggers: **/*.tsx, **/*.jsx, state, useReducer, context, store, props)"
+description: 'Standards for managing local, global, and server state. Use when choosing or implementing state management (Context, Zustand, Redux, React Query) in React. (triggers: **/*.tsx, **/*.jsx, state, useReducer, context, store, props)'
 ---
 
 # React State Management
@@ -11,13 +11,13 @@ Choosing the right tool for state scope.
 
 ## Implementation Guidelines
 
-- **Local**: `useState`. `useReducer` if complex (state machine).
-- **Derived**: `const fullName = first + last`. No state sync.
-- **Context**: DI, Theming, Auth. Not for high-freq data.
-- **Global**: Zustand/Redux for app-wide complex flow.
-- **Server Cache**: Use `React.cache` (RSC) to dedupe requests per render.
-- **Server State**: React Query / SWR / Apollo. Cache != UI State.
-- **URL**: Store filter/sort params in URL (Source of Truth).
+- **Selection**: **Zustand for small-medium apps** (minimal boilerplate, no Providers). **Redux Toolkit (RTK) for large apps** needing **time-travel debugging** or complex middleware.
+- **Server Data**: **Use React Query or SWR for server state**. **Never sync server data into `useState`** manually. Let the **cache be the source of truth**.
+- **Context API**: Use for **low-frequency data** like **theme, auth, locale**, or DI. Not for high-frequency updates (causes global re-renders). **Split Context** between State and Dispatch to optimize.
+- **Global Updates**: Use **Zustand, Jotai, or Redux for frequent/complex updates** across the app.
+- **Local**: `useState` for simple UI toggles. `useReducer` for complex state machines.
+- **Derived**: Compute at render time (`const fullName = ...`). No `useEffect` to sync state.
+- **URL**: Store filter/sort params in the **URL Search Params** (Single Source of Truth).
 - **Immutability**: Never mutate. Use spread or Immer. Use `useMemo` on context value to prevent unnecessary re-renders (primitive performance tuning belongs in `hooks` skill).
 
 > **Boundary note**: `hooks` skill covers primitive API usage (`useMemo`, `useCallback` rules). This skill covers _architectural_ state decisions — which tool to use for which state scope.

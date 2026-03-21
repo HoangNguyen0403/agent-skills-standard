@@ -1,6 +1,6 @@
 ---
 name: quality-engineering-zephyr-test-generation
-description: "End-to-end Jira → Zephyr workflow: parse AC, identify platform and market, impact-analyze existing TCs (update vs create new), draft test cases with correct naming/metadata/preconditions, and link back via create_test_case_issue_link. Use when converting a Jira story into Zephyr TCs, or when requirement changes require updating existing TCs rather than creating duplicates. (triggers: **/user_story.md, generate test cases, zephyr, impact analysis, create test case)"
+description: 'End-to-end Jira → Zephyr workflow: parse AC, identify platform and market, impact-analyze existing TCs (update vs create new), draft test cases with correct naming/metadata/preconditions, and link back via create_test_case_issue_link. Use when converting a Jira story into Zephyr TCs, or when requirement changes require updating existing TCs rather than creating duplicates. (triggers: **/user_story.md, generate test cases, zephyr, impact analysis, create test case)'
 ---
 
 # Zephyr Test Generation Standards
@@ -10,30 +10,24 @@ description: "End-to-end Jira → Zephyr workflow: parse AC, identify platform a
 ## Workflow: Jira → Zephyr
 
 1.  **Analyze Requirements**:
-    - Identify AC and verify [Actor/Permission Matrix](../quality-engineering-business-analysis/references/analysis_patterns.md).
-    - **Identify Platform**: Detect if requirement applies to `Web`, `Mobile`, or `Both`.
-    - **Identify Market**: Extract Market context (e.g., `VN`, `MY`, `All`).
-    - Use [Business Analysis](../quality-engineering-business-analysis/SKILL.md) for logic investigation.
+    - Identify **Acceptance Criteria (AC)** and verify **Actor/Permission Matrix**.
+    - Perform **Atomic AC Decomposition**: Break down complex ACs into individual testable units (1 statement = 1 TC).
+    - **Identify Platform**: Detect if requirement applies to **`Web`**, **`Mobile`**, or **`Both`**.
+    - **Identify Market**: Extract Market context (e.g., **`VN`**, `MY`, `SG`, `All`).
 2.  **Impact Analysis**:
-    - Search Zephyr for existing TCs related to the feature.
-    - Perform [Impact Study](references/impact_analysis.md) to decide: **Update** or **New**.
+    - **Search Zephyr** for **Existing TCs** related to the feature before creating new ones.
+    - Perform **Impact Analysis** to decide: **Update those TCs** (change logic) existing TCs or create **New** (new feature) TCs. Ensure you don't create **duplicates** by updating existing ones first. Document delta changes in TC description.
 3.  **Draft/Merge TCs**:
-    - For **New**: Create following [Naming Convention](../quality-engineering-quality-assurance/SKILL.md).
-    - For **Traceability**: Call `create_test_case_issue_link` immediately after creation.
-    - For **Update**: Fetch steps and apply deltas.
-4.  **Review**: Ensure no "OR" logic and steps are atomic.
-
-## Output Structure
-
-- Refer to [Zephyr JSON Schema](references/zephyr_schema.json) for creation/updates.
+    - Create/Update TCs with correct **Zephyr Key** (e.g., `EZRX-T123`).
+    - **Traceability**: **Link TC to the Jira Ticket ID** (e.g., **`EZRX-3892`**) immediately via **`create_test_case_issue_link`**.
+4.  **Review**: Ensure no "OR" logic and steps are **Atomic**. Use **separate TCs per actor** (no OR logic) when different roles see different data. Use **Truth Table Verification** for multi-condition ACs.
 
 ## Metadata & Traceability Standards
 
-1. **Preconditions**: Must be extracted from the requirement as a list of bullet points.
-2. **Custom Fields**: Populate `Roles` (multi-select) and `Platform` exactly as shown in requirements.
-3. **Traceability (CRITICAL)**: Always link the TC to the Jira Issue (e.g., `EZRX-39448`) using the `create_test_case_issue_link` tool.
-4. **Naming**: Prefix with `[Platform]` ONLY if exclusive to one platform. Use the `[Module]_[Action]...` pattern. Omit platform if it supports **Both**.
-5. **Filing**: Use the exact Folder Path specified in the Technical Impact or module standards.
+1. **Preconditions**: Must be extracted from the requirement as a list of **bullet points**.
+2. **Priority**: Classify as **High**, **Normal**, or **Low** based on business impact.
+3. **Traceability (CRITICAL)**: Always link the TC to the **Jira Ticket ID** using the **`create_test_case_issue_link`** tool.
+4. **Naming**: Prefix with **`[Web]`** or **`[Mobile]`** ONLY if exclusive. **No [Platform] prefix** if it applies to Both. Pattern: **`Module_Action on Screen when user is {Actor} ({Market})`**. Example: **`[Web] Invoice_Download invoice on Order Detail when user is Customer (VN)`**.
 
 ## Anti-Patterns
 

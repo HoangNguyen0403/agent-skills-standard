@@ -1,18 +1,68 @@
 {
-  "skill": "ios-notifications",
-  "should_trigger": [
-    "How do I set up push notifications in iOS?",
-    "How do I register for APNS in AppDelegate?",
-    "How do I handle a notification tap when the app is in the foreground?",
-    "How do I implement UNUserNotificationCenterDelegate?",
-    "How do I clear the app badge count?",
-    "Should I ask for notification permissions immediately on launch?",
-    "How do I request alert and sound notification permissions?"
+  "skill_name": "ios-notifications",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement ios notifications best practices?",
+      "expected_output": "**Framework**: Use `UserNotifications` for all notification handling.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "UserNotifications"
+        },
+        {
+          "type": "contains",
+          "value": ".alert"
+        },
+        {
+          "type": "contains",
+          "value": ".badge"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in ios notifications?",
+      "expected_output": "**Delegate**: Implement `UNUserNotificationCenterDelegate` for foreground & tap handling.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": ".sound"
+        },
+        {
+          "type": "contains",
+          "value": "AppDelegate"
+        },
+        {
+          "type": "contains",
+          "value": "Priority: P2 (OPTIONAL)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for ios notifications.",
+      "expected_output": "**Permissions**: Request `.alert`, `.badge`, `.sound` after priming the user.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Framework"
+        },
+        {
+          "type": "contains",
+          "value": "Delegate"
+        },
+        {
+          "type": "contains",
+          "value": "Permissions"
+        }
+      ]
+    }
   ],
   "should_not_trigger": [
-    "How do I navigate between screens in SwiftUI?",
-    "How do I use Fastlane match?",
-    "How do I implement SSL pinning?",
-    "How do I use Core Data migrations?"
+    "Set up a basic ios project from scratch",
+    "How do I install ios dependencies?",
+    "What is ios?",
+    "Configure CI/CD for an unrelated platform"
   ]
 }

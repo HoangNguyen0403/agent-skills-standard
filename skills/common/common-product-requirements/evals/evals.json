@@ -1,0 +1,68 @@
+{
+  "skill_name": "common-product-requirements",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement common product requirements best practices?",
+      "expected_output": "**Context Injection**: Ask: \"What is the high-level goal?\"",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Actionable State"
+        },
+        {
+          "type": "contains",
+          "value": "docs/specs/"
+        },
+        {
+          "type": "contains",
+          "value": "references/prd-template.md"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in common product requirements?",
+      "expected_output": "**Gap Analysis**: Identify missing info (Platform? Users? Constraints?).",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "TBD"
+        },
+        {
+          "type": "contains",
+          "value": "Priority: P0 (CRITICAL)"
+        },
+        {
+          "type": "contains",
+          "value": "Context Injection"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for common product requirements.",
+      "expected_output": "**Active Inquiry**:\n  - Ask 3-5 clarification questions at a time.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Gap Analysis"
+        },
+        {
+          "type": "contains",
+          "value": "Active Inquiry"
+        },
+        {
+          "type": "contains",
+          "value": "MUST"
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Set up a basic common project from scratch",
+    "How do I install common dependencies?",
+    "What is common?",
+    "Configure CI/CD for an unrelated platform"
+  ]
+}

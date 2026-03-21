@@ -1,6 +1,6 @@
 ---
 name: typescript-tooling
-description: "Development tools, linting, and build config for TypeScript. Use when configuring ESLint, Prettier, Jest, Vitest, tsconfig, or any TS build tooling. (triggers: tsconfig.json, .eslintrc.*, jest.config.*, package.json, eslint, prettier, jest, vitest, build, compile, lint)"
+description: 'Development tools, linting, and build config for TypeScript. Use when configuring ESLint, Prettier, Jest, Vitest, tsconfig, or any TS build tooling. (triggers: tsconfig.json, .eslintrc.*, jest.config.*, package.json, eslint, prettier, jest, vitest, build, compile, lint)'
 ---
 
 # TypeScript Tooling
@@ -11,18 +11,14 @@ Essential tooling for TypeScript development and maintenance.
 
 ## Implementation Guidelines
 
-- **Compiler**: `tsc` for CI. `ts-node`/`esbuild` for dev.
-- **Lint**: ESLint + `@typescript-eslint`. Strict type checking.
-- **Format**: Prettier (on save + commit).
-- **Test**: Jest/Vitest > 80% coverage.
-- **Build**: `tsup` (libs), Vite/Webpack (apps).
-- **Check**: `tsc --noEmit` in CI.
-
-## Anti-Patterns
-
-- **No Disable**: Avoid `// eslint-disable`.
-- **No Skip**: Avoid `skipLibCheck: true` if possible.
-- **No Ignore**: Use `@ts-expect-error` > `@ts-ignore`.
+- **Compiler**: Use **`tsc`** for CI builds; **`esbuild`** or **`ts-node`** for development.
+- **Linting**: Enforce **`ESLint`** with **`@typescript-eslint/recommended`**. Enable **`strict type checking`**.
+- **Formatting**: Mandate **`Prettier`** via **`lint-staged`** and **`.prettierrc`**.
+- **Testing**: Use **`Vitest`** (or **`Jest`**) for unit/integration testing. Target **`> 80%`** line coverage.
+- **Builds**: Use **`tsup`** (for library bundling) or **`Vite`** (for web applications).
+- **TypeScript Config**: Ensure **`tsconfig.json`** has **`strict: true`**, **`noImplicitAny: true`**, and **`esModuleInterop: true`**.
+- **CI/CD**: Always run **`tsc --noEmit`** explicitly in the build pipeline to catch type errors.
+- **Error Supression**: Favor **`@ts-expect-error`** over `@ts-ignore` for documented edge-cases.
 
 ## ESLint Configuration
 
@@ -71,6 +67,7 @@ mockRepo.save.mockResolvedValue(result as unknown as User);
 ## Verification Workflow (Mandatory)
 
 After editing any `.ts` / `.tsx` file:
+
 1. Call `getDiagnostics` (typescript-lsp MCP tool) — surfaces type errors in real time.
 2. Run `tsc --noEmit` in CI — catches project-wide errors LSP may miss.
 3. Run `eslint --fix` — auto-fix formatting and lint violations.

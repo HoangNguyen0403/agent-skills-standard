@@ -1,0 +1,68 @@
+{
+  "skill_name": "common-api-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement common api design best practices?",
+      "expected_output": "**Lowercase, kebab-case**: `/user-profiles`, not `/UserProfiles` or `/user_profiles`.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "GET"
+        },
+        {
+          "type": "contains",
+          "value": "POST"
+        },
+        {
+          "type": "contains",
+          "value": "PUT"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in common api design?",
+      "expected_output": "**Plural nouns**: `/orders`, `/products`. Not `/order`, `/getProducts`.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "PATCH"
+        },
+        {
+          "type": "contains",
+          "value": "DELETE"
+        },
+        {
+          "type": "contains",
+          "value": "POST /orders/:id/cancel"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for common api design.",
+      "expected_output": "**No verbs in paths** (except action sub-resources): `/orders/:id/cancel` ✅, `/cancelOrder` ❌.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "200"
+        },
+        {
+          "type": "contains",
+          "value": "201"
+        },
+        {
+          "type": "contains",
+          "value": "Location"
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Set up a basic common project from scratch",
+    "How do I install common dependencies?",
+    "What is common?",
+    "Configure CI/CD for an unrelated platform"
+  ]
+}

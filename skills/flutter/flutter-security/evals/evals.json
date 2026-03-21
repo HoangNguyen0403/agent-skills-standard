@@ -4,7 +4,13 @@
     {
       "id": 1,
       "prompt": "I need to store the user's auth token after login. I'm currently using SharedPreferences — is that okay?",
-      "expected_output": "No — use flutter_secure_storage instead, SharedPreferences is unencrypted. Show secure_storage write/read pattern."
+      "expected_output": "No — use flutter_secure_storage instead, SharedPreferences is unencrypted. Show secure_storage write/read pattern.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "SharedPreferences"
+        }
+      ]
     },
     {
       "id": 2,
@@ -14,7 +20,21 @@
     {
       "id": 3,
       "prompt": "We're about to release the app to the Play Store. What security steps should we take for the release build?",
-      "expected_output": "Enable --obfuscate + --split-debug-info, verify no secrets in code, review PII in logs, SSL pinning if applicable, root detection for sensitive app"
+      "expected_output": "Enable --obfuscate + --split-debug-info, verify no secrets in code, review PII in logs, SSL pinning if applicable, root detection for sensitive app",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "--obfuscate --split-debug-info"
+        },
+        {
+          "type": "contains",
+          "value": "SSL pinning"
+        },
+        {
+          "type": "contains",
+          "value": "root detection"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

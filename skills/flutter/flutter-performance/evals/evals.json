@@ -4,17 +4,47 @@
     {
       "id": 1,
       "prompt": "My product list with 500 items is laggy when scrolling. I'm using a Column with children mapped to ProductCard widgets.",
-      "expected_output": "Replace Column with ListView.builder for item recycling, ensure ProductCard is const where possible, add ValueKey per item"
+      "expected_output": "Replace Column with ListView.builder for item recycling, ensure ProductCard is const where possible, add ValueKey per item",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Column"
+        },
+        {
+          "type": "contains",
+          "value": "ListView"
+        },
+        {
+          "type": "contains",
+          "value": "ValueKey"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Every time the cart item count updates in the header, the entire screen rebuilds including expensive product grid.",
-      "expected_output": "Use BlocBuilder<CartBloc, CartState>(buildWhen: ...) or context.select() to limit rebuild scope, or RepaintBoundary around stable sections"
+      "expected_output": "Use BlocBuilder<CartBloc, CartState>(buildWhen: ...) or context.select() to limit rebuild scope, or RepaintBoundary around stable sections",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "BlocBuilder"
+        },
+        {
+          "type": "contains",
+          "value": "RepaintBoundary"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "The app is using a lot of memory when loading the product catalog which has many high-res images.",
-      "expected_output": "Use CachedNetworkImage with memCacheWidth set to display size, not original resolution; dispose image caches; paginate to 20 items"
+      "expected_output": "Use CachedNetworkImage with memCacheWidth set to display size, not original resolution; dispose image caches; paginate to 20 items",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "CachedNetworkImage"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

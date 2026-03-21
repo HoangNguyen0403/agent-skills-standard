@@ -1,6 +1,6 @@
 ---
 name: react-typescript
-description: "TypeScript patterns specific to React components and hooks. Use when typing React props, hooks, event handlers, or component generics in TypeScript. (triggers: **/*.tsx, ReactNode, FC, PropsWithChildren, ComponentProps)"
+description: 'TypeScript patterns specific to React components and hooks. Use when typing React props, hooks, event handlers, or component generics in TypeScript. (triggers: **/*.tsx, ReactNode, FC, PropsWithChildren, ComponentProps)'
 ---
 
 # React TypeScript
@@ -11,13 +11,14 @@ Type-safe React patterns.
 
 ## Implementation Guidelines
 
-- **Components**: Return `JSX.Element`. Props interface over `React.FC`.
-- **Children**: Use `ReactNode` or `PropsWithChildren<T>`.
-- **Events**: `React.ChangeEvent<HTMLInputElement>`.
-- **Hooks**: `useRef<HTMLDivElement>(null)`. `useState<User | null>(null)`.
-- **Props**: Use `ComponentProps<'button'>` to mirror native els.
-- **Generics**: `<T,>(props: ListProps<T>)`.
-- **Polymorphism**: `as` prop patterns.
+- **Components**: Prefer **interface/type (`Props`)** over **`React.FC`** (which has implicit children). Use **`JSX.Element`** or **`ReactNode`** as the return type.
+- **Children**: For components that accept children, use **`PropsWithChildren<T>`** or explicitly type them as **`React.ReactNode`**.
+- **Events**: Always type event handlers using specific React events, such as **`React.ChangeEvent<HTMLInputElement>`** or **`React.FormEvent<HTMLFormElement>`**.
+- **Hooks**: For `useRef`, avoid `any`; use **`useRef<HTMLDivElement>(null)`**. For `useState`, use generics for complex types: **`useState<User | null>(null)`**.
+- **Native Elements**: Use **`ComponentPropsWithoutRef<'button'>`** or **`ComponentPropsWithRef`** to extend native attributes safely.
+- **Generics**: Implement generic components for reusable UI like lists using **`<T,>(props: ListProps<T>)`**.
+- **Discriminated Unions**: Use **Discriminated Unions** for mutually exclusive props (e.g., `success` vs `error` states).
+- **Utility Types**: Leverage **`Omit`**, **`Pick`**, and **`Partial`** to transform prop interfaces and avoid redundancy.
 
 ## Anti-Patterns
 

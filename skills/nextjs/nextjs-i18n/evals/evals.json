@@ -4,7 +4,21 @@
     {
       "id": 1,
       "prompt": "Add multi-language support to a Next.js app",
-      "expected_output": "Use app/[lang]/layout.tsx dynamic segment; implement middleware.ts for Accept-Language detection and redirect to /en/path; load translations server-side with getMessages(); sub-path URLs /en/dashboard"
+      "expected_output": "Use app/[lang]/layout.tsx dynamic segment; implement middleware.ts for Accept-Language detection and redirect to /en/path; load translations server-side with getMessages(); sub-path URLs /en/dashboard",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Accept"
+        },
+        {
+          "type": "contains",
+          "value": "Language"
+        },
+        {
+          "type": "contains",
+          "value": "dynamic segment"
+        }
+      ]
     },
     {
       "id": 2,
@@ -14,7 +28,21 @@
     {
       "id": 3,
       "prompt": "Use next-intl for translations in Next.js",
-      "expected_output": "setRequestLocale(lang) in layout; const t = useTranslations('Home') in Server Components; const messages = await getMessages() in layout; pass to NextIntlClientProvider; never hardcode strings"
+      "expected_output": "setRequestLocale(lang) in layout; const t = useTranslations('Home') in Server Components; const messages = await getMessages() in layout; pass to NextIntlClientProvider; never hardcode strings",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Server"
+        },
+        {
+          "type": "contains",
+          "value": "Components"
+        },
+        {
+          "type": "contains",
+          "value": "Server Components"
+        }
+      ]
     },
     {
       "id": 4,
@@ -24,12 +52,24 @@
     {
       "id": 5,
       "prompt": "Implement i18n with react-intl in Next.js",
-      "expected_output": "Load messages in layout: const messages = await import(`../messages/${lang}.json`); wrap in <IntlProvider messages={messages} locale={lang}>; use <FormattedMessage id='home.title'/> in components"
+      "expected_output": "Load messages in layout: const messages = await import(`../messages/${lang}.json`); wrap in <IntlProvider messages={messages} locale={lang}>; use <FormattedMessage id='home.title'/> in components",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Load"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Use getMessages() for server-side translations in Next.js",
-      "expected_output": "const messages = await getMessages() in layout.tsx; loads only the requested locale's JSON; pass to NextIntlClientProvider; avoids downloading all locale bundles to client; SSR-compatible"
+      "expected_output": "const messages = await getMessages() in layout.tsx; loads only the requested locale's JSON; pass to NextIntlClientProvider; avoids downloading all locale bundles to client; SSR-compatible",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "JSON"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

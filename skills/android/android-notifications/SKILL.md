@@ -1,6 +1,6 @@
 ---
 name: android-notifications
-description: "Push notifications for Android using Firebase Cloud Messaging and NotificationCompat. Use when integrating FCM or local notifications in Android apps. (triggers: **/*Notification*.kt, **/MainActivity.kt, FirebaseMessaging, NotificationCompat, NotificationChannel, FCM)"
+description: 'Push notifications for Android using Firebase Cloud Messaging and NotificationCompat. Use when integrating FCM or local notifications in Android apps. (triggers: **/*Notification*.kt, **/MainActivity.kt, FirebaseMessaging, NotificationCompat, NotificationChannel, FCM)'
 ---
 
 # Android Notifications
@@ -9,13 +9,13 @@ description: "Push notifications for Android using Firebase Cloud Messaging and 
 
 Push notifications using Firebase Cloud Messaging.
 
-## Guidelines
+## Implementation Guidelines
 
-- **Service**: Implement `FirebaseMessagingService` for handling background messages.
-- **Channels**: Must create `NotificationChannel` for Android 8.0+ compatibility.
-- **Permissions**: Request `POST_NOTIFICATIONS` explicitly on Android 13+.
-- **Intents**: Handle notification taps in both `onCreate` and `onNewIntent`.
-- **Priming**: Show benefit dialog before requesting system permissions.
+- **Channels**: Create **`NotificationChannel`** with a unique ID (required for **API 26+**). Notifications without a valid channel are **silently dropped**. Use **`NotificationCompat`** for backwards compatibility.
+- **Permissions**: **Explicitly request `POST_NOTIFICATIONS`** on **Android 13+ (API 33)**. Avoid requesting system permission on **app launch**; show a **priming dialog** first to explain the benefit.
+- **Service**: Implement **`FirebaseMessagingService`** with **`onMessageReceived`** and **`onNewToken`** for background push handling. Declare the service in **`AndroidManifest`** with the `MESSAGING_EVENT` intent action.
+- **Flow**: Handle **notification taps in both `onCreate` and `onNewIntent`** using **`PendingIntent`**. Pass data between activities via `Intent` extras.
+- **Payload**: Limit the notification payload to essential IDs. Perform **background data fetching** via WorkManager if more data is needed.
 
 ## Anti-Patterns
 

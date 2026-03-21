@@ -4,12 +4,32 @@
     {
       "id": 1,
       "prompt": "Add deep linking so that opening ezrx://orders/123 from a push notification takes the user directly to that order detail screen.",
-      "expected_output": "go_router route with path parameter, AndroidManifest intent-filter and Info.plist CFBundleURLTypes config, redirect validation for order ID"
+      "expected_output": "go_router route with path parameter, AndroidManifest intent-filter and Info.plist CFBundleURLTypes config, redirect validation for order ID",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "AndroidManifest"
+        },
+        {
+          "type": "contains",
+          "value": "Info"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "I have a bottom tab bar and pressing the back button exits the app instead of switching tabs or going back within the tab.",
-      "expected_output": "Use IndexedStack with StatefulShellRoute in go_router or configure Android back button handling; each tab maintains its own navigation stack"
+      "expected_output": "Use IndexedStack with StatefulShellRoute in go_router or configure Android back button handling; each tab maintains its own navigation stack",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "IndexedStack"
+        },
+        {
+          "type": "contains",
+          "value": "Android"
+        }
+      ]
     },
     {
       "id": 3,

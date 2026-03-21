@@ -1,18 +1,68 @@
 {
-  "skill": "ios-navigation",
-  "should_trigger": [
-    "How do I use NavigationStack in SwiftUI?",
-    "How do I handle deep links in a SwiftUI app?",
-    "How do I implement Universal Links in iOS?",
-    "How do I navigate programmatically with NavigationPath?",
-    "How do I maintain separate navigation stacks per tab?",
-    "How do I handle onOpenURL in SwiftUI?",
-    "How do I configure Associated Domains for app links?"
+  "skill_name": "ios-navigation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement ios navigation best practices?",
+      "expected_output": "**Stack**: Use `NavigationStack` (iOS 16+) with `NavigationPath` for programmatic control.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "NavigationStack"
+        },
+        {
+          "type": "contains",
+          "value": "NavigationPath"
+        },
+        {
+          "type": "contains",
+          "value": "onOpenURL"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in ios navigation?",
+      "expected_output": "**Deep Links**: Handle `onOpenURL` at the Root View (`WindowGroup`).",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "WindowGroup"
+        },
+        {
+          "type": "contains",
+          "value": "applinks"
+        },
+        {
+          "type": "contains",
+          "value": "TabItem"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for ios navigation.",
+      "expected_output": "**Universal Links**: Configure Associated Domains (`applinks`) in Entitlements.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "guard let"
+        },
+        {
+          "type": "contains",
+          "value": "Priority: P2 (OPTIONAL)"
+        },
+        {
+          "type": "contains",
+          "value": "Stack"
+        }
+      ]
+    }
   ],
   "should_not_trigger": [
-    "How do I use findNavController in Android?",
-    "How do I store data in UserDefaults?",
-    "How do I set up Fastlane?",
-    "How do I use BGTaskScheduler?"
+    "Set up a basic ios project from scratch",
+    "How do I install ios dependencies?",
+    "What is ios?",
+    "Configure CI/CD for an unrelated platform"
   ]
 }

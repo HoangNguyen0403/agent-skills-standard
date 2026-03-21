@@ -1,6 +1,6 @@
 ---
 name: angular-security
-description: "Security best practices for Angular (XSS, CSP, Route Guards). Use when implementing XSS protection, Content Security Policy, or auth guards in Angular. (triggers: DomSanitizer, innerHTML, bypassSecurityTrust, CSP, angular security, route guard)"
+description: 'Security best practices for Angular (XSS, CSP, Route Guards). Use when implementing XSS protection, Content Security Policy, or auth guards in Angular. (triggers: DomSanitizer, innerHTML, bypassSecurityTrust, CSP, angular security, route guard)'
 ---
 
 # Security
@@ -9,15 +9,15 @@ description: "Security best practices for Angular (XSS, CSP, Route Guards). Use 
 
 ## Principles
 
-- **XSS Prevention**: Angular sanitizes by default. Do NOT use `innerHTML` unless absolutely necessary.
-- **Bypass Security**: Avoid `DomSanitizer.bypassSecurityTrust...` unless the content source is trusted.
-- **Route Guards**: Protect all sensitive routes with `CanActivateFn`.
+- **XSS Prevention**: Angular sanitizes interpolated values by default — **{{ userInput }} is safe**. Do NOT use `innerHTML` unless absolutely necessary (e.g., trusted static CMS content). For user-generated content, display as text with **{{ content }} — never as HTML**.
+- **Bypass Security**: **Only bypass security for content you control** (e.g., trusted CMS headers). **Never call bypassSecurityTrustHtml** on user-provided data. Use **DomSanitizer.sanitize(SecurityContext.HTML, content)** instead of bypass functions. **Audit every bypassSecurityTrust\*** call as a potential XSS **vector**.
+- **Route Guards**: Protect all sensitive routes with a functional **CanActivateFn** (e.g., **inject(Router).createUrlTree(['/login'])**). Apply with **canActivate: [authGuard]**.
 
 ## Guidelines
 
-- **CSP**: Configure Content Security Policy headers on the server.
-- **HTTP**: Use Interceptors to attach secure tokens (HttpOnly cookies preferred over LocalStorage tokens).
-- **Secrets**: NEVER store secrets (API keys) in Angular code.
+- **CSP**: Configure **CSP headers on the server** (not in Angular source). Use **nonce-based CSP** with **script-src 'nonce-{nonce}'** and avoid unsafe-inline/unsafe-eval.
+- **HTTP**: Use Interceptors to attach secure tokens. Use **HttpOnly cookies** managed by the server — **not localStorage** or sessionStorage because they are accessible via XSS.
+- **Secrets**: **Never store API keys** or secrets in Angular source code or bundle.
 
 ## Anti-Patterns
 

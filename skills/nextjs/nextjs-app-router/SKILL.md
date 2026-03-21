@@ -1,34 +1,26 @@
 ---
 name: nextjs-app-router
-description: "File-system routing, Layouts, and Route Groups. Use when implementing App Router routing, nested layouts, or route groups in Next.js. (triggers: app/**/page.tsx, app/**/layout.tsx, app/**/loading.tsx, App Router, Layout, Route Group, parallel routes)"
+description: 'File-system routing, Layouts, and Route Groups. Use when implementing App Router routing, nested layouts, or route groups in Next.js. (triggers: app/**/page.tsx, app/**/layout.tsx, app/**/loading.tsx, App Router, Layout, Route Group, parallel routes)'
 ---
-
-# Next.js App Router
 
 ## **Priority: P0 (CRITICAL)**
 
-Use the App Router (`app/` directory) for all new projects.
+## Implementation Guidelines
 
-## **Next.js 15+ Async APIs**
+### Routing Architecture
 
-> [!IMPORTANT]
-> `params`, `searchParams`, `cookies()`, and `headers()` are now **Promises**. You MUST await them.
+- **Structure**: Use the **`app/` directory**. Define routes with **`app/dashboard/layout.tsx`** returning **`{children}`**; shared UI nests inside `app/layout.tsx` automatically. Handle states with **`loading.tsx`**, **`error.tsx`**, and **`not-found.tsx`**.
+- **Segments**: Organize features with **Route Groups** (brackets **`(auth)`**) to be **excluded from URL path**. Use **Dynamic Routes** (brackets `[slug]`) and define static paths via **`generateStaticParams`**.
+- **Specialized**: Use **Parallel Routes** (**`@modal`**) by adding the slot to the parent layout and providing a **`default.tsx`** fallback. Use **Intercepting Routes** (`(.)route`) for advanced layouts like dashboards.
 
-### Pages & Layouts
+### Data & Functions
 
-```tsx
-type Props = { params: Promise<{ slug: string }> };
-export default async function Page({ params }: Props) {
-  const { slug } = await params;
-}
-```
+- **Next.js 15+ Async**: Always **`await`** the **`params: Promise`**, **`searchParams`**, **`cookies()`**, and **`headers()`**.
+- **Security**: Use **`middleware.ts`** for edge-side authentication and redirection. Ensure all **Route Handlers (`route.ts`)** are secured with appropriate auth checks.
+- **RSC**: Default to **React Server Components (RSC)**. Only use **`'use client'`** at leaf nodes for interactivity (hooks/events).
+- **Error Boundaries**: Create **`app/dashboard/loading.tsx`** to auto-wrap routes in a **Suspense boundary**. In **`error.tsx`**, use **`'use client'`** and provide a **`reset: () => void`** function.
+  const theme = cookieStore.get('theme');
 
-### Server Functions (Cookies/Headers)
-
-```tsx
-import { cookies } from 'next/headers';
-const cookieStore = await cookies();
-const theme = cookieStore.get('theme');
 ```
 
 ## File Conventions
@@ -61,3 +53,4 @@ const theme = cookieStore.get('theme');
 - **No `'use client'` at tree root**: Place at leaves; keep layouts and pages as Server Components.
 - **No `<html>`/`<body>` in nested layouts**: Only `app/layout.tsx` (root layout) should include them.
 - **No missing `error.tsx`**: Every route segment needs a Client Component error boundary.
+```

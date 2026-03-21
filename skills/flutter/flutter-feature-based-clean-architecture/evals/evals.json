@@ -4,17 +4,36 @@
     {
       "id": 1,
       "prompt": "I'm adding a new 'promotions' feature. Where should I put the files and how should I structure the folders?",
-      "expected_output": "lib/features/promotions/ with domain/ (entities, failures, repo interface), data/ (DTO, datasource, repo impl), presentation/ (bloc, pages, widgets)"
+      "expected_output": "lib/features/promotions/ with domain/ (entities, failures, repo interface), data/ (DTO, datasource, repo impl), presentation/ (bloc, pages, widgets)",
+      "assertions": [
+        { "type": "contains", "value": "lib/features/" },
+        { "type": "contains", "value": "domain/data/presentation" },
+        { "type": "contains", "value": "Feature Encapsulation" },
+        { "type": "contains", "value": "3-layer separation" }
+      ]
     },
     {
       "id": 2,
       "prompt": "The orders feature needs to show the user's loyalty points. The loyalty points are managed by a separate loyalty feature. How should orders access that data?",
-      "expected_output": "Orders depends on LoyaltyRepository interface from loyalty's domain layer only — no cross-feature presentation or data imports"
+      "expected_output": "Orders depends on LoyaltyRepository interface from loyalty's domain layer only — no cross-feature presentation or data imports",
+      "assertions": [
+        { "type": "contains", "value": "Domain layer of other features" },
+        { "type": "contains", "value": "Cross-Feature Communication" },
+        {
+          "type": "contains",
+          "value": "no cross-feature presentation or data imports"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Should I put shared utility functions used by multiple features in lib/features/shared/ or somewhere else?",
-      "expected_output": "lib/shared/ or lib/core/ — not inside lib/features/, keep features flat, cross-cutting concerns go in shared/core"
+      "expected_output": "lib/shared/ or lib/core/ — not inside lib/features/, keep features flat, cross-cutting concerns go in shared/core",
+      "assertions": [
+        { "type": "contains", "value": "lib/shared/ or lib/core/" },
+        { "type": "contains", "value": "Flat features" },
+        { "type": "contains", "value": "cross-cutting concerns" }
+      ]
     }
   ],
   "should_not_trigger": [

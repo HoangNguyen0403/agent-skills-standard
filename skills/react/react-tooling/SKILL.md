@@ -1,6 +1,6 @@
 ---
 name: react-tooling
-description: "Debugging, build analysis, and ecosystem tools. Use when debugging React apps, analyzing bundles, or configuring Vite/webpack for React. (triggers: package.json, devtool, bundle, strict mode, profile)"
+description: 'Debugging, build analysis, and ecosystem tools. Use when debugging React apps, analyzing bundles, or configuring Vite/webpack for React. (triggers: package.json, devtool, bundle, strict mode, profile)'
 ---
 
 # React Tooling
@@ -11,12 +11,13 @@ Tools for analysis and debugging.
 
 ## Implementation Guidelines
 
-- **DevTools**: Use "Highlight Updates" to spot re-renders.
-- **Debugger**: `useDebugValue` for custom hooks.
-- **Performance**: `why-did-you-render` to catch wasted renders.
-- **Bundle**: `source-map-explorer` or `bundle-visualizer`.
-- **Linting**: `eslint-plugin-react-hooks` (Errors) + `react-refresh`.
-- **Strict Mode**: Enable for double-invoke checks (effects/reducers).
+- **Analysis**: Use **`source-map-explorer`** or **`webpack-bundle-analyzer` / `rollup-plugin-visualizer` (Vite)** to inspect bundle size. Use **`react-refresh`** for hot reloading.
+- **Linting**: Mandate **`eslint-plugin-react-hooks`** (exhaustive-deps) and **Prettier** for code consistency.
+- **StrictMode**: Enable **`React.StrictMode`** to detect **double-invoke lifecycle errors** in development.
+- **Profiling**: Use the **React DevTools Profiler** (Flamegraph) to identify expensive components. Enable **"Highlight Updates"** to spot re-renders.
+- **Environment**: Use **Vite** as a modern build tool (over CRA). Manage **environment variables** with `.env`.
+- **Debugging**: Use **`useDebugValue`** in custom hooks for better DevTools visibility. Use **`logger`** middleware in Redux or **`useWhyDidYouUpdate`** for props.
+- **Build**: Configure **R8 / ProGuard (Android)** or **Uglify/Terser** for production build minification.
 
 ## Code
 
@@ -32,7 +33,6 @@ if (process.env.NODE_ENV === 'development') {
   });
 }
 ```
-
 
 ## Anti-Patterns
 

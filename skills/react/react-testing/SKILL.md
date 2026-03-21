@@ -1,6 +1,6 @@
 ---
 name: react-testing
-description: "Testing strategies with RTL and Jest/Vitest. Use when writing React component tests with React Testing Library, Jest, or Vitest. (triggers: **/*.test.tsx, **/*.spec.tsx, render, screen, userEvent, expect)"
+description: 'Testing strategies with RTL and Jest/Vitest. Use when writing React component tests with React Testing Library, Jest, or Vitest. (triggers: **/*.test.tsx, **/*.spec.tsx, render, screen, userEvent, expect)'
 ---
 
 # React Testing
@@ -11,13 +11,14 @@ Reliable tests focusing on user behavior.
 
 ## Implementation Guidelines
 
-- **Tooling**: React Testing Library + Vitest.
-- **Philosophy**: Test behavior, not implementation (State/Internal vars).
-- **Queries**: `getByRole` > `getByText` > `getByTestId`.
-- **Events**: Use `userEvent` (async) over `fireEvent`.
-- **Async**: `await screen.findBy*` for async updates.
-- **Mocks**: MSW for network. Mock heavy 3rd-party libs.
-- **Accessibility**: Testing Lib implicitly tests a11y roles.
+- **Standards**: Use **React Testing Library (RTL)** with **Vitest or Jest**. Follow the **Arrange-Act-Assert (AAA)** pattern.
+- **Selection**: Prefer **`getByRole`** / **`findByRole`** to test accessibility. Use **`data-testid`** only as a fallback for complex UI.
+- **Interactions**: Use **`userEvent` (async)** instead of `fireEvent` to better simulate browser events (e.g., `await user.click(element)`).
+- **Asynchrony**: Use **`await screen.findBy*`** for elements that appear later. Use **`waitFor(() => ...)`** for complex non-element updates.
+- **Networking**: Mock all API calls with **Mock Service Worker (MSW)**. **Never call real APIs** in unit/integration tests.
+- **Architecture**: **Test behavior**, not implementation. Avoid checking internal `state` or `props`. Ensure **100% of P0 flows** are covered.
+- **Mocks**: **Mock expensive third-party libraries** (e.g., `framer-motion`, `react-router`) or heavy assets to speed up tests.
+- **Visuals**: Use **Snapshot testing** sparingly for stable, small UI components. **Manual a11y checks** with `jest-axe`.
 
 ## Anti-Patterns
 

@@ -1,0 +1,68 @@
+{
+  "skill_name": "common-architecture-diagramming",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement common architecture diagramming best practices?",
+      "expected_output": "**Use C4 Model**: Context->Container->Component->Code.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "graph LR"
+        },
+        {
+          "type": "contains",
+          "value": "graph TD"
+        },
+        {
+          "type": "contains",
+          "value": "Priority: P1 (Standard)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in common architecture diagramming?",
+      "expected_output": "**Audience-Centric**: Tailor abstraction (Execs vs. Devs).",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Use C4 Model"
+        },
+        {
+          "type": "contains",
+          "value": "Audience-Centric"
+        },
+        {
+          "type": "contains",
+          "value": "Select Type"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for common architecture diagramming.",
+      "expected_output": "**Select Type**: Sequence (Protocol), ERD (Data), State (Lifecycle), Cloud (Infra). _See [Selection](references/diagram-selection.md)_",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Explicit Labels"
+        },
+        {
+          "type": "contains",
+          "value": "Consistent Notation"
+        },
+        {
+          "type": "contains",
+          "value": "Metadata"
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Set up a basic common project from scratch",
+    "How do I install common dependencies?",
+    "What is common?",
+    "Configure CI/CD for an unrelated platform"
+  ]
+}

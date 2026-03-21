@@ -1,0 +1,68 @@
+{
+  "skill_name": "common-tdd",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement common tdd best practices?",
+      "expected_output": "**Arrange**: Set up inputs, stubs, mocks, and expected values.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "jest.config.ts"
+        },
+        {
+          "type": "contains",
+          "value": "vitest.config.ts"
+        },
+        {
+          "type": "contains",
+          "value": "jest"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in common tdd?",
+      "expected_output": "**Act**: Call the single unit under test.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "vitest"
+        },
+        {
+          "type": "contains",
+          "value": "vitest --watch"
+        },
+        {
+          "type": "contains",
+          "value": "vitest run --coverage"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for common tdd.",
+      "expected_output": "**Assert**: Verify output and side effects. One logical assertion per test.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "go test"
+        },
+        {
+          "type": "contains",
+          "value": "go test -v ./... -count=1"
+        },
+        {
+          "type": "contains",
+          "value": "go test -cover ./..."
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Set up a basic common project from scratch",
+    "How do I install common dependencies?",
+    "What is common?",
+    "Configure CI/CD for an unrelated platform"
+  ]
+}

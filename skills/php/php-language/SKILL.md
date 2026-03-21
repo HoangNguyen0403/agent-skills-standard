@@ -1,6 +1,6 @@
 ---
 name: php-language
-description: "Core PHP language standards and modern 8.x features. Use when working with PHP 8.x features like enums, fibers, readonly properties, or named arguments. (triggers: **/*.php, declare, readonly, match, constructor, promotion, types)"
+description: 'Core PHP language standards and modern 8.x features. Use when working with PHP 8.x features like enums, fibers, readonly properties, or named arguments. (triggers: **/*.php, declare, readonly, match, constructor, promotion, types)'
 ---
 
 # PHP Language Standards
@@ -17,13 +17,20 @@ src/
 
 ## Implementation Guidelines
 
-- **Strict Typing**: Declare `declare(strict_types=1);` at file top.
-- **Type Hinting**: Apply scalar hints and return types to all members.
-- **Modern Types**: Use Union (`string|int`) and Intersection types.
-- **Read-only**: Use `readonly` for immutable properties.
-- **Constructor Promotion**: Combine declaration and assignment in `__construct`.
-- **Match Expressions**: Prefer `match` over `switch` for value returns.
-- **Named Arguments**: Use for readability in optional parameters.
+### Core Language Standards
+
+- **Strict Typing**: Declare **`declare(strict_types=1);`** at the very top of every file.
+- **Type Hinting**: Apply scalar type hints (e.g., `string`, `int`) and return types to all functions.
+- **Strict Comparison**: **Avoid loose `==` comparison**; always use `===` for strict equality.
+
+### Modern PHP 8+ Patterns
+
+- **Match Expressions**: Prefer **`match($status)`** over `switch` for value returns. It provides strict comparison and is exhaustive by default.
+- **Default Case**: Use **`default => throw new InvalidArgumentException($status)`** to handle unknown states.
+- **Read-only**: Use **`public readonly string $name`** for properties set once at construction.
+- **Property Promotion**: Use **`public function __construct(public string $name) {}`** to reduce boilerplate.
+- **Named Arguments**: Call functions with **`name: 'John', age: 25`** to skip optional parameters.
+- **Flexible Types**: Use **Union types (`int|string`)** and **Intersection types (`Countable&Traversable`)**.
 
 ## Anti-Patterns
 

@@ -4,32 +4,104 @@
     {
       "id": 1,
       "prompt": "Optimize images in Next.js with next/image",
-      "expected_output": "<Image src={url} alt='Hero' width={1200} height={600} priority sizes='(max-width:768px) 100vw, 50vw'/>; add priority for LCP image; add remote domain to next.config.js remotePatterns; never use <img>"
+      "expected_output": "<Image src={url} alt='Hero' width={1200} height={600} priority sizes='(max-width:768px) 100vw, 50vw'/>; add priority for LCP image; add remote domain to next.config.js remotePatterns; never use <img>",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Image"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Set up Google Fonts with next/font",
-      "expected_output": "import { Inter } from 'next/font/google'; const inter = Inter({ subsets: ['latin'], display: 'swap' }); apply className={inter.className} on <body> in root layout; zero layout shift, no CDN request"
+      "expected_output": "import { Inter } from 'next/font/google'; const inter = Inter({ subsets: ['latin'], display: 'swap' }); apply className={inter.className} on <body> in root layout; zero layout shift, no CDN request",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Inter"
+        },
+        {
+          "type": "contains",
+          "value": "zero layout"
+        },
+        {
+          "type": "contains",
+          "value": "layout shift"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Add dynamic metadata with generateMetadata in Next.js",
-      "expected_output": "export async function generateMetadata({ params }: Props): Promise<Metadata> { const { id } = await params; const p = await getProduct(id); return { title: p.name, openGraph: { images: [p.image] } }; }"
+      "expected_output": "export async function generateMetadata({ params }: Props): Promise<Metadata> { const { id } = await params; const p = await getProduct(id); return { title: p.name, openGraph: { images: [p.image] } }; }",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Metadata"
+        },
+        {
+          "type": "contains",
+          "value": "export async"
+        },
+        {
+          "type": "contains",
+          "value": "async function"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Fix Cumulative Layout Shift in Next.js",
-      "expected_output": "Use next/image with explicit width/height or fill+parent relative positioning; use next/font instead of Google Fonts <link>; reserve space for dynamic content with min-height/aspect-ratio CSS"
+      "expected_output": "Use next/image with explicit width/height or fill+parent relative positioning; use next/font instead of Google Fonts <link>; reserve space for dynamic content with min-height/aspect-ratio CSS",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Google"
+        },
+        {
+          "type": "contains",
+          "value": "Fonts"
+        },
+        {
+          "type": "contains",
+          "value": "Google Fonts"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Load third-party scripts in Next.js without blocking",
-      "expected_output": "<Script src='https://analytics.example.com/script.js' strategy='afterInteractive'/>; use lazyOnload for low-priority (chat widgets); never place third-party scripts in <head> directly"
+      "expected_output": "<Script src='https://analytics.example.com/script.js' strategy='afterInteractive'/>; use lazyOnload for low-priority (chat widgets); never place third-party scripts in <head> directly",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Script"
+        },
+        {
+          "type": "contains",
+          "value": "chat widgets"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Improve LCP score in a Next.js application",
-      "expected_output": "Add priority prop to LCP <Image>; preload via next/font; use static generation (SSG) where possible; avoid render-blocking scripts; target < 2.5s LCP; measure with Chrome DevTools Performance tab"
+      "expected_output": "Add priority prop to LCP <Image>; preload via next/font; use static generation (SSG) where possible; avoid render-blocking scripts; target < 2.5s LCP; measure with Chrome DevTools Performance tab",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Image"
+        },
+        {
+          "type": "contains",
+          "value": "Chrome"
+        },
+        {
+          "type": "contains",
+          "value": "DevTools"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

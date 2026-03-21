@@ -4,17 +4,51 @@
     {
       "id": 1,
       "prompt": "Add a middleware in GetX that redirects unauthenticated users to the login screen when they try to access any route in AppPages.",
-      "expected_output": "GetMiddleware subclass with redirect() override, registered in GetPage middlewares list, checks auth state from GetIt/GetX service, returns RouteSettings('/login') when unauthenticated"
+      "expected_output": "GetMiddleware subclass with redirect() override, registered in GetPage middlewares list, checks auth state from GetIt/GetX service, returns RouteSettings('/login') when unauthenticated",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "GetMiddleware"
+        },
+        {
+          "type": "contains",
+          "value": "GetPage"
+        },
+        {
+          "type": "contains",
+          "value": "GetX"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "I need to navigate from the cart screen to the checkout screen and clear the back stack so the user can't go back. How do I do this in GetX?",
-      "expected_output": "Get.offAllNamed(Routes.CHECKOUT) or Get.offAll(() => CheckoutView()), using Routes constants — not raw strings"
+      "expected_output": "Get.offAllNamed(Routes.CHECKOUT) or Get.offAll(() => CheckoutView()), using Routes constants — not raw strings",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Routes"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Set up AppPages with bindings so the HomeController is created and disposed automatically when the home route is entered and exited.",
-      "expected_output": "GetPage with binding: HomeBinding(), HomeBinding extends Bindings with Get.lazyPut(() => HomeController()), no Get.put() in view"
+      "expected_output": "GetPage with binding: HomeBinding(), HomeBinding extends Bindings with Get.lazyPut(() => HomeController()), no Get.put() in view",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "GetPage"
+        },
+        {
+          "type": "contains",
+          "value": "HomeBinding"
+        },
+        {
+          "type": "contains",
+          "value": "Bindings"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

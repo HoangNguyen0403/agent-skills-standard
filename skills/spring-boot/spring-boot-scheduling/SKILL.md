@@ -1,6 +1,6 @@
 ---
 name: spring-boot-scheduling
-description: "Standards for scheduled tasks and distributed locking with ShedLock. Use when implementing @Scheduled tasks or distributed locking with ShedLock in Spring Boot. (triggers: **/*Scheduler.java, **/*Job.java, scheduled, shedlock, cron)"
+description: 'Standards for scheduled tasks and distributed locking with ShedLock. Use when implementing @Scheduled tasks or distributed locking with ShedLock in Spring Boot. (triggers: **/*Scheduler.java, **/*Job.java, scheduled, shedlock, cron)'
 ---
 
 # Spring Boot Scheduling Standards
@@ -11,8 +11,8 @@ description: "Standards for scheduled tasks and distributed locking with ShedLoc
 
 ### Scheduled Tasks
 
-- **ThreadPool**: ALWAYS configure a dedicated `TaskScheduler` (default is 1 thread).
-- **Async**: Keep `@Scheduled` methods light; offload to `@Async`/Queues.
+- **ThreadPool**: ALWAYS configure a dedicated `TaskScheduler` (default is 1 thread). Enable with `@EnableScheduling` annotation.
+- **Async**: Keep `@Scheduled` methods light; offload to `@Async`/Queues. Wrap logic in try/catch; log errors and use `@Retryable` for retry on transient failures.
 
 ### Distributed Locking (ShedLock)
 

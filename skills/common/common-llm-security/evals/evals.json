@@ -1,0 +1,48 @@
+{
+  "evals": [
+    {
+      "name": "prompt_injection_concat",
+      "prompt": "Review this LLM integration for security issues:\n\n```typescript\nasync function askAgent(userMessage: string): Promise<string> {\n  const response = await openai.chat.completions.create({\n    model: 'gpt-4o',\n    messages: [\n      {\n        role: 'system',\n        content: `You are a helpful assistant. The user said: ${userMessage}. Answer helpfully.`,\n      },\n    ],\n  });\n  return response.choices[0].message.content!;\n}\n```",
+      "assertions": [
+        { "type": "contains", "value": "LLM01" },
+        { "type": "contains", "value": "prompt injection" },
+        { "type": "contains", "value": "user" }
+      ]
+    },
+    {
+      "name": "excessive_agency_no_confirmation",
+      "prompt": "Is there a security concern with this agent tool definition?\n\n```typescript\nconst deleteFileTool = {\n  name: 'delete_file',\n  description: 'Deletes a file from the filesystem',\n  parameters: { path: { type: 'string' } },\n  execute: async ({ path }) => {\n    await fs.unlink(path);\n    return { success: true };\n  },\n};\n```",
+      "assertions": [
+        { "type": "contains", "value": "LLM06" },
+        { "type": "contains", "value": "confirmation" },
+        { "type": "contains", "value": "human" }
+      ]
+    },
+    {
+      "name": "unbounded_tokens",
+      "prompt": "Review this LLM API call:\n\n```typescript\nconst result = await anthropic.messages.create({\n  model: 'claude-sonnet-4-6',\n  messages: [{ role: 'user', content: userPrompt }],\n});\n```",
+      "assertions": [
+        { "type": "contains", "value": "max_tokens" },
+        { "type": "contains", "value": "LLM10" }
+      ]
+    },
+    {
+      "name": "pii_in_prompt",
+      "prompt": "Does this code have any LLM security issues?\n\n```typescript\nasync function summarizeUserProfile(userId: string): Promise<string> {\n  const user = await userRepo.findOne(userId);\n  const prompt = `Summarize this user: Name: ${user.name}, Email: ${user.email}, SSN: ${user.ssn}, Address: ${user.address}`;\n  return llmClient.complete(prompt);\n}\n```",
+      "assertions": [
+        { "type": "contains", "value": "LLM02" },
+        { "type": "contains", "value": "PII" },
+        { "type": "contains", "value": "sensitive" }
+      ]
+    },
+    {
+      "name": "should_not_trigger_safe_llm_code",
+      "prompt": "Review this LLM integration:\n\n```typescript\nasync function askAgent(userMessage: string): Promise<string> {\n  const response = await openai.chat.completions.create({\n    model: 'gpt-4o',\n    max_tokens: 1000,\n    messages: [\n      { role: 'system', content: 'You are a helpful assistant.' },\n      { role: 'user', content: userMessage },\n    ],\n  });\n  return response.choices[0].message.content ?? '';\n}\n```",
+      "should_not_trigger": true,
+      "assertions": [
+        { "type": "not_contains", "value": "LLM01" },
+        { "type": "not_contains", "value": "LLM10" }
+      ]
+    }
+  ]
+}

@@ -12,22 +12,14 @@ description: 'Mutations, Form handling, and RPC-style calls. Use when implementi
 
 Handle form submissions and mutations without creating API endpoints.
 
-## Implementation
+## Implementation Guidelines
 
-- **Directive**: Add `'use server'` at the top of an async function.
-- **Usage**: Pass to `action` prop of `<form>` or invoke from event handlers.
-
-```tsx
-// actions.ts
-'use server';
-export async function createPost(formData: FormData) {
-  const title = formData.get('title');
-  await db.post.create({ title });
-  revalidatePath('/posts'); // Refresh UI
-}
-```
-
-## Client Invocation
+- **Directive**: Always start the file or function with `'use server'`. Access `formData.get('title')` for typed form fields. Export async functions for mutations.
+- **Form Handling**: Use the `action` prop of `<form>` to trigger actions via `action={createPost}`. Use `useFormStatus()` for `pending` states — `disabled={pending}` on buttons. Use `useActionState` (React 19/Next.js 15) for `action={action}` form state with `<form action={action}>`.
+- **Data Refresh**: Trigger UI updates using **`revalidatePath('/')`** or **`revalidateTag('tag-name')`** after a successful mutation.
+- **Interactivity**: For non-form triggers, invoke actions using the **`useTransition`** hook to handle loading UI and prevent the page from blocking.
+- **Optimistic Updates**: Use **`useOptimistic`** to show the expected UI state immediately before the server confirms the mutation.
+- **Security**: **Sanitize all inputs** from `FormData`. Perform **auth checks** inside every action (`await auth()`). Limit file uploads by size and MIME type.
 
 - **Form**: `<form action={createPost}>` (Progressive enhancements work without JS).
 - **Event Handler**: `onClick={() => createPost(data)}`.
@@ -37,7 +29,7 @@ export async function createPost(formData: FormData) {
 
 ### **1. Secure & Validate**
 
-Always validate inputs and check authorization within the action. See [Secure Action Example](references/secure-actions.md).
+Always validate inputs with `z.object({` schema and `safeParse` before processing. Check authorization within the action. See [Secure Action Example](references/secure-actions.md).
 
 ### **2. Pending States**
 

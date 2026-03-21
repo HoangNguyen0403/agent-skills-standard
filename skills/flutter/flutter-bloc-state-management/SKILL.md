@@ -1,6 +1,6 @@
 ---
 name: flutter-bloc-state-management
-description: "BLoC/Cubit state management standards. ALWAYS consult when writing, modifying, reviewing, or testing any BLoC, Cubit, state, or event Dart file — even for small changes. (triggers: **_bloc.dart, **_cubit.dart, **_state.dart, **_event.dart, BlocProvider, BlocBuilder, BlocListener, Cubit, Emitter)"
+description: 'BLoC/Cubit state management standards. ALWAYS consult when writing, modifying, reviewing, or testing any BLoC, Cubit, state, or event Dart file — even for small changes. (triggers: **_bloc.dart, **_cubit.dart, **_state.dart, **_event.dart, BlocProvider, BlocBuilder, BlocListener, Cubit, Emitter)'
 ---
 
 # BLoC State Management
@@ -18,10 +18,12 @@ description: "BLoC/Cubit state management standards. ALWAYS consult when writing
 
 ## Implementation Guidelines
 
-- **States & Events**: Use `@freezed` for union types.
-- **Error Handling**: Emit `Failure` states; never throw exceptions in `on<Event>`.
-- **Async Data**: Use `emit.forEach` for streams.
-- **Concurrency**: Use `transformer: restartable()` for search/typeahead.
+- **States & Events**: Use **@freezed** for union types (e.g., `Initial`, `Loading`, `Success`, `Failure` states).
+- **Error Handling**: Emit `Failure` states with a specific error message; never throw exceptions in `on<Event>`.
+- **Async Data**: Use **emit.forEach** for streams or **await** with `emit` call.
+- **Concurrency**: Use **transformer: restartable()** from `bloc_concurrency` for search/typeahead to debounce and cancel previous requests.
+- **UI Connectivity**: Use **BlocBuilder** for UI rebuilds (e.g., loading spinner, data list, error message) and **BlocListener** for side effects (navigation, snackbars).
+- **Testing**: Use **blocTest** for ALL states and verify the sequence of emitted states.
 
 ## Verification Checklist (Mandatory)
 

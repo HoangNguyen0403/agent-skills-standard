@@ -1,6 +1,6 @@
 ---
 name: react-component-patterns
-description: "Modern React component architecture and composition patterns. Use when designing reusable React components, applying composition patterns, or structuring component hierarchies. (triggers: **/*.jsx, **/*.tsx, component, props, children, composition, hoc, render-props)"
+description: 'Modern React component architecture and composition patterns. Use when designing reusable React components, applying composition patterns, or structuring component hierarchies. (triggers: **/*.jsx, **/*.tsx, component, props, children, composition, hoc, render-props)'
 ---
 
 # React Component Patterns
@@ -11,17 +11,14 @@ Standards for building scalable, maintainable React components.
 
 ## Implementation Guidelines
 
-- **Function Components**: Only hooks. No classes.
-- **Composition**: Use `children` prop. Avoid inheritance.
-- **Props**: Explicit TS interfaces. Destructure in params.
+- **Architecture**: Use **Compound Components** (e.g., `<Select><Select.Option /></Select>`) for complex state sharing within a UI unit. Use **Higher-Order Components (HOC)** for cross-cutting concerns (e.g., `withAuth`).
+- **Composition**: Prefer **Slots** or **Render Props** (`render={(data) => ...}`) over deep prop hierarchies. Use `children` prop for layout-based composition.
+- **Components**: Distinguish between **Controlled** (state from props) and **Uncontrolled** (local `useRef` state) components. Favor controlled for form validation.
+- **Props**: Use **Explicit TS interfaces**. Avoid **Prop Drilling** by leveraging **Context API** or **Zustand** for global/deeply nested state.
 - **Boolean Props**: Shorthand `<Cmp isVisible />` vs `isVisible={true}`.
-- **Imports**: Group: `Built-in` -> `External` -> `Internal` -> `Styles`.
-- **Error Boundaries**: Wrap app/features with `react-error-boundary`.
-- **Size**: Small (< 250 lines). One component per file.
-- **Naming**: `PascalCase` components. `use*` hooks.
-- **Exports**: Named exports only.
-- **Conditionals**: Ternary (`Cond ? <A/> : <B/>`) over `&&` for rendering consistency.
-- **Hoisting**: Extract static JSX/Objects outside component to prevent recreation.
+- **Conditionals**: Ternary (`Cond ? <A/> : <B/>`) over `&&` for rendering consistency (prevents `0` rendering).
+- **Function Components**: Only hooks. No classes. Small size (<250 lines). One component per file.
+- **Exports**: Named exports only. **PascalCase** naming.
 
 ## Anti-Patterns
 

@@ -1,0 +1,48 @@
+{
+  "evals": [
+    {
+      "name": "idor_detection",
+      "prompt": "Review this NestJS endpoint for security issues:\n\n```typescript\n@Get(':id')\nasync getOrder(@Param('id') id: string) {\n  return this.ordersService.findOne(id);\n}\n\nasync findOne(id: string) {\n  return this.orderRepository.findOne({ where: { id } });\n}\n```",
+      "assertions": [
+        { "type": "contains", "value": "BOLA" },
+        { "type": "contains", "value": "owner" },
+        { "type": "contains", "value": "currentUser" }
+      ]
+    },
+    {
+      "name": "full_entity_return",
+      "prompt": "Is there a security issue with returning a full user entity from an API endpoint?\n\n```typescript\n@Get('profile')\nasync getProfile(@CurrentUser() user: User): Promise<User> {\n  return this.userRepository.findOne({ where: { id: user.id } });\n}\n```",
+      "assertions": [
+        { "type": "contains", "value": "DTO" },
+        { "type": "contains", "value": "password" },
+        { "type": "contains", "value": "API3" }
+      ]
+    },
+    {
+      "name": "jwt_no_expiry",
+      "prompt": "What is wrong with this JWT generation code?\n\n```typescript\nconst token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET);\nreturn { token };\n```",
+      "assertions": [
+        { "type": "contains", "value": "expiresIn" },
+        { "type": "contains", "value": "expiry" },
+        { "type": "contains", "value": "API2" }
+      ]
+    },
+    {
+      "name": "no_rate_limit_list",
+      "prompt": "Review this endpoint for API security risks:\n\n```typescript\n@Get()\nasync findAll(@Query('search') search: string) {\n  return this.repo.find({ where: { name: Like(`%${search}%`) } });\n}\n```",
+      "assertions": [
+        { "type": "contains", "value": "limit" },
+        { "type": "contains", "value": "API4" }
+      ]
+    },
+    {
+      "name": "should_not_trigger_safe_code",
+      "prompt": "Review this secure order endpoint:\n\n```typescript\n@Get(':id')\n@UseGuards(JwtAuthGuard)\nasync getOrder(\n  @Param('id') id: string,\n  @CurrentUser() user: User,\n): Promise<OrderResponseDto> {\n  return this.ordersService.findOneForUser(id, user.id);\n}\n\nasync findOneForUser(id: string, userId: string): Promise<OrderResponseDto> {\n  const order = await this.orderRepository.findOne({\n    where: { id, userId },\n  });\n  if (!order) throw new NotFoundException();\n  return plainToInstance(OrderResponseDto, order);\n}\n```",
+      "should_not_trigger": true,
+      "assertions": [
+        { "type": "not_contains", "value": "BOLA" },
+        { "type": "not_contains", "value": "missing owner" }
+      ]
+    }
+  ]
+}

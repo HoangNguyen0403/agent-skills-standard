@@ -1,6 +1,6 @@
 ---
 name: nextjs-tooling
-description: "Ecosystem optimization, deployment, and developer flow. Use when configuring Next.js build optimization, deployment settings, or developer tooling. (triggers: next.config.js, package.json, Dockerfile, turbopack, output, standalone, lint, telemetry)"
+description: 'Ecosystem optimization, deployment, and developer flow. Use when configuring Next.js build optimization, deployment settings, or developer tooling. (triggers: next.config.js, package.json, Dockerfile, turbopack, output, standalone, lint, telemetry)'
 ---
 
 # Next.js Tooling
@@ -18,12 +18,13 @@ project/
 
 ## Implementation Guidelines
 
-- **Turbopack**: Enable `--turbo` for development speed improvements.
-- **Standalone Build**: Use `output: 'standalone'` for Docker optimization.
-- **CI Linting**: Run `next lint` and `tsc` on every pull request.
-- **Telemetry**: Opt-out of global tracking for privacy (`next telemetry disable`).
-- **Caching**: Configure CI to cache `.next/cache` for faster builds.
-- **Deployment**: Prefer Vercel for automation or Docker for self-hosting.
+- **Build Architecture**: Use **`Turbopack`** (modern) or **`Webpack`** (legacy). Enable **`--turbo`** for faster incremental development.
+- **Minification**: Ensure **`output: 'standalone'`** is set in `next.config.js` for optimized **Docker** deployments. Use **`ProGuard` / `Uglify`** equivalents for asset shrinking.
+- **Linting**: Mandate **`next lint`** (Next.js ESLint plugin) and **`tsc` (typecheck)** in CI/CD pipelines.
+- **Asset Optimization**: Inspect size with **`@next/bundle-analyzer`**. Optimize images via **`next/image`** and remove unused dependencies.
+- **Telemetry**: Opt-out via **`next telemetry disable`** if privacy is required.
+- **Environment**: Use **`.env`** management in Next.js (Server only vs `NEXT_PUBLIC_*`). Validate schemas with **Zod** at runtime.
+- **CI/CD**: Cache the **`.next/cache`** folder in CI for 50%+ faster build times.
 
 ## Anti-Patterns
 

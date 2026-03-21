@@ -1,6 +1,6 @@
 ---
 name: laravel-architecture
-description: "Core architectural standards for scalable Laravel applications. Use when structuring service layers, repositories, or scalable architecture in Laravel. (triggers: app/Http/Controllers/**/*.php, routes/*.php, controller, service, action, request, container)"
+description: 'Core architectural standards for scalable Laravel applications. Use when structuring service layers, repositories, or scalable architecture in Laravel. (triggers: app/Http/Controllers/**/*.php, routes/*.php, controller, service, action, request, container)'
 ---
 
 # Laravel Architecture
@@ -20,12 +20,24 @@ app/
 
 ## Implementation Guidelines
 
-- **Skinny Controllers**: Keep controllers focused on routing and response.
-- **Service/Actions**: Extract complex logic into Service or Action classes.
-- **Form Requests**: Use `php artisan make:request` for all validation tags.
-- **DI usage**: Inject dependencies via constructors or method injection.
-- **No Logic in Routes**: Always delegate route closures to controllers.
-- **Contract First**: Use Interfaces for decoupling third-party integrations.
+### Controller Responsibilities
+
+- **Skinny Controllers**: **Controller delegates to Action or Service classes**; keep controllers focused on mapping requests/responses.
+- **Dependency Injection**: Use **constructor DI** to inject services or actions. Laravel resolves these via the **Service Container**.
+- **No Logic in Routes**: Always delegate route closures to controllers; don't use raw Closures for logic.
+
+### Business Logic Placement
+
+- **Actions**: Create app/Actions/CreatePost.php (or similar) — one action per use case — with a single `handle()` method. This keeps controllers slim and Create Action class logic focused.
+- **Service Classes**: Create app/Services/PaymentService.php for multi-step logic across domains. type-hint interface in controller constructor for clean DI.
+- **Binding**: Bind interfaces in **`AppServiceProvider`** using **`$this->app->bind(Interface::class, Implementation::class)`**.
+- **Service Isolation**: **No Eloquent queries directly in controllers**; handle database access within services or actions.
+
+### Validation & Requests
+
+- **Form Requests**: Use `php artisan make:request StoreUserRequest` for Form Requests for validation.
+- **Usage**: call $request->validated() in the controller or action for mass assignment.
+- **Validation Methods**: Implement **`authorize()`** and **`rules()`**; never use `$request->validate()` inline.
 
 ## Anti-Patterns
 

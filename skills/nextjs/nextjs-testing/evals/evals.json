@@ -14,22 +14,54 @@
     {
       "id": 3,
       "prompt": "Mock API calls with MSW in Next.js tests",
-      "expected_output": "const server = setupServer(http.get('/api/posts', () => HttpResponse.json([{id:1,title:'Test'}]))); beforeAll(() => server.listen()); afterEach(() => server.resetHandlers()); afterAll(() => server.close())"
+      "expected_output": "const server = setupServer(http.get('/api/posts', () => HttpResponse.json([{id:1,title:'Test'}]))); beforeAll(() => server.listen()); afterEach(() => server.resetHandlers()); afterAll(() => server.close())",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Test"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Test a Server Component in Next.js",
-      "expected_output": "Use Playwright E2E to test full RSC output end-to-end; for unit testing data layer, test the async function directly (getUser() etc.); RTL cannot render async Server Components — use E2E for RSC behavior"
+      "expected_output": "Use Playwright E2E to test full RSC output end-to-end; for unit testing data layer, test the async function directly (getUser() etc.); RTL cannot render async Server Components — use E2E for RSC behavior",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Playwright"
+        },
+        {
+          "type": "contains",
+          "value": "Server"
+        },
+        {
+          "type": "contains",
+          "value": "Components"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Configure test database isolation for Next.js",
-      "expected_output": "Use separate .env.test with TEST_DATABASE_URL; run migrations in globalSetup; wrap each test in transaction + rollback; or use Testcontainers for fully isolated DB per test suite"
+      "expected_output": "Use separate .env.test with TEST_DATABASE_URL; run migrations in globalSetup; wrap each test in transaction + rollback; or use Testcontainers for fully isolated DB per test suite",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "each test"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Use React Testing Library with Next.js",
-      "expected_output": "vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => '/' })); render(<Component/>); screen.getByRole('button'); await userEvent.click(button); test behavior not implementation"
+      "expected_output": "vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => '/' })); render(<Component/>); screen.getByRole('button'); await userEvent.click(button); test behavior not implementation",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Component"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

@@ -4,7 +4,21 @@
     {
       "id": 1,
       "prompt": "Add multi-language support for English and Vietnamese. Our translators use Google Sheets.",
-      "expected_output": "Use easy_localization with sheet_loader_localization, CSV format in assets/langs/, EasyLocalization wrap in main, tr() extension usage"
+      "expected_output": "Use easy_localization with sheet_loader_localization, CSV format in assets/langs/, EasyLocalization wrap in main, tr() extension usage",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "EasyLocalization"
+        },
+        {
+          "type": "contains",
+          "value": "easy_localization with"
+        },
+        {
+          "type": "contains",
+          "value": "CSV format"
+        }
+      ]
     },
     {
       "id": 2,

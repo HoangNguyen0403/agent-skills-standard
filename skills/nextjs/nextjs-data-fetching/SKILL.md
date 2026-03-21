@@ -1,6 +1,6 @@
 ---
 name: nextjs-data-fetching
-description: "Fetch API, Caching, and Revalidation strategies. Use when fetching data, configuring cache behavior, or implementing revalidation in Next.js. (triggers: **/*.tsx, **/service.ts, fetch, revalidate, no-store, force-cache)"
+description: 'Fetch API, Caching, and Revalidation strategies. Use when fetching data, configuring cache behavior, or implementing revalidation in Next.js. (triggers: **/*.tsx, **/service.ts, fetch, revalidate, no-store, force-cache)'
 ---
 
 # Data Fetching (App Router)
@@ -20,7 +20,7 @@ Fetch data directly in Server Components using `async/await`.
 
 ## Patterns
 
-- **Direct Access**: Call DB/Service layer directly. **Do not fetch your own /api routes.**
+- **Direct Access**: Call DB/Service layer directly. **Do not fetch your own /api routes.** Example: `export default async function Page() { const user = await db.user.findUnique({ where: { id }, select: { id: true, name: true } }); }`
 - **Colocation**: Fetch exactly where data is needed.
 - **Parallel**: Use `Promise.all()` to prevent waterfalls.
 - **Client-Side**: Use SWR/React Query for live/per-user data (no SEO).

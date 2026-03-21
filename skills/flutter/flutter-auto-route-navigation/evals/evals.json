@@ -4,12 +4,36 @@
     {
       "id": 1,
       "prompt": "I need to add an auth guard so unauthenticated users trying to access the cart get redirected to the login screen.",
-      "expected_output": "AutoRouteGuard implementation checking auth state, applied to CartRoute in @AutoRouterConfig, redirect to LoginRoute"
+      "expected_output": "AutoRouteGuard implementation checking auth state, applied to CartRoute in @AutoRouterConfig, redirect to LoginRoute",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "AutoRouteGuard"
+        },
+        {
+          "type": "contains",
+          "value": "AutoRouterConfig"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "How do I navigate to OrderDetailPage and pass an orderId parameter using auto_route?",
-      "expected_output": "Use generated typed route: context.pushRoute(OrderDetailRoute(orderId: id)), not string-based navigation"
+      "expected_output": "Use generated typed route: context.pushRoute(OrderDetailRoute(orderId: id)), not string-based navigation",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "OrderDetailRoute"
+        },
+        {
+          "type": "contains",
+          "value": "Use generated"
+        },
+        {
+          "type": "contains",
+          "value": "generated typed"
+        }
+      ]
     },
     {
       "id": 3,

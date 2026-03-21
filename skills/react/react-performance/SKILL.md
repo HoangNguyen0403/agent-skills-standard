@@ -1,6 +1,6 @@
 ---
 name: react-performance
-description: "Optimization strategies for React applications (Client & Server). Use when optimizing React rendering performance, reducing re-renders, or improving bundle size. (triggers: **/*.tsx, **/*.jsx, waterfall, bundle, lazy, suspense, dynamic)"
+description: 'Optimization strategies for React applications (Client & Server). Use when optimizing React rendering performance, reducing re-renders, or improving bundle size. (triggers: **/*.tsx, **/*.jsx, waterfall, bundle, lazy, suspense, dynamic)'
 ---
 
 # React Performance
@@ -11,22 +11,22 @@ Strategies to minimize waterfalls, bundle size, and render cost.
 
 ## Elimination of Waterfalls (P0)
 
-- **Parallel Data**: Use `Promise.all` for independent fetches. Avoid sequential `await`.
-- **Preload**: Start fetches before render (in event handlers or route loaders).
-- **Suspense**: Use Suspense boundaries to stream partial content.
+- **Parallel Data**: Use **`Promise.all([getUser(), getProducts(), ...])`** for independent fetches. Avoid **sequential awaits** (Request Waterfalls).
+- **Preload**: Start fetches before render (in event handlers or **route loaders**).
+- **Suspense**: Use **Suspense boundaries** to stream partial content and show partial content early.
 
 ## Bundle Optimization (P0)
 
-- **No Barrel Files**: Import directly `import { Btn } from './Btn'` vs `import { Btn } from './components'`.
-- **Lazy Load**: `React.lazy` / `next/dynamic` for heavy components (Charts, Modals).
-- **Defer**: Load 3rd-party scripts (Analytics) after hydration.
+- **No Barrel Files**: **Avoid barrel files** (importing from index.ts); import directly from component files to improve tree-shaking.
+- **Lazy Load**: Use **`React.lazy`** or **`next/dynamic`** for heavy components like **Charts**, **Modals**, or large libraries.
+- **Dependency Reduction**: **Replace moment with dayjs** or **lodash with native/radash** to drop bytes. Use **`source-map-explorer`** or **`bundle-visualizer`** to find bloat.
 
 ## Rendering & Re-renders (P1)
 
-- **Isolation**: Move state down. Isolate heavy UI updates.
-- **Context Splitting**: Split Context into `StateContext` (Data) and `DispatchContext` (Actions) to prevent consumers from re-rendering just because they need a setter.
-- **Stability**: Use `useMemo` for passing objects/arrays to children to preserve referential equality checks (`React.memo`).
-- **Virtualization**: `react-window` for lists > 50 items.
+- **Isolation**: Move state as close to its usage as possible. Isolate heavy UI updates.
+- **List Performance**: Use **`react-window`** or **`react-virtual`** for **virtualization** of lists with 500+ items. Wrap list items in **`React.memo`**.
+- **Context Splitting**: **Split Context** into `State` and `Dispatch` objects. This prevents all consumers from re-rendering when only a setter is needed.
+- **Stability**: Use **`useMemo` for derived list data** and passing stable object/array references to children.
 - **Content Visibility**: `content-visibility: auto` for off-screen CSS content.
 - **Static Hoisting**: Extract static objects/JSX outside component scope.
 - **Transitions**: `startTransition` for non-urgent UI updates.

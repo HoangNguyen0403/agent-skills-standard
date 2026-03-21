@@ -1,0 +1,68 @@
+{
+  "skill_name": "common-feedback-reporter",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement common feedback reporter best practices?",
+      "expected_output": "**No \"I'll check later\"**: Check before writing, not after",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "write_to_file"
+        },
+        {
+          "type": "contains",
+          "value": "replace_file_content"
+        },
+        {
+          "type": "contains",
+          "value": "multi_replace_file_content"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in common feedback reporter?",
+      "expected_output": "**No \"minor change skip\"**: Every write needs check",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "color: Colors.blue"
+        },
+        {
+          "type": "contains",
+          "value": "class MyComponent extends..."
+        },
+        {
+          "type": "contains",
+          "value": "notify_user"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for common feedback reporter.",
+      "expected_output": "**No \"user waiting skip\"**: 10-second check > pattern violation",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Check"
+        },
+        {
+          "type": "contains",
+          "value": "Audit"
+        },
+        {
+          "type": "contains",
+          "value": "Flutter"
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Set up a basic common project from scratch",
+    "How do I install common dependencies?",
+    "What is common?",
+    "Configure CI/CD for an unrelated platform"
+  ]
+}

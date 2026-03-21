@@ -1,18 +1,68 @@
 {
-  "skill": "ios-ui-navigation",
-  "should_trigger": [
-    "How do I implement Auto Layout programmatically in iOS?",
-    "How do I use NSLayoutAnchor?",
-    "How do I add haptic feedback in UIKit?",
-    "How do I support Dynamic Type in my UIKit app?",
-    "How do I use UIStackView to simplify layout?",
-    "How do I bridge UIKit views into SwiftUI?",
-    "How do I respect the safe area in my UIView layout?"
+  "skill_name": "ios-ui-navigation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement ios ui navigation best practices?",
+      "expected_output": "**Code-Based Layout**: Prefer programmatic layout using `NSLayoutAnchor` or SnapKit over Storyboards for better source control.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "NSLayoutAnchor"
+        },
+        {
+          "type": "contains",
+          "value": "view.safeAreaLayoutGuide"
+        },
+        {
+          "type": "contains",
+          "value": "viewWillLayoutSubviews"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in ios ui navigation?",
+      "expected_output": "**Safe Area**: Always respect `view.safeAreaLayoutGuide`.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "updateConstraints"
+        },
+        {
+          "type": "contains",
+          "value": "UIView"
+        },
+        {
+          "type": "contains",
+          "value": "UIViewRepresentable"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for ios ui navigation.",
+      "expected_output": "**UIStackView**: Use for linear layouts to reduce constraint complexity.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "UIViewControllerRepresentable"
+        },
+        {
+          "type": "contains",
+          "value": "accessibilityLabel"
+        },
+        {
+          "type": "contains",
+          "value": "Priority: P0"
+        }
+      ]
+    }
   ],
   "should_not_trigger": [
-    "How do I implement MVVM?",
-    "How do I store data in Core Data?",
-    "How do I set up push notifications?",
-    "How do I use Fastlane match?"
+    "Set up a basic ios project from scratch",
+    "How do I install ios dependencies?",
+    "What is ios?",
+    "Configure CI/CD for an unrelated platform"
   ]
 }

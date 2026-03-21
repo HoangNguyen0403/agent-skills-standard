@@ -1,18 +1,68 @@
 {
-  "skill": "ios-app-lifecycle",
-  "should_trigger": [
-    "How do I handle deep links in my iOS app?",
-    "What should go in AppDelegate vs SceneDelegate?",
-    "How do I schedule a background fetch task?",
-    "My app is slow to launch, what can I do in didFinishLaunchingWithOptions?",
-    "How do I use BGTaskScheduler for background work?",
-    "How should I handle UserActivity for Universal Links?",
-    "Where should I register for push notifications in my app?"
+  "skill_name": "ios-app-lifecycle",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement ios app lifecycle best practices?",
+      "expected_output": "**SceneDelegate**: Use for UI windows and scene-specific state in iOS 13+.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Bootstrapper"
+        },
+        {
+          "type": "contains",
+          "value": "AppCoordinator"
+        },
+        {
+          "type": "contains",
+          "value": "BGTaskScheduler"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in ios app lifecycle?",
+      "expected_output": "**AppDelegate**: Focus on app-wide setup (DI, Analytics, Push notification registration).",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "expirationHandler"
+        },
+        {
+          "type": "contains",
+          "value": "Priority: P0"
+        },
+        {
+          "type": "contains",
+          "value": "SceneDelegate"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for ios app lifecycle.",
+      "expected_output": "**Slim Delegates**: Move initialization logic to dedicated `Bootstrapper` or `AppCoordinator`.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "AppDelegate"
+        },
+        {
+          "type": "contains",
+          "value": "Slim Delegates"
+        },
+        {
+          "type": "contains",
+          "value": "Universal Links"
+        }
+      ]
+    }
   ],
   "should_not_trigger": [
-    "How do I create a SwiftUI view?",
-    "What is the best way to store data in Core Data?",
-    "How do I make a network request with URLSession?",
-    "Explain Swift optionals"
+    "Set up a basic ios project from scratch",
+    "How do I install ios dependencies?",
+    "What is ios?",
+    "Configure CI/CD for an unrelated platform"
   ]
 }

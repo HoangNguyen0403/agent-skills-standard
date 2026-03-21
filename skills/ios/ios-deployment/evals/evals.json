@@ -1,18 +1,68 @@
 {
-  "skill": "ios-deployment",
-  "should_trigger": [
-    "How do I automate iOS signing with Fastlane?",
-    "What is fastlane match and how do I use it?",
-    "How do I upload to TestFlight automatically?",
-    "How do I manage provisioning profiles in CI?",
-    "How do I auto-increment the build number in Fastlane?",
-    "How do I set up lanes in a Fastfile?",
-    "How do I avoid storing certificates in my git repo?"
+  "skill_name": "ios-deployment",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement ios deployment best practices?",
+      "expected_output": "**Match**: Use `fastlane match` for centralized certificate and profile management. Avoid manual signing where possible.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "fastlane match"
+        },
+        {
+          "type": "contains",
+          "value": "PROVISIONING_PROFILE_SPECIFIER"
+        },
+        {
+          "type": "contains",
+          "value": "beta"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in ios deployment?",
+      "expected_output": "**Project Settings**: Explicitly set `PROVISIONING_PROFILE_SPECIFIER` in build settings if using manual/CI.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "release"
+        },
+        {
+          "type": "contains",
+          "value": "increment_build_number"
+        },
+        {
+          "type": "contains",
+          "value": "Info.plist"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for ios deployment.",
+      "expected_output": "**Fastfile**: Script your build, test, and release flows. Use lanes for `beta` (TestFlight) and `release` (App Store).",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Priority: P1"
+        },
+        {
+          "type": "contains",
+          "value": "Match"
+        },
+        {
+          "type": "contains",
+          "value": "Project Settings"
+        }
+      ]
+    }
   ],
   "should_not_trigger": [
-    "How do I implement push notifications?",
-    "How do I use Core Data migrations?",
-    "How do I write a unit test in XCTest?",
-    "How do I handle deep links?"
+    "Set up a basic ios project from scratch",
+    "How do I install ios dependencies?",
+    "What is ios?",
+    "Configure CI/CD for an unrelated platform"
   ]
 }

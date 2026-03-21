@@ -4,27 +4,85 @@
     {
       "id": 1,
       "prompt": "Choose between SSG, SSR, and ISR in Next.js",
-      "expected_output": "SSG: static data, max performance, no per-request cost; SSR: per-request personalization, always fresh; ISR: revalidate on interval/on-demand; PPR: static shell + Suspense-gated dynamic holes"
+      "expected_output": "SSG: static data, max performance, no per-request cost; SSR: per-request personalization, always fresh; ISR: revalidate on interval/on-demand; PPR: static shell + Suspense-gated dynamic holes",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Suspense"
+        },
+        {
+          "type": "contains",
+          "value": "static shell"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Implement Partial Prerendering (PPR) in Next.js",
-      "expected_output": "Enable experimental.ppr: 'incremental' in next.config.js; export const experimental_ppr = true in page; static shell served instantly from CDN; dynamic Suspense slots stream after shell"
+      "expected_output": "Enable experimental.ppr: 'incremental' in next.config.js; export const experimental_ppr = true in page; static shell served instantly from CDN; dynamic Suspense slots stream after shell",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Enable"
+        },
+        {
+          "type": "contains",
+          "value": "Suspense"
+        },
+        {
+          "type": "contains",
+          "value": "static shell"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Use streaming with Suspense in Next.js App Router",
-      "expected_output": "Wrap slow component: <Suspense fallback={<ProductSkeleton/>}><ProductDetails id={id}/></Suspense>; page shell renders immediately; ProductDetails streams when data resolves; prevents page-wide blocking"
+      "expected_output": "Wrap slow component: <Suspense fallback={<ProductSkeleton/>}><ProductDetails id={id}/></Suspense>; page shell renders immediately; ProductDetails streams when data resolves; prevents page-wide blocking",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Wrap"
+        },
+        {
+          "type": "contains",
+          "value": "Suspense"
+        },
+        {
+          "type": "contains",
+          "value": "Wrap slow"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Set up Incremental Static Regeneration in Next.js",
-      "expected_output": "fetch(url, { next: { revalidate: 3600 } }) or export const revalidate = 3600 in page.tsx; on-demand: call revalidatePath('/blog') or revalidateTag('posts') from Server Action after CMS update"
+      "expected_output": "fetch(url, { next: { revalidate: 3600 } }) or export const revalidate = 3600 in page.tsx; on-demand: call revalidatePath('/blog') or revalidateTag('posts') from Server Action after CMS update",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Server"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Fix hydration errors caused by typeof window in Next.js",
-      "expected_output": "Move typeof window check into useEffect(() => { setIsClient(typeof window !== 'undefined'); }, []); or use dynamic(Component, { ssr: false }) for client-only components; avoid Date.now() in initial render"
+      "expected_output": "Move typeof window check into useEffect(() => { setIsClient(typeof window !== 'undefined'); }, []); or use dynamic(Component, { ssr: false }) for client-only components; avoid Date.now() in initial render",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Component"
+        },
+        {
+          "type": "contains",
+          "value": "Date"
+        },
+        {
+          "type": "contains",
+          "value": "typeof window"
+        }
+      ]
     },
     {
       "id": 6,

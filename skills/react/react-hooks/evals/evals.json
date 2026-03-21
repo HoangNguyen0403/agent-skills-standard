@@ -4,17 +4,35 @@
     {
       "id": 1,
       "prompt": "My useEffect runs infinitely even though I added the object to the dependency array. What's wrong?",
-      "expected_output": "Objects/arrays are recreated each render, causing infinite loops. Fix by memoizing the object with useMemo before putting it in deps, or using useRef to store a stable reference, or restructuring to use primitives in the dependency array."
+      "expected_output": "Objects/arrays are recreated each render, causing infinite loops. Fix by memoizing the object with useMemo before putting it in deps, or using useRef to store a stable reference, or restructuring to use primitives in the dependency array.",
+      "assertions": [
+        { "type": "contains", "value": "Dependency Arrays" },
+        { "type": "contains", "value": "objects/arrays are memoized" },
+        { "type": "contains", "value": "useMemo" },
+        { "type": "contains", "value": "infinite loops" }
+      ]
     },
     {
       "id": 2,
       "prompt": "When should I use useMemo vs useCallback in React?",
-      "expected_output": "useMemo: cache expensive computed values (heavy calculations, derived data). useCallback: stabilize function references when passed as props to memoized children or used in dependency arrays. Always measure first — premature memoization adds complexity."
+      "expected_output": "useMemo: cache expensive computed values (heavy calculations, derived data). useCallback: stabilize function references when passed as props to memoized children or used in dependency arrays. Always measure first — premature memoization adds complexity.",
+      "assertions": [
+        { "type": "contains", "value": "useMemo for heavy calc" },
+        { "type": "contains", "value": "useCallback for props" },
+        { "type": "contains", "value": "stable refs" },
+        { "type": "contains", "value": "Measure first" }
+      ]
     },
     {
       "id": 3,
       "prompt": "How do I write a custom hook to fetch data that handles loading, error, and cleanup?",
-      "expected_output": "Prefix with use*. Use useState for data/loading/error. Use useEffect with an AbortController for cleanup. Return cleanup function from useEffect. Handle the mounted flag or use AbortController to prevent state updates after unmount."
+      "expected_output": "Prefix with use*. Use useState for data/loading/error. Use useEffect with an AbortController for cleanup. Return cleanup function from useEffect. Handle the mounted flag or use AbortController to prevent state updates after unmount.",
+      "assertions": [
+        { "type": "contains", "value": "Extract logic starting with use..." },
+        { "type": "contains", "value": "Cleanup required" },
+        { "type": "contains", "value": "AbortController" },
+        { "type": "contains", "value": "return cleanup function" }
+      ]
     }
   ],
   "should_not_trigger": [

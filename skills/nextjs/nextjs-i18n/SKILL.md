@@ -1,6 +1,6 @@
 ---
 name: nextjs-i18n
-description: "Best practices for multi-language handling, locale routing, and detection strategies across App and Pages Router. Use when adding i18n, locale routing, or language detection in Next.js. (triggers: middleware.ts, app/[lang]/**, pages/[locale]/**, messages/*.json, next.config.js, i18n, locale, translation, next-intl, react-intl, next-translate)"
+description: 'Best practices for multi-language handling, locale routing, and detection strategies across App and Pages Router. Use when adding i18n, locale routing, or language detection in Next.js. (triggers: middleware.ts, app/[lang]/**, pages/[locale]/**, messages/*.json, next.config.js, i18n, locale, translation, next-intl, react-intl, next-translate)'
 ---
 
 # Internationalization (i18n)
@@ -9,25 +9,14 @@ description: "Best practices for multi-language handling, locale routing, and de
 
 Maintain a single source of truth for locales and ensure SEO-friendly sub-path routing.
 
-## Principles
+## Implementation Guidelines
 
-1.  **Uniform Locale Routing**: Always use URL segments (e.g., `/en/dashboard`) rather than cookies or localStorage for the primary locale state.
-    - _Why_: Required for SEO, link sharing, and consistent SSR/RSC behavior.
-2.  **Server-Side First**: Prefer loading translation dictionaries on the server.
-    - _App Router_: Use `getMessages()` in RSCs.
-    - _Pages Router_: Use `getStaticProps` or `getServerSideProps` to pass translations to the page.
-3.  **Middleware detection**: Use `middleware.ts` (Modern) or `next.config.js` (Legacy) to handle automatic locale detection and redirection.
-
-## Implementation Strategies
-
-### 1. App Router (Modern)
-
-- Use dynamic segments: `app/[lang]/layout.tsx`.
-- Implement `middleware.ts` for language detection based on `Accept-Language` headers.
-
-### 2. Pages Router (Legacy Next.js 13)
-
-- Configure `next.config.js` with `i18n` field:
+- **Locale Routing**: Follow the **URL-first approach** for SEO. Use **dynamic segments** in the App Router (e.g., **`app/[lang]/page.tsx`**) and the **`i18n`** configuration in `next.config.js` for the Pages Router.
+- **Library Selection**: Use **`next-intl`** for the App Router (modern) or **`react-intl`** / **`next-translate`** for legacy apps.
+- **Detection**: Implement **Middleware localization** (in **`middleware.ts`**) to detect user language from **`Accept-Language`** headers or cookies and perform redirects.
+- **Server-Side**: Load translation **`messages/*.json`** dictionaries in **Server Components** to keep the client bundle small. Use **`getMessages()`** or **`requestConfig`** patterns.
+- **SEO**: Ensure **`hreflang`** tags are generated correctly in the **`metadata`** API for all translated routes.
+- **Static Generation**: Use **`generateStaticParams`** to pre-render localized versions of static pages at build time.
   ```js
   module.exports = {
     i18n: {

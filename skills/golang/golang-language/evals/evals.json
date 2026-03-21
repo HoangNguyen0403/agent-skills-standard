@@ -6,8 +6,8 @@
       "prompt": "What is the idiomatic way to define an enum in Go?",
       "expected_output": "Use const block with iota. PascalCase for exported constants. Group related constants in a typed int/string type.",
       "assertions": [
-        {"id": "a1", "description": "Mentions iota", "type": "contains", "value": "iota"},
-        {"id": "a2", "description": "Mentions const block", "type": "contains", "value": "const"}
+        { "type": "contains", "value": "iota" },
+        { "type": "contains", "value": "const block" }
       ]
     },
     {
@@ -15,8 +15,9 @@
       "prompt": "How should I name Go interfaces?",
       "expected_output": "Small interfaces with 1-2 methods. Single-method interfaces named with -er suffix (Reader, Writer, Stringer). Define where used (consumer side), not where implemented.",
       "assertions": [
-        {"id": "a1", "description": "Mentions small/single-method interfaces", "type": "contains", "value": "method"},
-        {"id": "a2", "description": "Mentions -er suffix or define at consumer", "type": "contains", "value": "consumer"}
+        { "type": "contains", "value": "Small interfaces" },
+        { "type": "contains", "value": "1-2 methods" },
+        { "type": "contains", "value": "Define where used" }
       ]
     },
     {
@@ -24,8 +25,9 @@
       "prompt": "Is it OK to use init() functions in Go packages?",
       "expected_output": "Avoid init(). Use constructors (NewService()) instead. init() runs implicitly and makes testing harder. Prefer explicit initialization.",
       "assertions": [
-        {"id": "a1", "description": "Recommends constructors over init()", "type": "contains", "value": "constructor"},
-        {"id": "a2", "description": "Warns against init()", "type": "contains", "value": "init"}
+        { "type": "contains", "value": "No init" },
+        { "type": "contains", "value": "Use constructors" },
+        { "type": "contains", "value": "not init()" }
       ]
     }
   ],

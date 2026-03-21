@@ -1,18 +1,68 @@
 {
-  "skill": "ios-state-management",
-  "should_trigger": [
-    "How do I use Combine in my iOS app?",
-    "How do I use @Published for ViewModel state?",
-    "How do I avoid memory leaks with Combine subscriptions?",
-    "How do I use the Observation framework in iOS 17?",
-    "How do I update UI on the main thread with Combine?",
-    "When should I use PassthroughSubject?",
-    "How do I replace ObservableObject with @Observable?"
+  "skill_name": "ios-state-management",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement ios state management best practices?",
+      "expected_output": "**Publishers**: Use **`@Published`** for standard state in ViewModels. Use **`PassthroughSubject`** for one-time navigation or alert events.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "@Published"
+        },
+        {
+          "type": "contains",
+          "value": "PassthroughSubject"
+        },
+        {
+          "type": "contains",
+          "value": "Set<AnyCancellable>"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in ios state management?",
+      "expected_output": "**Memory Management**: Store subscriptions in a **`Set<AnyCancellable>`**. Use **`.store(in: &cancellables)`** to prevent memory leaks and ensure they are cleared on deinit.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": ".store(in: &cancellables)"
+        },
+        {
+          "type": "contains",
+          "value": ".debounce"
+        },
+        {
+          "type": "contains",
+          "value": ".filter"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for ios state management.",
+      "expected_output": "**Operators**: Use specific operators like **`.debounce`**, **`.filter`**, **`.map`**, and **`.flatMap`** to handle complex input streams.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": ".map"
+        },
+        {
+          "type": "contains",
+          "value": ".flatMap"
+        },
+        {
+          "type": "contains",
+          "value": "@MainActor"
+        }
+      ]
+    }
   ],
   "should_not_trigger": [
-    "How do I make a network request?",
-    "How do I set up Core Data?",
-    "How do I implement SSL pinning?",
-    "How do I use NavigationStack?"
+    "Set up a basic ios project from scratch",
+    "How do I install ios dependencies?",
+    "What is ios?",
+    "Configure CI/CD for an unrelated platform"
   ]
 }

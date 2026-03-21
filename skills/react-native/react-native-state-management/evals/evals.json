@@ -4,17 +4,59 @@
     {
       "id": 1,
       "prompt": "Should I use Zustand or Redux Toolkit for a medium-sized React Native app?",
-      "expected_output": "Use Zustand for most apps: simpler API, no Provider boilerplate, less code. Use Redux Toolkit only if you need time-travel debugging, complex middleware (sagas), or already have a Redux codebase. Zustand stores can be composed and are easy to test."
+      "expected_output": "Use Zustand for most apps: simpler API, no Provider boilerplate, less code. Use Redux Toolkit only if you need time-travel debugging, complex middleware (sagas), or already have a Redux codebase. Zustand stores can be composed and are easy to test.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Zustand"
+        },
+        {
+          "type": "contains",
+          "value": "Provider"
+        },
+        {
+          "type": "contains",
+          "value": "Redux"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "How do I fetch and cache API data in React Native without duplicating into useState?",
-      "expected_output": "Use @tanstack/react-query. Wrap app with QueryClientProvider. Use useQuery with a query key and fetch function. React Query handles caching, background refetching, loading/error states. Don't copy server data into local state — let the cache be the source of truth."
+      "expected_output": "Use @tanstack/react-query. Wrap app with QueryClientProvider. Use useQuery with a query key and fetch function. React Query handles caching, background refetching, loading/error states. Don't copy server data into local state — let the cache be the source of truth.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "React"
+        },
+        {
+          "type": "contains",
+          "value": "Query"
+        },
+        {
+          "type": "contains",
+          "value": "React Query"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "How do I share theme and authentication state across all screens in React Native without prop drilling?",
-      "expected_output": "Use React Context for low-frequency data like theme and auth. Create ThemeContext and AuthContext. Throw if context is used outside provider. For theme changes that affect many components simultaneously, Context is appropriate. Use Zustand if updates are frequent."
+      "expected_output": "Use React Context for low-frequency data like theme and auth. Create ThemeContext and AuthContext. Throw if context is used outside provider. For theme changes that affect many components simultaneously, Context is appropriate. Use Zustand if updates are frequent.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "React"
+        },
+        {
+          "type": "contains",
+          "value": "Context"
+        },
+        {
+          "type": "contains",
+          "value": "Create"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

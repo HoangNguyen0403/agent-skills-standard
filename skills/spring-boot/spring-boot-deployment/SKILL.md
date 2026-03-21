@@ -1,6 +1,6 @@
 ---
 name: spring-boot-deployment
-description: "Standards for GraalVM Native Images, Docker, and Graceful Shutdown. Use when deploying Spring Boot apps as GraalVM native images, containers, or configuring shutdown. (triggers: Dockerfile, compose.yml, docker-layer, native-image, graceful-shutdown)"
+description: 'Standards for GraalVM Native Images, Docker, and Graceful Shutdown. Use when deploying Spring Boot apps as GraalVM native images, containers, or configuring shutdown. (triggers: Dockerfile, compose.yml, docker-layer, native-image, graceful-shutdown)'
 ---
 
 # Spring Boot Deployment Standards
@@ -9,22 +9,24 @@ description: "Standards for GraalVM Native Images, Docker, and Graceful Shutdown
 
 ## Implementation Guidelines
 
-### GraalVM Native Images (AOT)
+### Docker & Containerization
 
-- **Use Case**: Serverless/CLI tools requiring instant startup.
-- **Constraints**: Register reflection via Runtime Hints. Libraries must be compatible.
-- **Build**: Use `bootBuildImage` (Gradle) or `spring-boot:build-image` (Maven).
+- **Buildpacks**: Use **`bootBuildImage`** (Gradle) or **`spring-boot:build-image`** (Maven) for OCI-compliant images.
+- **Layered JAR**: Use **`Layered JAR`** support to optimize **Build Cache**. Use multi-stage **`Dockerfile`**.
+- **Security**: Run as **`non-root`** user. Use **`eclipse-temurin`** or Distroless as base image.
+- **Secrets**: NEVER commit secrets to Git. Inject via environment variables, Kubernetes Secrets, or Vault (spring.config.import). Never bake secrets into image layers.
 
-### Containerization (Docker)
+### GraalVM Native Image (AOT)
 
-- **Layered JAR**: Use standard Layered JAR support to optimize caching.
-- **Security**: Run as non-root user (`nobody` or `appuser`).
-- **Memory**: Set JVM limits proportional to container (`-XX:+UseContainerSupport`).
+- **Use Case**: **Serverless** or CLI tools requiring **instant startup** and low memory footprint.
+- **Constraints**: Use **`AOT`** transformations. Register reflection with **`RuntimeHints`** if needed.
+- **Health Checks**: Include **`Actuator`** endpoints specifically for **Liveness** and **Readiness** probes.
 
-### Graceful Shutdown
+### Resource Tuning & Shutdown
 
-- **Enable**: `server.shutdown=graceful` (default 30s timeout).
-- **Process**: Stops accepting new requests, processes active ones.
+- **Graceful Shutdown**: Enable **`server.shutdown=graceful`** with a 30s timeout.
+- **Memory**: Use **`-XX:+UseContainerSupport`** and **`-XX:MaxRAMPercentage=75.0`**.
+- **Log Management**: Log to **`stdout`** in **Structured JSON** for log aggregators.
 
 ## Anti-Patterns
 

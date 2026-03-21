@@ -4,32 +4,88 @@
     {
       "id": 1,
       "prompt": "Enable Turbopack for Next.js development",
-      "expected_output": "Run next dev --turbo or set turbopack: true in next.config.js experimental; faster HMR; not all webpack plugins compatible; check turbopack.dev compatibility list before enabling in existing projects"
+      "expected_output": "Run next dev --turbo or set turbopack: true in next.config.js experimental; faster HMR; not all webpack plugins compatible; check turbopack.dev compatibility list before enabling in existing projects",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "next dev"
+        },
+        {
+          "type": "contains",
+          "value": "dev --turbo"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Build a Docker image with Next.js standalone output",
-      "expected_output": "Set output: 'standalone' in next.config.js; Dockerfile: COPY .next/standalone ./; COPY .next/static .next/static; COPY public ./public; CMD ['node', 'server.js']; significantly smaller image than full install"
+      "expected_output": "Set output: 'standalone' in next.config.js; Dockerfile: COPY .next/standalone ./; COPY .next/static .next/static; COPY public ./public; CMD ['node', 'server.js']; significantly smaller image than full install",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Dockerfile"
+        },
+        {
+          "type": "contains",
+          "value": "output: 'standalone'"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Configure ESLint with eslint-plugin-next",
-      "expected_output": "Install eslint-config-next; set extends: ['next/core-web-vitals'] in .eslintrc; run next lint in CI; catches Next.js-specific issues: missing Image alt, synchronous script usage, invalid href"
+      "expected_output": "Install eslint-config-next; set extends: ['next/core-web-vitals'] in .eslintrc; run next lint in CI; catches Next.js-specific issues: missing Image alt, synchronous script usage, invalid href",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Next"
+        },
+        {
+          "type": "contains",
+          "value": "Image"
+        },
+        {
+          "type": "contains",
+          "value": "next lint"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Analyze bundle size in a Next.js project",
-      "expected_output": "npm install @next/bundle-analyzer; wrap config: withBundleAnalyzer(nextConfig); run ANALYZE=true next build; opens treemap in browser; look for large third-party modules or duplicate dependencies"
+      "expected_output": "npm install @next/bundle-analyzer; wrap config: withBundleAnalyzer(nextConfig); run ANALYZE=true next build; opens treemap in browser; look for large third-party modules or duplicate dependencies",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "ANALYZE"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Set up CI caching for Next.js .next/cache",
-      "expected_output": "GitHub Actions: cache: { path: '.next/cache', key: 'nextjs-${{ hashFiles(\"package-lock.json\") }}' }; restores incremental compilation cache; reduces build time significantly on subsequent runs"
+      "expected_output": "GitHub Actions: cache: { path: '.next/cache', key: 'nextjs-${{ hashFiles(\"package-lock.json\") }}' }; restores incremental compilation cache; reduces build time significantly on subsequent runs",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "build time"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Disable Next.js telemetry in CI",
-      "expected_output": "Set NEXT_TELEMETRY_DISABLED=1 as env var in CI config; or run next telemetry disable once; prevents analytics calls during build that can slow CI or cause network errors in restricted environments"
+      "expected_output": "Set NEXT_TELEMETRY_DISABLED=1 as env var in CI config; or run next telemetry disable once; prevents analytics calls during build that can slow CI or cause network errors in restricted environments",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "next telemetry"
+        },
+        {
+          "type": "contains",
+          "value": "telemetry disable"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

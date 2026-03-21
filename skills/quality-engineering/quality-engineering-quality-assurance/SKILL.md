@@ -1,6 +1,6 @@
 ---
 name: quality-engineering-quality-assurance
-description: "Manual test case standards: enforce 1-condition-per-TC granularity, Module_Action on Screen when Condition naming, platform prefix rules, and High/Normal/Low priority classification. Use when writing or reviewing manual test cases for Zephyr — to split compound TCs, fix naming violations, assign correct platform tags, or determine bug priority. (triggers: test case, manual test, zephyr, test scenario, naming convention, acceptance criteria)"
+description: 'Manual test case standards: enforce 1-condition-per-TC granularity, Module_Action on Screen when Condition naming, platform prefix rules, and High/Normal/Low priority classification. Use when writing or reviewing manual test cases for Zephyr — to split compound TCs, fix naming violations, assign correct platform tags, or determine bug priority. (triggers: test case, manual test, zephyr, test scenario, naming convention, acceptance criteria)'
 ---
 
 # Quality Assurance Standards
@@ -22,14 +22,15 @@ description: "Manual test case standards: enforce 1-condition-per-TC granularity
 
 ## 3. Priority Levels
 
-- **High**: Critical path, blocker bug.
-- **Normal**: Standard validation, edge case.
-- **Low**: Cosmetic, minor improvement.
+Use priority rationale to justify each classification:
+
+- High: Critical path, blocker bug.
+- Normal: Standard validation, edge case.
+- Low: Cosmetic, minor improvement.
 
 ## 4. References
 
 - [Detailed Examples](references/test_case_standards.md)
-
 
 ## Anti-Patterns
 

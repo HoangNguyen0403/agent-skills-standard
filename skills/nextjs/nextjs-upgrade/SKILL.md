@@ -1,6 +1,6 @@
 ---
 name: nextjs-upgrade
-description: "Next.js version migrations using official guides and codemods. Use when migrating a Next.js project to a new major version using codemods. (triggers: package.json, next upgrade, migration guide, codemod)"
+description: 'Next.js version migrations using official guides and codemods. Use when migrating a Next.js project to a new major version using codemods. (triggers: package.json, next upgrade, migration guide, codemod)'
 ---
 
 # Next.js Upgrade Protocol
@@ -9,24 +9,15 @@ Automated and manual migration steps for Next.js version upgrades (e.g., v14 →
 
 ## **Priority: P1 (OPERATIONAL)**
 
-## **1. Detection & Planning**
+## Implementation Guidelines
 
-- Check `package.json` for current `next`, `react`, and `react-dom` versions.
-- **Incremental Upgrades**: Jumps across multiple major versions (e.g., 13 → 15) MUST be done incrementally (13 → 14 then 14 → 15).
-
-## **2. Automated Codemods**
-
-Run Next.js codemods to handle breaking syntax changes:
-
-```bash
-npx @next/codemod@latest <transform> <path>
-```
-
-**Common Transforms (v15):**
-
-- `next-async-request-api`: Transforms `params`, `searchParams`, `cookies()`, and `headers()` into awaited Promises.
-- `next-request-geo-ip`: Migrates legacy geo/ip properties.
-- `next-dynamic-access-named-export`: Fixes dynamic import syntax.
+- **Upgrade Detection**: Always check **`package.json`** for versions of `next`, `react`, and `react-dom`.
+- **Planning**: For major version jumps (v13 to v15), perform an **incremental upgrade** (v13 -> v14, then v14 -> v15). Follow the official **Next.js Migration Guides**.
+- **Automated Codemods**: Use **`npx @next/codemod@latest <transform> <path>`** to automate syntax migration.
+- **Breaking Changes (v15)**: Respond to the **`next-async-request-api`** transform by ensuring **`params`**, **`searchParams`**, **`cookies()`**, and **`headers()`** are awaited.
+- **React Parity**: Upgrade **`react`** and **`react-dom`** to match Next.js peer dependencies (e.g., React 19 for Next.js 15).
+- **Validation**: Run **`next dev`** and **`next build`** after each incremental step. Check **Console errors** for hydration warnings.
+- **Reporting**: Report all **codemod failures** or manual fixes needed to the team.
 
 ## **3. Dependency Update**
 
@@ -50,7 +41,6 @@ npm install --save-dev @types/react@latest @types/react-dom@latest
 
 - Run `npm run build` immediately after codemods and package updates.
 - Check for "Hydration failed" or "Turbopack" compatibility errors if using `--turbo`.
-
 
 ## Anti-Patterns
 

@@ -1,6 +1,6 @@
 ---
 name: ios-architecture
-description: "Standards for MVVM, Coordinators, and Clean Architecture (VIP/VIPER). Use when applying MVVM, Coordinators, or VIP/VIPER architecture in iOS apps. (triggers: **/*ViewModel.swift, **/*Coordinator.swift, **/*ViewController.swift, MVVM, Coordinator, ViewState, Output, Input)"
+description: 'Standards for MVVM, Coordinators, and Clean Architecture (VIP/VIPER). Use when applying MVVM, Coordinators, or VIP/VIPER architecture in iOS apps. (triggers: **/*ViewModel.swift, **/*Coordinator.swift, **/*ViewController.swift, MVVM, Coordinator, ViewState, Output, Input)'
 ---
 
 # iOS Architecture Standards
@@ -12,25 +12,26 @@ description: "Standards for MVVM, Coordinators, and Clean Architecture (VIP/VIPE
 ### MVVM (Model-View-ViewModel)
 
 - **ViewModel Responsibility**: Handle business logic, formatting, and state. No UIKit imports (except for platform types like `UIImage` if strictly necessary).
-- **ViewState**: Use a single state object or discrete `@Published` properties for UI updates.
+- **ViewState**: Use a single state object or discrete `@Published` properties for UI updates. **Expose state as `private(set)` or using publishers**.
 - **Inputs/Outputs**: Define explicit protocols or nested types for inputs (events from View) and outputs (state for View).
 
 ### Coordinator Pattern
 
-- **Navigation Logic**: Decouple ViewControllers from navigation logic. The Coordinator handles instantiation and push/present.
-- **Dependency Injection**: Pass dependencies (Services, Repositories) through the Coordinator into the ViewModels.
-- **Child Coordinators**: Maintain a hierarchy; remove child coordinators when their flow is finished.
+- **Navigation Logic**: Decouple ViewControllers from navigation logic. The **Coordinator handles instantiation and push/present**. **Do NOT use `navigationController` directly in the ViewController for screen transitions.**
+- **Dependency Injection**: **Pass dependencies** (Services, Repositories) through the **Coordinator into the ViewModels**.
+- **Child Coordinators**: Maintain a hierarchy; **correctly remove child coordinators** from the parent's collection when their flow is finished.
 
 ### Clean Architecture (VIP/VIPER)
 
 - **VIP (Clean Swift)**: Use Interactor for logic, Presenter for UI formatting, and ViewController for display.
-- **Unidirectional Flow**: Data flows: View -> Interactor -> Presenter -> View.
+- **Unidirectional Flow**: Data flows: **View -> Interactor -> Presenter -> View**.
+- **VIPER**: (View, Interactor, Presenter, Entity, Router) — another common architectural pattern for iOS apps.
 
 ## Anti-Patterns
 
 - **No Logic in VC**: Move business logic to ViewModel/Interactor.
-- **No Public ViewModel State**: Keep state private(set) or using publishers.
-- **No Direct Navigation**: Use a Coordinator for screen transitions.
+- **No Public ViewModel State**: Keep state **private(set)** or using publishers.
+- **No Direct Navigation**: Use a Coordinator for screen transitions. Never use `navigationController` directly.
 
 ## Verification Checklist (Mandatory)
 

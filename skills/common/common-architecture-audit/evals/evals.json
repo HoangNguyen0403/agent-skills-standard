@@ -1,0 +1,68 @@
+{
+  "skill_name": "common-architecture-audit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement common architecture audit best practices?",
+      "expected_output": "**Services**: Compare `Service.ts` vs `ServiceNew.ts` vs `ServiceV2.ts`.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Service.ts"
+        },
+        {
+          "type": "contains",
+          "value": "ServiceNew.ts"
+        },
+        {
+          "type": "contains",
+          "value": "ServiceV2.ts"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in common architecture audit?",
+      "expected_output": "**Versioning**: Check for `/v1`, `/v2` or \"Refactor\" folders.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "/v1"
+        },
+        {
+          "type": "contains",
+          "value": "/v2"
+        },
+        {
+          "type": "contains",
+          "value": "components/"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for common architecture audit.",
+      "expected_output": "**Action**:\n  ```bash",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "hooks/"
+        },
+        {
+          "type": "contains",
+          "value": "build()"
+        },
+        {
+          "type": "contains",
+          "value": "Priority: P1 (STANDARD)"
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Set up a basic common project from scratch",
+    "How do I install common dependencies?",
+    "What is common?",
+    "Configure CI/CD for an unrelated platform"
+  ]
+}

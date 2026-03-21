@@ -4,17 +4,59 @@
     {
       "id": 1,
       "prompt": "Should I use Zustand or Redux Toolkit for my React app's state management?",
-      "expected_output": "Zustand for small-medium apps: simple API, minimal boilerplate, no Provider needed. Redux Toolkit for large apps needing time-travel debugging, complex middleware, or established Redux ecosystem. Start with Zustand; migrate if complexity demands it."
+      "expected_output": "Zustand for small-medium apps: simple API, minimal boilerplate, no Provider needed. Redux Toolkit for large apps needing time-travel debugging, complex middleware, or established Redux ecosystem. Start with Zustand; migrate if complexity demands it.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Zustand"
+        },
+        {
+          "type": "contains",
+          "value": "Provider"
+        },
+        {
+          "type": "contains",
+          "value": "Redux"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "My component uses useEffect to sync server data into useState. Is this the right approach?",
-      "expected_output": "No — use React Query or SWR for server state. They handle caching, background refetching, loading/error states. Server state ≠ UI state; don't duplicate into useState. Use useQuery and let the cache be the source of truth."
+      "expected_output": "No — use React Query or SWR for server state. They handle caching, background refetching, loading/error states. Server state ≠ UI state; don't duplicate into useState. Use useQuery and let the cache be the source of truth.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "React"
+        },
+        {
+          "type": "contains",
+          "value": "Query"
+        },
+        {
+          "type": "contains",
+          "value": "Server"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "When should I use React Context vs a global state library?",
-      "expected_output": "Context for low-frequency data: theme, auth, locale, DI. Not for high-frequency updates (causes all consumers to re-render). For frequent updates use Zustand, Jotai, or Redux. Split Context into State and Dispatch to optimize re-renders."
+      "expected_output": "Context for low-frequency data: theme, auth, locale, DI. Not for high-frequency updates (causes all consumers to re-render). For frequent updates use Zustand, Jotai, or Redux. Split Context into State and Dispatch to optimize re-renders.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Context"
+        },
+        {
+          "type": "contains",
+          "value": "Zustand"
+        },
+        {
+          "type": "contains",
+          "value": "Jotai"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

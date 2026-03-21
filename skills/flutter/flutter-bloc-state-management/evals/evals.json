@@ -4,12 +4,36 @@
     {
       "id": 1,
       "prompt": "I need to add a search feature to the product list screen. It should debounce user input and cancel the previous request if a new one comes in.",
-      "expected_output": "BLoC with SearchEvent using restartable() transformer, freezed state with loading/data/error, emit.forEach for stream, blocTest coverage"
+      "expected_output": "BLoC with SearchEvent using restartable() transformer, freezed state with loading/data/error, emit.forEach for stream, blocTest coverage",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "BLoC"
+        },
+        {
+          "type": "contains",
+          "value": "for stream"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "The API returns a list of orders. Show a loading spinner while fetching, then display the list, and if it fails show an error message with a retry button.",
-      "expected_output": "Cubit or BLoC with Initial/Loading/Success/Failure states using @freezed, BlocBuilder for UI, error state with Failure type"
+      "expected_output": "Cubit or BLoC with Initial/Loading/Success/Failure states using @freezed, BlocBuilder for UI, error state with Failure type",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Cubit"
+        },
+        {
+          "type": "contains",
+          "value": "BLoC"
+        },
+        {
+          "type": "contains",
+          "value": "Initial"
+        }
+      ]
     },
     {
       "id": 3,

@@ -1,18 +1,68 @@
 {
-  "skill": "ios-design-system",
-  "should_trigger": [
-    "How do I define a color token in SwiftUI?",
-    "Should I use Color.blue or a custom color token?",
-    "How do I create a spacing system in SwiftUI?",
-    "What is the right way to define typography in SwiftUI?",
-    "How do I use Asset Catalog colors in SwiftUI?",
-    "How do I enforce design tokens across my app?",
-    "How do I create a ViewModifier for reusable styles?"
+  "skill_name": "ios-design-system",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I implement ios design system best practices?",
+      "expected_output": "**No Hex Colors**: Define in asset catalog, use `Color(\"Name\")`.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Theme/"
+        },
+        {
+          "type": "contains",
+          "value": "Color(\"Name\")"
+        },
+        {
+          "type": "contains",
+          "value": "Spacing"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What are the common anti-patterns to avoid in ios design system?",
+      "expected_output": "**No Magic Spacing**: Use `Spacing.md` not `spacing: 16`.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Font"
+        },
+        {
+          "type": "contains",
+          "value": "Spacing.md"
+        },
+        {
+          "type": "contains",
+          "value": "spacing: 16"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me a quick-start example for ios design system.",
+      "expected_output": "**No System Colors for Brand**: Use `.appPrimary` not `Color.blue`.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": ".appPrimary"
+        },
+        {
+          "type": "contains",
+          "value": "Color.blue"
+        },
+        {
+          "type": "contains",
+          "value": "/Theme/"
+        }
+      ]
+    }
   ],
   "should_not_trigger": [
-    "How do I set up Fastlane match?",
-    "How do I use BGTaskScheduler?",
-    "How do I implement MVVM?",
-    "How do I pin SSL certificates in iOS?"
+    "Set up a basic ios project from scratch",
+    "How do I install ios dependencies?",
+    "What is ios?",
+    "Configure CI/CD for an unrelated platform"
   ]
 }
