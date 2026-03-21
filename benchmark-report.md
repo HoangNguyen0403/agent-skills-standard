@@ -16,32 +16,32 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 
 ## 🔢 Executive Summary
 
-| Metric                            | Value                             |
-| --------------------------------- | --------------------------------- |
-| Total Skills Benchmarked          | **234**           |
-| Avg. Tokens WITH Skill (SKILL.md) | **505 tokens**    |
-| Baseline: Light prompt (no skill) | **1449 tokens** ↓ see Methodology |
-| Baseline: Heavy prompt (no skill) | **3656 tokens** ↓ see Methodology |
-| Avg. Token Savings vs Light       | **65%** (944 tokens/call) |
-| Avg. Token Savings vs Heavy       | **86%** (3151 tokens/call) |
-| Avg. Quality Score                | **9.8/10** |
-| Skills with Evals                 | **234 / 234** |
+| Metric                            | Value                                         |
+| --------------------------------- | --------------------------------------------- |
+| Total Skills Benchmarked          | **234**                                       |
+| Avg. Tokens WITH Skill (SKILL.md) | **505 tokens**                                |
+| Baseline: Light prompt (no skill) | **1449 tokens** ↓ see Methodology             |
+| Baseline: Heavy prompt (no skill) | **3656 tokens** ↓ see Methodology             |
+| Avg. Token Savings vs Light       | **65%** (944 tokens/call)                     |
+| Avg. Token Savings vs Heavy       | **86%** (3151 tokens/call)                    |
+| Avg. Quality Score                | **9.8/10**                                    |
+| Skills with Evals                 | **234 / 234**                                 |
 | Avg. Eval Alignment               | **97%** (eval assertions covered by SKILL.md) |
 
 ## 📜 History
 
-| Version | Date       | Skills | Avg Tokens | Savings (%) | Quality | Report |
-| ------- | ---------- | ------ | ---------- | ----------- | ------- | ------ |
-| v1.10.3 | 2026-03-21 | 234 | 505 | 86% | 9.8/10 | [Full Report](benchmarks/archive/v1.10.3.md) |
-| v1.10.1 | 2026-03-16 | 229 | 428 | 88% | 9.9/10 | [Full Report](benchmarks/archive/v1.10.1.md) |
-| v1.10.0 | 2026-03-16 | 229 | 434 | 88% | 7/10 | [Full Report](benchmarks/archive/v1.10.0.md) |
-| v1.9.3 | 2026-03-15 | 229 | 460 | 87% | 8.9/10 | [Full Report](benchmarks/archive/v1.9.3.md) |
-| v1.9.2 | 2026-03-07 | 228 | 458 | 87% | 8.9/10 | [Full Report](benchmarks/archive/v1.9.2.md) |
-| v1.9.1 | 2026-03-07 | 228 | 458 | 87% | 8.9/10 | [Full Report](benchmarks/archive/v1.9.1.md) |
-| v1.9.0 | 2026-03-05 | 228 | 457 | 88% | 8.9/10 | [Full Report](benchmarks/archive/v1.9.0.md) |
-| v1.8.0 | 2026-03-02 | 228 | 443 | 88% | 8.9/10 | [Full Report](benchmarks/archive/v1.8.0.md) |
-| v1.7.3 | 2026-02-25 | 222 | 418 | 89% | 8.9/10 | [Full Report](benchmarks/archive/v1.7.3.md) |
-| v1.7.2 | 2026-02-25 | 220 | 413 | 89% | 8.9/10 | [Full Report](benchmarks/archive/v1.7.2.md) |
+| Version | Date       | Skills | Avg Tokens | Savings (%) | Quality | Report                                       |
+| ------- | ---------- | ------ | ---------- | ----------- | ------- | -------------------------------------------- |
+| v1.10.3 | 2026-03-21 | 234    | 505        | 86%         | 9.8/10  | [Full Report](benchmarks/archive/v1.10.3.md) |
+| v1.10.1 | 2026-03-16 | 229    | 428        | 88%         | 9.9/10  | [Full Report](benchmarks/archive/v1.10.1.md) |
+| v1.10.0 | 2026-03-16 | 229    | 434        | 88%         | 7/10    | [Full Report](benchmarks/archive/v1.10.0.md) |
+| v1.9.3  | 2026-03-15 | 229    | 460        | 87%         | 8.9/10  | [Full Report](benchmarks/archive/v1.9.3.md)  |
+| v1.9.2  | 2026-03-07 | 228    | 458        | 87%         | 8.9/10  | [Full Report](benchmarks/archive/v1.9.2.md)  |
+| v1.9.1  | 2026-03-07 | 228    | 458        | 87%         | 8.9/10  | [Full Report](benchmarks/archive/v1.9.1.md)  |
+| v1.9.0  | 2026-03-05 | 228    | 457        | 88%         | 8.9/10  | [Full Report](benchmarks/archive/v1.9.0.md)  |
+| v1.8.0  | 2026-03-02 | 228    | 443        | 88%         | 8.9/10  | [Full Report](benchmarks/archive/v1.8.0.md)  |
+| v1.7.3  | 2026-02-25 | 222    | 418        | 89%         | 8.9/10  | [Full Report](benchmarks/archive/v1.7.3.md)  |
+| v1.7.2  | 2026-02-25 | 220    | 413        | 89%         | 8.9/10  | [Full Report](benchmarks/archive/v1.7.2.md)  |
 
 ### 💰 Cost Comparison — Per Single Call (Average Skill)
 
@@ -49,159 +49,159 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 
 | Model             | Original Cost | Skill Cost | Net Savings    | % Saved |
 | ----------------- | ------------- | ---------- | -------------- | ------- |
-| Gemini 3 Flash    | $0.0018280    | $0.0002525 | **$0.0015755    ** | 86% |
-| GPT-5             | $0.0045700    | $0.0006313 | **$0.0039388    ** | 86% |
-| Gemini 3.1 Pro    | $0.0073120    | $0.0010100 | **$0.0063020    ** | 86% |
-| Claude Sonnet 4.5 | $0.0109680    | $0.0015150 | **$0.0094530    ** | 86% |
+| Gemini 3 Flash    | $0.0018280    | $0.0002525 | **$0.0015755** | 86%     |
+| GPT-5             | $0.0045700    | $0.0006313 | **$0.0039388** | 86%     |
+| Gemini 3.1 Pro    | $0.0073120    | $0.0010100 | **$0.0063020** | 86%     |
+| Claude Sonnet 4.5 | $0.0109680    | $0.0015150 | **$0.0094530** | 86%     |
 
 ### 📈 Monthly Savings at Scale — (Avg Skill vs Heavy Prompt)
 
-| Daily Calls | Original Cost/mo | Monthly Savings (1 skill) | Monthly Savings (50 skills) | Model |
-| ----------- | ---------------- | ------------------------- | --------------------------- | ----- |
-| 1,000       | $137.1000       /mo | $118.1625               /mo | $5908.1250                /mo | GPT-5 |
-| 1,000       | $329.0400       /mo | $283.5900               /mo | $14179.5000               /mo | Claude Sonnet 4.5 |
-| 1,000       | $219.3600       /mo | $189.0600               /mo | $9453.0000                /mo | Gemini 3.1 Pro |
+| Daily Calls | Original Cost/mo | Monthly Savings (1 skill) | Monthly Savings (50 skills) | Model             |
+| ----------- | ---------------- | ------------------------- | --------------------------- | ----------------- |
+| 1,000       | $137.1000 /mo    | $118.1625 /mo             | $5908.1250 /mo              | GPT-5             |
+| 1,000       | $329.0400 /mo    | $283.5900 /mo             | $14179.5000 /mo             | Claude Sonnet 4.5 |
+| 1,000       | $219.3600 /mo    | $189.0600 /mo             | $9453.0000 /mo              | Gemini 3.1 Pro    |
 
 ## 📦 Per-Category Summary
 
 <details>
 <summary><h3>📦 android (22 skills | avg 338 tokens | quality 10.0/10 | eval alignment 93%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `android-architecture ` | 472    | █████████░ 87%     | 10/10 | 3 | ✅ 88% |
-| `android-background-work` | 301    | █████████░ 92%     | 10/10 | 3 | ✅ 100% |
-| `android-compose      ` | 392    | █████████░ 89%     | 10/10 | 3 | ✅ 100% |
-| `android-concurrency  ` | 315    | █████████░ 91%     | 10/10 | 3 | ✅ 89% |
-| `android-deployment   ` | 325    | █████████░ 91%     | 10/10 | 3 | ✅ 100% |
-| `android-design-system` | 300    | █████████░ 92%     | 10/10 | 3 | ✅ 100% |
-| `android-di           ` | 285    | █████████░ 92%     | 10/10 | 3 | ✅ 88% |
-| `android-legacy-navigation` | 249    | █████████░ 93%     | 10/10 | 3 | ✅ 86% |
-| `android-legacy-security` | 514    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
-| `android-legacy-state ` | 259    | █████████░ 93%     | 10/10 | 3 | ✅ 100% |
-| `android-navigation   ` | 275    | █████████░ 92%     | 10/10 | 3 | ✅ 100% |
-| `android-navigation-type-safe` | 264    | █████████░ 93%     | 10/10 | 3 | ✅ 83% |
-| `android-networking   ` | 433    | █████████░ 88%     | 10/10 | 3 | ✅ 83% |
-| `android-notifications` | 434    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `android-performance  ` | 287    | █████████░ 92%     | 10/10 | 3 | ✅ 88% |
-| `android-persistence  ` | 253    | █████████░ 93%     | 10/10 | 3 | ✅ 100% |
-| `android-resources    ` | 408    | █████████░ 89%     | 10/10 | 3 | ✅ 100% |
-| `android-security     ` | 398    | █████████░ 89%     | 10/10 | 3 | ✅ 86% |
-| `android-state        ` | 357    | █████████░ 90%     | 10/10 | 3 | ✅ 88% |
-| `android-testing      ` | 316    | █████████░ 91%     | 10/10 | 3 | ✅ 88% |
-| `android-tooling      ` | 294    | █████████░ 92%     | 10/10 | 3 | ✅ 88% |
-| `android-xml-views    ` | 295    | █████████░ 92%     | 10/10 | 3 | ✅ 88% |
+| Skill                          | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| ------------------------------ | ------ | ------------------ | ------- | ----- | ------- |
+| `android-architecture`         | 472    | █████████░ 87%     | 10/10   | 3     | ✅ 88%  |
+| `android-background-work`      | 301    | █████████░ 92%     | 10/10   | 3     | ✅ 100% |
+| `android-compose`              | 392    | █████████░ 89%     | 10/10   | 3     | ✅ 100% |
+| `android-concurrency`          | 315    | █████████░ 91%     | 10/10   | 3     | ✅ 89%  |
+| `android-deployment`           | 325    | █████████░ 91%     | 10/10   | 3     | ✅ 100% |
+| `android-design-system`        | 300    | █████████░ 92%     | 10/10   | 3     | ✅ 100% |
+| `android-di`                   | 285    | █████████░ 92%     | 10/10   | 3     | ✅ 88%  |
+| `android-legacy-navigation`    | 249    | █████████░ 93%     | 10/10   | 3     | ✅ 86%  |
+| `android-legacy-security`      | 514    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
+| `android-legacy-state`         | 259    | █████████░ 93%     | 10/10   | 3     | ✅ 100% |
+| `android-navigation`           | 275    | █████████░ 92%     | 10/10   | 3     | ✅ 100% |
+| `android-navigation-type-safe` | 264    | █████████░ 93%     | 10/10   | 3     | ✅ 83%  |
+| `android-networking`           | 433    | █████████░ 88%     | 10/10   | 3     | ✅ 83%  |
+| `android-notifications`        | 434    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `android-performance`          | 287    | █████████░ 92%     | 10/10   | 3     | ✅ 88%  |
+| `android-persistence`          | 253    | █████████░ 93%     | 10/10   | 3     | ✅ 100% |
+| `android-resources`            | 408    | █████████░ 89%     | 10/10   | 3     | ✅ 100% |
+| `android-security`             | 398    | █████████░ 89%     | 10/10   | 3     | ✅ 86%  |
+| `android-state`                | 357    | █████████░ 90%     | 10/10   | 3     | ✅ 88%  |
+| `android-testing`              | 316    | █████████░ 91%     | 10/10   | 3     | ✅ 88%  |
+| `android-tooling`              | 294    | █████████░ 92%     | 10/10   | 3     | ✅ 88%  |
+| `android-xml-views`            | 295    | █████████░ 92%     | 10/10   | 3     | ✅ 88%  |
 
 </details>
 
 <details>
 <summary><h3>📦 angular (16 skills | avg 538 tokens | quality 9.9/10 | eval alignment 94%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `angular-architecture ` | 620    | ████████░░ 83%     | 10/10 | 6 | ✅ 95% |
-| `angular-component-patterns` | 548    | █████████░ 85%     | 10/10 | 6 | ✅ 91% |
-| `angular-components   ` | 567    | ████████░░ 84%     | 10/10 | 6 | ✅ 87% |
-| `angular-dependency-injection` | 525    | █████████░ 86%     | 10/10 | 6 | ✅ 89% |
-| `angular-directives-pipes` | 498    | █████████░ 86%     | 10/10 | 6 | ✅ 95% |
-| `angular-forms        ` | 476    | █████████░ 87%     | 10/10 | 6 | ✅ 95% |
-| `angular-http-client  ` | 560    | █████████░ 85%     | 10/10 | 6 | ✅ 96% |
-| `angular-performance  ` | 476    | █████████░ 87%     | 10/10 | 6 | ✅ 82% |
-| `angular-routing      ` | 495    | █████████░ 86%     | 10/10 | 6 | ✅ 100% |
-| `angular-rxjs-interop ` | 505    | █████████░ 86%     | 10/10 | 6 | ✅ 100% |
-| `angular-security     ` | 497    | █████████░ 86%     | 10/10 | 6 | ✅ 89% |
-| `angular-ssr          ` | 580    | ████████░░ 84%     | 10/10 | 6 | ✅ 100% |
-| `angular-state-management` | 522    | █████████░ 86%     | 10/10 | 6 | ✅ 100% |
-| `angular-style-guide  ` | 521    | █████████░ 86%     | 10/10 | 6 | ✅ 81% |
-| `angular-testing      ` | 538    | █████████░ 85%     | 10/10 | 6 | ✅ 96% |
-| `angular-tooling      ` | 675    | ████████░░ 82%     | 8/10 | 6 | ✅ 100% |
+| Skill                          | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| ------------------------------ | ------ | ------------------ | ------- | ----- | ------- |
+| `angular-architecture`         | 620    | ████████░░ 83%     | 10/10   | 6     | ✅ 95%  |
+| `angular-component-patterns`   | 548    | █████████░ 85%     | 10/10   | 6     | ✅ 91%  |
+| `angular-components`           | 567    | ████████░░ 84%     | 10/10   | 6     | ✅ 87%  |
+| `angular-dependency-injection` | 525    | █████████░ 86%     | 10/10   | 6     | ✅ 89%  |
+| `angular-directives-pipes`     | 498    | █████████░ 86%     | 10/10   | 6     | ✅ 95%  |
+| `angular-forms`                | 476    | █████████░ 87%     | 10/10   | 6     | ✅ 95%  |
+| `angular-http-client`          | 560    | █████████░ 85%     | 10/10   | 6     | ✅ 96%  |
+| `angular-performance`          | 476    | █████████░ 87%     | 10/10   | 6     | ✅ 82%  |
+| `angular-routing`              | 495    | █████████░ 86%     | 10/10   | 6     | ✅ 100% |
+| `angular-rxjs-interop`         | 505    | █████████░ 86%     | 10/10   | 6     | ✅ 100% |
+| `angular-security`             | 497    | █████████░ 86%     | 10/10   | 6     | ✅ 89%  |
+| `angular-ssr`                  | 580    | ████████░░ 84%     | 10/10   | 6     | ✅ 100% |
+| `angular-state-management`     | 522    | █████████░ 86%     | 10/10   | 6     | ✅ 100% |
+| `angular-style-guide`          | 521    | █████████░ 86%     | 10/10   | 6     | ✅ 81%  |
+| `angular-testing`              | 538    | █████████░ 85%     | 10/10   | 6     | ✅ 96%  |
+| `angular-tooling`              | 675    | ████████░░ 82%     | 8/10    | 6     | ✅ 100% |
 
 </details>
 
 <details>
 <summary><h3>📦 common (28 skills | avg 586 tokens | quality 9.8/10 | eval alignment 99%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `common-architecture-audit` | 700    | ████████░░ 81%     | 10/10 | 3 | ✅ 100% |
-| `common-architecture-diagramming` | 399    | █████████░ 89%     | 10/10 | 3 | ✅ 100% |
-| `common-best-practices` | 343    | █████████░ 91%     | 10/10 | 3 | ✅ 91% |
-| `common-code-review   ` | 385    | █████████░ 89%     | 10/10 | 3 | ✅ 100% |
-| `common-context-optimization` | 502    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
-| `common-debugging     ` | 396    | █████████░ 89%     | 10/10 | 3 | ✅ 100% |
-| `common-documentation ` | 543    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `common-error-handling` | 331    | █████████░ 91%     | 10/10 | 3 | ✅ 100% |
-| `common-feedback-reporter` | 536    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `common-git-collaboration` | 651    | ████████░░ 82%     | 10/10 | 3 | ✅ 100% |
-| `common-mobile-animation` | 365    | █████████░ 90%     | 10/10 | 3 | ✅ 100% |
-| `common-mobile-ux-core` | 342    | █████████░ 91%     | 10/10 | 3 | ✅ 100% |
-| `common-observability ` | 317    | █████████░ 91%     | 10/10 | 3 | ✅ 100% |
-| `common-performance-engineering` | 693    | ████████░░ 81%     | 10/10 | 3 | ✅ 100% |
-| `common-product-requirements` | 431    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `common-protocol-enforcement` | 467    | █████████░ 87%     | 10/10 | 3 | ✅ 100% |
-| `common-security-audit` | 800    | ████████░░ 78%     | 10/10 | 3 | ✅ 100% |
-| `common-security-standards` | 558    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `common-session-retrospective` | 581    | ████████░░ 84%     | 10/10 | 3 | ✅ 100% |
-| `common-skill-creator ` | 911    | ████████░░ 75%     | 10/10 | 3 | ✅ 100% |
-| `common-system-design ` | 564    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `common-tdd           ` | 868    | ████████░░ 76%     | 10/10 | 3 | ✅ 100% |
-| `common-ui-design     ` | 787    | ████████░░ 78%     | 10/10 | 6 | ✅ 100% |
-| `common-workflow-writing` | 563    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `common-llm-security  ` | 688    | ████████░░ 81%     | 9/10 | 5 | ✅ 100% |
-| `common-owasp         ` | 878    | ████████░░ 76%     | 9/10 | 5 | ✅ 91% |
-| `common-accessibility ` | 980    | ███████░░░ 73%     | 8/10 | 3 | ✅ 100% |
-| `common-api-design    ` | 819    | ████████░░ 78%     | 8/10 | 3 | ✅ 100% |
+| Skill                             | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| --------------------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `common-architecture-audit`       | 700    | ████████░░ 81%     | 10/10   | 3     | ✅ 100% |
+| `common-architecture-diagramming` | 399    | █████████░ 89%     | 10/10   | 3     | ✅ 100% |
+| `common-best-practices`           | 343    | █████████░ 91%     | 10/10   | 3     | ✅ 91%  |
+| `common-code-review`              | 385    | █████████░ 89%     | 10/10   | 3     | ✅ 100% |
+| `common-context-optimization`     | 502    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
+| `common-debugging`                | 396    | █████████░ 89%     | 10/10   | 3     | ✅ 100% |
+| `common-documentation`            | 543    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `common-error-handling`           | 331    | █████████░ 91%     | 10/10   | 3     | ✅ 100% |
+| `common-feedback-reporter`        | 536    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `common-git-collaboration`        | 651    | ████████░░ 82%     | 10/10   | 3     | ✅ 100% |
+| `common-mobile-animation`         | 365    | █████████░ 90%     | 10/10   | 3     | ✅ 100% |
+| `common-mobile-ux-core`           | 342    | █████████░ 91%     | 10/10   | 3     | ✅ 100% |
+| `common-observability`            | 317    | █████████░ 91%     | 10/10   | 3     | ✅ 100% |
+| `common-performance-engineering`  | 693    | ████████░░ 81%     | 10/10   | 3     | ✅ 100% |
+| `common-product-requirements`     | 431    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `common-protocol-enforcement`     | 467    | █████████░ 87%     | 10/10   | 3     | ✅ 100% |
+| `common-security-audit`           | 800    | ████████░░ 78%     | 10/10   | 3     | ✅ 100% |
+| `common-security-standards`       | 558    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `common-session-retrospective`    | 581    | ████████░░ 84%     | 10/10   | 3     | ✅ 100% |
+| `common-skill-creator`            | 911    | ████████░░ 75%     | 10/10   | 3     | ✅ 100% |
+| `common-system-design`            | 564    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `common-tdd`                      | 868    | ████████░░ 76%     | 10/10   | 3     | ✅ 100% |
+| `common-ui-design`                | 787    | ████████░░ 78%     | 10/10   | 6     | ✅ 100% |
+| `common-workflow-writing`         | 563    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `common-llm-security`             | 688    | ████████░░ 81%     | 9/10    | 5     | ✅ 100% |
+| `common-owasp`                    | 878    | ████████░░ 76%     | 9/10    | 5     | ✅ 91%  |
+| `common-accessibility`            | 980    | ███████░░░ 73%     | 8/10    | 3     | ✅ 100% |
+| `common-api-design`               | 819    | ████████░░ 78%     | 8/10    | 3     | ✅ 100% |
 
 </details>
 
 <details>
 <summary><h3>📦 dart (3 skills | avg 560 tokens | quality 10.0/10 | eval alignment 100%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `dart-best-practices  ` | 526    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
-| `dart-language        ` | 637    | ████████░░ 83%     | 10/10 | 3 | ✅ 100% |
-| `dart-tooling         ` | 518    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
+| Skill                 | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| --------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `dart-best-practices` | 526    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
+| `dart-language`       | 637    | ████████░░ 83%     | 10/10   | 3     | ✅ 100% |
+| `dart-tooling`        | 518    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
 
 </details>
 
 <details>
 <summary><h3>📦 database (3 skills | avg 540 tokens | quality 10.0/10 | eval alignment 91%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `database-mongodb     ` | 603    | ████████░░ 84%     | 10/10 | 3 | ✅ 86% |
-| `database-postgresql  ` | 411    | █████████░ 89%     | 10/10 | 3 | ✅ 86% |
-| `database-redis       ` | 605    | ████████░░ 83%     | 10/10 | 3 | ✅ 100% |
+| Skill                 | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| --------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `database-mongodb`    | 603    | ████████░░ 84%     | 10/10   | 3     | ✅ 86%  |
+| `database-postgresql` | 411    | █████████░ 89%     | 10/10   | 3     | ✅ 86%  |
+| `database-redis`      | 605    | ████████░░ 83%     | 10/10   | 3     | ✅ 100% |
 
 </details>
 
 <details>
 <summary><h3>📦 flutter (21 skills | avg 507 tokens | quality 9.5/10 | eval alignment 100%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `flutter-cicd         ` | 573    | ████████░░ 84%     | 10/10 | 3 | ✅ 100% |
-| `flutter-design-system` | 525    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
-| `flutter-error-handling` | 564    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `flutter-feature-based-clean-architecture` | 605    | ████████░░ 83%     | 10/10 | 3 | ✅ 90% |
-| `flutter-getx-navigation` | 382    | █████████░ 90%     | 10/10 | 3 | ✅ 100% |
-| `flutter-idiomatic-flutter` | 367    | █████████░ 90%     | 10/10 | 3 | ✅ 100% |
-| `flutter-layer-based-clean-architecture` | 511    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
-| `flutter-performance  ` | 466    | █████████░ 87%     | 10/10 | 3 | ✅ 100% |
-| `flutter-retrofit-networking` | 580    | ████████░░ 84%     | 10/10 | 3 | ✅ 100% |
-| `flutter-riverpod-state-management` | 565    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `flutter-testing      ` | 687    | ████████░░ 81%     | 10/10 | 3 | ✅ 100% |
-| `flutter-widgets      ` | 492    | █████████░ 87%     | 10/10 | 3 | ✅ 100% |
-| `flutter-auto-route-navigation` | 500    | █████████░ 86%     | 9/10 | 3 | ✅ 100% |
-| `flutter-bloc-state-management` | 533    | █████████░ 85%     | 9/10 | 3 | ✅ 100% |
-| `flutter-dependency-injection` | 530    | █████████░ 86%     | 9/10 | 3 | ✅ 100% |
-| `flutter-localization ` | 494    | █████████░ 86%     | 9/10 | 3 | ✅ 100% |
-| `flutter-navigation   ` | 318    | █████████░ 91%     | 9/10 | 3 | ✅ 100% |
-| `flutter-notifications` | 343    | █████████░ 91%     | 9/10 | 3 | ✅ 100% |
-| `flutter-security     ` | 447    | █████████░ 88%     | 9/10 | 3 | ✅ 100% |
-| `flutter-getx-state-management` | 503    | █████████░ 86%     | 8/10 | 3 | ✅ 100% |
-| `flutter-go-router-navigation` | 655    | ████████░░ 82%     | 8/10 | 3 | ✅ 100% |
+| Skill                                      | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| ------------------------------------------ | ------ | ------------------ | ------- | ----- | ------- |
+| `flutter-cicd`                             | 573    | ████████░░ 84%     | 10/10   | 3     | ✅ 100% |
+| `flutter-design-system`                    | 525    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
+| `flutter-error-handling`                   | 564    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `flutter-feature-based-clean-architecture` | 605    | ████████░░ 83%     | 10/10   | 3     | ✅ 90%  |
+| `flutter-getx-navigation`                  | 382    | █████████░ 90%     | 10/10   | 3     | ✅ 100% |
+| `flutter-idiomatic-flutter`                | 367    | █████████░ 90%     | 10/10   | 3     | ✅ 100% |
+| `flutter-layer-based-clean-architecture`   | 511    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
+| `flutter-performance`                      | 466    | █████████░ 87%     | 10/10   | 3     | ✅ 100% |
+| `flutter-retrofit-networking`              | 580    | ████████░░ 84%     | 10/10   | 3     | ✅ 100% |
+| `flutter-riverpod-state-management`        | 565    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `flutter-testing`                          | 687    | ████████░░ 81%     | 10/10   | 3     | ✅ 100% |
+| `flutter-widgets`                          | 492    | █████████░ 87%     | 10/10   | 3     | ✅ 100% |
+| `flutter-auto-route-navigation`            | 500    | █████████░ 86%     | 9/10    | 3     | ✅ 100% |
+| `flutter-bloc-state-management`            | 533    | █████████░ 85%     | 9/10    | 3     | ✅ 100% |
+| `flutter-dependency-injection`             | 530    | █████████░ 86%     | 9/10    | 3     | ✅ 100% |
+| `flutter-localization`                     | 494    | █████████░ 86%     | 9/10    | 3     | ✅ 100% |
+| `flutter-navigation`                       | 318    | █████████░ 91%     | 9/10    | 3     | ✅ 100% |
+| `flutter-notifications`                    | 343    | █████████░ 91%     | 9/10    | 3     | ✅ 100% |
+| `flutter-security`                         | 447    | █████████░ 88%     | 9/10    | 3     | ✅ 100% |
+| `flutter-getx-state-management`            | 503    | █████████░ 86%     | 8/10    | 3     | ✅ 100% |
+| `flutter-go-router-navigation`             | 655    | ████████░░ 82%     | 8/10    | 3     | ✅ 100% |
 
 </details>
 
@@ -210,64 +210,64 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `golang-api-server    ` | 427    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `golang-architecture  ` | 560    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `golang-concurrency   ` | 433    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `golang-configuration ` | 342    | █████████░ 91%     | 10/10 | 3 | ✅ 100% |
-| `golang-database      ` | 369    | █████████░ 90%     | 10/10 | 3 | ✅ 100% |
-| `golang-error-handling` | 345    | █████████░ 91%     | 10/10 | 3 | ✅ 100% |
-| `golang-language      ` | 499    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
-| `golang-logging       ` | 348    | █████████░ 90%     | 10/10 | 3 | ✅ 100% |
-| `golang-security      ` | 507    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
-| `golang-testing       ` | 512    | █████████░ 86%     | 10/10 | 3 | ✅ 83% |
-| `golang-tooling       ` | 518    | █████████░ 86%     | 9/10 | 4 | ✅ 100% |
+| `golang-api-server`     | 427    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `golang-architecture`   | 560    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `golang-concurrency`    | 433    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `golang-configuration`  | 342    | █████████░ 91%     | 10/10   | 3     | ✅ 100% |
+| `golang-database`       | 369    | █████████░ 90%     | 10/10   | 3     | ✅ 100% |
+| `golang-error-handling` | 345    | █████████░ 91%     | 10/10   | 3     | ✅ 100% |
+| `golang-language`       | 499    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
+| `golang-logging`        | 348    | █████████░ 90%     | 10/10   | 3     | ✅ 100% |
+| `golang-security`       | 507    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
+| `golang-testing`        | 512    | █████████░ 86%     | 10/10   | 3     | ✅ 83%  |
+| `golang-tooling`        | 518    | █████████░ 86%     | 9/10    | 4     | ✅ 100% |
 
 </details>
 
 <details>
 <summary><h3>📦 ios (15 skills | avg 405 tokens | quality 10.0/10 | eval alignment 99%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `ios-app-lifecycle    ` | 361    | █████████░ 90%     | 10/10 | 3 | ✅ 100% |
-| `ios-architecture     ` | 662    | ████████░░ 82%     | 10/10 | 3 | ✅ 100% |
-| `ios-dependency-injection` | 367    | █████████░ 90%     | 10/10 | 3 | ✅ 100% |
-| `ios-deployment       ` | 340    | █████████░ 91%     | 10/10 | 3 | ✅ 100% |
-| `ios-design-system    ` | 240    | █████████░ 93%     | 10/10 | 3 | ✅ 100% |
-| `ios-localization     ` | 449    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `ios-navigation       ` | 274    | █████████░ 93%     | 10/10 | 3 | ✅ 100% |
-| `ios-networking       ` | 488    | █████████░ 87%     | 10/10 | 3 | ✅ 100% |
-| `ios-notifications    ` | 290    | █████████░ 92%     | 10/10 | 3 | ✅ 100% |
-| `ios-performance      ` | 384    | █████████░ 89%     | 10/10 | 3 | ✅ 100% |
-| `ios-persistence      ` | 456    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `ios-security         ` | 437    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `ios-state-management ` | 490    | █████████░ 87%     | 10/10 | 3 | ✅ 100% |
-| `ios-swiftui          ` | 430    | █████████░ 88%     | 10/10 | 3 | ✅ 88% |
-| `ios-ui-navigation    ` | 413    | █████████░ 89%     | 10/10 | 3 | ✅ 100% |
+| Skill                      | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| -------------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `ios-app-lifecycle`        | 361    | █████████░ 90%     | 10/10   | 3     | ✅ 100% |
+| `ios-architecture`         | 662    | ████████░░ 82%     | 10/10   | 3     | ✅ 100% |
+| `ios-dependency-injection` | 367    | █████████░ 90%     | 10/10   | 3     | ✅ 100% |
+| `ios-deployment`           | 340    | █████████░ 91%     | 10/10   | 3     | ✅ 100% |
+| `ios-design-system`        | 240    | █████████░ 93%     | 10/10   | 3     | ✅ 100% |
+| `ios-localization`         | 449    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `ios-navigation`           | 274    | █████████░ 93%     | 10/10   | 3     | ✅ 100% |
+| `ios-networking`           | 488    | █████████░ 87%     | 10/10   | 3     | ✅ 100% |
+| `ios-notifications`        | 290    | █████████░ 92%     | 10/10   | 3     | ✅ 100% |
+| `ios-performance`          | 384    | █████████░ 89%     | 10/10   | 3     | ✅ 100% |
+| `ios-persistence`          | 456    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `ios-security`             | 437    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `ios-state-management`     | 490    | █████████░ 87%     | 10/10   | 3     | ✅ 100% |
+| `ios-swiftui`              | 430    | █████████░ 88%     | 10/10   | 3     | ✅ 88%  |
+| `ios-ui-navigation`        | 413    | █████████░ 89%     | 10/10   | 3     | ✅ 100% |
 
 </details>
 
 <details>
 <summary><h3>📦 java (5 skills | avg 493 tokens | quality 10.0/10 | eval alignment 98%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `java-best-practices  ` | 479    | █████████░ 87%     | 10/10 | 3 | ✅ 89% |
-| `java-concurrency     ` | 446    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `java-language        ` | 535    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `java-testing         ` | 534    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `java-tooling         ` | 473    | █████████░ 87%     | 10/10 | 3 | ✅ 100% |
+| Skill                 | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| --------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `java-best-practices` | 479    | █████████░ 87%     | 10/10   | 3     | ✅ 89%  |
+| `java-concurrency`    | 446    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `java-language`       | 535    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `java-testing`        | 534    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `java-tooling`        | 473    | █████████░ 87%     | 10/10   | 3     | ✅ 100% |
 
 </details>
 
 <details>
 <summary><h3>📦 javascript (3 skills | avg 418 tokens | quality 10.0/10 | eval alignment 100%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `javascript-best-practices` | 403    | █████████░ 89%     | 10/10 | 3 | ✅ 100% |
-| `javascript-language  ` | 511    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
-| `javascript-tooling   ` | 339    | █████████░ 91%     | 10/10 | 3 | ✅ 100% |
+| Skill                       | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| --------------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `javascript-best-practices` | 403    | █████████░ 89%     | 10/10   | 3     | ✅ 100% |
+| `javascript-language`       | 511    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
+| `javascript-tooling`        | 339    | █████████░ 91%     | 10/10   | 3     | ✅ 100% |
 
 </details>
 
@@ -276,210 +276,210 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `kotlin-best-practices` | 466    | █████████░ 87%     | 10/10 | 3 | ✅ 100% |
-| `kotlin-coroutines    ` | 382    | █████████░ 90%     | 10/10 | 3 | ✅ 89% |
-| `kotlin-language      ` | 447    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `kotlin-tooling       ` | 347    | █████████░ 91%     | 10/10 | 3 | ✅ 89% |
+| `kotlin-best-practices` | 466    | █████████░ 87%     | 10/10   | 3     | ✅ 100% |
+| `kotlin-coroutines`     | 382    | █████████░ 90%     | 10/10   | 3     | ✅ 89%  |
+| `kotlin-language`       | 447    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `kotlin-tooling`        | 347    | █████████░ 91%     | 10/10   | 3     | ✅ 89%  |
 
 </details>
 
 <details>
 <summary><h3>📦 laravel (10 skills | avg 573 tokens | quality 10.0/10 | eval alignment 92%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `laravel-api          ` | 575    | ████████░░ 84%     | 10/10 | 6 | ✅ 83% |
-| `laravel-architecture ` | 597    | ████████░░ 84%     | 10/10 | 6 | ✅ 92% |
-| `laravel-background-processing` | 617    | ████████░░ 83%     | 10/10 | 6 | ✅ 91% |
-| `laravel-clean-architecture` | 635    | ████████░░ 83%     | 10/10 | 6 | ✅ 100% |
-| `laravel-database-expert` | 575    | ████████░░ 84%     | 10/10 | 6 | ✅ 84% |
-| `laravel-eloquent     ` | 475    | █████████░ 87%     | 10/10 | 6 | ✅ 85% |
-| `laravel-security     ` | 587    | ████████░░ 84%     | 10/10 | 6 | ✅ 100% |
-| `laravel-sessions-middleware` | 547    | █████████░ 85%     | 10/10 | 6 | ✅ 90% |
-| `laravel-testing      ` | 563    | █████████░ 85%     | 10/10 | 6 | ✅ 95% |
-| `laravel-tooling      ` | 558    | █████████░ 85%     | 10/10 | 6 | ✅ 100% |
+| Skill                           | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| ------------------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `laravel-api`                   | 575    | ████████░░ 84%     | 10/10   | 6     | ✅ 83%  |
+| `laravel-architecture`          | 597    | ████████░░ 84%     | 10/10   | 6     | ✅ 92%  |
+| `laravel-background-processing` | 617    | ████████░░ 83%     | 10/10   | 6     | ✅ 91%  |
+| `laravel-clean-architecture`    | 635    | ████████░░ 83%     | 10/10   | 6     | ✅ 100% |
+| `laravel-database-expert`       | 575    | ████████░░ 84%     | 10/10   | 6     | ✅ 84%  |
+| `laravel-eloquent`              | 475    | █████████░ 87%     | 10/10   | 6     | ✅ 85%  |
+| `laravel-security`              | 587    | ████████░░ 84%     | 10/10   | 6     | ✅ 100% |
+| `laravel-sessions-middleware`   | 547    | █████████░ 85%     | 10/10   | 6     | ✅ 90%  |
+| `laravel-testing`               | 563    | █████████░ 85%     | 10/10   | 6     | ✅ 95%  |
+| `laravel-tooling`               | 558    | █████████░ 85%     | 10/10   | 6     | ✅ 100% |
 
 </details>
 
 <details>
 <summary><h3>📦 nestjs (21 skills | avg 607 tokens | quality 9.8/10 | eval alignment 99%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `nestjs-api-standards ` | 563    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-architecture  ` | 406    | █████████░ 89%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-bullmq        ` | 933    | ███████░░░ 74%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-caching       ` | 702    | ████████░░ 81%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-configuration ` | 611    | ████████░░ 83%     | 10/10 | 3 | ✅ 83% |
-| `nestjs-database      ` | 676    | ████████░░ 82%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-deployment    ` | 633    | ████████░░ 83%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-documentation ` | 696    | ████████░░ 81%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-error-handling` | 582    | ████████░░ 84%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-file-uploads  ` | 426    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-notification  ` | 423    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-observability ` | 651    | ████████░░ 82%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-real-time     ` | 702    | ████████░░ 81%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-scheduling    ` | 422    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-search        ` | 526    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-security      ` | 553    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-security-isolation` | 535    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-testing       ` | 552    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-transport     ` | 530    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
-| `nestjs-controllers-services` | 742    | ████████░░ 80%     | 8/10 | 3 | ✅ 100% |
-| `nestjs-performance   ` | 881    | ████████░░ 76%     | 8/10 | 3 | ✅ 100% |
+| Skill                         | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| ----------------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `nestjs-api-standards`        | 563    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-architecture`         | 406    | █████████░ 89%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-bullmq`               | 933    | ███████░░░ 74%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-caching`              | 702    | ████████░░ 81%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-configuration`        | 611    | ████████░░ 83%     | 10/10   | 3     | ✅ 83%  |
+| `nestjs-database`             | 676    | ████████░░ 82%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-deployment`           | 633    | ████████░░ 83%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-documentation`        | 696    | ████████░░ 81%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-error-handling`       | 582    | ████████░░ 84%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-file-uploads`         | 426    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-notification`         | 423    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-observability`        | 651    | ████████░░ 82%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-real-time`            | 702    | ████████░░ 81%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-scheduling`           | 422    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-search`               | 526    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-security`             | 553    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-security-isolation`   | 535    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-testing`              | 552    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-transport`            | 530    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
+| `nestjs-controllers-services` | 742    | ████████░░ 80%     | 8/10    | 3     | ✅ 100% |
+| `nestjs-performance`          | 881    | ████████░░ 76%     | 8/10    | 3     | ✅ 100% |
 
 </details>
 
 <details>
 <summary><h3>📦 nextjs (18 skills | avg 614 tokens | quality 9.3/10 | eval alignment 97%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `nextjs-app-router    ` | 831    | ████████░░ 77%     | 10/10 | 6 | ✅ 92% |
-| `nextjs-architecture  ` | 909    | ████████░░ 75%     | 10/10 | 6 | ✅ 93% |
-| `nextjs-caching       ` | 653    | ████████░░ 82%     | 10/10 | 6 | ✅ 100% |
-| `nextjs-data-access-layer` | 505    | █████████░ 86%     | 10/10 | 6 | ✅ 100% |
-| `nextjs-data-fetching ` | 462    | █████████░ 87%     | 10/10 | 6 | ✅ 100% |
-| `nextjs-rendering     ` | 586    | ████████░░ 84%     | 10/10 | 6 | ✅ 100% |
-| `nextjs-server-actions` | 728    | ████████░░ 80%     | 10/10 | 6 | ✅ 85% |
-| `nextjs-server-components` | 700    | ████████░░ 81%     | 10/10 | 6 | ✅ 100% |
-| `nextjs-upgrade       ` | 635    | ████████░░ 83%     | 10/10 | 6 | ✅ 100% |
-| `nextjs-i18n          ` | 522    | █████████░ 86%     | 9/10 | 6 | ✅ 100% |
-| `nextjs-security      ` | 535    | █████████░ 85%     | 9/10 | 6 | ✅ 100% |
-| `nextjs-state-management` | 675    | ████████░░ 82%     | 9/10 | 6 | ✅ 90% |
-| `nextjs-styling       ` | 522    | █████████░ 86%     | 9/10 | 6 | ✅ 100% |
-| `nextjs-testing       ` | 498    | █████████░ 86%     | 9/10 | 6 | ✅ 100% |
-| `nextjs-tooling       ` | 458    | █████████░ 87%     | 9/10 | 6 | ✅ 100% |
-| `nextjs-authentication` | 533    | █████████░ 85%     | 8/10 | 6 | ✅ 89% |
-| `nextjs-optimization  ` | 845    | ████████░░ 77%     | 8/10 | 6 | ✅ 100% |
-| `nextjs-pages-router  ` | 463    | █████████░ 87%     | 7/10 | 6 | ✅ 100% |
+| Skill                      | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| -------------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `nextjs-app-router`        | 831    | ████████░░ 77%     | 10/10   | 6     | ✅ 92%  |
+| `nextjs-architecture`      | 909    | ████████░░ 75%     | 10/10   | 6     | ✅ 93%  |
+| `nextjs-caching`           | 653    | ████████░░ 82%     | 10/10   | 6     | ✅ 100% |
+| `nextjs-data-access-layer` | 505    | █████████░ 86%     | 10/10   | 6     | ✅ 100% |
+| `nextjs-data-fetching`     | 462    | █████████░ 87%     | 10/10   | 6     | ✅ 100% |
+| `nextjs-rendering`         | 586    | ████████░░ 84%     | 10/10   | 6     | ✅ 100% |
+| `nextjs-server-actions`    | 728    | ████████░░ 80%     | 10/10   | 6     | ✅ 85%  |
+| `nextjs-server-components` | 700    | ████████░░ 81%     | 10/10   | 6     | ✅ 100% |
+| `nextjs-upgrade`           | 635    | ████████░░ 83%     | 10/10   | 6     | ✅ 100% |
+| `nextjs-i18n`              | 522    | █████████░ 86%     | 9/10    | 6     | ✅ 100% |
+| `nextjs-security`          | 535    | █████████░ 85%     | 9/10    | 6     | ✅ 100% |
+| `nextjs-state-management`  | 675    | ████████░░ 82%     | 9/10    | 6     | ✅ 90%  |
+| `nextjs-styling`           | 522    | █████████░ 86%     | 9/10    | 6     | ✅ 100% |
+| `nextjs-testing`           | 498    | █████████░ 86%     | 9/10    | 6     | ✅ 100% |
+| `nextjs-tooling`           | 458    | █████████░ 87%     | 9/10    | 6     | ✅ 100% |
+| `nextjs-authentication`    | 533    | █████████░ 85%     | 8/10    | 6     | ✅ 89%  |
+| `nextjs-optimization`      | 845    | ████████░░ 77%     | 8/10    | 6     | ✅ 100% |
+| `nextjs-pages-router`      | 463    | █████████░ 87%     | 7/10    | 6     | ✅ 100% |
 
 </details>
 
 <details>
 <summary><h3>📦 php (7 skills | avg 500 tokens | quality 9.6/10 | eval alignment 94%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `php-best-practices   ` | 518    | █████████░ 86%     | 10/10 | 6 | ✅ 92% |
-| `php-security         ` | 538    | █████████░ 85%     | 10/10 | 6 | ✅ 100% |
-| `php-testing          ` | 570    | ████████░░ 84%     | 10/10 | 6 | ✅ 87% |
-| `php-tooling          ` | 544    | █████████░ 85%     | 10/10 | 6 | ✅ 86% |
-| `php-concurrency      ` | 456    | █████████░ 88%     | 9/10 | 6 | ✅ 100% |
-| `php-error-handling   ` | 418    | █████████░ 89%     | 9/10 | 6 | ✅ 100% |
-| `php-language         ` | 455    | █████████░ 88%     | 9/10 | 6 | ✅ 91% |
+| Skill                | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| -------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `php-best-practices` | 518    | █████████░ 86%     | 10/10   | 6     | ✅ 92%  |
+| `php-security`       | 538    | █████████░ 85%     | 10/10   | 6     | ✅ 100% |
+| `php-testing`        | 570    | ████████░░ 84%     | 10/10   | 6     | ✅ 87%  |
+| `php-tooling`        | 544    | █████████░ 85%     | 10/10   | 6     | ✅ 86%  |
+| `php-concurrency`    | 456    | █████████░ 88%     | 9/10    | 6     | ✅ 100% |
+| `php-error-handling` | 418    | █████████░ 89%     | 9/10    | 6     | ✅ 100% |
+| `php-language`       | 455    | █████████░ 88%     | 9/10    | 6     | ✅ 91%  |
 
 </details>
 
 <details>
 <summary><h3>📦 quality-engineering (4 skills | avg 552 tokens | quality 10.0/10 | eval alignment 100%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `quality-engineering-business-analysis` | 483    | █████████░ 87%     | 10/10 | 3 | ✅ 100% |
-| `quality-engineering-jira-integration` | 562    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `quality-engineering-quality-assurance` | 469    | █████████░ 87%     | 10/10 | 3 | ✅ 100% |
-| `quality-engineering-zephyr-test-generation` | 694    | ████████░░ 81%     | 10/10 | 3 | ✅ 100% |
+| Skill                                        | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| -------------------------------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `quality-engineering-business-analysis`      | 483    | █████████░ 87%     | 10/10   | 3     | ✅ 100% |
+| `quality-engineering-jira-integration`       | 562    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `quality-engineering-quality-assurance`      | 469    | █████████░ 87%     | 10/10   | 3     | ✅ 100% |
+| `quality-engineering-zephyr-test-generation` | 694    | ████████░░ 81%     | 10/10   | 3     | ✅ 100% |
 
 </details>
 
 <details>
 <summary><h3>📦 react (8 skills | avg 528 tokens | quality 10.0/10 | eval alignment 100%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `react-component-patterns` | 473    | █████████░ 87%     | 10/10 | 3 | ✅ 100% |
-| `react-hooks          ` | 637    | ████████░░ 83%     | 10/10 | 3 | ✅ 100% |
-| `react-performance    ` | 691    | ████████░░ 81%     | 10/10 | 3 | ✅ 100% |
-| `react-security       ` | 463    | █████████░ 87%     | 10/10 | 3 | ✅ 100% |
-| `react-state-management` | 534    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `react-testing        ` | 529    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
-| `react-tooling        ` | 453    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `react-typescript     ` | 447    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
+| Skill                      | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| -------------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `react-component-patterns` | 473    | █████████░ 87%     | 10/10   | 3     | ✅ 100% |
+| `react-hooks`              | 637    | ████████░░ 83%     | 10/10   | 3     | ✅ 100% |
+| `react-performance`        | 691    | ████████░░ 81%     | 10/10   | 3     | ✅ 100% |
+| `react-security`           | 463    | █████████░ 87%     | 10/10   | 3     | ✅ 100% |
+| `react-state-management`   | 534    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `react-testing`            | 529    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
+| `react-tooling`            | 453    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `react-typescript`         | 447    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
 
 </details>
 
 <details>
 <summary><h3>📦 react-native (13 skills | avg 411 tokens | quality 10.0/10 | eval alignment 99%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `react-native-architecture` | 545    | █████████░ 85%     | 10/10 | 3 | ✅ 92% |
-| `react-native-components` | 374    | █████████░ 90%     | 10/10 | 3 | ✅ 100% |
-| `react-native-deployment` | 442    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `react-native-dls     ` | 257    | █████████░ 93%     | 10/10 | 3 | ✅ 100% |
-| `react-native-navigation` | 298    | █████████░ 92%     | 10/10 | 3 | ✅ 100% |
-| `react-native-navigation-v6` | 460    | █████████░ 87%     | 10/10 | 3 | ✅ 100% |
-| `react-native-notifications` | 321    | █████████░ 91%     | 10/10 | 3 | ✅ 100% |
-| `react-native-performance` | 638    | ████████░░ 83%     | 10/10 | 3 | ✅ 100% |
-| `react-native-platform-specific` | 343    | █████████░ 91%     | 10/10 | 3 | ✅ 100% |
-| `react-native-security` | 503    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
-| `react-native-state-management` | 421    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
-| `react-native-styling ` | 310    | █████████░ 92%     | 10/10 | 3 | ✅ 100% |
-| `react-native-testing ` | 427    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
+| Skill                            | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| -------------------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `react-native-architecture`      | 545    | █████████░ 85%     | 10/10   | 3     | ✅ 92%  |
+| `react-native-components`        | 374    | █████████░ 90%     | 10/10   | 3     | ✅ 100% |
+| `react-native-deployment`        | 442    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `react-native-dls`               | 257    | █████████░ 93%     | 10/10   | 3     | ✅ 100% |
+| `react-native-navigation`        | 298    | █████████░ 92%     | 10/10   | 3     | ✅ 100% |
+| `react-native-navigation-v6`     | 460    | █████████░ 87%     | 10/10   | 3     | ✅ 100% |
+| `react-native-notifications`     | 321    | █████████░ 91%     | 10/10   | 3     | ✅ 100% |
+| `react-native-performance`       | 638    | ████████░░ 83%     | 10/10   | 3     | ✅ 100% |
+| `react-native-platform-specific` | 343    | █████████░ 91%     | 10/10   | 3     | ✅ 100% |
+| `react-native-security`          | 503    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
+| `react-native-state-management`  | 421    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
+| `react-native-styling`           | 310    | █████████░ 92%     | 10/10   | 3     | ✅ 100% |
+| `react-native-testing`           | 427    | █████████░ 88%     | 10/10   | 3     | ✅ 100% |
 
 </details>
 
 <details>
 <summary><h3>📦 spring-boot (10 skills | avg 437 tokens | quality 10.0/10 | eval alignment 95%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `spring-boot-api-design` | 316    | █████████░ 91%     | 10/10 | 3 | ✅ 100% |
-| `spring-boot-architecture` | 593    | ████████░░ 84%     | 10/10 | 3 | ✅ 100% |
-| `spring-boot-best-practices` | 563    | █████████░ 85%     | 10/10 | 3 | ✅ 100% |
-| `spring-boot-data-access` | 501    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
-| `spring-boot-deployment` | 467    | █████████░ 87%     | 10/10 | 3 | ✅ 100% |
-| `spring-boot-microservices` | 485    | █████████░ 87%     | 10/10 | 3 | ✅ 83% |
-| `spring-boot-observability` | 311    | █████████░ 91%     | 10/10 | 3 | ✅ 83% |
-| `spring-boot-scheduling` | 315    | █████████░ 91%     | 10/10 | 3 | ✅ 100% |
-| `spring-boot-security ` | 516    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
-| `spring-boot-testing  ` | 303    | █████████░ 92%     | 10/10 | 3 | ✅ 83% |
+| Skill                        | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| ---------------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `spring-boot-api-design`     | 316    | █████████░ 91%     | 10/10   | 3     | ✅ 100% |
+| `spring-boot-architecture`   | 593    | ████████░░ 84%     | 10/10   | 3     | ✅ 100% |
+| `spring-boot-best-practices` | 563    | █████████░ 85%     | 10/10   | 3     | ✅ 100% |
+| `spring-boot-data-access`    | 501    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
+| `spring-boot-deployment`     | 467    | █████████░ 87%     | 10/10   | 3     | ✅ 100% |
+| `spring-boot-microservices`  | 485    | █████████░ 87%     | 10/10   | 3     | ✅ 83%  |
+| `spring-boot-observability`  | 311    | █████████░ 91%     | 10/10   | 3     | ✅ 83%  |
+| `spring-boot-scheduling`     | 315    | █████████░ 91%     | 10/10   | 3     | ✅ 100% |
+| `spring-boot-security`       | 516    | █████████░ 86%     | 10/10   | 3     | ✅ 100% |
+| `spring-boot-testing`        | 303    | █████████░ 92%     | 10/10   | 3     | ✅ 83%  |
 
 </details>
 
 <details>
 <summary><h3>📦 swift (8 skills | avg 453 tokens | quality 10.0/10 | eval alignment 96%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `swift-best-practices ` | 656    | ████████░░ 82%     | 10/10 | 4 | ✅ 92% |
-| `swift-concurrency    ` | 470    | █████████░ 87%     | 10/10 | 5 | ✅ 93% |
-| `swift-error-handling ` | 425    | █████████░ 88%     | 10/10 | 4 | ✅ 100% |
-| `swift-language       ` | 462    | █████████░ 87%     | 10/10 | 5 | ✅ 94% |
-| `swift-memory-management` | 380    | █████████░ 90%     | 10/10 | 4 | ✅ 89% |
-| `swift-swiftui        ` | 427    | █████████░ 88%     | 10/10 | 4 | ✅ 100% |
-| `swift-testing        ` | 424    | █████████░ 88%     | 10/10 | 4 | ✅ 100% |
-| `swift-tooling        ` | 380    | █████████░ 90%     | 10/10 | 4 | ✅ 100% |
+| Skill                     | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| ------------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `swift-best-practices`    | 656    | ████████░░ 82%     | 10/10   | 4     | ✅ 92%  |
+| `swift-concurrency`       | 470    | █████████░ 87%     | 10/10   | 5     | ✅ 93%  |
+| `swift-error-handling`    | 425    | █████████░ 88%     | 10/10   | 4     | ✅ 100% |
+| `swift-language`          | 462    | █████████░ 87%     | 10/10   | 5     | ✅ 94%  |
+| `swift-memory-management` | 380    | █████████░ 90%     | 10/10   | 4     | ✅ 89%  |
+| `swift-swiftui`           | 427    | █████████░ 88%     | 10/10   | 4     | ✅ 100% |
+| `swift-testing`           | 424    | █████████░ 88%     | 10/10   | 4     | ✅ 100% |
+| `swift-tooling`           | 380    | █████████░ 90%     | 10/10   | 4     | ✅ 100% |
 
 </details>
 
 <details>
 <summary><h3>📦 typescript (4 skills | avg 652 tokens | quality 9.5/10 | eval alignment 98%)</h3></summary>
 
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
-| `typescript-best-practices` | 593    | ████████░░ 84%     | 10/10 | 3 | ✅ 90% |
-| `typescript-language  ` | 648    | ████████░░ 82%     | 10/10 | 4 | ✅ 100% |
-| `typescript-security  ` | 567    | ████████░░ 84%     | 10/10 | 3 | ✅ 100% |
-| `typescript-tooling   ` | 799    | ████████░░ 78%     | 8/10 | 3 | ✅ 100% |
+| Skill                       | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| --------------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `typescript-best-practices` | 593    | ████████░░ 84%     | 10/10   | 3     | ✅ 90%  |
+| `typescript-language`       | 648    | ████████░░ 82%     | 10/10   | 4     | ✅ 100% |
+| `typescript-security`       | 567    | ████████░░ 84%     | 10/10   | 3     | ✅ 100% |
+| `typescript-tooling`        | 799    | ████████░░ 78%     | 8/10    | 3     | ✅ 100% |
 
 </details>
 
 ## 🏆 Quality Leaders
 
-| Rank | Skill                   | Category | Quality | Tokens | Evals | Aligned |
-| ---- | ----------------------- | -------- | ------- | ------ | ----- | ------- |
-| 1    | `android-architecture ` | android  | 10/10 | 472 | 3 | ✅ 88% |
-| 2    | `android-background-work` | android  | 10/10 | 301 | 3 | ✅ 100% |
-| 3    | `android-compose      ` | android  | 10/10 | 392 | 3 | ✅ 100% |
-| 4    | `android-concurrency  ` | android  | 10/10 | 315 | 3 | ✅ 89% |
-| 5    | `android-deployment   ` | android  | 10/10 | 325 | 3 | ✅ 100% |
-| 6    | `android-design-system` | android  | 10/10 | 300 | 3 | ✅ 100% |
-| 7    | `android-di           ` | android  | 10/10 | 285 | 3 | ✅ 88% |
-| 8    | `android-legacy-navigation` | android  | 10/10 | 249 | 3 | ✅ 86% |
-| 9    | `android-legacy-security` | android  | 10/10 | 514 | 3 | ✅ 100% |
-| 10   | `android-legacy-state ` | android  | 10/10 | 259 | 3 | ✅ 100% |
+| Rank | Skill                       | Category | Quality | Tokens | Evals | Aligned |
+| ---- | --------------------------- | -------- | ------- | ------ | ----- | ------- |
+| 1    | `android-architecture`      | android  | 10/10   | 472    | 3     | ✅ 88%  |
+| 2    | `android-background-work`   | android  | 10/10   | 301    | 3     | ✅ 100% |
+| 3    | `android-compose`           | android  | 10/10   | 392    | 3     | ✅ 100% |
+| 4    | `android-concurrency`       | android  | 10/10   | 315    | 3     | ✅ 89%  |
+| 5    | `android-deployment`        | android  | 10/10   | 325    | 3     | ✅ 100% |
+| 6    | `android-design-system`     | android  | 10/10   | 300    | 3     | ✅ 100% |
+| 7    | `android-di`                | android  | 10/10   | 285    | 3     | ✅ 88%  |
+| 8    | `android-legacy-navigation` | android  | 10/10   | 249    | 3     | ✅ 86%  |
+| 9    | `android-legacy-security`   | android  | 10/10   | 514    | 3     | ✅ 100% |
+| 10   | `android-legacy-state`      | android  | 10/10   | 259    | 3     | ✅ 100% |
 
 ## 📐 Methodology & Baseline Justification
 
@@ -503,13 +503,13 @@ Using NestJS as the **Reference Unit**: Because we measure instruction volume re
 
 To ensure skills are not just "short" but actually **high quality**, every skill is scored against this structural rubric:
 
-| Score  | Criteria                  | Rationale                                              |
-| ------ | ------------------------- | ------------------------------------------------------ |
-| **+2** | **Structured Guidelines** | At least 3 specific instructions/bullet points.                    |
-| **+2** | **Anti-Patterns**         | `## Anti-Patterns` section or `**No X**` inline lines.            |
-| **+2** | **Reference Examples**    | Presence of a verified `references/` folder with code.             |
-| **+2** | **Token Optimality**      | Entire `SKILL.md` is ≤100 lines (forces brevity).                  |
-| **+2** | **Eval Coverage**         | ≥3 evals with `should_not_trigger`, ≥2 assertions each. +1 partial.|
+| Score  | Criteria                  | Rationale                                                           |
+| ------ | ------------------------- | ------------------------------------------------------------------- |
+| **+2** | **Structured Guidelines** | At least 3 specific instructions/bullet points.                     |
+| **+2** | **Anti-Patterns**         | `## Anti-Patterns` section or `**No X**` inline lines.              |
+| **+2** | **Reference Examples**    | Presence of a verified `references/` folder with code.              |
+| **+2** | **Token Optimality**      | Entire `SKILL.md` is ≤100 lines (forces brevity).                   |
+| **+2** | **Eval Coverage**         | ≥3 evals with `should_not_trigger`, ≥2 assertions each. +1 partial. |
 
 > **Eval Alignment** (reported separately, not scored): % of eval `contains` assertion values that appear in SKILL.md content. Measures whether the skill actually teaches what its evals test — the closest static proxy for **with-skill vs without-skill** behavioral improvement.
 
