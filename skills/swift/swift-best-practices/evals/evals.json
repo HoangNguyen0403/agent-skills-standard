@@ -1,13 +1,46 @@
 {
-  "skill": "swift-best-practices",
-  "should_trigger": [
-    "How do I use guard for early exit in Swift?",
-    "Should I use struct or class in Swift?",
-    "How do I make my Swift code more idiomatic?",
-    "How do I name Boolean properties in Swift?",
-    "How do I avoid nested if statements?",
-    "Should I use let or var for Swift properties?",
-    "How do I use for-where in Swift?"
+  "skill_name": "swift-best-practices",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I use guard for early exit in Swift?",
+      "expected_output": "Use guard for preconditions to avoid nested if statements. Example: guard let user = user else { return }. Reduces nested depth.",
+      "assertions": [
+        { "type": "contains", "value": "guard" },
+        { "type": "contains", "value": "nested if" },
+        { "type": "contains", "value": "preconditions" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Should I use struct or class in Swift?",
+      "expected_output": "Default to struct for value semantics and thread safety. Use class only for reference identity or inheritance.",
+      "assertions": [
+        { "type": "contains", "value": "Default to struct" },
+        { "type": "contains", "value": "value semantics" },
+        { "type": "contains", "value": "inheritance" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I make my Swift code more idiomatic?",
+      "expected_output": "Use for-where for clean loops. Prefer small methods, clear names, and protocol-based decoupling. Always default to let.",
+      "assertions": [
+        { "type": "contains", "value": "for-where" },
+        { "type": "contains", "value": "clear names" },
+        { "type": "contains", "value": "default to let" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "How do I name Boolean properties in Swift?",
+      "expected_output": "Use prefixes like is, has, or can. Example: isValid, hasErrors, canEdit. Makes boolean state clear.",
+      "assertions": [
+        { "type": "contains", "value": "is, has, or can" },
+        { "type": "contains", "value": "isValid" },
+        { "type": "contains", "value": "canEdit" }
+      ]
+    }
   ],
   "should_not_trigger": [
     "How do I set up Fastlane?",

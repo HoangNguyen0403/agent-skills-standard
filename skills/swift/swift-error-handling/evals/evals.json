@@ -1,13 +1,46 @@
 {
-  "skill": "swift-error-handling",
-  "should_trigger": [
-    "How do I handle errors in Swift?",
-    "How do I define custom error types in Swift?",
-    "When should I use Result vs throws in Swift?",
-    "How do I use do-catch in Swift?",
-    "How do I use try? and try! in Swift?",
-    "How do I use fatalError in Swift?",
-    "How do I chain Result transformations in Swift?"
+  "skill_name": "swift-error-handling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I handle errors in Swift?",
+      "expected_output": "Use do-catch blocks with specific catch clauses. Handle errors close to source. Use try, try?, or try! (only if guaranteed success).",
+      "assertions": [
+        { "type": "contains", "value": "do-catch" },
+        { "type": "contains", "value": "try" },
+        { "type": "contains", "value": "specific catch clauses" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I define custom error types in Swift?",
+      "expected_output": "Define as enum conforming to Error protocol. Example: enum NetworkError: Error { case connectionLost, serverError(Int) }.",
+      "assertions": [
+        { "type": "contains", "value": "enum" },
+        { "type": "contains", "value": "conforming to Error" },
+        { "type": "contains", "value": "case" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "When should I use Result vs throws in Swift?",
+      "expected_output": "Use throws for synchronous path-based error management. Use Result for callbacks or non-async deferred error states.",
+      "assertions": [
+        { "type": "contains", "value": "throws for synchronous" },
+        { "type": "contains", "value": "Result for callbacks" },
+        { "type": "contains", "value": "deferred error states" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "How do I use fatalError in Swift?",
+      "expected_output": "Use only for unrecoverable crash scenarios or to indicate unreachable code. Never for expected errors.",
+      "assertions": [
+        { "type": "contains", "value": "unrecoverable crash" },
+        { "type": "contains", "value": "unreachable code" },
+        { "type": "contains", "value": "Never for expected errors" }
+      ]
+    }
   ],
   "should_not_trigger": [
     "How do I use @MainActor?",

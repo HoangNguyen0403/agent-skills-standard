@@ -1,13 +1,56 @@
 {
-  "skill": "swift-concurrency",
-  "should_trigger": [
-    "How do I use async/await in Swift?",
-    "How do I use actors to protect mutable state?",
-    "How do I annotate UI code with @MainActor?",
-    "How do I handle task cancellation in Swift?",
-    "How do I use TaskGroup in Swift?",
-    "When should I use async let?",
-    "How do I avoid using Task.detached?"
+  "skill_name": "swift-concurrency",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I use async/await in Swift?",
+      "expected_output": "Mark functions as async, call with await. Avoid completion handlers. Example: let user = await fetchUser(). Use throws for async throwing.",
+      "assertions": [
+        { "type": "contains", "value": "Mark functions as async" },
+        { "type": "contains", "value": "await" },
+        { "type": "contains", "value": "no completion handlers" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I use actors to protect mutable state?",
+      "expected_output": "Use actor Keyword for data isolation. Only allow access via async methods. Perfect for single-point state like Account or Database.",
+      "assertions": [
+        { "type": "contains", "value": "actor Keyword" },
+        { "type": "contains", "value": "data isolation" },
+        { "type": "contains", "value": "async methods" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I annotate UI code with @MainActor?",
+      "expected_output": "Add @MainActor to functions, classes, or properties to ensure execution on the main thread. Default on ViewModels and View.body.",
+      "assertions": [
+        { "type": "contains", "value": "@MainActor" },
+        { "type": "contains", "value": "main thread" },
+        { "type": "contains", "value": "ViewModel" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "How do I use async let for parallel execution?",
+      "expected_output": "Use async let to run independent tasks in parallel: async let user = fetchUser(); async let posts = fetchPosts(). Then await both together.",
+      "assertions": [
+        { "type": "contains", "value": "async let" },
+        { "type": "contains", "value": "parallel" },
+        { "type": "contains", "value": "await both" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "How do I use TaskGroup in Swift?",
+      "expected_output": "Use withTaskGroup or withThrowingTaskGroup for dynamic parallelism. add tasks to the group and collect results as they finish.",
+      "assertions": [
+        { "type": "contains", "value": "withTaskGroup" },
+        { "type": "contains", "value": "dynamic parallelism" },
+        { "type": "contains", "value": "group.addTask" }
+      ]
+    }
   ],
   "should_not_trigger": [
     "How do I set up Core Data?",

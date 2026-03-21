@@ -1,13 +1,43 @@
 {
-  "skill": "swift-tooling",
-  "should_trigger": [
-    "How do I add a Swift package dependency?",
-    "How do I configure SwiftLint for my project?",
-    "How do I use Package.swift?",
-    "How do I use #if DEBUG in Swift?",
-    "How do I modularize my iOS app using local Swift packages?",
-    "How do I write DocC documentation in Swift?",
-    "How do I manage build configurations with xcconfig files?"
+  "skill_name": "swift-tooling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I add a Swift package dependency?",
+      "expected_output": "Add dependencies to your Package.swift under the 'dependencies' section using .package(url: ...). Add them to targets with .product(name: ..., package: ...).",
+      "assertions": [
+        { "type": "contains", "value": "Package.swift" },
+        { "type": "contains", "value": "dependencies" },
+        { "type": "contains", "value": "targets" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I configure SwiftLint for my project?",
+      "expected_output": "Create a .swiftlint.yml in the project root. Add excluding folders, disabled_rules, and opt_in_rules to configure it.",
+      "assertions": [
+        { "type": "contains", "value": ".swiftlint.yml" },
+        { "type": "contains", "value": "disabled_rules" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I use #if DEBUG in Swift?",
+      "expected_output": "Use compiler directives to run code only during development. Example: #if DEBUG print('Debug') #endif.",
+      "assertions": [
+        { "type": "contains", "value": "#if DEBUG" },
+        { "type": "contains", "value": "#endif" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "How do I write DocC documentation in Swift?",
+      "expected_output": "Use triple slashes '///' for documentation comments. Use Markdown and symbols with ``. Run build-documentation command to generate it.",
+      "assertions": [
+        { "type": "contains", "value": "triple slashes" },
+        { "type": "contains", "value": "documentation comments" }
+      ]
+    }
   ],
   "should_not_trigger": [
     "How do I implement MVVM?",

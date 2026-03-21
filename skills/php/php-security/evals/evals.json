@@ -4,32 +4,100 @@
     {
       "id": 1,
       "prompt": "Prevent SQL injection in PHP with PDO",
-      "expected_output": "$stmt = $pdo->prepare('SELECT * FROM users WHERE id = :id AND email = :email'); $stmt->execute([':id' => $id, ':email' => $email]); never concatenate user input into SQL strings"
+      "expected_output": "$stmt = $pdo->prepare('SELECT * FROM users WHERE id = :id AND email = :email'); $stmt->execute([':id' => $id, ':email' => $email]); never concatenate user input into SQL strings",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "$pdo->prepare"
+        },
+        {
+          "type": "contains",
+          "value": ":id"
+        },
+        {
+          "type": "contains",
+          "value": "$stmt->execute"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Hash passwords securely in PHP",
-      "expected_output": "$hash = password_hash($password, PASSWORD_ARGON2ID, ['memory_cost' => 65536, 'time_cost' => 4]); verify with password_verify($input, $hash); never use MD5, SHA1, SHA256 for passwords"
+      "expected_output": "$hash = password_hash($password, PASSWORD_ARGON2ID, ['memory_cost' => 65536, 'time_cost' => 4]); verify with password_verify($input, $hash); never use MD5, SHA1, SHA256 for passwords",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "password_hash"
+        },
+        {
+          "type": "contains",
+          "value": "PASSWORD_ARGON2ID"
+        },
+        {
+          "type": "contains",
+          "value": "password_verify"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Escape user output to prevent XSS in PHP",
-      "expected_output": "echo htmlentities($userInput, ENT_QUOTES | ENT_HTML5, 'UTF-8'); or htmlspecialchars() in HTML context; never echo raw $_GET/$_POST/$_COOKIE; sanitize before output AND before storage"
+      "expected_output": "echo htmlentities($userInput, ENT_QUOTES | ENT_HTML5, 'UTF-8'); or htmlspecialchars() in HTML context; never echo raw $_GET/$_POST/$_COOKIE; sanitize before output AND before storage",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "htmlentities"
+        },
+        {
+          "type": "contains",
+          "value": "ENT_QUOTES | ENT_HTML5"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Validate email input with filter_var in PHP",
-      "expected_output": "if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new InvalidArgumentException(); filter_var($url, FILTER_VALIDATE_URL); filter_var($age, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])"
+      "expected_output": "if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new InvalidArgumentException(); filter_var($url, FILTER_VALIDATE_URL); filter_var($age, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "filter_var"
+        },
+        {
+          "type": "contains",
+          "value": "FILTER_VALIDATE_EMAIL"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Use password_hash with ARGON2ID in PHP",
-      "expected_output": "$hash = password_hash($password, PASSWORD_ARGON2ID); ARGON2ID resistant to GPU and side-channel attacks; auto-includes salt; use password_needs_rehash() to upgrade legacy hashes"
+      "expected_output": "$hash = password_hash($password, PASSWORD_ARGON2ID); ARGON2ID resistant to GPU and side-channel attacks; auto-includes salt; use password_needs_rehash() to upgrade legacy hashes",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "password_hash"
+        },
+        {
+          "type": "contains",
+          "value": "PASSWORD_ARGON2ID"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Secure authentication with password_verify in PHP",
-      "expected_output": "if (!password_verify($inputPassword, $storedHash)) throw new AuthException(); timing-safe comparison built-in; if (password_needs_rehash($hash, PASSWORD_ARGON2ID)) { rehash and update DB }"
+      "expected_output": "if (!password_verify($inputPassword, $storedHash)) throw new AuthException(); timing-safe comparison built-in; if (password_needs_rehash($hash, PASSWORD_ARGON2ID)) { rehash and update DB }",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "password_verify"
+        },
+        {
+          "type": "contains",
+          "value": "password_needs_rehash"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

@@ -1,6 +1,6 @@
 ---
 name: nextjs-server-actions
-description: "Mutations, Form handling, and RPC-style calls. Use when implementing Server Actions, form mutations, or RPC-style data mutations in Next.js. (triggers: app/**/actions.ts, src/app/**/actions.ts, app/**/*.tsx, src/app/**/*.tsx, use server, Server Action, revalidatePath, useFormStatus)"
+description: 'Mutations, Form handling, and RPC-style calls. Use when implementing Server Actions, form mutations, or RPC-style data mutations in Next.js. (triggers: app/**/actions.ts, src/app/**/actions.ts, app/**/*.tsx, src/app/**/*.tsx, use server, Server Action, revalidatePath, useFormStatus)'
 ---
 
 # Server Actions
@@ -37,7 +37,7 @@ export async function createPost(formData: FormData) {
 
 ### **1. Secure & Validate**
 
-Always validate inputs and check authorization within the action. See [Secure Action Example](references/example.md).
+Always validate inputs and check authorization within the action. See [Secure Action Example](references/secure-actions.md).
 
 ### **2. Pending States**
 

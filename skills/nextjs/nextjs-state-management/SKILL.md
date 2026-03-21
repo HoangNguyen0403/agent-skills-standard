@@ -1,6 +1,6 @@
 ---
 name: nextjs-state-management
-description: "Best practices for managing state (Server URL vs Client Hooks). Use when managing URL state, client state, or global state in a Next.js application. (triggers: **/hooks/*.ts, **/store.ts, **/components/*.tsx, useState, useContext, zustand, redux)"
+description: 'Best practices for managing state (Server URL vs Client Hooks). Use when managing URL state, client state, or global state in a Next.js application. (triggers: **/hooks/*.ts, **/store.ts, **/components/*.tsx, useState, useContext, zustand, redux)'
 ---
 
 # State Management
@@ -30,7 +30,7 @@ const [stats, setStats] = useState({});
 
 ### 2. URL-Driven State (Search/Filter)
 
-Use `useSearchParams` + `useRouter` to update URL params. See [URL State Pattern](references/zustand.md).
+Use `useSearchParams` + `useRouter` to update URL params. See [URL State Pattern](references/url-state.md).
 
 ### 3. Server State (TanStack Query / SWR)
 
@@ -47,7 +47,7 @@ For specific state management patterns, see:
 
 - [references/redux.md](references/redux.md)
 - [references/zustand.md](references/zustand.md)
-
+- [references/url-state.md](references/url-state.md)
 
 ## Anti-Patterns
 

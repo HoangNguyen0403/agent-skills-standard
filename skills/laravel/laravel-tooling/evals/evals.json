@@ -4,32 +4,66 @@
     {
       "id": 1,
       "prompt": "Create a custom Artisan command in Laravel",
-      "expected_output": "php artisan make:command SendNewsletters; define protected $signature = 'newsletters:send {--queue}'; implement handle(): int; auto-discovered in app/Console/Commands/; schedule in bootstrap/app.php"
+      "expected_output": "php artisan make:command SendNewsletters; define protected $signature = 'newsletters:send {--queue}'; implement handle(): int; auto-discovered in app/Console/Commands/; schedule in bootstrap/app.php",
+      "assertions": [
+        { "type": "contains", "value": "make:command SendNewsletters" },
+        { "type": "contains", "value": "protected $signature" },
+        { "type": "contains", "value": "handle(): int" },
+        { "type": "contains", "value": "app/Console/Commands/" }
+      ]
     },
     {
       "id": 2,
       "prompt": "Set up Vite asset bundling in Laravel",
-      "expected_output": "Run npm install; configure laravel vite plugin in vite.config.js; add @vite(['resources/css/app.css', 'resources/js/app.js']) to Blade layout; run npm run dev; npm run build for production"
+      "expected_output": "Run npm install; configure laravel vite plugin in vite.config.js; add @vite(['resources/css/app.css', 'resources/js/app.js']) to Blade layout; run npm run dev; npm run build for production",
+      "assertions": [
+        { "type": "contains", "value": "vite.config.js" },
+        { "type": "contains", "value": "@vite(['resources/css/app.css'" },
+        { "type": "contains", "value": "npm run dev" },
+        { "type": "contains", "value": "npm run build" }
+      ]
     },
     {
       "id": 3,
       "prompt": "Configure Laravel Pint for code styling",
-      "expected_output": "composer require laravel/pint --dev; run ./vendor/bin/pint; configure pint.json with preset: 'laravel'; add to CI pipeline; never use older Laravel Mix or manually format code"
+      "expected_output": "composer require laravel/pint --dev; run ./vendor/bin/pint; configure pint.json with preset: 'laravel'; add to CI pipeline; never use older Laravel Mix or manually format code",
+      "assertions": [
+        { "type": "contains", "value": "laravel/pint" },
+        { "type": "contains", "value": "./vendor/bin/pint" },
+        { "type": "contains", "value": "pint.json" },
+        { "type": "contains", "value": "preset: 'laravel'" }
+      ]
     },
     {
       "id": 4,
       "prompt": "Monitor queues with Laravel Horizon",
-      "expected_output": "composer require laravel/horizon; php artisan horizon:install; configure supervisors in config/horizon.php per queue; run php artisan horizon; access /horizon in browser; set auth in HorizonServiceProvider"
+      "expected_output": "composer require laravel/horizon; php artisan horizon:install; configure supervisors in config/horizon.php per queue; run php artisan horizon; access /horizon in browser; set auth in HorizonServiceProvider",
+      "assertions": [
+        { "type": "contains", "value": "laravel/horizon" },
+        { "type": "contains", "value": "horizon:install" },
+        { "type": "contains", "value": "horizon.php" },
+        { "type": "contains", "value": "HorizonServiceProvider" }
+      ]
     },
     {
       "id": 5,
       "prompt": "Migrate from Laravel Mix to Vite",
-      "expected_output": "Remove laravel-mix; install vite + laravel-vite-plugin; update package.json scripts: build/dev; replace mix() with vite() in Blade; rename webpack.mix.js → vite.config.js; update npm run dev"
+      "expected_output": "Remove laravel-mix; install vite + laravel-vite-plugin; update package.json scripts: build/dev; replace mix() with vite() in Blade; rename webpack.mix.js → vite.config.js; update npm run dev",
+      "assertions": [
+        { "type": "contains", "value": "Remove laravel-mix" },
+        { "type": "contains", "value": "vite.config.js" },
+        { "type": "contains", "value": "replace mix() with vite()" }
+      ]
     },
     {
       "id": 6,
       "prompt": "Bundle CSS and JS assets in Laravel",
-      "expected_output": "Use Vite (not Mix) with @vite directive; configure input files in vite.config.js laravel plugin; run npm run build for production; auto-generates cache-busted filenames; no manual versioning needed"
+      "expected_output": "Use Vite (not Mix) with @vite directive; configure input files in vite.config.js laravel plugin; run npm run build for production; auto-generates cache-busted filenames; no manual versioning needed",
+      "assertions": [
+        { "type": "contains", "value": "Vite (not Mix)" },
+        { "type": "contains", "value": "@vite directive" },
+        { "type": "contains", "value": "npm run build for production" }
+      ]
     }
   ],
   "should_not_trigger": [

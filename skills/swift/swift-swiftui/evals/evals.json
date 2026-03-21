@@ -1,13 +1,45 @@
 {
-  "skill": "swift-swiftui",
-  "should_trigger": [
-    "When should I use @State vs @Binding in SwiftUI?",
-    "What is the difference between @StateObject and @ObservedObject?",
-    "How do I share data across a view hierarchy in SwiftUI?",
-    "How do I use @EnvironmentObject?",
-    "How do I create a custom ViewModifier in SwiftUI?",
-    "How do I use LazyVStack for performance?",
-    "How do I prevent unnecessary re-renders in SwiftUI?"
+  "skill_name": "swift-swiftui",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "When should I use @State vs @Binding in SwiftUI?",
+      "expected_output": "Use @State for data owned by the view. Use @Binding for data passed down from a parent view to a child.",
+      "assertions": [
+        { "type": "contains", "value": "@State for data owned" },
+        { "type": "contains", "value": "@Binding for data passed down" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What is the difference between @StateObject and @ObservedObject?",
+      "expected_output": "Use @StateObject when the view is creating the instance. Use @ObservedObject when receiving an instance from an external source.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "@StateObject when the view is creating"
+        },
+        { "type": "contains", "value": "@ObservedObject when receiving" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I share data across a view hierarchy in SwiftUI?",
+      "expected_output": "Use @Environment or @EnvironmentObject to inject data into the view's hierarchy. Example: parent.environmentObject(user).",
+      "assertions": [
+        { "type": "contains", "value": "@EnvironmentObject" },
+        { "type": "contains", "value": "inject data into the view's hierarchy" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "How do I use LazyVStack for performance?",
+      "expected_output": "Use LazyVStack when displaying a large number of views in a scrolling container to load them only as they appear. Use LazyHGrid for grid performance.",
+      "assertions": [
+        { "type": "contains", "value": "large number of views" },
+        { "type": "contains", "value": "load them only as they appear" }
+      ]
+    }
   ],
   "should_not_trigger": [
     "How do I use async/await?",

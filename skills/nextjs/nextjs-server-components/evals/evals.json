@@ -4,32 +4,92 @@
     {
       "id": 1,
       "prompt": "Decide where to put 'use client' in a Next.js component tree",
-      "expected_output": "Keep layouts/pages as Server Components; add 'use client' only to interactive leaf nodes (Button, Form, Chart); never at app/layout.tsx root; push boundary as deep as possible to maximize RSC benefits"
+      "expected_output": "Keep layouts/pages as Server Components; add 'use client' only to interactive leaf nodes (Button, Form, Chart); never at app/layout.tsx root; push boundary as deep as possible to maximize RSC benefits",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "leaf nodes"
+        },
+        {
+          "type": "contains",
+          "value": "maximise RSC benefits"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Pass Server Component as children to a Client Component",
-      "expected_output": "// Page.tsx (Server)\n<ClientWrapper><ServerDataComponent /></ClientWrapper>\n// ClientWrapper.tsx\n'use client';\nexport default function ClientWrapper({ children }) { return <div>{children}</div>; }\nnever import Server Component inside Client Component file"
+      "expected_output": "// Page.tsx (Server)\n<ClientWrapper><ServerDataComponent /></ClientWrapper>\n// ClientWrapper.tsx\n'use client';\nexport default function ClientWrapper({ children }) { return <div>{children}</div>; }\nnever import Server Component inside Client Component file",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "<ClientWrapper><ServerDataComponent /></ClientWrapper>"
+        },
+        {
+          "type": "contains",
+          "value": "'use client'"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Access database directly in a Next.js Server Component",
-      "expected_output": "async function Page({ params }: Props) { const { id } = await params; const user = await db.user.findUnique({ where: { id }, select: { id: true, name: true } }); return <Profile user={user}/>; }"
+      "expected_output": "async function Page({ params }: Props) { const { id } = await params; const user = await db.user.findUnique({ where: { id }, select: { id: true, name: true } }); return <Profile user={user}/>; }",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "await db."
+        },
+        {
+          "type": "contains",
+          "value": "await params"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Avoid useState in a Server Component",
-      "expected_output": "Server Components run only on server; remove useState/useEffect; move interactive state to a 'use client' leaf component; use URL searchParams for shareable state; use Server Actions for mutations"
+      "expected_output": "Server Components run only on server; remove useState/useEffect; move interactive state to a 'use client' leaf component; use URL searchParams for shareable state; use Server Actions for mutations",
+      "assertions": [
+        {
+          "type": "not_contains",
+          "value": "useState"
+        },
+        {
+          "type": "not_contains",
+          "value": "useEffect"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Prevent server secrets from leaking into client bundles",
-      "expected_output": "import 'server-only' at top of any file with DB access or secrets; throws build error if Client Component imports it; env vars without NEXT_PUBLIC_ prefix are server-only by default"
+      "expected_output": "import 'server-only' at top of any file with DB access or secrets; throws build error if Client Component imports it; env vars without NEXT_PUBLIC_ prefix are server-only by default",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "server-only"
+        },
+        {
+          "type": "not_contains",
+          "value": "NEXT_PUBLIC_"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Understand hydration in Next.js App Router",
-      "expected_output": "Server sends HTML + RSC payload (JSON); client hydrates only Client Components ('use client' files); Server Components have zero JS in client bundle; avoid client/server mismatch (Date.now(), Math.random() in render)"
+      "expected_output": "Server sends HTML + RSC payload (JSON); client hydrates only Client Components ('use client' files); Server Components have zero JS in client bundle; avoid client/server mismatch (Date.now(), Math.random() in render)",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "RSC payload"
+        },
+        {
+          "type": "contains",
+          "value": "zero JS"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

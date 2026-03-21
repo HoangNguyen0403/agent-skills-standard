@@ -4,32 +4,84 @@
     {
       "id": 1,
       "prompt": "Use PHP Fibers for concurrent tasks",
-      "expected_output": "$fiber = new Fiber(function(): void { $value = Fiber::suspend('paused'); echo $value; }); $v = $fiber->start(); $fiber->resume('hello'); catch exceptions via $fiber->getReturn()"
+      "expected_output": "$fiber = new Fiber(function(): void { $value = Fiber::suspend('paused'); echo $value; }); $v = $fiber->start(); $fiber->resume('hello'); catch exceptions via $fiber->getReturn()",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "new Fiber"
+        },
+        {
+          "type": "contains",
+          "value": "Fiber::suspend"
+        },
+        {
+          "type": "contains",
+          "value": "$fiber->resume"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Implement non-blocking I/O in PHP",
-      "expected_output": "Use ReactPHP EventLoop or Amp; wrap blocking calls behind Fiber::suspend(); never use blocking file_get_contents or sleep() inside a Fiber; use async-compatible HTTP clients (react/http)"
+      "expected_output": "Use ReactPHP EventLoop or Amp; wrap blocking calls behind Fiber::suspend(); never use blocking file_get_contents or sleep() inside a Fiber; use async-compatible HTTP clients (react/http)",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Fiber::suspend"
+        },
+        {
+          "type": "not_contains",
+          "value": "file_get_contents"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Use ReactPHP for async processing",
-      "expected_output": "Install react/event-loop; create Loop::get(); use react/http for async HTTP; attach readable/writable stream handlers; run Loop::run() at application entry point to start event loop"
+      "expected_output": "Install react/event-loop; create Loop::get(); use react/http for async HTTP; attach readable/writable stream handlers; run Loop::run() at application entry point to start event loop",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Loop::get()"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Use Fiber::suspend() in PHP 8.1",
-      "expected_output": "$fiber = new Fiber(fn() => Fiber::suspend(fetchData())); $data = $fiber->start(); $fiber->resume($processedData); Fiber yields control back to caller; caller resumes with resume()"
+      "expected_output": "$fiber = new Fiber(fn() => Fiber::suspend(fetchData())); $data = $fiber->start(); $fiber->resume($processedData); Fiber yields control back to caller; caller resumes with resume()",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Fiber::suspend"
+        },
+        {
+          "type": "contains",
+          "value": "$fiber->resume"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Implement async HTTP requests in PHP",
-      "expected_output": "Use Guzzle pool for concurrent requests: $pool = new Pool($client, $requests, ['concurrency' => 5]); or use react/http-client for true async; never serial file_get_contents in a loop"
+      "expected_output": "Use Guzzle pool for concurrent requests: $pool = new Pool($client, $requests, ['concurrency' => 5]); or use react/http-client for true async; never serial file_get_contents in a loop",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Pool($client"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Handle concurrent database queries in PHP",
-      "expected_output": "Use separate PDO connections per Fiber to avoid shared state; avoid shared mutable state; for heavy concurrency prefer queued jobs (Laravel Horizon/Symfony Messenger) over raw PHP Fibers"
+      "expected_output": "Use separate PDO connections per Fiber to avoid shared state; avoid shared mutable state; for heavy concurrency prefer queued jobs (Laravel Horizon/Symfony Messenger) over raw PHP Fibers",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "separate PDO connections per Fiber"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

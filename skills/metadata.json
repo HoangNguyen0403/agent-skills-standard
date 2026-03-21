@@ -237,8 +237,8 @@
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 8817,
-        "avg_tokens_per_skill": 490,
+        "total_tokens": 8839,
+        "avg_tokens_per_skill": 491,
         "largest_skill": "nextjs-architecture (909 tokens)"
       }
     },
@@ -358,9 +358,9 @@
       "tag_prefix": "php-v",
       "token_metrics": {
         "total_skills": 7,
-        "total_tokens": 2173,
-        "avg_tokens_per_skill": 310,
-        "largest_skill": "php-error-handling (332 tokens)"
+        "total_tokens": 2176,
+        "avg_tokens_per_skill": 311,
+        "largest_skill": "php-security (335 tokens)"
       }
     },
     "laravel": {

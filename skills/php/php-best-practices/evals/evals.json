@@ -4,32 +4,96 @@
     {
       "id": 1,
       "prompt": "Follow PSR-12 coding standards in PHP",
-      "expected_output": "4-space indentation; opening braces on same line for functions/methods; one class per file; use statements at top after namespace; run PHP CS Fixer with PSR-12 preset to enforce automatically"
+      "expected_output": "4-space indentation; opening braces on same line for functions/methods; one class per file; use statements at top after namespace; run PHP CS Fixer with PSR-12 preset to enforce automatically",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "PSR-12"
+        },
+        {
+          "type": "contains",
+          "value": "opening braces on same line"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Apply SOLID principles in PHP",
-      "expected_output": "SRP: one class one responsibility; OCP: extend via interface not modification; DIP: inject dependencies via constructor with interface type-hints; favor composition over inheritance"
+      "expected_output": "SRP: one class one responsibility; OCP: extend via interface not modification; DIP: inject dependencies via constructor with interface type-hints; favor composition over inheritance",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "SRP:"
+        },
+        {
+          "type": "contains",
+          "value": "inject dependencies via constructor"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Refactor a God class in PHP",
-      "expected_output": "Identify distinct responsibilities; extract each into its own focused class; use interfaces for dependencies; inject via constructor; test each extracted class independently; keep under ~200 lines"
+      "expected_output": "Identify distinct responsibilities; extract each into its own focused class; use interfaces for dependencies; inject via constructor; test each extracted class independently; keep under ~200 lines",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "extract each into its own focused class"
+        },
+        {
+          "type": "contains",
+          "value": "inject via constructor"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Use guard clauses instead of nested if/else in PHP",
-      "expected_output": "Return early for invalid/exceptional conditions: if (!$user) return null; if (!$this->isValid($data)) throw new InvalidArgumentException(); reduces nesting depth; no else after return"
+      "expected_output": "Return early for invalid/exceptional conditions: if (!$user) return null; if (!$this->isValid($data)) throw new InvalidArgumentException(); reduces nesting depth; no else after return",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "if (!$user) return null"
+        },
+        {
+          "type": "contains",
+          "value": "no else after return"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Extract repetitive logic into PHP traits",
-      "expected_output": "Define trait HasTimestamps with shared methods; use HasTimestamps; in classes that need it; keep traits focused on one behavior; prefer composition (traits/interfaces) over deep inheritance chains"
+      "expected_output": "Define trait HasTimestamps with shared methods; use HasTimestamps; in classes that need it; keep traits focused on one behavior; prefer composition (traits/interfaces) over deep inheritance chains",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Define trait"
+        },
+        {
+          "type": "contains",
+          "value": "use HasTimestamps"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Naming conventions for PHP methods and constants",
-      "expected_output": "Classes: PascalCase (UserService); methods/variables: camelCase (getUserById); class constants: SNAKE_CASE (MAX_RETRIES); file names match class name; namespaces mirror directory structure"
+      "expected_output": "Classes: PascalCase (UserService); methods/variables: camelCase (getUserById); class constants: SNAKE_CASE (MAX_RETRIES); file names match class name; namespaces mirror directory structure",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "PascalCase"
+        },
+        {
+          "type": "contains",
+          "value": "camelCase"
+        },
+        {
+          "type": "contains",
+          "value": "SNAKE_CASE"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

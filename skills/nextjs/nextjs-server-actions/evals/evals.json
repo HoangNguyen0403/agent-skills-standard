@@ -4,32 +4,96 @@
     {
       "id": 1,
       "prompt": "Create a Server Action in Next.js for form submission",
-      "expected_output": "// actions.ts\n'use server';\nexport async function createPost(formData: FormData) {\n  const title = formData.get('title') as string;\n  await db.post.create({ data: { title } });\n  revalidatePath('/posts');\n}"
+      "expected_output": "// actions.ts\n'use server';\nexport async function createPost(formData: FormData) {\n  const title = formData.get('title') as string;\n  await db.post.create({ data: { title } });\n  revalidatePath('/posts');\n}",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "'use server'"
+        },
+        {
+          "type": "contains",
+          "value": "formData.get('title')"
+        },
+        {
+          "type": "contains",
+          "value": "revalidatePath"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Handle mutations without API endpoints in Next.js",
-      "expected_output": "Define Server Actions in actions.ts with 'use server'; call via <form action={createPost}> or onClick={() => deletePost(id)}; no Route Handler (route.ts) needed; revalidatePath/revalidateTag after mutation"
+      "expected_output": "Define Server Actions in actions.ts with 'use server'; call via <form action={createPost}> or onClick={() => deletePost(id)}; no Route Handler (route.ts) needed; revalidatePath/revalidateTag after mutation",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "action={createPost}"
+        },
+        {
+          "type": "contains",
+          "value": "revalidatePath"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Use useFormStatus with Server Actions in Next.js",
-      "expected_output": "'use client'; function SubmitButton() { const { pending } = useFormStatus(); return <button type='submit' disabled={pending}>{pending ? 'Saving...' : 'Save'}</button>; } must be child of <form>"
+      "expected_output": "'use client'; function SubmitButton() { const { pending } = useFormStatus(); return <button type='submit' disabled={pending}>{pending ? 'Saving...' : 'Save'}</button>; } must be child of <form>",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "useFormStatus()"
+        },
+        {
+          "type": "contains",
+          "value": "disabled={pending}"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Validate formData inside a Next.js Server Action",
-      "expected_output": "const schema = z.object({ title: z.string().min(1) }); const result = schema.safeParse(Object.fromEntries(formData.entries())); if (!result.success) return { errors: result.error.flatten().fieldErrors };"
+      "expected_output": "const schema = z.object({ title: z.string().min(1) }); const result = schema.safeParse(Object.fromEntries(formData.entries())); if (!result.success) return { errors: result.error.flatten().fieldErrors };",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "z.object({"
+        },
+        {
+          "type": "contains",
+          "value": "safeParse"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Use useActionState with React 19 and Next.js 15",
-      "expected_output": "const [state, action, isPending] = useActionState(serverAction, { errors: {} }); <form action={action}>; state updated with Server Action return value; replaces deprecated useFormState"
+      "expected_output": "const [state, action, isPending] = useActionState(serverAction, { errors: {} }); <form action={action}>; state updated with Server Action return value; replaces deprecated useFormState",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "useActionState"
+        },
+        {
+          "type": "contains",
+          "value": "action={action}"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Redirect after a successful Server Action mutation",
-      "expected_output": "import { redirect } from 'next/navigation'; at end of successful Server Action call redirect('/success'); redirect() throws internally — never wrap in try/catch or it will be caught and swallowed"
+      "expected_output": "import { redirect } from 'next/navigation'; at end of successful Server Action call redirect('/success'); redirect() throws internally — never wrap in try/catch or it will be caught and swallowed",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "import { redirect } from 'next/navigation'"
+        },
+        {
+          "type": "contains",
+          "value": "redirect('/success')"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

@@ -1,13 +1,43 @@
 {
-  "skill": "swift-testing",
-  "should_trigger": [
-    "How do I write unit tests in Swift?",
-    "How do I test async functions with XCTest?",
-    "How do I use XCTestExpectation?",
-    "How do I name my XCTest methods?",
-    "How do I write UI tests in Xcode?",
-    "How do I mock dependencies in XCTest?",
-    "How do I avoid Thread.sleep in tests?"
+  "skill_name": "swift-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I write unit tests in Swift?",
+      "expected_output": "Use XCTestCase with functions prefixed by 'test'. Example: func test_loginSucceeds().",
+      "assertions": [
+        { "type": "contains", "value": "XCTestCase" },
+        { "type": "contains", "value": "prefixed by 'test'" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I test async functions with XCTest?",
+      "expected_output": "Since Swift 5.5, use async-support in XCTest. Example: func testAsync() async throws { let result = try await target.fetch() }.",
+      "assertions": [
+        { "type": "contains", "value": "async throws" },
+        { "type": "contains", "value": "try await" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I use XCTestExpectation?",
+      "expected_output": "Use fulfillment for async callbacks. Example: let exp = expectation(description: 'fetch'). exp.fulfill(). wait(for: [exp], timeout: 1.0).",
+      "assertions": [
+        { "type": "contains", "value": "expectation" },
+        { "type": "contains", "value": "fulfill()" },
+        { "type": "contains", "value": "wait(for:" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "How do I mock dependencies in XCTest?",
+      "expected_output": "Use protocols to swap real objects for mock implementations. Inject them via constructor. Example: class MockService: Service { ... }.",
+      "assertions": [
+        { "type": "contains", "value": "Use protocols" },
+        { "type": "contains", "value": "Inject them via constructor" }
+      ]
+    }
   ],
   "should_not_trigger": [
     "How do I implement MVVM?",

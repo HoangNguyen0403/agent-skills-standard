@@ -4,32 +4,69 @@
     {
       "id": 1,
       "prompt": "How do I structure a new Angular feature with lazy loading?",
-      "expected_output": "Create a feature folder (e.g., features/dashboard/) containing components, services, and models. Lazy load via loadComponent or loadChildren in routes. Keep global singletons in core/ and reusable UI in shared/."
+      "expected_output": "Create a feature folder (e.g., features/dashboard/) containing components, services, and models. Lazy load via loadComponent or loadChildren in routes. Keep global singletons in core/ and reusable UI in shared/.",
+      "assertions": [
+        { "type": "contains", "value": "feature folder" },
+        { "type": "contains", "value": "loadComponent" },
+        { "type": "contains", "value": "loadChildren" },
+        { "type": "contains", "value": "core/" }
+      ]
     },
     {
       "id": 2,
       "prompt": "What's the best way to organize files in an Angular project?",
-      "expected_output": "Use feature-based organization (features/dashboard/, features/user/) not type-based (/components, /services). Apply LIFT: Locate, Identify, Flat structure, Try DRY. Keep core/ for singletons and shared/ for reusable UI."
+      "expected_output": "Use feature-based organization (features/dashboard/, features/user/) not type-based (/components, /services). Apply LIFT: Locate, Identify, Flat structure, Try DRY. Keep core/ for singletons and shared/ for reusable UI.",
+      "assertions": [
+        { "type": "contains", "value": "feature-based organization" },
+        { "type": "contains", "value": "LIFT" },
+        { "type": "contains", "value": "Identify" },
+        { "type": "contains", "value": "shared/" }
+      ]
     },
     {
       "id": 3,
       "prompt": "Should I use NgModule or standalone components for new Angular code?",
-      "expected_output": "Use standalone components. Eliminate NgModule for all new code — use standalone: true (or omit in Angular 20+ where it's the default). Import dependencies directly in the component's imports array."
+      "expected_output": "Use standalone components. Eliminate NgModule for all new code — use standalone: true (or omit in Angular 20+ where it's the default). Import dependencies directly in the component's imports array.",
+      "assertions": [
+        { "type": "contains", "value": "Use standalone components" },
+        { "type": "contains", "value": "Eliminate NgModule" },
+        { "type": "contains", "value": "standalone: true" }
+      ]
     },
     {
       "id": 4,
       "prompt": "How do I implement smart and dumb components in Angular?",
-      "expected_output": "Smart (Container) components: talk to services, manage state. Dumb (Presentational) components: inputs/outputs only, zero logic. This separates data concerns from rendering concerns and makes components testable."
+      "expected_output": "Smart (Container) components: talk to services, manage state. Dumb (Presentational) components: inputs/outputs only, zero logic. This separates data concerns from rendering concerns and makes components testable.",
+      "assertions": [
+        { "type": "contains", "value": "Smart (Container)" },
+        { "type": "contains", "value": "Dumb (Presentational)" },
+        { "type": "contains", "value": "inputs/outputs" },
+        {
+          "type": "contains",
+          "value": "separates data concerns from rendering"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "How should I configure lazy loading with loadComponent?",
-      "expected_output": "All feature routes MUST use loadComponent (standalone) or loadChildren (route file). Example: { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) }"
+      "expected_output": "All feature routes MUST use loadComponent (standalone) or loadChildren (route file). Example: { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) }",
+      "assertions": [
+        { "type": "contains", "value": "loadComponent" },
+        { "type": "contains", "value": "import(" },
+        { "type": "contains", "value": ".then(m =>" }
+      ]
     },
     {
       "id": 6,
       "prompt": "Where should I put shared utilities and global services in an Angular app?",
-      "expected_output": "Global singletons (AuthService, HTTP interceptors) go in core/. Reusable UI (buttons, formatters, shared pipes) go in shared/. Never put singletons in shared/ — they may get instantiated multiple times."
+      "expected_output": "Global singletons (AuthService, HTTP interceptors) go in core/. Reusable UI (buttons, formatters, shared pipes) go in shared/. Never put singletons in shared/ — they may get instantiated multiple times.",
+      "assertions": [
+        { "type": "contains", "value": "Global singletons" },
+        { "type": "contains", "value": "core/" },
+        { "type": "contains", "value": "shared/" },
+        { "type": "contains", "value": "Never put singletons in shared/" }
+      ]
     }
   ],
   "should_not_trigger": [

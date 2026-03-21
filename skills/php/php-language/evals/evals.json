@@ -4,32 +4,88 @@
     {
       "id": 1,
       "prompt": "Use PHP 8 match expression instead of switch",
-      "expected_output": "$result = match($status) { 'active' => true, 'inactive' => false, default => throw new InvalidArgumentException($status) }; strict comparison; returns value; no fall-through; exhaustive by default"
+      "expected_output": "$result = match($status) { 'active' => true, 'inactive' => false, default => throw new InvalidArgumentException($status) }; strict comparison; returns value; no fall-through; exhaustive by default",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "match($status)"
+        },
+        {
+          "type": "contains",
+          "value": "throw new InvalidArgumentException"
+        },
+        {
+          "type": "contains",
+          "value": "default =>"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Add readonly properties in PHP 8.1",
-      "expected_output": "class User { public function __construct(public readonly string $name, public readonly string $email) {} }; property set once at construction; any reassignment throws Error; combine with constructor promotion"
+      "expected_output": "class User { public function __construct(public readonly string $name, public readonly string $email) {} }; property set once at construction; any reassignment throws Error; combine with constructor promotion",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "public readonly string $name"
+        },
+        {
+          "type": "contains",
+          "value": "__construct"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Enable strict types in PHP files",
-      "expected_output": "<?php declare(strict_types=1); at very top of every file before namespace; enforces strict scalar type checking in function calls; passing int where string expected throws TypeError"
+      "expected_output": "<?php declare(strict_types=1); at very top of every file before namespace; enforces strict scalar type checking in function calls; passing int where string expected throws TypeError",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "declare(strict_types=1)"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Use constructor property promotion in PHP 8",
-      "expected_output": "public function __construct(public string $name, private int $age, protected bool $active = false) {} combines property declaration + assignment; reduces boilerplate; works with readonly"
+      "expected_output": "public function __construct(public string $name, private int $age, protected bool $active = false) {} combines property declaration + assignment; reduces boilerplate; works with readonly",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "public function __construct(public string $name"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Union types and intersection types in PHP 8",
-      "expected_output": "function process(int|string $id): User|null; PHP 8.1+ intersection: function accepts(Countable&Traversable $c); never-type for functions that always throw; use for flexible type-safe APIs"
+      "expected_output": "function process(int|string $id): User|null; PHP 8.1+ intersection: function accepts(Countable&Traversable $c); never-type for functions that always throw; use for flexible type-safe APIs",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "int|string"
+        },
+        {
+          "type": "contains",
+          "value": "Countable&Traversable"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Use named arguments in PHP functions",
-      "expected_output": "createUser(name: 'John', age: 25, active: true); skip optional params by name; especially useful for built-in functions: array_slice(array: $arr, offset: 0, length: 5, preserve_keys: true)"
+      "expected_output": "createUser(name: 'John', age: 25, active: true); skip optional params by name; especially useful for built-in functions: array_slice(array: $arr, offset: 0, length: 5, preserve_keys: true)",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "name: 'John'"
+        },
+        {
+          "type": "contains",
+          "value": "array: $arr"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

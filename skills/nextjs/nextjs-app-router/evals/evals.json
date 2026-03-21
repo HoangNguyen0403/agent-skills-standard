@@ -4,32 +4,92 @@
     {
       "id": 1,
       "prompt": "Set up nested layouts in Next.js App Router",
-      "expected_output": "Create app/dashboard/layout.tsx returning <>{children}</>; nests inside app/layout.tsx automatically; persists state across navigation; keep as Server Component (no useState/useEffect)"
+      "expected_output": "Create app/dashboard/layout.tsx returning <>{children}</>; nests inside app/layout.tsx automatically; persists state across navigation; keep as Server Component (no useState/useEffect)",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "app/dashboard/layout.tsx"
+        },
+        {
+          "type": "contains",
+          "value": "{children}"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Create route groups in Next.js app/ directory",
-      "expected_output": "Wrap folder in parens: app/(auth)/login/page.tsx; (auth) excluded from URL path; use for separate layout groups (auth layout vs marketing layout) without affecting routing structure"
+      "expected_output": "Wrap folder in parens: app/(auth)/login/page.tsx; (auth) excluded from URL path; use for separate layout groups (auth layout vs marketing layout) without affecting routing structure",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "(auth)"
+        },
+        {
+          "type": "contains",
+          "value": "excluded from URL path"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Add loading.tsx to a Next.js route segment",
-      "expected_output": "Create app/dashboard/loading.tsx; auto-wraps page.tsx in a Suspense boundary; shown instantly on navigation before page data loads; must be simple static UI, no data fetching"
+      "expected_output": "Create app/dashboard/loading.tsx; auto-wraps page.tsx in a Suspense boundary; shown instantly on navigation before page data loads; must be simple static UI, no data fetching",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "app/dashboard/loading.tsx"
+        },
+        {
+          "type": "contains",
+          "value": "Suspense boundary"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Fix async params usage in Next.js 15",
-      "expected_output": "type Props = { params: Promise<{ id: string }> }; export default async function Page({ params }: Props) { const { id } = await params; }; same pattern for searchParams, cookies(), headers()"
+      "expected_output": "type Props = { params: Promise<{ id: string }> }; export default async function Page({ params }: Props) { const { id } = await params; }; same pattern for searchParams, cookies(), headers()",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "params: Promise"
+        },
+        {
+          "type": "contains",
+          "value": "await params"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Use parallel routes in Next.js",
-      "expected_output": "Create app/@modal/page.tsx; add @modal slot to parent layout({ children, modal }: { children: React.ReactNode, modal: React.ReactNode }); add default.tsx fallback for unmatched slots"
+      "expected_output": "Create app/@modal/page.tsx; add @modal slot to parent layout({ children, modal }: { children: React.ReactNode, modal: React.ReactNode }); add default.tsx fallback for unmatched slots",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "@modal"
+        },
+        {
+          "type": "contains",
+          "value": "default.tsx"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Set up error.tsx boundary in Next.js",
-      "expected_output": "'use client'; export default function Error({ error, reset }: { error: Error, reset: () => void }) { return <button onClick={reset}>Try again</button>; }; must be Client Component; catches child errors"
+      "expected_output": "'use client'; export default function Error({ error, reset }: { error: Error, reset: () => void }) { return <button onClick={reset}>Try again</button>; }; must be Client Component; catches child errors",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "'use client'"
+        },
+        {
+          "type": "contains",
+          "value": "reset: () => void"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

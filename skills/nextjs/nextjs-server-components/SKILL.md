@@ -29,7 +29,7 @@ Next.js (App Router) uses React Server Components (RSC) by default.
 ## Composition Patterns
 
 - **Server-in-Client**: You cannot import a Server Component directly into a Client Component.
-  - _Fix_: Pass Server Component as `children` prop to the Client Component. See [Composition Example](references/example.md).
+  - _Fix_: Pass Server Component as `children` prop to the Client Component. See [Composition Example](references/composition-security.md).
 
 ## Anti-Patterns
 
@@ -40,4 +40,4 @@ Next.js (App Router) uses React Server Components (RSC) by default.
 
 ## References
 
-- [Server/Client Composition Example](references/example.md)
+- [Server/Client Composition Example](references/composition-security.md)

@@ -4,32 +4,71 @@
     {
       "id": 1,
       "prompt": "Set up authorization Policies in Laravel",
-      "expected_output": "php artisan make:policy PostPolicy --model=Post; implement update(User $user, Post $post): bool; call $this->authorize('update', $post) in controller; register auto-discovered in AuthServiceProvider"
+      "expected_output": "php artisan make:policy PostPolicy --model=Post; implement update(User $user, Post $post): bool; call $this->authorize('update', $post) in controller; register auto-discovered in AuthServiceProvider",
+      "assertions": [
+        { "type": "contains", "value": "make:policy PostPolicy" },
+        { "type": "contains", "value": "update(User $user, Post $post): bool" },
+        { "type": "contains", "value": "authorize('update', $post)" },
+        { "type": "contains", "value": "AuthServiceProvider" }
+      ]
     },
     {
       "id": 2,
       "prompt": "Use Gates for permission checks in Laravel",
-      "expected_output": "Gate::define('admin', fn(User $user) => $user->isAdmin()); check with Gate::allows('admin') or @can('admin') in Blade; prefer Policies for model-bound checks, Gates for global permissions"
+      "expected_output": "Gate::define('admin', fn(User $user) => $user->isAdmin()); check with Gate::allows('admin') or @can('admin') in Blade; prefer Policies for model-bound checks, Gates for global permissions",
+      "assertions": [
+        { "type": "contains", "value": "Gate::define('admin'" },
+        { "type": "contains", "value": "@can('admin')" },
+        {
+          "type": "contains",
+          "value": "prefer Policies for model-bound checks"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Prevent env() usage outside config files in Laravel",
-      "expected_output": "Only call env() inside config/*.php files; access in application code via config('app.key') or config('services.stripe.key'); run php artisan config:cache to validate; never env() in controllers"
+      "expected_output": "Only call env() inside config/*.php files; access in application code via config('app.key') or config('services.stripe.key'); run php artisan config:cache to validate; never env() in controllers",
+      "assertions": [
+        { "type": "contains", "value": "env() inside config/*.php" },
+        { "type": "contains", "value": "config('app.key')" },
+        { "type": "contains", "value": "never env() in controllers" }
+      ]
     },
     {
       "id": 4,
       "prompt": "Secure mass assignment with validated() in Laravel",
-      "expected_output": "Use Form Request with rules(); call $request->validated() in controller for Model::create(); define $fillable on model; never pass $request->all() or $request->input() to create()"
+      "expected_output": "Use Form Request with rules(); call $request->validated() in controller for Model::create(); define $fillable on model; never pass $request->all() or $request->input() to create()",
+      "assertions": [
+        { "type": "contains", "value": "Form Request with rules()" },
+        { "type": "contains", "value": "$request->validated()" },
+        { "type": "contains", "value": "$fillable on model" },
+        {
+          "type": "contains",
+          "value": "never pass $request->all() to create()"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Add CSRF protection to Laravel forms",
-      "expected_output": "Add @csrf directive inside all Blade <form> tags; CSRF middleware active on web routes by default; API routes excluded from CSRF; use ->except(['/webhook']) for third-party callbacks"
+      "expected_output": "Add @csrf directive inside all Blade <form> tags; CSRF middleware active on web routes by default; API routes excluded from CSRF; use ->except(['/webhook']) for third-party callbacks",
+      "assertions": [
+        { "type": "contains", "value": "@csrf directive" },
+        { "type": "contains", "value": "active on web routes" },
+        { "type": "contains", "value": "->except(['/webhook'])" }
+      ]
     },
     {
       "id": 6,
       "prompt": "Set up role-based access control in Laravel",
-      "expected_output": "Use Policies with role checks in methods; define Gate::before(fn($u) => $u->isAdmin() ? true : null) for admin bypass; or use spatie/laravel-permission; never inline $user->role === 'admin'"
+      "expected_output": "Use Policies with role checks in methods; define Gate::before(fn($u) => $u->isAdmin() ? true : null) for admin bypass; or use spatie/laravel-permission; never inline $user->role === 'admin'",
+      "assertions": [
+        { "type": "contains", "value": "Policies with role checks" },
+        { "type": "contains", "value": "Gate::before" },
+        { "type": "contains", "value": "spatie/laravel-permission" },
+        { "type": "contains", "value": "never inline $user->role === 'admin'" }
+      ]
     }
   ],
   "should_not_trigger": [

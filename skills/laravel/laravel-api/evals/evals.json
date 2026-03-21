@@ -4,32 +4,140 @@
     {
       "id": 1,
       "prompt": "Build a REST API endpoint in Laravel",
-      "expected_output": "Use ApiResource class extending JsonResource; return new UserResource($user) or UserResource::collection($users); never return raw $model; apply auth:sanctum middleware in routes/api.php"
+      "expected_output": "Use ApiResource class extending JsonResource; return new UserResource($user) or UserResource::collection($users); never return raw $model; apply auth:sanctum middleware in routes/api.php",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "ApiResource"
+        },
+        {
+          "type": "contains",
+          "value": "JsonResource"
+        },
+        {
+          "type": "contains",
+          "value": "UserResource"
+        },
+        {
+          "type": "contains",
+          "value": "auth:sanctum"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Set up API Resources and Collections in Laravel",
-      "expected_output": "php artisan make:resource UserResource; implement toArray() to define output fields; use UserResource::collection($users) for lists; never use response()->json($model) directly"
+      "expected_output": "php artisan make:resource UserResource; implement toArray() to define output fields; use UserResource::collection($users) for lists; never use response()->json($model) directly",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "php artisan make:resource"
+        },
+        {
+          "type": "contains",
+          "value": "UserResource"
+        },
+        {
+          "type": "contains",
+          "value": "toArray()"
+        },
+        {
+          "type": "contains",
+          "value": "UserResource::collection"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "How do I use Sanctum for API authentication in Laravel?",
-      "expected_output": "Install sanctum, add HasApiTokens to User, protect routes with auth:sanctum middleware, issue tokens with $user->createToken('token-name')->plainTextToken; use Passport only for OAuth2 flows"
+      "expected_output": "Install sanctum, add HasApiTokens to User, protect routes with auth:sanctum middleware, issue tokens with $user->createToken('token-name')->plainTextToken; use Passport only for OAuth2 flows",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "HasApiTokens"
+        },
+        {
+          "type": "contains",
+          "value": "auth:sanctum"
+        },
+        {
+          "type": "contains",
+          "value": "createToken"
+        },
+        {
+          "type": "contains",
+          "value": "Passport"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Add rate limiting to my Laravel API routes",
-      "expected_output": "Define RateLimiter::for('api', fn($req) => Limit::perMinute(60)) in AppServiceProvider; apply throttle:api middleware to route groups in routes/api.php"
+      "expected_output": "Define RateLimiter::for('api', fn($req) => Limit::perMinute(60)) in AppServiceProvider; apply throttle:api middleware to route groups in routes/api.php",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "RateLimiter::for"
+        },
+        {
+          "type": "contains",
+          "value": "Limit::perMinute"
+        },
+        {
+          "type": "contains",
+          "value": "AppServiceProvider"
+        },
+        {
+          "type": "contains",
+          "value": "throttle:api"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Version my Laravel API with route prefixes",
-      "expected_output": "Group routes in routes/api.php with Route::prefix('v1')->group(...); maintain separate route files per version; use versioned controller namespaces like App\\Http\\Controllers\\Api\\V1"
+      "expected_output": "Group routes in routes/api.php with Route::prefix('v1')->group(...); maintain separate route files per version; use versioned controller namespaces like App\\\\Http\\\\Controllers\\\\Api\\\\V1",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Route::prefix('v1')"
+        },
+        {
+          "type": "contains",
+          "value": "routes/api.php"
+        },
+        {
+          "type": "contains",
+          "value": "App\\\\Http\\\\Controllers\\\\Api\\\\V1"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Return proper HTTP status codes from Laravel controllers",
-      "expected_output": "Return response(new Resource($model), 201) for create; 204 for delete; 422 is auto-returned from FormRequest validation; 200 for retrieve/update; never use 200 for all responses"
+      "expected_output": "Return response(new Resource($model), 201) for create; 204 for delete; 422 is auto-returned from FormRequest validation; 200 for retrieve/update; never use 200 for all responses",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "201"
+        },
+        {
+          "type": "contains",
+          "value": "204"
+        },
+        {
+          "type": "contains",
+          "value": "422"
+        },
+        {
+          "type": "contains",
+          "value": "FormRequest"
+        },
+        {
+          "type": "contains",
+          "value": "200"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

@@ -4,32 +4,92 @@
     {
       "id": 1,
       "prompt": "How should I structure my Laravel controllers?",
-      "expected_output": "Controller delegates to Action or Service class; no business logic inside; use Form Requests for validation; inject dependencies via constructor DI; controller only handles Request/Response"
+      "expected_output": "Controller delegates to Action or Service class; no business logic inside; use Form Requests for validation; inject dependencies via constructor DI; controller only handles Request/Response",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Controller delegates to Action or Service class"
+        },
+        {
+          "type": "contains",
+          "value": "Form Requests for validation"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Where do I put business logic in a Laravel app?",
-      "expected_output": "Create Action class (e.g., CreateOrderAction) with handle() method in app/Actions/; or Service class in app/Services/; inject via Service Container; keep controllers slim"
+      "expected_output": "Create Action class (e.g., CreateOrderAction) with handle() method in app/Actions/; or Service class in app/Services/; inject via Service Container; keep controllers slim",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Create Action class"
+        },
+        {
+          "type": "contains",
+          "value": "keep controllers slim"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Use Form Requests for validation in Laravel",
-      "expected_output": "php artisan make:request StoreUserRequest; implement authorize() and rules(); type-hint in controller method; call $request->validated() for mass assignment; never use $request->validate() inline"
+      "expected_output": "php artisan make:request StoreUserRequest; implement authorize() and rules(); type-hint in controller method; call $request->validated() for mass assignment; never use $request->validate() inline",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "php artisan make:request StoreUserRequest"
+        },
+        {
+          "type": "contains",
+          "value": "call $request->validated()"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Create a Service class in Laravel",
-      "expected_output": "Create app/Services/PaymentService.php; bind interface to implementation in AppServiceProvider; inject via constructor; no Eloquent queries directly in controller; service handles business logic"
+      "expected_output": "Create app/Services/PaymentService.php; bind interface to implementation in AppServiceProvider; inject via constructor; no Eloquent queries directly in controller; service handles business logic",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Create app/Services/PaymentService.php"
+        },
+        {
+          "type": "contains",
+          "value": "no Eloquent queries directly in controller"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Set up dependency injection in Laravel",
-      "expected_output": "Bind via $this->app->bind(Interface::class, Implementation::class) in AppServiceProvider; type-hint interface in controller __construct or method; Laravel resolves automatically"
+      "expected_output": "Bind via $this->app->bind(Interface::class, Implementation::class) in AppServiceProvider; type-hint interface in controller __construct or method; Laravel resolves automatically",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "$this->app->bind(Interface::class, Implementation::class)"
+        },
+        {
+          "type": "contains",
+          "value": "type-hint interface in controller"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "Slim controllers using Actions in Laravel",
-      "expected_output": "Create app/Actions/CreatePost.php with handle(CreatePostData $data): Post; inject Action into controller; controller calls $action->handle($request->validated()); one action per use case"
+      "expected_output": "Create app/Actions/CreatePost.php with handle(CreatePostData $data): Post; inject Action into controller; controller calls $action->handle($request->validated()); one action per use case",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Create app/Actions/CreatePost.php"
+        },
+        {
+          "type": "contains",
+          "value": "one action per use case"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

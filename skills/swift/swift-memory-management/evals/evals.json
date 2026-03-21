@@ -1,13 +1,49 @@
 {
-  "skill": "swift-memory-management",
-  "should_trigger": [
-    "How do I avoid retain cycles in Swift?",
-    "When should I use weak vs unowned in Swift?",
-    "How do I use [weak self] in a closure?",
-    "How does ARC work in Swift?",
-    "How do I implement a delegate pattern without a retain cycle?",
-    "What happens if I use unowned and the object is deallocated?",
-    "How do I capture multiple weak references in a closure?"
+  "skill_name": "swift-memory-management",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I avoid retain cycles in Swift?",
+      "expected_output": "Use capture lists with weak or unowned self for closures and weak delegating properties. Example: { [weak self] in self?.doWork() }.",
+      "assertions": [
+        { "type": "contains", "value": "capture list" },
+        { "type": "contains", "value": "[weak self]" },
+        { "type": "contains", "value": "retain cycle" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "When should I use weak vs unowned in Swift?",
+      "expected_output": "Use weak if the reference can become nil during its lifetime. Use unowned if the reference is guaranteed to outlive the referring object.",
+      "assertions": [
+        { "type": "contains", "value": "weak if the reference can become nil" },
+        {
+          "type": "contains",
+          "value": "unowned if the reference is guaranteed"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I use [weak self] in a closure?",
+      "expected_output": "Place [weak self] at the beginning of the closure's capture list. Example: { [weak self] arg in guard let self = self else { return } }.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "beginning of the closure's capture list"
+        },
+        { "type": "contains", "value": "guard let self = self" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "How do I implement a delegate pattern without a retain cycle?",
+      "expected_output": "Declare the delegate property as weak and ensure the delegate protocol inherits from AnyObject. Example: weak var delegate: MyDelegate?.",
+      "assertions": [
+        { "type": "contains", "value": "weak var delegate" },
+        { "type": "contains", "value": "inherits from AnyObject" }
+      ]
+    }
   ],
   "should_not_trigger": [
     "How do I use async/await?",

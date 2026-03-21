@@ -4,32 +4,66 @@
     {
       "id": 1,
       "prompt": "How do I use the inject() function in Angular?",
-      "expected_output": "Use inject(MyService) in component/directive/pipe class fields or constructor-equivalent positions. Prefer inject() over constructor parameters for cleaner code. It works in any injection context (class fields, factory functions, guards)."
+      "expected_output": "Use inject(MyService) in component/directive/pipe class fields or constructor-equivalent positions. Prefer inject() over constructor parameters for cleaner code. It works in any injection context (class fields, factory functions, guards).",
+      "assertions": [
+        { "type": "contains", "value": "inject(MyService)" },
+        {
+          "type": "contains",
+          "value": "class fields or constructor-equivalent"
+        },
+        { "type": "contains", "value": "injection context" }
+      ]
     },
     {
       "id": 2,
       "prompt": "How do I create an InjectionToken for configuration values?",
-      "expected_output": "Use InjectionToken<T>: const API_URL = new InjectionToken<string>('api.url'). Provide via: { provide: API_URL, useValue: 'https://api.example.com' } in app.config.ts. Inject with: inject(API_URL)."
+      "expected_output": "Use InjectionToken<T>: const API_URL = new InjectionToken<string>('api.url'). Provide via: { provide: API_URL, useValue: 'https://api.example.com' } in app.config.ts. Inject with: inject(API_URL).",
+      "assertions": [
+        { "type": "contains", "value": "new InjectionToken" },
+        { "type": "contains", "value": "provide: API_URL" },
+        { "type": "contains", "value": "useValue:" },
+        { "type": "contains", "value": "inject(API_URL)" }
+      ]
     },
     {
       "id": 3,
       "prompt": "How do I scope a service to a specific route in Angular?",
-      "expected_output": "Add providers: [MyService] to the route config in the routes array instead of providedIn: 'root'. This creates a service instance scoped to that route tree, destroyed when leaving the route."
+      "expected_output": "Add providers: [MyService] to the route config in the routes array instead of providedIn: 'root'. This creates a service instance scoped to that route tree, destroyed when leaving the route.",
+      "assertions": [
+        { "type": "contains", "value": "providers: [MyService]" },
+        { "type": "contains", "value": "route config" },
+        { "type": "contains", "value": "instead of providedIn: 'root'" }
+      ]
     },
     {
       "id": 4,
       "prompt": "Working on auth.service.ts — how should I provide this service?",
-      "expected_output": "Use @Injectable({ providedIn: 'root' }) for app-wide singleton. Use route-level providers for route-scoped services. Prefer provide*() functions (e.g., provideHttpClient()) in app.config.ts over importing NgModules."
+      "expected_output": "Use @Injectable({ providedIn: 'root' }) for app-wide singleton. Use route-level providers for route-scoped services. Prefer provide*() functions (e.g., provideHttpClient()) in app.config.ts over importing NgModules.",
+      "assertions": [
+        { "type": "contains", "value": "@Injectable({ providedIn: 'root' })" },
+        { "type": "contains", "value": "route-level providers" },
+        { "type": "contains", "value": "provideHttpClient()" }
+      ]
     },
     {
       "id": 5,
       "prompt": "How do I use provideAppInitializer in Angular 19+?",
-      "expected_output": "Use provideAppInitializer(() => inject(ConfigService).load()) in app.config.ts providers array. This replaces the old APP_INITIALIZER token pattern. The factory runs before app bootstrap and supports async operations."
+      "expected_output": "Use provideAppInitializer(() => inject(ConfigService).load()) in app.config.ts providers array. This replaces the old APP_INITIALIZER token pattern. The factory runs before app bootstrap and supports async operations.",
+      "assertions": [
+        { "type": "contains", "value": "provideAppInitializer" },
+        { "type": "contains", "value": "inject(ConfigService).load()" },
+        { "type": "contains", "value": "before app bootstrap" }
+      ]
     },
     {
       "id": 6,
       "prompt": "How do I create multi providers for validators in Angular?",
-      "expected_output": "Use { provide: TOKEN, useClass: MyValidator, multi: true } to register multiple implementations. Angular collects all multi providers into an array. Common use: HTTP_INTERCEPTORS, NG_VALIDATORS, APP_INITIALIZER."
+      "expected_output": "Use { provide: TOKEN, useClass: MyValidator, multi: true } to register multiple implementations. Angular collects all multi providers into an array. Common use: HTTP_INTERCEPTORS, NG_VALIDATORS, APP_INITIALIZER.",
+      "assertions": [
+        { "type": "contains", "value": "multi: true" },
+        { "type": "contains", "value": "collects all multi providers" },
+        { "type": "contains", "value": "HTTP_INTERCEPTORS" }
+      ]
     }
   ],
   "should_not_trigger": [

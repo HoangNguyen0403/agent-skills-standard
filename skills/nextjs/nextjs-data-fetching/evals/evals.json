@@ -4,32 +4,96 @@
     {
       "id": 1,
       "prompt": "Fetch data in a Next.js Server Component",
-      "expected_output": "export default async function Page() { const data = await fetch(url, { cache: 'no-store' }); const json = await data.json(); return <div>{json.title}</div>; } no useEffect, no API call from client"
+      "expected_output": "export default async function Page() { const data = await fetch(url, { cache: 'no-store' }); const json = await data.json(); return <div>{json.title}</div>; } no useEffect, no API call from client",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "async function Page()"
+        },
+        {
+          "type": "contains",
+          "value": "fetch(url"
+        },
+        {
+          "type": "contains",
+          "value": "no-store"
+        }
+      ]
     },
     {
       "id": 2,
       "prompt": "Use force-cache vs no-store in Next.js fetch",
-      "expected_output": "force-cache: static, build-time cached (ISR default); no-store: dynamic, new request each time (Next.js 15 default); next: { revalidate: 60 }: time-based ISR; choose based on data freshness requirement"
+      "expected_output": "force-cache: static, build-time cached (ISR default); no-store: dynamic, new request each time (Next.js 15 default); next: { revalidate: 60 }: time-based ISR; choose based on data freshness requirement",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "force-cache"
+        },
+        {
+          "type": "contains",
+          "value": "no-store"
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Implement revalidation in Next.js data fetching",
-      "expected_output": "Time-based: fetch(url, { next: { revalidate: 3600 } }) or export const revalidate = 3600; On-demand: call revalidatePath('/posts') or revalidateTag('posts') from Server Action after mutation"
+      "expected_output": "Time-based: fetch(url, { next: { revalidate: 3600 } }) or export const revalidate = 3600; On-demand: call revalidatePath('/posts') or revalidateTag('posts') from Server Action after mutation",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "revalidate"
+        },
+        {
+          "type": "contains",
+          "value": "revalidatePath"
+        },
+        {
+          "type": "contains",
+          "value": "revalidateTag"
+        }
+      ]
     },
     {
       "id": 4,
       "prompt": "Use Promise.all to avoid waterfalls in Next.js",
-      "expected_output": "const [user, posts] = await Promise.all([getUser(id), getPosts(id)]); fetches run in parallel; never await getUser(id) then await getPosts(id) sequentially — causes unnecessary waterfall"
+      "expected_output": "const [user, posts] = await Promise.all([getUser(id), getPosts(id)]); fetches run in parallel; never await getUser(id) then await getPosts(id) sequentially — causes unnecessary waterfall",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Promise.all"
+        }
+      ]
     },
     {
       "id": 5,
       "prompt": "Call a database directly from a Next.js Server Component",
-      "expected_output": "const user = await db.user.findUnique({ where: { id }, select: { id: true, name: true } }); no API route needed; import db client in Server Component or call via DAL function; use select to limit fields"
+      "expected_output": "const user = await db.user.findUnique({ where: { id }, select: { id: true, name: true } }); no API route needed; import db client in Server Component or call via DAL function; use select to limit fields",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "await db."
+        },
+        {
+          "type": "contains",
+          "value": "select:"
+        }
+      ]
     },
     {
       "id": 6,
       "prompt": "When to use SWR vs Server Components in Next.js",
-      "expected_output": "Server Components: initial page data, SEO-critical content, static/ISR data; SWR/TanStack Query: live updates, polling, per-user data that needs client-side revalidation without full page refresh"
+      "expected_output": "Server Components: initial page data, SEO-critical content, static/ISR data; SWR/TanStack Query: live updates, polling, per-user data that needs client-side revalidation without full page refresh",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Server Components"
+        },
+        {
+          "type": "contains",
+          "value": "SWR"
+        }
+      ]
     }
   ],
   "should_not_trigger": [
