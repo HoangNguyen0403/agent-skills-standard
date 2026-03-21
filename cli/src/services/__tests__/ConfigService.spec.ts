@@ -277,13 +277,17 @@ describe('ConfigService', () => {
         );
         expect(config.skills.common?.exclude).toEqual(
           expect.arrayContaining([
-            'accessibility',
-            'mobile-animation',
-            'mobile-ux-core',
+            'common-accessibility',
+            'common-mobile-animation',
+            'common-mobile-ux-core',
           ]),
         );
-        expect(config.skills.common?.exclude).not.toContain('observability');
-        expect(config.skills.common?.exclude).not.toContain('api-design');
+        expect(config.skills.common?.exclude).not.toContain(
+          'common-observability',
+        );
+        expect(config.skills.common?.exclude).not.toContain(
+          'common-api-design',
+        );
       });
 
       it('should exclude web-only and mobile-only skills for backend frameworks (golang)', () => {
@@ -295,9 +299,9 @@ describe('ConfigService', () => {
         );
         expect(config.skills.common?.exclude).toEqual(
           expect.arrayContaining([
-            'accessibility',
-            'mobile-animation',
-            'mobile-ux-core',
+            'common-accessibility',
+            'common-mobile-animation',
+            'common-mobile-ux-core',
           ]),
         );
       });
@@ -311,13 +315,17 @@ describe('ConfigService', () => {
         );
         expect(config.skills.common?.exclude).toEqual(
           expect.arrayContaining([
-            'observability',
-            'mobile-animation',
-            'mobile-ux-core',
+            'common-observability',
+            'common-mobile-animation',
+            'common-mobile-ux-core',
           ]),
         );
-        expect(config.skills.common?.exclude).not.toContain('accessibility');
-        expect(config.skills.common?.exclude).not.toContain('api-design');
+        expect(config.skills.common?.exclude).not.toContain(
+          'common-accessibility',
+        );
+        expect(config.skills.common?.exclude).not.toContain(
+          'common-api-design',
+        );
       });
 
       it('should exclude backend-only and mobile-only skills for frontend frameworks (angular)', () => {
@@ -329,9 +337,9 @@ describe('ConfigService', () => {
         );
         expect(config.skills.common?.exclude).toEqual(
           expect.arrayContaining([
-            'observability',
-            'mobile-animation',
-            'mobile-ux-core',
+            'common-observability',
+            'common-mobile-animation',
+            'common-mobile-ux-core',
           ]),
         );
       });
@@ -345,13 +353,17 @@ describe('ConfigService', () => {
         );
         expect(config.skills.common?.exclude).toEqual(
           expect.arrayContaining([
-            'accessibility',
-            'api-design',
-            'observability',
+            'common-accessibility',
+            'common-api-design',
+            'common-observability',
           ]),
         );
-        expect(config.skills.common?.exclude).not.toContain('mobile-animation');
-        expect(config.skills.common?.exclude).not.toContain('mobile-ux-core');
+        expect(config.skills.common?.exclude).not.toContain(
+          'common-mobile-animation',
+        );
+        expect(config.skills.common?.exclude).not.toContain(
+          'common-mobile-ux-core',
+        );
       });
 
       it('should exclude web-only and backend-only skills for mobile frameworks (android)', () => {
@@ -363,9 +375,9 @@ describe('ConfigService', () => {
         );
         expect(config.skills.common?.exclude).toEqual(
           expect.arrayContaining([
-            'accessibility',
-            'api-design',
-            'observability',
+            'common-accessibility',
+            'common-api-design',
+            'common-observability',
           ]),
         );
       });
@@ -379,9 +391,9 @@ describe('ConfigService', () => {
         );
         expect(config.skills.common?.exclude).toEqual(
           expect.arrayContaining([
-            'accessibility',
-            'api-design',
-            'observability',
+            'common-accessibility',
+            'common-api-design',
+            'common-observability',
           ]),
         );
       });
