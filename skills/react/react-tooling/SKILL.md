@@ -17,7 +17,7 @@ Tools for analysis and debugging.
 - **Profiling**: Use the **React DevTools Profiler** (Flamegraph) to identify expensive components. Enable **"Highlight Updates"** to spot re-renders.
 - **Environment**: Use **Vite** as a modern build tool (over CRA). Manage **environment variables** with `.env`.
 - **Debugging**: Use **`useDebugValue`** in custom hooks for better DevTools visibility. Use **`logger`** middleware in Redux or **`useWhyDidYouUpdate`** for props.
-- **Build**: Configure **R8 / ProGuard (Android)** or **Uglify/Terser** for production build minification.
+- **Build**: Configure **Uglify/Terser** for production build minification. Use **`vite-plugin-pwa`** for service worker generation.
 
 ## Code
 

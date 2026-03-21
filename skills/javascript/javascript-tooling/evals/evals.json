@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "How should I implement javascript tooling best practices?",
-      "expected_output": "**Linting**: ESLint (Rec + Prettier). Fix on save.",
+      "expected_output": "**Linting**: ESLint (Rec + Prettier). Fix on save. **Pkg Manager**: Sync versions (`npm`/`yarn`/`pnpm`).",
       "assertions": [
         {
           "type": "contains",
@@ -23,7 +23,7 @@
     {
       "id": 2,
       "prompt": "What are the common anti-patterns to avoid in javascript tooling?",
-      "expected_output": "**Formatting**: Prettier. Run on save/commit.",
+      "expected_output": "**Priority: P1 (OPERATIONAL)**. **Formatting**: Prettier. Run on save/commit.",
       "assertions": [
         {
           "type": "contains",
@@ -42,7 +42,7 @@
     {
       "id": 3,
       "prompt": "Give me a quick-start example for javascript tooling.",
-      "expected_output": "**Testing**: Jest/Vitest. Co-locate tests. >80% cov.",
+      "expected_output": "**Testing**: Jest/Vitest. Co-locate tests. >80% cov. **Build**: Vite (Apps). **Pkg Manager**: npm/yarn/pnpm.",
       "assertions": [
         {
           "type": "contains",

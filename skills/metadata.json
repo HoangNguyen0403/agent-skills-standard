@@ -204,8 +204,8 @@
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4227,
-        "avg_tokens_per_skill": 528,
+        "total_tokens": 4233,
+        "avg_tokens_per_skill": 529,
         "largest_skill": "react-performance (691 tokens)"
       }
     },
