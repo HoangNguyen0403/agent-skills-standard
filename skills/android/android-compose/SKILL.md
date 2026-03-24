@@ -1,6 +1,6 @@
 ---
 name: android-compose
-description: "Standards for high-performance Declarative UI and State Hoisting. Use whenever writing ANY Jetpack Compose code — @Composable functions, Screen files, LazyColumn, state hoisting, LaunchedEffect, or when someone asks why their Composable recomposes too often. (triggers: **/*Screen.kt, **/*Composable*.kt, **/*Content.kt, @Composable, Modifier, Column, Row, LazyColumn, setContent, recompose, remember, derivedStateOf, LaunchedEffect)"
+description: "Build high-performance declarative UI with Jetpack Compose state hoisting and recomposition optimization. Use when writing @Composable functions, Screen files, LazyColumn, state hoisting, LaunchedEffect, or diagnosing excessive recomposition. (triggers: **/*Screen.kt, **/*Composable*.kt, **/*Content.kt, @Composable, Modifier, Column, Row, LazyColumn, setContent, recompose, remember, derivedStateOf, LaunchedEffect)"
 ---
 
 # Jetpack Compose Expert
@@ -9,26 +9,52 @@ description: "Standards for high-performance Declarative UI and State Hoisting. 
 
 **You are an Android UI Performance Expert.** Prioritize frame stability and state management.
 
-## Implementation Guidelines
+## 1. Hoist State Correctly
 
-- **State Hoisting**: `Screen` (Stateful) -> `Content` (Stateless).
-- **Events**: Pass lambdas down (`onItemClick: (Id) -> Unit`).
-- **Dependencies**: NEVER pass ViewModel to stateless composables.
-- **Theming**: Use `MaterialTheme.colorScheme`, no hardcoded hex.
+- **Screen** (Stateful) -> **Content** (Stateless).
+- Pass lambdas down (`onItemClick: (Id) -> Unit`).
+- NEVER pass ViewModel to stateless composables.
+- Use `MaterialTheme.colorScheme`, no hardcoded hex.
 
-## Performance Checklist (Mandatory)
+```kotlin
+@Composable
+fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    ProfileContent(
+        user = uiState.user,
+        onEditClick = viewModel::onEditClick  // lambda down
+    )
+}
 
-- [ ] **Recomposition**: Are params `@Stable` or `@Immutable`?
-- [ ] **Lists**: Is `key` used in `LazyColumn` items?
-- [ ] **Modifiers**: Are they reused or static where possible?
-- [ ] **Side Effects**: `LaunchedEffect` used correctly? (No limits).
-- [ ] **Derived State**: `derivedStateOf` for frequent updates?
+@Composable
+fun ProfileContent(user: User, onEditClick: () -> Unit) {
+    Column { Text(user.name); Button(onClick = onEditClick) { Text("Edit") } }
+}
+```
+
+## 2. Optimize Recomposition
+
+- Annotate params with `@Stable` or `@Immutable`.
+- Use `key` in `LazyColumn` items for stable identity.
+- Reuse or make Modifiers static where possible.
+- Use `derivedStateOf` for frequently updating derived values.
+
+```kotlin
+val filteredItems by remember {
+    derivedStateOf { items.filter { it.isActive } }
+}
+```
+
+## 3. Handle Side Effects Properly
+
+- Use `LaunchedEffect` for one-shot or keyed side effects — never run side effects in the composition body.
+- Move complex calculations to ViewModel or `remember`.
 
 ## Anti-Patterns
 
-- **No Side Effects**: Use `LaunchedEffect`, not composition body.
+- **No Side Effects in Composition Body**: Use `LaunchedEffect`, not raw coroutines.
 - **No VM Deep Pass**: Hoist state; pass only data/callbacks.
-- **No Heavy Comp**: Move complex calc to ViewModel or `remember`.
+- **No Heavy Computation in Composables**: Offload to ViewModel or `remember`.
 
 ## References
 

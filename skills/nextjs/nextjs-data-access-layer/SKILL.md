@@ -1,26 +1,52 @@
 ---
 name: nextjs-data-access-layer
-description: 'Secure, reusable data access patterns with DTOs and Taint checks. Use when building a data access layer with DTOs and server-side taint checking in Next.js. (triggers: **/lib/data.ts, **/services/*.ts, **/dal/**, DAL, Data Access Layer, server-only, DTO)'
+description: "Build secure, reusable data access patterns with DTOs, taint checks, and colocated authorization in Next.js. Use when centralizing database queries, transforming raw data to DTOs, adding server-only guards, or preventing sensitive data from reaching Client Components. (triggers: **/lib/data.ts, **/services/*.ts, **/dal/**, DAL, Data Access Layer, server-only, DTO)"
 ---
 
 # Data Access Layer (DAL)
 
-## **Priority: P1 (HIGH)**
+## Priority: P1 (HIGH)
 
 Centralize all data access (Database & External APIs) to ensure consistent security, authorization, and caching.
 
+## Workflow
+
+1. **Create DAL module** in `services/` or `lib/data.ts` with `import 'server-only'`.
+2. **Verify auth** inside every DAL function using `await auth()`.
+3. **Transform** raw DB/API data into DTOs before returning to components.
+4. **Wrap** with `cache()` from React to deduplicate requests within a render cycle.
+5. **Taint-check** sensitive objects to prevent accidental client exposure.
+
+```typescript
+// lib/dal/users.ts — secure DAL function
+import 'server-only';
+import { cache } from 'react';
+import { auth } from '@/auth';
+import { db } from '@/db';
+
+export const getUser = cache(async (id: string) => {
+  const session = await auth();
+  if (!session) throw new UnauthorizedError();
+
+  const user = await db.user.findUnique({ where: { id } });
+  if (!user) throw new NotFoundError();
+
+  // Return DTO — never expose passwordHash, internalNotes, etc.
+  return { id: user.id, name: user.name, email: user.email };
+});
+```
+
 ## Implementation Guidelines
 
-- **Architecture**: Create a **Data Access Layer (DAL)** in a **`services/`** or **`lib/data.ts`** file. Use **`import 'server-only'`** to prevent leaking backend logic to the client bundle.
-- **DTOs**: Always transform raw DB/API data into **Data Transfer Objects (DTOs)** before returning to components. This prevents leaking sensitive fields (e.g., `passwordHash`).
-- **Security**: Use **`taintObjectReference`** or **`taintUniqueValue`** from the **`experimental_taint`** API to ensure sensitive data never accidentally reaches Client Components.
-- **Authorization**: **Colocate auth checks** inside every DAL function. Don't rely on the UI layer to enforce safety. Use **`await auth()`** to verify the user.
-- **Caching**: Wrap DAL functions in **`cache()`** from React to deduplicate requests within a single render cycle, preventing redundant DB/API calls.
-- **Error Handling**: Throw **standardized errors** (e.g., `NotFoundError`, `UnauthorizedError`) to be caught by **Next.js `error.tsx`** or **`notFound()`**.
+- **DTOs**: Always transform raw data into plain objects. Never return ORM model instances.
+- **Security**: Use `taintObjectReference` or `taintUniqueValue` from the experimental taint API to guard sensitive data.
+- **Authorization**: Colocate auth checks inside every DAL function. Never rely on the UI layer.
+- **Caching**: Wrap DAL functions in `cache()` to deduplicate within a single render.
+- **Error Handling**: Throw standardized errors (`NotFoundError`, `UnauthorizedError`) caught by `error.tsx` or `notFound()`.
 
 ## Limitations
 
-- **Client Components**: Cannot import DAL files. Must use Server Actions or Route Handlers as bridges.
+- **Client Components** cannot import DAL files. Use Server Actions or Route Handlers as bridges.
 
 ## Anti-Patterns
 

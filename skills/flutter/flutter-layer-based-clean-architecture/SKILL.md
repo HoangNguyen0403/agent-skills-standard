@@ -1,6 +1,6 @@
 ---
 name: flutter-layer-based-clean-architecture
-description: "Layer separation and DDD standards. ALWAYS consult when working in lib/domain/, lib/infrastructure/, lib/application/, or lib/presentation/ — for entities, repositories, mappers, BLoCs, or screens. (triggers: lib/domain/**, lib/infrastructure/**, lib/application/**, dto, mapper, Either, Failure)"
+description: "Enforce inward dependency flow, pure domain layers, and DTO-to-entity mapping in Flutter DDD architecture. Use when structuring lib/domain/, lib/infrastructure/, lib/application/, or lib/presentation/ layers, defining repository interfaces, or wiring BLoCs with get_it. (triggers: lib/domain/**, lib/infrastructure/**, lib/application/**, dto, mapper, Either, Failure)"
 ---
 
 # Layer-Based Clean Architecture
@@ -8,6 +8,16 @@ description: "Layer separation and DDD standards. ALWAYS consult when working in
 ## **Priority: P0 (CRITICAL)**
 
 Standardized separation of concerns and dependency flow using DDD principles.
+
+## Workflow: Add a New Feature Across Layers
+
+1. Define the domain entity with `@freezed` in `lib/domain/entities/`
+2. Define the repository interface in `lib/domain/repositories/`
+3. Create the DTO in `lib/infrastructure/dtos/` with `fromJson`/`toEntity` mapper
+4. Implement the repository in `lib/infrastructure/repositories/`
+5. Wire the BLoC/Cubit in `lib/application/` consuming the repository interface
+6. Register bindings in `get_it` injection container
+7. Build the screen in `lib/presentation/` using `BlocBuilder`
 
 ## Structure
 
@@ -25,6 +35,20 @@ lib/
 - **Pure Domain**: No Flutter (Material/Store) or Infrastructure (Dio/Hive) dependencies in `Domain`.
 - **Functional Error Handling**: Repositories must return `Either<Failure, Success>`.
 - **Always Map**: Infrastructure must map DTOs to Domain Entities; do not leak DTOs to UI.
+
+```dart
+// lib/infrastructure/dtos/user_dto.dart
+class UserDto {
+  final String id;
+  final String name;
+
+  factory UserDto.fromJson(Map<String, dynamic> json) =>
+      UserDto(id: json['id'], name: json['name']);
+
+  UserEntity toEntity() => UserEntity(id: id, name: name);
+}
+```
+
 - **Immutability**: Use `@freezed` for all entities and failures.
 - **Logic Placement**: No business logic in UI; widgets only display state and emit events.
 - **Inversion of Control**: Use `get_it` to inject repository implementations into BLoCs.

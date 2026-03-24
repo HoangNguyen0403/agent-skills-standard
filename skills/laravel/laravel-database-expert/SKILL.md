@@ -1,20 +1,32 @@
 ---
 name: laravel-database-expert
-description: 'Expert patterns for advanced queries, Redis caching, and database scalability. Use when optimizing Laravel queries, implementing Redis caching, or scaling databases. (triggers: config/database.php, database/migrations/*.php, join, aggregate, subquery, selectRaw, Cache)'
+description: "Optimize Laravel queries with subqueries, joinSub, Redis cache-aside patterns, and read/write connection splitting. Use when writing complex joins, implementing Cache::remember with tags, or configuring database read replicas. (triggers: config/database.php, database/migrations/*.php, join, aggregate, subquery, selectRaw, Cache)"
 ---
 
 # Laravel Database Expert
 
 ## **Priority: P1 (HIGH)**
 
-## Structure
+## Workflow: Optimize a Slow Query
 
-```text
-config/
-└── database.php        # Connection & Cluster config
-app/
-└── Http/
-    └── Controllers/    # Query logic entry points
+1. **Profile the query** — Use `DB::enableQueryLog()` or Laravel Debugbar.
+2. **Add missing indexes** — Create a migration for join/where columns.
+3. **Replace N+1** — Use `withCount()`, `withSum()`, or `addSelect` subqueries.
+4. **Cache results** — Apply `Cache::remember()` with tags for frequently accessed data.
+5. **Split reads/writes** — Configure `read`/`write` keys in `config/database.php`.
+
+## Cache-Aside with Tags Example
+
+```php
+// Retrieve with cache; invalidate on mutation
+$posts = Cache::tags(['posts', "user:{$userId}"])->remember(
+    "posts.user.{$userId}",
+    now()->addMinutes(30),
+    fn () => Post::where('user_id', $userId)->with('comments')->get()
+);
+
+// Invalidate after update
+Cache::tags(['posts'])->flush();
 ```
 
 ## Implementation Guidelines

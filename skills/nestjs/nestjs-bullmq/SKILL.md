@@ -1,6 +1,6 @@
 ---
 name: nestjs-bullmq
-description: 'Standard workflow for BullMQ jobs in NestJS. Use for: queue processors, redis-throttler, Upstash limits, idle polling (10s), stalled jobs, and retention. Triggers on: bullmq, processors, registerQueue, drainDelay, stalledInterval, removeOnComplete, Redis outages, or failing background tasks. (triggers: **/*.processor.ts, **/*.module.ts, **/bull-queue.constants.ts, **/redis-throttler*.ts, queue, background job, worker, processor, bullmq, drainDelay, stalledInterval, removeOnComplete, redis limit, upstash, fail-open, throttler)'
+description: "Implement BullMQ job workflows in NestJS. Use when building queue processors, redis-throttler, Upstash limits, idle polling, stalled jobs, and retention policies. (triggers: **/*.processor.ts, **/*.module.ts, **/bull-queue.constants.ts, **/redis-throttler*.ts, queue, background job, worker, processor, bullmq, drainDelay, stalledInterval, removeOnComplete, redis limit, upstash, fail-open, throttler)"
 ---
 
 # NestJS BullMQ Implementation

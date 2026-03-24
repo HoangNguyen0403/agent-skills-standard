@@ -1,54 +1,60 @@
 ---
 name: nestjs-caching
-description: "Multi-level caching, Invalidation patterns, and Stampede protection. Use when implementing multi-level caching or cache invalidation strategies in NestJS. (triggers: **/*.service.ts, **/*.interceptor.ts, CacheInterceptor, CacheTTL, Redis, stale-while-revalidate)"
+description: "Implement multi-level caching, invalidation patterns, and stampede protection in NestJS. Use when adding Redis caching layers, configuring cache-manager interceptors, implementing stale-while-revalidate, or preventing cache stampedes in NestJS services. (triggers: **/*.service.ts, **/*.interceptor.ts, CacheInterceptor, CacheTTL, Redis, stale-while-revalidate)"
 ---
 
 # Caching & Redis Standards
 
-## **Priority: P1 (OPERATIONAL)**
+## Priority: P1 (OPERATIONAL)
 
 Caching strategies and Redis integration patterns for high-performance NestJS applications.
 
 ## Caching Strategy
 
 - **Layering**: Use **Multi-Level Caching** for high-traffic read endpoints.
-  - **L1 (Local)**: In-Memory (Node.js heap). Ultra-fast, no network. Ideal for config/static data. Use `lru-cache`.
+  - **L1 (Local)**: In-Memory (Node.js heap). Ultra-fast, no network. Use `lru-cache` for config/static data.
   - **L2 (Distributed)**: Redis. Shared across pods.
-- **Pattern**: Implement **Stale-While-Revalidate** where possible to avoid latency spikes during cache misses.
+- **Pattern**: Implement **Stale-While-Revalidate** to avoid latency spikes during cache misses.
 
 ## NestJS Implementation
 
-- **Library**: Use `cache-manager` with `cache-manager-redis-yet` (Recommended over `cache-manager-redis-store` for better V4 support and stability).
+- **Library**: Use `cache-manager` with `cache-manager-redis-yet` (recommended over `cache-manager-redis-store` for V4 stability).
 - **Interceptors**: Use `@UseInterceptors(CacheInterceptor)` for simple GET responses.
-  - **Warning**: By default, this uses the URL as the key. Ensure consistent query param ordering or custom key generators.
-- **Decorators**: Standardize custom cache keys.
+  - **Warning**: Default key is the URL. Ensure consistent query param ordering or use custom key generators.
 
-  ```typescript
-  @CacheKey('users_list')
-  @CacheTTL(300) // 5 minutes
-  findAll() { ... }
-  ```
-
-## Redis Data Structures (Expert)
-
-- Don't just use `GET/SET`.
-- **Hash (`HSET`)**: Storing objects (User profiles). Allows partial updates (`HSET user:1 lastLogin result`) without serialization overhead.
-- **Set (`SADD`)**: Unique collections (e.g., "Online User IDs"). O(1) membership checks.
-- **Sorted Set (`ZADD`)**: Priority queues, Leaderboards, or Rate Limiting windows.
-
-## Invalidation Patterns
-
-- **Problem**: "There are only two hard things in Computer Science: cache invalidation and naming things."
-- **Tagging**: Since Redis doesn't support wildcards efficiently (`KEYS` is O(N) - bans in PROD), use **Sets** to group keys.
-  - _Create_: `SADD post:1:tags cache:post:1`
-  - _Invalidate_: Fetch tags from Set, then `DEL` usage keys.
-- **Event-Driven**: Listen to Domain Events (`UserUpdated`) to trigger invalidation asynchronously.
+```typescript
+// Controller-level caching with custom key and TTL
+@UseInterceptors(CacheInterceptor)
+@CacheKey('users_list')
+@CacheTTL(300) // 5 minutes
+@Get()
+findAll() { return this.usersService.findAll(); }
+```
 
 ## Stampede Protection
 
-- **Jitter**: Add random variance to TTLs (e.g., 300s ± 10s) to prevent all keys expiring simultaneously.
-- **Locking**: If a key is missing, **one** process computes it while others wait or return stale. (Complex, often handled by `swr` libraries).
+- **Jitter**: Add random variance to TTLs to prevent simultaneous expiry across keys.
+- **Locking**: One process recomputes while others wait or return stale data.
 
+```typescript
+// TTL with jitter — prevents stampede on grouped caches
+const baseTTL = 300;
+const jitter = Math.floor(Math.random() * 20) - 10; // ±10s
+await this.cacheManager.set(key, value, baseTTL + jitter);
+```
+
+## Redis Data Structures
+
+- **Hash (`HSET`)**: Store objects (user profiles) with partial update support.
+- **Set (`SADD`)**: Unique collections with O(1) membership checks.
+- **Sorted Set (`ZADD`)**: Priority queues, leaderboards, rate-limiting windows.
+
+## Invalidation Patterns
+
+- **Tagging**: Use Sets to group cache keys (avoid `KEYS` which is O(N) in production).
+  - _Create_: `SADD post:1:tags cache:post:1`
+  - _Invalidate_: Fetch tags from Set, then `DEL` the grouped keys.
+- **Event-Driven**: Listen to domain events (`UserUpdated`) to trigger invalidation asynchronously.
 
 ## Anti-Patterns
 

@@ -1,6 +1,6 @@
 ---
 name: nextjs-pages-router
-description: 'Legacy routing, getServerSideProps conventions, and strict architectural constraints. Use when working in a Pages Router project with getServerSideProps, getStaticProps, or _app in Next.js. (triggers: pages/**/*.tsx, pages/**/*.ts, Pages Router, getServerSideProps, getStaticProps, _app, useRouter)'
+description: "Implement Pages Router data fetching with getServerSideProps, getStaticProps, and API routes in Next.js legacy projects. Use when working in a pages/ directory project, adding SSR/SSG data fetching, or creating API routes. (triggers: pages/**/*.tsx, pages/**/*.ts, Pages Router, getServerSideProps, getStaticProps, _app, useRouter)"
 ---
 
 # Next.js Pages Router (Legacy)
@@ -9,6 +9,30 @@ description: 'Legacy routing, getServerSideProps conventions, and strict archite
 
 > [!IMPORTANT]
 > The project uses Next.js **Pages Router** (`pages/` directory). Do NOT use App Router features.
+
+## Workflow: Add a Server-Rendered Page
+
+1. **Create page file** — Add `pages/posts/[id].tsx`.
+2. **Add data fetching** — Export `getServerSideProps` or `getStaticProps` + `getStaticPaths`.
+3. **Import service directly** — Never fetch your own `/api` routes from server-side hooks.
+4. **Type the props** — Use `InferGetServerSidePropsType<typeof getServerSideProps>`.
+
+## getServerSideProps Example
+
+```typescript
+// pages/posts/[id].tsx
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
+
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  const post = await postService.findById(params!.id as string);
+  if (!post) return { notFound: true };
+  return { props: { post } };
+};
+
+export default function PostPage({ post }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  return <article>{post.title}</article>;
+}
+```
 
 ## Implementation Guidelines
 
@@ -19,6 +43,12 @@ description: 'Legacy routing, getServerSideProps conventions, and strict archite
 - **APIs**: Implement **API Routes** in `pages/api/` for server-only logic or webhooks. Standardize responses with appropriate HTTP status codes.
 - **Next.js 15+ Compatibility**: Be cautious of **Next.js 15 upgrades**; ensure all **`getServerSideProps`** return objects that match the expected `PageProps`.
 - **Styling**: Standardize via **CSS Modules (`*.module.css`)** or **Tailwind CSS**. Avoid global CSS unless imported in `_app.tsx`.
+
+## Anti-Patterns
+
+- **No fetching own /api routes from SSR**: Import the service layer directly.
+- **No global CSS outside _app.tsx**: Use CSS Modules or Tailwind for scoped styles.
+- **No App Router features in Pages Router projects**: Avoid `app/` directory patterns.
 
 ## References
 

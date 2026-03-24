@@ -1,43 +1,48 @@
 ---
 name: common-documentation
-description: "Essential rules for code comments, READMEs, and technical docs. Use when adding comments, writing docstrings, creating READMEs, or updating any documentation. (triggers: comment, docstring, readme, documentation)"
+description: "Write effective code comments, READMEs, and technical documentation following intent-first principles. Use when adding comments, writing docstrings, creating READMEs, or updating any documentation. (triggers: comment, docstring, readme, documentation)"
 ---
 
 # Documentation Standards
 
 ## **Priority: P2 (MAINTENANCE)**
 
-## 📝 Code Comments (Inline Docs)
+## 1. Write Intent-First Code Comments
 
-- **"Why" over "What"**: Comments should explain non-obvious intent. Code should describe the logic.
-- **Docstrings**: Use triple-slash (Dart/Swift) or standard JSDoc (TS/JS) for all public functions and classes.
-- **Maintenance**: Delete "commented-out" code immediately; use Git history for retrieval.
-- **TODOs**: Use `TODO(username): description` or `FIXME` to track technical debt with ownership.
-- **Workarounds**: Document hacks and removal conditions (e.g., backend bug, version target).
-- **Performance Notes**: Explain trade-offs only when performance-driven changes are made.
+- Explain **"Why"** not "What" — code describes the logic, comments explain non-obvious intent.
+- Use triple-slash (Dart/Swift) or JSDoc (TS/JS) for all public functions and classes.
+- Delete commented-out code immediately — use Git history for retrieval.
+- Use `TODO(username): description` or `FIXME` with ownership and a linked ticket.
 
-## 📖 README Essentials
+```typescript
+// BAD: increments counter by 1
+counter += 1;
+
+// GOOD: retry count tracks consecutive failures for circuit-breaker threshold
+counter += 1;
+```
+
+## 2. Structure READMEs for Onboarding
 
 - **Mission**: Clear one-sentence summary of the project purpose.
-- **Onboarding**: Provide exact Prerequisites (runtimes), Installation steps, and Usage examples.
+- **Onboarding**: Exact Prerequisites (runtimes), Installation steps, and Usage examples.
 - **Maintainability**: Document inputs/outputs, known quirks, and troubleshooting tips.
-- **Up-to-Date**: Documentation is part of the feature; keep it synchronized with code changes.
+- **Synchronization**: Documentation ships with the feature, not after.
 
-## 🏛 Architectural & API Docs
+## 3. Maintain Architectural Docs
 
 - **ADRs**: Document significant architectural changes and the "Why" in `docs/adr/`.
-- **Docstrings**: Document Classes and Functions with clear descriptions of Args, Returns, and usage Examples (`>>>`).
-- **Diagrams**: Use Mermaid.js inside Markdown to provide high-level system overviews.
+- **Docstrings**: Document Classes/Functions with Args, Returns, and usage Examples (`>>>`).
+- **Diagrams**: Use Mermaid.js inside Markdown for high-level system overviews.
 
-## 🚀 API Documentation
+## 4. Document APIs
 
-- **Self-Documenting**: Use Swagger/OpenAPI for REST or specialized doc generators for your language.
-- **Examples**: Provide copy-pasteable examples for every major endpoint or utility.
-- **Contract First**: Define the interface before the implementation.
-
+- Use Swagger/OpenAPI for REST or specialized doc generators.
+- Provide copy-pasteable examples for every major endpoint.
+- Define the interface contract before the implementation.
 
 ## Anti-Patterns
 
 - **No "what" comments**: Explain intent, not mechanics. Refactor instead.
 - **No orphan TODOs**: Every TODO needs `(owner)` and a linked ticket.
-- **No out-of-date docs**: Documentation ships with the feature, not after.
+- **No stale docs**: Documentation ships with the feature, not after.

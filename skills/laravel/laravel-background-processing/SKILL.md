@@ -1,6 +1,6 @@
 ---
 name: laravel-background-processing
-description: 'Scalable asynchronous workflows using Queues, Jobs, and Events. Use when implementing queued jobs, event-driven workflows, or async processing in Laravel. (triggers: app/Jobs/**/*.php, app/Events/**/*.php, app/Listeners/**/*.php, ShouldQueue, dispatch, batch, chain, listener)'
+description: "Build scalable asynchronous workflows using Queues, Jobs, and Events in Laravel. Use when implementing queued jobs, event-driven workflows, or async processing in Laravel. (triggers: app/Jobs/**/*.php, app/Events/**/*.php, app/Listeners/**/*.php, ShouldQueue, dispatch, batch, chain, listener)"
 ---
 
 # Laravel Background Processing

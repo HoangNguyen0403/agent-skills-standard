@@ -1,29 +1,54 @@
 ---
 name: android-state
-description: "Standards for ViewModel, StateFlow, and UI State Patterns. Use whenever someone works with ViewModel files, asks about UiState sealed classes, MutableStateFlow vs LiveData, collectAsStateWithLifecycle, viewModelScope, or exposing state from Android ViewModels — even indirectly. (triggers: **/*ViewModel.kt, **/*UiState.kt, viewmodel, stateflow, livedata, uistate, MutableStateFlow, collectAsState, viewModelScope, UiState)"
+description: "Manage ViewModel state with StateFlow, sealed UiState classes, and lifecycle-safe collection in Android. Use when working with ViewModel files, UiState sealed classes, MutableStateFlow, collectAsStateWithLifecycle, or exposing state from ViewModels. (triggers: **/*ViewModel.kt, **/*UiState.kt, viewmodel, stateflow, livedata, uistate, MutableStateFlow, collectAsState, viewModelScope, UiState)"
 ---
 
 # Android State Management
 
 ## **Priority: P0**
 
-## Implementation Guidelines
+## 1. Structure the ViewModel
 
-### ViewModel Pattern
+- Expose ONE `StateFlow<UiState>` via `.asStateFlow()`.
+- Use `viewModelScope` for all coroutines.
+- Trigger initial load in `init` block.
 
-- **Exposure**: Expose ONE `StateFlow<UiState>` via `.asStateFlow()`.
-- **Scope**: Use `viewModelScope` for all coroutines.
-- **Initialization**: Trigger initial load in `init` or `LaunchedEffect` (once).
+```kotlin
+class ProfileViewModel @Inject constructor(
+    private val getUserUseCase: GetUserUseCase
+) : ViewModel() {
+    private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
+    val uiState = _uiState.asStateFlow()
 
-### UI State (LCE)
+    init {
+        viewModelScope.launch {
+            _uiState.value = try {
+                UiState.Content(getUserUseCase())
+            } catch (e: Exception) {
+                UiState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+}
+```
 
-- **Type**: sealed interface `UiState` (Loading, Content, Error).
-- **Immutability**: Data classes inside should be `@Immutable`.
+## 2. Define UI State (LCE Pattern)
 
-### Flow Lifecycle
+- Use sealed interface with Loading, Content, Error variants.
+- Data classes inside should be `@Immutable`.
 
-- **Collection**: Use `collectAsStateWithLifecycle()` in Compose.
-- **Hot Flows**: Use `SharingStarted.WhileSubscribed(5000)` for shared resources.
+```kotlin
+sealed interface UiState {
+    data object Loading : UiState
+    @Immutable data class Content(val user: User) : UiState
+    data class Error(val message: String) : UiState
+}
+```
+
+## 3. Collect State Lifecycle-Safely
+
+- Use `collectAsStateWithLifecycle()` in Compose.
+- Use `SharingStarted.WhileSubscribed(5000)` for shared resources.
 
 ## Anti-Patterns
 

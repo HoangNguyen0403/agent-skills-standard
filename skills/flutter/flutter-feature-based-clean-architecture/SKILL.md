@@ -1,13 +1,13 @@
 ---
 name: flutter-feature-based-clean-architecture
-description: 'Feature-based clean architecture standards. ALWAYS consult when creating or modifying any file under lib/features/ — new features, domain entities, repositories, data sources, or screens. (triggers: lib/features/**, feature, domain, infrastructure, application, presentation)'
+description: "Organize Flutter apps with modular feature-based clean architecture. Use when creating or modifying any file under lib/features/ including domain entities, repositories, data sources, or screens. (triggers: lib/features/**, feature, domain, infrastructure, application, presentation)"
 ---
 
 # Feature-Based Clean Architecture
 
 ## **Priority: P0 (CRITICAL)**
 
-Standard for modular Clean Architecture organized by business features in `lib/features/`.
+Modular Clean Architecture organized by business features in `lib/features/`.
 
 ## Structure
 
@@ -19,15 +19,41 @@ Every feature lives in `lib/features/` with **3-layer separation** (domain/data/
 
 See [references/folder-structure.md](references/folder-structure.md) for the complete directory blueprint.
 
-## Implementation Guidelines
+## Implementation Workflow
 
-- **Feature Encapsulation**: Keep all logic, models, and UI internal to the feature directory (e.g., `lib/features/promotions/`).
-- **Strict Layering**: Maintain **domain/data/presentation** separation within each feature.
-- **Dependency Rule**: `Presentation -> Domain <- Data`. Domain must have zero external dependencies.
-- **Cross-Feature Communication**: Features only depend on the **Domain layer of other features**. Ensure there are **no cross-feature presentation or data imports**.
-- **Flat features**: Keep `lib/features/` flat; avoid nested features.
-- **No DTO Leakage**: Never expose DTOs or Data Sources to UI or other features; return Domain Entities.
-- **Shared logic**: Move **cross-cutting concerns** to `lib/shared/` or `lib/core/`.
+1. **Create feature directory** — Add a new folder under `lib/features/` (e.g., `lib/features/promotions/`).
+2. **Define domain layer** — Add entities, failures, and repository interfaces with zero external dependencies.
+3. **Implement data layer** — Add DTOs, data sources, and repository implementations that depend only on Domain.
+4. **Build presentation layer** — Add BLoC/Cubit, pages, and widgets that depend only on Domain.
+5. **Enforce dependency rule** — `Presentation -> Domain <- Data`. Domain must have zero external dependencies.
+6. **Share cross-cutting logic** — Move reusable utilities to `lib/shared/` or `lib/core/`.
+
+### Feature Directory Example
+
+```text
+lib/features/orders/
+├── domain/
+│   ├── entities/order.dart
+│   ├── failures/order_failure.dart
+│   └── repositories/i_order_repository.dart
+├── data/
+│   ├── models/order_dto.dart
+│   ├── data_sources/order_remote_data_source.dart
+│   └── repositories/order_repository_impl.dart
+└── presentation/
+    ├── bloc/order_bloc.dart
+    └── pages/order_list_page.dart
+```
+
+### Cross-Feature Import Rule
+
+```dart
+// CORRECT: Import only domain types from another feature
+import 'package:app/features/auth/domain/entities/user.dart';
+
+// WRONG: Never import data or presentation from another feature
+// import 'package:app/features/auth/data/models/user_dto.dart';
+```
 
 ## Reference & Examples
 

@@ -1,6 +1,6 @@
 ---
 name: swift-swiftui
-description: 'Standards for State Management, View Lifecycle, and Property Wrappers. Use when managing SwiftUI state, view lifecycle, or property wrappers like @State and @Binding. (triggers: **/*.swift, @State, @Binding, @ObservedObject, View, body)'
+description: "Manage SwiftUI State, View Lifecycle, and Property Wrappers correctly. Use when managing SwiftUI state, view lifecycle, or property wrappers like @State and @Binding. (triggers: **/*.swift, @State, @Binding, @ObservedObject, View, body)"
 ---
 
 # SwiftUI Standards

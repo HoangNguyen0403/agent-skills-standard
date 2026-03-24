@@ -1,24 +1,41 @@
 ---
 name: spring-boot-scheduling
-description: 'Standards for scheduled tasks and distributed locking with ShedLock. Use when implementing @Scheduled tasks or distributed locking with ShedLock in Spring Boot. (triggers: **/*Scheduler.java, **/*Job.java, scheduled, shedlock, cron)'
+description: "Configure scheduled tasks and distributed locking with ShedLock in Spring Boot. Use when implementing @Scheduled tasks or distributed locking with ShedLock in Spring Boot. (triggers: **/*Scheduler.java, **/*Job.java, scheduled, shedlock, cron)"
 ---
 
 # Spring Boot Scheduling Standards
 
 ## **Priority: P0**
 
-## Implementation Guidelines
-
-### Scheduled Tasks
+## Configure Scheduled Tasks
 
 - **ThreadPool**: ALWAYS configure a dedicated `TaskScheduler` (default is 1 thread). Enable with `@EnableScheduling` annotation.
 - **Async**: Keep `@Scheduled` methods light; offload to `@Async`/Queues. Wrap logic in try/catch; log errors and use `@Retryable` for retry on transient failures.
 
-### Distributed Locking (ShedLock)
+## Lock Tasks with ShedLock
 
 - **Problem**: `@Scheduled` runs on ALL pods in K8s.
 - **Solution**: Use **ShedLock** to guarantee single execution.
 - **Config**: Set `lockAtMostFor` (deadlock safety) and `lockAtLeastFor` (debounce).
+
+```java
+@Slf4j
+@Component
+@EnableScheduling
+public class ReportScheduler {
+
+    @Scheduled(cron = "0 0 2 * * *") // 2 AM daily
+    @SchedulerLock(name = "dailyReport", lockAtMostFor = "PT30M", lockAtLeastFor = "PT5M")
+    public void generateDailyReport() {
+        try {
+            log.info("Starting daily report generation");
+            reportService.generate();
+        } catch (Exception e) {
+            log.error("Daily report failed", e);
+        }
+    }
+}
+```
 
 ## Anti-Patterns
 

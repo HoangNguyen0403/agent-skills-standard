@@ -1,6 +1,6 @@
 ---
 name: nestjs-performance
-description: "Fastify adapter, Scope management, and Compression. Use when optimizing NestJS performance with Fastify, request-scoped providers, or compression. (triggers: main.ts, FastifyAdapter, compression, SINGLETON, REQUEST scope)"
+description: "Optimize NestJS throughput with Fastify adapter, singleton scope enforcement, compression, and query projections. Use when switching to Fastify, diagnosing request-scoped bottlenecks, or profiling API overhead. (triggers: main.ts, FastifyAdapter, compression, SINGLETON, REQUEST scope)"
 ---
 
 # Performance Tuning
@@ -9,13 +9,25 @@ description: "Fastify adapter, Scope management, and Compression. Use when optim
 
 High-performance patterns and optimization techniques for NestJS applications.
 
-- **Adapter**: Use `FastifyAdapter` instead of Express (2x throughput).
-- **Compression**: Enable Gzip/Brotli compression.
+## Workflow: Performance Audit
 
-  ```typescript
-  // main.ts
-  app.use(compression());
-  ```
+1. **Switch to Fastify** — Replace Express with `FastifyAdapter` for ~2x throughput.
+2. **Enable compression** — Add Gzip/Brotli middleware.
+3. **Audit provider scopes** — Ensure no unintended `REQUEST` scope chains.
+4. **Add query projections** — Use `select: []` on all repository queries.
+5. **Profile overhead** — Benchmark Total Duration, DB Execution, and API Overhead.
+
+## Fastify + Compression Setup
+
+```typescript
+// main.ts
+import { NestFactory } from '@nestjs/core';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import compression from '@fastify/compress';
+
+const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
+await app.register(compression, { encodings: ['gzip', 'deflate'] });
+```
 
 - **Keep-Alive**: Configure `http.Agent` keep-alive settings to reuse TCP connections for upstream services.
 

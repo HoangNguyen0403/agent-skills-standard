@@ -1,50 +1,55 @@
 ---
 name: common-git-collaboration
-description: "Universal standards for version control, branching, and team collaboration. Use when writing commits, creating branches, merging, or opening pull requests. (triggers: commit, branch, merge, pull-request, git)"
+description: "Enforce version control best practices for commits, branching, pull requests, and repository security. Use when writing commits, creating branches, merging, or opening pull requests. (triggers: commit, branch, merge, pull-request, git)"
 ---
 
 # Git & Collaboration
 
 ## **Priority: P0 (OPERATIONAL)**
 
-## 📝 Commit Messages (Conventional Commits)
+## 1. Write Conventional Commits
 
-- **Format**: `<type>(<scope>): <description>` (e.g., `feat(auth): add login validation`).
-- **Types**: `feat` (new feature), `fix` (bug fix), `docs`, `style`, `refactor`, `perf`, `test`, `chore`.
-- **Atomic Commits**: One commit = One logical change. Avoid "mega-commits".
-- **Imperative Mood**: Use "add feature" instead of "added feature" or "adds feature".
+- Format: `<type>(<scope>): <description>` (e.g., `feat(auth): add login validation`).
+- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`.
+- Use imperative mood: "add feature" not "added feature".
+- One commit = one logical change — no mega-commits.
 
-## 🌿 Branching & History Management
+```bash
+# Good: atomic, conventional commit
+git commit -m "feat(auth): add JWT refresh token rotation"
 
-- **Naming**: Use prefixes: `feat/`, `fix/`, `hotfix/`, `refactor/`, `docs/`.
-- **Branch for Everything**: Create a new branch for every task to keep the main branch stable and deployable.
-- **Main Branch Protection**: Never push directly to `main` or `develop`. Use Pull Requests.
-- **Sync Early**: "Pull Before You Push" to identify and resolve merge conflicts locally.
-- **Prefer Rebase**: Use `git rebase` (instead of merge) to keep a linear history when updating local branches from `develop` or `main`.
-- **Interactive Rebase**: Use `git rebase -i` to squash or fixup small, messy commits before pushing to a shared branch.
-- **No Merge Commits**: Avoid "Merge branch 'main' into..." commits in feature branches. Always rebase onto the latest upstream.
+# Bad: vague mega-commit
+git commit -m "updates"
+```
 
-## 🤝 Pull Request (PR) Standards
+## 2. Manage Branches
 
-- **Small PRs**: Limit to < 300 lines of code for effective review.
-- **Commit Atomicness**: Each commit should represent a single, complete logical change.
-- **Description**: State what changed, why, and how to test. Link issues (`Closes #123`).
-- **Self-Review**: Review your own code for obvious errors/formatting before requesting peers.
-- **CI/CD**: PRs must pass all automated checks (lint, test, build) before merging.
+- Name with prefixes: `feat/`, `fix/`, `hotfix/`, `refactor/`, `docs/`.
+- Create a new branch for every task to keep main stable and deployable.
+- Never push directly to `main` or `develop` — use Pull Requests.
+- Pull before you push to resolve conflicts locally.
+- Prefer `git rebase` over merge for linear history on feature branches.
+- Use `git rebase -i` to squash messy commits before pushing.
 
-## 🛡 Security & Metadata
+## 3. Submit Quality Pull Requests
 
-- **No Secrets**: Never commit `.env`, keys, or certificates. Use `.gitignore` strictly.
-- **Git Hooks**: Use tools like `husky` or `lefthook` to enforce standards locally.
-- **Tags**: Use SemVer (`vX.Y.Z`) for releases. Update `CHANGELOG.md` accordingly.
+- Limit to < 300 lines of code for effective review.
+- State what changed, why, and how to test. Link issues (`Closes #123`).
+- Self-review for obvious errors before requesting peers.
+- PRs must pass all CI checks (lint, test, build) before merging.
 
-## 📚 References
+## 4. Protect Secrets and Metadata
 
-- [Clean Linear History & Rebase Examples](references/CLEAN_HISTORY.md)
-
+- Never commit `.env`, keys, or certificates — use `.gitignore` strictly.
+- Use `husky` or `lefthook` for local Git Hooks enforcement.
+- Tag releases with SemVer (`vX.Y.Z`) and update `CHANGELOG.md`.
 
 ## Anti-Patterns
 
 - **No direct push to main**: All changes via PR, no exceptions.
 - **No mega-commits**: One commit = one logical change. Split large ones.
 - **No secrets in history**: Use `git filter-repo` to purge; rotate the secret.
+
+## References
+
+- [Clean Linear History & Rebase Examples](references/CLEAN_HISTORY.md)

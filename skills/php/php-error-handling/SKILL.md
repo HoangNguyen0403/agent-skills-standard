@@ -1,6 +1,6 @@
 ---
 name: php-error-handling
-description: 'Modern PHP error and exception handling standards. Use when implementing exception hierarchies, error handlers, or custom exceptions in PHP. (triggers: **/*.php, try, catch, finally, Throwable, set_exception_handler)'
+description: "Implement modern PHP error and exception handling patterns. Use when implementing exception hierarchies, error handlers, or custom exceptions in PHP. (triggers: **/*.php, try, catch, finally, Throwable, set_exception_handler)"
 ---
 
 # PHP Error Handling
@@ -16,12 +16,36 @@ src/
     └── Handler.php
 ```
 
-## Implementation Guidelines
+## Build Exception Hierarchies
 
 - **Exception-Driven**: Favor **`throwing exceptions`** over returning `false` or `null` for error states.
-- **Throwable Interface**: Always catch **`Throwable`** for both PHP 7/8 Errors and Exceptions.
 - **Custom Exceptions**: Extend **`RuntimeException`** or **`LogicException`** for domain-specific errors.
 - **Multi-Catch**: Use Union types in catch blocks: **`catch (DomainException | InvalidArgumentException $e)`**.
+
+```php
+// Domain exception hierarchy
+class OrderException extends \RuntimeException {}
+class OrderNotFoundException extends OrderException {}
+class InsufficientStockException extends OrderException {}
+
+// Usage with multi-catch and finally
+try {
+    $order = $repository->findOrFail($id);
+    $order->fulfill();
+} catch (OrderNotFoundException $e) {
+    $logger->warning('Order not found', ['id' => $id]);
+    throw $e;
+} catch (InsufficientStockException | \DomainException $e) {
+    $logger->error($e->getMessage(), ['exception' => $e]);
+    return new ErrorResponse(422, $e->getMessage());
+} finally {
+    $connection->close();
+}
+```
+
+## Configure Global Error Handling
+
+- **Throwable Interface**: Always catch **`Throwable`** for both PHP 7/8 Errors and Exceptions.
 - **Global Handler**: Use **`set_exception_handler`** and **`set_error_handler`** for top-level logging and cleanup.
 - **Finally**: Always use **`finally`** for resource cleanup (e.g., closing file handles, DB connections).
 - **PSR-3 Logging**: Implement **`Psr\Log\LoggerInterface`** for structured error reporting.

@@ -1,33 +1,48 @@
 ---
 name: android-di
-description: "Standards for Hilt Setup, Scoping, and Modules. Use when setting up Hilt dependency injection, component scoping, or modules in Android. (triggers: **/*Module.kt, **/*Component.kt, @HiltAndroidApp, @Inject, @Provides, @Binds)"
+description: "Configure Hilt dependency injection with proper scoping, modules, and constructor injection in Android. Use when setting up Hilt DI, component scoping, or defining modules. (triggers: **/*Module.kt, **/*Component.kt, @HiltAndroidApp, @Inject, @Provides, @Binds)"
 ---
 
 # Android Dependency Injection (Hilt)
 
 ## **Priority: P0**
 
-## Implementation Guidelines
+## 1. Bootstrap Hilt
 
-### Setup
+- Annotate `Application` class with `@HiltAndroidApp`.
+- Annotate Activities/Fragments with `@AndroidEntryPoint`.
 
-- **App**: Must annotate `Application` class with `@HiltAndroidApp`.
-- **Entries**: Annotate Activities/Fragments with `@AndroidEntryPoint`.
+```kotlin
+@HiltAndroidApp
+class MyApp : Application()
 
-### Modules
+@AndroidEntryPoint
+class MainActivity : ComponentActivity()
+```
 
-- **Binding**: Use `@Binds` (abstract class) over `@Provides` when possible (smaller generated code).
-- **InstallIn**: Be explicit (`SingletonComponent`, `ViewModelComponent`).
+## 2. Define Modules
 
-### Construction
+- Use `@Binds` (abstract class) over `@Provides` when possible — generates smaller code.
+- Be explicit with `@InstallIn` (`SingletonComponent`, `ViewModelComponent`).
 
-- **Constructor Injection**: Prefer over Field Injection (`@Inject constructor(...)`).
-- **Assisted Injection**: Use for runtime parameters (`@AssistedInject`).
+```kotlin
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+    @Binds
+    abstract fun bindUserRepo(impl: UserRepositoryImpl): UserRepository
+}
+```
+
+## 3. Prefer Constructor Injection
+
+- Use `@Inject constructor(...)` over field injection.
+- Use `@AssistedInject` for runtime parameters.
 
 ## Anti-Patterns
 
 - **No Manual Dagger Components**: Use Hilt — it generates all the wiring.
-- **No Field Injection in Logic**: Use constructor injection; field injection only in Android components.
+- **No Field Injection in Logic**: Use constructor injection; field injection only in Android framework classes.
 
 ## References
 

@@ -1,28 +1,59 @@
 ---
 name: angular-forms
-description: 'Standards for Typed Reactive Forms and Validators. Use when implementing typed reactive forms, custom validators, or form control patterns in Angular. (triggers: FormBuilder, FormGroup, FormControl, Validators, reactive forms, typed forms)'
+description: "Build typed reactive forms with strict FormGroup typing, custom validators, and nonNullable controls in Angular. Use when implementing typed reactive forms, custom validators, or form control patterns. (triggers: FormBuilder, FormGroup, FormControl, Validators, reactive forms, typed forms)"
 ---
 
 # Forms
 
 ## **Priority: P2 (MEDIUM)**
 
-## Principles
+## 1. Use Strictly Typed Reactive Forms
 
-- **Reactive Forms**: **Always use Reactive Forms (FormControl, FormGroup)** over Template-Driven Forms for complex inputs. Template-driven forms are only acceptable for very simple, single-field cases. Reactive forms are **strictly typed**, testable, and compose better with Signal stores.
-- **Strict Typing**: Use **strictly typed forms** using **FormGroup<T>** with a typed interface: `FormGroup<{ email: FormControl<string>; password: FormControl<string> }>`. **Never use untyped FormGroup**.
-- **Non-Nullable**: Use `fb.nonNullable.group({ email: ['', Validators.email], password: [''] })` or **nonNullable: true** on individual `FormControl` for **fine-grained control**. This ensures form values are always strings — **Avoid null in form values** by using `fb.nonNullable.group`.
+- Always use Reactive Forms over Template-Driven for complex inputs.
+- Define typed `FormGroup<T>` with explicit control types — never use untyped FormGroup.
 
-## Guidelines
+```typescript
+interface LoginForm {
+  email: FormControl<string>;
+  password: FormControl<string>;
+}
 
-- **Component Store integration**: Sync **valueChanges** using **takeUntilDestroyed()** to call **store.update()**.
-- **Split Logic**: Logic for validation should be in **custom validator functions** (e.g., **function passwordStrength(control: AbstractControl): ValidationErrors | null**). **Extract validation into a separate file** — do not put validation logic inside the component class.
+@Component({ /* ... */ })
+export class LoginComponent {
+  private fb = inject(FormBuilder);
+
+  form = this.fb.nonNullable.group<LoginForm>({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]]
+  });
+}
+```
+
+## 2. Extract Validation Logic
+
+- Create standalone validator functions in a separate file.
+- Sync `valueChanges` to stores using `takeUntilDestroyed()`.
+
+```typescript
+// validators/password.validator.ts
+export function passwordStrength(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  const hasUpperCase = /[A-Z]/.test(value);
+  const hasNumber = /[0-9]/.test(value);
+  return hasUpperCase && hasNumber ? null : { weakPassword: true };
+}
+```
+
+## 3. Ensure NonNullable Controls
+
+- Use `fb.nonNullable.group(...)` or `nonNullable: true` on individual controls.
+- This ensures form values are always strings — avoids null in form values.
 
 ## Anti-Patterns
 
 - **No Template-Driven Forms**: Use Reactive Forms for any non-trivial inputs.
 - **No untyped FormGroup**: Always use strictly typed `FormGroup<T>`.
-- **No validation in component**: Extract validation into standalone validator functions. Inject FormBuilder with **fb = inject(FormBuilder)**.
+- **No validation in component**: Extract into standalone validator functions.
 
 ## References
 

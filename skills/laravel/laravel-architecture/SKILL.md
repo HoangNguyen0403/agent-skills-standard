@@ -1,11 +1,11 @@
 ---
 name: laravel-architecture
-description: 'Core architectural standards for scalable Laravel applications. Use when structuring service layers, repositories, or scalable architecture in Laravel. (triggers: app/Http/Controllers/**/*.php, routes/*.php, controller, service, action, request, container)'
+description: "Enforce core architectural standards for scalable Laravel applications. Use when structuring controllers, service layers, action classes, Form Requests, or Service Container bindings in Laravel projects. (triggers: app/Http/Controllers/**/*.php, routes/*.php, controller, service, action, request, container)"
 ---
 
 # Laravel Architecture
 
-## **Priority: P0 (CRITICAL)**
+## Priority: P0 (CRITICAL)
 
 ## Structure
 
@@ -18,26 +18,56 @@ app/
 └── Actions/            # Single-purpose classes (Preferred)
 ```
 
-## Implementation Guidelines
+## Workflow
 
-### Controller Responsibilities
+1. **Create Form Request** for validation (`php artisan make:request StoreUserRequest`).
+2. **Create Action class** with a single `handle()` method for the use case.
+3. **Inject Action** into controller via constructor DI.
+4. **Bind interfaces** in `AppServiceProvider` for swappable implementations.
 
-- **Skinny Controllers**: **Controller delegates to Action or Service classes**; keep controllers focused on mapping requests/responses.
-- **Dependency Injection**: Use **constructor DI** to inject services or actions. Laravel resolves these via the **Service Container**.
-- **No Logic in Routes**: Always delegate route closures to controllers; don't use raw Closures for logic.
+## Controller Pattern
 
-### Business Logic Placement
+```php
+// app/Http/Controllers/PostController.php — slim controller
+class PostController extends Controller
+{
+    public function __construct(private CreatePostAction $createPost) {}
 
-- **Actions**: Create app/Actions/CreatePost.php (or similar) — one action per use case — with a single `handle()` method. This keeps controllers slim and Create Action class logic focused.
-- **Service Classes**: Create app/Services/PaymentService.php for multi-step logic across domains. type-hint interface in controller constructor for clean DI.
-- **Binding**: Bind interfaces in **`AppServiceProvider`** using **`$this->app->bind(Interface::class, Implementation::class)`**.
-- **Service Isolation**: **No Eloquent queries directly in controllers**; handle database access within services or actions.
+    public function store(StorePostRequest $request): JsonResponse
+    {
+        $post = $this->createPost->handle($request->validated());
+        return response()->json($post, 201);
+    }
+}
+```
 
-### Validation & Requests
+## Action Class
 
-- **Form Requests**: Use `php artisan make:request StoreUserRequest` for Form Requests for validation.
-- **Usage**: call $request->validated() in the controller or action for mass assignment.
-- **Validation Methods**: Implement **`authorize()`** and **`rules()`**; never use `$request->validate()` inline.
+```php
+// app/Actions/CreatePostAction.php — single-purpose business logic
+class CreatePostAction
+{
+    public function __construct(private PostRepository $posts) {}
+
+    public function handle(array $data): Post
+    {
+        return $this->posts->create($data);
+    }
+}
+```
+
+## Service Container Binding
+
+```php
+// app/Providers/AppServiceProvider.php
+$this->app->bind(PostRepository::class, EloquentPostRepository::class);
+```
+
+## Validation
+
+- Use Form Requests with `authorize()` and `rules()` methods.
+- Call `$request->validated()` in the controller for mass assignment.
+- Never use inline `$request->validate()`.
 
 ## Anti-Patterns
 

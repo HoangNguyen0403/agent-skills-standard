@@ -1,6 +1,6 @@
 ---
 name: nextjs-server-components
-description: "RSC usage, ''use client'' directive, and Component Purity. Use when working with React Server Components or deciding where to place the ''use client'' boundary. (triggers: app/**/*.tsx, src/app/**/*.tsx, app/**/*.jsx, src/app/**/*.jsx, use client, Server Component, Client Component, hydration)"
+description: "Build async React Server Components and place 'use client' boundaries at leaf nodes for interactivity in Next.js App Router. Use when deciding RSC vs Client Component, composing server data into client wrappers, or fixing hydration errors. (triggers: app/**/*.tsx, src/app/**/*.tsx, app/**/*.jsx, src/app/**/*.jsx, use client, Server Component, Client Component, hydration)"
 ---
 
 # Server & Client Components
@@ -12,17 +12,42 @@ description: "RSC usage, ''use client'' directive, and Component Purity. Use whe
 
 Next.js (App Router) uses React Server Components (RSC) by default.
 
+## Workflow: Add Server/Client Component Split
+
+1. **Default to RSC** — Write components as async Server Components for data fetching.
+2. **Push `'use client'` to leaves** — Only add for interactivity (onClick, useState, useEffect).
+3. **Compose via children** — Pass Server Components as `children` to Client Components.
+4. **Serialize props** — Ensure all Server-to-Client props are serializable (no functions, Dates, or Classes).
+5. **Guard secrets** — Import `server-only` in modules with sensitive logic.
+
+## Composition Pattern Example
+
+```typescript
+// app/dashboard/page.tsx (Server Component)
+import { ClientTabs } from './client-tabs';
+export default async function Dashboard() {
+  const data = await db.metrics.findMany();
+  return (
+    <ClientTabs>
+      <MetricsTable data={data} /> {/* Server Component passed as children */}
+    </ClientTabs>
+  );
+}
+
+// app/dashboard/client-tabs.tsx
+'use client';
+export function ClientTabs({ children }: { children: React.ReactNode }) {
+  const [tab, setTab] = useState(0);
+  return <div>{tab === 0 ? children : <Settings />}</div>;
+}
+```
+
 ## Implementation Guidelines
 
-- **Next.js Default**: Use **React Server Components (RSC)** for 90% of your UI. Leverage **`async components`** for direct data fetching.
-- **Client Boundary**: Only use the `'use client'` directive for **interactivity** (e.g., `onClick`), **hooks** (`useState`, `useEffect`), or **browser APIs**. Place the boundary at the **leaf nodes** to maximise RSC benefits and server-side rendering.
-- **Composition**: Use `<ClientWrapper><ServerDataComponent /></ClientWrapper>` to pass Server Components as `children` to Client Components. Avoid **Circular Dependencies** between server and client. Direct database access: `await db.` queries inside async RSCs, and `await params` before accessing route segments.
-- **Data Fetching**: Use **`fetch`** with **`cache: 'no-store'`** or **`revalidate: 0`** to opt out of static rendering when needed.
-- **Loading & UI**: Use **`Suspense`** triggers around slow async components to enable **Streaming** and better UX. Use **`loading.tsx`** for route-level loading states.
-- **Serialization**: Ensure all props passed from Server to Client are **Serializable** (No functions, Dates, or Classes).
-- **Security**: Never share **secrets or server-only logic** within Client Components. Use **`server-only`** package to enforce this.
-
-- **Hydration**: Server sends HTML + RSC payload (JSON); client hydrates only Client Components. Server Components produce zero JS in the client bundle — no useState/useEffect shipped to browser.
+- **Async RSCs**: Fetch data directly inside async Server Components; use `await db.` queries and `await params` for route segments.
+- **Data Fetching**: Use `fetch` with `cache: 'no-store'` or `revalidate: 0` to opt out of static rendering when needed.
+- **Streaming**: Wrap slow async components in `<Suspense>` for progressive loading. Use `loading.tsx` for route-level skeletons.
+- **Hydration**: Server sends HTML + RSC payload; client hydrates only Client Components. Server Components produce zero JS in the client bundle.
 - **Server-in-Client**: You cannot import a Server Component directly into a Client Component.
   - _Fix_: Pass Server Component as `children` prop to the Client Component. See [Composition Example](references/composition-security.md).
 

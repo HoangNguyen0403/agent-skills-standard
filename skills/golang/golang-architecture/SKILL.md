@@ -1,49 +1,71 @@
 ---
 name: golang-architecture
-description: "Standards for structural design, Clean Architecture, and project layout in Golang. Use when structuring Go projects or applying Clean Architecture in Go. (triggers: go.mod, internal/**, architecture, structure, folder layout, clean arch, dependency injection)"
+description: "Structure Go projects with Clean Architecture and standard layout conventions. Use when structuring Go projects or applying Clean Architecture in Go. (triggers: go.mod, internal/**, architecture, structure, folder layout, clean arch, dependency injection)"
 ---
 
-# Golang Architecture Standards
+# Golang Architecture
 
 ## **Priority: P0 (CRITICAL)**
 
 ## Principles
 
-- **Clean Architecture**: Separate concerns. Inner layers (Domain) rely on nothing. Outer layers (Adapters) rely on Inner.
-- **Project Layout**: Follow standard Go project layout (`cmd`, `internal`, `pkg`).
-- **Dependency Injection**: Explicitly pass dependencies via constructors. Avoid global singletons.
-- **Package Oriented Design**: Organize by feature/domain, not by layer (avoid `controllers/`, `services/` at root).
-- **Interface Segregation**: Define interfaces where they are _used_ (Consumer implementation).
+- **Clean Architecture**: Inner layers (Domain) rely on nothing. Outer layers (Adapters) rely on inner.
+- **Project Layout**: Follow standard Go layout (`cmd`, `internal`, `pkg`).
+- **Dependency Injection**: Pass dependencies via constructors. Avoid global singletons.
+- **Package Oriented Design**: Organize by feature/domain, not by layer.
+- **Interface Segregation**: Define interfaces where they are _used_ (consumer side).
 
-## Standard Project Layout
+## Implementation Workflow
 
-See [Standard Project Layout](references/project-layout.md) for directory tree.
+1. **Set up project layout** — Use `cmd/` for entry points, `internal/` for private packages, `pkg/` for shared libraries.
+2. **Define domain layer** — Inner-most layer with zero external dependencies.
+3. **Build use cases** — Depend only on Domain interfaces.
+4. **Implement adapters** — Outer layer depends on UseCase/Domain. Contains HTTP handlers, DB repos, etc.
+5. **Wire in main** — Compose the full dependency graph in `main.go`.
 
-### Layer Rules
+### Constructor Injection Example
 
-- **Domain**: Inner-most. No deps.
-- **UseCase**: Depends on Domain.
-- **Adapter**: Outer-most. Depends on UseCase/Domain.
+```go
+// Domain interface (defined at consumer side)
+type OrderRepository interface {
+    GetByID(ctx context.Context, id string) (*Order, error)
+}
 
-## Guidelines
+// Service depends on interface, not concrete struct
+type OrderService struct {
+    repo OrderRepository
+}
 
-- **Use Constructors**: `NewService(repo Repository) *Service`.
-- **Inversion of Control**: Service depends on `Repository` interface, not `SQLRepository` struct.
-- **Wire up in Main**: Main function composes the dependency graph.
+func NewOrderService(repo OrderRepository) *OrderService {
+    return &OrderService{repo: repo}
+}
+```
 
-## Verification Checklist (Mandatory)
+### Wiring in main.go
 
-- [ ] **No Globals**: Are there any global singletons or package-level variables being mutated?
-- [ ] **DI**: Are dependencies explicitly passed via constructors?
-- [ ] **Interfaces**: Are interfaces defined at the consumer side (where they are used)?
-- [ ] **Layering**: Does `internal/domain` have zero external dependencies?
-- [ ] **Composition**: Are dependencies wired together in `main.go`?
+```go
+func main() {
+    db := postgres.NewConnection(cfg.DatabaseURL)
+    orderRepo := postgres.NewOrderRepository(db)
+    orderService := domain.NewOrderService(orderRepo)
+    orderHandler := handler.NewOrderHandler(orderService)
+    // ... set up router
+}
+```
+
+## Verification Checklist
+
+- [ ] No global singletons or package-level mutable variables
+- [ ] Dependencies explicitly passed via constructors
+- [ ] Interfaces defined at the consumer side
+- [ ] `internal/domain` has zero external dependencies
+- [ ] Dependencies wired together in `main.go`
 
 ## Anti-Patterns
 
-- **No Global Singletons**: Use DI; avoid package-level mutable variables.
-- **No Layer Violations**: Domain must not import from adapter/infrastructure layers.
-- **No God Services**: Split large services into single-responsibility components.
+- ❌ Global singletons — use DI; avoid package-level mutable variables
+- ❌ Layer violations — domain must not import from adapter/infrastructure layers
+- ❌ God services — split into single-responsibility components
 
 ## References
 

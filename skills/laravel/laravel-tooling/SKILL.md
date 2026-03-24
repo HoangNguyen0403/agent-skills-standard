@@ -1,11 +1,35 @@
 ---
 name: laravel-tooling
-description: 'Ecosystem management, Artisan, and asset bundling. Use when managing Composer dependencies, Artisan commands, or Vite asset bundling in Laravel. (triggers: package.json, composer.json, vite.config.js, artisan, vite, horizon, pint, blade)'
+description: "Manage Laravel ecosystem with custom Artisan commands, Vite asset bundling, Pint code styling, and Horizon queue monitoring. Use when creating Artisan commands, migrating from Mix to Vite, or configuring Pint code standards. (triggers: package.json, composer.json, vite.config.js, artisan, vite, horizon, pint, blade)"
 ---
 
 # Laravel Tooling
 
 ## **Priority: P2 (MEDIUM)**
+
+## Workflow: Set Up Development Tooling
+
+1. **Install Pint** — `composer require laravel/pint --dev`; run `./vendor/bin/pint`.
+2. **Configure Vite** — Set up `vite.config.js` with Laravel plugin; add `@vite()` in Blade layout.
+3. **Create custom command** — `php artisan make:command SendNewsletters`.
+4. **Add Horizon** — `composer require laravel/horizon`; configure supervisors.
+
+## Custom Artisan Command Example
+
+```php
+// app/Console/Commands/SendNewsletters.php
+class SendNewsletters extends Command {
+    protected $signature = 'newsletters:send {--queue : Queue the emails}';
+    protected $description = 'Send newsletters to all subscribers';
+
+    public function handle(): int {
+        $subscribers = User::whereNotNull('subscribed_at')->get();
+        $this->info("Sending to {$subscribers->count()} subscribers...");
+        // dispatch jobs or send directly
+        return self::SUCCESS;
+    }
+}
+```
 
 ## Structure
 

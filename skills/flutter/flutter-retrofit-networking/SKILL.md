@@ -1,6 +1,6 @@
 ---
 name: flutter-retrofit-networking
-description: 'HTTP networking standards using Dio and Retrofit with Auth interceptors. Use when integrating Dio, Retrofit, or API auth interceptors in Flutter. (triggers: **/data_sources/**, **/api/**, Retrofit, Dio, RestClient, GET, POST, Interceptor, refreshing)'
+description: "Build type-safe HTTP networking with Dio and Retrofit including auth interceptors. Use when integrating Dio, Retrofit, or API auth interceptors in Flutter. (triggers: **/data_sources/**, **/api/**, Retrofit, Dio, RestClient, GET, POST, Interceptor, refreshing)"
 ---
 
 # Retrofit & Dio Networking
@@ -14,29 +14,60 @@ Type-safe REST API communication using `Dio` and `Retrofit`.
 ```text
 infrastructure/
 ├── data_sources/
-│   ├── remote/ # Retrofit abstract classes
-│   └── local/ # Cache/Storage
+│   ├── remote/       # Retrofit abstract classes
+│   └── local/        # Cache/Storage
 └── network/
-    ├── dio_client.dart # Custom Dio setup
-    └── interceptors/ # Auth, Logging, Cache
+    ├── dio_client.dart    # Custom Dio setup
+    └── interceptors/      # Auth, Logging, Cache
 ```
 
-## Implementation Guidelines
+## Implementation Workflow
 
-- **Retrofit Clients**: Define abstract classes with **@RestApi()**. Use standard HTTP annotations (**@GET('/route')**, **@POST('/route/{id}/cancel')** with **@Path('id')**). Methods must return `Future<DTO>`.
-- **DTOs (Data Transfer Objects)**: Use **@freezed** and **@JsonSerializable** for all response/request bodies.
-- **Mapping**: Data sources MUST map DTOs to Domain Entities (e.g., `userDto.toDomain()`).
-- **Safe Enums**: Always use **@JsonKey(unknownEnumValue: OrderStatus.unknown)** for DTO enums with an `unknown` fallback value to prevent crashes when the backend introduces new values.
-- **AuthInterceptor**: Logic for `Authorization: Bearer <token>` injection in `onRequest`.
-- **Token Refresh**: Handle **401 Unauthorized** in `onError` by checking `DioException`, **locking Dio**, calling `refreshToken()`, **updating the stored token**, and **retrying** via `dio.fetch(err.requestOptions)`.
-- **Failures**: Map `DioException` to custom `Failure` objects (ServerFailure, NetworkFailure).
+1. **Define Retrofit clients** — Create abstract classes with `@RestApi()` and HTTP annotations (`@GET`, `@POST`). Methods return `Future<DTO>`.
+2. **Create DTOs** — Use `@freezed` and `@JsonSerializable` for all request/response bodies.
+3. **Map to domain** — Data sources must map DTOs to Domain Entities (e.g., `userDto.toDomain()`).
+4. **Guard enums** — Always use `@JsonKey(unknownEnumValue: Status.unknown)` to prevent crashes from new backend values.
+5. **Add auth interceptor** — Inject `Authorization: Bearer <token>` in `onRequest`.
+6. **Handle token refresh** — On 401, lock Dio, call `refreshToken()`, update stored token, retry via `dio.fetch(err.requestOptions)`.
+7. **Map failures** — Convert `DioException` to typed `Failure` objects (ServerFailure, NetworkFailure).
+
+### Retrofit Client Example
+
+```dart
+@RestApi()
+abstract class OrderRemoteDataSource {
+  factory OrderRemoteDataSource(Dio dio) = _OrderRemoteDataSource;
+
+  @GET('/orders/{id}')
+  Future<OrderDto> getOrder(@Path('id') String id);
+
+  @POST('/orders/{id}/cancel')
+  Future<void> cancelOrder(@Path('id') String id);
+}
+```
+
+### Safe Enum DTO Example
+
+```dart
+@freezed
+class OrderDto with _$OrderDto {
+  const factory OrderDto({
+    required String id,
+    @JsonKey(unknownEnumValue: OrderStatus.unknown)
+    required OrderStatus status,
+  }) = _OrderDto;
+
+  factory OrderDto.fromJson(Map<String, dynamic> json) =>
+      _$OrderDtoFromJson(json);
+}
+```
 
 ## Anti-Patterns
 
-- **No Manual JSON Parsing**: Do not use `jsonDecode(response.body)`; use Retrofit's generated mappers.
-- **No Global Dio**: Do not use a static global Dio instance; use dependency injection.
-- **No Try-Catch in API**: Do not put `try-catch` inside the Retrofit interface methods.
-- **No Unsafe Enums**: Do not leave enums in DTOs without handling unknown values from the server.
+- ❌ `jsonDecode(response.body)` — use Retrofit's generated mappers, never manual JSON parsing
+- ❌ Static global `Dio` instance — inject Dio via DI; avoid global singletons
+- ❌ `try-catch` inside Retrofit interface methods — let the repository layer handle exceptions
+- ❌ Enum fields without `unknownEnumValue` — new backend values will crash the app
 
 ## Reference & Examples
 

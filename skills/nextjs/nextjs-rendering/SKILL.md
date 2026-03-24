@@ -1,6 +1,6 @@
 ---
 name: nextjs-rendering
-description: 'SSG, SSR, ISR, Streaming, and Partial Prerendering (PPR). Use when choosing a rendering strategy (SSG, SSR, ISR, PPR, or Streaming) in Next.js. (triggers: **/page.tsx, **/layout.tsx, generateStaticParams, dynamic, dynamicParams, PPR, streaming)'
+description: "Select and implement SSG, SSR, ISR, Streaming, or Partial Prerendering strategies in Next.js App Router. Use when choosing a rendering mode for a page, configuring generateStaticParams, or enabling PPR. (triggers: **/page.tsx, **/layout.tsx, generateStaticParams, dynamic, dynamicParams, PPR, streaming)"
 ---
 
 # Rendering Strategies (App Router)
@@ -8,6 +8,29 @@ description: 'SSG, SSR, ISR, Streaming, and Partial Prerendering (PPR). Use when
 ## **Priority: P0 (CRITICAL)**
 
 Choose rendering strategy based on data freshness and scaling needs. See [Strategy Matrix](references/strategy-matrix.md).
+
+## Workflow: Choose a Rendering Strategy
+
+1. **Determine data freshness** — Static content? Use SSG. Periodic updates? Use ISR. Personalized? Use SSR.
+2. **Configure fetch** — `force-cache` for SSG, `revalidate: N` for ISR, `no-store` for SSR.
+3. **Add Suspense for streaming** — Wrap slow components in `<Suspense>` with a fallback.
+4. **Enable PPR if hybrid** — Set `ppr: true` in `next.config.js` for static shell + dynamic regions.
+
+## ISR with generateStaticParams Example
+
+```typescript
+// app/posts/[slug]/page.tsx
+export async function generateStaticParams() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ slug: post.slug }));
+}
+
+export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = await fetch(`/api/posts/${slug}`, { next: { revalidate: 3600 } });
+  return <article>{post.title}</article>;
+}
+```
 
 ## Implementation Guidelines
 

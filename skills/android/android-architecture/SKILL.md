@@ -1,38 +1,50 @@
 ---
 name: android-architecture
-description: "Standards for Clean Architecture, Modularization, and Unidirectional Data Flow. Use when anyone sets up Android project structure, asks where code belongs in Clean Architecture layers, discusses modularization (feature/core modules), or questions UDF (events up, state down). (triggers: build.gradle.kts, settings.gradle.kts, clean-architecture, module, layers, domain, UDF, unidirectional, feature module, core module, presentation layer, data layer)"
+description: "Apply Clean Architecture layering, modularization, and Unidirectional Data Flow in Android projects. Use when setting up Android project structure, placing code in Clean Architecture layers, configuring feature/core modules, or implementing UDF patterns. (triggers: build.gradle.kts, settings.gradle.kts, clean-architecture, module, layers, domain, UDF, unidirectional, feature module, core module, presentation layer, data layer)"
 ---
 
 # Android Architecture Standards
 
 ## **Priority: P0 (CRITICAL)**
 
-## Implementation Guidelines
+## 1. Layer Your Project (Clean Architecture)
 
-### Layering (Clean Architecture)
-
-- **Domain**: Pure Kotlin (No Android deps). Contains UseCases/Models.
+- **Domain**: Pure Kotlin (No Android deps). Contains UseCases and Models.
 - **Data**: Repository impl, DataSources (API/DB). Maps DTO -> Domain.
 - **UI**: ViewModel + Composable. Maps Domain -> UiState.
 
-### Modularization
+```kotlin
+// Domain layer — pure Kotlin, no Android imports
+class GetUserUseCase @Inject constructor(
+    private val repo: UserRepository
+) {
+    suspend operator fun invoke(id: String): User = repo.getUser(id)
+}
+```
+
+## 2. Modularize by Feature and Core
 
 - **Feature Modules**: `:feature:home`, `:feature:profile`.
 - **Core Modules**: `:core:ui` (Design System), `:core:network`, `:core:database`.
 - **App Module**: DI Root and Navigation Guard.
 
-### Unidirectional Data Flow (UDF)
+```kotlin
+// settings.gradle.kts
+include(":app", ":feature:home", ":feature:profile")
+include(":core:ui", ":core:network", ":core:database")
+```
 
-- **Events**: UI -> ViewModel (Events).
-- **State**: ViewModel -> UI (StateFlow<UiState>).
+## 3. Enforce Unidirectional Data Flow (UDF)
 
-### Jetpack Compose
+- **Events**: UI -> ViewModel (user actions flow UP).
+- **State**: ViewModel -> UI (`StateFlow<UiState>` flows DOWN).
 
-- **Hosting**: Are you using `setContent` in Activity? (No XML Layouts)
-- **State**: Is state hoisted to ViewModel using `collectAsStateWithLifecycle`?
-- **Unidirectional**: Are events passed UP and state passed DOWN?
-- **Recomposition**: Are Composables stable? (Check for unstable types in parameters)
-- **Navigation**: Is `Compose Navigation` using Type-Safe destinations?
+## 4. Verify Jetpack Compose Integration
+
+- **Hosting**: Use `setContent` in Activity (No XML Layouts).
+- **State**: Hoist state to ViewModel using `collectAsStateWithLifecycle`.
+- **Recomposition**: Ensure Composable parameters are `@Stable` or `@Immutable`.
+- **Navigation**: Use Compose Navigation with Type-Safe destinations.
 
 ## Anti-Patterns
 

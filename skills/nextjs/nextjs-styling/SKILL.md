@@ -1,6 +1,6 @@
 ---
 name: nextjs-styling
-description: "Zero-runtime CSS strategies (Tailwind) and RSC compatibility. Use when implementing Tailwind CSS or zero-runtime styling compatible with React Server Components. (triggers: **/*.css, tailwind.config.ts, **/components/ui/*.tsx, tailwind, css modules, styled-components, clsx, cn)"
+description: "Implement zero-runtime CSS with Tailwind, CSS Modules, and the cn() utility for RSC-compatible styling in Next.js. Use when choosing a styling library, creating dynamic class utilities, or optimizing fonts with next/font. (triggers: **/*.css, tailwind.config.ts, **/components/ui/*.tsx, tailwind, css modules, styled-components, clsx, cn)"
 ---
 
 # Styling & UI Performance
@@ -8,6 +8,28 @@ description: "Zero-runtime CSS strategies (Tailwind) and RSC compatibility. Use 
 ## **Priority: P1 (HIGH)**
 
 Prioritize **Zero-Runtime** CSS for Server Components.
+
+## Workflow: Set Up Styling
+
+1. **Choose library** — Tailwind/shadcn (preferred), CSS Modules (scoped), or Ant Design (with client wrappers).
+2. **Create `cn` utility** — Combine `clsx` + `tailwind-merge` for dynamic classes.
+3. **Configure fonts** — Use `next/font` for zero-CLS self-hosted fonts.
+4. **Set image dimensions** — Always specify `width`/`height` or `fill` on `<Image>`.
+
+## cn Utility Example
+
+```typescript
+// lib/utils.ts
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+// usage in a component
+<button className={cn('px-4 py-2 rounded', isActive && 'bg-blue-500 text-white')}>Click</button>
+```
 
 ## Library Selection
 

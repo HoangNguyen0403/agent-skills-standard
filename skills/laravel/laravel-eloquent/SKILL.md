@@ -1,11 +1,40 @@
 ---
 name: laravel-eloquent
-description: 'Advanced Eloquent ORM patterns for performance and query reuse. Use when working with Eloquent relationships, scopes, or advanced query optimization in Laravel. (triggers: app/Models/**/*.php, scope, with, eager, chunk, model)'
+description: "Write performant Eloquent queries with eager loading, reusable scopes, and strict lazy-loading prevention in Laravel. Use when defining model relationships, creating query scopes, or processing large datasets with chunk/cursor. (triggers: app/Models/**/*.php, scope, with, eager, chunk, model)"
 ---
 
 # Laravel Eloquent
 
 ## **Priority: P0 (CRITICAL)**
+
+## Workflow: Add a Model with Safe Queries
+
+1. **Define model** — Set `$fillable`, `$casts`, and relationships.
+2. **Enable strict loading** — Call `preventLazyLoading(!app()->isProduction())` in AppServiceProvider.
+3. **Add scopes** — Create `scopeActive()`, `scopeVerified()` for reusable filters.
+4. **Eager-load in queries** — Use `with()` for all relationship access.
+5. **Process large datasets** — Use `chunk()` or `cursor()` instead of `get()`.
+
+## Scope + Eager Loading Example
+
+```php
+// app/Models/User.php
+class User extends Model {
+    protected $fillable = ['name', 'email', 'status'];
+    protected $casts = ['email_verified_at' => 'datetime'];
+
+    public function scopeActive(Builder $query): Builder {
+        return $query->where('status', 'active');
+    }
+
+    public function posts(): HasMany {
+        return $this->hasMany(Post::class);
+    }
+}
+
+// Usage: eager-load + scope chain
+$users = User::active()->with('posts')->paginate(20);
+```
 
 ## Structure
 

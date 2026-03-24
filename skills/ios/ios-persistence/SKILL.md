@@ -1,39 +1,65 @@
 ---
 name: ios-persistence
-description: 'Standards for SwiftData, Core Data, and Local Storage. Use when implementing SwiftData, Core Data models, or local persistence in iOS. (triggers: **/*.xcdatamodeld, **/*Model.swift, PersistentContainer, FetchRequest, ManagedObject, Query, ModelContainer, Repository)'
+description: "Implement local persistence with SwiftData, Core Data, and Keychain. Use when setting up SwiftData models, Core Data stacks, or local persistence in iOS. (triggers: **/*.xcdatamodeld, **/*Model.swift, PersistentContainer, FetchRequest, ManagedObject, Query, ModelContainer, Repository)"
 ---
 
-# iOS Persistence Standards
+# iOS Persistence
 
 ## **Priority: P0**
 
-## Implementation Guidelines
+## Implementation Workflow
 
-### SwiftData (Current iOS 17+)
+1. **Choose storage tier** — SwiftData for iOS 17+, Core Data for legacy, Keychain for secrets, UserDefaults for flags only.
+2. **Define models** — Use `@Model` macro (SwiftData) or `.xcdatamodeld` (Core Data).
+3. **Configure container** — Use `@MainActor` for `ModelContainer` (SwiftData) or `NSPersistentContainer` (Core Data).
+4. **Perform background writes** — Use `newBackgroundContext()` (Core Data) to avoid UI lag; never do heavy I/O on `viewContext`.
+5. **Secure sensitive data** — Use Keychain for tokens and PII; never store in `UserDefaults`.
 
-- **Models**: Use the **`@Model`** macro for your Swift classes.
-- **Container**: Use **`@MainActor`** for configuring the `ModelContainer`.
-- **UI State**: Use **`@Query`** for reactive data fetching in **SwiftUI** views.
-- **Context API**: Access `modelContext` from the `@Environment` for CRUD (**modelContext.insert**, **modelContext.delete**, **modelContext.save**).
+### SwiftData Example (iOS 17+)
 
-### Core Data (Stable & Large Legacy)
+```swift
+@Model
+class Order {
+    var id: String
+    var status: String
+    var createdAt: Date
 
-- **Mapping**: Define your entities and attributes in the **`.xcdatamodeld`** file.
-- **Stack**: Use **`NSPersistentContainer`** to encapsulate the SQLite store.
-- **Background**: Perform heavy writes on `newBackgroundContext()` to avoid UI lag.
-- **Main Context**: Use **`viewContext`** only for UI thread operations.
+    init(id: String, status: String, createdAt: Date) {
+        self.id = id
+        self.status = status
+        self.createdAt = createdAt
+    }
+}
 
-### Local Persistence (Small Data)
+// In SwiftUI view
+struct OrderListView: View {
+    @Query(sort: \Order.createdAt, order: .reverse) var orders: [Order]
+    @Environment(\.modelContext) private var context
 
-- **Keychain**: Use for **Auth tokens**, passwords, and PII. Never store sensitive keys in `UserDefaults`.
-- **UserDefaults**: Use for lightweight settings/flags (e.g., `isDarkModeEnabled`).
-- **File System**: Save images or PDFs to the **`Documents`** directory using `Data.write(to:)`.
+    var body: some View {
+        List(orders) { order in
+            Text(order.status)
+        }
+    }
+}
+```
+
+### Core Data Background Write
+
+```swift
+let backgroundContext = persistentContainer.newBackgroundContext()
+backgroundContext.perform {
+    let order = OrderEntity(context: backgroundContext)
+    order.status = "confirmed"
+    try? backgroundContext.save()
+}
+```
 
 ## Anti-Patterns
 
-- **No heavy I/O on ViewContext**: Use private background contexts.
-- **No string-based predicates**: Use KeyPaths or generated helpers.
-- **No missing merge strategy**: Set mergePolicy explicitly (e.g., mergeByPropertyObjectTrump).
+- ❌ Heavy I/O on `viewContext` — use private background contexts
+- ❌ String-based predicates — use KeyPaths or generated helpers
+- ❌ Missing merge strategy — set `mergePolicy` explicitly (e.g., `mergeByPropertyObjectTrump`)
 
 ## References
 

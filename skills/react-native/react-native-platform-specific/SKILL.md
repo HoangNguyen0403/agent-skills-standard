@@ -1,13 +1,13 @@
 ---
 name: react-native-platform-specific
-description: "Handling iOS and Android differences with Platform API and native modules. Use when handling platform-specific behavior or integrating native modules in React Native. (triggers: **/*.tsx, **/*.ts, **/*.ios.*, **/*.android.*, Platform, Platform.select, native-module, ios, android)"
+description: "Handle iOS and Android differences using Platform API and native modules in React Native. Use when handling platform-specific behavior or integrating native modules in React Native. (triggers: **/*.tsx, **/*.ts, **/*.ios.*, **/*.android.*, Platform, Platform.select, native-module, ios, android)"
 ---
 
 # React Native Platform-Specific Code
 
 ## **Priority: P1 (OPERATIONAL)**
 
-## File Extensions
+## Split Platform-Specific Files
 
 Use `.ios.` and `.android.` for platform-specific files:
 
@@ -19,10 +19,26 @@ Button.android.tsx  # Android-specific
 
 React Native automatically picks the right file:
 
-- **iOS**: Button.ios.tsx → Button.tsx (fallback)
-- **Android**: Button.android.tsx → Button.tsx (fallback)
+- **iOS**: Button.ios.tsx then Button.tsx (fallback)
+- **Android**: Button.android.tsx then Button.tsx (fallback)
 
-## Native Modules
+## Apply Platform Branching Inline
+
+Use `Platform.select` or `Platform.OS` for small differences within a shared file:
+
+```tsx
+import { Platform, StyleSheet } from 'react-native';
+
+const styles = StyleSheet.create({
+  shadow: Platform.select({
+    ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1 },
+    android: { elevation: 4 },
+    default: {},
+  }),
+});
+```
+
+## Integrate Native Modules
 
 - **Expo**: Use Expo modules when available (`expo-*` packages).
 - **Bare RN**: Use community modules (`@react-native-community/*`).
@@ -30,7 +46,7 @@ React Native automatically picks the right file:
 
 ## Anti-Patterns
 
-- **No Excessive Branching**: Extract to separate files if logic diverges.
+- **No Excessive Branching**: Extract to separate files if logic diverges significantly.
 - **No Hardcoded Version Checks**: Use feature detection.
 - **No Ignoring Android**: Test on both platforms.
 

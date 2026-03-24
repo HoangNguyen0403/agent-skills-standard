@@ -1,34 +1,48 @@
 ---
 name: ios-deployment
-description: "Standards for Provisioning, Signing, and Fastlane. Use when provisioning iOS apps, managing code signing, or automating deployments with Fastlane. (triggers: Fastfile, Appfile, Matchfile, ios_bundle_id, provisioning_profile, testflight)"
+description: "Automate provisioning, signing, and deployment with Fastlane. Use when provisioning iOS apps, managing code signing, or automating deployments with Fastlane. (triggers: Fastfile, Appfile, Matchfile, ios_bundle_id, provisioning_profile, testflight)"
 ---
 
-# iOS Deployment Standards
+# iOS Deployment
 
 ## **Priority: P1**
 
-## Implementation Guidelines
+## Implementation Workflow
 
-### Signing & Provisioning
+1. **Set up Match** — Use `fastlane match` for centralized certificate and profile management. Avoid manual signing.
+2. **Configure build settings** — Set `PROVISIONING_PROFILE_SPECIFIER` explicitly if using manual/CI signing.
+3. **Script Fastlane lanes** — Create `beta` (TestFlight) and `release` (App Store) lanes in your Fastfile.
+4. **Automate versioning** — Use `increment_build_number` to auto-bump build numbers.
+5. **Automate TestFlight uploads** — Trigger on every successful merge to staging.
+6. **Set export compliance** — Automate in `Info.plist` or Fastlane to avoid metadata pauses.
 
-- **Match**: Use `fastlane match` for centralized certificate and profile management. Avoid manual signing where possible.
-- **Project Settings**: Explicitly set `PROVISIONING_PROFILE_SPECIFIER` in build settings if using manual/CI.
+### Fastfile Beta Lane Example
 
-### CI/CD (Fastlane)
+```ruby
+lane :beta do
+  match(type: "appstore")
+  increment_build_number
+  build_app(scheme: "MyApp")
+  upload_to_testflight(
+    skip_waiting_for_build_processing: true
+  )
+end
+```
 
-- **Fastfile**: Script your build, test, and release flows. Use lanes for `beta` (TestFlight) and `release` (App Store).
-- **Versioning**: Automate build number increments using `increment_build_number`.
+### Match Setup
 
-### TestFlight
-
-- **Internal Testers**: Automate uploads to TestFlight for every successful merge to the staging branch.
-- **Export Compliance**: Automate the export compliance setting in `Info.plist` or Fastlane to avoid metadata pauses.
+```ruby
+# Matchfile
+git_url("https://github.com/org/certificates")
+type("appstore")
+app_identifier("com.example.myapp")
+```
 
 ## Anti-Patterns
 
-- **No manual identities on CI**: Use Match.
-- **No certs in repo**: Use a private git repo for Match certificates.
-- **No manual version bumps**: Use Fastlane increment tools.
+- ❌ Manual identities on CI — use Match for automated certificate management
+- ❌ Certificates committed to repo — use a private git repo for Match certificates
+- ❌ Manual version bumps — use Fastlane `increment_build_number`
 
 ## References
 

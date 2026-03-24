@@ -1,11 +1,35 @@
 ---
 name: nextjs-testing
-description: 'Unit, Integration, and E2E testing standards for App Router. Use when writing unit, integration, or Playwright E2E tests for a Next.js App Router project. (triggers: **/*.test.{ts, tsx}, cypress/**, tests/**, vitest, playwright, msw, testing-library)'
+description: "Write Vitest unit tests with React Testing Library and Playwright E2E tests for Next.js App Router projects. Use when testing components with RTL, mocking APIs with MSW, or creating Playwright user flow tests. (triggers: **/*.test.{ts,tsx}, cypress/**, tests/**, vitest, playwright, msw, testing-library)"
 ---
 
 # Next.js Testing
 
 ## **Priority: P1 (HIGH)**
+
+## Workflow: Test a New Feature
+
+1. **Write unit tests** — Use Vitest + RTL with Arrange-Act-Assert pattern.
+2. **Mock APIs** — Set up MSW handlers for all fetch boundaries.
+3. **Test interactions** — Use `userEvent` (async) for clicks, typing, form submissions.
+4. **Add E2E tests** — Use Playwright for critical user flows (login, checkout).
+5. **Verify coverage** — Aim for 80%+ on core libraries via JSON coverage reports.
+
+## Component Test Example
+
+```typescript
+// tests/unit/post-card.test.tsx
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { PostCard } from '@/components/post-card';
+
+test('calls onLike when heart button is clicked', async () => {
+  const onLike = vi.fn();
+  render(<PostCard title="Hello" onLike={onLike} />);
+  await userEvent.click(screen.getByRole('button', { name: /like/i }));
+  expect(onLike).toHaveBeenCalledOnce();
+});
+```
 
 ## Structure
 

@@ -1,36 +1,54 @@
 ---
 name: ios-dependency-injection
-description: "Standards for Protocol-based DI, Property Wrappers, and Factory/Needle. Use when configuring dependency injection or factory patterns in iOS. (triggers: **/*.swift, @Injected, Resolver, Container, Swinject, register, resolve)"
+description: "Configure protocol-based DI with property wrappers and Factory/Swinject. Use when setting up dependency injection or factory patterns in iOS. (triggers: **/*.swift, @Injected, Resolver, Container, Swinject, register, resolve)"
 ---
 
-# iOS Dependency Injection Standards
+# iOS Dependency Injection
 
 ## **Priority: P0**
 
-## Implementation Guidelines
+## Implementation Workflow
 
-### Protocol-Based DI (Manual)
+1. **Prefer initializer injection** — Pass dependencies through `init` as the primary approach.
+2. **Inject protocols** — Always depend on protocols instead of concrete classes for testability.
+3. **Choose a DI library** — Use `Factory` for lightweight DI, `Swinject` for enterprise-grade container-based projects.
+4. **Apply correct scoping** — Singleton for app-wide services (Auth, Network); Unique/Transient for ViewModels; Graph/Cached for feature flows.
 
-- **Initializer Injection**: Preferred method. Pass dependencies through `init`.
-- **Abstractions**: Inject protocols instead of concrete classes to facilitate testing (Mocks/Stubs).
+### Protocol-Based DI Example
 
-### Modern Property Wrappers (Factory/Resolver)
+```swift
+protocol OrderRepositoryProtocol {
+    func fetchOrders() async throws -> [Order]
+}
 
-- **Factory**: Use the `Factory` library for lightweight, type-safe navigation-friendly DI.
-- **Swinject**: Use for enterprise-grade container-based DI in large modular projects.
-- **Injected**: Use `@Injected` property wrappers for cleaner syntax in ViewModels.
+class OrderViewModel {
+    private let repository: OrderRepositoryProtocol
 
-### Scoping
+    init(repository: OrderRepositoryProtocol) {
+        self.repository = repository
+    }
+}
+```
 
-- **Singleton**: Use for app-wide services (Auth, Network, Database).
-- **Unique/Transient**: Default for ViewModels and temporary workers.
-- **Graph/Cached**: Use for shared data within a specific feature flow (Coordinator scope).
+### Factory Library Registration
+
+```swift
+extension Container {
+    var orderRepository: Factory<OrderRepositoryProtocol> {
+        Factory(self) { OrderRepository() }
+    }
+
+    var orderViewModel: Factory<OrderViewModel> {
+        Factory(self) { OrderViewModel(repository: self.orderRepository()) }
+    }
+}
+```
 
 ## Anti-Patterns
 
-- **No global singleton access everywhere**: Inject service via initializer.
-- **No Resolver.resolve() inside logic**: Pass dependency via constructor.
-- **No direct class instantiation**: Depend on protocols for testability.
+- ❌ Global singleton access everywhere — inject services via initializer
+- ❌ `Resolver.resolve()` inside business logic — pass dependencies via constructor
+- ❌ Direct class instantiation — depend on protocols for testability
 
 ## References
 

@@ -1,11 +1,41 @@
 ---
 name: laravel-clean-architecture
-description: 'Expert patterns for DDD, DTOs, and Ports & Adapters in Laravel. Use when applying Domain-Driven Design, DTOs, or ports-and-adapters patterns in Laravel. (triggers: app/Domains/**/*.php, app/Providers/*.php, domain, dto, repository, contract, adapter)'
+description: "Implement Domain-Driven Design with typed DTOs, repository interfaces, and single-responsibility Action classes in Laravel. Use when creating domain folders, binding repository contracts in providers, or passing DTOs between layers. (triggers: app/Domains/**/*.php, app/Providers/*.php, domain, dto, repository, contract, adapter)"
 ---
 
 # Laravel Clean Architecture
 
 ## **Priority: P1 (HIGH)**
+
+## Workflow: Add a Domain Feature
+
+1. **Create domain folder** — `app/Domains/Order/{Actions,DTOs,Contracts}/`.
+2. **Define DTO** — Create a `readonly class` with typed constructor properties.
+3. **Create contract** — Define a repository interface in `Contracts/`.
+4. **Implement repository** — Build Eloquent implementation; bind in `AppServiceProvider`.
+5. **Write Action class** — Single-responsibility use-case logic consuming the DTO.
+6. **Verify bindings** — Run `php artisan tinker` and resolve the interface to confirm DI works.
+
+## Action + DTO Example
+
+```php
+// app/Domains/Order/DTOs/CreateOrderData.php
+readonly class CreateOrderData {
+    public function __construct(
+        public string $customerId,
+        public int $amount,
+    ) {}
+}
+
+// app/Domains/Order/Actions/CreateOrderAction.php
+class CreateOrderAction {
+    public function __construct(private OrderRepository $repo) {}
+
+    public function execute(CreateOrderData $data): Order {
+        return $this->repo->create(['customer_id' => $data->customerId, 'amount' => $data->amount]);
+    }
+}
+```
 
 ## Structure
 
@@ -29,22 +59,7 @@ app/
 
 ### Data Transfer Objects (DTOs)
 
-- **Immutability**: Create typed readonly DTOs:
-  ```php
-  readonly class OrderData {
-      public function __construct(
-          public readonly string $title,
-          public readonly int $amount
-      ) {}
-  }
-  readonly class CreateOrderData {
-      public function __construct(
-          public readonly string $customerId,
-          public readonly int $amount
-      ) {}
-  }
-  ```
-  Immutable by default in PHP 8.1+. DTOs cross boundaries — pass between layers instead of raw arrays or Eloquent models. No raw arrays between layers.
+- **Immutability**: Use `readonly class` (PHP 8.2+) or `readonly` properties (PHP 8.1+). DTOs cross boundaries — pass between layers instead of raw arrays or Eloquent models.
 
 ### Repository Pattern & Decoupling
 

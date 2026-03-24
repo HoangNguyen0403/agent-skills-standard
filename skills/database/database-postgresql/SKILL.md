@@ -1,6 +1,6 @@
 ---
 name: database-postgresql
-description: "Data access patterns, scaling, migrations, and ORM selection for PostgreSQL. (triggers: **/*.entity.ts, prisma/schema.prisma, **/migrations/*.sql, TypeOrmModule, PrismaService, PostgresModule)"
+description: "Enforce repository patterns, zero-downtime migrations, and indexing standards for PostgreSQL with TypeORM or Prisma. Use when defining entities, writing migrations, adding RLS policies, or optimizing query performance. (triggers: **/*.entity.ts, prisma/schema.prisma, **/migrations/*.sql, TypeOrmModule, PrismaService, PostgresModule)"
 ---
 
 # PostgreSQL Database Standards
@@ -20,6 +20,20 @@ Integration patterns and ORM standards for PostgreSQL applications.
 - **Generation**: Modify `.entity.ts` -> run `pnpm migration:generate`.
 - **Zero-Downtime**: Use Expand-Contract pattern (Add -> Backfill -> Drop) for destructive changes.
 - **RLS**: `typeorm migration:generate` cannot detect Row-Level Security. Use raw `queryRunner.query()` SQL for RLS.
+
+### Example: Expand-Contract Migration
+
+```sql
+-- Step 1: Add new column (non-breaking)
+ALTER TABLE orders ADD COLUMN status_v2 VARCHAR(50);
+
+-- Step 2: Backfill
+UPDATE orders SET status_v2 = status;
+
+-- Step 3: Drop old column (after code deploys)
+ALTER TABLE orders DROP COLUMN status;
+ALTER TABLE orders RENAME COLUMN status_v2 TO status;
+```
 
 ## Performance & Gotchas
 

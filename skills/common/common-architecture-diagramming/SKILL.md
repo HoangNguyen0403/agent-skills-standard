@@ -1,6 +1,6 @@
 ---
 name: common-architecture-diagramming
-description: "Standards for creating clear, effective, and formalized software architecture diagrams (C4, UML). (triggers: ARCHITECTURE.md, **/*.mermaid, **/*.drawio, diagram, architecture, c4, system design, mermaid)"
+description: "Standards for creating clear, audience-appropriate C4 and UML architecture diagrams with Mermaid. Use when producing system context diagrams, container views, sequence diagrams, or updating ARCHITECTURE.md files. (triggers: ARCHITECTURE.md, **/*.mermaid, **/*.drawio, diagram, architecture, c4, system design, mermaid)"
 ---
 
 # Architecture Diagramming Standard
@@ -9,16 +9,26 @@ description: "Standards for creating clear, effective, and formalized software a
 
 ## Guidelines
 
-- **Use C4 Model**: Context->Container->Component->Code.
+- **Use C4 Model**: Context -> Container -> Component -> Code.
 - **Audience-Centric**: Tailor abstraction (Execs vs. Devs).
-- **Select Type**: Sequence (Protocol), ERD (Data), State (Lifecycle), Cloud (Infra). _See [Selection](references/diagram-selection.md)_
-- **Explicit Labels**: Label _every_ arrow (e.g., "Uses", "HTTPS").
+- **Select Type**: Sequence (Protocol), ERD (Data), State (Lifecycle), Cloud (Infra). See [Selection](references/diagram-selection.md).
+- **Explicit Labels**: Label every arrow (e.g., "Uses", "HTTPS").
 - **Consistent Notation**: Cylinders=DB, Rectangles=Systems, Dashed=Async.
 - **Metadata**: Title, Date, Version, Author.
 - **Legend Mandatory**: Define all shapes/colors/styles.
 - **Direction**: `graph LR` (Flow) or `graph TD` (Hierarchy).
 - **Deployment**: Map containers to infrastructure.
 - **Governance**: CRITICAL: Review [best-practices.md](references/best-practices.md) before starting.
+
+### Example: C4 Container Diagram (Mermaid)
+
+```mermaid
+graph TD
+    User["User (Browser)"] -->|HTTPS| WebApp["Web App<br/>Next.js"]
+    WebApp -->|REST/JSON| API["API Server<br/>Node.js"]
+    API -->|SQL| DB[("PostgreSQL")]
+    API -->|Pub/Sub| Queue["Message Queue<br/>RabbitMQ"]
+```
 
 ## Anti-Patterns
 

@@ -1,6 +1,6 @@
 ---
 name: flutter-localization
-description: "Standards for multi-language support using easy_localization with CSV or JSON. Use when adding localization or multi-language support to Flutter apps. (triggers: **/assets/translations/*.json, **/assets/langs/*.csv, main.dart, localization, multi-language, translation, tr(), easy_localization, sheet_loader)"
+description: "Add multi-language support using easy_localization with CSV or JSON. Use when implementing localization or multi-language support in Flutter apps. (triggers: **/assets/translations/*.json, **/assets/langs/*.csv, main.dart, localization, multi-language, translation, tr(), easy_localization, sheet_loader)"
 ---
 
 # Localization
@@ -11,16 +11,8 @@ Consistent multi-language support using `easy_localization`.
 
 ## Format Selection
 
-- **CSV** (Recommended for teams with translators):
-  - Non-technical editors can update easily
-  - Native Google Sheets compatibility via `sheet_loader_localization`
-  - Store in `assets/langs/` (common convention)
-- **JSON** (Developer-friendly):
-  - Nested structure support (e.g., `items_count.zero`)
-  - IDE validation and autocomplete
-  - Store in `assets/translations/`
-
-Both formats work identically with `easy_localization`.
+- **CSV** (Recommended for teams with translators): Google Sheets compatibility via `sheet_loader_localization`. Store in `assets/langs/`.
+- **JSON** (Developer-friendly): Nested structure support with IDE validation. Store in `assets/translations/`.
 
 ## Structure
 
@@ -34,20 +26,44 @@ assets/translations/
 └── vi.json
 ```
 
-## Implementation Guidelines
+## Implementation Workflow
 
-- **Bootstrap**: Wrap root with `EasyLocalization`. Always use `await EasyLocalization.ensureInitialized()`.
-- **Lookup**: Use `.tr()` extension on strings (e.g., `'welcome'.tr()`).
-- **Locale**: Change via `context.setLocale(Locale('code'))`.
-- **Params**: Use `{}` placeholders; pass via `tr(args: [...])`.
-- **Counting**: Use `plural()` for quantities.
-- **Sheets Sync**: Use `sheet_loader_localization` to auto-generate CSV/JSON from Google Sheets.
+1. **Initialize** — Call `await EasyLocalization.ensureInitialized()` before `runApp`.
+2. **Wrap root** — Wrap the app with `EasyLocalization` widget specifying supported locales and path.
+3. **Translate strings** — Use `.tr()` extension on keys (e.g., `'welcome'.tr()`).
+4. **Switch locale** — Change via `context.setLocale(Locale('vi'))`.
+5. **Handle plurals** — Use `plural()` for quantity-dependent strings.
+6. **Sync translations** — Use `sheet_loader_localization` to auto-generate CSV/JSON from Google Sheets.
+
+### Bootstrap Example
+
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('vi')],
+      path: 'assets/translations',
+      child: const MyApp(),
+    ),
+  );
+}
+```
+
+### Usage Example
+
+```dart
+Text('welcome'.tr()); // Simple lookup
+Text('greeting'.tr(args: [userName])); // With parameters
+Text(plural('items_count', itemCount)); // Pluralization
+```
 
 ## Anti-Patterns
 
-- **Hardcoding**: No raw strings in UI; use keys.
-- **Manual L10n**: Avoid standard `Localizations.of`; use GetX or `easy_localization` context methods.
-- **Desync**: Keep keys identical across all locale files.
+- ❌ Hardcoded strings in UI — always use translation keys
+- ❌ Using `Localizations.of` manually — use `easy_localization` `.tr()` extension
+- ❌ Mismatched keys across locale files — keep keys identical in all locales
 
 ## Reference & Examples
 

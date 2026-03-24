@@ -1,50 +1,64 @@
 ---
 name: nestjs-documentation
-description: "Swagger automation and Generic response documentation. Use when generating OpenAPI/Swagger documentation or documenting NestJS API responses. (triggers: main.ts, **/*.dto.ts, DocumentBuilder, SwaggerModule, ApiProperty, ApiResponse)"
+description: "Automate Swagger/OpenAPI documentation and standardize API response schemas in NestJS. Use when generating OpenAPI specs, documenting paginated or generic responses, configuring the Nest CLI Swagger plugin, or publishing versioned API docs. (triggers: main.ts, **/*.dto.ts, DocumentBuilder, SwaggerModule, ApiProperty, ApiResponse)"
 ---
 
 # OpenAPI & Documentation
 
-## **Priority: P2 (MAINTENANCE)**
+## Priority: P2 (MAINTENANCE)
 
 Automated API documentation and OpenAPI standards.
 
-- **Automation**: **ALWAYS** use the Nest CLI Plugin (`@nestjs/swagger/plugin`).
-  - **Benefit**: Auto-generates `@ApiProperty` for DTOs and response types. Reduces boilerplate by 50%.
-  - **Config**: `nest-cli.json` -> `"plugins": ["@nestjs/swagger"]`.
-- **Versioning**: Maintain separate Swagger docs for `v1`, `v2` if breaking changes occur.
+## Workflow
+
+1. **Enable the Swagger plugin** in `nest-cli.json` to auto-generate `@ApiProperty` from DTOs.
+2. **Annotate controllers** with `@ApiTags`, `@ApiResponse`, and auth decorators.
+3. **Create generic wrappers** for paginated and polymorphic responses.
+4. **Generate separate docs** for public vs internal audiences.
+
+## Setup
+
+```json
+// nest-cli.json — enable Swagger plugin
+{
+  "compilerOptions": {
+    "plugins": ["@nestjs/swagger"]
+  }
+}
+```
+
+```typescript
+// main.ts — Swagger bootstrap
+const config = new DocumentBuilder()
+  .setTitle('API')
+  .setVersion('1.0')
+  .addBearerAuth()
+  .build();
+const doc = SwaggerModule.createDocument(app, config);
+SwaggerModule.setup('api/docs', app, doc);
+```
 
 ## Response Documentation
 
 - **Strictness**: Every controller method must have `@ApiResponse({ status: 200, type: UserDto })`.
-- **Generic Wrappers**: Define `ApiPaginatedResponse<T>` decorators to document generic `PageDto<T>` returns properly (Swagger doesn't handle generics well by default).
-  - **Technique**: Use `ApiExtraModels` + `getSchemaPath()` in the custom decorator to handle the generic `T` ref.
+- **Generic Wrappers**: Define `ApiPaginatedResponse<T>` decorators using `ApiExtraModels` + `getSchemaPath()` to handle generics properly.
 
 ## Advanced Patterns
 
 - **Polymorphism**: Use `@ApiExtraModels` and `getSchemaPath` for `oneOf`/`anyOf` union types.
-- **File Uploads**: Document `multipart/form-data` explicitly.
-  - **Decorator**: `@ApiConsumes('multipart/form-data')`.
-  - **Body**: `@ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })`.
-- **Authentication**: Specify granular security schemes per route/controller.
-  - **Types**: `@ApiBearerAuth()` or `@ApiSecurity('api-key')` (Must match `DocumentBuilder().addBearerAuth()`).
-- **Enums**: Force named enums for reusable schema references.
-  - **Code**: `@ApiProperty({ enum: MyEnum, enumName: 'MyEnum' })`.
+- **File Uploads**: Use `@ApiConsumes('multipart/form-data')` with explicit `@ApiBody` schema.
+- **Authentication**: Use `@ApiBearerAuth()` or `@ApiSecurity('api-key')` matching `DocumentBuilder` config.
+- **Enums**: Force named enums: `@ApiProperty({ enum: MyEnum, enumName: 'MyEnum' })`.
 
 ## Operation Grouping
 
-- **Tags**: Mandatory `@ApiTags('domains')` on every Controller to group endpoints logically.
-- **Multiple Docs**: generate separate docs for different audiences (e.g. Public vs Internal).
+- **Tags**: Mandatory `@ApiTags('domains')` on every Controller.
+- **Multiple Docs**: Generate separate docs for different audiences (Public vs Internal).
 
-  ```typescript
-  SwaggerModule.createDocument(app, config, { include: [PublicModule] }); // /api/docs
-  SwaggerModule.createDocument(app, adminConfig, { include: [AdminModule] }); // /admin/docs
-  ```
-
-## Self-Documentation
-
-- **Compodoc**: Use `@compodoc/compodoc` to generate static documentation of the module graph, services, and dependencies.
-  - **Use Case**: New developer onboarding and architectural review.
+```typescript
+SwaggerModule.createDocument(app, config, { include: [PublicModule] });  // /api/docs
+SwaggerModule.createDocument(app, adminConfig, { include: [AdminModule] }); // /admin/docs
+```
 
 ## Anti-Patterns
 

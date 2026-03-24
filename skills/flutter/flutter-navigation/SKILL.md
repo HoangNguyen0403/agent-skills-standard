@@ -1,6 +1,6 @@
 ---
 name: flutter-navigation
-description: "Flutter navigation patterns including go_router, deep linking, and named routes. Use when implementing navigation, deep linking, or named routes in Flutter. (triggers: **/*_route.dart, **/*_router.dart, **/main.dart, Navigator, GoRouter, routes, deep link, go_router, AutoRoute)"
+description: "Implement navigation patterns with go_router, deep linking, and named routes. Use when building navigation, deep linking, or named routes in Flutter. (triggers: **/*_route.dart, **/*_router.dart, **/main.dart, Navigator, GoRouter, routes, deep link, go_router, AutoRoute)"
 ---
 
 # Flutter Navigation
@@ -9,21 +9,46 @@ description: "Flutter navigation patterns including go_router, deep linking, and
 
 Navigation and routing for Flutter apps using `go_router` or named routes.
 
-## Guidelines
+## Implementation Workflow
 
-- **Package**: Use `go_router` for modern, declarative routing.
-- **Deep Linking**: Configure `AndroidManifest.xml` and `Info.plist` for URL schemes.
-- **Validation**: Validate parameters in `redirect` logic before navigation.
-- **Stateful Tabs**: Use `IndexedStack` to preserve state in bottom navigation.
+1. **Choose router** — Use `go_router` for modern, declarative routing.
+2. **Define routes** — Use constants or code generation for route paths; never hardcode strings.
+3. **Configure deep links** — Set up `AndroidManifest.xml` and `Info.plist` for URL schemes.
+4. **Validate parameters** — Check parameters in `redirect` logic before navigation.
+5. **Preserve tab state** — Use `StatefulShellRoute` or `IndexedStack` for bottom navigation.
+
+### Route Configuration Example
+
+```dart
+final router = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: '/orders/:id',
+      redirect: (context, state) {
+        final id = state.pathParameters['id'];
+        if (id == null || id.isEmpty) return '/';
+        return null;
+      },
+      builder: (context, state) => OrderDetailScreen(
+        id: state.pathParameters['id']!,
+      ),
+    ),
+  ],
+);
+```
 
 [Routing Patterns & Examples](references/routing-patterns.md)
 
 ## Anti-Patterns
 
-- **No Manual URL Parsing**: Use `go_router` parsing, never `Uri.parse` manually.
-- **No Stateless Tabs**: `Scaffold` body switching loses state; use `IndexedStack`.
-- **No Unvalidated Deep Links**: Always check if IDs exist in `redirect`.
-- **No Hardcoded Routes**: Use constants (e.g., `Routes.home`) or code generation.
+- ❌ `Uri.parse(url)` for manual URL parsing — use `go_router` built-in parsing
+- ❌ `Scaffold` body switching for tabs — loses state; use `IndexedStack` or `StatefulShellRoute`
+- ❌ Unvalidated deep link IDs — always check existence in `redirect`
+- ❌ Hardcoded route strings like `'/orders'` — use constants (e.g., `Routes.orders`) or code generation
 
 ## Related Topics
 

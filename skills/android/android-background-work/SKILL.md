@@ -1,6 +1,6 @@
 ---
 name: android-background-work
-description: 'Standards for WorkManager and Background Processing. Use when creating Worker classes, scheduling tasks with WorkManager, choosing between WorkManager and Foreground Services, or setting up Hilt in workers. (triggers: **/*Worker.kt, CoroutineWorker, WorkManager, doWork, PeriodicWorkRequest, OneTimeWorkRequest, @HiltWorker)'
+description: "Implement WorkManager and Background Processing correctly on Android. Use when creating Worker classes, scheduling tasks with WorkManager, choosing between WorkManager and Foreground Services, or setting up Hilt in workers. (triggers: **/*Worker.kt, CoroutineWorker, WorkManager, doWork, PeriodicWorkRequest, OneTimeWorkRequest, @HiltWorker)"
 ---
 
 # Android Background Work Standards

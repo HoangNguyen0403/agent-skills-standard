@@ -1,6 +1,6 @@
 ---
 name: android-resources
-description: 'Standards for Strings, Drawables, and Localization. Use when managing Android resources, drawables, or adding localization support. (triggers: strings.xml, **/*Screen.kt, stringResource, plurals, R.string)'
+description: "Manage Strings, Drawables, and Localization resources on Android. Use when managing Android resources, drawables, or adding localization support. (triggers: strings.xml, **/*Screen.kt, stringResource, plurals, R.string)"
 ---
 
 # Android Resources Standards

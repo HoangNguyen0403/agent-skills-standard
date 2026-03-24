@@ -1,6 +1,6 @@
 ---
 name: kotlin-language
-description: 'Idiomatic Kotlin 1.9+ standards including null safety, sealed classes, and expression syntax. Use when working with Kotlin null safety, data classes, sealed interfaces, extension functions, or migrating Java code to Kotlin. (triggers: **/*.kt, **/*.kts, val, var, ?., ?:, !!, data class, sealed, when, extension, lazy, lateinit, object)'
+description: "Write idiomatic Kotlin 1.9+ with null safety, sealed classes, and expression syntax. Use when working with Kotlin null safety, data classes, sealed interfaces, extension functions, or migrating Java code to Kotlin. (triggers: **/*.kt, **/*.kts, val, var, ?., ?:, !!, data class, sealed, when, extension, lazy, lateinit, object)"
 ---
 
 # Kotlin Language Patterns

@@ -1,6 +1,6 @@
 ---
 name: flutter-error-handling
-description: 'Functional error handling with Either/Failure. ALWAYS consult when writing repositories, handling exceptions, defining failures, or using Either in any Flutter layer — not just when setting up error handling. (triggers: lib/domain/**, lib/infrastructure/**, Either, fold, Left, Right, Failure, dartz)'
+description: "Handle errors functionally with Either/Failure patterns. Use when writing repositories, handling exceptions, defining failures, or using Either in any Flutter layer. (triggers: lib/domain/**, lib/infrastructure/**, Either, fold, Left, Right, Failure, dartz)"
 ---
 
 # Error Handling
@@ -9,18 +9,38 @@ description: 'Functional error handling with Either/Failure. ALWAYS consult when
 
 Standardized functional error handling using `dartz` and `freezed` failures.
 
-## Implementation Guidelines
+## Implementation Workflow
 
-- **Either Pattern**: Return **Either<Failure, T>** from repositories. No exceptions in UI/BLoC.
-- **Failures**: Define domain-specific failures using **@freezed** unions (e.g., `UnauthorizedFailure`, `OutOfStockFailure`).
-- **Mapping**: **Infrastructure catches Exception** (e.g., `DioException`) and returns **Left(Failure)**. **Never rethrow to UI.**
-- **Consumption**: Use **.fold(failure, success)** in BLoC to emit corresponding states. **Remove try/catch from BLoC.**
-- **Typed Errors**: Use `left(Failure())` and `right(Value())` from `Dartz`.
-- **Low-Cardinality Logging**: Use stable message templates; pass variable data via metadata/context.
-- **Layer Restriction**: **try/catch only in Infrastructure.** UI/Application/BLoC layers should not catch.
-- **Localization**: Use `failure.failureMessage` (returns **TRObject** or localized string) for UI-safe text.
-- **Right/Left Restriction**: Only Infrastructure may construct `Right()`/`Left()`.
-- **No Silent Catch**: Never swallow errors without logging or a documented retry.
+1. **Define failures** — Create domain-specific failures using `@freezed` unions (e.g., `UnauthorizedFailure`, `OutOfStockFailure`).
+2. **Return Either** — Repositories return `Either<Failure, T>`. No exceptions in UI/BLoC.
+3. **Catch in Infrastructure only** — Infrastructure catches exceptions (e.g., `DioException`) and returns `Left(Failure)`. Never rethrow to UI.
+4. **Fold in BLoC** — Use `.fold(failure, success)` in BLoC to emit corresponding states. Remove try/catch from BLoC.
+5. **Localize messages** — Use `failure.failureMessage` (returns `TRObject` or localized string) for UI-safe text.
+6. **Log with stable templates** — Use low-cardinality message templates; pass variable data via metadata/context.
+
+### Repository Error Mapping Example
+
+```dart
+@override
+Future<Either<Failure, Order>> getOrder(String id) async {
+  try {
+    final dto = await _remoteDataSource.fetchOrder(id);
+    return right(dto.toDomain());
+  } on DioException catch (e) {
+    return left(ServerFailure(message: e.message ?? 'Unknown error'));
+  }
+}
+```
+
+### BLoC Consumption Example
+
+```dart
+final result = await _getOrderUseCase(orderId);
+result.fold(
+  (failure) => emit(OrderError(failure.failureMessage)),
+  (order) => emit(OrderLoaded(order)),
+);
+```
 
 ## Reference & Examples
 

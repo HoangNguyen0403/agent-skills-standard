@@ -1,37 +1,50 @@
 ---
 name: ios-localization
-description: "Standards for String Catalogs, L10n, and Asset Management. Use when adding multi-language support using iOS String Catalogs or L10n workflows. (triggers: **/*.stringcatalog, **/*.xcassets, **/*.strings, LocalizedStringResource, NSLocalizedString, String(localized:))"
+description: "Implement String Catalogs, L10n workflows, and asset management for iOS. Use when adding multi-language support using iOS String Catalogs or L10n workflows. (triggers: **/*.stringcatalog, **/*.xcassets, **/*.strings, LocalizedStringResource, NSLocalizedString, String(localized:))"
 ---
 
-# iOS Localization & Assets Standards
+# iOS Localization & Assets
 
 ## **Priority: P1**
 
-## Implementation Guidelines
+## Implementation Workflow
 
-### Localization (L10n)
+1. **Use String Catalogs** — Adopt `.stringcatalog` files in Xcode 15+ for visual editing and compile-time missing translation checks.
+2. **Prefer modern APIs** — Use `String(localized: "key")` or `LocalizedStringResource` instead of `NSLocalizedString`.
+3. **Handle pluralization** — Use String Catalogs' built-in pluralization instead of custom code logic.
+4. **Format with locale** — Use `Formatted` API for dates, numbers, and currencies to respect user locale.
+5. **Organize assets** — Use `.xcassets` with "Provides Namespace" enabled. Prefer SF Symbols for standard icons.
+6. **Complete Base localization** — Ensure `Base` is complete before adding other languages.
 
-- **String Catalogs (.stringcatalog)**: Use for primary localization in Xcode 15+. It provides a visual editor and compile-time checks for missing translations.
-- **Native Implementation**: Use `String(localized: "key")` or `LocalizedStringResource`. Avoid manual `NSLocalizedString` where possible.
-- **Pluralization**: Use String Catalogs' built-in pluralization support instead of complex code logic.
-- **Formatting**: Use `Formatted` API for dates, numbers, and currencies to respect the user's locale.
+### Localization Usage Example
 
-### Asset Management
+```swift
+// Modern String Catalog approach (Xcode 15+)
+Text(String(localized: "welcome_message"))
 
-- **Asset Catalogs (.xcassets)**: Keep assets organized. Use folders with "Provides Namespace" enabled for large projects.
-- **SF Symbols**: Use for standard icons to ensure consistency and accessibility.
-- **Vector Assets**: Use PDF or SVG and enable "Preserve Vector Data" for resolution independence.
+// With interpolation
+Text(String(localized: "greeting \(userName)"))
 
-### Best Practices
+// Locale-aware formatting
+Text(price.formatted(.currency(code: "USD")))
+Text(date.formatted(.dateTime.month().day().year()))
+```
 
-- **Hardcoded Strings**: Never use hardcoded strings in UI. Every user-facing string must be localized.
-- **Base Bundle**: Ensure `Base` localization is complete before adding other languages.
+### Asset Catalog Best Practices
+
+```swift
+// Use SF Symbols for standard icons
+Image(systemName: "heart.fill")
+
+// Use Asset Catalog with namespaces
+Image("Icons/profileAvatar")
+```
 
 ## Anti-Patterns
 
-- **No manual currency symbol concat**: Use NumberFormatter or .formatted(.currency).
-- **No loose png/jpg files in repo**: Always use Asset Catalogs.
-- **No placeholder strings**: Ensure 100% coverage in String Catalogs.
+- ❌ Manual currency symbol concatenation — use `NumberFormatter` or `.formatted(.currency)`
+- ❌ Loose png/jpg files in repo — always use Asset Catalogs
+- ❌ Placeholder strings left in String Catalogs — ensure 100% translation coverage
 
 ## References
 

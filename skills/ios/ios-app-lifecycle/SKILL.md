@@ -1,35 +1,51 @@
 ---
 name: ios-app-lifecycle
-description: "Standards for AppDelegate, SceneDelegate, Deep Linking, and Background Tasks. Use when managing iOS app lifecycle, deep linking, or background task scheduling. (triggers: AppDelegate.swift, SceneDelegate.swift, didFinishLaunchingWithOptions, willConnectTo, backgroundTask, Shortcut, UserActivity)"
+description: "Manage AppDelegate, SceneDelegate, deep linking, and background tasks. Use when configuring iOS app lifecycle, deep linking, or background task scheduling. (triggers: AppDelegate.swift, SceneDelegate.swift, didFinishLaunchingWithOptions, willConnectTo, backgroundTask, Shortcut, UserActivity)"
 ---
 
-# iOS App Lifecycle Standards
+# iOS App Lifecycle
 
 ## **Priority: P0**
 
-## Implementation Guidelines
+## Implementation Workflow
 
-### App & Scene Delegate
+1. **Configure SceneDelegate** — Use for UI windows and scene-specific state in iOS 13+.
+2. **Keep AppDelegate slim** — Focus on app-wide setup (DI, Analytics, Push registration). Move initialization logic to a dedicated `Bootstrapper` or `AppCoordinator`.
+3. **Handle deep links** — Prefer Universal Links over custom URL schemes. Handle via `scene(_:continue:userActivity:)`. Route through the Root Coordinator.
+4. **Schedule background tasks** — Use `BGTaskScheduler` for periodic data refresh. Always handle `expirationHandler` to avoid system kill.
 
-- **SceneDelegate**: Use for UI windows and scene-specific state in iOS 13+.
-- **AppDelegate**: Focus on app-wide setup (DI, Analytics, Push notification registration).
-- **Slim Delegates**: Move initialization logic to dedicated `Bootstrapper` or `AppCoordinator`.
+### Bootstrapper Pattern Example
 
-### Deep Linking
+```swift
+class AppBootstrapper {
+    func configure() {
+        DIContainer.shared.registerDependencies()
+        AnalyticsService.shared.initialize()
+        PushNotificationService.shared.register()
+    }
+}
 
-- **Universal Links**: Prefer over custom URL schemes. Handle via `scene(_:continue:userActivity:)`.
-- **Handling logic**: Routing should be handled by the Root Coordinator to navigate to specific screens.
+// In AppDelegate
+func application(_ application: UIApplication,
+                 didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    AppBootstrapper().configure()
+    return true
+}
+```
 
-### Background Tasks
+### Background Task Registration
 
-- **Background Fetch**: Use `BGTaskScheduler` for periodically refreshing data.
-- **Expiration**: Handle `expirationHandler` to avoid app kill by the system.
+```swift
+BGTaskScheduler.shared.register(forTaskWithIdentifier: "com.app.refresh", using: nil) { task in
+    self.handleBackgroundRefresh(task: task as! BGAppRefreshTask)
+}
+```
 
 ## Anti-Patterns
 
-- **No complex logic in didFinishLaunching**: Use a Bootstrapper service.
-- **No UIWindow setup in AppDelegate**: Use SceneDelegate for iOS 13+.
-- **No synchronous network calls in launch**: Move to background thread.
+- ❌ Complex logic in `didFinishLaunchingWithOptions` — delegate to a Bootstrapper service
+- ❌ UIWindow setup in AppDelegate — use SceneDelegate for iOS 13+
+- ❌ Synchronous network calls during launch — move to background thread
 
 ## References
 

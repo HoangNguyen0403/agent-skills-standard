@@ -1,49 +1,66 @@
 ---
 name: nestjs-observability
-description: "Structured logging (Pino) and Prometheus metrics. Use when adding structured logging with Pino or Prometheus metrics to NestJS services. (triggers: main.ts, **/*.module.ts, nestjs-pino, Prometheus, Logger, reqId)"
+description: "Configure structured logging with Pino, Prometheus metrics, and health checks for NestJS services. Use when adding JSON logging, request tracing with correlation IDs, Prometheus metric endpoints, or liveness/readiness health checks. (triggers: main.ts, **/*.module.ts, nestjs-pino, Prometheus, Logger, reqId)"
 ---
 
 # Observability Standards
 
-## **Priority: P1 (OPERATIONAL)**
+## Priority: P1 (OPERATIONAL)
 
-Logging, monitoring, and observability patterns for production applications.
+Logging, monitoring, and observability patterns for production NestJS applications.
 
-- **Standard**: Use `nestjs-pino` for high-performance JSON logging.
-  - **Why**: Node's built-in `console.log` is blocking and unstructured.
-- **Configuration**:
-  - **Redaction**: Mandatory masking of sensitive fields (`password`, `token`, `email`).
-  - **Context**: Always inject `Logger` and set the context (`LoginService`).
+## Structured Logging (Pino)
+
+Use `nestjs-pino` for high-performance, async JSON logging. Node's `console.log` is blocking and unstructured.
+
+```typescript
+// app.module.ts — Pino setup with redaction
+import { LoggerModule } from 'nestjs-pino';
+
+@Module({
+  imports: [
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport: process.env.NODE_ENV !== 'production'
+          ? { target: 'pino-pretty' } : undefined,
+        redact: ['req.headers.authorization', 'body.password', 'body.token'],
+      },
+    }),
+  ],
+})
+export class AppModule {}
+```
 
 ## Tracing (Correlation)
 
-- **Request ID**: Every log line **must** include a `reqId` (Request ID).
-  - `nestjs-pino` handles this automatically using `AsyncLocalStorage`.
-  - **Propagation**: Pass `x-request-id` to downstream microservices/database queries key to trace flows.
-
-## API Overhead & Database Benchmarking
-
-- **Execution Bucket Strategy**: When performance profiling is enabled, utilize global interceptors combined with `AsyncLocalStorage` to split and expose latency into logical buckets.
-- **Headers**: Expose the metrics via HTTP Headers on the response for immediate feedback during development or testing:
-  - `X-Response-Duration-Ms` (Total execution time)
-  - `X-DB-Execution-Ms` (Time spent exclusively in database queries, tracked via TypeORM loggers)
-  - `X-API-Overhead-Ms` (Time spent in NestJS interceptors, guards, and serialization)
-- **Security**: Only enable performance headers and detailed SQL benchmarking in development or when a specific feature flag (`ENABLE_PERFORMANCE_BENCHMARK`) is explicitly active.
+- **Request ID**: Every log line **must** include a `reqId`. `nestjs-pino` handles this via `AsyncLocalStorage`.
+- **Propagation**: Pass `x-request-id` to downstream microservices and database queries for end-to-end tracing.
 
 ## Metrics
 
-- **Exposure**: Use `@willsoto/nestjs-prometheus` to expose `/metrics` for Prometheus scraping.
-- **Key Metrics**:
-  1. `http_request_duration_seconds` (Histogram)
-  2. `db_query_duration_seconds` (Histogram)
-  3. `memory_usage_bytes` (Gauge)
+Expose `/metrics` for Prometheus scraping using `@willsoto/nestjs-prometheus`.
+
+```typescript
+// metrics.module.ts — key metric definitions
+import { makeHistogramProvider, makeGaugeProvider } from '@willsoto/nestjs-prometheus';
+
+const providers = [
+  makeHistogramProvider({ name: 'http_request_duration_seconds', help: 'HTTP latency', labelNames: ['method', 'route', 'status'] }),
+  makeHistogramProvider({ name: 'db_query_duration_seconds', help: 'DB query latency', labelNames: ['operation'] }),
+  makeGaugeProvider({ name: 'memory_usage_bytes', help: 'Heap memory usage' }),
+];
+```
 
 ## Health Checks
 
-- **Terminus**: Implement explicit logic for "Liveness" (I'm alive) vs "Readiness" (I can take traffic).
+- **Terminus**: Implement "Liveness" (I'm alive) vs "Readiness" (I can take traffic).
   - **DB Check**: `TypeOrmHealthIndicator` / `PrismaHealthIndicator`.
-  - **Memory Check**: Fail if Heap > 300MB (prevent crash loops).
+  - **Memory Check**: Fail readiness if Heap > 300MB to prevent crash loops.
 
+## Performance Headers (Dev Only)
+
+- `X-Response-Duration-Ms`, `X-DB-Execution-Ms`, `X-API-Overhead-Ms`
+- Gate behind `ENABLE_PERFORMANCE_BENCHMARK` feature flag; never expose in production.
 
 ## Anti-Patterns
 

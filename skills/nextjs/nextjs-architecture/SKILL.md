@@ -1,6 +1,6 @@
 ---
 name: nextjs-architecture
-description: "Scalable project structure using Feature-Sliced Design (FSD). Use when structuring a Next.js project with Feature-Sliced Design architecture. (triggers: src/features/**, src/entities/**, src/widgets/**, FSD, Feature Sliced Design, slices, segments)"
+description: "Structure Next.js projects with Feature-Sliced Design layers, domain-grouped slices, and strict import hierarchy. Use when organizing features into FSD layers, enforcing slice boundaries, or keeping page.tsx thin. (triggers: src/features/**, src/entities/**, src/widgets/**, FSD, Feature Sliced Design, slices, segments)"
 ---
 
 # Architecture (Feature-Sliced Design)
@@ -9,6 +9,27 @@ description: "Scalable project structure using Feature-Sliced Design (FSD). Use 
 
 Adopt **Feature-Sliced Design (FSD)** for scalable applications.
 **Warning**: FSD introduces boilerplate. Use it only if the project is expected to grow significantly (e.g., 20+ features). For smaller projects, a simple module-based structure is preferred.
+
+## Workflow: Create a New Feature Slice
+
+1. **Create feature folder** — `src/features/auth/login/` with `ui/`, `model/`, `api/` segments.
+2. **Add public API** — Export via `src/features/auth/login/index.ts`.
+3. **Wire into page** — Import the feature widget in `app/login/page.tsx` (thin page).
+4. **Verify imports** — Ensure no upward or cross-slice imports violate the layer hierarchy.
+
+## Layer Hierarchy Example
+
+```
+App (app/) -> Widgets -> Features -> Entities -> Shared
+```
+
+```typescript
+// app/dashboard/page.tsx — thin page, imports only widgets/features
+import { DashboardWidget } from '@/widgets/dashboard';
+export default function DashboardPage() {
+  return <DashboardWidget />;
+}
+```
 
 ## Strategy
 

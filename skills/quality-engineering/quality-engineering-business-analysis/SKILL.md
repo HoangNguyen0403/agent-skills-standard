@@ -1,6 +1,6 @@
 ---
 name: quality-engineering-business-analysis
-description: 'Requirement investigation protocol: atomic AC decomposition, actor/permission matrix, platform parity audit, truth table verification, and edge case discovery. ALWAYS consult before writing test cases or impact analysis — especially for stories with multi-condition AC, feature toggles, market variants (VN/MY/SG), or undefined platform behavior. (triggers: **/user_story.md, acceptance criteria, AC, business rules, jira story, toggle, market)'
+description: "Investigate requirements with atomic AC decomposition, actor/permission matrix, platform parity audit, truth table verification, and edge case discovery. Use when writing test cases or impact analysis — especially for stories with multi-condition AC, feature toggles, market variants (VN/MY/SG), or undefined platform behavior. (triggers: **/user_story.md, acceptance criteria, AC, business rules, jira story, toggle, market)"
 ---
 
 # Business Analysis Standards (Deep Analysis)

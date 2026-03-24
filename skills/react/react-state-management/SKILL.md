@@ -1,6 +1,6 @@
 ---
 name: react-state-management
-description: 'Standards for managing local, global, and server state. Use when choosing or implementing state management (Context, Zustand, Redux, React Query) in React. (triggers: **/*.tsx, **/*.jsx, state, useReducer, context, store, props)'
+description: "Manage local, global, and server state in React. Use when choosing or implementing state management (Context, Zustand, Redux, React Query) in React. (triggers: **/*.tsx, **/*.jsx, state, useReducer, context, store, props)"
 ---
 
 # React State Management

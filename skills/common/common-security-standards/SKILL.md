@@ -1,32 +1,54 @@
 ---
 name: common-security-standards
-description: 'Universal security protocols for safe, resilient software. Use when implementing authentication, encryption, authorization, or any security-sensitive feature. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, security, encrypt, authenticate, authorize)'
+description: "Enforce universal security protocols for safe, resilient software. Use when implementing authentication, encryption, authorization, input validation, secret management, or any security-sensitive feature across any language or framework. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, security, encrypt, authenticate, authorize)"
 ---
 
 # Security Standards
 
-## **Priority: P0 (CRITICAL)**
+## Priority: P0 (CRITICAL)
 
-## 🛡 Data Safeguarding
+## Workflow
 
-- **Zero Trust**: Never trust external input. Sanitize and validate every data boundary (API, UI, CSV).
+1. **Identify trust boundaries** — map every data entry point (API, UI, CSV, webhook).
+2. **Validate and sanitize** all external input at each boundary.
+3. **Apply least privilege** to users, services, and containers.
+4. **Verify** with SAST/DAST scanners in CI before merge.
+
+## Data Safeguarding
+
+- **Zero Trust**: Never trust external input. Sanitize and validate every data boundary.
 - **Least Privilege**: Grant minimum necessary permissions to users, services, and containers.
 - **No Hardcoded Secrets**: Use environment variables or secret managers. Never commit keys or passwords.
-- **Encryption**: Use modern, collision-resistant algorithms (AES-256 for data-at-rest; TLS 1.3 for data-in-transit).
+- **Encryption**: AES-256 for data-at-rest; TLS 1.3 for data-in-transit.
 - **PII Logging**: Never log PII (email, phone, names). Mask sensitive fields before logging.
 
-## 🧱 Secure Coding Practices
+```typescript
+// Parameterized query — prevents SQL injection
+const user = await db.query(
+  'SELECT * FROM users WHERE email = $1 AND status = $2',
+  [email, 'active']
+);
+```
+
+## Secure Coding Practices
 
 - **Injection Prevention**: Use parameterized queries or ORMs to stop SQL, Command, and XSS injections.
-- **Dependency Management**: Regularly scan (`audit`) and update third-party libraries to patch CVEs.
+- **Dependency Management**: Regularly scan (`npm audit`, `pip audit`) and update third-party libraries to patch CVEs.
 - **Secure Auth**: Implement Multi-Factor Authentication (MFA) and secure session management.
 - **Error Privacy**: Never leak stack traces or internal implementation details to the end-user.
 
-## 🔍 Continuous Security
+```python
+# Secret management — never hardcode credentials
+import os
+API_KEY = os.environ["API_KEY"]  # Good: from environment
+# API_KEY = "sk-abc123"          # Bad: hardcoded secret
+```
+
+## Continuous Security
 
 - **Shift Left**: Integrate security scanners (SAST/DAST) early in the CI/CD pipeline.
-- **Data Minimization**: Collect and store only the absolute minimum data required for the business logic.
-- **Logging**: Maintain audit logs for sensitive operations (Auth, Deletion, Admin changes).
+- **Data Minimization**: Collect and store only the minimum data required for business logic.
+- **Audit Logging**: Maintain logs for sensitive operations (Auth, Deletion, Admin changes).
 
 ## Anti-Patterns
 
@@ -35,7 +57,7 @@ description: 'Universal security protocols for safe, resilient software. Use whe
 - **No stacktraces in prod**: Return generic error codes; log full detail server-side.
 - **No default passwords**: Force rotation on first use with strong entropy requirements.
 
-## 📚 References
+## References
 
 - [Injection Testing Protocols (SQLi/HTMLi)](references/INJECTION_TESTING.md)
 - [Vulnerability Remediation & Secure Patterns](references/VULNERABILITY_REMEDIATION.md)

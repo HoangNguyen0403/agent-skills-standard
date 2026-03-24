@@ -1,11 +1,49 @@
 ---
 name: nestjs-security
-description: 'Authentication, RBAC, and Hardening standards. Use when implementing JWT auth, RBAC guards, or security hardening in NestJS. (triggers: **/*.guard.ts, **/*.strategy.ts, **/auth/**, Passport, JWT, AuthGuard, CSRF, Helmet)'
+description: "Implement JWT authentication, RBAC guards, Helmet hardening, and Argon2 hashing in NestJS. Use when adding auth strategies, role-based access control, CSRF protection, or security headers. (triggers: **/*.guard.ts, **/*.strategy.ts, **/auth/**, Passport, JWT, AuthGuard, CSRF, Helmet)"
 ---
 
 # NestJS Security Standards
 
 ## **Priority: P0 (CRITICAL)**
+
+## Workflow: Secure a NestJS Application
+
+1. **Add Helmet** — `app.use(helmet())` in `main.ts` for HSTS, CSP headers.
+2. **Configure JWT strategy** — Use `passport-jwt` with RS256; validate `iss` and `aud` claims.
+3. **Bind global AuthGuard** — Register as `APP_GUARD`; use `@Public()` for open routes.
+4. **Add throttling** — Enable `@nestjs/throttler` with Redis store for rate limiting.
+5. **Hash with Argon2id** — Replace bcrypt with `argon2.hash(password, { type: argon2.argon2id })`.
+6. **Verify** — Run `npm audit --prod` and test that unauthenticated requests return 401.
+
+## Global Auth Guard Example
+
+```typescript
+// auth.module.ts
+@Module({
+  providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
+})
+export class AuthModule {}
+
+// public.decorator.ts
+export const IS_PUBLIC_KEY = 'isPublic';
+export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
+```
+
+## Argon2id Hashing Example
+
+```typescript
+// auth.service.ts
+import * as argon2 from 'argon2';
+
+async hashPassword(password: string): Promise<string> {
+  return argon2.hash(password, { type: argon2.argon2id, memoryCost: 65536, timeCost: 3 });
+}
+
+async verifyPassword(hash: string, password: string): Promise<boolean> {
+  return argon2.verify(hash, password);
+}
+```
 
 ## Authentication (JWT)
 

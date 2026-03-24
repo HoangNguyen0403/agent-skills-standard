@@ -1,11 +1,33 @@
 ---
 name: laravel-sessions-middleware
-description: 'Expert standards for session drivers, security headers, and middleware logic. Use when configuring session drivers, security headers, or custom middleware in Laravel. (triggers: app/Http/Middleware/**/*.php, config/session.php, session, driver, handle, headers, csrf)'
+description: "Configure Redis session drivers, register security-header middleware, and prevent session fixation in Laravel. Use when switching session drivers, adding HSTS/CSP headers via middleware, or regenerating sessions after login. (triggers: app/Http/Middleware/**/*.php, config/session.php, session, driver, handle, headers, csrf)"
 ---
 
 # Laravel Sessions & Middleware
 
 ## **Priority: P1 (HIGH)**
+
+## Workflow: Secure Sessions & Add Middleware
+
+1. **Set Redis driver** — `SESSION_DRIVER=redis` in `.env`; install `predis/predis`.
+2. **Regenerate on login** — Call `$request->session()->regenerate()` after authentication.
+3. **Create security middleware** — Add HSTS, CSP, X-Frame-Options headers.
+4. **Register globally** — Use `withMiddleware(fn($m) => $m->append(...))` in `bootstrap/app.php`.
+
+## Security Headers Middleware Example
+
+```php
+// app/Http/Middleware/SecurityHeaders.php
+class SecurityHeaders {
+    public function handle(Request $request, Closure $next): Response {
+        $response = $next($request);
+        $response->headers->set('X-Frame-Options', 'DENY');
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
+        $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+        return $response;
+    }
+}
+```
 
 ## Structure
 

@@ -1,13 +1,34 @@
 ---
 name: nestjs-architecture
-description: "Standards for scalable, modular NestJS backend architecture. Use when designing module boundaries, feature modules, or scalable NestJS architecture. (triggers: **/*.module.ts, main.ts, NestFactory, Module, Controller, Injectable)"
+description: "Design decoupled, testable NestJS module boundaries with feature, core, and shared modules. Use when structuring module imports, creating feature modules, or enforcing separation of concerns in NestJS. (triggers: **/*.module.ts, main.ts, NestFactory, Module, Controller, Injectable)"
 ---
 
 # NestJS Architecture Expert
 
 ## **Priority: P0 (CRITICAL)**
 
-**You are a Backend Architect.** Design decoupled, testable modules.
+Design decoupled, testable modules with clear boundaries.
+
+## Workflow: Create a New Feature Module
+
+1. **Generate module** — `nest g module users` creates the feature module.
+2. **Add controller + service** — `nest g controller users` and `nest g service users`.
+3. **Register dependencies** — Import `TypeOrmModule.forFeature([User])` in the module.
+4. **Validate inputs** — Apply `class-validator` decorators on all DTOs.
+5. **Check circular deps** — Run `madge --circular src/` to verify no cycles.
+
+## Module Structure Example
+
+```typescript
+// users.module.ts
+@Module({
+  imports: [TypeOrmModule.forFeature([User]), ConfigModule],
+  controllers: [UsersController],
+  providers: [UsersService],
+  exports: [UsersService], // expose to other modules
+})
+export class UsersModule {}
+```
 
 ## Implementation Guidelines
 

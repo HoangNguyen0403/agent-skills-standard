@@ -1,6 +1,6 @@
 ---
 name: nestjs-notification
-description: "Standards for Notification Types, Service Architecture, and FCM Integration. Use when building notification services or integrating FCM in NestJS. (triggers: notification.service.ts, notification.entity.ts, notification, push, fcm, alert, reminder)"
+description: "Build dual-write notification services with database persistence and FCM push delivery in NestJS. Use when creating notification entities, sending push via FCM, or implementing in-app notification feeds. (triggers: notification.service.ts, notification.entity.ts, notification, push, fcm, alert, reminder)"
 ---
 
 # NestJS Notification Architecture
@@ -8,6 +8,31 @@ description: "Standards for Notification Types, Service Architecture, and FCM In
 ## **Priority: P0 (Standard)**
 
 Implement a "Dual-Write" notification system: persist to Database (In-App) and send via FCM (Push).
+
+## Workflow: Send a Notification
+
+1. **Save to database** — Persist the notification entity with type enum and metadata.
+2. **Check FCM token** — Verify the recipient has a valid `fcmToken`; skip push if missing.
+3. **Send push** — Call FCM inside `try/catch`; never let FCM failure block the request.
+4. **Serialize data** — Convert Dates to ISO strings; keep FCM `data` payload flat (IDs only).
+
+## Dual-Write Service Example
+
+```typescript
+// notification.service.ts
+async send(userId: string, type: NotificationType, metadata: Record<string, string>) {
+  const notification = await this.repo.save({ userId, type, metadata: JSON.stringify(metadata) });
+  const user = await this.usersService.findOne(userId);
+  if (user.fcmToken) {
+    try {
+      await this.fcm.send({ token: user.fcmToken, data: { type, ...metadata } });
+    } catch (err) {
+      this.logger.warn(`FCM failed for user ${userId}`, err);
+    }
+  }
+  return notification;
+}
+```
 
 ## Structure
 

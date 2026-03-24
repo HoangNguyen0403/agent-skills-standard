@@ -1,6 +1,6 @@
 ---
 name: nextjs-server-actions
-description: 'Mutations, Form handling, and RPC-style calls. Use when implementing Server Actions, form mutations, or RPC-style data mutations in Next.js. (triggers: app/**/actions.ts, src/app/**/actions.ts, app/**/*.tsx, src/app/**/*.tsx, use server, Server Action, revalidatePath, useFormStatus)'
+description: "Handle mutations, forms, and RPC-style calls with Next.js Server Actions. Use when implementing Server Actions, form mutations, or RPC-style data mutations in Next.js. (triggers: app/**/actions.ts, src/app/**/actions.ts, app/**/*.tsx, src/app/**/*.tsx, use server, Server Action, revalidatePath, useFormStatus)"
 ---
 
 # Server Actions

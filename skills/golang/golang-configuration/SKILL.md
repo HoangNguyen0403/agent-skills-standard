@@ -1,41 +1,74 @@
 ---
 name: golang-configuration
-description: "Standards for application configuration using environment variables and libraries. Use when managing Go application config with environment variables or viper. (triggers: configs/**, cmd/**, configuration, env var, viper, koanf)"
+description: "Load and validate application configuration from environment variables and config files. Use when managing Go application config with environment variables or viper. (triggers: configs/**, cmd/**, configuration, env var, viper, koanf)"
 ---
 
-# Golang Configuration Standards
+# Golang Configuration
 
 ## **Priority: P1 (STANDARD)**
 
 ## Principles
 
 - **12-Factor App**: Store config in environment variables.
-- **Typed Config**: Load config into a struct, validate it immediately.
+- **Typed Config**: Load config into a struct, validate immediately.
 - **Secrets**: Never commit secrets. Use env vars or secret managers.
 - **No Globals**: Return a Config struct and inject it.
+
+## Implementation Workflow
+
+1. **Define Config struct** — Create a typed struct with all required fields.
+2. **Load defaults** — Set sensible defaults for non-secret values.
+3. **Override from file** — Optionally load from YAML/JSON config file.
+4. **Override from env** — Environment variables take highest priority.
+5. **Validate at startup** — Crash immediately on missing required config.
+6. **Inject via constructor** — Pass Config to services; never use global config vars.
+
+### Config Struct with env Tags
+
+```go
+type Config struct {
+    Port        int    `env:"PORT" envDefault:"8080"`
+    DatabaseURL string `env:"DATABASE_URL,required"`
+    LogLevel    string `env:"LOG_LEVEL" envDefault:"info"`
+    JWTSecret   string `env:"JWT_SECRET,required"`
+}
+
+func LoadConfig() (*Config, error) {
+    cfg := &Config{}
+    if err := env.Parse(cfg); err != nil {
+        return nil, fmt.Errorf("config parse failed: %w", err)
+    }
+    return cfg, nil
+}
+```
+
+### Usage in main.go
+
+```go
+func main() {
+    cfg, err := LoadConfig()
+    if err != nil {
+        log.Fatalf("failed to load config: %v", err)
+    }
+    db := postgres.NewConnection(cfg.DatabaseURL)
+    srv := server.New(cfg.Port, db)
+    srv.Start()
+}
+```
 
 ## Libraries
 
 - **Standard Lib**: `os.Getenv` for simple apps.
-- **Viper**: Industry standard for complex configs (supports env, config files, remote config).
+- **Viper**: Industry standard for complex configs (env, files, remote).
 - **Koanf**: Lighter, cleaner alternative to Viper.
-- **Caarlos0/env**: Good for strict struct tagging.
+- **Caarlos0/env**: Strict struct tagging approach.
 
-## Pattern
+## Anti-Patterns
 
-1. Define `Config` struct.
-2. Load from defaults.
-3. Override from file (optional).
-4. Override from Env (priority).
-5. Validate.
+- ❌ Hardcoded secrets — load all secrets from env vars or a secret manager
+- ❌ Global config variables — return a typed Config struct and inject via constructors
+- ❌ Starting without validation — crash immediately on missing required env vars
 
 ## References
 
 - [Config Pattern](references/config-patterns.md)
-
-
-## Anti-Patterns
-
-- **No hardcoded secrets**: Load all secrets from env vars or a secret manager.
-- **No global config vars**: Return a typed Config struct and inject it via constructors.
-- **No startup without validation**: Crash immediately on missing required env vars.

@@ -1,6 +1,6 @@
 ---
 name: typescript-security
-description: 'Secure coding practices for TypeScript. Use when validating input, handling auth tokens, sanitizing data, or managing secrets and sensitive configuration. (triggers: **/*.ts, **/*.tsx, validate, sanitize, xss, injection, auth, password, secret, token)'
+description: "Validate input, secure auth tokens, and prevent injection attacks in TypeScript. Use when validating input, handling auth tokens, sanitizing data, or managing secrets and sensitive configuration. (triggers: **/*.ts, **/*.tsx, validate, sanitize, xss, injection, auth, password, secret, token)"
 ---
 
 # TypeScript Security
@@ -9,16 +9,42 @@ description: 'Secure coding practices for TypeScript. Use when validating input,
 
 Security standards for TypeScript applications based on OWASP guidelines.
 
-## Implementation Guidelines
+## Validate Input at Boundaries
 
-- **Validation**: Use **`Zod`**, **`Joi`**, or **`class-validator`** at the **API boundary**. Always **`parse`** and validate **`user-controlled input`** before using. Use **`safeParse`** for error handling without throwing. Return **`400 with structured errors`** on failure.
+- Use **`Zod`**, **`Joi`**, or **`class-validator`** at the **API boundary**. Always **`parse`** and validate **`user-controlled input`** before using. Use **`safeParse`** for error handling without throwing. Return **`400 with structured errors`** on failure.
+
+```typescript
+import { z } from 'zod';
+
+const CreateUserSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1).max(100),
+  role: z.enum(['user', 'admin']),
+});
+
+// In route handler
+app.post('/users', (req, res) => {
+  const result = CreateUserSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ errors: result.error.flatten().fieldErrors });
+  }
+  // result.data is fully typed and validated
+  return userService.create(result.data);
+});
+```
+
+## Prevent Injection and XSS
+
 - **Sanitization**: Use **`DOMPurify`** for HTML sanitization to prevent **Cross-Site Scripting (XSS)**.
+- **SQL Injection**: Use **Parameterized Queries** (e.g., **`pool.query('... WHERE id = $1', [id])`**) or **Type-safe ORMs** (**`Prisma`**/`TypeORM`). Use **`Prisma.sql`** for raw queries.
+- **Input Filtering**: Sanitize **`user-controlled input`** before using it in file paths or OS commands (Command Injection).
+
+## Secure Authentication
+
+- Use **`Argon2id`** for password hashing. Implement **`JWT`** (via **`jsonwebtoken`** or **`jose`**) with **`HttpOnly`** and **`Secure`** cookies. Use **`RS256`** for public/private key pairs and implement **`Refresh Token rotation`**.
 - **Secrets**: Store secrets in **`.env`** (e.g., **`JWT_SECRET`**) or **Secret Managers**. NEVER commit them to Git.
-- **Vulnerabilities**: Prevent **SQL Injection** using **Parameterized Queries** (e.g., **`pool.query('... WHERE id = $1', [id])`**) or **Type-safe ORMs** (**`Prisma`**/`TypeORM`). Use **`Prisma.sql`** for raw queries.
-- **Authentication**: Use **`Argon2id`** for password hashing. Implement **`JWT`** (via **`jsonwebtoken`** or **`jose`**) with **`HttpOnly`** and **`Secure`** cookies. Use **`RS256`** for public/private key pairs and implement **`Refresh Token rotation`**.
 - **CORS**: Configure **`CORS`** with **Strict Origin Whitelisting**. Avoid `origin: '*'`.
 - **Encryption**: Use **`crypto`** (Node.js) or **`Web Crypto API`** for sensitive data. Avoid legacy algorithms like MD5/SHA1.
-- **Input Filtering**: Sanitize **`user-controlled input`** before using it in file paths or OS commands (Command Injection).
 
 ## Verification
 

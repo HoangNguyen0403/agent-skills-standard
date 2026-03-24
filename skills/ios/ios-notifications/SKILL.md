@@ -17,6 +17,43 @@ Push notifications using UserNotifications framework and APNs.
 - **APNs**: Register for remote notifications in `AppDelegate`.
 - **Badges**: Manage app icon badges manually (set to 0 to clear).
 
+### Example: APNs Registration and Permission Request
+
+```swift
+// AppDelegate.swift
+import UserNotifications
+
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
+        requestNotificationPermission()
+        return true
+    }
+
+    func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+            guard granted else { return }
+            DispatchQueue.main.async {
+                UIApplication.shared.registerForRemoteNotifications()
+            }
+        }
+    }
+
+    func application(_ application: UIApplication,
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
+        // Send token to your backend
+    }
+
+    // Foreground handling
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+        return [.banner, .sound, .badge]
+    }
+}
+```
+
 ## Anti-Patterns
 
 - **No Unconditional Requests**: Explain value proposition before system dialog.

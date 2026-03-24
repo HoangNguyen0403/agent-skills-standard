@@ -1,46 +1,68 @@
 ---
 name: nestjs-transport
-description: "gRPC, RabbitMQ standards and Monorepo contracts. Use when implementing gRPC microservices, RabbitMQ messaging, or monorepo transport in NestJS. (triggers: main.ts, **/*.controller.ts, Transport.GRPC, Transport.RMQ, MicroserviceOptions)"
+description: "Configure gRPC, RabbitMQ, and monorepo contract patterns for NestJS microservices. Use when setting up gRPC service-to-service calls, RabbitMQ event-driven messaging, shared contract libraries, or microservice exception handling in NestJS. (triggers: main.ts, **/*.controller.ts, Transport.GRPC, Transport.RMQ, MicroserviceOptions)"
 ---
 
 # Microservices & Transport Standards
 
-## **Priority: P0 (FOUNDATIONAL)**
+## Priority: P0 (FOUNDATIONAL)
 
 Microservices communication patterns and transport layer standards.
 
-- **Synchronous (RPC)**: Use **gRPC** for low-latency, internal service-to-service calls.
-  - **Why**: 10x faster than REST/JSON, centralized `.proto` contracts.
-- **Asynchronous (Events)**: Use **RabbitMQ** or **Kafka** for decoupling domains.
-  - **Pattern**: Fire-and-forget (`emit()`) for side effects (e.g., "UserCreated" -> "SendEmail").
+- **Synchronous (RPC)**: Use **gRPC** for low-latency, internal service-to-service calls (10x faster than REST/JSON).
+- **Asynchronous (Events)**: Use **RabbitMQ** or **Kafka** for decoupling domains via fire-and-forget (`emit()`).
 
-## Monorepo Architecture
+## gRPC Setup
 
-- **Contracts**:
-  - **Pattern**: Store all DTOs, `.proto` files, and Interfaces in a **Shared Library** (`libs/contracts`).
-  - **Rule**: Services never import code from other services. They only import from `contracts`.
-- **Versioning**: Semantic versioning of messages is mandatory. Never change a field type; add a new field.
+```typescript
+// main.ts — gRPC microservice bootstrap
+const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+  transport: Transport.GRPC,
+  options: {
+    package: 'users',
+    protoPath: join(__dirname, '../libs/contracts/users.proto'),
+    url: '0.0.0.0:5001',
+  },
+});
+await app.listen();
+```
+
+## RabbitMQ Setup
+
+```typescript
+// main.ts — RabbitMQ microservice bootstrap
+const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+  transport: Transport.RMQ,
+  options: {
+    urls: [process.env.RABBITMQ_URL],
+    queue: 'orders_queue',
+    queueOptions: { durable: true },
+  },
+});
+```
+
+## Monorepo Contracts
+
+- Store all DTOs, `.proto` files, and Interfaces in `libs/contracts`.
+- Services never import from sibling services — only from `contracts`.
+- Semantic versioning of messages is mandatory. Never change a field type; add a new field.
 
 ## Exception Handling
 
-- **Propagation**: Standard `HttpException` is lost over Rpc/Tcp.
-- **Standard**: Use `RpcException` and generic Filters.
+Standard `HttpException` is lost over RPC/TCP. Use `RpcException` with global filters:
 
-  ```typescript
-  // Global RPC Filter
-  @Catch()
-  export class RpcExceptionFilter implements RpcExceptionFilter<RpcException> {
-    catch(exception: RpcException, host: ArgumentsHost): Observable<any> {
-      return throwError(() => exception.getError());
-    }
+```typescript
+@Catch()
+export class RpcExceptionFilter implements RpcExceptionFilter<RpcException> {
+  catch(exception: RpcException, host: ArgumentsHost): Observable<any> {
+    return throwError(() => exception.getError());
   }
-  ```
+}
+```
 
 ## Serialization
 
-- **Message DTOs**: Use `class-validator` just like HTTP.
-  - **Config**: Apply `useGlobalPipes(new ValidationPipe({ transform: true }))` in the `MicroserviceOptions` setup, not just HTTP app setup.
-
+- Apply `useGlobalPipes(new ValidationPipe({ transform: true }))` in `MicroserviceOptions` setup, not just HTTP.
 
 ## Anti-Patterns
 

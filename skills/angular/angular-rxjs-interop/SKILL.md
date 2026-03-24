@@ -1,6 +1,6 @@
 ---
 name: angular-rxjs-interop
-description: 'Bridging Observables and Signals using toSignal and toObservable. Use when converting between RxJS Observables and Angular Signals. (triggers: toSignal, toObservable, takeUntilDestroyed, rxjs angular)'
+description: "Bridge Observables and Signals using toSignal and toObservable in Angular. Use when converting between RxJS Observables and Angular Signals. (triggers: toSignal, toObservable, takeUntilDestroyed, rxjs angular)"
 ---
 
 # RxJS Interop

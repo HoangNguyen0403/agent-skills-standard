@@ -1,6 +1,6 @@
 ---
 name: flutter-testing
-description: 'Unit, widget, and integration testing with robots, widget keys, and Patrol. Use when writing Flutter unit tests, widget tests, or integration tests with Patrol. (triggers: **/test/**.dart, **/integration_test/**.dart, **/robots/**.dart, lib/core/keys/**.dart, test, patrol, robot, WidgetKeys, patrolTest, blocTest, mocktail)'
+description: "Write unit, widget, and integration tests with robots, widget keys, and Patrol in Flutter. Use when writing Flutter unit tests, widget tests, or integration tests with Patrol. (triggers: **/test/**.dart, **/integration_test/**.dart, **/robots/**.dart, lib/core/keys/**.dart, test, patrol, robot, WidgetKeys, patrolTest, blocTest, mocktail)"
 ---
 
 # Flutter Testing Standards

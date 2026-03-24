@@ -1,6 +1,6 @@
 ---
 name: php-tooling
-description: 'PHP ecosystem tooling, dependency management, and static analysis. Use when managing Composer dependencies, running PHPStan, or configuring PHP build tools. (triggers: composer.json, composer, lock, phpstan, xdebug)'
+description: "Configure PHP ecosystem tooling, dependency management, and static analysis. Use when managing Composer dependencies, running PHPStan, or configuring PHP build tools. (triggers: composer.json, composer, lock, phpstan, xdebug)"
 ---
 
 # PHP Tooling

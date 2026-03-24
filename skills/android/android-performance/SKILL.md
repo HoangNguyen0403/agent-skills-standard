@@ -1,24 +1,40 @@
 ---
 name: android-performance
-description: "Standards for Baseline Profiles, Startup Time, and UI Rendering. Use when optimizing app startup, jank, or UI rendering performance in Android. (triggers: **/*Benchmark.kt, **/*Initializer.kt, BaselineProfile, JankStats, recomposition)"
+description: "Optimize Android app startup, UI rendering, and frame stability with Baseline Profiles and lazy initialization. Use when reducing startup time, diagnosing jank, or improving UI rendering performance. (triggers: **/*Benchmark.kt, **/*Initializer.kt, BaselineProfile, JankStats, recomposition)"
 ---
 
 # Android Performance Standards
 
 ## **Priority: P1**
 
-## Implementation Guidelines
+## 1. Accelerate Startup
 
-### Startup Time
+- Generate **Baseline Profiles** for all production apps — pre-compiles critical paths (30-40% startup improvement).
+- Defer heavy SDK init using `App Startup` or lazy Singletons. Never block `Application.onCreate`.
 
-- **Baseline Profiles**: Mandatory for all production apps to pre-compile critical paths (improves startup by 30-40%).
-- **Lazy Initialization**: Defer heavy SDK init using `App Startup` or lazy Singletons. Avoid blocking `Application.onCreate`.
+```kotlin
+// Lazy singleton — defers initialization until first access
+val analytics: Analytics by lazy { Analytics.create(appContext) }
+```
 
-### UI Performance
+## 2. Eliminate UI Jank
 
-- **Recomposition**: Use "Layout Inspector" to find unnecessary recompositions.
-- **Images**: Use Coil/Glide with proper caching and resizing (`.crossfade()`).
-- **Lists**: `LazyColumn` must use `key` and stableitem classes.
+- Use Layout Inspector to find unnecessary recompositions.
+- Load images with Coil/Glide using proper caching and resizing (`.crossfade()`).
+- `LazyColumn` must use `key` and stable item classes.
+
+```kotlin
+LazyColumn {
+    items(users, key = { it.id }) { user ->
+        UserRow(user)
+    }
+}
+```
+
+## 3. Avoid Layout Bottlenecks
+
+- Replace nested weights with `ConstraintLayout` (Views) or `Row`/`Column` with `Modifier.weight` (Compose).
+- Never hold Activity context in Singletons — use Application context to prevent memory leaks.
 
 ## Anti-Patterns
 

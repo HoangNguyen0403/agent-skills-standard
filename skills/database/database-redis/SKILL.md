@@ -1,6 +1,6 @@
 ---
 name: database-redis
-description: "Expert rules for caching, key management, and performance in Redis. Use when implementing Redis caching strategies, managing key namespaces, or optimizing Redis performance. (triggers: **/*.ts, **/*.js, **/redis.config.ts, redis, cache, ttl, eviction)"
+description: "Optimize Redis caching, key management, and performance. Use when implementing Redis caching strategies, managing key namespaces, or optimizing Redis performance. (triggers: **/*.ts, **/*.js, **/redis.config.ts, redis, cache, ttl, eviction)"
 ---
 
 # Redis Best Practices

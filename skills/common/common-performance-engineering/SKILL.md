@@ -1,50 +1,66 @@
 ---
 name: common-performance-engineering
-description: "Universal standards for high-performance development. Use when optimizing, reducing latency, fixing memory leaks, profiling, or improving throughput. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, performance, optimize, profile, scalability, latency, throughput, memory leak, bottleneck)"
+description: "Enforce universal standards for high-performance development. Use when profiling bottlenecks, reducing latency, fixing memory leaks, improving throughput, or optimizing algorithm complexity in any language. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, performance, optimize, profile, scalability, latency, throughput, memory leak, bottleneck)"
 ---
 
 # Performance Engineering Standards
 
-## **Priority: P0 (CRITICAL)**
+## Priority: P0 (CRITICAL)
 
-## 🚀 Core Principles
+## Workflow
 
-- **Efficiency by Design**: Minimize resource consumption (CPU, Memory, Network) without sacrificing readability.
-- **Measure First**: Never optimize without a baseline. Use profiling tools before and after changes.
-- **Scalability**: Design systems to handle increased load by optimizing time and space complexity.
+1. **Baseline**: Profile before changing anything — measure CPU, memory, and latency.
+2. **Identify**: Find the top bottleneck (N+1 query, hot loop, memory leak).
+3. **Fix**: Apply the targeted optimization from the sections below.
+4. **Verify**: Re-profile to confirm improvement and check for regressions.
 
-## 💾 Resource Management
+## Resource Management
 
 - **Memory Efficiency**:
   - Avoid memory leaks: explicit cleanup of listeners, observers, and streams.
-  - Optimize data structures: use the most efficient collection for the use case (e.g., `Set` for lookups, `List` for iteration).
+  - Optimize data structures: `Set` for lookups, `List` for iteration.
   - Lazy Initialization: Initialize expensive objects only when needed.
 - **CPU Optimization**:
-  - Algorithm Complexity: Aim for $O(1)$ or $O(n)$ where possible; avoid $O(n^2)$ in critical paths.
-  - Offload Work: Move heavy computations to background threads or workers.
-  - Minimize Re-computation: Use memoization for pure, expensive functions.
+  - Aim for O(1) or O(n); avoid O(n^2) in critical paths.
+  - Offload heavy computations to background threads or workers.
+  - Memoize pure, expensive functions.
 
-## 🌐 Network & I/O
+```typescript
+// Memoization example — avoid recomputing expensive transforms
+const cache = new Map<string, Result>();
+function getExpensiveResult(key: string): Result {
+  if (!cache.has(key)) {
+    cache.set(key, computeExpensive(key));
+  }
+  return cache.get(key)!;
+}
+```
 
-- **Payload Reduction**: Use efficient serialization (JSON minification, Protobuf) and compression.
+## Network & I/O
+
+- **Payload Reduction**: Use efficient serialization (Protobuf, JSON minification) and compression (gzip/br).
 - **Batching**: Group multiple small requests into single bulk operations.
-- **Caching Strategy**:
-  - Implement multi-level caching (Memory -> Storage -> Network).
-  - Use appropriate TTL (Time To Live) and invalidation strategies.
+- **Caching**: Implement multi-level caching (Memory -> Storage -> Network) with appropriate TTL and invalidation.
 - **Non-blocking I/O**: Always use asynchronous operations for file system and network access.
 
-## ⚡ UI/UX Performance
+```python
+# Batching example — avoid N+1 API calls
+# Bad: [fetch(f"/users/{id}") for id in ids]
+# Good:
+results = fetch("/users", params={"ids": ",".join(ids)})
+```
 
-- **Minimize Main Thread Work**: Keep animations and interactions fluid by keeping the main thread free.
+## UI/UX Performance
+
+- **Minimize Main Thread Work**: Keep animations and interactions fluid by offloading to workers.
 - **Virtualization**: Use lazy loading or virtualization for long lists/large datasets.
 - **Tree Shaking**: Ensure build tools remove unused code and dependencies.
 
-## 📊 Monitoring & Testing
+## Monitoring & Testing
 
 - **Benchmarking**: Write micro-benchmarks for performance-critical functions.
 - **SLIs/SLOs**: Define Service Level Indicators (latency, throughput) and Objectives.
 - **Load Testing**: Test system behavior under peak and stress conditions.
-
 
 ## Anti-Patterns
 

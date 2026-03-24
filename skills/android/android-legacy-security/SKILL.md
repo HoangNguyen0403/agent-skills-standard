@@ -1,31 +1,42 @@
 ---
 name: android-legacy-security
-description: 'Standards for Intents, WebViews, and FileProvider. Use when securing Intent handling, WebViews, or FileProvider access in Android. (triggers: **/*Activity.kt, **/*WebView*.kt, AndroidManifest.xml, Intent, WebView, FileProvider, javaScriptEnabled)'
+description: "Harden Intent handling, WebView configuration, and FileProvider access in Android apps. Use when securing Intent extras, configuring WebViews, or exposing files via FileProvider. (triggers: **/*Activity.kt, **/*WebView*.kt, AndroidManifest.xml, Intent, WebView, FileProvider, javaScriptEnabled)"
 ---
 
 # Android Legacy Security Standards
 
 ## **Priority: P0**
 
-## Implementation Guidelines
+## 1. Secure Intents and Components
 
-### Intents & Components
+- Set `android:exported="false"` for all internal Activities/Services unless needed for deep links.
+- Verify `resolveActivity` before starting implicit intents.
+- Treat all incoming Intent extras as untrusted — validate all schema/data types.
 
-- **Visibility**: Set **`android:exported="false"`** in the Manifest for all internal Activities/Services unless explicitly needed for deep links or external integration.
-- **Intents**: Verify **`resolveActivity`** before starting implicit intents. Use **`LocalBroadcastManager`** (legacy) or **`SharedFlow/StateFlow`** for internal communication.
-- **Data**: Treat all incoming **Intent extras as untrusted**. Validate all schema/data types before consumption.
+```xml
+<!-- AndroidManifest.xml — restrict exported components -->
+<activity android:name=".InternalActivity" android:exported="false" />
+```
 
-### WebView
+## 2. Lock Down WebViews
 
-- **JS**: Default to **`javaScriptEnabled = false`**. Use **`WebViewClient`** and **`WebChromeClient`** to restrict navigation and origin access.
-- **File Access**: Disable **`allowFileAccess`** and **`allowFileAccessFromFileURLs`** to prevent local file theft via XSS.
-- **Bridge**: If creating a **`JavascriptInterface`**, use **`@JavascriptInterface`** (API 17+) and strictly limit the exposed API surface.
+- Default to `javaScriptEnabled = false`. Use `WebViewClient` and `WebChromeClient` to restrict navigation.
+- Disable `allowFileAccess` and `allowFileAccessFromFileURLs` to prevent local file theft via XSS.
+- If using `@JavascriptInterface` (API 17+), strictly limit the exposed API surface.
 
-### Storage & Files
+```kotlin
+webView.settings.apply {
+    javaScriptEnabled = false          // enable only when required
+    allowFileAccess = false
+    allowFileAccessFromFileURLs = false
+}
+```
 
-- **File Exposure**: **NEVER expose `file://` URIs**. Use **`FileProvider`** (androidx) to generate **`content://`** URIs with temporary permissions.
-- **SharedPreferences**: Use **`EncryptedSharedPreferences`** (Security library) for auth tokens and PII. Never use **`MODE_WORLD_READABLE`** (deprecated/insecure).
-- **Network**: Use **`NetworkSecurityConfig`** to disable **`cleartextTrafficPermitted`** (mandatory for API 28+) and implement **SSL Pinning/Certificate Pinning**.
+## 3. Protect Storage and Files
+
+- **NEVER expose `file://` URIs**. Use `FileProvider` to generate `content://` URIs with temporary permissions.
+- Use `EncryptedSharedPreferences` for auth tokens and PII. Never use `MODE_WORLD_READABLE`.
+- Use `NetworkSecurityConfig` to disable `cleartextTrafficPermitted` and implement certificate pinning.
 
 ## Anti-Patterns
 

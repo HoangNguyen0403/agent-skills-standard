@@ -1,26 +1,47 @@
 ---
 name: android-networking
-description: 'Standards for Retrofit, OkHttp, and API Communication. Use when integrating Retrofit, OkHttp, or API clients in Android apps. (triggers: **/*Api.kt, **/*Service.kt, **/*Client.kt, Retrofit, OkHttpClient, @GET, @POST)'
+description: "Integrate Retrofit, OkHttp, and Kotlinx Serialization for type-safe API communication in Android. Use when building API clients, adding interceptors, or configuring network security. (triggers: **/*Api.kt, **/*Service.kt, **/*Client.kt, Retrofit, OkHttpClient, @GET, @POST)"
 ---
 
 # Android Networking Standards
 
 ## **Priority: P0**
 
-## Implementation Guidelines
+## 1. Configure the HTTP Stack
 
-### Libraries & Setup
+- Use **Retrofit 2** with **OkHttp 4** for all backend communication.
+- Use **Kotlinx Serialization** with `@SerialName` for JSON field mapping.
+- Implement **Certificate Pinning** for sensitive production domains.
 
-- **Client**: Use **Retrofit 2** with **OkHttp 4** for all backend communication.
-- **Serialization**: Use **Kotlinx Serialization** (preferred). Use **`@SerialName`** for JSON field mapping.
-- **Security**: Implement **Certificate Pinning** for sensitive production domains. Use **`NetworkSecurityConfig`** for cleartext traffic control.
+```kotlin
+@Serializable
+data class UserDto(
+    @SerialName("user_id") val userId: String,
+    @SerialName("display_name") val displayName: String
+)
+```
 
-### Network Ops
+## 2. Define API Endpoints
 
-- **Interceptors**: Use **OkHttp Interceptors** for global concerns like **`Bearer token`** injection via the **`Authorization` header** and **`HttpLoggingInterceptor`** (debug only).
-- **Architecture**: All API calls must be **`suspend` functions**. Use a **`Result` wrapper** or **`Either`** to handle success/failure in the Repository layer.
-- **Minification**: Ensure **`isMinifyEnabled`** is true in `build.gradle` and define **R8/ProGuard rules** for Retrofit/OkHttp to prevent runtime crashes.
-- **Testing**: Use **MockWebServer** to simulate API responses in unit and integration tests. Ensure **100% test coverage** for error cases (500, 401, 403).
+- All API calls must be `suspend` functions.
+- Declare endpoints only in the API interface — handle errors in Repository.
+
+```kotlin
+interface UserApi {
+    @GET("users/{id}")
+    suspend fun getUser(@Path("id") id: String): UserDto
+
+    @POST("users")
+    suspend fun createUser(@Body request: CreateUserRequest): UserDto
+}
+```
+
+## 3. Add Cross-Cutting Concerns
+
+- Use OkHttp Interceptors for `Bearer token` injection and `HttpLoggingInterceptor` (debug only).
+- Wrap responses with a `Result` wrapper or `Either` in the Repository layer.
+- Define R8/ProGuard rules for Retrofit/OkHttp when `isMinifyEnabled = true`.
+- Use **MockWebServer** for unit/integration tests — cover 500, 401, 403 error cases.
 
 ## Anti-Patterns
 

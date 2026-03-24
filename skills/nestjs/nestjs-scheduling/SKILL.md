@@ -1,6 +1,6 @@
 ---
 name: nestjs-scheduling
-description: "Distributed cron jobs and locking patterns. Use when implementing scheduled tasks or distributed locking patterns in NestJS. (triggers: **/*.service.ts, @Cron, CronExpression, ScheduleModule)"
+description: "Implement distributed cron jobs with Redis-based locking and BullMQ offloading in NestJS. Use when adding @Cron scheduled tasks, preventing duplicate runs across pods, or delegating heavy work to queue workers. (triggers: **/*.service.ts, @Cron, CronExpression, ScheduleModule)"
 ---
 
 # Task Scheduling & Jobs
@@ -8,6 +8,17 @@ description: "Distributed cron jobs and locking patterns. Use when implementing 
 ## **Priority: P1 (OPERATIONAL)**
 
 Background job processing and scheduled task patterns.
+
+## Workflow: Add a Scheduled Task
+
+1. **Register ScheduleModule** — Import `ScheduleModule.forRoot()` in AppModule.
+2. **Create cron handler** — Decorate a service method with `@Cron(CronExpression.*)`.
+3. **Add distributed lock** — Apply a Redis lock decorator to prevent multi-pod duplication.
+4. **Offload heavy work** — Push job IDs to BullMQ; let workers process them.
+5. **Wrap in try/catch** — Uncaught exceptions in cron handlers crash the entire Node process.
+6. **Verify** — Test with 2+ instances to confirm only one acquires the lock.
+
+## Problem & Solution
 
 - **Problem**: `@Cron()` runs on **every** instance. In K8s with 3 pods, your "Daily Report" runs 3 times.
 - **Solution**: **Distributed Locking** using Redis.
@@ -27,6 +38,26 @@ Background job processing and scheduled task patterns.
   ```
 
 - **Tools**: Use `nestjs-redlock` or custom Redis wrapper via `redlock` library.
+
+## Cron-to-Queue Offload Example
+
+```typescript
+// reports.service.ts
+@Injectable()
+export class ReportsService {
+  constructor(@InjectQueue('reports') private reportsQueue: Queue) {}
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @DistributedLock({ key: 'daily_report', ttl: 60000 })
+  async scheduleDailyReport() {
+    try {
+      await this.reportsQueue.add('generate', { date: new Date().toISOString() });
+    } catch (err) {
+      this.logger.error('Failed to schedule report', err);
+    }
+  }
+}
+```
 
 ## Job Robustness
 

@@ -1,37 +1,67 @@
 ---
 name: ios-state-management
-description: 'Standards for Combine, Observation, and Reactive Programming. Use when managing state with Combine, @Observable, or reactive patterns in iOS. (triggers: **/*.swift, Observable, @Published, PassthroughSubject, @Observable, @Namespace)'
+description: "Manage reactive state with Combine, Observation framework, and UDF patterns. Use when implementing state management with Combine, @Observable, or reactive patterns in iOS. (triggers: **/*.swift, Observable, @Published, PassthroughSubject, @Observable, @Namespace)"
 ---
 
-# iOS State Management Standards
+# iOS State Management
 
 ## **Priority: P0**
 
-## Implementation Guidelines
+## Implementation Workflow
 
-### Combine (Reactive States)
+1. **Choose observation approach** — Use `@Observable` (iOS 17+) for modern SwiftUI; `Combine` with `@Published` for UIKit or broader compatibility.
+2. **Expose state clearly** — Use UDF pattern: ViewModel exposes `Input` enum (events) and `Output` struct (state).
+3. **Manage subscriptions** — Store Combine subscriptions in `Set<AnyCancellable>` with `.store(in: &cancellables)`.
+4. **Dispatch to main thread** — Use `@MainActor` or `.receive(on: DispatchQueue.main)` for UI updates.
+5. **Use exhaustive ViewState** — Prefer a single `ViewState` enum (`.loading`, `.success(data)`, `.error(failure)`).
 
-- **Publishers**: Use **`@Published`** for standard state in ViewModels. Use **`PassthroughSubject`** for one-time navigation or alert events.
-- **Memory Management**: Store subscriptions in a **`Set<AnyCancellable>`**. Use **`.store(in: &cancellables)`** to prevent memory leaks and ensure they are cleared on deinit.
-- **Operators**: Use specific operators like **`.debounce`**, **`.filter`**, **`.map`**, and **`.flatMap`** to handle complex input streams.
-- **Schedulers**: Always ensure UI property updates occur on the main thread using **`@MainActor`** or **`.receive(on: DispatchQueue.main)`**.
+### Combine ViewModel Example
+
+```swift
+@MainActor
+class OrderViewModel: ObservableObject {
+    @Published private(set) var state: ViewState<[Order]> = .loading
+    private var cancellables = Set<AnyCancellable>()
+
+    func loadOrders() {
+        orderService.fetchOrders()
+            .receive(on: DispatchQueue.main)
+            .sink(
+                receiveCompletion: { [weak self] completion in
+                    if case .failure(let error) = completion {
+                        self?.state = .error(error)
+                    }
+                },
+                receiveValue: { [weak self] orders in
+                    self?.state = .success(orders)
+                }
+            )
+            .store(in: &cancellables)
+    }
+}
+```
 
 ### Observation Framework (iOS 17+)
 
-- **`@Observable`**: Use the **`@Observable`** macro for modern, high-performance observation in **SwiftUI**.
-- **State Properties**: In SwiftUI views, use **`@Bindable`** for two-way bindings with `@Observable` objects.
-- **Namespaces**: Use **`@Namespace`** for match-geometry animations and coordinate space tracking.
+```swift
+@Observable
+class OrderViewModel {
+    var orders: [Order] = []
+    var isLoading = false
 
-### Unidirectional Data Flow (UDF)
-
-- **Input/Output**: ViewModels should expose an **`Input`** enum (events) and **`Output`** struct (state) to enforce a clear data direction.
-- **ViewState**: Prefer a single, exhaustive **`ViewState`** enum (e.g., `.loading`, `.success(data)`, `.error(failure)`).
+    func loadOrders() async {
+        isLoading = true
+        orders = try await orderService.fetchOrders()
+        isLoading = false
+    }
+}
+```
 
 ## Anti-Patterns
 
-- **No uncleared subscriptions**: Always use .store(in: &cancellables).
-- **No UI updates on background**: Use .receive(on: .main).
-- **No manual objectWillChange**: Use @Published or @Observable.
+- ❌ Uncleared subscriptions — always use `.store(in: &cancellables)`
+- ❌ UI updates on background thread — use `.receive(on: .main)` or `@MainActor`
+- ❌ Manual `objectWillChange.send()` — use `@Published` or `@Observable` instead
 
 ## References
 

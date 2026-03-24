@@ -1,6 +1,6 @@
 ---
 name: flutter-dependency-injection
-description: 'Standards for automated service locator setup using injectable and get_it. Use when configuring dependency injection with injectable and get_it in Flutter. (triggers: **/injection.dart, **/locator.dart, GetIt, injectable, singleton, module, lazySingleton, factory)'
+description: "Configure automated service locator setup using injectable and get_it. Use when wiring dependency injection with injectable and get_it in Flutter. (triggers: **/injection.dart, **/locator.dart, GetIt, injectable, singleton, module, lazySingleton, factory)"
 ---
 
 # Dependency Injection
@@ -13,19 +13,43 @@ Automated class dependency management using `get_it` and `injectable`.
 
 ```text
 core/injection/
-├── injection.dart # Initialization & setup
-└── modules/ # Third-party dependency modules (Dio, Storage)
+├── injection.dart  # Initialization & setup
+└── modules/        # Third-party dependency modules (Dio, Storage)
 ```
 
-## Implementation Guidelines
+## Implementation Workflow
 
-- **Automated Registration**: Use **@injectable** annotations; avoid manual registry calls.
-- **@LazySingleton**: Default for repositories, services, and data sources (init on demand).
-- **Factory Registration**: Use **@injectable (Factory)** for BLoCs to ensure state resets on every new instance/request. Do NOT use `@Singleton()` for BLoCs.
-- **Abstract Injection**: Always register implementations as **abstract interfaces (as: IService)**.
-- **Modules**: Use **@module** for registering third-party instances (e.g., **Dio**, **Hive**, `SharedPreferences`).
-- **Constructor Injection**: Use mandatory constructor parameters; `injectable` resolves them automatically.
-- **Test Mocks**: Swap implementations in `setUp` using **getIt.unregister<IService>()** followed by **getIt.registerLazySingleton<IService>(() => MockService())**.
+1. **Annotate classes** — Use `@injectable` annotations; avoid manual registry calls.
+2. **Choose scope** — Default to `@LazySingleton` for repositories, services, and data sources (init on demand).
+3. **Register BLoCs as factories** — Use `@injectable` (Factory) for BLoCs to ensure state resets per instance. Never use `@Singleton()` for BLoCs.
+4. **Inject abstractions** — Always register implementations as abstract interfaces (`as: IService`).
+5. **Register third-party deps** — Use `@module` for external instances (Dio, Hive, SharedPreferences).
+6. **Prefer constructor injection** — Use mandatory constructor parameters; `injectable` resolves them automatically.
+
+### Registration Example
+
+```dart
+@module
+abstract class NetworkModule {
+  @lazySingleton
+  Dio get dio => Dio(BaseOptions(baseUrl: 'https://api.example.com'));
+}
+
+@LazySingleton(as: IOrderRepository)
+class OrderRepositoryImpl implements IOrderRepository {
+  final Dio _dio;
+  OrderRepositoryImpl(this._dio);
+}
+```
+
+### Test Mock Swap
+
+```dart
+setUp(() {
+  getIt.unregister<IOrderRepository>();
+  getIt.registerLazySingleton<IOrderRepository>(() => MockOrderRepository());
+});
+```
 
 ## Reference & Examples
 

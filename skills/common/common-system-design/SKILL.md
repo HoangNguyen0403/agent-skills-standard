@@ -1,11 +1,19 @@
 ---
 name: common-system-design
-description: 'Universal architectural standards for robust, scalable systems. Use when designing new features, evaluating architecture, or resolving scalability concerns. (triggers: architecture, design, system, scalability)'
+description: "Enforce separation of concerns, dependency inversion, and resilience patterns across layered and distributed architectures. Use when designing new features, evaluating module boundaries, selecting architectural patterns, or resolving scalability bottlenecks. (triggers: architecture, design, system, scalability, microservice, module boundary, coupling)"
 ---
 
 # System Design & Architecture Standards
 
 ## **Priority: P0 (FOUNDATIONAL)**
+
+## Workflow: Evaluate Architecture for a New Feature
+
+1. Identify bounded contexts and module boundaries
+2. Define dependency direction (outer layers depend on inner)
+3. Select communication pattern (sync REST, async event, or hybrid)
+4. Validate against CAP trade-offs for distributed components
+5. Document decision in an Architecture Decision Record (ADR)
 
 ## Architectural Principles
 
@@ -20,9 +28,16 @@ description: 'Universal architectural standards for robust, scalable systems. Us
 - **Loose Coupling**: Use interfaces for communication.
 - **DI**: Inject dependencies, don't hardcode.
 
+```text
+# Dependency flow (Clean Architecture)
+Controller → UseCase → Repository (interface)
+                             ↑
+                    RepositoryImpl (infra)
+```
+
 ## Common Patterns
 
-- **Layered**: Presentation → Logic → Data.
+- **Layered**: Presentation -> Logic -> Data.
 - **Event-Driven**: Async communication between decoupled components.
 - **Clean/Hexagonal**: Core logic independent of frameworks.
 - **Statelessness**: Favor stateless for scaling/testing.

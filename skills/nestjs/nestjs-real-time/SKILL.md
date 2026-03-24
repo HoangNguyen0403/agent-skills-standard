@@ -1,6 +1,6 @@
 ---
 name: nestjs-real-time
-description: "WebSocket and SSE selection strategies and scaling. Use when implementing WebSocket gateways or Server-Sent Events in NestJS. (triggers: **/*.gateway.ts, **/*.controller.ts, WebSocketGateway, SubscribeMessage, Sse, Socket.io)"
+description: "Implement WebSocket gateways with Socket.io and Server-Sent Events endpoints in NestJS. Use when building chat features, live feeds, or choosing between WebSocket and SSE for real-time communication. (triggers: **/*.gateway.ts, **/*.controller.ts, WebSocketGateway, SubscribeMessage, Sse, Socket.io)"
 ---
 
 # Real-Time & WebSockets
@@ -8,6 +8,52 @@ description: "WebSocket and SSE selection strategies and scaling. Use when imple
 ## **Priority: P1 (OPERATIONAL)**
 
 WebSocket and real-time communication patterns with NestJS.
+
+## Workflow: Add Real-Time Feature
+
+1. **Choose protocol** — WebSocket for bi-directional (chat, collab); SSE for uni-directional (feeds, notifications).
+2. **Implement gateway or SSE** — Create a `@WebSocketGateway()` or `@Sse()` controller.
+3. **Add auth** — Validate JWT in `handleConnection()` for WebSocket; use standard guards for SSE.
+4. **Scale** — Add `@socket.io/redis-adapter` for multi-pod WebSocket; use HTTP/2 for SSE.
+5. **Test connections** — Verify WebSocket handshake auth rejects invalid tokens; confirm SSE streams data.
+
+## SSE Endpoint Example
+
+```typescript
+// events.controller.ts
+@Controller('events')
+export class EventsController {
+  @Sse('stream')
+  stream(): Observable<MessageEvent> {
+    return interval(1000).pipe(map((num) => ({ data: { count: num } }) as MessageEvent));
+  }
+}
+```
+
+## WebSocket Gateway with Auth Example
+
+```typescript
+// chat.gateway.ts
+@WebSocketGateway({ cors: { origin: 'https://app.example.com' } })
+export class ChatGateway implements OnGatewayConnection {
+  handleConnection(client: Socket) {
+    const token = client.handshake.auth?.token;
+    try {
+      const payload = this.jwtService.verify(token);
+      client.data.userId = payload.sub;
+    } catch {
+      client.disconnect(true); // reject invalid tokens immediately
+    }
+  }
+
+  @SubscribeMessage('message')
+  handleMessage(client: Socket, payload: { room: string; text: string }) {
+    this.server.to(payload.room).emit('message', { userId: client.data.userId, text: payload.text });
+  }
+}
+```
+
+## Protocol Selection
 
 - **WebSockets (Bi-directional)**: Use for Chat, Multiplayer Games, Collaborative Editing.
   - _High Complexity_: Requires custom scaling (Redis Adapter) and sticky sessions (sometimes).

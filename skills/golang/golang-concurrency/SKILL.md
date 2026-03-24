@@ -1,41 +1,66 @@
 ---
 name: golang-concurrency
-description: "Standards for safe concurrent programming using Goroutines, Channels, and Context. Use when implementing concurrency with Goroutines, Channels, or Context in Go. (triggers: goroutine, go keyword, channel, mutex, waitgroup, context, errgroup, race condition)"
+description: "Write safe concurrent Go code with goroutines, channels, and context. Use when implementing concurrency with goroutines, channels, or context in Go. (triggers: goroutine, go keyword, channel, mutex, waitgroup, context, errgroup, race condition)"
 ---
 
-# Golang Concurrency Standards
+# Golang Concurrency
 
 ## **Priority: P0 (CRITICAL)**
 
 ## Principles
 
-- **Share Memory by Communicating**: Don't communicate by sharing memory. Use channels.
-- **Context is King**: Always pass `ctx` to efficient manage cancellation/timeouts.
+- **Share Memory by Communicating**: Use channels instead of shared memory.
+- **Context is King**: Always pass `ctx` to manage cancellation/timeouts.
 - **Prevent Leaks**: Never start a goroutine without knowing how it will stop.
 - **Race Detection**: Always run tests with `go test -race`.
 
-## Primitives
+## Implementation Workflow
 
-- **Goroutines**: Lightweight threads. `go func() { ... }()`
-- **Channels**: For data passing + synchronization.
-- **WaitGroup**: Wait for a group of goroutines to finish.
-- **ErrGroup**: WaitGroup + Error propagation (Preferred).
-- **Mutex**: Protect shared state (simpler than channels for just state).
+1. **Choose primitive** — Channels for data passing, `sync.Mutex` for simple state protection, `errgroup` for parallel tasks with error handling.
+2. **Pass context** — Every goroutine that does I/O or long work must accept `context.Context`.
+3. **Define exit paths** — Every goroutine must have a clear shutdown mechanism (context cancellation, channel close, or WaitGroup).
+4. **Use select for multiplexing** — Handle multiple channels or timeouts with `select`.
+5. **Test with race detector** — Run `go test -race` in CI.
 
-## Guidelines
+### ErrGroup Pattern Example
 
-- **Buffered vs Unbuffered**: Use unbuffered channels for strict synchronization. Use buffered only if you specifically need async decoupling/burst handling.
-- **Closed Channels**: Panic if writing to closed. Reading from closed returns zero-value immediately.
-- **Select**: Use `select` to handle multiple channels or timeouts.
+```go
+g, ctx := errgroup.WithContext(ctx)
+
+g.Go(func() error {
+    return fetchOrders(ctx, orderCh)
+})
+
+g.Go(func() error {
+    return fetchProducts(ctx, productCh)
+})
+
+if err := g.Wait(); err != nil {
+    return fmt.Errorf("parallel fetch failed: %w", err)
+}
+```
+
+### Context Timeout Example
+
+```go
+ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+defer cancel()
+
+select {
+case result := <-doWork(ctx):
+    return result, nil
+case <-ctx.Done():
+    return nil, ctx.Err()
+}
+```
+
+## Anti-Patterns
+
+- ❌ Goroutine leaks — every goroutine needs a known exit path
+- ❌ Global state mutation across goroutines — use channels or sync primitives
+- ❌ Bare goroutines without lifecycle management — use `errgroup` or `WaitGroup`
 
 ## References
 
 - [Concurrency Patterns](references/concurrency-patterns.md)
 - [Context Usage](references/context-usage.md)
-
-
-## Anti-Patterns
-
-- **No goroutine leaks**: Every goroutine needs a known exit path.
-- **No global state mutation across goroutines**: Use channels or sync primitives.
-- **No bare goroutines without lifecycle**: Use errgroup or WaitGroup.

@@ -1,6 +1,6 @@
 ---
 name: react-performance
-description: 'Optimization strategies for React applications (Client & Server). Use when optimizing React rendering performance, reducing re-renders, or improving bundle size. (triggers: **/*.tsx, **/*.jsx, waterfall, bundle, lazy, suspense, dynamic)'
+description: "Optimize React rendering, bundle size, and data fetching performance. Use when optimizing React rendering performance, reducing re-renders, or improving bundle size. (triggers: **/*.tsx, **/*.jsx, waterfall, bundle, lazy, suspense, dynamic)"
 ---
 
 # React Performance
@@ -9,19 +9,41 @@ description: 'Optimization strategies for React applications (Client & Server). 
 
 Strategies to minimize waterfalls, bundle size, and render cost.
 
-## Elimination of Waterfalls (P0)
+## Eliminate Data Waterfalls (P0)
 
 - **Parallel Data**: Use **`Promise.all([getUser(), getProducts(), ...])`** for independent fetches. Avoid **sequential awaits** (Request Waterfalls).
 - **Preload**: Start fetches before render (in event handlers or **route loaders**).
 - **Suspense**: Use **Suspense boundaries** to stream partial content and show partial content early.
 
-## Bundle Optimization (P0)
+```tsx
+// Parallel fetch with Suspense boundary
+async function loader() {
+  const [user, products] = await Promise.all([getUser(), getProducts()]);
+  return { user, products };
+}
+
+function App() {
+  return (
+    <Suspense fallback={<Skeleton />}>
+      <Dashboard />
+    </Suspense>
+  );
+}
+```
+
+## Reduce Bundle Size (P0)
 
 - **No Barrel Files**: **Avoid barrel files** (importing from index.ts); import directly from component files to improve tree-shaking.
 - **Lazy Load**: Use **`React.lazy`** or **`next/dynamic`** for heavy components like **Charts**, **Modals**, or large libraries.
 - **Dependency Reduction**: **Replace moment with dayjs** or **lodash with native/radash** to drop bytes. Use **`source-map-explorer`** or **`bundle-visualizer`** to find bloat.
 
-## Rendering & Re-renders (P1)
+```tsx
+// Lazy load heavy components
+const Chart = React.lazy(() => import('./Chart'));
+const Modal = React.lazy(() => import('./Modal'));
+```
+
+## Minimize Re-renders (P1)
 
 - **Isolation**: Move state as close to its usage as possible. Isolate heavy UI updates.
 - **List Performance**: Use **`react-window`** or **`react-virtual`** for **virtualization** of lists with 500+ items. Wrap list items in **`React.memo`**.
@@ -31,11 +53,11 @@ Strategies to minimize waterfalls, bundle size, and render cost.
 - **Static Hoisting**: Extract static objects/JSX outside component scope.
 - **Transitions**: `startTransition` for non-urgent UI updates.
 
-## Parallelization (P1)
+## Parallelize Computation (P1)
 
 - **Web Workers**: Move heavy computation (Encryption, Image processing, Large Data Sorting) off the main thread using `Comlink` or `Worker`.
 
-## Server Performance (RSC) (P1)
+## Optimize Server Components (RSC) (P1)
 
 - **Caching**: `React.cache` for per-request deduplication.
 - **Serialization**: Minimize props passing to Client Components (only IDs/primitives).

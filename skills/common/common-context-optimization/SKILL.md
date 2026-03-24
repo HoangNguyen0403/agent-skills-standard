@@ -1,9 +1,9 @@
 ---
 name: common-context-optimization
-description: "Techniques to maximize context window efficiency, reduce latency, and prevent 'lost in middle' issues through strategic masking and compaction. (triggers: *.log, chat-history.json, reduce tokens, optimize context, summarize history, clear output)"
+description: "Maximize context window efficiency, reduce latency, and prevent lost-in-middle issues through strategic masking and compaction. Use when token budgets are tight, tool outputs flood the context, conversations drift from intent, or latency spikes from cache misses. (triggers: *.log, chat-history.json, reduce tokens, optimize context, summarize history, clear output)"
 ---
 
-## **Priority: P1 (OPTIMIZATION)**
+## Priority: P1 (OPTIMIZATION)
 
 Manage the Attention Budget. Treat context as a scarce resource.
 
@@ -12,38 +12,52 @@ Manage the Attention Budget. Treat context as a scarce resource.
 **Problem**: Large tool outputs (logs, JSON lists) flood context and degrade reasoning.
 **Solution**: Replace raw output with semantic summaries _after_ consumption.
 
-1.  **Identify**: outputs > 50 lines or > 1kb.
-2.  **Extract**: Read critical data points immediately.
-3.  **Mask**: Rewrite history to replace raw data with `[Reference: <summary_of_findings>]`.
-4.  **See**: `references/masking.md` for patterns.
+1. **Identify** outputs exceeding 50 lines or 1 KB.
+2. **Extract** critical data points immediately.
+3. **Mask** by rewriting history to replace raw data with a summary placeholder.
+4. **See** `references/masking.md` for patterns.
+
+```text
+# Before (wastes ~800 tokens):
+[tool_output]: { ... 200 lines of JSON ... }
+
+# After masking (~30 tokens):
+[Reference: 3 users matched filter; oldest created 2024-01-15]
+```
 
 ## 2. Context Compaction (State Preservation)
 
 **Problem**: Long conversations drift from original intent.
 **Solution**: Recursive summarization that preserves _State_ over _Dialogue_.
 
-1.  **Trigger**: Every 10 turns or 8k tokens.
-2.  **Compact**:
-    - **Keep**: User Goal, Active Task, Current Errors, Key Decisions.
-    - **Drop**: Chat chit-chat, intermediate tool calls, corrected assumptions.
-3.  **Format**: Update `System Prompt` or `Memory File` with compacted state.
-4.  **See**: `references/compaction.md` for algorithms.
+1. **Trigger** compaction every 10 turns or 8k tokens.
+2. **Compact**:
+   - **Keep**: User Goal, Active Task, Current Errors, Key Decisions.
+   - **Drop**: Chat chit-chat, intermediate tool calls, corrected assumptions.
+3. **Format**: Update System Prompt or Memory File with compacted state.
+4. **See** `references/compaction.md` for algorithms.
+
+```text
+# Compacted state example:
+Goal: Fix auth timeout | Task: Retry logic in AuthService
+Decisions: Use exponential backoff (max 3 retries)
+Errors: 401 on token refresh after 30s idle
+```
 
 ## 3. KV-Cache Awareness (Latency)
 
 **Goal**: Maximize pre-fill cache hits.
 
-- **Static Prefix**: strict ordering: System -> Tools -> RAG -> User.
-- **Append-Only**: Avoid inserting into the middle of history if possible.
+- **Static Prefix**: Enforce strict ordering — System -> Tools -> RAG -> User.
+- **Append-Only**: Never insert into the middle of history; append new turns only.
 
 ## References
 
 - [Observation Masking Patterns](references/masking.md)
 - [Compaction Algorithms](references/compaction.md)
 
-
 ## Anti-Patterns
 
 - **No raw tool dumps**: Mask large outputs immediately after extracting data.
-- **No append-only growth**: Compact every 10 turns to preserve intent over dialogue.
+- **No unbounded growth**: Compact every 10 turns to preserve intent over dialogue.
 - **No middle insertions**: Append-only history maximizes KV cache hits.
