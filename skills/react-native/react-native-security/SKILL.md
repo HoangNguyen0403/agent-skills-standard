@@ -13,21 +13,7 @@ description: "Secure storage, network traffic, and deep links in React Native mo
 - **Never AsyncStorage**: Not encrypted. Only for non-sensitive data.
 - **Biometric Auth**: Use `react-native-biometrics` for Face ID/Touch ID.
 
-```tsx
-import * as Keychain from 'react-native-keychain';
-
-// Store token securely
-await Keychain.setGenericPassword('auth', accessToken, {
-  accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
-  accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-});
-
-// Retrieve token
-const credentials = await Keychain.getGenericPassword();
-if (credentials) {
-  const token = credentials.password;
-}
-```
+See [keychain usage reference](references/keychain-usage.md) for Keychain storage with biometric access control.
 
 ## Validate Deep Links
 
@@ -35,23 +21,7 @@ if (credentials) {
 - **Sanitize Params**: Never trust URL params. Validate and sanitize.
 - **Token Extraction**: Avoid passing tokens in deep link URLs. Use secure code exchange.
 
-```tsx
-// Deep link URL validation
-function handleDeepLink(url: string): boolean {
-  const parsed = new URL(url);
-  const allowedHosts = ['myapp.com', 'www.myapp.com'];
-  const allowedSchemes = ['https:', 'myapp:'];
-
-  if (!allowedSchemes.includes(parsed.protocol) || !allowedHosts.includes(parsed.hostname)) {
-    console.warn('Blocked untrusted deep link:', url);
-    return false;
-  }
-  // Validate route params before navigation
-  const id = parsed.searchParams.get('id');
-  if (id && !/^[a-zA-Z0-9-]+$/.test(id)) return false;
-  return true;
-}
-```
+See [keychain usage reference](references/keychain-usage.md) for deep link URL validation with scheme and host whitelisting.
 
 ## Enforce Network Security
 

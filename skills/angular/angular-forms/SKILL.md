@@ -12,37 +12,14 @@ description: "Build typed reactive forms with strict FormGroup typing, custom va
 - Always use Reactive Forms over Template-Driven for complex inputs.
 - Define typed `FormGroup<T>` with explicit control types — never use untyped FormGroup.
 
-```typescript
-interface LoginForm {
-  email: FormControl<string>;
-  password: FormControl<string>;
-}
-
-@Component({ /* ... */ })
-export class LoginComponent {
-  private fb = inject(FormBuilder);
-
-  form = this.fb.nonNullable.group<LoginForm>({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]]
-  });
-}
-```
+See [typed forms](references/typed-forms.md) for typed FormGroup examples.
 
 ## 2. Extract Validation Logic
 
 - Create standalone validator functions in a separate file.
 - Sync `valueChanges` to stores using `takeUntilDestroyed()`.
 
-```typescript
-// validators/password.validator.ts
-export function passwordStrength(control: AbstractControl): ValidationErrors | null {
-  const value = control.value;
-  const hasUpperCase = /[A-Z]/.test(value);
-  const hasNumber = /[0-9]/.test(value);
-  return hasUpperCase && hasNumber ? null : { weakPassword: true };
-}
-```
+See [typed forms](references/typed-forms.md) for standalone validator examples.
 
 ## 3. Ensure NonNullable Controls
 

@@ -45,3 +45,30 @@ func handleAppRefresh(task: BGAppRefreshTask) {
     }
 }
 ```
+
+## Bootstrapper Pattern
+
+```swift
+class AppBootstrapper {
+    func configure() {
+        DIContainer.shared.registerDependencies()
+        AnalyticsService.shared.initialize()
+        PushNotificationService.shared.register()
+    }
+}
+
+// In AppDelegate
+func application(_ application: UIApplication,
+                 didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    AppBootstrapper().configure()
+    return true
+}
+```
+
+## BGTaskScheduler Registration
+
+```swift
+BGTaskScheduler.shared.register(forTaskWithIdentifier: "com.app.refresh", using: nil) { task in
+    self.handleBackgroundRefresh(task: task as! BGAppRefreshTask)
+}
+```

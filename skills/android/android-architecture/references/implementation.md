@@ -44,3 +44,22 @@ class FeedRepositoryImpl @Inject constructor(
     }.map { Result.Success(it) }
 }
 ```
+
+## Domain Layer UseCase (Pure Kotlin)
+
+```kotlin
+// Domain layer — pure Kotlin, no Android imports
+class GetUserUseCase @Inject constructor(
+    private val repo: UserRepository
+) {
+    suspend operator fun invoke(id: String): User = repo.getUser(id)
+}
+```
+
+## Module Configuration
+
+```kotlin
+// settings.gradle.kts
+include(":app", ":feature:home", ":feature:profile")
+include(":core:ui", ":core:network", ":core:database")
+```

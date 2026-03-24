@@ -16,27 +16,7 @@ description: "Automate provisioning, signing, and deployment with Fastlane. Use 
 5. **Automate TestFlight uploads** — Trigger on every successful merge to staging.
 6. **Set export compliance** — Automate in `Info.plist` or Fastlane to avoid metadata pauses.
 
-### Fastfile Beta Lane Example
-
-```ruby
-lane :beta do
-  match(type: "appstore")
-  increment_build_number
-  build_app(scheme: "MyApp")
-  upload_to_testflight(
-    skip_waiting_for_build_processing: true
-  )
-end
-```
-
-### Match Setup
-
-```ruby
-# Matchfile
-git_url("https://github.com/org/certificates")
-type("appstore")
-app_identifier("com.example.myapp")
-```
+See [Fastlane and Match setup examples](references/implementation.md)
 
 ## Anti-Patterns
 

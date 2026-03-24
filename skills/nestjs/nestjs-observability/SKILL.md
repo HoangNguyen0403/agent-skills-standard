@@ -13,23 +13,7 @@ Logging, monitoring, and observability patterns for production NestJS applicatio
 
 Use `nestjs-pino` for high-performance, async JSON logging. Node's `console.log` is blocking and unstructured.
 
-```typescript
-// app.module.ts — Pino setup with redaction
-import { LoggerModule } from 'nestjs-pino';
-
-@Module({
-  imports: [
-    LoggerModule.forRoot({
-      pinoHttp: {
-        transport: process.env.NODE_ENV !== 'production'
-          ? { target: 'pino-pretty' } : undefined,
-        redact: ['req.headers.authorization', 'body.password', 'body.token'],
-      },
-    }),
-  ],
-})
-export class AppModule {}
-```
+See [implementation examples](references/example.md)
 
 ## Tracing (Correlation)
 
@@ -40,16 +24,7 @@ export class AppModule {}
 
 Expose `/metrics` for Prometheus scraping using `@willsoto/nestjs-prometheus`.
 
-```typescript
-// metrics.module.ts — key metric definitions
-import { makeHistogramProvider, makeGaugeProvider } from '@willsoto/nestjs-prometheus';
-
-const providers = [
-  makeHistogramProvider({ name: 'http_request_duration_seconds', help: 'HTTP latency', labelNames: ['method', 'route', 'status'] }),
-  makeHistogramProvider({ name: 'db_query_duration_seconds', help: 'DB query latency', labelNames: ['operation'] }),
-  makeGaugeProvider({ name: 'memory_usage_bytes', help: 'Heap memory usage' }),
-];
-```
+See [implementation examples](references/example.md)
 
 ## Health Checks
 

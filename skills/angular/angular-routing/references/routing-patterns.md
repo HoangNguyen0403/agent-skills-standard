@@ -44,3 +44,26 @@ export const adminGuard: CanActivateFn = (route, state) => {
   return auth.isAdmin() ? true : router.createUrlTree(['/login']);
 };
 ```
+
+## Lazy-Loaded Route with Guard and Title
+
+```typescript
+export const routes: Routes = [
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./features/dashboard/dashboard.component')
+      .then(m => m.DashboardComponent),
+    canActivate: [authGuard],
+    title: 'Dashboard'
+  }
+];
+```
+
+## Auth Guard (Functional)
+
+```typescript
+export const authGuard: CanActivateFn = () =>
+  inject(AuthService).isAuthenticated()
+    ? true
+    : inject(Router).createUrlTree(['/login']);
+```

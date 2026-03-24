@@ -11,11 +11,7 @@ description: "Handle iOS and Android differences using Platform API and native m
 
 Use `.ios.` and `.android.` for platform-specific files:
 
-```text
-Button.tsx          # Shared
-Button.ios.tsx      # iOS-specific
-Button.android.tsx  # Android-specific
-```
+See [native modules reference](references/native-modules.md) for platform-specific file naming, `Platform.select` usage, and native bridge examples.
 
 React Native automatically picks the right file:
 
@@ -24,19 +20,7 @@ React Native automatically picks the right file:
 
 ## Apply Platform Branching Inline
 
-Use `Platform.select` or `Platform.OS` for small differences within a shared file:
-
-```tsx
-import { Platform, StyleSheet } from 'react-native';
-
-const styles = StyleSheet.create({
-  shadow: Platform.select({
-    ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1 },
-    android: { elevation: 4 },
-    default: {},
-  }),
-});
-```
+Use `Platform.select` or `Platform.OS` for small differences within a shared file.
 
 ## Integrate Native Modules
 

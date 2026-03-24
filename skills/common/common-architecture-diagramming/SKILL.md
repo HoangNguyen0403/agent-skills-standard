@@ -20,15 +20,7 @@ description: "Standards for creating clear, audience-appropriate C4 and UML arch
 - **Deployment**: Map containers to infrastructure.
 - **Governance**: CRITICAL: Review [best-practices.md](references/best-practices.md) before starting.
 
-### Example: C4 Container Diagram (Mermaid)
-
-```mermaid
-graph TD
-    User["User (Browser)"] -->|HTTPS| WebApp["Web App<br/>Next.js"]
-    WebApp -->|REST/JSON| API["API Server<br/>Node.js"]
-    API -->|SQL| DB[("PostgreSQL")]
-    API -->|Pub/Sub| Queue["Message Queue<br/>RabbitMQ"]
-```
+See [implementation examples](references/implementation.md) for a C4 container diagram in Mermaid.
 
 ## Anti-Patterns
 

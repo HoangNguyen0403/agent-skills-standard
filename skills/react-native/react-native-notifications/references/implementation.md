@@ -102,3 +102,48 @@ async function prime() {
   ]);
 }
 ```
+
+## 4. FCM Handler Setup (React Native Firebase)
+
+```typescript
+import messaging from "@react-native-firebase/messaging";
+import { useEffect } from "react";
+
+// Request permission (call after user priming)
+async function requestPermission() {
+  const status = await messaging().requestPermission();
+  if (status === messaging.AuthorizationStatus.AUTHORIZED) {
+    const token = await messaging().getToken();
+    // Send token to backend
+  }
+}
+
+// Register all lifecycle handlers in App.tsx
+export function useNotificationHandlers(navigate: (route: string) => void) {
+  useEffect(() => {
+    // Foreground
+    const unsubForeground = messaging().onMessage(async (remoteMessage) => {
+      console.log("Foreground message:", remoteMessage.notification?.title);
+    });
+
+    // Background tap
+    const unsubBackground = messaging().onNotificationOpenedApp((remoteMessage) => {
+      if (remoteMessage.data?.screen) {
+        navigate(remoteMessage.data.screen);
+      }
+    });
+
+    // Quit state
+    messaging().getInitialNotification().then((remoteMessage) => {
+      if (remoteMessage?.data?.screen) {
+        navigate(remoteMessage.data.screen);
+      }
+    });
+
+    return () => {
+      unsubForeground();
+      unsubBackground();
+    };
+  }, [navigate]);
+}
+```

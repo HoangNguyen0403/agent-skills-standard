@@ -26,30 +26,9 @@ core/injection/
 5. **Register third-party deps** — Use `@module` for external instances (Dio, Hive, SharedPreferences).
 6. **Prefer constructor injection** — Use mandatory constructor parameters; `injectable` resolves them automatically.
 
-### Registration Example
+### Registration & Test Mock Examples
 
-```dart
-@module
-abstract class NetworkModule {
-  @lazySingleton
-  Dio get dio => Dio(BaseOptions(baseUrl: 'https://api.example.com'));
-}
-
-@LazySingleton(as: IOrderRepository)
-class OrderRepositoryImpl implements IOrderRepository {
-  final Dio _dio;
-  OrderRepositoryImpl(this._dio);
-}
-```
-
-### Test Mock Swap
-
-```dart
-setUp(() {
-  getIt.unregister<IOrderRepository>();
-  getIt.registerLazySingleton<IOrderRepository>(() => MockOrderRepository());
-});
-```
+See [implementation examples](references/implementation.md) for module registration and test mock swap patterns.
 
 ## Reference & Examples
 

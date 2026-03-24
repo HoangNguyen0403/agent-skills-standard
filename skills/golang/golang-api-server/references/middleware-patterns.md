@@ -38,3 +38,16 @@ func Track(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 ```
+
+## Echo Handler Pattern
+
+```go
+func (h *OrderHandler) GetOrder(c echo.Context) error {
+    id := c.Param("id")
+    order, err := h.orderService.GetByID(c.Request().Context(), id)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusNotFound, "order not found")
+    }
+    return c.JSON(http.StatusOK, toOrderResponse(order))
+}
+```

@@ -11,28 +11,13 @@ description: "Configure Angular Router with lazy-loaded routes, functional guard
 
 - Use `loadComponent` (standalone) or `loadChildren` (route file) for every feature route.
 
-```typescript
-export const routes: Routes = [
-  {
-    path: 'dashboard',
-    loadComponent: () => import('./features/dashboard/dashboard.component')
-      .then(m => m.DashboardComponent),
-    canActivate: [authGuard],
-    title: 'Dashboard'
-  }
-];
-```
+See [routing patterns](references/routing-patterns.md) for lazy loading and guard examples.
 
 ## 2. Use Functional Guards
 
 - Create function-based guards (`CanActivateFn`) instead of deprecated class-based guards.
 
-```typescript
-export const authGuard: CanActivateFn = () =>
-  inject(AuthService).isAuthenticated()
-    ? true
-    : inject(Router).createUrlTree(['/login']);
-```
+See [routing patterns](references/routing-patterns.md) for functional guard implementation.
 
 ## 3. Enable Component Input Binding
 

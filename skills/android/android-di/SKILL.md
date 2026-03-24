@@ -12,27 +12,14 @@ description: "Configure Hilt dependency injection with proper scoping, modules, 
 - Annotate `Application` class with `@HiltAndroidApp`.
 - Annotate Activities/Fragments with `@AndroidEntryPoint`.
 
-```kotlin
-@HiltAndroidApp
-class MyApp : Application()
-
-@AndroidEntryPoint
-class MainActivity : ComponentActivity()
-```
+See [module templates](references/files.md) for bootstrap and module examples.
 
 ## 2. Define Modules
 
 - Use `@Binds` (abstract class) over `@Provides` when possible — generates smaller code.
 - Be explicit with `@InstallIn` (`SingletonComponent`, `ViewModelComponent`).
 
-```kotlin
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class RepositoryModule {
-    @Binds
-    abstract fun bindUserRepo(impl: UserRepositoryImpl): UserRepository
-}
-```
+See [module templates](references/files.md) for `@Binds` examples.
 
 ## 3. Prefer Constructor Injection
 

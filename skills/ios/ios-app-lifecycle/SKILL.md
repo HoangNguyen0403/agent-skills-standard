@@ -14,32 +14,7 @@ description: "Manage AppDelegate, SceneDelegate, deep linking, and background ta
 3. **Handle deep links** — Prefer Universal Links over custom URL schemes. Handle via `scene(_:continue:userActivity:)`. Route through the Root Coordinator.
 4. **Schedule background tasks** — Use `BGTaskScheduler` for periodic data refresh. Always handle `expirationHandler` to avoid system kill.
 
-### Bootstrapper Pattern Example
-
-```swift
-class AppBootstrapper {
-    func configure() {
-        DIContainer.shared.registerDependencies()
-        AnalyticsService.shared.initialize()
-        PushNotificationService.shared.register()
-    }
-}
-
-// In AppDelegate
-func application(_ application: UIApplication,
-                 didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    AppBootstrapper().configure()
-    return true
-}
-```
-
-### Background Task Registration
-
-```swift
-BGTaskScheduler.shared.register(forTaskWithIdentifier: "com.app.refresh", using: nil) { task in
-    self.handleBackgroundRefresh(task: task as! BGAppRefreshTask)
-}
-```
+See [bootstrapper pattern and background task examples](references/implementation.md)
 
 ## Anti-Patterns
 

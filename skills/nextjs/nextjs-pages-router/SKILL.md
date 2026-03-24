@@ -19,20 +19,7 @@ description: "Implement Pages Router data fetching with getServerSideProps, getS
 
 ## getServerSideProps Example
 
-```typescript
-// pages/posts/[id].tsx
-import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  const post = await postService.findById(params!.id as string);
-  if (!post) return { notFound: true };
-  return { props: { post } };
-};
-
-export default function PostPage({ post }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  return <article>{post.title}</article>;
-}
-```
+See [implementation examples](references/implementation.md)
 
 ## Implementation Guidelines
 

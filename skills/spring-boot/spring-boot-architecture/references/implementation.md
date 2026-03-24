@@ -53,3 +53,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 }
 ```
+
+## Immutable DTO with Java Record
+
+```java
+// Immutable DTO with Java Record
+public record CreateOrderRequest(
+    @NotBlank String productName,
+    @Positive int quantity
+) {}
+
+public record OrderResponse(Long id, String productName, int quantity, String status) {
+    public static OrderResponse from(Order order) {
+        return new OrderResponse(order.getId(), order.getProductName(), order.getQuantity(), order.getStatus().name());
+    }
+}
+```

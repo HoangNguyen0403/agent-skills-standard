@@ -45,3 +45,20 @@ For sharing files, use `FileProvider` (content://) instead of file://.
         android:resource="@xml/file_paths" />
 </provider>
 ```
+
+## Restrict Exported Components
+
+```xml
+<!-- AndroidManifest.xml — restrict exported components -->
+<activity android:name=".InternalActivity" android:exported="false" />
+```
+
+## WebView Lockdown (Extended)
+
+```kotlin
+webView.settings.apply {
+    javaScriptEnabled = false          // enable only when required
+    allowFileAccess = false
+    allowFileAccessFromFileURLs = false
+}
+```

@@ -55,3 +55,33 @@ func testViewModel() {
     // Assert...
 }
 ```
+
+## Protocol-Based DI
+
+```swift
+protocol OrderRepositoryProtocol {
+    func fetchOrders() async throws -> [Order]
+}
+
+class OrderViewModel {
+    private let repository: OrderRepositoryProtocol
+
+    init(repository: OrderRepositoryProtocol) {
+        self.repository = repository
+    }
+}
+```
+
+## Factory Library Registration
+
+```swift
+extension Container {
+    var orderRepository: Factory<OrderRepositoryProtocol> {
+        Factory(self) { OrderRepository() }
+    }
+
+    var orderViewModel: Factory<OrderViewModel> {
+        Factory(self) { OrderViewModel(repository: self.orderRepository()) }
+    }
+}
+```

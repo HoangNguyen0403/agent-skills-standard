@@ -101,3 +101,33 @@ func processLargeDataset() async throws {
     }
 }
 ```
+
+## Parallel Fetch with async let
+
+```swift
+// Parallel fetch with async let
+func loadDashboard() async throws -> Dashboard {
+    async let profile = fetchProfile()
+    async let orders = fetchRecentOrders()
+    async let notifications = fetchNotifications()
+
+    return try await Dashboard(
+        profile: profile,
+        orders: orders,
+        notifications: notifications
+    )
+}
+```
+
+## Actor for Shared State
+
+```swift
+actor ImageCache {
+    private var cache: [URL: UIImage] = [:]
+
+    func image(for url: URL) -> UIImage? { cache[url] }
+    func store(_ image: UIImage, for url: URL) { cache[url] = image }
+
+    nonisolated func cacheKey(for url: URL) -> String { url.absoluteString }
+}
+```

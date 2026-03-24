@@ -55,3 +55,25 @@ func getBaseURL() -> String {
     #endif
 }
 ```
+
+## Package.swift with Composable Architecture
+
+```swift
+// Package.swift
+let package = Package(
+    name: "MyFeature",
+    platforms: [.iOS(.v16)],
+    products: [
+        .library(name: "MyFeature", targets: ["MyFeature"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.0.0"),
+    ],
+    targets: [
+        .target(name: "MyFeature", dependencies: [
+            .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        ]),
+        .testTarget(name: "MyFeatureTests", dependencies: ["MyFeature"]),
+    ]
+)
+```

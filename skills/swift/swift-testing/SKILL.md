@@ -13,29 +13,7 @@ description: "Write XCTest cases, async tests, and organized test suites in Swif
 - **Setup/Teardown**: Use `setUpWithError()` and `tearDownWithError()` for environment management.
 - **Assertions**: Use specific assertions: `XCTAssertEqual`, `XCTAssertNil`, `XCTAssertTrue`, etc.
 
-```swift
-final class OrderServiceTests: XCTestCase {
-    private var sut: OrderService!
-    private var mockRepo: MockOrderRepository!
-
-    override func setUpWithError() throws {
-        mockRepo = MockOrderRepository()
-        sut = OrderService(repository: mockRepo)
-    }
-
-    func testCreateOrderReturnsCorrectTotal() throws {
-        let order = try sut.createOrder(items: [.init(name: "Widget", price: 9.99, qty: 3)])
-        XCTAssertEqual(order.total, 29.97, accuracy: 0.01)
-        XCTAssertEqual(mockRepo.savedOrders.count, 1)
-    }
-
-    func testFetchOrderAsync() async throws {
-        mockRepo.stubbedOrder = Order(id: "abc", total: 42.0)
-        let order = try await sut.fetchOrder(id: "abc")
-        XCTAssertEqual(order.total, 42.0)
-    }
-}
-```
+See [implementation examples](references/implementation.md) for XCTest setup/teardown, async tests, and UI test patterns.
 
 ## Test Async Code
 

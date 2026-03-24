@@ -14,13 +14,7 @@ description: "Cross-cutting standards for error design, response shapes, error c
 - **Infra Layer**: Wrap 3rd-party exceptions. Do NOT leak raw DB errors to API.
 - **Standard Shape**: APIs must return a standardized JSON envelope:
 
-```json
-{
-  "code": "ORDER_PAYMENT_FAILED",
-  "message": "Payment method declined",
-  "traceId": "abc-123-def"
-}
-```
+See [implementation examples](references/implementation.md) for the standard error response shape.
 
 ## Error Mechanics
 

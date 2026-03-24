@@ -14,13 +14,7 @@ description: "Enforce version control best practices for commits, branching, pul
 - Use imperative mood: "add feature" not "added feature".
 - One commit = one logical change — no mega-commits.
 
-```bash
-# Good: atomic, conventional commit
-git commit -m "feat(auth): add JWT refresh token rotation"
-
-# Bad: vague mega-commit
-git commit -m "updates"
-```
+See [implementation examples](references/implementation.md) for conventional commit examples.
 
 ## 2. Manage Branches
 

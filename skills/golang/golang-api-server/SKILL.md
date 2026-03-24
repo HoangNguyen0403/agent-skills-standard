@@ -22,40 +22,7 @@ description: "Build HTTP services, REST APIs, and middleware in Go. Use when bui
 5. **Enforce content types** — Require `application/json` for REST APIs.
 6. **Implement graceful shutdown** — Handle SIGINT/SIGTERM to drain in-flight requests.
 
-### Graceful Shutdown Example
-
-```go
-srv := &http.Server{Addr: ":8080", Handler: router}
-
-go func() {
-    if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-        log.Fatalf("listen: %s\n", err)
-    }
-}()
-
-quit := make(chan os.Signal, 1)
-signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-<-quit
-
-ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-defer cancel()
-if err := srv.Shutdown(ctx); err != nil {
-    log.Fatal("Server forced to shutdown:", err)
-}
-```
-
-### Echo Handler Pattern
-
-```go
-func (h *OrderHandler) GetOrder(c echo.Context) error {
-    id := c.Param("id")
-    order, err := h.orderService.GetByID(c.Request().Context(), id)
-    if err != nil {
-        return echo.NewHTTPError(http.StatusNotFound, "order not found")
-    }
-    return c.JSON(http.StatusOK, toOrderResponse(order))
-}
-```
+See [graceful shutdown example](references/graceful-shutdown.md) and [Echo handler patterns](references/middleware-patterns.md)
 
 ## Anti-Patterns
 

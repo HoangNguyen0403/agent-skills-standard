@@ -11,24 +11,7 @@ description: "Manage application state with Angular Signals, computed derivation
 
 - Keep internal signals private; expose publicly via `asReadonly()`.
 
-```typescript
-@Injectable({ providedIn: 'root' })
-export class UserService {
-  private _user = signal<User | null>(null);
-  readonly user = this._user.asReadonly();
-
-  private _loading = signal(false);
-  readonly loading = this._loading.asReadonly();
-
-  readonly displayName = computed(() => this._user()?.name ?? 'Guest');
-
-  async loadUser(id: string) {
-    this._loading.set(true);
-    this._user.set(await this.api.getUser(id));
-    this._loading.set(false);
-  }
-}
-```
+See [signal store pattern](references/signal-store.md) for signal-based service and store examples.
 
 ## 2. Derive State with computed()
 

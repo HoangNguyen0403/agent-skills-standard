@@ -22,32 +22,7 @@ description: "Standards for throwing functions, Result type, and Never. Use when
 - **Do-Catch**: Handle errors close to source with specific catch clauses for each error type. Catch-all `catch` should be the last resort.
 - **Error Types**: Define custom errors as enums conforming to `Error`:
 
-```swift
-enum NetworkError: Error, LocalizedError {
-    case connectionLost
-    case unauthorized(statusCode: Int)
-
-    var errorDescription: String? {
-        switch self {
-        case .connectionLost: return "Connection lost"
-        case .unauthorized(let code): return "Unauthorized (\(code))"
-        }
-    }
-}
-
-func fetchUser(id: String) async throws -> User {
-    guard !id.isEmpty else { throw NetworkError.unauthorized(statusCode: 401) }
-    // ...
-}
-
-do {
-    let user = try await fetchUser(id: "123")
-} catch let error as NetworkError {
-    logger.error("Network error: \(error.localizedDescription)")
-} catch {
-    logger.error("Unexpected: \(error)")
-}
-```
+See [implementation examples](references/implementation.md) for custom error enums, do-catch patterns, and Result type usage.
 
 - **Optional Try**: Use `try?` only for non-critical errors where nil is acceptable.
 

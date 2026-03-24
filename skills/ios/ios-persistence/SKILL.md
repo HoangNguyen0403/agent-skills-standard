@@ -15,45 +15,7 @@ description: "Implement local persistence with SwiftData, Core Data, and Keychai
 4. **Perform background writes** — Use `newBackgroundContext()` (Core Data) to avoid UI lag; never do heavy I/O on `viewContext`.
 5. **Secure sensitive data** — Use Keychain for tokens and PII; never store in `UserDefaults`.
 
-### SwiftData Example (iOS 17+)
-
-```swift
-@Model
-class Order {
-    var id: String
-    var status: String
-    var createdAt: Date
-
-    init(id: String, status: String, createdAt: Date) {
-        self.id = id
-        self.status = status
-        self.createdAt = createdAt
-    }
-}
-
-// In SwiftUI view
-struct OrderListView: View {
-    @Query(sort: \Order.createdAt, order: .reverse) var orders: [Order]
-    @Environment(\.modelContext) private var context
-
-    var body: some View {
-        List(orders) { order in
-            Text(order.status)
-        }
-    }
-}
-```
-
-### Core Data Background Write
-
-```swift
-let backgroundContext = persistentContainer.newBackgroundContext()
-backgroundContext.perform {
-    let order = OrderEntity(context: backgroundContext)
-    order.status = "confirmed"
-    try? backgroundContext.save()
-}
-```
+See [SwiftData and Core Data implementation examples](references/implementation.md)
 
 ## Anti-Patterns
 

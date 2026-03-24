@@ -18,29 +18,9 @@ Standardized functional error handling using `dartz` and `freezed` failures.
 5. **Localize messages** — Use `failure.failureMessage` (returns `TRObject` or localized string) for UI-safe text.
 6. **Log with stable templates** — Use low-cardinality message templates; pass variable data via metadata/context.
 
-### Repository Error Mapping Example
+### Repository & BLoC Examples
 
-```dart
-@override
-Future<Either<Failure, Order>> getOrder(String id) async {
-  try {
-    final dto = await _remoteDataSource.fetchOrder(id);
-    return right(dto.toDomain());
-  } on DioException catch (e) {
-    return left(ServerFailure(message: e.message ?? 'Unknown error'));
-  }
-}
-```
-
-### BLoC Consumption Example
-
-```dart
-final result = await _getOrderUseCase(orderId);
-result.fold(
-  (failure) => emit(OrderError(failure.failureMessage)),
-  (order) => emit(OrderLoaded(order)),
-);
-```
+See [implementation examples](references/implementation.md) for repository error mapping and BLoC consumption patterns.
 
 ## Reference & Examples
 

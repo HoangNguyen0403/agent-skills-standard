@@ -14,19 +14,7 @@ description: "Optimize JPA, Hibernate, and database interactions in Spring Boot.
 - **Pagination**: ALWAYS use **`Pageable`** and **`Slice`** (or `Page`) to prevent loading massive datasets.
 - **Spring Data**: Prefer **`JpaRepository`** and **`Query methods`**. Use **`@Query`** with JPQL for complex logic. Use Flyway or Liquibase for migrations; never use `ddl-auto=create` in production.
 
-```java
-// Repository with projection and EntityGraph to avoid N+1
-public interface OrderRepository extends JpaRepository<Order, Long> {
-
-    @EntityGraph(attributePaths = {"items", "customer"})
-    @Query("SELECT o FROM Order o WHERE o.status = :status")
-    Slice<Order> findByStatus(@Param("status") OrderStatus status, Pageable pageable);
-
-    // Record projection for read-only queries
-    @Query("SELECT new com.app.order.OrderSummary(o.id, o.total, o.status) FROM Order o WHERE o.customerId = :cid")
-    List<OrderSummary> findSummariesByCustomer(@Param("cid") Long customerId);
-}
-```
+See [implementation examples](references/implementation.md) for repository projections, EntityGraph, and transactional patterns.
 
 ## Optimize Queries and Transactions
 

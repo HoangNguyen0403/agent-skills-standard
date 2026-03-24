@@ -27,3 +27,34 @@ export class LoginComponent {
   }
 }
 ```
+
+## Minimal Typed FormGroup
+
+```typescript
+interface LoginForm {
+  email: FormControl<string>;
+  password: FormControl<string>;
+}
+
+@Component({ /* ... */ })
+export class LoginComponent {
+  private fb = inject(FormBuilder);
+
+  form = this.fb.nonNullable.group<LoginForm>({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]]
+  });
+}
+```
+
+## Standalone Validator
+
+```typescript
+// validators/password.validator.ts
+export function passwordStrength(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  const hasUpperCase = /[A-Z]/.test(value);
+  const hasNumber = /[0-9]/.test(value);
+  return hasUpperCase && hasNumber ? null : { weakPassword: true };
+}
+```

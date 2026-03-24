@@ -9,14 +9,7 @@ description: "Enforce core architectural standards for scalable Laravel applicat
 
 ## Structure
 
-```text
-app/
-├── Http/
-│   ├── Controllers/    # Slim (Request/Response only)
-│   └── Requests/       # Validation logic
-├── Services/           # Business logic (Optional)
-└── Actions/            # Single-purpose classes (Preferred)
-```
+See [project structure](references/implementation.md#project-structure) for the recommended directory layout.
 
 ## Workflow
 
@@ -27,41 +20,7 @@ app/
 
 ## Controller Pattern
 
-```php
-// app/Http/Controllers/PostController.php — slim controller
-class PostController extends Controller
-{
-    public function __construct(private CreatePostAction $createPost) {}
-
-    public function store(StorePostRequest $request): JsonResponse
-    {
-        $post = $this->createPost->handle($request->validated());
-        return response()->json($post, 201);
-    }
-}
-```
-
-## Action Class
-
-```php
-// app/Actions/CreatePostAction.php — single-purpose business logic
-class CreatePostAction
-{
-    public function __construct(private PostRepository $posts) {}
-
-    public function handle(array $data): Post
-    {
-        return $this->posts->create($data);
-    }
-}
-```
-
-## Service Container Binding
-
-```php
-// app/Providers/AppServiceProvider.php
-$this->app->bind(PostRepository::class, EloquentPostRepository::class);
-```
+See [implementation examples](references/implementation.md#controller-pattern) for slim controller, action class, and service container binding patterns.
 
 ## Validation
 

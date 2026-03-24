@@ -22,37 +22,7 @@ description: "Write safe concurrent Go code with goroutines, channels, and conte
 4. **Use select for multiplexing** — Handle multiple channels or timeouts with `select`.
 5. **Test with race detector** — Run `go test -race` in CI.
 
-### ErrGroup Pattern Example
-
-```go
-g, ctx := errgroup.WithContext(ctx)
-
-g.Go(func() error {
-    return fetchOrders(ctx, orderCh)
-})
-
-g.Go(func() error {
-    return fetchProducts(ctx, productCh)
-})
-
-if err := g.Wait(); err != nil {
-    return fmt.Errorf("parallel fetch failed: %w", err)
-}
-```
-
-### Context Timeout Example
-
-```go
-ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-defer cancel()
-
-select {
-case result := <-doWork(ctx):
-    return result, nil
-case <-ctx.Done():
-    return nil, ctx.Err()
-}
-```
+See [ErrGroup and concurrency patterns](references/concurrency-patterns.md) and [context timeout examples](references/context-usage.md)
 
 ## Anti-Patterns
 

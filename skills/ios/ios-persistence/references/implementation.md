@@ -70,3 +70,43 @@ func clearAllData() {
     }
 }
 ```
+
+## SwiftData Model and Query (iOS 17+)
+
+```swift
+@Model
+class Order {
+    var id: String
+    var status: String
+    var createdAt: Date
+
+    init(id: String, status: String, createdAt: Date) {
+        self.id = id
+        self.status = status
+        self.createdAt = createdAt
+    }
+}
+
+// In SwiftUI view
+struct OrderListView: View {
+    @Query(sort: \Order.createdAt, order: .reverse) var orders: [Order]
+    @Environment(\.modelContext) private var context
+
+    var body: some View {
+        List(orders) { order in
+            Text(order.status)
+        }
+    }
+}
+```
+
+## Core Data Background Write
+
+```swift
+let backgroundContext = persistentContainer.newBackgroundContext()
+backgroundContext.perform {
+    let order = OrderEntity(context: backgroundContext)
+    order.status = "confirmed"
+    try? backgroundContext.save()
+}
+```

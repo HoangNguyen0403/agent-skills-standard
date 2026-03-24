@@ -15,33 +15,13 @@ Strategies to minimize waterfalls, bundle size, and render cost.
 - **Preload**: Start fetches before render (in event handlers or **route loaders**).
 - **Suspense**: Use **Suspense boundaries** to stream partial content and show partial content early.
 
-```tsx
-// Parallel fetch with Suspense boundary
-async function loader() {
-  const [user, products] = await Promise.all([getUser(), getProducts()]);
-  return { user, products };
-}
-
-function App() {
-  return (
-    <Suspense fallback={<Skeleton />}>
-      <Dashboard />
-    </Suspense>
-  );
-}
-```
+See [implementation examples](references/REFERENCE.md#parallel-fetch-with-suspense) for parallel fetch with Suspense boundary and lazy loading patterns.
 
 ## Reduce Bundle Size (P0)
 
 - **No Barrel Files**: **Avoid barrel files** (importing from index.ts); import directly from component files to improve tree-shaking.
 - **Lazy Load**: Use **`React.lazy`** or **`next/dynamic`** for heavy components like **Charts**, **Modals**, or large libraries.
 - **Dependency Reduction**: **Replace moment with dayjs** or **lodash with native/radash** to drop bytes. Use **`source-map-explorer`** or **`bundle-visualizer`** to find bloat.
-
-```tsx
-// Lazy load heavy components
-const Chart = React.lazy(() => import('./Chart'));
-const Modal = React.lazy(() => import('./Modal'));
-```
 
 ## Minimize Re-renders (P1)
 

@@ -15,24 +15,7 @@ description: "Optimize React Native rendering for smooth 60fps mobile experience
 - **`maxToRenderPerBatch`**: Limit to **5-10 items per frame** to prevent JS thread blockage.
 - **`keyExtractor`**: Use **stable unique IDs**, never array index.
 
-```tsx
-const ITEM_HEIGHT = 72;
-
-const renderItem = useCallback(({ item }: { item: Product }) => (
-  <ProductCard product={item} />
-), []);
-
-<FlatList
-  data={products}
-  renderItem={renderItem}
-  keyExtractor={(item) => item.id}
-  getItemLayout={(_, index) => ({ length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index })}
-  windowSize={7}
-  maxToRenderPerBatch={5}
-  initialNumToRender={10}
-  removeClippedSubviews
-/>
-```
+See [optimization guide](references/optimization-guide.md) for FlatList configuration examples with `getItemLayout`, `windowSize`, and memoization patterns.
 
 ## Accelerate Core Rendering
 

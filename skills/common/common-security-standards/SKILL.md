@@ -22,13 +22,7 @@ description: "Enforce universal security protocols for safe, resilient software.
 - **Encryption**: AES-256 for data-at-rest; TLS 1.3 for data-in-transit.
 - **PII Logging**: Never log PII (email, phone, names). Mask sensitive fields before logging.
 
-```typescript
-// Parameterized query — prevents SQL injection
-const user = await db.query(
-  'SELECT * FROM users WHERE email = $1 AND status = $2',
-  [email, 'active']
-);
-```
+See [implementation examples](references/implementation.md) for parameterized queries and secret management.
 
 ## Secure Coding Practices
 
@@ -36,13 +30,6 @@ const user = await db.query(
 - **Dependency Management**: Regularly scan (`npm audit`, `pip audit`) and update third-party libraries to patch CVEs.
 - **Secure Auth**: Implement Multi-Factor Authentication (MFA) and secure session management.
 - **Error Privacy**: Never leak stack traces or internal implementation details to the end-user.
-
-```python
-# Secret management — never hardcode credentials
-import os
-API_KEY = os.environ["API_KEY"]  # Good: from environment
-# API_KEY = "sk-abc123"          # Bad: hardcoded secret
-```
 
 ## Continuous Security
 

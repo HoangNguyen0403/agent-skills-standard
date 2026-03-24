@@ -19,27 +19,7 @@ Navigation and routing for Flutter apps using `go_router` or named routes.
 
 ### Route Configuration Example
 
-```dart
-final router = GoRouter(
-  routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const HomeScreen(),
-    ),
-    GoRoute(
-      path: '/orders/:id',
-      redirect: (context, state) {
-        final id = state.pathParameters['id'];
-        if (id == null || id.isEmpty) return '/';
-        return null;
-      },
-      builder: (context, state) => OrderDetailScreen(
-        id: state.pathParameters['id']!,
-      ),
-    ),
-  ],
-);
-```
+See [implementation examples](references/implementation.md) for GoRouter configuration with parameter validation and redirects.
 
 [Routing Patterns & Examples](references/routing-patterns.md)
 

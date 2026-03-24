@@ -33,3 +33,30 @@ class DateConverter {
     fun dateToTimestamp(date: Date?): Long? = date?.time
 }
 ```
+
+## UserDao with Transactions
+
+```kotlin
+@Dao
+interface UserDao {
+    @Query("SELECT * FROM users WHERE active = 1")
+    fun observeActiveUsers(): Flow<List<UserEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(user: UserEntity)
+
+    @Transaction
+    @Query("SELECT * FROM users WHERE id = :userId")
+    fun getUserWithPosts(userId: String): Flow<UserWithPosts>
+}
+```
+
+## DataStore Migration
+
+```kotlin
+val Context.settingsDataStore by preferencesDataStore(name = "settings")
+
+// Read
+val darkMode: Flow<Boolean> = settingsDataStore.data
+    .map { prefs -> prefs[DARK_MODE_KEY] ?: false }
+```

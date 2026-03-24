@@ -142,3 +142,25 @@ function requirePermission(permission: Permission) {
   };
 }
 ```
+
+## Zod Input Validation (Route Handler)
+
+```typescript
+import { z } from 'zod';
+
+const CreateUserSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1).max(100),
+  role: z.enum(['user', 'admin']),
+});
+
+// In route handler
+app.post('/users', (req, res) => {
+  const result = CreateUserSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ errors: result.error.flatten().fieldErrors });
+  }
+  // result.data is fully typed and validated
+  return userService.create(result.data);
+});
+```

@@ -27,36 +27,7 @@ description: "Standards for structured logging and observability in Golang. Use 
 3. Use `slog.With()` to add correlation IDs per request
 4. Pass logger via context or dependency injection
 
-### Example: slog Setup and Usage
-
-```go
-package main
-
-import (
-    "log/slog"
-    "net/http"
-    "os"
-)
-
-func main() {
-    logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-        Level: slog.LevelInfo,
-    }))
-    slog.SetDefault(logger)
-
-    slog.Info("server starting", slog.String("port", "8080"))
-}
-
-// Per-request logging with correlation ID
-func handler(w http.ResponseWriter, r *http.Request) {
-    reqLog := slog.With(
-        slog.String("traceId", r.Header.Get("X-Request-Id")),
-        slog.String("method", r.Method),
-        slog.String("path", r.URL.Path),
-    )
-    reqLog.Info("handling request")
-}
-```
+See [slog setup and usage examples](references/slog-patterns.md)
 
 ## References
 

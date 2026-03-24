@@ -36,3 +36,17 @@ Cache::tags(['people', 'artists'])->put('John', $john, $seconds);
     'write' => ['host' => '192.168.1.2'],
 ],
 ```
+
+## Cache-Aside with Tags
+
+```php
+// Retrieve with cache; invalidate on mutation
+$posts = Cache::tags(['posts', "user:{$userId}"])->remember(
+    "posts.user.{$userId}",
+    now()->addMinutes(30),
+    fn () => Post::where('user_id', $userId)->with('comments')->get()
+);
+
+// Invalidate after update
+Cache::tags(['posts'])->flush();
+```

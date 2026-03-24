@@ -18,25 +18,7 @@ Automated API documentation and OpenAPI standards.
 
 ## Setup
 
-```json
-// nest-cli.json — enable Swagger plugin
-{
-  "compilerOptions": {
-    "plugins": ["@nestjs/swagger"]
-  }
-}
-```
-
-```typescript
-// main.ts — Swagger bootstrap
-const config = new DocumentBuilder()
-  .setTitle('API')
-  .setVersion('1.0')
-  .addBearerAuth()
-  .build();
-const doc = SwaggerModule.createDocument(app, config);
-SwaggerModule.setup('api/docs', app, doc);
-```
+See [implementation examples](references/example.md) for `nest-cli.json` plugin config and Swagger bootstrap.
 
 ## Response Documentation
 
@@ -55,10 +37,7 @@ SwaggerModule.setup('api/docs', app, doc);
 - **Tags**: Mandatory `@ApiTags('domains')` on every Controller.
 - **Multiple Docs**: Generate separate docs for different audiences (Public vs Internal).
 
-```typescript
-SwaggerModule.createDocument(app, config, { include: [PublicModule] });  // /api/docs
-SwaggerModule.createDocument(app, adminConfig, { include: [AdminModule] }); // /admin/docs
-```
+See [implementation examples](references/example.md)
 
 ## Anti-Patterns
 

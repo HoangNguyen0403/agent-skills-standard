@@ -25,16 +25,7 @@ description: "Enforce universal standards for high-performance development. Use 
   - Offload heavy computations to background threads or workers.
   - Memoize pure, expensive functions.
 
-```typescript
-// Memoization example — avoid recomputing expensive transforms
-const cache = new Map<string, Result>();
-function getExpensiveResult(key: string): Result {
-  if (!cache.has(key)) {
-    cache.set(key, computeExpensive(key));
-  }
-  return cache.get(key)!;
-}
-```
+See [implementation examples](references/implementation.md) for memoization and batching patterns.
 
 ## Network & I/O
 
@@ -42,13 +33,6 @@ function getExpensiveResult(key: string): Result {
 - **Batching**: Group multiple small requests into single bulk operations.
 - **Caching**: Implement multi-level caching (Memory -> Storage -> Network) with appropriate TTL and invalidation.
 - **Non-blocking I/O**: Always use asynchronous operations for file system and network access.
-
-```python
-# Batching example — avoid N+1 API calls
-# Bad: [fetch(f"/users/{id}") for id in ids]
-# Good:
-results = fetch("/users", params={"ids": ",".join(ids)})
-```
 
 ## UI/UX Performance
 

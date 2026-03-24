@@ -17,33 +17,7 @@ description: "Write performant Eloquent queries with eager loading, reusable sco
 
 ## Scope + Eager Loading Example
 
-```php
-// app/Models/User.php
-class User extends Model {
-    protected $fillable = ['name', 'email', 'status'];
-    protected $casts = ['email_verified_at' => 'datetime'];
-
-    public function scopeActive(Builder $query): Builder {
-        return $query->where('status', 'active');
-    }
-
-    public function posts(): HasMany {
-        return $this->hasMany(Post::class);
-    }
-}
-
-// Usage: eager-load + scope chain
-$users = User::active()->with('posts')->paginate(20);
-```
-
-## Structure
-
-```text
-app/
-└── Models/
-    ├── {Model}.php
-    └── Scopes/         # Advanced global scopes
-```
+See [implementation examples](references/implementation.md#scope--eager-loading-example) for model scopes, eager loading, and directory structure.
 
 ## Implementation Guidelines
 

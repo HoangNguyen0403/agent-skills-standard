@@ -18,26 +18,9 @@ OWASP-aligned mobile security and PII protection for Flutter.
 5. **Detect jailbreak/root** — Use `flutter_jailbreak_detection` for financial/sensitive applications.
 6. **Mask PII** — Redact sensitive data (email, phone) in all logs and analytics events.
 
-### Secure Storage Example
+### Secure Storage & Release Build Examples
 
-```dart
-final secureStorage = const FlutterSecureStorage();
-
-// Store token securely
-await secureStorage.write(key: 'auth_token', value: token);
-
-// Read token
-final token = await secureStorage.read(key: 'auth_token');
-```
-
-### Release Build Command
-
-```bash
-flutter build appbundle \
-  --obfuscate \
-  --split-debug-info=build/debug-info \
-  --dart-define=API_URL=$API_URL
-```
+See [implementation examples](references/implementation.md) for secure storage usage and obfuscated release build commands.
 
 ## Reference & Examples
 

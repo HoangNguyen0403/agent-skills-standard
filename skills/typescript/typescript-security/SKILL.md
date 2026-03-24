@@ -13,25 +13,7 @@ Security standards for TypeScript applications based on OWASP guidelines.
 
 - Use **`Zod`**, **`Joi`**, or **`class-validator`** at the **API boundary**. Always **`parse`** and validate **`user-controlled input`** before using. Use **`safeParse`** for error handling without throwing. Return **`400 with structured errors`** on failure.
 
-```typescript
-import { z } from 'zod';
-
-const CreateUserSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(1).max(100),
-  role: z.enum(['user', 'admin']),
-});
-
-// In route handler
-app.post('/users', (req, res) => {
-  const result = CreateUserSchema.safeParse(req.body);
-  if (!result.success) {
-    return res.status(400).json({ errors: result.error.flatten().fieldErrors });
-  }
-  // result.data is fully typed and validated
-  return userService.create(result.data);
-});
-```
+See [references/REFERENCE.md](references/REFERENCE.md) for Zod validation schemas, secure cookie setup, and JWT auth patterns.
 
 ## Prevent Injection and XSS
 

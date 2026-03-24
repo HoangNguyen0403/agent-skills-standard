@@ -37,3 +37,20 @@ class TimberInitializer : Initializer<Unit> {
 ## JankStats
 
 Monitor UI frames dropping below 60fps. Use `JankStats` library to intercept frame metrics in your Activity.
+
+## Lazy Singleton Pattern
+
+```kotlin
+// Lazy singleton — defers initialization until first access
+val analytics: Analytics by lazy { Analytics.create(appContext) }
+```
+
+## LazyColumn with Stable Keys
+
+```kotlin
+LazyColumn {
+    items(users, key = { it.id }) { user ->
+        UserRow(user)
+    }
+}
+```

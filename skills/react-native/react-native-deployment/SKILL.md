@@ -34,19 +34,7 @@ description: "OTA updates with CodePush, EAS Build, and release configurations. 
 
 ### Expo (EAS Build)
 
-```json
-{
-  "build": {
-    "development": { "developmentClient": true },
-    "preview": { "distribution": "internal" },
-    "production": { "autoIncrement": true }
-  }
-}
-```
-
-```bash
-eas build --platform ios --profile production
-```
+See [deployment reference](references/codepush-setup.md) for EAS build profile configuration and CLI commands.
 
 ### React Native CLI
 

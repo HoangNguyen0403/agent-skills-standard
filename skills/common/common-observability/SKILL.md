@@ -14,27 +14,7 @@ description: "Enforce structured JSON logging, OpenTelemetry distributed tracing
 - **Tracing**: Use OpenTelemetry. Propagate W3C `traceparent`.
 - **Spans**: Name spans like `<HTTP_METHOD> <route>` (`GET /users/:id`).
 
-### Example: Structured Logger Setup (Node.js / Pino)
-
-```typescript
-import pino from "pino";
-
-const logger = pino({
-  level: process.env.LOG_LEVEL || "info",
-  formatters: {
-    level: (label) => ({ level: label }),
-  },
-  mixin() {
-    return { service: "order-api" };
-  },
-});
-
-// Attach correlation ID per request
-app.use((req, res, next) => {
-  req.log = logger.child({ traceId: req.headers["x-request-id"] });
-  next();
-});
-```
+See [implementation examples](references/implementation.md) for structured logger setup with Pino.
 
 ## Metrics
 

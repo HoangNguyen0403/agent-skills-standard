@@ -14,20 +14,7 @@ description: "Implement async/await, Actors, and structured concurrency in Swift
 - **Task Groups**: Use **`withTaskGroup`** or `withThrowingTaskGroup` for spawning a dynamic number of tasks.
 - **Error Handling**: Combine with **`throws`**. Always handle `CancellationError`.
 
-```swift
-// Parallel fetch with async let
-func loadDashboard() async throws -> Dashboard {
-    async let profile = fetchProfile()
-    async let orders = fetchRecentOrders()
-    async let notifications = fetchNotifications()
-
-    return try await Dashboard(
-        profile: profile,
-        orders: orders,
-        notifications: notifications
-    )
-}
-```
+See [implementation examples](references/implementation.md) for parallel fetch with `async let` and Task Groups.
 
 ## Isolate State with Actors
 
@@ -36,16 +23,7 @@ func loadDashboard() async throws -> Dashboard {
 - **Global Actors**: Use **`@GlobalActor`** for specific thread-bound resources.
 - **nonisolated**: Use **`nonisolated`** for methods that don't access actor state to avoid unnecessary hops.
 
-```swift
-actor ImageCache {
-    private var cache: [URL: UIImage] = [:]
-
-    func image(for url: URL) -> UIImage? { cache[url] }
-    func store(_ image: UIImage, for url: URL) { cache[url] = image }
-
-    nonisolated func cacheKey(for url: URL) -> String { url.absoluteString }
-}
-```
+See [implementation examples](references/implementation.md) for Actor-based state isolation and `nonisolated` methods.
 
 ## Manage Task Lifecycle
 

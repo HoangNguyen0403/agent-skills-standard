@@ -14,13 +14,7 @@ description: "Write effective code comments, READMEs, and technical documentatio
 - Delete commented-out code immediately — use Git history for retrieval.
 - Use `TODO(username): description` or `FIXME` with ownership and a linked ticket.
 
-```typescript
-// BAD: increments counter by 1
-counter += 1;
-
-// GOOD: retry count tracks consecutive failures for circuit-breaker threshold
-counter += 1;
-```
+See [implementation examples](references/implementation.md) for intent-first comment patterns.
 
 ## 2. Structure READMEs for Onboarding
 

@@ -43,3 +43,25 @@ sealed interface NetworkResult<out T> {
     data class Exception(val e: Throwable) : NetworkResult<Nothing>
 }
 ```
+
+## DTO with Kotlinx Serialization
+
+```kotlin
+@Serializable
+data class UserDto(
+    @SerialName("user_id") val userId: String,
+    @SerialName("display_name") val displayName: String
+)
+```
+
+## API Endpoint Interface
+
+```kotlin
+interface UserApi {
+    @GET("users/{id}")
+    suspend fun getUser(@Path("id") id: String): UserDto
+
+    @POST("users")
+    suspend fun createUser(@Body request: CreateUserRequest): UserDto
+}
+```

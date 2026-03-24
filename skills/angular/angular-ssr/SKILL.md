@@ -12,16 +12,7 @@ description: "Implement Angular SSR with hydration, TransferState caching, and p
 - Run `ng add @angular/ssr`.
 - Add `provideClientHydration(withEventReplay())` to `app.config.ts` providers.
 
-```typescript
-// app.config.ts
-export const appConfig: ApplicationConfig = {
-  providers: [
-    provideRouter(routes),
-    provideClientHydration(withEventReplay()),
-    provideHttpClient(withHttpTransferCacheOptions({ includePostRequests: false }))
-  ]
-};
-```
+See [hydration examples](references/hydration.md) for app config and hydration setup.
 
 ## 2. Guard Browser-Only Code
 

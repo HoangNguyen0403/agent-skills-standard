@@ -19,15 +19,7 @@ High-performance patterns and optimization techniques for NestJS applications.
 
 ## Fastify + Compression Setup
 
-```typescript
-// main.ts
-import { NestFactory } from '@nestjs/core';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-import compression from '@fastify/compress';
-
-const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
-await app.register(compression, { encodings: ['gzip', 'deflate'] });
-```
+See [implementation examples](references/example.md)
 
 - **Keep-Alive**: Configure `http.Agent` keep-alive settings to reuse TCP connections for upstream services.
 

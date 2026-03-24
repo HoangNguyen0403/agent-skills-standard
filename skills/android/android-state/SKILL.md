@@ -13,37 +13,14 @@ description: "Manage ViewModel state with StateFlow, sealed UiState classes, and
 - Use `viewModelScope` for all coroutines.
 - Trigger initial load in `init` block.
 
-```kotlin
-class ProfileViewModel @Inject constructor(
-    private val getUserUseCase: GetUserUseCase
-) : ViewModel() {
-    private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
-    val uiState = _uiState.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            _uiState.value = try {
-                UiState.Content(getUserUseCase())
-            } catch (e: Exception) {
-                UiState.Error(e.message ?: "Unknown error")
-            }
-        }
-    }
-}
-```
+See [templates](references/implementation.md) for ViewModel and UiState examples.
 
 ## 2. Define UI State (LCE Pattern)
 
 - Use sealed interface with Loading, Content, Error variants.
 - Data classes inside should be `@Immutable`.
 
-```kotlin
-sealed interface UiState {
-    data object Loading : UiState
-    @Immutable data class Content(val user: User) : UiState
-    data class Error(val message: String) : UiState
-}
-```
+See [templates](references/implementation.md) for sealed UiState pattern.
 
 ## 3. Collect State Lifecycle-Safely
 

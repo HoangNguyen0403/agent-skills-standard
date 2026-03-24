@@ -55,3 +55,21 @@ func sq(in <-chan int) <-chan int {
     return out
 }
 ```
+
+## ErrGroup Pattern
+
+```go
+g, ctx := errgroup.WithContext(ctx)
+
+g.Go(func() error {
+    return fetchOrders(ctx, orderCh)
+})
+
+g.Go(func() error {
+    return fetchProducts(ctx, productCh)
+})
+
+if err := g.Wait(); err != nil {
+    return fmt.Errorf("parallel fetch failed: %w", err)
+}
+```

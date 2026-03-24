@@ -9,55 +9,21 @@ description: "Write unit and integration tests for PHP applications with PHPUnit
 
 ## Structure
 
-```text
-tests/
-├── Unit/
-├── Integration/
-└── Feature/
-```
+See [implementation examples](references/implementation.md#directory-structure) for test directory layout.
 
 ## Write Tests with PHPUnit and Pest
 
 - **Standards**: Use **`PHPUnit`** (9/10+) or **`Pest`**. Organize into **`Unit/`**, **`Integration/`**, and **`Feature/`**. Class names should extend **`TestCase`**.
 - **TDD Workflow**: Follow **Red-Green-Refactor**. Write failing test first, implement minimal logic, then refactor.
 
-```php
-// PHPUnit: service test with mock
-class OrderServiceTest extends TestCase
-{
-    public function test_creates_order_and_charges_payment(): void
-    {
-        $payment = $this->createMock(PaymentService::class);
-        $payment->expects($this->once())
-            ->method('charge')
-            ->with(100)
-            ->willReturn(true);
-
-        $service = new OrderService($payment);
-        $order = $service->createOrder('Widget', 100);
-
-        $this->assertSame('Widget', $order->title);
-        $this->assertTrue($order->isPaid());
-    }
-}
-```
+See [implementation examples](references/implementation.md#phpunit-service-test) for PHPUnit service test with mock.
 
 ## Apply Assertions and Data Providers
 
 - **Fluent Assertions**: Use **`assertSame`** (`===`) over `assertEquals` to avoid type coercion. Also use **`assertCount()`** and **`assertMatchesRegularExpression()`**.
 - **Data Providers**: Use **`#[DataProvider('statusProvider')]`** (PHPUnit 10+) or **`dataset`** (Pest).
 
-```php
-// Pest: expressive syntax with datasets
-it('validates order status transitions', function (string $from, string $to, bool $valid) {
-    $order = new Order(status: $from);
-    expect($order->canTransitionTo($to))->toBe($valid);
-})->with([
-    ['pending', 'confirmed', true],
-    ['confirmed', 'pending', false],
-    ['shipped', 'cancelled', false],
-]);
-```
+See [implementation examples](references/implementation.md#pest-dataset-example) for Pest expressive syntax with datasets.
 
 ## Isolate Test Dependencies
 

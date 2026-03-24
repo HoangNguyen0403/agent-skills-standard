@@ -15,41 +15,12 @@ Feature-first organization for scalable mobile apps.
 - **Colocation**: Keep related files together (screens, components, hooks within feature).
 - **Separation**: UI (screens/components) separate from logic (hooks/services).
 
-```text
-src/
-├── features/
-│   ├── auth/
-│   │   ├── screens/LoginScreen.tsx
-│   │   ├── hooks/useAuth.ts
-│   │   └── services/authApi.ts
-│   └── orders/
-│       ├── screens/OrderListScreen.tsx
-│       ├── hooks/useOrders.ts
-│       └── components/OrderCard.tsx
-├── components/          # Shared reusable components
-├── navigation/
-└── services/            # Shared API/utilities
-```
+See [folder structure reference](references/folder-structure.md) for full directory tree and path alias configuration.
 
 - **Atomic Components**: Reusable components in `/components`. Feature-specific in feature folder.
 - **Absolute Imports**: Configure tsconfig.json paths for clean imports.
 - **Single Responsibility**: Each file has one clear purpose.
 - **Expo vs CLI**: Structure works for both. Expo uses `app.json`, CLI uses `index.js`.
-
-```json
-// tsconfig.json - path aliases
-{
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/features/*": ["src/features/*"],
-      "@/components/*": ["src/components/*"],
-      "@/services/*": ["src/services/*"],
-      "@/navigation/*": ["src/navigation/*"]
-    }
-  }
-}
-```
 
 ## Anti-Patterns
 

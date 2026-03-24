@@ -141,3 +141,30 @@ app.useGlobalPipes(
   }),
 );
 ```
+
+## Inline Examples
+
+```typescript
+// auth.module.ts
+@Module({
+  providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
+})
+export class AuthModule {}
+
+// public.decorator.ts
+export const IS_PUBLIC_KEY = 'isPublic';
+export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
+```
+
+```typescript
+// auth.service.ts
+import * as argon2 from 'argon2';
+
+async hashPassword(password: string): Promise<string> {
+  return argon2.hash(password, { type: argon2.argon2id, memoryCost: 65536, timeCost: 3 });
+}
+
+async verifyPassword(hash: string, password: string): Promise<boolean> {
+  return argon2.verify(hash, password);
+}
+```

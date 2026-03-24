@@ -21,19 +21,7 @@ Integration patterns and ORM standards for PostgreSQL applications.
 - **Zero-Downtime**: Use Expand-Contract pattern (Add -> Backfill -> Drop) for destructive changes.
 - **RLS**: `typeorm migration:generate` cannot detect Row-Level Security. Use raw `queryRunner.query()` SQL for RLS.
 
-### Example: Expand-Contract Migration
-
-```sql
--- Step 1: Add new column (non-breaking)
-ALTER TABLE orders ADD COLUMN status_v2 VARCHAR(50);
-
--- Step 2: Backfill
-UPDATE orders SET status_v2 = status;
-
--- Step 3: Drop old column (after code deploys)
-ALTER TABLE orders DROP COLUMN status;
-ALTER TABLE orders RENAME COLUMN status_v2 TO status;
-```
+See [implementation examples](references/implementation.md) for Expand-Contract migration patterns.
 
 ## Performance & Gotchas
 

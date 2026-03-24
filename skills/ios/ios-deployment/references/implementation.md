@@ -42,3 +42,25 @@ username("apple-id@org.com")
 <key>ITSAppUsesNonExemptEncryption</key>
 <false/>
 ```
+
+## Simple Beta Lane
+
+```ruby
+lane :beta do
+  match(type: "appstore")
+  increment_build_number
+  build_app(scheme: "MyApp")
+  upload_to_testflight(
+    skip_waiting_for_build_processing: true
+  )
+end
+```
+
+## Matchfile (Minimal)
+
+```ruby
+# Matchfile
+git_url("https://github.com/org/certificates")
+type("appstore")
+app_identifier("com.example.myapp")
+```

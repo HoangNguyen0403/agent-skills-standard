@@ -42,3 +42,36 @@ public function register(): void {
     );
 }
 ```
+
+## Action + DTO Example
+
+```php
+// app/Domains/Order/DTOs/CreateOrderData.php
+readonly class CreateOrderData {
+    public function __construct(
+        public string $customerId,
+        public int $amount,
+    ) {}
+}
+
+// app/Domains/Order/Actions/CreateOrderAction.php
+class CreateOrderAction {
+    public function __construct(private OrderRepository $repo) {}
+
+    public function execute(CreateOrderData $data): Order {
+        return $this->repo->create(['customer_id' => $data->customerId, 'amount' => $data->amount]);
+    }
+}
+```
+
+## Domain Structure
+
+```text
+app/
+├── Domains/            # Logic grouped by business domain
+│   └── {Domain}/
+│       ├── Actions/    # Single use-case logic
+│       ├── DTOs/       # Immutable data structures
+│       └── Contracts/  # Interfaces for decoupling
+└── Providers/          # Dependency bindings
+```

@@ -18,24 +18,7 @@ description: "Configure scheduled tasks and distributed locking with ShedLock in
 - **Solution**: Use **ShedLock** to guarantee single execution.
 - **Config**: Set `lockAtMostFor` (deadlock safety) and `lockAtLeastFor` (debounce).
 
-```java
-@Slf4j
-@Component
-@EnableScheduling
-public class ReportScheduler {
-
-    @Scheduled(cron = "0 0 2 * * *") // 2 AM daily
-    @SchedulerLock(name = "dailyReport", lockAtMostFor = "PT30M", lockAtLeastFor = "PT5M")
-    public void generateDailyReport() {
-        try {
-            log.info("Starting daily report generation");
-            reportService.generate();
-        } catch (Exception e) {
-            log.error("Daily report failed", e);
-        }
-    }
-}
-```
+See [implementation examples](references/implementation.md) for ShedLock distributed task configuration and scheduler pool setup.
 
 ## Anti-Patterns
 

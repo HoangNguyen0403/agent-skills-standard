@@ -17,22 +17,7 @@ description: "Build REST endpoints with API Resources, Sanctum authentication, a
 
 ## API Resource Example
 
-```php
-// app/Http/Resources/UserResource.php
-class UserResource extends JsonResource {
-    public function toArray(Request $request): array {
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'email' => $this->email,
-            'created_at' => $this->created_at->toISOString(),
-        ];
-    }
-}
-
-// In controller
-return UserResource::collection(User::paginate(15));
-```
+See [implementation examples](references/implementation.md#api-resource-example) for a complete API Resource with collection usage.
 
 ## Implementation Guidelines
 

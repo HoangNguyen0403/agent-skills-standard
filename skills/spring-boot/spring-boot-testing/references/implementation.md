@@ -41,3 +41,36 @@ class FullStackTest {
     }
 }
 ```
+
+## Order Controller Slice Test
+
+```java
+@WebMvcTest(OrderController.class)
+class OrderControllerTest {
+
+    @Autowired MockMvc mockMvc;
+    @MockBean OrderService orderService;
+
+    @Test
+    void shouldReturn404WhenOrderNotFound() throws Exception {
+        given(orderService.findById(99L)).willThrow(new OrderNotFoundException(99L));
+
+        mockMvc.perform(get("/api/orders/99"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.detail").value("Order 99 not found"));
+    }
+
+    @Test
+    void shouldCreateOrder() throws Exception {
+        given(orderService.create(any())).willReturn(new OrderResponse(1L, "Widget", 5, "PENDING"));
+
+        mockMvc.perform(post("/api/orders")
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"productName": "Widget", "quantity": 5}
+                    """))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").value(1));
+    }
+}
+```

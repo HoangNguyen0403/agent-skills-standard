@@ -2,6 +2,32 @@
 
 Advanced optimization techniques and profiling.
 
+## Parallel Fetch with Suspense
+
+```tsx
+// Parallel fetch with Suspense boundary
+async function loader() {
+  const [user, products] = await Promise.all([getUser(), getProducts()]);
+  return { user, products };
+}
+
+function App() {
+  return (
+    <Suspense fallback={<Skeleton />}>
+      <Dashboard />
+    </Suspense>
+  );
+}
+```
+
+## Lazy Loading Heavy Components
+
+```tsx
+// Lazy load heavy components
+const Chart = React.lazy(() => import('./Chart'));
+const Modal = React.lazy(() => import('./Modal'));
+```
+
 ## References
 
 - [**Profiling**](profiling.md) - React DevTools Profiler usage.

@@ -28,27 +28,9 @@ core/router/
 
 ### Nested Routes & Tabs
 
-Use `children` in `AutoRoute` for tabs. Pass the `children` parameter to define the initial active sub-route:
+Use `children` in `AutoRoute` for tabs. Pass the `children` parameter to define the initial active sub-route.
 
-```dart
-// Navigate to a tab with a specific child route active
-context.navigateTo(
-  OrdersTabRoute(children: [ViewByOrdersPageRoute()]),
-);
-```
-
-### Router Configuration Example
-
-```dart
-@AutoRouterConfig()
-class AppRouter extends _$AppRouter {
-  @override
-  List<AutoRoute> get routes => [
-    AutoRoute(page: HomeRoute.page, initial: true),
-    AutoRoute(page: OrderDetailRoute.page, guards: [AuthGuard()]),
-  ];
-}
-```
+See [implementation examples](references/implementation.md) for nested route navigation and router configuration patterns.
 
 ## Reference & Examples
 

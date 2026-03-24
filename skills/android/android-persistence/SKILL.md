@@ -13,33 +13,14 @@ description: "Implement Room database schemas and DataStore preferences with pro
 - Keep `@Entity` data classes simple. Map to Domain models in Repository.
 - Use `@Transaction` for multi-table queries (Relations).
 
-```kotlin
-@Dao
-interface UserDao {
-    @Query("SELECT * FROM users WHERE active = 1")
-    fun observeActiveUsers(): Flow<List<UserEntity>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(user: UserEntity)
-
-    @Transaction
-    @Query("SELECT * FROM users WHERE id = :userId")
-    fun getUserWithPosts(userId: String): Flow<UserWithPosts>
-}
-```
+See [DAO templates](references/implementation.md) for Room DAO patterns.
 
 ## 2. Migrate to DataStore
 
 - Replace `SharedPreferences` with `ProtoDataStore` (type-safe) or `PreferencesDataStore`.
 - Inject singleton DataStore instance via Hilt.
 
-```kotlin
-val Context.settingsDataStore by preferencesDataStore(name = "settings")
-
-// Read
-val darkMode: Flow<Boolean> = settingsDataStore.data
-    .map { prefs -> prefs[DARK_MODE_KEY] ?: false }
-```
+See [DAO templates](references/implementation.md) for DataStore migration patterns.
 
 ## Anti-Patterns
 

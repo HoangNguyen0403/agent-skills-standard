@@ -22,26 +22,14 @@ Caching strategies and Redis integration patterns for high-performance NestJS ap
 - **Interceptors**: Use `@UseInterceptors(CacheInterceptor)` for simple GET responses.
   - **Warning**: Default key is the URL. Ensure consistent query param ordering or use custom key generators.
 
-```typescript
-// Controller-level caching with custom key and TTL
-@UseInterceptors(CacheInterceptor)
-@CacheKey('users_list')
-@CacheTTL(300) // 5 minutes
-@Get()
-findAll() { return this.usersService.findAll(); }
-```
+See [implementation examples](references/example.md)
 
 ## Stampede Protection
 
 - **Jitter**: Add random variance to TTLs to prevent simultaneous expiry across keys.
 - **Locking**: One process recomputes while others wait or return stale data.
 
-```typescript
-// TTL with jitter — prevents stampede on grouped caches
-const baseTTL = 300;
-const jitter = Math.floor(Math.random() * 20) - 10; // ±10s
-await this.cacheManager.set(key, value, baseTTL + jitter);
-```
+See [implementation examples](references/example.md)
 
 ## Redis Data Structures
 

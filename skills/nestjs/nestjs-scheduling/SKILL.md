@@ -29,35 +29,13 @@ Background job processing and scheduled task patterns.
 
 - **Implementation**:
 
-  ```typescript
-  @Cron(CronExpression.EVERY_MINUTE)
-  @DistributedLock({ key: 'send_emails', ttl: 5000 })
-  async handleCron() {
-    // Only runs if lock acquired
-  }
-  ```
+  See [implementation examples](references/example.md)
 
 - **Tools**: Use `nestjs-redlock` or custom Redis wrapper via `redlock` library.
 
-## Cron-to-Queue Offload Example
+## Cron-to-Queue Offload
 
-```typescript
-// reports.service.ts
-@Injectable()
-export class ReportsService {
-  constructor(@InjectQueue('reports') private reportsQueue: Queue) {}
-
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  @DistributedLock({ key: 'daily_report', ttl: 60000 })
-  async scheduleDailyReport() {
-    try {
-      await this.reportsQueue.add('generate', { date: new Date().toISOString() });
-    } catch (err) {
-      this.logger.error('Failed to schedule report', err);
-    }
-  }
-}
-```
+See [implementation examples](references/example.md)
 
 ## Job Robustness
 

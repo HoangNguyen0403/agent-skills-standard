@@ -14,22 +14,7 @@ description: "Deploy Spring Boot apps with Docker, GraalVM native images, and gr
 - **Security**: Run as **`non-root`** user. Use **`eclipse-temurin`** or Distroless as base image.
 - **Secrets**: NEVER commit secrets to Git. Inject via environment variables, Kubernetes Secrets, or Vault (spring.config.import). Never bake secrets into image layers.
 
-```dockerfile
-# Multi-stage layered Dockerfile
-FROM eclipse-temurin:21-jre AS builder
-WORKDIR /app
-COPY target/*.jar app.jar
-RUN java -Djarmode=layertools -jar app.jar extract
-
-FROM eclipse-temurin:21-jre
-RUN addgroup --system app && adduser --system --ingroup app app
-USER app
-WORKDIR /app
-COPY --from=builder /app/dependencies/ ./
-COPY --from=builder /app/spring-boot-loader/ ./
-COPY --from=builder /app/application/ ./
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "org.springframework.boot.loader.launch.JarLauncher"]
-```
+See [implementation examples](references/implementation.md) for multi-stage layered Dockerfile and graceful shutdown configuration.
 
 ## Build GraalVM Native Images (AOT)
 

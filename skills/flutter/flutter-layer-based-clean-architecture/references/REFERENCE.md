@@ -17,6 +17,21 @@ class Bank with _$Bank {
 }
 ```
 
+### DTO-to-Entity Inline Example
+
+```dart
+// lib/infrastructure/dtos/user_dto.dart
+class UserDto {
+  final String id;
+  final String name;
+
+  factory UserDto.fromJson(Map<String, dynamic> json) =>
+      UserDto(id: json['id'], name: json['name']);
+
+  UserEntity toEntity() => UserEntity(id: id, name: name);
+}
+```
+
 ### 2. Infrastructure Layer (DTO & Mapper)
 
 ```dart

@@ -36,3 +36,45 @@ public class AsyncConfig {
     }
 }
 ```
+
+## Application YAML Tracing Config
+
+```yaml
+# application.yaml
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  pattern:
+    correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+```
+
+## Structured Logging with MDC
+
+```java
+import static net.logstash.logback.argument.StructuredArguments.kv;
+
+@Slf4j
+@Service
+public class OrderService {
+    public Order process(OrderRequest req) {
+        MDC.put("userId", req.userId());
+        try {
+            log.info("Processing order", kv("productId", req.productId()), kv("quantity", req.quantity()));
+            return orderRepository.save(new Order(req));
+        } finally {
+            MDC.clear();
+        }
+    }
+}
+```

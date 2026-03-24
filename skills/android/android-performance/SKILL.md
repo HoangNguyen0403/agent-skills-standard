@@ -12,10 +12,7 @@ description: "Optimize Android app startup, UI rendering, and frame stability wi
 - Generate **Baseline Profiles** for all production apps — pre-compiles critical paths (30-40% startup improvement).
 - Defer heavy SDK init using `App Startup` or lazy Singletons. Never block `Application.onCreate`.
 
-```kotlin
-// Lazy singleton — defers initialization until first access
-val analytics: Analytics by lazy { Analytics.create(appContext) }
-```
+See [baseline & startup](references/implementation.md) for lazy initialization patterns.
 
 ## 2. Eliminate UI Jank
 
@@ -23,13 +20,7 @@ val analytics: Analytics by lazy { Analytics.create(appContext) }
 - Load images with Coil/Glide using proper caching and resizing (`.crossfade()`).
 - `LazyColumn` must use `key` and stable item classes.
 
-```kotlin
-LazyColumn {
-    items(users, key = { it.id }) { user ->
-        UserRow(user)
-    }
-}
-```
+See [baseline & startup](references/implementation.md) for LazyColumn optimization.
 
 ## 3. Avoid Layout Bottlenecks
 

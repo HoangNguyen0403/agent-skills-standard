@@ -16,27 +16,7 @@ description: "Profile and optimize iOS apps with Instruments, memory management,
 5. **Enable strict warnings** — Set `SWIFT_TREAT_WARNINGS_AS_ERRORS` in Release builds.
 6. **Run static analysis** — Use Xcode's "Analyze" (Product > Analyze) to catch logic errors.
 
-### Background Processing Example
-
-```swift
-// Offload heavy work from Main thread
-func processData(_ rawData: Data) async -> [Item] {
-    return await Task.detached(priority: .userInitiated) {
-        let decoder = JSONDecoder()
-        return try decoder.decode([Item].self, from: rawData)
-    }.value
-}
-```
-
-### Cell Reuse Pattern
-
-```swift
-func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCell(withIdentifier: "OrderCell", for: indexPath) as! OrderCell
-    cell.configure(with: orders[indexPath.row]) // Keep lightweight
-    return cell
-}
-```
+See [background processing and cell reuse examples](references/implementation.md)
 
 ## Anti-Patterns
 

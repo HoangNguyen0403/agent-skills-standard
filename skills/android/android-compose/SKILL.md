@@ -16,21 +16,7 @@ description: "Build high-performance declarative UI with Jetpack Compose state h
 - NEVER pass ViewModel to stateless composables.
 - Use `MaterialTheme.colorScheme`, no hardcoded hex.
 
-```kotlin
-@Composable
-fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    ProfileContent(
-        user = uiState.user,
-        onEditClick = viewModel::onEditClick  // lambda down
-    )
-}
-
-@Composable
-fun ProfileContent(user: User, onEditClick: () -> Unit) {
-    Column { Text(user.name); Button(onClick = onEditClick) { Text("Edit") } }
-}
-```
+See [implementation examples](references/implementation.md) for state hoisting patterns.
 
 ## 2. Optimize Recomposition
 
@@ -39,11 +25,7 @@ fun ProfileContent(user: User, onEditClick: () -> Unit) {
 - Reuse or make Modifiers static where possible.
 - Use `derivedStateOf` for frequently updating derived values.
 
-```kotlin
-val filteredItems by remember {
-    derivedStateOf { items.filter { it.isActive } }
-}
-```
+See [implementation examples](references/implementation.md) for `derivedStateOf` usage.
 
 ## 3. Handle Side Effects Properly
 

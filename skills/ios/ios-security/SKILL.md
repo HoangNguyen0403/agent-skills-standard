@@ -16,36 +16,7 @@ description: "Secure iOS apps with Keychain, biometrics, and data protection. Us
 5. **Pin certificates** — Use `ServerTrustManager` or `TrustKit` for production apps to prevent MITM attacks.
 6. **Strip sensitive logs** — Ensure PII and tokens are removed from logs in Release builds.
 
-### Keychain Storage Example
-
-```swift
-func storeToken(_ token: String, for account: String) throws {
-    let data = Data(token.utf8)
-    let query: [String: Any] = [
-        kSecClass as String: kSecClassGenericPassword,
-        kSecAttrAccount as String: account,
-        kSecValueData as String: data,
-        kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
-    ]
-    let status = SecItemAdd(query as CFDictionary, nil)
-    guard status == errSecSuccess else { throw KeychainError.unhandledError(status) }
-}
-```
-
-### Biometric Authentication Example
-
-```swift
-let context = LAContext()
-var error: NSError?
-guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
-    // Handle unavailable biometrics
-    return
-}
-context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
-                       localizedReason: "Authenticate to access your account") { success, error in
-    // Handle result on MainActor
-}
-```
+See [Keychain and biometrics implementation examples](references/implementation.md)
 
 ## Anti-Patterns
 

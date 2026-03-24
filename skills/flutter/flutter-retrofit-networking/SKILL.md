@@ -31,36 +31,9 @@ infrastructure/
 6. **Handle token refresh** — On 401, lock Dio, call `refreshToken()`, update stored token, retry via `dio.fetch(err.requestOptions)`.
 7. **Map failures** — Convert `DioException` to typed `Failure` objects (ServerFailure, NetworkFailure).
 
-### Retrofit Client Example
+### Retrofit Client & Safe Enum DTO Examples
 
-```dart
-@RestApi()
-abstract class OrderRemoteDataSource {
-  factory OrderRemoteDataSource(Dio dio) = _OrderRemoteDataSource;
-
-  @GET('/orders/{id}')
-  Future<OrderDto> getOrder(@Path('id') String id);
-
-  @POST('/orders/{id}/cancel')
-  Future<void> cancelOrder(@Path('id') String id);
-}
-```
-
-### Safe Enum DTO Example
-
-```dart
-@freezed
-class OrderDto with _$OrderDto {
-  const factory OrderDto({
-    required String id,
-    @JsonKey(unknownEnumValue: OrderStatus.unknown)
-    required OrderStatus status,
-  }) = _OrderDto;
-
-  factory OrderDto.fromJson(Map<String, dynamic> json) =>
-      _$OrderDtoFromJson(json);
-}
-```
+See [implementation examples](references/implementation.md) for RestClient definitions and safe enum DTO patterns.
 
 ## Anti-Patterns
 

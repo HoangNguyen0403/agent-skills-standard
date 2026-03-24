@@ -15,18 +15,7 @@ description: "Configure file-system routing with nested layouts, route groups, p
 
 ## Route Group Example
 
-```typescript
-// app/(auth)/login/page.tsx — URL is /login, not /auth/login
-export default function LoginPage() {
-  return <LoginForm />;
-}
-
-// app/dashboard/error.tsx
-'use client';
-export default function Error({ error, reset }: { error: Error; reset: () => void }) {
-  return <button onClick={() => reset()}>Retry</button>;
-}
-```
+See [implementation examples](references/implementation.md)
 
 ## Implementation Guidelines
 
@@ -73,4 +62,3 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
 - **No `'use client'` at tree root**: Place at leaves; keep layouts and pages as Server Components.
 - **No `<html>`/`<body>` in nested layouts**: Only `app/layout.tsx` (root layout) should include them.
 - **No missing `error.tsx`**: Every route segment needs a Client Component error boundary.
-```

@@ -249,3 +249,41 @@ analytics.track('User Login', {
   phone: maskPhone(user.phone),
 });
 ```
+
+## Keychain with Biometric Access Control
+
+```tsx
+import * as Keychain from 'react-native-keychain';
+
+// Store token securely
+await Keychain.setGenericPassword('auth', accessToken, {
+  accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
+  accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+});
+
+// Retrieve token
+const credentials = await Keychain.getGenericPassword();
+if (credentials) {
+  const token = credentials.password;
+}
+```
+
+## Deep Link URL Validation
+
+```tsx
+// Deep link URL validation
+function handleDeepLink(url: string): boolean {
+  const parsed = new URL(url);
+  const allowedHosts = ['myapp.com', 'www.myapp.com'];
+  const allowedSchemes = ['https:', 'myapp:'];
+
+  if (!allowedSchemes.includes(parsed.protocol) || !allowedHosts.includes(parsed.hostname)) {
+    console.warn('Blocked untrusted deep link:', url);
+    return false;
+  }
+  // Validate route params before navigation
+  const id = parsed.searchParams.get('id');
+  if (id && !/^[a-zA-Z0-9-]+$/.test(id)) return false;
+  return true;
+}
+```

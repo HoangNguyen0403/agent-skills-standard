@@ -29,3 +29,52 @@ public function rules(): array
     ];
 }
 ```
+
+## Project Structure
+
+```text
+app/
+├── Http/
+│   ├── Controllers/    # Slim (Request/Response only)
+│   └── Requests/       # Validation logic
+├── Services/           # Business logic (Optional)
+└── Actions/            # Single-purpose classes (Preferred)
+```
+
+## Controller Pattern
+
+```php
+// app/Http/Controllers/PostController.php — slim controller
+class PostController extends Controller
+{
+    public function __construct(private CreatePostAction $createPost) {}
+
+    public function store(StorePostRequest $request): JsonResponse
+    {
+        $post = $this->createPost->handle($request->validated());
+        return response()->json($post, 201);
+    }
+}
+```
+
+## Action Class
+
+```php
+// app/Actions/CreatePostAction.php — single-purpose business logic
+class CreatePostAction
+{
+    public function __construct(private PostRepository $posts) {}
+
+    public function handle(array $data): Post
+    {
+        return $this->posts->create($data);
+    }
+}
+```
+
+## Service Container Binding
+
+```php
+// app/Providers/AppServiceProvider.php
+$this->app->bind(PostRepository::class, EloquentPostRepository::class);
+```

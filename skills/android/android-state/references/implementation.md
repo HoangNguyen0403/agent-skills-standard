@@ -40,3 +40,34 @@ sealed interface FeedUiState {
 ## One-Time Events (Anti-Pattern Fix)
 
 Do not use `SharedFlow` for Navigation. Use State (`navTarget`) inside UiState and consume it in the UI (handle & reset).
+
+## ProfileViewModel Example
+
+```kotlin
+class ProfileViewModel @Inject constructor(
+    private val getUserUseCase: GetUserUseCase
+) : ViewModel() {
+    private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
+    val uiState = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _uiState.value = try {
+                UiState.Content(getUserUseCase())
+            } catch (e: Exception) {
+                UiState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+}
+```
+
+## Sealed UiState (LCE Pattern)
+
+```kotlin
+sealed interface UiState {
+    data object Loading : UiState
+    @Immutable data class Content(val user: User) : UiState
+    data class Error(val message: String) : UiState
+}
+```

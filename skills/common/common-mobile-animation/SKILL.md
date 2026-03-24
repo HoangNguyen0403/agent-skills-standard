@@ -27,22 +27,7 @@ Native-feeling motion design. Optimize for 60fps and platform conventions.
 4. **Wire gestures** using `onPan` / `interactivePopGesture` for fluid, interruptible UX.
 5. **Verify frame rate** in profiler — target 60fps with no jank frames.
 
-```dart
-// Flutter: fade + slide transition (GPU-friendly)
-SlideTransition(
-  position: Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero)
-      .animate(CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn)),
-  child: FadeTransition(opacity: _controller, child: content),
-)
-```
-
-```swift
-// iOS: spring animation for natural feel
-UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.8,
-  initialSpringVelocity: 0.5, options: .curveEaseInOut) {
-    view.transform = .identity
-}
-```
+See [implementation examples](references/implementation.md) for Flutter and iOS animation patterns.
 
 ## References
 

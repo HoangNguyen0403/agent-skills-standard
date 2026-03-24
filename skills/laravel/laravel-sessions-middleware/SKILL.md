@@ -16,26 +16,7 @@ description: "Configure Redis session drivers, register security-header middlewa
 
 ## Security Headers Middleware Example
 
-```php
-// app/Http/Middleware/SecurityHeaders.php
-class SecurityHeaders {
-    public function handle(Request $request, Closure $next): Response {
-        $response = $next($request);
-        $response->headers->set('X-Frame-Options', 'DENY');
-        $response->headers->set('X-Content-Type-Options', 'nosniff');
-        $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-        return $response;
-    }
-}
-```
-
-## Structure
-
-```text
-app/Http/
-├── Middleware/         # Custom logic layers
-└── Kernel.php          # Global/Group registration
-```
+See [implementation examples](references/implementation.md#security-headers-middleware) for security headers middleware and directory structure.
 
 ## Implementation Guidelines
 

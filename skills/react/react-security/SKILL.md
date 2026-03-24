@@ -14,30 +14,12 @@ Preventing vulnerabilities in client-side apps.
 - **Never use `dangerouslySetInnerHTML`** without sanitization. Use **`DOMPurify.sanitize(input)`** for all user-provided HTML.
 - Avoid `javascript:` protocols in `href` or `src`.
 
-```tsx
-import DOMPurify from 'dompurify';
-
-// Safe HTML rendering with DOMPurify
-function SafeContent({ html }: { html: string }) {
-  const clean = DOMPurify.sanitize(html, { ALLOWED_TAGS: ['b', 'i', 'a', 'p'] });
-  return <div dangerouslySetInnerHTML={{ __html: clean }} />;
-}
-```
+See [implementation examples](references/REFERENCE.md#xss-prevention-with-dompurify) for DOMPurify sanitization and secure cookie configuration.
 
 ## Secure Authentication
 
 - Store **JWT/Sessions in `HttpOnly` and `Secure` cookies** to prevent theft via XSS. **Never store secrets in `localStorage`** or in the built JS bundle.
 - **Data Flow**: **Escape all serialized state** if injecting into the HTML (e.g., in SSR). Use a **Content Security Policy (CSP)** to restrict script sources and prevent inline execution.
-
-```tsx
-// Secure cookie configuration (server-side)
-res.cookie('session', token, {
-  httpOnly: true,
-  secure: true,
-  sameSite: 'strict',
-  maxAge: 15 * 60 * 1000, // 15 minutes
-});
-```
 
 ## Harden Application Boundaries
 

@@ -196,3 +196,38 @@ function HomeScreen() {
   return <PostList posts={posts} loading={loading} />;
 }
 ```
+
+## Feature-First Structure (Compact)
+
+```text
+src/
+├── features/
+│   ├── auth/
+│   │   ├── screens/LoginScreen.tsx
+│   │   ├── hooks/useAuth.ts
+│   │   └── services/authApi.ts
+│   └── orders/
+│       ├── screens/OrderListScreen.tsx
+│       ├── hooks/useOrders.ts
+│       └── components/OrderCard.tsx
+├── components/          # Shared reusable components
+├── navigation/
+└── services/            # Shared API/utilities
+```
+
+## Path Aliases (tsconfig.json)
+
+```json
+// tsconfig.json - path aliases
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/features/*": ["src/features/*"],
+      "@/components/*": ["src/components/*"],
+      "@/services/*": ["src/services/*"],
+      "@/navigation/*": ["src/navigation/*"]
+    }
+  }
+}
+```

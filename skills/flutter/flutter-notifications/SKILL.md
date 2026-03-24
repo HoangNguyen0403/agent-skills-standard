@@ -19,21 +19,7 @@ Push and local notification handling using `firebase_messaging` and `flutter_loc
 
 ### Lifecycle Handlers Example
 
-```dart
-// Foreground
-FirebaseMessaging.onMessage.listen((message) {
-  _showLocalNotification(message);
-});
-
-// Background (app open but not in foreground)
-FirebaseMessaging.onMessageOpenedApp.listen((message) {
-  _handleNavigation(message.data);
-});
-
-// Terminated (cold start from notification tap)
-final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-if (initialMessage != null) _handleNavigation(initialMessage.data);
-```
+See [implementation examples](references/implementation.md) for foreground, background, and terminated state notification handling.
 
 [Implementation Details](references/implementation.md)
 

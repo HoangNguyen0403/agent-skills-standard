@@ -35,29 +35,9 @@ assets/translations/
 5. **Handle plurals** — Use `plural()` for quantity-dependent strings.
 6. **Sync translations** — Use `sheet_loader_localization` to auto-generate CSV/JSON from Google Sheets.
 
-### Bootstrap Example
+### Bootstrap & Usage Examples
 
-```dart
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await EasyLocalization.ensureInitialized();
-  runApp(
-    EasyLocalization(
-      supportedLocales: const [Locale('en'), Locale('vi')],
-      path: 'assets/translations',
-      child: const MyApp(),
-    ),
-  );
-}
-```
-
-### Usage Example
-
-```dart
-Text('welcome'.tr()); // Simple lookup
-Text('greeting'.tr(args: [userName])); // With parameters
-Text(plural('items_count', itemCount)); // Pluralization
-```
+See [implementation examples](references/implementation.md) for bootstrap setup and translation usage patterns.
 
 ## Anti-Patterns
 

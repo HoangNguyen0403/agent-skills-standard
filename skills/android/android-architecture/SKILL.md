@@ -13,14 +13,7 @@ description: "Apply Clean Architecture layering, modularization, and Unidirectio
 - **Data**: Repository impl, DataSources (API/DB). Maps DTO -> Domain.
 - **UI**: ViewModel + Composable. Maps Domain -> UiState.
 
-```kotlin
-// Domain layer — pure Kotlin, no Android imports
-class GetUserUseCase @Inject constructor(
-    private val repo: UserRepository
-) {
-    suspend operator fun invoke(id: String): User = repo.getUser(id)
-}
-```
+See [structure & examples](references/implementation.md) for Clean Architecture layer examples.
 
 ## 2. Modularize by Feature and Core
 
@@ -28,11 +21,7 @@ class GetUserUseCase @Inject constructor(
 - **Core Modules**: `:core:ui` (Design System), `:core:network`, `:core:database`.
 - **App Module**: DI Root and Navigation Guard.
 
-```kotlin
-// settings.gradle.kts
-include(":app", ":feature:home", ":feature:profile")
-include(":core:ui", ":core:network", ":core:database")
-```
+See [structure & examples](references/implementation.md) for module configuration.
 
 ## 3. Enforce Unidirectional Data Flow (UDF)
 

@@ -13,25 +13,7 @@ description: "Configure SPM packages, SwiftLint, and build settings for Swift pr
 - **Modularization**: Break large projects into local packages for faster builds.
 - **Versioning**: Use semantic versioning (Major.Minor.Patch) for shared packages.
 
-```swift
-// Package.swift
-let package = Package(
-    name: "MyFeature",
-    platforms: [.iOS(.v16)],
-    products: [
-        .library(name: "MyFeature", targets: ["MyFeature"]),
-    ],
-    dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.0.0"),
-    ],
-    targets: [
-        .target(name: "MyFeature", dependencies: [
-            .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        ]),
-        .testTarget(name: "MyFeatureTests", dependencies: ["MyFeature"]),
-    ]
-)
-```
+See [implementation examples](references/implementation.md) for Package.swift structure, SwiftLint config, and environment-specific code.
 
 ## Enforce Code Quality
 

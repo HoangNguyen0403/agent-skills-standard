@@ -14,35 +14,7 @@ description: "Configure protocol-based DI with property wrappers and Factory/Swi
 3. **Choose a DI library** — Use `Factory` for lightweight DI, `Swinject` for enterprise-grade container-based projects.
 4. **Apply correct scoping** — Singleton for app-wide services (Auth, Network); Unique/Transient for ViewModels; Graph/Cached for feature flows.
 
-### Protocol-Based DI Example
-
-```swift
-protocol OrderRepositoryProtocol {
-    func fetchOrders() async throws -> [Order]
-}
-
-class OrderViewModel {
-    private let repository: OrderRepositoryProtocol
-
-    init(repository: OrderRepositoryProtocol) {
-        self.repository = repository
-    }
-}
-```
-
-### Factory Library Registration
-
-```swift
-extension Container {
-    var orderRepository: Factory<OrderRepositoryProtocol> {
-        Factory(self) { OrderRepository() }
-    }
-
-    var orderViewModel: Factory<OrderViewModel> {
-        Factory(self) { OrderViewModel(repository: self.orderRepository()) }
-    }
-}
-```
+See [protocol-based DI and Factory registration examples](references/implementation.md)
 
 ## Anti-Patterns
 

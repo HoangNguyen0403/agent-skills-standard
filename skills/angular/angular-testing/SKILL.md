@@ -11,37 +11,14 @@ description: "Write Angular component tests using TestBed, ComponentHarness, and
 
 - Always use `ComponentHarness` (e.g., `MatButtonHarness`) instead of CSS selectors — harnesses are stable across DOM changes.
 
-```typescript
-it('should submit form on button click', async () => {
-  const loader = TestbedHarnessEnvironment.loader(fixture);
-  const button = await loader.getHarness(MatButtonHarness.with({ text: 'Submit' }));
-  await button.click();
-  expect(component.submitted).toBe(true);
-});
-```
+See [harness pattern](references/harness-pattern.md) for ComponentHarness examples.
 
 ## 2. Mock HTTP with HttpTestingController
 
 - Use `provideHttpClientTesting()` instead of manual HttpClient mocks.
 - Call `expectOne`, `.flush(mockData)`, and `verify()` in `afterEach`.
 
-```typescript
-beforeEach(() => {
-  TestBed.configureTestingModule({
-    imports: [UserComponent],
-    providers: [provideHttpClient(), provideHttpClientTesting()]
-  });
-  httpTesting = TestBed.inject(HttpTestingController);
-});
-
-afterEach(() => httpTesting.verify());
-
-it('should load users', () => {
-  const req = httpTesting.expectOne('/api/users');
-  req.flush([{ id: 1, name: 'Alice' }]);
-  expect(component.users().length).toBe(1);
-});
-```
+See [harness pattern](references/harness-pattern.md) for HttpTestingController examples.
 
 ## 3. Test Signal Inputs Correctly
 

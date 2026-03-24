@@ -53,3 +53,33 @@ func (s *UserService) Register(ctx context.Context, email string) error {
 
 - **Location**: `cmd/`, `configs/`, External libs.
 - **Content**: Glue code, DB drivers, HTTP Frameworks.
+
+## Constructor Injection
+
+```go
+// Domain interface (defined at consumer side)
+type OrderRepository interface {
+    GetByID(ctx context.Context, id string) (*Order, error)
+}
+
+// Service depends on interface, not concrete struct
+type OrderService struct {
+    repo OrderRepository
+}
+
+func NewOrderService(repo OrderRepository) *OrderService {
+    return &OrderService{repo: repo}
+}
+```
+
+## Wiring in main.go
+
+```go
+func main() {
+    db := postgres.NewConnection(cfg.DatabaseURL)
+    orderRepo := postgres.NewOrderRepository(db)
+    orderService := domain.NewOrderService(orderRepo)
+    orderHandler := handler.NewOrderHandler(orderService)
+    // ... set up router
+}
+```

@@ -15,47 +15,7 @@ description: "Manage reactive state with Combine, Observation framework, and UDF
 4. **Dispatch to main thread** — Use `@MainActor` or `.receive(on: DispatchQueue.main)` for UI updates.
 5. **Use exhaustive ViewState** — Prefer a single `ViewState` enum (`.loading`, `.success(data)`, `.error(failure)`).
 
-### Combine ViewModel Example
-
-```swift
-@MainActor
-class OrderViewModel: ObservableObject {
-    @Published private(set) var state: ViewState<[Order]> = .loading
-    private var cancellables = Set<AnyCancellable>()
-
-    func loadOrders() {
-        orderService.fetchOrders()
-            .receive(on: DispatchQueue.main)
-            .sink(
-                receiveCompletion: { [weak self] completion in
-                    if case .failure(let error) = completion {
-                        self?.state = .error(error)
-                    }
-                },
-                receiveValue: { [weak self] orders in
-                    self?.state = .success(orders)
-                }
-            )
-            .store(in: &cancellables)
-    }
-}
-```
-
-### Observation Framework (iOS 17+)
-
-```swift
-@Observable
-class OrderViewModel {
-    var orders: [Order] = []
-    var isLoading = false
-
-    func loadOrders() async {
-        isLoading = true
-        orders = try await orderService.fetchOrders()
-        isLoading = false
-    }
-}
-```
+See [Combine and Observation framework examples](references/implementation.md)
 
 ## Anti-Patterns
 

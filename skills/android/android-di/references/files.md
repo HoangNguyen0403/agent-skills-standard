@@ -44,3 +44,24 @@ abstract class RepositoryModule {
     abstract fun bindRepo(impl: FeedRepositoryImpl): FeedRepository
 }
 ```
+
+## Bootstrap Example
+
+```kotlin
+@HiltAndroidApp
+class MyApp : Application()
+
+@AndroidEntryPoint
+class MainActivity : ComponentActivity()
+```
+
+## Interface Binding (UserRepository)
+
+```kotlin
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+    @Binds
+    abstract fun bindUserRepo(impl: UserRepositoryImpl): UserRepository
+}
+```

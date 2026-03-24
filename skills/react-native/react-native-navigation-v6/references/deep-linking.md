@@ -228,3 +228,47 @@ function App() {
   />
 </Stack.Navigator>
 ```
+
+## Type-Safe Stack Navigator
+
+```tsx
+import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
+
+type RootStackParamList = {
+  Home: undefined;
+  Profile: { userId: string };
+  Settings: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+type ProfileProps = NativeStackScreenProps<RootStackParamList, 'Profile'>;
+
+function ProfileScreen({ route }: ProfileProps) {
+  const { userId } = route.params;
+  return <Text>{userId}</Text>;
+}
+```
+
+## Linking Config with Fallback
+
+```tsx
+const linking = {
+  prefixes: ['myapp://', 'https://myapp.com'],
+  config: {
+    screens: {
+      Home: '',
+      Profile: 'user/:userId',
+      Settings: 'settings',
+      NotFound: '*',
+    },
+  },
+};
+
+<NavigationContainer linking={linking} fallback={<ActivityIndicator />}>
+  <Stack.Navigator>
+    <Stack.Screen name="Home" component={HomeScreen} />
+    <Stack.Screen name="Profile" component={ProfileScreen} />
+  </Stack.Navigator>
+</NavigationContainer>
+```

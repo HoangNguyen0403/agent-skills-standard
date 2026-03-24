@@ -186,3 +186,24 @@ module.exports = {
 ```bash
 npm install --save-dev babel-plugin-transform-remove-console
 ```
+
+## FlatList Quick Reference
+
+```tsx
+const ITEM_HEIGHT = 72;
+
+const renderItem = useCallback(({ item }: { item: Product }) => (
+  <ProductCard product={item} />
+), []);
+
+<FlatList
+  data={products}
+  renderItem={renderItem}
+  keyExtractor={(item) => item.id}
+  getItemLayout={(_, index) => ({ length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index })}
+  windowSize={7}
+  maxToRenderPerBatch={5}
+  initialNumToRender={10}
+  removeClippedSubviews
+/>
+```

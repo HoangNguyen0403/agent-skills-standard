@@ -34,3 +34,25 @@ func handleHeavyData() async {
 1. **Memory Growth**: Select _Allocations_, hit record, and monitor the _Persistent_ column.
 2. **Leaks**: Select _Leaks_, hit record. Red spikes indicate actual leaks (missing `[weak self]`).
 3. **Stalls**: Select _Time Profiler_, look for heavy stack traces with the Main Thread icon.
+
+## Background Processing
+
+```swift
+// Offload heavy work from Main thread
+func processData(_ rawData: Data) async -> [Item] {
+    return await Task.detached(priority: .userInitiated) {
+        let decoder = JSONDecoder()
+        return try decoder.decode([Item].self, from: rawData)
+    }.value
+}
+```
+
+## Cell Reuse Pattern
+
+```swift
+func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let cell = tableView.dequeueReusableCell(withIdentifier: "OrderCell", for: indexPath) as! OrderCell
+    cell.configure(with: orders[indexPath.row]) // Keep lightweight
+    return cell
+}
+```

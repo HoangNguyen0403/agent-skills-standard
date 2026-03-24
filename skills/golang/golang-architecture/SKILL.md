@@ -23,35 +23,7 @@ description: "Structure Go projects with Clean Architecture and standard layout 
 4. **Implement adapters** — Outer layer depends on UseCase/Domain. Contains HTTP handlers, DB repos, etc.
 5. **Wire in main** — Compose the full dependency graph in `main.go`.
 
-### Constructor Injection Example
-
-```go
-// Domain interface (defined at consumer side)
-type OrderRepository interface {
-    GetByID(ctx context.Context, id string) (*Order, error)
-}
-
-// Service depends on interface, not concrete struct
-type OrderService struct {
-    repo OrderRepository
-}
-
-func NewOrderService(repo OrderRepository) *OrderService {
-    return &OrderService{repo: repo}
-}
-```
-
-### Wiring in main.go
-
-```go
-func main() {
-    db := postgres.NewConnection(cfg.DatabaseURL)
-    orderRepo := postgres.NewOrderRepository(db)
-    orderService := domain.NewOrderService(orderRepo)
-    orderHandler := handler.NewOrderHandler(orderService)
-    // ... set up router
-}
-```
+See [constructor injection and wiring examples](references/clean-arch.md)
 
 ## Verification Checklist
 

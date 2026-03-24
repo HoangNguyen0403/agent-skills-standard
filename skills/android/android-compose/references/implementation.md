@@ -43,3 +43,29 @@ fun FeedContent(
 
 - Use `@Immutable` or `@Stable` on UI State classes to enable skipping.
 - Avoid passing Lists; use `ImmutableList` (Kotlinx Collections Immutable).
+
+## State Hoisting Example
+
+```kotlin
+@Composable
+fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    ProfileContent(
+        user = uiState.user,
+        onEditClick = viewModel::onEditClick  // lambda down
+    )
+}
+
+@Composable
+fun ProfileContent(user: User, onEditClick: () -> Unit) {
+    Column { Text(user.name); Button(onClick = onEditClick) { Text("Edit") } }
+}
+```
+
+## derivedStateOf Usage
+
+```kotlin
+val filteredItems by remember {
+    derivedStateOf { items.filter { it.isActive } }
+}
+```

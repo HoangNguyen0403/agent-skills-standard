@@ -16,42 +16,7 @@ description: "Write unit tests with table-driven patterns and interface mocking 
 5. **Clean up resources** — Use `t.Cleanup()` to reset state or release DB/file resources.
 6. **Check coverage** — Aim for >80% line coverage. Run `go test -cover` to audit.
 
-### Table-Driven Test Example
-
-```go
-func TestGetOrder(t *testing.T) {
-    tests := []struct {
-        name    string
-        id      string
-        want    *Order
-        wantErr bool
-    }{
-        {
-            name: "valid order",
-            id:   "order-123",
-            want: &Order{ID: "order-123", Status: "confirmed"},
-        },
-        {
-            name:    "missing ID returns error",
-            id:      "",
-            wantErr: true,
-        },
-    }
-
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            t.Parallel()
-            got, err := svc.GetOrder(context.Background(), tt.id)
-            if tt.wantErr {
-                require.Error(t, err)
-                return
-            }
-            require.NoError(t, err)
-            assert.Equal(t, tt.want.ID, got.ID)
-        })
-    }
-}
-```
+See [table-driven test examples](references/table-driven-tests.md)
 
 ## Tools
 

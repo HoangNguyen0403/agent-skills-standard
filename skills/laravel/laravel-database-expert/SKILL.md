@@ -17,17 +17,7 @@ description: "Optimize Laravel queries with subqueries, joinSub, Redis cache-asi
 
 ## Cache-Aside with Tags Example
 
-```php
-// Retrieve with cache; invalidate on mutation
-$posts = Cache::tags(['posts', "user:{$userId}"])->remember(
-    "posts.user.{$userId}",
-    now()->addMinutes(30),
-    fn () => Post::where('user_id', $userId)->with('comments')->get()
-);
-
-// Invalidate after update
-Cache::tags(['posts'])->flush();
-```
+See [implementation examples](references/implementation.md#cache-aside-with-tags) for cache-aside pattern with tag-based invalidation.
 
 ## Implementation Guidelines
 

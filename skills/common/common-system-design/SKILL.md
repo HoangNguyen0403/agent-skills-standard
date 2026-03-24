@@ -28,12 +28,7 @@ description: "Enforce separation of concerns, dependency inversion, and resilien
 - **Loose Coupling**: Use interfaces for communication.
 - **DI**: Inject dependencies, don't hardcode.
 
-```text
-# Dependency flow (Clean Architecture)
-Controller → UseCase → Repository (interface)
-                             ↑
-                    RepositoryImpl (infra)
-```
+See [implementation examples](references/implementation.md) for dependency flow diagrams.
 
 ## Common Patterns
 

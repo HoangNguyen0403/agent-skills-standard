@@ -81,3 +81,32 @@ func process(_ value: Int) {
     // Compiler knows value >= 0 here
 }
 ```
+
+## Custom Error with LocalizedError
+
+```swift
+enum NetworkError: Error, LocalizedError {
+    case connectionLost
+    case unauthorized(statusCode: Int)
+
+    var errorDescription: String? {
+        switch self {
+        case .connectionLost: return "Connection lost"
+        case .unauthorized(let code): return "Unauthorized (\(code))"
+        }
+    }
+}
+
+func fetchUser(id: String) async throws -> User {
+    guard !id.isEmpty else { throw NetworkError.unauthorized(statusCode: 401) }
+    // ...
+}
+
+do {
+    let user = try await fetchUser(id: "123")
+} catch let error as NetworkError {
+    logger.error("Network error: \(error.localizedDescription)")
+} catch {
+    logger.error("Unexpected: \(error)")
+}
+```

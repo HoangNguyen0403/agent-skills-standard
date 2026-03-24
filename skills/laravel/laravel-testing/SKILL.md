@@ -17,30 +17,7 @@ description: "Write Pest feature tests with RefreshDatabase, mock external servi
 
 ## Pest Feature Test Example
 
-```php
-// tests/Feature/PostTest.php
-uses(RefreshDatabase::class);
-
-it('creates a post and returns 201', function () {
-    $user = User::factory()->create();
-
-    $this->actingAs($user)
-        ->postJson('/api/posts', ['title' => 'Hello', 'body' => 'World'])
-        ->assertStatus(201)
-        ->assertJson(['data' => ['title' => 'Hello']]);
-
-    $this->assertDatabaseHas('posts', ['title' => 'Hello']);
-});
-```
-
-## Structure
-
-```text
-tests/
-├── Feature/            # Integration/HTTP tests
-├── Unit/               # Isolated logic tests
-└── TestCase.php
-```
+See [implementation examples](references/implementation.md#pest-feature-test-example) for Pest feature tests and test directory structure.
 
 ## Implementation Guidelines
 

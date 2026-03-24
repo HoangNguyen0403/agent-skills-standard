@@ -36,18 +36,7 @@ lib/
 - **Functional Error Handling**: Repositories must return `Either<Failure, Success>`.
 - **Always Map**: Infrastructure must map DTOs to Domain Entities; do not leak DTOs to UI.
 
-```dart
-// lib/infrastructure/dtos/user_dto.dart
-class UserDto {
-  final String id;
-  final String name;
-
-  factory UserDto.fromJson(Map<String, dynamic> json) =>
-      UserDto(id: json['id'], name: json['name']);
-
-  UserEntity toEntity() => UserEntity(id: id, name: name);
-}
-```
+See [DTO-to-Entity mapping example](references/REFERENCE.md).
 
 - **Immutability**: Use `@freezed` for all entities and failures.
 - **Logic Placement**: No business logic in UI; widgets only display state and emit events.

@@ -17,13 +17,7 @@ Manage the Attention Budget. Treat context as a scarce resource.
 3. **Mask** by rewriting history to replace raw data with a summary placeholder.
 4. **See** `references/masking.md` for patterns.
 
-```text
-# Before (wastes ~800 tokens):
-[tool_output]: { ... 200 lines of JSON ... }
-
-# After masking (~30 tokens):
-[Reference: 3 users matched filter; oldest created 2024-01-15]
-```
+See [implementation examples](references/implementation.md) for masking patterns.
 
 ## 2. Context Compaction (State Preservation)
 
@@ -37,12 +31,7 @@ Manage the Attention Budget. Treat context as a scarce resource.
 3. **Format**: Update System Prompt or Memory File with compacted state.
 4. **See** `references/compaction.md` for algorithms.
 
-```text
-# Compacted state example:
-Goal: Fix auth timeout | Task: Retry logic in AuthService
-Decisions: Use exponential backoff (max 3 retries)
-Errors: 401 on token refresh after 30s idle
-```
+See [implementation examples](references/implementation.md) for compacted state format.
 
 ## 3. KV-Cache Awareness (Latency)
 

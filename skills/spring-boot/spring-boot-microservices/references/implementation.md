@@ -38,3 +38,35 @@ public class EventHandlers {
     }
 }
 ```
+
+## Feign Client with Circuit Breaker
+
+```java
+@FeignClient(name = "order-service", fallback = OrderClientFallback.class)
+public interface OrderClient {
+    @GetMapping("/api/orders/{id}")
+    OrderDto getOrder(@PathVariable String id);
+}
+
+@Component
+public class OrderClientFallback implements OrderClient {
+    @Override
+    public OrderDto getOrder(String id) {
+        return OrderDto.empty(); // cached or default response
+    }
+}
+```
+
+## Event Consumer with Idempotency
+
+```java
+@Bean
+public Consumer<OrderCreatedEvent> processOrder() {
+    return event -> {
+        log.info("Processing order: {}", event.orderId());
+        // Idempotency: check if already processed
+        if (orderStore.exists(event.orderId())) return;
+        orderStore.save(event);
+    };
+}
+```

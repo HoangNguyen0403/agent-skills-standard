@@ -18,13 +18,7 @@ description: "Apply expert schema design, indexing, and performance rules for Mo
 
 - **ESR Rule**: Equality, Sort, Range. Order your index keys `(status, date, price)` if you query `status='A'`, sort by `date`, filter `price > 10`.
 
-```javascript
-// Create compound index following ESR rule
-db.orders.createIndex({ status: 1, date: 1, price: 1 });
-
-// Query leveraging the index
-db.orders.find({ status: "active" }).sort({ date: 1 }).hint({ status: 1, date: 1, price: 1 });
-```
+See [implementation examples](references/implementation.md) for compound index and pagination patterns.
 
 - **Text Search**: Use `$text` search instead of `$regex` for keywords. `$regex` is slow (linear scan) unless anchored (`^prefix`).
 - **Covered Queries**: Project only indexed fields to avoid fetching the document (`PROJECTION` is key).
@@ -37,12 +31,6 @@ db.orders.find({ status: "active" }).sort({ date: 1 }).hint({ status: 1, date: 1
 ## Improve Query Performance
 
 - **Cursor-Based Pagination**: Use `_id` or sort-key based pagination instead of `skip()`. `skip(10000)` scans 10000 docs.
-
-```javascript
-// Cursor-based pagination (efficient)
-const lastId = ObjectId("64a7...");
-db.products.find({ _id: { $gt: lastId } }).sort({ _id: 1 }).limit(20);
-```
 
 - **Aggregation**: Prefer Aggregation Framework (`$match`, `$group`) over bringing data to client (JS).
 

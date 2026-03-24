@@ -30,3 +30,36 @@ func LoadConfig() (*Config, error) {
     return &cfg, nil
 }
 ```
+
+## Config Struct with env Tags
+
+```go
+type Config struct {
+    Port        int    `env:"PORT" envDefault:"8080"`
+    DatabaseURL string `env:"DATABASE_URL,required"`
+    LogLevel    string `env:"LOG_LEVEL" envDefault:"info"`
+    JWTSecret   string `env:"JWT_SECRET,required"`
+}
+
+func LoadConfig() (*Config, error) {
+    cfg := &Config{}
+    if err := env.Parse(cfg); err != nil {
+        return nil, fmt.Errorf("config parse failed: %w", err)
+    }
+    return cfg, nil
+}
+```
+
+## Usage in main.go
+
+```go
+func main() {
+    cfg, err := LoadConfig()
+    if err != nil {
+        log.Fatalf("failed to load config: %v", err)
+    }
+    db := postgres.NewConnection(cfg.DatabaseURL)
+    srv := server.New(cfg.Port, db)
+    srv.Start()
+}
+```

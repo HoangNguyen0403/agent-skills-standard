@@ -30,3 +30,22 @@ ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
 server.shutdown=graceful
 spring.lifecycle.timeout-per-shutdown-phase=20s
 ```
+
+## Multi-Stage Layered Dockerfile (Non-Root)
+
+```dockerfile
+# Multi-stage layered Dockerfile
+FROM eclipse-temurin:21-jre AS builder
+WORKDIR /app
+COPY target/*.jar app.jar
+RUN java -Djarmode=layertools -jar app.jar extract
+
+FROM eclipse-temurin:21-jre
+RUN addgroup --system app && adduser --system --ingroup app app
+USER app
+WORKDIR /app
+COPY --from=builder /app/dependencies/ ./
+COPY --from=builder /app/spring-boot-loader/ ./
+COPY --from=builder /app/application/ ./
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "org.springframework.boot.loader.launch.JarLauncher"]
+```

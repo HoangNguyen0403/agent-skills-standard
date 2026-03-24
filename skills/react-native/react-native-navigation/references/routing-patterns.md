@@ -83,3 +83,32 @@ function ProductScreen({ route, navigation }: Props) {
   }, [error]);
 }
 ```
+
+## 5. NavigationContainer with Linking
+
+```tsx
+import { NavigationContainer } from '@react-navigation/native';
+
+type RootStackParamList = {
+  Home: undefined;
+  Detail: { itemId: string };
+};
+
+const linking = {
+  prefixes: ['myapp://', 'https://myapp.com'],
+  config: {
+    screens: { Home: '', Detail: 'item/:itemId' },
+  },
+};
+
+function App() {
+  return (
+    <NavigationContainer linking={linking} fallback={<Loading />}>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Detail" component={DetailScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+```

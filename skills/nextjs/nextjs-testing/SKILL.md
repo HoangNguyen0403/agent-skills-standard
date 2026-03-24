@@ -17,28 +17,11 @@ description: "Write Vitest unit tests with React Testing Library and Playwright 
 
 ## Component Test Example
 
-```typescript
-// tests/unit/post-card.test.tsx
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { PostCard } from '@/components/post-card';
-
-test('calls onLike when heart button is clicked', async () => {
-  const onLike = vi.fn();
-  render(<PostCard title="Hello" onLike={onLike} />);
-  await userEvent.click(screen.getByRole('button', { name: /like/i }));
-  expect(onLike).toHaveBeenCalledOnce();
-});
-```
+See [implementation examples](references/implementation.md)
 
 ## Structure
 
-```text
-tests/
-├── unit/               # Vitest + RTL
-├── e2e/                # Playwright
-└── mocks/              # MSW Handlers
-```
+See [implementation examples](references/implementation.md)
 
 ## Implementation Guidelines
 

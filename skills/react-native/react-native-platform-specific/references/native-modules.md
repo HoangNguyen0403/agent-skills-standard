@@ -78,3 +78,25 @@ function SafeHeader() {
   );
 }
 ```
+
+## Platform-Specific File Naming
+
+```text
+Button.tsx          # Shared
+Button.ios.tsx      # iOS-specific
+Button.android.tsx  # Android-specific
+```
+
+## Platform.select for Inline Branching
+
+```tsx
+import { Platform, StyleSheet } from 'react-native';
+
+const styles = StyleSheet.create({
+  shadow: Platform.select({
+    ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1 },
+    android: { elevation: 4 },
+    default: {},
+  }),
+});
+```

@@ -14,19 +14,7 @@ description: "Structure Spring Boot 3+ projects with feature packaging and clean
 - **DTO Pattern**: ALWAYS use DTOs for API inputs/outputs. NEVER return `@Entity` directly.
 - **Java Records**: Use `record` for DTOs to ensure immutability (Java 17+).
 
-```java
-// Immutable DTO with Java Record
-public record CreateOrderRequest(
-    @NotBlank String productName,
-    @Positive int quantity
-) {}
-
-public record OrderResponse(Long id, String productName, int quantity, String status) {
-    public static OrderResponse from(Order order) {
-        return new OrderResponse(order.getId(), order.getProductName(), order.getQuantity(), order.getStatus().name());
-    }
-}
-```
+See [implementation examples](references/implementation.md) for Java Record DTOs, controller patterns, and global exception handling.
 
 ## Define Layer Responsibilities
 

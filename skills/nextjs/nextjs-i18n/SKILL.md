@@ -21,19 +21,7 @@ Maintain a single source of truth for locales and ensure SEO-friendly sub-path r
 
 ## Middleware Example
 
-```typescript
-// middleware.ts
-import createMiddleware from "next-intl/middleware";
-
-export default createMiddleware({
-  locales: ["en", "fr", "vi"],
-  defaultLocale: "en",
-});
-
-export const config = {
-  matcher: ["/((?!api|_next|.*\\..*).*)"],
-};
-```
+See [implementation examples](references/implementation.md)
 
 ## Implementation Guidelines
 

@@ -33,3 +33,33 @@ User::chunk(100, function ($users) {
     }
 });
 ```
+
+## Scope + Eager Loading Example
+
+```php
+// app/Models/User.php
+class User extends Model {
+    protected $fillable = ['name', 'email', 'status'];
+    protected $casts = ['email_verified_at' => 'datetime'];
+
+    public function scopeActive(Builder $query): Builder {
+        return $query->where('status', 'active');
+    }
+
+    public function posts(): HasMany {
+        return $this->hasMany(Post::class);
+    }
+}
+
+// Usage: eager-load + scope chain
+$users = User::active()->with('posts')->paginate(20);
+```
+
+## Model Directory Structure
+
+```text
+app/
+└── Models/
+    ├── {Model}.php
+    └── Scopes/         # Advanced global scopes
+```

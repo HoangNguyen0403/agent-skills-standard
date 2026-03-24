@@ -90,3 +90,19 @@ npm version patch
 # Push to CodePush
 appcenter codepush release-react -a User/MyApp -d Production
 ```
+
+## EAS Build Profiles (Minimal)
+
+```json
+{
+  "build": {
+    "development": { "developmentClient": true },
+    "preview": { "distribution": "internal" },
+    "production": { "autoIncrement": true }
+  }
+}
+```
+
+```bash
+eas build --platform ios --profile production
+```

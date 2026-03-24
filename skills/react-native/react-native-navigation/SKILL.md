@@ -16,32 +16,7 @@ Navigation and deep linking using React Navigation.
 - **Deep Links**: Configure `linking` prop in `NavigationContainer`.
 - **Validation**: Validate route parameters (`route.params`) before fetching data.
 
-```tsx
-import { NavigationContainer } from '@react-navigation/native';
-
-type RootStackParamList = {
-  Home: undefined;
-  Detail: { itemId: string };
-};
-
-const linking = {
-  prefixes: ['myapp://', 'https://myapp.com'],
-  config: {
-    screens: { Home: '', Detail: 'item/:itemId' },
-  },
-};
-
-function App() {
-  return (
-    <NavigationContainer linking={linking} fallback={<Loading />}>
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Detail" component={DetailScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-}
-```
+See [routing patterns](references/routing-patterns.md) for type-safe stack setup and deep linking configuration.
 
 ## Anti-Patterns
 

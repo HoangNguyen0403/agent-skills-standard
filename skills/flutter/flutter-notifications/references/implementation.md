@@ -1,5 +1,23 @@
 # Flutter Notification Implementation
 
+## Lifecycle Handlers (Quick Reference)
+
+```dart
+// Foreground
+FirebaseMessaging.onMessage.listen((message) {
+  _showLocalNotification(message);
+});
+
+// Background (app open but not in foreground)
+FirebaseMessaging.onMessageOpenedApp.listen((message) {
+  _handleNavigation(message.data);
+});
+
+// Terminated (cold start from notification tap)
+final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+if (initialMessage != null) _handleNavigation(initialMessage.data);
+```
+
 ## 1. Setup Dependencies
 
 ```yaml

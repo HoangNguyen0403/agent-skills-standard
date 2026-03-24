@@ -34,3 +34,24 @@ public class SchedulerConfig {
     }
 }
 ```
+
+## ShedLock with Error Handling
+
+```java
+@Slf4j
+@Component
+@EnableScheduling
+public class ReportScheduler {
+
+    @Scheduled(cron = "0 0 2 * * *") // 2 AM daily
+    @SchedulerLock(name = "dailyReport", lockAtMostFor = "PT30M", lockAtLeastFor = "PT5M")
+    public void generateDailyReport() {
+        try {
+            log.info("Starting daily report generation");
+            reportService.generate();
+        } catch (Exception e) {
+            log.error("Daily report failed", e);
+        }
+    }
+}
+```

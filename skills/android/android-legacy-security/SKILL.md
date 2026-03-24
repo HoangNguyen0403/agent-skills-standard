@@ -13,10 +13,7 @@ description: "Harden Intent handling, WebView configuration, and FileProvider ac
 - Verify `resolveActivity` before starting implicit intents.
 - Treat all incoming Intent extras as untrusted — validate all schema/data types.
 
-```xml
-<!-- AndroidManifest.xml — restrict exported components -->
-<activity android:name=".InternalActivity" android:exported="false" />
-```
+See [hardening examples](references/implementation.md) for manifest and component restrictions.
 
 ## 2. Lock Down WebViews
 
@@ -24,13 +21,7 @@ description: "Harden Intent handling, WebView configuration, and FileProvider ac
 - Disable `allowFileAccess` and `allowFileAccessFromFileURLs` to prevent local file theft via XSS.
 - If using `@JavascriptInterface` (API 17+), strictly limit the exposed API surface.
 
-```kotlin
-webView.settings.apply {
-    javaScriptEnabled = false          // enable only when required
-    allowFileAccess = false
-    allowFileAccessFromFileURLs = false
-}
-```
+See [hardening examples](references/implementation.md) for WebView lockdown patterns.
 
 ## 3. Protect Storage and Files
 

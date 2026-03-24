@@ -32,3 +32,34 @@ func (h *Handler) Handle(ctx context.Context) {
 ## Custom Handler
 
 To automatically add attributes from Context to every log: implement `slog.Handler`.
+
+## slog Setup and Per-Request Logging
+
+```go
+package main
+
+import (
+    "log/slog"
+    "net/http"
+    "os"
+)
+
+func main() {
+    logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+        Level: slog.LevelInfo,
+    }))
+    slog.SetDefault(logger)
+
+    slog.Info("server starting", slog.String("port", "8080"))
+}
+
+// Per-request logging with correlation ID
+func handler(w http.ResponseWriter, r *http.Request) {
+    reqLog := slog.With(
+        slog.String("traceId", r.Header.Get("X-Request-Id")),
+        slog.String("method", r.Method),
+        slog.String("path", r.URL.Path),
+    )
+    reqLog.Info("handling request")
+}
+```

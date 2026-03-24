@@ -68,3 +68,29 @@ func testLoginFlow() throws {
     XCTAssertTrue(app.staticTexts["welcome_message"].exists)
 }
 ```
+
+## Order Service Test with Async
+
+```swift
+final class OrderServiceTests: XCTestCase {
+    private var sut: OrderService!
+    private var mockRepo: MockOrderRepository!
+
+    override func setUpWithError() throws {
+        mockRepo = MockOrderRepository()
+        sut = OrderService(repository: mockRepo)
+    }
+
+    func testCreateOrderReturnsCorrectTotal() throws {
+        let order = try sut.createOrder(items: [.init(name: "Widget", price: 9.99, qty: 3)])
+        XCTAssertEqual(order.total, 29.97, accuracy: 0.01)
+        XCTAssertEqual(mockRepo.savedOrders.count, 1)
+    }
+
+    func testFetchOrderAsync() async throws {
+        mockRepo.stubbedOrder = Order(id: "abc", total: 42.0)
+        let order = try await sut.fetchOrder(id: "abc")
+        XCTAssertEqual(order.total, 42.0)
+    }
+}
+```

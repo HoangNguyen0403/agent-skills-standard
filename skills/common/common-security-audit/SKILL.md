@@ -9,10 +9,7 @@ description: "Probe for hardcoded secrets, injection surfaces, unguarded routes,
 
 ## 1. Scan for Hardcoded Secrets
 
-```bash
-grep -riE "(password|apiKey|api_key|secret|private_key|token)\s*=\s*['\"][^'\"]{6,}" \
-  . --exclude-dir={node_modules,dist,build,.git} -l
-```
+See [implementation examples](references/implementation.md) for secrets scanning commands.
 
 ## 2. Detect Data Leakage in Logs
 
@@ -27,10 +24,7 @@ Identify sensitive info printed to logs or stdout.
 
 Detect raw string concatenation in queries or system commands.
 
-```bash
-grep -rE "\+.*SELECT|\+.*INSERT|\+.*UPDATE|\+.*DELETE|query\(.*\+|fmt\.Sprintf.*SELECT" \
-  . --include="*.ts" --include="*.js" --include="*.go" --include="*.java" --include="*.py"
-```
+See [implementation examples](references/implementation.md) for injection surface detection.
 
 ## 4. Measure Auth Coverage vs Exposure
 
@@ -51,9 +45,7 @@ Compare total routes against protected endpoints.
 
 ## 6. Audit Infrastructure Hardening
 
-```bash
-grep -rE "^FROM .+:latest|^USER root|curl.*sh.*|ADD http" . --include="Dockerfile"
-```
+See [implementation examples](references/implementation.md) for infrastructure hardening checks.
 
 ## Scoring Impact
 

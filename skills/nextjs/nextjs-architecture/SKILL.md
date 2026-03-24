@@ -17,19 +17,11 @@ Adopt **Feature-Sliced Design (FSD)** for scalable applications.
 3. **Wire into page** — Import the feature widget in `app/login/page.tsx` (thin page).
 4. **Verify imports** — Ensure no upward or cross-slice imports violate the layer hierarchy.
 
-## Layer Hierarchy Example
+## Layer Hierarchy
 
-```
-App (app/) -> Widgets -> Features -> Entities -> Shared
-```
+`App (app/) -> Widgets -> Features -> Entities -> Shared`
 
-```typescript
-// app/dashboard/page.tsx — thin page, imports only widgets/features
-import { DashboardWidget } from '@/widgets/dashboard';
-export default function DashboardPage() {
-  return <DashboardWidget />;
-}
-```
+See [implementation examples](references/implementation.md) for a thin page example.
 
 ## Strategy
 

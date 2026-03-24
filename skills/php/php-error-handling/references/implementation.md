@@ -24,3 +24,35 @@ try {
     $db->disconnect();
 }
 ```
+
+## Directory Structure
+
+```text
+src/
+└── Exceptions/
+    ├── {Domain}Exception.php
+    └── Handler.php
+```
+
+## Exception Hierarchy Example
+
+```php
+// Domain exception hierarchy
+class OrderException extends \RuntimeException {}
+class OrderNotFoundException extends OrderException {}
+class InsufficientStockException extends OrderException {}
+
+// Usage with multi-catch and finally
+try {
+    $order = $repository->findOrFail($id);
+    $order->fulfill();
+} catch (OrderNotFoundException $e) {
+    $logger->warning('Order not found', ['id' => $id]);
+    throw $e;
+} catch (InsufficientStockException | \DomainException $e) {
+    $logger->error($e->getMessage(), ['exception' => $e]);
+    return new ErrorResponse(422, $e->getMessage());
+} finally {
+    $connection->close();
+}
+```

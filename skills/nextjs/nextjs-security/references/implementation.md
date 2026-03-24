@@ -27,3 +27,22 @@ return <Profile user={{ name: user.name }} />;
 // BAD: Pass the whole object (leaking passwordHash)
 return <Profile user={user} />;
 ```
+
+## Inline Examples
+
+```typescript
+// app/posts/actions.ts
+'use server';
+import { auth } from '@/lib/auth';
+import { z } from 'zod';
+
+const CreatePostSchema = z.object({ title: z.string().min(1).max(200) });
+
+export async function createPost(formData: FormData) {
+  const session = await auth();
+  if (!session) throw new Error('Unauthorized');
+  const { title } = CreatePostSchema.parse({ title: formData.get('title') });
+  await db.post.create({ data: { title, authorId: session.user.id } });
+  revalidateTag('posts');
+}
+```

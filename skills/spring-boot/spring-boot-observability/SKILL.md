@@ -20,25 +20,7 @@ description: "Instrument Spring Boot with Micrometer metrics, distributed tracin
 - **Propagation**: Propagate context across threads (`@Async`) and clients.
 - **OpenTelemetry**: Use OTel bridge (`micrometer-tracing-bridge-otel`).
 
-```yaml
-# application.yaml
-management:
-  tracing:
-    sampling:
-      probability: 1.0
-  endpoints:
-    web:
-      exposure:
-        include: health,info,prometheus
-  endpoint:
-    health:
-      probes:
-        enabled: true
-
-logging:
-  pattern:
-    correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
-```
+See [implementation examples](references/implementation.md) for application.yaml tracing configuration and actuator exposure.
 
 ## Configure Structured Logging
 
@@ -46,23 +28,7 @@ logging:
 - **MDC**: Use MDC for contextual info (userId, tenantId). Always clear MDC in a finally block.
 - **Output**: Log to stdout only. Let container handle shipping.
 
-```java
-import static net.logstash.logback.argument.StructuredArguments.kv;
-
-@Slf4j
-@Service
-public class OrderService {
-    public Order process(OrderRequest req) {
-        MDC.put("userId", req.userId());
-        try {
-            log.info("Processing order", kv("productId", req.productId()), kv("quantity", req.quantity()));
-            return orderRepository.save(new Order(req));
-        } finally {
-            MDC.clear();
-        }
-    }
-}
-```
+See [implementation examples](references/implementation.md) for structured logging with MDC context and Logstash encoder.
 
 ## Secure Actuator Endpoints
 

@@ -40,3 +40,40 @@ func TestSomething(t *testing.T) {
     }
 }
 ```
+
+## Table-Driven Test with Testify
+
+```go
+func TestGetOrder(t *testing.T) {
+    tests := []struct {
+        name    string
+        id      string
+        want    *Order
+        wantErr bool
+    }{
+        {
+            name: "valid order",
+            id:   "order-123",
+            want: &Order{ID: "order-123", Status: "confirmed"},
+        },
+        {
+            name:    "missing ID returns error",
+            id:      "",
+            wantErr: true,
+        },
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            t.Parallel()
+            got, err := svc.GetOrder(context.Background(), tt.id)
+            if tt.wantErr {
+                require.Error(t, err)
+                return
+            }
+            require.NoError(t, err)
+            assert.Equal(t, tt.want.ID, got.ID)
+        })
+    }
+}
+```

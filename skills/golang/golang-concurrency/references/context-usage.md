@@ -36,3 +36,17 @@ func main() {
     }()
 }
 ```
+
+## Context Timeout with Select
+
+```go
+ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+defer cancel()
+
+select {
+case result := <-doWork(ctx):
+    return result, nil
+case <-ctx.Done():
+    return nil, ctx.Err()
+}
+```

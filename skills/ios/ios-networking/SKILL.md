@@ -16,36 +16,7 @@ description: "Build API clients with URLSession, Alamofire, and Codable. Use whe
 5. **Handle token refresh** — On 401, use `RequestInterceptor.onRetry` to call `refreshToken()` and retry.
 6. **Pin certificates** — Use `ServerTrustManager` or `TrustKit` for production-grade security.
 
-### URLSession async/await Example
-
-```swift
-func fetchOrders() async throws -> [Order] {
-    var components = URLComponents(string: "https://api.example.com/orders")!
-    components.queryItems = [URLQueryItem(name: "status", value: "active")]
-
-    let (data, response) = try await URLSession.shared.data(from: components.url!)
-    guard let httpResponse = response as? HTTPURLResponse,
-          (200...299).contains(httpResponse.statusCode) else {
-        throw NetworkError.invalidResponse
-    }
-    let decoder = JSONDecoder()
-    decoder.keyDecodingStrategy = .convertFromSnakeCase
-    return try decoder.decode([Order].self, from: data)
-}
-```
-
-### Alamofire with Validation
-
-```swift
-AF.request("https://api.example.com/orders", interceptor: authInterceptor)
-    .validate()
-    .responseDecodable(of: [Order].self) { response in
-        switch response.result {
-        case .success(let orders): handleOrders(orders)
-        case .failure(let error): handleError(error)
-        }
-    }
-```
+See [URLSession and Alamofire implementation examples](references/implementation.md)
 
 ## Anti-Patterns
 

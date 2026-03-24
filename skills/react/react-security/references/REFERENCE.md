@@ -2,6 +2,30 @@
 
 CSP configuration and advanced security patterns.
 
+## XSS Prevention with DOMPurify
+
+```tsx
+import DOMPurify from 'dompurify';
+
+// Safe HTML rendering with DOMPurify
+function SafeContent({ html }: { html: string }) {
+  const clean = DOMPurify.sanitize(html, { ALLOWED_TAGS: ['b', 'i', 'a', 'p'] });
+  return <div dangerouslySetInnerHTML={{ __html: clean }} />;
+}
+```
+
+## Secure Cookie Configuration
+
+```tsx
+// Secure cookie configuration (server-side)
+res.cookie('session', token, {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'strict',
+  maxAge: 15 * 60 * 1000, // 15 minutes
+});
+```
+
 ## References
 
 - [**Content Security Policy**](csp.md) - CSP headers configuration.

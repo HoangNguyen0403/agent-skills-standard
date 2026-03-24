@@ -14,49 +14,13 @@ Use **React Navigation** (official solution).
 - **Architecture**: Use **Native Stack (`createNativeStackNavigator`)** by default for native performance. Only use **JS Stack** for custom transitions.
 - **Typing**: Use **`NativeStackScreenProps`** for screens. **`CompositeScreenProps`** for nested Navigators.
 
-```tsx
-import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
-
-type RootStackParamList = {
-  Home: undefined;
-  Profile: { userId: string };
-  Settings: undefined;
-};
-
-const Stack = createNativeStackNavigator<RootStackParamList>();
-
-type ProfileProps = NativeStackScreenProps<RootStackParamList, 'Profile'>;
-
-function ProfileScreen({ route }: ProfileProps) {
-  const { userId } = route.params;
-  return <Text>{userId}</Text>;
-}
-```
+See [deep linking reference](references/deep-linking.md) for typed param lists and stack navigator setup.
 
 ## Configure Deep Linking
 
 - **Deep Linking**: Use **prefix arrays** in `linking` config. Validate **Universal Links (iOS)** and **App Links (Android)**. Handle **unrecognized paths** with a 404 screen.
 
-```tsx
-const linking = {
-  prefixes: ['myapp://', 'https://myapp.com'],
-  config: {
-    screens: {
-      Home: '',
-      Profile: 'user/:userId',
-      Settings: 'settings',
-      NotFound: '*',
-    },
-  },
-};
-
-<NavigationContainer linking={linking} fallback={<ActivityIndicator />}>
-  <Stack.Navigator>
-    <Stack.Screen name="Home" component={HomeScreen} />
-    <Stack.Screen name="Profile" component={ProfileScreen} />
-  </Stack.Navigator>
-</NavigationContainer>
-```
+See [deep linking reference](references/deep-linking.md) for linking configuration with prefix arrays and fallback screens.
 
 ## Implement Auth Flow
 

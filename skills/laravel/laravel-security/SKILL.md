@@ -17,21 +17,7 @@ description: "Harden Laravel apps with Policies for model authorization, Gate-ba
 
 ## Policy Example
 
-```php
-// app/Policies/PostPolicy.php
-class PostPolicy {
-    public function update(User $user, Post $post): bool {
-        return $user->id === $post->user_id;
-    }
-}
-
-// In controller
-public function update(UpdatePostRequest $request, Post $post) {
-    $this->authorize('update', $post);
-    $post->update($request->validated());
-    return new PostResource($post);
-}
-```
+See [implementation examples](references/implementation.md#policy-example) for Policy class with controller authorization.
 
 ## Implementation Guidelines
 

@@ -31,3 +31,27 @@ In `Assets.xcassets`:
 - Create folder `Icons`
 - Right-click > _Provides Namespace_
 - Access via: `UIImage(named: "Icons/Search")`
+
+## Localization Usage
+
+```swift
+// Modern String Catalog approach (Xcode 15+)
+Text(String(localized: "welcome_message"))
+
+// With interpolation
+Text(String(localized: "greeting \(userName)"))
+
+// Locale-aware formatting
+Text(price.formatted(.currency(code: "USD")))
+Text(date.formatted(.dateTime.month().day().year()))
+```
+
+## Asset Catalog Best Practices
+
+```swift
+// Use SF Symbols for standard icons
+Image(systemName: "heart.fill")
+
+// Use Asset Catalog with namespaces
+Image("Icons/profileAvatar")
+```

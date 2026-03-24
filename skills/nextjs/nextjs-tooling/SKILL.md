@@ -9,29 +9,11 @@ description: "Configure Next.js build tooling, deployment, and developer workflo
 
 ## Standalone Docker Config
 
-```js
-// next.config.js — optimized for Docker deployment
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  output: 'standalone', // Self-contained build for Docker
-  experimental: {
-    turbo: {}, // Enable Turbopack
-  },
-};
-module.exports = nextConfig;
-```
+See [implementation examples](references/implementation.md)
 
 ## Environment Variable Validation
 
-```typescript
-// lib/env.ts — validate env at startup with Zod
-import { z } from 'zod';
-const envSchema = z.object({
-  DATABASE_URL: z.string().url(),
-  NEXT_PUBLIC_API_URL: z.string().url(),
-});
-export const env = envSchema.parse(process.env);
-```
+See [implementation examples](references/implementation.md)
 
 ## Implementation Guidelines
 

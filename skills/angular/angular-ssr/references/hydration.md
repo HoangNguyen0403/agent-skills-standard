@@ -26,3 +26,16 @@ export class ChartComponent {
   }
 }
 ```
+
+## Full App Config with Hydration and Transfer Cache
+
+```typescript
+// app.config.ts
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes),
+    provideClientHydration(withEventReplay()),
+    provideHttpClient(withHttpTransferCacheOptions({ includePostRequests: false }))
+  ]
+};
+```
