@@ -113,7 +113,7 @@ The Agent Skills Standard is a modular library. We follow a strict **Token Econo
 | **NestJS**              | Architecture, Security, BullMQ          | `v1.4.1`  | Healthy | 21     |
 | **Next.js**             | App Router, SEO, Performance            | `v1.4.1`  | Healthy | 18     |
 | **Angular**             | Architecture, Signals, RxJS             | `v1.3.1`  | Healthy | 16     |
-| **Android**             | Compose, Architecture, Serialization    | ``v1.3.1` | Healthy | 22     |
+| **Android**             | Compose, Architecture, Serialization    | `v1.3.1`  | Healthy | 22     |
 | **iOS**                 | Architecture, SwiftUI, Concurrency      | `v1.4.1`  | Healthy | 15     |
 | **Swift**               | Concurrency, Architecture               | `v1.3.1`  | Healthy | 8      |
 | **Kotlin**              | Language, Concurrency                   | `v1.3.1`  | Healthy | 4      |
@@ -151,13 +151,6 @@ skills:
     # 🔒 Protect local modifications from being overwritten
     custom_overrides: ['bloc-state-management']
 ```
-
-### Project-Specific Skills
-
-For project-specific rules that differ from the standard registry, create local skills in your agent's directory (e.g., `.github/skills/project/your-project-standards/SKILL.md`). These local skills will not be overwritten during sync operations.
-
-> [!TIP]
-> **Enterprise Ready**: You can host your own **Private Skills Registry** on GitHub and point the CLI to it via the `registry` field in your `.skillsrc`.
 
 ---
 
@@ -202,9 +195,9 @@ For detailed architecture logic and token calculation scripts, see [CLI Architec
 
 ### 📜 Benchmark History
 
-| Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                  |
-| ------- | ---------- | ------ | ---------- | ----------- | --------------------------------------- |
-| v2.0.0  | 2026-03-25 | 235    | 523        | 86%         | [Report](benchmarks/archive/v2.0.0.md)  |
-| v1.10.3 | 2026-03-21 | 234    | 505        | 86%         | [Report](benchmarks/archive/v1.10.3.md) |
-| v1.10.1 | 2026-03-16 | 229    | 428        | 88%         | [Report](benchmarks/archive/v1.10.1.md) |
-| v1.10.0 | 2026-03-16 | 229    | 434        | 88%         | [Report](benchmarks/archive/v1.10.0.md) |
+| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
+| --- | --- | --- | --- | --- | --- |
+| v2.0.0 | 2026-03-25 | 235 | 523 | 86% | [Report](benchmarks/archive/v2.0.0.md) |
+| v1.10.3 | 2026-03-21 | 234 | 505 | 86% | [Report](benchmarks/archive/v1.10.3.md) |
+| v1.10.1 | 2026-03-16 | 229 | 428 | 88% | [Report](benchmarks/archive/v1.10.1.md) |
+| v1.10.0 | 2026-03-16 | 229 | 434 | 88% | [Report](benchmarks/archive/v1.10.0.md) |
