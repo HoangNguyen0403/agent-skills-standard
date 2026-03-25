@@ -3,7 +3,7 @@ name: common-context-optimization
 description: "Maximize context window efficiency, reduce latency, and prevent lost-in-middle issues through strategic masking and compaction. Use when token budgets are tight, tool outputs flood the context, conversations drift from intent, or latency spikes from cache misses. (triggers: *.log, chat-history.json, reduce tokens, optimize context, summarize history, clear output)"
 ---
 
-## Priority: P1 (OPTIMIZATION)
+## **Priority: P1 (OPTIMIZATION)**
 
 Manage the Attention Budget. Treat context as a scarce resource.
 

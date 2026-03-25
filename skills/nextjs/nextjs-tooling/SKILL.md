@@ -5,7 +5,7 @@ description: "Configure Next.js build tooling, deployment, and developer workflo
 
 # Next.js Tooling
 
-## Priority: P2 (MEDIUM)
+## **Priority: P2 (MEDIUM)**
 
 ## Standalone Docker Config
 

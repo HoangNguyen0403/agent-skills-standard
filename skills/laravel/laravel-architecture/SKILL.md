@@ -5,7 +5,7 @@ description: "Enforce core architectural standards for scalable Laravel applicat
 
 # Laravel Architecture
 
-## Priority: P0 (CRITICAL)
+## **Priority: P0 (CRITICAL)**
 
 ## Structure
 

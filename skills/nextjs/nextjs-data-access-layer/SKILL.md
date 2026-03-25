@@ -5,7 +5,7 @@ description: "Build secure, reusable data access patterns with DTOs, taint check
 
 # Data Access Layer (DAL)
 
-## Priority: P1 (HIGH)
+## **Priority: P1 (HIGH)**
 
 Centralize all data access (Database & External APIs) to ensure consistent security, authorization, and caching.
 

@@ -5,7 +5,7 @@ description: "Implement multi-level caching, invalidation patterns, and stampede
 
 # Caching & Redis Standards
 
-## Priority: P1 (OPERATIONAL)
+## **Priority: P1 (OPERATIONAL)**
 
 Caching strategies and Redis integration patterns for high-performance NestJS applications.
 

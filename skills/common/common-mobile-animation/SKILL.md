@@ -5,7 +5,7 @@ description: "Apply motion design principles for mobile apps covering timing cur
 
 # Mobile Animation
 
-## Priority: P1 (OPERATIONAL)
+## **Priority: P1 (OPERATIONAL)**
 
 Native-feeling motion design. Optimize for 60fps and platform conventions.
 

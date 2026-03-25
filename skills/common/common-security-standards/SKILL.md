@@ -5,7 +5,7 @@ description: "Enforce universal security protocols for safe, resilient software.
 
 # Security Standards
 
-## Priority: P0 (CRITICAL)
+## **Priority: P0 (CRITICAL)**
 
 ## Workflow
 

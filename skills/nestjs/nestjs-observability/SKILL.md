@@ -5,7 +5,7 @@ description: "Configure structured logging with Pino, Prometheus metrics, and he
 
 # Observability Standards
 
-## Priority: P1 (OPERATIONAL)
+## **Priority: P1 (OPERATIONAL)**
 
 Logging, monitoring, and observability patterns for production NestJS applications.
 

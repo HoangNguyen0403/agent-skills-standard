@@ -5,7 +5,7 @@ description: "Enforce universal standards for high-performance development. Use 
 
 # Performance Engineering Standards
 
-## Priority: P0 (CRITICAL)
+## **Priority: P0 (CRITICAL)**
 
 ## Workflow
 

@@ -5,7 +5,7 @@ description: "Configure debugging, bundle analysis, and ecosystem tools for Reac
 
 # React Tooling
 
-## Priority: P2 (OPTIONAL)
+## **Priority: P2 (OPTIONAL)**
 
 Tools for analysis, debugging, and build optimization.
 

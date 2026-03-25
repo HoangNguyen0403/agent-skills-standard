@@ -5,7 +5,7 @@ description: "Optimize images, fonts, scripts, and metadata for Next.js performa
 
 # Optimization
 
-## Priority: P1 (HIGH)
+## **Priority: P1 (HIGH)**
 
 Core optimization primitives provided by Next.js. **Monitor First, Optimize Later.**
 

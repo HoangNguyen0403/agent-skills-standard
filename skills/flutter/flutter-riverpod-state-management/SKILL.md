@@ -5,7 +5,7 @@ description: "Implement reactive state management using Riverpod 2.0 with code g
 
 # Riverpod State Management
 
-## Priority: P0 (CRITICAL)
+## **Priority: P0 (CRITICAL)**
 
 Type-safe, compile-time safe reactive state management using `riverpod` and `riverpod_generator`.
 

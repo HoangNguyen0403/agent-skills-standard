@@ -5,7 +5,7 @@ description: "Automate Swagger/OpenAPI documentation and standardize API respons
 
 # OpenAPI & Documentation
 
-## Priority: P2 (MAINTENANCE)
+## **Priority: P2 (MAINTENANCE)**
 
 Automated API documentation and OpenAPI standards.
 

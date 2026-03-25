@@ -5,7 +5,7 @@ description: "Apply best practices for managing URL, server, and client state in
 
 # State Management
 
-## Priority: P2 (MEDIUM)
+## **Priority: P2 (MEDIUM)**
 
 ## Decision Guide
 

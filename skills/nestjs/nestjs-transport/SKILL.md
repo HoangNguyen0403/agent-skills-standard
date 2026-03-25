@@ -5,7 +5,7 @@ description: "Configure gRPC, RabbitMQ, and monorepo contract patterns for NestJ
 
 # Microservices & Transport Standards
 
-## Priority: P0 (FOUNDATIONAL)
+## **Priority: P0 (FOUNDATIONAL)**
 
 Microservices communication patterns and transport layer standards.
 
