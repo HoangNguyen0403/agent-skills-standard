@@ -103,27 +103,27 @@ The Agent Skills Standard is a modular library. We follow a strict **Token Econo
 
 | Stack / Category        | Key Modules                             | Version   | Typical Saving | Skills |
 | :---------------------- | :-------------------------------------- | :-------- | :------------- | :----- |
-| **Common Patterns**     | Accessibility, Best Practices, Security | `v1.10.0` | 85-90%         | 29     |
-| **Flutter**             | BLoC, Riverpod, Clean Architecture      | `v1.6.1`  | 85-90%         | 21     |
-| **Dart**                | Language, Tooling                       | `v1.3.1`  | 85-90%         | 3      |
-| **TypeScript**          | Type Safety, Tooling                    | `v1.3.1`  | 85-90%         | 4      |
-| **JavaScript**          | Functional Programming, Patterns        | `v1.3.1`  | 85-90%         | 3      |
-| **React**               | React 18+, Hooks, Performance           | `v1.3.1`  | 85-90%         | 8      |
-| **React Native**        | Architecture, Performance               | `v1.4.1`  | 85-90%         | 13     |
-| **NestJS**              | Architecture, Security, BullMQ          | `v1.4.1`  | 85-90%         | 21     |
-| **Next.js**             | App Router, SEO, Performance            | `v1.4.1`  | 85-90%         | 18     |
-| **Angular**             | Architecture, Signals, RxJS             | `v1.3.1`  | 85-90%         | 16     |
-| **Android**             | Compose, Architecture, Serialization    | `v1.3.1`  | 85-90%         | 22     |
-| **iOS**                 | Architecture, SwiftUI, Concurrency      | `v1.4.1`  | 85-90%         | 15     |
-| **Swift**               | Concurrency, Architecture               | `v1.3.1`  | 85-90%         | 8      |
-| **Kotlin**              | Language, Concurrency                   | `v1.3.1`  | 85-90%         | 4      |
-| **Java**                | Language, Concurrency                   | `v1.3.1`  | 85-90%         | 5      |
-| **Spring Boot**         | Architecture, Security                  | `v1.3.1`  | 85-90%         | 10     |
-| **Go (Golang)**         | Clean Architecture, Security            | `v1.3.1`  | 85-90%         | 11     |
-| **PHP**                 | Error Handling, PHP 8+                  | `v1.3.1`  | 85-90%         | 7      |
-| **Laravel**             | Solid Patterns, Clean Architecture      | `v1.3.1`  | 85-90%         | 10     |
-| **Database**            | PostgreSQL, MongoDB, Redis              | `v1.2.2`  | 85-90%         | 3      |
-| **Quality Engineering** | BA, TDD, Zephyr, Automation             | `v1.4.0`  | 85-90%         | 4      |
+| **Common Patterns**     | Accessibility, Best Practices, Security | `v1.10.0` | 84%            | 29     |
+| **Flutter**             | BLoC, Riverpod, Clean Architecture      | `v1.6.1`  | 86%            | 21     |
+| **Dart**                | Language, Tooling                       | `v1.3.1`  | 85%            | 3      |
+| **TypeScript**          | Type Safety, Tooling                    | `v1.3.1`  | 82%            | 4      |
+| **JavaScript**          | Functional Programming, Patterns        | `v1.3.1`  | 88%            | 3      |
+| **React**               | React 18+, Hooks, Performance           | `v1.3.1`  | 85%            | 8      |
+| **React Native**        | Architecture, Performance               | `v1.4.1`  | 88%            | 13     |
+| **NestJS**              | Architecture, Security, BullMQ          | `v1.4.1`  | 83%            | 21     |
+| **Next.js**             | App Router, SEO, Performance            | `v1.4.1`  | 83%            | 18     |
+| **Angular**             | Architecture, Signals, RxJS             | `v1.3.1`  | 85%            | 16     |
+| **Android**             | Compose, Architecture, Serialization    | `v1.3.1`  | 91%            | 22     |
+| **iOS**                 | Architecture, SwiftUI, Concurrency      | `v1.4.1`  | 90%            | 15     |
+| **Swift**               | Concurrency, Architecture               | `v1.3.1`  | 88%            | 8      |
+| **Kotlin**              | Language, Concurrency                   | `v1.3.1`  | 89%            | 4      |
+| **Java**                | Language, Concurrency                   | `v1.3.1`  | 86%            | 5      |
+| **Spring Boot**         | Architecture, Security                  | `v1.3.1`  | 88%            | 10     |
+| **Go (Golang)**         | Clean Architecture, Security            | `v1.3.1`  | 88%            | 11     |
+| **PHP**                 | Error Handling, PHP 8+                  | `v1.3.1`  | 86%            | 7      |
+| **Laravel**             | Solid Patterns, Clean Architecture      | `v1.3.1`  | 85%            | 10     |
+| **Database**            | PostgreSQL, MongoDB, Redis              | `v1.2.2`  | 85%            | 3      |
+| **Quality Engineering** | BA, TDD, Zephyr, Automation             | `v1.4.0`  | 85%            | 4      |
 
 > [!TIP]
 > **View the Complete Registry**: For a full list of all 160+ individual skills and token metrics, visit the [Skills Directory](./skills/README.md) and [Benchmark Report](./benchmark-report.md).
