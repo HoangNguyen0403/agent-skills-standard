@@ -101,29 +101,29 @@ The Agent Skills Standard is a modular library. We follow a strict **Token Econo
 <summary><b>Click to view all 20+ supported frameworks and stacks</b></summary>
 <br>
 
-| Stack / Category        | Key Modules                             | Typical Saving | Status  | Skills |
-| :---------------------- | :-------------------------------------- | :------------- | :------ | :----- |
-| **Common Patterns**     | Accessibility, Best Practices, Security | **83%**        | Healthy | 29     |
-| **Flutter**             | BLoC, Riverpod, Clean Architecture      | **88%**        | Healthy | 21     |
-| **Dart**                | Language, Tooling                       | **88%**        | Healthy | 3      |
-| **TypeScript**          | Type Safety, Tooling                    | **86%**        | Healthy | 4      |
-| **JavaScript**          | Functional Programming, Patterns        | **90%**        | Healthy | 3      |
-| **React**               | React 18+, Hooks, Performance           | **89%**        | Healthy | 8      |
-| **React Native**        | Architecture, Performance               | **88%**        | Healthy | 13     |
-| **NestJS**              | Architecture, Security, BullMQ          | **85%**        | Healthy | 21     |
-| **Next.js**             | App Router, SEO, Performance            | **87%**        | Healthy | 18     |
-| **Angular**             | Architecture, Signals, RxJS             | **92%**        | Healthy | 16     |
-| **Android**             | Compose, Architecture, Serialization    | **92%**        | Healthy | 22     |
-| **iOS**                 | Architecture, SwiftUI, Concurrency      | **89%**        | Healthy | 15     |
-| **Swift**               | Concurrency, Architecture               | **90%**        | Healthy | 8      |
-| **Kotlin**              | Language, Concurrency                   | **88%**        | Healthy | 4      |
-| **Java**                | Language, Concurrency                   | **86%**        | Healthy | 5      |
-| **Spring Boot**         | Architecture, Security                  | **90%**        | Healthy | 10     |
-| **Go (Golang)**         | Clean Architecture, Security            | **90%**        | Healthy | 11     |
-| **PHP**                 | Error Handling, PHP 8+                  | **91%**        | Healthy | 7      |
-| **Laravel**             | Solid Patterns, Clean Architecture      | **90%**        | Healthy | 10     |
-| **Database**            | PostgreSQL, MongoDB, Redis              | **80%**        | Healthy | 3      |
-| **Quality Engineering** | BA, TDD, Zephyr, Automation             | **88%**        | Healthy | 4      |
+| Stack / Category        | Key Modules                             | Version   | Status  | Skills |
+| :---------------------- | :-------------------------------------- | :-------- | :------ | :----- |
+| **Common Patterns**     | Accessibility, Best Practices, Security | `v1.10.0` | Healthy | 29     |
+| **Flutter**             | BLoC, Riverpod, Clean Architecture      | `v1.6.1`  | Healthy | 21     |
+| **Dart**                | Language, Tooling                       | `v1.3.1`  | Healthy | 3      |
+| **TypeScript**          | Type Safety, Tooling                    | `v1.3.1`  | Healthy | 4      |
+| **JavaScript**          | Functional Programming, Patterns        | `v1.3.1`  | Healthy | 3      |
+| **React**               | React 18+, Hooks, Performance           | `v1.3.1`  | Healthy | 8      |
+| **React Native**        | Architecture, Performance               | `v1.4.1`  | Healthy | 13     |
+| **NestJS**              | Architecture, Security, BullMQ          | `v1.4.1`  | Healthy | 21     |
+| **Next.js**             | App Router, SEO, Performance            | `v1.4.1`  | Healthy | 18     |
+| **Angular**             | Architecture, Signals, RxJS             | `v1.3.1`  | Healthy | 16     |
+| **Android**             | Compose, Architecture, Serialization    | ``v1.3.1` | Healthy | 22     |
+| **iOS**                 | Architecture, SwiftUI, Concurrency      | `v1.4.1`  | Healthy | 15     |
+| **Swift**               | Concurrency, Architecture               | `v1.3.1`  | Healthy | 8      |
+| **Kotlin**              | Language, Concurrency                   | `v1.3.1`  | Healthy | 4      |
+| **Java**                | Language, Concurrency                   | `v1.3.1`  | Healthy | 5      |
+| **Spring Boot**         | Architecture, Security                  | `v1.3.1`  | Healthy | 10     |
+| **Go (Golang)**         | Clean Architecture, Security            | `v1.3.1`  | Healthy | 11     |
+| **PHP**                 | Error Handling, PHP 8+                  | `v1.3.1`  | Healthy | 7      |
+| **Laravel**             | Solid Patterns, Clean Architecture      | `v1.3.1`  | Healthy | 10     |
+| **Database**            | PostgreSQL, MongoDB, Redis              | `v1.2.2`  | Healthy | 3      |
+| **Quality Engineering** | BA, TDD, Zephyr, Automation             | `v1.4.0`  | Healthy | 4      |
 
 > [!TIP]
 > **View the Complete Registry**: For a full list of all 160+ individual skills and token metrics, visit the [Skills Directory](./skills/README.md) and [Benchmark Report](./benchmark-report.md).
@@ -202,9 +202,9 @@ For detailed architecture logic and token calculation scripts, see [CLI Architec
 
 ### 📜 Benchmark History
 
-| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
-| --- | --- | --- | --- | --- | --- |
-| v2.0.0 | 2026-03-25 | 235 | 523 | 86% | [Report](benchmarks/archive/v2.0.0.md) |
-| v1.10.3 | 2026-03-21 | 234 | 505 | 86% | [Report](benchmarks/archive/v1.10.3.md) |
-| v1.10.1 | 2026-03-16 | 229 | 428 | 88% | [Report](benchmarks/archive/v1.10.1.md) |
-| v1.10.0 | 2026-03-16 | 229 | 434 | 88% | [Report](benchmarks/archive/v1.10.0.md) |
+| Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                  |
+| ------- | ---------- | ------ | ---------- | ----------- | --------------------------------------- |
+| v2.0.0  | 2026-03-25 | 235    | 523        | 86%         | [Report](benchmarks/archive/v2.0.0.md)  |
+| v1.10.3 | 2026-03-21 | 234    | 505        | 86%         | [Report](benchmarks/archive/v1.10.3.md) |
+| v1.10.1 | 2026-03-16 | 229    | 428        | 88%         | [Report](benchmarks/archive/v1.10.1.md) |
+| v1.10.0 | 2026-03-16 | 229    | 434        | 88%         | [Report](benchmarks/archive/v1.10.0.md) |
