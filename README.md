@@ -103,7 +103,7 @@ The Agent Skills Standard is a modular library. We follow a strict **Token Econo
 
 | Stack / Category        | Key Modules                             | Typical Saving | Status  | Skills |
 | :---------------------- | :-------------------------------------- | :------------- | :------ | :----- |
-| **Common Patterns**     | Accessibility, Best Practices, Security | **83%**        | Healthy | 25     |
+| **Common Patterns**     | Accessibility, Best Practices, Security | **83%**        | Healthy | 29     |
 | **Flutter**             | BLoC, Riverpod, Clean Architecture      | **88%**        | Healthy | 21     |
 | **Dart**                | Language, Tooling                       | **88%**        | Healthy | 3      |
 | **TypeScript**          | Type Safety, Tooling                    | **86%**        | Healthy | 4      |
@@ -112,14 +112,14 @@ The Agent Skills Standard is a modular library. We follow a strict **Token Econo
 | **React Native**        | Architecture, Performance               | **88%**        | Healthy | 13     |
 | **NestJS**              | Architecture, Security, BullMQ          | **85%**        | Healthy | 21     |
 | **Next.js**             | App Router, SEO, Performance            | **87%**        | Healthy | 18     |
-| **Angular**             | Architecture, Signals, RxJS             | **92%**        | Healthy | 15     |
+| **Angular**             | Architecture, Signals, RxJS             | **92%**        | Healthy | 16     |
 | **Android**             | Compose, Architecture, Serialization    | **92%**        | Healthy | 22     |
 | **iOS**                 | Architecture, SwiftUI, Concurrency      | **89%**        | Healthy | 15     |
 | **Swift**               | Concurrency, Architecture               | **90%**        | Healthy | 8      |
 | **Kotlin**              | Language, Concurrency                   | **88%**        | Healthy | 4      |
 | **Java**                | Language, Concurrency                   | **86%**        | Healthy | 5      |
 | **Spring Boot**         | Architecture, Security                  | **90%**        | Healthy | 10     |
-| **Go (Golang)**         | Clean Architecture, Security            | **90%**        | Healthy | 10     |
+| **Go (Golang)**         | Clean Architecture, Security            | **90%**        | Healthy | 11     |
 | **PHP**                 | Error Handling, PHP 8+                  | **91%**        | Healthy | 7      |
 | **Laravel**             | Solid Patterns, Clean Architecture      | **90%**        | Healthy | 10     |
 | **Database**            | PostgreSQL, MongoDB, Redis              | **80%**        | Healthy | 3      |
@@ -204,6 +204,7 @@ For detailed architecture logic and token calculation scripts, see [CLI Architec
 
 | Version | Date | Skills | Avg Tokens | Savings (%) | Report |
 | --- | --- | --- | --- | --- | --- |
+| v2.0.0 | 2026-03-25 | 235 | 523 | 86% | [Report](benchmarks/archive/v2.0.0.md) |
 | v1.10.3 | 2026-03-21 | 234 | 505 | 86% | [Report](benchmarks/archive/v1.10.3.md) |
 | v1.10.1 | 2026-03-16 | 229 | 428 | 88% | [Report](benchmarks/archive/v1.10.1.md) |
 | v1.10.0 | 2026-03-16 | 229 | 434 | 88% | [Report](benchmarks/archive/v1.10.0.md) |
