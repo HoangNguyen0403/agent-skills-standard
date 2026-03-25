@@ -34,6 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **All 234 framework skills**: Score-optimized via community PR #68 (patch-level description and content improvements)
 - **CLI**: v2.0.0 (Major — constants update and framework bump)
 
+<details>
+<summary>Click to view versions 1.9.x and 1.10.x</summary>
+
 ## [1.10.4] - 2026-03-21
 
 **Category**: CLI Fixes & Skill Registration Refactor
@@ -250,6 +253,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **CLI**: v1.8.2 (Patch)
 
+</details>
+
 <details>
 <summary>Click to view versions 1.7.x and 1.8.x</summary>
 
@@ -437,6 +442,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **🧪 Testing Enhancements**:
   - Created dedicated unit test suites for all new services.
   - Refactored existing tests to utilize Dependency Injection (DI) and robust mocking.
+  </details>
 
 <details>
 <summary>v1.6.x History</summary>
