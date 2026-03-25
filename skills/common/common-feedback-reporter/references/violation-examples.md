@@ -23,22 +23,24 @@ Container(
 - My code: Hardcoded hex value
 - **VERDICT**: VIOLATION
 
-**Feedback Command**:
+**Violation Report Output**:
 
-```bash
-npx agent-skills-standard feedback \
-  --skill="flutter/theme-system" \
-  --issue="Used hardcoded hex color instead of theme" \
-  --skill-instruction="Use theme colors, not hardcoded values" \
-  --actual-action="Wrote Color(0xFF6200EE)" \
-  --decision-reason="Forgot to check theme system"
+```
+🚨 SKILL VIOLATION DETECTED
+Skill:       flutter/theme-system
+File:        lib/widgets/card.dart:12
+Rule:        Use theme colors, not hardcoded values
+Violation:   color: Color(0xFF6200EE)
+Fix:         color: Theme.of(context).colorScheme.primary
+Auto-fixed:  YES
+Co-skills:   flutter/design-system
 ```
 
 **Correct Code**:
 
 ```dart
 Container(
-  color: Theme.of(context).primaryColor, // ✅ Theme-based
+  color: Theme.of(context).colorScheme.primary, // ✅ Theme-based
 )
 ```
 
@@ -80,15 +82,17 @@ class MyComponent extends React.Component {
 - My code: Class component
 - **VERDICT**: VIOLATION
 
-**Feedback Command**:
+**Violation Report Output**:
 
-```bash
-npx agent-skills-standard feedback \
-  --skill="react/hooks" \
-  --issue="Created class component instead of function component" \
-  --skill-instruction="Use function components with hooks" \
-  --actual-action="Wrote class MyComponent extends React.Component" \
-  --decision-reason="Habit from older React patterns"
+```
+🚨 SKILL VIOLATION DETECTED
+Skill:       react/hooks
+File:        src/components/MyComponent.tsx:3-8
+Rule:        Use function components with hooks, not classes
+Violation:   class MyComponent extends React.Component { ... }
+Fix:         function MyComponent() { return <div>Hello</div>; }
+Auto-fixed:  YES
+Co-skills:   react/performance
 ```
 
 **Correct Code**:
@@ -134,15 +138,17 @@ useEffect(() => {
 - Limit: 100 lines
 - **VERDICT**: VIOLATION by 5 lines
 
-**Feedback Command**:
+**Violation Report Output**:
 
-```bash
-npx agent-skills-standard feedback \
-  --skill="skill-creator" \
-  --issue="SKILL.md exceeds 100 line limit (105 lines)" \
-  --skill-instruction="SKILL.md total: 100 lines max" \
-  --actual-action="Created 105-line SKILL.md" \
-  --decision-reason="Included too many inline examples"
+```
+🚨 SKILL VIOLATION DETECTED
+Skill:       skill-creator
+File:        skills/my-skill/SKILL.md:1-105
+Rule:        SKILL.md total: 100 lines max
+Violation:   Created 105-line SKILL.md (5 lines over limit)
+Fix:         Extract inline examples to references/examples.md, link from SKILL.md
+Auto-fixed:  NO
+Co-skills:   none
 ```
 
 **Correct Action**:
@@ -165,6 +171,26 @@ npx agent-skills-standard feedback \
 
 **Rule**: "Inline code block: 10 lines max"  
 **Correct**: Move to `references/patterns.md`
+
+## Real-World Example: Directional Spacing (Issue #67)
+
+**Loaded Skill**: `web/design-system`  
+**Rule**: "Use only public token spacing — `p/px/py/gap` — not directional utilities"
+
+**Violation Report Output**:
+
+```
+🚨 SKILL VIOLATION DETECTED
+Skill:       web/design-system
+File:        apps/web_builder/components/builder/site-contact-form-section.tsx:34,41
+Rule:        Directional spacing utilities are outside public token contract
+Violation:   pt-ss-spacing-xl pl-ss-spacing-3xl
+Fix:         Replace with layout structure or p/px/py/gap token combinations
+Auto-fixed:  YES
+Co-skills:   common/common-feedback-reporter
+```
+
+> ℹ️ Issue #67 was missing `File`, `Violation` snippet, and `Co-skills`. The new format covers all three.
 
 ## TypeScript Violations
 

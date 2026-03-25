@@ -5,6 +5,35 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-03-25
+
+**Category**: Community Skill Score Improvements & New Store Changelog Skill & QE/Security Skill Enhancements
+
+### Added
+
+- **🆕 `common/store-changelog`**: New skill for generating user-facing release notes for **Apple App Store** (≤ 4000 chars) and **Google Play Store** (≤ 500 chars). Includes a 5-step workflow (collect → triage → draft → compress → validate), per-store output format template, anti-patterns (`no chore bullets`, `no jargon`, `no character overrun`), commit-to-bullet mapping examples, and 4 evals. Triggers: `generate changelog`, `app store notes`, `play store release`, `what's new`, `release notes`.
+- **📋 User Story Authoring Standards** (`quality-engineering-business-analysis`): Added §5 User Story Authoring Standards (story structure, atomic AC format, platform tags, toggle contracts, market isolation, scope fence, translation AC rules), §6 Anti-Patterns for story authoring, and §7 Validation Checklist (8-point self-check before marking a story ready). Added `references/user_story_template.md` with a full worked example and 3 new evals (IDs 4–6).
+- **🛡️ Always-Apply Pattern** (`common/owasp`, `common/security-standards`): Hoisted the 3 most universal rules in each skill to a new `## Always-Apply Rules` block — applied on every code write, not just during dedicated security reviews. Remaining rules moved to `## Context-Specific Checklist` / `## Context-Specific Rules` with `Activate when:` prefaces.
+
+### Changed
+
+- **🏗️ `cli/src/constants/index.ts`**: Added `common-store-changelog` to `mobile` and `frontend` exclusion group lists. Added `common-system-design` to the `mobile` exclusion group.
+- **🔢 Skill Scores** (community PR [#68](https://github.com/HoangNguyen0403/agent-skills-standard/pull/68) by [@rohan-tessl](https://github.com/rohan-tessl), commit `61c64ff`): Ran `tessl skill review` across all 234 skills — **average score lifted from ~82% to ~92%**. Top movers: `swift-error-handling` (0% → 89%), `common-observability` (60% → 94%), `common-best-practices` (61% → 89%), `nestjs-architecture` (81% → 100%). Key changes:
+  - Replaced passive `"Standards for..."` descriptions with action-verb-led phrasing across all 234 skills.
+  - Added missing `"Use when..."` clauses to all skills without them.
+  - Added 1–2 inline executable code examples per skill (~150 skills), then extracted them to `references/` files for token economy.
+  - Restructured flat bullet lists into numbered implementation workflows with validation steps (~150 skills).
+  - Added anti-patterns sections where missing; linked related topics as proper relative paths.
+  - Fixed `swift-error-handling` XML-like `<T,E>` tags in description that caused 0% validation score.
+  - Added bold priority levels across Android skills.
+
+### Versions
+
+- **Common Skills**: v1.10.0 (Minor — new `common-store-changelog` skill, security Always-Apply pattern)
+- **Quality Engineering**: v1.4.0 (Minor — User Story Authoring Standards + Validation Checklist)
+- **All 234 framework skills**: Score-optimized via community PR #68 (patch-level description and content improvements)
+- **CLI**: v2.0.0 (Major — constants update and framework bump)
+
 ## [1.10.4] - 2026-03-21
 
 **Category**: CLI Fixes & Skill Registration Refactor

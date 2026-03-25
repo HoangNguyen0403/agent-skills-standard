@@ -92,6 +92,7 @@ description: Implement BLoC pattern for Flutter state management. Use when creat
 ### Skill Effectiveness Testing
 
 See [testing.md](testing.md) for the full process including:
+
 - Writing `evals/evals.json` eval cases
 - Designing should-trigger / should-not-trigger query sets
 - Measuring and optimizing trigger rate

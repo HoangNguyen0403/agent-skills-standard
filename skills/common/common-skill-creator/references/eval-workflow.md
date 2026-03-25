@@ -6,7 +6,7 @@ Test skills with parallel subagents — one with-skill, one without — to measu
 
 Organize all runs as siblings to the skill directory:
 
-```
+```text
 <skill-name>-workspace/
 ├── iteration-1/
 │   ├── <eval-name>/
@@ -27,7 +27,8 @@ Name eval dirs descriptively (e.g., `basic-trigger`, `edge-case-ambiguous`) — 
 Launch with-skill and without-skill subagents simultaneously per eval case.
 
 **With-skill prompt:**
-```
+
+```text
 Execute this task:
 - Skill path: <path-to-skill>
 - Task: <eval prompt>
@@ -35,7 +36,8 @@ Execute this task:
 ```
 
 **Baseline prompt (no skill):**
-```
+
+```text
 Execute this task:
 - Task: <eval prompt>
 - Save outputs to: <workspace>/iteration-N/<eval-name>/without_skill/outputs/
@@ -44,6 +46,7 @@ Execute this task:
 > Improving existing skill? Use old version as baseline (snapshot first), not no-skill.
 
 Write `eval_metadata.json` per eval immediately (assertions can be empty):
+
 ```json
 {
   "eval_id": 0,
@@ -56,6 +59,7 @@ Write `eval_metadata.json` per eval immediately (assertions can be empty):
 ## Step 2: Draft Assertions While Runs Execute
 
 Don't wait — be productive. Good assertions:
+
 - Objectively verifiable with descriptive names
 - Check concrete outcomes, not process
 - Skip subjective outputs — use qualitative human review instead

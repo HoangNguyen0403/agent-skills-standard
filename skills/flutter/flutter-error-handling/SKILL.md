@@ -1,6 +1,6 @@
 ---
 name: flutter-error-handling
-description: "Handle errors functionally with Either/Failure patterns. Use when writing repositories, handling exceptions, defining failures, or using Either in any Flutter layer. (triggers: lib/domain/**, lib/infrastructure/**, Either, fold, Left, Right, Failure, dartz)"
+description: 'Handle errors functionally with Either/Failure patterns. Use when writing repositories, handling exceptions, defining failures, or using Either in any Flutter layer. (triggers: lib/domain/**, lib/infrastructure/**, Either, fold, Left, Right, Failure, dartz)'
 ---
 
 # Error Handling
@@ -17,6 +17,8 @@ Standardized functional error handling using `dartz` and `freezed` failures.
 4. **Fold in BLoC** — Use `.fold(failure, success)` in BLoC to emit corresponding states. Remove try/catch from BLoC.
 5. **Localize messages** — Use `failure.failureMessage` (returns `TRObject` or localized string) for UI-safe text.
 6. **Log with stable templates** — Use low-cardinality message templates; pass variable data via metadata/context.
+7. **No Silent Catch**: Never swallow errors without logging or a documented retry.
+8. **Crashlytics Routing**: All UI/BLoC `catch` blocks MUST route errors via `AppLogger.error(AppException.fromException(e).message, error: e, stackTrace: st)` for observability and type-safe UI messages.
 
 ### Repository & BLoC Examples
 
@@ -33,6 +35,7 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 - ❌ `Left(Failure('Something went wrong'))` using a plain `String` — define typed `@freezed` Failure subclasses for each domain error
 - ❌ `catch (e) {}` empty catch — always log and propagate; never swallow silently
 - ❌ Throwing `Exception` from a repository — return `Left(Failure)` instead; exceptions must not cross the infrastructure boundary
+- ❌ `catch (e) { print(e); }` — missing `AppLogger.error`; errors must be sent to Crashlytics with the original error and stack trace
 
 ## Related Topics
 

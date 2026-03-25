@@ -3,66 +3,84 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common skill creator best practices?",
-      "expected_output": "**Level 1** Frontmatter (always in context): name + description, ~100 words max",
+      "prompt": "I want to create a new skill for SEO research and content strategy. Where do I start and what should the SKILL.md look like?",
+      "expected_output": "Guidance on the skill creation workflow: research phase (web-search for domain best practices), capture intent, write SKILL.md using the template, write evals, optimize description. Should mention conversational triggers for non-engineering domain, reference TEMPLATE.md, and the three-level loading system.",
       "assertions": [
         {
+          "id": "a1",
+          "description": "Mentions SKILL.md structure or TEMPLATE.md",
           "type": "contains",
-          "value": "references/"
+          "value": "TEMPLATE"
         },
         {
+          "id": "a2",
+          "description": "Mentions conversational triggers or no file globs for non-engineering skill",
           "type": "contains",
-          "value": "**No X**: Do Y."
+          "value": "trigger"
         },
         {
+          "id": "a3",
+          "description": "Mentions evals or evals.json",
           "type": "contains",
-          "value": "description"
+          "value": "evals"
         }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common skill creator?",
-      "expected_output": "**Level 2** SKILL.md body (triggered): core rules, ≤100 lines",
+      "prompt": "My flutter-state skill only triggers 55% of the time. How do I improve the trigger rate?",
+      "expected_output": "Optimize the description field — make it pushy, list specific use contexts, add edge cases. Run the trigger eval loop: write 20 queries (half should-trigger, half should-not-trigger), identify failures, rewrite description, retest until >=80%.",
       "assertions": [
         {
+          "id": "a1",
+          "description": "Mentions improving the description field",
           "type": "contains",
-          "value": "keywords:"
+          "value": "description"
         },
         {
+          "id": "a2",
+          "description": "Mentions the 80% target",
           "type": "contains",
-          "value": "evals/evals.json"
+          "value": "80%"
         },
         {
+          "id": "a3",
+          "description": "Mentions should-trigger queries",
           "type": "contains",
-          "value": "Level 1"
+          "value": "should-trigger"
         }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common skill creator.",
-      "expected_output": "**Level 3** references/ (on demand): detailed examples, schemas, deep-dives",
+      "prompt": "Review this SKILL.md — does it pass quality standards? The anti-patterns say: '**Avoid setState**: **No Direct Mutations**: Do not mutate state directly.'",
+      "expected_output": "Flags multiple violations: double-label anti-pattern (backtick-wrapped bold), should be '**No Direct Mutations**: Use setState or immutable update.' format. May also check line count and reference load conditions.",
       "assertions": [
         {
+          "id": "a1",
+          "description": "Identifies the double-label / backtick-wrapping anti-pattern issue",
           "type": "contains",
-          "value": "Level 2"
+          "value": "No X"
         },
         {
+          "id": "a2",
+          "description": "References the correct anti-pattern format",
           "type": "contains",
-          "value": "Level 3"
-        },
-        {
-          "type": "contains",
-          "value": "New skill:"
+          "value": "15 words"
         }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic common project from scratch",
-    "How do I install common dependencies?",
-    "What is common?",
-    "Configure CI/CD for an unrelated platform"
+    "Review this PR and check if the architecture looks right",
+    "Help me write documentation for my REST API endpoints",
+    "Create a new Flutter widget for displaying user profiles",
+    "What is the best state management library for React?",
+    "Run a sprint retrospective on the last two weeks",
+    "Generate a product brief for my e-commerce app idea",
+    "Help me commit and push these changes to GitHub",
+    "Write unit tests for this repository service class",
+    "Create a market research report on the fitness app industry",
+    "Set up a CI/CD pipeline with GitHub Actions"
   ]
 }

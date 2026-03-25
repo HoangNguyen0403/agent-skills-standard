@@ -27,6 +27,7 @@ description: "Write unit, widget, and integration tests with robots, widget keys
 
 - All interactions and assertions belong in `*Robot` (e.g., `expectFirstOrderVisible()`).
 - Symmetric: every `expectXxxVisible()` needs **expectXxxNotVisible()** pairs.
+- **BaseRobot Centralization**: Extract standard scrolling (`scrollDown`, `scrollToEnd`) and screen visibility assertions (`expectScreenVisible`, `expectScreenNotVisible`) into a common `BaseRobot` or parent class to avoid duplication.
 - Widget tests: include a `pumpScreen(bloc:, settle:)` helper.
 - **Widget Keys**: Use **WidgetKeys** constants from `lib/core/keys/` — never inline `Key('string')`.
 

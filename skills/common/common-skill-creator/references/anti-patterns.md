@@ -16,18 +16,18 @@ Format: `**No X**: Do Y[, not Z]. [Optional context, max 15 words total]`
 
 **Examples**:
 
-### ❌ Verbose (24 words):
+### ❌ Verbose (24 words)
 
 - **No Manual Emit**: `**Avoid .then()**: Do not call emit() inside Future.then; always use await or emit.forEach.`
 
-### ✅ Compressed (11 words):
+### ✅ Compressed (11 words)
 
 - **No .then()**: Use `await` or `emit.forEach()` to emit states.
 
-### ❌ Verbose (18 words):
+### ❌ Verbose (18 words)
 
 - **No UI Logic**: `**Logic in Builder**: Do not perform calculations or data formatting inside BlocBuilder.`
 
-### ✅ Compressed (9 words):
+### ✅ Compressed (9 words)
 
 - **No Logic in Builder**: Perform calculations in BLoC, not UI.

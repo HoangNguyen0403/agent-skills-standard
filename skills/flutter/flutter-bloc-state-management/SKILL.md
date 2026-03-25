@@ -19,7 +19,7 @@ description: "Implement BLoC/Cubit state management correctly in Flutter. Use wh
 ## Implementation Guidelines
 
 - **States & Events**: Use **@freezed** for union types (e.g., `Initial`, `Loading`, `Success`, `Failure` states).
-- **Error Handling**: Emit `Failure` states with a specific error message; never throw exceptions in `on<Event>`.
+- **Error Handling**: Emit `Failure` states for UI-critical errors. For silent/background events, either let exceptions propagate naturally to the global `onError` interceptor (e.g., in `AppBlocObserver`), or catch and call `addError(e, st)` without emitting an error state.
 - **Async Data**: Use **emit.forEach** for streams or **await** with `emit` call.
 - **Concurrency**: Use **transformer: restartable()** from `bloc_concurrency` for search/typeahead to debounce and cancel previous requests.
 - **UI Connectivity**: Use **BlocBuilder** for UI rebuilds (e.g., loading spinner, data list, error message) and **BlocListener** for side effects (navigation, snackbars).
@@ -37,6 +37,7 @@ description: "Implement BLoC/Cubit state management correctly in Flutter. Use wh
 - **No .then()**: Use `await` or `emit.forEach()` to emit.
 - **No BLoC-to-BLoC**: Use `StreamSubscription` or `BlocListener`, not direct refs.
 - **No Logic in Builder**: Move valid logic to BLoC.
+- **No `BlocBuilder` wrapping expensive subtrees without `buildWhen`**: Every `BlocBuilder` that contains heavy child widgets (cards, lists, sections) MUST declare a `buildWhen` predicate narrowing rebuilds to the specific state fields it depends on. Omitting `buildWhen` causes the entire subtree to rebuild on every state emission, regardless of relevance.
 
 ## References
 

@@ -7,15 +7,26 @@ description: "OWASP Top 10 audit checklist for Web Applications (2021) and APIs 
 
 ## **Priority: P0 (CRITICAL)**
 
-## Implementation Guidelines
+## Always-Apply Rules
 
-- **Check A01/API1 first**: IDOR is the #1 finding in real codebases — any `findById(userInput)` without an owner/tenant filter is an immediate P0.
-- **Mark each item**: ✅ not affected | ⚠️ needs review | 🔴 confirmed finding.
-- **P0 finding caps Security score at 40/100** — do not skip any item.
-- Apply framework-specific security skills alongside this checklist.
-- See [references/owasp-web.md](references/owasp-web.md) and [references/owasp-api.md](references/owasp-api.md) for full detection signals per item.
+Apply these on **every code write**, not just during dedicated security reviews:
 
-## OWASP Web Application Top 10 (2021)
+- **No IDOR**: Filter every resource query by `owner_id` or `tenantId` alongside any user-supplied ID. `findById(params.id)` without an owner filter is an immediate P0.
+- **No wildcard CORS**: Restrict to explicit allowlisted origins — never `Access-Control-Allow-Origin: *` on authenticated routes.
+- **No full entity return**: Always project to a DTO — never serialize raw ORM output to the API response.
+
+## Context-Specific Checklist
+
+Activate when: writing security-sensitive features, reviewing PRs, or doing codebase audits.
+
+Mark each item: ✅ not affected | ⚠️ needs review | 🔴 confirmed finding.
+
+**P0 finding caps Security score at 40/100.**
+
+Apply framework-specific security skills alongside this checklist.
+See [references/owasp-web.md](references/owasp-web.md) and [references/owasp-api.md](references/owasp-api.md) for full detection signals.
+
+### OWASP Web Application Top 10 (2021)
 
 | ID  | Risk | Key Detection Signal |
 | --- | ---- | -------------------- |
@@ -30,7 +41,7 @@ description: "OWASP Top 10 audit checklist for Web Applications (2021) and APIs 
 | A09 | Logging & Monitoring | No audit log on: deletion, password change, privilege escalation. |
 | A10 | SSRF | HTTP client with user-controlled URL and no allowlist. |
 
-## OWASP API Security Top 10 (2023)
+### OWASP API Security Top 10 (2023)
 
 | ID    | Risk | Key Detection Signal |
 | ----- | ---- | -------------------- |
@@ -44,13 +55,8 @@ description: "OWASP Top 10 audit checklist for Web Applications (2021) and APIs 
 | API9  | Improper Inventory Management | Deprecated/undocumented endpoints still reachable. |
 | API10 | Unsafe API Consumption | Third-party response used without schema validation. |
 
-## Anti-Patterns
-
-- **No IDOR**: Filter every resource query by `owner_id` or `tenantId` alongside the user-supplied ID.
-- **No wildcard CORS**: Restrict to explicit, allowlisted origins — never `*` on authenticated routes.
-- **No full entity return**: Always project to a DTO — never serialize raw ORM output to the API response.
-
 ## References
 
 - [OWASP Web App — Full Detection Signals](references/owasp-web.md)
 - [OWASP API — Full Detection Signals](references/owasp-api.md)
+
