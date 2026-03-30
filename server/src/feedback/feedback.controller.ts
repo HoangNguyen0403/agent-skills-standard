@@ -1,5 +1,6 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { FeedbackService } from './feedback.service';
 
@@ -12,8 +13,10 @@ export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
   @Post()
+  @Throttle({ feedback: { limit: 3, ttl: 60000 } })
   @ApiOperation({ summary: 'Submit AI skill feedback' })
   @ApiResponse({ status: 201, description: 'Feedback received successfully' })
+  @ApiResponse({ status: 429, description: 'Too many requests' })
   @ApiResponse({ status: 500, description: 'GitHub Issue creation failed' })
   @HttpCode(HttpStatus.CREATED)
   /**

@@ -5,6 +5,30 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-03-30
+
+**Category**: Security Hardening & AI Learning Log System
+
+### Added
+
+- **🆕 `common/common-learning-log`**: New high-density skill for AI autonomous self-improvement. Defines a structured methodology for agents to capture mistakes, identify anti-patterns, and log better approaches to `AGENTS_LEARNING.md`. Integrated as a mandatory post-task retrospective loop.
+- **🛡️ CI Injection Scanner**: Added `scripts/scan-injection.ts` and integrated it into the GitHub Actions CI pipeline. This scanner automatically flags any skill descriptions matching prompt injection patterns, preventing malicious instructions from entering the registry.
+- **🚀 Enhanced Rate Limiting**: configured a custom `feedback` throttler profile in the NestJS backend, restricting the feedback endpoint to **3 requests per 60 seconds** while maintaining a global 10/min baseline.
+
+### Changed
+
+- **🛡️ `IndexGeneratorService` (CLI)**: Implemented `sanitizeDescription()` to strip instruction-hijack patterns (e.g., "ignore previous rules") from skill descriptions during index generation. Malicious patterns are replaced with `[REDACTED]` and logged to `stderr` with a `[SECURITY]` warning.
+- **🛡️ `SkillSyncService` (CLI)**: Hardened `isPathSafe()` logic by explicitly using `path.sep` for boundary enforcement, successfully blocking sibling-directory traversal attacks (e.g., `/app/skills-secret`).
+- **🛡️ `FeedbackService` (Backend)**: Implemented error masking for API responses. Internal GitHub API details are hidden from clients and replaced with a generic generic error message, while maintaining full diagnostic logs on the server.
+- **🔄 `common/session-retrospective`**: Updated the retrospective protocol to include **Step 6: Update Learning Log**, ensuring agents record any correction loops from the current session.
+- **📊 `metadata.json`**: Repaired `quality-engineering` metrics (5 skills, recalculated tokens) and added `quality-engineer` + `zephyr` keywords to `common/tdd` foundational rules.
+
+### Versions
+
+- **CLI**: v2.0.1 (Patch — security hardening & sanitization)
+- **Common Skills**: v1.10.1 (Patch — new `common-learning-log`, retrospective update)
+- **Root**: v2.0.1 (Patch — sync)
+
 ## [2.0.0] - 2026-03-25
 
 **Category**: Community Skill Score Improvements & New Store Changelog Skill & QE/Security Skill Enhancements

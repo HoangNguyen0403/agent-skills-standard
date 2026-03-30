@@ -80,6 +80,7 @@ export const DEFAULT_WORKFLOWS = [
   'codebase-review',
   'plan-feature',
   'skill-benchmark',
+  'pentest',
 ];
 
 // Configurable via ENV or hardcoded for production convenience

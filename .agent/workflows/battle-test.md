@@ -1,155 +1,60 @@
 ---
-description: Deep audit of a skills directory against the Skill Creator standard. Produces a scored report and phased remediation plan. Works on any tech stack.
+description: Deep audit of a skills directory against the Skill Creator standard. Produces a scored report and phased remediation plan.
 ---
 
-# ⚔️ Battle Test Workflow
+# ⚔️ Battle Test Orchestrator
 
-> **Goal**: Evaluate every `SKILL.md` in the target skill directory against the [Skill Creator Standard](../.agent/skills/skill-creator/SKILL.md). Produce a quantified health report with a prioritized, phased remediation plan so any team can immediately start improving.
-
-> [!IMPORTANT]
-> **Token Efficiency First**:
->
-> - Count before you read. Use `grep -c`, `wc -l`, and pattern signals for inventory.
-> - Audit 100% of SKILL.md frontmatter via pattern matching. Read full body of P0 skills only.
-> - Never repeat skill content verbatim in the report.
+> **Goal**: Evaluate every `SKILL.md` in the target directory against the [Skill Creator Standard](../../skills/common/common-skill-creator/SKILL.md). Deliver a quantified health report and prioritized remediation plan.
 
 ---
 
-## Step 1 — Discover All Skills
+## Step 1 — Target Discovery & Tech Stack
+
+Identify the tech stack and all skill files.
 
 ```bash
-# 1a. Count and list all SKILL.md files in the project
-find . -name "SKILL.md" | sort
-
-# 1b. Count total skills per category
+# Count total skills per category
 find . -name "SKILL.md" | sed 's|/[^/]*/SKILL.md||' | sort | uniq -c
-
-# 1c. Read the Skill Creator standard to internalize the grading rubric
-cat .agent/skills/skill-creator/SKILL.md
 ```
 
 ---
 
 ## Step 2 — Frontmatter Audit (Breadth Scan)
 
-Run the following signals **without opening each file**:
+Run scans to detect format and structure violations.
 
-```bash
-# 2a. Skills with NO triggers at all (critical gap)
-grep -rL "triggers:" skills/ --include="SKILL.md"
-
-# 2b. Skills with NO keywords trigger
-grep -rL "keywords:" skills/ --include="SKILL.md"
-
-# 2c. Skills with NO priority section
-grep -rL "Priority:" skills/ --include="SKILL.md"
-
-# 2d. Skills that over-use broad glob triggers (red flag)
-grep -r "src/\*\*" skills/ --include="SKILL.md" -l
-
-# 2e. Anti-pattern format violators (nested backtick instead of 'No X' format)
-grep -r "^\- \*\*[^*]*\*\*: \`" skills/ --include="SKILL.md" -l
-
-# 2f. Missing verification checklist
-grep -rL "Verification Checklist\|Hardening Checklist" skills/ --include="SKILL.md"
-
-# 2g. Skills exceeding 100-line limit
-find . -name "SKILL.md" -exec awk 'END{if(NR>100) print FILENAME": "NR" lines"}' {} \;
-```
+1. **Check for missing mandatory sections**: `grep -rL "triggers:\|priority:\|Anti-Patterns" skills/`
+2. **Check for broad glob triggers**: `grep -r "src/\*\*" skills/`
+3. **Check for length limits**: 
+   `find . -name "SKILL.md" -exec awk 'END{if(NR>100) print FILENAME": "NR" lines"}' {} \;`
 
 ---
 
-## Step 3 — Deep Audit: P0 Skills (Critical Path)
+## Step 3 — Deep Audit & Scoring
 
-Open and review every P0 (CRITICAL) skill fully. For each, evaluate:
+Pick every P0 (CRITICAL) and a random sample of P1/P2 skills. Evaluate them against the **Grading Rubric** in:
+[common-skill-creator/references/rubric.md](../../skills/common/common-skill-creator/references/rubric.md)
 
-| Dimension            | Check                                                                   | Max pts |
-| -------------------- | ----------------------------------------------------------------------- | ------- |
-| **Triggers**         | Has keywords? Has file patterns? Precise (not `src/**`)? Has composite? | 25      |
-| **Anti-Patterns**    | Uses strict `**No X**: Do Y [≤15 words]` format? No nested backticks?   | 20      |
-| **Verification**     | Has a mandatory checklist with testable pass/fail conditions?           | 20      |
-| **Token Efficiency** | Under 100 lines? Uses imperative mood? No conversational filler?        | 20      |
-| **References**       | Links to detailed examples vs inlining everything?                      | 15      |
+1. **Trigger Accuracy**: File patterns + keywords?
+2. **Format Quality**: `**No X**: Do Y.` anti-patterns?
+3. **Verification**: Mandatory checklists?
+4. **Token Efficiency**: Under 100 lines? Imperative mood?
 
 ---
 
-## Step 4 — P1/P2 Skills Spot-Check
+## Step 4 — Scored Report
 
-For non-critical skills, only verify:
+**Scoring Algorithm**: Start at 100 points for each category. Apply deductions for findings (🔴-15 / 🟠-8 / 🟡-3 / 🔵-1).
 
-1. **Trigger present** and non-trivial.
-2. **Priority section** exists with severity label.
-3. **Anti-pattern format** is compliant.
+### 📊 Report Format
 
----
-
-## Step 5 — Scored Report
-
-### ⚖️ Scoring Algorithm
-
-Score skills in each category **(100 points base)**:
-
-| Deduction       | Condition                                                        | Points |
-| --------------- | ---------------------------------------------------------------- | ------ |
-| 🔴 **Critical** | No triggers on a P0 skill / Hardcoded secrets in skill content   | -15    |
-| 🟠 **High**     | Anti-pattern format violations / Missing verification checklist  | -8     |
-| 🟡 **Medium**   | Overly broad trigger / Missing priority severity label           | -3     |
-| 🔵 **Low**      | Minor inconsistency (header naming, trailing whitespace, casing) | -1     |
-
-**Scoring categories (report one score per category):**
-
-1. 🎯 **Trigger Accuracy** — Precision and coverage of activations.
-2. 💎 **Format Quality** — Compliance with Skill Creator anti-pattern standards.
-3. 📚 **Content Depth** — Presence of actionable checklists and references.
-4. 🏎️ **Token Efficiency** — Size, imperative mood, no redundancy.
+Output the report using the **Battle Test Report** and **Phased Plan** templates in:
+[common-skill-creator/references/rubric.md](../../skills/common/common-skill-creator/references/rubric.md)
 
 ---
 
-Output the report in this format:
+## Step 5 — Interactive Follow-up
 
-```
-╔══════════════════════════════════════════════════════════════╗
-║                    ⚔️  BATTLE TEST REPORT                    ║
-║  Skills Directory: [path]     Overall Score: [X / 100]       ║
-║  Tech Stack: [detected]       Date: [YYYY-MM-DD]             ║
-╚══════════════════════════════════════════════════════════════╝
-
-### 📊 Health Dashboard
-
-| Category             | Score | Top Finding                      |
-|----------------------|-------|----------------------------------|
-| 🎯 Trigger Accuracy  | XX/100| [Worst offender]                 |
-| 💎 Format Quality    | XX/100| [Worst offender]                 |
-| 📚 Content Depth     | XX/100| [Missing item]                   |
-| 🏎️ Token Efficiency  | XX/100| [Largest skill]                  |
-| **Overall**          | XX/100|                                  |
-
-### 🔴 CRITICAL FINDINGS (Fix First)
-- **[C-001]** Trigger: [skill-id] has no triggers — agents will never load it.
-
-### 🟠 HIGH FINDINGS
-- **[H-001]** Format: [skill-id] uses nested backtick anti-pattern format.
-
-### 🟡 MEDIUM FINDINGS
-- **[M-001]** Trigger: [skill-id] uses `src/**` — overly broad.
-
-### 🗺️ Phased Remediation Plan
-
-| Phase   | Focus                  | Actions                                    |
-|---------|------------------------|--------------------------------------------|
-| Phase 1 | Trigger Hardening      | Fix P0 trigger gaps; add file+keyword pairs|
-| Phase 2 | Format Standardization | Apply `**No X**: Do Y` to all anti-patterns|
-| Phase 3 | Content Depth          | Add mandatory checklists to architecture skills|
-| Phase 4 | Advanced Triggers      | Add composite (+) and exclude (!) triggers |
-| Phase 5 | Deep Dives             | Create missing reference skills or guides  |
-```
-
----
-
-## Step 6 — Interactive Follow-up
-
-After the report, ask:
-
-1. "Generate a `task.md` for Phase 1 so we can start immediately?"
-2. "Fix **[C-001]** now? I'll apply the trigger and regenerate the index."
-3. "Deep-dive audit on a specific category (e.g., `angular` or `security`)?"
+1. "Generate a `task.md` for Phase 1 remediation?"
+2. "Fix the worst offender in [category] now?"
+3. "Deep-dive audit on a specific category (e.g., `security`)?"

@@ -1,18 +1,16 @@
 ---
 name: common-tdd
-description: "Enforces Test-Driven Development (Red-Green-Refactor). Use when writing unit tests, implementing TDD, or improving test coverage for any feature. (triggers: **/*.test.ts, **/*.spec.ts, **/*_test.go, **/*Test.java, **/*_test.dart, **/*_spec.rb, tdd, unit test, write test, red green refactor, failing test, test coverage)"
+description: 'Implements a strict Red-Green-Refactor loop to ensure zero production code is written without a prior failing test. Use when: creating new features, fixing bugs, or expanding test coverage. (triggers: **/*.test.ts, **/*.spec.ts, **/*_test.go, **/*Test.java, **/*_test.dart, **/*_spec.rb, tdd, unit test, write test, red green refactor, failing test, test coverage)'
 ---
 
-# Test-Driven Development (TDD)
+# Test-Driven Development (TDD) Standard
 
-## **Priority: P1 (OPERATIONAL)**
-
-## **The Iron Law**
+## **Priority: P0 — The Iron Law**
 
 > **NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST.**
-> Code written before the test must be deleted. Start over.
+> Code written before the test MUST be deleted. Start over.
 
-## **The TDD Cycle**
+## **Step 1: The RGR Loop (Red-Green-Refactor)**
 
 1. **RED**: Write a minimal failing test. **Verify failure** (Expected error, not typo).
 2. **GREEN**: Write simplest code to pass. **Verify pass**.
@@ -27,37 +25,20 @@ Every test must follow Arrange-Act-Assert:
 - **Assert**: Verify output and side effects. One logical assertion per test.
   **(See [AAA Example](references/aaa_example.md) for code structure)**.
 
-## **Coverage Thresholds**
+## **Step 3: Verification & Thresholds**
 
-- **Minimum**: 80% (Statements, Functions, Lines), 75% (Branches).
-- **Target**: 90% (Statements, Functions, Lines), 85% (Branches).
-- Configure in test runner config (e.g. `jest.config.ts`, `vitest.config.ts`). Coverage below minimum is a build-gate failure.
+- **Minimum Coverage**: 80% (Stat/Func/Line), 75% (Branch).
+- **Mocks**:
+  - Always mock: HTTP, Time/Date, Filesystem.
+  - Never mock: Fast internal services (<200ms), pure domain logic.
+- See [Test Runner Reference](references/test_runners.md) for environment-specific commands.
 
-## **Test Runner Commands**
+## **Step 4: Principles & Mocks**
 
-| Language      | Runner            | Watch Mode                  | Coverage                     |
-| ------------- | ----------------- | --------------------------- | ---------------------------- |
-| TypeScript/JS | `jest` / `vitest` | `vitest --watch`            | `vitest run --coverage`      |
-| Go            | `go test`         | `go test -v ./... -count=1` | `go test -cover ./...`       |
-| Java          | JUnit 5 + Maven   | `mvn test`                  | `mvn verify -P coverage`     |
-| Kotlin        | JUnit 5 + Kotest  | `./gradlew test`            | `./gradlew jacocoTestReport` |
-| Dart/Flutter  | `flutter test`    | `flutter test --watch`      | `flutter test --coverage`    |
-
-## **Core Principles**
-
-- **Watch it Fail**: Prove the test works.
+- **Watch it Fail**: Prove the test works before writing code.
 - **Minimalism**: Don't add features/options beyond current test (YAGNI).
-- **Real Over Mock**: Prefer real dependencies unless slow/flaky.
-- **One Reason to Fail**: Test one behavior per test.
-- **Descriptive Names**: e.g. `should_returnError_when_emailIsInvalid`.
-
-## **When to Use Mocks vs Real Dependencies**
-
-- **Database**: Real DB (test container) or in-memory; mock as last resort.
-- **HTTP/External APIs**: Always mock.
-- **Filesystem**: Use temp dir; mock for unit isolation.
-- **Time/Dates**: Always mock/control.
-- **Internal services**: Real if fast (<200ms); mock if cross-network.
+- **Isolation**: Mock external APIs (HTTP) and Time.
+- **Realism**: Prefer real DBs (test containers) and fast internal services (<200ms).
 
 ## **Verification Checklist**
 
@@ -70,9 +51,10 @@ Every test must follow Arrange-Act-Assert:
 ## **Expert References**
 
 - [AAA Example](references/aaa_example.md)
+- [AAA Methodology](references/aaa_methodology.md)
+- [Test Runners](references/test_runners.md)
 - [TDD Patterns](references/tdd_patterns.md)
 - [Testing Anti-Patterns](references/testing_anti_patterns.md)
-
 
 ## Anti-Patterns
 

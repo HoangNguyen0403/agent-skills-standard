@@ -1,6 +1,6 @@
 ---
 name: common-session-retrospective
-description: "Analyze conversation corrections to detect skill gaps and auto-improve the skills library. Use after any session with user corrections, rework, or retrospective requests. (triggers: **/*.spec.ts, **/*.test.ts, SKILL.md, AGENTS.md, retrospective, self-learning, improve skills, session review, correction, rework)"
+description: "Analyze conversation corrections to detect skill gaps and auto-improve the skills library. Use after any session with user corrections, rework, or retrospective requests. After finding correction loops, also load +common/common-learning-log to persist mistake entries to AGENTS_LEARNING.md. (triggers: **/*.spec.ts, **/*.test.ts, SKILL.md, AGENTS.md, retrospective, self-learning, improve skills, session review, correction, rework, +common/common-learning-log)"
 ---
 
 # Session Retrospective
@@ -24,7 +24,8 @@ common/session-retrospective/
    - If yes: record skill ID, indirect phrase used, and fix (add keyword alias to triggers)
 4. **Propose** — One fix per root cause: update skill, update reference, new skill, or new workflow
 5. **Implement** — Apply to all agent dirs. Keep SKILL.md concise; move large tables to `references/`. Update `AGENTS.md`
-6. **Report** — Output correction count, skills changed, trigger misses found, estimated rounds saved
+6. **Log to AGENTS_LEARNING.md** — For each correction loop found, append one entry using `common/common-learning-log` protocol (Signal: `Session retrospective`)
+7. **Report** — Output correction count, skills changed, trigger misses found, estimated rounds saved
 
 ## Trigger Miss Output
 

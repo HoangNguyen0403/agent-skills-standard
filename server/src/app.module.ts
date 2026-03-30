@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { CoreModule } from './core/core.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { HealthModule } from './health/health.module';
@@ -12,13 +13,25 @@ import { HealthModule } from './health/health.module';
     }),
     ThrottlerModule.forRoot([
       {
+        name: 'global',
         ttl: 60000,
         limit: 10,
+      },
+      {
+        name: 'feedback',
+        ttl: 60000,
+        limit: 3,
       },
     ]),
     CoreModule,
     HealthModule,
     FeedbackModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 /**

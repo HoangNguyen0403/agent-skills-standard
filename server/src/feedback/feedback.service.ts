@@ -55,9 +55,9 @@ export class FeedbackService {
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      this.logger.error(`Failed to create issue: ${errorMessage}`);
+      this.logger.error(`Failed to create issue. Details: ${errorMessage}`);
       throw new InternalServerErrorException(
-        `Failed to create GitHub issue: ${errorMessage}`,
+        'Failed to create feedback issue. Please try again later.',
       );
     }
   }

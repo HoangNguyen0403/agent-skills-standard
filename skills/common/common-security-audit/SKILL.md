@@ -1,6 +1,6 @@
 ---
 name: common-security-audit
-description: "Probe for hardcoded secrets, injection surfaces, unguarded routes, and infrastructure weaknesses across Node, Go, Dart, Java, Python, and Rust codebases. Use when performing security audits, vulnerability scans, secrets detection, or penetration testing. (triggers: package.json, go.mod, pubspec.yaml, pom.xml, Dockerfile, security audit, vulnerability scan, secrets detection, injection probe, pentest)"
+description: 'Probe for hardcoded secrets, injection surfaces, unguarded routes, and infrastructure weaknesses across Node, Go, Dart, Java, Python, and Rust codebases. Use when performing security audits, vulnerability scans, secrets detection, or penetration testing. (triggers: package.json, go.mod, pubspec.yaml, pom.xml, Dockerfile, security audit, vulnerability scan, secrets detection, injection probe, pentest)'
 ---
 
 # Security Audit
@@ -47,15 +47,23 @@ Compare total routes against protected endpoints.
 
 See [implementation examples](references/implementation.md) for infrastructure hardening checks.
 
+## 7. Detect Adversarial Entry Points (RCE/SSRF/Path Traversal)
+
+Identify where user input reaches dangerous sinks without sanitization.
+
+- **Path Traversal**: `grep -rE "path\.join\(|os\.path\.join\(" . | grep -vE "path\.resolve|path\.normalize"`
+- **SSRF**: `grep -rE "axios\.get\(|http\.Get\(|fetch\(" . | grep -vE "['\"]https?://" `
+- **BOLA/IDOR**: `grep -rE "findById\(|findOne\(" . | grep -viE "tenant|owner|user_id"`
+
 ## Scoring Impact
 
-| Finding | Threshold | Severity | Deduction |
-|---|---|---|---|
-| Hardcoded Secrets | Any match | P0 | -25 |
-| Plain-text PII in Logs | Any match | P0 | -20 |
-| Unguarded Routes > 20% | > 0.2 | P0 | -15 |
-| Raw SQL Concatenation | Any match | P1 | -10 |
-| Response Leakage (Stack) | > 0 | P1 | -10 |
+| Finding                  | Threshold | Severity | Deduction |
+| ------------------------ | --------- | -------- | --------- |
+| Hardcoded Secrets        | Any match | P0       | -25       |
+| Plain-text PII in Logs   | Any match | P0       | -20       |
+| Unguarded Routes > 20%   | > 0.2     | P0       | -15       |
+| Raw SQL Concatenation    | Any match | P1       | -10       |
+| Response Leakage (Stack) | > 0       | P1       | -10       |
 
 > **CAUTION**: A P0 finding immediately caps the Security score at 40/100.
 

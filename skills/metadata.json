@@ -100,6 +100,8 @@
     "common/tdd": [
       "test",
       "quality",
+      "quality-engineer",
+      "zephyr",
       "cicd",
       "jira",
       "business"
@@ -243,25 +245,25 @@
       }
     },
     "common": {
-      "version": "1.10.0",
-      "last_updated": "2026-03-25",
+      "version": "2.0.1",
+      "last_updated": "2026-03-30",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 29,
-        "total_tokens": 17887,
-        "avg_tokens_per_skill": 617,
-        "largest_skill": "common-skill-creator (1067 tokens)"
+        "total_skills": 31,
+        "total_tokens": 19271,
+        "avg_tokens_per_skill": 622,
+        "largest_skill": "common-skill-creator (1238 tokens)"
       }
     },
     "quality-engineering": {
-      "version": "1.4.0",
-      "last_updated": "2026-03-25",
+      "version": "1.4.1",
+      "last_updated": "2026-03-30",
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
-        "total_skills": 4,
-        "total_tokens": 2767,
-        "avg_tokens_per_skill": 692,
-        "largest_skill": "quality-engineering-business-analysis (1042 tokens)"
+        "total_skills": 5,
+        "total_tokens": 3893,
+        "avg_tokens_per_skill": 779,
+        "largest_skill": "quality-engineering-zephyr-test-generation (1128 tokens)"
       }
     },
     "golang": {
@@ -375,8 +377,8 @@
       }
     },
     "database": {
-      "version": "1.2.2",
-      "last_updated": "2026-03-25",
+      "version": "1.3.1",
+      "last_updated": "2026-03-30",
       "tag_prefix": "database-v",
       "token_metrics": {
         "total_skills": 3,

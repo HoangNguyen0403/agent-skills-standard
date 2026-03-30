@@ -1,19 +1,19 @@
 ---
 name: common-skill-creator
-description: 'Standards for creating, testing, and optimizing Agent Skills for any AI Agent (Claude, Cursor, Windsurf, Copilot). Use when: writing SKILL.md, auditing a skill, improving trigger accuracy, checking size limits, structuring references/, writing anti-patterns, starting a new skill from scratch, or reviewing skill quality.'
+description: 'Standardizes the creation and evaluation of high-density Agent Skills (Claude, Cursor, Windsurf). Ensures skills achieve high Activation (specificity/completeness) and Implementation (conciseness/actionability) scores. Use when: writing or auditing SKILL.md, improving trigger accuracy, or refactoring skills to reduce redundancy and maximize token ROI.'
 ---
 
 # Agent Skill Creator Standard
 
 ## **Priority: P0 — Apply to ALL skills**
 
-Maximize info/token ratio. Every line in SKILL.md competes for context window space.
+Maximize **Token ROI**. Every line in SKILL.md must provide specific procedural value. **Activation** (how it triggers) and **Implementation** (how it helps) are the primary quality metrics.
 
 ## Three-Level Loading System
 
-- **Level 1** Frontmatter (always in context): name + description, ~100 words max
-- **Level 2** SKILL.md body (triggered): core rules, ≤100 lines
-- **Level 3** references/ (on demand): detailed examples, schemas, deep-dives
+- **Level 1** Frontmatter: `name` + `description` (Activation Anchor), ≤100 words.
+- **Level 2** SKILL.md body: Core Rules + Workflows (Implementation Core), ≤100 lines.
+- **Level 3** references/: Detailed examples, schemas, and "TESTS.md" (On-demand).
 
 ## Workflow (New or Existing Skill)
 
@@ -21,11 +21,11 @@ Maximize info/token ratio. Every line in SKILL.md competes for context window sp
 
 1. **Research** — web-search domain best practices, checklists, and standards; extract key terms → triggers, workflows → guidelines, mistakes → anti-patterns. See [Web Search Research](references/web-search-research.md).
 2. **Capture intent** — what does it do, when does it trigger, expected output format?
-2. **Write SKILL.md** — draft using [TEMPLATE.md](references/TEMPLATE.md)
-3. **Test** — spawn parallel subagents: one with-skill, one without-skill (baseline)
-4. **Evaluate** — grade assertions, review benchmark (pass rate, tokens, time)
-5. **Iterate** — rewrite based on feedback, rerun into next iteration dir, repeat
-6. **Optimize description** — run trigger eval queries, target ≥80% accuracy
+3. **Write SKILL.md** — draft using [TEMPLATE.md](references/TEMPLATE.md)
+4. **Test** — spawn parallel subagents: one with-skill, one without-skill (baseline)
+5. **Evaluate** — grade assertions, review benchmark (pass rate, tokens, time)
+6. **Iterate** — rewrite based on feedback, rerun into next iteration dir, repeat
+7. **Optimize description** — run trigger eval queries, target ≥80% accuracy
 
 **Existing skill:**
 
@@ -38,31 +38,36 @@ Maximize info/token ratio. Every line in SKILL.md competes for context window sp
 
 See [Eval Workflow](references/eval-workflow.md) for full testing + iteration details.
 
-## Writing Rules
+## Description Quality (Activation)
 
-- **Imperative compression**: verbs first, drop articles. Bullets > paragraphs.
-- **Structure order**: Priority → Core Rules → Anti-Patterns → References
-- **Descriptions**: push trigger contexts into frontmatter; list edge cases; be "pushy"
-- **Anti-pattern format**: `**No X**: Do Y.` ≤15 words total
-- **Non-engineering skills**: use conversational triggers (no file globs); list 5-8 specific user intents in description. See [Web Search Research](references/web-search-research.md).
+- **Third-Person Voice**: Use `Standardizes...`, `Audits...`, `Encrypts...`. Avoid "I will" or "This skill helps to".
+- **What + When Structure**:
+  - **What**: Define 5–8 specific capabilities (e.g., "Generates JWT tokens, rotates keys").
+  - **When**: Explicitly define triggers (e.g., "Use when user says 'rotate keys'").
+- **Specificity**: Avoid vague verbs like "manage" or "handle". Use "Validate", "Inject", "Refactor", "Sanitize".
+- **Trigger Hint**: Include a `(triggers: *.ext, keyword)` suffix for technical skills.
+
+## Content Quality (Implementation)
+
+- **No Redundant Knowledge**: Do **NOT** explain concepts the AI already knows (e.g., HTTP status codes, standard library docs, basic SOLID principles). Focus strictly on _project-specific_ rules.
+- **Actionability**: Examples must be copy-paste ready and executable.
+- **Workflow Clarity**: Use sequential ordered lists for multi-step processes.
+- **Progressive Disclosure**: Move code blocks >10 lines to `references/`.
 
 ## Anti-Patterns
 
+- **No "AI-splaining"**: Do not explain why a pattern is good unless it's a unique project constraint.
+- **No Vague Triggers**: Never use `src/**` or `**/*`. Be surgical.
+- **No Description Bloat**: If a description exceeds 100 words, some capabilities belong in the body.
 - **No long code blocks**: >10 lines → extract to `references/`
 - **No redundancy**: don't repeat frontmatter content in body
-- **No YAML bloat**: embed all trigger context in `description` — no separate `keywords:` arrays. Two styles:
-  - File/keyword triggers: `description: "... (triggers: SKILL.md, *.ext)"`
-  - Conversational triggers: `description: "... Use when the user says 'run X' or 'I want to Y'"`
-- **No packaging**: skip Python packaging steps; distribute as folder directly
 
-## Quality Checklist
+## Quality Checklist (Tessl-Aligned)
 
-- [ ] SKILL.md ≤100 lines
-- [ ] No inline code block >10 lines
-- [ ] Description lists specific triggers, is "pushy"
-- [ ] All references linked with load conditions
-- [ ] Eval cases written in `evals/evals.json`
-- [ ] Trigger rate ≥80% on should-trigger queries
+- [ ] **Activation ≥ 90%**: Description covers both capabilities ("What") and triggers ("When").
+- [ ] **Implementation ≥ 90%**: No general-purpose explanations; all examples are executable.
+- [ ] **Structural Compliance**: SKILL.md ≤ 100 lines; code blocks moved to `references/`.
+- [ ] Trigger rate ≥80% on should-trigger queries.
 
 ## References
 

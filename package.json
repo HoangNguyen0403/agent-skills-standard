@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard-root",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "packageManager": "pnpm@10.0.0",
   "pnpm": {
@@ -22,7 +22,7 @@
     "format:check": "pnpm -r format:check",
     "lint:check": "pnpm -r lint:check",
     "validate": "pnpm --filter ./cli validate",
-    "validate:all": "pnpm --filter ./cli validate:all && pnpm audit:skills",
+    "validate:all": "pnpm --filter ./cli validate:all && pnpm audit:skills && pnpm audit:injection",
     "test": "pnpm --filter ./cli test",
     "test:cov": "pnpm --filter ./cli test:cov",
     "release-skill": "tsx scripts/release-skill.ts",
@@ -36,6 +36,7 @@
     "benchmark": "tsx scripts/benchmark/index.ts",
     "generate-indices": "tsx scripts/generate-indices.ts",
     "audit:skills": "tsx scripts/audit-skills.ts",
+    "audit:injection": "tsx scripts/scan-injection.ts",
     "docs:scan": "tsx scripts/scan-docs.ts scripts server/src",
     "test:e2e": "tsx scripts/test-e2e.ts",
     "prepare": "husky"

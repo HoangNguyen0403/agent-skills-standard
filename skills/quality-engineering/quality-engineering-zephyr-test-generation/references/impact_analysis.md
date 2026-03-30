@@ -6,7 +6,17 @@ Systematically identify and update existing Zephyr Test Cases affected by new re
 
 ## 0. Discovery Protocol (Finding Existing TCs)
 
-Since new User Stories (US) are created for every change, direct issue-links won't exist for new US. Follow this discovery chain:
+**Always start with Step A (direct lookup) before any other search.**
+
+### Step A — Direct Issue Link Lookup (MANDATORY FIRST)
+
+- Call `get_issue_link_test_cases` with the exact Jira issue key (e.g., `EZRX-42302`).
+- Present the result count and TC list to the user immediately.
+- Only proceed to Step B if the result is 0 TCs.
+
+### Step B — Supplemental Discovery (only if Step A returns 0)
+
+Since new User Stories (US) are created for every change, direct issue-links may not exist for brand-new tickets. If Step A returns 0, follow this chain:
 
 - **Keyword Search**: Query Zephyr using the `[Module]` and `[Screen]` identified in the Naming Convention (e.g., search "Order History Payment").
 - **Folder Audit**: Navigate to the Zephyr folder corresponding to the feature area (e.g., `features/order_history`).
@@ -31,12 +41,13 @@ Since new User Stories (US) are created for every change, direct issue-links won
 | **New Branch**   | **Create New**         | Adds parallel condition (e.g., new Sales Org).               |
 | **Deprecation**  | **Deactivate/Archive** | Logic no longer valid or completely replaced.                |
 
-## 3. Update Procedure (Seamless Versioning)
+## 3. Update Procedure (Requires User Approval)
 
 1. **Fetch**: Read the latest version of the existing TC using `get_test_case_steps`.
 2. **Merge**: Apply the deltas to the steps while preserving unchanged valid steps.
 3. **Verify**: Ensure the updated TC still follows [Granularity Standards](../../quality-assurance/references/test_case_standards.md).
-4. **Publish**: Update the TC using `update_test_case` (this normally increments the version).
+4. **Present Diff (MANDATORY)**: Show the user a clear before/after comparison of every field and step that will change. Wait for explicit user approval ("yes", "approve", "proceed", or equivalent) before continuing.
+5. **Publish**: Only after approval, update the TC using `update_test_case` (this normally increments the version).
 
 ## 4. Documentation
 

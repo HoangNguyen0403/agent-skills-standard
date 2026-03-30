@@ -301,7 +301,8 @@ export class SkillSyncService {
   }
 
   private isPathSafe(targetPath: string, skillPath: string): boolean {
-    return path.resolve(targetPath).startsWith(path.resolve(skillPath));
+    const resolvedBase = path.resolve(skillPath) + path.sep;
+    return path.resolve(targetPath).startsWith(resolvedBase);
   }
 
   private normalizePath(p: string): string {

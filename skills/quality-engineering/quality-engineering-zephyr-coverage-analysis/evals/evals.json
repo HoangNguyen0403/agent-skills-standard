@@ -1,0 +1,103 @@
+{
+  "skill_name": "quality-engineering-zephyr-coverage-analysis",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Can you check the coverage for EZRX-42302? I want to know if we have enough test cases before we ship this sprint. We're planning a release next week and the QE lead asked me to run a coverage check.",
+      "expected_output": "Fetches EZRX-42302, extracts ACs with platform info, searches Zephyr for linked TCs, produces coverage_analysis_report.md with Dashboard (covered/partial/not-covered %), AC heatmap with risk scores, and prioritized action plan. Does NOT create any new test cases.",
+      "assertions": [
+        {
+          "text": "Fetches Jira issue EZRX-42302 with renderedFields expansion for HTML platform detection",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "Produces coverage_analysis_report.md (not zephyr_test_plan.md)",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "Coverage dashboard shows covered/partial/not-covered counts and percentages",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "AC heatmap includes risk scoring (HIGH/MEDIUM/LOW) for each gap",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "Does not create or update any Zephyr test cases",
+          "passed": null,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "EZRX-42305 coverage audit please. I'm a QE manager and I need to know which acceptance criteria don't have test cases yet, and whether any of the existing TCs have quality issues like wrong labels or combined steps that could mask failures.",
+      "expected_output": "Runs full coverage audit: maps each AC to TCs, flags partial/uncovered slots, identifies TC quality issues (traceability gaps, combined TCs, generic objectives). Surfaces QE debt items. Outputs coverage_analysis_report.md. Does not create TCs.",
+      "assertions": [
+        {
+          "text": "Identifies ACs with 'Not Covered' status and explains why",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "Includes a Quality Observations section on existing TCs flagging traceability or quality issues",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "Includes a QE Debt section with backlog items",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "Separates Web and Mobile coverage slots for WEB+MOBILE ACs",
+          "passed": null,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Before we close EZRX-42310, can you give me the test coverage breakdown? I need to show the release manager what percentage of ACs are covered and what the risk is if we ship with the current gaps.",
+      "expected_output": "Produces coverage_analysis_report.md with Executive Dashboard showing coverage %, Prioritized Action Plan with P1 must-have TCs before release, and release readiness verdict. Risk-scores each coverage gap.",
+      "assertions": [
+        {
+          "text": "Executive Dashboard shows coverage percentage metrics",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "Prioritized Action Plan distinguishes P1 (must before release) from P2/P3",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "Provides a release readiness verdict or recommendation",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "Risk scores (HIGH/MEDIUM/LOW) are assigned to coverage gaps",
+          "passed": null,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Generate test cases for EZRX-42302. I want to create Zephyr TCs for all the acceptance criteria in this ticket.",
+      "expected_output": "Should NOT trigger this skill — should trigger quality-engineering-zephyr-test-generation instead. This is a TC creation request, not a coverage analysis request.",
+      "assertions": [
+        {
+          "text": "Does not invoke quality-engineering-zephyr-coverage-analysis workflow for this prompt",
+          "passed": null,
+          "evidence": null
+        }
+      ]
+    }
+  ]
+}

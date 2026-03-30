@@ -2,6 +2,15 @@ import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
 
+/** Injection patterns to strip from skill descriptions before writing to AGENTS.md. */
+const INJECTION_PATTERNS: RegExp[] = [
+  /ignore\s+(?:all\s+|previous\s+|prior\s+)?(?:instructions?|rules?|guidance)/gi,
+  /you\s+(?:must|should|shall|will)\s+(?:now|immediately)\b/gi,
+  /^(?:system|user|assistant)\s*:/gim,
+  /(?:^|\n)-{3,}(?:\n|$)/g,
+  /<(?:script|iframe|style)[^>]*>[\s\S]*?<\/(?:script|iframe|style)>/gi,
+];
+
 /**
  * Metadata structure for a skill, extracted from the frontmatter and content of a SKILL.md file.
  */
@@ -239,6 +248,35 @@ export class IndexGeneratorService {
     return derived;
   }
 
+  /**
+   * Sanitizes a skill description to prevent indirect prompt injection.
+   * Strips known instruction-hijack patterns and replaces them with [REDACTED].
+   * Logs a stderr warning for every skill that required sanitisation.
+   * @param desc The raw description string from skill frontmatter
+   * @param skillId The skill identifier (category/skill) for log context
+   * @returns Sanitised description safe to embed in AGENTS.md
+   */
+  sanitizeDescription(desc: string, skillId: string = 'unknown'): string {
+    let sanitized = desc;
+    let wasModified = false;
+
+    for (const pattern of INJECTION_PATTERNS) {
+      if (pattern.test(sanitized)) {
+        wasModified = true;
+        sanitized = sanitized.replace(pattern, '[REDACTED]');
+      }
+      pattern.lastIndex = 0; // reset global regex state
+    }
+
+    if (wasModified) {
+      process.stderr.write(
+        `[SECURITY] Prompt injection pattern stripped from skill description: ${skillId}\n`,
+      );
+    }
+
+    return sanitized;
+  }
+
   private formatEntry(
     category: string,
     skill: string,
@@ -268,7 +306,7 @@ export class IndexGeneratorService {
 
     const triggerText = triggers ? ` (triggers: \`${triggers}\`)` : '';
 
-    let desc = metadata.description || '';
+    let desc = this.sanitizeDescription(metadata.description || '', id);
     // Wrap any inline triggers in backticks as well to avoid formatting issues
     desc = desc.replace(/\(triggers:\s*`?(.*?)`?\)/g, '(triggers: `$1`)');
 

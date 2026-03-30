@@ -338,6 +338,18 @@ describe('SkillSyncService', () => {
       expect(skillSyncService.isPathSafe('/etc/passwd', root)).toBe(false);
     });
 
+    it('isPathSafe should reject sibling directories that share a common prefix (Fix 2)', () => {
+      const root = '/app/skills';
+      // Without path.sep fix, '/app/skills-secret/foo' would pass the old startsWith check.
+      // @ts-expect-error - private
+      expect(skillSyncService.isPathSafe('/app/skills-secret/foo.md', root)).toBe(false);
+      // @ts-expect-error - private
+      expect(skillSyncService.isPathSafe('/app/skillsXmalicious', root)).toBe(false);
+      // A valid deeply nested path must still pass.
+      // @ts-expect-error - private
+      expect(skillSyncService.isPathSafe('/app/skills/nested/deep/file.md', root)).toBe(true);
+    });
+
     it('expandAbsoluteInclude should bail on invalid format', () => {
       const folders: string[] = [];
       // @ts-expect-error - private
