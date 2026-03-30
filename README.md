@@ -62,6 +62,14 @@ We understand that "injecting" instructions into your AI can sound risky to secu
 - **Sandboxed**: The CLI tool (`agent-skills-standard`) runs in user space to download text files. The "skills" themselves run inside the AI's isolated context window, not as OS processes.
 - **Privacy**: We do not collect any code or project data. Feedback is only sent if you manually trigger the `feedback` command or strongly opt-in.
 
+### 🛡️ Adversarial Resilience & Skill Integrity
+
+To ensure that the instructions provided to AI agents are both secure and effective, the standard implements:
+
+- **Red-Team Auditing**: Skills undergo periodic "Pentests" using adversarial workflows to identify logic gaps, prompt injection surfaces, and "instruction drift."
+- **Mandatory Zero-Trust Protocol**: All agents working with this standard are bound by **Rule Zero**, which forbids code generation until a multi-step audit of active skills and security standards is performed.
+- **Prompt Injection Mitigation**: High-density skill patterns are specifically designed to minimize the risk of AI models ignoring constraints or leaking sensitive context through strategic instruction placement.
+
 ---
 
 ## 🚀 Quick Start (For Developers)

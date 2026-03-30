@@ -4,11 +4,11 @@ import path from 'path';
 
 /** Injection patterns to strip from skill descriptions before writing to AGENTS.md. */
 const INJECTION_PATTERNS: RegExp[] = [
-  /ignore\s+(?:all\s+|previous\s+|prior\s+)?(?:instructions?|rules?|guidance)/gi,
+  /ignore\s+(?:all\s+|previous\s+|prior\s+)*(?:instructions?|rules?|guidance)/gi,
   /you\s+(?:must|should|shall|will)\s+(?:now|immediately)\b/gi,
   /^(?:system|user|assistant)\s*:/gim,
   /(?:^|\n)-{3,}(?:\n|$)/g,
-  /<(?:script|iframe|style)[^>]*>[\s\S]*?<\/(?:script|iframe|style)>/gi,
+  /<(?:script|iframe|style)[^>]*>[\s\S]*?<\/(?:script|iframe|style)[^>]*>/gi,
 ];
 
 /**

@@ -11,7 +11,8 @@
       "minimatch": ">=10.2.3",
       "serialize-javascript": ">=7.0.3",
       "rollup": ">=4.59.0",
-      "file-type": "^21.3.2"
+      "file-type": "^21.3.2",
+      "path-to-regexp": ">=8.4.0"
     }
   },
   "scripts": {
