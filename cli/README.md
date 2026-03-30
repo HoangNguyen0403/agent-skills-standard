@@ -141,8 +141,9 @@ No. If you have custom rules in <code>.cursorrules</code> or other files, you ca
 
 ### 📜 Benchmark History
 
-| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
-| --- | --- | --- | --- | --- | --- |
-| v2.0.0 | 2026-03-25 | 235 | 523 | 86% | [Report](benchmarks/archive/v2.0.0.md) |
-| v1.10.3 | 2026-03-21 | 234 | 505 | 86% | [Report](benchmarks/archive/v1.10.3.md) |
-| v1.10.1 | 2026-03-16 | 229 | 428 | 88% | [Report](benchmarks/archive/v1.10.1.md) |
+| Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                  |
+| ------- | ---------- | ------ | ---------- | ----------- | --------------------------------------- |
+| v2.0.1  | 2026-03-30 | 238    | 527        | 86%         | [Report](benchmarks/archive/v2.0.1.md)  |
+| v2.0.0  | 2026-03-25 | 235    | 523        | 86%         | [Report](benchmarks/archive/v2.0.0.md)  |
+| v1.10.3 | 2026-03-21 | 234    | 505        | 86%         | [Report](benchmarks/archive/v1.10.3.md) |
+| v1.10.1 | 2026-03-16 | 229    | 428        | 88%         | [Report](benchmarks/archive/v1.10.1.md) |
