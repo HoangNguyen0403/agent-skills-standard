@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **🛡️ `IndexGeneratorService` (CLI)**: Implemented `sanitizeDescription()` to strip instruction-hijack patterns (e.g., "ignore previous rules") from skill descriptions during index generation. Malicious patterns are replaced with `[REDACTED]` and logged to `stderr` with a `[SECURITY]` warning.
 - **🛡️ `SkillSyncService` (CLI)**: Hardened `isPathSafe()` logic by explicitly using `path.sep` for boundary enforcement, successfully blocking sibling-directory traversal attacks (e.g., `/app/skills-secret`).
-- **🛡️ `FeedbackService` (Backend)**: Implemented error masking for API responses. Internal GitHub API details are hidden from clients and replaced with a generic generic error message, while maintaining full diagnostic logs on the server.
+- **🛡️ `FeedbackService` (Backend)**: Implemented error masking for API responses. Internal GitHub API details are hidden from clients and replaced with a generic error message, while maintaining full diagnostic logs on the server.
 - **🔄 `common/session-retrospective`**: Updated the retrospective protocol to include **Step 6: Update Learning Log**, ensuring agents record any correction loops from the current session.
 - **📊 `metadata.json`**: Repaired `quality-engineering` metrics (5 skills, recalculated tokens) and added `quality-engineer` + `zephyr` keywords to `common/tdd` foundational rules.
 

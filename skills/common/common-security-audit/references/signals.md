@@ -34,9 +34,9 @@ grep -rE "\+.*SELECT|\+.*INSERT|\+.*UPDATE|\+.*DELETE|query\(.*\+|fmt\.Sprintf.*
 ## 5. Reachable RCE / SSRF / Path Traversal
 
 | Risk                   | What to scan for                                                 |
-| :--------------------- | :--------------------------------------------------------------- | ------------- | ------------------------------- | ------ |
-| **RCE — dynamic eval** | `eval(                                                           | new Function( | shell_exec(                     | exec(` |
-| **SSRF**               | `axios.get(                                                      | fetch(        | http.Get(` where URL is dynamic |
+| :--------------------- | :--------------------------------------------------------------- |
+| **RCE — dynamic eval** | `eval(`, `new Function(`, `shell_exec(`, `exec(`                 |
+| **SSRF**               | `axios.get(`, `fetch(`, `http.Get(` where URL is dynamic        |
 | **Path Traversal**     | File I/O where path is from user input without `path.join/Clean` |
 
 ## Scoring Impact

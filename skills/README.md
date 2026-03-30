@@ -46,7 +46,7 @@ Cross-framework standards and best practices applicable to all development.
 - [**Store Changelog**](common/common-store-changelog/SKILL.md) (P1) - Generate user-facing release notes for the Apple App Store and Google Play Store by collecting git history, triaging user-impacting changes, and drafting store-compliant changelogs. Enforces character limits (App Store ≤4000, Google Play ≤500), tone, and bullet format. Use when generating release notes, app store changelog, play store release, what's new, or version release notes for any mobile app. (triggers: generate changelog, app store notes, play store release, what's new, release notes, version notes, store release)
 - [**Documentation**](common/common-documentation/SKILL.md) (P2) - Write effective code comments, READMEs, and technical documentation following intent-first principles. Use when adding comments, writing docstrings, creating READMEs, or updating any documentation. (triggers: comment, docstring, readme, documentation)
 
-### �🎯 Flutter (Framework)
+### 🎯 Flutter (Framework)
 
 High-density standards for modern Flutter development.
 
