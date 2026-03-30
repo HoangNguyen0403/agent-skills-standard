@@ -26,7 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Versions
 
 - **CLI**: v2.0.1 (Patch — security hardening & sanitization)
-- **Common Skills**: v1.10.1 (Patch — new `common-learning-log`, retrospective update)
+- **Common Skills**: v2.0.1 (Patch — new `common-learning-log`, retrospective update)
+- **Quality Engineering**: v1.4.1 (Patch — added zephyr coverage analysis)
 - **Root**: v2.0.1 (Patch — sync)
 
 ## [2.0.0] - 2026-03-25

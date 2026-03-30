@@ -1,15 +1,7 @@
 import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
-
-/** Injection patterns to strip from skill descriptions before writing to AGENTS.md. */
-const INJECTION_PATTERNS: RegExp[] = [
-  /ignore\s+(?:all\s+|previous\s+|prior\s+)*(?:instructions?|rules?|guidance)/gi,
-  /you\s+(?:must|should|shall|will)\s+(?:now|immediately)\b/gi,
-  /^(?:system|user|assistant)\s*:/gim,
-  /(?:^|\n)-{3,}(?:\n|$)/g,
-  /<(?:script|iframe|style)[^>]*>[\s\S]*?<\/(?:script|iframe|style)[^>]*>/gi,
-];
+import { INJECTION_PATTERNS } from '../constants/security';
 
 /**
  * Metadata structure for a skill, extracted from the frontmatter and content of a SKILL.md file.

@@ -10,13 +10,7 @@ import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
 import pc from 'picocolors';
-
-const INJECTION_PATTERNS: RegExp[] = [
-  /ignore\s+(?:all\s+|previous\s+|prior\s+)*(?:instructions?|rules?|guidance)/gi,
-  /you\s+(?:must|should|shall|will)\s+(?:now|immediately)\b/gi,
-  /^(?:system|user|assistant)\s*:/gim,
-  /<(?:script|iframe|style)[^>]*>[\s\S]*?<\/(?:script|iframe|style)[^>]*>/gi,
-];
+import { INJECTION_PATTERNS } from '../cli/src/constants/security';
 
 interface ScanResult {
   skill: string;

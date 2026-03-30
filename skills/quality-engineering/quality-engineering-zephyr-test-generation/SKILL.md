@@ -1,6 +1,6 @@
 ---
 name: quality-engineering-zephyr-test-generation
-description: "Generate Zephyr test cases from Jira stories: parse AC, identify platform and market, impact-analyze existing TCs (update vs create new), draft test cases with correct naming/metadata/preconditions, and link back via create_test_case_issue_link. Use when converting a Jira story into Zephyr TCs, or when requirement changes require updating existing TCs rather than creating duplicates. (triggers: **/user_story.md, generate test cases, zephyr, impact analysis, create test case)"
+description: 'Generate Zephyr test cases from Jira stories: parse AC, identify platform and market, impact-analyze existing TCs (update vs create new), draft test cases with correct naming/metadata/preconditions, and link back via create_test_case_issue_link. Use when converting a Jira story into Zephyr TCs, or when requirement changes require updating existing TCs rather than creating duplicates. (triggers: **/user_story.md, generate test cases, zephyr, impact analysis, create test case)'
 ---
 
 # Zephyr Test Generation Standards
@@ -16,10 +16,10 @@ description: "Generate Zephyr test cases from Jira stories: parse AC, identify p
    - See [Actor/Permission Matrix](../quality-engineering-business-analysis/references/analysis_patterns.md) for role/market logic.
 
 2. **Impact Analysis** (run before any TC creation)
-   - **Pass A**: Fetch last 300 TCs paginated; filter client-side for `labels[]` containing the issue key.
-   - **Pass B**: From same results, collect TCs whose `objective` contains the issue key string.
-   - **Pass C** (if A+B < 3 results): Search by module keywords; check sibling issues.
-   - Map each AC to coverage status — see [Discovery Protocol](references/impact_analysis.md).
+   - **Step A — Direct Lookup**: Call `get_issue_link_test_cases` with the Jira issue key (e.g., `EZRX-42302`).
+   - **Step B — Supplemental**: If Step A is 0, search by `[Module]` and `[Screen]` keywords + check sibling issue links.
+   - See [Discovery Protocol](references/impact_analysis.md) for full chain.
+   - Map each AC to coverage status:
      - **Covered** → ask user: skip or update to current format?
      - **Partial** → always propose a NEW TC.
      - **Not Covered** → always create a NEW TC.
@@ -62,7 +62,7 @@ description: "Generate Zephyr test cases from Jira stories: parse AC, identify p
 - **No WEB+MOBILE split**: One AC row = one TC with Platform "Web and Mobile".
 - **No platform merge**: Two AC rows, different platforms = two separate TCs.
 - **No silent update**: Show before/after diff; wait for explicit approval.
-- **No lookup skip**: Always run Pass A label search before keyword fallback.
+- **No lookup skip**: Always run Step A direct link lookup before supplemental search.
 - **No stale artifact**: Delete existing `zephyr_test_plan.md` before each run.
 - **No coverage skip**: Coverage Analysis table must open every artifact.
 - **No ghost update**: Update the Zephyr TC whenever matching code changes.
