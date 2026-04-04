@@ -29,6 +29,7 @@ describe('SyncService', () => {
 
     // Setup IndexGeneratorService mock implementation
     vi.mocked(IndexGeneratorService).mockImplementation(function (this: any) {
+      this.withMetadata = vi.fn().mockReturnThis();
       this.generate = vi.fn().mockResolvedValue('index content');
       this.assembleIndex = vi.fn().mockReturnValue('index content');
       this.generateAllCategoryIndices = vi.fn().mockResolvedValue({});
@@ -199,6 +200,7 @@ describe('SyncService', () => {
       vi.mocked(IndexGeneratorService).mockImplementationOnce(function (
         this: any,
       ) {
+        this.withMetadata = vi.fn().mockReturnThis();
         this.generateAllCategoryIndices = vi
           .fn()
           .mockRejectedValue(new Error('Gen failed'));
@@ -210,6 +212,156 @@ describe('SyncService', () => {
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Failed to update index'),
       );
+    });
+
+    it('fetches metadata from registry main branch and injects it into the generator', async () => {
+      const remoteMetadata = {
+        file_routing: { go: ['golang'], ts: ['typescript'] },
+        broad_globs: ['**/*.go', '**/*.ts'],
+        base_language_skills: { golang: 'golang-language' },
+      };
+
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRawFile.mockResolvedValue(
+        JSON.stringify(remoteMetadata),
+      );
+
+      let capturedWithMetadata: any;
+      vi.mocked(IndexGeneratorService).mockImplementationOnce(function (
+        this: any,
+      ) {
+        this.withMetadata = vi.fn().mockImplementation((m: any) => {
+          capturedWithMetadata = m;
+          return this;
+        });
+        this.generateAllCategoryIndices = vi.fn().mockResolvedValue({});
+        this.assembleRouterIndex = vi.fn().mockResolvedValue('router');
+        return this;
+      } as any);
+
+      const config = {
+        registry: 'https://github.com/o/r',
+        agents: [Agent.Cursor],
+        skills: { golang: { ref: 'v1' }, typescript: { ref: 'v1' } },
+      } as any;
+
+      await syncService.applyIndices(config, [Agent.Cursor]);
+
+      // getRawFile must be called for skills/metadata.json (not checkForUpdates path)
+      expect(mockGithubService.getRawFile).toHaveBeenCalledWith(
+        'o',
+        'r',
+        'main',
+        'skills/metadata.json',
+      );
+      // withMetadata must receive the parsed remote metadata
+      expect(capturedWithMetadata).toEqual(remoteMetadata);
+    });
+
+    it('does NOT write metadata.json to disk', async () => {
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRawFile.mockResolvedValue(
+        JSON.stringify({ file_routing: { go: ['golang'] } }),
+      );
+
+      const config = {
+        registry: 'https://github.com/o/r',
+        agents: [Agent.Cursor],
+        skills: { golang: { ref: 'v1' } },
+      } as any;
+
+      await syncService.applyIndices(config, [Agent.Cursor]);
+
+      // fs.outputFile must never be called with metadata.json
+      const outputFileCalls = vi
+        .mocked(fs.outputFile as any)
+        .mock.calls.filter((args: any[]) =>
+          String(args[0]).includes('metadata.json'),
+        );
+      expect(outputFileCalls).toHaveLength(0);
+    });
+
+    it('continues gracefully when registry metadata fetch returns null', async () => {
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRawFile.mockResolvedValue(null);
+
+      let withMetadataCalled = false;
+      vi.mocked(IndexGeneratorService).mockImplementationOnce(function (
+        this: any,
+      ) {
+        this.withMetadata = vi.fn().mockImplementation(() => {
+          withMetadataCalled = true;
+          return this;
+        });
+        this.generateAllCategoryIndices = vi.fn().mockResolvedValue({});
+        this.assembleRouterIndex = vi.fn().mockResolvedValue('router');
+        return this;
+      } as any);
+
+      const config = {
+        registry: 'https://github.com/o/r',
+        agents: [Agent.Cursor],
+        skills: {},
+      } as any;
+
+      await syncService.applyIndices(config, [Agent.Cursor]);
+
+      // withMetadata should NOT have been called — no metadata to inject
+      expect(withMetadataCalled).toBe(false);
+      // But index generation still proceeds
+      expect(MarkdownUtils.injectIndex).toHaveBeenCalled();
+    });
+
+    it('continues gracefully when registry URL is invalid (no github match)', async () => {
+      const config = {
+        registry: 'not-a-github-url',
+        agents: [Agent.Cursor],
+        skills: {},
+      } as any;
+
+      // Should not throw and should still produce an index
+      await syncService.applyIndices(config, [Agent.Cursor]);
+
+      expect(MarkdownUtils.injectIndex).toHaveBeenCalled();
+      expect(mockGithubService.getRawFile).not.toHaveBeenCalled();
+    });
+
+    it('continues gracefully when registry metadata JSON is malformed', async () => {
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRawFile.mockResolvedValue('{ invalid json %%%');
+
+      let withMetadataCalled = false;
+      vi.mocked(IndexGeneratorService).mockImplementationOnce(function (
+        this: any,
+      ) {
+        this.withMetadata = vi.fn().mockImplementation(() => {
+          withMetadataCalled = true;
+          return this;
+        });
+        this.generateAllCategoryIndices = vi.fn().mockResolvedValue({});
+        this.assembleRouterIndex = vi.fn().mockResolvedValue('router');
+        return this;
+      } as any);
+
+      const config = {
+        registry: 'https://github.com/o/r',
+        agents: [Agent.Cursor],
+        skills: {},
+      } as any;
+
+      await syncService.applyIndices(config, [Agent.Cursor]);
+
+      // Malformed JSON → withMetadata skipped, but sync continues
+      expect(withMetadataCalled).toBe(false);
+      expect(MarkdownUtils.injectIndex).toHaveBeenCalled();
     });
   });
 

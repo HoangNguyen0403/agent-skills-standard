@@ -5,9 +5,20 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.1.0] - 2026-04-04
+## [2.1.1] - 2026-04-04
 
-**Category**: Hierarchical Skill Resolution & Three-Tier Trigger Model & Tessl Quality Audit
+**Category**: Fix Hierarchical Index Sync
+
+### Fixed
+
+- **CLI metadata sync**: Fixed an issue where `ags sync` failed to populate the hierarchical router table in `AGENTS.md`. The `IndexGeneratorService` now uses an in-memory `RemoteMetadata` injection system to fetch `skills/metadata.json` directly from the registry without writing it to the user's disk.
+- **Index Generation**: Added `withMetadata()` to `IndexGeneratorService` to allow injecting `file_routing`, `broad_globs`, and `base_language_skills` at runtime during a sync operation.
+
+### Versions
+
+- **CLI**: v2.1.1 (Patch — fix metadata injection during sync)
+
+## [2.1.0] - 2026-04-04
 
 ### Added
 

@@ -740,4 +740,208 @@ describe('IndexGeneratorService', () => {
       stderrSpy.mockRestore();
     });
   });
+
+  describe('withMetadata injection', () => {
+    // Helper: mock the agent skill directory to contain only the specified category folders.
+    function mockAgentDir(categories: string[]) {
+      (fs.pathExists as any).mockImplementation(
+        async (p: string) =>
+          categories.some((c) => p.includes(c)) || p === '/agent/skills',
+      );
+      (fs.readdir as any).mockImplementation(async (p: string) => {
+        if (p === '/agent/skills') return categories;
+        return [];
+      });
+    }
+
+    it('uses injected file_routing instead of reading metadata.json from disk', async () => {
+      mockAgentDir(['golang', 'common']);
+
+      // No metadata.json on disk — file reads for it should NOT be reached
+      (fs.readFile as any).mockRejectedValue(new Error('ENOENT'));
+
+      service.withMetadata({
+        file_routing: { go: ['golang'] },
+      });
+
+      const result = await service.assembleRouterIndex('/agent/skills');
+
+      expect(result).toContain('`*.go`');
+      expect(result).toContain('golang/_INDEX.md');
+      expect(result).toContain('common/_INDEX.md');
+    });
+
+    it('only includes routing rows for categories the user actually has installed', async () => {
+      // User only has golang and common — not typescript, react, nextjs
+      mockAgentDir(['golang', 'common']);
+
+      (fs.readFile as any).mockRejectedValue(new Error('ENOENT'));
+
+      service.withMetadata({
+        file_routing: {
+          go: ['golang'],
+          ts: ['typescript', 'react', 'nextjs'],
+          tsx: ['react', 'nextjs'],
+        },
+      });
+
+      const result = await service.assembleRouterIndex('/agent/skills');
+
+      expect(result).toContain('`*.go`');
+      expect(result).toContain('golang/_INDEX.md');
+      // typescript / react / nextjs are not installed → their rows must be absent
+      expect(result).not.toContain('typescript/_INDEX.md');
+      expect(result).not.toContain('react/_INDEX.md');
+      expect(result).not.toContain('nextjs/_INDEX.md');
+      expect(result).not.toContain('`*.ts`');
+      expect(result).not.toContain('`*.tsx`');
+    });
+
+    it('shows a partial row when only some categories in a routing entry are installed', async () => {
+      // typescript is installed, but react and nextjs are not
+      mockAgentDir(['typescript', 'common']);
+
+      (fs.readFile as any).mockRejectedValue(new Error('ENOENT'));
+
+      service.withMetadata({
+        file_routing: {
+          ts: ['typescript', 'react', 'nextjs'],
+        },
+      });
+
+      const result = await service.assembleRouterIndex('/agent/skills');
+
+      expect(result).toContain('`*.ts`');
+      expect(result).toContain('typescript/_INDEX.md');
+      expect(result).not.toContain('react/_INDEX.md');
+      expect(result).not.toContain('nextjs/_INDEX.md');
+    });
+
+    it('produces only catch-all rows when no routing category is installed', async () => {
+      // User has only quality-engineering, which is not in file_routing
+      mockAgentDir(['quality-engineering', 'common']);
+
+      (fs.readFile as any).mockRejectedValue(new Error('ENOENT'));
+
+      service.withMetadata({
+        file_routing: {
+          go: ['golang'],
+          ts: ['typescript'],
+        },
+      });
+
+      const result = await service.assembleRouterIndex('/agent/skills');
+
+      // No file-extension rows
+      expect(result).not.toContain('`*.go`');
+      expect(result).not.toContain('`*.ts`');
+      // But the catch-all rows must still be present
+      expect(result).toContain('common/_INDEX.md');
+      expect(result).toContain('quality-engineering/_INDEX.md');
+    });
+
+    it('uses injected broad_globs and base_language_skills for tier classification', async () => {
+      (fs.pathExists as any).mockImplementation(
+        async (p: string) => p.includes('golang') || p.includes('SKILL.md'),
+      );
+      (fs.readdir as any).mockImplementation(async (p: string) => {
+        if (p.endsWith('golang')) return ['golang-language', 'golang-testing'];
+        return [];
+      });
+
+      // No metadata.json on disk
+      (fs.readFile as any).mockImplementation(async (p: string) => {
+        if (p.includes('metadata.json')) throw new Error('ENOENT');
+        if (p.includes('golang-language')) {
+          return '---\nname: golang-language\ndescription: Core\nmetadata:\n  triggers:\n    files: ["**/*.go"]\n    keywords: [golang]\n---\n## **Priority: P1**';
+        }
+        return '---\nname: golang-testing\ndescription: Tests\nmetadata:\n  triggers:\n    files: ["**/*_test.go"]\n    keywords: [testing]\n---\n## **Priority: P1**';
+      });
+      (yaml.load as any).mockImplementation((c: string) =>
+        c.includes('golang-language')
+          ? {
+              name: 'golang-language',
+              description: 'Core',
+              metadata: {
+                triggers: { files: ['**/*.go'], keywords: ['golang'] },
+              },
+            }
+          : {
+              name: 'golang-testing',
+              description: 'Tests',
+              metadata: {
+                triggers: { files: ['**/*_test.go'], keywords: ['testing'] },
+              },
+            },
+      );
+
+      // Inject tier config — golang-language is the base skill so broad glob stays in File Match
+      service.withMetadata({
+        broad_globs: ['**/*.go'],
+        base_language_skills: { golang: 'golang-language' },
+      });
+
+      const result = await service.generateCategoryIndex(
+        '/agent/skills',
+        'golang',
+      );
+
+      // Base skill keeps broad glob in File Match
+      expect(result).toContain('## File Match');
+      expect(result).toContain('golang-language');
+      // Non-base specific glob also in File Match
+      expect(result).toContain('golang-testing');
+    });
+
+    it('uses injected foundational_composite_rules for generate()', async () => {
+      (fs.pathExists as any).mockResolvedValue(false);
+      // No metadata.json on disk — must not be read
+      (fs.readFile as any).mockRejectedValue(new Error('ENOENT'));
+
+      service.withMetadata({
+        foundational_composite_rules: {
+          'common/security-standards': ['security'],
+        },
+      });
+
+      // generate() will return header even with empty baseDir — just confirm no throw
+      const result = await service.generate('/agent/skills');
+      expect(result).toContain('## Agent Skills Index');
+    });
+
+    it('falls back to file-based metadata when withMetadata is not called', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockImplementation(async (p: string) => {
+        if (p === '/agent/skills') return ['golang', 'common'];
+        return [];
+      });
+      (fs.readFile as any).mockImplementation(async (p: string) => {
+        if (p.includes('metadata.json')) {
+          return JSON.stringify({ file_routing: { go: ['golang'] } });
+        }
+        return '';
+      });
+
+      // No withMetadata() call — should read from disk
+      const fresh = new IndexGeneratorService();
+      const result = await fresh.assembleRouterIndex('/agent/skills');
+
+      expect(result).toContain('`*.go`');
+      expect(result).toContain('golang/_INDEX.md');
+    });
+
+    it('gracefully handles malformed remoteMetadata (missing keys)', async () => {
+      mockAgentDir(['common']);
+      (fs.readFile as any).mockRejectedValue(new Error('ENOENT'));
+
+      // Inject metadata with no file_routing at all
+      service.withMetadata({});
+
+      const result = await service.assembleRouterIndex('/agent/skills');
+
+      // No extension rows, but catch-all must still be rendered
+      expect(result).toContain('## Agent Skills Index');
+      expect(result).toContain('common/_INDEX.md');
+    });
+  });
 });

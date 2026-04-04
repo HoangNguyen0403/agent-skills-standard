@@ -97,6 +97,31 @@ export class SyncService {
 
       const allowedCategories = Object.keys(config.skills || {});
 
+      // Fetch metadata.json from the registry's default branch and inject it into the
+      // generator in-memory. This gives assembleRouterIndex the file_routing, broad_globs,
+      // and base_language_skills it needs without writing anything to disk.
+      const githubMatch = config.registry
+        ? GithubService.parseGitHubUrl(config.registry)
+        : null;
+      if (githubMatch) {
+        const { owner, repo } = githubMatch;
+        const repoInfo = await this.githubService.getRepoInfo(owner, repo);
+        const ref = repoInfo?.default_branch || 'main';
+        const metaRaw = await this.githubService.getRawFile(
+          owner,
+          repo,
+          ref,
+          'skills/metadata.json',
+        );
+        if (metaRaw) {
+          try {
+            generator.withMetadata(JSON.parse(metaRaw));
+          } catch {
+            // Malformed JSON — continue without remote metadata; router falls back to file
+          }
+        }
+      }
+
       // Generate per-category _INDEX.md files for all target agents
       const categoryIndices = await generator.generateAllCategoryIndices(
         baseDir,

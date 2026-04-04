@@ -4,6 +4,18 @@ import path from 'path';
 import { INJECTION_PATTERNS } from '../constants/security';
 
 /**
+ * Subset of the registry's metadata.json that the IndexGeneratorService needs at
+ * index-generation time. Provided by the caller (e.g. SyncService) so the file
+ * never needs to be written to disk inside the user's project.
+ */
+export interface RemoteMetadata {
+  file_routing?: Record<string, string[]>;
+  broad_globs?: string[];
+  base_language_skills?: Record<string, string>;
+  foundational_composite_rules?: Record<string, string[]>;
+}
+
+/**
  * Metadata structure for a skill, extracted from the frontmatter and content of a SKILL.md file.
  */
 export interface SkillMetadata {
@@ -37,13 +49,27 @@ export interface SkillMetadata {
  * Injection and bridging are handled by MarkdownUtils and AgentBridgeService respectively.
  */
 export class IndexGeneratorService {
+  private remoteMetadata?: RemoteMetadata;
+
   /**
-   * Loads foundational composite rules from the registry's metadata.json.
-   * Falls back to an empty map if the file is missing or malformed.
+   * Injects registry metadata so index generation does not require metadata.json
+   * to be present on disk. Returns `this` for chaining.
+   */
+  withMetadata(metadata: RemoteMetadata): this {
+    this.remoteMetadata = metadata;
+    return this;
+  }
+
+  /**
+   * Loads foundational composite rules. Uses injected remote metadata when available;
+   * falls back to reading metadata.json from baseDir.
    */
   private async loadFoundationalRules(
     baseDir: string,
   ): Promise<Record<string, string[]>> {
+    if (this.remoteMetadata?.foundational_composite_rules !== undefined) {
+      return this.remoteMetadata.foundational_composite_rules;
+    }
     try {
       const metaPath = path.join(baseDir, 'metadata.json');
       const raw = await fs.readFile(metaPath, 'utf8');
@@ -177,12 +203,15 @@ export class IndexGeneratorService {
   }
 
   /**
-   * Loads file routing rules from the registry's metadata.json.
-   * Maps file extensions to category arrays for router table generation.
+   * Loads file routing rules. Uses injected remote metadata when available;
+   * falls back to reading metadata.json from baseDir.
    */
   private async loadFileRouting(
     baseDir: string,
   ): Promise<Record<string, string[]>> {
+    if (this.remoteMetadata?.file_routing !== undefined) {
+      return this.remoteMetadata.file_routing;
+    }
     try {
       const metaPath = path.join(baseDir, 'metadata.json');
       const raw = await fs.readFile(metaPath, 'utf8');
@@ -196,13 +225,19 @@ export class IndexGeneratorService {
   }
 
   /**
-   * Loads broad glob patterns and base language skill mappings from metadata.json.
-   * Used to classify triggers into tiers (file match vs keyword match).
+   * Loads broad glob patterns and base language skill mappings. Uses injected remote
+   * metadata when available; falls back to reading metadata.json from baseDir.
    */
   private async loadTierConfig(baseDir: string): Promise<{
     broadGlobs: string[];
     baseSkills: Record<string, string>;
   }> {
+    if (this.remoteMetadata !== undefined) {
+      return {
+        broadGlobs: this.remoteMetadata.broad_globs ?? [],
+        baseSkills: this.remoteMetadata.base_language_skills ?? {},
+      };
+    }
     try {
       const metaPath = path.join(baseDir, 'metadata.json');
       const raw = await fs.readFile(metaPath, 'utf8');
