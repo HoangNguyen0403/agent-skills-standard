@@ -21,8 +21,8 @@
     },
     {
       "id": 3,
-      "prompt": "Write a component that renders an empty list with 0 items — the conditional renders nothing at all.",
-      "expected_output": "Use ternary instead of && for rendering: {count > 0 ? <List /> : <Empty />} not {count && <List />}. When count is 0, the && expression renders '0' to the DOM. Ternary ensures consistent rendering with an explicit empty state. Always use ternary for conditional rendering that might evaluate to a falsy non-boolean.",
+      "prompt": "Explain why using {count && <List />} to render a list of items is a bug when the count is zero.",
+      "expected_output": "Use ternary instead of && for rendering: {count > 0 ? <List /> : null} not {count && <List />}. In JavaScript, the && operator evaluates to the first falsy operand encountered. When count is 0, {0 && <List />} evaluates to 0, which React then renders into the DOM as text. Always use ternary or explicit boolean checks (!!count or count > 0) to avoid rendering a literal 0.",
       "assertions": [
         { "type": "contains", "value": "ternary" },
         { "type": "contains", "value": "0" }

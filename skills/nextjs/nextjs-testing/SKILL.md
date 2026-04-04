@@ -9,7 +9,7 @@ description: "Write Jest or Vitest unit tests with React Testing Library and Pla
 
 ## Test Runner
 
-- **Existing projects (Pages Router / legacy stack)**: Use **Jest** (`jest@29` + `babel-jest` + `jest-environment-jsdom`). This is the current setup in `datasource/ezrx/frontend`.
+- **Existing projects (Pages Router / legacy stack)**: Use **Jest** (`jest@29` + `babel-jest` + `jest-environment-jsdom`). This is the current setup in legacy Pages Router projects.
 - **New projects (App Router)**: Use **Vitest** for speed and native ESM support.
 
 ## Workflow: Test a New Feature

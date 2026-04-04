@@ -1,6 +1,6 @@
 ---
 name: nextjs-state-management
-description: "Apply best practices for managing URL, server, and client state in Next.js applications. Use when choosing between URL params, SWR/TanStack Query, Zustand, or Context for state, or when fixing hydration mismatches from localStorage. (triggers: **/hooks/*.ts, **/store.ts, **/components/*.tsx, useState, useContext, zustand, redux)"
+description: 'Apply best practices for managing URL, server, and client state in Next.js applications. Use when choosing between URL params, SWR/TanStack Query, Zustand, or Context for state, or when fixing hydration mismatches from localStorage. (triggers: **/hooks/*.ts, **/store.ts, **/components/*.tsx, useState, useContext, zustand, redux)'
 ---
 
 # State Management
@@ -32,7 +32,8 @@ Wrap `localStorage` reads in `useEffect` or a `mounted` flag to avoid hydration 
 
 ## Legacy Redux (existing projects)
 
-If the project already uses `redux@4` + `createStore` + `redux-thunk` + `next-redux-wrapper` (e.g. `datasource/ezrx/frontend`):
+If the project already uses `redux@4` + `createStore` + `redux-thunk` + `next-redux-wrapper`:
+
 - Use `useSelector` / `useDispatch` hooks — never connect HOC.
 - Define a typed `RootState` and typed `AppDispatch` for all selectors and dispatch calls.
 - Avoid adding Zustand or TanStack Query on top of an existing Redux codebase — migrate incrementally if needed.

@@ -306,9 +306,9 @@
       "tag_prefix": "typescript-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 2770,
-        "avg_tokens_per_skill": 693,
-        "largest_skill": "typescript-tooling (918 tokens)"
+        "total_tokens": 2759,
+        "avg_tokens_per_skill": 690,
+        "largest_skill": "typescript-tooling (907 tokens)"
       }
     },
     "javascript": {
@@ -361,7 +361,7 @@
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 11738,
+        "total_tokens": 11731,
         "avg_tokens_per_skill": 652,
         "largest_skill": "nextjs-architecture (1065 tokens)"
       }
