@@ -106,15 +106,11 @@ async function generate() {
     `✅ Generated _INDEX.md for ${Object.keys(categoryIndices).length} categories`,
   );
 
-  // Generate AGENTS.md — flat index for the registry repo itself (backward compat)
-  const allEntries = new Set<string>();
-  Object.values(frameworkIndices).forEach((s) => {
-    s.split('\n').forEach((entry) => allEntries.add(entry));
-  });
-  const flatIndexContent = generator.assembleIndex(Array.from(allEntries));
-  await MarkdownUtils.injectIndex(repoRoot, ['AGENTS.md'], flatIndexContent);
+  // Generate AGENTS.md — router-style index (compact, scalable)
+  const routerIndexContent = await generator.assembleRouterIndex(skillsDir);
+  await MarkdownUtils.injectIndex(repoRoot, ['AGENTS.md'], routerIndexContent);
 
-  console.log('✅ Updated AGENTS.md in repo root');
+  console.log('✅ Updated AGENTS.md in repo root (Router-style)');
 
   const agents = [
     Agent.Cursor,

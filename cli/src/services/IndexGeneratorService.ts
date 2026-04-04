@@ -391,7 +391,10 @@ export class IndexGeneratorService {
     // Group extensions by their category set for cleaner output
     const extGrouped = new Map<string, string[]>();
     for (const [ext, cats] of Object.entries(fileRouting)) {
-      const filtered = cats.filter((c) => availableCategories.includes(c));
+      if (ext === '_comment') continue;
+      const filtered = cats.filter((c: string) =>
+        availableCategories.includes(c),
+      );
       if (filtered.length === 0) continue;
 
       const key = filtered.sort().join('+');
@@ -495,16 +498,40 @@ export class IndexGeneratorService {
       if (!hasStructured && fm.description) {
         const descTrigs = fm.description.match(/\(triggers:\s*`?(.*?)`?\)\s*$/);
         if (descTrigs) {
-          const parts = descTrigs[1]
-            .split(',')
-            .map((t) => t.trim())
-            .filter(Boolean);
-          // Classify: anything with glob chars (*, /, .) is a file pattern
+          const rawParts = descTrigs[1].split(',');
+          const parts: string[] = [];
+          let current = '';
+          let braceCount = 0;
+
+          for (let i = 0; i < rawParts.length; i++) {
+            const p = rawParts[i];
+            braceCount += (p.match(/{/g) || []).length;
+            braceCount -= (p.match(/}/g) || []).length;
+            current += (current ? ',' : '') + p;
+
+            if (braceCount === 0) {
+              parts.push(current.trim());
+              current = '';
+            }
+          }
+
+          // If there are leftover unbalanced braces, add them as keywords to at least capture them
+          if (current) parts.push(current.trim());
+
+          // Classify: anything with glob chars (*, /, .) or braces ({}) is a file pattern
           const files = parts.filter(
-            (p) => p.includes('*') || p.includes('/') || /\.\w+$/.test(p),
+            (p) =>
+              p.includes('*') ||
+              p.includes('/') ||
+              p.includes('{') ||
+              /\.\w+$/.test(p),
           );
           const keywords = parts.filter(
-            (p) => !p.includes('*') && !p.includes('/') && !/\.\w+$/.test(p),
+            (p) =>
+              !p.includes('*') &&
+              !p.includes('/') &&
+              !p.includes('{') &&
+              !/\.\w+$/.test(p),
           );
           triggers = {
             ...triggers,

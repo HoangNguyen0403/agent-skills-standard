@@ -17,8 +17,8 @@ Essential tooling for TypeScript development and maintenance.
 - **Testing**: Use **`Vitest`** (or **`Jest`**) for unit/integration testing. Target **`> 80%`** line coverage.
 - **Builds**: Use **`tsup`** (for library bundling) or **`Vite`** (for web applications).
 - **TypeScript Config**: Aim for **`strict: true`** long-term. For existing projects with `strict: false`, incrementally enable flags: start with `strictNullChecks: true` (already active in `datasource/ezrx/frontend`), then add `noImplicitAny`, `strictFunctionTypes`. Do NOT flip `strict: true` in one step — it will break hundreds of files.
-- **CI/CD**: Always run **`tsc --noEmit`** explic itly in the build pipeline to catch type errors.
-- **Error Supression**: Favor **`@ts-expect-error`** over `@ts-ignore` for documented edge-cases.
+- **CI/CD**: Always run **`tsc --noEmit`** explicitly in the build pipeline to catch type errors.
+- **Error Suppression**: Favor **`@ts-expect-error`** over `@ts-ignore` for documented edge-cases.
 
 ## ESLint Configuration
 

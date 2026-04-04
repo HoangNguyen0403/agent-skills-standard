@@ -20,7 +20,7 @@
 | **nextjs-server-components** | `app/**/*.tsx`, `src/app/**/*.tsx`, `app/**/*.jsx`, `src/app/**/*.jsx` | use client, Server Component, Client Component, hydration |
 | nextjs-state-management | `**/hooks/*.ts`, `**/store.ts`, `**/components/*.tsx` | useState, useContext, zustand, redux |
 | nextjs-styling | `**/*.css`, `tailwind.config.ts`, `**/components/ui/*.tsx` | tailwind, css modules, styled-components, clsx, cn |
-| nextjs-testing | `**/*.test.{ts`, `cypress/**`, `tests/**`, `jest.config.*` | tsx}, vitest, playwright, msw, testing-library |
+| nextjs-testing | `**/*.test.{ts,tsx}`, `cypress/**`, `tests/**`, `jest.config.*` | vitest, playwright, msw, testing-library |
 | nextjs-tooling | `next.config.js`, `package.json` | Dockerfile, turbopack, output, standalone, lint, telemetry |
 | nextjs-upgrade | `package.json` | next upgrade, migration guide, codemod |
 

@@ -40,5 +40,17 @@
         { "type": "not_contains", "value": "coverage_analysis_report.md" }
       ]
     }
+  ],
+  "should_not_trigger": [
+    "Create Zephyr TCs for EZRX-42302 and tag them for regression",
+    "Analyze the business logic of the 'Add to Cart' flow in EZRX-41000",
+    "Explain why the ACs in this ticket are poorly written",
+    "Write a unit test for the coverage calculation service",
+    "Schedule a meeting with the business analyst to discuss ACs",
+    "What is the difference between a test case and a test plan?",
+    "Show me the last 5 commits for the zephyr-service.ts file",
+    "Fix the failing build on the jenkins pipeline for this feature",
+    "Convert these manual tests into Playwright automation scripts",
+    "Update the README.md with the new deployment instructions"
   ]
 }

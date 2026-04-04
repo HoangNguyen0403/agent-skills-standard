@@ -28,8 +28,6 @@
 
 ❌ **Bad**:
 
-❌ **Bad**:
-
 - `Verify Payment Terms Visibility (Disabled)` (Ambiguous screen)
 - `Check Payment Terms` (Vague action)
 

@@ -48,10 +48,12 @@ function benchmarkSkill(category: string, skillName: string): SkillBenchmark {
     costSavingsHeavy[model] = costUSD(savingsHeavy, price);
   }
 
-  const { score: qualityScore, detail: qualityDetail, evalCount, evalAlignmentPct } = scoreQuality(
-    skillDir,
-    skillMdPath,
-  );
+  const {
+    score: qualityScore,
+    detail: qualityDetail,
+    evalCount,
+    evalAlignmentPct,
+  } = scoreQuality(skillDir, skillMdPath);
 
   return {
     category,
@@ -94,7 +96,8 @@ function updateReadmeHistory(
   if (!fs.existsSync(readmePath)) return;
 
   const content = fs.readFileSync(readmePath, 'utf-8');
-  const trend = [...history].reverse();
+  const MAX_HISTORY_ENTRIES = 10;
+  const trend = [...history].reverse().slice(0, MAX_HISTORY_ENTRIES);
 
   const historyHeader = '### 📜 Benchmark History';
   const tableHeader =
