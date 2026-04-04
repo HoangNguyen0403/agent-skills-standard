@@ -3,111 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Configure caching in Next.js App Router",
-      "expected_output": "Static: fetch(url, { cache: 'force-cache' }); Dynamic: fetch(url, { cache: 'no-store' }); Revalidated: fetch(url, { next: { revalidate: 60 } }); Next.js 16+: use 'use cache' directive instead of unstable_cache",
+      "prompt": "After a user updates their profile in a Server Action, the profile page still shows old data. How do I fix this?",
+      "expected_output": "Call revalidateTag('user-profile') inside the Server Action after the mutation. Tag your fetch calls with next: { tags: ['user-profile'] }. Alternatively use revalidatePath('/profile') to clear the full route cache. Avoid router.refresh() for server data — use revalidateTag for targeted busting.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Static"
-        },
-        {
-          "type": "contains",
-          "value": "Next"
-        },
-        {
-          "type": "contains",
-          "value": "cache: 'force-cache'"
-        }
+        { "type": "contains", "value": "revalidateTag" },
+        { "type": "contains", "value": "mutation" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Use revalidateTag for cache invalidation in Next.js",
-      "expected_output": "Tag fetches: fetch(url, { next: { tags: ['posts'] } }); invalidate from Server Action: revalidateTag('posts'); triggers background revalidation; prefer over revalidatePath for fine-grained control",
+      "prompt": "I need to choose between SSG with revalidation vs SSR for my blog posts page. The posts update a few times per day.",
+      "expected_output": "Use ISR (Incremental Static Regeneration): fetch with revalidate: 3600 (1 hour). This is faster than SSR while keeping content fresh. For Next.js 15+ consider 'use cache' with cacheLife(). Tag posts fetch with cacheTag('posts') for on-demand invalidation when a post is published.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Server"
-        },
-        {
-          "type": "contains",
-          "value": "Action"
-        },
-        {
-          "type": "contains",
-          "value": "for fine-grained"
-        }
+        { "type": "contains", "value": "ISR" },
+        { "type": "contains", "value": "revalidate" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Understand the 4 caching layers in Next.js",
-      "expected_output": "1. Request Memoization: React cache() deduplicates per-request; 2. Data Cache: 'use cache'/revalidateTag; 3. Full Route Cache: static HTML prerendering; 4. Router Cache: client-side prefetch store",
+      "prompt": "My Next.js 15 app fetches the same user data in 5 different Server Components on the same page. Is this causing 5 separate DB calls?",
+      "expected_output": "Wrap the data fetch in React cache() to deduplicate within a single render cycle. This is Request Memoization — the same fetch with the same arguments is executed once per render, not 5 times. Place the cached function in a DAL file: const getUser = cache(async (id) => db.users.find(id)).",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Request"
-        },
-        {
-          "type": "contains",
-          "value": "Memoization"
-        },
-        {
-          "type": "contains",
-          "value": "React"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "Use 'use cache' directive in Next.js 16",
-      "expected_output": "async function getPosts() { 'use cache'; cacheLife('hours'); cacheTag('posts'); return db.posts.findMany(); }; replaces unstable_cache; attach tags for revalidation; use updateTag() for sync invalidation",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "'use cache'"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "Prevent stale data in a Next.js app",
-      "expected_output": "After mutation Server Action call: revalidatePath('/posts') for full route or revalidateTag('posts') for tagged data; router.refresh() only for Router Cache (client-side); don't rely on cache: 'no-store' globally",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "After"
-        },
-        {
-          "type": "contains",
-          "value": "Server"
-        },
-        {
-          "type": "contains",
-          "value": "Action"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "Set up PPR with Suspense and caching in Next.js",
-      "expected_output": "Enable experimental.ppr: 'incremental'; export const experimental_ppr = true in page; static layout renders instantly; wrap dynamic user data in <Suspense fallback={<Skeleton/>}>; add 'use cache' on static data functions",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Suspense"
-        },
-        {
-          "type": "contains",
-          "value": "'use cache'"
-        }
+        { "type": "contains", "value": "cache()" },
+        { "type": "contains", "value": "memoization" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Redis caching strategy in NestJS with CacheModule",
-    "Cache-aside pattern in Laravel with Cache::remember",
-    "HTTP caching headers in a Go HTTP server",
-    "Varnish cache configuration for a PHP site"
+    "Write a custom React hook for form validation",
+    "Configure ESLint for TypeScript",
+    "Set up Docker for local development"
   ]
 }

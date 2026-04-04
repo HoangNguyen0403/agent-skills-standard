@@ -3,84 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "I want to create a new skill for SEO research and content strategy. Where do I start and what should the SKILL.md look like?",
-      "expected_output": "Guidance on the skill creation workflow: research phase (web-search for domain best practices), capture intent, write SKILL.md using the template, write evals, optimize description. Should mention conversational triggers for non-engineering domain, reference TEMPLATE.md, and the three-level loading system.",
+      "prompt": "Create a new skill for handling GraphQL subscriptions in a NestJS backend.",
+      "expected_output": "Follow skill creation workflow: (1) Research best practices for NestJS WebSockets/PubSub. (2) Capture: what it does (subscription resolvers, PubSub patterns), when it triggers (*.resolver.ts, subscription, pubsub, websocket). (3) Write SKILL.md using TEMPLATE.md — ≤100 lines, description ≤100 words. (4) Extract code blocks >10 lines to references/. (5) Create evals/evals.json with 3 should-trigger and 3 should-not-trigger.",
       "assertions": [
-        {
-          "id": "a1",
-          "description": "Mentions SKILL.md structure or TEMPLATE.md",
-          "type": "contains",
-          "value": "TEMPLATE"
-        },
-        {
-          "id": "a2",
-          "description": "Mentions conversational triggers or no file globs for non-engineering skill",
-          "type": "contains",
-          "value": "trigger"
-        },
-        {
-          "id": "a3",
-          "description": "Mentions evals or evals.json",
-          "type": "contains",
-          "value": "evals"
-        }
+        { "type": "contains", "value": "TEMPLATE" },
+        { "type": "contains", "value": "evals" }
       ]
     },
     {
       "id": 2,
-      "prompt": "My flutter-state skill only triggers 55% of the time. How do I improve the trigger rate?",
-      "expected_output": "Optimize the description field — make it pushy, list specific use contexts, add edge cases. Run the trigger eval loop: write 20 queries (half should-trigger, half should-not-trigger), identify failures, rewrite description, retest until >=80%.",
+      "prompt": "Audit this SKILL.md — it's 150 lines long with a 20-line code block in the body.",
+      "expected_output": "Quality violations: (1) SKILL.md >100 lines — extract content to references/. (2) Code block >10 lines — move to references/example.md. (3) Check description is ≤100 words with What+When structure. (4) Verify anti-patterns follow 'No X: Do Y' format. (5) Check triggers are specific globs/keywords, not **/*. Fix each violation.",
       "assertions": [
-        {
-          "id": "a1",
-          "description": "Mentions improving the description field",
-          "type": "contains",
-          "value": "description"
-        },
-        {
-          "id": "a2",
-          "description": "Mentions the 80% target",
-          "type": "contains",
-          "value": "80%"
-        },
-        {
-          "id": "a3",
-          "description": "Mentions should-trigger queries",
-          "type": "contains",
-          "value": "should-trigger"
-        }
+        { "type": "contains", "value": "100 lines" },
+        { "type": "contains", "value": "references/" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Review this SKILL.md — does it pass quality standards? The anti-patterns say: '**Avoid setState**: **No Direct Mutations**: Do not mutate state directly.'",
-      "expected_output": "Flags multiple violations: double-label anti-pattern (backtick-wrapped bold), should be '**No Direct Mutations**: Use setState or immutable update.' format. May also check line count and reference load conditions.",
+      "prompt": "The skill I created has low trigger accuracy — it only fires 40% of the time when it should.",
+      "expected_output": "Optimize description for trigger accuracy: (1) Add missing keywords to triggers list. (2) Add scenario-based phrases to description (what situations trigger this). (3) Run trigger eval queries. (4) Target ≥80% accuracy. (5) Spawn parallel subagents: with-skill vs without-skill (baseline). Grade assertions, iterate description until target met.",
       "assertions": [
-        {
-          "id": "a1",
-          "description": "Identifies the double-label / backtick-wrapping anti-pattern issue",
-          "type": "contains",
-          "value": "No X"
-        },
-        {
-          "id": "a2",
-          "description": "References the correct anti-pattern format",
-          "type": "contains",
-          "value": "15 words"
-        }
+        { "type": "contains", "value": "trigger" },
+        { "type": "contains", "value": "80%" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Review this PR and check if the architecture looks right",
-    "Help me write documentation for my REST API endpoints",
-    "Create a new Flutter widget for displaying user profiles",
-    "What is the best state management library for React?",
-    "Run a sprint retrospective on the last two weeks",
-    "Generate a product brief for my e-commerce app idea",
-    "Help me commit and push these changes to GitHub",
-    "Write unit tests for this repository service class",
-    "Create a market research report on the fitness app industry",
-    "Set up a CI/CD pipeline with GitHub Actions"
+    "Write a Python web scraper",
+    "Set up a Redis pub/sub system",
+    "Configure Kubernetes horizontal pod autoscaling"
   ]
 }

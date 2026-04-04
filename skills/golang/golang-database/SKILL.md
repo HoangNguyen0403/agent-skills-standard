@@ -27,9 +27,9 @@ See [repository pattern and connection pool examples](references/repository-patt
 
 ## Anti-Patterns
 
-- ❌ Global `var db *sql.DB` — inject DB connection via constructor
-- ❌ Bare `Query()`/`Exec()` without context — use `QueryContext`/`ExecContext`
-- ❌ Leaked rows — always `defer rows.Close()` and check `rows.Err()`
+- **No global db var**: Inject DB connection via constructor.
+- **No context-less queries**: Use `QueryContext`/`ExecContext`; bare queries ignore timeouts.
+- **No leaked rows**: Always `defer rows.Close()` and check `rows.Err()`.
 
 ## References
 

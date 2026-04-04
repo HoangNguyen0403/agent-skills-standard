@@ -3,95 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Enable Turbopack for Next.js development",
-      "expected_output": "Run next dev --turbo or set turbopack: true in next.config.js experimental; faster HMR; not all webpack plugins compatible; check turbopack.dev compatibility list before enabling in existing projects",
+      "prompt": "Our Next.js CI builds are taking 8 minutes. How can we speed them up?",
+      "expected_output": "Cache .next/cache in CI for 50%+ faster builds. Add cache configuration for the .next/cache directory between runs. Also: use Turbopack for local dev (next dev --turbo). Run next lint and tsc in parallel. Analyze bundle with @next/bundle-analyzer to find unnecessary dependencies slowing the build.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "next dev"
-        },
-        {
-          "type": "contains",
-          "value": "dev --turbo"
-        }
+        { "type": "contains", "value": ".next/cache" },
+        { "type": "contains", "value": "CI" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Build a Docker image with Next.js standalone output",
-      "expected_output": "Set output: 'standalone' in next.config.js; Dockerfile: COPY .next/standalone ./; COPY .next/static .next/static; COPY public ./public; CMD ['node', 'server.js']; significantly smaller image than full install",
+      "prompt": "Containerize my Next.js application with Docker for production deployment.",
+      "expected_output": "Use output: 'standalone' in next.config.js for optimized Docker builds. Multi-stage Dockerfile: builder stage installs deps and builds, runner stage copies .next/standalone and .next/static. Set NODE_ENV=production. Validate env vars with Zod at runtime startup. Never use npm run start without output: standalone.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Dockerfile"
-        },
-        {
-          "type": "contains",
-          "value": "output: 'standalone'"
-        }
+        { "type": "contains", "value": "standalone" },
+        { "type": "contains", "value": "Docker" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Configure ESLint with eslint-plugin-next",
-      "expected_output": "Install eslint-config-next; set extends: ['next/core-web-vitals'] in .eslintrc; run next lint in CI; catches Next.js-specific issues: missing Image alt, synchronous script usage, invalid href",
+      "prompt": "How should I manage environment variables in my Next.js project? Some are secrets, some are public.",
+      "expected_output": "Server-only secrets (DB_URL, JWT_SECRET): no prefix — only accessible server-side. Public client vars: NEXT_PUBLIC_ prefix — baked into client bundle, never use for secrets. Validate all env vars with Zod at startup to catch missing config early. Use .env.local for local development, never commit it. Secrets go in CI/CD secret management (GitHub Secrets, Vault).",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Next"
-        },
-        {
-          "type": "contains",
-          "value": "Image"
-        },
-        {
-          "type": "contains",
-          "value": "next lint"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "Analyze bundle size in a Next.js project",
-      "expected_output": "npm install @next/bundle-analyzer; wrap config: withBundleAnalyzer(nextConfig); run ANALYZE=true next build; opens treemap in browser; look for large third-party modules or duplicate dependencies",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "ANALYZE"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "Set up CI caching for Next.js .next/cache",
-      "expected_output": "GitHub Actions: cache: { path: '.next/cache', key: 'nextjs-${{ hashFiles(\"package-lock.json\") }}' }; restores incremental compilation cache; reduces build time significantly on subsequent runs",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "build time"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "Disable Next.js telemetry in CI",
-      "expected_output": "Set NEXT_TELEMETRY_DISABLED=1 as env var in CI config; or run next telemetry disable once; prevents analytics calls during build that can slow CI or cause network errors in restricted environments",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "next telemetry"
-        },
-        {
-          "type": "contains",
-          "value": "telemetry disable"
-        }
+        { "type": "contains", "value": "NEXT_PUBLIC_" },
+        { "type": "contains", "value": "Zod" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Vite build configuration for a React SPA",
-    "Webpack config for a Create React App project",
-    "Gradle build for a Spring Boot application",
-    "Docker build for a NestJS microservice"
+    "Write a Redux reducer for the shopping cart",
+    "Implement pagination for the user list",
+    "Add a search feature to the product catalog"
   ]
 }

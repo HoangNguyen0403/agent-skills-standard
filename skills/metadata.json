@@ -3,6 +3,128 @@
     "author": "Hoang Nguyen",
     "repository": "https://github.com/HoangNguyen0403/agent-skills-standard"
   },
+  "broad_globs": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.jsx",
+    "**/*.js",
+    "**/*.go",
+    "**/*.dart",
+    "**/*.java",
+    "**/*.kt",
+    "**/*.swift",
+    "**/*.py",
+    "**/*.php",
+    "**/*.mjs",
+    "**/*.cjs"
+  ],
+  "base_language_skills": {
+    "_comment": "The ONE skill per language that keeps the broad file glob in the File Match section of _INDEX.md. All other skills with broad globs are demoted to Keyword Match only.",
+    "typescript": "typescript-language",
+    "javascript": "javascript-language",
+    "dart": "dart-language",
+    "kotlin": "kotlin-language",
+    "java": "java-language",
+    "swift": "swift-language",
+    "php": "php-language",
+    "golang": "golang-language",
+    "react": "react-component-patterns",
+    "react-native": "react-native-architecture",
+    "angular": "angular-components",
+    "nestjs": "nestjs-architecture",
+    "nextjs": "nextjs-rendering",
+    "spring-boot": "spring-boot-architecture",
+    "ios": "ios-swiftui",
+    "android": "android-compose",
+    "laravel": "laravel-architecture",
+    "flutter": "flutter-bloc-state-management",
+    "database": "database-postgresql"
+  },
+  "file_routing": {
+    "_comment": "Maps file extensions to the skill categories that should be consulted. Used by IndexGeneratorService to generate the AGENTS.md router table. Extensions with multiple categories mean the agent should check all listed category indexes.",
+    "go": [
+      "golang"
+    ],
+    "ts": [
+      "typescript",
+      "nestjs",
+      "nextjs",
+      "react",
+      "angular"
+    ],
+    "tsx": [
+      "typescript",
+      "nextjs",
+      "react"
+    ],
+    "js": [
+      "javascript"
+    ],
+    "mjs": [
+      "javascript"
+    ],
+    "jsx": [
+      "react"
+    ],
+    "dart": [
+      "dart",
+      "flutter"
+    ],
+    "java": [
+      "java",
+      "spring-boot"
+    ],
+    "kt": [
+      "kotlin",
+      "android"
+    ],
+    "kts": [
+      "kotlin"
+    ],
+    "swift": [
+      "swift",
+      "ios"
+    ],
+    "php": [
+      "php",
+      "laravel"
+    ],
+    "sql": [
+      "database"
+    ],
+    "entity.ts": [
+      "database"
+    ],
+    "prisma": [
+      "database"
+    ],
+    "component.ts": [
+      "angular"
+    ],
+    "component.html": [
+      "angular"
+    ],
+    "service.ts": [
+      "nestjs",
+      "angular"
+    ],
+    "module.ts": [
+      "nestjs",
+      "angular"
+    ],
+    "spec.ts": [
+      "common"
+    ],
+    "test.ts": [
+      "common"
+    ],
+    "test.tsx": [
+      "react"
+    ],
+    "_test.go": [
+      "golang"
+    ]
+  },
   "foundational_composite_rules": {
     "_comment": "Maps a foundational skill ID to skill-name substrings (skill directory name only, not full path). The CLI auto-injects matching composites at index-generation time via String.includes(). No framework SKILL.md needs updating when a new skill is added — only this file. Intentionally unmatched: deployment/ops skills (android/deployment, ios/deployment, nestjs/deployment, react-native/deployment, spring-boot/deployment, flutter/cicd is TDD-matched).",
     "common/best-practices": [
@@ -157,25 +279,25 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.6.1",
-      "last_updated": "2026-03-25",
+      "version": "1.6.2",
+      "last_updated": "2026-04-04",
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 11376,
-        "avg_tokens_per_skill": 542,
+        "total_tokens": 11115,
+        "avg_tokens_per_skill": 529,
         "largest_skill": "flutter-testing (750 tokens)"
       }
     },
     "dart": {
-      "version": "1.3.1",
-      "last_updated": "2026-03-25",
+      "version": "1.3.2",
+      "last_updated": "2026-04-04",
       "tag_prefix": "dart-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1681,
-        "avg_tokens_per_skill": 560,
-        "largest_skill": "dart-language (637 tokens)"
+        "total_tokens": 1678,
+        "avg_tokens_per_skill": 559,
+        "largest_skill": "dart-language (634 tokens)"
       }
     },
     "typescript": {
@@ -184,36 +306,36 @@
       "tag_prefix": "typescript-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 2651,
-        "avg_tokens_per_skill": 663,
-        "largest_skill": "typescript-tooling (799 tokens)"
+        "total_tokens": 2770,
+        "avg_tokens_per_skill": 693,
+        "largest_skill": "typescript-tooling (918 tokens)"
       }
     },
     "javascript": {
-      "version": "1.3.1",
-      "last_updated": "2026-03-25",
+      "version": "1.3.2",
+      "last_updated": "2026-04-04",
       "tag_prefix": "javascript-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1256,
-        "avg_tokens_per_skill": 419,
-        "largest_skill": "javascript-language (511 tokens)"
+        "total_tokens": 1074,
+        "avg_tokens_per_skill": 358,
+        "largest_skill": "javascript-language (433 tokens)"
       }
     },
     "react": {
-      "version": "1.3.1",
-      "last_updated": "2026-03-25",
+      "version": "1.3.2",
+      "last_updated": "2026-04-04",
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4279,
-        "avg_tokens_per_skill": 535,
+        "total_tokens": 4285,
+        "avg_tokens_per_skill": 536,
         "largest_skill": "react-performance (734 tokens)"
       }
     },
     "react-native": {
-      "version": "1.4.1",
-      "last_updated": "2026-03-25",
+      "version": "1.4.2",
+      "last_updated": "2026-04-04",
       "tag_prefix": "react-native-v",
       "token_metrics": {
         "total_skills": 13,
@@ -223,47 +345,47 @@
       }
     },
     "nestjs": {
-      "version": "1.4.1",
-      "last_updated": "2026-03-25",
+      "version": "1.4.2",
+      "last_updated": "2026-04-04",
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 13276,
+        "total_tokens": 13279,
         "avg_tokens_per_skill": 632,
         "largest_skill": "nestjs-performance (974 tokens)"
       }
     },
     "nextjs": {
-      "version": "1.4.1",
-      "last_updated": "2026-03-25",
+      "version": "1.4.2",
+      "last_updated": "2026-04-04",
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 11560,
-        "avg_tokens_per_skill": 642,
+        "total_tokens": 11737,
+        "avg_tokens_per_skill": 652,
         "largest_skill": "nextjs-architecture (1065 tokens)"
       }
     },
     "common": {
-      "version": "2.0.1",
-      "last_updated": "2026-03-30",
+      "version": "2.0.2",
+      "last_updated": "2026-04-04",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 31,
-        "total_tokens": 19271,
-        "avg_tokens_per_skill": 622,
-        "largest_skill": "common-skill-creator (1238 tokens)"
+        "total_tokens": 19336,
+        "avg_tokens_per_skill": 624,
+        "largest_skill": "common-skill-creator (1263 tokens)"
       }
     },
     "quality-engineering": {
-      "version": "1.4.1",
-      "last_updated": "2026-03-30",
+      "version": "1.4.2",
+      "last_updated": "2026-04-04",
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 5,
-        "total_tokens": 3886,
-        "avg_tokens_per_skill": 777,
-        "largest_skill": "quality-engineering-zephyr-test-generation (1121 tokens)"
+        "total_tokens": 3800,
+        "avg_tokens_per_skill": 760,
+        "largest_skill": "quality-engineering-zephyr-test-generation (1179 tokens)"
       }
     },
     "golang": {
@@ -272,19 +394,19 @@
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 4935,
-        "avg_tokens_per_skill": 449,
+        "total_tokens": 4945,
+        "avg_tokens_per_skill": 450,
         "largest_skill": "golang-tooling (518 tokens)"
       }
     },
     "angular": {
-      "version": "1.3.1",
-      "last_updated": "2026-03-25",
+      "version": "1.4.0",
+      "last_updated": "2026-04-04",
       "tag_prefix": "angular-v",
       "token_metrics": {
-        "total_skills": 16,
-        "total_tokens": 8033,
-        "avg_tokens_per_skill": 502,
+        "total_skills": 15,
+        "total_tokens": 7538,
+        "avg_tokens_per_skill": 503,
         "largest_skill": "angular-tooling (675 tokens)"
       }
     },
@@ -322,34 +444,34 @@
       }
     },
     "android": {
-      "version": "1.3.1",
-      "last_updated": "2026-03-25",
+      "version": "1.3.2",
+      "last_updated": "2026-04-04",
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 7691,
+        "total_tokens": 7694,
         "avg_tokens_per_skill": 350,
         "largest_skill": "android-architecture (505 tokens)"
       }
     },
     "swift": {
-      "version": "1.3.1",
-      "last_updated": "2026-03-25",
+      "version": "1.3.2",
+      "last_updated": "2026-04-04",
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 3831,
-        "avg_tokens_per_skill": 479,
+        "total_tokens": 3837,
+        "avg_tokens_per_skill": 480,
         "largest_skill": "swift-best-practices (659 tokens)"
       }
     },
     "ios": {
-      "version": "1.4.1",
-      "last_updated": "2026-03-25",
+      "version": "1.4.2",
+      "last_updated": "2026-04-04",
       "tag_prefix": "ios-v",
       "token_metrics": {
         "total_skills": 15,
-        "total_tokens": 5521,
+        "total_tokens": 5523,
         "avg_tokens_per_skill": 368,
         "largest_skill": "ios-architecture (663 tokens)"
       }
@@ -366,12 +488,12 @@
       }
     },
     "laravel": {
-      "version": "1.3.1",
-      "last_updated": "2026-03-25",
+      "version": "1.3.2",
+      "last_updated": "2026-04-04",
       "tag_prefix": "laravel-v",
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 6496,
+        "total_tokens": 6497,
         "avg_tokens_per_skill": 650,
         "largest_skill": "laravel-security (727 tokens)"
       }

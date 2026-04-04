@@ -3,93 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Validate Server Action inputs with Zod in Next.js",
-      "expected_output": "Parse inputs with Zod schema at top of action before any DB call; throw if validation fails; never trust client-sent data; combine with session check to prevent unauthorized mutations",
+      "prompt": "Write a Server Action that deletes a post. The post ID comes from the form data.",
+      "expected_output": "Secure Server Action: (1) await auth() first to verify caller identity. (2) Validate all inputs with Zod schema: z.object({ postId: z.string().uuid() }). (3) Verify the caller owns the post before deletion. (4) Import 'server-only' in the module. (5) Verify Origin header to prevent CSRF. Return structured success/error response.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "with Zod"
-        },
-        {
-          "type": "contains",
-          "value": "Zod schema"
-        }
+        { "type": "contains", "value": "Zod" },
+        { "type": "contains", "value": "auth()" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Prevent data leaks to Client Components in Next.js",
-      "expected_output": "Import 'server-only' at top of modules with secrets or DB logic; this causes build error if imported in Client Component; never pass full DB rows as props — project only needed fields",
+      "prompt": "My component renders user-provided HTML content using raw innerHTML injection.",
+      "expected_output": "Raw HTML injection is an XSS risk. Sanitize with DOMPurify.sanitize(userHtml) before rendering. Better: use a Markdown renderer that escapes HTML. Also: configure CSP headers in middleware.ts to prevent inline script execution as defense-in-depth. Always treat user-provided HTML as untrusted.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Client"
-        },
-        {
-          "type": "contains",
-          "value": "Component"
-        },
-        {
-          "type": "contains",
-          "value": "Client Component"
-        }
+        { "type": "contains", "value": "DOMPurify" },
+        { "type": "contains", "value": "sanitize" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Protect routes using middleware.ts in Next.js",
-      "expected_output": "Export middleware from middleware.ts; use matcher config to scope protected paths; read session cookie with jose/next-auth; return NextResponse.redirect('/login') if unauthenticated; keep middleware lightweight"
-    },
-    {
-      "id": 4,
-      "prompt": "Mark sensitive logic with server-only in Next.js",
-      "expected_output": "npm install server-only; add `import 'server-only'` at top of file; Next.js throws build error if this module reaches client bundle; use for DB clients, secret env reads, admin logic",
+      "prompt": "I want to access an environment variable containing a database password in a Next.js Client Component.",
+      "expected_output": "Violation: No process.env with secrets in client bundles. Only NEXT_PUBLIC_ prefixed vars are safe to expose (they are baked into the client bundle). Database passwords must never be NEXT_PUBLIC_. Access secrets only in Server Components, Server Actions, Route Handlers, or middleware. Use 'server-only' to prevent accidental client imports.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Next"
-        },
-        {
-          "type": "contains",
-          "value": "client bundle"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "Sanitize user-provided HTML output in a Next.js app",
-      "expected_output": "Use DOMPurify.sanitize(userHtml) before rendering untrusted markup; prefer JSX text interpolation which auto-escapes by default; raw HTML injection of untrusted content is an XSS risk — sanitize at the boundary",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "DOMPurify"
-        },
-        {
-          "type": "contains",
-          "value": "HTML"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "Secure environment variables in Next.js",
-      "expected_output": "Server-only secrets: no NEXT_PUBLIC_ prefix; client-safe vars: NEXT_PUBLIC_ prefix only; never import process.env secrets in 'use client' files; validate all env vars at startup with Zod in lib/env.ts",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Server"
-        },
-        {
-          "type": "contains",
-          "value": "with Zod"
-        }
+        { "type": "contains", "value": "NEXT_PUBLIC_" },
+        { "type": "contains", "value": "server-only" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Security headers in a Go HTTP server",
-    "NestJS JWT authentication guards",
-    "Laravel policy-based authorization",
-    "OWASP security in Spring Boot"
+    "Configure Storybook for component documentation",
+    "Write a Go service for sending emails",
+    "Set up load balancing with Nginx"
   ]
 }

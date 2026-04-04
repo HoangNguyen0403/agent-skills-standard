@@ -3,35 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How do I manage config in a Go service with environment variables?",
-      "expected_output": "Define typed Config struct. Load from defaults, optionally from file, then override with env vars. Validate at startup. Use viper, koanf, or caarlos0/env. Never use global vars.",
+      "prompt": "How should I load database credentials in my Go service for production?",
+      "expected_output": "Load from environment variables using os.Getenv or a library like viper/koanf. Never hardcode secrets. Validate at startup and crash fast if required vars are missing.",
       "assertions": [
-        {"id": "a1", "description": "Mentions typed Config struct", "type": "contains", "value": "struct"},
-        {"id": "a2", "description": "Mentions validation or env override", "type": "contains", "value": "validat"}
+        { "type": "contains", "value": "environment" },
+        { "type": "contains", "value": "startup" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Should I use Viper or Koanf for Go config management?",
-      "expected_output": "Viper is industry standard for complex configs with env/file/remote support. Koanf is lighter and cleaner alternative. caarlos0/env for strict struct tagging.",
+      "prompt": "I have a global var config AppConfig in my Go app. Is this OK?",
+      "expected_output": "No global config vars. Load config into a typed struct and inject it via constructors into services that need it. This makes dependencies explicit and simplifies testing.",
       "assertions": [
-        {"id": "a1", "description": "Compares Viper and Koanf", "type": "contains", "value": "Viper"},
-        {"id": "a2", "description": "Mentions trade-offs", "type": "contains", "value": "Koanf"}
+        { "type": "contains", "value": "struct" },
+        { "type": "contains", "value": "inject" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How do I ensure my Go app crashes fast if a required env variable is missing?",
-      "expected_output": "Validate the Config struct immediately after loading. App must fail fast with a descriptive error on missing required vars. Do not proceed to server startup.",
+      "prompt": "My Go service starts successfully even when DATABASE_URL is not set, then crashes later. How do I fix this?",
+      "expected_output": "Validate all required config fields at startup. Use a validate function that calls log.Fatal or panics immediately if required env vars are missing — fail fast, not silently.",
       "assertions": [
-        {"id": "a1", "description": "Mentions validation at startup", "type": "contains", "value": "startup"},
-        {"id": "a2", "description": "Mentions fail fast or crash", "type": "contains", "value": "crash"}
+        { "type": "contains", "value": "startup" },
+        { "type": "contains", "value": "validate" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I write a Go HTTP middleware?",
-    "How do I use goroutines safely?",
-    "How do I configure a NestJS ConfigModule?"
+    "Write a goroutine to process jobs",
+    "How do I write a REST API handler in Go?",
+    "Generate a Dockerfile for a Go service"
   ]
 }

@@ -3,42 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "My useEffect runs infinitely even though I added the object to the dependency array. What's wrong?",
-      "expected_output": "Dependency Arrays are law. Objects/arrays are recreated each render, causing infinite loops. Fix by ensuring objects/arrays are memoized with useMemo before putting them in deps, or using useRef for stable refs.",
+      "prompt": "My useEffect runs in an infinite loop. I'm passing an object as a dependency.",
+      "expected_output": "Objects are recreated each render — strict equality fails, causing infinite loop. Fix: memoize the object with useMemo before adding to deps: const config = useMemo(() => ({ id, type }), [id, type]). Or restructure to use primitive dependencies (id, type separately). Never add unstable object references to dependency arrays.",
       "assertions": [
-        { "type": "contains", "value": "Dependency Arrays" },
-        { "type": "contains", "value": "objects/arrays are memoized" },
         { "type": "contains", "value": "useMemo" },
-        { "type": "contains", "value": "infinite loops" }
+        { "type": "contains", "value": "recreated" }
       ]
     },
     {
       "id": 2,
-      "prompt": "When should I use useMemo vs useCallback in React?",
-      "expected_output": "useMemo for heavy calc (expensive computed values) and useCallback for props (stabilize function references for memoized children). Measure first to avoid premature complexity and ensure stable refs.",
+      "prompt": "I need to fetch data when a component mounts. Should I use useEffect?",
+      "expected_output": "For server data fetching, prefer SWR or TanStack Query over useEffect. If useEffect is necessary: use AbortController for cleanup to prevent state updates after unmount. Return cleanup: return () => controller.abort(). Add the dependency array. Avoid derived state — useEffect to sync state is an anti-pattern; compute during render instead.",
       "assertions": [
-        { "type": "contains", "value": "useMemo for heavy calc" },
-        { "type": "contains", "value": "useCallback for props" },
-        { "type": "contains", "value": "stable refs" },
-        { "type": "contains", "value": "Measure first" }
+        { "type": "contains", "value": "AbortController" },
+        { "type": "contains", "value": "cleanup" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How do I write a custom hook to fetch data that handles loading, error, and cleanup?",
-      "expected_output": "Extract logic starting with use... — use useState for internal state. Cleanup required for subscriptions. Return cleanup function from the effect. Use AbortController for fetch cleanup to prevent state updates after unmount.",
+      "prompt": "Write a custom hook that tracks whether a user is online.",
+      "expected_output": "Custom hook starting with 'use': function useOnlineStatus() { const [isOnline, setIsOnline] = useState(navigator.onLine); useEffect(() => { const handler = () => setIsOnline(navigator.onLine); window.addEventListener('online', handler); window.addEventListener('offline', handler); return () => { window.removeEventListener('online', handler); window.removeEventListener('offline', handler); }; }, []); return isOnline; }",
       "assertions": [
-        { "type": "contains", "value": "Extract logic starting with use..." },
-        { "type": "contains", "value": "Cleanup required" },
-        { "type": "contains", "value": "AbortController" },
-        { "type": "contains", "value": "return cleanup function" }
+        { "type": "contains", "value": "useEffect" },
+        { "type": "contains", "value": "cleanup" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I structure my React project into features?",
-    "How do I prevent XSS in React?",
-    "How do I write a React Testing Library test?",
-    "How do I configure webpack for my React app?"
+    "Write a SQL query to find the top 10 customers",
+    "Configure a Docker network for microservices",
+    "Set up a Go HTTP server with middleware"
   ]
 }

@@ -3,35 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How do I run multiple Go tasks concurrently and wait for all to finish?",
-      "expected_output": "Use errgroup (golang.org/x/sync/errgroup) as preferred WaitGroup + error propagation. Or sync.WaitGroup. Never start goroutines without known exit path.",
+      "prompt": "I'm spawning goroutines inside a for loop to process orders in parallel. How do I make sure none of them leak?",
+      "expected_output": "Use errgroup or sync.WaitGroup so every goroutine has a known exit path. Pass context.Context for cancellation. Call wg.Wait() or g.Wait() to ensure all goroutines complete.",
       "assertions": [
-        {"id": "a1", "description": "Mentions errgroup or WaitGroup", "type": "contains", "value": "errgroup"},
-        {"id": "a2", "description": "Mentions context cancellation", "type": "contains", "value": "ctx"}
+        { "type": "contains", "value": "errgroup" },
+        { "type": "contains", "value": "context" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Should I use a buffered or unbuffered channel?",
-      "expected_output": "Unbuffered for strict synchronization. Buffered only for async decoupling or burst handling. Explains deadlock risk of wrong choice.",
+      "prompt": "Multiple goroutines need to update a shared counter. What's the idiomatic Go approach?",
+      "expected_output": "Use sync/atomic for simple counters or a sync.Mutex to protect shared state. Do not mutate global variables without synchronization. Prefer channels to communicate results back rather than shared mutation.",
       "assertions": [
-        {"id": "a1", "description": "Distinguishes buffered vs unbuffered use cases", "type": "contains", "value": "buffered"},
-        {"id": "a2", "description": "Mentions synchronization for unbuffered", "type": "contains", "value": "synchroni"}
+        { "type": "contains", "value": "Mutex" },
+        { "type": "contains", "value": "channel" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How do I detect goroutine leaks in my Go service?",
-      "expected_output": "Run tests with go test -race. Use goleak library. Every goroutine must have a known exit path via context cancellation, channel close, or done signal.",
+      "prompt": "How do I run go test with the race detector?",
+      "expected_output": "Run `go test -race ./...` to enable the race detector. Always include -race in CI to catch data races.",
       "assertions": [
-        {"id": "a1", "description": "Mentions go test -race", "type": "contains", "value": "-race"},
-        {"id": "a2", "description": "Mentions context or done channel for lifecycle", "type": "contains", "value": "context"}
+        { "type": "contains", "value": "-race" },
+        { "type": "contains", "value": "CI" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I structure a Go project?",
-    "How do I handle errors in Go?",
-    "How do I write a Go HTTP server?"
+    "How do I connect to PostgreSQL in Go?",
+    "Write a REST handler in Go",
+    "Set up golangci-lint for my project"
   ]
 }

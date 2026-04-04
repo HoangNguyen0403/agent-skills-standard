@@ -16,15 +16,15 @@ Essential tooling for TypeScript development and maintenance.
 - **Formatting**: Mandate **`Prettier`** via **`lint-staged`** and **`.prettierrc`**.
 - **Testing**: Use **`Vitest`** (or **`Jest`**) for unit/integration testing. Target **`> 80%`** line coverage.
 - **Builds**: Use **`tsup`** (for library bundling) or **`Vite`** (for web applications).
-- **TypeScript Config**: Ensure **`tsconfig.json`** has **`strict: true`**, **`noImplicitAny: true`**, and **`esModuleInterop: true`**.
-- **CI/CD**: Always run **`tsc --noEmit`** explicitly in the build pipeline to catch type errors.
+- **TypeScript Config**: Aim for **`strict: true`** long-term. For existing projects with `strict: false`, incrementally enable flags: start with `strictNullChecks: true` (already active in `datasource/ezrx/frontend`), then add `noImplicitAny`, `strictFunctionTypes`. Do NOT flip `strict: true` in one step — it will break hundreds of files.
+- **CI/CD**: Always run **`tsc --noEmit`** explic itly in the build pipeline to catch type errors.
 - **Error Supression**: Favor **`@ts-expect-error`** over `@ts-ignore` for documented edge-cases.
 
 ## ESLint Configuration
 
 ### Strict Mode Requirement
 
-**CRITICAL**: Every file in the project, including tests (`.spec.ts`), must adhere to strict type-checked rules. NEVER turn off `@typescript-eslint/no-explicit-any` or `no-unsafe-*` rules.
+Enable `@typescript-eslint/recommended` at minimum. When `strict: false` is in tsconfig, `no-unsafe-*` rules may produce excessive noise — suppress selectively with `@ts-expect-error` rather than disabling globally. Prefer strict rules in new files even if the whole project isn't strict yet.
 
 ### Common Linting Issues & Solutions
 
@@ -53,11 +53,14 @@ mockRepo.save.mockResolvedValue(result as unknown as User);
 
 ## Configuration
 
+For new projects: enable `strict: true`. For existing projects with `strict: false`, use an incremental path:
+
 ```json
-// tsconfig.json
+// tsconfig.json — incremental migration
 {
   "compilerOptions": {
-    "strict": true,
+    "strict": false,
+    "strictNullChecks": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true
   }

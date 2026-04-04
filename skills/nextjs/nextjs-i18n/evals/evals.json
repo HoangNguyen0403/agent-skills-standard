@@ -3,79 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Add multi-language support to a Next.js app",
-      "expected_output": "Use app/[lang]/layout.tsx dynamic segment; implement middleware.ts for Accept-Language detection and redirect to /en/path; load translations server-side with getMessages(); sub-path URLs /en/dashboard",
+      "prompt": "Add multi-language support to my Next.js App Router project. I need English and French.",
+      "expected_output": "Install next-intl. Create messages/en.json and messages/fr.json. Add locale detection in middleware.ts using Accept-Language header. Create app/[lang]/layout.tsx with locale param. Load translations server-side via getMessages(). Add hreflang tags in generateMetadata. Pre-render both locales with generateStaticParams.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Accept"
-        },
-        {
-          "type": "contains",
-          "value": "Language"
-        },
-        {
-          "type": "contains",
-          "value": "dynamic segment"
-        }
+        { "type": "contains", "value": "next-intl" },
+        { "type": "contains", "value": "[lang]" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Set up locale routing in Next.js with app/[lang]/",
-      "expected_output": "Create app/[lang]/layout.tsx; declare params: Promise<{lang: string}>; validate against SUPPORTED_LOCALES; pass locale to NextIntlClientProvider; all pages under [lang] segment automatically scoped"
+      "prompt": "I have hardcoded English strings scattered throughout my JSX. My designer wants to add Spanish.",
+      "expected_output": "Violation: No hardcoded strings in JSX. Replace all raw text with translation keys: {t('nav.home')} instead of 'Home'. Load translation dictionaries server-side with getMessages() to keep client bundle small. Create messages/es.json with all keys. Use next-intl's useTranslations hook in Client Components only.",
+      "assertions": [
+        { "type": "contains", "value": "translation key" },
+        { "type": "contains", "value": "hardcoded" }
+      ]
     },
     {
       "id": 3,
-      "prompt": "Use next-intl for translations in Next.js",
-      "expected_output": "setRequestLocale(lang) in layout; const t = useTranslations('Home') in Server Components; const messages = await getMessages() in layout; pass to NextIntlClientProvider; never hardcode strings",
+      "prompt": "My i18n URLs use both /en/about and /about/en depending on the page. Users complain they can't share links.",
+      "expected_output": "Violation: No mixed URL locale patterns. Choose one pattern and use it consistently. Recommendation: sub-paths (/en/about, /fr/about) — best for SEO and caching. Configure in next.config.js i18n settings. Update middleware.ts to enforce the pattern. Add canonical/hreflang tags for all translated routes.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Server"
-        },
-        {
-          "type": "contains",
-          "value": "Components"
-        },
-        {
-          "type": "contains",
-          "value": "Server Components"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "Configure language detection in Next.js middleware",
-      "expected_output": "Check request.cookies.get('locale') first; fallback to request.headers.get('accept-language') parsing; redirect to /{locale}${pathname}; set locale cookie; avoid cookie-only approach (breaks SSR/SEO)"
-    },
-    {
-      "id": 5,
-      "prompt": "Implement i18n with react-intl in Next.js",
-      "expected_output": "Load messages in layout: const messages = await import(`../messages/${lang}.json`); wrap in <IntlProvider messages={messages} locale={lang}>; use <FormattedMessage id='home.title'/> in components",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Load"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "Use getMessages() for server-side translations in Next.js",
-      "expected_output": "const messages = await getMessages() in layout.tsx; loads only the requested locale's JSON; pass to NextIntlClientProvider; avoids downloading all locale bundles to client; SSR-compatible",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "JSON"
-        }
+        { "type": "contains", "value": "sub-path" },
+        { "type": "contains", "value": "consistent" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Localization in a Flutter app with easy_localization",
-    "iOS String Catalogs for localization",
-    "Laravel localization with trans() helper",
-    "i18next configuration in a plain Vite React app"
+    "Write a Go REST API for user management",
+    "Configure Kubernetes pod resource limits",
+    "Set up a Redis cache with expiration"
   ]
 }

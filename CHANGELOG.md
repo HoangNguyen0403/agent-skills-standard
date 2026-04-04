@@ -5,6 +5,46 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-04-04
+
+**Category**: Hierarchical Skill Resolution & Three-Tier Trigger Model & Tessl Quality Audit
+
+### Added
+
+- **Hierarchical Skill Resolution (CLI)**: New architecture that replaces the flat AGENTS.md index (238 entries, ~300 lines) with a two-level hierarchy:
+  - **Router table** (`AGENTS.md`, ~20 lines) — maps file extensions to per-category `_INDEX.md` files.
+  - **Category indexes** (`_INDEX.md`) — compact trigger tables with **File Match** and **Keyword Match** sections, auto-generated from SKILL.md frontmatters.
+  - Reduces scan cost from O(n) to O(1) — ~25 lines per lookup regardless of total skill count.
+- **Three-Tier Trigger Model (CLI)**: `IndexGeneratorService` now classifies triggers into tiers:
+  - **File Match**: Skills with specific path patterns (e.g., `**/page.tsx`) or the designated `base_language_skill`.
+  - **Keyword Match**: Skills with only broad globs (e.g., `**/*.ts`) are automatically demoted to keyword-only activation.
+  - Reduces `*.ts` file auto-matches from 27 skills to 6 (78% reduction).
+- **`metadata.json` extensions**: Added `file_routing` (24 extension-to-category mappings), `broad_globs` (13 patterns to demote), and `base_language_skills` (19 category-to-base-skill mappings).
+- **`IndexGeneratorService` new methods**: `generateCategoryIndex()`, `generateAllCategoryIndices()`, `assembleRouterIndex()`.
+- **Description-based trigger extraction**: `parseSkill()` now extracts and classifies triggers from the description `(triggers: ...)` suffix when structured `metadata.triggers` is absent (covers 100% of current skills).
+- **21 new unit tests**: 411 total (up from 409). Full coverage for hierarchical generation, tier classification, and router output.
+
+### Changed
+
+- **Angular skill merge**: Merged `angular-component-patterns` into `angular-components` (16 → 15 skills). Combined OnPush/Signals content + Standalone/Control Flow into one skill with 9 merged evals.
+- **Tessl Quality Audit (237 skills)**: Achieved 100% compliance across all 237 skills:
+  - 21 vague leading verbs replaced ("Manage" → "Configure", "Implement", "Validate", etc.).
+  - 6 inline code blocks (>10 lines) extracted to `references/` files.
+  - 4 missing "Use when" clauses added.
+  - 2 missing trigger hints added.
+  - 1 description trimmed to <100 words.
+- **`SyncService.applyIndices()`**: Now generates `_INDEX.md` per category for all target agents and produces router-style `AGENTS.md`.
+- **`generate-indices.ts`**: Now outputs per-category `_INDEX.md` files alongside `index.json`.
+- **Documentation rewrite**: Updated `ARCHITECTURE.md` (added ADR-003, ADR-004), `README.md` (restructured for readability and SEO), `cli/ARCHITECTURE.md` (added service details), `cli/README.md` (added output examples).
+
+### Versions
+
+- **CLI**: v2.1.0 (Minor — hierarchical resolution, three-tier triggers, new methods)
+- **Root**: v2.1.0 (Minor — sync)
+- **Angular Skills**: v1.4.0 (Minor — skill merge)
+- **Common Skills**: v2.0.2 (Patch — description quality fixes)
+- **All other categories**: Patch bumps (description quality fixes) — see metadata.json for individual versions.
+
 ## [2.0.1] - 2026-03-30
 
 **Category**: Security Hardening & AI Learning Log System

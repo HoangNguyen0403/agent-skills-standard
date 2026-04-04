@@ -1,48 +1,37 @@
 {
+  "skill_name": "common-owasp",
   "evals": [
     {
-      "name": "idor_detection",
-      "prompt": "Review this NestJS endpoint for security issues:\n\n```typescript\n@Get(':id')\nasync getOrder(@Param('id') id: string) {\n  return this.ordersService.findOne(id);\n}\n\nasync findOne(id: string) {\n  return this.orderRepository.findOne({ where: { id } });\n}\n```",
+      "id": 1,
+      "prompt": "Review this code: const user = await db.findById(req.params.id); return res.json(user);",
+      "expected_output": "Two violations: (1) A01/API1 — BOLA/IDOR: findById without owner filter. Fix: add AND owner_id = req.user.id to the query. (2) API3 — full entity returned, no DTO projection. Fix: return only the fields needed, never serialize raw ORM output. P0 finding — Security score capped at 40/100.",
       "assertions": [
-        { "type": "contains", "value": "BOLA" },
-        { "type": "contains", "value": "owner" },
-        { "type": "contains", "value": "currentUser" }
+        { "type": "contains", "value": "IDOR" },
+        { "type": "contains", "value": "DTO" }
       ]
     },
     {
-      "name": "full_entity_return",
-      "prompt": "Is there a security issue with returning a full user entity from an API endpoint?\n\n```typescript\n@Get('profile')\nasync getProfile(@CurrentUser() user: User): Promise<User> {\n  return this.userRepository.findOne({ where: { id: user.id } });\n}\n```",
+      "id": 2,
+      "prompt": "I configured our CORS policy with Access-Control-Allow-Origin: * on all routes including authenticated ones.",
+      "expected_output": "A05 — Security Misconfiguration (P0 if on authenticated routes). Wildcard CORS allows any origin to make credentialed requests. Fix: restrict to explicit allowlisted origins in an array. Authenticated routes must never use origin: '*'. Apply per-route CORS configuration.",
       "assertions": [
-        { "type": "contains", "value": "DTO" },
-        { "type": "contains", "value": "password" },
-        { "type": "contains", "value": "API3" }
+        { "type": "contains", "value": "CORS" },
+        { "type": "contains", "value": "origin" }
       ]
     },
     {
-      "name": "jwt_no_expiry",
-      "prompt": "What is wrong with this JWT generation code?\n\n```typescript\nconst token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET);\nreturn { token };\n```",
+      "id": 3,
+      "prompt": "Write a login endpoint that checks the user's password.",
+      "expected_output": "Apply OWASP always-apply rules: (1) Hash passwords with Argon2id (never MD5/bcrypt). (2) Add rate limiting — no limit on auth is A04 Insecure Design. (3) Issue JWT with expiry — missing exp is A07. (4) Use HttpOnly cookie for token storage. (5) Return generic error ('Invalid credentials') for both wrong user and wrong password.",
       "assertions": [
-        { "type": "contains", "value": "expiresIn" },
-        { "type": "contains", "value": "expiry" },
-        { "type": "contains", "value": "API2" }
-      ]
-    },
-    {
-      "name": "no_rate_limit_list",
-      "prompt": "Review this endpoint for API security risks:\n\n```typescript\n@Get()\nasync findAll(@Query('search') search: string) {\n  return this.repo.find({ where: { name: Like(`%${search}%`) } });\n}\n```",
-      "assertions": [
-        { "type": "contains", "value": "limit" },
-        { "type": "contains", "value": "API4" }
-      ]
-    },
-    {
-      "name": "should_not_trigger_safe_code",
-      "prompt": "Review this secure order endpoint:\n\n```typescript\n@Get(':id')\n@UseGuards(JwtAuthGuard)\nasync getOrder(\n  @Param('id') id: string,\n  @CurrentUser() user: User,\n): Promise<OrderResponseDto> {\n  return this.ordersService.findOneForUser(id, user.id);\n}\n\nasync findOneForUser(id: string, userId: string): Promise<OrderResponseDto> {\n  const order = await this.orderRepository.findOne({\n    where: { id, userId },\n  });\n  if (!order) throw new NotFoundException();\n  return plainToInstance(OrderResponseDto, order);\n}\n```",
-      "should_not_trigger": true,
-      "assertions": [
-        { "type": "not_contains", "value": "BOLA" },
-        { "type": "not_contains", "value": "missing owner" }
+        { "type": "contains", "value": "rate limit" },
+        { "type": "contains", "value": "JWT" }
       ]
     }
+  ],
+  "should_not_trigger": [
+    "Write a React component for displaying products",
+    "Explain how CSS flexbox works",
+    "Set up a development environment for Python"
   ]
 }

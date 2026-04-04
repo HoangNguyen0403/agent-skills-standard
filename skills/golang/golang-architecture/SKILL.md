@@ -35,9 +35,9 @@ See [constructor injection and wiring examples](references/clean-arch.md)
 
 ## Anti-Patterns
 
-- ❌ Global singletons — use DI; avoid package-level mutable variables
-- ❌ Layer violations — domain must not import from adapter/infrastructure layers
-- ❌ God services — split into single-responsibility components
+- **No global singletons**: Use DI; avoid package-level mutable variables.
+- **No layer violations**: Domain must not import from adapter/infrastructure layers.
+- **No god services**: Split into single-responsibility components.
 
 ## References
 

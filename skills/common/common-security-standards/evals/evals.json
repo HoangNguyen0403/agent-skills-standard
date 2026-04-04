@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common security standards best practices?",
-      "expected_output": "**Zero Trust**: Never trust external input. Sanitize and validate every data boundary (API, UI, CSV).",
+      "prompt": "Implement user authentication with email and password for our new web app.",
+      "expected_output": "Apply security standards: (1) Hash passwords with Argon2id (not MD5/bcrypt). (2) No hardcoded secrets — JWT_SECRET in env var. (3) No raw SQL — use parameterized query or ORM. (4) Return generic error messages only. (5) Implement rate limiting on the auth endpoint. (6) Use HttpOnly Secure cookies for session. (7) Add audit log for login events.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "audit"
-        },
-        {
-          "type": "contains",
-          "value": "Priority: P0 (CRITICAL)"
-        },
-        {
-          "type": "contains",
-          "value": "Zero Trust"
-        }
+        { "type": "contains", "value": "Argon2" },
+        { "type": "contains", "value": "parameterized" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common security standards?",
-      "expected_output": "**Least Privilege**: Grant minimum necessary permissions to users, services, and containers.",
+      "prompt": "I want to encrypt user PII before storing it in the database.",
+      "expected_output": "Use AES-256 for data-at-rest encryption. Use TLS 1.3 for data-in-transit. Never log PII (email, phone, names) — mask sensitive fields before logging. Store encryption keys in a secret manager (AWS KMS, HashiCorp Vault), not in source code. Apply Least Privilege: only services that need decryption should have the key.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Least Privilege"
-        },
-        {
-          "type": "contains",
-          "value": "No Hardcoded Secrets"
-        },
-        {
-          "type": "contains",
-          "value": "Encryption"
-        }
+        { "type": "contains", "value": "AES-256" },
+        { "type": "contains", "value": "log" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common security standards.",
-      "expected_output": "**No Hardcoded Secrets**: Use environment variables or secret managers. Never commit keys or passwords.",
+      "prompt": "Review my code that builds a SQL query by concatenating user input: 'SELECT * FROM users WHERE name = ' + userName",
+      "expected_output": "Violation: No raw SQL strings — this is SQL injection. Fix: use parameterized query: db.query('SELECT * FROM users WHERE name = $1', [userName]). Or use ORM. Also check: does the API response expose stack traces? If so, configure global error handler to return generic codes. Shift Left: add SAST scanner to CI.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "PII Logging"
-        },
-        {
-          "type": "contains",
-          "value": "Injection Prevention"
-        },
-        {
-          "type": "contains",
-          "value": "Dependency Management"
-        }
+        { "type": "contains", "value": "parameterized" },
+        { "type": "contains", "value": "injection" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic common project from scratch",
-    "How do I install common dependencies?",
-    "What is common?",
-    "Configure CI/CD for an unrelated platform"
+    "Write a React hook for fetching data",
+    "Set up Storybook for component documentation",
+    "Explain the event loop in Node.js"
   ]
 }

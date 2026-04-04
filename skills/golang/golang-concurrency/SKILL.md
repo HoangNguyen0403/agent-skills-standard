@@ -26,9 +26,9 @@ See [ErrGroup and concurrency patterns](references/concurrency-patterns.md) and 
 
 ## Anti-Patterns
 
-- ❌ Goroutine leaks — every goroutine needs a known exit path
-- ❌ Global state mutation across goroutines — use channels or sync primitives
-- ❌ Bare goroutines without lifecycle management — use `errgroup` or `WaitGroup`
+- **No goroutine leaks**: Every goroutine must have a known exit path.
+- **No shared global state**: Use channels or sync primitives across goroutines.
+- **No bare goroutines**: Use `errgroup` or `WaitGroup` for lifecycle management.
 
 ## References
 

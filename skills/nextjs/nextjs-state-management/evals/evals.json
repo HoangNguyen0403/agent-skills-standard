@@ -3,91 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Manage filter state with URL params in Next.js",
-      "expected_output": "'use client'; const searchParams = useSearchParams(); const { replace } = useRouter(); const pathname = usePathname(); replace(`${pathname}?q=${term}`); shareable; Server Component re-renders with new params",
+      "prompt": "My users want to share filtered search results via URL. How should I manage the filter state?",
+      "expected_output": "Use URL state: useSearchParams() + useRouter(). Update filters with router.push('?category=shoes&sort=price'). This makes state shareable, bookmarkable, and survives page refresh. Use useTransition to keep UI responsive while URL updates. Avoid Zustand for state that should be in the URL.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "useSearchParams()"
-        },
-        {
-          "type": "contains",
-          "value": "useRouter()"
-        }
+        { "type": "contains", "value": "useSearchParams" },
+        { "type": "contains", "value": "URL" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Use Zustand for global state in a Next.js app",
-      "expected_output": "const useCartStore = create<CartState>()((set) => ({ items: [], add: (item) => set((s) => ({ items: [...s.items, item] })) })); use only in 'use client' components; scope to UI state (cart, modals, theme)",
+      "prompt": "I'm syncing server data into useState and calling an API on component mount with useEffect.",
+      "expected_output": "Violation: No useEffect for data fetching. Use SWR or TanStack Query for server state — they handle caching, revalidation, loading and error states. Never manually sync server data into useState. Let the query cache be the source of truth. In Next.js App Router, prefer Server Components for initial data fetch.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "create<CartState>()"
-        },
-        {
-          "type": "contains",
-          "value": "use only in 'use client'"
-        }
+        { "type": "contains", "value": "SWR" },
+        { "type": "contains", "value": "useEffect" }
       ]
     },
     {
       "id": 3,
-      "prompt": "When to use Redux vs useState in Next.js",
-      "expected_output": "useState: component-local UI; URL params: shareable filters/pagination; Zustand: simple global UI state; Redux Toolkit: complex normalized state with many actions; avoid Redux for simple apps",
+      "prompt": "My app reads from localStorage in a Server Component and gets hydration errors.",
+      "expected_output": "localStorage is browser-only and cannot be read in Server Components or during SSR. Fix: wrap localStorage reads in useEffect or behind a mounted flag: const [mounted, setMounted] = useState(false); useEffect(() => setMounted(true), []). For optimistic updates in Next.js 15+, use useOptimistic hook.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "URL params: shareable"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "Implement search state with useSearchParams in Next.js",
-      "expected_output": "'use client'; const params = new URLSearchParams(useSearchParams().toString()); params.set('q', term); useRouter().replace(`${usePathname()}?${params}`); Server Component re-renders with updated params",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "new URLSearchParams"
-        },
-        {
-          "type": "contains",
-          "value": "useRouter().replace"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "Use SWR for server state in Next.js",
-      "expected_output": "const { data, error, isLoading } = useSWR('/api/user', fetcher, { refreshInterval: 30000 }); auto-revalidation on focus/reconnect; deduplication; use for live per-user data in Client Components",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "useSWR"
-        },
-        {
-          "type": "contains",
-          "value": "refreshInterval"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "Avoid unnecessary global store in a Next.js app",
-      "expected_output": "Use useState for component-local; useSearchParams for URL-driven (filters); Server Components for server state; Zustand/Redux only for complex cross-cutting UI (multi-step form, real-time cart)",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "useSearchParams for URL-driven"
-        }
+        { "type": "contains", "value": "localStorage" },
+        { "type": "contains", "value": "mounted" }
       ]
     }
   ],
   "should_not_trigger": [
-    "State management with flutter_bloc in Flutter",
-    "Redux in a plain React app without Next.js",
-    "MobX in a React Native app",
-    "Zustand in a Vite React SPA"
+    "Configure a Go gRPC server",
+    "Write database migration scripts",
+    "Set up monitoring alerts in Datadog"
   ]
 }

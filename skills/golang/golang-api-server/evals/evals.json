@@ -3,35 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How do I implement graceful shutdown for my Go HTTP server?",
-      "expected_output": "Listens for SIGTERM/SIGINT via signal.NotifyContext. Calls server.Shutdown(ctx) with a timeout context to drain in-flight requests.",
+      "prompt": "Build a REST endpoint in Go that handles POST /orders. It should parse the request, call an order service, and return JSON. Where does business logic go?",
+      "expected_output": "Handler parses request and calls service method only. Business logic lives in the service layer, not the handler. Handler returns JSON response.",
       "assertions": [
-        {"id": "a1", "description": "Mentions SIGTERM or signal handling", "type": "contains", "value": "SIGTERM"},
-        {"id": "a2", "description": "Mentions server.Shutdown", "type": "contains", "value": "Shutdown"}
+        { "type": "contains", "value": "service" },
+        { "type": "contains", "value": "handler" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Should I use gin or echo for my Go REST API?",
-      "expected_output": "Echo is recommended for production REST APIs with excellent middleware support. Gin is a high-performance alternative. Standard lib for zero-dep services.",
+      "prompt": "How do I add graceful shutdown to my Go HTTP server using Echo?",
+      "expected_output": "Listen for SIGINT/SIGTERM via signal.NotifyContext or os/signal, call server.Shutdown(ctx) to drain in-flight requests before exiting.",
       "assertions": [
-        {"id": "a1", "description": "Recommends Echo for REST APIs", "type": "contains", "value": "Echo"},
-        {"id": "a2", "description": "Mentions middleware support", "type": "contains", "value": "middleware"}
+        { "type": "contains", "value": "Shutdown" },
+        { "type": "contains", "value": "SIGTERM" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How should I structure HTTP middleware in Go?",
-      "expected_output": "Standard: func(next http.Handler) http.Handler. Use for cross-cutting concerns: logging, recovery, CORS, auth, tracing. Pass router via constructor, no global vars.",
+      "prompt": "Should I use a global variable to hold the Echo router in my Go service?",
+      "expected_output": "No global router variables. Pass the router via constructor or dependency injection to keep the dependency graph explicit.",
       "assertions": [
-        {"id": "a1", "description": "Shows middleware signature", "type": "contains", "value": "http.Handler"},
-        {"id": "a2", "description": "Warns against global router", "type": "not_contains", "value": "global var"}
+        { "type": "contains", "value": "constructor" },
+        { "type": "contains", "value": "global" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I write a Go unit test?",
-    "What is the context package used for in Go?",
-    "How do I structure a Flutter widget?"
+    "Write a Dockerfile for a Go app",
+    "How do I use GORM to query the database?",
+    "Set up GitHub Actions CI for Go"
   ]
 }

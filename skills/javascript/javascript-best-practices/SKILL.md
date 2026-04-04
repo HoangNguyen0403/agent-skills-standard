@@ -25,34 +25,9 @@ Conventions and patterns for writing maintainable JavaScript.
 - **No Defaults**: Use named exports.
 - **No Side Effects**: Keep functions pure.
 
-## Code
+## Code & Reference
 
-```javascript
-// Constants
-const STATUS = { OK: 200, ERROR: 500 };
-
-// Errors
-class APIError extends Error {
-  constructor(msg, code) {
-    super(msg);
-    this.code = code;
-  }
-}
-
-// Async + JDoc
-/** @throws {APIError} */
-export async function getData(id) {
-  if (!id) throw new APIError('Missing ID', 400);
-  const res = await fetch(`/api/${id}`);
-  if (!res.ok) throw new APIError('Failed', res.status);
-  return res.json();
-}
-```
-
-## Reference & Examples
-
-For module patterns and project structure:
-See [references/REFERENCE.md](references/REFERENCE.md).
+See [references/REFERENCE.md](references/REFERENCE.md) for constants, custom errors, async patterns, and module structure examples.
 
 ## Related Topics
 

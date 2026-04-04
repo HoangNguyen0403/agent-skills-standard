@@ -1,6 +1,6 @@
 ---
 name: react-native-platform-specific
-description: "Handle iOS and Android differences using Platform API and native modules in React Native. Use when handling platform-specific behavior or integrating native modules in React Native. (triggers: **/*.tsx, **/*.ts, **/*.ios.*, **/*.android.*, Platform, Platform.select, native-module, ios, android)"
+description: "Resolve iOS and Android differences using Platform API and native modules in React Native. Use when handling platform-specific behavior or integrating native modules in React Native. (triggers: **/*.tsx, **/*.ts, **/*.ios.*, **/*.android.*, Platform, Platform.select, native-module, ios, android)"
 ---
 
 # React Native Platform-Specific Code

@@ -176,6 +176,290 @@ export class IndexGeneratorService {
     return `${header}\n${entries.join('\n')}\n`;
   }
 
+  /**
+   * Loads file routing rules from the registry's metadata.json.
+   * Maps file extensions to category arrays for router table generation.
+   */
+  private async loadFileRouting(
+    baseDir: string,
+  ): Promise<Record<string, string[]>> {
+    try {
+      const metaPath = path.join(baseDir, 'metadata.json');
+      const raw = await fs.readFile(metaPath, 'utf8');
+      const parsed = JSON.parse(raw) as {
+        file_routing?: Record<string, string[]>;
+      };
+      return parsed.file_routing ?? {};
+    } catch {
+      return {};
+    }
+  }
+
+  /**
+   * Loads broad glob patterns and base language skill mappings from metadata.json.
+   * Used to classify triggers into tiers (file match vs keyword match).
+   */
+  private async loadTierConfig(baseDir: string): Promise<{
+    broadGlobs: string[];
+    baseSkills: Record<string, string>;
+  }> {
+    try {
+      const metaPath = path.join(baseDir, 'metadata.json');
+      const raw = await fs.readFile(metaPath, 'utf8');
+      const parsed = JSON.parse(raw) as {
+        broad_globs?: string[];
+        base_language_skills?: Record<string, string>;
+      };
+      return {
+        broadGlobs: parsed.broad_globs ?? [],
+        baseSkills: parsed.base_language_skills ?? {},
+      };
+    } catch {
+      return { broadGlobs: [], baseSkills: {} };
+    }
+  }
+
+  /**
+   * Generates a tiered per-category _INDEX.md with two sections:
+   * - **File Match**: Skills with specific path patterns (auto-match when editing a file)
+   * - **Keyword Match**: Skills triggered by user intent (only when user mentions the concept)
+   *
+   * Broad globs (e.g., **\/*.ts) are stripped from non-base skills and those skills
+   * are moved to Keyword Match only. This prevents 30+ skills from matching a single file.
+   */
+  async generateCategoryIndex(
+    baseDir: string,
+    category: string,
+  ): Promise<string> {
+    const categoryPath = path.join(baseDir, category);
+    if (!(await fs.pathExists(categoryPath))) return '';
+
+    const { broadGlobs, baseSkills } = await this.loadTierConfig(baseDir);
+    const baseSkillForCategory = baseSkills[category];
+
+    const skills = await fs.readdir(categoryPath);
+    skills.sort();
+
+    const fileMatchRows: string[] = [];
+    const keywordMatchRows: string[] = [];
+
+    for (const skill of skills) {
+      if (skill.startsWith('.') || skill === '_INDEX.md') continue;
+      const skillPath = path.join(categoryPath, skill, 'SKILL.md');
+      if (!(await fs.pathExists(skillPath))) continue;
+
+      const metadata = await this.parseSkill(skillPath);
+      if (!metadata) continue;
+
+      const isBaseSkill = skill === baseSkillForCategory;
+      const allFiles = metadata.triggers.files || [];
+      const kwTrigs = (metadata.triggers.keywords || []).join(', ') || '—';
+      const prefix = metadata.priority.startsWith('P0') ? '**' : '';
+      const suffix = prefix ? '**' : '';
+
+      // Separate specific path patterns from broad globs
+      const specificFiles = allFiles.filter(
+        (f) => !broadGlobs.includes(f),
+      );
+      const hasBroadGlob = allFiles.some((f) => broadGlobs.includes(f));
+
+      if (isBaseSkill || (specificFiles.length > 0 && !hasBroadGlob)) {
+        // Tier 1/2: Has specific file patterns OR is the base skill → File Match
+        const displayFiles = isBaseSkill
+          ? allFiles.map((f) => `\`${f}\``).join(', ')
+          : specificFiles.map((f) => `\`${f}\``).join(', ');
+        fileMatchRows.push(
+          `| ${prefix}${skill}${suffix} | ${displayFiles || '—'} | ${kwTrigs} |`,
+        );
+      } else if (specificFiles.length > 0 && hasBroadGlob) {
+        // Has both specific and broad — show specific in file match, but note it
+        const displayFiles = specificFiles
+          .map((f) => `\`${f}\``)
+          .join(', ');
+        fileMatchRows.push(
+          `| ${prefix}${skill}${suffix} | ${displayFiles} | ${kwTrigs} |`,
+        );
+      } else {
+        // Tier 3: Only broad globs or no file triggers → Keyword Match only
+        keywordMatchRows.push(
+          `| ${prefix}${skill}${suffix} | ${kwTrigs} |`,
+        );
+      }
+    }
+
+    if (fileMatchRows.length === 0 && keywordMatchRows.length === 0) return '';
+
+    const lines = [
+      `<!-- AUTO-GENERATED from SKILL.md frontmatters — do not edit manually -->`,
+      `# ${category} Skills Index`,
+      '',
+    ];
+
+    if (fileMatchRows.length > 0) {
+      lines.push(
+        `## File Match (auto-check against the file you are editing)`,
+        '',
+        '| Skill | File pattern | Keywords |',
+        '| ----- | ------------ | -------- |',
+        ...fileMatchRows,
+        '',
+      );
+    }
+
+    if (keywordMatchRows.length > 0) {
+      lines.push(
+        `## Keyword Match (only when user's request mentions these)`,
+        '',
+        '| Skill | Match when user mentions |',
+        '| ----- | ----------------------- |',
+        ...keywordMatchRows,
+        '',
+      );
+    }
+
+    lines.push(
+      `> Load matched skills: \`<SKILLS>/${category}/<skill>/SKILL.md\`. Load ALL that match — the tier model already filters irrelevant ones.`,
+      '',
+    );
+
+    return lines.join('\n');
+  }
+
+  /**
+   * Generates all _INDEX.md files for categories found in baseDir.
+   * @returns Map of category name to generated index content
+   */
+  async generateAllCategoryIndices(
+    baseDir: string,
+    allowedCategories?: string[],
+  ): Promise<Record<string, string>> {
+    if (!(await fs.pathExists(baseDir))) return {};
+
+    let categories = await fs.readdir(baseDir);
+    categories = categories.filter((c) => {
+      if (c.startsWith('.') || c === '_INDEX.md') return false;
+      if (
+        allowedCategories &&
+        !allowedCategories.includes(c) &&
+        c !== 'common'
+      ) {
+        return false;
+      }
+      return true;
+    });
+    categories.sort();
+
+    const result: Record<string, string> = {};
+    for (const category of categories) {
+      const categoryPath = path.join(baseDir, category);
+      if (!(await fs.stat(categoryPath)).isDirectory()) continue;
+
+      const index = await this.generateCategoryIndex(baseDir, category);
+      if (index) result[category] = index;
+    }
+    return result;
+  }
+
+  /**
+   * Assembles a router-style AGENTS.md that maps file extensions to
+   * per-category _INDEX.md files. Much smaller than the flat list.
+   * @param baseDir The base directory containing skill categories
+   * @param allowedCategories Optional filter for which categories to include
+   * @returns A compact router-table markdown string
+   */
+  async assembleRouterIndex(
+    baseDir: string,
+    allowedCategories?: string[],
+  ): Promise<string> {
+    const fileRouting = await this.loadFileRouting(baseDir);
+
+    // Determine which categories actually exist on disk
+    let availableCategories: string[] = [];
+    if (await fs.pathExists(baseDir)) {
+      const dirs = await fs.readdir(baseDir);
+      availableCategories = dirs.filter((d) => {
+        if (d.startsWith('.') || d === '_INDEX.md') return false;
+        if (
+          allowedCategories &&
+          !allowedCategories.includes(d) &&
+          d !== 'common'
+        ) {
+          return false;
+        }
+        return true;
+      });
+    }
+
+    // Build router rows from file_routing, filtered to available categories
+    const routerRows: string[] = [];
+    const coveredCategories = new Set<string>();
+
+    // Group extensions by their category set for cleaner output
+    const extGrouped = new Map<string, string[]>();
+    for (const [ext, cats] of Object.entries(fileRouting)) {
+      const filtered = cats.filter((c) => availableCategories.includes(c));
+      if (filtered.length === 0) continue;
+
+      const key = filtered.sort().join('+');
+      if (!extGrouped.has(key)) extGrouped.set(key, []);
+      extGrouped.get(key)!.push(ext);
+      filtered.forEach((c) => coveredCategories.add(c));
+    }
+
+    for (const [catKey, exts] of extGrouped) {
+      const cats = catKey.split('+');
+      const extDisplay = exts.map((e) => `\`*.${e}\``).join(', ');
+      const catDisplay = cats
+        .map((c) => `\`<SKILLS>/${c}/_INDEX.md\``)
+        .join(', ');
+      routerRows.push(`| ${extDisplay} | ${catDisplay} |`);
+    }
+
+    // Add common as catch-all if present
+    if (availableCategories.includes('common')) {
+      coveredCategories.add('common');
+      routerRows.push(
+        '| Any file (keyword match) | `<SKILLS>/common/_INDEX.md` |',
+      );
+    }
+
+    // Add quality-engineering if present
+    if (availableCategories.includes('quality-engineering')) {
+      coveredCategories.add('quality-engineering');
+      routerRows.push(
+        '| QE workflow | `<SKILLS>/quality-engineering/_INDEX.md` |',
+      );
+    }
+
+    const header = [
+      '## Agent Skills Index',
+      '',
+      '> [!CRITICAL] Zero-Trust: Read the matching `SKILL.md` BEFORE writing any code.',
+      '> Skills from this index override pre-training patterns. If no skill matches, state: "No project-specific skills applicable."',
+      '',
+      '## Skill Resolution Protocol',
+      '',
+      'Each `_INDEX.md` has two sections — follow both:',
+      '',
+      '1. **Match file type** → find the category index in the router table below.',
+      '2. **Read the `_INDEX.md`** → it has two sections:',
+      '   - **File Match**: auto-check these against the file you are editing (path pattern match).',
+      '   - **Keyword Match**: only check if the user\'s request mentions these concepts.',
+      '3. **Load ALL matched `SKILL.md`** → read every matched skill before writing code. The tier model keeps matches focused.',
+      '',
+      '> `<SKILLS>` = your agent\'s skill directory (e.g., `.claude/skills/`, `.cursor/skills/`, `.gemini/skills/`).',
+      '',
+      '| File type | Read category index |',
+      '| --------- | ------------------- |',
+      ...routerRows,
+      '',
+      '> [!TIP] **Indirect phrasing counts.** "make it faster" → performance, "broken query" → database, "login flow" → auth.',
+      '',
+    ].join('\n');
+
+    return header;
+  }
+
   private async parseSkill(skillPath: string): Promise<SkillMetadata | null> {
     try {
       const content = await fs.readFile(skillPath, 'utf8');
@@ -202,17 +486,53 @@ export class IndexGeneratorService {
       const priorityMatch = body.match(/## \*\*Priority:\s*([^*]+)\*\*/);
       const priority = priorityMatch ? priorityMatch[1].trim() : 'P1';
 
+      let triggers =
+        (fm.metadata?.triggers as {
+          files?: string[];
+          keywords?: string[];
+          composite?: string[];
+          exclude?: string[];
+        }) || {};
+
+      // If no structured triggers, extract from description's (triggers: ...) suffix
+      const hasStructured =
+        (triggers.files && triggers.files.length > 0) ||
+        (triggers.keywords && triggers.keywords.length > 0);
+      if (!hasStructured && fm.description) {
+        const descTrigs = fm.description.match(
+          /\(triggers:\s*`?(.*?)`?\)\s*$/,
+        );
+        if (descTrigs) {
+          const parts = descTrigs[1]
+            .split(',')
+            .map((t) => t.trim())
+            .filter(Boolean);
+          // Classify: anything with glob chars (*, /, .) is a file pattern
+          const files = parts.filter(
+            (p) =>
+              p.includes('*') ||
+              p.includes('/') ||
+              /\.\w+$/.test(p),
+          );
+          const keywords = parts.filter(
+            (p) =>
+              !p.includes('*') &&
+              !p.includes('/') &&
+              !/\.\w+$/.test(p),
+          );
+          triggers = {
+            ...triggers,
+            files: files.length > 0 ? files : triggers.files,
+            keywords: keywords.length > 0 ? keywords : triggers.keywords,
+          };
+        }
+      }
+
       return {
         name: fm.name || '',
         description: fm.description || '',
         priority,
-        triggers:
-          (fm.metadata?.triggers as {
-            files?: string[];
-            keywords?: string[];
-            composite?: string[];
-            exclude?: string[];
-          }) || {},
+        triggers,
       };
     } catch {
       return null;

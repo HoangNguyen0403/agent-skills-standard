@@ -3,99 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Set up nested layouts in Next.js App Router",
-      "expected_output": "Create app/dashboard/layout.tsx returning <>{children}</>; nests inside app/layout.tsx automatically; persists state across navigation; keep as Server Component (no useState/useEffect)",
+      "prompt": "Create a new dashboard route in my Next.js App Router project with a loading skeleton and error boundary.",
+      "expected_output": "Create: app/dashboard/page.tsx (Server Component), app/dashboard/layout.tsx returning {children}, app/dashboard/loading.tsx for Suspense skeleton, app/dashboard/error.tsx with 'use client' and reset prop. In Next.js 15+ await params, cookies(), headers().",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "app/dashboard/layout.tsx"
-        },
-        {
-          "type": "contains",
-          "value": "{children}"
-        }
+        { "type": "contains", "value": "loading.tsx" },
+        { "type": "contains", "value": "error.tsx" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Create route groups in Next.js app/ directory",
-      "expected_output": "Wrap folder in parens: app/(auth)/login/page.tsx; (auth) excluded from URL path; use for separate layout groups (auth layout vs marketing layout) without affecting routing structure",
+      "prompt": "I want to group my auth routes (login, register, forgot-password) without those words appearing in the URL.",
+      "expected_output": "Use Route Groups with parentheses: create app/(auth)/login/page.tsx, app/(auth)/register/page.tsx, app/(auth)/forgot-password/page.tsx. The (auth) segment is excluded from the URL path — /login, /register, /forgot-password will be the routes. Add app/(auth)/layout.tsx for shared auth UI.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "(auth)"
-        },
-        {
-          "type": "contains",
-          "value": "excluded from URL path"
-        }
+        { "type": "contains", "value": "(auth)" },
+        { "type": "contains", "value": "Route Group" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Add loading.tsx to a Next.js route segment",
-      "expected_output": "Create app/dashboard/loading.tsx; auto-wraps page.tsx in a Suspense boundary; shown instantly on navigation before page data loads; must be simple static UI, no data fetching",
+      "prompt": "My Next.js 15 app throws 'cookies() should be awaited' errors.",
+      "expected_output": "In Next.js 15+, cookies(), headers(), and params are Promises and must be awaited. Fix: const cookieStore = await cookies(); const headersList = await headers(); Also await params in dynamic routes: const { slug } = await params;. This is the next-async-request-api breaking change.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "app/dashboard/loading.tsx"
-        },
-        {
-          "type": "contains",
-          "value": "Suspense boundary"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "Fix async params usage in Next.js 15",
-      "expected_output": "type Props = { params: Promise<{ id: string }> }; export default async function Page({ params }: Props) { const { id } = await params; }; same pattern for searchParams, cookies(), headers()",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "params: Promise"
-        },
-        {
-          "type": "contains",
-          "value": "await params"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "Use parallel routes in Next.js",
-      "expected_output": "Create app/@modal/page.tsx; add @modal slot to parent layout({ children, modal }: { children: React.ReactNode, modal: React.ReactNode }); add default.tsx fallback for unmatched slots",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "@modal"
-        },
-        {
-          "type": "contains",
-          "value": "default.tsx"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "Set up error.tsx boundary in Next.js",
-      "expected_output": "'use client'; export default function Error({ error, reset }: { error: Error, reset: () => void }) { return <button onClick={reset}>Try again</button>; }; must be Client Component; catches child errors",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "'use client'"
-        },
-        {
-          "type": "contains",
-          "value": "reset: () => void"
-        }
+        { "type": "contains", "value": "await" },
+        { "type": "contains", "value": "cookies()" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up pages/ directory routing in Next.js Pages Router",
-    "React Router configuration in a Vite app",
-    "Go router setup with Gin framework",
-    "File-based routing in Nuxt.js"
+    "Set up a PostgreSQL database connection",
+    "Write a Python Flask API endpoint",
+    "Configure Kubernetes deployment manifests"
   ]
 }

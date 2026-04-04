@@ -28,8 +28,13 @@ describe('AgentBridgeService', () => {
       ];
 
       (fs.ensureDir as any).mockResolvedValue(undefined);
-      // Mock pathExists to return TRUE to simulate detected agents
-      (fs.pathExists as any).mockResolvedValue(true);
+      // Mock pathExists:
+      // 1. True for detection files (so agents are "detected")
+      // 2. False for CLAUDE.md (so it's created via outputFile)
+      (fs.pathExists as any).mockImplementation(async (p: string) => {
+        if (p.endsWith('CLAUDE.md')) return false;
+        return true;
+      });
 
       await service.bridge(rootDir, agents);
 
@@ -46,15 +51,18 @@ describe('AgentBridgeService', () => {
       expect(cursorCall).toBeDefined();
       expect(cursorCall![1]).toContain("globs: ['**/*']");
       expect(cursorCall![1]).toContain(
-        '(../skills/common/session-retrospective/SKILL.md)',
+        '../skills/common/common-session-retrospective/SKILL.md',
       );
 
-      // Claude (Path: .claude/skills, Rule: .) -> .claude/skills/
-      const claudeCall = findCall('CLAUDE.md');
-      expect(claudeCall).toBeDefined();
-      expect(claudeCall![1]).toContain(
-        '(.claude/skills/common/session-retrospective/SKILL.md)',
-      );
+      // Claude (Path: .claude/skills, Rule: .)
+      // We need to ensure outputFile is called for CLAUDE.md.
+      // In the current implementation, bridge first checks detectionFiles.
+      // Then it enters the loop and checks pathExists(claudePath).
+      const claudeOutputCall = vi
+        .mocked(fs.outputFile)
+        .mock.calls.find((call) => (call[0] as string).endsWith('CLAUDE.md'));
+      expect(claudeOutputCall).toBeDefined();
+      expect(claudeOutputCall![1]).toContain('## Agent Protocol');
 
       // Copilot (Path: .github/skills, Rule: .github/instructions) -> ../skills/
       const copilotCall = findCall(
@@ -63,7 +71,7 @@ describe('AgentBridgeService', () => {
       expect(copilotCall).toBeDefined();
       expect(copilotCall![1]).toContain('## Self-Learning Protocol');
       expect(copilotCall![1]).toContain(
-        '(../skills/common/session-retrospective/SKILL.md)',
+        '../skills/common/common-session-retrospective/SKILL.md',
       );
       // Ensure proper newlines (not literal \n strings) for readability
       expect(copilotCall![1]).toMatch(/\n## Self-Learning Protocol/);
@@ -116,6 +124,45 @@ describe('AgentBridgeService', () => {
       const rootDir = '/root';
       await service.bridge(rootDir, ['unknown-agent' as Agent]);
       expect(fs.outputFile).not.toHaveBeenCalled();
+    });
+
+    it('should APPEND to CLAUDE.md if it exists', async () => {
+      const rootDir = '/root';
+      const agents = [Agent.Claude];
+
+      (fs.pathExists as any).mockImplementation(async (p: string) => {
+        if (p.endsWith('CLAUDE.md')) return true;
+        return false;
+      });
+      (fs.readFile as any).mockResolvedValue('# Existing Claude Content\n');
+
+      await service.bridge(rootDir, agents);
+
+      expect(fs.appendFile).toHaveBeenCalledWith(
+        expect.stringContaining('CLAUDE.md'),
+        expect.stringContaining('## Agent Protocol'),
+      );
+      expect(fs.outputFile).not.toHaveBeenCalledWith(
+        expect.stringContaining('CLAUDE.md'),
+        expect.any(String),
+      );
+    });
+
+    it('should NOT append to CLAUDE.md if protocol already exists', async () => {
+      const rootDir = '/root';
+      const agents = [Agent.Claude];
+
+      (fs.pathExists as any).mockImplementation(async (p: string) => {
+        if (p.endsWith('CLAUDE.md')) return true;
+        return false;
+      });
+      (fs.readFile as any).mockResolvedValue(
+        '# Existing\n## Agent Protocol\nSee AGENTS.md',
+      );
+
+      await service.bridge(rootDir, agents);
+
+      expect(fs.appendFile).not.toHaveBeenCalled();
     });
   });
 });

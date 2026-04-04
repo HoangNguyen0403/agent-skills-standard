@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How do I configure ESLint for a strict TypeScript project?",
-      "expected_output": "Use @typescript-eslint/eslint-plugin with typescript-eslint/recommended-type-checked. Enable parserOptions.project. Never disable @typescript-eslint/no-explicit-any. Use strict: true in tsconfig. Run tsc --noEmit in CI.",
+      "prompt": "Set up a tsconfig.json for a new TypeScript project with maximum type safety.",
+      "expected_output": "Enable strict: true (covers noImplicitAny, strictNullChecks, strictFunctionTypes). Add noImplicitReturns: true, noUnusedLocals: true, noUnusedParameters: true, esModuleInterop: true. For existing projects with strict: false, migrate incrementally starting with strictNullChecks: true. Run tsc --noEmit in CI to catch type errors.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Enable"
-        },
-        {
-          "type": "contains",
-          "value": "Never"
-        },
-        {
-          "type": "contains",
-          "value": "strict: true"
-        }
+        { "type": "contains", "value": "strict" },
+        { "type": "contains", "value": "tsc --noEmit" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What tsconfig.json options should I use for a production TypeScript project?",
-      "expected_output": "Enable strict: true, noImplicitReturns: true, noUnusedLocals: true, noUnusedParameters: true, exactOptionalPropertyTypes: true. Set target and lib to match runtime. Use paths for module aliases. Run tsc --noEmit as part of CI.",
+      "prompt": "Configure ESLint for a TypeScript project to enforce our code standards.",
+      "expected_output": "Use @typescript-eslint/recommended at minimum. Enable no-explicit-any and no-unsafe-* rules — NEVER disable them. For unused params: prefix with underscore (_data) rather than eslint-disable. For Express request typing: import from centralized interfaces, not inline any. Add lint-staged with Prettier for pre-commit formatting.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Enable"
-        },
-        {
-          "type": "contains",
-          "value": "strict: true"
-        },
-        {
-          "type": "contains",
-          "value": "tsc --noEmit"
-        }
+        { "type": "contains", "value": "@typescript-eslint" },
+        { "type": "contains", "value": "lint-staged" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Should I use Jest or Vitest for testing a TypeScript project?",
-      "expected_output": "Prefer Vitest for new projects (faster, native ESM, better TypeScript support). Use Jest for projects with many existing test suites. Configure ts-jest or esbuild transformer for Jest. Aim for >80% coverage on critical paths.",
+      "prompt": "I have a TypeScript error I can't figure out — can I just add @ts-ignore to suppress it?",
+      "expected_output": "Do not use @ts-ignore — it silently masks all errors on the line, including future ones. Use @ts-expect-error instead for documented edge-cases: it fails if the error disappears (documents intent). Better: fix the root cause. Run tsc --noEmit to see the full error with context. Use eslint with @typescript-eslint/ban-ts-comment to disallow @ts-ignore.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Vitest"
-        },
-        {
-          "type": "contains",
-          "value": "TypeScript"
-        },
-        {
-          "type": "contains",
-          "value": "Jest"
-        }
+        { "type": "contains", "value": "@ts-expect-error" },
+        { "type": "contains", "value": "@ts-ignore" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I type a discriminated union in TypeScript?",
-    "How do I validate user input securely?",
-    "How do I write a React hook?",
-    "How do I organize React Native project structure?"
+    "Write a Go database migration script",
+    "Configure Kubernetes pod affinity rules",
+    "Set up a Redis cluster"
   ]
 }

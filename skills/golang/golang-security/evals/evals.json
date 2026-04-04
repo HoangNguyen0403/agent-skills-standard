@@ -3,35 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How do I generate a secure random token in Go?",
-      "expected_output": "Use crypto/rand, never math/rand. math/rand is predictable and not suitable for security-sensitive operations like tokens or keys.",
+      "prompt": "How do I build a parameterized SQL query in Go to prevent SQL injection?",
+      "expected_output": "Use $1, $2 placeholders with database/sql or pgx. Never concatenate user input into queries with fmt.Sprintf. Example: db.QueryContext(ctx, \"SELECT * FROM users WHERE id = $1\", userID).",
       "assertions": [
-        {"id": "a1", "description": "Recommends crypto/rand", "type": "contains", "value": "crypto/rand"},
-        {"id": "a2", "description": "Warns against math/rand", "type": "contains", "value": "math/rand"}
+        { "type": "contains", "value": "$1" },
+        { "type": "contains", "value": "fmt.Sprintf" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How do I safely hash passwords in Go?",
-      "expected_output": "Use Argon2id from golang.org/x/crypto/argon2. Do NOT use bcrypt (weaker) or MD5/SHA1 (insecure). Recommended params: time=1, memory=64MB, threads=4.",
+      "prompt": "I need to generate a secure random token for password reset in Go. How should I do this?",
+      "expected_output": "Use crypto/rand to generate cryptographically secure tokens. Never use math/rand — it is deterministic and predictable. Example: rand.Read(b) from crypto/rand.",
       "assertions": [
-        {"id": "a1", "description": "Recommends Argon2id", "type": "contains", "value": "Argon2"},
-        {"id": "a2", "description": "Warns against MD5 or bcrypt", "type": "contains", "value": "bcrypt"}
+        { "type": "contains", "value": "crypto/rand" },
+        { "type": "contains", "value": "math/rand" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How do I prevent SQL injection in my Go database queries?",
-      "expected_output": "Always use parameterized queries with $1, $2 placeholders. Never build queries with fmt.Sprintf() or string concatenation.",
+      "prompt": "What's the recommended password hashing algorithm for Go?",
+      "expected_output": "Use Argon2id via golang.org/x/crypto/argon2. Do not use bcrypt (weaker) or MD5/SHA1 (insecure). Recommended params: time=1, memory=64MB, threads=4.",
       "assertions": [
-        {"id": "a1", "description": "Recommends parameterized queries", "type": "contains", "value": "parameterized"},
-        {"id": "a2", "description": "Warns against fmt.Sprintf for SQL", "type": "contains", "value": "fmt.Sprintf"}
+        { "type": "contains", "value": "Argon2id" },
+        { "type": "contains", "value": "bcrypt" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I set up a Go HTTP server?",
-    "How do I write a Go unit test?",
-    "How do I implement JWT in NestJS?"
+    "Write a goroutine to process background jobs",
+    "How do I set up structured logging in Go?",
+    "Configure golangci-lint for my project"
   ]
 }

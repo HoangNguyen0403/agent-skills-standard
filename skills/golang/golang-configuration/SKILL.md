@@ -34,9 +34,9 @@ See [config struct and usage examples](references/config-patterns.md)
 
 ## Anti-Patterns
 
-- ❌ Hardcoded secrets — load all secrets from env vars or a secret manager
-- ❌ Global config variables — return a typed Config struct and inject via constructors
-- ❌ Starting without validation — crash immediately on missing required env vars
+- **No hardcoded secrets**: Load all secrets from env vars or a secret manager.
+- **No global config vars**: Return a typed Config struct and inject via constructors.
+- **No silent startup**: Crash immediately on missing required env vars.
 
 ## References
 

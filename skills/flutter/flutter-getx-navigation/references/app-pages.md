@@ -1,5 +1,23 @@
 # Centralized Route Management
 
+## Quick Example
+
+```dart
+static final routes = [
+  GetPage(
+    name: _Paths.HOME,
+    page: () => HomeView(),
+    binding: HomeBinding(),
+    middlewares: [AuthMiddleware()],
+  ),
+];
+
+// Usage in Controller
+void logout() => Get.offAllNamed(Routes.LOGIN);
+```
+
+## Full Pattern
+
 Organizing routes in a single location for scalability.
 
 ```dart

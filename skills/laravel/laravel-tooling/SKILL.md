@@ -1,6 +1,6 @@
 ---
 name: laravel-tooling
-description: "Manage Laravel ecosystem with custom Artisan commands, Vite asset bundling, Pint code styling, and Horizon queue monitoring. Use when creating Artisan commands, migrating from Mix to Vite, or configuring Pint code standards. (triggers: package.json, composer.json, vite.config.js, artisan, vite, horizon, pint, blade)"
+description: "Configure Laravel ecosystem with custom Artisan commands, Vite asset bundling, Pint code styling, and Horizon queue monitoring. Use when creating Artisan commands, migrating from Mix to Vite, or configuring Pint code standards. (triggers: package.json, composer.json, vite.config.js, artisan, vite, horizon, pint, blade)"
 ---
 
 # Laravel Tooling

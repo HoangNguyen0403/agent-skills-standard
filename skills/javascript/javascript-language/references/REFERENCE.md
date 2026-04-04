@@ -1,6 +1,28 @@
 # JavaScript Language Patterns Reference
 
-Advanced patterns and functional programming techniques.
+## Modern Syntax Examples
+
+```javascript
+// Destructuring + Spread
+const [x, ...rest] = items;
+const name = user?.profile?.name ?? 'Guest';
+
+// Async + Error Handling
+async function getUser(id) {
+  const res = await fetch(`/api/${id}`);
+  return res.json(); // Errors propagate
+}
+
+// Private Fields
+class Service {
+  #key;
+  constructor(k) {
+    this.#key = k;
+  }
+}
+```
+
+## Advanced patterns and functional programming techniques.
 
 ## References
 

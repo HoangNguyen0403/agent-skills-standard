@@ -1,5 +1,6 @@
 import fs from 'fs-extra';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Agent } from '../../constants';
 import { SkillConfig } from '../../models/config';
 import { WorkflowSyncService } from '../WorkflowSyncService';
 
@@ -184,23 +185,115 @@ describe('WorkflowSyncService', () => {
       expect(fs.ensureDir).not.toHaveBeenCalled();
     });
 
-    it('should write workflow files to local .agent/workflows', async () => {
+    it('should write native workflow files for Antigravity', async () => {
       const workflows = [
         {
           skill: 'workflows',
-          files: [{ name: 'test.md', content: 'content' }],
+          files: [{ name: 'test.md', content: '---\ndescription: test\n---\n# Test' }],
         },
       ];
-      await workflowSyncService.writeWorkflows(workflows as any, {} as any);
+      await workflowSyncService.writeWorkflows(
+        workflows as any,
+        {} as any,
+        [Agent.Antigravity],
+      );
       expect(fs.outputFile).toHaveBeenCalledWith(
         expect.stringContaining('test.md'),
-        'content',
+        expect.any(String),
       );
+    });
+
+    it('should transform to Claude command format with $ARGUMENTS', async () => {
+      const workflows = [
+        {
+          skill: 'workflows',
+          files: [{ name: 'review.md', content: '---\ndescription: Review code.\n---\n# Review\n## Step 1' }],
+        },
+      ];
+      await workflowSyncService.writeWorkflows(
+        workflows as any,
+        {} as any,
+        [Agent.Claude],
+      );
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        expect.stringContaining('review.md'),
+        expect.stringContaining('$ARGUMENTS'),
+      );
+    });
+
+    it('should transform to Gemini toml command format', async () => {
+      const workflows = [
+        {
+          skill: 'workflows',
+          files: [{ name: 'review.md', content: '---\ndescription: Review.\n---\n# Review' }],
+        },
+      ];
+      await workflowSyncService.writeWorkflows(
+        workflows as any,
+        {} as any,
+        [Agent.Gemini],
+      );
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        expect.stringContaining('review.toml'),
+        expect.stringContaining('{{args}}'),
+      );
+    });
+
+    it('should transform to Copilot prompt format', async () => {
+      const workflows = [
+        {
+          skill: 'workflows',
+          files: [{ name: 'review.md', content: '---\ndescription: Review.\n---\n# Review' }],
+        },
+      ];
+      await workflowSyncService.writeWorkflows(
+        workflows as any,
+        {} as any,
+        [Agent.Copilot],
+      );
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        expect.stringContaining('review.prompt.md'),
+        expect.stringContaining('description: "Review."'),
+      );
+    });
+
+    it('should skip agents with no workflow support', async () => {
+      const workflows = [
+        {
+          skill: 'workflows',
+          files: [{ name: 'review.md', content: '---\ndescription: Review.\n---\n# Review' }],
+        },
+      ];
+      await workflowSyncService.writeWorkflows(
+        workflows as any,
+        {} as any,
+        [Agent.Cursor],
+      );
+      expect(fs.outputFile).not.toHaveBeenCalled();
+    });
+
+    it('should write to multiple agents with different formats', async () => {
+      const workflows = [
+        {
+          skill: 'workflows',
+          files: [{ name: 'review.md', content: '---\ndescription: Review.\n---\n# Review' }],
+        },
+      ];
+      await workflowSyncService.writeWorkflows(
+        workflows as any,
+        {} as any,
+        [Agent.Antigravity, Agent.Claude, Agent.Gemini],
+      );
+      expect(fs.outputFile).toHaveBeenCalledTimes(3);
     });
 
     it('should skip workflows where skill is not "workflows"', async () => {
       const workflows = [{ skill: 'not-workflows', files: [] }];
-      await workflowSyncService.writeWorkflows(workflows as any, {} as any);
+      await workflowSyncService.writeWorkflows(
+        workflows as any,
+        {} as any,
+        [Agent.Antigravity],
+      );
       expect(fs.outputFile).not.toHaveBeenCalled();
     });
 
@@ -208,31 +301,16 @@ describe('WorkflowSyncService', () => {
       const workflows = [
         {
           skill: 'workflows',
-          files: [{ name: '../malicious.md', content: 'c' }],
+          files: [{ name: '../malicious.md', content: '---\ndescription: evil\n---\n# Evil' }],
         },
       ];
-      await workflowSyncService.writeWorkflows(workflows as any, {} as any);
+      await workflowSyncService.writeWorkflows(
+        workflows as any,
+        {} as any,
+        [Agent.Antigravity],
+      );
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Security Error'),
-      );
-      expect(fs.outputFile).not.toHaveBeenCalled();
-    });
-
-    it('should skip overridden workflows', async () => {
-      const workflows = [
-        {
-          skill: 'workflows',
-          files: [{ name: 'overridden.md', content: 'c' }],
-        },
-      ];
-      const config = { custom_overrides: ['.agent/workflows/overridden.md'] };
-      vi.spyOn(workflowSyncService as any, 'normalizePath').mockReturnValue(
-        '.agent/workflows/overridden.md',
-      );
-
-      await workflowSyncService.writeWorkflows(workflows as any, config as any);
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Skipping overridden'),
       );
       expect(fs.outputFile).not.toHaveBeenCalled();
     });

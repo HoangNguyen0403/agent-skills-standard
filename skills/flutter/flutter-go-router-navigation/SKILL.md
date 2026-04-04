@@ -30,23 +30,7 @@ core/router/
 
 ## Code
 
-```dart
-// Route Definition
-@TypedGoRoute<HomeRoute>(path: '/')
-class HomeRoute extends GoRouteData {
-  @override
-  Widget build(context, state) => const HomePage();
-}
-
-// Router Config
-final router = GoRouter(
-  routes: $appRoutes,
-  redirect: (context, state) {
-    if (notAuthenticated) return '/login';
-    return null;
-  },
-);
-```
+See [references/typed-routes.md](references/typed-routes.md) for GoRouteData + redirect implementation.
 
 ## Anti-Patterns
 

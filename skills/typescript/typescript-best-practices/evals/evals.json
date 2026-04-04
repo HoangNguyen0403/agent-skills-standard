@@ -3,40 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I organize imports in a TypeScript file?",
-      "expected_output": "Order: external packages → internal modules → relative imports. Use import type for type-only imports. Named exports only (no default exports). Use eslint-plugin-import to enforce order automatically.",
+      "prompt": "Refactor this module that uses default exports and require() statements.",
+      "expected_output": "Violations: (1) No default exports — use named exports for better refactoring and auto-import. (2) No require() — use ES6 import. Fix: replace module.exports = MyClass with export class MyClass {}. Replace require('mod') with import { MyClass } from './mod'. Enable eslint-plugin-import to enforce order: external -> internal -> relative.",
       "assertions": [
-        { "type": "contains", "value": "external packages" },
-        { "type": "contains", "value": "internal modules" },
-        { "type": "contains", "value": "eslint-plugin-import" },
-        { "type": "contains", "value": "import type" }
+        { "type": "contains", "value": "named export" },
+        { "type": "contains", "value": "import" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What's the cleanest way to handle async errors in TypeScript?",
-      "expected_output": "Use async/await with try/catch. For parallel operations, use Promise.all(). Consider a Result type for expected errors. Avoid .then().catch() chains. Type catch(e) as unknown and narrow before use.",
+      "prompt": "Write an async function that fetches data from multiple APIs in parallel.",
+      "expected_output": "Use async/await with Promise.all() for parallel execution: const [users, orders] = await Promise.all([fetchUsers(), fetchOrders()]). Wrap in try-catch with typed error: catch(e: unknown) { if (e instanceof ApiError) {...} }. Never use .then().catch() chains. Type the return type explicitly for public API functions.",
       "assertions": [
-        { "type": "contains", "value": "try/catch" },
-        { "type": "contains", "value": "Promise.all()" },
-        { "type": "contains", "value": "unknown" }
+        { "type": "contains", "value": "Promise.all" },
+        { "type": "contains", "value": "async/await" }
       ]
     },
     {
       "id": 3,
-      "prompt": "I have a class with some shared state that multiple components need. Should I use a singleton or dependency injection?",
-      "expected_output": "Prefer dependency injection over singletons for testability. Use constructor injection with interfaces. Favor composition over inheritance. If using a DI container, register with explicit lifecycles. Avoid global mutable state.",
+      "prompt": "My TypeScript class uses inheritance and the base class is getting very large.",
+      "expected_output": "Prefer composition over inheritance. Extract shared behavior into small, focused services injected via constructor. Use interfaces for contracts: class OrderService { constructor(private repo: OrderRepository, private notifier: NotificationService) {} }. Explicitly use private, protected, public modifiers. Favor dependency injection for testability over singleton patterns.",
       "assertions": [
-        { "type": "contains", "value": "dependency injection" },
-        { "type": "contains", "value": "interfaces" },
-        { "type": "contains", "value": "composition" }
+        { "type": "contains", "value": "composition" },
+        { "type": "contains", "value": "injection" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I configure tsconfig strict mode?",
-    "How do I write a generic type in TypeScript?",
-    "How do I set up Prettier for formatting?",
-    "How do I handle authentication in my app?"
+    "Configure a Kubernetes pod autoscaler",
+    "Write a PostgreSQL query with CTEs",
+    "Set up Nginx for SSL termination"
   ]
 }

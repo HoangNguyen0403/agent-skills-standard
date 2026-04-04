@@ -3,36 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How do I implement the repository pattern in Go?",
-      "expected_output": "Define UserRepository interface in internal/port/. Implement with concrete SQL struct. Inject interface into services. Use sqlc for type-safe SQL generation.",
+      "prompt": "I have var db *sql.DB declared at package level in my Go service. What's wrong with this?",
+      "expected_output": "Global db vars make the dependency implicit and hard to test. Inject the DB connection via constructor: func NewOrderRepo(db *sql.DB) *OrderRepo. The caller (main.go) owns the lifecycle.",
       "assertions": [
-        {"id": "a1", "description": "Mentions repository interface", "type": "contains", "value": "interface"},
-        {"id": "a2", "description": "Mentions sqlc or pgx", "type": "contains", "value": "sqlc"}
+        { "type": "contains", "value": "constructor" },
+        { "type": "contains", "value": "inject" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How do I configure database connection pooling in Go?",
-      "expected_output": "Set SetMaxOpenConns, SetMaxIdleConns, SetConnMaxLifetime on *sql.DB. Explains tuning rationale.",
+      "prompt": "How do I prevent rows from leaking in Go when iterating a query result?",
+      "expected_output": "Always defer rows.Close() immediately after the query call. After iteration, check rows.Err() to catch errors that occurred during scanning.",
       "assertions": [
-        {"id": "a1", "description": "Mentions SetMaxOpenConns", "type": "contains", "value": "SetMaxOpenConns"},
-        {"id": "a2", "description": "Mentions SetConnMaxLifetime", "type": "contains", "value": "SetConnMaxLifetime"}
+        { "type": "contains", "value": "rows.Close()" },
+        { "type": "contains", "value": "rows.Err()" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How do I handle SQL rows correctly in Go to avoid memory leaks?",
-      "expected_output": "Always defer rows.Close() immediately after sql query. Check rows.Err() after iteration. Use QueryContext with context for timeout/cancellation.",
+      "prompt": "Should I use db.Query() or db.QueryContext() in my Go repository?",
+      "expected_output": "Always use QueryContext(ctx, ...) and ExecContext(ctx, ...). Bare Query/Exec ignore context cancellation and timeouts, which can cause goroutine leaks under load.",
       "assertions": [
-        {"id": "a1", "description": "Mentions defer rows.Close()", "type": "contains", "value": "rows.Close"},
-        {"id": "a2", "description": "Mentions rows.Err()", "type": "contains", "value": "rows.Err"},
-        {"id": "a3", "description": "Mentions QueryContext", "type": "contains", "value": "QueryContext"}
+        { "type": "contains", "value": "QueryContext" },
+        { "type": "contains", "value": "context" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I set up a NestJS TypeORM module?",
-    "How do I design a MongoDB schema?",
-    "How do I write a goroutine?"
+    "How do I run go test with the race detector?",
+    "Set up an Echo HTTP server in Go",
+    "Configure structured logging in Go"
   ]
 }

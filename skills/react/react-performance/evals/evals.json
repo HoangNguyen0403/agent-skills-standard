@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "My React page loads slowly because it fetches user data, then product data, then recommendations in sequence. How do I fix this?",
-      "expected_output": "Parallel fetching: use Promise.all([getUser(), getProducts(), getRecs()]) instead of sequential awaits. In React Router, put fetches in route loaders. Use Suspense boundaries to show partial content. Avoid request waterfalls.",
+      "prompt": "My React app fetches user data, then their orders, then each order's products in sequence. It's very slow.",
+      "expected_output": "Sequential awaits cause request waterfalls. Fix: parallelize with Promise.all([getUser(id), getOrders(id), getProducts(ids)]). Use Suspense boundaries to stream results as they arrive. If using React Router, initiate fetches in route loaders before rendering.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Parallel"
-        },
-        {
-          "type": "contains",
-          "value": "Promise"
-        },
-        {
-          "type": "contains",
-          "value": "React"
-        }
+        { "type": "contains", "value": "Promise.all" },
+        { "type": "contains", "value": "waterfall" }
       ]
     },
     {
       "id": 2,
-      "prompt": "My bundle size is too large. How do I reduce it?",
-      "expected_output": "Avoid barrel files (import directly from component files). Use React.lazy / next/dynamic for heavy components (Charts, Modals). Replace moment with dayjs, lodash with native/radash. Run source-map-explorer or bundle-visualizer. Tree-shake by using named imports.",
+      "prompt": "Our bundle size is 4MB and the initial page load is very slow.",
+      "expected_output": "Reduce bundle size: (1) No barrel files — import directly from component files. (2) Use React.lazy/dynamic for heavy components (charts, modals). (3) Replace moment with dayjs, lodash with radash. (4) Analyze with source-map-explorer to find bloat. (5) Enable tree-shaking by using named exports only (no export *).",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Avoid"
-        },
-        {
-          "type": "contains",
-          "value": "React"
-        },
-        {
-          "type": "contains",
-          "value": "Charts"
-        }
+        { "type": "contains", "value": "lazy" },
+        { "type": "contains", "value": "barrel" }
       ]
     },
     {
       "id": 3,
-      "prompt": "I have a list of 500+ items and the React app is sluggish when scrolling. What should I do?",
-      "expected_output": "Use react-window or react-virtual for virtualization. Wrap list items in React.memo. Use useMemo for derived list data. Split Context to avoid re-rendering all consumers. Move state as close to its usage as possible.",
+      "prompt": "My Context causes all consumers to re-render every time any value changes. There are 50+ components subscribed.",
+      "expected_output": "Split Context into State and Dispatch objects. Consumers that only read dispatch (setters) won't re-render when state changes. For high-frequency updates across many components: switch to Zustand or Jotai. Use react-window for list virtualization if rendering many items. Extract static JSX outside component scope.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Wrap"
-        },
-        {
-          "type": "contains",
-          "value": "React"
-        },
-        {
-          "type": "contains",
-          "value": "Split"
-        }
+        { "type": "contains", "value": "Split Context" },
+        { "type": "contains", "value": "re-render" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I write a custom hook with useEffect?",
-    "How do I set up React Testing Library?",
-    "How do I configure ESLint for React?",
-    "How do I prevent XSS vulnerabilities?"
+    "Write a Python script for data processing",
+    "Configure Nginx for SSL termination",
+    "Set up a Go gRPC server"
   ]
 }

@@ -3,83 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Use Tailwind CSS in a Next.js application",
-      "expected_output": "Install tailwindcss + postcss + autoprefixer; configure tailwind.config.ts content paths; use cn() utility (clsx+tailwind-merge) for conditional classes; zero runtime, RSC compatible",
+      "prompt": "Set up styling for a new Next.js project. We use Tailwind CSS and need a utility for combining classes.",
+      "expected_output": "Install clsx and tailwind-merge. Create lib/utils.ts: export function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)); }. Use cn() for all dynamic class combinations. Configure Tailwind in tailwind.config.ts with content paths. Use next/font for zero-CLS font loading.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "conditional classes"
-        },
-        {
-          "type": "contains",
-          "value": "RSC compatible"
-        }
+        { "type": "contains", "value": "cn(" },
+        { "type": "contains", "value": "tailwind-merge" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Set up shadcn/ui components with Next.js",
-      "expected_output": "npx shadcn-ui@latest init; components copied to components/ui/; extend theme in tailwind.config.ts with CSS variable colors; uses Radix UI primitives; customize via variants in component files"
+      "prompt": "I want to use MUI (Material UI) in my Next.js App Router project.",
+      "expected_output": "MUI is a runtime CSS-in-JS library that forces 'use client' widely, degrading RSC performance. For App Router: wrap MUI components in Client Component wrappers. Better alternative: use Tailwind/shadcn (zero-runtime, RSC compatible). If MUI is required, create a ThemeRegistry client wrapper to isolate the runtime CSS injection.",
+      "assertions": [
+        { "type": "contains", "value": "use client" },
+        { "type": "contains", "value": "Tailwind" }
+      ]
     },
     {
       "id": 3,
-      "prompt": "Use clsx and tailwind-merge for conditional classes",
-      "expected_output": "import { clsx } from 'clsx'; import { twMerge } from 'tailwind-merge'; export function cn(...inputs) { return twMerge(clsx(inputs)); } usage: className={cn('base', isActive && 'bg-blue-500', className)}"
-    },
-    {
-      "id": 4,
-      "prompt": "Add SCSS modules to a Next.js project",
-      "expected_output": "Create Component.module.scss; import styles from './Component.module.scss'; use className={styles.container}; install sass package; classes are auto-scoped; zero runtime overhead",
+      "prompt": "My image component doesn't have width and height attributes and the layout shifts during loading.",
+      "expected_output": "CLS (Cumulative Layout Shift) violation. Fix with next/image — always specify width and height or use fill prop. Target CLS < 0.1. Example: <Image src={...} width={800} height={600} alt='...' /> or <Image src={...} fill className='object-cover' alt='...'>. Never use raw <img> tags.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Component"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "Integrate Ant Design with Next.js App Router",
-      "expected_output": "Install @ant-design/nextjs-registry; wrap in <AntdRegistry> Client Component in app/layout.tsx; prevents SSR flash; Ant Design components usable in Server and Client Components with proper wrapping",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Client"
-        },
-        {
-          "type": "contains",
-          "value": "Component"
-        },
-        {
-          "type": "contains",
-          "value": "Design"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "Prevent runtime CSS from breaking Server Components in Next.js",
-      "expected_output": "Avoid MUI, Chakra UI, Emotion (runtime CSS-in-JS); they inject styles via JS at runtime which conflicts with RSC; use Tailwind CSS, CSS Modules, or SCSS instead; all zero-runtime options",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Avoid"
-        },
-        {
-          "type": "contains",
-          "value": "Chakra"
-        },
-        {
-          "type": "contains",
-          "value": "Tailwind"
-        }
+        { "type": "contains", "value": "CLS" },
+        { "type": "contains", "value": "next/image" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Tailwind CSS configuration in a Vue.js app",
-    "StyleSheet API in React Native",
-    "CSS-in-JS with emotion in a Gatsby site",
-    "Material UI setup in a Vite React SPA"
+    "Write a Go middleware for request logging",
+    "Set up a PostgreSQL connection pool",
+    "Configure Jest for a Node.js backend"
   ]
 }

@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Should I use Zustand or Redux Toolkit for my React app's state management?",
-      "expected_output": "Zustand for small-medium apps: simple API, minimal boilerplate, no Provider needed. Redux Toolkit for large apps needing time-travel debugging, complex middleware, or established Redux ecosystem. Start with Zustand; migrate if complexity demands it.",
+      "prompt": "I need to share user authentication state across my entire React app. Which state management should I use?",
+      "expected_output": "For auth state (low-frequency, global): Context API is appropriate — create AuthContext with user + logout function. For high-frequency global updates, prefer Zustand (no Provider boilerplate, minimal re-renders). For auth specifically, pair with React Query/SWR to handle the session fetch and cache.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Zustand"
-        },
-        {
-          "type": "contains",
-          "value": "Provider"
-        },
-        {
-          "type": "contains",
-          "value": "Redux"
-        }
+        { "type": "contains", "value": "Context" },
+        { "type": "contains", "value": "Zustand" }
       ]
     },
     {
       "id": 2,
-      "prompt": "My component uses useEffect to sync server data into useState. Is this the right approach?",
-      "expected_output": "No — use React Query or SWR for server state. They handle caching, background refetching, loading/error states. Server state ≠ UI state; don't duplicate into useState. Use useQuery and let the cache be the source of truth.",
+      "prompt": "I'm fetching user data in useEffect and storing it in useState. When I mutate it, the UI goes out of sync.",
+      "expected_output": "Violation: No server cache as UI State. Use React Query or SWR for server data — they maintain cache consistency. Never sync server data into useState manually. useMutation from React Query handles optimistic updates and cache invalidation automatically. Delete the useEffect/useState pattern.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "React"
-        },
-        {
-          "type": "contains",
-          "value": "Query"
-        },
-        {
-          "type": "contains",
-          "value": "Server"
-        }
+        { "type": "contains", "value": "React Query" },
+        { "type": "contains", "value": "cache" }
       ]
     },
     {
       "id": 3,
-      "prompt": "When should I use React Context vs a global state library?",
-      "expected_output": "Context for low-frequency data: theme, auth, locale, DI. Not for high-frequency updates (causes all consumers to re-render). For frequent updates use Zustand, Jotai, or Redux. Split Context into State and Dispatch to optimize re-renders.",
+      "prompt": "My Redux store has 50 slices and managing the boilerplate is overwhelming the team.",
+      "expected_output": "Consider migrating to Zustand for simpler apps or staying with Redux Toolkit (RTK) for large apps. RTK reduces Redux boilerplate significantly — use createSlice, createAsyncThunk, RTK Query. If switching: migrate slice by slice, not all at once. Zustand is better for small-medium apps without time-travel debugging needs.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Context"
-        },
-        {
-          "type": "contains",
-          "value": "Zustand"
-        },
-        {
-          "type": "contains",
-          "value": "Jotai"
-        }
+        { "type": "contains", "value": "Redux Toolkit" },
+        { "type": "contains", "value": "Zustand" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I write a custom hook?",
-    "How do I type React props in TypeScript?",
-    "How do I test my React components?",
-    "How do I reduce bundle size?"
+    "Configure Redis pub/sub for real-time notifications",
+    "Write a Go goroutine pool",
+    "Set up a Kubernetes ingress controller"
   ]
 }

@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common context optimization best practices?",
-      "expected_output": "**Keep**: User Goal, Active Task, Current Errors, Key Decisions.",
+      "prompt": "Our AI agent conversation is 15,000 tokens and getting slow. The last tool call returned 2000 lines of raw JSON logs. How should we handle this?",
+      "expected_output": "Immediately mask the large tool output: extract the 3-5 critical data points, then replace the raw 2000-line JSON in context with a semantic summary placeholder. Trigger compaction since the session exceeds 8k tokens — preserve Goal, Active Task, Current Errors, Key Decisions; drop intermediate tool calls.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "references/masking.md"
-        },
-        {
-          "type": "contains",
-          "value": "System Prompt"
-        },
-        {
-          "type": "contains",
-          "value": "Memory File"
-        }
+        { "type": "contains", "value": "mask" },
+        { "type": "contains", "value": "compact" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common context optimization?",
-      "expected_output": "**Drop**: Chat chit-chat, intermediate tool calls, corrected assumptions.",
+      "prompt": "After 30 turns of conversation my agent keeps losing track of the original goal. What context strategy should I use?",
+      "expected_output": "Apply context compaction. Every 10 turns: summarize keeping User Goal, Active Task, Current Errors, Key Decisions; drop chat chit-chat and corrected assumptions. Write the compacted state to the System Prompt or Memory File. This preserves State over Dialogue.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "references/compaction.md"
-        },
-        {
-          "type": "contains",
-          "value": "Priority: P1 (OPTIMIZATION)"
-        },
-        {
-          "type": "contains",
-          "value": "Problem"
-        }
+        { "type": "contains", "value": "compaction" },
+        { "type": "contains", "value": "goal" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common context optimization.",
-      "expected_output": "**Static Prefix**: strict ordering: System -> Tools -> RAG -> User.",
+      "prompt": "I'm seeing high latency on my LLM API calls. The context keeps growing and I think it's causing cache misses.",
+      "expected_output": "Enforce KV-Cache Awareness: maintain static prefix ordering (System -> Tools -> RAG -> User). Never insert content in the middle of history — append-only. This maximizes pre-fill cache hits and reduces latency from repeated context processing.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Solution"
-        },
-        {
-          "type": "contains",
-          "value": "Identify"
-        },
-        {
-          "type": "contains",
-          "value": "Extract"
-        }
+        { "type": "contains", "value": "cache" },
+        { "type": "contains", "value": "append" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic common project from scratch",
-    "How do I install common dependencies?",
-    "What is common?",
-    "Configure CI/CD for an unrelated platform"
+    "How do I set up a PostgreSQL database?",
+    "Write a React component for a login form",
+    "Configure ESLint for a TypeScript project"
   ]
 }

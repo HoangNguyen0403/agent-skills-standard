@@ -3,111 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Optimize images in Next.js with next/image",
-      "expected_output": "<Image src={url} alt='Hero' width={1200} height={600} priority sizes='(max-width:768px) 100vw, 50vw'/>; add priority for LCP image; add remote domain to next.config.js remotePatterns; never use <img>",
+      "prompt": "My Next.js page has a large hero image that causes layout shift and slow LCP.",
+      "expected_output": "Use next/image instead of <img>: add priority prop for above-fold hero images (preloads with fetchPriority='high'). Specify width and height to prevent CLS. Use placeholder='blur' with blurDataURL for smooth loading. Target LCP < 2.5s. Never use <img> — it bypasses Next.js optimization.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Image"
-        }
+        { "type": "contains", "value": "next/image" },
+        { "type": "contains", "value": "LCP" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Set up Google Fonts with next/font",
-      "expected_output": "import { Inter } from 'next/font/google'; const inter = Inter({ subsets: ['latin'], display: 'swap' }); apply className={inter.className} on <body> in root layout; zero layout shift, no CDN request",
+      "prompt": "I'm loading Google Fonts via a <link> tag in my layout. The page sometimes flashes unstyled text.",
+      "expected_output": "Violation: No Google Fonts CDN link. Use next/font instead: import { Inter } from 'next/font/google'. This self-hosts fonts, eliminates the external network request, and adds font-display: swap automatically — eliminating layout shift. Apply via className on html element in root layout.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Inter"
-        },
-        {
-          "type": "contains",
-          "value": "zero layout"
-        },
-        {
-          "type": "contains",
-          "value": "layout shift"
-        }
+        { "type": "contains", "value": "next/font" },
+        { "type": "contains", "value": "self-host" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Add dynamic metadata with generateMetadata in Next.js",
-      "expected_output": "export async function generateMetadata({ params }: Props): Promise<Metadata> { const { id } = await params; const p = await getProduct(id); return { title: p.name, openGraph: { images: [p.image] } }; }",
+      "prompt": "Add metadata and Open Graph tags to my Next.js pages for better SEO.",
+      "expected_output": "Use the generateMetadata function or export const metadata in each page/layout. Do not use _document.tsx for metadata. Example: export async function generateMetadata({ params }): Promise<Metadata> { return { title: '...', openGraph: { images: [...] } } }. Static metadata uses export const metadata = {}.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Metadata"
-        },
-        {
-          "type": "contains",
-          "value": "export async"
-        },
-        {
-          "type": "contains",
-          "value": "async function"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "Fix Cumulative Layout Shift in Next.js",
-      "expected_output": "Use next/image with explicit width/height or fill+parent relative positioning; use next/font instead of Google Fonts <link>; reserve space for dynamic content with min-height/aspect-ratio CSS",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Google"
-        },
-        {
-          "type": "contains",
-          "value": "Fonts"
-        },
-        {
-          "type": "contains",
-          "value": "Google Fonts"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "Load third-party scripts in Next.js without blocking",
-      "expected_output": "<Script src='https://analytics.example.com/script.js' strategy='afterInteractive'/>; use lazyOnload for low-priority (chat widgets); never place third-party scripts in <head> directly",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Script"
-        },
-        {
-          "type": "contains",
-          "value": "chat widgets"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "Improve LCP score in a Next.js application",
-      "expected_output": "Add priority prop to LCP <Image>; preload via next/font; use static generation (SSG) where possible; avoid render-blocking scripts; target < 2.5s LCP; measure with Chrome DevTools Performance tab",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Image"
-        },
-        {
-          "type": "contains",
-          "value": "Chrome"
-        },
-        {
-          "type": "contains",
-          "value": "DevTools"
-        }
+        { "type": "contains", "value": "generateMetadata" },
+        { "type": "contains", "value": "Metadata" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Image optimization in a React Native app",
-    "Font loading in Flutter with Google Fonts package",
-    "SEO metadata in a Nuxt.js app",
-    "Web vitals optimization in a Gatsby site"
+    "Write a Node.js REST API with Express",
+    "Configure PostgreSQL indexes for performance",
+    "Set up a Redis pub/sub queue"
   ]
 }

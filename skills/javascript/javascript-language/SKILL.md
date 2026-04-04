@@ -27,32 +27,9 @@ description: 'Modern JavaScript (ES2022+) patterns for clean, maintainable code.
 - No Callbacks: Promisify everything.
 - **No Mutation**: Immutability first.
 
-## Code
+## Code & Reference
 
-```javascript
-// Modern Syntax
-const [x, ...rest] = items;
-const name = user?.profile?.name ?? 'Guest';
-
-// Async + Error Handling
-async function getUser(id) {
-  const res = await fetch(`/api/${id}`);
-  return res.json(); // Errors propagate
-}
-
-// Private Fields
-class Service {
-  #key;
-  constructor(k) {
-    this.#key = k;
-  }
-}
-```
-
-## Reference & Examples
-
-For advanced patterns and functional programming:
-See [references/REFERENCE.md](references/REFERENCE.md).
+See [references/REFERENCE.md](references/REFERENCE.md) for modern syntax, async patterns, private fields, and functional programming examples.
 
 ## Related Topics
 

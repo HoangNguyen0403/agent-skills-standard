@@ -3,62 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "A user can submit HTML content that gets rendered on the page. How do I display it safely in React?",
-      "expected_output": "Sanitize with DOMPurify.sanitize() before rendering any HTML. Use a library to strip script tags and event handlers. Render as plain text where possible — inject HTML only when truly required. Set a strict CSP to block injected scripts.",
+      "prompt": "My React app stores the JWT access token in localStorage for API requests.",
+      "expected_output": "Violation: Never store secrets in localStorage — XSS-vulnerable. Any script on the page can read localStorage. Fix: store JWT in HttpOnly Secure cookies — inaccessible to JavaScript. Use SameSite=Strict for CSRF protection. Configure the server to set the cookie on login. Pass session state (user object) to React, never the raw token.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Sanitize"
-        },
-        {
-          "type": "contains",
-          "value": "DOMPurify"
-        },
-        {
-          "type": "contains",
-          "value": "HTML"
-        }
+        { "type": "contains", "value": "HttpOnly" },
+        { "type": "contains", "value": "localStorage" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Where should I store JWT tokens in a React app?",
-      "expected_output": "Store in httpOnly cookies (not accessible via JS, protected from XSS). Never store in localStorage or sessionStorage. Set secure and sameSite:strict on cookies. Implement CSRF protection when using cookies. Token refresh should happen server-side.",
+      "prompt": "A user can view other users' private data by changing the user ID in the URL. How do I fix this?",
+      "expected_output": "IDOR (Insecure Direct Object Reference) — a backend issue, not a frontend one. No Client Logic for Permissions: validate ownership on the backend. The API must verify request.user.id === resource.userId before returning data. Frontend validation is for UX only — never rely on it for security. Add server-side auth guard to every data endpoint.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Store"
-        },
-        {
-          "type": "contains",
-          "value": "Never"
-        },
-        {
-          "type": "contains",
-          "value": "Implement"
-        }
+        { "type": "contains", "value": "backend" },
+        { "type": "contains", "value": "ownership" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How do I add Content Security Policy to my React app?",
-      "expected_output": "Set CSP headers server-side (or meta tag as fallback). Use default-src self. Avoid unsafe-inline and unsafe-eval. For Next.js, configure in next.config.js middleware. Test with browser DevTools CSP report-only mode first.",
+      "prompt": "My React app has 12 npm dependencies. I haven't updated them in 6 months.",
+      "expected_output": "Run npm audit or pnpm audit to find known CVEs. Pin specific dependency versions. Use npm-check-updates to find available updates. Check for high/critical severity advisories and update immediately. Regular dependency audits are part of React application hardening. Also check for dependencies with security headers compliance.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Avoid"
-        },
-        {
-          "type": "contains",
-          "value": "CSP headers"
-        }
+        { "type": "contains", "value": "npm audit" },
+        { "type": "contains", "value": "CVE" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I optimize React rendering performance?",
-    "How do I write a compound component?",
-    "How do I configure my tsconfig?",
-    "How do I test a React form with RTL?"
+    "Configure PostgreSQL replication",
+    "Write a Go database migration",
+    "Set up Kubernetes network policies"
   ]
 }

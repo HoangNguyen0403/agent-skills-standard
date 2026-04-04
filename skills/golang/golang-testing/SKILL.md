@@ -33,9 +33,9 @@ See [table-driven test examples](references/table-driven-tests.md)
 
 ## Anti-Patterns
 
-- ❌ `assert` inside loops without `t.Run` — use subtests to isolate failures
-- ❌ Global mock state — define mocks locally within test scope
-- ❌ Skipping race detection — always run `go test -race` in CI
+- **No assert in loops**: Use `t.Run` subtests to isolate failures.
+- **No global mock state**: Define mocks locally within test scope.
+- **No skipping race detection**: Always run `go test -race` in CI.
 
 ## References
 

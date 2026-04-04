@@ -3,35 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "What logging library should I use in my Go service?",
-      "expected_output": "Recommend log/slog (stdlib since Go 1.21) for most cases. Zap for pre-1.21 or extreme throughput. Zerolog for zero-allocation JSON logging.",
+      "prompt": "How should I add structured logging to my Go HTTP service?",
+      "expected_output": "Use log/slog (Go 1.21+) or zap/zerolog for structured JSON logging. Log with key-value pairs: slog.Info(\"request\", \"method\", r.Method, \"path\", r.URL.Path). Avoid fmt.Println for application logs.",
       "assertions": [
-        {"id": "a1", "description": "Recommends slog", "type": "contains", "value": "slog"},
-        {"id": "a2", "description": "Mentions structured logging", "type": "contains", "value": "structured"}
+        { "type": "contains", "value": "slog" },
+        { "type": "contains", "value": "structured" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How do I include request IDs in all my Go service logs?",
-      "expected_output": "Pass logger or request context with correlation ID via ctx. Use slog.Attr for structured fields. Include TraceID and RequestID in context.",
+      "prompt": "How do I pass a logger through my Go service layers?",
+      "expected_output": "Inject the logger via constructor. Do not use a global logger variable. Each service receives *slog.Logger (or equivalent) as a constructor argument.",
       "assertions": [
-        {"id": "a1", "description": "Mentions context or correlation ID", "type": "contains", "value": "context"},
-        {"id": "a2", "description": "Mentions slog.Attr or structured fields", "type": "contains", "value": "Attr"}
+        { "type": "contains", "value": "constructor" },
+        { "type": "contains", "value": "inject" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Is it OK to call log.Fatal() inside a Go library?",
-      "expected_output": "No. Never call log.Fatal in library code; it terminates the process. Return error instead. Only main() should call os.Exit.",
+      "prompt": "What log level should I use for expected errors like 'user not found' vs unexpected panics?",
+      "expected_output": "Expected/business errors: Warn level. Unexpected errors and system failures: Error level. Debug for developer tracing. Never log at Error for expected validation failures.",
       "assertions": [
-        {"id": "a1", "description": "Warns against log.Fatal in libraries", "type": "contains", "value": "log.Fatal"},
-        {"id": "a2", "description": "Recommends returning error", "type": "contains", "value": "return"}
+        { "type": "contains", "value": "Warn" },
+        { "type": "contains", "value": "Error" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I set up Prometheus metrics in NestJS?",
-    "How do I use console.log in Node.js?",
-    "How do I write a Go HTTP server?"
+    "Write a table-driven unit test in Go",
+    "How do I set up Clean Architecture in Go?",
+    "Configure golangci-lint linters"
   ]
 }

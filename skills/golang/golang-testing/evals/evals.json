@@ -3,35 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How do I write table-driven tests in Go?",
-      "expected_output": "Define a slice of test cases with name, input, expected fields. Use t.Run() for subtests. Assert with testify. Cover nil, empty, and error cases.",
+      "prompt": "How do I write a table-driven unit test for a Go function that parses order status?",
+      "expected_output": "Define a slice of struct test cases with name, input, and expected. Use t.Run(tc.name, func(t *testing.T) { ... }) to iterate. Use testify assert or require for assertions.",
       "assertions": [
-        {"id": "a1", "description": "Mentions t.Run for subtests", "type": "contains", "value": "t.Run"},
-        {"id": "a2", "description": "Mentions table or slice of test cases", "type": "contains", "value": "table"}
+        { "type": "contains", "value": "t.Run" },
+        { "type": "contains", "value": "struct" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How do I generate mocks for Go interfaces?",
-      "expected_output": "Use mockery to auto-generate mocks from interfaces. Do not write manual mocks. Define mocks locally in test scope to avoid state leakage.",
+      "prompt": "My Go service depends on a database. How do I unit test it without a real DB?",
+      "expected_output": "Define a repository interface and inject it. In tests, pass a mock that implements the interface. Use mockery to auto-generate mocks or write manual mocks for simple cases.",
       "assertions": [
-        {"id": "a1", "description": "Recommends mockery", "type": "contains", "value": "mockery"},
-        {"id": "a2", "description": "Warns against manual mocks", "type": "contains", "value": "manual"}
+        { "type": "contains", "value": "interface" },
+        { "type": "contains", "value": "mock" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How do I detect race conditions in Go tests?",
-      "expected_output": "Run go test -race. The race detector instruments all memory accesses and reports data races. Should be part of CI pipeline.",
+      "prompt": "I'm using assert inside a for loop in my Go test. Is this OK?",
+      "expected_output": "No. Use t.Run for each iteration so failures are isolated and the test name is clear. assert inside a bare loop continues past failures, making it hard to identify which case failed.",
       "assertions": [
-        {"id": "a1", "description": "Mentions go test -race", "type": "contains", "value": "-race"},
-        {"id": "a2", "description": "Recommends CI integration", "type": "contains", "value": "CI"}
+        { "type": "contains", "value": "t.Run" },
+        { "type": "contains", "value": "isolated" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I write NestJS unit tests?",
-    "How do I test a React component?",
-    "How do I configure a Go HTTP server?"
+    "How do I set up an Echo HTTP server in Go?",
+    "Configure golangci-lint for my Go project",
+    "Write a Dockerfile for a Go service"
   ]
 }

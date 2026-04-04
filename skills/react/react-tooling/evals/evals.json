@@ -3,58 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "My React component re-renders too often but I can't figure out why. How do I debug this?",
-      "expected_output": "Install why-did-you-render in dev mode to log unnecessary re-renders. Use React DevTools Profiler to identify expensive renders. Enable 'Highlight Updates' in DevTools. Check for unstable references (inline objects/functions) with useCallback/useMemo.",
+      "prompt": "My React component is re-rendering too often. How do I figure out why?",
+      "expected_output": "Use React DevTools Flamegraph to profile: open Performance tab, record interaction, find expensive components. Enable 'Highlight Updates' to visualize re-renders. Install why-did-you-render for development: it logs which prop/state change caused a re-render. Profile before optimizing — find the actual culprit first.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "React"
-        },
-        {
-          "type": "contains",
-          "value": "DevTools"
-        },
-        {
-          "type": "contains",
-          "value": "Profiler"
-        }
+        { "type": "contains", "value": "React DevTools" },
+        { "type": "contains", "value": "re-render" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How do I analyze what's taking up space in my React bundle?",
-      "expected_output": "Use source-map-explorer (npm run build then source-map-explorer) or bundle-visualizer. For Vite, use rollup-plugin-visualizer. For webpack, use webpack-bundle-analyzer. Look for duplicate packages, large transitive deps, and unshaken tree.",
+      "prompt": "Should I use Create React App or Vite for a new React project?",
+      "expected_output": "Use Vite — CRA is deprecated and should not be used for new projects. Vite provides faster builds, better HMR, and modern tooling. For Next.js projects, use next dev. For standalone React SPAs: Vite with @vitejs/plugin-react. Configure .env for environment variables. Use Vite's rollup-plugin-visualizer for bundle analysis.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Vite"
-        }
+        { "type": "contains", "value": "Vite" },
+        { "type": "contains", "value": "CRA" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How do I set up React DevTools for debugging custom hooks?",
-      "expected_output": "Use useDebugValue inside custom hooks to label them in DevTools: useDebugValue(isOnline ? 'Online' : 'Offline'). Install React DevTools browser extension. For complex hook state, use useDebugValue with a formatter function.",
+      "prompt": "How do I analyze my React app's bundle size before shipping to production?",
+      "expected_output": "Use source-map-explorer (for webpack) or rollup-plugin-visualizer (for Vite). Run: source-map-explorer 'build/static/js/*.js'. Look for: large vendor chunks, duplicated dependencies, unexpected libraries. Common culprits: moment.js (replace with dayjs), lodash (use native/radash), icon libraries (import individually not whole package).",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "DevTools"
-        },
-        {
-          "type": "contains",
-          "value": "Online"
-        },
-        {
-          "type": "contains",
-          "value": "Offline"
-        }
+        { "type": "contains", "value": "source-map-explorer" },
+        { "type": "contains", "value": "bundle" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I write a React compound component?",
-    "How do I prevent XSS vulnerabilities?",
-    "How do I test with React Testing Library?",
-    "How do I manage state with Zustand?"
+    "Configure a Go HTTP server with TLS",
+    "Write PostgreSQL indexes for a large table",
+    "Set up Redis Sentinel for high availability"
   ]
 }

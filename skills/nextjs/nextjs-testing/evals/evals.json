@@ -3,71 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Write Vitest unit tests for Next.js components",
-      "expected_output": "import { render, screen } from '@testing-library/react'; it('shows title', () => { render(<PostCard title='Hello'/>); expect(screen.getByText('Hello')).toBeInTheDocument(); }); configure vitest.config.ts with react plugin"
+      "prompt": "Write a test for my login form component that submits credentials and shows a success message.",
+      "expected_output": "Use Vitest + RTL with AAA pattern. Arrange: render(<LoginForm />), set up MSW handler for POST /api/auth. Act: await user.type(emailInput, 'user@test.com'); await user.click(submitButton). Assert: expect(await screen.findByText(/success/i)).toBeInTheDocument(). Use userEvent (async) not fireEvent. Prefer getByRole over getByTestId.",
+      "assertions": [
+        { "type": "contains", "value": "userEvent" },
+        { "type": "contains", "value": "MSW" }
+      ]
     },
     {
       "id": 2,
-      "prompt": "Set up Playwright E2E tests for a Next.js app",
-      "expected_output": "npx playwright install; test('login flow', async ({ page }) => { await page.goto('/login'); await page.fill('[name=email]', 'user@test.com'); await page.click('button[type=submit]'); await expect(page).toHaveURL('/dashboard'); })"
+      "prompt": "I'm using real fetch calls in my component tests and they're failing in CI.",
+      "expected_output": "Violation: No real network usage in tests. Set up MSW (Mock Service Worker) with server and browser handlers. In vitest.config.ts configure MSW with setupFiles. Create handlers for all API boundaries. MSW intercepts at the network level, making tests environment-agnostic. Reset handlers after each test to prevent state leakage.",
+      "assertions": [
+        { "type": "contains", "value": "MSW" },
+        { "type": "contains", "value": "handler" }
+      ]
     },
     {
       "id": 3,
-      "prompt": "Mock API calls with MSW in Next.js tests",
-      "expected_output": "const server = setupServer(http.get('/api/posts', () => HttpResponse.json([{id:1,title:'Test'}]))); beforeAll(() => server.listen()); afterEach(() => server.resetHandlers()); afterAll(() => server.close())",
+      "prompt": "Write E2E tests for the checkout flow that tests the full user journey from cart to order confirmation.",
+      "expected_output": "Use Playwright for App Router E2E validation. Test critical user flow: navigate to cart, fill shipping details, submit payment, verify order confirmation. Use role selectors: page.getByRole('button', { name: 'Place Order' }). Configure Playwright with baseURL. Run against dev or staging server. Aim for 80%+ coverage on critical flows.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Test"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "Test a Server Component in Next.js",
-      "expected_output": "Use Playwright E2E to test full RSC output end-to-end; for unit testing data layer, test the async function directly (getUser() etc.); RTL cannot render async Server Components — use E2E for RSC behavior",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Playwright"
-        },
-        {
-          "type": "contains",
-          "value": "Server"
-        },
-        {
-          "type": "contains",
-          "value": "Components"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "Configure test database isolation for Next.js",
-      "expected_output": "Use separate .env.test with TEST_DATABASE_URL; run migrations in globalSetup; wrap each test in transaction + rollback; or use Testcontainers for fully isolated DB per test suite",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "each test"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "Use React Testing Library with Next.js",
-      "expected_output": "vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => '/' })); render(<Component/>); screen.getByRole('button'); await userEvent.click(button); test behavior not implementation",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Component"
-        }
+        { "type": "contains", "value": "Playwright" },
+        { "type": "contains", "value": "getByRole" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Jest tests in a NestJS application with supertest",
-    "Pest feature tests in a Laravel application",
-    "PHPUnit tests for a PHP class",
-    "XCTest in a Swift iOS app"
+    "Write a Go repository interface for database access",
+    "Configure Kubernetes ingress rules",
+    "Set up Redis Cluster for high availability"
   ]
 }

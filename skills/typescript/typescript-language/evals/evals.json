@@ -3,50 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "What's the difference between interface and type in TypeScript, and when should I use each?",
-      "expected_output": "Use interface for object shapes/APIs (supports declaration merging, extends). Use type for unions, intersections, mapped types, or conditional types. Both work for simple objects; prefer interface for public APIs.",
+      "prompt": "I'm using enums in TypeScript for user roles. Is this the right approach?",
+      "expected_output": "No runtime enum. TypeScript enums have runtime cost and can cause issues with tree-shaking. Use literal unions or as const instead: type Role = 'admin' | 'user' | 'guest' or const ROLES = { ADMIN: 'admin', USER: 'user' } as const; type Role = typeof ROLES[keyof typeof ROLES]. This is zero-runtime and type-safe.",
       "assertions": [
-        { "type": "contains", "value": "interface for APIs" },
-        { "type": "contains", "value": "type for unions" },
-        { "type": "contains", "value": "declaration merging" }
+        { "type": "contains", "value": "as const" },
+        { "type": "contains", "value": "union" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How do I create a discriminated union in TypeScript for a Result type that can be success or error?",
-      "expected_output": "Use a literal 'kind' or 'type' discriminant: type Result<T> = { kind: 'ok'; data: T } | { kind: 'err'; error: Error }. Switch on the discriminant to narrow the type safely.",
+      "prompt": "Write a type-safe event system where different event types have different payloads.",
+      "expected_output": "Use Discriminated Unions with a literal kind property: type AppEvent = { kind: 'user.created'; payload: { userId: string } } | { kind: 'order.placed'; payload: { orderId: string; total: number } }. Switch on discriminant for exhaustive handling. Add never exhaustiveness check in default case.",
       "assertions": [
-        { "type": "contains", "value": "Discriminated Unions" },
-        { "type": "contains", "value": "literal kind property" },
-        { "type": "contains", "value": "narrow the type safely" }
+        { "type": "contains", "value": "Discriminated Union" },
+        { "type": "contains", "value": "kind" }
       ]
     },
     {
       "id": 3,
-      "prompt": "I'm getting a TypeScript error about 'possibly undefined'. How should I handle nullability?",
-      "expected_output": "Use optional chaining (?.) and nullish coalescing (??). Enable strict mode in tsconfig. Use type narrowing (if checks, typeof, instanceof). Avoid non-null assertion (!) — use narrowing instead.",
+      "prompt": "How do I ensure a function parameter is always a string ID, not just any string?",
+      "expected_output": "Use Branded Types: type UserId = string & { __brand: 'UserId' }. Create a type guard function: function asUserId(id: string): UserId { return id as UserId; }. This prevents accidentally passing an email or name where a user ID is expected at compile time. Branded types add zero runtime overhead.",
       "assertions": [
-        { "type": "contains", "value": "strict: true" },
-        { "type": "contains", "value": "?. and ??" },
-        { "type": "contains", "value": "Avoid non-null assertion (!)" },
-        { "type": "contains", "value": "Use narrowing" }
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "How do I use branded types to prevent mixing up different string IDs?",
-      "expected_output": "Use intersection with a brand: type UserId = string & { __brand: 'UserId' }. Create a constructor function to cast. This prevents passing OrderId where UserId is expected at compile time.",
-      "assertions": [
-        { "type": "contains", "value": "Branded Types" },
-        { "type": "contains", "value": "__brand: 'Id'" },
-        { "type": "contains", "value": "intersection" }
+        { "type": "contains", "value": "Branded" },
+        { "type": "contains", "value": "__brand" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I set up ESLint for my project?",
-    "How do I write a unit test with Jest?",
-    "How do I validate user input with Zod?",
-    "Set up a React component with styled-components"
+    "Configure a Kubernetes ingress controller",
+    "Write a Go HTTP handler for user authentication",
+    "Set up Prometheus monitoring"
   ]
 }

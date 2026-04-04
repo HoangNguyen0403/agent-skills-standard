@@ -1,6 +1,30 @@
 # JavaScript Best Practices Reference
 
-Module patterns and project organization.
+## Code Examples
+
+```javascript
+// Constants
+const STATUS = { OK: 200, ERROR: 500 };
+
+// Custom Errors
+class APIError extends Error {
+  constructor(msg, code) {
+    super(msg);
+    this.code = code;
+  }
+}
+
+// Async + JDoc
+/** @throws {APIError} */
+export async function getData(id) {
+  if (!id) throw new APIError('Missing ID', 400);
+  const res = await fetch(`/api/${id}`);
+  if (!res.ok) throw new APIError('Failed', res.status);
+  return res.json();
+}
+```
+
+## Module patterns and project organization.
 
 ## References
 

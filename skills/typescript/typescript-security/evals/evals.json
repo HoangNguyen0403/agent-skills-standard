@@ -3,39 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How do I validate user input in a TypeScript backend API?",
-      "expected_output": "Use Zod, joi, or class-validator at the API boundary. Parse and validate before using data. Use safeParse for error handling without throwing. Never trust client input — validate types, formats, and ranges. Return 400 with structured errors on failure.",
+      "prompt": "Validate the request body of a user registration endpoint in a TypeScript Express API.",
+      "expected_output": "Use Zod at the API boundary: const schema = z.object({ email: z.string().email(), password: z.string().min(8) }). Use safeParse for error handling: const result = schema.safeParse(req.body); if (!result.success) return res.status(400).json(result.error). Never trust req.body without validation. Type the validated data with z.infer<typeof schema>.",
       "assertions": [
         { "type": "contains", "value": "Zod" },
-        { "type": "contains", "value": "safeParse" },
-        { "type": "contains", "value": "boundary" }
+        { "type": "contains", "value": "safeParse" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What's the secure way to handle JWT tokens in a Node.js TypeScript app?",
-      "expected_output": "Use the jsonwebtoken or jose package. Store secret in env vars (JWT_SECRET), never hardcode. Set short expiry (1h). Use RS256 for public/private key. Store refresh tokens in httpOnly cookies. Verify on every request with middleware.",
+      "prompt": "I'm building a JWT authentication flow. Where should I store the JWT secret?",
+      "expected_output": "Store JWT_SECRET in environment variables or Secret Manager (AWS Secrets Manager, HashiCorp Vault). NEVER commit to Git. Use RS256 (asymmetric) for public/private key pairs in distributed systems. Implement HttpOnly Secure cookies for token storage client-side. Add Refresh Token rotation to limit exposure window. Use jose or jsonwebtoken library.",
       "assertions": [
-        { "type": "contains", "value": "jsonwebtoken" },
-        { "type": "contains", "value": "RS256" },
-        { "type": "contains", "value": "httpOnly" }
+        { "type": "contains", "value": "environment variable" },
+        { "type": "contains", "value": "HttpOnly" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How do I prevent SQL injection in a TypeScript app that uses PostgreSQL?",
-      "expected_output": "Use parameterized queries (pg: pool.query('SELECT * FROM users WHERE id = $1', [id])) or an ORM (Prisma/TypeORM) which handles parameterization. Never concatenate user input into SQL strings. Use Prisma.sql for raw queries.",
+      "prompt": "My TypeScript API is accepting user input and building SQL queries by string concatenation.",
+      "expected_output": "SQL Injection vulnerability. Use Parameterized Queries: pool.query('SELECT * FROM users WHERE id = $1', [userId]) or Type-safe ORMs (Prisma/TypeORM). Use Prisma.sql template tag for raw queries. Never concatenate user input into query strings. Validate and sanitize all user-controlled input before any database operation.",
       "assertions": [
-        { "type": "contains", "value": "parameterized queries" },
-        { "type": "contains", "value": "Prisma" },
-        { "type": "contains", "value": "pool.query" }
+        { "type": "contains", "value": "Parameterized" },
+        { "type": "contains", "value": "injection" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I type a generic function in TypeScript?",
-    "How do I configure ESLint for TypeScript?",
-    "How do I write a unit test for a service class?",
-    "How do I set up React Query for server state?"
+    "Configure ESLint rules for the project",
+    "Write a React hook for form validation",
+    "Set up Kubernetes network policies"
   ]
 }

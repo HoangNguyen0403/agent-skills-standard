@@ -3,69 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Store JWT in HttpOnly cookies in Next.js",
-      "expected_output": "In Server Action or Route Handler: (await cookies()).set('token', jwt, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: 86400 }); never use localStorage or sessionStorage",
+      "prompt": "Implement JWT authentication in my Next.js app. Where should I store the token?",
+      "expected_output": "Store JWT in HttpOnly Secure cookies with SameSite='Lax' and maxAge=86400. Never use localStorage (XSS-vulnerable, causes hydration issues in Server Components). Verify tokens in middleware.ts for edge-side redirection. In Next.js 15+, await cookies() from next/headers.",
       "assertions": [
         { "type": "contains", "value": "HttpOnly" },
-        { "type": "contains", "value": "Server Action" },
-        { "type": "contains", "value": "maxAge" }
+        { "type": "contains", "value": "localStorage" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Protect routes with middleware.ts in Next.js",
-      "expected_output": "export function middleware(req: NextRequest) { const token = req.cookies.get('token'); if (!token) return NextResponse.redirect(new URL('/login', req.url)); }; export const config = { matcher: ['/dashboard/:path*'] }",
+      "prompt": "Write middleware to protect my /dashboard route — redirect to login if not authenticated.",
+      "expected_output": "Create middleware.ts at project root. Verify JWT/session token from cookies using jose or next-auth. If invalid/missing, redirect to /login. Use NextResponse.redirect(). Export config with matcher: ['/dashboard/:path*']. Never rely on layout.tsx for auth — only middleware provides reliable protection.",
       "assertions": [
         { "type": "contains", "value": "middleware" },
-        { "type": "contains", "value": "NextRequest" },
-        { "type": "contains", "value": "matcher" }
+        { "type": "contains", "value": "redirect" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Read auth tokens in Server Components",
-      "expected_output": "import { cookies } from 'next/headers'; const token = (await cookies()).get('token')?.value; validate token and get session; never pass raw token to Client Components",
+      "prompt": "My Server Action is submitting a form — do I need CSRF protection?",
+      "expected_output": "Yes. Server Actions must verify the Origin/Referer headers to mitigate CSRF. Check that the request Origin matches your domain. Also: always call await auth() inside every Server Action before processing data. Use next-auth's CSRF protection if using Auth.js. Never trust form data without auth verification.",
       "assertions": [
-        { "type": "contains", "value": "next/headers" },
-        { "type": "contains", "value": "Server Components" },
-        { "type": "contains", "value": "raw token" }
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "Implement login flow with cookies in Next.js",
-      "expected_output": "Server Action validates credentials via DAL; sets HttpOnly cookie with signed JWT; redirects to /dashboard; middleware.ts verifies cookie presence on every protected request before rendering",
-      "assertions": [
-        { "type": "contains", "value": "DAL" },
-        { "type": "contains", "value": "redirects" },
-        { "type": "contains", "value": "verifies" }
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "Why not use localStorage for tokens in Next.js?",
-      "expected_output": "localStorage is XSS-vulnerable (any script can read it); incompatible with Server Components (client-only API causes hydration issues); HttpOnly cookies are inaccessible to JS and work with RSC",
-      "assertions": [
-        { "type": "contains", "value": "XSS-vulnerable" },
-        { "type": "contains", "value": "hydration issues" },
-        { "type": "contains", "value": "inaccessible to JS" }
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "Set up session-based auth in Next.js",
-      "expected_output": "Use next-auth or iron-session; store encrypted session in HttpOnly cookie; validate in middleware.ts; read session in Server Components via getServerSession() or cookies(); no localStorage",
-      "assertions": [
-        { "type": "contains", "value": "next-auth" },
-        { "type": "contains", "value": "getServerSession" },
-        { "type": "contains", "value": "encrypted session" }
+        { "type": "contains", "value": "CSRF" },
+        { "type": "contains", "value": "Origin" }
       ]
     }
   ],
   "should_not_trigger": [
-    "JWT authentication in NestJS with Passport strategy",
-    "Sanctum token auth in Laravel",
-    "OAuth2 setup in a Go service",
-    "Firebase auth in a React Native app"
+    "Configure Tailwind CSS for dark mode",
+    "Write a Playwright test for the checkout flow",
+    "Optimize image loading with next/image"
   ]
 }

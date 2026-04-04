@@ -3,36 +3,37 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I organize packages in a large Go project?",
-      "expected_output": "Follow standard layout: cmd/, internal/, pkg/. Organize by domain/feature, not by layer. Avoid controllers/, services/ at root. Use Clean Architecture layers.",
+      "prompt": "I want to structure a new Go microservice following Clean Architecture. What are the top-level directories and what goes in each?",
+      "expected_output": "cmd/ for entry points, internal/domain for interfaces and entities, internal/adapter for HTTP handlers and DB repos, pkg/ for shared libraries. Dependencies flow inward only — adapters depend on domain, not vice versa.",
       "assertions": [
-        {"id": "a1", "description": "Mentions internal/ or cmd/ layout", "type": "contains", "value": "internal"},
-        {"id": "a2", "description": "Mentions domain-driven organization", "type": "contains", "value": "domain"}
+        { "type": "contains", "value": "cmd" },
+        { "type": "contains", "value": "internal" },
+        { "type": "contains", "value": "domain" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How do I wire dependencies in a Go app without global singletons?",
-      "expected_output": "Use explicit constructor injection: NewService(repo Repository) *Service. Wire everything in main.go. Define interfaces at the consumer side.",
+      "prompt": "My domain entity needs to call a database query. Should I import the DB package directly in the domain layer?",
+      "expected_output": "No. Domain must have zero external dependencies. Define a repository interface in the domain layer; the adapter (infrastructure) layer implements it. Inject via constructor.",
       "assertions": [
-        {"id": "a1", "description": "Mentions constructor injection", "type": "contains", "value": "constructor"},
-        {"id": "a2", "description": "Mentions wiring in main", "type": "contains", "value": "main"},
-        {"id": "a3", "description": "Warns against global singletons", "type": "not_contains", "value": "var db ="}
+        { "type": "contains", "value": "interface" },
+        { "type": "contains", "value": "domain" },
+        { "type": "contains", "value": "inject" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How do I prevent my domain layer from depending on the database layer?",
-      "expected_output": "Define Repository interfaces in the domain/port layer. Infrastructure implements them. Domain never imports from infrastructure. Inversion of Control.",
+      "prompt": "I have a Go service that handles orders, inventory, and notifications. Should this all be in one service struct?",
+      "expected_output": "No god services. Split into single-responsibility components: OrderService, InventoryService, NotificationService. Wire them together in main.go via DI.",
       "assertions": [
-        {"id": "a1", "description": "Mentions interface in domain/port", "type": "contains", "value": "interface"},
-        {"id": "a2", "description": "Mentions inversion of control or dependency inversion", "type": "contains", "value": "depend"}
+        { "type": "contains", "value": "single" },
+        { "type": "contains", "value": "main" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I use goroutines safely?",
-    "What is the Go error handling pattern?",
-    "How do I create a React component?"
+    "How do I write a goroutine in Go?",
+    "Configure Redis caching in Go",
+    "Write a table-driven test in Go"
   ]
 }

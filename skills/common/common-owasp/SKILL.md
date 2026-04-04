@@ -1,6 +1,6 @@
 ---
 name: common-owasp
-description: "OWASP Top 10 audit checklist for Web Applications (2021) and APIs (2023). Load during any security review, PR review, or codebase audit touching web, mobile backend, or API code. (triggers: security review, OWASP, broken access control, IDOR, BOLA, injection, broken auth, API review, authorization, access control)"
+description: "OWASP Top 10 audit checklist for Web Applications (2021) and APIs (2023). Use when performing any security review, PR review, or codebase audit touching web, mobile backend, or API code. (triggers: security review, OWASP, broken access control, IDOR, BOLA, injection, broken auth, API review, authorization, access control)"
 ---
 
 # OWASP Top 10 Security Checklist

@@ -1,10 +1,11 @@
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
-import { DEFAULT_WORKFLOWS } from '../constants';
+import { Agent, DEFAULT_WORKFLOWS, SUPPORTED_AGENTS } from '../constants';
 import { SkillConfig } from '../models/config';
 import { CollectedSkill } from '../models/types';
 import { GithubService } from './GithubService';
+import { WorkflowTransformer } from './utils/WorkflowTransformer';
 
 /**
  * Service responsible for synchronizing agent workflows from a remote registry.
@@ -126,46 +127,78 @@ export class WorkflowSyncService {
   }
 
   /**
-   * Writes collected workflows to the .agent/workflows directory.
+   * Writes collected workflows to each active agent's native format.
+   * - Antigravity/Kiro: .agent/workflows/*.md (native)
+   * - Claude/Gemini: .<agent>/agents/workflow-*.md (agent definition)
+   * - Cursor/Windsurf/Trae: .<agent>/rules/workflow-*.mdc (rule)
+   * - Copilot: .github/instructions/workflow-*.instructions.md (instruction)
    */
-  async writeWorkflows(workflows: CollectedSkill[], config: SkillConfig) {
+  async writeWorkflows(
+    workflows: CollectedSkill[],
+    config: SkillConfig,
+    agents?: Agent[],
+  ) {
     if (workflows.length === 0) return;
 
-    const workflowPath = path.join(process.cwd(), '.agent', 'workflows');
     const overrides = config.custom_overrides || [];
-    await fs.ensureDir(workflowPath);
+    const targetAgents = agents || [Agent.Antigravity];
 
-    for (const wf of workflows) {
-      if (wf.skill !== 'workflows') continue;
+    for (const agentId of targetAgents) {
+      const agentDef = SUPPORTED_AGENTS.find((a) => a.id === agentId);
+      if (!agentDef || agentDef.workflowFormat === 'none') continue;
 
-      for (const fileItem of wf.files) {
-        const targetFilePath = path.join(workflowPath, fileItem.name);
+      const workflowDir = path.join(process.cwd(), agentDef.workflowPath);
+      await fs.ensureDir(workflowDir);
 
-        if (!this.isPathSafe(targetFilePath, workflowPath)) {
-          console.log(
-            pc.red(`    ❌ Security Error: Invalid path ${fileItem.name}`),
+      // Calculate relative path from workflow dir to skills dir
+      const skillsDir = path.join(process.cwd(), agentDef.path);
+      const skillsRelative = path.relative(workflowDir, skillsDir);
+
+      let written = 0;
+      for (const wf of workflows) {
+        if (wf.skill !== 'workflows') continue;
+
+        for (const fileItem of wf.files) {
+          const transformed = WorkflowTransformer.transform(
+            { name: fileItem.name, content: fileItem.content },
+            agentDef.workflowFormat,
+            skillsRelative,
           );
-          continue;
-        }
+          if (!transformed) continue;
 
-        if (this.isOverridden(targetFilePath, overrides)) {
-          console.log(
-            pc.yellow(
-              `    ⚠️  Skipping overridden: ${this.normalizePath(targetFilePath)}`,
-            ),
-          );
-          continue;
-        }
+          const targetFilePath = path.join(workflowDir, transformed.name);
 
-        await fs.outputFile(targetFilePath, fileItem.content);
-        console.log(pc.gray(`    + Wrote ${fileItem.name}`));
+          if (!this.isPathSafe(targetFilePath, workflowDir)) {
+            console.log(
+              pc.red(
+                `    ❌ Security Error: Invalid path ${transformed.name}`,
+              ),
+            );
+            continue;
+          }
+
+          if (this.isOverridden(targetFilePath, overrides)) {
+            continue;
+          }
+
+          await fs.outputFile(targetFilePath, transformed.content);
+          written++;
+        }
+      }
+
+      if (written > 0) {
+        console.log(
+          pc.green(
+            `  ✅ ${written} workflows synced to ${agentDef.workflowPath}/ (${agentDef.name})`,
+          ),
+        );
       }
     }
-    console.log(pc.green(`  ✅ Workflows synced to .agent/workflows/`));
   }
 
   private isPathSafe(targetPath: string, subPath: string): boolean {
-    return path.resolve(targetPath).startsWith(path.resolve(subPath));
+    const resolvedBase = path.resolve(subPath) + path.sep;
+    return path.resolve(targetPath).startsWith(resolvedBase);
   }
 
   private isOverridden(targetPath: string, overrides: string[]): boolean {

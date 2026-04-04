@@ -23,7 +23,7 @@
     {
       "id": 2,
       "prompt": "I just created Zephyr test case EZRX-T892 for the story EZRX-3301. How do I link it back and update Jira so the team knows tests exist?",
-      "expected_output": "Call create_test_case_issue_link with EZRX-T892 → EZRX-3301, add has-zephyr-tests label to EZRX-3301, post comment 'Linked Zephyr Test Case: EZRX-T892' — single comment, not repeated",
+      "expected_output": "Call Create Test Case Issue Link with EZRX-T892 → EZRX-3301, add has-zephyr-tests label to EZRX-3301, post comment 'Linked Zephyr Test Case: EZRX-T892' — single comment, not repeated",
       "assertions": [
         {
           "type": "contains",

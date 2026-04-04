@@ -1,9 +1,9 @@
 {
-  "_comment_NAMING": "TC name format: '(Web) Module_Verb object' or '(Mobile) Module_Verb object' for platform-exclusive TCs. Omit prefix ONLY when Platform = 'Web and Mobile'. The prefix in the artifact draft MUST be copied verbatim into the API name field — never strip it.",
+  "_comment_NAMING": "TC name format: 'Web_Module_Verb object' or 'Mobile_Module_Verb object' for platform-exclusive TCs. Omit prefix ONLY when Platform = 'Web and Mobile'. The prefix in the artifact draft MUST be copied verbatim into the API name field — never strip it.",
   "_comment_POST": "POST /v2/testcases — Create. Uses string fields and flat folderId.",
   "POST_create": {
     "projectKey": "PROJ",
-    "name": "(Web) Order_Verify payment term on item details screen when Enable Payment Terms is OFF",
+    "name": "Web_Order_Verify payment term on item details screen when Enable Payment Terms is OFF",
     "objective": "Platform: Web and Mobile. Market: VN. Verify payment terms display when feature is disabled.",
     "precondition": "- User is EZ Rx user (Customer, Admin)\n- Enable Payment Terms is ON",
     "folderId": 36083190,
@@ -18,7 +18,7 @@
     "key": "EZRX-T9999",
     "projectKey": "PROJ",
     "project": {"id": 249861},
-    "name": "(Web) Order_Verify payment term on item details screen when Enable Payment Terms is OFF",
+    "name": "Web_Order_Verify payment term on item details screen when Enable Payment Terms is OFF",
     "objective": "Platform: Web and Mobile. Market: VN. Verify payment terms display when feature is disabled.",
     "precondition": "- User is EZ Rx user (Customer, Admin)\n- Enable Payment Terms is ON",
     "folder": {"id": 36083190},
@@ -44,5 +44,5 @@
     "issueId": 258528
   },
 
-  "_comment_PLATFORM": "Platform rules: Single AC [WEB+MOBILE] → ONE TC, Platform='Web and Mobile', no prefix. Two separate ACs same behavior different platform → TWO TCs with (Web)/(Mobile) prefix."
+  "_comment_PLATFORM": "Platform rules: Single AC [WEB+MOBILE] → ONE TC, Platform='Web and Mobile', no prefix. Two separate ACs same behavior different platform → TWO TCs with Web_/Mobile_ prefix."
 }

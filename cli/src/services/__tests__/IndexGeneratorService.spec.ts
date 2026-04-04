@@ -350,6 +350,312 @@ describe('IndexGeneratorService', () => {
     });
   });
 
+  describe('generateCategoryIndex', () => {
+    it('should generate a tiered index with File Match and Keyword Match sections', async () => {
+      const baseDir = '/skills';
+
+      (fs.pathExists as any).mockImplementation(async (p: string) => {
+        if (p === '/skills/golang') return true;
+        if (p.includes('SKILL.md')) return true;
+        return false;
+      });
+
+      (fs.readdir as any).mockImplementation(async (p: string) => {
+        if (p === '/skills/golang')
+          return ['golang-language', 'golang-testing'];
+        return [];
+      });
+
+      (fs.readFile as any).mockImplementation(async (p: string) => {
+        if (p.includes('metadata.json')) {
+          return JSON.stringify({
+            broad_globs: ['**/*.go'],
+            base_language_skills: { golang: 'golang-language' },
+          });
+        }
+        if (p.includes('golang-language')) {
+          return '---\nname: golang-language\ndescription: Core Go idioms\nmetadata:\n  triggers:\n    files: [go.mod, "**/*.go"]\n    keywords: [golang, idiomatic]\n---\n## **Priority: P0**';
+        }
+        if (p.includes('golang-testing')) {
+          return '---\nname: golang-testing\ndescription: Go unit tests\nmetadata:\n  triggers:\n    files: ["**/*_test.go"]\n    keywords: [testing, unit test]\n---\n## **Priority: P0**';
+        }
+        return '';
+      });
+
+      (yaml.load as any).mockImplementation((content: string) => {
+        if (content.includes('golang-language')) {
+          return {
+            name: 'golang-language',
+            description: 'Core Go idioms',
+            metadata: {
+              triggers: { files: ['go.mod', '**/*.go'], keywords: ['golang', 'idiomatic'] },
+            },
+          };
+        }
+        return {
+          name: 'golang-testing',
+          description: 'Go unit tests',
+          metadata: {
+            triggers: {
+              files: ['**/*_test.go'],
+              keywords: ['testing', 'unit test'],
+            },
+          },
+        };
+      });
+
+      const result = await service.generateCategoryIndex(baseDir, 'golang');
+
+      expect(result).toContain('# golang Skills Index');
+      // Base skill should be in File Match with its broad glob preserved
+      expect(result).toContain('## File Match');
+      expect(result).toContain('**golang-language**');
+      expect(result).toContain('`go.mod`');
+      // Testing skill has specific glob, should be in File Match too
+      expect(result).toContain('golang-testing');
+      expect(result).toContain('`**/*_test.go`');
+    });
+
+    it('should put broad-glob-only skills in Keyword Match section', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue(['best-practices']);
+      (fs.readFile as any).mockImplementation(async (p: string) => {
+        if (p.includes('metadata.json')) {
+          return JSON.stringify({
+            broad_globs: ['**/*.ts', '**/*.tsx'],
+            base_language_skills: { common: '' },
+          });
+        }
+        return '---\nname: n\ndescription: d\nmetadata:\n  triggers:\n    files: ["**/*.ts", "**/*.tsx"]\n    keywords: [refactor, clean code]\n---\n## **Priority: P1**';
+      });
+      (yaml.load as any).mockReturnValue({
+        name: 'n',
+        description: 'd',
+        metadata: { triggers: { files: ['**/*.ts', '**/*.tsx'], keywords: ['refactor', 'clean code'] } },
+      });
+
+      const result = await service.generateCategoryIndex('/skills', 'common');
+
+      expect(result).toContain('## Keyword Match');
+      expect(result).toContain('best-practices');
+      expect(result).toContain('refactor, clean code');
+      // Should NOT be in File Match
+      expect(result).not.toContain('`**/*.ts`');
+    });
+
+    it('should return empty string for non-existent category', async () => {
+      (fs.pathExists as any).mockResolvedValue(false);
+      const result = await service.generateCategoryIndex('/skills', 'missing');
+      expect(result).toBe('');
+    });
+
+    it('should skip hidden directories and _INDEX.md', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue(['.hidden', '_INDEX.md']);
+      (fs.readFile as any).mockImplementation(async (p: string) => {
+        if (p.includes('metadata.json')) return JSON.stringify({});
+        return '';
+      });
+      const result = await service.generateCategoryIndex('/skills', 'cat');
+      expect(result).toBe('');
+    });
+
+    it('should bold P0 skills in the table', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue(['critical-skill']);
+      (fs.readFile as any).mockImplementation(async (p: string) => {
+        if (p.includes('metadata.json')) return JSON.stringify({});
+        return '---\nname: n\ndescription: d\nmetadata:\n  triggers:\n    keywords: [k]\n---\n## **Priority: P0**';
+      });
+      (yaml.load as any).mockReturnValue({
+        name: 'n',
+        description: 'd',
+        metadata: { triggers: { keywords: ['k'] } },
+      });
+
+      const result = await service.generateCategoryIndex('/skills', 'cat');
+      expect(result).toContain('**critical-skill**');
+    });
+
+    it('should include load instruction in footer', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue(['skill']);
+      (fs.readFile as any).mockImplementation(async (p: string) => {
+        if (p.includes('metadata.json')) return JSON.stringify({});
+        return '---\nname: n\ndescription: d\n---\n## **Priority: P1**';
+      });
+      (yaml.load as any).mockReturnValue({ name: 'n', description: 'd' });
+
+      const result = await service.generateCategoryIndex('/skills', 'cat');
+      expect(result).toContain('Load ALL that match');
+    });
+  });
+
+  describe('generateAllCategoryIndices', () => {
+    it('should generate indices for multiple categories', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockImplementation(async (p: string) => {
+        if (p === '/skills') return ['golang', 'react'];
+        if (p.includes('golang')) return ['lang'];
+        if (p.includes('react')) return ['hooks'];
+        return [];
+      });
+      (fs.stat as any).mockResolvedValue({ isDirectory: () => true });
+      (fs.readFile as any).mockResolvedValue(
+        '---\nname: n\ndescription: d\nmetadata:\n  triggers:\n    keywords: [k]\n---\n## **Priority: P1**',
+      );
+      (yaml.load as any).mockReturnValue({
+        name: 'n',
+        description: 'd',
+        metadata: { triggers: { keywords: ['k'] } },
+      });
+
+      const result = await service.generateAllCategoryIndices('/skills');
+      expect(Object.keys(result)).toContain('golang');
+      expect(Object.keys(result)).toContain('react');
+      expect(result['golang']).toContain('# golang Skills Index');
+      expect(result['react']).toContain('# react Skills Index');
+    });
+
+    it('should return empty for non-existent base dir', async () => {
+      (fs.pathExists as any).mockResolvedValue(false);
+      const result = await service.generateAllCategoryIndices('/nope');
+      expect(Object.keys(result)).toHaveLength(0);
+    });
+
+    it('should filter by allowed categories but always include common', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockImplementation(async (p: string) => {
+        if (p === '/skills') return ['golang', 'react', 'common'];
+        return ['skill'];
+      });
+      (fs.stat as any).mockResolvedValue({ isDirectory: () => true });
+      (fs.readFile as any).mockResolvedValue(
+        '---\nname: n\ndescription: d\n---\n## **Priority: P1**',
+      );
+      (yaml.load as any).mockReturnValue({ name: 'n', description: 'd' });
+
+      const result = await service.generateAllCategoryIndices('/skills', [
+        'golang',
+      ]);
+      expect(Object.keys(result)).toContain('golang');
+      expect(Object.keys(result)).toContain('common');
+      expect(Object.keys(result)).not.toContain('react');
+    });
+  });
+
+  describe('assembleRouterIndex', () => {
+    it('should produce a compact router table', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue(['golang', 'common']);
+      (fs.readFile as any).mockImplementation(async (p: string) => {
+        if (p.includes('metadata.json')) {
+          return JSON.stringify({
+            file_routing: { go: ['golang'] },
+          });
+        }
+        return '';
+      });
+
+      const result = await service.assembleRouterIndex('/skills');
+
+      expect(result).toContain('## Agent Skills Index');
+      expect(result).toContain('## Skill Resolution Protocol');
+      expect(result).toContain('| File type | Read category index |');
+      expect(result).toContain('`*.go`');
+      expect(result).toContain('golang/_INDEX.md');
+      expect(result).toContain('common/_INDEX.md');
+    });
+
+    it('should only include categories that exist on disk', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue(['golang']);
+      (fs.readFile as any).mockImplementation(async (p: string) => {
+        if (p.includes('metadata.json')) {
+          return JSON.stringify({
+            file_routing: { go: ['golang'], ts: ['typescript'] },
+          });
+        }
+        return '';
+      });
+
+      const result = await service.assembleRouterIndex('/skills');
+
+      expect(result).toContain('golang/_INDEX.md');
+      expect(result).not.toContain('typescript/_INDEX.md');
+    });
+
+    it('should include quality-engineering when present', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue([
+        'golang',
+        'common',
+        'quality-engineering',
+      ]);
+      (fs.readFile as any).mockImplementation(async (p: string) => {
+        if (p.includes('metadata.json')) {
+          return JSON.stringify({ file_routing: { go: ['golang'] } });
+        }
+        return '';
+      });
+
+      const result = await service.assembleRouterIndex('/skills');
+      expect(result).toContain('quality-engineering/_INDEX.md');
+    });
+
+    it('should handle missing metadata.json gracefully', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue(['common']);
+      (fs.readFile as any).mockRejectedValue(new Error('ENOENT'));
+
+      const result = await service.assembleRouterIndex('/skills');
+
+      expect(result).toContain('## Agent Skills Index');
+      expect(result).toContain('common/_INDEX.md');
+    });
+
+    it('should contain Zero-Trust directive', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue(['common']);
+      (fs.readFile as any).mockRejectedValue(new Error('ENOENT'));
+
+      const result = await service.assembleRouterIndex('/skills');
+      expect(result).toContain('Zero-Trust');
+      expect(result).toContain('SKILL.md');
+    });
+
+    it('should not exceed 30 lines for the router', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue(['golang', 'react', 'typescript', 'common']);
+      (fs.readFile as any).mockImplementation(async (p: string) => {
+        if (p.includes('metadata.json')) {
+          return JSON.stringify({
+            file_routing: {
+              go: ['golang'],
+              ts: ['typescript', 'react'],
+              tsx: ['typescript', 'react'],
+            },
+          });
+        }
+        return '';
+      });
+
+      const result = await service.assembleRouterIndex('/skills');
+      const lines = result.split('\n').filter((l) => l.trim() !== '');
+      expect(lines.length).toBeLessThanOrEqual(30);
+    });
+
+    it('should instruct to load ALL matched skills (no artificial cap)', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue(['common']);
+      (fs.readFile as any).mockRejectedValue(new Error('ENOENT'));
+
+      const result = await service.assembleRouterIndex('/skills');
+      expect(result).toContain('Load ALL matched');
+      expect(result).not.toContain('Max 3');
+    });
+  });
+
   describe('sanitizeDescription', () => {
     it('should return the description unchanged when no injection patterns present', () => {
       const clean =

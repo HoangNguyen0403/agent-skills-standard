@@ -3,35 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How do I wrap errors in Go to preserve context?",
-      "expected_output": "Use fmt.Errorf(\"context: %w\", err) to wrap. Use errors.Is() and errors.As() to unwrap. Never just return err without adding context.",
+      "prompt": "How do I wrap an error with context in Go so callers can still check the original error type?",
+      "expected_output": "Use fmt.Errorf(\"operation failed: %w\", err) to wrap. Callers use errors.Is(err, target) or errors.As(err, &target) to unwrap and check the original error.",
       "assertions": [
-        {"id": "a1", "description": "Mentions fmt.Errorf with %w", "type": "contains", "value": "%w"},
-        {"id": "a2", "description": "Mentions errors.Is or errors.As", "type": "contains", "value": "errors.Is"}
+        { "type": "contains", "value": "%w" },
+        { "type": "contains", "value": "errors.Is" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How do I check if an error is of a specific type in Go?",
-      "expected_output": "Use errors.As() for error types (structs). Use errors.Is() for sentinel errors. Never compare error strings with err.Error() == \"foo\".",
+      "prompt": "I want to define a sentinel error for 'not found' in my Go repository. How should I do this?",
+      "expected_output": "Define as var ErrNotFound = errors.New(\"not found\") at the package level. Callers check with errors.Is(err, ErrNotFound). Do not use string comparison.",
       "assertions": [
-        {"id": "a1", "description": "Recommends errors.As for type checking", "type": "contains", "value": "errors.As"},
-        {"id": "a2", "description": "Warns against string comparison", "type": "not_contains", "value": "err.Error() =="}
+        { "type": "contains", "value": "errors.New" },
+        { "type": "contains", "value": "errors.Is" }
       ]
     },
     {
       "id": 3,
-      "prompt": "When is it OK to use panic in Go?",
-      "expected_output": "Only for unrecoverable startup errors or programming invariants. Never panic in library code or as a substitute for error returns. Log and return errors in normal flows.",
+      "prompt": "My Go function returns an error but I'm ignoring it with _. Is this ever acceptable?",
+      "expected_output": "Rarely. Ignoring errors silently swallows failures. Always handle, log, or wrap and return. If ignoring is intentional, add a comment explaining why.",
       "assertions": [
-        {"id": "a1", "description": "Limits panic to startup or invariants", "type": "contains", "value": "startup"},
-        {"id": "a2", "description": "Recommends returning errors instead", "type": "contains", "value": "return"}
+        { "type": "contains", "value": "handle" },
+        { "type": "contains", "value": "log" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I handle exceptions in Java?",
-    "How do I use try-catch in TypeScript?",
-    "How do I implement NestJS exception filters?"
+    "How do I write a table-driven test in Go?",
+    "Set up CORS middleware for my Echo server",
+    "Configure golangci-lint"
   ]
 }

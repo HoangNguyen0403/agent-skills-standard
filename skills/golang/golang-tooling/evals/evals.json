@@ -3,71 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How do I run gopls diagnostics in Claude Code for my Go project?",
-      "expected_output": "Use the mcp__ide__getDiagnostics tool. Ensure gopls is installed and configured as the LSP for Go to receive real-time diagnostics.",
+      "prompt": "How do I set up golangci-lint for my Go project and which linters should I enable?",
+      "expected_output": "Create .golangci.yml at repo root. Enable: errcheck, staticcheck, govet, revive, gosec. Run golangci-lint run ./... in CI. Use the golangci.yml example for configuration.",
       "assertions": [
-        {
-          "id": "a1",
-          "description": "Mentions mcp__ide__getDiagnostics",
-          "type": "contains",
-          "value": "mcp__ide__getDiagnostics"
-        },
-        {
-          "id": "a2",
-          "description": "Mentions gopls",
-          "type": "contains",
-          "value": "gopls"
-        }
+        { "type": "contains", "value": "golangci.yml" },
+        { "type": "contains", "value": "errcheck" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Set up golangci-lint for our Go microservice",
-      "expected_output": "Create a .golangci.yml file in the root. Enable core linters like errcheck, gosimple, staticcheck, and govet. Run via golangci-lint run.",
+      "prompt": "What's the difference between gofmt and goimports? Which should I use?",
+      "expected_output": "goimports does everything gofmt does (formatting) plus organizes imports. Use goimports — never gofmt alone. Run goimports -w . before committing.",
       "assertions": [
-        {
-          "id": "a1",
-          "description": "Mentions .golangci.yml",
-          "type": "contains",
-          "value": ".golangci.yml"
-        },
-        {
-          "id": "a2",
-          "description": "Mentions golangci-lint run",
-          "type": "contains",
-          "value": "golangci-lint run"
-        }
+        { "type": "contains", "value": "goimports" },
+        { "type": "contains", "value": "gofmt" }
       ]
     },
     {
       "id": 3,
-      "prompt": "What linters should I use for a Go project?",
-      "expected_output": "At minimum, use go vet, staticcheck, errcheck, and unused. Configuring golangci-lint is the recommended way to manage these.",
+      "prompt": "How do I get real-time Go diagnostics and type errors in Claude Code?",
+      "expected_output": "Use the mcp__ide__getDiagnostics tool via the gopls-lsp plugin. Install gopls with: go install golang.org/x/tools/gopls@latest. getDiagnostics gives real-time compiler-level feedback without running go build.",
       "assertions": [
-        {
-          "id": "a1",
-          "description": "Mentions go vet and staticcheck",
-          "type": "contains",
-          "value": "staticcheck"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "How do I organize imports in Go?",
-      "expected_output": "Use goimports to automatically format and group imports into standard library and third-party sections. It also removes unused imports.",
-      "assertions": [
-        {
-          "id": "a1",
-          "description": "Mentions goimports",
-          "type": "contains",
-          "value": "goimports"
-        }
+        { "type": "contains", "value": "getDiagnostics" },
+        { "type": "contains", "value": "gopls" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Write a REST API handler in Go",
-    "Implement a goroutine pool"
+    "Write a table-driven test in Go",
+    "How do I implement Clean Architecture in Go?",
+    "Build a REST API handler with Echo"
   ]
 }

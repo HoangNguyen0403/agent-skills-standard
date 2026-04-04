@@ -3,58 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How do I type a React component that accepts any native button props plus a custom variant?",
-      "expected_output": "Use ComponentProps<'button'> and extend it: type ButtonProps = ComponentProps<'button'> & { variant?: 'primary' | 'secondary' }. Spread {...props} to forward native props. Avoid React.FC — write function directly with typed params.",
+      "prompt": "How should I type my React component that accepts children and a className prop?",
+      "expected_output": "Use interface Props with PropsWithChildren<T> or explicit React.ReactNode: interface Props { className?: string; children: React.ReactNode; }. Don't use React.FC — it has deprecated implicit children. Return type: JSX.Element or ReactNode. Use ComponentPropsWithoutRef<'div'> to extend native div attributes safely.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "ComponentProps"
-        },
-        {
-          "type": "contains",
-          "value": "Avoid"
-        },
-        {
-          "type": "contains",
-          "value": "React"
-        }
+        { "type": "contains", "value": "ReactNode" },
+        { "type": "contains", "value": "PropsWithChildren" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How do I type a generic list component in React TypeScript?",
-      "expected_output": "Use a generic: type ListProps<T> = { items: T[]; render: (item: T) => ReactNode }. Define as function List<T,>({ items, render }: ListProps<T>). The comma after T avoids JSX parsing ambiguity in .tsx files.",
+      "prompt": "Type a generic list component that works with any data type and renders each item.",
+      "expected_output": "Use generic component: interface ListProps<T> { items: T[]; renderItem: (item: T) => ReactNode; keyExtractor: (item: T) => string; }. Component signature: function List<T,>(props: ListProps<T>): JSX.Element. Comma after T prevents TSX parser confusion. Use in: <List<User> items={users} renderItem={(u) => <div>{u.name}</div>} keyExtractor={(u) => u.id} />",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "ListProps"
-        },
-        {
-          "type": "contains",
-          "value": "ReactNode"
-        },
-        {
-          "type": "contains",
-          "value": "List"
-        }
+        { "type": "contains", "value": "generic" },
+        { "type": "contains", "value": "<T" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How do I type useRef for a DOM element in TypeScript?",
-      "expected_output": "For DOM refs: useRef<HTMLInputElement>(null) — initial value must be null for DOM elements. For mutable values: useRef<number>(0) — non-null initial. Access via ref.current, check for null before use (ref.current?.focus()).",
+      "prompt": "I'm using React.FC to type all my components. Is this a problem?",
+      "expected_output": "Yes — React.FC is problematic. Violation: No React.FC. It includes implicit children (deprecated), has return type issues, and is verbose. Fix: use plain function declarations with typed Props interface. Before: const Component: React.FC<Props> = (props) => {}. After: function Component(props: Props): JSX.Element {}. Explicitly type children as React.ReactNode if needed.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "HTMLInputElement"
-        }
+        { "type": "contains", "value": "React.FC" },
+        { "type": "contains", "value": "interface" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I set up strict mode in tsconfig?",
-    "How do I write a discriminated union type?",
-    "How do I set up ESLint for TypeScript?",
-    "How do I implement state management with Zustand?"
+    "Configure a PostgreSQL connection pool in Go",
+    "Write a shell script for database backup",
+    "Set up Terraform for AWS infrastructure"
   ]
 }

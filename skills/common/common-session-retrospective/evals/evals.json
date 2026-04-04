@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common session retrospective best practices?",
-      "expected_output": "**Cite specifics**: Reference concrete conversation moment per proposal",
+      "prompt": "Let's do a session retrospective — you made 3 mistakes today that I had to correct.",
+      "expected_output": "Extract correction signals: identify each of the 3 corrections. Classify root causes (Skill Missing / Incomplete / Trigger Miss). For each: cite the concrete conversation moment, propose one targeted fix (trigger alias, skill update, or new skill). Check for trigger misses — was a relevant skill available but not loaded? Update AGENTS.md. Log to AGENTS_LEARNING.md via common-learning-log.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "references/"
-        },
-        {
-          "type": "contains",
-          "value": "AGENTS.md"
-        },
-        {
-          "type": "contains",
-          "value": ".skillsrc"
-        }
+        { "type": "contains", "value": "root cause" },
+        { "type": "contains", "value": "AGENTS.md" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common session retrospective?",
-      "expected_output": "**Extend first**: Search `AGENTS.md` before creating — update existing skills",
+      "prompt": "I noticed the agent kept ignoring the security skill when writing API endpoints. Add keywords to fix this.",
+      "expected_output": "Trigger Miss detected. Skill: common-owasp. Indirect phrase used: 'API endpoint'. Fix: add 'endpoint', 'route handler', 'REST' to triggers in AGENTS.md. Emit trigger-miss block with schema. Apply to all agent skill dirs in .skillsrc. Verify trigger rate improves to >= 80%.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "agents"
-        },
-        {
-          "type": "contains",
-          "value": "common/skill-creator"
-        },
-        {
-          "type": "contains",
-          "value": "Priority: P1 (OPERATIONAL)"
-        }
+        { "type": "contains", "value": "trigger" },
+        { "type": "contains", "value": "AGENTS.md" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common session retrospective.",
-      "expected_output": "**One fix per loop**: One correction → one targeted skill change",
+      "prompt": "We need to improve our skills library based on this session's feedback.",
+      "expected_output": "Run retrospective protocol: (1) Extract all correction signals from the session. (2) Classify each root cause. (3) Propose one fix per root cause — extend existing skills before creating new ones. (4) Apply changes to all agent directories. (5) Output: correction count, skills changed, trigger misses found, estimated rounds saved.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Extract"
-        },
-        {
-          "type": "contains",
-          "value": "Classify"
-        },
-        {
-          "type": "contains",
-          "value": "Trigger Miss"
-        }
+        { "type": "contains", "value": "correction" },
+        { "type": "contains", "value": "skill" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic common project from scratch",
-    "How do I install common dependencies?",
-    "What is common?",
-    "Configure CI/CD for an unrelated platform"
+    "Write a function to sort an array",
+    "Deploy the application to AWS",
+    "Configure PostgreSQL replication"
   ]
 }

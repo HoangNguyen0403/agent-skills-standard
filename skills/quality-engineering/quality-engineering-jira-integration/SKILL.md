@@ -12,7 +12,7 @@ description: "Jira ↔ Zephyr traceability: fetch story AC and components, detec
 - **Fetch Core Info**: Retrieve **Summary**, **Description**, **Acceptance Criteria (AC)**, and **Components**.
 - **Jira Key**: ALWAYS reference the issue by its unique **Jira Ticket ID** (e.g., `EZRX-123`).
 - **Sibling Analysis**: Identify other Jira issues with the same **Component** or **Market Variants** (VN/MY/SG) to find potentially impacted Zephyr TCs.
-- **Identify Links**: Check for existing links to **Zephyr Test Cases (TC)** to avoid duplication.
+- **Identify Links**: Use `Get Issue Link Test Cases` with the Jira issue key to check for existing linked TCs before creating duplicates.
 - **Actor Mapping**: Extract reporter, assignee, and **Story Points** for context.
 
 ## 2. Linking Zephyr Test Cases
@@ -25,7 +25,7 @@ description: "Jira ↔ Zephyr traceability: fetch story AC and components, detec
 
 1. **Fetch**: Get Jira User Story details.
 2. **Generate**: Create Zephyr Test Case using the generation skill.
-3. **Link**: Use the tool **`create_test_case_issue_link`** to bridge the two.
+3. **Link**: Use the SmartBear MCP tool **`Create Test Case Issue Link`** to bridge the two.
 4. **Notify**: Add a comment to Jira: `Linked Zephyr Test Case: {test_case_key}`.
 
 ## 4. Best Practices

@@ -1,6 +1,6 @@
 ---
 name: swift-memory-management
-description: "Manage ARC, Weak/Unowned References, and Capture Lists in Swift. Use when managing Swift ARC, avoiding retain cycles, or configuring capture lists in closures. (triggers: **/*.swift, weak, unowned, capture, deinit, retain)"
+description: "Prevent retain cycles via ARC, weak/unowned references, and Capture Lists in Swift. Use when managing Swift ARC, avoiding retain cycles, or configuring capture lists in closures. (triggers: **/*.swift, weak, unowned, capture, deinit, retain)"
 ---
 
 # Swift Memory Management

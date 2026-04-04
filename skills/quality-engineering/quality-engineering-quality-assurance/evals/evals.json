@@ -4,11 +4,11 @@
     {
       "id": 1,
       "prompt": "Write test cases for the 'Add to Cart' button on the Product Detail screen. The button behaves differently when the user is a Sales Rep vs a Customer, and it's only available on Mobile.",
-      "expected_output": "Separate TCs per actor+condition: '[Mobile] Cart_Add item on Product Detail when user is Sales Rep', '[Mobile] Cart_Add item on Product Detail when user is Customer'. 1 TC = 1 condition. No OR logic. Priority High for critical path.",
+      "expected_output": "Separate TCs per actor+condition: 'Mobile_Cart_Add item on Product Detail when user is Sales Rep', 'Mobile_Cart_Add item on Product Detail when user is Customer'. 1 TC = 1 condition. No OR logic. Priority High for critical path.",
       "assertions": [
         { "type": "contains", "value": "1 Test Case = 1 Condition" },
         { "type": "contains", "value": "No \"OR\" Logic" },
-        { "type": "contains", "value": "[Mobile]" },
+        { "type": "contains", "value": "Mobile_" },
         {
           "type": "contains",
           "value": "Module_Action on Screen when Condition"

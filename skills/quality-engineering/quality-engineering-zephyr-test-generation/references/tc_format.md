@@ -25,11 +25,11 @@ Open with an Index table, then one `###` block per TC:
 ### Index
 | TC  | Name              | Platform | Priority | AC  |
 |-----|-------------------|----------|----------|-----|
-| TC1 | (Web) Module Name | Web      | High     | AC1 |
+| TC1 | Web_Module Name | Web      | High     | AC1 |
 
 ---
 
-### TC1 · (Web) Module Name · AC1
+### TC1 · Web_Module Name · AC1
 
 - **Platform**: Web
 - **Priority**: High

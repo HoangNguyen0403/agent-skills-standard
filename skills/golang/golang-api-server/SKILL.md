@@ -26,9 +26,9 @@ See [graceful shutdown example](references/graceful-shutdown.md) and [Echo handl
 
 ## Anti-Patterns
 
-- ❌ Business logic in handlers — parse request, call service, format response only
-- ❌ Global router variables — pass router instance via constructor or DI
-- ❌ Missing graceful shutdown — always handle SIGTERM to drain in-flight requests
+- **No business logic in handlers**: Parse request, call service, format response only.
+- **No global router vars**: Pass router instance via constructor or DI.
+- **No missing shutdown**: Handle SIGTERM to drain in-flight requests.
 
 ## References
 

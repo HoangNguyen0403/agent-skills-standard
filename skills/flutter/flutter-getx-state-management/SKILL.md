@@ -1,6 +1,6 @@
 ---
 name: flutter-getx-state-management
-description: "Manage reactive state with GetX controllers and observables in Flutter. Use when managing reactive state with GetX controllers or observables in Flutter. (triggers: **_controller.dart, **/bindings/*.dart, GetxController, Obx, GetBuilder, .obs, Get.put, Get.find, Get.lazyPut)"
+description: "Implement reactive state with GetX controllers and observables in Flutter. Use when managing reactive state with GetX controllers or observables in Flutter. (triggers: **_controller.dart, **/bindings/*.dart, GetxController, Obx, GetBuilder, .obs, Get.put, Get.find, Get.lazyPut)"
 ---
 
 # GetX State Management
@@ -41,22 +41,7 @@ lib/app/modules/home/
 
 ## Code Example
 
-```dart
-class UserController extends GetxController {
-  final name = "User".obs;
-  void updateName(String val) => name.value = val;
-}
-
-class UserView extends GetView<UserController> {
-  @override
-  Widget build(ctx) => Scaffold(
-    body: Obx(() => Text(controller.name.value)),
-    floatingActionButton: FloatingActionButton(
-      onPressed: () => controller.updateName("New"),
-    ),
-  );
-}
-```
+See [references/controller-example.md](references/controller-example.md) for controller + view implementation pattern.
 
 ## Related Topics
 

@@ -241,6 +241,7 @@ export class DetectionService {
               path.join(dir, entry.name),
               'utf8',
             );
+            gradleRegex.lastIndex = 0;
             let match;
             while ((match = gradleRegex.exec(content)) !== null) {
               set.add(match[1]);

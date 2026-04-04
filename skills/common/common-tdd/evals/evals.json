@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common tdd best practices?",
-      "expected_output": "**Arrange**: Set up inputs, stubs, mocks, and expected values.",
+      "prompt": "Implement a function that validates email addresses.",
+      "expected_output": "Follow TDD RGR loop: RED — write failing test first: test('validates valid email', () => { expect(validateEmail('user@example.com')).toBe(true); }). Verify it fails. GREEN — write minimal implementation to pass. REFACTOR — clean up. Never write production code without a prior failing test.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "jest.config.ts"
-        },
-        {
-          "type": "contains",
-          "value": "vitest.config.ts"
-        },
-        {
-          "type": "contains",
-          "value": "jest"
-        }
+        { "type": "contains", "value": "failing test" },
+        { "type": "contains", "value": "RED" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common tdd?",
-      "expected_output": "**Act**: Call the single unit under test.",
+      "prompt": "I already wrote the implementation. Now I'll add tests to reach 80% coverage.",
+      "expected_output": "Violation: No test-after — writing tests post-implementation defeats TDD. The implementation must be deleted and restarted using Red-Green-Refactor. TDD is the Iron Law: NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST. Tests written after implementation do not validate design — they only verify existing behavior.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "vitest"
-        },
-        {
-          "type": "contains",
-          "value": "vitest --watch"
-        },
-        {
-          "type": "contains",
-          "value": "vitest run --coverage"
-        }
+        { "type": "contains", "value": "Iron Law" },
+        { "type": "contains", "value": "delete" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common tdd.",
-      "expected_output": "**Assert**: Verify output and side effects. One logical assertion per test.",
+      "prompt": "Write tests for the order service that covers the happy path and three error scenarios.",
+      "expected_output": "Apply AAA structure for each test: Arrange (set up Order, mock DB and payment), Act (call createOrder()), Assert (verify result — one logical assertion per test). Mock HTTP, Time, and external APIs. Never mock fast internal services (<200ms). Minimum 80% coverage. Use test descriptions that read as behavior specs.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "go test"
-        },
-        {
-          "type": "contains",
-          "value": "go test -v ./... -count=1"
-        },
-        {
-          "type": "contains",
-          "value": "go test -cover ./..."
-        }
+        { "type": "contains", "value": "Arrange" },
+        { "type": "contains", "value": "Assert" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic common project from scratch",
-    "How do I install common dependencies?",
-    "What is common?",
-    "Configure CI/CD for an unrelated platform"
+    "Design the database schema for a blog platform",
+    "Configure Nginx load balancing",
+    "Explain OAuth2 authorization flows"
   ]
 }

@@ -31,6 +31,8 @@ describe('SyncService', () => {
     vi.mocked(IndexGeneratorService).mockImplementation(function (this: any) {
       this.generate = vi.fn().mockResolvedValue('index content');
       this.assembleIndex = vi.fn().mockReturnValue('index content');
+      this.generateAllCategoryIndices = vi.fn().mockResolvedValue({});
+      this.assembleRouterIndex = vi.fn().mockResolvedValue('router content');
       return this;
     } as any);
 
@@ -106,11 +108,14 @@ describe('SyncService', () => {
       );
     });
 
-    it('should return false if Antigravity agent is not enabled', async () => {
+    it('should delegate to workflowSyncService for any agent', async () => {
       const config = { agents: [Agent.Cursor] } as any;
+      mockWorkflowSyncService.reconcileWorkflows.mockResolvedValue(false);
       const result = await syncService.reconcileWorkflows(config);
+      expect(mockWorkflowSyncService.reconcileWorkflows).toHaveBeenCalledWith(
+        config,
+      );
       expect(result).toBe(false);
-      expect(mockWorkflowSyncService.reconcileWorkflows).not.toHaveBeenCalled();
     });
   });
 
@@ -145,28 +150,26 @@ describe('SyncService', () => {
   });
 
   describe('assembleWorkflows', () => {
-    it('should return empty array if Antigravity is not in target agents', async () => {
+    it('should delegate to workflowSyncService for any agent', async () => {
       const config = { agents: [Agent.Cursor] } as any;
-      const result = await syncService.assembleWorkflows(config);
-      expect(result).toEqual([]);
-      expect(mockWorkflowSyncService.assembleWorkflows).not.toHaveBeenCalled();
-    });
-
-    it('should delegate to workflowSyncService if Antigravity is enabled', async () => {
-      const config = { agents: [Agent.Antigravity] } as any;
       mockWorkflowSyncService.assembleWorkflows.mockResolvedValue([
         { skill: 'wf' },
       ]);
       const result = await syncService.assembleWorkflows(config);
       expect(result).toHaveLength(1);
+      expect(mockWorkflowSyncService.assembleWorkflows).toHaveBeenCalled();
     });
   });
 
   describe('writeWorkflows', () => {
-    it('should do nothing if Antigravity is not enabled', async () => {
+    it('should delegate with resolved agents', async () => {
       const config = { agents: [Agent.Cursor] } as any;
-      await syncService.writeWorkflows([], config);
-      expect(mockWorkflowSyncService.writeWorkflows).not.toHaveBeenCalled();
+      await syncService.writeWorkflows([{ skill: 'wf' }] as any, config);
+      expect(mockWorkflowSyncService.writeWorkflows).toHaveBeenCalledWith(
+        [{ skill: 'wf' }],
+        config,
+        [Agent.Cursor],
+      );
     });
   });
 
@@ -179,7 +182,7 @@ describe('SyncService', () => {
 
       expect(MarkdownUtils.injectIndex).toHaveBeenCalled();
       expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('index updated'),
+        expect.stringContaining('router index updated'),
       );
     });
 
@@ -196,13 +199,16 @@ describe('SyncService', () => {
       vi.mocked(IndexGeneratorService).mockImplementationOnce(function (
         this: any,
       ) {
-        this.generate = vi.fn().mockRejectedValue(new Error('Gen failed'));
+        this.generateAllCategoryIndices = vi
+          .fn()
+          .mockRejectedValue(new Error('Gen failed'));
+        this.assembleRouterIndex = vi.fn().mockResolvedValue('');
         return this;
       } as any);
 
       await syncService.applyIndices(config);
       expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Failed to update index: Error: Gen failed'),
+        expect.stringContaining('Failed to update index'),
       );
     });
   });

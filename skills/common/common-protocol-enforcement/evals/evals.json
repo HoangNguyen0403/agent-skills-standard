@@ -1,68 +1,37 @@
 {
-  "skill_name": "common-protocol-enforcement",
+  "skill_name": "common-product-requirements",
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common protocol enforcement best practices?",
-      "expected_output": "**Scan**: Read the diff or the file content.",
+      "prompt": "Create a PRD for a new user notifications feature.",
+      "expected_output": "Enter Discovery Phase: ask 3-5 clarifying questions with options. (a) Platform: Web/Mobile/Both? (b) Notification types: in-app/email/push? (c) Real-time or batched? (d) User preferences/opt-out required? (e) Target user roles? Repeat until Actionable State reached, then draft to docs/specs/prd-user-notifications.md.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "notify_user"
-        },
-        {
-          "type": "contains",
-          "value": "Anti-Patterns"
-        },
-        {
-          "type": "contains",
-          "value": "Pre-Write Audit Log"
-        }
+        { "type": "contains", "value": "clarif" },
+        { "type": "contains", "value": "docs/specs" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common protocol enforcement?",
-      "expected_output": "**Match**: Check against `Anti-Patterns` in all active skills.",
+      "prompt": "I need a spec for making the app faster.",
+      "expected_output": "Violation: 'faster' is vague. Apply No Vagueness rule: ask for measurable targets. 'Fast' -> 'Load time < 200ms'. Discovery questions: (a) Which pages/flows are slow? (b) Current measured baseline? (c) Target SLA? (d) Platform? Map answers to non-functional requirements section of PRD template.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Priority: P0 (CRITICAL)"
-        },
-        {
-          "type": "contains",
-          "value": "Adversarial Audit"
-        },
-        {
-          "type": "contains",
-          "value": "Protocol Check"
-        }
+        { "type": "contains", "value": "200ms" },
+        { "type": "contains", "value": "measur" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common protocol enforcement.",
-      "expected_output": "**Fix**: Re-edit immediately if a violation is detected.",
+      "prompt": "Draft requirements for a payment checkout flow.",
+      "expected_output": "Discovery Phase: ask about payment providers (Stripe/PayPal), currencies supported, guest vs. account checkout, 3DS requirements, refund flows, mobile vs. web. Verification checklist: functional flows defined, edge cases (failed payment, timeout, duplicate submit), security requirements (PCI compliance), performance targets. Write to docs/specs/prd-checkout-flow.md.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Execution Bias Check"
-        },
-        {
-          "type": "contains",
-          "value": "The Post-Write Self-Scan"
-        },
-        {
-          "type": "contains",
-          "value": "Scan"
-        }
+        { "type": "contains", "value": "edge case" },
+        { "type": "contains", "value": "security" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic common project from scratch",
-    "How do I install common dependencies?",
-    "What is common?",
-    "Configure CI/CD for an unrelated platform"
+    "Write a Go function to parse JSON",
+    "Configure webpack for production",
+    "Add unit tests for the auth service"
   ]
 }

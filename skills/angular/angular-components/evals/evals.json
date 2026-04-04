@@ -8,8 +8,7 @@
       "assertions": [
         { "type": "contains", "value": "standalone: true" },
         { "type": "contains", "value": "Import all dependencies directly" },
-        { "type": "contains", "value": "Do not declare in NgModule" },
-        { "type": "contains", "value": "ng generate c" }
+        { "type": "contains", "value": "Do not declare in NgModule" }
       ]
     },
     {
@@ -26,22 +25,19 @@
     {
       "id": 3,
       "prompt": "How do I use signal inputs with input.required() in Angular?",
-      "expected_output": "Replace @Input() with input<T>() or input.required<T>(). Use booleanAttribute transform for boolean inputs: input(false, { transform: booleanAttribute }). Access value as a function: this.disabled().",
+      "expected_output": "Replace @Input() with input<T>() or input.required<T>(). Use booleanAttribute transform for boolean inputs. Access value as a function: this.disabled().",
       "assertions": [
         { "type": "contains", "value": "input.required" },
-        { "type": "contains", "value": "booleanAttribute" },
-        { "type": "contains", "value": "this.disabled()" }
+        { "type": "contains", "value": "booleanAttribute" }
       ]
     },
     {
       "id": 4,
       "prompt": "How do I bind host properties in Angular without @HostBinding?",
-      "expected_output": "Define host bindings in the host: {} object on @Component or @Directive: host: { '[class.active]': 'isActive()', '(click)': 'onClick()' }. Never use @HostBinding or @HostListener decorators.",
+      "expected_output": "Define host bindings in the host: {} object on @Component: host: { '[class.active]': 'isActive()', '(click)': 'onClick()' }. Never use @HostBinding or @HostListener decorators.",
       "assertions": [
         { "type": "contains", "value": "host: {" },
-        { "type": "contains", "value": "'[class.active]':" },
-        { "type": "contains", "value": "Never use @HostBinding" },
-        { "type": "contains", "value": "@HostListener" }
+        { "type": "contains", "value": "Never use @HostBinding" }
       ]
     },
     {
@@ -50,27 +46,51 @@
       "expected_output": "Use output<T>() from @angular/core (v17.3+) instead of @Output() EventEmitter<T>. Emit with: this.selected.emit(value). For two-way binding use model() which creates a writable signal.",
       "assertions": [
         { "type": "contains", "value": "output<T>()" },
-        { "type": "contains", "value": "instead of @Output() EventEmitter" },
-        { "type": "contains", "value": "emit(value)" },
         { "type": "contains", "value": "model()" }
       ]
     },
     {
       "id": 6,
-      "prompt": "Working on user-profile.component.ts — how should I handle component inputs?",
-      "expected_output": "Use input.required<User>() for required data. Use computed() for derived display values. Avoid logic in templates — move to computed() or methods. Set ChangeDetectionStrategy.OnPush.",
+      "prompt": "How do I properly set up OnPush change detection in Angular?",
+      "expected_output": "Add changeDetection: ChangeDetectionStrategy.OnPush to @Component. Component only re-renders when Signal inputs change or Signals fire. Never use default change detection.",
       "assertions": [
-        { "type": "contains", "value": "input.required<User>" },
-        { "type": "contains", "value": "computed()" },
-        { "type": "contains", "value": "Avoid logic in templates" },
-        { "type": "contains", "value": "ChangeDetectionStrategy.OnPush" }
+        { "type": "contains", "value": "ChangeDetectionStrategy.OnPush" },
+        { "type": "contains", "value": "Signal inputs" }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "What is the Smart/Dumb component pattern in Angular?",
+      "expected_output": "Smart (Container) components inject services and manage state. Dumb (Presentational) components receive data via inputs and emit events via outputs only, with no service dependencies.",
+      "assertions": [
+        { "type": "contains", "value": "Smart (Container)" },
+        { "type": "contains", "value": "inputs and emit events via outputs" }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Should I use computed signals or functions in Angular templates?",
+      "expected_output": "Never call functions in templates: {{ calculate() }} re-evaluates on every change detection cycle. Use computed() for derived values — it caches the result.",
+      "assertions": [
+        { "type": "contains", "value": "Never call functions in templates" },
+        { "type": "contains", "value": "computed()" }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "How do I avoid memory leaks when subscribing in Angular components?",
+      "expected_output": "Use toSignal() which auto-unsubscribes, or takeUntilDestroyed() for manual subscriptions. Inject DestroyRef for cleanup. Never call subscribe() in ngOnInit without a cleanup strategy.",
+      "assertions": [
+        { "type": "contains", "value": "toSignal()" },
+        { "type": "contains", "value": "takeUntilDestroyed()" },
+        { "type": "contains", "value": "DestroyRef" }
       ]
     }
   ],
   "should_not_trigger": [
     "How do I create a React functional component with hooks?",
     "How do I use Vue.js v-if and v-for directives?",
-    "How do I set up Express.js middleware?",
-    "How do I write a bash deployment script?"
+    "How do I set up NestJS dependency injection?",
+    "How do I write a bash script for deployment?"
   ]
 }

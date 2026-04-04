@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common git collaboration best practices?",
-      "expected_output": "**Format**: `<type>(<scope>): <description>` (e.g., `feat(auth): add login validation`).",
+      "prompt": "I want to commit my changes that fix a login bug and also add a new user profile feature. Should I do one commit or two?",
+      "expected_output": "Two separate commits — one logical change per commit. First: fix(auth): resolve login timeout on session expiry. Second: feat(profile): add user avatar upload. Mega-commits mixing unrelated changes make git bisect and code review harder.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "<type>(<scope>): <description>"
-        },
-        {
-          "type": "contains",
-          "value": "feat"
-        },
-        {
-          "type": "contains",
-          "value": "fix"
-        }
+        { "type": "contains", "value": "feat" },
+        { "type": "contains", "value": "fix" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common git collaboration?",
-      "expected_output": "**Types**: `feat` (new feature), `fix` (bug fix), `docs`, `style`, `refactor`, `perf`, `test`, `chore`.",
+      "prompt": "My PR has 800 lines of changes. The reviewer is complaining it's too large.",
+      "expected_output": "PR exceeds 300-line limit for effective review. Split into smaller PRs: (1) data model changes, (2) service layer, (3) API endpoints, (4) UI components. Use git rebase -i to reorganize commits. Each PR should pass CI independently and have a clear scope.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "docs"
-        },
-        {
-          "type": "contains",
-          "value": "style"
-        },
-        {
-          "type": "contains",
-          "value": "refactor"
-        }
+        { "type": "contains", "value": "300" },
+        { "type": "contains", "value": "rebase" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common git collaboration.",
-      "expected_output": "**Atomic Commits**: One commit = One logical change. Avoid \"mega-commits\".",
+      "prompt": "I accidentally committed an API key to the main branch. What should I do?",
+      "expected_output": "Emergency: (1) Rotate the secret immediately — treat it as compromised. (2) Use git filter-repo to purge from history. (3) Force-push to main (requires admin override). (4) Add the file pattern to .gitignore. (5) Add pre-commit hook (husky/lefthook) to prevent future secret commits.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "perf"
-        },
-        {
-          "type": "contains",
-          "value": "test"
-        },
-        {
-          "type": "contains",
-          "value": "chore"
-        }
+        { "type": "contains", "value": "rotate" },
+        { "type": "contains", "value": "filter-repo" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic common project from scratch",
-    "How do I install common dependencies?",
-    "What is common?",
-    "Configure CI/CD for an unrelated platform"
+    "Design a microservices architecture for e-commerce",
+    "Optimize this SQL query for performance",
+    "Add unit tests for the payment service"
   ]
 }

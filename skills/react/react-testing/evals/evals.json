@@ -3,58 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How do I test that a form submits correctly with React Testing Library?",
-      "expected_output": "Use userEvent.setup() and userEvent.type/click (async). Query by role/label (getByRole('button'), getByLabelText). Fire submit, then await screen.findBy* for async assertions. Mock API calls with MSW. Test behavior, not implementation.",
+      "prompt": "Write a test for my UserCard component that shows the user's name and email.",
+      "expected_output": "Use RTL with AAA pattern: render(<UserCard user={{ name: 'Alice', email: 'alice@test.com' }} />). Assert: expect(screen.getByRole('heading', { name: 'Alice' })).toBeInTheDocument(). Prefer getByRole (accessibility-driven) over getByTestId. Test behavior, not implementation — don't check internal state.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Fire"
-        },
-        {
-          "type": "contains",
-          "value": "Mock"
-        },
-        {
-          "type": "contains",
-          "value": "Test"
-        }
+        { "type": "contains", "value": "getByRole" },
+        { "type": "contains", "value": "render" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How do I mock an API call in a React component test?",
-      "expected_output": "Use MSW (Mock Service Worker) for network-level mocking. Setup a server with rest.get/post handlers, call server.listen() in beforeAll. Override handlers per test for error cases. Avoids mocking fetch/axios directly which is fragile.",
+      "prompt": "My tests are calling real APIs and sometimes fail due to network issues.",
+      "expected_output": "Violation: No real network usage in tests. Use MSW (Mock Service Worker) to intercept API calls. Create server.ts with handlers: rest.get('/api/users', (req, res, ctx) => res(ctx.json([...]))). Add server.listen() in setup, server.resetHandlers() in afterEach, server.close() in afterAll. Tests never call real APIs.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Mock"
-        },
-        {
-          "type": "contains",
-          "value": "Service"
-        },
-        {
-          "type": "contains",
-          "value": "Worker"
-        }
+        { "type": "contains", "value": "MSW" },
+        { "type": "contains", "value": "handler" }
       ]
     },
     {
       "id": 3,
-      "prompt": "My test uses screen.getByTestId everywhere. Is that the right approach?",
-      "expected_output": "No — prefer semantic queries: getByRole > getByLabelText > getByText > getByTestId. Use testId only as last resort. Semantic queries implicitly test accessibility. getByRole('button', { name: /submit/i }) is more maintainable.",
+      "prompt": "I want to test that my form submits correctly when the user fills in all fields.",
+      "expected_output": "Use userEvent (async) for realistic browser simulation: const user = userEvent.setup(); await user.type(screen.getByLabelText(/email/i), 'test@test.com'); await user.click(screen.getByRole('button', { name: /submit/i })). Use findByText (async) for elements that appear after submission. Avoid fireEvent — it doesn't simulate browser behavior accurately.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "test accessibility."
-        }
+        { "type": "contains", "value": "userEvent" },
+        { "type": "contains", "value": "findByText" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I write a custom React hook?",
-    "How do I configure my React build with Vite?",
-    "How do I prevent XSS in React?",
-    "How do I set up Zustand for state management?"
+    "Write a PostgreSQL stored procedure",
+    "Configure a Kubernetes deployment",
+    "Set up a Go gRPC interceptor"
   ]
 }

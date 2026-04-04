@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common workflow writing best practices?",
-      "expected_output": "**Templates, not examples**: Workflows define _structure_, not pre-filled data. The agent generates data at runtime.",
+      "prompt": "Write a workflow for the code review process that includes all the detailed steps and examples.",
+      "expected_output": "Apply workflow writing rules: (1) Goal in 1 sentence. (2) Steps as imperative commands. (3) Output as template headers only — no pre-filled rows. No prose explanations. No pre-answered questions. No example data in tables. Merge any sequential steps that always happen together. Stay under 80 lines.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": ".md"
-        },
-        {
-          "type": "contains",
-          "value": "references/"
-        },
-        {
-          "type": "contains",
-          "value": "> ⚠️"
-        }
+        { "type": "contains", "value": "template" },
+        { "type": "contains", "value": "80 lines" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common workflow writing?",
-      "expected_output": "**No example rows in tables**: Include headers + 1 skeleton row only. Never populate with fake data.",
+      "prompt": "The workflow I created has detailed explanation paragraphs before each step explaining why we do it.",
+      "expected_output": "Violation: No verbose step preambles. Delete all 'Before we start, it's important to understand...' prose. Replace with imperative command: 'Run security scan' not 'Before running the security scan, it's important to note that...'. If a bullet achieves the same result, delete the paragraph. Check: would cutting this in half still give the agent enough to act on?",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Priority: P0 (CRITICAL)"
-        },
-        {
-          "type": "contains",
-          "value": "Templates, not examples"
-        },
-        {
-          "type": "contains",
-          "value": "No example rows in tables"
-        }
+        { "type": "contains", "value": "prose" },
+        { "type": "contains", "value": "delete" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common workflow writing.",
-      "expected_output": "**No prose explanations**: If a bullet or command achieves the same result, delete the paragraph.",
+      "prompt": "Update this SKILL.md — it has an inline code block of 15 lines showing an example configuration.",
+      "expected_output": "Violation: Inline code block >10 lines must be extracted to references/. Create references/example.md (or references/config-example.md) and move the 15-line block there. Replace inline block with a link: 'See [Configuration Example](references/config-example.md)'. SKILL.md must stay ≤100 lines.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "No prose explanations"
-        },
-        {
-          "type": "contains",
-          "value": "No pre-answered questions"
-        },
-        {
-          "type": "contains",
-          "value": "Merge sequential steps"
-        }
+        { "type": "contains", "value": "references/" },
+        { "type": "contains", "value": "extract" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic common project from scratch",
-    "How do I install common dependencies?",
-    "What is common?",
-    "Configure CI/CD for an unrelated platform"
+    "Build a REST API endpoint for user registration",
+    "Implement a Redis caching layer",
+    "Write SQL queries for a reporting dashboard"
   ]
 }

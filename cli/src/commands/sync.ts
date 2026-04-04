@@ -52,7 +52,7 @@ export class SyncCommand {
       // 3. Check for updates
       const updates = await this.syncService.checkForUpdates(config);
 
-      if (updates) {
+      if (updates && Object.keys(updates).length > 0) {
         console.log(pc.yellow('\n🚀 New skill versions detected:'));
         for (const [cat, ref] of Object.entries(updates)) {
           console.log(

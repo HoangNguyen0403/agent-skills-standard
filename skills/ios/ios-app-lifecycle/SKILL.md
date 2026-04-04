@@ -1,6 +1,6 @@
 ---
 name: ios-app-lifecycle
-description: "Manage AppDelegate, SceneDelegate, deep linking, and background tasks. Use when configuring iOS app lifecycle, deep linking, or background task scheduling. (triggers: AppDelegate.swift, SceneDelegate.swift, didFinishLaunchingWithOptions, willConnectTo, backgroundTask, Shortcut, UserActivity)"
+description: "Configure AppDelegate, SceneDelegate, deep linking, and background tasks. Use when configuring iOS app lifecycle, deep linking, or background task scheduling. (triggers: AppDelegate.swift, SceneDelegate.swift, didFinishLaunchingWithOptions, willConnectTo, backgroundTask, Shortcut, UserActivity)"
 ---
 
 # iOS App Lifecycle

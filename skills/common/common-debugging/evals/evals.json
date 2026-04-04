@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common debugging best practices?",
-      "expected_output": "**Shotgun Debugging**: Randomly changing things hoping it works.",
+      "prompt": "My app crashes with 'Cannot read properties of undefined (reading length)' but only in production, not locally.",
+      "expected_output": "Apply Scientific Method: OBSERVE — collect production logs, stack trace, and steps to reproduce. HYPOTHESIZE — the value is undefined in prod but defined in dev (likely env config or async timing). EXPERIMENT — add null check logging, test with production env vars locally. FIX once root cause proven. VERIFY with regression test.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "print"
-        },
-        {
-          "type": "contains",
-          "value": "console.log"
-        },
-        {
-          "type": "contains",
-          "value": "try-catch"
-        }
+        { "type": "contains", "value": "hypothesis" },
+        { "type": "contains", "value": "reproduce" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common debugging?",
-      "expected_output": "**Console Log Spam**: Leaving `print`/`console.log` in production code.",
+      "prompt": "I've been randomly changing code for 2 hours trying to fix this bug. Nothing works.",
+      "expected_output": "Stop shotgun debugging. Return to the Scientific Method: (1) OBSERVE — what exactly is failing? Collect logs and stack traces. (2) HYPOTHESIZE — form one specific theory. (3) EXPERIMENT — change one variable at a time to test it. Create a minimal reproduction case. Binary search: comment out half the code to isolate the failing section.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Priority: P1 (OPERATIONAL)"
-        },
-        {
-          "type": "contains",
-          "value": "OBSERVE"
-        },
-        {
-          "type": "contains",
-          "value": "HYPOTHESIZE"
-        }
+        { "type": "contains", "value": "hypothesis" },
+        { "type": "contains", "value": "minimal" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common debugging.",
-      "expected_output": "**Fixing Symptoms**: masking the error (e.g., `try-catch` without handling) instead of fixing the root cause.",
+      "prompt": "This function was working yesterday but broke today. How do I find what changed?",
+      "expected_output": "Apply Diff Diagnosis: check git log to find what changed since it last worked (git diff, git bisect). Look at recent commits, dependency updates, and config changes. Create a minimal reproduction case to isolate the regression. Test against the last known-good commit.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "EXPERIMENT"
-        },
-        {
-          "type": "contains",
-          "value": "FIX"
-        },
-        {
-          "type": "contains",
-          "value": "VERIFY"
-        }
+        { "type": "contains", "value": "diff" },
+        { "type": "contains", "value": "git" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic common project from scratch",
-    "How do I install common dependencies?",
-    "What is common?",
-    "Configure CI/CD for an unrelated platform"
+    "Write a React component for displaying user profiles",
+    "Configure Kubernetes resource limits",
+    "Design a database schema for an e-commerce site"
   ]
 }

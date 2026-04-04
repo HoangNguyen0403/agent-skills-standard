@@ -6,24 +6,29 @@ Systematically identify and update existing Zephyr Test Cases affected by new re
 
 ## 0. Discovery Protocol (Finding Existing TCs)
 
-**Always start with Step A (direct lookup) before any other search.**
+Use a multi-pass discovery strategy, starting with the fastest direct lookup.
 
-### Step A — Direct Issue Link Lookup (MANDATORY FIRST)
+### Pass 0 — Direct Issue Link Lookup (Primary — always run first)
 
-- Call `get_issue_link_test_cases` with the exact Jira issue key (e.g., `EZRX-42302`).
-- Present the result count and TC list to the user immediately.
-- Only proceed to Step B if the result is 0 TCs.
+Use `Get Issue Link Test Cases` MCP tool with the Jira issue key (e.g., `EZRX-42302`).
+Returns all TCs formally linked to the issue in a single call. This is the fastest and most reliable method.
 
-### Step B — Supplemental Discovery (only if Step A returns 0)
+For each returned TC key, use `Get Test Case` to fetch full details.
 
-Since new User Stories (US) are created for every change, direct issue-links may not exist for brand-new tickets. If Step A returns 0, follow this chain:
+### Pass 1 — Supplemental Search (only if Pass 0 yields < 3 TCs)
 
-- **Keyword Search**: Query Zephyr using the `[Module]` and `[Screen]` identified in the Naming Convention (e.g., search "Order History Payment").
-- **Folder Audit**: Navigate to the Zephyr folder corresponding to the feature area (e.g., `features/order_history`).
-- **Sibling Analysis (Jira)**:
-  - Find other Jira issues with the same **Component** or **Labels**.
-  - Use `get_issue_link_test_cases` on those "sibling" issues to find linked TCs.
-- **Traceability Check**: Use the `business-analysis` skill to identify the "System Area" and check all TCs tagged with that area.
+Use `Get Test Cases` with `projectKey=EZRX` and `limit=100` to fetch recent TCs. Filter **client-side**:
+
+- **Objective match:** TCs where `objective` text contains the issue key string
+
+Deduplicate against Pass 0 results.
+
+### Pass 2 — Keyword Fallback (only if Pass 0+1 yield < 3 TCs)
+
+- **Keyword Search**: Search `name` for `[Module]` and `[Screen]` keywords (e.g., "Order History Payment").
+- **Link Check**: Use `Get Test Case Links` on candidates to check COVERAGE links to related issues.
+- **Folder Audit**: Navigate to the Zephyr folder for the feature area (e.g., `features/order_history`).
+- **Sibling Analysis (Jira)**: Find issues sharing the same **Component** or **Labels**; search their linked TCs.
 
 ## 1. Identification (Delta Analysis)
 
@@ -43,11 +48,11 @@ Since new User Stories (US) are created for every change, direct issue-links may
 
 ## 3. Update Procedure (Requires User Approval)
 
-1. **Fetch**: Read the latest version of the existing TC using `get_test_case_steps`.
+1. **Fetch**: Read the latest version of the existing TC using `Get Test Case Steps`.
 2. **Merge**: Apply the deltas to the steps while preserving unchanged valid steps.
-3. **Verify**: Ensure the updated TC still follows [Granularity Standards](../../quality-assurance/references/test_case_standards.md).
+3. **Verify**: Ensure the updated TC still follows [Granularity Standards](../../quality-engineering-quality-assurance/references/test_case_standards.md).
 4. **Present Diff (MANDATORY)**: Show the user a clear before/after comparison of every field and step that will change. Wait for explicit user approval ("yes", "approve", "proceed", or equivalent) before continuing.
-5. **Publish**: Only after approval, update the TC using `update_test_case` (this normally increments the version).
+5. **Publish**: Only after approval, update the TC using `Update Test Case` (this normally increments the version).
 
 ## 4. Documentation
 

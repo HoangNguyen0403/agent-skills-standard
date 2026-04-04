@@ -3,41 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Review this function: function check(u) { if (u.auth == true) { return true; } else { return false; } }",
-      "expected_output": "Naming: intention-revealing (isUserAuthenticated > check). Use guard clauses/early returns. Follow SRP. Intention-revealing naming.",
+      "prompt": "Refactor this function — it's 80 lines long with 5 levels of if/else nesting.",
+      "expected_output": "Apply guard clauses to eliminate nesting (early returns for error conditions). Split into smaller functions <30 lines each. Use intention-revealing names. Result: flat, readable code with clear control flow.",
       "assertions": [
-        { "type": "contains", "value": "Naming" },
-        { "type": "contains", "value": "Intention-revealing" },
-        { "type": "contains", "value": "guard clauses" },
-        { "type": "contains", "value": "Early Returns" }
+        { "type": "contains", "value": "guard" },
+        { "type": "contains", "value": "return" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How should I handle a complex 100-line function with multiple nested if statements?",
-      "expected_output": "Apply SOLID principles (SRP). Use guard clauses to prevent deep nesting. Break into smaller functions (< 30 lines). Avoid the Pyramid of Doom.",
+      "prompt": "I have a constant API_URL = 'https://api.example.com' hardcoded in 12 different files.",
+      "expected_output": "Violation: hardcoded constant. Fix: extract to a named config/env var (e.g., process.env.API_URL or a central config.ts). Update all 12 callsites to reference the single source of truth.",
       "assertions": [
-        { "type": "contains", "value": "SOLID" },
-        { "type": "contains", "value": "guard clauses" },
-        { "type": "contains", "value": "Functions < 30 lines" },
-        { "type": "contains", "value": "No deep nesting" }
+        { "type": "contains", "value": "env" },
+        { "type": "contains", "value": "hardcoded" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Should I add comments to explain every line of my code?",
-      "expected_output": "Comments: explain why, not what. Refactor instead of commenting bad code. Intention-revealing naming makes code self-documenting.",
+      "prompt": "Review my naming conventions — I have functions like doStuff(), handleIt(), and process().",
+      "expected_output": "Violation: vague names. Apply intention-revealing naming: doStuff() → submitOrderPayment(), handleIt() → handleUserLoginError(), process() → processInvoiceBatch(). Names should express what and why, making the code self-documenting.",
       "assertions": [
-        { "type": "contains", "value": "explain why, not what" },
-        { "type": "contains", "value": "Refactor instead of commenting" },
-        { "type": "contains", "value": "Naming" }
+        { "type": "contains", "value": "naming" },
+        { "type": "contains", "value": "intention" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I set up a React component?",
-    "How do I use WorkManager in Android?",
-    "How do I configure a NestJS module?",
-    "Write a SQL query to join two tables"
+    "Deploy my Docker container to Kubernetes",
+    "Write a SQL query to find duplicate rows",
+    "Configure Nginx as a reverse proxy"
   ]
 }

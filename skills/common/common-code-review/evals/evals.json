@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common code review best practices?",
-      "expected_output": "**Substance > Style**: Ignore formatting. Find bugs & design flaws.",
+      "prompt": "Review this PR — it adds a new endpoint that takes a user ID from the URL and returns their data without any auth check.",
+      "expected_output": "[BLOCKER] [routes/user.ts] Missing authentication and authorization check. Why: Any unauthenticated caller can retrieve any user's data (IDOR vulnerability). Fix: Add auth middleware and verify the requesting user owns the resource.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "[BLOCKER]"
-        },
-        {
-          "type": "contains",
-          "value": "[MAJOR]"
-        },
-        {
-          "type": "contains",
-          "value": "[NIT]"
-        }
+        { "type": "contains", "value": "BLOCKER" },
+        { "type": "contains", "value": "auth" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common code review?",
-      "expected_output": "**Questions > Commands**: \"Does this handle null?\" vs \"Fix this.\"",
+      "prompt": "Can you critique this code? It works fine but I want a senior engineer's perspective.",
+      "expected_output": "Review using Principal Engineer persona. Check: correctness, security (injection, auth, secrets), performance (N+1, memory leaks), clean code (DRY, SOLID, naming). Output each finding with [SEVERITY] [File] Issue / Why / Fix format.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Priority: P1 (OPERATIONAL)"
-        },
-        {
-          "type": "contains",
-          "value": "You are a Principal Engineer."
-        },
-        {
-          "type": "contains",
-          "value": "Substance > Style"
-        }
+        { "type": "contains", "value": "MAJOR" },
+        { "type": "contains", "value": "Fix:" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common code review.",
-      "expected_output": "**Readability**: Group by `[BLOCKER]`, `[MAJOR]`, `[NIT]`.",
+      "prompt": "Analyze this pull request that adds a caching layer to reduce database calls.",
+      "expected_output": "Check: Is cache invalidation correct? Are edge cases (empty results, null) handled? Does it introduce race conditions? Is TTL appropriate? Group findings as [BLOCKER], [MAJOR], [NIT]. Include test coverage review.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Questions > Commands"
-        },
-        {
-          "type": "contains",
-          "value": "Readability"
-        },
-        {
-          "type": "contains",
-          "value": "Cross-Check"
-        }
+        { "type": "contains", "value": "cache" },
+        { "type": "contains", "value": "Why:" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic common project from scratch",
-    "How do I install common dependencies?",
-    "What is common?",
-    "Configure CI/CD for an unrelated platform"
+    "How do I install Node.js on Ubuntu?",
+    "Explain what a binary search tree is",
+    "Generate a CSV export function"
   ]
 }

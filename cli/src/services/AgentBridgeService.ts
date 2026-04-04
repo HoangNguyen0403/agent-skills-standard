@@ -62,7 +62,7 @@ export class AgentBridgeService {
         '',
         '## Self-Learning Protocol',
         '',
-        `At the end of any multi-step task with user corrections, load and run **[common/session-retrospective](${prefix}common/session-retrospective/SKILL.md)** to capture skill gaps and prevent repeat rework.`,
+        `At the end of any multi-step task with user corrections, load and run **[common/common-session-retrospective](${prefix}common/common-session-retrospective/SKILL.md)** to capture skill gaps and prevent repeat rework.`,
         '',
       ].join('\n');
 
@@ -99,6 +99,39 @@ export class AgentBridgeService {
         case 'none':
           // No frontmatter
           break;
+      }
+
+      const isClaude = agentId === Agent.Claude;
+
+      if (isClaude) {
+        const claudeProtocol = [
+          '',
+          '## Agent Protocol',
+          '',
+          'See `AGENTS.md` for the Zero-Trust skill loading protocol (applies to all AI agents).',
+          '',
+          '## Self-Learning Protocol',
+          '',
+          `At the end of any multi-step task with user corrections, load and run **[common/common-session-retrospective](${prefix}common/common-session-retrospective/SKILL.md)** to capture skill gaps and prevent repeat rework.`,
+          '',
+        ].join('\n');
+
+        const claudePath = path.join(rootDir, 'CLAUDE.md');
+        if (await fs.pathExists(claudePath)) {
+          const existingContent = await fs.readFile(claudePath, 'utf8');
+          if (
+            existingContent &&
+            !existingContent.includes('## Agent Protocol')
+          ) {
+            await fs.appendFile(claudePath, claudeProtocol);
+          }
+        } else {
+          await fs.outputFile(claudePath, claudeProtocol.trimStart());
+        }
+        // Also write the full Zero-Trust rules to the rule directory if it's not the root
+        // But for Claude, CLAUDE.md IS the rule file.
+        // The user wants CLAUDE.md to refer to AGENTS.md.
+        continue;
       }
 
       content += commonBody;

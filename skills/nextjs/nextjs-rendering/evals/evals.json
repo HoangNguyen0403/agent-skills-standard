@@ -3,97 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Choose between SSG, SSR, and ISR in Next.js",
-      "expected_output": "SSG: static data, max performance, no per-request cost; SSR: per-request personalization, always fresh; ISR: revalidate on interval/on-demand; PPR: static shell + Suspense-gated dynamic holes",
+      "prompt": "My product listing page renders thousands of products. It's static content that rarely changes. What rendering strategy should I use?",
+      "expected_output": "Use SSG (Static Site Generation): fetch with cache: 'force-cache'. Use generateStaticParams for dynamic product routes. For periodic updates (new products): use ISR with revalidate: 3600. This gives best performance (CDN cached) while keeping content reasonably fresh. Avoid SSR for static content.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Suspense"
-        },
-        {
-          "type": "contains",
-          "value": "static shell"
-        }
+        { "type": "contains", "value": "SSG" },
+        { "type": "contains", "value": "force-cache" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Implement Partial Prerendering (PPR) in Next.js",
-      "expected_output": "Enable experimental.ppr: 'incremental' in next.config.js; export const experimental_ppr = true in page; static shell served instantly from CDN; dynamic Suspense slots stream after shell",
+      "prompt": "My dashboard page has a slow data fetch (3 seconds) that blocks the entire page from loading.",
+      "expected_output": "Use Streaming with Suspense: wrap slow components in <Suspense fallback={<Skeleton />}>. Create loading.tsx for route-level skeleton. Or use PPR (Partial Prerendering) with ppr: true in next.config.js — static shell renders immediately, dynamic regions stream in. Never root-await slow fetches in page.tsx.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Enable"
-        },
-        {
-          "type": "contains",
-          "value": "Suspense"
-        },
-        {
-          "type": "contains",
-          "value": "static shell"
-        }
+        { "type": "contains", "value": "Suspense" },
+        { "type": "contains", "value": "stream" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Use streaming with Suspense in Next.js App Router",
-      "expected_output": "Wrap slow component: <Suspense fallback={<ProductSkeleton/>}><ProductDetails id={id}/></Suspense>; page shell renders immediately; ProductDetails streams when data resolves; prevents page-wide blocking",
+      "prompt": "My page uses window.innerWidth in the initial render and shows a hydration error.",
+      "expected_output": "Violation: No typeof window in initial render. window.innerWidth is browser-only and causes hydration mismatch. Fix: use the mounted useEffect pattern — const [mounted, setMounted] = useState(false); useEffect(() => setMounted(true), []); if (!mounted) return null. Or use dynamic import with ssr: false for the component.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Wrap"
-        },
-        {
-          "type": "contains",
-          "value": "Suspense"
-        },
-        {
-          "type": "contains",
-          "value": "Wrap slow"
-        }
+        { "type": "contains", "value": "hydration" },
+        { "type": "contains", "value": "mounted" }
       ]
-    },
-    {
-      "id": 4,
-      "prompt": "Set up Incremental Static Regeneration in Next.js",
-      "expected_output": "fetch(url, { next: { revalidate: 3600 } }) or export const revalidate = 3600 in page.tsx; on-demand: call revalidatePath('/blog') or revalidateTag('posts') from Server Action after CMS update",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Server"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "Fix hydration errors caused by typeof window in Next.js",
-      "expected_output": "Move typeof window check into useEffect(() => { setIsClient(typeof window !== 'undefined'); }, []); or use dynamic(Component, { ssr: false }) for client-only components; avoid Date.now() in initial render",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Component"
-        },
-        {
-          "type": "contains",
-          "value": "Date"
-        },
-        {
-          "type": "contains",
-          "value": "typeof window"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "Use generateStaticParams for dynamic SSG in Next.js",
-      "expected_output": "export async function generateStaticParams() { const posts = await getPosts(); return posts.map(p => ({ slug: p.slug })); } pre-builds all routes; set export const dynamicParams = false to 404 unknown slugs"
     }
   ],
   "should_not_trigger": [
-    "Rendering strategies in Nuxt.js with useAsyncData",
-    "Server-side rendering in Gatsby with createPages",
-    "SSR in a React app with custom Express server",
-    "Client-side rendering in Flutter Web"
+    "Configure a NestJS dependency injection module",
+    "Write a Go middleware for rate limiting",
+    "Set up Kubernetes horizontal pod autoscaling"
   ]
 }

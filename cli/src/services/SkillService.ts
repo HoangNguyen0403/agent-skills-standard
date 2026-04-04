@@ -54,11 +54,8 @@ export class SkillService {
 
       let status: SkillWithStatus['status'] = 'no-rule';
       if (rule) {
-        const isPresent = rule.packages.some((p) =>
-          Array.from(projectDeps).some((d) =>
-            d.toLowerCase().includes(p.toLowerCase()),
-          ),
-        );
+        const depsArray = Array.from(projectDeps);
+        const isPresent = this.hasDependency(rule.packages, depsArray);
         status = isPresent ? 'detected' : 'not-detected';
       }
 
@@ -66,5 +63,25 @@ export class SkillService {
     });
 
     return skills;
+  }
+
+  /**
+   * Checks if ANY of the required dependencies are found in the project.
+   * Uses the same word-boundary matching logic as ConfigService.hasDependency().
+   */
+  private hasDependency(packages: string[], projectDeps: string[]): boolean {
+    if (packages.length === 0) return true;
+    return projectDeps.some((d) =>
+      packages.some((pkg) => {
+        const depLower = d.toLowerCase();
+        const pkgLower = pkg.toLowerCase();
+        if (depLower === pkgLower) return true;
+        if (pkg.length <= 3) return false;
+        if (depLower.includes('/') && depLower.split('/').pop() === pkgLower)
+          return true;
+        const parts = depLower.split(/[-/_]/);
+        return parts.includes(pkgLower);
+      }),
+    );
   }
 }

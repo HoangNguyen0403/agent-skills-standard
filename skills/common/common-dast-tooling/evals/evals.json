@@ -1,0 +1,37 @@
+{
+  "skill_name": "common-dast-tooling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to run a dynamic security scan on our staging API before the release. What tools should I use and how?",
+      "expected_output": "Use Nuclei for fast CVE/misconfiguration scanning, ZAP-CLI for deep XSS/SQLi scanning. Set max-depth and max-duration to prevent infinite loops. Use authenticated headers (Authorization) to test protected surfaces. Never scan production — staging only.",
+      "assertions": [
+        { "type": "contains", "value": "staging" },
+        { "type": "contains", "value": "Nuclei" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We don't have ZAP or Nuclei installed. How can I still do adversarial testing on our API endpoints?",
+      "expected_output": "Use AI-driven curl probes: (1) Bypass guards with manipulated headers like X-Forwarded-For. (2) Probe /metrics, /health, /.git for data leakage. (3) Tamper parameters — inject objects where strings expected, send oversized payloads. Document findings with severity scoring.",
+      "assertions": [
+        { "type": "contains", "value": "curl" },
+        { "type": "contains", "value": "probe" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Our DAST scan found the server exposes its version string in response headers. How severe is this?",
+      "expected_output": "Severity P1 — Info Leakage (Server version/Env vars): -10 deduction. Attackers can target known CVEs for that version. Fix: configure web server to suppress version headers (e.g., server_tokens off in Nginx). Also check for X-Powered-By, X-AspNet-Version headers.",
+      "assertions": [
+        { "type": "contains", "value": "P1" },
+        { "type": "contains", "value": "version" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Write a REST API endpoint in Express.js",
+    "How do I optimize my PostgreSQL queries?",
+    "Set up Tailwind CSS in a Next.js project"
+  ]
+}

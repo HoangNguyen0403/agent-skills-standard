@@ -30,6 +30,16 @@ See [implementation examples](references/implementation.md)
 
 Wrap `localStorage` reads in `useEffect` or a `mounted` flag to avoid hydration mismatches. Manage optimistic updates with `useOptimistic` in Next.js 15+.
 
+## Legacy Redux (existing projects)
+
+If the project already uses `redux@4` + `createStore` + `redux-thunk` + `next-redux-wrapper` (e.g. `datasource/ezrx/frontend`):
+- Use `useSelector` / `useDispatch` hooks — never connect HOC.
+- Define a typed `RootState` and typed `AppDispatch` for all selectors and dispatch calls.
+- Avoid adding Zustand or TanStack Query on top of an existing Redux codebase — migrate incrementally if needed.
+- Migration path: Redux Toolkit (`@reduxjs/toolkit`) → RTK Query → then consider TanStack Query.
+
+See [references/redux.md](references/redux.md) for typed selector and thunk patterns.
+
 ## Library Patterns
 
 - [references/redux.md](references/redux.md)

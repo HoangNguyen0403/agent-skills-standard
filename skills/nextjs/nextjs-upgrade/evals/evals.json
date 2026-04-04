@@ -3,107 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Upgrade Next.js from v14 to v15",
-      "expected_output": "Run npx @next/codemod@latest next-async-request-api . first; then npm install next@15 react@19 react-dom@19; audit all fetch() calls (default changed to no-store); run npm run build to validate",
+      "prompt": "I need to upgrade my Next.js project from version 13 to 15.",
+      "expected_output": "Incremental upgrade — never skip majors: (1) v13 -> v14 first: run npx @next/codemod@latest upgrade ., test, fix issues. (2) v14 -> v15: run codemods again. Key v15 changes: cookies(), headers(), params are now Promises — must await. Fetch defaults to no-store. Update React to 19 for Next.js 15 compatibility.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "npx @next/codemod@latest"
-        },
-        {
-          "type": "contains",
-          "value": "npm install"
-        },
-        {
-          "type": "contains",
-          "value": "audit all"
-        }
+        { "type": "contains", "value": "codemod" },
+        { "type": "contains", "value": "incremental" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Run Next.js codemods for migration",
-      "expected_output": "npx @next/codemod@latest <transform> <path>; transforms: next-async-request-api (v15 params/cookies/headers), built-in-next-font (v13); always run codemods before manually fixing breaking changes",
+      "prompt": "After upgrading to Next.js 15, all my pages are showing stale cached data.",
+      "expected_output": "Breaking change: Next.js 15 defaults fetch to no-store (no caching) instead of force-cache. Audit all fetch calls — add cache: 'force-cache' where you want SSG behavior, or revalidate: N for ISR. This is the opposite of v14 default. Run next build to see all dynamic route warnings.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "npx @next/codemod@latest"
-        },
-        {
-          "type": "contains",
-          "value": "@next/codemod@latest <transform>"
-        },
-        {
-          "type": "contains",
-          "value": "<transform> <path>"
-        }
+        { "type": "contains", "value": "no-store" },
+        { "type": "contains", "value": "force-cache" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Fix breaking changes after Next.js upgrade",
-      "expected_output": "v15: await all cookies(), headers(), params, searchParams; audit fetch() cache behavior (default changed to no-store); check NEXT_PUBLIC_ env var access; verify React 19 peer deps compatibility",
+      "prompt": "I want to skip directly from Next.js 12 to 15 to save time.",
+      "expected_output": "Violation: No major version skipping. Upgrade one major at a time: 12 -> 13, 13 -> 14, 14 -> 15. Each major has different codemods and breaking changes. Skipping causes compounding failures that are hard to debug. Run npx @next/codemod@latest for each step. Test after each increment with next dev and next build.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "React"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "Migrate next-async-request-api codemod",
-      "expected_output": "npx @next/codemod@latest next-async-request-api app/; auto-transforms params/searchParams to awaited Promises in page/layout; updates cookies() and headers() calls; review diff before committing",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "npx @next/codemod@latest"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "Update peer dependencies after Next.js version bump",
-      "expected_output": "npm install next@latest react@latest react-dom@latest; npm install --save-dev @types/react@latest @types/react-dom@latest; check third-party libraries for compatibility; run npm run build to validate",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "npm install"
-        },
-        {
-          "type": "contains",
-          "value": "install next@latest"
-        },
-        {
-          "type": "contains",
-          "value": "next@latest react@latest"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "Why is my fetch not caching after upgrading to Next.js 15?",
-      "expected_output": "Next.js 15 changed default fetch cache from force-cache to no-store; explicitly add cache: 'force-cache' or next: { revalidate: X } to fetches that need caching; audit all fetch() calls in Server Components",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Next"
-        },
-        {
-          "type": "contains",
-          "value": "cache: 'force-cache'"
-        },
-        {
-          "type": "contains",
-          "value": "audit all"
-        }
+        { "type": "contains", "value": "one major" },
+        { "type": "contains", "value": "skip" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Upgrade React from v17 to v18 in a non-Next.js app",
-    "Laravel major version upgrade guide",
-    "Node.js LTS version upgrade process",
-    "NestJS major version migration steps"
+    "Write a custom hook for data fetching",
+    "Configure ESLint rules for the team",
+    "Set up Playwright test infrastructure"
   ]
 }

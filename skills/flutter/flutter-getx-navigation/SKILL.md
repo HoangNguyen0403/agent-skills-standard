@@ -22,19 +22,7 @@ Decoupled navigation system allowing UI transitions without `BuildContext`.
 
 ## Code Example
 
-```dart
-static final routes = [
-  GetPage(
-    name: _Paths.HOME,
-    page: () => HomeView(),
-    binding: HomeBinding(),
-    middlewares: [AuthMiddleware()],
-  ),
-];
-
-// Usage in Controller
-void logout() => Get.offAllNamed(Routes.LOGIN);
-```
+See [AppPages Config](references/app-pages.md) for route definition and controller usage patterns.
 
 ## Anti-Patterns
 

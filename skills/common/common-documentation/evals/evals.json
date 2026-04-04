@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common documentation best practices?",
-      "expected_output": "**\"Why\" over \"What\"**: Comments should explain non-obvious intent. Code should describe the logic.",
+      "prompt": "Add comments to this complex retry logic function that implements exponential backoff with jitter.",
+      "expected_output": "Add JSDoc with @param, @returns, @example. Add inline comment explaining WHY jitter is added (prevents thundering herd), not WHAT the calculation does (code is self-explanatory). Remove any commented-out code — use git history instead.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "TODO(username): description"
-        },
-        {
-          "type": "contains",
-          "value": "FIXME"
-        },
-        {
-          "type": "contains",
-          "value": "docs/adr/"
-        }
+        { "type": "contains", "value": "why" },
+        { "type": "contains", "value": "JSDoc" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common documentation?",
-      "expected_output": "**Docstrings**: Use triple-slash (Dart/Swift) or standard JSDoc (TS/JS) for all public functions and classes.",
+      "prompt": "Write a README for our new authentication microservice.",
+      "expected_output": "README structure: (1) Mission — one-sentence purpose. (2) Prerequisites — exact runtime versions. (3) Installation — step-by-step commands. (4) Usage — copy-paste examples. (5) Known quirks and troubleshooting. Documentation ships with the feature, not after.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": ">>>"
-        },
-        {
-          "type": "contains",
-          "value": "(owner)"
-        },
-        {
-          "type": "contains",
-          "value": "Priority: P2 (MAINTENANCE)"
-        }
+        { "type": "contains", "value": "Prerequisites" },
+        { "type": "contains", "value": "Usage" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common documentation.",
-      "expected_output": "**Maintenance**: Delete \"commented-out\" code immediately; use Git history for retrieval.",
+      "prompt": "I have TODO comments scattered throughout the code with no owner or ticket reference.",
+      "expected_output": "Violation: orphan TODOs. Every TODO needs (owner) and linked ticket: TODO(username): Fix race condition in payment flow — JIRA-1234. Add FIXME with ownership for bugs. Delete any TODO that's more than 6 months old without a ticket — if it mattered, it would have a ticket.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "\"Why\" over \"What\""
-        },
-        {
-          "type": "contains",
-          "value": "Docstrings"
-        },
-        {
-          "type": "contains",
-          "value": "Maintenance"
-        }
+        { "type": "contains", "value": "TODO" },
+        { "type": "contains", "value": "owner" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic common project from scratch",
-    "How do I install common dependencies?",
-    "What is common?",
-    "Configure CI/CD for an unrelated platform"
+    "Optimize my database queries for better performance",
+    "Set up a CI/CD pipeline with GitHub Actions",
+    "Implement a rate limiter for the API"
   ]
 }

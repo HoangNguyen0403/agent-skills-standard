@@ -3,37 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "What is the idiomatic way to define an enum in Go?",
-      "expected_output": "Use const block with iota. PascalCase for exported constants. Group related constants in a typed int/string type.",
+      "prompt": "What's the idiomatic way to define a set of related constants in Go?",
+      "expected_output": "Use iota inside a const block. Define a named type for the constant group for type safety. Example: type Status int; const (Active Status = iota; Inactive).",
       "assertions": [
         { "type": "contains", "value": "iota" },
-        { "type": "contains", "value": "const block" }
+        { "type": "contains", "value": "const" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How should I name Go interfaces?",
-      "expected_output": "Small interfaces with 1-2 methods. Single-method interfaces named with -er suffix (Reader, Writer, Stringer). Define where used (consumer side), not where implemented.",
+      "prompt": "How should I format and organize imports in my Go files?",
+      "expected_output": "Use goimports to auto-organize imports into groups: stdlib, external, internal. Run goimports -w . before committing. Never sort imports manually.",
       "assertions": [
-        { "type": "contains", "value": "Small interfaces" },
-        { "type": "contains", "value": "1-2 methods" },
-        { "type": "contains", "value": "Define where used" }
+        { "type": "contains", "value": "goimports" },
+        { "type": "contains", "value": "stdlib" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Is it OK to use init() functions in Go packages?",
-      "expected_output": "Avoid init(). Use constructors (NewService()) instead. init() runs implicitly and makes testing harder. Prefer explicit initialization.",
+      "prompt": "Should I use a named return value in my Go function?",
+      "expected_output": "Use named returns sparingly — only when it significantly improves readability (e.g., complex multi-return functions). Never use naked returns in functions longer than a few lines.",
       "assertions": [
-        { "type": "contains", "value": "No init" },
-        { "type": "contains", "value": "Use constructors" },
-        { "type": "contains", "value": "not init()" }
+        { "type": "contains", "value": "named" },
+        { "type": "contains", "value": "naked" }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I structure a Go microservice?",
-    "How do I use goroutines?",
-    "How do I write a TypeScript interface?"
+    "How do I create a Kubernetes deployment manifest?",
+    "Write a React component for the order list",
+    "Set up PostgreSQL connection pooling"
   ]
 }

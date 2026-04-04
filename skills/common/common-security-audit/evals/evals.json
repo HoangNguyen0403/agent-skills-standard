@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common security audit best practices?",
-      "expected_output": "**Node/TS**: `grep -rE \"console\\.(log|error|warn)\" . --include=\"*.ts\" --include=\"*.js\" | grep -iE \"password|token|secret|private\"`",
+      "prompt": "Run a security audit on our Node.js backend codebase before we go live.",
+      "expected_output": "Execute 7-step audit: (1) Scan for hardcoded secrets (grep for API_KEY, PASSWORD, SECRET). (2) Check logs for PII (grep for password/token in console.log). (3) Map injection surfaces (raw string concat in queries). (4) Measure auth coverage (total routes vs guarded routes). (5) Run npm audit --audit-level=high. (6) Audit infrastructure. (7) Check for SSRF/path traversal/BOLA. Report with scoring.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "npm audit --audit-level=high"
-        },
-        {
-          "type": "contains",
-          "value": "dart pub outdated --json"
-        },
-        {
-          "type": "contains",
-          "value": "go list -m -u all | grep \"\\[\""
-        }
+        { "type": "contains", "value": "secrets" },
+        { "type": "contains", "value": "npm audit" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common security audit?",
-      "expected_output": "**Go**: `grep -rE \"log\\.(Print|Printf|Println|Fatal)\" . --include=\"*.go\" | grep -iE \"password|token|secret\"`",
+      "prompt": "We found a hardcoded database password in our Go source code. How severe is this?",
+      "expected_output": "P0 finding — Hardcoded Secrets: -25 deduction. Security score capped at 40/100. Immediate actions: (1) Rotate the credential NOW. (2) Use git filter-repo to purge from history. (3) Move to environment variable or secret manager. (4) Add pre-commit hook to prevent future secrets. Treat as compromised until rotation confirmed.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "mvn dependency:list"
-        },
-        {
-          "type": "contains",
-          "value": "./gradlew dependencies"
-        },
-        {
-          "type": "contains",
-          "value": "pip-audit"
-        }
+        { "type": "contains", "value": "-25" },
+        { "type": "contains", "value": "rotate" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common security audit.",
-      "expected_output": "**Dart/Flutter**: `grep -rE \"print\\(|debugPrint\\(\" . --include=\"*.dart\" | grep -iE \"password|token|secret\"`",
+      "prompt": "I want to check if our API has any IDOR vulnerabilities.",
+      "expected_output": "Run: grep -rE 'findById\\(|findOne\\(' . | grep -viE 'tenant|owner|user_id'. Any findById without owner filter is a BOLA/IDOR vulnerability (P0, -15). Also check: SSRF via user-controlled URLs in axios/fetch calls, path traversal in path.join calls without normalization.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "cargo audit"
-        },
-        {
-          "type": "contains",
-          "value": "Priority: P0 (CRITICAL)"
-        },
-        {
-          "type": "contains",
-          "value": "Node/TS"
-        }
+        { "type": "contains", "value": "owner" },
+        { "type": "contains", "value": "IDOR" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic common project from scratch",
-    "How do I install common dependencies?",
-    "What is common?",
-    "Configure CI/CD for an unrelated platform"
+    "Write a CSS animation for a loading spinner",
+    "Explain React's reconciliation algorithm",
+    "Configure TypeScript strict mode"
   ]
 }

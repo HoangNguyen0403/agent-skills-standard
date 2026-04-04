@@ -3,115 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Set up a Data Access Layer in Next.js",
-      "expected_output": "Create lib/dal.ts with import 'server-only' at top; export async function getUser(id: string): Promise<UserDTO> { const session = await verifySession(); const user = await db.user.findUnique({where:{id}}); return toDTO(user); }",
+      "prompt": "My Server Components are calling the database directly. Should I add a data access layer?",
+      "expected_output": "Yes. Create a DAL in lib/data.ts or services/. Add import 'server-only' at the top. Verify auth inside every DAL function with await auth(). Transform raw DB data to DTO plain objects before returning. Wrap with React cache() for deduplication. Never fetch('localhost/api') from Server Components — call DAL functions directly.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Create"
-        },
-        {
-          "type": "contains",
-          "value": "import 'server-only'"
-        }
+        { "type": "contains", "value": "server-only" },
+        { "type": "contains", "value": "auth" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Use server-only package to protect DAL files in Next.js",
-      "expected_output": "import 'server-only' at top of dal.ts and lib/crypto.ts; causes build error if any Client Component imports the file; prevents DB credentials and server logic from reaching client bundle",
+      "prompt": "I'm returning raw Prisma model objects from my data access functions to my components.",
+      "expected_output": "Violation: No raw ORM instances returned. Transform to plain DTO objects: const user = await db.user.findUnique({...}); return { id: user.id, name: user.name } — never the full ORM model. This prevents accidental exposure of sensitive fields (passwordHash, etc.) and decouples the API from the DB schema.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Client"
-        },
-        {
-          "type": "contains",
-          "value": "Component"
-        },
-        {
-          "type": "contains",
-          "value": "import 'server-only'"
-        }
+        { "type": "contains", "value": "DTO" },
+        { "type": "contains", "value": "transform" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Return DTOs from server functions in Next.js",
-      "expected_output": "Map raw DB result: function toDTO(user: User): UserDTO { return { id: user.id, name: user.name }; }; never return Prisma model instance; prevents accidental serialization of relations or sensitive fields",
+      "prompt": "My Client Component needs to access user data from the database. How should I do this?",
+      "expected_output": "Client Components cannot import DAL files. Use Server Actions or Route Handlers as bridges: (1) Create a Server Action in features/user/model/actions.ts that calls the DAL. (2) The Client Component calls the Server Action via form action or useTransition. Never import from lib/data.ts in a 'use client' file.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "User"
-        },
-        {
-          "type": "contains",
-          "value": "sensitive fields"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "Centralize auth checks in a DAL function",
-      "expected_output": "Auth check inside DAL: const session = await verifySession(); if (!session.userId) redirect('/login'); never rely on caller to check auth; each DAL function is self-contained and secure",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Auth"
-        },
-        {
-          "type": "contains",
-          "value": "Auth check"
-        },
-        {
-          "type": "contains",
-          "value": "DAL function"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "Avoid fetching own API routes from Server Components",
-      "expected_output": "Never fetch('http://localhost:3000/api/users') from RSC; call DAL function directly: const users = await getUsers(); removes unnecessary HTTP round trip and serialization overhead",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Never"
-        },
-        {
-          "type": "contains",
-          "value": "call DAL"
-        },
-        {
-          "type": "contains",
-          "value": "DAL function"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "Build a BFF pattern with Next.js and NestJS",
-      "expected_output": "Pattern A (BFF): DAL fetches from NestJS: const res = await fetch(process.env.API_URL + '/users', { headers: { Authorization } }); Pattern B (Direct): DAL calls Prisma directly; both use import 'server-only'",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "Pattern"
-        },
-        {
-          "type": "contains",
-          "value": "Authorization"
-        },
-        {
-          "type": "contains",
-          "value": "Direct"
-        }
+        { "type": "contains", "value": "Server Action" },
+        { "type": "contains", "value": "Client Component" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Repository pattern in Laravel with Eloquent",
-    "Data access in Spring Boot with JPA Repository",
-    "GORM repository pattern in Go",
-    "TypeORM repositories in NestJS"
+    "Configure Tailwind CSS custom colors",
+    "Write a Python data processing script",
+    "Set up monitoring with Datadog"
   ]
 }

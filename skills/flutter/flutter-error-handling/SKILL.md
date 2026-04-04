@@ -1,6 +1,6 @@
 ---
 name: flutter-error-handling
-description: 'Handle errors functionally with Either/Failure patterns. Use when writing repositories, handling exceptions, defining failures, or using Either in any Flutter layer. (triggers: lib/domain/**, lib/infrastructure/**, Either, fold, Left, Right, Failure, dartz)'
+description: 'Implement functional error recovery with Either/Failure patterns. Use when writing repositories, handling exceptions, defining failures, or using Either in any Flutter layer. (triggers: lib/domain/**, lib/infrastructure/**, Either, fold, Left, Right, Failure, dartz)'
 ---
 
 # Error Handling

@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common architecture audit best practices?",
-      "expected_output": "**Services**: Compare `Service.ts` vs `ServiceNew.ts` vs `ServiceV2.ts`.",
+      "prompt": "Audit the architecture of this NestJS backend — I'm concerned about logic creeping into controllers.",
+      "expected_output": "Run grep for repository/DB calls in controllers directory. Flag any controller method with >5 lines of business logic. Report layer violations with scoring impact (-15 per instance). Recommend moving logic to Service layer.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Service.ts"
-        },
-        {
-          "type": "contains",
-          "value": "ServiceNew.ts"
-        },
-        {
-          "type": "contains",
-          "value": "ServiceV2.ts"
-        }
+        { "type": "contains", "value": "controller" },
+        { "type": "contains", "value": "layer" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common architecture audit?",
-      "expected_output": "**Versioning**: Check for `/v1`, `/v2` or \"Refactor\" folders.",
+      "prompt": "Our React codebase has grown over 2 years. Check if we have a monolith problem — some files might be huge.",
+      "expected_output": "Search for component files >500 lines (Medium debt) and >1000 lines (Critical). Count hook usage in components/ vs hooks/ folders. Flag files with multiple responsibilities. Recommend splitting by Single Responsibility Principle.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "/v1"
-        },
-        {
-          "type": "contains",
-          "value": "/v2"
-        },
-        {
-          "type": "contains",
-          "value": "components/"
-        }
+        { "type": "contains", "value": "monolith" },
+        { "type": "contains", "value": "lines" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common architecture audit.",
-      "expected_output": "**Action**:\n  ```bash",
+      "prompt": "I see we have both UserService.ts and UserServiceNew.ts in the codebase. Is this a problem?",
+      "expected_output": "Yes — this is structural duplication (split source of truth). Score: -10 for duplicated legacy entity. Recommend consolidating into one canonical service, migrating callers, and deleting the legacy version. Check for /v1, /v2, or Refactor folders as related patterns.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "hooks/"
-        },
-        {
-          "type": "contains",
-          "value": "build()"
-        },
-        {
-          "type": "contains",
-          "value": "Priority: P1 (STANDARD)"
-        }
+        { "type": "contains", "value": "duplication" },
+        { "type": "contains", "value": "legacy" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic common project from scratch",
-    "How do I install common dependencies?",
-    "What is common?",
-    "Configure CI/CD for an unrelated platform"
+    "Write a unit test for the user login function",
+    "How do I center a div in CSS?",
+    "Configure GitHub Actions for CI/CD"
   ]
 }

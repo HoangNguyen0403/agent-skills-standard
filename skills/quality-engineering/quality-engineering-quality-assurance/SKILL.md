@@ -16,8 +16,8 @@ description: "Write manual test cases with 1-condition-per-TC granularity, Modul
 
 ## 2. Naming Convention
 
-- **Pattern**: `([Platform]) [Module]_[Action] on [Screen] when [Condition]`
-- **Rule**: Only include `[Platform]` if requirement is exclusive to one platform (e.g., `[Mobile]`). Omit if it supports **Both**.
+- **Pattern**: `Platform_Module_Action on Screen when Condition` (e.g., `Web_Order_Verify...` or `Mobile_Order_Verify...`)
+- **Rule**: Only include `Web_` or `Mobile_` prefix if requirement is exclusive to one platform. Omit prefix if it supports **Both**.
 - **Example**: `Order_Verify payment term on Item Details when Toggle is OFF` (Supports Both)
 
 ## 3. Priority Levels

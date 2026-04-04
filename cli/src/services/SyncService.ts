@@ -44,8 +44,6 @@ export class SyncService {
   }
 
   async reconcileWorkflows(config: SkillConfig): Promise<boolean> {
-    const agents = await this.resolveTargetAgents(config);
-    if (!agents.includes(Agent.Antigravity)) return false;
     return this.workflowSyncService.reconcileWorkflows(config);
   }
 
@@ -65,8 +63,6 @@ export class SyncService {
   }
 
   async assembleWorkflows(config: SkillConfig): Promise<CollectedSkill[]> {
-    const agents = await this.resolveTargetAgents(config);
-    if (!agents.includes(Agent.Antigravity)) return [];
     return this.workflowSyncService.assembleWorkflows(config);
   }
 
@@ -75,8 +71,7 @@ export class SyncService {
     config: SkillConfig,
   ): Promise<void> {
     const agents = await this.resolveTargetAgents(config);
-    if (!agents.includes(Agent.Antigravity)) return;
-    return this.workflowSyncService.writeWorkflows(workflows, config);
+    return this.workflowSyncService.writeWorkflows(workflows, config, agents);
   }
 
   async applyIndices(
@@ -101,16 +96,50 @@ export class SyncService {
         : path.join(process.cwd(), '.cursor/skills');
 
       const allowedCategories = Object.keys(config.skills || {});
-      const index = await generator.generate(baseDir, allowedCategories);
 
-      await MarkdownUtils.injectIndex(process.cwd(), ['AGENTS.md'], index);
-      console.log(pc.green('  ✅ AGENTS.md index updated.'));
+      // Generate per-category _INDEX.md files for all target agents
+      const categoryIndices =
+        await generator.generateAllCategoryIndices(baseDir, allowedCategories);
+      for (const agentId of agents) {
+        const def = SUPPORTED_AGENTS.find((a) => a.id === agentId);
+        if (!def) continue;
+        const agentBase = path.join(process.cwd(), def.path);
+        for (const [category, indexContent] of Object.entries(
+          categoryIndices,
+        )) {
+          const indexMdPath = path.join(agentBase, category, '_INDEX.md');
+          await fs.outputFile(indexMdPath, indexContent);
+        }
+      }
+      if (Object.keys(categoryIndices).length > 0) {
+        console.log(
+          pc.green(
+            `  ✅ Generated _INDEX.md for ${Object.keys(categoryIndices).length} categories.`,
+          ),
+        );
+      }
+
+      // Generate router-style AGENTS.md (compact, scalable)
+      const routerIndex = await generator.assembleRouterIndex(
+        baseDir,
+        allowedCategories,
+      );
+      await MarkdownUtils.injectIndex(
+        process.cwd(),
+        ['AGENTS.md'],
+        routerIndex,
+      );
+      console.log(pc.green('  ✅ AGENTS.md router index updated.'));
 
       // Apply to sub-projects if any
       const serverDir = path.join(process.cwd(), 'server');
       if (await fs.pathExists(serverDir)) {
-        await MarkdownUtils.injectIndex(serverDir, ['AGENTS.md'], index);
-        console.log(pc.green('  ✅ server/AGENTS.md index updated.'));
+        await MarkdownUtils.injectIndex(
+          serverDir,
+          ['AGENTS.md'],
+          routerIndex,
+        );
+        console.log(pc.green('  ✅ server/AGENTS.md router index updated.'));
       }
 
       const bridgeService = new AgentBridgeService();
