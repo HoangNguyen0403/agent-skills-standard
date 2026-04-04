@@ -12,7 +12,7 @@ export class CreateFeedbackDto {
   })
   @IsString()
   @IsNotEmpty()
-  skill: string;
+  skill!: string;
 
   @ApiProperty({
     description: 'Description of the issue or conflict',
@@ -20,7 +20,7 @@ export class CreateFeedbackDto {
   })
   @IsString()
   @IsNotEmpty()
-  issue: string;
+  issue!: string;
 
   @ApiPropertyOptional({
     description: 'Technical context (versions, scenarios)',
@@ -79,4 +79,29 @@ export class CreateFeedbackDto {
   @IsString()
   @IsOptional()
   loadedSkills?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Why the violation happened: AMBIGUOUS_RULE | MISSING_COVERAGE | OUTDATED_GUIDANCE | COMPETING_RULES | PATTERN_MISMATCH',
+    example: 'MISSING_COVERAGE',
+  })
+  @IsString()
+  @IsOptional()
+  rootCause?: string;
+
+  @ApiPropertyOptional({
+    description: 'One sentence: what the user was trying to achieve',
+    example: 'User asked to add padding to a form section',
+  })
+  @IsString()
+  @IsOptional()
+  userIntent?: string;
+
+  @ApiPropertyOptional({
+    description: 'What change to the SKILL.md would prevent this next time',
+    example: 'Add explicit list of disallowed directional spacing utilities',
+  })
+  @IsString()
+  @IsOptional()
+  skillGap?: string;
 }

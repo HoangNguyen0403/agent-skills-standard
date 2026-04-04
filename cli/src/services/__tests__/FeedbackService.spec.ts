@@ -51,6 +51,28 @@ describe('FeedbackService', () => {
       );
     });
 
+    it('should include rootCause, userIntent, and skillGap in the request body when provided', async () => {
+      process.env.FEEDBACK_API_URL = TEST_URL;
+      const data = {
+        skill: 'react/hooks',
+        issue: 'Missing cleanup in useEffect',
+        rootCause: 'MISSING_COVERAGE',
+        userIntent: 'User asked to listen for window resize events',
+        skillGap:
+          'Add anti-pattern: No addEventListener without cleanup — always return teardown',
+      };
+
+      const result = await feedbackService.submit(data);
+
+      expect(result).toBe(true);
+      expect(fetch).toHaveBeenCalledWith(
+        TEST_URL,
+        expect.objectContaining({
+          body: JSON.stringify(data),
+        }),
+      );
+    });
+
     it('should handle submission failure (non-ok response)', async () => {
       process.env.FEEDBACK_API_URL = TEST_URL;
       vi.mocked(fetch).mockResolvedValue({ ok: false } as Response);

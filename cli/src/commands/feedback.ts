@@ -23,6 +23,9 @@ export class FeedbackCommand {
     actualAction?: string;
     decisionReason?: string;
     loadedSkills?: string;
+    rootCause?: string;
+    userIntent?: string;
+    skillGap?: string;
   }) {
     console.log(pc.bold(pc.blue('\n📣 Agent Skills Feedback Reporter\n')));
 
@@ -36,6 +39,9 @@ export class FeedbackCommand {
       actualAction,
       decisionReason,
       loadedSkills,
+      rootCause,
+      userIntent,
+      skillGap,
     } = options;
 
     // Interactive mode if mandatory options are missing
@@ -100,6 +106,32 @@ export class FeedbackCommand {
           message: 'All active skills (optional)',
           when: !loadedSkills,
         },
+        {
+          type: 'list',
+          name: 'rootCause',
+          message: 'Root cause of the violation (optional)',
+          when: !rootCause,
+          choices: [
+            { name: 'Skip', value: '' },
+            'AMBIGUOUS_RULE',
+            'MISSING_COVERAGE',
+            'OUTDATED_GUIDANCE',
+            'COMPETING_RULES',
+            'PATTERN_MISMATCH',
+          ],
+        },
+        {
+          type: 'input',
+          name: 'userIntent',
+          message: 'What was the user trying to achieve? (optional)',
+          when: !userIntent,
+        },
+        {
+          type: 'input',
+          name: 'skillGap',
+          message: 'What change to the skill would prevent this? (optional)',
+          when: !skillGap,
+        },
       ]);
 
       skill = skill || (answers.skill as string);
@@ -112,6 +144,9 @@ export class FeedbackCommand {
       actualAction = actualAction || (answers.actualAction as string);
       decisionReason = decisionReason || (answers.decisionReason as string);
       loadedSkills = loadedSkills || (answers.loadedSkills as string);
+      rootCause = rootCause || (answers.rootCause as string) || undefined;
+      userIntent = userIntent || (answers.userIntent as string);
+      skillGap = skillGap || (answers.skillGap as string);
 
       await this.submit({
         skill: skill!,
@@ -123,6 +158,9 @@ export class FeedbackCommand {
         actualAction,
         decisionReason,
         loadedSkills,
+        rootCause,
+        userIntent,
+        skillGap,
       });
     } else {
       await this.submit({
@@ -135,6 +173,9 @@ export class FeedbackCommand {
         actualAction,
         decisionReason,
         loadedSkills,
+        rootCause,
+        userIntent,
+        skillGap,
       });
     }
   }

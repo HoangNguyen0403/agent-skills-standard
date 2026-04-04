@@ -67,8 +67,23 @@ export class FeedbackService {
 
 **Skill:** \`${dto.skill}\`
 
-**Issue:** 
+**Issue:**
 ${dto.issue}`;
+
+    // Diagnostic Fields — help skill authors understand what happened and how to improve
+    if (dto.rootCause) {
+      body += `\n\n**Root Cause:** \`${dto.rootCause}\``;
+    }
+
+    if (dto.userIntent) {
+      body += `\n\n**User Intent (what user was trying to do):**
+${dto.userIntent}`;
+    }
+
+    if (dto.skillGap) {
+      body += `\n\n**Skill Gap (what to change in the skill):**
+${dto.skillGap}`;
+    }
 
     // AI Auto-Report Fields (if provided)
     if (dto.skillInstruction) {
@@ -88,22 +103,22 @@ ${dto.decisionReason}`;
 
     // Optional Context Fields
     if (dto.context) {
-      body += `\n\n**Context:** 
+      body += `\n\n**Context:**
 ${dto.context}`;
     }
 
     if (dto.model) {
-      body += `\n\n**AI Model:** 
+      body += `\n\n**AI Model:**
 ${dto.model}`;
     }
 
     if (dto.suggestion) {
-      body += `\n\n**Suggested Improvement:** 
+      body += `\n\n**Suggested Improvement:**
 ${dto.suggestion}`;
     }
 
     if (dto.loadedSkills) {
-      body += `\n\n**Loaded Skills:** 
+      body += `\n\n**Loaded Skills:**
 ${dto.loadedSkills}`;
     }
 

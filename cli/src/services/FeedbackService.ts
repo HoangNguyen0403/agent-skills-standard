@@ -24,6 +24,13 @@ export interface FeedbackData {
 
   /** List of other active skills at the time of the error */
   loadedSkills?: string;
+
+  /** Why the violation happened: AMBIGUOUS_RULE | MISSING_COVERAGE | OUTDATED_GUIDANCE | COMPETING_RULES | PATTERN_MISMATCH */
+  rootCause?: string;
+  /** One sentence: what the user was trying to achieve */
+  userIntent?: string;
+  /** What change to the SKILL.md would prevent this violation next time */
+  skillGap?: string;
 }
 
 /**

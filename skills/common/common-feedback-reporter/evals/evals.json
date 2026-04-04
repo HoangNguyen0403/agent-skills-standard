@@ -4,28 +4,45 @@
     {
       "id": 1,
       "prompt": "Write a Flutter widget that displays a user's name with a blue text color.",
-      "expected_output": "SKILL VIOLATION DETECTED before write. Skill: flutter-design-system. Rule: No hardcoded colors. Violation: color: Colors.blue. Fix: color: Theme.of(context).colorScheme.primary. Auto-fixed: YES. Then write corrected code.",
+      "expected_output": "Pre-write audit: flutter-design-system skill loaded. SKILL VIOLATION DETECTED — Rule: No hardcoded colors. Violation: Colors.blue. Fix: Theme.of(context).colorScheme.primary. Auto-fixed: YES. Root Cause: PATTERN_MISMATCH. User Intent: User asked for a text widget with blue color. Skill Gap: suggestion to strengthen anti-pattern. Then writes corrected code.",
       "assertions": [
         { "type": "contains", "value": "VIOLATION" },
-        { "type": "contains", "value": "Auto-fixed" }
+        { "type": "contains", "value": "Auto-fixed" },
+        { "type": "contains", "value": "Root Cause" },
+        { "type": "contains", "value": "User Intent" },
+        { "type": "contains", "value": "Skill Gap" }
       ]
     },
     {
       "id": 2,
       "prompt": "Create a SKILL.md for a new React hooks skill with detailed examples and explanations.",
-      "expected_output": "After drafting, audit: SKILL.md is 120 lines — exceeds 100-line limit (skill-creator rule). Report violation, then extract large code blocks to references/ and rewrite to meet the limit before writing the file.",
+      "expected_output": "After drafting: SKILL.md is 120 lines — exceeds 100-line limit (skill-creator rule). Report violation with Root Cause AMBIGUOUS_RULE or MISSING_COVERAGE, populate User Intent and Skill Gap. Then extract large code blocks to references/ and rewrite to meet the limit.",
       "assertions": [
         { "type": "contains", "value": "100" },
-        { "type": "contains", "value": "references/" }
+        { "type": "contains", "value": "references/" },
+        { "type": "contains", "value": "Root Cause" },
+        { "type": "contains", "value": "Skill Gap" }
       ]
     },
     {
       "id": 3,
       "prompt": "Add a TypeScript function that uses a class component pattern for React.",
-      "expected_output": "Pre-write check: react-component-patterns skill loaded for .tsx extension. Violation: class components are prohibited — use function components with hooks. Report violation, auto-fix by converting to arrow function component, then proceed with write.",
+      "expected_output": "Pre-write check: react-component-patterns skill loaded for .tsx. Violation: class components are prohibited. Report includes Root Cause, User Intent (user asked to add a component), and Skill Gap (how to strengthen the rule). Auto-fix by converting to arrow function component.",
       "assertions": [
-        { "type": "contains", "value": "class" },
+        { "type": "contains", "value": "Root Cause" },
+        { "type": "contains", "value": "User Intent" },
+        { "type": "contains", "value": "Skill Gap" },
         { "type": "contains", "value": "function" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I'm using Next.js 14 App Router but the skill told me to put my route in the pages/ directory.",
+      "expected_output": "Violation detected: skill references pages/ directory — outdated for Next.js 14 App Router. Root Cause: OUTDATED_GUIDANCE. User Intent: user is building a route with App Router. Skill Gap: update skill to distinguish Pages Router vs App Router with version callout.",
+      "assertions": [
+        { "type": "contains", "value": "OUTDATED_GUIDANCE" },
+        { "type": "contains", "value": "Skill Gap" },
+        { "type": "contains", "value": "User Intent" }
       ]
     }
   ],

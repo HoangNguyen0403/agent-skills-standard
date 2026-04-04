@@ -46,14 +46,27 @@ When a violation is detected, output this block before fixing:
 
 ```
 🚨 SKILL VIOLATION DETECTED
-Skill:       [skill-id]
-File:        [relative/path/to/file.ext]:[line-range]
-Rule:        [exact rule text from SKILL.md]
-Violation:   [what planned code does — up to 5-line offending snippet]
-Fix:         [corrected approach — up to 5-line corrected snippet]
-Auto-fixed:  YES / NO
-Co-skills:   [other active skill IDs, comma-separated, or 'none']
+Skill:        [skill-id]
+File:         [relative/path/to/file.ext]:[line-range]
+Rule:         [exact rule text from SKILL.md]
+Violation:    [what planned code does — up to 5-line offending snippet]
+Fix:          [corrected approach — up to 5-line corrected snippet]
+Auto-fixed:   YES / NO
+Root Cause:   [AMBIGUOUS_RULE | MISSING_COVERAGE | OUTDATED_GUIDANCE | COMPETING_RULES | PATTERN_MISMATCH]
+User Intent:  [1 sentence: what the user was trying to achieve]
+Skill Gap:    [1–2 sentences: what change to the SKILL.md would prevent this next time]
+Co-skills:    [other active skill IDs, comma-separated, or 'none']
 ```
+
+### Root Cause Guide
+
+| Code | When to use |
+|------|-------------|
+| `AMBIGUOUS_RULE` | Rule wording permits multiple interpretations |
+| `MISSING_COVERAGE` | Common pattern not addressed anywhere in the skill |
+| `OUTDATED_GUIDANCE` | Skill references a deprecated API or framework version |
+| `COMPETING_RULES` | Two loaded skills gave contradictory guidance |
+| `PATTERN_MISMATCH` | AI misread or misapplied an anti-pattern definition |
 
 Then apply the fix immediately — do not wait for user confirmation.
 
@@ -68,4 +81,5 @@ Before `notify_user` or task completion:
 - **No "I'll check later"**: Check before writing, not after
 - **No "minor change skip"**: Every write needs check
 - **No "user waiting skip"**: 10-second check > pattern violation
-- **No "clean-pass report"**: If no violation is found, proceed silently — do NOT submit a feedback issue
+- **No "clean-pass report"**: If no violation found, proceed silently — do NOT submit a report
+- **No "shallow report"**: Always populate Root Cause, User Intent, and Skill Gap — these drive improvement

@@ -85,6 +85,15 @@ program
     '--loaded-skills <skills>',
     'Comma-separated list of currently loaded skills (platform-provided)',
   )
+  .option(
+    '--root-cause <cause>',
+    'Why the violation happened: AMBIGUOUS_RULE | MISSING_COVERAGE | OUTDATED_GUIDANCE | COMPETING_RULES | PATTERN_MISMATCH',
+  )
+  .option('--user-intent <intent>', 'What the user was trying to achieve')
+  .option(
+    '--skill-gap <gap>',
+    'What change to the SKILL.md would prevent this violation next time',
+  )
   .action(async (options: Record<string, string>) => {
     const cmd = new FeedbackCommand();
     await cmd.run(options);

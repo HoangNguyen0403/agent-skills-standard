@@ -122,7 +122,10 @@ ${body}`;
     description: string,
     workflowSourcePath: string,
   ): string {
-    return `description = "${description.replace(/"/g, '\\"')}"
+    const escapedDescription = description
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"');
+    return `description = "${escapedDescription}"
 prompt = """
 Please execute the workflow defined in \`${workflowSourcePath}/${name}.md\` for: {{args}}
 
