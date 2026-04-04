@@ -9,7 +9,6 @@
 > ---
 
 <!-- SKILLS_INDEX_START -->
-
 ## Agent Skills Index
 
 > [!CRITICAL] GATEKEEPER CONSTRAINT
@@ -50,11 +49,11 @@ Immediately **AFTER** any file-editing tool returns, the ASSISTANT **MUST**:
 > Because this project supports multiple AI agents, skills may reside in a base directory like `.gemini/skills/`, `.agent/skills/`, or `.cursor/skills/`.
 > **Action:** You must prepend the correct base directory to the ID. (Example: If ID is `[flutter/cicd]`, the file is at `<BASE_DIR>/flutter/cicd/SKILL.md`). Use your file search tools (e.g., `list_directory` or `find`) if you are unsure of the base directory.
 
-| Trigger Type                          | What to match                                     | Required Action                                      |
-| ------------------------------------- | ------------------------------------------------- | ---------------------------------------------------- |
-| **File glob** (e.g. `**/*.ts`)        | Files you are currently editing match the pattern | Call `view_file` on `<BASE_DIR>/[Skill ID]/SKILL.md` |
-| **Keyword** (e.g. `auth`, `refactor`) | These words appear in the user\'s request         | Call `view_file` on `<BASE_DIR>/[Skill ID]/SKILL.md` |
-| **Composite** (e.g. `+other/skill`)   | Another listed skill is already active            | Also load this skill via `view_file`                 |
+| Trigger Type | What to match | Required Action |
+| --- | --- | --- |
+| **File glob** (e.g. `**/*.ts`) | Files you are currently editing match the pattern | Call `view_file` on `<BASE_DIR>/[Skill ID]/SKILL.md` |
+| **Keyword** (e.g. `auth`, `refactor`) | These words appear in the user\'s request | Call `view_file` on `<BASE_DIR>/[Skill ID]/SKILL.md` |
+| **Composite** (e.g. `+other/skill`) | Another listed skill is already active | Also load this skill via `view_file` |
 
 > [!TIP]
 > **Indirect phrasing still counts.** Match keywords by intent, not just exact words.
