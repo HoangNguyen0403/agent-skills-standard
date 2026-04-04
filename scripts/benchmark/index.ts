@@ -94,7 +94,7 @@ function updateReadmeHistory(
   if (!fs.existsSync(readmePath)) return;
 
   const content = fs.readFileSync(readmePath, 'utf-8');
-  const trend = [...history].reverse().slice(0, 3);
+  const trend = [...history].reverse();
 
   const historyHeader = '### 📜 Benchmark History';
   const tableHeader =

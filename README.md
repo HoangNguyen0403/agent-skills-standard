@@ -252,3 +252,11 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for design details and [CLI Architectur
 | v2.0.0  | 2026-03-25 | 235    | 523        | 86%         | [Report](benchmarks/archive/v2.0.0.md)  |
 | v1.10.3 | 2026-03-21 | 234    | 505        | 86%         | [Report](benchmarks/archive/v1.10.3.md) |
 | v1.10.1 | 2026-03-16 | 229    | 428        | 88%         | [Report](benchmarks/archive/v1.10.1.md) |
+| v1.10.0 | 2026-03-16 | 229    | 434        | 88%         | [Report](benchmarks/archive/v1.10.0.md) |
+| v1.9.3  | 2026-03-15 | 229    | 460        | 87%         | [Report](benchmarks/archive/v1.9.3.md)  |
+| v1.9.2  | 2026-03-07 | 228    | 458        | 87%         | [Report](benchmarks/archive/v1.9.2.md)  |
+| v1.9.1  | 2026-03-07 | 228    | 458        | 87%         | [Report](benchmarks/archive/v1.9.1.md)  |
+| v1.9.0  | 2026-03-05 | 228    | 457        | 88%         | [Report](benchmarks/archive/v1.9.0.md)  |
+| v1.8.0  | 2026-03-02 | 228    | 443        | 88%         | [Report](benchmarks/archive/v1.8.0.md)  |
+| v1.7.3  | 2026-02-25 | 222    | 418        | 89%         | [Report](benchmarks/archive/v1.7.3.md)  |
+| v1.7.2  | 2026-02-25 | 220    | 413        | 89%         | [Report](benchmarks/archive/v1.7.2.md)  |
