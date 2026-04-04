@@ -37,4 +37,4 @@ You must execute these states sequentially. Do not proceed to the next state unt
 
 ## Self-Learning Protocol
 
-At the end of any multi-step task with user corrections, load and run **[common/session-retrospective](../skills/common/session-retrospective/SKILL.md)** to capture skill gaps and prevent repeat rework.
+At the end of any multi-step task with user corrections, load and run **[common/common-session-retrospective](../skills/common/common-session-retrospective/SKILL.md)** to capture skill gaps and prevent repeat rework.
