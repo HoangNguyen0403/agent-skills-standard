@@ -4,91 +4,55 @@
     {
       "id": 1,
       "prompt": "How should I structure my Laravel controllers?",
-      "expected_output": "Controller delegates to Action or Service class; no business logic inside; use Form Requests for validation; inject dependencies via constructor DI; controller only handles Request/Response",
+      "expected_output": "Controllers should be slim — no business logic. Delegate to Action or Service classes. Use Form Requests for validation. Inject dependencies via constructor.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Controller delegates to Action or Service class"
-        },
-        {
-          "type": "contains",
-          "value": "Form Requests for validation"
-        }
+        { "type": "contains", "value": "Action" },
+        { "type": "contains", "value": "Form Request" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Where do I put business logic in a Laravel app?",
-      "expected_output": "Create Action class (e.g., CreateOrderAction) with handle() method in app/Actions/; or Service class in app/Services/; inject via Service Container; keep controllers slim",
+      "prompt": "Where do I put business logic in Laravel?",
+      "expected_output": "Create Action classes with a single handle() method, or Service classes. Inject via Service Container. Keep controllers slim — they only handle request/response.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Create Action class"
-        },
-        {
-          "type": "contains",
-          "value": "keep controllers slim"
-        }
+        { "type": "contains", "value": "Action" },
+        { "type": "contains", "value": "handle()" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Use Form Requests for validation in Laravel",
-      "expected_output": "php artisan make:request StoreUserRequest; implement authorize() and rules(); type-hint in controller method; call $request->validated() for mass assignment; never use $request->validate() inline",
+      "prompt": "How do I validate requests in Laravel?",
+      "expected_output": "Use Form Requests with authorize() and rules() methods. Call $request->validated() for mass assignment. Never use inline $request->validate().",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "php artisan make:request StoreUserRequest"
-        },
-        {
-          "type": "contains",
-          "value": "call $request->validated()"
-        }
+        { "type": "contains", "value": "Form Request" },
+        { "type": "contains", "value": "validated()" }
       ]
     },
     {
       "id": 4,
-      "prompt": "Create a Service class in Laravel",
-      "expected_output": "Create app/Services/PaymentService.php; bind interface to implementation in AppServiceProvider; inject via constructor; no Eloquent queries directly in controller; service handles business logic",
+      "prompt": "How do I set up dependency injection in Laravel?",
+      "expected_output": "Bind interfaces to implementations in AppServiceProvider. Type-hint the interface in controller constructors. Laravel auto-resolves from the container.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Create app/Services/PaymentService.php"
-        },
-        {
-          "type": "contains",
-          "value": "no Eloquent queries directly in controller"
-        }
+        { "type": "contains", "value": "AppServiceProvider" },
+        { "type": "contains", "value": "interface" }
       ]
     },
     {
       "id": 5,
-      "prompt": "Set up dependency injection in Laravel",
-      "expected_output": "Bind via $this->app->bind(Interface::class, Implementation::class) in AppServiceProvider; type-hint interface in controller __construct or method; Laravel resolves automatically",
+      "prompt": "What are the anti-patterns in Laravel architecture?",
+      "expected_output": "No logic in controllers — move to Services or Actions. No manual instantiation — use Service Container. No inline $request->validate() — use Form Requests. No excessive global helpers.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "$this->app->bind(Interface::class, Implementation::class)"
-        },
-        {
-          "type": "contains",
-          "value": "type-hint interface in controller"
-        }
+        { "type": "contains", "value": "No logic in" },
+        { "type": "contains", "value": "Service Container" }
       ]
     },
     {
       "id": 6,
-      "prompt": "Slim controllers using Actions in Laravel",
-      "expected_output": "Create app/Actions/CreatePost.php with handle(CreatePostData $data): Post; inject Action into controller; controller calls $action->handle($request->validated()); one action per use case",
+      "prompt": "Working on a Laravel controller — what workflow should I follow?",
+      "expected_output": "1. Create Form Request for validation. 2. Create Action class with handle() method. 3. Inject Action into controller via constructor. 4. Bind interfaces in AppServiceProvider.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Create app/Actions/CreatePost.php"
-        },
-        {
-          "type": "contains",
-          "value": "one action per use case"
-        }
+        { "type": "contains", "value": "Form Request" },
+        { "type": "contains", "value": "constructor" }
       ]
     }
   ],

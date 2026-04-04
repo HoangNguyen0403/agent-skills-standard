@@ -3,104 +3,56 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Write a PHPUnit test for a PHP class",
-      "expected_output": "class OrderServiceTest extends TestCase { public function test_creates_order_with_valid_data(): void { $service = new OrderService(); $result = $service->create(['title' => 'Test']); $this->assertSame('Test', $result->title); } }",
+      "prompt": "Write a PHPUnit test for a PHP service class",
+      "expected_output": "Create a test class extending TestCase in tests/Unit/. Use assertSame for strict type checking. Follow Red-Green-Refactor TDD workflow.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "class OrderServiceTest extends TestCase"
-        },
-        {
-          "type": "contains",
-          "value": "test_creates_order_with_valid_data"
-        },
-        {
-          "type": "contains",
-          "value": "assertSame('Test', $result->title)"
-        }
+        { "type": "contains", "value": "TestCase" },
+        { "type": "contains", "value": "assertSame" }
       ]
     },
     {
       "id": 2,
-      "prompt": "Use Pest for testing a PHP application",
-      "expected_output": "it('creates an order', function() { $result = (new OrderService())->create(['title' => 'Test']); expect($result->title)->toBe('Test')->and($result->id)->not->toBeNull(); }); cleaner than PHPUnit",
+      "prompt": "How do I use Pest for testing in PHP?",
+      "expected_output": "Pest provides expressive syntax with it() and expect(). Use dataset for data-driven tests. Organize into Unit/, Integration/, and Feature/ directories.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "it('creates an order'"
-        },
-        {
-          "type": "contains",
-          "value": "expect($result->title)->toBe('Test')"
-        }
+        { "type": "contains", "value": "Pest" },
+        { "type": "contains", "value": "expect" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Mock dependencies in PHP unit tests",
-      "expected_output": "$mock = $this->createMock(PaymentService::class); $mock->expects($this->once())->method('charge')->with(100)->willReturn(true); $service = new OrderService($mock); $service->process($order);",
+      "prompt": "How should I mock dependencies in PHP tests?",
+      "expected_output": "Use createMock() for external dependencies. Do NOT mock simple data objects. Tests must be independent and repeatable. Use transactions or SQLite :memory: for DB tests.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "createMock(PaymentService::class)"
-        },
-        {
-          "type": "contains",
-          "value": "expects($this->once())"
-        },
-        {
-          "type": "contains",
-          "value": "method('charge')"
-        }
+        { "type": "contains", "value": "createMock" },
+        { "type": "contains", "value": "independent" }
       ]
     },
     {
       "id": 4,
       "prompt": "Set up data providers in PHPUnit",
-      "expected_output": "#[DataProvider('statusProvider')] public function test_status(string $input, bool $expected): void; public static function statusProvider(): array { return [['active', true], ['inactive', false]]; }",
+      "expected_output": "Use #[DataProvider('providerName')] attribute in PHPUnit 10+. Define a static method returning test cases as arrays. In Pest, use dataset() instead.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "DataProvider('statusProvider')"
-        },
-        {
-          "type": "contains",
-          "value": "public static function statusProvider"
-        }
+        { "type": "contains", "value": "DataProvider" },
+        { "type": "contains", "value": "static" }
       ]
     },
     {
       "id": 5,
-      "prompt": "Follow TDD in a PHP project",
-      "expected_output": "Red: write failing test for createOrder(); Green: implement minimal OrderService::create() to pass; Refactor: extract validation logic; repeat; use assertSame (strict) over assertEquals",
+      "prompt": "Should I use assertSame or assertEquals in PHPUnit?",
+      "expected_output": "Use assertSame which checks strict equality (===) to avoid type coercion. assertEquals uses loose comparison (==). Also use assertCount() and assertMatchesRegularExpression().",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Red: write failing test"
-        },
-        {
-          "type": "contains",
-          "value": "Green: implement minimal"
-        },
-        {
-          "type": "contains",
-          "value": "Refactor"
-        }
+        { "type": "contains", "value": "assertSame" },
+        { "type": "contains", "value": "type coercion" }
       ]
     },
     {
       "id": 6,
-      "prompt": "Use assertSame vs assertEquals in PHPUnit",
-      "expected_output": "assertSame checks type + value (===): assertSame(1, 1, 'Must be integer'); assertEquals only checks value (==): assertEquals('1', 1) passes; prefer assertSame to avoid type coercion surprises",
+      "prompt": "What should I NOT do in PHP unit tests?",
+      "expected_output": "Do not test private methods — test through public interfaces. Do not over-mock internals. Do not use real network or DB in unit tests. Do not chase coverage metrics over meaningful assertions.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "assertSame checks type + value"
-        },
-        {
-          "type": "contains",
-          "value": "assertEquals only checks value"
-        }
+        { "type": "contains", "value": "private" },
+        { "type": "contains", "value": "public interface" }
       ]
     }
   ],

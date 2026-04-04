@@ -350,7 +350,7 @@
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 13279,
+        "total_tokens": 13266,
         "avg_tokens_per_skill": 632,
         "largest_skill": "nestjs-performance (974 tokens)"
       }
@@ -361,7 +361,7 @@
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 11737,
+        "total_tokens": 11738,
         "avg_tokens_per_skill": 652,
         "largest_skill": "nextjs-architecture (1065 tokens)"
       }
@@ -372,8 +372,8 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 31,
-        "total_tokens": 19336,
-        "avg_tokens_per_skill": 624,
+        "total_tokens": 19314,
+        "avg_tokens_per_skill": 623,
         "largest_skill": "common-skill-creator (1263 tokens)"
       }
     },
@@ -383,8 +383,8 @@
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 5,
-        "total_tokens": 3800,
-        "avg_tokens_per_skill": 760,
+        "total_tokens": 3775,
+        "avg_tokens_per_skill": 755,
         "largest_skill": "quality-engineering-zephyr-test-generation (1179 tokens)"
       }
     },
@@ -405,8 +405,8 @@
       "tag_prefix": "angular-v",
       "token_metrics": {
         "total_skills": 15,
-        "total_tokens": 7538,
-        "avg_tokens_per_skill": 503,
+        "total_tokens": 7529,
+        "avg_tokens_per_skill": 502,
         "largest_skill": "angular-tooling (675 tokens)"
       }
     },
@@ -449,8 +449,8 @@
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 7694,
-        "avg_tokens_per_skill": 350,
+        "total_tokens": 7669,
+        "avg_tokens_per_skill": 349,
         "largest_skill": "android-architecture (505 tokens)"
       }
     },
@@ -471,8 +471,8 @@
       "tag_prefix": "ios-v",
       "token_metrics": {
         "total_skills": 15,
-        "total_tokens": 5523,
-        "avg_tokens_per_skill": 368,
+        "total_tokens": 5511,
+        "avg_tokens_per_skill": 367,
         "largest_skill": "ios-architecture (663 tokens)"
       }
     },
@@ -482,9 +482,9 @@
       "tag_prefix": "php-v",
       "token_metrics": {
         "total_skills": 7,
-        "total_tokens": 3592,
-        "avg_tokens_per_skill": 513,
-        "largest_skill": "php-tooling (546 tokens)"
+        "total_tokens": 3579,
+        "avg_tokens_per_skill": 511,
+        "largest_skill": "php-security (538 tokens)"
       }
     },
     "laravel": {

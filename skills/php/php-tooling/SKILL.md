@@ -35,5 +35,3 @@ project/
 - **No `vendor/` in git**: Exclude via `.gitignore`; use Composer.
 
 ## References
-
-- [Composer Config Examples](references/example.md)

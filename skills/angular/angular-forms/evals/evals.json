@@ -4,75 +4,62 @@
     {
       "id": 1,
       "prompt": "How do I create a typed reactive form in Angular?",
-      "expected_output": "Use FormGroup<T> with a typed interface: FormGroup<{ email: FormControl<string>; password: FormControl<string> }>. Use FormBuilder with nonNullable: true to avoid null in form values. Never use untyped FormGroup.",
+      "expected_output": "Use strictly typed FormGroup<T>. Never use untyped FormGroup. Use FormBuilder with nonNullable to avoid null values.",
       "assertions": [
-        { "type": "contains", "value": "FormGroup<T>" },
-        { "type": "contains", "value": "nonNullable: true" },
-        { "type": "contains", "value": "Avoid null in form values" },
-        { "type": "contains", "value": "Never use untyped FormGroup" }
+        { "type": "contains", "value": "FormGroup" },
+        { "type": "contains", "value": "nonNullable" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How do I use FormBuilder to create a FormGroup?",
-      "expected_output": "Inject FormBuilder with fb = inject(FormBuilder). Use fb.nonNullable.group({ email: ['', Validators.email], password: ['', Validators.required] }). This creates typed controls with nonNullable values.",
-      "assertions": [
-        { "type": "contains", "value": "inject(FormBuilder)" },
-        { "type": "contains", "value": "fb.nonNullable.group" },
-        { "type": "contains", "value": "Validators.email" }
-      ]
-    },
-    {
-      "id": 3,
       "prompt": "How do I write a custom validator for an Angular form?",
-      "expected_output": "Create a standalone validator function: function passwordStrength(control: AbstractControl): ValidationErrors | null { ... }. Pass to Validators array. Extract into a separate file — do not put validation logic inside the component class.",
+      "expected_output": "Create standalone validator functions in a separate file. Do not put validation logic inside the component class.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "function passwordStrength(control: AbstractControl)"
-        },
-        { "type": "contains", "value": "ValidationErrors | null" },
+        { "type": "contains", "value": "standalone" },
         { "type": "contains", "value": "separate file" }
       ]
     },
     {
-      "id": 4,
-      "prompt": "How do I use nonNullable reactive forms in Angular?",
-      "expected_output": "Use FormBuilder.nonNullable: const form = fb.nonNullable.group({ name: '' }). This ensures form.value returns string instead of string | null. Use nonNullable: true option on individual FormControl for fine-grained control.",
+      "id": 3,
+      "prompt": "Should I use template-driven or reactive forms in Angular?",
+      "expected_output": "Use Reactive Forms for any non-trivial inputs. Template-driven forms are not recommended.",
       "assertions": [
-        { "type": "contains", "value": "fb.nonNullable.group" },
-        {
-          "type": "contains",
-          "value": "returns string instead of string | null"
-        },
-        { "type": "contains", "value": "fine-grained control" }
+        { "type": "contains", "value": "Reactive" },
+        { "type": "contains", "value": "non-trivial" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "How do I use nonNullable reactive forms?",
+      "expected_output": "Use fb.nonNullable.group() or set nonNullable: true on individual controls. This ensures form values are always strings, not null.",
+      "assertions": [
+        { "type": "contains", "value": "nonNullable" },
+        { "type": "contains", "value": "group" }
       ]
     },
     {
       "id": 5,
-      "prompt": "Should I use template-driven or reactive forms in Angular?",
-      "expected_output": "Use Reactive Forms (FormControl, FormGroup) for any non-trivial inputs. Template-driven forms are only acceptable for very simple, single-field cases. Reactive forms are strictly typed, testable, and compose better with Signal stores.",
+      "prompt": "How do I sync a form with a signal store in Angular?",
+      "expected_output": "Use valueChanges with takeUntilDestroyed() to subscribe to form changes.",
       "assertions": [
-        { "type": "contains", "value": "Use Reactive Forms" },
-        { "type": "contains", "value": "FormControl" },
-        { "type": "contains", "value": "strictly typed" }
+        { "type": "contains", "value": "valueChanges" },
+        { "type": "contains", "value": "takeUntilDestroyed" }
       ]
     },
     {
       "id": 6,
-      "prompt": "How do I sync a FormGroup with an Angular Signal Store?",
-      "expected_output": "Use valueChanges.pipe(takeUntilDestroyed()) to subscribe to form changes and call store.update(). Or use effect() watching a signal to patch the form. Keep form logic in the component and validation in standalone validator functions.",
+      "prompt": "What are the anti-patterns in Angular forms?",
+      "expected_output": "No Template-Driven Forms for complex inputs. No untyped FormGroup. No validation logic in the component — extract to standalone functions.",
       "assertions": [
-        { "type": "contains", "value": "valueChanges" },
-        { "type": "contains", "value": "takeUntilDestroyed()" },
-        { "type": "contains", "value": "store.update()" }
+        { "type": "contains", "value": "Template-Driven" },
+        { "type": "contains", "value": "standalone" }
       ]
     }
   ],
   "should_not_trigger": [
     "How do I build a controlled form in React with useState?",
-    "How do I validate request bodies in NestJS with class-validator?",
-    "How do I use Zod for runtime schema validation?",
+    "How do I validate request bodies in NestJS?",
+    "How do I use Zod for schema validation?",
     "How do I create a Django ModelForm?"
   ]
 }

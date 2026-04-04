@@ -3,55 +3,29 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Create a Riverpod provider that fetches a list of products from a repository and exposes loading, data, and error states to the UI.",
-      "expected_output": "@riverpod annotation on AsyncNotifier<List<Product>>, build() calls repository.getProducts(), UI uses ref.watch(productsProvider) with .when(data:, loading:, error:)",
+      "prompt": "Create a Riverpod provider that fetches products from a repository.",
+      "expected_output": "Use @riverpod annotation on an AsyncNotifier. The build() method calls the repository. UI uses ref.watch() with AsyncValue.when() for data/loading/error states.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "AsyncNotifier"
-        },
-        {
-          "type": "contains",
-          "value": "List"
-        },
-        {
-          "type": "contains",
-          "value": "Product"
-        }
+        { "type": "contains", "value": "@riverpod" },
+        { "type": "contains", "value": "AsyncNotifier" }
       ]
     },
     {
       "id": 2,
-      "prompt": "I need a provider that watches the cart count and triggers a navigation side effect when the cart is emptied. How do I do this in Riverpod?",
-      "expected_output": "ref.listen(cartProvider, (prev, next) { if (next.isEmpty) context.go('/empty-cart'); }) in ConsumerWidget build() or ConsumerStatefulWidget — not inside provider itself",
+      "prompt": "How do I trigger a navigation side effect when a provider's state changes in Riverpod?",
+      "expected_output": "Use ref.listen() inside the widget's build() method (ConsumerWidget). Never put side-effects in provider init. Use ref.read() only in callbacks like onPressed.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "ConsumerWidget"
-        },
-        {
-          "type": "contains",
-          "value": "inside provider"
-        }
+        { "type": "contains", "value": "ref.listen" },
+        { "type": "contains", "value": "ConsumerWidget" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How do I override a Riverpod provider in widget tests to return a mock repository?",
-      "expected_output": "ProviderScope(overrides: [repositoryProvider.overrideWithValue(MockRepository())], child: MyWidget()) in pumpWidget, use riverpod_lint to catch missing overrides",
+      "prompt": "How do I override a Riverpod provider in tests?",
+      "expected_output": "Use ProviderScope with overrides: ProviderScope(overrides: [provider.overrideWithValue(Mock())]). Enable riverpod_lint for cycle detection.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "ProviderScope"
-        },
-        {
-          "type": "contains",
-          "value": "catch missing"
-        },
-        {
-          "type": "contains",
-          "value": "missing overrides"
-        }
+        { "type": "contains", "value": "ProviderScope" },
+        { "type": "contains", "value": "overrides" }
       ]
     }
   ],

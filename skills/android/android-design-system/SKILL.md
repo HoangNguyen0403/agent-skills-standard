@@ -23,6 +23,3 @@ Define `Color.kt`, `Theme.kt`, and `Type.kt` in `ui/theme/`. Map every raw color
 - **No Magic Spacing**: Prefer named `.dp` tokens; avoid unexplained magic numbers.
 
 ## References
-
-- [Token & Theme Templates](references/implementation.md)
-- [Usage Examples](references/example.md)

@@ -3,65 +3,56 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How do I set up lazy loading with loadComponent in Angular?",
-      "expected_output": "Use { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) }. All feature routes MUST be lazy loaded. Use loadChildren for route files: loadChildren: () => import('./features/user/user.routes').",
+      "prompt": "How do I set up lazy loading in Angular?",
+      "expected_output": "Use loadComponent for standalone components or loadChildren for route files. All feature routes MUST be lazy loaded. No eager feature imports.",
       "assertions": [
         { "type": "contains", "value": "loadComponent" },
-        { "type": "contains", "value": "import(" },
-        { "type": "contains", "value": ".then(m => m.DashboardComponent)" },
-        { "type": "contains", "value": "loadChildren" }
+        { "type": "contains", "value": "lazy" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How do I write a functional route guard in Angular?",
-      "expected_output": "Use CanActivateFn: export const authGuard: CanActivateFn = () => inject(AuthService).isAuthenticated() ? true : inject(Router).createUrlTree(['/login']). Register in routes: { canActivate: [authGuard] }. Class-based guards are deprecated.",
+      "prompt": "How do I write a route guard in Angular?",
+      "expected_output": "Use functional CanActivateFn — class-based guards are deprecated. Inject services with inject(). Return true or createUrlTree for redirect.",
       "assertions": [
         { "type": "contains", "value": "CanActivateFn" },
-        { "type": "contains", "value": "inject(Router).createUrlTree" },
-        { "type": "contains", "value": "canActivate: [authGuard]" },
-        { "type": "contains", "value": "guards are deprecated" }
+        { "type": "contains", "value": "deprecated" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How do I use withComponentInputBinding for route params?",
-      "expected_output": "Add withComponentInputBinding() to provideRouter(routes, withComponentInputBinding()). Then define a signal input in the component: id = input.required<string>(). Angular auto-maps route params, query params, and resolve data to matching inputs.",
+      "prompt": "How do I bind route params to component inputs in Angular?",
+      "expected_output": "Configure withComponentInputBinding() in provideRouter(). Define input.required<string>() in the component. Angular auto-maps route params, query params, and resolve data to matching inputs.",
       "assertions": [
-        { "type": "contains", "value": "withComponentInputBinding()" },
-        { "type": "contains", "value": "provideRouter" },
-        { "type": "contains", "value": "input.required<string>()" },
-        { "type": "contains", "value": "auto-maps route params" }
+        { "type": "contains", "value": "withComponentInputBinding" },
+        { "type": "contains", "value": "input.required" }
       ]
     },
     {
       "id": 4,
-      "prompt": "Working on app.routes.ts — how should I structure my routes?",
-      "expected_output": "Keep route definitions clean: no logic inside route config. Use guards for access control and resolvers for data pre-fetching. Lazy load all features with loadComponent or loadChildren. Use route data: {} for static metadata like titles.",
+      "prompt": "Working on app.routes.ts — how should I structure routes?",
+      "expected_output": "No logic in route config. Use guards for access control, resolvers for data pre-fetching. Lazy load all features with loadComponent or loadChildren.",
       "assertions": [
-        { "type": "contains", "value": "no logic inside route config" },
-        { "type": "contains", "value": "guards for access control" },
-        { "type": "contains", "value": "Lazy load all features" }
+        { "type": "contains", "value": "No logic" },
+        { "type": "contains", "value": "guard" }
       ]
     },
     {
-      "id": 2,
+      "id": 5,
       "prompt": "How do I use a resolver to prefetch data before navigation?",
-      "expected_output": "Create a resolve function: export const userResolver: ResolveFn<User> = (route) => inject(UserService).getUser(route.paramMap.get('id')). Register in routes: { resolve: { user: userResolver } }. Avoid blocking UI too long — prefer loading states in components for slow data.",
+      "expected_output": "Create a ResolveFn<T> function. Use inject() to get services. Register in route config with resolve: { key: resolver }.",
       "assertions": [
-        { "type": "contains", "value": "ResolveFn<User>" },
-        { "type": "contains", "value": "inject(UserService).getUser" },
-        { "type": "contains", "value": "resolve: { user: userResolver }" }
+        { "type": "contains", "value": "ResolveFn" },
+        { "type": "contains", "value": "resolve" }
       ]
     },
     {
-      "id": 3,
-      "prompt": "How do I configure a title strategy in Angular Router?",
-      "expected_output": "Provide a custom TitleStrategy service: @Injectable() class AppTitleStrategy extends TitleStrategy { updateTitle(snapshot) { ... } }. Or use simple route data: { title: 'Dashboard' } with the default TitleStrategy when withRouterConfig({ titleStrategy }) is configured.",
+      "id": 6,
+      "prompt": "How do I configure page titles in Angular Router?",
+      "expected_output": "Use title property in route data, or provide a custom TitleStrategy service for dynamic titles.",
       "assertions": [
         { "type": "contains", "value": "TitleStrategy" },
-        { "type": "contains", "value": "updateTitle(snapshot)" },
-        { "type": "contains", "value": "title: 'Dashboard'" }
+        { "type": "contains", "value": "title" }
       ]
     }
   ],

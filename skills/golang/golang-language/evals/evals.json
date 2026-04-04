@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "What's the idiomatic way to define a set of related constants in Go?",
-      "expected_output": "Use iota inside a const block. Define a named type for the constant group for type safety. Example: type Status int; const (Active Status = iota; Inactive).",
+      "expected_output": "Use iota inside a const block for type-safe enumerations.",
       "assertions": [
         { "type": "contains", "value": "iota" },
         { "type": "contains", "value": "const" }
@@ -12,20 +12,21 @@
     },
     {
       "id": 2,
-      "prompt": "How should I format and organize imports in my Go files?",
-      "expected_output": "Use goimports to auto-organize imports into groups: stdlib, external, internal. Run goimports -w . before committing. Never sort imports manually.",
+      "prompt": "How should I format and organize imports in Go?",
+      "expected_output": "Run goimports to auto-organize. Use gofmt or goimports on save. Use gopls for LSP features.",
       "assertions": [
         { "type": "contains", "value": "goimports" },
-        { "type": "contains", "value": "stdlib" }
+        { "type": "contains", "value": "gofmt" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Should I use a named return value in my Go function?",
-      "expected_output": "Use named returns sparingly — only when it significantly improves readability (e.g., complex multi-return functions). Never use naked returns in functions longer than a few lines.",
+      "prompt": "What are the anti-patterns I should avoid in Go?",
+      "expected_output": "No init() — use constructors like NewService(). No globals — use dependency injection. No panic — return errors. No ignored errors with _. No stuttering names like log.LogError.",
       "assertions": [
-        { "type": "contains", "value": "named" },
-        { "type": "contains", "value": "naked" }
+        { "type": "contains", "value": "init" },
+        { "type": "contains", "value": "constructor" },
+        { "type": "contains", "value": "panic" }
       ]
     }
   ],

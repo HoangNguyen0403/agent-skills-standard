@@ -54,4 +54,4 @@ See [implementation examples](references/implementation.md) for memoization and 
 
 ## References
 
-- [Performance Examples](references/example.md) — profiling patterns, benchmark setup
+- [Implementation Patterns](references/implementation.md) — profiling patterns, benchmark setup

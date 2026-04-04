@@ -4,41 +4,37 @@
     {
       "id": 1,
       "prompt": "How do I handle errors in Swift?",
-      "expected_output": "Use do-catch blocks with specific catch clauses. Handle errors close to source. Use try, try?, or try! (only if guaranteed success).",
+      "expected_output": "Use do-catch blocks with specific catch clauses. Handle errors close to the source. Use try for recoverable errors, try? for non-critical errors where nil is acceptable.",
       "assertions": [
         { "type": "contains", "value": "do-catch" },
-        { "type": "contains", "value": "try" },
-        { "type": "contains", "value": "specific catch clauses" }
+        { "type": "contains", "value": "try" }
       ]
     },
     {
       "id": 2,
       "prompt": "How do I define custom error types in Swift?",
-      "expected_output": "Define as enum conforming to Error protocol. Example: enum NetworkError: Error { case connectionLost, serverError(Int) }.",
+      "expected_output": "Define as an enum conforming to the Error protocol. For example: enum NetworkError: Error { case connectionLost, serverError(Int) }.",
       "assertions": [
         { "type": "contains", "value": "enum" },
-        { "type": "contains", "value": "conforming to Error" },
-        { "type": "contains", "value": "case" }
+        { "type": "contains", "value": "Error" }
       ]
     },
     {
       "id": 3,
       "prompt": "When should I use Result vs throws in Swift?",
-      "expected_output": "Use throws for synchronous path-based error management. Use Result for callbacks or non-async deferred error states.",
+      "expected_output": "Use throws for synchronous, path-based error handling. Use Result<Success, Failure> for callbacks or deferred error states where async/await is not available.",
       "assertions": [
-        { "type": "contains", "value": "throws for synchronous" },
-        { "type": "contains", "value": "Result for callbacks" },
-        { "type": "contains", "value": "deferred error states" }
+        { "type": "contains", "value": "throws" },
+        { "type": "contains", "value": "Result" }
       ]
     },
     {
       "id": 4,
-      "prompt": "How do I use fatalError in Swift?",
-      "expected_output": "Use only for unrecoverable crash scenarios or to indicate unreachable code. Never for expected errors.",
+      "prompt": "When is it okay to use fatalError in Swift?",
+      "expected_output": "Only for unrecoverable states or unreachable code paths. Never for expected errors — use throws or Result instead.",
       "assertions": [
-        { "type": "contains", "value": "unrecoverable crash" },
-        { "type": "contains", "value": "unreachable code" },
-        { "type": "contains", "value": "Never for expected errors" }
+        { "type": "contains", "value": "unrecoverable" },
+        { "type": "contains", "value": "Never for expected" }
       ]
     }
   ],

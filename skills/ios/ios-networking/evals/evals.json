@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement ios networking best practices?",
-      "expected_output": "**Tasks**: Use `dataTaskPublisher` (Combine) or **async/await** (e.g., `let (data, response) = await URLSession.shared.data(...)`).",
+      "prompt": "How should I build API URLs in iOS?",
+      "expected_output": "Use URLComponents and URLQueryItem to build URLs safely. Never use string interpolation for URL parameters.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "dataTaskPublisher"
-        },
-        {
-          "type": "contains",
-          "value": "for standard tasks and"
-        },
-        {
-          "type": "contains",
-          "value": "URLComponents"
-        }
+        { "type": "contains", "value": "URLComponents" },
+        { "type": "contains", "value": "URLQueryItem" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in ios networking?",
-      "expected_output": "**Configuration**: Use `URLSessionConfiguration.default` for standard tasks and `ephemeral` for private browsing/clearing cache.",
+      "prompt": "How do I handle authentication tokens in iOS networking?",
+      "expected_output": "Use a RequestInterceptor to inject Authorization: Bearer token on all requests. On 401, use onRetry to call refreshToken() and retry the request.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "URLQueryItem"
-        },
-        {
-          "type": "contains",
-          "value": "Session"
-        },
-        {
-          "type": "contains",
-          "value": ".validate()"
-        }
+        { "type": "contains", "value": "RequestInterceptor" },
+        { "type": "contains", "value": "401" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for ios networking.",
-      "expected_output": "**Request Building**: Use **`URLComponents` and `URLQueryItem`** to build URLs safely with parameters. **Never use string interpolation** for URL parameters.",
+      "prompt": "What networking anti-patterns should I avoid in iOS?",
+      "expected_output": "No UI updates from background thread — use @MainActor. No manual JSONSerialization — use Codable. Always set a reasonable timeoutInterval.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "JSONParameterEncoder.default"
-        },
-        {
-          "type": "contains",
-          "value": "RequestInterceptor"
-        },
-        {
-          "type": "contains",
-          "value": "onRetry"
-        }
+        { "type": "contains", "value": "MainActor" },
+        { "type": "contains", "value": "Codable" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic ios project from scratch",
-    "How do I install ios dependencies?",
-    "What is ios?",
+    "Set up a basic iOS project from scratch",
+    "How do I install iOS dependencies?",
     "Configure CI/CD for an unrelated platform"
   ]
 }

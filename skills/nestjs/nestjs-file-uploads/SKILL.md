@@ -39,5 +39,3 @@ Secure file upload handling with validation and storage patterns.
 - **No synchronous file processing**: Offload image/video work to BullMQ workers via FileUploadedEvent.
 
 ## References
-
-- [Implementation Examples](references/example.md)

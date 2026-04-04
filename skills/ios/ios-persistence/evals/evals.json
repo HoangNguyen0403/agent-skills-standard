@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement ios persistence best practices?",
-      "expected_output": "**Models**: Use the **`@Model`** macro for your Swift classes.",
+      "prompt": "How should I implement persistence in iOS?",
+      "expected_output": "Choose storage tier: SwiftData for iOS 17+, Core Data for legacy, Keychain for secrets, UserDefaults for flags only. Use @Model macro for SwiftData models.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "@Model"
-        },
-        {
-          "type": "contains",
-          "value": "@MainActor"
-        },
-        {
-          "type": "contains",
-          "value": "ModelContainer"
-        }
+        { "type": "contains", "value": "@Model" },
+        { "type": "contains", "value": "Keychain" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in ios persistence?",
-      "expected_output": "**Container**: Use **`@MainActor`** for configuring the `ModelContainer`.",
+      "prompt": "How do I configure the data container in iOS?",
+      "expected_output": "Use @MainActor for ModelContainer (SwiftData) or NSPersistentContainer (Core Data). Perform background writes with newBackgroundContext() to avoid UI lag.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "@Query"
-        },
-        {
-          "type": "contains",
-          "value": "modelContext"
-        },
-        {
-          "type": "contains",
-          "value": "@Environment"
-        }
+        { "type": "contains", "value": "ModelContainer" },
+        { "type": "contains", "value": "newBackgroundContext" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for ios persistence.",
-      "expected_output": "**UI State**: Use **`@Query`** for reactive data fetching in **SwiftUI** views.",
+      "prompt": "What are the anti-patterns in iOS persistence?",
+      "expected_output": "No heavy I/O on viewContext — use private background contexts. No string-based predicates — use KeyPaths. Always set mergePolicy explicitly.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": ".xcdatamodeld"
-        },
-        {
-          "type": "contains",
-          "value": "NSPersistentContainer"
-        },
-        {
-          "type": "contains",
-          "value": "newBackgroundContext()"
-        }
+        { "type": "contains", "value": "viewContext" },
+        { "type": "contains", "value": "mergePolicy" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic ios project from scratch",
-    "How do I install ios dependencies?",
-    "What is ios?",
+    "Set up a basic iOS project from scratch",
+    "How do I install iOS dependencies?",
     "Configure CI/CD for an unrelated platform"
   ]
 }

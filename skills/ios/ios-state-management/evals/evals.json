@@ -3,66 +3,35 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement ios state management best practices?",
-      "expected_output": "**Publishers**: Use **`@Published`** for standard state in ViewModels. Use **`PassthroughSubject`** for one-time navigation or alert events.",
+      "prompt": "How should I manage state in an iOS app?",
+      "expected_output": "Use @Observable (iOS 17+) for modern SwiftUI. Use Combine with @Published for UIKit or broader compatibility. Expose state with UDF pattern: Input enum (events) and Output struct (state).",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "@Published"
-        },
-        {
-          "type": "contains",
-          "value": "PassthroughSubject"
-        },
-        {
-          "type": "contains",
-          "value": "Set<AnyCancellable>"
-        }
+        { "type": "contains", "value": "@Observable" },
+        { "type": "contains", "value": "@Published" }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in ios state management?",
-      "expected_output": "**Memory Management**: Store subscriptions in a **`Set<AnyCancellable>`**. Use **`.store(in: &cancellables)`** to prevent memory leaks and ensure they are cleared on deinit.",
+      "prompt": "What are the anti-patterns in iOS state management?",
+      "expected_output": "No uncleared subscriptions — use .store(in: &cancellables). No UI updates on background thread — use @MainActor or .receive(on: .main). No manual objectWillChange.send().",
       "assertions": [
-        {
-          "type": "contains",
-          "value": ".store(in: &cancellables)"
-        },
-        {
-          "type": "contains",
-          "value": ".debounce"
-        },
-        {
-          "type": "contains",
-          "value": ".filter"
-        }
+        { "type": "contains", "value": "cancellables" },
+        { "type": "contains", "value": "MainActor" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for ios state management.",
-      "expected_output": "**Operators**: Use specific operators like **`.debounce`**, **`.filter`**, **`.map`**, and **`.flatMap`** to handle complex input streams.",
+      "prompt": "How do I represent view state in iOS?",
+      "expected_output": "Use an exhaustive ViewState enum with cases: .loading, .success(data), .error(failure). This ensures all states are handled in the UI.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": ".map"
-        },
-        {
-          "type": "contains",
-          "value": ".flatMap"
-        },
-        {
-          "type": "contains",
-          "value": "@MainActor"
-        }
+        { "type": "contains", "value": "ViewState" },
+        { "type": "contains", "value": "loading" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Set up a basic ios project from scratch",
-    "How do I install ios dependencies?",
-    "What is ios?",
+    "Set up a basic iOS project from scratch",
+    "How do I install iOS dependencies?",
     "Configure CI/CD for an unrelated platform"
   ]
 }

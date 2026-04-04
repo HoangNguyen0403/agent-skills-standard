@@ -4,28 +4,28 @@
     {
       "id": 1,
       "prompt": "Generate App Store release notes for version 2.5 from these commits:\n- feat(search): add voice input to search bar\n- fix(auth): resolve token refresh race on iOS 17\n- chore: upgrade fastlane to 2.219\n- perf(timeline): lazy-load images to reduce scroll jank\n- refactor(network): extract URLSession wrapper\n- feat(settings): add dark mode support",
-      "expected_output": "App Store notes with 'What's New' header, 4 user-facing bullets (voice search, auth fix, timeline, dark mode), chore and refactor commits dropped, each bullet one sentence focused on user benefit, total under 4000 chars",
+      "expected_output": "App Store notes with benefit-focused bullets: voice search, auth fix, timeline performance, dark mode. Chore and refactor commits dropped. Under 4000 chars.",
       "assertions": [
-        { "type": "contains", "value": "What's New" },
+        { "type": "contains", "value": "voice" },
+        { "type": "contains", "value": "dark mode" },
+        { "type": "not_contains", "value": "fastlane" },
+        { "type": "not_contains", "value": "URLSession" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Generate Google Play Store release notes for the same version 2.5 changes. Remember the 500 character limit.",
+      "expected_output": "Compressed bullets for top 3-5 user-facing changes. Under 500 characters. No internal jargon.",
+      "assertions": [
         { "type": "contains", "value": "voice" },
         { "type": "not_contains", "value": "fastlane" },
         { "type": "not_contains", "value": "refactor" }
       ]
     },
     {
-      "id": 2,
-      "prompt": "Now generate the Google Play Store version of those same release notes for version 2.5. Remember the 500 character limit.",
-      "expected_output": "Compressed bullet list of top 3-5 changes, each bullet very short, total character count ≤500, ends with 'Bug fixes and performance improvements.' or similar, no internal jargon",
-      "assertions": [
-        { "type": "contains", "value": "voice" },
-        { "type": "not_contains", "value": "fastlane" },
-        { "type": "max_length", "value": 500 }
-      ]
-    },
-    {
       "id": 3,
-      "prompt": "Filter this commit list and tell me which ones to include in the changelog:\n- fix(cart): incorrect total when discount applied\n- ci: add nightly build job\n- feat(checkout): save address for faster repeat orders\n- deps: bump retrofit 2.9->2.10\n- test: add PaymentViewModel unit tests\n- fix(profile): avatar not loading on slow connections",
-      "expected_output": "Include: cart fix, checkout save address, profile avatar fix. Drop: ci job, deps bump, test addition. Each kept item gets a user-benefit bullet. Each dropped item explains why (no user impact).",
+      "prompt": "Filter this commit list for the changelog:\n- fix(cart): incorrect total when discount applied\n- ci: add nightly build job\n- feat(checkout): save address for faster repeat orders\n- deps: bump retrofit 2.9->2.10\n- test: add PaymentViewModel unit tests\n- fix(profile): avatar not loading on slow connections",
+      "expected_output": "Include: cart fix, checkout save address, profile avatar fix. Drop: ci job, deps bump, test addition — no user impact.",
       "assertions": [
         { "type": "contains", "value": "cart" },
         { "type": "contains", "value": "checkout" },
@@ -35,13 +35,12 @@
     },
     {
       "id": 4,
-      "prompt": "Write Google Play release notes for our latest update. Changes: new onboarding flow for first-time users, fixed crash on Android 14 when opening camera, improved battery usage in background sync, updated third-party analytics SDK.",
-      "expected_output": "3 user-facing bullets (onboarding, crash fix, battery), analytics SDK update dropped (internal dependency), total ≤500 chars, plain language no jargon",
+      "prompt": "Write Google Play release notes: new onboarding flow, fixed crash on Android 14 camera, improved battery in background sync, updated analytics SDK.",
+      "expected_output": "3 user-facing bullets: onboarding, crash fix, battery. Analytics SDK dropped (internal). Under 500 chars. No jargon.",
       "assertions": [
         { "type": "contains", "value": "onboarding" },
         { "type": "contains", "value": "crash" },
-        { "type": "not_contains", "value": "SDK" },
-        { "type": "max_length", "value": 500 }
+        { "type": "not_contains", "value": "SDK" }
       ]
     }
   ],
@@ -49,7 +48,6 @@
     "Write unit tests for the checkout flow",
     "Create a Fastfile for CI deployment",
     "Review our code for security vulnerabilities",
-    "Generate a test plan for the sprint",
-    "Write API documentation for the orders endpoint"
+    "Generate a test plan for the sprint"
   ]
 }

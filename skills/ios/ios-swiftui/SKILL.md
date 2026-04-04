@@ -33,5 +33,3 @@ description: "Build declarative UI and manage data flow with SwiftUI in iOS. Use
 - **No Hardcoded Sizes**: Use flexible frames and spacers for responsive UI.
 
 ## References
-
-- [SwiftUI Views & State](references/example.md)

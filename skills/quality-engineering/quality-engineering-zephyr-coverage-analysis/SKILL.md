@@ -24,7 +24,6 @@ Read and execute `.agent/workflows/zephyr-coverage-analysis.md`.
 
 ## References
 
-- [Workflow](../../../.agent/workflows/zephyr-coverage-analysis.md) — load for full execution steps
 - [Report Template](references/coverage_report_template.md) — load when building coverage_analysis_report.md (Step 5 of workflow)
 - [Impact Analysis Protocol](../quality-engineering-zephyr-test-generation/references/impact_analysis.md) — TC discovery protocol
 - [Zephyr Test Generation](../quality-engineering-zephyr-test-generation/SKILL.md) — invoke after analysis to create the missing TCs

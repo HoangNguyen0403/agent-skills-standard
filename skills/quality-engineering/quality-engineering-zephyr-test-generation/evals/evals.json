@@ -3,32 +3,32 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Generate Zephyr test cases for EZRX-3892: 'As a Customer in VN market, I can download invoices from the Order Detail screen. This is Web only.'",
-      "expected_output": "Search Zephyr for existing invoice TCs first. New TCs named 'Web_Invoice_Download invoice on Order Detail when user is Customer (VN)'. Preconditions extracted as bullets. Platform=Web, Market=VN in custom fields. Link TC to EZRX-3892 via Create Test Case Issue Link.",
+      "prompt": "Generate Zephyr test cases for EZRX-3892: 'As a Customer in VN market, I can download invoices from the Order Detail screen. Web only.'",
+      "expected_output": "Run impact analysis first (Get Issue Link Test Cases). Platform = Web, so use Web_ prefix in TC name. Create TC with customFields, then Create Test Case Steps, then Create Test Case Issue Link to EZRX-3892.",
       "assertions": [
-        { "type": "contains", "value": "EZRX-3892" },
-        { "type": "contains", "value": "Invoice_Download" },
-        { "type": "contains", "value": "Create Test Case Issue Link" }
+        { "type": "contains", "value": "impact analysis" },
+        { "type": "contains", "value": "Web_" },
+        { "type": "contains", "value": "Issue Link" }
       ]
     },
     {
       "id": 2,
-      "prompt": "The 'Reorder' button behavior changed in EZRX-4100 — it now only shows for Delivered orders, not Completed. There are existing Zephyr TCs for this feature. What should I do?",
-      "expected_output": "Search Zephyr for existing Reorder TCs. Perform impact analysis: which TCs cover 'Completed' status? Update those TCs with new expected results rather than creating duplicates. Document delta changes in TC description.",
+      "prompt": "The Reorder button behavior changed in EZRX-4100. There are existing Zephyr TCs. What should I do?",
+      "expected_output": "Run impact analysis: Step A direct lookup via Get Issue Link Test Cases, then Step B supplemental search. Map ACs to coverage: Covered, Partial, Not Covered. For covered TCs, show before/after diff and wait for approval before updating. Do not create duplicates.",
       "assertions": [
         { "type": "contains", "value": "impact analysis" },
-        { "type": "contains", "value": "Update those TCs" },
-        { "type": "contains", "value": "duplicates" }
+        { "type": "contains", "value": "Covered" },
+        { "type": "contains", "value": "duplicate" }
       ]
     },
     {
       "id": 3,
-      "prompt": "I need to create test cases for a feature that applies to both Web and Mobile but Sales Reps and Customers see different data on the same screen.",
-      "expected_output": "Create separate TCs per actor (no OR): 'Module_Action on Screen when user is Sales Rep' and 'Module_Action on Screen when user is Customer'. No platform prefix since it applies to Both. Populate Roles custom field with correct values per TC.",
+      "prompt": "Create test cases for a feature that applies to both Web and Mobile, but Sales Reps and Customers see different data.",
+      "expected_output": "Create separate TCs per actor — no OR conditions. Since the feature applies to both Web and Mobile (single AC row), use no platform prefix and set Platform = Web and Mobile. Populate Roles custom field per TC.",
       "assertions": [
-        { "type": "contains", "value": "separate TCs per actor" },
-        { "type": "contains", "value": "Module_Action" },
-        { "type": "contains", "value": "No platform prefix" }
+        { "type": "contains", "value": "separate" },
+        { "type": "contains", "value": "Web and Mobile" },
+        { "type": "contains", "value": "no platform prefix" }
       ]
     }
   ],

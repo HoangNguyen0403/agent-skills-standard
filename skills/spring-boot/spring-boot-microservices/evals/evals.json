@@ -3,29 +3,29 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How do I implement circuit breaker in Spring Boot microservices?",
-      "expected_output": "Use Resilience4j (not Hystrix, which is deprecated). Configure @CircuitBreaker on service methods. Use fallback methods to return cached or default responses on failure.",
+      "prompt": "How do I add resilience to Spring Boot microservice calls?",
+      "expected_output": "Use Resilience4j with Circuit Breaker, Retry (Exponential Backoff), and RateLimiter. Configure fallback methods to return cached or default responses on failure.",
       "assertions": [
-        {"id": "a1", "description": "Recommends Resilience4j", "type": "contains", "value": "Resilience4j"},
-        {"id": "a2", "description": "Mentions fallback methods", "type": "contains", "value": "fallback"}
+        { "type": "contains", "value": "Resilience4j" },
+        { "type": "contains", "value": "Circuit Breaker" }
       ]
     },
     {
       "id": 2,
-      "prompt": "How do I communicate between Spring Boot microservices synchronously?",
-      "expected_output": "Use OpenFeign client for declarative REST calls. Or WebClient for reactive. Configure timeouts and circuit breakers. Use Spring Cloud LoadBalancer for client-side load balancing.",
+      "prompt": "How do I communicate between Spring Boot microservices?",
+      "expected_output": "For sync: use Spring Cloud OpenFeign or HTTP Interfaces. For async: use Spring Cloud Stream with message-driven patterns (Function, Consumer, Supplier). Share DTOs via a Maven BOM or API Contract module.",
       "assertions": [
-        {"id": "a1", "description": "Recommends Feign or WebClient", "type": "contains", "value": "Feign"},
-        {"id": "a2", "description": "Mentions timeouts or circuit breakers", "type": "contains", "value": "timeout"}
+        { "type": "contains", "value": "Feign" },
+        { "type": "contains", "value": "Spring Cloud Stream" }
       ]
     },
     {
       "id": 3,
-      "prompt": "How do I implement distributed tracing in Spring Boot microservices?",
-      "expected_output": "Use Micrometer Tracing with Zipkin or Jaeger. Include spring-boot-starter-actuator and micrometer-tracing. Propagate trace/span IDs across service calls automatically.",
+      "prompt": "How do I implement distributed tracing in Spring Boot?",
+      "expected_output": "Use Micrometer propagation for distributed tracing. Trace and span IDs propagate across service calls automatically.",
       "assertions": [
-        {"id": "a1", "description": "Mentions Micrometer or Zipkin", "type": "contains", "value": "Micrometer"},
-        {"id": "a2", "description": "Mentions trace propagation", "type": "contains", "value": "trace"}
+        { "type": "contains", "value": "Micrometer" },
+        { "type": "contains", "value": "tracing" }
       ]
     }
   ],

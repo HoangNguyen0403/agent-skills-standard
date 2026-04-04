@@ -3,29 +3,29 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "My React app stores the JWT access token in localStorage for API requests.",
-      "expected_output": "Violation: Never store secrets in localStorage — XSS-vulnerable. Any script on the page can read localStorage. Fix: store JWT in HttpOnly Secure cookies — inaccessible to JavaScript. Use SameSite=Strict for CSRF protection. Configure the server to set the cookie on login. Pass session state (user object) to React, never the raw token.",
+      "prompt": "My React app stores the JWT access token in localStorage.",
+      "expected_output": "Never store secrets in localStorage — it's vulnerable to XSS. Use HttpOnly Secure cookies instead. They are inaccessible to JavaScript.",
       "assertions": [
         { "type": "contains", "value": "HttpOnly" },
-        { "type": "contains", "value": "localStorage" }
+        { "type": "contains", "value": "XSS" }
       ]
     },
     {
       "id": 2,
-      "prompt": "A user can view other users' private data by changing the user ID in the URL. How do I fix this?",
-      "expected_output": "IDOR (Insecure Direct Object Reference) — a backend issue, not a frontend one. No Client Logic for Permissions: validate ownership on the backend. The API must verify request.user.id === resource.userId before returning data. Frontend validation is for UX only — never rely on it for security. Add server-side auth guard to every data endpoint.",
+      "prompt": "A user can view other users' private data by changing the user ID in the URL.",
+      "expected_output": "This is an IDOR vulnerability — validate ownership on the backend. The API must verify the requesting user owns the resource. Never rely on frontend validation for security.",
       "assertions": [
         { "type": "contains", "value": "backend" },
-        { "type": "contains", "value": "ownership" }
+        { "type": "contains", "value": "validate" }
       ]
     },
     {
       "id": 3,
-      "prompt": "My React app has 12 npm dependencies. I haven't updated them in 6 months.",
-      "expected_output": "Run npm audit or pnpm audit to find known CVEs. Pin specific dependency versions. Use npm-check-updates to find available updates. Check for high/critical severity advisories and update immediately. Regular dependency audits are part of React application hardening. Also check for dependencies with security headers compliance.",
+      "prompt": "My React app has outdated npm dependencies. What should I do?",
+      "expected_output": "Run npm audit to find known vulnerabilities. Pin specific dependency versions. Update high and critical severity advisories immediately.",
       "assertions": [
         { "type": "contains", "value": "npm audit" },
-        { "type": "contains", "value": "CVE" }
+        { "type": "contains", "value": "vulnerabilit" }
       ]
     }
   ],

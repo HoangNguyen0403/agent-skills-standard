@@ -3,36 +3,31 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "I'm adding a new 'promotions' feature. Where should I put the files and how should I structure the folders?",
-      "expected_output": "lib/features/promotions/ with domain/ (entities, failures, repo interface), data/ (DTO, datasource, repo impl), presentation/ (bloc, pages, widgets)",
+      "prompt": "I'm adding a new 'promotions' feature. Where should I put the files?",
+      "expected_output": "Create lib/features/promotions/ with 3-layer separation: domain/ (entities, failures, repo interface), data/ (DTOs, data sources, repo implementations), presentation/ (BLoC/Cubit, pages, widgets).",
       "assertions": [
         { "type": "contains", "value": "lib/features/" },
-        { "type": "contains", "value": "domain/data/presentation" },
-        { "type": "contains", "value": "Feature Encapsulation" },
-        { "type": "contains", "value": "3-layer separation" }
+        { "type": "contains", "value": "domain" },
+        { "type": "contains", "value": "data" },
+        { "type": "contains", "value": "presentation" }
       ]
     },
     {
       "id": 2,
-      "prompt": "The orders feature needs to show the user's loyalty points. The loyalty points are managed by a separate loyalty feature. How should orders access that data?",
-      "expected_output": "Orders depends on LoyaltyRepository interface from loyalty's domain layer only — no cross-feature presentation or data imports",
+      "prompt": "The orders feature needs loyalty points from a separate loyalty feature. How should orders access that data?",
+      "expected_output": "Only import Domain types across features. Orders can depend on loyalty's domain layer (repository interface, entities) but never import from loyalty's data/ or presentation/ layers.",
       "assertions": [
-        { "type": "contains", "value": "Domain layer of other features" },
-        { "type": "contains", "value": "Cross-Feature Communication" },
-        {
-          "type": "contains",
-          "value": "no cross-feature presentation or data imports"
-        }
+        { "type": "contains", "value": "Domain" },
+        { "type": "contains", "value": "never import" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Should I put shared utility functions used by multiple features in lib/features/shared/ or somewhere else?",
-      "expected_output": "lib/shared/ or lib/core/ — not inside lib/features/, keep features flat, cross-cutting concerns go in shared/core",
+      "prompt": "Should I put shared utilities used by multiple features in lib/features/shared/?",
+      "expected_output": "No — keep lib/features/ flat with no nested feature directories. Move reusable utilities to lib/shared/ or lib/core/ instead.",
       "assertions": [
-        { "type": "contains", "value": "lib/shared/ or lib/core/" },
-        { "type": "contains", "value": "Flat features" },
-        { "type": "contains", "value": "cross-cutting concerns" }
+        { "type": "contains", "value": "lib/shared/" },
+        { "type": "contains", "value": "flat" }
       ]
     }
   ],

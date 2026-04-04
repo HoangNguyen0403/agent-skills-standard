@@ -24,7 +24,7 @@ export async function getData(id) {
 }
 ```
 
-## Module patterns and project organization
+## Module patterns and project organization.
 
 ## References
 
@@ -78,7 +78,7 @@ export const logger = new Logger();
 
 ## Project Structure
 
-```bash
+```
 src/
 ├── domain/           # Business logic
 │   └── user/

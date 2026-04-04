@@ -3,59 +3,29 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Create a Retrofit client for the orders API that supports GET /orders and POST /orders/{id}/cancel, with proper DTO models.",
-      "expected_output": "@RestApi() abstract class OrderApiClient with @GET('/orders') returning Future<List<OrderDto>> and @POST('/orders/{id}/cancel') with @Path('id'), DTOs using @freezed + @JsonSerializable",
+      "prompt": "Create a Retrofit client for the orders API in Flutter.",
+      "expected_output": "Define an abstract class with @RestApi(). Use @GET and @POST annotations. Methods return Future<DTO>. Use @freezed and @JsonSerializable for DTOs.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "RestApi"
-        },
-        {
-          "type": "contains",
-          "value": "Future"
-        },
-        {
-          "type": "contains",
-          "value": "POST"
-        }
+        { "type": "contains", "value": "RestApi" },
+        { "type": "contains", "value": "Future" }
       ]
     },
     {
       "id": 2,
-      "prompt": "The app needs to automatically refresh the JWT token when a 401 response is received, then retry the original request.",
-      "expected_output": "AuthInterceptor extending Interceptor, onError locking Dio, calling refreshToken(), updating stored token, then retrying via dio.fetch(err.requestOptions). Use DioException check for 401.",
+      "prompt": "How do I handle JWT token refresh on 401 in Flutter with Dio?",
+      "expected_output": "Create an AuthInterceptor extending Interceptor. In onError, check for 401 (DioException), call refreshToken(), update the stored token, then retry with dio.fetch(). Lock Dio during refresh to prevent concurrent token refreshes.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "AuthInterceptor"
-        },
-        {
-          "type": "contains",
-          "value": "Interceptor"
-        },
-        {
-          "type": "contains",
-          "value": "DioException"
-        }
+        { "type": "contains", "value": "Interceptor" },
+        { "type": "contains", "value": "401" }
       ]
     },
     {
       "id": 3,
-      "prompt": "The server returns an enum field 'status' in the order DTO, but sometimes sends new values we haven't seen before. How do I prevent crashes?",
-      "expected_output": "@JsonKey(unknownEnumValue: OrderStatus.unknown) on the enum field in the DTO, with an 'unknown' fallback value in the OrderStatus enum",
+      "prompt": "The server sends an enum field with values I haven't seen before. How do I prevent crashes?",
+      "expected_output": "Use @JsonKey(unknownEnumValue: Status.unknown) on the enum field in the DTO. Add an 'unknown' fallback value to the enum to handle new server values gracefully.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "JsonKey"
-        },
-        {
-          "type": "contains",
-          "value": "OrderStatus"
-        },
-        {
-          "type": "contains",
-          "value": "unknownEnumValue: OrderStatus.unknown"
-        }
+        { "type": "contains", "value": "JsonKey" },
+        { "type": "contains", "value": "unknownEnumValue" }
       ]
     }
   ],

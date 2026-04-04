@@ -38,4 +38,3 @@ description: "Build standalone Angular components with Signals inputs, OnPush ch
 
 - [Standalone Pattern](references/standalone-pattern.md)
 - [Control Flow](references/control-flow.md)
-- [Signals](references/signals.md)

@@ -41,5 +41,3 @@ Look for:
 - Missing `Pre-Write Audit Log` in thoughts.
 
 ## References
-
-- [Violation Examples](references/example.md) — concrete red-team scan examples per framework
