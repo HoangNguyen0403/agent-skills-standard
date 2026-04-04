@@ -388,7 +388,10 @@ describe('IndexGeneratorService', () => {
             name: 'golang-language',
             description: 'Core Go idioms',
             metadata: {
-              triggers: { files: ['go.mod', '**/*.go'], keywords: ['golang', 'idiomatic'] },
+              triggers: {
+                files: ['go.mod', '**/*.go'],
+                keywords: ['golang', 'idiomatic'],
+              },
             },
           };
         }
@@ -431,7 +434,12 @@ describe('IndexGeneratorService', () => {
       (yaml.load as any).mockReturnValue({
         name: 'n',
         description: 'd',
-        metadata: { triggers: { files: ['**/*.ts', '**/*.tsx'], keywords: ['refactor', 'clean code'] } },
+        metadata: {
+          triggers: {
+            files: ['**/*.ts', '**/*.tsx'],
+            keywords: ['refactor', 'clean code'],
+          },
+        },
       });
 
       const result = await service.generateCategoryIndex('/skills', 'common');
@@ -626,7 +634,12 @@ describe('IndexGeneratorService', () => {
 
     it('should not exceed 30 lines for the router', async () => {
       (fs.pathExists as any).mockResolvedValue(true);
-      (fs.readdir as any).mockResolvedValue(['golang', 'react', 'typescript', 'common']);
+      (fs.readdir as any).mockResolvedValue([
+        'golang',
+        'react',
+        'typescript',
+        'common',
+      ]);
       (fs.readFile as any).mockImplementation(async (p: string) => {
         if (p.includes('metadata.json')) {
           return JSON.stringify({

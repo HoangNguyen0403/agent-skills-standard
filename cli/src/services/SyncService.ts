@@ -98,8 +98,10 @@ export class SyncService {
       const allowedCategories = Object.keys(config.skills || {});
 
       // Generate per-category _INDEX.md files for all target agents
-      const categoryIndices =
-        await generator.generateAllCategoryIndices(baseDir, allowedCategories);
+      const categoryIndices = await generator.generateAllCategoryIndices(
+        baseDir,
+        allowedCategories,
+      );
       for (const agentId of agents) {
         const def = SUPPORTED_AGENTS.find((a) => a.id === agentId);
         if (!def) continue;
@@ -134,11 +136,7 @@ export class SyncService {
       // Apply to sub-projects if any
       const serverDir = path.join(process.cwd(), 'server');
       if (await fs.pathExists(serverDir)) {
-        await MarkdownUtils.injectIndex(
-          serverDir,
-          ['AGENTS.md'],
-          routerIndex,
-        );
+        await MarkdownUtils.injectIndex(serverDir, ['AGENTS.md'], routerIndex);
         console.log(pc.green('  ✅ server/AGENTS.md router index updated.'));
       }
 

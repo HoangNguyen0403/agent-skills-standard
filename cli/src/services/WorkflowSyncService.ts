@@ -170,9 +170,7 @@ export class WorkflowSyncService {
 
           if (!this.isPathSafe(targetFilePath, workflowDir)) {
             console.log(
-              pc.red(
-                `    ❌ Security Error: Invalid path ${transformed.name}`,
-              ),
+              pc.red(`    ❌ Security Error: Invalid path ${transformed.name}`),
             );
             continue;
           }

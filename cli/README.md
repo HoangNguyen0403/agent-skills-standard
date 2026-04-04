@@ -98,3 +98,11 @@ project/
 - [Registry & Skills](https://github.com/HoangNguyen0403/agent-skills-standard)
 - [Architecture](./ARCHITECTURE.md)
 - [Report an Issue](https://github.com/HoangNguyen0403/agent-skills-standard/issues)
+
+### 📜 Benchmark History
+
+| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
+| --- | --- | --- | --- | --- | --- |
+| v2.1.0 | 2026-04-04 | 237 | 526 | 86% | [Report](benchmarks/archive/v2.1.0.md) |
+| v2.0.1 | 2026-03-30 | 238 | 527 | 86% | [Report](benchmarks/archive/v2.0.1.md) |
+| v2.0.0 | 2026-03-25 | 235 | 523 | 86% | [Report](benchmarks/archive/v2.0.0.md) |

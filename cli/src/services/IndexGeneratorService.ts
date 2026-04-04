@@ -258,9 +258,7 @@ export class IndexGeneratorService {
       const suffix = prefix ? '**' : '';
 
       // Separate specific path patterns from broad globs
-      const specificFiles = allFiles.filter(
-        (f) => !broadGlobs.includes(f),
-      );
+      const specificFiles = allFiles.filter((f) => !broadGlobs.includes(f));
       const hasBroadGlob = allFiles.some((f) => broadGlobs.includes(f));
 
       if (isBaseSkill || (specificFiles.length > 0 && !hasBroadGlob)) {
@@ -273,17 +271,13 @@ export class IndexGeneratorService {
         );
       } else if (specificFiles.length > 0 && hasBroadGlob) {
         // Has both specific and broad — show specific in file match, but note it
-        const displayFiles = specificFiles
-          .map((f) => `\`${f}\``)
-          .join(', ');
+        const displayFiles = specificFiles.map((f) => `\`${f}\``).join(', ');
         fileMatchRows.push(
           `| ${prefix}${skill}${suffix} | ${displayFiles} | ${kwTrigs} |`,
         );
       } else {
         // Tier 3: Only broad globs or no file triggers → Keyword Match only
-        keywordMatchRows.push(
-          `| ${prefix}${skill}${suffix} | ${kwTrigs} |`,
-        );
+        keywordMatchRows.push(`| ${prefix}${skill}${suffix} | ${kwTrigs} |`);
       }
     }
 
@@ -444,10 +438,10 @@ export class IndexGeneratorService {
       '1. **Match file type** → find the category index in the router table below.',
       '2. **Read the `_INDEX.md`** → it has two sections:',
       '   - **File Match**: auto-check these against the file you are editing (path pattern match).',
-      '   - **Keyword Match**: only check if the user\'s request mentions these concepts.',
+      "   - **Keyword Match**: only check if the user's request mentions these concepts.",
       '3. **Load ALL matched `SKILL.md`** → read every matched skill before writing code. The tier model keeps matches focused.',
       '',
-      '> `<SKILLS>` = your agent\'s skill directory (e.g., `.claude/skills/`, `.cursor/skills/`, `.gemini/skills/`).',
+      "> `<SKILLS>` = your agent's skill directory (e.g., `.claude/skills/`, `.cursor/skills/`, `.gemini/skills/`).",
       '',
       '| File type | Read category index |',
       '| --------- | ------------------- |',
@@ -499,9 +493,7 @@ export class IndexGeneratorService {
         (triggers.files && triggers.files.length > 0) ||
         (triggers.keywords && triggers.keywords.length > 0);
       if (!hasStructured && fm.description) {
-        const descTrigs = fm.description.match(
-          /\(triggers:\s*`?(.*?)`?\)\s*$/,
-        );
+        const descTrigs = fm.description.match(/\(triggers:\s*`?(.*?)`?\)\s*$/);
         if (descTrigs) {
           const parts = descTrigs[1]
             .split(',')
@@ -509,16 +501,10 @@ export class IndexGeneratorService {
             .filter(Boolean);
           // Classify: anything with glob chars (*, /, .) is a file pattern
           const files = parts.filter(
-            (p) =>
-              p.includes('*') ||
-              p.includes('/') ||
-              /\.\w+$/.test(p),
+            (p) => p.includes('*') || p.includes('/') || /\.\w+$/.test(p),
           );
           const keywords = parts.filter(
-            (p) =>
-              !p.includes('*') &&
-              !p.includes('/') &&
-              !/\.\w+$/.test(p),
+            (p) => !p.includes('*') && !p.includes('/') && !/\.\w+$/.test(p),
           );
           triggers = {
             ...triggers,

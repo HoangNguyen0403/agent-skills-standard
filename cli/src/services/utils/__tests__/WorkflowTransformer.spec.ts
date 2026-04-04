@@ -50,9 +50,7 @@ describe('WorkflowTransformer', () => {
 
     it('should include the description', () => {
       const result = WorkflowTransformer.transform(SOURCE, 'command');
-      expect(result!.content).toContain(
-        'Run an AI-assisted PR code review.',
-      );
+      expect(result!.content).toContain('Run an AI-assisted PR code review.');
     });
   });
 
@@ -75,9 +73,7 @@ describe('WorkflowTransformer', () => {
         'toml',
         '.agent/workflows',
       );
-      expect(result!.content).toContain(
-        '.agent/workflows/code-review.md',
-      );
+      expect(result!.content).toContain('.agent/workflows/code-review.md');
     });
 
     it('should include {{args}} placeholder', () => {

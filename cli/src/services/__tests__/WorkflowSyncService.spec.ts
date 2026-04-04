@@ -189,14 +189,14 @@ describe('WorkflowSyncService', () => {
       const workflows = [
         {
           skill: 'workflows',
-          files: [{ name: 'test.md', content: '---\ndescription: test\n---\n# Test' }],
+          files: [
+            { name: 'test.md', content: '---\ndescription: test\n---\n# Test' },
+          ],
         },
       ];
-      await workflowSyncService.writeWorkflows(
-        workflows as any,
-        {} as any,
-        [Agent.Antigravity],
-      );
+      await workflowSyncService.writeWorkflows(workflows as any, {} as any, [
+        Agent.Antigravity,
+      ]);
       expect(fs.outputFile).toHaveBeenCalledWith(
         expect.stringContaining('test.md'),
         expect.any(String),
@@ -207,14 +207,18 @@ describe('WorkflowSyncService', () => {
       const workflows = [
         {
           skill: 'workflows',
-          files: [{ name: 'review.md', content: '---\ndescription: Review code.\n---\n# Review\n## Step 1' }],
+          files: [
+            {
+              name: 'review.md',
+              content:
+                '---\ndescription: Review code.\n---\n# Review\n## Step 1',
+            },
+          ],
         },
       ];
-      await workflowSyncService.writeWorkflows(
-        workflows as any,
-        {} as any,
-        [Agent.Claude],
-      );
+      await workflowSyncService.writeWorkflows(workflows as any, {} as any, [
+        Agent.Claude,
+      ]);
       expect(fs.outputFile).toHaveBeenCalledWith(
         expect.stringContaining('review.md'),
         expect.stringContaining('$ARGUMENTS'),
@@ -225,14 +229,17 @@ describe('WorkflowSyncService', () => {
       const workflows = [
         {
           skill: 'workflows',
-          files: [{ name: 'review.md', content: '---\ndescription: Review.\n---\n# Review' }],
+          files: [
+            {
+              name: 'review.md',
+              content: '---\ndescription: Review.\n---\n# Review',
+            },
+          ],
         },
       ];
-      await workflowSyncService.writeWorkflows(
-        workflows as any,
-        {} as any,
-        [Agent.Gemini],
-      );
+      await workflowSyncService.writeWorkflows(workflows as any, {} as any, [
+        Agent.Gemini,
+      ]);
       expect(fs.outputFile).toHaveBeenCalledWith(
         expect.stringContaining('review.toml'),
         expect.stringContaining('{{args}}'),
@@ -243,14 +250,17 @@ describe('WorkflowSyncService', () => {
       const workflows = [
         {
           skill: 'workflows',
-          files: [{ name: 'review.md', content: '---\ndescription: Review.\n---\n# Review' }],
+          files: [
+            {
+              name: 'review.md',
+              content: '---\ndescription: Review.\n---\n# Review',
+            },
+          ],
         },
       ];
-      await workflowSyncService.writeWorkflows(
-        workflows as any,
-        {} as any,
-        [Agent.Copilot],
-      );
+      await workflowSyncService.writeWorkflows(workflows as any, {} as any, [
+        Agent.Copilot,
+      ]);
       expect(fs.outputFile).toHaveBeenCalledWith(
         expect.stringContaining('review.prompt.md'),
         expect.stringContaining('description: "Review."'),
@@ -261,14 +271,17 @@ describe('WorkflowSyncService', () => {
       const workflows = [
         {
           skill: 'workflows',
-          files: [{ name: 'review.md', content: '---\ndescription: Review.\n---\n# Review' }],
+          files: [
+            {
+              name: 'review.md',
+              content: '---\ndescription: Review.\n---\n# Review',
+            },
+          ],
         },
       ];
-      await workflowSyncService.writeWorkflows(
-        workflows as any,
-        {} as any,
-        [Agent.Cursor],
-      );
+      await workflowSyncService.writeWorkflows(workflows as any, {} as any, [
+        Agent.Cursor,
+      ]);
       expect(fs.outputFile).not.toHaveBeenCalled();
     });
 
@@ -276,24 +289,27 @@ describe('WorkflowSyncService', () => {
       const workflows = [
         {
           skill: 'workflows',
-          files: [{ name: 'review.md', content: '---\ndescription: Review.\n---\n# Review' }],
+          files: [
+            {
+              name: 'review.md',
+              content: '---\ndescription: Review.\n---\n# Review',
+            },
+          ],
         },
       ];
-      await workflowSyncService.writeWorkflows(
-        workflows as any,
-        {} as any,
-        [Agent.Antigravity, Agent.Claude, Agent.Gemini],
-      );
+      await workflowSyncService.writeWorkflows(workflows as any, {} as any, [
+        Agent.Antigravity,
+        Agent.Claude,
+        Agent.Gemini,
+      ]);
       expect(fs.outputFile).toHaveBeenCalledTimes(3);
     });
 
     it('should skip workflows where skill is not "workflows"', async () => {
       const workflows = [{ skill: 'not-workflows', files: [] }];
-      await workflowSyncService.writeWorkflows(
-        workflows as any,
-        {} as any,
-        [Agent.Antigravity],
-      );
+      await workflowSyncService.writeWorkflows(workflows as any, {} as any, [
+        Agent.Antigravity,
+      ]);
       expect(fs.outputFile).not.toHaveBeenCalled();
     });
 
@@ -301,14 +317,17 @@ describe('WorkflowSyncService', () => {
       const workflows = [
         {
           skill: 'workflows',
-          files: [{ name: '../malicious.md', content: '---\ndescription: evil\n---\n# Evil' }],
+          files: [
+            {
+              name: '../malicious.md',
+              content: '---\ndescription: evil\n---\n# Evil',
+            },
+          ],
         },
       ];
-      await workflowSyncService.writeWorkflows(
-        workflows as any,
-        {} as any,
-        [Agent.Antigravity],
-      );
+      await workflowSyncService.writeWorkflows(workflows as any, {} as any, [
+        Agent.Antigravity,
+      ]);
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Security Error'),
       );
