@@ -103,6 +103,7 @@ project/
 
 | Version | Date | Skills | Avg Tokens | Savings (%) | Report |
 | --- | --- | --- | --- | --- | --- |
+| v2.1.1 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.1.md) |
 | v2.1.0 | 2026-04-04 | 237 | 526 | 86% | [Report](benchmarks/archive/v2.1.0.md) |
 | v2.0.1 | 2026-03-30 | 238 | 527 | 86% | [Report](benchmarks/archive/v2.0.1.md) |
 | v2.0.0 | 2026-03-25 | 235 | 523 | 86% | [Report](benchmarks/archive/v2.0.0.md) |
@@ -112,7 +113,3 @@ project/
 | v1.9.3 | 2026-03-15 | 229 | 460 | 87% | [Report](benchmarks/archive/v1.9.3.md) |
 | v1.9.2 | 2026-03-07 | 228 | 458 | 87% | [Report](benchmarks/archive/v1.9.2.md) |
 | v1.9.1 | 2026-03-07 | 228 | 458 | 87% | [Report](benchmarks/archive/v1.9.1.md) |
-| v1.9.0 | 2026-03-05 | 228 | 457 | 88% | [Report](benchmarks/archive/v1.9.0.md) |
-| v1.8.0 | 2026-03-02 | 228 | 443 | 88% | [Report](benchmarks/archive/v1.8.0.md) |
-| v1.7.3 | 2026-02-25 | 222 | 418 | 89% | [Report](benchmarks/archive/v1.7.3.md) |
-| v1.7.2 | 2026-02-25 | 220 | 413 | 89% | [Report](benchmarks/archive/v1.7.2.md) |
