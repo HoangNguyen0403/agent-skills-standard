@@ -127,6 +127,23 @@ describe('GitService', () => {
       );
       consoleWarnSpy.mockRestore();
     });
+
+    it('should skip CI diff if GITHUB_BASE_REF contains unsafe characters', () => {
+      process.env.GITHUB_BASE_REF = 'main; rm -rf /';
+      process.env.DEBUG = '1';
+      const consoleWarnSpy = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
+
+      const files = gitService.getChangedFiles('/app');
+
+      expect(files).toEqual([]);
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'GITHUB_BASE_REF contains unsafe characters; skipping CI diff.',
+      );
+      expect(execFileSync).not.toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+    });
   });
 
   describe('getUntrackedFiles', () => {

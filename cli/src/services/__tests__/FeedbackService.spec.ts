@@ -97,4 +97,53 @@ describe('FeedbackService', () => {
       expect(result).toBe(false);
     });
   });
+
+  describe('isSafeUrl (private)', () => {
+    it('should return true for allowlisted origin', async () => {
+      process.env.FEEDBACK_API_URL = 'https://agent-skills-feedback.vercel.app';
+      const result = await feedbackService.submit({ skill: 't', issue: 'i' });
+      expect(result).toBe(true);
+    });
+
+    it('should return true for official subdomains', async () => {
+      process.env.FEEDBACK_API_URL =
+        'https://api.agent-skills-feedback.vercel.app';
+      const result = await feedbackService.submit({ skill: 't', issue: 'i' });
+      expect(result).toBe(true);
+    });
+
+    it('should return false for non-https protocols', async () => {
+      process.env.FEEDBACK_API_URL = 'http://agent-skills-feedback.vercel.app';
+      const result = await feedbackService.submit({ skill: 't', issue: 'i' });
+      expect(result).toBe(false);
+    });
+
+    it('should return false for malformed URLs', async () => {
+      process.env.FEEDBACK_API_URL = 'not-a-url';
+      const result = await feedbackService.submit({ skill: 't', issue: 'i' });
+      expect(result).toBe(false);
+    });
+
+    it('should return false for domains looking like the allowlisted one', async () => {
+      process.env.FEEDBACK_API_URL = 'https://evil-vercel.app';
+      const result = await feedbackService.submit({ skill: 't', issue: 'i' });
+      expect(result).toBe(false);
+    });
+
+    it('should log warning in DEBUG mode for unsafe URLs', async () => {
+      process.env.FEEDBACK_API_URL = 'https://evil.com';
+      process.env.DEBUG = 'true';
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const result = await feedbackService.submit({ skill: 't', issue: 'i' });
+
+      expect(result).toBe(false);
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Disallowed API URL origin'),
+      );
+
+      warnSpy.mockRestore();
+      delete process.env.DEBUG;
+    });
+  });
 });

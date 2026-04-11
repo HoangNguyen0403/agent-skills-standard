@@ -1,9 +1,10 @@
 {
   "chat.tools.terminal.autoApprove": {
-    "mkdir": true
+    "mkdir": true,
+    "npx vitest": true
   },
   "[markdown]": {
     "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
+    "editor.formatOnPaste": true
   }
 }

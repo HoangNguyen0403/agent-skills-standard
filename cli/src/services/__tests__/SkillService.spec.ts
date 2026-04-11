@@ -96,4 +96,43 @@ describe('SkillService', () => {
       expect(result).toEqual([]);
     });
   });
+
+  describe('hasDependency (private branch coverage)', () => {
+    it('should return true if packages list is empty', () => {
+      const result = (skillService as any).hasDependency([], ['any-dep']);
+      expect(result).toBe(true);
+    });
+
+    it('should match dependency with short name (less than 3 chars) only for exact match', () => {
+      // Line 81: if (pkg.length <= 3) return false; (when not exact match)
+      const result = (skillService as any).hasDependency(['abc'], ['abcd']);
+      expect(result).toBe(false);
+
+      const exactResult = (skillService as any).hasDependency(['abc'], ['abc']);
+      expect(exactResult).toBe(true);
+    });
+
+    it('should match scoped package name with exact match after split', () => {
+      // Line 83: if (depLower.includes('/') && depLower.split('/').pop() === pkgLower) return true;
+      const result = (skillService as any).hasDependency(
+        ['core'],
+        ['@nestjs/core'],
+      );
+      expect(result).toBe(true);
+    });
+
+    it('should match package name as part of hyphenated or underscored dependency', () => {
+      const result = (skillService as any).hasDependency(
+        ['bloc'],
+        ['flutter-bloc'],
+      );
+      expect(result).toBe(true);
+
+      const result2 = (skillService as any).hasDependency(
+        ['core'],
+        ['app_core_lib'],
+      );
+      expect(result2).toBe(true);
+    });
+  });
 });
