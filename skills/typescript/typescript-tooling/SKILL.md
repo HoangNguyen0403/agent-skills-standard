@@ -2,10 +2,10 @@
 name: typescript-tooling
 description: 'Development tools, linting, and build config for TypeScript. Use when configuring ESLint, Prettier, Jest, Vitest, tsconfig, or any TS build tooling. (triggers: tsconfig.json, .eslintrc.*, jest.config.*, package.json, eslint, prettier, jest, vitest, build, compile, lint)'
 ---
+
 # TypeScript Tooling
 
 ## **Priority: P1 (OPERATIONAL)**
-
 
 ## Implementation Guidelines
 
@@ -22,14 +22,14 @@ description: 'Development tools, linting, and build config for TypeScript. Use w
 
 ### Strict Mode Requirement
 
-Enable `@typescript-eslint/recommended` at minimum. When `strict: false` in tsconfig, `no-unsafe-*` rules may produce excessive noise — suppress selectively with `@ts-expect-error` rather than disabling globally. Prefer strict rules in new files even if whole project isn't strict yet.
+Enable `@typescript-eslint/recommended` at minimum. When `strict: false` in tsconfig, `no-unsafe-*` rules may produce excessive noise — suppress selectively with `@ts-expect-error` rather than disabling globally. Prefer strict rules in new files even without project-wide strict.
 
 ### Common Linting Issues & Solutions
 
 #### Request Object Typing
 
-**Problem**: Using `any` for Express request objects or creating duplicate inline interfaces.
-**Solution**: Use centralized interfaces in `src/common/interfaces/request.interface.ts`.
+**Problem**: `any` for Express request objects or duplicate inline interfaces.
+**Solution**: Centralize in `src/common/interfaces/request.interface.ts`.
 
 ```typescript
 import { RequestWithUser } from 'src/common/interfaces/request.interface';
@@ -37,13 +37,13 @@ import { RequestWithUser } from 'src/common/interfaces/request.interface';
 
 #### Unused Parameters
 
-**Problem**: Function parameters marked as unused by linter.
-**Solution**: Prefix parameter with underscore (e.g., `_data`) or remove it. NEVER use `eslint-disable`.
+**Problem**: Params flagged as unused by linter.
+**Solution**: Prefix with `_` (e.g., `_data`) or remove. Never `eslint-disable`.
 
 #### Test Mock Typing
 
-**Problem**: Jest mocks triggering unsafe type warnings when `expect.any()` or custom mocks used.
-**Solution**: Cast mock or expectation using `as unknown as TargetType`.
+**Problem**: Jest mocks trigger `unsafe-type` warnings with `expect.any()` or custom mocks.
+**Solution**: Cast using `as unknown as TargetType`.
 
 ```typescript
 mockRepo.save.mockResolvedValue(result as unknown as User);
@@ -51,7 +51,7 @@ mockRepo.save.mockResolvedValue(result as unknown as User);
 
 ## Configuration
 
-For new projects: enable `strict: true`. For existing projects with `strict: false`, use incremental path:
+New projects: `strict: true`. Existing (`strict: false`) — incremental path:
 
 ```json
 // tsconfig.json — incremental migration
@@ -79,6 +79,13 @@ After editing any `.ts` / `.tsx` file:
 
 **LSP Exploration**: Use `getHover` to inspect inferred types inline. Use `getReferences` before renaming any symbol to verify all call sites.
 
+## Anti-Patterns
+
+- **No `@ts-ignore`**: Use `@ts-expect-error` — it self-documents intent and fails if the error disappears.
+- **No `any` for request objects**: Import centralized interfaces from `src/common/interfaces/`.
+- **No `eslint-disable` (global)**: Suppress per-line with inline comment; fix the root cause instead.
+- **No atomic `strict: true` flip** on existing repos: migrate incrementally, starting with `strictNullChecks`.
+
 ## References
 
-See [references/REFERENCE.md](references/REFERENCE.md) for CI config, test setup, and advanced ESLint rules.
+- [Config Examples & Linting Patterns](references/REFERENCE.md)

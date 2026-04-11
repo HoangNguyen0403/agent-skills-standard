@@ -2,6 +2,7 @@
 name: angular-tooling
 description: 'Angular CLI usage, code generation, build configuration, and bundle optimization. Use when creating Angular projects, generating components/services/guards, configuring builds, running tests, or analyzing bundles. (triggers: angular.json, ng generate, ng build, ng serve, ng test, ng add, angular cli, bundle analysis)'
 ---
+
 # Angular Tooling
 
 ## **Priority: P2 (OPTIONAL)**
@@ -9,8 +10,8 @@ description: 'Angular CLI usage, code generation, build configuration, and bundl
 ## CLI Essentials
 
 - **Command**: `ng generate component` (or `ng g c`)
-- **Flags**: Use `--dry-run` to preview output first. Add `--change-detection=OnPush` to set CD strategy at generation time. Use `--skip-tests` if spec not needed.
-- **Workflow**: Always use `ng generate` — **never create files manually**.
+- **Flags**: `--dry-run` previews before write. `--change-detection=OnPush` sets CD at generation. `--skip-tests` skips spec.
+- **Workflow**: Always `ng generate` — **never create files manually**.
 
 ```bash
 ng new my-app --style=scss --routing  # Create project
@@ -43,20 +44,22 @@ ng build -c production --stats-json
 npx esbuild-visualizer --metadata dist/my-app/browser/stats.json --open
 ```
 
-- **Note**: Check `angular.json` budgets — not hand-edit `angular.json budgets` values; analyze bundle first to understand what's large.
+- **Note**: Analyze bundle before editing `angular.json` budgets — don't lower without understanding what's large.
 
 ## Update Angular
 
-- **Command**: `ng update` to check available updates.
-- **Apply**: `ng update @angular/core @angular/cli` — this runs official **codemods** to migrate your code.
-- **Rule**: **Never use --force**; fix peer dependency conflicts properly instead.
+- **Check**: `ng update` — lists available updates.
+- **Apply**: `ng update @angular/core @angular/cli` — runs official **codemods**.
+- **Rule**: **Never use --force**; fix peer dependency conflicts instead.
 
 ## Anti-Patterns
 
-- **No manual file creation**: Always use `ng generate` for consistency and proper registration.
-- **No `ng update --force`**: Fix peer dependency conflicts instead of skipping checks.
-- **No hand-editing angular.json budgets**: Lower budgets cause CI failures; analyze bundles first.
+- **No manual file creation**: Use `ng generate` for consistency and proper registration.
+- **No `ng update --force`**: Fix peer dependency conflicts instead of skipping.
+- **No hand-editing angular.json budgets**: Analyze bundles first — lower budgets break CI.
 
 ## References
+
+- [CLI Commands & Build Examples](references/REFERENCE.md)
 
 - [Angular CLI Docs](https://angular.dev/tools/cli)

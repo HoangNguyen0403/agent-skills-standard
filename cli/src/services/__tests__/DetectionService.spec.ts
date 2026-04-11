@@ -65,7 +65,7 @@ describe('DetectionService', () => {
     it('should handle missing directory reads gracefully in detectFrameworks', async () => {
       vi.mocked(fs.readdir).mockRejectedValue(new Error('Permission denied'));
       vi.mocked(fs.pathExists).mockResolvedValue(false as never);
-      vi.mocked(fs.readJson).mockResolvedValue({} as any);
+      vi.mocked(fs.readJson).mockResolvedValue({});
 
       const results = await detectionService.detectFrameworks();
       expect(results.nestjs).toBe(false);
@@ -382,7 +382,7 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
           java: ['src/main/java'],
         },
       };
-      vi.mocked(fs.pathExists).mockResolvedValue();
+      vi.mocked(fs.pathExists).mockResolvedValue(false as never);
 
       const langs = await detectionService.detectLanguages(framework);
       expect(langs).toEqual(['java', 'kotlin']);

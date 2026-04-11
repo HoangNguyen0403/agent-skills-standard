@@ -280,7 +280,7 @@ describe('WorkflowSyncService', () => {
         },
       ];
       await workflowSyncService.writeWorkflows(workflows as any, {} as any, [
-        Agent.Cursor,
+        Agent.Windsurf,
       ]);
       expect(fs.outputFile).not.toHaveBeenCalled();
     });

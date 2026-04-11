@@ -60,11 +60,12 @@ export class FeedbackService {
   private isSafeUrl(url: string): boolean {
     try {
       const parsed = new URL(url);
-      return (
-        parsed.protocol === 'https:' &&
-        (parsed.origin === FeedbackService.ALLOWED_ORIGIN ||
-          parsed.hostname.endsWith('.agent-skills-feedback.vercel.app'))
-      );
+      const isHttps = parsed.protocol === 'https:';
+      const isVercelHostname =
+        parsed.hostname === 'agent-skills-feedback.vercel.app' ||
+        parsed.hostname.endsWith('.agent-skills-feedback.vercel.app');
+
+      return isHttps && isVercelHostname;
     } catch {
       return false;
     }

@@ -1,7 +1,8 @@
 ---
 name: swift-swiftui
-description: "Configure SwiftUI state, view lifecycle, and Property Wrappers correctly. Use when managing SwiftUI state, view lifecycle, or property wrappers like @State and @Binding. (triggers: **/*.swift, @State, @Binding, @ObservedObject, View, body)"
+description: 'Configure SwiftUI state, view lifecycle, and Property Wrappers correctly. Use when managing SwiftUI state, view lifecycle, or property wrappers like @State and @Binding. (triggers: **/*.swift, @State, @Binding, @ObservedObject, View, body)'
 ---
+
 # SwiftUI Standards
 
 ## **Priority: P0**
@@ -10,15 +11,15 @@ description: "Configure SwiftUI state, view lifecycle, and Property Wrappers cor
 
 ### State Management
 
-- **@State**: @State for data owned by view (e.g., toggle, text input). Private to view.
-- **@Binding**: @Binding for data passed down from parent to child. Two-way connection.
+- **@State**: @State for data owned by view (e.g., toggle, text input). Private.
+- **@Binding**: @Binding for data passed down from parent to child. Two-way.
 - **@ObservedObject**: @ObservedObject when receiving instance from external source.
-- **@StateObject**: @StateObject when view creating object instance. View owns lifecycle.
-- **@EnvironmentObject**: inject data into view's hierarchy via `.environmentObject()`. Shared across view hierarchy.
+- **@StateObject**: `@StateObject` when the view is creating the object instance — view owns lifecycle.
+- **@EnvironmentObject**: `@EnvironmentObject` to inject data into the view's hierarchy via `.environmentObject()`. Shared across view hierarchy.
 
 ### View Composition
 
-- **Extract Subviews**: Keep views small (<200 lines). Extract reusable components.
+- **Extract Subviews**: Views < 200 lines. Extract reusable components.
 - **View Modifiers**: Chain modifiers for styling (`.font()`, `.padding()`).
 - **Custom Modifiers**: Create `ViewModifier` for reusable styles.
 
@@ -26,7 +27,7 @@ description: "Configure SwiftUI state, view lifecycle, and Property Wrappers cor
 
 - **Avoid Heavy Computation**: Use `@State` + `.task()` for async work.
 - **Equatable**: Conform views to `Equatable` to prevent unnecessary re-renders.
-- **LazyStacks**: Use `LazyVStack`/`LazyHStack` when displaying large number of views in scrolling container to load them only as they appear.
+- **LazyStacks**: `LazyVStack`/`LazyHStack` when displaying large number of views in scrolling container to load them only as they appear.
 
 ## Anti-Patterns
 

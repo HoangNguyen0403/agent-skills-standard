@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 import fs from 'fs-extra';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GitService } from '../GitService';
@@ -16,24 +16,22 @@ describe('GitService', () => {
 
   describe('findProjectRoot', () => {
     it('should find root when pnpm-workspace.yaml exists', () => {
-      vi.mocked(fs.existsSync).mockImplementation((p: any) =>
-        p.includes('pnpm-workspace.yaml'),
-      );
+      vi.mocked(fs.existsSync).mockImplementation(((p: string) =>
+        p.includes('pnpm-workspace.yaml')) as any);
       const root = gitService.findProjectRoot('/fake/dir/path');
       expect(root).toBe('/fake/dir/path');
     });
 
     it('should find root when .git exists', () => {
-      vi.mocked(fs.existsSync).mockImplementation((p: any) =>
-        p.includes('.git'),
-      );
+      vi.mocked(fs.existsSync).mockImplementation(((p: string) =>
+        p.includes('.git')) as any);
       const root = gitService.findProjectRoot('/fake/dir/path');
       expect(root).toBe('/fake/dir/path');
     });
 
     it('should traverse up', () => {
       vi.mocked(fs.existsSync).mockImplementation(
-        (p: any) => p === '/fake/pnpm-workspace.yaml',
+        ((p: string) => p === '/fake/pnpm-workspace.yaml') as any,
       );
       const root = gitService.findProjectRoot('/fake/dir/path');
       expect(root).toBe('/fake');
@@ -53,21 +51,28 @@ describe('GitService', () => {
 
     it('should use diff against base ref in CI', () => {
       process.env.GITHUB_BASE_REF = 'main';
-      vi.mocked(execSync).mockReturnValue('file1.ts\nfile2.ts\n' as any);
+      vi.mocked(execFileSync).mockReturnValue('file1.ts\nfile2.ts\n' as any);
       vi.mocked(fs.existsSync).mockReturnValue(true);
 
       const files = gitService.getChangedFiles('/app');
       expect(files).toEqual(['file1.ts', 'file2.ts']);
-      expect(execSync).toHaveBeenCalledWith(
-        expect.stringContaining('git fetch'),
+      expect(execFileSync).toHaveBeenCalledWith(
+        'git',
+        expect.arrayContaining(['fetch', 'origin', 'main']),
+        expect.anything(),
+      );
+      expect(execFileSync).toHaveBeenCalledWith(
+        'git',
+        expect.arrayContaining(['diff', '--name-only']),
         expect.anything(),
       );
     });
 
     it('should handle fetch failure gracefully', () => {
       process.env.GITHUB_BASE_REF = 'main';
-      vi.mocked(execSync).mockImplementation((cmd: any) => {
-        if (cmd.includes('fetch')) throw new Error('Fetch failed');
+      vi.mocked(execFileSync).mockImplementation((cmd: any, args: any) => {
+        if (cmd === 'git' && args.includes('fetch'))
+          throw new Error('Fetch failed');
         return 'file.ts\n';
       });
       vi.mocked(fs.existsSync).mockReturnValue(true);

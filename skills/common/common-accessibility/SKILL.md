@@ -1,36 +1,37 @@
 ---
 name: common-accessibility
-description: "Enforce WCAG 2.2 AA compliance with semantic HTML, ARIA roles, keyboard navigation, and color contrast standards for web UIs. Use when building interactive components, adding form labels, fixing focus traps, or auditing a11y compliance. (triggers: **/*.tsx, **/*.jsx, **/*.html, **/*.vue, **/*.component.html, accessibility, a11y, wcag, aria, screen reader, focus, alt text)"
+description: 'Enforce WCAG 2.2 AA compliance with semantic HTML, ARIA roles, keyboard navigation, and color contrast standards for web UIs. Use when building interactive components, adding form labels, fixing focus traps, or auditing a11y compliance. (triggers: **/*.tsx, **/*.jsx, **/*.html, **/*.vue, **/*.component.html, accessibility, a11y, wcag, aria, screen reader, focus, alt text)'
 ---
+
 # Common Accessibility (a11y) Standards
 
 ## **Priority: P1 (OPERATIONAL)**
 
-> Accessibility legal requirement in EU (Web Accessibility Directive), USA (ADA/Section 508), and many other jurisdictions. Non-compliance carries litigation risk. Target **WCAG 2.2 Level AA** as minimum.
+> Legal req: EU (Web Accessibility Directive), USA (ADA/Section 508). Non-compliance = litigation risk. Minimum: **WCAG 2.2 Level AA**.
 
 ## 🏗 Semantic HTML First
 
-- Use correct HTML element before reaching for ARIA. `<button>`, `<a>`, `<nav>`, `<main>`, `<section>`, `<form>`, `<label>` convey semantics natively.
-- Never use `<div>` or `<span>` for interactive elements — they no keyboard role by default.
+- Use native HTML before ARIA. `<button>`, `<a>`, `<nav>`, `<main>`, `<section>`, `<form>`, `<label>` convey semantics natively.
+- Never `<div>`/`<span>` for interactive elements — no keyboard role by default.
 - Headings (`h1`–`h6`) must form logical outline. One `h1` per page.
 
-- Use `<button>` not `<div onClick>`, `<a>` not `<span onClick>`, etc.
+- `<button>` not `<div onClick>`, `<a>` not `<span onClick>`.
 
 ## 🎭 ARIA — Use Sparingly
 
-ARIA supplements semantics when native HTML insufficient (e.g., custom widgets). Rules:
+ARIA supplements native HTML when insufficient (e.g., custom widgets). Rules:
 
 1. **No ARIA > Bad ARIA**: If native HTML works, use it. ARIA only adds roles, not behavior.
 2. **Required attributes**: Every `role` with required properties must include them (e.g., `role="slider"` needs `aria-valuenow`, `aria-valuemin`, `aria-valuemax`).
 3. **Live Regions**: Use `aria-live="polite"` for status messages; `aria-live="assertive"` only for critical alerts.
-4. **Labels**: Every form control must programmatic label (`<label>`, `aria-label`, or `aria-labelledby`).
+4. **Labels**: Every form control needs programmatic label (`<label>`, `aria-label`, or `aria-labelledby`).
 5. **Hidden content**: Use `aria-hidden="true"` on decorative icons; never on focusable elements.
 
 ## ⌨️ Keyboard Navigation
 
 - All interactive elements MUST reachable and operable via keyboard.
-- Tab order must follow visual reading order. Never use positive `tabindex` values (`tabindex="1"` breaks natural order).
-- Provide visible focus indicators (see Focus style rule below).
+- Tab order must follow visual reading order. No positive `tabindex` (`tabindex="1"` breaks natural order).
+- Visible focus indicators required (see Focus style rule below).
 - **Modals/Dialogs**: Trap focus inside when open. Return focus to trigger element on close.
 - **Escape key**: Must close modals, dropdowns, and tooltips.
 - **Focus style**: Never `outline: none` without visible replacement (min 2px solid, 3:1 contrast).
@@ -44,13 +45,13 @@ ARIA supplements semantics when native HTML insufficient (e.g., custom widgets).
 ## 📐 Touch & Pointer Targets
 
 - Minimum interactive target size: **44×44px** (WCAG 2.5.5 AAA) / **24×24px** minimum (WCAG 2.2 AA).
-- Provide sufficient spacing between adjacent targets to prevent mis-taps.
+- Sufficient spacing between adjacent targets — prevent mis-taps.
 
 ## 🖼 Images & Media
 
 - Decorative images: `alt=""` (empty, not missing).
-- Informative images: descriptive `alt` text (what image conveys, not "image of...").
-- Complex charts/graphs: provide text summary or data table alternative.
+- Informative images: descriptive `alt` — what image conveys, not "image of…".
+- Complex charts/graphs: text summary or data table alternative.
 - Video: Captions mandatory. Audio descriptions for visual-only content.
 
 ## 🧪 Testing Minimum
@@ -69,6 +70,7 @@ ARIA supplements semantics when native HTML insufficient (e.g., custom widgets).
 
 ## References
 
+- [Semantic HTML, ARIA & Focus Patterns](references/REFERENCE.md)
 - [WCAG 2.2 Quick Reference](https://www.w3.org/WAI/WCAG22/quickref/)
 - [ARIA Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/)
 - [axe-core Rules](https://dequeuniversity.com/rules/axe/)

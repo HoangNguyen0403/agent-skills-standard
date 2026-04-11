@@ -1,17 +1,23 @@
 import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { IndexContentBuilder } from '../IndexContentBuilder';
 import { IndexGeneratorServiceImpl } from '../IndexGeneratorServiceImpl';
+import { MetadataReader } from '../MetadataReader';
 
 vi.mock('fs-extra');
 vi.mock('js-yaml');
 
 describe('IndexGeneratorService', () => {
   let service: IndexGeneratorServiceImpl;
+  let metadataReader: MetadataReader;
+  let indexContentBuilder: IndexContentBuilder;
 
   beforeEach(() => {
     vi.clearAllMocks();
     service = new IndexGeneratorServiceImpl();
+    metadataReader = new MetadataReader();
+    indexContentBuilder = new IndexContentBuilder(metadataReader);
   });
 
   describe('generate', () => {
@@ -202,8 +208,7 @@ describe('IndexGeneratorService', () => {
   describe('parseSkill edge cases', () => {
     it('should handle skill without frontmatter', async () => {
       (fs.readFile as any).mockResolvedValue('no frontmatter');
-      // @ts-expect-error - protected
-      const res = await service.parseSkill('/cat/skill/SKILL.md');
+      const res = await metadataReader.parseSkill('/cat/skill/SKILL.md');
       expect(res).toBeNull();
     });
 
@@ -212,8 +217,7 @@ describe('IndexGeneratorService', () => {
         '---\nname: n\ndescription: d\n---\nBody without priority';
       (fs.readFile as any).mockResolvedValue(fmContent);
       (yaml.load as any).mockReturnValue({ name: 'n', description: 'd' });
-      // @ts-expect-error - protected
-      const res = await service.parseSkill('/cat/skill/SKILL.md');
+      const res = await metadataReader.parseSkill('/cat/skill/SKILL.md');
       expect(res!.priority).toBe('P1');
     });
 
@@ -224,7 +228,11 @@ describe('IndexGeneratorService', () => {
         priority: 'P0 - URRGENT',
         triggers: {},
       };
-      const entry = (service as any).formatEntry('cat', 'skill', metadata);
+      const entry = indexContentBuilder.formatEntry(
+        'cat',
+        'skill',
+        metadata as any,
+      );
       expect(entry).toContain('🚨 d');
       expect(entry).toBe('- **[cat/skill]**: 🚨 d');
     });
@@ -236,7 +244,11 @@ describe('IndexGeneratorService', () => {
         priority: 'P1',
         triggers: {},
       };
-      const entry = (service as any).formatEntry('cat', 'skill', metadata);
+      const entry = indexContentBuilder.formatEntry(
+        'cat',
+        'skill',
+        metadata as any,
+      );
       expect(entry).toContain(
         'This is a very long description that should be truncated',
       );
@@ -248,11 +260,11 @@ describe('IndexGeneratorService', () => {
       (fs.readFile as any).mockResolvedValue(fmContent);
       (yaml.load as any).mockReturnValue({ metadata: { triggers: {} } });
 
-      const res = await (service as any).parseSkill('/cat/skill/SKILL.md');
+      const res = await metadataReader.parseSkill('/cat/skill/SKILL.md');
       expect(res!.name).toBe('');
       expect(res!.description).toBe('');
 
-      const entry = (service as any).formatEntry('cat', 'skill', res);
+      const entry = indexContentBuilder.formatEntry('cat', 'skill', res!);
       expect(entry).toBe('- **[cat/skill]**: ');
     });
   });
@@ -272,10 +284,10 @@ describe('IndexGeneratorService', () => {
         priority: 'P0',
         triggers: {},
       };
-      const entry = (service as any).formatEntry(
+      const entry = indexContentBuilder.formatEntry(
         'nestjs',
         'security',
-        metadata,
+        metadata as any,
         rules,
       );
       expect(entry).toContain('+common/security-standards');
@@ -288,10 +300,10 @@ describe('IndexGeneratorService', () => {
         priority: 'P1',
         triggers: {},
       };
-      const entry = (service as any).formatEntry(
+      const entry = indexContentBuilder.formatEntry(
         'nestjs',
         'architecture',
-        metadata,
+        metadata as any,
         rules,
       );
       expect(entry).toContain('+common/best-practices');
@@ -305,7 +317,7 @@ describe('IndexGeneratorService', () => {
         priority: 'P0',
         triggers: {},
       };
-      const entry = (service as any).formatEntry(
+      const entry = (indexContentBuilder as any).formatEntry(
         'common',
         'security-standards',
         metadata,
@@ -321,7 +333,7 @@ describe('IndexGeneratorService', () => {
         priority: 'P0',
         triggers: { composite: ['common/security-standards'] },
       };
-      const entry = (service as any).formatEntry(
+      const entry = (indexContentBuilder as any).formatEntry(
         'nestjs',
         'security',
         metadata,
@@ -338,7 +350,7 @@ describe('IndexGeneratorService', () => {
         priority: 'P0',
         triggers: { composite: ['some/other-skill'] },
       };
-      const entry = (service as any).formatEntry(
+      const entry = (indexContentBuilder as any).formatEntry(
         'nestjs',
         'security',
         metadata,
@@ -355,7 +367,7 @@ describe('IndexGeneratorService', () => {
         priority: 'P0',
         triggers: {},
       };
-      const entry = (service as any).formatEntry(
+      const entry = (indexContentBuilder as any).formatEntry(
         'nestjs',
         'security',
         metadata,

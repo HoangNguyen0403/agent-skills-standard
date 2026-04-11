@@ -309,9 +309,9 @@
       "tag_prefix": "typescript-v",
       "token_metrics": {
         "total_skills": 4,
-        "total_tokens": 2899,
-        "avg_tokens_per_skill": 725,
-        "largest_skill": "typescript-tooling (912 tokens)"
+        "total_tokens": 2966,
+        "avg_tokens_per_skill": 742,
+        "largest_skill": "typescript-tooling (979 tokens)"
       }
     },
     "javascript": {
@@ -331,7 +331,7 @@
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4167,
+        "total_tokens": 4169,
         "avg_tokens_per_skill": 521,
         "largest_skill": "react-performance (715 tokens)"
       }
@@ -342,7 +342,7 @@
       "tag_prefix": "react-native-v",
       "token_metrics": {
         "total_skills": 13,
-        "total_tokens": 5521,
+        "total_tokens": 5522,
         "avg_tokens_per_skill": 425,
         "largest_skill": "react-native-security (565 tokens)"
       }
@@ -353,8 +353,8 @@
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 12806,
-        "avg_tokens_per_skill": 610,
+        "total_tokens": 12798,
+        "avg_tokens_per_skill": 609,
         "largest_skill": "nestjs-performance (947 tokens)"
       }
     },
@@ -364,8 +364,8 @@
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 11492,
-        "avg_tokens_per_skill": 638,
+        "total_tokens": 11470,
+        "avg_tokens_per_skill": 637,
         "largest_skill": "nextjs-architecture (1021 tokens)"
       }
     },
@@ -375,7 +375,7 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 31,
-        "total_tokens": 19012,
+        "total_tokens": 18996,
         "avg_tokens_per_skill": 613,
         "largest_skill": "common-skill-creator (1336 tokens)"
       }
@@ -408,9 +408,9 @@
       "tag_prefix": "angular-v",
       "token_metrics": {
         "total_skills": 15,
-        "total_tokens": 7449,
+        "total_tokens": 7452,
         "avg_tokens_per_skill": 497,
-        "largest_skill": "angular-tooling (672 tokens)"
+        "largest_skill": "angular-tooling (657 tokens)"
       }
     },
     "kotlin": {
@@ -463,7 +463,7 @@
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 3778,
+        "total_tokens": 3779,
         "avg_tokens_per_skill": 472,
         "largest_skill": "swift-best-practices (649 tokens)"
       }

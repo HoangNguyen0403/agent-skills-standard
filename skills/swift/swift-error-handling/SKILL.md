@@ -2,6 +2,7 @@
 name: swift-error-handling
 description: 'Standards for throwing functions, Result type, and Never. Use when implementing Swift error throwing, designing error hierarchies, using Result types, or adding do-catch blocks. (triggers: **/*.swift, throws, try, catch, Result, Error)'
 ---
+
 # Swift Error Handling
 
 ## **Priority: P0**
@@ -18,10 +19,10 @@ description: 'Standards for throwing functions, Result type, and Never. Use when
 ### Throwing Functions
 
 - **Propagate Errors**: Use `throws` for recoverable errors and `async throws` for modern concurrency.
-- **-Catch**: Handle close to source; specific catch clauses per error type. Catch-all `catch`: last resort.
+- **Do-Catch**: Handle close to source; specific catch clauses per error type. Catch-all `catch`: last resort.
 - **Error Types**: Define custom errors as enums conforming to `Error`:
 
-See [implementation examples](references/implementation.md) for custom error enums, -catch patterns, and Result type usage.
+See [implementation examples](references/implementation.md) for custom error enums, do-catch patterns, and Result type usage.
 
 - **Optional Try**: Use `try?` only for non-critical errors where nil acceptable.
 

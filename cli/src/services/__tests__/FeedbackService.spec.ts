@@ -3,7 +3,7 @@ import { FeedbackService } from '../FeedbackService';
 
 describe('FeedbackService', () => {
   let feedbackService: FeedbackService;
-  const TEST_URL = 'https://custom.com/api';
+  const TEST_URL = 'https://agent-skills-feedback.vercel.app';
 
   beforeEach(() => {
     feedbackService = new FeedbackService();

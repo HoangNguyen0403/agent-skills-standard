@@ -79,6 +79,9 @@ jobs:
       - name: Prompt Injection Scan
         run: pnpm audit:injection
 
+      - name: Eval Alignment Gate
+        run: pnpm check-alignment
+
       - name: Documentation Coverage Scan
         run: pnpm docs:scan
 

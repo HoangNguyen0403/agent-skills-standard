@@ -2,10 +2,10 @@
 name: flutter-auto-route-navigation
 description: 'Implement typed routing, nested routes, and guards using auto_route. Use when adding typed navigation, nested routes, or route guards with auto_route in Flutter. (triggers: **/router.dart, **/app_router.dart, AutoRoute, AutoRouter, router, guards, navigate, push)'
 ---
+
 # AutoRoute Navigation
 
 ## **Priority: P1 (HIGH)**
-
 
 ## Structure
 
@@ -43,4 +43,4 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 
 ## References
 
-- go-router-navigation | layer-based-clean-architecture
+- [go-router-navigation](../flutter-navigation/SKILL.md) | [layer-based-clean-architecture](../../common/common-clean-architecture/SKILL.md)
