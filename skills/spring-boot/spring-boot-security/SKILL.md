@@ -2,7 +2,6 @@
 name: spring-boot-security
 description: "Configure Spring Security 6+ with Lambda DSL, JWT, and hardening rules. Use when configuring Spring Security 6+, OAuth2, JWT, or security hardening in Spring Boot. (triggers: **/*SecurityConfig.java, **/*Filter.java, security-filter-chain, lambda-dsl, csrf, cors)"
 ---
-
 # Spring Boot Security Standards
 
 ## **Priority: P0 (CRITICAL)**
@@ -10,15 +9,15 @@ description: "Configure Spring Security 6+ with Lambda DSL, JWT, and hardening r
 ## Configure SecurityFilterChain
 
 - **Lambda DSL**: ALWAYS use Lambda DSL.
-- **SecurityFilterChain**: Expose as `@Bean`. Do not extend `WebSecurityConfigurerAdapter`.
+- **SecurityFilterChain**: Expose as `@Bean`. not extend `WebSecurityConfigurerAdapter`.
 - **Statelessness**: Enforce `SessionCreationPolicy.STATELESS` for REST APIs.
 
 See [implementation examples](references/implementation.md) for SecurityFilterChain configuration with Lambda DSL and JWT.
 
 ## Implement Authentication and Authorization
 
-- **Authentication**: Validation of credentials (Who are you?). Use `AuthenticationManager` or `JwtDecoder`.
-- **Authorization**: Verification of access rights (Can you do this?). Use `@PreAuthorize`.
+- **Authentication**: Validation of credentials (Who you?). Use `AuthenticationManager` or `JwtDecoder`.
+- **Authorization**: Verification of access rights (Can you this?). Use `@PreAuthorize`.
 
 ## Secure JWT Tokens
 

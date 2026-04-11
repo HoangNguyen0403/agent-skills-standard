@@ -1,13 +1,11 @@
 ---
 name: flutter-performance
-description: "Optimization standards for rebuilds and memory. Use when optimizing Flutter widget rebuilds, reducing memory usage, or improving rendering performance. (triggers: lib/presentation/**, pubspec.yaml, const, buildWhen, ListView.builder, Isolate, RepaintBoundary)"
+description: 'Optimization standards for rebuilds and memory. Use when optimizing Flutter widget rebuilds, reducing memory usage, or improving rendering performance. (triggers: lib/presentation/**, pubspec.yaml, const, buildWhen, ListView.builder, Isolate, RepaintBoundary)'
 ---
-
 # Performance
 
 ## **Priority: P1 (OPERATIONAL)**
 
-Performance optimization techniques for smooth 60fps Flutter applications.
 
 - **Rebuilds**: Use `const` widgets and `buildWhen` / `select` for granular updates.
 - **Lists**: Always use `ListView.builder` for item recycling.
@@ -22,10 +20,10 @@ Performance optimization techniques for smooth 60fps Flutter applications.
 
 ## Anti-Patterns
 
-- ❌ `setState()` at the root/page level to update a single counter — use `BlocBuilder` with `buildWhen` or `context.select()` for granular rebuilds
-- ❌ Sorting/filtering a list inside `build()` — move heavy computation to BLoC or use `compute()`
-- ❌ Non-`const` leaf widgets that never change — always apply `const` to static widgets to skip reconciliation
-- ❌ `Column(children: items.map((e) => ItemWidget(e)).toList())` for large lists — use `ListView.builder` for item recycling
+- **No Root `setState()`**: Use `BlocBuilder` with `buildWhen` or `context.select()` for granular updates
+- **No Heavy Business in `build()`**: Move sorting/filtering/heavy logic to BLoC or `compute()`
+- **No Non-`const` Leaf Nodes**: Apply `const` to all static widgets to skip unnecessary reconciliation
+- **No Large `Column` Lists**: Use `ListView.builder` for efficient item recycling in large lists
 
 ```dart
 BlocBuilder<UserBloc, UserState>(

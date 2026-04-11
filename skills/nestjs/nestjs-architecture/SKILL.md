@@ -2,18 +2,17 @@
 name: nestjs-architecture
 description: "Design decoupled, testable NestJS module boundaries with feature, core, and shared modules. Use when structuring module imports, creating feature modules, or enforcing separation of concerns in NestJS. (triggers: **/*.module.ts, main.ts, NestFactory, Module, Controller, Injectable)"
 ---
-
 # NestJS Architecture Expert
 
 ## **Priority: P0 (CRITICAL)**
 
 Design decoupled, testable modules with clear boundaries.
 
-## Workflow: Create a New Feature Module
+## Workflow: Create New Feature Module
 
-1. **Generate module** — `nest g module users` creates the feature module.
+1. **Generate module** — `nest g module users` creates feature module.
 2. **Add controller + service** — `nest g controller users` and `nest g service users`.
-3. **Register dependencies** — Import `TypeOrmModule.forFeature([User])` in the module.
+3. **Register dependencies** — Import `TypeOrmModule.forFeature([User])` in module.
 4. **Validate inputs** — Apply `class-validator` decorators on all DTOs.
 5. **Check circular deps** — Run `madge --circular src/` to verify no cycles.
 
@@ -30,11 +29,11 @@ See [implementation examples](references/implementation.md)
 
 ## Architecture Checklist (Mandatory)
 
-- [ ] **Circular Deps**: Are there any circular dependencies? (Use `madge`).
-- [ ] **Env Validation**: Is Joi/Zod schema used for env vars?
-- [ ] **Exception Filters**: Are global filters catching unhandled errors?
-- [ ] **DTO Validation**: Are `class-validator` decorators on all inputs?
-- [ ] **Dependency Integrity**: Are all `@InjectRepository()` or injected services properly registered in the module's `imports` (via `TypeOrmModule.forFeature`) or `providers`?
+- [ ] **Circular Deps**: there any circular dependencies? (Use `madge`).
+- [ ] **Env Validation**: Joi/Zod schema used for env vars?
+- [ ] **Exception Filters**: global filters catching unhandled errors?
+- [ ] **DTO Validation**: `class-validator` decorators on all inputs?
+- [ ] **Dependency Integrity**: all `@InjectRepository()` or injected services properly registered in module's `imports` (via `TypeOrmModule.forFeature`) or `providers`?
 
 ## Anti-Patterns
 

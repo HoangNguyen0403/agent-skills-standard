@@ -2,7 +2,6 @@
 name: golang-language
 description: 'Core idioms, style guides, and best practices for writing idiomatic Go code. Use when writing Go code following official style guides and idiomatic patterns. (triggers: go.mod, golang, go code, idiomatic, gofmt, goimports, iota, golang style)'
 ---
-
 # Golang Language Standards
 
 ## **Priority: P0 (CRITICAL)**
@@ -13,9 +12,9 @@ description: 'Core idioms, style guides, and best practices for writing idiomati
 - **Naming**: Use **`camelCase`** for internal (unexported) and **`PascalCase`** for public (exported) symbols.
 - **Packages**: Use short, lowercase, singular names (e.g., **`http`**, **`user`**). Avoid `_` or `camelCase` in package names.
 - **Interfaces**: Small interfaces — 1-2 methods max. Define where used (consumer side), not where implemented.
-- **Errors**: Return **`error`** as the last return value. Handle errors **immediately** at the call-site.
+- **Errors**: Return **`error`** as last return value. Handle errors **immediately** at call-site.
 - **Slices**: Use **`make(slice, len, cap)`** to pre-allocate capacity and avoid redundant re-allocations.
-- **Enums**: Use a const block with iota for type-safe enumerations.
+- **Enums**: Use const block with iota for type-safe enumerations.
 - **Zero Values**: Leverage **`zero-value`** initialization over explicit `nil` checks where possible.
 
 ## Anti-Patterns

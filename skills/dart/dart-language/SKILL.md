@@ -1,13 +1,11 @@
 ---
 name: dart-language
-description: "Dart 3.x language feature standards: null safety, records, sealed classes, switch pattern matching, extensions, and async/await. Use when using !, ?., ??, late, sealed classes, record types, switch expressions, or async patterns — and before introducing any new Dart 3.x construct to confirm the modern idiomatic approach. (triggers: **/*.dart, sealed, record, switch, pattern, !, late, async, extension)"
+description: 'Dart 3.x language feature standards: null safety, records, sealed classes, switch pattern matching, extensions, and async/await. Use when using !, ?., ??, late, sealed classes, record types, switch expressions, or async patterns — and before introducing any new Dart 3.x construct to confirm the modern idiomatic approach. (triggers: **/*.dart, sealed, record, switch, pattern, !, late, async, extension)'
 ---
-
 # Dart Language Patterns
 
 ## **Priority: P0 (CRITICAL)**
 
-Modern Dart standards for safety, performance, and readability.
 
 ## Implementation Guidelines
 
@@ -28,9 +26,9 @@ Modern Dart standards for safety, performance, and readability.
 
 ## Anti-Patterns
 
-- **No ! Operator**: Do not use the bang operator `!` unless you can prove the value is non-null via `if` or `assert`.
-- **No var for members**: Do not use `var` for class members; use `final` or explicit types.
-- **No logic in constructors**: Do not perform complex calculations or async work inside constructors.
+- **No ! Operator**: not use bang operator `!` unless you can prove value non-null via `if` or `assert`.
+- **No var for members**: not use `var` for class members; use `final` or explicit types.
+- **No logic in constructors**: not perform complex calculations or async work inside constructors.
 
 ## Code
 
@@ -46,6 +44,6 @@ String message(Result r) => switch (r) {
 };
 ```
 
-## Related Topics
+## References
 
-feature-based-clean-architecture | tooling
+- feature-based-clean-architecture | tooling

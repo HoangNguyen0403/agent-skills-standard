@@ -107,12 +107,12 @@ describe('SkillSyncService', () => {
         { path: 'skills/other/s1/SKILL.md', type: 'blob' },
       ] as any[];
       const folders = ['other/s1'];
-      // @ts-expect-error - private
+      // @ts-ignore - private
       skillSyncService.expandAbsoluteInclude('other/*', folders, tree);
       expect(folders).toHaveLength(1);
 
       const emptyFolders: string[] = [];
-      // @ts-expect-error - private
+      // @ts-ignore - private
       skillSyncService.expandAbsoluteInclude('other/*', emptyFolders, tree);
       expect(emptyFolders).toContain('other/s1');
     });
@@ -122,7 +122,7 @@ describe('SkillSyncService', () => {
         include: ['some-other-skill'],
       } as any;
       const tree = [{ path: 'skills/test/s1/', type: 'tree' }] as any[];
-      // @ts-expect-error - private
+      // @ts-ignore - private
       const result = skillSyncService.identifyFoldersToSync(
         'test',
         catConfig,
@@ -134,7 +134,7 @@ describe('SkillSyncService', () => {
     it('should include folder if explicitly in include list', () => {
       const catConfig = { include: ['s1'] } as any;
       const tree = [{ path: 'skills/test/s1/', type: 'tree' }] as any[];
-      // @ts-expect-error - private
+      // @ts-ignore - private
       const result = skillSyncService.identifyFoldersToSync(
         'test',
         catConfig,
@@ -146,7 +146,7 @@ describe('SkillSyncService', () => {
     it('should exclude folder if in exclude list', () => {
       const catConfig = { exclude: ['s1'] } as any;
       const tree = [{ path: 'skills/test/s1/', type: 'tree' }] as any[];
-      // @ts-expect-error - private
+      // @ts-ignore - private
       const result = skillSyncService.identifyFoldersToSync(
         'test',
         catConfig,
@@ -157,7 +157,7 @@ describe('SkillSyncService', () => {
 
     it('should handle non-existent absolute includes', () => {
       const folders: string[] = [];
-      // @ts-expect-error - private
+      // @ts-ignore - private
       skillSyncService.expandAbsoluteInclude('missing/skill', folders, []);
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('not found in repository'),
@@ -167,7 +167,7 @@ describe('SkillSyncService', () => {
     it('should cover include check bypass', () => {
       const catConfig = { include: undefined } as any;
       const tree = [{ path: 'skills/test/s1/', type: 'tree' }] as any[];
-      // @ts-expect-error - private
+      // @ts-ignore - private
       const result = skillSyncService.identifyFoldersToSync(
         'test',
         catConfig,
@@ -221,13 +221,13 @@ describe('SkillSyncService', () => {
     it('isOverridden logic branches', () => {
       const normalizeSpy = vi.spyOn(skillSyncService as any, 'normalizePath');
       normalizeSpy.mockReturnValue('a/b/c');
-      // @ts-expect-error - private
+      // @ts-ignore - private
       expect(skillSyncService.isOverridden('any', ['a/b/c'])).toBe(true);
       normalizeSpy.mockReturnValue('a/b/sub/file');
-      // @ts-expect-error - private
+      // @ts-ignore - private
       expect(skillSyncService.isOverridden('any', ['a/b'])).toBe(true);
       normalizeSpy.mockReturnValue('other/path');
-      // @ts-expect-error - private
+      // @ts-ignore - private
       expect(skillSyncService.isOverridden('any', ['a/b'])).toBe(false);
       normalizeSpy.mockRestore();
     });
@@ -260,7 +260,7 @@ describe('SkillSyncService', () => {
         (t: { path: string }[]) =>
           t.map((x) => ({ path: x.path, content: 'c' })),
       );
-      // @ts-expect-error - private
+      // @ts-ignore - private
       const res = await skillSyncService.fetchSkill(
         'o',
         'r',
@@ -277,7 +277,7 @@ describe('SkillSyncService', () => {
       mockGithubService.downloadFilesConcurrent.mockResolvedValue([
         { path: 'skills/other/s/SKILL.md', content: 'c' },
       ]);
-      // @ts-expect-error - private
+      // @ts-ignore - private
       const res = await skillSyncService.fetchSkill(
         'o',
         'r',
@@ -291,7 +291,7 @@ describe('SkillSyncService', () => {
 
     it('should return null if no files were downloaded', async () => {
       mockGithubService.downloadFilesConcurrent.mockResolvedValue([]);
-      // @ts-expect-error - private
+      // @ts-ignore - private
       const res = await skillSyncService.fetchSkill(
         'o',
         'r',
@@ -307,7 +307,7 @@ describe('SkillSyncService', () => {
   describe('transformSkillForKiro', () => {
     it('should transform frontmatter correctly', () => {
       const content = '---\nname: My skill\ndescription: Desc\n---\nBody';
-      // @ts-expect-error - private
+      // @ts-ignore - private
       const res = skillSyncService.transformSkillForKiro(content, 'test');
       expect(res).toContain('name: Test - My skill');
       expect(res).toContain('Body');
@@ -315,14 +315,14 @@ describe('SkillSyncService', () => {
 
     it('should return original content if no frontmatter found', () => {
       const content = 'No frontmatter';
-      // @ts-expect-error - private
+      // @ts-ignore - private
       const res = skillSyncService.transformSkillForKiro(content, 'test');
       expect(res).toBe(content);
     });
 
     it('should handle missing name/description in frontmatter', () => {
       const content = '---\nfoo: bar\n---\nBody';
-      // @ts-expect-error - private
+      // @ts-ignore - private
       const res = skillSyncService.transformSkillForKiro(content, 'test');
       expect(res).toContain('name: Test -');
       expect(res).toContain('description:');
@@ -332,33 +332,36 @@ describe('SkillSyncService', () => {
   describe('Utility methods', () => {
     it('isPathSafe should validate paths correctly', () => {
       const root = '/app/skills';
-      // @ts-expect-error - private
+      // @ts-ignore - private
       expect(skillSyncService.isPathSafe('/app/skills/safe', root)).toBe(true);
-      // @ts-expect-error - private
+      // @ts-ignore - private
       expect(skillSyncService.isPathSafe('/etc/passwd', root)).toBe(false);
     });
 
     it('isPathSafe should reject sibling directories that share a common prefix (Fix 2)', () => {
       const root = '/app/skills';
       // Without path.sep fix, '/app/skills-secret/foo' would pass the old startsWith check.
-      // @ts-expect-error - private
+      // @ts-ignore - private
       expect(
-        skillSyncService.isPathSafe('/app/skills-secret/foo.md', root),
+        (skillSyncService as any).isPathSafe('/app/skills-secret/foo.md', root),
       ).toBe(false);
-      // @ts-expect-error - private
-      expect(skillSyncService.isPathSafe('/app/skillsXmalicious', root)).toBe(
-        false,
-      );
-      // A valid deeply nested path must still pass.
-      // @ts-expect-error - private
+      // @ts-ignore - private
       expect(
-        skillSyncService.isPathSafe('/app/skills/nested/deep/file.md', root),
+        (skillSyncService as any).isPathSafe('/app/skillsXmalicious', root),
+      ).toBe(false);
+      // A valid deeply nested path must still pass.
+      // @ts-ignore - private
+      expect(
+        (skillSyncService as any).isPathSafe(
+          '/app/skills/nested/deep/file.md',
+          root,
+        ),
       ).toBe(true);
     });
 
     it('expandAbsoluteInclude should bail on invalid format', () => {
       const folders: string[] = [];
-      // @ts-expect-error - private
+      // @ts-ignore - private
       skillSyncService.expandAbsoluteInclude('invalid', folders, []);
       expect(folders).toHaveLength(0);
     });

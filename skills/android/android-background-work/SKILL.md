@@ -2,7 +2,6 @@
 name: android-background-work
 description: "Implement WorkManager and Background Processing correctly on Android. Use when creating Worker classes, scheduling tasks with WorkManager, choosing between WorkManager and Foreground Services, or setting up Hilt in workers. (triggers: **/*Worker.kt, CoroutineWorker, WorkManager, doWork, PeriodicWorkRequest, OneTimeWorkRequest, @HiltWorker)"
 ---
-
 # Android Background Work Standards
 
 ## **Priority: P1**
@@ -12,12 +11,12 @@ description: "Implement WorkManager and Background Processing correctly on Andro
 ### WorkManager
 
 - **CoroutineWorker**: Use for all background tasks.
-- **Constraints**: Be explicit (Require Network, Charging).
+- **Constraints**: explicit (Require Network, Charging).
 - **Hilt**: Use `@HiltWorker` for DI integration. Inject dependencies via `@AssistedInject` constructor; bind with `HiltWorkerFactory` in `WorkManager` configuration.
 
 ### Foreground Services
 
-- **Only When Necessary**: Use generating visible notifications only for tasks the user is actively aware of (Playback, Calls, Active Navigation). Otherwise use WorkManager.
+- **Only When Necessary**: Use generating visible notifications only for tasks user actively aware of (Playback, Calls, Active Navigation). Otherwise use WorkManager.
 
 ## Anti-Patterns
 

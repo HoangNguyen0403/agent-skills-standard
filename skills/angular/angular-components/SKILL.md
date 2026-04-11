@@ -2,14 +2,13 @@
 name: angular-components
 description: "Build standalone Angular components with Signals inputs, OnPush change detection, Control Flow, and Smart/Dumb patterns. Use when building standalone Angular components, implementing @if/@for control flow, applying OnPush change detection, or implementing Signals in Angular components. (triggers: **/*.component.ts, **/*.component.html, angular component, standalone, input signal, output, @if, @for, ChangeDetectionStrategy, OnPush, Input, Output)"
 ---
-
 # Angular Components
 
 ## **Priority: P0 (CRITICAL)**
 
 ## Standalone & Structure
 
-- **Standalone**: `standalone: true`. Import all dependencies in `imports` array. Do not declare in NgModule. (Angular 20+: standalone is the default.)
+- **Standalone**: `standalone: true`. Import all dependencies in `imports` array. not declare in NgModule. (Angular 20+: standalone default.)
 - **Smart/Dumb Split**: **Smart (Container)** → inject services, manage state. **Presentational (Dumb)** → inputs/outputs only, no service dependencies, emit events via outputs.
 - **Host Bindings**: Define in `host: { }` on `@Component` (e.g., `'[class.active]': 'isActive()'`) — never use @HostBinding/@HostListener.
 - **View Encapsulation**: Default `Emulated`. Use `None` carefully.

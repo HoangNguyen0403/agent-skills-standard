@@ -2,7 +2,6 @@
 name: swift-swiftui
 description: "Configure SwiftUI state, view lifecycle, and Property Wrappers correctly. Use when managing SwiftUI state, view lifecycle, or property wrappers like @State and @Binding. (triggers: **/*.swift, @State, @Binding, @ObservedObject, View, body)"
 ---
-
 # SwiftUI Standards
 
 ## **Priority: P0**
@@ -11,11 +10,11 @@ description: "Configure SwiftUI state, view lifecycle, and Property Wrappers cor
 
 ### State Management
 
-- **@State**: @State for data owned by the view (e.g., toggle, text input). Private to the view.
-- **@Binding**: @Binding for data passed down from a parent to a child. Two-way connection.
-- **@ObservedObject**: @ObservedObject when receiving an instance from an external source.
-- **@StateObject**: @StateObject when the view is creating the object instance. View owns lifecycle.
-- **@EnvironmentObject**: inject data into the view's hierarchy via `.environmentObject()`. Shared across view hierarchy.
+- **@State**: @State for data owned by view (e.g., toggle, text input). Private to view.
+- **@Binding**: @Binding for data passed down from parent to child. Two-way connection.
+- **@ObservedObject**: @ObservedObject when receiving instance from external source.
+- **@StateObject**: @StateObject when view creating object instance. View owns lifecycle.
+- **@EnvironmentObject**: inject data into view's hierarchy via `.environmentObject()`. Shared across view hierarchy.
 
 ### View Composition
 
@@ -27,7 +26,7 @@ description: "Configure SwiftUI state, view lifecycle, and Property Wrappers cor
 
 - **Avoid Heavy Computation**: Use `@State` + `.task()` for async work.
 - **Equatable**: Conform views to `Equatable` to prevent unnecessary re-renders.
-- **LazyStacks**: Use `LazyVStack`/`LazyHStack` when displaying a large number of views in a scrolling container to load them only as they appear.
+- **LazyStacks**: Use `LazyVStack`/`LazyHStack` when displaying large number of views in scrolling container to load them only as they appear.
 
 ## Anti-Patterns
 

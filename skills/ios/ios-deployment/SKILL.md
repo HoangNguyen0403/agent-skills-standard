@@ -1,8 +1,7 @@
 ---
 name: ios-deployment
-description: "Automate provisioning, signing, and deployment with Fastlane. Use when provisioning iOS apps, managing code signing, or automating deployments with Fastlane. (triggers: Fastfile, Appfile, Matchfile, ios_bundle_id, provisioning_profile, testflight)"
+description: 'Automate provisioning, signing, and deployment with Fastlane. Use when provisioning iOS apps, managing code signing, or automating deployments with Fastlane. (triggers: Fastfile, Appfile, Matchfile, ios_bundle_id, provisioning_profile, testflight)'
 ---
-
 # iOS Deployment
 
 ## **Priority: P1**
@@ -20,9 +19,9 @@ See [Fastlane and Match setup examples](references/implementation.md)
 
 ## Anti-Patterns
 
-- ❌ Manual identities on CI — use Match for automated certificate management
-- ❌ Certificates committed to repo — use a private git repo for Match certificates
-- ❌ Manual version bumps — use Fastlane `increment_build_number`
+- **No Manual CI Signing**: Use Match for automated certificate management
+- **No Certificates in Repo**: Use private git repo for Match certificates
+- **No Manual Versioning**: Use Fastlane `increment_build_number` for build numbers
 
 ## References
 

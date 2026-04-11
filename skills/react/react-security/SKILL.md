@@ -2,12 +2,10 @@
 name: react-security
 description: "Prevent XSS, secure auth flows, and harden React client-side applications. Use when preventing XSS, securing auth flows, or auditing third-party dependencies in React. (triggers: **/*.tsx, **/*.jsx, dangerouslySetInnerHTML, token, auth, xss)"
 ---
-
 # React Security
 
 ## **Priority: P0 (CRITICAL)**
 
-Preventing vulnerabilities in client-side apps.
 
 ## Prevent XSS Attacks
 
@@ -18,15 +16,15 @@ See [implementation examples](references/REFERENCE.md#xss-prevention-with-dompur
 
 ## Secure Authentication
 
-- Store **JWT/Sessions in `HttpOnly` and `Secure` cookies** to prevent theft via XSS. **Never store secrets in `localStorage`** or in the built JS bundle.
-- **Data Flow**: **Escape all serialized state** if injecting into the HTML (e.g., in SSR). Use a **Content Security Policy (CSP)** to restrict script sources and prevent inline execution.
+- Store **JWT/Sessions in `HttpOnly` and `Secure` cookies** to prevent theft via XSS. **Never store secrets in `localStorage`** or in built JS bundle.
+- **Data Flow**: **Escape all serialized state** if injecting into HTML (e.g., in SSR). Use **Content Security Policy (CSP)** to restrict script sources and prevent inline execution.
 
 ## Harden Application Boundaries
 
 - **CSRF Protection**: Use **CSRF tokens** for state-changing requests (PUT/POST/DELETE). Implement **SameSite=Strict** cookies where applicable.
-- **Input Sanitization**: Always **validate and sanitize** user inputs on the backend. Frontend validation is for UX only.
+- **Input Sanitization**: Always **validate and sanitize** user inputs on backend. Frontend validation for UX only.
 - **Dependency Management**: Run **`npm audit` / `pnpm audit`** regularly. Pin specific dependency versions and use **`npm-check-updates`**.
-- **Security Headers**: Ensure the server sends **`X-Frame-Options: DENY`**, **`X-Content-Type-Options: nosniff`**, and **`Permissions-Policy`**.
+- **Security Headers**: Ensure server sends **`X-Frame-Options: DENY`**, **`X-Content-Type-Options: nosniff`**, and **`Permissions-Policy`**.
 
 ## Anti-Patterns
 

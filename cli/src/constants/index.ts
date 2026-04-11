@@ -93,7 +93,13 @@ export const DEFAULT_WORKFLOWS = [
  * - 'prompt':  Reusable prompt files (Copilot: .github/prompts/*.prompt.md)
  * - 'none':    Agent has no verified user-invoked command system
  */
-export type WorkflowFormat = 'native' | 'command' | 'toml' | 'prompt' | 'none';
+export type WorkflowFormat =
+  | 'native'
+  | 'command'
+  | 'toml'
+  | 'prompt'
+  | 'skill'
+  | 'none';
 
 export interface AgentDefinition {
   id: Agent;
@@ -130,8 +136,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         ruleExtension: '.mdc',
         frontmatterStyle: 'cursor',
         detectionFiles: ['.cursor', '.cursorrules'],
-        workflowFormat: 'none',
-        workflowPath: '',
+        workflowFormat: 'skill',
+        workflowPath: '.cursor/skills',
       };
     case Agent.Trae:
       return {
@@ -142,8 +148,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         ruleExtension: '.mdc',
         frontmatterStyle: 'cursor',
         detectionFiles: ['.trae'],
-        workflowFormat: 'none',
-        workflowPath: '',
+        workflowFormat: 'skill',
+        workflowPath: '.trae/skills',
       };
     case Agent.Claude:
       return {
@@ -191,8 +197,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         ruleExtension: '.md',
         frontmatterStyle: 'cursor',
         detectionFiles: ['.codex'],
-        workflowFormat: 'none',
-        workflowPath: '',
+        workflowFormat: 'skill',
+        workflowPath: '.codex/skills',
       };
     case Agent.OpenCode:
       return {
@@ -203,8 +209,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         ruleExtension: '.md',
         frontmatterStyle: 'cursor',
         detectionFiles: ['.opencode'],
-        workflowFormat: 'none',
-        workflowPath: '',
+        workflowFormat: 'command',
+        workflowPath: '.opencode/commands',
       };
     case Agent.Gemini:
       return {
@@ -227,8 +233,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         ruleExtension: '.md',
         frontmatterStyle: 'cursor',
         detectionFiles: ['.roo'],
-        workflowFormat: 'none',
-        workflowPath: '',
+        workflowFormat: 'command',
+        workflowPath: '.roo/commands',
       };
     case Agent.Windsurf:
       return {

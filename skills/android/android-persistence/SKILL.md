@@ -2,7 +2,6 @@
 name: android-persistence
 description: "Implement Room database schemas and DataStore preferences with proper async patterns in Android. Use when defining Room entities, DAOs, migrations, or replacing SharedPreferences with DataStore. (triggers: **/*Dao.kt, **/*Database.kt, **/*Entity.kt, @Dao, @Entity, RoomDatabase)"
 ---
-
 # Android Persistence Standards
 
 ## **Priority: P0**
@@ -24,7 +23,7 @@ See [DAO templates](references/implementation.md) for DataStore migration patter
 
 ## Anti-Patterns
 
-- **No IO on Main Thread**: Room handles dispatchers, but verify Flow is collected off-main.
+- **No IO on Main Thread**: Room handles dispatchers, but verify Flow collected off-main.
 - **No @Entity in UI Layer**: Map to Domain or UI models in Repository.
 
 ## References

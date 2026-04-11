@@ -1,13 +1,11 @@
 ---
 name: flutter-cicd
-description: "Set up Continuous Integration and Deployment pipelines for Flutter apps. Use when setting up CI/CD pipelines, automated testing, or deployment workflows for Flutter. (triggers: .github/workflows/**.yml, fastlane/**, android/fastlane/**, ios/fastlane/**, ci, cd, pipeline, build, deploy, release, action, workflow)"
+description: 'Set up Continuous Integration and Deployment pipelines for Flutter apps. Use when setting up CI/CD pipelines, automated testing, or deployment workflows for Flutter. (triggers: .github/workflows/**.yml, fastlane/**, android/fastlane/**, ios/fastlane/**, ci, cd, pipeline, build, deploy, release, action, workflow)'
 ---
-
 # CI/CD Standards
 
 ## **Priority: P1 (HIGH)**
 
-Automates code quality checks, testing, and deployment to prevent regressions and accelerate delivery.
 
 ## Core Pipeline Steps
 
@@ -15,8 +13,8 @@ Automates code quality checks, testing, and deployment to prevent regressions an
 2. **Static Analysis**: Enforce `flutter analyze` and `dart format`. Fail on any warning in strict mode.
 3. **Testing**: Run unit, widget, and integration tests. Upload coverage reports (e.g., Codecov).
 4. **Build**:
-   - **Android**: Build App Bundle (`.aab`) for Play Store.
-   - **iOS**: Sign and build `.ipa` (requires macOS runner).
+ - **Android**: Build App Bundle (`.aab`) for Play Store.
+ - **iOS**: Sign and build `.ipa` (requires macOS runner).
 5. **Deployment** (CD): Automated upload to TestFlight/Play Console using standard tools (Fastlane, Codemagic).
 
 ## Best Practices
@@ -34,12 +32,11 @@ Automates code quality checks, testing, and deployment to prevent regressions an
 
 ## Anti-Patterns
 
-- ❌ Committing `keystore.jks`, `.p8`, or `.env` files — store all signing credentials in GitHub Secrets or a secure vault
-- ❌ CI job without `timeout-minutes` — hung jobs burn runner minutes; always set an explicit timeout (e.g., 30m)
-- ❌ Manual `version: 1.0.0+42` edits in `pubspec.yaml` — automate via git tags or a version script to prevent human error
-- ❌ Running `flutter analyze` after `flutter build` — analysis is cheap and fast; fail fast by running it before builds/tests
+- **No Secrets in Repo**: Store `keystore.jks`, `.p8`, and `.env` in GitHub Secrets
+- **No Uncapped Jobs**: Always set `timeout-minutes` (e.g., 30m) to save runner minutes
+- **No Manual Versioning**: Automate `pubspec.yaml` versioning via git tags or scripts
+- **No Late Analysis**: Run `flutter analyze` before builds/tests for fast failure
 
 ## Related Topics
 
 flutter/testing | dart/tooling
-

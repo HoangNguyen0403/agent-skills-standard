@@ -1,15 +1,14 @@
 ---
 name: golang-api-server
-description: "Build HTTP services, REST APIs, and middleware in Go. Use when building Go HTTP servers, REST APIs, or custom middleware. (triggers: cmd/server/*.go, internal/adapter/handler/**, http server, rest api, gin, echo, middleware)"
+description: 'Build HTTP services, REST APIs, and middleware in Go. Use when building Go HTTP servers, REST APIs, or custom middleware. (triggers: cmd/server/*.go, internal/adapter/handler/**, http server, rest api, gin, echo, middleware)'
 ---
-
 # Golang API Server
 
 ## **Priority: P0 (CRITICAL)**
 
 ## Router Selection
 
-- **Standard Lib (`net/http`)**: Use for simple services or zero-dependency requirements. `http.ServeMux` (Go 1.22+) has method-based routing.
+- **Standard Lib (`net/http`)**: Use for simple services or zero-dependency requirements. `http.ServeMux` (Go 1.22+) method-based routing.
 - **Echo (`labstack/echo`)**: Recommended for production REST APIs with middleware, binding, and error handling.
 - **Gin (`gin-gonic/gin`)**: High performance alternative.
 
@@ -26,9 +25,9 @@ See [graceful shutdown example](references/graceful-shutdown.md) and [Echo handl
 
 ## Anti-Patterns
 
-- **No business logic in handlers**: Parse request, call service, format response only.
-- **No global router vars**: Pass router instance via constructor or DI.
-- **No missing shutdown**: Handle SIGTERM to drain in-flight requests.
+- **No business logic in handlers**: parse request, call service, and format response only.
+- **No global router vars**: pass router instance via constructor or DI.
+- **No missing shutdown**: handle SIGTERM to drain in-flight requests.
 
 ## References
 

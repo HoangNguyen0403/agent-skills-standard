@@ -2,7 +2,6 @@
 name: android-legacy-security
 description: "Harden Intent handling, WebView configuration, and FileProvider access in Android apps. Use when securing Intent extras, configuring WebViews, or exposing files via FileProvider. (triggers: **/*Activity.kt, **/*WebView*.kt, AndroidManifest.xml, Intent, WebView, FileProvider, javaScriptEnabled)"
 ---
-
 # Android Legacy Security Standards
 
 ## **Priority: P0**
@@ -19,7 +18,7 @@ See [hardening examples](references/implementation.md) for manifest and componen
 
 - Default to `javaScriptEnabled = false`. Use `WebViewClient` and `WebChromeClient` to restrict navigation.
 - Disable `allowFileAccess` and `allowFileAccessFromFileURLs` to prevent local file theft via XSS.
-- If using `@JavascriptInterface` (API 17+), strictly limit the exposed API surface.
+- If using `@JavascriptInterface` (API 17+), strictly limit exposed API surface.
 
 See [hardening examples](references/implementation.md) for WebView lockdown patterns.
 
@@ -31,7 +30,7 @@ See [hardening examples](references/implementation.md) for WebView lockdown patt
 
 ## Anti-Patterns
 
-- **No Implicit Intents Internally**: Use explicit intents with the component class name.
+- **No Implicit Intents Internally**: Use explicit intents with component class name.
 - **No MODE_WORLD_READABLE**: Never use for SharedPreferences or files.
 
 ## References

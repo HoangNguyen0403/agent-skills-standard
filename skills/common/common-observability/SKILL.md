@@ -2,7 +2,6 @@
 name: common-observability
 description: "Enforce structured JSON logging, OpenTelemetry distributed tracing, and RED metrics across backend services. Use when adding request correlation, setting up tracing spans, defining SLO burn-rate alerts, or instrumenting middleware. (triggers: **/*.service.ts, **/*.handler.ts, **/*.middleware.ts, **/*.interceptor.ts, **/*.go, **/*.java, **/*.kt, **/*.py, logging, tracing, metrics, opentelemetry, observability, slo)"
 ---
-
 # Common Observability Standards
 
 ## **Priority: P1 (OPERATIONAL)**
@@ -23,7 +22,7 @@ See [implementation examples](references/implementation.md) for structured logge
 
 ## Anti-Patterns
 
-- **Console.log**: Do not use in prod; use a structured logger (`pino`, `zap`).
+- **Console.log**: not use in prod; use structured logger (`pino`, `zap`).
 - **PII in Logs**: Never log tokens, passwords, or full request bodies.
 - **Dynamic Span Names**: `GET /users/123` causes cardinality explosion. Use `GET /users/:id`.
 - **Missing Cleanup**: Always end tracing spans.

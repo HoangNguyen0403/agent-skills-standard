@@ -2,7 +2,6 @@
 name: php-language
 description: "Apply core PHP language standards and modern 8.x features. Use when working with PHP 8.x features like enums, fibers, readonly properties, or named arguments. (triggers: **/*.php, declare, readonly, match, constructor, promotion, types)"
 ---
-
 # PHP Language Standards
 
 ## **Priority: P0 (CRITICAL)**
@@ -19,13 +18,13 @@ src/
 
 ### Core Language Standards
 
-- **Strict Typing**: Declare **`declare(strict_types=1);`** at the very top of every file.
+- **Strict Typing**: Declare **`declare(strict_types=1);`** at very top of every file.
 - **Type Hinting**: Apply scalar type hints (e.g., `string`, `int`) and return types to all functions.
 - **Strict Comparison**: **Avoid loose `==` comparison**; always use `===` for strict equality.
 
 ### Modern PHP 8+ Patterns
 
-- **Match Expressions**: Prefer **`match($status)`** over `switch` for value returns. It provides strict comparison and is exhaustive by default.
+- **Match Expressions**: Prefer **`match($status)`** over `switch` for value returns. It provides strict comparison and exhaustive by default.
 - **Default Case**: Use **`default => throw new InvalidArgumentException($status)`** to handle unknown states.
 - **Read-only**: Use **`public readonly string $name`** for properties set once at construction.
 - **Property Promotion**: Use **`public function __construct(public string $name) {}`** to reduce boilerplate.

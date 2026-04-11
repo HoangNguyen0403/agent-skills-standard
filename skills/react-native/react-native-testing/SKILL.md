@@ -2,7 +2,6 @@
 name: react-native-testing
 description: "Test React Native components with Jest and React Native Testing Library. Use when writing Jest or React Native Testing Library tests for React Native components. (triggers: **/*.test.tsx, **/*.spec.tsx, __tests__/**, test, testing, jest, render, fireEvent, waitFor)"
 ---
-
 # React Native Testing
 
 ## **Priority: P1 (OPERATIONAL)**

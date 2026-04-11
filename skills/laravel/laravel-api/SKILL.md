@@ -2,12 +2,11 @@
 name: laravel-api
 description: "Build REST endpoints with API Resources, Sanctum authentication, and versioned route groups in Laravel. Use when creating JsonResource classes, adding token-based auth, or defining rate-limited API routes. (triggers: routes/api.php, app/Http/Resources/**/*.php, resource, collection, sanctum, passport, cors)"
 ---
-
 # Laravel API
 
 ## **Priority: P1 (HIGH)**
 
-## Workflow: Create a New API Endpoint
+## Workflow: Create New API Endpoint
 
 1. **Generate resource** — `php artisan make:resource UserResource`.
 2. **Define toArray()** — Specify exact output fields; never return raw models.
@@ -17,7 +16,7 @@ description: "Build REST endpoints with API Resources, Sanctum authentication, a
 
 ## API Resource Example
 
-See [implementation examples](references/implementation.md#api-resource-example) for a complete API Resource with collection usage.
+See [implementation examples](references/implementation.md#api-resource-example) for complete API Resource with collection usage.
 
 ## Implementation Guidelines
 
@@ -31,15 +30,15 @@ See [implementation examples](references/implementation.md#api-resource-example)
 ### Authentication & Security
 
 - **Sanctum**: Use **`auth:sanctum`** middleware in `routes/api.php` for SPAs or mobile app authentication.
-- **Traits**: Add the **`HasApiTokens`** trait to your `User` model to enable token-based authentication.
+- **Traits**: Add **`HasApiTokens`** trait to your `User` model to enable token-based authentication.
 - **Token Management**: Issue tokens using **`$user->createToken('token-name')->plainTextToken`**.
-- **OAuth2**: Use **Passport** only if standard OAuth2 flows or client grants are required.
+- **OAuth2**: Use **Passport** only if standard OAuth2 flows or client grants required.
 
 ### Routing & Performance
 
 - **Versioning**: Group routes with **`Route::prefix('v1')->group(...)`** and use versioned namespaces (e.g., `App\Http\Controllers\Api\V1`).
 - **Rate Limiting**: Define **`RateLimiter::for('api', ...)`** using **`Limit::perMinute(60)`** in **`AppServiceProvider`**.
-- **Middleware**: Apply the **`throttle:api`** middleware to route groups in `routes/api.php`.
+- **Middleware**: Apply **`throttle:api`** middleware to route groups in `routes/api.php`.
 - **Status Codes**: Return 201 for Created, 422 for Validation errors, and 204 for No Content.
 
 ## Anti-Patterns

@@ -2,7 +2,6 @@
 name: nextjs-data-access-layer
 description: "Build secure, reusable data access patterns with DTOs, taint checks, and colocated authorization in Next.js. Use when centralizing database queries, transforming raw data to DTOs, adding server-only guards, or preventing sensitive data from reaching Client Components. (triggers: **/lib/data.ts, **/services/*.ts, **/dal/**, DAL, Data Access Layer, server-only, DTO)"
 ---
-
 # Data Access Layer (DAL)
 
 ## **Priority: P1 (HIGH)**
@@ -14,7 +13,7 @@ Centralize all data access (Database & External APIs) to ensure consistent secur
 1. **Create DAL module** in `services/` or `lib/data.ts` with `import 'server-only'`.
 2. **Verify auth** inside every DAL function using `await auth()`.
 3. **Transform** raw DB/API data into DTOs before returning to components.
-4. **Wrap** with `cache()` from React to deduplicate requests within a render cycle.
+4. **Wrap** with `cache()` from React to deduplicate requests within render cycle.
 5. **Taint-check** sensitive objects to prevent accidental client exposure.
 
 See [implementation examples](references/implementation.md)
@@ -22,9 +21,9 @@ See [implementation examples](references/implementation.md)
 ## Implementation Guidelines
 
 - **DTOs**: Always transform raw data into plain objects. Never return ORM model instances.
-- **Security**: Use `taintObjectReference` or `taintUniqueValue` from the experimental taint API to guard sensitive data.
-- **Authorization**: Colocate auth checks inside every DAL function. Never rely on the UI layer.
-- **Caching**: Wrap DAL functions in `cache()` to deduplicate within a single render.
+- **Security**: Use `taintObjectReference` or `taintUniqueValue` from experimental taint API to guard sensitive data.
+- **Authorization**: Colocate auth checks inside every DAL function. Never rely on UI layer.
+- **Caching**: Wrap DAL functions in `cache()` to deduplicate within single render.
 - **Error Handling**: Throw standardized errors (`NotFoundError`, `UnauthorizedError`) caught by `error.tsx` or `notFound()`.
 
 ## Limitations

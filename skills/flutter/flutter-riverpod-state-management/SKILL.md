@@ -2,12 +2,10 @@
 name: flutter-riverpod-state-management
 description: "Implement reactive state management using Riverpod 2.0 with code generation in Flutter. Use when defining @riverpod providers, building AsyncNotifiers, overriding providers in tests, or enforcing immutable state with Freezed models. (triggers: **_provider.dart, **_notifier.dart, riverpod, ProviderScope, ConsumerWidget, Notifier, AsyncValue, ref.watch, @riverpod)"
 ---
-
 # Riverpod State Management
 
 ## **Priority: P0 (CRITICAL)**
 
-Type-safe, compile-time safe reactive state management using `riverpod` and `riverpod_generator`.
 
 ## Structure
 
@@ -40,7 +38,7 @@ Use `ConsumerWidget` with `ref.watch()` and `AsyncValue.when()` for reactive UI.
 ## Anti-Patterns
 
 - **No side-effects in provider init**: Use `ref.listen()` in widgets instead.
-- **No BuildContext in Notifiers**: Never pass `BuildContext` into a Notifier/Provider.
+- **No BuildContext in Notifiers**: Never pass `BuildContext` into Notifier/Provider.
 - **No local provider instantiation**: Keep providers global; avoid dynamic creation.
 
 ## Related Topics

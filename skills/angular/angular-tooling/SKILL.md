@@ -2,7 +2,6 @@
 name: angular-tooling
 description: 'Angular CLI usage, code generation, build configuration, and bundle optimization. Use when creating Angular projects, generating components/services/guards, configuring builds, running tests, or analyzing bundles. (triggers: angular.json, ng generate, ng build, ng serve, ng test, ng add, angular cli, bundle analysis)'
 ---
-
 # Angular Tooling
 
 ## **Priority: P2 (OPTIONAL)**
@@ -10,7 +9,7 @@ description: 'Angular CLI usage, code generation, build configuration, and bundl
 ## CLI Essentials
 
 - **Command**: `ng generate component` (or `ng g c`)
-- **Flags**: Use `--dry-run` to preview output first. Add `--change-detection=OnPush` to set CD strategy at generation time. Use `--skip-tests` if spec is not needed.
+- **Flags**: Use `--dry-run` to preview output first. Add `--change-detection=OnPush` to set CD strategy at generation time. Use `--skip-tests` if spec not needed.
 - **Workflow**: Always use `ng generate` — **never create files manually**.
 
 ```bash
@@ -44,7 +43,7 @@ ng build -c production --stats-json
 npx esbuild-visualizer --metadata dist/my-app/browser/stats.json --open
 ```
 
-- **Note**: Check `angular.json` budgets — do not hand-edit `angular.json budgets` values; analyze the bundle first to understand what's large.
+- **Note**: Check `angular.json` budgets — not hand-edit `angular.json budgets` values; analyze bundle first to understand what's large.
 
 ## Update Angular
 

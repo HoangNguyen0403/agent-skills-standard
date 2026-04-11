@@ -2,7 +2,6 @@
 name: nextjs-tooling
 description: "Configure Next.js build tooling, deployment, and developer workflow. Use when setting up Turbopack, standalone Docker output, bundle analysis, CI caching, environment variable validation, or ESLint integration for Next.js projects. (triggers: next.config.js, package.json, Dockerfile, turbopack, output, standalone, lint, telemetry)"
 ---
-
 # Next.js Tooling
 
 ## **Priority: P2 (MEDIUM)**
@@ -20,7 +19,7 @@ See [implementation examples](references/implementation.md)
 - **Build**: Use Turbopack (`next dev --turbo`) for faster incremental builds; Webpack for legacy.
 - **Linting**: Mandate `next lint` (eslint-plugin-next) and `tsc` in CI/CD.
 - **Bundle Analysis**: Inspect with `@next/bundle-analyzer`. Remove unused dependencies.
-- **Telemetry**: Opt-out via `next telemetry disable` if privacy is required.
+- **Telemetry**: Opt-out via `next telemetry disable` if privacy required.
 - **Environment**: Server-only vars vs `NEXT_PUBLIC_*`. Validate with Zod at runtime.
 - **CI/CD**: Cache `.next/cache` in CI for 50%+ faster builds.
 

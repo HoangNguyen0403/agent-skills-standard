@@ -2,7 +2,6 @@
 name: golang-logging
 description: "Standards for structured logging and observability in Golang. Use when adding structured logging or tracing to Go services. (triggers: go.mod, pkg/logger/**, logging, slog, structured logging, zap)"
 ---
-
 # Golang Logging Standards
 
 ## **Priority: P1 (STANDARD)**
@@ -22,7 +21,7 @@ description: "Standards for structured logging and observability in Golang. Use 
 
 ## Workflow: Set Up Structured Logging with slog
 
-1. Create a JSON handler at startup in `main()`
+1. Create JSON handler at startup in `main()`
 2. Optionally wrap in middleware to inject request-scoped attributes
 3. Use `slog.With()` to add correlation IDs per request
 4. Pass logger via context or dependency injection

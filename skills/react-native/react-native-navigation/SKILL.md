@@ -2,12 +2,10 @@
 name: react-native-navigation
 description: "Set up navigation stacks and deep linking with React Navigation in React Native. Use when setting up navigation stacks or deep linking in React Native with React Navigation. (triggers: **/App.tsx, **/*Navigator.tsx, **/*Screen.tsx, NavigationContainer, createStackNavigator, createBottomTabNavigator, linking, deep link)"
 ---
-
 # React Native Navigation
 
 ## **Priority: P1 (OPERATIONAL)**
 
-Navigation and deep linking using React Navigation.
 
 ## Configure Type-Safe Navigation
 

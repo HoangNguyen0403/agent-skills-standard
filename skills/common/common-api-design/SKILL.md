@@ -2,12 +2,10 @@
 name: common-api-design
 description: "Apply REST API conventions — HTTP semantics, status codes, versioning, pagination, and OpenAPI standards for any framework. Use when designing endpoints, choosing HTTP methods, implementing pagination, or writing OpenAPI specs. (triggers: **/*.controller.ts, **/*.router.ts, **/*.routes.ts, **/routes/**, **/controllers/**, **/handlers/**, rest api, endpoint, http method, status code, versioning, pagination, openapi, api design, api contract)"
 ---
-
 # Common API Design Standards
 
 ## **Priority: P1 (OPERATIONAL)**
 
-Consistent, predictable API contracts reduce integration friction and prevent breaking changes from reaching consumers.
 
 ## 🔧 HTTP Verb Semantics
 
@@ -30,11 +28,11 @@ Consistent, predictable API contracts reduce integration friction and prevent br
 
 ## 🔢 API Versioning
 
-- **Strategy**: URL path versioning is the default: `/v1/users`, `/v2/users`.
-- **Header versioning** (`Api-Version: 2`) is acceptable for internal APIs.
-- Never mix versions in the same controller — each version gets its own route module.
-- Support previous major version for minimum 6 months after a new one is released.
-- Deprecation: Add `Deprecation: true` + `Sunset: <date>` headers when a version will be retired.
+- **Strategy**: URL path versioning default: `/v1/users`, `/v2/users`.
+- **Header versioning** (`Api-Version: 2`) acceptable for internal APIs.
+- Never mix versions in same controller — each version gets its own route module.
+- Support previous major version for minimum 6 months after new one released.
+- Deprecation: Add `Deprecation: true` + `Sunset: <date>` headers when version will retired.
 
 ## 📄 Pagination
 
@@ -44,7 +42,7 @@ Consistent, predictable API contracts reduce integration friction and prevent br
 
 ## 📝 OpenAPI Contract
 
-- Every API MUST have an OpenAPI 3.1 spec.
+- Every API MUST OpenAPI 3.1 spec.
 - Generate spec from code annotations (not hand-written YAML) to prevent drift.
 - Include: request/response schemas, error shapes, auth requirements, examples.
 - Review OpenAPI spec as part of PR process — breaking changes require version bump.
@@ -58,7 +56,7 @@ Consistent, predictable API contracts reduce integration friction and prevent br
 
 ## Anti-Patterns
 
-- **No `GET` mutations**: Search engines and CDNs cache GET — mutating state is catastrophic.
+- **No `GET` mutations**: Search engines and CDNs cache GET — mutating state catastrophic.
 - **No 200 for errors**: `{ "success": false, "data": null }` with HTTP 200 breaks monitoring.
 - **No deeply nested URLs**: Hard to document, version, and cache.
 - **No breaking changes without versioning**: Removing/renaming fields in-place breaks consumers silently.

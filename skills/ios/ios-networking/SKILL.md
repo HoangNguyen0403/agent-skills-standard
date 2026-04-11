@@ -1,8 +1,7 @@
 ---
 name: ios-networking
-description: "Build API clients with URLSession, Alamofire, and Codable. Use when implementing URLSession networking, Alamofire, or API clients in iOS. (triggers: **/*Service.swift, **/*API.swift, **/*Client.swift, URLSession, Alamofire, Moya, URLRequest, URLComponents, Codable)"
+description: 'Build API clients with URLSession, Alamofire, and Codable. Use when implementing URLSession networking, Alamofire, or API clients in iOS. (triggers: **/*Service.swift, **/*API.swift, **/*Client.swift, URLSession, Alamofire, Moya, URLRequest, URLComponents, Codable)'
 ---
-
 # iOS Networking
 
 ## **Priority: P0**
@@ -20,9 +19,9 @@ See [URLSession and Alamofire implementation examples](references/implementation
 
 ## Anti-Patterns
 
-- ❌ UI updates from background thread — always dispatch to `@MainActor` or main queue
-- ❌ Manual `JSONSerialization` — use `Codable` and `JSONDecoder`
-- ❌ No timeout set — always set a reasonable `timeoutInterval` (30s default)
+- **No Background UI Updates**: Always dispatch to `@MainActor` or main queue
+- **No Manual `JSONSerialization`**: Use `Codable` and `JSONDecoder`
+- **No Missing Timeouts**: Set reasonable `timeoutInterval` (30s default)
 
 ## References
 

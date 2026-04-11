@@ -2,7 +2,6 @@
 name: android-security
 description: "Secure Data Encryption, Network Security, and Permissions on Android. Use when handling API keys, auth tokens, cleartext traffic, android:exported, EncryptedSharedPreferences, certificate pinning, or root detection — even if the user just asks 'is this secure'. (triggers: network_security_config.xml, AndroidManifest.xml, EncryptedSharedPreferences, cleartextTrafficPermitted, intent-filter, api key, token storage, certificate pinning, root detection, secure storage)"
 ---
-
 # Android Security Standards
 
 ## **Priority: P0 (CRITICAL)**

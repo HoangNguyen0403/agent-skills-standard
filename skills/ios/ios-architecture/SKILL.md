@@ -2,7 +2,6 @@
 name: ios-architecture
 description: "Apply MVVM, Coordinators, and Clean Architecture (VIP/VIPER) in iOS apps. Use when applying MVVM, Coordinators, or VIP/VIPER architecture in iOS apps. (triggers: **/*ViewModel.swift, **/*Coordinator.swift, **/*ViewController.swift, MVVM, Coordinator, ViewState, Output, Input)"
 ---
-
 # iOS Architecture Standards
 
 ## **Priority: P0 (CRITICAL)**
@@ -12,14 +11,14 @@ description: "Apply MVVM, Coordinators, and Clean Architecture (VIP/VIPER) in iO
 ### MVVM (Model-View-ViewModel)
 
 - **ViewModel Responsibility**: Handle business logic, formatting, and state. No UIKit imports (except for platform types like `UIImage` if strictly necessary).
-- **ViewState**: Use a single state object or discrete `@Published` properties for UI updates. **Expose state as `private(set)` or using publishers**.
+- **ViewState**: Use single state object or discrete `@Published` properties for UI updates. **Expose state as `private(set)` or using publishers**.
 - **Inputs/Outputs**: Define explicit protocols or nested types for inputs (events from View) and outputs (state for View).
 
 ### Coordinator Pattern
 
-- **Navigation Logic**: Decouple ViewControllers from navigation logic. The **Coordinator handles instantiation and push/present**. **Do NOT use `navigationController` directly in the ViewController for screen transitions.**
-- **Dependency Injection**: **Pass dependencies** (Services, Repositories) through the **Coordinator into the ViewModels**.
-- **Child Coordinators**: Maintain a hierarchy; **correctly remove child coordinators** from the parent's collection when their flow is finished.
+- **Navigation Logic**: Decouple ViewControllers from navigation logic. **Coordinator handles instantiation and push/present**. ** NOT use `navigationController` directly in ViewController for screen transitions.**
+- **Dependency Injection**: **Pass dependencies** (Services, Repositories) through **Coordinator into ViewModels**.
+- **Child Coordinators**: Maintain hierarchy; **correctly remove child coordinators** from parent's collection when their flow finished.
 
 ### Clean Architecture (VIP/VIPER)
 
@@ -31,15 +30,15 @@ description: "Apply MVVM, Coordinators, and Clean Architecture (VIP/VIPER) in iO
 
 - **No Logic in VC**: Move business logic to ViewModel/Interactor.
 - **No Public ViewModel State**: Keep state **private(set)** or using publishers.
-- **No Direct Navigation**: Use a Coordinator for screen transitions. Never use `navigationController` directly.
+- **No Direct Navigation**: Use Coordinator for screen transitions. Never use `navigationController` directly.
 
 ## Verification Checklist (Mandatory)
 
-- [ ] **Pure ViewModel**: Does the ViewModel have any `UIKit` imports? (Prohibited)
-- [ ] **Navigation**: Is `navigationController` used directly in the VC for transitions? (Use Coordinator)
-- [ ] **State Access**: Is ViewModel state exposed as `public var`? (Use `private(set)` or publishers)
-- [ ] **Deallocation**: Are child coordinators correctly removed from the parent's collection on finish?
-- [ ] **VIP Unidirection**: Is the data flow unidirectional (View -> Interactor -> Presenter -> View)?
+- [ ] **Pure ViewModel**: ViewModel any `UIKit` imports? (Prohibited)
+- [ ] **Navigation**: `navigationController` used directly in VC for transitions? (Use Coordinator)
+- [ ] **State Access**: ViewModel state exposed as `public var`? (Use `private(set)` or publishers)
+- [ ] **Deallocation**: child coordinators correctly removed from parent's collection on finish?
+- [ ] **VIP Unidirection**: data flow unidirectional (View -> Interactor -> Presenter -> View)?
 
 ## References
 

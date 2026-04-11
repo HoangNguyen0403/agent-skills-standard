@@ -2,7 +2,6 @@
 name: nestjs-testing
 description: "Write Unit and E2E tests with Jest, mocking strategies, and database isolation in NestJS. Use when writing NestJS unit tests, E2E tests with supertest, or mock providers. (triggers: **/*.spec.ts, test/**/*.e2e-spec.ts, Test.createTestingModule, supertest, jest, beforeEach)"
 ---
-
 # NestJS Testing
 
 ## **Priority: P2 (MAINTENANCE)**
@@ -39,7 +38,7 @@ test/**/*.e2e-spec.ts # E2E tests (full app flows)
 ## Anti-Patterns
 
 - **No Private Tests**: Test via public methods, not `service['privateMethod']`.
-  When coverage requires it, use typed helper (see strict-typescript reference).
+ When coverage requires it, use typed helper (see strict-typescript reference).
 - **No DB Mocks in E2E**: Use real DB with cleanup. Mocks defeat E2E purpose.
 - **No Shared State**: Call `jest.clearAllMocks()` in `afterEach`. Random failures otherwise.
 - **No Resource Leaks**: Always close app and DB in `afterAll`.

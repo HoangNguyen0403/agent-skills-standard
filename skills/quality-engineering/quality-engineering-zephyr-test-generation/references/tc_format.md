@@ -35,7 +35,7 @@ Open with an Index table, then one `###` block per TC:
 - **Priority**: High
 - **Status**: Draft
 - **Labels**: VNS-Market, ezrx-XXXXX
-- **Roles**: Client user, Client admin, Internal sales rep, External sales rep
+- **Roles**: Client user, Client admin, Internal sales rep, External sales rep (or any other exact role from Confluence like Zp admin, Root admin)
 - **Objective**: Verify [behavior]. Covers AC1.
 
 **Preconditions**:

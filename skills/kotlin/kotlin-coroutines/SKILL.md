@@ -1,13 +1,12 @@
 ---
 name: kotlin-coroutines
-description: "Write safe, structured concurrent code with Kotlin Coroutines. Use when writing suspend functions, choosing coroutine scopes, handling cancellation in loops, selecting between StateFlow and SharedFlow, debugging coroutine leaks, or asked why GlobalScope is dangerous. (triggers: **/*.kt, suspend, CoroutineScope, launch, async, Flow, StateFlow, SharedFlow, viewModelScope, GlobalScope, Dispatchers, isActive, yield, runBlocking)"
+description: 'Write safe, structured concurrent code with Kotlin Coroutines. Use when writing suspend functions, choosing coroutine scopes, handling cancellation in loops, selecting between StateFlow and SharedFlow, debugging coroutine leaks, or asked why GlobalScope is dangerous. (triggers: **/*.kt, suspend, CoroutineScope, launch, async, Flow, StateFlow, SharedFlow, viewModelScope, GlobalScope, Dispatchers, isActive, yield, runBlocking)'
 ---
-
 # Kotlin Coroutines Expert
 
 ## **Priority: P0 (CRITICAL)**
 
-**You are a Concurrency Expert.** Prioritize safety and cancellation support.
+**Role**: Concurrency Expert. Prioritize safety and cancellation support.
 
 ## Implementation Guidelines
 
@@ -18,10 +17,10 @@ description: "Write safe, structured concurrent code with Kotlin Coroutines. Use
 
 ## Concurrency Checklist (Mandatory)
 
-- [ ] **Cancellation**: Do loops check `isActive` or call `yield()`?
+- [ ] **Cancellation**: loops check `isActive` or call `yield()`?
 - [ ] **Structured**: No `GlobalScope`? All children joined/awaited?
-- [ ] **Context**: Is `Dispatchers.Main` used for UI updates?
-- [ ] **Leaks**: Are scopes cancelled in `onCleared` / `onDestroy`?
+- [ ] **Context**: `Dispatchers.Main` used for UI updates?
+- [ ] **Leaks**: scopes cancelled in `onCleared` / `onDestroy`?
 
 ## Anti-Patterns
 

@@ -1,13 +1,12 @@
 ---
 name: android-compose
-description: "Build high-performance declarative UI with Jetpack Compose state hoisting and recomposition optimization. Use when writing @Composable functions, Screen files, LazyColumn, state hoisting, LaunchedEffect, or diagnosing excessive recomposition. (triggers: **/*Screen.kt, **/*Composable*.kt, **/*Content.kt, @Composable, Modifier, Column, Row, LazyColumn, setContent, recompose, remember, derivedStateOf, LaunchedEffect)"
+description: 'Build high-performance declarative UI with Jetpack Compose state hoisting and recomposition optimization. Use when writing @Composable functions, Screen files, LazyColumn, state hoisting, LaunchedEffect, or diagnosing excessive recomposition. (triggers: **/*Screen.kt, **/*Composable*.kt, **/*Content.kt, @Composable, Modifier, Column, Row, LazyColumn, setContent, recompose, remember, derivedStateOf, LaunchedEffect)'
 ---
-
 # Jetpack Compose Expert
 
 ## **Priority: P0 (CRITICAL)**
 
-**You are an Android UI Performance Expert.** Prioritize frame stability and state management.
+**Role**: Android UI Performance Expert. Prioritize frame stability and state management.
 
 ## 1. Hoist State Correctly
 
@@ -29,7 +28,7 @@ See [implementation examples](references/implementation.md) for `derivedStateOf`
 
 ## 3. Handle Side Effects Properly
 
-- Use `LaunchedEffect` for one-shot or keyed side effects — never run side effects in the composition body.
+- Use `LaunchedEffect` for one-shot or keyed side effects — never run side effects in composition body.
 - Move complex calculations to ViewModel or `remember`.
 
 ## Anti-Patterns

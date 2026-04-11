@@ -27,6 +27,25 @@
         { "type": "contains", "value": "Parameterized" },
         { "type": "contains", "value": "injection" }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "I need to run a git command in CI using an env var for the branch name: execSync(`git diff --name-only origin/${process.env.GITHUB_BASE_REF}...HEAD`)",
+      "expected_output": "Command injection risk (OWASP A03). Environment variable values can contain shell metacharacters. Replace execSync with execFileSync and pass args as an array: execFileSync('git', ['diff', '--name-only', `origin/${process.env.GITHUB_BASE_REF}...HEAD`], { encoding: 'utf8' }). Validate GITHUB_BASE_REF matches /^[\\w./-]+$/ before use.",
+      "assertions": [
+        { "type": "contains", "value": "execFileSync" },
+        { "type": "contains", "value": "injection" },
+        { "type": "contains", "value": "args" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I'm fetching from a URL stored in process.env.API_URL without any validation. Is that safe?",
+      "expected_output": "Potential SSRF. Validate the URL origin against an explicit allowlist before fetching: const ALLOWED = new URL('https://api.example.com'); const target = new URL(apiUrl); if (target.origin !== ALLOWED.origin) throw new Error('Disallowed origin'). Reject any value not matching your expected scheme+host.",
+      "assertions": [
+        { "type": "contains", "value": "allowlist" },
+        { "type": "contains", "value": "SSRF" }
+      ]
     }
   ],
   "should_not_trigger": [

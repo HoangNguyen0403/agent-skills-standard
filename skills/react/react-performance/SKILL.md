@@ -2,12 +2,10 @@
 name: react-performance
 description: "Optimize React rendering, bundle size, and data fetching performance. Use when optimizing React rendering performance, reducing re-renders, or improving bundle size. (triggers: **/*.tsx, **/*.jsx, waterfall, bundle, lazy, suspense, dynamic)"
 ---
-
 # React Performance
 
 ## **Priority: P0 (CRITICAL)**
 
-Strategies to minimize waterfalls, bundle size, and render cost.
 
 ## Eliminate Data Waterfalls (P0)
 
@@ -27,7 +25,7 @@ See [implementation examples](references/REFERENCE.md#parallel-fetch-with-suspen
 
 - **Isolation**: Move state as close to its usage as possible. Isolate heavy UI updates.
 - **List Performance**: Use **`react-window`** or **`react-virtual`** for **virtualization** of lists with 500+ items. Wrap list items in **`React.memo`**.
-- **Context Splitting**: **Split Context** into `State` and `Dispatch` objects. This prevents all consumers from re-rendering when only a setter is needed.
+- **Context Splitting**: **Split Context** into `State` and `Dispatch` objects. This prevents all consumers from re-rendering when only setter needed.
 - **Stability**: Use **`useMemo` for derived list data** and passing stable object/array references to children.
 - **Content Visibility**: `content-visibility: auto` for off-screen CSS content.
 - **Static Hoisting**: Extract static objects/JSX outside component scope.
@@ -35,7 +33,7 @@ See [implementation examples](references/REFERENCE.md#parallel-fetch-with-suspen
 
 ## Parallelize Computation (P1)
 
-- **Web Workers**: Move heavy computation (Encryption, Image processing, Large Data Sorting) off the main thread using `Comlink` or `Worker`.
+- **Web Workers**: Move heavy computation (Encryption, Image processing, Large Data Sorting) off main thread using `Comlink` or `Worker`.
 
 ## Optimize Server Components (RSC) (P1)
 

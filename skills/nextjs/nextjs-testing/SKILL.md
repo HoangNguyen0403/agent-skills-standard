@@ -1,18 +1,17 @@
 ---
 name: nextjs-testing
-description: "Write Jest or Vitest unit tests with React Testing Library and Playwright E2E tests for Next.js projects. Use when testing components with RTL, mocking APIs with MSW, or creating Playwright user flow tests. (triggers: **/*.test.{ts,tsx}, cypress/**, tests/**, jest.config.*, vitest, playwright, msw, testing-library)"
+description: 'Write Jest or Vitest unit tests with React Testing Library and Playwright E2E tests for Next.js projects. Use when testing components with RTL, mocking APIs with MSW, or creating Playwright user flow tests. (triggers: **/*.test.{ts,tsx}, cypress/**, tests/**, jest.config.*, vitest, playwright, msw, testing-library)'
 ---
-
 # Next.js Testing
 
 ## **Priority: P1 (HIGH)**
 
 ## Test Runner
 
-- **Existing projects (Pages Router / legacy stack)**: Use **Jest** (`jest@29` + `babel-jest` + `jest-environment-jsdom`). This is the current setup in legacy Pages Router projects.
+- **Existing projects (Pages Router / legacy stack)**: Use **Jest** (`jest@29` + `babel-jest` + `jest-environment-jsdom`).
 - **New projects (App Router)**: Use **Vitest** for speed and native ESM support.
 
-## Workflow: Test a New Feature
+## Workflow: Test New Feature
 
 1. **Write unit tests** — Use Jest (or Vitest for new projects) + RTL with Arrange-Act-Assert pattern.
 2. **Mock APIs** — Set up MSW handlers for all fetch boundaries.
@@ -28,9 +27,9 @@ See [implementation examples](references/implementation.md)
 
 - **Unit Testing**: Use **Jest** (existing projects) or **Vitest** (new projects) with **React Testing Library (RTL)**. Follow **Arrange-Act-Assert (AAA)** patterns.
 - **E2E Testing**: Use **Playwright** for full user flow validation. Focus on critical flows (Login, Checkout).
-- **Networking**: Mock all internal/external API boundaries using **Mock Service Worker (MSW)**. Ensure **`server` and `browser` handlers** are correctly configured.
+- **Networking**: Mock all internal/external API boundaries using **Mock Service Worker (MSW)**. Ensure **`server` and `browser` handlers** correctly configured.
 - **Interactions**: Use **`userEvent` (async)** to simulate user actions: `await user.click(button)`.
-- **Selectors**: Favor **`getByRole`** / **`findByRole`** to test accessibility. Use **`data-testid`** only as a fallback.
+- **Selectors**: Favor **`getByRole`** / **`findByRole`** to test accessibility. Use **`data-testid`** only as fallback.
 - **Environment**: For Jest, use `jest-environment-jsdom`. For Vitest, configure `vitest.config.ts` with `jsdom` or `happy-dom`.
 - **Reporting**: Ensure tests generate **JSON coverage reports** for CI gates. Aim for **80%+ coverage** on core libraries.
 

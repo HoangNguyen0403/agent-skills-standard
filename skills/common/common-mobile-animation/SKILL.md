@@ -2,12 +2,10 @@
 name: common-mobile-animation
 description: "Apply motion design principles for mobile apps covering timing curves, transitions, gestures, and performance-conscious animations. Use when implementing screen transitions, gesture-driven interactions, shared-element animations, or optimizing animation frame rates on iOS, Android, or Flutter. (triggers: **/*_page.dart, **/*_screen.dart, **/*.swift, **/*Activity.kt, **/*Screen.tsx, Animation, AnimationController, Animated, MotionLayout, transition, gesture)"
 ---
-
 # Mobile Animation
 
 ## **Priority: P1 (OPERATIONAL)**
 
-Native-feeling motion design. Optimize for 60fps and platform conventions.
 
 ## Timing Standards
 
@@ -21,7 +19,7 @@ Native-feeling motion design. Optimize for 60fps and platform conventions.
 
 ## Workflow
 
-1. **Choose duration** from the timing table based on interaction type.
+1. **Choose duration** from timing table based on interaction type.
 2. **Select easing curve** per platform — `Curves.fastOutSlowIn` (Material) or `easeInOut` (iOS). Never use `linear`.
 3. **Animate GPU-friendly properties** (`transform`, `opacity`). Avoid `width`/`height` which trigger layout.
 4. **Wire gestures** using `onPan` / `interactivePopGesture` for fluid, interruptible UX.

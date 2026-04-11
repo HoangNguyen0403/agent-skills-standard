@@ -2,7 +2,6 @@
 name: spring-boot-api-design
 description: "Design Spring Boot APIs with OpenAPI, Versioning, and Global Error Handling. Use when designing Spring Boot APIs with OpenAPI specs, versioning, or global error handling. (triggers: **/*Controller.java, openapi, swagger, versioning, problemdetails)"
 ---
-
 # Spring Boot API Design Standards
 
 ## **Priority: P0**
@@ -29,7 +28,7 @@ description: "Design Spring Boot APIs with OpenAPI, Versioning, and Global Error
 ## Anti-Patterns
 
 - **No Map<K,V> responses**: Return typed DTO records instead.
-- **No Header Versioning**: Use URI versioning; headers are hard to test/cache.
+- **No Header Versioning**: Use URI versioning; headers hard to test/cache.
 - **No hidden APIs**: Document all endpoints with Swagger/OpenAPI.
 
 ## References

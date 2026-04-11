@@ -2,12 +2,11 @@
 name: laravel-testing
 description: "Write Pest feature tests with RefreshDatabase, mock external services, and create test data with Eloquent Factories in Laravel. Use when adding HTTP tests, configuring SQLite in-memory test database, or mocking payment services. (triggers: tests/**/*.php, phpunit.xml, feature, unit, mock, factory, sqlite)"
 ---
-
 # Laravel Testing
 
 ## **Priority: P1 (HIGH)**
 
-## Workflow: Test a New Feature
+## Workflow: Test New Feature
 
 1. **Generate factory** — `php artisan make:factory PostFactory --model=Post`.
 2. **Write feature test** — Use Pest with `RefreshDatabase` for isolation.
@@ -23,7 +22,7 @@ See [implementation examples](references/implementation.md#pest-feature-test-exa
 
 ### Pest & Modern Testing
 
-- **Feature Tests**: Use `uses(RefreshDatabase::class)` at the top of Pest files. Example: `it('creates post', fn() => $this->postJson('/api/posts', [...])` verifies database rolled back after each test.
+- **Feature Tests**: Use `uses(RefreshDatabase::class)` at top of Pest files. Example: `it('creates post', fn() => $this->postJson('/api/posts', [...])` verifies database rolled back after each test.
 - **Transactions**: For faster but non-truncating isolation, use **`DatabaseTransactions`**.
 
 ### Mocking & External Services

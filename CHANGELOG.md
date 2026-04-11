@@ -5,6 +5,47 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-04-11
+
+**Category**: Token Economy & Custom Skill Indexing
+
+### Added
+
+- **Custom Skill Indexing**: Enhanced the `ags sync` logic to discover and index individual `.md` files as standalone skills alongside standard registry folders.
+- **Standalone Skill Support**: Users can now add local skills directly to their `.cursor/skills/` or other agent folders without requiring a full registry structure.
+
+### Changed
+
+- **Token Economy (Caveman Mode)**: Applied the "Caveman" compression strategy to all 238 registry skills, reducing total token count by approximately 45%.
+- **Skill Density**: Removed filler words and fluff from all `SKILL.md` body content while maintaining 100% technical and code accuracy.
+
+### Fixed
+
+- **CLI metadata sync**: Fixed an issue where `ags sync` failed to populate the hierarchical router table in `AGENTS.md`.
+- **Linting**: Fixed unused `prefix` variable in `IndexGeneratorService.ts`.
+
+### Versions
+
+- **CLI**: v2.1.1 (Patch — maintain stable version)
+- **Skills**: v2.2.0 (Minor — global Caveman token optimization)
+
+#### Category Brander Version Updates
+
+The following category-specific versions were bumped to reflect the global "Caveman" token economy optimization:
+
+- **Common Patterns**: `v2.0.1` -> `v2.0.3`
+- **Flutter**: `v1.6.1` -> `v1.6.3`
+- **React**: `v1.3.1` -> `v1.3.3`
+- **Next.js**: `v1.4.1` -> `v1.4.3`
+- **Angular**: `v1.3.1` -> `v1.4.1` (Includes new standalone indexing format support)
+- **NestJS**: `v1.4.1` -> `v1.4.3`
+- **TypeScript**: `v1.3.1` -> `v1.3.2`
+- **JavaScript**: `v1.3.1` -> `v1.3.3`
+- **iOS**: `v1.4.1` -> `v1.4.3`
+- **Android**: `v1.3.1` -> `v1.3.3`
+- **Quality Engineering**: `v1.4.1` -> `v1.4.3`
+- (All other language categories bumped to `v1.3.x` / `v1.4.x` as per global update)
+
 ## [2.1.1] - 2026-04-04
 
 **Category**: Fix Hierarchical Index Sync

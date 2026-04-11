@@ -2,7 +2,6 @@
 name: laravel-background-processing
 description: "Build scalable asynchronous workflows using Queues, Jobs, and Events in Laravel. Use when implementing queued jobs, event-driven workflows, or async processing in Laravel. (triggers: app/Jobs/**/*.php, app/Events/**/*.php, app/Listeners/**/*.php, ShouldQueue, dispatch, batch, chain, listener)"
 ---
-
 # Laravel Background Processing
 
 ## **Priority: P1 (HIGH)**
@@ -21,7 +20,7 @@ app/
 ### Queued Jobs
 
 - **Job Creation**: Use **`php artisan make:job ProcessOrder`**. Classes must implement **`ShouldQueue`**.
-- **Execution**: Implement logic inside the **`handle()`** method. Pass only **model IDs** to the constructor, not the full Eloquent model.
+- **Execution**: Implement logic inside **`handle()`** method. Pass only **model IDs** to constructor, not full Eloquent model.
 - **Dispatching**: Trigger via **`ProcessOrder::dispatch($orderId)`**.
 
 ### Advanced Workflow Patterns
@@ -38,7 +37,7 @@ app/
 ### Reliability & Monitoring
 
 - **Error Handling**: Implement **`public function failed(Throwable $exception)`** in your job class. Use **`public int $tries = 3`** and **`public int $backoff = 60`** for retries.
-- **Setup**: Run the **`queue:failed-table`** migration to track dead jobs.
+- **Setup**: Run **`queue:failed-table`** migration to track dead jobs.
 - **Monitoring**: Use **Laravel Horizon** (run **`php artisan horizon`**) for real-time observability; **never use `queue:work` in production**.
 
 ## Anti-Patterns

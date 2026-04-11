@@ -2,14 +2,13 @@
 name: swift-testing
 description: "Write XCTest cases, async tests, and organized test suites in Swift. Use when writing XCTest cases, async tests, or organizing test suites in Swift. (triggers: **/*Tests.swift, XCTestCase, XCTestExpectation, XCTAssert)"
 ---
-
 # Swift Testing Standards
 
 ## **Priority: P0**
 
 ## Write XCTest Cases
 
-- **Standard Naming**: Test functions must be prefixed by 'test' (e.g., `func testUserLoginSuccessful()`).
+- **Standard Naming**: Test functions must prefixed by 'test' (e.g., `func testUserLoginSuccessful()`).
 - **Setup/Teardown**: Use `setUpWithError()` and `tearDownWithError()` for environment management.
 - **Assertions**: Use specific assertions: `XCTAssertEqual`, `XCTAssertNil`, `XCTAssertTrue`, etc.
 
@@ -31,7 +30,7 @@ See [implementation examples](references/implementation.md) for XCTest setup/tea
 
 - **No Thread.sleep**: Use expectations or await.
 - **No force unwrap in tests**: Use XCTUnwrap() for better failure messages.
-- **No assertion-free tests**: A test that only runs code is not a test.
+- **No assertion-free tests**: test that only runs code not test.
 
 ## References
 

@@ -1,17 +1,17 @@
 import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { IndexGeneratorService } from '../IndexGeneratorService';
+import { IndexGeneratorServiceImpl } from '../IndexGeneratorServiceImpl';
 
 vi.mock('fs-extra');
 vi.mock('js-yaml');
 
 describe('IndexGeneratorService - Additional Coverage', () => {
-  let service: IndexGeneratorService;
+  let service: IndexGeneratorServiceImpl;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    service = new IndexGeneratorService();
+    service = new IndexGeneratorServiceImpl();
   });
 
   afterEach(() => {

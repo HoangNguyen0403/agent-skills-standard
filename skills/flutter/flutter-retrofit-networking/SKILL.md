@@ -1,13 +1,11 @@
 ---
 name: flutter-retrofit-networking
-description: "Build type-safe HTTP networking with Dio and Retrofit including auth interceptors. Use when integrating Dio, Retrofit, or API auth interceptors in Flutter. (triggers: **/data_sources/**, **/api/**, Retrofit, Dio, RestClient, GET, POST, Interceptor, refreshing)"
+description: 'Build type-safe HTTP networking with Dio and Retrofit including auth interceptors. Use when integrating Dio, Retrofit, or API auth interceptors in Flutter. (triggers: **/data_sources/**, **/api/**, Retrofit, Dio, RestClient, GET, POST, Interceptor, refreshing)'
 ---
-
 # Retrofit & Dio Networking
 
 ## **Priority: P0 (CRITICAL)**
 
-Type-safe REST API communication using `Dio` and `Retrofit`.
 
 ## Structure
 
@@ -37,10 +35,10 @@ See [implementation examples](references/implementation.md) for RestClient defin
 
 ## Anti-Patterns
 
-- ❌ `jsonDecode(response.body)` — use Retrofit's generated mappers, never manual JSON parsing
-- ❌ Static global `Dio` instance — inject Dio via DI; avoid global singletons
-- ❌ `try-catch` inside Retrofit interface methods — let the repository layer handle exceptions
-- ❌ Enum fields without `unknownEnumValue` — new backend values will crash the app
+- **No Manual JSON Parsing**: Use Retrofit's generated mappers instead of `jsonDecode`
+- **No Global Dio Instances**: Inject `Dio` through DI
+- **No Inline Try-Catch**: repository layer should handle all Retrofit exceptions
+- **No Unguarded Enums**: Always include `unknownEnumValue` to prevent crashes on new backend values
 
 ## Reference & Examples
 

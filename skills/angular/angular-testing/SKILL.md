@@ -2,14 +2,13 @@
 name: angular-testing
 description: "Write Angular component tests using TestBed, ComponentHarness, and HttpTestingController with proper signal input handling. Use when writing component tests, mocking HTTP calls, or testing signal inputs. (triggers: **/*.spec.ts, TestBed, ComponentFixture, TestHarness, provideHttpClientTesting)"
 ---
-
 # Testing
 
 ## **Priority: P1 (HIGH)**
 
 ## 1. Query via Component Harnesses
 
-- Always use `ComponentHarness` (e.g., `MatButtonHarness`) instead of CSS selectors — harnesses are stable across DOM changes.
+- Always use `ComponentHarness` (e.g., `MatButtonHarness`) instead of CSS selectors — harnesses stable across DOM changes.
 
 See [harness pattern](references/harness-pattern.md) for ComponentHarness examples.
 
@@ -22,9 +21,9 @@ See [harness pattern](references/harness-pattern.md) for HttpTestingController e
 
 ## 3. Test Signal Inputs Correctly
 
-- Use `fixture.componentRef.setInput('name', value)` — do NOT assign directly.
+- Use `fixture.componentRef.setInput('name', value)` — NOT assign directly.
 - Call `fixture.detectChanges()` after `setInput()`.
-- Signals update synchronously — `fakeAsync` is usually not needed.
+- Signals update synchronously — `fakeAsync` usually not needed.
 
 ## 4. Choose Your Test Runner
 

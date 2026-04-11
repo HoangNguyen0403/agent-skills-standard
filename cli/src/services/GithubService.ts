@@ -92,7 +92,12 @@ export class GithubService {
       if (!res.ok) return null;
       const data = (await res.json()) as { tag_name: string };
       return data.tag_name;
-    } catch {
+    } catch (error) {
+      if (process.env.DEBUG) {
+        console.warn(
+          `[GithubService] Failed to fetch latest release: ${error}`,
+        );
+      }
       return null;
     }
   }

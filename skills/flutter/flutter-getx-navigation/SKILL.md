@@ -2,21 +2,19 @@
 name: flutter-getx-navigation
 description: "Context-less navigation, named routes, and middleware using GetX. Use when implementing navigation or route middleware with GetX in Flutter. (triggers: **/app_pages.dart, **/app_routes.dart, GetPage, Get.to, Get.off, Get.offAll, Get.toNamed, GetMiddleware)"
 ---
-
 # GetX Navigation
 
 ## **Priority: P0 (CRITICAL)**
 
-Decoupled navigation system allowing UI transitions without `BuildContext`.
 
 ## Guidelines
 
 - **Named Routes**: Use `Get.toNamed('/path')`. Define routes in `AppPages`.
 - **Navigation APIs**:
-  - `Get.to()`: Push new route.
-  - `Get.off()`: Replace current route.
-  - `Get.offAll()`: Clear stack and push.
-  - `Get.back()`: Pop route/dialog/bottomSheet.
+ - `Get.to()`: Push new route.
+ - `Get.off()`: Replace current route.
+ - `Get.offAll()`: Clear stack and push.
+ - `Get.back()`: Pop route/dialog/bottomSheet.
 - **Bindings**: Link routes with `Bindings` for automated lifecycle.
 - **Middleware**: Implement `GetMiddleware` for Auth/Permission guards.
 
@@ -26,8 +24,8 @@ See [AppPages Config](references/app-pages.md) for route definition and controll
 
 ## Anti-Patterns
 
-- **Navigator Context**: Do not use `Navigator.of(context)` with GetX.
-- **Hardcoded Routes**: Use a `Routes` constant class.
+- **Navigator Context**: not use `Navigator.of(context)` with GetX.
+- **Hardcoded Routes**: Use `Routes` constant class.
 - **Direct Dialogs**: Use `Get.dialog()` and `Get.snackbar()`.
 
 ## References

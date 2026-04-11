@@ -1,13 +1,11 @@
 ---
 name: flutter-navigation
-description: "Implement navigation patterns with go_router, deep linking, and named routes. Use when building navigation, deep linking, or named routes in Flutter. (triggers: **/*_route.dart, **/*_router.dart, **/main.dart, Navigator, GoRouter, routes, deep link, go_router, AutoRoute)"
+description: 'Implement navigation patterns with go_router, deep linking, and named routes. Use when building navigation, deep linking, or named routes in Flutter. (triggers: **/*_route.dart, **/*_router.dart, **/main.dart, Navigator, GoRouter, routes, deep link, go_router, AutoRoute)'
 ---
-
 # Flutter Navigation
 
 ## **Priority: P1 (OPERATIONAL)**
 
-Navigation and routing for Flutter apps using `go_router` or named routes.
 
 ## Implementation Workflow
 
@@ -25,10 +23,10 @@ See [implementation examples](references/implementation.md) for GoRouter configu
 
 ## Anti-Patterns
 
-- ❌ `Uri.parse(url)` for manual URL parsing — use `go_router` built-in parsing
-- ❌ `Scaffold` body switching for tabs — loses state; use `IndexedStack` or `StatefulShellRoute`
-- ❌ Unvalidated deep link IDs — always check existence in `redirect`
-- ❌ Hardcoded route strings like `'/orders'` — use constants (e.g., `Routes.orders`) or code generation
+- **No Manual URL Parsing**: Use `go_router` built-in parsing instead of `Uri.parse(url)`
+- **No Manual Tab State Management**: Use `IndexedStack` or `StatefulShellRoute` to preserve state
+- **No Unvalidated Deep Link IDs**: Always check existence in `redirect`
+- **No Hardcoded Route Strings**: Use constants (e.g., `Routes.orders`) or code-gen instead of `'/orders'`
 
 ## Related Topics
 

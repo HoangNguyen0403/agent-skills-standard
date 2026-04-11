@@ -2,17 +2,15 @@
 name: ios-navigation
 description: "SwiftUI navigation and deep linking using NavigationStack and Universal Links. Use when implementing NavigationStack or Universal Links deep linking in iOS. (triggers: **/*View.swift, **/*App.swift, NavigationStack, NavigationLink, onOpenURL, universalLink, NSUserActivity)"
 ---
-
 # iOS Navigation (SwiftUI)
 
 ## **Priority: P2 (OPTIONAL)**
 
-SwiftUI path-based navigation and deep linking.
 
 ## Guidelines
 
 - **Stack**: Use `NavigationStack` (iOS 16+) with `NavigationPath` for programmatic control.
-- **Deep Links**: Handle `onOpenURL` at the Root View (`WindowGroup`).
+- **Deep Links**: Handle `onOpenURL` at Root View (`WindowGroup`).
 - **Universal Links**: Configure Associated Domains (`applinks`) in Entitlements.
 - **Tabs**: Maintain separate `NavigationStack` instances per `TabItem`.
 

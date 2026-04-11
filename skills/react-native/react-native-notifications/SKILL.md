@@ -2,12 +2,10 @@
 name: react-native-notifications
 description: "Push notifications for React Native using Firebase or Expo Notifications. Use when integrating push notifications with Firebase or Expo in React Native. (triggers: **/*notification*.ts, **/*notification*.tsx, **/App.tsx, Notifications, messaging, FCM, expo-notifications, react-native-firebase)"
 ---
-
 # React Native Notifications
 
 ## **Priority: P1 (OPERATIONAL)**
 
-Push notifications using React Native Firebase or Expo Notifications.
 
 ## Guidelines
 
@@ -16,7 +14,7 @@ Push notifications using React Native Firebase or Expo Notifications.
 - **Lifecycle**: Handle Foreground (`onMessage`), Background (`onNotificationOpenedApp`), and Quit (`getInitialNotification`) states.
 - **Permissions**: Prime users before requesting system authorization.
 
-See [implementation examples](references/implementation.md) for a complete FCM handler setup with permission request and lifecycle handlers.
+See [implementation examples](references/implementation.md) for complete FCM handler setup with permission request and lifecycle handlers.
 
 ## Anti-Patterns
 

@@ -2,19 +2,18 @@
 name: laravel-architecture
 description: "Enforce core architectural standards for scalable Laravel applications. Use when structuring controllers, service layers, action classes, Form Requests, or Service Container bindings in Laravel projects. (triggers: app/Http/Controllers/**/*.php, routes/*.php, controller, service, action, request, container)"
 ---
-
 # Laravel Architecture
 
 ## **Priority: P0 (CRITICAL)**
 
 ## Structure
 
-See [project structure](references/implementation.md#project-structure) for the recommended directory layout.
+See [project structure](references/implementation.md#project-structure) for recommended directory layout.
 
 ## Workflow
 
 1. **Create Form Request** for validation (`php artisan make:request StoreUserRequest`).
-2. **Create Action class** with a single `handle()` method for the use case.
+2. **Create Action class** with single `handle()` method for use case.
 3. **Inject Action** into controller via constructor DI.
 4. **Bind interfaces** in `AppServiceProvider` for swappable implementations.
 
@@ -25,7 +24,7 @@ See [implementation examples](references/implementation.md#controller-pattern) f
 ## Validation
 
 - Use Form Requests with `authorize()` and `rules()` methods.
-- Call `$request->validated()` in the controller for mass assignment.
+- Call `$request->validated()` in controller for mass assignment.
 - Never use inline `$request->validate()`.
 
 ## Anti-Patterns

@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 import fs from 'fs-extra';
 import path from 'path';
 
@@ -32,32 +32,47 @@ export class GitService {
    */
   getChangedFiles(rootDir: string): string[] {
     try {
-      let gitCommand: string;
-
       if (process.env.GITHUB_BASE_REF) {
-        // CI environment: Compare against the base branch
+        // CI environment: Compare against the base branch.
+        // Validate GITHUB_BASE_REF against safe branch-name characters to prevent
+        // shell command injection (OWASP A03) before interpolating into git args.
+        const baseRef = process.env.GITHUB_BASE_REF;
+        if (!/^[\w./:-]+$/.test(baseRef)) {
+          if (process.env.DEBUG) {
+            console.warn(
+              'GITHUB_BASE_REF contains unsafe characters; skipping CI diff.',
+            );
+          }
+          return [];
+        }
         try {
-          execSync(
-            `git fetch origin ${process.env.GITHUB_BASE_REF} --depth=1`,
-            {
-              cwd: rootDir,
-              stdio: 'ignore',
-            },
-          );
+          execFileSync('git', ['fetch', 'origin', baseRef, '--depth=1'], {
+            cwd: rootDir,
+            stdio: 'ignore',
+          });
         } catch {
           // Ignore fetch failures
         }
-        gitCommand = `git diff --name-only origin/${process.env.GITHUB_BASE_REF}...HEAD`;
+        const output = execFileSync(
+          'git',
+          ['diff', '--name-only', `origin/${baseRef}...HEAD`],
+          { cwd: rootDir, encoding: 'utf8' },
+        );
+        return output
+          .split('\n')
+          .map((f) => f.trim())
+          .filter((f) => f !== '' && fs.existsSync(path.join(rootDir, f)));
       } else {
         // Local environment: Compare against HEAD
-        gitCommand = 'git diff --name-only HEAD';
+        const output = execSync('git diff --name-only HEAD', {
+          cwd: rootDir,
+          encoding: 'utf8',
+        });
+        return output
+          .split('\n')
+          .map((f) => f.trim())
+          .filter((f) => f !== '' && fs.existsSync(path.join(rootDir, f)));
       }
-
-      const output = execSync(gitCommand, { cwd: rootDir, encoding: 'utf8' });
-      return output
-        .split('\n')
-        .map((f) => f.trim())
-        .filter((f) => f !== '' && fs.existsSync(path.join(rootDir, f)));
     } catch (error) {
       if (process.env.DEBUG) {
         console.warn('Git failure while getting changed files:', error);

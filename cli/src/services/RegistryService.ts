@@ -119,7 +119,12 @@ export class RegistryService {
             .filter(Boolean),
         ),
       );
-    } catch {
+    } catch (error) {
+      if (process.env.DEBUG) {
+        console.warn(
+          `[RegistryService] Failed to get framework skills for ${framework}: ${error}`,
+        );
+      }
       return [];
     }
   }

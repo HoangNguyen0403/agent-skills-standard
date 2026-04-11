@@ -117,4 +117,28 @@ describe('WorkflowTransformer', () => {
     expect(result!.content).toContain('$ARGUMENTS');
     expect(result!.content).toContain('# Just a title');
   });
+
+  describe('skill format (Cursor/Trae)', () => {
+    it('should produce a SKILL.md file', () => {
+      const result = WorkflowTransformer.transform(SOURCE, 'skill');
+      expect(result!.name).toBe('SKILL.md');
+    });
+
+    it('should include the workflow description in a callout', () => {
+      const result = WorkflowTransformer.transform(SOURCE, 'skill');
+      expect(result!.content).toContain('> [!IMPORTANT]');
+      expect(result!.content).toContain('Run an AI-assisted PR code review.');
+    });
+
+    it('should include the instructions title', () => {
+      const result = WorkflowTransformer.transform(SOURCE, 'skill');
+      expect(result!.content).toContain('## Instructions');
+    });
+
+    it('should include the workflow body steps', () => {
+      const result = WorkflowTransformer.transform(SOURCE, 'skill');
+      expect(result!.content).toContain('## Step 1');
+      expect(result!.content).toContain('git diff');
+    });
+  });
 });

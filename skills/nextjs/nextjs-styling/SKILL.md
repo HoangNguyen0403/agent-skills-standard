@@ -2,7 +2,6 @@
 name: nextjs-styling
 description: "Implement zero-runtime CSS with Tailwind, CSS Modules, and the cn() utility for RSC-compatible styling in Next.js. Use when choosing a styling library, creating dynamic class utilities, or optimizing fonts with next/font. (triggers: **/*.css, tailwind.config.ts, **/components/ui/*.tsx, tailwind, css modules, styled-components, clsx, cn)"
 ---
-
 # Styling & UI Performance
 
 ## **Priority: P1 (HIGH)**
@@ -22,12 +21,12 @@ See [implementation examples](references/implementation.md)
 
 ## Library Selection
 
-| Library                    | Verdict            | Reason                                             |
+| Library | Verdict | Reason |
 | :------------------------- | :----------------- | :------------------------------------------------- |
-| **Tailwind / shadcn**      | **Preferred (P1)** | Zero-runtime, RSC compatible. Best for App Router. |
-| **CSS Modules / SCSS**     | **Recommended**    | Scoped, zero-runtime. Good for legacy projects.    |
-| **Ant Design**             | **Supported**      | Use with Client Component wrappers for RSCs.       |
-| **MUI / Chakra (Runtime)** | **Avoid**          | Forces `use client` widely. Degrades performance.  |
+| **Tailwind / shadcn** | **Preferred (P1)** | Zero-runtime, RSC compatible. Best for App Router. |
+| **CSS Modules / SCSS** | **Recommended** | Scoped, zero-runtime. Good for legacy projects. |
+| **Ant Design** | **Supported** | Use with Client Component wrappers for RSCs. |
+| **MUI / Chakra (Runtime)** | **Avoid** | Forces `use client` widely. Degrades performance. |
 
 ## Library Patterns
 
@@ -40,9 +39,9 @@ For specific library setups, see:
 ## Patterns
 
 1. **Dynamic Classes**: Use `clsx` + `tailwind-merge` (`cn` utility).
-   - _Reference_: [Dynamic Classes & Button Example](references/implementation.md)
+ - _Reference_: [Dynamic Classes & Button Example](references/implementation.md)
 2. **Font Optimization**: Use `next/font` to prevent Cumulative Layout Shift (CLS).
-   - _Reference_: [Font Setup](references/implementation.md)
+ - _Reference_: [Font Setup](references/implementation.md)
 3. **CLS Prevention**: Always specify `width`/`height` on images.
 
 

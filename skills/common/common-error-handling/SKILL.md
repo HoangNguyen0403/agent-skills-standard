@@ -2,7 +2,6 @@
 name: common-error-handling
 description: "Cross-cutting standards for error design, response shapes, error codes, and boundary placement across API, domain, and infrastructure layers. Use when defining error hierarchies, wrapping exceptions, building standardized error responses, or placing error boundaries in layered architectures. (triggers: **/*.service.ts, **/*.handler.ts, **/*.controller.ts, **/*.go, **/*.java, **/*.kt, **/*.py, error handling, exception, try catch, error boundary, error response, error code, throw)"
 ---
-
 # Error Handling Standards
 
 ## **Priority: P1 (OPERATIONAL)**
@@ -11,10 +10,10 @@ description: "Cross-cutting standards for error design, response shapes, error c
 
 - **API Layer**: Map domain errors to HTTP responses globally.
 - **Domain Layer**: Throw pure business errors. NO HTTP status codes here.
-- **Infra Layer**: Wrap 3rd-party exceptions. Do NOT leak raw DB errors to API.
-- **Standard Shape**: APIs must return a standardized JSON envelope:
+- **Infra Layer**: Wrap 3rd-party exceptions. NOT leak raw DB errors to API.
+- **Standard Shape**: APIs must return standardized JSON envelope:
 
-See [implementation examples](references/implementation.md) for the standard error response shape.
+See [implementation examples](references/implementation.md) for standard error response shape.
 
 ## Error Mechanics
 

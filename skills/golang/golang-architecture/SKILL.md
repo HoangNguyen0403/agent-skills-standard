@@ -1,8 +1,7 @@
 ---
 name: golang-architecture
-description: "Structure Go projects with Clean Architecture and standard layout conventions. Use when structuring Go projects or applying Clean Architecture in Go. (triggers: go.mod, internal/**, architecture, structure, folder layout, clean arch, dependency injection)"
+description: 'Structure Go projects with Clean Architecture and standard layout conventions. Use when structuring Go projects or applying Clean Architecture in Go. (triggers: go.mod, internal/**, architecture, structure, folder layout, clean arch, dependency injection)'
 ---
-
 # Golang Architecture
 
 ## **Priority: P0 (CRITICAL)**
@@ -13,7 +12,7 @@ description: "Structure Go projects with Clean Architecture and standard layout 
 - **Project Layout**: Follow standard Go layout (`cmd`, `internal`, `pkg`).
 - **Dependency Injection**: Pass dependencies via constructors. Avoid global singletons.
 - **Package Oriented Design**: Organize by feature/domain, not by layer.
-- **Interface Segregation**: Define interfaces where they are _used_ (consumer side).
+- **Interface Segregation**: Define interfaces where they _used_ (consumer side).
 
 ## Implementation Workflow
 
@@ -21,7 +20,7 @@ description: "Structure Go projects with Clean Architecture and standard layout 
 2. **Define domain layer** — Inner-most layer with zero external dependencies.
 3. **Build use cases** — Depend only on Domain interfaces.
 4. **Implement adapters** — Outer layer depends on UseCase/Domain. Contains HTTP handlers, DB repos, etc.
-5. **Wire in main** — Compose the full dependency graph in `main.go`.
+5. **Wire in main** — Compose full dependency graph in `main.go`.
 
 See [constructor injection and wiring examples](references/clean-arch.md)
 
@@ -29,15 +28,15 @@ See [constructor injection and wiring examples](references/clean-arch.md)
 
 - [ ] No global singletons or package-level mutable variables
 - [ ] Dependencies explicitly passed via constructors
-- [ ] Interfaces defined at the consumer side
-- [ ] `internal/domain` has zero external dependencies
+- [ ] Interfaces defined at consumer side
+- [ ] `internal/domain` zero external dependencies
 - [ ] Dependencies wired together in `main.go`
 
 ## Anti-Patterns
 
-- **No global singletons**: Use DI; avoid package-level mutable variables.
-- **No layer violations**: Domain must not import from adapter/infrastructure layers.
-- **No god services**: Split into single-responsibility components.
+- **No global singletons**: use DI; avoid package-level mutable variables.
+- **No layer violations**: keep Domain imports isolated from adapter/infrastructure layers.
+- **No god services**: split services into single-responsibility components.
 
 ## References
 

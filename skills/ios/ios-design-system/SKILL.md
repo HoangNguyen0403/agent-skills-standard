@@ -2,7 +2,6 @@
 name: ios-design-system
 description: "Enforce design token usage in SwiftUI apps using iOS Human Interface Guidelines. Use when implementing design tokens, colors, or typography in SwiftUI. (triggers: **/*View.swift, **/Theme/**, **/DesignSystem/**, Color, Font, SwiftUI, ViewModifier, Theme)"
 ---
-
 # iOS Design System (SwiftUI)
 
 ## **Priority: P2 (OPTIONAL)**

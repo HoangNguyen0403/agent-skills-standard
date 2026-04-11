@@ -2,7 +2,6 @@
 name: spring-boot-microservices
 description: "Standards for Feign clients and asynchronous messaging with Spring Cloud Stream. Use when implementing Feign HTTP clients or async event messaging in Spring Boot microservices. (triggers: **/*Client.java, **/*Consumer.java, feign-client, spring-cloud-stream, rabbitmq, resilience4j)"
 ---
-
 # Spring Boot Microservices Standards
 
 ## **Priority: P0**
@@ -13,10 +12,10 @@ description: "Standards for Feign clients and asynchronous messaging with Spring
 
 - **Clients**: Use Spring Cloud OpenFeign or HTTP Interfaces (Spring 6/Java 21).
 - **Resilience**: Implement Resilience4j with Circuit Breaker, Retry (Exponential Backoff), and RateLimiter.
-- **Contracts**: Share DTO Records via a Maven BOM or API Contract module.
+- **Contracts**: Share DTO Records via Maven BOM or API Contract module.
 - **Tracing**: Ensure Micrometer propagation for Distributed Tracing.
 
-See [implementation examples](references/implementation.md) for a Feign client with Circuit Breaker fallback.
+See [implementation examples](references/implementation.md) for Feign client with Circuit Breaker fallback.
 
 ### Async Communication (Spring Cloud Stream)
 
@@ -25,7 +24,7 @@ See [implementation examples](references/implementation.md) for a Feign client w
 - **Serialization**: Use JSON or Avro for events.
 - **Reliability**: Implement Dead Letter Queues (DLQ) and idempotent consumers.
 
-See [implementation examples](references/implementation.md) for a Spring Cloud Stream event consumer with idempotency.
+See [implementation examples](references/implementation.md) for Spring Cloud Stream event consumer with idempotency.
 
 ### Data & Isolation
 

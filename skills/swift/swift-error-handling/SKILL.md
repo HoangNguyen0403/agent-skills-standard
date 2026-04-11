@@ -1,30 +1,29 @@
 ---
 name: swift-error-handling
-description: "Standards for throwing functions, Result type, and Never. Use when implementing Swift error throwing, designing error hierarchies, using Result types, or adding do-catch blocks. (triggers: **/*.swift, throws, try, catch, Result, Error)"
+description: 'Standards for throwing functions, Result type, and Never. Use when implementing Swift error throwing, designing error hierarchies, using Result types, or adding do-catch blocks. (triggers: **/*.swift, throws, try, catch, Result, Error)'
 ---
-
 # Swift Error Handling
 
 ## **Priority: P0**
 
-## Workflow: Add Error Handling to a Swift Function
+## Workflow: Add Error Handling to Swift Function
 
-1. Define a custom error enum conforming to `Error`
-2. Mark the function `throws` (or `async throws`)
-3. Use `do-catch` at the call site with specific catch clauses
-4. Map domain errors to user-facing messages at the presentation layer
+1. Define custom error enum conforming to `Error`
+2. Mark function `throws` (or `async throws`)
+3. Use `do-catch` at call site with specific catch clauses
+4. Map domain errors to user-facing messages at presentation layer
 
 ## Implementation Guidelines
 
 ### Throwing Functions
 
 - **Propagate Errors**: Use `throws` for recoverable errors and `async throws` for modern concurrency.
-- **Do-Catch**: Handle errors close to source with specific catch clauses for each error type. Catch-all `catch` should be the last resort.
+- **-Catch**: Handle close to source; specific catch clauses per error type. Catch-all `catch`: last resort.
 - **Error Types**: Define custom errors as enums conforming to `Error`:
 
-See [implementation examples](references/implementation.md) for custom error enums, do-catch patterns, and Result type usage.
+See [implementation examples](references/implementation.md) for custom error enums, -catch patterns, and Result type usage.
 
-- **Optional Try**: Use `try?` only for non-critical errors where nil is acceptable.
+- **Optional Try**: Use `try?` only for non-critical errors where nil acceptable.
 
 ### Result Type
 

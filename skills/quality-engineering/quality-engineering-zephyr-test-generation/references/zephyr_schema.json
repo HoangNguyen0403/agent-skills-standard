@@ -26,7 +26,7 @@
     "priority": {"id": 4529830},
     "labels": ["EZRX-39448", "VN-Market"],
     "customFields": {
-      "Roles": ["Client user", "Client admin", "Internal sales rep", "External sales rep"],
+      "Roles": ["Root admin", "Zp admin", "Client admin", "Client user", "Internal sales rep", "External sales rep", "Return approver", "Return admin", "Return requestor", "Zp admin attachments", "Registration admin"],
       "Platform": ["Web and Mobile"]
     }
   },

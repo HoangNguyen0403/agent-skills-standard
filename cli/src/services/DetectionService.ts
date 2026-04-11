@@ -30,8 +30,12 @@ export class DetectionService {
           dirsToScan.push(path.join(cwd, entry.name));
         }
       }
-    } catch {
-      // Ignore
+    } catch (error) {
+      if (process.env.DEBUG) {
+        console.debug(
+          `[DetectionService] Failed to read directory entries: ${error}`,
+        );
+      }
     }
 
     const packageDepsMaps = await Promise.all(

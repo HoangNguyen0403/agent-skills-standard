@@ -2,18 +2,17 @@
 name: common-system-design
 description: "Enforce separation of concerns, dependency inversion, and resilience patterns across layered and distributed architectures. Use when designing new features, evaluating module boundaries, selecting architectural patterns, or resolving scalability bottlenecks. (triggers: architecture, design, system, scalability, microservice, module boundary, coupling)"
 ---
-
 # System Design & Architecture Standards
 
 ## **Priority: P0 (FOUNDATIONAL)**
 
-## Workflow: Evaluate Architecture for a New Feature
+## Workflow: Evaluate Architecture for New Feature
 
 1. Identify bounded contexts and module boundaries
 2. Define dependency direction (outer layers depend on inner)
 3. Select communication pattern (sync REST, async event, or hybrid)
 4. Validate against CAP trade-offs for distributed components
-5. Document decision in an Architecture Decision Record (ADR)
+5. Document decision in Architecture Decision Record (ADR)
 
 ## Architectural Principles
 

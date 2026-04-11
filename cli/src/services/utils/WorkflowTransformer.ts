@@ -47,7 +47,7 @@ export class WorkflowTransformer {
       case 'command':
         return {
           name: `${baseName}.md`,
-          content: this.toClaudeCommand(baseName, description, body),
+          content: this.toMarkdownCommand(baseName, description, body),
         };
 
       case 'toml':
@@ -64,6 +64,12 @@ export class WorkflowTransformer {
         return {
           name: `${baseName}.prompt.md`,
           content: this.toCopilotPrompt(description, body),
+        };
+
+      case 'skill':
+        return {
+          name: 'SKILL.md',
+          content: this.toSkillMarkdown(baseName, description, body),
         };
     }
   }
@@ -83,12 +89,12 @@ export class WorkflowTransformer {
   }
 
   /**
-   * Claude Code custom slash command format.
-   * Lives at .claude/commands/<name>.md
+   * Markdown-based custom slash command format.
+   * Used by Claude Code (.claude/commands/), Roo Code (.roo/commands/), and OpenCode (.opencode/commands/).
    * User invokes via /<name> [arguments]
-   * $ARGUMENTS placeholder for user input.
+   * Use $ARGUMENTS as a universal placeholder for user input instructions.
    */
-  private static toClaudeCommand(
+  private static toMarkdownCommand(
     name: string,
     description: string,
     body: string,
@@ -141,5 +147,34 @@ Follow the exact steps in the workflow file.
    */
   private static toCopilotPrompt(description: string, body: string): string {
     return `---\ndescription: "${description}"\n---\n${body}`;
+  }
+
+  /**
+   * Agent Skill (SKILL.md) format.
+   * Used by Cursor, Trae, and Codex.
+   * Lives at <workflowPath>/<name>/SKILL.md
+   * User invokes via /<name> in Agent/Skill interface.
+   */
+  private static toSkillMarkdown(
+    name: string,
+    description: string,
+    body: string,
+  ): string {
+    const title = name
+      .split('-')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+
+    return `# ${title} Skill
+
+> [!IMPORTANT]
+> ${description}
+
+## Instructions
+
+When the user asks to perform this workflow, execute the following steps:
+
+${body}
+`;
   }
 }

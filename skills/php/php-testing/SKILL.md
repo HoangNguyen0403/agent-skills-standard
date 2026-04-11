@@ -2,7 +2,6 @@
 name: php-testing
 description: "Write unit and integration tests for PHP applications with PHPUnit and Pest. Use when writing PHPUnit unit tests or integration tests for PHP applications. (triggers: tests/**/*.php, phpunit.xml, phpunit, pest, mock, assert, tdd)"
 ---
-
 # PHP Testing
 
 ## **Priority: P1 (HIGH)**
@@ -27,8 +26,8 @@ See [implementation examples](references/implementation.md#pest-dataset-example)
 
 ## Isolate Test Dependencies
 
-- **Mocking**: Use **`createMock()`** for dependencies. DO NOT mock simple Data Objects.
-- **Isolation**: Ensure tests are **Independent** and **Repeatable**. DB tests must use **`Transactions`** or **`SQLite :memory:`**.
+- **Mocking**: Use **`createMock()`** for dependencies. NOT mock simple Data Objects.
+- **Isolation**: Ensure tests **Independent** and **Repeatable**. DB tests must use **`Transactions`** or **`SQLite :memory:`**.
 - **Coverage**: Aim for **`80%+`** line coverage. Use **`phpunit.xml`** to whitelist specific directories.
 - **Automation**: Run tests on every PR using **GitHub Actions** or **GitLab CI**.
 

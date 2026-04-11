@@ -2,7 +2,6 @@
 name: php-best-practices
 description: "Write PHP following best practices, PSR standards, and code quality guidelines. Use when writing PHP following PSR standards, SOLID principles, or improving code quality. (triggers: **/*.php, psr-12, camelCase, PascalCase, dry, solid)"
 ---
-
 # PHP Best Practices
 
 ## **Priority: P1 (HIGH)**
@@ -20,7 +19,7 @@ src/
 ### Coding Style (PSR Standards)
 
 - **PSR-12**: Enforce **4-space indentation** and **opening braces on same line** for functions/methods.
-- **Organization**: One class per file; use statements follow the namespace. Run **PHP CS Fixer** with the **PSR-12** preset.
+- **Organization**: One class per file; use statements follow namespace. Run **PHP CS Fixer** with **PSR-12** preset.
 - **Naming Conventions**: Use **`PascalCase`** (UserService) for classes, **`camelCase`** (getUserById) for methods/variables, and **`SNAKE_CASE`** (MAX_RETRIES) for class constants.
 
 ### SOLID Principles in PHP
@@ -37,10 +36,10 @@ src/
 
 ## Anti-Patterns
 
-- **No monolithic classes**: Each class has one responsibility (SRP).
+- **No monolithic classes**: Each class one responsibility (SRP).
 - **No hardcoded magic numbers**: Define as named class constants.
 - **No deep nesting**: Use guard clauses to return early.
-- **No `echo` in services**: Return data; let the controller output.
+- **No `echo` in services**: Return data; let controller output.
 
 ## References
 

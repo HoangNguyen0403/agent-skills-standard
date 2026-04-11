@@ -2,7 +2,6 @@
 name: android-di
 description: "Configure Hilt dependency injection with proper scoping, modules, and constructor injection in Android. Use when setting up Hilt DI, component scoping, or defining modules. (triggers: **/*Module.kt, **/*Component.kt, @HiltAndroidApp, @Inject, @Provides, @Binds)"
 ---
-
 # Android Dependency Injection (Hilt)
 
 ## **Priority: P0**
@@ -17,7 +16,7 @@ See [module templates](references/files.md) for bootstrap and module examples.
 ## 2. Define Modules
 
 - Use `@Binds` (abstract class) over `@Provides` when possible — generates smaller code.
-- Be explicit with `@InstallIn` (`SingletonComponent`, `ViewModelComponent`).
+- explicit with `@InstallIn` (`SingletonComponent`, `ViewModelComponent`).
 
 See [module templates](references/files.md) for `@Binds` examples.
 
@@ -28,7 +27,7 @@ See [module templates](references/files.md) for `@Binds` examples.
 
 ## Anti-Patterns
 
-- **No Manual Dagger Components**: Use Hilt — it generates all the wiring.
+- **No Manual Dagger Components**: Use Hilt — it generates all wiring.
 - **No Field Injection in Logic**: Use constructor injection; field injection only in Android framework classes.
 
 ## References

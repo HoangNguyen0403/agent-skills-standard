@@ -2,22 +2,20 @@
 name: flutter-layer-based-clean-architecture
 description: "Enforce inward dependency flow, pure domain layers, and DTO-to-entity mapping in Flutter DDD architecture. Use when structuring lib/domain/, lib/infrastructure/, lib/application/, or lib/presentation/ layers, defining repository interfaces, or wiring BLoCs with get_it. (triggers: lib/domain/**, lib/infrastructure/**, lib/application/**, dto, mapper, Either, Failure)"
 ---
-
 # Layer-Based Clean Architecture
 
 ## **Priority: P0 (CRITICAL)**
 
-Standardized separation of concerns and dependency flow using DDD principles.
 
-## Workflow: Add a New Feature Across Layers
+## Workflow: Add New Feature Across Layers
 
-1. Define the domain entity with `@freezed` in `lib/domain/entities/`
-2. Define the repository interface in `lib/domain/repositories/`
-3. Create the DTO in `lib/infrastructure/dtos/` with `fromJson`/`toEntity` mapper
-4. Implement the repository in `lib/infrastructure/repositories/`
-5. Wire the BLoC/Cubit in `lib/application/` consuming the repository interface
+1. Define domain entity with `@freezed` in `lib/domain/entities/`
+2. Define repository interface in `lib/domain/repositories/`
+3. Create DTO in `lib/infrastructure/dtos/` with `fromJson`/`toEntity` mapper
+4. Implement repository in `lib/infrastructure/repositories/`
+5. Wire BLoC/Cubit in `lib/application/` consuming repository interface
 6. Register bindings in `get_it` injection container
-7. Build the screen in `lib/presentation/` using `BlocBuilder`
+7. Build screen in `lib/presentation/` using `BlocBuilder`
 
 ## Structure
 
@@ -34,7 +32,7 @@ lib/
 - **Dependency Flow**: `Presentation -> Application -> Domain <- Infrastructure`. Dependencies point inward.
 - **Pure Domain**: No Flutter (Material/Store) or Infrastructure (Dio/Hive) dependencies in `Domain`.
 - **Functional Error Handling**: Repositories must return `Either<Failure, Success>`.
-- **Always Map**: Infrastructure must map DTOs to Domain Entities; do not leak DTOs to UI.
+- **Always Map**: Infrastructure must map DTOs to Domain Entities; not leak DTOs to UI.
 
 See [DTO-to-Entity mapping example](references/REFERENCE.md).
 
@@ -44,15 +42,15 @@ See [DTO-to-Entity mapping example](references/REFERENCE.md).
 
 ## Anti-Patterns
 
-- **No DTOs in UI**: Never import a `.g.dart` or Data class directly in a Widget.
-- **No Material in Domain**: Do not import `package:flutter/material.dart` in the `domain` layer.
-- **No Shared Prefs in Repo**: Do not use `shared_preferences` directly in a Repository; use a Data Source.
+- **No DTOs in UI**: Never import `.g.dart` or Data class directly in Widget.
+- **No Material in Domain**: not import `package:flutter/material.dart` in `domain` layer.
+- **No Shared Prefs in Repo**: not use `shared_preferences` directly in Repository; use Data Source.
 
 ## Reference & Examples
 
 For full implementation templates and DTO-to-Domain mapping examples:
 See [references/REFERENCE.md](references/REFERENCE.md).
 
-## Related Topics
+## References
 
-feature-based-clean-architecture | bloc-state-management | dependency-injection | error-handling
+- feature-based-clean-architecture | bloc-state-management | dependency-injection | error-handling

@@ -2,16 +2,14 @@
 name: nestjs-documentation
 description: "Automate Swagger/OpenAPI documentation and standardize API response schemas in NestJS. Use when generating OpenAPI specs, documenting paginated or generic responses, configuring the Nest CLI Swagger plugin, or publishing versioned API docs. (triggers: main.ts, **/*.dto.ts, DocumentBuilder, SwaggerModule, ApiProperty, ApiResponse)"
 ---
-
 # OpenAPI & Documentation
 
 ## **Priority: P2 (MAINTENANCE)**
 
-Automated API documentation and OpenAPI standards.
 
 ## Workflow
 
-1. **Enable the Swagger plugin** in `nest-cli.json` to auto-generate `@ApiProperty` from DTOs.
+1. **Enable Swagger plugin** in `nest-cli.json` to auto-generate `@ApiProperty` from DTOs.
 2. **Annotate controllers** with `@ApiTags`, `@ApiResponse`, and auth decorators.
 3. **Create generic wrappers** for paginated and polymorphic responses.
 4. **Generate separate docs** for public vs internal audiences.
@@ -22,7 +20,7 @@ See [implementation examples](references/example.md) for `nest-cli.json` plugin 
 
 ## Response Documentation
 
-- **Strictness**: Every controller method must have `@ApiResponse({ status: 200, type: UserDto })`.
+- **Strictness**: Every controller method must `@ApiResponse({ status: 200, type: UserDto })`.
 - **Generic Wrappers**: Define `ApiPaginatedResponse<T>` decorators using `ApiExtraModels` + `getSchemaPath()` to handle generics properly.
 
 ## Advanced Patterns
@@ -43,4 +41,4 @@ See [implementation examples](references/example.md)
 
 - **No missing @ApiResponse**: Every controller method must declare its response type and status code.
 - **No /docs in production**: Disable Swagger in production to prevent API schema exposure.
-- **No manual @ApiProperty everywhere**: Use the Nest CLI Swagger plugin to auto-generate from DTOs.
+- **No manual @ApiProperty everywhere**: Use Nest CLI Swagger plugin to auto-generate from DTOs.

@@ -2,19 +2,18 @@
 name: laravel-clean-architecture
 description: "Implement Domain-Driven Design with typed DTOs, repository interfaces, and single-responsibility Action classes in Laravel. Use when creating domain folders, binding repository contracts in providers, or passing DTOs between layers. (triggers: app/Domains/**/*.php, app/Providers/*.php, domain, dto, repository, contract, adapter)"
 ---
-
 # Laravel Clean Architecture
 
 ## **Priority: P1 (HIGH)**
 
-## Workflow: Add a Domain Feature
+## Workflow: Add Domain Feature
 
 1. **Create domain folder** — `app/Domains/Order/{Actions,DTOs,Contracts}/`.
-2. **Define DTO** — Create a `readonly class` with typed constructor properties.
-3. **Create contract** — Define a repository interface in `Contracts/`.
+2. **Define DTO** — Create `readonly class` with typed constructor properties.
+3. **Create contract** — Define repository interface in `Contracts/`.
 4. **Implement repository** — Build Eloquent implementation; bind in `AppServiceProvider`.
-5. **Write Action class** — Single-responsibility use-case logic consuming the DTO.
-6. **Verify bindings** — Run `php artisan tinker` and resolve the interface to confirm DI works.
+5. **Write Action class** — Single-responsibility use-case logic consuming DTO.
+6. **Verify bindings** — Run `php artisan tinker` and resolve interface to confirm DI works.
 
 ## Action + DTO Example
 

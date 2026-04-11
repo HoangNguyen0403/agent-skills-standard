@@ -2,16 +2,14 @@
 name: react-component-patterns
 description: "Build modern React component architecture with composition patterns. Use when designing reusable React components, applying composition patterns, or structuring component hierarchies. (triggers: **/*.jsx, **/*.tsx, component, props, children, composition, hoc, render-props)"
 ---
-
 # React Component Patterns
 
 ## **Priority: P0 (CRITICAL)**
 
-Standards for building scalable, maintainable React components.
 
 ## Implementation Guidelines
 
-- **Architecture**: Use **Compound Components** (e.g., `<Select><Select.Option /></Select>`) for complex state sharing within a UI unit. Use **Higher-Order Components (HOC)** for cross-cutting concerns (e.g., `withAuth`).
+- **Architecture**: Use **Compound Components** (e.g., `<Select><Select.Option /></Select>`) for complex state sharing within UI unit. Use **Higher-Order Components (HOC)** for cross-cutting concerns (e.g., `withAuth`).
 - **Composition**: Prefer **Slots** or **Render Props** (`render={(data) => ...}`) over deep prop hierarchies. Use `children` prop for layout-based composition.
 - **Components**: Distinguish between **Controlled** (state from props) and **Uncontrolled** (local `useRef` state) components. Favor controlled for form validation.
 - **Props**: Use **Explicit TS interfaces**. Avoid **Prop Drilling** by leveraging **Context API** or **Zustand** for global/deeply nested state.

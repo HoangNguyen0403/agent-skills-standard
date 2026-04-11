@@ -2,12 +2,10 @@
 name: android-navigation
 description: "Implement navigation with Jetpack Compose Navigation and App Links on Android. Use when implementing navigation flows, deep links, or backstack handling in Android. (triggers: **/*Screen.kt, **/*Activity.kt, **/NavGraph.kt, NavController, NavHost, composable, navArgument, deepLinks)"
 ---
-
 # Android Navigation (Jetpack Compose)
 
 ## **Priority: P2 (OPTIONAL)**
 
-Navigation and deep linking using Jetpack Compose Navigation.
 
 ## Guidelines
 

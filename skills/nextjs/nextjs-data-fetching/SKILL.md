@@ -1,14 +1,13 @@
 ---
 name: nextjs-data-fetching
-description: "Implement Fetch API, Caching, and Revalidation strategies in Next.js. Use when fetching data, configuring cache behavior, or implementing revalidation in Next.js. (triggers: **/*.tsx, **/service.ts, fetch, revalidate, no-store, force-cache)"
+description: 'Implement Fetch API, Caching, and Revalidation strategies in Next.js. Use when fetching data, configuring cache behavior, or implementing revalidation in Next.js. (triggers: **/*.tsx, **/service.ts, fetch, revalidate, no-store, force-cache)'
 ---
-
 # Data Fetching (App Router)
 
 ## **Priority: P0 (CRITICAL)**
 
 > [!WARNING]
-> This skill covers **App Router** data fetching (`fetch`). If the project uses the `pages/` directory, you MUST use `getServerSideProps` or `getStaticProps` instead. Ignore this file's native `fetch` caching advice.
+> Covers **App Router** `fetch` only. For `pages/` directory: use `getServerSideProps` / `getStaticProps`. Ignore native `fetch` caching advice below.
 
 Fetch data directly in Server Components using `async/await`.
 
@@ -20,14 +19,14 @@ Fetch data directly in Server Components using `async/await`.
 
 ## Patterns
 
-- **Direct Access**: Call DB/Service layer directly. **Do not fetch your own /api routes.** Example: `export default async function Page() { const user = await db.user.findUnique({ where: { id }, select: { id: true, name: true } }); }`
-- **Colocation**: Fetch exactly where data is needed.
+- **Direct Access**: Call DB/Service layer directly. ** not fetch your own /api routes.** Example: `export default async function Page() { const user = await db.user.findUnique({ where: { id }, select: { id: true, name: true } }); }`
+- **Colocation**: Fetch exactly where data needed.
 - **Parallel**: Use `Promise.all()` to prevent waterfalls.
 - **Client-Side**: Use SWR/React Query for live/per-user data (no SEO).
 
 ## Revalidation
 
-- **Path**: `revalidatePath('/path')` - Purge cache for a route.
+- **Path**: `revalidatePath('/path')` - Purge cache for route.
 - **Tag**: `revalidateTag('key')` - Purge by tag.
 
 ## Anti-Patterns

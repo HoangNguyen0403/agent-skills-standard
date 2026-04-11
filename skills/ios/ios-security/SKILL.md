@@ -1,8 +1,7 @@
 ---
 name: ios-security
-description: "Secure iOS apps with Keychain, biometrics, and data protection. Use when implementing Keychain storage, Face ID/Touch ID, or data protection in iOS. (triggers: **/*.swift, SecItemAdd, kSecClassGenericPassword, LAContext, LocalAuthentication)"
+description: 'Secure iOS apps with Keychain, biometrics, and data protection. Use when implementing Keychain storage, Face ID/Touch ID, or data protection in iOS. (triggers: **/*.swift, SecItemAdd, kSecClassGenericPassword, LAContext, LocalAuthentication)'
 ---
-
 # iOS Security
 
 ## **Priority: P0 (CRITICAL)**
@@ -14,15 +13,15 @@ description: "Secure iOS apps with Keychain, biometrics, and data protection. Us
 3. **Encrypt files** — Use `Data.WritingOptions.completeFileProtection` when saving to disk.
 4. **Keep ATS enabled** — Never disable App Transport Security globally in `Info.plist`.
 5. **Pin certificates** — Use `ServerTrustManager` or `TrustKit` for production apps to prevent MITM attacks.
-6. **Strip sensitive logs** — Ensure PII and tokens are removed from logs in Release builds.
+6. **Strip sensitive logs** — Ensure PII and tokens removed from logs in Release builds.
 
 See [Keychain and biometrics implementation examples](references/implementation.md)
 
 ## Anti-Patterns
 
-- ❌ Secrets in `UserDefaults` — always use Keychain
-- ❌ Unhandled `LAError` — check for `userCancel`, `authenticationFailed`, etc.
-- ❌ PII/token logging in Release builds — strip sensitive data from all log output
+- **No Secrets in `UserDefaults`**: Always use Keychain for tokens and PII
+- **No Unhandled `LAError`**: Check for `userCancel` and `authenticationFailed` in biometric flows
+- **No PII/Token Logging**: Strip sensitive data from all logs in Release builds
 
 ## References
 

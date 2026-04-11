@@ -2,7 +2,6 @@
 name: android-architecture
 description: "Apply Clean Architecture layering, modularization, and Unidirectional Data Flow in Android projects. Use when setting up Android project structure, placing code in Clean Architecture layers, configuring feature/core modules, or implementing UDF patterns. (triggers: build.gradle.kts, settings.gradle.kts, clean-architecture, module, layers, domain, UDF, unidirectional, feature module, core module, presentation layer, data layer)"
 ---
-
 # Android Architecture Standards
 
 ## **Priority: P0 (CRITICAL)**
@@ -32,7 +31,7 @@ See [structure & examples](references/implementation.md) for module configuratio
 
 - **Hosting**: Use `setContent` in Activity (No XML Layouts).
 - **State**: Hoist state to ViewModel using `collectAsStateWithLifecycle`.
-- **Recomposition**: Ensure Composable parameters are `@Stable` or `@Immutable`.
+- **Recomposition**: Ensure Composable parameters `@Stable` or `@Immutable`.
 - **Navigation**: Use Compose Navigation with Type-Safe destinations.
 
 ## Anti-Patterns

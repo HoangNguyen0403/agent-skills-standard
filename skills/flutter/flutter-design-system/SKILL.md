@@ -1,8 +1,7 @@
 ---
 name: flutter-design-system
-description: "Enforce Design Language System adherence in Flutter. Use when enforcing design tokens, preventing hardcoded colors/spacing, or implementing a DLS in Flutter. (triggers: **/theme/**, **/*_theme.dart, **/*_colors.dart, **/*_dls/**, **/foundation/**, **/presentation/**, **/ui/**, **/widgets/**, ThemeData, ColorScheme, AppColors, VColors, VSpacing, AppTheme, design token)"
+description: 'Enforce Design Language System adherence in Flutter. Use when enforcing design tokens, preventing hardcoded colors/spacing, or implementing a DLS in Flutter. (triggers: **/theme/**, **/*_theme.dart, **/*_colors.dart, **/*_dls/**, **/foundation/**, **/presentation/**, **/ui/**, **/widgets/**, ThemeData, ColorScheme, AppColors, VColors, VSpacing, AppTheme, design token)'
 ---
-
 # Flutter Design System Enforcement
 
 ## **Priority: P0 (CRITICAL)**
@@ -11,12 +10,12 @@ Zero tolerance for hardcoded design values.
 
 ## **Phase 0: Context Discovery (MANDATORY)**
 
-Before any UI refactoring, you MUST identify the project's Theme Archetype:
+Before UI refactoring, identify project's Theme Archetype:
 
-1.  **Check `main.dart`**: Look for `MaterialApp` theme configuration.
-2.  **Determine Pattern**:
-    - **Theme-Driven (Adaptive)**: If you see `VThemeData(...).toThemeData()` or extensive `ThemeData` overrides, you MUST use `Theme.of(context).textTheme` or `theme.textTheme` for feature code.
-    - **Token-Driven (Static)**: Only use static tokens (`VTypography.*`) if there is no global theme bridge or if you are defining the theme itself.
+1. **Check `main.dart`**: Look for `MaterialApp` theme configuration.
+2. **Determine Pattern**:
+ - **Theme-Driven (Adaptive)**: `VThemeData(...).toThemeData()` or extensive `ThemeData` overrides → use `Theme.of(context).textTheme` / `theme.textTheme`.
+ - **Token-Driven (Static)**: Use static tokens (`VTypography.*`) only when no global theme bridge exists, or when defining theme itself.
 
 ## Guidelines
 
@@ -30,10 +29,10 @@ Before any UI refactoring, you MUST identify the project's Theme Archetype:
 
 ## Anti-Patterns
 
-- **No Hex Colors**: `Color(0xFF...)` is strictly forbidden.
-- **No Color Enums**: `Colors.blue` is forbidden in UI code.
-- **No Magic Spacing**: `SizedBox(height: 10)` is forbidden.
-- **No Inline Styles**: `TextStyle(fontSize: 14)` is forbidden.
+- **No Hex Colors**: `Color(0xFF...)` strictly forbidden.
+- **No Color Enums**: `Colors.blue` forbidden in UI code.
+- **No Magic Spacing**: `SizedBox(height: 10)` forbidden.
+- **No Inline Styles**: `TextStyle(fontSize: 14)` forbidden.
 - **No Raw Widgets**: Don't use `ElevatedButton` when `VButton` exists.
 
 ## Related Topics

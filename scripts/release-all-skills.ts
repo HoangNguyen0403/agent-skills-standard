@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import fs from 'fs-extra';
 import inquirer from 'inquirer';
 import path from 'path';
@@ -44,7 +44,7 @@ async function main() {
 
     try {
       // 1. Check if tag already exists
-      const tagExists = execSync(`git tag -l "${tag}"`, {
+      const tagExists = execFileSync('git', ['tag', '-l', tag], {
         encoding: 'utf8',
       }).trim();
 
@@ -55,12 +55,16 @@ async function main() {
 
       // 2. Create tag
       console.log(pc.gray(`Creating tag: ${tag}`));
-      execSync(`git tag "${tag}" -m "release: ${category} v${version}"`);
+      execFileSync('git', [
+        'tag',
+        tag,
+        '-m',
+        `release: ${category} v${version}`,
+      ]);
 
       // 3. Push tag
       console.log(pc.gray(`Pushing tag: ${tag}`));
-      execSync(`git push origin "${tag}"`);
-
+      execFileSync('git', ['push', 'origin', tag]);
       console.log(pc.green(`✅ Successfully released ${category} v${version}`));
     } catch (error) {
       console.error(

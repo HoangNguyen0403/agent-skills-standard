@@ -2,7 +2,6 @@
 name: flutter-testing
 description: "Write unit, widget, and integration tests with robots, widget keys, and Patrol in Flutter. Use when writing Flutter unit tests, widget tests, or integration tests with Patrol. (triggers: **/test/**.dart, **/integration_test/**.dart, **/robots/**.dart, lib/core/keys/**.dart, test, patrol, robot, WidgetKeys, patrolTest, blocTest, mocktail)"
 ---
-
 # Flutter Testing Standards
 
 ## **Priority: P0 (CRITICAL)**
@@ -27,16 +26,16 @@ description: "Write unit, widget, and integration tests with robots, widget keys
 
 - All interactions and assertions belong in `*Robot` (e.g., `expectFirstOrderVisible()`).
 - Symmetric: every `expectXxxVisible()` needs **expectXxxNotVisible()** pairs.
-- **BaseRobot Centralization**: Extract standard scrolling (`scrollDown`, `scrollToEnd`) and screen visibility assertions (`expectScreenVisible`, `expectScreenNotVisible`) into a common `BaseRobot` or parent class to avoid duplication.
-- Widget tests: include a `pumpScreen(bloc:, settle:)` helper.
+- **BaseRobot Centralization**: Extract standard scrolling (`scrollDown`, `scrollToEnd`) and screen visibility assertions (`expectScreenVisible`, `expectScreenNotVisible`) into common `BaseRobot` or parent class to avoid duplication.
+- Widget tests: include `pumpScreen(bloc:, settle:)` helper.
 - **Widget Keys**: Use **WidgetKeys** constants from `lib/core/keys/` — never inline `Key('string')`.
 
 ## Integration Testing
 
 - Use **patrolTest** with **IntegrationAuthHelper.loginOrSkip($)** for authenticated flows.
 - Use **$.native.tap()** or `$.native.*` for native interactions (e.g., system dialogs).
-- Create a robot: `final robot = OrdersRobot($.tester)` — share the same class as widget tests.
-- Only `$.native.*` and navigation helpers may remain inline in the test body.
+- Create robot: `final robot = OrdersRobot($.tester)` — share same class as widget tests.
+- Only `$.native.*` and navigation helpers may remain inline in test body.
 
 ## Anti-Patterns
 

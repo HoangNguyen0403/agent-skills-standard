@@ -166,11 +166,21 @@ export class WorkflowSyncService {
           );
           if (!transformed) continue;
 
-          const targetFilePath = path.join(workflowDir, transformed.name);
+          let targetFilePath: string;
+          if (agentDef.workflowFormat === 'skill') {
+            const workflowName = fileItem.name.replace(/\.md$/, '');
+            targetFilePath = path.join(
+              workflowDir,
+              workflowName,
+              transformed.name,
+            );
+          } else {
+            targetFilePath = path.join(workflowDir, transformed.name);
+          }
 
           if (!this.isPathSafe(targetFilePath, workflowDir)) {
             console.log(
-              pc.red(`    ❌ Security Error: Invalid path ${transformed.name}`),
+              pc.red(`    ❌ Security Error: Invalid path ${targetFilePath}`),
             );
             continue;
           }

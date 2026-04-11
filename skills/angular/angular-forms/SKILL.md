@@ -2,7 +2,6 @@
 name: angular-forms
 description: "Build typed reactive forms with strict FormGroup typing, custom validators, and nonNullable controls in Angular. Use when implementing typed reactive forms, custom validators, or form control patterns. (triggers: FormBuilder, FormGroup, FormControl, Validators, reactive forms, typed forms)"
 ---
-
 # Forms
 
 ## **Priority: P2 (MEDIUM)**
@@ -16,7 +15,7 @@ See [typed forms](references/typed-forms.md) for typed FormGroup examples.
 
 ## 2. Extract Validation Logic
 
-- Create standalone validator functions in a separate file.
+- Create standalone validator functions in separate file.
 - Sync `valueChanges` to stores using `takeUntilDestroyed()`.
 
 See [typed forms](references/typed-forms.md) for standalone validator examples.
@@ -24,7 +23,7 @@ See [typed forms](references/typed-forms.md) for standalone validator examples.
 ## 3. Ensure NonNullable Controls
 
 - Use `fb.nonNullable.group(...)` or `nonNullable: true` on individual controls.
-- This ensures form values are always strings — avoids null in form values.
+- This ensures form values always strings — avoids null in form values.
 
 ## Anti-Patterns
 

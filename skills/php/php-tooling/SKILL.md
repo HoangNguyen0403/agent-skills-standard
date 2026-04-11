@@ -2,7 +2,6 @@
 name: php-tooling
 description: "Configure PHP ecosystem tooling, dependency management, and static analysis. Use when managing Composer dependencies, running PHPStan, or configuring PHP build tools. (triggers: composer.json, composer, lock, phpstan, xdebug)"
 ---
-
 # PHP Tooling
 
 ## **Priority: P2 (MEDIUM)**
@@ -19,7 +18,7 @@ project/
 ## Implementation Guidelines
 
 - **Composer**: Always **commit `composer.lock`** for applications. Use **`composer audit`** and **`composer install in CI`** (not `update`) for locked versions.
-- **Autoloading**: Strictly enforce **PSR-4** autoloading in **`composer.json`** (e.g., **`"psr-4": {"App\\": "src/"}`** — ensure backslashes are escaped). Run **`composer dump-autoload`** after changes.
+- **Autoloading**: Strictly enforce **PSR-4** autoloading in **`composer.json`** (e.g., **`"psr-4": {"App\\": "src/"}`** — ensure backslashes escaped). Run **`composer dump-autoload`** after changes.
 - **Static Analysis**: Mandate **PHPStan** (Level 5+) or **Psalm** in CI. Install via **`composer require --dev phpstan/phpstan`**. Create **`phpstan.neon`** with **`parameters: { paths: [src], level: 6 }`**. Run via **`vendor/bin/phpstan analyse`**.
 - **Linting**: Automate **PSR-12** standards via **`composer require --dev friendsofphp/php-cs-fixer`**. Configure in **`.php-cs-fixer.php`** with **`$config->setRules(['@PSR12' => true])`**. Use **`php-cs-fixer`** to enforce standards.
 - **Execution**: Use **`PHP 8.1+`** to leverage performance improvements (JIT, OpCache).
@@ -31,7 +30,7 @@ project/
 
 - **No manual `require`**: Use Composer PSR-4 autoloading only.
 - **No blind composer updates**: Review `composer.lock` diff first.
-- **No Xdebug in production**: Disable the extension in prod env.
+- **No Xdebug in production**: Disable extension in prod env.
 - **No `vendor/` in git**: Exclude via `.gitignore`; use Composer.
 
 ## References

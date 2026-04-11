@@ -1,13 +1,11 @@
 ---
 name: flutter-dependency-injection
-description: "Configure automated service locator setup using injectable and get_it. Use when wiring dependency injection with injectable and get_it in Flutter. (triggers: **/injection.dart, **/locator.dart, GetIt, injectable, singleton, module, lazySingleton, factory)"
+description: 'Configure automated service locator setup using injectable and get_it. Use when wiring dependency injection with injectable and get_it in Flutter. (triggers: **/injection.dart, **/locator.dart, GetIt, injectable, singleton, module, lazySingleton, factory)'
 ---
-
 # Dependency Injection
 
 ## **Priority: P1 (HIGH)**
 
-Automated class dependency management using `get_it` and `injectable`.
 
 ## Structure
 
@@ -37,10 +35,10 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 
 ## Anti-Patterns
 
-- ❌ `getIt<OrderRepository>()` inside widget `build()` — inject via constructor, not GetIt calls in UI
-- ❌ `@Singleton()` on a BLoC — BLoCs must use `@injectable` (Factory) so state resets per instance
-- ❌ Injecting the concrete class: `OrderRepositoryImpl repo` — always inject the abstract interface
-- ❌ `getIt.registerLazySingleton<X>(() => X())` in production code — use `@injectable` annotations; manual registration is only for tests
+- **No Inline `getIt` Calls**: Inject via constructor instead of calling GetIt in UI `build()`
+- **No `@Singleton` BLoCs**: Always use `@injectable` (Factory) to ensure state resets
+- **No Concrete Class Injection**: Always inject abstract interface (e.g., `IOrderRepository`)
+- **No Manual Registration**: Use `@injectable` annotations instead of manual `getIt.register` calls in production code
 
 ## Related Topics
 

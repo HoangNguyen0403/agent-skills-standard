@@ -2,12 +2,10 @@
 name: react-native-architecture
 description: "Structure React Native projects with feature-first organization and separation of concerns. Use when structuring a React Native project or applying clean architecture patterns. (triggers: src/**/*.tsx, src/**/*.ts, app.json, feature, module, directory structure, separation of concerns, Expo, React Navigation, StyleSheet.create, react-native, mobile architecture)"
 ---
-
 # React Native Architecture
 
 ## **Priority: P0 (CRITICAL)**
 
-Feature-first organization for scalable mobile apps.
 
 ## Organize by Feature
 
@@ -19,7 +17,7 @@ See [folder structure reference](references/folder-structure.md) for full direct
 
 - **Atomic Components**: Reusable components in `/components`. Feature-specific in feature folder.
 - **Absolute Imports**: Configure tsconfig.json paths for clean imports.
-- **Single Responsibility**: Each file has one clear purpose.
+- **Single Responsibility**: Each file one clear purpose.
 - **Expo vs CLI**: Structure works for both. Expo uses `app.json`, CLI uses `index.js`.
 
 ## Anti-Patterns
@@ -36,10 +34,10 @@ See [folder structure reference](references/folder-structure.md) for full direct
 
 ## Verification Checklist (Mandatory)
 
-- [ ] **Feature-First**: Is the file inside a feature directory?
-- [ ] **Colocation**: Are hooks/services colocated with screens?
-- [ ] **Logic-Free Screens**: Is there any business logic in the screen component?
-- [ ] **Navigation Choice**: Does the project use the navigation strategy defined above?
+- [ ] **Feature-First**: file inside feature directory?
+- [ ] **Colocation**: hooks/services colocated with screens?
+- [ ] **Logic-Free Screens**: there any business logic in screen component?
+- [ ] **Navigation Choice**: project use navigation strategy defined above?
 
 ## References
 

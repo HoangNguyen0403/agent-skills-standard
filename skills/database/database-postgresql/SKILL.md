@@ -2,12 +2,10 @@
 name: database-postgresql
 description: "Enforce repository patterns, zero-downtime migrations, and indexing standards for PostgreSQL with TypeORM or Prisma. Use when defining entities, writing migrations, adding RLS policies, or optimizing query performance. (triggers: **/*.entity.ts, prisma/schema.prisma, **/migrations/*.sql, TypeOrmModule, PrismaService, PostgresModule)"
 ---
-
 # PostgreSQL Database Standards
 
 ## **Priority: P0 (FOUNDATIONAL)**
 
-Integration patterns and ORM standards for PostgreSQL applications.
 
 ## Patterns & Architecture
 
@@ -26,14 +24,14 @@ See [implementation examples](references/implementation.md) for Expand-Contract 
 ## Performance & Gotchas
 
 - **Pagination**: Mandatory. Use limit/offset or cursor-based pagination.
-- **Indexing**: Define indexes in code for frequently filtered columns. RLS columns MUST be indexed.
+- **Indexing**: Define indexes in code for frequently filtered columns. RLS columns MUST indexed.
 - **Transactions**: Use `QueryRunner` or `$transaction` for multi-step mutations.
 
 ## Anti-Patterns
 
 - **No N+1 queries**: Use query builders or eager-load relations instead of lazy-loading in loops.
-- **No heavy RLS joins**: Keep RLS predicates simple; move complex logic to the query/view layer.
-- **No synchronize in production**: Always run explicit migrations; `synchronize: true` is destructive.
+- **No heavy RLS joins**: Keep RLS predicates simple; move complex logic to query/view layer.
+- **No synchronize in production**: Always run explicit migrations; `synchronize: true` destructive.
 
 ## References
 - [SQL Gotchas (UPDATE FROM)](references/sql-gotchas.md)

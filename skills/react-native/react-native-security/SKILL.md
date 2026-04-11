@@ -2,7 +2,6 @@
 name: react-native-security
 description: "Secure storage, network traffic, and deep links in React Native mobile apps. Use when implementing secure storage, certificate pinning, or deep link validation in React Native. (triggers: **/*.tsx, **/*.ts, security, keychain, secure-storage, deep-link, certificate-pinning)"
 ---
-
 # React Native Security
 
 ## **Priority: P0 (CRITICAL)**
@@ -28,7 +27,7 @@ See [keychain usage reference](references/keychain-usage.md) for deep link URL v
 - **HTTPS Only**: Enforce via `NSAppTransportSecurity` (iOS) and `network_security_config.xml` (Android).
 - **Certificate Pinning**: Use `react-native-ssl-pinning` for high-security apps (banking, healthcare). **Warning**: Requires app update when certificates rotate.
 - **No Secrets in Code**: Use `.env` files with `react-native-config`. Add to `.gitignore`.
-- **Verify**: Test by attempting plain HTTP requests in dev; confirm they are rejected.
+- **Verify**: Test by attempting plain HTTP requests in dev; confirm they rejected.
 
 ## Protect Sensitive Data
 

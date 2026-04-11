@@ -2,7 +2,6 @@
 name: spring-boot-data-access
 description: "Optimize JPA, Hibernate, and database interactions in Spring Boot. Use when implementing JPA entities, repositories, or database access in Spring Boot. (triggers: **/*Repository.java, **/*Entity.java, jpa-repository, entity-graph, transactional, n-plus-1)"
 ---
-
 # Spring Boot Data Access
 
 ## **Priority: P0**
@@ -27,8 +26,8 @@ See [implementation examples](references/implementation.md) for repository proje
 
 - **No N+1 Selects**: Use **`JOIN FETCH`** or **`@EntityGraph`** instead of lazy-loading in loops.
 - **Entity Inflation**: Don't use `@Data` (Lombok) on Entities as it breaks Proxy and `hashCode`/`equals` performance.
-- **Transactional Leak**: Don't put `@Transactional` on public `Repository` methods if the `Service` is already transactional.
-- **Raw SQL**: Avoid native SQL unless JPQL/Criteria API is insufficient.
+- **Transactional Leak**: Don't put `@Transactional` on public `Repository` methods if `Service` already transactional.
+- **Raw SQL**: Avoid native SQL unless JPQL/Criteria API insufficient.
 
 ## References
 

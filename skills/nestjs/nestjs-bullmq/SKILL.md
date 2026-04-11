@@ -2,7 +2,6 @@
 name: nestjs-bullmq
 description: "Implement BullMQ job workflows in NestJS. Use when building queue processors, redis-throttler, Upstash limits, idle polling, stalled jobs, and retention policies. (triggers: **/*.processor.ts, **/*.module.ts, **/bull-queue.constants.ts, **/redis-throttler*.ts, queue, background job, worker, processor, bullmq, drainDelay, stalledInterval, removeOnComplete, redis limit, upstash, fail-open, throttler)"
 ---
-
 # NestJS BullMQ Implementation
 
 ## **Priority: P0 (Critical)**
@@ -14,9 +13,9 @@ description: "Implement BullMQ job workflows in NestJS. Use when building queue 
 - **Set job retention**: Add `removeOnComplete`, `removeOnFail`, `attempts`, `backoff` to every `BullModule.registerQueue`. See [patterns.md](references/patterns.md#2-module-registration-with-defaultjoboptions).
 - **Use shared constants**: All numeric options live in `src/common/constants/bull-queue.constants.ts`. Key constants: `QUEUE_DRAIN_DELAY_MS` (10 000 ms), `QUEUE_STALLED_INTERVAL_MS` (60 000 ms). Use `getSharedBullQueueOptions` helper for `registerQueue`. Queue/job names go in `{feature}.constants.ts`. Never inline magic numbers.
 - **Wrap every `queue.add()`**: Persist DB record first, then enqueue inside try-catch. Redis errors must not surface as 500s. See [patterns.md](references/patterns.md#5-producer-queue-service-with-isolated-queueadd).
-- **Throttler fail-open**: `ThrottlerGuard` is registered as global `APP_GUARD` — a Redis blip propagates errors to ALL HTTP routes. `RedisThrottlerStorage.increment()` must catch all Redis errors and return a fail-open pass-through record. A Redis blip must not kill all HTTP routes. See [patterns.md](references/patterns.md#6-throttler-fail-open-pattern).
+- **Throttler fail-open**: `ThrottlerGuard` registered as global `APP_GUARD` — Redis blip propagates errors to ALL HTTP routes. `RedisThrottlerStorage.increment()` must catch all Redis errors and return fail-open pass-through record. Redis blip must not kill all HTTP routes. See [patterns.md](references/patterns.md#6-throttler-fail-open-pattern).
 - **Guard new queues**: Follow `isRedisEnabled()` conditional + mock token pattern in every module. NestJS DI throws on startup without mock.
-- **Keep processor and cron**: Cron schedules; processor executes. Both always required — they are complementary. See [patterns.md](references/patterns.md#7-processor-vs-cron--when-both-exist).
+- **Keep processor and cron**: Cron schedules; processor executes. Both always required — they complementary. See [patterns.md](references/patterns.md#7-processor-vs-cron--when-both-exist).
 - **Use local Redis in dev**: Never point dev machines at Upstash — idle workers exhaust free tier (500K/day) in minutes.
 
 ## Anti-Patterns

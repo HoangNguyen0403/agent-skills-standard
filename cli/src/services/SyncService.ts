@@ -8,7 +8,7 @@ import { AgentBridgeService } from './AgentBridgeService';
 import { ConfigService } from './ConfigService';
 import { DetectionService } from './DetectionService';
 import { GithubService } from './GithubService';
-import { IndexGeneratorService } from './IndexGeneratorService';
+import { IndexGeneratorServiceImpl } from './IndexGeneratorServiceImpl';
 import { SkillSyncService } from './SkillSyncService';
 import { WorkflowSyncService } from './WorkflowSyncService';
 import { MarkdownUtils } from './utils/MarkdownUtils';
@@ -89,7 +89,7 @@ export class SyncService {
     }
 
     try {
-      const generator = new IndexGeneratorService();
+      const generator = new IndexGeneratorServiceImpl();
       // Use agent path if available, otherwise fallback to .cursor/skills as a reasonable default
       const baseDir = agentDef
         ? path.join(process.cwd(), agentDef.path)
@@ -132,7 +132,7 @@ export class SyncService {
         if (!def) continue;
         const agentBase = path.join(process.cwd(), def.path);
         for (const [category, indexContent] of Object.entries(
-          categoryIndices,
+          categoryIndices as Record<string, string>,
         )) {
           const indexMdPath = path.join(agentBase, category, '_INDEX.md');
           await fs.outputFile(indexMdPath, indexContent);

@@ -2,7 +2,6 @@
 name: android-legacy-state
 description: "Integrate State with Views using Coroutines and Lifecycle on Android. Use when managing state with ViewModels and Lifecycle-aware coroutines in Android. (triggers: **/*Fragment.kt, **/*Activity.kt, repeatOnLifecycle, launchWhenStarted)"
 ---
-
 # Android Legacy State Standards
 
 ## **Priority: P1**
@@ -12,7 +11,7 @@ description: "Integrate State with Views using Coroutines and Lifecycle on Andro
 ### Flow Consumption
 
 - **Rule**: ALWAYS use `repeatOnLifecycle(Lifecycle.State.STARTED)` to collect flows in Views.
-- **Why**: Prevents crashes (collecting while view is destroyed) and saves resources (stops collecting in background).
+- **Why**: Prevents crashes (collecting while view destroyed) and saves resources (stops collecting in background).
 
 ### LiveData vs Flow
 

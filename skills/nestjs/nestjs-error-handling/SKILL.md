@@ -2,22 +2,20 @@
 name: nestjs-error-handling
 description: "Implement Global Exception Filters and standard error formats in NestJS. Use when implementing global exception filters or standardizing error responses in NestJS. (triggers: **/*.filter.ts, main.ts, ExceptionFilter, Catch, HttpException)"
 ---
-
 # NestJS Error Handling Standards
 
 ## **Priority: P1 (OPERATIONAL)**
 
-Global error handling and exception management patterns.
 
 - **Requirement**: Centralize error formatting.
-- **Platform Agnostic**: Do **not** import `Request`/`Response` from Express/Fastify types directly.
-  - **Use**: `HttpAdapterHost` to access the underlying platform response methods.
-  - `const { httpAdapter } = this.httpAdapterHost;`
+- **Platform Agnostic**: **not** import `Request`/`Response` from Express/Fastify types directly.
+ - **Use**: `HttpAdapterHost` to access underlying platform response methods.
+ - `const { httpAdapter } = this.httpAdapterHost;`
 - **Structure**:
-  - Implement strictly typed error responses.
-  - Refer to **[API Standards](../nestjs-api-standards/SKILL.md)** for `ApiErrorResponse`.
+ - Implement strictly typed error responses.
+ - Refer to **[API Standards](../nestjs-api-standards/SKILL.md)** for `ApiErrorResponse`.
 
-  ```json
+ ```json
   {
     "statusCode": 400,
     "message": "Validation failed",
@@ -31,8 +29,8 @@ Global error handling and exception management patterns.
 
 1. **Service**: Throws specific or generic errors (e.g., `EntityNotFoundError`).
 2. **Interceptor**: Maps low-level errors to HTTP Exceptions (e.g., `catchError(err => throw new NotFoundException())`).
-   - _Why_: Keeps Exception Filters focused on formatting, not business logic interpretation.
-3. **Global Filter**: Formats the final JSON response.
+ - _Why_: Keeps Exception Filters focused on formatting, not business logic interpretation.
+3. **Global Filter**: Formats final JSON response.
 
 ## Built-in Exceptions
 
@@ -41,15 +39,15 @@ Global error handling and exception management patterns.
 
 ## Logging
 
-- **Context**: Always pass `MyClass.name` to the `Logger` constructor.
+- **Context**: Always pass `MyClass.name` to `Logger` constructor.
 - **Levels**:
-  - `error`: 500s (Stack trace required).
-  - `warn`: 400s (Client errors).
+ - `error`: 500s (Stack trace required).
+ - `warn`: 400s (Client errors).
 
 ## Security (Information Leakage)
 
 - **Production**: **NEVER** expose stack traces in HTTP responses (`process.env.NODE_ENV === 'production'`).
-- **Sanitization**: Ensure `ApiException` payloads do not leak internal file paths or raw variable dumps.
+- **Sanitization**: Ensure `ApiException` payloads not leak internal file paths or raw variable dumps.
 
 
 ## Anti-Patterns

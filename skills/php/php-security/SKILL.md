@@ -2,7 +2,6 @@
 name: php-security
 description: 'PHP security standards for database access, password handling, and input validation. Use when securing PHP apps against SQL injection, XSS, or weak password storage. (triggers: **/*.php, pdo, password_hash, htmlentities, filter_var)'
 ---
-
 # PHP Security
 
 ## **Priority: P0 (CRITICAL)**
@@ -24,7 +23,7 @@ src/
 - **XSS Escaping**: Use `htmlentities($userInput, ENT_QUOTES | ENT_HTML5, 'UTF-8')` or `htmlspecialchars()` on all user output. Prefer Twig or Blade for auto-escaping.
 - **CSRF Protection**: Mandate **`CSRF tokens`** for all state-changing requests (`POST`, `PUT`, `PATCH`, `DELETE`).
 - **Input Validation**: Use `filter_var($email, FILTER_VALIDATE_EMAIL)` or `filter_var($url, FILTER_VALIDATE_URL)`. Always Whitelist allowed values.
-- **File Security**: RESTRICT file uploads by **MIME type** and **extension**. Store uploads **outside the public root**.
+- **File Security**: RESTRICT file uploads by **MIME type** and **extension**. Store uploads **outside public root**.
 - **Session Safety**: Configure **`session.cookie_httponly = 1`**, **`session.cookie_secure = 1`**, and **`session.samesite = "Lax"`**.
 - **Header Security**: Enforce **`Content-Security-Policy (CSP)`**, **`X-Frame-Options: DENY`**, and **`X-Content-Type-Options: nosniff`**.
 

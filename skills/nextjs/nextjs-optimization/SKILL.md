@@ -2,7 +2,6 @@
 name: nextjs-optimization
 description: "Optimize images, fonts, scripts, and metadata for Next.js performance and Core Web Vitals. Use when configuring next/image for LCP, next/font for zero layout shift, next/script loading strategies, or generateMetadata for SEO. (triggers: **/layout.tsx, **/page.tsx, next/image, next/font, metadata, generateMetadata)"
 ---
-
 # Optimization
 
 ## **Priority: P1 (HIGH)**

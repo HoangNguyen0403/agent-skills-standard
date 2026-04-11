@@ -2,12 +2,10 @@
 name: java-best-practices
 description: "Apply core Effective Java patterns for robust, maintainable code. Use when applying SOLID principles, choosing between inheritance and composition, refactoring Java code smells, or reviewing class design. (triggers: **/*.java, refactor, SOLID, builder, factory, composition, immutable, Optional, checked exception, clean code)"
 ---
-
 # Java Best Practices
 
 ## **Priority: P1 (HIGH)**
 
-Core engineering principles for robust, maintainable Java systems.
 
 ## Implementation Guidelines
 
@@ -17,7 +15,7 @@ Core engineering principles for robust, maintainable Java systems.
 - **Constructors**: Use Static Factory Methods (`User.of()`) over complex constructors.
 - **Builder Pattern**: Use for objects with 4+ parameters.
 - **Exceptions**: Recoverable → Checked; Programming error → Unchecked.
-- **Fail Fast**: Validate parameters (`Objects.requireNonNull`) at the method start.
+- **Fail Fast**: Validate parameters (`Objects.requireNonNull`) at method start.
 - **Interfaces**: Code to interfaces (`List`, `Map`), not implementations (`ArrayList`).
 - **Dependency Injection**: Inject dependencies via constructor; don't create them internally.
 - **Method References**: Use `String::toUpperCase` over `s -> s.toUpperCase()` where readable.

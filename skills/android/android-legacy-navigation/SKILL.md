@@ -2,14 +2,13 @@
 name: android-legacy-navigation
 description: "Implement Jetpack Navigation Component with XML graphs and SafeArgs for type-safe fragment navigation. Use when working with XML-based Navigation Component or SafeArgs in Android. (triggers: navigation/*.xml, findNavController, NavDirections, navArgs)"
 ---
-
 # Android Legacy Navigation Standards
 
 ## **Priority: P1**
 
 ## 1. Set Up Single-Activity Architecture
 
-- Use one Host Activity with a `NavHostFragment`.
+- Use one Host Activity with `NavHostFragment`.
 - Enable SafeArgs plugin — MANDATORY for passing data between fragments.
 
 See [XML graph & SafeArgs examples](references/implementation.md) for NavHostFragment setup.

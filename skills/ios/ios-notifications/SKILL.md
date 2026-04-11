@@ -2,18 +2,16 @@
 name: ios-notifications
 description: "Push notifications for iOS using UserNotifications framework and APNS. Use when integrating APNS push notifications in iOS applications. (triggers: **/*Notification*.swift, **/*AppDelegate.swift, UNUserNotificationCenter, APNS, UNNotificationRequest, deviceToken)"
 ---
-
 # iOS Notifications
 
 ## **Priority: P2 (OPTIONAL)**
 
-Push notifications using UserNotifications framework and APNs.
 
 ## Guidelines
 
 - **Framework**: Use `UserNotifications` for all notification handling.
 - **Delegate**: Implement `UNUserNotificationCenterDelegate` for foreground & tap handling.
-- **Permissions**: Request `.alert`, `.badge`, `.sound` after priming the user.
+- **Permissions**: Request `.alert`, `.badge`, `.sound` after priming user.
 - **APNs**: Register for remote notifications in `AppDelegate`.
 - **Badges**: Manage app icon badges manually (set to 0 to clear).
 

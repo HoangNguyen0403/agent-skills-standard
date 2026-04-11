@@ -2,21 +2,20 @@
 name: react-native-deployment
 description: "OTA updates with CodePush, EAS Build, and release configurations. Use when configuring OTA updates, EAS Build, or managing release configs for React Native. (triggers: app.json, eas.json, android/app/build.gradle, ios/**, deployment, codepush, eas, release, build, fastlane)"
 ---
-
 # React Native Deployment
 
 ## **Priority: P2 (MAINTENANCE)**
 
-## Workflow: Ship a Production Release with EAS Build
+## Workflow: Ship Production Release with EAS Build
 
 1. Configure `eas.json` with development, preview, and production profiles
 2. Set environment variables in `.env.production`
 3. Run `eas build --platform all --profile production`
-4. Verify the build artifact on the EAS dashboard
+4. Verify build artifact on EAS dashboard
 5. Submit to stores: `eas submit --platform ios` / `eas submit --platform android`
 6. For JS-only hotfixes, publish OTA: `eas update --branch production`
 
-## Over-The-Air (OTA) Updates
+## Over--Air (OTA) Updates
 
 ### CodePush (Microsoft)
 

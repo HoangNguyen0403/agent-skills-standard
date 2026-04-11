@@ -2,7 +2,6 @@
 name: react-native-platform-specific
 description: "Resolve iOS and Android differences using Platform API and native modules in React Native. Use when handling platform-specific behavior or integrating native modules in React Native. (triggers: **/*.tsx, **/*.ts, **/*.ios.*, **/*.android.*, Platform, Platform.select, native-module, ios, android)"
 ---
-
 # React Native Platform-Specific Code
 
 ## **Priority: P1 (OPERATIONAL)**
@@ -13,14 +12,14 @@ Use `.ios.` and `.android.` for platform-specific files:
 
 See [native modules reference](references/native-modules.md) for platform-specific file naming, `Platform.select` usage, and native bridge examples.
 
-React Native automatically picks the right file:
+React Native automatically picks right file:
 
 - **iOS**: Button.ios.tsx then Button.tsx (fallback)
 - **Android**: Button.android.tsx then Button.tsx (fallback)
 
 ## Apply Platform Branching Inline
 
-Use `Platform.select` or `Platform.OS` for small differences within a shared file.
+Use `Platform.select` or `Platform.OS` for small differences within shared file.
 
 ## Integrate Native Modules
 

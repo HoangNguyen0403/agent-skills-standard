@@ -2,7 +2,6 @@
 name: android-concurrency
 description: "Standards for Coroutines, Flow, and Threading. Use when writing suspend functions, choosing coroutine scopes, switching between StateFlow and SharedFlow, injecting Dispatchers for testability, or debugging threading issues in Android. (triggers: **/*ViewModel.kt, **/*UseCase.kt, **/*Repository.kt, suspend, viewModelScope, lifecycleScope, Flow, coroutine, Dispatcher, DispatcherProvider, GlobalScope)"
 ---
-
 # Android Concurrency Standards
 
 ## **Priority: P0**
@@ -12,7 +11,7 @@ description: "Standards for Coroutines, Flow, and Threading. Use when writing su
 ### Structured Concurrency
 
 - **Scopes**: Always use `viewModelScope` (VM) or `lifecycleScope` (Activity/Fragment).
-- **Dispatchers**: INJECT Dispatchers (`DispatcherProvider`) for testability. Do not hardcode `Dispatchers.IO`.
+- **Dispatchers**: INJECT Dispatchers (`DispatcherProvider`) for testability. not hardcode `Dispatchers.IO`.
 
 ### Flow usage
 

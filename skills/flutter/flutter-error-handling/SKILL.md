@@ -2,12 +2,10 @@
 name: flutter-error-handling
 description: 'Implement functional error recovery with Either/Failure patterns. Use when writing repositories, handling exceptions, defining failures, or using Either in any Flutter layer. (triggers: lib/domain/**, lib/infrastructure/**, Either, fold, Left, Right, Failure, dartz)'
 ---
-
 # Error Handling
 
 ## **Priority: P1 (HIGH)**
 
-Standardized functional error handling using `dartz` and `freezed` failures.
 
 ## Implementation Workflow
 
@@ -17,7 +15,7 @@ Standardized functional error handling using `dartz` and `freezed` failures.
 4. **Fold in BLoC** — Use `.fold(failure, success)` in BLoC to emit corresponding states. Remove try/catch from BLoC.
 5. **Localize messages** — Use `failure.failureMessage` (returns `TRObject` or localized string) for UI-safe text.
 6. **Log with stable templates** — Use low-cardinality message templates; pass variable data via metadata/context.
-7. **No Silent Catch**: Never swallow errors without logging or a documented retry.
+7. **No Silent Catch**: Never swallow errors without logging or documented retry.
 8. **Crashlytics Routing**: All UI/BLoC `catch` blocks MUST route errors via `AppLogger.error(AppException.fromException(e).message, error: e, stackTrace: st)` for observability and type-safe UI messages.
 
 ### Repository & BLoC Examples
@@ -31,11 +29,11 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 
 ## Anti-Patterns
 
-- ❌ `try { … } catch (e) { emit(ErrorState()); }` in BLoC — try/catch belongs only in Infrastructure; BLoC receives `Either`, then folds
-- ❌ `Left(Failure('Something went wrong'))` using a plain `String` — define typed `@freezed` Failure subclasses for each domain error
-- ❌ `catch (e) {}` empty catch — always log and propagate; never swallow silently
-- ❌ Throwing `Exception` from a repository — return `Left(Failure)` instead; exceptions must not cross the infrastructure boundary
-- ❌ `catch (e) { print(e); }` — missing `AppLogger.error`; errors must be sent to Crashlytics with the original error and stack trace
+- **No Try-Catch in BLoC**: BLoC receives `Either` and `folds`; try/catch belongs in Infrastructure
+- **No Plain String Failures**: Define typed `@freezed` Failure subclasses instead of `Left('Something went wrong')`
+- **No Empty Catch Blocks**: Always log and propagate; never swallow errors silently
+- **No Repositories Throwing Status**: Return `Left(Failure)` instead of throwing `Exception`
+- **No Missing Log Registration**: Use `AppLogger.error` in BLoC/UI `catch` to ensure Crashlytics tracking and type-safe UI messages
 
 ## Related Topics
 

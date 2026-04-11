@@ -2,7 +2,6 @@
 name: spring-boot-deployment
 description: "Deploy Spring Boot apps with Docker, GraalVM native images, and graceful shutdown. Use when deploying Spring Boot apps as GraalVM native images, containers, or configuring shutdown. (triggers: Dockerfile, compose.yml, docker-layer, native-image, graceful-shutdown)"
 ---
-
 # Spring Boot Deployment Standards
 
 ## **Priority: P0**
@@ -24,7 +23,7 @@ See [implementation examples](references/implementation.md) for multi-stage laye
 
 ## Tune Resources and Shutdown
 
-- **Graceful Shutdown**: Enable **`server.shutdown=graceful`** with a 30s timeout.
+- **Graceful Shutdown**: Enable **`server.shutdown=graceful`** with 30s timeout.
 - **Memory**: Use **`-XX:+UseContainerSupport`** and **`-XX:MaxRAMPercentage=75.0`**.
 - **Log Management**: Log to **`stdout`** in **Structured JSON** for log aggregators.
 

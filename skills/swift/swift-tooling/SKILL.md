@@ -2,7 +2,6 @@
 name: swift-tooling
 description: "Configure SPM packages, SwiftLint, and build settings for Swift projects. Use when managing Swift packages with SPM, configuring build settings, or enforcing Swift code quality. (triggers: Package.swift, .swiftlint.yml, package, target, dependency)"
 ---
-
 # Swift Tooling Standards
 
 ## **Priority: P0**
@@ -17,7 +16,7 @@ See [implementation examples](references/implementation.md) for Package.swift st
 
 ## Enforce Code Quality
 
-- **SwiftLint**: Use for consistent style enforcement. Create a `.swiftlint.yml` in the project root with `disabled_rules` and `opt_in_rules` sections.
+- **SwiftLint**: Use for consistent style enforcement. Create `.swiftlint.yml` in project root with `disabled_rules` and `opt_in_rules` sections.
 - **Compiler Warnings**: Treat warnings as errors in CI to maintain code health.
 - **Documentation**: Use triple slashes `///` for documentation comments on public APIs (DocC-compatible).
 
@@ -30,7 +29,7 @@ See [implementation examples](references/implementation.md) for Package.swift st
 ## Anti-Patterns
 
 - **No API keys in code**: Use environment variables or build configs.
-- **No // swiftlint:disable**: Fix the underlying issue.
+- **No // swiftlint:disable**: Fix underlying issue.
 - **No manually added frameworks**: Use SPM.
 
 ## References

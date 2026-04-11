@@ -2,22 +2,20 @@
 name: nestjs-observability
 description: "Configure structured logging with Pino, Prometheus metrics, and health checks for NestJS services. Use when adding JSON logging, request tracing with correlation IDs, Prometheus metric endpoints, or liveness/readiness health checks. (triggers: main.ts, **/*.module.ts, nestjs-pino, Prometheus, Logger, reqId)"
 ---
-
 # Observability Standards
 
 ## **Priority: P1 (OPERATIONAL)**
 
-Logging, monitoring, and observability patterns for production NestJS applications.
 
 ## Structured Logging (Pino)
 
-Use `nestjs-pino` for high-performance, async JSON logging. Node's `console.log` is blocking and unstructured.
+Use `nestjs-pino` for high-performance, async JSON logging. Node's `console.log` blocking and unstructured.
 
 See [implementation examples](references/example.md)
 
 ## Tracing (Correlation)
 
-- **Request ID**: Every log line **must** include a `reqId`. `nestjs-pino` handles this via `AsyncLocalStorage`.
+- **Request ID**: Every log line **must** include `reqId`. `nestjs-pino` handles this via `AsyncLocalStorage`.
 - **Propagation**: Pass `x-request-id` to downstream microservices and database queries for end-to-end tracing.
 
 ## Metrics
@@ -29,8 +27,8 @@ See [implementation examples](references/example.md)
 ## Health Checks
 
 - **Terminus**: Implement "Liveness" (I'm alive) vs "Readiness" (I can take traffic).
-  - **DB Check**: `TypeOrmHealthIndicator` / `PrismaHealthIndicator`.
-  - **Memory Check**: Fail readiness if Heap > 300MB to prevent crash loops.
+ - **DB Check**: `TypeOrmHealthIndicator` / `PrismaHealthIndicator`.
+ - **Memory Check**: Fail readiness if Heap > 300MB to prevent crash loops.
 
 ## Performance Headers (Dev Only)
 

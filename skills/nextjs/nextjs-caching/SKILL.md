@@ -2,14 +2,13 @@
 name: nextjs-caching
 description: "Configure the 4 caching layers in Next.js: request memoization, data cache, full-route cache, and router cache. Use when setting revalidation strategies, invalidating cached data with tags, or diagnosing stale data bugs. (triggers: **/page.tsx, **/layout.tsx, **/action.ts, unstable_cache, revalidateTag, Router Cache, Data Cache)"
 ---
-
 # Caching Architecture
 
 ## **Priority: P1 (HIGH)**
 
-Next.js has 4 distinct caching layers. Understanding them prevents stale data bugs.
+Next.js 4 distinct caching layers. Understanding them prevents stale data bugs.
 
-## Workflow: Configure Caching for a Feature
+## Workflow: Configure Caching for Feature
 
 1. **Choose cache strategy** — SSG (`force-cache`), ISR (`revalidate: N`), or SSR (`no-store`).
 2. **Tag cacheable fetches** — Add `next: { tags: ['posts'] }` to fetch options.
@@ -23,20 +22,20 @@ See [implementation examples](references/implementation.md)
 
 ## Implementation Guidelines
 
-- **Next.js 15+ Standard**: Use **`fetch`** with **`revalidate: number`** or **`cache: 'force-cache'`** for API calls. Use **`unstable_cache`** or the new **`'use cache'`** (experimental) for custom data stores.
-- **Layers**: Distinguish between **Data Cache** (persistent across requests) and **Request Memoization** (React's lifecycle specific). Use **`cache()`** from React to deduplicate fetches within a single render.
+- **Next.js 15+ Standard**: Use **`fetch`** with **`revalidate: number`** or **`cache: 'force-cache'`** for API calls. Use **`unstable_cache`** or new **`'use cache'`** (experimental) for custom data stores.
+- **Layers**: Distinguish between **Data Cache** (persistent across requests) and **Request Memoization** (React's lifecycle specific). Use **`cache()`** from React to deduplicate fetches within single render.
 - **Invalidation**: Use **`revalidatePath('/')`** after mutations or **`revalidateTag('tag-name')`** for granular cache purging.
-- **Client Cache**: Understand the **Router Cache** (in-memory on client) and its 30s-min lifespan. Clear it using **`router.refresh()`**.
+- **Client Cache**: Understand **Router Cache** (in-memory on client) and its 30s-min lifespan. Clear it using **`router.refresh()`**.
 - **Static Assets**: Leverage **`generateStaticParams`** for pre-rendering static routes at build time. Use **ISR (Incremental Static Regeneration)** for content that updates periodically.
-- **Streaming**: Combine **`Suspense`** with **`fetch`** triggers to prevent slow data from blocking the entire page render.
+- **Streaming**: Combine **`Suspense`** with **`fetch`** triggers to prevent slow data from blocking entire page render.
 - **Next.js 16+**: Favor **`'use cache'`** and **`cacheLife()`** over `revalidate: number` where available for deterministic caching.
 
-| Layer                   | Where  | Control                        |
+| Layer | Where | Control |
 | :---------------------- | :----- | :----------------------------- |
-| **Request Memoization** | Server | React `cache()`                |
-| **Data Cache**          | Server | `'use cache'`, `revalidateTag` |
-| **Full Route Cache**    | Server | Static Prerendering            |
-| **Router Cache**        | Client | `router.refresh()`             |
+| **Request Memoization** | Server | React `cache()` |
+| **Data Cache** | Server | `'use cache'`, `revalidateTag` |
+| **Full Route Cache** | Server | Static Prerendering |
+| **Router Cache** | Client | `router.refresh()` |
 
 ## **Implementation Details**
 

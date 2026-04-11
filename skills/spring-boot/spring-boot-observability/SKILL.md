@@ -2,7 +2,6 @@
 name: spring-boot-observability
 description: "Instrument Spring Boot with Micrometer metrics, distributed tracing, and structured logging. Use when adding Micrometer metrics, distributed tracing, or structured logging to Spring Boot. (triggers: logback-spring.xml, application.properties, micrometer, tracing, correlation-id, mdc)"
 ---
-
 # Spring Boot Observability
 
 ## **Priority: P0**
@@ -25,7 +24,7 @@ See [implementation examples](references/implementation.md) for application.yaml
 ## Configure Structured Logging
 
 - **Format**: Use JSON logging (`logstash-logback-encoder`) in production.
-- **MDC**: Use MDC for contextual info (userId, tenantId). Always clear MDC in a finally block.
+- **MDC**: Use MDC for contextual info (userId, tenantId). Always clear MDC in finally block.
 - **Output**: Log to stdout only. Let container handle shipping.
 
 See [implementation examples](references/implementation.md) for structured logging with MDC context and Logstash encoder.
@@ -34,7 +33,7 @@ See [implementation examples](references/implementation.md) for structured loggi
 
 - **Security**: Secure `/actuator/**` with Admin role.
 - **Probes**: Enable K8s Liveness/Readiness probes.
-- **Verify**: Run `curl localhost:8080/actuator/prometheus` to confirm metrics are exposed.
+- **Verify**: Run `curl localhost:8080/actuator/prometheus` to confirm metrics exposed.
 
 ## Anti-Patterns
 

@@ -2,12 +2,10 @@
 name: nestjs-configuration
 description: "Environment variables validation and ConfigModule setup. Use when validating environment variables with Joi/Zod or configuring ConfigModule in NestJS. (triggers: .env, app.module.ts, **/config.ts, ConfigModule, Joi, env)"
 ---
-
 # NestJS Configuration Standards
 
 ## **Priority: P1 (OPERATIONAL)**
 
-Environment configuration and validation patterns for NestJS applications.
 
 ## Setup
 
@@ -17,8 +15,8 @@ Environment configuration and validation patterns for NestJS applications.
 ## Validation
 
 - **Mandatory**: Validate environment variables at startup.
-- **Tool**: Use `joi` or a custom validation class.
-- **Effect**: The app **must crash** immediately if a required env var (e.g., `DB_URL`) is missing.
+- **Tool**: Use `joi` or custom validation class.
+- **Effect**: app **must crash** immediately if required env var (e.g., `DB_URL`) missing.
 
 ```typescript
 // app.module.ts
@@ -36,17 +34,17 @@ ConfigModule.forRoot({
 ## Usage
 
 - **Injection**: Inject `ConfigService` to access values.
-- **Typing**: Avoid magic strings. Use a type-safe getter helper or a dedicated configuration object/interface.
+- **Typing**: Avoid magic strings. Use type-safe getter helper or dedicated configuration object/interface.
 - **Secrets**: Never commit `.env` files. Add `.env*` to `.gitignore`.
 
 ## ⚠️ Adding New Variables
 
-When adding a new environment variable to the application, you **MUST** update all of the following:
+When adding new environment variable to application, you **MUST** update all of following:
 
-1. **`src/config/env.validation.ts`**: Add the class property with appropriate `class-validator` decorators.
-2. **`.env.example`**: Add a placeholder value so other developers know about it.
-3. **`.env.development` / `.env.test`**: Add the actual development values.
-4. **CI/CD Pipelines & Infrastructure**: You **MUST** map the new variable in your deployment scripts (e.g., `.github/workflows/*.yml`, `gitlab-ci.yml`, Terraform, or Azure Pipelines). Most modern cloud platforms (Cloud Run, ECS, Kubernetes) require explicit mapping of secrets/env-vars into the container runtime. Failure to do this will cause the production deployment to crash or silently fail.
+1. **`src/config/env.validation.ts`**: Add class property with appropriate `class-validator` decorators.
+2. **`.env.example`**: Add placeholder value so other developers know about it.
+3. **`.env.development` / `.env.test`**: Add actual development values.
+4. **CI/CD Pipelines & Infrastructure**: You **MUST** map new variable in your deployment scripts (e.g., `.github/workflows/*.yml`, `gitlab-ci.yml`, Terraform, or Azure Pipelines). Most modern cloud platforms (Cloud Run, ECS, Kubernetes) require explicit mapping of secrets/env-vars into container runtime. Failure to this will cause production deployment to crash or silently fail.
 
 
 ## Anti-Patterns

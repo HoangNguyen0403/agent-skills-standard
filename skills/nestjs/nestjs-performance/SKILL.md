@@ -2,12 +2,10 @@
 name: nestjs-performance
 description: "Optimize NestJS throughput with Fastify adapter, singleton scope enforcement, compression, and query projections. Use when switching to Fastify, diagnosing request-scoped bottlenecks, or profiling API overhead. (triggers: main.ts, FastifyAdapter, compression, SINGLETON, REQUEST scope)"
 ---
-
 # Performance Tuning
 
 ## **Priority: P1 (OPERATIONAL)**
 
-High-performance patterns and optimization techniques for NestJS applications.
 
 ## Workflow: Performance Audit
 
@@ -27,26 +25,26 @@ See [implementation examples](references/example.md)
 
 - **Default Scope**: Adhere to `SINGLETON` scope (default).
 - **Request Scope**: AVOID `REQUEST` scope unless absolutely necessary.
-  - **Pro Tip**: A single request-scoped service makes its entire injection chain request-scoped.
-  - **Solution**: Use **Durable Providers** (`durable: true`) for multi-tenancy.
+ - **Pro Tip**: single request-scoped service makes its entire injection chain request-scoped.
+ - **Solution**: Use **Durable Providers** (`durable: true`) for multi-tenancy.
 - **Lazy Loading**: Use `LazyModuleLoader` for heavyweight modules (e.g., Admin panels).
 
 ## Caching Strategy
 
 - **Application Cache**: Use `@nestjs/cache-manager` for computation results.
-  - **Deep Dive**: See **[Caching & Redis](../nestjs-caching/SKILL.md)** for L1/L2 strategies and Invalidation patterns.
+ - **Deep Dive**: See **[Caching & Redis](../nestjs-caching/SKILL.md)** for L1/L2 strategies and Invalidation patterns.
 - **HTTP Cache**: Set `Cache-Control` headers for client-side caching (CDN/Browser).
 - **Distributed**: In microservices, use Redis store, not memory store.
 
 ## Queues & Async Processing
 
-- **Offloading**: Never block the HTTP request for long-running tasks (Emails, Reports, webhooks).
+- **Offloading**: Never block HTTP request for long-running tasks (Emails, Reports, webhooks).
 - **Tool**: Use `@nestjs/bull` (BullMQ) or RabbitMQ (`@nestjs/microservices`).
-  - **Pattern**: Producer (Controller) -> Queue -> Consumer (Processor).
+ - **Pattern**: Producer (Controller) -> Queue -> Consumer (Processor).
 
 ## Serialization
 
-- **Warning**: `class-transformer` is CPU expensive.
+- **Warning**: `class-transformer` CPU expensive.
 - **Optimization**: For high-throughput READ endpoints, consider manual mapping or using `fast-json-stringify` (built-in fastify serialization) instead of interceptors.
 
 ## Database Tuning
@@ -57,16 +55,16 @@ See [implementation examples](references/example.md)
 
 ## Profiling & Scaling
 
-- **API Overhead vs DB Execution**: Use an "Execution Bucket" strategy to continuously benchmark `Total Duration`, `DB Execution Time`, and `API Overhead`.
-  - **Total Baseline**: Excellent (< 50ms), Acceptable (< 200ms), Poor (> 500ms). _Exception: Authentication routes (e.g. bcrypt/argon2) should take 300-500ms intentionally._
-  - **DB Execution Baseline**: Excellent (< 5ms), Acceptable (< 30ms), Poor (> 100ms - implies missing index or N+1 problem).
-  - **API Overhead Baseline**: Excellent (< 20ms), Poor (> 100ms - implies heavy synchronous processing or serialization blocking Node's event loop).
+- **API Overhead vs DB Execution**: Use "Execution Bucket" strategy to continuously benchmark `Total Duration`, `DB Execution Time`, and `API Overhead`.
+ - **Total Baseline**: Excellent (< 50ms), Acceptable (< 200ms), Poor (> 500ms). _Exception: Authentication routes (e.g. bcrypt/argon2) should take 300-500ms intentionally._
+ - **DB Execution Baseline**: Excellent (< 5ms), Acceptable (< 30ms), Poor (> 100ms - implies missing index or N+1 problem).
+ - **API Overhead Baseline**: Excellent (< 20ms), Poor (> 100ms - implies heavy synchronous processing or serialization blocking Node's event loop).
 - **Offloading**: Move CPU-heavy tasks (Image processing, Crypto) to `worker_threads`.
 - **Clustering**: For non-containerized environments, use `ClusterModule` to utilize all CPU cores. In K8s, prefer ReplicaSets.
 
 
 ## Anti-Patterns
 
-- **No REQUEST scope without evaluation**: One REQUEST-scoped provider makes the entire chain request-scoped.
+- **No REQUEST scope without evaluation**: One REQUEST-scoped provider makes entire chain request-scoped.
 - **No CPU tasks in HTTP handler**: Offload image/crypto work to `worker_threads` or BullMQ.
-- **No unprojected queries**: Always `select: []` the needed columns to avoid serializing unused data.
+- **No unprojected queries**: Always `select: []` needed columns to avoid serializing unused data.

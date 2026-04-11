@@ -2,7 +2,6 @@
 name: react-native-navigation-v6
 description: "Configure React Navigation 6+ stacks, tabs, and deep linking for React Native. Use when implementing React Navigation stacks, tabs, or deep linking in React Native. (triggers: **/*Navigation*.tsx, src/navigation/**, navigation, react-navigation, stack, tab, drawer, deep link)"
 ---
-
 # React Native Navigation
 
 ## **Priority: P0 (CRITICAL)**
@@ -18,13 +17,13 @@ See [deep linking reference](references/deep-linking.md) for typed param lists a
 
 ## Configure Deep Linking
 
-- **Deep Linking**: Use **prefix arrays** in `linking` config. Validate **Universal Links (iOS)** and **App Links (Android)**. Handle **unrecognized paths** with a 404 screen.
+- **Deep Linking**: Use **prefix arrays** in `linking` config. Validate **Universal Links (iOS)** and **App Links (Android)**. Handle **unrecognized paths** with 404 screen.
 
 See [deep linking reference](references/deep-linking.md) for linking configuration with prefix arrays and fallback screens.
 
 ## Implement Auth Flow
 
-- **Auth/App split**: Conditionally render Auth Stack vs App Stack in `NavigationContainer`. **Clear the navigation state** after logout.
+- **Auth/App split**: Conditionally render Auth Stack vs App Stack in `NavigationContainer`. **Clear navigation state** after logout.
 - **Logic**: Use **Tab Navigators** for bottom navigation. **Drawer** for side menus.
 - **Transitions**: Native-like feel via **`presentation: 'modal'`**. Custom `headerLeft/Right` in `options`.
 - **Data Flow**: Use `route.params` for small IDs only. Use **global state (Zustand/RTK)** for complex data objects.

@@ -49,14 +49,14 @@ describe('DetectionService', () => {
         return Promise.resolve(false);
       });
 
-      vi.mocked(fs.readJson).mockImplementation((p: string) => {
+      vi.mocked(fs.readJson).mockImplementation(((p: string) => {
         if (p.endsWith('backend/package.json')) {
           return Promise.resolve({
             dependencies: { '@nestjs/core': '^10.0.0' },
           });
         }
         return Promise.reject(new Error('File not found'));
-      });
+      }) as any);
 
       const results = await detectionService.detectFrameworks();
       expect(results.nestjs).toBe(true);
@@ -64,8 +64,8 @@ describe('DetectionService', () => {
 
     it('should handle missing directory reads gracefully in detectFrameworks', async () => {
       vi.mocked(fs.readdir).mockRejectedValue(new Error('Permission denied'));
-      vi.mocked(fs.pathExists).mockResolvedValue(false);
-      vi.mocked(fs.readJson).mockResolvedValue({});
+      vi.mocked(fs.pathExists).mockResolvedValue(false as never);
+      vi.mocked(fs.readJson).mockResolvedValue({} as any);
 
       const results = await detectionService.detectFrameworks();
       expect(results.nestjs).toBe(false);

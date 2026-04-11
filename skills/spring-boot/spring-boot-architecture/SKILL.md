@@ -2,7 +2,6 @@
 name: spring-boot-architecture
 description: "Structure Spring Boot 3+ projects with feature packaging and clean layering. Use when structuring Spring Boot 3 projects, defining layers, or applying architecture patterns. (triggers: pom.xml, build.gradle, structure, layering, dto, controller, @RestController, @Service, @Repository, @Entity, @Bean, @Configuration)"
 ---
-
 # Spring Boot Architecture Standards
 
 ## **Priority: P0 (CRITICAL)**
@@ -30,11 +29,11 @@ See [implementation examples](references/implementation.md) for Java Record DTOs
 
 ## Verification Checklist (Mandatory)
 
-- [ ] **No Entities in API**: Are all API responses using DTOs/Records instead of JPA Entities?
-- [ ] **Validation**: Are `@Valid` and Jakarta Bean Validation constraints present on all input DTOs?
-- [ ] **Layer coupling**: Do Services depend on Controllers? (Prohibited)
-- [ ] **Transactionality**: Are business transactions correctly bounded with `@Transactional` in the Service layer?
-- [ ] **Error Details**: Is `ProblemDetails` used for consistent error responses?
+- [ ] **No Entities in API**: all API responses using DTOs/Records instead of JPA Entities?
+- [ ] **Validation**: `@Valid` and Jakarta Bean Validation constraints present on all input DTOs?
+- [ ] **Layer coupling**: Services depend on Controllers? (Prohibited)
+- [ ] **Transactionality**: business transactions correctly bounded with `@Transactional` in Service layer?
+- [ ] **Error Details**: `ProblemDetails` used for consistent error responses?
 
 ## Anti-Patterns
 

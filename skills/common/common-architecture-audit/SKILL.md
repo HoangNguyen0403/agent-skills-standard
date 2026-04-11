@@ -2,7 +2,6 @@
 name: common-architecture-audit
 description: "Audit structural debt, logic leakage, and monolithic components across Web, Mobile, and Backend codebases. Use when reviewing architecture, assessing tech debt, detecting logic in wrong layers, or identifying God classes. (triggers: package.json, pubspec.yaml, go.mod, pom.xml, nest-cli.json, architecture audit, code review, tech debt, logic leakage, refactor)"
 ---
-
 # Architecture Audit
 
 ## **Priority: P1 (STANDARD)**
@@ -18,10 +17,10 @@ See [implementation examples](references/implementation.md) for detection script
 
 ## 2. Detect Logic Leakage (by Ecosystem)
 
-Find business logic trapped in the wrong layer.
+Find business logic trapped in wrong layer.
 
-- **Web (React/Next.js/Vue)**: `grep -rE "useEffect|useState|useMemo" components --include="*.tsx" | wc -l` — if `components/` hook count > 20x `hooks/` folder, architecture is monolithic.
-- **Mobile (Flutter/React Native)**: `grep -rE "http\.|dio\.|socket\." lib/widgets --include="*.dart" | wc -l` — I/O or state mutation > 5 lines in `build()` is High Debt.
+- **Web (React/Next.js/Vue)**: `grep -rE "useEffect|useState|useMemo" components --include="*.tsx" | wc -l` — if `components/` hook count > 20x `hooks/` folder, architecture monolithic.
+- **Mobile (Flutter/React Native)**: `grep -rE "http\.|dio\.|socket\." lib/widgets --include="*.dart" | wc -l` — I/O or state mutation > 5 lines in `build()` High Debt.
 - **Backend (NestJS/Go/Spring)**: `grep -rE "Repository\.|Query\.|db\." src/controllers --include="*.ts" | wc -l` — Controllers must only handle request parsing and response formatting.
 
 ## 3. Identify Monoliths

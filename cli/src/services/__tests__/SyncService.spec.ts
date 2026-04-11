@@ -3,13 +3,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
 import { AgentBridgeService } from '../AgentBridgeService';
 import { DetectionService } from '../DetectionService';
-import { IndexGeneratorService } from '../IndexGeneratorService';
+import { IndexGeneratorServiceImpl } from '../IndexGeneratorServiceImpl';
 import { SyncService } from '../SyncService';
 import { MarkdownUtils } from '../utils/MarkdownUtils';
 
 // Mock dependencies at the top level
 vi.mock('fs-extra');
-vi.mock('../IndexGeneratorService');
+vi.mock('../IndexGeneratorServiceImpl');
 vi.mock('../DetectionService');
 vi.mock('../AgentBridgeService');
 vi.mock('../SkillSyncService');
@@ -27,8 +27,10 @@ describe('SyncService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Setup IndexGeneratorService mock implementation
-    vi.mocked(IndexGeneratorService).mockImplementation(function (this: any) {
+    // Setup IndexGeneratorServiceImpl mock implementation
+    vi.mocked(IndexGeneratorServiceImpl).mockImplementation(function (
+      this: any,
+    ) {
       this.withMetadata = vi.fn().mockReturnThis();
       this.generate = vi.fn().mockResolvedValue('index content');
       this.assembleIndex = vi.fn().mockReturnValue('index content');
@@ -197,7 +199,7 @@ describe('SyncService', () => {
 
     it('should handle index generation failure', async () => {
       const config = { agents: [Agent.Cursor], skills: {} } as any;
-      vi.mocked(IndexGeneratorService).mockImplementationOnce(function (
+      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(function (
         this: any,
       ) {
         this.withMetadata = vi.fn().mockReturnThis();
@@ -229,7 +231,7 @@ describe('SyncService', () => {
       );
 
       let capturedWithMetadata: any;
-      vi.mocked(IndexGeneratorService).mockImplementationOnce(function (
+      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(function (
         this: any,
       ) {
         this.withMetadata = vi.fn().mockImplementation((m: any) => {
@@ -292,7 +294,7 @@ describe('SyncService', () => {
       mockGithubService.getRawFile.mockResolvedValue(null);
 
       let withMetadataCalled = false;
-      vi.mocked(IndexGeneratorService).mockImplementationOnce(function (
+      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(function (
         this: any,
       ) {
         this.withMetadata = vi.fn().mockImplementation(() => {
@@ -339,7 +341,7 @@ describe('SyncService', () => {
       mockGithubService.getRawFile.mockResolvedValue('{ invalid json %%%');
 
       let withMetadataCalled = false;
-      vi.mocked(IndexGeneratorService).mockImplementationOnce(function (
+      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(function (
         this: any,
       ) {
         this.withMetadata = vi.fn().mockImplementation(() => {

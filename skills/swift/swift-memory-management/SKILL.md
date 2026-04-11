@@ -2,7 +2,6 @@
 name: swift-memory-management
 description: "Prevent retain cycles via ARC, weak/unowned references, and Capture Lists in Swift. Use when managing Swift ARC, avoiding retain cycles, or configuring capture lists in closures. (triggers: **/*.swift, weak, unowned, capture, deinit, retain)"
 ---
-
 # Swift Memory Management
 
 ## **Priority: P0**
@@ -12,20 +11,20 @@ description: "Prevent retain cycles via ARC, weak/unowned references, and Captur
 ### ARC Fundamentals
 
 - **Default**: Strong references. Swift automatically manages retain/release.
-- **Weak**: Use weak if the reference can become nil during its lifetime (delegates, optional parent refs).
-- **Unowned**: Use unowned if the reference is guaranteed to outlive the referring object (rare; prefer weak).
+- **Weak**: Use weak if reference can become nil during its lifetime (delegates, optional parent refs).
+- **Unowned**: Use unowned if reference guaranteed to outlive referring object (rare; prefer weak).
 
 ### Capture Lists
 
-- **Closures**: Place `[weak self]` at the beginning of the closure's capture list. Pattern: `{ [weak self] in guard let self = self else { return } }`.
-- **Self in Structs**: No capture list needed (`self` is copied by value).
+- **Closures**: Place `[weak self]` at beginning of closure's capture list. Pattern: `{ [weak self] in guard let self = self else { return } }`.
+- **Self in Structs**: No capture list needed (`self` copied by value).
 - **Multiple Captures**: `[weak self, weak delegate]`.
 
 ### Retain Cycles
 
-- **Delegates**: Always `weak var delegate`. The delegate protocol should inherit from AnyObject (e.g., `protocol MyDelegate: AnyObject {}`).
+- **Delegates**: Always `weak var delegate`. delegate protocol should inherit from AnyObject (e.g., `protocol MyDelegate: AnyObject {}`).
 - **Closures as Properties**: Use `weak` or `unowned` in capture list.
-- **two-way References**: One side must be `weak`.
+- **two-way References**: One side must `weak`.
 
 ## Anti-Patterns
 

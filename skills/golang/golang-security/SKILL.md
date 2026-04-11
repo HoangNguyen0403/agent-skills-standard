@@ -2,7 +2,6 @@
 name: golang-security
 description: "Secure Go backend services against common vulnerabilities. Use when implementing input validation, crypto, or SQL injection prevention in Go. (triggers: crypto/rand, argon2, sanitize, jwt, bcrypt, validation, input validation, sql injection)"
 ---
-
 # Golang Security Standards
 
 ## **Priority: P0 (CRITICAL)**
@@ -17,7 +16,7 @@ description: "Secure Go backend services against common vulnerabilities. Use whe
 ### Cryptography
 
 - **Random**: ALWAYS use `crypto/rand`, NEVER `math/rand` for security-sensitive operations (tokens, keys, IVs).
-- **Hashing**: Use **Argon2id** for password hashing (`golang.org/x/crypto/argon2`). Do NOT use bcrypt (weaker) or MD5/SHA1 (insecure). Recommended params: `time=1, memory=64MB, threads=4`.
+- **Hashing**: Use **Argon2id** for password hashing (`golang.org/x/crypto/argon2`). NOT use bcrypt (weaker) or MD5/SHA1 (insecure). Recommended params: `time=1, memory=64MB, threads=4`.
 - **Encryption**: Use `crypto/aes` with GCM mode for authenticated encryption.
 
 ### SQL Injection Prevention
@@ -37,7 +36,7 @@ description: "Secure Go backend services against common vulnerabilities. Use whe
 
 ## Anti-Patterns
 
-- **No `math/rand` for Security**: RNG is predictable. Use `crypto/rand`.
+- **No `math/rand` for Security**: RNG predictable. Use `crypto/rand`.
 - **No `fmt.Sprintf()` for SQL**: Causes SQL injection. Use placeholders.
 - **No bcrypt or MD5 for Passwords**: Use `argon2id` exclusively.
 - **No Exposed Error Details**: Don't leak stack traces to clients in production.

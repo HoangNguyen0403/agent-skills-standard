@@ -39,10 +39,35 @@ export interface FeedbackData {
  */
 export class FeedbackService {
   /**
+   * Allowed origin prefix for the feedback API to prevent SSRF.
+   * Only requests to this domain (or its subdomains) are permitted.
+   */
+  private static readonly ALLOWED_ORIGIN =
+    'https://agent-skills-feedback.vercel.app';
+
+  /**
    * Resolves the API URL from environment variables.
    */
   getApiUrl(): string | undefined {
     return process.env.FEEDBACK_API_URL;
+  }
+
+  /**
+   * Validates if the given URL is safe and points to the allowed feedback origin.
+   * @param url The URL to validate
+   * @returns boolean
+   */
+  private isSafeUrl(url: string): boolean {
+    try {
+      const parsed = new URL(url);
+      return (
+        parsed.protocol === 'https:' &&
+        (parsed.origin === FeedbackService.ALLOWED_ORIGIN ||
+          parsed.hostname.endsWith('.agent-skills-feedback.vercel.app'))
+      );
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -54,7 +79,16 @@ export class FeedbackService {
    */
   async submit(data: FeedbackData): Promise<boolean> {
     const apiUrl = this.getApiUrl();
+
     if (!apiUrl) return false;
+
+    // Validate origin to prevent SSRF/Data Exfiltration (Finding Security-NIT)
+    if (!this.isSafeUrl(apiUrl)) {
+      if (process.env.DEBUG) {
+        console.warn(`[FeedbackService] Disallowed API URL origin: ${apiUrl}`);
+      }
+      return false;
+    }
 
     try {
       const response = await fetch(apiUrl, {

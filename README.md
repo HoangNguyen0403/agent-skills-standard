@@ -9,8 +9,8 @@
 237 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **86% fewer tokens** than traditional prompt engineering.
 
 ```bash
-npx agent-skills-standard@latest init
-npx agent-skills-standard@latest sync
+npx agent-skills-standard@2.1.1 init
+npx agent-skills-standard@2.1.1 sync
 # Done. Your AI now follows your team's engineering standards.
 ```
 
@@ -89,29 +89,29 @@ Your AI agent now reads `AGENTS.md` automatically. Skills activate based on what
 
 Every skill is audited for token efficiency (averaging ~500 tokens) and tested with automated evals.
 
-| Stack                   | Key Skills                                    | Version  | Skills |
-| :---------------------- | :-------------------------------------------- | :------- | :----- |
-| **Common Patterns**     | Best Practices, Security, TDD, Error Handling | `v2.0.1` | 31     |
-| **Flutter**             | BLoC, Riverpod, Clean Architecture, GetX      | `v1.6.1` | 21     |
-| **React**               | Hooks, Performance, State Management          | `v1.3.1` | 8      |
-| **React Native**        | Architecture, Navigation, Performance         | `v1.4.1` | 13     |
-| **Next.js**             | App Router, Server Components, Caching, ISR   | `v1.4.1` | 18     |
-| **Angular**             | Signals, Components, RxJS, SSR                | `v1.3.1` | 15     |
-| **NestJS**              | Architecture, Security, BullMQ, Caching       | `v1.4.1` | 21     |
-| **TypeScript**          | Type Safety, Security, Tooling                | `v1.3.1` | 4      |
-| **JavaScript**          | ES2022+, Patterns, Tooling                    | `v1.3.1` | 3      |
-| **Go (Golang)**         | Clean Architecture, Concurrency, Security     | `v1.3.1` | 11     |
-| **Spring Boot**         | Architecture, Security, JPA, Observability    | `v1.3.1` | 10     |
-| **Android**             | Compose, Navigation, Hilt, Room               | `v1.3.1` | 22     |
-| **iOS**                 | SwiftUI, Architecture, Persistence            | `v1.4.1` | 15     |
-| **Swift**               | Concurrency, Memory, Error Handling           | `v1.3.1` | 8      |
-| **Kotlin**              | Coroutines, Language, Tooling                 | `v1.3.1` | 4      |
-| **Java**                | Records, Virtual Threads, Testing             | `v1.3.1` | 5      |
-| **PHP**                 | PHP 8+, Error Handling, Security              | `v1.3.1` | 7      |
-| **Laravel**             | Eloquent, Clean Architecture, Queues          | `v1.3.1` | 10     |
-| **Dart**                | Null Safety, Sealed Classes, Tooling          | `v1.3.1` | 3      |
-| **Database**            | PostgreSQL, MongoDB, Redis                    | `v1.3.1` | 3      |
-| **Quality Engineering** | BA, TDD, Zephyr, Test Generation              | `v1.4.1` | 5      |
+| Stack                | Key Skills                                    | Version  | Skills |
+| :------------------- | :-------------------------------------------- | :------- | :----- |
+| **Common Patterns**  | Best Practices, Security, TDD, Error Handling | `v2.0.3` | 31     |
+| **Flutter**          | BLoC, Riverpod, Clean Architecture, GetX      | `v1.6.3` | 21     |
+| **React**            | Hooks, Performance, State Management          | `v1.3.3` | 8      |
+| **React Native**     | Architecture, Navigation, Performance         | `v1.4.3` | 13     |
+| **Next.js**          | App Router, Server Components, Caching, ISR   | `v1.4.3` | 18     |
+| **Angular**          | Signals, Components, RxJS, SSR                | `v1.4.1` | 15     |
+| **NestJS**           | Architecture, Security, BullMQ                | `v1.4.3` | 21     |
+| **TypeScript**       | Type Safety, Security, Tooling                | `v1.3.2` | 4      |
+| **JavaScript**       | ES2024+, Patterns, Tooling                    | `v1.3.3` | 3      |
+| **Go (Golang)**      | Clean Arch, Concurrency                       | `v1.3.2` | 11     |
+| **Spring Boot**      | Architecture, Security, JPA                   | `v1.3.2` | 10     |
+| **Android**          | Compose, Navigation, Hilt                     | `v1.3.3` | 22     |
+| **iOS**              | SwiftUI, Arch, Persistence                    | `v1.4.3` | 15     |
+| **Swift**            | Concurrency, Memory                           | `v1.3.3` | 8      |
+| **Kotlin**           | Coroutines, Language                          | `v1.3.2` | 4      |
+| **Java**             | Records, Virtual Threads                      | `v1.3.2` | 5      |
+| **PHP**              | PHP 8.4+, Error Handling                      | `v1.3.2` | 7      |
+| **Laravel**          | Eloquent, Clean Arch                          | `v1.3.3` | 10     |
+| **Dart**             | Null Safety, Sealed Classes                   | `v1.3.3` | 3      |
+| **Database**         | PostgreSQL, MongoDB, Redis                    | `v1.3.2` | 3      |
+| **Quality Engineer** | BA, TDD, Zephyr, Test Gen                     | `v1.4.3` | 5      |
 
 > Full skill list with token metrics: [Skills Directory](./skills/README.md) | [Benchmark Report](./benchmark-report.md)
 
@@ -124,20 +124,26 @@ The `.skillsrc` file controls what gets synced:
 ```yaml
 registry: https://github.com/HoangNguyen0403/agent-skills-standard
 agents: [cursor, copilot, claude, gemini]
+# Standard registry skills
 skills:
   flutter:
-    ref: flutter-v1.6.1
+    ref: flutter-v1.6.3
     exclude: ['getx-navigation'] # Don't use GetX? Exclude it.
     custom_overrides: ['bloc-state'] # Protect your local modifications.
   react:
-    ref: react-v1.3.1
+    ref: react-v1.3.3
   golang:
-    ref: golang-v1.3.1
+    ref: golang-v1.3.2
   common:
-    ref: common-v2.0.1
+    ref: common-v2.0.3
+
+# Local custom standalone skills
+custom_skills:
+  - path: './.skills/my-custom-rule.md'
+    triggers: ['*.ts', 'keyword']
 ```
 
-Skills are **package-aware**: if your Flutter project uses BLoC but not GetX, just exclude the GetX skills. The AI only sees what's relevant to your stack.
+Skills are **package-aware**: if your Flutter project uses BLoC but not GetX, just exclude the GetX skills. The AI only sees what's relevant to your stack. The **`custom_skills`** feature allows you to index your own `.md` files directly into `AGENTS.md` and `_INDEX.md`, ensuring your project-specific rules are always visible to the AI.
 
 ---
 

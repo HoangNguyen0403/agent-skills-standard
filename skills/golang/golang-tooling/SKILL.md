@@ -2,7 +2,6 @@
 name: golang-tooling
 description: "Go developer toolchain — gopls LSP diagnostics, linting, formatting, and vet. Use when setting up Go tooling, running linters, or integrating gopls with Claude Code. (triggers: gopls, golangci-lint, golangci.yml, go vet, goimports, staticcheck, go tooling, go lint)"
 ---
-
 # Golang Tooling Standards
 
 ## **Priority: P1 (Operational)**
@@ -48,10 +47,10 @@ go install golang.org/x/tools/gopls@latest
 
 ## Anti-Patterns
 
-- **No `gofmt` alone**: Use `goimports` — it does formatting AND imports.
-- **No manual import sorting**: Let `goimports` manage the order.
+- **No `gofmt` alone**: Use `goimports` — it formatting AND imports.
+- **No manual import sorting**: Let `goimports` manage order.
 - **No skipping go vet**: Run it — catches real bugs `gofmt` misses.
-- **No broad lint disable**: Fix the root cause instead of `//nolint` comments.
+- **No broad lint disable**: Fix root cause instead of `//nolint` comments.
 
 ## References
 

@@ -2,7 +2,6 @@
 name: angular-routing
 description: "Configure Angular Router with lazy-loaded routes, functional guards, and component input binding. Use when defining routes, lazy-loading features, creating route guards, or setting up resolvers. (triggers: *.routes.ts, angular router, loadComponent, canActivate, resolver)"
 ---
-
 # Routing
 
 ## **Priority: P0 (CRITICAL)**
@@ -27,7 +26,7 @@ See [routing patterns](references/routing-patterns.md) for functional guard impl
 ## 4. Configure Resolvers and Titles
 
 - Create `ResolveFn<T>` to pre-fetch critical data before navigation.
-- Provide a custom `TitleStrategy` or use `title: 'Dashboard'` in route data.
+- Provide custom `TitleStrategy` or use `title: 'Dashboard'` in route data.
 
 ## Anti-Patterns
 

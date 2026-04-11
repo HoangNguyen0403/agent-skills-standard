@@ -2,7 +2,6 @@
 name: flutter-getx-state-management
 description: "Implement reactive state with GetX controllers and observables in Flutter. Use when managing reactive state with GetX controllers or observables in Flutter. (triggers: **_controller.dart, **/bindings/*.dart, GetxController, Obx, GetBuilder, .obs, Get.put, Get.find, Get.lazyPut)"
 ---
-
 # GetX State Management
 
 ## **Priority: P0 (CRITICAL)**
@@ -23,13 +22,13 @@ lib/app/modules/home/
 
 - **Controllers**: Extend `GetxController`. Store logic and state variables here.
 - **Reactivity**:
-  - Use `.obs` for observable variables (e.g., `final count = 0.obs;`).
-  - Wrap UI in `Obx(() => ...)` to listen for changes.
-  - For simple state, use `update()` in controller and `GetBuilder` in UI.
+ - Use `.obs` for observable variables (e.g., `final count = 0.obs;`).
+ - Wrap UI in `Obx(() => ...)` to listen for changes.
+ - For simple state, use `update()` in controller and `GetBuilder` in UI.
 - **Dependency Injection**:
-  - **Bindings**: Use `Bindings` class to decouple DI from UI.
-  - **Lazy Load**: Prefer `Get.lazyPut(() => Controller())` in Bindings.
-  - **Lifecycle**: Let GetX handle disposal. Avoid `permanent: true`.
+ - **Bindings**: Use `Bindings` class to decouple DI from UI.
+ - **Lazy Load**: Prefer `Get.lazyPut(() => Controller())` in Bindings.
+ - **Lifecycle**: Let GetX handle disposal. Avoid `permanent: true`.
 - **Hooks**: Use `onInit()`, `onReady()`, `onClose()` instead of `initState`/`dispose`.
 - **Architecture**: Use `get_cli` for modular MVVM (data, models, modules).
 

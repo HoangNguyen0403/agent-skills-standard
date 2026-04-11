@@ -2,12 +2,11 @@
 name: laravel-security
 description: "Harden Laravel apps with Policies for model authorization, Gate-based RBAC, validated mass assignment, and CSRF protection. Use when creating authorization policies, securing env config access, or preventing mass assignment vulnerabilities. (triggers: app/Policies/**/*.php, config/*.php, policy, gate, authorize, env, config)"
 ---
-
 # Laravel Security
 
 ## **Priority: P0 (CRITICAL)**
 
-## Workflow: Secure a Resource
+## Workflow: Secure Resource
 
 1. **Generate policy** — `php artisan make:policy PostPolicy --model=Post`.
 2. **Implement policy methods** — Return `bool` for `view`, `update`, `delete` actions.
@@ -31,12 +30,12 @@ See [implementation examples](references/implementation.md#policy-example) for P
 ### Configuration & Environment
 
 - **Environment**: Only call env() inside config/\*.php files. Access via `config('app.key')` in your application code. never env() in controllers; use config() instead.
-- **Caching**: Run **`php artisan config:cache`** to validate that `env()` isn't used where it shouldn't be.
+- **Caching**: Run **`php artisan config:cache`** to validate that `env()` isn't used where it shouldn't .
 
 ### Data & Input Security
 
 - **Mass Assignment**: Use Form Request with rules() and call $request->validated() for Model::create(). Define $fillable on model; never pass $request->all() to create().
-- **CSRF**: Ensure the @csrf directive is in all Blade `<form>` tags. active on web routes by default; use `->except(['/webhook'])` only for trusted third-party callbacks.
+- **CSRF**: Ensure @csrf directive in all Blade `<form>` tags. active on web routes by default; use `->except(['/webhook'])` only for trusted third-party callbacks.
 - **Role-Based Access**: Use Policies with role checks in policy methods; define `Gate::before` for admin bypass; or use `spatie/laravel-permission`; never inline $user->role === 'admin'.
 
 ## Anti-Patterns

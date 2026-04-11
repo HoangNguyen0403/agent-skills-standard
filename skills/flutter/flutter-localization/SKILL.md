@@ -1,13 +1,11 @@
 ---
 name: flutter-localization
-description: "Add multi-language support using easy_localization with CSV or JSON. Use when implementing localization or multi-language support in Flutter apps. (triggers: **/assets/translations/*.json, **/assets/langs/*.csv, main.dart, localization, multi-language, translation, tr(), easy_localization, sheet_loader)"
+description: 'Add multi-language support using easy_localization with CSV or JSON. Use when implementing localization or multi-language support in Flutter apps. (triggers: **/assets/translations/*.json, **/assets/langs/*.csv, main.dart, localization, multi-language, translation, tr(), easy_localization, sheet_loader)'
 ---
-
 # Localization
 
 ## **Priority: P1 (STANDARD)**
 
-Consistent multi-language support using `easy_localization`.
 
 ## Format Selection
 
@@ -29,7 +27,7 @@ assets/translations/
 ## Implementation Workflow
 
 1. **Initialize** — Call `await EasyLocalization.ensureInitialized()` before `runApp`.
-2. **Wrap root** — Wrap the app with `EasyLocalization` widget specifying supported locales and path.
+2. **Wrap root** — Wrap app with `EasyLocalization` widget specifying supported locales and path.
 3. **Translate strings** — Use `.tr()` extension on keys (e.g., `'welcome'.tr()`).
 4. **Switch locale** — Change via `context.setLocale(Locale('vi'))`.
 5. **Handle plurals** — Use `plural()` for quantity-dependent strings.
@@ -41,9 +39,9 @@ See [implementation examples](references/implementation.md) for bootstrap setup 
 
 ## Anti-Patterns
 
-- ❌ Hardcoded strings in UI — always use translation keys
-- ❌ Using `Localizations.of` manually — use `easy_localization` `.tr()` extension
-- ❌ Mismatched keys across locale files — keep keys identical in all locales
+- **No Hardcoded Strings**: Always use translation keys from assets
+- **No Manual Localization Calls**: Use `easy_localization` `.tr()` extension
+- **No Mismatched Keys**: Ensure keys identical across all locale-specific files
 
 ## Reference & Examples
 

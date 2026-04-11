@@ -2,12 +2,10 @@
 name: java-language
 description: 'Modern Java 21+ standards including Records, Pattern Matching, and Virtual Threads. Use when working with Java records, sealed classes, switch expressions, text blocks, Optional, or upgrading from older Java versions. (triggers: **/*.java, pom.xml, build.gradle, record, sealed, switch, var, Optional, stream, VirtualThread, instanceof, text block)'
 ---
-
 # Java Language Patterns
 
 ## **Priority: P0 (CRITICAL)**
 
-Modern Java (21+) standards for concise, immutable, and expressive code.
 
 ## Implementation Guidelines
 
@@ -16,7 +14,7 @@ Modern Java (21+) standards for concise, immutable, and expressive code.
 - **Switch**: Use Switch Expressions (->) and Pattern Matching over complex if/else chains.
 - **Text Blocks**: Use **`""" (Text Blocks)`** for JSON, SQL, or multi-line strings.
 - **Pattern Matching**: Use **`instanceof`** with pattern binding: `if (obj instanceof String s)`.
-- **Sealed Classes**: Use sealed interface/class with permits clause for domain-driven restricted hierarchies. Switch expressions are then exhaustive switch (compiler-verified).
+- **Sealed Classes**: Use sealed interface/class with permits clause for domain-driven restricted hierarchies. Switch expressions then exhaustive switch (compiler-verified).
 - **Collections**: Use **`List.of()`**, **`Map.of()`**, and **`Set.of()`** for immutable collections.
 - **Streams**: Use **`stream()`** pipelines for functional transformations. Use **`.toList()`** (Java 16+).
 - **Optional**: Utilize **`Optional<T>`** for return types. Use **`.ifPresentOrElse()`** or **`.orElseThrow()`**.
