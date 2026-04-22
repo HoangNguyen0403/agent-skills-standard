@@ -7,10 +7,10 @@ metadata:
     - '**/*.swift'
     keywords:
     - Observable
-    - @Published
+    - "@Published"
     - PassthroughSubject
-    - @Observable
-    - @Namespace
+    - "@Observable"
+    - "@Namespace"
 ---
 # iOS State Management
 

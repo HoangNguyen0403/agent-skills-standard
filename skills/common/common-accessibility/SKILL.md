@@ -64,7 +64,7 @@ ARIA supplements native HTML when insufficient (e.g., custom widgets). Rules:
 
 ## 🖼 Images & Media
 
-- Decorative images: `alt=""` (empty, not missing).
+- Decorative images: `alt="` (empty, not missing).
 - Informative images: descriptive `alt` — what image conveys, not "image of…".
 - Complex charts/graphs: text summary or data table alternative.
 - Video: Captions mandatory. Audio descriptions for visual-only content.

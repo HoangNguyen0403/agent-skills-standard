@@ -59,7 +59,7 @@ See [Eval Workflow](references/eval-workflow.md) for full testing + iteration de
 ## Content Quality (Implementation)
 
 - **No Redundant Knowledge**: **NOT** explain concepts AI already knows (e.g., HTTP status codes, standard library docs, basic SOLID principles). Focus strictly on _project-specific_ rules.
-- **Caveman Compression**: Use "Caveman Mode" for rules to save tokens. Drop articles (, , ), remove filler words ("should", "will", ""), and use telegraphic snippets.
+- **Caveman Compression**: Use "Caveman Mode" for rules to save tokens. Drop articles (, , ), remove filler words ("should", "will", "), and use telegraphic snippets.
  - _Standard_: "You should ensure that database connection closed after every query to prevent leaks." (15 tokens)
  - _Caveman_: "Close DB connection after query. Prevent leaks." (7 tokens)
 - **Actionability**: Examples must copy-paste ready and executable.

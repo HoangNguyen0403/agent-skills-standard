@@ -6,7 +6,7 @@ metadata:
     files:
     - 'ChangeDetectionStrategy.OnPush'
     keywords:
-    - @defer
+    - "@defer"
     - NgOptimizedImage
     - runOutsideAngular
     - OnPush

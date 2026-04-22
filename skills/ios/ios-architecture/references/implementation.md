@@ -15,7 +15,7 @@ class HomeViewModel: HomeViewModelType, HomeViewModelInputs, HomeViewModelOutput
     var outputs: HomeViewModelOutputs { return self }
 
     // Outputs
-    @Published private(set) var title: String = ""
+    @Published private(set) var title: String = "
 
     // Inputs
     func viewDidLoad() {

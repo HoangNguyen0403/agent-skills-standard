@@ -8,8 +8,8 @@ metadata:
     - '**/*Database.kt'
     - '**/*Entity.kt'
     keywords:
-    - @Dao
-    - @Entity
+    - "@Dao"
+    - "@Entity"
     - RoomDatabase
 ---
 # Android Persistence Standards

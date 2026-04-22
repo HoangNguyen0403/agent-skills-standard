@@ -28,7 +28,7 @@ metadata:
 - **Records**: Use record for immutable DTOs/Value Objects. Records auto-generate equals, hashCode, toString. Avoid Lombok @Data on Pojos.
 - **Local Variables**: Use **`var`** for inferred types. Explicitly type interface variables.
 - **Switch**: Use Switch Expressions (->) and Pattern Matching over complex if/else chains.
-- **Text Blocks**: Use **`""" (Text Blocks)`** for JSON, SQL, or multi-line strings.
+- **Text Blocks**: Use **`"" (Text Blocks)`** for JSON, SQL, or multi-line strings.
 - **Pattern Matching**: Use **`instanceof`** with pattern binding: `if (obj instanceof String s)`.
 - **Sealed Classes**: Use sealed interface/class with permits clause for domain-driven restricted hierarchies. Switch expressions then exhaustive switch (compiler-verified).
 - **Collections**: Use **`List.of()`**, **`Map.of()`**, and **`Set.of()`** for immutable collections.

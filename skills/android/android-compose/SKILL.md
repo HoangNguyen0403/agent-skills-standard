@@ -8,7 +8,7 @@ metadata:
     - '**/*Composable*.kt'
     - '**/*Content.kt'
     keywords:
-    - @Composable
+    - "@Composable"
     - Modifier
     - Column
     - Row

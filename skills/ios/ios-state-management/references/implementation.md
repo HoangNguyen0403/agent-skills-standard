@@ -6,7 +6,7 @@
 import Combine
 
 class SearchViewModel: ObservableObject {
-    @Published var query: String = ""
+    @Published var query: String = "
     @Published private(set) var results: [String] = []
 
     private var cancellables = Set<AnyCancellable>()
@@ -30,7 +30,7 @@ import Observation
 
 @Observable
 class UserProfile {
-    var name: String = ""
+    var name: String = "
     var age: Int = 0
 }
 

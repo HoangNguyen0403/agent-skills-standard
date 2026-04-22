@@ -6,9 +6,9 @@ metadata:
     files:
     - '**/*.swift'
     keywords:
-    - @State
-    - @Binding
-    - @ObservedObject
+    - "@State"
+    - "@Binding"
+    - "@ObservedObject"
     - View
     - body
 ---

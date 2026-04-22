@@ -11,8 +11,8 @@ metadata:
     - standalone
     - input signal
     - output
-    - @if
-    - @for
+    - "@if"
+    - "@for"
     - ChangeDetectionStrategy
     - OnPush
     - Input

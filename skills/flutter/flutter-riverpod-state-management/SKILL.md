@@ -13,7 +13,7 @@ metadata:
     - Notifier
     - AsyncValue
     - ref.watch
-    - @riverpod
+    - "@riverpod"
 ---
 # Riverpod State Management
 

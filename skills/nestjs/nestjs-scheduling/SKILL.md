@@ -6,7 +6,7 @@ metadata:
     files:
     - '**/*.service.ts'
     keywords:
-    - @Cron
+    - "@Cron"
     - CronExpression
     - ScheduleModule
 ---

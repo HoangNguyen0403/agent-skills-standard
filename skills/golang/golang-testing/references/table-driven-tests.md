@@ -58,7 +58,7 @@ func TestGetOrder(t *testing.T) {
         },
         {
             name:    "missing ID returns error",
-            id:      "",
+            id:      ",
             wantErr: true,
         },
     }

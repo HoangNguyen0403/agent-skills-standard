@@ -32,7 +32,7 @@ NavHost(navController = navController, startDestination = "home") {
     composable("home") { HomeScreen(onNavigate = { navController.navigate("detail/$it") }) }
     composable("detail/{id}") { backStackEntry ->
         val id = backStackEntry.arguments?.getString("id")
-        DetailScreen(id = id ?: "")
+        DetailScreen(id = id ?: ")
     }
 }
 

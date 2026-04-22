@@ -11,7 +11,7 @@ metadata:
     - detekt
     - ktlint
     - lint
-    - @Suppress
+    - "@Suppress"
     - abortOnError
     - jlleitschuh
 ---

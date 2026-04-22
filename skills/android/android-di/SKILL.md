@@ -7,10 +7,10 @@ metadata:
     - '**/*Module.kt'
     - '**/*Component.kt'
     keywords:
-    - @HiltAndroidApp
-    - @Inject
-    - @Provides
-    - @Binds
+    - "@HiltAndroidApp"
+    - "@Inject"
+    - "@Provides"
+    - "@Binds"
 ---
 # Android Dependency Injection (Hilt)
 

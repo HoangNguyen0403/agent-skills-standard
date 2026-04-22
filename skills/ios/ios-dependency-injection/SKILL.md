@@ -6,7 +6,7 @@ metadata:
     files:
     - '**/*.swift'
     keywords:
-    - @Injected
+    - "@Injected"
     - Resolver
     - Container
     - Swinject

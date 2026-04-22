@@ -10,8 +10,8 @@ metadata:
     keywords:
     - Retrofit
     - OkHttpClient
-    - @GET
-    - @POST
+    - "@GET"
+    - "@POST"
 ---
 # Android Networking Standards
 

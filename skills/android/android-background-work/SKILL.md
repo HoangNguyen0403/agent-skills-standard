@@ -4,15 +4,16 @@ description: Implement WorkManager and background processing correctly on Androi
 metadata:
   triggers:
     files:
-    - '**/*Worker.kt'
+      - '**/*Worker.kt'
     keywords:
-    - CoroutineWorker
-    - WorkManager
-    - doWork
-    - PeriodicWorkRequest
-    - OneTimeWorkRequest
-    - @HiltWorker
+      - CoroutineWorker
+      - WorkManager
+      - doWork
+      - PeriodicWorkRequest
+      - OneTimeWorkRequest
+      - '@HiltWorker'
 ---
+
 # Android Background Work Standards
 
 ## **Priority: P1**

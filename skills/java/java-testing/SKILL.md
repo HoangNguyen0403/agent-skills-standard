@@ -7,8 +7,8 @@ metadata:
     - '**/*Test.java'
     - '**/*IT.java'
     keywords:
-    - @Test
-    - @ParameterizedTest
+    - "@Test"
+    - "@ParameterizedTest"
     - Mockito
     - AssertJ
     - assertThat

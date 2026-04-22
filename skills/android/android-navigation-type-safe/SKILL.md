@@ -9,7 +9,7 @@ metadata:
     keywords:
     - NavHost
     - navController
-    - @Serializable
+    - "@Serializable"
 ---
 # Android Navigation Standards
 

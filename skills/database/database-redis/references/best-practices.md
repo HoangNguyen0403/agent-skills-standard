@@ -47,6 +47,6 @@
   - Move away from `requirepass`. Use `ACL SETUSER` to create least-privilege users (e.g., `read-only-user`).
 - **Dangerous Commands**:
   - Rename or disable commands in `redis.conf`:
-    - `rename-command FLUSHALL ""`
-    - `rename-command CONFIG ""`
+    - `rename-command FLUSHALL "`
+    - `rename-command CONFIG "`
 - **TLS**: Use TLS 1.2+ for all production traffic.

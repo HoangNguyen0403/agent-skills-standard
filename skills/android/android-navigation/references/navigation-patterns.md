@@ -43,7 +43,7 @@ fun AppNavigation() {
             )
         ) { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId")
-            ProductScreen(productId = productId ?: "")
+            ProductScreen(productId = productId ?: ")
         }
     }
 }

@@ -14,9 +14,9 @@ class UserControllerTest {
 
         mvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
+                .content(""
                     {"username": "alice"}
-                """))
+                ""))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.username").value("alice"));
     }
@@ -66,9 +66,9 @@ class OrderControllerTest {
 
         mockMvc.perform(post("/api/orders")
                 .contentType(APPLICATION_JSON)
-                .content("""
+                .content(""
                     {"productName": "Widget", "quantity": 5}
-                    """))
+                    ""))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id").value(1));
     }

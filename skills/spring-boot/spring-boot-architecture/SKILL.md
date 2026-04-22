@@ -11,12 +11,12 @@ metadata:
     - layering
     - dto
     - controller
-    - @RestController
-    - @Service
-    - @Repository
-    - @Entity
-    - @Bean
-    - @Configuration
+    - "@RestController"
+    - "@Service"
+    - "@Repository"
+    - "@Entity"
+    - "@Bean"
+    - "@Configuration"
 ---
 # Spring Boot Architecture Standards
 

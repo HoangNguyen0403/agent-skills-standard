@@ -7,14 +7,14 @@ metadata:
     - '**/*Test.kt'
     - '**/*Rule.kt'
     keywords:
-    - @Test
+    - "@Test"
     - runTest
     - composeTestRule
     - HiltAndroidTest
     - MockK
     - createAndroidComposeRule
     - MainDispatcherRule
-    - @TestInstallIn
+    - "@TestInstallIn"
 ---
 # Android Testing Standards
 

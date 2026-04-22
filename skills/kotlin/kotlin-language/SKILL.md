@@ -9,9 +9,9 @@ metadata:
     keywords:
     - val
     - var
-    - ?.
-    - ?:
-    - !!
+    - "?."
+    - "?:"
+    - "!!"
     - data class
     - sealed
     - when
@@ -33,7 +33,7 @@ metadata:
 - **Classes**: Use `data class` for DTOs. Use `sealed interface/class` for state hierarchies (e.g., `Success`, `Error`, `Loading`). Access members as computed property rather than function.
 - **Extension Functions**: Prefer over utility classes (`StringUtil`). Keep private/internal if module-specific.
 - **Named Arguments**: Use for clarity, especially with booleans or multiple same-type params.
-- **String Templates**: Use `"$var"` over concatenation. Use `"""` for multiline strings (SQL/JSON).
+- **String Templates**: Use `"$var"` over concatenation. Use `""` for multiline strings (SQL/JSON).
 
 ## Anti-Patterns
 
