@@ -23,3 +23,7 @@ workflows:
   - plan-feature
   - skill-benchmark
   - pentest
+mcp:
+  enabled: true
+  scope: project
+  prompted: true

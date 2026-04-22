@@ -167,7 +167,11 @@ describe('SyncCommand', () => {
       mockSyncService.checkForUpdates.mockResolvedValue({
         common: 'v1.1.0',
       });
-      vi.mocked(inquirer.prompt).mockResolvedValue({ update: false });
+      // Mocking false for update, and false for the MCP re-prompt if it happens
+      vi.mocked(inquirer.prompt).mockResolvedValue({
+        update: false,
+        enabled: false,
+      });
 
       await command.run();
 
@@ -175,7 +179,14 @@ describe('SyncCommand', () => {
         expect.stringContaining('New skill versions detected'),
       );
       expect(inquirer.prompt).toHaveBeenCalled();
-      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      // It might be called for MCP now, so we can't just check not.toHaveBeenCalled
+      // Instead we check it was NOT called for versions
+      const saveCalls = vi.mocked(mockConfigService.saveConfig).mock.calls;
+      const versionUpdateCall = saveCalls.find(
+        (call) => call[0].skills?.common?.ref === 'v1.1.0',
+      );
+      expect(versionUpdateCall).toBeUndefined();
+
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Skipping version updates'),
       );
@@ -250,7 +261,10 @@ describe('SyncCommand', () => {
         mcp: { enabled: false, scope: 'disabled', prompted: false },
       } as any);
 
-      vi.mocked(inquirer.prompt).mockResolvedValue({ enabled: true, scope: 'project' });
+      vi.mocked(inquirer.prompt).mockResolvedValue({
+        enabled: true,
+        scope: 'project',
+      });
 
       await command.run();
 
@@ -305,7 +319,11 @@ describe('SyncCommand', () => {
       expect(inquirer.prompt).not.toHaveBeenCalled();
       expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
         expect.objectContaining({
-          mcp: expect.objectContaining({ enabled: true, scope: 'project', prompted: true }),
+          mcp: expect.objectContaining({
+            enabled: true,
+            scope: 'project',
+            prompted: true,
+          }),
         }),
       );
     });
@@ -331,13 +349,27 @@ describe('SyncCommand', () => {
 
       await command.run();
 
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('+ added'));
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('~ updated'));
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('= up-to-date'));
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('+ wrote'));
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('(declined)'));
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('snippet(s) written'));
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('no MCP support yet'));
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('+ added'),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('~ updated'),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('= up-to-date'),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('+ wrote'),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('(declined)'),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('snippet(s) written'),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('no MCP support yet'),
+      );
     });
 
     it('should handle user declining MCP consent', async () => {
@@ -353,7 +385,11 @@ describe('SyncCommand', () => {
 
       expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
         expect.objectContaining({
-          mcp: expect.objectContaining({ enabled: false, scope: 'disabled', prompted: true }),
+          mcp: expect.objectContaining({
+            enabled: false,
+            scope: 'disabled',
+            prompted: true,
+          }),
         }),
       );
       expect(mockMcpService.install).not.toHaveBeenCalled();

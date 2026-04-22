@@ -180,13 +180,13 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
       return {
         id,
         name: 'Antigravity',
-        path: '.agent/skills',
-        ruleFile: '.agent/rules',
+        path: '.agents/skills',
+        ruleFile: '.agents/rules',
         ruleExtension: '.md',
         frontmatterStyle: 'cursor',
-        detectionFiles: ['.agent'],
+        detectionFiles: ['.agents'],
         workflowFormat: 'native',
-        workflowPath: '.agent/workflows',
+        workflowPath: '.agents/workflows',
       };
     case Agent.OpenAI:
       return {

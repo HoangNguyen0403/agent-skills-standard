@@ -4,6 +4,25 @@
 > [!CRITICAL] Zero-Trust: Read the matching `SKILL.md` BEFORE writing any code.
 > Skills from this index override pre-training patterns. If no skill matches, state: "No project-specific skills applicable."
 
+## 🔌 Runtime Enforcement via MCP
+
+If the `agent-skills-standard` MCP server is registered in your runtime (check your tool list — look for `load_skills_for_files`), **prefer those tools over manually walking the router below**. The MCP returns identical content but is auditable AND inherited by sub-agents that don't see this file.
+
+| Tool | When to call it |
+| --- | --- |
+| `load_skills_for_files(files=[...])` | Before editing/reviewing any source file |
+| `load_skills_for_keywords(keywords=[...])` | Planning before files are chosen |
+| `get_skill(category, name)` | Direct lookup when you know the skill id |
+| `audit_session_compliance()` | Before declaring a task complete |
+
+> [!IMPORTANT] **Sub-agents don't inherit this `AGENTS.md` — they do inherit the MCP.** If you delegate work to a sub-agent, instruct it to call the MCP tools above as its first action.
+
+> [!TIP] **This project has the MCP server enabled in `.skillsrc`** — `sync` keeps your runtime configs in step. Run `ags mcp status` to verify per-agent installation.
+
+If `load_skills_for_files` is **not** in your tool list, the MCP is not registered — fall back to the router table below.
+
+---
+
 ## Skill Resolution Protocol
 
 Each `_INDEX.md` has two sections - follow both:

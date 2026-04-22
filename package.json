@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard-root",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "private": true,
   "packageManager": "pnpm@10.0.0",
   "pnpm": {

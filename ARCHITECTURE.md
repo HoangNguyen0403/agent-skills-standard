@@ -35,7 +35,29 @@ AI agents follow a three-step lookup:
 
 This replaces the previous flat index (all skills in one list) and reduces scan cost from O(n) to O(1).
 
-## 2. Core Services
+## 2. Multi-Agent Compatibility (The "Integration Taxonomy")
+
+This project maintains a standardized bridge for multiple AI agents, each with varying levels of native support for hooks and context injection.
+
+| Agent / Tool        | Integration Strategy       | Primary Hook/Config                      | Scope        |
+| :------------------ | :------------------------- | :--------------------------------------- | :----------- |
+| **VS Code Copilot** | **Prompt Instructions**    | `.github/instructions/*.instructions.md` | Session      |
+| **Cursor**          | **MCP + Rules**            | `hooks.json` / `.cursor/rules/`          | Project      |
+| **Windsurf**        | **MCP + Rule Persistence** | `.codeium/windsurf/mcp_config.json`      | Project      |
+| **Trae**            | **MCP + Rule Persistence** | `.trae/mcp.json`                         | Project      |
+| **Roo Code**        | **MCP + Rule Persistence** | `.clinerules` / `.roo/mcp_config.json`   | Project      |
+| **Claude Code**     | **Bash Interception**      | `.mcp.json` / `~/.claude/`               | User/Project |
+| **Gemini CLI**      | **BeforeTool Middleware**  | `.gemini/settings.json`                  | User/Project |
+
+## 3. Hook-Based Transparency
+
+Inspired by **Rust Token Killer (RTK)**, we aim for a zero-trust, low-overhead context model. This means:
+
+1. **Lazy Loading**: Skills are NOT loaded until a tool call (MCP) or triggered by the router (`AGENTS.md`).
+2. **Transparent Interception**: Like RTK's bash hooks, our MCP server aims to intercept file read requests (e.g. `read_file`) and inject relevant skill rules into the output, saving the agent from needing to manually fetch rules.
+3. **Token Filtering**: We prioritize high-density information. The `_INDEX.md` model reduces the initial "scouting" tokens by 90% compared to a flat rule list.
+
+## 4. Core Services
 
 ### SyncService (`src/services/SyncService.ts`)
 

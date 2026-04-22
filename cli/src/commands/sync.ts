@@ -4,7 +4,10 @@ import { Agent } from '../constants';
 import { McpScope, SkillConfig } from '../models/config';
 import { ConfigService } from '../services/ConfigService';
 import { DetectionService } from '../services/DetectionService';
-import { McpConfigService, defaultMcpConfig } from '../services/McpConfigService';
+import {
+  McpConfigService,
+  defaultMcpConfig,
+} from '../services/McpConfigService';
 import { SyncService } from '../services/SyncService';
 
 /**
@@ -149,16 +152,21 @@ export class SyncCommand {
     const mcp = config.mcp ?? defaultMcpConfig();
     const agents = config.agents ?? [];
 
-    if (!mcp.prompted) {
+    if (!mcp.prompted || (!mcp.enabled && mcp.prompted)) {
       if (!process.stdin.isTTY && !options.yes) {
-        console.log(
-          pc.gray(
-            '\nℹ️  MCP integration not yet configured. Run `ags mcp enable` (or `ags mcp scope project`) when ready.',
-          ),
-        );
+        if (!mcp.prompted) {
+          console.log(
+            pc.gray(
+              '\nℹ️  MCP integration not yet configured. Run `ags mcp enable` (or `ags mcp scope project`) when ready.',
+            ),
+          );
+        }
         return;
       }
-      const decided = await this.promptMcpConsent(options);
+
+      // If already prompted but disabled, we ask again if they want to enable it now.
+      // This ensures they aren't "stuck" in a disabled state just because they said no once.
+      const decided = await this.promptMcpConsent(options, mcp.enabled);
       config.mcp = {
         enabled: decided.enabled,
         scope: decided.enabled ? decided.scope : 'disabled',
@@ -204,35 +212,61 @@ export class SyncCommand {
       console.log(`${tag} ${w.agent.padEnd(12)} ${pc.gray(w.file)}`);
     }
     for (const w of report.userWrites) {
-      console.log(`  ${pc.green('+ wrote   ')} ${w.agent.padEnd(12)} ${pc.gray(w.file)}`);
+      console.log(
+        `  ${pc.green('+ wrote   ')} ${w.agent.padEnd(12)} ${pc.gray(w.file)}`,
+      );
     }
     for (const d of report.declined) {
-      console.log(`  ${pc.gray('-         ')} ${d.agent.padEnd(12)} ${pc.gray(d.file)} (declined)`);
+      console.log(
+        `  ${pc.gray('-         ')} ${d.agent.padEnd(12)} ${pc.gray(d.file)} (declined)`,
+      );
     }
     if (report.snippets.length > 0) {
       console.log(
-        pc.gray(`  ${report.snippets.length} snippet(s) written to ./mcp-config-snippets/`),
+        pc.gray(
+          `  ${report.snippets.length} snippet(s) written to ./mcp-config-snippets/`,
+        ),
       );
     }
     if (report.unsupported.length > 0) {
       console.log(
-        pc.gray(`  (skipped — no MCP support yet: ${report.unsupported.join(', ')})`),
+        pc.gray(
+          `  (skipped — no MCP support yet: ${report.unsupported.join(', ')})`,
+        ),
       );
     }
   }
 
-  private async promptMcpConsent(options: {
-    yes?: boolean;
-  }): Promise<{ enabled: boolean; scope: McpScope }> {
+  private async promptMcpConsent(
+    options: {
+      yes?: boolean;
+    },
+    wasDisabled = false,
+  ): Promise<{ enabled: boolean; scope: McpScope }> {
     if (options.yes) {
       // Conservative default for --yes: opt in at project scope (the recommended choice).
       return { enabled: true, scope: 'project' };
     }
     console.log(pc.bold('\n🔌 MCP server setup\n'));
-    console.log('agent-skills-standard ships an optional MCP server that serves your skills');
+    if (wasDisabled) {
+      console.log(
+        pc.yellow(
+          'MCP integration is currently disabled. Would you like to enable it now?',
+        ),
+      );
+    }
+    console.log(
+      'agent-skills-standard ships an optional MCP server that serves your skills',
+    );
     console.log('to AI agents at runtime. Quick comparison:\n');
-    console.log(pc.bold('  WITHOUT MCP:') + ' sub-agents skip skill loading; no audit trail');
-    console.log(pc.bold('  WITH MCP:   ') + ' every sub-agent can call load_skills_for_files; auditable\n');
+    console.log(
+      pc.bold('  WITHOUT MCP:') +
+        ' sub-agents skip skill loading; no audit trail',
+    );
+    console.log(
+      pc.bold('  WITH MCP:   ') +
+        ' every sub-agent can call load_skills_for_files; auditable\n',
+    );
 
     const decision = await inquirer.prompt<{
       enabled: boolean;

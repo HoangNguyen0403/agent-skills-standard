@@ -4,6 +4,14 @@ MCP server that lets any AI agent — Claude Code, Cursor, Antigravity, Kiro, Co
 
 Solves the **enforcement gap**: `AGENTS.md` and `_INDEX.md` are passive prompt context. Sub-agents in particular don't inherit them. This MCP exposes skill loading as explicit, auditable tool calls that work the same way across every MCP-compatible runtime.
 
+## High-Density Architecture (Zero-Trust)
+
+This MCP follows the [Core Architecture](../ARCHITECTURE.md) inspired by **Rust Token Killer (RTK)** to achieve a "Zero-Trust" environment:
+
+1. **Lazy Loading**: Skills are NOT pre-loaded into the AI's limited context. The MCP serves them on-demand via the `load_skills_for_files` tool.
+2. **Tiered Resolution**: Implements the same router-index model used in the CLI. Broad globs match only for "Base" skills (e.g., `typescript-language`), while specialized skills (e.g., `nestjs-security`) must match specific keywords or path substrings.
+3. **Cross-Agent Compatibility**: Maps to the "Integration Taxonomy" (VS Code Copilot instructions, Cursor hooks, Windsurf rule persistence, etc.) documented in [ARCHITECTURE.md](../ARCHITECTURE.md).
+
 ## What it does
 
 | Tool                                 | What it returns                                                                                   |
@@ -140,7 +148,7 @@ Here's what happens **with** the MCP, step by step.
 
 ### 1. Agent identifies the file it will touch
 
-```
+```text
 src/orders/orders.controller.ts
 ```
 
@@ -261,7 +269,7 @@ Smoke test the built binary:
 
 ## Architecture
 
-```
+```bash
 mcp/
 ├── src/
 │   ├── index.ts                    # bin entry, stdio transport

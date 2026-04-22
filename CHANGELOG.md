@@ -5,6 +5,20 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [cli-v2.2.1] / [mcp-v0.1.1] - 2026-04-23
+
+**Category**: Fix — Type Safety & Configuration Paths
+
+### Fixed
+
+- **`agent-skills-standard-mcp`**:
+  - Replaced `any` with `z.ZodObject<any>` in the `ToolDef` interface for better type safety in the MCP server registration.
+  - Resolved TypeScript instantiation-depth limit (TS2589) by using a registration wrapper with loosened static types.
+- **CLI Configuration**:
+  - Corrected configuration paths for `Antigravity`, `Kiro`, `Roo`, and `Copilot` runtime integrations.
+  - Added user-scope configuration support for `Antigravity`, `Kiro`, `Copilot`, `OpenCode`, and `OpenAI`.
+  - Refined `SyncCommand` to re-prompt for MCP enablement if previously declined, ensuring users aren't locked out of the feature.
+
 ## [cli-v2.2.0] / [mcp-v0.1.0] - 2026-04-22
 
 **Category**: Runtime Enforcement Layer — MCP Server + Consent-Respecting CLI Integration

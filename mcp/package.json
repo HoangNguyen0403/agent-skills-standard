@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server that lets any AI agent (Claude, Cursor, Antigravity, Kiro, Continue, Gemini) load and audit skills from agent-skills-standard.",
   "main": "dist/index.js",
   "bin": {

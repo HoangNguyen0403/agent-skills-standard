@@ -9,8 +9,8 @@
 242 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
 
 ```bash
-npx agent-skills-standard@2.2.0 init
-npx agent-skills-standard@2.2.0 sync
+npx agent-skills-standard@2.2.1 init
+npx agent-skills-standard@2.2.1 sync
 # Done. Your AI now follows your team's engineering standards.
 ```
 
@@ -59,6 +59,16 @@ The AI loads **only the skills that match** the file being edited and the task a
 
 ---
 
+## Architecture & Token Economy
+
+This project follows a **Zero-Trust** architectural model inspired by **Rust Token Killer (RTK)**. Instead of injecting all rules into every prompt (which can cost 5,000+ tokens and cause "prompt loss"), we use a hierarchical loading system.
+
+Detailed documentation is available in [ARCHITECTURE.md](ARCHITECTURE.md), covering:
+
+- **Hierarchical Resolution**: Router Table (`AGENTS.md`) -> Category Index (`_INDEX.md`) -> Skill (`SKILL.md`).
+- **Integration Taxonomy**: Multi-agent bridge support for Cursor, Claude, Copilot, Windsurf, Trae, Roo, etc.
+- **High-Density Design**: All skills must be < 100 lines and optimized for token economy.
+
 ## Quick Start
 
 ### 1. Initialize
@@ -91,12 +101,12 @@ The CLI **distributes** skills to disk. The companion MCP server **serves** them
 
 `init` and `sync` ask once whether to enable MCP and at what scope. Three choices, recommended in **bold**:
 
-| Scope | What gets written | Touches `$HOME`? |
-| --- | --- | --- |
-| **`project`** (recommended) | `./mcp-config-snippets/*.json` + project-scoped runtime configs (`./.mcp.json`, `./.cursor/mcp.json`, etc.) | ❌ No |
-| `user` | All of `project` + user-home configs (`~/.cursor/mcp.json`, `~/.gemini/settings.json`) | ⚠️ Yes — sync prompts before each user-scope write |
-| `snippets-only` | Only `./mcp-config-snippets/*.json` — never edits any runtime config | ❌ No |
-| `disabled` | Nothing MCP-related | ❌ No |
+| Scope                       | What gets written                                                                                           | Touches `$HOME`?                                   |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| **`project`** (recommended) | `./mcp-config-snippets/*.json` + project-scoped runtime configs (`./.mcp.json`, `./.cursor/mcp.json`, etc.) | ❌ No                                              |
+| `user`                      | All of `project` + user-home configs (`~/.cursor/mcp.json`, `~/.gemini/settings.json`)                      | ⚠️ Yes — sync prompts before each user-scope write |
+| `snippets-only`             | Only `./mcp-config-snippets/*.json` — never edits any runtime config                                        | ❌ No                                              |
+| `disabled`                  | Nothing MCP-related                                                                                         | ❌ No                                              |
 
 The CLI never reads or modifies user-home files unless you explicitly choose `user` scope AND confirm each write. All decisions are recorded in `.skillsrc` so you're not re-prompted on every sync.
 
@@ -117,8 +127,8 @@ Or edit `.skillsrc` directly:
 ```yaml
 mcp:
   enabled: true
-  scope: project        # project | user | snippets-only | disabled
-  prompted: true        # set to false to be re-asked next sync
+  scope: project # project | user | snippets-only | disabled
+  prompted: true # set to false to be re-asked next sync
 ```
 
 #### Manual install (if you prefer)
@@ -130,9 +140,9 @@ Add to your runtime's MCP config:
   "mcpServers": {
     "agent-skills-standard": {
       "command": "npx",
-      "args": ["-y", "agent-skills-standard-mcp"]
-    }
-  }
+      "args": ["-y", "agent-skills-standard-mcp"],
+    },
+  },
 }
 ```
 
@@ -140,9 +150,9 @@ Now any sub-agent in any runtime can call `load_skills_for_files`, `audit_sessio
 
 #### CLI vs MCP — paired layers, not alternatives
 
-| Layer | Tool | Runs when | Purpose |
-| --- | --- | --- | --- |
-| **Distribution** | `agent-skills-standard` (CLI) | Manually, before AI session | Fetches & writes `SKILL.md` files; generates `AGENTS.md` + `_INDEX.md` |
+| Layer                     | Tool                              | Runs when                       | Purpose                                                                |
+| ------------------------- | --------------------------------- | ------------------------------- | ---------------------------------------------------------------------- |
+| **Distribution**          | `agent-skills-standard` (CLI)     | Manually, before AI session     | Fetches & writes `SKILL.md` files; generates `AGENTS.md` + `_INDEX.md` |
 | **Runtime / Enforcement** | `agent-skills-standard-mcp` (MCP) | Auto-launched by the AI runtime | Serves matched `SKILL.md` to live agents on demand; provides audit log |
 
 You need both — the CLI installs the rules, the MCP makes sure agents load them.
@@ -239,6 +249,102 @@ This means editing a `.ts` file loads **6 relevant skills** instead of 27 — no
 
 ---
 
+## Walkthrough — NestJS backend feature
+
+Picture a developer in Cursor or Claude Code asking:
+
+> _"Add a POST /orders endpoint that validates the body and returns 201."_
+
+Here's what happens **with** the MCP, step by step.
+
+### 1. Agent identifies the file it will touch
+
+```text
+src/orders/orders.controller.ts
+```
+
+### 2. Agent calls the MCP — BEFORE writing any code
+
+```jsonc
+// Tool call from the agent
+{
+  "name": "load_skills_for_files",
+  "arguments": { "files": ["src/orders/orders.controller.ts"] },
+}
+```
+
+### 3. The MCP returns 11 skills — direct + composite
+
+```text
+matched-by                                   skill
+──────────────────────────────────────────  ─────────────────────────────────────
+file:**/*.ts                                 typescript/typescript-language
+file:**/*.controller.ts                      nestjs/nestjs-api-standards
+file:**/*.controller.ts                      nestjs/nestjs-controllers-services
+file:**/*.controller.ts                      nestjs/nestjs-file-uploads
+file:**/*.controller.ts                      nestjs/nestjs-real-time
+file:**/*.controller.ts                      nestjs/nestjs-transport
+composite via typescript/typescript-language common/common-best-practices
+composite via nestjs/nestjs-api-standards    common/common-api-design
+composite via nestjs/nestjs-file-uploads     common/common-security-standards
+composite via nestjs/nestjs-real-time        common/common-performance-engineering
+composite via nestjs/nestjs-transport        common/common-system-design
+```
+
+### 4. The agent now has these team rules in context
+
+| From skill                       | Rule the agent now follows                                     |
+| -------------------------------- | -------------------------------------------------------------- |
+| `typescript-language`            | Strict typing, `unknown` over `any`, satisfies operator        |
+| `nestjs-controllers-services`    | Controllers stay thin; logic lives in services                 |
+| `nestjs-api-standards`           | DTOs with `class-validator`, consistent error envelopes        |
+| `nestjs-transport`               | `@HttpCode(201)`, ParseUUIDPipe, response shape                |
+| `common-best-practices`          | Functions < 30 lines, guard clauses, intention-revealing names |
+| `common-api-design`              | Status codes, pagination, idempotency, OpenAPI conventions     |
+| `common-security-standards`      | Authn/authz, input sanitization, secret handling               |
+| `common-system-design`           | Module boundaries, coupling rules                              |
+| `common-performance-engineering` | Async patterns, N+1 query checks                               |
+
+### 5. The agent writes the code AND calls the audit before claiming done
+
+```jsonc
+{ "name": "audit_session_compliance" }
+```
+
+```text
+# Session compliance
+Skills loaded: 11
+- common/common-api-design
+- common/common-best-practices
+- common/common-performance-engineering
+- common/common-security-standards
+- common/common-system-design
+- nestjs/nestjs-api-standards
+- nestjs/nestjs-controllers-services
+- nestjs/nestjs-file-uploads
+- nestjs/nestjs-real-time
+- nestjs/nestjs-transport
+- typescript/typescript-language
+```
+
+### What the same scenario looks like WITHOUT the MCP
+
+The agent reads `AGENTS.md` (maybe), walks the router (maybe), reads the matched `_INDEX.md` (maybe), and reads matched `SKILL.md` files (often skipped — especially in sub-agents that don't inherit `CLAUDE.md`). Result:
+
+|                                                                        | With MCP                      | Without MCP                           |
+| ---------------------------------------------------------------------- | ----------------------------- | ------------------------------------- |
+| `typescript-language` rules                                            | ✅ Loaded                     | ⚠️ Sometimes                          |
+| `nestjs-*` framework rules                                             | ✅ All 5 loaded               | ⚠️ One or two if lucky                |
+| `common-best-practices` (function size, naming, guard clauses)         | ✅ Loaded via composite       | ❌ Almost never                       |
+| `common-api-design` (status codes, pagination)                         | ✅ Loaded via composite       | ❌ Almost never                       |
+| `common-security-standards` (input validation, auth)                   | ✅ Loaded via composite       | ❌ Almost never                       |
+| Provable audit log of what informed the code                           | ✅ `audit_session_compliance` | ❌ None                               |
+| Behavior in sub-agents (`tdd-implementer`, `architecture-guard`, etc.) | ✅ Same as orchestrator       | ❌ Worse — sub-agents inherit nothing |
+
+That's the reason the MCP exists: the rules **automatically reach the working context** every time, in every runtime, including sub-agents.
+
+---
+
 ## Security & Trust
 
 Skills are **text files, not code**. They cannot execute commands, access your filesystem, or make network requests. Here's the full picture:
@@ -315,15 +421,15 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for design details and [CLI Architectur
 
 ### 📜 Benchmark History
 
-| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
-| --- | --- | --- | --- | --- | --- |
-| v2.2.0 | 2026-04-22 | 242 | 538 | 85% | [Report](benchmarks/archive/v2.2.0.md) |
-| v2.1.2 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.2.md) |
-| v2.1.1 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.1.md) |
-| v2.1.0 | 2026-04-04 | 237 | 526 | 86% | [Report](benchmarks/archive/v2.1.0.md) |
-| v2.0.1 | 2026-03-30 | 238 | 527 | 86% | [Report](benchmarks/archive/v2.0.1.md) |
-| v2.0.0 | 2026-03-25 | 235 | 523 | 86% | [Report](benchmarks/archive/v2.0.0.md) |
-| v1.10.3 | 2026-03-21 | 234 | 505 | 86% | [Report](benchmarks/archive/v1.10.3.md) |
-| v1.10.1 | 2026-03-16 | 229 | 428 | 88% | [Report](benchmarks/archive/v1.10.1.md) |
-| v1.10.0 | 2026-03-16 | 229 | 434 | 88% | [Report](benchmarks/archive/v1.10.0.md) |
-| v1.9.3 | 2026-03-15 | 229 | 460 | 87% | [Report](benchmarks/archive/v1.9.3.md) |
+| Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                  |
+| ------- | ---------- | ------ | ---------- | ----------- | --------------------------------------- |
+| v2.2.0  | 2026-04-22 | 242    | 538        | 85%         | [Report](benchmarks/archive/v2.2.0.md)  |
+| v2.1.2  | 2026-04-11 | 237    | 516        | 86%         | [Report](benchmarks/archive/v2.1.2.md)  |
+| v2.1.1  | 2026-04-11 | 237    | 516        | 86%         | [Report](benchmarks/archive/v2.1.1.md)  |
+| v2.1.0  | 2026-04-04 | 237    | 526        | 86%         | [Report](benchmarks/archive/v2.1.0.md)  |
+| v2.0.1  | 2026-03-30 | 238    | 527        | 86%         | [Report](benchmarks/archive/v2.0.1.md)  |
+| v2.0.0  | 2026-03-25 | 235    | 523        | 86%         | [Report](benchmarks/archive/v2.0.0.md)  |
+| v1.10.3 | 2026-03-21 | 234    | 505        | 86%         | [Report](benchmarks/archive/v1.10.3.md) |
+| v1.10.1 | 2026-03-16 | 229    | 428        | 88%         | [Report](benchmarks/archive/v1.10.1.md) |
+| v1.10.0 | 2026-03-16 | 229    | 434        | 88%         | [Report](benchmarks/archive/v1.10.0.md) |
+| v1.9.3  | 2026-03-15 | 229    | 460        | 87%         | [Report](benchmarks/archive/v1.9.3.md)  |
