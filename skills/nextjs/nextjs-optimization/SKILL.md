@@ -4,14 +4,15 @@ description: Optimize images, fonts, scripts, and metadata for Next.js performan
 metadata:
   triggers:
     files:
-    - '**/layout.tsx'
-    - '**/page.tsx'
-    - 'next/image'
-    - 'next/font'
+      - '**/layout.tsx'
+      - '**/page.tsx'
     keywords:
-    - metadata
-    - generateMetadata
+      - metadata
+      - generateMetadata
+      - 'next/image'
+      - 'next/font'
 ---
+
 # Optimization
 
 ## **Priority: P1 (HIGH)**
@@ -44,6 +45,7 @@ See [implementation examples](references/example.md)
 ## Scripts
 
 Use `next/script` with appropriate loading strategies:
+
 - `beforeInteractive`: Critical scripts (polyfills).
 - `afterInteractive`: Analytics (Google Analytics).
 - `lazyOnload`: Chat widgets, social embeds.

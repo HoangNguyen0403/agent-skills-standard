@@ -4,15 +4,16 @@ description: "Append a structured learning entry to AGENTS_LEARNING.md whenever 
 metadata:
   triggers:
     files:
-    - 'AGENTS_LEARNING.md'
+      - 'AGENTS_LEARNING.md'
     keywords:
-    - mistake
-    - wrong
-    - redo
-    - correction
-    - agent error
-    - learning log
+      - mistake
+      - wrong
+      - redo
+      - correction
+      - agent error
+      - learning log
 ---
+
 # Agent Learning Log
 
 ## **Priority: P1 (OPERATIONAL)**
@@ -22,9 +23,11 @@ Write structured mistake entry to `AGENTS_LEARNING.md` in project root before re
 ## Protocol
 
 1. **Detect signal** — identify which surface triggered this skill:
- - `Pre-write violation` — `common-feedback-reporter` violation block emitted with `Auto-fixed: YES`
- - `User correction` — user used correction language mid-session
- - `Session retrospective` — correction loop found during `common-session-retrospective`
+
+- `Pre-write violation` — `common-feedback-reporter` violation block emitted with `Auto-fixed: YES`
+- `User correction` — user used correction language mid-session
+- `Session retrospective` — correction loop found during `common-session-retrospective`
+
 2. **Read `AGENTS_LEARNING.md`** — count existing `## Agent Learning Log: Iteration` headers → N
 3. **Append entry** — write Iteration #(N+1) using format in [Log Entry Format](references/log-format.md)
 4. **Continue** — proceed with corrected action (non-blocking)

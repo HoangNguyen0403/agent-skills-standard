@@ -1,7 +1,8 @@
 ---
 name: common-workflow-writing
-description: "Rules for writing concise, token-efficient workflow and skill files. Prevents over-building that requires costly optimization passes. Use when creating or editing workflow files, SKILL.md files, or new skill definitions. (triggers: .agent/workflows/*.md, SKILL.md, create workflow, write workflow, new skill, new workflow)"
+description: 'Rules for writing concise, token-efficient workflow and skill files. Prevents over-building that requires costly optimization passes. Use when creating or editing workflow files, SKILL.md files, or new skill definitions. (triggers: .agent/workflows/*.md, SKILL.md, create workflow, write workflow, new skill, new workflow)'
 ---
+
 # Workflow Writing Standard
 
 ## **Priority: P0 (CRITICAL)**
@@ -12,16 +13,16 @@ description: "Rules for writing concise, token-efficient workflow and skill file
 - **No example rows in tables**: Include headers + 1 skeleton row only. Never populate with fake data.
 - **No prose explanations**: If bullet or command achieves same result, delete paragraph.
 - **No pre-answered questions**: Don't document what agent _will_ output — let it output it.
-- **Merge sequential steps**: If two steps always happen together, they one step.
+- **Merge sequential steps**: If two steps always happen together, they are one step.
 
 ## Size Limits
 
-| File type | Limit | If exceeded |
+| File type         | Limit     | If exceeded                       |
 | ----------------- | --------- | --------------------------------- |
-| Workflow `.md` | 80 lines | Extract detail to `references/` |
-| SKILL.md | 100 lines | Extract examples to `references/` |
-| Table rows | 8 | Extract to `references/` |
-| Inline code block | 10 lines | Extract to `references/` |
+| Workflow `.md`    | 80 lines  | Extract detail to `references/`   |
+| SKILL.md          | 100 lines | Extract examples to `references/` |
+| Table rows        | 8         | Extract to `references/`          |
+| Inline code block | 10 lines  | Extract to `references/`          |
 
 ## Workflow Structure (Required order)
 

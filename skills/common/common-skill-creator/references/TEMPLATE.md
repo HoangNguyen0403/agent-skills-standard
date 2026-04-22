@@ -5,7 +5,7 @@ Copy the structure below to start a new skill. Follow the progressive loading sy
 ```markdown
 ---
 name: { Skill Name }
-description: "{ What it does + when to use it }. (triggers: {keyword1}, {keyword2}, {*.ext})"
+description: '{ What it does + when to use it }. (triggers: {keyword1}, {keyword2}, {*.ext})'
 ---
 
 # {Skill Name}

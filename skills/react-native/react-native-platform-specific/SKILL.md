@@ -4,17 +4,18 @@ description: Resolve iOS and Android differences using Platform API and native m
 metadata:
   triggers:
     files:
-    - '**/*.tsx'
-    - '**/*.ts'
-    - '**/*.ios.*'
-    - '**/*.android.*'
-    - 'Platform.select'
+      - '**/*.tsx'
+      - '**/*.ts'
+      - '**/*.ios.*'
+      - '**/*.android.*'
     keywords:
-    - Platform
-    - native-module
-    - ios
-    - android
+      - Platform
+      - Platform.select
+      - native-module
+      - ios
+      - android
 ---
+
 # React Native Platform-Specific Code
 
 ## **Priority: P1 (OPERATIONAL)**

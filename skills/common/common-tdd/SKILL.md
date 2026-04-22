@@ -1,6 +1,6 @@
 ---
 name: common-tdd
-description: "Implements a strict Red-Green-Refactor loop to ensure zero production code is written without a prior failing test. Use when: creating new features, fixing bugs, or expanding test coverage."
+description: 'Implements a strict Red-Green-Refactor loop to ensure zero production code is written without a prior failing test. Use when: creating new features, fixing bugs, or expanding test coverage.'
 metadata:
   triggers:
     files:

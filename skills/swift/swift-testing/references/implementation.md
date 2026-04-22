@@ -39,7 +39,7 @@ final class UserServiceTests: XCTestCase {
 
 ```swift
 func testCompletionHandlerAsync() {
-    let expectation = XCTestExpectation(description: "Completion handler called")
+    let expectation = XCTestExpectation(description: 'Completion handler called")
 
     sut.doAsyncWork { result in
         XCTAssertTrue(result)

@@ -1,6 +1,6 @@
 ---
 name: nextjs-caching
-description: "Configure the 4 caching layers in Next.js: request memoization, data cache, full-route cache, and router cache. Use when setting revalidation strategies, invalidating cached data with tags, or diagnosing stale data bugs."
+description: 'Configure the 4 caching layers in Next.js: request memoization, data cache, full-route cache, and router cache. Use when setting revalidation strategies, invalidating cached data with tags, or diagnosing stale data bugs.'
 metadata:
   triggers:
     files:
