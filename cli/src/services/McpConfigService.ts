@@ -28,7 +28,7 @@ export interface McpTarget {
   shape: 'map' | 'list';
 }
 
-export const SERVER_NAME = 'agent-skills';
+export const SERVER_NAME = 'agent-skills-standard';
 export const PACKAGE = 'agent-skills-standard-mcp';
 
 const HOME = os.homedir();
