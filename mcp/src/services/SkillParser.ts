@@ -1,5 +1,5 @@
-import fs from 'fs-extra';
-import yaml from 'js-yaml';
+import fs from "fs-extra";
+import yaml from "js-yaml";
 
 /**
  * Parsed metadata for a single SKILL.md file. Mirrors the subset of fields the
@@ -33,7 +33,7 @@ export async function parseSkill(
   category: string,
   id: string,
 ): Promise<SkillMetadata | null> {
-  const content = await fs.readFile(skillPath, 'utf8');
+  const content = await fs.readFile(skillPath, "utf8");
   const fm = FRONTMATTER_RE.exec(content);
   if (!fm) return null;
 
@@ -58,14 +58,17 @@ export async function parseSkill(
     id,
     category,
     path: skillPath,
-    name: typeof parsed.name === 'string' ? parsed.name : id,
-    description: typeof parsed.description === 'string' ? parsed.description : '',
+    name: typeof parsed.name === "string" ? parsed.name : id,
+    description:
+      typeof parsed.description === "string" ? parsed.description : "",
     triggers,
   };
 }
 
 function toStringArray(value: unknown): string[] {
-  return Array.isArray(value) ? value.filter((v): v is string => typeof v === 'string') : [];
+  return Array.isArray(value)
+    ? value.filter((v): v is string => typeof v === "string")
+    : [];
 }
 
 /**
@@ -74,5 +77,5 @@ function toStringArray(value: unknown): string[] {
  */
 export async function readSkillBody(skillPath: string): Promise<string | null> {
   if (!(await fs.pathExists(skillPath))) return null;
-  return fs.readFile(skillPath, 'utf8');
+  return fs.readFile(skillPath, "utf8");
 }

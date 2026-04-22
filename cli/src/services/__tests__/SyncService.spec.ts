@@ -357,6 +357,19 @@ describe('SyncService', () => {
       );
     });
 
+    it('should inject index into server/AGENTS.md if it exists', async () => {
+      const config = makeConfig({ agents: [Agent.Cursor] });
+      vi.mocked(fs.pathExists).mockImplementation(async (p) => p.toString().endsWith('server'));
+      
+      await syncService.applyIndices(config, [Agent.Cursor]);
+      
+      expect(MarkdownUtils.injectIndex).toHaveBeenCalledWith(
+        expect.stringContaining('server'),
+        ['AGENTS.md'],
+        expect.any(String)
+      );
+    });
+
     it('fetches metadata from registry main branch and injects it into the generator', async () => {
       const remoteMetadata = {
         file_routing: { go: ['golang'], ts: ['typescript'] },
@@ -552,6 +565,23 @@ describe('SyncService', () => {
       mockGithubService.getRawFile.mockResolvedValue(null);
       const updates = await syncService.checkForUpdates(config);
       expect(updates).toEqual({});
+    });
+  });
+
+  describe('resolveTargetAgents fallback', () => {
+    it('should fallback to default agents if none detected and none in config', async () => {
+      const config = makeConfig({ agents: [] });
+      const p = privatesOf(syncService);
+      // @ts-expect-error - accessing private service
+      vi.mocked(p.detectionService.detectAgents).mockResolvedValue({});
+      
+      await syncService.writeSkills([], config);
+      
+      expect(mockSkillSyncService.writeSkills).toHaveBeenCalledWith(
+        [],
+        config,
+        [Agent.Cursor, Agent.Antigravity, Agent.Kiro]
+      );
     });
   });
 });

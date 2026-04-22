@@ -147,6 +147,26 @@ describe('InitService', () => {
         expect.any(Object),
         [], // Empty languages
         [], // Empty workflows
+        undefined, // mcpScope
+      );
+    });
+
+    it('should pass mcpScope when provided', async () => {
+      const answers: InitAnswers = {
+        framework: 'flutter',
+        agents: [Agent.Cursor],
+        registry: 'url',
+        mcpScope: 'project',
+      };
+      await initService.buildAndSaveConfig(answers, {}, '/tmp');
+      expect(mockConfigService.buildInitialConfig).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Array),
+        expect.any(String),
+        expect.any(Object),
+        expect.any(Array),
+        expect.any(Array),
+        'project',
       );
     });
   });

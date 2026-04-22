@@ -2,7 +2,7 @@ export interface LoadEvent {
   /** ISO timestamp when the load happened. */
   at: string;
   /** Tool that performed the load. */
-  via: 'load_skills_for_files' | 'load_skills_for_keywords' | 'get_skill';
+  via: "load_skills_for_files" | "load_skills_for_keywords" | "get_skill";
   /** Input passed to the tool (files, keywords, or single id). */
   input: string[];
   /** Skills returned to the agent, formatted as `category/id`. */
@@ -17,7 +17,7 @@ export class SessionTracker {
   private events: LoadEvent[] = [];
   private startedAt = new Date().toISOString();
 
-  record(event: Omit<LoadEvent, 'at'>): void {
+  record(event: Omit<LoadEvent, "at">): void {
     this.events.push({ at: new Date().toISOString(), ...event });
   }
 

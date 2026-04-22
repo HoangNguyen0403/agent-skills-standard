@@ -216,4 +216,98 @@ describe('SyncCommand', () => {
       );
     });
   });
+
+  describe('Phase 7 — MCP Integration', () => {
+    let mockMcpService: any;
+    let originalIsTTY: boolean | undefined;
+
+    beforeEach(() => {
+      mockMcpService = {
+        install: vi.fn().mockResolvedValue({
+          projectWrites: [],
+          userWrites: [],
+          declined: [],
+          snippets: [],
+          unsupported: [],
+        }),
+      };
+      // @ts-expect-error - testing private instance patching
+      command.mcpService = mockMcpService;
+      originalIsTTY = process.stdin.isTTY;
+      process.stdin.isTTY = true;
+    });
+
+    afterEach(() => {
+      if (originalIsTTY !== undefined) {
+        process.stdin.isTTY = originalIsTTY;
+      }
+    });
+
+    it('should prompt for consent if not yet prompted (TTY)', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: {},
+        mcp: { enabled: false, scope: 'disabled', prompted: false },
+      } as any);
+
+      vi.mocked(inquirer.prompt).mockResolvedValue({ enabled: true, scope: 'project' });
+
+      await command.run();
+
+      expect(inquirer.prompt).toHaveBeenCalled();
+      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ enabled: true, prompted: true }),
+        }),
+      );
+    });
+
+    it('should skip consent prompt if not yet prompted (non-TTY)', async () => {
+      process.stdin.isTTY = false;
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: {},
+        mcp: { enabled: false, scope: 'disabled', prompted: false },
+      } as any);
+
+      await command.run();
+
+      expect(inquirer.prompt).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('MCP integration not yet configured'),
+      );
+    });
+
+    it('should execute install if MCP is enabled', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: {},
+        mcp: { enabled: true, scope: 'project', prompted: true },
+      } as any);
+
+      await command.run();
+
+      expect(mockMcpService.install).toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Wiring MCP server'),
+      );
+    });
+
+    it('should use conservative default for --yes during consent', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: {},
+        mcp: { enabled: false, scope: 'disabled', prompted: false },
+      } as any);
+
+      await command.run({ yes: true });
+
+      expect(inquirer.prompt).not.toHaveBeenCalled();
+      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ enabled: true, scope: 'project', prompted: true }),
+        }),
+      );
+    });
+  });
 });

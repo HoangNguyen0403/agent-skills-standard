@@ -1,11 +1,11 @@
-import path from 'path';
-import fs from 'fs-extra';
+import path from "path";
+import fs from "fs-extra";
 
 /** Reason a project state may be incomplete — surfaced to the LLM via tool responses. */
 export type SetupHint =
-  | { kind: 'ready' }
-  | { kind: 'no-agents-md'; searchedFrom: string }
-  | { kind: 'no-skills-dir'; projectRoot: string; candidates: string[] };
+  | { kind: "ready" }
+  | { kind: "no-agents-md"; searchedFrom: string }
+  | { kind: "no-skills-dir"; projectRoot: string; candidates: string[] };
 
 export interface ResolvedConfig {
   /** Absolute path to the project root. May be cwd if AGENTS.md was not found. */
@@ -46,7 +46,7 @@ export async function resolveConfig(): Promise<ResolvedConfig> {
   const startDir = process.cwd();
 
   let projectRoot: string;
-  let setup: SetupHint = { kind: 'ready' };
+  let setup: SetupHint = { kind: "ready" };
 
   if (explicit) {
     projectRoot = path.resolve(explicit);
@@ -56,7 +56,7 @@ export async function resolveConfig(): Promise<ResolvedConfig> {
       projectRoot = found;
     } else {
       projectRoot = path.resolve(startDir);
-      setup = { kind: 'no-agents-md', searchedFrom: startDir };
+      setup = { kind: "no-agents-md", searchedFrom: startDir };
     }
   }
 
@@ -65,13 +65,18 @@ export async function resolveConfig(): Promise<ResolvedConfig> {
     return {
       projectRoot,
       skillsDir: null,
-      setup: setup.kind === 'ready'
-        ? { kind: 'no-skills-dir', projectRoot, candidates: SKILL_DIR_CANDIDATES }
-        : setup,
+      setup:
+        setup.kind === "ready"
+          ? {
+              kind: "no-skills-dir",
+              projectRoot,
+              candidates: SKILL_DIR_CANDIDATES,
+            }
+          : setup,
     };
   }
 
-  const metadataCandidate = path.join(skillsDir, 'metadata.json');
+  const metadataCandidate = path.join(skillsDir, "metadata.json");
   const metadataPath = (await fs.pathExists(metadataCandidate))
     ? metadataCandidate
     : undefined;
@@ -80,16 +85,16 @@ export async function resolveConfig(): Promise<ResolvedConfig> {
 }
 
 const SKILL_DIR_CANDIDATES = [
-  'skills',
-  '.claude/skills',
-  '.cursor/skills',
-  '.gemini/skills',
-  '.kiro/skills',
-  '.windsurf/skills',
-  '.continue/skills',
-  '.antigravity/skills',
-  '.trae/skills',
-  '.roo/skills',
+  "skills",
+  ".claude/skills",
+  ".cursor/skills",
+  ".gemini/skills",
+  ".kiro/skills",
+  ".windsurf/skills",
+  ".continue/skills",
+  ".antigravity/skills",
+  ".trae/skills",
+  ".roo/skills",
 ];
 
 async function findSkillsDir(root: string): Promise<string | null> {
@@ -105,7 +110,7 @@ async function findSkillsDir(root: string): Promise<string | null> {
 async function findProjectRoot(start: string): Promise<string | null> {
   let current = path.resolve(start);
   while (true) {
-    if (await fs.pathExists(path.join(current, 'AGENTS.md'))) {
+    if (await fs.pathExists(path.join(current, "AGENTS.md"))) {
       return current;
     }
     const parent = path.dirname(current);

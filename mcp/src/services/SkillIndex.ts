@@ -1,7 +1,7 @@
-import fs from 'fs-extra';
-import path from 'path';
-import { minimatch } from 'minimatch';
-import { parseSkill, SkillMetadata } from './SkillParser';
+import fs from "fs-extra";
+import path from "path";
+import { minimatch } from "minimatch";
+import { parseSkill, SkillMetadata } from "./SkillParser";
 
 export interface RegistryMetadata {
   file_routing: Record<string, string[]>;
@@ -21,7 +21,7 @@ export interface RegistryMetadata {
 export interface MatchResult {
   skill: SkillMetadata;
   /** What caused the match — useful for audit and debugging. */
-  matchedBy: 'file' | 'keyword' | 'composite' | 'direct';
+  matchedBy: "file" | "keyword" | "composite" | "direct";
   /** The trigger value that matched (glob, keyword, or skill id). */
   reason: string;
 }
@@ -66,7 +66,7 @@ export class SkillIndex {
 
   ensureLoaded(): void {
     if (!this.loaded) {
-      throw new Error('SkillIndex.load() must be called before querying.');
+      throw new Error("SkillIndex.load() must be called before querying.");
     }
   }
 
@@ -103,7 +103,7 @@ export class SkillIndex {
     const seen = new Set<string>();
 
     for (const file of files) {
-      const ext = path.extname(file).replace(/^\./, '');
+      const ext = path.extname(file).replace(/^\./, "");
       const categories = this.metadata.file_routing[ext] ?? [];
 
       for (const category of categories) {
@@ -123,7 +123,7 @@ export class SkillIndex {
             const key = `${skill.category}/${skill.id}`;
             if (seen.has(key)) break;
             seen.add(key);
-            results.push({ skill, matchedBy: 'file', reason: glob });
+            results.push({ skill, matchedBy: "file", reason: glob });
             break;
           }
         }
@@ -146,13 +146,15 @@ export class SkillIndex {
     for (const skill of this.skills) {
       for (const trigger of skill.triggers.keywords) {
         const triggerLc = trigger.toLowerCase();
-        const hit = lowered.find((k) => k.includes(triggerLc) || triggerLc.includes(k));
+        const hit = lowered.find(
+          (k) => k.includes(triggerLc) || triggerLc.includes(k),
+        );
         if (!hit) continue;
 
         const key = `${skill.category}/${skill.id}`;
         if (seen.has(key)) break;
         seen.add(key);
-        results.push({ skill, matchedBy: 'keyword', reason: trigger });
+        results.push({ skill, matchedBy: "keyword", reason: trigger });
         break;
       }
     }
@@ -183,13 +185,15 @@ export class SkillIndex {
    */
   expandComposites(seeds: MatchResult[]): MatchResult[] {
     this.ensureLoaded();
-    const seenKeys = new Set(seeds.map((r) => `${r.skill.category}/${r.skill.id}`));
+    const seenKeys = new Set(
+      seeds.map((r) => `${r.skill.category}/${r.skill.id}`),
+    );
     const out: MatchResult[] = [];
 
     for (const [foundationalRef, patterns] of Object.entries(
       this.metadata.foundational_composite_rules,
     )) {
-      const slash = foundationalRef.indexOf('/');
+      const slash = foundationalRef.indexOf("/");
       if (slash < 0) continue;
       const cat = foundationalRef.slice(0, slash);
       const idStub = foundationalRef.slice(slash + 1);
@@ -212,7 +216,7 @@ export class SkillIndex {
       seenKeys.add(skillKey);
       out.push({
         skill,
-        matchedBy: 'composite',
+        matchedBy: "composite",
         reason: `via ${trigger.skill.category}/${trigger.skill.id}`,
       });
     }
@@ -235,7 +239,7 @@ export class SkillIndex {
         foundational_composite_rules: {},
       };
     }
-    const raw = await fs.readFile(this.metadataPath, 'utf8');
+    const raw = await fs.readFile(this.metadataPath, "utf8");
     const parsed = JSON.parse(raw) as Partial<RegistryMetadata> & {
       base_language_skills?: Record<string, string>;
     };
@@ -244,10 +248,12 @@ export class SkillIndex {
     delete (baseSkills as Record<string, string>)._comment;
 
     const fileRouting = { ...(parsed.file_routing ?? {}) };
-    delete (fileRouting as Record<string, string[]>)._comment as unknown as undefined;
+    delete (fileRouting as Record<string, string[]>)
+      ._comment as unknown as undefined;
 
     const composites = { ...(parsed.foundational_composite_rules ?? {}) };
-    delete (composites as Record<string, string[]>)._comment as unknown as undefined;
+    delete (composites as Record<string, string[]>)
+      ._comment as unknown as undefined;
 
     return {
       file_routing: fileRouting,
@@ -269,7 +275,7 @@ export class SkillIndex {
 
       const skillDirs = await fs.readdir(categoryDir);
       for (const skillId of skillDirs) {
-        const skillPath = path.join(categoryDir, skillId, 'SKILL.md');
+        const skillPath = path.join(categoryDir, skillId, "SKILL.md");
         if (!(await fs.pathExists(skillPath))) continue;
         const parsed = await parseSkill(skillPath, category, skillId);
         if (parsed) out.push(parsed);

@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
 import { Agent } from '../constants';
-import { McpConfig, McpScope } from '../models/config';
+import { McpConfig } from '../models/config';
 
 /**
  * Per-runtime MCP config-file location and JSON path.
@@ -96,9 +96,17 @@ const TARGETS: Record<string, McpTarget> = {
 /** What a sync/install pass actually did, returned for reporting. */
 export interface McpWriteReport {
   /** Agents whose project-scope config was written or updated. */
-  projectWrites: Array<{ agent: Agent; file: string; action: 'added' | 'updated' | 'skipped-existing' }>;
+  projectWrites: Array<{
+    agent: Agent;
+    file: string;
+    action: 'added' | 'updated' | 'skipped-existing';
+  }>;
   /** Agents whose user-scope config was written (only happens with explicit consent). */
-  userWrites: Array<{ agent: Agent; file: string; action: 'added' | 'updated' | 'skipped-existing' }>;
+  userWrites: Array<{
+    agent: Agent;
+    file: string;
+    action: 'added' | 'updated' | 'skipped-existing';
+  }>;
   /** Snippet files produced under `mcp-config-snippets/`. */
   snippets: Array<{ agent: Agent; file: string }>;
   /** Agents we asked about but the user declined. */
@@ -235,7 +243,9 @@ export class McpConfigService {
     for (const agent of opts.agents) {
       const target = TARGETS[agent];
       if (!target) continue;
-      const row: { agent: Agent; project?: boolean; user?: boolean } = { agent };
+      const row: { agent: Agent; project?: boolean; user?: boolean } = {
+        agent,
+      };
       if (target.projectFile) {
         row.project = await this.hasOurEntry(
           path.join(opts.rootDir, target.projectFile),
@@ -299,7 +309,10 @@ export class McpConfigService {
       // shape === 'list'
       const list = container as Array<Record<string, unknown>>;
       const idx = list.findIndex((item) => item.name === SERVER_NAME);
-      const next = { name: SERVER_NAME, transport: { type: 'stdio', ...entry } };
+      const next = {
+        name: SERVER_NAME,
+        transport: { type: 'stdio', ...entry },
+      };
       if (idx >= 0) {
         if (deepEqual(list[idx], next)) return 'skipped-existing';
         list[idx] = next;
@@ -312,10 +325,14 @@ export class McpConfigService {
     }
   }
 
-  private async removeFromFile(abs: string, target: McpTarget): Promise<boolean> {
-    const data = (await fs.readJson(abs).catch(() => null)) as
-      | Record<string, unknown>
-      | null;
+  private async removeFromFile(
+    abs: string,
+    target: McpTarget,
+  ): Promise<boolean> {
+    const data = (await fs.readJson(abs).catch(() => null)) as Record<
+      string,
+      unknown
+    > | null;
     if (!data) return false;
     const container = this.ensurePathContainer(data, target);
     if (target.shape === 'map') {
@@ -337,9 +354,10 @@ export class McpConfigService {
 
   private async hasOurEntry(abs: string, target: McpTarget): Promise<boolean> {
     if (!(await fs.pathExists(abs))) return false;
-    const data = (await fs.readJson(abs).catch(() => null)) as
-      | Record<string, unknown>
-      | null;
+    const data = (await fs.readJson(abs).catch(() => null)) as Record<
+      string,
+      unknown
+    > | null;
     if (!data) return false;
     const container = this.getNestedValue(data, target.key);
     if (!container) return false;
@@ -375,10 +393,18 @@ export class McpConfigService {
     return fresh;
   }
 
-  private getNestedValue(data: Record<string, unknown>, dotted: string): unknown {
+  private getNestedValue(
+    data: Record<string, unknown>,
+    dotted: string,
+  ): unknown {
     const parts = dotted.split('.');
     let cur: unknown = data;
     for (const p of parts) {
+      if (p === '__proto__' || p === 'constructor' || p === 'prototype') {
+        throw new Error(
+          `Prototype pollution attempt detected in key: ${dotted}`,
+        );
+      }
       if (typeof cur !== 'object' || cur === null) return undefined;
       cur = (cur as Record<string, unknown>)[p];
     }
@@ -394,12 +420,26 @@ export class McpConfigService {
     let cur = data;
     for (let i = 0; i < parts.length - 1; i++) {
       const p = parts[i];
+      if (p === '__proto__' || p === 'constructor' || p === 'prototype') {
+        throw new Error(
+          `Prototype pollution attempt detected in key: ${dotted}`,
+        );
+      }
       if (typeof cur[p] !== 'object' || cur[p] === null) {
         cur[p] = {};
       }
       cur = cur[p] as Record<string, unknown>;
     }
-    cur[parts[parts.length - 1]] = value;
+
+    const last = parts[parts.length - 1];
+    if (
+      last === '__proto__' ||
+      last === 'constructor' ||
+      last === 'prototype'
+    ) {
+      throw new Error(`Prototype pollution attempt detected in key: ${dotted}`);
+    }
+    cur[last] = value;
   }
 
   private async writeAtomic(abs: string, data: unknown): Promise<void> {
