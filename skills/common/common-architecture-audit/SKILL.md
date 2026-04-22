@@ -1,6 +1,20 @@
 ---
 name: common-architecture-audit
-description: "Audit structural debt, logic leakage, and monolithic components across Web, Mobile, and Backend codebases. Use when reviewing architecture, assessing tech debt, detecting logic in wrong layers, or identifying God classes. (triggers: package.json, pubspec.yaml, go.mod, pom.xml, nest-cli.json, architecture audit, code review, tech debt, logic leakage, refactor)"
+description: Audit structural debt, logic leakage, and monolithic components across Web, Mobile, and Backend codebases. Use when reviewing architecture, assessing tech debt, detecting logic in wrong layers, or identifying God classes.
+metadata:
+  triggers:
+    files:
+    - 'package.json'
+    - 'pubspec.yaml'
+    - 'go.mod'
+    - 'pom.xml'
+    - 'nest-cli.json'
+    keywords:
+    - architecture audit
+    - code review
+    - tech debt
+    - logic leakage
+    - refactor
 ---
 # Architecture Audit
 

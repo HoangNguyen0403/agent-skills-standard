@@ -1,6 +1,16 @@
 ---
 name: android-di
-description: "Configure Hilt dependency injection with proper scoping, modules, and constructor injection in Android. Use when setting up Hilt DI, component scoping, or defining modules. (triggers: **/*Module.kt, **/*Component.kt, @HiltAndroidApp, @Inject, @Provides, @Binds)"
+description: Configure Hilt dependency injection with proper scoping, modules, and constructor injection in Android. Use when setting up Hilt DI, defining modules, or configuring component scoping.
+metadata:
+  triggers:
+    files:
+    - '**/*Module.kt'
+    - '**/*Component.kt'
+    keywords:
+    - @HiltAndroidApp
+    - @Inject
+    - @Provides
+    - @Binds
 ---
 # Android Dependency Injection (Hilt)
 

@@ -1,6 +1,19 @@
 ---
 name: java-testing
-description: 'Testing standards using JUnit 5, AssertJ, and Mockito for Java. Use when writing or reviewing Java unit tests, setting up parameterized tests, writing integration tests with Testcontainers, or working with Mockito mocks. (triggers: **/*Test.java, **/*IT.java, @Test, @ParameterizedTest, Mockito, AssertJ, assertThat, JUnit, Testcontainers)'
+description: Testing standards using JUnit 5, AssertJ, and Mockito for Java. Use when writing or reviewing Java unit tests, setting up parameterized tests, writing integration tests with Testcontainers, or working with Mockito mocks.
+metadata:
+  triggers:
+    files:
+    - '**/*Test.java'
+    - '**/*IT.java'
+    keywords:
+    - @Test
+    - @ParameterizedTest
+    - Mockito
+    - AssertJ
+    - assertThat
+    - JUnit
+    - Testcontainers
 ---
 # Java Testing Standards
 

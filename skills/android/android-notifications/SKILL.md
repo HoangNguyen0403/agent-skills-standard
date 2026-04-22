@@ -1,6 +1,16 @@
 ---
 name: android-notifications
-description: "Integrate push notifications on Android using Firebase Cloud Messaging and NotificationCompat. Use when integrating FCM or local notifications in Android apps. (triggers: **/*Notification*.kt, **/MainActivity.kt, FirebaseMessaging, NotificationCompat, NotificationChannel, FCM)"
+description: Integrate push notifications using Firebase Cloud Messaging and NotificationCompat on Android. Use when setting up FCM, creating notification channels, or handling local notifications.
+metadata:
+  triggers:
+    files:
+    - '**/*Notification*.kt'
+    - '**/MainActivity.kt'
+    keywords:
+    - FirebaseMessaging
+    - NotificationCompat
+    - NotificationChannel
+    - FCM
 ---
 # Android Notifications
 

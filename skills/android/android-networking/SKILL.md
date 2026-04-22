@@ -1,6 +1,17 @@
 ---
 name: android-networking
-description: "Integrate Retrofit, OkHttp, and Kotlinx Serialization for type-safe API communication in Android. Use when building API clients, adding interceptors, or configuring network security. (triggers: **/*Api.kt, **/*Service.kt, **/*Client.kt, Retrofit, OkHttpClient, @GET, @POST)"
+description: Integrate Retrofit, OkHttp, and Kotlinx Serialization for type-safe API communication in Android. Use when building API clients, adding interceptors, or configuring network security.
+metadata:
+  triggers:
+    files:
+    - '**/*Api.kt'
+    - '**/*Service.kt'
+    - '**/*Client.kt'
+    keywords:
+    - Retrofit
+    - OkHttpClient
+    - @GET
+    - @POST
 ---
 # Android Networking Standards
 

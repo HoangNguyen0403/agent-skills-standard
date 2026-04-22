@@ -1,6 +1,16 @@
 ---
 name: nestjs-observability
-description: "Configure structured logging with Pino, Prometheus metrics, and health checks for NestJS services. Use when adding JSON logging, request tracing with correlation IDs, Prometheus metric endpoints, or liveness/readiness health checks. (triggers: main.ts, **/*.module.ts, nestjs-pino, Prometheus, Logger, reqId)"
+description: Configure structured logging with Pino, Prometheus metrics, and health checks for NestJS services. Use when adding JSON logging, request tracing with correlation IDs, Prometheus metric endpoints, or liveness/readiness health checks.
+metadata:
+  triggers:
+    files:
+    - 'main.ts'
+    - '**/*.module.ts'
+    keywords:
+    - nestjs-pino
+    - Prometheus
+    - Logger
+    - reqId
 ---
 # Observability Standards
 

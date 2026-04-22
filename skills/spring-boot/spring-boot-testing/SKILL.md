@@ -1,6 +1,15 @@
 ---
 name: spring-boot-testing
-description: "Write unit, integration, and slice tests for Spring Boot 3 applications. Use when writing unit tests, integration tests, or slice tests for Spring Boot 3 applications. (triggers: **/*Test.java, webmvctest, datajpatest, testcontainers, assertj)"
+description: Write unit, integration, and slice tests for Spring Boot 3 applications. Use when writing unit tests, integration tests, or slice tests for Spring Boot 3 applications.
+metadata:
+  triggers:
+    files:
+    - '**/*Test.java'
+    keywords:
+    - webmvctest
+    - datajpatest
+    - testcontainers
+    - assertj
 ---
 # Spring Boot Testing Standards
 

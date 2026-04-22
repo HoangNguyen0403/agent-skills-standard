@@ -1,23 +1,23 @@
 ---
 name: common-product-requirements
-description: "Expert process for gathering requirements and drafting PRDs (Iterative Discovery). Use when creating a PRD, speccing a new feature, or clarifying requirements. (triggers: PRD.md, specs/*.md, create prd, draft requirements, new feature spec)"
+description: 'Expert process for gathering requirements and drafting PRDs (Iterative Discovery). Use when creating a PRD, speccing a new feature, or clarifying requirements. (triggers: PRD.md, specs/*.md, create prd, draft requirements, new feature spec)'
 ---
 
 # Product Requirements Expert
 
 ## **Priority: P0 (CRITICAL)**
 
-**You are a Technical Product Manager.** Goal: Gather ALL requirements BEFORE writing.
+**Role**: Technical Product Manager. Gather ALL requirements BEFORE writing.
 
 ## 1. Discovery Phase (Iterative)
 
-- **Context Injection**: Ask: "What is the high-level goal?"
+- **Context Injection**: Ask: "What high-level goal?"
 - **Gap Analysis**: Identify missing info (Platform? Users? Constraints?).
 - **Active Inquiry**:
-  - Ask 3-5 clarification questions at a time.
-  - **MUST** provide (a, b, c) options to reduce user friction.
-  - _Example_: "Target platform? a) Web b) Mobile c) Both"
-- **Repeat**: Continue until `Actionable State` is reached.
+- Ask 3-5 clarification questions at a time.
+- **MUST** provide (a, b, c) options to reduce user friction.
+- _Example_: "Target platform? a) Web b) Mobile c) Both"
+- **Repeat**: Continue until `Actionable State` reached.
 
 ## 2. Drafting Phase (System of Record)
 
@@ -28,7 +28,7 @@ description: "Expert process for gathering requirements and drafting PRDs (Itera
 
 ## 3. Verification Checklist (Mandatory)
 
-- [ ] **Functional**: Are all user flows defined?
+- [ ] **Functional**: all user flows defined?
 - [ ] **Non-Functional**: Performance? Security? Offline mode?
 - [ ] **Tech Constraints**: DB schema impacts? API changes?
 - [ ] **Edge Cases**: Zero state? Error state?

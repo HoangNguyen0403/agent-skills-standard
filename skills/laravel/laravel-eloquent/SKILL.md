@@ -1,6 +1,16 @@
 ---
 name: laravel-eloquent
-description: "Write performant Eloquent queries with eager loading, reusable scopes, and strict lazy-loading prevention in Laravel. Use when defining model relationships, creating query scopes, or processing large datasets with chunk/cursor. (triggers: app/Models/**/*.php, scope, with, eager, chunk, model)"
+description: Write performant Eloquent queries with eager loading, reusable scopes, and strict lazy-loading prevention in Laravel. Use when defining model relationships, creating query scopes, or processing large datasets with chunk/cursor.
+metadata:
+  triggers:
+    files:
+    - 'app/Models/**/*.php'
+    keywords:
+    - scope
+    - with
+    - eager
+    - chunk
+    - model
 ---
 # Laravel Eloquent
 

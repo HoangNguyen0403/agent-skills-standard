@@ -1,6 +1,17 @@
 ---
 name: nestjs-notification
-description: "Build dual-write notification services with database persistence and FCM push delivery in NestJS. Use when creating notification entities, sending push via FCM, or implementing in-app notification feeds. (triggers: notification.service.ts, notification.entity.ts, notification, push, fcm, alert, reminder)"
+description: Build dual-write notification services with database persistence and FCM push delivery in NestJS. Use when creating notification entities, sending push via FCM, or implementing in-app notification feeds.
+metadata:
+  triggers:
+    files:
+    - 'notification.service.ts'
+    - 'notification.entity.ts'
+    keywords:
+    - notification
+    - push
+    - fcm
+    - alert
+    - reminder
 ---
 # NestJS Notification Architecture
 

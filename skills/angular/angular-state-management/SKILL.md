@@ -1,6 +1,17 @@
 ---
 name: angular-state-management
-description: 'Implement application state with Angular Signals, computed derivations, and NgRx Signal Store. Use when implementing reactive state with signal(), computed(), effect(), or @ngrx/signals in Angular. (triggers: **/*.store.ts, **/state/**, angular signals, signal store, computed, effect, linkedSignal)'
+description: Implement application state with Angular Signals, computed derivations, and NgRx Signal Store. Use when implementing reactive state with signal(), computed(), effect(), or @ngrx/signals in Angular.
+metadata:
+  triggers:
+    files:
+    - '**/*.store.ts'
+    - '**/state/**'
+    keywords:
+    - angular signals
+    - signal store
+    - computed
+    - effect
+    - linkedSignal
 ---
 # State Management
 

@@ -1,6 +1,22 @@
 ---
 name: common-security-standards
-description: "Enforce universal security protocols for safe, resilient software. Use when implementing authentication, encryption, authorization, input validation, secret management, or any security-sensitive feature across any language or framework. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, security, encrypt, authenticate, authorize)"
+description: Enforce universal security protocols for safe, resilient software. Use when implementing authentication, encryption, authorization, input validation, secret management, or any security-sensitive feature across any language or framework.
+metadata:
+  triggers:
+    files:
+    - '**/*.ts'
+    - '**/*.tsx'
+    - '**/*.go'
+    - '**/*.dart'
+    - '**/*.java'
+    - '**/*.kt'
+    - '**/*.swift'
+    - '**/*.py'
+    keywords:
+    - security
+    - encrypt
+    - authenticate
+    - authorize
 ---
 # Security Standards
 

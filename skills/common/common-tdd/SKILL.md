@@ -1,6 +1,22 @@
 ---
 name: common-tdd
-description: 'Implements a strict Red-Green-Refactor loop to ensure zero production code is written without a prior failing test. Use when: creating new features, fixing bugs, or expanding test coverage. (triggers: **/*.test.ts, **/*.spec.ts, **/*_test.go, **/*Test.java, **/*_test.dart, **/*_spec.rb, tdd, unit test, write test, red green refactor, failing test, test coverage)'
+description: "Implements a strict Red-Green-Refactor loop to ensure zero production code is written without a prior failing test. Use when: creating new features, fixing bugs, or expanding test coverage."
+metadata:
+  triggers:
+    files:
+    - '**/*.test.ts'
+    - '**/*.spec.ts'
+    - '**/*_test.go'
+    - '**/*Test.java'
+    - '**/*_test.dart'
+    - '**/*_spec.rb'
+    keywords:
+    - tdd
+    - unit test
+    - write test
+    - red green refactor
+    - failing test
+    - test coverage
 ---
 # Test-Driven Development (TDD) Standard
 

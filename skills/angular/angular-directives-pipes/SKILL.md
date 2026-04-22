@@ -1,6 +1,15 @@
 ---
 name: angular-directives-pipes
-description: "Compose HostDirectives and Pure Pipes in Angular. Use when creating attribute directives with HostDirectives or writing pure pipes in Angular. (triggers: **/*.directive.ts, **/*.pipe.ts, hostDirectives, PipeTransform, pure)"
+description: Compose HostDirectives and Pure Pipes in Angular. Use when creating attribute directives with HostDirectives or writing pure pipes in Angular.
+metadata:
+  triggers:
+    files:
+    - '**/*.directive.ts'
+    - '**/*.pipe.ts'
+    keywords:
+    - hostDirectives
+    - PipeTransform
+    - pure
 ---
 # Directives & Pipes
 

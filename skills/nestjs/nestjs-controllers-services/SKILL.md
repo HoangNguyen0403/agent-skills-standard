@@ -1,8 +1,17 @@
 ---
 name: nestjs-controllers-services
-description: 'Separate Controllers from Services and build Custom Decorators in NestJS. Use when defining NestJS controllers, services, or custom parameter decorators. (triggers: **/*.controller.ts, **/*.service.ts, Controller, Injectable, ExecutionContext, createParamDecorator)'
+description: Separate Controllers from Services and build Custom Decorators in NestJS. Use when defining NestJS controllers, services, or custom parameter decorators.
+metadata:
+  triggers:
+    files:
+    - '**/*.controller.ts'
+    - '**/*.service.ts'
+    keywords:
+    - Controller
+    - Injectable
+    - ExecutionContext
+    - createParamDecorator
 ---
-
 # NestJS Controllers & Services Standards
 
 ## **Priority: P0 (FOUNDATIONAL)**

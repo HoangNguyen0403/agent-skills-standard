@@ -1,6 +1,17 @@
 ---
 name: nextjs-architecture
-description: "Structure Next.js projects with Feature-Sliced Design layers, domain-grouped slices, and strict import hierarchy. Use when organizing features into FSD layers, enforcing slice boundaries, or keeping page.tsx thin. (triggers: src/features/**, src/entities/**, src/widgets/**, FSD, Feature Sliced Design, slices, segments)"
+description: Structure Next.js projects with Feature-Sliced Design layers, domain-grouped slices, and strict import hierarchy. Use when organizing features into FSD layers, enforcing slice boundaries, or keeping page.tsx thin.
+metadata:
+  triggers:
+    files:
+    - 'src/features/**'
+    - 'src/entities/**'
+    - 'src/widgets/**'
+    keywords:
+    - FSD
+    - Feature Sliced Design
+    - slices
+    - segments
 ---
 # Architecture (Feature-Sliced Design)
 

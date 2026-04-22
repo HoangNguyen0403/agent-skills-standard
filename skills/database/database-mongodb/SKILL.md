@@ -1,6 +1,18 @@
 ---
 name: database-mongodb
-description: "Apply expert schema design, indexing, and performance rules for MongoDB. Use when designing MongoDB schemas, creating indexes, or optimizing NoSQL query performance. (triggers: **/*.ts, **/*.js, **/*.json, mongo, mongoose, objectid, schema, model)"
+description: Apply expert schema design, indexing, and performance rules for MongoDB. Use when designing MongoDB schemas, creating indexes, or optimizing NoSQL query performance.
+metadata:
+  triggers:
+    files:
+    - '**/*.ts'
+    - '**/*.js'
+    - '**/*.json'
+    keywords:
+    - mongo
+    - mongoose
+    - objectid
+    - schema
+    - model
 ---
 # MongoDB Best Practices
 

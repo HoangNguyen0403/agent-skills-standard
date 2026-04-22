@@ -1,0 +1,40 @@
+{
+  "skill_name": "android-agp-upgrade",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm getting 'Failed to apply plugin org.jetbrains.kotlin.android' after upgrading to AGP 9. What's wrong?",
+      "expected_output": "AGP 9 includes built-in Kotlin support. Remove the org.jetbrains.kotlin.android plugin from your build.gradle — it's no longer needed and conflicts with built-in Kotlin.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions built-in Kotlin", "type": "contains", "value": "built-in Kotlin" },
+        { "id": "a2", "description": "Says to remove the plugin", "type": "contains", "value": "remove" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What steps do I need to follow to migrate my Android project to AGP 9?",
+      "expected_output": "Update dependencies (KSP 2.3.6+, Hilt 2.59.2+), migrate to built-in Kotlin (remove kotlin-android plugin), migrate to new AGP DSL, migrate kapt to KSP or legacy-kapt, update BuildConfig syntax, clean up gradle.properties flags.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions KSP or Hilt version requirements", "type": "contains", "value": "KSP" },
+        { "id": "a2", "description": "Mentions built-in Kotlin migration", "type": "contains", "value": "Kotlin" },
+        { "id": "a3", "description": "Mentions kapt migration", "type": "contains", "value": "kapt" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I verify my AGP 9 migration was successful?",
+      "expected_output": "Run ./gradlew help to verify Gradle setup, ./gradlew build --dry-run to verify task graph, and check that Gradle IDE sync succeeds.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions gradlew command", "type": "contains", "value": "gradlew" },
+        { "id": "a2", "description": "Mentions sync or build verification", "type": "contains", "value": "sync" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I make my app edge-to-edge?",
+    "Migrate my XML layout to Jetpack Compose",
+    "How do I implement Navigation 3?",
+    "Set up ProGuard keep rules for my release build",
+    "How do I use BLoC pattern in Flutter?"
+  ]
+}

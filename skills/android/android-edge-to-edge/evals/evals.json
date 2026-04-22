@@ -1,0 +1,39 @@
+{
+  "skill_name": "android-edge-to-edge",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My bottom button is hidden behind the navigation bar after targeting SDK 35. How do I fix it?",
+      "expected_output": "Call enableEdgeToEdge() in onCreate before setContent, then apply safeDrawingPadding() or use Scaffold with innerPadding to ensure content avoids system bars.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions enableEdgeToEdge", "type": "contains", "value": "enableEdgeToEdge" },
+        { "id": "a2", "description": "Mentions safeDrawingPadding or Scaffold innerPadding", "type": "contains", "value": "Padding" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I'm using Scaffold with contentWindowInsets = WindowInsets.safeDrawing and also adding imePadding() on the content. The keyboard causes double padding. Why?",
+      "expected_output": "safeDrawing already includes IME insets. Adding imePadding() applies them again, causing double padding. Remove imePadding() when using contentWindowInsets = safeDrawing, or use fitInside(WindowInsetsRulers.Ime.current) instead.",
+      "assertions": [
+        { "id": "a1", "description": "Explains double padding cause", "type": "contains", "value": "double" },
+        { "id": "a2", "description": "Mentions removing imePadding or using fitInside", "type": "contains", "value": "imePadding" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "My LazyColumn content gets clipped by the status bar. Items don't scroll behind the system bars.",
+      "expected_output": "Apply inset padding to the contentPadding parameter of LazyColumn, not as Modifier.padding() on its parent container. Parent padding clips the scroll area and prevents content from drawing behind system bars.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions contentPadding on LazyColumn", "type": "contains", "value": "contentPadding" },
+        { "id": "a2", "description": "Warns against parent Modifier.padding", "type": "contains", "value": "parent" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I optimize Jetpack Compose recomposition?",
+    "Set up Hilt dependency injection in my Android project",
+    "Migrate my XML layout to Jetpack Compose",
+    "How do I upgrade to AGP 9?",
+    "Configure R8 keep rules for my release build"
+  ]
+}

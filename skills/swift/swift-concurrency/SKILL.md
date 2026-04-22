@@ -1,6 +1,16 @@
 ---
 name: swift-concurrency
-description: "Implement async/await, Actors, and structured concurrency in Swift. Use when implementing Swift async/await, Actors, or structured concurrency in iOS/macOS. (triggers: **/*.swift, async, await, actor, Task, MainActor)"
+description: Implement async/await, Actors, and structured concurrency in Swift. Use when implementing Swift async/await, Actors, or structured concurrency in iOS/macOS.
+metadata:
+  triggers:
+    files:
+    - '**/*.swift'
+    keywords:
+    - async
+    - await
+    - actor
+    - Task
+    - MainActor
 ---
 # Swift Concurrency
 

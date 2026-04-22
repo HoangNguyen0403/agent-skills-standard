@@ -1,6 +1,17 @@
 ---
 name: common-dast-tooling
-description: 'Standardize usage of Dynamic Application Security Testing (DAST) tools (ZAP, Nuclei, Nikto) and custom AI-driven curl probes for adversarial system testing. Use when advising on or running dynamic security scans on local/staging environments. (triggers: DAST, dynamic scan, zap, nuclei, nikto, curl probe, pentest, dynamic analysis)'
+description: Standardize usage of Dynamic Application Security Testing (DAST) tools (ZAP, Nuclei, Nikto) and custom AI-driven curl probes for adversarial system testing. Use when advising on or running dynamic security scans on local/staging environments.
+metadata:
+  triggers:
+    keywords:
+    - DAST
+    - dynamic scan
+    - zap
+    - nuclei
+    - nikto
+    - curl probe
+    - pentest
+    - dynamic analysis
 ---
 # DAST Tooling Standard
 

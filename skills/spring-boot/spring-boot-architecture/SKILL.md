@@ -1,6 +1,22 @@
 ---
 name: spring-boot-architecture
-description: "Structure Spring Boot 3+ projects with feature packaging and clean layering. Use when structuring Spring Boot 3 projects, defining layers, or applying architecture patterns. (triggers: pom.xml, build.gradle, structure, layering, dto, controller, @RestController, @Service, @Repository, @Entity, @Bean, @Configuration)"
+description: Structure Spring Boot 3+ projects with feature packaging and clean layering. Use when structuring Spring Boot 3 projects, defining layers, or applying architecture patterns.
+metadata:
+  triggers:
+    files:
+    - 'pom.xml'
+    - 'build.gradle'
+    keywords:
+    - structure
+    - layering
+    - dto
+    - controller
+    - @RestController
+    - @Service
+    - @Repository
+    - @Entity
+    - @Bean
+    - @Configuration
 ---
 # Spring Boot Architecture Standards
 

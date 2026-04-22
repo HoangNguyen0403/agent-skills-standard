@@ -1,6 +1,19 @@
 ---
 name: dart-language
-description: 'Dart 3.x language feature standards: null safety, records, sealed classes, switch pattern matching, extensions, and async/await. Use when using !, ?., ??, late, sealed classes, record types, switch expressions, or async patterns — and before introducing any new Dart 3.x construct to confirm the modern idiomatic approach. (triggers: **/*.dart, sealed, record, switch, pattern, !, late, async, extension)'
+description: "Dart 3.x language feature standards: null safety, records, sealed classes, switch pattern matching, extensions, and async/await. Use when using !, ?., ??, late, sealed classes, record types, switch expressions, or async patterns — and before introducing any new Dart 3.x construct to confirm the modern idiomatic approach."
+metadata:
+  triggers:
+    files:
+    - '**/*.dart'
+    keywords:
+    - sealed
+    - record
+    - switch
+    - pattern
+    - !
+    - late
+    - async
+    - extension
 ---
 # Dart Language Patterns
 

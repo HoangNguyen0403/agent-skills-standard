@@ -2,23 +2,21 @@
 name: common-debugging
 description: "Troubleshoot systematically using the Scientific Method. Use when debugging crashes, tracing errors, diagnosing unexpected behavior, or investigating exceptions. (triggers: debug, fix bug, crash, error, exception, troubleshooting)"
 ---
-
 # Debugging Expert
 
 ## **Priority: P1 (OPERATIONAL)**
 
-Systematic, evidence-based troubleshooting. Do not guess; prove.
 
-## The Scientific Method
+## Scientific Method
 
-1. **OBSERVE**: Gather data. What exactly is happening?
-   - Logs, Stack Traces, Screenshots, Steps to Reproduce.
-2. **HYPOTHESIZE**: Formulate a theory. "I think X is causing Y because Z."
-3. **EXPERIMENT**: Test the theory.
-   - Create a reproduction case.
-   - Change _one variable at a time_ to validate the hypothesis.
-4. **FIX**: Implement the solution once the root cause is proven.
-5. **VERIFY**: Ensure the fix works and doesn't introduce regressions.
+1. **OBSERVE**: Gather data. What exactly happening?
+ - Logs, Stack Traces, Screenshots, Steps to Reproduce.
+2. **HYPOTHESIZE**: Formulate theory. "I think X causing Y because Z."
+3. **EXPERIMENT**: Test theory.
+ - Create reproduction case.
+ - Change _one variable at time_ to validate hypothesis.
+4. **FIX**: Implement solution once root cause proven.
+5. **VERIFY**: Ensure fix works and doesn't introduce regressions.
 
 ## Anti-Patterns
 
@@ -29,9 +27,9 @@ Systematic, evidence-based troubleshooting. Do not guess; prove.
 ## Best Practices
 
 - **Diff Diagnosis**: What changed since it last worked?
-- **Minimal Repro**: Create the smallest possible code snippet that reproduces the issue.
-- **Rubber Ducking**: Explain the code line-by-line to an inanimate object (or the agent).
-- **Binary Search**: Comment out half the code to isolate the failing section.
+- **Minimal Repro**: Create smallest possible code snippet that reproduces issue.
+- **Rubber Ducking**: Explain code line-by-line to inanimate object (or agent).
+- **Binary Search**: Comment out half code to isolate failing section.
 
 ## References
 

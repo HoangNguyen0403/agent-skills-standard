@@ -1,6 +1,15 @@
 ---
 name: swift-tooling
-description: "Configure SPM packages, SwiftLint, and build settings for Swift projects. Use when managing Swift packages with SPM, configuring build settings, or enforcing Swift code quality. (triggers: Package.swift, .swiftlint.yml, package, target, dependency)"
+description: Configure SPM packages, SwiftLint, and build settings for Swift projects. Use when managing Swift packages with SPM, configuring build settings, or enforcing Swift code quality.
+metadata:
+  triggers:
+    files:
+    - 'Package.swift'
+    - '.swiftlint.yml'
+    keywords:
+    - package
+    - target
+    - dependency
 ---
 # Swift Tooling Standards
 

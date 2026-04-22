@@ -1,6 +1,18 @@
 ---
 name: nextjs-tooling
-description: "Configure Next.js build tooling, deployment, and developer workflow. Use when setting up Turbopack, standalone Docker output, bundle analysis, CI caching, environment variable validation, or ESLint integration for Next.js projects. (triggers: next.config.js, package.json, Dockerfile, turbopack, output, standalone, lint, telemetry)"
+description: Configure Next.js build tooling, deployment, and developer workflow. Use when setting up Turbopack, standalone Docker output, bundle analysis, CI caching, environment variable validation, or ESLint integration for Next.js projects.
+metadata:
+  triggers:
+    files:
+    - 'next.config.js'
+    - 'package.json'
+    keywords:
+    - Dockerfile
+    - turbopack
+    - output
+    - standalone
+    - lint
+    - telemetry
 ---
 # Next.js Tooling
 

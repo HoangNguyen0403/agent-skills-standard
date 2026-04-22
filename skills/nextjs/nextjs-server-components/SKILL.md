@@ -1,8 +1,19 @@
 ---
 name: nextjs-server-components
-description: "Build async React Server Components and place 'use client' boundaries at leaf nodes for interactivity in Next.js App Router. Use when deciding RSC vs Client Component, composing server data into client wrappers, or fixing hydration errors. (triggers: app/**/*.tsx, src/app/**/*.tsx, app/**/*.jsx, src/app/**/*.jsx, use client, Server Component, Client Component, hydration)"
+description: "Build async React Server Components and place 'use client' boundaries at leaf nodes for interactivity in Next.js App Router. Use when deciding RSC vs Client Component, composing server data into client wrappers, or fixing hydration errors."
+metadata:
+  triggers:
+    files:
+    - 'app/**/*.tsx'
+    - 'src/app/**/*.tsx'
+    - 'app/**/*.jsx'
+    - 'src/app/**/*.jsx'
+    keywords:
+    - use client
+    - Server Component
+    - Client Component
+    - hydration
 ---
-
 # Server & Client Components
 
 ## **Priority: P0 (CRITICAL)**

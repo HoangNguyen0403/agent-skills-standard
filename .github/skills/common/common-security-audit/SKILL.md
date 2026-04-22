@@ -2,7 +2,6 @@
 name: common-security-audit
 description: 'Probe for hardcoded secrets, injection surfaces, unguarded routes, and infrastructure weaknesses across Node, Go, Dart, Java, Python, and Rust codebases. Use when performing security audits, vulnerability scans, secrets detection, or penetration testing. (triggers: package.json, go.mod, pubspec.yaml, pom.xml, Dockerfile, security audit, vulnerability scan, secrets detection, injection probe, pentest)'
 ---
-
 # Security Audit
 
 ## **Priority: P0 (CRITICAL)**
@@ -57,15 +56,15 @@ Identify where user input reaches dangerous sinks without sanitization.
 
 ## Scoring Impact
 
-| Finding                  | Threshold | Severity | Deduction |
+| Finding | Threshold | Severity | Deduction |
 | ------------------------ | --------- | -------- | --------- |
-| Hardcoded Secrets        | Any match | P0       | -25       |
-| Plain-text PII in Logs   | Any match | P0       | -20       |
-| Unguarded Routes > 20%   | > 0.2     | P0       | -15       |
-| Raw SQL Concatenation    | Any match | P1       | -10       |
-| Response Leakage (Stack) | > 0       | P1       | -10       |
+| Hardcoded Secrets | Any match | P0 | -25 |
+| Plain-text PII in Logs | Any match | P0 | -20 |
+| Unguarded Routes > 20% | > 0.2 | P0 | -15 |
+| Raw SQL Concatenation | Any match | P1 | -10 |
+| Response Leakage (Stack) | > 0 | P1 | -10 |
 
-> **CAUTION**: A P0 finding immediately caps the Security score at 40/100.
+> **CAUTION**: P0 finding immediately caps Security score at 40/100.
 
 ## Anti-Patterns
 

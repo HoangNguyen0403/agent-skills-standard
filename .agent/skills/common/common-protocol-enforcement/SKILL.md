@@ -2,34 +2,32 @@
 name: common-protocol-enforcement
 description: "Enforce Red-Team verification and adversarial protocol audit. Use when verifying tasks, performing self-scans, or checking for protocol violations. Load as composite for all sessions. (triggers: verify done, protocol check, self-scan, pre-write audit, task complete, audit violations, retrospective, scan, red-team)"
 ---
-
 # Protocol Enforcement (Red-Team Verification)
 
 ## **Priority: P0 (CRITICAL)**
 
-Strict guidelines for adversarial verification. Assume the implementation is "guilty" of protocol slippage until proven innocent.
 
 ## Red-Team Verification Protocol
 
 Before declaring any task "done" or calling `notify_user`:
 
-1. **Adversarial Audit**: Search for code patterns that look like "Standard Defaults" (e.g., hardcoded values, generic library calls) where a Project Skill exists.
-2. **Protocol Check**: Ensure the "Pre-Write Audit Log" was present for EVERY write tool call.
-3. **Execution Bias Check**: Ask: "Did I skip a structural constraint to make the code run faster/pass a test?"
+1. **Adversarial Audit**: Search for code patterns that look like "Standard Defaults" (e.g., hardcoded values, generic library calls) where Project Skill exists.
+2. **Protocol Check**: Ensure "Pre-Write Audit Log" present for EVERY write tool call.
+3. **Execution Bias Check**: Ask: " I skip structural constraint to make code run faster/pass test?"
 
-## **The Post-Write Self-Scan**
+## ** Post-Write Self-Scan**
 
-Immediately after a tool call:
+Immediately after tool call:
 
-- **Scan**: Read the diff or the file content.
+- **Scan**: Read diff or file content.
 - **Match**: Check against `Anti-Patterns` in all active skills.
-- **Fix**: Re-edit immediately if a violation is detected.
+- **Fix**: Re-edit immediately if violation detected.
 
 ## Anti-Patterns
 
 - **No "Done" Bias**: Functional success != Protocol success.
 - **No Reliance on Memory**: Always retrieval-led (Skill view_file) before write.
-- **No Skipping Protocols**: "Small changes" are where most violations happen.
+- **No Skipping Protocols**: "Small changes" where most violations happen.
 
 ## Execution Bias Detection
 

@@ -1,6 +1,16 @@
 ---
 name: react-security
-description: "Prevent XSS, secure auth flows, and harden React client-side applications. Use when preventing XSS, securing auth flows, or auditing third-party dependencies in React. (triggers: **/*.tsx, **/*.jsx, dangerouslySetInnerHTML, token, auth, xss)"
+description: Prevent XSS, secure auth flows, and harden React client-side applications. Use when preventing XSS, securing auth flows, or auditing third-party dependencies in React.
+metadata:
+  triggers:
+    files:
+    - '**/*.tsx'
+    - '**/*.jsx'
+    keywords:
+    - dangerouslySetInnerHTML
+    - token
+    - auth
+    - xss
 ---
 # React Security
 

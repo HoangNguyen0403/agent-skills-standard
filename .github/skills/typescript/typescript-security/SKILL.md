@@ -1,17 +1,15 @@
 ---
 name: typescript-security
-description: "Validate input, secure auth tokens, and prevent injection attacks in TypeScript. Use when validating input, handling auth tokens, sanitizing data, or managing secrets and sensitive configuration. (triggers: **/*.ts, **/*.tsx, validate, sanitize, xss, injection, auth, password, secret, token)"
+description: 'Validate input, secure auth tokens, and prevent injection attacks in TypeScript. Use when validating input, handling auth tokens, sanitizing data, or managing secrets and sensitive configuration. (triggers: **/*.ts, **/*.tsx, validate, sanitize, xss, injection, auth, password, secret, token)'
 ---
 
 # TypeScript Security
 
 ## **Priority: P0 (CRITICAL)**
 
-Security standards for TypeScript applications based on OWASP guidelines.
-
 ## Validate Input at Boundaries
 
-- Use **`Zod`**, **`Joi`**, or **`class-validator`** at the **API boundary**. Always **`parse`** and validate **`user-controlled input`** before using. Use **`safeParse`** for error handling without throwing. Return **`400 with structured errors`** on failure.
+- Use **`Zod`**, **`Joi`**, or **`class-validator`** at **API boundary**. Always **`parse`** and validate **`user-controlled input`** before using. Use **`safeParse`** for error handling without throwing. Return **`400 with structured errors`** on failure.
 
 See [references/REFERENCE.md](references/REFERENCE.md) for Zod validation schemas, secure cookie setup, and JWT auth patterns.
 
@@ -30,11 +28,13 @@ See [references/REFERENCE.md](references/REFERENCE.md) for Zod validation schema
 
 ## Verification
 
-After typing validation schemas (Zod/joi) or auth guards, call `getDiagnostics` (typescript-lsp) to confirm type narrowing is correct before finalizing.
+After typing validation schemas (Zod/joi) or auth guards, call `getDiagnostics` (typescript-lsp) to confirm type narrowing correct before finalizing.
 
 ## Anti-Patterns
 
-- **No `eval()`**: Avoid dynamic execution.
+- **No dynamic execution**: Avoid `eval`, `Function` constructor, or string literals as timer callbacks — all execute runtime code and bypass TypeScript's type system.
+- **No shell string interpolation**: Never use `execSync(\`cmd ${userInput}\`)`or interpolate environment variables / config values into`execSync`/`spawnSync`strings. Shell metacharacters cause **command injection (OWASP A03)**. Use`execFileSync('git', ['arg1', arg2])` with a static command + separate args array instead.
+- **No unvalidated SSRF origins**: When a URL comes from env vars or config (e.g., `FEEDBACK_API_URL`), validate it against an allowed-origin allowlist before calling `fetch()` / `axios`.
 - **No Plaintext**: Never commit secrets.
 - **No Trust**: Validate everything server-side.
 

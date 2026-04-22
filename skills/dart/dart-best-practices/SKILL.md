@@ -1,6 +1,16 @@
 ---
 name: dart-best-practices
-description: 'Dart code quality conventions: naming, const/final/var hierarchy, single quotes, trailing commas, collection idioms, tear-offs, and import organization. Use when writing new Dart code or reviewing for style violations — wrong import style, global variables, var misuse, anonymous lambdas where tear-offs fit, or missing trailing commas. (triggers: **/*.dart, naming, convention, trailing comma, import, tear-off)'
+description: "Dart code quality conventions: naming, const/final/var hierarchy, single quotes, trailing commas, collection idioms, tear-offs, and import organization. Use when writing new Dart code or reviewing for style violations — wrong import style, global variables, var misuse, anonymous lambdas where tear-offs fit, or missing trailing commas."
+metadata:
+  triggers:
+    files:
+    - '**/*.dart'
+    keywords:
+    - naming
+    - convention
+    - trailing comma
+    - import
+    - tear-off
 ---
 # Dart Best Practices
 

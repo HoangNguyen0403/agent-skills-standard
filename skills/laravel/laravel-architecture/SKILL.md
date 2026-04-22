@@ -1,6 +1,17 @@
 ---
 name: laravel-architecture
-description: "Enforce core architectural standards for scalable Laravel applications. Use when structuring controllers, service layers, action classes, Form Requests, or Service Container bindings in Laravel projects. (triggers: app/Http/Controllers/**/*.php, routes/*.php, controller, service, action, request, container)"
+description: Enforce core architectural standards for scalable Laravel applications. Use when structuring controllers, service layers, action classes, Form Requests, or Service Container bindings in Laravel projects.
+metadata:
+  triggers:
+    files:
+    - 'app/Http/Controllers/**/*.php'
+    - 'routes/*.php'
+    keywords:
+    - controller
+    - service
+    - action
+    - request
+    - container
 ---
 # Laravel Architecture
 

@@ -1,6 +1,18 @@
 ---
 name: golang-language
-description: 'Core idioms, style guides, and best practices for writing idiomatic Go code. Use when writing Go code following official style guides and idiomatic patterns. (triggers: go.mod, golang, go code, idiomatic, gofmt, goimports, iota, golang style)'
+description: Core idioms, style guides, and best practices for writing idiomatic Go code. Use when writing Go code following official style guides and idiomatic patterns.
+metadata:
+  triggers:
+    files:
+    - 'go.mod'
+    keywords:
+    - golang
+    - go code
+    - idiomatic
+    - gofmt
+    - goimports
+    - iota
+    - golang style
 ---
 # Golang Language Standards
 

@@ -29,11 +29,11 @@ Verify expectations.
 it('should return 401 when token is invalid', async () => {
   // 1. Arrange
   const service = new AuthService();
-  const token = 'invalid-token';
+  const invalidInput = 'not-a-real-jwt';
   const mockRepo = { findById: vi.fn() };
 
   // 2. Act
-  const result = await service.validate(token);
+  const result = await service.validate(invalidInput);
 
   // 3. Assert
   expect(result.status).toBe(401);

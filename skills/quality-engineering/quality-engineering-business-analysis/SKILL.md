@@ -1,6 +1,21 @@
 ---
 name: quality-engineering-business-analysis
-description: 'Investigate requirements with atomic AC decomposition, actor/permission matrix, platform parity audit, truth table verification, and edge case discovery. Also enforces User Story authoring standards: story structure, scope fences, platform tags, toggle contracts, market isolation, and deferral patterns. Use when writing, reviewing, or improving User Stories, acceptance criteria, or doing impact analysis — especially for stories with multi-condition AC, feature toggles, market variants (VN/MY/SG), or undefined platform behavior. (triggers: **/user_story.md, acceptance criteria, AC, business rules, jira story, toggle, market, write user story, improve user story, review story, BA)'
+description: "Investigate requirements with atomic AC decomposition, actor/permission matrix, platform parity audit, truth table verification, and edge case discovery. Also enforces User Story authoring standards: story structure, scope fences, platform tags, toggle contracts, market isolation, and deferral patterns. Use when writing, reviewing, or improving User Stories, acceptance criteria, or doing impact analysis — especially for stories with multi-condition AC, feature toggles, market variants (VN/MY/SG), or undefined platform behavior."
+metadata:
+  triggers:
+    files:
+    - '**/user_story.md'
+    keywords:
+    - acceptance criteria
+    - AC
+    - business rules
+    - jira story
+    - toggle
+    - market
+    - write user story
+    - improve user story
+    - review story
+    - BA
 ---
 # Business Analysis Standards (Deep Analysis + Story Authoring)
 

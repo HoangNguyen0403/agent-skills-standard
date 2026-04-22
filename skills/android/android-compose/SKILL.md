@@ -1,6 +1,23 @@
 ---
 name: android-compose
-description: 'Build high-performance declarative UI with Jetpack Compose state hoisting and recomposition optimization. Use when writing @Composable functions, Screen files, LazyColumn, state hoisting, LaunchedEffect, or diagnosing excessive recomposition. (triggers: **/*Screen.kt, **/*Composable*.kt, **/*Content.kt, @Composable, Modifier, Column, Row, LazyColumn, setContent, recompose, remember, derivedStateOf, LaunchedEffect)'
+description: Build high-performance declarative UI with Jetpack Compose. Use when writing Composable functions, optimizing recomposition, hoisting state, or working with LazyColumn and side effects.
+metadata:
+  triggers:
+    files:
+    - '**/*Screen.kt'
+    - '**/*Composable*.kt'
+    - '**/*Content.kt'
+    keywords:
+    - @Composable
+    - Modifier
+    - Column
+    - Row
+    - LazyColumn
+    - setContent
+    - recompose
+    - remember
+    - derivedStateOf
+    - LaunchedEffect
 ---
 # Jetpack Compose Expert
 
@@ -36,6 +53,13 @@ See [implementation examples](references/implementation.md) for `derivedStateOf`
 - **No Side Effects in Composition Body**: Use `LaunchedEffect`, not raw coroutines.
 - **No VM Deep Pass**: Hoist state; pass only data/callbacks.
 - **No Heavy Computation in Composables**: Offload to ViewModel or `remember`.
+
+## Verification
+
+- [ ] All stateless Composables have `@Preview`.
+- [ ] `LazyColumn` items use `key` parameter.
+- [ ] No ViewModel passed below Screen-level Composables.
+- [ ] `./gradlew build` succeeds.
 
 ## References
 

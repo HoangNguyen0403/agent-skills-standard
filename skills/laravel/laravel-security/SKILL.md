@@ -1,6 +1,17 @@
 ---
 name: laravel-security
-description: "Harden Laravel apps with Policies for model authorization, Gate-based RBAC, validated mass assignment, and CSRF protection. Use when creating authorization policies, securing env config access, or preventing mass assignment vulnerabilities. (triggers: app/Policies/**/*.php, config/*.php, policy, gate, authorize, env, config)"
+description: Harden Laravel apps with Policies for model authorization, Gate-based RBAC, validated mass assignment, and CSRF protection. Use when creating authorization policies, securing env config access, or preventing mass assignment vulnerabilities.
+metadata:
+  triggers:
+    files:
+    - 'app/Policies/**/*.php'
+    - 'config/*.php'
+    keywords:
+    - policy
+    - gate
+    - authorize
+    - env
+    - config
 ---
 # Laravel Security
 

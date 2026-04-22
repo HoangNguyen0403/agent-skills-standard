@@ -1,6 +1,19 @@
 ---
 name: flutter-riverpod-state-management
-description: "Implement reactive state management using Riverpod 2.0 with code generation in Flutter. Use when defining @riverpod providers, building AsyncNotifiers, overriding providers in tests, or enforcing immutable state with Freezed models. (triggers: **_provider.dart, **_notifier.dart, riverpod, ProviderScope, ConsumerWidget, Notifier, AsyncValue, ref.watch, @riverpod)"
+description: Implement reactive state management using Riverpod 2.0 with code generation in Flutter. Use when defining providers, building AsyncNotifiers, or overriding providers in tests.
+metadata:
+  triggers:
+    files:
+    - '**_provider.dart'
+    - '**_notifier.dart'
+    keywords:
+    - riverpod
+    - ProviderScope
+    - ConsumerWidget
+    - Notifier
+    - AsyncValue
+    - ref.watch
+    - @riverpod
 ---
 # Riverpod State Management
 

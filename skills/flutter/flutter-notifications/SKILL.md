@@ -1,6 +1,17 @@
 ---
 name: flutter-notifications
-description: 'Integrate push and local notifications using FCM and flutter_local_notifications. Use when adding push or local notifications to Flutter apps. (triggers: **/*notification*.dart, **/main.dart, FirebaseMessaging, FlutterLocalNotificationsPlugin, FCM, notification, push)'
+description: Integrate push and local notifications using FCM and flutter_local_notifications. Use when adding push or local notification support to Flutter apps.
+metadata:
+  triggers:
+    files:
+    - '**/*notification*.dart'
+    - '**/main.dart'
+    keywords:
+    - FirebaseMessaging
+    - FlutterLocalNotificationsPlugin
+    - FCM
+    - notification
+    - push
 ---
 # Flutter Notifications
 

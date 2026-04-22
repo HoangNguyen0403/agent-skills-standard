@@ -1,6 +1,19 @@
 ---
 name: flutter-bloc-state-management
-description: 'Implement BLoC/Cubit state management correctly in Flutter. Use when writing, modifying, reviewing, or testing any BLoC, Cubit, state, or event Dart file — even for small changes. (triggers: **_bloc.dart, **_cubit.dart, **_state.dart, **_event.dart, BlocProvider, BlocBuilder, BlocListener, Cubit, Emitter)'
+description: Implement BLoC/Cubit state management correctly in Flutter. Use when writing, modifying, reviewing, or testing any BLoC, Cubit, state, or event file.
+metadata:
+  triggers:
+    files:
+    - '**_bloc.dart'
+    - '**_cubit.dart'
+    - '**_state.dart'
+    - '**_event.dart'
+    keywords:
+    - BlocProvider
+    - BlocBuilder
+    - BlocListener
+    - Cubit
+    - Emitter
 ---
 # BLoC State Management
 
@@ -37,6 +50,13 @@ description: 'Implement BLoC/Cubit state management correctly in Flutter. Use wh
 - **No BLoC-to-BLoC**: Use `StreamSubscription` or `BlocListener`, not direct refs.
 - **No Logic in Builder**: Move valid logic to BLoC.
 - **No BlocBuilder without buildWhen**: Heavy subtrees must declare `buildWhen` predicate to prevent unnecessary rebuilds.
+
+## Verification
+
+- [ ] Every BLoC has `blocTest` covering Initial → Loading → Success and Initial → Loading → Failure.
+- [ ] Side effects (navigation, snackbars) use `BlocListener`, not `BlocBuilder`.
+- [ ] Heavy `BlocBuilder` widgets declare `buildWhen`.
+- [ ] `flutter test` passes.
 
 ## References
 

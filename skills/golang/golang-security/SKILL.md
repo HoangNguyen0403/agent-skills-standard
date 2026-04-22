@@ -1,6 +1,18 @@
 ---
 name: golang-security
-description: "Secure Go backend services against common vulnerabilities. Use when implementing input validation, crypto, or SQL injection prevention in Go. (triggers: crypto/rand, argon2, sanitize, jwt, bcrypt, validation, input validation, sql injection)"
+description: Secure Go backend services against common vulnerabilities. Use when implementing input validation, crypto, or SQL injection prevention in Go.
+metadata:
+  triggers:
+    files:
+    - 'crypto/rand'
+    keywords:
+    - argon2
+    - sanitize
+    - jwt
+    - bcrypt
+    - validation
+    - input validation
+    - sql injection
 ---
 # Golang Security Standards
 

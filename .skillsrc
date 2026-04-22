@@ -4,9 +4,9 @@ agents:
   - antigravity
 skills:
   typescript:
-    ref: typescript-v1.3.1
+    ref: typescript-v1.3.2
   common:
-    ref: common-v2.0.2
+    ref: common-v2.0.3
     exclude:
       - common-accessibility
       - common-api-design

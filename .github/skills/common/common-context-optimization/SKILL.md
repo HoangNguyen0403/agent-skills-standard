@@ -2,10 +2,8 @@
 name: common-context-optimization
 description: "Maximize context window efficiency, reduce latency, and prevent lost-in-middle issues through strategic masking and compaction. Use when token budgets are tight, tool outputs flood the context, conversations drift from intent, or latency spikes from cache misses. (triggers: *.log, chat-history.json, reduce tokens, optimize context, summarize history, clear output)"
 ---
-
 ## **Priority: P1 (OPTIMIZATION)**
 
-Manage the Attention Budget. Treat context as a scarce resource.
 
 ## 1. Observation Masking (Noise Reduction)
 
@@ -14,7 +12,7 @@ Manage the Attention Budget. Treat context as a scarce resource.
 
 1. **Identify** outputs exceeding 50 lines or 1 KB.
 2. **Extract** critical data points immediately.
-3. **Mask** by rewriting history to replace raw data with a summary placeholder.
+3. **Mask** by rewriting history to replace raw data with summary placeholder.
 4. **See** `references/masking.md` for patterns.
 
 See [implementation examples](references/implementation.md) for masking patterns.
@@ -26,8 +24,8 @@ See [implementation examples](references/implementation.md) for masking patterns
 
 1. **Trigger** compaction every 10 turns or 8k tokens.
 2. **Compact**:
-   - **Keep**: User Goal, Active Task, Current Errors, Key Decisions.
-   - **Drop**: Chat chit-chat, intermediate tool calls, corrected assumptions.
+ - **Keep**: User Goal, Active Task, Current Errors, Key Decisions.
+ - **Drop**: Chat chit-chat, intermediate tool calls, corrected assumptions.
 3. **Format**: Update System Prompt or Memory File with compacted state.
 4. **See** `references/compaction.md` for algorithms.
 
@@ -38,7 +36,7 @@ See [implementation examples](references/implementation.md) for compacted state 
 **Goal**: Maximize pre-fill cache hits.
 
 - **Static Prefix**: Enforce strict ordering — System -> Tools -> RAG -> User.
-- **Append-Only**: Never insert into the middle of history; append new turns only.
+- **Append-Only**: Never insert into middle of history; append new turns only.
 
 ## References
 

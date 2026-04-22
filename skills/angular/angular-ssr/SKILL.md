@@ -1,6 +1,17 @@
 ---
 name: angular-ssr
-description: "Implement Angular SSR with hydration, TransferState caching, and per-route render modes. Use when configuring Angular Universal SSR, client hydration, static prerendering, or preventing double-fetching. (triggers: **/*.server.ts, server.ts, hydration, transferState, afterNextRender, isPlatformServer, RenderMode)"
+description: Implement Angular SSR with hydration, TransferState caching, and per-route render modes. Use when configuring Angular Universal SSR, client hydration, static prerendering, or preventing double-fetching.
+metadata:
+  triggers:
+    files:
+    - '**/*.server.ts'
+    - 'server.ts'
+    keywords:
+    - hydration
+    - transferState
+    - afterNextRender
+    - isPlatformServer
+    - RenderMode
 ---
 # SSR (Server-Side Rendering)
 

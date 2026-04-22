@@ -2,7 +2,6 @@
 name: common-performance-engineering
 description: "Enforce universal standards for high-performance development. Use when profiling bottlenecks, reducing latency, fixing memory leaks, improving throughput, or optimizing algorithm complexity in any language. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, performance, optimize, profile, scalability, latency, throughput, memory leak, bottleneck)"
 ---
-
 # Performance Engineering Standards
 
 ## **Priority: P0 (CRITICAL)**
@@ -10,20 +9,20 @@ description: "Enforce universal standards for high-performance development. Use 
 ## Workflow
 
 1. **Baseline**: Profile before changing anything — measure CPU, memory, and latency.
-2. **Identify**: Find the top bottleneck (N+1 query, hot loop, memory leak).
-3. **Fix**: Apply the targeted optimization from the sections below.
+2. **Identify**: Find top bottleneck (N+1 query, hot loop, memory leak).
+3. **Fix**: Apply targeted optimization from sections below.
 4. **Verify**: Re-profile to confirm improvement and check for regressions.
 
 ## Resource Management
 
 - **Memory Efficiency**:
-  - Avoid memory leaks: explicit cleanup of listeners, observers, and streams.
-  - Optimize data structures: `Set` for lookups, `List` for iteration.
-  - Lazy Initialization: Initialize expensive objects only when needed.
+ - Avoid memory leaks: explicit cleanup of listeners, observers, and streams.
+ - Optimize data structures: `Set` for lookups, `List` for iteration.
+ - Lazy Initialization: Initialize expensive objects only when needed.
 - **CPU Optimization**:
-  - Aim for O(1) or O(n); avoid O(n^2) in critical paths.
-  - Offload heavy computations to background threads or workers.
-  - Memoize pure, expensive functions.
+ - Aim for O(1) or O(n); avoid O(n^2) in critical paths.
+ - Offload heavy computations to background threads or workers.
+ - Memoize pure, expensive functions.
 
 See [implementation examples](references/implementation.md) for memoization and batching patterns.
 

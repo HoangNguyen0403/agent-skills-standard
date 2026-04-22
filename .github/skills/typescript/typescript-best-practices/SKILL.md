@@ -2,7 +2,6 @@
 name: typescript-best-practices
 description: "Write idiomatic TypeScript patterns for clean, maintainable code. Use when writing or refactoring TypeScript classes, functions, modules, or async logic. (triggers: **/*.ts, **/*.tsx, class, function, module, import, export, async, promise)"
 ---
-
 # TypeScript Best Practices
 
 ## **Priority: P1 (OPERATIONAL)**
@@ -26,7 +25,7 @@ description: "Write idiomatic TypeScript patterns for clean, maintainable code. 
 - **No Unused Variables**: Enable `noUnusedLocals`.
 - **No `require`**: Use ES6 `import`.
 - **No Empty Interfaces**: Use `type` or non-empty interface.
-- **No `any`**: Use `unknown` or a specific type.
+- **No `any`**: Use `unknown` or specific type.
 - **No Unsafe Mocks**: Cast with `jest.Mocked<T>` or `as unknown as T`.
 - **No eslint-disable**: Fix root cause; never suppress warnings.
 

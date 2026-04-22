@@ -1,6 +1,16 @@
 ---
 name: nestjs-database
-description: "Implement data access patterns, Scaling, Migrations, and ORM selection in NestJS. Use when implementing TypeORM/Prisma repositories, migrations, or database patterns in NestJS. (triggers: **/*.entity.ts, prisma/schema.prisma, TypeOrmModule, PrismaService, MongooseModule, Repository)"
+description: Implement data access patterns, Scaling, Migrations, and ORM selection in NestJS. Use when implementing TypeORM/Prisma repositories, migrations, or database patterns in NestJS.
+metadata:
+  triggers:
+    files:
+    - '**/*.entity.ts'
+    - 'prisma/schema.prisma'
+    keywords:
+    - TypeOrmModule
+    - PrismaService
+    - MongooseModule
+    - Repository
 ---
 # NestJS Database Standards
 

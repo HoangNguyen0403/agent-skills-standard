@@ -1,6 +1,16 @@
 ---
 name: spring-boot-data-access
-description: "Optimize JPA, Hibernate, and database interactions in Spring Boot. Use when implementing JPA entities, repositories, or database access in Spring Boot. (triggers: **/*Repository.java, **/*Entity.java, jpa-repository, entity-graph, transactional, n-plus-1)"
+description: Optimize JPA, Hibernate, and database interactions in Spring Boot. Use when implementing JPA entities, repositories, or database access in Spring Boot.
+metadata:
+  triggers:
+    files:
+    - '**/*Repository.java'
+    - '**/*Entity.java'
+    keywords:
+    - jpa-repository
+    - entity-graph
+    - transactional
+    - n-plus-1
 ---
 # Spring Boot Data Access
 

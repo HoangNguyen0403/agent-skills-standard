@@ -69,3 +69,94 @@ val filteredItems by remember {
     derivedStateOf { items.filter { it.isActive } }
 }
 ```
+
+## RIGHT / WRONG Patterns
+
+### State hoisting
+
+```kotlin
+// RIGHT — Screen owns ViewModel, Content is stateless
+@Composable
+fun OrderScreen(viewModel: OrderViewModel = hiltViewModel()) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    OrderContent(state = state, onAction = viewModel::onAction)
+}
+
+@Composable
+fun OrderContent(state: OrderUiState, onAction: (OrderAction) -> Unit) {
+    // Pure UI — no ViewModel, no side effects
+}
+```
+
+```kotlin
+// WRONG — ViewModel passed to child Composable
+@Composable
+fun OrderContent(viewModel: OrderViewModel) {  // <-- Don't do this
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    // Couples UI to ViewModel, prevents Preview, breaks testability
+}
+```
+
+### Side effects
+
+```kotlin
+// RIGHT — LaunchedEffect for one-shot work
+@Composable
+fun DetailScreen(id: String, viewModel: DetailViewModel = hiltViewModel()) {
+    LaunchedEffect(id) {
+        viewModel.loadDetail(id)
+    }
+}
+```
+
+```kotlin
+// WRONG — side effect in composition body
+@Composable
+fun DetailScreen(id: String, viewModel: DetailViewModel = hiltViewModel()) {
+    viewModel.loadDetail(id)  // <-- Runs on every recomposition!
+}
+```
+
+### LazyColumn keys
+
+```kotlin
+// RIGHT — stable key enables efficient diffing
+LazyColumn {
+    items(orders, key = { it.id }) { order ->
+        OrderItem(order)
+    }
+}
+```
+
+```kotlin
+// WRONG — no key causes full recomposition on list changes
+LazyColumn {
+    items(orders) { order ->  // <-- Missing key
+        OrderItem(order)
+    }
+}
+```
+
+### Modifier reuse
+
+```kotlin
+// RIGHT — static Modifier declared outside Composable
+private val CardModifier = Modifier
+    .fillMaxWidth()
+    .padding(16.dp)
+
+@Composable
+fun OrderCard(order: Order) {
+    Card(modifier = CardModifier) { /* content */ }
+}
+```
+
+```kotlin
+// WRONG — Modifier created on every recomposition
+@Composable
+fun OrderCard(order: Order) {
+    Card(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+        // New Modifier allocation every recomposition
+    }
+}
+```

@@ -1,6 +1,15 @@
 ---
 name: nestjs-transport
-description: "Configure gRPC, RabbitMQ, and monorepo contract patterns for NestJS microservices. Use when setting up gRPC service-to-service calls, RabbitMQ event-driven messaging, shared contract libraries, or microservice exception handling in NestJS. (triggers: main.ts, **/*.controller.ts, Transport.GRPC, Transport.RMQ, MicroserviceOptions)"
+description: Configure gRPC, RabbitMQ, and monorepo contract patterns for NestJS microservices. Use when setting up gRPC service-to-service calls, RabbitMQ event-driven messaging, shared contract libraries, or microservice exception handling in NestJS.
+metadata:
+  triggers:
+    files:
+    - 'main.ts'
+    - '**/*.controller.ts'
+    - 'Transport.GRPC'
+    - 'Transport.RMQ'
+    keywords:
+    - MicroserviceOptions
 ---
 # Microservices & Transport Standards
 

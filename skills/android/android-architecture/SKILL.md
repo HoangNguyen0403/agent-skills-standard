@@ -1,6 +1,22 @@
 ---
 name: android-architecture
-description: "Apply Clean Architecture layering, modularization, and Unidirectional Data Flow in Android projects. Use when setting up Android project structure, placing code in Clean Architecture layers, configuring feature/core modules, or implementing UDF patterns. (triggers: build.gradle.kts, settings.gradle.kts, clean-architecture, module, layers, domain, UDF, unidirectional, feature module, core module, presentation layer, data layer)"
+description: Apply Clean Architecture layering, modularization, and Unidirectional Data Flow in Android projects. Use when setting up project structure, placing code in layers, configuring feature/core modules, or implementing UDF patterns.
+metadata:
+  triggers:
+    files:
+    - 'build.gradle.kts'
+    - 'settings.gradle.kts'
+    keywords:
+    - clean-architecture
+    - module
+    - layers
+    - domain
+    - UDF
+    - unidirectional
+    - feature module
+    - core module
+    - presentation layer
+    - data layer
 ---
 # Android Architecture Standards
 
@@ -39,6 +55,13 @@ See [structure & examples](references/implementation.md) for module configuratio
 - **No Logic in Activity**: Host Navigation only.
 - **No Repo in UI**: Access data exclusively via ViewModel.
 - **No Context in Domain**: Keep Logic Pure.
+
+## Verification
+
+- [ ] Domain layer has zero Android framework imports.
+- [ ] Each feature module compiles independently.
+- [ ] State flows one-way: Events UP, State DOWN.
+- [ ] `./gradlew build` succeeds.
 
 ## References
 

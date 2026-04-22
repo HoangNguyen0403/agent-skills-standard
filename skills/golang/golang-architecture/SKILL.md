@@ -1,6 +1,17 @@
 ---
 name: golang-architecture
-description: 'Structure Go projects with Clean Architecture and standard layout conventions. Use when structuring Go projects or applying Clean Architecture in Go. (triggers: go.mod, internal/**, architecture, structure, folder layout, clean arch, dependency injection)'
+description: Structure Go projects with Clean Architecture and standard layout conventions. Use when structuring Go projects or applying Clean Architecture in Go.
+metadata:
+  triggers:
+    files:
+    - 'go.mod'
+    - 'internal/**'
+    keywords:
+    - architecture
+    - structure
+    - folder layout
+    - clean arch
+    - dependency injection
 ---
 # Golang Architecture
 

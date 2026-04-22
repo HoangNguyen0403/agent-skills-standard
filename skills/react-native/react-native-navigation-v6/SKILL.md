@@ -1,6 +1,18 @@
 ---
 name: react-native-navigation-v6
-description: "Configure React Navigation 6+ stacks, tabs, and deep linking for React Native. Use when implementing React Navigation stacks, tabs, or deep linking in React Native. (triggers: **/*Navigation*.tsx, src/navigation/**, navigation, react-navigation, stack, tab, drawer, deep link)"
+description: Configure React Navigation 6+ stacks, tabs, and deep linking for React Native. Use when implementing React Navigation stacks, tabs, or deep linking in React Native.
+metadata:
+  triggers:
+    files:
+    - '**/*Navigation*.tsx'
+    - 'src/navigation/**'
+    keywords:
+    - navigation
+    - react-navigation
+    - stack
+    - tab
+    - drawer
+    - deep link
 ---
 # React Native Navigation
 

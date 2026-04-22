@@ -1,6 +1,21 @@
 ---
 name: flutter-testing
-description: "Write unit, widget, and integration tests with robots, widget keys, and Patrol in Flutter. Use when writing Flutter unit tests, widget tests, or integration tests with Patrol. (triggers: **/test/**.dart, **/integration_test/**.dart, **/robots/**.dart, lib/core/keys/**.dart, test, patrol, robot, WidgetKeys, patrolTest, blocTest, mocktail)"
+description: Write unit, widget, and integration tests with robot patterns, widget keys, and Patrol in Flutter. Use when writing tests or implementing test automation.
+metadata:
+  triggers:
+    files:
+    - '**/test/**.dart'
+    - '**/integration_test/**.dart'
+    - '**/robots/**.dart'
+    - 'lib/core/keys/**.dart'
+    keywords:
+    - test
+    - patrol
+    - robot
+    - WidgetKeys
+    - patrolTest
+    - blocTest
+    - mocktail
 ---
 # Flutter Testing Standards
 
@@ -46,3 +61,11 @@ description: "Write unit, widget, and integration tests with robots, widget keys
 - **No unused imports**: Remove `v_dls` when robots handle assertions. Check Material import needs.
 - **No happy-path-only**: Add `Edge cases` group. **No one-sided assertions**: Add `expectNotVisible` pairs.
 - **No unchecked text casing**: Verify `.toUpperCase()`, `.tr()` in source.
+
+## Verification
+
+- [ ] Fakes used over Mocks for Repositories (well-defined inputs/outputs).
+- [ ] Every ViewModel has unit tests covering loading, success, and error states.
+- [ ] Every View has widget tests with faked ViewModel.
+- [ ] Critical user flows have at least one integration test.
+- [ ] `flutter test` passes.

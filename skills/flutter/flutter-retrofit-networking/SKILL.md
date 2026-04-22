@@ -1,6 +1,19 @@
 ---
 name: flutter-retrofit-networking
-description: 'Build type-safe HTTP networking with Dio and Retrofit including auth interceptors. Use when integrating Dio, Retrofit, or API auth interceptors in Flutter. (triggers: **/data_sources/**, **/api/**, Retrofit, Dio, RestClient, GET, POST, Interceptor, refreshing)'
+description: Build type-safe HTTP networking with Dio and Retrofit including auth interceptors in Flutter. Use when integrating REST APIs with Dio or Retrofit.
+metadata:
+  triggers:
+    files:
+    - '**/data_sources/**'
+    - '**/api/**'
+    keywords:
+    - Retrofit
+    - Dio
+    - RestClient
+    - GET
+    - POST
+    - Interceptor
+    - refreshing
 ---
 # Retrofit & Dio Networking
 

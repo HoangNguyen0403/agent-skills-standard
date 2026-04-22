@@ -1,6 +1,17 @@
 ---
 name: nextjs-state-management
-description: 'Apply best practices for managing URL, server, and client state in Next.js applications. Use when choosing between URL params, SWR/TanStack Query, Zustand, or Context for state, or when fixing hydration mismatches from localStorage. (triggers: **/hooks/*.ts, **/store.ts, **/components/*.tsx, useState, useContext, zustand, redux)'
+description: Apply best practices for managing URL, server, and client state in Next.js applications. Use when choosing between URL params, SWR/TanStack Query, Zustand, or Context for state, or when fixing hydration mismatches from localStorage.
+metadata:
+  triggers:
+    files:
+    - '**/hooks/*.ts'
+    - '**/store.ts'
+    - '**/components/*.tsx'
+    keywords:
+    - useState
+    - useContext
+    - zustand
+    - redux
 ---
 # State Management
 

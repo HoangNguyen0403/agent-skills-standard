@@ -5,9 +5,14 @@
 
 | Skill | File pattern | Keywords |
 | ----- | ------------ | -------- |
-| typescript-best-practices | `**/*.ts`, `**/*.tsx` | class, function, module, import, export, async, promise |
 | **typescript-language** | `**/*.ts`, `**/*.tsx`, `tsconfig.json` | type, interface, generic, enum, union, intersection, readonly, const, namespace |
-| **typescript-security** | `**/*.ts`, `**/*.tsx` | validate, sanitize, xss, injection, auth, password, secret, token |
 | typescript-tooling | `tsconfig.json`, `.eslintrc.*`, `jest.config.*`, `package.json` | eslint, prettier, jest, vitest, build, compile, lint |
+
+## Keyword Match (only when user's request mentions these)
+
+| Skill | Match when user mentions |
+| ----- | ----------------------- |
+| typescript-best-practices | class, function, module, import, export, async, promise |
+| **typescript-security** | validate, sanitize, xss, injection, auth, password, secret, token |
 
 > Load matched skills: `<SKILLS>/typescript/<skill>/SKILL.md`. Load ALL that match — the tier model already filters irrelevant ones.

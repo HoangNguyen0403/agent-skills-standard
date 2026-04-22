@@ -1,0 +1,39 @@
+{
+  "skill_name": "android-compose-migration",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to migrate an XML layout to Jetpack Compose. Where do I start?",
+      "expected_output": "Identify the best XML candidate (prefer leaf layouts, avoid complex RecyclerViews), analyze its structure and bindings, set up Compose dependencies and theming, then convert each View to its Compose equivalent while maintaining visual parity.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions identifying a candidate", "type": "contains", "value": "candidate" },
+        { "id": "a2", "description": "Mentions Compose dependencies setup", "type": "contains", "value": "dependenc" },
+        { "id": "a3", "description": "Mentions visual parity or comparison", "type": "contains", "value": "visual" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I host a Composable inside an existing Fragment during incremental migration?",
+      "expected_output": "Use ComposeView in the Fragment's onCreateView. Set ViewCompositionStrategy to DisposeOnViewTreeLifecycleDestroyed to avoid memory leaks. Wrap content in your app theme.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions ComposeView", "type": "contains", "value": "ComposeView" },
+        { "id": "a2", "description": "Mentions ViewCompositionStrategy", "type": "contains", "value": "CompositionStrategy" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "What's the Compose equivalent of a RecyclerView with a LinearLayoutManager?",
+      "expected_output": "LazyColumn replaces a vertical RecyclerView with LinearLayoutManager. Use LazyRow for horizontal lists. Items are defined with the items() DSL.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions LazyColumn", "type": "contains", "value": "LazyColumn" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I optimize recomposition in Jetpack Compose?",
+    "Set up Navigation 3 with NavDisplay",
+    "Make my app edge-to-edge for SDK 35",
+    "Upgrade to AGP 9",
+    "Write a blocTest for my Flutter BLoC"
+  ]
+}

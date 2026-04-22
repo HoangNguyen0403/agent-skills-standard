@@ -1,6 +1,17 @@
 ---
 name: laravel-sessions-middleware
-description: "Configure Redis session drivers, register security-header middleware, and prevent session fixation in Laravel. Use when switching session drivers, adding HSTS/CSP headers via middleware, or regenerating sessions after login. (triggers: app/Http/Middleware/**/*.php, config/session.php, session, driver, handle, headers, csrf)"
+description: Configure Redis session drivers, register security-header middleware, and prevent session fixation in Laravel. Use when switching session drivers, adding HSTS/CSP headers via middleware, or regenerating sessions after login.
+metadata:
+  triggers:
+    files:
+    - 'app/Http/Middleware/**/*.php'
+    - 'config/session.php'
+    keywords:
+    - session
+    - driver
+    - handle
+    - headers
+    - csrf
 ---
 # Laravel Sessions & Middleware
 

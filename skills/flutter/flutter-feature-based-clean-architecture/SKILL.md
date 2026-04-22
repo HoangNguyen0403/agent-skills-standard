@@ -1,6 +1,16 @@
 ---
 name: flutter-feature-based-clean-architecture
-description: 'Organize Flutter apps with modular feature-based clean architecture. Use when creating or modifying any file under lib/features/ including domain entities, repositories, data sources, or screens. (triggers: lib/features/**, feature, domain, infrastructure, application, presentation)'
+description: Organize Flutter apps with modular feature-based clean architecture. Use when creating features under lib/features/ with domain, data, and presentation layers.
+metadata:
+  triggers:
+    files:
+    - 'lib/features/**'
+    keywords:
+    - feature
+    - domain
+    - infrastructure
+    - application
+    - presentation
 ---
 # Feature-Based Clean Architecture
 

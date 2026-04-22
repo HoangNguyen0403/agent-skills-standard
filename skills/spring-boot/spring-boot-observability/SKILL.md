@@ -1,6 +1,16 @@
 ---
 name: spring-boot-observability
-description: "Instrument Spring Boot with Micrometer metrics, distributed tracing, and structured logging. Use when adding Micrometer metrics, distributed tracing, or structured logging to Spring Boot. (triggers: logback-spring.xml, application.properties, micrometer, tracing, correlation-id, mdc)"
+description: Instrument Spring Boot with Micrometer metrics, distributed tracing, and structured logging. Use when adding Micrometer metrics, distributed tracing, or structured logging to Spring Boot.
+metadata:
+  triggers:
+    files:
+    - 'logback-spring.xml'
+    - 'application.properties'
+    keywords:
+    - micrometer
+    - tracing
+    - correlation-id
+    - mdc
 ---
 # Spring Boot Observability
 

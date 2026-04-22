@@ -1,6 +1,15 @@
 ---
 name: ios-performance
-description: 'Profile and optimize iOS apps with Instruments, memory management, and rendering techniques. Use when profiling iOS apps with Instruments or optimizing memory and rendering. (triggers: **/*.swift, Instruments, Allocations, Leaks, dequeueReusableCell)'
+description: Profile and optimize iOS apps with Instruments, memory management, and rendering techniques. Use when profiling iOS apps with Instruments or optimizing memory and rendering.
+metadata:
+  triggers:
+    files:
+    - '**/*.swift'
+    keywords:
+    - Instruments
+    - Allocations
+    - Leaks
+    - dequeueReusableCell
 ---
 # iOS Performance
 

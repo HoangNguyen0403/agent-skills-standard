@@ -1,0 +1,39 @@
+{
+  "skill_name": "android-navigation-3",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I define routes in Navigation 3? I'm used to string-based routes from Navigation 2.",
+      "expected_output": "In Navigation 3, routes are Kotlin data objects or data classes, not strings. Use data object for routes without arguments and data class for routes with arguments. The back stack is a plain mutableStateListOf<Any>.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions data object or data class for routes", "type": "contains", "value": "data" },
+        { "id": "a2", "description": "Mentions mutableStateListOf for back stack", "type": "contains", "value": "mutableStateList" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I replace NavHost and NavController with Navigation 3?",
+      "expected_output": "Replace NavHost with NavDisplay. Replace NavController with a mutableStateListOf<Any> back stack. Navigate by adding to the list (backStack.add(route)), go back by removing (backStack.removeLastOrNull()).",
+      "assertions": [
+        { "id": "a1", "description": "Mentions NavDisplay", "type": "contains", "value": "NavDisplay" },
+        { "id": "a2", "description": "Mentions list manipulation for navigation", "type": "contains", "value": "add" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I implement bottom navigation with multiple back stacks in Navigation 3?",
+      "expected_output": "Create a separate mutableStateListOf<Any> for each tab. Switch between them based on the selected tab. Each tab maintains its own navigation history independently.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions separate back stacks per tab", "type": "contains", "value": "tab" },
+        { "id": "a2", "description": "Mentions independent navigation history", "type": "contains", "value": "stack" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up Hilt dependency injection?",
+    "Migrate my XML layout to Compose",
+    "How do I optimize Compose recomposition?",
+    "Configure edge-to-edge for SDK 35",
+    "Implement go_router navigation in Flutter"
+  ]
+}

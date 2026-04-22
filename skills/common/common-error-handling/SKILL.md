@@ -1,6 +1,24 @@
 ---
 name: common-error-handling
-description: "Cross-cutting standards for error design, response shapes, error codes, and boundary placement across API, domain, and infrastructure layers. Use when defining error hierarchies, wrapping exceptions, building standardized error responses, or placing error boundaries in layered architectures. (triggers: **/*.service.ts, **/*.handler.ts, **/*.controller.ts, **/*.go, **/*.java, **/*.kt, **/*.py, error handling, exception, try catch, error boundary, error response, error code, throw)"
+description: Cross-cutting standards for error design, response shapes, error codes, and boundary placement across API, domain, and infrastructure layers. Use when defining error hierarchies, wrapping exceptions, building standardized error responses, or placing error boundaries in layered architectures.
+metadata:
+  triggers:
+    files:
+    - '**/*.service.ts'
+    - '**/*.handler.ts'
+    - '**/*.controller.ts'
+    - '**/*.go'
+    - '**/*.java'
+    - '**/*.kt'
+    - '**/*.py'
+    keywords:
+    - error handling
+    - exception
+    - try catch
+    - error boundary
+    - error response
+    - error code
+    - throw
 ---
 # Error Handling Standards
 

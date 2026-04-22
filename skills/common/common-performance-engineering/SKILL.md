@@ -1,6 +1,26 @@
 ---
 name: common-performance-engineering
-description: "Enforce universal standards for high-performance development. Use when profiling bottlenecks, reducing latency, fixing memory leaks, improving throughput, or optimizing algorithm complexity in any language. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, performance, optimize, profile, scalability, latency, throughput, memory leak, bottleneck)"
+description: Enforce universal standards for high-performance development. Use when profiling bottlenecks, reducing latency, fixing memory leaks, improving throughput, or optimizing algorithm complexity in any language.
+metadata:
+  triggers:
+    files:
+    - '**/*.ts'
+    - '**/*.tsx'
+    - '**/*.go'
+    - '**/*.dart'
+    - '**/*.java'
+    - '**/*.kt'
+    - '**/*.swift'
+    - '**/*.py'
+    keywords:
+    - performance
+    - optimize
+    - profile
+    - scalability
+    - latency
+    - throughput
+    - memory leak
+    - bottleneck
 ---
 # Performance Engineering Standards
 

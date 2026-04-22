@@ -1,6 +1,16 @@
 ---
 name: flutter-idiomatic-flutter
-description: "Compose modern Flutter layouts and widgets idiomatically. Use when composing Flutter widget trees, managing layout constraints, or following idiomatic Flutter patterns. (triggers: lib/presentation/**/*.dart, context.mounted, SizedBox, Gap, composition, shrink)"
+description: Compose modern Flutter layouts and widgets idiomatically. Use when composing widget trees, managing layout constraints, or following idiomatic Flutter patterns.
+metadata:
+  triggers:
+    files:
+    - 'lib/presentation/**/*.dart'
+    - 'context.mounted'
+    keywords:
+    - SizedBox
+    - Gap
+    - composition
+    - shrink
 ---
 # Idiomatic Flutter
 

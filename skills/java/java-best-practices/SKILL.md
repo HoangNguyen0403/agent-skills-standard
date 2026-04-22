@@ -1,6 +1,20 @@
 ---
 name: java-best-practices
-description: "Apply core Effective Java patterns for robust, maintainable code. Use when applying SOLID principles, choosing between inheritance and composition, refactoring Java code smells, or reviewing class design. (triggers: **/*.java, refactor, SOLID, builder, factory, composition, immutable, Optional, checked exception, clean code)"
+description: Apply core Effective Java patterns for robust, maintainable code. Use when applying SOLID principles, choosing between inheritance and composition, refactoring Java code smells, or reviewing class design.
+metadata:
+  triggers:
+    files:
+    - '**/*.java'
+    keywords:
+    - refactor
+    - SOLID
+    - builder
+    - factory
+    - composition
+    - immutable
+    - Optional
+    - checked exception
+    - clean code
 ---
 # Java Best Practices
 

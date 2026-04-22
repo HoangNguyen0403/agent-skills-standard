@@ -1,6 +1,18 @@
 ---
 name: nextjs-testing
-description: 'Write Jest or Vitest unit tests with React Testing Library and Playwright E2E tests for Next.js projects. Use when testing components with RTL, mocking APIs with MSW, or creating Playwright user flow tests. (triggers: **/*.test.{ts,tsx}, cypress/**, tests/**, jest.config.*, vitest, playwright, msw, testing-library)'
+description: Write Jest or Vitest unit tests with React Testing Library and Playwright E2E tests for Next.js projects. Use when testing components with RTL, mocking APIs with MSW, or creating Playwright user flow tests.
+metadata:
+  triggers:
+    files:
+    - '**/*.test.{ts,tsx}'
+    - 'cypress/**'
+    - 'tests/**'
+    - 'jest.config.*'
+    keywords:
+    - vitest
+    - playwright
+    - msw
+    - testing-library
 ---
 # Next.js Testing
 

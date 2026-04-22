@@ -1,6 +1,18 @@
 ---
 name: nextjs-styling
-description: "Implement zero-runtime CSS with Tailwind, CSS Modules, and the cn() utility for RSC-compatible styling in Next.js. Use when choosing a styling library, creating dynamic class utilities, or optimizing fonts with next/font. (triggers: **/*.css, tailwind.config.ts, **/components/ui/*.tsx, tailwind, css modules, styled-components, clsx, cn)"
+description: Implement zero-runtime CSS with Tailwind, CSS Modules, and the cn() utility for RSC-compatible styling in Next.js. Use when choosing a styling library, creating dynamic class utilities, or optimizing fonts with next/font.
+metadata:
+  triggers:
+    files:
+    - '**/*.css'
+    - 'tailwind.config.ts'
+    - '**/components/ui/*.tsx'
+    keywords:
+    - tailwind
+    - css modules
+    - styled-components
+    - clsx
+    - cn
 ---
 # Styling & UI Performance
 

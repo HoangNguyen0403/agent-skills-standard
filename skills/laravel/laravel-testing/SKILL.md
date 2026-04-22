@@ -1,6 +1,17 @@
 ---
 name: laravel-testing
-description: "Write Pest feature tests with RefreshDatabase, mock external services, and create test data with Eloquent Factories in Laravel. Use when adding HTTP tests, configuring SQLite in-memory test database, or mocking payment services. (triggers: tests/**/*.php, phpunit.xml, feature, unit, mock, factory, sqlite)"
+description: Write Pest feature tests with RefreshDatabase, mock external services, and create test data with Eloquent Factories in Laravel. Use when adding HTTP tests, configuring SQLite in-memory test database, or mocking payment services.
+metadata:
+  triggers:
+    files:
+    - 'tests/**/*.php'
+    - 'phpunit.xml'
+    keywords:
+    - feature
+    - unit
+    - mock
+    - factory
+    - sqlite
 ---
 # Laravel Testing
 

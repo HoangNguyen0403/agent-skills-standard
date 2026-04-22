@@ -1,6 +1,17 @@
 ---
 name: angular-architecture
-description: 'Standards for Angular project structure, feature modules, and lazy loading. Use when structuring Angular apps, defining feature modules, or configuring lazy loading. (triggers: angular.json, angular components, standalone, feature module, lazy loading, loadComponent, loadChildren)'
+description: Standards for Angular project structure, feature modules, and lazy loading. Use when structuring Angular apps, defining feature modules, or configuring lazy loading.
+metadata:
+  triggers:
+    files:
+    - 'angular.json'
+    keywords:
+    - angular components
+    - standalone
+    - feature module
+    - lazy loading
+    - loadComponent
+    - loadChildren
 ---
 # Angular Architecture
 

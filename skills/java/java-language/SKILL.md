@@ -1,6 +1,22 @@
 ---
 name: java-language
-description: 'Modern Java 21+ standards including Records, Pattern Matching, and Virtual Threads. Use when working with Java records, sealed classes, switch expressions, text blocks, Optional, or upgrading from older Java versions. (triggers: **/*.java, pom.xml, build.gradle, record, sealed, switch, var, Optional, stream, VirtualThread, instanceof, text block)'
+description: Modern Java 21+ standards including Records, Pattern Matching, and Virtual Threads. Use when working with Java records, sealed classes, switch expressions, text blocks, Optional, or upgrading from older Java versions.
+metadata:
+  triggers:
+    files:
+    - '**/*.java'
+    - 'pom.xml'
+    - 'build.gradle'
+    keywords:
+    - record
+    - sealed
+    - switch
+    - var
+    - Optional
+    - stream
+    - VirtualThread
+    - instanceof
+    - text block
 ---
 # Java Language Patterns
 

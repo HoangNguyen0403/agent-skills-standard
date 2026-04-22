@@ -1,6 +1,17 @@
 ---
 name: php-language
-description: "Apply core PHP language standards and modern 8.x features. Use when working with PHP 8.x features like enums, fibers, readonly properties, or named arguments. (triggers: **/*.php, declare, readonly, match, constructor, promotion, types)"
+description: Apply core PHP language standards and modern 8.x features. Use when working with PHP 8.x features like enums, fibers, readonly properties, or named arguments.
+metadata:
+  triggers:
+    files:
+    - '**/*.php'
+    keywords:
+    - declare
+    - readonly
+    - match
+    - constructor
+    - promotion
+    - types
 ---
 # PHP Language Standards
 

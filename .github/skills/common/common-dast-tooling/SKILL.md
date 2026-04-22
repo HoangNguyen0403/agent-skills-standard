@@ -2,7 +2,6 @@
 name: common-dast-tooling
 description: 'Standardize usage of Dynamic Application Security Testing (DAST) tools (ZAP, Nuclei, Nikto) and custom AI-driven curl probes for adversarial system testing. Use when advising on or running dynamic security scans on local/staging environments. (triggers: DAST, dynamic scan, zap, nuclei, nikto, curl probe, pentest, dynamic analysis)'
 ---
-
 # DAST Tooling Standard
 
 ## **Priority: P1 (OPERATIONAL)**
@@ -11,7 +10,7 @@ description: 'Standardize usage of Dynamic Application Security Testing (DAST) t
 
 - **No Scanning Production**: Never run DAST tools against live production environments. Use local or staging replicas only.
 - **No Uncapped Scans**: Always set `max-depth` or `max-duration` to avoid infinite loops on dynamic routes.
-- **No Anonymous Probing**: Use authenticated headers (`Authorization`) to test protected surfaces, not just public ones.
+- **No Anonymous Probing**: Use authenticated headers (`Authorization`) to test protected surfaces, not public ones.
 
 ## 1. Automated DAST Tools
 
@@ -23,7 +22,7 @@ Follow [implementation guide](references/implementation.md) for command-line set
 
 ## 2. Adversarial `curl` Probing (Manual)
 
-When tools are unavailable, use the AI to generate targeted `curl` probes:
+When tools unavailable, use AI to generate targeted `curl` probes:
 
 - **Bypassing Guards**: Probe protected routes with manipulated headers (`X-Forwarded-For`, `X-Custom-Auth`).
 - **Data Leakage**: Request `/metrics`, `/health`, or `.git` directories to find exposed metadata.
@@ -31,12 +30,12 @@ When tools are unavailable, use the AI to generate targeted `curl` probes:
 
 ## Scoring Impact
 
-| Finding                                 | Severity | Deduction |
+| Finding | Severity | Deduction |
 | --------------------------------------- | -------- | --------- |
-| Unauthenticated access to private data  | P0       | -25       |
-| Successful SQLi/RCE via probe           | P0       | -20       |
-| Info Leakage (Server versions/Env vars) | P1       | -10       |
-| Missing security headers (CSP/HSTS)     | P2       | -5        |
+| Unauthenticated access to private data | P0 | -25 |
+| Successful SQLi/RCE via probe | P0 | -20 |
+| Info Leakage (Server versions/Env vars) | P1 | -10 |
+| Missing security headers (CSP/HSTS) | P2 | -5 |
 
 ## Anti-Patterns
 

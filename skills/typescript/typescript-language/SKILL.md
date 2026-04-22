@@ -1,6 +1,22 @@
 ---
 name: typescript-language
-description: "Apply modern TypeScript standards for type safety and maintainability. Use when working with types, interfaces, generics, enums, unions, or tsconfig settings. (triggers: **/*.ts, **/*.tsx, tsconfig.json, type, interface, generic, enum, union, intersection, readonly, const, namespace)"
+description: Apply modern TypeScript standards for type safety and maintainability. Use when working with types, interfaces, generics, enums, unions, or tsconfig settings.
+metadata:
+  triggers:
+    files:
+    - '**/*.ts'
+    - '**/*.tsx'
+    - 'tsconfig.json'
+    keywords:
+    - type
+    - interface
+    - generic
+    - enum
+    - union
+    - intersection
+    - readonly
+    - const
+    - namespace
 ---
 # TypeScript Language Patterns
 

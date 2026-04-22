@@ -1,6 +1,21 @@
 ---
 name: kotlin-best-practices
-description: 'Core patterns for robust Kotlin code including scope functions and backing properties. Use when writing idiomatic Kotlin, choosing between scope functions (let/apply/run/also/with), encapsulating mutable state with backing properties, or exposing read-only collection interfaces. (triggers: **/*.kt, apply, let, run, also, with, runCatching, backing property, MutableList, internal, private set)'
+description: Core patterns for robust Kotlin code including scope functions and backing properties. Use when writing idiomatic Kotlin, choosing between scope functions (let/apply/run/also/with), encapsulating mutable state with backing properties, or exposing read-only collection interfaces.
+metadata:
+  triggers:
+    files:
+    - '**/*.kt'
+    keywords:
+    - apply
+    - let
+    - run
+    - also
+    - with
+    - runCatching
+    - backing property
+    - MutableList
+    - internal
+    - private set
 ---
 # Kotlin Best Practices
 

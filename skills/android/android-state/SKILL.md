@@ -1,6 +1,20 @@
 ---
 name: android-state
-description: 'Configure ViewModel state emission with StateFlow, sealed UiState classes, and lifecycle-safe collection in Android. Use when working with ViewModel files, UiState sealed classes, MutableStateFlow, collectAsStateWithLifecycle, or exposing state from ViewModels. (triggers: **/*ViewModel.kt, **/*UiState.kt, viewmodel, stateflow, livedata, uistate, MutableStateFlow, collectAsState, viewModelScope, UiState)'
+description: Configure ViewModel state emission with StateFlow, sealed UiState classes, and lifecycle-safe collection in Android. Use when working with ViewModels, UiState patterns, or exposing state to Compose UI.
+metadata:
+  triggers:
+    files:
+    - '**/*ViewModel.kt'
+    - '**/*UiState.kt'
+    keywords:
+    - viewmodel
+    - stateflow
+    - livedata
+    - uistate
+    - MutableStateFlow
+    - collectAsState
+    - viewModelScope
+    - UiState
 ---
 # Android State Management
 
@@ -31,6 +45,13 @@ See [templates](references/implementation.md) for sealed UiState pattern.
 - **No LiveData for New Code**: Use StateFlow — lifecycle-safe and Compose-compatible.
 - **No Public MutableStateFlow**: Expose only `.asStateFlow()` to consumers.
 - **No Context in ViewModel**: Leaks Activity. Use Application context if truly needed.
+
+## Verification
+
+- [ ] Each ViewModel exposes exactly one `StateFlow<UiState>`.
+- [ ] UiState is a sealed interface with Loading, Content, Error variants.
+- [ ] UI collects with `collectAsStateWithLifecycle()`.
+- [ ] `./gradlew test` passes for ViewModel tests.
 
 ## References
 

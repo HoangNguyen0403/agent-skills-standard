@@ -1,6 +1,15 @@
 ---
 name: quality-engineering-quality-assurance
-description: 'Write manual test cases with 1-condition-per-TC granularity, Module_Action on Screen when Condition naming, platform prefix rules, and High/Normal/Low priority classification. Use when writing or reviewing manual test cases for Zephyr — to split compound TCs, fix naming violations, assign correct platform tags, or determine bug priority. (triggers: test case, manual test, zephyr, test scenario, naming convention, acceptance criteria)'
+description: Write manual test cases with 1-condition-per-TC granularity, Module_Action on Screen when Condition naming, platform prefix rules, and High/Normal/Low priority classification. Use when writing or reviewing manual test cases for Zephyr — to split compound TCs, fix naming violations, assign correct platform tags, or determine bug priority.
+metadata:
+  triggers:
+    keywords:
+    - test case
+    - manual test
+    - zephyr
+    - test scenario
+    - naming convention
+    - acceptance criteria
 ---
 # Quality Assurance Standards
 

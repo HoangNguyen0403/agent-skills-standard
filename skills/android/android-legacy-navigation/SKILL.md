@@ -1,6 +1,14 @@
 ---
 name: android-legacy-navigation
-description: "Implement Jetpack Navigation Component with XML graphs and SafeArgs for type-safe fragment navigation. Use when working with XML-based Navigation Component or SafeArgs in Android. (triggers: navigation/*.xml, findNavController, NavDirections, navArgs)"
+description: Implement Jetpack Navigation Component with XML graphs and SafeArgs for type-safe fragment navigation. Use when working with XML-based navigation or SafeArgs in legacy Android projects.
+metadata:
+  triggers:
+    files:
+    - 'navigation/*.xml'
+    keywords:
+    - findNavController
+    - NavDirections
+    - navArgs
 ---
 # Android Legacy Navigation Standards
 

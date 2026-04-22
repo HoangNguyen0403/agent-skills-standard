@@ -2,7 +2,6 @@
 name: typescript-language
 description: "Apply modern TypeScript standards for type safety and maintainability. Use when working with types, interfaces, generics, enums, unions, or tsconfig settings. (triggers: **/*.ts, **/*.tsx, tsconfig.json, type, interface, generic, enum, union, intersection, readonly, const, namespace)"
 ---
-
 # TypeScript Language Patterns
 
 ## **Priority: P0 (CRITICAL)**
@@ -18,14 +17,14 @@ description: "Apply modern TypeScript standards for type safety and maintainabil
 - **Utility Types**: `Partial`, `Pick`, `Omit`, `Record`.
 - **Immutability**: `readonly` arrays/objects. Const Assertions: `as const`, `satisfies`.
 - **Template Literals**: `on${Capitalize<string>}`.
-- **Discriminated Unions**: Literal kind property to narrow the type safely. Switch on discriminant.
+- **Discriminated Unions**: Literal kind property to narrow type safely. Switch on discriminant.
 - **Advanced**: Mapped, Conditional, Indexed types.
 - **Access**: Default `public`. Use `private`/`protected` or `#private`.
 - **Branded Types**: `string & { __brand: 'Id' }`.
 
 ## Anti-Patterns
 
-- **NEVER use `any`**: Use `unknown` or a specific interface instead.
+- **NEVER use `any`**: Use `unknown` or specific interface instead.
 - **No `Function`**: Use signature `() => void`.
 - **No `enum`**: Runtime cost.
 - **No `!`**: Avoid non-null assertion (!). Use narrowing (typeof, instanceof, if-checks).

@@ -1,6 +1,17 @@
 ---
 name: nextjs-rendering
-description: "Select and implement SSG, SSR, ISR, Streaming, or Partial Prerendering strategies in Next.js App Router. Use when choosing a rendering mode for a page, configuring generateStaticParams, or enabling PPR. (triggers: **/page.tsx, **/layout.tsx, generateStaticParams, dynamic, dynamicParams, PPR, streaming)"
+description: Select and implement SSG, SSR, ISR, Streaming, or Partial Prerendering strategies in Next.js App Router. Use when choosing a rendering mode for a page, configuring generateStaticParams, or enabling PPR.
+metadata:
+  triggers:
+    files:
+    - '**/page.tsx'
+    - '**/layout.tsx'
+    keywords:
+    - generateStaticParams
+    - dynamic
+    - dynamicParams
+    - PPR
+    - streaming
 ---
 # Rendering Strategies (App Router)
 

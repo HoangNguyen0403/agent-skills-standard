@@ -1,6 +1,17 @@
 ---
 name: nextjs-pages-router
-description: "Implement Pages Router data fetching with getServerSideProps, getStaticProps, and API routes in Next.js legacy projects. Use when working in a pages/ directory project, adding SSR/SSG data fetching, or creating API routes. (triggers: pages/**/*.tsx, pages/**/*.ts, Pages Router, getServerSideProps, getStaticProps, _app, useRouter)"
+description: Implement Pages Router data fetching with getServerSideProps, getStaticProps, and API routes in Next.js legacy projects. Use when working in a pages/ directory project, adding SSR/SSG data fetching, or creating API routes.
+metadata:
+  triggers:
+    files:
+    - 'pages/**/*.tsx'
+    - 'pages/**/*.ts'
+    keywords:
+    - Pages Router
+    - getServerSideProps
+    - getStaticProps
+    - _app
+    - useRouter
 ---
 # Next.js Pages Router (Legacy)
 

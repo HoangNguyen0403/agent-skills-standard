@@ -1,6 +1,15 @@
 ---
 name: react-typescript
-description: "Type React components and hooks with TypeScript patterns. Use when typing React props, hooks, event handlers, or component generics in TypeScript. (triggers: **/*.tsx, ReactNode, FC, PropsWithChildren, ComponentProps)"
+description: Type React components and hooks with TypeScript patterns. Use when typing React props, hooks, event handlers, or component generics in TypeScript.
+metadata:
+  triggers:
+    files:
+    - '**/*.tsx'
+    keywords:
+    - ReactNode
+    - FC
+    - PropsWithChildren
+    - ComponentProps
 ---
 # React TypeScript
 

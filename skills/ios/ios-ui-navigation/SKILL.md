@@ -1,6 +1,17 @@
 ---
 name: ios-ui-navigation
-description: "Implement UIKit navigation, Auto Layout, and Apple Human Interface Guidelines in iOS. Use when implementing UIKit navigation, Auto Layout constraints, or HIG compliance. (triggers: **/*View.swift, **/*.xib, **/*.storyboard, NSLayoutConstraint, UIStackView, SnapKit, layoutSubviews)"
+description: Implement UIKit navigation, Auto Layout, and Apple Human Interface Guidelines in iOS. Use when implementing UIKit navigation, Auto Layout constraints, or HIG compliance.
+metadata:
+  triggers:
+    files:
+    - '**/*View.swift'
+    - '**/*.xib'
+    - '**/*.storyboard'
+    keywords:
+    - NSLayoutConstraint
+    - UIStackView
+    - SnapKit
+    - layoutSubviews
 ---
 # iOS UI & Layout Standards
 

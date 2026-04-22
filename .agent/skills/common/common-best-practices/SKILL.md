@@ -1,8 +1,7 @@
 ---
 name: common-best-practices
-description: "Enforce SOLID principles, guard-clause style, function size limits, and intention-revealing naming across all languages. Use when refactoring for readability, applying clean-code patterns, reviewing naming conventions, or reducing function complexity. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, solid, kiss, dry, yagni, naming, conventions, refactor, clean code)"
+description: 'Enforce SOLID principles, guard-clause style, function size limits, and intention-revealing naming across all languages. Use when refactoring for readability, applying clean-code patterns, reviewing naming conventions, or reducing function complexity. (triggers: **/*.ts, **/*.tsx, **/*.go, **/*.dart, **/*.java, **/*.kt, **/*.swift, **/*.py, solid, kiss, dry, yagni, naming, conventions, refactor, clean code)'
 ---
-
 # Global Best Practices
 
 ## **Priority: P0 (FOUNDATIONAL)**
@@ -10,22 +9,22 @@ description: "Enforce SOLID principles, guard-clause style, function size limits
 ## Core Principles
 
 - **SOLID**: Follow SRP (One reason to change), OCP (Open to extension), LSP, ISP, DIP.
-- **KISS/DRY/YAGNI**: Favor readability. Abstract repeated logic. No "just in case" code.
-- **Naming**: Intention-revealing (`isUserAuthenticated` > `checkUser`). Follow language casing.
+- **KISS/DRY/YAGNI**: Favor readability. Abstract repeated logic. No " in case" code.
+- **Naming**: Use intention-revealing names (`isUserAuthenticated` > `checkUser`). Match language casing.
 
 ## Code Hygiene
 
 - **Size Limits**: Functions < 30 lines. Services < 600 lines. Utils < 400 lines.
-- **Early Returns**: Use guard clauses to prevent deep nesting.
-- **Comments**: Explain **why**, not **what**. Refactor instead of commenting bad code.
-- **Sanitization**: Validate all external inputs.
+- **Early Returns**: Use guard clauses. Avoid deep nesting.
+- **Comments**: Explain **why**, not **what**. Refactor bad code; don't comment it.
+- **Input**: Validate/sanitize all external inputs.
 
 ## Anti-Patterns
 
-- **No hardcoded constants**: Use named config/env vars.
-- **No deep nesting**: Guard clauses eliminate the Pyramid of Doom.
-- **No global state**: Prefer dependency injection.
-- **No empty catches**: Always handle, log, or rethrow.
+- **No Hardcoded Constants**: Use named config/env vars.
+- **No Deep Nesting**: Use guard clauses.
+- **No Global State**: Prefer dependency injection.
+- **No Empty Catches**: Always handle, log, or rethrow.
 
 ## References
 

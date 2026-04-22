@@ -2,7 +2,6 @@
 name: common-git-collaboration
 description: "Enforce version control best practices for commits, branching, pull requests, and repository security. Use when writing commits, creating branches, merging, or opening pull requests. (triggers: commit, branch, merge, pull-request, git)"
 ---
-
 # Git & Collaboration
 
 ## **Priority: P0 (OPERATIONAL)**
@@ -19,7 +18,7 @@ See [implementation examples](references/implementation.md) for conventional com
 ## 2. Manage Branches
 
 - Name with prefixes: `feat/`, `fix/`, `hotfix/`, `refactor/`, `docs/`.
-- Create a new branch for every task to keep main stable and deployable.
+- Create new branch for every task to keep main stable and deployable.
 - Never push directly to `main` or `develop` — use Pull Requests.
 - Pull before you push to resolve conflicts locally.
 - Prefer `git rebase` over merge for linear history on feature branches.
@@ -42,7 +41,7 @@ See [implementation examples](references/implementation.md) for conventional com
 
 - **No direct push to main**: All changes via PR, no exceptions.
 - **No mega-commits**: One commit = one logical change. Split large ones.
-- **No secrets in history**: Use `git filter-repo` to purge; rotate the secret.
+- **No secrets in history**: Use `git filter-repo` to purge; rotate secret.
 
 ## References
 

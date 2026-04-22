@@ -1,6 +1,19 @@
 ---
 name: typescript-best-practices
-description: "Write idiomatic TypeScript patterns for clean, maintainable code. Use when writing or refactoring TypeScript classes, functions, modules, or async logic. (triggers: **/*.ts, **/*.tsx, class, function, module, import, export, async, promise)"
+description: Write idiomatic TypeScript patterns for clean, maintainable code. Use when writing or refactoring TypeScript classes, functions, modules, or async logic.
+metadata:
+  triggers:
+    files:
+    - '**/*.ts'
+    - '**/*.tsx'
+    keywords:
+    - class
+    - function
+    - module
+    - import
+    - export
+    - async
+    - promise
 ---
 # TypeScript Best Practices
 

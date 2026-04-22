@@ -1,6 +1,15 @@
 ---
 name: angular-routing
-description: "Configure Angular Router with lazy-loaded routes, functional guards, and component input binding. Use when defining routes, lazy-loading features, creating route guards, or setting up resolvers. (triggers: *.routes.ts, angular router, loadComponent, canActivate, resolver)"
+description: Configure Angular Router with lazy-loaded routes, functional guards, and component input binding. Use when defining routes, lazy-loading features, creating route guards, or setting up resolvers.
+metadata:
+  triggers:
+    files:
+    - '*.routes.ts'
+    keywords:
+    - angular router
+    - loadComponent
+    - canActivate
+    - resolver
 ---
 # Routing
 

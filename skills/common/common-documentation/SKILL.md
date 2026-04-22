@@ -1,6 +1,13 @@
 ---
 name: common-documentation
-description: 'Write effective code comments, READMEs, and technical documentation following intent-first principles. Use when adding comments, writing docstrings, creating READMEs, or updating any documentation. (triggers: comment, docstring, readme, documentation)'
+description: Write effective code comments, READMEs, and technical documentation following intent-first principles. Use when adding comments, writing docstrings, creating READMEs, or updating any documentation.
+metadata:
+  triggers:
+    keywords:
+    - comment
+    - docstring
+    - readme
+    - documentation
 ---
 # Documentation Standards
 

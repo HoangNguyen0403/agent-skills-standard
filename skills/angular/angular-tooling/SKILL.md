@@ -1,8 +1,19 @@
 ---
 name: angular-tooling
-description: 'Angular CLI usage, code generation, build configuration, and bundle optimization. Use when creating Angular projects, generating components/services/guards, configuring builds, running tests, or analyzing bundles. (triggers: angular.json, ng generate, ng build, ng serve, ng test, ng add, angular cli, bundle analysis)'
+description: Angular CLI usage, code generation, build configuration, and bundle optimization. Use when creating Angular projects, generating components/services/guards, configuring builds, running tests, or analyzing bundles.
+metadata:
+  triggers:
+    files:
+    - 'angular.json'
+    keywords:
+    - ng generate
+    - ng build
+    - ng serve
+    - ng test
+    - ng add
+    - angular cli
+    - bundle analysis
 ---
-
 # Angular Tooling
 
 ## **Priority: P2 (OPTIONAL)**

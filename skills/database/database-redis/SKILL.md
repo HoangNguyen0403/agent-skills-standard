@@ -1,6 +1,17 @@
 ---
 name: database-redis
-description: "Optimize Redis caching, key management, and performance. Use when implementing Redis caching strategies, managing key namespaces, or optimizing Redis performance. (triggers: **/*.ts, **/*.js, **/redis.config.ts, redis, cache, ttl, eviction)"
+description: Optimize Redis caching, key management, and performance. Use when implementing Redis caching strategies, managing key namespaces, or optimizing Redis performance.
+metadata:
+  triggers:
+    files:
+    - '**/*.ts'
+    - '**/*.js'
+    - '**/redis.config.ts'
+    keywords:
+    - redis
+    - cache
+    - ttl
+    - eviction
 ---
 # Redis Best Practices
 

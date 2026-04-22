@@ -1,6 +1,17 @@
 ---
 name: golang-database
-description: 'Implement database access with connection pooling and repository patterns in Go. Use when building database access, connection pools, or repositories in Go. (triggers: internal/adapter/repository/**, database, sql, postgres, gorm, sqlc, pgx)'
+description: Implement database access with connection pooling and repository patterns in Go. Use when building database access, connection pools, or repositories in Go.
+metadata:
+  triggers:
+    files:
+    - 'internal/adapter/repository/**'
+    keywords:
+    - database
+    - sql
+    - postgres
+    - gorm
+    - sqlc
+    - pgx
 ---
 # Golang Database
 

@@ -2,7 +2,6 @@
 name: common-feedback-reporter
 description: 'Pre-write skill violation audit. Checks planned code against loaded skill anti-patterns before any file write. Use when writing Flutter/Dart code, editing SKILL.md files, or generating any code where project skills are active. Load as composite alongside other skills. When a violation is detected and Auto-fixed: YES, also load +common/common-learning-log to record the mistake. (triggers: skill violation, pre-write audit, audit violations, SKILL.md, **/*.dart, **/*.ts, **/*.tsx, +common/common-learning-log)'
 ---
-
 # Feedback Reporter
 
 ## **Priority: P0 - Auto-detect skill violations before file writes**
@@ -12,11 +11,11 @@ description: 'Pre-write skill violation audit. Checks planned code against loade
 **Quick check before `write_to_file`, `replace_file_content`, `multi_replace_file_content`:**
 
 1. **Check** - Any skills loaded for this file extension?
-   - NO → ✅ Proceed silently
-   - YES → Continue to step 2
-2. **Audit** - Does planned code violate loaded skill rules?
-   - NO → ✅ Proceed silently — **do NOT submit a feedback report**
-   - YES → Output violation block below, then fix immediately
+ - NO → ✅ Proceed silently
+ - YES → Continue to step 2
+2. **Audit** - planned code violate loaded skill rules?
+ - NO → ✅ Proceed silently — ** NOT submit feedback report**
+ - YES → Output violation block below, then fix immediately
 
 ## Detection Flow
 
@@ -42,7 +41,7 @@ Before file write?
 
 ## Violation Report Format
 
-When a violation is detected, output this block before fixing:
+When violation detected, output this block before fixing:
 
 ```
 🚨 SKILL VIOLATION DETECTED
@@ -63,23 +62,23 @@ Co-skills:    [other active skill IDs, comma-separated, or 'none']
 | Code | When to use |
 |------|-------------|
 | `AMBIGUOUS_RULE` | Rule wording permits multiple interpretations |
-| `MISSING_COVERAGE` | Common pattern not addressed anywhere in the skill |
-| `OUTDATED_GUIDANCE` | Skill references a deprecated API or framework version |
+| `MISSING_COVERAGE` | Common pattern not addressed anywhere in skill |
+| `OUTDATED_GUIDANCE` | Skill references deprecated API or framework version |
 | `COMPETING_RULES` | Two loaded skills gave contradictory guidance |
-| `PATTERN_MISMATCH` | AI misread or misapplied an anti-pattern definition |
+| `PATTERN_MISMATCH` | AI misread or misapplied anti-pattern definition |
 
-Then apply the fix immediately — do not wait for user confirmation.
+Then apply fix immediately — not wait for user confirmation.
 
 ## Pre-Completion Check
 
 Before `notify_user` or task completion:
 
-**Did I write code?** YES → **Did I audit skills?** NO → Audit now
+** I write code?** YES → ** I audit skills?** NO → Audit now
 
 ## Anti-Patterns
 
 - **No "I'll check later"**: Check before writing, not after
 - **No "minor change skip"**: Every write needs check
 - **No "user waiting skip"**: 10-second check > pattern violation
-- **No "clean-pass report"**: If no violation found, proceed silently — do NOT submit a report
+- **No "clean-pass report"**: If no violation found, proceed silently — NOT submit report
 - **No "shallow report"**: Always populate Root Cause, User Intent, and Skill Gap — these drive improvement

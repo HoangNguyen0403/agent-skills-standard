@@ -1,6 +1,18 @@
 ---
 name: flutter-dependency-injection
-description: 'Configure automated service locator setup using injectable and get_it. Use when wiring dependency injection with injectable and get_it in Flutter. (triggers: **/injection.dart, **/locator.dart, GetIt, injectable, singleton, module, lazySingleton, factory)'
+description: Configure service locator setup using injectable and get_it in Flutter. Use when wiring dependency injection with get_it or injectable.
+metadata:
+  triggers:
+    files:
+    - '**/injection.dart'
+    - '**/locator.dart'
+    keywords:
+    - GetIt
+    - injectable
+    - singleton
+    - module
+    - lazySingleton
+    - factory
 ---
 # Dependency Injection
 

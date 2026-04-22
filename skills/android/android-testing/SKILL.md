@@ -1,6 +1,20 @@
 ---
 name: android-testing
-description: "Write Unit Tests, UI Tests (Compose), and Hilt-integrated tests for Android. Use whenever writing Android test files or asking about runTest, composeTestRule, HiltAndroidRule, MockK, MainDispatcherRule, @TestInstallIn, or how to test a ViewModel/Composable/Repository in Android. (triggers: **/*Test.kt, **/*Rule.kt, @Test, runTest, composeTestRule, HiltAndroidTest, MockK, createAndroidComposeRule, MainDispatcherRule, @TestInstallIn)"
+description: Write unit tests, Compose UI tests, and Hilt-integrated tests for Android. Use when writing test files or testing ViewModels, Composables, or Repositories with MockK and coroutine test utilities.
+metadata:
+  triggers:
+    files:
+    - '**/*Test.kt'
+    - '**/*Rule.kt'
+    keywords:
+    - @Test
+    - runTest
+    - composeTestRule
+    - HiltAndroidTest
+    - MockK
+    - createAndroidComposeRule
+    - MainDispatcherRule
+    - @TestInstallIn
 ---
 # Android Testing Standards
 

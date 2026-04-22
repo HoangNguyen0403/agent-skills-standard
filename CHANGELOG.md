@@ -5,6 +5,53 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.3] - 2026-04-22
+
+**Category**: Structured Frontmatter Migration & New Workflow Skills
+
+### Added
+
+- **Android Workflow Skills (4)**: `android-edge-to-edge` (inset patterns with RIGHT/WRONG code), `android-agp-upgrade` (6-step AGP 9 migration), `android-compose-migration` (10-step XML-to-Compose workflow), `android-navigation-3` (Nav2-to-Nav3 migration with 6 recipes). Inspired by Google's official [android/skills](https://github.com/android/skills).
+- **Flutter Workflow Skills (1)**: `flutter-concurrency` (isolate decision matrix). Inspired by Flutter's official [flutter/skills](https://github.com/flutter/skills).
+- **Evals for all 5 new skills**: 3 positive test cases + 5 negative (should-not-trigger) cases each.
+- **Verification sections** added to `android-compose`, `android-architecture`, `android-state`, `flutter-bloc-state-management`, `flutter-testing` with runnable checklist items.
+- **RIGHT/WRONG code patterns** added to `android-compose/references/implementation.md` (state hoisting, side effects, LazyColumn keys, Modifier reuse).
+
+### Changed
+
+- **Frontmatter Migration (244/244 skills)**: All skills migrated from inline `(triggers: ...)` in description strings to structured `metadata.triggers.files` and `metadata.triggers.keywords` YAML fields. Descriptions are now clean and human-readable.
+- **Security fix**: Replaced `const token = 'invalid-token'` with `const invalidInput = 'not-a-real-jwt'` in `common-tdd` AAA methodology reference to prevent pre-commit secret detection false positives.
+
+### Versions
+
+- **CLI**: v2.1.3 (No CLI logic changes — skills content only)
+- **Android**: `v1.3.3` -> `v1.4.0` (4 new workflow skills + frontmatter migration)
+- **Flutter**: `v1.6.3` -> `v1.7.0` (3 new workflow skills + frontmatter migration)
+
+#### Category Patch Version Updates (frontmatter migration)
+
+All categories received a patch bump for the structured frontmatter migration:
+
+- **Common**: `v2.0.3` -> `v2.0.4`
+- **Dart**: `v1.3.3` -> `v1.3.4`
+- **TypeScript**: `v1.3.2` -> `v1.3.3`
+- **JavaScript**: `v1.3.3` -> `v1.3.4`
+- **React**: `v1.3.3` -> `v1.3.4`
+- **React Native**: `v1.4.3` -> `v1.4.4`
+- **Next.js**: `v1.4.3` -> `v1.4.4`
+- **Angular**: `v1.4.1` -> `v1.4.2`
+- **NestJS**: `v1.4.3` -> `v1.4.4`
+- **Go (Golang)**: `v1.3.2` -> `v1.3.3`
+- **Spring Boot**: `v1.3.2` -> `v1.3.3`
+- **iOS**: `v1.4.3` -> `v1.4.4`
+- **Swift**: `v1.3.3` -> `v1.3.4`
+- **Kotlin**: `v1.3.2` -> `v1.3.3`
+- **Java**: `v1.3.2` -> `v1.3.3`
+- **PHP**: `v1.3.2` -> `v1.3.3`
+- **Laravel**: `v1.3.3` -> `v1.3.4`
+- **Database**: `v1.3.2` -> `v1.3.3`
+- **Quality Engineering**: `v1.4.3` -> `v1.4.4`
+
 ## [2.1.2] - 2026-04-11
 
 **Category**: Token Economy & Custom Skill Indexing

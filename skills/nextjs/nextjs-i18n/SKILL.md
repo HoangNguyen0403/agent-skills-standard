@@ -1,6 +1,21 @@
 ---
 name: nextjs-i18n
-description: "Best practices for multi-language handling, locale routing, and detection strategies across App and Pages Router. Use when adding i18n, locale routing, or language detection in Next.js. (triggers: middleware.ts, app/[lang]/**, pages/[locale]/**, messages/*.json, next.config.js, i18n, locale, translation, next-intl, react-intl, next-translate)"
+description: Best practices for multi-language handling, locale routing, and detection strategies across App and Pages Router. Use when adding i18n, locale routing, or language detection in Next.js.
+metadata:
+  triggers:
+    files:
+    - 'middleware.ts'
+    - 'app/[lang]/**'
+    - 'pages/[locale]/**'
+    - 'messages/*.json'
+    - 'next.config.js'
+    keywords:
+    - i18n
+    - locale
+    - translation
+    - next-intl
+    - react-intl
+    - next-translate
 ---
 # Internationalization (i18n)
 

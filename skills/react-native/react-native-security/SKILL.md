@@ -1,6 +1,17 @@
 ---
 name: react-native-security
-description: "Secure storage, network traffic, and deep links in React Native mobile apps. Use when implementing secure storage, certificate pinning, or deep link validation in React Native. (triggers: **/*.tsx, **/*.ts, security, keychain, secure-storage, deep-link, certificate-pinning)"
+description: Secure storage, network traffic, and deep links in React Native mobile apps. Use when implementing secure storage, certificate pinning, or deep link validation in React Native.
+metadata:
+  triggers:
+    files:
+    - '**/*.tsx'
+    - '**/*.ts'
+    keywords:
+    - security
+    - keychain
+    - secure-storage
+    - deep-link
+    - certificate-pinning
 ---
 # React Native Security
 

@@ -1,6 +1,15 @@
 ---
 name: spring-boot-scheduling
-description: "Configure scheduled tasks and distributed locking with ShedLock in Spring Boot. Use when implementing @Scheduled tasks or distributed locking with ShedLock in Spring Boot. (triggers: **/*Scheduler.java, **/*Job.java, scheduled, shedlock, cron)"
+description: Configure scheduled tasks and distributed locking with ShedLock in Spring Boot. Use when implementing @Scheduled tasks or distributed locking with ShedLock in Spring Boot.
+metadata:
+  triggers:
+    files:
+    - '**/*Scheduler.java'
+    - '**/*Job.java'
+    keywords:
+    - scheduled
+    - shedlock
+    - cron
 ---
 # Spring Boot Scheduling Standards
 

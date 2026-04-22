@@ -1,6 +1,16 @@
 ---
 name: nestjs-documentation
-description: "Automate Swagger/OpenAPI documentation and standardize API response schemas in NestJS. Use when generating OpenAPI specs, documenting paginated or generic responses, configuring the Nest CLI Swagger plugin, or publishing versioned API docs. (triggers: main.ts, **/*.dto.ts, DocumentBuilder, SwaggerModule, ApiProperty, ApiResponse)"
+description: Automate Swagger/OpenAPI documentation and standardize API response schemas in NestJS. Use when generating OpenAPI specs, documenting paginated or generic responses, configuring the Nest CLI Swagger plugin, or publishing versioned API docs.
+metadata:
+  triggers:
+    files:
+    - 'main.ts'
+    - '**/*.dto.ts'
+    keywords:
+    - DocumentBuilder
+    - SwaggerModule
+    - ApiProperty
+    - ApiResponse
 ---
 # OpenAPI & Documentation
 

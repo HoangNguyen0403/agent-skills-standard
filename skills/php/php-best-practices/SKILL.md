@@ -1,6 +1,16 @@
 ---
 name: php-best-practices
-description: "Write PHP following best practices, PSR standards, and code quality guidelines. Use when writing PHP following PSR standards, SOLID principles, or improving code quality. (triggers: **/*.php, psr-12, camelCase, PascalCase, dry, solid)"
+description: Write PHP following best practices, PSR standards, and code quality guidelines. Use when writing PHP following PSR standards, SOLID principles, or improving code quality.
+metadata:
+  triggers:
+    files:
+    - '**/*.php'
+    keywords:
+    - psr-12
+    - camelCase
+    - PascalCase
+    - dry
+    - solid
 ---
 # PHP Best Practices
 

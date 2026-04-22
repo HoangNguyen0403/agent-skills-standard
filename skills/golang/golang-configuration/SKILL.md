@@ -1,6 +1,16 @@
 ---
 name: golang-configuration
-description: 'Load and validate application configuration from environment variables and config files. Use when managing Go application config with environment variables or viper. (triggers: configs/**, cmd/**, configuration, env var, viper, koanf)'
+description: Load and validate application configuration from environment variables and config files. Use when managing Go application config with environment variables or viper.
+metadata:
+  triggers:
+    files:
+    - 'configs/**'
+    - 'cmd/**'
+    keywords:
+    - configuration
+    - env var
+    - viper
+    - koanf
 ---
 # Golang Configuration
 

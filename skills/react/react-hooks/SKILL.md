@@ -1,6 +1,21 @@
 ---
 name: react-hooks
-description: 'Write efficient React functional components and hooks. Use when writing custom hooks, optimizing useEffect, or working with useMemo/useCallback in React. (triggers: **/*.tsx, **/*.jsx, useEffect, useCallback, useMemo, useState, useRef, useContext, useReducer, useLayoutEffect, custom hook)'
+description: Write efficient React functional components and hooks. Use when writing custom hooks, optimizing useEffect, or working with useMemo/useCallback in React.
+metadata:
+  triggers:
+    files:
+    - '**/*.tsx'
+    - '**/*.jsx'
+    keywords:
+    - useEffect
+    - useCallback
+    - useMemo
+    - useState
+    - useRef
+    - useContext
+    - useReducer
+    - useLayoutEffect
+    - custom hook
 ---
 # React Hooks Expert
 

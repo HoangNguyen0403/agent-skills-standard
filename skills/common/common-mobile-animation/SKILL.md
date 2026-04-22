@@ -1,6 +1,21 @@
 ---
 name: common-mobile-animation
-description: "Apply motion design principles for mobile apps covering timing curves, transitions, gestures, and performance-conscious animations. Use when implementing screen transitions, gesture-driven interactions, shared-element animations, or optimizing animation frame rates on iOS, Android, or Flutter. (triggers: **/*_page.dart, **/*_screen.dart, **/*.swift, **/*Activity.kt, **/*Screen.tsx, Animation, AnimationController, Animated, MotionLayout, transition, gesture)"
+description: Apply motion design principles for mobile apps covering timing curves, transitions, gestures, and performance-conscious animations. Use when implementing screen transitions, gesture-driven interactions, shared-element animations, or optimizing animation frame rates on iOS, Android, or Flutter.
+metadata:
+  triggers:
+    files:
+    - '**/*_page.dart'
+    - '**/*_screen.dart'
+    - '**/*.swift'
+    - '**/*Activity.kt'
+    - '**/*Screen.tsx'
+    keywords:
+    - Animation
+    - AnimationController
+    - Animated
+    - MotionLayout
+    - transition
+    - gesture
 ---
 # Mobile Animation
 

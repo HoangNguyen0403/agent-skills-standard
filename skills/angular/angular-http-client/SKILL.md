@@ -1,6 +1,17 @@
 ---
 name: angular-http-client
-description: "Integrate HttpClient, Interceptors, and API interactions in Angular. Use when integrating HttpClient, writing interceptors, or handling API calls in Angular. (triggers: **/*.service.ts, **/*.interceptor.ts, HttpClient, HttpInterceptorFn, withInterceptors, httpResource, resource)"
+description: Integrate HttpClient, Interceptors, and API interactions in Angular. Use when integrating HttpClient, writing interceptors, or handling API calls in Angular.
+metadata:
+  triggers:
+    files:
+    - '**/*.service.ts'
+    - '**/*.interceptor.ts'
+    keywords:
+    - HttpClient
+    - HttpInterceptorFn
+    - withInterceptors
+    - httpResource
+    - resource
 ---
 # HTTP Client
 

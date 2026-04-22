@@ -1,6 +1,15 @@
 ---
 name: ios-deployment
-description: 'Automate provisioning, signing, and deployment with Fastlane. Use when provisioning iOS apps, managing code signing, or automating deployments with Fastlane. (triggers: Fastfile, Appfile, Matchfile, ios_bundle_id, provisioning_profile, testflight)'
+description: Automate provisioning, signing, and deployment with Fastlane. Use when provisioning iOS apps, managing code signing, or automating deployments with Fastlane.
+metadata:
+  triggers:
+    keywords:
+    - Fastfile
+    - Appfile
+    - Matchfile
+    - ios_bundle_id
+    - provisioning_profile
+    - testflight
 ---
 # iOS Deployment
 

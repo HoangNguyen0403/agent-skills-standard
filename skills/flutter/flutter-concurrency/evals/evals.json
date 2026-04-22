@@ -1,0 +1,40 @@
+{
+  "skill_name": "flutter-concurrency",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My Flutter app freezes when parsing a large JSON file. How do I fix it?",
+      "expected_output": "Large JSON parsing is CPU-bound and blocks the main isolate. Use Isolate.run() to offload the decoding to a worker isolate. Extract the parsing into a top-level function and await the result.",
+      "assertions": [
+        { "id": "a1", "description": "Mentions Isolate.run or compute", "type": "contains", "value": "Isolate" },
+        { "id": "a2", "description": "Identifies CPU-bound as the issue", "type": "contains", "value": "CPU" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "When should I use async/await vs Isolate.run vs Isolate.spawn in Dart?",
+      "expected_output": "Use async/await for I/O-bound tasks (network, file). Use Isolate.run for one-off CPU-heavy tasks. Use Isolate.spawn with ReceivePort/SendPort for continuous background processing with bidirectional communication.",
+      "assertions": [
+        { "id": "a1", "description": "Distinguishes I/O vs CPU-bound", "type": "contains", "value": "I/O" },
+        { "id": "a2", "description": "Mentions Isolate.run for one-off tasks", "type": "contains", "value": "Isolate.run" },
+        { "id": "a3", "description": "Mentions Isolate.spawn for continuous work", "type": "contains", "value": "Isolate.spawn" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "My FutureBuilder keeps re-firing on every widget rebuild. What's wrong?",
+      "expected_output": "The future is being created inline in the build method, so it creates a new Future on every rebuild. Cache the future in initState or a late final field so the same instance is used across rebuilds.",
+      "assertions": [
+        { "id": "a1", "description": "Identifies inline future creation as the cause", "type": "contains", "value": "build" },
+        { "id": "a2", "description": "Recommends caching in initState", "type": "contains", "value": "initState" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I implement BLoC state management in Flutter?",
+    "Set up go_router navigation in my Flutter app",
+    "Migrate my Flutter app to Material 3 theming",
+    "Write a widget test with robot pattern",
+    "How do I use Hilt DI in Android?"
+  ]
+}

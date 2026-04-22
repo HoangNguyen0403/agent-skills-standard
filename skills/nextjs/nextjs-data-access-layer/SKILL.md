@@ -1,6 +1,17 @@
 ---
 name: nextjs-data-access-layer
-description: "Build secure, reusable data access patterns with DTOs, taint checks, and colocated authorization in Next.js. Use when centralizing database queries, transforming raw data to DTOs, adding server-only guards, or preventing sensitive data from reaching Client Components. (triggers: **/lib/data.ts, **/services/*.ts, **/dal/**, DAL, Data Access Layer, server-only, DTO)"
+description: Build secure, reusable data access patterns with DTOs, taint checks, and colocated authorization in Next.js. Use when centralizing database queries, transforming raw data to DTOs, adding server-only guards, or preventing sensitive data from reaching Client Components.
+metadata:
+  triggers:
+    files:
+    - '**/lib/data.ts'
+    - '**/services/*.ts'
+    - '**/dal/**'
+    keywords:
+    - DAL
+    - Data Access Layer
+    - server-only
+    - DTO
 ---
 # Data Access Layer (DAL)
 

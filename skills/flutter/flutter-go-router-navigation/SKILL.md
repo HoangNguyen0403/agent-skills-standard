@@ -1,6 +1,17 @@
 ---
 name: flutter-go-router-navigation
-description: 'Typed routes, route state, and redirection using go_router. Use when implementing go_router typed routes, guards, or redirects in Flutter. (triggers: **/router.dart, **/app_router.dart, GoRouter, GoRoute, StatefulShellRoute, redirection, typed-routes)'
+description: Implement typed routes, redirection, and guards using go_router in Flutter. Use when building declarative navigation with go_router.
+metadata:
+  triggers:
+    files:
+    - '**/router.dart'
+    - '**/app_router.dart'
+    keywords:
+    - GoRouter
+    - GoRoute
+    - StatefulShellRoute
+    - redirection
+    - typed-routes
 ---
 # GoRouter Navigation
 

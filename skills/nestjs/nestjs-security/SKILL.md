@@ -1,6 +1,18 @@
 ---
 name: nestjs-security
-description: "Implement JWT authentication, RBAC guards, Helmet hardening, and Argon2 hashing in NestJS. Use when adding auth strategies, role-based access control, CSRF protection, or security headers. (triggers: **/*.guard.ts, **/*.strategy.ts, **/auth/**, Passport, JWT, AuthGuard, CSRF, Helmet)"
+description: Implement JWT authentication, RBAC guards, Helmet hardening, and Argon2 hashing in NestJS. Use when adding auth strategies, role-based access control, CSRF protection, or security headers.
+metadata:
+  triggers:
+    files:
+    - '**/*.guard.ts'
+    - '**/*.strategy.ts'
+    - '**/auth/**'
+    keywords:
+    - Passport
+    - JWT
+    - AuthGuard
+    - CSRF
+    - Helmet
 ---
 # NestJS Security Standards
 

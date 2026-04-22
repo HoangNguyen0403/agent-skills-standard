@@ -1,6 +1,15 @@
 ---
 name: ios-swiftui
-description: 'Build declarative UI and manage data flow with SwiftUI in iOS. Use when building declarative SwiftUI views or managing data flow with property wrappers. (triggers: **/*View.swift, View, State, Binding, EnvironmentObject)'
+description: Build declarative UI and manage data flow with SwiftUI in iOS. Use when building declarative SwiftUI views or managing data flow with property wrappers.
+metadata:
+  triggers:
+    files:
+    - '**/*View.swift'
+    keywords:
+    - View
+    - State
+    - Binding
+    - EnvironmentObject
 ---
 # SwiftUI Expert
 

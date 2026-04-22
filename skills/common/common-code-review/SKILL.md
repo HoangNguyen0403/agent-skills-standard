@@ -1,6 +1,13 @@
 ---
 name: common-code-review
-description: 'Conduct high-quality, persona-driven code reviews. Use when reviewing PRs, critiquing code quality, or analyzing changes for team feedback. (triggers: review, pr, critique, analyze code)'
+description: Conduct high-quality, persona-driven code reviews. Use when reviewing PRs, critiquing code quality, or analyzing changes for team feedback.
+metadata:
+  triggers:
+    keywords:
+    - review
+    - pr
+    - critique
+    - analyze code
 ---
 # Code Review Expert
 

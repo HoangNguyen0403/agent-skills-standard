@@ -1,6 +1,16 @@
 ---
 name: golang-error-handling
-description: "Standards for error wrapping, checking, and definition in Golang. Use when wrapping errors, defining sentinel errors, or handling errors idiomatically in Go. (triggers: fmt.Errorf, errors.Is, errors.As, error wrapping, sentinel error, error handling)"
+description: Standards for error wrapping, checking, and definition in Golang. Use when wrapping errors, defining sentinel errors, or handling errors idiomatically in Go.
+metadata:
+  triggers:
+    files:
+    - 'fmt.Errorf'
+    - 'errors.Is'
+    - 'errors.As'
+    keywords:
+    - error wrapping
+    - sentinel error
+    - error handling
 ---
 # Golang Error Handling Standards
 

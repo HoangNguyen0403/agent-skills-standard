@@ -9,8 +9,8 @@
 237 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **86% fewer tokens** than traditional prompt engineering.
 
 ```bash
-npx agent-skills-standard@2.1.1 init
-npx agent-skills-standard@2.1.1 sync
+npx agent-skills-standard@2.1.3 init
+npx agent-skills-standard@2.1.3 sync
 # Done. Your AI now follows your team's engineering standards.
 ```
 
@@ -85,33 +85,33 @@ Your AI agent now reads `AGENTS.md` automatically. Skills activate based on what
 
 ---
 
-## 237 Skills Across 20+ Frameworks
+## 244 Skills Across 20+ Frameworks
 
 Every skill is audited for token efficiency (averaging ~500 tokens) and tested with automated evals.
 
 | Stack                | Key Skills                                    | Version  | Skills |
 | :------------------- | :-------------------------------------------- | :------- | :----- |
-| **Common Patterns**  | Best Practices, Security, TDD, Error Handling | `v2.0.3` | 31     |
-| **Flutter**          | BLoC, Riverpod, Clean Architecture, GetX      | `v1.6.3` | 21     |
-| **React**            | Hooks, Performance, State Management          | `v1.3.3` | 8      |
-| **React Native**     | Architecture, Navigation, Performance         | `v1.4.3` | 13     |
-| **Next.js**          | App Router, Server Components, Caching, ISR   | `v1.4.3` | 18     |
-| **Angular**          | Signals, Components, RxJS, SSR                | `v1.4.1` | 15     |
-| **NestJS**           | Architecture, Security, BullMQ                | `v1.4.3` | 21     |
-| **TypeScript**       | Type Safety, Security, Tooling                | `v1.3.2` | 4      |
-| **JavaScript**       | ES2024+, Patterns, Tooling                    | `v1.3.3` | 3      |
-| **Go (Golang)**      | Clean Arch, Concurrency                       | `v1.3.2` | 11     |
-| **Spring Boot**      | Architecture, Security, JPA                   | `v1.3.2` | 10     |
-| **Android**          | Compose, Navigation, Hilt                     | `v1.3.3` | 22     |
-| **iOS**              | SwiftUI, Arch, Persistence                    | `v1.4.3` | 15     |
-| **Swift**            | Concurrency, Memory                           | `v1.3.3` | 8      |
-| **Kotlin**           | Coroutines, Language                          | `v1.3.2` | 4      |
-| **Java**             | Records, Virtual Threads                      | `v1.3.2` | 5      |
-| **PHP**              | PHP 8.4+, Error Handling                      | `v1.3.2` | 7      |
-| **Laravel**          | Eloquent, Clean Arch                          | `v1.3.3` | 10     |
-| **Dart**             | Null Safety, Sealed Classes                   | `v1.3.3` | 3      |
-| **Database**         | PostgreSQL, MongoDB, Redis                    | `v1.3.2` | 3      |
-| **Quality Engineer** | BA, TDD, Zephyr, Test Gen                     | `v1.4.3` | 5      |
+| **Common Patterns**  | Best Practices, Security, TDD, Error Handling | `v2.0.4` | 31     |
+| **Flutter**          | BLoC, Riverpod, Architecture, Concurrency     | `v1.7.0` | 22     |
+| **React**            | Hooks, Performance, State Management          | `v1.3.4` | 8      |
+| **React Native**     | Architecture, Navigation, Performance         | `v1.4.4` | 13     |
+| **Next.js**          | App Router, Server Components, Caching, ISR   | `v1.4.4` | 18     |
+| **Angular**          | Signals, Components, RxJS, SSR                | `v1.4.2` | 15     |
+| **NestJS**           | Architecture, Security, BullMQ                | `v1.4.4` | 21     |
+| **TypeScript**       | Type Safety, Security, Tooling                | `v1.3.3` | 4      |
+| **JavaScript**       | ES2024+, Patterns, Tooling                    | `v1.3.4` | 3      |
+| **Go (Golang)**      | Clean Arch, Concurrency                       | `v1.3.3` | 11     |
+| **Spring Boot**      | Architecture, Security, JPA                   | `v1.3.3` | 10     |
+| **Android**          | Compose, Navigation 3, Edge-to-Edge, AGP 9    | `v1.4.0` | 26     |
+| **iOS**              | SwiftUI, Arch, Persistence                    | `v1.4.4` | 15     |
+| **Swift**            | Concurrency, Memory                           | `v1.3.4` | 8      |
+| **Kotlin**           | Coroutines, Language                          | `v1.3.3` | 4      |
+| **Java**             | Records, Virtual Threads                      | `v1.3.3` | 5      |
+| **PHP**              | PHP 8.4+, Error Handling                      | `v1.3.3` | 7      |
+| **Laravel**          | Eloquent, Clean Arch                          | `v1.3.4` | 10     |
+| **Dart**             | Null Safety, Sealed Classes                   | `v1.3.4` | 3      |
+| **Database**         | PostgreSQL, MongoDB, Redis                    | `v1.3.3` | 3      |
+| **Quality Engineer** | BA, TDD, Zephyr, Test Gen                     | `v1.4.4` | 5      |
 
 > Full skill list with token metrics: [Skills Directory](./skills/README.md) | [Benchmark Report](./benchmark-report.md)
 
@@ -251,15 +251,16 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for design details and [CLI Architectur
 
 ### 📜 Benchmark History
 
-| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
-| --- | --- | --- | --- | --- | --- |
-| v2.1.2 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.2.md) |
-| v2.1.1 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.1.md) |
-| v2.1.0 | 2026-04-04 | 237 | 526 | 86% | [Report](benchmarks/archive/v2.1.0.md) |
-| v2.0.1 | 2026-03-30 | 238 | 527 | 86% | [Report](benchmarks/archive/v2.0.1.md) |
-| v2.0.0 | 2026-03-25 | 235 | 523 | 86% | [Report](benchmarks/archive/v2.0.0.md) |
-| v1.10.3 | 2026-03-21 | 234 | 505 | 86% | [Report](benchmarks/archive/v1.10.3.md) |
-| v1.10.1 | 2026-03-16 | 229 | 428 | 88% | [Report](benchmarks/archive/v1.10.1.md) |
-| v1.10.0 | 2026-03-16 | 229 | 434 | 88% | [Report](benchmarks/archive/v1.10.0.md) |
-| v1.9.3 | 2026-03-15 | 229 | 460 | 87% | [Report](benchmarks/archive/v1.9.3.md) |
-| v1.9.2 | 2026-03-07 | 228 | 458 | 87% | [Report](benchmarks/archive/v1.9.2.md) |
+| Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                  |
+| ------- | ---------- | ------ | ---------- | ----------- | --------------------------------------- |
+| v2.1.3  | 2026-04-22 | 244    | 510        | 86%         | [Report](benchmarks/archive/v2.1.3.md)  |
+| v2.1.2  | 2026-04-11 | 237    | 516        | 86%         | [Report](benchmarks/archive/v2.1.2.md)  |
+| v2.1.1  | 2026-04-11 | 237    | 516        | 86%         | [Report](benchmarks/archive/v2.1.1.md)  |
+| v2.1.0  | 2026-04-04 | 237    | 526        | 86%         | [Report](benchmarks/archive/v2.1.0.md)  |
+| v2.0.1  | 2026-03-30 | 238    | 527        | 86%         | [Report](benchmarks/archive/v2.0.1.md)  |
+| v2.0.0  | 2026-03-25 | 235    | 523        | 86%         | [Report](benchmarks/archive/v2.0.0.md)  |
+| v1.10.3 | 2026-03-21 | 234    | 505        | 86%         | [Report](benchmarks/archive/v1.10.3.md) |
+| v1.10.1 | 2026-03-16 | 229    | 428        | 88%         | [Report](benchmarks/archive/v1.10.1.md) |
+| v1.10.0 | 2026-03-16 | 229    | 434        | 88%         | [Report](benchmarks/archive/v1.10.0.md) |
+| v1.9.3  | 2026-03-15 | 229    | 460        | 87%         | [Report](benchmarks/archive/v1.9.3.md)  |
+| v1.9.2  | 2026-03-07 | 228    | 458        | 87%         | [Report](benchmarks/archive/v1.9.2.md)  |

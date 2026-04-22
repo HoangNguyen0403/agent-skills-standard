@@ -1,6 +1,16 @@
 ---
 name: php-error-handling
-description: "Implement modern PHP error and exception handling patterns. Use when implementing exception hierarchies, error handlers, or custom exceptions in PHP. (triggers: **/*.php, try, catch, finally, Throwable, set_exception_handler)"
+description: Implement modern PHP error and exception handling patterns. Use when implementing exception hierarchies, error handlers, or custom exceptions in PHP.
+metadata:
+  triggers:
+    files:
+    - '**/*.php'
+    keywords:
+    - try
+    - catch
+    - finally
+    - Throwable
+    - set_exception_handler
 ---
 # PHP Error Handling
 
