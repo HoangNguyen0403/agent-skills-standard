@@ -1,5 +1,5 @@
-import path from "path";
 import fs from 'fs-extra';
+import path from 'path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
 import { SkillConfig } from '../../models/config';
@@ -340,15 +340,24 @@ describe('WorkflowSyncService', () => {
         const workflows = [
           {
             skill: 'workflows',
-            files: [{ name: 'test.md', content: '---\ndescription: test\n---\n# Test' }],
+            files: [
+              {
+                name: 'test.md',
+                content: '---\ndescription: test\n---\n# Test',
+              },
+            ],
           },
         ];
-        
-        await workflowSyncService.writeWorkflows(workflows as any, {} as any, [Agent.Cursor]);
+
+        await workflowSyncService.writeWorkflows(workflows as any, {} as any, [
+          Agent.Cursor,
+        ]);
         // Should be path/workflowName/SKILL.md
         expect(fs.outputFile).toHaveBeenCalledWith(
-          expect.stringContaining(path.join('.cursor', 'skills', 'test', 'SKILL.md')),
-          expect.any(String)
+          expect.stringContaining(
+            path.join('.cursor', 'skills', 'test', 'SKILL.md'),
+          ),
+          expect.any(String),
         );
       });
 
@@ -356,15 +365,30 @@ describe('WorkflowSyncService', () => {
         const workflows = [
           {
             skill: 'workflows',
-            files: [{ name: 'overridden.md', content: '---\ndescription: test\n---\n# Test' }],
+            files: [
+              {
+                name: 'overridden.md',
+                content: '---\ndescription: test\n---\n# Test',
+              },
+            ],
           },
         ];
-        const targetPath = path.join(process.cwd(), '.agent/workflows/overridden.md');
-        const relPath = path.relative(process.cwd(), targetPath).replace(/\\/g, '/');
+        // Antigravity workflow path is .agents/workflows
+        const targetPath = path.join(
+          process.cwd(),
+          '.agents/workflows/overridden.md',
+        );
+        const relPath = path
+          .relative(process.cwd(), targetPath)
+          .replace(/\\/g, '/');
         const overrides = [relPath];
-        
-        await workflowSyncService.writeWorkflows(workflows as any, { custom_overrides: overrides } as any, [Agent.Antigravity]);
-        
+
+        await workflowSyncService.writeWorkflows(
+          workflows as any,
+          { custom_overrides: overrides } as any,
+          [Agent.Antigravity],
+        );
+
         expect(fs.outputFile).not.toHaveBeenCalled();
       });
 
@@ -372,14 +396,32 @@ describe('WorkflowSyncService', () => {
         const workflows = [
           {
             skill: 'workflows',
-            files: [{ name: 'sub/test.md', content: '---\ndescription: test\n---\n# Test' }],
+            files: [
+              {
+                name: 'sub/test.md',
+                content: '---\ndescription: test\n---\n# Test',
+              },
+            ],
           },
         ];
-        const targetPath = path.join(process.cwd(), '.agent/workflows/sub/test.md');
-        const relPath = path.relative(process.cwd(), path.join(process.cwd(), '.agent/workflows/sub')).replace(/\\/g, '/');
-        const overrides = [relPath]; 
-        
-        await workflowSyncService.writeWorkflows(workflows as any, { custom_overrides: overrides } as any, [Agent.Antigravity]);
+        // Antigravity workflow path is .agents/workflows
+        const targetPath = path.join(
+          process.cwd(),
+          '.agents/workflows/sub/test.md',
+        );
+        const relPath = path
+          .relative(
+            process.cwd(),
+            path.join(process.cwd(), '.agents/workflows/sub'),
+          )
+          .replace(/\\/g, '/');
+        const overrides = [relPath];
+
+        await workflowSyncService.writeWorkflows(
+          workflows as any,
+          { custom_overrides: overrides } as any,
+          [Agent.Antigravity],
+        );
         expect(fs.outputFile).not.toHaveBeenCalled();
       });
     });
