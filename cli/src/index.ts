@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { FeedbackCommand } from './commands/feedback';
 import { InitCommand } from './commands/init';
 import { ListSkillsCommand } from './commands/list-skills';
+import { McpCommand } from './commands/mcp';
 import { SyncCommand } from './commands/sync';
 import { UpgradeCommand } from './commands/upgrade';
 import { ValidateCommand } from './commands/validate-skills';
@@ -18,7 +19,7 @@ program
   .description(
     'A CLI to manage and sync AI agent skills for Cursor, Claude, Copilot, Windsurf, and more.',
   )
-  .version('2.1.3');
+  .version('2.2.0');
 
 program
   .command('init')
@@ -107,5 +108,26 @@ program
     const cmd = new UpgradeCommand();
     await cmd.run(options);
   });
+
+program
+  .command('mcp <action> [scope]')
+  .description(
+    'Manage the optional MCP server integration. Actions: status | enable | disable | scope <project|user|snippets-only|disabled> | install | uninstall | snippets',
+  )
+  .option('--scope <scope>', 'Override scope for install (project|user|snippets-only|disabled)')
+  .option('--from <from>', 'For uninstall: project | user | all (default: project)')
+  .action(
+    async (
+      action: string,
+      positional: string | undefined,
+      opts: Record<string, string>,
+    ) => {
+      // Allow `ags mcp scope project` (positional) AND `ags mcp scope --scope project`.
+      const merged: Record<string, string> = { ...opts };
+      if (positional) merged.scope = opts.scope ?? positional;
+      const cmd = new McpCommand();
+      await cmd.run(action, merged);
+    },
+  );
 
 program.parse();

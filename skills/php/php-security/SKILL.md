@@ -10,6 +10,13 @@ metadata:
     - password_hash
     - htmlentities
     - filter_var
+    - php security
+    - sql injection
+    - xss php
+    - prepared statement
+    - csrf
+    - sanitize input
+    - password storage
 ---
 # PHP Security
 

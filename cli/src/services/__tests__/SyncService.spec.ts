@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
+import { SkillConfig } from '../../models/config';
 import { AgentBridgeService } from '../AgentBridgeService';
 import { DetectionService } from '../DetectionService';
 import { IndexGeneratorServiceImpl } from '../IndexGeneratorServiceImpl';
@@ -17,51 +18,106 @@ vi.mock('../WorkflowSyncService');
 vi.mock('../utils/MarkdownUtils');
 vi.mock('../ConfigService');
 
+// ---------- typed mock helpers (no `any`) ----------
+
+/**
+ * Vitest invokes mocked class constructors with `new`, so we can't use arrow
+ * functions as the implementation — `this` wouldn't bind. We use regular
+ * function expressions with a typed `this` parameter, then cast the function
+ * to a constructor signature at the seam (one `as unknown as` boundary).
+ */
+type FakeIndexGenerator = {
+  withMetadata: ReturnType<typeof vi.fn>;
+  generate: ReturnType<typeof vi.fn>;
+  assembleIndex: ReturnType<typeof vi.fn>;
+  generateAllCategoryIndices: ReturnType<typeof vi.fn>;
+  assembleRouterIndex: ReturnType<typeof vi.fn>;
+};
+type FakeDetection = {
+  detectAgents: ReturnType<typeof vi.fn>;
+  getProjectDeps: ReturnType<typeof vi.fn>;
+};
+type FakeAgentBridge = { bridge: ReturnType<typeof vi.fn> };
+
+function asCtor<T>(fn: (this: T) => void): () => T {
+  return fn as unknown as () => T;
+}
+
+function defaultIndexGeneratorCtor(this: FakeIndexGenerator): void {
+  this.withMetadata = vi.fn().mockReturnThis();
+  this.generate = vi.fn().mockResolvedValue('index content');
+  this.assembleIndex = vi.fn().mockReturnValue('index content');
+  this.generateAllCategoryIndices = vi.fn().mockResolvedValue({});
+  this.assembleRouterIndex = vi.fn().mockResolvedValue('router content');
+}
+function defaultDetectionCtor(this: FakeDetection): void {
+  this.detectAgents = vi.fn().mockResolvedValue({ [Agent.Cursor]: true });
+  this.getProjectDeps = vi.fn().mockResolvedValue(new Set(['dep1']));
+}
+function defaultAgentBridgeCtor(this: FakeAgentBridge): void {
+  this.bridge = vi.fn().mockResolvedValue(undefined);
+}
+
+function makeConfig(overrides: Partial<SkillConfig> = {}): SkillConfig {
+  return {
+    registry: 'https://example.com',
+    agents: [],
+    skills: {},
+    ...overrides,
+  };
+}
+
+// Test-only access to private SyncService fields. Documents the seam without
+// scattering `as any` through the file.
+type SyncServicePrivates = {
+  skillSyncService: { assembleSkills: ReturnType<typeof vi.fn>; writeSkills: ReturnType<typeof vi.fn> };
+  workflowSyncService: {
+    reconcileWorkflows: ReturnType<typeof vi.fn>;
+    assembleWorkflows: ReturnType<typeof vi.fn>;
+    writeWorkflows: ReturnType<typeof vi.fn>;
+  };
+  githubService: {
+    getRepoInfo: ReturnType<typeof vi.fn>;
+    getRawFile: ReturnType<typeof vi.fn>;
+  };
+  configService: {
+    reconcileDependencies: ReturnType<typeof vi.fn>;
+  };
+};
+function privatesOf(s: SyncService): SyncServicePrivates {
+  return s as unknown as SyncServicePrivates;
+}
+
 describe('SyncService', () => {
   let syncService: SyncService;
-  let mockGithubService: any;
-  let mockSkillSyncService: any;
-  let mockWorkflowSyncService: any;
-  let mockConfigService: any;
+  let mockGithubService: SyncServicePrivates['githubService'];
+  let mockSkillSyncService: SyncServicePrivates['skillSyncService'];
+  let mockWorkflowSyncService: SyncServicePrivates['workflowSyncService'];
+  let mockConfigService: SyncServicePrivates['configService'];
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Setup IndexGeneratorServiceImpl mock implementation
-    vi.mocked(IndexGeneratorServiceImpl).mockImplementation(function (
-      this: any,
-    ) {
-      this.withMetadata = vi.fn().mockReturnThis();
-      this.generate = vi.fn().mockResolvedValue('index content');
-      this.assembleIndex = vi.fn().mockReturnValue('index content');
-      this.generateAllCategoryIndices = vi.fn().mockResolvedValue({});
-      this.assembleRouterIndex = vi.fn().mockResolvedValue('router content');
-      return this;
-    } as any);
+    vi.mocked(IndexGeneratorServiceImpl).mockImplementation(
+      asCtor<FakeIndexGenerator>(defaultIndexGeneratorCtor),
+    );
+    vi.mocked(DetectionService).mockImplementation(
+      asCtor<FakeDetection>(defaultDetectionCtor),
+    );
+    vi.mocked(AgentBridgeService).mockImplementation(
+      asCtor<FakeAgentBridge>(defaultAgentBridgeCtor),
+    );
 
-    // Setup DetectionService mock implementation
-    vi.mocked(DetectionService).mockImplementation(function (this: any) {
-      this.detectAgents = vi.fn().mockResolvedValue({ [Agent.Cursor]: true });
-      this.getProjectDeps = vi.fn().mockResolvedValue(new Set(['dep1']));
-      return this;
-    } as any);
-
-    // Setup AgentBridgeService mock implementation
-    vi.mocked(AgentBridgeService).mockImplementation(function (this: any) {
-      this.bridge = vi.fn().mockResolvedValue(undefined);
-      return this;
-    } as any);
-
-    // Mock MarkdownUtils static method
-    vi.mocked(MarkdownUtils.injectIndex).mockResolvedValue(undefined as any);
+    vi.mocked(MarkdownUtils.injectIndex).mockResolvedValue(undefined);
 
     syncService = new SyncService();
 
-    // Access the mocked services sub-instances
-    mockSkillSyncService = (syncService as any).skillSyncService;
-    mockWorkflowSyncService = (syncService as any).workflowSyncService;
-    mockGithubService = (syncService as any).githubService;
-    mockConfigService = (syncService as any).configService;
+    // Access the mocked services sub-instances via the typed privates seam
+    const p = privatesOf(syncService);
+    mockSkillSyncService = p.skillSyncService;
+    mockWorkflowSyncService = p.workflowSyncService;
+    mockGithubService = p.githubService;
+    mockConfigService = p.configService;
 
     // Properly mock GithubService methods
     mockGithubService.getRepoInfo = vi
@@ -74,7 +130,7 @@ describe('SyncService', () => {
 
   describe('reconcileConfig', () => {
     it('should return true if dependencies were reconciled', async () => {
-      const config = { skills: {} } as any;
+      const config = makeConfig();
       const projectDeps = new Set(['react']);
       mockConfigService.reconcileDependencies.mockReturnValue(['react']);
 
@@ -88,8 +144,8 @@ describe('SyncService', () => {
     });
 
     it('should return false if no changes', async () => {
-      const config = { skills: {} } as any;
-      const projectDeps = new Set([]);
+      const config = makeConfig();
+      const projectDeps = new Set<string>();
       mockConfigService.reconcileDependencies.mockReturnValue([]);
 
       const result = await syncService.reconcileConfig(config, projectDeps);
@@ -100,7 +156,7 @@ describe('SyncService', () => {
 
   describe('reconcileWorkflows', () => {
     it('should delegate to workflowSyncService if Antigravity is enabled', async () => {
-      const config = { agents: [Agent.Antigravity] } as any;
+      const config = makeConfig({ agents: [Agent.Antigravity] });
       mockWorkflowSyncService.reconcileWorkflows.mockResolvedValue(true);
 
       const result = await syncService.reconcileWorkflows(config);
@@ -112,7 +168,7 @@ describe('SyncService', () => {
     });
 
     it('should delegate to workflowSyncService for any agent', async () => {
-      const config = { agents: [Agent.Cursor] } as any;
+      const config = makeConfig({ agents: [Agent.Cursor] });
       mockWorkflowSyncService.reconcileWorkflows.mockResolvedValue(false);
       const result = await syncService.reconcileWorkflows(config);
       expect(mockWorkflowSyncService.reconcileWorkflows).toHaveBeenCalledWith(
@@ -124,7 +180,7 @@ describe('SyncService', () => {
 
   describe('assembleSkills', () => {
     it('should delegate to skillSyncService', async () => {
-      const config = {} as any;
+      const config = makeConfig();
       const categories = ['cat1'];
       mockSkillSyncService.assembleSkills.mockResolvedValue([]);
 
@@ -139,8 +195,8 @@ describe('SyncService', () => {
 
   describe('writeSkills', () => {
     it('should delegate to skillSyncService with resolved agents', async () => {
-      const config = { agents: [Agent.Cursor] } as any;
-      const skills = [] as any;
+      const config = makeConfig({ agents: [Agent.Cursor] });
+      const skills: Parameters<typeof syncService.writeSkills>[0] = [];
 
       await syncService.writeSkills(skills, config);
 
@@ -154,7 +210,7 @@ describe('SyncService', () => {
 
   describe('assembleWorkflows', () => {
     it('should delegate to workflowSyncService for any agent', async () => {
-      const config = { agents: [Agent.Cursor] } as any;
+      const config = makeConfig({ agents: [Agent.Cursor] });
       mockWorkflowSyncService.assembleWorkflows.mockResolvedValue([
         { skill: 'wf' },
       ]);
@@ -166,8 +222,14 @@ describe('SyncService', () => {
 
   describe('writeWorkflows', () => {
     it('should delegate with resolved agents', async () => {
-      const config = { agents: [Agent.Cursor] } as any;
-      await syncService.writeWorkflows([{ skill: 'wf' }] as any, config);
+      const config = makeConfig({ agents: [Agent.Cursor] });
+      // Cast through unknown — test only asserts SyncService delegates the
+      // input to WorkflowSyncService unchanged; the actual workflow shape is
+      // irrelevant to this delegation test.
+      const workflows = [{ skill: 'wf' }] as unknown as Parameters<
+        typeof syncService.writeWorkflows
+      >[0];
+      await syncService.writeWorkflows(workflows, config);
       expect(mockWorkflowSyncService.writeWorkflows).toHaveBeenCalledWith(
         [{ skill: 'wf' }],
         config,
@@ -178,7 +240,7 @@ describe('SyncService', () => {
 
   describe('applyIndices', () => {
     it('should update index correctly', async () => {
-      const config = { agents: [Agent.Cursor], skills: {} } as any;
+      const config = makeConfig({ agents: [Agent.Cursor] });
       vi.mocked(fs.pathExists).mockResolvedValue(true as never);
 
       await syncService.applyIndices(config, [Agent.Cursor]);
@@ -190,25 +252,104 @@ describe('SyncService', () => {
     });
 
     it('should log warning for unsupported agent ID', async () => {
-      const config = { agents: ['unsupported-id' as any], skills: {} } as any;
-      await syncService.applyIndices(config, ['unsupported-id' as any]);
+      // Cast a synthetic id through Agent — the test's whole point is that
+      // SyncService gracefully handles an id not in SUPPORTED_AGENTS.
+      const fakeAgent = 'unsupported-id' as unknown as Agent;
+      const config = makeConfig({ agents: [fakeAgent] });
+      await syncService.applyIndices(config, [fakeAgent]);
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Agent definition not found'),
       );
     });
 
-    it('should handle index generation failure', async () => {
-      const config = { agents: [Agent.Cursor], skills: {} } as any;
-      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(function (
-        this: any,
-      ) {
+    // ---------- MCP-aware AGENTS.md generation ----------
+
+    /**
+     * Captures the third arg passed to assembleRouterIndex (the mcp flag).
+     * Uses the module-scope FakeIndexGenerator type + asCtor helper.
+     */
+    function fakeGeneratorCapturingMcp(): { captured: { mcpFlag?: boolean } } {
+      const captured: { mcpFlag?: boolean } = {};
+      function CapturingCtor(this: FakeIndexGenerator): void {
         this.withMetadata = vi.fn().mockReturnThis();
+        this.generate = vi.fn().mockResolvedValue('index content');
+        this.assembleIndex = vi.fn().mockReturnValue('index content');
+        this.generateAllCategoryIndices = vi.fn().mockResolvedValue({});
+        this.assembleRouterIndex = vi.fn(
+          async (
+            _baseDir: string,
+            _allowedCategories: string[] | undefined,
+            mcpFlag: boolean,
+          ): Promise<string> => {
+            captured.mcpFlag = mcpFlag;
+            return 'router content';
+          },
+        );
+      }
+      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(
+        asCtor<FakeIndexGenerator>(CapturingCtor),
+      );
+      return { captured };
+    }
+
+    it('passes mcp.enabled=true through to assembleRouterIndex', async () => {
+      const { captured } = fakeGeneratorCapturingMcp();
+
+      const config: SkillConfig = {
+        registry: 'https://example.com',
+        agents: [Agent.Cursor],
+        skills: {},
+        mcp: { enabled: true, scope: 'project', prompted: true },
+      };
+      vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+
+      await syncService.applyIndices(config, [Agent.Cursor]);
+      expect(captured.mcpFlag).toBe(true);
+    });
+
+    it('passes mcp.enabled=false through to assembleRouterIndex', async () => {
+      const { captured } = fakeGeneratorCapturingMcp();
+
+      const config: SkillConfig = {
+        registry: 'https://example.com',
+        agents: [Agent.Cursor],
+        skills: {},
+        mcp: { enabled: false, scope: 'snippets-only', prompted: true },
+      };
+      vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+
+      await syncService.applyIndices(config, [Agent.Cursor]);
+      expect(captured.mcpFlag).toBe(false);
+    });
+
+    it('defaults mcp flag to false when .skillsrc has no mcp block', async () => {
+      const { captured } = fakeGeneratorCapturingMcp();
+
+      const config: SkillConfig = {
+        registry: 'https://example.com',
+        agents: [Agent.Cursor],
+        skills: {},
+      }; // no .mcp block
+      vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+
+      await syncService.applyIndices(config, [Agent.Cursor]);
+      expect(captured.mcpFlag).toBe(false);
+    });
+
+    it('should handle index generation failure', async () => {
+      const config = makeConfig({ agents: [Agent.Cursor] });
+      function FailingGenCtor(this: FakeIndexGenerator): void {
+        this.withMetadata = vi.fn().mockReturnThis();
+        this.generate = vi.fn().mockResolvedValue('');
+        this.assembleIndex = vi.fn().mockReturnValue('');
         this.generateAllCategoryIndices = vi
           .fn()
           .mockRejectedValue(new Error('Gen failed'));
         this.assembleRouterIndex = vi.fn().mockResolvedValue('');
-        return this;
-      } as any);
+      }
+      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(
+        asCtor<FakeIndexGenerator>(FailingGenCtor),
+      );
 
       await syncService.applyIndices(config);
       expect(console.log).toHaveBeenCalledWith(
@@ -230,24 +371,29 @@ describe('SyncService', () => {
         JSON.stringify(remoteMetadata),
       );
 
-      let capturedWithMetadata: any;
-      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(function (
-        this: any,
-      ) {
-        this.withMetadata = vi.fn().mockImplementation((m: any) => {
+      let capturedWithMetadata: unknown;
+      function CaptureMetadataCtor(this: FakeIndexGenerator): void {
+        this.withMetadata = vi.fn().mockImplementation(function (
+          this: FakeIndexGenerator,
+          m: unknown,
+        ) {
           capturedWithMetadata = m;
           return this;
         });
+        this.generate = vi.fn().mockResolvedValue('');
+        this.assembleIndex = vi.fn().mockReturnValue('');
         this.generateAllCategoryIndices = vi.fn().mockResolvedValue({});
         this.assembleRouterIndex = vi.fn().mockResolvedValue('router');
-        return this;
-      } as any);
+      }
+      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(
+        asCtor<FakeIndexGenerator>(CaptureMetadataCtor),
+      );
 
-      const config = {
+      const config = makeConfig({
         registry: 'https://github.com/o/r',
         agents: [Agent.Cursor],
         skills: { golang: { ref: 'v1' }, typescript: { ref: 'v1' } },
-      } as any;
+      });
 
       await syncService.applyIndices(config, [Agent.Cursor]);
 
@@ -270,18 +416,18 @@ describe('SyncService', () => {
         JSON.stringify({ file_routing: { go: ['golang'] } }),
       );
 
-      const config = {
+      const config = makeConfig({
         registry: 'https://github.com/o/r',
         agents: [Agent.Cursor],
         skills: { golang: { ref: 'v1' } },
-      } as any;
+      });
 
       await syncService.applyIndices(config, [Agent.Cursor]);
 
       // fs.outputFile must never be called with metadata.json
       const outputFileCalls = vi
-        .mocked(fs.outputFile as any)
-        .mock.calls.filter((args: any[]) =>
+        .mocked(fs.outputFile)
+        .mock.calls.filter((args) =>
           String(args[0]).includes('metadata.json'),
         );
       expect(outputFileCalls).toHaveLength(0);
@@ -294,23 +440,26 @@ describe('SyncService', () => {
       mockGithubService.getRawFile.mockResolvedValue(null);
 
       let withMetadataCalled = false;
-      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(function (
-        this: any,
-      ) {
-        this.withMetadata = vi.fn().mockImplementation(() => {
+      function NoMetadataCtor(this: FakeIndexGenerator): void {
+        this.withMetadata = vi.fn().mockImplementation(function (
+          this: FakeIndexGenerator,
+        ) {
           withMetadataCalled = true;
           return this;
         });
+        this.generate = vi.fn().mockResolvedValue('');
+        this.assembleIndex = vi.fn().mockReturnValue('');
         this.generateAllCategoryIndices = vi.fn().mockResolvedValue({});
         this.assembleRouterIndex = vi.fn().mockResolvedValue('router');
-        return this;
-      } as any);
+      }
+      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(
+        asCtor<FakeIndexGenerator>(NoMetadataCtor),
+      );
 
-      const config = {
+      const config = makeConfig({
         registry: 'https://github.com/o/r',
         agents: [Agent.Cursor],
-        skills: {},
-      } as any;
+      });
 
       await syncService.applyIndices(config, [Agent.Cursor]);
 
@@ -321,11 +470,10 @@ describe('SyncService', () => {
     });
 
     it('continues gracefully when registry URL is invalid (no github match)', async () => {
-      const config = {
+      const config = makeConfig({
         registry: 'not-a-github-url',
         agents: [Agent.Cursor],
-        skills: {},
-      } as any;
+      });
 
       // Should not throw and should still produce an index
       await syncService.applyIndices(config, [Agent.Cursor]);
@@ -341,23 +489,26 @@ describe('SyncService', () => {
       mockGithubService.getRawFile.mockResolvedValue('{ invalid json %%%');
 
       let withMetadataCalled = false;
-      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(function (
-        this: any,
-      ) {
-        this.withMetadata = vi.fn().mockImplementation(() => {
+      function NoMetadataCtor(this: FakeIndexGenerator): void {
+        this.withMetadata = vi.fn().mockImplementation(function (
+          this: FakeIndexGenerator,
+        ) {
           withMetadataCalled = true;
           return this;
         });
+        this.generate = vi.fn().mockResolvedValue('');
+        this.assembleIndex = vi.fn().mockReturnValue('');
         this.generateAllCategoryIndices = vi.fn().mockResolvedValue({});
         this.assembleRouterIndex = vi.fn().mockResolvedValue('router');
-        return this;
-      } as any);
+      }
+      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(
+        asCtor<FakeIndexGenerator>(NoMetadataCtor),
+      );
 
-      const config = {
+      const config = makeConfig({
         registry: 'https://github.com/o/r',
         agents: [Agent.Cursor],
-        skills: {},
-      } as any;
+      });
 
       await syncService.applyIndices(config, [Agent.Cursor]);
 
@@ -369,10 +520,10 @@ describe('SyncService', () => {
 
   describe('checkForUpdates', () => {
     it('should check remote registry for updates', async () => {
-      const config = {
+      const config = makeConfig({
         registry: 'https://github.com/o/r',
         skills: { ts: { ref: 'v1' } },
-      } as any;
+      });
 
       mockGithubService.getRepoInfo.mockResolvedValue({
         default_branch: 'main',
@@ -388,16 +539,16 @@ describe('SyncService', () => {
     });
 
     it('should return empty updates if registry URL is invalid', async () => {
-      const config = { registry: 'not-github' } as any;
+      const config = makeConfig({ registry: 'not-github' });
       const updates = await syncService.checkForUpdates(config);
       expect(updates).toEqual({});
     });
 
     it('should return empty updates if remote metadata is missing', async () => {
-      const config = {
+      const config = makeConfig({
         registry: 'https://github.com/o/r',
         skills: { ts: { ref: 'v1' } },
-      } as any;
+      });
       mockGithubService.getRawFile.mockResolvedValue(null);
       const updates = await syncService.checkForUpdates(config);
       expect(updates).toEqual({});

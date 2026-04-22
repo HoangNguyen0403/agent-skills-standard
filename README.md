@@ -6,11 +6,11 @@
 
 **Make your AI write code like your best engineer. One command. Every AI agent. Every project.**
 
-237 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **86% fewer tokens** than traditional prompt engineering.
+242 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
 
 ```bash
-npx agent-skills-standard@2.1.3 init
-npx agent-skills-standard@2.1.3 sync
+npx agent-skills-standard@2.2.0 init
+npx agent-skills-standard@2.2.0 sync
 # Done. Your AI now follows your team's engineering standards.
 ```
 
@@ -83,9 +83,73 @@ Your AI agent now reads `AGENTS.md` automatically. Skills activate based on what
 
 > **Works instantly** with Cursor, Claude Code, GitHub Copilot, Gemini CLI, Windsurf, Trae, Kiro, and Roo. No plugin or extension needed — the CLI generates each agent's native format.
 
+### 4. (Optional) Enable runtime enforcement via the MCP server
+
+The CLI **distributes** skills to disk. The companion MCP server **serves** them to your AI agent at runtime as explicit tool calls — closing the gap where agents read `AGENTS.md` but forget to load matched `SKILL.md` files (especially in sub-agents).
+
+#### Consent model — you choose the scope
+
+`init` and `sync` ask once whether to enable MCP and at what scope. Three choices, recommended in **bold**:
+
+| Scope | What gets written | Touches `$HOME`? |
+| --- | --- | --- |
+| **`project`** (recommended) | `./mcp-config-snippets/*.json` + project-scoped runtime configs (`./.mcp.json`, `./.cursor/mcp.json`, etc.) | ❌ No |
+| `user` | All of `project` + user-home configs (`~/.cursor/mcp.json`, `~/.gemini/settings.json`) | ⚠️ Yes — sync prompts before each user-scope write |
+| `snippets-only` | Only `./mcp-config-snippets/*.json` — never edits any runtime config | ❌ No |
+| `disabled` | Nothing MCP-related | ❌ No |
+
+The CLI never reads or modifies user-home files unless you explicitly choose `user` scope AND confirm each write. All decisions are recorded in `.skillsrc` so you're not re-prompted on every sync.
+
+#### Manage MCP integration with the `mcp` subcommand
+
+```bash
+ags mcp status                 # Show enabled, scope, and per-agent install state
+ags mcp enable                 # Turn on (uses configured scope)
+ags mcp disable                # Turn off (existing entries kept; use uninstall to clean)
+ags mcp scope project          # Change scope: project | user | snippets-only | disabled
+ags mcp install                # One-shot install at the configured scope
+ags mcp uninstall --from=all   # Remove our entry from project + user configs
+ags mcp snippets               # Regenerate ./mcp-config-snippets/ without touching configs
+```
+
+Or edit `.skillsrc` directly:
+
+```yaml
+mcp:
+  enabled: true
+  scope: project        # project | user | snippets-only | disabled
+  prompted: true        # set to false to be re-asked next sync
+```
+
+#### Manual install (if you prefer)
+
+Add to your runtime's MCP config:
+
+```jsonc
+{
+  "mcpServers": {
+    "agent-skills-standard": {
+      "command": "npx",
+      "args": ["-y", "agent-skills-standard-mcp"]
+    }
+  }
+}
+```
+
+Now any sub-agent in any runtime can call `load_skills_for_files`, `audit_session_compliance`, etc. Works in Claude Code, Cursor, Antigravity, Kiro, Continue, Gemini CLI — anywhere MCP is supported. Full setup: [`mcp/README.md`](./mcp/README.md).
+
+#### CLI vs MCP — paired layers, not alternatives
+
+| Layer | Tool | Runs when | Purpose |
+| --- | --- | --- | --- |
+| **Distribution** | `agent-skills-standard` (CLI) | Manually, before AI session | Fetches & writes `SKILL.md` files; generates `AGENTS.md` + `_INDEX.md` |
+| **Runtime / Enforcement** | `agent-skills-standard-mcp` (MCP) | Auto-launched by the AI runtime | Serves matched `SKILL.md` to live agents on demand; provides audit log |
+
+You need both — the CLI installs the rules, the MCP makes sure agents load them.
+
 ---
 
-## 244 Skills Across 20+ Frameworks
+## 242 Skills Across 20+ Frameworks
 
 Every skill is audited for token efficiency (averaging ~500 tokens) and tested with automated evals.
 
@@ -93,7 +157,7 @@ Every skill is audited for token efficiency (averaging ~500 tokens) and tested w
 | :------------------- | :-------------------------------------------- | :------- | :----- |
 | **Common Patterns**  | Best Practices, Security, TDD, Error Handling | `v2.0.4` | 31     |
 | **Flutter**          | BLoC, Riverpod, Architecture, Concurrency     | `v1.7.0` | 22     |
-| **React**            | Hooks, Performance, State Management          | `v1.3.4` | 8      |
+| **React**            | Hooks, Performance, State Management          | `v1.3.5` | 8      |
 | **React Native**     | Architecture, Navigation, Performance         | `v1.4.4` | 13     |
 | **Next.js**          | App Router, Server Components, Caching, ISR   | `v1.4.4` | 18     |
 | **Angular**          | Signals, Components, RxJS, SSR                | `v1.4.2` | 15     |
@@ -103,11 +167,11 @@ Every skill is audited for token efficiency (averaging ~500 tokens) and tested w
 | **Go (Golang)**      | Clean Arch, Concurrency                       | `v1.3.3` | 11     |
 | **Spring Boot**      | Architecture, Security, JPA                   | `v1.3.3` | 10     |
 | **Android**          | Compose, Navigation 3, Edge-to-Edge, AGP 9    | `v1.4.0` | 26     |
-| **iOS**              | SwiftUI, Arch, Persistence                    | `v1.4.4` | 15     |
-| **Swift**            | Concurrency, Memory                           | `v1.3.4` | 8      |
+| **iOS**              | SwiftUI, Arch, Persistence                    | `v1.4.5` | 15     |
+| **Swift**            | Concurrency, Memory                           | `v1.3.5` | 8      |
 | **Kotlin**           | Coroutines, Language                          | `v1.3.3` | 4      |
 | **Java**             | Records, Virtual Threads                      | `v1.3.3` | 5      |
-| **PHP**              | PHP 8.4+, Error Handling                      | `v1.3.3` | 7      |
+| **PHP**              | PHP 8.4+, Error Handling                      | `v1.3.4` | 7      |
 | **Laravel**          | Eloquent, Clean Arch                          | `v1.3.4` | 10     |
 | **Dart**             | Null Safety, Sealed Classes                   | `v1.3.4` | 3      |
 | **Database**         | PostgreSQL, MongoDB, Redis                    | `v1.3.3` | 3      |
@@ -251,16 +315,15 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for design details and [CLI Architectur
 
 ### 📜 Benchmark History
 
-| Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                  |
-| ------- | ---------- | ------ | ---------- | ----------- | --------------------------------------- |
-| v2.1.3  | 2026-04-22 | 244    | 510        | 86%         | [Report](benchmarks/archive/v2.1.3.md)  |
-| v2.1.2  | 2026-04-11 | 237    | 516        | 86%         | [Report](benchmarks/archive/v2.1.2.md)  |
-| v2.1.1  | 2026-04-11 | 237    | 516        | 86%         | [Report](benchmarks/archive/v2.1.1.md)  |
-| v2.1.0  | 2026-04-04 | 237    | 526        | 86%         | [Report](benchmarks/archive/v2.1.0.md)  |
-| v2.0.1  | 2026-03-30 | 238    | 527        | 86%         | [Report](benchmarks/archive/v2.0.1.md)  |
-| v2.0.0  | 2026-03-25 | 235    | 523        | 86%         | [Report](benchmarks/archive/v2.0.0.md)  |
-| v1.10.3 | 2026-03-21 | 234    | 505        | 86%         | [Report](benchmarks/archive/v1.10.3.md) |
-| v1.10.1 | 2026-03-16 | 229    | 428        | 88%         | [Report](benchmarks/archive/v1.10.1.md) |
-| v1.10.0 | 2026-03-16 | 229    | 434        | 88%         | [Report](benchmarks/archive/v1.10.0.md) |
-| v1.9.3  | 2026-03-15 | 229    | 460        | 87%         | [Report](benchmarks/archive/v1.9.3.md)  |
-| v1.9.2  | 2026-03-07 | 228    | 458        | 87%         | [Report](benchmarks/archive/v1.9.2.md)  |
+| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
+| --- | --- | --- | --- | --- | --- |
+| v2.2.0 | 2026-04-22 | 242 | 538 | 85% | [Report](benchmarks/archive/v2.2.0.md) |
+| v2.1.2 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.2.md) |
+| v2.1.1 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.1.md) |
+| v2.1.0 | 2026-04-04 | 237 | 526 | 86% | [Report](benchmarks/archive/v2.1.0.md) |
+| v2.0.1 | 2026-03-30 | 238 | 527 | 86% | [Report](benchmarks/archive/v2.0.1.md) |
+| v2.0.0 | 2026-03-25 | 235 | 523 | 86% | [Report](benchmarks/archive/v2.0.0.md) |
+| v1.10.3 | 2026-03-21 | 234 | 505 | 86% | [Report](benchmarks/archive/v1.10.3.md) |
+| v1.10.1 | 2026-03-16 | 229 | 428 | 88% | [Report](benchmarks/archive/v1.10.1.md) |
+| v1.10.0 | 2026-03-16 | 229 | 434 | 88% | [Report](benchmarks/archive/v1.10.0.md) |
+| v1.9.3 | 2026-03-15 | 229 | 460 | 87% | [Report](benchmarks/archive/v1.9.3.md) |

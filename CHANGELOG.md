@@ -5,6 +5,83 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [cli-v2.2.0] / [mcp-v0.1.0] - 2026-04-22
+
+**Category**: Runtime Enforcement Layer — MCP Server + Consent-Respecting CLI Integration
+
+### Added
+
+- **`agent-skills-standard-mcp` package** (new): standalone MCP (Model Context Protocol) server that serves matched `SKILL.md` content to AI agents on demand. Works in any MCP-capable runtime (Claude Code, Cursor, Antigravity, Kiro, Continue, Gemini CLI). Closes the gap where sub-agents skip skill loading because they don't inherit `AGENTS.md`.
+  - 5 tools: `load_skills_for_files`, `load_skills_for_keywords`, `get_skill`, `list_categories`, `audit_session_compliance`.
+  - Server-level `instructions` field (1.9 KB workflow guide) per [awesome-mcp-best-practices §2.1](https://github.com/lirantal/awesome-mcp-best-practices).
+  - Tier-aware matching honoring `metadata.broad_globs` + `base_language_skills` (same algorithm as `IndexGeneratorService`).
+  - **Composite-trigger expansion** honoring `foundational_composite_rules` — surfaces foundational skills (`common-best-practices`, `common-security-standards`, `common-performance-engineering`, `common-api-design`, `common-system-design`, `common-tdd`, `common-accessibility`, `common-error-handling`, `common-observability`, `common-mobile-ux-core`) automatically when an adjacent skill loads. Closes the gap where broad-glob foundational skills were previously invisible to `load_skills_for_files`.
+  - Graceful empty-state handling — server starts even when no skills installed; tools return setup guidance instead of crashing.
+  - Positive-guidance no-match responses (lists available categories) per awesome-mcp §1.4.
+  - Stdio transport (universal across runtimes).
+  - 27 unit tests covering matching, tier model, composite expansion (8 cases incl. non-recursion + missing-skill tolerance), empty-state, no-match guidance, audit trail.
+  - Full [`mcp/ARCHITECTURE.md`](./mcp/ARCHITECTURE.md) with 7 ADRs covering standalone parser, transport choice, tier model, instructions field, positive-guidance, no-persistence design, and composite-trigger expansion.
+- **`ags mcp <action>` subcommand** (new): manage the MCP integration without editing `.skillsrc` by hand. Actions: `status` | `enable` | `disable` | `scope <project|user|snippets-only|disabled>` | `install` | `uninstall` | `snippets`.
+- **MCP consent step in `init`**: asks once whether to enable the MCP server and at what scope. Default is `project` (recommended) — never auto-writes to user-home configs without explicit per-file consent.
+- **MCP wiring in `sync`** (Phase 7): if enabled, installs the server entry into the configured runtime config files. Project-scope only by default. Generates `./mcp-config-snippets/*.json` for manual paste-in. User-scope writes always prompt per file.
+- **`McpConfigService`** (new): pure read-modify-write service that safely merges only the `agent-skills` server key into runtime configs. Other MCP servers in the same file are preserved byte-for-byte. 12 unit tests cover safe-merge, scope semantics, uninstall, snippet generation.
+- **`mcp` block in `.skillsrc` schema**: `enabled`, `scope`, `prompted`, optional `version`. Decisions persist so users aren't re-prompted on every sync.
+- **`scripts/release-mcp.ts`**: release script for the MCP package mirroring `release-cli.ts` / `release-server.ts` patterns. Includes build + test verification before tagging, and `npm publish` step (skippable with `--skip-publish`).
+
+### Changed
+
+- **CLI version**: `2.1.3` → `2.2.0` (minor bump — new feature, non-breaking).
+- **Root README**: added Step 4 documenting the MCP integration, the consent model table, and the `ags mcp` subcommand reference.
+- **`cli/README.md`**: added MCP section pointing to the subcommand.
+
+### Privacy / consent guarantees
+
+- The CLI **never reads or modifies** files in `$HOME` unless the user explicitly chooses `scope: user` AND confirms each file write.
+- `scope: snippets-only` writes ONLY to `./mcp-config-snippets/`; no runtime configs touched.
+- All scope decisions are recorded in `.skillsrc` and changeable via `ags mcp scope <X>`.
+- Safe-merge: other MCP servers in the same config file are never replaced or removed.
+- `ags mcp uninstall` removes only the `agent-skills` entry, leaves siblings intact.
+
+### Skill content fixes — broad-glob skills with weak keywords
+
+Audit found 6 broad-glob non-foundational skills whose keyword sets were too sparse (4 each) to be reliably discoverable via natural-language `load_skills_for_keywords` calls. Each skill received 7-8 additional intent-style keywords (e.g. `"ios performance"`, `"sql injection"`, `"react typescript"`) so developers can find them by describing the task instead of remembering API names:
+
+- `ios/ios-performance` — added: `ios performance`, `swift performance`, `optimize ios`, `time profiler`, `frame drops`, `main thread`, `slow scroll`
+- `ios/ios-security` — added: `ios security`, `swift security`, `keychain`, `biometric`, `face id`, `touch id`, `certificate pinning`, `app transport security`
+- `php/php-security` — added: `php security`, `sql injection`, `xss php`, `prepared statement`, `csrf`, `sanitize input`, `password storage`
+- `react/react-security` — added: `react security`, `csp`, `content security policy`, `sanitize html`, `secure cookie`, `jwt react`, `oauth react`, `dompurify`
+- `react/react-typescript` — added: `react typescript`, `tsx types`, `props interface`, `generic component`, `useState type`, `useRef type`, `typed hooks`
+- `swift/swift-best-practices` — added: `swift idiomatic`, `swift naming`, `swift best practice`, `swift conventions`, `value type`, `immutability swift`, `guard let`
+
+### Tooling fix
+
+- `scripts/generate-indices.ts`: changed import from abstract `IndexGeneratorService` to `IndexGeneratorServiceImpl`, fixing a pre-existing `generateAllCategoryIndices is not a function` error that left per-category `_INDEX.md` files stale.
+
+### MCP-aware AGENTS.md generation
+
+- `IndexGeneratorService.assembleRouterIndex(baseDir, allowedCategories, mcpEnabled)` — generated `AGENTS.md` now includes a "🔌 Runtime Enforcement via MCP" section above the router table. The block is **always present** so it remains correct in all four states (CLI-installed, manually-installed, partially-uninstalled, never-installed). The optional `mcpEnabled` parameter only controls a small status note (TIP vs NOTE) telling the user whether `.skillsrc` opts the project in.
+- The block is phrased self-checkingly — "**If** `load_skills_for_files` is in your tool list, prefer those tools" — so the AI verifies MCP presence via its own tool list before assuming.
+- `SyncService.applyIndices` reads `config.mcp?.enabled` and passes it through.
+- **Single source of truth**: the MCP block lives ONLY in `AGENTS.md`. Per-agent rule files (Cursor `.mdc`, Copilot instructions, Claude `CLAUDE.md`, Antigravity/Windsurf/Trae/Kiro/Roo rules) continue to point at `AGENTS.md` as their first read, so the MCP message reaches the agent without duplication that could drift.
+
+### `ags mcp status` mismatch detection
+
+- `ags mcp status` now warns when `.skillsrc.mcp.enabled` is out of sync with the actual runtime-config presence:
+  - **`enabled: false` + manual install detected** → suggests `ags mcp enable` (so `sync` keeps configs in step) OR `ags mcp uninstall --from project` (clean up the manual entry).
+  - **`enabled: true` + no runtime config wired** → suggests `ags mcp install` OR `ags mcp disable`.
+- This makes the consent flag (`.skillsrc`) and the actual runtime presence diagnose-able with one command, regardless of how the MCP got installed.
+
+### Versions
+
+- **CLI**: `2.1.3` → `2.2.0`
+- **MCP**: new package — `0.1.0`
+- **iOS**: `1.4.4` → `1.4.5` (keyword expansion: `ios-performance`, `ios-security`)
+- **PHP**: `1.3.3` → `1.3.4` (keyword expansion: `php-security`)
+- **React**: `1.3.4` → `1.3.5` (keyword expansion: `react-security`, `react-typescript`)
+- **Swift**: `1.3.4` → `1.3.5` (keyword expansion: `swift-best-practices`)
+
+---
+
 ## [2.1.3] - 2026-04-22
 
 **Category**: Structured Frontmatter Migration & New Workflow Skills

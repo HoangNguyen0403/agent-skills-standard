@@ -3,7 +3,7 @@ import yaml from 'js-yaml';
 import path from 'path';
 import { Agent } from '../cli/src/constants';
 import { AgentBridgeService } from '../cli/src/services/AgentBridgeService';
-import { IndexGeneratorService } from '../cli/src/services/IndexGeneratorService';
+import { IndexGeneratorServiceImpl } from '../cli/src/services/IndexGeneratorServiceImpl';
 import { MarkdownUtils } from '../cli/src/services/utils/MarkdownUtils';
 
 function getFirstLine(text: string): string {
@@ -94,7 +94,7 @@ async function generate() {
     `✅ Generated indices for ${Object.keys(frameworkIndices).length} frameworks in skills/index.json`,
   );
 
-  const generator = new IndexGeneratorService();
+  const generator = new IndexGeneratorServiceImpl();
 
   // Generate per-category _INDEX.md files
   const categoryIndices = await generator.generateAllCategoryIndices(skillsDir);

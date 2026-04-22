@@ -3,7 +3,7 @@
 [![NPM Version](https://img.shields.io/npm/v/agent-skills-standard.svg?style=flat-square)](https://www.npmjs.com/package/agent-skills-standard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/blob/main/LICENSE)
 
-**Sync 237 AI coding standards to any project in one command.** Works with Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, and Roo.
+**Sync 242 AI coding standards to any project in one command.** Works with Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, and Roo.
 
 ```bash
 npx agent-skills-standard@latest init   # detect your stack
@@ -36,6 +36,7 @@ The result: your AI agent reads `AGENTS.md`, follows the router to the right cat
 | :--------- | :--------------------------------------------------------------------------------------------- |
 | `init`     | Detects your tech stack (Flutter, React, Go, etc.) and creates a `.skillsrc` config            |
 | `sync`     | Fetches skills from the registry, writes to agent folders, generates `_INDEX.md` + `AGENTS.md` |
+| `mcp`      | Manage the optional MCP server integration (status / enable / disable / scope / install / uninstall / snippets) — see [Optional: MCP Runtime Enforcement](#optional-mcp-runtime-enforcement) below |
 | `validate` | Checks your custom skills against format and token standards                                   |
 | `feedback` | Submits improvement suggestions to the registry                                                |
 | `upgrade`  | Updates the CLI to the latest version                                                          |
@@ -84,12 +85,30 @@ project/
 
 ---
 
+## Optional: MCP Runtime Enforcement
+
+The CLI **distributes** skills as static files. The companion [`agent-skills-standard-mcp`](https://www.npmjs.com/package/agent-skills-standard-mcp) server **serves** them at runtime as MCP tool calls — closing the gap where sub-agents skip skill loading because they don't inherit `AGENTS.md`.
+
+`init` asks once whether to enable it and at what scope. Default is `project` (recommended). Change later with:
+
+```bash
+ags mcp status              # show current state + per-agent install
+ags mcp scope project       # project | user | snippets-only | disabled
+ags mcp install             # apply changes
+ags mcp uninstall --from project   # remove our entry; siblings preserved
+```
+
+The CLI **never** modifies user-home files (`~/.cursor/mcp.json`, `~/.gemini/settings.json`, etc.) unless you explicitly choose `scope: user` AND confirm each write. See [`mcp/README.md`](../mcp/README.md) for full details and [`mcp/ARCHITECTURE.md`](../mcp/ARCHITECTURE.md) for the threat model.
+
+---
+
 ## Privacy & Security
 
 - **Text only** — the CLI downloads Markdown and JSON files, never binaries or scripts
 - **No telemetry** — zero data collection, no background processes
 - **Transparent** — fetches from the [public registry](https://github.com/HoangNguyen0403/agent-skills-standard), nothing hidden
 - **Override protection** — `custom_overrides` prevents the CLI from touching your local modifications
+- **MCP consent model** — runtime configs in `$HOME` are only ever modified with explicit per-file consent
 
 ---
 
@@ -103,6 +122,7 @@ project/
 
 | Version | Date | Skills | Avg Tokens | Savings (%) | Report |
 | --- | --- | --- | --- | --- | --- |
+| v2.2.0 | 2026-04-22 | 242 | 538 | 85% | [Report](benchmarks/archive/v2.2.0.md) |
 | v2.1.2 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.2.md) |
 | v2.1.1 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.1.md) |
 | v2.1.0 | 2026-04-04 | 237 | 526 | 86% | [Report](benchmarks/archive/v2.1.0.md) |
@@ -112,4 +132,3 @@ project/
 | v1.10.1 | 2026-03-16 | 229 | 428 | 88% | [Report](benchmarks/archive/v1.10.1.md) |
 | v1.10.0 | 2026-03-16 | 229 | 434 | 88% | [Report](benchmarks/archive/v1.10.0.md) |
 | v1.9.3 | 2026-03-15 | 229 | 460 | 87% | [Report](benchmarks/archive/v1.9.3.md) |
-| v1.9.2 | 2026-03-07 | 228 | 458 | 87% | [Report](benchmarks/archive/v1.9.2.md) |

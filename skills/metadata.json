@@ -326,13 +326,13 @@
       }
     },
     "react": {
-      "version": "1.3.4",
+      "version": "1.3.5",
       "last_updated": "2026-04-22",
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4311,
-        "avg_tokens_per_skill": 539,
+        "total_tokens": 4383,
+        "avg_tokens_per_skill": 548,
         "largest_skill": "react-performance (733 tokens)"
       }
     },
@@ -458,36 +458,36 @@
       }
     },
     "swift": {
-      "version": "1.3.4",
+      "version": "1.3.5",
       "last_updated": "2026-04-22",
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 3909,
-        "avg_tokens_per_skill": 489,
-        "largest_skill": "swift-best-practices (665 tokens)"
+        "total_tokens": 3946,
+        "avg_tokens_per_skill": 493,
+        "largest_skill": "swift-best-practices (702 tokens)"
       }
     },
     "ios": {
-      "version": "1.4.4",
+      "version": "1.4.5",
       "last_updated": "2026-04-22",
       "tag_prefix": "ios-v",
       "token_metrics": {
         "total_skills": 15,
-        "total_tokens": 5713,
-        "avg_tokens_per_skill": 381,
+        "total_tokens": 5786,
+        "avg_tokens_per_skill": 386,
         "largest_skill": "ios-architecture (665 tokens)"
       }
     },
     "php": {
-      "version": "1.3.3",
+      "version": "1.3.4",
       "last_updated": "2026-04-22",
       "tag_prefix": "php-v",
       "token_metrics": {
         "total_skills": 7,
-        "total_tokens": 3677,
-        "avg_tokens_per_skill": 525,
-        "largest_skill": "php-security (552 tokens)"
+        "total_tokens": 3710,
+        "avg_tokens_per_skill": 530,
+        "largest_skill": "php-security (585 tokens)"
       }
     },
     "laravel": {

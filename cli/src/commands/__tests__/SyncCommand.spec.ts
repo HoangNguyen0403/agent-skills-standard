@@ -55,6 +55,9 @@ describe('SyncCommand', () => {
         skills: {
           common: { ref: 'v1.0.0' },
         },
+        // Mark MCP as already-prompted-and-disabled so Phase 7 fast-returns.
+        // Tests that exercise the MCP path should override this.
+        mcp: { enabled: false, scope: 'disabled', prompted: true },
       }),
       saveConfig: vi.fn(),
     } as unknown as Mocked<ConfigService>;

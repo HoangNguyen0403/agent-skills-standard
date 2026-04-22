@@ -10,6 +10,13 @@ metadata:
     - Allocations
     - Leaks
     - dequeueReusableCell
+    - ios performance
+    - swift performance
+    - optimize ios
+    - time profiler
+    - frame drops
+    - main thread
+    - slow scroll
 ---
 # iOS Performance
 

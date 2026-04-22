@@ -17,6 +17,15 @@ import {
 import { CategoryConfig, SkillConfig } from '../models/config';
 import { RegistryMetadata } from '../models/types';
 
+const McpScopeSchema = z.enum(['project', 'user', 'snippets-only', 'disabled']);
+
+const McpConfigSchema = z.object({
+  enabled: z.boolean(),
+  scope: McpScopeSchema,
+  prompted: z.boolean(),
+  version: z.string().optional(),
+});
+
 const SkillConfigSchema = z.object({
   registry: z.string().url(),
   agents: z.array(z.nativeEnum(Agent)).optional(),
@@ -30,6 +39,7 @@ const SkillConfigSchema = z.object({
   ),
   custom_overrides: z.array(z.string()).optional(),
   workflows: z.union([z.boolean(), z.array(z.string())]).optional(),
+  mcp: McpConfigSchema.optional(),
 });
 
 /**

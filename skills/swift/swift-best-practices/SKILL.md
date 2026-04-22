@@ -10,6 +10,13 @@ metadata:
     - let
     - struct
     - final
+    - swift idiomatic
+    - swift naming
+    - swift best practice
+    - swift conventions
+    - value type
+    - immutability swift
+    - guard let
 ---
 # Swift Best Practices
 

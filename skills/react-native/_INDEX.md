@@ -11,7 +11,7 @@
 | react-native-navigation | `**/App.tsx`, `**/*Navigator.tsx`, `**/*Screen.tsx` | NavigationContainer, createStackNavigator, createBottomTabNavigator, linking, deep link |
 | **react-native-navigation-v6** | `**/*Navigation*.tsx`, `src/navigation/**` | navigation, react-navigation, stack, tab, drawer, deep link |
 | react-native-notifications | `**/*notification*.ts`, `**/*notification*.tsx`, `**/App.tsx` | Notifications, messaging, FCM, expo-notifications, react-native-firebase |
-| react-native-platform-specific | `**/*.ios.*`, `**/*.android.*`, `Platform.select` | Platform, native-module, ios, android |
+| react-native-platform-specific | `**/*.ios.*`, `**/*.android.*` | Platform, Platform.select, native-module, ios, android |
 | react-native-testing | `**/*.test.tsx`, `**/*.spec.tsx`, `__tests__/**` | test, testing, jest, render, fireEvent, waitFor |
 
 ## Keyword Match (only when user's request mentions these)

@@ -13,7 +13,7 @@
 
 | Skill | Match when user mentions |
 | ----- | ----------------------- |
-| **swift-best-practices** | guard, let, struct, final |
+| **swift-best-practices** | guard, let, struct, final, swift idiomatic, swift naming, swift best practice, swift conventions, value type, immutability swift, guard let |
 | **swift-concurrency** | async, await, actor, Task, MainActor |
 | **swift-error-handling** | throws, try, catch, Result, Error |
 | **swift-memory-management** | weak, unowned, capture, deinit, retain |

@@ -15,6 +15,8 @@ vi.mock('picocolors', () => ({
     bold: vi.fn((t) => t),
     yellow: vi.fn((t) => t),
     blue: vi.fn((t) => t),
+    red: vi.fn((t) => t),
+    magenta: vi.fn((t) => t),
   },
 }));
 
@@ -53,11 +55,14 @@ describe('InitCommand', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
 
     vi.spyOn(fs, 'pathExists').mockResolvedValue(false as never);
-    vi.mocked(inquirer.prompt).mockResolvedValue({
-      framework: 'react',
-      agents: ['cursor'],
-      registry: 'reg',
-    });
+    // First call answers framework/agents/registry; second call answers MCP consent.
+    vi.mocked(inquirer.prompt)
+      .mockResolvedValueOnce({
+        framework: 'react',
+        agents: ['cursor'],
+        registry: 'reg',
+      })
+      .mockResolvedValueOnce({ mcpEnabled: true, mcpScope: 'project' });
   });
 
   it('should initialize project from scratch', async () => {
@@ -81,14 +86,17 @@ describe('InitCommand', () => {
 
   it('should handle existing config and overwrite if requested', async () => {
     vi.spyOn(fs, 'pathExists').mockResolvedValue(true as never);
-    // Sequence for multiple prompts
+    // Reset the prompt queue from beforeEach, then enqueue the full sequence
+    // for this test: overwrite confirm → framework/agents/registry → MCP consent.
+    vi.mocked(inquirer.prompt).mockReset();
     vi.mocked(inquirer.prompt)
       .mockResolvedValueOnce({ overwrite: true })
       .mockResolvedValueOnce({
         framework: 'react',
         agents: ['cursor'],
         registry: 'reg',
-      });
+      })
+      .mockResolvedValueOnce({ mcpEnabled: true, mcpScope: 'project' });
 
     await command.run();
     expect(mockInitService.buildAndSaveConfig).toHaveBeenCalled();

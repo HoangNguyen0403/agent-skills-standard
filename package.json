@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard-root",
-  "version": "2.1.3",
+  "version": "2.2.0",
   "private": true,
   "packageManager": "pnpm@10.0.0",
   "pnpm": {
@@ -34,9 +34,14 @@
     "release-all-skills": "tsx scripts/release-all-skills.ts",
     "release-cli": "tsx scripts/release-cli.ts",
     "server:release": "tsx scripts/release-server.ts",
+    "mcp:release": "tsx scripts/release-mcp.ts",
     "server:dev": "pnpm --filter ./server start:dev",
     "server:build": "pnpm --filter ./server build",
     "server:start": "pnpm --filter ./server start:prod",
+    "mcp:dev": "pnpm --filter ./mcp dev",
+    "mcp:build": "pnpm --filter ./mcp build",
+    "mcp:start": "pnpm --filter ./mcp start",
+    "mcp:test": "pnpm --filter ./mcp test",
     "calculate-tokens": "tsx scripts/calculate-tokens.ts",
     "benchmark": "tsx scripts/benchmark/index.ts",
     "generate-indices": "tsx scripts/generate-indices.ts",

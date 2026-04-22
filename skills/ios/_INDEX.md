@@ -22,8 +22,8 @@
 | ----- | ----------------------- |
 | **ios-dependency-injection** | @Injected, Resolver, Container, Swinject, register, resolve |
 | ios-deployment | Fastfile, Appfile, Matchfile, ios_bundle_id, provisioning_profile, testflight |
-| **ios-performance** | Instruments, Allocations, Leaks, dequeueReusableCell |
-| **ios-security** | SecItemAdd, kSecClassGenericPassword, LAContext, LocalAuthentication |
+| **ios-performance** | Instruments, Allocations, Leaks, dequeueReusableCell, ios performance, swift performance, optimize ios, time profiler, frame drops, main thread, slow scroll |
+| **ios-security** | SecItemAdd, kSecClassGenericPassword, LAContext, LocalAuthentication, ios security, swift security, keychain, biometric, face id, touch id, certificate pinning, app transport security |
 | **ios-state-management** | Observable, @Published, PassthroughSubject, @Observable, @Namespace |
 
 > Load matched skills: `<SKILLS>/ios/<skill>/SKILL.md`. Load ALL that match — the tier model already filters irrelevant ones.

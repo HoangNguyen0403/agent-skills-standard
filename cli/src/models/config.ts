@@ -18,6 +18,30 @@ export interface SkillEntry {
 export type CategoryConfig = SkillEntry;
 
 /**
+ * Where the MCP integration is allowed to write configuration:
+ *   - `project`        — only files inside this project (e.g. ./.mcp.json) (recommended)
+ *   - `user`           — also user-home files (e.g. ~/.cursor/mcp.json) — sync prompts each write
+ *   - `snippets-only`  — never edits any runtime config; just generates ./mcp-config-snippets/*.json
+ *   - `disabled`       — no MCP-related changes at all
+ */
+export type McpScope = 'project' | 'user' | 'snippets-only' | 'disabled';
+
+/**
+ * Optional MCP integration block for `.skillsrc`. The CLI never edits runtime
+ * configs without explicit user consent recorded here.
+ */
+export interface McpConfig {
+  /** Master toggle. `false` is equivalent to `scope: 'disabled'`. Default: false until user opts in. */
+  enabled: boolean;
+  /** Scope of writes allowed during `sync`. Default: 'snippets-only'. Recommended: 'project'. */
+  scope: McpScope;
+  /** True once the user has been asked at least once — prevents re-prompting on every sync. */
+  prompted: boolean;
+  /** Optional: pin a specific MCP server version. Default: tracks @latest via npx. */
+  version?: string;
+}
+
+/**
  * The main configuration structure for agent-skills-standard (usually .skillsrc).
  */
 export interface SkillConfig {
@@ -35,4 +59,6 @@ export interface SkillConfig {
   custom_overrides?: string[];
   /** Whether to delete orphaned skill folders (true by default) */
   prune?: boolean;
+  /** Optional: opt-in MCP server integration. See McpConfig. */
+  mcp?: McpConfig;
 }

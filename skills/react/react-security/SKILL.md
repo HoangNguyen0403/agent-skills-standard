@@ -11,6 +11,14 @@ metadata:
     - token
     - auth
     - xss
+    - react security
+    - csp
+    - content security policy
+    - sanitize html
+    - secure cookie
+    - jwt react
+    - oauth react
+    - dompurify
 ---
 # React Security
 

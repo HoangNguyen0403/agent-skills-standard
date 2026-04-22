@@ -10,6 +10,14 @@ metadata:
     - kSecClassGenericPassword
     - LAContext
     - LocalAuthentication
+    - ios security
+    - swift security
+    - keychain
+    - biometric
+    - face id
+    - touch id
+    - certificate pinning
+    - app transport security
 ---
 # iOS Security
 

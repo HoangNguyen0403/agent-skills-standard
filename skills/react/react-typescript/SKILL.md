@@ -10,6 +10,13 @@ metadata:
     - FC
     - PropsWithChildren
     - ComponentProps
+    - react typescript
+    - tsx types
+    - props interface
+    - generic component
+    - useState type
+    - useRef type
+    - typed hooks
 ---
 # React TypeScript
 

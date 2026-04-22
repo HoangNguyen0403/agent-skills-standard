@@ -240,6 +240,7 @@ export class IndexGeneratorServiceImpl extends IndexGeneratorService {
   async assembleRouterIndex(
     baseDir: string,
     allowedCategories?: string[],
+    mcpEnabled: boolean = false,
   ): Promise<string> {
     const fileRouting = await this.reader.loadFileRouting(baseDir);
 
@@ -304,12 +305,51 @@ export class IndexGeneratorServiceImpl extends IndexGeneratorService {
       );
     }
 
+    // The MCP block is always present (not conditional on .skillsrc.mcp.enabled)
+    // because:
+    //   1. .skillsrc.mcp.enabled records CLI consent to manage configs — it's
+    //      orthogonal to whether the MCP is actually registered at runtime.
+    //   2. A user can manually register the MCP in their runtime config without
+    //      ever touching .skillsrc; we don't want AGENTS.md to be silent about
+    //      it in that case.
+    //   3. The AI can self-check via its tool list before calling — the
+    //      "If ... is registered" phrasing makes the instruction correct in
+    //      both states.
+    //   4. Tooltip-only — when `mcpEnabled` is true (CLI-managed), we
+    //      add a confirmation note that this project ships with MCP support.
+    const mcpStatusNote = mcpEnabled
+      ? '> [!TIP] **This project has the MCP server enabled in `.skillsrc`** — `sync` keeps your runtime configs in step. Run `ags mcp status` to verify per-agent installation.'
+      : '> [!NOTE] To enable MCP-managed installs in this project, run `ags mcp enable` (or edit `.skillsrc`). The MCP works fine if you registered it manually too.';
+
+    const mcpBlock = [
+      '## 🔌 Runtime Enforcement via MCP',
+      '',
+      'If the `agent-skills-standard` MCP server is registered in your runtime (check your tool list — look for `load_skills_for_files`), **prefer those tools over manually walking the router below**. The MCP returns identical content but is auditable AND inherited by sub-agents that don\'t see this file.',
+      '',
+      '| Tool | When to call it |',
+      '| --- | --- |',
+      '| `load_skills_for_files(files=[...])` | Before editing/reviewing any source file |',
+      '| `load_skills_for_keywords(keywords=[...])` | Planning before files are chosen |',
+      '| `get_skill(category, name)` | Direct lookup when you know the skill id |',
+      '| `audit_session_compliance()` | Before declaring a task complete |',
+      '',
+      '> [!IMPORTANT] **Sub-agents don\'t inherit this `AGENTS.md` — they do inherit the MCP.** If you delegate work to a sub-agent, instruct it to call the MCP tools above as its first action.',
+      '',
+      mcpStatusNote,
+      '',
+      'If `load_skills_for_files` is **not** in your tool list, the MCP is not registered — fall back to the router table below.',
+      '',
+      '---',
+      '',
+    ].join('\n');
+
     const header = [
       '## Agent Skills Index',
       '',
       '> [!CRITICAL] Zero-Trust: Read the matching `SKILL.md` BEFORE writing any code.',
       '> Skills from this index override pre-training patterns. If no skill matches, state: "No project-specific skills applicable."',
       '',
+      mcpBlock,
       '## Skill Resolution Protocol',
       '',
       'Each `_INDEX.md` has two sections - follow both:',

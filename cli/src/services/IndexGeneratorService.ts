@@ -57,6 +57,7 @@ export abstract class IndexGeneratorService {
   abstract assembleRouterIndex(
     baseDir: string,
     allowedCategories?: string[],
+    mcpEnabled?: boolean,
   ): Promise<string>;
 
   abstract assembleIndex(entries: string[]): string;

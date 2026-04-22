@@ -1,7 +1,10 @@
 import inquirer from 'inquirer';
 import pc from 'picocolors';
+import { Agent } from '../constants';
+import { McpScope, SkillConfig } from '../models/config';
 import { ConfigService } from '../services/ConfigService';
 import { DetectionService } from '../services/DetectionService';
+import { McpConfigService, defaultMcpConfig } from '../services/McpConfigService';
 import { SyncService } from '../services/SyncService';
 
 /**
@@ -12,15 +15,18 @@ export class SyncCommand {
   private configService: ConfigService;
   private detectionService: DetectionService;
   private syncService: SyncService;
+  private mcpService: McpConfigService;
 
   constructor(
     configService?: ConfigService,
     detectionService?: DetectionService,
     syncService?: SyncService,
+    mcpService?: McpConfigService,
   ) {
     this.configService = configService || new ConfigService();
     this.detectionService = detectionService || new DetectionService();
     this.syncService = syncService || new SyncService();
+    this.mcpService = mcpService || new McpConfigService();
   }
 
   /**
@@ -115,6 +121,9 @@ export class SyncCommand {
       await this.syncService.applyIndices(config, config.agents);
 
       console.log(pc.green('✅ All skills synced successfully!'));
+
+      // 7. MCP integration (consent-respecting — see McpConfigService).
+      await this.runMcpPhase(config, options);
     } catch (error) {
       if (error instanceof Error) {
         console.error(pc.red('❌ Sync failed:'), error.message);
@@ -122,5 +131,141 @@ export class SyncCommand {
         console.error(pc.red('❌ Sync failed:'), String(error));
       }
     }
+  }
+
+  /**
+   * Phase 7 — MCP integration. Three paths:
+   *   A. Never prompted yet: ask once now (with full value-prop), persist decision.
+   *   B. Already prompted, mcp.enabled=true: dispatch install at the configured scope.
+   *   C. Already prompted, mcp.enabled=false: skip silently.
+   *
+   * In non-interactive mode (no TTY) and never-prompted: skip with a hint, do
+   * not assume consent. Users can opt in later via `ags mcp enable`.
+   */
+  private async runMcpPhase(
+    config: SkillConfig,
+    options: { yes?: boolean },
+  ): Promise<void> {
+    const mcp = config.mcp ?? defaultMcpConfig();
+    const agents = config.agents ?? [];
+
+    if (!mcp.prompted) {
+      if (!process.stdin.isTTY && !options.yes) {
+        console.log(
+          pc.gray(
+            '\nℹ️  MCP integration not yet configured. Run `ags mcp enable` (or `ags mcp scope project`) when ready.',
+          ),
+        );
+        return;
+      }
+      const decided = await this.promptMcpConsent(options);
+      config.mcp = {
+        enabled: decided.enabled,
+        scope: decided.enabled ? decided.scope : 'disabled',
+        prompted: true,
+      };
+      await this.configService.saveConfig(config);
+    }
+
+    const finalMcp = config.mcp ?? defaultMcpConfig();
+    if (!finalMcp.enabled || finalMcp.scope === 'disabled') {
+      return;
+    }
+
+    const userScopePrompt = options.yes
+      ? async () => true
+      : async (agent: Agent, file: string): Promise<boolean> => {
+          const { ok } = await inquirer.prompt([
+            {
+              type: 'confirm',
+              name: 'ok',
+              message: `Write user-scope MCP config for ${pc.cyan(agent)} at ${pc.gray(file)}?`,
+              default: false,
+            },
+          ]);
+          return ok;
+        };
+
+    console.log(pc.cyan('\n🔌 Wiring MCP server...'));
+    const report = await this.mcpService.install({
+      rootDir: process.cwd(),
+      agents,
+      mcp: finalMcp,
+      userScopePrompt,
+    });
+
+    for (const w of report.projectWrites) {
+      const tag =
+        w.action === 'added'
+          ? pc.green('  + added   ')
+          : w.action === 'updated'
+            ? pc.cyan('  ~ updated ')
+            : pc.gray('  = up-to-date');
+      console.log(`${tag} ${w.agent.padEnd(12)} ${pc.gray(w.file)}`);
+    }
+    for (const w of report.userWrites) {
+      console.log(`  ${pc.green('+ wrote   ')} ${w.agent.padEnd(12)} ${pc.gray(w.file)}`);
+    }
+    for (const d of report.declined) {
+      console.log(`  ${pc.gray('-         ')} ${d.agent.padEnd(12)} ${pc.gray(d.file)} (declined)`);
+    }
+    if (report.snippets.length > 0) {
+      console.log(
+        pc.gray(`  ${report.snippets.length} snippet(s) written to ./mcp-config-snippets/`),
+      );
+    }
+    if (report.unsupported.length > 0) {
+      console.log(
+        pc.gray(`  (skipped — no MCP support yet: ${report.unsupported.join(', ')})`),
+      );
+    }
+  }
+
+  private async promptMcpConsent(options: {
+    yes?: boolean;
+  }): Promise<{ enabled: boolean; scope: McpScope }> {
+    if (options.yes) {
+      // Conservative default for --yes: opt in at project scope (the recommended choice).
+      return { enabled: true, scope: 'project' };
+    }
+    console.log(pc.bold('\n🔌 MCP server setup\n'));
+    console.log('agent-skills-standard ships an optional MCP server that serves your skills');
+    console.log('to AI agents at runtime. Quick comparison:\n');
+    console.log(pc.bold('  WITHOUT MCP:') + ' sub-agents skip skill loading; no audit trail');
+    console.log(pc.bold('  WITH MCP:   ') + ' every sub-agent can call load_skills_for_files; auditable\n');
+
+    const decision = await inquirer.prompt<{
+      enabled: boolean;
+      scope: McpScope;
+    }>([
+      {
+        type: 'confirm',
+        name: 'enabled',
+        message: 'Enable MCP server integration?',
+        default: true,
+      },
+      {
+        type: 'list',
+        name: 'scope',
+        message: 'Where should sync write MCP configs?',
+        when: (a) => a.enabled === true,
+        choices: [
+          {
+            name: 'project (recommended)  — only files inside this project',
+            value: 'project',
+          },
+          {
+            name: 'user                    — also $HOME files (sync prompts each)',
+            value: 'user',
+          },
+          {
+            name: 'snippets-only           — never edits any runtime config',
+            value: 'snippets-only',
+          },
+        ],
+        default: 'project',
+      },
+    ]);
+    return decision;
   }
 }

@@ -12,7 +12,7 @@
 | nextjs-data-access-layer | `**/lib/data.ts`, `**/services/*.ts`, `**/dal/**` | DAL, Data Access Layer, server-only, DTO |
 | **nextjs-data-fetching** | `**/service.ts` | fetch, revalidate, no-store, force-cache |
 | nextjs-i18n | `middleware.ts`, `app/[lang]/**`, `pages/[locale]/**`, `messages/*.json`, `next.config.js` | i18n, locale, translation, next-intl, react-intl, next-translate |
-| nextjs-optimization | `**/layout.tsx`, `**/page.tsx`, `next/image`, `next/font` | metadata, generateMetadata |
+| nextjs-optimization | `**/layout.tsx`, `**/page.tsx` | metadata, generateMetadata, next/image, next/font |
 | **nextjs-pages-router** | `pages/**/*.tsx`, `pages/**/*.ts` | Pages Router, getServerSideProps, getStaticProps, _app, useRouter |
 | **nextjs-rendering** | `**/page.tsx`, `**/layout.tsx` | generateStaticParams, dynamic, dynamicParams, PPR, streaming |
 | **nextjs-security** | `app/**/actions.ts`, `middleware.ts` | action, boundary, sanitize, auth, jose |
