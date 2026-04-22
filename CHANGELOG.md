@@ -192,7 +192,7 @@ The following category-specific versions were bumped to reflect the global "Cave
   - **Category indexes** (`_INDEX.md`) — compact trigger tables with **File Match** and **Keyword Match** sections, auto-generated from SKILL.md frontmatters.
   - Reduces scan cost from O(n) to O(1) — ~25 lines per lookup regardless of total skill count.
 - **Three-Tier Trigger Model (CLI)**: `IndexGeneratorService` now classifies triggers into tiers:
-  - **File Match**: Skills with specific path patterns (e.g., `**/page.tsx`) or the designated `base_language_skill`.
+  - **File Match**: Skills with specific path patterns (e.g., `**/page.tsx`) or the designated `base_language_skills`.
   - **Keyword Match**: Skills with only broad globs (e.g., `**/*.ts`) are automatically demoted to keyword-only activation.
   - Reduces `*.ts` file auto-matches from 27 skills to 6 (78% reduction).
 - **`metadata.json` extensions**: Added `file_routing` (24 extension-to-category mappings), `broad_globs` (13 patterns to demote), and `base_language_skills` (19 category-to-base-skill mappings).

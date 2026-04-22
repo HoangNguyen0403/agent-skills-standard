@@ -7,6 +7,8 @@ import pkg from '../../package.json';
  * It checks the latest version on npm and performs the upgrade using the detected package manager.
  */
 export class UpgradeCommand {
+  private currentVersion = pkg.version;
+
   /**
    * Executes the upgrade flow.
    * @param options Command options, including `dryRun` to check for updates without installing.
@@ -14,7 +16,7 @@ export class UpgradeCommand {
   async run(options: { dryRun?: boolean }) {
     console.log(pc.cyan('🔍 Checking for updates...'));
 
-    const currentVersion = pkg.version;
+    const currentVersion = this.currentVersion;
     let latestVersion: string | null = null;
 
     try {

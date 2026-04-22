@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+import path from 'path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
 import { SkillConfig } from '../../models/config';
@@ -582,6 +583,91 @@ describe('SyncService', () => {
         config,
         [Agent.Cursor, Agent.Antigravity, Agent.Kiro]
       );
+    });
+
+    it('should use detected agents if config.agents is empty', async () => {
+      const config = makeConfig({ agents: [] });
+      const p = privatesOf(syncService);
+      // @ts-expect-error - accessing private service
+      vi.mocked(p.detectionService.detectAgents).mockResolvedValue({ [Agent.Claude]: true });
+      
+      await syncService.writeSkills([], config);
+      
+      expect(mockSkillSyncService.writeSkills).toHaveBeenCalledWith(
+        [],
+        config,
+        [Agent.Claude]
+      );
+    });
+  });
+
+  describe('applyIndices fast path', () => {
+    it('should return early if no agents are resolved', async () => {
+      const config = makeConfig({ agents: [] });
+      const p = privatesOf(syncService);
+      // @ts-expect-error - accessing private service
+      vi.mocked(p.detectionService.detectAgents).mockResolvedValue({});
+      
+      // Override resolveTargetAgents to return empty for this specific test
+      // Actually, resolveTargetAgents falls back to defaults.
+      // So I need to force it to return empty by mocking resolveTargetAgents directly if I could, 
+      // but it's private. I'll just check line 82 coverage by making agents empty.
+      
+      await syncService.applyIndices(config, []);
+      expect(IndexGeneratorServiceImpl).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('checkForUpdates detailed branches', () => {
+    it('handles missing remote version', async () => {
+      const config = makeConfig({
+        registry: 'https://github.com/o/r',
+        skills: { ts: { ref: 'v1' } },
+      });
+      mockGithubService.getRawFile.mockResolvedValue(JSON.stringify({
+        categories: { ts: {} } // missing version
+      }));
+      const updates = await syncService.checkForUpdates(config);
+      expect(updates).toEqual({});
+    });
+
+    it('uses tag_prefix if present', async () => {
+      const config = makeConfig({
+        registry: 'https://github.com/o/r',
+        skills: { ts: { ref: 'v1' } },
+      });
+      mockGithubService.getRawFile.mockResolvedValue(JSON.stringify({
+        categories: { ts: { version: '1.2.0', tag_prefix: 'v' } }
+      }));
+      const updates = await syncService.checkForUpdates(config);
+      expect(updates).toEqual({ ts: 'v1.2.0' });
+    });
+  });
+
+  describe('applyIndices with categories', () => {
+    it('writes _INDEX.md for each category and agent', async () => {
+      const config = makeConfig({ agents: [Agent.Cursor] });
+      
+      function CategoryGenCtor(this: FakeIndexGenerator): void {
+        this.withMetadata = vi.fn().mockReturnThis();
+        this.generate = vi.fn().mockResolvedValue('index');
+        this.assembleIndex = vi.fn().mockReturnValue('index');
+        this.generateAllCategoryIndices = vi.fn().mockResolvedValue({
+          'common': 'common index content'
+        });
+        this.assembleRouterIndex = vi.fn().mockResolvedValue('router');
+      }
+      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(
+        asCtor<FakeIndexGenerator>(CategoryGenCtor)
+      );
+      
+      await syncService.applyIndices(config, [Agent.Cursor]);
+      
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        expect.stringContaining(path.join('.cursor', 'skills', 'common', '_INDEX.md')),
+        'common index content'
+      );
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Generated _INDEX.md for 1 categories'));
     });
   });
 });

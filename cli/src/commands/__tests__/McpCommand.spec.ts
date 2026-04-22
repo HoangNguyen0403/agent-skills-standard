@@ -254,6 +254,51 @@ describe('McpCommand — actionStatus mismatch detection', () => {
     expect(output()).toContain('claude.json');
   });
 
+  it('handles "snippets" action with no snippets', async () => {
+    mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+    mockMcpService.install.mockResolvedValue({
+      projectWrites: [],
+      userWrites: [],
+      snippets: [],
+      declined: [],
+      unsupported: [],
+    });
+
+    await command.run('snippets');
+    expect(output()).toContain('No snippets generated');
+  });
+
+  it('handles "enable" action when scope is disabled', async () => {
+    mockConfigService.loadConfig.mockResolvedValue(makeConfig({
+      mcp: { enabled: false, scope: 'disabled', prompted: true }
+    }));
+    await command.run('enable');
+    expect(output()).toContain('scope is currently "disabled"');
+    expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+  });
+
+  it('prints report with "up-to-date" project writes', async () => {
+    mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+    mockMcpService.install.mockResolvedValue({
+      projectWrites: [{ agent: Agent.Claude, file: '.mcp.json', action: 'up-to-date' }],
+      userWrites: [],
+      snippets: [],
+      declined: [],
+      unsupported: [],
+    });
+
+    await command.run('install');
+    expect(output()).toContain('= up-to-date');
+  });
+
+  it('handles "uninstall" when nothing to remove', async () => {
+    mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+    mockMcpService.uninstall.mockResolvedValue({ removed: [] });
+
+    await command.run('uninstall');
+    expect(output()).toContain('Nothing to remove');
+  });
+
   it('handles unknown action', async () => {
     mockConfigService.loadConfig.mockResolvedValue(makeConfig());
     await command.run('invalid-action');

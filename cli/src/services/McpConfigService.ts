@@ -31,66 +31,67 @@ export interface McpTarget {
 export const SERVER_NAME = 'agent-skills-standard';
 export const PACKAGE = 'agent-skills-standard-mcp';
 
-const HOME = os.homedir();
-const TARGETS: Record<string, McpTarget> = {
-  [Agent.Claude]: {
-    agent: Agent.Claude,
-    projectFile: '.mcp.json',
-    userFile: path.join(HOME, '.claude', '.mcp.json'),
-    key: 'mcpServers',
-    shape: 'map',
-  },
-  [Agent.Cursor]: {
-    agent: Agent.Cursor,
-    projectFile: '.cursor/mcp.json',
-    userFile: path.join(HOME, '.cursor', 'mcp.json'),
-    key: 'mcpServers',
-    shape: 'map',
-  },
-  [Agent.Antigravity]: {
-    agent: Agent.Antigravity,
-    projectFile: '.antigravity/mcp.json',
-    userFile: null,
-    key: 'mcpServers',
-    shape: 'map',
-  },
-  [Agent.Kiro]: {
-    agent: Agent.Kiro,
-    projectFile: '.kiro/settings/mcp.json',
-    userFile: null,
-    key: 'mcpServers',
-    shape: 'map',
-  },
-  [Agent.Windsurf]: {
-    agent: Agent.Windsurf,
-    projectFile: '.codeium/windsurf/mcp_config.json',
-    userFile: path.join(HOME, '.codeium', 'windsurf', 'mcp_config.json'),
-    key: 'mcpServers',
-    shape: 'map',
-  },
-  [Agent.Trae]: {
-    agent: Agent.Trae,
-    projectFile: '.trae/mcp.json',
-    userFile: null,
-    key: 'mcpServers',
-    shape: 'map',
-  },
-  [Agent.Roo]: {
-    agent: Agent.Roo,
-    projectFile: '.roo/mcp.json',
-    userFile: null,
-    key: 'mcpServers',
-    shape: 'map',
-  },
-  [Agent.Gemini]: {
-    agent: Agent.Gemini,
-    projectFile: '.gemini/settings.json',
-    userFile: path.join(HOME, '.gemini', 'settings.json'),
-    key: 'mcpServers',
-    shape: 'map',
-  },
-  // Copilot, OpenAI, OpenCode: no MCP server registration today — we still
-  // emit snippets for the others, but skip these.
+
+const getTargets = (home = os.homedir()): Record<string, McpTarget> => {
+  const HOME = home;
+  return {
+    [Agent.Claude]: {
+      agent: Agent.Claude,
+      projectFile: '.mcp.json',
+      userFile: path.join(HOME, '.claude', '.mcp.json'),
+      key: 'mcpServers',
+      shape: 'map',
+    },
+    [Agent.Cursor]: {
+      agent: Agent.Cursor,
+      projectFile: '.cursor/mcp.json',
+      userFile: path.join(HOME, '.cursor', 'mcp.json'),
+      key: 'mcpServers',
+      shape: 'map',
+    },
+    [Agent.Antigravity]: {
+      agent: Agent.Antigravity,
+      projectFile: '.antigravity/mcp.json',
+      userFile: null,
+      key: 'mcpServers',
+      shape: 'map',
+    },
+    [Agent.Kiro]: {
+      agent: Agent.Kiro,
+      projectFile: '.kiro/settings/mcp.json',
+      userFile: null,
+      key: 'mcpServers',
+      shape: 'map',
+    },
+    [Agent.Windsurf]: {
+      agent: Agent.Windsurf,
+      projectFile: '.codeium/windsurf/mcp_config.json',
+      userFile: path.join(HOME, '.codeium', 'windsurf', 'mcp_config.json'),
+      key: 'mcpServers',
+      shape: 'map',
+    },
+    [Agent.Trae]: {
+      agent: Agent.Trae,
+      projectFile: '.trae/mcp.json',
+      userFile: null,
+      key: 'mcpServers',
+      shape: 'map',
+    },
+    [Agent.Roo]: {
+      agent: Agent.Roo,
+      projectFile: '.roo/mcp.json',
+      userFile: null,
+      key: 'mcpServers',
+      shape: 'map',
+    },
+    [Agent.Gemini]: {
+      agent: Agent.Gemini,
+      projectFile: '.gemini/settings.json',
+      userFile: path.join(HOME, '.gemini', 'settings.json'),
+      key: 'mcpServers',
+      shape: 'map',
+    },
+  };
 };
 
 /** What a sync/install pass actually did, returned for reporting. */
@@ -132,6 +133,16 @@ export class McpConfigService {
     return { command: 'npx', args: ['-y', spec] };
   }
 
+  /** For testing: allows overriding the home directory. */
+  private testHome: string | null = null;
+  setHomeForTesting(home: string | null): void {
+    this.testHome = home;
+  }
+
+  private getTargets(): Record<string, McpTarget> {
+    return getTargets(this.testHome ?? undefined);
+  }
+
   /**
    * Write MCP configs for the given agents based on the configured scope.
    * Always safe-merge (never overwrite other servers, never replace whole files).
@@ -156,6 +167,7 @@ export class McpConfigService {
       return report;
     }
 
+    const TARGETS = this.getTargets();
     const entry = this.buildEntry(mcp.version);
     // mcp.scope cannot be 'disabled' here (early-returned above), so always
     // generate snippets when we reach this point.
@@ -207,6 +219,7 @@ export class McpConfigService {
     from: 'project' | 'user' | 'all';
   }): Promise<{ removed: Array<{ agent: Agent; file: string }> }> {
     const removed: Array<{ agent: Agent; file: string }> = [];
+    const TARGETS = this.getTargets();
     for (const agent of opts.agents) {
       const target = TARGETS[agent];
       if (!target) continue;
@@ -240,6 +253,7 @@ export class McpConfigService {
     agents: Agent[];
   }): Promise<Array<{ agent: Agent; project?: boolean; user?: boolean }>> {
     const out: Array<{ agent: Agent; project?: boolean; user?: boolean }> = [];
+    const TARGETS = this.getTargets();
     for (const agent of opts.agents) {
       const target = TARGETS[agent];
       if (!target) continue;
@@ -270,6 +284,7 @@ export class McpConfigService {
   ): Promise<void> {
     const dir = path.join(rootDir, 'mcp-config-snippets');
     await fs.ensureDir(dir);
+    const TARGETS = this.getTargets();
     for (const agent of agents) {
       const target = TARGETS[agent];
       if (!target) continue;
@@ -387,7 +402,22 @@ export class McpConfigService {
     target: McpTarget,
   ): unknown {
     const existing = this.getNestedValue(data, target.key);
-    if (existing) return existing;
+    if (existing) {
+      if (target.shape === 'map') {
+        if (
+          typeof existing === 'object' &&
+          existing !== null &&
+          !Array.isArray(existing)
+        ) {
+          return existing;
+        }
+      } else if (target.shape === 'list') {
+        if (Array.isArray(existing)) {
+          return existing;
+        }
+      }
+      // Type mismatch: replace it
+    }
     const fresh: unknown = target.shape === 'map' ? {} : [];
     this.setNestedValue(data, target.key, fresh);
     return fresh;

@@ -679,6 +679,37 @@ describe('ConfigService', () => {
       expect(config.skills.react).toBeUndefined();
     });
 
+    it('should handle scoped packages in hasDependency matching (branch coverage)', () => {
+      const config: SkillConfig = {
+        registry: 'url',
+        agents: [],
+        skills: {
+          nestjs: { ref: 'main' },
+        },
+      };
+
+      // nestjs-security depends on @nestjs/passport
+      // If we have @nestjs/passport/sub-pkg, it should still match
+      const projectDeps = new Set(['@nestjs/passport/sub-pkg']);
+      configService.applyDependencyExclusions(config, projectDeps);
+
+      const category = config.skills.nestjs as CategoryConfig;
+      expect(category.exclude || []).not.toContain('nestjs-security');
+
+      // Negative case: prefix match but not scoped sub-package
+      const config2: SkillConfig = {
+        registry: 'url',
+        agents: [],
+        skills: {
+          nestjs: { ref: 'main' },
+        },
+      };
+      const projectDeps2 = new Set(['@nestjs/core']); // @nestjs/passport is missing
+      configService.applyDependencyExclusions(config2, projectDeps2);
+      const category2 = config2.skills.nestjs as CategoryConfig;
+      expect(category2.exclude).toContain('nestjs-security');
+    });
+
     it('should return empty if no skills are re-enabled', () => {
       const config: SkillConfig = {
         registry: 'https://example.com',

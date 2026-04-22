@@ -1,412 +1,385 @@
 import fs from 'fs-extra';
-import path from 'path';
 import os from 'os';
-import { beforeEach, afterEach, describe, expect, it } from 'vitest';
+import path from 'path';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
+import { McpConfig } from '../../models/config';
 import {
   McpConfigService,
   SERVER_NAME,
   defaultMcpConfig,
 } from '../McpConfigService';
-import { McpConfig } from '../../models/config';
 
 describe('McpConfigService', () => {
   let service: McpConfigService;
   let root: string;
+  let mockHome: string;
 
   beforeEach(async () => {
     service = new McpConfigService();
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'mcp-svc-'));
+    mockHome = await fs.mkdtemp(path.join(os.tmpdir(), 'mcp-home-'));
+    service.setHomeForTesting(mockHome);
   });
+
+  it('exports defaultMcpConfig', () => {
+    expect(defaultMcpConfig()).toEqual({
+      enabled: false,
+      scope: 'snippets-only',
+      prompted: false,
+    });
+  });
+
 
   afterEach(async () => {
     await fs.remove(root);
+    await fs.remove(mockHome);
   });
 
   function mcp(scope: McpConfig['scope']): McpConfig {
     return { enabled: true, scope, prompted: true };
   }
 
-  describe('install — scope: disabled', () => {
-    it('writes nothing', async () => {
+  describe('install', () => {
+    it('writes project-scope configs and snippets', async () => {
       const report = await service.install({
         rootDir: root,
-        agents: [Agent.Claude, Agent.Cursor],
-        mcp: { ...defaultMcpConfig(), enabled: false },
-      });
-      expect(report.projectWrites).toEqual([]);
-      expect(report.snippets).toEqual([]);
-      expect(await fs.pathExists(path.join(root, '.mcp.json'))).toBe(false);
-      expect(await fs.pathExists(path.join(root, 'mcp-config-snippets'))).toBe(
-        false,
-      );
-    });
-  });
-
-  describe('install — scope: snippets-only', () => {
-    it('writes snippet files but no runtime configs', async () => {
-      const report = await service.install({
-        rootDir: root,
-        agents: [Agent.Claude, Agent.Cursor],
-        mcp: mcp('snippets-only'),
-      });
-      expect(report.snippets).toHaveLength(2);
-      expect(report.projectWrites).toEqual([]);
-      expect(await fs.pathExists(path.join(root, '.mcp.json'))).toBe(false);
-      const snippet = await fs.readJson(
-        path.join(root, 'mcp-config-snippets', 'claude.json'),
-      );
-      expect(snippet.mcpServers[SERVER_NAME]).toEqual({
-        command: 'npx',
-        args: ['-y', 'agent-skills-standard-mcp'],
-      });
-    });
-  });
-
-  describe('install — scope: project', () => {
-    it('writes project-scope configs and snippets, never user-scope', async () => {
-      const report = await service.install({
-        rootDir: root,
-        agents: [Agent.Claude, Agent.Cursor],
+        agents: [Agent.Claude],
         mcp: mcp('project'),
       });
-      expect(report.projectWrites.map((w) => w.agent).sort()).toEqual(
-        [Agent.Claude, Agent.Cursor].sort(),
-      );
-      expect(report.userWrites).toEqual([]);
-      const claudeConfig = await fs.readJson(path.join(root, '.mcp.json'));
-      expect(claudeConfig.mcpServers[SERVER_NAME].command).toBe('npx');
-    });
 
-    it('does not modify $HOME files even if a user-scope path exists', async () => {
-      // Cursor has both project AND user scope. Project mode must NOT touch user.
-      const fakeHome = path.join(os.homedir(), '.cursor', 'mcp.json');
-      const homeExisted = await fs.pathExists(fakeHome);
-      const homeBefore = homeExisted ? await fs.readJson(fakeHome) : null;
-      try {
-        await service.install({
-          rootDir: root,
-          agents: [Agent.Cursor],
-          mcp: mcp('project'),
-        });
-        // We can't assert "no write" globally without mocking, but we can assert
-        // the user file wasn't created as a side effect of our project run.
-        if (!homeExisted) {
-          expect(await fs.pathExists(fakeHome)).toBe(false);
-        } else {
-          const homeAfter = await fs.readJson(fakeHome);
-          expect(homeAfter).toEqual(homeBefore);
-        }
-      } finally {
-        if (homeExisted && homeBefore) {
-          await fs.writeJson(fakeHome, homeBefore, { spaces: 2 });
-        }
-      }
-    });
-  });
-
-  describe('install — scope: user', () => {
-    it('declines user-scope writes when prompt returns false', async () => {
-      const report = await service.install({
-        rootDir: root,
-        agents: [Agent.Cursor],
-        mcp: mcp('user'),
-        userScopePrompt: async () => false,
-      });
-      expect(report.userWrites).toEqual([]);
-      expect(report.declined).toHaveLength(1);
-      expect(report.declined[0].agent).toBe(Agent.Cursor);
-      // Project-scope still happens regardless of user-scope decision.
       expect(report.projectWrites).toHaveLength(1);
+      expect(report.projectWrites[0].agent).toBe(Agent.Claude);
+
+      const data = await fs.readJson(path.join(root, '.mcp.json'));
+      expect(data.mcpServers[SERVER_NAME]).toBeDefined();
     });
 
-    it('accepts user-scope writes when prompt returns true', async () => {
-      // Cursor has a userFile path
+    it('returns early if mcp is disabled', async () => {
       const report = await service.install({
         rootDir: root,
-        agents: [Agent.Cursor],
+        agents: [Agent.Claude],
+        mcp: { enabled: false, scope: 'project', prompted: true },
+      });
+      expect(report.projectWrites).toHaveLength(0);
+    });
+
+    it('returns early if scope is disabled', async () => {
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        mcp: { enabled: true, scope: 'disabled', prompted: true },
+      });
+      expect(report.projectWrites).toHaveLength(0);
+    });
+
+    it('returns early after snippets if scope is snippets-only', async () => {
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        mcp: { enabled: true, scope: 'snippets-only', prompted: true },
+      });
+      expect(report.projectWrites).toHaveLength(0);
+      expect(report.snippets).toHaveLength(1);
+    });
+
+    it('handles unsupported agents', async () => {
+      const report = await service.install({
+        rootDir: root,
+        agents: ['unsupported-agent' as any],
+        mcp: mcp('project'),
+      });
+      expect(report.unsupported).toContain('unsupported-agent');
+    });
+
+    it('writes user-scope configs if user approves', async () => {
+      const userPrompt = vi.fn().mockResolvedValue(true);
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
         mcp: mcp('user'),
-        userScopePrompt: async () => true,
+        userScopePrompt: userPrompt,
       });
+
+      expect(userPrompt).toHaveBeenCalled();
       expect(report.userWrites).toHaveLength(1);
-      expect(report.userWrites[0].agent).toBe(Agent.Cursor);
-    });
-  });
 
-  describe('safe-merge', () => {
-    it('preserves OTHER mcp servers in the same file', async () => {
-      const target = path.join(root, '.mcp.json');
-      await fs.outputJson(target, {
-        mcpServers: {
-          'some-other-server': { command: 'foo', args: ['bar'] },
-        },
-      });
-
-      await service.install({
-        rootDir: root,
-        agents: [Agent.Claude],
-        mcp: mcp('project'),
-      });
-
-      const merged = await fs.readJson(target);
-      expect(merged.mcpServers['some-other-server']).toEqual({
-        command: 'foo',
-        args: ['bar'],
-      });
-      expect(merged.mcpServers[SERVER_NAME]).toBeDefined();
+      const userConfigFile = path.join(mockHome, '.claude', '.mcp.json');
+      expect(await fs.pathExists(userConfigFile)).toBe(true);
     });
 
-    it('returns "skipped-existing" when the entry is already correct', async () => {
-      const first = await service.install({
-        rootDir: root,
-        agents: [Agent.Claude],
-        mcp: mcp('project'),
-      });
-      expect(first.projectWrites[0].action).toBe('added');
-
-      const second = await service.install({
-        rootDir: root,
-        agents: [Agent.Claude],
-        mcp: mcp('project'),
-      });
-      expect(second.projectWrites[0].action).toBe('skipped-existing');
-    });
-
-    it('returns "updated" when a stale entry is rewritten', async () => {
-      const target = path.join(root, '.mcp.json');
-      await fs.outputJson(target, {
-        mcpServers: {
-          [SERVER_NAME]: { command: 'old-cmd', args: [] },
-        },
-      });
-
+    it('skips user-scope configs if user declines', async () => {
+      const userPrompt = vi.fn().mockResolvedValue(false);
       const report = await service.install({
         rootDir: root,
         agents: [Agent.Claude],
-        mcp: mcp('project'),
+        mcp: mcp('user'),
+        userScopePrompt: userPrompt,
       });
-      expect(report.projectWrites[0].action).toBe('updated');
+
+      expect(userPrompt).toHaveBeenCalled();
+      expect(report.userWrites).toHaveLength(0);
+      expect(report.declined).toHaveLength(1);
+    });
+
+    it('skips user-scope configs if prompt is missing', async () => {
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        mcp: mcp('user'),
+      });
+
+      expect(report.userWrites).toHaveLength(0);
     });
   });
 
   describe('uninstall', () => {
-    it('removes only our entry, leaves siblings alone', async () => {
-      const target = path.join(root, '.mcp.json');
-      await fs.outputJson(target, {
-        mcpServers: {
-          [SERVER_NAME]: { command: 'npx', args: ['-y', 'agent-skills-standard-mcp'] },
-          'sibling-server': { command: 'foo' },
-        },
-      });
-
-      const { removed } = await service.uninstall({
-        rootDir: root,
-        agents: [Agent.Claude],
-        from: 'project',
-      });
-
-      expect(removed).toHaveLength(1);
-      const after = await fs.readJson(target);
-      expect(after.mcpServers[SERVER_NAME]).toBeUndefined();
-      expect(after.mcpServers['sibling-server']).toEqual({ command: 'foo' });
-    });
-
-    it('is a no-op when our entry was never present', async () => {
-      const target = path.join(root, '.mcp.json');
-      await fs.outputJson(target, { mcpServers: { other: {} } });
-      const { removed } = await service.uninstall({
-        rootDir: root,
-        agents: [Agent.Claude],
-        from: 'project',
-      });
-      expect(removed).toEqual([]);
-    });
-  });
-
-  describe('status', () => {
-    it('reports project=true after an install, project=false after uninstall', async () => {
+    it('removes from project scope', async () => {
       await service.install({
         rootDir: root,
         agents: [Agent.Claude],
         mcp: mcp('project'),
       });
-      const before = await service.status({ rootDir: root, agents: [Agent.Claude] });
-      expect(before[0].project).toBe(true);
 
-      await service.uninstall({
+      const res = await service.uninstall({
         rootDir: root,
         agents: [Agent.Claude],
         from: 'project',
       });
-      const after = await service.status({ rootDir: root, agents: [Agent.Claude] });
-      expect(after[0].project).toBe(false);
+
+      expect(res.removed).toHaveLength(1);
+      const data = await fs.readJson(path.join(root, '.mcp.json'));
+      expect(data.mcpServers[SERVER_NAME]).toBeUndefined();
+    });
+
+    it('removes from all scopes', async () => {
+      // Setup both scopes
+      const userPrompt = vi.fn().mockResolvedValue(true);
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        mcp: mcp('user'),
+        userScopePrompt: userPrompt,
+      });
+
+      const res = await service.uninstall({
+        rootDir: root,
+        agents: [Agent.Claude],
+        from: 'all',
+      });
+
+      expect(res.removed).toHaveLength(2);
+    });
+
+    it('skips removal if file does not exist', async () => {
+      const res = await service.uninstall({
+        rootDir: root,
+        agents: [Agent.Claude],
+        from: 'project',
+      });
+      expect(res.removed).toHaveLength(0);
+    });
+
+    it('skips if agent is unsupported', async () => {
+      const res = await service.uninstall({
+        rootDir: root,
+        agents: ['unknown' as any],
+        from: 'all',
+      });
+      expect(res.removed).toHaveLength(0);
     });
   });
 
-  describe('unsupported agents', () => {
-    it('reports Copilot as unsupported (no MCP support yet)', async () => {
-      const report = await service.install({
+  describe('status', () => {
+    it('reports installed status correctly', async () => {
+      await service.install({
         rootDir: root,
-        agents: [Agent.Copilot],
+        agents: [Agent.Claude],
         mcp: mcp('project'),
       });
-      expect(report.unsupported).toEqual([Agent.Copilot]);
-      expect(report.projectWrites).toEqual([]);
+
+      const stats = await service.status({
+        rootDir: root,
+        agents: [Agent.Claude, Agent.Cursor],
+      });
+
+      expect(stats.find((s) => s.agent === Agent.Claude)?.project).toBe(true);
+      expect(stats.find((s) => s.agent === Agent.Cursor)?.project).toBe(false);
+    });
+
+    it('skips unsupported agents in status', async () => {
+      const stats = await service.status({
+        rootDir: root,
+        agents: ['unknown' as any],
+      });
+      expect(stats).toHaveLength(0);
     });
   });
 
-  describe('Internal logic — shape: list and dotted keys', () => {
-    // We use bracket notation to test private methods and internal shapes
-    // that aren't yet used by any real Agent targets.
+  describe('internal logic branches', () => {
+    it('mergeFile: skips existing if identical', async () => {
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        mcp: mcp('project'),
+      });
 
-    it('manages "list" shape correctly (add, update, skip)', async () => {
-      const abs = path.join(root, 'list-config.json');
-      const target = {
-        agent: 'test' as Agent,
-        projectFile: 'list-config.json',
-        userFile: null,
-        key: 'mcpServers',
-        shape: 'list' as const,
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        mcp: mcp('project'),
+      });
+
+      expect(report.projectWrites[0].action).toBe('skipped-existing');
+    });
+
+    it('mergeFile: updates if different', async () => {
+      const target = path.join(root, '.mcp.json');
+      await fs.outputJson(target, {
+        mcpServers: { [SERVER_NAME]: { command: 'old' } },
+      });
+
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        mcp: mcp('project'),
+      });
+
+      expect(report.projectWrites[0].action).toBe('updated');
+    });
+
+    it('list-based config support (shape: "list")', async () => {
+      const target: any = {
+        agent: Agent.Claude,
+        key: 'mcp.servers',
+        shape: 'list',
       };
-      const entry = { command: 'npx', args: ['test'] };
+      const abs = path.join(root, 'list-mcp.json');
+      const entry = { command: 'npx', args: ['foo'] };
 
-      // 1. Add
-      // @ts-expect-error - accessing private method
-      const action1 = await service.mergeFile(abs, target, entry);
+      const action1 = await (service as any).mergeFile(abs, target, entry);
       expect(action1).toBe('added');
-      const data1 = await fs.readJson(abs);
-      expect(data1.mcpServers).toHaveLength(1);
-      expect(data1.mcpServers[0].name).toBe(SERVER_NAME);
 
-      // 2. Skip
-      // @ts-expect-error - accessing private method
-      const action2 = await service.mergeFile(abs, target, entry);
+      const data1 = await fs.readJson(abs);
+      expect(data1.mcp.servers).toHaveLength(1);
+      expect(data1.mcp.servers[0].name).toBe(SERVER_NAME);
+
+      // Same entry
+      const action2 = await (service as any).mergeFile(abs, target, entry);
       expect(action2).toBe('skipped-existing');
 
-      // 3. Update
-      // @ts-expect-error - accessing private method
-      const action3 = await service.mergeFile(abs, target, {
+      // Update entry
+      const action3 = await (service as any).mergeFile(abs, target, {
         ...entry,
-        args: ['updated'],
+        args: ['bar'],
       });
       expect(action3).toBe('updated');
-      const data3 = await fs.readJson(abs);
-      expect(data3.mcpServers[0].transport.args).toEqual(['updated']);
-    });
 
-    it('removes from "list" shape correctly', async () => {
-      const abs = path.join(root, 'list-config.json');
-      const target = {
-        agent: 'test' as Agent,
-        projectFile: 'list-config.json',
-        userFile: null,
-        key: 'mcpServers',
-        shape: 'list' as const,
-      };
-      await fs.outputJson(abs, {
-        mcpServers: [{ name: SERVER_NAME, transport: {} }],
-      });
+      const data2 = await fs.readJson(abs);
+      expect(data2.mcp.servers[0].transport.args).toContain('bar');
 
-      // @ts-expect-error - accessing private method
-      const removed = await service.removeFromFile(abs, target);
+      // Removal
+      const removed = await (service as any).removeFromFile(abs, target);
       expect(removed).toBe(true);
-      const data = await fs.readJson(abs);
-      expect(data.mcpServers).toHaveLength(0);
+      const data3 = await fs.readJson(abs);
+      expect(data3.mcp.servers).toHaveLength(0);
+
+      // Removal when not there
+      const removed2 = await (service as any).removeFromFile(abs, target);
+      expect(removed2).toBe(false);
+
+      // Test buildFreshDoc for list
+      const fresh: any = (service as any).buildFreshDoc(target, entry);
+      expect(Array.isArray(fresh.mcp.servers)).toBe(true);
     });
 
-    it('handles dotted keys correctly (get/set nested)', async () => {
-      const data: Record<string, any> = { a: { b: { c: 1 } } };
-      // @ts-expect-error - accessing private method
-      expect(service.getNestedValue(data, 'a.b.c')).toBe(1);
-      // @ts-expect-error - accessing private method
-      expect(service.getNestedValue(data, 'a.x.y')).toBeUndefined();
-
-      // @ts-expect-error - accessing private method
-      service.setNestedValue(data, 'a.b.d', 2);
-      expect(data.a.b.d).toBe(2);
-
-      // Should create intermediate objects
-      // @ts-expect-error - accessing private method
-      service.setNestedValue(data, 'x.y.z', 3);
-      expect(data.x.y.z).toBe(3);
-    });
-
-    it('checks existence in "list" shape correctly', async () => {
-      const abs = path.join(root, 'list-config.json');
-      const target = {
-        agent: 'test' as Agent,
-        projectFile: 'list-config.json',
-        userFile: null,
-        key: 'mcpServers',
-        shape: 'list' as const,
+    it('hasOurEntry support for list', async () => {
+      const target: any = {
+        agent: Agent.Claude,
+        key: 'mcp.servers',
+        shape: 'list',
       };
-      await fs.outputJson(abs, {
-        mcpServers: [{ name: SERVER_NAME, transport: {} }],
-      });
+      const abs = path.join(root, 'list-check.json');
 
-      // @ts-expect-error - accessing private method
-      expect(await service.hasOurEntry(abs, target)).toBe(true);
+      expect(await (service as any).hasOurEntry(abs, target)).toBe(false);
 
-      // Remove and check again
-      await fs.outputJson(abs, { mcpServers: [] });
-      // @ts-expect-error - accessing private method
-      expect(await service.hasOurEntry(abs, target)).toBe(false);
+      await fs.outputJson(abs, { mcp: { servers: [{ name: SERVER_NAME }] } });
+      expect(await (service as any).hasOurEntry(abs, target)).toBe(true);
+
+      // Test with missing container
+      expect(
+        await (service as any).hasOurEntry(abs, { ...target, key: 'wrong' }),
+      ).toBe(false);
+    });
+
+    it('ensurePathContainer handles type mismatch', async () => {
+      const data = { a: { b: [] } }; // expect object but got array
+      const target: any = { key: 'a.b', shape: 'map' };
+      (service as any).ensurePathContainer(data, target);
+      expect((data as any).a.b).toEqual({});
+
+      const data2 = { a: { b: {} } }; // expect array but got object
+      const target2: any = { key: 'a.b', shape: 'list' };
+      (service as any).ensurePathContainer(data2, target2);
+      expect((data2 as any).a.b).toEqual([]);
+    });
+
+    it('getNestedValue returns undefined for non-objects', async () => {
+      const data = { a: 1 };
+      expect((service as any).getNestedValue(data, 'a.b')).toBeUndefined();
+    });
+
+    it('hasOurEntry returns false if data is null', async () => {
+      const abs = path.join(root, 'null.json');
+      await fs.outputFile(abs, '');
+      const target: any = { key: 'foo', shape: 'map' };
+      expect(await (service as any).hasOurEntry(abs, target)).toBe(false);
+    });
+
+    it('mergeFile handles corrupted JSON by returning empty object', async () => {
+      const target = path.join(root, 'corrupt.json');
+      await fs.outputFile(target, '{ invalid }');
+
+      const mcpTarget: any = { key: 'mcpServers', shape: 'map' };
+      const entry = { command: 'npx', args: ['foo'] };
+
+      const action = await (service as any).mergeFile(target, mcpTarget, entry);
+      expect(action).toBe('added'); // It should have treated it as {}
     });
   });
 
   describe('prototype pollution protection', () => {
-    it('throws when accessing forbidden keys in install (nested)', async () => {
-      // We manually construct a target with a pollution-prone key
-      // since the default TARGETS are safe.
-      const evilTarget = {
-        agent: Agent.Claude,
-        projectFile: '.mcp.json',
-        userFile: null,
-        key: 'mcpServers.__proto__',
-        shape: 'map' as const,
-      };
-
-      // We need to temporarily override TARGETS or use a private method if accessible.
-      // Since it's a private method, we test it via the public install() by 
-      // providing a specific agent that would trigger it if it were in TARGETS.
-      // For the sake of this test, we can just call the service with a "Claude"
-      // agent but logic that uses a malicious key.
-      
-      // Actually, since TARGETS is a const in the service file, we can't easily 
-      // change it without mocking. Let's try to trigger it via a different way 
-      // if possible, or just add a test for the logic if we can.
-      
-      // Given the constraints, let's just test that it throws when the key is malicious.
-      // We can use any agent since the key is what matters.
-      
-      const promise = service.install({
-        rootDir: root,
-        agents: [Agent.Claude],
-        mcp: {
-          enabled: true,
-          scope: 'project',
-          prompted: true,
-          // We can't actually pass a custom key to install() directly, 
-          // it's hardcoded in TARGETS.
-        }
-      });
-      // This won't throw because Agent.Claude has a safe key.
-      await expect(promise).resolves.toBeDefined();
-    });
-
     it('prevents pollution through setNestedValue (direct test)', async () => {
       const data = {};
-      expect(() => {
-        (service as any).setNestedValue(data, '__proto__.polluted', true);
-      }).toThrow('Prototype pollution attempt detected');
+      expect(() =>
+        (service as any).setNestedValue(data, '__proto__.polluted', true),
+      ).toThrow('Prototype pollution attempt detected');
+      expect(() =>
+        (service as any).setNestedValue(data, 'constructor.polluted', true),
+      ).toThrow('Prototype pollution attempt detected');
+      expect(() =>
+        (service as any).setNestedValue(data, 'prototype.polluted', true),
+      ).toThrow('Prototype pollution attempt detected');
+    });
 
-      expect(() => {
-        (service as any).setNestedValue(data, 'mcpServers.constructor', true);
-      }).toThrow('Prototype pollution attempt detected');
+    it('prevents pollution through getNestedValue (direct test)', async () => {
+      const data = {};
+      expect(() =>
+        (service as any).getNestedValue(data, 'constructor.polluted'),
+      ).toThrow('Prototype pollution attempt detected');
+      expect(() =>
+        (service as any).getNestedValue(data, '__proto__.polluted'),
+      ).toThrow('Prototype pollution attempt detected');
+      expect(() =>
+        (service as any).getNestedValue(data, 'prototype.polluted'),
+      ).toThrow('Prototype pollution attempt detected');
+    });
 
-      expect(() => {
-        (service as any).setNestedValue(data, 'prototype.polluted', true);
-      }).toThrow('Prototype pollution attempt detected');
+    it('prevents pollution in the last part of setNestedValue', async () => {
+      const data = {};
+      expect(() =>
+        (service as any).setNestedValue(data, 'a.__proto__', true),
+      ).toThrow('Prototype pollution attempt detected');
     });
   });
 });

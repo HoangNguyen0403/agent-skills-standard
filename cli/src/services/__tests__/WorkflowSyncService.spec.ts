@@ -1,3 +1,4 @@
+import path from "path";
 import fs from 'fs-extra';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
@@ -332,6 +333,55 @@ describe('WorkflowSyncService', () => {
         expect.stringContaining('Security Error'),
       );
       expect(fs.outputFile).not.toHaveBeenCalled();
+    });
+
+    describe('writeWorkflows additional coverage', () => {
+      it('should handle native skill folder format (agent.workflowFormat === "skill")', async () => {
+        const workflows = [
+          {
+            skill: 'workflows',
+            files: [{ name: 'test.md', content: '---\ndescription: test\n---\n# Test' }],
+          },
+        ];
+        
+        await workflowSyncService.writeWorkflows(workflows as any, {} as any, [Agent.Cursor]);
+        // Should be path/workflowName/SKILL.md
+        expect(fs.outputFile).toHaveBeenCalledWith(
+          expect.stringContaining(path.join('.cursor', 'skills', 'test', 'SKILL.md')),
+          expect.any(String)
+        );
+      });
+
+      it('should handle overrides', async () => {
+        const workflows = [
+          {
+            skill: 'workflows',
+            files: [{ name: 'overridden.md', content: '---\ndescription: test\n---\n# Test' }],
+          },
+        ];
+        const targetPath = path.join(process.cwd(), '.agent/workflows/overridden.md');
+        const relPath = path.relative(process.cwd(), targetPath).replace(/\\/g, '/');
+        const overrides = [relPath];
+        
+        await workflowSyncService.writeWorkflows(workflows as any, { custom_overrides: overrides } as any, [Agent.Antigravity]);
+        
+        expect(fs.outputFile).not.toHaveBeenCalled();
+      });
+
+      it('should handle partial path overrides', async () => {
+        const workflows = [
+          {
+            skill: 'workflows',
+            files: [{ name: 'sub/test.md', content: '---\ndescription: test\n---\n# Test' }],
+          },
+        ];
+        const targetPath = path.join(process.cwd(), '.agent/workflows/sub/test.md');
+        const relPath = path.relative(process.cwd(), path.join(process.cwd(), '.agent/workflows/sub')).replace(/\\/g, '/');
+        const overrides = [relPath]; 
+        
+        await workflowSyncService.writeWorkflows(workflows as any, { custom_overrides: overrides } as any, [Agent.Antigravity]);
+        expect(fs.outputFile).not.toHaveBeenCalled();
+      });
     });
   });
 });

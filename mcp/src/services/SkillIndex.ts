@@ -1,6 +1,6 @@
 import fs from "fs-extra";
-import path from "path";
 import { minimatch } from "minimatch";
+import path from "path";
 import { parseSkill, SkillMetadata } from "./SkillParser";
 
 export interface RegistryMetadata {
@@ -102,7 +102,8 @@ export class SkillIndex {
     const results: MatchResult[] = [];
     const seen = new Set<string>();
 
-    for (const file of files) {
+    for (const fileRaw of files) {
+      const file = fileRaw.replace(/\\/g, "/");
       const ext = path.extname(file).replace(/^\./, "");
       const categories = this.metadata.file_routing[ext] ?? [];
 
@@ -224,7 +225,8 @@ export class SkillIndex {
     return out;
   }
 
-  private isExcluded(skill: SkillMetadata, file: string): boolean {
+  private isExcluded(skill: SkillMetadata, fileRaw: string): boolean {
+    const file = fileRaw.replace(/\\/g, "/");
     return skill.triggers.exclude.some((glob) =>
       minimatch(file, glob, { matchBase: true }),
     );

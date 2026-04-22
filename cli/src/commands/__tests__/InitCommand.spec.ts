@@ -101,4 +101,24 @@ describe('InitCommand', () => {
     await command.run();
     expect(mockInitService.buildAndSaveConfig).toHaveBeenCalled();
   });
+
+  it('should handle initialization with MCP disabled', async () => {
+    vi.mocked(inquirer.prompt).mockReset();
+    vi.mocked(inquirer.prompt)
+      .mockResolvedValueOnce({
+        framework: 'react',
+        agents: ['cursor'],
+        registry: 'reg',
+      })
+      .mockResolvedValueOnce({ mcpEnabled: false });
+
+    await command.run();
+    expect(mockInitService.buildAndSaveConfig).toHaveBeenCalledWith(
+      expect.objectContaining({ mcpEnabled: false, mcpScope: 'disabled' }),
+      expect.any(Object),
+    );
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('MCP integration: disabled'),
+    );
+  });
 });

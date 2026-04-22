@@ -52,7 +52,7 @@ Responsible for creating the "Context Bridge" for AI agents. Produces two output
 - **Router Index** (`assembleRouterIndex()`): Compact AGENTS.md that maps file extensions to `_INDEX.md` paths (~20 lines).
 - **Category Index** (`generateCategoryIndex()`): Per-category `_INDEX.md` with tiered File Match vs Keyword Match sections.
 - **Flat Index** (`assembleIndex()`): Legacy flat list format, still used for the registry's own AGENTS.md.
-- **Three-Tier Model**: Skills with broad file globs (e.g., `**/*.ts`) are automatically demoted to Keyword Match unless they are the designated `base_language_skill` for that category (defined in `metadata.json`).
+- **Three-Tier Model**: Skills with broad file globs (e.g., `**/*.ts`) are automatically demoted to Keyword Match unless they are the designated `base_language_skills` for that category (defined in `metadata.json`).
 
 ### SkillSyncService (`src/services/SkillSyncService.ts`)
 

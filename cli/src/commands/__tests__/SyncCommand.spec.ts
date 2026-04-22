@@ -309,5 +309,65 @@ describe('SyncCommand', () => {
         }),
       );
     });
+
+    it('should handle different MCP install report outcomes', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: {},
+        mcp: { enabled: true, scope: 'project', prompted: true },
+      } as any);
+
+      mockMcpService.install.mockResolvedValue({
+        projectWrites: [
+          { agent: 'claude', file: 'f1', action: 'added' },
+          { agent: 'cursor', file: 'f2', action: 'updated' },
+          { agent: 'trae', file: 'f3', action: 'up-to-date' },
+        ],
+        userWrites: [{ agent: 'claude', file: 'u1', action: 'added' }],
+        declined: [{ agent: 'cursor', file: 'u2' }],
+        snippets: [{ agent: 'claude', file: 's1' }],
+        unsupported: ['copilot'],
+      });
+
+      await command.run();
+
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('+ added'));
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('~ updated'));
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('= up-to-date'));
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('+ wrote'));
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('(declined)'));
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('snippet(s) written'));
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('no MCP support yet'));
+    });
+
+    it('should handle user declining MCP consent', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: {},
+        mcp: { enabled: false, scope: 'disabled', prompted: false },
+      } as any);
+
+      vi.mocked(inquirer.prompt).mockResolvedValue({ enabled: false });
+
+      await command.run();
+
+      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ enabled: false, scope: 'disabled', prompted: true }),
+        }),
+      );
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+    });
+
+    it('should fast-return if MCP is disabled after prompting', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: {},
+        mcp: { enabled: false, scope: 'disabled', prompted: true },
+      } as any);
+
+      await command.run();
+      expect(mockMcpService.install).not.toHaveBeenCalled();
+    });
   });
 });

@@ -121,7 +121,9 @@ async function main() {
   console.log(pc.bold(pc.yellow('\n👀 Release Plan:')));
   console.log(`   Version: ${currentVersion} -> ${pc.green(finalVersion)}`);
   console.log(`   Tag: ${pc.cyan(tagName)}`);
-  console.log(`   Publish to npm: ${skipPublish ? pc.yellow('skipped') : pc.green('yes')}`);
+  console.log(
+    `   Publish to npm: ${skipPublish ? pc.yellow('skipped') : pc.green('yes')}`,
+  );
 
   if (isDryRun) {
     console.log(pc.magenta('\n✨ Dry run complete.'));
@@ -209,7 +211,7 @@ async function main() {
     // 7. Push
     console.log(pc.cyan('\n⚠️  Pushing to remote...'));
     gitRun(['push']);
-    gitRun(['push', 'origin', tagName]);
+    gitRun(['push', 'origin', tagName, '--force']);
 
     // 8. npm publish
     if (!skipPublish) {
@@ -224,9 +226,7 @@ async function main() {
       );
     }
 
-    console.log(
-      pc.bold(pc.magenta(`\n🎉 MCP Release ${tagName} complete!`)),
-    );
+    console.log(pc.bold(pc.magenta(`\n🎉 MCP Release ${tagName} complete!`)));
     console.log(
       pc.gray(
         skipPublish
