@@ -9,7 +9,6 @@
 > ---
 
 <!-- SKILLS_INDEX_START -->
-
 ## Agent Skills Index
 
 > [!CRITICAL] Zero-Trust: Read the matching `SKILL.md` BEFORE writing any code.
@@ -19,12 +18,12 @@
 
 If the `agent-skills-standard` MCP server is registered in your runtime (check your tool list — look for `load_skills_for_files`), **prefer those tools over manually walking the router below**. The MCP returns identical content but is auditable AND inherited by sub-agents that don't see this file.
 
-| Tool                                       | When to call it                          |
-| ------------------------------------------ | ---------------------------------------- |
-| `load_skills_for_files(files=[...])`       | Before editing/reviewing any source file |
-| `load_skills_for_keywords(keywords=[...])` | Planning before files are chosen         |
-| `get_skill(category, name)`                | Direct lookup when you know the skill id |
-| `audit_session_compliance()`               | Before declaring a task complete         |
+| Tool | When to call it |
+| --- | --- |
+| `load_skills_for_files(files=[...])` | Before editing/reviewing any source file |
+| `load_skills_for_keywords(keywords=[...])` | Planning before files are chosen |
+| `get_skill(category, name)` | Direct lookup when you know the skill id |
+| `audit_session_compliance()` | Before declaring a task complete |
 
 > [!IMPORTANT] **Sub-agents don't inherit this `AGENTS.md` — they do inherit the MCP.** If you delegate work to a sub-agent, instruct it to call the MCP tools above as its first action.
 
@@ -46,25 +45,25 @@ Each `_INDEX.md` has two sections - follow both:
 
 > `<SKILLS>` = your agent's skill directory (e.g., `.claude/skills/`, `.cursor/skills/`, `.gemini/skills/`).
 
-| File type                            | Read category index                                                                                                                                 |
-| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `*.go`, `*_test.go`                  | `<SKILLS>/golang/_INDEX.md`                                                                                                                         |
-| `*.ts`                               | `<SKILLS>/angular/_INDEX.md`, `<SKILLS>/nestjs/_INDEX.md`, `<SKILLS>/nextjs/_INDEX.md`, `<SKILLS>/react/_INDEX.md`, `<SKILLS>/typescript/_INDEX.md` |
-| `*.tsx`                              | `<SKILLS>/nextjs/_INDEX.md`, `<SKILLS>/react/_INDEX.md`, `<SKILLS>/typescript/_INDEX.md`                                                            |
-| `*.js`, `*.mjs`                      | `<SKILLS>/javascript/_INDEX.md`                                                                                                                     |
-| `*.jsx`, `*.test.tsx`, `*.spec.tsx`  | `<SKILLS>/react/_INDEX.md`                                                                                                                          |
-| `*.dart`                             | `<SKILLS>/dart/_INDEX.md`, `<SKILLS>/flutter/_INDEX.md`                                                                                             |
-| `*.java`                             | `<SKILLS>/java/_INDEX.md`, `<SKILLS>/spring-boot/_INDEX.md`                                                                                         |
-| `*.kt`                               | `<SKILLS>/android/_INDEX.md`, `<SKILLS>/kotlin/_INDEX.md`                                                                                           |
-| `*.kts`                              | `<SKILLS>/kotlin/_INDEX.md`                                                                                                                         |
-| `*.swift`                            | `<SKILLS>/ios/_INDEX.md`, `<SKILLS>/swift/_INDEX.md`                                                                                                |
-| `*.php`                              | `<SKILLS>/laravel/_INDEX.md`, `<SKILLS>/php/_INDEX.md`                                                                                              |
-| `*.sql`, `*.entity.ts`, `*.prisma`   | `<SKILLS>/database/_INDEX.md`                                                                                                                       |
-| `*.component.ts`, `*.component.html` | `<SKILLS>/angular/_INDEX.md`                                                                                                                        |
-| `*.service.ts`, `*.module.ts`        | `<SKILLS>/angular/_INDEX.md`, `<SKILLS>/nestjs/_INDEX.md`                                                                                           |
-| `*.spec.ts`, `*.test.ts`             | `<SKILLS>/common/_INDEX.md`                                                                                                                         |
-| Any file (keyword match)             | `<SKILLS>/common/_INDEX.md`                                                                                                                         |
-| QE workflow                          | `<SKILLS>/quality-engineering/_INDEX.md`                                                                                                            |
+| File type | Read category index |
+| --------- | ------------------- |
+| `*.go`, `*_test.go` | `<SKILLS>/golang/_INDEX.md` |
+| `*.ts` | `<SKILLS>/angular/_INDEX.md`, `<SKILLS>/nestjs/_INDEX.md`, `<SKILLS>/nextjs/_INDEX.md`, `<SKILLS>/react/_INDEX.md`, `<SKILLS>/typescript/_INDEX.md` |
+| `*.tsx` | `<SKILLS>/nextjs/_INDEX.md`, `<SKILLS>/react/_INDEX.md`, `<SKILLS>/typescript/_INDEX.md` |
+| `*.js`, `*.mjs` | `<SKILLS>/javascript/_INDEX.md` |
+| `*.jsx`, `*.test.tsx`, `*.spec.tsx` | `<SKILLS>/react/_INDEX.md` |
+| `*.dart` | `<SKILLS>/dart/_INDEX.md`, `<SKILLS>/flutter/_INDEX.md` |
+| `*.java` | `<SKILLS>/java/_INDEX.md`, `<SKILLS>/spring-boot/_INDEX.md` |
+| `*.kt` | `<SKILLS>/android/_INDEX.md`, `<SKILLS>/kotlin/_INDEX.md` |
+| `*.kts` | `<SKILLS>/kotlin/_INDEX.md` |
+| `*.swift` | `<SKILLS>/ios/_INDEX.md`, `<SKILLS>/swift/_INDEX.md` |
+| `*.php` | `<SKILLS>/laravel/_INDEX.md`, `<SKILLS>/php/_INDEX.md` |
+| `*.sql`, `*.entity.ts`, `*.prisma` | `<SKILLS>/database/_INDEX.md` |
+| `*.component.ts`, `*.component.html` | `<SKILLS>/angular/_INDEX.md` |
+| `*.service.ts`, `*.module.ts` | `<SKILLS>/angular/_INDEX.md`, `<SKILLS>/nestjs/_INDEX.md` |
+| `*.spec.ts`, `*.test.ts` | `<SKILLS>/common/_INDEX.md` |
+| Any file (keyword match) | `<SKILLS>/common/_INDEX.md` |
+| QE workflow | `<SKILLS>/quality-engineering/_INDEX.md` |
 
 > [!NOTE] **Test/spec file precedence:** `.spec.ts`, `.test.ts` -> use the `common` row (takes precedence over the generic `*.ts` row). `.spec.tsx`, `.test.tsx` -> use the `react` row (takes precedence over the generic `*.tsx` row).
 
