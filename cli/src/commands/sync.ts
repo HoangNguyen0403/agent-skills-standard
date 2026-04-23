@@ -166,7 +166,11 @@ export class SyncCommand {
 
       // If already prompted but disabled, we ask again if they want to enable it now.
       // This ensures they aren't "stuck" in a disabled state just because they said no once.
-      const decided = await this.promptMcpConsent(options, mcp.enabled);
+      // Pass true for wasDisabled only if it was already prompted AND it is currently disabled.
+      const decided = await this.promptMcpConsent(
+        options,
+        mcp.prompted && !mcp.enabled,
+      );
       config.mcp = {
         enabled: decided.enabled,
         scope: decided.enabled ? decided.scope : 'disabled',
