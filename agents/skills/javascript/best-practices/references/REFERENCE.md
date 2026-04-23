@@ -54,7 +54,7 @@ export const logger = new Logger();
 
 ## Project Structure
 
-```
+```text
 src/
 ├── domain/           # Business logic
 │   └── user/

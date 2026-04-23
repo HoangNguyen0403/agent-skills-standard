@@ -880,10 +880,10 @@ describe('IndexGeneratorService', () => {
     function mockAgentDir(categories: string[]) {
       (fs.pathExists as any).mockImplementation(
         async (p: string) =>
-          categories.some((c) => p.includes(c)) || p === '/agent/skills',
+          categories.some((c) => p.includes(c)) || p === '/agents/skills',
       );
       (fs.readdir as any).mockImplementation(async (p: string) => {
-        if (p === '/agent/skills') return categories;
+        if (p === '/agents/skills') return categories;
         return [];
       });
     }
@@ -898,7 +898,7 @@ describe('IndexGeneratorService', () => {
         file_routing: { go: ['golang'] },
       });
 
-      const result = await service.assembleRouterIndex('/agent/skills');
+      const result = await service.assembleRouterIndex('/agents/skills');
 
       expect(result).toContain('`*.go`');
       expect(result).toContain('golang/_INDEX.md');
@@ -919,7 +919,7 @@ describe('IndexGeneratorService', () => {
         },
       });
 
-      const result = await service.assembleRouterIndex('/agent/skills');
+      const result = await service.assembleRouterIndex('/agents/skills');
 
       expect(result).toContain('`*.go`');
       expect(result).toContain('golang/_INDEX.md');
@@ -944,7 +944,7 @@ describe('IndexGeneratorService', () => {
         },
       });
 
-      const result = await service.assembleRouterIndex('/agent/skills');
+      const result = await service.assembleRouterIndex('/agents/skills');
 
       expect(result).toContain('`*.ts`');
       expect(result).toContain('typescript/_INDEX.md');
@@ -965,7 +965,7 @@ describe('IndexGeneratorService', () => {
         },
       });
 
-      const result = await service.assembleRouterIndex('/agent/skills');
+      const result = await service.assembleRouterIndex('/agents/skills');
 
       // No file-extension rows
       expect(result).not.toMatch(/^\| `\*\.go` \|/m);
@@ -1017,7 +1017,7 @@ describe('IndexGeneratorService', () => {
       });
 
       const result = await service.generateCategoryIndex(
-        '/agent/skills',
+        '/agents/skills',
         'golang',
       );
 
@@ -1040,14 +1040,14 @@ describe('IndexGeneratorService', () => {
       });
 
       // generate() will return header even with empty baseDir — just confirm no throw
-      const result = await service.generate('/agent/skills');
+      const result = await service.generate('/agents/skills');
       expect(result).toContain('## Agent Skills Index');
     });
 
     it('falls back to file-based metadata when withMetadata is not called', async () => {
       (fs.pathExists as any).mockResolvedValue(true);
       (fs.readdir as any).mockImplementation(async (p: string) => {
-        if (p === '/agent/skills') return ['golang', 'common'];
+        if (p === '/agents/skills') return ['golang', 'common'];
         return [];
       });
       (fs.readFile as any).mockImplementation(async (p: string) => {
@@ -1059,7 +1059,7 @@ describe('IndexGeneratorService', () => {
 
       // No withMetadata() call — should read from disk
       const fresh = new IndexGeneratorServiceImpl();
-      const result = await fresh.assembleRouterIndex('/agent/skills');
+      const result = await fresh.assembleRouterIndex('/agents/skills');
 
       expect(result).toContain('`*.go`');
       expect(result).toContain('golang/_INDEX.md');
@@ -1072,7 +1072,7 @@ describe('IndexGeneratorService', () => {
       // Inject metadata with no file_routing at all
       service.withMetadata({});
 
-      const result = await service.assembleRouterIndex('/agent/skills');
+      const result = await service.assembleRouterIndex('/agents/skills');
 
       // No extension rows, but catch-all must still be rendered
       expect(result).toContain('## Agent Skills Index');

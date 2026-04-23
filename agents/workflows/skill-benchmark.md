@@ -24,6 +24,7 @@ cat AGENTS.md | head -80
 ## Step 2 — Auto-Select a Legacy Trap
 
 Pick the file automatically. Rank candidates by the severity of anti-patterns:
+
 - 🔴 **P0**: Hardcoded secrets; Logic inside UI components.
 - 🟠 **P1**: Wrong Router pattern; Global state for local concerns; Missing design tokens.
 - 🟡 **P2**: Raw user-facing strings (i18n).
@@ -63,6 +64,7 @@ For every `❌ FAIL`, identify the root cause using the **Iteration Table** in:
 ### Suggested .skillsrc Exclusions
 
 Recommend any skills that are noisy or non-applicable for the project.
+
 ```yaml
 exclude:
   - [skill-id] # reason

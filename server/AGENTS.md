@@ -1,4 +1,5 @@
 <!-- SKILLS_INDEX_START -->
+
 ## Agent Skills Index
 
 > [!CRITICAL] Zero-Trust: Read the matching `SKILL.md` BEFORE writing any code.
@@ -8,12 +9,12 @@
 
 If the `agent-skills-standard` MCP server is registered in your runtime (check your tool list — look for `load_skills_for_files`), **prefer those tools over manually walking the router below**. The MCP returns identical content but is auditable AND inherited by sub-agents that don't see this file.
 
-| Tool | When to call it |
-| --- | --- |
-| `load_skills_for_files(files=[...])` | Before editing/reviewing any source file |
-| `load_skills_for_keywords(keywords=[...])` | Planning before files are chosen |
-| `get_skill(category, name)` | Direct lookup when you know the skill id |
-| `audit_session_compliance()` | Before declaring a task complete |
+| Tool                                       | When to call it                          |
+| ------------------------------------------ | ---------------------------------------- |
+| `load_skills_for_files(files=[...])`       | Before editing/reviewing any source file |
+| `load_skills_for_keywords(keywords=[...])` | Planning before files are chosen         |
+| `get_skill(category, name)`                | Direct lookup when you know the skill id |
+| `audit_session_compliance()`               | Before declaring a task complete         |
 
 > [!IMPORTANT] **Sub-agents don't inherit this `AGENTS.md` — they do inherit the MCP.** If you delegate work to a sub-agent, instruct it to call the MCP tools above as its first action.
 
@@ -35,11 +36,11 @@ Each `_INDEX.md` has two sections - follow both:
 
 > `<SKILLS>` = your agent's skill directory (e.g., `.claude/skills/`, `.cursor/skills/`, `.gemini/skills/`).
 
-| File type | Read category index |
-| --------- | ------------------- |
-| `*.ts`, `*.tsx` | `<SKILLS>/typescript/_INDEX.md` |
-| `*.spec.ts`, `*.test.ts` | `<SKILLS>/common/_INDEX.md` |
-| Any file (keyword match) | `<SKILLS>/common/_INDEX.md` |
+| File type                | Read category index             |
+| ------------------------ | ------------------------------- |
+| `*.ts`, `*.tsx`          | `<SKILLS>/typescript/_INDEX.md` |
+| `*.spec.ts`, `*.test.ts` | `<SKILLS>/common/_INDEX.md`     |
+| Any file (keyword match) | `<SKILLS>/common/_INDEX.md`     |
 
 > [!NOTE] **Test/spec file precedence:** `.spec.ts`, `.test.ts` -> use the `common` row (takes precedence over the generic `*.ts` row). `.spec.tsx`, `.test.tsx` -> use the `react` row (takes precedence over the generic `*.tsx` row).
 

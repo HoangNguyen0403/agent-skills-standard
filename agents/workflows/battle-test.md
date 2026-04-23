@@ -25,7 +25,7 @@ Run scans to detect format and structure violations.
 
 1. **Check for missing mandatory sections**: `grep -rL "triggers:\|priority:\|Anti-Patterns" skills/`
 2. **Check for broad glob triggers**: `grep -r "src/\*\*" skills/`
-3. **Check for length limits**: 
+3. **Check for length limits**:
    `find . -name "SKILL.md" -exec awk 'END{if(NR>100) print FILENAME": "NR" lines"}' {} \;`
 
 ---

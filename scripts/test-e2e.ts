@@ -84,7 +84,7 @@ async function main() {
     const agentWorkflowsDir = path.join(TEMP_DIR, '.agent', 'workflows');
 
     if (!fs.existsSync(agentSkillsDir)) {
-      throw new Error('Sync failed: .agent/skills directory was not created.');
+      throw new Error('Sync failed: .agents/skills directory was not created.');
     }
 
     const skillFiles = await fs.readdir(agentSkillsDir);
@@ -92,7 +92,7 @@ async function main() {
       throw new Error('Sync failed: No skills were downloaded.');
     }
     console.log(
-      pc.green(`   ✓ Found ${skillFiles.length} items in .agent/skills.`),
+      pc.green(`   ✓ Found ${skillFiles.length} items in .agents/skills.`),
     );
 
     // Verify Workflows

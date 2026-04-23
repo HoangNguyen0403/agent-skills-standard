@@ -117,7 +117,7 @@ export class IndexContentBuilder {
       '',
       '> [!IMPORTANT] PATH RESOLUTION (Cross-Platform)',
       '> Skill IDs in the list below (e.g., `[category/skill-name]`) represent the relative folder path.',
-      '> Because this project supports multiple AI agents, skills may reside in a base directory like `.gemini/skills/`, `.agent/skills/`, or `.cursor/skills/`.',
+      '> Because this project supports multiple AI agents, skills may reside in a base directory like `.gemini/skills/`, `.agents/skills/`, or `.cursor/skills/`.',
       '> **Action:** You must prepend the correct base directory to the ID. (Example: If ID is `[flutter/cicd]`, the file is at `<BASE_DIR>/flutter/cicd/SKILL.md`). Use your file search tools (e.g., `list_directory` or `find`) if you are unsure of the base directory.',
       '',
       '| Trigger Type | What to match | Required Action |',

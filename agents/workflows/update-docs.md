@@ -32,9 +32,9 @@ Example output:
 
 For each missing item:
 
-1.  **Read the code** to understand its purpose.
-2.  **Add JSDoc comments** (`/** ... */`) above the export.
-3.  **Include**:
+1. **Read the code** to understand its purpose.
+2. **Add JSDoc comments** (`/** ... */`) above the export.
+3. **Include**:
     - Description of what it does.
     - `@param` tags for arguments.
     - `@returns` tag for return value.

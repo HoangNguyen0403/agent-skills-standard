@@ -11,7 +11,7 @@ description: Implementation patterns and discovery protocols for Test-Driven Dev
 2. **Act**: Execute the single action being tested.
 3. **Assert**: Verify the EXACT result and side effects.
 
-## Standard: F.I.R.S.T.
+## Standard: F.I.R.S.T
 
 - **Fast**: Runs in seconds, not minutes.
 - **Independent**: No order dependency; clean state per test.

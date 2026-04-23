@@ -10,8 +10,8 @@ _One sentence: What does this feature do and why?_
 
 - **Trigger**: User clicks X / API call Y.
 - **Process**:
-  1.  Step 1
-  2.  Step 2
+  1. Step 1
+  2. Step 2
 - **Outcome**: DB updated / UI changes.
 
 ## 3. Data Model (Schema Changes)
