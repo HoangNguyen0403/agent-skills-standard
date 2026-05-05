@@ -2,6 +2,7 @@
 import { Command } from 'commander';
 import dotenv from 'dotenv';
 import { FeedbackCommand } from './commands/feedback';
+import { HooksCommand } from './commands/hooks';
 import { InitCommand } from './commands/init';
 import { ListSkillsCommand } from './commands/list-skills';
 import { McpCommand } from './commands/mcp';
@@ -35,6 +36,10 @@ program
   .option(
     '-y, --yes',
     'Automatically confirm interactive prompts (e.g. update versions)',
+  )
+  .option(
+    '--snippets',
+    'Always generate JSON config snippets in ./mcp-config-snippets/',
   )
   .action(async (options) => {
     const sync = new SyncCommand();
@@ -114,8 +119,14 @@ program
   .description(
     'Manage the optional MCP server integration. Actions: status | enable | disable | scope <project|user|snippets-only|disabled> | install | uninstall | snippets',
   )
-  .option('--scope <scope>', 'Override scope for install (project|user|snippets-only|disabled)')
-  .option('--from <from>', 'For uninstall: project | user | all (default: project)')
+  .option(
+    '--scope <scope>',
+    'Override scope for install (project|user|snippets-only|disabled)',
+  )
+  .option(
+    '--from <from>',
+    'For uninstall: project | user | all (default: project)',
+  )
   .action(
     async (
       action: string,
@@ -129,5 +140,15 @@ program
       await cmd.run(action, merged);
     },
   );
+
+program
+  .command('hooks <action>')
+  .description(
+    'Manage the PreToolUse skill-loader hook. Actions: status | install | uninstall',
+  )
+  .action(async (action: string) => {
+    const cmd = new HooksCommand();
+    await cmd.run(action);
+  });
 
 program.parse();
