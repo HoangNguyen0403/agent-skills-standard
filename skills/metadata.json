@@ -287,8 +287,8 @@
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 11562,
-        "avg_tokens_per_skill": 526,
+        "total_tokens": 11684,
+        "avg_tokens_per_skill": 531,
         "largest_skill": "flutter-testing (846 tokens)"
       }
     },
@@ -298,9 +298,9 @@
       "tag_prefix": "dart-v",
       "token_metrics": {
         "total_skills": 3,
-        "total_tokens": 1650,
-        "avg_tokens_per_skill": 550,
-        "largest_skill": "dart-language (638 tokens)"
+        "total_tokens": 1712,
+        "avg_tokens_per_skill": 571,
+        "largest_skill": "dart-language (700 tokens)"
       }
     },
     "typescript": {

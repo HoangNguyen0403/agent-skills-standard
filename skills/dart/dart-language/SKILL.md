@@ -42,6 +42,8 @@ metadata:
 - **No ! Operator**: not use bang operator `!` unless you can prove value non-null via `if` or `assert`.
 - **No var for members**: not use `var` for class members; use `final` or explicit types.
 - **No logic in constructors**: not perform complex calculations or async work inside constructors.
+- **No zero-arg methods for pure computations**: Use a getter. `int get invoiceType =>` not `int toInvoiceType()`.
+- **No generic conversion names**: Name value-object converters for their target context: `get apiFilterType` not `get invoiceType`.
 
 ## Code
 

@@ -316,9 +316,12 @@ export class McpConfigService {
 
     const TARGETS = this.getTargets();
     const entry = this.buildEntry(mcp.version);
-    // mcp.scope cannot be 'disabled' here (early-returned above), so always
-    // generate snippets when we reach this point.
-    await this.generateSnippets(rootDir, agents, entry, report);
+    // Only generate snippets if:
+    // 1. scope is 'snippets-only'
+    // 2. user explicitly requested snippets via mcp.snippets flag
+    if (mcp.scope === 'snippets-only' || mcp.snippets) {
+      await this.generateSnippets(rootDir, agents, entry, report);
+    }
 
     if (mcp.scope === 'snippets-only') {
       return report;

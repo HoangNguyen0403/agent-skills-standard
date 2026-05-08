@@ -48,6 +48,7 @@ class AppButton extends StatelessWidget {
 - **No widget file over 80 lines without extraction**: Extract sub-widgets into private classes.
 - **No inline Key strings**: All keys must constants defined in `widget_keys.dart`.
 - **No \_buildXxx() helper methods**: Extract to `const StatelessWidget` private class.
+- **No manual widget repetition**: When 3+ sibling widgets of the same type differ only in data (e.g., radio buttons, tabs), map over a list instead. Put display labels inside the value object or a companion map so adding an option requires no UI change.
 
 ## References
 
