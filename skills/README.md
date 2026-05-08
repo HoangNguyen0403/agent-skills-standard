@@ -14,7 +14,6 @@ Each skill must follow the standard directory structure:
 
 Cross-framework standards and best practices applicable to all development.
 
-- [**Agent Safety**](common/common-agent-safety/SKILL.md) (P0) - Enforce zero-trust protocols for folder refactoring, destructive cleanup, and agent configuration. Use when renaming folders, removing legacy directories, migrating project state, or refactoring agent config paths. (triggers: *.ts, refactor, cleanup, migrate, config)
 - [**Best Practices**](common/common-best-practices/SKILL.md) (P0) - Enforce SOLID principles, guard-clause style, function size limits, and intention-revealing naming across all languages. Use when refactoring for readability, applying clean-code patterns, reviewing naming conventions, or reducing function complexity.
 - [**Feedback Reporter**](common/common-feedback-reporter/SKILL.md) (P0) - Pre-write skill violation audit. Checks planned code against loaded skill anti-patterns before any file write. Use when writing Flutter/Dart code, editing SKILL.md files, or generating any code where project skills are active. Load as composite alongside other skills. When a violation is detected and Auto-fixed: YES, also load +common/common-learning-log to record the mistake.
 - [**Git Collaboration**](common/common-git-collaboration/SKILL.md) (P0) - Enforce version control best practices for commits, branching, pull requests, and repository security. Use when writing commits, creating branches, merging, or opening pull requests.

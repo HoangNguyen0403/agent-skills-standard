@@ -6,7 +6,6 @@
 | Skill | File pattern | Keywords |
 | ----- | ------------ | -------- |
 | common-accessibility | `**/*.html`, `**/*.vue`, `**/*.component.html` | accessibility, a11y, wcag, aria, screen reader, focus, alt text |
-| **common-agent-safety** | `**/*.json` | refactor, cleanup, migrate, safety, destructive |
 | common-api-design | `**/*.controller.ts`, `**/*.router.ts`, `**/*.routes.ts`, `**/routes/**`, `**/controllers/**`, `**/handlers/**` | rest api, endpoint, http method, status code, versioning, pagination, openapi, api design, api contract |
 | common-architecture-audit | `package.json`, `pubspec.yaml`, `go.mod`, `pom.xml`, `nest-cli.json` | architecture audit, code review, tech debt, logic leakage, refactor |
 | common-architecture-diagramming | `ARCHITECTURE.md`, `**/*.mermaid`, `**/*.drawio` | diagram, architecture, c4, system design, mermaid |
