@@ -32,7 +32,7 @@ export class WorkflowSyncService {
 
     const availableWorkflows = treeData.tree
       .filter(
-        (f) => f.path.startsWith('.agent/workflows/') && f.path.endsWith('.md'),
+        (f) => f.path.startsWith('.agents/workflows/') && f.path.endsWith('.md'),
       )
       .map((f) => path.basename(f.path, '.md'));
 
@@ -95,7 +95,7 @@ export class WorkflowSyncService {
     }
 
     const workflowFiles = treeData.tree.filter((f) => {
-      if (!f.path.startsWith('.agent/workflows/') || !f.path.endsWith('.md'))
+      if (!f.path.startsWith('.agents/workflows/') || !f.path.endsWith('.md'))
         return false;
 
       if (typeof config.workflows === 'boolean') return config.workflows;
@@ -113,7 +113,7 @@ export class WorkflowSyncService {
       console.log(pc.gray(`    + Fetched ${files.length} workflows`));
       return [
         {
-          category: '.agent',
+          category: '.agents',
           skill: 'workflows',
           files: files.map((f) => ({
             name: path.basename(f.path),

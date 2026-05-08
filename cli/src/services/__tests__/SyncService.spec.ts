@@ -670,4 +670,52 @@ describe('SyncService', () => {
       expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Generated _INDEX.md for 1 categories'));
     });
   });
+
+  describe('cleanupOldFolders (migration)', () => {
+    it('should migrate content from .agent to .agents if .agents already exists', async () => {
+      const config = makeConfig();
+
+      // Mock .agent exists and .agents exists
+      vi.mocked(fs.pathExists).mockImplementation(async (p) => {
+        const pStr = p.toString();
+        if (pStr.endsWith('.agent')) return true;
+        if (pStr.endsWith('.agents')) return true;
+        if (pStr.endsWith(path.join('.agents', 'custom-skill'))) return false;
+        return false;
+      });
+
+      vi.mocked(fs.readdir).mockResolvedValue(['custom-skill'] as any);
+
+      await syncService.writeSkills([], config);
+
+      expect(fs.copy).toHaveBeenCalledWith(
+        expect.stringContaining(path.join('.agent', 'custom-skill')),
+        expect.stringContaining(path.join('.agents', 'custom-skill')),
+      );
+      expect(fs.remove).toHaveBeenCalledWith(
+        expect.stringMatching(/\.agent$/),
+      );
+    });
+
+    it('should perform a full copy if .agents does not exist', async () => {
+      const config = makeConfig();
+
+      vi.mocked(fs.pathExists).mockImplementation(async (p) => {
+        const pStr = p.toString();
+        if (pStr.endsWith('.agent')) return true;
+        if (pStr.endsWith('.agents')) return false;
+        return false;
+      });
+
+      await syncService.writeSkills([], config);
+
+      expect(fs.copy).toHaveBeenCalledWith(
+        expect.stringMatching(/\.agent$/),
+        expect.stringMatching(/\.agents$/),
+      );
+      expect(fs.remove).toHaveBeenCalledWith(
+        expect.stringMatching(/\.agent$/),
+      );
+    });
+  });
 });

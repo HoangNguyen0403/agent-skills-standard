@@ -213,13 +213,13 @@ Co-skills:    react/security
 
 ## Root Cause Quick Reference
 
-| Root Cause | Signal | Example Skill Gap Action |
-|------------|--------|--------------------------|
-| `AMBIGUOUS_RULE` | Rule admits two valid readings | Add concrete before/after examples |
-| `MISSING_COVERAGE` | Pattern common but skill silent on it | Add new anti-pattern or guideline section |
-| `OUTDATED_GUIDANCE` | Skill references deprecated API/version | Add version callout; update code samples |
-| `COMPETING_RULES` | Two skills contradict on same decision | Add cross-skill note or priority tie-breaker |
-| `PATTERN_MISMATCH` | AI knew rule but applied it incorrectly | Strengthen the anti-pattern line; add a negative example |
+| Root Cause          | Signal                                  | Example Skill Gap Action                                 |
+| ------------------- | --------------------------------------- | -------------------------------------------------------- |
+| `AMBIGUOUS_RULE`    | Rule admits two valid readings          | Add concrete before/after examples                       |
+| `MISSING_COVERAGE`  | Pattern common but skill silent on it   | Add new anti-pattern or guideline section                |
+| `OUTDATED_GUIDANCE` | Skill references deprecated API/version | Add version callout; update code samples                 |
+| `COMPETING_RULES`   | Two skills contradict on same decision  | Add cross-skill note or priority tie-breaker             |
+| `PATTERN_MISMATCH`  | AI knew rule but applied it incorrectly | Strengthen the anti-pattern line; add a negative example |
 
 ## Decision Tree Practice
 

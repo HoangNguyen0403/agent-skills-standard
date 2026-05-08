@@ -56,9 +56,9 @@ describe('WorkflowSyncService', () => {
       });
       mockGithubService.getRepoTree.mockResolvedValue({
         tree: [
-          { path: '.agent/workflows/code-review.md' },
-          { path: '.agent/workflows/plan-feature.md' },
-          { path: '.agent/workflows/custom.md' },
+          { path: '.agents/workflows/code-review.md' },
+          { path: '.agents/workflows/plan-feature.md' },
+          { path: '.agents/workflows/custom.md' },
         ],
       });
 
@@ -85,7 +85,7 @@ describe('WorkflowSyncService', () => {
         ],
       } as any;
       mockGithubService.getRepoTree.mockResolvedValue({
-        tree: [{ path: '.agent/workflows/code-review.md' }],
+        tree: [{ path: '.agents/workflows/code-review.md' }],
       });
       const result = await workflowSyncService.reconcileWorkflows(config);
       expect(result).toBe(false);
@@ -100,7 +100,7 @@ describe('WorkflowSyncService', () => {
         default_branch: 'main',
       });
       mockGithubService.getRepoTree.mockResolvedValue({
-        tree: [{ path: '.agent/workflows/code-review.md' }],
+        tree: [{ path: '.agents/workflows/code-review.md' }],
       });
 
       const result = await workflowSyncService.reconcileWorkflows(config);
@@ -142,14 +142,14 @@ describe('WorkflowSyncService', () => {
         registry: 'https://github.com/o/r',
       } as unknown as SkillConfig;
       const treeData = {
-        tree: [{ path: '.agent/workflows/w1.md' }, { path: 'other/file.md' }],
+        tree: [{ path: '.agents/workflows/w1.md' }, { path: 'other/file.md' }],
       };
       mockGithubService.getRepoInfo.mockResolvedValue({
         default_branch: 'develop',
       });
       mockGithubService.getRepoTree.mockResolvedValue(treeData);
       mockGithubService.downloadFilesConcurrent.mockResolvedValue([
-        { path: '.agent/workflows/w1.md', content: 'c1' },
+        { path: '.agents/workflows/w1.md', content: 'c1' },
       ]);
 
       const result = await workflowSyncService.assembleWorkflows(config);
@@ -165,8 +165,8 @@ describe('WorkflowSyncService', () => {
       } as unknown as SkillConfig;
       const treeData = {
         tree: [
-          { path: '.agent/workflows/w1.md' },
-          { path: '.agent/workflows/w2.md' },
+          { path: '.agents/workflows/w1.md' },
+          { path: '.agents/workflows/w2.md' },
         ],
       };
       mockGithubService.getRepoInfo.mockResolvedValue({

@@ -58,6 +58,7 @@ export class SyncService {
     skills: CollectedSkill[],
     config: SkillConfig,
   ): Promise<void> {
+    await this.cleanupOldFolders();
     const agents = await this.resolveTargetAgents(config);
     return this.skillSyncService.writeSkills(skills, config, agents);
   }
@@ -223,5 +224,37 @@ export class SyncService {
     }
 
     return [Agent.Cursor, Agent.Antigravity, Agent.Kiro];
+  }
+
+  private async cleanupOldFolders(): Promise<void> {
+    const oldPath = path.join(process.cwd(), '.agent');
+    const newPath = path.join(process.cwd(), '.agents');
+
+    if (await fs.pathExists(oldPath)) {
+      try {
+        // Migrate content to .agents if it doesn't already exist there
+        if (await fs.pathExists(newPath)) {
+          const items = await fs.readdir(oldPath);
+          for (const item of items) {
+            const src = path.join(oldPath, item);
+            const dest = path.join(newPath, item);
+            if (!(await fs.pathExists(dest))) {
+              await fs.copy(src, dest);
+            }
+          }
+        } else {
+          await fs.copy(oldPath, newPath);
+        }
+
+        await fs.remove(oldPath);
+        console.log(
+          pc.gray('  - Migrated and cleaned up old .agent folder.'),
+        );
+      } catch (error) {
+        if (process.env.DEBUG) {
+          console.debug(`Failed to migrate/cleanup old .agent folder: ${error}`);
+        }
+      }
+    }
   }
 }

@@ -6,6 +6,10 @@
         "-y",
         "agent-skills-standard-mcp"
       ]
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
     }
   }
 }
