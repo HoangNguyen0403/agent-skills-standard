@@ -144,7 +144,9 @@ export interface HookStatusRow {
  * they receive the MCP trigger via their rules file (CLAUDE.md, .cursor/rules, etc.)
  * which is written by SyncService — no separate hook file is needed.
  *
- * All writes are idempotent (read-modify-write, never full-file overwrite).
+ * Settings writes are idempotent and merge existing content.
+ * Generated hook files are only created when missing, and are not overwritten
+ * if the user has already customized them.
  */
 export class HookService {
   async install(opts: {
@@ -244,9 +246,23 @@ export class HookService {
     const scriptAbs = path.join(rootDir, CLAUDE_HOOK_SCRIPT_REL);
     const scriptExists = await fs.pathExists(scriptAbs);
     await fs.ensureDir(path.dirname(scriptAbs));
-    await fs.writeFile(scriptAbs, CLAUDE_SKILL_LOADER_PY);
+    if (!scriptExists) {
+      await fs.writeFile(scriptAbs, CLAUDE_SKILL_LOADER_PY);
+      report.writes.push({
+        agent: Agent.Claude,
+        file: CLAUDE_HOOK_SCRIPT_REL,
+        action: 'added',
+      });
+    } else {
+      report.writes.push({
+        agent: Agent.Claude,
+        file: CLAUDE_HOOK_SCRIPT_REL,
+        action: 'skipped-existing',
+      });
+    }
 
     const settingsAbs = path.join(rootDir, CLAUDE_SETTINGS_REL);
+    const settingsExists = await fs.pathExists(settingsAbs);
     const existing = await this.readJson(settingsAbs);
     let changed = false;
 
@@ -277,7 +293,7 @@ export class HookService {
       report.writes.push({
         agent: Agent.Claude,
         file: CLAUDE_SETTINGS_REL,
-        action: scriptExists ? 'updated' : 'added',
+        action: settingsExists ? 'updated' : 'added',
       });
     } else {
       report.writes.push({
@@ -361,11 +377,31 @@ export class HookService {
     const hookAbs = path.join(rootDir, KIRO_HOOK_REL);
     const exists = await fs.pathExists(hookAbs);
     await fs.ensureDir(path.dirname(hookAbs));
-    await fs.writeFile(hookAbs, KIRO_HOOK_MD);
+    if (!exists) {
+      await fs.writeFile(hookAbs, KIRO_HOOK_MD);
+      report.writes.push({
+        agent: Agent.Kiro,
+        file: KIRO_HOOK_REL,
+        action: 'added',
+      });
+      return;
+    }
+
+    const current = await fs.readFile(hookAbs, 'utf8');
+    if (current !== KIRO_HOOK_MD) {
+      await fs.writeFile(hookAbs, KIRO_HOOK_MD);
+      report.writes.push({
+        agent: Agent.Kiro,
+        file: KIRO_HOOK_REL,
+        action: 'updated',
+      });
+      return;
+    }
+
     report.writes.push({
       agent: Agent.Kiro,
       file: KIRO_HOOK_REL,
-      action: exists ? 'updated' : 'added',
+      action: 'skipped-existing',
     });
   }
 

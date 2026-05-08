@@ -20,7 +20,7 @@ program
   .description(
     'A CLI to manage and sync AI agent skills for Cursor, Claude, Copilot, Windsurf, and more.',
   )
-  .version('2.2.1');
+  .version('2.2.2');
 
 program
   .command('init')
@@ -39,7 +39,7 @@ program
   )
   .option(
     '--snippets',
-    'Always generate JSON config snippets in ./mcp-config-snippets/',
+    'Generate JSON config snippets in ./mcp-config-snippets/; if MCP is disabled, run snippet-only mode',
   )
   .action(async (options) => {
     const sync = new SyncCommand();

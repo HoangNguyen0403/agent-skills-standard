@@ -156,10 +156,20 @@ export class SyncCommand {
     config: SkillConfig,
     options: { yes?: boolean; snippets?: boolean },
   ): Promise<void> {
-    const mcp = config.mcp ?? defaultMcpConfig();
+    const mcp = config.mcp ? { ...config.mcp } : defaultMcpConfig();
     const agents = config.agents ?? [];
 
-    if (!mcp.prompted || (!mcp.enabled && mcp.prompted)) {
+    const snippetOnlyOverride =
+      options.snippets === true && (!mcp.enabled || mcp.scope === 'disabled');
+    if (snippetOnlyOverride) {
+      mcp.enabled = true;
+      mcp.scope = 'snippets-only';
+      mcp.snippets = true;
+    } else if (options.snippets !== undefined) {
+      mcp.snippets = options.snippets;
+    }
+
+    if (!snippetOnlyOverride && (!mcp.prompted || (!mcp.enabled && mcp.prompted))) {
       if (!process.stdin.isTTY && !options.yes) {
         if (!mcp.prompted) {
           console.log(
@@ -186,9 +196,12 @@ export class SyncCommand {
       await this.configService.saveConfig(config);
     }
 
-    const finalMcp = config.mcp ?? defaultMcpConfig();
-    // Override config with CLI flag if provided
-    if (options.snippets !== undefined) {
+    const finalMcp = config.mcp ? { ...config.mcp } : defaultMcpConfig();
+    if (snippetOnlyOverride) {
+      finalMcp.enabled = true;
+      finalMcp.scope = 'snippets-only';
+      finalMcp.snippets = true;
+    } else if (options.snippets !== undefined) {
       finalMcp.snippets = options.snippets;
     }
 

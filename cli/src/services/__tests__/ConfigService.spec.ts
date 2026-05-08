@@ -41,6 +41,7 @@ describe('ConfigService', () => {
         skills: {},
         agents: [Agent.Cursor],
         custom_overrides: [],
+        mcp: { enabled: true, scope: 'project', prompted: true, snippets: true },
       };
 
       vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(true));
@@ -51,6 +52,30 @@ describe('ConfigService', () => {
 
       const config = await configService.loadConfig(mockCwd);
       expect(config).toEqual(mockConfig);
+    });
+
+    it('should preserve snippets in mcp config when present', async () => {
+      const mockConfig: SkillConfig = {
+        registry: 'https://example.com',
+        skills: {},
+        agents: [Agent.Cursor],
+        custom_overrides: [],
+        mcp: {
+          enabled: true,
+          scope: 'project',
+          prompted: true,
+          snippets: true,
+        },
+      };
+
+      vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(true));
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve('registry: https://example.com\nskills: {}' as unknown as Buffer),
+      );
+      vi.mocked(yaml.load).mockReturnValue(mockConfig);
+
+      const config = await configService.loadConfig(mockCwd);
+      expect(config?.mcp?.snippets).toBe(true);
     });
 
     it('should throw error if .skillsrc format is invalid', async () => {

@@ -29,6 +29,28 @@ describe('HookService', () => {
       expect(await fs.readFile(scriptPath, 'utf8')).toBe(CLAUDE_SKILL_LOADER_PY);
     });
 
+    it('does not overwrite an existing Python hook script', async () => {
+      const scriptPath = path.join(root, '.claude/hooks/preedit-skill-loader.py');
+      await fs.ensureDir(path.dirname(scriptPath));
+      await fs.writeFile(scriptPath, '# user custom hook\n');
+
+      const report = await service.install({ rootDir: root, agents: [Agent.Claude] });
+
+      expect(await fs.readFile(scriptPath, 'utf8')).toBe('# user custom hook\n');
+      expect(report.writes.find((w) => w.file.endsWith('preedit-skill-loader.py'))?.action).toBe('skipped-existing');
+    });
+
+    it('reports settings.json as added when only the script already exists', async () => {
+      const scriptPath = path.join(root, '.claude/hooks/preedit-skill-loader.py');
+      await fs.ensureDir(path.dirname(scriptPath));
+      await fs.writeFile(scriptPath, '# user custom hook\n');
+
+      const report = await service.install({ rootDir: root, agents: [Agent.Claude] });
+
+      const settingsWrite = report.writes.find((w) => w.file === '.claude/settings.json');
+      expect(settingsWrite?.action).toBe('added');
+    });
+
     it('registers the PreToolUse hook entry in settings.json', async () => {
       await service.install({ rootDir: root, agents: [Agent.Claude] });
 
@@ -201,7 +223,7 @@ describe('HookService', () => {
       const report = await service.install({ rootDir: root, agents: [Agent.Kiro] });
 
       const kiroWrite = report.writes.find((w) => w.agent === Agent.Kiro);
-      expect(kiroWrite?.action).toBe('updated');
+      expect(kiroWrite?.action).toBe('skipped-existing');
     });
   });
 
@@ -256,7 +278,7 @@ describe('HookService', () => {
         agents: [Agent.Claude, Agent.Kiro],
       });
 
-      expect(report.writes).toHaveLength(2);
+      expect(report.writes).toHaveLength(3);
       expect(report.writes.map((w) => w.agent)).toContain(Agent.Claude);
       expect(report.writes.map((w) => w.agent)).toContain(Agent.Kiro);
     });

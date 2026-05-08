@@ -405,5 +405,19 @@ describe('SyncCommand', () => {
       await command.run();
       expect(mockMcpService.install).not.toHaveBeenCalled();
     });
+
+    it('should generate snippets even when MCP is disabled if --snippets is set', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: {},
+        mcp: { enabled: false, scope: 'disabled', prompted: false },
+      } as any);
+
+      await command.run({ snippets: true });
+
+      expect(inquirer.prompt).not.toHaveBeenCalled();
+      expect(mockMcpService.install).toHaveBeenCalled();
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+    });
   });
 });

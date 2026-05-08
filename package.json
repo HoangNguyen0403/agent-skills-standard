@@ -1,22 +1,15 @@
 {
   "name": "agent-skills-standard-root",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "private": true,
   "packageManager": "pnpm@10.0.0",
   "pnpm": {
     "overrides": {
       "lodash": "npm:lodash-es@^4.17.21",
-      "qs": "^6.15.0",
-      "multer": ">=2.1.1",
-      "minimatch": ">=10.2.4",
-      "serialize-javascript": ">=7.0.5",
-      "rollup": ">=4.59.0",
-      "file-type": "^21.3.2",
       "path-to-regexp": ">=8.4.0",
-      "picomatch": ">=4.0.4",
-      "flatted": ">=3.4.2",
-      "handlebars": ">=4.7.9",
-      "brace-expansion": ">=5.0.5"
+      "ip-address": ">=10.1.1",
+      "hono": ">=4.12.16",
+      "fast-uri": ">=3.1.1"
     }
   },
   "scripts": {

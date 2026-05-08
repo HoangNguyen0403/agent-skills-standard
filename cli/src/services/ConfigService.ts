@@ -24,6 +24,7 @@ const McpConfigSchema = z.object({
   scope: McpScopeSchema,
   prompted: z.boolean(),
   version: z.string().optional(),
+  snippets: z.boolean().optional(),
 });
 
 const SkillConfigSchema = z.object({

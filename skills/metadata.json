@@ -282,8 +282,8 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.7.0",
-      "last_updated": "2026-04-22",
+      "version": "1.7.1",
+      "last_updated": "2026-05-09",
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
@@ -293,8 +293,8 @@
       }
     },
     "dart": {
-      "version": "1.3.4",
-      "last_updated": "2026-04-22",
+      "version": "1.3.5",
+      "last_updated": "2026-05-09",
       "tag_prefix": "dart-v",
       "token_metrics": {
         "total_skills": 3,
@@ -370,8 +370,8 @@
       }
     },
     "common": {
-      "version": "2.0.4",
-      "last_updated": "2026-04-22",
+      "version": "2.0.5",
+      "last_updated": "2026-05-08",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 31,
@@ -392,8 +392,8 @@
       }
     },
     "golang": {
-      "version": "1.3.3",
-      "last_updated": "2026-04-22",
+      "version": "1.3.4",
+      "last_updated": "2026-05-09",
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 11,
@@ -502,8 +502,8 @@
       }
     },
     "database": {
-      "version": "1.3.3",
-      "last_updated": "2026-04-22",
+      "version": "1.3.4",
+      "last_updated": "2026-05-09",
       "tag_prefix": "database-v",
       "token_metrics": {
         "total_skills": 3,

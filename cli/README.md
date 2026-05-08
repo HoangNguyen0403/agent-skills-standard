@@ -122,6 +122,7 @@ The CLI **never** modifies user-home files (`~/.cursor/mcp.json`, `~/.gemini/set
 
 | Version | Date | Skills | Avg Tokens | Savings (%) | Report |
 | --- | --- | --- | --- | --- | --- |
+| v2.2.2 | 2026-05-08 | 242 | 539 | 85% | [Report](benchmarks/archive/v2.2.2.md) |
 | v2.2.0 | 2026-04-22 | 242 | 538 | 85% | [Report](benchmarks/archive/v2.2.0.md) |
 | v2.1.2 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.2.md) |
 | v2.1.1 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.1.md) |
@@ -131,4 +132,3 @@ The CLI **never** modifies user-home files (`~/.cursor/mcp.json`, `~/.gemini/set
 | v1.10.3 | 2026-03-21 | 234 | 505 | 86% | [Report](benchmarks/archive/v1.10.3.md) |
 | v1.10.1 | 2026-03-16 | 229 | 428 | 88% | [Report](benchmarks/archive/v1.10.1.md) |
 | v1.10.0 | 2026-03-16 | 229 | 434 | 88% | [Report](benchmarks/archive/v1.10.0.md) |
-| v1.9.3 | 2026-03-15 | 229 | 460 | 87% | [Report](benchmarks/archive/v1.9.3.md) |

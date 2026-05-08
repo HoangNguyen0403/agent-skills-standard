@@ -1,4 +1,5 @@
 import pc from 'picocolors';
+import { Agent } from '../constants';
 import { ConfigService } from '../services/ConfigService';
 import { HookService, HookWriteReport } from '../services/HookService';
 
@@ -9,7 +10,7 @@ import { HookService, HookWriteReport } from '../services/HookService';
  * Sub-actions:
  *   status     Show which hook files are installed for each agent
  *   install    Write hook script + register in .claude/settings.json
- *   uninstall  Remove hook script and deregister from settings.json
+ *   uninstall  Deregister from .claude/settings.json (preserves hook script)
  */
 export class HooksCommand {
   private configService: ConfigService;
@@ -51,8 +52,8 @@ export class HooksCommand {
 
   // ---- actions ----
 
-  private async actionStatus(cwd: string, agents: string[]): Promise<void> {
-    const rows = await this.hookService.status({ rootDir: cwd, agents: agents as never });
+  private async actionStatus(cwd: string, agents: Agent[]): Promise<void> {
+    const rows = await this.hookService.status({ rootDir: cwd, agents });
 
     console.log(pc.bold('\n🪝 Hook installation status\n'));
 
@@ -70,14 +71,14 @@ export class HooksCommand {
     }
   }
 
-  private async actionInstall(cwd: string, agents: string[]): Promise<void> {
+  private async actionInstall(cwd: string, agents: Agent[]): Promise<void> {
     console.log(pc.cyan('\n🪝 Installing skill-loader hooks...'));
-    const report = await this.hookService.install({ rootDir: cwd, agents: agents as never });
+    const report = await this.hookService.install({ rootDir: cwd, agents });
     this.printReport(report);
   }
 
-  private async actionUninstall(cwd: string, agents: string[]): Promise<void> {
-    const { removed } = await this.hookService.uninstall({ rootDir: cwd, agents: agents as never });
+  private async actionUninstall(cwd: string, agents: Agent[]): Promise<void> {
+    const { removed } = await this.hookService.uninstall({ rootDir: cwd, agents });
     if (removed.length === 0) {
       console.log(pc.gray('Nothing to remove.'));
       return;
