@@ -233,8 +233,8 @@ const getTargets = (home = os.homedir()): Record<string, McpTarget> => {
     },
     [Agent.OpenAI]: {
       agent: Agent.OpenAI,
-      projectFile: '.codex/mcp.json',
-      userFile: path.join(HOME, '.codex', 'mcp.json'),
+      projectFile: '.codex/hooks.json',
+      userFile: path.join(HOME, '.codex', 'hooks.json'),
       key: 'mcpServers',
       shape: 'map',
     },

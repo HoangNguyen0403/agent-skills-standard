@@ -88,6 +88,7 @@ const SKILL_DIR_CANDIDATES = [
   "skills",
   ".claude/skills",
   ".cursor/skills",
+  ".codex/skills",
   ".gemini/skills",
   ".kiro/skills",
   ".windsurf/skills",
