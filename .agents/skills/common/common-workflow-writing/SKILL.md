@@ -4,7 +4,7 @@ description: Rules for writing concise, token-efficient workflow and skill files
 metadata:
   triggers:
     files:
-    - '.agent/workflows/*.md'
+    - '.agents/workflows/*.md'
     - 'SKILL.md'
     keywords:
     - create workflow

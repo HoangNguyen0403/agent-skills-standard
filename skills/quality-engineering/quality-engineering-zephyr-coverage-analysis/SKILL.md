@@ -27,7 +27,7 @@ metadata:
 > **CRITICAL — Read and follow workflow file exactly. NOT implement from memory or from this description.**
 > Implementing inline bypasses `jira-analyst` and `zephyr-scanner` sub-agents.
 
-Read and execute `.agent/workflows/zephyr-coverage-analysis.md`.
+Read and execute `.agents/workflows/zephyr-coverage-analysis.md`.
 
 ## Anti-Patterns
 

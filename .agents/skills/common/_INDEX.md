@@ -13,7 +13,7 @@
 | common-session-retrospective | `**/*.spec.ts`, `**/*.test.ts`, `SKILL.md`, `AGENTS.md`, `+common/common-learning-log` | retrospective, self-learning, improve skills, session review, correction, rework |
 | **common-skill-creator** | `SKILL.md`, `evals/evals.json` | create skill, audit skill, trigger rate, optimize description |
 | **common-tdd** | `**/*.test.ts`, `**/*.spec.ts`, `**/*_test.go`, `**/*Test.java`, `**/*_test.dart`, `**/*_spec.rb` | tdd, unit test, write test, red green refactor, failing test, test coverage |
-| **common-workflow-writing** | `.agent/workflows/*.md`, `SKILL.md` | create workflow, write workflow, new skill, new workflow |
+| **common-workflow-writing** | `.agents/workflows/*.md`, `SKILL.md` | create workflow, write workflow, new skill, new workflow |
 
 ## Keyword Match (only when user's request mentions these)
 

@@ -111,7 +111,7 @@ async function main() {
     } else {
       console.log(
         pc.green(
-          `   ✓ Found ${workflowFiles.length} items in .agent/workflows.`,
+          `   ✓ Found ${workflowFiles.length} items in .agents/workflows.`,
         ),
       );
     }
