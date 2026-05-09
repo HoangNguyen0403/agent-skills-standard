@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GitService } from '../GitService';
 import { SkillDiscoveryService } from '../SkillDiscoveryService';
 
@@ -64,7 +64,7 @@ describe('SkillDiscoveryService', () => {
   });
 
   describe('findChangedSkills', () => {
-    it('should merge changed and untracked skill files', async () => {
+    it('should mergre changed and untracked skill files', async () => {
       vi.mocked(GitService.prototype.findProjectRoot).mockReturnValue('/app');
       vi.mocked(GitService.prototype.getChangedFiles).mockReturnValue([
         'skills/a/SKILL.md',
@@ -81,6 +81,45 @@ describe('SkillDiscoveryService', () => {
       expect(files).toContain('/app/skills/a/SKILL.md');
       expect(files).toContain('/app/skills/b/SKILL.md');
       expect(files).not.toContain('/app/src/other.ts');
+    });
+  });
+
+  describe('error handling with DEBUG', () => {
+    let originalDebug: string | undefined;
+
+    beforeEach(() => {
+      originalDebug = process.env.DEBUG;
+      process.env.DEBUG = 'true';
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      process.env.DEBUG = originalDebug;
+    });
+
+    it('should log warning when stat fails and DEBUG is true', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      vi.mocked(fs.readdir).mockResolvedValue(['fail-stat'] as any);
+      vi.mocked(fs.stat).mockRejectedValue(new Error('Stat fail'));
+
+      await discovery.findAllSkills('skills');
+
+      expect(console.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to stat path'),
+        expect.any(Error),
+      );
+    });
+
+    it('should log warning when readdir fails and DEBUG is true', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      vi.mocked(fs.readdir).mockRejectedValue(new Error('Readdir fail'));
+
+      await discovery.findAllSkills('skills');
+
+      expect(console.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to read directory'),
+        expect.any(Error),
+      );
     });
   });
 });

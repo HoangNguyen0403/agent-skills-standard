@@ -283,4 +283,39 @@ describe('HookService', () => {
       expect(report.writes.map((w) => w.agent)).toContain(Agent.Kiro);
     });
   });
+
+  describe('edge cases', () => {
+    it('uninstall handles non-supported agents', async () => {
+      const result = await service.uninstall({
+        rootDir: root,
+        agents: [Agent.Cursor],
+      });
+      expect(result.removed).toHaveLength(0);
+    });
+
+    it('status handles non-supported agents by skipping them', async () => {
+      const rows = await service.status({
+        rootDir: root,
+        agents: [Agent.Cursor],
+      });
+      expect(rows).toHaveLength(0);
+    });
+
+    it('install updates Kiro hook if content is different', async () => {
+      const hookPath = path.join(root, '.kiro/hooks/ags-skill-loader.md');
+      await fs.ensureDir(path.dirname(hookPath));
+      await fs.writeFile(hookPath, 'old content');
+
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Kiro],
+      });
+
+      expect(report.writes.find((w) => w.agent === Agent.Kiro)?.action).toBe(
+        'updated',
+      );
+      const { KIRO_HOOK_MD } = await import('../HookService');
+      expect(await fs.readFile(hookPath, 'utf8')).toBe(KIRO_HOOK_MD);
+    });
+  });
 });

@@ -11,6 +11,7 @@ import {
 import { ConfigService } from '../../services/ConfigService';
 import { DetectionService } from '../../services/DetectionService';
 import { SyncService } from '../../services/SyncService';
+import { HookService } from '../../services/HookService';
 import { SyncCommand } from '../sync';
 
 vi.mock('inquirer', () => ({
@@ -36,6 +37,7 @@ describe('SyncCommand', () => {
   let mockSyncService: Mocked<SyncService>;
   let mockConfigService: Mocked<ConfigService>;
   let mockDetectionService: Mocked<DetectionService>;
+  let mockHookService: Mocked<HookService>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -64,6 +66,11 @@ describe('SyncCommand', () => {
     mockDetectionService = {
       getProjectDeps: vi.fn().mockResolvedValue(new Set()),
     } as unknown as Mocked<DetectionService>;
+    mockHookService = {
+      install: vi.fn().mockResolvedValue({ writes: [], unsupported: [] }),
+      uninstall: vi.fn().mockResolvedValue({ removed: [] }),
+      status: vi.fn().mockResolvedValue([]),
+    } as unknown as Mocked<HookService>;
 
     // Explicitly pass undefined to cover constructor branches 16-18
     command = new SyncCommand(undefined, undefined, undefined);
@@ -75,6 +82,8 @@ describe('SyncCommand', () => {
     command.detectionService = mockDetectionService;
     // @ts-expect-error - testing private instance patching
     command.syncService = mockSyncService;
+    // @ts-expect-error - testing private instance patching
+    command.hookService = mockHookService;
 
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -418,6 +427,92 @@ describe('SyncCommand', () => {
       expect(inquirer.prompt).not.toHaveBeenCalled();
       expect(mockMcpService.install).toHaveBeenCalled();
       expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Phase 8 — Hook Integration', () => {
+    it('should report hook updates during sync', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: { common: { ref: 'v1.0.0' } },
+        agents: ['claude' as any],
+        mcp: { enabled: false, scope: 'disabled', prompted: true },
+      } as any);
+
+      mockHookService.install.mockResolvedValue({
+        writes: [
+          { agent: 'claude' as any, file: 'f1', action: 'added' },
+          { agent: 'kiro' as any, file: 'f2', action: 'updated' },
+          { agent: 'claude' as any, file: 'f3', action: 'skipped-existing' },
+        ],
+        unsupported: [],
+      });
+
+      await command.run();
+
+      expect(mockHookService.install).toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Updating skill-loader hooks'),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('+ added'),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('~ updated'),
+      );
+      // skipped-existing should NOT be printed
+      expect(console.log).not.toHaveBeenCalledWith(
+        expect.stringContaining('skipped-existing'),
+      );
+    });
+
+    it('should skip hook reporting if no writes occurred', async () => {
+      mockHookService.install.mockResolvedValue({
+        writes: [{ agent: 'claude' as any, file: 'f1', action: 'skipped-existing' }],
+        unsupported: [],
+      });
+
+      await command.run();
+
+      expect(console.log).not.toHaveBeenCalledWith(
+        expect.stringContaining('Updating skill-loader hooks'),
+      );
+    });
+
+    it('should skip hook integration if no agents configured', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: {},
+        agents: [],
+      } as any);
+
+      await command.run();
+
+      expect(mockHookService.install).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('promptMcpConsent Logic', () => {
+    it('should cover the when callback in promptMcpConsent', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: {},
+        mcp: { enabled: false, scope: 'disabled', prompted: false },
+      } as any);
+
+      await command.run();
+
+      const promptCall = vi.mocked(inquirer.prompt).mock.calls.find(
+        (call: any) => call[0][0].name === 'enabled'
+      );
+      expect(promptCall).toBeDefined();
+      const questions = promptCall![0] as any[];
+      const scopeQuestion = questions.find((q: any) => q.name === 'scope');
+      expect(scopeQuestion).toBeDefined();
+
+      // Manually trigger the 'when' callback to cover the arrow function
+      expect(scopeQuestion.when({ enabled: true })).toBe(true);
+      expect(scopeQuestion.when({ enabled: false })).toBe(false);
     });
   });
 });

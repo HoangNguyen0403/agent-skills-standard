@@ -642,6 +642,35 @@ describe('SyncService', () => {
       const updates = await syncService.checkForUpdates(config);
       expect(updates).toEqual({ ts: 'v1.2.0' });
     });
+
+    it('uses "main" as default branch if info has none', async () => {
+      const config = makeConfig({ registry: 'https://github.com/o/r' });
+      mockGithubService.getRepoInfo.mockResolvedValue({}); // no default_branch
+      mockGithubService.getRawFile.mockResolvedValue(null);
+      await syncService.checkForUpdates(config);
+      expect(mockGithubService.getRawFile).toHaveBeenCalledWith(
+        'o',
+        'r',
+        'main',
+        'skills/metadata.json',
+      );
+    });
+  });
+
+  describe('cleanupOldFolders (migration) edge cases', () => {
+    it('skips copy if dest already exists', async () => {
+      vi.mocked(fs.pathExists).mockImplementation(async (p) => {
+        const pStr = p.toString();
+        if (pStr.endsWith('.agent')) return true;
+        if (pStr.endsWith('.agents')) return true;
+        if (pStr.endsWith(path.join('.agents', 'existing'))) return true;
+        return false;
+      });
+      vi.mocked(fs.readdir).mockResolvedValue(['existing'] as any);
+
+      await syncService.writeSkills([], makeConfig());
+      expect(fs.copy).not.toHaveBeenCalled();
+    });
   });
 
   describe('applyIndices with categories', () => {
@@ -716,6 +745,26 @@ describe('SyncService', () => {
       expect(fs.remove).toHaveBeenCalledWith(
         expect.stringMatching(/\.agent$/),
       );
+    });
+
+    it('should log debug info on migration failure when DEBUG is set', async () => {
+      const originalDebug = process.env.DEBUG;
+      process.env.DEBUG = 'true';
+      vi.spyOn(console, 'debug').mockImplementation(() => {});
+
+      vi.mocked(fs.pathExists).mockImplementation(async (p) => {
+        if (p.toString().endsWith('.agent')) return true;
+        return false;
+      });
+      vi.mocked(fs.copy).mockRejectedValue(new Error('Copy failed'));
+
+      await syncService.writeSkills([], makeConfig());
+
+      expect(console.debug).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to migrate/cleanup'),
+      );
+
+      process.env.DEBUG = originalDebug;
     });
   });
 });

@@ -382,4 +382,54 @@ describe('McpConfigService', () => {
       ).toThrow('Prototype pollution attempt detected');
     });
   });
+
+  describe('platform-specific paths', () => {
+    const originalPlatform = process.platform;
+
+    afterEach(() => {
+      Object.defineProperty(process, 'platform', { value: originalPlatform });
+    });
+
+    it('uses correct Cursor paths on Windows', async () => {
+      Object.defineProperty(process, 'platform', { value: 'win32' });
+      const targets = (service as any).getTargets();
+      expect(targets[Agent.Cursor].userFile).toContain('AppData/Roaming/Cursor');
+    });
+
+    it('uses correct Cursor paths on Linux', async () => {
+      Object.defineProperty(process, 'platform', { value: 'linux' });
+      const targets = (service as any).getTargets();
+      expect(targets[Agent.Cursor].userFile).toContain('.config/Cursor');
+    });
+
+    it('uses correct Antigravity paths on Windows', async () => {
+      Object.defineProperty(process, 'platform', { value: 'win32' });
+      const targets = (service as any).getTargets();
+      expect(targets[Agent.Antigravity].userFile).toContain('AppData/Local/Google/Antigravity');
+    });
+
+    it('uses correct Kiro paths on Windows', async () => {
+      Object.defineProperty(process, 'platform', { value: 'win32' });
+      const targets = (service as any).getTargets();
+      expect(targets[Agent.Kiro].userFile).toContain('AppData/Roaming/Kiro');
+    });
+
+    it('uses correct Windsurf paths on Windows', async () => {
+      Object.defineProperty(process, 'platform', { value: 'win32' });
+      const targets = (service as any).getTargets();
+      expect(targets[Agent.Windsurf].userFile).toContain('AppData/Roaming/Codeium/Windsurf');
+    });
+
+    it('uses correct Copilot paths on Windows', async () => {
+      Object.defineProperty(process, 'platform', { value: 'win32' });
+      const targets = (service as any).getTargets();
+      expect(targets[Agent.Copilot].userFile).toContain('AppData/Roaming/Code/User');
+    });
+
+    it('uses correct Copilot paths on Linux', async () => {
+      Object.defineProperty(process, 'platform', { value: 'linux' });
+      const targets = (service as any).getTargets();
+      expect(targets[Agent.Copilot].userFile).toContain('.config/Code/User');
+    });
+  });
 });

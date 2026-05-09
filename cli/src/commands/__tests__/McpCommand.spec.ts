@@ -1,9 +1,16 @@
+import inquirer from 'inquirer';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { Agent } from '../../constants';
 import { McpScope, SkillConfig } from '../../models/config';
 import { ConfigService } from '../../services/ConfigService';
 import { McpConfigService } from '../../services/McpConfigService';
 import { McpCommand } from '../mcp';
+
+vi.mock('inquirer', () => ({
+  default: {
+    prompt: vi.fn(),
+  },
+}));
 
 vi.mock('picocolors', () => ({
   default: {
@@ -280,7 +287,7 @@ describe('McpCommand — actionStatus mismatch detection', () => {
   it('prints report with "up-to-date" project writes', async () => {
     mockConfigService.loadConfig.mockResolvedValue(makeConfig());
     mockMcpService.install.mockResolvedValue({
-      projectWrites: [{ agent: Agent.Claude, file: '.mcp.json', action: 'up-to-date' }],
+      projectWrites: [{ agent: Agent.Claude, file: '.mcp.json', action: 'skipped-existing' }],
       userWrites: [],
       snippets: [],
       declined: [],
@@ -303,5 +310,50 @@ describe('McpCommand — actionStatus mismatch detection', () => {
     mockConfigService.loadConfig.mockResolvedValue(makeConfig());
     await command.run('invalid-action');
     expect(output()).toContain('Unknown action: invalid-action');
+  });
+
+  it('rejects invalid --scope in install', async () => {
+    mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+    await command.run('install', { scope: 'invalid' });
+    expect(output()).toContain('Invalid --scope value');
+  });
+
+  it('handles "disabled" scope in install', async () => {
+    mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+    await command.run('install', { scope: 'disabled' });
+    expect(output()).toContain('Scope is "disabled"');
+  });
+
+  describe('installPrompt Logic', () => {
+    it('should cover the userPrompt callback in actionInstall', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+      mockMcpService.install.mockImplementation(async (opts: any) => {
+        if (opts.userScopePrompt) {
+          await opts.userScopePrompt(Agent.Claude, '/home/.mcp.json');
+        }
+        return {
+          projectWrites: [],
+          userWrites: [],
+          snippets: [],
+          declined: [],
+          unsupported: [],
+        };
+      });
+
+      vi.mocked(inquirer.prompt).mockResolvedValue({ ok: true });
+
+      await command.run('install', { scope: 'user' });
+
+      expect(inquirer.prompt).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ name: 'ok' })]),
+      );
+    });
+  });
+
+  it('rejects invalid --from value in uninstall', async () => {
+    mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+    await command.run('uninstall', { from: 'invalid' });
+    expect(output()).toContain('--from must be: project | user | all');
+    expect(mockMcpService.uninstall).not.toHaveBeenCalled();
   });
 });
