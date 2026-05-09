@@ -7,6 +7,6 @@
 | ----- | ----------------------- |
 | specialist-jira-analyst | jira analysis, analyze ticket, extract reproduce steps |
 | specialist-security-reviewer | security review, vulnerability audit, OWASP check, security findings |
-| specialist-tdd-implementer | tdd implementation, red green refactor, implement ac |
+| **specialist-tdd-implementer** | tdd implementation, red green refactor, implement ac |
 
 > Load matched skills: `<SKILLS>/specialists/<skill>/SKILL.md`. Load ALL that match — the tier model already filters irrelevant ones.

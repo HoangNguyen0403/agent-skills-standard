@@ -6,6 +6,7 @@ import { AgentBridgeService } from '../cli/src/services/AgentBridgeService';
 import { IndexGeneratorServiceImpl } from '../cli/src/services/IndexGeneratorServiceImpl';
 import { MarkdownUtils } from '../cli/src/services/utils/MarkdownUtils';
 import { SpecialistSyncService } from '../cli/src/services/SpecialistSyncService';
+import { DetectionService } from '../cli/src/services/DetectionService';
 
 function getFirstLine(text: string): string {
   if (!text) return '';
@@ -113,20 +114,17 @@ async function generate() {
 
   console.log('✅ Updated AGENTS.md in repo root (Router-style)');
 
-  const agents = [
-    Agent.Cursor,
-    Agent.Windsurf,
-    Agent.Trae,
-    Agent.Roo,
-    Agent.Kiro,
-    Agent.Antigravity,
-    Agent.Claude,
-    Agent.Copilot,
-  ];
+  const detectionService = new DetectionService();
+  const detectedAgents = await detectionService.detectAgents();
+  const agents = Object.keys(detectedAgents) as Agent[];
 
-  const bridgeService = new AgentBridgeService();
-  await bridgeService.bridge(repoRoot, agents);
-  console.log('✅ Updated agent rule files');
+  if (agents.length > 0) {
+    const bridgeService = new AgentBridgeService();
+    await bridgeService.bridge(repoRoot, agents);
+    console.log(`✅ Updated agent rule files for: ${agents.join(', ')}`);
+  } else {
+    console.log('ℹ️ No active agents detected, skipping rule file updates.');
+  }
 
   // Update README.md with human-readable index
   const readmePath = path.join(skillsDir, 'README.md');
@@ -232,11 +230,14 @@ async function generate() {
   }
 
   // Final Phase: Sync specialists to native agent folders
-  try {
-    const specialistSyncService = new SpecialistSyncService();
-    await specialistSyncService.syncSpecialists(repoRoot, agents);
-  } catch (error) {
-    console.error('❌ Failed to sync specialists:', error);
+  if (agents.length > 0) {
+    try {
+      const specialistSyncService = new SpecialistSyncService();
+      await specialistSyncService.syncSpecialists(repoRoot, agents);
+      console.log(`✅ Synced specialists for: ${agents.join(', ')}`);
+    } catch (error) {
+      console.error('❌ Failed to sync specialists:', error);
+    }
   }
 }
 

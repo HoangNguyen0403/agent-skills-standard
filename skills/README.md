@@ -365,9 +365,9 @@ Expert data access and optimization patterns.
 
 Standards for specialists.
 
+- [**Specialist Tdd Implementer**](specialists/specialist-tdd-implementer/SKILL.md) (P0) - Strict TDD specialist. Enforces RED -> GREEN -> REFACTOR loop, minimal implementation, and zero-noise test conventions.
 - [**Specialist Jira Analyst**](specialists/specialist-jira-analyst/SKILL.md) (P1) - High-density JIRA analysis persona. Extracts reproduce steps, ACs, and market requirements with zero-hallucination rigor.
 - [**Specialist Security Reviewer**](specialists/specialist-security-reviewer/SKILL.md) (P1) - High-density security audit persona. Enforces OWASP Top 10, {APP_NAME} security standards, and strict tool budgets (<= 8 calls).
-- [**Specialist Tdd Implementer**](specialists/specialist-tdd-implementer/SKILL.md) (P1) - Strict TDD specialist. Enforces RED -> GREEN -> REFACTOR loop, minimal implementation, and zero-noise test conventions.
 <!-- SKILLS_INDEX_END -->
 
 ---
