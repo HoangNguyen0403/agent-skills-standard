@@ -125,6 +125,50 @@ Add to `~/.gemini/settings.json`:
 
 All accept the same stdio config. Consult each runtime's MCP docs for the exact file path; the `command`/`args` shape is identical.
 
+## Transport Modes
+
+The server supports two transport modes: **stdio** (default) and **sse** (HTTP).
+
+| Mode | Transport | Use Case |
+| --- | --- | --- |
+| **stdio** | Standard I/O | Desktop AI agents (Claude Code, Cursor, Antigravity, etc.) where the agent spawns the server as a subprocess. |
+| **sse** | HTTP (SSE) | Remote or containerized agents (GoClaw, Cloud Run) that connect over the network. |
+
+### Stdio Mode (Default)
+
+Used by most IDE-based agents. No extra configuration required. The agent manages the process lifecycle.
+
+### HTTP Mode (SSE)
+
+To run the MCP as a standalone HTTP service (e.g., for GoClaw agents):
+
+```bash
+export MCP_TRANSPORT=sse
+export PORT=8768
+npx agent-skills-standard-mcp
+```
+
+#### GoClaw Configuration
+
+Add to your `config.json`:
+
+```json
+{
+  "tools": {
+    "mcp_servers": {
+      "skills": {
+        "transport": "streamable-http",
+        "url": "http://agent-skills-mcp:8768/sse",
+        "tool_prefix": "ags_",
+        "timeout_sec": 15
+      }
+    }
+  }
+}
+```
+
+*Note: GoClaw's `streamable-http` expects the SSE endpoint. Use the `/sse` path.*
+
 ## How an agent uses it
 
 Recommended sub-agent prompt addition (works in every runtime):

@@ -5,7 +5,24 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [mcp-v0.2.0] - 2026-05-09
+
+**Category**: 🚀 Transport Modernization & Security Hardening
+
+### Changed
+
+- **`agent-skills-standard-mcp`**:
+  - **Migrated to Streamable HTTP**: Replaced the deprecated `SSEServerTransport` with `StreamableHTTPServerTransport`. This aligns the server with the latest MCP specification for more robust and efficient session management.
+  - **Enhanced Security**: Switched to `createMcpExpressApp` from the SDK, which provides built-in DNS rebinding protection and localhost security defaults.
+  - **Unified Endpoints**: Introduced a standard `/mcp` endpoint while maintaining backward compatibility for legacy `/sse` and `/messages` routes.
+  - **Multi-session Reliability**: The server now correctly handles multiple simultaneous SSE connections by leveraging the SDK's built-in session tracking.
+
+### Versions
+
+- **MCP**: `0.1.2` → `0.2.0`
+
 ## [cli-v2.2.2] / [mcp-v0.1.2] - 2026-05-09
+
 
 **Category**: 🤖 Specialist Integration & Reliability Hardening
 
