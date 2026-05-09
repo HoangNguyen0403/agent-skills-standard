@@ -6,7 +6,8 @@ import { AgentBridgeService } from '../cli/src/services/AgentBridgeService';
 import { IndexGeneratorServiceImpl } from '../cli/src/services/IndexGeneratorServiceImpl';
 import { MarkdownUtils } from '../cli/src/services/utils/MarkdownUtils';
 import { SpecialistSyncService } from '../cli/src/services/SpecialistSyncService';
-import { DetectionService } from '../cli/src/services/DetectionService';
+import { ConfigService } from '../cli/src/services/ConfigService';
+import { SyncService } from '../cli/src/services/SyncService';
 
 function getFirstLine(text: string): string {
   if (!text) return '';
@@ -114,9 +115,12 @@ async function generate() {
 
   console.log('✅ Updated AGENTS.md in repo root (Router-style)');
 
-  const detectionService = new DetectionService();
-  const detectedAgents = await detectionService.detectAgents();
-  const agents = Object.keys(detectedAgents) as Agent[];
+  const configService = new ConfigService();
+  const syncService = new SyncService();
+  const config = await configService.loadConfig();
+  
+  // Use the same resolution logic as the CLI (config > detection > empty)
+  const agents = config ? await syncService.resolveTargetAgents(config) : [];
 
   if (agents.length > 0) {
     const bridgeService = new AgentBridgeService();

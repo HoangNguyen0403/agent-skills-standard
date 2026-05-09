@@ -235,7 +235,7 @@ export class SyncService {
     return updates;
   }
 
-  private async resolveTargetAgents(config: SkillConfig): Promise<Agent[]> {
+  public async resolveTargetAgents(config: SkillConfig): Promise<Agent[]> {
     if (config.agents && config.agents.length > 0) {
       return config.agents;
     }
