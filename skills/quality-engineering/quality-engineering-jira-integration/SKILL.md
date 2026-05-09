@@ -9,7 +9,6 @@ metadata:
     - has-zephyr-tests
     - traceability
     - link test case
-    - EZRX-
 ---
 # Jira Integration Standards
 
@@ -18,7 +17,7 @@ metadata:
 ## 1. Retrieving Issue Details
 
 - **Fetch Core Info**: Retrieve **Summary**, **Description**, **Acceptance Criteria (AC)**, and **Components**.
-- **Jira Key**: ALWAYS reference issue by its unique **Jira Ticket ID** (e.g., `EZRX-123`).
+- **Jira Key**: ALWAYS reference issue by its unique **Jira Ticket ID** (e.g., `TICK-123`).
 - **Sibling Analysis**: Identify other Jira issues with same **Component** or **Market Variants** (VN/MY/SG) to find potentially impacted Zephyr TCs.
 - **Identify Links**: Use `Get Issue Link Test Cases` with Jira issue key to check for existing linked TCs before creating duplicates.
 - **Actor Mapping**: Extract reporter, assignee, and **Story Points** for context.

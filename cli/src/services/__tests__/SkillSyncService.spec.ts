@@ -195,6 +195,37 @@ describe('SkillSyncService', () => {
       );
     });
 
+    it('should prune orphaned skill directories if not overridden', async () => {
+      const config = { registry: 'https://github.com/o/r', skills: { common: {} }, prune: true } as any;
+      const skills = [{ category: 'common', skill: 'new-skill', files: [] }];
+      const agents = [Agent.Cursor];
+
+      vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+      vi.mocked(fs.readdir).mockResolvedValue(['old-skill'] as any);
+      
+      await skillSyncService.writeSkills(skills as any, config, agents);
+
+      expect(fs.remove).toHaveBeenCalledWith(expect.stringContaining('old-skill'));
+    });
+
+    it('should NOT prune directories protected by custom_overrides', async () => {
+      const config = { 
+        registry: 'https://github.com/o/r', 
+        skills: { common: {} }, 
+        prune: true,
+        custom_overrides: ['common/old-skill']
+      } as any;
+      const skills = [{ category: 'common', skill: 'new-skill', files: [] }];
+      const agents = [Agent.Cursor];
+
+      vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+      vi.mocked(fs.readdir).mockResolvedValue(['old-skill'] as any);
+      
+      await skillSyncService.writeSkills(skills as any, config, agents);
+
+      expect(fs.remove).not.toHaveBeenCalledWith(expect.stringContaining('old-skill'));
+    });
+
     it('should skip agent loop if agent definition is missing', async () => {
       const config = {} as any;
       await skillSyncService.writeSkills([], config, ['unknown' as any]);

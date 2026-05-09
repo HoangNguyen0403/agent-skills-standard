@@ -3,8 +3,8 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Generate Zephyr test cases for EZRX-3892: 'As a Customer in VN market, I can download invoices from the Order Detail screen. Web only.'",
-      "expected_output": "Run impact analysis first (Get Issue Link Test Cases). Platform = Web, so use Web_ prefix in TC name. Create TC with customFields, then Create Test Case Steps, then Create Test Case Issue Link to EZRX-3892.",
+      "prompt": "Generate Zephyr test cases for {PROJECT}-{ID}: 'As a Customer in VN market, I can download invoices from the Order Detail screen. Web only.'",
+      "expected_output": "Run impact analysis first (Get Issue Link Test Cases). Platform = Web, so use Web_ prefix in TC name. Create TC with customFields, then Create Test Case Steps, then Create Test Case Issue Link to {PROJECT}-{ID}.",
       "assertions": [
         { "type": "contains", "value": "impact analysis" },
         { "type": "contains", "value": "Web_" },
@@ -13,7 +13,7 @@
     },
     {
       "id": 2,
-      "prompt": "The Reorder button behavior changed in EZRX-4100. There are existing Zephyr TCs. What should I do?",
+      "prompt": "The Reorder button behavior changed in {PROJECT}-{ID}. There are existing Zephyr TCs. What should I do?",
       "expected_output": "Run impact analysis: Step A direct lookup via Get Issue Link Test Cases, then Step B supplemental search. Map ACs to coverage: Covered, Partial, Not Covered. For covered TCs, show before/after diff and wait for approval before updating. Do not create duplicates.",
       "assertions": [
         { "type": "contains", "value": "impact analysis" },

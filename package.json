@@ -41,7 +41,7 @@
     "mcp:start": "pnpm --filter ./mcp start",
     "mcp:test": "pnpm --filter ./mcp test",
     "calculate-tokens": "tsx scripts/calculate-tokens.ts",
-    "benchmark": "tsx scripts/benchmark/index.ts",
+    "benchmark": "tsx scripts````````````/benchmark/index.ts",
     "generate-indices": "tsx scripts/generate-indices.ts",
     "audit:skills": "tsx scripts/audit-skills.ts",
     "check-alignment": "tsx scripts/check-alignment.ts",

@@ -5,6 +5,7 @@ import { Agent } from '../cli/src/constants';
 import { AgentBridgeService } from '../cli/src/services/AgentBridgeService';
 import { IndexGeneratorServiceImpl } from '../cli/src/services/IndexGeneratorServiceImpl';
 import { MarkdownUtils } from '../cli/src/services/utils/MarkdownUtils';
+import { SpecialistSyncService } from '../cli/src/services/SpecialistSyncService';
 
 function getFirstLine(text: string): string {
   if (!text) return '';
@@ -228,6 +229,14 @@ async function generate() {
       await fs.writeFile(readmePath, readmeContent, 'utf8');
       console.log('✅ Updated skills/README.md with auto-generated index');
     }
+  }
+
+  // Final Phase: Sync specialists to native agent folders
+  try {
+    const specialistSyncService = new SpecialistSyncService();
+    await specialistSyncService.syncSpecialists(repoRoot, agents);
+  } catch (error) {
+    console.error('❌ Failed to sync specialists:', error);
   }
 }
 

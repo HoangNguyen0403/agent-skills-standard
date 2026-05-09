@@ -24,7 +24,7 @@ metadata:
  - See [Actor/Permission Matrix](../quality-engineering-business-analysis/references/analysis_patterns.md) for role/market logic.
 
 2. **Impact Analysis** (run before any TC creation)
- - **Step — Direct Lookup**: Call `Get Issue Link Test Cases` with Jira issue key (e.g., `EZRX-42302`).
+ - **Step — Direct Lookup**: Call `Get Issue Link Test Cases` with Jira issue key (e.g., `{PROJECT}-{ID}`).
  - **Step B — Supplemental**: If Step 0, search by `[Module]` and `[Screen]` keywords + check sibling issue links.
  - See [Discovery Protocol](references/impact_analysis.md) for full chain.
  - Map each AC to coverage status:
@@ -60,10 +60,10 @@ metadata:
 
 ## API Critical Notes (SmartBear MCP — `@smartbear/smartbear-mcp`)
 
-- **`Create Test Case`** requires `projectKey="EZRX"` and supports `customFields` directly (no separate Update needed for Roles/Platform).
+- **`Create Test Case`** requires `projectKey="{PROJECT}"` and supports `customFields` directly (no separate Update needed for Roles/Platform).
 - **`Create Test Case Steps`** uses `testCaseKey` + `mode` (APPEND/OVERWRITE) + `items[]`.
 - **`Create Test Case Issue Link`** uses `testCaseKey` + `issueId` (numeric Jira issue ID — get from ticket's `id` field, not key string).
-- **`Get Issue Link Test Cases`** uses `issueKey` (e.g., `EZRX-42302`) — returns linked TC keys directly.
+- **`Get Issue Link Test Cases`** uses `issueKey` (e.g., `{PROJECT}-{ID}`) — returns linked TC keys directly.
 - **`Update Test Case`** uses `testCaseKey` — only needed when modifying existing TCs, not for new creation.
 
 ## Anti-Patterns

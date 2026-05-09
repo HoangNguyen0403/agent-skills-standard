@@ -34,7 +34,7 @@ Open with an Index table, then one `###` block per TC:
 - **Platform**: Web
 - **Priority**: High
 - **Status**: Draft
-- **Labels**: VNS-Market, ezrx-XXXXX
+- **Labels**: VNS-Market, {PROJECT_KEY}-{ID}
 - **Roles**: Client user, Client admin, Internal sales rep, External sales rep (or any other exact role from Confluence like Zp admin, Root admin)
 - **Objective**: Verify [behavior]. Covers AC1.
 
@@ -43,7 +43,7 @@ Open with an Index table, then one `###` block per TC:
 
 | # | Action | Expected Result |
 |---|--------|-----------------|
-| 1 | Login to eZRx as a VN eZRx+ user | eZRx homepage is displayed |
+| 1 | Login to {APP_NAME} as a VN {APP_NAME}+ user | {APP_NAME} homepage is displayed |
 | 2 | Add data to cart → navigate to target screen | User is on [screen] |
 | 3 | Verify [element or behavior] | [Observable outcome] |
 ```

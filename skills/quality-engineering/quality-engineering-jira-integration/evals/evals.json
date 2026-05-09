@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Fetch EZRX-4521 from Jira and tell me its acceptance criteria, labels, linked components, and whether any Zephyr test cases are already linked to it.",
+      "prompt": "Fetch TICK-4521 from Jira and tell me its acceptance criteria, labels, linked components, and whether any Zephyr test cases are already linked to it.",
       "expected_output": "Fetch summary, description, AC fields, component and label list, existing Zephyr links via issue links — flag if has-zephyr-tests label already exists to avoid duplication",
       "assertions": [
         {
@@ -22,12 +22,12 @@
     },
     {
       "id": 2,
-      "prompt": "I just created Zephyr test case EZRX-T892 for the story EZRX-3301. How do I link it back and update Jira so the team knows tests exist?",
-      "expected_output": "Call Create Test Case Issue Link with EZRX-T892 → EZRX-3301, add has-zephyr-tests label to EZRX-3301, post comment 'Linked Zephyr Test Case: EZRX-T892' — single comment, not repeated",
+      "prompt": "I just created Zephyr test case TICK-T892 for the story TICK-3301. How do I link it back and update Jira so the team knows tests exist?",
+      "expected_output": "Call Create Test Case Issue Link with TICK-T892 → TICK-3301, add has-zephyr-tests label to TICK-3301, post comment 'Linked Zephyr Test Case: TICK-T892' — single comment, not repeated",
       "assertions": [
         {
           "type": "contains",
-          "value": "EZRX"
+          "value": "TICK"
         },
         {
           "type": "contains",
@@ -60,7 +60,7 @@
     }
   ],
   "should_not_trigger": [
-    "Analyze the acceptance criteria for EZRX-4521",
+    "Analyze the acceptance criteria for TICK-4521",
     "Generate new Zephyr test cases from the user story",
     "Write a widget test for the Jira integration screen",
     "Set up a CI pipeline that runs tests on every PR"

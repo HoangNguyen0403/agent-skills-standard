@@ -40,3 +40,10 @@ Set up the workspace for execution.
 
 - Create granular checklist items.
 - Ensure the first task consists of setup or structural changes."
+
+## 5. Kick-off Implementation
+
+Once the plan and tasks are ready, hand over to the implementation workflow.
+
+**Instruction**:
+"The planning phase is complete. Now run `/implement-feature docs/specs/prd-[feature_name].md` to begin the technical implementation phase."

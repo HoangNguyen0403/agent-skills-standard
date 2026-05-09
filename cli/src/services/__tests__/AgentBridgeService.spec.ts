@@ -131,6 +131,7 @@ describe('AgentBridgeService', () => {
       const agents = [Agent.Claude];
 
       (fs.pathExists as any).mockImplementation(async (p: string) => {
+        if (p.endsWith('.claude')) return true;
         if (p.endsWith('CLAUDE.md')) return true;
         return false;
       });
@@ -153,6 +154,7 @@ describe('AgentBridgeService', () => {
       const agents = [Agent.Claude];
 
       (fs.pathExists as any).mockImplementation(async (p: string) => {
+        if (p.endsWith('.claude')) return true;
         if (p.endsWith('CLAUDE.md')) return true;
         return false;
       });

@@ -1,0 +1,29 @@
+{
+  "skill_name": "common-web-visual-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Verify the fix for a broken dropdown border in the header.",
+      "expected_output": "Perform a Comparative Audit: Capture Before Fix (DOM + screenshot) → Capture After Fix → Diff. Check for side effects in neighboring elements.",
+      "assertions": [
+        { "type": "contains", "value": "Comparative Audit" },
+        { "type": "contains", "value": "Before" },
+        { "type": "contains", "value": "After" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "There's a rotating clock in the header that makes visual diffs fail. How do I fix this?",
+      "expected_output": "Apply masking rules during capture using --mask or evaluating JS to hide the element (opacity: 0) before screenshotting.",
+      "assertions": [
+        { "type": "contains", "value": "mask" },
+        { "type": "contains", "value": "opacity: 0" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Refactor the backend API",
+    "Install playwright-cli",
+    "Setup Appium"
+  ]
+}

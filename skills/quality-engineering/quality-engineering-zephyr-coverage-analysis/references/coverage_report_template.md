@@ -25,9 +25,9 @@ Date: {today} | Market: {market} | Component: {component}
 
 | AC  | Platform   | Behavior Summary | Mapped TC(s) | Status      | Risk | Gap Reason                                   |
 | --- | ---------- | ---------------- | ------------ | ----------- | ---- | -------------------------------------------- |
-| AC1 | Web        | ...              | EZRX-T9937   | Partial     | HIGH | Generic objective, no field-level validation |
+| AC1 | Web        | ...              | {PROJECT}-T9937   | Partial     | HIGH | Generic objective, no field-level validation |
 | AC2 | Mobile     | ...              | —            | Not Covered | HIGH | No TC found                                  |
-| AC3 | Web+Mobile | ...              | EZRX-T9940   | Covered     | —    | —                                            |
+| AC3 | Web+Mobile | ...              | {PROJECT}-T9940   | Covered     | —    | —                                            |
 
 Risk scoring: **HIGH** = transaction/financial/order completion | **MEDIUM** = feature behavior/conditional display | **LOW** = UI/visual/cosmetic
 

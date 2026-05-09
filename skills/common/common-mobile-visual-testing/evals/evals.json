@@ -1,0 +1,28 @@
+{
+  "skill_name": "common-mobile-visual-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Test the mobile app's performance during a long list scroll.",
+      "expected_output": "Monitor QoS metrics (appium_mobile_performance_data) during the scroll flow. Check for frame drops or memory spikes.",
+      "assertions": [
+        { "type": "contains", "value": "QoS" },
+        { "type": "contains", "value": "appium_mobile_performance_data" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "An 'Allow Notifications' system popup appeared. What should I do?",
+      "expected_output": "Execute System Alert Autonomy: Detect alert via hierarchy → Accept/Dismiss via appium_alert → Continue flow.",
+      "assertions": [
+        { "type": "contains", "value": "appium_alert" },
+        { "type": "contains", "value": "hierarchy" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Write a web test case",
+    "Fix a React bug",
+    "Configure a database"
+  ]
+}

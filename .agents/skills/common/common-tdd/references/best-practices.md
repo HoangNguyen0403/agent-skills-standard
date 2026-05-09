@@ -14,15 +14,15 @@ Extracted from industry standards (Graphite, dev.to, et al.).
 
 Structure every test clearly:
 
-1. **Arrange**: Set up the state, inputs, and mocks.
-2. **Act**: Call the method/function under test.
-3. **Assert**: Verify the result or side effects.
+1.  **Arrange**: Set up the state, inputs, and mocks.
+2.  **Act**: Call the method/function under test.
+3.  **Assert**: Verify the result or side effects.
 
 ## 3. The "Three Laws" of TDD
 
-1. You are not allowed to write any production code unless it is to make a failing unit test pass.
-2. You are not allowed to write any more of a unit test than is sufficient to fail; and compilation failures are failures.
-3. You are not allowed to write any more production code than is sufficient to pass the one failing unit test.
+1.  You are not allowed to write any production code unless it is to make a failing unit test pass.
+2.  You are not allowed to write any more of a unit test than is sufficient to fail; and compilation failures are failures.
+3.  You are not allowed to write any more production code than is sufficient to pass the one failing unit test.
 
 ## 4. Testing Philosophy
 

@@ -114,6 +114,8 @@ export interface AgentDefinition {
   workflowFormat: WorkflowFormat;
   /** Directory where transformed workflows are written (relative to cwd) */
   workflowPath: string;
+  /** Directory where native specialist agent personas are written (optional) */
+  agentPath?: string;
 }
 
 export interface FrameworkDefinition {
@@ -138,6 +140,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         detectionFiles: ['.cursor', '.cursorrules'],
         workflowFormat: 'skill',
         workflowPath: '.cursor/skills',
+        agentPath: '.cursor/agents',
       };
     case Agent.Trae:
       return {
@@ -160,9 +163,10 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         ruleExtension: '.md',
         ruleFileName: 'CLAUDE.md',
         frontmatterStyle: 'none',
-        detectionFiles: ['.claude', 'CLAUDE.md'],
+        detectionFiles: ['.claude'],
         workflowFormat: 'command',
         workflowPath: '.claude/commands',
+        agentPath: '.claude/agents',
       };
     case Agent.Copilot:
       return {
@@ -175,6 +179,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         detectionFiles: ['.github'],
         workflowFormat: 'prompt',
         workflowPath: '.github/prompts',
+        agentPath: '.github/copilot-agents',
       };
     case Agent.Antigravity:
       return {
@@ -199,6 +204,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         detectionFiles: ['.codex'],
         workflowFormat: 'skill',
         workflowPath: '.codex/skills',
+        agentPath: '.codex/agents',
       };
     case Agent.OpenCode:
       return {
@@ -211,6 +217,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         detectionFiles: ['.opencode'],
         workflowFormat: 'command',
         workflowPath: '.opencode/commands',
+        agentPath: '.opencode/agents',
       };
     case Agent.Gemini:
       return {
@@ -223,6 +230,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         detectionFiles: ['.gemini'],
         workflowFormat: 'toml',
         workflowPath: '.gemini/commands',
+        agentPath: '.gemini/agents',
       };
     case Agent.Roo:
       return {
@@ -244,7 +252,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         ruleFile: '.windsurf/rules',
         ruleExtension: '.md',
         frontmatterStyle: 'cursor',
-        detectionFiles: ['.windsurf', '.windsurfrules'],
+        detectionFiles: ['.windsurf'],
         workflowFormat: 'none',
         workflowPath: '',
       };
@@ -259,6 +267,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         detectionFiles: ['.kiro'],
         workflowFormat: 'native',
         workflowPath: '.agents/workflows',
+        agentPath: '.kiro/agents',
       };
   }
 };

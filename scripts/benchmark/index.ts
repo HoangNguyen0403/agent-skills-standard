@@ -153,6 +153,7 @@ async function main() {
   const allBenchmarks: SkillBenchmark[] = [];
 
   for (const category of categories.sort()) {
+    if (category === 'specialists') continue; // Specialists are agent personas, not benchmarked as skills
     const categoryPath = path.join(SKILLS_DIR, category);
     if (!fs.existsSync(categoryPath)) continue;
 

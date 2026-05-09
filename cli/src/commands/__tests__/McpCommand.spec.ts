@@ -284,7 +284,7 @@ describe('McpCommand — actionStatus mismatch detection', () => {
     expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
   });
 
-  it('prints report with "up-to-date" project writes', async () => {
+  it('prints report with "skipped-existing" project writes', async () => {
     mockConfigService.loadConfig.mockResolvedValue(makeConfig());
     mockMcpService.install.mockResolvedValue({
       projectWrites: [{ agent: Agent.Claude, file: '.mcp.json', action: 'skipped-existing' }],

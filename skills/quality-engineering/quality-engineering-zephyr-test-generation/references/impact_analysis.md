@@ -10,14 +10,14 @@ Use a multi-pass discovery strategy, starting with the fastest direct lookup.
 
 ### Pass 0 — Direct Issue Link Lookup (Primary — always run first)
 
-Use `Get Issue Link Test Cases` MCP tool with the Jira issue key (e.g., `EZRX-42302`).
+Use `Get Issue Link Test Cases` MCP tool with the Jira issue key (e.g., `{PROJECT}-{ID}`).
 Returns all TCs formally linked to the issue in a single call. This is the fastest and most reliable method.
 
 For each returned TC key, use `Get Test Case` to fetch full details.
 
 ### Pass 1 — Supplemental Search (only if Pass 0 yields < 3 TCs)
 
-Use `Get Test Cases` with `projectKey=EZRX` and `limit=100` to fetch recent TCs. Filter **client-side**:
+Use `Get Test Cases` with `projectKey={PROJECT}` and `limit=100` to fetch recent TCs. Filter **client-side**:
 
 - **Objective match:** TCs where `objective` text contains the issue key string
 

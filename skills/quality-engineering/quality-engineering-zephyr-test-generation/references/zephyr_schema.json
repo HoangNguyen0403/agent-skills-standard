@@ -5,26 +5,26 @@
     "projectKey": "PROJ",
     "name": "Web_Order_Verify payment term on item details screen when Enable Payment Terms is OFF",
     "objective": "Platform: Web and Mobile. Market: VN. Verify payment terms display when feature is disabled.",
-    "precondition": "- User is EZ Rx user (Customer, Admin)\n- Enable Payment Terms is ON",
+    "precondition": "- User is {APP_NAME} user (Customer, Admin)\n- Enable Payment Terms is ON",
     "folderId": 36083190,
     "priorityName": "High",
     "statusName": "Draft",
-    "labels": ["EZRX-39448", "VN-Market"]
+    "labels": ["{PROJECT}-{ID}", "VN-Market"]
   },
 
   "_comment_PUT": "PUT /v2/testcases/{key} — Update. CRITICAL: use nested objects for folder/status/priority/project. Flat folderId is silently ignored and WIPES the folder.",
   "PUT_update": {
     "id": 123456789,
-    "key": "EZRX-T9999",
+    "key": "{PROJECT}-T9999",
     "projectKey": "PROJ",
     "project": {"id": 249861},
     "name": "Web_Order_Verify payment term on item details screen when Enable Payment Terms is OFF",
     "objective": "Platform: Web and Mobile. Market: VN. Verify payment terms display when feature is disabled.",
-    "precondition": "- User is EZ Rx user (Customer, Admin)\n- Enable Payment Terms is ON",
+    "precondition": "- User is {APP_NAME} user (Customer, Admin)\n- Enable Payment Terms is ON",
     "folder": {"id": 36083190},
     "status": {"id": 4529827},
     "priority": {"id": 4529830},
-    "labels": ["EZRX-39448", "VN-Market"],
+    "labels": ["{PROJECT}-{ID}", "VN-Market"],
     "customFields": {
       "Roles": ["Root admin", "Zp admin", "Client admin", "Client user", "Internal sales rep", "External sales rep", "Return approver", "Return admin", "Return requestor", "Zp admin attachments", "Registration admin"],
       "Platform": ["Web and Mobile"]

@@ -23,6 +23,7 @@ on:
       - 'ios-v*'
       - 'swift-v*'
       - 'php-v*'
+      - 'specialist-v*'
 
 permissions:
   contents: write

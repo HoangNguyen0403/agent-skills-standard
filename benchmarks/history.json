@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-05-08T18:14:19.956Z",
+  "lastUpdated": "2026-05-09T13:24:53.915Z",
   "records": [
     {
       "version": "1.7.2",
@@ -147,8 +147,8 @@
     },
     {
       "version": "2.2.2",
-      "date": "2026-05-08T18:14:19.956Z",
-      "totalSkills": 242,
+      "date": "2026-05-09T13:24:53.915Z",
+      "totalSkills": 249,
       "avgTokens": 539,
       "savingsPctHeavy": 85,
       "avgQuality": 9.9,

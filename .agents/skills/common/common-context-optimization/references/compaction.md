@@ -21,8 +21,8 @@ Current_State:
 
 ## Recursive Summarization
 
-1. **Block 1-5**: Summarize into `State_A`.
-2. **Block 6-10**: Summarize `State_A` + `Block 6-10` -> `State_B`.
-3. _Discard_ Blocks 1-5 and State_A.
+1.  **Block 1-5**: Summarize into `State_A`.
+2.  **Block 6-10**: Summarize `State_A` + `Block 6-10` -> `State_B`.
+3.  _Discard_ Blocks 1-5 and State_A.
 
 **Crucial**: Always keep the _Original System Prompt_ and _Last 3 Messages_ uncompressed.

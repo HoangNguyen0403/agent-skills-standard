@@ -13,6 +13,7 @@ import { DetectionService } from '../../services/DetectionService';
 import { SyncService } from '../../services/SyncService';
 import { HookService } from '../../services/HookService';
 import { SyncCommand } from '../sync';
+import { Agent } from '../../constants';
 
 vi.mock('inquirer', () => ({
   default: {
@@ -50,6 +51,7 @@ describe('SyncCommand', () => {
       assembleWorkflows: vi.fn().mockResolvedValue([]),
       writeWorkflows: vi.fn(),
       reconcileWorkflows: vi.fn().mockResolvedValue(false),
+      syncSpecialists: vi.fn().mockResolvedValue(undefined),
     } as unknown as Mocked<SyncService>;
     mockConfigService = {
       loadConfig: vi.fn().mockResolvedValue({
@@ -57,6 +59,7 @@ describe('SyncCommand', () => {
         skills: {
           common: { ref: 'v1.0.0' },
         },
+        agents: [Agent.Antigravity],
         // Mark MCP as already-prompted-and-disabled so Phase 7 fast-returns.
         // Tests that exercise the MCP path should override this.
         mcp: { enabled: false, scope: 'disabled', prompted: true },
@@ -85,8 +88,8 @@ describe('SyncCommand', () => {
     // @ts-expect-error - testing private instance patching
     command.hookService = mockHookService;
 
-    vi.spyOn(console, 'log').mockImplementation(() => {});
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => { });
+    vi.spyOn(console, 'error').mockImplementation(() => { });
   });
 
   it('should run sync successfully', async () => {

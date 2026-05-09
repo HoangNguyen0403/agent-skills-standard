@@ -34,6 +34,7 @@
 | common-documentation | comment, docstring, readme, documentation |
 | **common-git-collaboration** | commit, branch, merge, pull-request, git |
 | **common-llm-security** | LLM security, prompt injection, agent security, RAG security, AI security, openai, anthropic, langchain, LLM review |
+| common-mobile-visual-testing | visual test, mobile test, verify ui, dark mode test, accessibility audit, behavioral test, visual regression, localization test |
 | **common-owasp** | security review, OWASP, broken access control, IDOR, BOLA, injection, broken auth, API review, authorization, access control |
 | **common-performance-engineering** | performance, optimize, profile, scalability, latency, throughput, memory leak, bottleneck |
 | **common-protocol-enforcement** | verify done, protocol check, self-scan, pre-write audit, task complete, audit violations, retrospective, scan, red-team |
@@ -41,5 +42,6 @@
 | common-store-changelog | generate changelog, app store notes, play store release, what's new, release notes, version notes, store release |
 | **common-system-design** | architecture, design, system, scalability, microservice, module boundary, coupling |
 | **common-ui-design** | build a page, create a component, design a dashboard, landing page, UI for, build a layout, make it look good, improve the design, build UI, create interface, design screen |
+| common-web-visual-testing | web test, browser test, responsive audit, verify web ui, cross-browser check, web accessibility |
 
 > Load matched skills: `<SKILLS>/common/<skill>/SKILL.md`. Load ALL that match — the tier model already filters irrelevant ones.

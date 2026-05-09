@@ -124,6 +124,9 @@ export class SyncCommand {
       await this.syncService.writeSkills(skills, config);
       await this.syncService.writeWorkflows(workflows, config);
 
+      // 5b. Sync specialists (sub-agents)
+      await this.syncService.syncSpecialists(config);
+
       // 6. Automatically apply framework-specific indices to AGENTS.md
       await this.syncService.applyIndices(config, config.agents);
 
@@ -334,9 +337,9 @@ export class SyncCommand {
 
   /**
    * Phase 8 — Hook installation.
-   * Idempotent: writes .claude/hooks/preedit-skill-loader.py and registers the
-   * PreToolUse entry in .claude/settings.json. Runs unconditionally on every sync
-   * so hook files stay in sync with the embedded template (e.g. after CLI upgrades).
+    * Idempotent: registers the Claude PreToolUse entry and keeps managed hook
+    * files up to date. Claude's script is preserved if already customized; Kiro's
+    * markdown hook is kept in sync with the embedded template.
    */
   private async runHookPhase(config: SkillConfig): Promise<void> {
     const agents = config.agents ?? [];

@@ -9,8 +9,8 @@
 242 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
 
 ```bash
-npx agent-skills-standard@2.2.1 init
-npx agent-skills-standard@2.2.1 sync
+npx agent-skills-standard@2.2.2 init
+npx agent-skills-standard@2.2.2 sync
 # Done. Your AI now follows your team's engineering standards.
 ```
 
@@ -165,8 +165,8 @@ Every skill is audited for token efficiency (averaging ~500 tokens) and tested w
 
 | Stack                | Key Skills                                    | Version  | Skills |
 | :------------------- | :-------------------------------------------- | :------- | :----- |
-| **Common Patterns**  | Best Practices, Security, TDD, Error Handling | `v2.0.4` | 31     |
-| **Flutter**          | BLoC, Riverpod, Architecture, Concurrency     | `v1.7.0` | 22     |
+| **Common Patterns**  | Best Practices, Security, TDD, Error Handling | `v2.1.0` | 32     |
+| **Flutter**          | BLoC, Riverpod, Architecture, Concurrency     | `v1.7.1` | 22     |
 | **React**            | Hooks, Performance, State Management          | `v1.3.5` | 8      |
 | **React Native**     | Architecture, Navigation, Performance         | `v1.4.4` | 13     |
 | **Next.js**          | App Router, Server Components, Caching, ISR   | `v1.4.4` | 18     |
@@ -174,7 +174,7 @@ Every skill is audited for token efficiency (averaging ~500 tokens) and tested w
 | **NestJS**           | Architecture, Security, BullMQ                | `v1.4.4` | 21     |
 | **TypeScript**       | Type Safety, Security, Tooling                | `v1.3.3` | 4      |
 | **JavaScript**       | ES2024+, Patterns, Tooling                    | `v1.3.4` | 3      |
-| **Go (Golang)**      | Clean Arch, Concurrency                       | `v1.3.3` | 11     |
+| **Go (Golang)**      | Clean Arch, Concurrency                       | `v1.3.4` | 11     |
 | **Spring Boot**      | Architecture, Security, JPA                   | `v1.3.3` | 10     |
 | **Android**          | Compose, Navigation 3, Edge-to-Edge, AGP 9    | `v1.4.0` | 26     |
 | **iOS**              | SwiftUI, Arch, Persistence                    | `v1.4.5` | 15     |
@@ -183,9 +183,10 @@ Every skill is audited for token efficiency (averaging ~500 tokens) and tested w
 | **Java**             | Records, Virtual Threads                      | `v1.3.3` | 5      |
 | **PHP**              | PHP 8.4+, Error Handling                      | `v1.3.4` | 7      |
 | **Laravel**          | Eloquent, Clean Arch                          | `v1.3.4` | 10     |
-| **Dart**             | Null Safety, Sealed Classes                   | `v1.3.4` | 3      |
-| **Database**         | PostgreSQL, MongoDB, Redis                    | `v1.3.3` | 3      |
-| **Quality Engineer** | BA, TDD, Zephyr, Test Gen                     | `v1.4.4` | 5      |
+| **Dart**             | Null Safety, Sealed Classes                   | `v1.3.5` | 3      |
+| **Database**         | PostgreSQL, MongoDB, Redis                    | `v1.3.4` | 3      |
+| **Quality Engineer** | BA, TDD, Zephyr, Test Gen                     | `v1.5.0` | 5      |
+| **Specialists**      | JIRA Analyst, TDD Implementer Sub Agent       | `v1.0.0` | 2      |
 
 > Full skill list with token metrics: [Skills Directory](./skills/README.md) | [Benchmark Report](./benchmark-report.md)
 
@@ -343,6 +344,14 @@ The agent reads `AGENTS.md` (maybe), walks the router (maybe), reads the matched
 
 That's the reason the MCP exists: the rules **automatically reach the working context** every time, in every runtime, including sub-agents.
 
+### 🤖 Sub-Agents & Specialists
+
+Agent Skills Standard now supports **Specialist Sub-Agents**. These are specialized personas (e.g., `@specialist-tdd-implementer`, `@specialist-jira-analyst`) that you can delegate specific parts of your workflow to.
+
+- **Strict Persona**: Specialists are "obsessed" with their specific task (e.g., following a Red-Green-Refactor loop).
+- **Context Hygiene**: By delegating to a sub-agent, the "noise" of granular implementation stays out of your main chat context.
+- **Unified Sync**: Specialists are automatically synced to your agent's native specialist folders (e.g., `.cursor/agents`, `.clauderules`) during the standard `ags sync` command.
+
 ---
 
 ## Security & Trust
@@ -423,7 +432,7 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for design details and [CLI Architectur
 
 | Version | Date | Skills | Avg Tokens | Savings (%) | Report |
 | --- | --- | --- | --- | --- | --- |
-| v2.2.2 | 2026-05-08 | 242 | 539 | 85% | [Report](benchmarks/archive/v2.2.2.md) |
+| v2.2.2 | 2026-05-09 | 249 | 539 | 85% | [Report](benchmarks/archive/v2.2.2.md) |
 | v2.2.0 | 2026-04-22 | 242 | 538 | 85% | [Report](benchmarks/archive/v2.2.0.md) |
 | v2.1.2 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.2.md) |
 | v2.1.1 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.1.md) |

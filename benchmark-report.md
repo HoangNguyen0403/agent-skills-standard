@@ -1,6 +1,6 @@
 # 📊 Agent Skill Benchmark Report
 
-> Generated: 2026-05-08T18:14:19.957Z
+> Generated: 2026-05-09T13:24:53.916Z
 > Token counting: `ceil(characters / 4)` — cl100k_base approximation.
 > Baselines: derived from **real, measured example prompts** (see Methodology).
 > Quality: structural rubric (0–10), no live LLM calls required.
@@ -18,21 +18,21 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 
 | Metric                            | Value                             |
 | --------------------------------- | --------------------------------- |
-| Total Skills Benchmarked          | **242**           |
+| Total Skills Benchmarked          | **249**           |
 | Avg. Tokens WITH Skill (SKILL.md) | **539 tokens**    |
 | Baseline: Light prompt (no skill) | **1449 tokens** ↓ see Methodology |
 | Baseline: Heavy prompt (no skill) | **3656 tokens** ↓ see Methodology |
 | Avg. Token Savings vs Light       | **63%** (910 tokens/call) |
 | Avg. Token Savings vs Heavy       | **85%** (3117 tokens/call) |
 | Avg. Quality Score                | **9.9/10** |
-| Skills with Evals                 | **242 / 242** |
+| Skills with Evals                 | **246 / 249** |
 | Avg. Eval Alignment               | **95%** (eval assertions covered by SKILL.md) |
 
 ## 📜 History
 
 | Version | Date       | Skills | Avg Tokens | Savings (%) | Quality | Report |
 | ------- | ---------- | ------ | ---------- | ----------- | ------- | ------ |
-| v2.2.2 | 2026-05-08 | 242 | 539 | 85% | 9.9/10 | [Full Report](benchmarks/archive/v2.2.2.md) |
+| v2.2.2 | 2026-05-09 | 249 | 539 | 85% | 9.9/10 | [Full Report](benchmarks/archive/v2.2.2.md) |
 | v2.2.0 | 2026-04-22 | 242 | 538 | 85% | 9.9/10 | [Full Report](benchmarks/archive/v2.2.0.md) |
 | v2.1.2 | 2026-04-11 | 237 | 516 | 86% | 10/10 | [Full Report](benchmarks/archive/v2.1.2.md) |
 | v2.1.1 | 2026-04-11 | 237 | 516 | 86% | 9.9/10 | [Full Report](benchmarks/archive/v2.1.1.md) |
@@ -129,7 +129,7 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 </details>
 
 <details>
-<summary><h3>📦 common (31 skills | avg 634 tokens | quality 10.0/10 | eval alignment 96%)</h3></summary>
+<summary><h3>📦 common (33 skills | avg 631 tokens | quality 9.9/10 | eval alignment 93%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
@@ -163,7 +163,9 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 | `common-system-design ` | 726    | ████████░░ 80%     | 10/10 | 3 | ✅ 100% |
 | `common-tdd           ` | 661    | ████████░░ 82%     | 10/10 | 3 | ✅ 100% |
 | `common-ui-design     ` | 794    | ████████░░ 78%     | 10/10 | 3 | ✅ 100% |
-| `common-workflow-writing` | 567    | ████████░░ 84%     | 10/10 | 3 | ✅ 100% |
+| `common-workflow-writing` | 568    | ████████░░ 84%     | 10/10 | 3 | ✅ 100% |
+| `common-mobile-visual-testing` | 523    | █████████░ 86%     | 9/10 | 2 | ⚠️ 50% |
+| `common-web-visual-testing` | 646    | ████████░░ 82%     | 9/10 | 2 | ⚠️ 60% |
 
 </details>
 
@@ -386,7 +388,7 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 </details>
 
 <details>
-<summary><h3>📦 quality-engineering (5 skills | avg 772 tokens | quality 10.0/10 | eval alignment 95%)</h3></summary>
+<summary><h3>📦 quality-engineering (7 skills | avg 746 tokens | quality 9.7/10 | eval alignment 91%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
@@ -395,6 +397,8 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 | `quality-engineering-quality-assurance` | 509    | █████████░ 86%     | 10/10 | 3 | ✅ 100% |
 | `quality-engineering-zephyr-coverage-analysis` | 517    | █████████░ 86%     | 10/10 | 4 | ✅ 80% |
 | `quality-engineering-zephyr-test-generation` | 1213   | ███████░░░ 67%     | 10/10 | 3 | ✅ 100% |
+| `quality-engineering-appium-mcp` | 702    | ████████░░ 81%     | 9/10 | 2 | ✅ 80% |
+| `quality-engineering-playwright-cli` | 658    | ████████░░ 82%     | 9/10 | 2 | ✅ 80% |
 
 </details>
 
@@ -432,6 +436,17 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 | `react-native-state-management` | 443    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
 | `react-native-styling ` | 335    | █████████░ 91%     | 10/10 | 3 | ✅ 100% |
 | `react-native-testing ` | 448    | █████████░ 88%     | 10/10 | 3 | ✅ 100% |
+
+</details>
+
+<details>
+<summary><h3>📦 specialists (3 skills | avg 449 tokens | quality 8.0/10 | eval alignment 0%)</h3></summary>
+
+| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |
+| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |
+| `specialist-jira-analyst` | 393    | █████████░ 89%     | 8/10 | ❌ none | n/a |
+| `specialist-security-reviewer` | 491    | █████████░ 87%     | 8/10 | ❌ none | n/a |
+| `specialist-tdd-implementer` | 463    | █████████░ 87%     | 8/10 | ❌ none | n/a |
 
 </details>
 
@@ -480,6 +495,15 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 | `typescript-tooling   ` | 689    | ████████░░ 81%     | 10/10 | 3 | ✅ 100% |
 
 </details>
+
+## ⚠️ Low Eval Alignment — Skills to Review
+
+> These skills have evals but SKILL.md content does not cover ≥70% of what the evals test. The skill may not actually improve agent behavior for its target scenarios.
+
+| Skill                   | Category | Alignment | Evals | Action |
+| ----------------------- | -------- | --------- | ----- | ------ |
+| `common-mobile-visual-testing` | common   | ⚠️ 50% | 2 | Add missing terms from eval assertions to SKILL.md |
+| `common-web-visual-testing` | common   | ⚠️ 60% | 2 | Add missing terms from eval assertions to SKILL.md |
 
 ## 🏆 Quality Leaders
 

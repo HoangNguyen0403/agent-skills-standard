@@ -64,7 +64,7 @@ describe('SkillDiscoveryService', () => {
   });
 
   describe('findChangedSkills', () => {
-    it('should mergre changed and untracked skill files', async () => {
+    it('should merge changed and untracked skill files', async () => {
       vi.mocked(GitService.prototype.findProjectRoot).mockReturnValue('/app');
       vi.mocked(GitService.prototype.getChangedFiles).mockReturnValue([
         'skills/a/SKILL.md',
@@ -86,15 +86,17 @@ describe('SkillDiscoveryService', () => {
 
   describe('error handling with DEBUG', () => {
     let originalDebug: string | undefined;
+    let warnSpy: ReturnType<typeof vi.spyOn>;
 
     beforeEach(() => {
       originalDebug = process.env.DEBUG;
       process.env.DEBUG = 'true';
-      vi.spyOn(console, 'warn').mockImplementation(() => {});
+      warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     });
 
     afterEach(() => {
       process.env.DEBUG = originalDebug;
+      warnSpy.mockRestore();
     });
 
     it('should log warning when stat fails and DEBUG is true', async () => {

@@ -38,7 +38,7 @@
   ],
   "should_not_trigger": [
     "Create Zephyr test cases and push them to Zephyr Scale",
-    "Analyze the business logic in the EZRX-4521 AC",
+    "Analyze the business logic in the {PROJECT}-{ID} AC",
     "Write a Patrol integration test for the checkout flow",
     "Set up a QA automation framework with Playwright"
   ]

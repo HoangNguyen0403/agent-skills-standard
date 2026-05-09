@@ -1,0 +1,29 @@
+{
+  "skill_name": "quality-engineering-playwright-cli",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Verify the search results on SG market using playwright-cli.",
+      "expected_output": "Sequence: 1. open with -s=verify-search, 2. snapshot --aria to verify results, 3. screenshot, 4. close session. Always use named session.",
+      "assertions": [
+        { "type": "contains", "value": "-s=" },
+        { "type": "contains", "value": "snapshot --aria" },
+        { "type": "contains", "value": "close" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I need to take a screenshot of a sticky header that only appears after scrolling.",
+      "expected_output": "Use 'hover' to scroll the header into view before calling 'screenshot'.",
+      "assertions": [
+        { "type": "contains", "value": "hover" },
+        { "type": "contains", "value": "screenshot" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Write a unit test for the search component",
+    "Explain how CSS grid works",
+    "Analyze the mobile app hierarchy"
+  ]
+}

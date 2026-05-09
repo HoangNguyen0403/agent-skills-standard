@@ -145,8 +145,8 @@ export interface HookStatusRow {
  * which is written by SyncService — no separate hook file is needed.
  *
  * Settings writes are idempotent and merge existing content.
- * Generated hook files are only created when missing, and are not overwritten
- * if the user has already customized them.
+ * Claude hook script is created once and preserved if customized.
+ * Kiro hook markdown stays in sync with the embedded template.
  */
 export class HookService {
   async install(opts: {

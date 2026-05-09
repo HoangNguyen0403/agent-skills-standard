@@ -218,7 +218,7 @@ describe('HookService', () => {
       expect(kiroWrite?.action).toBe('added');
     });
 
-    it('reports action=updated on subsequent install', async () => {
+    it('reports action=skipped-existing on subsequent install', async () => {
       await service.install({ rootDir: root, agents: [Agent.Kiro] });
       const report = await service.install({ rootDir: root, agents: [Agent.Kiro] });
 

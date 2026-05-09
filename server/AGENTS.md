@@ -17,7 +17,7 @@ If the `agent-skills-standard` MCP server is registered in your runtime (check y
 
 > [!IMPORTANT] **Sub-agents don't inherit this `AGENTS.md` — they do inherit the MCP.** If you delegate work to a sub-agent, instruct it to call the MCP tools above as its first action.
 
-> [!NOTE] To enable MCP-managed installs in this project, run `ags mcp enable` (or edit `.skillsrc`). The MCP works fine if you registered it manually too.
+> [!TIP] **This project has the MCP server enabled in `.skillsrc`** — `sync` keeps your runtime configs in step. Run `ags mcp status` to verify per-agent installation.
 
 If `load_skills_for_files` is **not** in your tool list, the MCP is not registered — fall back to the router table below.
 

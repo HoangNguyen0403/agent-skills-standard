@@ -1,0 +1,29 @@
+{
+  "skill_name": "quality-engineering-appium-mcp",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a LambdaTest session for a Samsung S26 device and login to the app.",
+      "expected_output": "Use action=create with capabilities including 'appium:noReset': true for session resiliency. Follow with session_management delete at the end.",
+      "assertions": [
+        { "type": "contains", "value": "noReset" },
+        { "type": "contains", "value": "action=create" },
+        { "type": "contains", "value": "delete" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How should I click a button labeled 'Submit' in a Flutter app using Appium MCP?",
+      "expected_output": "Prefer semantic identification via 'accessibility id' or 'uiautomator' text match over fragile coordinates unless it's a raw canvas interaction.",
+      "assertions": [
+        { "type": "contains", "value": "accessibility id" },
+        { "type": "contains", "value": "uiautomator" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Run web browser tests",
+    "Fix a JS syntax error",
+    "Analyze git commit logs"
+  ]
+}

@@ -11,6 +11,7 @@ import { GithubService } from './GithubService';
 import { IndexGeneratorServiceImpl } from './IndexGeneratorServiceImpl';
 import { SkillSyncService } from './SkillSyncService';
 import { WorkflowSyncService } from './WorkflowSyncService';
+import { SpecialistSyncService } from './SpecialistSyncService';
 import { MarkdownUtils } from './utils/MarkdownUtils';
 
 /**
@@ -24,6 +25,7 @@ export class SyncService {
   private githubService = new GithubService(process.env.GITHUB_TOKEN);
   private skillSyncService = new SkillSyncService(this.githubService);
   private workflowSyncService = new WorkflowSyncService(this.githubService);
+  private specialistSyncService = new SpecialistSyncService();
 
   async reconcileConfig(
     config: SkillConfig,
@@ -73,6 +75,30 @@ export class SyncService {
   ): Promise<void> {
     const agents = await this.resolveTargetAgents(config);
     return this.workflowSyncService.writeWorkflows(workflows, config, agents);
+  }
+
+  async syncSpecialists(config: SkillConfig): Promise<void> {
+    const agents = await this.resolveTargetAgents(config);
+    if (agents.length === 0) return;
+
+    // We look for specialists in the primary agent's skill path
+    // Default to the repository structure if running internally
+    const primaryAgent = SUPPORTED_AGENTS.find((a) => a.id === agents[0]);
+    const sourceDir = primaryAgent
+      ? path.join(process.cwd(), primaryAgent.path, 'specialists')
+      : path.join(process.cwd(), 'skills/specialists');
+
+    // If the local directory doesn't exist, we fall back to the internal repo path
+    // (useful for developers working within the agent-skills-standard repo)
+    const finalSourceDir = (await fs.pathExists(sourceDir))
+      ? sourceDir
+      : path.join(process.cwd(), 'skills/specialists');
+
+    return this.specialistSyncService.syncSpecialists(
+      process.cwd(),
+      agents,
+      finalSourceDir,
+    );
   }
 
   async applyIndices(
@@ -223,7 +249,9 @@ export class SyncService {
       return detected;
     }
 
-    return [Agent.Cursor, Agent.Antigravity, Agent.Kiro];
+    // Return empty if no agents are detected and none are configured.
+    // This ensures we never create "ghost" directories in the workspace.
+    return [];
   }
 
   private async cleanupOldFolders(): Promise<void> {
@@ -232,19 +260,11 @@ export class SyncService {
 
     if (await fs.pathExists(oldPath)) {
       try {
-        // Migrate content to .agents if it doesn't already exist there
-        if (await fs.pathExists(newPath)) {
-          const items = await fs.readdir(oldPath);
-          for (const item of items) {
-            const src = path.join(oldPath, item);
-            const dest = path.join(newPath, item);
-            if (!(await fs.pathExists(dest))) {
-              await fs.copy(src, dest);
-            }
-          }
-        } else {
-          await fs.copy(oldPath, newPath);
-        }
+        // Merge old content into the new folder without overwriting user files.
+        await fs.copy(oldPath, newPath, {
+          overwrite: false,
+          errorOnExist: false,
+        });
 
         await fs.remove(oldPath);
         console.log(

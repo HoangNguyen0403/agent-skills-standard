@@ -3,10 +3,10 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Can you check the coverage for EZRX-42302? I want to know if we have enough test cases before we ship this sprint. We're planning a release next week and the QE lead asked me to run a coverage check.",
-      "expected_output": "Fetches EZRX-42302, extracts ACs with platform info, searches Zephyr for linked TCs, produces coverage_analysis_report.md with Dashboard (covered/partial/not-covered %), AC heatmap with risk scores, and prioritized action plan. Does NOT create any new test cases.",
+      "prompt": "Can you check the coverage for {PROJECT}-{ID}? I want to know if we have enough test cases before we ship this sprint. We're planning a release next week and the QE lead asked me to run a coverage check.",
+      "expected_output": "Fetches {PROJECT}-{ID}, extracts ACs with platform info, searches Zephyr for linked TCs, produces coverage_analysis_report.md with Dashboard (covered/partial/not-covered %), AC heatmap with risk scores, and prioritized action plan. Does NOT create any new test cases.",
       "assertions": [
-        { "type": "contains", "value": "EZRX-42302" },
+        { "type": "contains", "value": "{PROJECT}-{ID}" },
         { "type": "contains", "value": "coverage_analysis_report.md" },
         { "type": "contains", "value": "covered" },
         { "type": "contains", "value": "HIGH" }
@@ -14,7 +14,7 @@
     },
     {
       "id": 2,
-      "prompt": "EZRX-42305 coverage audit please. I'm a QE manager and I need to know which acceptance criteria don't have test cases yet, and whether any of the existing TCs have quality issues like wrong labels or combined steps that could mask failures.",
+      "prompt": "{PROJECT}-{ID} coverage audit please. I'm a QE manager and I need to know which acceptance criteria don't have test cases yet, and whether any of the existing TCs have quality issues like wrong labels or combined steps that could mask failures.",
       "expected_output": "Runs full coverage audit: maps each AC to TCs, flags partial/uncovered slots, identifies TC quality issues (traceability gaps, combined TCs, generic objectives). Surfaces QE debt items. Outputs coverage_analysis_report.md. Does not create TCs.",
       "assertions": [
         { "type": "contains", "value": "Not Covered" },
@@ -24,7 +24,7 @@
     },
     {
       "id": 3,
-      "prompt": "Before we close EZRX-42310, can you give me the test coverage breakdown? I need to show the release manager what percentage of ACs are covered and what the risk is if we ship with the current gaps.",
+      "prompt": "Before we close {PROJECT}-{ID}, can you give me the test coverage breakdown? I need to show the release manager what percentage of ACs are covered and what the risk is if we ship with the current gaps.",
       "expected_output": "Produces coverage_analysis_report.md with Executive Dashboard showing coverage %, Prioritized Action Plan with P1 must-have TCs before release, and release readiness verdict. Risk-scores each coverage gap.",
       "assertions": [
         { "type": "contains", "value": "coverage" },
@@ -34,7 +34,7 @@
     },
     {
       "id": 4,
-      "prompt": "Generate test cases for EZRX-42302. I want to create Zephyr TCs for all the acceptance criteria in this ticket.",
+      "prompt": "Generate test cases for {PROJECT}-{ID}. I want to create Zephyr TCs for all the acceptance criteria in this ticket.",
       "expected_output": "Should NOT trigger this skill — should trigger quality-engineering-zephyr-test-generation instead. This is a TC creation request, not a coverage analysis request.",
       "assertions": [
         { "type": "not_contains", "value": "coverage_analysis_report.md" }
@@ -42,8 +42,8 @@
     }
   ],
   "should_not_trigger": [
-    "Create Zephyr TCs for EZRX-42302 and tag them for regression",
-    "Analyze the business logic of the 'Add to Cart' flow in EZRX-41000",
+    "Create Zephyr TCs for {PROJECT}-{ID} and tag them for regression",
+    "Analyze the business logic of the 'Add to Cart' flow in {PROJECT}-{ID}",
     "Explain why the ACs in this ticket are poorly written",
     "Write a unit test for the coverage calculation service",
     "Schedule a meeting with the business analyst to discuss ACs",

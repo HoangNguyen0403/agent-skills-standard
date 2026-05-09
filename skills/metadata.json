@@ -287,7 +287,7 @@
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 11685,
+        "total_tokens": 11684,
         "avg_tokens_per_skill": 531,
         "largest_skill": "flutter-testing (846 tokens)"
       }
@@ -374,21 +374,32 @@
       "last_updated": "2026-05-08",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 31,
-        "total_tokens": 19649,
-        "avg_tokens_per_skill": 634,
+        "total_skills": 33,
+        "total_tokens": 20727,
+        "avg_tokens_per_skill": 628,
         "largest_skill": "common-skill-creator (1354 tokens)"
       }
     },
     "quality-engineering": {
-      "version": "1.4.4",
-      "last_updated": "2026-04-22",
+      "version": "1.5.0",
+      "last_updated": "2026-05-09",
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
-        "total_skills": 5,
-        "total_tokens": 3860,
-        "avg_tokens_per_skill": 772,
-        "largest_skill": "quality-engineering-zephyr-test-generation (1213 tokens)"
+        "total_skills": 7,
+        "total_tokens": 5236,
+        "avg_tokens_per_skill": 748,
+        "largest_skill": "quality-engineering-zephyr-test-generation (1216 tokens)"
+      }
+    },
+    "specialists": {
+      "version": "1.0.0",
+      "last_updated": "2026-05-09",
+      "tag_prefix": "specialists-v",
+      "token_metrics": {
+        "total_skills": 3,
+        "total_tokens": 1371,
+        "avg_tokens_per_skill": 457,
+        "largest_skill": "specialist-security-reviewer (500 tokens)"
       }
     },
     "golang": {
