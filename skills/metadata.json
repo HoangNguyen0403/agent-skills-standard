@@ -287,7 +287,7 @@
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 11684,
+        "total_tokens": 11685,
         "avg_tokens_per_skill": 531,
         "largest_skill": "flutter-testing (846 tokens)"
       }

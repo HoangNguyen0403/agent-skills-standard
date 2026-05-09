@@ -6,11 +6,15 @@
   "pnpm": {
     "overrides": {
       "lodash": "npm:lodash-es@^4.17.21",
-      "path-to-regexp": ">=8.4.0",
-      "ip-address": ">=10.1.1",
-      "hono": ">=4.12.16",
-      "fast-uri": ">=3.1.1",
-      "picomatch@^4": "4.0.4"
+      "path-to-regexp": ">=8.4.2",
+      "ip-address": ">=10.2.0",
+      "hono": ">=4.12.18",
+      "fast-uri": ">=3.1.2",
+      "picomatch": ">=4.0.4",
+      "serialize-javascript": ">=7.0.5",
+      "vite": ">=7.3.2",
+      "postcss": ">=8.5.10",
+      "ajv": ">=8.18.0"
     }
   },
   "scripts": {

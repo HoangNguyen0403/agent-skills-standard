@@ -71,9 +71,9 @@ describe('WorkflowTransformer', () => {
       const result = WorkflowTransformer.transform(
         SOURCE,
         'toml',
-        '.agent/workflows',
+        '.agents/workflows',
       );
-      expect(result!.content).toContain('.agent/workflows/code-review.md');
+      expect(result!.content).toContain('.agents/workflows/code-review.md');
     });
 
     it('should include {{args}} placeholder', () => {

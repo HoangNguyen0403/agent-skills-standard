@@ -80,8 +80,8 @@ async function main() {
 
     // Verify Sync Output
     console.log(pc.cyan('   Verifying sync results...'));
-    const agentSkillsDir = path.join(TEMP_DIR, '.agent', 'skills');
-    const agentWorkflowsDir = path.join(TEMP_DIR, '.agent', 'workflows');
+    const agentSkillsDir = path.join(TEMP_DIR, '.agents', 'skills');
+    const agentWorkflowsDir = path.join(TEMP_DIR, '.agents', 'workflows');
 
     if (!fs.existsSync(agentSkillsDir)) {
       throw new Error('Sync failed: .agents/skills directory was not created.');
@@ -98,7 +98,7 @@ async function main() {
     // Verify Workflows
     if (!fs.existsSync(agentWorkflowsDir)) {
       throw new Error(
-        'Sync failed: .agent/workflows directory was not created.',
+        'Sync failed: .agents/workflows directory was not created.',
       );
     }
     const workflowFiles = await fs.readdir(agentWorkflowsDir);

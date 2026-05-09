@@ -1,0 +1,14 @@
+registry: https://github.com/HoangNguyen0403/agent-skills-standard
+agents:
+  - antigravity
+skills:
+  flutter:
+    ref: flutter-v1.7.0
+    include:
+      - flutter-navigation
+      - widgets
+workflows: true
+mcp:
+  enabled: true
+  scope: project
+  prompted: true

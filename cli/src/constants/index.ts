@@ -258,7 +258,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         frontmatterStyle: 'cursor',
         detectionFiles: ['.kiro'],
         workflowFormat: 'native',
-        workflowPath: '.agent/workflows',
+        workflowPath: '.agents/workflows',
       };
   }
 };

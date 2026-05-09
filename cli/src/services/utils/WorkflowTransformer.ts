@@ -3,7 +3,7 @@ import { WorkflowFormat } from '../../constants';
 interface WorkflowSource {
   /** Original filename (e.g., 'code-review.md') */
   name: string;
-  /** Raw markdown content from .agent/workflows/ */
+  /** Raw markdown content from .agents/workflows/ */
   content: string;
 }
 
@@ -20,11 +20,11 @@ interface TransformedWorkflow {
  * Workflows are NOT rules or agents — they are multi-step procedures the user
  * explicitly invokes (e.g., "run code-review"). Each agent has a different mechanism:
  *
- * - native:  Keep as-is in .agent/workflows/ (Antigravity, Kiro)
+ * - native:  Keep as-is in .agents/workflows/ (Antigravity, Kiro)
  * - command: Claude Code custom slash command (.claude/commands/*.md)
  *            User invokes via /command-name. Supports $ARGUMENTS for parameters.
  * - toml:    Gemini CLI command file (.gemini/commands/*.toml)
- *            Points to the .agent/workflows/ source via a prompt field.
+ *            Points to the .agents/workflows/ source via a prompt field.
  * - prompt:  Copilot reusable prompt file (.github/prompts/*.prompt.md)
  *            User invokes via /prompt-name in Copilot chat.
  * - none:    Agent has no verified user-invoked command system — skip.
@@ -33,7 +33,7 @@ export class WorkflowTransformer {
   static transform(
     source: WorkflowSource,
     format: WorkflowFormat,
-    workflowSourcePath: string = '.agent/workflows',
+    workflowSourcePath: string = '.agents/workflows',
   ): TransformedWorkflow | null {
     if (format === 'none') return null;
 

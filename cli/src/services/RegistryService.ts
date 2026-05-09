@@ -60,7 +60,7 @@ export class RegistryService {
           const workflows = allFiles
             .filter(
               (f) =>
-                f.path.startsWith('.agent/workflows/') &&
+                f.path.startsWith('.agents/workflows/') &&
                 f.path.endsWith('.md'),
             )
             .map((f) => path.basename(f.path, '.md'));

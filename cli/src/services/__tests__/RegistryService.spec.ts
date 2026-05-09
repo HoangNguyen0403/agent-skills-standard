@@ -53,11 +53,11 @@ describe('RegistryService', () => {
       expect(mockGithub.getRepoTree).toHaveBeenCalledWith('o', 'r', 'develop');
     });
 
-    it('should discover workflows from .agent/workflows/ path (line 66 coverage)', async () => {
+    it('should discover workflows from .agents/workflows/ path (line 66 coverage)', async () => {
       mockGithub.getRepoTree.mockResolvedValue({
         tree: [
-          { path: '.agent/workflows/test-wf.md', type: 'blob' },
-          { path: '.agent/workflows/readme.txt', type: 'blob' }, // should be filtered out
+          { path: '.agents/workflows/test-wf.md', type: 'blob' },
+          { path: '.agents/workflows/readme.txt', type: 'blob' }, // should be filtered out
         ],
       });
       const result = await service.discoverRegistry('url');

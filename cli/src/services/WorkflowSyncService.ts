@@ -32,7 +32,10 @@ export class WorkflowSyncService {
 
     const availableWorkflows = treeData.tree
       .filter(
-        (f) => f.path.startsWith('.agents/workflows/') && f.path.endsWith('.md'),
+        (f) =>
+          (f.path.startsWith('.agents/workflows/') ||
+            f.path.startsWith('.agent/workflows/')) &&
+          f.path.endsWith('.md'),
       )
       .map((f) => path.basename(f.path, '.md'));
 
@@ -95,8 +98,11 @@ export class WorkflowSyncService {
     }
 
     const workflowFiles = treeData.tree.filter((f) => {
-      if (!f.path.startsWith('.agents/workflows/') || !f.path.endsWith('.md'))
-        return false;
+      const isMatch = (f.path.startsWith('.agents/workflows/') ||
+          f.path.startsWith('.agent/workflows/')) &&
+        f.path.endsWith('.md');
+      
+      if (!isMatch) return false;
 
       if (typeof config.workflows === 'boolean') return config.workflows;
       if (Array.isArray(config.workflows)) {
@@ -104,6 +110,12 @@ export class WorkflowSyncService {
       }
       return false;
     });
+
+    console.log(pc.gray(`    - Found ${workflowFiles.length} potential workflow files in registry tree.`));
+    if (workflowFiles.length === 0) {
+      const allPaths = treeData.tree.map(t => t.path).slice(0, 10).join(', ');
+      console.log(pc.gray(`    - First 10 paths in tree: ${allPaths}`));
+    }
 
     const files = await this.githubService.downloadFilesConcurrent(
       workflowFiles.map((f) => ({ owner, repo, ref, path: f.path })),
@@ -128,7 +140,7 @@ export class WorkflowSyncService {
 
   /**
    * Writes collected workflows to each active agent's native format.
-   * - Antigravity/Kiro: .agent/workflows/*.md (native)
+    * - Antigravity/Kiro: .agents/workflows/*.md (native)
    * - Claude/Gemini: .<agent>/agents/workflow-*.md (agent definition)
    * - Cursor/Windsurf/Trae: .<agent>/rules/workflow-*.mdc (rule)
    * - Copilot: .github/instructions/workflow-*.instructions.md (instruction)

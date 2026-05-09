@@ -21,9 +21,9 @@ metadata:
 - **Layout**:
   - Spacing: Prefer `spacing` parameter on `Row`/`Column` (Flutter 3.10+) over inserting `SizedBox`/`Gap` between children.
   - Fallback: Use `Gap(n)` or `SizedBox` only when `spacing` cannot express the layout (e.g., conditional gaps).
- - Spacing: Use `Gap(n)` or `SizedBox` over `Padding` for simple gaps.
- - Empty UI: Use `const SizedBox.shrink()`.
- - Intrinsic: Avoid `IntrinsicWidth/Height`; use `Stack` + `FractionallySizedBox` for overlays.
+  - Empty UI: Use `const SizedBox.shrink()`.
+  - Intrinsic: Avoid `IntrinsicWidth/Height`; use `Stack` + `FractionallySizedBox` for overlays.
+- **Spacing**: Use `Gap(n)` or `SizedBox` over `Padding` for simple gaps.
 - **Optimization**: Use `ColoredBox`/`Padding`/`DecoratedBox` instead of `Container` when possible.
 - **Themes**: Use extensions for `Theme.of(context)` access.
 

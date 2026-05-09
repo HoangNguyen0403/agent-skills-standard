@@ -1,7 +1,8 @@
 {
   "chat.tools.terminal.autoApprove": {
     "mkdir": true,
-    "npx vitest": true
+    "npx vitest": true,
+    "rtk": true
   },
   "[markdown]": {
     "editor.formatOnSave": true,
