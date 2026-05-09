@@ -13,8 +13,7 @@
       "picomatch": ">=4.0.4",
       "serialize-javascript": ">=7.0.5",
       "vite": ">=7.3.2",
-      "postcss": ">=8.5.10",
-      "ajv": ">=8.18.0"
+      "postcss": ">=8.5.10"
     }
   },
   "scripts": {

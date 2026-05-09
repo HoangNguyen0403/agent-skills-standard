@@ -1,8 +1,8 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { z } from 'zod';
-import { ResolvedConfig } from './config';
-import { SessionTracker } from './services/SessionTracker';
-import { SkillIndex } from './services/SkillIndex';
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { z } from "zod";
+import { ResolvedConfig } from "./config";
+import { SessionTracker } from "./services/SessionTracker";
+import { SkillIndex } from "./services/SkillIndex";
 import {
   auditSessionCompliance,
   auditSessionComplianceSchema,
@@ -15,7 +15,7 @@ import {
   loadSkillsForKeywords,
   loadSkillsForKeywordsSchema,
   ToolResult,
-} from './tools';
+} from "./tools";
 
 interface ToolDef {
   name: string;
@@ -104,8 +104,8 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
 
   const server = new McpServer(
     {
-      name: 'agent-skills-standard-mcp',
-      version: '0.1.1',
+      name: "agent-skills-standard-mcp",
+      version: "0.1.1",
     },
     {
       instructions: SERVER_INSTRUCTIONS,
@@ -113,8 +113,8 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   );
 
   register(server, {
-    name: 'load_skills_for_files',
-    title: 'Load skills for files',
+    name: "load_skills_for_files",
+    title: "Load skills for files",
     description: `<use_case>Load the project's coding-standard rules (SKILL.md files) that apply to one or more files you are about to edit, write, or review. The router maps each file's extension to relevant skill categories and returns the matched rules.</use_case>
 
 <aliases>"what are our team's rules for editing X", "show project conventions for X", "review standards for file X", "how should I implement this in file Y"</aliases>
@@ -132,8 +132,8 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   });
 
   register(server, {
-    name: 'load_skills_for_keywords',
-    title: 'Load skills for keywords',
+    name: "load_skills_for_keywords",
+    title: "Load skills for keywords",
     description: `<use_case>Load skills by matching concept words from the user's request, when no specific file is in scope yet. Useful at the planning stage of a task ("add JWT auth", "speed up homepage", "migrate schema").</use_case>
 
 <aliases>"what does our team say about X", "rules around the topic Y", "best practices for concept Z", "team approach to authentication/performance/migrations"</aliases>
@@ -150,8 +150,8 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   });
 
   register(server, {
-    name: 'get_skill',
-    title: 'Get a specific skill by category and name',
+    name: "get_skill",
+    title: "Get a specific skill by category and name",
     description: `<use_case>Direct lookup for a single skill when you already know exactly which one you need (e.g. you saw it referenced in another skill's "References" section, or in a previous load_skills_for_files response).</use_case>
 
 <aliases>"open the X skill", "show me the X/Y rule", "fetch the rules for category X skill Y"</aliases>
@@ -168,8 +168,8 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   });
 
   register(server, {
-    name: 'list_categories',
-    title: 'List all skill categories available in this project',
+    name: "list_categories",
+    title: "List all skill categories available in this project",
     description: `<use_case>Discover what skill categories are installed in this project, the file extensions each handles, and how many skills are in each. Use to scope work or to pick a category for follow-up tool calls.</use_case>
 
 <aliases>"what skills do we have", "show me all categories", "what frameworks are covered", "list the project rules"</aliases>
@@ -184,8 +184,8 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   });
 
   register(server, {
-    name: 'audit_session_compliance',
-    title: 'Audit which skills were loaded in this session',
+    name: "audit_session_compliance",
+    title: "Audit which skills were loaded in this session",
     description: `<use_case>Return the list of skills loaded so far in this session, plus the tool calls that loaded them. Use this BEFORE claiming a task is complete or posting a code review, so you can verify the relevant rules were actually consulted.</use_case>
 
 <aliases>"which rules did I load", "what skills are active", "show my compliance log", "did I check the right standards", "audit my work"</aliases>

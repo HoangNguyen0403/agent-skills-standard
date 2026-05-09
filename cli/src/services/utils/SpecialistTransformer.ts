@@ -25,7 +25,7 @@ export class SpecialistTransformer {
     const parts = source.content.split('---');
     if (parts.length < 3) return null;
 
-    const metadata = yaml.load(parts[1]) as any;
+    const metadata = yaml.load(parts[1]) as Record<string, unknown>;
     const body = parts.slice(2).join('---').trim();
     const baseName = source.name.replace(/^specialist-/, '');
     const fullName = source.name;
