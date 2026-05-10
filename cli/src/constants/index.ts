@@ -81,6 +81,9 @@ export const DEFAULT_WORKFLOWS = [
   'plan-feature',
   'skill-benchmark',
   'pentest',
+  'dev-fix',
+  'implement-feature',
+  'verify-bug',
 ];
 
 // Configurable via ENV or hardcoded for production convenience

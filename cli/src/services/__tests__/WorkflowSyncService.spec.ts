@@ -91,7 +91,25 @@ describe('WorkflowSyncService', () => {
       expect(result).toBe(false);
     });
 
-    it('should initialize workflows if undefined and true', async () => {
+    it('should initialize workflows to default array if undefined', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [{ path: '.agents/workflows/code-review.md' }],
+      });
+
+      const result = await workflowSyncService.reconcileWorkflows(config);
+
+      expect(result).toBe(true);
+      expect(Array.isArray(config.workflows)).toBe(true);
+      expect(config.workflows).toContain('code-review');
+    });
+
+    it('should preserve workflows: true as a stable state', async () => {
       const config = {
         registry: 'https://github.com/o/r',
         workflows: true,
@@ -105,8 +123,8 @@ describe('WorkflowSyncService', () => {
 
       const result = await workflowSyncService.reconcileWorkflows(config);
 
-      expect(result).toBe(true);
-      expect(config.workflows).toEqual(['code-review']);
+      expect(result).toBe(false); // No change to .skillsrc
+      expect(config.workflows).toBe(true);
     });
   });
 

@@ -103,4 +103,20 @@ export class GitService {
       return [];
     }
   }
+
+  /**
+   * Retrieves the URL of the 'origin' remote.
+   * @param rootDir The root directory of the repository
+   */
+  getRemoteUrl(rootDir: string): string | null {
+    try {
+      const output = execSync('git remote get-url origin', {
+        cwd: rootDir,
+        encoding: 'utf8',
+      });
+      return output.trim();
+    } catch {
+      return null;
+    }
+  }
 }

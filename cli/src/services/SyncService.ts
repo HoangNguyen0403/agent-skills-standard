@@ -12,6 +12,7 @@ import { IndexGeneratorServiceImpl } from './IndexGeneratorServiceImpl';
 import { SkillSyncService } from './SkillSyncService';
 import { WorkflowSyncService } from './WorkflowSyncService';
 import { SpecialistSyncService } from './SpecialistSyncService';
+import { GitService } from './GitService';
 import { MarkdownUtils } from './utils/MarkdownUtils';
 
 /**
@@ -26,6 +27,7 @@ export class SyncService {
   private skillSyncService = new SkillSyncService(this.githubService);
   private workflowSyncService = new WorkflowSyncService(this.githubService);
   private specialistSyncService = new SpecialistSyncService();
+  private gitService = new GitService();
 
   async reconcileConfig(
     config: SkillConfig,
@@ -53,7 +55,34 @@ export class SyncService {
     categories: string[],
     config: SkillConfig,
   ): Promise<CollectedSkill[]> {
+    await this.warnIfSyncingFromSameRepo(config);
     return this.skillSyncService.assembleSkills(categories, config);
+  }
+
+  private async warnIfSyncingFromSameRepo(config: SkillConfig) {
+    const remoteUrl = this.gitService.getRemoteUrl(process.cwd());
+    if (!remoteUrl) return;
+
+    const remoteMatch = GithubService.parseGitHubUrl(remoteUrl);
+    const registryMatch = GithubService.parseGitHubUrl(config.registry);
+
+    if (
+      remoteMatch &&
+      registryMatch &&
+      remoteMatch.owner === registryMatch.owner &&
+      remoteMatch.repo === registryMatch.repo
+    ) {
+      console.log(
+        pc.yellow(
+          `\n⚠️  Note: You are syncing from the registry repository itself (${remoteMatch.owner}/${remoteMatch.repo}).`,
+        ),
+      );
+      console.log(
+        pc.gray(
+          `   'ags sync' pulls from GitHub. If you have unpushed local changes, they will be overwritten by the remote versions.`,
+        ),
+      );
+    }
   }
 
   async writeSkills(

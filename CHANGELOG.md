@@ -5,6 +5,23 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [cli-v2.2.3] - 2026-05-10
+
+**Category**: 🔄 Workflow Sync Optimization & Registry Reliability
+
+### Fixed
+
+- **`WorkflowSyncService`**:
+  - **Preserved `workflows: true`**: Fixed a bug where setting `workflows: true` in `.skillsrc` was incorrectly overwritten by a fixed array of defaults. It now remains `true` to ensure automatic discovery of all future registry workflows.
+  - **Comprehensive Workflow Discovery**: Updated the CLI to include `dev-fix`, `implement-feature`, and `verify-bug` in the default synchronization list.
+  - **Enhanced Logging**: Added detailed status logs during the workflow assembly phase, including count of fetched files and warnings for empty registry matches.
+- **`SyncService`**:
+  - **Local Registry Detection**: Added a proactive warning when running `sync` within the registry repository itself, clarifying that the CLI pulls from the remote GitHub origin rather than local unpushed files.
+
+### Versions
+
+- **CLI**: `2.2.2` → `2.2.3`
+
 ## [mcp-v0.2.0] - 2026-05-09
 
 **Category**: 🚀 Transport Modernization & Security Hardening

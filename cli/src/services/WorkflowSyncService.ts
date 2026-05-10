@@ -56,7 +56,7 @@ export class WorkflowSyncService {
         );
         changed = true;
       }
-    } else if (config.workflows === undefined || config.workflows === true) {
+    } else if (config.workflows === undefined) {
       const defaultWorkflows = availableWorkflows.filter((wf) =>
         DEFAULT_WORKFLOWS.includes(wf),
       );
@@ -67,6 +67,19 @@ export class WorkflowSyncService {
         ),
       );
       changed = true;
+    } else if (config.workflows === true) {
+      // If it's true, we keep it true to sync everything from the registry.
+      // We don't overwrite it with the default list.
+      const newWorkflows = availableWorkflows.filter(
+        (wf) => !DEFAULT_WORKFLOWS.includes(wf),
+      );
+      if (newWorkflows.length > 0) {
+        console.log(
+          pc.cyan(
+            `ℹ️  Registry has ${availableWorkflows.length} workflows (including ${newWorkflows.length} non-default). Syncing all because 'workflows: true' is set.`,
+          ),
+        );
+      }
     }
 
     return changed;
@@ -121,6 +134,12 @@ export class WorkflowSyncService {
           })),
         },
       ];
+    } else {
+      if (workflowFiles.length > 0) {
+        console.log(pc.red(`    ❌ Failed to download ${workflowFiles.length} matched workflows.`));
+      } else {
+        console.log(pc.gray(`    ℹ️  No matching workflows found in registry.`));
+      }
     }
 
     return [];
