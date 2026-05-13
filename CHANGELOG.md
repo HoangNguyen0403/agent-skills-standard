@@ -5,6 +5,27 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [cli-v2.2.4] - 2026-05-13
+
+**Category**: 🛠️ Workflow Transformation & Upgrade Reliability
+
+### Added
+
+- **`WorkflowTransformer` Parsing**: Introduced `ParsedWorkflow` interface and `parse()` / `transformParsed()` methods to formalize the extraction of workflow metadata and body content before agent-specific transformation.
+
+### Changed
+
+- **`WorkflowSyncService` Refinement**: Updated the workflow distribution engine to use the new transformation logic. Added explicit support documentation for native, command (markdown/TOML), prompt, and skill-based workflow surfaces.
+- **`UpgradeCommand` Hardening**:
+  - **Post-Upgrade Verification**: Added an automatic check using `ags -V` after the installation command completes to verify the new version is correctly active.
+  - **Deterministic Version Targeting**: The CLI now generates upgrade commands for the *exact* latest version found rather than generic `@latest`, preventing race conditions during npm propagation.
+  - **Caching & PATH Conflict Detection**: Added proactive guidance (e.g., `--force` recommendation) when an upgrade completes but the environment still reports the old version.
+- **Documentation Alignment**: Updated root `ARCHITECTURE.md` and `cli/ARCHITECTURE.md` to reflect the multi-format export model of the `WorkflowSyncService`.
+
+### Versions
+
+- **CLI**: `2.2.3` → `2.2.4`
+
 ## [cli-v2.2.3] - 2026-05-10
 
 **Category**: 🔄 Workflow Sync Optimization & Registry Reliability

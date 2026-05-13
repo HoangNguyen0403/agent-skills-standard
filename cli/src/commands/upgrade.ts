@@ -51,7 +51,7 @@ export class UpgradeCommand {
     }
 
     const pm = this.detectPackageManager();
-    const upgradeCmd = this.getUpgradeCommand(pm);
+    const upgradeCmd = this.getUpgradeCommand(pm, latestVersion);
 
     console.log(pc.yellow(`📦 Upgrading to v${latestVersion} using ${pm}...`));
 
@@ -60,7 +60,34 @@ export class UpgradeCommand {
 
       execSync(upgradeCmd, { stdio: 'inherit' });
 
-      console.log(pc.green(`✅ Successfully upgraded to v${latestVersion}!`));
+      // Verify the upgrade
+      try {
+        const output = execSync('ags -V', { encoding: 'utf8' }).trim();
+        const lines = output.split('\n');
+        const installedVersion = lines[lines.length - 1].trim();
+
+        if (installedVersion === latestVersion) {
+          console.log(pc.green(`✅ Successfully upgraded to v${latestVersion}!`));
+        } else {
+          console.log(
+            '\n' +
+              pc.yellow(
+                `⚠️  Install finished, but 'ags -V' still reports v${installedVersion}.`,
+              ),
+          );
+          console.log(
+            pc.gray('   This is likely due to package manager caching or a PATH conflict.'),
+          );
+          console.log(
+            pc.cyan(
+              `👉 Recommendation: Run '${pc.bold(upgradeCmd + ' --force')}' manually.`,
+            ),
+          );
+        }
+      } catch {
+        console.log(pc.green(`✅ Install command completed.`));
+      }
+
       console.log(
         pc.cyan(
           "Please restart your terminal if the version doesn't update immediately.",
@@ -68,7 +95,7 @@ export class UpgradeCommand {
       );
     } catch {
       console.log('\n' + pc.red('❌ Automatic upgrade failed.'));
-      this.printManualInstructions(pm);
+      this.printManualInstructions(pm, latestVersion);
     }
   }
 
@@ -91,18 +118,18 @@ export class UpgradeCommand {
     }
   }
 
-  private getUpgradeCommand(pm: 'npm' | 'pnpm' | 'yarn'): string {
+  private getUpgradeCommand(pm: 'npm' | 'pnpm' | 'yarn', version: string): string {
     switch (pm) {
       case 'pnpm':
-        return 'pnpm add -g agent-skills-standard@latest';
+        return `pnpm add -g agent-skills-standard@${version}`;
       case 'yarn':
-        return 'yarn global add agent-skills-standard@latest';
+        return `yarn global add agent-skills-standard@${version}`;
       default:
-        return 'npm install -g agent-skills-standard@latest';
+        return `npm install -g agent-skills-standard@${version}`;
     }
   }
 
-  private printManualInstructions(pm: 'npm' | 'pnpm' | 'yarn') {
+  private printManualInstructions(pm: 'npm' | 'pnpm' | 'yarn', version: string) {
     const isWindows = process.platform === 'win32';
     const sudoPrefix = isWindows ? '' : 'sudo ';
 
@@ -115,17 +142,17 @@ export class UpgradeCommand {
       '\n' + pc.cyan('👉 Please run the following command manually:'),
     );
     console.log(
-      pc.white(pc.bold(`  ${sudoPrefix}${this.getUpgradeCommand(pm)}`)),
+      pc.white(pc.bold(`  ${sudoPrefix}${this.getUpgradeCommand(pm, version)}`)),
     );
 
     if (pm !== 'npm') {
       console.log(pc.gray('\nAlternative (npm):'));
       console.log(
-        pc.gray(`  ${sudoPrefix}npm install -g agent-skills-standard@latest`),
+        pc.gray(`  ${sudoPrefix}npm install -g agent-skills-standard@${version}`),
       );
     }
 
     console.log(pc.gray('\nOr run via npx (no install required):'));
-    console.log(pc.gray(`  npx agent-skills-standard@latest sync`));
+    console.log(pc.gray(`  npx agent-skills-standard@${version} sync`));
   }
 }

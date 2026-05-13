@@ -16,6 +16,21 @@ Check scope with \`git diff\`.
 };
 
 describe('WorkflowTransformer', () => {
+  it('should parse workflow metadata into a stable internal model', () => {
+    const parsed = WorkflowTransformer.parse(SOURCE);
+    expect(parsed.key).toBe('code-review');
+    expect(parsed.fileName).toBe('code-review.md');
+    expect(parsed.description).toBe('Run an AI-assisted PR code review.');
+    expect(parsed.body).toContain('## Step 1');
+  });
+
+  it('should transform from parsed model for skill targets', () => {
+    const parsed = WorkflowTransformer.parse(SOURCE);
+    const result = WorkflowTransformer.transformParsed(parsed, 'skill');
+    expect(result!.name).toBe('SKILL.md');
+    expect(result!.content).toContain('Run an AI-assisted PR code review.');
+  });
+
   it('should return null for format "none"', () => {
     expect(WorkflowTransformer.transform(SOURCE, 'none')).toBeNull();
   });
@@ -113,6 +128,9 @@ describe('WorkflowTransformer', () => {
 
   it('should handle content without frontmatter', () => {
     const noFm = { name: 'simple.md', content: '# Just a title\n\nContent.' };
+    const parsed = WorkflowTransformer.parse(noFm);
+    expect(parsed.description).toBe('');
+    expect(parsed.body).toContain('# Just a title');
     const result = WorkflowTransformer.transform(noFm, 'command');
     expect(result!.content).toContain('$ARGUMENTS');
     expect(result!.content).toContain('# Just a title');

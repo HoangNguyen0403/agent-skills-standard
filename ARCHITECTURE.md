@@ -82,6 +82,20 @@ Handles fetching and writing skill files from the remote registry.
 
 - **Responsibility**: Downloading SKILL.md + references from GitHub, writing to agent directories, pruning orphaned skills.
 
+### WorkflowSyncService (`src/services/WorkflowSyncService.ts`)
+
+Handles workflow distribution from a single canonical source.
+
+- **Canonical Source**: `.agents/workflows/*.md` remains the authoring surface in this repository.
+- **Responsibility**: Fetching canonical workflows from the registry and exporting them into each agent's native invocation format.
+- **Export Model**:
+  - Antigravity/Kiro: native markdown workflow files
+  - Claude/Roo/OpenCode: command markdown
+  - Gemini: TOML command files
+  - Copilot: prompt files
+  - Cursor/Trae/Codex: skill folders (`SKILL.md`)
+- **Codex Note**: Codex does not consume `.agents/workflows` directly; it receives transformed workflow skills under `.codex/skills/<workflow>/SKILL.md`.
+
 ### ConfigService (`src/services/ConfigService.ts`)
 
 Manages the user configuration (`.skillsrc`).

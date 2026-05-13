@@ -14,7 +14,7 @@ This document outlines the architectural design and service-layer organization o
 | Service               | Responsibility                                                                                  |
 | :-------------------- | :---------------------------------------------------------------------------------------------- |
 | `SkillSyncService`    | Fetches SKILL.md + references from GitHub, writes to agent directories, prunes orphaned skills. |
-| `WorkflowSyncService` | Fetches and writes workflow files for Antigravity agent.                                        |
+| `WorkflowSyncService` | Fetches canonical workflows from `.agents/workflows/*.md` and exports agent-specific workflow surfaces (native, command, prompt, TOML, or skill). |
 
 ## Data & Strategy
 

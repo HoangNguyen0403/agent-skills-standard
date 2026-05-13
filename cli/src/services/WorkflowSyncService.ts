@@ -146,11 +146,13 @@ export class WorkflowSyncService {
   }
 
   /**
-   * Writes collected workflows to each active agent's native format.
-    * - Antigravity/Kiro: .agents/workflows/*.md (native)
-   * - Claude/Gemini: .<agent>/agents/workflow-*.md (agent definition)
-   * - Cursor/Windsurf/Trae: .<agent>/rules/workflow-*.mdc (rule)
-   * - Copilot: .github/instructions/workflow-*.instructions.md (instruction)
+   * Writes collected workflows from `.agents/workflows/*.md` to each active
+   * agent's native invocation surface.
+   * - Antigravity/Kiro: keep native markdown workflows
+   * - Claude/Roo/OpenCode: markdown command files
+   * - Gemini: TOML command files
+   * - Copilot: prompt files
+   * - Cursor/Trae/Codex: skill folders with SKILL.md
    */
   async writeWorkflows(
     workflows: CollectedSkill[],
@@ -178,8 +180,12 @@ export class WorkflowSyncService {
         if (wf.skill !== 'workflows') continue;
 
         for (const fileItem of wf.files) {
-          const transformed = WorkflowTransformer.transform(
-            { name: fileItem.name, content: fileItem.content },
+          const parsed = WorkflowTransformer.parse({
+            name: fileItem.name,
+            content: fileItem.content,
+          });
+          const transformed = WorkflowTransformer.transformParsed(
+            parsed,
             agentDef.workflowFormat,
             skillsRelative,
           );

@@ -176,6 +176,32 @@ describe('WorkflowSyncService', () => {
       expect(result[0].skill).toBe('workflows');
     });
 
+    it('should only discover workflows from .agents/workflows source path', async () => {
+      const config = {
+        workflows: true,
+        registry: 'https://github.com/o/r',
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: '.agents/workflows/w1.md' },
+          { path: 'workflows/w2.md' },
+          { path: '.codex/skills/w3/SKILL.md' },
+        ],
+      });
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue([
+        { path: '.agents/workflows/w1.md', content: 'c1' },
+      ]);
+
+      const result = await workflowSyncService.assembleWorkflows(config);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].files).toHaveLength(1);
+      expect(result[0].files[0].name).toBe('w1.md');
+    });
+
     it('should fetch specific workflows if config.workflows is an array', async () => {
       const config = {
         workflows: ['w1'],
@@ -283,6 +309,34 @@ describe('WorkflowSyncService', () => {
       expect(fs.outputFile).toHaveBeenCalledWith(
         expect.stringContaining('review.prompt.md'),
         expect.stringContaining('description: "Review."'),
+      );
+    });
+
+    it('should transform to Codex skill format in .codex/skills/<workflow>/SKILL.md', async () => {
+      const workflows = [
+        {
+          skill: 'workflows',
+          files: [
+            {
+              name: 'review.md',
+              content:
+                '---\ndescription: Review with sub-agent fallback.\n---\n# Review\nDelegate if supported, otherwise run locally.',
+            },
+          ],
+        },
+      ];
+
+      await workflowSyncService.writeWorkflows(workflows as any, {} as any, [
+        Agent.OpenAI,
+      ]);
+
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        expect.stringContaining(path.join('.codex', 'skills', 'review', 'SKILL.md')),
+        expect.stringContaining('## Instructions'),
+      );
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        expect.stringContaining(path.join('.codex', 'skills', 'review', 'SKILL.md')),
+        expect.stringContaining('Delegate if supported, otherwise run locally.'),
       );
     });
 

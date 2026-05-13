@@ -7,6 +7,19 @@ interface WorkflowSource {
   content: string;
 }
 
+export interface ParsedWorkflow {
+  /** Workflow key without extension (e.g., 'code-review') */
+  key: string;
+  /** Original filename with extension (e.g., 'code-review.md') */
+  fileName: string;
+  /** Description parsed from frontmatter if present */
+  description: string;
+  /** Workflow markdown body (frontmatter removed) */
+  body: string;
+  /** Original raw workflow markdown content */
+  rawContent: string;
+}
+
 interface TransformedWorkflow {
   /** Target filename for the agent */
   name: string;
@@ -30,19 +43,40 @@ interface TransformedWorkflow {
  * - none:    Agent has no verified user-invoked command system — skip.
  */
 export class WorkflowTransformer {
+  static parse(source: WorkflowSource): ParsedWorkflow {
+    const { description, body } = this.parseSource(source.content);
+    const key = source.name.replace(/\.md$/, '');
+    return {
+      key,
+      fileName: source.name,
+      description,
+      body,
+      rawContent: source.content,
+    };
+  }
+
   static transform(
     source: WorkflowSource,
     format: WorkflowFormat,
     workflowSourcePath: string = '.agents/workflows',
   ): TransformedWorkflow | null {
+    const parsed = this.parse(source);
+    return this.transformParsed(parsed, format, workflowSourcePath);
+  }
+
+  static transformParsed(
+    parsed: ParsedWorkflow,
+    format: WorkflowFormat,
+    workflowSourcePath: string = '.agents/workflows',
+  ): TransformedWorkflow | null {
     if (format === 'none') return null;
 
-    const { description, body } = this.parseSource(source.content);
-    const baseName = source.name.replace(/\.md$/, '');
+    const { description, body } = parsed;
+    const baseName = parsed.key;
 
     switch (format) {
       case 'native':
-        return { name: source.name, content: source.content };
+        return { name: parsed.fileName, content: parsed.rawContent };
 
       case 'command':
         return {
@@ -153,7 +187,7 @@ Follow the exact steps in the workflow file.
    * Agent Skill (SKILL.md) format.
    * Used by Cursor, Trae, and Codex.
    * Lives at <workflowPath>/<name>/SKILL.md
-   * User invokes via /<name> in Agent/Skill interface.
+   * Invoked through each platform's skill mechanism.
    */
   private static toSkillMarkdown(
     name: string,
