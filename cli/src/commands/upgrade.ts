@@ -33,6 +33,15 @@ export class UpgradeCommand {
       return;
     }
 
+    // Validate semver to prevent command injection or unexpected behavior
+    const semverRegex = /^\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?(\+[a-zA-Z0-9.]+)?$/;
+    if (!semverRegex.test(latestVersion)) {
+      console.log(
+        pc.red(`❌ Invalid version received from npm: ${latestVersion}`),
+      );
+      return;
+    }
+
     console.log(pc.gray(`  Current version: ${currentVersion}`));
     console.log(pc.gray(`  Latest version:  ${latestVersion}`));
 

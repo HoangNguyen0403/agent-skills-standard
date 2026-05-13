@@ -59,7 +59,7 @@ describe('UpgradeCommand', () => {
     await upgradeCommand.run({});
 
     expect(execSync).toHaveBeenCalledWith(
-      expect.stringContaining('pnpm add -g agent-skills-standard@latest'),
+      expect.stringContaining('pnpm add -g agent-skills-standard@2.0.0'),
       expect.anything(),
     );
     expect(consoleLogMock).toHaveBeenCalledWith(
@@ -80,7 +80,7 @@ describe('UpgradeCommand', () => {
       expect.stringContaining('Automatic upgrade failed.'),
     );
     expect(consoleLogMock).toHaveBeenCalledWith(
-      expect.stringContaining('npm install -g agent-skills-standard@latest'),
+      expect.stringContaining('npm install -g agent-skills-standard@2.0.0'),
     );
   });
 
@@ -103,6 +103,16 @@ describe('UpgradeCommand', () => {
 
     expect(consoleLogMock).toHaveBeenCalledWith(
       expect.stringContaining('Could not determine latest version.'),
+    );
+  });
+
+  it('should handle invalid version format from npm', async () => {
+    vi.mocked(execSync).mockReturnValueOnce('not-a-version\n');
+
+    await upgradeCommand.run({});
+
+    expect(consoleLogMock).toHaveBeenCalledWith(
+      expect.stringContaining('Invalid version received from npm: not-a-version'),
     );
   });
 
@@ -143,14 +153,14 @@ describe('UpgradeCommand', () => {
 
   describe('getUpgradeCommand', () => {
     it('should return correct commands for different PMs', () => {
-      expect(upgradeCommand.getUpgradeCommand('pnpm')).toBe(
-        'pnpm add -g agent-skills-standard@latest',
+      expect(upgradeCommand.getUpgradeCommand('pnpm', '2.0.0')).toBe(
+        'pnpm add -g agent-skills-standard@2.0.0',
       );
-      expect(upgradeCommand.getUpgradeCommand('yarn')).toBe(
-        'yarn global add agent-skills-standard@latest',
+      expect(upgradeCommand.getUpgradeCommand('yarn', '2.0.0')).toBe(
+        'yarn global add agent-skills-standard@2.0.0',
       );
-      expect(upgradeCommand.getUpgradeCommand('npm')).toBe(
-        'npm install -g agent-skills-standard@latest',
+      expect(upgradeCommand.getUpgradeCommand('npm', '2.0.0')).toBe(
+        'npm install -g agent-skills-standard@2.0.0',
       );
     });
   });
@@ -160,7 +170,7 @@ describe('UpgradeCommand', () => {
       const originalPlatform = process.platform;
       Object.defineProperty(process, 'platform', { value: 'linux' });
 
-      upgradeCommand.printManualInstructions('npm');
+      upgradeCommand.printManualInstructions('npm', '2.0.0');
       expect(consoleLogMock).toHaveBeenCalledWith(
         expect.stringContaining('sudo npm install -g'),
       );
@@ -172,7 +182,7 @@ describe('UpgradeCommand', () => {
       const originalPlatform = process.platform;
       Object.defineProperty(process, 'platform', { value: 'win32' });
 
-      upgradeCommand.printManualInstructions('pnpm');
+      upgradeCommand.printManualInstructions('pnpm', '2.0.0');
       expect(consoleLogMock).toHaveBeenCalledWith(
         expect.stringContaining('  pnpm add -g'),
       );

@@ -171,9 +171,10 @@ export class WorkflowSyncService {
       const workflowDir = path.join(process.cwd(), agentDef.workflowPath);
       await fs.ensureDir(workflowDir);
 
-      // Calculate relative path from workflow dir to skills dir
-      const skillsDir = path.join(process.cwd(), agentDef.path);
-      const skillsRelative = path.relative(workflowDir, skillsDir);
+      // Calculate relative path from workflow dir to the source workflow files (.agents/workflows)
+      // This is used by Gemini (TOML) to reference the canonical markdown source.
+      const sourceWorkflowDir = path.join(process.cwd(), '.agents/workflows');
+      const workflowSourceRelative = path.relative(workflowDir, sourceWorkflowDir);
 
       let written = 0;
       for (const wf of workflows) {
@@ -187,7 +188,7 @@ export class WorkflowSyncService {
           const transformed = WorkflowTransformer.transformParsed(
             parsed,
             agentDef.workflowFormat,
-            skillsRelative,
+            workflowSourceRelative,
           );
           if (!transformed) continue;
 
