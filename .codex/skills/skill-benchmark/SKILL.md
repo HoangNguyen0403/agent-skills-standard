@@ -49,7 +49,7 @@ Pick the file automatically. Rank candidates by the severity of anti-patterns:
 ## Step 3 — Build Eval-Driven Scorecard
 
 Source your scorecard from `evals/evals.json`, not from hardcoded patterns.
-Follow the **Scorecard Rubric** in [benchmark.md](../../skills/common/common-skill-creator/references/benchmark.md):
+Follow the Scorecard Rubric in `<SKILLS>/common/common-skill-creator/references/benchmark.md` when synced:
 
 1. Read `skills/<category>/<skill>/evals/evals.json`.
 2. Generate columns for **Failure Pattern** and **Success Pattern**.
@@ -59,7 +59,7 @@ Follow the **Scorecard Rubric** in [benchmark.md](../../skills/common/common-ski
 
 ## Step 4 — Benchmark Report & Compliance Delta
 
-Output the scorecard and compliant score using the templates in [benchmark.md](../../skills/common/common-skill-creator/references/benchmark.md#3-compliance-score-calculation).
+Output the scorecard and compliant score using the templates in `<SKILLS>/common/common-skill-creator/references/benchmark.md` when synced.
 
 - **Compliance Score Before vs After**.
 - **Δ Delta: +Z%** 🚀.
@@ -70,7 +70,7 @@ Output the scorecard and compliant score using the templates in [benchmark.md](.
 ## Step 5 — Skill Applicability & Iteration
 
 For every `❌ FAIL`, identify the root cause using the **Iteration Table** in:
-[benchmark.md](../../skills/common/common-skill-creator/references/benchmark.md#2-iteration-table-root-cause-analysis)
+`<SKILLS>/common/common-skill-creator/references/benchmark.md` when synced.
 
 1. Signal not matching file? → Refine trigger.
 2. Rule too vague? → Add Anti-Pattern rule.

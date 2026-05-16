@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Agent } from '../../constants';
-import { CLAUDE_SKILL_LOADER_PY, HookService } from '../HookService';
+import { HookService, UNIVERSAL_SKILL_LOADER_JS } from '../HookService';
 
 describe('HookService', () => {
   let service: HookService;
@@ -21,27 +21,27 @@ describe('HookService', () => {
   // ── Claude Code ──────────────────────────────────────────────────────────────
 
   describe('install — Claude', () => {
-    it('writes the Python hook script', async () => {
+    it('writes the JS hook script', async () => {
       await service.install({ rootDir: root, agents: [Agent.Claude] });
 
-      const scriptPath = path.join(root, '.claude/hooks/preedit-skill-loader.py');
-      expect(await fs.pathExists(scriptPath)).toBe(true);
-      expect(await fs.readFile(scriptPath, 'utf8')).toBe(CLAUDE_SKILL_LOADER_PY);
+      const scriptJsPath = path.join(root, '.claude/hooks/preedit-skill-loader.js');
+      expect(await fs.pathExists(scriptJsPath)).toBe(true);
+      expect(await fs.readFile(scriptJsPath, 'utf8')).toBe(UNIVERSAL_SKILL_LOADER_JS);
     });
 
-    it('does not overwrite an existing Python hook script', async () => {
-      const scriptPath = path.join(root, '.claude/hooks/preedit-skill-loader.py');
+    it('does not overwrite an existing JS hook script', async () => {
+      const scriptPath = path.join(root, '.claude/hooks/preedit-skill-loader.js');
       await fs.ensureDir(path.dirname(scriptPath));
       await fs.writeFile(scriptPath, '# user custom hook\n');
 
       const report = await service.install({ rootDir: root, agents: [Agent.Claude] });
 
       expect(await fs.readFile(scriptPath, 'utf8')).toBe('# user custom hook\n');
-      expect(report.writes.find((w) => w.file.endsWith('preedit-skill-loader.py'))?.action).toBe('skipped-existing');
+      expect(report.writes.find((w) => w.file.endsWith('preedit-skill-loader.js'))?.action).toBe('skipped-existing');
     });
 
     it('reports settings.json as added when only the script already exists', async () => {
-      const scriptPath = path.join(root, '.claude/hooks/preedit-skill-loader.py');
+      const scriptPath = path.join(root, '.claude/hooks/preedit-skill-loader.js');
       await fs.ensureDir(path.dirname(scriptPath));
       await fs.writeFile(scriptPath, '# user custom hook\n');
 
@@ -119,12 +119,13 @@ describe('HookService', () => {
   });
 
   describe('uninstall — Claude', () => {
-    it('preserves the Python script file — only removes the settings.json registration', async () => {
+    it('preserves the hook script file — only removes the settings.json registration', async () => {
       await service.install({ rootDir: root, agents: [Agent.Claude] });
       await service.uninstall({ rootDir: root, agents: [Agent.Claude] });
 
-      const scriptPath = path.join(root, '.claude/hooks/preedit-skill-loader.py');
-      expect(await fs.pathExists(scriptPath)).toBe(true);
+      const scriptJsPath = path.join(root, '.claude/hooks/preedit-skill-loader.js');
+      expect(await fs.pathExists(scriptJsPath)).toBe(true);
+      expect(await fs.pathExists(path.join(root, '.claude/hooks/preedit-skill-loader.py'))).toBe(false);
     });
 
     it('removes the PreToolUse entry from settings.json', async () => {
@@ -189,7 +190,7 @@ describe('HookService', () => {
     });
 
     it('reports not installed if script exists but settings entry is missing', async () => {
-      const scriptPath = path.join(root, '.claude/hooks/preedit-skill-loader.py');
+      const scriptPath = path.join(root, '.claude/hooks/preedit-skill-loader.js');
       await fs.ensureDir(path.dirname(scriptPath));
       await fs.writeFile(scriptPath, '# stub');
 
@@ -260,12 +261,64 @@ describe('HookService', () => {
     it('lists unsupported agents in install report', async () => {
       const report = await service.install({
         rootDir: root,
-        agents: [Agent.Cursor, Agent.Copilot],
+        agents: [Agent.Trae, Agent.Roo],
       });
 
       expect(report.writes).toHaveLength(0);
-      expect(report.unsupported).toContain(Agent.Cursor);
-      expect(report.unsupported).toContain(Agent.Copilot);
+      expect(report.unsupported).toContain(Agent.Trae);
+      expect(report.unsupported).toContain(Agent.Roo);
+    });
+  });
+
+  describe('install/uninstall — Codex, Copilot, Cursor, Windsurf, Gemini', () => {
+    it('installs Codex hook correctly', async () => {
+      const report = await service.install({ rootDir: root, agents: [Agent.Codex] });
+      expect(report.writes).toHaveLength(2);
+      expect(await fs.pathExists(path.join(root, '.codex/hooks/preedit-skill-loader.js'))).toBe(true);
+      expect(await fs.pathExists(path.join(root, '.codex/hooks/preedit-skill-loader.py'))).toBe(false);
+      const data = await fs.readJson(path.join(root, '.codex/hooks.json'));
+      expect(data.hooks.PreToolUse).toBeDefined();
+    });
+
+    it('installs Copilot hook correctly', async () => {
+      const report = await service.install({ rootDir: root, agents: [Agent.Copilot] });
+      expect(report.writes).toHaveLength(2);
+      expect(await fs.pathExists(path.join(root, '.github/hooks/preedit-skill-loader.js'))).toBe(true);
+      expect(await fs.pathExists(path.join(root, '.github/hooks/preedit-skill-loader.py'))).toBe(false);
+      const data = await fs.readJson(path.join(root, '.github/hooks.json'));
+      expect(data.hooks.PreToolUse).toBeDefined();
+    });
+
+    it('uninstalls Copilot hook correctly', async () => {
+      await service.install({ rootDir: root, agents: [Agent.Copilot] });
+      const res = await service.uninstall({ rootDir: root, agents: [Agent.Copilot] });
+      expect(res.removed).toHaveLength(1);
+      const data = await fs.readJson(path.join(root, '.github/hooks.json'));
+      expect((data.hooks.PreToolUse ?? []).length).toBe(0);
+    });
+
+    it('installs Cursor hook correctly', async () => {
+      const report = await service.install({ rootDir: root, agents: [Agent.Cursor] });
+      expect(report.writes).toHaveLength(2);
+      expect(await fs.pathExists(path.join(root, '.cursor/hooks/preedit-skill-loader.js'))).toBe(true);
+      const data = await fs.readJson(path.join(root, '.cursor/hooks.json'));
+      expect(data.hooks.PreToolUse).toBeDefined();
+    });
+
+    it('installs Windsurf hook correctly', async () => {
+      const report = await service.install({ rootDir: root, agents: [Agent.Windsurf] });
+      expect(report.writes).toHaveLength(2);
+      expect(await fs.pathExists(path.join(root, '.windsurf/hooks/preedit-skill-loader.js'))).toBe(true);
+      const data = await fs.readJson(path.join(root, '.windsurf/hooks.json'));
+      expect(data.hooks.PreToolUse).toBeDefined();
+    });
+
+    it('installs Gemini hook correctly', async () => {
+      const report = await service.install({ rootDir: root, agents: [Agent.Gemini] });
+      expect(report.writes).toHaveLength(2);
+      expect(await fs.pathExists(path.join(root, '.gemini/hooks/preedit-skill-loader.js'))).toBe(true);
+      const data = await fs.readJson(path.join(root, '.gemini/hooks.json'));
+      expect(data.hooks.PreToolUse).toBeDefined();
     });
   });
 
@@ -288,7 +341,7 @@ describe('HookService', () => {
     it('uninstall handles non-supported agents', async () => {
       const result = await service.uninstall({
         rootDir: root,
-        agents: [Agent.Cursor],
+        agents: [Agent.Trae],
       });
       expect(result.removed).toHaveLength(0);
     });
@@ -296,7 +349,7 @@ describe('HookService', () => {
     it('status handles non-supported agents by skipping them', async () => {
       const rows = await service.status({
         rootDir: root,
-        agents: [Agent.Cursor],
+        agents: [Agent.Trae],
       });
       expect(rows).toHaveLength(0);
     });

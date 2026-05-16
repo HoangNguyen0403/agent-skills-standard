@@ -76,13 +76,24 @@ export const DEFAULT_REGISTER =
   'https://github.com/HoangNguyen0403/agent-skills-standard';
 
 export const DEFAULT_WORKFLOWS = [
+  'sdlc',
+  'brainstorm-feature',
   'code-review',
   'codebase-review',
+  'design-solution',
+  'deploy-release',
   'plan-feature',
+  'implementation-readiness',
+  'review-ticket',
+  'traceability-audit',
+  'session-report',
+  'publish-notes',
+  'retro-learn',
   'skill-benchmark',
   'pentest',
   'dev-fix',
   'implement-feature',
+  'verify-work',
   'verify-bug',
 ];
 
@@ -119,6 +130,10 @@ export interface AgentDefinition {
   workflowPath: string;
   /** Directory where native specialist agent personas are written (optional) */
   agentPath?: string;
+  /** Relative path to pre-edit hook reminder script (if supported) */
+  hookScriptPath?: string;
+  /** Relative path to hook configuration JSON file (if supported) */
+  hookConfigPath?: string;
 }
 
 export interface FrameworkDefinition {
@@ -144,6 +159,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         workflowFormat: 'skill',
         workflowPath: '.cursor/skills',
         agentPath: '.cursor/agents',
+        hookScriptPath: '.cursor/hooks/preedit-skill-loader.js',
+        hookConfigPath: '.cursor/hooks.json',
       };
     case Agent.Trae:
       return {
@@ -170,6 +187,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         workflowFormat: 'command',
         workflowPath: '.claude/commands',
         agentPath: '.claude/agents',
+        hookScriptPath: '.claude/hooks/preedit-skill-loader.js',
+        hookConfigPath: '.claude/settings.json',
       };
     case Agent.Copilot:
       return {
@@ -183,6 +202,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         workflowFormat: 'prompt',
         workflowPath: '.github/prompts',
         agentPath: '.github/copilot-agents',
+        hookScriptPath: '.github/hooks/preedit-skill-loader.js',
+        hookConfigPath: '.github/hooks.json',
       };
     case Agent.Antigravity:
       return {
@@ -196,10 +217,10 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         workflowFormat: 'native',
         workflowPath: '.agents/workflows',
       };
-    case Agent.OpenAI:
+    case Agent.Codex:
       return {
         id,
-        name: 'OpenAI',
+        name: 'Codex',
         path: '.codex/skills',
         ruleFile: '.codex/rules',
         ruleExtension: '.md',
@@ -208,6 +229,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         workflowFormat: 'skill',
         workflowPath: '.codex/skills',
         agentPath: '.codex/agents',
+        hookScriptPath: '.codex/hooks/preedit-skill-loader.js',
+        hookConfigPath: '.codex/hooks.json',
       };
     case Agent.OpenCode:
       return {
@@ -234,6 +257,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         workflowFormat: 'toml',
         workflowPath: '.gemini/commands',
         agentPath: '.gemini/agents',
+        hookScriptPath: '.gemini/hooks/preedit-skill-loader.js',
+        hookConfigPath: '.gemini/hooks.json',
       };
     case Agent.Roo:
       return {
@@ -258,6 +283,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         detectionFiles: ['.windsurf'],
         workflowFormat: 'none',
         workflowPath: '',
+        hookScriptPath: '.windsurf/hooks/preedit-skill-loader.js',
+        hookConfigPath: '.windsurf/hooks.json',
       };
     case Agent.Kiro:
       return {
@@ -271,6 +298,7 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         workflowFormat: 'native',
         workflowPath: '.agents/workflows',
         agentPath: '.kiro/agents',
+        hookScriptPath: '.kiro/hooks/ags-skill-loader.md',
       };
   }
 };

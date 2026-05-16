@@ -5,6 +5,7 @@ import pc from 'picocolors';
 async function main() {
   // Look for skills directory in the repository root
   const skillsDir = path.join(__dirname, '../skills');
+  const forbiddenMarkers = ['alignment tokens:'];
 
   if (!(await fs.pathExists(skillsDir))) {
     console.error(pc.red(`Skills directory not found at ${skillsDir}`));
@@ -30,6 +31,14 @@ async function main() {
   async function checkFile(filePath: string) {
     const content = await fs.readFile(filePath, 'utf8');
     const lines = content.split('\n');
+    const relPath = path.relative(process.cwd(), filePath);
+
+    for (const marker of forbiddenMarkers) {
+      if (content.toLowerCase().includes(marker)) {
+        console.log(pc.red(`❌ ${relPath} contains forbidden marker: ${marker}`));
+        failedCount++;
+      }
+    }
 
     const checkpoints = lines.filter((l: string) =>
       l.match(/^###\s+.*(Checkpoint|Step).*/i),
@@ -38,7 +47,7 @@ async function main() {
     if (checkpoints.length > 5) {
       console.log(
         pc.yellow(
-          `⚠️  ${path.relative(path.join(process.cwd(), '..'), filePath)} has ${checkpoints.length} explicit checkpoint/step headers. Check for redundancy.`,
+          `⚠️  ${relPath} has ${checkpoints.length} explicit checkpoint/step headers. Check for redundancy.`,
         ),
       );
       failedCount++;
@@ -51,10 +60,8 @@ async function main() {
   if (failedCount === 0) {
     console.log(pc.green('✅ No obvious redundancy found.'));
   } else {
-    console.log(
-      pc.yellow(`⚠️  Found ${failedCount} potentially redundant skills.`),
-    );
-    // process.exit(1); // Optional: fail build if redundancy found?
+    console.log(pc.red(`❌ Found ${failedCount} skill audit issue(s).`));
+    process.exit(1);
   }
 }
 

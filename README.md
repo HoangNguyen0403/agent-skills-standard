@@ -4,14 +4,14 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/HoangNguyen0403/agent-skills-standard?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/stargazers)
 
-**Make your AI write code like your best engineer. One command. Every AI agent. Every project.**
+**The portable SDLC standards layer for AI coding agents. Sync once, then work in your own runtime.**
 
-242 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
+259 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
 
 ```bash
-npx agent-skills-standard@2.2.2 init
-npx agent-skills-standard@2.2.2 sync
-# Done. Your AI now follows your team's engineering standards.
+npx agent-skills-standard@latest init
+npx agent-skills-standard@latest sync
+# Done. Your AI now has portable team standards and SDLC workflows.
 ```
 
 ---
@@ -36,6 +36,19 @@ Agent Skills Standard turns your engineering rules into **modular, version-contr
 | Rules drift across team members' prompts    | Single source of truth, synced via CLI                              |
 | Works in one AI tool, copy-paste to others  | Works in Cursor, Claude, Copilot, Gemini, Windsurf, Trae, Kiro, Roo |
 | AI scans all rules every time (slow, lossy) | Hierarchical lookup: ~25 lines scanned per edit                     |
+
+### Not Another Agent Runtime
+
+Agent Skills Standard does **not** force you into a new daily command system. `ags` is for setup, sync, validation, MCP wiring, and updates. After sync, your AI tool receives native assets:
+
+- Claude/Roo/OpenCode commands
+- Codex/Cursor/Trae skills
+- Gemini TOML commands
+- Copilot prompts
+- Antigravity/Kiro workflow files
+- MCP tools for runtime enforcement
+
+You keep the files in your repo, customize them with `.skillsrc` and `custom_overrides`, and run workflows inside the agent you already use.
 
 ### How It Works
 
@@ -155,17 +168,51 @@ Now any sub-agent in any runtime can call `load_skills_for_files`, `audit_sessio
 | **Distribution**          | `agent-skills-standard` (CLI)     | Manually, before AI session     | Fetches & writes `SKILL.md` files; generates `AGENTS.md` + `_INDEX.md` |
 | **Runtime / Enforcement** | `agent-skills-standard-mcp` (MCP) | Auto-launched by the AI runtime | Serves matched `SKILL.md` to live agents on demand; provides audit log |
 
-You need both — the CLI installs the rules, the MCP makes sure agents load them.
+Use both when you want enforcement receipts: the CLI installs the rules, the MCP makes sure agents load them.
 
 ---
 
-## 242 Skills Across 20+ Frameworks
+## SDLC Workflow Spine
+
+The registry now ships a compact lifecycle that agents can run natively after sync:
+
+| Stage      | Synced Workflow                 | Output                       |
+| :--------- | :------------------------------ | :--------------------------- |
+| Route      | `sdlc`                          | next workflow and blockers   |
+| Brainstorm | `brainstorm-feature`            | `product-brief.md`           |
+| Plan       | `plan-feature`                  | PRD, decisions, task slices  |
+| Design     | `design-solution`               | architecture, contracts, ADR |
+| Readiness  | `implementation-readiness`      | go/no-go before code         |
+| Build      | `implement-feature` / `dev-fix` | implementation handoff       |
+| Review     | `review-ticket`                 | multi-lens PR/ticket verdict |
+| Verify     | `verify-work` / `verify-bug`    | `walkthrough.md` evidence    |
+
+### Session Telemetry
+
+The registry now includes the `common-telemetry` skill and a companion MCP tool `get_session_cost()`. At the end of every workflow, the agent can now report accurate token usage and cost estimation.
+
+See [SDLC Workflow Quick Reference](./docs/sdlc-workflow-quick-reference.md).
+
+## Default SDLC Support
+
+`ags init` includes framework skills plus shared SDLC support categories when the registry provides them:
+
+| Surface               | How It Syncs                                                                                                                                                                                                                          |
+| :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `quality-engineering` | Included as a skill category for BA review, Jira traceability, QA standards, browser/mobile verification, and Zephyr coverage                                                                                                         |
+| `specialists`         | Converted directly into native sub-agent files for Jira analysis, codebase scouting, architecture/security review, AC verification, test gaps, PR metadata, Zephyr/Confluence lookup, PR comments, integration tests, and TC creation |
+
+External tasking MCPs such as Jira, Azure DevOps, and Zephyr are integration points, not required dependencies. Workflows should use them when already connected, but every workflow must still work from local tickets, specs, and evidence files so teams can customize their own automation stack.
+
+See also [Learning From agentic-ai](./docs/agentic-ai-learning.md) and the [Optional MCP Integration Guide](./docs/mcp-integration-guide.md).
+
+## 259 Skills Across 20+ Frameworks
 
 Every skill is audited for token efficiency (averaging ~500 tokens) and tested with automated evals.
 
 | Stack                | Key Skills                                    | Version  | Skills |
 | :------------------- | :-------------------------------------------- | :------- | :----- |
-| **Common Patterns**  | Best Practices, Security, TDD, Error Handling | `v2.1.0` | 32     |
+| **Common Patterns**  | Best Practices, Security, TDD, Error Handling | `v2.0.6` | 34     |
 | **Flutter**          | BLoC, Riverpod, Architecture, Concurrency     | `v1.7.1` | 22     |
 | **React**            | Hooks, Performance, State Management          | `v1.3.5` | 8      |
 | **React Native**     | Architecture, Navigation, Performance         | `v1.4.4` | 13     |
@@ -176,19 +223,19 @@ Every skill is audited for token efficiency (averaging ~500 tokens) and tested w
 | **JavaScript**       | ES2024+, Patterns, Tooling                    | `v1.3.4` | 3      |
 | **Go (Golang)**      | Clean Arch, Concurrency                       | `v1.3.4` | 11     |
 | **Spring Boot**      | Architecture, Security, JPA                   | `v1.3.3` | 10     |
-| **Android**          | Compose, Navigation 3, Edge-to-Edge, AGP 9    | `v1.4.0` | 26     |
+| **Android**          | Compose, Navigation 3, Edge-to-Edge, AGP 9    | `v1.4.1` | 26     |
 | **iOS**              | SwiftUI, Arch, Persistence                    | `v1.4.5` | 15     |
 | **Swift**            | Concurrency, Memory                           | `v1.3.5` | 8      |
 | **Kotlin**           | Coroutines, Language                          | `v1.3.3` | 4      |
 | **Java**             | Records, Virtual Threads                      | `v1.3.3` | 5      |
-| **PHP**              | PHP 8.4+, Error Handling                      | `v1.3.4` | 7      |
+| **PHP**              | PHP 8.4+, Error Handling                      | `v1.3.5` | 7      |
 | **Laravel**          | Eloquent, Clean Arch                          | `v1.3.4` | 10     |
 | **Dart**             | Null Safety, Sealed Classes                   | `v1.3.5` | 3      |
 | **Database**         | PostgreSQL, MongoDB, Redis                    | `v1.3.4` | 3      |
-| **Quality Engineer** | BA, TDD, Zephyr, Test Gen                     | `v1.5.0` | 5      |
-| **Specialists**      | JIRA Analyst, TDD Implementer Sub Agent       | `v1.0.0` | 2      |
+| **Quality Engineer** | BA, TDD, Zephyr, Test Gen                     | `v1.5.0` | 7      |
+| **Specialists**      | Jira, Review, QA, ADO, Zephyr, Confluence     | `v1.1.0` | 13     |
 
-> Full skill list with token metrics: [Skills Directory](./skills/README.md) | [Benchmark Report](./benchmark-report.md)
+> Full skill list with token metrics: [Skills Directory](./skills/README.md) | [Benchmark Report](./benchmark-report.md) | [Public Proof](./docs/public-proof.md)
 
 ---
 
@@ -203,8 +250,8 @@ agents: [cursor, copilot, claude, gemini]
 skills:
   flutter:
     ref: flutter-v1.6.3
-    exclude: ['getx-navigation'] # Don't use GetX? Exclude it.
-    custom_overrides: ['bloc-state'] # Protect your local modifications.
+    exclude: ["getx-navigation"] # Don't use GetX? Exclude it.
+    custom_overrides: ["bloc-state"] # Protect your local modifications.
   react:
     ref: react-v1.3.3
   golang:
@@ -214,11 +261,28 @@ skills:
 
 # Local custom standalone skills
 custom_skills:
-  - path: './.skills/my-custom-rule.md'
-    triggers: ['*.ts', 'keyword']
+  - path: "./.skills/my-custom-rule.md"
+    triggers: ["*.ts", "keyword"]
 ```
 
 Skills are **package-aware**: if your Flutter project uses BLoC but not GetX, just exclude the GetX skills. The AI only sees what's relevant to your stack. The **`custom_skills`** feature allows you to index your own `.md` files directly into `AGENTS.md` and `_INDEX.md`, ensuring your project-specific rules are always visible to the AI.
+
+### Workflow Selection
+
+```yaml
+workflows:
+  - sdlc
+  - brainstorm-feature
+  - plan-feature
+  - design-solution
+  - implement-feature
+  - verify-work
+  - deploy-release
+  - publish-notes
+  - retro-learn
+```
+
+Workflows sync to the native surface for each selected agent. Keep `.agents/workflows` as the canonical source in this registry; Codex receives generated workflow skills under `.codex/skills/<workflow>/SKILL.md`.
 
 ---
 
@@ -346,11 +410,11 @@ That's the reason the MCP exists: the rules **automatically reach the working co
 
 ### 🤖 Sub-Agents & Specialists
 
-Agent Skills Standard now supports **Specialist Sub-Agents**. These are specialized personas (e.g., `@specialist-tdd-implementer`, `@specialist-jira-analyst`) that you can delegate specific parts of your workflow to.
+Agent Skills Standard supports **Specialist Sub-Agents**. These are focused personas (for example `@specialist-tdd-implementer`, `@specialist-architecture-guard`, `@specialist-ac-verifier`) that you can delegate specific parts of your workflow to.
 
-- **Strict Persona**: Specialists are "obsessed" with their specific task (e.g., following a Red-Green-Refactor loop).
+- **Strict Budget**: Specialists have one role, bounded tool/file usage, structured output, and no nested sub-agent spawning.
 - **Context Hygiene**: By delegating to a sub-agent, the "noise" of granular implementation stays out of your main chat context.
-- **Unified Sync**: Specialists are automatically synced to your agent's native specialist folders (e.g., `.cursor/agents`, `.clauderules`) during the standard `ags sync` command.
+- **Unified Sync**: Specialists sync to native agent folders such as `.claude/agents`, `.codex/agents`, `.cursor/agents`, `.gemini/agents`, and `.github/copilot-agents`.
 
 ---
 
@@ -376,6 +440,7 @@ Skills are **text files, not code**. They cannot execute commands, access your f
 - **Automated eval testing** — most skills include `evals.json` datasets that verify AI adherence to constraints via regression tests
 - **Zero-Trust protocol** — the generated `AGENTS.md` enforces a mandatory audit: the AI must declare which skills it loaded before writing code, preventing silent rule-skipping
 - **Continuous benchmarking** — skills are periodically tested against adversarial prompts to identify logic gaps and instruction drift
+- **Vibe Security Scan** — review and pentest workflows include a compact lens for the 20 common AI-generated security bugs, including IDOR, SSRF, traversal, weak JWTs, upload abuse, and slopsquatting
 
 ---
 
@@ -430,15 +495,15 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for design details and [CLI Architectur
 
 ### 📜 Benchmark History
 
-| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
-| --- | --- | --- | --- | --- | --- |
-| v2.3.0 | 2026-05-13 | 246 | 540 | 85% | [Report](benchmarks/archive/v2.3.0.md) |
-| v2.2.2 | 2026-05-09 | 249 | 539 | 85% | [Report](benchmarks/archive/v2.2.2.md) |
-| v2.2.0 | 2026-04-22 | 242 | 538 | 85% | [Report](benchmarks/archive/v2.2.0.md) |
-| v2.1.2 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.2.md) |
-| v2.1.1 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.1.md) |
-| v2.1.0 | 2026-04-04 | 237 | 526 | 86% | [Report](benchmarks/archive/v2.1.0.md) |
-| v2.0.1 | 2026-03-30 | 238 | 527 | 86% | [Report](benchmarks/archive/v2.0.1.md) |
-| v2.0.0 | 2026-03-25 | 235 | 523 | 86% | [Report](benchmarks/archive/v2.0.0.md) |
-| v1.10.3 | 2026-03-21 | 234 | 505 | 86% | [Report](benchmarks/archive/v1.10.3.md) |
-| v1.10.1 | 2026-03-16 | 229 | 428 | 88% | [Report](benchmarks/archive/v1.10.1.md) |
+| Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                  |
+| ------- | ---------- | ------ | ---------- | ----------- | --------------------------------------- |
+| v2.4.0  | 2026-05-14 | 246    | 540        | 85%         | [Report](benchmarks/archive/v2.4.0.md)  |
+| v2.3.0  | 2026-05-13 | 246    | 540        | 85%         | [Report](benchmarks/archive/v2.3.0.md)  |
+| v2.2.2  | 2026-05-09 | 249    | 539        | 85%         | [Report](benchmarks/archive/v2.2.2.md)  |
+| v2.2.0  | 2026-04-22 | 242    | 538        | 85%         | [Report](benchmarks/archive/v2.2.0.md)  |
+| v2.1.2  | 2026-04-11 | 237    | 516        | 86%         | [Report](benchmarks/archive/v2.1.2.md)  |
+| v2.1.1  | 2026-04-11 | 237    | 516        | 86%         | [Report](benchmarks/archive/v2.1.1.md)  |
+| v2.1.0  | 2026-04-04 | 237    | 526        | 86%         | [Report](benchmarks/archive/v2.1.0.md)  |
+| v2.0.1  | 2026-03-30 | 238    | 527        | 86%         | [Report](benchmarks/archive/v2.0.1.md)  |
+| v2.0.0  | 2026-03-25 | 235    | 523        | 86%         | [Report](benchmarks/archive/v2.0.0.md)  |
+| v1.10.3 | 2026-03-21 | 234    | 505        | 86%         | [Report](benchmarks/archive/v1.10.3.md) |

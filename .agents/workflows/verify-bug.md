@@ -21,12 +21,13 @@ This workflow verifies that a bug fix is working as intended in the UAT environm
 2.  **Resolve Markets**: If multiple markets, prompt for scope (Full/Sample/Custom).
 3.  **Fetch Test Data**: Call Confluence for `Test data - <MARKET> UAT`. Parse credentials and module-specific data (e.g., customer codes).
 4.  **Credential Check**: Rule out expired accounts before starting sessions.
+5.  **Fallback**: If Jira/Confluence MCPs are unavailable, request exported ticket/test-data text and continue with local evidence.
 
 ### Step 1: Comparative Audit (Execution Phase)
 
 For each market in scope:
 
-1.  **Environment Setup**: Connect VPN if required by `diagnostic-decoder.md`.
+1.  **Environment Setup**: Connect VPN if required by `common-web-visual-testing`.
 2.  **Named Session**: Start `playwright-cli -s={TICKET}-{MARKET}` or Appium session.
 3.  **Walk Steps**: Execute reproduction steps.
     - **Hover Discipline**: Always `hover` the target element (warning, button, price) before screenshotting.
@@ -39,7 +40,7 @@ For each market in scope:
 ### Step 2: Automated Failure Diagnostic
 
 If the verdict is NOT PASS:
-1.  **Run Decoder**: Consult `diagnostic-decoder.md`.
+1.  **Run Decoder**: Load `common-web-visual-testing`; if synced references are available, consult `<SKILLS>/common/common-web-visual-testing/references/diagnostic-decoder.md`.
 2.  **Categorize**: Is it a `VPN NOT CONNECTED` error? `ACCOUNT BLOCKED`? Or a genuine `CODE REGRESSION`?
 3.  **Label**: Add the diagnostic label to the JIRA comment.
 
@@ -52,14 +53,34 @@ If the verdict is NOT PASS:
 3.  **Status Transition**: 
     - If **PASS**: `Ready for UAT` → `Ready for Production`.
     - If **FAIL**: → `Reopened`.
+4.  **Walkthrough**:
+    - Use the **Walkthrough Template** below.
+    - Update project-local `docs/templates/walkthrough.md`.
 
----
+## Artifact Templates
 
-## 🏗️ References
+### Walkthrough Template
+```md
+# Walkthrough: [Name]
 
-- **Diagnostic Decoder**: [diagnostic-decoder.md](file:///Users/nguyenhuyhoang/Projects/Other/agent-skills-standard/skills/common/common-web-visual-testing/references/diagnostic-decoder.md)
+## Scope
 
----
+## Acceptance Criteria
+
+## Evidence
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| [check] | [PASS/FAIL/BLOCKED] | [evidence] |
+
+## Risks
+
+## Next Workflow
+```
+
+## Cost Report
+
+Call `get_session_cost` and output telemetry here before ending.
 
 ## 🚫 Anti-Patterns
 

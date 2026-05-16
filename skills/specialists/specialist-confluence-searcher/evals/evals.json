@@ -1,0 +1,16 @@
+{
+  "skill_name": "specialist-confluence-searcher",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Search internal docs for this feature decision and related tickets.",
+      "expected_output": "Runs Confluence Searcher, searches by ticket key and feature keywords, reads high-relevance pages, and reports Conflicts or Gaps.",
+      "assertions": [
+        { "type": "contains", "value": "Confluence References" },
+        { "type": "contains", "value": "Conflicts or Gaps" },
+        { "type": "contains", "value": "high-relevance pages" }
+      ]
+    }
+  ],
+  "should_not_trigger": ["Fix lint errors", "Generate TC in Zephyr"]
+}

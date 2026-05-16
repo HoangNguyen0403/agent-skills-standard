@@ -1,0 +1,19 @@
+{
+  "skill_name": "common-telemetry",
+  "evals": [
+    {
+      "id": 1,
+      "name": "Ensure get_session_cost is mandated",
+      "assertions": [
+        { "type": "contains", "value": "Call the `get_session_cost` tool" }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Ensure artifacts/session-cost.md is used",
+      "assertions": [
+        { "type": "contains", "value": "artifacts/session-cost.md" }
+      ]
+    }
+  ]
+}

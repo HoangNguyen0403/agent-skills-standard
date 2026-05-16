@@ -7,8 +7,8 @@ This document captures the high-level design, data flow, and key decision record
 The system consists of three main components:
 
 1. **Registry**: A Git repository (or local folder) containing skill definitions (`SKILL.md`) and metadata (`metadata.json`).
-2. **CLI**: The tool that fetches, validates, and syncs these skills to a project.
-3. **Local Project**: The user's codebase where skills are installed (e.g., `.cursor/skills/`, `.claude/skills/`).
+2. **CLI**: The setup/sync/validate tool that fetches, validates, and syncs these skills to a project.
+3. **Local Project**: The user's codebase where skills and workflows are installed in each agent's native format.
 
 ### Data Flow
 
@@ -49,7 +49,37 @@ This project maintains a standardized bridge for multiple AI agents, each with v
 | **Claude Code**     | **Bash Interception**      | `.mcp.json` / `~/.claude/`               | User/Project |
 | **Gemini CLI**      | **BeforeTool Middleware**  | `.gemini/settings.json`                  | User/Project |
 
-## 3. Hook-Based Transparency
+## 3. SDLC Standards Layer
+
+The registry is a portable standards source, not a daily command runtime. `ags`
+initializes, syncs, validates, and wires MCP; users then invoke synced workflows
+inside Claude, Codex, Cursor, Gemini, Copilot, Kiro, Antigravity, or another
+configured agent.
+
+Canonical lifecycle workflows live in `.agents/workflows`:
+
+```mermaid
+graph LR
+  A[sdlc] --> B[brainstorm-feature]
+  B --> C[plan-feature]
+  C --> D[design-solution]
+  D --> E[implement-feature]
+  E --> F[verify-work]
+  F --> G[deploy-release]
+  G --> H[publish-notes]
+  H --> I[retro-learn]
+  I --> C
+```
+
+Workflow export still follows the agent integration taxonomy:
+
+- Antigravity/Kiro: native markdown workflows
+- Claude/Roo/OpenCode: command markdown
+- Gemini: TOML commands
+- Copilot: prompt files
+- Cursor/Trae/Codex: skill folders with `SKILL.md`
+
+## 4. Hook-Based Transparency
 
 Inspired by **Rust Token Killer (RTK)**, we aim for a zero-trust, low-overhead context model. This means:
 
@@ -57,7 +87,7 @@ Inspired by **Rust Token Killer (RTK)**, we aim for a zero-trust, low-overhead c
 2. **Transparent Interception**: Like RTK's bash hooks, our MCP server aims to intercept file read requests (e.g. `read_file`) and inject relevant skill rules into the output, saving the agent from needing to manually fetch rules.
 3. **Token Filtering**: We prioritize high-density information. The `_INDEX.md` model reduces the initial "scouting" tokens by 90% compared to a flat rule list.
 
-## 4. Core Services
+## 5. Core Services
 
 ### SyncService (`src/services/SyncService.ts`)
 
@@ -95,6 +125,7 @@ Handles workflow distribution from a single canonical source.
   - Copilot: prompt files
   - Cursor/Trae/Codex: skill folders (`SKILL.md`)
 - **Codex Note**: Codex does not consume `.agents/workflows` directly; it receives transformed workflow skills under `.codex/skills/<workflow>/SKILL.md`.
+- **SDLC Note**: Default workflows include the full SDLC spine from `sdlc` through `retro-learn`; teams may sync a subset through `.skillsrc`.
 
 ### ConfigService (`src/services/ConfigService.ts`)
 
@@ -108,7 +139,7 @@ Creates agent-specific rule files that point to AGENTS.md.
 
 - **Responsibility**: Generates discovery instructions for each agent (Cursor `.mdc`, Copilot instructions, Claude `CLAUDE.md` protocol, Antigravity/Windsurf/Trae rule files).
 
-## 3. Token Economy (Design Constraint)
+## 6. Token Economy (Design Constraint)
 
 This is a **High-Density** project. Every feature must be evaluated against its impact on the AI's context window.
 
@@ -117,7 +148,7 @@ This is a **High-Density** project. Every feature must be evaluated against its 
 - **Category Index**: ~10-15 lines per category.
 - **References**: Heavy content goes to `references/` folder, loaded only on demand.
 
-## 4. Metadata Configuration (`skills/metadata.json`)
+## 7. Metadata Configuration (`skills/metadata.json`)
 
 Registry-level configuration that controls index generation:
 
@@ -127,7 +158,7 @@ Registry-level configuration that controls index generation:
 - **`foundational_composite_rules`**: Auto-injected composite triggers based on skill name patterns.
 - **`categories`**: Version, tag prefix, and token metrics per category.
 
-## 5. Decision Records
+## 8. Decision Records
 
 ### ADR-001: Local-First Indexing
 
@@ -152,3 +183,21 @@ _Date: 2026-04-04_
 _Date: 2026-04-04_
 **Decision**: In `_INDEX.md`, skills are classified into File Match (auto-check against edited file) and Keyword Match (only when user's request mentions the concept). Broad globs are stripped from non-base skills.
 **Reason**: Without tiering, editing a `*.ts` file matched 27+ skills simultaneously. With tiering, only 6 genuinely relevant skills match via file pattern. Cross-cutting skills (best-practices, security, performance) activate only when the user explicitly mentions them.
+
+### ADR-005: Standards Registry, Not Command Runtime
+
+_Date: 2026-05-14_
+**Decision**: Keep `ags` as a setup/sync/validate tool. Do not add an ECC-style daily command runtime. SDLC workflows are portable repo assets exported into each configured agent's native invocation surface.
+**Reason**: The project differentiates through open standards, token-efficient routing, multi-agent sync/export, MCP enforcement, and local customization. Users should own the synced files and invoke them through their existing agent runtime.
+
+### ADR-006: SDLC Workflow Spine
+
+_Date: 2026-05-14_
+**Decision**: Ship a compact default SDLC workflow chain: `sdlc`, `brainstorm-feature`, `plan-feature`, `design-solution`, `implementation-readiness`, `implement-feature`, `review-ticket`, `verify-work`, `traceability-audit`, `deploy-release`, `publish-notes`, `session-report`, and `retro-learn`.
+**Reason**: Existing workflows covered isolated steps. A visible lifecycle spine makes the repository an SDLC standards layer while preserving token economy through short workflow files and references.
+
+### ADR-007: Specialists Are Native Sub-Agents
+
+_Date: 2026-05-14_
+**Decision**: Keep `skills/specialists/*/SKILL.md` as registry source, but sync them directly to native sub-agent folders instead of normal skill folders. Specialists stay compact, budgeted, and focused on one review or automation lens.
+**Reason**: Review fanout, Jira/ADO/Zephyr handoffs, traceability, and test generation need role isolation without loading broad skill catalogs into the parent context.

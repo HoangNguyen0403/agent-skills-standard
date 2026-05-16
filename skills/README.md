@@ -47,6 +47,7 @@ Cross-framework standards and best practices applicable to all development.
 - [**Store Changelog**](common/common-store-changelog/SKILL.md) (P1) - Generate user-facing release notes for the Apple App Store and Google Play Store by collecting git history, triaging user-impacting changes, and drafting store-compliant changelogs. Enforces character limits (App Store ≤4000, Google Play ≤500), tone, and bullet format. Use when generating release notes, app store changelog, play store release, what's new, or version release notes for any mobile app.
 - [**Web Visual Testing**](common/common-web-visual-testing/SKILL.md) (P1) - Standardizes visual audits, responsive design, and behavioral testing for web apps.
 - [**Documentation**](common/common-documentation/SKILL.md) (P2) - Write effective code comments, READMEs, and technical documentation following intent-first principles. Use when adding comments, writing docstrings, creating READMEs, or updating any documentation.
+- [**Telemetry**](common/common-telemetry/SKILL.md) (P2) - Enforce tracking of token usage, execution metadata, and cost at the end of agent workflows. Use when a workflow concludes, before generating the final handoff or task.md artifact.
 
 ### 🎯 Flutter (Framework)
 
@@ -366,8 +367,18 @@ Expert data access and optimization patterns.
 Standards for specialists.
 
 - [**Specialist Tdd Implementer**](specialists/specialist-tdd-implementer/SKILL.md) (P0) - Strict TDD specialist. Enforces RED -> GREEN -> REFACTOR loop, minimal implementation, and zero-noise test conventions.
+- [**Specialist Ac Verifier**](specialists/specialist-ac-verifier/SKILL.md) (P1) - Maps acceptance criteria to implementation evidence, tests, and scope creep. Use during review when a diff, PR, ticket, or story includes numbered ACs.
+- [**Specialist Ado Pr Reviewer**](specialists/specialist-ado-pr-reviewer/SKILL.md) (P1) - Summarizes Azure DevOps PR metadata, open threads, changed files, and template completeness. Use during PR review or review-ticket workflows.
+- [**Specialist Architecture Guard**](specialists/specialist-architecture-guard/SKILL.md) (P1) - Audits PR diffs for architecture boundary violations, design simplicity, dependency drift, and established-pattern mismatches. Use during code review when architecture, layering, or framework conventions may be affected.
+- [**Specialist Codebase Scout**](specialists/specialist-codebase-scout/SKILL.md) (P1) - Explores codebase structure, affected files, blast radius, related tests, and local conventions for a focused topic. Use when review or planning needs structural lookup without bloating main context.
+- [**Specialist Integration Test Generator**](specialists/specialist-integration-test-generator/SKILL.md) (P1) - Generates one integration/E2E test from an approved test case spec using existing project patterns. Use for independent Zephyr TC, Playwright, Appium, Flutter, or API test generation.
 - [**Specialist Jira Analyst**](specialists/specialist-jira-analyst/SKILL.md) (P1) - High-density JIRA analysis persona. Extracts reproduce steps, ACs, and market requirements with zero-hallucination rigor.
-- [**Specialist Security Reviewer**](specialists/specialist-security-reviewer/SKILL.md) (P1) - High-density security audit persona. Enforces OWASP Top 10, {APP_NAME} security standards, and strict tool budgets (<= 8 calls).
+- [**Specialist Pr Commenter Batch**](specialists/specialist-pr-commenter-batch/SKILL.md) (P1) - Posts sanitized batches of PR review comments or replies through configured review tooling. Use after review-ticket when findings are approved for publication.
+- [**Specialist Security Reviewer**](specialists/specialist-security-reviewer/SKILL.md) (P1) - High-density security audit persona. Enforces OWASP Top 10, Vibe Security, project standards, and strict tool budgets (<= 8 calls).
+- [**Specialist Tc Creator**](specialists/specialist-tc-creator/SKILL.md) (P1) - Creates one test case in Zephyr or another test-management system from an approved structured spec. Use for bulk TC creation by spawning one independent specialist per TC.
+- [**Specialist Test Gap Finder**](specialists/specialist-test-gap-finder/SKILL.md) (P1) - Finds missing, weak, or stale test coverage in a diff. Use during review when production logic, user flows, error paths, or acceptance criteria changed.
+- [**Specialist Zephyr Scanner**](specialists/specialist-zephyr-scanner/SKILL.md) (P1) - Finds Zephyr Scale test cases linked or relevant to Jira stories, ACs, modules, and release risks. Use for coverage analysis and traceability checks.
+- [**Specialist Confluence Searcher**](specialists/specialist-confluence-searcher/SKILL.md) (P2) - Searches Confluence and related tickets for product, architecture, rollout, and test-data context. Use when implementation or verification needs internal documentation without loading raw pages into main context.
 <!-- SKILLS_INDEX_END -->
 
 ---

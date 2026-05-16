@@ -1,0 +1,16 @@
+{
+  "skill_name": "specialist-pr-commenter-batch",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Post these approved review findings as ADO PR comments.",
+      "expected_output": "Runs PR Commenter Batch, sanitizes comments, rejects markdown image embeds, strips mass mentions, and returns posted/rejected table rows.",
+      "assertions": [
+        { "type": "contains", "value": "Sanitization" },
+        { "type": "contains", "value": "markdown image embeds" },
+        { "type": "contains", "value": "posted/rejected" }
+      ]
+    }
+  ],
+  "should_not_trigger": ["Review architecture", "Search Confluence"]
+}

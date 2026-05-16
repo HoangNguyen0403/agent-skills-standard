@@ -4,7 +4,7 @@ description: Deep audit of a skills directory against the Skill Creator standard
 
 # ⚔️ Battle Test Orchestrator
 
-> **Goal**: Evaluate every `SKILL.md` in the target directory against the [Skill Creator Standard](../../skills/common/common-skill-creator/SKILL.md). Deliver a quantified health report and prioritized remediation plan.
+> **Goal**: Evaluate every `SKILL.md` in the target directory against `common-skill-creator`. Deliver a quantified health report and prioritized remediation plan.
 
 ---
 
@@ -23,8 +23,8 @@ find . -name "SKILL.md" | sed 's|/[^/]*/SKILL.md||' | sort | uniq -c
 
 Run scans to detect format and structure violations.
 
-1. **Check for missing mandatory sections**: `grep -rL "triggers:\|priority:\|Anti-Patterns" skills/`
-2. **Check for broad glob triggers**: `grep -r "src/\*\*" skills/`
+1. **Check for missing mandatory sections**: `grep -rL "triggers:\|priority:\|Anti-Patterns" <SKILLS>/`
+2. **Check for broad glob triggers**: `grep -r "src/\*\*" <SKILLS>/`
 3. **Check for length limits**:
    `find . -name "SKILL.md" -exec awk 'END{if(NR>100) print FILENAME": "NR" lines"}' {} \;`
 
@@ -33,7 +33,7 @@ Run scans to detect format and structure violations.
 ## Step 3 — Deep Audit & Scoring
 
 Pick every P0 (CRITICAL) and a random sample of P1/P2 skills. Evaluate them against the **Grading Rubric** in:
-[common-skill-creator/references/rubric.md](../../skills/common/common-skill-creator/references/rubric.md)
+`<SKILLS>/common/common-skill-creator/references/rubric.md` when synced.
 
 1. **Trigger Accuracy**: File patterns + keywords?
 2. **Format Quality**: `**No X**: Do Y.` anti-patterns?
@@ -49,7 +49,7 @@ Pick every P0 (CRITICAL) and a random sample of P1/P2 skills. Evaluate them agai
 ### 📊 Report Format
 
 Output the report using the **Battle Test Report** and **Phased Plan** templates in:
-[common-skill-creator/references/rubric.md](../../skills/common/common-skill-creator/references/rubric.md)
+`<SKILLS>/common/common-skill-creator/references/rubric.md` when synced.
 
 ---
 

@@ -1,67 +1,98 @@
 ---
-description: Unified developer workflow for implementing new features. Translates a PRD/Story into an implementation plan, builds the feature using TDD, verifies functionality locally capturing evidence, and delivers a PR.
+description: Implement an approved feature plan with fresh-context slices, TDD, evidence, and PR-ready output.
 ---
 
-# 🚀 Implement-Feature — Professional Feature Delivery
+# Implement Feature Workflow
 
-This workflow manages the entire lifecycle of building a new feature, from taking an approved PRD or User Story through to final local verification and PR delivery. It enforces a strict **Plan -> Implement -> Verify -> Deliver** cycle.
+Goal: Build an approved feature through TDD slices and route completed work to verification.
 
-## Input
+## Steps
 
-`/implement-feature <jira-url-or-key-or-prd-path>`
+1. Load plan:
+   - PRD or ticket
+   - Technical design if present
+   - Implementation plan
+   - Matched framework and common skills
 
-## Workflow
+2. Prepare workspace:
+   - Confirm clean or intentionally dirty git state.
+   - Create branch or worktree only when project workflow expects it.
+   - Use the **Task Template** below.
+   - Initialize or update project-local `docs/templates/task.md` with small vertical slices.
 
-### Step 0: Environment Prep (Turbo)
+3. Implement slices:
+   - For each slice, write or update the failing test first.
+   - Implement the smallest passing code.
+   - Refactor without expanding scope.
+   - Keep slice evidence near the task item.
+   - Use sub-agents only when the runtime supports them and ownership is disjoint.
 
-// turbo
-1. **Sync Registry**: `git pull origin develop` in the standard repo.
-### Step 1: Requirements Breakdown (Implementation Plan Phase)
+4. Maintain context hygiene:
+   - Start fresh context for large independent slices when possible.
+   - Preserve decisions in project-local `docs/templates/task.md` or `docs/specs/implementation-plan-[slug].md`.
+   - Avoid carrying raw logs; summarize failures and fixes.
 
-> [!TIP]
-> **Sub-Agent Delegation**: If your platform supports sub-agents (e.g., Claude, OpenCode, Gemini, Kiro), immediately delegate steps 1 and 2 below to your JIRA Analyst sub-agent (`@specialist-jira-analyst`). If sub-agents are NOT supported (e.g., Antigravity, Windsurf), execute these steps yourself.
+5. Prepare handoff:
+   - Run local automated checks.
+   - Use the **Walkthrough Template** below.
+   - Draft project-local `docs/templates/walkthrough.md` with evidence placeholders or captured proof.
+   - Route next step to `verify-work`.
 
-1.  **Analyze Specs**: Read the target JIRA Epic/Story or local PRD file. Extract `Acceptance Criteria (ACs)`, `Design References`, and `Data Requirements`.
-2.  **Cross-Check Context**: Search the codebase for existing patterns, shared components, or previous implementations.
-3.  **Create Implementation Plan**: Initialize `implementation_plan.md`.
-    - **Goal**: Clear description of the feature to be built.
-    - **Proposed Changes**: Detail the exact architecture, new files to create, and existing files to modify.
-    - **Verification Plan**: Detail the test strategy (TDD loop) and which QE skill (`playwright-cli` or `appium-mcp`) will be used to verify the feature *locally* before PR.
-4.  **HARD STOP**: Request user approval for the `implementation_plan.md`.
+## Artifact Templates
 
-### Step 2: Implementation (TDD Phase)
+### Task Template
+```md
+# Task: [Name]
 
-> [!TIP]
-> **Sub-Agent Delegation**: For the coding phase, delegate the TDD loop to your TDD Implementer sub-agent (`@specialist-tdd-implementer`). Provide it with the relevant files from your `implementation_plan.md`. If sub-agents are NOT supported, execute the TDD loop yourself using `common-tdd`.
+## Scope
 
-1.  **Worktree Branching**: Create a new worktree for the feature using `git worktree add ../<ticket-key> -b feat/<ticket-key>-<feature-name>` and `cd` into it.
-2.  **Task Tracking**: Initialize `task.md`. Break down the implementation into atomic commits.
-3.  **TDD Loop**: Implement the feature using `common-tdd` (Red-Green-Refactor) or the `@specialist-tdd-implementer` sub-agent.
-    - Write a failing test for the first AC.
-    - Implement the bare minimum to pass.
-    - Refactor.
-4.  **Enforce Best Practices**: Apply `common-best-practices` and domain-specific skills (e.g., `typescript-best-practices`, `common-ui-design`) throughout implementation.
+## Checklist
 
-### Step 3: Local Verification (Enterprise Standard)
+- [ ] [task]
 
-Do NOT rely on unit tests alone — verify the full feature against the Acceptance Criteria end-to-end.
+## Decisions
 
-1.  **Launch Dev Server**: Run the local dev environment.
-2.  **Execute QE Audit**:
-    - **Web**: Load `quality-engineering-playwright-cli`. Walk through the newly built user flows. Capture screenshots/videos demonstrating the ACs are met.
-    - **Mobile**: Load `quality-engineering-appium-mcp`. Run the flows on an emulator and capture evidence.
-3.  **Final Verdict**: Cross-reference the captured flows against the PRD/JIRA. Address any missed requirements or UI bugs immediately.
+## Evidence
 
-### Step 4: Deliver PR
+## Next Workflow
+```
 
-1.  **Commit**: Generate atomic commit messages using `caveman-commit`.
-2.  **PR Details**: Draft the PR description outlining the "What" and "Why".
-3.  **Walkthrough**: Create `walkthrough.md` embedding the local verification evidence (screenshots/videos) to prove the feature works as intended.
+### Walkthrough Template
+```md
+# Walkthrough: [Name]
 
----
+## Scope
 
-## 🚫 Anti-Patterns
+## Acceptance Criteria
 
-- **No Blind Implementation**: Never write production code before the `implementation_plan.md` is approved and a failing test is written.
-- **No Skipping Local Verify**: Unit tests passing is not enough. Provide end-to-end snapshots/logs in the `walkthrough.md` to prove the UI/UX is correct.
-- **No Monolithic PRs**: Keep commits small and mapped to individual ACs.
+## Evidence
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| [check] | [PASS/FAIL/BLOCKED] | [evidence] |
+
+## Risks
+
+## Next Workflow
+```
+
+## Output Template
+
+```md
+# Implementation Handoff: [Name]
+
+## Completed Slices
+
+## Tests Run
+
+## Changed Contracts
+
+## Evidence
+
+## Known Risks
+
+## Next Workflow
+verify-work
+
+## Cost Report
+```

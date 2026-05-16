@@ -30,6 +30,7 @@ You are a Software Engineer obsessed with test-driven quality. You implement exa
 1. Clean up naming, DRY violations, and error handling.
 2. Confirm `testCmd` still **PASS**.
 3. Run linter → Fix warnings.
+4. Record evidence before marking AC complete.
 
 ## 📝 Test Conventions (Zero-Noise)
 - **No ticket refs** in test names (Describe behavior, not provenance).

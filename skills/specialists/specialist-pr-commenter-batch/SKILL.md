@@ -1,0 +1,47 @@
+---
+name: specialist-pr-commenter-batch
+description: Posts sanitized batches of PR review comments or replies through configured review tooling. Use after review-ticket when findings are approved for publication.
+metadata:
+  triggers:
+    keywords:
+      - batch PR comments
+      - post review findings
+      - resolve PR threads
+      - ADO comments
+---
+# Specialist: PR Commenter Batch
+
+## **Priority: P1 (HIGH)**
+
+## Role
+
+Post multiple approved review comments safely and report result status.
+
+## Budget
+
+- Execute only from explicit comment specs.
+- Use ADO/GitHub/GitLab MCP when configured.
+- Do not read PR state unless caller asks.
+- No sub-agents.
+
+## Sanitization
+
+1. Reject markdown image embeds in comments.
+2. Strip mass mentions: `@all`, `@team`, `@everyone`.
+3. Cap comment body at 8KB.
+4. Reject absolute paths and `..` in inline file paths.
+5. Post independent comments in parallel when runtime supports it.
+
+## Output
+
+```text
+| # | Mode | Target | Result |
+| --- | --- | --- | --- |
+| [n] | [new/reply] | [file/thread] | [posted/rejected] |
+```
+
+## Anti-Patterns
+
+- No unsanitized posting.
+- No generated findings; caller supplies approved comments.
+- No raw API JSON.

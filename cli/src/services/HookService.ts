@@ -1,88 +1,79 @@
 import fs from 'fs-extra';
 import path from 'path';
-import { Agent } from '../constants';
+import { Agent, getAgentDefinition } from '../constants';
 
 // ── Embedded hook templates ───────────────────────────────────────────────────
 
 /**
- * Claude Code PreToolUse hook script (Python).
- * Fires before every Edit/Write — emits a load_skills_for_files() reminder as
- * prompt context so Claude always consults skill rules before editing.
- * Always exits 0 — never blocks tool execution.
+ * Universal PreToolUse hook script (Node.js / JavaScript).
+ * Reminds AI agents to call load_skills_for_files() before any code edit.
+ * Guaranteed to execute on any machine running agent-skills-standard.
+ * Always exits 0 to never block work.
  */
-export const CLAUDE_SKILL_LOADER_PY = `#!/usr/bin/env python3
-"""PreToolUse hook: remind Claude to call load_skills_for_files() before any code edit.
+export const UNIVERSAL_SKILL_LOADER_JS = `#!/usr/bin/env node
+/**
+ * PreToolUse hook: remind AI agent to call load_skills_for_files() before any code edit.
+ * Installed by agent-skills-standard (ags sync). Remove via: ags hooks uninstall
+ * Guaranteed to execute on any system with Node.js. Always exits 0 to never block work.
+ */
+const fs = require('fs');
+const path = require('path');
 
-Installed by agent-skills-standard (ags sync). Remove via: ags hooks uninstall
+const REPO_ROOT = process.env.CLAUDE_PROJECT_DIR || path.resolve(__dirname, '../../');
+const EDIT_TOOLS = new Set(['Edit', 'Write', 'MultiEdit', 'NotebookEdit']);
+const SKIP_DIRS = [
+  path.resolve(REPO_ROOT, '.claude'),
+  path.resolve(REPO_ROOT, '.gemini'),
+  path.resolve(REPO_ROOT, '.codex'),
+  path.resolve(REPO_ROOT, '.github'),
+  path.resolve(REPO_ROOT, '.cursor'),
+  path.resolve(REPO_ROOT, '.roo'),
+  path.resolve(REPO_ROOT, '.trae'),
+  path.resolve(REPO_ROOT, '.opencode'),
+  path.resolve(REPO_ROOT, '.kiro'),
+  path.resolve(REPO_ROOT, '.windsurf'),
+  path.resolve(REPO_ROOT, '.agents'),
+  path.resolve(REPO_ROOT, '.vscode'),
+];
+const SKIP_FILES = [
+  path.resolve(REPO_ROOT, 'AGENTS.md'),
+  path.resolve(REPO_ROOT, 'CLAUDE.md'),
+];
 
-Why a hook (not just AGENTS.md or the MCP alone):
-    Context compaction silently drops the check-AGENTS.md instruction.
-    The MCP is on-demand - Claude must remember to call it.
-    A hook fires mechanically on every edit - 100% trigger rate, cannot be forgotten.
+function shouldSkip(filePath) {
+  try {
+    const real = path.resolve(filePath);
+    if (SKIP_DIRS.some(d => real.startsWith(d))) return true;
+    if (SKIP_FILES.includes(real)) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
 
-Decision contract:
-    - stdout: short MCP trigger prompt (injected as prompt context)
-    - exit 0 always - never blocks the edit, only adds context
-    - Silent on any error - hook bugs must never block legitimate work
-"""
-from __future__ import annotations
+let input = '';
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', chunk => { input += chunk; });
+process.stdin.on('end', () => {
+  try {
+    const data = JSON.parse(input);
+    if (!EDIT_TOOLS.has(data.tool_name)) process.exit(0);
 
-import json
-import os
-import sys
-from pathlib import Path
+    const filePath = data.tool_input?.file_path || '';
+    if (!filePath || shouldSkip(filePath)) process.exit(0);
 
-REPO_ROOT = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
-
-EDIT_TOOLS = {"Edit", "Write", "MultiEdit", "NotebookEdit"}
-
-_SKIP_DIRS = (
-    str(Path(os.path.realpath(REPO_ROOT / ".claude"))),
-    str(Path(os.path.realpath(REPO_ROOT / ".gemini"))),
-)
-_SKIP_FILES = (
-    str(Path(os.path.realpath(REPO_ROOT / "AGENTS.md"))),
-    str(Path(os.path.realpath(REPO_ROOT / "CLAUDE.md"))),
-)
-
-
-def _should_skip(file_path: str) -> bool:
-    try:
-        real = str(Path(os.path.realpath(file_path)))
-    except Exception:
-        return False
-    if any(real.startswith(d) for d in _SKIP_DIRS):
-        return True
-    if real in _SKIP_FILES:
-        return True
-    return False
-
-
-def main() -> None:
-    try:
-        data = json.load(sys.stdin)
-    except Exception:
-        sys.exit(0)
-
-    if data.get("tool_name") not in EDIT_TOOLS:
-        sys.exit(0)
-
-    file_path = data.get("tool_input", {}).get("file_path", "")
-    if not file_path or _should_skip(file_path):
-        sys.exit(0)
-
-    print(
-        f"[SKILL TRIGGER] Editing: {Path(file_path).name}\\n"
-        f"-> Call load_skills_for_files(files=[ \\"{file_path}\\" ]) on the "
-        f"agent-skills-standard MCP. It returns applicable SKILL.md rules, "
-        f"or nothing if no skills match this file type."
-    )
-
-    sys.exit(0)
-
-
-if __name__ == "__main__":
-    main()
+    const fileName = path.basename(filePath);
+    console.log(
+      '[SKILL TRIGGER] Editing: ' + fileName + '\\n' +
+      '-> Call load_skills_for_files(files=[ "' + filePath + '" ]) on the ' +
+      'agent-skills-standard MCP. It returns applicable SKILL.md rules, ' +
+      'or nothing if no skills match this file type.'
+    );
+    process.exit(0);
+  } catch {
+    process.exit(0);
+  }
+});
 `;
 
 /**
@@ -106,10 +97,6 @@ instructions: |
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const CLAUDE_HOOK_SCRIPT_REL = '.claude/hooks/preedit-skill-loader.py';
-const CLAUDE_SETTINGS_REL = '.claude/settings.json';
-const CLAUDE_HOOK_CMD =
-  'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/preedit-skill-loader.py"';
 const CLAUDE_MCP_PERMISSION = 'mcp__agent-skills-standard__*';
 const KIRO_HOOK_REL = '.kiro/hooks/ags-skill-loader.md';
 
@@ -138,6 +125,11 @@ export interface HookStatusRow {
  *
  * Supported hook systems:
  *   Claude Code — PreToolUse hook (blocking-capable, fires before every Edit/Write)
+ *   Cursor      — PreToolUse hook
+ *   Windsurf    — PreToolUse hook
+ *   Gemini      — PreToolUse hook
+ *   Codex       — PreToolUse hook
+ *   Copilot     — PreToolUse hook
  *   Kiro        — File-save spec hook (advisory, cannot block edits)
  *
  * All other agents in the supported-agents list have no programmatic hook system;
@@ -156,15 +148,25 @@ export class HookService {
     const report: HookWriteReport = { writes: [], unsupported: [] };
 
     for (const agent of opts.agents) {
-      switch (agent) {
-        case Agent.Claude:
-          await this.installClaudeHook(opts.rootDir, report);
-          break;
-        case Agent.Kiro:
-          await this.installKiroHook(opts.rootDir, report);
-          break;
-        default:
-          report.unsupported.push(agent);
+      if (agent === Agent.Kiro) {
+        await this.installKiroHook(opts.rootDir, report);
+        continue;
+      }
+
+      const def = getAgentDefinition(agent);
+      if (def.hookScriptPath && def.hookConfigPath) {
+        await this.installStandardHookConfig({
+          rootDir: opts.rootDir,
+          agent,
+          scriptRelPath: def.hookScriptPath,
+          configRelPath: def.hookConfigPath,
+          hookCmd: agent === Agent.Claude
+            ? 'node "$CLAUDE_PROJECT_DIR/.claude/hooks/preedit-skill-loader.js"'
+            : `node "${def.hookScriptPath}"`,
+          report,
+        });
+      } else {
+        report.unsupported.push(agent);
       }
     }
 
@@ -178,22 +180,22 @@ export class HookService {
     const removed: Array<{ agent: Agent; file: string }> = [];
 
     for (const agent of opts.agents) {
-      switch (agent) {
-        case Agent.Claude: {
-          const files = await this.uninstallClaudeHook(opts.rootDir);
-          removed.push(...files.map((f) => ({ agent, file: f })));
-          break;
+      if (agent === Agent.Kiro) {
+        const abs = path.join(opts.rootDir, KIRO_HOOK_REL);
+        if (await fs.pathExists(abs)) {
+          await fs.remove(abs);
+          removed.push({ agent, file: KIRO_HOOK_REL });
         }
-        case Agent.Kiro: {
-          const abs = path.join(opts.rootDir, KIRO_HOOK_REL);
-          if (await fs.pathExists(abs)) {
-            await fs.remove(abs);
-            removed.push({ agent, file: KIRO_HOOK_REL });
-          }
-          break;
-        }
-        default:
-          break;
+        continue;
+      }
+
+      const def = getAgentDefinition(agent);
+      if (def.hookConfigPath) {
+        const files = await this.uninstallStandardHookConfig(
+          opts.rootDir,
+          def.hookConfigPath,
+        );
+        removed.push(...files.map((f) => ({ agent, file: f })));
       }
     }
 
@@ -207,63 +209,68 @@ export class HookService {
     const rows: HookStatusRow[] = [];
 
     for (const agent of opts.agents) {
-      switch (agent) {
-        case Agent.Claude: {
-          const scriptExists = await fs.pathExists(
-            path.join(opts.rootDir, CLAUDE_HOOK_SCRIPT_REL),
-          );
-          const registeredInSettings = await this.claudeHookIsRegistered(
-            path.join(opts.rootDir, CLAUDE_SETTINGS_REL),
-          );
-          rows.push({
+      if (agent === Agent.Kiro) {
+        const exists = await fs.pathExists(
+          path.join(opts.rootDir, KIRO_HOOK_REL),
+        );
+        rows.push({ agent, installed: exists, files: [KIRO_HOOK_REL] });
+        continue;
+      }
+
+      const def = getAgentDefinition(agent);
+      if (def.hookScriptPath && def.hookConfigPath) {
+        rows.push(
+          await this.standardHookStatus(
+            opts.rootDir,
             agent,
-            installed: scriptExists && registeredInSettings,
-            files: [CLAUDE_HOOK_SCRIPT_REL, CLAUDE_SETTINGS_REL],
-          });
-          break;
-        }
-        case Agent.Kiro: {
-          const exists = await fs.pathExists(
-            path.join(opts.rootDir, KIRO_HOOK_REL),
-          );
-          rows.push({ agent, installed: exists, files: [KIRO_HOOK_REL] });
-          break;
-        }
-        default:
-          break;
+            def.hookScriptPath,
+            def.hookConfigPath,
+          ),
+        );
       }
     }
 
     return rows;
   }
 
-  // ── Claude Code ─────────────────────────────────────────────────────────────
+  // ── Standard Python/JSON Hook System (Claude, Codex, Copilot) ────────────────
 
-  private async installClaudeHook(
-    rootDir: string,
-    report: HookWriteReport,
-  ): Promise<void> {
-    const scriptAbs = path.join(rootDir, CLAUDE_HOOK_SCRIPT_REL);
+  private async installStandardHookConfig(opts: {
+    rootDir: string;
+    agent: Agent;
+    scriptRelPath: string;
+    configRelPath: string;
+    hookCmd: string;
+    report: HookWriteReport;
+  }): Promise<void> {
+    const scriptAbs = path.join(opts.rootDir, opts.scriptRelPath);
     const scriptExists = await fs.pathExists(scriptAbs);
     await fs.ensureDir(path.dirname(scriptAbs));
+
+    // Clean up legacy Python script if present
+    const legacyPyAbs = scriptAbs.replace(/\.js$/, '.py');
+    if (await fs.pathExists(legacyPyAbs)) {
+      await fs.remove(legacyPyAbs).catch(() => {});
+    }
+
     if (!scriptExists) {
-      await fs.writeFile(scriptAbs, CLAUDE_SKILL_LOADER_PY);
-      report.writes.push({
-        agent: Agent.Claude,
-        file: CLAUDE_HOOK_SCRIPT_REL,
+      await fs.writeFile(scriptAbs, UNIVERSAL_SKILL_LOADER_JS);
+      opts.report.writes.push({
+        agent: opts.agent,
+        file: opts.scriptRelPath,
         action: 'added',
       });
     } else {
-      report.writes.push({
-        agent: Agent.Claude,
-        file: CLAUDE_HOOK_SCRIPT_REL,
+      opts.report.writes.push({
+        agent: opts.agent,
+        file: opts.scriptRelPath,
         action: 'skipped-existing',
       });
     }
 
-    const settingsAbs = path.join(rootDir, CLAUDE_SETTINGS_REL);
-    const settingsExists = await fs.pathExists(settingsAbs);
-    const existing = await this.readJson(settingsAbs);
+    const configAbs = path.join(opts.rootDir, opts.configRelPath);
+    const configExists = await fs.pathExists(configAbs);
+    const existing = await this.readJson(configAbs);
     let changed = false;
 
     // Add MCP permission (idempotent)
@@ -283,36 +290,36 @@ export class HookService {
     if (!this.claudeHookEntryExists(preToolUse)) {
       preToolUse.unshift({
         matcher: 'Edit|Write|MultiEdit|NotebookEdit',
-        hooks: [{ type: 'command', command: CLAUDE_HOOK_CMD, timeout: 5 }],
+        hooks: [{ type: 'command', command: opts.hookCmd, timeout: 5 }],
       });
       changed = true;
     }
 
     if (changed) {
-      await this.writeAtomic(settingsAbs, existing);
-      report.writes.push({
-        agent: Agent.Claude,
-        file: CLAUDE_SETTINGS_REL,
-        action: settingsExists ? 'updated' : 'added',
+      await this.writeAtomic(configAbs, existing);
+      opts.report.writes.push({
+        agent: opts.agent,
+        file: opts.configRelPath,
+        action: configExists ? 'updated' : 'added',
       });
     } else {
-      report.writes.push({
-        agent: Agent.Claude,
-        file: CLAUDE_SETTINGS_REL,
+      opts.report.writes.push({
+        agent: opts.agent,
+        file: opts.configRelPath,
         action: 'skipped-existing',
       });
     }
   }
 
-  private async uninstallClaudeHook(rootDir: string): Promise<string[]> {
+  private async uninstallStandardHookConfig(
+    rootDir: string,
+    configRelPath: string,
+  ): Promise<string[]> {
     const removed: string[] = [];
+    const configAbs = path.join(rootDir, configRelPath);
+    if (!(await fs.pathExists(configAbs))) return removed;
 
-    // Script file is intentionally preserved on uninstall — it belongs to the
-    // user's project. We only remove our registration from settings.json.
-    const settingsAbs = path.join(rootDir, CLAUDE_SETTINGS_REL);
-    if (!(await fs.pathExists(settingsAbs))) return removed;
-
-    const data = await this.readJson(settingsAbs);
+    const data = await this.readJson(configAbs);
     let changed = false;
 
     const permissions = this.ensureObject(data, 'permissions');
@@ -336,11 +343,30 @@ export class HookService {
     }
 
     if (changed) {
-      await this.writeAtomic(settingsAbs, data);
-      removed.push(CLAUDE_SETTINGS_REL);
+      await this.writeAtomic(configAbs, data);
+      removed.push(configRelPath);
     }
 
     return removed;
+  }
+
+  private async standardHookStatus(
+    rootDir: string,
+    agent: Agent,
+    scriptRelPath: string,
+    configRelPath: string,
+  ): Promise<HookStatusRow> {
+    const scriptExists = await fs.pathExists(
+      path.join(rootDir, scriptRelPath),
+    );
+    const registeredInSettings = await this.claudeHookIsRegistered(
+      path.join(rootDir, configRelPath),
+    );
+    return {
+      agent,
+      installed: scriptExists && registeredInSettings,
+      files: [scriptRelPath, configRelPath],
+    };
   }
 
   private async claudeHookIsRegistered(settingsAbs: string): Promise<boolean> {

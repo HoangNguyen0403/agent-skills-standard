@@ -1,0 +1,16 @@
+{
+  "skill_name": "specialist-test-gap-finder",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Does this diff have missing tests or weak assertions?",
+      "expected_output": "Runs Test Gap Finder with <= 12 calls, checks missing tests, weak assertions, error paths, and runs tests before claiming a test fails.",
+      "assertions": [
+        { "type": "contains", "value": "Missing Tests" },
+        { "type": "contains", "value": "weak assertions" },
+        { "type": "contains", "value": "Run tests" }
+      ]
+    }
+  ],
+  "should_not_trigger": ["Fetch Jira sprint plan", "Create architecture diagram"]
+}

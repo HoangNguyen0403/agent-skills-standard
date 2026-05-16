@@ -29,26 +29,28 @@ When the user asks to perform this workflow, execute the following steps:
 2. Sync requirements: if a ticket key or PR URL exists, fetch the intent.
 3. Load global skills: `common-code-review`, `common-security-audit`, `common-owasp`, `common-llm-security`.
 4. Load framework skills: P0/P1 rules from `AGENTS.md`.
+5. If ticket/PR context exists, prefer `review-ticket` for specialist fanout.
 
 ---
 
 ## Step 2 — Multi-Layer Review (Applying Lenses)
 
-Run the following lenses from [lenses.md](../../skills/common/common-code-review/references/lenses.md) against the diff:
+Load `common-code-review`. If synced references are available, use `<SKILLS>/common/common-code-review/references/lenses.md`; otherwise apply these lenses directly:
 
-1. **Security (Mandatory)**: [Lens 1](../../skills/common/common-code-review/references/lenses.md#lens-1-security-mandatory)
-2. **Logic & Correctness**: [Lens 2](../../skills/common/common-code-review/references/lenses.md#lens-2-architecture--correctness)
-3. **Silent Failures**: [Lens 3](../../skills/common/common-code-review/references/lenses.md#lens-3-silent-failures--error-handling)
-4. **Type Design**: [Lens 4](../../skills/common/common-code-review/references/lenses.md#lens-4-type-design)
-5. **AI Safety**: (If LLM code exists) [Lens 5](../../skills/common/common-code-review/references/lenses.md#lens-5-ai--llm-security)
-6. **Testing**: [Lens 6](../../skills/common/common-code-review/references/lenses.md#lens-6-test-coverage--doc-accuracy)
+1. **Security (Mandatory)**.
+2. **Logic & Correctness**.
+3. **Silent Failures**.
+4. **Type Design**.
+5. **AI Safety** if LLM code exists.
+6. **Vibe Security** using `<SKILLS>/common/common-security-audit/references/vibe-security-scan.md` for AI-generated or fast-moving changes.
+7. **Testing**.
 
 ---
 
 ## Step 3 — Confidence Filter & Report
 
 1. Confidence filter: report findings only when confidence is `>= 76/100`.
-2. Report format: use [common-code-review/references/report.md](../../skills/common/common-code-review/references/report.md).
+2. Report format: use `<SKILLS>/common/common-code-review/references/report.md` if synced; otherwise use the Output Template below.
 
 ---
 
@@ -64,6 +66,7 @@ Run the following lenses from [lenses.md](../../skills/common/common-code-review
 1. Do not post the full report as one comment.
 2. Post each finding as a separate thread at the file and line.
 3. Post one summary verdict comment.
+4. If using `review-ticket`, publish only after user approves `specialist-pr-commenter-batch`.
 
 ---
 

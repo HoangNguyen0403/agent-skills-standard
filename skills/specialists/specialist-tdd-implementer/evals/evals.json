@@ -1,0 +1,16 @@
+{
+  "skill_name": "specialist-tdd-implementer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Implement AC1 with strict red-green-refactor.",
+      "expected_output": "Runs TDD Implementer and enforces RED -> GREEN -> REFACTOR, failing test first, minimal implementation, and evidence before marking AC complete.",
+      "assertions": [
+        { "type": "contains", "value": "RED -> GREEN -> REFACTOR" },
+        { "type": "contains", "value": "failing test" },
+        { "type": "contains", "value": "evidence" }
+      ]
+    }
+  ],
+  "should_not_trigger": ["Search Zephyr", "Summarize Confluence docs"]
+}

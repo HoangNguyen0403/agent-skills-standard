@@ -182,7 +182,7 @@ const getTargets = (home = os.homedir()): Record<string, McpTarget> => {
     },
     [Agent.Copilot]: {
       agent: Agent.Copilot,
-      projectFile: '.vscode/mcp.json',
+      projectFile: '.github/mcp.json',
       userFile: (() => {
         if (process.platform === 'darwin') {
           return path.join(
@@ -221,20 +221,20 @@ const getTargets = (home = os.homedir()): Record<string, McpTarget> => {
         }
         return null;
       })(),
-      key: 'servers',
+      key: 'mcpServers',
       shape: 'map',
     },
     [Agent.OpenCode]: {
       agent: Agent.OpenCode,
-      projectFile: 'opencode.json',
-      userFile: path.join(HOME, '.config', 'opencode', 'opencode.json'),
-      key: 'mcp',
+      projectFile: '.opencode/mcp_config.json',
+      userFile: path.join(HOME, '.opencode', 'mcp_config.json'),
+      key: 'mcpServers',
       shape: 'map',
     },
-    [Agent.OpenAI]: {
-      agent: Agent.OpenAI,
-      projectFile: '.codex/hooks.json',
-      userFile: path.join(HOME, '.codex', 'hooks.json'),
+    [Agent.Codex]: {
+      agent: Agent.Codex,
+      projectFile: '.codex/mcp_config.json',
+      userFile: path.join(HOME, '.codex', 'mcp_config.json'),
       key: 'mcpServers',
       shape: 'map',
     },

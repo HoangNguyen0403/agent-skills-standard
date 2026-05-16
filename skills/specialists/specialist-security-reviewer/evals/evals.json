@@ -1,0 +1,16 @@
+{
+  "skill_name": "specialist-security-reviewer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this PR diff for exploitable OWASP vulnerabilities.",
+      "expected_output": "Runs Security Reviewer with Tool Cap <= 8, checks Secrets & Data Protection, Injection Surfaces, Auth & Authz, and Data Provenance.",
+      "assertions": [
+        { "type": "contains", "value": "Tool Cap" },
+        { "type": "contains", "value": "Injection Surfaces" },
+        { "type": "contains", "value": "Data Provenance" }
+      ]
+    }
+  ],
+  "should_not_trigger": ["Write acceptance criteria", "Create release notes"]
+}

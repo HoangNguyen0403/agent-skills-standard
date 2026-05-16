@@ -51,6 +51,7 @@ If missing, initialize minimum required theme — map XML colors/styles to Compo
 ## Step 7: Migrate the XML layout
 
 Convert each View to its Compose equivalent. See [interop patterns](references/interop-patterns.md) for the View→Composable mapping table, ComposeView, and AndroidView usage. Include a `@Preview` for every new Composable.
+Use `LazyColumn` or `LazyRow` for list-heavy screens instead of flattening them into one large static composable.
 
 ## Step 8: Replace usages
 

@@ -1,0 +1,16 @@
+{
+  "skill_name": "specialist-integration-test-generator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Generate a Playwright E2E test from this approved Zephyr TC.",
+      "expected_output": "Runs Integration Test Generator, loads matching project skills, reads nearest existing test sample, writes one scenario, formats, and runs smallest reliable test.",
+      "assertions": [
+        { "type": "contains", "value": "Load matching project skills" },
+        { "type": "contains", "value": "nearest existing test sample" },
+        { "type": "contains", "value": "Test: PASS" }
+      ]
+    }
+  ],
+  "should_not_trigger": ["Scan PR comments", "Write PRD"]
+}

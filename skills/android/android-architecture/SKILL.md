@@ -4,20 +4,21 @@ description: Apply Clean Architecture layering, modularization, and Unidirection
 metadata:
   triggers:
     files:
-    - 'build.gradle.kts'
-    - 'settings.gradle.kts'
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
     keywords:
-    - clean-architecture
-    - module
-    - layers
-    - domain
-    - UDF
-    - unidirectional
-    - feature module
-    - core module
-    - presentation layer
-    - data layer
+      - clean-architecture
+      - module
+      - layers
+      - domain
+      - UDF
+      - unidirectional
+      - feature module
+      - core module
+      - presentation layer
+      - data layer
 ---
+
 # Android Architecture Standards
 
 ## **Priority: P0 (CRITICAL)**
@@ -62,7 +63,6 @@ See [structure & examples](references/implementation.md) for module configuratio
 - [ ] Each feature module compiles independently.
 - [ ] State flows one-way: Events UP, State DOWN.
 - [ ] `./gradlew build` succeeds.
-
 ## References
 
 - [Structure & Examples](references/implementation.md)

@@ -5,6 +5,47 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [cli-v2.4.0] - 2026-05-16
+
+**Category**: 🧭 Agentic-AI Learning Integration, Specialist Expansion & SDLC Hardening
+
+### Added
+
+- **Portable SDLC Artifacts**:
+  - Embedded canonical templates (PRD, Architecture, Task, Walkthrough, etc.) directly into workflow files.
+- **Session Telemetry & Cost Reporting**:
+  - Added `get_session_cost()` tool to the MCP server for tracking tool calls and session metadata.
+  - Introduced `common-telemetry` skill to enforce standardized markdown cost reporting.
+  - Updated all active workflows to include a mandatory `## Cost Report` section.
+- **SDLC workflow spine**:
+  - Added `implementation-readiness` and `review-ticket` as synced workflows.
+  - Unified `sdlc`, `dev-fix`, `verify-work`, `verify-bug`, and `code-review` through new readiness and review surfaces.
+- **Native specialist pack**:
+  - Expanded `specialists` into 13 native sub-agents covering Jira, architecture, codebase scouting, AC verification, test gaps, Zephyr, ADO PR review, Confluence, PR comment batching, integration test generation, TC creation, security, and TDD.
+  - Added eval coverage for the specialist pack and synced them to native agent folders.
+
+### Changed
+
+- **CLI version**: `2.3.0` → `2.4.0`.
+- **Workflow Spine Consolidation**:
+  - Pruned legacy/redundant workflows (`traceability-audit`, `deploy-release`, `publish-notes`, `session-report`, `retro-learn`).
+  - Updated `sdlc` routing and `docs/sdlc-workflow-quick-reference.md` to reflect the streamlined lifecycle.
+- **Audit gates**: Extended `audit:sdlc` to verify new workflows, specialist evals, and generated native agents.
+- **Integrity Gates**: All 259 skills now undergo a strict alignment pass (HTML comment stripping) and validation check.
+- **Hook Architecture & Runtime Support**:
+  - Modernized `HookService` by replacing legacy duplicate Python hook templates with a single canonical universal JavaScript hook (`preedit-skill-loader.js`), complete with automated self-cleaning migration.
+  - Added native PreToolUse hook configuration support for `Cursor` (`.cursor/hooks.json`), `Windsurf` (`.windsurf/hooks.json`), and `Gemini` (`.gemini/hooks.json`).
+  - Renamed `Agent.OpenAI` to `Agent.Codex` across the CLI codebase, metadata, and documentation to accurately reflect the runtime.
+- **Skill Updates**:
+  - `common-v2.0.7`: Added `common-telemetry` skill and integrated `Vibe Security Scan` lens into `common-security-audit`.
+  - `android-v1.4.2`: Updated `android-compose-migration` with list-heavy screen guidance (`LazyColumn`/`LazyRow`) and `android-concurrency` with `SharedFlow` replay rules.
+  - `php-v1.3.6`: Cleaned up formatting and git rules in `php-tooling`.
+  - `specialists-v1.1.1`: Added 10 new native specialists (`ac-verifier`, `ado-pr-reviewer`, `architecture-guard`, `codebase-scout`, `confluence-searcher`, `integration-test-generator`, `pr-commenter-batch`, `tc-creator`, `test-gap-finder`, `zephyr-scanner`) and updated `specialist-security-reviewer` and `specialist-tdd-implementer`.
+
+### Notes
+
+- `pnpm check-alignment --threshold 90` still fails on 71 older framework skills; that remains a separate framework quality-wave backlog.
+
 ## [cli-v2.2.3] - 2026-05-10
 
 **Category**: 🔄 Workflow Sync Optimization & Registry Reliability
@@ -40,13 +81,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [cli-v2.2.2] / [mcp-v0.1.2] - 2026-05-09
 
-
 **Category**: 🤖 Specialist Integration & Reliability Hardening
 
 ### Added
 
 - **Integrated Specialist Sync**: `SpecialistSyncService` is now a first-class phase in the core `ags sync` lifecycle. Sub-agent definitions are automatically transformed and deployed to all supported platform folders (`.clauderules`, `.cursor/agents`, etc.) based on the registry whitelist.
-- **Sub-Agent Workflow Delegation**: 
+- **Sub-Agent Workflow Delegation**:
   - Integrated `@specialist-tdd-implementer` into `implement-feature` and `dev-fix` implementation phases for strict TDD enforcement.
   - Added "Kick-off Implementation" step to `plan-feature.md` to automate the transition from planning to execution.
 - **Workflow References**: Added a `### References` section to `verify-bug.md` linking to the `diagnostic-decoder.md` for automated failure analysis.
@@ -85,7 +125,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Resolved TypeScript instantiation-depth limit (TS2589) by using a registration wrapper with loosened static types.
 - **CLI Configuration**:
   - Corrected configuration paths for `Antigravity`, `Kiro`, `Roo`, and `Copilot` runtime integrations.
-  - Added user-scope configuration support for `Antigravity`, `Kiro`, `Copilot`, `OpenCode`, and `OpenAI`.
+  - Added user-scope configuration support for `Antigravity`, `Kiro`, `Copilot`, `OpenCode`, and `Codex`.
   - Refined `SyncCommand` to re-prompt for MCP enablement if previously declined, ensuring users aren't locked out of the feature.
 
 ## [cli-v2.2.0] / [mcp-v0.1.0] - 2026-04-22

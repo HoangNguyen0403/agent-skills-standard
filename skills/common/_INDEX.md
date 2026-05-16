@@ -41,6 +41,7 @@
 | **common-security-standards** | security, encrypt, authenticate, authorize |
 | common-store-changelog | generate changelog, app store notes, play store release, what's new, release notes, version notes, store release |
 | **common-system-design** | architecture, design, system, scalability, microservice, module boundary, coupling |
+| common-telemetry | token cost, token usage, session telemetry, cost report |
 | **common-ui-design** | build a page, create a component, design a dashboard, landing page, UI for, build a layout, make it look good, improve the design, build UI, create interface, design screen |
 | common-web-visual-testing | web test, browser test, responsive audit, verify web ui, cross-browser check, web accessibility |
 

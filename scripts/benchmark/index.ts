@@ -76,6 +76,7 @@ function benchmarkSkill(category: string, skillName: string): SkillBenchmark {
 }
 
 const ROOT_PACKAGE_JSON = path.join(ROOT_DIR, 'package.json');
+const reportOnly = process.argv.includes('--report-only');
 
 function loadHistory(): BenchmarkHistory {
   if (fs.existsSync(HISTORY_JSON)) {
@@ -85,6 +86,7 @@ function loadHistory(): BenchmarkHistory {
 }
 
 function saveHistory(history: BenchmarkHistory) {
+  if (reportOnly) return;
   fs.ensureDirSync(BENCHMARKS_DIR);
   fs.writeJSONSync(HISTORY_JSON, history, { spaces: 2 });
 }
@@ -93,6 +95,7 @@ function updateReadmeHistory(
   readmePath: string,
   history: BenchmarkHistoryRecord[],
 ) {
+  if (reportOnly) return;
   if (!fs.existsSync(readmePath)) return;
 
   const content = fs.readFileSync(readmePath, 'utf-8');
@@ -261,19 +264,22 @@ async function main() {
   fs.outputFileSync(REPORT_MD, markdownReport);
   console.log(`✅ Markdown report:  ${REPORT_MD}`);
 
-  // Archiving & Persistence
-  const archivePath = path.join(ROOT_DIR, relativeArchivePath);
-  fs.ensureDirSync(ARCHIVE_DIR);
-  fs.writeFileSync(archivePath, markdownReport);
-  console.log(`📦 Archived: ${archivePath}`);
+  if (!reportOnly) {
+    const archivePath = path.join(ROOT_DIR, relativeArchivePath);
+    fs.ensureDirSync(ARCHIVE_DIR);
+    fs.writeFileSync(archivePath, markdownReport);
+    console.log(`📦 Archived: ${archivePath}`);
+  } else {
+    console.log('ℹ️ Report-only mode: skipped archive/history/README writes.');
+  }
 
   saveHistory(history);
-  console.log(`💾 History updated: ${HISTORY_JSON}`);
+  if (!reportOnly) console.log(`💾 History updated: ${HISTORY_JSON}`);
 
   // Update READMEs
   updateReadmeHistory(path.join(ROOT_DIR, 'README.md'), history.records);
   updateReadmeHistory(path.join(ROOT_DIR, 'cli/README.md'), history.records);
-  console.log('📝 README history trend updated.');
+  if (!reportOnly) console.log('📝 README history trend updated.');
 
   console.log('\n📊 Benchmark summary generated successfully.');
 }

@@ -43,11 +43,22 @@ const SkillConfigSchema = z.object({
   mcp: McpConfigSchema.optional(),
 });
 
+const DEFAULT_SDLC_SUPPORT_CATEGORIES = ['quality-engineering'] as const;
+
 /**
  * Service for managing the `.skillsrc` configuration file.
  * Handles loading, saving, and initial construction of the configuration based on project metadata.
  */
 export class ConfigService {
+  private getCategoryRef(
+    category: string,
+    metadata: Partial<RegistryMetadata>,
+  ): string {
+    const categoryMetadata = metadata.categories?.[category];
+    if (!categoryMetadata?.version) return 'main';
+    return `${categoryMetadata.tag_prefix || ''}${categoryMetadata.version}`;
+  }
+
   /**
    * Loads and validates the skill configuration from the workspace.
    * @param cwd Current working directory
@@ -150,6 +161,14 @@ export class ConfigService {
         ref: `${metadata.categories['common'].tag_prefix || ''}${metadata.categories['common'].version}`,
         ...(commonExcludes.length > 0 && { exclude: commonExcludes }),
       };
+    }
+
+    for (const category of DEFAULT_SDLC_SUPPORT_CATEGORIES) {
+      if (metadata.categories?.[category] && !skills[category]) {
+        skills[category] = {
+          ref: this.getCategoryRef(category, metadata),
+        };
+      }
     }
 
     // Add database category for backend frameworks

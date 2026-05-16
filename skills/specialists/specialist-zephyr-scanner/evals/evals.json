@@ -1,0 +1,16 @@
+{
+  "skill_name": "specialist-zephyr-scanner",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Find Zephyr test cases linked to TICK-123.",
+      "expected_output": "Runs Zephyr Scanner, uses direct issue link lookup first, searches labels/objectives only if needed, deduplicates by TC key, and returns Discovered TCs.",
+      "assertions": [
+        { "type": "contains", "value": "direct Jira issue link lookup" },
+        { "type": "contains", "value": "Deduplicate" },
+        { "type": "contains", "value": "Discovered TCs" }
+      ]
+    }
+  ],
+  "should_not_trigger": ["Write TypeScript types", "Review CSS"]
+}

@@ -68,6 +68,10 @@ Identify where user input reaches dangerous sinks without sanitization.
 - **SSRF**: `grep -rE "axios\.get\(|http\.Get\(|fetch\(" . | grep -vE "['\"]https?://" `
 - **BOLA/IDOR**: `grep -rE "findById\(|findOne\(" . | grep -viE "tenant|owner|user_id"`
 
+## 8. Apply Vibe Security Scan
+
+Use [Vibe Security Scan](references/vibe-security-scan.md) for AI-generated or fast-scaffolded code. Verify source -> route -> sink before scoring.
+
 ## Scoring Impact
 
 | Finding | Threshold | Severity | Deduction |
@@ -84,7 +88,6 @@ Identify where user input reaches dangerous sinks without sanitization.
 
 - **No applying generic patterns over project-specific rules**: Respect existing security constraints.
 - **No ignoring error handling or edge cases**: Audit must cover boundary conditions.
-
 ## References
-
 - [Vulnerability Remediation Protocols](references/REMEDIATION.md)
+- [Vibe Security Scan](references/vibe-security-scan.md)

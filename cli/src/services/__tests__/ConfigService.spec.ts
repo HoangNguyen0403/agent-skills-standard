@@ -127,6 +127,10 @@ describe('ConfigService', () => {
         categories: {
           flutter: { version: '1.0.0', tag_prefix: 'v' },
           common: { version: '1.2.0', tag_prefix: '' },
+          'quality-engineering': {
+            version: '1.5.0',
+            tag_prefix: 'quality-engineering-v',
+          },
         },
       };
 
@@ -141,6 +145,30 @@ describe('ConfigService', () => {
       expect(config.agents).toEqual([Agent.Cursor]);
       expect(config.skills.flutter?.ref).toBe('v1.0.0');
       expect(config.skills.common?.ref).toBe('1.2.0');
+      expect(config.skills['quality-engineering']?.ref).toBe(
+        'quality-engineering-v1.5.0',
+      );
+      expect(config.skills.specialists).toBeUndefined();
+    });
+
+    it('should not add SDLC support categories when registry metadata omits them', () => {
+      const metadata: RegistryMetadata = {
+        global: { author: 'test', repository: 'test' },
+        categories: {
+          flutter: { version: '1.0.0', tag_prefix: 'v' },
+          common: { version: '1.2.0', tag_prefix: '' },
+        },
+      };
+
+      const config = configService.buildInitialConfig(
+        'flutter',
+        [Agent.Cursor],
+        'https://registry.com',
+        metadata,
+      );
+
+      expect(config.skills['quality-engineering']).toBeUndefined();
+      expect(config.skills.specialists).toBeUndefined();
     });
 
     it('should handle missing metadata/tags in buildInitialConfig', () => {

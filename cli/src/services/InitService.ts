@@ -139,9 +139,8 @@ export class InitService {
 #
 # Run 'ags list-skills' to view all available skills.
 #
-# TIP: For Jira/Zephyr automation and requirement analysis, manually add:
-# skills:
-#   quality-engineering: { ref: quality-engineering-v1.0.0 }
+# SDLC support skills such as quality-engineering are included by default.
+# Specialist definitions are synced separately as native sub-agents, not skills.
 #
 `;
     const configPath = path.join(cwd, '.skillsrc');

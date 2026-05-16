@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Agent } from '../../constants';
+import { Agent, DEFAULT_WORKFLOWS } from '../../constants';
 import { SkillConfig } from '../../models/config';
 import { WorkflowSyncService } from '../WorkflowSyncService';
 
@@ -30,6 +30,17 @@ describe('WorkflowSyncService', () => {
   });
 
   describe('reconcileWorkflows', () => {
+    it('should include agentic SDLC learning workflows in defaults', () => {
+      expect(DEFAULT_WORKFLOWS).toEqual(
+        expect.arrayContaining([
+          'implementation-readiness',
+          'review-ticket',
+          'traceability-audit',
+          'session-report',
+        ]),
+      );
+    });
+
     it('should return false if treeData is missing', async () => {
       mockGithubService.getRepoTree.mockResolvedValue(null);
       const result = await workflowSyncService.reconcileWorkflows({
@@ -327,7 +338,7 @@ describe('WorkflowSyncService', () => {
       ];
 
       await workflowSyncService.writeWorkflows(workflows as any, {} as any, [
-        Agent.OpenAI,
+        Agent.Codex,
       ]);
 
       expect(fs.outputFile).toHaveBeenCalledWith(

@@ -370,13 +370,13 @@
       }
     },
     "common": {
-      "version": "2.0.5",
-      "last_updated": "2026-05-08",
+      "version": "2.0.7",
+      "last_updated": "2026-05-16",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 33,
-        "total_tokens": 20727,
-        "avg_tokens_per_skill": 628,
+        "total_skills": 34,
+        "total_tokens": 21120,
+        "avg_tokens_per_skill": 621,
         "largest_skill": "common-skill-creator (1354 tokens)"
       }
     },
@@ -392,14 +392,14 @@
       }
     },
     "specialists": {
-      "version": "1.0.0",
-      "last_updated": "2026-05-09",
+      "version": "1.1.1",
+      "last_updated": "2026-05-16",
       "tag_prefix": "specialists-v",
       "token_metrics": {
-        "total_skills": 3,
-        "total_tokens": 1371,
-        "avg_tokens_per_skill": 457,
-        "largest_skill": "specialist-security-reviewer (500 tokens)"
+        "total_skills": 13,
+        "total_tokens": 4938,
+        "avg_tokens_per_skill": 380,
+        "largest_skill": "specialist-security-reviewer (504 tokens)"
       }
     },
     "golang": {
@@ -458,13 +458,13 @@
       }
     },
     "android": {
-      "version": "1.4.0",
-      "last_updated": "2026-04-22",
+      "version": "1.4.2",
+      "last_updated": "2026-05-16",
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 26,
-        "total_tokens": 10922,
-        "avg_tokens_per_skill": 420,
+        "total_tokens": 10982,
+        "avg_tokens_per_skill": 422,
         "largest_skill": "android-edge-to-edge (768 tokens)"
       }
     },
@@ -491,13 +491,13 @@
       }
     },
     "php": {
-      "version": "1.3.4",
-      "last_updated": "2026-04-22",
+      "version": "1.3.6",
+      "last_updated": "2026-05-16",
       "tag_prefix": "php-v",
       "token_metrics": {
         "total_skills": 7,
-        "total_tokens": 3710,
-        "avg_tokens_per_skill": 530,
+        "total_tokens": 3706,
+        "avg_tokens_per_skill": 529,
         "largest_skill": "php-security (585 tokens)"
       }
     },

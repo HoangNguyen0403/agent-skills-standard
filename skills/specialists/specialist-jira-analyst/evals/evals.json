@@ -1,0 +1,16 @@
+{
+  "skill_name": "specialist-jira-analyst",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Analyze JIRA TICK-123 for reproduce steps and acceptance criteria.",
+      "expected_output": "Runs Jira Analyst, extracts Reproduction Steps, Expected vs Actual, Market & Platform, and Data Requirements without hallucinating missing ticket data.",
+      "assertions": [
+        { "type": "contains", "value": "Reproduction Steps" },
+        { "type": "contains", "value": "Expected vs Actual" },
+        { "type": "contains", "value": "Hallucination" }
+      ]
+    }
+  ],
+  "should_not_trigger": ["Run a security-only review", "Generate E2E test code"]
+}

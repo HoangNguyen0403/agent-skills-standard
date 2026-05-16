@@ -222,6 +222,37 @@ export async function auditSessionCompliance(
   return { content: [{ type: "text", text: lines.join("\n") }] };
 }
 
+// ---------- get_session_cost ----------
+
+export const getSessionCostSchema = z.object({});
+
+export async function getSessionCost(
+  _args: Record<string, never>,
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const empty = maybeEmptyState(ctx);
+  if (empty) return empty;
+
+  const loaded = ctx.tracker.loadedSkills();
+  const events = ctx.tracker.events_();
+
+  const lines: string[] = [
+    "# Session Telemetry",
+    "",
+    "Note: Exact LLM token proxying is dependent on the execution platform.",
+    "Please populate the following markdown table in your final artifact `artifacts/session-cost.md` using your platform's usage reporting if available:",
+    "",
+    "| Metric | Value |",
+    "|---|---|",
+    "| **Tool Calls** | " + events.length + " |",
+    "| **Skills Loaded** | " + loaded.length + " |",
+    "| **Prompt Tokens** | [Agent: fill from platform usage] |",
+    "| **Completion Tokens** | [Agent: fill from platform usage] |",
+    "| **Estimated Cost** | [Agent: calculate based on model pricing] |",
+  ];
+  return { content: [{ type: "text", text: lines.join("\n") }] };
+}
+
 // ---------- helpers ----------
 
 async function finalize(

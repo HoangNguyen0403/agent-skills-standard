@@ -56,7 +56,10 @@ export class SyncService {
     config: SkillConfig,
   ): Promise<CollectedSkill[]> {
     await this.warnIfSyncingFromSameRepo(config);
-    return this.skillSyncService.assembleSkills(categories, config);
+    const skillCategories = categories.filter(
+      (category) => category !== 'specialists',
+    );
+    return this.skillSyncService.assembleSkills(skillCategories, config);
   }
 
   private async warnIfSyncingFromSameRepo(config: SkillConfig) {
@@ -110,23 +113,21 @@ export class SyncService {
     const agents = await this.resolveTargetAgents(config);
     if (agents.length === 0) return;
 
-    // We look for specialists in the primary agent's skill path
-    // Default to the repository structure if running internally
-    const primaryAgent = SUPPORTED_AGENTS.find((a) => a.id === agents[0]);
-    const sourceDir = primaryAgent
-      ? path.join(process.cwd(), primaryAgent.path, 'specialists')
-      : path.join(process.cwd(), 'skills/specialists');
+    const localRegistrySource = path.join(process.cwd(), 'skills/specialists');
+    if (await fs.pathExists(localRegistrySource)) {
+      return this.specialistSyncService.syncSpecialists(
+        process.cwd(),
+        agents,
+        localRegistrySource,
+      );
+    }
 
-    // If the local directory doesn't exist, we fall back to the internal repo path
-    // (useful for developers working within the agent-skills-standard repo)
-    const finalSourceDir = (await fs.pathExists(sourceDir))
-      ? sourceDir
-      : path.join(process.cwd(), 'skills/specialists');
-
-    return this.specialistSyncService.syncSpecialists(
+    const specialists =
+      await this.specialistSyncService.assembleSpecialists(config);
+    return this.specialistSyncService.syncCollectedSpecialists(
       process.cwd(),
       agents,
-      finalSourceDir,
+      specialists,
     );
   }
 

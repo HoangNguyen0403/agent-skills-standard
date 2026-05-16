@@ -28,6 +28,7 @@ This workflow manages the entire lifecycle of a bug fix, from initial JIRA analy
     - **Proposed Changes**: Exact files and logic to be modified.
     - **Verification Plan**: Detail which QE skill (`playwright-cli` or `appium-mcp`) will be used to verify the fix *locally* before PR.
 4.  **HARD STOP**: Request user approval for the `implementation_plan.md`.
+5.  **Readiness Gate**: Run `implementation-readiness`; code only after READY or approved PARTIAL.
 
 ### Step 2: Implementation (TDD Phase)
 
@@ -47,12 +48,14 @@ Do NOT rely on "it builds" — verify the fix against the JIRA reproduction step
     - **Web**: Load `quality-engineering-playwright-cli`. Run the reproduction steps. Capture "After" snapshots.
     - **Mobile**: Load `quality-engineering-appium-mcp`. Run the reproduction steps on an emulator.
 3.  **Final Verdict**: Compare results against the `Expected Result` in JIRA. If any sub-3px regressions exist, fix them now.
+4.  **Traceability**: Run `traceability-audit` when AC/test/PR evidence is incomplete.
 
 ### Step 4: Deliver PR
 
 1.  **Commit**: Generate a commit message using `caveman-commit`.
 2.  **PR Details**: Draft the PR description in JIRA wiki markup (for easy copy-pasting to JIRA later).
 3.  **Walkthrough**: Create `walkthrough.md` with evidence of the local verification.
+4.  **Session Report**: Produce `session-report` and route skill gaps to `retro-learn`.
 
 ---
 

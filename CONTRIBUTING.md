@@ -46,7 +46,54 @@ Skills are the core value of this project.
 3. **Validate**: Ensure `SKILL.md` is under 500 tokens (check with `pnpm calculate-tokens`).
 4. **Reference**: Heavy content goes to `references/`.
 
-## 4. Release Process
+## 4. Creating Workflows
+
+Workflows are portable SDLC procedures, not CLI commands. Keep canonical files in `.agents/workflows/*.md`; the sync pipeline exports them into each agent's native surface.
+
+Rules:
+
+1. Keep workflow files under 80 lines.
+2. Use the order: goal, steps, output template.
+3. Do not pre-fill example data.
+4. Put heavy examples or checklists in `references/`.
+5. Add the workflow to `DEFAULT_WORKFLOWS` only when it belongs in the standard SDLC spine.
+6. Run `pnpm audit:sdlc` after changes.
+
+## 5. Default Init Standards
+
+`ags init` should create a useful SDLC standards layer without requiring profile files.
+
+Rules:
+
+1. Include `quality-engineering` as a skill category by default when registry metadata provides it.
+2. Sync `specialists` directly as native sub-agents, not as `skills.specialists`.
+3. Keep `custom_overrides` visible so teams know how to protect local standards.
+4. Use pinned category refs from `skills/metadata.json`.
+5. Treat Jira, ADO, Zephyr, and similar MCPs as optional workflow integrations, not required core dependencies.
+6. Workflows may call available tasking/test MCPs, but must still work from local artifacts.
+7. New specialists must include `evals/evals.json`, strict budgets, structured output, and `No sub-agents`.
+
+## 6. Quality Gates
+
+Run these before PR:
+
+```bash
+pnpm --filter ./cli validate:all
+pnpm audit:skills
+pnpm audit:sdlc
+pnpm check-alignment
+pnpm --filter ./cli test
+pnpm --filter ./cli build
+```
+
+For release candidates, also run:
+
+```bash
+pnpm check-alignment --threshold 90
+pnpm benchmark:report
+```
+
+## 7. Release Process
 
 We use specialized scripts for releasing components independently:
 

@@ -1,49 +1,107 @@
 ---
-description: Interactive workflow to plan a new feature from scratch, from Interview to Task List.
+description: Plan a feature from product brief or clear intent into PRD, decisions, implementation plan, and task slices.
 ---
 
 # Feature Planning Workflow
 
-This workflow guides you from a vague idea to a fully planned implementation workspace.
+Goal: Produce a decision-complete PRD and implementation plan before code starts.
 
-## 1. Requirement Gathering (Interview)
+## Steps
 
-Trigger the PRD skill to interview the user and gather full context. This step is interactive.
+1. Load context:
+   - Product brief, ticket, or user request.
+   - Jira/ADO MCP ticket data when configured; otherwise local ticket text.
+   - Existing specs, design references, and repo patterns.
+   - `common-product-requirements`, `quality-engineering-business-analysis`, and matched framework skills.
 
-**Instruction**:
-"Please act as a Product Manager. Reference `skills/common/product-requirements/SKILL.md`. Start the **Discovery Phase** to gather requirements for the new feature the user wants to build. Ask clarifying questions until you have enough info."
+2. Interview:
+   - Ask only for business logic, scope, constraints, and acceptance criteria that cannot be inferred.
+   - Confirm target users, platforms, data, security, performance, rollout, and non-goals.
+   - Stop when requirements are actionable.
 
-## 2. PRD Generation
+3. Draft PRD:
+   - Use the **PRD Template** below.
+   - Save to project-local `docs/specs/prd-[slug].md`.
+   - Keep "what" separate from "how".
+   - Mark unresolved items as blockers, not assumptions.
 
-Once the interview is complete, generate the formal PRD.
+4. Create implementation plan:
+   - Use the **Implementation Plan Template** below.
+   - Define components, contracts, data changes, migrations, risks, and verification.
+   - Slice work into fresh-context tasks.
+   - Identify whether `design-solution` is required before coding.
 
-**Instruction**:
-"Based on the gathering findings, generate the PRD using the template at `skills/common/product-requirements/references/prd-template.md`. Save it to `docs/specs/prd-[feature_name].md`. Then, validate it using `skills/common/product-requirements/references/checklist.md`."
+5. Route:
+   - Architecture unclear -> `design-solution`.
+   - Plan approved and build-ready -> `implement-feature`.
 
-## 3. Implementation Planning
+## Artifact Templates
 
-Convert the "What" (PRD) into "How" (Plan).
+### PRD Template
+```md
+# PRD: [Name]
 
-**Instruction**:
-"Analyze the generated PRD. Create an `implementation_plan.md` artifact.
+## Goal
 
-- Break down the PRD into technical components.
-- Identify necessary file changes.
-- Define a Verification Plan (Automated & Manual tests)."
+## Users
 
-## 4. Task Initialization
+## User Flows
 
-Set up the workspace for execution.
+## Acceptance Criteria
 
-**Instruction**:
-"Initialize `task.md` based on the Implementation Plan.
+## Non-Functional Requirements
 
-- Create granular checklist items.
-- Ensure the first task consists of setup or structural changes."
+## Constraints
 
-## 5. Kick-off Implementation
+## Non-Goals
 
-Once the plan and tasks are ready, hand over to the implementation workflow.
+## Open Questions
 
-**Instruction**:
-"The planning phase is complete. Now run `/implement-feature docs/specs/prd-[feature_name].md` to begin the technical implementation phase."
+## Next Workflow
+```
+
+### Implementation Plan Template
+```md
+# Implementation Plan: [Name]
+
+## Goal
+
+## Proposed Changes
+
+## Task Slices
+
+| Slice | Scope | Verification |
+| --- | --- | --- |
+| [slice] | [scope] | [verification] |
+
+## Risks
+
+## Verification Plan
+
+## Next Workflow
+```
+
+## Output Template
+
+```md
+# Feature Plan: [Name]
+
+## PRD
+
+## Decisions
+
+| Decision | Choice | Reason |
+| --- | --- | --- |
+| [decision] | [choice] | [reason] |
+
+## Implementation Plan
+
+## Task Slices
+
+## Verification Plan
+
+## Next Workflow
+design-solution | implement-feature
+
+## Cost Report
+```

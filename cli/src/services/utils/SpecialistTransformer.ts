@@ -69,7 +69,7 @@ export class SpecialistTransformer {
           content: `---\nname: ${baseName}\ndescription: "${description}"\n---\n\n${body}`,
         };
 
-      case Agent.OpenAI: // Codex
+      case Agent.Codex: // Codex
         return {
           name: `${baseName}.toml`,
           content: `name = "${baseName}"\ndescription = "${description}"\nsandbox_mode = "read-only"\ndeveloper_instructions = """\n${body}\n"""`,

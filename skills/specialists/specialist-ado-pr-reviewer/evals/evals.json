@@ -1,0 +1,16 @@
+{
+  "skill_name": "specialist-ado-pr-reviewer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Summarize this Azure DevOps PR and open review threads.",
+      "expected_output": "Runs ADO PR Reviewer, summarizes PR context, active/fixed/closed review threads, and PR description issues without posting comments.",
+      "assertions": [
+        { "type": "contains", "value": "Review Threads" },
+        { "type": "contains", "value": "PR Description Issues" },
+        { "type": "contains", "value": "No posting comments" }
+      ]
+    }
+  ],
+  "should_not_trigger": ["Create a database migration", "Run Appium"]
+}

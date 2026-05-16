@@ -32,6 +32,7 @@ metadata:
 
 - **Cold Streams**: Use `Flow` for data streams.
 - **Hot Streams**: Use `StateFlow` (State) or `SharedFlow` (Events).
+- **Replay**: Use `SharedFlow` with `replay` only when late subscribers must receive recent events.
 - **Collection**: Use `collectAsStateWithLifecycle()` (Compose) or `repeatOnLifecycle` (Views).
 
 ## Anti-Patterns

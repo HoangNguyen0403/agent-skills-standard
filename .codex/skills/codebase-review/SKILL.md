@@ -28,8 +28,7 @@ When the user asks to perform this workflow, execute the following steps:
 Identify the core framework and source directories.
 
 1. Run `ls -F` and read `package.json`, `pubspec.yaml`, or `go.mod`.
-2. Map `$SRC`, `$TEST`, and `$EXT` using the framework table in:
-   [common-architecture-audit/references/detection.md](../../skills/common/common-architecture-audit/references/detection.md)
+2. Load `common-architecture-audit`; if synced references are available, map `$SRC`, `$TEST`, and `$EXT` with `<SKILLS>/common/common-architecture-audit/references/detection.md`.
 
 ---
 
@@ -38,8 +37,8 @@ Identify the core framework and source directories.
 Identify P0 vulnerabilities and codebase metrics.
 
 1. Load `common-security-audit` and `common-owasp` skills.
-2. Execute the **SAST Commands** (Secrets, PII, Injection, Auth Coverage) documented in:
-   [common-security-audit/references/signals.md](../../skills/common/common-security-audit/references/signals.md)
+2. Execute the SAST commands documented in `<SKILLS>/common/common-security-audit/references/signals.md` when available.
+3. Apply `<SKILLS>/common/common-security-audit/references/vibe-security-scan.md` to prioritize common AI-generated security gaps.
 
 ---
 
@@ -47,10 +46,11 @@ Identify P0 vulnerabilities and codebase metrics.
 
 Pick the largest non-generated files (>600 LOC) and apply the following lenses:
 
-1. **Architecture & Logic**: Follow [lenses.md](../../skills/common/common-code-review/references/lenses.md#lens-2-architecture--correctness).
-2. **Silent Failures**: Follow [lenses.md](../../skills/common/common-code-review/references/lenses.md#lens-3-silent-failures--error-handling).
-3. **Type Design**: Follow [lenses.md](../../skills/common/common-code-review/references/lenses.md#lens-4-type-design).
-4. **AI Safety**: (If LLM code exists) Follow [lenses.md](../../skills/common/common-code-review/references/lenses.md#lens-5-ai--llm-security).
+1. **Architecture & Logic** from `common-code-review`.
+2. **Silent Failures** from `common-code-review`.
+3. **Type Design** from `common-code-review`.
+4. **AI Safety** from `common-llm-security` if LLM code exists.
+5. **Vibe Security**: Trace any Vibe Scan hit from source to reachable route before scoring.
 
 ---
 
@@ -63,8 +63,7 @@ Pick the largest non-generated files (>600 LOC) and apply the following lenses:
 
 ### 📊 Report Format
 
-Output the report using the **Audit Dashboard** and **Phased Plan** templates in:
-[common-code-review/references/report.md](../../skills/common/common-code-review/references/report.md)
+Output the report using `<SKILLS>/common/common-code-review/references/report.md` when synced; otherwise include Audit Dashboard and Phased Plan sections.
 
 ### 🔄 Skill Feedback Loop (Mandatory)
 

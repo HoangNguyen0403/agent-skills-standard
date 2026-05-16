@@ -1,0 +1,16 @@
+{
+  "skill_name": "specialist-architecture-guard",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this PR for layer violations and design drift.",
+      "expected_output": "Runs Architecture Guard with <= 10 calls, checks layer boundaries, design simplicity, dependency drift, and established pattern before flagging.",
+      "assertions": [
+        { "type": "contains", "value": "layer boundaries" },
+        { "type": "contains", "value": "Tool cap" },
+        { "type": "contains", "value": "established pattern" }
+      ]
+    }
+  ],
+  "should_not_trigger": ["Create Zephyr test cases", "Write release notes"]
+}

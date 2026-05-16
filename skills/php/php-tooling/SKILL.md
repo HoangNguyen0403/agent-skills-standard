@@ -41,5 +41,3 @@ project/
 - **No blind composer updates**: Review `composer.lock` diff first.
 - **No Xdebug in production**: Disable extension in prod env.
 - **No `vendor/` in git**: Exclude via `.gitignore`; use Composer.
-
-## References

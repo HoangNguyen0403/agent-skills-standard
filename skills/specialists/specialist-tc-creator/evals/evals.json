@@ -1,0 +1,16 @@
+{
+  "skill_name": "specialist-tc-creator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create one Zephyr TC from this approved structured spec and link it to Jira.",
+      "expected_output": "Runs TC Creator, validates required fields, creates test case, adds ordered steps, links TC back to source issue/story, and returns Created plus Linked status.",
+      "assertions": [
+        { "type": "contains", "value": "required fields" },
+        { "type": "contains", "value": "Created:" },
+        { "type": "contains", "value": "Linked:" }
+      ]
+    }
+  ],
+  "should_not_trigger": ["Review security vulnerabilities", "Find related code"]
+}

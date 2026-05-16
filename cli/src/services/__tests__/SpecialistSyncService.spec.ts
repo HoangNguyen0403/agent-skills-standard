@@ -33,6 +33,107 @@ Check OWASP.` as any);
     expect(fs.outputFile).toHaveBeenCalledWith(targetFile, expect.stringContaining('Check OWASP.'));
   });
 
+  it('should fetch specialists from registry and sync them without writing skill folders', async () => {
+    const githubService = {
+      getRepoInfo: vi.fn().mockResolvedValue({ default_branch: 'main' }),
+      getRepoTree: vi.fn().mockResolvedValue({
+        tree: [
+          {
+            path: 'skills/specialists/specialist-security-reviewer/SKILL.md',
+            type: 'blob',
+          },
+          {
+            path: 'skills/specialists/specialist-tdd-implementer/SKILL.md',
+            type: 'blob',
+          },
+          {
+            path: 'skills/common/common-tdd/SKILL.md',
+            type: 'blob',
+          },
+        ],
+      }),
+      getRawFile: vi.fn().mockImplementation(async (_owner, _repo, _ref, filePath) => {
+        if (filePath.includes('specialist-security-reviewer')) {
+          return `---
+name: specialist-security-reviewer
+description: "Review security"
+---
+# Rules
+Check OWASP.`;
+        }
+        return `---
+name: specialist-tdd-implementer
+description: "Implement TDD"
+---
+# Rules
+Red green refactor.`;
+      }),
+    } as any;
+    const remoteService = new SpecialistSyncService(githubService);
+
+    const specialists = await remoteService.assembleSpecialists({
+      registry: 'https://github.com/owner/repo',
+      agents: [Agent.Codex],
+      skills: {},
+    });
+
+    expect(specialists).toHaveLength(2);
+    expect(specialists[0].category).toBe('specialists');
+
+    await remoteService.syncCollectedSpecialists(rootDir, [Agent.Codex], specialists);
+
+    expect(fs.outputFile).toHaveBeenCalledWith(
+      path.join(rootDir, '.codex/agents/security-reviewer.toml'),
+      expect.stringContaining('Check OWASP.'),
+    );
+    expect(fs.outputFile).toHaveBeenCalledWith(
+      path.join(rootDir, '.codex/agents/tdd-implementer.toml'),
+      expect.stringContaining('Red green refactor.'),
+    );
+    expect(fs.outputFile).not.toHaveBeenCalledWith(
+      expect.stringContaining('.codex/skills/specialists'),
+      expect.any(String),
+    );
+  });
+
+  it('should export expanded specialists as native Claude and Codex agents only', async () => {
+    const specialistsDir = path.join(rootDir, 'skills/specialists');
+    const specialistNames = [
+      'specialist-architecture-guard',
+      'specialist-ac-verifier',
+      'specialist-test-gap-finder',
+    ];
+    vi.mocked(fs.pathExists).mockImplementation(async (p: any) => {
+      return p === specialistsDir || p.endsWith('SKILL.md');
+    });
+    vi.mocked(fs.readdir).mockResolvedValue(specialistNames as any);
+    vi.mocked(fs.readFile).mockImplementation(async (p: any) => {
+      const folder = path.basename(path.dirname(p));
+      return `---
+name: ${folder}
+description: "${folder} description"
+---
+# Rules
+Follow ${folder}.` as any;
+    });
+    vi.mocked(fs.statSync).mockReturnValue({ isDirectory: () => true } as any);
+
+    await service.syncSpecialists(rootDir, [Agent.Claude, Agent.Codex]);
+
+    expect(fs.outputFile).toHaveBeenCalledWith(
+      path.join(rootDir, '.claude/agents/architecture-guard.md'),
+      expect.stringContaining('name: architecture-guard'),
+    );
+    expect(fs.outputFile).toHaveBeenCalledWith(
+      path.join(rootDir, '.codex/agents/architecture-guard.toml'),
+      expect.stringContaining('name = "architecture-guard"'),
+    );
+    expect(fs.outputFile).not.toHaveBeenCalledWith(
+      expect.stringContaining('.codex/skills/specialists'),
+      expect.any(String),
+    );
+  });
+
   it('should sync specialists to Cursor agents folder', async () => {
     const specialistsDir = path.join(rootDir, 'skills/specialists');
     vi.mocked(fs.pathExists).mockImplementation(async (p: any) => p === specialistsDir || p.endsWith('SKILL.md'));
@@ -83,7 +184,7 @@ description: "Review security"
 Check OWASP.` as any);
     vi.mocked(fs.statSync).mockReturnValue({ isDirectory: () => true } as any);
 
-    await service.syncSpecialists(rootDir, [Agent.OpenAI]); // Codex
+    await service.syncSpecialists(rootDir, [Agent.Codex]); // Codex
 
     const targetFile = path.join(rootDir, '.codex/agents/security-reviewer.toml');
     expect(fs.outputFile).toHaveBeenCalledWith(targetFile, expect.stringContaining('name = "security-reviewer"'));

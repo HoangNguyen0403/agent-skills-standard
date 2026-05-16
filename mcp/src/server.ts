@@ -14,6 +14,8 @@ import {
   loadSkillsForFilesSchema,
   loadSkillsForKeywords,
   loadSkillsForKeywordsSchema,
+  getSessionCost,
+  getSessionCostSchema,
   ToolResult,
 } from "./tools";
 
@@ -197,6 +199,21 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
 </important_notes>`,
     inputSchema: auditSessionComplianceSchema,
     handler: () => auditSessionCompliance({}, ctx),
+  });
+
+  register(server, {
+    name: "get_session_cost",
+    title: "Get token usage and estimated cost for the current session",
+    description: `<use_case>Return a markdown template summarizing the current session's tool calls, skills loaded, token usage, and cost. Use this as the final step in workflows to report cost.</use_case>
+
+<aliases>"what is the cost of this run", "show token usage", "session telemetry"</aliases>
+
+<important_notes>
+- Call this as the final action before terminating the workflow.
+- Fill in the token usage from your platform's tracking if available.
+</important_notes>`,
+    inputSchema: getSessionCostSchema,
+    handler: () => getSessionCost({}, ctx),
   });
 
   return server;

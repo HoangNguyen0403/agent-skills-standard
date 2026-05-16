@@ -1,0 +1,16 @@
+{
+  "skill_name": "specialist-codebase-scout",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Find related files, tests, and blast radius for this checkout change.",
+      "expected_output": "Runs Codebase Scout, maps affected modules, finds 2-3 sibling examples, related tests, and impact radius while labeling facts vs inferences.",
+      "assertions": [
+        { "type": "contains", "value": "Impact Radius" },
+        { "type": "contains", "value": "sibling examples" },
+        { "type": "contains", "value": "facts vs inferences" }
+      ]
+    }
+  ],
+  "should_not_trigger": ["Post PR comments", "Create a PRD"]
+}

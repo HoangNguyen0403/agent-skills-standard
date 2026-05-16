@@ -1,0 +1,16 @@
+{
+  "skill_name": "specialist-ac-verifier",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Map these acceptance criteria to the implementation diff.",
+      "expected_output": "Runs AC Verifier, numbers ACs, classifies Fully Met/Partially Met/Not Met/Pre-existing, cites evidence, and flags scope creep.",
+      "assertions": [
+        { "type": "contains", "value": "Acceptance Criteria" },
+        { "type": "contains", "value": "Scope Creep" },
+        { "type": "contains", "value": "Fully Met" }
+      ]
+    }
+  ],
+  "should_not_trigger": ["Generate store release notes", "Scan dependencies"]
+}
