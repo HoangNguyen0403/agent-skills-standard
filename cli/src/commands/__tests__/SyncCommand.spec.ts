@@ -434,12 +434,12 @@ describe('SyncCommand', () => {
   });
 
   describe('Phase 8 — Hook Integration', () => {
-    it('should report hook updates during sync', async () => {
+    it('should report hook updates during sync when MCP is enabled', async () => {
       mockConfigService.loadConfig.mockResolvedValue({
         registry: 'url',
         skills: { common: { ref: 'v1.0.0' } },
         agents: ['claude' as any],
-        mcp: { enabled: false, scope: 'disabled', prompted: true },
+        mcp: { enabled: true, scope: 'project', prompted: true },
       } as any);
 
       mockHookService.install.mockResolvedValue({
@@ -469,7 +469,30 @@ describe('SyncCommand', () => {
       );
     });
 
+    it('should uninstall hooks and skip install when MCP is disabled', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: { common: { ref: 'v1.0.0' } },
+        agents: ['claude' as any],
+        mcp: { enabled: false, scope: 'disabled', prompted: true },
+      } as any);
+
+      await command.run();
+
+      expect(mockHookService.uninstall).toHaveBeenCalledWith(
+        expect.objectContaining({ agents: ['claude'] }),
+      );
+      expect(mockHookService.install).not.toHaveBeenCalled();
+    });
+
     it('should skip hook reporting if no writes occurred', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: { common: { ref: 'v1.0.0' } },
+        agents: ['claude' as any],
+        mcp: { enabled: true, scope: 'project', prompted: true },
+      } as any);
+
       mockHookService.install.mockResolvedValue({
         writes: [{ agent: 'claude' as any, file: 'f1', action: 'skipped-existing' }],
         unsupported: [],

@@ -345,6 +345,12 @@ export class SyncCommand {
     const agents = config.agents ?? [];
     if (agents.length === 0) return;
 
+    const mcp = config.mcp ?? defaultMcpConfig();
+    if (!mcp.enabled || mcp.scope === 'disabled') {
+      await this.hookService.uninstall({ rootDir: process.cwd(), agents });
+      return;
+    }
+
     const report = await this.hookService.install({
       rootDir: process.cwd(),
       agents,
