@@ -21,13 +21,18 @@ const THRESHOLD = (() => {
 const FORBIDDEN_ALIGNMENT_MARKER = 'alignment tokens:';
 
 function stripHtmlComments(content: string): string {
-  let prev = '';
-  let cur = content;
-  while (cur !== prev) {
-    prev = cur;
-    cur = cur.replace(/<!--[\s\S]*?-->/g, '');
+  let res = content;
+  let start = res.indexOf('<!--');
+  while (start !== -1) {
+    const end = res.indexOf('-->', start + 4);
+    if (end !== -1) {
+      res = res.substring(0, start) + res.substring(end + 3);
+    } else {
+      res = res.substring(0, start);
+    }
+    start = res.indexOf('<!--');
   }
-  return cur.replace(/<!--[\s\S]*$/g, '').replace(/<!--/g, '');
+  return res;
 }
 
 interface Assertion {
