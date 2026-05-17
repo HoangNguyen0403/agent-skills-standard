@@ -27,7 +27,7 @@ This workflow verifies that a bug fix is working as intended in the UAT environm
 
 For each market in scope:
 
-1.  **Environment Setup**: Connect VPN if required by `common-web-visual-testing`.
+1.  **Environment Setup**: Run the DNS probe from `<SKILLS>/common/common-web-visual-testing/references/diagnostic-decoder.md`; if it indicates VPN is required, connect VPN and retry.
 2.  **Named Session**: Start `playwright-cli -s={TICKET}-{MARKET}` or Appium session.
 3.  **Walk Steps**: Execute reproduction steps.
     - **Hover Discipline**: Always `hover` the target element (warning, button, price) before screenshotting.

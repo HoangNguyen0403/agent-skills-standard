@@ -27,7 +27,7 @@ This workflow verifies that a bug fix is working as intended in the UAT environm
 
 For each market in scope:
 
-1.  **Environment Setup**: Connect VPN if required by `common-web-visual-testing`.
+1.  **Environment Setup**: Run the DNS probe from `<SKILLS>/common/common-web-visual-testing/references/diagnostic-decoder.md`; if it indicates VPN is required, connect VPN and retry.
 2.  **Named Session**: Start `playwright-cli -s={TICKET}-{MARKET}` or Appium session.
 3.  **Walk Steps**: Execute reproduction steps.
     - **Hover Discipline**: Always `hover` the target element (warning, button, price) before screenshotting.
@@ -40,6 +40,7 @@ For each market in scope:
 ### Step 2: Automated Failure Diagnostic
 
 If the verdict is NOT PASS:
+
 1.  **Run Decoder**: Load `common-web-visual-testing`; if synced references are available, consult `<SKILLS>/common/common-web-visual-testing/references/diagnostic-decoder.md`.
 2.  **Categorize**: Is it a `VPN NOT CONNECTED` error? `ACCOUNT BLOCKED`? Or a genuine `CODE REGRESSION`?
 3.  **Label**: Add the diagnostic label to the JIRA comment.
@@ -50,7 +51,7 @@ If the verdict is NOT PASS:
 2.  **Wiki Comment**: Post a verdict comment using JIRA Wiki Markup (orientation-aware widths).
     - Use `🟢 PASS` / `🔴 FAIL` badges.
     - Embed the most diagnostic screenshot inline.
-3.  **Status Transition**: 
+3.  **Status Transition**:
     - If **PASS**: `Ready for UAT` → `Ready for Production`.
     - If **FAIL**: → `Reopened`.
 4.  **Walkthrough**:
@@ -60,6 +61,7 @@ If the verdict is NOT PASS:
 ## Artifact Templates
 
 ### Walkthrough Template
+
 ```md
 # Walkthrough: [Name]
 
@@ -69,8 +71,8 @@ If the verdict is NOT PASS:
 
 ## Evidence
 
-| Check | Result | Evidence |
-| --- | --- | --- |
+| Check   | Result              | Evidence   |
+| ------- | ------------------- | ---------- |
 | [check] | [PASS/FAIL/BLOCKED] | [evidence] |
 
 ## Risks

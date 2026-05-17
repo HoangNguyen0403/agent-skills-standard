@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Portable SDLC Artifacts**:
-  - Embedded canonical templates (PRD, Architecture, Task, Walkthrough, etc.) directly into workflow files.
+  - Centralized canonical templates (PRD, Architecture, Task, Walkthrough, etc.) into shared workflow references.
 - **Session Telemetry & Cost Reporting**:
   - Added `get_session_cost()` tool to the MCP server for tracking tool calls and session metadata.
   - Introduced `common-telemetry` skill to enforce standardized markdown cost reporting.
@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **CLI version**: `2.3.0` → `2.4.0`.
 - **Workflow Spine Consolidation**:
-  - Pruned legacy/redundant workflows (`traceability-audit`, `deploy-release`, `publish-notes`, `session-report`, `retro-learn`).
+  - Kept and synced `traceability-audit`, `deploy-release`, `publish-notes`, `session-report`, and `retro-learn` as part of the SDLC workflow spine.
   - Updated `sdlc` routing and `docs/sdlc-workflow-quick-reference.md` to reflect the streamlined lifecycle.
 - **Audit gates**: Extended `audit:sdlc` to verify new workflows, specialist evals, and generated native agents.
 - **Integrity Gates**: All 259 skills now undergo a strict alignment pass (HTML comment stripping) and validation check.

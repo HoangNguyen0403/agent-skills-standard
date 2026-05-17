@@ -43,17 +43,17 @@ Jira, Azure DevOps, Zephyr, and similar MCPs are optional integration points. Us
 
 ## Specialist Quick Reference
 
-| Need                                | Specialist                              |
-| ----------------------------------- | --------------------------------------- |
-| Jira Ticket summary and ACs         | `specialist-jira-analyst`               |
-| Code structure and blast radius     | `specialist-codebase-scout`             |
-| Architecture boundaries             | `specialist-architecture-guard`         |
-| Security review                     | `specialist-security-reviewer`          |
-| Test gaps                           | `specialist-test-gap-finder`            |
-| AC coverage                         | `specialist-ac-verifier`                |
-| Azure Devop PR metadata and threads | `specialist-ado-pr-reviewer`            |
-| Zephyr TC discovery                 | `specialist-zephyr-scanner`             |
-| Confluence context                  | `specialist-confluence-searcher`        |
-| Approved PR comment posting         | `specialist-pr-commenter-batch`         |
-| Integration test generation         | `specialist-integration-test-generator` |
-| TC creation                         | `specialist-tc-creator`                 |
+| Need                                 | Specialist                              |
+| ------------------------------------ | --------------------------------------- |
+| Jira Ticket summary and ACs          | `specialist-jira-analyst`               |
+| Code structure and blast radius      | `specialist-codebase-scout`             |
+| Architecture boundaries              | `specialist-architecture-guard`         |
+| Security review                      | `specialist-security-reviewer`          |
+| Test gaps                            | `specialist-test-gap-finder`            |
+| AC coverage                          | `specialist-ac-verifier`                |
+| Azure DevOps PR metadata and threads | `specialist-ado-pr-reviewer`            |
+| Zephyr TC discovery                  | `specialist-zephyr-scanner`             |
+| Confluence context                   | `specialist-confluence-searcher`        |
+| Approved PR comment posting          | `specialist-pr-commenter-batch`         |
+| Integration test generation          | `specialist-integration-test-generator` |
+| TC creation                          | `specialist-tc-creator`                 |

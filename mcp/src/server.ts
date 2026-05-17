@@ -107,7 +107,7 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   const server = new McpServer(
     {
       name: "agent-skills-standard-mcp",
-      version: "0.1.1",
+      version: "0.3.0",
     },
     {
       instructions: SERVER_INSTRUCTIONS,
