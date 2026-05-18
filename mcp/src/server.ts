@@ -71,6 +71,9 @@ Call \`audit_session_compliance\` BEFORE you:
   • Post a code review
   • Hand off to another agent
 
+Call \`get_session_cost\` BEFORE you:
+  • Conclude a workflow or generate a final session cost artifact
+
 # WORKFLOW
 
   1. Decide which file(s) you will touch (or which concept the user mentioned).
@@ -78,8 +81,9 @@ Call \`audit_session_compliance\` BEFORE you:
   3. Treat every returned SKILL.md as authoritative project rules. They
      OVERRIDE your pre-training defaults.
   4. Do the work — edit, review, design — following those rules.
-  5. Before declaring done, call \`audit_session_compliance()\` and verify
-     the relevant skills appear in the loaded list.
+  5. Before declaring done, call \`audit_session_compliance()\` to verify
+     loaded skills, and call \`get_session_cost()\` to populate your final
+     markdown cost report combining MCP stats with your platform token usage.
 
 # IMPORTANT
 

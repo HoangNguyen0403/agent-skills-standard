@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Session Telemetry & Cost Reporting**:
   - Added `get_session_cost()` tool to the MCP server for tracking tool calls and session metadata.
   - Introduced `common-telemetry` skill to enforce standardized markdown cost reporting.
-  - Updated all active workflows to include a mandatory `## Cost Report` section.
+  - Updated canonical `.agents/workflows/*.md` sources to include a mandatory `## Cost Report` section.
 - **SDLC workflow spine**:
   - Added `implementation-readiness` and `review-ticket` as synced workflows.
   - Unified `sdlc`, `dev-fix`, `verify-work`, `verify-bug`, and `code-review` through new readiness and review surfaces.

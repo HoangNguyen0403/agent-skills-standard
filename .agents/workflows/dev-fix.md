@@ -52,7 +52,7 @@ Do NOT rely on "it builds" — verify the fix against the JIRA reproduction step
 2.  **Execute QE Audit**:
     - **Web**: Load `quality-engineering-playwright-cli`. Run the reproduction steps. Capture "After" snapshots.
     - **Mobile**: Load `quality-engineering-appium-mcp`. Run the reproduction steps on an emulator.
-4.  **Final Verdict**: Compare results against the `Expected Result` in JIRA. If any sub-3px regressions exist, fix them now.
+3.  **Final Verdict**: Compare results against the `Expected Result` in JIRA. If any sub-3px regressions exist, fix them now.
 
 ### Step 4: Deliver PR
 
