@@ -14,7 +14,7 @@
       "serialize-javascript": ">=7.0.5",
       "vite": ">=7.3.2",
       "postcss": ">=8.5.10",
-      "brace-expansion": ">=5.0.6"
+      "minimatch@10>brace-expansion": ">=5.0.6"
     }
   },
   "scripts": {
