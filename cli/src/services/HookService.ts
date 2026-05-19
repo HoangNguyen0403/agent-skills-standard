@@ -160,9 +160,10 @@ export class HookService {
           agent,
           scriptRelPath: def.hookScriptPath,
           configRelPath: def.hookConfigPath,
-          hookCmd: agent === Agent.Claude
-            ? 'node "$CLAUDE_PROJECT_DIR/.claude/hooks/preedit-skill-loader.js"'
-            : `node "${def.hookScriptPath}"`,
+          hookCmd:
+            agent === Agent.Claude
+              ? 'node "$CLAUDE_PROJECT_DIR/.claude/hooks/preedit-skill-loader.js"'
+              : `node "${def.hookScriptPath}"`,
           report,
         });
       } else {
@@ -356,9 +357,7 @@ export class HookService {
     scriptRelPath: string,
     configRelPath: string,
   ): Promise<HookStatusRow> {
-    const scriptExists = await fs.pathExists(
-      path.join(rootDir, scriptRelPath),
-    );
+    const scriptExists = await fs.pathExists(path.join(rootDir, scriptRelPath));
     const registeredInSettings = await this.claudeHookIsRegistered(
       path.join(rootDir, configRelPath),
     );
@@ -455,10 +454,7 @@ export class HookService {
     return parent[key] as Record<string, unknown>;
   }
 
-  private ensureArray<T>(
-    parent: Record<string, unknown>,
-    key: string,
-  ): T[] {
+  private ensureArray<T>(parent: Record<string, unknown>, key: string): T[] {
     if (!Array.isArray(parent[key])) {
       parent[key] = [];
     }

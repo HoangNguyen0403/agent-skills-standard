@@ -17,7 +17,7 @@
 | **common-mobile-ux-core** | `**/*_page.dart`, `**/*_screen.dart`, `**/*_view.dart`, `**/*Activity.kt`, `**/*Screen.tsx` | mobile, responsive, SafeArea, touch, gesture, viewport |
 | common-observability | `**/*.service.ts`, `**/*.handler.ts`, `**/*.middleware.ts`, `**/*.interceptor.ts` | logging, tracing, metrics, opentelemetry, observability, slo |
 | **common-product-requirements** | `PRD.md`, `specs/*.md` | create prd, draft requirements, new feature spec |
-| **common-security-audit** | `package.json`, `go.mod`, `pubspec.yaml`, `pom.xml` | Dockerfile, security audit, vulnerability scan, secrets detection, injection probe, pentest |
+| **common-security-audit** | `package.json`, `go.mod`, `pubspec.yaml`, `pom.xml`, `Cargo.toml`, `requirements.txt`, `AndroidManifest.xml`, `Info.plist` | Dockerfile, security audit, vulnerability scan, secrets detection, injection probe, pentest |
 | common-session-retrospective | `**/*.spec.ts`, `**/*.test.ts`, `SKILL.md`, `AGENTS.md`, `+common/common-learning-log` | retrospective, self-learning, improve skills, session review, correction, rework |
 | **common-skill-creator** | `SKILL.md`, `evals/evals.json` | create skill, audit skill, trigger rate, optimize description |
 | **common-tdd** | `**/*.test.ts`, `**/*.spec.ts`, `**/*_test.go`, `**/*Test.java`, `**/*_test.dart`, `**/*_spec.rb` | tdd, unit test, write test, red green refactor, failing test, test coverage |
@@ -29,13 +29,15 @@
 | ----- | ----------------------- |
 | **common-best-practices** | solid, kiss, dry, yagni, naming, conventions, refactor, clean code |
 | common-code-review | review, pr, critique, analyze code |
-| common-dast-tooling | DAST, dynamic scan, zap, nuclei, nikto, curl probe, pentest, dynamic analysis |
+| common-dast-tooling | DAST, dynamic scan, zap, nuclei, nikto, curl probe, pentest, dynamic analysis, sqlmap, ffuf, mobile proxy |
 | common-debugging | debug, fix bug, crash, error, exception, troubleshooting |
 | common-documentation | comment, docstring, readme, documentation |
+| **common-exploit-verification** | exploit verification, proof of concept, PoC, false positive, validate finding, exploit proof, pentest finding, security evidence |
 | **common-git-collaboration** | commit, branch, merge, pull-request, git |
 | **common-llm-security** | LLM security, prompt injection, agent security, RAG security, AI security, openai, anthropic, langchain, LLM review |
 | common-mobile-visual-testing | visual test, mobile test, verify ui, dark mode test, accessibility audit, behavioral test, visual regression, localization test |
-| **common-owasp** | security review, OWASP, broken access control, IDOR, BOLA, injection, broken auth, API review, authorization, access control |
+| **common-owasp** | security review, OWASP, broken access control, IDOR, BOLA, injection, broken auth, API review, authorization, access control, mobile security |
+| **common-pentest-methodology** | pentest, penetration test, red team, attack surface, threat model, PTES, security assessment, exploit, hacker score |
 | **common-performance-engineering** | performance, optimize, profile, scalability, latency, throughput, memory leak, bottleneck |
 | **common-protocol-enforcement** | verify done, protocol check, self-scan, pre-write audit, task complete, audit violations, retrospective, scan, red-team |
 | **common-security-standards** | security, encrypt, authenticate, authorize |

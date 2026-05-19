@@ -71,7 +71,10 @@ function makeConfig(overrides: Partial<SkillConfig> = {}): SkillConfig {
 // Test-only access to private SyncService fields. Documents the seam without
 // scattering `as any` through the file.
 type SyncServicePrivates = {
-  skillSyncService: { assembleSkills: ReturnType<typeof vi.fn>; writeSkills: ReturnType<typeof vi.fn> };
+  skillSyncService: {
+    assembleSkills: ReturnType<typeof vi.fn>;
+    writeSkills: ReturnType<typeof vi.fn>;
+  };
   workflowSyncService: {
     reconcileWorkflows: ReturnType<typeof vi.fn>;
     assembleWorkflows: ReturnType<typeof vi.fn>;
@@ -361,14 +364,16 @@ describe('SyncService', () => {
 
     it('should inject index into server/AGENTS.md if it exists', async () => {
       const config = makeConfig({ agents: [Agent.Cursor] });
-      vi.mocked(fs.pathExists).mockImplementation(async (p) => p.toString().endsWith('server'));
-      
+      vi.mocked(fs.pathExists).mockImplementation(async (p) =>
+        p.toString().endsWith('server'),
+      );
+
       await syncService.applyIndices(config, [Agent.Cursor]);
-      
+
       expect(MarkdownUtils.injectIndex).toHaveBeenCalledWith(
         expect.stringContaining('server'),
         ['AGENTS.md'],
-        expect.any(String)
+        expect.any(String),
       );
     });
 
@@ -442,9 +447,7 @@ describe('SyncService', () => {
       // fs.outputFile must never be called with metadata.json
       const outputFileCalls = vi
         .mocked(fs.outputFile)
-        .mock.calls.filter((args) =>
-          String(args[0]).includes('metadata.json'),
-        );
+        .mock.calls.filter((args) => String(args[0]).includes('metadata.json'));
       expect(outputFileCalls).toHaveLength(0);
     });
 
@@ -576,13 +579,13 @@ describe('SyncService', () => {
       const p = privatesOf(syncService);
       // @ts-expect-error - accessing private service
       vi.mocked(p.detectionService.detectAgents).mockResolvedValue({});
-      
+
       await syncService.writeSkills([], config);
-      
+
       expect(mockSkillSyncService.writeSkills).toHaveBeenCalledWith(
         [],
         config,
-        []
+        [],
       );
     });
 
@@ -590,14 +593,16 @@ describe('SyncService', () => {
       const config = makeConfig({ agents: [] });
       const p = privatesOf(syncService);
       // @ts-expect-error - accessing private service
-      vi.mocked(p.detectionService.detectAgents).mockResolvedValue({ [Agent.Claude]: true });
-      
+      vi.mocked(p.detectionService.detectAgents).mockResolvedValue({
+        [Agent.Claude]: true,
+      });
+
       await syncService.writeSkills([], config);
-      
+
       expect(mockSkillSyncService.writeSkills).toHaveBeenCalledWith(
         [],
         config,
-        [Agent.Claude]
+        [Agent.Claude],
       );
     });
 
@@ -606,7 +611,7 @@ describe('SyncService', () => {
       const p = privatesOf(syncService);
       // @ts-expect-error - accessing private service
       vi.mocked(p.detectionService.detectAgents).mockResolvedValue({});
-      
+
       const spy = vi.spyOn(p as any, 'resolveTargetAgents');
       await syncService.syncSpecialists(config);
       expect(spy).toHaveReturnedWith(Promise.resolve([]));
@@ -615,7 +620,7 @@ describe('SyncService', () => {
     it('syncSpecialists should fallback to internal specialists if primary agent path does not exist', async () => {
       const config = makeConfig({ agents: [Agent.Antigravity] });
       vi.mocked(fs.pathExists).mockResolvedValue(false as never);
-      
+
       await syncService.syncSpecialists(config);
       // Logic hit, coverage achieved.
     });
@@ -627,12 +632,12 @@ describe('SyncService', () => {
       const p = privatesOf(syncService);
       // @ts-expect-error - accessing private service
       vi.mocked(p.detectionService.detectAgents).mockResolvedValue({});
-      
+
       // Override resolveTargetAgents to return empty for this specific test
       // Actually, resolveTargetAgents falls back to defaults.
-      // So I need to force it to return empty by mocking resolveTargetAgents directly if I could, 
+      // So I need to force it to return empty by mocking resolveTargetAgents directly if I could,
       // but it's private. I'll just check line 82 coverage by making agents empty.
-      
+
       await syncService.applyIndices(config, []);
       expect(IndexGeneratorServiceImpl).not.toHaveBeenCalled();
     });
@@ -644,9 +649,11 @@ describe('SyncService', () => {
         registry: 'https://github.com/o/r',
         skills: { ts: { ref: 'v1' } },
       });
-      mockGithubService.getRawFile.mockResolvedValue(JSON.stringify({
-        categories: { ts: {} } // missing version
-      }));
+      mockGithubService.getRawFile.mockResolvedValue(
+        JSON.stringify({
+          categories: { ts: {} }, // missing version
+        }),
+      );
       const updates = await syncService.checkForUpdates(config);
       expect(updates).toEqual({});
     });
@@ -656,9 +663,11 @@ describe('SyncService', () => {
         registry: 'https://github.com/o/r',
         skills: { ts: { ref: 'v1' } },
       });
-      mockGithubService.getRawFile.mockResolvedValue(JSON.stringify({
-        categories: { ts: { version: '1.2.0', tag_prefix: 'v' } }
-      }));
+      mockGithubService.getRawFile.mockResolvedValue(
+        JSON.stringify({
+          categories: { ts: { version: '1.2.0', tag_prefix: 'v' } },
+        }),
+      );
       const updates = await syncService.checkForUpdates(config);
       expect(updates).toEqual({ ts: 'v1.2.0' });
     });
@@ -701,27 +710,31 @@ describe('SyncService', () => {
   describe('applyIndices with categories', () => {
     it('writes _INDEX.md for each category and agent', async () => {
       const config = makeConfig({ agents: [Agent.Cursor] });
-      
+
       function CategoryGenCtor(this: FakeIndexGenerator): void {
         this.withMetadata = vi.fn().mockReturnThis();
         this.generate = vi.fn().mockResolvedValue('index');
         this.assembleIndex = vi.fn().mockReturnValue('index');
         this.generateAllCategoryIndices = vi.fn().mockResolvedValue({
-          'common': 'common index content'
+          common: 'common index content',
         });
         this.assembleRouterIndex = vi.fn().mockResolvedValue('router');
       }
       vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(
-        asCtor<FakeIndexGenerator>(CategoryGenCtor)
+        asCtor<FakeIndexGenerator>(CategoryGenCtor),
       );
-      
+
       await syncService.applyIndices(config, [Agent.Cursor]);
-      
+
       expect(fs.outputFile).toHaveBeenCalledWith(
-        expect.stringContaining(path.join('.cursor', 'skills', 'common', '_INDEX.md')),
-        'common index content'
+        expect.stringContaining(
+          path.join('.cursor', 'skills', 'common', '_INDEX.md'),
+        ),
+        'common index content',
       );
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Generated _INDEX.md for 1 categories'));
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Generated _INDEX.md for 1 categories'),
+      );
     });
   });
 
@@ -747,9 +760,7 @@ describe('SyncService', () => {
         path.join(process.cwd(), '.agents'),
         expect.objectContaining({ overwrite: false, errorOnExist: false }),
       );
-      expect(fs.remove).toHaveBeenCalledWith(
-        expect.stringMatching(/\.agent$/),
-      );
+      expect(fs.remove).toHaveBeenCalledWith(expect.stringMatching(/\.agent$/));
     });
 
     it('should perform a full copy if .agents does not exist', async () => {
@@ -769,9 +780,7 @@ describe('SyncService', () => {
         path.join(process.cwd(), '.agents'),
         expect.objectContaining({ overwrite: false, errorOnExist: false }),
       );
-      expect(fs.remove).toHaveBeenCalledWith(
-        expect.stringMatching(/\.agent$/),
-      );
+      expect(fs.remove).toHaveBeenCalledWith(expect.stringMatching(/\.agent$/));
     });
 
     it('should log debug info on migration failure when DEBUG is set', async () => {

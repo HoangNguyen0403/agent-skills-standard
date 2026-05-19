@@ -3,10 +3,18 @@ import path from 'path';
 import pc from 'picocolors';
 import { Agent } from '../constants';
 import { ConfigService } from '../services/ConfigService';
-import { McpConfigService, defaultMcpConfig } from '../services/McpConfigService';
+import {
+  McpConfigService,
+  defaultMcpConfig,
+} from '../services/McpConfigService';
 import { McpScope, SkillConfig } from '../models/config';
 
-const VALID_SCOPES: McpScope[] = ['project', 'user', 'snippets-only', 'disabled'];
+const VALID_SCOPES: McpScope[] = [
+  'project',
+  'user',
+  'snippets-only',
+  'disabled',
+];
 
 /**
  * `ags mcp <action>` — manage the optional MCP server integration without
@@ -30,7 +38,10 @@ export class McpCommand {
     this.mcpService = mcpService ?? new McpConfigService();
   }
 
-  async run(action: string, options: Record<string, string> = {}): Promise<void> {
+  async run(
+    action: string,
+    options: Record<string, string> = {},
+  ): Promise<void> {
     const config = await this.configService.loadConfig();
     if (!config) {
       console.log(
@@ -88,11 +99,17 @@ export class McpCommand {
     let installedAnywhere = false;
     for (const row of rows) {
       const project =
-        row.project === undefined ? '—' : row.project ? pc.green('✓') : pc.gray('✗');
+        row.project === undefined
+          ? '—'
+          : row.project
+            ? pc.green('✓')
+            : pc.gray('✗');
       const user =
         row.user === undefined ? '—' : row.user ? pc.green('✓') : pc.gray('✗');
       if (row.project === true || row.user === true) installedAnywhere = true;
-      console.log(`    ${row.agent.padEnd(12)} project: ${project}   user: ${user}`);
+      console.log(
+        `    ${row.agent.padEnd(12)} project: ${project}   user: ${user}`,
+      );
     }
 
     // Surface the consent-vs-runtime-config mismatch the user might miss.
@@ -147,7 +164,11 @@ export class McpCommand {
     config.mcp = { ...mcp, enabled: true, prompted: true };
     await this.configService.saveConfig(config);
     console.log(pc.green('✅ MCP enabled.'));
-    console.log(pc.gray('   Run `ags mcp install` to write configs now, or it happens on next `sync`.'));
+    console.log(
+      pc.gray(
+        '   Run `ags mcp install` to write configs now, or it happens on next `sync`.',
+      ),
+    );
   }
 
   private async actionDisable(config: SkillConfig): Promise<void> {
@@ -155,7 +176,11 @@ export class McpCommand {
     config.mcp = { ...mcp, enabled: false, prompted: true };
     await this.configService.saveConfig(config);
     console.log(pc.yellow('🔕 MCP disabled.'));
-    console.log(pc.gray('   Existing config entries were NOT removed. Use `ags mcp uninstall` to clean them.'));
+    console.log(
+      pc.gray(
+        '   Existing config entries were NOT removed. Use `ags mcp uninstall` to clean them.',
+      ),
+    );
   }
 
   private async actionScope(
@@ -164,9 +189,7 @@ export class McpCommand {
   ): Promise<void> {
     const scope = options.scope ?? options._?.[0];
     if (!scope || !VALID_SCOPES.includes(scope as McpScope)) {
-      console.log(
-        pc.red(`Invalid scope. Valid: ${VALID_SCOPES.join(' | ')}`),
-      );
+      console.log(pc.red(`Invalid scope. Valid: ${VALID_SCOPES.join(' | ')}`));
       return;
     }
     const mcp = config.mcp ?? defaultMcpConfig();
@@ -262,7 +285,9 @@ export class McpCommand {
       mcp: { ...mcp, enabled: true, scope: 'snippets-only' },
     });
     if (report.snippets.length === 0) {
-      console.log(pc.gray('No snippets generated (no supported agents in .skillsrc).'));
+      console.log(
+        pc.gray('No snippets generated (no supported agents in .skillsrc).'),
+      );
       return;
     }
     console.log(pc.green(`✅ Generated ${report.snippets.length} snippet(s):`));
@@ -292,13 +317,17 @@ export class McpCommand {
     if (report.userWrites.length > 0) {
       console.log(pc.bold('\n🏠 User-scope writes:'));
       for (const w of report.userWrites) {
-        console.log(`   ${pc.green('+ wrote   ')} ${w.agent.padEnd(12)} ${pc.gray(path.relative(cwd, w.file))}`);
+        console.log(
+          `   ${pc.green('+ wrote   ')} ${w.agent.padEnd(12)} ${pc.gray(path.relative(cwd, w.file))}`,
+        );
       }
     }
     if (report.declined.length > 0) {
       console.log(pc.bold('\n⏭  User-scope declined:'));
       for (const d of report.declined) {
-        console.log(`   ${pc.gray('-')} ${d.agent.padEnd(12)} ${pc.gray(d.file)}`);
+        console.log(
+          `   ${pc.gray('-')} ${d.agent.padEnd(12)} ${pc.gray(d.file)}`,
+        );
       }
     }
     if (report.snippets.length > 0) {

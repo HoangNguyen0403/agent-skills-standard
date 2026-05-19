@@ -8,10 +8,13 @@
 | specialist-ac-verifier | AC verification, acceptance criteria, scope creep, requirement coverage |
 | specialist-ado-pr-reviewer | ADO PR, Azure DevOps PR, PR threads, PR template |
 | specialist-architecture-guard | architecture review, layer violation, design guard, boundary check |
+| specialist-aspm-correlator | aspm correlator, security posture, SAST DAST correlation, vulnerability triage, CI/CD security |
 | specialist-codebase-scout | codebase scout, blast radius, structural context, related files |
 | specialist-confluence-searcher | confluence search, design docs, internal documentation, test data lookup |
 | specialist-integration-test-generator | integration test generator, generate E2E test, Zephyr TC to test, Playwright test |
 | specialist-jira-analyst | jira analysis, analyze ticket, extract reproduce steps |
+| specialist-logic-hacker | logic hacker, business logic flaw, BOLA, IDOR, race condition, auth bypass |
+| specialist-mobile-reverser | mobile reverser, MASTG, frida, reverse engineering, apktool, jadx |
 | specialist-pr-commenter-batch | batch PR comments, post review findings, resolve PR threads, ADO comments |
 | specialist-security-reviewer | security review, vulnerability audit, OWASP check, security findings |
 | specialist-tc-creator | create test case, Zephyr TC creation, test management, link TC to Jira |

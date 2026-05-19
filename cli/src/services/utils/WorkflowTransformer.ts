@@ -204,7 +204,7 @@ Follow the exact steps in the workflow file.
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
 
-return `---
+    return `---
 name: ${name}
 description: "${escapedDescription}"
 metadata:

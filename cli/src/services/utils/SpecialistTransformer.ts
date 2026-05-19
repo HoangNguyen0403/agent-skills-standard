@@ -30,7 +30,8 @@ export class SpecialistTransformer {
     const baseName = source.name.replace(/^specialist-/, '');
     const fullName = source.name;
 
-    const description = metadata.description || `Specialist persona for ${baseName}`;
+    const description =
+      metadata.description || `Specialist persona for ${baseName}`;
 
     switch (agentId) {
       case Agent.Claude:

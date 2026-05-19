@@ -12,7 +12,9 @@ import { SpecialistTransformer } from './utils/SpecialistTransformer';
  * to native agent configuration directories.
  */
 export class SpecialistSyncService {
-  constructor(private githubService = new GithubService(process.env.GITHUB_TOKEN)) {}
+  constructor(
+    private githubService = new GithubService(process.env.GITHUB_TOKEN),
+  ) {}
 
   async assembleSpecialists(config: SkillConfig): Promise<CollectedSkill[]> {
     const githubMatch = GithubService.parseGitHubUrl(config.registry);
@@ -72,7 +74,9 @@ export class SpecialistSyncService {
 
       let syncedCount = 0;
       for (const specialist of specialists) {
-        const skillFile = specialist.files.find((file) => file.name === 'SKILL.md');
+        const skillFile = specialist.files.find(
+          (file) => file.name === 'SKILL.md',
+        );
         if (!skillFile) continue;
 
         const transformed = SpecialistTransformer.transform(

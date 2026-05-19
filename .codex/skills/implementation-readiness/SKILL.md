@@ -42,7 +42,7 @@ Goal: Decide whether a planned change is ready for implementation or must return
 
 4. Route:
    - READY -> `implement-feature` or `dev-fix`.
-   - BLOCKED -> `plan-feature`, `design-solution`, or `traceability-audit`.
+   - BLOCKED -> `plan-feature` or `design-solution`.
    - PARTIAL -> slice task list plus blockers.
 
 ## Output Template
@@ -61,5 +61,7 @@ Goal: Decide whether a planned change is ready for implementation or must return
 | [area] | [gap] | [owner/input] |
 
 ## Next Workflow
+
+## Cost Report
 ```
 

@@ -8,10 +8,49 @@ import { MarkdownUtils } from '../cli/src/services/utils/MarkdownUtils';
 import { SpecialistSyncService } from '../cli/src/services/SpecialistSyncService';
 import { ConfigService } from '../cli/src/services/ConfigService';
 import { SyncService } from '../cli/src/services/SyncService';
+import { CollectedSkill } from '../cli/src/models/types';
 
 function getFirstLine(text: string): string {
   if (!text) return '';
   return text.split('\n')[0];
+}
+
+async function collectLocalSkill(
+  category: string,
+  skillName: string,
+  skillPath: string,
+): Promise<CollectedSkill | null> {
+  const files: { name: string; content: string }[] = [];
+
+  async function readDirRecursive(dir: string, base: string) {
+    const items = await fs.readdir(dir);
+    for (const item of items) {
+      const fullPath = path.join(dir, item);
+      const relPath = path.relative(base, fullPath).replace(/\\/g, '/');
+      const stat = await fs.stat(fullPath);
+      if (stat.isDirectory()) {
+        await readDirRecursive(fullPath, base);
+      } else {
+        if (
+          relPath === 'SKILL.md' ||
+          /^(references|scripts|assets)\//.test(relPath)
+        ) {
+          const content = await fs.readFile(fullPath, 'utf8');
+          files.push({ name: relPath, content });
+        }
+      }
+    }
+  }
+
+  if (await fs.pathExists(skillPath)) {
+    await readDirRecursive(skillPath, skillPath);
+    return {
+      category,
+      skill: skillName,
+      files,
+    };
+  }
+  return null;
 }
 
 interface SkillMetadata {
@@ -230,6 +269,73 @@ async function generate() {
       readmeContent = `${pre}\n${generatedIndex.trim()}\n${post}`;
       await fs.writeFile(readmePath, readmeContent, 'utf8');
       console.log('✅ Updated skills/README.md with auto-generated index');
+    }
+  }
+
+  // Local Sync Phase: Sync local skills and workflows to target agent folders
+  if (agents.length > 0 && config) {
+    try {
+      // Sync local workflows
+      const localWorkflowsDir = path.join(repoRoot, '.agents/workflows');
+      if (await fs.pathExists(localWorkflowsDir) && config.workflows) {
+        let workflowFiles = (await fs.readdir(localWorkflowsDir)).filter((f) => f.endsWith('.md'));
+        if (Array.isArray(config.workflows)) {
+          const allowed = config.workflows as string[];
+          workflowFiles = workflowFiles.filter((f) => allowed.includes(path.basename(f, '.md')));
+        }
+        const collectedWorkflows = [
+          {
+            category: '.agents',
+            skill: 'workflows',
+            files: await Promise.all(
+              workflowFiles.map(async (wfFile) => {
+                const content = await fs.readFile(path.join(localWorkflowsDir, wfFile), 'utf8');
+                return {
+                  name: wfFile,
+                  content,
+                };
+              }),
+            ),
+          },
+        ];
+        await syncService.writeWorkflows(collectedWorkflows, config);
+        console.log(`✅ Synced ${workflowFiles.length} local workflows to target agent folders`);
+      }
+
+      // Sync local skills
+      const collectedSkills = [];
+      const skillCategories = Object.keys(config.skills || {});
+
+      for (const category of skillCategories) {
+        const catPath = path.join(skillsDir, category);
+        if (!(await fs.pathExists(catPath))) continue;
+
+        const catConfig = config.skills[category];
+        const skillFolders = (await fs.readdir(catPath)).filter((f) => {
+          const p = path.join(catPath, f);
+          return fs.statSync(p).isDirectory() && !f.startsWith('.');
+        });
+
+        const filteredFolders = skillFolders.filter((folder) => {
+          if (catConfig.include && !catConfig.include.includes(folder)) return false;
+          if (catConfig.exclude && catConfig.exclude.includes(folder)) return false;
+          return true;
+        });
+
+        for (const folder of filteredFolders) {
+          const skill = await collectLocalSkill(category, folder, path.join(catPath, folder));
+          if (skill) {
+            collectedSkills.push(skill);
+          }
+        }
+      }
+
+      if (collectedSkills.length > 0) {
+        await syncService.writeSkills(collectedSkills, config);
+        console.log(`✅ Synced ${collectedSkills.length} local skills to target agent folders`);
+      }
+    } catch (error) {
+      console.error('❌ Failed to sync local skills/workflows:', error);
     }
   }
 

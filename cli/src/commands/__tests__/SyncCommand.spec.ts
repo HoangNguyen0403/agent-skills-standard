@@ -88,8 +88,8 @@ describe('SyncCommand', () => {
     // @ts-expect-error - testing private instance patching
     command.hookService = mockHookService;
 
-    vi.spyOn(console, 'log').mockImplementation(() => { });
-    vi.spyOn(console, 'error').mockImplementation(() => { });
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   it('should run sync successfully', async () => {
@@ -494,7 +494,9 @@ describe('SyncCommand', () => {
       } as any);
 
       mockHookService.install.mockResolvedValue({
-        writes: [{ agent: 'claude' as any, file: 'f1', action: 'skipped-existing' }],
+        writes: [
+          { agent: 'claude' as any, file: 'f1', action: 'skipped-existing' },
+        ],
         unsupported: [],
       });
 
@@ -528,9 +530,9 @@ describe('SyncCommand', () => {
 
       await command.run();
 
-      const promptCall = vi.mocked(inquirer.prompt).mock.calls.find(
-        (call: any) => call[0][0].name === 'enabled'
-      );
+      const promptCall = vi
+        .mocked(inquirer.prompt)
+        .mock.calls.find((call: any) => call[0][0].name === 'enabled');
       expect(promptCall).toBeDefined();
       const questions = promptCall![0] as any[];
       const scopeQuestion = questions.find((q: any) => q.name === 'scope');

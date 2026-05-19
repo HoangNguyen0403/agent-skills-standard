@@ -28,28 +28,27 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
    - Existing implementation plan if present
    - Relevant `AGENTS.md` and matched framework skills
    - Existing code patterns and architecture docs
-
 2. Define architecture:
    - Name bounded contexts and module owners.
    - Define dependency direction.
    - Choose sync, async, or hybrid communication.
    - Record data ownership and migration needs.
-
 3. Define contracts:
    - API inputs/outputs
    - Events/jobs
    - Storage shape
    - Error states
    - Security and permission checks
-
 4. Plan verification:
    - Unit, integration, E2E, visual, mobile, security, and migration checks.
-   - Required evidence in `walkthrough.md`.
+   - Save architecture notes to `docs/specs/architecture-[slug].md` when file writes are allowed.
+   - Record evidence in `docs/templates/walkthrough.md`.
    - Rollback or degradation path.
-
 5. Record ADR:
    - Write one concise ADR when architecture or public contract changes.
    - Route next step to `implement-feature` or `dev-fix`.
+
+## Output
 
 ## Output Template
 
@@ -73,6 +72,9 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 ## ADR
 
 ## Next Workflow
+
 implement-feature | dev-fix
+
+## Cost Report
 ```
 

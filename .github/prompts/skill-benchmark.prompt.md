@@ -36,7 +36,7 @@ Pick the file automatically. Rank candidates by the severity of anti-patterns:
 Source your scorecard from `evals/evals.json`, not from hardcoded patterns.
 Follow the Scorecard Rubric in `<SKILLS>/common/common-skill-creator/references/benchmark.md` when synced:
 
-1. Read `skills/<category>/<skill>/evals/evals.json`.
+1. Read `<SKILLS>/<category>/<skill>/evals/evals.json`.
 2. Generate columns for **Failure Pattern** and **Success Pattern**.
 3. Refactor the file, citing the exact skill rule for each change.
 

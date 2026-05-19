@@ -70,19 +70,28 @@ export class UpgradeCommand {
       try {
         execSync(upgradeCmd, { stdio: 'inherit' });
       } catch {
-        console.log(pc.yellow(`⚠️  Failed to install v${latestVersion}. Retrying with @latest...`));
+        console.log(
+          pc.yellow(
+            `⚠️  Failed to install v${latestVersion}. Retrying with @latest...`,
+          ),
+        );
         const fallbackCmd = this.getUpgradeCommand(pm, 'latest');
         execSync(fallbackCmd, { stdio: 'inherit' });
       }
 
       // Soft Verification
       try {
-        const output = execSync('ags -V', { encoding: 'utf8', stdio: 'pipe' }).trim();
+        const output = execSync('ags -V', {
+          encoding: 'utf8',
+          stdio: 'pipe',
+        }).trim();
         const lines = output.split('\n');
         const installedVersion = lines[lines.length - 1].trim();
 
         if (installedVersion.includes(latestVersion)) {
-          console.log(pc.green(`✅ Successfully upgraded to v${latestVersion}!`));
+          console.log(
+            pc.green(`✅ Successfully upgraded to v${latestVersion}!`),
+          );
         } else {
           console.log(
             '\n' +
@@ -91,7 +100,9 @@ export class UpgradeCommand {
               ),
           );
           console.log(
-            pc.gray('   This is common if multiple versions are installed or your shell needs a restart.'),
+            pc.gray(
+              '   This is common if multiple versions are installed or your shell needs a restart.',
+            ),
           );
           console.log(
             pc.cyan(
@@ -101,12 +112,16 @@ export class UpgradeCommand {
         }
       } catch {
         console.log(pc.green('\n✅ Upgrade command finished.'));
-        console.log(pc.gray('   (Unable to verify version automatically, please check with \'ags -V\')'));
+        console.log(
+          pc.gray(
+            "   (Unable to verify version automatically, please check with 'ags -V')",
+          ),
+        );
       }
 
       console.log(
         pc.cyan(
-          "\nNote: You may need to restart your terminal session for changes to take effect.",
+          '\nNote: You may need to restart your terminal session for changes to take effect.',
         ),
       );
     } catch {
@@ -117,14 +132,20 @@ export class UpgradeCommand {
 
   private detectPackageManager(): 'npm' | 'pnpm' | 'yarn' {
     const execPath = process.argv[1] || '';
-    
+
     // 1. Check if we are running from a pnpm global bin
-    if (execPath.includes('pnpm') || (process.env.npm_config_user_agent || '').includes('pnpm')) {
+    if (
+      execPath.includes('pnpm') ||
+      (process.env.npm_config_user_agent || '').includes('pnpm')
+    ) {
       return 'pnpm';
     }
 
     // 2. Check if we are running from a yarn global bin
-    if (execPath.includes('yarn') || (process.env.npm_config_user_agent || '').includes('yarn')) {
+    if (
+      execPath.includes('yarn') ||
+      (process.env.npm_config_user_agent || '').includes('yarn')
+    ) {
       return 'yarn';
     }
 
@@ -145,7 +166,10 @@ export class UpgradeCommand {
     return 'npm';
   }
 
-  private getUpgradeCommand(pm: 'npm' | 'pnpm' | 'yarn', version: string): string {
+  private getUpgradeCommand(
+    pm: 'npm' | 'pnpm' | 'yarn',
+    version: string,
+  ): string {
     switch (pm) {
       case 'pnpm':
         return `pnpm add -g agent-skills-standard@${version}`;
@@ -157,7 +181,10 @@ export class UpgradeCommand {
     }
   }
 
-  private printManualInstructions(pm: 'npm' | 'pnpm' | 'yarn', version: string) {
+  private printManualInstructions(
+    pm: 'npm' | 'pnpm' | 'yarn',
+    version: string,
+  ) {
     const isWindows = process.platform === 'win32';
     const sudoPrefix = isWindows ? '' : 'sudo ';
 
@@ -170,13 +197,17 @@ export class UpgradeCommand {
       '\n' + pc.cyan('👉 Please run the following command manually:'),
     );
     console.log(
-      pc.white(pc.bold(`  ${sudoPrefix}${this.getUpgradeCommand(pm, version)}`)),
+      pc.white(
+        pc.bold(`  ${sudoPrefix}${this.getUpgradeCommand(pm, version)}`),
+      ),
     );
 
     if (pm !== 'npm') {
       console.log(pc.gray('\nAlternative (npm):'));
       console.log(
-        pc.gray(`  ${sudoPrefix}npm install -g agent-skills-standard@${version}`),
+        pc.gray(
+          `  ${sudoPrefix}npm install -g agent-skills-standard@${version}`,
+        ),
       );
     }
 

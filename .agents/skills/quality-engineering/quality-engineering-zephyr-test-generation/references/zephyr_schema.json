@@ -1,0 +1,48 @@
+{
+  "_comment_NAMING": "TC name format: 'Web_Module_Verb object' or 'Mobile_Module_Verb object' for platform-exclusive TCs. Omit prefix ONLY when Platform = 'Web and Mobile'. The prefix in the artifact draft MUST be copied verbatim into the API name field — never strip it.",
+  "_comment_POST": "POST /v2/testcases — Create. Uses string fields and flat folderId.",
+  "POST_create": {
+    "projectKey": "PROJ",
+    "name": "Web_Order_Verify payment term on item details screen when Enable Payment Terms is OFF",
+    "objective": "Platform: Web and Mobile. Market: VN. Verify payment terms display when feature is disabled.",
+    "precondition": "- User is {APP_NAME} user (Customer, Admin)\n- Enable Payment Terms is ON",
+    "folderId": 36083190,
+    "priorityName": "High",
+    "statusName": "Draft",
+    "labels": ["{PROJECT}-{ID}", "VN-Market"]
+  },
+
+  "_comment_PUT": "PUT /v2/testcases/{key} — Update. CRITICAL: use nested objects for folder/status/priority/project. Flat folderId is silently ignored and WIPES the folder.",
+  "PUT_update": {
+    "id": 123456789,
+    "key": "{PROJECT}-T9999",
+    "projectKey": "PROJ",
+    "project": {"id": 249861},
+    "name": "Web_Order_Verify payment term on item details screen when Enable Payment Terms is OFF",
+    "objective": "Platform: Web and Mobile. Market: VN. Verify payment terms display when feature is disabled.",
+    "precondition": "- User is {APP_NAME} user (Customer, Admin)\n- Enable Payment Terms is ON",
+    "folder": {"id": 36083190},
+    "status": {"id": 4529827},
+    "priority": {"id": 4529830},
+    "labels": ["{PROJECT}-{ID}", "VN-Market"],
+    "customFields": {
+      "Roles": ["Root admin", "Zp admin", "Client admin", "Client user", "Internal sales rep", "External sales rep", "Return approver", "Return admin", "Return requestor", "Zp admin attachments", "Registration admin"],
+      "Platform": ["Web and Mobile"]
+    }
+  },
+
+  "_comment_STEPS": "POST /v2/testcases/{key}/teststeps — Add steps.",
+  "POST_steps": {
+    "mode": "OVERWRITE",
+    "items": [
+      {"inline": {"description": "Navigate to {Screen}", "expectedResult": "{Expected observability}"}}
+    ]
+  },
+
+  "_comment_LINK": "POST /v2/testcases/{key}/links/issues — Link to Jira. Use numeric issueId. Path is /links/issues NOT /issuelinks.",
+  "POST_jira_link": {
+    "issueId": 258528
+  },
+
+  "_comment_PLATFORM": "Platform rules: Single AC [WEB+MOBILE] → ONE TC, Platform='Web and Mobile', no prefix. Two separate ACs same behavior different platform → TWO TCs with Web_/Mobile_ prefix."
+}

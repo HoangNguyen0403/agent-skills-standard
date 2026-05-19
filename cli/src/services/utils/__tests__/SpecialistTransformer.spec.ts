@@ -10,7 +10,7 @@ name: specialist-security-reviewer
 description: "Review security"
 ---
 # Rules
-Check OWASP.`
+Check OWASP.`,
   };
 
   it('should transform for Claude (persona style)', () => {
@@ -40,7 +40,10 @@ Check OWASP.`
   });
 
   it('should return null for invalid content', () => {
-    const result = SpecialistTransformer.transform({ name: 'test', content: 'no frontmatter' }, Agent.Claude);
+    const result = SpecialistTransformer.transform(
+      { name: 'test', content: 'no frontmatter' },
+      Agent.Claude,
+    );
     expect(result).toBeNull();
   });
 

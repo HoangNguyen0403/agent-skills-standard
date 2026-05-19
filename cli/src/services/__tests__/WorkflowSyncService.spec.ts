@@ -342,12 +342,18 @@ describe('WorkflowSyncService', () => {
       ]);
 
       expect(fs.outputFile).toHaveBeenCalledWith(
-        expect.stringContaining(path.join('.codex', 'skills', 'review', 'SKILL.md')),
+        expect.stringContaining(
+          path.join('.codex', 'skills', 'review', 'SKILL.md'),
+        ),
         expect.stringContaining('## Instructions'),
       );
       expect(fs.outputFile).toHaveBeenCalledWith(
-        expect.stringContaining(path.join('.codex', 'skills', 'review', 'SKILL.md')),
-        expect.stringContaining('Delegate if supported, otherwise run locally.'),
+        expect.stringContaining(
+          path.join('.codex', 'skills', 'review', 'SKILL.md'),
+        ),
+        expect.stringContaining(
+          'Delegate if supported, otherwise run locally.',
+        ),
       );
     });
 

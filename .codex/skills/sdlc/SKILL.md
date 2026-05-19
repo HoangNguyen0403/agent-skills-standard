@@ -38,11 +38,6 @@ Goal: Select the next native workflow without loading every workflow body.
    - Bug ticket needs fix -> `dev-fix`
    - PR or ticket needs multi-lens review -> `review-ticket`
    - Code complete but unproven -> `verify-work`
-   - Evidence needs AC mapping -> `traceability-audit`
-   - Verified change needs deploy -> `deploy-release`
-   - Shipped change needs communication -> `publish-notes`
-   - Session needs permanent evidence -> `session-report`
-   - Delivery produced lessons -> `retro-learn`
 
 3. Report only:
    - Recommended workflow
@@ -62,5 +57,7 @@ Goal: Select the next native workflow without loading every workflow body.
 ## Blocking Gaps
 
 ## Verification Command
+
+## Cost Report
 ```
 

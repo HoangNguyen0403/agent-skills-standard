@@ -1,0 +1,28 @@
+{
+  "skill_name": "specialist-aspm-correlator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Triage a Semgrep SAST finding showing SQL injection in user.ts and a ZAP DAST finding confirming SQL injection on /api/users.",
+      "expected_output": "Correlate the SAST finding in user.ts and the DAST finding on /api/users. Perform reachability analysis tracing user input to the database query. Provide an ASPM triage report with the specific code diff fixing the issue.",
+      "assertions": [
+        { "type": "contains", "value": "SAST Source" },
+        { "type": "contains", "value": "DAST Confirmation" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Perform reachability analysis and triage an SCA finding of a vulnerable lodash dependency.",
+      "expected_output": "Determine if the vulnerable lodash function is actually imported and reachable in the codebase. If unreachable or only used in test files, downgrade/discard the finding. Otherwise, provide the npm install or package version update command.",
+      "assertions": [
+        { "type": "contains", "value": "Reachability Analysis" },
+        { "type": "contains", "value": "Remediation Patch" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Write a SQL query to get users from the database",
+    "Configure a Jenkins pipeline to deploy our web app",
+    "Find a logic bug in our checkout process"
+  ]
+}

@@ -95,6 +95,7 @@ export const DEFAULT_WORKFLOWS = [
   'implement-feature',
   'verify-work',
   'verify-bug',
+  'security-test',
 ];
 
 // Configurable via ENV or hardcoded for production convenience

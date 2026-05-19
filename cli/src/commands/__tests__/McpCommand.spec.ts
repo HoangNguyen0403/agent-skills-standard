@@ -69,7 +69,11 @@ describe('McpCommand — actionStatus mismatch detection', () => {
   it('warns when .skillsrc says enabled=false but a runtime config has the MCP', async () => {
     mockConfigService.loadConfig.mockResolvedValue(
       makeConfig({
-        mcp: { enabled: false, scope: 'snippets-only' as McpScope, prompted: true },
+        mcp: {
+          enabled: false,
+          scope: 'snippets-only' as McpScope,
+          prompted: true,
+        },
       }),
     );
     mockMcpService.status.mockResolvedValue([
@@ -126,7 +130,11 @@ describe('McpCommand — actionStatus mismatch detection', () => {
   it('does NOT warn when consent and runtime presence both align (enabled=false + nothing installed)', async () => {
     mockConfigService.loadConfig.mockResolvedValue(
       makeConfig({
-        mcp: { enabled: false, scope: 'snippets-only' as McpScope, prompted: true },
+        mcp: {
+          enabled: false,
+          scope: 'snippets-only' as McpScope,
+          prompted: true,
+        },
       }),
     );
     mockMcpService.status.mockResolvedValue([
@@ -142,7 +150,11 @@ describe('McpCommand — actionStatus mismatch detection', () => {
   it('treats user-scope install as "installed" too (mismatch fires either way)', async () => {
     mockConfigService.loadConfig.mockResolvedValue(
       makeConfig({
-        mcp: { enabled: false, scope: 'snippets-only' as McpScope, prompted: true },
+        mcp: {
+          enabled: false,
+          scope: 'snippets-only' as McpScope,
+          prompted: true,
+        },
       }),
     );
     mockMcpService.status.mockResolvedValue([
@@ -180,29 +192,41 @@ describe('McpCommand — actionStatus mismatch detection', () => {
   });
 
   it('handles "enable" action correctly', async () => {
-    mockConfigService.loadConfig.mockResolvedValue(makeConfig({ mcp: { enabled: false, scope: 'project', prompted: false } }));
+    mockConfigService.loadConfig.mockResolvedValue(
+      makeConfig({
+        mcp: { enabled: false, scope: 'project', prompted: false },
+      }),
+    );
     await command.run('enable');
-    expect(mockConfigService.saveConfig).toHaveBeenCalledWith(expect.objectContaining({
-      mcp: expect.objectContaining({ enabled: true, prompted: true })
-    }));
+    expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mcp: expect.objectContaining({ enabled: true, prompted: true }),
+      }),
+    );
     expect(output()).toContain('MCP enabled');
   });
 
   it('handles "disable" action correctly', async () => {
-    mockConfigService.loadConfig.mockResolvedValue(makeConfig({ mcp: { enabled: true, scope: 'project', prompted: true } }));
+    mockConfigService.loadConfig.mockResolvedValue(
+      makeConfig({ mcp: { enabled: true, scope: 'project', prompted: true } }),
+    );
     await command.run('disable');
-    expect(mockConfigService.saveConfig).toHaveBeenCalledWith(expect.objectContaining({
-      mcp: expect.objectContaining({ enabled: false, prompted: true })
-    }));
+    expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mcp: expect.objectContaining({ enabled: false, prompted: true }),
+      }),
+    );
     expect(output()).toContain('MCP disabled');
   });
 
   it('handles "scope" action correctly', async () => {
     mockConfigService.loadConfig.mockResolvedValue(makeConfig());
     await command.run('scope', { scope: 'user' });
-    expect(mockConfigService.saveConfig).toHaveBeenCalledWith(expect.objectContaining({
-      mcp: expect.objectContaining({ scope: 'user' })
-    }));
+    expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mcp: expect.objectContaining({ scope: 'user' }),
+      }),
+    );
     expect(output()).toContain('MCP scope set to "user"');
   });
 
@@ -216,8 +240,16 @@ describe('McpCommand — actionStatus mismatch detection', () => {
   it('handles "install" action correctly with report printing', async () => {
     mockConfigService.loadConfig.mockResolvedValue(makeConfig());
     mockMcpService.install.mockResolvedValue({
-      projectWrites: [{ agent: Agent.Claude, file: '.mcp.json', action: 'added' }],
-      userWrites: [{ agent: Agent.Cursor, file: '/home/.cursor/mcp.json', action: 'added' }],
+      projectWrites: [
+        { agent: Agent.Claude, file: '.mcp.json', action: 'added' },
+      ],
+      userWrites: [
+        {
+          agent: Agent.Cursor,
+          file: '/home/.cursor/mcp.json',
+          action: 'added',
+        },
+      ],
       snippets: [{ agent: Agent.Claude, file: 'snippet.json' }],
       declined: [{ agent: Agent.Cursor, file: '/home/.cursor/mcp.json' }],
       unsupported: [Agent.Copilot],
@@ -236,12 +268,14 @@ describe('McpCommand — actionStatus mismatch detection', () => {
   it('handles "uninstall" action correctly', async () => {
     mockConfigService.loadConfig.mockResolvedValue(makeConfig());
     mockMcpService.uninstall.mockResolvedValue({
-      removed: [{ agent: Agent.Claude, file: '.mcp.json' }]
+      removed: [{ agent: Agent.Claude, file: '.mcp.json' }],
     });
 
     await command.run('uninstall', { from: 'all' });
 
-    expect(mockMcpService.uninstall).toHaveBeenCalledWith(expect.objectContaining({ from: 'all' }));
+    expect(mockMcpService.uninstall).toHaveBeenCalledWith(
+      expect.objectContaining({ from: 'all' }),
+    );
     expect(output()).toContain('Removed agent-skills MCP entry');
   });
 
@@ -250,7 +284,9 @@ describe('McpCommand — actionStatus mismatch detection', () => {
     mockMcpService.install.mockResolvedValue({
       projectWrites: [],
       userWrites: [],
-      snippets: [{ agent: Agent.Claude, file: 'mcp-config-snippets/claude.json' }],
+      snippets: [
+        { agent: Agent.Claude, file: 'mcp-config-snippets/claude.json' },
+      ],
       declined: [],
       unsupported: [],
     });
@@ -276,9 +312,11 @@ describe('McpCommand — actionStatus mismatch detection', () => {
   });
 
   it('handles "enable" action when scope is disabled', async () => {
-    mockConfigService.loadConfig.mockResolvedValue(makeConfig({
-      mcp: { enabled: false, scope: 'disabled', prompted: true }
-    }));
+    mockConfigService.loadConfig.mockResolvedValue(
+      makeConfig({
+        mcp: { enabled: false, scope: 'disabled', prompted: true },
+      }),
+    );
     await command.run('enable');
     expect(output()).toContain('scope is currently "disabled"');
     expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
@@ -287,7 +325,9 @@ describe('McpCommand — actionStatus mismatch detection', () => {
   it('prints report with "skipped-existing" project writes', async () => {
     mockConfigService.loadConfig.mockResolvedValue(makeConfig());
     mockMcpService.install.mockResolvedValue({
-      projectWrites: [{ agent: Agent.Claude, file: '.mcp.json', action: 'skipped-existing' }],
+      projectWrites: [
+        { agent: Agent.Claude, file: '.mcp.json', action: 'skipped-existing' },
+      ],
       userWrites: [],
       snippets: [],
       declined: [],

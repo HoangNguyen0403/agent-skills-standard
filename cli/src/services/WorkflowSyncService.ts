@@ -11,7 +11,7 @@ import { WorkflowTransformer } from './utils/WorkflowTransformer';
  * Service responsible for synchronizing agent workflows from a remote registry.
  */
 export class WorkflowSyncService {
-  constructor(private githubService: GithubService) { }
+  constructor(private githubService: GithubService) {}
 
   /**
    * Reconciles workflows by discovering new ones in the registry and adding them to the config.
@@ -32,7 +32,8 @@ export class WorkflowSyncService {
 
     const availableWorkflows = treeData.tree
       .filter(
-        (f) => f.path.startsWith('.agents/workflows/') && f.path.endsWith('.md'),
+        (f) =>
+          f.path.startsWith('.agents/workflows/') && f.path.endsWith('.md'),
       )
       .map((f) => path.basename(f.path, '.md'));
 
@@ -136,9 +137,15 @@ export class WorkflowSyncService {
       ];
     } else {
       if (workflowFiles.length > 0) {
-        console.log(pc.red(`    ❌ Failed to download ${workflowFiles.length} matched workflows.`));
+        console.log(
+          pc.red(
+            `    ❌ Failed to download ${workflowFiles.length} matched workflows.`,
+          ),
+        );
       } else {
-        console.log(pc.gray(`    ℹ️  No matching workflows found in registry.`));
+        console.log(
+          pc.gray(`    ℹ️  No matching workflows found in registry.`),
+        );
       }
     }
 
@@ -174,7 +181,10 @@ export class WorkflowSyncService {
       // Calculate relative path from workflow dir to the source workflow files (.agents/workflows)
       // This is used by Gemini (TOML) to reference the canonical markdown source.
       const sourceWorkflowDir = path.join(process.cwd(), '.agents/workflows');
-      const workflowSourceRelative = path.relative(workflowDir, sourceWorkflowDir);
+      const workflowSourceRelative = path.relative(
+        workflowDir,
+        sourceWorkflowDir,
+      );
 
       let written = 0;
       for (const wf of workflows) {

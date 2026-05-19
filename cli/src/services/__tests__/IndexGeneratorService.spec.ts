@@ -682,6 +682,17 @@ describe('IndexGeneratorService', () => {
       expect(result).toContain('SKILL.md');
     });
 
+    it('should contain Global Token Optimization directive', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue(['common']);
+      (fs.readFile as any).mockRejectedValue(new Error('ENOENT'));
+
+      const result = await service.assembleRouterIndex('/skills');
+      expect(result).toContain('Global Token Optimization');
+      expect(result).toContain('rtk');
+      expect(result).toContain('caveman');
+    });
+
     it('should render _test.go routing as *_test.go', async () => {
       (fs.pathExists as any).mockResolvedValue(true);
       (fs.readdir as any).mockResolvedValue(['golang', 'common']);
@@ -750,14 +761,26 @@ describe('IndexGeneratorService', () => {
       });
 
       it('always includes the MCP block, regardless of mcpEnabled flag', async () => {
-        const off = await service.assembleRouterIndex('/skills', undefined, false);
-        const on = await service.assembleRouterIndex('/skills', undefined, true);
+        const off = await service.assembleRouterIndex(
+          '/skills',
+          undefined,
+          false,
+        );
+        const on = await service.assembleRouterIndex(
+          '/skills',
+          undefined,
+          true,
+        );
         expect(off).toContain('## 🔌 Runtime Enforcement via MCP');
         expect(on).toContain('## 🔌 Runtime Enforcement via MCP');
       });
 
       it('lists all 4 MCP tools in the table', async () => {
-        const result = await service.assembleRouterIndex('/skills', undefined, false);
+        const result = await service.assembleRouterIndex(
+          '/skills',
+          undefined,
+          false,
+        );
         expect(result).toContain('`load_skills_for_files(files=[...])`');
         expect(result).toContain('`load_skills_for_keywords(keywords=[...])`');
         expect(result).toContain('`get_skill(category, name)`');
@@ -765,8 +788,14 @@ describe('IndexGeneratorService', () => {
       });
 
       it('phrases the block self-checkingly so it is correct in all states', async () => {
-        const result = await service.assembleRouterIndex('/skills', undefined, false);
-        expect(result).toContain('If the `agent-skills-standard` MCP server is registered');
+        const result = await service.assembleRouterIndex(
+          '/skills',
+          undefined,
+          false,
+        );
+        expect(result).toContain(
+          'If the `agent-skills-standard` MCP server is registered',
+        );
         // Sanity: the AI is told to verify via its tool list before assuming.
         expect(result).toContain('check your tool list');
         // Sanity: the router below is described as the fallback.
@@ -774,26 +803,48 @@ describe('IndexGeneratorService', () => {
       });
 
       it('includes the sub-agent inheritance warning', async () => {
-        const result = await service.assembleRouterIndex('/skills', undefined, false);
+        const result = await service.assembleRouterIndex(
+          '/skills',
+          undefined,
+          false,
+        );
         expect(result).toContain("Sub-agents don't inherit this `AGENTS.md`");
       });
 
       it('switches the status note to TIP when mcpEnabled=true', async () => {
-        const result = await service.assembleRouterIndex('/skills', undefined, true);
+        const result = await service.assembleRouterIndex(
+          '/skills',
+          undefined,
+          true,
+        );
         expect(result).toContain('[!TIP]');
-        expect(result).toContain("This project has the MCP server enabled in `.skillsrc`");
-        expect(result).not.toContain("To enable MCP-managed installs in this project, run `ags mcp enable`");
+        expect(result).toContain(
+          'This project has the MCP server enabled in `.skillsrc`',
+        );
+        expect(result).not.toContain(
+          'To enable MCP-managed installs in this project, run `ags mcp enable`',
+        );
       });
 
       it('switches the status note to NOTE when mcpEnabled=false (default)', async () => {
-        const result = await service.assembleRouterIndex('/skills', undefined, false);
+        const result = await service.assembleRouterIndex(
+          '/skills',
+          undefined,
+          false,
+        );
         expect(result).toContain('[!NOTE]');
-        expect(result).toContain("`ags mcp enable`");
-        expect(result).not.toContain("This project has the MCP server enabled in `.skillsrc`");
+        expect(result).toContain('`ags mcp enable`');
+        expect(result).not.toContain(
+          'This project has the MCP server enabled in `.skillsrc`',
+        );
       });
 
       it('places the MCP block ABOVE the Skill Resolution Protocol header', async () => {
-        const result = await service.assembleRouterIndex('/skills', undefined, false);
+        const result = await service.assembleRouterIndex(
+          '/skills',
+          undefined,
+          false,
+        );
         const mcpIdx = result.indexOf('## 🔌 Runtime Enforcement via MCP');
         const protocolIdx = result.indexOf('## Skill Resolution Protocol');
         expect(mcpIdx).toBeGreaterThan(-1);

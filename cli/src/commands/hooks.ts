@@ -63,7 +63,9 @@ export class HooksCommand {
     }
 
     for (const row of rows) {
-      const badge = row.installed ? pc.green('✓ installed') : pc.gray('✗ not installed');
+      const badge = row.installed
+        ? pc.green('✓ installed')
+        : pc.gray('✗ not installed');
       console.log(`  ${row.agent.padEnd(12)} ${badge}`);
       for (const f of row.files) {
         console.log(`               ${pc.gray(f)}`);
@@ -78,7 +80,10 @@ export class HooksCommand {
   }
 
   private async actionUninstall(cwd: string, agents: Agent[]): Promise<void> {
-    const { removed } = await this.hookService.uninstall({ rootDir: cwd, agents });
+    const { removed } = await this.hookService.uninstall({
+      rootDir: cwd,
+      agents,
+    });
     if (removed.length === 0) {
       console.log(pc.gray('Nothing to remove.'));
       return;

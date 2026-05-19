@@ -75,7 +75,7 @@ describe('UpgradeCommand', () => {
     vi.mocked(execSync).mockImplementationOnce(() => {
       throw new Error('Fallback failed');
     }); // fallback install fails
-    
+
     vi.spyOn(upgradeCommand, 'detectPackageManager').mockReturnValue('npm');
 
     await upgradeCommand.run({});
@@ -95,7 +95,7 @@ describe('UpgradeCommand', () => {
     }); // versioned install fails
     vi.mocked(execSync).mockReturnValueOnce('success\n'); // retry with @latest succeeds
     vi.mocked(execSync).mockReturnValueOnce('2.0.0\n'); // verification succeeds
-    
+
     vi.spyOn(upgradeCommand, 'detectPackageManager').mockReturnValue('npm');
 
     await upgradeCommand.run({});
@@ -105,7 +105,9 @@ describe('UpgradeCommand', () => {
       expect.anything(),
     );
     expect(consoleLogMock).toHaveBeenCalledWith(
-      expect.stringContaining('Failed to install v2.0.0. Retrying with @latest...'),
+      expect.stringContaining(
+        'Failed to install v2.0.0. Retrying with @latest...',
+      ),
     );
   });
 
@@ -137,7 +139,9 @@ describe('UpgradeCommand', () => {
     await upgradeCommand.run({});
 
     expect(consoleLogMock).toHaveBeenCalledWith(
-      expect.stringContaining('Invalid version received from npm: not-a-version'),
+      expect.stringContaining(
+        'Invalid version received from npm: not-a-version',
+      ),
     );
   });
 

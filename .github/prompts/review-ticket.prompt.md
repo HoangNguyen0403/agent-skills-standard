@@ -50,4 +50,6 @@ Goal: Produce a PR-ready review verdict using compact specialist fanout and evid
 ## Evidence Gaps
 
 ## Next Workflow
+
+## Cost Report
 ```

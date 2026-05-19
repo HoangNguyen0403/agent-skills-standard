@@ -297,12 +297,12 @@ export class SyncService {
         });
 
         await fs.remove(oldPath);
-        console.log(
-          pc.gray('  - Migrated and cleaned up old .agent folder.'),
-        );
+        console.log(pc.gray('  - Migrated and cleaned up old .agent folder.'));
       } catch (error) {
         if (process.env.DEBUG) {
-          console.debug(`Failed to migrate/cleanup old .agent folder: ${error}`);
+          console.debug(
+            `Failed to migrate/cleanup old .agent folder: ${error}`,
+          );
         }
       }
     }

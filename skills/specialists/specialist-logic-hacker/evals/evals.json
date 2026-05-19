@@ -1,0 +1,28 @@
+{
+  "skill_name": "specialist-logic-hacker",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write a Python script to test for a race condition (double spending / coupon abuse) on our cart checkout endpoint `/api/cart/checkout`.",
+      "expected_output": "Construct a Python exploit harness using parallel requests (e.g. threading or asyncio) to send simultaneous checkout calls with the same coupon. Output should follow the Business Logic Exploit format: Vulnerability Description, Reproducible Exploit Harness, Execution Evidence, and Code-Level Remediation.",
+      "assertions": [
+        { "type": "contains", "value": "Exploit Harness" },
+        { "type": "contains", "value": "Remediation" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We want to test if a low-privilege user can access admin report data via BOLA/IDOR on `/api/reports/{reportId}`. Write a Playwright script to verify.",
+      "expected_output": "Build a Playwright/Python harness simulating two users: User A (attacker) and User B (victim). User A attempts to fetch User B's reportId. If successful, confirm the BOLA vulnerability with execution evidence and suggest server-side authorization checks as remediation.",
+      "assertions": [
+        { "type": "contains", "value": "Playwright" },
+        { "type": "contains", "value": "BOLA" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Configure a CORS policy in NestJS",
+    "Explain what is a JWT and how to sign it",
+    "Search the codebase for routes containing @UseGuards"
+  ]
+}

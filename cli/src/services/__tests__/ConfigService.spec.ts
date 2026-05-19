@@ -41,7 +41,12 @@ describe('ConfigService', () => {
         skills: {},
         agents: [Agent.Cursor],
         custom_overrides: [],
-        mcp: { enabled: true, scope: 'project', prompted: true, snippets: true },
+        mcp: {
+          enabled: true,
+          scope: 'project',
+          prompted: true,
+          snippets: true,
+        },
       };
 
       vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(true));
@@ -70,7 +75,9 @@ describe('ConfigService', () => {
 
       vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(true));
       vi.mocked(fs.readFile).mockImplementation(() =>
-        Promise.resolve('registry: https://example.com\nskills: {}' as unknown as Buffer),
+        Promise.resolve(
+          'registry: https://example.com\nskills: {}' as unknown as Buffer,
+        ),
       );
       vi.mocked(yaml.load).mockReturnValue(mockConfig);
 
@@ -88,7 +95,9 @@ describe('ConfigService', () => {
 
       vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(true));
       vi.mocked(fs.readFile).mockImplementation(() =>
-        Promise.resolve('registry: https://example.com\nagents:\n  - openai\n  - cursor\nskills: {}' as unknown as Buffer),
+        Promise.resolve(
+          'registry: https://example.com\nagents:\n  - openai\n  - cursor\nskills: {}' as unknown as Buffer,
+        ),
       );
       vi.mocked(yaml.load).mockReturnValue(legacyRawConfig);
       vi.mocked(yaml.dump).mockReturnValue('dumped yaml');

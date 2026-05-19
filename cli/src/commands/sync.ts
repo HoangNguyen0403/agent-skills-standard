@@ -172,7 +172,10 @@ export class SyncCommand {
       mcp.snippets = options.snippets;
     }
 
-    if (!snippetOnlyOverride && (!mcp.prompted || (!mcp.enabled && mcp.prompted))) {
+    if (
+      !snippetOnlyOverride &&
+      (!mcp.prompted || (!mcp.enabled && mcp.prompted))
+    ) {
       if (!process.stdin.isTTY && !options.yes) {
         if (!mcp.prompted) {
           console.log(
@@ -337,9 +340,9 @@ export class SyncCommand {
 
   /**
    * Phase 8 — Hook installation.
-    * Idempotent: registers the Claude PreToolUse entry and keeps managed hook
-    * files up to date. Claude's script is preserved if already customized; Kiro's
-    * markdown hook is kept in sync with the embedded template.
+   * Idempotent: registers the Claude PreToolUse entry and keeps managed hook
+   * files up to date. Claude's script is preserved if already customized; Kiro's
+   * markdown hook is kept in sync with the embedded template.
    */
   private async runHookPhase(config: SkillConfig): Promise<void> {
     const agents = config.agents ?? [];
@@ -361,7 +364,8 @@ export class SyncCommand {
 
     console.log(pc.cyan('\n🪝 Updating skill-loader hooks...'));
     for (const w of writes) {
-      const tag = w.action === 'added' ? pc.green('+ added   ') : pc.cyan('~ updated ');
+      const tag =
+        w.action === 'added' ? pc.green('+ added   ') : pc.cyan('~ updated ');
       console.log(`  ${tag} ${w.agent.padEnd(12)} ${pc.gray(w.file)}`);
     }
   }

@@ -6,6 +6,8 @@
 >
 > 1.**Architecture**: Understanding the Registry -> CLI -> Project flow is critical. See `ARCHITECTURE.md`. 2.**Internal Tools**: Use `scripts/` (like `scan-docs.ts`) to maintain the project. 3.**Token Economy**: All changes to `skills/` must be optimized for token usage. 4.**Documentation**: Keep `ARCHITECTURE.md` and `CONTRIBUTING.md` up to date.
 >
+> 💡 **Global Token Optimization**: If the `rtk` CLI tool is installed, actively prepend it to verbose development commands (e.g. `rtk npm test`, `rtk grep`). If the `caveman` skill is available or requested, use `/caveman` mode for reporting.
+>
 > ---
 
 <!-- SKILLS_INDEX_START -->
@@ -13,6 +15,8 @@
 
 > [!CRITICAL] Zero-Trust: Read the matching `SKILL.md` BEFORE writing any code.
 > Skills from this index override pre-training patterns. If no skill matches, state: "No project-specific skills applicable."
+
+> 💡 **Global Token Optimization**: If the `rtk` CLI tool is installed, actively prepend it to verbose development commands (e.g. `rtk npm test`, `rtk grep`). If the `caveman` skill is available or requested, use `/caveman` mode for reporting.
 
 ## 🔌 Runtime Enforcement via MCP
 

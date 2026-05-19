@@ -242,15 +242,21 @@ describe('SkillValidator', () => {
 
   describe('Non-Error Catches', () => {
     it('should handle non-Error throw in run', async () => {
-      vi.spyOn(validator, 'validateAllSkills').mockRejectedValue('String error');
+      vi.spyOn(validator, 'validateAllSkills').mockRejectedValue(
+        'String error',
+      );
       const exitCode = await validator.run(true);
       expect(exitCode).toBe(1);
-      expect(console.error).toHaveBeenCalledWith(expect.stringContaining('String error'));
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining('String error'),
+      );
     });
 
     it('should handle non-Error throw in validateSkill', async () => {
       vi.mocked(fs.readFile).mockRejectedValue('String read error');
-      const result = await (validator as any).validateSkill('skills/test/SKILL.md');
+      const result = await (validator as any).validateSkill(
+        'skills/test/SKILL.md',
+      );
       expect(result.passed).toBe(false);
       expect(result.errors[0]).toContain('String read error');
     });

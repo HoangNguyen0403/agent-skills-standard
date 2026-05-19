@@ -12,7 +12,6 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
    - PRD, ticket, implementation plan, or release note.
    - Acceptance criteria and non-goals.
    - Changed files and matched skills.
-
 2. Select verification lanes:
    - Unit or component tests
    - Integration or API tests
@@ -20,7 +19,6 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
    - Mobile emulator checks
    - Security checks
    - Migration or deployment smoke
-
 3. Execute:
    - Run the smallest reliable automated checks first.
    - Use Playwright/Appium only when user-facing behavior changed.
@@ -28,16 +26,33 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
    - If external MCP is unavailable, ask for exported ticket/PR/TC data or mark that lane BLOCKED.
    - Capture logs, screenshots, traces, or command output summaries.
    - Re-run failed checks after fixes.
-
 4. Judge:
    - PASS: all acceptance criteria proven.
    - FAIL: original bug or missed requirement still reproducible.
    - BLOCKED: environment, credentials, or approval prevents proof.
-
 5. Record evidence:
-   - Update `walkthrough.md`.
-   - Run `traceability-audit` when AC-to-code-to-test mapping is required for PR, release, or QA handoff.
-   - Route next step to `deploy-release`, `publish-notes`, `retro-learn`, or back to implementation.
+   - Update project-local `docs/templates/walkthrough.md`.
+   - Route next step back to implementation or `dev-fix`.
+
+## Output
+
+## Artifact Templates
+
+### Walkthrough Template
+
+```md
+# Walkthrough: [Name]
+
+## Scope
+
+## Acceptance Criteria
+
+## Evidence
+
+## Risks
+
+## Next Workflow
+```
 
 ## Output Template
 
@@ -48,14 +63,13 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
 
 ## Checks Run
 
-| Check | Result | Evidence |
-| --- | --- | --- |
-| [check] | [PASS/FAIL/BLOCKED] | [evidence] |
-
 ## Acceptance Criteria
 
 ## Risks
 
 ## Next Workflow
-deploy-release | publish-notes | retro-learn | implement-feature | dev-fix
+
+implement-feature | dev-fix
+
+## Cost Report
 ```

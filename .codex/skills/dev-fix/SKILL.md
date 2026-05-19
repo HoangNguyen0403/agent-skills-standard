@@ -31,6 +31,7 @@ This workflow manages the entire lifecycle of a bug fix, from initial JIRA analy
 
 // turbo
 1. **Sync Registry**: `git pull origin main` in the standard repo.
+
 ### Step 1: Research & Discovery (Implementation Plan Phase)
 
 > [!TIP]
@@ -38,11 +39,13 @@ This workflow manages the entire lifecycle of a bug fix, from initial JIRA analy
 
 1.  **Analyze Ticket**: Read the JIRA bug. Extract `Reproduce steps`, `Expected Result`, and `Actual Result`.
 2.  **Cross-Check Context**: Search Confluence for related logic/specs. Locate the relevant code in the repository.
-3.  **Create Implementation Plan**: Initialize `implementation_plan.md`.
+3.  **Create Implementation Plan**: 
+    - Use the **Implementation Plan Template** below.
+    - Initialize project-local `docs/specs/implementation-plan-[slug].md`.
     - **Goal**: Clear description of the root cause.
     - **Proposed Changes**: Exact files and logic to be modified.
     - **Verification Plan**: Detail which QE skill (`playwright-cli` or `appium-mcp`) will be used to verify the fix *locally* before PR.
-4.  **HARD STOP**: Request user approval for the `implementation_plan.md`.
+4.  **HARD STOP**: Request user approval for the implementation plan.
 5.  **Readiness Gate**: Run `implementation-readiness`; code only after READY or approved PARTIAL.
 
 ### Step 2: Implementation (TDD Phase)
@@ -51,7 +54,9 @@ This workflow manages the entire lifecycle of a bug fix, from initial JIRA analy
 > **Sub-Agent Delegation**: For the actual fix, delegate the TDD loop to your TDD Implementer sub-agent (`@specialist-tdd-implementer`). If sub-agents are NOT supported, execute the TDD loop yourself using `common-tdd`.
 
 1.  **Worktree Branching**: Create a new worktree for the fix using `git worktree add ../<ticket-key> -b fix/<ticket-key>` and `cd` into it.
-2.  **Task Tracking**: Initialize `task.md`.
+2.  **Task Tracking**: 
+    - Use the **Task Template** below.
+    - Initialize project-local `docs/templates/task.md`.
 3.  **Code**: Implement the fix using `common-tdd` or the `@specialist-tdd-implementer` sub-agent. Follow `common-best-practices` and service-specific `AGENTS.md` rules.
 
 ### Step 3: Local Verification (Enterprise Standard)
@@ -63,20 +68,82 @@ Do NOT rely on "it builds" — verify the fix against the JIRA reproduction step
     - **Web**: Load `quality-engineering-playwright-cli`. Run the reproduction steps. Capture "After" snapshots.
     - **Mobile**: Load `quality-engineering-appium-mcp`. Run the reproduction steps on an emulator.
 3.  **Final Verdict**: Compare results against the `Expected Result` in JIRA. If any sub-3px regressions exist, fix them now.
-4.  **Traceability**: Run `traceability-audit` when AC/test/PR evidence is incomplete.
 
 ### Step 4: Deliver PR
 
 1.  **Commit**: Generate a commit message using `caveman-commit`.
 2.  **PR Details**: Draft the PR description in JIRA wiki markup (for easy copy-pasting to JIRA later).
-3.  **Walkthrough**: Create `walkthrough.md` with evidence of the local verification.
-4.  **Session Report**: Produce `session-report` and route skill gaps to `retro-learn`.
+3.  **Walkthrough**: 
+    - Use the **Walkthrough Template** below.
+    - Create project-local `docs/templates/walkthrough.md` with evidence of the local verification.
 
 ---
 
+## Artifact Templates
+
+### Implementation Plan Template
+```md
+# Implementation Plan: [Name]
+
+## Goal
+
+## Proposed Changes
+
+## Task Slices
+
+| Slice | Scope | Verification |
+| --- | --- | --- |
+| [slice] | [scope] | [verification] |
+
+## Risks
+
+## Verification Plan
+
+## Next Workflow
+```
+
+### Task Template
+```md
+# Task: [Name]
+
+## Scope
+
+## Checklist
+
+- [ ] [task]
+
+## Decisions
+
+## Evidence
+
+## Next Workflow
+```
+
+### Walkthrough Template
+```md
+# Walkthrough: [Name]
+
+## Scope
+
+## Acceptance Criteria
+
+## Evidence
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| [check] | [PASS/FAIL/BLOCKED] | [evidence] |
+
+## Risks
+
+## Next Workflow
+```
+
+## Cost Report
+
+Call `get_session_cost` and output telemetry here before ending.
+
 ## 🚫 Anti-Patterns
 
-- **No Blind Implementation**: Never write code before the `implementation_plan.md` is approved.
+- **No Blind Implementation**: Never write code before the implementation plan is approved.
 - **No Orphan Sessions**: Always `close` browser/appium sessions used during verification.
-- **No skipping local verify**: "I checked it manually" is not enough. Provide snapshots/logs in the `walkthrough.md`.
-
+- **No skipping local verify**: "I checked it manually" is not enough. Provide snapshots/logs in the project-local `docs/templates/walkthrough.md`.

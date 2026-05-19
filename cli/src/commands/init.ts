@@ -119,9 +119,15 @@ export class InitCommand {
     console.log(pc.green('\n✅ Initialized .skillsrc with your preferences!'));
     console.log(pc.gray(`   Selected framework: ${answers.framework}`));
     if (answers.mcpEnabled) {
-      console.log(pc.gray(`   MCP integration: enabled (scope: ${answers.mcpScope})`));
+      console.log(
+        pc.gray(`   MCP integration: enabled (scope: ${answers.mcpScope})`),
+      );
     } else {
-      console.log(pc.gray(`   MCP integration: disabled (change later via \`ags mcp enable\`)`));
+      console.log(
+        pc.gray(
+          `   MCP integration: disabled (change later via \`ags mcp enable\`)`,
+        ),
+      );
     }
     console.log(
       pc.cyan(
@@ -138,14 +144,35 @@ export class InitCommand {
     console.log('to AI agents at runtime. Quick comparison:\n');
     console.log(pc.bold('  WITHOUT MCP') + ' (skills as static files only)');
     console.log(pc.green('    ✓') + ' Zero setup overhead');
-    console.log(pc.red('    ✗') + ' Sub-agents (Claude Code tdd-implementer, architecture-guard, etc.)');
-    console.log('      do NOT inherit AGENTS.md — they often skip skill loading entirely');
-    console.log(pc.red('    ✗') + ' No audit trail of which skills were consulted');
-    console.log(pc.red('    ✗') + ' False findings in code review (agent uses pre-training defaults)\n');
+    console.log(
+      pc.red('    ✗') +
+        ' Sub-agents (Claude Code tdd-implementer, architecture-guard, etc.)',
+    );
+    console.log(
+      '      do NOT inherit AGENTS.md — they often skip skill loading entirely',
+    );
+    console.log(
+      pc.red('    ✗') + ' No audit trail of which skills were consulted',
+    );
+    console.log(
+      pc.red('    ✗') +
+        ' False findings in code review (agent uses pre-training defaults)\n',
+    );
     console.log(pc.bold('  WITH MCP') + ' (runtime tool calls)');
-    console.log(pc.green('    ✓') + ' Sub-agents in EVERY runtime can call load_skills_for_files');
-    console.log(pc.green('    ✓') + ' Returns matched SKILL.md as a tool response — can\'t be silently skipped');
-    console.log(pc.green('    ✓') + ' audit_session_compliance gives you a receipt of what was loaded');
-    console.log(pc.gray('    -') + ' Adds one more process to your AI runtime config\n');
+    console.log(
+      pc.green('    ✓') +
+        ' Sub-agents in EVERY runtime can call load_skills_for_files',
+    );
+    console.log(
+      pc.green('    ✓') +
+        " Returns matched SKILL.md as a tool response — can't be silently skipped",
+    );
+    console.log(
+      pc.green('    ✓') +
+        ' audit_session_compliance gives you a receipt of what was loaded',
+    );
+    console.log(
+      pc.gray('    -') + ' Adds one more process to your AI runtime config\n',
+    );
   }
 }

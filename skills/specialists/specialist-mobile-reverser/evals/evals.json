@@ -1,0 +1,28 @@
+{
+  "skill_name": "specialist-mobile-reverser",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write a Frida script to bypass root detection and certificate pinning on our Android application.",
+      "expected_output": "Construct a Frida JavaScript hooking script targeting the root detection and OkHttp trust manager classes. Output must follow the Mobile Reverse Engineering format: Vulnerability Description, Exploit Mechanism, Execution Evidence, and Code-Level Remediation.",
+      "assertions": [
+        { "type": "contains", "value": "Frida" },
+        { "type": "contains", "value": "pinning" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We need to reverse engineer an iOS IPA to see if there are any hardcoded secrets or exported components. Provide a workflow and tools.",
+      "expected_output": "Explain the iOS binary analysis workflow: decrypt using clutch/frida-ios-dump, perform static mapping with class-dump/Ghidra/Hopper, check Keychain storage, and outline the adb/Frida commands used to verify. Provide Swift remediation rules.",
+      "assertions": [
+        { "type": "contains", "value": "class-dump" },
+        { "type": "contains", "value": "Keychain" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Write a SQL injection exploit for an Admin panel login web page",
+    "Configure a Kubernetes cluster role binding",
+    "Set up push notifications for an iOS app in App Store Connect"
+  ]
+}

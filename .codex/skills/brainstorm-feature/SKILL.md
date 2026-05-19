@@ -29,25 +29,23 @@ Goal: Convert vague intent into a compact product brief before PRD or technical 
    - Desired outcome
    - Constraints
    - Non-goals
-
 2. Explore options:
    - List 3 viable approaches.
-   - For each, capture benefit, cost, risk, and unknowns.
+   - Capture benefit, cost, risk, and unknowns for each.
    - Mark one recommended approach.
-
 3. Pressure-test:
    - Check security, privacy, accessibility, performance, data, and rollout risks.
    - Identify assumptions that need user confirmation.
    - Identify existing repo patterns to reuse.
-
 4. Decide:
    - Ask only for unresolved product decisions.
    - Record accepted approach and rejected alternatives.
+   - Save product briefs to `docs/specs/product-brief.md` when writing files is allowed.
    - Route next step to `plan-feature` when intent is actionable.
 
-## Output Template
+## Output
 
-Save or present:
+## Output Template
 
 ```md
 # Product Brief: [Name]
@@ -62,10 +60,6 @@ Save or present:
 
 ## Alternatives Considered
 
-| Option | Benefit | Cost | Risk |
-| --- | --- | --- | --- |
-| [option] | [benefit] | [cost] | [risk] |
-
 ## Constraints
 
 ## Non-Goals
@@ -73,6 +67,9 @@ Save or present:
 ## Open Questions
 
 ## Next Workflow
+
 plan-feature
+
+## Cost Report
 ```
 

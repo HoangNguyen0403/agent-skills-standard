@@ -1,6 +1,6 @@
 ---
 name: common-owasp
-description: OWASP Top 10 audit checklist for Web Applications (2021) and APIs (2023). Use when performing any security review, PR review, or codebase audit touching web, mobile backend, or API code.
+description: OWASP Top 10 audit checklists for Web Applications (2021), APIs (2023), and Mobile (2024). Use when performing any security review, PR review, or codebase audit touching web, mobile, or API code.
 metadata:
   triggers:
     keywords:
@@ -14,6 +14,7 @@ metadata:
     - API review
     - authorization
     - access control
+    - mobile security
 ---
 # OWASP Top 10 Security Checklist
 
@@ -26,6 +27,7 @@ Apply these on **every code write**, not during dedicated security reviews:
 - **No IDOR**: Filter every resource query by `owner_id` or `tenantId` alongside any user-supplied ID. `findById(params.id)` without owner filter immediate P0.
 - **No wildcard CORS**: Restrict to explicit allowlisted origins — never `Access-Control-Allow-Origin: *` on authenticated routes.
 - **No full entity return**: Always project to DTO — never serialize raw ORM output to API response.
+- **No plaintext secrets in mobile**: Never store tokens in `SharedPreferences`/`UserDefaults` — use Keychain/Keystore.
 
 ## Context-Specific Checklist
 
@@ -36,7 +38,7 @@ Mark each item: ✅ not affected | ⚠️ needs review | 🔴 confirmed finding.
 **P0 finding caps Security score at 40/100.**
 
 Apply framework-specific security skills alongside this checklist.
-See [references/owasp-web.md](references/owasp-web.md) and [references/owasp-api.md](references/owasp-api.md) for full detection signals.
+See [references/owasp-web.md](references/owasp-web.md), [references/owasp-api.md](references/owasp-api.md), and [references/owasp-mobile.md](references/owasp-mobile.md) for full detection signals.
 
 ### OWASP Web Application Top 10 (2021)
 
@@ -67,7 +69,23 @@ See [references/owasp-web.md](references/owasp-web.md) and [references/owasp-api
 | API9 | Improper Inventory Management | Deprecated/undocumented endpoints still reachable. |
 | API10 | Unsafe API Consumption | Third-party response used without schema validation. |
 
+### OWASP Mobile Top 10 (2024)
+
+| ID | Risk | Key Detection Signal |
+| --- | ---- | -------------------- |
+| M1 | Improper Credential Usage | API keys in `BuildConfig`, `Info.plist`, hardcoded in source. |
+| M2 | Inadequate Supply Chain | Unverified SDKs, pods, or packages without lock files. |
+| M3 | Insecure Auth/AuthZ | Biometric-only auth without server validation. Local role checks. |
+| M4 | Insufficient I/O Validation | WebView `loadUrl` with user data. Intent data used unvalidated. |
+| M5 | Insecure Communication | No cert pinning. `cleartextTrafficPermitted=true`. ATS exceptions. |
+| M6 | Inadequate Privacy | Location/contacts without justification. PII in analytics. |
+| M7 | Insufficient Binary Protection | No obfuscation. `android:debuggable=true`. No root detection. |
+| M8 | Security Misconfiguration | Exported components. Backup enabled. Debug endpoints. |
+| M9 | Insecure Data Storage | Tokens in `SharedPreferences`/`UserDefaults` vs Keychain/Keystore. |
+| M10 | Insufficient Cryptography | Hardcoded encryption keys. Deprecated algorithms (DES, RC4). |
+
 ## References
 
 - [OWASP Web App — Full Detection Signals](references/owasp-web.md)
 - [OWASP API — Full Detection Signals](references/owasp-api.md)
+- [OWASP Mobile — Full Detection Signals](references/owasp-mobile.md)

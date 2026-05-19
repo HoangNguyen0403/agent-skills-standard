@@ -40,6 +40,7 @@ For each market in scope:
 ### Step 2: Automated Failure Diagnostic
 
 If the verdict is NOT PASS:
+
 1.  **Run Decoder**: Load `common-web-visual-testing`; if synced references are available, consult `<SKILLS>/common/common-web-visual-testing/references/diagnostic-decoder.md`.
 2.  **Categorize**: Is it a `VPN NOT CONNECTED` error? `ACCOUNT BLOCKED`? Or a genuine `CODE REGRESSION`?
 3.  **Label**: Add the diagnostic label to the JIRA comment.
@@ -50,11 +51,38 @@ If the verdict is NOT PASS:
 2.  **Wiki Comment**: Post a verdict comment using JIRA Wiki Markup (orientation-aware widths).
     - Use `🟢 PASS` / `🔴 FAIL` badges.
     - Embed the most diagnostic screenshot inline.
-3.  **Status Transition**: 
+3.  **Status Transition**:
     - If **PASS**: `Ready for UAT` → `Ready for Production`.
     - If **FAIL**: → `Reopened`.
-4.  **Traceability**: Run `traceability-audit` if AC, screenshot, Zephyr, or PR evidence is missing.
-5.  **Session Report**: Produce `session-report` for PASS/FAIL/BLOCKED handoff.
+4.  **Walkthrough**:
+    - Use the **Walkthrough Template** below.
+    - Update project-local `docs/templates/walkthrough.md`.
+
+## Artifact Templates
+
+### Walkthrough Template
+
+```md
+# Walkthrough: [Name]
+
+## Scope
+
+## Acceptance Criteria
+
+## Evidence
+
+| Check   | Result              | Evidence   |
+| ------- | ------------------- | ---------- |
+| [check] | [PASS/FAIL/BLOCKED] | [evidence] |
+
+## Risks
+
+## Next Workflow
+```
+
+## Cost Report
+
+Call `get_session_cost` and output telemetry here before ending.
 
 ## 🚫 Anti-Patterns
 

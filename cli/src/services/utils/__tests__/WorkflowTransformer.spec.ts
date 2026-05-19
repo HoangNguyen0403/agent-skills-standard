@@ -174,7 +174,9 @@ describe('WorkflowTransformer', () => {
         content: '---\ndescription: Use "strict" mode.\n---\n# Test',
       };
       const result = WorkflowTransformer.transform(quoted, 'skill');
-      expect(result!.content).toContain('description: "Use \\"strict\\" mode."');
+      expect(result!.content).toContain(
+        'description: "Use \\"strict\\" mode."',
+      );
     });
   });
 });
