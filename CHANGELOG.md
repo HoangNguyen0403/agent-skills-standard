@@ -5,6 +5,32 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [cli-v2.4.2] - 2026-05-19
+
+**Category**: Token Optimization & Redundancy Reduction
+
+### Added
+
+- **Professional Security Testing Workflows**: Added two PTES-aligned red-teaming workflows: `/pentest` (7-phase autonomous assessment) and `/security-test` (continuous DevSecOps pipeline for PRs).
+- **Security Audit Skills**: Added `common-pentest-methodology` (PTES alignment, attack taxonomy) and `common-exploit-verification` (mandatory PoC rules, false-positive filtering) to the `common` category.
+- **Security Specialist Sub-Agents**: Introduced three new high-density specialists to execute advanced security tasks:
+  - `specialist-logic-hacker`: For stateful Business Logic (OWASP WSTG-BUSL) and Auth bypasses.
+  - `specialist-mobile-reverser`: For binary analysis, SSL pinning bypass, and IPC attacks on iOS/Android.
+  - `specialist-aspm-correlator`: For ingesting raw SAST/SCA outputs and performing impact analysis.
+- **Global Token Optimization**: Injected `rtk` (Rust Token Killer) and `/caveman` mode recommendations globally into the generated `AGENTS.md` index template via `IndexGeneratorServiceImpl.ts`.
+- **Unit Tests**: Added explicit test case in `IndexGeneratorService.spec.ts` to assert that the generated router table successfully includes the Global Token Optimization block.
+
+### Changed
+
+- **Removed Redundant Directives**: Stripped redundant token optimization blocks from `skills/common/common-context-optimization/SKILL.md`, `skills/common/common-security-audit/SKILL.md`, `skills/specialists/specialist-logic-hacker/SKILL.md`, `skills/common/common-security-audit/references/implementation.md`, and `.agents/workflows/pentest.md` since they are now inherited globally.
+
+### Versions
+
+- **CLI**: `2.4.1` → `2.4.2`
+- **Root**: `2.4.1` → `2.4.2`
+- **Common Skills**: `2.0.7` → `2.0.8`
+- **Specialists**: `1.1.1` → `1.1.2`
+
 # [cli-v2.4.1] - 2026-05-19
 
 **Category**: 🔄 Configuration Self-Healing & Legacy Migration

@@ -370,8 +370,8 @@
       }
     },
     "common": {
-      "version": "2.0.7",
-      "last_updated": "2026-05-16",
+      "version": "2.0.8",
+      "last_updated": "2026-05-19",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 36,
@@ -392,8 +392,8 @@
       }
     },
     "specialists": {
-      "version": "1.1.1",
-      "last_updated": "2026-05-16",
+      "version": "1.1.2",
+      "last_updated": "2026-05-19",
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 16,
