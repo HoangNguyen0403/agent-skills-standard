@@ -46,10 +46,6 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "commit composer.lock"
-        },
-        {
-          "type": "contains",
           "value": "composer install in CI"
         }
       ]

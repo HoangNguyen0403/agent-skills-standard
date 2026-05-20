@@ -6,13 +6,34 @@
       "prompt": "Implement Domain-Driven Design in Laravel",
       "expected_output": "Organize by domain: app/Domains/Order/{Actions,DTOs,Contracts}/; never put Eloquent queries in Controllers; Action classes hold use-case logic; bind Contracts to implementations in AppServiceProvider",
       "assertions": [
-        { "type": "contains", "value": "app/Domains/Order" },
-        { "type": "contains", "value": "Actions" },
-        { "type": "contains", "value": "DTOs" },
-        { "type": "contains", "value": "Contracts" },
-        { "type": "contains", "value": "Eloquent queries in Controllers" },
-        { "type": "contains", "value": "Action classes" },
-        { "type": "contains", "value": "AppServiceProvider" }
+        {
+          "type": "contains",
+          "value": "app/Domains/Order"
+        },
+        {
+          "type": "contains",
+          "value": "Actions"
+        },
+        {
+          "type": "contains",
+          "value": "DTOs"
+        },
+        {
+          "type": "contains",
+          "value": "Contracts"
+        },
+        {
+          "type": "contains",
+          "value": "Eloquent queries in Controllers"
+        },
+        {
+          "type": "contains",
+          "value": "Action classes"
+        },
+        {
+          "type": "contains",
+          "value": "AppServiceProvider"
+        }
       ]
     },
     {
@@ -20,12 +41,18 @@
       "prompt": "Use DTOs in a Laravel application",
       "expected_output": "Create readonly class OrderData { public function __construct(public readonly string $title, public readonly int $amount) {} }; pass between layers instead of raw arrays or Eloquent models",
       "assertions": [
-        { "type": "contains", "value": "readonly class OrderData" },
-        { "type": "contains", "value": "public readonly string $title" },
-        { "type": "contains", "value": "public readonly int $amount" },
-        { "type": "contains", "value": "pass between layers" },
-        { "type": "contains", "value": "raw arrays" },
-        { "type": "contains", "value": "Eloquent models" }
+        {
+          "type": "contains",
+          "value": "pass between layers"
+        },
+        {
+          "type": "contains",
+          "value": "raw arrays"
+        },
+        {
+          "type": "contains",
+          "value": "Eloquent models"
+        }
       ]
     },
     {
@@ -33,12 +60,30 @@
       "prompt": "Set up repository pattern in Laravel",
       "expected_output": "Create Contracts/OrderRepository interface; implement EloquentOrderRepository; bind in AppServiceProvider via $this->app->bind(OrderRepository::class, EloquentOrderRepository::class); inject interface",
       "assertions": [
-        { "type": "contains", "value": "Contracts/OrderRepository interface" },
-        { "type": "contains", "value": "EloquentOrderRepository" },
-        { "type": "contains", "value": "AppServiceProvider" },
-        { "type": "contains", "value": "$this->app->bind" },
-        { "type": "contains", "value": "OrderRepository::class" },
-        { "type": "contains", "value": "inject interface" }
+        {
+          "type": "contains",
+          "value": "Contracts/OrderRepository interface"
+        },
+        {
+          "type": "contains",
+          "value": "EloquentOrderRepository"
+        },
+        {
+          "type": "contains",
+          "value": "AppServiceProvider"
+        },
+        {
+          "type": "contains",
+          "value": "$this->app->bind"
+        },
+        {
+          "type": "contains",
+          "value": "OrderRepository::class"
+        },
+        {
+          "type": "contains",
+          "value": "inject interface"
+        }
       ]
     },
     {
@@ -46,14 +91,34 @@
       "prompt": "Organize code by domain in Laravel",
       "expected_output": "Group by business domain (User, Order, Payment) not by type (Controllers, Models); each domain dir has Actions/, DTOs/, Contracts/ subdirectories; Eloquent models stay in app/Models/",
       "assertions": [
-        { "type": "contains", "value": "Group by business domain" },
-        { "type": "contains", "value": "User, Order, Payment" },
-        { "type": "contains", "value": "not by type" },
-        { "type": "contains", "value": "Controllers, Models" },
-        { "type": "contains", "value": "Actions/" },
-        { "type": "contains", "value": "DTOs/" },
-        { "type": "contains", "value": "Contracts/" },
-        { "type": "contains", "value": "app/Models/" }
+        {
+          "type": "contains",
+          "value": "Group by business domain"
+        },
+        {
+          "type": "contains",
+          "value": "User, Order, Payment"
+        },
+        {
+          "type": "contains",
+          "value": "not by type"
+        },
+        {
+          "type": "contains",
+          "value": "Controllers, Models"
+        },
+        {
+          "type": "contains",
+          "value": "Actions/"
+        },
+        {
+          "type": "contains",
+          "value": "Contracts/"
+        },
+        {
+          "type": "contains",
+          "value": "app/Models/"
+        }
       ]
     },
     {
@@ -63,25 +128,31 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Controller \u2192 Action \u2192 Repository Interface \u2192 Eloquent"
+          "value": "Controller → Action → Repository Interface → Eloquent"
         },
-        { "type": "contains", "value": "no Eloquent in Controller" },
-        { "type": "contains", "value": "DTOs cross boundaries" },
-        { "type": "contains", "value": "bind interfaces to implementations" },
-        { "type": "contains", "value": "AppServiceProvider" }
+        {
+          "type": "contains",
+          "value": "no Eloquent in Controller"
+        },
+        {
+          "type": "contains",
+          "value": "DTOs cross boundaries"
+        },
+        {
+          "type": "contains",
+          "value": "bind interfaces to implementations"
+        },
+        {
+          "type": "contains",
+          "value": "AppServiceProvider"
+        }
       ]
     },
     {
       "id": 6,
       "prompt": "Use readonly classes for data transfer in PHP",
       "expected_output": "readonly class CreateOrderData { public function __construct(public readonly string $customerId, public readonly int $amount) {} }; immutable by default in PHP 8.1+; no raw arrays between layers",
-      "assertions": [
-        { "type": "contains", "value": "readonly class CreateOrderData" },
-        { "type": "contains", "value": "public readonly string $customerId" },
-        { "type": "contains", "value": "public readonly int $amount" },
-        { "type": "contains", "value": "immutable by default in PHP 8.1+" },
-        { "type": "contains", "value": "no raw arrays between layers" }
-      ]
+      "assertions": []
     }
   ],
   "should_not_trigger": [

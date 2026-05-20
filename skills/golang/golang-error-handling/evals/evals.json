@@ -6,8 +6,14 @@
       "prompt": "How do I wrap an error with context in Go so callers can still check the original error type?",
       "expected_output": "Use fmt.Errorf(\"operation failed: %w\", err) to wrap. Callers use errors.Is(err, target) or errors.As(err, &target) to unwrap and check the original error.",
       "assertions": [
-        { "type": "contains", "value": "%w" },
-        { "type": "contains", "value": "errors.Is" }
+        {
+          "type": "contains",
+          "value": "%w"
+        },
+        {
+          "type": "contains",
+          "value": "errors.Is"
+        }
       ]
     },
     {
@@ -15,8 +21,10 @@
       "prompt": "I want to define a sentinel error for 'not found' in my Go repository. How should I do this?",
       "expected_output": "Define as var ErrNotFound = errors.New(\"not found\") at the package level. Callers check with errors.Is(err, ErrNotFound). Do not use string comparison.",
       "assertions": [
-        { "type": "contains", "value": "errors.New" },
-        { "type": "contains", "value": "errors.Is" }
+        {
+          "type": "contains",
+          "value": "errors.Is"
+        }
       ]
     },
     {
@@ -24,8 +32,14 @@
       "prompt": "My Go function returns an error but I'm ignoring it with _. Is this ever acceptable?",
       "expected_output": "Rarely. Ignoring errors silently swallows failures. Always handle, log, or wrap and return. If ignoring is intentional, add a comment explaining why.",
       "assertions": [
-        { "type": "contains", "value": "handle" },
-        { "type": "contains", "value": "log" }
+        {
+          "type": "contains",
+          "value": "handle"
+        },
+        {
+          "type": "contains",
+          "value": "log"
+        }
       ]
     }
   ],

@@ -6,8 +6,18 @@
       "prompt": "How do I write integration tests for Spring Boot with a real database?",
       "expected_output": "Use Testcontainers to spin up a real PostgreSQL/MySQL container. Avoid H2/embedded DB (behavior differences). Use @SpringBootTest for full context or @DataJpaTest for slice.",
       "assertions": [
-        {"id": "a1", "description": "Recommends Testcontainers", "type": "contains", "value": "Testcontainers"},
-        {"id": "a2", "description": "Warns against H2", "type": "contains", "value": "H2"}
+        {
+          "id": "a1",
+          "description": "Recommends Testcontainers",
+          "type": "contains",
+          "value": "Testcontainers"
+        },
+        {
+          "id": "a2",
+          "description": "Warns against H2",
+          "type": "contains",
+          "value": "H2"
+        }
       ]
     },
     {
@@ -15,8 +25,12 @@
       "prompt": "How do I write slice tests for my Spring MVC controllers?",
       "expected_output": "Use @WebMvcTest to load only the web layer. Mock service dependencies with @MockBean. Use MockMvc for HTTP assertions. Use AssertJ assertThat over JUnit assertions.",
       "assertions": [
-        {"id": "a1", "description": "Mentions @WebMvcTest", "type": "contains", "value": "WebMvcTest"},
-        {"id": "a2", "description": "Mentions AssertJ or MockMvc", "type": "contains", "value": "MockMvc"}
+        {
+          "id": "a1",
+          "description": "Mentions @WebMvcTest",
+          "type": "contains",
+          "value": "WebMvcTest"
+        }
       ]
     },
     {
@@ -24,8 +38,18 @@
       "prompt": "How do I test Spring Boot services that call external HTTP APIs?",
       "expected_output": "Use WireMock to stub external HTTP calls. Never make real network calls in tests. Isolate external dependencies with @MockBean for unit tests.",
       "assertions": [
-        {"id": "a1", "description": "Recommends WireMock", "type": "contains", "value": "WireMock"},
-        {"id": "a2", "description": "Warns against real network calls in tests", "type": "contains", "value": "network"}
+        {
+          "id": "a1",
+          "description": "Recommends WireMock",
+          "type": "contains",
+          "value": "WireMock"
+        },
+        {
+          "id": "a2",
+          "description": "Warns against real network calls in tests",
+          "type": "contains",
+          "value": "network"
+        }
       ]
     }
   ],

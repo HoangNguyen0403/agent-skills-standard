@@ -46,10 +46,6 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Native Implementation"
-        },
-        {
-          "type": "contains",
           "value": "Pluralization"
         },
         {

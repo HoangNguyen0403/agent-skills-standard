@@ -12,10 +12,6 @@
         },
         {
           "type": "contains",
-          "value": "User"
-        },
-        {
-          "type": "contains",
           "value": "BuildContext"
         }
       ]

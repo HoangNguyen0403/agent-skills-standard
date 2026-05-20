@@ -6,9 +6,10 @@
       "prompt": "How do I create a standalone Angular component?",
       "expected_output": "Add standalone: true (or omit in Angular 20+) to @Component. Import all dependencies directly in the component's imports array. Do not declare in NgModule. Use ng generate c to scaffold automatically.",
       "assertions": [
-        { "type": "contains", "value": "standalone: true" },
-        { "type": "contains", "value": "Import all dependencies directly" },
-        { "type": "contains", "value": "Do not declare in NgModule" }
+        {
+          "type": "contains",
+          "value": "standalone: true"
+        }
       ]
     },
     {
@@ -16,10 +17,18 @@
       "prompt": "How do I use @if and @for in Angular templates?",
       "expected_output": "Use @if (condition) { } and @for (item of items; track item.id) { } instead of *ngIf/*ngFor. Use @empty { } block inside @for for empty state. Use @switch for multi-branch conditionals.",
       "assertions": [
-        { "type": "contains", "value": "@if (condition)" },
-        { "type": "contains", "value": "@for (item of items; track item.id)" },
-        { "type": "contains", "value": "instead of *ngIf" },
-        { "type": "contains", "value": "@empty { }" }
+        {
+          "type": "contains",
+          "value": "@if (condition)"
+        },
+        {
+          "type": "contains",
+          "value": "@for (item of items; track item.id)"
+        },
+        {
+          "type": "contains",
+          "value": "@empty { }"
+        }
       ]
     },
     {
@@ -27,8 +36,14 @@
       "prompt": "How do I use signal inputs with input.required() in Angular?",
       "expected_output": "Replace @Input() with input<T>() or input.required<T>(). Use booleanAttribute transform for boolean inputs. Access value as a function: this.disabled().",
       "assertions": [
-        { "type": "contains", "value": "input.required" },
-        { "type": "contains", "value": "booleanAttribute" }
+        {
+          "type": "contains",
+          "value": "input.required"
+        },
+        {
+          "type": "contains",
+          "value": "booleanAttribute"
+        }
       ]
     },
     {
@@ -36,8 +51,14 @@
       "prompt": "How do I bind host properties in Angular without @HostBinding?",
       "expected_output": "Define host bindings in the host: {} object on @Component: host: { '[class.active]': 'isActive()', '(click)': 'onClick()' }. Never use @HostBinding or @HostListener decorators.",
       "assertions": [
-        { "type": "contains", "value": "host: {" },
-        { "type": "contains", "value": "Never use @HostBinding" }
+        {
+          "type": "contains",
+          "value": "host: {"
+        },
+        {
+          "type": "contains",
+          "value": "Never use @HostBinding"
+        }
       ]
     },
     {
@@ -45,8 +66,14 @@
       "prompt": "How do I use output() instead of EventEmitter in Angular?",
       "expected_output": "Use output<T>() from @angular/core (v17.3+) instead of @Output() EventEmitter<T>. Emit with: this.selected.emit(value). For two-way binding use model() which creates a writable signal.",
       "assertions": [
-        { "type": "contains", "value": "output<T>()" },
-        { "type": "contains", "value": "model()" }
+        {
+          "type": "contains",
+          "value": "output<T>()"
+        },
+        {
+          "type": "contains",
+          "value": "model()"
+        }
       ]
     },
     {
@@ -54,8 +81,14 @@
       "prompt": "How do I properly set up OnPush change detection in Angular?",
       "expected_output": "Add changeDetection: ChangeDetectionStrategy.OnPush to @Component. Component only re-renders when Signal inputs change or Signals fire. Never use default change detection.",
       "assertions": [
-        { "type": "contains", "value": "ChangeDetectionStrategy.OnPush" },
-        { "type": "contains", "value": "Signal inputs" }
+        {
+          "type": "contains",
+          "value": "ChangeDetectionStrategy.OnPush"
+        },
+        {
+          "type": "contains",
+          "value": "Signal inputs"
+        }
       ]
     },
     {
@@ -63,8 +96,14 @@
       "prompt": "What is the Smart/Dumb component pattern in Angular?",
       "expected_output": "Smart (Container) components inject services and manage state. Dumb (Presentational) components receive data via inputs and emit events via outputs only, with no service dependencies.",
       "assertions": [
-        { "type": "contains", "value": "Smart (Container)" },
-        { "type": "contains", "value": "inputs and emit events via outputs" }
+        {
+          "type": "contains",
+          "value": "Smart (Container)"
+        },
+        {
+          "type": "contains",
+          "value": "inputs and emit events via outputs"
+        }
       ]
     },
     {
@@ -72,8 +111,10 @@
       "prompt": "Should I use computed signals or functions in Angular templates?",
       "expected_output": "Never call functions in templates: {{ calculate() }} re-evaluates on every change detection cycle. Use computed() for derived values — it caches the result.",
       "assertions": [
-        { "type": "contains", "value": "Never call functions in templates" },
-        { "type": "contains", "value": "computed()" }
+        {
+          "type": "contains",
+          "value": "computed()"
+        }
       ]
     },
     {
@@ -81,9 +122,18 @@
       "prompt": "How do I avoid memory leaks when subscribing in Angular components?",
       "expected_output": "Use toSignal() which auto-unsubscribes, or takeUntilDestroyed() for manual subscriptions. Inject DestroyRef for cleanup. Never call subscribe() in ngOnInit without a cleanup strategy.",
       "assertions": [
-        { "type": "contains", "value": "toSignal()" },
-        { "type": "contains", "value": "takeUntilDestroyed()" },
-        { "type": "contains", "value": "DestroyRef" }
+        {
+          "type": "contains",
+          "value": "toSignal()"
+        },
+        {
+          "type": "contains",
+          "value": "takeUntilDestroyed()"
+        },
+        {
+          "type": "contains",
+          "value": "DestroyRef"
+        }
       ]
     }
   ],

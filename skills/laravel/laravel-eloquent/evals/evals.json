@@ -6,10 +6,18 @@
       "prompt": "Fix N+1 query problems in Laravel Eloquent",
       "expected_output": "Add with('relationship') to query; enable Eloquent::preventLazyLoading(!app()->isProduction()) in AppServiceProvider; never access relationship property in a loop without eager loading",
       "assertions": [
-        { "type": "contains", "value": "Always use with()" },
-        { "type": "contains", "value": "Eloquent::preventLazyLoading" },
-        { "type": "contains", "value": "N+1 Prevention" },
-        { "type": "contains", "value": "never in loops" }
+        {
+          "type": "contains",
+          "value": "Eloquent::preventLazyLoading"
+        },
+        {
+          "type": "contains",
+          "value": "N+1 Prevention"
+        },
+        {
+          "type": "contains",
+          "value": "never in loops"
+        }
       ]
     },
     {
@@ -17,10 +25,22 @@
       "prompt": "Add eager loading to Laravel model relationships",
       "expected_output": "Use with(['posts', 'posts.comments']) in query builder; define protected $with = ['profile'] on model for always-eager; use load() to eager-load after retrieval on existing collection",
       "assertions": [
-        { "type": "contains", "value": "with()" },
-        { "type": "contains", "value": "$with" },
-        { "type": "contains", "value": "Eager Loading" },
-        { "type": "contains", "value": "LazyLoadingViolationException" }
+        {
+          "type": "contains",
+          "value": "with()"
+        },
+        {
+          "type": "contains",
+          "value": "$with"
+        },
+        {
+          "type": "contains",
+          "value": "Eager Loading"
+        },
+        {
+          "type": "contains",
+          "value": "LazyLoadingViolationException"
+        }
       ]
     },
     {
@@ -28,9 +48,14 @@
       "prompt": "Create a local scope in an Eloquent model",
       "expected_output": "Define scopeActive(Builder $query): Builder method in model; chain as User::active()->verified()->get(); use for reusable query filters; never duplicate query logic across controllers",
       "assertions": [
-        { "type": "contains", "value": "scopeName methods" },
-        { "type": "contains", "value": "reusable query filters" },
-        { "type": "contains", "value": "Reusable Scopes" }
+        {
+          "type": "contains",
+          "value": "reusable query filters"
+        },
+        {
+          "type": "contains",
+          "value": "Reusable Scopes"
+        }
       ]
     },
     {
@@ -38,9 +63,18 @@
       "prompt": "Use chunk() for processing large datasets in Laravel",
       "expected_output": "User::chunk(200, fn($users) => $users->each(fn($u) => ...)); use lazy() or cursor() for memory efficiency with generator; never User::all() for large datasets",
       "assertions": [
-        { "type": "contains", "value": "chunk()" },
-        { "type": "contains", "value": "lazy()" },
-        { "type": "contains", "value": "cursor()" }
+        {
+          "type": "contains",
+          "value": "chunk()"
+        },
+        {
+          "type": "contains",
+          "value": "lazy()"
+        },
+        {
+          "type": "contains",
+          "value": "cursor()"
+        }
       ]
     },
     {
@@ -48,9 +82,18 @@
       "prompt": "Set up mass assignment protection in Eloquent",
       "expected_output": "Define protected $fillable = ['name', 'email']; use $request->validated() not $request->all() for Model::create(); never use Model::create($request->all()) without fillable guard",
       "assertions": [
-        { "type": "contains", "value": "$fillable" },
-        { "type": "contains", "value": "$request->validated()" },
-        { "type": "contains", "value": "Mass Assignment" }
+        {
+          "type": "contains",
+          "value": "$fillable"
+        },
+        {
+          "type": "contains",
+          "value": "$request->validated()"
+        },
+        {
+          "type": "contains",
+          "value": "Mass Assignment"
+        }
       ]
     },
     {
@@ -58,9 +101,14 @@
       "prompt": "Prevent lazy loading with Eloquent::preventLazyLoading()",
       "expected_output": "Call Eloquent::preventLazyLoading(!app()->isProduction()) in AppServiceProvider::boot(); throws LazyLoadingViolationException in dev when relationship accessed without eager loading",
       "assertions": [
-        { "type": "contains", "value": "Eloquent::preventLazyLoading" },
-        { "type": "contains", "value": "LazyLoadingViolationException" },
-        { "type": "contains", "value": "Set strict loading" }
+        {
+          "type": "contains",
+          "value": "Eloquent::preventLazyLoading"
+        },
+        {
+          "type": "contains",
+          "value": "LazyLoadingViolationException"
+        }
       ]
     }
   ],

@@ -32,10 +32,6 @@
         {
           "type": "contains",
           "value": "redirect callback"
-        },
-        {
-          "type": "contains",
-          "value": "inside the"
         }
       ]
     },

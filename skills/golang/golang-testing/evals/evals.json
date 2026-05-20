@@ -6,8 +6,14 @@
       "prompt": "How do I write a table-driven unit test for a Go function that parses order status?",
       "expected_output": "Define a slice of struct test cases with name, input, and expected. Use t.Run(tc.name, func(t *testing.T) { ... }) to iterate. Use testify assert or require for assertions.",
       "assertions": [
-        { "type": "contains", "value": "t.Run" },
-        { "type": "contains", "value": "struct" }
+        {
+          "type": "contains",
+          "value": "t.Run"
+        },
+        {
+          "type": "contains",
+          "value": "struct"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "My Go service depends on a database. How do I unit test it without a real DB?",
       "expected_output": "Define a repository interface and inject it. In tests, pass a mock that implements the interface. Use mockery to auto-generate mocks or write manual mocks for simple cases.",
       "assertions": [
-        { "type": "contains", "value": "interface" },
-        { "type": "contains", "value": "mock" }
+        {
+          "type": "contains",
+          "value": "interface"
+        },
+        {
+          "type": "contains",
+          "value": "mock"
+        }
       ]
     },
     {
@@ -24,8 +36,10 @@
       "prompt": "I'm using assert inside a for loop in my Go test. Is this OK?",
       "expected_output": "No. Use t.Run for each iteration so failures are isolated and the test name is clear. assert inside a bare loop continues past failures, making it hard to identify which case failed.",
       "assertions": [
-        { "type": "contains", "value": "t.Run" },
-        { "type": "contains", "value": "isolated" }
+        {
+          "type": "contains",
+          "value": "t.Run"
+        }
       ]
     }
   ],

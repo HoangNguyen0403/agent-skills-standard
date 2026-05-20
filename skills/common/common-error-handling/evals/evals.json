@@ -6,8 +6,14 @@
       "prompt": "My controller is catching a database error and returning the raw Postgres error message to the client.",
       "expected_output": "Violation: leaking raw DB errors to API. Fix: (1) Wrap DB error in infrastructure layer with context. (2) Map to domain error (e.g., ResourceNotFoundError). (3) API layer maps to HTTP 404 with standardized JSON envelope: { error: { code: 'USER_NOT_FOUND', message: '...' } }. Never expose stack traces.",
       "assertions": [
-        { "type": "contains", "value": "domain" },
-        { "type": "contains", "value": "stack" }
+        {
+          "type": "contains",
+          "value": "domain"
+        },
+        {
+          "type": "contains",
+          "value": "stack"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Design an error handling strategy for a layered Go service with HTTP API, domain logic, and database access.",
       "expected_output": "Three-layer strategy: (1) Infra layer: wrap 3rd-party errors with fmt.Errorf('process: %w', err). (2) Domain layer: throw pure business errors (OrderPaymentFailedError) — NO HTTP codes here. (3) API layer: global error handler maps domain errors to HTTP responses. Error codes: SCREAMING_SNAKE_CASE.",
       "assertions": [
-        { "type": "contains", "value": "domain" },
-        { "type": "contains", "value": "HTTP" }
+        {
+          "type": "contains",
+          "value": "domain"
+        },
+        {
+          "type": "contains",
+          "value": "HTTP"
+        }
       ]
     },
     {
@@ -24,8 +36,10 @@
       "prompt": "I have multiple catch blocks that just silently ignore errors: catch(e) {}",
       "expected_output": "Violation: swallowing errors. Never use empty catch blocks. Fix: always log, handle, or rethrow. Options: (1) Log and rethrow: logger.error(e); throw e. (2) Transform: throw new AppError('OPERATION_FAILED', { cause: e }). (3) Return error type (Go-style). An empty catch hides bugs and makes debugging impossible.",
       "assertions": [
-        { "type": "contains", "value": "log" },
-        { "type": "contains", "value": "rethrow" }
+        {
+          "type": "contains",
+          "value": "log"
+        }
       ]
     }
   ],

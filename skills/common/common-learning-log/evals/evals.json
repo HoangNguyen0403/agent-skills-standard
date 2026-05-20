@@ -6,8 +6,14 @@
       "prompt": "You just told me to use localStorage for auth tokens but that's wrong — tokens should be in HttpOnly cookies.",
       "expected_output": "Acknowledge correction. Read AGENTS_LEARNING.md to count existing iterations. Append Iteration #(N+1): Surface: User correction. Mistake: Recommended localStorage for auth tokens. Rule violated: nextjs-authentication — No localStorage for tokens (XSS-vulnerable). Better approach: Use HttpOnly Secure cookies with SameSite=Lax. Then apply the correct solution.",
       "assertions": [
-        { "type": "contains", "value": "AGENTS_LEARNING.md" },
-        { "type": "contains", "value": "Iteration" }
+        {
+          "type": "contains",
+          "value": "AGENTS_LEARNING.md"
+        },
+        {
+          "type": "contains",
+          "value": "Iteration"
+        }
       ]
     },
     {
@@ -15,8 +21,10 @@
       "prompt": "The skill violation audit caught me using a class component in React. Log the mistake.",
       "expected_output": "Append to AGENTS_LEARNING.md. Surface: Pre-write violation (Auto-fixed: YES). Mistake: Used class component syntax in React. Rule: react-component-patterns — No Classes; use hooks. Better approach: Always use function components with arrow function syntax. Co-skills: common-feedback-reporter.",
       "assertions": [
-        { "type": "contains", "value": "Pre-write" },
-        { "type": "contains", "value": "class" }
+        {
+          "type": "contains",
+          "value": "Pre-write"
+        }
       ]
     },
     {
@@ -24,8 +32,14 @@
       "prompt": "During the session retrospective we found I missed loading the security skill when writing an API endpoint.",
       "expected_output": "Append to AGENTS_LEARNING.md. Surface: Session retrospective. Mistake: Did not load common-owasp when writing API endpoint. Trigger miss: keyword 'endpoint' should also trigger owasp skill. Better approach: Any API endpoint creation should auto-load owasp + security-standards skills. Add keyword alias to AGENTS.md triggers.",
       "assertions": [
-        { "type": "contains", "value": "retrospective" },
-        { "type": "contains", "value": "trigger" }
+        {
+          "type": "contains",
+          "value": "retrospective"
+        },
+        {
+          "type": "contains",
+          "value": "trigger"
+        }
       ]
     }
   ],

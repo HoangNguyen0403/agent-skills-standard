@@ -6,10 +6,22 @@
       "prompt": "What naming conventions should I use for Angular files?",
       "expected_output": "Use kebab-case with type suffix: hero-list.component.ts, auth.service.ts, user.pipe.ts, app.routes.ts. Classes use PascalCase + type suffix: HeroListComponent, AuthService. Directives use camelCase selector: appHighlight.",
       "assertions": [
-        { "type": "contains", "value": "kebab-case" },
-        { "type": "contains", "value": "type suffix" },
-        { "type": "contains", "value": "PascalCase" },
-        { "type": "contains", "value": "camelCase" }
+        {
+          "type": "contains",
+          "value": "kebab-case"
+        },
+        {
+          "type": "contains",
+          "value": "type suffix"
+        },
+        {
+          "type": "contains",
+          "value": "PascalCase"
+        },
+        {
+          "type": "contains",
+          "value": "camelCase"
+        }
       ]
     },
     {
@@ -17,10 +29,14 @@
       "prompt": "How do I name Angular components and services?",
       "expected_output": "Components: PascalCase + Component suffix (HeroListComponent). Services: PascalCase + Service suffix (HeroService). Pipes: camelCase name (truncate). Directives: camelCase selector with app prefix (appFocusTrap). Files: kebab-case.type.ts.",
       "assertions": [
-        { "type": "contains", "value": "PascalCase" },
-        { "type": "contains", "value": "Component suffix" },
-        { "type": "contains", "value": "Service suffix" },
-        { "type": "contains", "value": "app prefix" }
+        {
+          "type": "contains",
+          "value": "PascalCase"
+        },
+        {
+          "type": "contains",
+          "value": "app prefix"
+        }
       ]
     },
     {
@@ -28,10 +44,18 @@
       "prompt": "What is the LIFT principle in Angular?",
       "expected_output": "Locate code quickly, Identify files by name, keep the Flattest structure possible, Try to be DRY. Keep files under 400 lines. One component/service per file. Use feature-based folders, not type-based folders (/components, /services at root level).",
       "assertions": [
-        { "type": "contains", "value": "Locate code quickly" },
-        { "type": "contains", "value": "Identify files" },
-        { "type": "contains", "value": "Flattest structure" },
-        { "type": "contains", "value": "DRY" }
+        {
+          "type": "contains",
+          "value": "Identify files"
+        },
+        {
+          "type": "contains",
+          "value": "Flattest structure"
+        },
+        {
+          "type": "contains",
+          "value": "DRY"
+        }
       ]
     },
     {
@@ -39,9 +63,18 @@
       "prompt": "Should I prefix Angular interfaces with I?",
       "expected_output": "No — do not use IUser or IHero. Name interfaces as User, Hero. The I-prefix is a C# convention not recommended by Angular style guide. TypeScript types and interfaces should read as nouns: User, AuthConfig, RouteData.",
       "assertions": [
-        { "type": "contains", "value": "No — do not use" },
-        { "type": "contains", "value": "not recommended" },
-        { "type": "contains", "value": "nouns" }
+        {
+          "type": "contains",
+          "value": "No — do not use"
+        },
+        {
+          "type": "contains",
+          "value": "not recommended"
+        },
+        {
+          "type": "contains",
+          "value": "nouns"
+        }
       ]
     },
     {
@@ -49,9 +82,18 @@
       "prompt": "How should I organize barrel files in Angular?",
       "expected_output": "Use index.ts only for public APIs of specific features or libraries. Avoid deep barrel imports within the same feature — import directly. Barrel files in the wrong places prevent tree-shaking and create circular dependency risks.",
       "assertions": [
-        { "type": "contains", "value": "index.ts" },
-        { "type": "contains", "value": "public APIs" },
-        { "type": "contains", "value": "tree-shaking" }
+        {
+          "type": "contains",
+          "value": "index.ts"
+        },
+        {
+          "type": "contains",
+          "value": "public APIs"
+        },
+        {
+          "type": "contains",
+          "value": "tree-shaking"
+        }
       ]
     },
     {
@@ -59,9 +101,18 @@
       "prompt": "What is the recommended folder structure for Angular projects?",
       "expected_output": "src/app/core/ (singletons), src/app/shared/ (reusable UI), src/app/features/feature-name/ (lazy-loaded features). Keep folder depth ≤3 levels. Each feature folder contains its own components, services, models, and routes file.",
       "assertions": [
-        { "type": "contains", "value": "src/app/core/" },
-        { "type": "contains", "value": "src/app/features/" },
-        { "type": "contains", "value": "depth ≤3 levels" }
+        {
+          "type": "contains",
+          "value": "src/app/core/"
+        },
+        {
+          "type": "contains",
+          "value": "src/app/features/"
+        },
+        {
+          "type": "contains",
+          "value": "depth ≤3 levels"
+        }
       ]
     }
   ],

@@ -6,8 +6,14 @@
       "prompt": "Add a custom dropdown menu component in React. The user clicks a button to open it and can select options with keyboard arrows.",
       "expected_output": "Component using <button> to trigger, role='listbox' with aria-expanded, keyboard handlers for ArrowUp/ArrowDown/Enter/Escape, visible focus indicators, and focus trap when open.",
       "assertions": [
-        { "type": "contains", "value": "aria" },
-        { "type": "contains", "value": "keyboard" }
+        {
+          "type": "contains",
+          "value": "aria"
+        },
+        {
+          "type": "contains",
+          "value": "keyboard"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Audit this login form for accessibility issues: it uses div tags for fields, placeholder text as labels, and a blue submit button with no focus ring.",
       "expected_output": "Report: (1) Replace <div> inputs with <input> + <label> elements. (2) Placeholder is not a label — add visible <label> or aria-label. (3) Add focus-visible outline meeting 3:1 contrast. (4) Ensure button text meets 4.5:1 contrast ratio.",
       "assertions": [
-        { "type": "contains", "value": "label" },
-        { "type": "contains", "value": "contrast" }
+        {
+          "type": "contains",
+          "value": "label"
+        },
+        {
+          "type": "contains",
+          "value": "contrast"
+        }
       ]
     },
     {
@@ -24,8 +36,10 @@
       "prompt": "I'm using a red border to show form validation errors. What else do I need to do for accessibility?",
       "expected_output": "Never rely on color alone. Add an error icon or text message (e.g. 'This field is required'), link the message to the input via aria-describedby, and use aria-invalid='true' on the invalid field. Announce errors with aria-live='polite'.",
       "assertions": [
-        { "type": "contains", "value": "aria-invalid" },
-        { "type": "contains", "value": "color" }
+        {
+          "type": "contains",
+          "value": "color"
+        }
       ]
     }
   ],

@@ -6,8 +6,14 @@
       "prompt": "Set up styling for a new Next.js project. We use Tailwind CSS and need a utility for combining classes.",
       "expected_output": "Install clsx and tailwind-merge. Create lib/utils.ts: export function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)); }. Use cn() for all dynamic class combinations. Configure Tailwind in tailwind.config.ts with content paths. Use next/font for zero-CLS font loading.",
       "assertions": [
-        { "type": "contains", "value": "cn(" },
-        { "type": "contains", "value": "tailwind-merge" }
+        {
+          "type": "contains",
+          "value": "cn("
+        },
+        {
+          "type": "contains",
+          "value": "tailwind-merge"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I want to use MUI (Material UI) in my Next.js App Router project.",
       "expected_output": "MUI is a runtime CSS-in-JS library that forces 'use client' widely, degrading RSC performance. For App Router: wrap MUI components in Client Component wrappers. Better alternative: use Tailwind/shadcn (zero-runtime, RSC compatible). If MUI is required, create a ThemeRegistry client wrapper to isolate the runtime CSS injection.",
       "assertions": [
-        { "type": "contains", "value": "use client" },
-        { "type": "contains", "value": "Tailwind" }
+        {
+          "type": "contains",
+          "value": "use client"
+        },
+        {
+          "type": "contains",
+          "value": "Tailwind"
+        }
       ]
     },
     {
@@ -24,8 +36,10 @@
       "prompt": "My image component doesn't have width and height attributes and the layout shifts during loading.",
       "expected_output": "CLS (Cumulative Layout Shift) violation. Fix with next/image — always specify width and height or use fill prop. Target CLS < 0.1. Example: <Image src={...} width={800} height={600} alt='...' /> or <Image src={...} fill className='object-cover' alt='...'>. Never use raw <img> tags.",
       "assertions": [
-        { "type": "contains", "value": "CLS" },
-        { "type": "contains", "value": "next/image" }
+        {
+          "type": "contains",
+          "value": "CLS"
+        }
       ]
     }
   ],

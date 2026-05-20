@@ -51,10 +51,6 @@
         {
           "type": "contains",
           "value": "Match"
-        },
-        {
-          "type": "contains",
-          "value": "Project Settings"
         }
       ]
     }

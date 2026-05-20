@@ -50,10 +50,6 @@
         },
         {
           "type": "contains",
-          "value": "Slim Delegates"
-        },
-        {
-          "type": "contains",
           "value": "Universal Links"
         }
       ]

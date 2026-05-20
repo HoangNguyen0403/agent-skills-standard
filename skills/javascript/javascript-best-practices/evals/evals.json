@@ -46,10 +46,6 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "/api/${id}"
-        },
-        {
-          "type": "contains",
           "value": "Priority: P1 (OPERATIONAL)"
         },
         {

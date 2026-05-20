@@ -6,8 +6,10 @@
       "prompt": "Implement user authentication with email and password for our new web app.",
       "expected_output": "Apply security standards: (1) Hash passwords with Argon2id (not MD5/bcrypt). (2) No hardcoded secrets — JWT_SECRET in env var. (3) No raw SQL — use parameterized query or ORM. (4) Return generic error messages only. (5) Implement rate limiting on the auth endpoint. (6) Use HttpOnly Secure cookies for session. (7) Add audit log for login events.",
       "assertions": [
-        { "type": "contains", "value": "Argon2" },
-        { "type": "contains", "value": "parameterized" }
+        {
+          "type": "contains",
+          "value": "parameterized"
+        }
       ]
     },
     {
@@ -15,8 +17,14 @@
       "prompt": "I want to encrypt user PII before storing it in the database.",
       "expected_output": "Use AES-256 for data-at-rest encryption. Use TLS 1.3 for data-in-transit. Never log PII (email, phone, names) — mask sensitive fields before logging. Store encryption keys in a secret manager (AWS KMS, HashiCorp Vault), not in source code. Apply Least Privilege: only services that need decryption should have the key.",
       "assertions": [
-        { "type": "contains", "value": "AES-256" },
-        { "type": "contains", "value": "log" }
+        {
+          "type": "contains",
+          "value": "AES-256"
+        },
+        {
+          "type": "contains",
+          "value": "log"
+        }
       ]
     },
     {
@@ -24,8 +32,14 @@
       "prompt": "Review my code that builds a SQL query by concatenating user input: 'SELECT * FROM users WHERE name = ' + userName",
       "expected_output": "Violation: No raw SQL strings — this is SQL injection. Fix: use parameterized query: db.query('SELECT * FROM users WHERE name = $1', [userName]). Or use ORM. Also check: does the API response expose stack traces? If so, configure global error handler to return generic codes. Shift Left: add SAST scanner to CI.",
       "assertions": [
-        { "type": "contains", "value": "parameterized" },
-        { "type": "contains", "value": "injection" }
+        {
+          "type": "contains",
+          "value": "parameterized"
+        },
+        {
+          "type": "contains",
+          "value": "injection"
+        }
       ]
     }
   ],

@@ -6,13 +6,30 @@
       "prompt": "Optimize complex queries in Laravel",
       "expected_output": "Use joinSub, whereExists, selectRaw with bindings; avoid N+1 with eager loading; add database indexes on join/aggregate columns; use DB::raw() with bindings never string concatenation",
       "assertions": [
-        { "type": "contains", "value": "joinSub" },
-        { "type": "contains", "value": "whereExists" },
-        { "type": "contains", "value": "selectRaw" },
-        { "type": "contains", "value": "N+1" },
-        { "type": "contains", "value": "eager loading" },
-        { "type": "contains", "value": "indexes" },
-        { "type": "contains", "value": "DB::raw" }
+        {
+          "type": "contains",
+          "value": "joinSub"
+        },
+        {
+          "type": "contains",
+          "value": "whereExists"
+        },
+        {
+          "type": "contains",
+          "value": "selectRaw"
+        },
+        {
+          "type": "contains",
+          "value": "N+1"
+        },
+        {
+          "type": "contains",
+          "value": "indexes"
+        },
+        {
+          "type": "contains",
+          "value": "DB::raw"
+        }
       ]
     },
     {
@@ -20,12 +37,26 @@
       "prompt": "Use Redis caching with Cache::remember in Laravel",
       "expected_output": "Cache::remember('posts.all', 3600, fn() => Post::all()); use Cache::tags(['posts'])->remember() for grouped invalidation; never use Cache::flush(); requires Redis driver",
       "assertions": [
-        { "type": "contains", "value": "Cache::remember" },
-        { "type": "contains", "value": "posts.all" },
-        { "type": "contains", "value": "Cache::tags" },
-        { "type": "contains", "value": "grouped invalidation" },
-        { "type": "contains", "value": "never use Cache::flush" },
-        { "type": "contains", "value": "Redis" }
+        {
+          "type": "contains",
+          "value": "Cache::remember"
+        },
+        {
+          "type": "contains",
+          "value": "posts.all"
+        },
+        {
+          "type": "contains",
+          "value": "Cache::tags"
+        },
+        {
+          "type": "contains",
+          "value": "grouped invalidation"
+        },
+        {
+          "type": "contains",
+          "value": "Redis"
+        }
       ]
     },
     {
@@ -33,12 +64,30 @@
       "prompt": "Set up read/write database splitting in Laravel",
       "expected_output": "Configure 'read' and 'write' keys in config/database.php mysql connection; Laravel automatically routes SELECT to read, INSERT/UPDATE/DELETE to write connection; no code changes needed",
       "assertions": [
-        { "type": "contains", "value": "read" },
-        { "type": "contains", "value": "write" },
-        { "type": "contains", "value": "config/database.php" },
-        { "type": "contains", "value": "SELECT" },
-        { "type": "contains", "value": "INSERT/UPDATE/DELETE" },
-        { "type": "contains", "value": "no code changes needed" }
+        {
+          "type": "contains",
+          "value": "read"
+        },
+        {
+          "type": "contains",
+          "value": "write"
+        },
+        {
+          "type": "contains",
+          "value": "config/database.php"
+        },
+        {
+          "type": "contains",
+          "value": "SELECT"
+        },
+        {
+          "type": "contains",
+          "value": "INSERT/UPDATE/DELETE"
+        },
+        {
+          "type": "contains",
+          "value": "no code changes needed"
+        }
       ]
     },
     {
@@ -46,12 +95,22 @@
       "prompt": "Use Cache::tags for grouped cache invalidation in Laravel",
       "expected_output": "Cache::tags(['posts', 'user:1'])->put('key', $data, 3600); invalidate all posts cache: Cache::tags(['posts'])->flush(); requires Redis or Memcached; never use Cache::flush() globally",
       "assertions": [
-        { "type": "contains", "value": "Cache::tags" },
-        { "type": "contains", "value": "invalidate all posts cache" },
-        { "type": "contains", "value": "flush" },
-        { "type": "contains", "value": "Redis" },
-        { "type": "contains", "value": "Memcached" },
-        { "type": "contains", "value": "never use Cache::flush() globally" }
+        {
+          "type": "contains",
+          "value": "Cache::tags"
+        },
+        {
+          "type": "contains",
+          "value": "flush"
+        },
+        {
+          "type": "contains",
+          "value": "Redis"
+        },
+        {
+          "type": "contains",
+          "value": "Memcached"
+        }
       ]
     },
     {
@@ -59,12 +118,26 @@
       "prompt": "Advanced SQL with joinSub or whereExists in Laravel",
       "expected_output": "Use DB::table()->joinSub($subquery, 'alias', 'a.id', '=', 'alias.id'); use whereExists(fn($q) => $q->select(DB::raw(1))->from(...)) instead of whereIn for correlated subqueries",
       "assertions": [
-        { "type": "contains", "value": "DB::table" },
-        { "type": "contains", "value": "joinSub" },
-        { "type": "contains", "value": "whereExists" },
-        { "type": "contains", "value": "DB::raw(1)" },
-        { "type": "contains", "value": "whereIn" },
-        { "type": "contains", "value": "correlated subqueries" }
+        {
+          "type": "contains",
+          "value": "joinSub"
+        },
+        {
+          "type": "contains",
+          "value": "whereExists"
+        },
+        {
+          "type": "contains",
+          "value": "DB::raw(1)"
+        },
+        {
+          "type": "contains",
+          "value": "whereIn"
+        },
+        {
+          "type": "contains",
+          "value": "correlated subqueries"
+        }
       ]
     },
     {
@@ -72,13 +145,30 @@
       "prompt": "Avoid N+1 query issues with subqueries in Laravel",
       "expected_output": "Use withCount(), withSum(), withAvg() for aggregates instead of loading collection; use addSelect with DB::raw subquery; enable preventLazyLoading() in dev to catch issues",
       "assertions": [
-        { "type": "contains", "value": "withCount" },
-        { "type": "contains", "value": "withSum" },
-        { "type": "contains", "value": "withAvg" },
-        { "type": "contains", "value": "aggregates" },
-        { "type": "contains", "value": "addSelect" },
-        { "type": "contains", "value": "DB::raw" },
-        { "type": "contains", "value": "preventLazyLoading" }
+        {
+          "type": "contains",
+          "value": "withCount"
+        },
+        {
+          "type": "contains",
+          "value": "withSum"
+        },
+        {
+          "type": "contains",
+          "value": "withAvg"
+        },
+        {
+          "type": "contains",
+          "value": "aggregates"
+        },
+        {
+          "type": "contains",
+          "value": "addSelect"
+        },
+        {
+          "type": "contains",
+          "value": "DB::raw"
+        }
       ]
     }
   ],

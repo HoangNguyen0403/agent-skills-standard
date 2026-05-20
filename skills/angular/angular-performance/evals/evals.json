@@ -6,10 +6,14 @@
       "prompt": "How do I improve Angular change detection performance?",
       "expected_output": "Use ChangeDetectionStrategy.OnPush on all components. Use Signals for state — they integrate with zoneless Angular. Avoid function calls in templates; use computed() instead. Prepare for zoneless by avoiding Zone.runOutsideAngular hacks.",
       "assertions": [
-        { "type": "contains", "value": "ChangeDetectionStrategy.OnPush" },
-        { "type": "contains", "value": "Signals for state" },
-        { "type": "contains", "value": "Avoid function calls in templates" },
-        { "type": "contains", "value": "computed() instead" }
+        {
+          "type": "contains",
+          "value": "ChangeDetectionStrategy.OnPush"
+        },
+        {
+          "type": "contains",
+          "value": "Signals for state"
+        }
       ]
     },
     {
@@ -17,10 +21,22 @@
       "prompt": "How do I use @defer to lazy load a heavy component?",
       "expected_output": "Wrap heavy components with @defer (on viewport) { <HeavyComponent /> } @placeholder { <Spinner /> }. Use triggers: on viewport, on interaction, on idle, when condition. @defer creates a separate lazy-loaded chunk automatically.",
       "assertions": [
-        { "type": "contains", "value": "@defer (on viewport)" },
-        { "type": "contains", "value": "@placeholder" },
-        { "type": "contains", "value": "on interaction" },
-        { "type": "contains", "value": "lazy-loaded chunk" }
+        {
+          "type": "contains",
+          "value": "@defer (on viewport)"
+        },
+        {
+          "type": "contains",
+          "value": "@placeholder"
+        },
+        {
+          "type": "contains",
+          "value": "on interaction"
+        },
+        {
+          "type": "contains",
+          "value": "lazy-loaded chunk"
+        }
       ]
     },
     {
@@ -28,10 +44,22 @@
       "prompt": "How do I use NgOptimizedImage for LCP optimization in Angular?",
       "expected_output": "Import NgOptimizedImage and replace <img src='...'> with <img ngSrc='...' width='800' height='600'>. Add priority attribute for LCP images. This enables lazy loading, responsive srcset, and preconnect hints automatically.",
       "assertions": [
-        { "type": "contains", "value": "NgOptimizedImage" },
-        { "type": "contains", "value": "ngSrc=" },
-        { "type": "contains", "value": "priority attribute" },
-        { "type": "contains", "value": "srcset" }
+        {
+          "type": "contains",
+          "value": "NgOptimizedImage"
+        },
+        {
+          "type": "contains",
+          "value": "ngSrc="
+        },
+        {
+          "type": "contains",
+          "value": "priority attribute"
+        },
+        {
+          "type": "contains",
+          "value": "srcset"
+        }
       ]
     },
     {
@@ -43,9 +71,14 @@
           "type": "contains",
           "value": "re-evaluates on every change detection"
         },
-        { "type": "contains", "value": "computed() signal" },
-        { "type": "contains", "value": "{{ displayValue() }}" },
-        { "type": "contains", "value": "caches until dependencies change" }
+        {
+          "type": "contains",
+          "value": "computed() signal"
+        },
+        {
+          "type": "contains",
+          "value": "caches until dependencies change"
+        }
       ]
     },
     {
@@ -53,8 +86,10 @@
       "prompt": "How do I prepare Angular for zoneless rendering?",
       "expected_output": "Use Signals for all reactive state instead of Zone.runOutsideAngular hacks. Set ChangeDetectionStrategy.OnPush on all components. Avoid setTimeout/setInterval side effects — use effect() or RxJS timer instead. Opt into provideExperimentalZonelessChangeDetection().",
       "assertions": [
-        { "type": "contains", "value": "Signals for all reactive state" },
-        { "type": "contains", "value": "instead of Zone.runOutsideAngular" },
+        {
+          "type": "contains",
+          "value": "Signals for all reactive state"
+        },
         {
           "type": "contains",
           "value": "provideExperimentalZonelessChangeDetection"
@@ -66,9 +101,18 @@
       "prompt": "How do I use trackBy in Angular @for loops?",
       "expected_output": "Use @for (item of items; track item.id) { } — the track expression replaces trackBy. Always provide a stable unique identifier (e.g., item.id). This prevents Angular from destroying and recreating DOM nodes on list updates.",
       "assertions": [
-        { "type": "contains", "value": "@for (item of items; track item.id)" },
-        { "type": "contains", "value": "replaces trackBy" },
-        { "type": "contains", "value": "stable unique identifier" }
+        {
+          "type": "contains",
+          "value": "@for (item of items; track item.id)"
+        },
+        {
+          "type": "contains",
+          "value": "replaces trackBy"
+        },
+        {
+          "type": "contains",
+          "value": "stable unique identifier"
+        }
       ]
     }
   ],

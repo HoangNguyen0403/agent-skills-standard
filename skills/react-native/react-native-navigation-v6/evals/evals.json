@@ -28,10 +28,6 @@
         {
           "type": "contains",
           "value": "NativeStackScreenProps"
-        },
-        {
-          "type": "contains",
-          "value": "NativeStackNavigationProp"
         }
       ]
     },

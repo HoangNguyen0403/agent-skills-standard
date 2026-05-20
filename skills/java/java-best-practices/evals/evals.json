@@ -6,9 +6,18 @@
       "prompt": "My Java class has a constructor with 6 parameters. It's hard to read at call sites. How should I refactor it?",
       "expected_output": "Use the Builder pattern for 4+ parameters. Inner static Builder class with fluent setters. Constructor becomes private. Ensures named, readable construction.",
       "assertions": [
-        { "id": "a1", "description": "Recommends Builder pattern", "type": "contains", "value": "Builder" },
-        { "id": "a2", "description": "Mentions 4+ param threshold", "type": "contains", "value": "4" },
-        { "id": "a3", "description": "Shows fluent API", "type": "contains", "value": "fluent" }
+        {
+          "id": "a1",
+          "description": "Recommends Builder pattern",
+          "type": "contains",
+          "value": "Builder"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions 4+ param threshold",
+          "type": "contains",
+          "value": "4"
+        }
       ]
     },
     {
@@ -16,9 +25,24 @@
       "prompt": "My Java method can return null when it finds no result. A colleague says I should use Optional. Is that right?",
       "expected_output": "Yes — return Optional<T> instead of null. Use Optional.of(), Optional.empty(), or Optional.ofNullable(). Never use Optional as a field or parameter. Chain with map/filter/orElseThrow.",
       "assertions": [
-        { "id": "a1", "description": "Recommends Optional", "type": "contains", "value": "Optional" },
-        { "id": "a2", "description": "Rejects null returns", "type": "contains", "value": "null" },
-        { "id": "a3", "description": "Warns against Optional as field", "type": "contains", "value": "field" }
+        {
+          "id": "a1",
+          "description": "Recommends Optional",
+          "type": "contains",
+          "value": "Optional"
+        },
+        {
+          "id": "a2",
+          "description": "Rejects null returns",
+          "type": "contains",
+          "value": "null"
+        },
+        {
+          "id": "a3",
+          "description": "Warns against Optional as field",
+          "type": "contains",
+          "value": "field"
+        }
       ]
     },
     {
@@ -26,9 +50,24 @@
       "prompt": "Should I extend my base class EmailNotification to add SMS support, or is there a better way in Java?",
       "expected_output": "Favor composition over inheritance. Create a NotificationService interface, inject different notification strategies (EmailNotifier, SmsNotifier) via constructor. Avoid deep inheritance hierarchies.",
       "assertions": [
-        { "id": "a1", "description": "Recommends composition", "type": "contains", "value": "composition" },
-        { "id": "a2", "description": "Mentions interface", "type": "contains", "value": "interface" },
-        { "id": "a3", "description": "Rejects inheritance", "type": "contains", "value": "inherit" }
+        {
+          "id": "a1",
+          "description": "Recommends composition",
+          "type": "contains",
+          "value": "composition"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions interface",
+          "type": "contains",
+          "value": "interface"
+        },
+        {
+          "id": "a3",
+          "description": "Rejects inheritance",
+          "type": "contains",
+          "value": "inherit"
+        }
       ]
     }
   ],

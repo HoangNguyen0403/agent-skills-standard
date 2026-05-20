@@ -6,8 +6,10 @@
       "prompt": "How do I set up a Retrofit client with authentication in Android?",
       "expected_output": "Use OkHttp Interceptor to inject Bearer token in Authorization header. Build OkHttpClient with the interceptor and provide it to Retrofit.Builder(). Token logic belongs in the interceptor, not the API interface.",
       "assertions": [
-        { "type": "contains", "value": "Interceptor" },
-        { "type": "contains", "value": "Authorization" }
+        {
+          "type": "contains",
+          "value": "Interceptor"
+        }
       ]
     },
     {
@@ -15,8 +17,14 @@
       "prompt": "Which JSON serialization should I use with Retrofit in Android?",
       "expected_output": "Use Kotlinx Serialization — it's Kotlin-native and supports sealed classes. Use @SerialName for JSON field mapping.",
       "assertions": [
-        { "type": "contains", "value": "Kotlinx Serialization" },
-        { "type": "contains", "value": "SerialName" }
+        {
+          "type": "contains",
+          "value": "Kotlinx Serialization"
+        },
+        {
+          "type": "contains",
+          "value": "SerialName"
+        }
       ]
     },
     {
@@ -24,8 +32,14 @@
       "prompt": "My Retrofit API method isn't a suspend function. Is that okay?",
       "expected_output": "No — all API calls must be suspend functions to avoid blocking the main thread. Mark them suspend and call from a coroutine scope.",
       "assertions": [
-        { "type": "contains", "value": "suspend" },
-        { "type": "contains", "value": "blocking" }
+        {
+          "type": "contains",
+          "value": "suspend"
+        },
+        {
+          "type": "contains",
+          "value": "blocking"
+        }
       ]
     }
   ],

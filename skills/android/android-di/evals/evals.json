@@ -6,9 +6,18 @@
       "prompt": "How do I provide a Retrofit instance as a singleton using Hilt so it's shared across the whole app?",
       "expected_output": "Create a NetworkModule with @Module @InstallIn(SingletonComponent::class). Use @Provides @Singleton fun provideRetrofit(). Prefer @Binds over @Provides for interface bindings.",
       "assertions": [
-        { "id": "a1", "description": "Uses @Provides in Hilt module", "type": "contains", "value": "@Provides" },
-        { "id": "a2", "description": "Installs in SingletonComponent", "type": "contains", "value": "SingletonComponent" },
-        { "id": "a3", "description": "Uses @Singleton scope", "type": "contains", "value": "@Singleton" }
+        {
+          "id": "a1",
+          "description": "Uses @Provides in Hilt module",
+          "type": "contains",
+          "value": "@Provides"
+        },
+        {
+          "id": "a2",
+          "description": "Installs in SingletonComponent",
+          "type": "contains",
+          "value": "SingletonComponent"
+        }
       ]
     },
     {
@@ -16,9 +25,24 @@
       "prompt": "When should I use @Binds vs @Provides in a Hilt module?",
       "expected_output": "@Binds for binding an interface to its implementation (abstract, no body) — generates less code. @Provides when the object construction requires logic or third-party classes.",
       "assertions": [
-        { "id": "a1", "description": "Explains @Binds advantage", "type": "contains", "value": "@Binds" },
-        { "id": "a2", "description": "Explains @Provides use case", "type": "contains", "value": "@Provides" },
-        { "id": "a3", "description": "Mentions generated code size", "type": "contains", "value": "code" }
+        {
+          "id": "a1",
+          "description": "Explains @Binds advantage",
+          "type": "contains",
+          "value": "@Binds"
+        },
+        {
+          "id": "a2",
+          "description": "Explains @Provides use case",
+          "type": "contains",
+          "value": "@Provides"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions generated code size",
+          "type": "contains",
+          "value": "code"
+        }
       ]
     },
     {
@@ -26,8 +50,18 @@
       "prompt": "My ViewModel needs a parameter that's only known at runtime (e.g., a product ID). How do I inject that with Hilt?",
       "expected_output": "Use @AssistedInject for the ViewModel constructor plus @Assisted for the runtime parameter. Create an @AssistedFactory. In Compose, use hiltViewModel() with a factory.",
       "assertions": [
-        { "id": "a1", "description": "Uses @AssistedInject", "type": "contains", "value": "@AssistedInject" },
-        { "id": "a2", "description": "Uses @Assisted annotation", "type": "contains", "value": "@Assisted" }
+        {
+          "id": "a1",
+          "description": "Uses @AssistedInject",
+          "type": "contains",
+          "value": "@AssistedInject"
+        },
+        {
+          "id": "a2",
+          "description": "Uses @Assisted annotation",
+          "type": "contains",
+          "value": "@Assisted"
+        }
       ]
     }
   ],

@@ -375,8 +375,8 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 36,
-        "total_tokens": 23719,
-        "avg_tokens_per_skill": 659,
+        "total_tokens": 23781,
+        "avg_tokens_per_skill": 661,
         "largest_skill": "common-skill-creator (1354 tokens)"
       }
     },

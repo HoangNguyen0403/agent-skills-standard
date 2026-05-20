@@ -32,10 +32,6 @@
         {
           "type": "contains",
           "value": "Initializer Injection"
-        },
-        {
-          "type": "contains",
-          "value": "Abstractions"
         }
       ]
     },

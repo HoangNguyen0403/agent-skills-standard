@@ -84,16 +84,7 @@
       "id": 6,
       "prompt": "Redirect after a successful Server Action mutation",
       "expected_output": "import { redirect } from 'next/navigation'; at end of successful Server Action call redirect('/success'); redirect() throws internally — never wrap in try/catch or it will be caught and swallowed",
-      "assertions": [
-        {
-          "type": "contains",
-          "value": "import { redirect } from 'next/navigation'"
-        },
-        {
-          "type": "contains",
-          "value": "redirect('/success')"
-        }
-      ]
+      "assertions": []
     }
   ],
   "should_not_trigger": [

@@ -6,10 +6,18 @@
       "prompt": "How do I write a unit test with TestBed in Angular?",
       "expected_output": "Configure TestBed.configureTestingModule({ imports: [MyComponent], providers: [provideHttpClientTesting()] }). Create fixture = TestBed.createComponent(MyComponent). Call fixture.detectChanges() after setup. Use ComponentHarnesses for interaction — not CSS selectors.",
       "assertions": [
-        { "type": "contains", "value": "TestBed" },
-        { "type": "contains", "value": "provideHttpClientTesting()" },
-        { "type": "contains", "value": "fixture.detectChanges()" },
-        { "type": "contains", "value": "ComponentHarnesses" }
+        {
+          "type": "contains",
+          "value": "TestBed"
+        },
+        {
+          "type": "contains",
+          "value": "provideHttpClientTesting()"
+        },
+        {
+          "type": "contains",
+          "value": "fixture.detectChanges()"
+        }
       ]
     },
     {
@@ -17,10 +25,22 @@
       "prompt": "How do I use Component Test Harnesses in Angular?",
       "expected_output": "Use MatButtonHarness or custom ComponentHarness: const button = await loader.getHarness(MatButtonHarness). Call await button.click(). Harnesses are stable — they don't break when CSS classes or DOM structure change. Never query by CSS class in tests.",
       "assertions": [
-        { "type": "contains", "value": "ComponentHarness" },
-        { "type": "contains", "value": "getHarness" },
-        { "type": "contains", "value": "await button.click()" },
-        { "type": "contains", "value": "Never query by CSS class" }
+        {
+          "type": "contains",
+          "value": "ComponentHarness"
+        },
+        {
+          "type": "contains",
+          "value": "getHarness"
+        },
+        {
+          "type": "contains",
+          "value": "await button.click()"
+        },
+        {
+          "type": "contains",
+          "value": "Never query by CSS class"
+        }
       ]
     },
     {
@@ -28,10 +48,22 @@
       "prompt": "How do I mock HttpClient in Angular tests?",
       "expected_output": "Provide provideHttpClientTesting() in TestBed providers. Inject HttpTestingController: const httpController = TestBed.inject(HttpTestingController). Call httpController.expectOne('/api/users').flush(mockData). Call httpController.verify() in afterEach. Never mock HttpClient directly.",
       "assertions": [
-        { "type": "contains", "value": "provideHttpClientTesting()" },
-        { "type": "contains", "value": "HttpTestingController" },
-        { "type": "contains", "value": "expectOne" },
-        { "type": "contains", "value": "verify()" }
+        {
+          "type": "contains",
+          "value": "provideHttpClientTesting()"
+        },
+        {
+          "type": "contains",
+          "value": "HttpTestingController"
+        },
+        {
+          "type": "contains",
+          "value": "expectOne"
+        },
+        {
+          "type": "contains",
+          "value": "verify()"
+        }
       ]
     },
     {
@@ -39,9 +71,18 @@
       "prompt": "How do I test signal inputs in Angular component tests?",
       "expected_output": "Use fixture.componentRef.setInput('name', value) to set signal inputs. Do NOT assign component.name = value directly — this doesn't work for signal inputs. After setInput() call fixture.detectChanges() to trigger re-render.",
       "assertions": [
-        { "type": "contains", "value": "setInput(" },
-        { "type": "contains", "value": "componentRef" },
-        { "type": "contains", "value": "fixture.detectChanges()" }
+        {
+          "type": "contains",
+          "value": "setInput("
+        },
+        {
+          "type": "contains",
+          "value": "componentRef"
+        },
+        {
+          "type": "contains",
+          "value": "fixture.detectChanges()"
+        }
       ]
     },
     {
@@ -49,10 +90,14 @@
       "prompt": "Working on user.component.spec.ts — how do I test this component?",
       "expected_output": "Import the standalone component directly in TestBed.configureTestingModule({ imports: [UserComponent] }). Use provideHttpClientTesting() for HTTP. Use setInput() for signal inputs. Test via ComponentHarness, not DOM selectors. Signals update synchronously — no fakeAsync needed.",
       "assertions": [
-        { "type": "contains", "value": "TestBed" },
-        { "type": "contains", "value": "standalone component" },
-        { "type": "contains", "value": "ComponentHarness" },
-        { "type": "contains", "value": "no fakeAsync needed" }
+        {
+          "type": "contains",
+          "value": "TestBed"
+        },
+        {
+          "type": "contains",
+          "value": "ComponentHarness"
+        }
       ]
     },
     {
@@ -60,10 +105,18 @@
       "prompt": "How do I set up Vitest for Angular testing?",
       "expected_output": "Angular 20+ supports Vitest natively via @angular/build:unit-test builder. Configure in angular.json test builder to use vitest. Vitest is faster, native ESM, no Karma needed. Use @vitest/ui for interactive test reporting. Jasmine/Karma still supported.",
       "assertions": [
-        { "type": "contains", "value": "Vitest" },
-        { "type": "contains", "value": "angular.json" },
-        { "type": "contains", "value": "native ESM" },
-        { "type": "contains", "value": "no Karma needed" }
+        {
+          "type": "contains",
+          "value": "Vitest"
+        },
+        {
+          "type": "contains",
+          "value": "angular.json"
+        },
+        {
+          "type": "contains",
+          "value": "native ESM"
+        }
       ]
     }
   ],

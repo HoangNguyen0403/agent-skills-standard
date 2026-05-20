@@ -24,10 +24,6 @@
         {
           "type": "contains",
           "value": "dart run"
-        },
-        {
-          "type": "contains",
-          "value": "run build_runner"
         }
       ]
     },

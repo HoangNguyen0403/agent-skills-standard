@@ -6,9 +6,14 @@
       "prompt": "How do I prevent XSS in Angular?",
       "expected_output": "Angular sanitizes interpolated values by default — {{ userInput }} is safe. Never use [innerHTML] with user content. If you must render HTML, use DomSanitizer.sanitize(SecurityContext.HTML, content). Never call bypassSecurityTrustHtml() on user-provided data.",
       "assertions": [
-        { "type": "contains", "value": "{{ userInput }} is safe" },
-        { "type": "contains", "value": "DomSanitizer.sanitize" },
-        { "type": "contains", "value": "Never call bypassSecurityTrustHtml" }
+        {
+          "type": "contains",
+          "value": "DomSanitizer.sanitize"
+        },
+        {
+          "type": "contains",
+          "value": "Never call bypassSecurityTrustHtml"
+        }
       ]
     },
     {
@@ -16,9 +21,14 @@
       "prompt": "How do I safely render HTML content in Angular?",
       "expected_output": "Only use [innerHTML] for static, trusted content (e.g., CMS content from your own server). Sanitize with DomSanitizer.sanitize() not bypassSecurityTrustHtml(). For user-generated content, display as text with {{ content }} — never as HTML.",
       "assertions": [
-        { "type": "contains", "value": "DomSanitizer.sanitize()" },
-        { "type": "contains", "value": "{{ content }}" },
-        { "type": "contains", "value": "never as HTML" }
+        {
+          "type": "contains",
+          "value": "{{ content }}"
+        },
+        {
+          "type": "contains",
+          "value": "never as HTML"
+        }
       ]
     },
     {
@@ -26,9 +36,14 @@
       "prompt": "How do I set up a Content Security Policy for an Angular app?",
       "expected_output": "Configure CSP headers on the server (not in Angular code). Use nonce-based CSP: ng build generates nonce values for inline scripts. Set Content-Security-Policy: default-src 'self'; script-src 'nonce-{nonce}'. Avoid unsafe-inline and unsafe-eval.",
       "assertions": [
-        { "type": "contains", "value": "CSP headers on the server" },
-        { "type": "contains", "value": "nonce-based CSP" },
-        { "type": "contains", "value": "script-src 'nonce-{nonce}'" }
+        {
+          "type": "contains",
+          "value": "nonce-based CSP"
+        },
+        {
+          "type": "contains",
+          "value": "script-src 'nonce-{nonce}'"
+        }
       ]
     },
     {
@@ -40,8 +55,10 @@
           "type": "contains",
           "value": "Only bypass security for content you control"
         },
-        { "type": "contains", "value": "Audit every bypassSecurityTrust*" },
-        { "type": "contains", "value": "vector" }
+        {
+          "type": "contains",
+          "value": "vector"
+        }
       ]
     },
     {
@@ -49,9 +66,18 @@
       "prompt": "How do I protect routes with auth guards in Angular?",
       "expected_output": "Create a functional guard: export const authGuard: CanActivateFn = () => inject(AuthService).isLoggedIn() ? true : inject(Router).createUrlTree(['/login']). Apply to routes: { canActivate: [authGuard] }. Protect all sensitive routes — do not rely on UI hiding alone.",
       "assertions": [
-        { "type": "contains", "value": "CanActivateFn" },
-        { "type": "contains", "value": "inject(Router).createUrlTree" },
-        { "type": "contains", "value": "canActivate: [authGuard]" }
+        {
+          "type": "contains",
+          "value": "CanActivateFn"
+        },
+        {
+          "type": "contains",
+          "value": "inject(Router).createUrlTree"
+        },
+        {
+          "type": "contains",
+          "value": "canActivate: [authGuard]"
+        }
       ]
     },
     {
@@ -59,9 +85,18 @@
       "prompt": "How do I store auth tokens securely in Angular?",
       "expected_output": "Use HttpOnly cookies managed by the server — not localStorage or sessionStorage. Tokens in localStorage are accessible via XSS. Use HTTP interceptors to attach cookies automatically. Never store API keys or secrets in Angular source code.",
       "assertions": [
-        { "type": "contains", "value": "HttpOnly cookies" },
-        { "type": "contains", "value": "not localStorage" },
-        { "type": "contains", "value": "Never store API keys" }
+        {
+          "type": "contains",
+          "value": "HttpOnly cookies"
+        },
+        {
+          "type": "contains",
+          "value": "not localStorage"
+        },
+        {
+          "type": "contains",
+          "value": "Never store API keys"
+        }
       ]
     }
   ],

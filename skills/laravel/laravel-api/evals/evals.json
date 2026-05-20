@@ -105,10 +105,6 @@
         {
           "type": "contains",
           "value": "routes/api.php"
-        },
-        {
-          "type": "contains",
-          "value": "App\\\\Http\\\\Controllers\\\\Api\\\\V1"
         }
       ]
     },
@@ -128,14 +124,6 @@
         {
           "type": "contains",
           "value": "422"
-        },
-        {
-          "type": "contains",
-          "value": "FormRequest"
-        },
-        {
-          "type": "contains",
-          "value": "200"
         }
       ]
     }

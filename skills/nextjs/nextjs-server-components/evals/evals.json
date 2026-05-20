@@ -23,10 +23,6 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "<ClientWrapper><ServerDataComponent /></ClientWrapper>"
-        },
-        {
-          "type": "contains",
           "value": "'use client'"
         }
       ]

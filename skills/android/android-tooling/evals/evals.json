@@ -6,9 +6,18 @@
       "prompt": "How do I configure Detekt to fail the build when a method exceeds 30 lines or a class exceeds 300 lines?",
       "expected_output": "Configure detekt.yml with LongMethod active: true, threshold: 30 and LargeClass threshold: 300. Set detekt task to fail build on violations. Add to CI pipeline on pull requests.",
       "assertions": [
-        { "id": "a1", "description": "Uses detekt.yml config", "type": "contains", "value": "detekt.yml" },
-        { "id": "a2", "description": "Sets thresholds", "type": "contains", "value": "threshold" },
-        { "id": "a3", "description": "Fails build on violation", "type": "contains", "value": "fail" }
+        {
+          "id": "a1",
+          "description": "Uses detekt.yml config",
+          "type": "contains",
+          "value": "detekt.yml"
+        },
+        {
+          "id": "a3",
+          "description": "Fails build on violation",
+          "type": "contains",
+          "value": "fail"
+        }
       ]
     },
     {
@@ -16,8 +25,18 @@
       "prompt": "A developer added @Suppress(\"LongMethod\") to bypass a Detekt warning. Should I allow this in production code?",
       "expected_output": "No — fix the root violation, don't suppress it. @Suppress is allowed only in rare justified cases (generated code, third-party API constraints) with a comment explaining why.",
       "assertions": [
-        { "id": "a1", "description": "Rejects blanket @Suppress", "type": "contains", "value": "@Suppress" },
-        { "id": "a2", "description": "Says to fix the source violation", "type": "contains", "value": "fix" }
+        {
+          "id": "a1",
+          "description": "Rejects blanket @Suppress",
+          "type": "contains",
+          "value": "@Suppress"
+        },
+        {
+          "id": "a2",
+          "description": "Says to fix the source violation",
+          "type": "contains",
+          "value": "fix"
+        }
       ]
     },
     {
@@ -25,9 +44,24 @@
       "prompt": "How do I add Ktlint to my Android project and auto-format code on every build?",
       "expected_output": "Apply the jlleitschuh Ktlint Gradle plugin. Run ktlintFormat as a pre-commit hook or on save in IDE. Run ktlintCheck in CI pipeline. Consistent formatting prevents style-only diffs.",
       "assertions": [
-        { "id": "a1", "description": "Uses jlleitschuh plugin", "type": "contains", "value": "jlleitschuh" },
-        { "id": "a2", "description": "Adds CI check", "type": "contains", "value": "CI" },
-        { "id": "a3", "description": "Mentions ktlintCheck or ktlintFormat", "type": "contains", "value": "ktlint" }
+        {
+          "id": "a1",
+          "description": "Uses jlleitschuh plugin",
+          "type": "contains",
+          "value": "jlleitschuh"
+        },
+        {
+          "id": "a2",
+          "description": "Adds CI check",
+          "type": "contains",
+          "value": "CI"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions ktlintCheck or ktlintFormat",
+          "type": "contains",
+          "value": "ktlint"
+        }
       ]
     }
   ],

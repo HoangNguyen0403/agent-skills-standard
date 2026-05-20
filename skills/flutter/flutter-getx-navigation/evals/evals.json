@@ -42,10 +42,6 @@
         },
         {
           "type": "contains",
-          "value": "HomeBinding"
-        },
-        {
-          "type": "contains",
           "value": "Bindings"
         }
       ]

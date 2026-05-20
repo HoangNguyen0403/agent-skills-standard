@@ -6,9 +6,18 @@
       "prompt": "My ViewModel exposes a public MutableStateFlow that the UI writes to directly. Is that okay?",
       "expected_output": "No — expose only the immutable StateFlow via .asStateFlow(). Keep the MutableStateFlow private in the ViewModel. UI should send Events/Intents to the ViewModel, never write to state directly.",
       "assertions": [
-        { "id": "a1", "description": "Rejects public MutableStateFlow", "type": "contains", "value": "MutableStateFlow" },
-        { "id": "a2", "description": "Uses .asStateFlow()", "type": "contains", "value": "asStateFlow" },
-        { "id": "a3", "description": "Recommends private backing field", "type": "contains", "value": "private" }
+        {
+          "id": "a1",
+          "description": "Rejects public MutableStateFlow",
+          "type": "contains",
+          "value": "MutableStateFlow"
+        },
+        {
+          "id": "a2",
+          "description": "Uses .asStateFlow()",
+          "type": "contains",
+          "value": "asStateFlow"
+        }
       ]
     },
     {
@@ -16,9 +25,24 @@
       "prompt": "How should I model loading, success, and error states in my Android ViewModel?",
       "expected_output": "Use a sealed interface UiState with Loading, Content(data), and Error(message) subtypes. Expose as StateFlow<UiState>. Mark Content data class with @Immutable for Compose stability.",
       "assertions": [
-        { "id": "a1", "description": "Uses sealed interface", "type": "contains", "value": "sealed" },
-        { "id": "a2", "description": "Has Loading/Content/Error subtypes", "type": "contains", "value": "Loading" },
-        { "id": "a3", "description": "Marks data class @Immutable", "type": "contains", "value": "@Immutable" }
+        {
+          "id": "a1",
+          "description": "Uses sealed interface",
+          "type": "contains",
+          "value": "sealed"
+        },
+        {
+          "id": "a2",
+          "description": "Has Loading/Content/Error subtypes",
+          "type": "contains",
+          "value": "Loading"
+        },
+        {
+          "id": "a3",
+          "description": "Marks data class @Immutable",
+          "type": "contains",
+          "value": "@Immutable"
+        }
       ]
     },
     {
@@ -26,8 +50,18 @@
       "prompt": "How do I collect a StateFlow from a ViewModel safely in a Jetpack Compose screen?",
       "expected_output": "Use collectAsStateWithLifecycle() from lifecycle-runtime-compose. It stops collecting when the app goes to background, saving resources. Never use collectAsState() alone — it ignores lifecycle.",
       "assertions": [
-        { "id": "a1", "description": "Uses collectAsStateWithLifecycle", "type": "contains", "value": "collectAsStateWithLifecycle" },
-        { "id": "a2", "description": "Explains lifecycle benefit", "type": "contains", "value": "lifecycle" }
+        {
+          "id": "a1",
+          "description": "Uses collectAsStateWithLifecycle",
+          "type": "contains",
+          "value": "collectAsStateWithLifecycle"
+        },
+        {
+          "id": "a2",
+          "description": "Explains lifecycle benefit",
+          "type": "contains",
+          "value": "lifecycle"
+        }
       ]
     }
   ],

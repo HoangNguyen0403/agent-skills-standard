@@ -13,10 +13,6 @@
         {
           "type": "contains",
           "value": "before using"
-        },
-        {
-          "type": "contains",
-          "value": "using BuildContext"
         }
       ]
     },

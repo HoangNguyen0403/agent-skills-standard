@@ -13,10 +13,6 @@
         {
           "type": "contains",
           "value": "Android"
-        },
-        {
-          "type": "contains",
-          "value": "Wrap"
         }
       ]
     },

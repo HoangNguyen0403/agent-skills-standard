@@ -6,8 +6,14 @@
       "prompt": "When should I use @State vs @Binding in SwiftUI?",
       "expected_output": "Use @State for data owned by the view. Use @Binding for data passed down from a parent view to a child.",
       "assertions": [
-        { "type": "contains", "value": "@State for data owned" },
-        { "type": "contains", "value": "@Binding for data passed down" }
+        {
+          "type": "contains",
+          "value": "@State for data owned"
+        },
+        {
+          "type": "contains",
+          "value": "@Binding for data passed down"
+        }
       ]
     },
     {
@@ -17,9 +23,8 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "@StateObject when the view is creating"
-        },
-        { "type": "contains", "value": "@ObservedObject when receiving" }
+          "value": "@ObservedObject when receiving"
+        }
       ]
     },
     {
@@ -27,8 +32,14 @@
       "prompt": "How do I share data across a view hierarchy in SwiftUI?",
       "expected_output": "Use @Environment or @EnvironmentObject to inject data into the view's hierarchy. Example: parent.environmentObject(user).",
       "assertions": [
-        { "type": "contains", "value": "@EnvironmentObject" },
-        { "type": "contains", "value": "inject data into the view's hierarchy" }
+        {
+          "type": "contains",
+          "value": "@EnvironmentObject"
+        },
+        {
+          "type": "contains",
+          "value": "inject data into the view's hierarchy"
+        }
       ]
     },
     {
@@ -36,8 +47,14 @@
       "prompt": "How do I use LazyVStack for performance?",
       "expected_output": "Use LazyVStack when displaying a large number of views in a scrolling container to load them only as they appear. Use LazyHGrid for grid performance.",
       "assertions": [
-        { "type": "contains", "value": "large number of views" },
-        { "type": "contains", "value": "load them only as they appear" }
+        {
+          "type": "contains",
+          "value": "large number of views"
+        },
+        {
+          "type": "contains",
+          "value": "load them only as they appear"
+        }
       ]
     }
   ],

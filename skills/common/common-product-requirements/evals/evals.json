@@ -6,8 +6,14 @@
       "prompt": "Create a PRD for a new user notifications feature.",
       "expected_output": "Enter Discovery Phase: ask 3-5 clarifying questions with options. (a) Platform: Web/Mobile/Both? (b) Notification types: in-app/email/push? (c) Real-time or batched? (d) User preferences/opt-out required? (e) Target user roles? Repeat until Actionable State reached, then draft to docs/specs/prd-user-notifications.md.",
       "assertions": [
-        { "type": "contains", "value": "clarif" },
-        { "type": "contains", "value": "docs/specs" }
+        {
+          "type": "contains",
+          "value": "clarif"
+        },
+        {
+          "type": "contains",
+          "value": "docs/specs"
+        }
       ]
     },
     {
@@ -15,8 +21,10 @@
       "prompt": "I need a spec for making the app faster.",
       "expected_output": "Violation: 'faster' is vague. Apply No Vagueness rule: ask for measurable targets. 'Fast' -> 'Load time < 200ms'. Discovery questions: (a) Which pages/flows are slow? (b) Current measured baseline? (c) Target SLA? (d) Platform? Map answers to non-functional requirements section of PRD template.",
       "assertions": [
-        { "type": "contains", "value": "200ms" },
-        { "type": "contains", "value": "measur" }
+        {
+          "type": "contains",
+          "value": "200ms"
+        }
       ]
     },
     {
@@ -24,8 +32,14 @@
       "prompt": "Draft requirements for a payment checkout flow.",
       "expected_output": "Discovery Phase: ask about payment providers (Stripe/PayPal), currencies supported, guest vs. account checkout, 3DS requirements, refund flows, mobile vs. web. Verification checklist: functional flows defined, edge cases (failed payment, timeout, duplicate submit), security requirements (PCI compliance), performance targets. Write to docs/specs/prd-checkout-flow.md.",
       "assertions": [
-        { "type": "contains", "value": "edge case" },
-        { "type": "contains", "value": "security" }
+        {
+          "type": "contains",
+          "value": "edge case"
+        },
+        {
+          "type": "contains",
+          "value": "security"
+        }
       ]
     }
   ],

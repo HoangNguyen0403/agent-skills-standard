@@ -6,10 +6,18 @@
       "prompt": "How do I manage global state with Angular Signals?",
       "expected_output": "Create a service with signal() properties: private _count = signal(0); count = this._count.asReadonly(). Expose mutations as methods: increment() { this._count.update(v => v + 1) }. For complex features use @ngrx/signals Signal Store.",
       "assertions": [
-        { "type": "contains", "value": "signal(" },
-        { "type": "contains", "value": "asReadonly()" },
-        { "type": "contains", "value": "update(v => v + 1)" },
-        { "type": "contains", "value": "@ngrx/signals" }
+        {
+          "type": "contains",
+          "value": "signal("
+        },
+        {
+          "type": "contains",
+          "value": "asReadonly()"
+        },
+        {
+          "type": "contains",
+          "value": "@ngrx/signals"
+        }
       ]
     },
     {
@@ -17,10 +25,22 @@
       "prompt": "How do I use NgRx Signal Store in Angular?",
       "expected_output": "Use signalStore({ withState({ items: [] }), withMethods((store) => ({ loadItems: rxMethod(...) })) }). Provide in component or root. Access state as signals: store.items(). Use withEntities() for normalized entity collections.",
       "assertions": [
-        { "type": "contains", "value": "signalStore" },
-        { "type": "contains", "value": "withState" },
-        { "type": "contains", "value": "withMethods" },
-        { "type": "contains", "value": "withEntities" }
+        {
+          "type": "contains",
+          "value": "signalStore"
+        },
+        {
+          "type": "contains",
+          "value": "withState"
+        },
+        {
+          "type": "contains",
+          "value": "withMethods"
+        },
+        {
+          "type": "contains",
+          "value": "withEntities"
+        }
       ]
     },
     {
@@ -28,9 +48,18 @@
       "prompt": "How do I use linkedSignal() for dependent state?",
       "expected_output": "Use linkedSignal(() => source()) to create a writable signal that resets when source changes. Example: selectedItem = linkedSignal(() => this.items()[0]) — resets to first item whenever the list changes, but stays writable for user selection.",
       "assertions": [
-        { "type": "contains", "value": "linkedSignal" },
-        { "type": "contains", "value": "resets when source changes" },
-        { "type": "contains", "value": "writable" }
+        {
+          "type": "contains",
+          "value": "linkedSignal"
+        },
+        {
+          "type": "contains",
+          "value": "resets when source changes"
+        },
+        {
+          "type": "contains",
+          "value": "writable"
+        }
       ]
     },
     {
@@ -38,10 +67,22 @@
       "prompt": "Working on cart.store.ts — how should I structure state?",
       "expected_output": "Use @ngrx/signals signalStore with withState, withComputed, withMethods. Keep state minimal and normalized. Use computed() for derived values (totals, counts). Use effect() only for side effects (localStorage sync). Never mutate state directly — use .set() or .update().",
       "assertions": [
-        { "type": "contains", "value": "signalStore" },
-        { "type": "contains", "value": "withComputed" },
-        { "type": "contains", "value": "computed()" },
-        { "type": "contains", "value": "effect()" }
+        {
+          "type": "contains",
+          "value": "signalStore"
+        },
+        {
+          "type": "contains",
+          "value": "withComputed"
+        },
+        {
+          "type": "contains",
+          "value": "computed()"
+        },
+        {
+          "type": "contains",
+          "value": "effect()"
+        }
       ]
     },
     {
@@ -49,11 +90,13 @@
       "prompt": "How do I use asReadonly() to expose state from a service?",
       "expected_output": "Keep internal signals private and writable: private _user = signal<User | null>(null). Expose publicly as readonly: user = this._user.asReadonly(). This enforces that only the service mutates state while consumers can still react to changes.",
       "assertions": [
-        { "type": "contains", "value": "private" },
-        { "type": "contains", "value": "asReadonly()" },
         {
           "type": "contains",
-          "value": "enforces that only the service mutates"
+          "value": "private"
+        },
+        {
+          "type": "contains",
+          "value": "asReadonly()"
         }
       ]
     },
@@ -62,9 +105,10 @@
       "prompt": "When should I use effect() vs computed() in Angular?",
       "expected_output": "Use computed() for derived state (totals, filtered lists) — it's pure and cached. Use effect() only for side effects: logging, syncing to localStorage, manual DOM manipulation. Never update signals inside effect() — this causes circular dependency and is an anti-pattern.",
       "assertions": [
-        { "type": "contains", "value": "computed() for derived state" },
-        { "type": "contains", "value": "effect() only for side effects" },
-        { "type": "contains", "value": "Never update signals inside effect()" }
+        {
+          "type": "contains",
+          "value": "Never update signals inside effect()"
+        }
       ]
     }
   ],

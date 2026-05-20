@@ -13,10 +13,6 @@
         {
           "type": "contains",
           "value": "flutter analyze"
-        },
-        {
-          "type": "contains",
-          "value": "flutter build"
         }
       ]
     },

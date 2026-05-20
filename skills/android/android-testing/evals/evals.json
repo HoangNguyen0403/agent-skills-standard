@@ -6,9 +6,24 @@
       "prompt": "How do I unit test a ViewModel that uses viewModelScope to launch a coroutine and emits a StateFlow?",
       "expected_output": "Use runTest from kotlinx-coroutines-test. Apply MainDispatcherRule to replace Main dispatcher with TestDispatcher/StandardTestDispatcher. Inject DispatcherProvider. Collect StateFlow with turbine or awaitItem.",
       "assertions": [
-        { "id": "a1", "description": "Uses runTest", "type": "contains", "value": "runTest" },
-        { "id": "a2", "description": "Uses MainDispatcherRule", "type": "contains", "value": "MainDispatcherRule" },
-        { "id": "a3", "description": "Mocks with MockK or fake", "type": "contains", "value": "Mock" }
+        {
+          "id": "a1",
+          "description": "Uses runTest",
+          "type": "contains",
+          "value": "runTest"
+        },
+        {
+          "id": "a2",
+          "description": "Uses MainDispatcherRule",
+          "type": "contains",
+          "value": "MainDispatcherRule"
+        },
+        {
+          "id": "a3",
+          "description": "Mocks with MockK or fake",
+          "type": "contains",
+          "value": "Mock"
+        }
       ]
     },
     {
@@ -16,9 +31,24 @@
       "prompt": "How do I test a Composable screen that requires a real ViewModel with Hilt injection?",
       "expected_output": "Use createAndroidComposeRule with HiltAndroidRule. Replace production modules with @TestInstallIn to inject fake repositories. Access the composable via composeTestRule.setContent.",
       "assertions": [
-        { "id": "a1", "description": "Uses HiltAndroidRule", "type": "contains", "value": "HiltAndroidRule" },
-        { "id": "a2", "description": "Uses @TestInstallIn for fakes", "type": "contains", "value": "@TestInstallIn" },
-        { "id": "a3", "description": "Uses createAndroidComposeRule", "type": "contains", "value": "createAndroidComposeRule" }
+        {
+          "id": "a1",
+          "description": "Uses HiltAndroidRule",
+          "type": "contains",
+          "value": "HiltAndroidRule"
+        },
+        {
+          "id": "a2",
+          "description": "Uses @TestInstallIn for fakes",
+          "type": "contains",
+          "value": "@TestInstallIn"
+        },
+        {
+          "id": "a3",
+          "description": "Uses createAndroidComposeRule",
+          "type": "contains",
+          "value": "createAndroidComposeRule"
+        }
       ]
     },
     {
@@ -26,8 +56,12 @@
       "prompt": "My UI test uses Thread.sleep(2000) to wait for an async operation. Why is that bad and what should I use instead?",
       "expected_output": "Thread.sleep is flaky — too short causes failures, too long wastes time. Use composeTestRule.waitUntil { } for Compose or IdlingResource for View-based tests to wait for real conditions.",
       "assertions": [
-        { "id": "a1", "description": "Flags Thread.sleep as flaky", "type": "contains", "value": "flaky" },
-        { "id": "a2", "description": "Recommends waitUntil or IdlingResource", "type": "contains", "value": "waitUntil" }
+        {
+          "id": "a2",
+          "description": "Recommends waitUntil or IdlingResource",
+          "type": "contains",
+          "value": "waitUntil"
+        }
       ]
     }
   ],

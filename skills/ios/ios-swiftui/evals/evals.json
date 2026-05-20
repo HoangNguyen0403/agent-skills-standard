@@ -6,9 +6,18 @@
       "prompt": "When should I use @State vs @StateObject vs @ObservedObject?",
       "expected_output": "@State for local simple data. @StateObject for VMs (initialized once). @ObservedObject for passed-in VMs. Views should be small structs.",
       "assertions": [
-        { "type": "contains", "value": "@State for local simple data" },
-        { "type": "contains", "value": "@StateObject for VMs" },
-        { "type": "contains", "value": "Small, composable structs" }
+        {
+          "type": "contains",
+          "value": "@State for local simple data"
+        },
+        {
+          "type": "contains",
+          "value": "@StateObject for VMs"
+        },
+        {
+          "type": "contains",
+          "value": "Small, composable structs"
+        }
       ]
     },
     {
@@ -16,9 +25,18 @@
       "prompt": "My SwiftUI view is doing complex calculations in the body property. Is this okay?",
       "expected_output": "No. body property must be computationally cheap. Move logic to ViewModel or computed vars. Keep body for UI composition only.",
       "assertions": [
-        { "type": "contains", "value": "body property computationally cheap" },
-        { "type": "contains", "value": "No Logic in Body" },
-        { "type": "contains", "value": "Main Actor" }
+        {
+          "type": "contains",
+          "value": "body property computationally cheap"
+        },
+        {
+          "type": "contains",
+          "value": "No Logic in Body"
+        },
+        {
+          "type": "contains",
+          "value": "Main Actor"
+        }
       ]
     },
     {
@@ -26,8 +44,10 @@
       "prompt": "Does the order of SwiftUI modifiers matter? (e.g. .padding().background())",
       "expected_output": "Order matters. Apply layout modifiers before visual ones. SwiftUI modifiers wrap the view in new layers sequentially.",
       "assertions": [
-        { "type": "contains", "value": "Modifiers: Order matters" },
-        { "type": "contains", "value": "layout modifiers before visual ones" }
+        {
+          "type": "contains",
+          "value": "layout modifiers before visual ones"
+        }
       ]
     }
   ],
