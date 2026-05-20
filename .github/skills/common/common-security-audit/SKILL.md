@@ -59,6 +59,7 @@ See [mobile audit commands](references/mobile-audit.md) for insecure storage (Ke
 
 ## 8. Business Logic & Advanced Attacks
 
+- **BOLA/IDOR**: Verify entity lookups always enforce tenant/owner ownership checks (e.g. any `findById` without an `owner` filter is a P0 IDOR vulnerability).
 - **JWT / Mass Assignment**: Check missing `exp`, weak keys, and uncontrolled property spread (`...req.body`).
 - **Race / GraphQL**: Verify atomic DB transactions, introspection disabled, and query depth limits.
 
@@ -75,7 +76,7 @@ See [mobile audit commands](references/mobile-audit.md) for insecure storage (Ke
 | Missing Cert Pinning | No pinning detected | P2 | -8 |
 | DOM XSS Sinks | Any match | P1 | -10 |
 
-> **CAUTION**: P0 finding immediately caps Security score at 40/100.
+> **CAUTION**: P0 finding immediately caps Security score at 40/100. Immediate actions for leaked secrets: rotate the credential NOW and purge from history.
 
 ## Anti-Patterns
 
