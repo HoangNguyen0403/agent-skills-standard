@@ -176,17 +176,17 @@ Use both when you want enforcement receipts: the CLI installs the rules, the MCP
 
 The registry now ships a compact lifecycle that agents can run natively after sync:
 
-| Stage      | Synced Workflow                 | Output                       |
-| :--------- | :------------------------------ | :--------------------------- |
-| Route      | `sdlc`                          | next workflow and blockers   |
-| Brainstorm | `brainstorm-feature`            | `product-brief.md`           |
-| Plan       | `plan-feature`                  | PRD, decisions, task slices  |
-| Design     | `design-solution`               | architecture, contracts, ADR |
-| Readiness  | `implementation-readiness`      | go/no-go before code         |
-| Build      | `implement-feature` / `dev-fix` | implementation handoff       |
-| Review     | `review-ticket`                 | multi-lens PR/ticket verdict |
-| Verify     | `verify-work` / `verify-bug`    | `walkthrough.md` evidence    |
-| Security   | `pentest` / `security-test`     | hacker report, poC, SAST logs |
+| Stage      | Synced Workflow                 | Output                        |
+| :--------- | :------------------------------ | :---------------------------- |
+| Route      | `sdlc`                          | next workflow and blockers    |
+| Brainstorm | `brainstorm-feature`            | `product-brief.md`            |
+| Plan       | `plan-feature`                  | PRD, decisions, task slices   |
+| Design     | `design-solution`               | architecture, contracts, ADR  |
+| Readiness  | `implementation-readiness`      | go/no-go before code          |
+| Build      | `implement-feature` / `dev-fix` | implementation handoff        |
+| Review     | `review-ticket`                 | multi-lens PR/ticket verdict  |
+| Verify     | `verify-work` / `verify-bug`    | `walkthrough.md` evidence     |
+| Security   | `pentest` / `security-test`     | hacker report, PoC, SAST logs |
 
 ### Session Telemetry
 
@@ -498,16 +498,16 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for design details and [CLI Architectur
 
 ### 📜 Benchmark History
 
-| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
-| --- | --- | --- | --- | --- | --- |
-| v2.4.2 | 2026-05-19 | 247 | 540 | 85% | [Report](benchmarks/archive/v2.4.2.md) |
-| v2.4.1 | 2026-05-18 | 247 | 540 | 85% | [Report](benchmarks/archive/v2.4.1.md) |
-| v2.4.0 | 2026-05-14 | 246 | 540 | 85% | [Report](benchmarks/archive/v2.4.0.md) |
-| v2.3.0 | 2026-05-13 | 246 | 540 | 85% | [Report](benchmarks/archive/v2.3.0.md) |
-| v2.2.2 | 2026-05-09 | 249 | 539 | 85% | [Report](benchmarks/archive/v2.2.2.md) |
-| v2.2.0 | 2026-04-22 | 242 | 538 | 85% | [Report](benchmarks/archive/v2.2.0.md) |
-| v2.1.2 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.2.md) |
-| v2.1.1 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.1.md) |
-| v2.1.0 | 2026-04-04 | 237 | 526 | 86% | [Report](benchmarks/archive/v2.1.0.md) |
-| v2.0.1 | 2026-03-30 | 238 | 527 | 86% | [Report](benchmarks/archive/v2.0.1.md) |
-| v2.0.0 | 2026-03-25 | 235 | 523 | 86% | [Report](benchmarks/archive/v2.0.0.md) |
+| Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                 |
+| ------- | ---------- | ------ | ---------- | ----------- | -------------------------------------- |
+| v2.4.2  | 2026-05-19 | 247    | 540        | 85%         | [Report](benchmarks/archive/v2.4.2.md) |
+| v2.4.1  | 2026-05-18 | 247    | 540        | 85%         | [Report](benchmarks/archive/v2.4.1.md) |
+| v2.4.0  | 2026-05-14 | 246    | 540        | 85%         | [Report](benchmarks/archive/v2.4.0.md) |
+| v2.3.0  | 2026-05-13 | 246    | 540        | 85%         | [Report](benchmarks/archive/v2.3.0.md) |
+| v2.2.2  | 2026-05-09 | 249    | 539        | 85%         | [Report](benchmarks/archive/v2.2.2.md) |
+| v2.2.0  | 2026-04-22 | 242    | 538        | 85%         | [Report](benchmarks/archive/v2.2.0.md) |
+| v2.1.2  | 2026-04-11 | 237    | 516        | 86%         | [Report](benchmarks/archive/v2.1.2.md) |
+| v2.1.1  | 2026-04-11 | 237    | 516        | 86%         | [Report](benchmarks/archive/v2.1.1.md) |
+| v2.1.0  | 2026-04-04 | 237    | 526        | 86%         | [Report](benchmarks/archive/v2.1.0.md) |
+| v2.0.1  | 2026-03-30 | 238    | 527        | 86%         | [Report](benchmarks/archive/v2.0.1.md) |
+| v2.0.0  | 2026-03-25 | 235    | 523        | 86%         | [Report](benchmarks/archive/v2.0.0.md) |

@@ -56,6 +56,7 @@ Returns JSON with `app_url: "lt://APP..."`. Pass that as `appium:app`.
 ## .aab → device .apk conversion (Android-only gotcha)
 
 LambdaTest converts `.aab` to device-specific APKs and **re-signs with their internal cert**.
+
 - **SHA-pinned services** (Firebase Auth, App Check, Maps API) may reject the LambdaTest-signed APK.
 - **Mitigation**: register LambdaTest's debug SHA in your allowed-signature list.
 
@@ -68,6 +69,6 @@ LambdaTest converts `.aab` to device-specific APKs and **re-signs with their int
 
 ## Cost notes
 
-- Meting starts when first command lands.
+- Metering starts when first command lands.
 - typical session: 3–8 min.
 - LambdaTest auto-records video — pull via REST `GET /automation/api/v1/sessions/<sessionId>`.

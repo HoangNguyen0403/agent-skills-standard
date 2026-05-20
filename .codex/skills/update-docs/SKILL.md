@@ -26,8 +26,7 @@ This workflow helps you identify and fix missing documentation in the codebase.
 The `scan-docs.ts` script identifies exported members that lack JSDoc comments.
 
 ```bash
-cd cli
-npx ts-node scripts/scan-docs.ts
+tsx scripts/scan-docs.ts cli/src
 ```
 
 ## 2. Analyze the Report
@@ -38,7 +37,7 @@ Example output:
 
 ```text
 ⚠️  Found undocumented members:
-📄 src/services/MyService.ts
+📄 services/MyService.ts
    - class MyService
    - function doSomething
 ```
@@ -59,6 +58,6 @@ For each missing item:
 Run the scanner again to ensure no items remain.
 
 ```bash
-npx ts-node scripts/scan-docs.ts
+tsx scripts/scan-docs.ts cli/src
 ```
 
