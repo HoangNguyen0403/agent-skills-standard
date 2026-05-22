@@ -121,4 +121,12 @@ describe('InitCommand', () => {
       expect.stringContaining('MCP integration: disabled'),
     );
   });
+
+  it('should cover mcpEnabled when condition', async () => {
+    await command.run();
+    const mcpQuestions = vi.mocked(inquirer.prompt).mock.calls[1][0] as any[];
+    const whenFunc = mcpQuestions[1].when;
+    expect(whenFunc({ mcpEnabled: true })).toBe(true);
+    expect(whenFunc({ mcpEnabled: false })).toBe(false);
+  });
 });

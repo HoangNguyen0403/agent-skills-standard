@@ -194,9 +194,13 @@ describe('GithubService', () => {
     });
 
     it('should handle catch block in getLatestReleaseTag', async () => {
+      process.env.DEBUG = 'true';
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       vi.mocked(fetch).mockRejectedValue(new Error('API Error'));
       const tag = await githubService.getLatestReleaseTag('o', 'r');
       expect(tag).toBeNull();
+      expect(warnSpy).toHaveBeenCalled();
+      delete process.env.DEBUG;
     });
   });
 

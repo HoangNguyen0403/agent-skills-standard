@@ -802,5 +802,67 @@ describe('SyncService', () => {
 
       process.env.DEBUG = originalDebug;
     });
+
+    it('should ignore migration failure and not log debug info when DEBUG is not set', async () => {
+      const originalDebug = process.env.DEBUG;
+      delete process.env.DEBUG;
+      vi.spyOn(console, 'debug').mockImplementation(() => {});
+
+      vi.mocked(fs.pathExists).mockImplementation(async (p) => {
+        if (p.toString().endsWith('.agent')) return true;
+        return false;
+      });
+      vi.mocked(fs.copy).mockRejectedValue(new Error('Copy failed'));
+
+      await syncService.writeSkills([], makeConfig());
+
+      expect(console.debug).not.toHaveBeenCalled();
+
+      process.env.DEBUG = originalDebug;
+    });
+  });
+
+  describe('warnIfSyncingFromSameRepo (Lines 78-83)', () => {
+    it('should warn when local git remote matches the registry URL', async () => {
+      const { GitService } = await import('../GitService');
+      const gitRemoteSpy = vi.spyOn(GitService.prototype, 'getRemoteUrl')
+        .mockReturnValue('https://github.com/owner/repo');
+
+      const logSpy = vi.spyOn(console, 'log');
+
+      const config = makeConfig({ registry: 'https://github.com/owner/repo' });
+      mockSkillSyncService.assembleSkills.mockResolvedValue([]);
+
+      await syncService.assembleSkills(['typescript'], config);
+
+      expect(gitRemoteSpy).toHaveBeenCalled();
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining('You are syncing from the registry repository itself'),
+      );
+
+      gitRemoteSpy.mockRestore();
+    });
+  });
+
+  describe('syncSpecialists local flow (Line 118)', () => {
+    it('should sync using local specialists if local specialists directory exists', async () => {
+      const config = makeConfig({ agents: [Agent.Claude] });
+
+      vi.mocked(fs.pathExists).mockImplementation(async (p: string) => {
+        return p.endsWith('skills/specialists');
+      });
+
+      const p = privatesOf(syncService);
+      const syncSpy = vi.spyOn(p.specialistSyncService as any, 'syncSpecialists')
+        .mockResolvedValue(undefined);
+
+      await syncService.syncSpecialists(config);
+
+      expect(syncSpy).toHaveBeenCalledWith(
+        process.cwd(),
+        [Agent.Claude],
+        expect.stringContaining('skills/specialists'),
+      );
+    });
   });
 });

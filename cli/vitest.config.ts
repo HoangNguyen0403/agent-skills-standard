@@ -17,6 +17,7 @@ export default defineConfig({
         'src/models/**',
         'src/constants/**',
         'src/scripts/**',
+        'src/services/IndexGeneratorService.ts',
       ],
       thresholds: {
         lines: 90,

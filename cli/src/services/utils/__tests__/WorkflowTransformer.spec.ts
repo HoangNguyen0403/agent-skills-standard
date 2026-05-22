@@ -179,4 +179,42 @@ describe('WorkflowTransformer', () => {
       );
     });
   });
+
+  describe('WorkflowTransformer - Additional Branch Coverage', () => {
+    it('handles frontmatter without description', () => {
+      const source = {
+        name: 'test.md',
+        content: '---\nother_field: val\n---\n# Test',
+      };
+      const parsed = WorkflowTransformer.parse(source);
+      expect(parsed.description).toBe('');
+    });
+
+    it('escapes backslashes and double quotes in toml format description', () => {
+      const source = {
+        name: 'test.md',
+        content: '---\ndescription: Escape \\ and " characters.\n---\n# Test',
+      };
+      const result = WorkflowTransformer.transform(source, 'toml');
+      expect(result!.content).toContain('Escape \\\\ and \\" characters.');
+    });
+
+    it('uses fallback description and escapes backslashes in skill format', () => {
+      const source = {
+        name: 'test-wf.md',
+        content: '# Test',
+      };
+      const result = WorkflowTransformer.transform(source, 'skill');
+      expect(result!.content).toContain('description: "Workflow skill for test wf."');
+    });
+
+    it('escapes backslashes in skill format description', () => {
+      const source = {
+        name: 'test.md',
+        content: '---\ndescription: Escape \\ character.\n---\n# Test',
+      };
+      const result = WorkflowTransformer.transform(source, 'skill');
+      expect(result!.content).toContain('description: "Escape \\\\ character."');
+    });
+  });
 });

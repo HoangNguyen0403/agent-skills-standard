@@ -393,4 +393,107 @@ description: "Review security"
     await service.syncSpecialists(rootDir, [Agent.Claude]);
     expect(logSpy).not.toHaveBeenCalled();
   });
+
+  describe('assembleSpecialists github failures (Lines 24-28)', () => {
+    it('should default ref to main when getRepoInfo returns null', async () => {
+      const githubService = {
+        getRepoInfo: vi.fn().mockResolvedValue(null),
+        getRepoTree: vi.fn().mockResolvedValue({ tree: [] }),
+      } as any;
+      const remoteService = new SpecialistSyncService(githubService);
+      await remoteService.assembleSpecialists({
+        registry: 'https://github.com/owner/repo',
+        agents: [],
+        skills: {},
+      });
+      expect(githubService.getRepoTree).toHaveBeenCalledWith('owner', 'repo', 'main');
+    });
+
+    it('should return empty if getRepoTree returns null', async () => {
+      const githubService = {
+        getRepoInfo: vi.fn().mockResolvedValue({ default_branch: 'develop' }),
+        getRepoTree: vi.fn().mockResolvedValue(null),
+      } as any;
+      const remoteService = new SpecialistSyncService(githubService);
+      const result = await remoteService.assembleSpecialists({
+        registry: 'https://github.com/owner/repo',
+        agents: [],
+        skills: {},
+      });
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('assembleSpecialists filtering and content check (Lines 41-49)', () => {
+    it('should skip file if specialistName is falsy or getRawFile returns empty', async () => {
+      const githubService = {
+        getRepoInfo: vi.fn().mockResolvedValue({ default_branch: 'main' }),
+        getRepoTree: vi.fn().mockResolvedValue({
+          tree: [
+            { path: 'skills/specialists//SKILL.md', type: 'blob' },
+            { path: 'skills/specialists/specialist-empty/SKILL.md', type: 'blob' },
+          ],
+        }),
+        getRawFile: vi.fn().mockResolvedValue(null),
+      } as any;
+      const remoteService = new SpecialistSyncService(githubService);
+      const result = await remoteService.assembleSpecialists({
+        registry: 'https://github.com/owner/repo',
+        agents: [],
+        skills: {},
+      });
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('syncCollectedSpecialists edge cases (Lines 70-95)', () => {
+    it('should skip unrecognized agent IDs or agents without agentPath', async () => {
+      const specialists = [
+        {
+          category: 'specialists',
+          skill: 'specialist-security-reviewer',
+          files: [{ name: 'SKILL.md', content: 'content' }],
+        },
+      ];
+      await service.syncCollectedSpecialists(rootDir, ['non-existent-agent' as any], specialists);
+      expect(fs.outputFile).not.toHaveBeenCalled();
+    });
+
+    it('should skip specialists without SKILL.md', async () => {
+      const specialists = [
+        {
+          category: 'specialists',
+          skill: 'specialist-security-reviewer',
+          files: [{ name: 'other.md', content: 'content' }],
+        },
+      ];
+      await service.syncCollectedSpecialists(rootDir, [Agent.Claude], specialists);
+      expect(fs.outputFile).not.toHaveBeenCalled();
+    });
+
+    it('should skip if SpecialistTransformer returns null', async () => {
+      const specialists = [
+        {
+          category: 'specialists',
+          skill: 'invalid-name',
+          files: [{ name: 'SKILL.md', content: 'content' }],
+        },
+      ];
+      await service.syncCollectedSpecialists(rootDir, [Agent.Claude], specialists);
+      expect(fs.outputFile).not.toHaveBeenCalled();
+    });
+
+    it('should not log if syncedCount is 0', async () => {
+      const logSpy = vi.spyOn(console, 'log');
+      const specialists = [
+        {
+          category: 'specialists',
+          skill: 'invalid-name',
+          files: [{ name: 'SKILL.md', content: 'content' }],
+        },
+      ];
+      await service.syncCollectedSpecialists(rootDir, [Agent.Claude], specialists);
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+  });
 });

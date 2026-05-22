@@ -172,5 +172,20 @@ describe('InitService', () => {
         expect.stringContaining('scope: project'),
       );
     });
+
+    it('should handle mcpScope when provided and mcpEnabled is false', async () => {
+      const answers: InitAnswers = {
+        framework: 'flutter',
+        agents: [Agent.Cursor],
+        registry: 'url',
+        mcpEnabled: false,
+        mcpScope: 'project',
+      };
+      await initService.buildAndSaveConfig(answers, {}, '/tmp');
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        expect.stringContaining('.skillsrc'),
+        expect.stringContaining('scope: disabled'),
+      );
+    });
   });
 });

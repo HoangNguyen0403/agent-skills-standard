@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { SpecialistTransformer } from '../SpecialistTransformer';
 import { Agent } from '../../../constants';
+import * as constants from '../../../constants';
 
 describe('SpecialistTransformer', () => {
   const source = {
@@ -52,5 +53,39 @@ Check OWASP.`,
     expect(result).not.toBeNull();
     expect(result!.name).toBe('security-reviewer.md');
     expect(result!.content).toContain('Check OWASP.');
+  });
+
+  describe('SpecialistTransformer branch coverage', () => {
+    it('returns null if agentDef is not found', () => {
+      const result = SpecialistTransformer.transform(source, 'nonexistent-agent' as any);
+      expect(result).toBeNull();
+    });
+
+    it('uses fallback default description if metadata.description is missing', () => {
+      const sourceWithoutDesc = {
+        name: 'specialist-security-reviewer',
+        content: `---
+name: specialist-security-reviewer
+---
+Check OWASP.`,
+      };
+      const result = SpecialistTransformer.transform(sourceWithoutDesc, Agent.Claude);
+      expect(result).not.toBeNull();
+      expect(result!.content).toContain('description: "Specialist persona for security-reviewer"');
+    });
+
+    it('uses fallback extension (.md) if agentDef.ruleExtension is missing in default switch case', () => {
+      const spy = vi.spyOn(constants, 'getAgentDefinition').mockReturnValue({
+        id: 'mock-agent' as any,
+        name: 'Mock Agent',
+        // ruleExtension is missing
+      } as any);
+
+      const result = SpecialistTransformer.transform(source, 'mock-agent' as any);
+      expect(result).not.toBeNull();
+      expect(result!.name).toBe('security-reviewer.md');
+
+      spy.mockRestore();
+    });
   });
 });

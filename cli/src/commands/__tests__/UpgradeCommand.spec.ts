@@ -251,6 +251,7 @@ describe('UpgradeCommand', () => {
     const originalArgv = process.argv;
 
     afterEach(() => {
+      delete (process as any).argv;
       process.argv = originalArgv;
     });
 
@@ -269,7 +270,6 @@ describe('UpgradeCommand', () => {
     it('should detect pnpm if execution path contains it', () => {
       delete process.env.npm_config_user_agent;
       process.argv = ['node', '/path/to/pnpm/bin/ags'];
-      vi.mocked(execSync).mockReturnValueOnce('8.0.0\n');
       expect(upgradeCommand.detectPackageManager()).toBe('pnpm');
     });
 
@@ -280,6 +280,47 @@ describe('UpgradeCommand', () => {
         throw new Error('none');
       });
       expect(upgradeCommand.detectPackageManager()).toBe('npm');
+    });
+
+    it('should detect npm if path contains nvm', () => {
+      delete process.env.npm_config_user_agent;
+      process.argv = ['node', '/Users/test/.nvm/versions/node/v18.0.0/bin/ags'];
+      expect(upgradeCommand.detectPackageManager()).toBe('npm');
+    });
+
+    it('should detect npm if path contains npm', () => {
+      delete process.env.npm_config_user_agent;
+      process.argv = ['node', '/usr/local/lib/node_modules/npm/bin/ags-cli'];
+      expect(upgradeCommand.detectPackageManager()).toBe('npm');
+    });
+
+    it('should handle falsy process.argv[1] by defaulting to empty string and returning npm', () => {
+      delete process.env.npm_config_user_agent;
+      process.argv = ['node'];
+      expect(upgradeCommand.detectPackageManager()).toBe('npm');
+    });
+
+    it('should fallback to npm even if pnpm version check succeeds but path is not pnpm', () => {
+      delete process.env.npm_config_user_agent;
+      process.argv = ['node', '/usr/local/bin/ags'];
+      vi.mocked(execSync).mockImplementationOnce(() => '8.0.0\n' as any);
+      expect(upgradeCommand.detectPackageManager()).toBe('npm');
+    });
+
+    it('should return pnpm in fallback if pnpm version check succeeds and path is pnpm', () => {
+      delete process.env.npm_config_user_agent;
+      const execPathMock = new String('/usr/local/bin/ags');
+      let includesCallCount = 0;
+      execPathMock.includes = function(searchString) {
+        if (searchString === 'pnpm') {
+          includesCallCount++;
+          return includesCallCount > 1;
+        }
+        return String.prototype.includes.call(this, searchString);
+      } as any;
+      process.argv = ['node', execPathMock as any];
+      vi.mocked(execSync).mockImplementationOnce(() => '8.0.0\n' as any);
+      expect(upgradeCommand.detectPackageManager()).toBe('pnpm');
     });
   });
 
@@ -328,6 +369,265 @@ describe('UpgradeCommand', () => {
       );
 
       Object.defineProperty(process, 'platform', { value: originalPlatform });
+    });
+  });
+
+  describe('detectAndFixStaleShim additional branches', () => {
+    it('should warn and exit if correct shim does not exist', async () => {
+      vi.spyOn(upgradeCommand, 'detectPackageManager').mockReturnValue('pnpm');
+
+      vi.mocked(execSync).mockImplementation((command: unknown) => {
+        const text = String(command);
+        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
+        if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+        if (text.startsWith('node -p')) return '2.0.0\n' as any;
+        if (text === 'ags -V') return '1.0.0\n' as any;
+        if (text === 'type -a ags') return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
+        if (text === 'pnpm bin -g') return '/Users/test/Library/pnpm\n' as any;
+        return '' as any;
+      });
+
+      // Stale shim exists, but correct shim does not exist
+      vi.mocked(existsSync).mockImplementation((p) => {
+        const s = String(p);
+        if (s.endsWith('/bin/ags')) return true;
+        if (s.endsWith('/pnpm/ags')) return false;
+        return false;
+      });
+      vi.mocked(readFileSync).mockReturnValue('stale content');
+
+      await upgradeCommand.run({});
+
+      expect(consoleLogMock).toHaveBeenCalledWith(
+        expect.stringContaining('Correct shim not found at /Users/test/Library/pnpm/ags'),
+      );
+      expect(inquirer.prompt).not.toHaveBeenCalled();
+    });
+
+    it('should not remove the stale shim if user declines', async () => {
+      vi.spyOn(upgradeCommand, 'detectPackageManager').mockReturnValue('pnpm');
+
+      vi.mocked(execSync).mockImplementation((command: unknown) => {
+        const text = String(command);
+        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
+        if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+        if (text.startsWith('node -p')) return '2.0.0\n' as any;
+        if (text === 'ags -V') return '1.0.0\n' as any;
+        if (text === 'type -a ags') return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
+        if (text === 'pnpm bin -g') return '/Users/test/Library/pnpm\n' as any;
+        return '' as any;
+      });
+
+      vi.mocked(existsSync).mockImplementation((p) => {
+        const s = String(p);
+        return s.endsWith('/bin/ags') || s.endsWith('/pnpm/ags');
+      });
+      vi.mocked(readFileSync).mockReturnValue('stale content');
+      vi.mocked(inquirer.prompt).mockResolvedValue({ remove: false });
+
+      await upgradeCommand.run({});
+
+      expect(unlinkSync).not.toHaveBeenCalled();
+      expect(consoleLogMock).toHaveBeenCalledWith(
+        expect.stringContaining('Make sure ~/Library/pnpm comes before'),
+      );
+    });
+
+    it('should catch errors and call printShimPathHint on failure', async () => {
+      vi.spyOn(upgradeCommand, 'detectPackageManager').mockReturnValue('pnpm');
+
+      vi.mocked(execSync).mockImplementation((command: unknown) => {
+        const text = String(command);
+        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
+        if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+        if (text.startsWith('node -p')) return '2.0.0\n' as any;
+        if (text === 'ags -V') return '1.0.0\n' as any;
+        if (text === 'type -a ags') return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
+        if (text === 'pnpm bin -g') {
+          throw new Error('pnpm bin failed');
+        }
+        return '' as any;
+      });
+
+      await upgradeCommand.run({});
+
+      expect(consoleLogMock).toHaveBeenCalledWith(
+        expect.stringContaining('Make sure ~/Library/pnpm comes before'),
+      );
+    });
+  });
+
+  describe('detectAndFixStaleShim and getInstalledVersionFromPnpm edge cases', () => {
+    it('should handle failure in getInstalledVersionFromPnpm gracefully', async () => {
+      vi.spyOn(upgradeCommand, 'detectPackageManager').mockReturnValue('pnpm');
+
+      vi.mocked(execSync).mockImplementation((command: unknown) => {
+        const text = String(command);
+        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
+        if (text === 'pnpm root -g') throw new Error('pnpm root failed');
+        return '' as any;
+      });
+
+      await upgradeCommand.run({});
+
+      expect(consoleLogMock).toHaveBeenCalledWith(
+        expect.stringContaining('installed package still reports vunknown'),
+      );
+    });
+
+    it('should return null if getInstalledVersionFromPnpm command returns empty output', async () => {
+      vi.spyOn(upgradeCommand, 'detectPackageManager').mockReturnValue('pnpm');
+
+      vi.mocked(execSync).mockImplementation((command: unknown) => {
+        const text = String(command);
+        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
+        if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+        if (text.startsWith('node -p')) return ' \n' as any;
+        return '' as any;
+      });
+
+      await upgradeCommand.run({});
+
+      expect(consoleLogMock).toHaveBeenCalledWith(
+        expect.stringContaining('installed package still reports vunknown'),
+      );
+    });
+
+    it('should handle type -a ags failure gracefully', async () => {
+      vi.spyOn(upgradeCommand, 'detectPackageManager').mockReturnValue('pnpm');
+
+      vi.mocked(execSync).mockImplementation((command: unknown) => {
+        const text = String(command);
+        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
+        if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+        if (text.startsWith('node -p')) return '2.0.0\n' as any;
+        if (text === 'ags -V') return '1.0.0\n' as any;
+        if (text === 'type -a ags') throw new Error('type -a failed');
+        if (text === 'pnpm bin -g') return '/Users/test/Library/pnpm\n' as any;
+        return '' as any;
+      });
+
+      // No stale shim file — falls through to PATH hint (Case 1)
+      vi.mocked(existsSync).mockReturnValue(false);
+
+      await upgradeCommand.run({});
+
+      expect(consoleLogMock).toHaveBeenCalledWith(
+        expect.stringContaining("pnpm installed v2.0.0, but 'ags -V' still reports v1.0.0."),
+      );
+    });
+
+    it('should skip removal if stale shim content is already correct', async () => {
+      vi.spyOn(upgradeCommand, 'detectPackageManager').mockReturnValue('pnpm');
+
+      vi.mocked(execSync).mockImplementation((command: unknown) => {
+        const text = String(command);
+        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
+        if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+        if (text.startsWith('node -p')) return '2.0.0\n' as any;
+        if (text === 'ags -V') return '1.0.0\n' as any;
+        if (text === 'type -a ags') return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
+        if (text === 'pnpm bin -g') return '/Users/test/Library/pnpm\n' as any;
+        return '' as any;
+      });
+
+      vi.mocked(existsSync).mockReturnValue(true);
+      // Shim content has the correct version
+      vi.mocked(readFileSync).mockReturnValue('agent-skills-standard@2.0.0');
+
+      await upgradeCommand.run({});
+
+      expect(unlinkSync).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Additional upgrade command verification and check updates error cases', () => {
+    it('should print error and return if npm view throws an exception', async () => {
+      vi.mocked(execSync).mockImplementation((cmd: unknown) => {
+        if (String(cmd).includes('npm view')) {
+          throw new Error('npm offline');
+        }
+        return '' as any;
+      });
+
+      await upgradeCommand.run({});
+
+      expect(consoleLogMock).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to check for updates via npm.'),
+      );
+    });
+
+    it('should show stale warning when npm installed success but ags -V still reports old version', async () => {
+      vi.spyOn(upgradeCommand, 'detectPackageManager').mockReturnValue('npm');
+
+      vi.mocked(execSync).mockImplementation((command: unknown) => {
+        const text = String(command);
+        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
+        if (text.startsWith('npm install -g agent-skills-standard@2.0.0')) return '' as any;
+        if (text === 'ags -V') return '1.0.0\n' as any;
+        if (text === 'type -a ags') return 'ags is /usr/local/bin/ags\n' as any;
+        return '' as any;
+      });
+
+      await upgradeCommand.run({});
+
+      expect(consoleLogMock).toHaveBeenCalledWith(
+        expect.stringContaining("Installation complete, but 'ags -V' still reports v1.0.0."),
+      );
+      expect(consoleLogMock).toHaveBeenCalledWith(
+        expect.stringContaining('Resolved binary:\nags is /usr/local/bin/ags'),
+      );
+    });
+
+    it('should verify silently if ags -V throws during npm upgrade verification', async () => {
+      vi.spyOn(upgradeCommand, 'detectPackageManager').mockReturnValue('npm');
+
+      vi.mocked(execSync).mockImplementation((command: unknown) => {
+        const text = String(command);
+        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
+        if (text.startsWith('npm install -g agent-skills-standard@2.0.0')) return '' as any;
+        if (text === 'ags -V') throw new Error('Command failed');
+        return '' as any;
+      });
+
+      await upgradeCommand.run({});
+
+      expect(consoleLogMock).toHaveBeenCalledWith(
+        expect.stringContaining('Upgrade command finished.'),
+      );
+      expect(consoleLogMock).toHaveBeenCalledWith(
+        expect.stringContaining('Unable to verify version automatically'),
+      );
+    });
+
+    it('should verify silently if ags -V throws during pnpm upgrade verification', async () => {
+      vi.spyOn(upgradeCommand, 'detectPackageManager').mockReturnValue('pnpm');
+
+      vi.mocked(execSync).mockImplementation((command: unknown) => {
+        const text = String(command);
+        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
+        if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+        if (text.startsWith('node -p')) return '2.0.0\n' as any;
+        if (text === 'ags -V') throw new Error('Command failed');
+        return '' as any;
+      });
+
+      await upgradeCommand.run({});
+
+      expect(consoleLogMock).toHaveBeenCalledWith(
+        expect.stringContaining('Upgrade command finished.'),
+      );
+      expect(consoleLogMock).toHaveBeenCalledWith(
+        expect.stringContaining('Installed version verified via pnpm; please check the shell command'),
+      );
     });
   });
 });

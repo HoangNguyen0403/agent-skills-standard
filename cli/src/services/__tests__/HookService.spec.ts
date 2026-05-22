@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
 import { HookService, UNIVERSAL_SKILL_LOADER_JS } from '../HookService';
 
@@ -503,6 +503,34 @@ describe('HookService', () => {
       );
       const { KIRO_HOOK_MD } = await import('../HookService');
       expect(await fs.readFile(hookPath, 'utf8')).toBe(KIRO_HOOK_MD);
+    });
+
+    it('cleans up legacy Python script and handles removal error gracefully', async () => {
+      const scriptPath = path.join(
+        root,
+        '.claude/hooks/preedit-skill-loader.js',
+      );
+      const legacyPyPath = path.join(
+        root,
+        '.claude/hooks/preedit-skill-loader.py',
+      );
+      await fs.ensureDir(path.dirname(scriptPath));
+      await fs.writeFile(legacyPyPath, '# legacy python');
+
+      // First check that it cleans it up successfully
+      await service.install({ rootDir: root, agents: [Agent.Claude] });
+      expect(await fs.pathExists(legacyPyPath)).toBe(false);
+
+      // Now create it again, mock fs.remove to reject, and check that it doesn't throw
+      await fs.writeFile(legacyPyPath, '# legacy python');
+      const spy = vi.spyOn(fs, 'remove').mockRejectedValueOnce(new Error('simulated delete error') as never);
+
+      await service.install({ rootDir: root, agents: [Agent.Claude] });
+      expect(spy).toHaveBeenCalled();
+      // even if deletion failed, the installation should still succeed/not throw:
+      expect(await fs.pathExists(scriptPath)).toBe(true);
+      
+      spy.mockRestore();
     });
   });
 });

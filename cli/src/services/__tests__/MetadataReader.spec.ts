@@ -203,6 +203,20 @@ describe('MetadataReader', () => {
       const meta = await reader.parseSkill('path/to/SKILL.md');
       expect(meta).toBeNull();
     });
+
+    it('should log warning in debug mode on parse failure', async () => {
+      process.env.DEBUG = 'true';
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.mocked(fs.readFile).mockRejectedValue(
+        new Error('Read error') as never,
+      );
+      const meta = await reader.parseSkill('path/to/SKILL.md');
+      expect(meta).toBeNull();
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to parse skill at path/to/SKILL.md'),
+      );
+      warnSpy.mockRestore();
+    });
   });
 
   describe('sanitizeDescription', () => {

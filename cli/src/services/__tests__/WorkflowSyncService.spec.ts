@@ -515,4 +515,71 @@ describe('WorkflowSyncService', () => {
       });
     });
   });
+
+  describe('reconcileWorkflows additional branches (Line 78)', () => {
+    it('should log when config.workflows is true and there are non-default workflows available', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        workflows: true,
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: '.agents/workflows/custom.md' },
+        ],
+      });
+
+      const logSpy = vi.spyOn(console, 'log');
+      const result = await workflowSyncService.reconcileWorkflows(config);
+
+      expect(result).toBe(false);
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Registry has 1 workflows (including 1 non-default)'),
+      );
+    });
+  });
+
+  describe('assembleWorkflows edge cases (Lines 119, 146)', () => {
+    it('should return false inside filter loop when config.workflows is unsupported type', async () => {
+      const config = {
+        workflows: 12345,
+        registry: 'https://github.com/o/r',
+      } as any;
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [{ path: '.agents/workflows/w1.md' }],
+      });
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue([]);
+
+      const result = await workflowSyncService.assembleWorkflows(config);
+      expect(result).toEqual([]);
+      expect(mockGithubService.downloadFilesConcurrent).toHaveBeenCalledWith([]);
+    });
+
+    it('should print log when no matching workflows found in registry', async () => {
+      const config = {
+        workflows: ['non-existent'],
+        registry: 'https://github.com/o/r',
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [{ path: '.agents/workflows/w1.md' }],
+      });
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue([]);
+
+      const logSpy = vi.spyOn(console, 'log');
+      const result = await workflowSyncService.assembleWorkflows(config);
+
+      expect(result).toEqual([]);
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining('No matching workflows found in registry'),
+      );
+    });
+  });
 });

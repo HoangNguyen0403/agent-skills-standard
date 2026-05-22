@@ -7,8 +7,8 @@
       "expected_output": "Runs PR/MR Reviewer, uses GitHub MCP when configured, summarizes metadata, threads, changed files, and description issues without posting comments.",
       "assertions": [
         { "type": "contains", "value": "GitHub" },
-        { "type": "contains", "value": "thread" },
-        { "type": "contains", "value": "description" }
+        { "type": "contains", "value": "Threads" },
+        { "type": "contains", "value": "Description" }
       ]
     },
     {
@@ -17,7 +17,7 @@
       "expected_output": "Runs PR/MR Reviewer, uses GitLab MCP when configured, captures MR status, reviewers, changed files, and discussions.",
       "assertions": [
         { "type": "contains", "value": "GitLab" },
-        { "type": "contains", "value": "changed-file" }
+        { "type": "contains", "value": "Changed Files" }
       ]
     },
     {

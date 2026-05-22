@@ -431,6 +431,44 @@ describe('SyncCommand', () => {
       expect(mockMcpService.install).toHaveBeenCalled();
       expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
     });
+
+    it('should cover options.snippets branch when mcp is enabled', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: {},
+        mcp: { enabled: true, scope: 'project', prompted: true },
+      } as any);
+
+      await command.run({ snippets: true });
+
+      expect(mockMcpService.install).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ snippets: true })
+        })
+      );
+    });
+
+    it('should cover userScopePrompt yes/no branches', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: {},
+        mcp: { enabled: true, scope: 'project', prompted: true },
+      } as any);
+
+      // 1. Check options.yes = true branch
+      await command.run({ yes: true });
+      const installCallYes = mockMcpService.install.mock.calls[0][0];
+      const resultYes = await installCallYes.userScopePrompt('claude', 'some/file');
+      expect(resultYes).toBe(true);
+
+      // 2. Check options.yes = false branch
+      vi.mocked(inquirer.prompt).mockResolvedValueOnce({ ok: true });
+      await command.run({ yes: false });
+      // The second run is the second call to install
+      const installCallNo = mockMcpService.install.mock.calls[1][0];
+      const resultNo = await installCallNo.userScopePrompt('claude', 'some/file');
+      expect(resultNo).toBe(true);
+    });
   });
 
   describe('Phase 8 — Hook Integration', () => {

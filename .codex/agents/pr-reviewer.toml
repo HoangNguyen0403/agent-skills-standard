@@ -34,6 +34,9 @@ Fetch provider-neutral PR/MR context and return review-ready metadata only.
 **Status:** [status] | **Branch:** [source -> target]
 **Author:** [author] | **Reviewers:** [reviewers]
 
+### Changed Files
+- [changed-file list or count]
+
 ### Review Threads
 | # | Provider Status | Normalized Status | Dev Reply | Summary |
 | --- | --- | --- | --- | --- |

@@ -130,9 +130,13 @@ describe('RegistryService', () => {
     });
 
     it('should handle error in getFrameworkSkills', async () => {
+      process.env.DEBUG = 'true';
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       mockGithub.getRepoTree.mockRejectedValue(new Error('Fail'));
       const result = await service.getFrameworkSkills('url', 'flutter');
       expect(result).toEqual([]);
+      expect(warnSpy).toHaveBeenCalled();
+      delete process.env.DEBUG;
     });
 
     it('should handle missing tree results (line 81 branch)', async () => {

@@ -28,7 +28,6 @@
     "validate:all": "pnpm --filter ./cli validate:all && pnpm audit:skills && pnpm audit:injection",
     "test": "pnpm --filter ./cli test",
     "test:cov": "pnpm --filter ./cli test:cov",
-    "release-skill": "tsx scripts/release-skill.ts",
     "release-all-skills": "tsx scripts/release-all-skills.ts",
     "release-cli": "tsx scripts/release-cli.ts",
     "server:release": "tsx scripts/release-server.ts",

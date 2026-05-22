@@ -37,6 +37,24 @@ describe('SkillDiscoveryService', () => {
       expect(files.some((f) => f.includes('subdir'))).toBe(true);
     });
 
+    it('should ignore files that are not SKILL.md', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      vi.mocked(fs.readdir).mockImplementation(async (dir: any) => {
+        if (dir === 'skills') return ['not-skill.txt', 'SKILL.md'] as any;
+        return [];
+      });
+      vi.mocked(fs.stat).mockImplementation(
+        async (p: any) =>
+          ({
+            isDirectory: () => false,
+          }) as any,
+      );
+
+      const files = await discovery.findAllSkills('skills');
+      expect(files).toHaveLength(1);
+      expect(files[0]).toBe(path.join('skills', 'SKILL.md'));
+    });
+
     it('should return empty array if directory does not exist', async () => {
       (fs.pathExists as any).mockResolvedValue(false);
       const files = await discovery.findAllSkills('skills');
@@ -60,6 +78,15 @@ describe('SkillDiscoveryService', () => {
       const files = await discovery.findAllSkills('skills');
       expect(files).toHaveLength(1);
       expect(files[0]).toBe(path.join('skills', 'SKILL.md'));
+    });
+
+    it('should continue discovery even if stat fails', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      vi.mocked(fs.readdir).mockResolvedValue(['fail-stat'] as any);
+      vi.mocked(fs.stat).mockRejectedValue(new Error('Stat fail'));
+
+      const files = await discovery.findAllSkills('skills');
+      expect(files).toEqual([]);
     });
   });
 

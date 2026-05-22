@@ -396,4 +396,77 @@ describe('McpCommand — actionStatus mismatch detection', () => {
     expect(output()).toContain('--from must be: project | user | all');
     expect(mockMcpService.uninstall).not.toHaveBeenCalled();
   });
+
+  describe('McpCommand - Additional Branch Coverage', () => {
+    it('status with undefined config.mcp, mcp.version defined, and project/user undefined in rows', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: undefined,
+        }),
+      );
+      mockMcpService.status.mockResolvedValue([
+        { agent: Agent.Claude, project: undefined, user: undefined },
+      ]);
+
+      // Temporary override to check version print
+      const configWithVersion = makeConfig({
+        mcp: { enabled: true, scope: 'project', prompted: true, version: '1.2.3' },
+      });
+      mockConfigService.loadConfig.mockResolvedValueOnce(configWithVersion);
+
+      await command.run('status');
+      expect(output()).toContain('version : 1.2.3');
+      expect(output()).toContain('project: —   user: —');
+    });
+
+    it('scope action using positional argument options._', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: { enabled: true, scope: 'project', prompted: true },
+        }),
+      );
+      await command.run('scope', { _: ['user'] });
+      expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mcp: expect.objectContaining({ scope: 'user' }),
+        }),
+      );
+      expect(output()).toContain('MCP scope set to "user"');
+    });
+
+    it('install action with projectWrites having action updated', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(makeConfig());
+      mockMcpService.install.mockResolvedValue({
+        projectWrites: [
+          { agent: Agent.Claude, file: '.mcp.json', action: 'updated' },
+        ],
+        userWrites: [],
+        snippets: [],
+        declined: [],
+        unsupported: [],
+      });
+
+      await command.run('install');
+      expect(output()).toContain('~ updated');
+    });
+
+    it('enable and disable action with config.mcp undefined', async () => {
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: undefined,
+        }),
+      );
+
+      await command.run('enable');
+      expect(mockConfigService.saveConfig).toHaveBeenCalled();
+
+      mockConfigService.loadConfig.mockResolvedValue(
+        makeConfig({
+          mcp: undefined,
+        }),
+      );
+      await command.run('disable');
+      expect(mockConfigService.saveConfig).toHaveBeenCalled();
+    });
+  });
 });

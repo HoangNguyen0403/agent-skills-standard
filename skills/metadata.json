@@ -397,8 +397,8 @@
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 16,
-        "total_tokens": 7115,
-        "avg_tokens_per_skill": 445,
+        "total_tokens": 7128,
+        "avg_tokens_per_skill": 446,
         "largest_skill": "specialist-aspm-correlator (698 tokens)"
       }
     },

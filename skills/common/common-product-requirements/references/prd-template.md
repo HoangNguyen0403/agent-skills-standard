@@ -21,7 +21,7 @@ _Strict format: As a [User], I want to [Action], so that [Benefit]._
 
 | AC ID | Linked Req ID | User Story | Acceptance Criteria (Verifiable) | Status |
 | --- | --- | --- | --- | --- |
-| AC-001 | REQ-001 | As a... | - [ ] When X, then Y happens.<br>- [ ] Verify Z. | Draft |
+| AC-001 | REQ-001 | [user story] | - [ ] [acceptance criterion] | Draft |
 
 ## 4. Functional Behavior (FRS-lite)
 

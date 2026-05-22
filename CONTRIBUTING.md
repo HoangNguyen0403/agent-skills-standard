@@ -99,7 +99,7 @@ pnpm benchmark:report
 We use specialized scripts for releasing components independently:
 
 - `pnpm release-cli`: Bumps `cli/package.json` and updates `CHANGELOG.md`.
-- `pnpm release-skill`: Bumps specific skill versions and updates `skills/metadata.json`.
+- `pnpm release-all-skills`: Syncs and pushes git tags for newly bumped versions in `skills/metadata.json`.
 - `pnpm release-server`: Releases the backend component.
 
 Ensure you update `CHANGELOG.md` manually before running release scripts if significant features were added.
