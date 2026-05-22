@@ -25,11 +25,11 @@ Goal: Produce a PR-ready review verdict using compact specialist fanout and evid
 
 1. Load scope:
    - Ticket/story, PR URL/diff, changed files, ACs, test evidence, and loaded framework skills.
-   - Jira/ADO/Zephyr/code-review-graph MCPs when configured; otherwise use exported ticket, diff, and local files.
+   - Jira/GitHub/GitLab/ADO/Zephyr/code-review-graph MCPs when configured; otherwise use exported ticket, diff, and local files.
 
 2. Run specialist lenses:
    - `specialist-codebase-scout`: affected files, patterns, blast radius, tests.
-   - `specialist-ado-pr-reviewer`: PR metadata, active threads, template gaps.
+   - `specialist-pr-reviewer`: PR/MR metadata, active threads, template gaps.
    - `specialist-ac-verifier`: AC coverage and scope creep.
    - `specialist-architecture-guard`: architecture and design risks.
    - `specialist-security-reviewer`: OWASP, Vibe Security, data provenance.

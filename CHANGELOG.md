@@ -5,6 +5,27 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [cli-v2.4.6] - 2026-05-22
+
+**Category**: SDLC Requirements Traceability & Review Tooling
+
+### Added
+
+- **Living BRD/PRD/SRS Baseline**: Introduced a shared public-source baseline for BRD (Why), PRD (What), and SRS/FRS (How) guidance, referenced directly from SDLC workflows to improve trust and auditability.
+- **Requirements Standard Skills**: Added `common-business-requirements` (BRD / BRD-lite) and `common-software-requirements` (SRS/FRS) to formalize discovery, IDs, quality gates, and anti-patterns.
+- **Canonical Default Workflows**: Added missing canonical `.agents/workflows` sources for `deploy-release`, `traceability-audit`, `session-report`, `publish-notes`, and `retro-learn`, so generated exports are no longer the only source of truth.
+
+### Changed
+
+- **BRD-lite / PRD / SRS/FRS Workflow Clarity**: Updated `brainstorm-feature`, `plan-feature`, `design-solution`, and `implementation-readiness` to explicitly state which requirement layer they cover, how traceability is gated, and when to update living specs.
+- **PR Reviewer Consolidation**: Consolidated PR/MR metadata review into `specialist-pr-reviewer` (supports GitHub, GitLab, and Azure DevOps) and removed the separate ADO-only reviewer.
+- **SDLC Audit**: Strengthened `audit:sdlc` checks to detect `DEFAULT_WORKFLOWS` vs canonical `.agents/workflows` mismatches and fail when exports exist without canonical sources.
+
+### Versions
+
+- **CLI**: `2.4.5` → `2.4.6`
+- **Root**: `2.4.5` → `2.4.6`
+
 # [cli-v2.4.5] - 2026-05-20
 
 **Category**: Release Readiness & CLI Packaging

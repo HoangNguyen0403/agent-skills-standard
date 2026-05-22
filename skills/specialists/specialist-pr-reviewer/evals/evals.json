@@ -1,0 +1,41 @@
+{
+  "skill_name": "specialist-pr-reviewer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Summarize this GitHub PR, open review threads, and missing template fields.",
+      "expected_output": "Runs PR/MR Reviewer, uses GitHub MCP when configured, summarizes metadata, threads, changed files, and description issues without posting comments.",
+      "assertions": [
+        { "type": "contains", "value": "GitHub" },
+        { "type": "contains", "value": "thread" },
+        { "type": "contains", "value": "description" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review this GitLab merge request context before code review.",
+      "expected_output": "Runs PR/MR Reviewer, uses GitLab MCP when configured, captures MR status, reviewers, changed files, and discussions.",
+      "assertions": [
+        { "type": "contains", "value": "GitLab" },
+        { "type": "contains", "value": "changed-file" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Summarize this Azure DevOps PR and open review threads.",
+      "expected_output": "Runs PR/MR Reviewer, uses ADO MCP when configured, normalizes active/fixed/closed threads, and checks PR description issues without posting comments.",
+      "assertions": [
+        { "type": "contains", "value": "ADO" },
+        { "type": "contains", "value": "fixed" },
+        { "type": "contains", "value": "unfilled placeholders" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Post these approved review findings as comments.",
+    "Find Zephyr test cases linked to TICK-123.",
+    "Extract reproduction steps from this Jira bug.",
+    "Review architecture boundaries in this diff.",
+    "Create a missing integration test."
+  ]
+}

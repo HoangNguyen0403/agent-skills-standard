@@ -1,6 +1,6 @@
 ---
 name: design-solution
-description: "Turn an approved PRD or implementation goal into architecture, contracts, and verification decisions."
+description: "Turn an approved PRD or implementation goal into SRS/FRS technical requirements (How), architecture, contracts, and verification decisions."
 metadata:
   triggers:
     keywords:
@@ -10,20 +10,22 @@ metadata:
 # Design Solution Skill
 
 > [!IMPORTANT]
-> Turn an approved PRD or implementation goal into architecture, contracts, and verification decisions.
+> Turn an approved PRD or implementation goal into SRS/FRS technical requirements (How), architecture, contracts, and verification decisions.
 
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
 
 
-# Design Solution Workflow
+# Design Solution Workflow (SRS/FRS / How)
 
 Goal: Produce a build-ready technical design with explicit boundaries, contracts, risks, and tests.
 
 ## Steps
 
 1. Load inputs:
+   - Load baseline: `docs/requirements-standards-baseline.md` (SRS/FRS section).
+   - Load `common-software-requirements`.
    - PRD or ticket
    - Existing implementation plan if present
    - Relevant `AGENTS.md` and matched framework skills
@@ -34,14 +36,15 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
    - Choose sync, async, or hybrid communication.
    - Record data ownership and migration needs.
 3. Define contracts:
-   - API inputs/outputs
-   - Events/jobs
-   - Storage shape
-   - Error states
-   - Security and permission checks
+   - Functional flows (FRS): user/system steps, inputs/outputs, validations, and error states.
+   - API inputs/outputs and interface contracts.
+   - Events/jobs and async guarantees.
+   - Storage shape, ownership, retention, and migration rules.
+   - Security, permission, and privacy checks.
+   - NFR thresholds for performance, reliability, and scalability.
 4. Plan verification:
    - Unit, integration, E2E, visual, mobile, security, and migration checks.
-   - Save architecture notes to `docs/specs/architecture-[slug].md` when file writes are allowed.
+   - Save technical requirements to `docs/specs/srs-[slug].md` when file writes are allowed.
    - Record evidence in `docs/templates/walkthrough.md`.
    - Rollback or degradation path.
 5. Record ADR:
@@ -53,15 +56,19 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 ## Output Template
 
 ```md
-# Technical Design: [Name]
+# Technical Design (SRS/FRS): [Name]
 
 ## Context
 
 ## Architecture
 
+## Functional Flows (FRS)
+
 ## Contracts
 
 ## Data And Migration
+
+## NFR Thresholds
 
 ## Security And Privacy
 

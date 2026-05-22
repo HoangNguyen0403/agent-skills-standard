@@ -44,8 +44,10 @@
     }
   ],
   "should_not_trigger": [
+    "Create a BRD for reducing claims processing cost",
+    "Write an SRS for payment retry state transitions",
+    "Design architecture for event-driven order sync",
     "Write a Go function to parse JSON",
-    "Configure webpack for production",
     "Add unit tests for the auth service"
   ]
 }

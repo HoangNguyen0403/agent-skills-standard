@@ -11,10 +11,10 @@ description: Run an AI-assisted PR code review using multi-layer lenses with con
 ## Step 1 — Scope & Skills
 
 1. Check scope: `git diff origin/<base>...HEAD --name-only`.
-2. Sync requirements: if a ticket key or PR URL exists, fetch the intent.
+2. Sync requirements: if a ticket key or PR/MR URL exists, use installed Jira/GitHub/GitLab/ADO MCP first; otherwise use exported ticket, patch, or local diff.
 3. Load global skills: `common-code-review`, `common-security-audit`, `common-owasp`, `common-llm-security`.
 4. Load framework skills: P0/P1 rules from `AGENTS.md`.
-5. If ticket/PR context exists, prefer `review-ticket` for specialist fanout.
+5. If ticket/PR/MR context exists, prefer `review-ticket` for specialist fanout.
 
 ---
 

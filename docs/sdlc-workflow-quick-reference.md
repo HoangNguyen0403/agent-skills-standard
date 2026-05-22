@@ -2,17 +2,28 @@
 
 Agent Skills Standard syncs workflows into each agent's native surface. Run `ags sync`, then invoke the synced workflow from Claude, Codex, Cursor, Gemini, Copilot, Kiro, or another configured runtime.
 
-| Stage      | Workflow                   | Use When                               | Primary Output           |
-| ---------- | -------------------------- | -------------------------------------- | ------------------------ |
-| Route      | `sdlc`                     | Unsure what to run next                | next workflow            |
-| Brainstorm | `brainstorm-feature`       | Idea is vague                          | `product-brief.md`       |
-| Plan       | `plan-feature`             | Feature needs PRD and task slices      | `prd-[slug].md`          |
-| Design     | `design-solution`          | Contracts or architecture are unclear  | `architecture-[slug].md` |
-| Readiness  | `implementation-readiness` | PRD/design/AC/test plan needs go/no-go | readiness verdict        |
-| Build      | `implement-feature`        | Approved feature needs code            | `task.md` and handoff    |
-| Fix        | `dev-fix`                  | Bug ticket needs remediation           | fix plan and evidence    |
-| Review     | `review-ticket`            | PR or ticket needs multi-lens review   | review verdict           |
-| Verify     | `verify-work`              | Work is code-complete but unproven     | `walkthrough.md`         |
+| Requirement Layer | Core Question | Workflow | Use When | Primary Output |
+| --- | --- | --- | --- | --- |
+| Route | Which workflow now? | `sdlc` | Unsure what to run next | next workflow |
+| BRD-lite | Why are we doing this? | `brainstorm-feature` | Idea is vague or business case unclear | `docs/specs/product-brief-[slug].md` |
+| PRD | What are we building? | `plan-feature` | Feature needs scope, requirements, and AC IDs | `docs/specs/prd-[slug].md` |
+| SRS/FRS | How will it work technically? | `design-solution` | Contracts, behavior, or architecture are unclear | `docs/specs/srs-[slug].md` |
+| Readiness | Are we ready to build? | `implementation-readiness` | BRD/PRD/SRS or test plan needs go/no-go | readiness verdict |
+| Build | Can we implement safely? | `implement-feature` | Approved feature needs code | `task.md` and handoff |
+| Verify | Did we prove it? | `verify-work` | Work is code-complete but unproven | `walkthrough.md` |
+| Trace | Is every requirement covered? | `traceability-audit` | Pre-release or handoff needs evidence mapping | traceability report |
+| Release | Is deployment safe? | `deploy-release` | Verification passed and deployment is planned | deployment report |
+| Publish | What do users need to know? | `publish-notes` | Need release communication | release notes |
+| Learn | How do we prevent repeat issues? | `retro-learn` | Need standards/process feedback loop | retro report |
+| Session | What happened in this delivery? | `session-report` | Need concise run summary and follow-ups | session report |
+| Fix | How do we remediate a bug? | `dev-fix` | Bug ticket needs remediation | fix plan and evidence |
+| Review | What risks are in this change? | `review-ticket` | PR or ticket needs multi-lens review | review verdict |
+| Review (PR) | Is this PR safe to merge? | `code-review` | PR diff needs focused correctness/security review | review findings |
+| Review (Repo) | What structural risks exist in the codebase? | `codebase-review` | Need broader architecture/quality scan | prioritized findings |
+| Security | What exploitable risk exists now? | `security-test` | Need SAST/SCA/secrets or branch security checks | security report |
+| Security (Adversarial) | Can this be exploited in practice? | `pentest` | Need PTES-aligned exploit validation | pentest report |
+| Benchmark | Is this skill implementation quality improving? | `skill-benchmark` | Need scored quality comparison vs legacy constraints | benchmark report |
+| Bug Verify | Is the fixed bug gone in real flow? | `verify-bug` | Post-fix UAT validation against reproduce steps | bug verification report |
 
 ## Native Runtime Surfaces
 
@@ -28,9 +39,21 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 
 Do not run daily SDLC work through `ags`. Use `ags` to initialize, sync, validate, and update standards; run the synced workflows inside your agent.
 
+## Naming Rule
+
+When users ask for BRD, PRD, or SRS:
+
+- BRD-lite -> run `brainstorm-feature`
+- PRD -> run `plan-feature`
+- SRS/FRS -> run `design-solution`
+
+## Trust Baseline
+
+Use `docs/requirements-standards-baseline.md` as the shared source baseline for BRD/PRD/SRS phases.
+
 ## External MCPs
 
-Jira, Azure DevOps, Zephyr, and similar MCPs are optional integration points. Use them when already connected to fetch tickets, update traceability, or publish test evidence; otherwise keep the same workflow running from local specs, task files, and walkthrough evidence.
+Jira, GitHub, GitLab, Azure DevOps, Zephyr, and similar MCPs are optional integration points. When installed and authenticated, use MCPs before exported artifacts to fetch tickets, PRs/MRs, update traceability, or publish test evidence; otherwise keep the same workflow running from local specs, task files, and walkthrough evidence.
 
 ## Role Quick Reference
 
@@ -51,7 +74,7 @@ Jira, Azure DevOps, Zephyr, and similar MCPs are optional integration points. Us
 | Security review                      | `specialist-security-reviewer`          |
 | Test gaps                            | `specialist-test-gap-finder`            |
 | AC coverage                          | `specialist-ac-verifier`                |
-| Azure DevOps PR metadata and threads | `specialist-ado-pr-reviewer`            |
+| GitHub/GitLab/ADO PR or MR metadata  | `specialist-pr-reviewer`                |
 | Zephyr TC discovery                  | `specialist-zephyr-scanner`             |
 | Confluence context                   | `specialist-confluence-searcher`        |
 | Approved PR comment posting          | `specialist-pr-commenter-batch`         |

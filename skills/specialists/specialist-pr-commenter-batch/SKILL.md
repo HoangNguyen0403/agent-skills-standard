@@ -8,6 +8,8 @@ metadata:
       - post review findings
       - resolve PR threads
       - ADO comments
+      - GitHub comments
+      - GitLab comments
 ---
 # Specialist: PR Commenter Batch
 

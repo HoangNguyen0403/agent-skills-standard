@@ -1,50 +1,59 @@
-# Product Requirements Document: [Feature Name]
+# Product Requirements Document (PRD): [Feature Name]
 
-**Status**: Draft | **Owner**: [User] | **Date**: [YYYY-MM-DD]
+**Status**: Draft | **Owner**: [User] | **Last Updated**: [YYYY-MM-DD]
 
-## 1. Executive Summary
+## 1. Purpose And Scope
 
-_Briefly explain the problem and the proposed solution. Focus on the "Why"._
+- **Business Objective Ref**: [BRD-OBJ-001]
+- **Problem Statement**: [What user/business pain is solved]
+- **In Scope**: [Main outcomes]
+- **Out of Scope**: [Explicit exclusions]
 
-## 2. User Stories & Acceptance Criteria
+## 2. Requirement Registry
+
+| Req ID | Requirement | Persona | Priority | Owner | Status | BRD Objective Ref |
+| --- | --- | --- | --- | --- | --- | --- |
+| REQ-001 | [What must exist] | [role] | P0/P1/P2 | [owner] | Draft/Approved/Done | BRD-OBJ-001 |
+
+## 3. User Stories And ACs
 
 _Strict format: As a [User], I want to [Action], so that [Benefit]._
 
-| ID  | User Story | Acceptance Criteria (Must be Verifiable)         | Priority |
-| --- | ---------- | ------------------------------------------------ | -------- |
-| 1   | As a...    | - [ ] When X, then Y happens.<br>- [ ] Verify Z. | P0       |
-| 2   |            |                                                  |          |
+| AC ID | Linked Req ID | User Story | Acceptance Criteria (Verifiable) | Status |
+| --- | --- | --- | --- | --- |
+| AC-001 | REQ-001 | As a... | - [ ] When X, then Y happens.<br>- [ ] Verify Z. | Draft |
 
-## 3. Functional Requirements
+## 4. Functional Behavior (FRS-lite)
 
-_Detailed behavior specifications._
+- **Primary Flows**: [Step-by-step happy path]
+- **Alternate/Error Flows**: [Validation error, permission denied, timeout, empty state]
+- **Input/Output Boundaries**: [Key data in/out]
 
-- [ ] **Data Flow**: Input -> Process -> Output
-- [ ] **Error States**: How the system behaves when it fails (e.g., Network Error, Validation Error).
-- [ ] **Edge Cases**: Empty states, max limits, concurrent access.
+## 5. Non-Functional Product Constraints
 
-## 4. Technical Guardrails & Constraints
+- **Performance**: [e.g., P95 API < 300ms]
+- **Security/Privacy**: [e.g., AuthZ required, PII handling]
+- **Accessibility/Usability**: [e.g., WCAG target, keyboard support]
+- **Platform Support**: [e.g., Web + Mobile]
 
-_Non-negotiable technical boundaries._
+## 6. Dependencies And Rollout
 
-- **Tech Stack**: [e.g., Flutter, NestJS, Postgres]
-- **Performance**: [e.g., < 100ms API response]
-- **Security**: [e.g., AuthZ required, Data Encryption]
-- **Device Support**: [e.g., iOS 15+, Android 12+, Web Chrome/Safari]
+- **Dependencies**: [Teams/systems/vendors]
+- **Release Strategy**: [Feature flag, phased rollout, market scope]
+- **Success Metrics**: [Business + product KPIs]
 
-## 5. UI/UX Guidelines
+## 7. Traceability Links
 
-- **Layout**: [Describe or link to wireframe]
-- **Components**: [List reusable components to use]
-- **Interactions**: [Hover states, Transitions]
+- **SRS/FRS Doc**: `docs/specs/srs-[slug].md` (when needed)
+- **Implementation Plan**: `docs/specs/implementation-plan-[slug].md`
+- **Verification Evidence**: `docs/templates/walkthrough.md`
 
-## 6. Out of Scope
+## 8. Change Log
 
-_Explicitly state what will NOT be built in this version to prevent scope creep._
+| Date | Author | Change |
+| --- | --- | --- |
+| [YYYY-MM-DD] | [name] | [what changed] |
 
-- Item 1
-- Item 2
+## 9. Open Questions
 
-## 7. Open Questions
-
-- [ ] Question 1?
+- [ ] [Question]

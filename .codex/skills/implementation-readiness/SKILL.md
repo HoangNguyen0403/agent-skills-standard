@@ -1,6 +1,6 @@
 ---
 name: implementation-readiness
-description: "Verify PRD, ACs, architecture, UX, test strategy, and integration prerequisites before implementation starts."
+description: "Verify BRD-lite, PRD, SRS/FRS, UX, and test prerequisites before implementation starts."
 metadata:
   triggers:
     keywords:
@@ -10,7 +10,7 @@ metadata:
 # Implementation Readiness Skill
 
 > [!IMPORTANT]
-> Verify PRD, ACs, architecture, UX, test strategy, and integration prerequisites before implementation starts.
+> Verify BRD-lite, PRD, SRS/FRS, UX, and test prerequisites before implementation starts.
 
 ## Instructions
 
@@ -24,13 +24,15 @@ Goal: Decide whether a planned change is ready for implementation or must return
 ## Steps
 
 1. Load artifacts:
-   - Product brief, PRD/story, architecture notes, UX/design links, implementation plan, test plan.
-   - Jira/ADO/Figma/Confluence MCP context when configured; otherwise use exported docs or local files.
+   - BRD-lite brief, PRD/story, SRS/FRS notes, UX/design links, implementation plan, test plan.
+   - Jira/GitHub/GitLab/ADO/Figma/Confluence MCP context when configured; otherwise use exported docs or local files.
 
 2. Check readiness:
-   - Business goal and user impact clear.
+   - BRD-lite has business goal, stakeholder, AS-IS to TO-BE, and measurable success metric.
    - ACs atomic, testable, scoped by platform/market/role where relevant.
-   - Architecture/contracts identify touched modules, data/API changes, migrations, and rollout risks.
+   - PRD has stable requirement IDs, AC IDs, owner, priority, status, and last-updated note.
+   - SRS/FRS identifies touched modules, API/data/interface changes, migrations, permissions, failure modes, and NFR thresholds.
+   - Requirement trace is complete: BRD objective -> PRD requirement -> SRS/FRS contract -> test lane.
    - UX/design states cover loading, empty, error, permission, and responsive/mobile cases when UI changes.
    - Test strategy maps ACs to unit, integration, E2E/mobile, security, and Zephyr/manual coverage.
    - Tool prerequisites known: credentials, environments, feature flags, test data, MCP availability.

@@ -6,7 +6,6 @@
 | Skill | Match when user mentions |
 | ----- | ----------------------- |
 | specialist-ac-verifier | AC verification, acceptance criteria, scope creep, requirement coverage |
-| specialist-ado-pr-reviewer | ADO PR, Azure DevOps PR, PR threads, PR template |
 | specialist-architecture-guard | architecture review, layer violation, design guard, boundary check |
 | specialist-aspm-correlator | aspm correlator, security posture, SAST DAST correlation, vulnerability triage, CI/CD security |
 | specialist-codebase-scout | codebase scout, blast radius, structural context, related files |
@@ -15,7 +14,8 @@
 | specialist-jira-analyst | jira analysis, analyze ticket, extract reproduce steps |
 | specialist-logic-hacker | logic hacker, business logic flaw, BOLA, IDOR, race condition, auth bypass |
 | specialist-mobile-reverser | mobile reverser, MASTG, frida, reverse engineering, apktool, jadx |
-| specialist-pr-commenter-batch | batch PR comments, post review findings, resolve PR threads, ADO comments |
+| specialist-pr-commenter-batch | batch PR comments, post review findings, resolve PR threads, ADO comments, GitHub comments, GitLab comments |
+| specialist-pr-reviewer | PR review metadata, pull request summary, merge request summary, GitHub PR, GitLab MR, Azure DevOps PR |
 | specialist-security-reviewer | security review, vulnerability audit, OWASP check, security findings |
 | specialist-tc-creator | create test case, Zephyr TC creation, test management, link TC to Jira |
 | **specialist-tdd-implementer** | tdd implementation, red green refactor, implement ac |

@@ -24,7 +24,7 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
 ## Steps
 
 1. Load scope:
-   - PRD, ticket, implementation plan, or release note.
+   - BRD-lite, PRD, SRS/FRS, ticket, implementation plan, or release note.
    - Acceptance criteria and non-goals.
    - Changed files and matched skills.
 2. Select verification lanes:
@@ -37,7 +37,7 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
 3. Execute:
    - Run the smallest reliable automated checks first.
    - Use Playwright/Appium only when user-facing behavior changed.
-   - Use Zephyr/Jira/ADO MCPs only when configured; otherwise record local evidence.
+   - Use Zephyr/Jira/GitHub/GitLab/ADO MCPs only when configured; otherwise record local evidence.
    - If external MCP is unavailable, ask for exported ticket/PR/TC data or mark that lane BLOCKED.
    - Capture logs, screenshots, traces, or command output summaries.
    - Re-run failed checks after fixes.
@@ -46,6 +46,8 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
    - FAIL: original bug or missed requirement still reproducible.
    - BLOCKED: environment, credentials, or approval prevents proof.
 5. Record evidence:
+   - If verification reveals behavior drift, require PRD/SRS updates before PASS.
+   - Update traceability notes from BRD objective -> PRD requirement -> SRS/FRS contract -> verification evidence.
    - Update project-local `docs/templates/walkthrough.md`.
    - Route next step back to implementation or `dev-fix`.
 
@@ -79,6 +81,8 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
 ## Checks Run
 
 ## Acceptance Criteria
+
+## Requirement Trace Status
 
 ## Risks
 

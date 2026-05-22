@@ -7,6 +7,8 @@ Agent Skills Standard workflows must work with or without external MCPs.
 | Surface | Used For | Fallback |
 | --- | --- | --- |
 | Jira | stories, bugs, ACs, comments, status | exported ticket text |
+| GitHub | issues, PR metadata, review threads, changed files, comments | PR/issue URL, patch, copied thread summary |
+| GitLab | issues, MR metadata, discussions, changed files, comments | MR/issue URL, patch, copied discussion summary |
 | Azure DevOps | PR metadata, threads, changed files | PR URL, patch, copied thread summary |
 | Zephyr | TC discovery, coverage, TC creation | exported TC table |
 | Confluence | specs, decisions, test data | linked docs or pasted excerpts |
@@ -33,9 +35,10 @@ Specialists keep raw tool responses out of parent context. They return compact s
 Teams should customize:
 
 - Project keys and issue fields.
+- Repository provider defaults (GitHub, GitLab, Azure DevOps).
 - Test-management schemas and folders.
 - Release environments and credential sources.
 - PR comment policy and approval gates.
 - Device-cloud providers and supported markets.
 
-Do this in local overrides, not by hardcoding team-specific values into the shared registry.
+Do this in local overrides or MCP runtime config, not by hardcoding team-specific values into the shared registry.

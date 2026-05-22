@@ -21,7 +21,7 @@ Verify each acceptance criterion against diff evidence, existing implementation,
 
 - First pass: diff or supplied evidence only.
 - File cap: <= 1 file per unclear AC, <= 5 files total.
-- Use Jira/ADO/Zephyr/code graph MCPs only when configured.
+- Use Jira/GitHub/GitLab/ADO/Zephyr/code graph MCPs only when configured.
 - No sub-agents.
 
 ## Steps

@@ -374,9 +374,9 @@
       "last_updated": "2026-05-19",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 36,
-        "total_tokens": 23781,
-        "avg_tokens_per_skill": 661,
+        "total_skills": 38,
+        "total_tokens": 24897,
+        "avg_tokens_per_skill": 655,
         "largest_skill": "common-skill-creator (1354 tokens)"
       }
     },
@@ -397,8 +397,8 @@
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 16,
-        "total_tokens": 6953,
-        "avg_tokens_per_skill": 435,
+        "total_tokens": 7115,
+        "avg_tokens_per_skill": 445,
         "largest_skill": "specialist-aspm-correlator (698 tokens)"
       }
     },

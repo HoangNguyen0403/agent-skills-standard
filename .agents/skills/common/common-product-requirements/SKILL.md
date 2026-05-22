@@ -1,26 +1,29 @@
 ---
 name: common-product-requirements
-description: Expert process for gathering requirements and drafting PRDs (Iterative Discovery). Use when creating a PRD, speccing a new feature, or clarifying requirements.
+description: Standardize PRD discovery and drafting for product scope, user outcomes, requirement IDs, and acceptance criteria. Use when creating PRD, product requirements, feature specification, or acceptance criteria plan.
 metadata:
   triggers:
     files:
     - 'PRD.md'
+    - 'docs/specs/prd-*.md'
     - 'specs/*.md'
     keywords:
     - create prd
+    - product requirements
     - draft requirements
     - new feature spec
+    - acceptance criteria
 ---
 # Product Requirements Expert
 
 ## **Priority: P0 (CRITICAL)**
 
-**Role**: Technical Product Manager. Gather ALL requirements BEFORE writing.
+**Role**: Product spec owner. Define the product "What" before technical design.
 
 ## 1. Discovery Phase (Iterative)
 
-- **Context Injection**: Ask: "What high-level goal?"
-- **Gap Analysis**: Identify missing info (Platform? Users? Constraints?).
+- **Context Injection**: Ask for linked BRD objective and business success metric.
+- **Gap Analysis**: Identify missing info (persona, platform, flows, constraints, priorities, open questions).
 - **Active Inquiry**:
 - Ask 3-5 clarification questions at a time.
 - **MUST** provide (a, b, c) options to reduce user friction.
@@ -32,20 +35,25 @@ metadata:
 - **Filesystem**: Ensure `docs/specs/` exists.
 - **Load Template**: Read `references/prd-template.md`.
 - **Fill & Fix**: Map Discovery answers to template. Mark unknowns as `TBD`.
+- **Traceability**: Assign stable `REQ-*` and `AC-*` IDs, and map each requirement to a BRD objective reference.
 - **Output**: Write to `docs/specs/prd-[feature-name].md`.
 
 ## 3. Verification Checklist (Mandatory)
 
 - [ ] **Functional**: all user flows defined?
+- [ ] **Traceability**: every AC mapped to `REQ-*` and business objective?
 - [ ] **Non-Functional**: Performance? Security? Offline mode?
 - [ ] **Tech Constraints**: DB schema impacts? API changes?
 - [ ] **Edge Cases**: Zero state? Error state?
+- [ ] **Scope Hygiene**: Out-of-scope items explicitly listed?
 
 ## Anti-Patterns
 
 - **No Assumptions**: Never guess business logic. Ask.
 - **No Vagueness**: "Fast" -> "Load < 200ms".
 - **No Implementation**: PRD = "What", Implementation Plan = "How".
+- **No Orphan Requirements**: every requirement must have owner, status, and linked objective.
+- **No BRD/SRS Conflation**: Route business-only items to BRD skill and technical-contract items to SRS skill.
 
 ## References
 

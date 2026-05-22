@@ -1,25 +1,29 @@
 ---
-description: Plan a feature from product brief or clear intent into PRD, decisions, implementation plan, and task slices.
+description: Plan a feature from BRD-lite brief or clear intent into PRD (What), decisions, implementation plan, and task slices.
 ---
 
-# Feature Planning Workflow
+# Feature Planning Workflow (PRD / What)
 
 Goal: Produce a decision-complete PRD and implementation plan before code starts.
 
 ## Steps
 
 1. Load context:
-   - Product brief, ticket, or user request.
-   - Jira/ADO MCP ticket data when configured; otherwise local ticket text.
+   - Load baseline: `docs/requirements-standards-baseline.md` (PRD section).
+   - BRD-lite brief, ticket, or user request.
+   - Jira/GitHub/GitLab/ADO MCP ticket data when configured; otherwise local ticket text.
    - Existing specs, design references, and repo patterns.
    - `common-product-requirements`, `quality-engineering-business-analysis`, and matched framework skills.
 2. Interview:
    - Ask only for business logic, scope, constraints, and acceptance criteria that cannot be inferred.
    - Confirm target users, platforms, data, security, performance, rollout, and non-goals.
+   - Confirm each requirement has owner, priority, and status.
    - Stop when requirements are actionable.
 3. Draft PRD:
    - Save to `docs/specs/prd-[slug].md` when file writes are allowed.
    - Keep "what" separate from "how".
+   - Add stable requirement IDs and AC IDs.
+   - Link each requirement back to BRD-lite business objective.
    - Mark unresolved items as blockers, not assumptions.
 4. Create implementation plan:
    - Define components, contracts, data changes, migrations, risks, and verification.
@@ -37,6 +41,8 @@ Goal: Produce a decision-complete PRD and implementation plan before code starts
 # Feature Plan: [Name]
 
 ## PRD
+
+## Requirement Trace
 
 ## Decisions
 

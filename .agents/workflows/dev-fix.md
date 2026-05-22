@@ -1,14 +1,14 @@
 ---
-description: Unified developer workflow for fixing bugs. Analyzes JIRA, cross-checks context, proposes a solution via implementation_plan.md, implements the fix, verifies locally with QE skills, and delivers a PR.
+description: Unified developer workflow for fixing bugs. Analyzes issue-tracker context, cross-checks docs/code, proposes a solution, implements the fix, verifies locally, and delivers a PR/MR.
 ---
 
 # 🛠 Dev-Fix — Professional Bug Remediation
 
-This workflow manages the entire lifecycle of a bug fix, from initial JIRA analysis to PR delivery. It enforces a strict **Propose -> Approve -> Verify** cycle using native Antigravity artifacts.
+This workflow manages the bug-fix lifecycle from issue analysis to PR/MR delivery. It enforces a strict **Propose -> Approve -> Verify** cycle using native artifacts.
 
 ## Input
 
-`/dev-fix <jira-url-or-key>`
+`/dev-fix <issue-url-or-key>`
 
 ## Workflow
 
@@ -20,10 +20,10 @@ This workflow manages the entire lifecycle of a bug fix, from initial JIRA analy
 ### Step 1: Research & Discovery (Implementation Plan Phase)
 
 > [!TIP]
-> **Sub-Agent Delegation**: If your platform supports sub-agents (e.g., Claude, OpenCode, Gemini, Kiro), immediately delegate steps 1 and 2 below to your JIRA Analyst sub-agent (e.g., `@specialist-jira-analyst`). If sub-agents are NOT supported (e.g., Antigravity, Windsurf), you must execute these steps yourself.
+> **Sub-Agent Delegation**: If your platform supports sub-agents, delegate ticket extraction to the matching issue specialist and context lookup to `@specialist-confluence-searcher` or `@specialist-codebase-scout`. If sub-agents are NOT supported, execute these steps yourself.
 
-1.  **Analyze Ticket**: Read the JIRA bug. Extract `Reproduce steps`, `Expected Result`, and `Actual Result`.
-2.  **Cross-Check Context**: Search Confluence for related logic/specs. Locate the relevant code in the repository.
+1.  **Analyze Ticket**: Use installed Jira/GitHub/GitLab/ADO MCP first; otherwise use exported ticket text. Extract `Reproduce steps`, `Expected Result`, and `Actual Result`.
+2.  **Cross-Check Context**: Use Confluence/docs MCP when configured; otherwise use exported docs and local code search. Locate relevant code.
 3.  **Create Implementation Plan**: 
     - Use the **Implementation Plan Template** below.
     - Initialize project-local `docs/specs/implementation-plan-[slug].md`.
@@ -46,18 +46,18 @@ This workflow manages the entire lifecycle of a bug fix, from initial JIRA analy
 
 ### Step 3: Local Verification (Enterprise Standard)
 
-Do NOT rely on "it builds" — verify the fix against the JIRA reproduction steps.
+Do NOT rely on "it builds" — verify the fix against the issue reproduction steps.
 
 1.  **Launch Dev Server**: Run the local dev environment for the service.
 2.  **Execute QE Audit**:
     - **Web**: Load `quality-engineering-playwright-cli`. Run the reproduction steps. Capture "After" snapshots.
     - **Mobile**: Load `quality-engineering-appium-mcp`. Run the reproduction steps on an emulator.
-3.  **Final Verdict**: Compare results against the `Expected Result` in JIRA. If any sub-3px regressions exist, fix them now.
+3.  **Final Verdict**: Compare results against the issue `Expected Result`. If any sub-3px regressions exist, fix them now.
 
 ### Step 4: Deliver PR
 
 1.  **Commit**: Generate a commit message using `caveman-commit`.
-2.  **PR Details**: Draft the PR description in JIRA wiki markup (for easy copy-pasting to JIRA later).
+2.  **PR/MR Details**: Draft provider-appropriate PR/MR notes and link the source issue.
 3.  **Walkthrough**: 
     - Use the **Walkthrough Template** below.
     - Create project-local `docs/templates/walkthrough.md` with evidence of the local verification.

@@ -6,7 +6,7 @@
 
 **The portable SDLC standards layer for AI coding agents. Sync once, then work in your own runtime.**
 
-**Current release:** `v2.4.5` — packaged `ags -V` now detects stale pnpm shims and guides repair.
+**Current release:** `v2.4.6` — living BRD/PRD/SRS baseline + PR/MR metadata reviewer consolidation.
 
 259 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
 

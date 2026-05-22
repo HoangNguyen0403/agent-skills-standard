@@ -10,15 +10,16 @@ Goal: Select the next native workflow without loading every workflow body.
 
 1. Inspect state:
    - User request
-   - Existing ticket, PRD, implementation plan, task list, walkthrough, release notes, and retro
+   - Baseline reference: `docs/requirements-standards-baseline.md`
+   - Existing ticket, BRD-lite brief, PRD, SRS/FRS design, implementation plan, task list, walkthrough, release notes, and retro
    - Jira, ADO, Zephyr, or other MCP context when already configured
    - Changed files and current test status
 
 2. Choose next workflow:
-   - Unclear idea -> `brainstorm-feature`
-   - Clear feature but no PRD -> `plan-feature`
-   - PRD exists but technical decisions missing -> `design-solution`
-   - PRD/design exists but readiness unclear -> `implementation-readiness`
+   - Unclear idea or missing business case (BRD-lite / Why) -> `brainstorm-feature`
+   - Business direction clear but product scope unclear (PRD / What) -> `plan-feature`
+   - PRD exists but technical behavior/contracts unclear (SRS/FRS / How) -> `design-solution`
+   - BRD-lite, PRD, or SRS/FRS exists but readiness unclear -> `implementation-readiness`
    - Approved plan needs code -> `implement-feature`
    - Bug ticket needs fix -> `dev-fix`
    - PR or ticket needs multi-lens review -> `review-ticket`
@@ -36,6 +37,8 @@ Goal: Select the next native workflow without loading every workflow body.
 # SDLC Route
 
 ## Recommended Workflow
+
+## Requirement Layer
 
 ## Required Input
 

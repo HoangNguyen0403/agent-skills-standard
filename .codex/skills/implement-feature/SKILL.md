@@ -25,7 +25,7 @@ Goal: Build an approved feature through TDD slices and route completed work to v
 
 1. Load plan:
    - PRD or ticket
-   - Technical design if present
+   - SRS/FRS technical design if present
    - Implementation plan
    - Matched framework and common skills
 2. Prepare workspace:
@@ -41,9 +41,11 @@ Goal: Build an approved feature through TDD slices and route completed work to v
 4. Maintain context hygiene:
    - Start fresh context for large independent slices when possible.
    - Preserve decisions in `docs/templates/task.md` or `docs/specs/implementation-plan-[slug].md`.
+   - If behavior or scope changes, update `docs/specs/prd-[slug].md` and `docs/specs/srs-[slug].md` before closing the slice.
    - Avoid carrying raw logs; summarize failures and fixes.
 5. Prepare handoff:
    - Run local automated checks.
+   - Update requirement trace notes for changed AC coverage.
    - Capture evidence in `docs/templates/walkthrough.md`.
    - Route next step to `verify-work`.
 
@@ -59,6 +61,8 @@ Goal: Build an approved feature through TDD slices and route completed work to v
 ## Tests Run
 
 ## Changed Contracts
+
+## Requirement Trace Updates
 
 ## Evidence
 

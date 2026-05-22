@@ -79,6 +79,13 @@ Workflow export still follows the agent integration taxonomy:
 - Copilot: prompt files
 - Cursor/Trae/Codex: skill folders with `SKILL.md`
 
+Requirement layering is explicit in the SDLC workflow names and outputs:
+
+- `brainstorm-feature` = BRD-lite ("Why")
+- `plan-feature` = PRD ("What")
+- `design-solution` = SRS/FRS ("How")
+- `implementation-readiness` and later phases enforce living traceability updates across BRD-lite -> PRD -> SRS/FRS -> verification evidence
+
 ## 4. Hook-Based Transparency
 
 Inspired by **Rust Token Killer (RTK)**, we aim for a zero-trust, low-overhead context model. This means:

@@ -1,0 +1,31 @@
+{
+  "skill_name": "common-business-requirements",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a BRD for reducing ticket resolution cost in customer support.",
+      "expected_output": "Ask for objective baseline and target, stakeholder map, AS-IS to TO-BE, scope boundary, and value hypothesis before drafting BRD-lite.",
+      "assertions": [
+        { "type": "contains", "value": "AS-IS" },
+        { "type": "contains", "value": "TO-BE" },
+        { "type": "contains", "value": "objective" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Draft business requirements for onboarding automation and include approval owners.",
+      "expected_output": "Use BRD-lite flow with measurable objective, stakeholders, risks, and owner/accountability.",
+      "assertions": [
+        { "type": "contains", "value": "stakeholder" },
+        { "type": "contains", "value": "risk" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Create a PRD for a notification center.",
+    "Write an SRS for payment gateway retry logic.",
+    "Design clean architecture for NestJS modules.",
+    "Add unit tests for auth middleware.",
+    "Review this pull request for vulnerabilities."
+  ]
+}

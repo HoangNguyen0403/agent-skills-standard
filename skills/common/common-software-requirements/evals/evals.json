@@ -1,0 +1,31 @@
+{
+  "skill_name": "common-software-requirements",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write an SRS for checkout retry and idempotency behavior.",
+      "expected_output": "Define functional requirement IDs, interface contracts, failure modes, and NFR thresholds with verification mapping.",
+      "assertions": [
+        { "type": "contains", "value": "SRS" },
+        { "type": "contains", "value": "NFR" },
+        { "type": "contains", "value": "verification" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create technical requirements spec for API timeout fallback and event retries.",
+      "expected_output": "Capture trigger/input/output/error behavior, interfaces, thresholds, and requirement trace links.",
+      "assertions": [
+        { "type": "contains", "value": "interface" },
+        { "type": "contains", "value": "error" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Create a BRD for expansion into a new market.",
+    "Draft a PRD for user profile page redesign.",
+    "Write release notes for version 2.5.0.",
+    "Review architecture consistency in this PR.",
+    "Fix flaky tests in payment service."
+  ]
+}

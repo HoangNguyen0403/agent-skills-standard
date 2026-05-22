@@ -1,14 +1,18 @@
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
+import { DEFAULT_WORKFLOWS } from '../cli/src/constants';
 
 const ROOT = path.join(__dirname, '..');
 const WORKFLOWS_DIR = path.join(ROOT, '.agents', 'workflows');
 const CODEX_SKILLS_DIR = path.join(ROOT, '.codex', 'skills');
 const CODEX_AGENTS_DIR = path.join(ROOT, '.codex', 'agents');
 const PROMPTS_DIR = path.join(ROOT, '.github', 'prompts');
+const QUICK_REFERENCE_FILE = path.join(ROOT, 'docs', 'sdlc-workflow-quick-reference.md');
 
-const REQUIRED_WORKFLOWS = [
+const REQUIRED_WORKFLOWS = [...new Set(DEFAULT_WORKFLOWS)];
+const REQUIRED_REQUIREMENT_TERMS = ['BRD-lite', 'PRD', 'SRS/FRS'];
+const STRICT_TEMPLATE_WORKFLOWS = new Set([
   'sdlc',
   'brainstorm-feature',
   'plan-feature',
@@ -17,17 +21,22 @@ const REQUIRED_WORKFLOWS = [
   'implement-feature',
   'review-ticket',
   'verify-work',
-];
+  'deploy-release',
+  'traceability-audit',
+  'session-report',
+  'publish-notes',
+  'retro-learn',
+]);
 
 const REQUIRED_SPECIALISTS = [
   'specialist-ac-verifier',
-  'specialist-ado-pr-reviewer',
   'specialist-architecture-guard',
   'specialist-codebase-scout',
   'specialist-confluence-searcher',
   'specialist-integration-test-generator',
   'specialist-jira-analyst',
   'specialist-pr-commenter-batch',
+  'specialist-pr-reviewer',
   'specialist-security-reviewer',
   'specialist-tc-creator',
   'specialist-tdd-implementer',
@@ -76,29 +85,59 @@ async function main() {
   console.log(pc.blue('🔍 Auditing SDLC workflow surface...\n'));
 
   const failures: string[] = [];
+  const workflowEntries = await fs.readdir(WORKFLOWS_DIR, { withFileTypes: true });
+  const canonicalWorkflows = new Set(
+    workflowEntries
+      .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
+      .map((entry) => path.basename(entry.name, '.md')),
+  );
 
   for (const workflow of REQUIRED_WORKFLOWS) {
-    const file = path.join(WORKFLOWS_DIR, `${workflow}.md`);
-    if (!(await fs.pathExists(file))) {
+    if (!canonicalWorkflows.has(workflow)) {
       fail(`Missing workflow: ${workflow}`, failures);
       continue;
     }
 
+    const file = path.join(WORKFLOWS_DIR, `${workflow}.md`);
     const content = await fs.readFile(file, 'utf8');
     checkPortableContent(path.relative(ROOT, file), content, failures);
-    const lines = content.trimEnd().split(/\r?\n/).length;
-    if (lines > 80) {
-      fail(`${workflow}.md exceeds 80 lines (${lines})`, failures);
-    } else {
-      pass(`${workflow}.md present (${lines} lines)`);
-    }
+    if (STRICT_TEMPLATE_WORKFLOWS.has(workflow)) {
+      const lines = content.trimEnd().split(/\r?\n/).length;
+      if (lines > 80) {
+        fail(`${workflow}.md exceeds 80 lines (${lines})`, failures);
+      } else {
+        pass(`${workflow}.md present (${lines} lines)`);
+      }
 
-    if (!content.includes('Goal:')) {
-      fail(`${workflow}.md missing Goal section`, failures);
+      if (!content.includes('Goal:')) {
+        fail(`${workflow}.md missing Goal section`, failures);
+      }
+      if (!content.includes('## Output Template')) {
+        fail(`${workflow}.md missing Output Template`, failures);
+      }
+    } else {
+      pass(`${workflow}.md present`);
     }
-    if (!content.includes('## Output Template')) {
-      fail(`${workflow}.md missing Output Template`, failures);
+  }
+
+  if (await fs.pathExists(QUICK_REFERENCE_FILE)) {
+    const quickRef = await fs.readFile(QUICK_REFERENCE_FILE, 'utf8');
+    for (const workflow of REQUIRED_WORKFLOWS) {
+      if (quickRef.includes(`\`${workflow}\``)) {
+        pass(`quick reference includes ${workflow}`);
+      } else {
+        fail(`Quick reference missing workflow: ${workflow}`, failures);
+      }
     }
+    for (const term of REQUIRED_REQUIREMENT_TERMS) {
+      if (quickRef.includes(term)) {
+        pass(`quick reference includes requirement term: ${term}`);
+      } else {
+        fail(`Quick reference missing requirement term: ${term}`, failures);
+      }
+    }
+  } else {
+    fail('Missing docs/sdlc-workflow-quick-reference.md', failures);
   }
 
   for (const relPath of REQUIRED_RUNTIME_REFERENCES) {
@@ -142,6 +181,12 @@ async function main() {
     for (const entry of entries.filter((item) => item.isDirectory())) {
       const skillFile = path.join(CODEX_SKILLS_DIR, entry.name, 'SKILL.md');
       if (!(await fs.pathExists(skillFile))) continue;
+      if (!canonicalWorkflows.has(entry.name)) {
+        fail(
+          `Generated Codex workflow skill has no canonical source: ${entry.name}`,
+          failures,
+        );
+      }
       const content = await fs.readFile(skillFile, 'utf8');
       checkPortableContent(path.relative(ROOT, skillFile), content, failures);
       if (!content.startsWith('---\n')) {
