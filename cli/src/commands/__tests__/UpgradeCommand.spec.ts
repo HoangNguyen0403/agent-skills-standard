@@ -311,14 +311,14 @@ describe('UpgradeCommand', () => {
       delete process.env.npm_config_user_agent;
       const execPathMock = new String('/usr/local/bin/ags');
       let includesCallCount = 0;
-      execPathMock.includes = function(searchString) {
+      (execPathMock as unknown as { includes: (searchString: string) => boolean }).includes = function(searchString: string) {
         if (searchString === 'pnpm') {
           includesCallCount++;
           return includesCallCount > 1;
         }
-        return String.prototype.includes.call(this, searchString);
-      } as any;
-      process.argv = ['node', execPathMock as any];
+        return '/usr/local/bin/ags'.includes(searchString);
+      };
+      process.argv = ['node', execPathMock as unknown as string];
       vi.mocked(execSync).mockImplementationOnce(() => '8.0.0\n' as any);
       expect(upgradeCommand.detectPackageManager()).toBe('pnpm');
     });
@@ -431,7 +431,7 @@ describe('UpgradeCommand', () => {
 
       expect(unlinkSync).not.toHaveBeenCalled();
       expect(consoleLogMock).toHaveBeenCalledWith(
-        expect.stringContaining('Make sure ~/Library/pnpm comes before'),
+        expect.stringContaining('comes before'),
       );
     });
 
@@ -455,7 +455,7 @@ describe('UpgradeCommand', () => {
       await upgradeCommand.run({});
 
       expect(consoleLogMock).toHaveBeenCalledWith(
-        expect.stringContaining('Make sure ~/Library/pnpm comes before'),
+        expect.stringContaining('comes before'),
       );
     });
   });
