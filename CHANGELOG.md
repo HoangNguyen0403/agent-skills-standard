@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **CLI**: `2.4.5` → `2.4.6`
 - **Root**: `2.4.5` → `2.4.6`
+- **Common Skills**: `2.0.8` → `2.0.9`
 
 # [cli-v2.4.5] - 2026-05-20
 
