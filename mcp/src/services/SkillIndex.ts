@@ -91,7 +91,7 @@ export class SkillIndex {
     if (direct) return direct;
 
     // Compatibility: allow callers to omit the category prefix in the skill id.
-    // Canonical on-disk ids are often "{category}- {skill}" (e.g. "quality-engineering-playwright-cli"),
+    // Canonical on-disk ids are often "{category}-{skill}" (e.g. "quality-engineering-playwright-cli"),
     // but some runtimes/users naturally try "playwright-cli". Prefer canonical naming while
     // making direct lookup forgiving.
     const prefixed = id.startsWith(`${category}-`) ? id : `${category}-${id}`;

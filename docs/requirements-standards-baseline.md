@@ -50,7 +50,7 @@ This baseline defines where BRD, PRD, and SRS/FRS workflow guidance is derived f
   - https://raw.githubusercontent.com/RafaelGorski/Problem-Based-SRS/main/skills/problem-based-srs/SKILL.md
   - https://aravindakumar.medium.com/automating-srs-creation-with-agentic-workflows-unlocking-seamless-consistency-and-productivity-f2aff2efc861
 - What this repo adopts:
-  - SRS preserves problem-to-need-to-requirement traceability: `BRD-OBJ-* -> REQ-* -> SRS-* -> test evidence`.
+  - SRS preserves problem-to-need-to-requirement traceability: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> test evidence`.
   - Requirements are written as measurable cards with priority, status, source, behavior, failure modes, NFRs, measurement method, and verification lane.
   - Complex flows use use-case discipline: one actor, one goal, one session; normal course separated from alternatives and exceptions.
 
