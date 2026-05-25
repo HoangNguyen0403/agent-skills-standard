@@ -15,5 +15,7 @@
 - Business requirements structure and stakeholder-value framing:
   - https://techwhirl.com/business-requirements-document-brd-template/
   - https://www.pandadoc.com/business-requirements-document-template/
+  - https://www.lucidchart.com/blog/tips-for-a-perfect-business-requirements-document
+  - https://www.inventive.ai/blog-posts/business-requirements-document
 - Requirement quality and traceability discipline:
   - https://www.incose.org/docs/default-source/working-groups/requirements-wg/gtwr/incose_rwg_gtwr_v4_040423_final_drafts.pdf?sfvrsn=5c877fc7_2

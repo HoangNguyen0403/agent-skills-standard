@@ -24,7 +24,9 @@ Define the technical "How" with verifiable requirements.
 ## 1. SRS/FRS Discovery
 
 - Confirm linked PRD requirements (`REQ-*`) and AC IDs.
+- Preserve trace: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> test evidence`.
 - Define functional flows: trigger, inputs, validations, outputs, errors.
+- For complex flows, use one actor, one goal, one session; split normal, alternate, and exception courses.
 - Define interface contracts: API, events, storage, external integrations.
 - Define NFR thresholds: latency, availability, security, scalability.
 - Define constraints: migration, compatibility, compliance, rollout.
@@ -32,8 +34,9 @@ Define the technical "How" with verifiable requirements.
 ## 2. Drafting Workflow
 
 - Load `references/srs-template.md`.
-- Write one requirement per statement with stable `SRS-*` IDs.
+- Write one requirement card per statement with stable `SRS-*` IDs.
 - Map each `SRS-*` to source PRD `REQ-*` and verification lane.
+- Include statement, priority, status, input/output/error behavior, NFR impact, measurement method, and evidence target.
 - Write to `docs/specs/srs-[slug].md`.
 
 ## 3. Verification Mapping
@@ -41,6 +44,7 @@ Define the technical "How" with verifiable requirements.
 - Each `SRS-*` has test evidence plan (unit/integration/E2E/manual).
 - Failure modes and fallback behavior are explicit.
 - Permissions and privacy controls mapped to requirements.
+- Measurement method exists for each NFR.
 
 ## Anti-Patterns
 
@@ -48,6 +52,7 @@ Define the technical "How" with verifiable requirements.
 - No NFR claims without numeric threshold.
 - No interface contract without input/output/error schema.
 - No requirement without trace link to source and verification.
+- No happy-path-only flow for complex user/system interactions.
 
 ## References
 

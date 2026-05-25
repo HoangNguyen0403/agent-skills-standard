@@ -23,16 +23,19 @@ Frame the business "Why" before product or technical specs.
 
 ## 1. Discovery Workflow
 
+- Draft executive summary: purpose, outcome, sponsor, validation owner.
 - Confirm business objective and success metric.
 - Identify sponsor, decision-maker, and impacted stakeholders.
 - Capture AS-IS process pain and TO-BE target state.
 - Define scope boundary, exclusions, assumptions, and constraints.
 - Record value hypothesis: cost, revenue, risk, compliance, or cycle-time impact.
+- Add glossary terms when stakeholder or domain language can be misread.
+- Add Mermaid AS-IS/TO-BE process diagram when workflow complexity affects approval.
 
 ## 2. BRD-lite Drafting
 
 - Load `references/brd-template.md`.
-- Keep each objective measurable and time-bound.
+- Keep each objective SMART: specific, measurable, achievable, relevant, and time-bound.
 - Link each BRD objective to a candidate PRD requirement placeholder (`REQ-*`).
 - Write to `docs/specs/product-brief-[slug].md`.
 
@@ -42,6 +45,7 @@ Frame the business "Why" before product or technical specs.
 - Every in-scope item has a rationale and out-of-scope pair.
 - Risk register includes mitigation owner.
 - Stakeholder approvals and unresolved decisions are explicit.
+- Functional behavior is routed to PRD/SRS, not buried in BRD.
 
 ## Anti-Patterns
 
@@ -49,6 +53,7 @@ Frame the business "Why" before product or technical specs.
 - No vague goals ("improve efficiency") without baseline and target.
 - No missing owners for objectives or risks.
 - No silent scope expansion after approval.
+- No jargon without glossary entry.
 
 ## References
 

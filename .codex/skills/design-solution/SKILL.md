@@ -30,6 +30,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
    - Existing implementation plan if present
    - Relevant `AGENTS.md` and matched framework skills
    - Existing code patterns and architecture docs
+   - Trace source: `BRD-OBJ-* -> REQ-* -> AC-*`
 2. Define architecture:
    - Name bounded contexts and module owners.
    - Define dependency direction.
@@ -37,6 +38,8 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
    - Record data ownership and migration needs.
 3. Define contracts:
    - Functional flows (FRS): user/system steps, inputs/outputs, validations, and error states.
+   - For complex flows, use one actor, one goal, one session; split normal course from alternatives and exceptions.
+   - Requirement cards: statement, priority, status, source, behavior, NFRs, measurement, and verification lane.
    - API inputs/outputs and interface contracts.
    - Events/jobs and async guarantees.
    - Storage shape, ownership, retention, and migration rules.
@@ -60,15 +63,21 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 
 ## Context
 
+## Requirement Trace
+
 ## Architecture
 
 ## Functional Flows (FRS)
+
+## Requirement Cards
 
 ## Contracts
 
 ## Data And Migration
 
 ## NFR Thresholds
+
+## Measurement Methods
 
 ## Security And Privacy
 

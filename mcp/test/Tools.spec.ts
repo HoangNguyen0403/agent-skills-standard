@@ -33,6 +33,11 @@ async function fixture(): Promise<{
     files: ["**_bloc.dart"],
     keywords: ["bloc", "state"],
   });
+  // Canonical ids frequently include the category prefix; get_skill should allow
+  // callers to omit it (compatibility with varied runtime naming conventions).
+  await writeSkill(skills, "quality-engineering", "quality-engineering-playwright-cli", {
+    keywords: ["playwright-cli", "browser automation"],
+  });
   await fs.writeFile(path.join(root, "AGENTS.md"), "# fixture\n");
   return { root, cleanup: () => fs.remove(root) };
 }
@@ -135,6 +140,16 @@ describe("tools — get_skill suggestions", () => {
     const t = text(out);
     expect(t).toContain("Closest matches");
     expect(t).toContain("flutter/flutter-bloc");
+  });
+
+  it("resolves prefixless ids to canonical prefixed ids", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+    const out = await getSkill(
+      { category: "quality-engineering", name: "playwright-cli" },
+      ctx,
+    );
+    const t = text(out);
+    expect(t).toContain("quality-engineering/quality-engineering-playwright-cli");
   });
 
   it("lists all categories when category is wrong", async () => {

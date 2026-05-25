@@ -16,14 +16,18 @@ Goal: Produce a decision-complete PRD and implementation plan before code starts
    - `common-product-requirements`, `quality-engineering-business-analysis`, and matched framework skills.
 2. Interview:
    - Ask only for business logic, scope, constraints, and acceptance criteria that cannot be inferred.
-   - Confirm target users, platforms, data, security, performance, rollout, and non-goals.
+   - Confirm problem statement, assumptions, target users, JTBD/use cases, platforms, data, analytics, security, performance, rollout, and non-goals.
    - Confirm each requirement has owner, priority, and status.
+   - Confirm success metrics and guardrails that must not regress.
    - Stop when requirements are actionable.
 3. Draft PRD:
    - Save to `docs/specs/prd-[slug].md` when file writes are allowed.
    - Keep "what" separate from "how".
    - Add stable requirement IDs and AC IDs.
+   - Use Given/When/Then AC when behavior can be misread.
+   - Check user stories for specific persona, business value, INVEST, happy path, edge path, and negative path.
    - Link each requirement back to BRD-lite business objective.
+   - Include risk categories, rollout/ops, decision log, analytics/telemetry, and changelog.
    - Mark unresolved items as blockers, not assumptions.
 4. Create implementation plan:
    - Define components, contracts, data changes, migrations, risks, and verification.
@@ -39,26 +43,26 @@ Goal: Produce a decision-complete PRD and implementation plan before code starts
 
 ```md
 # Feature Plan: [Name]
-
 ## PRD
-
+## Problem Statement
+## Goals And Guardrails
+## Personas / JTBD
+## Use Cases
 ## Requirement Trace
-
+## User Stories And ACs
 ## Decisions
 
 | Decision   | Choice   | Reason   |
 | ---------- | -------- | -------- |
 | [decision] | [choice] | [reason] |
-
+## Analytics / Telemetry
+## Risks And Assumptions
+## Rollout / Ops
 ## Implementation Plan
-
 ## Task Slices
-
 ## Verification Plan
-
 ## Next Workflow
 
 design-solution | implement-feature
-
 ## Cost Report
 ```

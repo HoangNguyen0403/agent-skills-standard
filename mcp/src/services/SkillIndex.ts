@@ -85,7 +85,19 @@ export class SkillIndex {
   /** Direct lookup. */
   findSkill(category: string, id: string): SkillMetadata | undefined {
     this.ensureLoaded();
-    return this.skills.find((s) => s.category === category && s.id === id);
+    const direct = this.skills.find(
+      (s) => s.category === category && s.id === id,
+    );
+    if (direct) return direct;
+
+    // Compatibility: allow callers to omit the category prefix in the skill id.
+    // Canonical on-disk ids are often "{category}- {skill}" (e.g. "quality-engineering-playwright-cli"),
+    // but some runtimes/users naturally try "playwright-cli". Prefer canonical naming while
+    // making direct lookup forgiving.
+    const prefixed = id.startsWith(`${category}-`) ? id : `${category}-${id}`;
+    return this.skills.find(
+      (s) => s.category === category && s.id === prefixed,
+    );
   }
 
   /**

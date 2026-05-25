@@ -23,7 +23,7 @@ metadata:
 ## 1. Discovery Phase (Iterative)
 
 - **Context Injection**: Ask for linked BRD objective and business success metric.
-- **Gap Analysis**: Identify missing info (persona, platform, flows, constraints, priorities, open questions).
+- **Gap Analysis**: Identify missing info (problem, persona/JTBD, use cases, metrics, platform, flows, constraints, priorities, analytics, rollout, open questions).
 - **Active Inquiry**:
 - Ask 3-5 clarification questions at a time.
 - **MUST** provide (a, b, c) options to reduce user friction.
@@ -36,6 +36,9 @@ metadata:
 - **Load Template**: Read `references/prd-template.md`.
 - **Fill & Fix**: Map Discovery answers to template. Mark unknowns as `TBD`.
 - **Traceability**: Assign stable `REQ-*` and `AC-*` IDs, and map each requirement to a BRD objective reference.
+- **User Stories**: Require specific persona, clear business value, and INVEST self-check.
+- **Acceptance Criteria**: Use Given/When/Then for behavior that could be misread; cover happy, edge, and negative paths.
+- **Living Spec**: Include analytics, risks, rollout, decisions, and changelog.
 - **Output**: Write to `docs/specs/prd-[feature-name].md`.
 
 ## 3. Verification Checklist (Mandatory)
@@ -43,6 +46,7 @@ metadata:
 - [ ] **Functional**: all user flows defined?
 - [ ] **Traceability**: every AC mapped to `REQ-*` and business objective?
 - [ ] **Non-Functional**: Performance? Security? Offline mode?
+- [ ] **Analytics/Ops**: Events, guardrails, rollout, and support readiness?
 - [ ] **Tech Constraints**: DB schema impacts? API changes?
 - [ ] **Edge Cases**: Zero state? Error state?
 - [ ] **Scope Hygiene**: Out-of-scope items explicitly listed?
@@ -54,6 +58,7 @@ metadata:
 - **No Implementation**: PRD = "What", Implementation Plan = "How".
 - **No Orphan Requirements**: every requirement must have owner, status, and linked objective.
 - **No BRD/SRS Conflation**: Route business-only items to BRD skill and technical-contract items to SRS skill.
+- **No Generic Actors**: replace "user" with a specific role or persona.
 
 ## References
 

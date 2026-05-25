@@ -5,6 +5,20 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [cli-v2.4.6] - 2026-05-25
+
+**Category**: SDLC Requirements Template Hardening
+
+### Changed
+
+- **BRD/PRD/SRS Best-Practice Baseline**: Expanded the shared requirements baseline with BRD, PRD, AI-spec, user-story, use-case, and problem-based SRS references plus repo-specific adoption notes.
+- **AI-Readable Requirements Templates**: Strengthened BRD-lite, PRD, and SRS/FRS workflows and templates with SMART objectives, Gherkin-compatible ACs, INVEST checks, use-case scoping, requirement cards, NFR measurement, and trace-to-evidence gates.
+- **MCP Skill Lookup Compatibility**: `get_skill(category, name)` now accepts both canonical ids (e.g. `quality-engineering-playwright-cli`) and the prefixless form (`playwright-cli`) to support varied runtime naming conventions without changing the canonical catalog.
+
+### Versions
+
+- **Common Skills**: `2.0.9` → `2.1.0`
+
 # [cli-v2.4.6] - 2026-05-22
 
 **Category**: SDLC Requirements Traceability & Review Tooling

@@ -51,6 +51,12 @@ When users ask for BRD, PRD, or SRS:
 
 Use `docs/requirements-standards-baseline.md` as the shared source baseline for BRD/PRD/SRS phases.
 
+## Requirement Quality Rule
+
+- BRD: SMART objective, stakeholders, AS-IS/TO-BE, cost-benefit, glossary, validation owner.
+- PRD: specific personas, use cases, `REQ-*`, `AC-*`, Gherkin where needed, analytics, risks, rollout, changelog.
+- SRS/FRS: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence`, requirement cards, NFR measurement, failure modes.
+
 ## External MCPs
 
 Jira, GitHub, GitLab, Azure DevOps, Zephyr, and similar MCPs are optional integration points. When installed and authenticated, use MCPs before exported artifacts to fetch tickets, PRs/MRs, update traceability, or publish test evidence; otherwise keep the same workflow running from local specs, task files, and walkthrough evidence.
