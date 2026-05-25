@@ -18,27 +18,27 @@
 
 ## 3. Personas, JTBD, And Use Cases
 
-| Use Case ID | Persona | Job / Goal | Scope Note |
-| --- | --- | --- | --- |
-| UC-001 | [specific role] | [goal] | [boundary] |
+| Use Case ID | Persona         | Job / Goal | Scope Note |
+| ----------- | --------------- | ---------- | ---------- |
+| UC-001      | [specific role] | [goal]     | [boundary] |
 
 ## 4. Requirement Registry
 
-| Req ID | Requirement | Persona | Priority | Owner | Status | BRD Objective Ref |
-| --- | --- | --- | --- | --- | --- | --- |
-| REQ-001 | [What must exist] | [role] | P0/P1/P2 | [owner] | Draft/Approved/Done | BRD-OBJ-001 |
+| Req ID  | Requirement       | Persona | Priority | Owner   | Status              | BRD Objective Ref |
+| ------- | ----------------- | ------- | -------- | ------- | ------------------- | ----------------- |
+| REQ-001 | [What must exist] | [role]  | P0/P1/P2 | [owner] | Draft/Approved/Done | BRD-OBJ-001       |
 
 ## 5. User Stories And ACs
 
-_Strict format: As a [User], I want to [Action], so that [Benefit]._
+_Strict format: As a [persona/role], I want to [Action], so that [Benefit]._
 
-| Story ID | Linked Req ID | User Story | INVEST Check | Status |
-| --- | --- | --- | --- | --- |
-| US-001 | REQ-001 | [As a specific persona...] | [I/N/V/E/S/T] | Draft |
+| Story ID | Linked Req ID | User Story                 | INVEST Check  | Status |
+| -------- | ------------- | -------------------------- | ------------- | ------ |
+| US-001   | REQ-001       | [As a specific persona...] | [I/N/V/E/S/T] | Draft  |
 
-| AC ID | Linked Story ID | Scenario | Given | When | Then | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| AC-001 | US-001 | [happy/edge/negative] | [context] | [action] | [observable result] | Draft |
+| AC ID  | Linked Story ID | Scenario              | Given     | When     | Then                | Status |
+| ------ | --------------- | --------------------- | --------- | -------- | ------------------- | ------ |
+| AC-001 | US-001          | [happy/edge/negative] | [context] | [action] | [observable result] | Draft  |
 
 ## 6. Functional Behavior (FRS-lite)
 
@@ -60,9 +60,9 @@ _Strict format: As a [User], I want to [Action], so that [Benefit]._
 
 ## 9. Risks And Decisions
 
-| Risk/Decision | Type | Owner | Status | Rationale |
-| --- | --- | --- | --- | --- |
-| [item] | Value/Usability/Feasibility/Viability/Decision | [owner] | [status] | [why] |
+| Risk/Decision | Type                                           | Owner   | Status   | Rationale |
+| ------------- | ---------------------------------------------- | ------- | -------- | --------- |
+| [item]        | Value/Usability/Feasibility/Viability/Decision | [owner] | [status] | [why]     |
 
 ## 10. Dependencies And Rollout
 
@@ -79,8 +79,8 @@ _Strict format: As a [User], I want to [Action], so that [Benefit]._
 
 ## 12. Change Log
 
-| Date | Author | Change |
-| --- | --- | --- |
+| Date         | Author | Change         |
+| ------------ | ------ | -------------- |
 | [YYYY-MM-DD] | [name] | [what changed] |
 
 ## 13. Open Questions
