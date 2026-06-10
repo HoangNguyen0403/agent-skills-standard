@@ -4,10 +4,9 @@ description: "Unified developer workflow for fixing bugs. Analyzes issue-tracker
 metadata:
   triggers:
     keywords:
-      - dev fix
-      - workflow
+    - dev fix
+    - workflow
 ---
-
 # Dev Fix Skill
 
 > [!IMPORTANT]
@@ -16,6 +15,7 @@ metadata:
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
+
 
 # 🛠 Dev-Fix — Professional Bug Remediation
 
@@ -151,3 +151,4 @@ Call `get_session_cost` and output telemetry here before ending.
 - **No Blind Implementation**: Never write code before the implementation plan is approved.
 - **No Orphan Sessions**: Always `close` browser/appium sessions used during verification.
 - **No skipping local verify**: "I checked it manually" is not enough. Provide snapshots/logs in the project-local `docs/srs/srs-walkthrough.md`.
+

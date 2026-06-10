@@ -4,10 +4,9 @@ description: "Implement an approved feature plan with fresh-context slices, TDD,
 metadata:
   triggers:
     keywords:
-      - implement feature
-      - workflow
+    - implement feature
+    - workflow
 ---
-
 # Implement Feature Skill
 
 > [!IMPORTANT]
@@ -16,6 +15,7 @@ metadata:
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
+
 
 # Implement Feature Workflow
 
@@ -78,3 +78,4 @@ verify-work
 
 ## Cost Report
 ```
+
