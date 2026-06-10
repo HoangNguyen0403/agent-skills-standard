@@ -4,9 +4,10 @@ description: "Unified developer workflow for fixing bugs. Analyzes issue-tracker
 metadata:
   triggers:
     keywords:
-    - dev fix
-    - workflow
+      - dev fix
+      - workflow
 ---
+
 # Dev Fix Skill
 
 > [!IMPORTANT]
@@ -15,7 +16,6 @@ metadata:
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
-
 
 # 🛠 Dev-Fix — Professional Bug Remediation
 
@@ -42,7 +42,7 @@ This workflow manages the bug-fix lifecycle from issue analysis to PR/MR deliver
 2.  **Cross-Check Context**: Use knowledge-base MCP when configured; otherwise use local code search. Locate relevant code.
 3.  **Create Implementation Plan**:
     - Use the **Implementation Plan Template** below.
-    - Initialize project-local `docs/prd/prd-implementation-plan-[slug].md`.
+    - Initialize project-local `docs/prd/prd-plan-[slug].md`.
     - **Goal**: Clear description of the root cause.
     - **Proposed Changes**: Exact files and logic to be modified.
     - **Verification Plan**: Detail which QE skill will be used to verify the fix _locally_ before PR.
@@ -151,4 +151,3 @@ Call `get_session_cost` and output telemetry here before ending.
 - **No Blind Implementation**: Never write code before the implementation plan is approved.
 - **No Orphan Sessions**: Always `close` browser/appium sessions used during verification.
 - **No skipping local verify**: "I checked it manually" is not enough. Provide snapshots/logs in the project-local `docs/srs/srs-walkthrough.md`.
-

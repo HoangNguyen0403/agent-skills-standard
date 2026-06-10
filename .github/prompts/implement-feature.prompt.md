@@ -29,7 +29,7 @@ Goal: Build an approved feature through TDD slices and route completed work to v
    - Use sub-agents only when the runtime supports them and ownership is disjoint.
 4. Maintain context hygiene:
    - Start fresh context for large independent slices when possible.
-   - Preserve decisions in `docs/srs/srs-task-list.md` or `docs/prd/prd-implementation-plan-[slug].md`.
+   - Preserve decisions in `docs/srs/srs-task-list.md` or `docs/prd/prd-plan-[slug].md`.
    - If behavior or scope changes, update `docs/prd/prd-[slug].md` and `docs/srs/srs-[slug].md` before closing the slice.
    - Avoid carrying raw logs; summarize failures and fixes.
 5. Prepare handoff:

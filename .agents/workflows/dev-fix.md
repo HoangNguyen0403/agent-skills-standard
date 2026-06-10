@@ -27,7 +27,7 @@ This workflow manages the bug-fix lifecycle from issue analysis to PR/MR deliver
 2.  **Cross-Check Context**: Use knowledge-base MCP when configured; otherwise use local code search. Locate relevant code.
 3.  **Create Implementation Plan**:
     - Use the **Implementation Plan Template** below.
-    - Initialize project-local `docs/prd/prd-implementation-plan-[slug].md`.
+    - Initialize project-local `docs/prd/prd-plan-[slug].md`.
     - **Goal**: Clear description of the root cause.
     - **Proposed Changes**: Exact files and logic to be modified.
     - **Verification Plan**: Detail which QE skill will be used to verify the fix _locally_ before PR.
