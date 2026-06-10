@@ -4,10 +4,9 @@ description: "Unified developer workflow for fixing bugs. Analyzes issue-tracker
 metadata:
   triggers:
     keywords:
-      - dev fix
-      - workflow
+    - dev fix
+    - workflow
 ---
-
 # Dev Fix Skill
 
 > [!IMPORTANT]
@@ -16,6 +15,7 @@ metadata:
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
+
 
 # 🛠 Dev-Fix — Professional Bug Remediation
 
@@ -42,7 +42,7 @@ This workflow manages the bug-fix lifecycle from issue analysis to PR/MR deliver
 2.  **Cross-Check Context**: Use knowledge-base MCP when configured; otherwise use local code search. Locate relevant code.
 3.  **Create Implementation Plan**:
     - Use the **Implementation Plan Template** below.
-    - Initialize project-local `docs/prd/prd-implementation-plan.md`.
+    - Initialize project-local `docs/prd/prd-implementation-plan-[slug].md`.
     - **Goal**: Clear description of the root cause.
     - **Proposed Changes**: Exact files and logic to be modified.
     - **Verification Plan**: Detail which QE skill will be used to verify the fix _locally_ before PR.
@@ -58,7 +58,7 @@ This workflow manages the bug-fix lifecycle from issue analysis to PR/MR deliver
 2.  **Task Tracking**:
     - Use the **Task Template** below.
     - Initialize project-local `docs/srs/srs-task-list.md`.
-3.  **Code**: Implement the fix using TDD. Follow `common-best-practices` and service-specific `AGENTS.md` rules.
+3.  **Code**: Implement the fix using `common-tdd` or the `@specialist-tdd-implementer` sub-agent. Follow `common-best-practices` and service-specific `AGENTS.md` rules.
 
 ### Step 3: Local Verification (Enterprise Standard)
 
@@ -66,9 +66,9 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 
 1.  **Launch Dev Server**: Run the local dev environment for the service.
 2.  **Execute QE Audit**:
-    - **Web**: Run the reproduction steps. Capture "After" snapshots.
-    - **Mobile**: Run the reproduction steps on an emulator.
-3.  **Final Verdict**: Compare results against the issue `Expected Result`.
+    - **Web**: Load `quality-engineering-playwright-cli`. Run the reproduction steps. Capture "After" snapshots.
+    - **Mobile**: Load `quality-engineering-appium-mcp`. Run the reproduction steps on an emulator.
+3.  **Final Verdict**: Compare results against the issue `Expected Result`. If any sub-3px regressions exist, fix them now.
 
 ### Step 4: Deliver PR
 
@@ -151,3 +151,4 @@ Call `get_session_cost` and output telemetry here before ending.
 - **No Blind Implementation**: Never write code before the implementation plan is approved.
 - **No Orphan Sessions**: Always `close` browser/appium sessions used during verification.
 - **No skipping local verify**: "I checked it manually" is not enough. Provide snapshots/logs in the project-local `docs/srs/srs-walkthrough.md`.
+

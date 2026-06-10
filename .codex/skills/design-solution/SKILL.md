@@ -4,10 +4,9 @@ description: "Turn an approved PRD or implementation goal into SRS/FRS technical
 metadata:
   triggers:
     keywords:
-      - design solution
-      - workflow
+    - design solution
+    - workflow
 ---
-
 # Design Solution Skill
 
 > [!IMPORTANT]
@@ -16,6 +15,7 @@ metadata:
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
+
 
 # Design Solution Workflow (SRS/FRS / How)
 
@@ -93,3 +93,4 @@ implement-feature | dev-fix
 
 ## Cost Report
 ```
+

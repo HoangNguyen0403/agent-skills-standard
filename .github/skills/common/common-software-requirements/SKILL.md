@@ -35,6 +35,7 @@ Define the technical "How" with verifiable requirements.
 ## 2. Drafting Workflow
 
 - Load `references/srs-template.md`.
+- **Slug Alignment**: Use the same `[slug]` from the source `docs/prd/prd-[slug].md` to maintain filename-level traceability.
 - Write one requirement card per statement with stable `SRS-*` IDs.
 - Map each `SRS-*` to source PRD `REQ-*` and verification lane.
 - Include statement, priority, status, input/output/error behavior, NFR impact, measurement method, and evidence target.

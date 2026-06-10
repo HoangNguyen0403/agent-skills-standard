@@ -35,10 +35,12 @@ metadata:
 
 - **Filesystem**: Ensure `docs/prd/` exists.
 - **Load Template**: Read `references/prd-template.md`.
+- **Slug Alignment**: Use the same `[slug]` from the source `docs/brd/brd-[slug].md` to maintain filename-level traceability.
 - **Fill & Fix**: Map Discovery answers to template. Mark unknowns as `TBD`.
 - **Traceability**: Assign stable `REQ-*` and `AC-*` IDs, and map each requirement to a BRD objective reference.
 - **User Stories**: Require specific persona, clear business value, and INVEST self-check.
 - **Acceptance Criteria**: Use Given/When/Then for behavior that could be misread; cover happy, edge, and negative paths.
+- **Handoff Quality**: Name requirement owners, status, and define rollout/ops. Identify whether `design-solution` is required.
 - **Living Spec**: Include analytics, risks, rollout, decisions, and changelog.
 - **Output**: Write to `docs/prd/prd-[slug].md`.
 

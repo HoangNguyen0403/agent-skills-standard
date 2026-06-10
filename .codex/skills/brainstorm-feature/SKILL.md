@@ -4,10 +4,9 @@ description: "Clarify a rough product or engineering idea into a BRD-lite brief 
 metadata:
   triggers:
     keywords:
-      - brainstorm feature
-      - workflow
+    - brainstorm feature
+    - workflow
 ---
-
 # Brainstorm Feature Skill
 
 > [!IMPORTANT]
@@ -16,6 +15,7 @@ metadata:
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
+
 
 # Brainstorm Feature Workflow (BRD-lite / Why)
 
@@ -53,6 +53,8 @@ Goal: Convert vague intent into a compact BRD-lite brief before PRD or technical
    - Record accepted approach and rejected alternatives.
    - Save BRD-lite brief to `docs/brd/brd-[slug].md` when writing files is allowed.
    - Route next step to `plan-feature` when intent is actionable.
+
+## Output
 
 ## Output Template
 
@@ -97,3 +99,4 @@ plan-feature
 
 ## Cost Report
 ```
+

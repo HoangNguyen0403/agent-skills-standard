@@ -10,7 +10,6 @@ Each skill must follow the standard directory structure:
 ## 🛠 Active Categories
 
 <!-- SKILLS_INDEX_START -->
-
 ### 🌐 Common (Universal)
 
 Cross-framework standards and best practices applicable to all development.

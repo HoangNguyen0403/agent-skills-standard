@@ -4,10 +4,9 @@ description: "Plan a feature from BRD-lite brief or clear intent into PRD (What)
 metadata:
   triggers:
     keywords:
-      - plan feature
-      - workflow
+    - plan feature
+    - workflow
 ---
-
 # Plan Feature Skill
 
 > [!IMPORTANT]
@@ -16,6 +15,7 @@ metadata:
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
+
 
 # Feature Planning Workflow (PRD / What)
 
@@ -101,3 +101,4 @@ design-solution | implement-feature
 
 ## Cost Report
 ```
+

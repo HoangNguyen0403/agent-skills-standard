@@ -4,10 +4,9 @@ description: "Route a task to the next synced SDLC workflow based on current art
 metadata:
   triggers:
     keywords:
-      - sdlc
-      - workflow
+    - sdlc
+    - workflow
 ---
-
 # Sdlc Skill
 
 > [!IMPORTANT]
@@ -16,6 +15,7 @@ metadata:
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
+
 
 # SDLC Router Workflow
 
@@ -84,3 +84,4 @@ Goal: Select the next native workflow without loading every workflow body, while
 
 ## Cost Report
 ```
+
