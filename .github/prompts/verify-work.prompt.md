@@ -33,7 +33,7 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
 5. Record evidence:
    - If verification reveals behavior drift, require PRD/SRS updates before PASS.
    - Update traceability notes from BRD objective -> PRD requirement -> SRS/FRS contract -> verification evidence.
-   - Update project-local `docs/templates/walkthrough.md`.
+   - Update project-local `docs/srs/srs-walkthrough.md`.
    - Route next step back to implementation or `dev-fix`.
 
 ## Output

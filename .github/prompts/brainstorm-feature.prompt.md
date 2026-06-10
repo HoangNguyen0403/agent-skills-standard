@@ -36,7 +36,7 @@ Goal: Convert vague intent into a compact BRD-lite brief before PRD or technical
 4. Decide:
    - Ask only for unresolved product decisions.
    - Record accepted approach and rejected alternatives.
-   - Save BRD-lite brief to `docs/specs/product-brief-[slug].md` when writing files is allowed.
+   - Save BRD-lite brief to `docs/brd/brd-[slug].md` when writing files is allowed.
    - Route next step to `plan-feature` when intent is actionable.
 
 ## Output
@@ -45,24 +45,42 @@ Goal: Convert vague intent into a compact BRD-lite brief before PRD or technical
 
 ```md
 # BRD-lite Brief: [Name]
+
 ## Executive Summary
+
 ## Business Objective
+
 ## SMART Success Metric
+
 ## Target Users
+
 ## Problem
+
 ## AS-IS To TO-BE
+
 ## Stakeholders And Validation Owner
+
 ## Success Metrics
+
 ## Cost-Benefit / Value Hypothesis
+
 ## Recommended Approach
+
 ## Alternatives Considered
+
 ## Stakeholders
+
 ## Constraints
+
 ## Non-Goals
+
 ## Glossary
+
 ## Open Questions
+
 ## Next Workflow
 
 plan-feature
+
 ## Cost Report
 ```

@@ -4,9 +4,10 @@ description: "Implement an approved feature plan with fresh-context slices, TDD,
 metadata:
   triggers:
     keywords:
-    - implement feature
-    - workflow
+      - implement feature
+      - workflow
 ---
+
 # Implement Feature Skill
 
 > [!IMPORTANT]
@@ -16,7 +17,6 @@ metadata:
 
 When the user asks to perform this workflow, execute the following steps:
 
-
 # Implement Feature Workflow
 
 Goal: Build an approved feature through TDD slices and route completed work to verification.
@@ -24,29 +24,33 @@ Goal: Build an approved feature through TDD slices and route completed work to v
 ## Steps
 
 1. Load plan:
+   - **Source Discovery**:
+     - Search `docs/prd/` and `docs/srs/` for a matching `[slug]`.
+     - **Fallback**: Check the most recently modified files in those directories.
+     - **Ambiguity**: If multiple candidate features exist, **ask the user to choose or input the target slug.**
    - PRD or ticket
-   - SRS/FRS technical design if present
+   - SRS technical design if present
    - Implementation plan
    - Matched framework and common skills
 2. Prepare workspace:
    - Confirm clean or intentionally dirty git state.
-   - Create branch or worktree only when project workflow expects it.
-   - Initialize or update `docs/templates/task.md` with small vertical slices.
+   - Create branch or worktree for the feature.
+   - Initialize or update `docs/srs/srs-task-list.md` with small vertical slices.
 3. Implement slices:
-   - For each slice, write or update the failing test first.
+   - For each slice, delegate to `specialist-tdd-implementer` if sub-agents are available, otherwise execute TDD yourself.
+   - Write or update the failing test first.
    - Implement the smallest passing code.
    - Refactor without expanding scope.
    - Keep slice evidence near the task item.
-   - Use sub-agents only when the runtime supports them and ownership is disjoint.
 4. Maintain context hygiene:
    - Start fresh context for large independent slices when possible.
-   - Preserve decisions in `docs/templates/task.md` or `docs/specs/implementation-plan-[slug].md`.
-   - If behavior or scope changes, update `docs/specs/prd-[slug].md` and `docs/specs/srs-[slug].md` before closing the slice.
+   - Preserve decisions in `docs/srs/srs-task-list.md` or `docs/prd/prd-implementation-plan.md`.
+   - If behavior or scope changes, update `docs/prd/prd-feature.md` and `docs/srs/srs-feature.md` before closing the slice.
    - Avoid carrying raw logs; summarize failures and fixes.
 5. Prepare handoff:
    - Run local automated checks.
    - Update requirement trace notes for changed AC coverage.
-   - Capture evidence in `docs/templates/walkthrough.md`.
+   - Capture evidence in `docs/srs/srs-walkthrough.md`.
    - Route next step to `verify-work`.
 
 ## Output
@@ -74,4 +78,3 @@ verify-work
 
 ## Cost Report
 ```
-

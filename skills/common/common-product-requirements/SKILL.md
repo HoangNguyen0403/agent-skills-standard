@@ -4,16 +4,17 @@ description: Standardize PRD discovery and drafting for product scope, user outc
 metadata:
   triggers:
     files:
-    - 'PRD.md'
-    - 'docs/specs/prd-*.md'
-    - 'specs/*.md'
+      - "PRD.md"
+      - "docs/prd/prd-*.md"
+      - "specs/*.md"
     keywords:
-    - create prd
-    - product requirements
-    - draft requirements
-    - new feature spec
-    - acceptance criteria
+      - create prd
+      - product requirements
+      - draft requirements
+      - new feature spec
+      - acceptance criteria
 ---
+
 # Product Requirements Expert
 
 ## **Priority: P0 (CRITICAL)**
@@ -32,14 +33,16 @@ metadata:
 
 ## 2. Drafting Phase (System of Record)
 
-- **Filesystem**: Ensure `docs/specs/` exists.
+- **Filesystem**: Ensure `docs/prd/` exists.
 - **Load Template**: Read `references/prd-template.md`.
+- **Slug Alignment**: Use the same `[slug]` from the source `docs/brd/brd-[slug].md` to maintain filename-level traceability.
 - **Fill & Fix**: Map Discovery answers to template. Mark unknowns as `TBD`.
 - **Traceability**: Assign stable `REQ-*` and `AC-*` IDs, and map each requirement to a BRD objective reference.
 - **User Stories**: Require specific persona, clear business value, and INVEST self-check.
 - **Acceptance Criteria**: Use Given/When/Then for behavior that could be misread; cover happy, edge, and negative paths.
+- **Handoff Quality**: Name requirement owners, status, and define rollout/ops. Identify whether `design-solution` is required.
 - **Living Spec**: Include analytics, risks, rollout, decisions, and changelog.
-- **Output**: Write to `docs/specs/prd-[feature-name].md`.
+- **Output**: Write to `docs/prd/prd-[slug].md`.
 
 ## 3. Verification Checklist (Mandatory)
 

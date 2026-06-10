@@ -4,17 +4,18 @@ description: Standardize SRS and FRS specifications for technical behavior, inte
 metadata:
   triggers:
     files:
-    - 'SRS.md'
-    - 'docs/specs/srs-*.md'
-    - 'specs/*.md'
+      - "SRS.md"
+      - "docs/srs/srs-*.md"
+      - "specs/*.md"
     keywords:
-    - create srs
-    - software requirements
-    - functional specification
-    - system behavior spec
-    - technical requirements
-    - non-functional requirements
+      - create srs
+      - software requirements
+      - functional specification
+      - system behavior spec
+      - technical requirements
+      - non-functional requirements
 ---
+
 # Software Requirements Expert
 
 ## **Priority: P0 (CRITICAL)**
@@ -34,10 +35,11 @@ Define the technical "How" with verifiable requirements.
 ## 2. Drafting Workflow
 
 - Load `references/srs-template.md`.
+- **Slug Alignment**: Use the same `[slug]` from the source `docs/prd/prd-[slug].md` to maintain filename-level traceability.
 - Write one requirement card per statement with stable `SRS-*` IDs.
 - Map each `SRS-*` to source PRD `REQ-*` and verification lane.
 - Include statement, priority, status, input/output/error behavior, NFR impact, measurement method, and evidence target.
-- Write to `docs/specs/srs-[slug].md`.
+- Write to `docs/srs/srs-[slug].md`.
 
 ## 3. Verification Mapping
 

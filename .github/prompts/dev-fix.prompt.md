@@ -15,33 +15,34 @@ This workflow manages the bug-fix lifecycle from issue analysis to PR/MR deliver
 ### Step 0: Environment Prep (Turbo)
 
 // turbo
+
 1. **Sync Registry**: `git pull origin main` in the standard repo.
 
 ### Step 1: Research & Discovery (Implementation Plan Phase)
 
 > [!TIP]
-> **Sub-Agent Delegation**: If your platform supports sub-agents, delegate ticket extraction to the matching issue specialist and context lookup to `@specialist-confluence-searcher` or `@specialist-codebase-scout`. If sub-agents are NOT supported, execute these steps yourself.
+> **Sub-Agent Delegation**: If your platform supports sub-agents, delegate ticket extraction to `specialist-jira-analyst` and context lookup to `specialist-codebase-scout`. If sub-agents are NOT supported, execute these steps yourself.
 
 1.  **Analyze Ticket**: Use installed Jira/GitHub/GitLab/ADO MCP first; otherwise use exported ticket text. Extract `Reproduce steps`, `Expected Result`, and `Actual Result`.
-2.  **Cross-Check Context**: Use Confluence/docs MCP when configured; otherwise use exported docs and local code search. Locate relevant code.
-3.  **Create Implementation Plan**: 
+2.  **Cross-Check Context**: Use knowledge-base MCP when configured; otherwise use local code search. Locate relevant code.
+3.  **Create Implementation Plan**:
     - Use the **Implementation Plan Template** below.
-    - Initialize project-local `docs/specs/implementation-plan-[slug].md`.
+    - Initialize project-local `docs/prd/prd-implementation-plan-[slug].md`.
     - **Goal**: Clear description of the root cause.
     - **Proposed Changes**: Exact files and logic to be modified.
-    - **Verification Plan**: Detail which QE skill (`playwright-cli` or `appium-mcp`) will be used to verify the fix *locally* before PR.
+    - **Verification Plan**: Detail which QE skill will be used to verify the fix _locally_ before PR.
 4.  **HARD STOP**: Request user approval for the implementation plan.
 5.  **Readiness Gate**: Run `implementation-readiness`; code only after READY or approved PARTIAL.
 
 ### Step 2: Implementation (TDD Phase)
 
 > [!TIP]
-> **Sub-Agent Delegation**: For the actual fix, delegate the TDD loop to your TDD Implementer sub-agent (`@specialist-tdd-implementer`). If sub-agents are NOT supported, execute the TDD loop yourself using `common-tdd`.
+> **Sub-Agent Delegation**: For the actual fix, delegate the TDD loop to `specialist-tdd-implementer`. If sub-agents are NOT supported, execute the TDD loop yourself using the TDD skill matched in `AGENTS.md`.
 
 1.  **Worktree Branching**: Create a new worktree for the fix using `git worktree add ../<ticket-key> -b fix/<ticket-key>` and `cd` into it.
-2.  **Task Tracking**: 
+2.  **Task Tracking**:
     - Use the **Task Template** below.
-    - Initialize project-local `docs/templates/task.md`.
+    - Initialize project-local `docs/srs/srs-task-list.md`.
 3.  **Code**: Implement the fix using `common-tdd` or the `@specialist-tdd-implementer` sub-agent. Follow `common-best-practices` and service-specific `AGENTS.md` rules.
 
 ### Step 3: Local Verification (Enterprise Standard)
@@ -58,15 +59,16 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 
 1.  **Commit**: Generate a commit message using `caveman-commit`.
 2.  **PR/MR Details**: Draft provider-appropriate PR/MR notes and link the source issue.
-3.  **Walkthrough**: 
+3.  **Walkthrough**:
     - Use the **Walkthrough Template** below.
-    - Create project-local `docs/templates/walkthrough.md` with evidence of the local verification.
+    - Create project-local `docs/srs/srs-walkthrough.md` with evidence of the local verification.
 
 ---
 
 ## Artifact Templates
 
 ### Implementation Plan Template
+
 ```md
 # Implementation Plan: [Name]
 
@@ -76,8 +78,8 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 
 ## Task Slices
 
-| Slice | Scope | Verification |
-| --- | --- | --- |
+| Slice   | Scope   | Verification   |
+| ------- | ------- | -------------- |
 | [slice] | [scope] | [verification] |
 
 ## Risks
@@ -88,6 +90,7 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 ```
 
 ### Task Template
+
 ```md
 # Task: [Name]
 
@@ -105,6 +108,7 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 ```
 
 ### Walkthrough Template
+
 ```md
 # Walkthrough: [Name]
 
@@ -114,8 +118,8 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 
 ## Evidence
 
-| Check | Result | Evidence |
-| --- | --- | --- |
+| Check   | Result              | Evidence   |
+| ------- | ------------------- | ---------- |
 | [check] | [PASS/FAIL/BLOCKED] | [evidence] |
 
 ## Risks
@@ -131,4 +135,4 @@ Call `get_session_cost` and output telemetry here before ending.
 
 - **No Blind Implementation**: Never write code before the implementation plan is approved.
 - **No Orphan Sessions**: Always `close` browser/appium sessions used during verification.
-- **No skipping local verify**: "I checked it manually" is not enough. Provide snapshots/logs in the project-local `docs/templates/walkthrough.md`.
+- **No skipping local verify**: "I checked it manually" is not enough. Provide snapshots/logs in the project-local `docs/srs/srs-walkthrough.md`.

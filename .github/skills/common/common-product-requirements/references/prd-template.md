@@ -73,9 +73,9 @@ _Strict format: As a [persona/role], I want to [Action], so that [Benefit]._
 
 ## 11. Traceability Links
 
-- **SRS/FRS Doc**: `docs/specs/srs-[slug].md` (when needed)
-- **Implementation Plan**: `docs/specs/implementation-plan-[slug].md`
-- **Verification Evidence**: `docs/templates/walkthrough.md`
+- **SRS/FRS Doc**: `docs/srs/srs-[slug].md` (when needed)
+- **Implementation Plan**: `docs/prd/prd-plan-[slug].md`
+- **Verification Evidence**: `docs/srs/srs-walkthrough.md`
 
 ## 12. Change Log
 

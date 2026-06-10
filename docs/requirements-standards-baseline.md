@@ -65,4 +65,7 @@ This baseline defines where BRD, PRD, and SRS/FRS workflow guidance is derived f
   - https://raw.githubusercontent.com/phucnt-bazone-vietnam/use-case-writer/main/SKILL.md
 - What this repo adopts:
   - AI-readable specs use explicit Markdown sections, commands, boundaries, validation gates, and living-document changelogs.
-  - AC and use-case artifacts must cover happy path, edge or alternate path, and negative or exception path.
+- **Slug Alignment Protocol**: To maintain traceability across dozens of features, all related requirement layers MUST use a consistent `[slug]` in the filename.
+  - Business: `docs/brd/brd-[slug].md`
+  - Product: `docs/prd/prd-[slug].md`
+  - Technical: `docs/srs/srs-[slug].md`

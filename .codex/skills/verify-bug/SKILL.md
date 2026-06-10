@@ -71,7 +71,7 @@ If the verdict is NOT PASS:
     - If **FAIL**: → `Reopened`.
 4.  **Walkthrough**:
     - Use the **Walkthrough Template** below.
-    - Update project-local `docs/templates/walkthrough.md`.
+    - Update project-local `docs/srs/srs-walkthrough.md`.
 
 ## Artifact Templates
 

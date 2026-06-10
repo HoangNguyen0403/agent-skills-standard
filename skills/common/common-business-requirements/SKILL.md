@@ -4,17 +4,18 @@ description: Standardize BRD and BRD-lite discovery for business goals, stakehol
 metadata:
   triggers:
     files:
-    - 'BRD.md'
-    - 'docs/specs/product-brief-*.md'
-    - 'specs/*.md'
+      - "BRD.md"
+      - "docs/brd/brd-*.md"
+      - "specs/*.md"
     keywords:
-    - create brd
-    - business requirements
-    - business case
-    - stakeholder impact
-    - as-is to to-be
-    - roi justification
+      - create brd
+      - business requirements
+      - business case
+      - stakeholder impact
+      - as-is to to-be
+      - roi justification
 ---
+
 # Business Requirements Expert
 
 ## **Priority: P0 (CRITICAL)**
@@ -29,6 +30,7 @@ Frame the business "Why" before product or technical specs.
 - Capture AS-IS process pain and TO-BE target state.
 - Define scope boundary, exclusions, assumptions, and constraints.
 - Record value hypothesis: cost, revenue, risk, compliance, or cycle-time impact.
+- **Handoff Quality**: Identify the **Handoff Owner** (BA Lead) and the next accountable team member (Product Manager).
 - Add glossary terms when stakeholder or domain language can be misread.
 - Add Mermaid AS-IS/TO-BE process diagram when workflow complexity affects approval.
 
@@ -37,7 +39,8 @@ Frame the business "Why" before product or technical specs.
 - Load `references/brd-template.md`.
 - Keep each objective SMART: specific, measurable, achievable, relevant, and time-bound.
 - Link each BRD objective to a candidate PRD requirement placeholder (`REQ-*`).
-- Write to `docs/specs/product-brief-[slug].md`.
+- **Offshore Ready**: Include stakeholder validation plan and acceptance window for remote delivery teams.
+- Write to `docs/brd/brd-[slug].md`.
 
 ## 3. Quality Gate
 

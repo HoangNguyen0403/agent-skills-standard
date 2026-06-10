@@ -32,8 +32,8 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
    - NFR thresholds for performance, reliability, and scalability.
 4. Plan verification:
    - Unit, integration, E2E, visual, mobile, security, and migration checks.
-   - Save technical requirements to `docs/specs/srs-[slug].md` when file writes are allowed.
-   - Record evidence in `docs/templates/walkthrough.md`.
+   - Save technical requirements to `docs/srs/srs-[slug].md` when file writes are allowed.
+   - Record evidence in `docs/srs/srs-walkthrough.md`.
    - Rollback or degradation path.
 5. Record ADR:
    - Write one concise ADR when architecture or public contract changes.

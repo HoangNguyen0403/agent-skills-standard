@@ -2,28 +2,28 @@
 
 Agent Skills Standard syncs workflows into each agent's native surface. Run `ags sync`, then invoke the synced workflow from Claude, Codex, Cursor, Gemini, Copilot, Kiro, or another configured runtime.
 
-| Requirement Layer | Core Question | Workflow | Use When | Primary Output |
-| --- | --- | --- | --- | --- |
-| Route | Which workflow now? | `sdlc` | Unsure what to run next | next workflow |
-| BRD-lite | Why are we doing this? | `brainstorm-feature` | Idea is vague or business case unclear | `docs/specs/product-brief-[slug].md` |
-| PRD | What are we building? | `plan-feature` | Feature needs scope, requirements, and AC IDs | `docs/specs/prd-[slug].md` |
-| SRS/FRS | How will it work technically? | `design-solution` | Contracts, behavior, or architecture are unclear | `docs/specs/srs-[slug].md` |
-| Readiness | Are we ready to build? | `implementation-readiness` | BRD/PRD/SRS or test plan needs go/no-go | readiness verdict |
-| Build | Can we implement safely? | `implement-feature` | Approved feature needs code | `task.md` and handoff |
-| Verify | Did we prove it? | `verify-work` | Work is code-complete but unproven | `walkthrough.md` |
-| Trace | Is every requirement covered? | `traceability-audit` | Pre-release or handoff needs evidence mapping | traceability report |
-| Release | Is deployment safe? | `deploy-release` | Verification passed and deployment is planned | deployment report |
-| Publish | What do users need to know? | `publish-notes` | Need release communication | release notes |
-| Learn | How do we prevent repeat issues? | `retro-learn` | Need standards/process feedback loop | retro report |
-| Session | What happened in this delivery? | `session-report` | Need concise run summary and follow-ups | session report |
-| Fix | How do we remediate a bug? | `dev-fix` | Bug ticket needs remediation | fix plan and evidence |
-| Review | What risks are in this change? | `review-ticket` | PR or ticket needs multi-lens review | review verdict |
-| Review (PR) | Is this PR safe to merge? | `code-review` | PR diff needs focused correctness/security review | review findings |
-| Review (Repo) | What structural risks exist in the codebase? | `codebase-review` | Need broader architecture/quality scan | prioritized findings |
-| Security | What exploitable risk exists now? | `security-test` | Need SAST/SCA/secrets or branch security checks | security report |
-| Security (Adversarial) | Can this be exploited in practice? | `pentest` | Need PTES-aligned exploit validation | pentest report |
-| Benchmark | Is this skill implementation quality improving? | `skill-benchmark` | Need scored quality comparison vs legacy constraints | benchmark report |
-| Bug Verify | Is the fixed bug gone in real flow? | `verify-bug` | Post-fix UAT validation against reproduce steps | bug verification report |
+| Requirement Layer      | Core Question                                   | Workflow                   | Use When                                             | Primary Output           |
+| ---------------------- | ----------------------------------------------- | -------------------------- | ---------------------------------------------------- | ------------------------ |
+| Route                  | Which workflow now?                             | `sdlc`                     | Unsure what to run next                              | next workflow            |
+| BRD-lite               | Why are we doing this?                          | `brainstorm-feature`       | Idea is vague or business case unclear               | `docs/brd/brd-[slug].md` |
+| PRD                    | What are we building?                           | `plan-feature`             | Feature needs scope, requirements, and AC IDs        | `docs/prd/prd-[slug].md` |
+| SRS/FRS                | How will it work technically?                   | `design-solution`          | Contracts, behavior, or architecture are unclear     | `docs/srs/srs-[slug].md` |
+| Readiness              | Are we ready to build?                          | `implementation-readiness` | BRD/PRD/SRS or test plan needs go/no-go              | readiness verdict        |
+| Build                  | Can we implement safely?                        | `implement-feature`        | Approved feature needs code                          | `task.md` and handoff    |
+| Verify                 | Did we prove it?                                | `verify-work`              | Work is code-complete but unproven                   | `walkthrough.md`         |
+| Trace                  | Is every requirement covered?                   | `traceability-audit`       | Pre-release or handoff needs evidence mapping        | traceability report      |
+| Release                | Is deployment safe?                             | `deploy-release`           | Verification passed and deployment is planned        | deployment report        |
+| Publish                | What do users need to know?                     | `publish-notes`            | Need release communication                           | release notes            |
+| Learn                  | How do we prevent repeat issues?                | `retro-learn`              | Need standards/process feedback loop                 | retro report             |
+| Session                | What happened in this delivery?                 | `session-report`           | Need concise run summary and follow-ups              | session report           |
+| Fix                    | How do we remediate a bug?                      | `dev-fix`                  | Bug ticket needs remediation                         | fix plan and evidence    |
+| Review                 | What risks are in this change?                  | `review-ticket`            | PR or ticket needs multi-lens review                 | review verdict           |
+| Review (PR)            | Is this PR safe to merge?                       | `code-review`              | PR diff needs focused correctness/security review    | review findings          |
+| Review (Repo)          | What structural risks exist in the codebase?    | `codebase-review`          | Need broader architecture/quality scan               | prioritized findings     |
+| Security               | What exploitable risk exists now?               | `security-test`            | Need SAST/SCA/secrets or branch security checks      | security report          |
+| Security (Adversarial) | Can this be exploited in practice?              | `pentest`                  | Need PTES-aligned exploit validation                 | pentest report           |
+| Benchmark              | Is this skill implementation quality improving? | `skill-benchmark`          | Need scored quality comparison vs legacy constraints | benchmark report         |
+| Bug Verify             | Is the fixed bug gone in real flow?             | `verify-bug`               | Post-fix UAT validation against reproduce steps      | bug verification report  |
 
 ## Native Runtime Surfaces
 
@@ -61,6 +61,14 @@ Use `docs/requirements-standards-baseline.md` as the shared source baseline for 
 
 Jira, GitHub, GitLab, Azure DevOps, Zephyr, and similar MCPs are optional integration points. When installed and authenticated, use MCPs before exported artifacts to fetch tickets, PRs/MRs, update traceability, or publish test evidence; otherwise keep the same workflow running from local specs, task files, and walkthrough evidence.
 
+## Implicit Workflow Continuity (The "Slug" protocol)
+
+When running workflows in sequence (e.g., `brainstorm` -> `plan` -> `implement`):
+
+1. **The Slug**: Workflows use a consistent `[slug]` in the filename (e.g., `brd-payment.md`, `prd-payment.md`).
+2. **Context Resolution**: If you don't specify the feature in your follow-up, the agent uses **Recency Bias**—it checks the most recently modified files in `docs/brd/`, `docs/prd/`, etc., or newly created files in `git status` to automatically re-anchor to your current task.
+3. **Multi-Doc Handling**: If multiple candidate slugs exist and the intent is ambiguous, the agent will ask: "I see `checkout` and `payment` files were recently modified. Which one are we planning?"
+
 ## Role Quick Reference
 
 | Role     | Recommended Surfaces                                             |
@@ -72,17 +80,17 @@ Jira, GitHub, GitLab, Azure DevOps, Zephyr, and similar MCPs are optional integr
 
 ## Specialist Quick Reference
 
-| Need                                 | Specialist                              |
-| ------------------------------------ | --------------------------------------- |
-| Jira Ticket summary and ACs          | `specialist-jira-analyst`               |
-| Code structure and blast radius      | `specialist-codebase-scout`             |
-| Architecture boundaries              | `specialist-architecture-guard`         |
-| Security review                      | `specialist-security-reviewer`          |
-| Test gaps                            | `specialist-test-gap-finder`            |
-| AC coverage                          | `specialist-ac-verifier`                |
-| GitHub/GitLab/ADO PR or MR metadata  | `specialist-pr-reviewer`                |
-| Zephyr TC discovery                  | `specialist-zephyr-scanner`             |
-| Confluence context                   | `specialist-confluence-searcher`        |
-| Approved PR comment posting          | `specialist-pr-commenter-batch`         |
-| Integration test generation          | `specialist-integration-test-generator` |
-| TC creation                          | `specialist-tc-creator`                 |
+| Need                                | Specialist                              |
+| ----------------------------------- | --------------------------------------- |
+| Jira Ticket summary and ACs         | `specialist-jira-analyst`               |
+| Code structure and blast radius     | `specialist-codebase-scout`             |
+| Architecture boundaries             | `specialist-architecture-guard`         |
+| Security review                     | `specialist-security-reviewer`          |
+| Test gaps                           | `specialist-test-gap-finder`            |
+| AC coverage                         | `specialist-ac-verifier`                |
+| GitHub/GitLab/ADO PR or MR metadata | `specialist-pr-reviewer`                |
+| Zephyr TC discovery                 | `specialist-zephyr-scanner`             |
+| Confluence context                  | `specialist-confluence-searcher`        |
+| Approved PR comment posting         | `specialist-pr-commenter-batch`         |
+| Integration test generation         | `specialist-integration-test-generator` |
+| TC creation                         | `specialist-tc-creator`                 |

@@ -5,13 +5,36 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [cli-v2.4.6] - 2026-06-11
+
+**Category**: Enterprise SDLC & Managed Delivery Alignment
+
+### Added
+
+- **Slug Alignment Protocol**: Enforced consistent `[slug]` identifiers across `docs/brd/`, `docs/prd/`, and `docs/srs/` to enable automatic context linking and requirement traceability.
+- **Implicit Workflow Continuity**: Introduced "Recency Bias" logic allowing agents to intelligently identify the active feature from `git status` or file timestamps.
+- **Ambiguity Resolution**: Strict policy requiring agents to halt and request clarification if multiple candidate features are detected.
+- **Handoff Accountability**: Added mandatory "Handoff Owner" fields to workflows to represent accountability transitions between BA, PM, and IT departments in offshore models.
+
+### Changed
+
+- **Document Partitioning**: Migrated requirement files from generic `docs/specs/` and `docs/templates/` to partitioned, owner-centric directories:
+  - `docs/brd/`: Business Requirements (BA/Stakeholder owned)
+  - `docs/prd/`: Product Requirements (PM owned)
+  - `docs/srs/`: Software Requirements (IT/Implementation owned)
+- **Agent Prompt Synchronization**: Synchronized logic across GitHub Copilot (`.github/prompts/`), Codex (`.codex/skills/`), and Antigravity workflow templates for consistent SDLC behavior.
+
+### Versions
+
+- **Common Skills**: `2.1.1`
+
 # [mcp-v0.4.1] - 2026-06-03
 
 **Category**: MCP Skill loader improvement
 
 ### Changed
 
-- **MCP Skill Lookup Compatibility**: `load_skills_for_files` is wrong targeting to metadata.json file not include on sync command to user machine, so it not load the correct skills. Improve to using _INDEX.MD to routing correct places skills
+- **MCP Skill Lookup Compatibility**: `load_skills_for_files` is wrong targeting to metadata.json file not include on sync command to user machine, so it not load the correct skills. Improve to using \_INDEX.MD to routing correct places skills
 
 ### Versions
 

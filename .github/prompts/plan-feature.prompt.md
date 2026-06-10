@@ -10,6 +10,10 @@ Goal: Produce a decision-complete PRD and implementation plan before code starts
 
 1. Load context:
    - Load baseline: `docs/requirements-standards-baseline.md` (PRD section).
+   - **Source BRD Discovery**:
+     - Search `docs/brd/` for a matching `[slug]`.
+     - **Fallback**: Check the most recently modified BRD file.
+     - **Ambiguity**: If >1 recently modified file exists and the intent is unclear, **ask the user to choose/input the target slug before proceeding.**
    - BRD-lite brief, ticket, or user request.
    - Jira/GitHub/GitLab/ADO MCP ticket data when configured; otherwise local ticket text.
    - Existing specs, design references, and repo patterns.
@@ -21,7 +25,7 @@ Goal: Produce a decision-complete PRD and implementation plan before code starts
    - Confirm success metrics and guardrails that must not regress.
    - Stop when requirements are actionable.
 3. Draft PRD:
-   - Save to `docs/specs/prd-[slug].md` when file writes are allowed.
+   - Save to `docs/prd/prd-[slug].md` when file writes are allowed.
    - Keep "what" separate from "how".
    - Add stable requirement IDs and AC IDs.
    - Use Given/When/Then AC when behavior can be misread.
@@ -43,26 +47,42 @@ Goal: Produce a decision-complete PRD and implementation plan before code starts
 
 ```md
 # Feature Plan: [Name]
+
 ## PRD
+
 ## Problem Statement
+
 ## Goals And Guardrails
+
 ## Personas / JTBD
+
 ## Use Cases
+
 ## Requirement Trace
+
 ## User Stories And ACs
+
 ## Decisions
 
 | Decision   | Choice   | Reason   |
 | ---------- | -------- | -------- |
 | [decision] | [choice] | [reason] |
+
 ## Analytics / Telemetry
+
 ## Risks And Assumptions
+
 ## Rollout / Ops
+
 ## Implementation Plan
+
 ## Task Slices
+
 ## Verification Plan
+
 ## Next Workflow
 
 design-solution | implement-feature
+
 ## Cost Report
 ```
