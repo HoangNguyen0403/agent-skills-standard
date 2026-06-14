@@ -13,56 +13,23 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
    - Acceptance criteria and non-goals.
    - Changed files and matched skills.
 2. Select verification lanes:
-   - Unit or component tests
-   - Integration or API tests (Contract testing)
-   - E2E or visual checks (Visual Diff)
-   - Mobile emulator checks
-   - Security checks (Negative testing)
-   - Migration or deployment smoke
+   - Unit/component, integration/API, E2E/visual, mobile, security, migration, or deployment smoke.
 3. Execute:
    - Run the smallest reliable automated checks first.
    - Use Playwright/Appium only when user-facing behavior changed.
    - Use Zephyr/Jira/GitHub/GitLab/ADO MCPs only when configured; otherwise record local evidence.
    - If external MCP is unavailable, ask for exported ticket/PR/TC data or mark that lane BLOCKED.
-   - **Capture Evidence**: logs, screenshots, traces, or terminal output summaries.
-   - **Comparative Audit**: If it's a bug fix, prove the "Before" (failure) vs "After" (success).
+   - Capture logs, screenshots, traces, terminal summaries, and before/after proof for bug fixes.
 4. Judge:
    - PASS: all acceptance criteria proven.
    - FAIL: original bug or missed requirement still reproducible.
    - BLOCKED: environment, credentials, or approval prevents proof.
 5. Record evidence:
    - If verification reveals behavior drift, require PRD/SRS updates before PASS.
-   - Update traceability notes from BRD objective -> PRD requirement -> SRS/FRS contract -> **verification evidence**.
+   - Update traceability notes from BRD objective -> PRD requirement -> SRS/FRS contract -> verification evidence.
    - Update project-local `docs/srs/srs-walkthrough.md`.
+   - For autonomous/channel mode, continue only when lane prerequisites exist; return BLOCKED for missing environment, credentials, or authoritative ACs.
    - Route next step back to implementation or `dev-fix`.
-
-## Output
-
-## Artifact Templates
-
-### Walkthrough Template
-
-```md
-# Walkthrough: [Name]
-
-## Scope
-
-## Acceptance Criteria Trace
-
-| AC ID   | Status    | Proof / Evidence Link |
-| ------- | --------- | --------------------- |
-| [ac-id] | PASS/FAIL | [link/summary]        |
-
-## Comparative Evidence (Before vs After)
-
-## Negative Testing Proof (Fail Cases)
-
-## Evidence (Screenshots/Logs)
-
-## Risks Observed
-
-## Next Workflow
-```
 
 ## Output Template
 
@@ -79,9 +46,16 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
 
 ## Observed Risks & Edge Cases
 
+## Runtime Contract
+
+## Handoff Payload
+
+## Blocking Questions
+
 ## Next Workflow
 
 implement-feature | dev-fix
 
 ## Cost Report
+Call `get_session_cost(workflow="verify-work")` before final handoff.
 ```

@@ -12,6 +12,8 @@ metadata:
 > [!IMPORTANT]
 > Post-merge UAT verification workflow. Walks JIRA reproduce steps, performs comparative audits (Before/After), attaches evidence to JIRA, and transitions status on PASS.
 
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:

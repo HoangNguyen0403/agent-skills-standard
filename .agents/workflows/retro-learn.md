@@ -28,10 +28,11 @@ Goal: Turn defects, missed expectations, and delivery friction into durable stan
    - Existing skill should prevent it: update `SKILL.md` and `evals/evals.json`.
    - No skill covers it: propose a new skill.
    - Workflow caused drift: update `.agents/workflows`.
+   - Specialist caused drift: add budget, fallback, or output-format rule.
    - Tooling can catch it: add or update an audit script.
 4. Verify learning:
    - Run changed skill validation.
-   - Run alignment checks.
+   - Run eval alignment.
    - Record remaining follow-ups.
 
 ## Output Template
@@ -49,7 +50,16 @@ Goal: Turn defects, missed expectations, and delivery friction into durable stan
 
 ## Skill Or Eval Updates
 
+## Runtime Contract
+
+## Handoff Payload
+
+## Blocking Questions
+
+## Next Workflow
+
 ## Follow-Ups
 
 ## Cost Report
+Call `get_session_cost(workflow="retro-learn")` before final handoff.
 ```

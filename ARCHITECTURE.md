@@ -96,7 +96,7 @@ Inspired by **Rust Token Killer (RTK)**, we aim for a zero-trust, low-overhead c
 
 ## 5. Core Services
 
-### SyncService (`src/services/SyncService.ts`)
+### SyncService (`cli/src/services/SyncService.ts`)
 
 The brain of the operation. It orchestrates the synchronization process.
 
@@ -104,7 +104,7 @@ The brain of the operation. It orchestrates the synchronization process.
 - **Key Dependencies**: `SkillSyncService`, `WorkflowSyncService`, `IndexGeneratorService`, `AgentBridgeService`.
 - **Design Principle**: "Safe Overwrite". It respects `custom_overrides` in `.skillsrc`.
 
-### IndexGeneratorService (`src/services/IndexGeneratorService.ts`)
+### IndexGeneratorService (`cli/src/services/IndexGeneratorService.ts`)
 
 Responsible for creating the "Context Bridge" for AI agents. Produces two output formats:
 
@@ -113,13 +113,13 @@ Responsible for creating the "Context Bridge" for AI agents. Produces two output
 - **Flat Index** (`assembleIndex()`): Legacy flat list format, still used for the registry's own AGENTS.md.
 - **Three-Tier Model**: Skills with broad file globs (e.g., `**/*.ts`) are automatically demoted to Keyword Match unless they are the designated `base_language_skills` for that category (defined in `metadata.json`).
 
-### SkillSyncService (`src/services/SkillSyncService.ts`)
+### SkillSyncService (`cli/src/services/SkillSyncService.ts`)
 
 Handles fetching and writing skill files from the remote registry.
 
 - **Responsibility**: Downloading SKILL.md + references from GitHub, writing to agent directories, pruning orphaned skills.
 
-### WorkflowSyncService (`src/services/WorkflowSyncService.ts`)
+### WorkflowSyncService (`cli/src/services/WorkflowSyncService.ts`)
 
 Handles workflow distribution from a single canonical source.
 
@@ -133,14 +133,15 @@ Handles workflow distribution from a single canonical source.
   - Cursor/Trae/Codex: skill folders (`SKILL.md`)
 - **Codex Note**: Codex does not consume `.agents/workflows` directly; it receives transformed workflow skills under `.codex/skills/<workflow>/SKILL.md`.
 - **SDLC Note**: Default workflows include the full SDLC spine from `sdlc` through `retro-learn`; teams may sync a subset through `.skillsrc`.
+- **Agentic Runtime Note**: Core SDLC workflows emit `Runtime Contract`, `Handoff Payload`, `Blocking Questions`, and `Next Workflow` sections so slash-command agents and channel agents can continue, pause, or delegate with the same artifact shape.
 
-### ConfigService (`src/services/ConfigService.ts`)
+### ConfigService (`cli/src/services/ConfigService.ts`)
 
 Manages the user configuration (`.skillsrc`).
 
 - **Responsibility**: Parsing YAML, validating schema (Zod), and resolving dependency exclusions (e.g. "Don't install React skills if this looks like Vue").
 
-### AgentBridgeService (`src/services/AgentBridgeService.ts`)
+### AgentBridgeService (`cli/src/services/AgentBridgeService.ts`)
 
 Creates agent-specific rule files that point to AGENTS.md.
 

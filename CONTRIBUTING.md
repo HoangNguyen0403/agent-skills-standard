@@ -58,7 +58,8 @@ Rules:
 4. Put heavy examples or checklists in `references/`.
 5. Keep requirement naming explicit for users: BRD-lite (`brainstorm-feature`), PRD (`plan-feature`), SRS/FRS (`design-solution`).
 6. Add the workflow to `DEFAULT_WORKFLOWS` only when it belongs in the standard SDLC spine, and add canonical source at `.agents/workflows/<name>.md`.
-7. Run `pnpm audit:sdlc` after changes.
+7. Core SDLC workflows must expose `Runtime Contract`, `Handoff Payload`, `Blocking Questions`, and `Next Workflow` for interactive and channel-agent runtimes.
+8. Run `pnpm audit:sdlc` after changes.
 
 ## 5. Default Init Standards
 
@@ -72,7 +73,8 @@ Rules:
 4. Use pinned category refs from `skills/metadata.json`.
 5. Treat Jira, ADO, Zephyr, and similar MCPs as optional workflow integrations, not required core dependencies.
 6. Workflows may call available tasking/test MCPs, but must still work from local artifacts.
-7. New specialists must include `evals/evals.json`, strict budgets, structured output, and `No sub-agents`.
+7. Channel agents must continue only when required artifacts/owners are known; otherwise return BLOCKED with max 3 blocking questions.
+8. New specialists must include `evals/evals.json`, strict budgets, structured output, and `No sub-agents`.
 
 ## 6. Quality Gates
 

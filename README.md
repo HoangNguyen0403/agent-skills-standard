@@ -6,7 +6,7 @@
 
 **The portable SDLC standards layer for AI coding agents. Sync once, then work in your own runtime.**
 
-**Current release:** `v2.4.6` — stricter BRD/PRD/SRS skills and templates (SMART, Gherkin AC, requirement cards) for EM + AI-agent readability.
+**Current release:** `v2.4.7` — workflow-end telemetry guidance, MCP session-cost helpers, and clearer runtime integration for SDLC handoff reporting.
 
 259 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
 

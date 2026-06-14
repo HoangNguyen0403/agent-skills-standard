@@ -12,6 +12,8 @@ metadata:
 > [!IMPORTANT]
 > Route a task to the next synced SDLC workflow based on current artifacts and repo state.
 
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
@@ -25,14 +27,8 @@ Goal: Select the next native workflow without loading every workflow body, while
 
 1. Inspect state:
    - User request
-   - **Context Resolution**:
-     - Search `docs/brd/`, `docs/prd/`, and `docs/srs/` for a matching `[slug]` based on the user's intent or mentioned feature.
-     - **Fallback (Implicit Intent)**: If no slug or feature is mentioned, check the **most recently modified** file in `docs/brd/` or check `git status` for newly created BRD files.
-     - **Ambiguity Resolution**: If multiple candidates exist (e.g., 3 different features modified today), **you MUST list the candidates and ask the user to choose or input the target slug(s).**
-     - **Multi-Select Intent**: If the user selects multiple slugs, ask if they want to:
-       - **Focus**: Work on just one for now (Recommended for context hygiene).
-       - **Consolidate**: Merge multiple BRDs into a single consolidated PRD/SRS.
-       - **Sequence**: Process them one after another in this session.
+   - Search `docs/brd/`, `docs/prd/`, and `docs/srs/` for a matching `[slug]`; if absent, use the newest BRD or `git status`.
+   - If multiple candidates exist, list them and ask whether to focus, consolidate, or sequence.
    - Baseline reference: `docs/requirements-standards-baseline.md`
    - Existing ticket, BRD-lite brief, PRD, SRS/FRS design, implementation plan, task list, walkthrough, release notes, and retro
    - Jira, ADO, Zephyr, or other MCP context when already configured
@@ -56,12 +52,10 @@ Goal: Select the next native workflow without loading every workflow body, while
    - IT Department handoff must include implementation owner candidates, affected repos/modules, test lanes, environments, release/rollback notes, and open blockers.
    - Never route directly to implementation when BRD/PRD/SRS trace or testable ACs are missing.
 
-4. Report only:
-   - Recommended workflow
-   - Required input artifact
-   - Blocking gaps
-   - Verification command
-   - Handoff owner and next accountable team member
+4. Set runtime state:
+   - Interactive: ask max 3 blocking questions.
+   - Autonomous/channel: continue only when required artifacts and owners are known; otherwise return BLOCKED.
+   - Emit next workflow, handoff payload, verification command, and owner.
 
 ## Output Template
 
@@ -80,8 +74,17 @@ Goal: Select the next native workflow without loading every workflow body, while
 
 ## Offshore Delivery Notes
 
+## Runtime Contract
+
+## Handoff Payload
+
+## Blocking Questions
+
+## Next Workflow
+
 ## Verification Command
 
 ## Cost Report
+Call `get_session_cost(workflow="sdlc")` before final handoff.
 ```
 

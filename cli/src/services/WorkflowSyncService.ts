@@ -31,11 +31,8 @@ export class WorkflowSyncService {
     if (!treeData) return false;
 
     const availableWorkflows = treeData.tree
-      .filter(
-        (f) =>
-          f.path.startsWith('.agents/workflows/') && f.path.endsWith('.md'),
-      )
-      .map((f) => path.basename(f.path, '.md'));
+      .filter((f) => this.isWorkflowMarkdownPath(f.path))
+      .map((f) => this.workflowNameFromPath(f.path));
 
     if (availableWorkflows.length === 0) return false;
 
@@ -109,12 +106,11 @@ export class WorkflowSyncService {
     }
 
     const workflowFiles = treeData.tree.filter((f) => {
-      if (!f.path.startsWith('.agents/workflows/') || !f.path.endsWith('.md'))
-        return false;
+      if (!this.isWorkflowMarkdownPath(f.path)) return false;
 
       if (typeof config.workflows === 'boolean') return config.workflows;
       if (Array.isArray(config.workflows)) {
-        return config.workflows.includes(path.basename(f.path, '.md'));
+        return config.workflows.includes(this.workflowNameFromPath(f.path));
       }
       return false;
     });
@@ -243,6 +239,17 @@ export class WorkflowSyncService {
   private isPathSafe(targetPath: string, subPath: string): boolean {
     const resolvedBase = path.resolve(subPath) + path.sep;
     return path.resolve(targetPath).startsWith(resolvedBase);
+  }
+
+  private isWorkflowMarkdownPath(workflowPath: string): boolean {
+    return (
+      path.posix.dirname(workflowPath) === '.agents/workflows' &&
+      workflowPath.endsWith('.md')
+    );
+  }
+
+  private workflowNameFromPath(workflowPath: string): string {
+    return path.basename(workflowPath, '.md');
   }
 
   private isOverridden(targetPath: string, overrides: string[]): boolean {

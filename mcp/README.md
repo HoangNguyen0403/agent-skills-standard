@@ -4,6 +4,8 @@ MCP server that lets any AI agent — Claude Code, Cursor, Antigravity, Kiro, Co
 
 Solves the **enforcement gap**: `AGENTS.md` and `_INDEX.md` are passive prompt context. Sub-agents in particular don't inherit them. This MCP exposes skill loading as explicit, auditable tool calls that work the same way across every MCP-compatible runtime.
 
+**Current release:** `v0.4.2` — workflow-end telemetry helpers, richer session-cost inputs, and host-runtime integration guidance for SDLC reporting.
+
 ## High-Density Architecture (Zero-Trust)
 
 This MCP follows the [Core Architecture](../ARCHITECTURE.md) inspired by **Rust Token Killer (RTK)** to achieve a "Zero-Trust" environment:
@@ -131,10 +133,10 @@ All accept the same stdio config. Consult each runtime's MCP docs for the exact 
 
 The server supports two transport modes: **stdio** (default) and **sse** (HTTP).
 
-| Mode | Transport | Use Case |
-| --- | --- | --- |
+| Mode      | Transport    | Use Case                                                                                                      |
+| --------- | ------------ | ------------------------------------------------------------------------------------------------------------- |
 | **stdio** | Standard I/O | Desktop AI agents (Claude Code, Cursor, Antigravity, etc.) where the agent spawns the server as a subprocess. |
-| **sse** | HTTP (SSE) | Remote or containerized agents (GoClaw, Cloud Run) that connect over the network. |
+| **sse**   | HTTP (SSE)   | Remote or containerized agents (GoClaw, Cloud Run) that connect over the network.                             |
 
 ### Stdio Mode (Default)
 
@@ -169,7 +171,7 @@ Add to your `config.json`:
 }
 ```
 
-*Note: GoClaw's `streamable-http` expects the SSE endpoint. Use the `/sse` path.*
+_Note: GoClaw's `streamable-http` expects the SSE endpoint. Use the `/sse` path._
 
 ## How an agent uses it
 
@@ -297,6 +299,30 @@ pnpm mcp:test   # vitest
 pnpm mcp:build  # tsup → mcp/dist/
 ```
 
+## Workflow Telemetry Integration
+
+`common-telemetry` defines the reporting contract, but the host runtime is what actually decides when a workflow starts and when it reaches a terminal state.
+
+The reusable helper lives in [mcp/src/services/WorkflowTelemetry.ts](/Users/nguyenhuyhoang/OtherProjects/agent-skills-standard/mcp/src/services/WorkflowTelemetry.ts). It gives host runtimes a small adapter surface to:
+
+- merge provider usage as it becomes available
+- merge model pricing, cache discounts, reasoning rates, and other billed cost
+- trigger `get_session_cost()` only when the active workflow ends in `completed`, `failed`, or `blocked`
+
+For a concrete wiring example, see [mcp/examples/workflow-telemetry-adapter.ts](/Users/nguyenhuyhoang/OtherProjects/agent-skills-standard/mcp/examples/workflow-telemetry-adapter.ts). That sample is intended for Codex wrappers, OpenClaw, GoClaw, or any orchestration layer that already receives usage metadata from API responses, billing hooks, or runtime logs.
+
+The MCP itself tracks only MCP-observed session telemetry. Exact workflow-end token cost becomes available when the host passes:
+
+- `promptTokens`
+- `cachedPromptTokens`
+- `completionTokens`
+- `reasoningTokens`
+- `inputCostPer1M`
+- `cachedInputCostPer1M`
+- `outputCostPer1M`
+- `reasoningCostPer1M`
+- optional `otherCost`
+
 Smoke test the built binary:
 
 ```bash
@@ -309,7 +335,7 @@ Smoke test the built binary:
 
 ## Token economics
 
-- **Tool schemas**: ~700 tokens per session (7 tools, terse descriptions). Negligible vs typical multi-tool MCP baselines.
+- **Tool schemas**: ~800 tokens per session (8 tools, terse descriptions). Negligible vs typical multi-tool MCP baselines.
 - **Per-load cost**: equivalent to the agent reading the matched `SKILL.md` or workflow files itself — the MCP saves round-trips by batching matches into one call.
 - **Tier-model demotion**: prevents broad-glob skills from ballooning the response. A typical `.dart` file edit returns 2-3 skills (~3-5 KB), not the whole flutter category.
 
@@ -325,12 +351,16 @@ mcp/
 │   │   ├── SkillIndex.ts           # in-memory index + matcher (tier model)
 │   │   ├── SkillParser.ts          # SKILL.md frontmatter parser
 │   │   ├── WorkflowIndex.ts        # workflow discovery & markdown extraction
-│   │   └── SessionTracker.ts       # audit log
+│   │   ├── SessionTracker.ts       # session telemetry + audit log
+│   │   └── WorkflowTelemetry.ts    # host-side workflow cost helpers
 │   └── tools/
-│       └── index.ts                # 7 tool handlers
+│       └── index.ts                # 8 tool handlers
+├── examples/
+│   └── workflow-telemetry-adapter.ts # example host runtime integration
 └── test/
     ├── SkillIndex.spec.ts          # 19 unit tests
-    ├── Tools.spec.ts               # 13 unit tests
+    ├── Tools.spec.ts               # tool + telemetry unit tests
+    ├── WorkflowTelemetry.spec.ts   # workflow-end telemetry helper tests
     └── WorkflowIndex.spec.ts       # 5 unit tests
 ```
 
@@ -342,8 +372,8 @@ This server is designed against the published MCP best-practices guides:
 | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | Server Instructions field                                               | [awesome-mcp-best-practices §2.1](https://github.com/lirantal/awesome-mcp-best-practices) | `SERVER_INSTRUCTIONS` block delivered to every connecting client via `McpServer({...}, { instructions })`    |
 | Avoid "not found" responses                                             | [awesome §1.4](https://github.com/lirantal/awesome-mcp-best-practices)                    | No-match responses list available categories + suggest next call; `get_skill` misses suggest closest matches |
-| Tool descriptions with `<use_case>` / `<aliases>` / `<important_notes>` | [awesome §1.3](https://github.com/lirantal/awesome-mcp-best-practices)                    | All 5 tool descriptions structured                                                                           |
-| Don't 1:1 map APIs to tools                                             | [awesome §3.2](https://github.com/lirantal/awesome-mcp-best-practices)                    | 5 high-level use-case tools, no raw filesystem primitives                                                    |
+| Tool descriptions with `<use_case>` / `<aliases>` / `<important_notes>` | [awesome §1.3](https://github.com/lirantal/awesome-mcp-best-practices)                    | All tool descriptions structured                                                                             |
+| Don't 1:1 map APIs to tools                                             | [awesome §3.2](https://github.com/lirantal/awesome-mcp-best-practices)                    | 8 high-level use-case tools, no raw filesystem primitives                                                    |
 | Single Responsibility                                                   | [modelcontextprotocol.info](https://modelcontextprotocol.info/docs/best-practices/)       | Skills only — no auth/files/DB concerns mixed in                                                             |
 | Inversion of control / transport-agnostic                               | awesome §3.1                                                                              | `buildServer()` returns server abstracted from transport; `index.ts` wires stdio                             |
 | Configuration externalization                                           | mcp.info                                                                                  | `SKILLS_PROJECT_ROOT` env var + auto-detect across 10 candidate paths                                        |

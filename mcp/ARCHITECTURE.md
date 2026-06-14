@@ -6,13 +6,13 @@ For install + usage, see [`mcp/README.md`](./README.md). For the project-wide de
 
 ## 1. What This MCP Is (and Isn't)
 
-**Is**: a thin, stateless-on-disk Model Context Protocol server that reads a project's already-installed skill files and serves them to AI agents on demand via 5 tool calls.
+**Is**: a thin, stateless-on-disk Model Context Protocol server that reads a project's already-installed skill files and serves them to AI agents on demand via 8 tool calls.
 
 **Isn't**:
 
 - A skill installer — that's the CLI's job (`agent-skills-standard sync`).
 - A network service — it talks to ONE thing (the AI runtime that spawned it) over stdio.
-- A persistence layer — no database, no cache file, no telemetry, no state survives the process.
+- A persistence layer — no database, no cache file, and no state survives the process after exit.
 - A code-execution surface — skills are pure markdown; the MCP just reads, matches, and returns.
 
 The MCP exists because skills-as-files-on-disk is an honour-system protocol. Agents are supposed to read `AGENTS.md`, walk the router, then read matched `SKILL.md` files. In practice — especially for **sub-agents** that don't inherit `CLAUDE.md` — this step is silently skipped. The MCP turns that read into an explicit tool call, returns the matched content, and records it in an audit log.
@@ -36,7 +36,7 @@ The MCP exists because skills-as-files-on-disk is an honour-system protocol. Age
                            │
                            ▼
               ┌───────────────────────┐
-              │  buildServer()        │ — register 5 tools + instructions
+              │  buildServer()        │ — register 8 tools + instructions
               │  (server.ts)          │
               └────────────┬──────────┘
                            │
@@ -128,11 +128,11 @@ The expansion is **non-recursive** — composite-triggered skills cannot themsel
 
 ### What the MCP reads
 
-| File | When | Why |
-| --- | --- | --- |
-| `AGENTS.md` (any ancestor) | Once at startup (in `findProjectRoot`) | Anchors the project root |
-| `skills/metadata.json` (or empty) | Once at startup (in `SkillIndex.load`) | Loads `file_routing`, `broad_globs`, `base_language_skills` |
-| `skills/<category>/<skill>/SKILL.md` | Once at startup for parsing; again per-tool-call for body delivery | Builds the index; serves matched content |
+| File                                 | When                                                               | Why                                                         |
+| ------------------------------------ | ------------------------------------------------------------------ | ----------------------------------------------------------- |
+| `AGENTS.md` (any ancestor)           | Once at startup (in `findProjectRoot`)                             | Anchors the project root                                    |
+| `skills/metadata.json` (or empty)    | Once at startup (in `SkillIndex.load`)                             | Loads `file_routing`, `broad_globs`, `base_language_skills` |
+| `skills/<category>/<skill>/SKILL.md` | Once at startup for parsing; again per-tool-call for body delivery | Builds the index; serves matched content                    |
 
 ### What the MCP NEVER reads
 
@@ -168,9 +168,9 @@ SessionTracker (in-memory, RAM only)
    └── events: Array<LoadEvent>
                 │
                 ├── at: ISO timestamp
-                ├── via: 'load_skills_for_files' | 'load_skills_for_keywords' | 'get_skill'
+                ├── via: load/list/get/audit telemetry tools
                 ├── input: string[] (the args)
-                └── loaded: string[] (category/skill-id pairs)
+                └── loaded: string[] (category/skill-id, workflow/*, category/*)
 process exit ──→ all state lost
 ```
 
@@ -180,18 +180,24 @@ Why no persistence:
 - Persisting would require a config dir, write permissions, and a privacy story we don't want to own.
 - `audit_session_compliance()` reads from RAM. Fast, accurate, scoped.
 
+What is measured:
+
+- Exact MCP-observed session data: start time, elapsed seconds, tracked MCP tool calls, unique skills loaded, unique workflows loaded, no-match calls, per-tool call counts, and call timeline.
+- Optional host-supplied data: model name, prompt tokens, cached prompt tokens, completion tokens, reasoning tokens, token pricing, and other runtime cost. `get_session_cost()` calculates an estimated currency total only when the host runtime supplies those values.
+- Not measured natively: hidden prompt tokens, cached token discounts, provider-side billing adjustments, or non-MCP tool usage outside the host's reporting.
+
 ## 7. Threat Model
 
 ### What a malicious actor could try
 
-| Attack | Why it doesn't work here |
-| --- | --- |
-| Inject prompt content into a SKILL.md to manipulate the agent | Skills are user-provided files. The CLI applies `INJECTION_PATTERNS` sanitization to descriptions during sync. The MCP returns SKILL.md bodies verbatim — injection-via-skill is the user's responsibility (same as any prompt the user pastes). |
-| Path traversal via crafted file path in `load_skills_for_files` | We never read the input file paths from disk — we only match them against globs as strings. The MCP doesn't open user code. |
-| Read files outside the project | `findProjectRoot` walks up until `AGENTS.md` is found. Skill files are read via paths constructed from the configured `skillsDir` only. No string-templated path comes from user input. |
-| DoS via huge skill files | Skills are ≤500 tokens by registry policy. Even at 100 categories × 50 skills, total scan is ~5MB at startup; per-call response is bounded by the number of matches. |
-| Steal secrets from MCP config files | The MCP doesn't read MCP configs. The CLI does (and only the project-scoped ones unless the user explicitly opts in to user-scope). |
-| Network exfiltration | The MCP makes zero network calls. Pure file I/O + stdio. |
+| Attack                                                          | Why it doesn't work here                                                                                                                                                                                                                         |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Inject prompt content into a SKILL.md to manipulate the agent   | Skills are user-provided files. The CLI applies `INJECTION_PATTERNS` sanitization to descriptions during sync. The MCP returns SKILL.md bodies verbatim — injection-via-skill is the user's responsibility (same as any prompt the user pastes). |
+| Path traversal via crafted file path in `load_skills_for_files` | We never read the input file paths from disk — we only match them against globs as strings. The MCP doesn't open user code.                                                                                                                      |
+| Read files outside the project                                  | `findProjectRoot` walks up until `AGENTS.md` is found. Skill files are read via paths constructed from the configured `skillsDir` only. No string-templated path comes from user input.                                                          |
+| DoS via huge skill files                                        | Skills are ≤500 tokens by registry policy. Even at 100 categories × 50 skills, total scan is ~5MB at startup; per-call response is bounded by the number of matches.                                                                             |
+| Steal secrets from MCP config files                             | The MCP doesn't read MCP configs. The CLI does (and only the project-scoped ones unless the user explicitly opts in to user-scope).                                                                                                              |
+| Network exfiltration                                            | The MCP makes zero network calls. Pure file I/O + stdio.                                                                                                                                                                                         |
 
 ### What the user must trust
 
@@ -199,33 +205,34 @@ Why no persistence:
 - The skill content authors (`SKILL.md` is a prompt-able document; malicious authors could embed instructions).
 - npm to deliver an unmodified package (mitigated via `npm audit`, `--ignore-scripts`, or pinned versions).
 
-The MCP itself is ~17 KB of compiled code, no native bindings, no postinstall scripts, no telemetry.
+The MCP itself is small, has no native bindings, no postinstall scripts, and keeps only in-memory session telemetry for the active process.
 
 ## 8. Failure Modes
 
-| Failure | Behavior | User experience |
-| --- | --- | --- |
-| `AGENTS.md` not found by walking up from cwd | Server starts; `setup.kind === 'no-agents-md'` | Tools return setup guidance: "run `init` then `sync`, then restart" |
-| AGENTS.md found but no `skills/` directory | Server starts; `setup.kind === 'no-skills-dir'` | Tools return: "run `agent-skills-standard sync` to install skills" |
-| `metadata.json` missing | Server starts with empty `file_routing` | `load_skills_for_files` returns "no routes for these extensions" + available categories |
-| A `SKILL.md` is malformed (no frontmatter) | Skipped silently during scan; logged to stderr if `DEBUG=1` | Skill won't be discoverable — runs `validate` from CLI to catch |
-| `tools/call` for unknown tool | MCP SDK returns method-not-found error | Standard MCP error response |
-| Tool handler throws | Caught by SDK; returns error response | `isError: true` in the tool result |
-| Process killed (SIGTERM/SIGKILL) | stdio closes; runtime detects disconnection | User restarts AI session |
+| Failure                                      | Behavior                                                    | User experience                                                                         |
+| -------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `AGENTS.md` not found by walking up from cwd | Server starts; `setup.kind === 'no-agents-md'`              | Tools return setup guidance: "run `init` then `sync`, then restart"                     |
+| AGENTS.md found but no `skills/` directory   | Server starts; `setup.kind === 'no-skills-dir'`             | Tools return: "run `agent-skills-standard sync` to install skills"                      |
+| `metadata.json` missing                      | Server starts with empty `file_routing`                     | `load_skills_for_files` returns "no routes for these extensions" + available categories |
+| A `SKILL.md` is malformed (no frontmatter)   | Skipped silently during scan; logged to stderr if `DEBUG=1` | Skill won't be discoverable — runs `validate` from CLI to catch                         |
+| `tools/call` for unknown tool                | MCP SDK returns method-not-found error                      | Standard MCP error response                                                             |
+| Tool handler throws                          | Caught by SDK; returns error response                       | `isError: true` in the tool result                                                      |
+| Process killed (SIGTERM/SIGKILL)             | stdio closes; runtime detects disconnection                 | User restarts AI session                                                                |
 
 The principle: **the server starts even when nothing is set up**. Tools are responsible for delivering helpful guidance instead of crashing.
 
 ## 9. Service Layout
 
-| Module | Responsibility |
-| :--- | :--- |
-| `index.ts` | Bin entry. Resolves config, builds server, wires `StdioServerTransport`. |
-| `config.ts` | Walks the file system to find `AGENTS.md` and the skills directory. Returns a `ResolvedConfig` with a `setup` hint that's never `throw`-y. |
-| `services/SkillParser.ts` | Reads a single `SKILL.md` and extracts frontmatter `metadata.triggers`. Pure function. |
-| `services/SkillIndex.ts` | Owns the in-memory index. Loads `metadata.json`, scans skills, exposes `matchFiles` / `matchKeywords` / `findSkill`. |
-| `services/SessionTracker.ts` | Append-only log of tool calls in this process. Backs `audit_session_compliance`. |
-| `tools/index.ts` | The 5 tool handlers. All graceful-empty-state checks live here. |
-| `server.ts` | `McpServer` factory. Owns the `instructions` field and per-tool descriptions (use_case / aliases / important_notes). |
+| Module                       | Responsibility                                                                                                                             |
+| :--------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
+| `index.ts`                   | Bin entry. Resolves config, builds server, wires `StdioServerTransport`.                                                                   |
+| `config.ts`                  | Walks the file system to find `AGENTS.md` and the skills directory. Returns a `ResolvedConfig` with a `setup` hint that's never `throw`-y. |
+| `services/SkillParser.ts`    | Reads a single `SKILL.md` and extracts frontmatter `metadata.triggers`. Pure function.                                                     |
+| `services/SkillIndex.ts`     | Owns the in-memory index. Loads `metadata.json`, scans skills, exposes `matchFiles` / `matchKeywords` / `findSkill`.                       |
+| `services/SessionTracker.ts` | Append-only log of tool calls in this process. Backs `audit_session_compliance` and `get_session_cost`.                                    |
+| `services/WorkflowTelemetry.ts` | Host-side helpers for assembling workflow-end usage/pricing payloads and triggering `get_session_cost` only on terminal workflow states. |
+| `tools/index.ts`             | The 8 tool handlers. All graceful-empty-state checks live here.                                                                            |
+| `server.ts`                  | `McpServer` factory. Owns the `instructions` field and per-tool descriptions (use_case / aliases / important_notes).                       |
 
 ## 10. Decision Records
 
@@ -279,13 +286,13 @@ The principle: **the server starts even when nothing is set up**. Tools are resp
 
 ## 11. Performance Notes
 
-| Metric | Cost |
-| --- | --- |
-| Startup (load + parse 244 skills) | ~30-50 ms on a fast SSD |
-| Tool schema delivered to client | ~500 tokens (5 tools, structured descriptions) |
-| `load_skills_for_files` for typical Dart file | ~3-5 KB response (2 matched skills) |
-| `audit_session_compliance` after 10 calls | ~1 KB response |
-| Memory footprint at rest | ~5-10 MB (Node + parsed metadata) |
+| Metric                                        | Cost                                           |
+| --------------------------------------------- | ---------------------------------------------- |
+| Startup (load + parse 244 skills)             | ~30-50 ms on a fast SSD                        |
+| Tool schema delivered to client               | ~800 tokens (8 tools, structured descriptions) |
+| `load_skills_for_files` for typical Dart file | ~3-5 KB response (2 matched skills)            |
+| `audit_session_compliance` after 10 calls     | ~1 KB response                                 |
+| Memory footprint at rest                      | ~5-10 MB (Node + parsed metadata)              |
 
 The tier model is the key performance lever: without it, a single `.ts` edit could return 50 KB of skill content. With it, the response stays bounded regardless of how many skills are installed.
 

@@ -14,6 +14,8 @@ description: Run an AI-assisted PR code review.
 Check scope with \`git diff\`.
 `,
 };
+const WORKFLOW_ARGS =
+  'mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false';
 
 describe('WorkflowTransformer', () => {
   it('should parse workflow metadata into a stable internal model', () => {
@@ -50,6 +52,11 @@ describe('WorkflowTransformer', () => {
     it('should include $ARGUMENTS placeholder', () => {
       const result = WorkflowTransformer.transform(SOURCE, 'command');
       expect(result!.content).toContain('$ARGUMENTS');
+    });
+
+    it('should include the portable workflow arguments contract', () => {
+      const result = WorkflowTransformer.transform(SOURCE, 'command');
+      expect(result!.content).toContain(WORKFLOW_ARGS);
     });
 
     it('should include the workflow body steps', () => {
@@ -94,6 +101,11 @@ describe('WorkflowTransformer', () => {
     it('should include {{args}} placeholder', () => {
       const result = WorkflowTransformer.transform(SOURCE, 'toml');
       expect(result!.content).toContain('{{args}}');
+    });
+
+    it('should include the portable workflow arguments contract', () => {
+      const result = WorkflowTransformer.transform(SOURCE, 'toml');
+      expect(result!.content).toContain(WORKFLOW_ARGS);
     });
 
     it('should escape quotes in description', () => {
@@ -162,6 +174,11 @@ describe('WorkflowTransformer', () => {
       expect(result!.content).toContain('## Instructions');
     });
 
+    it('should include the portable workflow arguments contract', () => {
+      const result = WorkflowTransformer.transform(SOURCE, 'skill');
+      expect(result!.content).toContain(WORKFLOW_ARGS);
+    });
+
     it('should include the workflow body steps', () => {
       const result = WorkflowTransformer.transform(SOURCE, 'skill');
       expect(result!.content).toContain('## Step 1');
@@ -205,7 +222,9 @@ describe('WorkflowTransformer', () => {
         content: '# Test',
       };
       const result = WorkflowTransformer.transform(source, 'skill');
-      expect(result!.content).toContain('description: "Workflow skill for test wf."');
+      expect(result!.content).toContain(
+        'description: "Workflow skill for test wf."',
+      );
     });
 
     it('escapes backslashes in skill format description', () => {
@@ -214,7 +233,9 @@ describe('WorkflowTransformer', () => {
         content: '---\ndescription: Escape \\ character.\n---\n# Test',
       };
       const result = WorkflowTransformer.transform(source, 'skill');
-      expect(result!.content).toContain('description: "Escape \\\\ character."');
+      expect(result!.content).toContain(
+        'description: "Escape \\\\ character."',
+      );
     });
   });
 });

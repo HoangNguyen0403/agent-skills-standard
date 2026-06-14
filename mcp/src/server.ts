@@ -84,6 +84,7 @@ Call \`audit_session_compliance\` BEFORE you:
 
 Call \`get_session_cost\` BEFORE you:
   • Conclude a workflow or generate a final session cost artifact
+  • Pass workflow/model/token usage/rates when the host runtime exposes them
 
 # WORKFLOW
 
@@ -262,10 +263,27 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
 
 <important_notes>
 - Call this as the final action before terminating the workflow.
-- Fill in the token usage from your platform's tracking if available.
+- Pass token usage, cache/reasoning fields, and pricing from your platform's tracking if available; otherwise the tool returns MCP-observed telemetry with placeholders for the missing cost fields.
 </important_notes>`,
     inputSchema: getSessionCostSchema,
-    handler: () => getSessionCost({}, ctx),
+    handler: (args) =>
+      getSessionCost(
+        args as {
+          workflow?: string;
+          model?: string;
+          promptTokens?: number;
+          cachedPromptTokens?: number;
+          completionTokens?: number;
+          reasoningTokens?: number;
+          inputCostPer1M?: number;
+          cachedInputCostPer1M?: number;
+          outputCostPer1M?: number;
+          reasoningCostPer1M?: number;
+          otherCost?: number;
+          currency?: string;
+        },
+        ctx,
+      ),
   });
 
   return server;

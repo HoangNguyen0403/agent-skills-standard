@@ -12,6 +12,8 @@ metadata:
 > [!IMPORTANT]
 > Implement an approved feature plan with fresh-context slices, TDD, evidence, and PR-ready output.
 
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
@@ -24,10 +26,8 @@ Goal: Build an approved feature through TDD slices and route completed work to v
 ## Steps
 
 1. Load plan:
-   - **Source Discovery**:
-     - Search `docs/prd/` and `docs/srs/` for a matching `[slug]`.
-     - **Fallback**: Check the most recently modified files in those directories.
-     - **Ambiguity**: If multiple candidate features exist, **ask the user to choose or input the target slug.**
+   - Search `docs/prd/` and `docs/srs/` for a matching `[slug]`; if absent, use the newest matching artifact.
+   - If multiple candidates exist, ask the user to choose or input the target slug.
    - PRD or ticket
    - SRS/FRS technical design if present
    - Implementation plan
@@ -51,9 +51,8 @@ Goal: Build an approved feature through TDD slices and route completed work to v
    - Run local automated checks.
    - Update requirement trace notes for changed AC coverage.
    - Capture evidence in `docs/srs/srs-walkthrough.md`.
+   - For autonomous/channel mode, delegate only with disjoint files, owner, AC IDs, expected artifact, and verification command.
    - Route next step to `verify-work`.
-
-## Output
 
 ## Output Template
 
@@ -72,10 +71,19 @@ Goal: Build an approved feature through TDD slices and route completed work to v
 
 ## Known Risks
 
+## Runtime Contract
+
+## Handoff Payload
+
+## Delegation Packets
+
+## Blocking Questions
+
 ## Next Workflow
 
 verify-work
 
 ## Cost Report
+Call `get_session_cost(workflow="implement-feature")` before final handoff.
 ```
 

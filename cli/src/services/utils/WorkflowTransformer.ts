@@ -27,6 +27,9 @@ interface TransformedWorkflow {
   content: string;
 }
 
+const WORKFLOW_ARGUMENTS =
+  'Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.';
+
 /**
  * Transforms workflow markdown into each agent's native user-invoked command format.
  *
@@ -144,6 +147,8 @@ ${description}
 
 **Input:** $ARGUMENTS
 
+${WORKFLOW_ARGUMENTS}
+
 ## Instructions
 
 Execute the following steps for **$ARGUMENTS**.
@@ -168,6 +173,8 @@ ${body}`;
     return `description = "${escapedDescription}"
 prompt = """
 Please execute the workflow defined in \`${workflowSourcePath}/${name}.md\` for: {{args}}
+
+${WORKFLOW_ARGUMENTS}
 
 Follow the exact steps in the workflow file.
 """
@@ -217,6 +224,8 @@ metadata:
 
 > [!IMPORTANT]
 > ${normalizedDescription}
+
+${WORKFLOW_ARGUMENTS}
 
 ## Instructions
 

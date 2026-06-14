@@ -7,6 +7,7 @@ import { SessionTracker } from "../src/services/SessionTracker";
 import { SkillIndex } from "../src/services/SkillIndex";
 import {
   auditSessionCompliance,
+  getSessionCost,
   getSkill,
   listCategories,
   loadSkillsForFiles,
@@ -35,9 +36,14 @@ async function fixture(): Promise<{
   });
   // Canonical ids frequently include the category prefix; get_skill should allow
   // callers to omit it (compatibility with varied runtime naming conventions).
-  await writeSkill(skills, "quality-engineering", "quality-engineering-playwright-cli", {
-    keywords: ["playwright-cli", "browser automation"],
-  });
+  await writeSkill(
+    skills,
+    "quality-engineering",
+    "quality-engineering-playwright-cli",
+    {
+      keywords: ["playwright-cli", "browser automation"],
+    },
+  );
   await fs.writeFile(path.join(root, "AGENTS.md"), "# fixture\n");
   return { root, cleanup: () => fs.remove(root) };
 }
@@ -134,11 +140,11 @@ describe("tools — get_skill suggestions", () => {
     await f.cleanup();
   });
 
-  it("suggests close matches when name is wrong but category is right", async () => {
+  it("resolves close category-local matches before falling back to suggestions", async () => {
     const ctx = await makeCtx(path.join(f.root, "skills"));
     const out = await getSkill({ category: "flutter", name: "bloc" }, ctx);
     const t = text(out);
-    expect(t).toContain("Closest matches");
+    expect(t).not.toContain("Closest matches");
     expect(t).toContain("flutter/flutter-bloc");
   });
 
@@ -149,7 +155,9 @@ describe("tools — get_skill suggestions", () => {
       ctx,
     );
     const t = text(out);
-    expect(t).toContain("quality-engineering/quality-engineering-playwright-cli");
+    expect(t).toContain(
+      "quality-engineering/quality-engineering-playwright-cli",
+    );
   });
 
   it("lists all categories when category is wrong", async () => {
@@ -202,6 +210,55 @@ describe("tools — happy path tracker", () => {
     const audit = await auditSessionCompliance({}, ctx);
     expect(text(audit)).toContain("Skills loaded: 0");
     expect(text(audit)).toContain("_(none yet)_");
+  });
+
+  it("returns MCP-observed telemetry with platform token placeholders", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+    await loadSkillsForFiles({ files: ["lib/cart_bloc.dart"] }, ctx);
+
+    const cost = await getSessionCost({ workflow: "implement-feature" }, ctx);
+    const t = text(cost);
+
+    expect(t).toContain("# Session Telemetry");
+    expect(t).toContain("| **Workflow** | implement-feature |");
+    expect(t).toContain("| **MCP Tool Calls** | 2 |");
+    expect(t).toContain("| **Skills Loaded** | 2 |");
+    expect(t).toContain("[Agent: fill from platform usage]");
+    expect(t).toContain("[Agent: fill if runtime reports cache]");
+    expect(t).toContain("[Agent: fill if runtime reports reasoning]");
+    expect(t).toContain("load_skills_for_files");
+    expect(t).toContain("get_session_cost");
+  });
+
+  it("calculates total estimated cost when host usage and rates are supplied", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+
+    const cost = await getSessionCost(
+      {
+        workflow: "verify-work",
+        model: "example-model",
+        promptTokens: 1_000_000,
+        cachedPromptTokens: 500_000,
+        completionTokens: 500_000,
+        reasoningTokens: 250_000,
+        inputCostPer1M: 2,
+        cachedInputCostPer1M: 0.5,
+        outputCostPer1M: 10,
+        reasoningCostPer1M: 4,
+        otherCost: 0.25,
+        currency: "USD",
+      },
+      ctx,
+    );
+    const t = text(cost);
+
+    expect(t).toContain("| **Model** | example-model |");
+    expect(t).toContain("| **Prompt Tokens** | 1000000 |");
+    expect(t).toContain("| **Cached Prompt Tokens** | 500000 |");
+    expect(t).toContain("| **Completion Tokens** | 500000 |");
+    expect(t).toContain("| **Reasoning Tokens** | 250000 |");
+    expect(t).toContain("| **Other Runtime Cost** | USD 0.250000 |");
+    expect(t).toContain("| **Estimated Cost** | USD 8.500000 |");
   });
 });
 

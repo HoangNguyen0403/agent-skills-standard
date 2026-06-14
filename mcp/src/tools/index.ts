@@ -3,6 +3,7 @@ import { z } from "zod";
 import { SetupHint } from "../config";
 import { SessionTracker } from "../services/SessionTracker";
 import { MatchResult, SkillIndex } from "../services/SkillIndex";
+import { calculateEstimatedSessionCost } from "../services/WorkflowTelemetry";
 import { scanWorkflows, readWorkflowBody } from "../services/WorkflowIndex";
 
 export interface ToolContext {
@@ -181,6 +182,11 @@ export async function listCategories(
 
   const categories = ctx.index.listCategories();
   const routing = ctx.index.getRouting();
+  ctx.tracker.record({
+    via: "list_categories",
+    input: [],
+    loaded: categories.map((category) => `category/${category}`),
+  });
   const lines: string[] = ["# Skill categories", ""];
   for (const cat of categories) {
     const skills = ctx.index.listSkillsInCategory(cat);
@@ -226,31 +232,163 @@ export async function auditSessionCompliance(
 
 // ---------- get_session_cost ----------
 
-export const getSessionCostSchema = z.object({});
+export const getSessionCostSchema = z.object({
+  workflow: z
+    .string()
+    .min(1)
+    .optional()
+    .describe("Workflow name being finalized, e.g. 'plan-feature'."),
+  model: z
+    .string()
+    .min(1)
+    .optional()
+    .describe("Model used by the host runtime, if known."),
+  promptTokens: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe(
+      "Uncached prompt/input tokens from the host runtime, if available.",
+    ),
+  cachedPromptTokens: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe(
+      "Cached prompt/input tokens from the host runtime, if available.",
+    ),
+  completionTokens: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe("Completion/output tokens from the host runtime, if available."),
+  reasoningTokens: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe(
+      "Reasoning tokens from the host runtime, if reported separately.",
+    ),
+  inputCostPer1M: z
+    .number()
+    .nonnegative()
+    .optional()
+    .describe(
+      "Uncached input-token price per 1M tokens for the selected model.",
+    ),
+  cachedInputCostPer1M: z
+    .number()
+    .nonnegative()
+    .optional()
+    .describe("Cached input-token price per 1M tokens for the selected model."),
+  outputCostPer1M: z
+    .number()
+    .nonnegative()
+    .optional()
+    .describe("Output-token price per 1M tokens for the selected model."),
+  reasoningCostPer1M: z
+    .number()
+    .nonnegative()
+    .optional()
+    .describe("Reasoning-token price per 1M tokens when billed separately."),
+  otherCost: z
+    .number()
+    .nonnegative()
+    .optional()
+    .describe(
+      "Any additional runtime/tooling/provider cost in the target currency.",
+    ),
+  currency: z
+    .string()
+    .min(1)
+    .default("USD")
+    .describe("Currency label for estimated cost."),
+});
 
 export async function getSessionCost(
-  _args: Record<string, never>,
+  args: {
+    workflow?: string;
+    model?: string;
+    promptTokens?: number;
+    cachedPromptTokens?: number;
+    completionTokens?: number;
+    reasoningTokens?: number;
+    inputCostPer1M?: number;
+    cachedInputCostPer1M?: number;
+    outputCostPer1M?: number;
+    reasoningCostPer1M?: number;
+    otherCost?: number;
+    currency?: string;
+  },
   ctx: ToolContext,
 ): Promise<ToolResult> {
   const empty = maybeEmptyState(ctx);
   if (empty) return empty;
 
+  ctx.tracker.record({
+    via: "get_session_cost",
+    input: args.workflow ? [args.workflow] : [],
+    loaded: [],
+  });
+
   const loaded = ctx.tracker.loadedSkills();
+  const workflows = ctx.tracker.loadedWorkflows();
   const events = ctx.tracker.events_();
+  const summary = ctx.tracker.summary();
+  const estimatedCost = calculateEstimatedSessionCost(args);
 
   const lines: string[] = [
     "# Session Telemetry",
     "",
-    "Note: Exact LLM token proxying is dependent on the execution platform.",
-    "Please populate the following markdown table in your final artifact `artifacts/session-cost.md` using your platform's usage reporting if available:",
+    "Exact LLM token usage depends on the host runtime. MCP-observed fields below are measured directly; token and cost fields are exact only when the host supplies usage numbers.",
     "",
     "| Metric | Value |",
     "|---|---|",
-    "| **Tool Calls** | " + events.length + " |",
-    "| **Skills Loaded** | " + loaded.length + " |",
-    "| **Prompt Tokens** | [Agent: fill from platform usage] |",
-    "| **Completion Tokens** | [Agent: fill from platform usage] |",
-    "| **Estimated Cost** | [Agent: calculate based on model pricing] |",
+    `| **Workflow** | ${args.workflow ?? "[Agent: fill workflow name]"} |`,
+    `| **Session Started** | ${summary.startedAt} |`,
+    `| **Elapsed Seconds** | ${summary.elapsedSeconds} |`,
+    `| **MCP Tool Calls** | ${summary.toolCalls} |`,
+    `| **Skills Loaded** | ${loaded.length} |`,
+    `| **Workflows Loaded** | ${workflows.length} |`,
+    `| **No-Match Calls** | ${summary.noMatchCalls} |`,
+    `| **Model** | ${args.model ?? "[Agent: fill from platform usage]"} |`,
+    `| **Prompt Tokens** | ${args.promptTokens ?? "[Agent: fill from platform usage]"} |`,
+    `| **Cached Prompt Tokens** | ${args.cachedPromptTokens ?? "[Agent: fill if runtime reports cache]"} |`,
+    `| **Completion Tokens** | ${args.completionTokens ?? "[Agent: fill from platform usage]"} |`,
+    `| **Reasoning Tokens** | ${args.reasoningTokens ?? "[Agent: fill if runtime reports reasoning]"} |`,
+    `| **Other Runtime Cost** | ${formatOtherCost(args.otherCost, args.currency) ?? "[Agent: fill if runtime has extra billed items]"} |`,
+    `| **Estimated Cost** | ${estimatedCost ?? "[Agent: provide tokens and rates to calculate]"} |`,
+    "",
+    "## Calls By Tool",
+    "",
+    "| Tool | Calls |",
+    "|---|---:|",
+    ...Object.entries(summary.callsByTool).map(
+      ([tool, calls]) => `| ${tool} | ${calls} |`,
+    ),
+    "",
+    "## Loaded Skills",
+    "",
+    ...(loaded.length ? loaded.map((skill) => `- ${skill}`) : ["_(none)_"]),
+    "",
+    "## Loaded Workflows",
+    "",
+    ...(workflows.length
+      ? workflows.map((workflow) => `- ${workflow}`)
+      : ["_(none)_"]),
+    "",
+    "## Tool Call Timeline",
+    "",
+    ...(events.length
+      ? events.map(
+          (event) =>
+            `- ${event.at} — ${event.via}(${event.input.join(", ")}) → ${event.loaded.join(", ") || "(no match)"}`,
+        )
+      : ["_(none)_"]),
   ];
   return { content: [{ type: "text", text: lines.join("\n") }] };
 }
@@ -504,6 +642,14 @@ function similarity(a: string, b: string): number {
   const bt = new Set(bl.split(/[-_/]/));
   const overlap = [...at].filter((t) => bt.has(t)).length;
   return overlap / Math.max(at.size, bt.size, 1);
+}
+
+function formatOtherCost(
+  otherCost: number | undefined,
+  currency: string | undefined,
+): string | null {
+  if (otherCost === undefined) return null;
+  return `${currency ?? "USD"} ${otherCost.toFixed(6)}`;
 }
 
 function renderSkill(

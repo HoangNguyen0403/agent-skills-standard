@@ -39,6 +39,12 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 
 Do not run daily SDLC work through `ags`. Use `ags` to initialize, sync, validate, and update standards; run the synced workflows inside your agent.
 
+## Agentic Runtime Contract
+
+Core SDLC workflows emit `Runtime Contract`, `Handoff Payload`, `Blocking Questions`, and `Next Workflow` sections. Interactive agents use them to ask back; channel agents use them to continue, pause as BLOCKED, or delegate named packets without guessing.
+
+Each core SDLC workflow must call `get_session_cost(workflow="...")` before final handoff. The MCP reports observed tool/skill/workflow activity directly; exact token cost, cache discounts, reasoning tokens, and provider extras require host runtime usage data.
+
 ## Naming Rule
 
 When users ask for BRD, PRD, or SRS:

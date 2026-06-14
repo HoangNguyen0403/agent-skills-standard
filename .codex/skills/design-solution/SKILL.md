@@ -12,6 +12,8 @@ metadata:
 > [!IMPORTANT]
 > Turn an approved PRD or implementation goal into SRS/FRS technical requirements (How), architecture, contracts, and verification decisions.
 
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
@@ -36,7 +38,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
    - Define dependency direction and component RACI.
    - Choose sync, async, or hybrid communication.
    - Record data ownership and migration needs.
-   - **Parallel Readiness**: Define early mock/schema contracts so frontend, mobile, and backend can start in parallel.
+   - Define early mock/schema contracts so frontend, mobile, and backend can start in parallel.
 3. Define contracts:
    - Functional flows (FRS): user/system steps, inputs/outputs, validations, and error states.
    - For complex flows, use one actor, one goal, one session; split normal course from alternatives and exceptions.
@@ -48,51 +50,37 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
    - NFR thresholds for performance, reliability, and scalability.
 4. Plan verification:
    - Unit, integration, E2E, visual, mobile, security, and migration checks.
-   - **Failure Mode Analysis (FMA)**: Define "what happens when it breaks" for every dependency (Circuit breakers, fallbacks, retries).
+   - Failure mode analysis for dependencies, fallbacks, retries, and rollback/degradation.
    - Save technical requirements to `docs/srs/srs-[slug].md` when file writes are allowed.
    - Record evidence in `docs/srs/srs-walkthrough.md`.
-   - Rollback or degradation path.
 5. Record ADR:
    - Write one concise ADR when architecture or public contract changes.
+   - For autonomous/channel mode, continue when patterns are inferable; return BLOCKED for cross-team contracts, migrations, permissions, or NFR uncertainty.
    - Route next step to `implement-feature` or `dev-fix`.
-
-## Output
 
 ## Output Template
 
 ```md
 # Technical Design (SRS/FRS): [Name]
-
 ## Context
-
 ## Requirement Trace (BRD -> PRD -> SRS)
-
 ## Architecture & RACI
-
 ## Functional Flows (FRS)
-
 ## Parallel Readiness (Mocks/Schemes)
-
 ## Requirement Cards
-
 ## Contracts (API/Events)
-
 ## Data And Migration
-
 ## NFR Thresholds & Measurement
-
 ## Security And Privacy
-
 ## Failure Mode Analysis (FMA)
-
 ## Verification Plan & Evidence Matrix
-
 ## ADR
-
+## Runtime Contract
+## Handoff Payload
+## Blocking Questions
 ## Next Workflow
-
 implement-feature | dev-fix
-
 ## Cost Report
+Call `get_session_cost(workflow="design-solution")` before final handoff.
 ```
 

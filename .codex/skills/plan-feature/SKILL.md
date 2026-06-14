@@ -12,6 +12,8 @@ metadata:
 > [!IMPORTANT]
 > Plan a feature from BRD-lite brief or clear intent into PRD (What), decisions, implementation plan, and task slices.
 
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
@@ -25,10 +27,8 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
 
 1. Load context:
    - Load baseline: `docs/requirements-standards-baseline.md` (PRD section).
-   - **Source BRD Discovery**:
-     - Search `docs/brd/` for a matching `[slug]`.
-     - **Fallback**: Check the most recently modified BRD file.
-     - **Ambiguity**: If >1 recently modified file exists and the intent is unclear, **ask the user to choose/input the target slug before proceeding.**
+   - Search `docs/brd/` for a matching `[slug]`; if absent, use the newest BRD.
+   - If multiple candidates exist and intent is unclear, ask the user to choose/input the target slug.
    - BRD-lite brief, ticket, or user request.
    - Jira/GitHub/GitLab/ADO MCP ticket data when configured; otherwise local ticket text.
    - Existing specs, design references, and repo patterns.
@@ -61,54 +61,38 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
    - Map each task slice to requirement IDs, AC IDs, likely owner role, repo/module, expected artifact, and verification lane.
    - Identify whether `design-solution` is required before coding.
 5. Route:
+   - For autonomous/channel mode, continue when assumptions are non-critical; return BLOCKED for missing owner, untestable AC, approval, or release constraint.
    - Architecture unclear -> `design-solution`.
    - Plan approved and build-ready -> `implement-feature`.
-
-## Output
 
 ## Output Template
 
 ```md
 # Feature Plan: [Name]
-
 ## PRD
-
 ## Problem Statement
-
 ## Goals And Guardrails
-
 ## Personas / JTBD
-
 ## Use Cases
-
 ## Requirement Trace
-
 ## User Stories And ACs
-
 ## Decisions
-
 | Decision   | Choice   | Reason   |
 | ---------- | -------- | -------- |
 | [decision] | [choice] | [reason] |
-
 ## RACI / IT Department Handoff
-
 ## Analytics / Telemetry
-
 ## Risks And Assumptions
-
 ## Rollout / Ops
-
 ## Implementation Plan
-
 ## Task Slices
-
 ## Verification Plan
-
+## Runtime Contract
+## Handoff Payload
+## Blocking Questions
 ## Next Workflow
-
 design-solution | implement-feature
-
 ## Cost Report
+Call `get_session_cost(workflow="plan-feature")` before final handoff.
 ```
 

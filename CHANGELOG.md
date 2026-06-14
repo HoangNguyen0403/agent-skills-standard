@@ -5,6 +5,43 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [cli-v2.4.7] - 2026-06-13
+
+**Category**: Workflow Telemetry & Cost Reporting
+
+### Added
+
+- **Reusable Workflow Telemetry Helper**: Added host-side `WorkflowTelemetry` helpers and an example adapter so Codex-style wrappers, OpenClaw, and GoClaw orchestrators can trigger `get_session_cost()` automatically when SDLC workflows reach terminal states.
+
+### Changed
+
+- **SDLC Workflow Cost Reports**: Expanded workflow-end telemetry guidance to support cached prompt tokens, reasoning tokens, model-specific pricing, and optional extra billed runtime cost.
+- **Telemetry Documentation**: Updated root, CLI, and MCP READMEs plus MCP architecture docs to explain the host/runtime contract for exact session-cost reporting.
+
+### Versions
+
+- **CLI**: `2.4.6` → `2.4.7`
+- **Root**: `2.4.6` → `2.4.7`
+- **Common Skills**: `2.1.1` → `2.1.2`
+
+# [mcp-v0.4.2] - 2026-06-13
+
+**Category**: Workflow Telemetry & Host Runtime Integration
+
+### Added
+
+- **Workflow Telemetry Adapter Surface**: Added reusable workflow-end telemetry helpers plus an example integration adapter for orchestrators that collect provider usage, pricing, and billing metadata during a run.
+
+### Changed
+
+- **Session Cost Inputs**: `get_session_cost()` now accepts uncached input tokens, cached input tokens, reasoning tokens, per-rate pricing fields, and optional extra billed cost so the final estimate can better mirror provider billing when the host exposes those values.
+- **MCP Telemetry Docs**: Clarified what the MCP measures directly versus what the host must supply for exact workflow-end cost summaries.
+
+### Versions
+
+- **MCP**: `0.4.1` → `0.4.2`
+- **Common Skills**: `2.1.1` → `2.1.2`
+
 # [cli-v2.4.6] - 2026-06-11
 
 **Category**: Enterprise SDLC & Managed Delivery Alignment

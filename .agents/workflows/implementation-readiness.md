@@ -28,6 +28,7 @@ Goal: Decide whether a planned change is ready for implementation or must return
    - PARTIAL: implementation may start only for named slices with blocked slices isolated.
 
 4. Route:
+   - For autonomous/channel mode, return READY only with named slices, owners, verification lanes, and available environments.
    - READY -> `implement-feature` or `dev-fix`.
    - BLOCKED -> `plan-feature` or `design-solution`.
    - PARTIAL -> slice task list plus blockers.
@@ -47,7 +48,14 @@ Goal: Decide whether a planned change is ready for implementation or must return
 | --- | --- | --- |
 | [area] | [gap] | [owner/input] |
 
+## Runtime Contract
+
+## Handoff Payload
+
+## Blocking Questions
+
 ## Next Workflow
 
 ## Cost Report
+Call `get_session_cost(workflow="implementation-readiness")` before final handoff.
 ```
