@@ -9,10 +9,8 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
 ## Steps
 1. Load context:
    - Load baseline: `docs/requirements-standards-baseline.md` (PRD section).
-   - **Source BRD Discovery**:
-     - Search `docs/brd/` for a matching `[slug]`.
-     - **Fallback**: Check the most recently modified BRD file.
-     - **Ambiguity**: If >1 recently modified file exists and the intent is unclear, **ask the user to choose/input the target slug before proceeding.**
+   - Search `docs/brd/` for a matching `[slug]`; if absent, use the newest BRD.
+   - If multiple candidates exist and intent is unclear, ask the user to choose/input the target slug.
    - BRD-lite brief, ticket, or user request.
    - Jira/GitHub/GitLab/ADO MCP ticket data when configured; otherwise local ticket text.
    - Existing specs, design references, and repo patterns.
@@ -45,6 +43,7 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
    - Map each task slice to requirement IDs, AC IDs, likely owner role, repo/module, expected artifact, and verification lane.
    - Identify whether `design-solution` is required before coding.
 5. Route:
+   - For autonomous/channel mode, continue when assumptions are non-critical; return BLOCKED for missing owner, untestable AC, approval, or release constraint.
    - Architecture unclear -> `design-solution`.
    - Plan approved and build-ready -> `implement-feature`.
 
@@ -69,7 +68,9 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
 ## Implementation Plan
 ## Task Slices
 ## Verification Plan
+
 ## Next Workflow
 design-solution | implement-feature
 ## Cost Report
+Call `get_session_cost(workflow="plan-feature")` before final handoff.
 ```

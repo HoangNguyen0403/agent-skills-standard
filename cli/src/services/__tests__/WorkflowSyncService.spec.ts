@@ -198,6 +198,7 @@ describe('WorkflowSyncService', () => {
       mockGithubService.getRepoTree.mockResolvedValue({
         tree: [
           { path: '.agents/workflows/w1.md' },
+          { path: '.agents/workflows/references/runtime-contract.md' },
           { path: 'workflows/w2.md' },
           { path: '.codex/skills/w3/SKILL.md' },
         ],
@@ -526,9 +527,7 @@ describe('WorkflowSyncService', () => {
         default_branch: 'main',
       });
       mockGithubService.getRepoTree.mockResolvedValue({
-        tree: [
-          { path: '.agents/workflows/custom.md' },
-        ],
+        tree: [{ path: '.agents/workflows/custom.md' }],
       });
 
       const logSpy = vi.spyOn(console, 'log');
@@ -536,7 +535,9 @@ describe('WorkflowSyncService', () => {
 
       expect(result).toBe(false);
       expect(logSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Registry has 1 workflows (including 1 non-default)'),
+        expect.stringContaining(
+          'Registry has 1 workflows (including 1 non-default)',
+        ),
       );
     });
   });
@@ -557,7 +558,9 @@ describe('WorkflowSyncService', () => {
 
       const result = await workflowSyncService.assembleWorkflows(config);
       expect(result).toEqual([]);
-      expect(mockGithubService.downloadFilesConcurrent).toHaveBeenCalledWith([]);
+      expect(mockGithubService.downloadFilesConcurrent).toHaveBeenCalledWith(
+        [],
+      );
     });
 
     it('should print log when no matching workflows found in registry', async () => {

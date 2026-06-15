@@ -12,6 +12,8 @@ metadata:
 > [!IMPORTANT]
 > Run an AI-assisted PR code review using multi-layer lenses with confidence scoring.
 
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:

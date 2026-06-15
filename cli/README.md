@@ -5,7 +5,7 @@
 
 **Sync 242 AI coding standards to any project in one command.** Works with Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, and Roo.
 
-**Current release:** `v2.4.6` — Enterprise SDLC partitioning, Slug Alignment Protocol, and Handoff Accountability.
+**Current release:** `v2.4.7` — workflow-end telemetry guidance, MCP session-cost helpers, and clearer runtime integration for SDLC handoff reporting.
 
 ```bash
 npx agent-skills-standard@latest init   # detect your stack

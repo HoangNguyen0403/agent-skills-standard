@@ -12,6 +12,8 @@ metadata:
 > [!IMPORTANT]
 > Unified developer workflow for fixing bugs. Analyzes issue-tracker context, cross-checks docs/code, proposes a solution, implements the fix, verifies locally, and delivers a PR/MR.
 
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:

@@ -12,6 +12,8 @@ metadata:
 > [!IMPORTANT]
 > Clarify a rough product or engineering idea into a BRD-lite brief (Why) with measurable business value.
 
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
@@ -27,16 +29,9 @@ Goal: Convert vague intent into a compact BA-owned BRD-lite brief before PM PRD 
    - Load `common-business-requirements`.
    - Act as BA intake owner for IT Department delivery; PM is the next planning owner, not the BRD author.
    - Draft a provisional brief from the rough idea before asking.
-   - Executive summary: purpose, desired outcome, sponsor, validation owner.
-   - Business objective
-   - Stakeholders and impacted teams
-   - Current state (AS-IS) and desired state (TO-BE)
-   - Target user
-   - Pain or opportunity
-   - Desired outcome and value hypothesis
+   - Capture purpose, business objective, sponsor, validation owner, stakeholders, target users, pain/opportunity, and value hypothesis.
    - SMART metric: baseline, target, and date
-   - Cost-benefit or value hypothesis
-   - Constraints, glossary terms, and non-goals
+   - Cost-benefit hypothesis, constraints, glossary terms, and non-goals
    - Offshore delivery context: business owner, product owner, delivery lead, QA owner, timezone/cadence constraints, dependency teams, target environments, and release window.
 2. Explore options:
    - List 3 viable approaches.
@@ -56,6 +51,7 @@ Goal: Convert vague intent into a compact BA-owned BRD-lite brief before PM PRD 
    - Ask only true blocking product decisions, max 3 at a time.
    - Include a recommended default and 2-3 options for each question.
    - Record accepted approach and rejected alternatives.
+   - For autonomous/channel mode, continue when assumptions are non-critical; return BLOCKED only for missing owner, value metric, or scope fence.
    - Save BRD-lite brief to `docs/brd/brd-[slug].md` when writing files is allowed.
    - Route next step to `plan-feature` when the BRD-lite handoff is actionable.
 
@@ -74,14 +70,18 @@ Goal: Convert vague intent into a compact BA-owned BRD-lite brief before PM PRD 
 ## Offshore Delivery Context
 ## Recommended Approach
 ## Alternatives Considered
+
 ## Stakeholders
+
 ## Constraints
 ## Non-Goals
 ## Glossary
 ## PM Handoff Checklist
+
 ## Open Questions
 ## Next Workflow
 plan-feature
 ## Cost Report
+Call `get_session_cost(workflow="brainstorm-feature")` before final handoff.
 ```
 

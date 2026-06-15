@@ -12,6 +12,8 @@ metadata:
 > [!IMPORTANT]
 > Review a ticket or PR through focused specialist lenses: scope, architecture, security, tests, AC coverage, and PR metadata.
 
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:

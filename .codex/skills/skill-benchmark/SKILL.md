@@ -12,6 +12,8 @@ metadata:
 > [!IMPORTANT]
 > Benchmark AI skill effectiveness by measuring implementation quality against legacy constraints.
 
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
