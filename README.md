@@ -6,7 +6,7 @@
 
 **The portable SDLC standards layer for AI coding agents. Sync once, then work in your own runtime.**
 
-**Current release:** `v2.4.6` — stricter BRD/PRD/SRS skills and templates (SMART, Gherkin AC, requirement cards) for EM + AI-agent readability.
+**Current release:** `v2.4.7` — stricter BRD/PRD/SRS skills and templates (SMART, Gherkin AC, requirement cards) for EM + AI-agent readability.
 
 259 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
 
@@ -504,6 +504,7 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for design details and [CLI Architectur
 
 | Version | Date | Skills | Avg Tokens | Savings (%) | Report |
 | --- | --- | --- | --- | --- | --- |
+| v2.4.7 | 2026-06-15 | 251 | 551 | 85% | [Report](benchmarks/archive/v2.4.7.md) |
 | v2.4.6 | 2026-06-10 | 251 | 548 | 85% | [Report](benchmarks/archive/v2.4.6.md) |
 | v2.4.1 | 2026-05-18 | 247 | 540 | 85% | [Report](benchmarks/archive/v2.4.1.md) |
 | v2.4.0 | 2026-05-14 | 246 | 540 | 85% | [Report](benchmarks/archive/v2.4.0.md) |
@@ -513,4 +514,3 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for design details and [CLI Architectur
 | v2.1.2 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.2.md) |
 | v2.1.1 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.1.md) |
 | v2.1.0 | 2026-04-04 | 237 | 526 | 86% | [Report](benchmarks/archive/v2.1.0.md) |
-| v2.0.1 | 2026-03-30 | 238 | 527 | 86% | [Report](benchmarks/archive/v2.0.1.md) |

@@ -47,5 +47,25 @@
     "Write a React component for displaying user profiles",
     "Configure Kubernetes resource limits",
     "Design a database schema for an e-commerce site"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "This outage is urgent. Skip the investigation and just add a null check everywhere to stop the crash.",
+      "failure_mode": "Agent patches symptoms before proving root cause.",
+      "behavior_assertions": ["root cause", "reproduce", "one variable"]
+    },
+    {
+      "prompt": "I already tried three random fixes. Give me two more ideas fast.",
+      "failure_mode": "Agent continues shotgun debugging instead of restarting the method.",
+      "behavior_assertions": ["stop", "hypothesis", "experiment"]
+    }
+  ],
+  "rationalizations": [
+    "A quick patch now is better than investigation.",
+    "More random fixes will eventually reveal the answer."
+  ],
+  "red_flags": [
+    "skip the investigation",
+    "random fixes"
   ]
 }

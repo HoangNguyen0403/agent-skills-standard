@@ -54,6 +54,7 @@ Follow the Scorecard Rubric in `<SKILLS>/common/common-skill-creator/references/
 1. Read `<SKILLS>/<category>/<skill>/evals/evals.json`.
 2. Generate columns for **Failure Pattern** and **Success Pattern**.
 3. Refactor the file, citing the exact skill rule for each change.
+4. For guardrail skills, read `pressure_scenarios`, `rationalizations`, `red_flags`, and `behavior_assertions`.
 
 ---
 
@@ -64,6 +65,7 @@ Output the scorecard and compliant score using the templates in `<SKILLS>/common
 - **Compliance Score Before vs After**.
 - **Δ Delta: +Z%** 🚀.
 - **Eval Alignment**: How well does the skill teach what the eval tests?
+- **Behavior Coverage**: pressure scenarios, rationalizations, red flags, behavior assertions.
 
 ---
 
@@ -75,6 +77,7 @@ For every `❌ FAIL`, identify the root cause using the **Iteration Table** in:
 1. Signal not matching file? → Refine trigger.
 2. Rule too vague? → Add Anti-Pattern rule.
 3. Conflict? → Ensure P0 overrides P1.
+4. Guardrail weak under pressure? → Add rationalization counters and red flags.
 
 ### Suggested .skillsrc Exclusions
 

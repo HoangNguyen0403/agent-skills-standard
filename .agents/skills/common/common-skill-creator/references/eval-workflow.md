@@ -66,6 +66,13 @@ Don't wait — be productive. Good assertions:
 
 Update `evals/evals.json` and `eval_metadata.json` with assertions once drafted.
 
+For discipline skills, also record:
+
+- `pressure_scenarios`: prompts that tempt shortcut behavior
+- `rationalizations`: excuses the baseline agent used
+- `red_flags`: phrases that should trigger stop/restart
+- `behavior_assertions`: explicit outputs or actions proving compliance
+
 ## Step 3: Capture Timing on Completion
 
 When each subagent finishes, save to `timing.json` immediately — this data only comes through the task notification once:
@@ -85,8 +92,9 @@ When each subagent finishes, save to `timing.json` immediately — this data onl
 1. Present qualitative outputs + benchmark to user
 2. Collect feedback per eval case
 3. Improve skill — generalize from feedback, don't overfit to specific examples
-4. Rerun into `iteration-N+1/` directory
-5. Repeat until: user satisfied / all feedback empty / no meaningful progress
+4. If baseline agent found a loophole, add a rationalization counter or red flag
+5. Rerun into `iteration-N+1/` directory
+6. Repeat until: user satisfied / all feedback empty / no meaningful progress
 
 ## Step 6: Description Optimization
 

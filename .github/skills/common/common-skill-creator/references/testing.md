@@ -25,6 +25,19 @@ Save test cases to `evals/evals.json` next to `SKILL.md`:
   "should_not_trigger": [
     "Near-miss prompt — shares keywords but needs a different skill",
     "Another near-miss prompt"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "High-pressure or shortcut-seeking prompt",
+      "failure_mode": "How the agent is tempted to violate the rule",
+      "behavior_assertions": ["Phrase or action the skill should force"]
+    }
+  ],
+  "rationalizations": [
+    "The excuse agents commonly use to skip the rule"
+  ],
+  "red_flags": [
+    "Phrase that means stop and restart the protocol"
   ]
 }
 ```
@@ -33,6 +46,8 @@ Save test cases to `evals/evals.json` next to `SKILL.md`:
 
 - Write 2–3 `evals` (should-trigger) per skill. Use prompts a real user would type — specific, with context, not abstract.
 - Write 8–10 `should_not_trigger` entries. Focus on near-misses that share keywords but belong to a different skill.
+- Add `pressure_scenarios` for discipline skills where agents rationalize shortcuts.
+- Keep `rationalizations` and `red_flags` short; benchmark tooling reads them statically.
 
 ## 2. Trigger Rate Queries
 
@@ -110,3 +125,4 @@ When editing an existing skill, always compare before-and-after:
 - [ ] Trigger rate did not drop (re-run should-trigger set, verify ≥ previous score).
 - [ ] SKILL.md still within size limits (< 100 lines).
 - [ ] No new anti-patterns introduced (check `references/anti-patterns.md`).
+- [ ] Guardrail skills still counter the same rationalizations after edits.

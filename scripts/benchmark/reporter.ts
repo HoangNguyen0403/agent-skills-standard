@@ -81,6 +81,12 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
   lines.push(
     `| Avg. Quality Score                | **${summary.avgQualityScore}/10** |`,
   );
+  lines.push(
+    `| Guardrail Skills Covered          | **${summary.applicableBehaviorSkills}** |`,
+  );
+  lines.push(
+    `| Avg. Behavior Quality             | **${summary.avgBehaviorQualityScore}/4** (guardrail skills only) |`,
+  );
 
   const skillsWithEvals = skills.filter((s) => s.evalCount > 0).length;
   const avgAlignment =
@@ -197,10 +203,10 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
     );
     lines.push('');
     lines.push(
-      '| Skill                   | Tokens | Savings (vs Heavy) | Quality | Evals | Aligned |',
+      '| Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |',
     );
     lines.push(
-      '| ----------------------- | ------ | ------------------ | ------- | ----- | ------- |',
+      '| ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |',
     );
 
     for (const skill of catSkills.sort(
@@ -220,8 +226,11 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
             ? `✅ ${skill.evalAlignmentPct}%`
             : `⚠️ ${skill.evalAlignmentPct}%`;
 
+      const behaviorDisplay = skill.behaviorGuardrailApplicable
+        ? `${skill.behaviorQualityScore}/4`
+        : 'n/a';
       lines.push(
-        `| \`${skill.skillName.padEnd(21)}\` | ${skill.tokensWithSkill.toString().padEnd(6)} | ${heavyDisplay.padEnd(18)} | ${skill.qualityScore}/10 | ${evalDisplay} | ${alignDisplay} |`,
+        `| \`${skill.skillName.padEnd(21)}\` | ${skill.tokensWithSkill.toString().padEnd(6)} | ${heavyDisplay.padEnd(18)} | ${skill.qualityScore}/10 | ${behaviorDisplay.padEnd(8)} | ${evalDisplay} | ${alignDisplay} |`,
       );
     }
     lines.push('');
@@ -250,6 +259,27 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
     for (const s of lowAlignment.slice(0, 15)) {
       lines.push(
         `| \`${s.skillName.padEnd(21)}\` | ${s.category.padEnd(8)} | ⚠️ ${s.evalAlignmentPct}% | ${s.evalCount} | Add missing terms from eval assertions to SKILL.md |`,
+      );
+    }
+    lines.push('');
+  }
+
+  const lowBehavior = [...skills]
+    .filter((s) => s.behaviorGuardrailApplicable && s.behaviorQualityScore < 4)
+    .sort((a, b) => a.behaviorQualityScore - b.behaviorQualityScore);
+
+  if (lowBehavior.length > 0) {
+    lines.push('## ⚠️ Guardrail Skills Missing Behavior Coverage');
+    lines.push('');
+    lines.push(
+      '> These skills enforce behavior but do not yet cover enough pressure scenarios, rationalizations, red flags, or behavior assertions.',
+    );
+    lines.push('');
+    lines.push('| Skill | Category | Behavior | Action |');
+    lines.push('| ----- | -------- | -------- | ------ |');
+    for (const s of lowBehavior.slice(0, 15)) {
+      lines.push(
+        `| \`${s.skillName}\` | ${s.category} | ${s.behaviorQualityScore}/4 | Add pressure_scenarios, rationalizations, red_flags, and behavior_assertions |`,
       );
     }
     lines.push('');
@@ -335,6 +365,9 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
   lines.push('');
   lines.push(
     '> **Eval Alignment** (reported separately, not scored): % of eval `contains` assertion values that appear in SKILL.md content. Measures whether the skill actually teaches what its evals test — the closest static proxy for **with-skill vs without-skill** behavioral improvement.',
+  );
+  lines.push(
+    '> **Behavior Quality** (reported separately): guardrail-only score for pressure scenarios, rationalizations, red flags, and behavior assertions.',
   );
   lines.push('');
 

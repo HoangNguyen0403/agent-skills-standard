@@ -10,7 +10,7 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | SRS/FRS                | How will it work technically?                   | `design-solution`          | Contracts, behavior, or architecture are unclear     | `docs/srs/srs-[slug].md` |
 | Readiness              | Are we ready to build?                          | `implementation-readiness` | BRD/PRD/SRS or test plan needs go/no-go              | readiness verdict        |
 | Build                  | Can we implement safely?                        | `implement-feature`        | Approved feature needs code                          | `task.md` and handoff    |
-| Verify                 | Did we prove it?                                | `verify-work`              | Work is code-complete but unproven                   | `walkthrough.md`         |
+| Verify                 | Did we prove it with fresh evidence?            | `verify-work`              | Work is code-complete but unproven                   | `walkthrough.md`         |
 | Trace                  | Is every requirement covered?                   | `traceability-audit`       | Pre-release or handoff needs evidence mapping        | traceability report      |
 | Release                | Is deployment safe?                             | `deploy-release`           | Verification passed and deployment is planned        | deployment report        |
 | Publish                | What do users need to know?                     | `publish-notes`            | Need release communication                           | release notes            |
@@ -22,7 +22,7 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Review (Repo)          | What structural risks exist in the codebase?    | `codebase-review`          | Need broader architecture/quality scan               | prioritized findings     |
 | Security               | What exploitable risk exists now?               | `security-test`            | Need SAST/SCA/secrets or branch security checks      | security report          |
 | Security (Adversarial) | Can this be exploited in practice?              | `pentest`                  | Need PTES-aligned exploit validation                 | pentest report           |
-| Benchmark              | Is this skill implementation quality improving? | `skill-benchmark`          | Need scored quality comparison vs legacy constraints | benchmark report         |
+| Benchmark              | Is this skill behavior improving under pressure? | `skill-benchmark`         | Need scored quality comparison vs legacy constraints | benchmark report         |
 | Bug Verify             | Is the fixed bug gone in real flow?             | `verify-bug`               | Post-fix UAT validation against reproduce steps      | bug verification report  |
 
 ## Native Runtime Surfaces
@@ -56,6 +56,14 @@ Use `docs/requirements-standards-baseline.md` as the shared source baseline for 
 - BRD: SMART objective, stakeholders, AS-IS/TO-BE, cost-benefit, glossary, validation owner.
 - PRD: specific personas, use cases, `REQ-*`, `AC-*`, Gherkin where needed, analytics, risks, rollout, changelog.
 - SRS/FRS: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence`, requirement cards, NFR measurement, failure modes.
+
+## Guardrail Rule
+
+- `implement-feature`: failing test first, no pre-test implementation kept as reference.
+- `dev-fix`: root cause explicit before code proposal.
+- `verify-work`: no PASS from stale runs; evidence must be fresh.
+- `review-ticket`: findings before summary, evidence before confidence.
+- `skill-benchmark`: include pressure scenarios, rationalizations, red flags, and behavior assertions for guardrail skills.
 
 ## External MCPs
 

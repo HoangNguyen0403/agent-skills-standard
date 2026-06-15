@@ -23,9 +23,10 @@ metadata:
 
 Before declaring any task "done" or calling `notify_user`:
 
-1. **Adversarial Audit**: Search for code patterns that look like "Standard Defaults" (e.g., hardcoded values, generic library calls) where Project Skill exists.
-2. **Protocol Check**: Ensure "Pre-Write Audit Log" present for EVERY write tool call.
-3. **Execution Bias Check**: Ask: " I skip structural constraint to make code run faster/pass test?"
+1. **Adversarial Audit**: Search for default patterns where project rules should exist.
+2. **Protocol Check**: Confirm active skills and workflows were loaded before writing.
+3. **Evidence Check**: Ask what command or artifact proves the completion claim.
+4. **Execution Bias Check**: Ask whether speed or convenience skipped a structural rule.
 
 ## ** Post-Write Self-Scan**
 
@@ -34,6 +35,18 @@ Immediately after tool call:
 - **Scan**: Read diff or file content.
 - **Match**: Check against `Anti-Patterns` in all active skills.
 - **Fix**: Re-edit immediately if violation detected.
+
+## Red Flags
+
+- **Stop if "done" appears before fresh verification**: No completion claim yet.
+- **Stop if you relied on memory instead of re-reading files**: Reload source of truth.
+- **Stop if the shortcut is "small enough to skip protocol"**: Small changes hide drift.
+
+## Rationalization Prevention
+
+- **"The change is tiny"**: Tiny changes still violate guardrails.
+- **"The test passed earlier"**: Old evidence does not prove current state.
+- **"I know the pattern already"**: Load the active skill anyway.
 
 ## Anti-Patterns
 

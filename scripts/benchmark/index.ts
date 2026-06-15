@@ -51,6 +51,9 @@ function benchmarkSkill(category: string, skillName: string): SkillBenchmark {
   const {
     score: qualityScore,
     detail: qualityDetail,
+    behaviorGuardrailApplicable,
+    behaviorQualityScore,
+    behaviorDetail,
     evalCount,
     evalAlignmentPct,
   } = scoreQuality(skillDir, skillMdPath);
@@ -70,6 +73,9 @@ function benchmarkSkill(category: string, skillName: string): SkillBenchmark {
     costSavingsHeavy,
     qualityScore,
     qualityDetail,
+    behaviorGuardrailApplicable,
+    behaviorQualityScore,
+    behaviorDetail,
     evalCount,
     evalAlignmentPct,
   };
@@ -177,11 +183,15 @@ async function main() {
         b.qualityScore >= 8 ? '🌟' : b.qualityScore >= 6 ? '✅' : '❌';
       const evalIcon =
         b.evalCount === 0 ? '❌' : b.evalAlignmentPct >= 70 ? '✅' : '⚠️';
+      const behaviorLabel = b.behaviorGuardrailApplicable
+        ? `${b.behaviorQualityScore}/4 behavior`
+        : 'n/a behavior';
       console.log(
         `   ${statusIcon} ${entry.name}: ${b.tokensWithSkill} tokens | ` +
           `saves ${b.savingsPctHeavy}% (heavy) | ` +
           `quality ${qualityIcon} ${b.qualityScore}/10 | ` +
-          `evals ${evalIcon} ${b.evalCount} (${b.evalAlignmentPct}% aligned)`,
+          `evals ${evalIcon} ${b.evalCount} (${b.evalAlignmentPct}% aligned) | ` +
+          `${behaviorLabel}`,
       );
     }
     console.log('');
@@ -208,6 +218,17 @@ async function main() {
       allBenchmarks.reduce((s, b) => s + b.qualityScore, 0) / totalSkills
     ).toFixed(1),
   );
+  const behaviorSkills = allBenchmarks.filter((b) => b.behaviorGuardrailApplicable);
+  const applicableBehaviorSkills = behaviorSkills.length;
+  const avgBehaviorQualityScore =
+    applicableBehaviorSkills > 0
+      ? parseFloat(
+          (
+            behaviorSkills.reduce((s, b) => s + b.behaviorQualityScore, 0) /
+            applicableBehaviorSkills
+          ).toFixed(1),
+        )
+      : 0;
 
   const totalCostSavingsLight: Record<string, number> = {};
   const totalCostSavingsHeavy: Record<string, number> = {};
@@ -253,6 +274,8 @@ async function main() {
     avgSavingsPctLight,
     avgSavingsPctHeavy,
     avgQualityScore,
+    applicableBehaviorSkills,
+    avgBehaviorQualityScore,
     totalCostSavingsLight,
     totalCostSavingsHeavy,
     skills: allBenchmarks,

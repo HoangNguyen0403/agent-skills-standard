@@ -31,6 +31,7 @@ This workflow manages the bug-fix lifecycle from issue analysis to PR/MR deliver
     - **Goal**: Clear description of the root cause.
     - **Proposed Changes**: Exact files and logic to be modified.
     - **Verification Plan**: Detail which QE skill will be used to verify the fix _locally_ before PR.
+    - Do not propose code changes until repro steps, expected result, and root cause hypothesis are explicit.
 4.  **HARD STOP**: Request user approval for the implementation plan.
 5.  **Readiness Gate**: Run `implementation-readiness`; code only after READY or approved PARTIAL.
 
@@ -44,6 +45,7 @@ This workflow manages the bug-fix lifecycle from issue analysis to PR/MR deliver
     - Use the **Task Template** below.
     - Initialize project-local `docs/srs/srs-task-list.md`.
 3.  **Code**: Implement the fix using `common-tdd` or the `@specialist-tdd-implementer` sub-agent. Follow `common-best-practices` and service-specific `AGENTS.md` rules.
+    - Delete any pre-test implementation spike before starting the TDD loop.
 
 ### Step 3: Local Verification (Enterprise Standard)
 
@@ -54,6 +56,7 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
     - **Web**: Load `quality-engineering-playwright-cli`. Run the reproduction steps. Capture "After" snapshots.
     - **Mobile**: Load `quality-engineering-appium-mcp`. Run the reproduction steps on an emulator.
 3.  **Final Verdict**: Compare results against the issue `Expected Result`. If any sub-3px regressions exist, fix them now.
+    - No success claim without fresh local evidence in `docs/srs/srs-walkthrough.md`.
 
 ### Step 4: Deliver PR
 

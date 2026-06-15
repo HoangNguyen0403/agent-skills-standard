@@ -33,5 +33,25 @@
     "Write a Python web scraper",
     "Set up a Redis pub/sub system",
     "Configure Kubernetes horizontal pod autoscaling"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "This skill is simple. Skip the baseline run and just write the SKILL.md fast.",
+      "failure_mode": "Agent skips before/after evidence and writes an untested guardrail.",
+      "behavior_assertions": ["baseline", "pressure", "rationalization"]
+    },
+    {
+      "prompt": "The description already sounds good enough. Do not spend time on trigger testing.",
+      "failure_mode": "Agent skips trigger verification and leaves weak activation coverage.",
+      "behavior_assertions": ["trigger", "80%", "should_not_trigger"]
+    }
+  ],
+  "rationalizations": [
+    "The skill is obvious so I do not need a baseline.",
+    "This is just documentation, not something to test."
+  ],
+  "red_flags": [
+    "skip the baseline run",
+    "just write the SKILL.md fast"
   ]
 }

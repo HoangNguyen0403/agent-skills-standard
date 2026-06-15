@@ -22,9 +22,10 @@ Goal: Produce a PR-ready review verdict using compact specialist fanout and evid
 
 3. Merge findings:
    - Deduplicate by root cause.
-   - Keep only actionable findings with evidence.
-   - Calibrate severity: Blocker, Major, Minor, Suggestion.
-   - Mark unverified items as assumptions or requests for evidence.
+    - Keep only actionable findings with evidence.
+    - Calibrate severity: Blocker, Major, Minor, Suggestion.
+    - Mark unverified items as assumptions or requests for evidence.
+    - Lead with findings, not praise or summary.
 
 4. Decide verdict:
    - APPROVE: no Blocker/Major, required evidence present.

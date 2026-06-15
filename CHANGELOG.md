@@ -5,6 +5,20 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [cli-v2.4.7] - 2026-06-15
+
+**Category**: Behavior Guardrails and SDLC Hardening
+
+### Added
+
+- **Behavior Guardrails (P0)**: Introduced pressure scenarios, rationalization counters, and red-flag stop conditions for discipline skills (TDD, Debugging, Review, Protocol).
+- **Benchmark Behavior Scoring**: Added specialized behavior quality metrics to the benchmark report to measure agent resistance to shortcut-taking.
+
+### Changed
+
+- **Common Skills**: `2.2.0` (Major hardening of discipline guardrails)
+- **CLI**: `2.4.7` (Patch — update metadata for behavior metrics support)
+
 # [cli-v2.4.6] - 2026-06-11
 
 **Category**: Enterprise SDLC & Managed Delivery Alignment

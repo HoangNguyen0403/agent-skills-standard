@@ -45,6 +45,8 @@ Skills are the core value of this project.
 2. **Create**: Add your category folder in `skills/`.
 3. **Validate**: Ensure `SKILL.md` is under 500 tokens (check with `pnpm calculate-tokens`).
 4. **Reference**: Heavy content goes to `references/`.
+5. **Guardrail skills**: For TDD, debugging, review, verification, protocol, or workflow skills, add `pressure_scenarios`, `rationalizations`, `red_flags`, and behavior assertions to `evals/evals.json`.
+6. **Evidence first**: Do not tighten a guardrail skill without baseline or regression evidence for the behavior you are trying to change.
 
 ## 4. Creating Workflows
 
@@ -83,8 +85,8 @@ pnpm --filter ./cli validate:all
 pnpm audit:skills
 pnpm audit:sdlc
 pnpm check-alignment
-pnpm --filter ./cli test
-pnpm --filter ./cli build
+pnpm test
+pnpm build
 ```
 
 For release candidates, also run:
@@ -93,6 +95,8 @@ For release candidates, also run:
 pnpm check-alignment --threshold 90
 pnpm benchmark:report
 ```
+
+Guardrail-oriented skill changes should also verify that the benchmark report shows behavior coverage for the edited skills.
 
 ## 7. Release Process
 

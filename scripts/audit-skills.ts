@@ -6,6 +6,8 @@ async function main() {
   // Look for skills directory in the repository root
   const skillsDir = path.join(__dirname, '../skills');
   const forbiddenMarkers = ['alignment tokens:'];
+  const guardrailSkillPattern =
+    /common-(tdd|debugging|code-review|protocol-enforcement|skill-creator)\/SKILL\.md$/i;
 
   if (!(await fs.pathExists(skillsDir))) {
     console.error(pc.red(`Skills directory not found at ${skillsDir}`));
@@ -51,6 +53,21 @@ async function main() {
         ),
       );
       failedCount++;
+    }
+
+    if (guardrailSkillPattern.test(relPath)) {
+      const hasRedFlags = /red flags?/i.test(content);
+      const hasRationalization = /rationalization/i.test(content);
+      if (!hasRedFlags) {
+        console.log(pc.red(`❌ ${relPath} missing guardrail red-flag language`));
+        failedCount++;
+      }
+      if (!hasRationalization) {
+        console.log(
+          pc.red(`❌ ${relPath} missing rationalization or shortcut guidance`),
+        );
+        failedCount++;
+      }
     }
   }
 

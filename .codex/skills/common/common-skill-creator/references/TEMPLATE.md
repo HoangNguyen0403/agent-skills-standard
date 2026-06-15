@@ -29,6 +29,10 @@ description: '{ What it does + when to use it }. (triggers: {keyword1}, {keyword
 - **No {Bad Pattern}**: {What to do instead}.
 - **Avoid {Bad Pattern}**: {What to do instead}.
 
+## Red Flags
+
+- **Stop if {Shortcut Phrase}**: {Restart or verification action}.
+
 ## References
 
 - [{Topic Name}](references/deep-dive-topic.md)
@@ -41,3 +45,4 @@ description: '{ What it does + when to use it }. (triggers: {keyword1}, {keyword
 - [ ] No YAML metadata arrays (`keywords:`, `files:` removed).
 - [ ] No verbose explanations; use bulleted lists.
 - [ ] Complex code blocks (> 10 lines) moved to `references/` directory.
+- [ ] Guardrail skills include red flags and pressure-test support in evals.

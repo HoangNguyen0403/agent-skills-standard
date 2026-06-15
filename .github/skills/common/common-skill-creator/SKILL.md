@@ -25,9 +25,7 @@ Maximize **Token ROI**. Every line in SKILL.md must provide specific procedural 
 - **Level 3** references/: Detailed examples, schemas, and "TESTS.md" (On-demand).
 
 ## Workflow (New or Existing Skill)
-
 **New skill:**
-
 1. **Research** — web-search domain best practices, checklists, and standards; extract key terms → triggers, workflows → guidelines, mistakes → anti-patterns. See [Web Search Research](references/web-search-research.md).
 2. **Capture intent** — what it , when it trigger, expected output format?
 3. **Write SKILL.md** — draft using [TEMPLATE.md](references/TEMPLATE.md)
@@ -35,16 +33,15 @@ Maximize **Token ROI**. Every line in SKILL.md must provide specific procedural 
 5. **Evaluate** — grade assertions, review benchmark (pass rate, tokens, time)
 6. **Iterate** — rewrite based on feedback, rerun into next iteration dir, repeat
 7. **Optimize description** — run trigger eval queries, target ≥80% accuracy
-
+8. **Pressure-test** — for discipline skills, capture agent excuses, red flags, and stop conditions
 **Existing skill:**
-
 1. **Audit** — run Quality Checklist below; identify violations
 2. **Snapshot** — `cp -r <skill-dir> <workspace>/skill-snapshot/` before any edits
 3. **Improve SKILL.md** — fix violations, compress, move oversized content to `references/`
 4. **Test** — spawn parallel subagents: one with-new-skill, one with-snapshot (baseline)
 5. **Evaluate & iterate** — same as steps 4–5 above
 6. **Optimize description** — re-run trigger eval if description changed
-
+7. **Harden** — add rationalization counters where agents still fail under pressure
 See [Eval Workflow](references/eval-workflow.md) for full testing + iteration details.
 
 ## Description Quality (Activation)
@@ -55,7 +52,6 @@ See [Eval Workflow](references/eval-workflow.md) for full testing + iteration de
  - **When**: Explicitly define triggers (e.g., "Use when user says 'rotate keys'").
 - **Specificity**: Avoid vague verbs like "manage" or "handle". Use "Validate", "Inject", "Refactor", "Sanitize".
 - **Trigger Hint**: Include `(triggers: *.ext, keyword)` suffix for technical skills.
-
 ## Content Quality (Implementation)
 
 - **No Redundant Knowledge**: **NOT** explain concepts AI already knows (e.g., HTTP status codes, standard library docs, basic SOLID principles). Focus strictly on _project-specific_ rules.
@@ -65,7 +61,14 @@ See [Eval Workflow](references/eval-workflow.md) for full testing + iteration de
 - **Actionability**: Examples must copy-paste ready and executable.
 - **Workflow Clarity**: Use sequential ordered lists for multi-step processes.
 - **Progressive Disclosure**: Move code blocks >10 lines to `references/`.
+- **Pressure Hardening**: Discipline skills must name red flags, common excuses, and exact stop/restart conditions.
+## Behavior Guardrails
 
+- **Use pressure tests for discipline skills**: TDD, debugging, verification, review, protocol, and workflow skills need baseline failure evidence.
+- **Capture rationalizations**: Save the exact excuses agents use when they skip the rule.
+- **Add red flags**: Short phrases that tell the agent to stop and restart the protocol.
+- **Encode behavior in evals**: Add `pressure_scenarios`, `rationalizations`, `red_flags`, and `behavior_assertions` when the skill is guardrail-oriented.
+- **Keep it local**: Put behavior details in evals or `references/`; keep `SKILL.md` compact.
 ## Anti-Patterns
 
 - **No "AI-splaining"**: not explain why pattern good unless it's unique project constraint.
@@ -73,14 +76,14 @@ See [Eval Workflow](references/eval-workflow.md) for full testing + iteration de
 - **No Description Bloat**: If description exceeds 100 words, some capabilities belong in body.
 - **No long code blocks**: >10 lines → extract to `references/`
 - **No redundancy**: don't repeat frontmatter content in body
-
+- **No untested guardrails**: Rules that were never pressure-tested are speculation.
 ## Quality Checklist (Tessl-Aligned)
 
 - [ ] **Activation ≥ 90%**: Description covers both capabilities ("What") and triggers ("When").
 - [ ] **Implementation ≥ 90%**: No general-purpose explanations; all examples executable.
 - [ ] **Structural Compliance**: SKILL.md ≤ 100 lines; code blocks moved to `references/`.
 - [ ] Trigger rate ≥80% on should-trigger queries.
-
+- [ ] Guardrail skills include rationalizations, red flags, and behavior eval fields.
 ## References
 
 - [Skill Template](references/TEMPLATE.md) — load when starting new skill from scratch

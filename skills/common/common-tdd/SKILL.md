@@ -35,6 +35,12 @@ metadata:
 2. **GREEN**: Write simplest code to pass. **Verify pass**.
 3. **REFACTOR**: Clean up code while staying green.
 
+## **Red Flags**
+
+- **Stop if code exists before test**: Delete it. Restart from RED.
+- **Stop if test passes first run**: You tested old behavior.
+- **Stop if "tests after" appears**: That is not TDD.
+
 ## **AAA Structure (Mandatory)**
 
 Every test must follow Arrange-Act-Assert:
@@ -58,6 +64,13 @@ Every test must follow Arrange-Act-Assert:
 - **Minimalism**: Don't add features/options beyond current test (YAGNI).
 - **Isolation**: Mock external APIs (HTTP) and Time.
 - **Realism**: Prefer real DBs (test containers) and fast internal services (<200ms).
+
+## **Rationalization Prevention**
+
+- **"Too small to test"**: Small code still regresses. Write the test.
+- **"Manual testing is enough"**: Manual checks do not prove the RED step.
+- **"Keep code as reference"**: Pre-test code biases the implementation. Delete it.
+- **"Tests after are equivalent"**: Passing immediately proves little.
 
 ## **Verification Checklist**
 

@@ -29,3 +29,16 @@ For every `❌ FAIL` in the benchmark, identify the root cause:
 - **Before Score**: `(Matches / Total Assertions) * 100` = **X%**
 - **After Score**: `(Matches / Total Assertions) * 100` = **Y%**
 - **Δ Delta**: **+Z%** 🚀
+
+## 4. Behavior Guardrail Coverage
+
+Use this only for guardrail-oriented skills such as TDD, debugging, verification, protocol, review, and workflow enforcement.
+
+| Signal | Pass Condition |
+| :----- | :------------- |
+| Pressure scenarios | `pressure_scenarios` has at least 2 realistic shortcut prompts |
+| Rationalizations | `rationalizations` lists concrete excuses seen in baseline runs |
+| Red flags | `red_flags` lists short stop/restart phrases |
+| Behavior assertions | `behavior_assertions` proves the agent follows the protocol |
+
+Report behavior coverage separately from structural quality and token savings.

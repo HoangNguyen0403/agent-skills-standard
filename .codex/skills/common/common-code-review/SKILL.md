@@ -21,6 +21,8 @@ metadata:
 - **Questions > Commands**: " this handle null?" instead of "Fix this."
 - **Clarity**: Group by `[BLOCKER]`, `[MAJOR]`, `[NIT]`.
 - **Sync**: Enforce active framework P0 rules.
+- **Evidence First**: Findings need file, AC, test, or diff evidence.
+- **Findings First**: Lead with risks, not summary.
 
 ## Review Checklist (Mandatory)
 
@@ -38,6 +40,18 @@ See [references/checklist.md](references/checklist.md).
 Why: Risk or impact description.
 Fix: 1-2 line code or action.
 ```
+
+## Red Flags
+
+- **Stop if you are praising before reviewing**: Start with findings.
+- **Stop if a claim lacks evidence**: Mark it as assumption or inspect more.
+- **Stop if you are reviewing style only**: Return to behavior, security, tests.
+
+## Rationalization Prevention
+
+- **"It probably handles that edge case"**: Probably is not evidence.
+- **"CI is green so review is done"**: Tests do not replace review.
+- **"Only style matters here"**: Ignore style, not behavioral risk.
 
 ## Anti-Patterns
 

@@ -15,30 +15,33 @@ metadata:
 
 ## **Priority: P1 (OPERATIONAL)**
 
+## Root-Cause Protocol
 
-## Scientific Method
+1. **OBSERVE**: Gather error, logs, repro steps, recent diffs.
+2. **REPRODUCE**: Make the failure happen on demand or gather more evidence.
+3. **HYPOTHESIZE**: State one hypothesis in plain language.
+4. **EXPERIMENT**: Change one variable to prove or kill the theory.
+5. **FIX**: Touch code only after root cause proven.
+6. **VERIFY**: Re-run the failing case and regression checks.
 
-1. **OBSERVE**: Gather data. What exactly happening?
- - Logs, Stack Traces, Screenshots, Steps to Reproduce.
-2. **HYPOTHESIZE**: Formulate theory. "I think X causing Y because Z."
-3. **EXPERIMENT**: Test theory.
- - Create reproduction case.
- - Change _one variable at time_ to validate hypothesis.
-4. **FIX**: Implement solution once root cause proven.
-5. **VERIFY**: Ensure fix works and doesn't introduce regressions.
+## Red Flags
+
+- **Stop if you are changing code before repro**: You are guessing.
+- **Stop if fix #2 starts before understanding fix #1**: Re-open root cause.
+- **Stop if "quick patch for now" appears**: Symptom masking starts there.
+
+## Rationalization Prevention
+
+- **"The bug is obvious"**: Obvious bugs still need evidence.
+- **"I already tried a few things"**: That means you need structure.
+- **"It only fails in prod"**: Gather prod evidence, do not invent local myths.
+- **Minimal repro first**: A minimal reproduction beats more random fixes.
 
 ## Anti-Patterns
 
 - **No shotgun debugging**: Prove root cause before changing code.
 - **No debug prints in production**: Remove all print/console.log before commit.
 - **No symptom masking**: Fix root cause; never swallow errors without handling.
-
-## Best Practices
-
-- **Diff Diagnosis**: What changed since it last worked?
-- **Minimal Repro**: Create smallest possible code snippet that reproduces issue.
-- **Rubber Ducking**: Explain code line-by-line to inanimate object (or agent).
-- **Binary Search**: Comment out half code to isolate failing section.
 
 ## References
 

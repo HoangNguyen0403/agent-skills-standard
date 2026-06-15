@@ -22,7 +22,6 @@ When the user asks to perform this workflow, execute the following steps:
 Goal: Convert vague intent into a compact BA-owned BRD-lite brief before PM PRD planning or technical design.
 
 ## Steps
-
 1. Gather intent:
    - Load baseline: `docs/requirements-standards-baseline.md` (BRD section).
    - Load `common-business-requirements`.
@@ -60,53 +59,29 @@ Goal: Convert vague intent into a compact BA-owned BRD-lite brief before PM PRD 
    - Save BRD-lite brief to `docs/brd/brd-[slug].md` when writing files is allowed.
    - Route next step to `plan-feature` when the BRD-lite handoff is actionable.
 
-## Output
-
 ## Output Template
-
 ```md
 # BRD-lite Brief: [Name]
-
 ## Executive Summary
-
 ## Business Objective
-
 ## SMART Success Metric
-
 ## Target Users
-
 ## Problem
-
 ## AS-IS To TO-BE
-
 ## Stakeholders And Validation Owner
-
 ## Success Metrics
-
 ## Cost-Benefit / Value Hypothesis
-
 ## Offshore Delivery Context
-
 ## Recommended Approach
-
 ## Alternatives Considered
-
 ## Stakeholders
-
 ## Constraints
-
 ## Non-Goals
-
 ## Glossary
-
 ## PM Handoff Checklist
-
 ## Open Questions
-
 ## Next Workflow
-
 plan-feature
-
 ## Cost Report
 ```
 

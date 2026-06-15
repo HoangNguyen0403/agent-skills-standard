@@ -7,7 +7,6 @@ description: "Plan a feature from BRD-lite brief or clear intent into PRD (What)
 Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department handoff before code starts.
 
 ## Steps
-
 1. Load context:
    - Load baseline: `docs/requirements-standards-baseline.md` (PRD section).
    - **Source BRD Discovery**:
@@ -49,50 +48,28 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
    - Architecture unclear -> `design-solution`.
    - Plan approved and build-ready -> `implement-feature`.
 
-## Output
-
 ## Output Template
-
 ```md
 # Feature Plan: [Name]
-
 ## PRD
-
 ## Problem Statement
-
 ## Goals And Guardrails
-
 ## Personas / JTBD
-
 ## Use Cases
-
 ## Requirement Trace
-
 ## User Stories And ACs
-
 ## Decisions
-
 | Decision   | Choice   | Reason   |
 | ---------- | -------- | -------- |
 | [decision] | [choice] | [reason] |
-
 ## RACI / IT Department Handoff
-
 ## Analytics / Telemetry
-
 ## Risks And Assumptions
-
 ## Rollout / Ops
-
 ## Implementation Plan
-
 ## Task Slices
-
 ## Verification Plan
-
 ## Next Workflow
-
 design-solution | implement-feature
-
 ## Cost Report
 ```

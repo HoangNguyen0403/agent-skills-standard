@@ -16,6 +16,9 @@ export interface SkillBenchmark {
   // Quality
   qualityScore: number; // 0–10
   qualityDetail: string[];
+  behaviorGuardrailApplicable: boolean;
+  behaviorQualityScore: number; // 0–4 for applicable guardrail skills
+  behaviorDetail: string[];
   // Eval coverage
   evalCount: number; // number of evals in evals.json (0 = no evals)
   evalAlignmentPct: number; // % of eval "contains" assertions whose value appears in SKILL.md
@@ -42,6 +45,8 @@ export interface BenchmarkSummary {
   avgSavingsPctLight: number;
   avgSavingsPctHeavy: number;
   avgQualityScore: number;
+  applicableBehaviorSkills: number;
+  avgBehaviorQualityScore: number;
   totalCostSavingsLight: Record<string, number>; // per 1 call (USD) sum across all skills
   totalCostSavingsHeavy: Record<string, number>;
   skills: SkillBenchmark[];

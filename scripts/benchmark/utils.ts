@@ -2,6 +2,27 @@ import fs from 'fs-extra';
 import * as path from 'path';
 import { CHARS_PER_TOKEN } from './constants';
 
+const BEHAVIOR_GUARDRAIL_SKILL = /(tdd|debug|verify|protocol|review|skill-creator|workflow|security-audit)/i;
+
+interface SkillEvalAssertion {
+  type: string;
+  value: string;
+}
+
+interface PressureScenario {
+  prompt?: string;
+  failure_mode?: string;
+  behavior_assertions?: string[];
+}
+
+interface EvalsJson {
+  evals?: Array<{ assertions?: SkillEvalAssertion[] }>;
+  should_not_trigger?: string[];
+  pressure_scenarios?: PressureScenario[];
+  rationalizations?: string[];
+  red_flags?: string[];
+}
+
 export function countTokens(filePath: string): number {
   if (!fs.existsSync(filePath)) return 0;
   const content = fs.readFileSync(filePath, 'utf-8');
@@ -15,14 +36,29 @@ export function costUSD(tokens: number, pricePerMillion: number): number {
 export function scoreQuality(
   skillDir: string,
   skillMdPath: string,
-): { score: number; detail: string[]; evalCount: number; evalAlignmentPct: number } {
+): {
+  score: number;
+  detail: string[];
+  behaviorGuardrailApplicable: boolean;
+  behaviorQualityScore: number;
+  behaviorDetail: string[];
+  evalCount: number;
+  evalAlignmentPct: number;
+} {
   const detail: string[] = [];
   let score = 0;
   const content = fs.existsSync(skillMdPath)
     ? fs.readFileSync(skillMdPath, 'utf-8')
     : '';
+  const behaviorDetail: string[] = [];
+  let behaviorQualityScore = 0;
 
   const lines = content.split('\n').length;
+  const skillId = path.basename(skillDir);
+  const category = path.basename(path.dirname(skillDir));
+  const behaviorGuardrailApplicable = BEHAVIOR_GUARDRAIL_SKILL.test(
+    `${category}/${skillId}`,
+  );
 
   // 1. Actionable Constraints
   const bulletLines = (content.match(/^\s*[-*]\s+.+/gm) || []).length;
@@ -74,7 +110,7 @@ export function scoreQuality(
   let evalAlignmentPct = 0;
 
   if (fs.existsSync(evalsPath)) {
-    const evalsData = fs.readJSONSync(evalsPath);
+    const evalsData = fs.readJSONSync(evalsPath) as EvalsJson;
     const evals: Array<{
       assertions?: Array<{ type: string; value: string }>;
     }> = evalsData.evals || [];
@@ -128,9 +164,58 @@ export function scoreQuality(
     } else {
       detail.push('❌ Missing evals/evals.json — add eval prompts to measure with/without-skill delta');
     }
+
+    if (behaviorGuardrailApplicable) {
+      const pressureScenarios = evalsData.pressure_scenarios || [];
+      const rationalizations = evalsData.rationalizations || [];
+      const redFlags = evalsData.red_flags || [];
+      const behaviorAssertions = pressureScenarios.reduce(
+        (sum, scenario) => sum + (scenario.behavior_assertions?.length || 0),
+        0,
+      );
+
+      if (pressureScenarios.length >= 2) {
+        behaviorQualityScore += 1;
+        behaviorDetail.push(`✅ Pressure scenarios (${pressureScenarios.length})`);
+      } else {
+        behaviorDetail.push('❌ Missing pressure scenarios (need ≥2)');
+      }
+
+      if (rationalizations.length >= 2) {
+        behaviorQualityScore += 1;
+        behaviorDetail.push(`✅ Rationalizations (${rationalizations.length})`);
+      } else {
+        behaviorDetail.push('❌ Missing rationalizations (need ≥2)');
+      }
+
+      if (redFlags.length >= 2) {
+        behaviorQualityScore += 1;
+        behaviorDetail.push(`✅ Red flags (${redFlags.length})`);
+      } else {
+        behaviorDetail.push('❌ Missing red flags (need ≥2)');
+      }
+
+      if (behaviorAssertions >= 2) {
+        behaviorQualityScore += 1;
+        behaviorDetail.push(`✅ Behavior assertions (${behaviorAssertions})`);
+      } else {
+        behaviorDetail.push('❌ Missing behavior assertions (need ≥2)');
+      }
+    }
   } else {
     detail.push('❌ Missing evals/evals.json — add eval prompts to measure with/without-skill delta');
+    if (behaviorGuardrailApplicable) {
+      behaviorDetail.push('❌ Missing evals/evals.json for guardrail skill');
+    }
   }
 
-  return { score, detail, evalCount, evalAlignmentPct };
+  return {
+    score,
+    detail,
+    behaviorGuardrailApplicable,
+    behaviorQualityScore,
+    behaviorDetail,
+    evalCount,
+    evalAlignmentPct,
+  };
 }

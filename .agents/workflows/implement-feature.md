@@ -23,17 +23,19 @@ Goal: Build an approved feature through TDD slices and route completed work to v
    - Initialize or update `docs/srs/srs-task-list.md` with small vertical slices.
 3. Implement slices:
    - For each slice, write or update the failing test first.
+   - Do not keep pre-test implementation code as "reference".
    - Implement the smallest passing code.
    - Refactor without expanding scope.
    - Keep slice evidence near the task item.
    - Use sub-agents only when the runtime supports them and ownership is disjoint.
+   - If a fix path is unclear, stop and apply root-cause debugging before more code changes.
 4. Maintain context hygiene:
    - Start fresh context for large independent slices when possible.
    - Preserve decisions in `docs/srs/srs-task-list.md` or `docs/prd/prd-plan-[slug].md`.
    - If behavior or scope changes, update `docs/prd/prd-[slug].md` and `docs/srs/srs-[slug].md` before closing the slice.
    - Avoid carrying raw logs; summarize failures and fixes.
 5. Prepare handoff:
-   - Run local automated checks.
+   - Run fresh local automated checks before claiming success.
    - Update requirement trace notes for changed AC coverage.
    - Capture evidence in `docs/srs/srs-walkthrough.md`.
    - Route next step to `verify-work`.

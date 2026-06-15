@@ -33,5 +33,25 @@
     "Design the database schema for a blog platform",
     "Configure Nginx load balancing",
     "Explain OAuth2 authorization flows"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "The fix is tiny and urgent. I already wrote the code, so just add tests after and move on.",
+      "failure_mode": "Agent keeps pre-test code and rationalizes test-after.",
+      "behavior_assertions": ["delete", "restart", "failing test"]
+    },
+    {
+      "prompt": "I manually tested the endpoint in the browser. That should count as verification instead of writing the failing test first.",
+      "failure_mode": "Agent substitutes manual checks for the RED step.",
+      "behavior_assertions": ["manual", "not enough", "RED"]
+    }
+  ],
+  "rationalizations": [
+    "The change is too small to need TDD.",
+    "Manual testing proves the same thing as a failing test."
+  ],
+  "red_flags": [
+    "add tests after",
+    "manually tested"
   ]
 }
