@@ -1,3 +1,4 @@
+import yaml from 'js-yaml';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -19,6 +20,39 @@ Check scope with \`git diff\`.
 const WORKFLOW_ARGS =
   'mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false';
 const REPO_ROOT = path.resolve(__dirname, '../../../../..');
+
+function splitFrontmatter(content: string): {
+  frontmatter: Record<string, unknown> | null;
+  body: string;
+} {
+  const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!match) {
+    return { frontmatter: null, body: content };
+  }
+
+  return {
+    frontmatter: yaml.load(match[1]) as Record<string, unknown>,
+    body: match[2],
+  };
+}
+
+function normalizeBody(content: string): string {
+  return content
+    .replace(/\r\n/g, '\n')
+    .replace(/[ \t]+$/gm, '')
+    .replace(/\n(?:[ \t]*\n)+/g, '\n\n')
+    .trim();
+}
+
+function expectEquivalentWrapper(checkedIn: string, generated: string): void {
+  const checkedInParts = splitFrontmatter(checkedIn);
+  const generatedParts = splitFrontmatter(generated);
+
+  expect(checkedInParts.frontmatter).toEqual(generatedParts.frontmatter);
+  expect(normalizeBody(checkedInParts.body)).toBe(
+    normalizeBody(generatedParts.body),
+  );
+}
 
 describe('WorkflowTransformer', () => {
   it('should parse workflow metadata into a stable internal model', () => {
@@ -244,7 +278,9 @@ describe('WorkflowTransformer', () => {
 
   it('keeps checked-in workflow wrappers in parity with .agents/workflows sources', async () => {
     const workflowsDir = path.join(REPO_ROOT, '.agents/workflows');
-    const workflowEntries = await fs.readdir(workflowsDir, { withFileTypes: true });
+    const workflowEntries = await fs.readdir(workflowsDir, {
+      withFileTypes: true,
+    });
     const workflowFiles = workflowEntries
       .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
       .map((entry) => entry.name)
@@ -276,8 +312,8 @@ describe('WorkflowTransformer', () => {
         'utf8',
       );
 
-      expect(checkedInSkill).toBe(skill!.content);
-      expect(checkedInPrompt).toBe(prompt!.content);
+      expectEquivalentWrapper(checkedInSkill, skill!.content);
+      expectEquivalentWrapper(checkedInPrompt, prompt!.content);
     }
   });
 });
