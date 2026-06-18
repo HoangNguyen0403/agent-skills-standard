@@ -54,12 +54,276 @@ const SkillConfigSchema = z.object({
 });
 
 const DEFAULT_SDLC_SUPPORT_CATEGORIES = ['quality-engineering'] as const;
+const PRIMARY_CONFIG_FILE = '.skillsrc';
+const LEGACY_YAML_CONFIG_FILE = '.skillsrc.yaml';
+
+type ConfigMigrationResult = {
+  config: Record<string, unknown>;
+  migrated: boolean;
+};
 
 /**
  * Service for managing the `.skillsrc` configuration file.
  * Handles loading, saving, and initial construction of the configuration based on project metadata.
  */
 export class ConfigService {
+  private getPrimaryConfigPath(cwd: string): string {
+    return path.join(cwd, PRIMARY_CONFIG_FILE);
+  }
+
+  private getLegacyYamlConfigPath(cwd: string): string {
+    return path.join(cwd, LEGACY_YAML_CONFIG_FILE);
+  }
+
+  private async resolveConfigPath(cwd: string): Promise<string | null> {
+    const primaryPath = this.getPrimaryConfigPath(cwd);
+    if (await fs.pathExists(primaryPath)) {
+      return primaryPath;
+    }
+
+    const legacyYamlPath = this.getLegacyYamlConfigPath(cwd);
+    if (await fs.pathExists(legacyYamlPath)) {
+      return legacyYamlPath;
+    }
+
+    return null;
+  }
+
+  private dumpConfig(config: Record<string, unknown>): string {
+    return yaml.dump(config, {
+      noRefs: true,
+      lineWidth: -1,
+    });
+  }
+
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+  }
+
+  private stripAngleBrackets(value: string): string {
+    const trimmed = value.trim();
+    if (trimmed.startsWith('<') && trimmed.endsWith('>')) {
+      return trimmed.slice(1, -1).trim();
+    }
+    return trimmed;
+  }
+
+  private parseLegacyList(value: string): string[] {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed === '[]') return [];
+
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      return trimmed
+        .slice(1, -1)
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    if (trimmed.startsWith('- ')) {
+      return trimmed
+        .replace(/^-\s+/, '')
+        .split(/\s+-\s+/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    return trimmed
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  private parseLegacyBoolean(value: string): boolean | undefined {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === 'true') return true;
+    if (normalized === 'false') return false;
+    return undefined;
+  }
+
+  private migrateLegacyTextConfig(
+    content: string,
+  ): Record<string, unknown> | null {
+    const lines = content.split(/\r?\n/);
+    const registryLine = lines.find((line) =>
+      line.trim().startsWith('registry:'),
+    );
+    const agentsIndex = lines.findIndex((line) => line.trim() === 'agents:');
+    const skillsIndex = lines.findIndex((line) => line.trim() === 'skills:');
+
+    if (!registryLine || agentsIndex === -1 || skillsIndex === -1) {
+      return null;
+    }
+
+    const registryMatch = registryLine.match(/^\s*registry:\s*(.+)$/);
+    if (!registryMatch) {
+      return null;
+    }
+
+    const config: Record<string, unknown> = {
+      registry: this.stripAngleBrackets(registryMatch[1]),
+      agents: [],
+      skills: {},
+    };
+
+    const agents: string[] = [];
+    for (let index = agentsIndex + 1; index < skillsIndex; index += 1) {
+      const match = lines[index].match(/^\s*-\s+(.+)$/);
+      if (!match) continue;
+      agents.push(match[1].trim());
+    }
+    config.agents = agents;
+
+    const sectionNames = new Set(['custom_overrides', 'workflows', 'mcp']);
+    let currentCategory: string | null = null;
+
+    for (let index = skillsIndex + 1; index < lines.length; index += 1) {
+      const trimmed = lines[index].trim();
+      if (!trimmed) continue;
+
+      if (
+        trimmed === 'workflows:' ||
+        trimmed === 'mcp:' ||
+        trimmed.startsWith('custom_overrides:')
+      ) {
+        break;
+      }
+
+      const categoryMatch = trimmed.match(/^([A-Za-z0-9-]+):$/);
+      if (categoryMatch && !sectionNames.has(categoryMatch[1])) {
+        currentCategory = categoryMatch[1];
+        (config.skills as Record<string, CategoryConfig>)[currentCategory] = {};
+        continue;
+      }
+
+      if (!currentCategory) continue;
+
+      const refMatch = trimmed.match(/^ref:\s*(.+)$/);
+      if (refMatch) {
+        (config.skills as Record<string, CategoryConfig>)[currentCategory].ref =
+          refMatch[1].trim();
+        continue;
+      }
+
+      const excludeMatch = trimmed.match(/^exclude:\s*(.+)$/);
+      if (excludeMatch) {
+        (config.skills as Record<string, CategoryConfig>)[
+          currentCategory
+        ].exclude = this.parseLegacyList(excludeMatch[1]);
+        continue;
+      }
+
+      const includeMatch = trimmed.match(/^include:\s*(.+)$/);
+      if (includeMatch) {
+        (config.skills as Record<string, CategoryConfig>)[
+          currentCategory
+        ].include = this.parseLegacyList(includeMatch[1]);
+      }
+    }
+
+    const overridesLine = lines.find((line) =>
+      line.trim().startsWith('custom_overrides:'),
+    );
+    if (overridesLine) {
+      const match = overridesLine.match(/^\s*custom_overrides:\s*(.*)$/);
+      config.custom_overrides = this.parseLegacyList(match?.[1] ?? '');
+    }
+
+    const workflowsIndex = lines.findIndex(
+      (line) => line.trim() === 'workflows:',
+    );
+    if (workflowsIndex !== -1) {
+      const workflows: string[] = [];
+      for (let index = workflowsIndex + 1; index < lines.length; index += 1) {
+        const trimmed = lines[index].trim();
+        if (!trimmed) continue;
+        if (trimmed === 'mcp:') break;
+        const match = trimmed.match(/^-\s+(.+)$/);
+        if (match) workflows.push(match[1].trim());
+      }
+      config.workflows = workflows;
+    }
+
+    const mcpIndex = lines.findIndex((line) => line.trim() === 'mcp:');
+    if (mcpIndex !== -1) {
+      const mcp: Record<string, unknown> = {};
+      for (let index = mcpIndex + 1; index < lines.length; index += 1) {
+        const trimmed = lines[index].trim();
+        if (!trimmed) continue;
+        const match = trimmed.match(/^([A-Za-z0-9_]+):\s*(.+)$/);
+        if (!match) continue;
+
+        const [, key, rawValue] = match;
+        if (key === 'enabled' || key === 'prompted' || key === 'snippets') {
+          mcp[key] = this.parseLegacyBoolean(rawValue);
+        } else {
+          mcp[key] = rawValue.trim();
+        }
+      }
+      config.mcp = mcp;
+    }
+
+    return config;
+  }
+
+  private normalizeRawConfig(rawConfig: unknown): ConfigMigrationResult {
+    if (!this.isRecord(rawConfig)) {
+      return { config: {}, migrated: false };
+    }
+
+    const normalized: Record<string, unknown> = { ...rawConfig };
+    let migrated = false;
+
+    if (typeof normalized.registry === 'string') {
+      const strippedRegistry = this.stripAngleBrackets(normalized.registry);
+      if (strippedRegistry !== normalized.registry) {
+        normalized.registry = strippedRegistry;
+        migrated = true;
+      }
+    }
+
+    if (Array.isArray(normalized.agents)) {
+      const updatedAgents = normalized.agents.map((agent) => {
+        if (typeof agent === 'string' && agent.toLowerCase() === 'openai') {
+          migrated = true;
+          return Agent.Codex;
+        }
+        return agent;
+      });
+      normalized.agents = updatedAgents;
+    }
+
+    if (this.isRecord(normalized.skills)) {
+      const normalizedSkills: Record<string, CategoryConfig> = {};
+      for (const [category, value] of Object.entries(normalized.skills)) {
+        if (!this.isRecord(value)) {
+          normalizedSkills[category] = {};
+          migrated = true;
+          continue;
+        }
+
+        const entry: CategoryConfig = {};
+        if (typeof value.ref === 'string') entry.ref = value.ref;
+        if (Array.isArray(value.include))
+          entry.include = value.include.filter(
+            (item): item is string => typeof item === 'string',
+          );
+        if (Array.isArray(value.exclude)) {
+          entry.exclude = value.exclude.filter(
+            (item): item is string => typeof item === 'string',
+          );
+        } else if (typeof value.exclude === 'string') {
+          entry.exclude = this.parseLegacyList(value.exclude);
+          migrated = true;
+        }
+        normalizedSkills[category] = entry;
+      }
+      normalized.skills = normalizedSkills;
+    }
+
+    return { config: normalized, migrated };
+  }
+
   private getCategoryRef(
     category: string,
     metadata: Partial<RegistryMetadata>,
@@ -76,38 +340,50 @@ export class ConfigService {
    * @throws Error if the configuration format is invalid
    */
   async loadConfig(cwd: string = process.cwd()): Promise<SkillConfig | null> {
-    const configPath = path.join(cwd, '.skillsrc');
+    const configPath = await this.resolveConfigPath(cwd);
 
-    if (!(await fs.pathExists(configPath))) {
+    if (!configPath) {
       return null;
     }
 
+    const primaryConfigPath = this.getPrimaryConfigPath(cwd);
+    const shouldRenameLegacyYamlFile = configPath !== primaryConfigPath;
+
     try {
       const content = await fs.readFile(configPath, 'utf8');
-      const rawConfig = yaml.load(content) as Record<string, unknown>;
+      let rawConfig: unknown;
+      let migratedFromText = false;
 
-      // Backward compatibility & self-healing migration for legacy 'openai' agent configs
-      if (rawConfig && Array.isArray(rawConfig.agents)) {
-        let needsMigration = false;
-        const updatedAgents = rawConfig.agents.map((agent: unknown) => {
-          if (typeof agent === 'string' && agent.toLowerCase() === 'openai') {
-            needsMigration = true;
-            return Agent.Codex;
-          }
-          return agent;
-        });
+      try {
+        rawConfig = yaml.load(content);
+      } catch (parseError) {
+        rawConfig = this.migrateLegacyTextConfig(content);
+        migratedFromText = rawConfig !== null;
 
-        if (needsMigration) {
-          rawConfig.agents = updatedAgents;
-          await fs.outputFile(configPath, yaml.dump(rawConfig));
+        if (!migratedFromText) {
+          throw parseError;
         }
       }
 
+      const { config: normalizedConfig, migrated } =
+        this.normalizeRawConfig(rawConfig);
+
       // Validate with Zod
-      const parsed = SkillConfigSchema.safeParse(rawConfig);
+      const parsed = SkillConfigSchema.safeParse(normalizedConfig);
 
       if (!parsed.success) {
         throw new Error(`Invalid .skillsrc format: ${parsed.error.message}`);
+      }
+
+      if (migratedFromText || migrated || shouldRenameLegacyYamlFile) {
+        await fs.outputFile(
+          primaryConfigPath,
+          this.dumpConfig(parsed.data as Record<string, unknown>),
+        );
+      }
+
+      if (shouldRenameLegacyYamlFile) {
+        await fs.remove(configPath);
       }
 
       return parsed.data as SkillConfig;
@@ -125,8 +401,20 @@ export class ConfigService {
     config: SkillConfig,
     cwd: string = process.cwd(),
   ): Promise<void> {
-    const configPath = path.join(cwd, '.skillsrc');
-    await fs.outputFile(configPath, yaml.dump(config));
+    const primaryConfigPath = this.getPrimaryConfigPath(cwd);
+    const legacyYamlPath = this.getLegacyYamlConfigPath(cwd);
+
+    await fs.outputFile(
+      primaryConfigPath,
+      this.dumpConfig(config as Record<string, unknown>),
+    );
+
+    if (
+      legacyYamlPath !== primaryConfigPath &&
+      (await fs.pathExists(legacyYamlPath))
+    ) {
+      await fs.remove(legacyYamlPath);
+    }
   }
 
   /**

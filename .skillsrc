@@ -1,35 +1,42 @@
 registry: https://github.com/HoangNguyen0403/agent-skills-standard
 agents:
-
-- copilot
-- antigravity
-- codex
-  skills:
+  - copilot
+  - antigravity
+  - codex
+skills:
   typescript:
-  ref: typescript-v1.3.3
+    ref: typescript-v1.3.3
   common:
-  ref: common-v2.0.5
-  exclude: - common-accessibility - common-api-design - common-architecture-audit - common-architecture-diagramming - common-error-handling - common-mobile-animation - common-mobile-ux-core - common-observability
+    ref: common-v2.0.5
+    exclude:
+      - common-accessibility
+      - common-api-design
+      - common-architecture-audit
+      - common-architecture-diagramming
+      - common-error-handling
+      - common-mobile-animation
+      - common-mobile-ux-core
+      - common-observability
   quality-engineering:
-  ref: quality-engineering-v1.5.0
-  custom_overrides: []
-  workflows:
-- sdlc
-- brainstorm-feature
-- code-review
-- codebase-review
-- design-solution
-- implementation-readiness
-- plan-feature
-- review-ticket
-- skill-benchmark
-- pentest
-- dev-fix
-- implement-feature
-- verify-work
-- verify-bug
-- security-test
-  mcp:
+    ref: quality-engineering-v1.5.0
+custom_overrides: []
+workflows:
+  - sdlc
+  - brainstorm-feature
+  - code-review
+  - codebase-review
+  - design-solution
+  - implementation-readiness
+  - plan-feature
+  - review-ticket
+  - skill-benchmark
+  - pentest
+  - dev-fix
+  - implement-feature
+  - verify-work
+  - verify-bug
+  - security-test
+mcp:
   enabled: true
   scope: project
   prompted: true
