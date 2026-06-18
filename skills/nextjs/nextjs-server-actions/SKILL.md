@@ -1,6 +1,6 @@
 ---
 name: nextjs-server-actions
-description: Implement mutations, forms, and RPC-style calls with Next.js Server Actions. Use when implementing Server Actions, form mutations, or RPC-style data mutations in Next.js.
+description: Implement secure Next.js Server Actions for mutations, forms, and optimistic UI. Use when building actions, form flows, auth checks, or revalidation after writes.
 metadata:
   triggers:
     files:
@@ -21,35 +21,24 @@ metadata:
 > [!WARNING]
 > If project uses `pages/` directory instead of App Router, **ignore** this skill entirely.
 
-Handle form submissions and mutations without creating API endpoints.
+Build action files as secure server entrypoints, not as thin wrappers around unsafe form data.
 
-## Implementation Guidelines
+## Recipe
 
-- **Directive**: Always start file or function with `'use server'`. Access `formData.get('title')` for typed form fields. Export async functions for mutations.
-- **Form Handling**: Use `action` prop of `<form>` to trigger actions via `action={createPost}`. Use `useFormStatus()` for `pending` states — `disabled={pending}` on buttons. Use `useActionState` (React 19/Next.js 15) for `action={action}` form state with `<form action={action}>`.
-- **Data Refresh**: Trigger UI updates using **`revalidatePath('/')`** or **`revalidateTag('tag-name')`** after successful mutation.
-- **Interactivity**: For non-form triggers, invoke actions using **`useTransition`** hook to handle loading UI and prevent page from blocking.
-- **Optimistic Updates**: Use **`useOptimistic`** to show expected UI state immediately before server confirms mutation.
-- **Security**: **Sanitize all inputs** from `FormData`. Perform **auth checks** inside every action (`await auth()`). Limit file uploads by size and MIME type.
+1. **Define action in `actions.ts`** with `'use server'`.
+2. **Parse input** with a schema before touching storage or services, for example `z.object({ ... }).safeParse(...)` or `formData.get('title')` -> validated shape.
+3. **Authorize inside the action**; middleware alone is not enough.
+4. **Delegate to DAL/service layer**; keep storage details out of route UI files.
+5. **Revalidate exact tags/paths** owned by the mutation.
+6. **Expose pending and optimistic state** with `useFormStatus`, `useActionState`, `useTransition`, or `useOptimistic` as needed. Typical form wiring is `<form action={createPost}>` or `<form action={action}>`, with `useFormStatus()` and `disabled={pending}` inside the submit child.
 
-- **Form**: `<form action={createPost}>` (Progressive enhancements work without JS).
-- **Event Handler**: `onClick={() => createPost(data)}`.
-- **Pending State**: Use `useFormStatus` hook (must inside component rendered within form).
+## Verify
 
-## **P1: Operational Standard**
-
-### **1. Secure & Validate**
-
-Always validate inputs with `z.object({` schema and `safeParse` before processing. Check authorization within action. See [Secure Action Example](references/secure-actions.md).
-
-### **2. Pending States**
-
-Use `useActionState` (React 19/Next.js 15+) for state handling and `useFormStatus` for button loading states.
-
-## **Constraints**
-
-- **Closures**: Avoid defining actions inside components to prevent hidden closure encryption overhead and serialization bugs.
-- **Redirection**: Use `redirect()` for success navigation; it throws error that Next.js catches to handle redirect.
+- [ ] Action validates `FormData` or arguments before processing.
+- [ ] Action performs authn/authz inside the server function.
+- [ ] Mutations call DAL/service code, not raw storage from components.
+- [ ] Success path revalidates tags or paths.
+- [ ] Redirects or thrown errors are handled in the expected control flow.
 
 ## Anti-Patterns
 
@@ -57,3 +46,8 @@ Use `useActionState` (React 19/Next.js 15+) for state handling and `useFormStatu
 - **No skipped auth checks**: Verify session/user inside every action, not middleware.
 - **No actions defined inside components**: Define in `actions.ts` to avoid closure bugs.
 - **No `redirect()` in try/catch**: `redirect()` throws; catching it suppresses redirect.
+
+## References
+
+- [Framework Map](../references/framework-map.md)
+- [Secure Action Example](references/secure-actions.md)

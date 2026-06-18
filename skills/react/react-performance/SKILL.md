@@ -1,6 +1,6 @@
 ---
 name: react-performance
-description: Optimize React rendering, bundle size, and data fetching performance. Use when optimizing React rendering performance, reducing re-renders, or improving bundle size.
+description: Optimize React rendering, bundle size, and data flow with profiler-led decisions. Use when reducing re-renders, fixing waterfalls, or deciding whether memoization is warranted in React.
 metadata:
   triggers:
     files:
@@ -17,47 +17,38 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
+## Decision Map
 
-## Eliminate Data Waterfalls (P0)
+- **Measure first**: use React DevTools Profiler or app-level traces before adding memoization.
+- **Waterfalls**: parallelize independent reads with `Promise.all` and stream slow branches behind `Suspense`.
+- **Rerenders**: move state down, split context, and memoize only measured hot paths.
+- **Bundle cost**: lazy-load heavy islands, remove oversized dependencies, and avoid barrel files that fight tree-shaking.
+- **Compiler-aware**: if React Compiler is enabled, do not scatter `useCallback`/`useMemo` by reflex.
 
-- **Parallel Data**: Use **`Promise.all([getUser(), getProducts(), ...])`** for independent fetches. Avoid **sequential awaits** (Request Waterfalls).
-- **Preload**: Start fetches before render (in event handlers or **route loaders**).
-- **Suspense**: Use **Suspense boundaries** to stream partial content and show partial content early.
+## Recipe
 
-See [implementation examples](references/REFERENCE.md#parallel-fetch-with-suspense) for parallel fetch with Suspense boundary and lazy loading patterns.
+1. **Find the hotspot**: profiler flamegraph, bundle analyzer, or waterfall trace.
+2. **Pick the narrow fix**: state placement, context split, transition, lazy load, or memoization.
+3. **Retest after change**: confirm the render count or blocking time actually improved.
+4. **Keep slow work off the main path**: workers for heavy compute, streaming for slow I/O.
 
-## Reduce Bundle Size (P0)
+## Verify
 
-- **No Barrel Files**: **Avoid barrel files** (importing from index.ts); import directly from component files to improve tree-shaking.
-- **Lazy Load**: Use **`React.lazy`** or **`next/dynamic`** for heavy components like **Charts**, **Modals**, or large libraries.
-- **Dependency Reduction**: **Replace moment with dayjs** or **lodash with native/radash** to drop bytes. Use **`source-map-explorer`** or **`bundle-visualizer`** to find bloat.
-
-## Minimize Re-renders (P1)
-
-- **Isolation**: Move state as close to its usage as possible. Isolate heavy UI updates.
-- **List Performance**: Use **`react-window`** or **`react-virtual`** for **virtualization** of lists with 500+ items. Wrap list items in **`React.memo`**.
-- **Context Splitting**: **Split Context** into `State` and `Dispatch` objects. This prevents all consumers from re-rendering when only setter needed.
-- **Stability**: Use **`useMemo` for derived list data** and passing stable object/array references to children.
-- **Content Visibility**: `content-visibility: auto` for off-screen CSS content.
-- **Static Hoisting**: Extract static objects/JSX outside component scope.
-- **Transitions**: `startTransition` for non-urgent UI updates.
-
-## Parallelize Computation (P1)
-
-- **Web Workers**: Move heavy computation (Encryption, Image processing, Large Data Sorting) off main thread using `Comlink` or `Worker`.
-
-## Optimize Server Components (RSC) (P1)
-
-- **Caching**: `React.cache` for per-request deduplication.
-- **Serialization**: Minimize props passing to Client Components (only IDs/primitives).
+- [ ] Independent reads are parallel, not sequential.
+- [ ] Effects are not driving derived state loops.
+- [ ] Memoization exists because of a measured hotspot or memoized child boundary.
+- [ ] Large lists are virtualized when needed.
+- [ ] Heavy client code is split behind lazy or route-level boundaries.
 
 ## Anti-Patterns
 
 - **No `export *`**: Breaks tree-shaking.
 - **No Sequential Await**: Causes waterfalls.
-- **No Inline Objects**: `style={{}}` breaks strict equality checks (if memoized).
-- **No Heavy Libs**: Avoid moment/lodash (use dayjs/radash).
+- **No memo by superstition**: profile before adding `useMemo` / `useCallback`.
+- **No effect-driven derived state**: compute during render unless syncing external systems.
+- **No Heavy Libs**: Avoid oversized dependencies when smaller choices exist.
 
 ## References
 
-See [references/REFERENCE.md](references/REFERENCE.md) for Profiler usage, bundle analysis, Web Workers, and debounce patterns.
+- [Framework Map](../references/framework-map.md)
+- [REFERENCE.md](references/REFERENCE.md)

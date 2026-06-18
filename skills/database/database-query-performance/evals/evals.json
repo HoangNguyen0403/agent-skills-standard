@@ -1,0 +1,20 @@
+{
+  "skill_name": "database-query-performance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The orders listing is slow. Should I just add another index?",
+      "expected_output": "Capture the exact query and run explain first. Proposed index must map to filter, join, sort, or coverage needs, and write cost must be acceptable.",
+      "assertions": [
+        { "type": "contains", "value": "explain" },
+        { "type": "contains", "value": "query" },
+        { "type": "contains", "value": "write cost" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Rotate JWT secrets",
+    "Add a loading spinner to a form",
+    "Create a NestJS module"
+  ]
+}

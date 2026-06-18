@@ -1,6 +1,6 @@
 ---
 name: nextjs-caching
-description: 'Configure the 4 caching layers in Next.js: request memoization, data cache, full-route cache, and router cache. Use when setting revalidation strategies, invalidating cached data with tags, or diagnosing stale data bugs.'
+description: Configure Next.js cache layers, invalidation, and cache-component APIs. Use when choosing `fetch` caching, `use cache`, tags, or stale-data debugging in Next.js.
 metadata:
   triggers:
     files:
@@ -17,44 +17,45 @@ metadata:
 
 ## **Priority: P1 (HIGH)**
 
-Next.js 4 distinct caching layers. Understanding them prevents stale data bugs.
+## Decision Map
 
-## Workflow: Configure Caching for Feature
+- **HTTP reads**: start with `fetch` cache controls (`force-cache`, `no-store`, `next.revalidate`, tags). For content updated a few times per day, ISR with `revalidate` is often the right default.
+- **Custom function/component caching**: prefer `use cache` with `cacheLife()` and `cacheTag()` when the project uses cache components.
+- **Per-render dedupe**: use React `cache()` for repeated server reads in one render pass.
+- **Mutation invalidation**: `revalidateTag()` for data ownership, `revalidatePath()` for route-level refresh, `router.refresh()` for client view refresh after mutation.
 
-1. **Choose cache strategy** — SSG (`force-cache`), ISR (`revalidate: N`), or SSR (`no-store`).
-2. **Tag cacheable fetches** — Add `next: { tags: ['posts'] }` to fetch options.
-3. **Invalidate on mutation** — Call `revalidateTag('posts')` in Server Actions.
-4. **Deduplicate requests** — Wrap shared data fetches with React `cache()`.
-5. **Clear client cache** — Use `router.refresh()` after client-side mutations.
+## Recipe
 
-## Cache Invalidation Example
+1. **Classify the read**: static, periodically fresh, request-specific, or user-specific.
+2. **Pick the narrowest cache**: request memoization before persistent cache, tag invalidation before path-wide invalidation.
+3. **Tag what mutates together**: align tags with data ownership, not page names by habit.
+4. **Keep personal data private**: avoid broad route caching for request-specific state.
+5. **Test stale paths**: mutation -> invalidation -> refreshed UI.
 
-See [implementation examples](references/implementation.md)
+## Verify
 
-## Implementation Guidelines
-
-- **Next.js 15+ Standard**: Use **`fetch`** with **`revalidate: number`** or **`cache: 'force-cache'`** for API calls. Use **`unstable_cache`** or new **`'use cache'`** (experimental) for custom data stores.
-- **Layers**: Distinguish between **Data Cache** (persistent across requests) and **Request Memoization** (React's lifecycle specific). Use **`cache()`** from React to deduplicate fetches within single render.
-- **Invalidation**: Use **`revalidatePath('/')`** after mutations or **`revalidateTag('tag-name')`** for granular cache purging.
-- **Client Cache**: Understand **Router Cache** (in-memory on client) and its 30s-min lifespan. Clear it using **`router.refresh()`**.
-- **Static Assets**: Leverage **`generateStaticParams`** for pre-rendering static routes at build time. Use **ISR (Incremental Static Regeneration)** for content that updates periodically.
-- **Streaming**: Combine **`Suspense`** with **`fetch`** triggers to prevent slow data from blocking entire page render.
-- **Next.js 16+**: Favor **`'use cache'`** and **`cacheLife()`** over `revalidate: number` where available for deterministic caching.
+- [ ] Cache choice matches data ownership and freshness needs.
+- [ ] Mutations revalidate the tags or paths they invalidate.
+- [ ] User-specific data does not leak into shared cache.
+- [ ] Slow reads stream behind `Suspense` instead of blocking the whole route.
+- [ ] Existing code using `unstable_cache` has a migration note if cache components are now enabled.
 
 | Layer | Where | Control |
 | :---------------------- | :----- | :----------------------------- |
-| **Request Memoization** | Server | React `cache()` |
-| **Data Cache** | Server | `'use cache'`, `revalidateTag` |
-| **Full Route Cache** | Server | Static Prerendering |
+| **Request Memoization** | Server render | React `cache()` |
+| **Data Cache** | Server | `fetch`, `use cache`, tags |
+| **Full Route Cache** | Server | static rendering / revalidation |
 | **Router Cache** | Client | `router.refresh()` |
-
-## **Implementation Details**
-
-See [Cache Components & PPR](references/CACHE_COMPONENTS.md) for detailed key generation, closure constraints, and invalidation strategies.
 
 ## Anti-Patterns
 
-- **No `unstable_cache` in Next.js 16+**: Use `'use cache'` directive with `cacheLife()` instead.
-- **No `router.refresh()` for server data**: Prefer `revalidateTag()` for targeted cache busting.
-- **No caching user-specific data at route level**: Wrap personal data in `<Suspense>` with `'use cache'`.
-- **No long-lived cache without tags**: Assign `cacheTag()` for fine-grained invalidation control.
+- **No shared cache for personal data**: request-specific state needs a private strategy or no-store path.
+- **No path-wide invalidation by habit**: prefer tags when data ownership is narrower.
+- **No mutation without revalidation**: stale writes are correctness bugs.
+- **No cache folklore**: verify with official cache docs for the project's enabled features.
+
+## References
+
+- [Framework Map](../references/framework-map.md)
+- [Cache Components & PPR](references/CACHE_COMPONENTS.md)
+- [Implementation Examples](references/implementation.md)

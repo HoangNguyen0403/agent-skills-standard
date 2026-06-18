@@ -24,14 +24,9 @@ When the user asks to perform this workflow, execute the following steps:
 Goal: Produce a build-ready technical design with explicit boundaries, contracts, risks, and tests.
 
 ## Steps
+
 1. Load inputs:
-   - Load baseline: `docs/requirements-standards-baseline.md` (SRS/FRS section).
-   - Load `common-software-requirements`.
-   - PRD or ticket
-   - Existing implementation plan if present
-   - Relevant `AGENTS.md` and matched framework skills
-   - Existing code patterns and architecture docs
-   - Trace source: `BRD-OBJ-* -> REQ-* -> AC-*`
+   - Load baseline SRS/FRS section, `common-software-requirements`, PRD or ticket, implementation plan, matched framework skills, architecture docs, and trace source `BRD-OBJ-* -> REQ-* -> AC-*`.
 2. Define architecture:
    - Name bounded contexts and module owners.
    - Define dependency direction and component RACI.
@@ -54,10 +49,25 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
    - Record evidence in `docs/srs/srs-walkthrough.md`.
 5. Record ADR:
    - Write one concise ADR when architecture or public contract changes.
-   - For autonomous/channel mode, continue when patterns are inferable; return BLOCKED for cross-team contracts, migrations, permissions, or NFR uncertainty.
+   - Continue when patterns are inferable; return BLOCKED for cross-team contracts, migrations, permissions, or NFR uncertainty.
    - Route next step to `implement-feature` or `dev-fix`.
 
+## Runtime Contract
+
+- Use after PRD or when implementation is approved but architecture and contracts are not explicit.
+- Required inputs: PRD or ticket plus enough context to define contracts and verification.
+- Return BLOCKED only for cross-team contracts, migrations, permissions, or NFR uncertainty.
+
+## Handoff Payload
+
+- `slug`, SRS path, requirement trace, architecture decisions, contracts, data/migration plan, NFR thresholds, verification matrix, ADR, next workflow.
+
+## Blocking Questions
+
+- Ask max 3 at a time with a recommended default and 2-3 options.
+
 ## Output Template
+
 ```md
 # Technical Design (SRS/FRS): [Name]
 ## Context

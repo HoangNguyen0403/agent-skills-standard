@@ -6,9 +6,9 @@
 
 **The portable SDLC standards layer for AI coding agents. Sync once, then work in your own runtime.**
 
-**Current release:** `v2.4.6` — stricter BRD/PRD/SRS skills and templates (SMART, Gherkin AC, requirement cards) for EM + AI-agent readability.
+**Current release:** `v2.4.15` — trust-gated review workflows, markdown-first security handoff, and expanded framework/database guidance for SDLC delivery.
 
-259 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
+271 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
 
 ```bash
 npx agent-skills-standard@latest init
@@ -194,7 +194,7 @@ The registry now ships a compact lifecycle that agents can run natively after sy
 
 ### Session Telemetry
 
-The registry now includes the `common-telemetry` skill and a companion MCP tool `get_session_cost()`. At the end of every workflow, the agent can now report accurate token usage and cost estimation.
+The registry now includes the `common-telemetry` skill and a companion MCP tool `get_session_cost()`. At the end of every workflow, the agent can now report MCP-observed session telemetry plus exact-or-estimated token cost when the host runtime supplies usage and pricing data.
 
 See [SDLC Workflow Quick Reference](./docs/sdlc-workflow-quick-reference.md).
 
@@ -209,24 +209,41 @@ See [SDLC Workflow Quick Reference](./docs/sdlc-workflow-quick-reference.md).
 
 External tasking MCPs such as Jira, Azure DevOps, and Zephyr are integration points, not required dependencies. Workflows should use them when already connected, but every workflow must still work from local tickets, specs, and evidence files so teams can customize their own automation stack.
 
+For security-sensitive autonomous review, prefer a sandboxed runtime with least-privilege tools, isolated credentials, and default-deny outbound network. That aligns with the safety direction shown by NVIDIA OpenShell's policy-enforced sandboxes and Anthropic's warning that PR security review should stay on trusted inputs unless the runtime is hardened.
+
+For review workflows specifically, the next-tier operating model is:
+
+- OpenShell-style runtime contract and auditability.
+- Anthropic-style diff-first, high-confidence security review.
+- SecurityReview.ai-style clear, role-aware review handoff.
+
+In practice that means:
+
+- security reviews emit concise markdown artifacts and handoff notes instead of a large JSON contract layer
+- untrusted PR or ticket prose is treated as hostile content, not as execution instructions
+- `code-review` and `review-ticket` can emit `review-delivery.md` as the sanitized packet for channel handoff or approved PR comment publication
+- broad repo health audits emit `codebase-review.md` separately from `security-review.md` so engineering health and exploitability stay distinct
+
+For repository enforcement, keep the workflows and skills lean: the source of truth lives in `skills/` and `.agents/workflows/`, not in MCP-only artifact helpers, fixture packs, or replay chains.
+
 See also [Learning From agentic-ai](./docs/agentic-ai-learning.md) and the [Optional MCP Integration Guide](./docs/mcp-integration-guide.md).
 
-## 259 Skills Across 20+ Frameworks
+## 271 Skills Across 20+ Frameworks
 
 Every skill is audited for token efficiency (averaging ~500 tokens) and tested with automated evals.
 
 | Stack                | Key Skills                                    | Version  | Skills |
 | :------------------- | :-------------------------------------------- | :------- | :----- |
-| **Common Patterns**  | Best Practices, Security, TDD, Error Handling | `v2.0.8` | 36     |
+| **Common Patterns**  | Best Practices, Security, TDD, Error Handling | `v2.2.1` | 38     |
 | **Flutter**          | BLoC, Riverpod, Architecture, Concurrency     | `v1.7.1` | 22     |
-| **React**            | Hooks, Performance, State Management          | `v1.3.5` | 8      |
+| **React**            | Hooks, Performance, State Management          | `v1.3.6` | 8      |
 | **React Native**     | Architecture, Navigation, Performance         | `v1.4.4` | 13     |
-| **Next.js**          | App Router, Server Components, Caching, ISR   | `v1.4.4` | 18     |
+| **Next.js**          | App Router, Server Components, Caching, ISR   | `v1.4.5` | 18     |
 | **Angular**          | Signals, Components, RxJS, SSR                | `v1.4.2` | 15     |
-| **NestJS**           | Architecture, Security, BullMQ                | `v1.4.4` | 21     |
+| **NestJS**           | Architecture, Security, BullMQ                | `v1.4.5` | 21     |
 | **TypeScript**       | Type Safety, Security, Tooling                | `v1.3.3` | 4      |
 | **JavaScript**       | ES2024+, Patterns, Tooling                    | `v1.3.4` | 3      |
-| **Go (Golang)**      | Clean Arch, Concurrency                       | `v1.3.4` | 11     |
+| **Go (Golang)**      | Clean Arch, Concurrency                       | `v1.3.5` | 11     |
 | **Spring Boot**      | Architecture, Security, JPA                   | `v1.3.3` | 10     |
 | **Android**          | Compose, Navigation 3, Edge-to-Edge, AGP 9    | `v1.4.1` | 26     |
 | **iOS**              | SwiftUI, Arch, Persistence                    | `v1.4.5` | 15     |
@@ -236,9 +253,9 @@ Every skill is audited for token efficiency (averaging ~500 tokens) and tested w
 | **PHP**              | PHP 8.4+, Error Handling                      | `v1.3.5` | 7      |
 | **Laravel**          | Eloquent, Clean Arch                          | `v1.3.4` | 10     |
 | **Dart**             | Null Safety, Sealed Classes                   | `v1.3.5` | 3      |
-| **Database**         | PostgreSQL, MongoDB, Redis                    | `v1.3.4` | 3      |
+| **Database**         | PostgreSQL, MongoDB, Redis, Migrations        | `v1.3.5` | 7      |
 | **Quality Engineer** | BA, TDD, Zephyr, Test Gen                     | `v1.5.0` | 7      |
-| **Specialists**      | Jira, Review, QA, ADO, Zephyr, Confluence     | `v1.1.2` | 16     |
+| **Specialists**      | Jira, Review, QA, Security, Zephyr, Confluence | `v1.1.3` | 16     |
 
 > Full skill list with token metrics: [Skills Directory](./skills/README.md) | [Benchmark Report](./benchmark-report.md) | [Public Proof](./docs/public-proof.md)
 

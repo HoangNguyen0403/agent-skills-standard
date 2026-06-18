@@ -1,0 +1,20 @@
+{
+  "skill_name": "database-transactions",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We create an order, reserve inventory, and publish an event. What should I think about for the transaction?",
+      "expected_output": "Define the unit of work, decide what must be atomic vs eventual, keep the transaction short, and record isolation, retry, and idempotency expectations.",
+      "assertions": [
+        { "type": "contains", "value": "atomic" },
+        { "type": "contains", "value": "idempotency" },
+        { "type": "contains", "value": "transaction" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Optimize bundle size in React",
+    "Write a Next.js layout",
+    "Create release notes"
+  ]
+}

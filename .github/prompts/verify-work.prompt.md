@@ -8,9 +8,7 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
 
 ## Steps
 1. Load scope:
-   - BRD-lite, PRD, SRS/FRS, ticket, implementation plan, or release note.
-   - Acceptance criteria and non-goals.
-   - Changed files and matched skills.
+   - BRD-lite, PRD, SRS/FRS, ticket, implementation plan, release note, acceptance criteria, non-goals, changed files, and matched skills.
 2. Select verification lanes:
    - Unit/component, integration/API, E2E/visual, mobile, security, migration, or deployment smoke.
 3. Execute:
@@ -30,12 +28,15 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
    - Update project-local `docs/srs/srs-walkthrough.md`.
    - Route next step back to implementation or `dev-fix`.
 
-## Output
-
-## Artifact Templates
-
-### Walkthrough Template
-
+## Runtime Contract
+- Use after implementation, before handoff, or when validating a bug fix.
+- Required inputs: explicit scope plus acceptance criteria or expected behavior.
+- Return BLOCKED only when environment, credentials, or approval prevents proof.
+## Handoff Payload
+- verification report, AC trace, comparative evidence, risks observed, updated walkthrough path, next workflow.
+## Blocking Questions
+- Ask max 3 at a time with a recommended default and 2-3 options.
+## Artifact Template
 ```md
 # Walkthrough: [Name]
 

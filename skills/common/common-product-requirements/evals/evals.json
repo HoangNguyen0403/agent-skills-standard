@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "Create a PRD for a new user notifications feature.",
-      "expected_output": "Enter Discovery Phase: ask 3-5 clarifying questions with options. (a) Platform: Web/Mobile/Both? (b) Notification types: in-app/email/push? (c) Real-time or batched? (d) User preferences/opt-out required? (e) Target user roles? Repeat until Actionable State reached, then draft to docs/specs/prd-user-notifications.md.",
+      "expected_output": "Enter Discovery Phase: ask 3-5 clarifying questions with options. (a) Platform: Web/Mobile/Both? (b) Notification types: in-app/email/push? (c) Real-time or batched? (d) User preferences/opt-out required? (e) Target user roles? Repeat until Actionable State reached, then draft to docs/prd/prd-user-notifications.md.",
       "assertions": [
         {
           "type": "contains",
@@ -12,7 +12,7 @@
         },
         {
           "type": "contains",
-          "value": "docs/specs"
+          "value": "docs/prd"
         }
       ]
     },
@@ -30,7 +30,7 @@
     {
       "id": 3,
       "prompt": "Draft requirements for a payment checkout flow.",
-      "expected_output": "Discovery Phase: ask about payment providers (Stripe/PayPal), currencies supported, guest vs. account checkout, 3DS requirements, refund flows, mobile vs. web. Verification checklist: functional flows defined, edge cases (failed payment, timeout, duplicate submit), security requirements (PCI compliance), performance targets. Write to docs/specs/prd-checkout-flow.md.",
+      "expected_output": "Discovery Phase: ask about payment providers (Stripe/PayPal), currencies supported, guest vs. account checkout, 3DS requirements, refund flows, mobile vs. web. Verification checklist: functional flows defined, edge cases (failed payment, timeout, duplicate submit), security requirements (PCI compliance), performance targets. Write to docs/prd/prd-checkout-flow.md.",
       "assertions": [
         {
           "type": "contains",

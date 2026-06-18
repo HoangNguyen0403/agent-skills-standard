@@ -1,6 +1,6 @@
 ---
 name: golang-architecture
-description: Structure Go projects with Clean Architecture and standard layout conventions. Use when structuring Go projects or applying Clean Architecture in Go.
+description: Structure Go code with package-first boundaries, `cmd/` and `internal/`, and explicit dependency wiring. Use when shaping project layout, package ownership, or service boundaries in Go.
 metadata:
   triggers:
     files:
@@ -17,39 +17,39 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-## Principles
+## Rules
 
-- **Clean Architecture**: Inner layers (Domain) rely on nothing. Outer layers (Adapters) rely on inner.
-- **Project Layout**: Follow standard Go layout (`cmd`, `internal`, `pkg`).
-- **Dependency Injection**: Pass dependencies via constructors. Avoid global singletons.
-- **Package Oriented Design**: Organize by feature/domain, not by layer.
-- **Interface Segregation**: Define interfaces where they _used_ (consumer side).
+- **Package-first design**: organize by domain/capability before package-by-layer sprawl.
+- **Layout**: `cmd/` for binaries, `internal/` for private app code, `pkg/` only for intentional reuse.
+- **Wiring**: compose dependencies in `main` or dedicated constructors, not via hidden globals.
+- **Interfaces**: define small interfaces on the consumer side.
+- **Context**: pass `context.Context` across I/O and request boundaries.
 
-## Implementation Workflow
+## Recipe
 
-1. **Set up project layout** — Use `cmd/` for entry points, `internal/` for private packages, `pkg/` for shared libraries.
-2. **Define domain layer** — Inner-most layer with zero external dependencies.
-3. **Build use cases** — Depend only on Domain interfaces.
-4. **Implement adapters** — Outer layer depends on UseCase/Domain. Contains HTTP handlers, DB repos, etc.
-5. **Wire in main** — Compose full dependency graph in `main.go`.
+1. **Place the entrypoint** in `cmd/<app>`.
+2. **Create domain-owned packages** under `internal/`.
+3. **Expose constructors** for services, repositories, and handlers.
+4. **Keep business rules out of transport** packages.
+5. **Wire logging, config, DB, and HTTP server at startup**.
 
-See [constructor injection and wiring examples](references/clean-arch.md)
+## Verify
 
-## Verification Checklist
-
-- [ ] No global singletons or package-level mutable variables
-- [ ] Dependencies explicitly passed via constructors
-- [ ] Interfaces defined at consumer side
-- [ ] `internal/domain` zero external dependencies
-- [ ] Dependencies wired together in `main.go`
+- [ ] No package-level mutable singletons control runtime behavior.
+- [ ] Imports flow inward; transport and storage packages do not pull business rules outward.
+- [ ] Interfaces live with callers that need substitution.
+- [ ] `main` wires dependencies but does not hold business logic.
+- [ ] Request and DB paths accept `context.Context`.
 
 ## Anti-Patterns
 
-- **No global singletons**: use DI; avoid package-level mutable variables.
-- **No layer violations**: keep Domain imports isolated from adapter/infrastructure layers.
-- **No god services**: split services into single-responsibility components.
+- **No package soup**: avoid dumping unrelated code into `internal/shared` or `pkg/utils`.
+- **No global singletons**: use constructors; avoid package-level mutable variables.
+- **No god services**: split orchestration by capability.
+- **No fake Clean Architecture theatre**: package names must match real ownership.
 
 ## References
 
+- [Framework Map](../references/framework-map.md)
 - [Standard Project Layout](references/project-layout.md)
 - [Clean Architecture Layers](references/clean-arch.md)

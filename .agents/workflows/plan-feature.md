@@ -8,15 +8,10 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
 
 ## Steps
 1. Load context:
-   - Load baseline: `docs/requirements-standards-baseline.md` (PRD section).
-   - Search `docs/brd/` for a matching `[slug]`; if absent, use the newest BRD.
+   - Load baseline PRD section and search `docs/brd/` for the matching `[slug]`.
    - If multiple candidates exist and intent is unclear, ask the user to choose/input the target slug.
-   - BRD-lite brief, ticket, or user request.
-   - Jira/GitHub/GitLab/ADO MCP ticket data when configured; otherwise local ticket text.
-   - Existing specs, design references, and repo patterns.
-   - `common-product-requirements`, `quality-engineering-business-analysis`, and matched framework skills.
-   - BA handoff fields: BRD objective IDs, stakeholder/validation owner, AS-IS/TO-BE, SMART metric, scope fence, assumptions, glossary, risks, and candidate `REQ-*` placeholders.
-   - IT Department delivery context: target repos, likely owners, dependency teams, environments, release window, support/ops expectations, and QA lane.
+   - Load BRD-lite, ticket text, existing specs, repo patterns, `common-product-requirements`, `quality-engineering-business-analysis`, and matched framework skills.
+   - Carry forward BRD objective IDs, SMART metric, scope fence, assumptions, glossary, risks, and delivery context.
 2. Interview:
    - Draft a provisional PRD direction from current context before asking.
    - Ask only for business logic, scope, constraints, and acceptance criteria that cannot be inferred.
@@ -25,7 +20,6 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
    - Confirm problem statement, assumptions, target users, JTBD/use cases, platforms, data, analytics, security, performance, rollout, and non-goals.
    - Confirm each requirement has owner, priority, and status.
    - Confirm success metrics and guardrails that must not regress.
-   - Confirm offshore handoff needs: timezone/cadence, decision SLA, artifact source of truth, environment access, UAT owner, and release approver.
    - Stop when requirements are actionable.
 3. Draft PRD:
    - Save to `docs/prd/prd-[slug].md` when file writes are allowed.
@@ -43,10 +37,17 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
    - Map each task slice to requirement IDs, AC IDs, likely owner role, repo/module, expected artifact, and verification lane.
    - Identify whether `design-solution` is required before coding.
 5. Route:
-   - For autonomous/channel mode, continue when assumptions are non-critical; return BLOCKED for missing owner, untestable AC, approval, or release constraint.
-   - Architecture unclear -> `design-solution`.
-   - Plan approved and build-ready -> `implement-feature`.
+   - Continue when assumptions are non-critical; return BLOCKED for missing owner, untestable AC, approval, or release constraint.
+   - Architecture unclear -> `design-solution`; approved build-ready plan -> `implement-feature`.
 
+## Runtime Contract
+- Use after BRD-lite or when clear feature intent exists but PRD does not.
+- Required inputs: BRD-lite or equivalent intent, plus enough context to name users, goals, and constraints.
+- Return BLOCKED only for missing owner, untestable AC, approval, or release constraint.
+## Handoff Payload
+- `slug`, PRD path, requirement IDs, AC IDs, decisions, RACI, rollout notes, task slices, verification plan, next workflow.
+## Blocking Questions
+- Ask max 3 at a time with a recommended default and 2-3 options.
 ## Output Template
 ```md
 # Feature Plan: [Name]

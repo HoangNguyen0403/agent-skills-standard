@@ -40,10 +40,12 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Unclear idea, missing business case, missing stakeholder owner, or missing measurable value (BRD-lite / Why, BA-owned intake) -> `brainstorm-feature`
    - BRD-lite exists or business direction is clear but product scope, priorities, acceptance criteria, rollout, or delivery plan are unclear (PRD / What, PM-owned planning) -> `plan-feature`
    - PRD exists but technical behavior/contracts unclear (SRS/FRS / How) -> `design-solution`
+   - Architecture, auth, trust boundaries, compliance controls, or agent/runtime safety need deeper technical validation -> `design-solution`
    - BRD-lite, PRD, or SRS/FRS exists but readiness unclear -> `implementation-readiness`
    - Approved plan needs code -> `implement-feature`
    - Bug ticket needs fix -> `dev-fix`
-   - PR or ticket needs multi-lens review -> `review-ticket`
+   - Ticket or cross-functional change needs specialist fanout, AC coverage, and PR metadata review -> `review-ticket`
+   - PR diff needs focused merge-risk review -> `code-review`
    - Code complete but unproven -> `verify-work`
 
 3. Enforce handoff quality:
