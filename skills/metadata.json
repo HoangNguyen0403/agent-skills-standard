@@ -397,9 +397,9 @@
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 16,
-        "total_tokens": 7266,
-        "avg_tokens_per_skill": 454,
-        "largest_skill": "specialist-aspm-correlator (698 tokens)"
+        "total_tokens": 7336,
+        "avg_tokens_per_skill": 459,
+        "largest_skill": "specialist-security-reviewer (712 tokens)"
       }
     },
     "golang": {

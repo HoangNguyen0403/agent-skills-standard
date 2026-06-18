@@ -5,7 +5,7 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-# [cli-v2.5.0] / [mcp-v0.5.0] - 2026-06-18
+# [cli-v2.4.15] / [mcp-v0.4.7] - 2026-06-18
 
 **Category**: Trusted Review Hardening, Markdown-First Security Handoff & Skill Pack Expansion
 
@@ -25,8 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Versions
 
-- **CLI**: `2.4.6` → `2.5.0`
-- **MCP**: `0.4.6` → `0.5.0`
+- **CLI**: `2.4.6` → `2.4.15`
+- **MCP**: `0.4.6` → `0.4.7`
 - **Common Skills**: `2.2.0` → `2.2.1`
 - **React**: `1.3.5` → `1.3.6`
 - **Next.js**: `1.4.4` → `1.4.5`
@@ -248,6 +248,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Category**: CLI Tool
 
 ### Maintenance
+
 - chore: bump version to 2.4.8 and update documentation (#95)
 
 ## [cli-v2.2.3] - 2026-05-10

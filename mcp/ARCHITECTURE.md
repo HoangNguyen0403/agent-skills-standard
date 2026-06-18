@@ -6,7 +6,7 @@ For install + usage, see [`mcp/README.md`](./README.md). For the project-wide de
 
 ## 1. What This MCP Is (and Isn't)
 
-**Is**: a thin, stateless-on-disk Model Context Protocol server that reads a project's already-installed skill files and serves them to AI agents on demand via 8 tool calls.
+**Is**: a thin, stateless-on-disk Model Context Protocol server that reads a project's already-installed skill files and serves them to AI agents on demand via 9 tool calls.
 
 **Isn't**:
 
@@ -36,7 +36,7 @@ The MCP exists because skills-as-files-on-disk is an honour-system protocol. Age
                            │
                            ▼
               ┌───────────────────────┐
-              │  buildServer()        │ — register 8 tools + instructions
+              │  buildServer()        │ — register 9 tools + instructions
               │  (server.ts)          │
               └────────────┬──────────┘
                            │
@@ -223,19 +223,16 @@ The principle: **the server starts even when nothing is set up**. Tools are resp
 
 ## 9. Service Layout
 
-| Module                       | Responsibility                                                                                                                             |
-| :--------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
-| `index.ts`                   | Bin entry. Resolves config, builds server, wires `StdioServerTransport`.                                                                   |
-| `config.ts`                  | Walks the file system to find `AGENTS.md` and the skills directory. Returns a `ResolvedConfig` with a `setup` hint that's never `throw`-y. |
-| `services/SkillParser.ts`    | Reads a single `SKILL.md` and extracts frontmatter `metadata.triggers`. Pure function.                                                     |
-| `services/SkillIndex.ts`     | Owns the in-memory index. Loads `metadata.json`, scans skills, exposes `matchFiles` / `matchKeywords` / `findSkill`.                       |
-| `services/SessionTracker.ts` | Append-only log of tool calls in this process. Backs `audit_session_compliance` and `get_session_cost`.                                    |
-| `services/WorkflowTelemetry.ts` | Host-side helpers for assembling workflow-end usage/pricing payloads and triggering `get_session_cost` only on terminal workflow states. |
-| `services/SecurityReviewArtifact.ts` | Host-side helpers for assembling, validating, and emitting `security-review.json` artifacts on terminal security review workflows, including review context, runtime policy source, per-domain policy enforcement, evidence coverage, audience outputs, and handoff metadata. |
-| `services/CodebaseReviewArtifact.ts` | Host-side helpers for assembling, validating, and emitting `codebase-review.json` artifacts on terminal codebase review workflows, including lineage, review execution context, runtime contract, per-domain policy enforcement, health scores, audience outputs, remediation themes, and handoff metadata. |
-| `services/WorkflowOutcomeArtifacts.ts` | Host-side dispatcher for terminal workflow states that can emit session telemetry plus security-review and/or codebase-review artifacts from one integration seam. |
-| `tools/index.ts`             | The 8 tool handlers. All graceful-empty-state checks live here.                                                                            |
-| `server.ts`                  | `McpServer` factory. Owns the `instructions` field and per-tool descriptions (use_case / aliases / important_notes).                       |
+| Module                          | Responsibility                                                                                                                             |
+| :------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------- |
+| `index.ts`                      | Bin entry. Resolves config, builds server, wires `StdioServerTransport`.                                                                   |
+| `config.ts`                     | Walks the file system to find `AGENTS.md` and the skills directory. Returns a `ResolvedConfig` with a `setup` hint that's never `throw`-y. |
+| `services/SkillParser.ts`       | Reads a single `SKILL.md` and extracts frontmatter `metadata.triggers`. Pure function.                                                     |
+| `services/SkillIndex.ts`        | Owns the in-memory index. Loads `metadata.json`, scans skills, exposes `matchFiles` / `matchKeywords` / `findSkill`.                       |
+| `services/SessionTracker.ts`    | Append-only log of tool calls in this process. Backs `audit_session_compliance` and `get_session_cost`.                                    |
+| `services/WorkflowTelemetry.ts` | Host-side helpers for assembling workflow-end usage/pricing payloads and triggering `get_session_cost` only on terminal workflow states.   |
+| `tools/index.ts`                | The 9 tool handlers. All graceful-empty-state checks live here.                                                                            |
+| `server.ts`                     | `McpServer` factory. Owns the `instructions` field and per-tool descriptions (use_case / aliases / important_notes).                       |
 
 ## 10. Decision Records
 
@@ -292,7 +289,7 @@ The principle: **the server starts even when nothing is set up**. Tools are resp
 | Metric                                        | Cost                                           |
 | --------------------------------------------- | ---------------------------------------------- |
 | Startup (load + parse 267 skills)             | ~30-50 ms on a fast SSD                        |
-| Tool schema delivered to client               | ~800 tokens (8 tools, structured descriptions) |
+| Tool schema delivered to client               | ~880 tokens (9 tools, structured descriptions) |
 | `load_skills_for_files` for typical Dart file | ~3-5 KB response (2 matched skills)            |
 | `audit_session_compliance` after 10 calls     | ~1 KB response                                 |
 | Memory footprint at rest                      | ~5-10 MB (Node + parsed metadata)              |
