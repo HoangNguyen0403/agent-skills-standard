@@ -25,6 +25,7 @@ workflows:
   - brainstorm-feature
   - code-review
   - codebase-review
+  - security-architecture-review
   - design-solution
   - implementation-readiness
   - plan-feature

@@ -23,7 +23,7 @@ metadata:
 
 Before declaring any task "done" or calling `notify_user`:
 
-1. **Adversarial Audit**: Search for default patterns where project rules should exist.
+1. **Adversarial Audit**: Search for Standard Defaults where project rules should exist.
 2. **Protocol Check**: Confirm active skills and workflows were loaded before writing.
 3. **Evidence Check**: Ask what command or artifact proves the completion claim.
 4. **Execution Bias Check**: Ask whether speed or convenience skipped a structural rule.

@@ -12,6 +12,8 @@ metadata:
 > [!IMPORTANT]
 > Prepare and verify a staged or production deployment with rollback and smoke checks.
 
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
@@ -27,24 +29,20 @@ Goal: Ship verified work with explicit deployment steps, smoke checks, and rollb
    - Verification report is PASS or accepted with documented risk.
    - Required approvals are present.
    - Migrations and feature flags are accounted for.
-
 2. Prepare release:
    - Identify version, environment, deploy command, and owner.
    - Confirm secrets, config, queues, cron, and external services.
    - Define rollback command or revert path.
-
 3. Deploy:
    - Run staging deploy first when available.
    - Run smoke checks before promotion.
    - Promote only when smoke checks pass.
-
 4. Monitor:
    - Check logs, metrics, errors, latency, and core user flows.
    - Stop or roll back on defined failure signals.
-
 5. Route:
-   - Send user-facing changes to `publish-notes`.
-   - Send process/quality findings to `retro-learn`.
+   - User-facing notes -> `publish-notes`.
+   - Process and standards feedback -> `retro-learn`.
 
 ## Output Template
 
@@ -66,6 +64,9 @@ Goal: Ship verified work with explicit deployment steps, smoke checks, and rollb
 ## Rollback
 
 ## Next Workflow
+
 publish-notes | retro-learn
+
+## Cost Report
 ```
 

@@ -67,7 +67,9 @@ process.stdin.on('end', () => {
       '[SKILL TRIGGER] Editing: ' + fileName + '\\n' +
       '-> Call load_skills_for_files(files=[ "' + filePath + '" ]) on the ' +
       'agent-skills-standard MCP. It returns applicable SKILL.md rules, ' +
-      'or nothing if no skills match this file type.'
+      'or nothing if no skills match this file type.\\n' +
+      '-> If this work spans a whole framework or migration, also call ' +
+      'get_category_guide(category="...") for the framework-level map.'
     );
     process.exit(0);
   } catch {

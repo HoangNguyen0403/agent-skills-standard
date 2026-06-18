@@ -3,7 +3,7 @@ import { z } from "zod";
 import { SetupHint } from "../config";
 import { SessionTracker } from "../services/SessionTracker";
 import { MatchResult, SkillIndex } from "../services/SkillIndex";
-import { calculateEstimatedSessionCost } from "../services/WorkflowTelemetry";
+import { summarizeSessionCostCoverage } from "../services/WorkflowTelemetry";
 import { scanWorkflows, readWorkflowBody } from "../services/WorkflowIndex";
 
 export interface ToolContext {
@@ -136,6 +136,11 @@ export async function getSkill(
 
   const skill = ctx.index.findSkill(args.category, args.name);
   if (!skill) {
+    ctx.tracker.record({
+      via: "get_skill",
+      input: [`${args.category}/${args.name}`],
+      loaded: [],
+    });
     return alternativeSkillSuggestion(args, ctx);
   }
   const body = await fs.readFile(skill.path, "utf8").catch(() => null);
@@ -167,6 +172,100 @@ export async function getSkill(
       },
     ],
   };
+}
+
+// ---------- get_category_guide ----------
+
+export const getCategoryGuideSchema = z.object({
+  category: z
+    .string()
+    .min(1)
+    .describe(
+      'Framework or category name (e.g. "nextjs", "react", "nestjs", "golang", "database").',
+    ),
+});
+
+export async function getCategoryGuide(
+  args: { category: string },
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const empty = maybeEmptyState(ctx);
+  if (empty) return empty;
+
+  const categories = ctx.index.listCategories();
+  const categoryHit = categories.find(
+    (category) => category.toLowerCase() === args.category.toLowerCase(),
+  );
+  if (!categoryHit) {
+    ctx.tracker.record({
+      via: "get_category_guide",
+      input: [args.category],
+      loaded: [],
+    });
+    return {
+      content: [
+        {
+          type: "text",
+          text: [
+            `Category "${args.category}" does not exist in this project.`,
+            "",
+            `**Available categories:** ${categories.join(", ")}`,
+          ].join("\n"),
+        },
+      ],
+    };
+  }
+
+  const guidePath = ctx.index.getCategoryGuidePath(categoryHit);
+  if (!guidePath || !(await fs.pathExists(guidePath))) {
+    ctx.tracker.record({
+      via: "get_category_guide",
+      input: [args.category],
+      loaded: [`category/${categoryHit}`],
+    });
+    return {
+      content: [
+        {
+          type: "text",
+          text: [
+            `Category "${categoryHit}" is installed, but it does not provide a category guide yet.`,
+            "",
+            "Use `list_categories`, `load_skills_for_files`, or `load_skills_for_keywords` to keep routing through the category normally.",
+          ].join("\n"),
+        },
+      ],
+    };
+  }
+
+  const body = await fs.readFile(guidePath, "utf8");
+  const skills = ctx.index
+    .listSkillsInCategory(categoryHit)
+    .map((skill) => `${skill.category}/${skill.id}`)
+    .sort();
+  const routing = Object.entries(ctx.index.getRouting())
+    .filter(([, cats]) => cats.includes(categoryHit))
+    .map(([ext]) => `.${ext}`);
+
+  ctx.tracker.record({
+    via: "get_category_guide",
+    input: [args.category],
+    loaded: [`category/${categoryHit}`],
+  });
+
+  const lines = [
+    `<!-- Provenance: Loaded category/${categoryHit} via get_category_guide -->`,
+    "",
+    `# Category Guide: ${categoryHit}`,
+    routing.length
+      ? `Routed file types: ${routing.join(", ")}`
+      : "Routed file types: keyword-driven or category-local only",
+    "",
+    "## Skills In Category",
+    ...skills.map((skill) => `- ${skill}`),
+    "",
+    body,
+  ];
+  return { content: [{ type: "text", text: lines.join("\n") }] };
 }
 
 // ---------- list_categories ----------
@@ -339,7 +438,7 @@ export async function getSessionCost(
   const workflows = ctx.tracker.loadedWorkflows();
   const events = ctx.tracker.events_();
   const summary = ctx.tracker.summary();
-  const estimatedCost = calculateEstimatedSessionCost(args);
+  const costCoverage = summarizeSessionCostCoverage(args);
 
   const lines: string[] = [
     "# Session Telemetry",
@@ -361,7 +460,9 @@ export async function getSessionCost(
     `| **Completion Tokens** | ${args.completionTokens ?? "[Agent: fill from platform usage]"} |`,
     `| **Reasoning Tokens** | ${args.reasoningTokens ?? "[Agent: fill if runtime reports reasoning]"} |`,
     `| **Other Runtime Cost** | ${formatOtherCost(args.otherCost, args.currency) ?? "[Agent: fill if runtime has extra billed items]"} |`,
-    `| **Estimated Cost** | ${estimatedCost ?? "[Agent: provide tokens and rates to calculate]"} |`,
+    `| **Cost Status** | ${costCoverage.exactCostAvailable ? "Exact estimate available" : "Partial - host usage or pricing fields missing"} |`,
+    `| **Estimated Cost** | ${costCoverage.estimatedCost ?? "[Agent: provide tokens and rates to calculate]"} |`,
+    `| **Missing Host Fields** | ${costCoverage.missingHostFields.length ? costCoverage.missingHostFields.join(", ") : "_(none)_" } |`,
     "",
     "## Calls By Tool",
     "",
@@ -587,7 +688,7 @@ function noMatchGuidance(
   );
   lines.push("");
   lines.push(
-    "Try `load_skills_for_keywords` with concept words from the user request, or `list_categories` to see which categories cover what.",
+    "Try `load_skills_for_keywords` with concept words from the user request, `list_categories` to see coverage, or `get_category_guide` when you already know the framework/category.",
   );
 
   return { content: [{ type: "text", text: lines.join("\n") }] };

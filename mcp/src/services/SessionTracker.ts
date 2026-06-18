@@ -6,6 +6,7 @@ export interface LoadEvent {
     | "load_skills_for_files"
     | "load_skills_for_keywords"
     | "get_skill"
+    | "get_category_guide"
     | "list_categories"
     | "list_workflows"
     | "get_workflow"
@@ -33,6 +34,12 @@ export interface SessionSummary {
 export class SessionTracker {
   private events: LoadEvent[] = [];
   private startedAt = new Date().toISOString();
+  private readonly noMatchTools = new Set<LoadEvent["via"]>([
+    "load_skills_for_files",
+    "load_skills_for_keywords",
+    "get_skill",
+    "get_workflow",
+  ]);
 
   record(event: Omit<LoadEvent, "at">): void {
     this.events.push({ at: new Date().toISOString(), ...event });
@@ -77,8 +84,10 @@ export class SessionTracker {
       toolCalls: this.events.length,
       skillsLoaded: this.loadedSkills().length,
       workflowsLoaded: this.loadedWorkflows().length,
-      noMatchCalls: this.events.filter((event) => event.loaded.length === 0)
-        .length,
+      noMatchCalls: this.events.filter(
+        (event) =>
+          this.noMatchTools.has(event.via) && event.loaded.length === 0,
+      ).length,
       callsByTool,
     };
   }
@@ -96,6 +105,7 @@ export class SessionTracker {
       load_skills_for_files: 0,
       load_skills_for_keywords: 0,
       get_skill: 0,
+      get_category_guide: 0,
       list_categories: 0,
       list_workflows: 0,
       get_workflow: 0,

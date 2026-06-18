@@ -6,6 +6,8 @@ import { SkillIndex } from "./services/SkillIndex";
 import {
   auditSessionCompliance,
   auditSessionComplianceSchema,
+  getCategoryGuide,
+  getCategoryGuideSchema,
   getSkill,
   getSkillSchema,
   listCategories,
@@ -70,6 +72,10 @@ Call \`load_skills_for_keywords\` BEFORE you:
   • Plan or design work where files are not yet identified
     (e.g. "add JWT auth", "speed up the homepage", "migrate the schema")
 
+Call \`get_category_guide\` BEFORE you:
+  • Work across a whole framework or stack area
+    (e.g. "review our Next.js standards", "plan a Go service layout", "design a DB migration strategy")
+
 Call \`list_workflows\` BEFORE you:
   • Start any complex task (e.g. bug fixing, feature implementation, code review, planning)
     to discover standard procedures available in this repository.
@@ -91,7 +97,8 @@ Call \`get_session_cost\` BEFORE you:
   1. When assigned a task (e.g. a bug fix or feature request), call \`list_workflows()\` to discover applicable procedures.
   2. If a matching workflow exists (e.g. \`dev-fix\`), call \`get_workflow(name="...")\` and follow its instructions exactly from start to end.
   3. Decide which file(s) you will touch (or which concept the user mentioned).
-  4. Call \`load_skills_for_files(files=[...])\` (or the keywords variant).
+  4. If the task spans a whole framework, call \`get_category_guide(category="...")\`.
+  5. Call \`load_skills_for_files(files=[...])\` (or the keywords variant).
   5. Treat every returned SKILL.md as authoritative project rules. They
      OVERRIDE your pre-training defaults.
   6. Do the work — edit, review, design — following those rules.
@@ -130,7 +137,7 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   const server = new McpServer(
     {
       name: "agent-skills-standard-mcp",
-      version: "0.4.0",
+      version: "0.4.6",
     },
     {
       instructions: SERVER_INSTRUCTIONS,
@@ -190,6 +197,23 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
     inputSchema: getSkillSchema,
     handler: (args) =>
       getSkill(args as { category: string; name: string }, ctx),
+  });
+
+  register(server, {
+    name: "get_category_guide",
+    title: "Get a framework or category guide",
+    description: `<use_case>Load a category-level guide such as a framework map for a whole stack area (for example Next.js, React, NestJS, Go, or Database) before planning or reviewing broad work.</use_case>
+
+<aliases>"show me our Next.js guide", "what are our Go standards", "open the database framework map", "framework best practices for NestJS"</aliases>
+
+<important_notes>
+- Use this when the task spans a whole framework, not just one file.
+- The response includes the category guide plus the list of skills available in that category.
+- After reading the guide, still call load_skills_for_files or load_skills_for_keywords for the narrower task-specific rules.
+</important_notes>`,
+    inputSchema: getCategoryGuideSchema,
+    handler: (args) =>
+      getCategoryGuide(args as { category: string }, ctx),
   });
 
   register(server, {

@@ -17,8 +17,8 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Learn                  | How do we prevent repeat issues?                | `retro-learn`              | Need standards/process feedback loop                 | retro report             |
 | Session                | What happened in this delivery?                 | `session-report`           | Need concise run summary and follow-ups              | session report           |
 | Fix                    | How do we remediate a bug?                      | `dev-fix`                  | Bug ticket needs remediation                         | fix plan and evidence    |
-| Review                 | What risks are in this change?                  | `review-ticket`            | PR or ticket needs multi-lens review                 | review verdict           |
-| Review (PR)            | Is this PR safe to merge?                       | `code-review`              | PR diff needs focused correctness/security review    | review findings          |
+| Review                 | What risks are in this change?                  | `review-ticket`            | Ticket or complex change needs specialist fanout     | review verdict           |
+| Review (PR)            | Is this PR safe to merge?                       | `code-review`              | PR diff needs focused merge-risk review              | review findings          |
 | Review (Repo)          | What structural risks exist in the codebase?    | `codebase-review`          | Need broader architecture/quality scan               | prioritized findings     |
 | Security               | What exploitable risk exists now?               | `security-test`            | Need SAST/SCA/secrets or branch security checks      | security report          |
 | Security (Adversarial) | Can this be exploited in practice?              | `pentest`                  | Need PTES-aligned exploit validation                 | pentest report           |
@@ -45,6 +45,12 @@ Core SDLC workflows emit `Runtime Contract`, `Handoff Payload`, `Blocking Questi
 
 Each core SDLC workflow must call `get_session_cost(workflow="...")` before final handoff. The MCP reports observed tool/skill/workflow activity directly; exact token cost, cache discounts, reasoning tokens, and provider extras require host runtime usage data.
 
+Security review workflows should emit `artifacts/security-review.md` when security findings or evidence are in scope.
+Capture trust class, review context, runtime contract, findings, evidence gaps, and handoff notes so the same markdown report can drive developer, AppSec, and audit-facing follow-up without rewriting the conclusions.
+That report should stay continuous across `design-solution` / `implementation-readiness` -> `code-review` / `review-ticket` -> `pentest` so later stages refine the same trust and evidence record instead of starting over.
+When `code-review` or `review-ticket` findings are approved for publication or channel handoff, also emit `artifacts/review-delivery.md` as the sanitized delivery packet for `specialist-pr-commenter-batch` or channel-driven follow-up.
+For full-repo health checks, `codebase-review` should also emit `artifacts/codebase-review.md`, using `security-review.md` only for the security slice.
+
 ## Naming Rule
 
 When users ask for BRD, PRD, or SRS:
@@ -68,8 +74,20 @@ Use `docs/requirements-standards-baseline.md` as the shared source baseline for 
 - `implement-feature`: failing test first, no pre-test implementation kept as reference.
 - `dev-fix`: root cause explicit before code proposal.
 - `verify-work`: no PASS from stale runs; evidence must be fresh.
-- `review-ticket`: findings before summary, evidence before confidence.
+- `code-review`: keep it lean and PR-first; use it for focused merge decisions on a concrete diff.
+- `review-ticket`: use it when AC coverage, architecture, PR metadata, or specialist fanout matters beyond the raw diff.
+- `codebase-review`: record source provenance, review context including prompt-injection posture, runtime contract, optional runtime attestation, policy-enforcement coverage, and evidence coverage before broad scoring.
 - `skill-benchmark`: include pressure scenarios, rationalizations, red flags, and behavior assertions for guardrail skills.
+
+## Trust Policy
+
+For PR, ticket, and patch security review, classify context with `<SKILLS>/common/common-security-audit/references/trust-review-policy.md` before ingesting external text or publishing findings.
+
+## Review Strengths to Emulate
+
+- NVIDIA OpenShell: explicit runtime contract, least-privilege tooling, default-deny egress, and reviewable logs.
+- Anthropic Claude Code Security Review: diff-aware review, high-confidence filtering, and explicit false-positive suppression.
+- SecurityReview.ai: system-first threat modeling from existing docs, role-aware outputs, and a continuous security artifact across SDLC stages.
 
 ## External MCPs
 

@@ -7,6 +7,7 @@ import { SessionTracker } from "../src/services/SessionTracker";
 import { SkillIndex } from "../src/services/SkillIndex";
 import {
   auditSessionCompliance,
+  getCategoryGuide,
   getSessionCost,
   getSkill,
   listCategories,
@@ -34,6 +35,11 @@ async function fixture(): Promise<{
     files: ["**_bloc.dart"],
     keywords: ["bloc", "state"],
   });
+  await fs.ensureDir(path.join(skills, "flutter", "references"));
+  await fs.writeFile(
+    path.join(skills, "flutter", "references", "framework-map.md"),
+    "# Flutter Framework Map\n\nReviewed: fixture\n",
+  );
   // Canonical ids frequently include the category prefix; get_skill should allow
   // callers to omit it (compatibility with varied runtime naming conventions).
   await writeSkill(
@@ -184,6 +190,24 @@ describe("tools — get_skill suggestions", () => {
     const out = await auditSessionCompliance({}, ctx);
     expect(text(out)).toContain("_(none yet)_");
   });
+
+  it("loads a category guide when framework-map exists", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+    const out = await getCategoryGuide({ category: "flutter" }, ctx);
+    const t = text(out);
+    expect(t).toContain("Category Guide: flutter");
+    expect(t).toContain("flutter/flutter-language");
+    expect(t).toContain("Flutter Framework Map");
+  });
+
+  it("returns friendly guidance when a category guide is absent", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+    const out = await getCategoryGuide(
+      { category: "quality-engineering" },
+      ctx,
+    );
+    expect(text(out)).toContain("does not provide a category guide yet");
+  });
 });
 
 describe("tools — happy path tracker", () => {
@@ -223,9 +247,16 @@ describe("tools — happy path tracker", () => {
     expect(t).toContain("| **Workflow** | implement-feature |");
     expect(t).toContain("| **MCP Tool Calls** | 2 |");
     expect(t).toContain("| **Skills Loaded** | 2 |");
+    expect(t).toContain("| **No-Match Calls** | 0 |");
+    expect(t).toContain(
+      "| **Cost Status** | Partial - host usage or pricing fields missing |",
+    );
     expect(t).toContain("[Agent: fill from platform usage]");
     expect(t).toContain("[Agent: fill if runtime reports cache]");
     expect(t).toContain("[Agent: fill if runtime reports reasoning]");
+    expect(t).toContain(
+      "| **Missing Host Fields** | promptTokens, completionTokens, inputCostPer1M, outputCostPer1M |",
+    );
     expect(t).toContain("load_skills_for_files");
     expect(t).toContain("get_session_cost");
   });
@@ -258,7 +289,21 @@ describe("tools — happy path tracker", () => {
     expect(t).toContain("| **Completion Tokens** | 500000 |");
     expect(t).toContain("| **Reasoning Tokens** | 250000 |");
     expect(t).toContain("| **Other Runtime Cost** | USD 0.250000 |");
+    expect(t).toContain("| **Cost Status** | Exact estimate available |");
     expect(t).toContain("| **Estimated Cost** | USD 8.500000 |");
+    expect(t).toContain("| **Missing Host Fields** | _(none)_ |");
+  });
+
+  it("tracks get_skill misses without inflating telemetry no-match counts for cost calls", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+
+    await getSkill({ category: "rust", name: "whatever" }, ctx);
+    const cost = await getSessionCost({ workflow: "review-ticket" }, ctx);
+    const t = text(cost);
+
+    expect(t).toContain("| **No-Match Calls** | 1 |");
+    expect(t).toContain("get_skill");
+    expect(t).toContain("get_session_cost");
   });
 });
 

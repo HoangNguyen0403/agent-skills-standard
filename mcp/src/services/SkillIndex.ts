@@ -209,6 +209,17 @@ export class SkillIndex {
     return this.metadata.file_routing;
   }
 
+  /** Path to a category-level guide such as references/framework-map.md, if present. */
+  getCategoryGuidePath(category: string): string | null {
+    this.ensureLoaded();
+    if (!this.skillsDir) return null;
+    const hit = this.listCategories().find(
+      (entry) => entry.toLowerCase() === category.toLowerCase(),
+    );
+    if (!hit) return null;
+    return path.join(this.skillsDir, hit, "references", "framework-map.md");
+  }
+
   /**
    * Expand a set of direct match results with composite-triggered foundational
    * skills. Mirrors the same `String.includes` semantics that the CLI's

@@ -12,6 +12,8 @@ metadata:
 > [!IMPORTANT]
 > Draft user-facing release notes, store changelogs, and internal publish summaries.
 
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
@@ -29,24 +31,20 @@ Goal: Convert verified changes into accurate user-facing and internal release no
    - Verification report
    - Deployment report
    - Product or store constraints
-
 2. Triage impact:
    - User-facing change
    - Bug fix
    - Security or privacy note
    - Operational change
    - No-user-impact internal change
-
 3. Draft notes:
-   - Use plain language.
-   - Mention outcomes, not implementation details.
-   - Keep sensitive security details high level.
+   - Use plain language and business outcomes.
+   - Keep sensitive security details high-level.
    - Respect platform character limits.
-
 4. Verify:
-   - Cross-check against shipped scope.
+   - Cross-check notes against shipped scope.
    - Remove unshipped claims.
-   - Route lessons to `retro-learn`.
+   - Route process lessons to `retro-learn`.
 
 ## Output Template
 
@@ -62,6 +60,9 @@ Goal: Convert verified changes into accurate user-facing and internal release no
 ## Verification Source
 
 ## Next Workflow
+
 retro-learn
+
+## Cost Report
 ```
 

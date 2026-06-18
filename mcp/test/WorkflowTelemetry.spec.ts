@@ -3,6 +3,7 @@ import {
   buildSessionCostRequest,
   calculateEstimatedSessionCost,
   finalizeWorkflowTelemetry,
+  summarizeSessionCostCoverage,
   shouldFinalizeWorkflowTelemetry,
 } from "../src/services/WorkflowTelemetry";
 
@@ -69,6 +70,20 @@ describe("WorkflowTelemetry", () => {
         currency: "USD",
       }),
     ).toBeNull();
+  });
+
+  it("reports exactness and missing fields for partial host telemetry", () => {
+    expect(
+      summarizeSessionCostCoverage({
+        promptTokens: 1000,
+        inputCostPer1M: 2,
+        currency: "USD",
+      }),
+    ).toEqual({
+      estimatedCost: null,
+      exactCostAvailable: false,
+      missingHostFields: ["completionTokens", "outputCostPer1M"],
+    });
   });
 
   it("triggers only for terminal workflow states", () => {

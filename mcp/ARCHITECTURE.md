@@ -231,6 +231,9 @@ The principle: **the server starts even when nothing is set up**. Tools are resp
 | `services/SkillIndex.ts`     | Owns the in-memory index. Loads `metadata.json`, scans skills, exposes `matchFiles` / `matchKeywords` / `findSkill`.                       |
 | `services/SessionTracker.ts` | Append-only log of tool calls in this process. Backs `audit_session_compliance` and `get_session_cost`.                                    |
 | `services/WorkflowTelemetry.ts` | Host-side helpers for assembling workflow-end usage/pricing payloads and triggering `get_session_cost` only on terminal workflow states. |
+| `services/SecurityReviewArtifact.ts` | Host-side helpers for assembling, validating, and emitting `security-review.json` artifacts on terminal security review workflows, including review context, runtime policy source, per-domain policy enforcement, evidence coverage, audience outputs, and handoff metadata. |
+| `services/CodebaseReviewArtifact.ts` | Host-side helpers for assembling, validating, and emitting `codebase-review.json` artifacts on terminal codebase review workflows, including lineage, review execution context, runtime contract, per-domain policy enforcement, health scores, audience outputs, remediation themes, and handoff metadata. |
+| `services/WorkflowOutcomeArtifacts.ts` | Host-side dispatcher for terminal workflow states that can emit session telemetry plus security-review and/or codebase-review artifacts from one integration seam. |
 | `tools/index.ts`             | The 8 tool handlers. All graceful-empty-state checks live here.                                                                            |
 | `server.ts`                  | `McpServer` factory. Owns the `instructions` field and per-tool descriptions (use_case / aliases / important_notes).                       |
 
@@ -288,7 +291,7 @@ The principle: **the server starts even when nothing is set up**. Tools are resp
 
 | Metric                                        | Cost                                           |
 | --------------------------------------------- | ---------------------------------------------- |
-| Startup (load + parse 244 skills)             | ~30-50 ms on a fast SSD                        |
+| Startup (load + parse 267 skills)             | ~30-50 ms on a fast SSD                        |
 | Tool schema delivered to client               | ~800 tokens (8 tools, structured descriptions) |
 | `load_skills_for_files` for typical Dart file | ~3-5 KB response (2 matched skills)            |
 | `audit_session_compliance` after 10 calls     | ~1 KB response                                 |
