@@ -8,20 +8,20 @@ import {
   auditSessionComplianceSchema,
   getCategoryGuide,
   getCategoryGuideSchema,
+  getSessionCost,
+  getSessionCostSchema,
   getSkill,
   getSkillSchema,
+  getWorkflow,
+  getWorkflowSchema,
   listCategories,
   listCategoriesSchema,
+  listWorkflows,
+  listWorkflowsSchema,
   loadSkillsForFiles,
   loadSkillsForFilesSchema,
   loadSkillsForKeywords,
   loadSkillsForKeywordsSchema,
-  listWorkflows,
-  listWorkflowsSchema,
-  getWorkflow,
-  getWorkflowSchema,
-  getSessionCost,
-  getSessionCostSchema,
   ToolResult,
 } from './tools';
 
@@ -137,7 +137,7 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   const server = new McpServer(
     {
       name: 'agent-skills-standard-mcp',
-      version: '0.4.7',
+      version: '0.5.0',
     },
     {
       instructions: SERVER_INSTRUCTIONS,
@@ -212,7 +212,8 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
 - After reading the guide, still call load_skills_for_files or load_skills_for_keywords for the narrower task-specific rules.
 </important_notes>`,
     inputSchema: getCategoryGuideSchema,
-    handler: (args) =>
+    handler: (args) => getCategoryGuide(args as { category: string }, ctx),
+  });
 
   register(server, {
     name: 'list_categories',
@@ -236,9 +237,6 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
     description: `<use_case>Return the list of skills loaded so far in this session, plus the tool calls that loaded them. Use this BEFORE claiming a task is complete or posting a code review, so you can verify the relevant rules were actually consulted.</use_case>
 
 <aliases>"which rules did I load", "what skills are active", "show my compliance log", "did I check the right standards", "audit my work"</aliases>
-
-<important_notes>
-- Run this BEFORE handing off work or claiming "done" — it's the receipt that proves you grounded your output in project rules.
 - For PR reviews, paste the loaded-skills list into the review header so the author can verify.
 - Each session's audit log is in-memory and resets when the MCP server restarts.
 </important_notes>`,
@@ -254,8 +252,6 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
 <aliases>"what workflows do we have", "show available workflows", "list standard operating procedures"</aliases>
 
 <important_notes>
-- Returns: list of workflow names and their descriptions.
-- Use this when receiving a task to understand if there is a verified team procedure for it.
 </important_notes>`,
     inputSchema: listWorkflowsSchema,
     handler: () => listWorkflows({}, ctx),
@@ -269,8 +265,6 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
 <aliases>"open workflow X", "show me how to execute workflow Y", "get procedure Z"</aliases>
 
 <important_notes>
-- Pass the workflow name exactly (e.g., 'dev-fix').
-- The returned markdown contains full instructions. Read them carefully and execute all required steps in order.
 </important_notes>`,
     inputSchema: getWorkflowSchema,
     handler: (args) => getWorkflow(args as { name: string }, ctx),
@@ -284,8 +278,6 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
 <aliases>"what is the cost of this run", "show token usage", "session telemetry"</aliases>
 
 <important_notes>
-- Call this as the final action before terminating the workflow.
-- Pass token usage, cache/reasoning fields, and pricing from your platform's tracking if available; otherwise the tool returns MCP-observed telemetry with placeholders for the missing cost fields.
 </important_notes>`,
     inputSchema: getSessionCostSchema,
     handler: (args) =>

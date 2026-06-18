@@ -4,7 +4,7 @@ MCP server that lets any AI agent — Claude Code, Cursor, Antigravity, Kiro, Co
 
 Solves the **enforcement gap**: `AGENTS.md` and `_INDEX.md` are passive prompt context. Sub-agents in particular don't inherit them. This MCP exposes skill loading as explicit, auditable tool calls that work the same way across every MCP-compatible runtime.
 
-**Current release:** `v0.4.7` — workflow-end telemetry helpers, markdown-first review continuity, runtime policy coverage, and host-runtime integration guidance for SDLC reporting.
+**Current release:** `v0.5.0` — workflow-end telemetry helpers, markdown-first review continuity, runtime policy coverage, and host-runtime integration guidance for SDLC reporting.
 
 ## High-Density Architecture (Zero-Trust)
 
