@@ -1,5 +1,5 @@
 ---
-description: "Automated workflow to detect and fix missing documentation"
+description: 'Automated workflow to detect and fix missing documentation'
 ---
 
 # Documentation Update Workflow
@@ -11,7 +11,7 @@ This workflow helps you identify and fix missing documentation in the codebase.
 The `scan-docs.ts` script identifies exported members that lack JSDoc comments.
 
 ```bash
-tsx scripts/scan-docs.ts cli/src
+pnpm docs:scan
 ```
 
 ## 2. Analyze the Report
@@ -22,7 +22,7 @@ Example output:
 
 ```text
 ⚠️  Found undocumented members:
-📄 services/MyService.ts
+📄 src/services/MyService.ts
    - class MyService
    - function doSomething
 ```
@@ -34,14 +34,14 @@ For each missing item:
 1. **Read the code** to understand its purpose.
 2. **Add JSDoc comments** (`/** ... */`) above the export.
 3. **Include**:
-    - Description of what it does.
-    - `@param` tags for arguments.
-    - `@returns` tag for return value.
+   - Description of what it does.
+   - `@param` tags for arguments.
+   - `@returns` tag for return value.
 
 ## 4. Verify
 
 Run the scanner again to ensure no items remain.
 
 ```bash
-tsx scripts/scan-docs.ts cli/src
+pnpm docs:scan
 ```

@@ -29,6 +29,32 @@ export interface SessionCostRequest {
   currency?: string;
 }
 
+export interface SessionCostCoverage {
+  estimatedCost: string | null;
+  exactCostAvailable: boolean;
+  missingHostFields: string[];
+}
+
+export function summarizeSessionCostCoverage(
+  args: Omit<SessionCostRequest, "workflow">,
+): SessionCostCoverage {
+  const missingHostFields: string[] = [];
+  if (args.promptTokens === undefined) missingHostFields.push("promptTokens");
+  if (args.completionTokens === undefined) {
+    missingHostFields.push("completionTokens");
+  }
+  if (args.inputCostPer1M === undefined) missingHostFields.push("inputCostPer1M");
+  if (args.outputCostPer1M === undefined) {
+    missingHostFields.push("outputCostPer1M");
+  }
+
+  return {
+    estimatedCost: calculateEstimatedSessionCost(args),
+    exactCostAvailable: missingHostFields.length === 0,
+    missingHostFields,
+  };
+}
+
 export function calculateEstimatedSessionCost(
   args: Omit<SessionCostRequest, "workflow">,
 ): string | null {

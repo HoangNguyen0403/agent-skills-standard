@@ -1,27 +1,29 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
-import { ResolvedConfig } from "./config";
-import { SessionTracker } from "./services/SessionTracker";
-import { SkillIndex } from "./services/SkillIndex";
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
+import { ResolvedConfig } from './config';
+import { SessionTracker } from './services/SessionTracker';
+import { SkillIndex } from './services/SkillIndex';
 import {
   auditSessionCompliance,
   auditSessionComplianceSchema,
+  getCategoryGuide,
+  getCategoryGuideSchema,
+  getSessionCost,
+  getSessionCostSchema,
   getSkill,
   getSkillSchema,
+  getWorkflow,
+  getWorkflowSchema,
   listCategories,
   listCategoriesSchema,
+  listWorkflows,
+  listWorkflowsSchema,
   loadSkillsForFiles,
   loadSkillsForFilesSchema,
   loadSkillsForKeywords,
   loadSkillsForKeywordsSchema,
-  listWorkflows,
-  listWorkflowsSchema,
-  getWorkflow,
-  getWorkflowSchema,
-  getSessionCost,
-  getSessionCostSchema,
   ToolResult,
-} from "./tools";
+} from './tools';
 
 interface ToolDef {
   name: string;
@@ -70,6 +72,10 @@ Call \`load_skills_for_keywords\` BEFORE you:
   • Plan or design work where files are not yet identified
     (e.g. "add JWT auth", "speed up the homepage", "migrate the schema")
 
+Call \`get_category_guide\` BEFORE you:
+  • Work across a whole framework or stack area
+    (e.g. "review our Next.js standards", "plan a Go service layout", "design a DB migration strategy")
+
 Call \`list_workflows\` BEFORE you:
   • Start any complex task (e.g. bug fixing, feature implementation, code review, planning)
     to discover standard procedures available in this repository.
@@ -91,7 +97,8 @@ Call \`get_session_cost\` BEFORE you:
   1. When assigned a task (e.g. a bug fix or feature request), call \`list_workflows()\` to discover applicable procedures.
   2. If a matching workflow exists (e.g. \`dev-fix\`), call \`get_workflow(name="...")\` and follow its instructions exactly from start to end.
   3. Decide which file(s) you will touch (or which concept the user mentioned).
-  4. Call \`load_skills_for_files(files=[...])\` (or the keywords variant).
+  4. If the task spans a whole framework, call \`get_category_guide(category="...")\`.
+  5. Call \`load_skills_for_files(files=[...])\` (or the keywords variant).
   5. Treat every returned SKILL.md as authoritative project rules. They
      OVERRIDE your pre-training defaults.
   6. Do the work — edit, review, design — following those rules.
@@ -129,8 +136,8 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
 
   const server = new McpServer(
     {
-      name: "agent-skills-standard-mcp",
-      version: "0.4.0",
+      name: 'agent-skills-standard-mcp',
+      version: '0.5.0',
     },
     {
       instructions: SERVER_INSTRUCTIONS,
@@ -138,8 +145,8 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   );
 
   register(server, {
-    name: "load_skills_for_files",
-    title: "Load skills for files",
+    name: 'load_skills_for_files',
+    title: 'Load skills for files',
     description: `<use_case>Load the project's coding-standard rules (SKILL.md files) that apply to one or more files you are about to edit, write, or review. The router maps each file's extension to relevant skill categories and returns the matched rules.</use_case>
 
 <aliases>"what are our team's rules for editing X", "show project conventions for X", "review standards for file X", "how should I implement this in file Y"</aliases>
@@ -157,8 +164,8 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   });
 
   register(server, {
-    name: "load_skills_for_keywords",
-    title: "Load skills for keywords",
+    name: 'load_skills_for_keywords',
+    title: 'Load skills for keywords',
     description: `<use_case>Load skills by matching concept words from the user's request, when no specific file is in scope yet. Useful at the planning stage of a task ("add JWT auth", "speed up homepage", "migrate schema").</use_case>
 
 <aliases>"what does our team say about X", "rules around the topic Y", "best practices for concept Z", "team approach to authentication/performance/migrations"</aliases>
@@ -175,8 +182,8 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   });
 
   register(server, {
-    name: "get_skill",
-    title: "Get a specific skill by category and name",
+    name: 'get_skill',
+    title: 'Get a specific skill by category and name',
     description: `<use_case>Direct lookup for a single skill when you already know exactly which one you need (e.g. you saw it referenced in another skill's "References" section, or in a previous load_skills_for_files response).</use_case>
 
 <aliases>"open the X skill", "show me the X/Y rule", "fetch the rules for category X skill Y"</aliases>
@@ -193,8 +200,24 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   });
 
   register(server, {
-    name: "list_categories",
-    title: "List all skill categories available in this project",
+    name: 'get_category_guide',
+    title: 'Get a framework or category guide',
+    description: `<use_case>Load a category-level guide such as a framework map for a whole stack area (for example Next.js, React, NestJS, Go, or Database) before planning or reviewing broad work.</use_case>
+
+<aliases>"show me our Next.js guide", "what are our Go standards", "open the database framework map", "framework best practices for NestJS"</aliases>
+
+<important_notes>
+- Use this when the task spans a whole framework, not just one file.
+- The response includes the category guide plus the list of skills available in that category.
+- After reading the guide, still call load_skills_for_files or load_skills_for_keywords for the narrower task-specific rules.
+</important_notes>`,
+    inputSchema: getCategoryGuideSchema,
+    handler: (args) => getCategoryGuide(args as { category: string }, ctx),
+  });
+
+  register(server, {
+    name: 'list_categories',
+    title: 'List all skill categories available in this project',
     description: `<use_case>Discover what skill categories are installed in this project, the file extensions each handles, and how many skills are in each. Use to scope work or to pick a category for follow-up tool calls.</use_case>
 
 <aliases>"what skills do we have", "show me all categories", "what frameworks are covered", "list the project rules"</aliases>
@@ -209,14 +232,11 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   });
 
   register(server, {
-    name: "audit_session_compliance",
-    title: "Audit which skills were loaded in this session",
+    name: 'audit_session_compliance',
+    title: 'Audit which skills were loaded in this session',
     description: `<use_case>Return the list of skills loaded so far in this session, plus the tool calls that loaded them. Use this BEFORE claiming a task is complete or posting a code review, so you can verify the relevant rules were actually consulted.</use_case>
 
 <aliases>"which rules did I load", "what skills are active", "show my compliance log", "did I check the right standards", "audit my work"</aliases>
-
-<important_notes>
-- Run this BEFORE handing off work or claiming "done" — it's the receipt that proves you grounded your output in project rules.
 - For PR reviews, paste the loaded-skills list into the review header so the author can verify.
 - Each session's audit log is in-memory and resets when the MCP server restarts.
 </important_notes>`,
@@ -225,45 +245,39 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   });
 
   register(server, {
-    name: "list_workflows",
-    title: "List all available workflows in the project",
+    name: 'list_workflows',
+    title: 'List all available workflows in the project',
     description: `<use_case>Discover what standard procedural workflows (e.g., dev-fix, plan-feature, code-review) are available in this repository. Use this at the start of any task or session to find standard operating procedures.</use_case>
 
 <aliases>"what workflows do we have", "show available workflows", "list standard operating procedures"</aliases>
 
 <important_notes>
-- Returns: list of workflow names and their descriptions.
-- Use this when receiving a task to understand if there is a verified team procedure for it.
 </important_notes>`,
     inputSchema: listWorkflowsSchema,
     handler: () => listWorkflows({}, ctx),
   });
 
   register(server, {
-    name: "get_workflow",
-    title: "Get a specific workflow by name",
+    name: 'get_workflow',
+    title: 'Get a specific workflow by name',
     description: `<use_case>Retrieve the exact markdown instructions for a specific workflow (e.g., 'dev-fix'). Use this once you know which workflow applies to your task so you can follow its step-by-step procedure exactly.</use_case>
 
 <aliases>"open workflow X", "show me how to execute workflow Y", "get procedure Z"</aliases>
 
 <important_notes>
-- Pass the workflow name exactly (e.g., 'dev-fix').
-- The returned markdown contains full instructions. Read them carefully and execute all required steps in order.
 </important_notes>`,
     inputSchema: getWorkflowSchema,
     handler: (args) => getWorkflow(args as { name: string }, ctx),
   });
 
   register(server, {
-    name: "get_session_cost",
-    title: "Get token usage and estimated cost for the current session",
+    name: 'get_session_cost',
+    title: 'Get token usage and estimated cost for the current session',
     description: `<use_case>Return a markdown template summarizing the current session's tool calls, skills loaded, token usage, and cost. Use this as the final step in workflows to report cost.</use_case>
 
 <aliases>"what is the cost of this run", "show token usage", "session telemetry"</aliases>
 
 <important_notes>
-- Call this as the final action before terminating the workflow.
-- Pass token usage, cache/reasoning fields, and pricing from your platform's tracking if available; otherwise the tool returns MCP-observed telemetry with placeholders for the missing cost fields.
 </important_notes>`,
     inputSchema: getSessionCostSchema,
     handler: (args) =>

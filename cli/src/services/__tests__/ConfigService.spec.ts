@@ -32,6 +32,9 @@ describe('ConfigService', () => {
       expect(fs.pathExists).toHaveBeenCalledWith(
         path.join(mockCwd, '.skillsrc'),
       );
+      expect(fs.pathExists).toHaveBeenCalledWith(
+        path.join(mockCwd, '.skillsrc.yaml'),
+      );
     });
 
     it('should return parsed config if .skillsrc exists and is valid', async () => {
@@ -57,6 +60,36 @@ describe('ConfigService', () => {
 
       const config = await configService.loadConfig(mockCwd);
       expect(config).toEqual(mockConfig);
+    });
+
+    it('should fall back to .skillsrc.yaml and migrate it to .skillsrc', async () => {
+      const mockYamlText = 'registry: https://example.com\nskills: {}';
+      const mockConfig: SkillConfig = {
+        registry: 'https://example.com',
+        skills: {},
+        agents: [Agent.Cursor],
+        custom_overrides: [],
+      };
+
+      vi.mocked(fs.pathExists).mockImplementation((target) =>
+        Promise.resolve(target === path.join(mockCwd, '.skillsrc.yaml')),
+      );
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve(mockYamlText as unknown as Buffer),
+      );
+      vi.mocked(yaml.load).mockReturnValue(mockConfig);
+      vi.mocked(yaml.dump).mockReturnValue('canonical yaml');
+
+      const config = await configService.loadConfig(mockCwd);
+
+      expect(config).toEqual(mockConfig);
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        path.join(mockCwd, '.skillsrc'),
+        'canonical yaml',
+      );
+      expect(fs.remove).toHaveBeenCalledWith(
+        path.join(mockCwd, '.skillsrc.yaml'),
+      );
     });
 
     it('should preserve snippets in mcp config when present', async () => {
@@ -111,6 +144,103 @@ describe('ConfigService', () => {
       );
     });
 
+    it('should migrate the legacy broken .skillsrc text format before validation', async () => {
+      const legacyBrokenText = `registry: <https://example.com>
+agents:
+
+- copilot
+- antigravity
+- codex
+  skills:
+  typescript:
+  ref: typescript-v1.3.3
+  common:
+  ref: common-v2.0.5
+  exclude: - common-accessibility - common-api-design
+  custom_overrides: []
+  workflows:
+- sdlc
+- review-ticket
+  mcp:
+  enabled: true
+  scope: project
+  prompted: true
+`;
+
+      vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(true));
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve(legacyBrokenText as unknown as Buffer),
+      );
+      vi.mocked(yaml.load).mockImplementation(() => {
+        throw new Error('bad indentation of a sequence entry');
+      });
+      vi.mocked(yaml.dump).mockReturnValue('migrated yaml');
+
+      const config = await configService.loadConfig(mockCwd);
+
+      expect(config).toEqual({
+        registry: 'https://example.com',
+        agents: [Agent.Copilot, Agent.Antigravity, Agent.Codex],
+        skills: {
+          typescript: { ref: 'typescript-v1.3.3' },
+          common: {
+            ref: 'common-v2.0.5',
+            exclude: ['common-accessibility', 'common-api-design'],
+          },
+        },
+        custom_overrides: [],
+        workflows: ['sdlc', 'review-ticket'],
+        mcp: {
+          enabled: true,
+          scope: 'project',
+          prompted: true,
+        },
+      });
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        path.join(mockCwd, '.skillsrc'),
+        'migrated yaml',
+      );
+    });
+
+    it('should normalize markdown-style registry urls and string excludes from valid yaml', async () => {
+      const rawConfig = {
+        registry: '<https://example.com>',
+        skills: {
+          common: {
+            ref: 'common-v2.0.5',
+            exclude: '- common-accessibility - common-api-design',
+          },
+        },
+        agents: [Agent.Codex],
+        custom_overrides: [],
+      };
+
+      vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(true));
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve('registry: <https://example.com>' as unknown as Buffer),
+      );
+      vi.mocked(yaml.load).mockReturnValue(rawConfig);
+      vi.mocked(yaml.dump).mockReturnValue('normalized yaml');
+
+      const config = await configService.loadConfig(mockCwd);
+
+      expect(config).toEqual({
+        registry: 'https://example.com',
+        skills: {
+          common: {
+            ref: 'common-v2.0.5',
+            exclude: ['common-accessibility', 'common-api-design'],
+          },
+        },
+        agents: [Agent.Codex],
+        custom_overrides: [],
+      });
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        path.join(mockCwd, '.skillsrc'),
+        'normalized yaml',
+      );
+    });
+
     it('should throw error if .skillsrc format is invalid', async () => {
       vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(true));
       vi.mocked(fs.readFile).mockImplementation(() =>
@@ -143,12 +273,22 @@ describe('ConfigService', () => {
       };
       vi.mocked(yaml.dump).mockReturnValue('mock yaml');
 
+      vi.mocked(fs.pathExists).mockImplementation((target) =>
+        Promise.resolve(target === path.join(mockCwd, '.skillsrc.yaml')),
+      );
+
       await configService.saveConfig(mockConfig, mockCwd);
 
-      expect(yaml.dump).toHaveBeenCalledWith(mockConfig);
+      expect(yaml.dump).toHaveBeenCalledWith(mockConfig, {
+        noRefs: true,
+        lineWidth: -1,
+      });
       expect(fs.outputFile).toHaveBeenCalledWith(
         path.join(mockCwd, '.skillsrc'),
         'mock yaml',
+      );
+      expect(fs.remove).toHaveBeenCalledWith(
+        path.join(mockCwd, '.skillsrc.yaml'),
       );
     });
   });

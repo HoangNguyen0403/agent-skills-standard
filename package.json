@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-standard-root",
-  "version": "2.4.7",
+  "version": "2.5.0",
   "private": true,
   "packageManager": "pnpm@10.0.0",
   "pnpm": {
@@ -13,6 +13,8 @@
       "picomatch": ">=4.0.4",
       "serialize-javascript": ">=7.0.5",
       "qs": ">=6.15.2",
+      "js-yaml": ">=4.2.0",
+      "multer": ">=2.2.0",
       "vite": ">=7.3.2",
       "postcss": ">=8.5.10",
       "minimatch@10>brace-expansion": ">=5.0.6"
@@ -45,7 +47,7 @@
     "benchmark:report": "tsx scripts/benchmark/index.ts --report-only",
     "generate-indices": "tsx scripts/generate-indices.ts",
     "audit:skills": "tsx scripts/audit-skills.ts",
-    "audit:sdlc": "tsx scripts/audit-sdlc.ts",
+    "audit:sdlc": "node --import tsx ./scripts/audit-sdlc.ts",
     "check-alignment": "tsx scripts/check-alignment.ts",
     "check-alignment:strict": "tsx scripts/check-alignment.ts --threshold 90",
     "audit:injection": "tsx scripts/scan-injection.ts",
@@ -69,7 +71,7 @@
     "globals": "^17.0.0",
     "husky": "^9.1.7",
     "inquirer": "^9.3.7",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.2.0",
     "picocolors": "^1.1.1",
     "prettier": "^3.4.2",
     "tsx": "^4.19.3",

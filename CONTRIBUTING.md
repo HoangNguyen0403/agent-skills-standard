@@ -45,8 +45,9 @@ Skills are the core value of this project.
 2. **Create**: Add your category folder in `skills/`.
 3. **Validate**: Ensure `SKILL.md` is under 500 tokens (check with `pnpm calculate-tokens`).
 4. **Reference**: Heavy content goes to `references/`.
-5. **Guardrail skills**: For TDD, debugging, review, verification, protocol, or workflow skills, add `pressure_scenarios`, `rationalizations`, `red_flags`, and behavior assertions to `evals/evals.json`.
-6. **Evidence first**: Do not tighten a guardrail skill without baseline or regression evidence for the behavior you are trying to change.
+5. **Framework packs**: Large framework categories may add category-level `references/framework-map.md` for bundle-level guidance; keep `SKILL.md` files focused on decisions and verification.
+6. **Guardrail skills**: For TDD, debugging, review, verification, protocol, or workflow skills, add `pressure_scenarios`, `rationalizations`, `red_flags`, and behavior assertions to `evals/evals.json`.
+7. **Evidence first**: Do not tighten a guardrail skill without baseline or regression evidence for the behavior you are trying to change.
 
 ## 4. Creating Workflows
 

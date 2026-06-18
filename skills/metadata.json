@@ -326,14 +326,14 @@
       }
     },
     "react": {
-      "version": "1.3.5",
-      "last_updated": "2026-04-22",
+      "version": "1.3.6",
+      "last_updated": "2026-06-18",
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4383,
-        "avg_tokens_per_skill": 548,
-        "largest_skill": "react-performance (733 tokens)"
+        "total_tokens": 4126,
+        "avg_tokens_per_skill": 516,
+        "largest_skill": "react-hooks (589 tokens)"
       }
     },
     "react-native": {
@@ -348,30 +348,30 @@
       }
     },
     "nestjs": {
-      "version": "1.4.4",
-      "last_updated": "2026-04-22",
+      "version": "1.4.5",
+      "last_updated": "2026-06-18",
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 13165,
-        "avg_tokens_per_skill": 627,
+        "total_tokens": 13291,
+        "avg_tokens_per_skill": 633,
         "largest_skill": "nestjs-performance (962 tokens)"
       }
     },
     "nextjs": {
-      "version": "1.4.4",
-      "last_updated": "2026-04-22",
+      "version": "1.4.5",
+      "last_updated": "2026-06-18",
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 11819,
-        "avg_tokens_per_skill": 657,
+        "total_tokens": 11541,
+        "avg_tokens_per_skill": 641,
         "largest_skill": "nextjs-architecture (1040 tokens)"
       }
     },
     "common": {
-      "version": "2.2.0",
-      "last_updated": "2026-06-11",
+      "version": "2.2.1",
+      "last_updated": "2026-06-18",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 38,
@@ -392,24 +392,24 @@
       }
     },
     "specialists": {
-      "version": "1.1.2",
-      "last_updated": "2026-05-19",
+      "version": "1.1.3",
+      "last_updated": "2026-06-18",
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 16,
-        "total_tokens": 7128,
-        "avg_tokens_per_skill": 446,
-        "largest_skill": "specialist-aspm-correlator (698 tokens)"
+        "total_tokens": 7336,
+        "avg_tokens_per_skill": 459,
+        "largest_skill": "specialist-security-reviewer (712 tokens)"
       }
     },
     "golang": {
-      "version": "1.3.4",
-      "last_updated": "2026-05-09",
+      "version": "1.3.5",
+      "last_updated": "2026-06-18",
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 5110,
-        "avg_tokens_per_skill": 465,
+        "total_tokens": 5135,
+        "avg_tokens_per_skill": 467,
         "largest_skill": "golang-tooling (533 tokens)"
       }
     },
@@ -513,14 +513,14 @@
       }
     },
     "database": {
-      "version": "1.3.4",
-      "last_updated": "2026-05-09",
+      "version": "1.3.5",
+      "last_updated": "2026-06-18",
       "tag_prefix": "database-v",
       "token_metrics": {
-        "total_skills": 3,
-        "total_tokens": 1720,
-        "avg_tokens_per_skill": 573,
-        "largest_skill": "database-mongodb (637 tokens)"
+        "total_skills": 7,
+        "total_tokens": 2718,
+        "avg_tokens_per_skill": 388,
+        "largest_skill": "database-redis (475 tokens)"
       }
     }
   }

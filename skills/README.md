@@ -161,8 +161,8 @@ Modern JavaScript (ES2022+) patterns.
 Modern React development patterns.
 
 - [**Component Patterns**](react/react-component-patterns/SKILL.md) (P0) - Build modern React component architecture with composition patterns. Use when designing reusable React components, applying composition patterns, or structuring component hierarchies.
-- [**Hooks**](react/react-hooks/SKILL.md) (P0) - Write efficient React functional components and hooks. Use when writing custom hooks, optimizing useEffect, or working with useMemo/useCallback in React.
-- [**Performance**](react/react-performance/SKILL.md) (P0) - Optimize React rendering, bundle size, and data fetching performance. Use when optimizing React rendering performance, reducing re-renders, or improving bundle size.
+- [**Hooks**](react/react-hooks/SKILL.md) (P0) - Write React hooks with clean effect boundaries and measured memoization. Use when working with `useEffect`, custom hooks, refs, transitions, or hook dependency problems in React.
+- [**Performance**](react/react-performance/SKILL.md) (P0) - Optimize React rendering, bundle size, and data flow with profiler-led decisions. Use when reducing re-renders, fixing waterfalls, or deciding whether memoization is warranted in React.
 - [**Security**](react/react-security/SKILL.md) (P0) - Prevent XSS, secure auth flows, and harden React client-side applications. Use when preventing XSS, securing auth flows, or auditing third-party dependencies in React.
 - [**State Management**](react/react-state-management/SKILL.md) (P0) - Select and implement local, global, and server state patterns in React. Use when choosing or implementing state management (Context, Zustand, Redux, React Query) in React.
 - [**Typescript**](react/react-typescript/SKILL.md) (P1) - Type React components and hooks with TypeScript patterns. Use when typing React props, hooks, event handlers, or component generics in TypeScript.
@@ -191,7 +191,7 @@ Mobile app standards for iOS and Android.
 
 Enterprise-grade Node.js backend development.
 
-- [**Architecture**](nestjs/nestjs-architecture/SKILL.md) (P0) - Design decoupled, testable NestJS module boundaries with feature, core, and shared modules. Use when structuring module imports, creating feature modules, or enforcing separation of concerns in NestJS.
+- [**Architecture**](nestjs/nestjs-architecture/SKILL.md) (P0) - Design NestJS module boundaries, provider scope, and request pipeline choices. Use when structuring modules, placing guards/pipes/interceptors, or reviewing provider lifetime in NestJS.
 - [**Bullmq**](nestjs/nestjs-bullmq/SKILL.md) (P0) - Implement BullMQ job workflows in NestJS. Use when building queue processors, redis-throttler, Upstash limits, idle polling, stalled jobs, and retention policies.
 - [**Controllers Services**](nestjs/nestjs-controllers-services/SKILL.md) (P0) - Separate Controllers from Services and build Custom Decorators in NestJS. Use when defining NestJS controllers, services, or custom parameter decorators.
 - [**Database**](nestjs/nestjs-database/SKILL.md) (P0) - Implement data access patterns, Scaling, Migrations, and ORM selection in NestJS. Use when implementing TypeORM/Prisma repositories, migrations, or database patterns in NestJS.
@@ -224,10 +224,10 @@ Modern fullstack React framework standards (App Router).
 - [**Rendering**](nextjs/nextjs-rendering/SKILL.md) (P0) - Select and implement SSG, SSR, ISR, Streaming, or Partial Prerendering strategies in Next.js App Router. Use when choosing a rendering mode for a page, configuring generateStaticParams, or enabling PPR.
 - [**Security**](nextjs/nextjs-security/SKILL.md) (P0) - Secure Next.js App Router with middleware auth, Server Action validation, CSP headers, and taint APIs. Use when adding authentication middleware, validating Server Action inputs with Zod, or preventing secret leakage to client bundles.
 - [**Server Components**](nextjs/nextjs-server-components/SKILL.md) (P0) - Build async React Server Components and place 'use client' boundaries at leaf nodes for interactivity in Next.js App Router. Use when deciding RSC vs Client Component, composing server data into client wrappers, or fixing hydration errors.
-- [**Caching**](nextjs/nextjs-caching/SKILL.md) (P1) - Configure the 4 caching layers in Next.js: request memoization, data cache, full-route cache, and router cache. Use when setting revalidation strategies, invalidating cached data with tags, or diagnosing stale data bugs.
+- [**Caching**](nextjs/nextjs-caching/SKILL.md) (P1) - Configure Next.js cache layers, invalidation, and cache-component APIs. Use when choosing `fetch` caching, `use cache`, tags, or stale-data debugging in Next.js.
 - [**Data Access Layer**](nextjs/nextjs-data-access-layer/SKILL.md) (P1) - Build secure, reusable data access patterns with DTOs, taint checks, and colocated authorization in Next.js. Use when centralizing database queries, transforming raw data to DTOs, adding server-only guards, or preventing sensitive data from reaching Client Components.
 - [**Optimization**](nextjs/nextjs-optimization/SKILL.md) (P1) - Optimize images, fonts, scripts, and metadata for Next.js performance and Core Web Vitals. Use when configuring next/image for LCP, next/font for zero layout shift, next/script loading strategies, or generateMetadata for SEO.
-- [**Server Actions**](nextjs/nextjs-server-actions/SKILL.md) (P1) - Implement mutations, forms, and RPC-style calls with Next.js Server Actions. Use when implementing Server Actions, form mutations, or RPC-style data mutations in Next.js.
+- [**Server Actions**](nextjs/nextjs-server-actions/SKILL.md) (P1) - Implement secure Next.js Server Actions for mutations, forms, and optimistic UI. Use when building actions, form flows, auth checks, or revalidation after writes.
 - [**Styling**](nextjs/nextjs-styling/SKILL.md) (P1) - Implement zero-runtime CSS with Tailwind, CSS Modules, and the cn() utility for RSC-compatible styling in Next.js. Use when choosing a styling library, creating dynamic class utilities, or optimizing fonts with next/font.
 - [**Testing**](nextjs/nextjs-testing/SKILL.md) (P1) - Write Jest or Vitest unit tests with React Testing Library and Playwright E2E tests for Next.js projects. Use when testing components with RTL, mocking APIs with MSW, or creating Playwright user flow tests.
 - [**Upgrade**](nextjs/nextjs-upgrade/SKILL.md) (P1) - Next.js version migrations using official guides and codemods. Use when migrating a Next.js project to a new major version using codemods.
@@ -256,9 +256,9 @@ Expert standards for scalable Laravel 11.x/12.x applications.
 High-performance system and backend development with Go.
 
 - [**Api Server**](golang/golang-api-server/SKILL.md) (P0) - Build HTTP services, REST APIs, and middleware in Go. Use when building Go HTTP servers, REST APIs, or custom middleware.
-- [**Architecture**](golang/golang-architecture/SKILL.md) (P0) - Structure Go projects with Clean Architecture and standard layout conventions. Use when structuring Go projects or applying Clean Architecture in Go.
+- [**Architecture**](golang/golang-architecture/SKILL.md) (P0) - Structure Go code with package-first boundaries, `cmd/` and `internal/`, and explicit dependency wiring. Use when shaping project layout, package ownership, or service boundaries in Go.
 - [**Concurrency**](golang/golang-concurrency/SKILL.md) (P0) - Write safe concurrent Go code with goroutines, channels, and context. Use when implementing concurrency with goroutines, channels, or context in Go.
-- [**Database**](golang/golang-database/SKILL.md) (P0) - Implement database access with connection pooling and repository patterns in Go. Use when building database access, connection pools, or repositories in Go.
+- [**Database**](golang/golang-database/SKILL.md) (P0) - Implement Go database access with context, pool tuning, transaction boundaries, and repository seams. Use when building repositories, tuning `sql.DB` or `pgx`, or reviewing DB transaction flow in Go.
 - [**Error Handling**](golang/golang-error-handling/SKILL.md) (P0) - Standards for error wrapping, checking, and definition in Golang. Use when wrapping errors, defining sentinel errors, or handling errors idiomatically in Go.
 - [**Language**](golang/golang-language/SKILL.md) (P0) - Core idioms, style guides, and best practices for writing idiomatic Go code. Use when writing Go code following official style guides and idiomatic patterns.
 - [**Security**](golang/golang-security/SKILL.md) (P0) - Secure Go backend services against common vulnerabilities. Use when implementing input validation, crypto, or SQL injection prevention in Go.
@@ -362,9 +362,13 @@ Modern Swift language standards (5.9+).
 
 Expert data access and optimization patterns.
 
-- [**Mongodb**](database/database-mongodb/SKILL.md) (P0) - Apply expert schema design, indexing, and performance rules for MongoDB. Use when designing MongoDB schemas, creating indexes, or optimizing NoSQL query performance.
-- [**Postgresql**](database/database-postgresql/SKILL.md) (P0) - Enforce repository patterns, zero-downtime migrations, and indexing standards for PostgreSQL with TypeORM or Prisma. Use when defining entities, writing migrations, adding RLS policies, or optimizing query performance.
-- [**Redis**](database/database-redis/SKILL.md) (P0) - Optimize Redis caching, key management, and performance. Use when implementing Redis caching strategies, managing key namespaces, or optimizing Redis performance.
+- [**Migrations**](database/database-migrations/SKILL.md) (P0) - Plan additive, zero-downtime schema migrations with rollout, backfill, and rollback awareness. Use when renaming columns, backfilling data, or shipping risky database changes.
+- [**Mongodb**](database/database-mongodb/SKILL.md) (P0) - Apply MongoDB data-modeling, indexing, and query rules from access patterns. Use when designing schemas, choosing embed vs reference, or tuning MongoDB query behavior.
+- [**Postgresql**](database/database-postgresql/SKILL.md) (P0) - Apply PostgreSQL standards for migrations, indexing, transactions, and ORM boundaries. Use when editing entities, Prisma schema, migrations, RLS, or query-performance work for PostgreSQL.
+- [**Query Performance**](database/database-query-performance/SKILL.md) (P0) - Diagnose database latency with explain plans, index ownership, and query-shape review. Use when a query is slow, an index is missing, or scans and N+1 patterns appear.
+- [**Redis**](database/database-redis/SKILL.md) (P0) - Optimize Redis as cache and coordination infrastructure with TTL, eviction, and latency-aware key design. Use when implementing Redis caching, key invalidation, or Redis performance work.
+- [**Schema Design**](database/database-schema-design/SKILL.md) (P0) - Design relational or document schemas from access patterns, cardinality, and lifecycle. Use when modeling entities, choosing embed vs normalize, or shaping schema boundaries before implementation.
+- [**Transactions**](database/database-transactions/SKILL.md) (P0) - Define transaction boundaries, locking, and consistency guarantees for multi-step writes. Use when designing atomic operations, retries, idempotency, or concurrent write behavior.
 
 ### Specialists
 
@@ -381,7 +385,7 @@ Standards for specialists.
 - [**Specialist Mobile Reverser**](specialists/specialist-mobile-reverser/SKILL.md) (P1) - Deep Mobile Security Red Team persona. Executes OWASP MASTG procedures including APK/IPA decompilation, Frida dynamic hooking, biometric bypasses, and local database decryption.
 - [**Specialist Pr Commenter Batch**](specialists/specialist-pr-commenter-batch/SKILL.md) (P1) - Posts sanitized batches of PR review comments or replies through configured review tooling. Use after review-ticket when findings are approved for publication.
 - [**Specialist Pr Reviewer**](specialists/specialist-pr-reviewer/SKILL.md) (P1) - Summarizes GitHub PR, GitLab MR, or Azure DevOps PR metadata, review threads, changed files, and template completeness. Use during review-ticket or code-review workflows when PR/MR context exists.
-- [**Specialist Security Reviewer**](specialists/specialist-security-reviewer/SKILL.md) (P1) - High-density security audit persona. Enforces OWASP Top 10, Vibe Security, project standards, and strict tool budgets (<= 8 calls).
+- [**Specialist Security Reviewer**](specialists/specialist-security-reviewer/SKILL.md) (P1) - High-density security audit persona. Enforces OWASP Top 10, Vibe Security, trust gating, and runtime hardening for code and agentic review flows.
 - [**Specialist Tc Creator**](specialists/specialist-tc-creator/SKILL.md) (P1) - Creates one test case in Zephyr or another test-management system from an approved structured spec. Use for bulk TC creation by spawning one independent specialist per TC.
 - [**Specialist Test Gap Finder**](specialists/specialist-test-gap-finder/SKILL.md) (P1) - Finds missing, weak, or stale test coverage in a diff. Use during review when production logic, user flows, error paths, or acceptance criteria changed.
 - [**Specialist Zephyr Scanner**](specialists/specialist-zephyr-scanner/SKILL.md) (P1) - Finds Zephyr Scale test cases linked or relevant to Jira stories, ACs, modules, and release risks. Use for coverage analysis and traceability checks.

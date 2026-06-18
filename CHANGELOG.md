@@ -5,6 +5,36 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [cli-v2.5.0] / [mcp-v0.5.0] - 2026-06-18
+
+**Category**: Trusted Review Hardening, Markdown-First Security Handoff & Skill Pack Expansion
+
+### Added
+
+- **Trust Review Policy**: Added `trust-review-policy.md` as the shared trust-gating reference for PR, ticket, and diff review workflows so untrusted prose is handled consistently across SDLC review surfaces.
+- **Database Skill Pack Expansion**: Added `database-migrations`, `database-query-performance`, `database-schema-design`, and `database-transactions` plus a category framework map to improve routing for modeling, rollout, and performance work.
+- **Framework Maps**: Added stack-level framework maps for `react`, `nextjs`, `nestjs`, and `golang` so broad planning/review tasks can load category defaults without bloating every `SKILL.md`.
+
+### Changed
+
+- **Review Workflow Hardening**: Updated `code-review`, `review-ticket`, `codebase-review`, `security-test`, and `pentest` to classify trust level, prefer markdown evidence continuity, and require stronger proof before escalating security severity.
+- **SDLC Routing Simplification**: Removed the separate `security-architecture-review` stage and now route design-level security gaps through `design-solution` or `implementation-readiness`.
+- **Review Surface Separation**: Clarified `code-review` as the lean PR merge-risk path and `review-ticket` as the broader specialist-fanout path with AC, metadata, and architecture context.
+- **Security Specialist Guidance**: Updated `specialist-security-reviewer` with trust gating, runtime-hardening checks, and new eval coverage for hostile PR instructions and design-level uncertainty.
+- **Artifact Model**: Removed the MCP-owned review artifact layer (`CodebaseReviewArtifact`, `SecurityReviewArtifact`, `ReviewDeliveryArtifact`, replay suites, and validator scaffolding) to keep skills and workflows as the source of truth.
+
+### Versions
+
+- **CLI**: `2.4.15` → `2.5.0`
+- **MCP**: `0.4.7` → `0.5.0`
+- **Common Skills**: `2.2.0` → `2.2.1`
+- **React**: `1.3.5` → `1.3.6`
+- **Next.js**: `1.4.4` → `1.4.5`
+- **NestJS**: `1.4.4` → `1.4.5`
+- **Golang**: `1.3.4` → `1.3.5`
+- **Database**: `1.3.4` → `1.3.5`
+- **Specialists**: `1.1.2` → `1.1.3`
+
 # [cli-v2.4.6] - 2026-06-11
 
 **Category**: Enterprise SDLC & Managed Delivery Alignment
@@ -213,12 +243,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `pnpm check-alignment --threshold 90` still fails on 71 older framework skills; that remains a separate framework quality-wave backlog.
 
-## [cli-v2.4.8] - 2026-06-15
+## [cli-v2.4.0] - 2026-06-15
 
 **Category**: CLI Tool
 
 ### Maintenance
-- chore: bump version to 2.4.8 and update documentation (#95)
+
+- chore: bump version to 2.4.0 and update documentation (#95)
 
 ## [cli-v2.2.3] - 2026-05-10
 

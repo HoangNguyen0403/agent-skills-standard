@@ -12,6 +12,8 @@ metadata:
 > [!IMPORTANT]
 > Deep audit of a skills directory against the Skill Creator standard. Produces a scored report and phased remediation plan.
 
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:

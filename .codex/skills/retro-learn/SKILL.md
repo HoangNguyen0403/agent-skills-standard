@@ -12,6 +12,8 @@ metadata:
 > [!IMPORTANT]
 > Convert delivery findings into skill, eval, workflow, and documentation improvements.
 
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
@@ -30,8 +32,7 @@ Goal: Turn defects, missed expectations, and delivery friction into durable stan
    - User corrections
    - Failed or slow checks
    - Token or context pain
-   - `session-report` artifacts, hallucination reports, and feedback logs
-
+   - `session-report` artifacts
 2. Classify:
    - Skill rule gap
    - Eval coverage gap
@@ -40,14 +41,12 @@ Goal: Turn defects, missed expectations, and delivery friction into durable stan
    - Tooling gap
    - Specialist gap
    - Environment-only issue
-
 3. Decide action:
    - Existing skill should prevent it: update `SKILL.md` and `evals/evals.json`.
    - No skill covers it: propose a new skill.
    - Workflow caused drift: update `.agents/workflows`.
-   - Specialist caused drift: add budget, tool fallback, or output-format rule.
+   - Specialist caused drift: add budget, fallback, or output-format rule.
    - Tooling can catch it: add or update an audit script.
-
 4. Verify learning:
    - Run changed skill validation.
    - Run eval alignment.
@@ -68,6 +67,17 @@ Goal: Turn defects, missed expectations, and delivery friction into durable stan
 
 ## Skill Or Eval Updates
 
+## Runtime Contract
+
+## Handoff Payload
+
+## Blocking Questions
+
+## Next Workflow
+
 ## Follow-Ups
+
+## Cost Report
+Call `get_session_cost(workflow="retro-learn")` before final handoff.
 ```
 

@@ -33,6 +33,27 @@ const REQUIRED_RUNTIME_SECTIONS = [
   "## Next Workflow",
 ];
 const REQUIRED_COST_CALL = "get_session_cost";
+const SECURITY_ARTIFACT_MARKDOWN = "artifacts/security-review.md";
+const TRUST_POLICY_REFERENCE = "trust-review-policy.md";
+const SECURITY_EVIDENCE_WORKFLOWS = [
+  "code-review",
+  "review-ticket",
+  "codebase-review",
+  "security-test",
+  "pentest",
+];
+const SECURITY_ARTIFACT_CONTRACT_TERMS = [
+  "source provenance",
+  "runtime contract",
+  "review context",
+  "handoff",
+];
+const SECURITY_FINDING_QUALITY_TERMS = ["exploit path", "confidence"];
+const TRUST_POLICY_WORKFLOWS = [
+  "code-review",
+  "review-ticket",
+  "security-test",
+];
 
 interface WorkflowRule {
   maxLines?: number;
@@ -184,6 +205,7 @@ const REQUIRED_SPECIALISTS = [
 
 const REQUIRED_RUNTIME_REFERENCES = [
   "skills/common/common-security-audit/references/vibe-security-scan.md",
+  "skills/common/common-security-audit/references/trust-review-policy.md",
 ];
 
 const PORTABILITY_PATTERNS = [
@@ -284,6 +306,54 @@ async function main() {
           fail(`${workflow}.md missing ${REQUIRED_COST_CALL}`, failures);
         }
       }
+
+      if (SECURITY_EVIDENCE_WORKFLOWS.includes(workflow)) {
+        if (content.includes(SECURITY_ARTIFACT_MARKDOWN)) {
+          pass(`${workflow}.md includes ${SECURITY_ARTIFACT_MARKDOWN}`);
+        } else {
+          fail(
+            `${workflow}.md missing ${SECURITY_ARTIFACT_MARKDOWN}`,
+            failures,
+          );
+        }
+        for (const term of SECURITY_ARTIFACT_CONTRACT_TERMS) {
+          if (content.toLowerCase().includes(term)) {
+            pass(`${workflow}.md includes ${term}`);
+          } else {
+            fail(`${workflow}.md missing ${term}`, failures);
+          }
+        }
+      }
+
+      if (workflow === "codebase-review") {
+        if (content.includes("artifacts/codebase-review.md")) {
+          pass(`${workflow}.md includes artifacts/codebase-review.md`);
+        } else {
+          fail(`${workflow}.md missing artifacts/codebase-review.md`, failures);
+        }
+      }
+
+      if (
+        ["code-review", "review-ticket", "security-test", "pentest"].includes(
+          workflow,
+        )
+      ) {
+        for (const term of SECURITY_FINDING_QUALITY_TERMS) {
+          if (content.toLowerCase().includes(term)) {
+            pass(`${workflow}.md includes ${term}`);
+          } else {
+            fail(`${workflow}.md missing ${term}`, failures);
+          }
+        }
+      }
+
+      if (TRUST_POLICY_WORKFLOWS.includes(workflow)) {
+        if (content.includes(TRUST_POLICY_REFERENCE)) {
+          pass(`${workflow}.md includes ${TRUST_POLICY_REFERENCE}`);
+        } else {
+          fail(`${workflow}.md missing ${TRUST_POLICY_REFERENCE}`, failures);
+        }
+      }
     } else {
       fail(
         `Workflow ${workflow} has no rules defined in audit-sdlc.ts`,
@@ -373,15 +443,52 @@ async function main() {
           failures,
         );
       }
+      if (
+        SECURITY_EVIDENCE_WORKFLOWS.includes(entry.name) &&
+        !content.toLowerCase().includes("source provenance")
+      ) {
+        fail(
+          `Generated Codex skill missing source provenance language: ${entry.name}`,
+          failures,
+        );
+      }
+      if (
+        SECURITY_EVIDENCE_WORKFLOWS.includes(entry.name) &&
+        !content.toLowerCase().includes("runtime contract")
+      ) {
+        fail(
+          `Generated Codex skill missing runtime contract language: ${entry.name}`,
+          failures,
+        );
+      }
     }
   }
 
   if (await fs.pathExists(PROMPTS_DIR)) {
     const entries = await fs.readdir(PROMPTS_DIR);
+    const securityPromptsNeedingContract = new Set([
+      "code-review.prompt.md",
+      "review-ticket.prompt.md",
+      "codebase-review.prompt.md",
+      "security-test.prompt.md",
+      "pentest.prompt.md",
+    ]);
     for (const entry of entries.filter((name) => name.endsWith(".prompt.md"))) {
       const promptFile = path.join(PROMPTS_DIR, entry);
       const content = await fs.readFile(promptFile, "utf8");
       checkPortableContent(path.relative(ROOT, promptFile), content, failures);
+      if (
+        securityPromptsNeedingContract.has(entry) &&
+        !content.toLowerCase().includes("source provenance")
+      ) {
+        fail(`${entry} missing source provenance language`, failures);
+      }
+      if (
+        securityPromptsNeedingContract.has(entry) &&
+        !content.toLowerCase().includes("runtime contract")
+      ) {
+        fail(`${entry} missing runtime contract language`, failures);
+      }
     }
   }
 

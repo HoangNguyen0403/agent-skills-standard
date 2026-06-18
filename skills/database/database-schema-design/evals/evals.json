@@ -1,0 +1,20 @@
+{
+  "skill_name": "database-schema-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We need to model comments, attachments, and audit history for a ticketing feature. How should we shape the schema?",
+      "expected_output": "Start from reads, writes, and ownership. Check cardinality, lifecycle, hot reads, and whether attachments or audit history should be separate boundaries instead of defaults from the ORM.",
+      "assertions": [
+        { "type": "contains", "value": "cardinality" },
+        { "type": "contains", "value": "ownership" },
+        { "type": "contains", "value": "ORM" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Write a Redis TTL helper",
+    "Fix a CSS overlap",
+    "Add a unit test for a React component"
+  ]
+}

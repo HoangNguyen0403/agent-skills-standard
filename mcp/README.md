@@ -4,7 +4,7 @@ MCP server that lets any AI agent — Claude Code, Cursor, Antigravity, Kiro, Co
 
 Solves the **enforcement gap**: `AGENTS.md` and `_INDEX.md` are passive prompt context. Sub-agents in particular don't inherit them. This MCP exposes skill loading as explicit, auditable tool calls that work the same way across every MCP-compatible runtime.
 
-**Current release:** `v0.4.2` — workflow-end telemetry helpers, richer session-cost inputs, and host-runtime integration guidance for SDLC reporting.
+**Current release:** `v0.5.0` — workflow-end telemetry helpers, markdown-first review continuity, runtime policy coverage, and host-runtime integration guidance for SDLC reporting.
 
 ## High-Density Architecture (Zero-Trust)
 
@@ -322,6 +322,8 @@ The MCP itself tracks only MCP-observed session telemetry. Exact workflow-end to
 - `outputCostPer1M`
 - `reasoningCostPer1M`
 - optional `otherCost`
+
+This MCP stays focused on serving skills, workflows, compliance checks, and session telemetry. Review conclusions should remain workflow- and skill-driven, usually as markdown artifacts or direct handoff messages, rather than a separate MCP-owned review artifact subsystem.
 
 Smoke test the built binary:
 

@@ -1,6 +1,6 @@
 ---
 name: database-mongodb
-description: Apply expert schema design, indexing, and performance rules for MongoDB. Use when designing MongoDB schemas, creating indexes, or optimizing NoSQL query performance.
+description: Apply MongoDB data-modeling, indexing, and query rules from access patterns. Use when designing schemas, choosing embed vs reference, or tuning MongoDB query behavior.
 metadata:
   triggers:
     files:
@@ -18,46 +18,31 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-## Schema Design
+## Rules
 
-- **Embed vs Reference**:
- - **Embed** (1:Few): Addresses, Phone Numbers. Optimization: Read locality.
- - **Reference** (1:Many/Infinity): Logs, Activity History. Optimization: Document size limits (16MB).
-- **Bucket Pattern**: For time-series or high-cardinality "One-to-Many", bucket items into documents (e.g., `DailyLog`).
+- Model from access patterns: data read together should usually live together.
+- Embed for bounded one-to-few data; reference for unbounded growth or independent lifecycle.
+- Build indexes for real queries, not theoretical flexibility. Use ESR ordering for equality -> sort -> range compound indexes.
+- Use transactions only when single-document guarantees are insufficient.
 
-## Optimize Indexes
+## Verify
 
-- **ESR Rule**: Equality, Sort, Range. Order your index keys `(status, date, price)` if you query `status='A'`, sort by `date`, filter `price > 10`.
-
-See [implementation examples](references/implementation.md) for compound index and pagination patterns.
-
-- **Text Search**: Use `$text` search instead of `$regex` for keywords. `$regex` slow (linear scan) unless anchored (`^prefix`).
-- **Covered Queries**: Project only indexed fields to avoid fetching document (`PROJECTION` key).
-- **Explain Plan**: Target `nReturned` / `keysExamined` ratio of ~1. If `docsExamined` >> `nReturned`, index inefficient.
-
-## Scale with Sharding
-
-- **Shard Key**: Avoid monotonically increasing keys (e.g., `Timestamp`, `ObjectId`) for high-write workloads (creates "Hot Shards"). Use Hashed Sharding or high-cardinality natural keys.
-
-## Improve Query Performance
-
-- **Cursor-Based Pagination**: Use `_id` or sort-key based pagination instead of `skip()`. `skip(10000)` scans 10000 docs.
-
-- **Aggregation**: Prefer Aggregation Framework (`$match`, `$group`) over bringing data to client (JS).
-
-## Configure Operations
-
-- **Write Concern**: Understand `w:1` (Ack) vs `w:majority` (Safe).
-- **Transactions**: Use only when ACID across multiple documents stricter than performance needs.
+- [ ] Embed vs reference choice matches cardinality and lifecycle.
+- [ ] Compound index order matches equality -> sort -> range access.
+- [ ] Large pagination uses cursor patterns, not deep `skip()`.
+- [ ] Explain output supports the chosen indexes; review `keysExamined` and `docsExamined`.
+- [ ] Unbounded arrays and hot shard keys were reviewed.
 
 ## Anti-Patterns
 
 - **No unbounded arrays**: Use `$push` with `$slice` or redesign using Bucket Pattern.
 - **No client-side filtering**: Project only needed fields; never fetch full docs to filter in memory.
 - **No deep nesting**: Keep nesting ≤4 levels; flatten paths that frequently queried.
+- **No index cargo cult**: each index must map to a read path and write tradeoff.
 
 ## References
 
+- [Framework Map](../references/framework-map.md)
 - [Best Practices Guide](references/best-practices.md)
 - [Anti-Patterns](references/anti-patterns.md)
 - [Postgres vs Mongo Comparison](references/postgres-comparison.md)

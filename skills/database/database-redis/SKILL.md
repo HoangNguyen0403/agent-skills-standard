@@ -1,6 +1,6 @@
 ---
 name: database-redis
-description: Optimize Redis caching, key management, and performance. Use when implementing Redis caching strategies, managing key namespaces, or optimizing Redis performance.
+description: Optimize Redis as cache and coordination infrastructure with TTL, eviction, and latency-aware key design. Use when implementing Redis caching, key invalidation, or Redis performance work.
 metadata:
   triggers:
     files:
@@ -17,27 +17,22 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-- **Security**:
- - **Access Control**: Use Redis 6.0+ ACLs (`ACL SETUSER`) to restrict commands by user/role.
- - **Encryption**: Always enable TLS for data-in-transit (standard in managed Redis like Azure/AWS).
- - **Dangerous Commands**: Disable or rename `FLUSHALL`, `KEYS`, `CONFIG`, and `SHUTDOWN` in production.
-- **Connection Resilience**:
- - **Pooling**: Use connection pooling with tuned high/low watermarks to avoid connection churn.
- - **Timeouts**: Set strict `read_timeout` and `connect_retries` to handle transient network saturation.
+Redis is fast only when key shape, TTL ownership, and command complexity are explicit.
 
-## Guidelines
+## Rules
 
-- **Key Design**:
- - **Namespacing**: Use colons to namespace keys (e.g., `app:user:123`, `rate:limit:ip:1.1.1.1`).
- - **Readability vs Size**: Keep keys descriptive but compact; avoid keys > 512 bytes.
-- **Commands & Performance**:
- - **O(N) Avoidance**: Use `SCAN` instead of `KEYS`. Use `UNLINK` instead of `DEL` for background reclamation of large keys.
- - **Lua Scripting**: Prioritize `EVALSHA` for atomic logic; ensure scripts pre-loaded to save bandwidth.
- - **Massive Range**: Limit `ZRANGE`, `HGETALL`, and `LRANGE` results with offsets/limits.
-- **Memory Management**:
- - **Eviction Strategy**: Use `allkeys-lru` for general caches and `volatile-lru` for mixed persistent/ephemeral data.
- - **Lazy Freeing**: Enable `lazyfree-lazy-eviction` and `lazyfree-lazy-expire` (Redis 4.0+) to offload cleanup from main thread.
- - **Monitoring**: Watch `Used Memory RSS` vs `Used Memory Dataset`. Large fragmentation suggests need for `MEMORY PURGE` or scaling.
+- Namespace keys by product/domain and entity.
+- Give cache keys a TTL or a documented reason not to expire.
+- Pick eviction policy to match workload: `allkeys-lru` for general caches, `volatile-lru` for mixed persistent/ephemeral data. Monitor hit rate and evictions.
+- Avoid slow or unbounded commands in hot paths; prefer `SCAN` over `KEYS` and `UNLINK` over `DEL` for large-key deletion. `lazyfree` settings help background reclamation.
+
+## Verify
+
+- [ ] Key naming identifies owner and invalidation scope.
+- [ ] TTL or eviction policy exists for non-durable data.
+- [ ] Large reads use bounded range/scan patterns.
+- [ ] Connection timeouts and pool settings are explicit.
+- [ ] Critical state does not exist only in Redis.
 
 ## Anti-Patterns
 
@@ -45,8 +40,10 @@ metadata:
 - **No large blobs**: Split values > 100KB into smaller keys or use Hashes for field access.
 - **No JSON for objects**: Use `HSET` for object fields to enable O(1) access without full decode.
 - **No TTL-less keys**: Set TTL or eviction policy on all non-permanent keys to prevent unbounded growth.
+- **No `KEYS` in app paths**: use `SCAN` or explicit index keys.
 
 ## References
 
+- [Framework Map](../references/framework-map.md)
 - [Best Practices Guide](references/best-practices.md)
 - [Checklist](references/checklist.md)

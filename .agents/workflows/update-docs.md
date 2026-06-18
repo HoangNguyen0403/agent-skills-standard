@@ -11,8 +11,7 @@ This workflow helps you identify and fix missing documentation in the codebase.
 The `scan-docs.ts` script identifies exported members that lack JSDoc comments.
 
 ```bash
-cd cli
-npx ts-node scripts/scan-docs.ts
+pnpm docs:scan
 ```
 
 ## 2. Analyze the Report
@@ -35,14 +34,14 @@ For each missing item:
 1. **Read the code** to understand its purpose.
 2. **Add JSDoc comments** (`/** ... */`) above the export.
 3. **Include**:
-    - Description of what it does.
-    - `@param` tags for arguments.
-    - `@returns` tag for return value.
+   - Description of what it does.
+   - `@param` tags for arguments.
+   - `@returns` tag for return value.
 
 ## 4. Verify
 
 Run the scanner again to ensure no items remain.
 
 ```bash
-npx ts-node scripts/scan-docs.ts
+pnpm docs:scan
 ```
