@@ -38,7 +38,6 @@ on:
 permissions:
   contents: read # minimal default — tag job overrides below
   security-events: write # upload SARIF to GitHub Security tab
-  pull-requests: write # post scan summary as PR comment
   issues: write # check/post PR comments (via issues API)
 
 jobs:
@@ -60,9 +59,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/skillspector-image
-          key: skillspector-docker-${{ hashFiles('.github/workflows/skillspector-scan.yml') }}-${{ github.run_id }}
+          key: skillspector-docker-${{ hashFiles('.github/workflows/skillspector-scan.yml') }}-v3
           restore-keys: |
-            skillspector-docker-${{ hashFiles('.github/workflows/skillspector-scan.yml') }}-
             skillspector-docker-
 
       - name: Clone SkillSpector
@@ -119,7 +117,8 @@ jobs:
       - name: Pull SkillSpector image (fallback)
         if: steps.cache-docker.outputs.cache-hit != 'true'
         run: |
-          # Use public image if cache misses. Tag it to skillspector:ci for local run consistency.
+          # Use public image if cache misses. Pinning to a specific digest/tag is preferred.
+          # For now, we fallback to latest but ideally this should be a versioned tag.
           docker pull nvidia/skillspector:latest
           docker tag nvidia/skillspector:latest skillspector:ci
 
@@ -130,7 +129,7 @@ jobs:
           docker run --rm \
             -v "${{ github.workspace }}:/scan" \
             skillspector:ci \
-            scan ./skills/ \
+            scan . \
             --no-llm \
             --format sarif \
             --output /scan/skillspector-report.sarif
@@ -142,7 +141,7 @@ jobs:
           docker run --rm \
             -v "${{ github.workspace }}:/scan" \
             skillspector:ci \
-            scan ./skills/ \
+            scan . \
             --no-llm \
             --format json \
             --output /scan/skillspector-report.json
@@ -158,7 +157,7 @@ jobs:
             -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
             -e ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }} \
             skillspector:ci \
-            scan ./skills/ \
+            scan . \
             --format json \
             --output /scan/skillspector-report-llm.json
 
@@ -179,6 +178,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: skillspector-report-${{ github.run_number }}
+          if-no-files-found: ignore
           path: |
             skillspector-report.json
             skillspector-report.sarif

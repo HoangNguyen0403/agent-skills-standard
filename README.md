@@ -273,8 +273,8 @@ agents: [cursor, copilot, claude, gemini]
 skills:
   flutter:
     ref: flutter-v1.6.3
-    exclude: ['getx-navigation'] # Don't use GetX? Exclude it.
-    custom_overrides: ['bloc-state'] # Protect your local modifications.
+    exclude: ["getx-navigation"] # Don't use GetX? Exclude it.
+    custom_overrides: ["bloc-state"] # Protect your local modifications.
   react:
     ref: react-v1.3.3
   golang:
@@ -284,8 +284,8 @@ skills:
 
 # Local custom standalone skills
 custom_skills:
-  - path: './.skills/my-custom-rule.md'
-    triggers: ['*.ts', 'keyword']
+  - path: "./.skills/my-custom-rule.md"
+    triggers: ["*.ts", "keyword"]
 ```
 
 Skills are **package-aware**: if your Flutter project uses BLoC but not GetX, just exclude the GetX skills. The AI only sees what's relevant to your stack. The **`custom_skills`** feature allows you to index your own `.md` files directly into `AGENTS.md` and `_INDEX.md`, ensuring your project-specific rules are always visible to the AI.
@@ -452,7 +452,7 @@ Skills are **text files, not code**. They cannot execute commands, access your f
 Every skill in this repository is automatically scanned by **[NVIDIA SkillSpector](https://github.com/nvidia/skillspector)** — a purpose-built security scanner for AI agent skills. The pipeline checks **64 vulnerability patterns across 16 categories** including prompt injection, data exfiltration, privilege escalation, supply chain attacks, and MCP tool poisoning.
 
 - ✅ **PR gate**: Any PR that modifies `skills/**` must pass the scan before merging
-- 🔒 **Verified tags**: A `skillspector-verified-vYYYYMMDD` tag is created on `main` after successful push-triggered scans
+- 🔒 **Verified tags**: A `skillspector-verified-vYYYYMMDD` tag is created on `main` after every clean scan (on push, schedule, or manual trigger)
 - 📊 **SARIF reports**: Results are uploaded to the [GitHub Security tab](https://github.com/HoangNguyen0403/agent-skills-standard/security/code-scanning) for full transparency
 
 See [docs/SECURITY.md](./docs/SECURITY.md) for the full security policy, threshold definitions, and instructions for running the scanner locally before submitting a PR.

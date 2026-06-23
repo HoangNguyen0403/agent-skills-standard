@@ -12,34 +12,34 @@ All skills in this repository are automatically scanned by **[NVIDIA SkillSpecto
 
 SkillSpector checks **64 vulnerability patterns across 16 categories**:
 
-| Category | Patterns | Key Risks |
-|----------|----------|-----------|
-| **Prompt Injection** | 5 | Instruction overrides, hidden directives, behavior manipulation |
-| **Data Exfiltration** | 4 | External transmission, env variable harvesting, context leakage |
-| **Privilege Escalation** | 3 | Excessive permissions, sudo/root, credential access |
-| **Supply Chain** | 6 | Dependency confusion, malicious updates, version pinning |
-| **Excessive Agency** | 4 | Unauthorized actions, scope creep, autonomous decision-making |
-| **Output Handling** | 3 | Unsanitized output, injection via responses |
-| **System Prompt Leakage** | 3 | Revealing internal instructions |
-| **Memory Poisoning** | 4 | Corrupting agent memory/context |
-| **Tool Misuse** | 5 | Abusing granted tools beyond intent |
-| **Rogue Agent** | 4 | Creating sub-agents without authorization |
-| **Trigger Abuse** | 3 | Activating on unintended inputs |
-| **Dangerous Code (AST)** | 6 | Static AST analysis of embedded code |
-| **Taint Tracking** | 4 | Tracing untrusted data through skill logic |
-| **YARA Signatures** | 5 | Known malware pattern matching |
-| **MCP Least Privilege** | 3 | MCP tools requesting excessive permissions |
-| **MCP Tool Poisoning** | 2 | Malicious MCP tool descriptions |
+| Category                  | Patterns | Key Risks                                                       |
+| ------------------------- | -------- | --------------------------------------------------------------- |
+| **Prompt Injection**      | 5        | Instruction overrides, hidden directives, behavior manipulation |
+| **Data Exfiltration**     | 4        | External transmission, env variable harvesting, context leakage |
+| **Privilege Escalation**  | 3        | Excessive permissions, sudo/root, credential access             |
+| **Supply Chain**          | 6        | Dependency confusion, malicious updates, version pinning        |
+| **Excessive Agency**      | 4        | Unauthorized actions, scope creep, autonomous decision-making   |
+| **Output Handling**       | 3        | Unsanitized output, injection via responses                     |
+| **System Prompt Leakage** | 3        | Revealing internal instructions                                 |
+| **Memory Poisoning**      | 4        | Corrupting agent memory/context                                 |
+| **Tool Misuse**           | 5        | Abusing granted tools beyond intent                             |
+| **Rogue Agent**           | 4        | Creating sub-agents without authorization                       |
+| **Trigger Abuse**         | 3        | Activating on unintended inputs                                 |
+| **Dangerous Code (AST)**  | 6        | Static AST analysis of embedded code                            |
+| **Taint Tracking**        | 4        | Tracing untrusted data through skill logic                      |
+| **YARA Signatures**       | 5        | Known malware pattern matching                                  |
+| **MCP Least Privilege**   | 3        | MCP tools requesting excessive permissions                      |
+| **MCP Tool Poisoning**    | 2        | Malicious MCP tool descriptions                                 |
 
 ---
 
 ## Risk Score Threshold
 
-| Score | Status | Meaning |
-|-------|--------|---------|
-| 0 – 25 | ✅ **PASS** | Skills are safe to install |
-| 26 – 50 | ⚠️ **REVIEW** | Moderate risk — manual review required |
-| 51 – 100 | ❌ **FAIL** | High risk — blocked from publishing |
+| Score    | Status        | Meaning                                |
+| -------- | ------------- | -------------------------------------- |
+| 0 – 25   | ✅ **PASS**   | Skills are safe to install             |
+| 26 – 50  | ⚠️ **REVIEW** | Moderate risk — manual review required |
+| 51 – 100 | ❌ **FAIL**   | High risk — blocked from publishing    |
 
 **Any CRITICAL-severity finding automatically fails the gate**, regardless of the overall score.
 
@@ -47,7 +47,7 @@ SkillSpector checks **64 vulnerability patterns across 16 categories**:
 
 ## Verification Tags
 
-When a push to the `main` branch (that modifies skill files) successfully passes the scan, the CI pipeline automatically creates a dated Git tag:
+When a scan on the `main` branch successfully passes (triggered by push, schedule, or manual dispatch), the CI pipeline automatically creates a dated Git tag:
 
 ```
 skillspector-verified-v20260622
@@ -123,14 +123,14 @@ We aim to respond within **48 hours** and remediate within **7 days** for HIGH/C
 The security scan is wired into the pipeline as follows:
 
 ```
-PR touches skills/** 
+PR touches skills/**
     → skillspector-scan.yml triggered
     → SkillSpector Docker image built (cached)
     → ./skills/ scanned (64 patterns, --no-llm)
     → SARIF uploaded → GitHub Security tab
     → Score evaluated: pass/fail gate
     → PR comment posted with results
-    
+
 Push to main (scan passes)
     → skillspector-verified-vYYYYMMDD tag created
     → GitHub Release created
