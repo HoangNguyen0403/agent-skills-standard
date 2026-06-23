@@ -224,7 +224,7 @@ export class SyncService {
       } else {
         console.log(
           pc.yellow(
-            '  ⚠️  Skipped AGENTS.md update: complete marker pair <!-- SKILLS_INDEX_START --> … <!-- SKILLS_INDEX_END --> not found (or markers out of order).',
+            '  ⚠️  Skipped AGENTS.md update: index markers <!-- SKILLS_INDEX_START --> … <!-- SKILLS_INDEX_END --> are missing or out of order. Opt-in by adding these markers to your file.',
           ),
         );
       }
@@ -242,7 +242,7 @@ export class SyncService {
         } else {
           console.log(
             pc.yellow(
-              '  ⚠️  Skipped server/AGENTS.md update: complete marker pair <!-- SKILLS_INDEX_START --> … <!-- SKILLS_INDEX_END --> not found (or markers out of order).',
+              '  ⚠️  Skipped server/AGENTS.md update: index markers <!-- SKILLS_INDEX_START --> … <!-- SKILLS_INDEX_END --> are missing or out of order in server/AGENTS.md. Opt-in via markers.',
             ),
           );
         }

@@ -388,10 +388,10 @@ describe('SyncService', () => {
       await syncService.applyIndices(config, [Agent.Cursor]);
 
       expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Skipped AGENTS.md update'),
+        expect.stringContaining('Skipped AGENTS.md update: index markers'),
       );
       expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Skipped server/AGENTS.md update'),
+        expect.stringContaining('Skipped server/AGENTS.md update: index markers'),
       );
     });
 

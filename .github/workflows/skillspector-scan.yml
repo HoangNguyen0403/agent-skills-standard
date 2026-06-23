@@ -5,40 +5,41 @@ on:
   pull_request:
     branches: [main, develop]
     paths:
-      - 'skills/**'
-      - '.github/workflows/skillspector-scan.yml'
+      - "skills/**"
+      - ".github/workflows/skillspector-scan.yml"
 
   # Full scan on every push to main → update verified tag
   push:
     branches: [main]
     paths:
-      - 'skills/**'
+      - "skills/**"
 
   # Ongoing drift detection — every Monday at 06:00 UTC
   schedule:
-    - cron: '0 6 * * 1'
+    - cron: "0 6 * * 1"
 
   # Manual trigger (useful for debugging or on-demand audits)
   workflow_dispatch:
     inputs:
       threshold:
-        description: 'Max risk score to pass (0-100)'
+        description: "Max risk score to pass (0-100)"
         required: false
-        default: '25'
+        default: "25"
       llm_provider:
-        description: 'LLM provider for semantic scan (leave empty for static-only)'
+        description: "LLM provider for semantic scan (leave empty for static-only)"
         required: false
-        default: ''
+        default: ""
         type: choice
         options:
-          - ''
+          - ""
           - openai
           - anthropic
 
 permissions:
-  contents: read           # minimal default — tag job overrides below
-  security-events: write   # upload SARIF to GitHub Security tab
-  pull-requests: write     # post scan summary as PR comment
+  contents: read # minimal default — tag job overrides below
+  security-events: write # upload SARIF to GitHub Security tab
+  pull-requests: write # post scan summary as PR comment
+  issues: write # check/post PR comments (via issues API)
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -59,7 +60,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/skillspector-image
-          key: skillspector-docker-${{ hashFiles('.github/workflows/skillspector-scan.yml') }}-v3
+          key: skillspector-docker-${{ hashFiles('.github/workflows/skillspector-scan.yml') }}-${{ github.run_id }}
+          restore-keys: |
+            skillspector-docker-${{ hashFiles('.github/workflows/skillspector-scan.yml') }}-
+            skillspector-docker-
 
       - name: Clone SkillSpector
         if: steps.cache.outputs.cache-hit != 'true'
@@ -195,19 +199,28 @@ jobs:
               core.setFailed('SkillSpector report missing numeric risk_score; failing to avoid false pass.');
               return;
             }
+
+            // Check for any CRITICAL-severity findings (gate policy)
+            const findings = report.findings || [];
+            const criticalFindings = findings.filter(f => (f.severity || '').toUpperCase() === 'CRITICAL');
+            const hasCritical = criticalFindings.length > 0;
+
             const threshold = parseInt(process.env.SKILLSPECTOR_THRESHOLD || '25', 10);
-            const passed = score <= threshold;
+            const passed = score <= threshold && !hasCritical;
+
             const icon = passed ? '✅' : '❌';
             const status = passed ? 'PASSED' : 'FAILED';
+            const reason = hasCritical ? ' (CRITICAL findings detected)' : (score > threshold ? ` (score ${score} > ${threshold})` : '');
 
             // Build body with join to avoid YAML-indentation bleeding into the
             // Markdown (indented lines render as code blocks, not tables).
             const body = [
-              `## ${icon} SkillSpector Security Scan — ${status}`,
+              `## ${icon} SkillSpector Security Scan — ${status}${reason}`,
               '',
               '| Metric | Value |',
               '|--------|-------|',
               `| **Risk Score** | ${score} / 100 (threshold: ${threshold}) |`,
+              `| **Critical Findings** | ${criticalFindings.length} |`,
               '| **Scan Type** | Static (64 patterns × 16 categories) |',
               `| **Details** | [GitHub Security tab](https://github.com/${context.repo.owner}/${context.repo.repo}/security/code-scanning) |`,
               '',
@@ -264,11 +277,14 @@ jobs:
     # Only this job needs write access to push tags and create releases.
     permissions:
       contents: write
-    # Only run on pushes to main (not PRs, not cron)
+    # Run on:
+    # 1. Pushes to main (that modified skills/)
+    # 2. Scheduled scans on main
+    # 3. Manual triggers on main
     if: |
-      github.event_name == 'push' &&
+      needs.scan-skills.result == 'success' &&
       github.ref == 'refs/heads/main' &&
-      needs.scan-skills.result == 'success'
+      (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
 
     steps:
       - name: Checkout
@@ -304,7 +320,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.create_tag.outputs.tag }}
-          name: '🔒 SkillSpector Verified — ${{ steps.create_tag.outputs.tag }}'
+          name: "🔒 SkillSpector Verified — ${{ steps.create_tag.outputs.tag }}"
           body: |
             ## ✅ All skills passed SkillSpector security scan
 
