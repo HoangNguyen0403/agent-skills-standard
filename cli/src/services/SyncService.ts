@@ -224,7 +224,7 @@ export class SyncService {
       } else {
         console.log(
           pc.yellow(
-            '  ⚠️  Skipped AGENTS.md update: markers <!-- SKILLS_INDEX_START --> and <!-- SKILLS_INDEX_END --> not found.',
+            '  ⚠️  Skipped AGENTS.md update: add <!-- SKILLS_INDEX_START --> … <!-- SKILLS_INDEX_END --> markers to opt in to automatic index injection.',
           ),
         );
       }
