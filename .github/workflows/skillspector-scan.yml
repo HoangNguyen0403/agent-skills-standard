@@ -95,7 +95,7 @@ jobs:
     needs: build-skillspector
 
     env:
-      SKILLSPECTOR_THRESHOLD: ${{ inputs.threshold || '25' }}
+      SKILLSPECTOR_THRESHOLD: ${{ github.event.inputs.threshold || '25' }}
 
     steps:
       - name: Checkout skills repo
@@ -136,12 +136,12 @@ jobs:
 
       # ── LLM-enhanced scan (only when provider is set via manual dispatch) ────
       - name: Run SkillSpector — LLM semantic analysis
-        if: inputs.llm_provider != '' && inputs.llm_provider != null
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.llm_provider != '' && github.event.inputs.llm_provider != null
         continue-on-error: true
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/scan" \
-            -e SKILLSPECTOR_PROVIDER=${{ inputs.llm_provider }} \
+            -e SKILLSPECTOR_PROVIDER=${{ github.event.inputs.llm_provider }} \
             -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
             -e ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }} \
             skillspector:ci \

@@ -452,7 +452,7 @@ Skills are **text files, not code**. They cannot execute commands, access your f
 Every skill in this repository is automatically scanned by **[NVIDIA SkillSpector](https://github.com/nvidia/skillspector)** — a purpose-built security scanner for AI agent skills. The pipeline checks **64 vulnerability patterns across 16 categories** including prompt injection, data exfiltration, privilege escalation, supply chain attacks, and MCP tool poisoning.
 
 - ✅ **PR gate**: Any PR that modifies `skills/**` must pass the scan before merging
-- 🔒 **Verified tags**: A `skillspector-verified-vYYYYMMDD` tag is created automatically on `main` after every clean scan
+- 🔒 **Verified tags**: A `skillspector-verified-vYYYYMMDD` tag is created on `main` after successful push-triggered scans
 - 📊 **SARIF reports**: Results are uploaded to the [GitHub Security tab](https://github.com/HoangNguyen0403/agent-skills-standard/security/code-scanning) for full transparency
 
 See [docs/SECURITY.md](./docs/SECURITY.md) for the full security policy, threshold definitions, and instructions for running the scanner locally before submitting a PR.

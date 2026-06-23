@@ -67,5 +67,20 @@ describe('MarkdownUtils', () => {
       expect(fs.outputFile).not.toHaveBeenCalled();
       expect(updated).toEqual([]);
     });
+
+    it('should NOT inject if markers are out of order', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readFile as any).mockResolvedValue(
+        '<!-- SKILLS_INDEX_END -->\ncontent\n<!-- SKILLS_INDEX_START -->',
+      );
+      const updated = await MarkdownUtils.injectIndex(
+        '/root',
+        ['AGENTS.md'],
+        'new content',
+      );
+      expect(fs.outputFile).not.toHaveBeenCalled();
+      expect(updated).toEqual([]);
+    });
   });
 });
+

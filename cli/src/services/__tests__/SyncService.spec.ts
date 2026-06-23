@@ -377,6 +377,22 @@ describe('SyncService', () => {
       );
     });
 
+    it('should log warning when injectIndex returns empty list for root AGENTS.md and server/AGENTS.md', async () => {
+      const config = makeConfig({ agents: [Agent.Cursor] });
+      vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+      vi.mocked(MarkdownUtils.injectIndex).mockResolvedValue([]);
+
+      await syncService.applyIndices(config, [Agent.Cursor]);
+
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Skipped AGENTS.md update'),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Skipped server/AGENTS.md update'),
+      );
+    });
+
+
     it('fetches metadata from registry main branch and injects it into the generator', async () => {
       const remoteMetadata = {
         file_routing: { go: ['golang'], ts: ['typescript'] },

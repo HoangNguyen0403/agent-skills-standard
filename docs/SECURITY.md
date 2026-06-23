@@ -47,13 +47,13 @@ SkillSpector checks **64 vulnerability patterns across 16 categories**:
 
 ## Verification Tags
 
-When all skills pass the scan on the `main` branch, the CI pipeline automatically creates a dated Git tag:
+When a push to the `main` branch (that modifies skill files) successfully passes the scan, the CI pipeline automatically creates a dated Git tag:
 
 ```
 skillspector-verified-v20260622
 ```
 
-This tag is created only by the automated pipeline — never manually. You can verify authenticity by checking the tag's signature and the associated [GitHub Actions run](https://github.com/HoangNguyen0403/agent-skills-standard/actions/workflows/skillspector-scan.yml).
+This tag is created only by the automated pipeline — never manually. You can verify authenticity by checking that the tagger is `github-actions[bot]` and verifying the associated [GitHub Actions run](https://github.com/HoangNguyen0403/agent-skills-standard/actions/workflows/skillspector-scan.yml).
 
 ---
 
