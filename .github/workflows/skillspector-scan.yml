@@ -47,8 +47,6 @@ jobs:
   build-skillspector:
     name: Build SkillSpector
     runs-on: ubuntu-latest
-    outputs:
-      image-tag: ${{ steps.meta.outputs.tag }}
 
     steps:
       - name: Checkout skills repo
@@ -82,11 +80,12 @@ jobs:
         run: |
           docker load -i /tmp/skillspector-image/skillspector.tar
 
-      - name: Verify image
-        id: meta
-        run: |
-          docker inspect skillspector:ci --format '{{.Id}}' | head -c 12
-          echo "tag=skillspector:ci" >> $GITHUB_OUTPUT
+      - name: Upload image for scan job
+        uses: actions/upload-artifact@v4
+        with:
+          name: skillspector-image
+          path: /tmp/skillspector-image/skillspector.tar
+          retention-days: 1
 
   # ─────────────────────────────────────────────────────────────────────────────
   # 2. Scan every skill category
@@ -103,24 +102,14 @@ jobs:
       - name: Checkout skills repo
         uses: actions/checkout@v4
 
-      - name: Restore SkillSpector image from cache
-        id: cache-docker
-        uses: actions/cache@v4
+      - name: Download SkillSpector image
+        uses: actions/download-artifact@v4
         with:
+          name: skillspector-image
           path: /tmp/skillspector-image
-          key: skillspector-docker-${{ hashFiles('.github/workflows/skillspector-scan.yml') }}-v3
 
       - name: Load SkillSpector Docker image
-        if: steps.cache-docker.outputs.cache-hit == 'true'
         run: docker load -i /tmp/skillspector-image/skillspector.tar
-
-      - name: Pull SkillSpector image (fallback)
-        if: steps.cache-docker.outputs.cache-hit != 'true'
-        run: |
-          # Use public image if cache misses. Pinning to a specific digest/tag is preferred.
-          # For now, we fallback to latest but ideally this should be a versioned tag.
-          docker pull nvidia/skillspector:latest
-          docker tag nvidia/skillspector:latest skillspector:ci
 
       # ── Static scan: SARIF output (for GitHub Security tab) ──────────────────
       - name: Run SkillSpector — SARIF output
