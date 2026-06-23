@@ -87,6 +87,9 @@ type SyncServicePrivates = {
   configService: {
     reconcileDependencies: ReturnType<typeof vi.fn>;
   };
+  specialistSyncService: {
+    syncSpecialists: ReturnType<typeof vi.fn>;
+  };
 };
 function privatesOf(s: SyncService): SyncServicePrivates {
   return s as unknown as SyncServicePrivates;
