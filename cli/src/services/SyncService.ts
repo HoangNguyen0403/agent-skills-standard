@@ -224,7 +224,7 @@ export class SyncService {
       } else {
         console.log(
           pc.yellow(
-            '  ⚠️  Skipped AGENTS.md update: add <!-- SKILLS_INDEX_START --> … <!-- SKILLS_INDEX_END --> markers to opt in to automatic index injection.',
+            '  ⚠️  Skipped AGENTS.md update: complete marker pair <!-- SKILLS_INDEX_START --> … <!-- SKILLS_INDEX_END --> not found (or markers out of order).',
           ),
         );
       }
@@ -239,6 +239,12 @@ export class SyncService {
         );
         if (updatedServerFiles.length > 0) {
           console.log(pc.green('  ✅ server/AGENTS.md router index updated.'));
+        } else {
+          console.log(
+            pc.yellow(
+              '  ⚠️  Skipped server/AGENTS.md update: complete marker pair <!-- SKILLS_INDEX_START --> … <!-- SKILLS_INDEX_END --> not found (or markers out of order).',
+            ),
+          );
         }
       }
 
