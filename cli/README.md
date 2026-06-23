@@ -5,7 +5,7 @@
 
 **Sync 242 AI coding standards to any project in one command.** Works with Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, and Roo.
 
-**Current release:** `v2.4.7` — workflow-end telemetry guidance, MCP session-cost helpers, and clearer runtime integration for SDLC handoff reporting.
+**Current release:** `v2.5.1` — automated SkillSpector security scanning, pull request evaluation gates, and verified release tags.
 
 ```bash
 npx agent-skills-standard@latest init   # detect your stack

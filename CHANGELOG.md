@@ -5,6 +5,25 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [cli-v2.5.1] - 2026-06-23
+
+**Category**: Security scanning integration (SkillSpector)
+
+### Added
+
+- **SkillSpector Security Scan**: Built a fully automated CI security scanner workflow using NVIDIA SkillSpector to scan all skills in `skills/` for vulnerability patterns.
+- **Security Policy**: Added `docs/SECURITY.md` detailing the scanned categories, severity thresholds, verification tags, and instructions for running the scanner locally.
+- **SkillSpector Verified Badge**: Added verification badge to the README.md.
+
+### Changed
+
+- **CI Pipeline Gating**: Implemented an inline JavaScript results evaluator (`actions/github-script`) that evaluates risks, logs a GitHub Step Summary, updates pull request comments, and gates PR builds if the score exceeds the safe threshold (25/100).
+
+### Versions
+
+- **CLI**: `2.5.0` → `2.5.1`
+- **Root**: `2.5.0` → `2.5.1`
+
 # [cli-v2.5.0] / [mcp-v0.5.0] - 2026-06-18
 
 **Category**: Trusted Review Hardening, Markdown-First Security Handoff & Skill Pack Expansion
