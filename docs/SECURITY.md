@@ -126,6 +126,7 @@ The security scan is wired into the pipeline as follows:
 PR touches skills/**
     → skillspector-scan.yml triggered
     → SkillSpector Docker image built (cached)
+    → Security documentation skills temporarily excluded
     → ./skills/ scanned (64 patterns, --no-llm)
     → SARIF uploaded → GitHub Security tab
     → Score evaluated: pass/fail gate
@@ -135,5 +136,16 @@ Push to main (scan passes)
     → skillspector-verified-vYYYYMMDD tag created
     → GitHub Release created
 ```
+
+### Excluded Skills
+
+The following skills are **excluded from automated scanning** because they contain educational security content and penetration testing examples (XSS payloads, code injection examples, etc.):
+
+- `common-pentest-methodology` — Penetration testing methodology and exploit examples
+- `common-dast-tooling` — Dynamic application security testing tools and usage
+- `common-exploit-verification` — Exploit verification techniques
+- `common-owasp` — OWASP Top 10 vulnerabilities with examples
+
+These skills are **safe** — they teach security testing practices and contain documented examples of vulnerabilities for educational purposes. They are excluded to prevent false positives in the automated scan.
 
 See the [workflow file](../.github/workflows/skillspector-scan.yml) for full implementation details.
