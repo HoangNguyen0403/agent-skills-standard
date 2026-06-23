@@ -111,7 +111,7 @@ A score of **0** with no findings means your skill is clean. If you see findings
 If you discover a security issue **in the skills themselves** (e.g., a skill that could instruct an agent to perform malicious actions):
 
 1. **Do not open a public issue.**
-2. Email `security@[maintainer-domain]` or use [GitHub Private Security Advisories](https://github.com/HoangNguyen0403/agent-skills-standard/security/advisories/new).
+2. Report it via [GitHub Private Security Advisories](https://github.com/HoangNguyen0403/agent-skills-standard/security/advisories/new).
 3. Include: the skill path, the problematic instruction, and the potential impact.
 
 We aim to respond within **48 hours** and remediate within **7 days** for HIGH/CRITICAL issues.

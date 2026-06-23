@@ -59,12 +59,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/skillspector-image
-          key: skillspector-docker-${{ hashFiles('.github/workflows/skillspector-scan.yml') }}-v2
+          key: skillspector-docker-${{ hashFiles('.github/workflows/skillspector-scan.yml') }}-v3
 
       - name: Clone SkillSpector
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          git clone --depth 1 https://github.com/NVIDIA/skillspector /tmp/skillspector-src
+          git clone https://github.com/NVIDIA/skillspector /tmp/skillspector-src
+          cd /tmp/skillspector-src
+          git checkout d8a68eed29974882bad68748b93dba9b60d6fe45
 
       - name: Build Docker image
         if: steps.cache.outputs.cache-hit != 'true'
@@ -103,7 +105,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/skillspector-image
-          key: skillspector-docker-${{ hashFiles('.github/workflows/skillspector-scan.yml') }}-v2
+          key: skillspector-docker-${{ hashFiles('.github/workflows/skillspector-scan.yml') }}-v3
 
       - name: Load SkillSpector Docker image
         run: docker load -i /tmp/skillspector-image/skillspector.tar
@@ -181,7 +183,12 @@ jobs:
               return;
             }
 
-            const score = report.risk_score ?? report.summary?.risk_score ?? report.score ?? 0;
+            const scoreRaw = report.risk_score ?? report.summary?.risk_score ?? report.score;
+            const score = Number(scoreRaw);
+            if (!Number.isFinite(score)) {
+              core.setFailed('SkillSpector report missing numeric risk_score; failing to avoid false pass.');
+              return;
+            }
             const threshold = parseInt(process.env.SKILLSPECTOR_THRESHOLD || '25', 10);
             const passed = score <= threshold;
             const icon = passed ? '✅' : '❌';
