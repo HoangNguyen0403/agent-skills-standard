@@ -99,20 +99,29 @@ jobs:
     needs: build-skillspector
 
     env:
-      SKILLSPECTOR_THRESHOLD: ${{ github.event.inputs.threshold || '25' }}
+      SKILLSPECTOR_THRESHOLD: ${{ (github.event.inputs && github.event.inputs.threshold) || '25' }}
 
     steps:
       - name: Checkout skills repo
         uses: actions/checkout@v4
 
       - name: Restore SkillSpector image from cache
+        id: cache-docker
         uses: actions/cache@v4
         with:
           path: /tmp/skillspector-image
           key: skillspector-docker-${{ hashFiles('.github/workflows/skillspector-scan.yml') }}-v3
 
       - name: Load SkillSpector Docker image
+        if: steps.cache-docker.outputs.cache-hit == 'true'
         run: docker load -i /tmp/skillspector-image/skillspector.tar
+
+      - name: Pull SkillSpector image (fallback)
+        if: steps.cache-docker.outputs.cache-hit != 'true'
+        run: |
+          # Use public image if cache misses. Tag it to skillspector:ci for local run consistency.
+          docker pull nvidia/skillspector:latest
+          docker tag nvidia/skillspector:latest skillspector:ci
 
       # ── Static scan: SARIF output (for GitHub Security tab) ──────────────────
       - name: Run SkillSpector — SARIF output
@@ -140,12 +149,12 @@ jobs:
 
       # ── LLM-enhanced scan (only when provider is set via manual dispatch) ────
       - name: Run SkillSpector — LLM semantic analysis
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.llm_provider != '' && github.event.inputs.llm_provider != null
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs && github.event.inputs.llm_provider
         continue-on-error: true
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/scan" \
-            -e SKILLSPECTOR_PROVIDER=${{ github.event.inputs.llm_provider }} \
+            -e SKILLSPECTOR_PROVIDER=${{ github.event.inputs && github.event.inputs.llm_provider || '' }} \
             -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
             -e ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }} \
             skillspector:ci \
