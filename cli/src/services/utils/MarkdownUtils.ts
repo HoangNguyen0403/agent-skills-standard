@@ -11,20 +11,23 @@ export class MarkdownUtils {
    * @param rootDir Project root directory
    * @param targets Array of target file names
    * @param indexContent The markdown content to inject
+   * @returns Array of target files that were successfully updated/created
    */
   static async injectIndex(
     rootDir: string,
     targets: string[],
     indexContent: string,
-  ): Promise<void> {
+  ): Promise<string[]> {
+    const updated: string[] = [];
+
     for (const target of targets) {
       const targetPath = path.join(rootDir, target);
       let content = '';
+      const markerStart = '<!-- SKILLS_INDEX_START -->';
+      const markerEnd = '<!-- SKILLS_INDEX_END -->';
 
       if (await fs.pathExists(targetPath)) {
         content = await fs.readFile(targetPath, 'utf8');
-        const markerStart = '<!-- SKILLS_INDEX_START -->';
-        const markerEnd = '<!-- SKILLS_INDEX_END -->';
 
         const startIndex = content.indexOf(markerStart);
         const endIndex = content.indexOf(markerEnd);
@@ -37,23 +40,30 @@ export class MarkdownUtils {
           );
           const postMarker = content.substring(endIndex);
           content = `${preMarker}\n${indexContent}\n${postMarker}`;
-        } else if (startIndex !== -1 || endIndex !== -1) {
-          // One of the markers is missing or they are out of order
-          content = content.replace(markerStart, '').replace(markerEnd, '');
-          content =
-            content.trimEnd() +
-            `\n\n${markerStart}\n${indexContent}\n${markerEnd}\n`;
         } else {
-          // No markers found
-          content =
-            content.trimEnd() +
-            `\n\n${markerStart}\n${indexContent}\n${markerEnd}\n`;
+          // No complete marker pair found - respect user file and DO NOT inject.
+          // This prevents overwriting or appending to a customized AGENTS.md
+          // unless the user explicitly opts in by adding markers.
+          continue;
         }
       } else {
-        content = `<!-- SKILLS_INDEX_START -->\n${indexContent}\n<!-- SKILLS_INDEX_END -->\n`;
+        // File does not exist - create a new one with a standard header
+        content = [
+          '# Project Context for AI Agents',
+          '',
+          'This file provides context and instructions for AI agents working in this repository.',
+          '',
+          markerStart,
+          indexContent,
+          markerEnd,
+          '',
+        ].join('\n');
       }
 
       await fs.outputFile(targetPath, content);
+      updated.push(target);
     }
+
+    return updated;
   }
 }

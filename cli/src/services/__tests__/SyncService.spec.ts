@@ -112,7 +112,7 @@ describe('SyncService', () => {
       asCtor<FakeAgentBridge>(defaultAgentBridgeCtor),
     );
 
-    vi.mocked(MarkdownUtils.injectIndex).mockResolvedValue(undefined);
+    vi.mocked(MarkdownUtils.injectIndex).mockResolvedValue(['AGENTS.md']);
 
     syncService = new SyncService();
 

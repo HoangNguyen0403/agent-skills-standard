@@ -213,18 +213,33 @@ export class SyncService {
         allowedCategories,
         mcpEnabled,
       );
-      await MarkdownUtils.injectIndex(
+      const updatedAgentsFiles = await MarkdownUtils.injectIndex(
         process.cwd(),
         ['AGENTS.md'],
         routerIndex,
       );
-      console.log(pc.green('  ✅ AGENTS.md router index updated.'));
+
+      if (updatedAgentsFiles.length > 0) {
+        console.log(pc.green('  ✅ AGENTS.md router index updated.'));
+      } else {
+        console.log(
+          pc.yellow(
+            '  ⚠️  Skipped AGENTS.md update: markers <!-- SKILLS_INDEX_START --> and <!-- SKILLS_INDEX_END --> not found.',
+          ),
+        );
+      }
 
       // Apply to sub-projects if any
       const serverDir = path.join(process.cwd(), 'server');
       if (await fs.pathExists(serverDir)) {
-        await MarkdownUtils.injectIndex(serverDir, ['AGENTS.md'], routerIndex);
-        console.log(pc.green('  ✅ server/AGENTS.md router index updated.'));
+        const updatedServerFiles = await MarkdownUtils.injectIndex(
+          serverDir,
+          ['AGENTS.md'],
+          routerIndex,
+        );
+        if (updatedServerFiles.length > 0) {
+          console.log(pc.green('  ✅ server/AGENTS.md router index updated.'));
+        }
       }
 
       const bridgeService = new AgentBridgeService();

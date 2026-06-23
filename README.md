@@ -3,6 +3,7 @@
 [![NPM Version](https://img.shields.io/npm/v/agent-skills-standard.svg?style=flat-square)](https://www.npmjs.com/package/agent-skills-standard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/HoangNguyen0403/agent-skills-standard?style=flat-square)](https://github.com/HoangNguyen0403/agent-skills-standard/stargazers)
+[![SkillSpector Verified](https://img.shields.io/badge/SkillSpector-Verified-76b900?style=flat-square&logo=nvidia&logoColor=white)](https://github.com/HoangNguyen0403/agent-skills-standard/security/code-scanning)
 
 **The portable SDLC standards layer for AI coding agents. Sync once, then work in your own runtime.**
 
@@ -445,6 +446,16 @@ Agent Skills Standard supports **Specialist Sub-Agents**. These are focused pers
 ## Security & Trust
 
 Skills are **text files, not code**. They cannot execute commands, access your filesystem, or make network requests. Here's the full picture:
+
+### SkillSpector Security Scanning
+
+Every skill in this repository is automatically scanned by **[NVIDIA SkillSpector](https://github.com/nvidia/skillspector)** — a purpose-built security scanner for AI agent skills. The pipeline checks **64 vulnerability patterns across 16 categories** including prompt injection, data exfiltration, privilege escalation, supply chain attacks, and MCP tool poisoning.
+
+- ✅ **PR gate**: Any PR that modifies `skills/**` must pass the scan before merging
+- 🔒 **Verified tags**: A `skillspector-verified-vYYYYMMDD` tag is created automatically on `main` after every clean scan
+- 📊 **SARIF reports**: Results are uploaded to the [GitHub Security tab](https://github.com/HoangNguyen0403/agent-skills-standard/security/code-scanning) for full transparency
+
+See [docs/SECURITY.md](./docs/SECURITY.md) for the full security policy, threshold definitions, and instructions for running the scanner locally before submitting a PR.
 
 ### What Skills Are
 
