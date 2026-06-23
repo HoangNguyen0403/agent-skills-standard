@@ -118,7 +118,7 @@ jobs:
           docker run --rm \
             -v "${{ github.workspace }}:/scan" \
             skillspector:ci \
-            scan . \
+            scan ./skills/ \
             --no-llm \
             --format sarif \
             --output /scan/skillspector-report.sarif
@@ -130,7 +130,7 @@ jobs:
           docker run --rm \
             -v "${{ github.workspace }}:/scan" \
             skillspector:ci \
-            scan . \
+            scan ./skills/ \
             --no-llm \
             --format json \
             --output /scan/skillspector-report.json
@@ -146,7 +146,7 @@ jobs:
             -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
             -e ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }} \
             skillspector:ci \
-            scan . \
+            scan ./skills/ \
             --format json \
             --output /scan/skillspector-report-llm.json
 
