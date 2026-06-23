@@ -191,17 +191,19 @@ jobs:
               return;
             }
 
-            const scoreRaw = report.risk_score ?? report.summary?.risk_score ?? report.score;
+            // Extract score from risk_assessment object (SkillSpector v2+ format)
+            const scoreRaw = report.risk_assessment?.score ?? report.risk_score ?? report.score;
             const score = Number(scoreRaw);
             if (!Number.isFinite(score)) {
-              core.setFailed('SkillSpector report missing numeric risk_score; failing to avoid false pass.');
+              core.setFailed('SkillSpector report missing numeric score in risk_assessment; failing to avoid false pass.');
               return;
             }
 
             // Check for any CRITICAL-severity findings (gate policy)
-            const findings = report.findings || [];
-            const criticalFindings = findings.filter(f => (f.severity || '').toUpperCase() === 'CRITICAL');
-            const hasCritical = criticalFindings.length > 0;
+            // SkillSpector uses "issues" not "findings"
+            const issues = report.issues || report.findings || [];
+            const criticalIssues = issues.filter(f => (f.severity || '').toUpperCase() === 'CRITICAL');
+            const hasCritical = criticalIssues.length > 0;
 
             const threshold = parseInt(process.env.SKILLSPECTOR_THRESHOLD || '25', 10);
             const passed = score <= threshold && !hasCritical;
@@ -218,7 +220,7 @@ jobs:
               '| Metric | Value |',
               '|--------|-------|',
               `| **Risk Score** | ${score} / 100 (threshold: ${threshold}) |`,
-              `| **Critical Findings** | ${criticalFindings.length} |`,
+              `| **Critical Findings** | ${criticalIssues.length} |`,
               '| **Scan Type** | Static (64 patterns × 16 categories) |',
               `| **Details** | [GitHub Security tab](https://github.com/${context.repo.owner}/${context.repo.repo}/security/code-scanning) |`,
               '',
