@@ -126,8 +126,10 @@ The security scan is wired into the pipeline as follows:
 PR touches skills/**
     → skillspector-scan.yml triggered
     → SkillSpector Docker image built (cached)
-    → Security documentation skills temporarily excluded
-    → ./skills/ scanned (64 patterns, --no-llm)
+    → Filtered directory created (SKILL.md files only)
+    → Security documentation skills excluded
+    → SKILL.md files scanned (64 patterns, --no-llm)
+    → references/ and evals/ directories excluded (contain educational examples)
     → SARIF uploaded → GitHub Security tab
     → Score evaluated: pass/fail gate
     → PR comment posted with results
@@ -136,6 +138,11 @@ Push to main (scan passes)
     → skillspector-verified-vYYYYMMDD tag created
     → GitHub Release created
 ```
+
+### Scan Scope
+
+- ✅ **Scanned**: SKILL.md and _INDEX.md files (actual skill instructions)
+- ❌ **Excluded**: references/, evals/ directories (supporting docs with educational code examples)
 
 ### Excluded Skills
 

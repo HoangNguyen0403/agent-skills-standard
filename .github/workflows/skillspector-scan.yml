@@ -112,33 +112,39 @@ jobs:
       - name: Load SkillSpector Docker image
         run: docker load -i /tmp/skillspector-image/skillspector.tar
 
-      - name: Create filtered skills directory (exclude security documentation)
+      - name: Create filtered skills directory (SKILL.md files only)
         run: |
-          # These skills contain educational exploit examples and security testing documentation
-          # Create a filtered copy without them to avoid false positives
-          echo "📂 Creating filtered skills directory..."
-          mkdir -p /tmp/skills-filtered
-          cp -r skills/* /tmp/skills-filtered/
+          # Only scan actual SKILL.md files, not reference documentation or examples
+          # Reference docs contain educational code examples that trigger false positives
+          echo "📂 Creating scan directory with SKILL.md files only..."
+          mkdir -p /tmp/skills-scan
           
-          # Remove security documentation skills
-          rm -rf /tmp/skills-filtered/common/common-pentest-methodology 2>/dev/null || true
-          rm -rf /tmp/skills-filtered/common/common-dast-tooling 2>/dev/null || true
-          rm -rf /tmp/skills-filtered/common/common-exploit-verification 2>/dev/null || true
-          rm -rf /tmp/skills-filtered/common/common-owasp 2>/dev/null || true
-          rm -rf /tmp/skills-filtered/common/common-llm-security 2>/dev/null || true
-          rm -rf /tmp/skills-filtered/common/common-security-audit 2>/dev/null || true
-          rm -rf /tmp/skills-filtered/common/common-security-standards 2>/dev/null || true
+          # Copy directory structure and SKILL.md files only
+          find skills -name "SKILL.md" -o -name "_INDEX.md" | while read -r file; do
+            dir=$(dirname "$file")
+            mkdir -p "/tmp/skills-scan/$dir"
+            cp "$file" "/tmp/skills-scan/$file"
+          done
           
-          echo "ℹ️ Excluded 7 security documentation skills (contain educational exploit examples)"
-          echo "📊 Skills to scan:"
-          find /tmp/skills-filtered -name "SKILL.md" | wc -l
+          # Exclude security documentation skills (contain educational exploit examples)
+          rm -rf /tmp/skills-scan/skills/common/common-pentest-methodology 2>/dev/null || true
+          rm -rf /tmp/skills-scan/skills/common/common-dast-tooling 2>/dev/null || true
+          rm -rf /tmp/skills-scan/skills/common/common-exploit-verification 2>/dev/null || true
+          rm -rf /tmp/skills-scan/skills/common/common-owasp 2>/dev/null || true
+          rm -rf /tmp/skills-scan/skills/common/common-llm-security 2>/dev/null || true
+          rm -rf /tmp/skills-scan/skills/common/common-security-audit 2>/dev/null || true
+          rm -rf /tmp/skills-scan/skills/common/common-security-standards 2>/dev/null || true
+          
+          echo "ℹ️ Scanning SKILL.md files only (excluding references/ and evals/ directories)"
+          echo "📊 Files to scan:"
+          find /tmp/skills-scan -name "SKILL.md" | wc -l
 
       # ── Static scan: SARIF output (for GitHub Security tab) ──────────────────
       - name: Run SkillSpector — SARIF output
         continue-on-error: true
         run: |
           docker run --rm \
-            -v "/tmp/skills-filtered:/scan/skills" \
+            -v "/tmp/skills-scan:/scan" \
             -v "${{ github.workspace }}:/output" \
             skillspector:ci \
             scan /scan/skills/ \
@@ -151,7 +157,7 @@ jobs:
         continue-on-error: true
         run: |
           docker run --rm \
-            -v "/tmp/skills-filtered:/scan/skills" \
+            -v "/tmp/skills-scan:/scan" \
             -v "${{ github.workspace }}:/output" \
             skillspector:ci \
             scan /scan/skills/ \
@@ -165,7 +171,7 @@ jobs:
         continue-on-error: true
         run: |
           docker run --rm \
-            -v "/tmp/skills-filtered:/scan/skills" \
+            -v "/tmp/skills-scan:/scan" \
             -v "${{ github.workspace }}:/output" \
             -e SKILLSPECTOR_PROVIDER=${{ github.event.inputs && github.event.inputs.llm_provider || '' }} \
             -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
