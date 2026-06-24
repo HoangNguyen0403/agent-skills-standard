@@ -38,7 +38,8 @@ on:
 permissions:
   contents: read # minimal default — tag job overrides below
   security-events: write # upload SARIF to GitHub Security tab
-  issues: write # check/post PR comments (via issues API)
+  issues: write # post PR comments (via issues API)
+  pull-requests: write # post PR comments (via pull requests API)
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -111,45 +112,52 @@ jobs:
       - name: Load SkillSpector Docker image
         run: docker load -i /tmp/skillspector-image/skillspector.tar
 
-      - name: Temporarily exclude security documentation skills
+      - name: Create filtered skills directory (exclude security documentation)
         run: |
           # These skills contain educational exploit examples and security testing documentation
-          # Move them out of scan path to avoid false positives
-          mkdir -p /tmp/excluded-skills
-          mv skills/common/common-pentest-methodology /tmp/excluded-skills/ 2>/dev/null || true
-          mv skills/common/common-dast-tooling /tmp/excluded-skills/ 2>/dev/null || true
-          mv skills/common/common-exploit-verification /tmp/excluded-skills/ 2>/dev/null || true
-          mv skills/common/common-owasp /tmp/excluded-skills/ 2>/dev/null || true
-          mv skills/common/common-llm-security /tmp/excluded-skills/ 2>/dev/null || true
-          mv skills/common/common-security-audit /tmp/excluded-skills/ 2>/dev/null || true
-          mv skills/common/common-security-standards /tmp/excluded-skills/ 2>/dev/null || true
-          echo "ℹ️ Excluded security documentation skills from scan (contain educational exploit examples)"
+          # Create a filtered copy without them to avoid false positives
+          echo "📂 Creating filtered skills directory..."
+          mkdir -p /tmp/skills-filtered
+          cp -r skills/* /tmp/skills-filtered/
+          
+          # Remove security documentation skills
+          rm -rf /tmp/skills-filtered/common/common-pentest-methodology 2>/dev/null || true
+          rm -rf /tmp/skills-filtered/common/common-dast-tooling 2>/dev/null || true
+          rm -rf /tmp/skills-filtered/common/common-exploit-verification 2>/dev/null || true
+          rm -rf /tmp/skills-filtered/common/common-owasp 2>/dev/null || true
+          rm -rf /tmp/skills-filtered/common/common-llm-security 2>/dev/null || true
+          rm -rf /tmp/skills-filtered/common/common-security-audit 2>/dev/null || true
+          rm -rf /tmp/skills-filtered/common/common-security-standards 2>/dev/null || true
+          
+          echo "ℹ️ Excluded 7 security documentation skills (contain educational exploit examples)"
           echo "📊 Skills to scan:"
-          find skills -name "SKILL.md" | wc -l
+          find /tmp/skills-filtered -name "SKILL.md" | wc -l
 
       # ── Static scan: SARIF output (for GitHub Security tab) ──────────────────
       - name: Run SkillSpector — SARIF output
         continue-on-error: true
         run: |
           docker run --rm \
-            -v "${{ github.workspace }}:/scan" \
+            -v "/tmp/skills-filtered:/scan/skills" \
+            -v "${{ github.workspace }}:/output" \
             skillspector:ci \
-            scan ./skills/ \
+            scan /scan/skills/ \
             --no-llm \
             --format sarif \
-            --output /scan/skillspector-report.sarif
+            --output /output/skillspector-report.sarif
 
       # ── Static scan: JSON output (for score gate + step summary) ─────────────
       - name: Run SkillSpector — JSON output
         continue-on-error: true
         run: |
           docker run --rm \
-            -v "${{ github.workspace }}:/scan" \
+            -v "/tmp/skills-filtered:/scan/skills" \
+            -v "${{ github.workspace }}:/output" \
             skillspector:ci \
-            scan ./skills/ \
+            scan /scan/skills/ \
             --no-llm \
             --format json \
-            --output /scan/skillspector-report.json
+            --output /output/skillspector-report.json
 
       # ── LLM-enhanced scan (only when provider is set via manual dispatch) ────
       - name: Run SkillSpector — LLM semantic analysis
@@ -157,23 +165,17 @@ jobs:
         continue-on-error: true
         run: |
           docker run --rm \
-            -v "${{ github.workspace }}:/scan" \
+            -v "/tmp/skills-filtered:/scan/skills" \
+            -v "${{ github.workspace }}:/output" \
             -e SKILLSPECTOR_PROVIDER=${{ github.event.inputs && github.event.inputs.llm_provider || '' }} \
             -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
             -e ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }} \
             skillspector:ci \
-            scan ./skills/ \
+            scan /scan/skills/ \
             --format json \
-            --output /scan/skillspector-report-llm.json
+            --output /output/skillspector-report-llm.json
 
       # ── Upload SARIF → GitHub Security tab ───────────────────────────────────
-      - name: Restore excluded skills
-        if: always()
-        run: |
-          # Restore security documentation skills that were excluded from scan
-          mv /tmp/excluded-skills/* skills/common/ 2>/dev/null || true
-          echo "✅ Restored excluded skills"
-
       - name: Upload SARIF to GitHub Security
         # Only run if the file was produced; keep best-effort so a bad/missing
         # SARIF doesn't hide the actionable JSON evaluator failure below.
