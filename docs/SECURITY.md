@@ -145,6 +145,9 @@ The following skills are **excluded from automated scanning** because they conta
 - `common-dast-tooling` — Dynamic application security testing tools and usage
 - `common-exploit-verification` — Exploit verification techniques
 - `common-owasp` — OWASP Top 10 vulnerabilities with examples
+- `common-llm-security` — LLM security patterns (contains prompt injection examples)
+- `common-security-audit` — Security audit methodology (contains vulnerability patterns)
+- `common-security-standards` — Security standards documentation (contains vulnerability remediation examples)
 
 These skills are **safe** — they teach security testing practices and contain documented examples of vulnerabilities for educational purposes. They are excluded to prevent false positives in the automated scan.
 

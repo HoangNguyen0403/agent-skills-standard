@@ -120,7 +120,12 @@ jobs:
           mv skills/common/common-dast-tooling /tmp/excluded-skills/ 2>/dev/null || true
           mv skills/common/common-exploit-verification /tmp/excluded-skills/ 2>/dev/null || true
           mv skills/common/common-owasp /tmp/excluded-skills/ 2>/dev/null || true
+          mv skills/common/common-llm-security /tmp/excluded-skills/ 2>/dev/null || true
+          mv skills/common/common-security-audit /tmp/excluded-skills/ 2>/dev/null || true
+          mv skills/common/common-security-standards /tmp/excluded-skills/ 2>/dev/null || true
           echo "ℹ️ Excluded security documentation skills from scan (contain educational exploit examples)"
+          echo "📊 Skills to scan:"
+          find skills -name "SKILL.md" | wc -l
 
       # ── Static scan: SARIF output (for GitHub Security tab) ──────────────────
       - name: Run SkillSpector — SARIF output
@@ -230,6 +235,24 @@ jobs:
             const status = passed ? 'PASSED' : 'FAILED';
             const reason = hasCritical ? ' (CRITICAL findings detected)' : (score > threshold ? ` (score ${score} > ${threshold})` : '');
 
+            // Build detailed issue list for failures
+            let issueDetails = '';
+            if (!passed && issues.length > 0) {
+              const topIssues = issues.slice(0, 10); // Show top 10 issues
+              issueDetails = '\n\n### Issues Found\n\n';
+              topIssues.forEach((issue, idx) => {
+                const file = issue.location?.file || 'unknown';
+                const line = issue.location?.start_line || '?';
+                const severity = issue.severity || 'UNKNOWN';
+                const category = issue.category || 'unknown';
+                const id = issue.id || 'unknown';
+                issueDetails += `${idx + 1}. **${severity}**: \`${id}\` in \`${file}:${line}\` (${category})\n`;
+              });
+              if (issues.length > 10) {
+                issueDetails += `\n_...and ${issues.length - 10} more issues. Download the artifact for full details._\n`;
+              }
+            }
+
             // Build body with join to avoid YAML-indentation bleeding into the
             // Markdown (indented lines render as code blocks, not tables).
             const body = [
@@ -239,8 +262,11 @@ jobs:
               '|--------|-------|',
               `| **Risk Score** | ${score} / 100 (threshold: ${threshold}) |`,
               `| **Critical Findings** | ${criticalIssues.length} |`,
+              `| **Total Issues** | ${issues.length} |`,
               '| **Scan Type** | Static (64 patterns × 16 categories) |',
               `| **Details** | [GitHub Security tab](https://github.com/${context.repo.owner}/${context.repo.repo}/security/code-scanning) |`,
+              '',
+              issueDetails,
               '',
               '> Powered by [NVIDIA SkillSpector](https://github.com/nvidia/skillspector)',
             ].join('\n');
@@ -280,7 +306,10 @@ jobs:
 
             // 3. Fail the workflow if threshold is exceeded
             if (!passed) {
-              core.setFailed(`SkillSpector scan failed: risk score ${score} exceeds threshold of ${threshold}.`);
+              const failReason = hasCritical 
+                ? 'CRITICAL findings detected'
+                : `risk score ${score} exceeds threshold of ${threshold}`;
+              core.setFailed(`SkillSpector scan failed: ${failReason}.`);
             }
         env:
           SKILLSPECTOR_THRESHOLD: ${{ env.SKILLSPECTOR_THRESHOLD }}
