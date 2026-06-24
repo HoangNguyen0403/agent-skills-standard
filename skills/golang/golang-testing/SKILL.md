@@ -22,7 +22,7 @@ metadata:
 2. **Use table-driven tests** — Define test cases as slice of structs; iterate with `t.Run()`.
 3. **Mock via interfaces** — Use DI and interfaces. Prefer `mockery` for auto-generated mocks or manual mocks for simple cases.
 4. **Run parallel** — Use `t.Parallel()` for non-sequential tests to speed up CI.
-5. **Clean up resources** — Use `t.Cleanup()` to reset state or release DB/file resources.
+5. **Clean up resources** — Use `t.Cleanup()` to restore state or release DB/file resources.
 6. **Check coverage** — Aim for >80% line coverage. Run `go test -cover` to audit.
 
 See [table-driven test examples](references/table-driven-tests.md)

@@ -69,7 +69,7 @@ metadata:
 ## Anti-Patterns
 
 - **No prefix omission**: TC name sent to Zephyr API must include `Web_` or `Mobile_` prefix for platform-exclusive TCs — copy verbatim from artifact draft; omit prefix only when Platform = "Web and Mobile".
-- **No Draft skip**: Always set status = Draft; never auto-approve.
+- **No Draft skip**: Always set status = Draft; never automatically approve.
 - **No flat folderId**: Use `"folder": {"id": X}` in all PUT payloads.
 - **No WEB+MOBILE split**: One AC row = one TC with Platform "Web and Mobile".
 - **No platform merge**: Two AC rows, different platforms = two separate TCs.

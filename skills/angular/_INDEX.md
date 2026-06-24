@@ -23,7 +23,7 @@
 | ----- | ----------------------- |
 | angular-forms | FormBuilder, FormGroup, FormControl, Validators, reactive forms, typed forms |
 | angular-rxjs-interop | toSignal, toObservable, takeUntilDestroyed, rxjs angular |
-| **angular-security** | DomSanitizer, innerHTML, bypassSecurityTrust, CSP, angular security, route guard |
+| **angular-security** | DomSanitizer, innerHTML, bypass Security Trust, CSP, angular security, route guard |
 | **angular-style-guide** | angular style, naming convention, file structure, angular-style-guide |
 
 > Load matched skills: `<SKILLS>/angular/<skill>/SKILL.md`. Load ALL that match — the tier model already filters irrelevant ones.

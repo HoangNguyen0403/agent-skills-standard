@@ -4,7 +4,6 @@ description: Environment variables validation and ConfigModule setup. Use when v
 metadata:
   triggers:
     files:
-    - '.env'
     - 'app.module.ts'
     - '**/config.ts'
     keywords:

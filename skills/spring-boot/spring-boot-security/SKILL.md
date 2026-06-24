@@ -33,7 +33,7 @@ See [implementation examples](references/implementation.md) for SecurityFilterCh
 
 - **Algorithm**: Enforce `RS256` or `HS256`. **Reject `none` algorithm**.
 - **Claims**: Validate `iss`, `aud`, and `exp`.
-- **Tokens**: Short-lived access tokens (15m), secure refresh tokens (httpOnly cookie).
+- **Tokens**: Short-lived access JWTs (15m), secure refresh tokens (httpOnly cookie).
 
 ## Hardening Checklist
 

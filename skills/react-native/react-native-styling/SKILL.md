@@ -19,7 +19,7 @@ metadata:
 
 ## Implementation Guidelines
 
-- **StyleSheet.create**: Always use over inline objects (optimized, validated).
+- **StyleSheet.create**: Prefer this to inline objects (optimized, validated).
 - **Flexbox**: Default layout. No CSS Grid.
 - **Responsive**: Use `Dimensions`, `useWindowDimensions`, or percentage widths.
 - **Theming**: Centralize colors, fonts in `theme/` folder.

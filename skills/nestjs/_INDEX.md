@@ -9,7 +9,7 @@
 | **nestjs-architecture** | `**/*.module.ts`, `main.ts` | NestFactory, Module, Controller, Injectable |
 | **nestjs-bullmq** | `**/*.processor.ts`, `**/*.module.ts`, `**/bull-queue.constants.ts`, `**/redis-throttler*.ts` | queue, background job, worker, processor, bullmq, drainDelay, stalledInterval, removeOnComplete, redis limit, upstash, fail-open, throttler |
 | nestjs-caching | `**/*.service.ts`, `**/*.interceptor.ts` | CacheInterceptor, CacheTTL, Redis, stale-while-revalidate |
-| nestjs-configuration | `.env`, `app.module.ts`, `**/config.ts` | ConfigModule, Joi, env |
+| nestjs-configuration | `app.module.ts`, `**/config.ts` | ConfigModule, Joi, env |
 | **nestjs-controllers-services** | `**/*.controller.ts`, `**/*.service.ts` | Controller, Injectable, ExecutionContext, createParamDecorator |
 | **nestjs-database** | `**/*.entity.ts`, `prisma/schema.prisma` | TypeOrmModule, PrismaService, MongooseModule, Repository |
 | nestjs-deployment | `k8s/**`, `helm/**` | Dockerfile, max-old-space-size, shutdown hooks |

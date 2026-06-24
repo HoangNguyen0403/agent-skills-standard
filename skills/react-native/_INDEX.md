@@ -20,7 +20,7 @@
 | ----- | ----------------------- |
 | **react-native-components** | component, props, children, composition, presentational, container |
 | **react-native-performance** | FlatList, memo, useMemo, useCallback, performance, optimization |
-| **react-native-security** | security, keychain, secure-storage, deep-link, certificate-pinning |
+| **react-native-security** | security, secure-storage, deep-link, certificate-pinning |
 | react-native-state-management | useState, useContext, zustand, redux, state-management |
 | react-native-styling | StyleSheet, style, theme, responsive, flexbox |
 

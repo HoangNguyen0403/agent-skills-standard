@@ -22,7 +22,7 @@ metadata:
 3. **Script Fastlane lanes** — Create `beta` (TestFlight) and `release` (App Store) lanes in your Fastfile.
 4. **Automate versioning** — Use `increment_build_number` to auto-bump build numbers.
 5. **Automate TestFlight uploads** — Trigger on every successful merge to staging.
-6. **Set export compliance** — Automate in `Info.plist` or Fastlane to avoid metadata pauses.
+6. **Set export compliance** — Automate in the iOS Info configuration or Fastlane to avoid metadata pauses.
 
 See [Fastlane and Match setup examples](references/implementation.md)
 

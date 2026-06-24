@@ -14,7 +14,7 @@ metadata:
     - localization test
 ---
 
-# 🕵️‍♂️ Mobile Visual & Behavioral Testing
+# 🕵 Mobile Visual & Behavioral Testing
 
 ## **Priority: P1 (HIGH)**
 
