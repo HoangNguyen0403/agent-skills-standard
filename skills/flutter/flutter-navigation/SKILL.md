@@ -24,7 +24,7 @@ metadata:
 
 1. **Choose router** — Use `go_router` for modern, declarative routing.
 2. **Define routes** — Use constants or code generation for route paths; never hardcode strings.
-3. **Configure deep links** — Set up `AndroidManifest.xml` and `Info.plist` for URL schemes.
+3. **Configure deep links** — Set up `AndroidManifest.xml` and the iOS URL-type settings for app URL schemes.
 4. **Validate parameters** — Check parameters in `redirect` logic before navigation.
 5. **Preserve tab state** — Use `StatefulShellRoute` or `IndexedStack` for bottom navigation.
 

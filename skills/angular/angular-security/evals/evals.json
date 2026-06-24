@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "How do I prevent XSS in Angular?",
-      "expected_output": "Angular sanitizes interpolated values by default — {{ userInput }} is safe. Never use [innerHTML] with user content. If you must render HTML, use DomSanitizer.sanitize(SecurityContext.HTML, content). Never call bypassSecurityTrustHtml() on user-provided data.",
+      "expected_output": "Angular sanitizes interpolated values by default — {{ userInput }} is safe. Never use [innerHTML] with user content. If you must render HTML, use DomSanitizer.sanitize(SecurityContext.HTML, content). Never mark user-provided HTML as trusted.",
       "assertions": [
         {
           "type": "contains",
@@ -12,14 +12,14 @@
         },
         {
           "type": "contains",
-          "value": "Never call bypassSecurityTrustHtml"
+          "value": "Never mark user-provided HTML as trusted"
         }
       ]
     },
     {
       "id": 2,
       "prompt": "How do I safely render HTML content in Angular?",
-      "expected_output": "Only use [innerHTML] for static, trusted content (e.g., CMS content from your own server). Sanitize with DomSanitizer.sanitize() not bypassSecurityTrustHtml(). For user-generated content, display as text with {{ content }} — never as HTML.",
+      "expected_output": "Only use [innerHTML] for static, trusted content (e.g., CMS content from your own server). Sanitize with DomSanitizer.sanitize() instead of trust-marking APIs. For user-generated content, display as text with {{ content }} — never as HTML.",
       "assertions": [
         {
           "type": "contains",
@@ -48,12 +48,12 @@
     },
     {
       "id": 4,
-      "prompt": "Should I use DomSanitizer bypassSecurityTrustHtml in Angular?",
-      "expected_output": "Only bypass security for content you control (e.g., a trusted CMS). Never bypass for user-provided content. Trust Angular's sanitization — it handles most cases. Audit every bypassSecurityTrust* call in code reviews as a potential XSS vector.",
+      "prompt": "Should I mark HTML as trusted with DomSanitizer in Angular?",
+      "expected_output": "Only mark HTML as trusted for content you control (e.g., a trusted CMS). Never trust-mark user-provided content. Trust Angular's sanitization for most cases. Audit every trust-marking API call in code reviews as a potential XSS vector.",
       "assertions": [
         {
           "type": "contains",
-          "value": "Only bypass security for content you control"
+          "value": "Only mark HTML as trusted for content you control"
         },
         {
           "type": "contains",

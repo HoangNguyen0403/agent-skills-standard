@@ -6,7 +6,8 @@ metadata:
     keywords:
     - DomSanitizer
     - innerHTML
-    - bypass Security Trust
+    - sanitize(SecurityContext.HTML)
+    - trusted HTML
     - CSP
     - angular security
     - route guard
@@ -18,7 +19,7 @@ metadata:
 ## Principles
 
 - **XSS Prevention**: Angular sanitizes interpolated values by default — **{{ userInput }} safe**. NOT use `innerHTML` unless absolutely necessary (e.g., trusted static CMS content). For user-generated content, display as text with **{{ content }} — never as HTML**.
-- **Bypassing Protection**: **Only bypass sanitization for content you control** (e.g., trusted CMS headers). **Never call bypass Security Trust HTML** on user-provided data. Use **DomSanitizer.sanitize(SecurityContext.HTML, content)** instead of bypass functions. **Audit every bypass Security Trust method** call as potential XSS **vector**.
+- **Trusted HTML APIs**: Mark HTML as trusted only for content you control (e.g., vetted CMS headers). Never mark user-provided data as trusted. Prefer **DomSanitizer.sanitize(SecurityContext.HTML, content)** and review every trust-marking call as a potential XSS vector.
 - **Route Guards**: Protect all sensitive routes with functional **CanActivateFn** (e.g., **inject(Router).createUrlTree(['/login'])**). Apply with **canActivate: [authGuard]**.
 
 ## Guidelines
@@ -29,7 +30,7 @@ metadata:
 
 ## Anti-Patterns
 
-- **No bypass Security Trust**: Trust Angular's sanitization; bypass only for verified static content.
+- **No trust-marking on user input**: Trust Angular's sanitization; reserve trusted HTML APIs for verified static content only.
 - **No localStorage for tokens**: Use HttpOnly cookies via interceptors for auth tokens.
 - **No secrets in source**: Never embed API keys or secrets in Angular bundle code.
 

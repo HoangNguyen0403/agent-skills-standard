@@ -24,7 +24,7 @@
     {
       "id": 3,
       "prompt": "My Activity receives an implicit Intent with user data. What security checks should I do on the incoming Intent extras?",
-      "expected_output": "Treat all Intent extras as untrusted. Validate and sanitize before use. Verify resolveActivity before starting implicit intents. Don't use MODE_WORLD_READABLE for any files.",
+      "expected_output": "Treat all Intent extras as untrusted. Validate and sanitize before use. Verify resolveActivity before starting implicit intents. Do not use legacy public-read file modes for any files.",
       "assertions": [
         { "id": "a1", "description": "Treats extras as untrusted", "type": "contains", "value": "untrusted" },
         { "id": "a2", "description": "Validates or sanitizes input", "type": "contains", "value": "validat" }
