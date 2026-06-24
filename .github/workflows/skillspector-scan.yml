@@ -39,7 +39,6 @@ permissions:
   contents: read # minimal default — tag job overrides below
   security-events: write # upload SARIF to GitHub Security tab
   issues: write # post PR comments (via issues API)
-  pull-requests: write # post PR comments (via pull requests API)
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -48,6 +47,8 @@ jobs:
   build-skillspector:
     name: Build SkillSpector
     runs-on: ubuntu-latest
+    env:
+      SKILLSPECTOR_COMMIT: d8a68eed29974882bad68748b93dba9b60d6fe45
 
     steps:
       - name: Checkout skills repo
@@ -58,7 +59,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/skillspector-image
-          key: skillspector-docker-${{ hashFiles('.github/workflows/skillspector-scan.yml') }}-v3
+          key: skillspector-docker-${{ env.SKILLSPECTOR_COMMIT }}-v3
           restore-keys: |
             skillspector-docker-
 
@@ -118,14 +119,14 @@ jobs:
           # Reference docs contain educational code examples that trigger false positives
           echo "📂 Creating scan directory with SKILL.md files only..."
           mkdir -p /tmp/skills-scan
-          
+
           # Copy directory structure and SKILL.md files only
           find skills -name "SKILL.md" -o -name "_INDEX.md" | while read -r file; do
             dir=$(dirname "$file")
             mkdir -p "/tmp/skills-scan/$dir"
             cp "$file" "/tmp/skills-scan/$file"
           done
-          
+
           # Exclude security documentation skills (contain educational exploit examples)
           rm -rf /tmp/skills-scan/skills/common/common-pentest-methodology 2>/dev/null || true
           rm -rf /tmp/skills-scan/skills/common/common-dast-tooling 2>/dev/null || true
@@ -134,7 +135,7 @@ jobs:
           rm -rf /tmp/skills-scan/skills/common/common-llm-security 2>/dev/null || true
           rm -rf /tmp/skills-scan/skills/common/common-security-audit 2>/dev/null || true
           rm -rf /tmp/skills-scan/skills/common/common-security-standards 2>/dev/null || true
-          
+
           echo "ℹ️ Scanning SKILL.md files only (excluding references/ and evals/ directories)"
           echo "📊 Files to scan:"
           find /tmp/skills-scan -name "SKILL.md" | wc -l

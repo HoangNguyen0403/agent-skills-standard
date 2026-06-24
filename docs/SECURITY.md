@@ -53,7 +53,7 @@ When a scan on the `main` branch successfully passes (triggered by push, schedul
 skillspector-verified-v20260622
 ```
 
-This tag is created only by the automated pipeline — never manually. You can verify authenticity by checking that the tagger is `github-actions[bot]` and verifying the associated [GitHub Actions run](https://github.com/HoangNguyen0403/agent-skills-standard/actions/workflows/skillspector-scan.yml).
+This tag is created only by the automated pipeline — never manually. The tag is annotated but not GPG-signed. You can verify authenticity by checking that the tagger is `github-actions[bot]` and verifying the associated [GitHub Actions run](https://github.com/HoangNguyen0403/agent-skills-standard/actions/workflows/skillspector-scan.yml).
 
 ---
 
@@ -141,7 +141,7 @@ Push to main (scan passes)
 
 ### Scan Scope
 
-- ✅ **Scanned**: SKILL.md and _INDEX.md files (actual skill instructions)
+- ✅ **Scanned**: SKILL.md and \_INDEX.md files (actual skill instructions)
 - ❌ **Excluded**: references/, evals/ directories (supporting docs with educational code examples)
 
 ### Excluded Skills
