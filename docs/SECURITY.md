@@ -5,6 +5,7 @@
 [![SkillSpector Verified](https://img.shields.io/badge/SkillSpector-Verified-76b900?logo=nvidia&logoColor=white)](https://github.com/HoangNguyen0403/agent-skills-standard/security/code-scanning)
 
 All skills in this repository are automatically scanned by **[NVIDIA SkillSpector](https://github.com/nvidia/skillspector)** — a security scanner purpose-built for AI agent skills. A passing scan is required before any skill category can be published.
+This repository is considered **Verified by SkillSpector** whenever the automated scan passes and the dated `skillspector-verified-vYYYYMMDD` tag is created on `main`.
 
 ---
 
@@ -146,16 +147,16 @@ Push to main (scan passes)
 
 ### Excluded Skills
 
-The following skills are **excluded from automated scanning** because they contain educational security content and penetration testing examples (XSS payloads, code injection examples, etc.):
+The following skills are **excluded from automated scanning** because they contain educational security content, penetration testing examples, or AI security guidance that intentionally includes exploit patterns, threat-modeling language, and prompt-injection examples. These skills are skipped from SkillSpector verification to avoid false positives while preserving their educational and guidance value.
 
 - `common-pentest-methodology` — Penetration testing methodology and exploit examples
 - `common-dast-tooling` — Dynamic application security testing tools and usage
 - `common-exploit-verification` — Exploit verification techniques
 - `common-owasp` — OWASP Top 10 vulnerabilities with examples
-- `common-llm-security` — LLM security patterns (contains prompt injection examples)
+- `common-llm-security` — LLM security patterns and AI-security guidance
 - `common-security-audit` — Security audit methodology (contains vulnerability patterns)
 - `common-security-standards` — Security standards documentation (contains vulnerability remediation examples)
 
-These skills are **safe** — they teach security testing practices and contain documented examples of vulnerabilities for educational purposes. They are excluded to prevent false positives in the automated scan.
+These skills are **safe** — they teach security testing practices, AI security guidance, and vulnerability examples for educational purposes. They are excluded to prevent false positives in the automated scan and are therefore skipped from the SkillSpector verification gate.
 
 See the [workflow file](../.github/workflows/skillspector-scan.yml) for full implementation details.

@@ -5,33 +5,33 @@ on:
   pull_request:
     branches: [main, develop]
     paths:
-      - "skills/**"
-      - ".github/workflows/skillspector-scan.yml"
+      - 'skills/**'
+      - '.github/workflows/skillspector-scan.yml'
 
   # Full scan on every push to main → update verified tag
   push:
     branches: [main]
     paths:
-      - "skills/**"
+      - 'skills/**'
 
   # Ongoing drift detection — every Monday at 06:00 UTC
   schedule:
-    - cron: "0 6 * * 1"
+    - cron: '0 6 * * 1'
 
   # Manual trigger (useful for debugging or on-demand audits)
   workflow_dispatch:
     inputs:
       threshold:
-        description: "Max risk score to pass (0-100)"
+        description: 'Max risk score to pass (0-100)'
         required: false
-        default: "25"
+        default: '25'
       llm_provider:
-        description: "LLM provider for semantic scan (leave empty for static-only)"
+        description: 'LLM provider for semantic scan (leave empty for static-only)'
         required: false
-        default: ""
+        default: ''
         type: choice
         options:
-          - ""
+          - ''
           - openai
           - anthropic
 
@@ -127,7 +127,8 @@ jobs:
             cp "$file" "/tmp/skills-scan/$file"
           done
 
-          # Exclude security documentation skills (contain educational exploit examples)
+          # Exclude security guidance skills that intentionally contain educational exploit examples or AI-security prompt patterns
+          # These skills are skipped from SkillSpector verification to avoid false positives
           rm -rf /tmp/skills-scan/skills/common/common-pentest-methodology 2>/dev/null || true
           rm -rf /tmp/skills-scan/skills/common/common-dast-tooling 2>/dev/null || true
           rm -rf /tmp/skills-scan/skills/common/common-exploit-verification 2>/dev/null || true
@@ -376,7 +377,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.create_tag.outputs.tag }}
-          name: "🔒 SkillSpector Verified — ${{ steps.create_tag.outputs.tag }}"
+          name: '🔒 SkillSpector Verified — ${{ steps.create_tag.outputs.tag }}'
           body: |
             ## ✅ All skills passed SkillSpector security scan
 
