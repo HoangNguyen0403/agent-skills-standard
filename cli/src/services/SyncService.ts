@@ -213,18 +213,39 @@ export class SyncService {
         allowedCategories,
         mcpEnabled,
       );
-      await MarkdownUtils.injectIndex(
+      const updatedAgentsFiles = await MarkdownUtils.injectIndex(
         process.cwd(),
         ['AGENTS.md'],
         routerIndex,
       );
-      console.log(pc.green('  ✅ AGENTS.md router index updated.'));
+
+      if (updatedAgentsFiles.length > 0) {
+        console.log(pc.green('  ✅ AGENTS.md router index updated.'));
+      } else {
+        console.log(
+          pc.yellow(
+            '  ⚠️  Skipped AGENTS.md update: index markers <!-- SKILLS_INDEX_START --> … <!-- SKILLS_INDEX_END --> are missing or out of order. Opt-in by adding these markers to your file.',
+          ),
+        );
+      }
 
       // Apply to sub-projects if any
       const serverDir = path.join(process.cwd(), 'server');
       if (await fs.pathExists(serverDir)) {
-        await MarkdownUtils.injectIndex(serverDir, ['AGENTS.md'], routerIndex);
-        console.log(pc.green('  ✅ server/AGENTS.md router index updated.'));
+        const updatedServerFiles = await MarkdownUtils.injectIndex(
+          serverDir,
+          ['AGENTS.md'],
+          routerIndex,
+        );
+        if (updatedServerFiles.length > 0) {
+          console.log(pc.green('  ✅ server/AGENTS.md router index updated.'));
+        } else {
+          console.log(
+            pc.yellow(
+              '  ⚠️  Skipped server/AGENTS.md update: index markers <!-- SKILLS_INDEX_START --> … <!-- SKILLS_INDEX_END --> are missing or out of order in server/AGENTS.md. Opt-in via markers.',
+            ),
+          );
+        }
       }
 
       const bridgeService = new AgentBridgeService();

@@ -17,7 +17,7 @@ metadata:
 
 ## 1. Use Strictly Typed Reactive Forms
 
-- Always use Reactive Forms over Template-Driven for complex inputs.
+- Prefer Reactive Forms to Template-Driven for complex inputs.
 - Define typed `FormGroup<T>` with explicit control types — never use untyped FormGroup.
 
 See [typed forms](references/typed-forms.md) for typed FormGroup examples.

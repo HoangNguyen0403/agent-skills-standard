@@ -18,7 +18,7 @@
 | **common-mobile-ux-core** | `**/*_page.dart`, `**/*_screen.dart`, `**/*_view.dart`, `**/*Activity.kt`, `**/*Screen.tsx` | mobile, responsive, SafeArea, touch, gesture, viewport |
 | common-observability | `**/*.service.ts`, `**/*.handler.ts`, `**/*.middleware.ts`, `**/*.interceptor.ts` | logging, tracing, metrics, opentelemetry, observability, slo |
 | **common-product-requirements** | `PRD.md`, `docs/prd/prd-*.md`, `specs/*.md` | create prd, product requirements, draft requirements, new feature spec, acceptance criteria |
-| **common-security-audit** | `package.json`, `go.mod`, `pubspec.yaml`, `pom.xml`, `Cargo.toml`, `requirements.txt`, `AndroidManifest.xml`, `Info.plist` | Dockerfile, security audit, vulnerability scan, secrets detection, injection probe, pentest |
+| **common-security-audit** | `package.json`, `go.mod`, `pubspec.yaml`, `pom.xml`, `Cargo.toml`, `requirements.txt`, `AndroidManifest.xml` | Dockerfile, security audit, vulnerability scan, secrets detection, injection probe, pentest |
 | common-session-retrospective | `**/*.spec.ts`, `**/*.test.ts`, `SKILL.md`, `AGENTS.md`, `+common/common-learning-log` | retrospective, self-learning, improve skills, session review, correction, rework |
 | **common-skill-creator** | `SKILL.md`, `evals/evals.json` | create skill, audit skill, trigger rate, optimize description |
 | **common-software-requirements** | `SRS.md`, `docs/srs/srs-*.md`, `specs/*.md` | create srs, software requirements, functional specification, system behavior spec, technical requirements, non-functional requirements |

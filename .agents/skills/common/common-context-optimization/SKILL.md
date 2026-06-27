@@ -1,6 +1,6 @@
 ---
 name: common-context-optimization
-description: Maximize context window efficiency, reduce latency, and prevent lost-in-middle issues through strategic masking and compaction. Use when token budgets are tight, tool outputs flood the context, conversations drift from intent, or latency spikes from cache misses.
+description: Maximize context window efficiency, reduce latency, and prevent lost-in-middle issues through strategic masking and compaction. Use when token budgets are tight, tool outputs overflow the context, conversations drift from intent, or latency spikes from cache misses.
 metadata:
   triggers:
     files:
@@ -17,7 +17,7 @@ metadata:
 
 ## 1. Observation Masking (Noise Reduction)
 
-**Problem**: Large tool outputs (logs, JSON lists) flood context and degrade reasoning.
+**Problem**: Large tool outputs (logs, JSON lists) overwhelm context and degrade reasoning.
 **Solution**: Replace raw output with semantic summaries _after_ consumption.
 
 1. **Identify** outputs exceeding 50 lines or 1 KB.

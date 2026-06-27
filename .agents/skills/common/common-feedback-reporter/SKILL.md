@@ -1,19 +1,20 @@
 ---
 name: common-feedback-reporter
-description: 'Pre-write skill violation audit. Checks planned code against loaded skill anti-patterns before any file write. Use when writing Flutter/Dart code, editing SKILL.md files, or generating any code where project skills are active. Load as composite alongside other skills. When a violation is detected and Auto-fixed: YES, also load +common/common-learning-log to record the mistake.'
+description: "Pre-write audit for skill violations. Checks planned code against loaded skill anti-patterns before any file write. Use when writing Flutter/Dart code, editing SKILL.md files, or generating any code where project skills are active. Load as composite alongside other skills. When a violation is detected and Auto-fixed: YES, also load +common/common-learning-log to record the mistake."
 metadata:
   triggers:
     files:
-    - 'SKILL.md'
-    - '**/*.dart'
-    - '**/*.ts'
-    - '**/*.tsx'
-    - '+common/common-learning-log'
+      - "SKILL.md"
+      - "**/*.dart"
+      - "**/*.ts"
+      - "**/*.tsx"
+      - "+common/common-learning-log"
     keywords:
-    - skill violation
-    - pre-write audit
-    - audit violations
+      - skill violation
+      - pre-write audit
+      - audit violations
 ---
+
 # Feedback Reporter
 
 ## **Priority: P0 - Auto-detect skill violations before file writes**
@@ -23,11 +24,12 @@ metadata:
 **Quick check before `write_to_file`, `replace_file_content`, `multi_replace_file_content`:**
 
 1. **Check** - Any skills loaded for this file extension?
- - NO → ✅ Proceed silently
- - YES → Continue to step 2
+- NO → ✅ Proceed silently
+- YES → Continue to step 2
+
 2. **Audit** - planned code violate loaded skill rules?
- - NO → ✅ Proceed silently — ** NOT submit feedback report**
- - YES → Output violation block below, then fix immediately
+- NO → ✅ Proceed silently — ** NOT submit feedback report**
+- YES → Output violation block below, then fix immediately
 
 ## Detection Flow
 
@@ -71,13 +73,13 @@ Co-skills:    [other active skill IDs, comma-separated, or 'none']
 
 ### Root Cause Guide
 
-| Code | When to use |
-|------|-------------|
-| `AMBIGUOUS_RULE` | Rule wording permits multiple interpretations |
-| `MISSING_COVERAGE` | Common pattern not addressed anywhere in skill |
+| Code                | When to use                                          |
+| ------------------- | ---------------------------------------------------- |
+| `AMBIGUOUS_RULE`    | Rule wording permits multiple interpretations        |
+| `MISSING_COVERAGE`  | Common pattern not addressed anywhere in skill       |
 | `OUTDATED_GUIDANCE` | Skill references deprecated API or framework version |
-| `COMPETING_RULES` | Two loaded skills gave contradictory guidance |
-| `PATTERN_MISMATCH` | AI misread or misapplied anti-pattern definition |
+| `COMPETING_RULES`   | Two loaded skills gave contradictory guidance        |
+| `PATTERN_MISMATCH`  | AI misread or misapplied anti-pattern definition     |
 
 Then apply fix immediately — not wait for user confirmation.
 

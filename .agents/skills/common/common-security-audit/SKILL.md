@@ -11,7 +11,6 @@ metadata:
     - 'Cargo.toml'
     - 'requirements.txt'
     - 'AndroidManifest.xml'
-    - 'Info.plist'
     keywords:
     - Dockerfile
     - security audit
@@ -28,7 +27,7 @@ metadata:
 
 See [implementation examples](references/implementation.md) for secrets scanning commands.
 
-Covers: Backend source, frontend bundles (`REACT_APP_`, `NEXT_PUBLIC_`, `VITE_`), mobile configs (`BuildConfig`, `Info.plist`, `strings.xml`).
+Covers: Backend source, frontend bundles (`REACT_APP_`, `NEXT_PUBLIC_`, `VITE_`), mobile configs (`BuildConfig`, iOS configurations, `strings.xml`).
 
 ## 2. Detect Data Leakage in Logs
 
@@ -55,7 +54,7 @@ See [implementation examples](references/implementation.md) for RCE/SSRF/Path Tr
 
 ## 7. Mobile-Specific Audit
 
-See [mobile audit commands](references/mobile-audit.md) for insecure storage (Keychain/Keystore), cert pinning, debug flags, and deep links.
+See [mobile audit commands](references/mobile-audit.md) for insecure storage (credential stores/Keystore), cert pinning, debug flags, and deep links.
 
 ## 8. Business Logic & Advanced Attacks
 

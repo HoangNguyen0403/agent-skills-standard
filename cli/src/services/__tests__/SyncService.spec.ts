@@ -87,6 +87,9 @@ type SyncServicePrivates = {
   configService: {
     reconcileDependencies: ReturnType<typeof vi.fn>;
   };
+  specialistSyncService: {
+    syncSpecialists: ReturnType<typeof vi.fn>;
+  };
 };
 function privatesOf(s: SyncService): SyncServicePrivates {
   return s as unknown as SyncServicePrivates;
@@ -112,7 +115,7 @@ describe('SyncService', () => {
       asCtor<FakeAgentBridge>(defaultAgentBridgeCtor),
     );
 
-    vi.mocked(MarkdownUtils.injectIndex).mockResolvedValue(undefined);
+    vi.mocked(MarkdownUtils.injectIndex).mockResolvedValue(['AGENTS.md']);
 
     syncService = new SyncService();
 
@@ -376,6 +379,22 @@ describe('SyncService', () => {
         expect.any(String),
       );
     });
+
+    it('should log warning when injectIndex returns empty list for root AGENTS.md and server/AGENTS.md', async () => {
+      const config = makeConfig({ agents: [Agent.Cursor] });
+      vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+      vi.mocked(MarkdownUtils.injectIndex).mockResolvedValue([]);
+
+      await syncService.applyIndices(config, [Agent.Cursor]);
+
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Skipped AGENTS.md update: index markers'),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Skipped server/AGENTS.md update: index markers'),
+      );
+    });
+
 
     it('fetches metadata from registry main branch and injects it into the generator', async () => {
       const remoteMetadata = {

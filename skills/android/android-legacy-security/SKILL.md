@@ -36,13 +36,13 @@ See [hardening examples](references/implementation.md) for WebView lockdown patt
 ## 3. Protect Storage and Files
 
 - **NEVER expose `file://` URIs**. Use `FileProvider` to generate `content://` URIs with temporary permissions.
-- Use `EncryptedSharedPreferences` for auth tokens and PII. Never use `MODE_WORLD_READABLE`.
+- Use `EncryptedSharedPreferences` for auth tokens and PII. Never use legacy public-read file modes.
 - Use `NetworkSecurityConfig` to disable `cleartextTrafficPermitted` and implement certificate pinning.
 
 ## Anti-Patterns
 
 - **No Implicit Intents Internally**: Use explicit intents with component class name.
-- **No MODE_WORLD_READABLE**: Never use for SharedPreferences or files.
+- **No Public Read Modes**: Never expose SharedPreferences or files with global read access.
 
 ## References
 

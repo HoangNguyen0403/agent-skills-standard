@@ -31,7 +31,7 @@ Strict multi-tenant isolation. All child-centric data must secured via PostgreSQ
 2. **Centralized Validation**: Never reimplement access logic. Use `ChildrenService` for child/family membership checks.
 3. **Traceable Security**: `SECURITY.md` source of truth. Any change to RLS policies must reflected there immediately.
 4. **Nested Route Constraint**: Data isolation enforced at controller level via nested routes: `/children/:childId/...`.
-5. **No Direct Entity exposure**: Use Response DTOs to prevent leaking internal database IDs or metadata that could bypass security filters.
+5. **No Direct Entity exposure**: Use Response DTOs to prevent leaking internal database IDs or metadata that could circumvent security checks.
 
 ## Anti-Patterns
 

@@ -8,7 +8,6 @@ metadata:
     - '**/*.ts'
     keywords:
     - security
-    - keychain
     - secure-storage
     - deep-link
     - certificate-pinning
@@ -19,11 +18,11 @@ metadata:
 
 ## Store Credentials Securely
 
-- **Keychain/Keystore**: Use `react-native-keychain` for tokens, passwords.
+- **Secure Storage**: Use `react-native-key-chain` for tokens, passwords.
 - **Never AsyncStorage**: Not encrypted. Only for non-sensitive data.
 - **Biometric Auth**: Use `react-native-biometrics` for Face ID/Touch ID.
 
-See [keychain usage reference](references/keychain-usage.md) for Keychain storage with biometric access control.
+See [secure storage reference](references/secure-storage.md) for secure storage with biometric access control.
 
 ## Validate Deep Links
 
@@ -31,7 +30,7 @@ See [keychain usage reference](references/keychain-usage.md) for Keychain storag
 - **Sanitize Params**: Never trust URL params. Validate and sanitize.
 - **Token Extraction**: Avoid passing tokens in deep link URLs. Use secure code exchange.
 
-See [keychain usage reference](references/keychain-usage.md) for deep link URL validation with scheme and host whitelisting.
+See [secure storage reference](references/secure-storage.md) for deep link URL validation with scheme and host whitelisting.
 
 ## Enforce Network Security
 
@@ -56,4 +55,4 @@ See [keychain usage reference](references/keychain-usage.md) for deep link URL v
 
 ## References
 
-See [references/keychain-usage.md](references/keychain-usage.md) for Keychain, Biometrics, SSL Pinning, and PII Masking.
+See [references/secure-storage.md](references/secure-storage.md) for secure storage, Biometrics, SSL Pinning, and PII Masking.

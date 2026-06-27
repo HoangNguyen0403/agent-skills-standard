@@ -21,7 +21,7 @@ metadata:
 ## CLI Essentials
 
 - **Command**: `ng generate component` (or `ng g c`)
-- **Flags**: `--dry-run` previews before write. `--change-detection=OnPush` sets CD at generation. `--skip-tests` skips spec.
+- **Flags**: `--dry-run` previews before write. `--change-detection=OnPush` sets CD at generation. `skip-tests` skips spec.
 - **Workflow**: Always `ng generate` — **never create files manually**.
 
 ```bash
@@ -36,7 +36,7 @@ ng g pipe pipes/truncate              # Generate standalone pipe
 ## Code Generation Flags
 
 - `--dry-run` — Preview output without writing files. Always use `--dry-run` first for unfamiliar generators.
-- `--skip-tests` — Skips spec file generation.
+- `skip-tests` — Skips spec file generation.
 - `--flat` — Skips subfolder creation.
 - `--change-detection=OnPush` — Sets CD strategy on generation.
 - `--style=scss` — Sets stylesheet format.

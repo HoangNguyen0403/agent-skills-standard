@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "Add deep linking so that opening ourapp://orders/123 from a push notification takes the user directly to that order detail screen.",
-      "expected_output": "go_router route with path parameter, AndroidManifest intent-filter and Info.plist CFBundleURLTypes config, redirect validation for order ID",
+      "expected_output": "go_router route with path parameter, AndroidManifest intent-filter and iOS URL-type configuration for app links, redirect validation for order ID",
       "assertions": [
         {
           "type": "contains",
@@ -12,7 +12,7 @@
         },
         {
           "type": "contains",
-          "value": "Info"
+          "value": "iOS URL-type"
         }
       ]
     },
