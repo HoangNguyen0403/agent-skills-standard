@@ -7,7 +7,7 @@
 
 **The portable SDLC standards layer for AI coding agents. Sync once, then work in your own runtime.**
 
-**Current release:** `v2.5.0` — trust-gated review workflows, markdown-first security handoff, and expanded framework/database guidance for SDLC delivery.
+**Current release:** `v2.5.1` — trust-gated review workflows, markdown-first security handoff, and expanded framework/database guidance for SDLC delivery.
 
 271 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
 
