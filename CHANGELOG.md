@@ -5,6 +5,22 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [python-v1.0.0] - 2026-06-29
+
+**Category**: Python skill pack launch and release-tag enforcement
+
+### Added
+
+- **Python Skill Pack**: Added `python-language`, `python-best-practices`, `python-architecture`, `python-testing`, `python-tooling`, `python-async-runtime`, `python-database`, `python-error-handling`, and `python-security`.
+- **Python Reference Maps**: Added framework mapping plus focused references for clean architecture, pytest patterns, tooling gates, async boundaries, and database boundaries.
+- **Release Tag Validation**: Added `verify:release-tags` so CI validates category `tag_prefix` + version combinations before release drift lands.
+
+### Changed
+
+- **CLI Framework Detection**: Added Python as a backend framework for `ags init`, including Python project marker detection and backend-common category defaults such as `database`.
+- **Bulk Skill Release Tags**: Updated the bulk release script to build tags from `skills/metadata.json` `tag_prefix` values instead of hardcoding `<category>-v<version>`.
+- **Documentation**: Updated the README skill inventory and release messaging to include the Python category.
+
 ## [cli-v2.5.1] - 2026-06-23
 
 **Category**: Security scanning integration (SkillSpector)

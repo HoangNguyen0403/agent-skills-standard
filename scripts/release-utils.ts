@@ -1,87 +1,90 @@
-import { execFileSync } from 'child_process';
-import fs from 'fs-extra';
-import path from 'path';
-import pc from 'picocolors';
+import { execFileSync } from "child_process";
+import fs from "fs-extra";
+import path from "path";
+import pc from "picocolors";
 
+/** Groups raw git log subjects into changelog sections. */
 export function getSmartChangelog(logs: string): string {
-  const lines = logs.split('\n').filter(Boolean);
+  const lines = logs.split("\n").filter(Boolean);
   const groups: Record<string, string[]> = {
-    '### Added': [],
-    '### Fixed': [],
-    '### Improved': [],
-    '### Maintenance': [],
-    '### Other Changes': [],
+    "### Added": [],
+    "### Fixed": [],
+    "### Improved": [],
+    "### Maintenance": [],
+    "### Other Changes": [],
   };
 
   for (const line of lines) {
-    const cleanLine = line.replace(/^- /, '').trim();
+    const cleanLine = line.replace(/^- /, "").trim();
     const lower = cleanLine.toLowerCase();
 
-    if (lower.startsWith('feat') || lower.startsWith('new')) {
-      groups['### Added'].push(cleanLine);
-    } else if (lower.startsWith('fix') || lower.startsWith('bug')) {
-      groups['### Fixed'].push(cleanLine);
+    if (lower.startsWith("feat") || lower.startsWith("new")) {
+      groups["### Added"].push(cleanLine);
+    } else if (lower.startsWith("fix") || lower.startsWith("bug")) {
+      groups["### Fixed"].push(cleanLine);
     } else if (
-      lower.startsWith('perf') ||
-      lower.startsWith('refactor') ||
-      lower.startsWith('improve') ||
-      lower.startsWith('style')
+      lower.startsWith("perf") ||
+      lower.startsWith("refactor") ||
+      lower.startsWith("improve") ||
+      lower.startsWith("style")
     ) {
-      groups['### Improved'].push(cleanLine);
+      groups["### Improved"].push(cleanLine);
     } else if (
-      lower.startsWith('chore') ||
-      lower.startsWith('ci') ||
-      lower.startsWith('build') ||
-      lower.startsWith('docs') ||
-      lower.startsWith('test')
+      lower.startsWith("chore") ||
+      lower.startsWith("ci") ||
+      lower.startsWith("build") ||
+      lower.startsWith("docs") ||
+      lower.startsWith("test")
     ) {
-      groups['### Maintenance'].push(cleanLine);
+      groups["### Maintenance"].push(cleanLine);
     } else {
-      groups['### Other Changes'].push(cleanLine);
+      groups["### Other Changes"].push(cleanLine);
     }
   }
 
   return Object.entries(groups)
     .filter(([, items]) => items.length > 0)
     .map(
-      ([title, items]) => `${title}\n${items.map((i) => `- ${i}`).join('\n')}`,
+      ([title, items]) => `${title}\n${items.map((i) => `- ${i}`).join("\n")}`,
     )
-    .join('\n\n');
+    .join("\n\n");
 }
 
+/** Returns scoped git subjects since the previous tag, or an empty string if unavailable. */
 export function getGitLogs(prevTag: string, filterPath: string): string {
   try {
-    execFileSync('git', ['rev-parse', prevTag], { stdio: 'ignore' });
+    execFileSync("git", ["rev-parse", prevTag], { stdio: "ignore" });
     return execFileSync(
-      'git',
-      ['log', `${prevTag}..HEAD`, '--pretty=format:- %s', '--', filterPath],
-      { encoding: 'utf-8' },
+      "git",
+      ["log", `${prevTag}..HEAD`, "--pretty=format:- %s", "--", filterPath],
+      { encoding: "utf-8" },
     ).trim();
   } catch {
-    return '';
+    return "";
   }
 }
 
+/** Inserts a dated release entry near the top of CHANGELOG.md. */
 export async function updateChangelog(
   changelogPath: string,
   tagName: string,
   category: string,
   notes: string,
 ): Promise<void> {
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split("T")[0];
   let date = today;
   try {
     // Ensure the changelog date is not later than the latest commit date.
     const latestCommitDate = execFileSync(
-      'git',
-      ['log', '-1', '--format=%cs'],
+      "git",
+      ["log", "-1", "--format=%cs"],
       {
-        encoding: 'utf-8',
-        stdio: ['ignore', 'pipe', 'ignore'],
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "ignore"],
       },
     )
       .trim()
-      .split('T')[0];
+      .split("T")[0];
     // Both dates are in ISO format (YYYY-MM-DD), so string comparison is safe.
     if (latestCommitDate && latestCommitDate < date) {
       date = latestCommitDate;
@@ -93,8 +96,8 @@ export async function updateChangelog(
   const changelogEntry = `## [${tagName}] - ${date}\n\n**Category**: ${category}\n\n${notes.trim()}\n\n`;
 
   try {
-    const currentChangelog = await fs.readFile(changelogPath, 'utf-8');
-    const splitIndex = currentChangelog.indexOf('## [');
+    const currentChangelog = await fs.readFile(changelogPath, "utf-8");
+    const splitIndex = currentChangelog.indexOf("## [");
 
     if (splitIndex !== -1) {
       const newContent =
@@ -105,7 +108,7 @@ export async function updateChangelog(
       console.log(pc.green(`✅ Updated CHANGELOG.md`));
     } else {
       // If no entries yet, append after header
-      const headerEnd = currentChangelog.indexOf('---\n\n');
+      const headerEnd = currentChangelog.indexOf("---\n\n");
       const insertAt =
         headerEnd !== -1 ? headerEnd + 5 : currentChangelog.length;
       const newContent =
@@ -121,12 +124,13 @@ export async function updateChangelog(
   }
 }
 
+/** Keeps the packaged CLI version in sync across publish surfaces. */
 export async function updateCLIVersion(
   rootDir: string,
   version: string,
 ): Promise<void> {
-  const pkgPath = path.join(rootDir, 'cli/package.json');
-  const indexPath = path.join(rootDir, 'cli/src/index.ts');
+  const pkgPath = path.join(rootDir, "cli/package.json");
+  const indexPath = path.join(rootDir, "cli/src/index.ts");
 
   // 1. Update package.json
   if (fs.existsSync(pkgPath)) {
@@ -138,7 +142,7 @@ export async function updateCLIVersion(
 
   // 2. Update cli/src/index.ts version
   if (fs.existsSync(indexPath)) {
-    const content = await fs.readFile(indexPath, 'utf-8');
+    const content = await fs.readFile(indexPath, "utf-8");
     const updatedContent = content.replace(
       /\.version\(['"][0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?['"]\)/,
       `.version('${version}')`,
@@ -148,12 +152,13 @@ export async function updateCLIVersion(
   }
 }
 
+/** Updates one category version and last-updated date in skills metadata. */
 export async function updateSkillVersion(
   rootDir: string,
   category: string,
   version: string,
 ): Promise<void> {
-  const metadataPath = path.join(rootDir, 'skills/metadata.json');
+  const metadataPath = path.join(rootDir, "skills/metadata.json");
 
   if (fs.existsSync(metadataPath)) {
     const metadata = await fs.readJson(metadataPath);
@@ -161,7 +166,7 @@ export async function updateSkillVersion(
       metadata.categories[category].version = version;
       metadata.categories[category].last_updated = new Date()
         .toISOString()
-        .split('T')[0];
+        .split("T")[0];
       await fs.writeJson(metadataPath, metadata, { spaces: 2 });
       console.log(
         pc.green(`✅ Updated skills/metadata.json (${category}) to ${version}`),
@@ -172,4 +177,12 @@ export async function updateSkillVersion(
       );
     }
   }
+}
+
+/** Builds the public git tag from category metadata. */
+export function buildTagName(
+  tagPrefix: string | undefined,
+  version: string,
+): string {
+  return `${tagPrefix || ""}${version}`;
 }

@@ -62,6 +62,17 @@ describe('DetectionService', () => {
       expect(results.nestjs).toBe(true);
     });
 
+    it('should detect Python if pyproject.toml exists', async () => {
+      vi.mocked(fs.pathExists).mockImplementation((p: string) => {
+        return Promise.resolve(p.endsWith('pyproject.toml'));
+      });
+      vi.mocked(fs.readJson).mockResolvedValue({});
+
+      const results = await detectionService.detectFrameworks();
+      expect(results.python).toBe(true);
+      expect(results.nestjs).toBe(false);
+    });
+
     it('should handle missing directory reads gracefully in detectFrameworks', async () => {
       vi.mocked(fs.readdir).mockRejectedValue(new Error('Permission denied'));
       vi.mocked(fs.pathExists).mockResolvedValue(false as never);
@@ -331,6 +342,18 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
       };
       const langs = await detectionService.detectLanguages(framework);
       expect(langs).toEqual(['go']);
+    });
+
+    it('should return python as the default language for Python projects', async () => {
+      const framework = {
+        id: 'python' as any,
+        name: 'Python',
+        languages: ['python'],
+        detectionFiles: ['pyproject.toml'],
+      };
+
+      const langs = await detectionService.detectLanguages(framework);
+      expect(langs).toEqual(['python']);
     });
 
     it('should detect Kotlin for Spring Boot if src/main/kotlin exists', async () => {

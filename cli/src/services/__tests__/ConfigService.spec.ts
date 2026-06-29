@@ -474,6 +474,35 @@ agents:
       expect(config.skills.database?.ref).toBe('v1.0.0');
     });
 
+    it('should auto-include database and common backend excludes for Python projects', () => {
+      const metadata: RegistryMetadata = {
+        global: { author: 'test', repository: 'test' },
+        categories: {
+          python: { version: '1.0.0', tag_prefix: 'python-v' },
+          database: { version: '1.0.0', tag_prefix: 'database-v' },
+          common: { version: '2.0.0', tag_prefix: 'common-v' },
+        },
+      };
+
+      const config = configService.buildInitialConfig(
+        'python',
+        [Agent.Cursor],
+        'https://registry.com',
+        metadata,
+        ['python'],
+      );
+
+      expect(config.skills.python?.ref).toBe('python-v1.0.0');
+      expect(config.skills.database?.ref).toBe('database-v1.0.0');
+      expect(config.skills.common?.exclude).toEqual(
+        expect.arrayContaining([
+          'common-accessibility',
+          'common-mobile-animation',
+          'common-mobile-ux-core',
+        ]),
+      );
+    });
+
     it('should include workflows in initial config if provided', () => {
       const config = configService.buildInitialConfig(
         'flutter',

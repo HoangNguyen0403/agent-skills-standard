@@ -1,0 +1,28 @@
+{
+  "skill_name": "python-language",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Should I use a dataclass, TypedDict, or raw dict for a Python result contract?",
+      "expected_output": "Prefer dataclass or TypedDict over raw dict for explicit contracts and type checking.",
+      "assertions": [
+        { "type": "contains", "value": "dataclass" },
+        { "type": "contains", "value": "TypedDict" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What's the modern Python replacement for os.path joins and string paths?",
+      "expected_output": "Use pathlib.Path for joins and path operations.",
+      "assertions": [
+        { "type": "contains", "value": "pathlib" },
+        { "type": "contains", "value": "Path" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Write a pytest fixture for database rollback",
+    "Tune PostgreSQL pooling in Python",
+    "Harden Python subprocess calls against shell injection"
+  ]
+}

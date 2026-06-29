@@ -1,14 +1,15 @@
-import { execFileSync } from 'child_process';
-import fs from 'fs-extra';
-import inquirer from 'inquirer';
-import path from 'path';
-import pc from 'picocolors';
+import { execFileSync } from "child_process";
+import fs from "fs-extra";
+import inquirer from "inquirer";
+import path from "path";
+import pc from "picocolors";
+import { buildTagName } from "./release-utils";
 
-const ROOT_DIR = path.resolve(__dirname, '..');
-const METADATA_PATH = path.join(ROOT_DIR, 'skills/metadata.json');
+const ROOT_DIR = path.resolve(__dirname, "..");
+const METADATA_PATH = path.join(ROOT_DIR, "skills/metadata.json");
 
 async function main() {
-  console.log(pc.bold(pc.blue('\n🚀 Agent Skills - Bulk Release Manager\n')));
+  console.log(pc.bold(pc.blue("\n🚀 Agent Skills - Bulk Release Manager\n")));
 
   if (!fs.existsSync(METADATA_PATH)) {
     console.error(pc.red(`❌ Metadata file not found at ${METADATA_PATH}`));
@@ -22,21 +23,22 @@ async function main() {
 
   const { confirm } = await inquirer.prompt([
     {
-      type: 'confirm',
-      name: 'confirm',
+      type: "confirm",
+      name: "confirm",
       message: `Do you want to release all ${categories.length} categories with their current version in metadata.json?`,
       default: false,
     },
   ]);
 
   if (!confirm) {
-    console.log(pc.gray('Release cancelled.'));
+    console.log(pc.gray("Release cancelled."));
     return;
   }
 
   for (const category of categories) {
-    const version = metadata.categories[category].version;
-    const tag = `${category}-v${version}`;
+    const categoryMetadata = metadata.categories[category];
+    const version = categoryMetadata.version;
+    const tag = buildTagName(categoryMetadata.tag_prefix, version);
 
     console.log(
       pc.cyan(`\n📦 Processing ${pc.bold(category)} (v${version})...`),
@@ -44,8 +46,8 @@ async function main() {
 
     try {
       // 1. Check if tag already exists
-      const tagExists = execFileSync('git', ['tag', '-l', tag], {
-        encoding: 'utf8',
+      const tagExists = execFileSync("git", ["tag", "-l", tag], {
+        encoding: "utf8",
       }).trim();
 
       if (tagExists) {
@@ -55,16 +57,16 @@ async function main() {
 
       // 2. Create tag
       console.log(pc.gray(`Creating tag: ${tag}`));
-      execFileSync('git', [
-        'tag',
+      execFileSync("git", [
+        "tag",
         tag,
-        '-m',
+        "-m",
         `release: ${category} v${version}`,
       ]);
 
       // 3. Push tag
       console.log(pc.gray(`Pushing tag: ${tag}`));
-      execFileSync('git', ['push', 'origin', tag]);
+      execFileSync("git", ["push", "origin", tag]);
       console.log(pc.green(`✅ Successfully released ${category} v${version}`));
     } catch (error) {
       console.error(
@@ -74,7 +76,7 @@ async function main() {
     }
   }
 
-  console.log(pc.bold(pc.green('\n✨ Bulk release completed!\n')));
+  console.log(pc.bold(pc.green("\n✨ Bulk release completed!\n")));
 }
 
 main().catch((err) => {

@@ -1,0 +1,28 @@
+{
+  "skill_name": "python-best-practices",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "This Python function validates input, queries Postgres, formats Markdown, and sends Telegram messages. How should I refactor it?",
+      "expected_output": "Split transformation, persistence, and transport concerns into separate helpers with explicit boundaries.",
+      "assertions": [
+        { "type": "contains", "value": "helper" },
+        { "type": "contains", "value": "boundary" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What Python code smells should I remove before extending a workflow service?",
+      "expected_output": "Call out god functions, globals, boolean soup, and mixed side effects.",
+      "assertions": [
+        { "type": "contains", "value": "global" },
+        { "type": "contains", "value": "function" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Set up ruff and pyright for a Python repo",
+    "Write pytest-asyncio tests for an async endpoint",
+    "Add SQL transaction handling in a Python repository"
+  ]
+}

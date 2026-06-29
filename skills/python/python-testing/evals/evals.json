@@ -1,0 +1,28 @@
+{
+  "skill_name": "python-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I test an async Python workflow function that calls RPC and Postgres helpers?",
+      "expected_output": "Use pytest async tests and patch RPC or DB seams with fakes or monkeypatch.",
+      "assertions": [
+        { "type": "contains", "value": "pytest" },
+        { "type": "contains", "value": "monkeypatch" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What should a regression test assert for a Python workflow route parser?",
+      "expected_output": "Assert structured route fields and malformed input behavior, not just truthy output.",
+      "assertions": [
+        { "type": "contains", "value": "route" },
+        { "type": "contains", "value": "assert" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Refactor Python service boundaries for clean architecture",
+    "Configure pip-audit and basedpyright in CI",
+    "Fix SQL parameterization in a Python repository"
+  ]
+}

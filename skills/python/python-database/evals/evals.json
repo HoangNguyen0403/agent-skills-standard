@@ -1,0 +1,28 @@
+{
+  "skill_name": "python-database",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Is it okay to build a Python Postgres query with an f-string if the values are internal?",
+      "expected_output": "No. Use parameterized SQL even for internal values that can drift or be malformed.",
+      "assertions": [
+        { "type": "contains", "value": "parameter" },
+        { "type": "contains", "value": "SQL" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Where should I own a Python transaction that spans multiple repository writes?",
+      "expected_output": "Own the transaction at the service or use-case boundary for one business action.",
+      "assertions": [
+        { "type": "contains", "value": "transaction" },
+        { "type": "contains", "value": "service" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Write pytest fixtures for async Python code",
+    "Configure Python ruff and basedpyright",
+    "Refactor Python runtime modules into cleaner architecture"
+  ]
+}
