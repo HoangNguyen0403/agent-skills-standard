@@ -24,4 +24,5 @@ export enum Framework {
   Android = 'android',
   iOS = 'ios',
   Laravel = 'laravel',
+  Python = 'python',
 }

@@ -7,9 +7,9 @@
 
 **The portable SDLC standards layer for AI coding agents. Sync once, then work in your own runtime.**
 
-**Current release:** `v2.5.1` — trust-gated review workflows, markdown-first security handoff, and expanded framework/database guidance for SDLC delivery.
+**Current release:** `v2.5.1` — trust-gated review workflows, markdown-first security handoff, expanded framework/database guidance, and a new Python backend skill pack for SDLC delivery.
 
-271 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
+280 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
 
 ```bash
 npx agent-skills-standard@latest init
@@ -229,7 +229,7 @@ For repository enforcement, keep the workflows and skills lean: the source of tr
 
 See also [Learning From agentic-ai](./docs/agentic-ai-learning.md) and the [Optional MCP Integration Guide](./docs/mcp-integration-guide.md).
 
-## 271 Skills Across 20+ Frameworks
+## 280 Skills Across 20+ Frameworks
 
 Every skill is audited for token efficiency (averaging ~500 tokens) and tested with automated evals.
 
@@ -245,6 +245,7 @@ Every skill is audited for token efficiency (averaging ~500 tokens) and tested w
 | **TypeScript**       | Type Safety, Security, Tooling                 | `v1.3.3` | 4      |
 | **JavaScript**       | ES2024+, Patterns, Tooling                     | `v1.3.4` | 3      |
 | **Go (Golang)**      | Clean Arch, Concurrency                        | `v1.3.5` | 11     |
+| **Python**           | Clean Arch, Async, Testing, Security           | `v1.0.0` | 9      |
 | **Spring Boot**      | Architecture, Security, JPA                    | `v1.3.3` | 10     |
 | **Android**          | Compose, Navigation 3, Edge-to-Edge, AGP 9     | `v1.4.1` | 26     |
 | **iOS**              | SwiftUI, Arch, Persistence                     | `v1.4.5` | 15     |
@@ -273,8 +274,8 @@ agents: [cursor, copilot, claude, gemini]
 skills:
   flutter:
     ref: flutter-v1.6.3
-    exclude: ['getx-navigation'] # Don't use GetX? Exclude it.
-    custom_overrides: ['bloc-state'] # Protect your local modifications.
+    exclude: ["getx-navigation"] # Don't use GetX? Exclude it.
+    custom_overrides: ["bloc-state"] # Protect your local modifications.
   react:
     ref: react-v1.3.3
   golang:
@@ -284,8 +285,8 @@ skills:
 
 # Local custom standalone skills
 custom_skills:
-  - path: './.skills/my-custom-rule.md'
-    triggers: ['*.ts', 'keyword']
+  - path: "./.skills/my-custom-rule.md"
+    triggers: ["*.ts", "keyword"]
 ```
 
 Skills are **package-aware**: if your Flutter project uses BLoC but not GetX, just exclude the GetX skills. The AI only sees what's relevant to your stack. The **`custom_skills`** feature allows you to index your own `.md` files directly into `AGENTS.md` and `_INDEX.md`, ensuring your project-specific rules are always visible to the AI.

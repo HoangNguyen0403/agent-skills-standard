@@ -1,0 +1,28 @@
+{
+  "skill_name": "python-security",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Is subprocess.run(f\"git show {user_input}\", shell=True) acceptable in Python operator code?",
+      "expected_output": "No. Use explicit arg lists with shell disabled and validate inputs.",
+      "assertions": [
+        { "type": "contains", "value": "shell=False" },
+        { "type": "contains", "value": "validate" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What should I check after changing Python requirements or security gates?",
+      "expected_output": "Run dependency and security verification such as pip-audit and gate coverage checks.",
+      "assertions": [
+        { "type": "contains", "value": "pip-audit" },
+        { "type": "contains", "value": "security" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Refactor a Python route parser into dataclasses",
+    "Write pytest monkeypatch tests for a Python service",
+    "Design Python repository boundaries and transactions"
+  ]
+}

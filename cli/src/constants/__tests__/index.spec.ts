@@ -3,9 +3,11 @@ import {
   BACKEND_FRAMEWORKS,
   COMMON_SKILL_EXCLUDES,
   FRONTEND_FRAMEWORKS,
+  getFrameworkDefinition,
   getFrameworkType,
   MOBILE_FRAMEWORKS,
 } from '../index';
+import { Framework } from '../enums';
 
 describe('getFrameworkType', () => {
   it('should return "backend" for all backend frameworks', () => {
@@ -40,6 +42,25 @@ describe('getFrameworkType', () => {
     );
     expect(COMMON_SKILL_EXCLUDES[getFrameworkType('flutter')!]).toEqual(
       COMMON_SKILL_EXCLUDES.mobile,
+    );
+  });
+
+  it('should classify python as a backend framework', () => {
+    expect(getFrameworkType('python')).toBe('backend');
+  });
+});
+
+describe('getFrameworkDefinition', () => {
+  it('should expose Python project markers and language', () => {
+    const definition = getFrameworkDefinition(Framework.Python);
+    expect(definition.languages).toEqual(['python']);
+    expect(definition.detectionFiles).toEqual(
+      expect.arrayContaining([
+        'pyproject.toml',
+        'requirements.txt',
+        'setup.py',
+        'uv.lock',
+      ]),
     );
   });
 });

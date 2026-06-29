@@ -390,6 +390,20 @@ Standards for specialists.
 - [**Specialist Test Gap Finder**](specialists/specialist-test-gap-finder/SKILL.md) (P1) - Finds missing, weak, or stale test coverage in a diff. Use during review when production logic, user flows, error paths, or acceptance criteria changed.
 - [**Specialist Zephyr Scanner**](specialists/specialist-zephyr-scanner/SKILL.md) (P1) - Finds Zephyr Scale test cases linked or relevant to Jira stories, ACs, modules, and release risks. Use for coverage analysis and traceability checks.
 - [**Specialist Confluence Searcher**](specialists/specialist-confluence-searcher/SKILL.md) (P2) - Searches Confluence and related tickets for product, architecture, rollout, and test-data context. Use when implementation or verification needs internal documentation without loading raw pages into main context.
+
+### Python
+
+Standards for python.
+
+- [**Architecture**](python/python-architecture/SKILL.md) (P0) - Structure Python backends with explicit dependency direction, ports/adapters, and runtime boundaries. Use when shaping project layout, clean architecture, service boundaries, dependency injection, report rendering boundaries, or transport separation in Python.
+- [**Language**](python/python-language/SKILL.md) (P0) - Core Python 3.11+ standards for typing, dataclasses, imports, pathlib, and stdlib-first code. Use when editing Python modules, stubs, `pyproject.toml`, or choosing idiomatic Python constructs.
+- [**Security**](python/python-security/SKILL.md) (P0) - Secure Python services against secret leakage, injection, unsafe subprocess calls, and dependency drift. Use when handling env vars, tokens, SQL, file paths, shell commands, auth flows, or Python security gates.
+- [**Testing**](python/python-testing/SKILL.md) (P0) - Test Python services with pytest, async coverage, monkeypatch, and boundary-focused fakes. Use when writing Python tests, fixtures, async tests, regression tests, or dependency-isolated verification.
+- [**Async Runtime**](python/python-async-runtime/SKILL.md) (P1) - Write correct async Python runtime code with explicit blocking-I/O boundaries, cancellation, and timeout handling. Use when editing `asyncio` workflows, background loops, async services, or mixed sync/async integrations.
+- [**Best Practices**](python/python-best-practices/SKILL.md) (P1) - Write maintainable Python with small functions, explicit boundaries, guard clauses, and readable state flow. Use when refactoring Python services, helpers, modules, or async logic for clarity.
+- [**Database**](python/python-database/SKILL.md) (P1) - Implement Python database access with parameterized SQL, transaction scope, connection helpers, and repository seams. Use when editing Postgres queries, repositories, transactions, pooling, or persistence boundaries in Python.
+- [**Error Handling**](python/python-error-handling/SKILL.md) (P1) - Design Python error paths with narrow exceptions, rollback, contextual logs, and preserved blocker truth. Use when handling retries, verifier outcomes, parser failures, or exception flow in Python services.
+- [**Tooling**](python/python-tooling/SKILL.md) (P1) - Configure Python tooling, dependency surfaces, static analysis, and verification gates. Use when editing `pyproject.toml`, `requirements.txt`, `pytest.ini`, `ruff`, `pyright`, CI, or Python release checks.
 <!-- SKILLS_INDEX_END -->
 
 ---

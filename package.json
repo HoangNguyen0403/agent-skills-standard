@@ -32,6 +32,7 @@
     "test": "pnpm --filter ./cli test",
     "test:cov": "pnpm --filter ./cli test:cov",
     "release-all-skills": "tsx scripts/release-all-skills.ts",
+    "verify:release-tags": "tsx scripts/verify-release-tags.ts",
     "release-cli": "tsx scripts/release-cli.ts",
     "server:release": "tsx scripts/release-server.ts",
     "mcp:release": "tsx scripts/release-mcp.ts",

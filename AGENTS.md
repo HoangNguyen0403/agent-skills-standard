@@ -63,6 +63,7 @@ Each `_INDEX.md` has two sections - follow both:
 | `*.kt` | `<SKILLS>/android/_INDEX.md`, `<SKILLS>/kotlin/_INDEX.md` |
 | `*.kts` | `<SKILLS>/kotlin/_INDEX.md` |
 | `*.swift` | `<SKILLS>/ios/_INDEX.md`, `<SKILLS>/swift/_INDEX.md` |
+| `*.py`, `*.pyi` | `<SKILLS>/python/_INDEX.md` |
 | `*.php` | `<SKILLS>/laravel/_INDEX.md`, `<SKILLS>/php/_INDEX.md` |
 | `*.sql`, `*.entity.ts`, `*.prisma` | `<SKILLS>/database/_INDEX.md` |
 | `*.component.ts`, `*.component.html` | `<SKILLS>/angular/_INDEX.md` |

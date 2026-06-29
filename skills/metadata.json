@@ -14,6 +14,7 @@
     "**/*.kt",
     "**/*.swift",
     "**/*.py",
+    "**/*.pyi",
     "**/*.php",
     "**/*.mjs",
     "**/*.cjs"
@@ -27,6 +28,7 @@
     "java": "java-language",
     "swift": "swift-language",
     "php": "php-language",
+    "python": "python-language",
     "golang": "golang-language",
     "react": "react-component-patterns",
     "react-native": "react-native-architecture",
@@ -84,6 +86,12 @@
     "swift": [
       "swift",
       "ios"
+    ],
+    "py": [
+      "python"
+    ],
+    "pyi": [
+      "python"
     ],
     "php": [
       "php",
@@ -499,6 +507,17 @@
         "total_tokens": 3706,
         "avg_tokens_per_skill": 529,
         "largest_skill": "php-security (585 tokens)"
+      }
+    },
+    "python": {
+      "version": "1.0.0",
+      "last_updated": "2026-06-29",
+      "tag_prefix": "python-v",
+      "token_metrics": {
+        "total_skills": 9,
+        "total_tokens": 3543,
+        "avg_tokens_per_skill": 394,
+        "largest_skill": "python-language (450 tokens)"
       }
     },
     "laravel": {

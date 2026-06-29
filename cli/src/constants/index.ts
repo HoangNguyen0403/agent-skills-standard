@@ -8,6 +8,7 @@ export const BACKEND_FRAMEWORKS: Framework[] = [
   Framework.Golang,
   Framework.SpringBoot,
   Framework.Laravel,
+  Framework.Python,
 ];
 
 export const FRONTEND_FRAMEWORKS: Framework[] = [
@@ -427,6 +428,21 @@ export const getFrameworkDefinition = (id: Framework): FrameworkDefinition => {
           php: ['.php'],
           javascript: ['resources/js', 'vite.config.js'],
         },
+      };
+    case Framework.Python:
+      return {
+        id,
+        name: 'Python',
+        languages: ['python'],
+        detectionFiles: [
+          'pyproject.toml',
+          'requirements.txt',
+          'setup.py',
+          'setup.cfg',
+          'Pipfile',
+          'poetry.lock',
+          'uv.lock',
+        ],
       };
   }
 };

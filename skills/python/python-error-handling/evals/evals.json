@@ -1,0 +1,28 @@
+{
+  "skill_name": "python-error-handling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "A Python verifier catches Exception, logs it, sleeps, and keeps polling. What is the risk?",
+      "expected_output": "It can erase blocker truth and hide real runtime failure; catch narrower exceptions and preserve status.",
+      "assertions": [
+        { "type": "contains", "value": "blocker" },
+        { "type": "contains", "value": "exception" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How should I handle a Python DB update failure after partial state mutation?",
+      "expected_output": "Rollback or restore mutable state, then re-raise or return structured failure.",
+      "assertions": [
+        { "type": "contains", "value": "rollback" },
+        { "type": "contains", "value": "failure" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Tune Python database pooling and transaction scope",
+    "Set up pyright and ruff for Python",
+    "Write async pytest tests for a Python service"
+  ]
+}
