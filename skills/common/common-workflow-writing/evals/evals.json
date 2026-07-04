@@ -27,6 +27,15 @@
         { "type": "contains", "value": "references/" },
         { "type": "contains", "value": "extract" }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Write a portable SDLC workflow that reports feature status when verification is blocked by runtime access.",
+      "expected_output": "Use an adapter-neutral Outcome Report with feature_status separate from missing_evidence and decision_needed. Red flags: runtime-specific tool names, chat channel IDs, containers, sandbox paths, and abstract artifact paths without concrete repo location.",
+      "assertions": [
+        { "type": "contains", "value": "feature_status" },
+        { "type": "contains", "value": "runtime-specific" }
+      ]
     }
   ],
   "should_not_trigger": [

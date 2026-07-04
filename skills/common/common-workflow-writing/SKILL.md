@@ -48,6 +48,7 @@ metadata:
 - **No repeated examples**: Same concept shown twice in different formats → Keep one
 - **No "How to X" sections**: step instruction
 - **No caution blocks for obvious rules**: Reserve `> ⚠️` for genuinely non-obvious risks
+- **Portable output contracts**: Use `feature_status`, missing evidence, decision needed, and adapter-neutral language; avoid runtime-specific tool names, chat channels, containers, and mount paths in canonical workflows.
 
 ## Quick Self-Check Before Saving
 

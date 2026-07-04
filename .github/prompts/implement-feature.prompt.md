@@ -15,12 +15,14 @@ Goal: Build an approved feature through TDD slices and route completed work to v
    - SRS/FRS technical design if present
    - Implementation plan
    - Matched framework and common skills
+   - If stable `REQ-*`, `AC-*`, trace, or required SRS/test lanes are missing, stop and route to `plan-feature`, `design-solution`, or `implementation-readiness`.
 2. Prepare workspace:
    - Confirm clean or intentionally dirty git state.
    - Create branch or worktree only when project workflow expects it.
    - Initialize or update `docs/srs/srs-task-list.md` with small vertical slices.
 3. Implement slices:
    - For each slice, write or update the failing test first.
+   - Consume the named `REQ-*` and `AC-*` for each slice; do not invent scope from code inspection.
    - Do not keep pre-test implementation code as "reference".
    - Implement the smallest passing code.
    - Refactor without expanding scope.
@@ -55,6 +57,11 @@ Goal: Build an approved feature through TDD slices and route completed work to v
 ## Evidence
 
 ## Known Risks
+
+## Outcome Report
+feature_status: partially_implemented | implemented | blocked
+requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
+completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: verify-work | plan-feature | design-solution
 
 ## Runtime Contract
 

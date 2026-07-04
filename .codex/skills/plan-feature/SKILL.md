@@ -55,14 +55,14 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
    - Identify whether `design-solution` is required before coding.
 5. Route:
    - Continue when assumptions are non-critical; return BLOCKED for missing owner, untestable AC, approval, or release constraint.
-   - Architecture unclear -> `design-solution`; approved build-ready plan -> `implement-feature`.
+   - Architecture unclear -> `design-solution`; approved build-ready plan with AC IDs and trace -> `implementation-readiness`.
 
 ## Runtime Contract
 - Use after BRD-lite or when clear feature intent exists but PRD does not.
 - Required inputs: BRD-lite or equivalent intent, plus enough context to name users, goals, and constraints.
 - Return BLOCKED only for missing owner, untestable AC, approval, or release constraint.
 ## Handoff Payload
-- `slug`, PRD path, requirement IDs, AC IDs, decisions, RACI, rollout notes, task slices, verification plan, next workflow.
+- `slug`, PRD path, `REQ-*`, `AC-*`, decisions, RACI, rollout notes, task slices, verification plan, outcome report, next workflow.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 ## Output Template
@@ -86,9 +86,12 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
 ## Implementation Plan
 ## Task Slices
 ## Verification Plan
-
+## Outcome Report
+feature_status: requirements_ready | blocked
+requirement_trace: BRD-OBJ-* -> REQ-* -> AC-*
+completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: design-solution | implementation-readiness
 ## Next Workflow
-design-solution | implement-feature
+design-solution | implementation-readiness
 ## Cost Report
 Call `get_session_cost(workflow="plan-feature")` before final handoff.
 ```

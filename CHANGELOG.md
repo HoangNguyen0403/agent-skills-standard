@@ -5,6 +5,24 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [common-v2.2.2] - 2026-07-04
+
+**Category**: Portable SDLC outcome reporting and requirements-first delivery gates
+
+### Changed
+
+- **Portable Outcome Contract**: Added an adapter-neutral `Outcome Report` shape to SDLC workflows so agents can report feature status, requirement trace, completed evidence, missing evidence, needed decisions, and recommended next workflow without runtime-specific IDs.
+- **Requirements-First SDLC Gates**: Strengthened BA/PM/SRS responsibilities so vague feature requests draft BRD-lite first, PM-owned PRDs define `REQ-*`/`AC-*`/RACI before implementation, and technical design maps every behavior to PRD ACs and test lanes.
+- **Implementation Guardrail**: Updated implementation guidance to consume requirement IDs and AC IDs, and route back to planning/design/readiness when traceability or proof lanes are missing.
+
+### Added
+
+- **Behavior Pressure Coverage**: Added eval scenarios for vague implementation requests, missing PRD/ACs, blocked verification proof, and offshore BA/PM/RACI delivery planning.
+
+### Versions
+
+- **Common Skills**: `2.2.1` → `2.2.2`
+
 ## [python-v1.0.0] - 2026-06-29
 
 **Category**: Python skill pack launch and release-tag enforcement

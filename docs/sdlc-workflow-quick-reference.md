@@ -43,6 +43,19 @@ Do not run daily SDLC work through `ags`. Use `ags` to initialize, sync, validat
 
 Core SDLC workflows emit `Runtime Contract`, `Handoff Payload`, `Blocking Questions`, and `Next Workflow` sections. Interactive agents use them to ask back; channel agents use them to continue, pause as BLOCKED, or delegate named packets without guessing.
 
+They also emit an adapter-neutral `Outcome Report`:
+
+```yaml
+feature_status: not_started | requirements_ready | design_ready | partially_implemented | implemented | blocked
+requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
+completed_evidence: []
+missing_evidence: []
+decision_needed: []
+recommended_next_workflow: brainstorm-feature | plan-feature | design-solution | implementation-readiness | implement-feature | verify-work
+```
+
+Generic task boards, MCP servers, Jira, GitHub, GitLab, Azure DevOps, Zephyr, and project-specific runtimes may map this payload to their own primitives. Canonical workflows must not require runtime-specific IDs, chat channels, containers, or filesystem mount paths.
+
 Each core SDLC workflow must call `get_session_cost(workflow="...")` before final handoff. The MCP reports observed tool/skill/workflow activity directly; exact token cost, cache discounts, reasoning tokens, and provider extras require host runtime usage data.
 
 Security review workflows should emit `artifacts/security-review.md` when security findings or evidence are in scope.
@@ -68,6 +81,7 @@ Use `docs/requirements-standards-baseline.md` as the shared source baseline for 
 - BRD: SMART objective, stakeholders, AS-IS/TO-BE, cost-benefit, glossary, validation owner.
 - PRD: specific personas, use cases, `REQ-*`, `AC-*`, Gherkin where needed, analytics, risks, rollout, changelog.
 - SRS/FRS: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence`, requirement cards, NFR measurement, failure modes.
+- `implement-feature`: consume `REQ-*` and `AC-*`; route back when requirements, owners, or proof lanes are missing.
 
 ## Guardrail Rule
 

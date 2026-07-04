@@ -41,6 +41,24 @@
           "value": "security"
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "The code seems already done, but we do not have PRD or acceptance criteria.",
+      "expected_output": "Report partial or unverified status, separate implementation evidence from missing requirements evidence, route to PM-owned plan-feature, and require REQ/AC IDs before implementation closure.",
+      "assertions": [
+        { "type": "contains", "value": "partial" },
+        { "type": "contains", "value": "AC" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "We are an offshore delivery team; plan this feature before dev starts.",
+      "expected_output": "Include PM-owned PRD, BA/PM/RACI, rollout/ops, validation owner, acceptance criteria IDs, and implementation-readiness before dev tasks.",
+      "assertions": [
+        { "type": "contains", "value": "RACI" },
+        { "type": "contains", "value": "implementation-readiness" }
+      ]
     }
   ],
   "should_not_trigger": [

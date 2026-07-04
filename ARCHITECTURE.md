@@ -85,6 +85,7 @@ Requirement layering is explicit in the SDLC workflow names and outputs:
 - `plan-feature` = PRD ("What")
 - `design-solution` = SRS/FRS ("How")
 - `implementation-readiness` and later phases enforce living traceability updates across BRD-lite -> PRD -> SRS/FRS -> verification evidence
+- Core SDLC outputs include an adapter-neutral Outcome Report (`feature_status`, `requirement_trace`, completed evidence, missing evidence, decision needed, recommended next workflow) so runtimes can report whether work is not started, requirements-ready, design-ready, partial, implemented, or blocked without embedding project-specific orchestration concepts.
 
 ## 4. Hook-Based Transparency
 

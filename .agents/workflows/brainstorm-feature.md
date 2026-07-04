@@ -38,6 +38,7 @@ Goal: Convert vague intent into a compact BA-owned BRD-lite brief before PM PRD 
 ## Handoff Payload
 
 - `slug`, executive summary, business objective, SMART metric, recommended approach, alternatives, constraints, non-goals, open questions, PM handoff checklist.
+- Outcome report with `feature_status=requirements_ready | blocked`, requirement trace seed, completed/missing evidence, decision needed, and recommended next workflow.
 
 ## Blocking Questions
 
@@ -59,14 +60,15 @@ Goal: Convert vague intent into a compact BA-owned BRD-lite brief before PM PRD 
 ## Offshore Delivery Context
 ## Recommended Approach
 ## Alternatives Considered
-
 ## Stakeholders
-
 ## Constraints
 ## Non-Goals
 ## Glossary
 ## PM Handoff Checklist
-
+## Outcome Report
+feature_status: requirements_ready | blocked
+requirement_trace: BRD-OBJ-* -> candidate REQ-*
+completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: plan-feature
 ## Open Questions
 ## Next Workflow
 plan-feature
