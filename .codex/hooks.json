@@ -1,11 +1,16 @@
 {
-  "mcpServers": {
-    "agent-skills-standard": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "agent-skills-standard-mcp"
-      ]
-    }
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \".codex/hooks/preedit-skill-loader.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }
