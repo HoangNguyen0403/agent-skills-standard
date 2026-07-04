@@ -50,7 +50,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 5. Record ADR:
    - Write one concise ADR when architecture or public contract changes.
    - Continue when patterns are inferable; return BLOCKED for cross-team contracts, migrations, permissions, or NFR uncertainty.
-   - Route next step to `implement-feature` or `dev-fix`.
+   - Route next step to `implementation-readiness` or `dev-fix`.
 
 ## Runtime Contract
 
@@ -60,7 +60,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 
 ## Handoff Payload
 
-- `slug`, SRS path, requirement trace, architecture decisions, contracts, data/migration plan, NFR thresholds, verification matrix, ADR, next workflow.
+- `slug`, SRS path, requirement trace, architecture decisions, contracts, data/migration plan, NFR thresholds, verification matrix, ADR, outcome report, next workflow.
 
 ## Blocking Questions
 
@@ -84,8 +84,13 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 ## Verification Plan & Evidence Matrix
 ## ADR
 
+## Outcome Report
+feature_status: design_ready | blocked
+requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-*
+completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: implementation-readiness
+
 ## Next Workflow
-implement-feature | dev-fix
+implementation-readiness | dev-fix
 ## Cost Report
 Call `get_session_cost(workflow="design-solution")` before final handoff.
 ```

@@ -1,6 +1,6 @@
 # 📊 Agent Skill Benchmark Report
 
-> Generated: 2026-06-15T15:52:13.560Z
+> Generated: 2026-07-04T10:34:17.351Z
 > Token counting: `ceil(characters / 4)` — cl100k_base approximation.
 > Baselines: derived from **real, measured example prompts** (see Methodology).
 > Quality: structural rubric (0–10), no live LLM calls required.
@@ -18,22 +18,23 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 
 | Metric                            | Value                             |
 | --------------------------------- | --------------------------------- |
-| Total Skills Benchmarked          | **251**           |
-| Avg. Tokens WITH Skill (SKILL.md) | **551 tokens**    |
+| Total Skills Benchmarked          | **264**           |
+| Avg. Tokens WITH Skill (SKILL.md) | **543 tokens**    |
 | Baseline: Light prompt (no skill) | **1449 tokens** ↓ see Methodology |
 | Baseline: Heavy prompt (no skill) | **3656 tokens** ↓ see Methodology |
-| Avg. Token Savings vs Light       | **62%** (898 tokens/call) |
-| Avg. Token Savings vs Heavy       | **85%** (3105 tokens/call) |
+| Avg. Token Savings vs Light       | **63%** (906 tokens/call) |
+| Avg. Token Savings vs Heavy       | **85%** (3113 tokens/call) |
 | Avg. Quality Score                | **9.8/10** |
 | Guardrail Skills Covered          | **7** |
 | Avg. Behavior Quality             | **2.9/4** (guardrail skills only) |
-| Skills with Evals                 | **251 / 251** |
+| Skills with Evals                 | **264 / 264** |
 | Avg. Eval Alignment               | **99%** (eval assertions covered by SKILL.md) |
 
 ## 📜 History
 
 | Version | Date       | Skills | Avg Tokens | Savings (%) | Quality | Report |
 | ------- | ---------- | ------ | ---------- | ----------- | ------- | ------ |
+| v2.5.1 | 2026-07-04 | 264 | 543 | 85% | 9.8/10 | [Full Report](benchmarks/archive/v2.5.1.md) |
 | v2.4.7 | 2026-06-15 | 251 | 551 | 85% | 9.8/10 | [Full Report](benchmarks/archive/v2.4.7.md) |
 | v2.4.6 | 2026-06-10 | 251 | 548 | 85% | 9.8/10 | [Full Report](benchmarks/archive/v2.4.6.md) |
 | v2.4.1 | 2026-05-18 | 247 | 540 | 85% | 9.9/10 | [Full Report](benchmarks/archive/v2.4.1.md) |
@@ -63,23 +64,23 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 
 | Model             | Original Cost | Skill Cost | Net Savings    | % Saved |
 | ----------------- | ------------- | ---------- | -------------- | ------- |
-| Gemini 3 Flash    | $0.0018280    | $0.0002755 | **$0.0015525    ** | 85% |
-| GPT-5             | $0.0045700    | $0.0006887 | **$0.0038813    ** | 85% |
-| Gemini 3.1 Pro    | $0.0073120    | $0.0011020 | **$0.0062100    ** | 85% |
-| Claude Sonnet 4.5 | $0.0109680    | $0.0016530 | **$0.0093150    ** | 85% |
+| Gemini 3 Flash    | $0.0018280    | $0.0002715 | **$0.0015565    ** | 85% |
+| GPT-5             | $0.0045700    | $0.0006787 | **$0.0038913    ** | 85% |
+| Gemini 3.1 Pro    | $0.0073120    | $0.0010860 | **$0.0062260    ** | 85% |
+| Claude Sonnet 4.5 | $0.0109680    | $0.0016290 | **$0.0093390    ** | 85% |
 
 ### 📈 Monthly Savings at Scale — (Avg Skill vs Heavy Prompt)
 
 | Daily Calls | Original Cost/mo | Monthly Savings (1 skill) | Monthly Savings (50 skills) | Model |
 | ----------- | ---------------- | ------------------------- | --------------------------- | ----- |
-| 1,000       | $137.1000       /mo | $116.4375               /mo | $5821.8750                /mo | GPT-5 |
-| 1,000       | $329.0400       /mo | $279.4500               /mo | $13972.5000               /mo | Claude Sonnet 4.5 |
-| 1,000       | $219.3600       /mo | $186.3000               /mo | $9315.0000                /mo | Gemini 3.1 Pro |
+| 1,000       | $137.1000       /mo | $116.7375               /mo | $5836.8750                /mo | GPT-5 |
+| 1,000       | $329.0400       /mo | $280.1700               /mo | $14008.5000               /mo | Claude Sonnet 4.5 |
+| 1,000       | $219.3600       /mo | $186.7800               /mo | $9339.0000                /mo | Gemini 3.1 Pro |
 
 ## 📦 Per-Category Summary
 
 <details>
-<summary><h3>📦 android (26 skills | avg 422 tokens | quality 9.9/10 | eval alignment 100%)</h3></summary>
+<summary><h3>📦 android (26 skills | avg 423 tokens | quality 9.9/10 | eval alignment 100%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
@@ -93,7 +94,7 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 | `android-di           ` | 331    | █████████░ 91%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `android-edge-to-edge ` | 768    | ████████░░ 79%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `android-legacy-navigation` | 325    | █████████░ 91%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `android-legacy-security` | 462    | █████████░ 87%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `android-legacy-security` | 470    | █████████░ 87%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `android-legacy-state ` | 277    | █████████░ 92%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `android-navigation   ` | 278    | █████████░ 92%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `android-navigation-3 ` | 685    | ████████░░ 81%     | 10/10 | n/a      | 3 | ✅ 100% |
@@ -113,7 +114,7 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 </details>
 
 <details>
-<summary><h3>📦 angular (15 skills | avg 513 tokens | quality 10.0/10 | eval alignment 98%)</h3></summary>
+<summary><h3>📦 angular (15 skills | avg 513 tokens | quality 10.0/10 | eval alignment 96%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
@@ -121,22 +122,22 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 | `angular-components   ` | 622    | ████████░░ 83%     | 10/10 | n/a      | 9 | ✅ 100% |
 | `angular-dependency-injection` | 533    | █████████░ 85%     | 10/10 | n/a      | 6 | ✅ 100% |
 | `angular-directives-pipes` | 504    | █████████░ 86%     | 10/10 | n/a      | 6 | ✅ 91% |
-| `angular-forms        ` | 358    | █████████░ 90%     | 10/10 | n/a      | 6 | ✅ 100% |
+| `angular-forms        ` | 356    | █████████░ 90%     | 10/10 | n/a      | 6 | ✅ 100% |
 | `angular-http-client  ` | 576    | ████████░░ 84%     | 10/10 | n/a      | 6 | ✅ 92% |
 | `angular-performance  ` | 487    | █████████░ 87%     | 10/10 | n/a      | 6 | ✅ 100% |
 | `angular-routing      ` | 396    | █████████░ 89%     | 10/10 | n/a      | 6 | ✅ 100% |
 | `angular-rxjs-interop ` | 512    | █████████░ 86%     | 10/10 | n/a      | 6 | ✅ 95% |
-| `angular-security     ` | 508    | █████████░ 86%     | 10/10 | n/a      | 6 | ✅ 100% |
+| `angular-security     ` | 509    | █████████░ 86%     | 10/10 | n/a      | 6 | ✅ 86% |
 | `angular-ssr          ` | 491    | █████████░ 87%     | 10/10 | n/a      | 6 | ✅ 90% |
 | `angular-state-management` | 420    | █████████░ 89%     | 10/10 | n/a      | 6 | ✅ 100% |
 | `angular-style-guide  ` | 506    | █████████░ 86%     | 10/10 | n/a      | 6 | ✅ 100% |
 | `angular-testing      ` | 477    | █████████░ 87%     | 10/10 | n/a      | 6 | ✅ 100% |
-| `angular-tooling      ` | 676    | ████████░░ 82%     | 10/10 | n/a      | 6 | ✅ 100% |
+| `angular-tooling      ` | 675    | ████████░░ 82%     | 10/10 | n/a      | 6 | ✅ 95% |
 
 </details>
 
 <details>
-<summary><h3>📦 common (38 skills | avg 688 tokens | quality 9.6/10 | eval alignment 99%)</h3></summary>
+<summary><h3>📦 common (38 skills | avg 708 tokens | quality 9.6/10 | eval alignment 100%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
@@ -144,10 +145,11 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 | `common-architecture-audit` | 644    | ████████░░ 82%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-architecture-diagramming` | 472    | █████████░ 87%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-best-practices` | 416    | █████████░ 89%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `common-context-optimization` | 572    | ████████░░ 84%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `common-business-requirements` | 704    | ████████░░ 81%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `common-context-optimization` | 574    | ████████░░ 84%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-dast-tooling  ` | 977    | ███████░░░ 73%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-documentation ` | 360    | █████████░ 90%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `common-feedback-reporter` | 880    | ████████░░ 76%     | 10/10 | n/a      | 4 | ✅ 100% |
+| `common-feedback-reporter` | 921    | ████████░░ 75%     | 10/10 | n/a      | 4 | ✅ 100% |
 | `common-git-collaboration` | 517    | █████████░ 86%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-llm-security  ` | 698    | ████████░░ 81%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-mobile-animation` | 546    | █████████░ 85%     | 10/10 | n/a      | 3 | ✅ 100% |
@@ -155,29 +157,28 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 | `common-observability ` | 408    | █████████░ 89%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-owasp         ` | 1252   | ███████░░░ 66%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-performance-engineering` | 707    | ████████░░ 81%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `common-security-audit` | 937    | ███████░░░ 74%     | 10/10 | 0/4      | 3 | ✅ 100% |
-| `common-session-retrospective` | 680    | ████████░░ 81%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `common-skill-creator ` | 1620   | ██████░░░░ 56%     | 10/10 | 4/4      | 3 | ✅ 100% |
+| `common-security-audit` | 936    | ███████░░░ 74%     | 10/10 | 0/4      | 3 | ✅ 100% |
+| `common-session-retrospective` | 746    | ████████░░ 80%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `common-skill-creator ` | 1626   | ██████░░░░ 56%     | 10/10 | 4/4      | 3 | ✅ 100% |
+| `common-software-requirements` | 728    | ████████░░ 80%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-store-changelog` | 699    | ████████░░ 81%     | 10/10 | n/a      | 4 | ✅ 100% |
 | `common-system-design ` | 726    | ████████░░ 80%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-tdd           ` | 833    | ████████░░ 77%     | 10/10 | 4/4      | 3 | ✅ 100% |
 | `common-ui-design     ` | 794    | ████████░░ 78%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `common-workflow-writing` | 568    | ████████░░ 84%     | 10/10 | 0/4      | 3 | ✅ 100% |
+| `common-workflow-writing` | 623    | ████████░░ 83%     | 10/10 | 0/4      | 4 | ✅ 100% |
 | `common-accessibility ` | 997    | ███████░░░ 73%     | 9/10 | n/a      | 3 | ✅ 100% |
-| `common-business-requirements` | 612    | ████████░░ 83%     | 9/10 | n/a      | 2 | ✅ 100% |
 | `common-code-review   ` | 508    | █████████░ 86%     | 9/10 | 4/4      | 3 | ✅ 100% |
 | `common-debugging     ` | 417    | █████████░ 89%     | 9/10 | 4/4      | 3 | ✅ 100% |
 | `common-error-handling` | 422    | █████████░ 88%     | 9/10 | n/a      | 3 | ✅ 100% |
 | `common-exploit-verification` | 815    | ████████░░ 78%     | 9/10 | n/a      | 2 | ✅ 100% |
 | `common-learning-log  ` | 596    | ████████░░ 84%     | 9/10 | n/a      | 3 | ✅ 100% |
-| `common-mobile-visual-testing` | 548    | █████████░ 85%     | 9/10 | n/a      | 2 | ✅ 100% |
+| `common-mobile-visual-testing` | 547    | █████████░ 85%     | 9/10 | n/a      | 2 | ✅ 100% |
 | `common-pentest-methodology` | 1125   | ███████░░░ 69%     | 9/10 | n/a      | 2 | ✅ 100% |
-| `common-product-requirements` | 792    | ████████░░ 78%     | 9/10 | n/a      | 3 | ✅ 80% |
+| `common-product-requirements` | 923    | ████████░░ 75%     | 9/10 | n/a      | 5 | ✅ 100% |
 | `common-security-standards` | 732    | ████████░░ 80%     | 9/10 | n/a      | 3 | ✅ 100% |
-| `common-software-requirements` | 626    | ████████░░ 83%     | 9/10 | n/a      | 2 | ✅ 100% |
-| `common-telemetry     ` | 334    | █████████░ 91%     | 9/10 | n/a      | 2 | ✅ 100% |
+| `common-telemetry     ` | 613    | ████████░░ 83%     | 9/10 | n/a      | 2 | ✅ 100% |
 | `common-web-visual-testing` | 530    | █████████░ 86%     | 9/10 | n/a      | 2 | ✅ 100% |
-| `common-protocol-enforcement` | 543    | █████████░ 85%     | 8/10 | 4/4      | 3 | ✅ 88% |
+| `common-protocol-enforcement` | 543    | █████████░ 85%     | 8/10 | 4/4      | 3 | ✅ 100% |
 
 </details>
 
@@ -193,13 +194,17 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 </details>
 
 <details>
-<summary><h3>📦 database (3 skills | avg 573 tokens | quality 10.0/10 | eval alignment 100%)</h3></summary>
+<summary><h3>📦 database (7 skills | avg 388 tokens | quality 9.4/10 | eval alignment 100%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
-| `database-mongodb     ` | 637    | ████████░░ 83%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `database-postgresql  ` | 469    | █████████░ 87%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `database-redis       ` | 614    | ████████░░ 83%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `database-mongodb     ` | 449    | █████████░ 88%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `database-postgresql  ` | 425    | █████████░ 88%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `database-redis       ` | 475    | █████████░ 87%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `database-migrations  ` | 323    | █████████░ 91%     | 9/10 | n/a      | 1 | ✅ 100% |
+| `database-query-performance` | 328    | █████████░ 91%     | 9/10 | n/a      | 1 | ✅ 100% |
+| `database-schema-design` | 377    | █████████░ 90%     | 9/10 | n/a      | 1 | ✅ 100% |
+| `database-transactions` | 341    | █████████░ 91%     | 9/10 | n/a      | 1 | ✅ 100% |
 
 </details>
 
@@ -226,7 +231,7 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 | `flutter-bloc-state-management` | 687    | ████████░░ 81%     | 9/10 | n/a      | 3 | ✅ 100% |
 | `flutter-dependency-injection` | 514    | █████████░ 86%     | 9/10 | n/a      | 3 | ✅ 100% |
 | `flutter-localization ` | 505    | █████████░ 86%     | 9/10 | n/a      | 3 | ✅ 100% |
-| `flutter-navigation   ` | 406    | █████████░ 89%     | 9/10 | n/a      | 3 | ✅ 100% |
+| `flutter-navigation   ` | 410    | █████████░ 89%     | 9/10 | n/a      | 3 | ✅ 100% |
 | `flutter-notifications` | 409    | █████████░ 89%     | 9/10 | n/a      | 3 | ✅ 100% |
 | `flutter-security     ` | 458    | █████████░ 87%     | 9/10 | n/a      | 3 | ✅ 100% |
 | `flutter-testing      ` | 846    | ████████░░ 77%     | 8/10 | n/a      | 3 | ✅ 100% |
@@ -234,41 +239,41 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 </details>
 
 <details>
-<summary><h3>📦 golang (11 skills | avg 465 tokens | quality 9.7/10 | eval alignment 100%)</h3></summary>
+<summary><h3>📦 golang (11 skills | avg 467 tokens | quality 9.7/10 | eval alignment 100%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
 | `golang-api-server    ` | 462    | █████████░ 87%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `golang-architecture  ` | 522    | █████████░ 86%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `golang-architecture  ` | 518    | █████████░ 86%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `golang-concurrency   ` | 440    | █████████░ 88%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `golang-configuration ` | 447    | █████████░ 88%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `golang-database      ` | 466    | █████████░ 87%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `golang-database      ` | 495    | █████████░ 86%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `golang-language      ` | 515    | █████████░ 86%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `golang-security      ` | 528    | █████████░ 86%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `golang-tooling       ` | 533    | █████████░ 85%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `golang-error-handling` | 358    | █████████░ 90%     | 9/10 | n/a      | 3 | ✅ 100% |
 | `golang-logging       ` | 406    | █████████░ 89%     | 9/10 | n/a      | 3 | ✅ 100% |
-| `golang-testing       ` | 433    | █████████░ 88%     | 9/10 | n/a      | 3 | ✅ 100% |
+| `golang-testing       ` | 434    | █████████░ 88%     | 9/10 | n/a      | 3 | ✅ 100% |
 
 </details>
 
 <details>
-<summary><h3>📦 ios (15 skills | avg 386 tokens | quality 10.0/10 | eval alignment 100%)</h3></summary>
+<summary><h3>📦 ios (15 skills | avg 387 tokens | quality 10.0/10 | eval alignment 97%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
 | `ios-app-lifecycle    ` | 358    | █████████░ 90%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-architecture     ` | 665    | ████████░░ 82%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-dependency-injection` | 330    | █████████░ 91%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `ios-deployment       ` | 352    | █████████░ 90%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `ios-deployment       ` | 356    | █████████░ 90%     | 10/10 | n/a      | 3 | ✅ 88% |
 | `ios-design-system    ` | 259    | █████████░ 93%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-localization     ` | 387    | █████████░ 89%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-navigation       ` | 300    | █████████░ 92%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-networking       ` | 390    | █████████░ 89%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-notifications    ` | 309    | █████████░ 92%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-performance      ` | 412    | █████████░ 89%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `ios-persistence      ` | 364    | █████████░ 90%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `ios-security         ` | 441    | █████████░ 88%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `ios-persistence      ` | 369    | █████████░ 90%     | 10/10 | n/a      | 3 | ✅ 83% |
+| `ios-security         ` | 448    | █████████░ 88%     | 10/10 | n/a      | 3 | ✅ 89% |
 | `ios-state-management ` | 368    | █████████░ 90%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-swiftui          ` | 416    | █████████░ 89%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-ui-navigation    ` | 435    | █████████░ 88%     | 10/10 | n/a      | 3 | ✅ 100% |
@@ -330,12 +335,12 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 </details>
 
 <details>
-<summary><h3>📦 nestjs (21 skills | avg 627 tokens | quality 9.7/10 | eval alignment 100%)</h3></summary>
+<summary><h3>📦 nestjs (21 skills | avg 633 tokens | quality 9.7/10 | eval alignment 100%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
 | `nestjs-api-standards ` | 606    | ████████░░ 83%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `nestjs-architecture  ` | 559    | █████████░ 85%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `nestjs-architecture  ` | 685    | ████████░░ 81%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `nestjs-bullmq        ` | 927    | ████████░░ 75%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `nestjs-caching       ` | 603    | ████████░░ 84%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `nestjs-controllers-services` | 724    | ████████░░ 80%     | 10/10 | n/a      | 3 | ✅ 100% |
@@ -349,24 +354,24 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 | `nestjs-scheduling    ` | 563    | █████████░ 85%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `nestjs-search        ` | 516    | █████████░ 86%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `nestjs-security      ` | 778    | ████████░░ 79%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `nestjs-security-isolation` | 546    | █████████░ 85%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `nestjs-security-isolation` | 547    | █████████░ 85%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `nestjs-testing       ` | 572    | ████████░░ 84%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `nestjs-transport     ` | 446    | █████████░ 88%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `nestjs-documentation ` | 543    | █████████░ 85%     | 9/10 | n/a      | 3 | ✅ 100% |
 | `nestjs-error-handling` | 581    | ████████░░ 84%     | 8/10 | n/a      | 3 | ✅ 100% |
-| `nestjs-configuration ` | 596    | ████████░░ 84%     | 7/10 | n/a      | 3 | ✅ 100% |
+| `nestjs-configuration ` | 593    | ████████░░ 84%     | 7/10 | n/a      | 3 | ✅ 100% |
 
 </details>
 
 <details>
-<summary><h3>📦 nextjs (18 skills | avg 657 tokens | quality 9.8/10 | eval alignment 100%)</h3></summary>
+<summary><h3>📦 nextjs (18 skills | avg 641 tokens | quality 9.8/10 | eval alignment 100%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
 | `nextjs-app-router    ` | 993    | ███████░░░ 73%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `nextjs-architecture  ` | 1040   | ███████░░░ 72%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `nextjs-authentication` | 508    | █████████░ 86%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `nextjs-caching       ` | 802    | ████████░░ 78%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `nextjs-caching       ` | 702    | ████████░░ 81%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `nextjs-data-access-layer` | 538    | █████████░ 85%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `nextjs-data-fetching ` | 465    | █████████░ 87%     | 10/10 | n/a      | 6 | ✅ 100% |
 | `nextjs-i18n          ` | 610    | ████████░░ 83%     | 10/10 | n/a      | 3 | ✅ 100% |
@@ -378,7 +383,7 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 | `nextjs-tooling       ` | 410    | █████████░ 89%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `nextjs-upgrade       ` | 565    | █████████░ 85%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `nextjs-pages-router  ` | 664    | ████████░░ 82%     | 9/10 | n/a      | 6 | ✅ 100% |
-| `nextjs-server-actions` | 738    | ████████░░ 80%     | 9/10 | n/a      | 6 | ✅ 100% |
+| `nextjs-server-actions` | 560    | █████████░ 85%     | 9/10 | n/a      | 6 | ✅ 100% |
 | `nextjs-server-components` | 624    | ████████░░ 83%     | 9/10 | n/a      | 6 | ✅ 100% |
 | `nextjs-styling       ` | 642    | ████████░░ 82%     | 9/10 | n/a      | 3 | ✅ 100% |
 
@@ -400,6 +405,23 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 </details>
 
 <details>
+<summary><h3>📦 python (9 skills | avg 394 tokens | quality 9.0/10 | eval alignment 97%)</h3></summary>
+
+| Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
+| ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
+| `python-architecture  ` | 421    | █████████░ 88%     | 9/10 | n/a      | 2 | ✅ 100% |
+| `python-async-runtime ` | 374    | █████████░ 90%     | 9/10 | n/a      | 2 | ✅ 100% |
+| `python-best-practices` | 364    | █████████░ 90%     | 9/10 | n/a      | 2 | ✅ 75% |
+| `python-database      ` | 386    | █████████░ 89%     | 9/10 | n/a      | 2 | ✅ 100% |
+| `python-error-handling` | 338    | █████████░ 91%     | 9/10 | n/a      | 2 | ✅ 100% |
+| `python-language      ` | 450    | █████████░ 88%     | 9/10 | n/a      | 2 | ✅ 100% |
+| `python-security      ` | 370    | █████████░ 90%     | 9/10 | n/a      | 2 | ✅ 100% |
+| `python-testing       ` | 416    | █████████░ 89%     | 9/10 | n/a      | 2 | ✅ 100% |
+| `python-tooling       ` | 424    | █████████░ 88%     | 9/10 | n/a      | 2 | ✅ 100% |
+
+</details>
+
+<details>
 <summary><h3>📦 quality-engineering (7 skills | avg 748 tokens | quality 9.7/10 | eval alignment 99%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
@@ -408,20 +430,20 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 | `quality-engineering-jira-integration` | 570    | ████████░░ 84%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `quality-engineering-quality-assurance` | 509    | █████████░ 86%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `quality-engineering-zephyr-coverage-analysis` | 517    | █████████░ 86%     | 10/10 | n/a      | 4 | ✅ 100% |
-| `quality-engineering-zephyr-test-generation` | 1216   | ███████░░░ 67%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `quality-engineering-zephyr-test-generation` | 1219   | ███████░░░ 67%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `quality-engineering-appium-mcp` | 709    | ████████░░ 81%     | 9/10 | n/a      | 2 | ✅ 100% |
 | `quality-engineering-playwright-cli` | 667    | ████████░░ 82%     | 9/10 | n/a      | 2 | ✅ 100% |
 
 </details>
 
 <details>
-<summary><h3>📦 react (8 skills | avg 548 tokens | quality 9.8/10 | eval alignment 100%)</h3></summary>
+<summary><h3>📦 react (8 skills | avg 516 tokens | quality 9.8/10 | eval alignment 100%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
 | `react-component-patterns` | 477    | █████████░ 87%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `react-hooks          ` | 646    | ████████░░ 82%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `react-performance    ` | 733    | ████████░░ 80%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `react-hooks          ` | 589    | ████████░░ 84%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `react-performance    ` | 533    | █████████░ 85%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `react-state-management` | 541    | █████████░ 85%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `react-tooling        ` | 420    | █████████░ 89%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `react-typescript     ` | 487    | █████████░ 87%     | 10/10 | n/a      | 3 | ✅ 100% |
@@ -431,7 +453,7 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 </details>
 
 <details>
-<summary><h3>📦 react-native (13 skills | avg 446 tokens | quality 10.0/10 | eval alignment 100%)</h3></summary>
+<summary><h3>📦 react-native (13 skills | avg 446 tokens | quality 10.0/10 | eval alignment 98%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
@@ -444,7 +466,7 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 | `react-native-notifications` | 358    | █████████░ 90%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `react-native-performance` | 583    | ████████░░ 84%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `react-native-platform-specific` | 422    | █████████░ 88%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `react-native-security` | 583    | ████████░░ 84%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `react-native-security` | 580    | ████████░░ 84%     | 10/10 | n/a      | 3 | ✅ 78% |
 | `react-native-state-management` | 443    | █████████░ 88%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `react-native-styling ` | 335    | █████████░ 91%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `react-native-testing ` | 448    | █████████░ 88%     | 10/10 | n/a      | 3 | ✅ 100% |
@@ -464,7 +486,7 @@ This benchmark answers: **"How many tokens and dollars does an agent skill save 
 | `spring-boot-microservices` | 499    | █████████░ 86%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `spring-boot-observability` | 498    | █████████░ 86%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `spring-boot-scheduling` | 356    | █████████░ 90%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `spring-boot-security ` | 527    | █████████░ 86%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `spring-boot-security ` | 526    | █████████░ 86%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `spring-boot-testing  ` | 332    | █████████░ 91%     | 9/10 | n/a      | 3 | ✅ 100% |
 
 </details>

@@ -69,3 +69,16 @@ This baseline defines where BRD, PRD, and SRS/FRS workflow guidance is derived f
   - Business: `docs/brd/brd-[slug].md`
   - Product: `docs/prd/prd-[slug].md`
   - Technical: `docs/srs/srs-[slug].md`
+
+## Portable Outcome Report Contract
+
+Every SDLC workflow should make the human outcome clear even when a runtime cannot finish implementation or verification:
+
+- `feature_status`: `not_started | requirements_ready | design_ready | partially_implemented | implemented | blocked`
+- `requirement_trace`: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence`
+- `completed_evidence`: artifacts, tests, reviews, or approvals already proven
+- `missing_evidence`: proof gaps separated from implementation status
+- `decision_needed`: owner/input required before the next step
+- `recommended_next_workflow`: the next portable workflow to run
+
+This contract is runtime-neutral. Adapters may map it to task boards, MCP tools, Jira, GitHub, GitLab, ADO, Zephyr, or local files, but canonical skills and workflows should not depend on adapter-specific IDs, chat channels, containers, or mount paths.

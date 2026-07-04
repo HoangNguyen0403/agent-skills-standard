@@ -19,6 +19,15 @@
         { "type": "contains", "value": "interface" },
         { "type": "contains", "value": "error" }
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "Design the technical implementation, but the PRD has no AC IDs.",
+      "expected_output": "Block or route back to plan-feature instead of inventing scope; require REQ/AC IDs before SRS mapping and implementation readiness.",
+      "assertions": [
+        { "type": "contains", "value": "AC" },
+        { "type": "contains", "value": "plan-feature" }
+      ]
     }
   ],
   "should_not_trigger": [

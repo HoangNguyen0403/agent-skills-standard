@@ -26,6 +26,7 @@ Define the technical "How" with verifiable requirements.
 
 - Confirm linked PRD requirements (`REQ-*`) and AC IDs.
 - Preserve trace: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> test evidence`.
+- Block or route back to PRD (`plan-feature`) when `REQ-*` or `AC-*` inputs are missing; do not infer product scope from code.
 - Define functional flows: trigger, inputs, validations, outputs, errors.
 - For complex flows, use one actor, one goal, one session; split normal, alternate, and exception courses.
 - Define interface contracts: API, events, storage, external integrations.
@@ -38,7 +39,9 @@ Define the technical "How" with verifiable requirements.
 - **Slug Alignment**: Use the same `[slug]` from the source `docs/prd/prd-[slug].md` to maintain filename-level traceability.
 - Write one requirement card per statement with stable `SRS-*` IDs.
 - Map each `SRS-*` to source PRD `REQ-*` and verification lane.
+- Map every technical behavior to PRD ACs, test lane, and evidence target.
 - Include statement, priority, status, input/output/error behavior, NFR impact, measurement method, and evidence target.
+- Add outcome report: `feature_status`, requirement trace, completed/missing evidence, decision needed, and recommended next workflow.
 - Write to `docs/srs/srs-[slug].md`.
 
 ## 3. Verification Mapping
@@ -54,6 +57,7 @@ Define the technical "How" with verifiable requirements.
 - No NFR claims without numeric threshold.
 - No interface contract without input/output/error schema.
 - No requirement without trace link to source and verification.
+- No implementation handoff without mapped PRD AC IDs and test lanes.
 - No happy-path-only flow for complex user/system interactions.
 
 ## References

@@ -25,6 +25,7 @@ Frame the business "Why" before product or technical specs.
 ## 1. Discovery Workflow
 
 - Draft executive summary: purpose, outcome, sponsor, validation owner.
+- For vague "implement X" requests, draft BRD-lite first and ask only blocking BA questions with recommended defaults.
 - Confirm business objective and success metric.
 - Identify sponsor, decision-maker, and impacted stakeholders.
 - Capture AS-IS process pain and TO-BE target state.
@@ -40,6 +41,7 @@ Frame the business "Why" before product or technical specs.
 - Keep each objective SMART: specific, measurable, achievable, relevant, and time-bound.
 - Link each BRD objective to a candidate PRD requirement placeholder (`REQ-*`).
 - **Offshore Ready**: Include stakeholder validation plan and acceptance window for remote delivery teams.
+- Add outcome report seed: `feature_status`, `requirement_trace`, completed/missing evidence, decision needed, and recommended next workflow (`plan-feature`).
 - Write to `docs/brd/brd-[slug].md`.
 
 ## 3. Quality Gate
@@ -55,6 +57,7 @@ Frame the business "Why" before product or technical specs.
 - No solution design in BRD.
 - No vague goals ("improve efficiency") without baseline and target.
 - No missing owners for objectives or risks.
+- No coding or QA routing before the BA owner, value metric, and scope fence are clear.
 - No silent scope expansion after approval.
 - No jargon without glossary entry.
 

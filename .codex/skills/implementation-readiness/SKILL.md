@@ -40,9 +40,9 @@ Goal: Decide whether a planned change is ready for implementation or must return
    - Tool prerequisites known: credentials, environments, feature flags, test data, MCP availability.
 
 3. Decide:
-   - READY: implementation can start.
-   - BLOCKED: missing artifact, unclear AC, missing design/architecture, unavailable environment, or unresolved risk.
-   - PARTIAL: implementation may start only for named slices with blocked slices isolated.
+   - READY: BA/PM/SRS/test prerequisites are present and implementation can start.
+   - BLOCKED: missing artifact, owner, unclear AC, missing design/architecture, unavailable environment, or unresolved risk.
+   - PARTIAL: only named slices can start; blocked slices have explicit owner/input.
 
 4. Route:
    - For autonomous/channel mode, return READY only with named slices, owners, verification lanes, and available environments.
@@ -64,6 +64,11 @@ Goal: Decide whether a planned change is ready for implementation or must return
 | Area | Gap | Owner/Input Needed |
 | --- | --- | --- |
 | [area] | [gap] | [owner/input] |
+
+## Outcome Report
+feature_status: design_ready | partially_implemented | blocked
+requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> planned evidence
+completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: implement-feature | plan-feature | design-solution
 
 ## Runtime Contract
 

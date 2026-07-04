@@ -19,6 +19,15 @@
         { "type": "contains", "value": "stakeholder" },
         { "type": "contains", "value": "risk" }
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "Implement playbook feature.",
+      "expected_output": "Do not jump to code. Draft BRD-lite first with BA owner, business why, SMART metric, scope fence, assumptions, and recommended defaults for blocking questions; route next to plan-feature.",
+      "assertions": [
+        { "type": "contains", "value": "BRD-lite" },
+        { "type": "contains", "value": "plan-feature" }
+      ]
     }
   ],
   "should_not_trigger": [

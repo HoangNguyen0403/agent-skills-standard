@@ -19,7 +19,7 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-**Role**: Product spec owner. Define the product "What" before technical design.
+**Role**: PM-owned product spec owner. Define the product "What" before technical design or implementation.
 
 ## 1. Discovery Phase (Iterative)
 
@@ -40,7 +40,10 @@ metadata:
 - **Traceability**: Assign stable `REQ-*` and `AC-*` IDs, and map each requirement to a BRD objective reference.
 - **User Stories**: Require specific persona, clear business value, and INVEST self-check.
 - **Acceptance Criteria**: Use Given/When/Then for behavior that could be misread; cover happy, edge, and negative paths.
+- **Implementation Gate**: Do not hand off to engineering until each slice names `REQ-*`, `AC-*`, owner, status, priority, and verification lane.
 - **Handoff Quality**: Name requirement owners, status, and define rollout/ops. Identify whether `design-solution` is required.
+- **Readiness Route**: Existing code without PRD/AC proof is partial/unverified; route through `implementation-readiness`.
+- **Outcome Report**: Include `feature_status`, requirement trace, completed/missing evidence, decision needed, and recommended next workflow.
 - **Living Spec**: Include analytics, risks, rollout, decisions, and changelog.
 - **Output**: Write to `docs/prd/prd-[slug].md`.
 
@@ -59,6 +62,7 @@ metadata:
 - **No Assumptions**: Never guess business logic. Ask.
 - **No Vagueness**: "Fast" -> "Load < 200ms".
 - **No Implementation**: PRD = "What", Implementation Plan = "How".
+- **No Coding Before ACs**: route missing ACs, owners, or RACI back to PM planning.
 - **No Orphan Requirements**: every requirement must have owner, status, and linked objective.
 - **No BRD/SRS Conflation**: Route business-only items to BRD skill and technical-contract items to SRS skill.
 - **No Generic Actors**: replace "user" with a specific role or persona.

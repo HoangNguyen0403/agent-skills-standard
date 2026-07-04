@@ -42,7 +42,7 @@ Goal: Select the next native workflow without loading every workflow body, while
    - PRD exists but technical behavior/contracts unclear (SRS/FRS / How) -> `design-solution`
    - Architecture, auth, trust boundaries, compliance controls, or agent/runtime safety need deeper technical validation -> `design-solution`
    - BRD-lite, PRD, or SRS/FRS exists but readiness unclear -> `implementation-readiness`
-   - Approved plan needs code -> `implement-feature`
+   - Approved plan with BRD/PRD/SRS trace and testable ACs needs code -> `implement-feature`
    - Bug ticket needs fix -> `dev-fix`
    - Ticket or cross-functional change needs specialist fanout, AC coverage, and PR metadata review -> `review-ticket`
    - PR diff needs focused merge-risk review -> `code-review`
@@ -52,7 +52,8 @@ Goal: Select the next native workflow without loading every workflow body, while
    - BA output must include business objective, stakeholder/validation owner, AS-IS/TO-BE, SMART metric, scope fence, risks, assumptions, and BRD objective IDs.
    - PM output must link each PRD requirement and AC to a BRD objective, name requirement owners/status/priority, define rollout/ops, and identify whether `design-solution` is required.
    - IT Department handoff must include implementation owner candidates, affected repos/modules, test lanes, environments, release/rollback notes, and open blockers.
-   - Never route directly to implementation when BRD/PRD/SRS trace or testable ACs are missing.
+   - Never route directly to implementation when BRD/PRD/SRS trace, owner, or testable ACs are missing; route to BA/PM/design first.
+   - Keep payloads runtime-neutral; adapters may map them to task boards, MCP, Jira, GitHub, ADO, Zephyr, or local files.
 
 4. Set runtime state:
    - Interactive: ask max 3 blocking questions.
@@ -75,6 +76,11 @@ Goal: Select the next native workflow without loading every workflow body, while
 ## Blocking Gaps
 
 ## Offshore Delivery Notes
+
+## Outcome Report
+feature_status: not_started | requirements_ready | design_ready | partially_implemented | implemented | blocked
+requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
+completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow:
 
 ## Runtime Contract
 
