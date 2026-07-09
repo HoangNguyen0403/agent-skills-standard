@@ -18,7 +18,7 @@ metadata:
 ---
 # Java Tooling Standards
 
-## **Priority: P2 (RECOMMENDED)**
+## **Priority: P2 (MEDIUM)**
 
 
 ## Implementation Guidelines

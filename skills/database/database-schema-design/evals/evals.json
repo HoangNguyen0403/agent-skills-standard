@@ -8,7 +8,8 @@
       "assertions": [
         { "type": "contains", "value": "cardinality" },
         { "type": "contains", "value": "ownership" },
-        { "type": "contains", "value": "ORM" }
+        { "type": "contains", "value": "ORM" },
+        { "type": "file_reference", "value": "references/normalization-tradeoffs.md" }
       ]
     }
   ],

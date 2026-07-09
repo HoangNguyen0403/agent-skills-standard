@@ -12,7 +12,7 @@ metadata:
 ---
 # Git & Collaboration
 
-## **Priority: P0 (OPERATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
 ## 1. Write Conventional Commits
 

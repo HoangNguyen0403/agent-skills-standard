@@ -18,7 +18,7 @@ metadata:
 ---
 # React Native Deployment
 
-## **Priority: P2 (MAINTENANCE)**
+## **Priority: P2 (MEDIUM)**
 
 ## Workflow: Ship Production Release with EAS Build
 

@@ -15,7 +15,7 @@ metadata:
 ---
 # NestJS Notification Architecture
 
-## **Priority: P0 (Standard)**
+## **Priority: P0 (CRITICAL)**
 
 Implement "Dual-Write" notification system: persist to Database (In-App) and send via FCM (Push).
 

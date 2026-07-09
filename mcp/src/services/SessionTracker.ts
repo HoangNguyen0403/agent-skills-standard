@@ -15,6 +15,12 @@ export interface LoadEvent {
   input: string[];
   /** Skills returned to the agent, formatted as `category/id`. */
   loaded: string[];
+  /** Estimated tokens (chars/4) of skill bodies returned IN FULL this call. */
+  estimatedTokens?: number;
+  /** Skills already loaded this session that were returned as a stub instead of a full body. */
+  dedupedSkills?: string[];
+  /** Estimated tokens (chars/4) saved by stubbing already-loaded skills this call. */
+  estimatedTokensSaved?: number;
 }
 
 export interface SessionSummary {
@@ -25,6 +31,15 @@ export interface SessionSummary {
   workflowsLoaded: number;
   noMatchCalls: number;
   callsByTool: Record<LoadEvent["via"], number>;
+}
+
+export interface SkillContextCost {
+  /** Sum of estimated tokens for every full skill body returned this session. */
+  totalEstimatedTokens: number;
+  /** Number of distinct skills that were deduped (stubbed) at least once. */
+  dedupedSkillCount: number;
+  /** Sum of estimated tokens saved by returning a stub instead of a full body. */
+  estimatedTokensSaved: number;
 }
 
 /**
@@ -94,6 +109,23 @@ export class SessionTracker {
 
   events_(): LoadEvent[] {
     return [...this.events];
+  }
+
+  /** Aggregate skill-context token cost and dedup savings across the session. */
+  skillContextCost(): SkillContextCost {
+    let totalEstimatedTokens = 0;
+    let estimatedTokensSaved = 0;
+    const dedupedSkills = new Set<string>();
+    for (const e of this.events) {
+      totalEstimatedTokens += e.estimatedTokens ?? 0;
+      estimatedTokensSaved += e.estimatedTokensSaved ?? 0;
+      for (const s of e.dedupedSkills ?? []) dedupedSkills.add(s);
+    }
+    return {
+      totalEstimatedTokens,
+      dedupedSkillCount: dedupedSkills.size,
+      estimatedTokensSaved,
+    };
   }
 
   startedAt_(): string {

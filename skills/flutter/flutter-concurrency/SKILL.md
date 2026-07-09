@@ -17,7 +17,7 @@ metadata:
 ---
 # Dart Concurrency and Isolates
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 ## Core Concepts
 

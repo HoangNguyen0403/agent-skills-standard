@@ -8,7 +8,8 @@
       "assertions": [
         { "type": "contains", "value": "expand" },
         { "type": "contains", "value": "backfill" },
-        { "type": "contains", "value": "old" }
+        { "type": "contains", "value": "old" },
+        { "type": "file_reference", "value": "references/migration-safety-checklist.md" }
       ]
     }
   ],

@@ -22,7 +22,7 @@ metadata:
 ---
 # Common Observability Standards
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 ## Logging & Tracing
 

@@ -17,7 +17,7 @@ metadata:
 ---
 # XML to Jetpack Compose Migration
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 Structured 10-step workflow for migrating XML layouts to Compose.
 

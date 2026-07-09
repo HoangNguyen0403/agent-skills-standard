@@ -48,12 +48,8 @@
       "expected_output": "Server Components run only on server; remove useState/useEffect; move interactive state to a 'use client' leaf component; use URL searchParams for shareable state; use Server Actions for mutations",
       "assertions": [
         {
-          "type": "not_contains",
-          "value": "useState"
-        },
-        {
-          "type": "not_contains",
-          "value": "useEffect"
+          "type": "contains",
+          "value": "Client Component-only hooks"
         }
       ]
     },

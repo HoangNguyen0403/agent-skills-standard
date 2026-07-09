@@ -17,7 +17,7 @@ metadata:
 ---
 # Android Tooling Standards
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 ## Implementation Guidelines
 

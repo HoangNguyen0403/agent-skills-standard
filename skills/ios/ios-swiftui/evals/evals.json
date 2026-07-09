@@ -3,8 +3,8 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "When should I use @State vs @StateObject vs @ObservedObject?",
-      "expected_output": "@State for local simple data. @StateObject for VMs (initialized once). @ObservedObject for passed-in VMs. Views should be small structs.",
+      "prompt": "When should I use @State vs @StateObject vs @ObservedObject for a view model on iOS 17+?",
+      "expected_output": "@State for local simple data. On iOS 17+, use @State for VMs marked @Observable (owning parent creates it once). @StateObject/@ObservedObject are legacy, for pre-iOS 17 or Combine ObservableObject VMs. Views should be small structs.",
       "assertions": [
         {
           "type": "contains",
@@ -12,7 +12,7 @@
         },
         {
           "type": "contains",
-          "value": "@StateObject for VMs"
+          "value": "VMs marked `@Observable`"
         },
         {
           "type": "contains",

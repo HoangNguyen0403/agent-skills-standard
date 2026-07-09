@@ -16,7 +16,7 @@ metadata:
 
 # Android Background Work Standards
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 ## Implementation Guidelines
 

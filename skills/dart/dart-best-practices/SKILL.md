@@ -14,7 +14,7 @@ metadata:
 ---
 # Dart Best Practices
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 - **Scoping**:

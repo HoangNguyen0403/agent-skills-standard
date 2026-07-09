@@ -5,6 +5,62 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [cli-v2.6.0] / [mcp-v0.6.0] - 2026-07-09
+
+**Category**: Runtime skill quality — correct content, smarter MCP loading, validator hardening
+
+### Added
+
+- **Priority Label Vocabulary**: `PriorityRule` now enforces a canonical `P0 (CRITICAL)` / `P1 (HIGH)` / `P2 (MEDIUM)` / `P3 (LOW)` vocabulary (error once migrated); 15+ drifted variants across ~146 skills normalized via new `scripts/migrate-priority-labels.ts` (`pnpm migrate:priority-labels --dry-run`).
+- **`TriggersRule`**: New validator rule — every skill must declare at least one file glob or keyword trigger, or it's unroutable.
+- **Description Length Warning**: `FrontmatterRule` now warns above 300 chars (in addition to the existing 1024-char hard error) to keep `_INDEX.md` scannable.
+- **Eval Assertion Types**: `evals.json` assertions now support `not_contains`, `regex`, `contains_any`, and `file_reference` in addition to `contains`; `scripts/check-alignment.ts` scores all five (unknown types warn and are excluded, so `contains`-only evals score identically to before).
+- **Keyword Collision Report**: New `scripts/check-keyword-collisions.ts` (`pnpm audit:keywords`, warning-only) flags keywords/globs shared by multiple skills within a category.
+- **Category Framework Maps**: Added `references/framework-map.md` for `android`, `flutter`, `angular`, `ios`, `react-native`, `spring-boot`, and `laravel` — the MCP `get_category_guide` tool now resolves for all of the registry's largest categories instead of 6/23.
+- **Database References**: Added `isolation-levels.md`, `index-strategies.md`, `migration-safety-checklist.md`, and `normalization-tradeoffs.md` for the four database skills that previously had no supporting depth.
+- **MCP Relevance Ranking**: `load_skills_for_files`/`load_skills_for_keywords` now order results by match strength (narrow file glob > base-language broad glob > exact keyword > partial keyword > composite) instead of index-scan order.
+- **MCP Session Dedup**: Skills already loaded earlier in a session are returned as a one-line stub instead of a full body on repeat calls; both load tools accept `force_reload: true` to bypass it.
+- **MCP Skill-Context Telemetry**: `get_session_cost` reports estimated skill-context tokens, dedup savings, and skill-context share of prompt tokens; `audit_session_compliance` flags categories whose files were touched but never actually loaded a skill.
+
+### Changed
+
+- **Keyword Matching**: `load_skills_for_keywords` replaced bidirectional substring matching with exact-or-word-boundary matching (partial matches require 3+ chars) to reduce false-positive loads from short keywords embedded in unrelated words.
+- **`ios-swiftui` / `ios-state-management`**: State-selection guidance is now `@Observable`-first (iOS 17+); `@StateObject`/`@ObservedObject` reframed as legacy/back-compat only.
+- **`flutter-riverpod-state-management`**: Retargeted from "Riverpod 2.0" to Riverpod 3.x.
+- **`flutter-idiomatic-flutter`**: Corrected the `Row`/`Column` `spacing` parameter version claim from Flutter 3.10+ to the accurate 3.27+; dropped a non-standard "Signals" recommendation in favor of BLoC/Riverpod.
+- **`react-component-patterns` / `react-state-management`**: Added React 19 primitives (`ref`-as-prop, `use()`, `useActionState`, `useOptimistic`) and Verify sections; demoted HOC/classic render-props to a fallback rather than the default.
+- **`react-native-navigation` / `react-native-navigation-v6`**: Resolved a priority/scope conflict — `react-native-navigation` is now explicitly the deep-linking companion to `react-native-navigation-v6`; both now acknowledge Expo Router as the default for new Expo projects (matching `react-native-architecture`); removed a stale `createStackNavigator` trigger keyword.
+
+### Fixed
+
+- **`nestjs-security`**: Replaced a deprecated (`csurf`, archived since 2022) CSRF example with a double-submit-cookie pattern via `csrf-csrf`.
+- **Outlier Descriptions**: Trimmed 5 skill descriptions (up to 535 chars) to under 300 chars: `quality-engineering-business-analysis`, `common-learning-log`, `common-store-changelog`, `quality-engineering-zephyr-test-generation`, `common-feedback-reporter`.
+
+### Versions
+
+- **CLI**: `2.5.1` → `2.6.0`
+- **MCP**: `0.5.0` → `0.6.0`
+- **Common**: `2.2.2` → `2.3.0`
+- **React**: `1.3.6` → `1.4.0`
+- **React Native**: `1.4.4` → `1.5.0`
+- **Angular**: `1.4.2` → `1.5.0`
+- **Android**: `1.4.2` → `1.5.0`
+- **iOS**: `1.4.5` → `1.5.0`
+- **Flutter**: `1.7.1` → `1.8.0`
+- **Spring Boot**: `1.3.3` → `1.4.0`
+- **Laravel**: `1.3.4` → `1.4.0`
+- **Database**: `1.3.5` → `1.4.0`
+- **NestJS**: `1.4.5` → `1.4.6`
+- **Next.js**: `1.4.5` → `1.4.6`
+- **Quality Engineering**: `1.5.0` → `1.5.1`
+- **JavaScript**: `1.3.4` → `1.3.5`
+- **TypeScript**: `1.3.3` → `1.3.4`
+- **Golang**: `1.3.5` → `1.3.6`
+- **Java**: `1.3.3` → `1.3.4`
+- **Kotlin**: `1.3.3` → `1.3.4`
+- **Swift**: `1.3.5` → `1.3.6`
+- **Dart**: `1.3.5` → `1.3.6`
+
 ## [common-v2.2.2] - 2026-07-04
 
 **Category**: Portable SDLC outcome reporting and requirements-first delivery gates

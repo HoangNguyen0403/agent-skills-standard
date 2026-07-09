@@ -8,7 +8,7 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Priority: P0 (FOUNDATIONAL)"
+          "value": "Priority: P0 (CRITICAL)"
         },
         {
           "type": "contains",

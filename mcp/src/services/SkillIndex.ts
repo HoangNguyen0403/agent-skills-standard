@@ -24,6 +24,12 @@ export interface MatchResult {
   matchedBy: "file" | "keyword" | "composite" | "direct";
   /** The trigger value that matched (glob, keyword, or skill id). */
   reason: string;
+  /**
+   * Relevance tier used to order results — lower is more relevant.
+   * 0 = narrow file glob, 1 = base-language broad glob, 2 = exact keyword,
+   * 3 = partial keyword, 4 = composite (foundational, cross-cutting).
+   */
+  tier: number;
 }
 
 /**
@@ -60,8 +66,14 @@ export class SkillIndex {
     // directly from the triggers.files globs already parsed from SKILL.md files.
     // This makes load_skills_for_files work out-of-the-box without requiring
     // any offline sync or metadata generation step.
-    if (Object.keys(this.metadata.file_routing).length === 0 && this.skills.length > 0) {
-      this.metadata = { ...this.metadata, file_routing: this.deriveFileRouting() };
+    if (
+      Object.keys(this.metadata.file_routing).length === 0 &&
+      this.skills.length > 0
+    ) {
+      this.metadata = {
+        ...this.metadata,
+        file_routing: this.deriveFileRouting(),
+      };
     }
     this.loaded = true;
   }
@@ -164,19 +176,29 @@ export class SkillIndex {
             const key = `${skill.category}/${skill.id}`;
             if (seen.has(key)) break;
             seen.add(key);
-            results.push({ skill, matchedBy: "file", reason: glob });
+            // Narrow globs are the strongest file-relevance signal; a base-language
+            // skill only appears via its broad glob, so it ranks one tier lower.
+            results.push({
+              skill,
+              matchedBy: "file",
+              reason: glob,
+              tier: isBroad ? 1 : 0,
+            });
             break;
           }
         }
       }
     }
 
-    return [...results, ...this.expandComposites(results)];
+    const ranked = [...results].sort((a, b) => a.tier - b.tier);
+    return [...ranked, ...this.expandComposites(results)];
   }
 
   /**
    * Match keyword phrases against every skill's `triggers.keywords`.
-   * Case-insensitive substring match — same semantics as IndexGeneratorService.
+   * Case-insensitive: exact match ranks highest; otherwise a word-boundary
+   * substring match in either direction (partial keywords under 3 chars are
+   * ignored to avoid a short trigger matching inside an unrelated word).
    */
   matchKeywords(keywords: string[]): MatchResult[] {
     this.ensureLoaded();
@@ -187,20 +209,68 @@ export class SkillIndex {
     for (const skill of this.skills) {
       for (const trigger of skill.triggers.keywords) {
         const triggerLc = trigger.toLowerCase();
-        const hit = lowered.find(
-          (k) => k.includes(triggerLc) || triggerLc.includes(k),
-        );
-        if (!hit) continue;
+        const match = this.matchKeyword(lowered, triggerLc);
+        if (!match.hit) continue;
 
         const key = `${skill.category}/${skill.id}`;
         if (seen.has(key)) break;
         seen.add(key);
-        results.push({ skill, matchedBy: "keyword", reason: trigger });
+        results.push({
+          skill,
+          matchedBy: "keyword",
+          reason: trigger,
+          tier: match.exact ? 2 : 3,
+        });
         break;
       }
     }
 
-    return [...results, ...this.expandComposites(results)];
+    const ranked = [...results].sort((a, b) => a.tier - b.tier);
+    return [...ranked, ...this.expandComposites(results)];
+  }
+
+  /** Exact match, else a word-boundary substring match in either direction (min 3 chars). */
+  private matchKeyword(
+    inputLowered: string[],
+    triggerLc: string,
+  ): { hit: boolean; exact: boolean } {
+    if (inputLowered.includes(triggerLc)) return { hit: true, exact: true };
+
+    for (const k of inputLowered) {
+      if (triggerLc.length >= 3 && this.hasBoundaryMatch(k, triggerLc)) {
+        return { hit: true, exact: false };
+      }
+      if (k.length >= 3 && this.hasBoundaryMatch(triggerLc, k)) {
+        return { hit: true, exact: false };
+      }
+    }
+    return { hit: false, exact: false };
+  }
+
+  /**
+   * True when `needle` occurs in `haystack` without being embedded inside a
+   * larger alphanumeric run on either side (e.g. "ts" must not match inside
+   * "tests"). Needles that start/end with a non-alphanumeric char (e.g.
+   * "@riverpod") are exempt from that side's check since there's no word to
+   * accidentally split.
+   */
+  private hasBoundaryMatch(haystack: string, needle: string): boolean {
+    const isWordChar = (ch: string) => /[a-z0-9]/i.test(ch);
+    let idx = haystack.indexOf(needle);
+    while (idx !== -1) {
+      const before = idx > 0 ? haystack[idx - 1] : "";
+      const after =
+        idx + needle.length < haystack.length
+          ? haystack[idx + needle.length]
+          : "";
+      const leftOk = !(isWordChar(before) && isWordChar(needle[0] ?? ""));
+      const rightOk = !(
+        isWordChar(after) && isWordChar(needle[needle.length - 1] ?? "")
+      );
+      if (leftOk && rightOk) return true;
+      idx = haystack.indexOf(needle, idx + 1);
+    }
+    return false;
   }
 
   /** Returns the file_routing map so the agent can discover which categories handle which extensions. */
@@ -270,6 +340,7 @@ export class SkillIndex {
         skill,
         matchedBy: "composite",
         reason: `via ${trigger.skill.category}/${trigger.skill.id}`,
+        tier: 4,
       });
     }
 

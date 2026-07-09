@@ -14,7 +14,7 @@ metadata:
 ---
 # iOS Localization & Assets
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 ## Implementation Workflow
 

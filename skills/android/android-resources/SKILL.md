@@ -13,7 +13,7 @@ metadata:
 ---
 # Android Resources Standards
 
-## **Priority: P2**
+## **Priority: P2 (MEDIUM)**
 
 ## Implementation Guidelines
 

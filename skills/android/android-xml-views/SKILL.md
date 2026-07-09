@@ -14,7 +14,7 @@ metadata:
 ---
 # Android XML Views Standards
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 ## Implementation Guidelines
 

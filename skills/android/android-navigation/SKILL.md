@@ -16,7 +16,7 @@ metadata:
 ---
 # Android Navigation (Jetpack Compose)
 
-## **Priority: P2 (OPTIONAL)**
+## **Priority: P2 (MEDIUM)**
 
 
 ## Guidelines

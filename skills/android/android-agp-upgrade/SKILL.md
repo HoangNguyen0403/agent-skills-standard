@@ -18,7 +18,7 @@ metadata:
 ---
 # AGP 9 Upgrade Workflow
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 Step-by-step workflow for upgrading an Android project to AGP 9.
 

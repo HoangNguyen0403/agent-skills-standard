@@ -15,7 +15,7 @@ metadata:
 ---
 # Performance
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 - **Rebuilds**: Use `const` widgets and `buildWhen` / `select` for granular updates.

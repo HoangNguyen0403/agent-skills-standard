@@ -18,7 +18,7 @@ metadata:
 ---
 # Android State Management
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## 1. Structure ViewModel
 

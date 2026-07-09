@@ -50,7 +50,7 @@
         },
         {
           "type": "contains",
-          "value": "Priority: P1 (OPERATIONAL)"
+          "value": "Priority: P1 (HIGH)"
         },
         {
           "type": "contains",

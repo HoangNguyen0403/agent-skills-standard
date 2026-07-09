@@ -15,7 +15,7 @@ metadata:
 ---
 # UI & Widgets
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 - **State**: Use `StatelessWidget` by default. `StatefulWidget` only for local state/controllers.

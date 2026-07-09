@@ -13,7 +13,7 @@ metadata:
 ---
 # iOS Deployment
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 ## Implementation Workflow
 

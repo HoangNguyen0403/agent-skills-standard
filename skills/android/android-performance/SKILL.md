@@ -13,7 +13,7 @@ metadata:
 ---
 # Android Performance Standards
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 ## 1. Accelerate Startup
 

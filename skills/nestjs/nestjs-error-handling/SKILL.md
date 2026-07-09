@@ -13,7 +13,7 @@ metadata:
 ---
 # NestJS Error Handling Standards
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 - **Requirement**: Centralize error formatting.

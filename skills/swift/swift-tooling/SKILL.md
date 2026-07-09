@@ -13,7 +13,7 @@ metadata:
 ---
 # Swift Tooling Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Define SPM Packages
 

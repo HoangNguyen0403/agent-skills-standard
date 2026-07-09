@@ -17,7 +17,7 @@ metadata:
 ---
 # Localization
 
-## **Priority: P1 (STANDARD)**
+## **Priority: P1 (HIGH)**
 
 
 ## Format Selection

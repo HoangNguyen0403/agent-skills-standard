@@ -17,7 +17,7 @@ metadata:
 ---
 # React Native Design System
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 Enforce design token usage in React Native apps.
 

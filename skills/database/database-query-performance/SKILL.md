@@ -16,7 +16,7 @@ metadata:
 ---
 # Database Query Performance
 
-## **Priority: P0 (FOUNDATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
 Slow query work starts with the query shape and evidence, not with random index creation.
 
@@ -43,3 +43,4 @@ Slow query work starts with the query shape and evidence, not with random index 
 ## References
 
 - [Framework Map](../references/framework-map.md)
+- [Index Strategies](references/index-strategies.md)

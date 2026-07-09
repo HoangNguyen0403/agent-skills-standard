@@ -8,7 +8,8 @@
       "assertions": [
         { "type": "contains", "value": "explain" },
         { "type": "contains", "value": "query" },
-        { "type": "contains", "value": "write cost" }
+        { "type": "contains", "value": "write cost" },
+        { "type": "file_reference", "value": "references/index-strategies.md" }
       ]
     }
   ],

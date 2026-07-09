@@ -12,7 +12,7 @@ metadata:
 ---
 # Task Scheduling & Jobs
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Workflow: Add Scheduled Task

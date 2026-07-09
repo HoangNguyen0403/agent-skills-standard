@@ -23,11 +23,11 @@
     {
       "id": 2,
       "prompt": "What are the common anti-patterns to avoid in javascript tooling?",
-      "expected_output": "**Priority: P1 (OPERATIONAL)**. **Formatting**: Prettier. Run on save/commit.",
+      "expected_output": "**Priority: P1 (HIGH)**. **Formatting**: Prettier. Run on save/commit.",
       "assertions": [
         {
           "type": "contains",
-          "value": "Priority: P1 (OPERATIONAL)"
+          "value": "Priority: P1 (HIGH)"
         },
         {
           "type": "contains",

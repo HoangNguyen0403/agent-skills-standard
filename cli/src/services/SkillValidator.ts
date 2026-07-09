@@ -9,6 +9,7 @@ import {
   InstructionsStyleRule,
   PriorityRule,
   SizeRule,
+  TriggersRule,
 } from './validation/rules';
 import { ValidationRule } from './validation/types';
 
@@ -53,7 +54,8 @@ export class SkillValidator {
     new SizeRule(),
     new FrontmatterRule(),
     new InstructionsStyleRule(),
-    new PriorityRule(),
+    new PriorityRule('error'),
+    new TriggersRule(),
     new DirectoryStructureRule(),
   ];
 

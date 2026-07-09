@@ -12,7 +12,7 @@ metadata:
 ---
 # Swift Testing Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Write XCTest Cases
 

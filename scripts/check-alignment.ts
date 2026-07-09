@@ -37,7 +37,8 @@ function stripHtmlComments(content: string): string {
 
 interface Assertion {
   type: string;
-  value: string;
+  value?: string;
+  values?: string[];
 }
 interface Eval {
   id: number;
@@ -94,7 +95,8 @@ async function main() {
 
     const evalsJson: EvalsJson = await fs.readJson(evalsPath);
     const rawContent = await fs.readFile(skillFile, 'utf8');
-    const skillContent = stripHtmlComments(rawContent).toLowerCase();
+    const strippedContent = stripHtmlComments(rawContent);
+    const skillContent = strippedContent.toLowerCase();
 
     let total = 0;
     let matched = 0;
@@ -103,18 +105,81 @@ async function main() {
     for (const ev of evalsJson.evals) {
       if (!Array.isArray(ev.assertions)) continue;
       for (const assertion of ev.assertions) {
-        if (assertion.type === 'contains') {
-          total++;
-          if (skillContent.includes(assertion.value.toLowerCase())) {
-            matched++;
-          } else {
-            misses.push(`eval ${ev.id}: "${assertion.value}"`);
+        switch (assertion.type) {
+          case 'contains': {
+            total++;
+            if (skillContent.includes((assertion.value ?? '').toLowerCase())) {
+              matched++;
+            } else {
+              misses.push(`eval ${ev.id}: contains "${assertion.value}"`);
+            }
+            break;
+          }
+          case 'not_contains': {
+            total++;
+            if (!skillContent.includes((assertion.value ?? '').toLowerCase())) {
+              matched++;
+            } else {
+              misses.push(`eval ${ev.id}: not_contains "${assertion.value}"`);
+            }
+            break;
+          }
+          case 'contains_any': {
+            total++;
+            const values = assertion.values ?? [];
+            if (
+              values.some((v) => skillContent.includes(v.toLowerCase()))
+            ) {
+              matched++;
+            } else {
+              misses.push(
+                `eval ${ev.id}: contains_any [${values.join(', ')}]`,
+              );
+            }
+            break;
+          }
+          case 'regex': {
+            total++;
+            try {
+              const re = new RegExp(assertion.value ?? '', 'i');
+              if (re.test(strippedContent)) {
+                matched++;
+              } else {
+                misses.push(`eval ${ev.id}: regex /${assertion.value}/i`);
+              }
+            } catch {
+              misses.push(
+                `eval ${ev.id}: regex /${assertion.value}/i (invalid pattern)`,
+              );
+            }
+            break;
+          }
+          case 'file_reference': {
+            total++;
+            const relPath = assertion.value ?? '';
+            const fileExists = await fs.pathExists(
+              path.join(skillDir, relPath),
+            );
+            const isLinked = skillContent.includes(relPath.toLowerCase());
+            if (fileExists && isLinked) {
+              matched++;
+            } else {
+              misses.push(
+                `eval ${ev.id}: file_reference "${relPath}" (exists: ${fileExists}, linked: ${isLinked})`,
+              );
+            }
+            break;
+          }
+          default: {
+            warnings.push(
+              `${path.relative(skillsDir, skillDir)}: unknown assertion type "${assertion.type}" — skipped`,
+            );
           }
         }
       }
     }
 
-    if (total === 0) return; // no contains assertions — skip
+    if (total === 0) return; // no recognized assertions — skip
 
     const pct = Math.round((matched / total) * 100);
     const label = path.relative(skillsDir, skillDir);

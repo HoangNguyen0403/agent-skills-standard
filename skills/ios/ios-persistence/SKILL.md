@@ -16,7 +16,7 @@ metadata:
 ---
 # iOS Persistence
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Workflow
 

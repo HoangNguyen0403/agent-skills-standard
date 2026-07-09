@@ -15,7 +15,7 @@ metadata:
 ---
 # Android Networking Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## 1. Configure HTTP Stack
 

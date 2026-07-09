@@ -130,6 +130,33 @@ describe("SkillIndex", () => {
     expect(ids).toContain("flutter-bloc");
   });
 
+  it("ranks narrow file-glob matches ahead of broad-glob base-language matches", () => {
+    const matches = index.matchFiles(["lib/cart/blocs/cart_bloc.dart"]);
+    const ids = matches.map((m) => m.skill.id);
+    // flutter-bloc (narrow glob, tier 0) must be ranked before
+    // flutter-language (broad glob base-language skill, tier 1).
+    expect(ids.indexOf("flutter-bloc")).toBeLessThan(
+      ids.indexOf("flutter-language"),
+    );
+  });
+
+  it("does not match a short keyword embedded inside an unrelated word", () => {
+    // "state" as a keyword trigger must not match inside "understatement".
+    const matches = index.matchKeywords(["understatement"]);
+    const ids = matches.map((m) => m.skill.id);
+    expect(ids).not.toContain("flutter-bloc");
+  });
+
+  it("ranks exact keyword matches ahead of partial word-boundary matches", () => {
+    // "bloc" is an exact match; "render" is a partial word-boundary match
+    // against flutter-perf's "render" trigger via a longer phrase.
+    const matches = index.matchKeywords(["bloc", "render pipeline"]);
+    const ids = matches.map((m) => m.skill.id);
+    expect(ids.indexOf("flutter-bloc")).toBeLessThan(
+      ids.indexOf("flutter-perf"),
+    );
+  });
+
   it("returns empty when no extension is routed", () => {
     expect(index.matchFiles(["readme.txt"])).toEqual([]);
   });

@@ -14,7 +14,7 @@ metadata:
 ---
 # iOS State Management
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Workflow
 

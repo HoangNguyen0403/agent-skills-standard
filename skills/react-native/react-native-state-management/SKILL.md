@@ -15,7 +15,7 @@ metadata:
 ---
 # React Native State Management
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 ## State Strategy
 

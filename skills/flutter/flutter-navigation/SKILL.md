@@ -17,7 +17,7 @@ metadata:
 ---
 # Flutter Navigation
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Implementation Workflow

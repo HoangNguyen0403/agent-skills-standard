@@ -13,7 +13,7 @@ metadata:
 ---
 # React Tooling
 
-## **Priority: P2 (OPTIONAL)**
+## **Priority: P2 (MEDIUM)**
 
 ## Debugging Workflow
 

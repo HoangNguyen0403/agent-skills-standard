@@ -13,7 +13,7 @@ metadata:
 ---
 # Debugging Expert
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 ## Root-Cause Protocol
 

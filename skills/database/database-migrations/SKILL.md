@@ -16,7 +16,7 @@ metadata:
 ---
 # Database Migrations
 
-## **Priority: P0 (FOUNDATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
 Use expand -> backfill -> contract for risky changes.
 
@@ -43,3 +43,4 @@ Use expand -> backfill -> contract for risky changes.
 ## References
 
 - [Framework Map](../references/framework-map.md)
+- [Migration Safety Checklist](references/migration-safety-checklist.md)

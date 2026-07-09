@@ -12,7 +12,7 @@ metadata:
 ---
 # Android Legacy State Standards
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 ## Implementation Guidelines
 

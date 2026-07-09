@@ -13,7 +13,7 @@ metadata:
 ---
 # File Upload Patterns
 
-## **Priority: P0 (FOUNDATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
 - **Magic Bytes**: NEVER trust `content-type` header or file extension.
  - **Tool**: Use `file-type` or `mmmagic` to verify actual buffer signature.

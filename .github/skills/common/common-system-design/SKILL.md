@@ -14,7 +14,7 @@ metadata:
 ---
 # System Design & Architecture Standards
 
-## **Priority: P0 (FOUNDATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
 ## Workflow: Evaluate Architecture for New Feature
 

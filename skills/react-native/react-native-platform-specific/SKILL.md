@@ -18,7 +18,7 @@ metadata:
 
 # React Native Platform-Specific Code
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 ## Split Platform-Specific Files
 

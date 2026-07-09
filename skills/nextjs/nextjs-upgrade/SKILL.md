@@ -14,7 +14,7 @@ metadata:
 
 Automated and manual migration steps for Next.js version upgrades (e.g., v14 to v15).
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 ## Workflow: Upgrade Next.js to New Major Version
 

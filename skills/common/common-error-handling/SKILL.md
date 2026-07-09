@@ -22,7 +22,7 @@ metadata:
 ---
 # Error Handling Standards
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 ## Error Architecture
 

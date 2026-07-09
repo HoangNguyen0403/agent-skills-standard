@@ -60,8 +60,8 @@
       "expected_output": "Should NOT trigger this skill — should trigger quality-engineering-zephyr-test-generation instead. This is a TC creation request, not a coverage analysis request.",
       "assertions": [
         {
-          "type": "not_contains",
-          "value": "coverage_analysis_report.md"
+          "type": "contains",
+          "value": "zephyr-test-generation"
         }
       ]
     }

@@ -15,7 +15,7 @@ metadata:
 ---
 # Flutter Notifications
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Implementation Workflow

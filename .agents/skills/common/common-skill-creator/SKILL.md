@@ -15,9 +15,9 @@ metadata:
 
 # Agent Skill Creator Standard
 
-## **Priority: P0 — Apply to ALL skills**
+## **Priority: P0 (CRITICAL)**
 
-Maximize **Token ROI**. Every line in SKILL.md must provide specific procedural value. **Activation** (how it triggers) and **Implementation** (how it helps) primary quality metrics.
+Applies to **every skill in this registry**. Maximize **Token ROI**. Every line in SKILL.md must provide specific procedural value. **Activation** (how it triggers) and **Implementation** (how it helps) primary quality metrics.
 
 ## Three-Level Loading System
 

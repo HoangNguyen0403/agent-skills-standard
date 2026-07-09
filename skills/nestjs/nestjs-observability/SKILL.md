@@ -14,7 +14,7 @@ metadata:
 ---
 # Observability Standards
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Structured Logging (Pino)

@@ -8,7 +8,8 @@
       "assertions": [
         { "type": "contains", "value": "atomic" },
         { "type": "contains", "value": "idempotency" },
-        { "type": "contains", "value": "transaction" }
+        { "type": "contains", "value": "transaction" },
+        { "type": "file_reference", "value": "references/isolation-levels.md" }
       ]
     }
   ],

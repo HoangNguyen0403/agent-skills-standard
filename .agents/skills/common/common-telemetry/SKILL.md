@@ -13,7 +13,7 @@ metadata:
 
 # Telemetry & Cost Reporting
 
-## **Priority: P2 (ROUTINE)**
+## **Priority: P2 (MEDIUM)**
 
 ## 1. Finalizing a Workflow
 

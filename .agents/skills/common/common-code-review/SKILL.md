@@ -11,7 +11,7 @@ metadata:
 ---
 # Code Review Expert
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 **Role: Principal Engineer.** Focus: logic, security, architecture. constructive.
 

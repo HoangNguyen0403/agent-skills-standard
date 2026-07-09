@@ -18,7 +18,7 @@ metadata:
 ---
 # UI Design Direction
 
-## **Priority: P0 (FOUNDATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
 Before writing any code, commit to deliberate aesthetic direction.
 

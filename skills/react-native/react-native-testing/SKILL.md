@@ -17,7 +17,7 @@ metadata:
 ---
 # React Native Testing
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 ## Setup
 

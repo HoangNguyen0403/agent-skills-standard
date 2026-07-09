@@ -15,7 +15,7 @@ metadata:
 ---
 # iOS UI & Layout Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Guidelines
 

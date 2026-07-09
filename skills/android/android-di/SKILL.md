@@ -14,7 +14,7 @@ metadata:
 ---
 # Android Dependency Injection (Hilt)
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## 1. Bootstrap Hilt
 

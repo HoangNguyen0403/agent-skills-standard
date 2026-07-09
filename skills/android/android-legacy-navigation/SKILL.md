@@ -12,7 +12,7 @@ metadata:
 ---
 # Android Legacy Navigation Standards
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 ## 1. Set Up Single-Activity Architecture
 

@@ -19,7 +19,7 @@ metadata:
 ---
 # Mobile Animation
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Timing Standards

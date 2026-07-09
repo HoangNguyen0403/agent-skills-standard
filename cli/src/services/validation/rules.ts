@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+import yaml from 'js-yaml';
 import path from 'path';
 import { RuleResult, ValidationRule } from './types';
 
@@ -59,6 +60,10 @@ export class FrontmatterRule implements ValidationRule {
           `Description too long (${descMatch[1].length} chars > 1024 limit)`,
         );
         result.passed = false;
+      } else if (descMatch && descMatch[1].length > 300) {
+        result.warnings.push(
+          `Description is ${descMatch[1].length} chars (> 300); trim for _INDEX.md readability`,
+        );
       }
     }
 
@@ -110,19 +115,102 @@ export class InstructionsStyleRule implements ValidationRule {
 }
 
 /**
- * Ensures the mandatory priority section is present.
+ * Canonical priority label per tier, enforced by PriorityRule.
+ */
+const CANONICAL_PRIORITY_LABELS: Record<string, string> = {
+  P0: 'CRITICAL',
+  P1: 'HIGH',
+  P2: 'MEDIUM',
+  P3: 'LOW',
+};
+
+/**
+ * Ensures the mandatory priority section is present and, once `labelSeverity`
+ * is 'error', that its label matches the canonical vocabulary.
  */
 export class PriorityRule implements ValidationRule {
   name = 'Priority Section';
 
+  constructor(private labelSeverity: 'warning' | 'error' = 'warning') {}
+
   async validate(content: string): Promise<RuleResult> {
-    if (!content.includes('## **Priority:')) {
+    const result: RuleResult = { passed: true, errors: [], warnings: [] };
+    const match = content.match(
+      /^## \*\*Priority:\s*(P\d)(?:\s*\(([^)]*)\))?([^\n]*)\*\*/m,
+    );
+
+    if (!match) {
       return {
         passed: false,
         errors: ['Missing priority section'],
         warnings: [],
       };
     }
+
+    const [, tier, label, trailing] = match;
+    const canonicalLabel = CANONICAL_PRIORITY_LABELS[tier];
+
+    if (!canonicalLabel) {
+      result.errors.push(`Unknown priority tier "${tier}"`);
+      result.passed = false;
+      return result;
+    }
+
+    const isCanonical = label === canonicalLabel && !trailing?.trim();
+    if (!isCanonical) {
+      const message = `Priority label must be "${tier} (${canonicalLabel})"`;
+      if (this.labelSeverity === 'error') {
+        result.errors.push(message);
+        result.passed = false;
+      } else {
+        result.warnings.push(message);
+      }
+    }
+
+    return result;
+  }
+}
+
+/**
+ * Ensures every skill is routable: at least one file glob or keyword trigger.
+ */
+export class TriggersRule implements ValidationRule {
+  name = 'Triggers';
+
+  async validate(content: string): Promise<RuleResult> {
+    const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n/);
+    if (!frontmatterMatch) {
+      // FrontmatterRule already reports missing frontmatter.
+      return { passed: true, errors: [], warnings: [] };
+    }
+
+    let parsed: unknown;
+    try {
+      parsed = yaml.load(frontmatterMatch[1]);
+    } catch {
+      return {
+        passed: false,
+        errors: ['Invalid YAML frontmatter'],
+        warnings: [],
+      };
+    }
+
+    const triggers = (
+      parsed as { metadata?: { triggers?: { files?: unknown; keywords?: unknown } } }
+    )?.metadata?.triggers;
+    const files = Array.isArray(triggers?.files) ? triggers.files : [];
+    const keywords = Array.isArray(triggers?.keywords) ? triggers.keywords : [];
+
+    if (files.length === 0 && keywords.length === 0) {
+      return {
+        passed: false,
+        errors: [
+          'Skill is unroutable: metadata.triggers must define at least one files glob or keywords entry',
+        ],
+        warnings: [],
+      };
+    }
+
     return { passed: true, errors: [], warnings: [] };
   }
 }

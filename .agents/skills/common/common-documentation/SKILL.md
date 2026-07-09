@@ -11,7 +11,7 @@ metadata:
 ---
 # Documentation Standards
 
-## **Priority: P2 (MAINTENANCE)**
+## **Priority: P2 (MEDIUM)**
 
 ## 1. Intent-First Comments
 

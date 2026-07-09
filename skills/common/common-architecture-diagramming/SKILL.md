@@ -16,7 +16,7 @@ metadata:
 ---
 # Architecture Diagramming Standard
 
-## **Priority: P1 (Standard)**
+## **Priority: P1 (HIGH)**
 
 ## Guidelines
 

@@ -13,7 +13,7 @@ metadata:
 ---
 # Performance Tuning
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Workflow: Performance Audit

@@ -14,7 +14,7 @@ metadata:
 ---
 # Caching & Redis Standards
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Caching Strategy

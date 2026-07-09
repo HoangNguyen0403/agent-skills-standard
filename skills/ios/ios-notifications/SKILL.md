@@ -14,7 +14,7 @@ metadata:
 ---
 # iOS Notifications
 
-## **Priority: P2 (OPTIONAL)**
+## **Priority: P2 (MEDIUM)**
 
 
 ## Guidelines

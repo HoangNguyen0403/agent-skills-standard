@@ -21,8 +21,8 @@ metadata:
 
 ## Implementation Guidelines
 
-- **Architecture**: Use **Compound Components** (e.g., `<Select><Select.Option /></Select>`) for complex state sharing within UI unit. Use **Higher-Order Components (HOC)** for cross-cutting concerns (e.g., `withAuth`).
-- **Composition**: Prefer **Slots** or **Render Props** (`render={(data) => ...}`) over deep prop hierarchies. Use `children` prop for layout-based composition.
+- **Architecture (default)**: Composition first — `children`/named slot props for layout, **Compound Components** (e.g., `<Select><Select.Option /></Select>`) via Context for implicit shared state within one UI unit. Reach for **Higher-Order Components** or classic **Render Props** (`render={(data) => ...}`) only when composition can't express it (e.g. wrapping a third-party class component) — hooks cover most cross-cutting concerns HOCs used to.
+- **React 19**: `ref` is a regular prop on function components — no `forwardRef` needed for new code. Use `use(promise)` / `use(context)` to read a promise or context conditionally in render instead of `useContext` + extra `useEffect` plumbing.
 - **Components**: Distinguish between **Controlled** (state from props) and **Uncontrolled** (local `useRef` state) components. Favor controlled for form validation.
 - **Props**: Use **Explicit TS interfaces**. Avoid **Prop Drilling** by leveraging **Context API** or **Zustand** for global/deeply nested state.
 - **Boolean Props**: Shorthand `<Cmp isVisible />` vs `isVisible={true}`.
@@ -30,13 +30,25 @@ metadata:
 - **Function Components**: Only hooks. No classes. Small size (<250 lines). One component per file.
 - **Exports**: Named exports only. **PascalCase** naming.
 
+```tsx
+function ThemedInput({ ref, ...props }: { ref?: React.Ref<HTMLInputElement> } & InputProps) {
+  return <input ref={ref} className={useTheme().input} {...props} />;
+}
+```
+
+## Verify
+
+- [ ] Shared implicit state uses Compound Components + Context, not prop drilling.
+- [ ] `ref` passed as a plain prop (no `forwardRef`) on components targeting React 19.
+- [ ] HOC/classic render-props only where composition genuinely can't express the wrap.
+
 ## Anti-Patterns
 
 - **No Classes**: Use hooks.
 - **No Prop Drilling**: Use Context/Zustand.
 - **No Nested Definitions**: Define components at top level.
 - **No Index Keys**: Use stable IDs.
-- **No Inline Handlers**: Define before return.
+- **No forwardRef on new React 19 code**: Accept `ref` as a normal prop instead.
 
 ## References
 

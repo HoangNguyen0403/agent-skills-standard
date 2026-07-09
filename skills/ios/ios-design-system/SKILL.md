@@ -16,7 +16,7 @@ metadata:
 ---
 # iOS Design System (SwiftUI)
 
-## **Priority: P2 (OPTIONAL)**
+## **Priority: P2 (MEDIUM)**
 
 Enforce design token usage in SwiftUI. Follow Apple HIG for iOS-native feel.
 

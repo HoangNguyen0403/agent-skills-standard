@@ -1,6 +1,6 @@
 ---
 name: common-feedback-reporter
-description: "Pre-write audit for skill violations. Checks planned code against loaded skill anti-patterns before any file write. Use when writing Flutter/Dart code, editing SKILL.md files, or generating any code where project skills are active. Load as composite alongside other skills. When a violation is detected and Auto-fixed: YES, also load +common/common-learning-log to record the mistake."
+description: "Pre-write audit for skill violations: checks planned code against loaded skill anti-patterns before any file write. Use when writing Flutter/Dart/TS code or editing SKILL.md files with active project skills. Load as composite; on auto-fixed violation, also load +common/common-learning-log."
 metadata:
   triggers:
     files:
@@ -17,7 +17,7 @@ metadata:
 
 # Feedback Reporter
 
-## **Priority: P0 - Auto-detect skill violations before file writes**
+## **Priority: P0 (CRITICAL)** — Auto-detect skill violations before file writes.
 
 ## 🚨 Checkpoint: Before File Writes
 

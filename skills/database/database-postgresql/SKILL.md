@@ -14,7 +14,7 @@ metadata:
 ---
 # PostgreSQL Database Standards
 
-## **Priority: P0 (FOUNDATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
 ## Rules
 

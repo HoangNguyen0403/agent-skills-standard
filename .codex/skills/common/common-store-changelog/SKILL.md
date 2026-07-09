@@ -1,6 +1,6 @@
 ---
 name: common-store-changelog
-description: "Generate user-facing release notes for the Apple App Store and Google Play Store by collecting git history, triaging user-impacting changes, and drafting store-compliant changelogs. Enforces character limits (App Store ≤4000, Google Play ≤500), tone, and bullet format. Use when generating release notes, app store changelog, play store release, what's new, or version release notes for any mobile app."
+description: "Generate user-facing release notes for the App Store and Google Play from git history (App Store <=4000 chars, Google Play <=500). Use when generating release notes, app store changelog, play store release, or \"what's new\" text for a mobile app."
 metadata:
   triggers:
     keywords:
@@ -14,7 +14,7 @@ metadata:
 ---
 # Store Changelog Standard
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 
 ## Always-Apply Rules

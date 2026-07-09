@@ -14,7 +14,7 @@ metadata:
 ---
 # Swift Error Handling
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Workflow: Add Error Handling to Swift Function
 

@@ -1,12 +1,8 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "rootDir": "..",
-    "noEmit": true,
-    "paths": {
-      "*": ["../node_modules/*"]
-    }
+    "noEmit": true
   },
   "include": ["**/*", "../src/**/*"]
 }

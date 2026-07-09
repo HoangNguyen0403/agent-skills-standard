@@ -13,7 +13,7 @@ metadata:
 ---
 # Spring Boot Deployment Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Containerize with Docker
 

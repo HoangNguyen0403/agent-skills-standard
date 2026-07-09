@@ -16,7 +16,7 @@
         },
         {
           "type": "contains",
-          "value": "Priority: P1 (Standard)"
+          "value": "Priority: P1 (HIGH)"
         }
       ]
     },

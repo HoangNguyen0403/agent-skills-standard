@@ -16,7 +16,7 @@ metadata:
 ---
 # Angular Tooling
 
-## **Priority: P2 (OPTIONAL)**
+## **Priority: P2 (MEDIUM)**
 
 ## CLI Essentials
 

@@ -50,7 +50,7 @@
         },
         {
           "type": "contains",
-          "value": "Priority: P2 (OPTIONAL)"
+          "value": "Priority: P2 (MEDIUM)"
         },
         {
           "type": "contains",
