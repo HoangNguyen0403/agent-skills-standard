@@ -3,6 +3,9 @@ export interface ModelInfo {
   pricePerMillion: number;
 }
 
+/** Update this alongside MODELS whenever pricing is refreshed. */
+export const PRICING_AS_OF = 'Feb 2026';
+
 // Model pricing (USD per 1M input tokens)
 // Includes Feb 2026 public rates and speculative future models
 export const MODELS: Record<string, number> = {

@@ -126,7 +126,7 @@ The CLI **never** modifies user-home files (`~/.cursor/mcp.json`, `~/.gemini/set
 
 | Version | Date | Skills | Avg Tokens | Savings (%) | Report |
 | --- | --- | --- | --- | --- | --- |
-| v2.6.0 | 2026-07-09 | 264 | 546 | 85% | [Report](benchmarks/archive/v2.6.0.md) |
+| v2.6.0 | 2026-07-10 | 264 | 528 | 46% | [Report](benchmarks/archive/v2.6.0.md) |
 | v2.4.7 | 2026-06-15 | 251 | 551 | 85% | [Report](benchmarks/archive/v2.4.7.md) |
 | v2.4.6 | 2026-06-10 | 251 | 548 | 85% | [Report](benchmarks/archive/v2.4.6.md) |
 | v2.4.1 | 2026-05-18 | 247 | 540 | 85% | [Report](benchmarks/archive/v2.4.1.md) |

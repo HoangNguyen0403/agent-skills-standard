@@ -5,6 +5,11 @@ import { SessionTracker } from "../services/SessionTracker";
 import { MatchResult, SkillIndex } from "../services/SkillIndex";
 import { summarizeSessionCostCoverage } from "../services/WorkflowTelemetry";
 import { scanWorkflows, readWorkflowBody } from "../services/WorkflowIndex";
+import {
+  listEvalRuns,
+  readEvalsReport,
+  verifyEvalRun,
+} from "../services/EvalsIndex";
 
 export interface ToolContext {
   projectRoot: string;
@@ -673,6 +678,79 @@ export async function getWorkflow(
       },
     ],
   };
+}
+
+// ---------- verify_eval_run ----------
+
+export const verifyEvalRunSchema = z.object({
+  run_id: z
+    .string()
+    .optional()
+    .describe(
+      "A specific run id under benchmarks/evals/runs/ (e.g. 'dart-v2.6.0-2026-07-10'). Omit to verify all committed runs.",
+    ),
+});
+
+export async function verifyEvalRunTool(
+  args: { run_id?: string },
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const runIds = args.run_id ? [args.run_id] : listEvalRuns(ctx.projectRoot);
+
+  if (runIds.length === 0) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: "No eval runs found under `benchmarks/evals/runs/`. Run the `evals-run` workflow first (see docs/EVALS.md) to produce one.",
+        },
+      ],
+    };
+  }
+
+  const outcomes = runIds.map((id: string) =>
+    verifyEvalRun(ctx.projectRoot, id),
+  );
+  const lines: string[] = ["# Eval Run Verification", ""];
+  let anyFailed = false;
+  for (const o of outcomes) {
+    if (o.ok) {
+      lines.push(
+        `✅ \`${o.runId}\`: verified — committed results.json matches recomputed scores.`,
+      );
+    } else {
+      anyFailed = true;
+      lines.push(`❌ \`${o.runId}\`: ${o.reason}`);
+      for (const d of o.diffs || []) lines.push(`   - ${d}`);
+    }
+  }
+
+  return {
+    content: [{ type: "text", text: lines.join("\n") }],
+    isError: anyFailed,
+  };
+}
+
+// ---------- get_eval_report ----------
+
+export const getEvalReportSchema = z.object({});
+
+export async function getEvalReport(
+  _args: Record<string, never>,
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const report = readEvalsReport(ctx.projectRoot);
+  if (!report) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: "No `evals-report.md` found at the project root yet. Run the `evals-run` workflow (see docs/EVALS.md) and then `pnpm evals:report` to generate one.",
+        },
+      ],
+    };
+  }
+  return { content: [{ type: "text", text: report }] };
 }
 
 // ---------- helpers ----------

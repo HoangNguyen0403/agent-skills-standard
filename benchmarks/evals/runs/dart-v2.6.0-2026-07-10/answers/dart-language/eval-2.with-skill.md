@@ -1,0 +1,1 @@
+Use a `sealed class Result {}` with `class Success extends Result` and `class Failure extends Result`, then a switch expression: `switch (result) { Success() => ..., Failure() => ... }`. Because `Result` is sealed, the compiler knows every subtype and errors if the switch doesn't cover `Success` and `Failure` (or lack a default).

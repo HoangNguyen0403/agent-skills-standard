@@ -1,0 +1,17 @@
+{
+  "lastUpdated": "2026-07-10T03:06:37.369Z",
+  "records": [
+    {
+      "runId": "dart-v2.6.0-2026-07-10",
+      "category": "dart",
+      "version": "2.6.0",
+      "date": "2026-07-10T03:06:30.771Z",
+      "skillCount": 3,
+      "avgBaselinePassRate": 0.1111111111111111,
+      "avgWithSkillPassRate": 1,
+      "avgDelta": 0.888888888888889,
+      "agent": "Claude Code",
+      "model": "claude-sonnet-5"
+    }
+  ]
+}

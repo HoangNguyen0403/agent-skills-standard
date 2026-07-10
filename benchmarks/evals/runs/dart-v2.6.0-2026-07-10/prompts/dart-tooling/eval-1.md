@@ -1,0 +1,1 @@
+Set up analysis_options.yaml to enforce trailing commas, single quotes, and treat missing required parameters as errors. Also integrate dart_code_metrics.

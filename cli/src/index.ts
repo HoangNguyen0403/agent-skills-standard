@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import dotenv from 'dotenv';
 import pc from 'picocolors';
 import pkg from '../package.json';
+import { EvalsCommand } from './commands/evals';
 import { FeedbackCommand } from './commands/feedback';
 import { HooksCommand } from './commands/hooks';
 import { InitCommand } from './commands/init';
@@ -170,6 +171,20 @@ program
   .action(async (action: string) => {
     const cmd = new HooksCommand();
     await cmd.run(action);
+  });
+
+program
+  .command('evals <action>')
+  .description(
+    'Verify or display live skill-eval runs. Actions: verify | report',
+  )
+  .option(
+    '--run <runId>',
+    'For verify: check a single run id instead of all committed runs',
+  )
+  .action(async (action: string, opts: { run?: string }) => {
+    const cmd = new EvalsCommand();
+    await cmd.run(action, opts);
   });
 
 program.parse();

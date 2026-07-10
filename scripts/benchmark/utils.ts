@@ -1,8 +1,29 @@
 import fs from 'fs-extra';
 import * as path from 'path';
+import { encode } from 'gpt-tokenizer';
 import { CHARS_PER_TOKEN } from './constants';
 
 const BEHAVIOR_GUARDRAIL_SKILL = /(tdd|debug|verify|protocol|review|skill-creator|workflow|security-audit)/i;
+const FRONTMATTER_GUARDRAIL_FLAG = /^guardrail:\s*true\s*$/m;
+
+/**
+ * Whether a skill is a "guardrail" skill (enforces agent behavior under
+ * pressure, e.g. TDD, verification, protocol adherence) rather than a plain
+ * knowledge/reference skill. Prefers an explicit `guardrail: true`
+ * frontmatter flag; falls back to a name-based heuristic for skills that
+ * haven't been annotated yet. Shared by the benchmark quality rubric and the
+ * live eval-run manifest builder (scripts/evals/manifest.ts).
+ */
+export function isGuardrailApplicable(
+  category: string,
+  skillId: string,
+  skillMdContent: string,
+): boolean {
+  return (
+    FRONTMATTER_GUARDRAIL_FLAG.test(skillMdContent) ||
+    BEHAVIOR_GUARDRAIL_SKILL.test(`${category}/${skillId}`)
+  );
+}
 
 interface SkillEvalAssertion {
   type: string;
@@ -23,14 +44,39 @@ interface EvalsJson {
   red_flags?: string[];
 }
 
+/**
+ * Real cl100k_base-family tokenization via `gpt-tokenizer`. Falls back to the
+ * chars/4 approximation only if encoding throws (e.g. exotic binary content).
+ */
+export function countTokensForText(content: string): number {
+  try {
+    return encode(content).length;
+  } catch {
+    return Math.ceil(content.length / CHARS_PER_TOKEN);
+  }
+}
+
 export function countTokens(filePath: string): number {
   if (!fs.existsSync(filePath)) return 0;
   const content = fs.readFileSync(filePath, 'utf-8');
-  return Math.ceil(content.length / CHARS_PER_TOKEN);
+  return countTokensForText(content);
 }
 
 export function costUSD(tokens: number, pricePerMillion: number): number {
   return (tokens / 1_000_000) * pricePerMillion;
+}
+
+/**
+ * Tokens contributed by a skill's frontmatter alone (name + description).
+ * This is the portion that is loaded into every session regardless of
+ * whether the skill body is ever read — the real "always-on" overhead.
+ */
+export function countFrontmatterTokens(skillMdPath: string): number {
+  if (!fs.existsSync(skillMdPath)) return 0;
+  const content = fs.readFileSync(skillMdPath, 'utf-8');
+  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!match) return 0;
+  return countTokensForText(match[1]);
 }
 
 export function scoreQuality(
@@ -56,8 +102,10 @@ export function scoreQuality(
   const lines = content.split('\n').length;
   const skillId = path.basename(skillDir);
   const category = path.basename(path.dirname(skillDir));
-  const behaviorGuardrailApplicable = BEHAVIOR_GUARDRAIL_SKILL.test(
-    `${category}/${skillId}`,
+  const behaviorGuardrailApplicable = isGuardrailApplicable(
+    category,
+    skillId,
+    content,
   );
 
   // 1. Actionable Constraints
@@ -83,10 +131,34 @@ export function scoreQuality(
   }
 
   // 3. Context Architecture (Progressive Disclosure OR Extreme Density)
-  const hasReferenceLinks = /\]\(references\/[^)]+\.md\)/i.test(content);
-  if (hasReferenceLinks) {
+  // A link only counts if the target file actually exists and is non-empty —
+  // a dangling `](references/foo.md)` is not "progressive disclosure".
+  const referenceLinkMatches = [
+    ...content.matchAll(/\]\(references\/([^)]+\.md)\)/gi),
+  ];
+  const referenceLinkTargets = referenceLinkMatches.map((m) =>
+    path.join(skillDir, 'references', m[1]),
+  );
+  const verifiedReferenceLinks = referenceLinkTargets.filter((p) => {
+    try {
+      return fs.existsSync(p) && fs.statSync(p).size > 0;
+    } catch {
+      return false;
+    }
+  });
+  const brokenReferenceLinks = referenceLinkTargets.length - verifiedReferenceLinks.length;
+  const hasVerifiedReferenceLinks =
+    referenceLinkTargets.length > 0 && brokenReferenceLinks === 0;
+
+  if (hasVerifiedReferenceLinks) {
     score += 2;
-    detail.push('✅ Progressive Disclosure (links to references used)');
+    detail.push(
+      `✅ Progressive Disclosure (${verifiedReferenceLinks.length} verified references/ link(s))`,
+    );
+  } else if (brokenReferenceLinks > 0) {
+    detail.push(
+      `❌ Broken references/ link(s): ${brokenReferenceLinks} of ${referenceLinkTargets.length} target(s) missing or empty`,
+    );
   } else if (lines <= 60) {
     score += 2;
     detail.push('✅ Efficiency Mastery (ultra-dense ≤ 60 lines)');
@@ -107,7 +179,7 @@ export function scoreQuality(
   //    teach what the evals test? This is the static proxy for "with vs without skill".
   const evalsPath = path.join(skillDir, 'evals', 'evals.json');
   let evalCount = 0;
-  let evalAlignmentPct = 0;
+  let evalAlignmentPct = -1; // -1 = n/a (no evals, or no contains assertions)
 
   if (fs.existsSync(evalsPath)) {
     const evalsData = fs.readJSONSync(evalsPath) as EvalsJson;
@@ -142,24 +214,29 @@ export function scoreQuality(
         }
       }
     }
+    // Sentinel -1 means "no contains assertions to check" (n/a), distinct
+    // from a legitimate 0% alignment score.
     evalAlignmentPct =
       containsAssertions > 0
         ? Math.round((alignedAssertions / containsAssertions) * 100)
-        : 0;
+        : -1;
 
     const missingParts: string[] = [];
     if (!hasNotTrigger) missingParts.push('should_not_trigger');
     if (avgAssertions < 2) missingParts.push('≥2 assertions/eval');
 
+    const alignmentLabel =
+      evalAlignmentPct >= 0 ? `${evalAlignmentPct}% aligned` : 'n/a aligned (no contains assertions)';
+
     if (evalCount >= 3 && hasNotTrigger && avgAssertions >= 2) {
       score += 2;
       detail.push(
-        `✅ Eval Coverage (${evalCount} evals, ${avgAssertions.toFixed(1)} assertions/eval, ${evalAlignmentPct}% aligned)`,
+        `✅ Eval Coverage (${evalCount} evals, ${avgAssertions.toFixed(1)} assertions/eval, ${alignmentLabel})`,
       );
     } else if (evalCount > 0) {
       score += 1;
       detail.push(
-        `⚠️ Partial Eval Coverage (${evalCount} evals, missing: ${missingParts.join(', ')}, ${evalAlignmentPct}% aligned)`,
+        `⚠️ Partial Eval Coverage (${evalCount} evals, missing: ${missingParts.join(', ')}, ${alignmentLabel})`,
       );
     } else {
       detail.push('❌ Missing evals/evals.json — add eval prompts to measure with/without-skill delta');

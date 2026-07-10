@@ -1,0 +1,1 @@
+Use an abstract base class with two subclasses for the two outcomes, and handle both branches with `if (result is Success) ... else if (result is Failure) ...`. To get compile-time exhaustiveness checking you'd need to be careful — plain inheritance with `is` checks won't force you to handle new subtypes if one gets added later, so keep the else branch as a safety net.

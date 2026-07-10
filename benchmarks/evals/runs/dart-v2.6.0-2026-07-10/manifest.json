@@ -1,0 +1,194 @@
+{
+  "runId": "dart-v2.6.0-2026-07-10",
+  "category": "dart",
+  "version": "2.6.0",
+  "createdAt": "2026-07-10T03:02:41.552Z",
+  "metadata": {
+    "agent": "Claude Code",
+    "model": "claude-sonnet-5",
+    "startedAt": "2026-07-10T03:02:41.552Z",
+    "completedAt": "2026-07-10T03:20:00.000Z"
+  },
+  "skills": [
+    {
+      "category": "dart",
+      "skillName": "dart-best-practices",
+      "skillPath": "skills/dart/dart-best-practices/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "done",
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "done",
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "done",
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "done"
+          }
+        }
+      ]
+    },
+    {
+      "category": "dart",
+      "skillName": "dart-language",
+      "skillPath": "skills/dart/dart-language/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "done",
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "done",
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "done",
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "done"
+          }
+        }
+      ]
+    },
+    {
+      "category": "dart",
+      "skillName": "dart-tooling",
+      "skillPath": "skills/dart/dart-tooling/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "done",
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "done",
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "done",
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "done"
+          }
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "done"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -43,7 +43,8 @@ export function summarizeSessionCostCoverage(
   if (args.completionTokens === undefined) {
     missingHostFields.push("completionTokens");
   }
-  if (args.inputCostPer1M === undefined) missingHostFields.push("inputCostPer1M");
+  if (args.inputCostPer1M === undefined)
+    missingHostFields.push("inputCostPer1M");
   if (args.outputCostPer1M === undefined) {
     missingHostFields.push("outputCostPer1M");
   }

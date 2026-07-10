@@ -1,0 +1,1 @@
+Return a small typed wrapper — e.g. define a two-field class `ApiResult` with a nullable value and a nullable error message, and return an instance of it. That avoids exceptions for expected failure paths and keeps the caller's control flow linear.

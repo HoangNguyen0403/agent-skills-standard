@@ -527,6 +527,20 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for design details and [CLI Architectur
 
 ---
 
+## 🧪 Live Evals — Measured, Not Just Structural
+
+[`benchmark-report.md`](./benchmark-report.md) measures skill **size** — tokens, structure, rubric score. It's fast and free, but it can't tell you whether a skill actually changes agent behavior. [`evals-report.md`](./evals-report.md) does: each skill's real eval prompts are answered by an agent twice — once with no skill loaded (baseline), once with it loaded (with-skill) — and scored deterministically against the assertions already in `evals/evals.json`.
+
+This runs inside any coding agent's normal chat session (Claude Code, Copilot, Codex, Antigravity — no API key needed beyond what you already use to run that agent), and every result is independently verifiable afterward with no agent involved:
+
+```bash
+pnpm evals:verify -- --all   # re-score every committed run, no API key, no LLM call
+```
+
+See [docs/EVALS.md](./docs/EVALS.md) for the full protocol, the trust model, and how to run your own category.
+
+---
+
 ## License & Credits
 
 - **License**: MIT
@@ -536,7 +550,7 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for design details and [CLI Architectur
 
 | Version | Date | Skills | Avg Tokens | Savings (%) | Report |
 | --- | --- | --- | --- | --- | --- |
-| v2.6.0 | 2026-07-09 | 264 | 546 | 85% | [Report](benchmarks/archive/v2.6.0.md) |
+| v2.6.0 | 2026-07-10 | 264 | 528 | 46% | [Report](benchmarks/archive/v2.6.0.md) |
 | v2.4.7 | 2026-06-15 | 251 | 551 | 85% | [Report](benchmarks/archive/v2.4.7.md) |
 | v2.4.6 | 2026-06-10 | 251 | 548 | 85% | [Report](benchmarks/archive/v2.4.6.md) |
 | v2.4.1 | 2026-05-18 | 247 | 540 | 85% | [Report](benchmarks/archive/v2.4.1.md) |
