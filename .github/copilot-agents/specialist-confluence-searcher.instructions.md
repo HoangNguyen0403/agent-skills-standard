@@ -15,7 +15,7 @@ Find relevant docs and related issues, then summarize decisions, conflicts, and 
 
 - Tool cap: <= 8 calls.
 - Read only high-relevance pages.
-- If MCP unavailable, ask for exported page text or links.
+- If MCP unavailable, ask for exported page text or links; if neither exists, return `BLOCKED`.
 - No sub-agents.
 
 ## Steps

@@ -12,16 +12,16 @@ metadata:
 > [!IMPORTANT]
 > Post-merge UAT verification workflow. Walks JIRA reproduce steps, performs comparative audits (Before/After), attaches evidence to JIRA, and transitions status on PASS.
 
-Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false, profile=business|hybrid|technical.
 
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
 
 
-# 🕵️ Verify-Bug — Enterprise UAT Audit
+# Verify-Bug — UAT Audit
 
-This workflow verifies that a bug fix is working as intended in the UAT environment. It uses high-fidelity automation and automated diagnostic reasoning.
+Goal: Prove a bug fix works in the UAT environment via comparative Before/After evidence, then transition ticket status.
 
 ## Input
 
@@ -75,6 +75,17 @@ If the verdict is NOT PASS:
     - Use the **Walkthrough Template** below.
     - Update project-local `docs/srs/srs-walkthrough.md`.
 
+## Runtime Contract
+- Use for post-merge UAT verification of a bug fix against JIRA reproduce steps.
+- Required inputs: JIRA URL/key or exported ticket text with reproduce steps and expected result.
+- Return NEEDS-HUMAN only when the end-state deviates from both expected and original-bug behavior.
+
+## Handoff Payload
+- `slug`, `operator_profile` (carried, not re-inferred), verdict (PASS/FAIL/NEEDS-HUMAN), walkthrough path, diagnostic label, outcome report, next workflow.
+
+## Blocking Questions
+- Ask max 3 at a time with a recommended default and 2-3 options.
+
 ## Artifact Templates
 
 ### Walkthrough Template
@@ -94,14 +105,20 @@ If the verdict is NOT PASS:
 
 ## Risks
 
+## Outcome Report
+feature_status: implemented | blocked
+requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
+completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: deploy-release | dev-fix
+
 ## Next Workflow
+deploy-release | dev-fix
 ```
 
 ## Cost Report
 
-Call `get_session_cost` and output telemetry here before ending.
+Call `get_session_cost(workflow="verify-bug")` before final handoff.
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
 - **No Sequential Runs**: Verify all markets in parallel.
 - **No Unnamed Sessions**: Traceability depends on `-s={TICKET}`.

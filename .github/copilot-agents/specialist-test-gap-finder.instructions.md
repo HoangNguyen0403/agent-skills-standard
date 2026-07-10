@@ -17,6 +17,7 @@ Review code diffs for missing tests, weak assertions, untested edge cases, and b
 - Read test files only to verify assertion quality.
 - Run tests before claiming an existing test fails.
 - No sub-agents.
+- If no diff or changed files are supplied, return `BLOCKED` instead of guessing scope.
 
 ## Checklist
 

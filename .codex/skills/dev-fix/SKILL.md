@@ -12,16 +12,16 @@ metadata:
 > [!IMPORTANT]
 > Unified developer workflow for fixing bugs. Analyzes issue-tracker context, cross-checks docs/code, proposes a solution, implements the fix, verifies locally, and delivers a PR/MR.
 
-Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false, profile=business|hybrid|technical.
 
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
 
 
-# 🛠 Dev-Fix — Professional Bug Remediation
+# Dev-Fix — Bug Remediation
 
-This workflow manages the bug-fix lifecycle from issue analysis to PR/MR delivery. It enforces a strict **Propose -> Approve -> Verify** cycle using native artifacts.
+Goal: Take a bug ticket from root-cause analysis through a locally-verified PR/MR, enforcing a strict **Propose -> Approve -> Verify** cycle.
 
 ## Input
 
@@ -85,6 +85,17 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 
 ---
 
+## Runtime Contract
+- Use for bug tickets that need root-cause remediation and a PR/MR.
+- Required inputs: issue URL/key or exported ticket text with reproduce steps.
+- Return BLOCKED only when repro steps, expected result, or root-cause hypothesis cannot be established.
+
+## Handoff Payload
+- `slug`, `operator_profile` (carried, not re-inferred), implementation plan path, task list path, walkthrough path, PR/MR link, outcome report, next workflow.
+
+## Blocking Questions
+- Ask max 3 at a time with a recommended default and 2-3 options.
+
 ## Artifact Templates
 
 ### Implementation Plan Template
@@ -107,6 +118,7 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 ## Verification Plan
 
 ## Next Workflow
+implementation-readiness
 ```
 
 ### Task Template
@@ -125,6 +137,7 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 ## Evidence
 
 ## Next Workflow
+verify-work
 ```
 
 ### Walkthrough Template
@@ -144,14 +157,20 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 
 ## Risks
 
+## Outcome Report
+feature_status: implemented | partially_implemented | blocked
+requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
+completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: verify-bug | verify-work
+
 ## Next Workflow
+verify-bug | verify-work
 ```
 
 ## Cost Report
 
-Call `get_session_cost` and output telemetry here before ending.
+Call `get_session_cost(workflow="dev-fix")` before final handoff.
 
-## 🚫 Anti-Patterns
+## Anti-Patterns
 
 - **No Blind Implementation**: Never write code before the implementation plan is approved.
 - **No Orphan Sessions**: Always `close` browser/appium sessions used during verification.

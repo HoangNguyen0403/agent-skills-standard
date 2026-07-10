@@ -28,7 +28,7 @@ interface TransformedWorkflow {
 }
 
 const WORKFLOW_ARGUMENTS =
-  'Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.';
+  'Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false, profile=business|hybrid|technical.';
 
 /**
  * Transforms workflow markdown into each agent's native user-invoked command format.
@@ -90,11 +90,7 @@ export class WorkflowTransformer {
       case 'toml':
         return {
           name: `${baseName}.toml`,
-          content: this.toGeminiCommand(
-            baseName,
-            description,
-            workflowSourcePath,
-          ),
+          content: this.toGeminiCommand(description, body),
         };
 
       case 'prompt':
@@ -159,24 +155,23 @@ ${body}`;
   /**
    * Gemini CLI TOML command format.
    * Lives at .gemini/commands/<name>.toml
-   * References the workflow source file via prompt.
+   * Inlines the workflow body so the command is self-contained even when
+   * .agents/workflows/ is not also synced to this runtime.
    * User invokes via /<name> [arguments]
    */
-  private static toGeminiCommand(
-    name: string,
-    description: string,
-    workflowSourcePath: string,
-  ): string {
+  private static toGeminiCommand(description: string, body: string): string {
     const escapedDescription = description
       .replace(/\\/g, '\\\\')
       .replace(/"/g, '\\"');
+    // TOML basic multi-line strings use """; escape any occurrence in the body.
+    const escapedBody = body.replace(/"""/g, '\\"\\"\\"');
     return `description = "${escapedDescription}"
 prompt = """
-Please execute the workflow defined in \`${workflowSourcePath}/${name}.md\` for: {{args}}
+Execute this workflow for: {{args}}
 
 ${WORKFLOW_ARGUMENTS}
 
-Follow the exact steps in the workflow file.
+${escapedBody}
 """
 `;
   }

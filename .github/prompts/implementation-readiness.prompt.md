@@ -33,6 +33,15 @@ Goal: Decide whether a planned change is ready for implementation or must return
    - BLOCKED -> `plan-feature` or `design-solution`.
    - PARTIAL -> slice task list plus blockers.
 
+## Runtime Contract
+- Use before implementation starts to gate go/no-go.
+- Required inputs: BRD-lite/PRD/SRS artifacts plus a test strategy to check against.
+- Return BLOCKED only when a required artifact, owner, AC, design, environment, or risk is unresolved.
+## Handoff Payload
+- `slug`, verdict (READY/BLOCKED/PARTIAL), ready slices, blocking gaps, outcome report, next workflow.
+## Blocking Questions
+- Ask max 3 at a time with a recommended default and 2-3 options.
+
 ## Output Template
 
 ```md
@@ -52,12 +61,6 @@ Goal: Decide whether a planned change is ready for implementation or must return
 feature_status: design_ready | partially_implemented | blocked
 requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> planned evidence
 completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: implement-feature | plan-feature | design-solution
-
-## Runtime Contract
-
-## Handoff Payload
-
-## Blocking Questions
 
 ## Next Workflow
 

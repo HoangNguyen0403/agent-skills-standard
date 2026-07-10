@@ -358,7 +358,7 @@ describe('WorkflowSyncService', () => {
       );
     });
 
-    it('should skip agents with no workflow support', async () => {
+    it('should write native workflows for Windsurf (.windsurf/workflows)', async () => {
       const workflows = [
         {
           skill: 'workflows',
@@ -373,7 +373,10 @@ describe('WorkflowSyncService', () => {
       await workflowSyncService.writeWorkflows(workflows as any, {} as any, [
         Agent.Windsurf,
       ]);
-      expect(fs.outputFile).not.toHaveBeenCalled();
+      expect(fs.outputFile).toHaveBeenCalledWith(
+        expect.stringContaining(path.join('.windsurf', 'workflows')),
+        expect.stringContaining('# Review'),
+      );
     });
 
     it('should write to multiple agents with different formats', async () => {

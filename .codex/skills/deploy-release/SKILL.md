@@ -12,7 +12,7 @@ metadata:
 > [!IMPORTANT]
 > Prepare and verify a staged or production deployment with rollback and smoke checks.
 
-Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false, profile=business|hybrid|technical.
 
 ## Instructions
 
@@ -44,10 +44,22 @@ Goal: Ship verified work with explicit deployment steps, smoke checks, and rollb
    - User-facing notes -> `publish-notes`.
    - Process and standards feedback -> `retro-learn`.
 
+## Runtime Contract
+- Use once verification/UAT signoff is PASS and a release window is open.
+- Required inputs: verification report plus release version, environment, and rollback path.
+- Return BLOCKED only when required approvals, migrations, or rollback path are unresolved.
+## Handoff Payload
+- `slug`, release verdict (GO/NO-GO/ROLLED-BACK), smoke check results, rollback path, outcome report, next workflow.
+## Blocking Questions
+- Ask max 3 at a time with a recommended default and 2-3 options.
+
 ## Output Template
 
 ```md
 # Deployment Report: [Name]
+
+## Release Verdict
+GO | NO-GO | ROLLED-BACK
 
 ## Release
 
@@ -63,10 +75,16 @@ Goal: Ship verified work with explicit deployment steps, smoke checks, and rollb
 
 ## Rollback
 
+## Outcome Report
+feature_status: implemented | blocked
+requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
+completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: publish-notes | retro-learn
+
 ## Next Workflow
 
 publish-notes | retro-learn
 
 ## Cost Report
+Call `get_session_cost(workflow="deploy-release")` before final handoff.
 ```
 

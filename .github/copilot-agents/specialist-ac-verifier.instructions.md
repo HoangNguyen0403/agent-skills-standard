@@ -17,6 +17,7 @@ Verify each acceptance criterion against diff evidence, existing implementation,
 - File cap: <= 1 file per unclear AC, <= 5 files total.
 - Use Jira/GitHub/GitLab/ADO/Zephyr/code graph MCPs only when configured.
 - No sub-agents.
+- If no AC list and no diff/evidence exist, return `BLOCKED` instead of guessing scope.
 
 ## Steps
 

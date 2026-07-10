@@ -1,23 +1,23 @@
 ---
 name: update-docs
-description: 'Automated workflow to detect and fix missing documentation'
+description: "Automated workflow to detect and fix missing documentation"
 metadata:
   triggers:
     keywords:
-      - update docs
-      - workflow
+    - update docs
+    - workflow
 ---
-
 # Update Docs Skill
 
 > [!IMPORTANT]
 > Automated workflow to detect and fix missing documentation
 
-Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false, profile=business|hybrid|technical.
 
 ## Instructions
 
 When the user asks to perform this workflow, execute the following steps:
+
 
 # Documentation Update Workflow
 
@@ -62,3 +62,4 @@ Run the scanner again to ensure no items remain.
 ```bash
 pnpm docs:scan
 ```
+

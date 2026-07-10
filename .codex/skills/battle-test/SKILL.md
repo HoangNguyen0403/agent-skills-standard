@@ -12,7 +12,7 @@ metadata:
 > [!IMPORTANT]
 > Deep audit of a skills directory against the Skill Creator standard. Produces a scored report and phased remediation plan.
 
-Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false, profile=business|hybrid|technical.
 
 ## Instructions
 

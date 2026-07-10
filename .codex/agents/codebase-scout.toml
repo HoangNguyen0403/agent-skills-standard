@@ -16,6 +16,7 @@ Map affected services, files, architecture layers, tests, conventions, and impac
 - Prefer code graph or MCP structure tools when configured.
 - Shell only for read-only git/search commands.
 - No sub-agents.
+- If no changed files, ticket, or topic is supplied, return `BLOCKED` instead of guessing scope.
 
 ## Steps
 

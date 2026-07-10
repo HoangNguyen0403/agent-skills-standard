@@ -12,7 +12,7 @@ metadata:
 > [!IMPORTANT]
 > Fast, continuous DevSecOps pipeline for Pull Requests and active branches. Runs SAST, SCA, and secrets detection to catch vulnerabilities before they merge.
 
-Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false, profile=business|hybrid|technical.
 
 ## Instructions
 

@@ -1,5 +1,5 @@
 ---
-description: 'Automated workflow to detect and fix missing documentation'
+description: "Automated workflow to detect and fix missing documentation"
 ---
 
 # Documentation Update Workflow

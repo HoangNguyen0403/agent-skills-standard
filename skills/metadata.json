@@ -382,9 +382,9 @@
       "last_updated": "2026-07-04",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 38,
-        "total_tokens": 26913,
-        "avg_tokens_per_skill": 708,
+        "total_skills": 39,
+        "total_tokens": 27712,
+        "avg_tokens_per_skill": 711,
         "largest_skill": "common-skill-creator (1626 tokens)"
       }
     },
@@ -405,9 +405,9 @@
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 16,
-        "total_tokens": 7341,
-        "avg_tokens_per_skill": 459,
-        "largest_skill": "specialist-security-reviewer (713 tokens)"
+        "total_tokens": 7424,
+        "avg_tokens_per_skill": 464,
+        "largest_skill": "specialist-security-reviewer (721 tokens)"
       }
     },
     "golang": {

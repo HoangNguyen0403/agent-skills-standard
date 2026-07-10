@@ -126,13 +126,20 @@ describe('WorkflowTransformer', () => {
       );
     });
 
-    it('should reference the workflow source file', () => {
-      const result = WorkflowTransformer.transform(
-        SOURCE,
-        'toml',
-        '.agents/workflows',
-      );
-      expect(result!.content).toContain('.agents/workflows/code-review.md');
+    it('should inline the workflow body so the command is self-contained', () => {
+      const result = WorkflowTransformer.transform(SOURCE, 'toml');
+      expect(result!.content).toContain('## Step 1 — Scope');
+      expect(result!.content).toContain('Check scope with `git diff`.');
+      expect(result!.content).not.toContain('.agents/workflows/');
+    });
+
+    it('should escape triple-quotes in the body', () => {
+      const quoted = {
+        name: 'quoted.md',
+        content: `---\ndescription: Has quotes.\n---\n\nBody with a literal """ sequence.\n`,
+      };
+      const result = WorkflowTransformer.transform(quoted, 'toml');
+      expect(result!.content).toContain('\\"\\"\\"');
     });
 
     it('should include {{args}} placeholder', () => {

@@ -35,6 +35,15 @@ Goal: Turn defects, missed expectations, and delivery friction into durable stan
    - Run eval alignment.
    - Record remaining follow-ups.
 
+## Runtime Contract
+- Use after delivery findings, corrections, or friction need converting into durable standards improvements.
+- Required inputs: review findings, verification results, or session-report artifacts to classify.
+- Return BLOCKED only when no evidence exists to classify.
+## Handoff Payload
+- `slug`, root causes, skill/eval updates, follow-ups, next workflow.
+## Blocking Questions
+- Ask max 3 at a time with a recommended default and 2-3 options.
+
 ## Output Template
 
 ```md
@@ -50,11 +59,10 @@ Goal: Turn defects, missed expectations, and delivery friction into durable stan
 
 ## Skill Or Eval Updates
 
-## Runtime Contract
-
-## Handoff Payload
-
-## Blocking Questions
+## Outcome Report
+feature_status: implemented
+requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
+completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: none
 
 ## Next Workflow
 

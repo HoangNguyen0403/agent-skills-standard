@@ -11,8 +11,10 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Readiness              | Are we ready to build?                          | `implementation-readiness` | BRD/PRD/SRS or test plan needs go/no-go              | readiness verdict        |
 | Build                  | Can we implement safely?                        | `implement-feature`        | Approved feature needs code                          | `task.md` and handoff    |
 | Verify                 | Did we prove it with fresh evidence?            | `verify-work`              | Work is code-complete but unproven                   | `walkthrough.md`         |
+| UAT Signoff            | Does the business accept it?                    | `uat-signoff`               | `verify-work` PASS needs business acceptance before release | signoff decision  |
 | Trace                  | Is every requirement covered?                   | `traceability-audit`       | Pre-release or handoff needs evidence mapping        | traceability report      |
 | Release                | Is deployment safe?                             | `deploy-release`           | Verification passed and deployment is planned        | deployment report        |
+| Incident               | How do we stop harm right now?                  | `incident-hotfix`          | Production incident or urgent regression needs mitigate-first response | mitigation + handoff |
 | Publish                | What do users need to know?                     | `publish-notes`            | Need release communication                           | release notes            |
 | Learn                  | How do we prevent repeat issues?                | `retro-learn`              | Need standards/process feedback loop                 | retro report             |
 | Session                | What happened in this delivery?                 | `session-report`           | Need concise run summary and follow-ups              | session report           |

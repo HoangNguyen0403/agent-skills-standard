@@ -19,6 +19,8 @@ npx agent-skills-standard@latest sync
 
 If `ags -V` still shows an old version after reinstalling, check your PATH order. `~/Library/pnpm` must come before `~/Library/pnpm/bin`, then run `hash -r` and verify with `ags -V` again.
 
+**Not an engineer?** You don't need to run any of the above — just describe your idea to your AI agent. See [Getting Started: Product Owner](docs/getting-started-product-owner.md).
+
 ---
 
 ## The Problem
