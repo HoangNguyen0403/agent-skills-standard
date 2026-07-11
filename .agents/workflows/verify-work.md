@@ -8,7 +8,7 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
 
 ## Steps
 1. Load scope:
-   - BRD-lite, PRD, SRS/FRS, ticket, implementation plan, release note, acceptance criteria, non-goals, changed files, and matched skills.
+   - BRD-lite, PRD, SRS/FRS, ticket, implementation plan, release note, acceptance criteria, non-goals, changed files, matched skills, and inherited `operator_profile` (carry, do not re-infer).
 2. Select verification lanes:
    - Unit/component, integration/API, E2E/visual, mobile, security, migration, or deployment smoke.
 3. Execute:
@@ -33,7 +33,7 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
 - Required inputs: explicit scope plus acceptance criteria or expected behavior.
 - Return BLOCKED only when environment, credentials, or approval prevents proof.
 ## Handoff Payload
-- verification report, AC trace, comparative evidence, risks observed, updated walkthrough path, next workflow.
+- `operator_profile`, verification report, AC trace, comparative evidence, risks observed, updated walkthrough path, outcome report, next workflow.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 ## Artifact Template
@@ -68,8 +68,13 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
 ## Requirement Trace Status (Business -> Test)
 ## Observed Risks & Edge Cases
 
+## Outcome Report
+feature_status: implemented | partially_implemented | blocked
+requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
+completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: uat-signoff | dev-fix | implement-feature
+
 ## Next Workflow
-implement-feature | dev-fix
+uat-signoff | implement-feature | dev-fix
 ## Cost Report
 Call `get_session_cost(workflow="verify-work")` before final handoff.
 ```

@@ -41,6 +41,15 @@ Goal: Build an approved feature through TDD slices and route completed work to v
    - For autonomous/channel mode, delegate only with disjoint files, owner, AC IDs, expected artifact, and verification command.
    - Route next step to `verify-work`.
 
+## Runtime Contract
+- Use for approved plans ready to build; failing test first, no pre-test implementation kept as reference.
+- Required inputs: PRD/ticket with stable `REQ-*`/`AC-*` trace and required SRS/test lanes.
+- Return BLOCKED only when required trace, owner, or test lanes are missing.
+## Handoff Payload
+- `slug`, `operator_profile` (carried, not re-inferred), completed slices, tests run, changed contracts, delegation packets, outcome report, next workflow.
+## Blocking Questions
+- Ask max 3 at a time with a recommended default and 2-3 options.
+
 ## Output Template
 
 ```md
@@ -58,23 +67,14 @@ Goal: Build an approved feature through TDD slices and route completed work to v
 
 ## Known Risks
 
+## Delegation Packets
+
 ## Outcome Report
 feature_status: partially_implemented | implemented | blocked
 requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
 completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: verify-work | plan-feature | design-solution
-
-## Runtime Contract
-
-## Handoff Payload
-
-## Delegation Packets
-
-## Blocking Questions
-
 ## Next Workflow
-
 verify-work
-
 ## Cost Report
 Call `get_session_cost(workflow="implement-feature")` before final handoff.
 ```

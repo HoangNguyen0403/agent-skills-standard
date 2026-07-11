@@ -38,6 +38,7 @@
 | **common-git-collaboration** | commit, branch, merge, pull-request, git |
 | **common-llm-security** | LLM security, prompt injection, agent security, RAG security, AI security, openai, anthropic, langchain, LLM review |
 | common-mobile-visual-testing | visual test, mobile test, verify ui, dark mode test, accessibility audit, behavioral test, visual regression, localization test |
+| **common-operator-profile** | operator profile, audience adaptation, non-technical stakeholder, business owner, plain language summary |
 | **common-owasp** | security review, OWASP, broken access control, IDOR, BOLA, injection, broken auth, API review, authorization, access control, mobile security |
 | **common-pentest-methodology** | pentest, penetration test, red team, attack surface, threat model, PTES, security assessment, exploit, hacker score |
 | **common-performance-engineering** | performance, optimize, profile, scalability, latency, throughput, memory leak, bottleneck |

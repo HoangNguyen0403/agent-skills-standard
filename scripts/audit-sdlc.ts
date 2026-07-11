@@ -25,6 +25,8 @@ const AGENTIC_RUNTIME_WORKFLOWS = [
   "implement-feature",
   "verify-work",
   "retro-learn",
+  "uat-signoff",
+  "incident-hotfix",
 ];
 const REQUIRED_RUNTIME_SECTIONS = [
   "## Runtime Contract",
@@ -55,6 +57,45 @@ const TRUST_POLICY_WORKFLOWS = [
   "security-test",
 ];
 
+// Core BA->PM->IT->QA->release chain that the `sdlc` router must be able to reach.
+// Adjacent/specialist workflows (pentest, security-test, skill-benchmark, battle-test,
+// update-docs, zephyr-coverage-analysis) are invoked directly and are not routed by sdlc.
+const CORE_SDLC_CHAIN = [
+  "brainstorm-feature",
+  "plan-feature",
+  "design-solution",
+  "implementation-readiness",
+  "implement-feature",
+  "verify-work",
+  "uat-signoff",
+  "traceability-audit",
+  "deploy-release",
+  "publish-notes",
+  "retro-learn",
+  "session-report",
+  "dev-fix",
+  "review-ticket",
+  "code-review",
+  "codebase-review",
+  "verify-bug",
+  "incident-hotfix",
+];
+
+// Workflows that talk directly to the requesting operator and must carry `operator_profile`
+// in their Handoff Payload per `common-operator-profile`. Implementation-side workflows only
+// carry the key without register rules and are not required to declare it explicitly.
+const OPERATOR_FACING_WORKFLOWS = [
+  "sdlc",
+  "brainstorm-feature",
+  "plan-feature",
+  "verify-work",
+  "uat-signoff",
+  "publish-notes",
+  "session-report",
+];
+
+const NEXT_WORKFLOW_ALIASES = new Set(["none", "n/a", ""]);
+
 interface WorkflowRule {
   maxLines?: number;
   requireGoal?: boolean;
@@ -73,7 +114,12 @@ interface WorkflowRule {
  */
 const WORKFLOW_RULES: Record<string, WorkflowRule> = {
   // Strict standard tasks (<= 80 lines, must have Goal and Output Template)
-  sdlc: { maxLines: 80, requireGoal: true, requireOutputTemplate: true },
+  sdlc: {
+    maxLines: 100,
+    requireGoal: true,
+    requireOutputTemplate: true,
+    notes: "Router must enumerate the full workflow graph incl. post-verify tail (uat-signoff, deploy-release, incident-hotfix, traceability-audit, session-report, retro-learn, codebase-review).",
+  },
   "brainstorm-feature": {
     maxLines: 80,
     requireGoal: true,
@@ -165,18 +211,18 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
       "Deep security pentest workflow with structured vulnerability findings",
   },
   "dev-fix": {
-    maxLines: 150,
-    requireGoal: false,
+    maxLines: 170,
+    requireGoal: true,
     requireOutputTemplate: false,
     notes:
-      "Full developer lifecycle bug-fix manager. Requires custom templates (plan, task, walkthrough) and exceeds 80 lines due to complexity.",
+      "Full developer lifecycle bug-fix manager. Requires custom templates (plan, task, walkthrough) and exceeds 80 lines due to complexity; now schema-aligned with Runtime Contract/Handoff Payload/Blocking Questions.",
   },
   "verify-bug": {
-    maxLines: 100,
-    requireGoal: false,
+    maxLines: 115,
+    requireGoal: true,
     requireOutputTemplate: false,
     notes:
-      "Enterprise UAT bug verification flow. Relies on custom Walkthrough templates and exceeds 80 lines due to multi-market/VPN handling.",
+      "Enterprise UAT bug verification flow. Relies on custom Walkthrough templates and exceeds 80 lines due to multi-market/VPN handling; now schema-aligned with Runtime Contract/Handoff Payload/Blocking Questions.",
   },
   "security-test": {
     maxLines: 90,
@@ -184,6 +230,16 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
     requireOutputTemplate: true,
     notes:
       "High-speed PR security audit check. Has a slightly longer line count limit (90 lines).",
+  },
+  "uat-signoff": {
+    maxLines: 80,
+    requireGoal: true,
+    requireOutputTemplate: true,
+  },
+  "incident-hotfix": {
+    maxLines: 80,
+    requireGoal: true,
+    requireOutputTemplate: true,
   },
 };
 
@@ -222,6 +278,22 @@ function fail(message: string, failures: string[]) {
 
 function pass(message: string) {
   console.log(pc.green(`  ✓ ${message}`));
+}
+
+function extractNextWorkflowTokens(content: string): string[] {
+  const tokens: string[] = [];
+  const blockRegex = /## Next Workflow\r?\n([\s\S]*?)(?=\r?\n## |\r?\n```|$)/g;
+  let match: RegExpExecArray | null;
+  while ((match = blockRegex.exec(content)) !== null) {
+    const block = match[1];
+    const candidates = block.match(/[a-z][a-z0-9]*(?:-[a-z0-9]+)+/g) ?? [];
+    for (const candidate of candidates) {
+      if (!NEXT_WORKFLOW_ALIASES.has(candidate.toLowerCase())) {
+        tokens.push(candidate);
+      }
+    }
+  }
+  return tokens;
 }
 
 function checkPortableContent(
@@ -290,6 +362,20 @@ async function main() {
         if (!hasOutputTemplate) {
           fail(`${workflow}.md missing Output Template`, failures);
         }
+        if (CORE_SDLC_CHAIN.includes(workflow) && !content.includes("feature_status:")) {
+          fail(
+            `${workflow}.md fenced Output Template missing feature_status Outcome Report field`,
+            failures,
+          );
+        }
+      }
+
+      if (OPERATOR_FACING_WORKFLOWS.includes(workflow)) {
+        if (content.includes("operator_profile")) {
+          pass(`${workflow}.md Handoff Payload carries operator_profile`);
+        } else {
+          fail(`${workflow}.md missing operator_profile in Handoff Payload`, failures);
+        }
       }
 
       if (AGENTIC_RUNTIME_WORKFLOWS.includes(workflow)) {
@@ -300,11 +386,45 @@ async function main() {
             fail(`${workflow}.md missing ${section}`, failures);
           }
         }
-        if (content.includes(REQUIRED_COST_CALL)) {
-          pass(`${workflow}.md includes ${REQUIRED_COST_CALL}`);
+        const costCallExact = `get_session_cost(workflow="${workflow}")`;
+        if (content.includes(costCallExact)) {
+          pass(`${workflow}.md includes exact Cost Report call`);
         } else {
-          fail(`${workflow}.md missing ${REQUIRED_COST_CALL}`, failures);
+          fail(
+            `${workflow}.md Cost Report must call ${costCallExact}`,
+            failures,
+          );
         }
+
+        const contractIndex = content.indexOf("## Runtime Contract");
+        const firstFenceIndex = content.indexOf("```md");
+        if (contractIndex === -1 || firstFenceIndex === -1) {
+          fail(
+            `${workflow}.md cannot verify contract placement (missing section or fence)`,
+            failures,
+          );
+        } else if (contractIndex > firstFenceIndex) {
+          fail(
+            `${workflow}.md Runtime Contract must appear before the fenced Output Template, not as a placeholder inside it`,
+            failures,
+          );
+        } else {
+          pass(`${workflow}.md Runtime Contract is top-level`);
+        }
+
+      }
+
+      const nextWorkflowTokens = extractNextWorkflowTokens(content);
+      for (const token of nextWorkflowTokens) {
+        if (!REQUIRED_WORKFLOWS.includes(token)) {
+          fail(
+            `${workflow}.md Next Workflow references unknown workflow: ${token}`,
+            failures,
+          );
+        }
+      }
+      if (nextWorkflowTokens.length > 0) {
+        pass(`${workflow}.md Next Workflow references are valid`);
       }
 
       if (SECURITY_EVIDENCE_WORKFLOWS.includes(workflow)) {
@@ -362,6 +482,18 @@ async function main() {
     }
   }
 
+  const sdlcFile = path.join(WORKFLOWS_DIR, "sdlc.md");
+  if (await fs.pathExists(sdlcFile)) {
+    const sdlcContent = await fs.readFile(sdlcFile, "utf8");
+    for (const workflow of CORE_SDLC_CHAIN) {
+      if (sdlcContent.includes(`\`${workflow}\``)) {
+        pass(`sdlc.md router can reach ${workflow}`);
+      } else {
+        fail(`sdlc.md router cannot reach core workflow: ${workflow}`, failures);
+      }
+    }
+  }
+
   if (await fs.pathExists(QUICK_REFERENCE_FILE)) {
     const quickRef = await fs.readFile(QUICK_REFERENCE_FILE, "utf8");
     for (const workflow of REQUIRED_WORKFLOWS) {
@@ -415,6 +547,41 @@ async function main() {
       pass(`${specialist} eval present`);
     } else {
       fail(`Missing specialist eval: ${specialist}`, failures);
+    }
+  }
+
+  const SPECIALISTS_DIR = path.join(ROOT, "skills", "specialists");
+  if (await fs.pathExists(SPECIALISTS_DIR)) {
+    const specialistEntries = await fs.readdir(SPECIALISTS_DIR, {
+      withFileTypes: true,
+    });
+    for (const entry of specialistEntries.filter(
+      (e) => e.isDirectory() && e.name.startsWith("specialist-"),
+    )) {
+      const skillFile = path.join(SPECIALISTS_DIR, entry.name, "SKILL.md");
+      if (!(await fs.pathExists(skillFile))) continue;
+      const content = await fs.readFile(skillFile, "utf8");
+      const hasBudget = /## Budget/i.test(content);
+      const hasOutput = /## Output/i.test(content);
+      const hasBlocked = content.includes("BLOCKED");
+      if (hasBudget) {
+        pass(`${entry.name} declares Budget`);
+      } else {
+        fail(`${entry.name} SKILL.md missing ## Budget section`, failures);
+      }
+      if (hasOutput) {
+        pass(`${entry.name} declares Output`);
+      } else {
+        fail(`${entry.name} SKILL.md missing ## Output section`, failures);
+      }
+      if (hasBlocked) {
+        pass(`${entry.name} declares explicit BLOCKED handling`);
+      } else {
+        fail(
+          `${entry.name} SKILL.md missing explicit BLOCKED handling`,
+          failures,
+        );
+      }
     }
   }
 

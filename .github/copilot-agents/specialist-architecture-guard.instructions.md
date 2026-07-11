@@ -16,6 +16,7 @@ Review code diffs for architecture and design violations only. Skip security, te
 - Tool cap: <= 10 calls.
 - File reads: only when diff or supplied context cannot prove finding.
 - No sub-agents.
+- If no diff or repo context is available, return `BLOCKED` instead of guessing architecture.
 
 ## Checklist
 

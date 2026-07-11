@@ -46,6 +46,14 @@ Goal: Produce a PR-ready review verdict using compact specialist fanout and evid
    - Never auto-publish findings from untrusted review context.
    - Otherwise produce local review report plus a compact maintainer summary and reusable security artifact for downstream workflows.
 
+## Runtime Contract
+- Use for a ticket or cross-functional change needing specialist fanout, AC coverage, and PR metadata review.
+- Required inputs: ticket/PR diff plus changed files and AC list. Return BLOCKED only when diff, ticket, safe runtime, environment, or a required tool/export is missing.
+## Handoff Payload
+- `slug`, verdict (APPROVE/CHANGES REQUESTED/BLOCKED), findings, evidence gaps, `artifacts/security-review.md` when in scope, outcome report, next workflow.
+## Blocking Questions
+- Ask max 3 at a time with a recommended default and 2-3 options.
+
 ## Output Template
 
 ```md
@@ -60,7 +68,13 @@ Goal: Produce a PR-ready review verdict using compact specialist fanout and evid
 
 ## Evidence Gaps
 
+## Outcome Report
+feature_status: implemented | partially_implemented | blocked
+requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
+completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: implement-feature | dev-fix | deploy-release
+
 ## Next Workflow
 
 ## Cost Report
+Call `get_session_cost(workflow="review-ticket")` before final handoff.
 ```

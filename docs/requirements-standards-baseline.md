@@ -69,6 +69,11 @@ This baseline defines where BRD, PRD, and SRS/FRS workflow guidance is derived f
   - Business: `docs/brd/brd-[slug].md`
   - Product: `docs/prd/prd-[slug].md`
   - Technical: `docs/srs/srs-[slug].md`
+  - Slug format: lowercase kebab-case (`[a-z0-9]+(-[a-z0-9]+)*`), max 40 characters, minted once at `brainstorm-feature` from the feature name with stopwords dropped. Reused verbatim by every downstream workflow — never re-derived. On collision, append `-2`, `-3`, etc.
+
+## Operator Profile Contract
+
+Every operator-facing workflow (`sdlc`, `brainstorm-feature`, `plan-feature`, `verify-work`, `uat-signoff`, `publish-notes`, `session-report`) infers `operator_profile` (`business | hybrid | technical`) from request phrasing per `common-operator-profile` — never by asking the operator to self-classify — and carries it in the Handoff Payload so downstream workflows never re-infer it. See `skills/common/common-operator-profile/SKILL.md` for inference signals, per-tier register rules, and the proxy-defaults rule that lets `brainstorm-feature` draft sponsor/metric/scope defaults instead of blocking a non-technical operator outright.
 
 ## Portable Outcome Report Contract
 

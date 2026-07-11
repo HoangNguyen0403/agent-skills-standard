@@ -16,6 +16,7 @@ Post multiple approved review comments safely and report result status.
 - Use ADO/GitHub/GitLab MCP when configured.
 - Do not read PR state unless caller asks.
 - No sub-agents.
+- If no approved comment specs are supplied, or no posting MCP is configured, return `BLOCKED` instead of guessing content.
 
 ## Sanitization
 

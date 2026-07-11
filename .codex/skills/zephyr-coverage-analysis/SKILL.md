@@ -12,7 +12,7 @@ metadata:
 > [!IMPORTANT]
 > Analyze Zephyr test case coverage for a Jira user story and produce a QE management report with metrics, risk scoring, and prioritized recommendations.
 
-Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false, profile=business|hybrid|technical.
 
 ## Instructions
 

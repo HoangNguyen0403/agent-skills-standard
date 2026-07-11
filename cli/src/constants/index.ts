@@ -97,6 +97,8 @@ export const DEFAULT_WORKFLOWS = [
   'verify-work',
   'verify-bug',
   'security-test',
+  'uat-signoff',
+  'incident-hotfix',
 ];
 
 // Configurable via ENV or hardcoded for production convenience
@@ -283,8 +285,8 @@ export const getAgentDefinition = (id: Agent): AgentDefinition => {
         ruleExtension: '.md',
         frontmatterStyle: 'cursor',
         detectionFiles: ['.windsurf'],
-        workflowFormat: 'none',
-        workflowPath: '',
+        workflowFormat: 'native',
+        workflowPath: '.windsurf/workflows',
         hookScriptPath: '.windsurf/hooks/preedit-skill-loader.js',
         hookConfigPath: '.windsurf/hooks.json',
       };

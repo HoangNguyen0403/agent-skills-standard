@@ -12,7 +12,7 @@ metadata:
 > [!IMPORTANT]
 > Review an entire codebase against framework best practices and generate a prioritized improvement plan.
 
-Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false.
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false, profile=business|hybrid|technical.
 
 ## Instructions
 

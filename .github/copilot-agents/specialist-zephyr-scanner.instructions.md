@@ -24,7 +24,7 @@ Discover relevant Zephyr test cases and return a compact coverage input for pare
 2. If fewer than expected, search labels/objectives for issue key and module keywords.
 3. Deduplicate by TC key.
 4. Capture platform, labels, objective summary, folder, and link confidence.
-5. If Zephyr MCP unavailable, ask for exported TC list or mark as blocked.
+5. If Zephyr MCP unavailable, ask for exported TC list; if none exists, return `BLOCKED`.
 
 ## Output
 
