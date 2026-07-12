@@ -35,7 +35,8 @@
         },
         {
           "type": "contains",
-          "value": "Priority: P2 (MEDIUM)"
+          "value": "Delegate",
+          "description": "Checks user-visible framework guidance"
         }
       ]
     },
@@ -64,5 +65,8 @@
     "How do I install ios dependencies?",
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
+  ],
+  "should_trigger": [
+    "How should I implement ios notifications best practices?"
   ]
 }

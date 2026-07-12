@@ -1,0 +1,1 @@
+How do I ensure a function parameter is always a string ID, not just any string?

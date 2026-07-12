@@ -1,0 +1,1 @@
+At the end of an agent workflow, what telemetry step is required before the final handoff?

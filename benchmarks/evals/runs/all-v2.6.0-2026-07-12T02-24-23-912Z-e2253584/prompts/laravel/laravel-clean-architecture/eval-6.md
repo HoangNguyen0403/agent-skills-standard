@@ -1,0 +1,1 @@
+Use readonly classes for data transfer in PHP

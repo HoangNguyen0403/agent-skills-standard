@@ -1,0 +1,1 @@
+Assert HTTP responses in Laravel feature tests

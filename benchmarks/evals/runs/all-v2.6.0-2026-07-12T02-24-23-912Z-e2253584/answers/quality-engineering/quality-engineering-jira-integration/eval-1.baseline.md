@@ -1,0 +1,3 @@
+I cannot fetch TICK-4521 from Jira from the prompt alone, so I cannot truthfully report its current acceptance criteria, labels, components, or Zephyr links. A Jira connection with permission to read the issue and its linked issues is required.
+
+The audit should retrieve the issue’s description and acceptance criteria, labels, components, and issue links/remote links, then query the configured Zephyr relationship for test cases linked to TICK-4521. The result should distinguish “no linked tests” from “could not access Zephyr,” include the issue key and retrieval time, and avoid inferring missing data.

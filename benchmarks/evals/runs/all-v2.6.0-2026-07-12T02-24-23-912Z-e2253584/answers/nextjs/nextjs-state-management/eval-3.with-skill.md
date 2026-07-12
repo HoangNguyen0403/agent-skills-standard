@@ -1,0 +1,2 @@
+`localStorage` is unavailable during Server Component rendering and reading it during the initial client render can produce different markup. Move the read into a `'use client'` component and perform it in `useEffect`, or gate the render behind a mounted flag so server and first client output match. Use URL state for shareable values and reserve a client store such as Zustand for complex UI state.
+

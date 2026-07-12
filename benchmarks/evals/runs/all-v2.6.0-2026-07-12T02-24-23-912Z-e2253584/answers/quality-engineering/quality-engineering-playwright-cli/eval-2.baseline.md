@@ -1,0 +1,3 @@
+Open the page with `playwright-cli`, capture a pre-scroll snapshot, scroll far enough to trigger the sticky-header condition, wait for the UI to settle, and capture the screenshot after scrolling. The evidence should include the viewport, scroll position or action, URL, and timestamp.
+
+Before taking the final screenshot, assert that the header is visible and fixed/sticky, that it remains at the expected top position, and that it does not obscure the page content. If the header is not visible, inspect the scroll container and the CSS/state trigger rather than repeatedly scrolling the wrong element. Use a stable screenshot filename that distinguishes pre-scroll from post-scroll evidence.

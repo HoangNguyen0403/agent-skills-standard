@@ -47,6 +47,12 @@
         {
           "type": "contains",
           "value": "layout modifiers before visual ones"
+        },
+        {
+          "id": "a1",
+          "description": "Checks the outcome includes Order matters",
+          "type": "contains",
+          "value": "Order matters"
         }
       ]
     }
@@ -56,5 +62,8 @@
     "How do I implement SSL pinning?",
     "How do I set up Fastlane?",
     "How do I register for push notifications?"
+  ],
+  "should_trigger": [
+    "When should I use @State vs @StateObject vs @ObservedObject for a view model on iOS 17+?"
   ]
 }

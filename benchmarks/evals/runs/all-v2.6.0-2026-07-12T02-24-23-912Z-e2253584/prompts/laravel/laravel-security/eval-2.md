@@ -1,0 +1,1 @@
+Use Gates for permission checks in Laravel

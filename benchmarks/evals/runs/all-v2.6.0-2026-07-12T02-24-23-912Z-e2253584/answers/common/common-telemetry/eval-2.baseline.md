@@ -1,0 +1,1 @@
+Record the session cost metrics in the final workflow handoff artifact, typically the workflow's `task.md` or equivalent canonical handoff record. Include token usage, execution metadata, and calculated cost so the work is auditable.

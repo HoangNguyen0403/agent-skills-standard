@@ -1,0 +1,1 @@
+I have useEffect and fetch calls directly inside my page.tsx files.

@@ -1,0 +1,1 @@
+Our React codebase has grown over 2 years. Check if we have a monolith problem — some files might be huge.

@@ -1,0 +1,1 @@
+How do I enable code coverage in Angular tests?

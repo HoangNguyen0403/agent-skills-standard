@@ -1,0 +1,1 @@
+Write a widget test for the checkout button — it should verify the loading spinner appears while processing, then a success message.

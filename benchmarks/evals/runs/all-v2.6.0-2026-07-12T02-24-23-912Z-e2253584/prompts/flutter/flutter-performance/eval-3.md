@@ -1,0 +1,1 @@
+The app is using a lot of memory when loading the product catalog which has many high-res images.

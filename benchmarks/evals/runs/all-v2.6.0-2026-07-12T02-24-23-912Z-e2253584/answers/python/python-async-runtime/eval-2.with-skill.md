@@ -1,0 +1,1 @@
+Verify cancellation propagation, timeout behavior, cleanup of the watcher and its resources, ownership of long-lived tasks, stop conditions, retry behavior, and the error path. Keep polling-loop control separate from work-item processing and test both cancellation and timeout cases.

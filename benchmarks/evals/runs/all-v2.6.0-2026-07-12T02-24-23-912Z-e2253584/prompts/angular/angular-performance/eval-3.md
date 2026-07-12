@@ -1,0 +1,1 @@
+How do I use NgOptimizedImage for LCP optimization in Angular?

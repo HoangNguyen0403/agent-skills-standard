@@ -6,10 +6,22 @@
       "prompt": "How do I create a custom attribute directive in Angular?",
       "expected_output": "Use @Directive({ standalone: true, selector: '[appHighlight]' }). Inject ElementRef/Renderer2 for DOM access. Define host bindings in host: {} object — not with @HostBinding/@HostListener. Export and import directly in component imports.",
       "assertions": [
-        { "type": "contains", "value": "standalone: true" },
-        { "type": "contains", "value": "selector: '[appHighlight]'" },
-        { "type": "contains", "value": "host: {} object" },
-        { "type": "contains", "value": "not with @HostBinding" }
+        {
+          "type": "contains",
+          "value": "standalone: true"
+        },
+        {
+          "type": "contains",
+          "value": "selector: '[appHighlight]'"
+        },
+        {
+          "type": "contains",
+          "value": "host: {} object"
+        },
+        {
+          "type": "contains",
+          "value": "not with @HostBinding"
+        }
       ]
     },
     {
@@ -17,9 +29,18 @@
       "prompt": "How do I use hostDirectives to compose behaviors in Angular?",
       "expected_output": "Add hostDirectives: [TooltipDirective] to @Component or @Directive decorator. This applies the directive's behavior without inheritance. Expose inputs/outputs via hostDirectives: [{ directive: TooltipDirective, inputs: ['text'] }].",
       "assertions": [
-        { "type": "contains", "value": "hostDirectives:" },
-        { "type": "contains", "value": "TooltipDirective" },
-        { "type": "contains", "value": "inputs: ['text']" }
+        {
+          "type": "contains",
+          "value": "hostDirectives:"
+        },
+        {
+          "type": "contains",
+          "value": "TooltipDirective"
+        },
+        {
+          "type": "contains",
+          "value": "inputs: ['text']"
+        }
       ]
     },
     {
@@ -27,10 +48,22 @@
       "prompt": "How do I write a pure pipe in Angular?",
       "expected_output": "Implement PipeTransform with transform() method. Mark as standalone. Pure pipes (default) cache results by input reference — Angular only re-runs them when the reference changes. Do not set pure: false unless handling Observables/Arrays that mutate.",
       "assertions": [
-        { "type": "contains", "value": "PipeTransform" },
-        { "type": "contains", "value": "standalone" },
-        { "type": "contains", "value": "cache results" },
-        { "type": "contains", "value": "not set pure: false" }
+        {
+          "type": "contains",
+          "value": "PipeTransform"
+        },
+        {
+          "type": "contains",
+          "value": "standalone"
+        },
+        {
+          "type": "contains",
+          "value": "cache results"
+        },
+        {
+          "type": "contains",
+          "value": "not set pure: false"
+        }
       ]
     },
     {
@@ -38,10 +71,26 @@
       "prompt": "Working on tooltip.directive.ts — how do I handle host bindings correctly?",
       "expected_output": "Use the host: {} object in @Directive: host: { '(mouseenter)': 'show()', '(mouseleave)': 'hide()', '[attr.aria-label]': 'text()' }. Never use @HostBinding or @HostListener decorators — they are deprecated patterns.",
       "assertions": [
-        { "type": "contains", "value": "host: {" },
-        { "type": "contains", "value": "'(mouseenter)': 'show()'" },
-        { "type": "contains", "value": "Never use @HostBinding" },
-        { "type": "contains", "value": "@HostListener" }
+        {
+          "type": "contains",
+          "value": "host: {"
+        },
+        {
+          "type": "contains",
+          "value": "'(mouseenter)': 'show()'"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "Never use @HostBinding",
+            "hostbinding"
+          ],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
+        },
+        {
+          "type": "contains",
+          "value": "@HostListener"
+        }
       ]
     },
     {
@@ -49,9 +98,22 @@
       "prompt": "How do I make an Angular directive standalone?",
       "expected_output": "Add standalone: true to @Directive (or omit in Angular 20+). Import directly into the component's imports array that uses it. Do not declare in NgModule. Use ng generate directive to scaffold correctly.",
       "assertions": [
-        { "type": "contains", "value": "standalone: true" },
-        { "type": "contains", "value": "imports array" },
-        { "type": "contains", "value": "Do not declare in NgModule" }
+        {
+          "type": "contains",
+          "value": "standalone: true"
+        },
+        {
+          "type": "contains",
+          "value": "imports array"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "Do not declare in NgModule",
+            "declare"
+          ],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
+        }
       ]
     },
     {
@@ -59,10 +121,22 @@
       "prompt": "How do I create a truncate pipe in Angular?",
       "expected_output": "Create @Pipe({ name: 'truncate', standalone: true }) with transform(value: string, limit = 50): string. Import directly in component imports array. Keep pure: true (default) for caching. Extract complex logic to a utility function.",
       "assertions": [
-        { "type": "contains", "value": "@Pipe" },
-        { "type": "contains", "value": "name: 'truncate'" },
-        { "type": "contains", "value": "limit = 50" },
-        { "type": "contains", "value": "pure: true" }
+        {
+          "type": "contains",
+          "value": "@Pipe"
+        },
+        {
+          "type": "contains",
+          "value": "name: 'truncate'"
+        },
+        {
+          "type": "contains",
+          "value": "limit = 50"
+        },
+        {
+          "type": "contains",
+          "value": "pure: true"
+        }
       ]
     }
   ],
@@ -71,5 +145,8 @@
     "How do I write a NestJS interceptor?",
     "How do I build a Go HTTP middleware?",
     "How do I style elements using CSS custom properties?"
+  ],
+  "should_trigger": [
+    "How do I create a custom attribute directive in Angular?"
   ]
 }

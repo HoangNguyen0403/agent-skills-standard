@@ -1,0 +1,3 @@
+I cannot identify the actual uncovered ACs or flawed TCs without access to `{PROJECT}-{ID}`, its acceptance criteria, and linked Zephyr cases. The audit should produce an AC-to-TC heatmap with each AC classified as covered, partially covered, or uncovered, and should cite the linked test-case keys.
+
+For test quality, inspect naming and labels against the project convention, platform/role/market scope, one-condition-per-case granularity, clear preconditions, actionable steps, and independently verifiable expected results. Flag combined steps or assertions that can mask a failure, duplicated coverage, stale cases, missing negative/error paths, and cases linked to the wrong story. Report each issue with its TC key, evidence, risk, and recommended update.

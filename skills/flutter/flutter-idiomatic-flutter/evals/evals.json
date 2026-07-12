@@ -60,5 +60,8 @@
     "Set up the router for the app",
     "Write a unit test for the repository",
     "Configure dependency injection for the service"
+  ],
+  "should_trigger": [
+    "I'm getting a 'setState called after dispose' error that crashes the app intermittently after async operations."
   ]
 }

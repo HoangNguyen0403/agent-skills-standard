@@ -1,0 +1,1 @@
+I need to store the user's auth token after login. I'm currently using SharedPreferences — is that okay?

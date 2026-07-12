@@ -1,0 +1,1 @@
+Reduce bundle cost by removing barrel files, using `React.lazy` or dynamic imports for heavy components, and replacing oversized dependencies where appropriate. Analyze with a bundle tool and keep named imports so tree-shaking works; verify the initial load after the change.

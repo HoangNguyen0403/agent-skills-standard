@@ -1,0 +1,1 @@
+No. Use parameterized SQL even for internal values, because runtime data can drift or be malformed and f-string SQL creates an injection-prone boundary. Keep the query text fixed and pass values through the driver parameters.

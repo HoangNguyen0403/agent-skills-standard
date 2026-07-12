@@ -1,0 +1,1 @@
+How should I click a button labeled 'Submit' in a Flutter app using Appium MCP?

@@ -1,0 +1,1 @@
+Implement job batching in Laravel

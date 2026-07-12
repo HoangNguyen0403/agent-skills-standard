@@ -1,0 +1,1 @@
+Create a UserController with GetX that fetches the user profile on init and exposes a reactive loading state and user data to the UI.

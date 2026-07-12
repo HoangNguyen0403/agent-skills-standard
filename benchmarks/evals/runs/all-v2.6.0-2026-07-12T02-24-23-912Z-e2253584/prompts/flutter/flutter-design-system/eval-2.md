@@ -1,0 +1,1 @@
+The spacing between list items should be 8 pixels.

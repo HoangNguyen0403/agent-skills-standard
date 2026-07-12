@@ -1,0 +1,1 @@
+I'm loading Google Fonts via a <link> tag in my layout. The page sometimes flashes unstyled text.

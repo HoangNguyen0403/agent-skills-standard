@@ -1,0 +1,1 @@
+Implement a custom `useOnlineStatus` hook with `useState` and `useEffect`. Register online/offline listeners at the top level, update state from the handler, and return cleanup that removes both listeners. Keep the effect dependency array stable.

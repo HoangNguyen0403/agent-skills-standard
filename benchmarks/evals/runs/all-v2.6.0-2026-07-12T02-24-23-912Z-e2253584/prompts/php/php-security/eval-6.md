@@ -1,0 +1,1 @@
+Secure authentication with password_verify in PHP

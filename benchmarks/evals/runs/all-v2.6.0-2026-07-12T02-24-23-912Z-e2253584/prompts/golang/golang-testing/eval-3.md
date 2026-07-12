@@ -1,0 +1,1 @@
+I'm using assert inside a for loop in my Go test. Is this OK?

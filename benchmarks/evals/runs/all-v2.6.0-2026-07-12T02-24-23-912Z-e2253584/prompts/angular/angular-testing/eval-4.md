@@ -1,0 +1,1 @@
+How do I test signal inputs in Angular component tests?

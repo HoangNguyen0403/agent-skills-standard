@@ -1,0 +1,1 @@
+Create a local scope in an Eloquent model

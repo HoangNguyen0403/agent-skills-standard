@@ -1,0 +1,1 @@
+I want to access an environment variable containing a database password in a Next.js Client Component.

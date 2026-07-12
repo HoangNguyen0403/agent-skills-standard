@@ -82,5 +82,8 @@
     "Add a pre-commit hook to run ktlint formatting automatically",
     "Configure SonarQube for code quality tracking in a Kotlin service",
     "How do I set up Jacoco code coverage for a Kotlin Spring Boot project?"
+  ],
+  "should_trigger": [
+    "Should I use Mockito or MockK for mocking in my Kotlin unit tests?"
   ]
 }

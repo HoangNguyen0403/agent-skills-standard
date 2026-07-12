@@ -1,0 +1,1 @@
+How do I safely delete 10,000 Redis keys matching a pattern?

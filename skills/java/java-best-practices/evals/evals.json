@@ -82,5 +82,8 @@
     "Add @ParameterizedTest with CSV source for boundary value testing",
     "How do I use records as DTOs in a Spring Boot REST API?",
     "Configure SpotBugs to fail CI builds on high-severity findings"
+  ],
+  "should_trigger": [
+    "My Java class has a constructor with 6 parameters. It's hard to read at call sites. How should I refactor it?"
   ]
 }

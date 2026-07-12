@@ -6,8 +6,14 @@
       "prompt": "I'm spawning goroutines inside a for loop to process orders in parallel. How do I make sure none of them leak?",
       "expected_output": "Use errgroup or sync.WaitGroup so every goroutine has a known exit path. Pass context.Context for cancellation. Call wg.Wait() or g.Wait() to ensure all goroutines complete.",
       "assertions": [
-        { "type": "contains", "value": "errgroup" },
-        { "type": "contains", "value": "context" }
+        {
+          "type": "contains",
+          "value": "errgroup"
+        },
+        {
+          "type": "contains",
+          "value": "context"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Multiple goroutines need to update a shared counter. What's the idiomatic Go approach?",
       "expected_output": "Use sync/atomic for simple counters or a sync.Mutex to protect shared state. Do not mutate global variables without synchronization. Prefer channels to communicate results back rather than shared mutation.",
       "assertions": [
-        { "type": "contains", "value": "Mutex" },
-        { "type": "contains", "value": "channel" }
+        {
+          "type": "contains",
+          "value": "Mutex"
+        },
+        {
+          "type": "contains",
+          "value": "channel"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "How do I run go test with the race detector?",
       "expected_output": "Run `go test -race ./...` to enable the race detector. Always include -race in CI to catch data races.",
       "assertions": [
-        { "type": "contains", "value": "-race" },
-        { "type": "contains", "value": "CI" }
+        {
+          "type": "contains",
+          "value": "-race"
+        },
+        {
+          "type": "contains",
+          "value": "CI"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "How do I connect to PostgreSQL in Go?",
     "Write a REST handler in Go",
     "Set up golangci-lint for my project"
+  ],
+  "should_trigger": [
+    "I'm spawning goroutines inside a for loop to process orders in parallel. How do I make sure none of them leak?"
   ]
 }

@@ -1,0 +1,1 @@
+Fix session config not reading from config file in Laravel

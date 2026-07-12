@@ -1,0 +1,1 @@
+I'm fetching user data in useEffect and storing it in useState. When I mutate it, the UI goes out of sync.

@@ -1,0 +1,1 @@
+How do I get real-time Go diagnostics and type errors in Claude Code?

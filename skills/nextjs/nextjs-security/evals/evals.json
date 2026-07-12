@@ -6,8 +6,14 @@
       "prompt": "Write a Server Action that deletes a post. The post ID comes from the form data.",
       "expected_output": "Secure Server Action: (1) await auth() first to verify caller identity. (2) Validate all inputs with Zod schema: z.object({ postId: z.string().uuid() }). (3) Verify the caller owns the post before deletion. (4) Import 'server-only' in the module. (5) Verify Origin header to prevent CSRF. Return structured success/error response.",
       "assertions": [
-        { "type": "contains", "value": "Zod" },
-        { "type": "contains", "value": "auth()" }
+        {
+          "type": "contains",
+          "value": "Zod"
+        },
+        {
+          "type": "contains",
+          "value": "auth()"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "My component renders user-provided HTML content using raw innerHTML injection.",
       "expected_output": "Raw HTML injection is an XSS risk. Sanitize with DOMPurify.sanitize(userHtml) before rendering. Better: use a Markdown renderer that escapes HTML. Also: configure CSP headers in middleware.ts to prevent inline script execution as defense-in-depth. Always treat user-provided HTML as untrusted.",
       "assertions": [
-        { "type": "contains", "value": "DOMPurify" },
-        { "type": "contains", "value": "sanitize" }
+        {
+          "type": "contains",
+          "value": "DOMPurify"
+        },
+        {
+          "type": "contains",
+          "value": "sanitize"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "I want to access an environment variable containing a database password in a Next.js Client Component.",
       "expected_output": "Violation: No process.env with secrets in client bundles. Only NEXT_PUBLIC_ prefixed vars are safe to expose (they are baked into the client bundle). Database passwords must never be NEXT_PUBLIC_. Access secrets only in Server Components, Server Actions, Route Handlers, or middleware. Use 'server-only' to prevent accidental client imports.",
       "assertions": [
-        { "type": "contains", "value": "NEXT_PUBLIC_" },
-        { "type": "contains", "value": "server-only" }
+        {
+          "type": "contains",
+          "value": "NEXT_PUBLIC_"
+        },
+        {
+          "type": "contains",
+          "value": "server-only"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Configure Storybook for component documentation",
     "Write a Go service for sending emails",
     "Set up load balancing with Nginx"
+  ],
+  "should_trigger": [
+    "Write a Server Action that deletes a post. The post ID comes from the form data."
   ]
 }

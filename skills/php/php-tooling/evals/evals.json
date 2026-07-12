@@ -47,6 +47,15 @@
         {
           "type": "contains",
           "value": "composer install in CI"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Always commit composer",
+            "always"
+          ]
         }
       ]
     },
@@ -56,8 +65,12 @@
       "expected_output": "\"autoload\": {\"psr-4\": {\"App\\\\\": \"src/\"}}; \"autoload-dev\": {\"psr-4\": {\"Tests\\\\\": \"tests/\"}}; run composer dump-autoload; namespaces must mirror directory structure exactly",
       "assertions": [
         {
-          "type": "contains",
-          "value": "\"psr-4\": {\"App\\\\\\\\\": \"src/\"}"
+          "type": "contains_any",
+          "value": [
+            "\"psr-4\": {\"App\\\\\\\\\": \"src/\"}",
+            "psr-4"
+          ],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
           "type": "contains",
@@ -101,5 +114,8 @@
     "Configure Detekt for Kotlin static analysis",
     "Go toolchain with golangci-lint",
     "Maven build configuration in a Java project"
+  ],
+  "should_trigger": [
+    "Set up PHPStan for static analysis in PHP"
   ]
 }

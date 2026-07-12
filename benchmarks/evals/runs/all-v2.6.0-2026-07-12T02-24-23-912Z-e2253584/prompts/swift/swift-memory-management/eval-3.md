@@ -1,0 +1,1 @@
+How do I use [weak self] in a closure?

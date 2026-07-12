@@ -1,0 +1,1 @@
+I need to add a search feature to the product list screen. It should debounce user input and cancel the previous request if a new one comes in.

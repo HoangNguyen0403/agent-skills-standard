@@ -1,0 +1,1 @@
+I manually tested the endpoint in the browser. That should count as verification instead of writing the failing test first.

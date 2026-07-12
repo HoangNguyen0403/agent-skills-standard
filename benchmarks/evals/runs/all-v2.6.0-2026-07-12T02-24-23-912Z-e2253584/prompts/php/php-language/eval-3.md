@@ -1,0 +1,1 @@
+Enable strict types in PHP files

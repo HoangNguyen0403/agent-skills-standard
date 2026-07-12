@@ -1,0 +1,1 @@
+What should I verify when refactoring an asyncio background watcher?

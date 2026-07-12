@@ -34,8 +34,12 @@
           "value": "Base"
         },
         {
-          "type": "contains",
-          "value": "Priority: P1"
+          "type": "contains_any",
+          "value": [
+            "Native Implementation",
+            "implementation"
+          ],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]
     },
@@ -60,5 +64,8 @@
     "How do I install ios dependencies?",
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
+  ],
+  "should_trigger": [
+    "How should I implement ios localization best practices?"
   ]
 }

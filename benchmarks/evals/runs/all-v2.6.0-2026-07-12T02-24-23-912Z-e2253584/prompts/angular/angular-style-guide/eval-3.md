@@ -1,0 +1,1 @@
+What is the LIFT principle in Angular?

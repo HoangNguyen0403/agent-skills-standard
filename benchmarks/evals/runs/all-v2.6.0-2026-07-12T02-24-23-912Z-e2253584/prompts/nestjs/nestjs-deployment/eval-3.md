@@ -1,0 +1,1 @@
+Where should I run TypeORM migrations in a Kubernetes deployment?

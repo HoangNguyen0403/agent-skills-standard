@@ -23,12 +23,49 @@
     {
       "id": 2,
       "prompt": "Show a welcome message like 'Hello, John!' where the name is dynamic.",
-      "expected_output": "Use 'hello_user'.tr(args: ['John']) or tr(namedArgs: {'name': 'John'}) with {} placeholder in translation file"
+      "expected_output": "Use 'hello_user'.tr(args: ['John']) or tr(namedArgs: {'name': 'John'}) with {} placeholder in translation file",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Use 'hellouser'",
+            "name"
+          ]
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "tr(args",
+            "name"
+          ]
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Show '1 item' vs '3 items' in the cart count — how do I handle plural strings?",
-      "expected_output": "Use 'cart_items'.plural(count) with plural key variants in translation file (zero/one/many or 0/1/2 keys)"
+      "expected_output": "Use 'cart_items'.plural(count) with plural key variants in translation file (zero/one/many or 0/1/2 keys)",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Use 'cartitems'",
+            "name"
+          ]
+        },
+        {
+          "id": "a2",
+          "description": "Checks the outcome includes Localization",
+          "type": "contains",
+          "value": "Localization"
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -36,5 +73,8 @@
     "How do I format a date in Vietnamese locale?",
     "Write a test for the settings BLoC",
     "Set up RTL layout support"
+  ],
+  "should_trigger": [
+    "Add multi-language support for English and Vietnamese. Our translators use Google Sheets."
   ]
 }

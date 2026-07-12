@@ -1,0 +1,2 @@
+Do not await the three-second read at the root of the page. Split the dashboard into async components and wrap the slow section in `Suspense` with a skeleton; use `loading.tsx` for a route-level fallback. The static shell can stream immediately while the data-dependent island resolves. Choose `no-store` only if the data is truly request-time; otherwise use an appropriate cache or revalidation policy.
+

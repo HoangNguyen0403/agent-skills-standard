@@ -1,0 +1,1 @@
+Write a portable SDLC workflow that reports feature status when verification is blocked by runtime access.

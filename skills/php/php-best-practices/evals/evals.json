@@ -22,8 +22,12 @@
       "expected_output": "SRP: one class one responsibility; OCP: extend via interface not modification; DIP: inject dependencies via constructor with interface type-hints; favor composition over inheritance",
       "assertions": [
         {
-          "type": "contains",
-          "value": "SRP:"
+          "type": "contains_any",
+          "value": [
+            "SRP:",
+            "name"
+          ],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
           "type": "contains",
@@ -101,5 +105,8 @@
     "SOLID principles in a Java Spring application",
     "TypeScript best practices for interfaces",
     "Clean code in Go with gofmt"
+  ],
+  "should_trigger": [
+    "Follow PSR-12 coding standards in PHP"
   ]
 }

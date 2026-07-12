@@ -1,0 +1,1 @@
+Should I use struct or class in Swift?

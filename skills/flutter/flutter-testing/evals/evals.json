@@ -64,5 +64,8 @@
     "Create a new BLoC for the cart feature",
     "Set up CI to run tests automatically",
     "Add a loading indicator to the login screen"
+  ],
+  "should_trigger": [
+    "Write a widget test for the checkout button — it should verify the loading spinner appears while processing, then a success message."
   ]
 }

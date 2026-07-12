@@ -1,17 +1,17 @@
 {
-  "lastUpdated": "2026-07-10T03:06:37.369Z",
+  "lastUpdated": "2026-07-12T03:22:33.676Z",
   "records": [
     {
-      "runId": "dart-v2.6.0-2026-07-10",
-      "category": "dart",
+      "runId": "all-v2.6.0-2026-07-12T02-24-23-912Z-e2253584",
+      "category": "all",
       "version": "2.6.0",
-      "date": "2026-07-10T03:06:30.771Z",
-      "skillCount": 3,
-      "avgBaselinePassRate": 0.1111111111111111,
-      "avgWithSkillPassRate": 1,
-      "avgDelta": 0.888888888888889,
-      "agent": "Claude Code",
-      "model": "claude-sonnet-5"
+      "date": "2026-07-12T03:22:33.676Z",
+      "skillCount": 264,
+      "avgBaselinePassRate": 0.3965067340067341,
+      "avgWithSkillPassRate": 0.6558922558922559,
+      "avgDelta": 0.2593855218855219,
+      "agent": "Codex",
+      "model": "GPT-5"
     }
   ]
 }

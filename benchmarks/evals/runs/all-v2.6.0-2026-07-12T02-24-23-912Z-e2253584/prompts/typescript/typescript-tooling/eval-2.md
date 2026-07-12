@@ -1,0 +1,1 @@
+Configure ESLint for a TypeScript project to enforce our code standards.

@@ -1,0 +1,1 @@
+Use Fiber::suspend() in PHP 8.1

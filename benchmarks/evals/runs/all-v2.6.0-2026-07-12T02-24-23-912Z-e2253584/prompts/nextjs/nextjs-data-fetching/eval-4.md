@@ -1,0 +1,1 @@
+Use Promise.all to avoid waterfalls in Next.js

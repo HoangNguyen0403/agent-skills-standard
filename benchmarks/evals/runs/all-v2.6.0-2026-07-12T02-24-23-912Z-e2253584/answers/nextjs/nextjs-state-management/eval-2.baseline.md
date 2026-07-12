@@ -1,0 +1,4 @@
+Do not copy server data into `useState` and immediately fetch it in `useEffect` unless the client genuinely owns a separate, interactive cache. In the App Router, fetch the initial data in a Server Component and pass it to a Client Component; use a Server Action plus revalidation for mutations. This avoids a client loading flash, duplicate requests, and stale synchronization logic.
+
+If the browser needs polling, focus revalidation, optimistic updates, or client-driven pagination, use SWR/React Query with the server result as initial data and fetch through an authenticated endpoint. Keep query keys stable and invalidate them after mutations. If local state is only a derived view of props, compute it instead of duplicating it. When a client effect is truly needed, include correct dependencies, abort/ignore stale requests, handle loading/error states, and avoid updating state after unmount. Never move authorization or database credentials into the effect.
+

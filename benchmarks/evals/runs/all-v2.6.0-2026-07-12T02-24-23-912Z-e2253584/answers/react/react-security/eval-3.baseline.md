@@ -1,0 +1,3 @@
+Inventory the dependency tree and lockfile, run the package manager audit command and an SCA scanner, and separate direct from transitive findings. Prioritize by exploitability, exposure, and whether the vulnerable code path is used.
+
+Upgrade within the current major first, regenerate the lockfile reproducibly, and use a major-version migration only after reading its changelog and migration guide. Run tests, lint, type checks, and a production build; review the diff for unexpected packages or scripts. Automate update PRs and continuous advisory monitoring. Do not blindly force resolutions or ignore high-severity findings without recording the risk decision.

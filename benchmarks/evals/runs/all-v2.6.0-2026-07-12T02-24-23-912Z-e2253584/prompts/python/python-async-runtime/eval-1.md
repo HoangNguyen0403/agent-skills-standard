@@ -1,0 +1,1 @@
+Can I call psycopg2 and subprocess.run directly inside an async Python polling loop?

@@ -6,8 +6,14 @@
       "prompt": "My Python domain rule imports psycopg2 directly to look up a task before deciding status. Is that acceptable?",
       "expected_output": "No. Keep domain logic independent from DB clients; define a port or repository boundary and inject it.",
       "assertions": [
-        { "type": "contains", "value": "repository" },
-        { "type": "contains", "value": "inject" }
+        {
+          "type": "contains",
+          "value": "repository"
+        },
+        {
+          "type": "contains",
+          "value": "inject"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "A Python report function fetches DB rows, computes policy, renders Markdown, and sends Telegram. How should I structure it?",
       "expected_output": "Split gathering, policy, rendering, and transport into separate modules or helpers.",
       "assertions": [
-        { "type": "contains", "value": "render" },
-        { "type": "contains", "value": "transport" }
+        {
+          "type": "contains",
+          "value": "render"
+        },
+        {
+          "type": "contains",
+          "value": "transport"
+        }
       ]
     }
   ],
@@ -24,5 +36,8 @@
     "Fix a Python except Exception swallow",
     "Configure pytest and monkeypatch in a Python repo",
     "Harden subprocess argument handling in Python"
+  ],
+  "should_trigger": [
+    "My Python domain rule imports psycopg2 directly to look up a task before deciding status. Is that acceptable?"
   ]
 }

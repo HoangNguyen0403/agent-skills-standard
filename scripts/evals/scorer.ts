@@ -1,233 +1,466 @@
-import fs from 'fs-extra';
-import * as path from 'path';
-import { SKILLS_DIR, RESULTS_FILENAME, TRIGGER_MARKER_REGEX } from './constants';
-import { loadManifest, saveManifest } from './manifest';
+import fs from "fs-extra";
+import * as path from "path";
+import { RESULTS_FILENAME, ROOT_DIR, TRIGGER_MARKER_REGEX } from "./constants";
+import { answerPath, loadManifest, saveManifest } from "./manifest";
+import {
+  loadRunInputs,
+  resolveEvalData,
+  writeInputsSnapshot,
+} from "./snapshot";
 import {
   Assertion,
   ArmName,
+  ArmRates,
   CaseScore,
+  EvalCaseRef,
   Manifest,
+  ManifestSkill,
+  RunMetadata,
   RunResults,
   SkillResult,
-} from './types';
+  TriggerDecision,
+} from "./types";
 
 interface SkillEvalCase {
-  id: number;
-  prompt: string;
+  id: number | string;
   assertions?: Assertion[];
+  expected_output?: string;
 }
 
 interface PressureScenario {
-  prompt?: string;
   behavior_assertions?: string[];
 }
 
 interface EvalsJson {
   evals?: SkillEvalCase[];
-  should_not_trigger?: string[];
   pressure_scenarios?: PressureScenario[];
 }
 
-function readAnswer(
-  answersDir: string,
-  skillName: string,
-  caseId: string,
-  arm?: ArmName,
-): { text: string | null; filePath: string } {
-  const filename = arm ? `${caseId}.${arm}.md` : `${caseId}.md`;
-  const filePath = path.join(answersDir, skillName, filename);
-  if (!fs.existsSync(filePath)) return { text: null, filePath };
-  return { text: fs.readFileSync(filePath, 'utf-8'), filePath };
+export interface ScoreOptions {
+  repoRoot?: string;
+  writeResults?: boolean;
+  writeManifest?: boolean;
 }
 
-function checkAssertion(assertion: Assertion, transcript: string): boolean {
+export function checkAssertion(
+  assertion: Assertion,
+  transcript: string,
+): boolean {
   const haystack = transcript.toLowerCase();
-  const needle = assertion.value.toLowerCase();
   switch (assertion.type) {
-    case 'contains':
-      return haystack.includes(needle);
-    case 'not_contains':
-      return !haystack.includes(needle);
-    case 'file_reference': {
-      const basename = path.basename(assertion.value).toLowerCase();
-      return haystack.includes(needle) || haystack.includes(basename);
+    case "contains":
+      return haystack.includes(String(assertion.value).toLowerCase());
+    case "contains_any": {
+      const values = Array.isArray(assertion.value)
+        ? assertion.value
+        : [assertion.value];
+      return values.some((value) => haystack.includes(value.toLowerCase()));
+    }
+    case "not_contains":
+      return !haystack.includes(String(assertion.value).toLowerCase());
+    case "regex": {
+      try {
+        return new RegExp(String(assertion.value), "i").test(transcript);
+      } catch {
+        return false;
+      }
+    }
+    case "file_reference": {
+      const value = String(assertion.value).toLowerCase();
+      return (
+        haystack.includes(value) || haystack.includes(path.basename(value))
+      );
     }
     default:
       return false;
   }
 }
 
-/** Flags transcripts that look copy-pasted from the reference material rather than agent-generated. */
-function detectSuspicious(transcript: string, expectedOutput?: string): string[] {
+function readAnswer(
+  runDir: string,
+  manifest: Manifest,
+  skill: ManifestSkill,
+  currentCase: EvalCaseRef,
+  arm?: ArmName,
+): string | null {
+  const filePath = answerPath(runDir, manifest, skill, currentCase.id, arm);
+  return fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : null;
+}
+
+function detectSuspicious(
+  transcript: string,
+  expectedOutput?: string,
+): string[] {
   const flags: string[] = [];
-  if (expectedOutput && expectedOutput.length > 30) {
-    if (transcript.toLowerCase().includes(expectedOutput.toLowerCase())) {
-      flags.push('transcript reproduces expected_output verbatim');
-    }
+  if (
+    expectedOutput &&
+    expectedOutput.length > 30 &&
+    transcript.toLowerCase().includes(expectedOutput.toLowerCase())
+  ) {
+    flags.push("transcript reproduces expected_output verbatim");
   }
-  if (transcript.trim().length < 10) {
-    flags.push('transcript is suspiciously short (<10 chars)');
-  }
+  if (transcript.trim().length < 10)
+    flags.push("transcript is suspiciously short (<10 chars)");
   return flags;
 }
 
-function scoreEvalCase(
+function assertionCount(assertions: Assertion[]): number {
+  return assertions.length;
+}
+
+function scoreOutcomeCase(
   transcript: string,
   assertions: Assertion[],
   expectedOutput: string | undefined,
   arm: ArmName,
-  id: string,
-  kind: 'eval' | 'pressure',
+  currentCase: EvalCaseRef,
+  kind: "eval" | "pressure",
 ): CaseScore {
   const failedAssertions = assertions
-    .filter((a) => !checkAssertion(a, transcript))
-    .map((a) => `${a.type}:${a.value}`);
+    .filter((assertion) => !checkAssertion(assertion, transcript))
+    .map((assertion) => `${assertion.type}:${String(assertion.value)}`);
   return {
-    id,
+    id: currentCase.id,
     kind,
     arm,
     passed: failedAssertions.length === 0,
     missingAnswer: false,
     suspicious: detectSuspicious(transcript, expectedOutput),
     failedAssertions,
+    passedAssertions: assertions.length - failedAssertions.length,
+    totalAssertions: assertionCount(assertions),
   };
 }
 
-function scoreTriggerCase(transcript: string, id: string): CaseScore {
+function triggerDecision(transcript: string): TriggerDecision | undefined {
   const match = transcript.match(TRIGGER_MARKER_REGEX);
-  const passed = !!match && match[1].toLowerCase() === 'no';
+  return match?.[1].toLowerCase() as TriggerDecision | undefined;
+}
+
+function scoreTriggerCase(
+  transcript: string,
+  currentCase: EvalCaseRef,
+): CaseScore {
+  const actual = triggerDecision(transcript);
+  const expected = currentCase.expectedTrigger ?? "no";
+  const passed = actual === expected;
   return {
-    id,
-    kind: 'trigger',
-    arm: 'with-skill',
+    id: currentCase.id,
+    kind: "trigger",
+    arm: "with-skill",
     passed,
     missingAnswer: false,
-    suspicious: match
+    suspicious: actual
       ? []
       : ['answer missing required "TRIGGER: yes|no" marker line'],
-    failedAssertions: passed ? [] : ['trigger marker did not say "no"'],
+    failedAssertions: passed ? [] : [`trigger marker expected ${expected}`],
+    expectedTrigger: expected,
+    actualTrigger: actual,
+    passedAssertions: passed ? 1 : 0,
+    totalAssertions: 1,
   };
 }
 
-export function scoreRun(runDir: string): RunResults {
-  const manifest: Manifest = loadManifest(runDir);
-  const answersDir = path.join(runDir, 'answers');
-  const skillResults: SkillResult[] = [];
+function evalDataFor(
+  runDir: string,
+  repoRoot: string,
+  skill: ManifestSkill,
+): EvalsJson {
+  return resolveEvalData(runDir, repoRoot, skill) as EvalsJson;
+}
 
-  for (const manifestSkill of manifest.skills) {
-    const evalsPath = path.join(
-      SKILLS_DIR,
-      manifestSkill.category,
-      manifestSkill.skillName,
-      'evals',
-      'evals.json',
-    );
-    const evalsData: EvalsJson = fs.existsSync(evalsPath)
-      ? fs.readJSONSync(evalsPath)
-      : {};
-    const evalById = new Map((evalsData.evals || []).map((e) => [e.id, e]));
-    const pressureByIndex = evalsData.pressure_scenarios || [];
-
-    const scores: CaseScore[] = [];
-    const incompleteArms: string[] = [];
-
-    for (const c of manifestSkill.cases) {
-      if (c.kind === 'trigger') {
-        const { text, filePath } = readAnswer(
-          answersDir,
-          manifestSkill.skillName,
-          c.id,
-        );
-        if (!text) {
-          incompleteArms.push(`${c.id}`);
-          c.arms['with-skill'] = 'pending';
-          continue;
-        }
-        c.arms['with-skill'] = 'done';
-        scores.push(scoreTriggerCase(text, c.id));
-        void filePath;
-        continue;
-      }
-
-      const arms: ArmName[] = ['baseline', 'with-skill'];
+function missingAnswers(runDir: string, manifest: Manifest): string[] {
+  const missing: string[] = [];
+  for (const skill of manifest.skills) {
+    for (const currentCase of skill.cases) {
+      const arms =
+        currentCase.kind === "trigger"
+          ? ["with-skill" as const]
+          : (["baseline", "with-skill"] as const).filter(
+              (arm) => arm in currentCase.arms,
+            );
       for (const arm of arms) {
-        if (!(arm in c.arms)) continue;
-        const { text } = readAnswer(
-          answersDir,
-          manifestSkill.skillName,
-          c.id,
-          arm,
-        );
-        if (!text) {
-          incompleteArms.push(`${c.id}.${arm}`);
-          c.arms[arm] = 'pending';
-          continue;
-        }
-        c.arms[arm] = 'done';
-
-        if (c.kind === 'eval') {
-          const evalId = parseInt(c.id.replace('eval-', ''), 10);
-          const evalCase = evalById.get(evalId);
-          scores.push(
-            scoreEvalCase(
-              text,
-              evalCase?.assertions || [],
-              (evalCase as { expected_output?: string } | undefined)
-                ?.expected_output,
-              arm,
-              c.id,
-              'eval',
-            ),
+        if (
+          !readAnswer(
+            runDir,
+            manifest,
+            skill,
+            currentCase,
+            arm === "with-skill" && currentCase.kind === "trigger"
+              ? undefined
+              : arm,
+          )
+        ) {
+          const answerFile = answerPath(
+            runDir,
+            manifest,
+            skill,
+            currentCase.id,
+            currentCase.kind === "trigger" ? undefined : arm,
           );
-        } else if (c.kind === 'pressure') {
-          const idx = parseInt(c.id.replace('pressure-', ''), 10) - 1;
-          const scenario = pressureByIndex[idx];
-          const behaviorAssertions: Assertion[] = (
-            scenario?.behavior_assertions || []
-          ).map((v) => ({ type: 'contains', value: v }));
-          scores.push(
-            scoreEvalCase(text, behaviorAssertions, undefined, arm, c.id, 'pressure'),
-          );
+          missing.push(path.relative(runDir, answerFile));
         }
       }
     }
+  }
+  return missing;
+}
 
-    const scorable = scores.filter((s) => s.kind !== 'trigger');
-    const baselineScores = scorable.filter((s) => s.arm === 'baseline');
-    const withSkillScores = scorable.filter((s) => s.arm === 'with-skill');
-    const passRate = (arr: CaseScore[]) =>
-      arr.length > 0 ? arr.filter((s) => s.passed).length / arr.length : 0;
-    const triggerScores = scores.filter((s) => s.kind === 'trigger');
+function passRate(scores: CaseScore[]): number {
+  return scores.length > 0
+    ? scores.filter((score) => score.passed).length / scores.length
+    : 0;
+}
 
-    skillResults.push({
-      category: manifestSkill.category,
-      skillName: manifestSkill.skillName,
-      guardrailApplicable: manifestSkill.guardrailApplicable,
-      totalEvalCases: manifestSkill.cases.length,
-      baselinePassRate: passRate(baselineScores),
-      withSkillPassRate: passRate(withSkillScores),
-      delta: passRate(withSkillScores) - passRate(baselineScores),
-      triggerPrecision:
-        triggerScores.length > 0 ? passRate(triggerScores) : null,
-      scores,
-      incompleteArms,
-    });
+function assertionRate(scores: CaseScore[]): number {
+  const total = scores.reduce(
+    (sum, score) => sum + (score.totalAssertions ?? 0),
+    0,
+  );
+  const passed = scores.reduce(
+    (sum, score) => sum + (score.passedAssertions ?? 0),
+    0,
+  );
+  return total > 0 ? passed / total : 0;
+}
+
+function metricPair(
+  baseline: number,
+  withSkill: number,
+  baselineCompromised: boolean,
+): ArmRates {
+  return {
+    baseline: baselineCompromised ? "n/a" : baseline,
+    withSkill,
+  };
+}
+
+function triggerMetrics(scores: CaseScore[]): {
+  recall: number | null;
+  specificity: number | null;
+  balanced: number | null;
+} {
+  const positives = scores.filter((score) => score.expectedTrigger === "yes");
+  const negatives = scores.filter((score) => score.expectedTrigger === "no");
+  const recall =
+    positives.length > 0
+      ? positives.filter((score) => score.actualTrigger === "yes").length /
+        positives.length
+      : null;
+  const specificity =
+    negatives.length > 0
+      ? negatives.filter((score) => score.actualTrigger === "no").length /
+        negatives.length
+      : null;
+  const balanced =
+    recall === null || specificity === null ? null : (recall + specificity) / 2;
+  return { recall, specificity, balanced };
+}
+
+function isBaselineCompromised(
+  manifest: Manifest,
+  skill: ManifestSkill,
+): boolean {
+  return (
+    manifest.schemaVersion === 2 &&
+    manifest.compromisedSkills.some(
+      (record) =>
+        record.category === skill.category &&
+        record.skillName === skill.skillName &&
+        record.arm === "baseline",
+    )
+  );
+}
+
+function scoreSkill(
+  runDir: string,
+  manifest: Manifest,
+  skill: ManifestSkill,
+  repoRoot: string,
+): SkillResult {
+  const evalsData = evalDataFor(runDir, repoRoot, skill);
+  const evalById = new Map(
+    (evalsData.evals ?? []).map((evaluation) => [
+      String(evaluation.id),
+      evaluation,
+    ]),
+  );
+  const pressureByIndex = evalsData.pressure_scenarios ?? [];
+  const scores: CaseScore[] = [];
+
+  for (const currentCase of skill.cases) {
+    if (currentCase.kind === "trigger") {
+      const transcript = readAnswer(runDir, manifest, skill, currentCase);
+      if (transcript === null)
+        throw new Error(
+          `Missing answer after completeness check: ${currentCase.id}`,
+        );
+      scores.push(scoreTriggerCase(transcript, currentCase));
+      continue;
+    }
+
+    for (const arm of ["baseline", "with-skill"] as const) {
+      if (!(arm in currentCase.arms)) continue;
+      const transcript = readAnswer(runDir, manifest, skill, currentCase, arm);
+      if (transcript === null)
+        throw new Error(
+          `Missing answer after completeness check: ${currentCase.id}.${arm}`,
+        );
+      const assertions =
+        currentCase.kind === "eval"
+          ? (evalById.get(currentCase.id.replace("eval-", ""))?.assertions ??
+            [])
+          : (
+              pressureByIndex[
+                Number(currentCase.id.replace("pressure-", "")) - 1
+              ]?.behavior_assertions ?? []
+            ).map((value) => ({ type: "contains" as const, value }));
+      const expectedOutput = evalById.get(
+        currentCase.id.replace("eval-", ""),
+      )?.expected_output;
+      scores.push(
+        scoreOutcomeCase(
+          transcript,
+          assertions,
+          expectedOutput,
+          arm,
+          currentCase,
+          currentCase.kind,
+        ),
+      );
+    }
   }
 
-  saveManifest(runDir, manifest);
+  const outcomeScores = scores.filter((score) => score.kind !== "trigger");
+  const baselineScores = outcomeScores.filter(
+    (score) => score.arm === "baseline",
+  );
+  const withSkillScores = outcomeScores.filter(
+    (score) => score.arm === "with-skill",
+  );
+  const baselinePassRate = passRate(baselineScores);
+  const withSkillPassRate = passRate(withSkillScores);
+  const baselineCompromised = isBaselineCompromised(manifest, skill);
+  const triggers = triggerMetrics(
+    scores.filter((score) => score.kind === "trigger"),
+  );
+  const delta = baselineCompromised
+    ? "n/a"
+    : withSkillPassRate - baselinePassRate;
 
+  return {
+    category: skill.category,
+    skillName: skill.skillName,
+    guardrailApplicable: skill.guardrailApplicable,
+    totalEvalCases: outcomeScores.length / 2,
+    baselinePassRate: baselineCompromised ? "n/a" : baselinePassRate,
+    withSkillPassRate,
+    delta,
+    triggerPrecision: triggers.specificity,
+    casePassRate: metricPair(
+      baselinePassRate,
+      withSkillPassRate,
+      baselineCompromised,
+    ),
+    assertionPassRate: metricPair(
+      assertionRate(baselineScores),
+      assertionRate(withSkillScores),
+      baselineCompromised,
+    ),
+    triggerRecall: triggers.recall,
+    triggerSpecificity: triggers.specificity,
+    balancedTriggerAccuracy: triggers.balanced,
+    scores,
+    incompleteArms: [],
+  };
+}
+
+function legacySkillResult(
+  skill: SkillResult,
+  manifestSkill: ManifestSkill,
+): SkillResult {
+  return {
+    category: skill.category,
+    skillName: skill.skillName,
+    guardrailApplicable: skill.guardrailApplicable,
+    totalEvalCases: manifestSkill.cases.length,
+    baselinePassRate:
+      typeof skill.baselinePassRate === "number" ? skill.baselinePassRate : 0,
+    withSkillPassRate: skill.withSkillPassRate,
+    delta:
+      typeof skill.delta === "number" ? skill.delta : skill.withSkillPassRate,
+    triggerPrecision: skill.triggerPrecision,
+    scores: skill.scores.map((score) => ({
+      id: score.id,
+      kind: score.kind,
+      arm: score.arm,
+      passed: score.passed,
+      missingAnswer: score.missingAnswer,
+      suspicious: score.suspicious,
+      failedAssertions:
+        score.kind === "trigger" && !score.passed
+          ? ['trigger marker did not say "no"']
+          : score.failedAssertions,
+    })),
+    incompleteArms: skill.incompleteArms,
+  };
+}
+
+export function scoreRun(
+  runDir: string,
+  options: ScoreOptions = {},
+): RunResults {
+  const repoRoot = options.repoRoot ?? ROOT_DIR;
+  const manifest = loadManifest(runDir);
+  const missing = missingAnswers(runDir, manifest);
+  if (missing.length > 0) {
+    throw new Error(
+      `Run is incomplete; pending answers: ${missing.join(", ")}`,
+    );
+  }
+
+  const hasSnapshot = loadRunInputs(runDir) !== null;
+  if (manifest.schemaVersion === 2 && !hasSnapshot) {
+    if (options.writeResults === false) {
+      throw new Error(`Run ${manifest.runId} has no immutable inputs snapshot`);
+    }
+    writeInputsSnapshot(runDir, manifest, { repoRoot });
+  }
+
+  const scoredSkills = manifest.skills.map((skill) =>
+    scoreSkill(runDir, manifest, skill, repoRoot),
+  );
+  const skills =
+    manifest.schemaVersion === 2
+      ? scoredSkills
+      : scoredSkills.map((skill, index) =>
+          legacySkillResult(skill, manifest.skills[index]),
+        );
+  const metadata: RunMetadata = { ...manifest.metadata };
+  if (manifest.schemaVersion === 2 && !metadata.completedAt) {
+    metadata.completedAt = new Date().toISOString();
+    manifest.metadata = metadata;
+  }
   const results: RunResults = {
+    ...(manifest.schemaVersion === 2 ? { schemaVersion: 2 as const } : {}),
     runId: manifest.runId,
     category: manifest.category,
     version: manifest.version,
     scoredAt: new Date().toISOString(),
-    metadata: manifest.metadata,
-    skills: skillResults,
+    metadata,
+    ...(manifest.schemaVersion === 2 ? { scope: manifest.scope } : {}),
+    ...(manifest.schemaVersion === 2
+      ? { compromisedSkills: manifest.compromisedSkills }
+      : {}),
+    skills,
   };
 
-  fs.writeJSONSync(path.join(runDir, RESULTS_FILENAME), results, {
-    spaces: 2,
-  });
-
+  if (options.writeManifest !== false && manifest.schemaVersion === 2)
+    saveManifest(runDir, manifest);
+  if (options.writeResults !== false) {
+    fs.writeJSONSync(path.join(runDir, RESULTS_FILENAME), results, {
+      spaces: 2,
+    });
+  }
   return results;
 }

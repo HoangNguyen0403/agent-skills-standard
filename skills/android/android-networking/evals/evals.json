@@ -9,6 +9,15 @@
         {
           "type": "contains",
           "value": "Interceptor"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Builder()",
+            "name"
+          ]
         }
       ]
     },
@@ -48,5 +57,8 @@
     "Set up certificate pinning for high-security endpoints",
     "Load an image from a URL using Coil",
     "Set up an OkHttp MockWebServer for unit tests"
+  ],
+  "should_trigger": [
+    "How do I set up a Retrofit client with authentication in Android?"
   ]
 }

@@ -1,0 +1,1 @@
+Write a test for my login form component that submits credentials and shows a success message.

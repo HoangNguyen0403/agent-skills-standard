@@ -1,0 +1,1 @@
+Audit the architecture of this NestJS backend — I'm concerned about logic creeping into controllers.

@@ -1,0 +1,1 @@
+After 30 turns of conversation my agent keeps losing track of the original goal. What context strategy should I use?

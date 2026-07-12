@@ -1,0 +1,1 @@
+My React Native app feels janky and drops frames on lower-end Android devices. What should I check?

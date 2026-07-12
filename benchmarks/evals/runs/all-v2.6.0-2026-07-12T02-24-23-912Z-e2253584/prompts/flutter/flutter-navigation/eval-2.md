@@ -1,0 +1,1 @@
+I have a bottom tab bar and pressing the back button exits the app instead of switching tabs or going back within the tab.

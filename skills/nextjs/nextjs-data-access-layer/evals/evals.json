@@ -6,8 +6,14 @@
       "prompt": "My Server Components are calling the database directly. Should I add a data access layer?",
       "expected_output": "Yes. Create a DAL in lib/data.ts or services/. Add import 'server-only' at the top. Verify auth inside every DAL function with await auth(). Transform raw DB data to DTO plain objects before returning. Wrap with React cache() for deduplication. Never fetch('localhost/api') from Server Components — call DAL functions directly.",
       "assertions": [
-        { "type": "contains", "value": "server-only" },
-        { "type": "contains", "value": "auth" }
+        {
+          "type": "contains",
+          "value": "server-only"
+        },
+        {
+          "type": "contains",
+          "value": "auth"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I'm returning raw Prisma model objects from my data access functions to my components.",
       "expected_output": "Violation: No raw ORM instances returned. Transform to plain DTO objects: const user = await db.user.findUnique({...}); return { id: user.id, name: user.name } — never the full ORM model. This prevents accidental exposure of sensitive fields (passwordHash, etc.) and decouples the API from the DB schema.",
       "assertions": [
-        { "type": "contains", "value": "DTO" },
-        { "type": "contains", "value": "transform" }
+        {
+          "type": "contains",
+          "value": "DTO"
+        },
+        {
+          "type": "contains",
+          "value": "transform"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "My Client Component needs to access user data from the database. How should I do this?",
       "expected_output": "Client Components cannot import DAL files. Use Server Actions or Route Handlers as bridges: (1) Create a Server Action in features/user/model/actions.ts that calls the DAL. (2) The Client Component calls the Server Action via form action or useTransition. Never import from lib/data.ts in a 'use client' file.",
       "assertions": [
-        { "type": "contains", "value": "Server Action" },
-        { "type": "contains", "value": "Client Component" }
+        {
+          "type": "contains",
+          "value": "Server Action"
+        },
+        {
+          "type": "contains",
+          "value": "Client Component"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Configure Tailwind CSS custom colors",
     "Write a Python data processing script",
     "Set up monitoring with Datadog"
+  ],
+  "should_trigger": [
+    "My Server Components are calling the database directly. Should I add a data access layer?"
   ]
 }

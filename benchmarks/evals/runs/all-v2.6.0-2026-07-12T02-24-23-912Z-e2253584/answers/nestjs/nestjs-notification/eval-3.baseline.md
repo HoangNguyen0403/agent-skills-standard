@@ -1,0 +1,4 @@
+An FCM message normally separates the device `token`/target from `notification` and `data` payloads. Put user-visible fallback fields such as `title` and `body` in `notification`; put small, non-sensitive routing values such as `type`, `entityId`, and a version in `data` as strings. Include platform-specific options such as Android priority or APNs headers only when needed.
+
+Do not put secrets, authorization tokens, large objects, or authoritative mutable state in the payload. Treat all data as untrusted client input, keep payloads within provider size limits, and let the app fetch current details from the API. Decide foreground/background behavior, deep-link routing, collapse/deduplication, TTL, and localization explicitly. Store provider message IDs and delivery status server-side, and remove invalid device tokens based on provider errors.
+

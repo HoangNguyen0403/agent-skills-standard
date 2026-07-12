@@ -1,0 +1,1 @@
+Generate Google Play Store release notes for the same version 2.5 changes. Remember the 500 character limit.

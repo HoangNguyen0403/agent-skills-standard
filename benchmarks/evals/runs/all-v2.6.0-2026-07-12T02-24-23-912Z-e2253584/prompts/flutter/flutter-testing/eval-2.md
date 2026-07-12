@@ -1,0 +1,1 @@
+How do I mock the AuthBloc in a widget test for the LoginScreen that uses BlocProvider internally?

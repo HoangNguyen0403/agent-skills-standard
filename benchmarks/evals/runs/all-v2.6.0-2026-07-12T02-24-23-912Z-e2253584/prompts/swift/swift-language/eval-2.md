@@ -1,0 +1,1 @@
+What is the difference between protocol and class inheritance in Swift?

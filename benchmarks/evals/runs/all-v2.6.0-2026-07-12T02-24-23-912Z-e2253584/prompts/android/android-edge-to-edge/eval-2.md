@@ -1,0 +1,1 @@
+I'm using Scaffold with contentWindowInsets = WindowInsets.safeDrawing and also adding imePadding() on the content. The keyboard causes double padding. Why?

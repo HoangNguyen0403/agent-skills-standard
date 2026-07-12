@@ -1,0 +1,3 @@
+Eight props through four levels is a sign to reassess ownership and boundaries, though prop drilling is not automatically wrong. First colocate state with the lowest common ancestor that needs it, and use composition or pass a rendered child so intermediate components do not forward unrelated props.
+
+If distant components genuinely share the data, use a focused context or an external store. Split contexts by concern and keep the provider value stable where useful. Avoid putting every application value into one global context; composition and state colocation are simpler when only a subtree needs the data.

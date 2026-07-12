@@ -1,0 +1,1 @@
+Regenerate session after login in Laravel

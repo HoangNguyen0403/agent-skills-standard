@@ -1,0 +1,4 @@
+Enforce tenant scope at every data-access boundary, deriving the tenant from authenticated context rather than a client-supplied query/body value. Every tenant-owned table should have a `tenant_id`, indexes/foreign keys should include it where useful, and repository methods should require tenant context.
+
+For stronger PostgreSQL enforcement, enable Row-Level Security, set a transaction-local tenant setting after authentication, and create policies such as `tenant_id = current_setting('app.tenant_id')::uuid`. Use a database role that cannot bypass RLS, carefully manage connection-pool state, and set/reset the setting per transaction. Application checks remain useful for authorization and defense in depth; RLS is not a substitute for validating user roles. Test cross-tenant reads, writes, joins, bulk operations, background jobs, cache keys, and exports with adversarial cases.
+

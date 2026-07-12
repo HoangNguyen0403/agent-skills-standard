@@ -1,0 +1,1 @@
+Replace Java get/set methods with a Kotlin property such as `var name: String`, and use custom property accessors only when required. This avoids Java-isms; use a computed property rather than a zero-argument getter-like function.

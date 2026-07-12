@@ -1,0 +1,1 @@
+Where do I put business logic in Laravel?

@@ -1,0 +1,3 @@
+This is a test-generation request rather than a coverage audit. I cannot generate accurate cases for `{PROJECT}-{ID}` until the story’s acceptance criteria and scope are available. The coverage workflow should first retrieve the story and existing Zephyr cases, identify uncovered atomic ACs, and then hand those gaps to the test-generation workflow.
+
+If generation is authorized after that audit, create one independently verifiable Zephyr test case per condition, link each case to its source AC and story, preserve existing valid coverage, and report the resulting coverage delta. Do not claim full coverage merely because new test cases were drafted.

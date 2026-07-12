@@ -64,5 +64,8 @@
     "Add BLoC state for the theme toggle",
     "Write a test for the product card widget",
     "Configure go_router for the app"
+  ],
+  "should_trigger": [
+    "Add a confirm button to the checkout screen with a red background, white text, and 16px font size."
   ]
 }

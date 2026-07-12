@@ -1,0 +1,1 @@
+My Next.js 15 app fetches the same user data in 5 different Server Components on the same page. Is this causing 5 separate DB calls?

@@ -1,0 +1,1 @@
+Should I process long-running tasks directly in a @Cron handler?

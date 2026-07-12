@@ -1,0 +1,1 @@
+What log level should I use for expected errors like 'user not found' vs unexpected panics?

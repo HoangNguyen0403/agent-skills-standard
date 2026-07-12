@@ -1,0 +1,1 @@
+I want to define a sentinel error for 'not found' in my Go repository. How should I do this?

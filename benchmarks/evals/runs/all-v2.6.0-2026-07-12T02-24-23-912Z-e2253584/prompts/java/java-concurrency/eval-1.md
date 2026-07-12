@@ -1,0 +1,1 @@
+I have a Java service that makes 3 API calls and I want them to run in parallel. What's the modern Java 21 way to do this?

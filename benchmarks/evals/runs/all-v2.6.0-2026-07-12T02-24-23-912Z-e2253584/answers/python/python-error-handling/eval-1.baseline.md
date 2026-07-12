@@ -1,0 +1,3 @@
+Catching `Exception`, logging it, sleeping, and continuing can turn a real failure into an endless, misleading polling loop. It may retry permanent programming or configuration errors, hide the original failure from callers and monitoring, repeat non-idempotent work, and retain stale or partially updated state.
+
+Catch only errors that are expected to be transient, preserve the traceback, and use a bounded retry policy with a deadline or attempt limit, exponential backoff, and jitter. Let cancellation and unexpected failures propagate, and distinguish a normal "not ready yet" result from an actual verifier error.

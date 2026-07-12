@@ -1,0 +1,1 @@
+Create a Riverpod provider that fetches products from a repository.

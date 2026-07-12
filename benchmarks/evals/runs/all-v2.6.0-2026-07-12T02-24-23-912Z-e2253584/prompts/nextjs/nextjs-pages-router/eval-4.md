@@ -1,0 +1,1 @@
+Create dynamic routes in Next.js pages/ with [id].tsx

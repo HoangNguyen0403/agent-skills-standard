@@ -1,0 +1,1 @@
+What are the anti-patterns I should avoid in Go?

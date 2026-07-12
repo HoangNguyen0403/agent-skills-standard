@@ -1,0 +1,1 @@
+There's a rotating clock in the header that makes visual diffs fail. How do I fix this?

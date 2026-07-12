@@ -1,0 +1,1 @@
+Avoid useState in a Server Component

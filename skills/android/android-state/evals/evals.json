@@ -76,5 +76,8 @@
     "How do I inject a ViewModel into a Fragment using Hilt?",
     "Use StateFlow in a unit test with runTest",
     "Handle configuration changes with ViewModel in a multi-activity app"
+  ],
+  "should_trigger": [
+    "My ViewModel exposes a public MutableStateFlow that the UI writes to directly. Is that okay?"
   ]
 }

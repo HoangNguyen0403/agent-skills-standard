@@ -1,0 +1,1 @@
+I'm loading large images from the network in a RecyclerView and the app uses too much memory. How do I fix that?

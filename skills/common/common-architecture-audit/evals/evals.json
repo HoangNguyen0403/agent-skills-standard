@@ -6,8 +6,14 @@
       "prompt": "Audit the architecture of this NestJS backend — I'm concerned about logic creeping into controllers.",
       "expected_output": "Run grep for repository/DB calls in controllers directory. Flag any controller method with >5 lines of business logic. Report layer violations with scoring impact (-15 per instance). Recommend moving logic to Service layer.",
       "assertions": [
-        { "type": "contains", "value": "controller" },
-        { "type": "contains", "value": "layer" }
+        {
+          "type": "contains",
+          "value": "controller"
+        },
+        {
+          "type": "contains",
+          "value": "layer"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Our React codebase has grown over 2 years. Check if we have a monolith problem — some files might be huge.",
       "expected_output": "Search for component files >500 lines (Medium debt) and >1000 lines (Critical). Count hook usage in components/ vs hooks/ folders. Flag files with multiple responsibilities. Recommend splitting by Single Responsibility Principle.",
       "assertions": [
-        { "type": "contains", "value": "monolith" },
-        { "type": "contains", "value": "lines" }
+        {
+          "type": "contains",
+          "value": "monolith"
+        },
+        {
+          "type": "contains",
+          "value": "lines"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "I see we have both UserService.ts and UserServiceNew.ts in the codebase. Is this a problem?",
       "expected_output": "Yes — this is structural duplication (split source of truth). Score: -10 for duplicated legacy entity. Recommend consolidating into one canonical service, migrating callers, and deleting the legacy version. Check for /v1, /v2, or Refactor folders as related patterns.",
       "assertions": [
-        { "type": "contains", "value": "duplication" },
-        { "type": "contains", "value": "legacy" }
+        {
+          "type": "contains",
+          "value": "duplication"
+        },
+        {
+          "type": "contains",
+          "value": "legacy"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Write a unit test for the user login function",
     "How do I center a div in CSS?",
     "Configure GitHub Actions for CI/CD"
+  ],
+  "should_trigger": [
+    "Audit the architecture of this NestJS backend — I'm concerned about logic creeping into controllers."
   ]
 }

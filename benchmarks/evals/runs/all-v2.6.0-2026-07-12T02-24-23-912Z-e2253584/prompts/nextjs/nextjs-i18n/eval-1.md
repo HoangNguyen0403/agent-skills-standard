@@ -1,0 +1,1 @@
+Add multi-language support to my Next.js App Router project. I need English and French.

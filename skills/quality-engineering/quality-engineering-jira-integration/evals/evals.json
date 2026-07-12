@@ -64,5 +64,8 @@
     "Generate new Zephyr test cases from the user story",
     "Write a widget test for the Jira integration screen",
     "Set up a CI pipeline that runs tests on every PR"
+  ],
+  "should_trigger": [
+    "Fetch TICK-4521 from Jira and tell me its acceptance criteria, labels, linked components, and whether any Zephyr test cases are already linked to it."
   ]
 }

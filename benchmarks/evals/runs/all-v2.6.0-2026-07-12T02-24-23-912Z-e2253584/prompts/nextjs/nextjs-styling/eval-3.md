@@ -1,0 +1,1 @@
+My image component doesn't have width and height attributes and the layout shifts during loading.

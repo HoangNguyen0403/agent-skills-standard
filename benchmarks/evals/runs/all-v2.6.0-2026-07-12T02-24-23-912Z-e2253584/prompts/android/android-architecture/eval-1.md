@@ -1,0 +1,1 @@
+I'm setting up a new Android project. Where should the business logic for calculating order totals live — in the ViewModel, a UseCase, or the Repository?

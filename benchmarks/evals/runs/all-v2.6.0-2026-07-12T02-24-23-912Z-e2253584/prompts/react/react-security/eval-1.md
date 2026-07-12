@@ -1,0 +1,1 @@
+My React app stores the JWT access token in localStorage.

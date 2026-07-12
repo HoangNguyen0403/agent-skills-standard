@@ -1,0 +1,1 @@
+Produce `coverage_analysis_report.md` with an Executive Dashboard showing coverage %, a risk-scored AC heatmap, a Prioritized Action Plan with P1 must-have TCs, and a release-readiness verdict. Use HIGH risk for release-blocking gaps and keep Web/Mobile slots separate.

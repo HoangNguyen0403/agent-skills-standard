@@ -1,0 +1,1 @@
+My app reads from localStorage in a Server Component and gets hydration errors.

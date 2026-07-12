@@ -1,0 +1,1 @@
+Write an async function that fetches data from multiple APIs in parallel.

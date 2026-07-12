@@ -84,7 +84,26 @@
       "id": 6,
       "prompt": "Redirect after a successful Server Action mutation",
       "expected_output": "import { redirect } from 'next/navigation'; at end of successful Server Action call redirect('/success'); redirect() throws internally — never wrap in try/catch or it will be caught and swallowed",
-      "assertions": []
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "import { redirect } from 'next/navigation'",
+            "redirect"
+          ]
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "at end of successful Server Action call redirect('/success')",
+            "server"
+          ]
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -92,5 +111,8 @@
     "Form handling with React Hook Form (client-only)",
     "Laravel Form Request validation",
     "NestJS controller POST endpoint with DTO"
+  ],
+  "should_trigger": [
+    "Create a Server Action in Next.js for form submission"
   ]
 }

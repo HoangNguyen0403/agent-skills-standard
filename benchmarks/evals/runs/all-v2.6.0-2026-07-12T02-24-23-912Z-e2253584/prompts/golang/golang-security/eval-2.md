@@ -1,0 +1,1 @@
+I need to generate a secure random token for password reset in Go. How should I do this?

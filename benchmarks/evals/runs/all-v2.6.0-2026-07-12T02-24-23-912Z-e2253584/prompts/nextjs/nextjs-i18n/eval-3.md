@@ -1,0 +1,1 @@
+My i18n URLs use both /en/about and /about/en depending on the page. Users complain they can't share links.

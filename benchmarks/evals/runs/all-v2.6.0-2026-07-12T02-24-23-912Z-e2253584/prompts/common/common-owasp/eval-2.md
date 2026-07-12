@@ -1,0 +1,1 @@
+I configured our CORS policy with Access-Control-Allow-Origin: * on all routes including authenticated ones.

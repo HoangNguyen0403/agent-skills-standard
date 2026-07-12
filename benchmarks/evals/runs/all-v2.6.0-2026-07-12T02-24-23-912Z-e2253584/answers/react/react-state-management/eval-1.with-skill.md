@@ -1,0 +1,1 @@
+Use Context for low-frequency global auth state, such as an `AuthContext` with the user and logout action. Use Zustand for frequent or broader global updates, and pair auth/session fetching with React Query or SWR so the cache remains the source of truth.

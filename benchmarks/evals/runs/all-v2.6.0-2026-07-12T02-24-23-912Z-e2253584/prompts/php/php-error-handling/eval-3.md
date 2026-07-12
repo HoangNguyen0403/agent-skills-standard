@@ -1,0 +1,1 @@
+Use set_exception_handler in PHP

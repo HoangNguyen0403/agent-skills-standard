@@ -1,0 +1,1 @@
+Containerize my Next.js application with Docker for production deployment.

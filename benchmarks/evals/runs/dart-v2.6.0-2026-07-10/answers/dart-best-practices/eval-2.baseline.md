@@ -1,1 +1,0 @@
-Yes — a 20-line imperative loop that filters and transforms a list can usually be written as a single chained expression on the iterable, ending with `.toList()`. That reads closer to "what" the code does rather than "how", and removes the intermediate mutable accumulator variable.

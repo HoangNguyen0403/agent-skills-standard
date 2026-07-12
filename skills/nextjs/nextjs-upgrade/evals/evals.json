@@ -6,8 +6,14 @@
       "prompt": "I need to upgrade my Next.js project from version 13 to 15.",
       "expected_output": "Incremental upgrade — never skip majors: (1) v13 -> v14 first: run npx @next/codemod@latest upgrade ., test, fix issues. (2) v14 -> v15: run codemods again. Key v15 changes: cookies(), headers(), params are now Promises — must await. Fetch defaults to no-store. Update React to 19 for Next.js 15 compatibility.",
       "assertions": [
-        { "type": "contains", "value": "codemod" },
-        { "type": "contains", "value": "incremental" }
+        {
+          "type": "contains",
+          "value": "codemod"
+        },
+        {
+          "type": "contains",
+          "value": "incremental"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "After upgrading to Next.js 15, all my pages are showing stale cached data.",
       "expected_output": "Breaking change: Next.js 15 defaults fetch to no-store (no caching) instead of force-cache. Audit all fetch calls — add cache: 'force-cache' where you want SSG behavior, or revalidate: N for ISR. This is the opposite of v14 default. Run next build to see all dynamic route warnings.",
       "assertions": [
-        { "type": "contains", "value": "no-store" },
-        { "type": "contains", "value": "force-cache" }
+        {
+          "type": "contains",
+          "value": "no-store"
+        },
+        {
+          "type": "contains",
+          "value": "force-cache"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "I want to skip directly from Next.js 12 to 15 to save time.",
       "expected_output": "Violation: No major version skipping. Upgrade one major at a time: 12 -> 13, 13 -> 14, 14 -> 15. Each major has different codemods and breaking changes. Skipping causes compounding failures that are hard to debug. Run npx @next/codemod@latest for each step. Test after each increment with next dev and next build.",
       "assertions": [
-        { "type": "contains", "value": "one major" },
-        { "type": "contains", "value": "skip" }
+        {
+          "type": "contains",
+          "value": "one major"
+        },
+        {
+          "type": "contains",
+          "value": "skip"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Write a custom hook for data fetching",
     "Configure ESLint rules for the team",
     "Set up Playwright test infrastructure"
+  ],
+  "should_trigger": [
+    "I need to upgrade my Next.js project from version 13 to 15."
   ]
 }

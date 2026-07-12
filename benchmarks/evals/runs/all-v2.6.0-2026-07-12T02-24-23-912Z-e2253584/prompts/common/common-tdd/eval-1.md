@@ -1,0 +1,1 @@
+Implement a function that validates email addresses.

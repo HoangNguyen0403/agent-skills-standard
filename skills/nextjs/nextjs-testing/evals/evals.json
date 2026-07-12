@@ -6,8 +6,14 @@
       "prompt": "Write a test for my login form component that submits credentials and shows a success message.",
       "expected_output": "Use Vitest + RTL with AAA pattern. Arrange: render(<LoginForm />), set up MSW handler for POST /api/auth. Act: await user.type(emailInput, 'user@test.com'); await user.click(submitButton). Assert: expect(await screen.findByText(/success/i)).toBeInTheDocument(). Use userEvent (async) not fireEvent. Prefer getByRole over getByTestId.",
       "assertions": [
-        { "type": "contains", "value": "userEvent" },
-        { "type": "contains", "value": "MSW" }
+        {
+          "type": "contains",
+          "value": "userEvent"
+        },
+        {
+          "type": "contains",
+          "value": "MSW"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I'm using real fetch calls in my component tests and they're failing in CI.",
       "expected_output": "Violation: No real network usage in tests. Set up MSW (Mock Service Worker) with server and browser handlers. In vitest.config.ts configure MSW with setupFiles. Create handlers for all API boundaries. MSW intercepts at the network level, making tests environment-agnostic. Reset handlers after each test to prevent state leakage.",
       "assertions": [
-        { "type": "contains", "value": "MSW" },
-        { "type": "contains", "value": "handler" }
+        {
+          "type": "contains",
+          "value": "MSW"
+        },
+        {
+          "type": "contains",
+          "value": "handler"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "Write E2E tests for the checkout flow that tests the full user journey from cart to order confirmation.",
       "expected_output": "Use Playwright for App Router E2E validation. Test critical user flow: navigate to cart, fill shipping details, submit payment, verify order confirmation. Use role selectors: page.getByRole('button', { name: 'Place Order' }). Configure Playwright with baseURL. Run against dev or staging server. Aim for 80%+ coverage on critical flows.",
       "assertions": [
-        { "type": "contains", "value": "Playwright" },
-        { "type": "contains", "value": "getByRole" }
+        {
+          "type": "contains",
+          "value": "Playwright"
+        },
+        {
+          "type": "contains",
+          "value": "getByRole"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Write a Go repository interface for database access",
     "Configure Kubernetes ingress rules",
     "Set up Redis Cluster for high availability"
+  ],
+  "should_trigger": [
+    "Write a test for my login form component that submits credentials and shows a success message."
   ]
 }

@@ -1,0 +1,1 @@
+The server sends an enum field with values I haven't seen before. How do I prevent crashes?

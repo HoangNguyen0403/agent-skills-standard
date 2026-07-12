@@ -1,0 +1,1 @@
+My team uses different Java versions locally and on CI. How do I lock the JDK version for my Java project?

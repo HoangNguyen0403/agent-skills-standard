@@ -1,0 +1,1 @@
+Should I put shared utilities used by multiple features in lib/features/shared/?

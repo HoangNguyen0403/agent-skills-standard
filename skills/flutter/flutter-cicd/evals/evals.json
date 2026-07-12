@@ -60,5 +60,8 @@
     "How do I run flutter tests locally?",
     "Configure Firebase for the project",
     "Set up Sentry error monitoring"
+  ],
+  "should_trigger": [
+    "Set up a GitHub Actions workflow that runs flutter analyze, tests, and builds an Android AAB on every PR."
   ]
 }

@@ -1,0 +1,1 @@
+Keep Redux Toolkit when the large app needs complex middleware or time-travel debugging; RTK's `createSlice`, `createAsyncThunk`, and RTK Query reduce boilerplate. Consider Zustand for smaller or medium scopes, and migrate slice by slice rather than all at once.

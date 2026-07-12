@@ -1,0 +1,2 @@
+Upgrade incrementally: inspect the current `next`, `react`, and `react-dom` versions, move 13 -> 14 -> 15, and keep peer versions compatible. Run the official codemods at each step, especially the async request API transform; await `params`, `searchParams`, `cookies()`, and `headers()`. Audit fetch caching for the v15 behavior, run `next dev` and `next build` after each major, and fix hydration/Turbopack errors before proceeding.
+

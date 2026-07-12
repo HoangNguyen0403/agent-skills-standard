@@ -43,6 +43,15 @@
         {
           "type": "contains",
           "value": "declare(strict_types=1)"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "<?php declare(stricttypes=1)",
+            "declare"
+          ]
         }
       ]
     },
@@ -54,6 +63,15 @@
         {
           "type": "contains",
           "value": "public function __construct(public string $name"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "public function construct(public string $name",
+            "public"
+          ]
         }
       ]
     },
@@ -82,8 +100,12 @@
           "value": "name: 'John'"
         },
         {
-          "type": "contains",
-          "value": "array: $arr"
+          "type": "contains_any",
+          "value": [
+            "array: $arr",
+            "name"
+          ],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]
     }
@@ -93,5 +115,8 @@
     "Kotlin data classes with copy()",
     "Java records in Java 21",
     "Swift optionals and guard let"
+  ],
+  "should_trigger": [
+    "Use PHP 8 match expression instead of switch"
   ]
 }

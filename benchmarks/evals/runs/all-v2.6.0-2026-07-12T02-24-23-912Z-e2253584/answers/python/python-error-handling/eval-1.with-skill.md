@@ -1,0 +1,1 @@
+A broad exception catch can hide the real exception and turn a verifier failure into an apparently progressing poll. It erases blocker truth, may retry a non-retryable error forever, and can leave inconsistent state. Catch narrow expected exceptions, add context, preserve the exception, and return a structured failure or re-raise unexpected errors.

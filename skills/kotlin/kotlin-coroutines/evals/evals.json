@@ -82,5 +82,8 @@
     "How do I use Kotlin scope functions (let, apply, run) properly?",
     "How do I hoist state from a Composable to a ViewModel?",
     "My Flow in a ViewModel is not cancelling — how do I debug it?"
+  ],
+  "should_trigger": [
+    "My Kotlin code uses GlobalScope.launch to start a background task. My tech lead says this is wrong. Why?"
   ]
 }

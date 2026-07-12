@@ -34,8 +34,12 @@
           "value": "increment_build_number"
         },
         {
-          "type": "contains",
-          "value": "Info.plist"
+          "type": "contains_any",
+          "value": [
+            "Info.plist",
+            "info"
+          ],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]
     },
@@ -46,7 +50,8 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Priority: P1"
+          "value": "Fastfile",
+          "description": "Checks user-visible framework guidance"
         },
         {
           "type": "contains",
@@ -60,5 +65,8 @@
     "How do I install ios dependencies?",
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
+  ],
+  "should_trigger": [
+    "How should I implement ios deployment best practices?"
   ]
 }

@@ -1,0 +1,1 @@
+The app needs to redirect unauthenticated users to /login when they try to access /cart or /checkout. How do I implement this with go_router?

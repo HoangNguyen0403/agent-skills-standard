@@ -24,6 +24,15 @@
         {
           "type": "contains",
           "value": "'use client'"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "// Page",
+            "page"
+          ]
         }
       ]
     },
@@ -50,6 +59,15 @@
         {
           "type": "contains",
           "value": "Client Component-only hooks"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Server Components run only on server",
+            "server"
+          ]
         }
       ]
     },
@@ -89,5 +107,8 @@
     "Server-side rendering in Nuxt.js with useAsyncData",
     "React Server Components in Next.js Pages Router",
     "Component architecture in Flutter widgets"
+  ],
+  "should_trigger": [
+    "Decide where to put 'use client' in a Next.js component tree"
   ]
 }

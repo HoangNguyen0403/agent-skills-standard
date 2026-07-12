@@ -1,0 +1,1 @@
+My GetX controller is being used across multiple screens. How do I make sure it persists while the app is running but gets disposed when no longer needed?

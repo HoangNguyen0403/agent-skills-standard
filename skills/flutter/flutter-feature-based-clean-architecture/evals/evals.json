@@ -32,6 +32,15 @@
         {
           "type": "contains",
           "value": "Domain"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "entities) but never import from loyalty's data/ or presentation/ layers",
+            "entities"
+          ]
         }
       ]
     },
@@ -56,5 +65,8 @@
     "Add a test for the LoginBloc",
     "Fix the navigation so the back button works correctly",
     "I need to add a loading spinner to the checkout page"
+  ],
+  "should_trigger": [
+    "I'm adding a new 'promotions' feature. Where should I put the files?"
   ]
 }

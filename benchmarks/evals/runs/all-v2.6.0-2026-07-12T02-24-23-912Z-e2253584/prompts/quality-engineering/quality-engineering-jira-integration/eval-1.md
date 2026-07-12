@@ -1,0 +1,1 @@
+Fetch TICK-4521 from Jira and tell me its acceptance criteria, labels, linked components, and whether any Zephyr test cases are already linked to it.

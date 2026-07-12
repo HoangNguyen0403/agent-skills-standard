@@ -1,0 +1,1 @@
+Every time the cart item count updates in the header, the entire screen rebuilds including expensive product grid.

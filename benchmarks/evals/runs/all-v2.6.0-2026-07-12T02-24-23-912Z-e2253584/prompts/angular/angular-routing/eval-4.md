@@ -1,0 +1,1 @@
+Working on app.routes.ts — how should I structure routes?

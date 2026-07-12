@@ -1,0 +1,3 @@
+Start with an impact analysis of the existing Zephyr cases against the new Reorder acceptance criteria. Classify each case as unchanged, update-in-place, duplicate, or obsolete.
+
+Update a case in place when its business intent is still valid but its preconditions, steps, selectors, or expected result changed. Create a new case when the new behavior adds a distinct role, status, platform, permission, or outcome. Retire or deprecate obsolete cases according to the project policy so history is preserved; do not silently delete them. Keep the story links and AC traceability current, add negative/error cases implied by the change, and execute the affected set to confirm that the suite reflects the new behavior.

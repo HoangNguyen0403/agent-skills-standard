@@ -1,0 +1,1 @@
+Own the transaction at the service or use-case boundary for the single business action spanning those repository writes. Pass one connection or transaction context into the repositories so they do not commit independently; commit on success and roll back on failure.

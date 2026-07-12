@@ -1,0 +1,4 @@
+Put shared transport contracts in a small versioned package or monorepo library, not in a package that imports application services. Share plain DTO classes/interfaces and protobuf schemas/generated types; keep domain entities, secrets, and persistence decorators out of the contract package.
+
+For Nest message patterns, export DTOs and use the same `class-transformer`/validation expectations on both sides, or generate types from a schema so drift is caught in CI. For protobuf, keep `.proto` files as the source of truth, generate code for each service, and evolve fields compatibly: do not reuse field numbers, remove fields only with a migration plan, and support old/new versions during rolling deploys. Publish/build the package deterministically, test serialization and contract compatibility, and avoid runtime circular dependencies between apps.
+

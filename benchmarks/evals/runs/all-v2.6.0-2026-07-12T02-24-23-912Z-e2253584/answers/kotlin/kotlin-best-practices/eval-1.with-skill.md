@@ -1,0 +1,1 @@
+Use `apply` for object configuration and return its receiver, `also` for side effects while returning the receiver, `let` for null checks or mapping and returning the mapped result, `run` for configuration plus a computed result, and `with` to group calls. Limit scope-function nesting to two levels so receiver changes remain readable.

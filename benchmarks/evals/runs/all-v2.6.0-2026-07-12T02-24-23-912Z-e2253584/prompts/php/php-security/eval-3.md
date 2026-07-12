@@ -1,0 +1,1 @@
+Escape user output to prevent XSS in PHP

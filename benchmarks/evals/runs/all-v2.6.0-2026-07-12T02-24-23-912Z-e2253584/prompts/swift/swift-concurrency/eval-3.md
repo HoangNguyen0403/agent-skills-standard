@@ -1,0 +1,1 @@
+How do I annotate UI code with @MainActor?

@@ -1,0 +1,1 @@
+How do I set up a Content Security Policy for an Angular app?

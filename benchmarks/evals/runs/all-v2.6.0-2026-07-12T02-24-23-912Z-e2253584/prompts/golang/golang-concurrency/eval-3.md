@@ -1,0 +1,1 @@
+How do I run go test with the race detector?

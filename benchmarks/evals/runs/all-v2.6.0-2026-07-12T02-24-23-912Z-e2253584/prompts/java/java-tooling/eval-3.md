@@ -1,0 +1,1 @@
+I want my Docker image for a Java Spring Boot app to be as small and cacheable as possible. What's the best approach?

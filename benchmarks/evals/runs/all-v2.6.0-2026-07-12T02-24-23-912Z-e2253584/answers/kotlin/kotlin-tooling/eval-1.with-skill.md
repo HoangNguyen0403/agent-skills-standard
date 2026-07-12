@@ -1,0 +1,1 @@
+Use MockK, not Mockito, for Kotlin because Mockito's `when/then` model conflicts with Kotlin and has weaker first-class support. Use MockK's `every` and `verify`, JUnit 5 for tests, and Truth or Kotest Assertions for readable assertions.

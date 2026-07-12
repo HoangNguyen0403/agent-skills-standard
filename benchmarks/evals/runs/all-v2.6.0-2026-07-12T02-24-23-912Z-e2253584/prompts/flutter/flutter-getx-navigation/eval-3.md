@@ -1,0 +1,1 @@
+Set up AppPages with bindings so the HomeController is created and disposed automatically when the home route is entered and exited.

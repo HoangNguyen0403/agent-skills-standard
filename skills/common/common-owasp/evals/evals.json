@@ -6,8 +6,14 @@
       "prompt": "Review this code: const user = await db.findById(req.params.id); return res.json(user);",
       "expected_output": "Two violations: (1) A01/API1 — BOLA/IDOR: findById without owner filter. Fix: add AND owner_id = req.user.id to the query. (2) API3 — full entity returned, no DTO projection. Fix: return only the fields needed, never serialize raw ORM output. P0 finding — Security score capped at 40/100.",
       "assertions": [
-        { "type": "contains", "value": "IDOR" },
-        { "type": "contains", "value": "DTO" }
+        {
+          "type": "contains",
+          "value": "IDOR"
+        },
+        {
+          "type": "contains",
+          "value": "DTO"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I configured our CORS policy with Access-Control-Allow-Origin: * on all routes including authenticated ones.",
       "expected_output": "A05 — Security Misconfiguration (P0 if on authenticated routes). Wildcard CORS allows any origin to make credentialed requests. Fix: restrict to explicit allowlisted origins in an array. Authenticated routes must never use origin: '*'. Apply per-route CORS configuration.",
       "assertions": [
-        { "type": "contains", "value": "CORS" },
-        { "type": "contains", "value": "origin" }
+        {
+          "type": "contains",
+          "value": "CORS"
+        },
+        {
+          "type": "contains",
+          "value": "origin"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "Write a login endpoint that checks the user's password.",
       "expected_output": "Apply OWASP always-apply rules: (1) Hash passwords with Argon2id (never MD5/bcrypt). (2) Add rate limiting — no limit on auth is A04 Insecure Design. (3) Issue JWT with expiry — missing exp is A07. (4) Use HttpOnly cookie for token storage. (5) Return generic error ('Invalid credentials') for both wrong user and wrong password.",
       "assertions": [
-        { "type": "contains", "value": "rate limit" },
-        { "type": "contains", "value": "JWT" }
+        {
+          "type": "contains",
+          "value": "rate limit"
+        },
+        {
+          "type": "contains",
+          "value": "JWT"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Write a React component for displaying products",
     "Explain how CSS flexbox works",
     "Set up a development environment for Python"
+  ],
+  "should_trigger": [
+    "Review this code: const user = await db.findById(req.params.id); return res.json(user);"
   ]
 }

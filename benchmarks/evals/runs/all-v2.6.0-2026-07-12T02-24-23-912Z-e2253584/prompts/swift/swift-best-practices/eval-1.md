@@ -1,0 +1,1 @@
+How do I use guard for early exit in Swift?

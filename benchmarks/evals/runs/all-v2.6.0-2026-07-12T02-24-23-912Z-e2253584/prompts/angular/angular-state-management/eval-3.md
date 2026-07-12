@@ -1,0 +1,1 @@
+How do I use linkedSignal() for dependent state?

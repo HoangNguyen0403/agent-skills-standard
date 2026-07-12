@@ -60,5 +60,8 @@
     "How do I implement push notifications?",
     "How do I set up EAS Build?",
     "How do I use StyleSheet.create?"
+  ],
+  "should_trigger": [
+    "How do I set up React Navigation with a stack navigator and type-safe navigation?"
   ]
 }

@@ -1,0 +1,1 @@
+Variable: `Market` = VN, MY, or SG. Map the permitted Actor roles, check Web/Mobile parity, and add explicit behavior for non-VN markets such as hidden versus an error. Do not leave market or platform behavior implied.

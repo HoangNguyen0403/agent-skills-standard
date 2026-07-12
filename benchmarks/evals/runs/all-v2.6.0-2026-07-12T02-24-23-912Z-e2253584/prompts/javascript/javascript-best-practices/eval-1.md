@@ -1,0 +1,1 @@
+How should I implement javascript best practices best practices?

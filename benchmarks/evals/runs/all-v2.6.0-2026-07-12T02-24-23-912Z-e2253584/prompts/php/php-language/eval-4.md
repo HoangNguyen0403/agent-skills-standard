@@ -1,0 +1,1 @@
+Use constructor property promotion in PHP 8

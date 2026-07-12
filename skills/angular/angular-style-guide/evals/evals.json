@@ -121,5 +121,8 @@
     "What are the TypeScript naming conventions for variables?",
     "How do I configure ESLint rules for a Node.js project?",
     "How do I set up Python PEP8 code style enforcement?"
+  ],
+  "should_trigger": [
+    "What naming conventions should I use for Angular files?"
   ]
 }

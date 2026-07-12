@@ -1,0 +1,1 @@
+How do I make my React Native layout adapt to different screen sizes?

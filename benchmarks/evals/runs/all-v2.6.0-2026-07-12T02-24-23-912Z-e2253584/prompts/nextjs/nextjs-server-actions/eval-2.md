@@ -1,0 +1,1 @@
+Handle mutations without API endpoints in Next.js

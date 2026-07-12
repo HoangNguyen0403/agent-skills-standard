@@ -28,13 +28,36 @@
         {
           "type": "contains",
           "value": "Factory"
+        },
+        {
+          "id": "a1",
+          "description": "Checks the outcome includes Dependency Injection",
+          "type": "contains",
+          "value": "Dependency Injection"
         }
       ]
     },
     {
       "id": 3,
       "prompt": "How do I swap out the real AuthRepository with a mock in my widget tests?",
-      "expected_output": "In setUp: getIt.unregister<IAuthRepository>() then getIt.registerLazySingleton<IAuthRepository>(() => MockAuthRepository())"
+      "expected_output": "In setUp: getIt.unregister<IAuthRepository>() then getIt.registerLazySingleton<IAuthRepository>(() => MockAuthRepository())",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "In setUp",
+            "setup"
+          ]
+        },
+        {
+          "id": "a2",
+          "description": "Checks the outcome includes getIt",
+          "type": "contains",
+          "value": "getIt"
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -42,5 +65,8 @@
     "Add a constructor parameter to a widget",
     "Write a unit test for the login use case",
     "Set up Firebase dependencies in pubspec.yaml"
+  ],
+  "should_trigger": [
+    "I'm adding a new OrderRepository that depends on Dio and a local Hive database. How do I register it with injectable/get_it?"
   ]
 }

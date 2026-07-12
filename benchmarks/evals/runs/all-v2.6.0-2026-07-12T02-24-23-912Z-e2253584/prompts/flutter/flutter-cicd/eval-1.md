@@ -1,0 +1,1 @@
+Set up a GitHub Actions workflow that runs flutter analyze, tests, and builds an Android AAB on every PR.

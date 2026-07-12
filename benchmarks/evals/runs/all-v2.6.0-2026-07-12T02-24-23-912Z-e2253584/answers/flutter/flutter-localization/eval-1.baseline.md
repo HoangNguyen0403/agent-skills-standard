@@ -1,0 +1,4 @@
+To add English and Vietnamese support in Flutter, use Flutter's internationalization tooling with ARB files, define `en` and `vi` locales, and generate localized strings for the app. A typical setup is to add `flutter_localizations` and `intl`, create `app_en.arb` and `app_vi.arb`, enable code generation, and wire `supportedLocales` plus `localizationsDelegates` into `MaterialApp`.
+
+Since translators use Google Sheets, keep Sheets as the editing source and export each language into ARB or JSON during your localization workflow. A simple approach is: maintain one sheet with keys and language columns (`key`, `en`, `vi`), then use a script or export step to convert rows into `app_en.arb` and `app_vi.arb`. This keeps translator work non-technical while fitting Flutter's standard localization pipeline.
+

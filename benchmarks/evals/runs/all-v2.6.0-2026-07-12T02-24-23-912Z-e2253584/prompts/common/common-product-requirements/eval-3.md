@@ -1,0 +1,1 @@
+Draft requirements for a payment checkout flow.

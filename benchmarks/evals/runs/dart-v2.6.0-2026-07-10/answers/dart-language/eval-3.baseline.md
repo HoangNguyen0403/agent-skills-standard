@@ -1,1 +1,0 @@
-Instead of force-unwrapping with `!` everywhere, use `?.` to safely call methods on the nullable value, `??` to supply a fallback when it's null, or add an early `if (value == null) return;` guard so the rest of the function can treat it as non-null.

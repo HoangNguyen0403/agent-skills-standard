@@ -1,0 +1,1 @@
+My deep link passes a userId in the URL and the app crashes if the ID doesn't exist. How do I handle this?

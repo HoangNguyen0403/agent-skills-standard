@@ -1,0 +1,1 @@
+My ViewModel needs a parameter that's only known at runtime (e.g., a product ID). How do I inject that with Hilt?

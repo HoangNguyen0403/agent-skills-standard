@@ -1,0 +1,1 @@
+My Android app takes 3 seconds to start. How do I reduce the startup time?

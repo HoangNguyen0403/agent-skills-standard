@@ -43,6 +43,15 @@
         {
           "type": "contains",
           "value": "Loop::get()"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Install react/event-loop",
+            "name"
+          ]
         }
       ]
     },
@@ -69,6 +78,15 @@
         {
           "type": "contains",
           "value": "Pool($client"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Use Guzzle pool for concurrent requests",
+            "guzzle"
+          ]
         }
       ]
     },
@@ -80,6 +98,12 @@
         {
           "type": "contains",
           "value": "separate PDO connections per Fiber"
+        },
+        {
+          "id": "a1",
+          "description": "Checks the outcome includes avoid shared mutable state",
+          "type": "contains",
+          "value": "avoid shared mutable state"
         }
       ]
     }
@@ -89,5 +113,8 @@
     "Go goroutines and channels",
     "Kotlin coroutines with viewModelScope",
     "Python asyncio event loop"
+  ],
+  "should_trigger": [
+    "Use PHP Fibers for concurrent tasks"
   ]
 }

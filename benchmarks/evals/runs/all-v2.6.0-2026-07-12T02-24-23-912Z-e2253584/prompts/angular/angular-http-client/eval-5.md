@@ -1,0 +1,1 @@
+How do I handle HTTP errors globally in Angular?

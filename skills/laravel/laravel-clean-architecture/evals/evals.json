@@ -152,7 +152,26 @@
       "id": 6,
       "prompt": "Use readonly classes for data transfer in PHP",
       "expected_output": "readonly class CreateOrderData { public function __construct(public readonly string $customerId, public readonly int $amount) {} }; immutable by default in PHP 8.1+; no raw arrays between layers",
-      "assertions": []
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "public readonly int $amount) {} }",
+            "readonly"
+          ]
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "immutable by default in PHP 8",
+            "name"
+          ]
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -160,5 +179,8 @@
     "Repository pattern in Spring Boot with JPA",
     "Use DTOs in a Go service",
     "Clean architecture in React"
+  ],
+  "should_trigger": [
+    "Implement Domain-Driven Design in Laravel"
   ]
 }

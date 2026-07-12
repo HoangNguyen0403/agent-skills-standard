@@ -1,0 +1,1 @@
+How do I set up a Room database DAO that reactively emits updates whenever my product table changes?

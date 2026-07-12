@@ -1,0 +1,1 @@
+Split the flow into explicit boundaries: a repository adapter gathers DB facts, an application service computes policy, a renderer formats Markdown, and a Telegram transport sends it. Compose those collaborators in startup wiring and keep the report service focused on orchestration.

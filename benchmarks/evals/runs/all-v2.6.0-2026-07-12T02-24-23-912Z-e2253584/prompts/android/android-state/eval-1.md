@@ -1,0 +1,1 @@
+My ViewModel exposes a public MutableStateFlow that the UI writes to directly. Is that okay?

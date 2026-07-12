@@ -8,7 +8,8 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Priority: P0 (CRITICAL)"
+          "value": "Divide into distinct sections per concern",
+          "description": "Checks user-visible framework guidance"
         },
         {
           "type": "contains",
@@ -64,5 +65,8 @@
     "How do I install common dependencies?",
     "What is common?",
     "Configure CI/CD for an unrelated platform"
+  ],
+  "should_trigger": [
+    "How should I implement common system design best practices?"
   ]
 }

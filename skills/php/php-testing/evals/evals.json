@@ -24,6 +24,15 @@
         {
           "type": "contains",
           "value": "Pest"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Use dataset for data-driven tests",
+            "dataset"
+          ]
         }
       ]
     },
@@ -50,6 +59,15 @@
         {
           "type": "contains",
           "value": "DataProvider"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Define a static method returning test cases as arrays",
+            "method"
+          ]
         }
       ]
     },
@@ -89,5 +107,8 @@
     "JUnit 5 tests in a Java Spring Boot app",
     "Go table-driven tests with testify",
     "Vitest tests for a Next.js application"
+  ],
+  "should_trigger": [
+    "Write a PHPUnit test for a PHP service class"
   ]
 }

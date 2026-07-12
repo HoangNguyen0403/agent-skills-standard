@@ -1,0 +1,4 @@
+`@Cron` runs independently in every NestJS pod, so three replicas execute it three times. Choose a single execution owner or add distributed coordination. The simplest Kubernetes design is a `CronJob` that starts a short-lived worker/command and remove the cron scheduler from web replicas. Configure `concurrencyPolicy: Forbid`, retries, deadlines, and history limits.
+
+If the schedule must live in the application, use a distributed lock with a short lease (for example Redis `SET NX PX` or a database advisory lock), unique job identity, and an idempotent handler. Acquire the lock immediately before work, renew for long tasks, and release safely. A lock reduces duplicates but is not a durable queue; persist job state and make retries safe. Verify actual replica count and schedule registration in production.
+

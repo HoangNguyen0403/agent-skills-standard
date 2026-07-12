@@ -1,0 +1,3 @@
+`GlobalScope.launch` creates work outside structured concurrency. It has no lifecycle owner, so the work can outlive the screen, request, or feature that started it; it is difficult to cancel and failures are easy to lose or handle inconsistently.
+
+Launch from an explicitly owned scope instead: `viewModelScope` for `ViewModel` work, `lifecycleScope` for UI work, or a scope injected/created by an application component and cancelled when that component shuts down. For a long-lived application task, an application scope can be appropriate, but it should be explicitly owned and supervised. Prefer `coroutineScope` or `supervisorScope` for child work so cancellation and failure propagation are visible.

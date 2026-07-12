@@ -1,0 +1,1 @@
+My Java method can return null when it finds no result. A colleague says I should use Optional. Is that right?

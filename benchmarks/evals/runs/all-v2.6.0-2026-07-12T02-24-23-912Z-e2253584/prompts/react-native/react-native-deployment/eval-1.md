@@ -1,0 +1,1 @@
+How do I set up over-the-air updates for my React Native app without going through the app store?

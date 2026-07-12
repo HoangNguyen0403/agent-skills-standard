@@ -1,0 +1,1 @@
+How do I optimize my NestJS Docker image size?

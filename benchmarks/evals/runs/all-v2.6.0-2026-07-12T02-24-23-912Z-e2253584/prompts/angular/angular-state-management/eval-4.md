@@ -1,0 +1,1 @@
+Working on cart.store.ts — how should I structure state?

@@ -1,0 +1,1 @@
+Link TICK-T892 to TICK-3301 with `Create Test Case Issue Link`, apply the `has-zephyr-tests` label to TICK-3301, and add one comment: `Linked Zephyr Test Case: TICK-T892`. Do not post duplicate comments.

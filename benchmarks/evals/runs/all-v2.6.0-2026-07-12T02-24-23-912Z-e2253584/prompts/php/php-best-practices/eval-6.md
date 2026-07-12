@@ -1,0 +1,1 @@
+Naming conventions for PHP methods and constants

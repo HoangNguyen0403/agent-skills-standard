@@ -1,0 +1,1 @@
+Build a REST endpoint in Go that handles POST /orders. It should parse the request, call an order service, and return JSON. Where does business logic go?

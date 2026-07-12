@@ -1,0 +1,1 @@
+Set up go_router with typed routes so navigating to the order detail screen requires a strongly-typed orderId parameter.

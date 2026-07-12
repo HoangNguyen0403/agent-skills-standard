@@ -1,0 +1,4 @@
+Run migrations once as a serialized deployment operation, usually a Kubernetes Job or CI/CD release step, before the new application version receives traffic. Do not run them in every pod’s startup command: rolling deployments can race, slow readiness, or create partial rollout failures.
+
+Build the migration code into the same versioned artifact, point the job at the production database secret, wait for successful completion, then deploy/roll out the application. Ensure migrations are backward-compatible with the previous version, use TypeORM’s migration table and database locking/serialization, and fail the pipeline on a nonzero exit. A startup migration can be acceptable for a single-instance system only if it has explicit locking, timeout, and failure handling; it is generally unsafe as the default for multiple replicas.
+

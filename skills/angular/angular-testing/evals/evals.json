@@ -125,5 +125,8 @@
     "How do I test a NestJS controller with supertest?",
     "How do I use Cypress for end-to-end browser testing?",
     "How do I write table-driven unit tests in Go?"
+  ],
+  "should_trigger": [
+    "How do I write a unit test with TestBed in Angular?"
   ]
 }

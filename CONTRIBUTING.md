@@ -92,6 +92,17 @@ pnpm test
 pnpm build
 ```
 
+For live-eval or eval-definition changes, also run:
+
+```bash
+pnpm evals:audit
+pnpm evals:verify -- --all
+pnpm evals:report
+pnpm evals:queue -- --run <runId>
+```
+
+Never hand-edit `results.json` or historical transcripts. New runs must be complete, must contain immutable `inputs.json`, and must use the canonical `.agents/workflows/evals-run.md` workflow; regenerate exported workflow copies from the canonical source.
+
 For release candidates, also run:
 
 ```bash

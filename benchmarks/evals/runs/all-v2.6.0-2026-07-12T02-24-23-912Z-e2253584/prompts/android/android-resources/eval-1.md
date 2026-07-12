@@ -1,0 +1,1 @@
+I have "You have 1 items in your cart" in my strings.xml. How do I handle singular vs plural properly?

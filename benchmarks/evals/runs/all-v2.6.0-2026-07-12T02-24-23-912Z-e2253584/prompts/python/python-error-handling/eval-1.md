@@ -1,0 +1,1 @@
+A Python verifier catches Exception, logs it, sleeps, and keeps polling. What is the risk?

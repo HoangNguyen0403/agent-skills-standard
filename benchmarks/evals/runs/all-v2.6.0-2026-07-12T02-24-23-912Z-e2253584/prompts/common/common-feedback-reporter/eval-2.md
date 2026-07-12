@@ -1,0 +1,1 @@
+Create a SKILL.md for a new React hooks skill with detailed examples and explanations.

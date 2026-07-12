@@ -1,0 +1,2 @@
+I cannot skip reopening the skill or checking the current diff. The protocol explicitly prohibits relying on memory: reload the source-of-truth skill and inspect the current files/diff. Then perform the adversarial audit, compare the post-write content with the active anti-patterns, and run fresh validation. Earlier inspection is stale evidence, and the task must not be called complete until the current checks pass.
+

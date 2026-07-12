@@ -43,6 +43,15 @@
         {
           "type": "contains",
           "value": "BuildContext"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "snackbar('Error'",
+            "name"
+          ]
         }
       ]
     }
@@ -52,5 +61,8 @@
     "Write a Riverpod provider that fetches the product list",
     "Add a loading indicator widget to the screen",
     "How do I write a unit test for a GetxController?"
+  ],
+  "should_trigger": [
+    "Create a UserController with GetX that fetches the user profile on init and exposes a reactive loading state and user data to the UI."
   ]
 }

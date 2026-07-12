@@ -1,0 +1,1 @@
+Fetch data in a Next.js Server Component

@@ -1,0 +1,1 @@
+Use Vite rather than CRA for a new standalone React project; CRA is deprecated. Vite provides fast builds and HMR, supports `.env`, and works with `@vitejs/plugin-react`. Use Next.js tooling for a Next.js app.

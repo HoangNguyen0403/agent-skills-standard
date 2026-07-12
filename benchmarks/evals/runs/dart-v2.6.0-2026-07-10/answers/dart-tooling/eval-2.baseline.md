@@ -1,1 +1,0 @@
-That error means build_runner found leftover generated files from a previous run that conflict with the new outputs. Delete the stale `.g.dart` files (or clean the build cache) and run build_runner again — that should clear it up.

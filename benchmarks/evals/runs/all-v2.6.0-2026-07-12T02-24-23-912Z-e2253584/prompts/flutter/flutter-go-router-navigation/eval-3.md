@@ -1,0 +1,1 @@
+I have a bottom tab bar with Home, Orders, and Profile tabs. Each tab should maintain its own navigation stack when switching between tabs.

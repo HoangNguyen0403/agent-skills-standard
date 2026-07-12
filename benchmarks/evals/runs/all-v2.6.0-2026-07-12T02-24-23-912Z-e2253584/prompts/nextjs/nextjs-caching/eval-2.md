@@ -1,0 +1,1 @@
+I need to choose between SSG with revalidation vs SSR for my blog posts page. The posts update a few times per day.

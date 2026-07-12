@@ -1,0 +1,1 @@
+Produce `coverage_analysis_report.md` with an AC-to-TC heatmap, independent Web/Mobile coverage slots, partial and uncovered gaps, and a `QE Debt` section for stale labels, combined steps, generic objectives, and missing traceability. This is read-only: do not create TCs.

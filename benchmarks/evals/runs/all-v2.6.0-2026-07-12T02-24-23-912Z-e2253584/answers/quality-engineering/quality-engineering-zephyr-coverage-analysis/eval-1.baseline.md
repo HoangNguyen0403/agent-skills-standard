@@ -1,0 +1,3 @@
+I cannot check `{PROJECT}-{ID}` from the prompt alone because the Jira story and Zephyr data are not available. A coverage result must be based on the story’s actual acceptance criteria and the current linked test cases, not on the ticket key alone.
+
+The audit should retrieve the story and ACs, retrieve linked Zephyr TCs, map each atomic AC to passing/failed/pending test coverage, identify uncovered and weakly covered conditions, and report the release risk. It should also include the scope, data retrieval time, AC-to-TC matrix, coverage percentage formula, critical gaps, and a ship recommendation. “Enough” should be agreed against risk and release criteria; percentage alone is insufficient.

@@ -1,0 +1,1 @@
+Write a type-safe event system where different event types have different payloads.

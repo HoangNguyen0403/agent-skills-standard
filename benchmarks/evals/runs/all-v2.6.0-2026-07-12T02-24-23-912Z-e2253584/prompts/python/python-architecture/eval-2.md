@@ -1,0 +1,1 @@
+A Python report function fetches DB rows, computes policy, renders Markdown, and sends Telegram. How should I structure it?

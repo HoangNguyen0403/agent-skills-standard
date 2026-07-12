@@ -1,0 +1,12 @@
+# Encrypting user PII before database storage
+
+First minimize the PII collected and classify which fields actually require confidentiality. Encryption at rest does not replace access control, validation, or TLS: validate and sanitize values at the API/UI/import/webhook boundaries, use TLS 1.3 in transit, and authorize database access with least privilege.
+
+Use authenticated encryption with a modern AEAD construction, such as AES-256-GCM, rather than custom cryptography or unauthenticated encryption. Generate a fresh cryptographically secure random nonce/IV for every encryption operation; never reuse a nonce with the same key. Store the ciphertext, nonce, authentication tag, key-version identifier, and any required non-secret metadata. Verify the authentication tag before releasing plaintext and fail closed on tampering. Use envelope encryption where a managed KMS/HSM-held key encrypts or wraps per-record/data-encryption keys.
+
+Keep keys outside source control and outside ordinary application data: load them from a secret manager or KMS through environment/configuration references, restrict decryption permissions to the smallest service role, audit key access, rotate keys, and retain a controlled re-encryption/migration path for old key versions. Do not log plaintext PII, keys, nonces together with sensitive context, or decrypted values; mask sensitive fields in diagnostics and audit records. Do not commit fallback/default keys or passwords.
+
+Design for queries before choosing field encryption. Randomized encryption prevents equality indexing; if exact lookup is required, consider a separately stored keyed HMAC/blind index over a normalized value, with strict access controls and an explicit threat-model review. Never use raw PII concatenation in SQL; use parameterized queries or an ORM. Restrict database roles so the application can perform only the required reads/writes, and separate migration, operator, and decryption privileges.
+
+Define retention and deletion behavior, including destruction or revocation of keys where appropriate, backups, replicas, exports, and logs. Test round-trip encryption, wrong-key and tampered-ciphertext rejection, nonce uniqueness, rotation, backup restore, access denial, and recovery behavior. Run dependency scanning plus SAST/DAST in CI. Return generic errors to users and keep detailed cryptographic failures server-side without exposing stack traces.
+

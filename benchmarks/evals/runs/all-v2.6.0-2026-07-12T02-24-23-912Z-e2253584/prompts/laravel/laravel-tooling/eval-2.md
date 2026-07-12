@@ -1,0 +1,1 @@
+Set up Vite asset bundling in Laravel

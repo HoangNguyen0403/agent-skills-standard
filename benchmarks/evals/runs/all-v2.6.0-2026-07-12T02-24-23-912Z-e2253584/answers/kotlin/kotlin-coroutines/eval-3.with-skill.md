@@ -1,0 +1,1 @@
+Inject a dispatcher rather than hardcoding `Dispatchers.IO`, for example via a dispatcher provider passed to the class. Production binds the real dispatcher and tests bind a test dispatcher, letting `withContext` and scopes run deterministically under coroutine test control.

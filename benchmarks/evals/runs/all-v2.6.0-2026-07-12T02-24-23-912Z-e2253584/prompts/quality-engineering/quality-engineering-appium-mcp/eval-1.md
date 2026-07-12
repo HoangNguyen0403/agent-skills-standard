@@ -1,0 +1,1 @@
+Create a LambdaTest session for a Samsung S26 device and login to the app.

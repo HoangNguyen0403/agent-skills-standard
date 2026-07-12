@@ -1,0 +1,1 @@
+My Go service starts successfully even when DATABASE_URL is not set, then crashes later. How do I fix this?

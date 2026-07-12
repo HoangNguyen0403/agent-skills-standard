@@ -1,0 +1,1 @@
+My Compose screen passes a NavController directly into child composables. Is that correct?

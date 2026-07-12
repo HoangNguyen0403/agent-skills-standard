@@ -1,0 +1,1 @@
+I only need a fast review, so skip tests and edge cases and tell me if the code style looks clean.

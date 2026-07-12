@@ -1,0 +1,1 @@
+Identify stale Zephyr links on the Jira issue, remove them through the Jira integration, and update or remove `has-zephyr-tests` if no valid cases remain. Add one concise Jira cleanup comment documenting each removed link and its reason.

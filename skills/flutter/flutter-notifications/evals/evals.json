@@ -24,6 +24,15 @@
         {
           "type": "contains",
           "value": "Firebase"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Use getInitialMessage() in main",
+            "getinitialmessage"
+          ]
         }
       ]
     },
@@ -48,5 +57,8 @@
     "How do I show an in-app message using a Dialog widget?",
     "Set up Firebase Analytics",
     "Write a test for the notification service"
+  ],
+  "should_trigger": [
+    "Set up FCM push notifications from scratch. What packages do I need and what's the initialization flow?"
   ]
 }

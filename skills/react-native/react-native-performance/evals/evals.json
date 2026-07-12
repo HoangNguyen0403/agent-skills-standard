@@ -60,5 +60,8 @@
     "How do I implement push notifications?",
     "How do I write RNTL unit tests?",
     "How do I configure EAS Build?"
+  ],
+  "should_trigger": [
+    "My React Native FlatList with 1000 items is slow to scroll. How do I fix it?"
   ]
 }

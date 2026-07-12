@@ -1,0 +1,1 @@
+How do I bind host properties in Angular without @HostBinding?

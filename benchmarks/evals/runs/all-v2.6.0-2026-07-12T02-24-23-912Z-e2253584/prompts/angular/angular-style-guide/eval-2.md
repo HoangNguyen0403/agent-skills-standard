@@ -1,0 +1,1 @@
+How do I name Angular components and services?

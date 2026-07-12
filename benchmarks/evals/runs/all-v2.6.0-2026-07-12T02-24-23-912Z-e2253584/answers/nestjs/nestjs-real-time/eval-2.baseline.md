@@ -1,0 +1,4 @@
+Use a shared pub/sub or message broker adapter so any pod can publish an event to clients connected to any other pod. For Socket.IO, configure the Redis adapter and ensure all pods share the adapter’s Redis backend; configure sticky sessions if the transport/fallback requires them. For a native WebSocket gateway, implement equivalent channel subscription and connection routing.
+
+Set Kubernetes Service/load-balancer timeouts for long-lived connections, send heartbeats, handle reconnects, and scale based on connection count and event rate. Keep connection/auth state durable or reconstructable, and do not rely on one pod’s memory for presence or delivery guarantees. Decide whether events are best-effort or require durable replay; use a stream/queue and client offsets for the latter. Secure the broker and apply per-connection/message limits.
+

@@ -1,0 +1,1 @@
+I need to fetch data when a component mounts. Should I use useEffect?

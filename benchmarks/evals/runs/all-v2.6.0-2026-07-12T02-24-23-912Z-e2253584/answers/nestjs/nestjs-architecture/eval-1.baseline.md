@@ -1,0 +1,4 @@
+Organize by business feature rather than by framework type alone. Each feature module should normally contain its controller, application service/use cases, DTOs, domain logic, persistence adapter/repository, and tests. Keep cross-cutting concerns such as configuration, logging, authentication, and database setup in shared or infrastructure modules.
+
+Use `@Module` imports/exports as explicit dependency boundaries. A feature should export only stable application interfaces needed by other features; avoid a giant `CommonModule` that exposes everything or circular imports. Split modules when ownership, deployment, or dependency boundaries justify it, not merely because files are long. Keep controllers thin, put orchestration in services/use cases, isolate persistence details behind repositories, and make shared modules stateless and narrowly scoped. For a large monolith, this structure can later map cleanly to separate services.
+

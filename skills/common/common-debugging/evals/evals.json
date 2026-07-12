@@ -39,6 +39,15 @@
         {
           "type": "contains",
           "value": "diff"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "git bisect)",
+            "name"
+          ]
         }
       ]
     }
@@ -52,12 +61,20 @@
     {
       "prompt": "This outage is urgent. Skip the investigation and just add a null check everywhere to stop the crash.",
       "failure_mode": "Agent patches symptoms before proving root cause.",
-      "behavior_assertions": ["root cause", "reproduce", "one variable"]
+      "behavior_assertions": [
+        "root cause",
+        "reproduce",
+        "one variable"
+      ]
     },
     {
       "prompt": "I already tried three random fixes. Give me two more ideas fast.",
       "failure_mode": "Agent continues shotgun debugging instead of restarting the method.",
-      "behavior_assertions": ["stop", "hypothesis", "experiment"]
+      "behavior_assertions": [
+        "stop",
+        "hypothesis",
+        "experiment"
+      ]
     }
   ],
   "rationalizations": [
@@ -67,5 +84,8 @@
   "red_flags": [
     "skip the investigation",
     "random fixes"
+  ],
+  "should_trigger": [
+    "My app crashes with 'Cannot read properties of undefined (reading length)' but only in production, not locally."
   ]
 }

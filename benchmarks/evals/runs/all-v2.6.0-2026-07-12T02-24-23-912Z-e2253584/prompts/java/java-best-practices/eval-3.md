@@ -1,0 +1,1 @@
+Should I extend my base class EmailNotification to add SMS support, or is there a better way in Java?

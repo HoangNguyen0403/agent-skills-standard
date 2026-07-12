@@ -1,0 +1,1 @@
+When should I use Result vs throws in Swift?

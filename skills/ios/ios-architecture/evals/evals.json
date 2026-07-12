@@ -46,7 +46,8 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Priority: P0 (CRITICAL)"
+          "value": "Inputs/Outputs",
+          "description": "Checks user-visible framework guidance"
         },
         {
           "type": "contains",
@@ -64,5 +65,8 @@
     "How do I install ios dependencies?",
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
+  ],
+  "should_trigger": [
+    "How should I implement ios architecture best practices?"
   ]
 }

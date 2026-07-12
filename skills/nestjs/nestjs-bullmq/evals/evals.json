@@ -98,5 +98,8 @@
     "How should I structure my NestJS module folders?",
     "Add Swagger documentation to my controller",
     "Write a Jest unit test for a NestJS service"
+  ],
+  "should_trigger": [
+    "Add a new BullMQ processor for sending weekly digest emails in the notifications module."
   ]
 }

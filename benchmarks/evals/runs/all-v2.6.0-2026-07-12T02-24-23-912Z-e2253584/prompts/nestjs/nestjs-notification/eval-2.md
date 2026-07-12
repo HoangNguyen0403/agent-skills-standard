@@ -1,0 +1,1 @@
+How should I type notification types in NestJS?

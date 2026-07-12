@@ -121,5 +121,8 @@
     "How do I reduce bundle size with webpack tree shaking?",
     "How do I optimize slow PostgreSQL queries with indexes?",
     "How do I configure Redis caching for API responses?"
+  ],
+  "should_trigger": [
+    "How do I improve Angular change detection performance?"
   ]
 }

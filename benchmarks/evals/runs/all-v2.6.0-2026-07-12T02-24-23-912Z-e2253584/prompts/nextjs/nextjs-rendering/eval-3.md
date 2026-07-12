@@ -1,0 +1,1 @@
+My page uses window.innerWidth in the initial render and shows a hydration error.

@@ -30,6 +30,15 @@
           "description": "Mentions @WebMvcTest",
           "type": "contains",
           "value": "WebMvcTest"
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Mock service dependencies with @MockBean",
+            "mock"
+          ]
         }
       ]
     },
@@ -57,5 +66,8 @@
     "How do I write NestJS unit tests?",
     "How do I write Go unit tests?",
     "How do I configure Spring Boot security?"
+  ],
+  "should_trigger": [
+    "How do I write integration tests for Spring Boot with a real database?"
   ]
 }

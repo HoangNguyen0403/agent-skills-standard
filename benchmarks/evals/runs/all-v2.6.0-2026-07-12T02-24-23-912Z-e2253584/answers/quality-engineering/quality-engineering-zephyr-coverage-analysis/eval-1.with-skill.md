@@ -1,0 +1,1 @@
+Run the coverage audit and produce `coverage_analysis_report.md`. Include an executive dashboard for covered, partial, and not-covered slots, an AC-to-TC heatmap with risk scores, and a prioritized action plan. Mark release blockers as HIGH and do not create new TCs in this analysis-only workflow.

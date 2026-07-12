@@ -1,0 +1,3 @@
+Refactor the function around one responsibility: orchestrating a report use case. Move input validation to the boundary, database access behind a repository interface, policy computation into a pure function or service, Markdown rendering into a formatter, and Telegram delivery behind a client interface.
+
+Use typed request and result models, inject the repository and messenger, and keep secrets and configuration out of module globals. If this runs in an async service, use non-blocking clients or explicitly isolate synchronous calls. Define timeout, retry, error, and idempotency behavior at the integration boundaries. Unit-test policy and formatting separately, then add an integration test for repository and Telegram adapters.

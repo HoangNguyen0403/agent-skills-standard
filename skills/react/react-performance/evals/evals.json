@@ -6,8 +6,14 @@
       "prompt": "My React app fetches user data, then their orders, then each order's products in sequence. It's very slow.",
       "expected_output": "Sequential awaits cause request waterfalls. Fix: parallelize with Promise.all([getUser(id), getOrders(id), getProducts(ids)]). Use Suspense boundaries to stream results as they arrive. If using React Router, initiate fetches in route loaders before rendering.",
       "assertions": [
-        { "type": "contains", "value": "Promise.all" },
-        { "type": "contains", "value": "waterfall" }
+        {
+          "type": "contains",
+          "value": "Promise.all"
+        },
+        {
+          "type": "contains",
+          "value": "waterfall"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Our bundle size is 4MB and the initial page load is very slow.",
       "expected_output": "Reduce bundle size: (1) No barrel files — import directly from component files. (2) Use React.lazy/dynamic for heavy components (charts, modals). (3) Replace moment with dayjs, lodash with radash. (4) Analyze with source-map-explorer to find bloat. (5) Enable tree-shaking by using named exports only (no export *).",
       "assertions": [
-        { "type": "contains", "value": "lazy" },
-        { "type": "contains", "value": "barrel" }
+        {
+          "type": "contains",
+          "value": "lazy"
+        },
+        {
+          "type": "contains",
+          "value": "barrel"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "My Context causes all consumers to re-render every time any value changes. There are 50+ components subscribed.",
       "expected_output": "Split Context into State and Dispatch objects. Consumers that only read dispatch (setters) won't re-render when state changes. For high-frequency updates across many components: switch to Zustand or Jotai. Use react-window for list virtualization if rendering many items. Extract static JSX outside component scope.",
       "assertions": [
-        { "type": "contains", "value": "Split Context" },
-        { "type": "contains", "value": "re-render" }
+        {
+          "type": "contains",
+          "value": "Split Context"
+        },
+        {
+          "type": "contains",
+          "value": "re-render"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Write a Python script for data processing",
     "Configure Nginx for SSL termination",
     "Set up a Go gRPC server"
+  ],
+  "should_trigger": [
+    "My React app fetches user data, then their orders, then each order's products in sequence. It's very slow."
   ]
 }

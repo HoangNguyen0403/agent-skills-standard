@@ -1,0 +1,1 @@
+Write a Server Action that deletes a post. The post ID comes from the form data.

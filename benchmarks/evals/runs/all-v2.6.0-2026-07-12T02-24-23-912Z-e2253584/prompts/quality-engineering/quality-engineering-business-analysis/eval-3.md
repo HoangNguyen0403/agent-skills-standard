@@ -1,0 +1,1 @@
+The Jira story says 'Only Market VN shows the invoice download button'. What impact analysis should I do before writing test cases?

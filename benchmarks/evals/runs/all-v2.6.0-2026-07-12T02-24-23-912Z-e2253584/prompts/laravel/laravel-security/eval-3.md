@@ -1,0 +1,1 @@
+Prevent env() usage outside config files in Laravel

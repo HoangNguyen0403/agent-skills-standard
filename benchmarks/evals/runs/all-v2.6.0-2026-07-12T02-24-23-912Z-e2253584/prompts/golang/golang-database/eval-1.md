@@ -1,0 +1,1 @@
+I have var db *sql.DB declared at package level in my Go service. What's wrong with this?

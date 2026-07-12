@@ -1,0 +1,1 @@
+How should I add structured logging to my Go HTTP service?

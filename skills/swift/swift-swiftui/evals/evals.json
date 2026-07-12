@@ -24,6 +24,15 @@
         {
           "type": "contains",
           "value": "@ObservedObject when receiving"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Use @StateObject when the view is creating the instance",
+            "stateobject"
+          ]
         }
       ]
     },
@@ -63,5 +72,8 @@
     "How do I implement SSL pinning?",
     "How do I configure SwiftLint?",
     "How do I set up Core Data?"
+  ],
+  "should_trigger": [
+    "When should I use @State vs @Binding in SwiftUI?"
   ]
 }

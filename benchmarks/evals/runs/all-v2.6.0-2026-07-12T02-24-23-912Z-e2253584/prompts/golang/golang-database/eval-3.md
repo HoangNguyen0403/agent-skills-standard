@@ -1,0 +1,1 @@
+Should I use db.Query() or db.QueryContext() in my Go repository?

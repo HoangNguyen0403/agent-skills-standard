@@ -1,0 +1,1 @@
+My Java class has a constructor with 6 parameters. It's hard to read at call sites. How should I refactor it?

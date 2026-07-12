@@ -6,8 +6,14 @@
       "prompt": "How do I add resilience to Spring Boot microservice calls?",
       "expected_output": "Use Resilience4j with Circuit Breaker, Retry (Exponential Backoff), and RateLimiter. Configure fallback methods to return cached or default responses on failure.",
       "assertions": [
-        { "type": "contains", "value": "Resilience4j" },
-        { "type": "contains", "value": "Circuit Breaker" }
+        {
+          "type": "contains",
+          "value": "Resilience4j"
+        },
+        {
+          "type": "contains",
+          "value": "Circuit Breaker"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "How do I communicate between Spring Boot microservices?",
       "expected_output": "For sync: use Spring Cloud OpenFeign or HTTP Interfaces. For async: use Spring Cloud Stream with message-driven patterns (Function, Consumer, Supplier). Share DTOs via a Maven BOM or API Contract module.",
       "assertions": [
-        { "type": "contains", "value": "Feign" },
-        { "type": "contains", "value": "Spring Cloud Stream" }
+        {
+          "type": "contains",
+          "value": "Feign"
+        },
+        {
+          "type": "contains",
+          "value": "Spring Cloud Stream"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "How do I implement distributed tracing in Spring Boot?",
       "expected_output": "Use Micrometer propagation for distributed tracing. Trace and span IDs propagate across service calls automatically.",
       "assertions": [
-        { "type": "contains", "value": "Micrometer" },
-        { "type": "contains", "value": "tracing" }
+        {
+          "type": "contains",
+          "value": "Micrometer"
+        },
+        {
+          "type": "contains",
+          "value": "tracing"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "How do I implement gRPC in NestJS?",
     "How do I set up Spring Security?",
     "How do I implement microservices in Go?"
+  ],
+  "should_trigger": [
+    "How do I add resilience to Spring Boot microservice calls?"
   ]
 }

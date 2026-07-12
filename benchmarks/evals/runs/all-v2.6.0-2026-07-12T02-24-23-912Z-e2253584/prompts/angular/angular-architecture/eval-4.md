@@ -1,0 +1,1 @@
+How do I implement smart and dumb components in Angular?

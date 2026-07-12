@@ -1,0 +1,1 @@
+What is the recommended folder structure for Angular projects?

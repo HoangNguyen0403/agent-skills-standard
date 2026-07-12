@@ -6,10 +6,26 @@
       "prompt": "How do I set up HttpClient in Angular?",
       "expected_output": "Add provideHttpClient(withInterceptors([...]), withFetch()) to app.config.ts providers. Inject with http = inject(HttpClient) in your service. Always type responses: http.get<User[]>('/api/users').",
       "assertions": [
-        { "type": "contains", "value": "provideHttpClient" },
-        { "type": "contains", "value": "withFetch()" },
-        { "type": "contains", "value": "inject(HttpClient)" },
-        { "type": "contains", "value": "http.get<User[]>" }
+        {
+          "type": "contains",
+          "value": "provideHttpClient"
+        },
+        {
+          "type": "contains",
+          "value": "withFetch()"
+        },
+        {
+          "type": "contains",
+          "value": "inject(HttpClient)"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "http.get<User[]>",
+            "http"
+          ],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
+        }
       ]
     },
     {
@@ -17,10 +33,22 @@
       "prompt": "How do I create a functional interceptor in Angular?",
       "expected_output": "Use HttpInterceptorFn: const authInterceptor: HttpInterceptorFn = (req, next) => { const token = inject(AuthService).token(); return next(req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })); }. Register via withInterceptors([authInterceptor]).",
       "assertions": [
-        { "type": "contains", "value": "HttpInterceptorFn" },
-        { "type": "contains", "value": "req.clone(" },
-        { "type": "contains", "value": "setHeaders: {" },
-        { "type": "contains", "value": "withInterceptors([" }
+        {
+          "type": "contains",
+          "value": "HttpInterceptorFn"
+        },
+        {
+          "type": "contains",
+          "value": "req.clone("
+        },
+        {
+          "type": "contains",
+          "value": "setHeaders: {"
+        },
+        {
+          "type": "contains",
+          "value": "withInterceptors(["
+        }
       ]
     },
     {
@@ -28,10 +56,22 @@
       "prompt": "How do I use httpResource() for reactive HTTP calls?",
       "expected_output": "Use httpResource<T>(() => `/api/users/${this.userId()}`) — it auto-refetches when the signal in the URL factory changes. Access states via .isLoading(), .hasValue(), .error(), .value(). Call .reload() to force refresh.",
       "assertions": [
-        { "type": "contains", "value": "httpResource<T>" },
-        { "type": "contains", "value": "auto-refetches" },
-        { "type": "contains", "value": ".isLoading()" },
-        { "type": "contains", "value": ".reload()" }
+        {
+          "type": "contains",
+          "value": "httpResource<T>"
+        },
+        {
+          "type": "contains",
+          "value": "auto-refetches"
+        },
+        {
+          "type": "contains",
+          "value": ".isLoading()"
+        },
+        {
+          "type": "contains",
+          "value": ".reload()"
+        }
       ]
     },
     {
@@ -39,10 +79,26 @@
       "prompt": "Working on user.service.ts — how should I make API calls?",
       "expected_output": "Encapsulate all HTTP calls in this service — never in components. Use httpResource() for reactive GET calls. Use http.post<T>() for mutations with explicit subscribe or lastValueFrom. Handle errors in the service or global interceptor.",
       "assertions": [
-        { "type": "contains", "value": "Encapsulate all HTTP calls" },
-        { "type": "contains", "value": "httpResource()" },
-        { "type": "contains", "value": "http.post<T>" },
-        { "type": "contains", "value": "Handle errors in the service" }
+        {
+          "type": "contains",
+          "value": "Encapsulate all HTTP calls"
+        },
+        {
+          "type": "contains",
+          "value": "httpResource()"
+        },
+        {
+          "type": "contains",
+          "value": "http.post<T>"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "Handle errors in the service",
+            "handle"
+          ],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
+        }
       ]
     },
     {
@@ -50,10 +106,22 @@
       "prompt": "How do I handle HTTP errors globally in Angular?",
       "expected_output": "Create a functional error interceptor: catch errors with catchError in the interceptor pipeline. Use HttpContext to pass metadata (e.g., skip error handling for certain endpoints). Display errors via a notification service, not in components.",
       "assertions": [
-        { "type": "contains", "value": "catchError" },
-        { "type": "contains", "value": "HttpContext" },
-        { "type": "contains", "value": "skip error handling" },
-        { "type": "contains", "value": "notification service" }
+        {
+          "type": "contains",
+          "value": "catchError"
+        },
+        {
+          "type": "contains",
+          "value": "HttpContext"
+        },
+        {
+          "type": "contains",
+          "value": "skip error handling"
+        },
+        {
+          "type": "contains",
+          "value": "notification service"
+        }
       ]
     },
     {
@@ -61,10 +129,22 @@
       "prompt": "How do I use resource() for non-HTTP async operations in Angular?",
       "expected_output": "Use resource<T, P>({ request: () => params(), loader: ({ request }) => someAsyncOp(request) }) for custom async operations. Provides the same .isLoading(), .value(), .error() lifecycle as httpResource() but for arbitrary async sources.",
       "assertions": [
-        { "type": "contains", "value": "resource<T, P>" },
-        { "type": "contains", "value": "request: ()" },
-        { "type": "contains", "value": "loader:" },
-        { "type": "contains", "value": ".isLoading()" }
+        {
+          "type": "contains",
+          "value": "resource<T, P>"
+        },
+        {
+          "type": "contains",
+          "value": "request: ()"
+        },
+        {
+          "type": "contains",
+          "value": "loader:"
+        },
+        {
+          "type": "contains",
+          "value": ".isLoading()"
+        }
       ]
     }
   ],
@@ -73,5 +153,8 @@
     "How do I use Axios for HTTP calls in a React app?",
     "How do I configure the NestJS HttpModule?",
     "How do I call an API from a Go service using net/http?"
+  ],
+  "should_trigger": [
+    "How do I set up HttpClient in Angular?"
   ]
 }

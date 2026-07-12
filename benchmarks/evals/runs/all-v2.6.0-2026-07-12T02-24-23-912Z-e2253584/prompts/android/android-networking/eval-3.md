@@ -1,0 +1,1 @@
+My Retrofit API method isn't a suspend function. Is that okay?

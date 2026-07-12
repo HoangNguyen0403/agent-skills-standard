@@ -5,6 +5,25 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [cli-v2.6.0] - 2026-07-12
+
+**Category**: Live eval evidence retention and report clarity
+
+### Added
+
+- **Canonical Full-Catalog Evidence**: Retained one verified all-category eval run with 3,220/3,220 answer arms across 264 skills and 22 categories.
+
+### Changed
+
+- **Eval History Retention**: Removed superseded live-eval run folders and reset the eval history index to the canonical run while preserving structural release archives.
+- **Remediation Queue**: Regenerated the remediation queue from the canonical run so follow-up work is tied to current evidence.
+- **Report Navigation**: Refreshed the structural and behavioral reports so users can distinguish token/structure measurements from live with-skill effectiveness results.
+
+### Fixed
+
+- **Queue Classification**: Remediation items now use the current run manifest's compromised-arm metadata instead of stale historical classifications.
+- **Full-Catalog Coverage Display**: Structural benchmark reports now identify a full-catalog run as covering all categories instead of incorrectly listing them as untested.
+
 ## [cli-v2.6.0] / [mcp-v0.6.0] - 2026-07-09
 
 **Category**: Runtime skill quality — correct content, smarter MCP loading, validator hardening

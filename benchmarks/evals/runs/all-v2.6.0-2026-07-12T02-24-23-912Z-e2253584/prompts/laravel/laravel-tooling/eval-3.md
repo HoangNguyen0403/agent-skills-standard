@@ -1,0 +1,1 @@
+Configure Laravel Pint for code styling

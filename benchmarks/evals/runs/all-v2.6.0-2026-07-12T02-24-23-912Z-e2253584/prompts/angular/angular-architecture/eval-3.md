@@ -1,0 +1,1 @@
+Should I use NgModule or standalone components for new Angular code?

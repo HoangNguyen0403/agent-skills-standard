@@ -9,6 +9,15 @@
         {
           "type": "contains",
           "value": "standalone: true"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Add standalone",
+            "standalone"
+          ]
         }
       ]
     },
@@ -114,6 +123,15 @@
         {
           "type": "contains",
           "value": "computed()"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Never call functions in templates",
+            "functions"
+          ]
         }
       ]
     },
@@ -142,5 +160,8 @@
     "How do I use Vue.js v-if and v-for directives?",
     "How do I set up NestJS dependency injection?",
     "How do I write a bash script for deployment?"
+  ],
+  "should_trigger": [
+    "How do I create a standalone Angular component?"
   ]
 }

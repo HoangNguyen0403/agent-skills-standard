@@ -1,0 +1,1 @@
+Our Upstash Redis hit the 500K daily request limit on a dev server with only one developer. Why and how do we fix it?

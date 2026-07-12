@@ -1,0 +1,1 @@
+My release APK is huge. How do I enable code shrinking and resource shrinking in Android?

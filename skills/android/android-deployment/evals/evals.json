@@ -6,9 +6,24 @@
       "prompt": "How do I set up a signing config in my Android build.gradle.kts so that CI can sign the APK without committing the keystore?",
       "expected_output": "Read keystore path and passwords from environment variables (System.getenv). Never commit keystores. Reference them in signingConfigs block. Use .aab format for Play Store.",
       "assertions": [
-        { "id": "a1", "description": "Uses environment variables for secrets", "type": "contains", "value": "environment" },
-        { "id": "a2", "description": "Warns against committing keystore", "type": "contains", "value": "commit" },
-        { "id": "a3", "description": "References signingConfigs", "type": "contains", "value": "signingConfig" }
+        {
+          "id": "a1",
+          "description": "Uses environment variables for secrets",
+          "type": "contains",
+          "value": "environment"
+        },
+        {
+          "id": "a2",
+          "description": "Warns against committing keystore",
+          "type": "contains",
+          "value": "commit"
+        },
+        {
+          "id": "a3",
+          "description": "References signingConfigs",
+          "type": "contains",
+          "value": "signingConfig"
+        }
       ]
     },
     {
@@ -16,9 +31,24 @@
       "prompt": "My release APK is huge. How do I enable code shrinking and resource shrinking in Android?",
       "expected_output": "Set isMinifyEnabled = true and isShrinkResources = true in the release buildType. R8 runs automatically. Use @Keep or proguard rules for reflection-heavy classes.",
       "assertions": [
-        { "id": "a1", "description": "Sets isMinifyEnabled", "type": "contains", "value": "isMinifyEnabled" },
-        { "id": "a2", "description": "Sets isShrinkResources", "type": "contains", "value": "isShrinkResources" },
-        { "id": "a3", "description": "Mentions R8", "type": "contains", "value": "R8" }
+        {
+          "id": "a1",
+          "description": "Sets isMinifyEnabled",
+          "type": "contains",
+          "value": "isMinifyEnabled"
+        },
+        {
+          "id": "a2",
+          "description": "Sets isShrinkResources",
+          "type": "contains",
+          "value": "isShrinkResources"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions R8",
+          "type": "contains",
+          "value": "R8"
+        }
       ]
     },
     {
@@ -26,8 +56,18 @@
       "prompt": "How do I upload the ProGuard mapping file to Play Console so crash reports are de-obfuscated?",
       "expected_output": "Upload mapping.txt from build/outputs/mapping/release/ to Play Console > Android Vitals > Deobfuscation files. Can automate with Gradle Play Publisher or Fastlane.",
       "assertions": [
-        { "id": "a1", "description": "Mentions mapping.txt", "type": "contains", "value": "mapping" },
-        { "id": "a2", "description": "Mentions Play Console", "type": "contains", "value": "Play Console" }
+        {
+          "id": "a1",
+          "description": "Mentions mapping.txt",
+          "type": "contains",
+          "value": "mapping"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions Play Console",
+          "type": "contains",
+          "value": "Play Console"
+        }
       ]
     }
   ],
@@ -42,5 +82,8 @@
     "Add an OkHttp logging interceptor for debug builds only",
     "Set up Hilt modules for feature modules in a multi-module project",
     "How do I publish an .aar library to Maven Central?"
+  ],
+  "should_trigger": [
+    "How do I set up a signing config in my Android build.gradle.kts so that CI can sign the APK without committing the keystore?"
   ]
 }

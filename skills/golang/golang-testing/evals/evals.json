@@ -39,6 +39,12 @@
         {
           "type": "contains",
           "value": "t.Run"
+        },
+        {
+          "id": "a1",
+          "description": "Checks the outcome includes Use t",
+          "type": "contains",
+          "value": "Use t"
         }
       ]
     }
@@ -47,5 +53,8 @@
     "How do I set up an Echo HTTP server in Go?",
     "Configure golangci-lint for my Go project",
     "Write a Dockerfile for a Go service"
+  ],
+  "should_trigger": [
+    "How do I write a table-driven unit test for a Go function that parses order status?"
   ]
 }

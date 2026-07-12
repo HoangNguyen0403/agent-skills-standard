@@ -28,6 +28,15 @@
         {
           "type": "contains",
           "value": "Routes"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "CHECKOUT) or Get",
+            "name"
+          ]
         }
       ]
     },
@@ -52,5 +61,8 @@
     "Add a bottom navigation bar with 4 tabs",
     "Write a widget test for the navigation flow",
     "How do I deep link to an order screen using go_router?"
+  ],
+  "should_trigger": [
+    "Add a middleware in GetX that redirects unauthenticated users to the login screen when they try to access any route in AppPages."
   ]
 }

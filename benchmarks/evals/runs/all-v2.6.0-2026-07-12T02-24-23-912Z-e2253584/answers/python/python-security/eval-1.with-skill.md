@@ -1,0 +1,1 @@
+No. Interpolating user_input into a shell command with shell=True enables command injection. Use an explicit argument list such as subprocess.run(["git", "show", user_input], shell=False, check=True, ...), validate the allowed revision format, and avoid exposing secrets in errors or logs.

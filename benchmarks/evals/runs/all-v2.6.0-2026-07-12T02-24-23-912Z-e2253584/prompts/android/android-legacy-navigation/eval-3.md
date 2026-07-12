@@ -1,0 +1,1 @@
+I'm using fragment.beginTransaction().replace(...).commit() to navigate between fragments. What's wrong with this?

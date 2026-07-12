@@ -1,0 +1,1 @@
+Fix async page component in Next.js Pages Router

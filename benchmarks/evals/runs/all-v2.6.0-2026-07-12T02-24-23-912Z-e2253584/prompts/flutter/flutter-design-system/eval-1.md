@@ -1,0 +1,1 @@
+Add a confirm button to the checkout screen with a red background, white text, and 16px font size.

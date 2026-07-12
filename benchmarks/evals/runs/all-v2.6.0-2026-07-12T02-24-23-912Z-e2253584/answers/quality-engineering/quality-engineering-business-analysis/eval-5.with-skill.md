@@ -1,0 +1,1 @@
+The story lacks the required As a / I want / so that structure. Replace `[MOBILE ONLY]` with an AC-level `[MOBILE]` platform tag, split price highlighting and translation into separate Given/When/Then blocks, and move unresolved translation behavior into `## Deferred` with a Jira ticket. Do not leave “to discuss”.

@@ -1,0 +1,1 @@
+I need to run a git command in CI using an env var for the branch name: execSync(`git diff --name-only origin/${process.env.GITHUB_BASE_REF}...HEAD`)

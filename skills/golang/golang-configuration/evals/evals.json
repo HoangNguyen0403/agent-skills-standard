@@ -6,8 +6,14 @@
       "prompt": "How should I load database credentials in my Go service for production?",
       "expected_output": "Load from environment variables using os.Getenv or a library like viper/koanf. Never hardcode secrets. Validate at startup and crash fast if required vars are missing.",
       "assertions": [
-        { "type": "contains", "value": "environment" },
-        { "type": "contains", "value": "startup" }
+        {
+          "type": "contains",
+          "value": "environment"
+        },
+        {
+          "type": "contains",
+          "value": "startup"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I have a global var config AppConfig in my Go app. Is this OK?",
       "expected_output": "No global config vars. Load config into a typed struct and inject it via constructors into services that need it. This makes dependencies explicit and simplifies testing.",
       "assertions": [
-        { "type": "contains", "value": "struct" },
-        { "type": "contains", "value": "inject" }
+        {
+          "type": "contains",
+          "value": "struct"
+        },
+        {
+          "type": "contains",
+          "value": "inject"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "My Go service starts successfully even when DATABASE_URL is not set, then crashes later. How do I fix this?",
       "expected_output": "Validate all required config fields at startup. Use a validate function that calls log.Fatal or panics immediately if required env vars are missing — fail fast, not silently.",
       "assertions": [
-        { "type": "contains", "value": "startup" },
-        { "type": "contains", "value": "validate" }
+        {
+          "type": "contains",
+          "value": "startup"
+        },
+        {
+          "type": "contains",
+          "value": "validate"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Write a goroutine to process jobs",
     "How do I write a REST API handler in Go?",
     "Generate a Dockerfile for a Go service"
+  ],
+  "should_trigger": [
+    "How should I load database credentials in my Go service for production?"
   ]
 }

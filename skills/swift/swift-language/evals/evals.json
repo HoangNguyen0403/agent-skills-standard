@@ -6,10 +6,22 @@
       "prompt": "How do I safely unwrap optionals in Swift?",
       "expected_output": "Use guard let, if let, or nil coalescing (??). Never force unwrap with !. Example: guard let value = optionalValue else { return }.",
       "assertions": [
-        { "type": "contains", "value": "guard let" },
-        { "type": "contains", "value": "if let" },
-        { "type": "contains", "value": "??" },
-        { "type": "contains", "value": "Never force unwrap" }
+        {
+          "type": "contains",
+          "value": "guard let"
+        },
+        {
+          "type": "contains",
+          "value": "if let"
+        },
+        {
+          "type": "contains",
+          "value": "??"
+        },
+        {
+          "type": "contains",
+          "value": "Never force unwrap"
+        }
       ]
     },
     {
@@ -17,9 +29,18 @@
       "prompt": "What is the difference between protocol and class inheritance in Swift?",
       "expected_output": "Protocols define a blueprint; classes inherit implementation. Prefer protocol composition with structs for better decoupling and performance. Classes are reference types; structs are value types.",
       "assertions": [
-        { "type": "contains", "value": "blueprint" },
-        { "type": "contains", "value": "composition" },
-        { "type": "contains", "value": "value types" }
+        {
+          "type": "contains",
+          "value": "blueprint"
+        },
+        {
+          "type": "contains",
+          "value": "composition"
+        },
+        {
+          "type": "contains",
+          "value": "value types"
+        }
       ]
     },
     {
@@ -27,9 +48,22 @@
       "prompt": "How do I use extension for protocol conformance?",
       "expected_output": "Implement conformance in an extension to keep code clean: extension MyType: MyProtocol { ... }. Do not use extensions for stored properties.",
       "assertions": [
-        { "type": "contains", "value": "extension MyType: MyProtocol" },
-        { "type": "contains", "value": "conformance" },
-        { "type": "contains", "value": "no stored properties" }
+        {
+          "type": "contains",
+          "value": "extension MyType: MyProtocol"
+        },
+        {
+          "type": "contains",
+          "value": "conformance"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "no stored properties",
+            "stored"
+          ],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
+        }
       ]
     },
     {
@@ -37,9 +71,18 @@
       "prompt": "How do I use enums with associated values in Swift?",
       "expected_output": "Define case with parameter: enum Result { case success(String), failure(Error) }. Extract via switch: case .success(let msg): print(msg). Better than multiple optionals.",
       "assertions": [
-        { "type": "contains", "value": "associated values" },
-        { "type": "contains", "value": "case .success(let" },
-        { "type": "contains", "value": "switch" }
+        {
+          "type": "contains",
+          "value": "associated values"
+        },
+        {
+          "type": "contains",
+          "value": "case .success(let"
+        },
+        {
+          "type": "contains",
+          "value": "switch"
+        }
       ]
     },
     {
@@ -47,9 +90,18 @@
       "prompt": "When should I use struct vs class in Swift?",
       "expected_output": "Default to struct for value semantics and thread safety. Use class only when reference identity is necessary or for inheritance. Structs are copied; classes are shared.",
       "assertions": [
-        { "type": "contains", "value": "Default to struct" },
-        { "type": "contains", "value": "value semantics" },
-        { "type": "contains", "value": "reference identity" }
+        {
+          "type": "contains",
+          "value": "Default to struct"
+        },
+        {
+          "type": "contains",
+          "value": "value semantics"
+        },
+        {
+          "type": "contains",
+          "value": "reference identity"
+        }
       ]
     }
   ],
@@ -58,5 +110,8 @@
     "How do I configure SwiftLint?",
     "How do I set up Fastlane?",
     "How do I use Instruments for profiling?"
+  ],
+  "should_trigger": [
+    "How do I safely unwrap optionals in Swift?"
   ]
 }

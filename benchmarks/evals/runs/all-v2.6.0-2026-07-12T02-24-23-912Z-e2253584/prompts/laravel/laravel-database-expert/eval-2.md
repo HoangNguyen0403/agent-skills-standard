@@ -1,0 +1,1 @@
+Use Redis caching with Cache::remember in Laravel

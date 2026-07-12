@@ -1,0 +1,13 @@
+# Common mobile animation best practices
+
+Treat animation as part of the interaction design, not as decoration. Start by defining the user-visible purpose: communicate a state change, preserve spatial continuity, establish hierarchy, or provide feedback. If removing an animation makes the interaction clearer, faster, and no less understandable, remove it.
+
+Use a small, consistent motion system. Define reusable durations, easing curves, springs, and distance scales rather than choosing values independently for every screen. Short transitions usually work well for direct feedback, while larger layout changes can take longer; the exact values should be tuned on representative devices. Prefer ease-out motion when an element enters or responds, ease-in when it leaves, and critically damped springs for movable UI where a natural settle is useful. Avoid arbitrary linear motion unless it intentionally represents constant speed.
+
+Animate properties that are cheap for the platform to render, such as opacity and transforms (translation, scale, and rotation). Avoid animating layout-triggering properties when possible; changing width, height, margins, or constraints every frame can cause repeated measurement and drawing. For size or layout changes, use the platform’s transition/layout animation APIs or animate a composited wrapper while keeping the expensive work bounded.
+
+Keep motion tied to state and lifecycle. Make animations interruptible and define what happens when a user taps again, navigates away, receives new data, or reverses the action. Cancel or replace obsolete animations, avoid competing writes to the same property, and ensure the final state is committed even if the animation is interrupted. Do not rely on animation completion callbacks for essential business logic.
+
+Design for accessibility and user control. Respect the operating system’s reduced-motion preference, offering an instantaneous or low-motion alternative while preserving meaning. Avoid flashing, large continuous parallax, and motion that can induce discomfort. Keep controls usable during transitions, preserve logical focus and accessibility labels, and never make critical content available only after a long animation.
+
+Measure on real hardware. Profile frame time, dropped frames, CPU/GPU load, memory, battery impact, and startup behavior in release-like builds. Test slow devices, long lists, low-power mode, dynamic type, different refresh rates, interruptions, and reduced motion. Centralize animation definitions, document why exceptional motion exists, and cover state transitions with tests that verify the final UI state rather than fragile exact frame timing.

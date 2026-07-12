@@ -1,0 +1,2 @@
+Keep database passwords, signing keys, and other server-only values in environment variables without the `NEXT_PUBLIC_` prefix; validate them at runtime with a schema in a server-only module. Only intentionally public configuration gets `NEXT_PUBLIC_`, because it is bundled for the browser. Do not log secrets or pass them to Client Components, and verify the deployment environment supplies every required variable before starting.
+

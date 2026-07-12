@@ -6,8 +6,14 @@
       "prompt": "Implement JWT authentication in my Next.js app. Where should I store the token?",
       "expected_output": "Store JWT in HttpOnly Secure cookies with SameSite='Lax' and maxAge=86400. Never use localStorage (XSS-vulnerable, causes hydration issues in Server Components). Verify tokens in middleware.ts for edge-side redirection. In Next.js 15+, await cookies() from next/headers.",
       "assertions": [
-        { "type": "contains", "value": "HttpOnly" },
-        { "type": "contains", "value": "localStorage" }
+        {
+          "type": "contains",
+          "value": "HttpOnly"
+        },
+        {
+          "type": "contains",
+          "value": "localStorage"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Write middleware to protect my /dashboard route — redirect to login if not authenticated.",
       "expected_output": "Create middleware.ts at project root. Verify JWT/session token from cookies using jose or next-auth. If invalid/missing, redirect to /login. Use NextResponse.redirect(). Export config with matcher: ['/dashboard/:path*']. Never rely on layout.tsx for auth — only middleware provides reliable protection.",
       "assertions": [
-        { "type": "contains", "value": "middleware" },
-        { "type": "contains", "value": "redirect" }
+        {
+          "type": "contains",
+          "value": "middleware"
+        },
+        {
+          "type": "contains",
+          "value": "redirect"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "My Server Action is submitting a form — do I need CSRF protection?",
       "expected_output": "Yes. Server Actions must verify the Origin/Referer headers to mitigate CSRF. Check that the request Origin matches your domain. Also: always call await auth() inside every Server Action before processing data. Use next-auth's CSRF protection if using Auth.js. Never trust form data without auth verification.",
       "assertions": [
-        { "type": "contains", "value": "CSRF" },
-        { "type": "contains", "value": "Origin" }
+        {
+          "type": "contains",
+          "value": "CSRF"
+        },
+        {
+          "type": "contains",
+          "value": "Origin"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Configure Tailwind CSS for dark mode",
     "Write a Playwright test for the checkout flow",
     "Optimize image loading with next/image"
+  ],
+  "should_trigger": [
+    "Implement JWT authentication in my Next.js app. Where should I store the token?"
   ]
 }

@@ -1,0 +1,1 @@
+Split Context into separate State and Dispatch objects so dispatch-only consumers do not re-render with state changes. For high-frequency updates across many components, use Zustand or Jotai, then profile render counts to confirm the re-render reduction.

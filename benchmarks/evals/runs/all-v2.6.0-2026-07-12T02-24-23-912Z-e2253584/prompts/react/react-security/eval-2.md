@@ -1,0 +1,1 @@
+A user can view other users' private data by changing the user ID in the URL.

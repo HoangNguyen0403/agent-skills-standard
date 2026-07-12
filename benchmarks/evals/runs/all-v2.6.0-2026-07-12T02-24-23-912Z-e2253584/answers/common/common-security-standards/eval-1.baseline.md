@@ -1,0 +1,8 @@
+Use a well-maintained authentication library or framework rather than implementing cryptography and session handling from scratch.
+
+Store accounts with a unique, normalized email address and a password hash produced by Argon2id (preferred) or a suitable adaptive bcrypt configuration. Never store plaintext or reversible password encryption. Use a per-password random salt supplied by the password-hashing library, and configure the work factor through current security guidance and capacity testing. Consider a server-side pepper only if it can be kept separately in a secret manager.
+
+For registration and login, validate input at the server, normalize email consistently, use generic failure messages such as “invalid email or password,” and apply rate limiting, progressive delays or lockout safeguards, and monitoring without creating an account-enumeration oracle. Require TLS for every authentication request, protect cookies with Secure, HttpOnly, and appropriate SameSite attributes, and use short-lived sessions with rotation after login and privilege changes. Provide an explicit logout and server-side session revocation.
+
+Add email verification and a secure password-reset flow using single-use, short-lived, random tokens that are stored hashed and never logged. Do not send passwords by email. Protect state-changing requests with CSRF defenses when cookie authentication is used, enforce authorization independently on every protected server-side operation, and require reauthentication or MFA for sensitive actions. Keep secrets out of source control, log security-relevant events without passwords or tokens, and test the complete flow for brute force, session fixation, CSRF, enumeration, reset-token replay, and authorization bypass.
+

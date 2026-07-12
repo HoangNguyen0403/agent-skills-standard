@@ -1,0 +1,1 @@
+Should I use GlobalScope to launch a coroutine in my Android ViewModel?

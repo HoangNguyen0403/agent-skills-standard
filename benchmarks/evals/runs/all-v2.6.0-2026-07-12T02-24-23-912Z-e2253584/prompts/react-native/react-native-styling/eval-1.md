@@ -1,0 +1,1 @@
+How should I apply styles to React Native components? What's wrong with inline style objects?

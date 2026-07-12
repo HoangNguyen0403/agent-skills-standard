@@ -1,0 +1,1 @@
+This is Prop Drilling. Create a Context provider at the common ancestor and let the deep component read the value with `useContext()`. For complex global state, use Zustand; Compound Components or Render Props can also remove the unnecessary hierarchy.

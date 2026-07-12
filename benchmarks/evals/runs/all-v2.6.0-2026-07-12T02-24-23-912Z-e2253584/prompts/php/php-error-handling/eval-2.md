@@ -1,0 +1,1 @@
+Create a custom exception class in PHP

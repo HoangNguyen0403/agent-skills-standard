@@ -1,0 +1,1 @@
+Do not use `GlobalScope`: it leaks and has no lifecycle ownership. Use `viewModelScope` on Android or structured `coroutineScope`, so children are joined and cancelled with their owner; inject dispatchers rather than hardcoding `Dispatchers.IO`.

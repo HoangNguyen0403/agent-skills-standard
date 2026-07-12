@@ -1,0 +1,2 @@
+Export `getStaticProps` for build-time data and `getStaticPaths` for dynamic pages. Use `fallback: 'blocking'` or `true` when new paths may be generated after the build, and set `revalidate` for ISR when content changes periodically. Return only serializable props, import services directly instead of fetching your own API route, and verify the generated paths and revalidation behavior with a production build.
+

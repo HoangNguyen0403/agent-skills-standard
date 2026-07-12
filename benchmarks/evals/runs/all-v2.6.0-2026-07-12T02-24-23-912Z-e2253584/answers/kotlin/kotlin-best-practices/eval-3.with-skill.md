@@ -1,0 +1,1 @@
+Do not expose `MutableList`. Keep mutable collections private or internal and return `List` or `Map` from repository APIs. This defines ownership and prevents callers from mutating repository state accidentally.

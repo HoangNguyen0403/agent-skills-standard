@@ -1,0 +1,1 @@
+Should I avoid function calls in Angular templates?

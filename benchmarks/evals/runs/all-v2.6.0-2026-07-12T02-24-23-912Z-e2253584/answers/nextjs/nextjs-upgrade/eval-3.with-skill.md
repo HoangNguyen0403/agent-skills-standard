@@ -1,0 +1,2 @@
+Do not skip major versions. Follow an incremental path, 12 -> 13 -> 14 -> 15, using each version’s official migration guide and codemods, with compatible React/React DOM dependencies at each step. Run the app and build after every major, resolve breaking changes and async API migrations, and keep a record of manual fixes. Skipping makes it harder to attribute failures and can leave migrations unsupported.
+

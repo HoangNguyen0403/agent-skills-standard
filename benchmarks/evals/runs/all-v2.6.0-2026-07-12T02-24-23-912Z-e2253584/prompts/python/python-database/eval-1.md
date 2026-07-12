@@ -1,0 +1,1 @@
+Is it okay to build a Python Postgres query with an f-string if the values are internal?

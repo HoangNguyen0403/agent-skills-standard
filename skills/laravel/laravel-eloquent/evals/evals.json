@@ -117,5 +117,8 @@
     "Hibernate relationships in Spring Boot",
     "Set up GORM in Go",
     "SQL queries with raw PostgreSQL"
+  ],
+  "should_trigger": [
+    "Fix N+1 query problems in Laravel Eloquent"
   ]
 }

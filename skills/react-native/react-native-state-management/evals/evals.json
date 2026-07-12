@@ -26,12 +26,12 @@
       "expected_output": "Use @tanstack/react-query. Wrap app with QueryClientProvider. Use useQuery with a query key and fetch function. React Query handles caching, background refetching, loading/error states. Don't copy server data into local state — let the cache be the source of truth.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "React"
-        },
-        {
-          "type": "contains",
-          "value": "Query"
+          "description": "Accepts an equivalent user-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "React",
+            "Query"
+          ]
         },
         {
           "type": "contains",
@@ -64,5 +64,8 @@
     "How do I implement certificate pinning?",
     "How do I write RNTL tests?",
     "How do I configure EAS Build?"
+  ],
+  "should_trigger": [
+    "Should I use Zustand or Redux Toolkit for a medium-sized React Native app?"
   ]
 }

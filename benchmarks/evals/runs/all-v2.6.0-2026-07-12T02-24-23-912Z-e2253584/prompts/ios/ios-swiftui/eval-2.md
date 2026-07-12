@@ -1,0 +1,1 @@
+My SwiftUI view is doing complex calculations in the body property. Is this okay?

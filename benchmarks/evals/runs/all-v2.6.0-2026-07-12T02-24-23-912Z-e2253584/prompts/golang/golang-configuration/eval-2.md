@@ -1,0 +1,1 @@
+I have a global var config AppConfig in my Go app. Is this OK?

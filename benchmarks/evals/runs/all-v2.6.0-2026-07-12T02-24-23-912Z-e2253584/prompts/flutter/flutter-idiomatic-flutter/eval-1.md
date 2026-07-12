@@ -1,0 +1,1 @@
+I'm getting a 'setState called after dispose' error that crashes the app intermittently after async operations.

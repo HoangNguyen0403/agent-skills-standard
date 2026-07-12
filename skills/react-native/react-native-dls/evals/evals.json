@@ -9,6 +9,15 @@
         {
           "type": "contains",
           "value": "Enforce"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Create theme/colors",
+            "theme/colors"
+          ]
         }
       ]
     },
@@ -56,5 +65,8 @@
     "How do I set up React Navigation?",
     "How do I test my React Native app?",
     "How do I configure EAS Build?"
+  ],
+  "should_trigger": [
+    "I have hardcoded colors like '#FF5733' and fontSize: 16 scattered throughout my React Native components. How do I fix this?"
   ]
 }

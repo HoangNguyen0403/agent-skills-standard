@@ -62,6 +62,7 @@ Goal: Select the next native workflow without loading every workflow body, while
    - PM output must link each PRD requirement and AC to a BRD objective, name requirement owners/status/priority, define rollout/ops, and identify whether `design-solution` is required.
    - IT Department handoff must include implementation owner candidates, affected repos/modules, test lanes, environments, release/rollback notes, and open blockers.
    - Never route directly to implementation when BRD/PRD/SRS trace, owner, or testable ACs are missing; route to BA/PM/design first.
+   - This applies even when the request explicitly says "implement" or names a specific feature/module: if `docs/brd/` and `docs/prd/` have no matching `[slug]` for it yet, the FIRST slice dispatched must be a `brainstorm-feature` or `plan-feature` intake slice (owner `ba-agent`/`pm-agent`) — never an `implementation-readiness`/`design-solution`/`implement-feature` slice as slice-01. Missing repo roots, OAuth/client IDs, or session-policy decisions are a sign the BRD/PRD step was skipped, not questions to resolve inline in an implementation slice.
    - Keep payloads runtime-neutral; adapters may map them to task boards, MCP, Jira, GitHub, ADO, Zephyr, or local files.
 
 4. Set runtime state:
@@ -103,7 +104,6 @@ completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_n
 ## Next Workflow
 
 ## Verification Command
-
 ## Cost Report
 Call `get_session_cost(workflow="sdlc")` before final handoff.
 ```

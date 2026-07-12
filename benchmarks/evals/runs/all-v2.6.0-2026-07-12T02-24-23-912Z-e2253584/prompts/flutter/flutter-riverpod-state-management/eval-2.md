@@ -1,0 +1,1 @@
+How do I trigger a navigation side effect when a provider's state changes in Riverpod?

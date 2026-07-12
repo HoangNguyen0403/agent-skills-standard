@@ -1,0 +1,1 @@
+My NestJS @Cron job runs 3 times in Kubernetes with 3 pods. How do I fix it?

@@ -1,0 +1,2 @@
+Prior inspection or memory is not a substitute for current evidence. Reopen the relevant diff and, when applicable, the affected files, tests, configuration, and command output. Confirm that the workspace has not changed, that the implementation still matches the requirements, and that verification results correspond to the current revision. If the earlier context or evidence is unavailable, say so and perform a fresh scan rather than inferring completion.
+

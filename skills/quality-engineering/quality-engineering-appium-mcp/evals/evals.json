@@ -36,5 +36,8 @@
     "Run web browser tests",
     "Fix a JS syntax error",
     "Analyze git commit logs"
+  ],
+  "should_trigger": [
+    "Create a LambdaTest session for a Samsung S26 device and login to the app."
   ]
 }

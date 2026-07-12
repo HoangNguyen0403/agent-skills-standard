@@ -1,0 +1,1 @@
+Recheck dependency changes with `pip-audit` and run the security gates in CI. Make sure every requirements file and relevant environment is covered, then review the reports for missing or vulnerable packages.

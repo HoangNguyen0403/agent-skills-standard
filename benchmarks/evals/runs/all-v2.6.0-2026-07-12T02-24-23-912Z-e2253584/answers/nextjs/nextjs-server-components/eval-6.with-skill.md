@@ -1,0 +1,2 @@
+The App Router renders Server Components on the server and sends HTML plus an RSC payload; only Client Components are hydrated with browser JavaScript. Hydration succeeds when the client’s initial output matches the server output. Avoid browser-only values such as `window`, `Date.now()`, or random values during initial render; read them in a Client Component effect or render a stable placeholder first. Use `Suspense`/`loading.tsx` for async loading states.
+

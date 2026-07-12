@@ -1,0 +1,1 @@
+Fetch TICK-4521's summary, description, AC fields, labels, and components. Use the direct issue-link lookup to find existing Zephyr cases, and flag whether the `has-zephyr-tests label` is already present so duplicates are not created.

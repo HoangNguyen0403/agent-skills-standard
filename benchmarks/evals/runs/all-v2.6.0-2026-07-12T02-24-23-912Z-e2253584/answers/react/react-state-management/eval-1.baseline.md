@@ -1,0 +1,3 @@
+Authentication has both client state and server state. Keep minimal session information such as the current user and auth status in a small Context or store, while the server remains authoritative for identity and permissions. Use a query/cache layer for fetched profile data that needs caching or invalidation.
+
+A focused Context is enough for a modest app. Use Zustand or Redux Toolkit when client state has complex coordinated transitions or needs selectors and devtools; existing team conventions matter. Do not put secrets or authorization decisions in client state, and never treat hidden UI controls as access control.

@@ -1,0 +1,1 @@
+Add analyze and test scripts to composer.json

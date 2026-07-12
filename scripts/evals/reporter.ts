@@ -1,56 +1,130 @@
-import fs from 'fs-extra';
-import * as path from 'path';
+import fs from "fs-extra";
+import * as path from "path";
 import {
   ARCHIVE_DIR,
   EVALS_REPORT_MD,
   HISTORY_JSON,
   RESULTS_FILENAME,
+  ROOT_DIR,
   RUNS_DIR,
-} from './constants';
-import { EvalsHistory, EvalsHistoryRecord, RunResults, SkillResult } from './types';
+  KNOWN_COMPROMISED_BASELINES,
+} from "./constants";
+import { answerPath, loadManifest } from "./manifest";
+import {
+  EvalsHistory,
+  EvalsHistoryRecord,
+  RunResults,
+  SkillResult,
+} from "./types";
 
-function pct(n: number): string {
-  return `${Math.round(n * 100)}%`;
+function numericMetric(
+  value: number | "n/a" | null | undefined,
+): number | null {
+  return typeof value === "number" ? value : null;
 }
 
-function loadAllResults(): RunResults[] {
+function pct(value: number | "n/a" | null | undefined): string {
+  if (value === "n/a" || value === null || value === undefined) return "n/a";
+  return `${Math.round(value * 100)}%`;
+}
+
+function avg(values: Array<number | "n/a" | null | undefined>): number {
+  const numeric = values.flatMap((value) => {
+    const number = numericMetric(value);
+    return number === null ? [] : [number];
+  });
+  return numeric.length > 0
+    ? numeric.reduce((sum, value) => sum + value, 0) / numeric.length
+    : 0;
+}
+
+function avgOrNa(
+  values: Array<number | "n/a" | null | undefined>,
+): number | "n/a" {
+  const numeric = values.flatMap((value) => {
+    const number = numericMetric(value);
+    return number === null ? [] : [number];
+  });
+  return numeric.length > 0
+    ? numeric.reduce((sum, value) => sum + value, 0) / numeric.length
+    : "n/a";
+}
+
+function runIsComplete(runDir: string): boolean {
+  const resultsPath = path.join(runDir, RESULTS_FILENAME);
+  const manifestPath = path.join(runDir, "manifest.json");
+  if (!fs.existsSync(resultsPath) || !fs.existsSync(manifestPath)) return false;
+  const manifest = loadManifest(runDir);
+  return manifest.skills.every((skill) =>
+    skill.cases.every((currentCase) => {
+      const arms =
+        currentCase.kind === "trigger"
+          ? [undefined]
+          : (["baseline", "with-skill"] as const).filter(
+              (arm) => arm in currentCase.arms,
+            );
+      return arms.every((arm) =>
+        fs.existsSync(answerPath(runDir, manifest, skill, currentCase.id, arm)),
+      );
+    }),
+  );
+}
+
+export function loadAllResults(): RunResults[] {
   if (!fs.existsSync(RUNS_DIR)) return [];
-  const runIds = fs
+  return fs
     .readdirSync(RUNS_DIR, { withFileTypes: true })
-    .filter((e) => e.isDirectory())
-    .map((e) => e.name);
-
-  const results: RunResults[] = [];
-  for (const runId of runIds) {
-    const resultsPath = path.join(RUNS_DIR, runId, RESULTS_FILENAME);
-    if (fs.existsSync(resultsPath)) {
-      results.push(fs.readJSONSync(resultsPath));
-    }
-  }
-  return results;
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(RUNS_DIR, entry.name))
+    .filter(runIsComplete)
+    .map(
+      (runDir) =>
+        fs.readJSONSync(path.join(runDir, RESULTS_FILENAME)) as RunResults,
+    )
+    .sort((a, b) => a.runId.localeCompare(b.runId));
 }
 
-/** Most recent run per category, by scoredAt. */
-function latestPerCategory(results: RunResults[]): Map<string, RunResults> {
+export function partitionRun(run: RunResults): RunResults[] {
+  if (run.category !== "all") return [run];
+  const byCategory = new Map<string, SkillResult[]>();
+  for (const skill of run.skills) {
+    const skills = byCategory.get(skill.category) ?? [];
+    skills.push(skill);
+    byCategory.set(skill.category, skills);
+  }
+  return [...byCategory.entries()].map(([category, skills]) => ({
+    ...run,
+    category,
+    scope: { kind: "category", categories: [category] },
+    skills: skills.sort((a, b) => a.skillName.localeCompare(b.skillName)),
+  }));
+}
+
+/** Projects aggregate runs before choosing the newest complete category partition. */
+export function latestPerCategory(
+  results: RunResults[],
+): Map<string, RunResults> {
   const latest = new Map<string, RunResults>();
-  for (const r of results) {
-    const existing = latest.get(r.category);
-    if (!existing || new Date(r.scoredAt) > new Date(existing.scoredAt)) {
-      latest.set(r.category, r);
+  for (const physicalRun of results) {
+    for (const partition of partitionRun(physicalRun)) {
+      const existing = latest.get(partition.category);
+      if (
+        !existing ||
+        new Date(partition.scoredAt) > new Date(existing.scoredAt) ||
+        (partition.scoredAt === existing.scoredAt &&
+          partition.runId > existing.runId)
+      ) {
+        latest.set(partition.category, partition);
+      }
     }
   }
   return latest;
 }
 
-function avg(nums: number[]): number {
-  return nums.length > 0 ? nums.reduce((a, b) => a + b, 0) / nums.length : 0;
-}
-
 export function loadHistory(): EvalsHistory {
-  if (fs.existsSync(HISTORY_JSON)) {
-    return fs.readJSONSync(HISTORY_JSON);
-  }
-  return { lastUpdated: new Date().toISOString(), records: [] };
+  if (fs.existsSync(HISTORY_JSON))
+    return fs.readJSONSync(HISTORY_JSON) as EvalsHistory;
+  return { lastUpdated: new Date(0).toISOString(), records: [] };
 }
 
 function saveHistory(history: EvalsHistory): void {
@@ -58,182 +132,201 @@ function saveHistory(history: EvalsHistory): void {
   fs.writeJSONSync(HISTORY_JSON, history, { spaces: 2 });
 }
 
-/** Appends a history record + archives a per-run snapshot for any run not already recorded. */
 function syncHistoryAndArchive(allResults: RunResults[]): EvalsHistory {
   const history = loadHistory();
-  const known = new Set(history.records.map((r) => r.runId));
+  const known = new Set(history.records.map((record) => record.runId));
   fs.ensureDirSync(ARCHIVE_DIR);
-
-  for (const run of allResults) {
+  for (const run of [...allResults].sort((a, b) =>
+    a.runId.localeCompare(b.runId),
+  )) {
+    const archivePath = path.join(ARCHIVE_DIR, `${run.runId}.md`);
+    fs.writeFileSync(archivePath, buildEvalsReportMarkdown([run]));
     if (known.has(run.runId)) continue;
-    const record: EvalsHistoryRecord = {
+    history.records.push({
       runId: run.runId,
       category: run.category,
       version: run.version,
       date: run.scoredAt,
       skillCount: run.skills.length,
-      avgBaselinePassRate: avg(run.skills.map((s) => s.baselinePassRate)),
-      avgWithSkillPassRate: avg(run.skills.map((s) => s.withSkillPassRate)),
-      avgDelta: avg(run.skills.map((s) => s.delta)),
+      avgBaselinePassRate: avg(
+        run.skills.map((skill) => skill.baselinePassRate),
+      ),
+      avgWithSkillPassRate: avg(
+        run.skills.map((skill) => skill.withSkillPassRate),
+      ),
+      avgDelta: avg(run.skills.map((skill) => skill.delta)),
       agent: run.metadata.agent,
       model: run.metadata.model,
-    };
-    history.records.push(record);
-
-    const archivePath = path.join(ARCHIVE_DIR, `${run.runId}.md`);
-    if (!fs.existsSync(archivePath)) {
-      fs.writeFileSync(archivePath, buildEvalsReportMarkdown([run]));
-    }
+    });
   }
-
-  history.lastUpdated = new Date().toISOString();
+  history.records.sort(
+    (a, b) => a.date.localeCompare(b.date) || a.runId.localeCompare(b.runId),
+  );
+  history.lastUpdated = allResults.reduce(
+    (latest, run) => (run.scoredAt > latest ? run.scoredAt : latest),
+    history.lastUpdated,
+  );
   saveHistory(history);
   return history;
+}
+
+function isCompromised(skill: SkillResult): boolean {
+  return KNOWN_COMPROMISED_BASELINES.some(
+    (record) =>
+      record.category === skill.category &&
+      record.skillName === skill.skillName,
+  );
+}
+
+function displayDelta(skill: SkillResult): string {
+  if (isCompromised(skill)) return "n/a";
+  return pct(skill.delta);
 }
 
 export function buildEvalsReportMarkdown(
   allResults: RunResults[],
   history?: EvalsHistory,
 ): string {
-  const lines: string[] = [];
-  lines.push('# 🧪 Live Skill Evals Report');
-  lines.push('');
-  lines.push(`> Generated: ${new Date().toISOString()}`);
-  lines.push(
-    '> Measured, not structural: each eval prompt is answered twice by an agent — once with no skill in context (baseline), once with the skill\'s SKILL.md loaded (with-skill) — then scored deterministically against the assertions in evals/evals.json.',
-  );
-  lines.push(
-    '> Runs are agent-generated (subjective), scoring is deterministic (verifiable). See [docs/EVALS.md](docs/EVALS.md) for how to run your own category and verify any run in this report.',
-  );
-  lines.push('');
-
+  const lines: string[] = [
+    "# 🧪 Live Skill Evals Report",
+    "",
+    `> Generated: ${new Date().toISOString()}`,
+    "> Measured, not structural: outcome assertions are evaluated against immutable run inputs. Baseline and with-skill arms are generated in isolated workers; trigger arms receive only the skill name and description.",
+    "> Historical v1 runs remain readable through the compatibility adapter. v2 metrics report case pass rate, assertion pass rate, trigger recall, trigger specificity, and balanced trigger accuracy.",
+    "",
+  ];
   if (allResults.length === 0) {
-    lines.push('## No runs yet');
-    lines.push('');
     lines.push(
-      'No eval runs have been committed under `benchmarks/evals/runs/`. See [docs/EVALS.md](docs/EVALS.md) to run your first category — any agent session (Claude Code, Copilot, Codex, Antigravity) can do this with no API key.',
+      "## No runs yet",
+      "",
+      "No eligible eval runs have been committed under `benchmarks/evals/runs/`.",
+      "",
     );
-    lines.push('');
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   const latest = latestPerCategory(allResults);
-  const allSkillResults: SkillResult[] = [...latest.values()].flatMap(
-    (r) => r.skills,
+  const allSkillResults = [...latest.values()].flatMap((run) => run.skills);
+  lines.push(
+    "## 🔢 Executive Summary (latest complete partition per category)",
+    "",
+    "| Metric | Value |",
+    "| --- | --- |",
   );
-
-  lines.push('## 🔢 Executive Summary (latest run per category)');
-  lines.push('');
-  lines.push('| Metric | Value |');
-  lines.push('| --- | --- |');
   lines.push(`| Categories with a live run | **${latest.size}** |`);
-  lines.push(`| Skills covered (latest runs) | **${allSkillResults.length}** |`);
   lines.push(
-    `| Avg. baseline pass rate | **${pct(avg(allSkillResults.map((s) => s.baselinePassRate)))}** |`,
+    `| Skills covered (unique category/skill) | **${allSkillResults.length}** |`,
   );
   lines.push(
-    `| Avg. with-skill pass rate | **${pct(avg(allSkillResults.map((s) => s.withSkillPassRate)))}** |`,
+    `| Avg. baseline case pass rate | **${pct(avg(allSkillResults.map((skill) => skill.casePassRate?.baseline ?? skill.baselinePassRate)))}** |`,
   );
   lines.push(
-    `| Avg. delta (with-skill − baseline) | **${pct(avg(allSkillResults.map((s) => s.delta)))}** |`,
+    `| Avg. with-skill case pass rate | **${pct(avg(allSkillResults.map((skill) => skill.casePassRate?.withSkill ?? skill.withSkillPassRate)))}** |`,
   );
-  const triggerable = allSkillResults.filter((s) => s.triggerPrecision !== null);
   lines.push(
-    `| Avg. trigger precision (should_not_trigger) | **${triggerable.length > 0 ? pct(avg(triggerable.map((s) => s.triggerPrecision as number))) : 'n/a'}** (${triggerable.length} skills) |`,
+    `| Avg. delta (valid baselines only) | **${pct(avg(allSkillResults.filter((skill) => !isCompromised(skill)).map((skill) => skill.delta)))}** |`,
   );
-  lines.push('');
+  lines.push(
+    `| Avg. assertion pass rate | **${pct(avgOrNa(allSkillResults.map((skill) => skill.assertionPassRate?.withSkill)))}** |`,
+  );
+  const triggerable = allSkillResults.filter(
+    (skill) =>
+      skill.balancedTriggerAccuracy !== null &&
+      skill.balancedTriggerAccuracy !== undefined,
+  );
+  lines.push(
+    `| Avg. balanced trigger accuracy | **${triggerable.length > 0 ? pct(avg(triggerable.map((skill) => skill.balancedTriggerAccuracy))) : "n/a"}** (${triggerable.length} skills) |`,
+    "",
+  );
 
   if (history && history.records.length > 0) {
-    lines.push('## 📜 Run History');
-    lines.push('');
-    lines.push('| Run | Category | Date | Skills | Baseline | With-Skill | Delta | Agent |');
-    lines.push('| --- | --- | --- | --- | --- | --- | --- | --- |');
-    for (const r of [...history.records].reverse()) {
+    lines.push(
+      "## 📜 Physical Run History",
+      "",
+      "| Run | Category | Date | Skills | Baseline | With-Skill | Delta | Agent |",
+      "| --- | --- | --- | --- | --- | --- | --- | --- |",
+    );
+    for (const record of [...history.records].reverse()) {
       lines.push(
-        `| \`${r.runId}\` | ${r.category} | ${r.date.split('T')[0]} | ${r.skillCount} | ${pct(r.avgBaselinePassRate)} | ${pct(r.avgWithSkillPassRate)} | ${r.avgDelta >= 0 ? '+' : ''}${pct(r.avgDelta)} | ${r.agent || 'n/a'} |`,
+        `| \`${record.runId}\` | ${record.category} | ${record.date.split("T")[0]} | ${record.skillCount} | ${pct(record.avgBaselinePassRate)} | ${pct(record.avgWithSkillPassRate)} | ${record.avgDelta >= 0 ? "+" : ""}${pct(record.avgDelta)} | ${record.agent ?? "n/a"} |`,
       );
     }
-    lines.push('');
+    lines.push("");
   }
 
-  lines.push('## 📦 Per-Category Results (latest run)');
-  lines.push('');
   lines.push(
-    '| Category | Run | Scored | Skills | Baseline | With-Skill | Delta | Trigger Precision |',
-  );
-  lines.push(
-    '| --- | --- | --- | --- | --- | --- | --- | --- |',
+    "## 📦 Per-Category Results (latest complete partition)",
+    "",
+    "| Category | Run | Scored | Skills | Baseline | With-Skill | Delta | Assertions | Trigger Recall | Trigger Specificity | Balanced Trigger |",
+    "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
   );
   for (const [category, run] of [...latest.entries()].sort(([a], [b]) =>
     a.localeCompare(b),
   )) {
-    const baseline = avg(run.skills.map((s) => s.baselinePassRate));
-    const withSkill = avg(run.skills.map((s) => s.withSkillPassRate));
-    const delta = withSkill - baseline;
-    const trig = run.skills.filter((s) => s.triggerPrecision !== null);
-    const trigLabel =
-      trig.length > 0
-        ? pct(avg(trig.map((s) => s.triggerPrecision as number)))
-        : 'n/a';
+    const triggerSkills = run.skills.filter(
+      (skill) =>
+        skill.balancedTriggerAccuracy !== null &&
+        skill.balancedTriggerAccuracy !== undefined,
+    );
     lines.push(
-      `| ${category} | \`${run.runId}\` | ${run.scoredAt.split('T')[0]} | ${run.skills.length} | ${pct(baseline)} | ${pct(withSkill)} | ${delta >= 0 ? '+' : ''}${pct(delta)} | ${trigLabel} |`,
+      `| ${category} | \`${run.runId}\` | ${run.scoredAt.split("T")[0]} | ${run.skills.length} | ${pct(avg(run.skills.map((skill) => skill.casePassRate?.baseline ?? skill.baselinePassRate)))} | ${pct(avg(run.skills.map((skill) => skill.casePassRate?.withSkill ?? skill.withSkillPassRate)))} | ${pct(avg(run.skills.filter((skill) => !isCompromised(skill)).map((skill) => skill.delta)))} | ${pct(avgOrNa(run.skills.map((skill) => skill.assertionPassRate?.withSkill)))} | ${pct(avgOrNa(triggerSkills.map((skill) => skill.triggerRecall)))} | ${pct(avgOrNa(triggerSkills.map((skill) => skill.triggerSpecificity)))} | ${pct(avgOrNa(triggerSkills.map((skill) => skill.balancedTriggerAccuracy)))} |`,
     );
   }
-  lines.push('');
+  lines.push("");
 
-  lines.push('## 📋 Per-Skill Detail (latest run per category)');
-  lines.push('');
-  lines.push('| Skill | Category | Baseline | With-Skill | Delta | Trigger | Guardrail |');
-  lines.push('| --- | --- | --- | --- | --- | --- | --- |');
-  for (const s of [...allSkillResults].sort((a, b) => a.delta - b.delta)) {
+  lines.push(
+    "## 📋 Per-Skill Detail (latest complete partition per category)",
+    "",
+    "| Skill | Category | Baseline Cases | With-Skill Cases | Delta | With-Skill Assertions | Recall | Specificity | Balanced | Guardrail |",
+    "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+  );
+  for (const skill of [...allSkillResults].sort(
+    (a, b) =>
+      a.category.localeCompare(b.category) ||
+      a.skillName.localeCompare(b.skillName),
+  )) {
     lines.push(
-      `| \`${s.skillName}\` | ${s.category} | ${pct(s.baselinePassRate)} | ${pct(s.withSkillPassRate)} | ${s.delta >= 0 ? '+' : ''}${pct(s.delta)} | ${s.triggerPrecision !== null ? pct(s.triggerPrecision) : 'n/a'} | ${s.guardrailApplicable ? 'yes' : 'no'} |`,
+      `| \`${skill.skillName}\` | ${skill.category} | ${pct(skill.casePassRate?.baseline ?? skill.baselinePassRate)} | ${pct(skill.casePassRate?.withSkill ?? skill.withSkillPassRate)} | ${displayDelta(skill)} | ${pct(skill.assertionPassRate?.withSkill)} | ${pct(skill.triggerRecall)} | ${pct(skill.triggerSpecificity ?? skill.triggerPrecision)} | ${pct(skill.balancedTriggerAccuracy)} | ${skill.guardrailApplicable ? "yes" : "no"} |`,
     );
   }
-  lines.push('');
+  lines.push("");
 
-  const negativeDelta = allSkillResults.filter((s) => s.delta < 0);
+  const negativeDelta = allSkillResults.filter(
+    (skill) =>
+      !isCompromised(skill) &&
+      typeof skill.delta === "number" &&
+      skill.delta < 0,
+  );
   if (negativeDelta.length > 0) {
-    lines.push('## ⚠️ Skills Where With-Skill Underperformed Baseline');
-    lines.push('');
     lines.push(
-      '> A negative delta means the agent scored worse WITH the skill loaded than without it on the same prompts. This should be rare — investigate the transcripts under `benchmarks/evals/runs/<runId>/answers/` for these skills.',
+      "## ⚠️ Skills Where With-Skill Underperformed Baseline",
+      "",
+      "| Skill | Category | Delta |",
+      "| --- | --- | --- |",
     );
-    lines.push('');
-    lines.push('| Skill | Category | Delta |');
-    lines.push('| --- | --- | --- |');
-    for (const s of negativeDelta) {
-      lines.push(`| \`${s.skillName}\` | ${s.category} | ${pct(s.delta)} |`);
-    }
-    lines.push('');
+    for (const skill of negativeDelta)
+      lines.push(
+        `| \`${skill.skillName}\` | ${skill.category} | ${pct(skill.delta)} |`,
+      );
+    lines.push("");
   }
 
-  lines.push('## 🛡️ How to Verify This Report');
-  lines.push('');
   lines.push(
-    '1. **Clone the repo**, `pnpm install`.',
+    "## 🛡️ How to Verify This Report",
+    "",
+    "1. `pnpm evals:verify -- --all` — re-score committed transcripts from each run's immutable `inputs.json` snapshot.",
+    "2. `pnpm evals:report` — regenerate the deterministic category projection, history, and archive.",
+    "3. Root, CLI, and MCP verification must report the same result for the same run.",
+    "",
   );
-  lines.push(
-    '2. **Re-score committed transcripts**: `pnpm evals:verify -- --all` (or `--run <runId>` for one run) — recomputes scores from the committed answer transcripts and diffs against the committed `results.json`. Any tampering or drift fails loudly.',
-  );
-  lines.push(
-    '3. **Regenerate this report**: `pnpm evals:report`.',
-  );
-  lines.push(
-    '4. **Run your own category**: see [docs/EVALS.md](docs/EVALS.md) — any agent session can do this with no API key; it only needs to read/write files and run `pnpm` scripts in this repo.',
-  );
-  lines.push('');
-  lines.push(
-    '> Trust model: generation (the transcripts) is agent-driven and therefore subjective; scoring (assertions -> pass/fail) is deterministic string-matching over the committed transcripts, reproducible by anyone via `pnpm evals:verify` or the MCP `verify_eval_run` tool — no API key required for either.',
-  );
-  lines.push('');
-
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 export function generateReport(): void {
   const allResults = loadAllResults();
   const history = syncHistoryAndArchive(allResults);
-  const markdown = buildEvalsReportMarkdown(allResults, history);
-  fs.outputFileSync(EVALS_REPORT_MD, markdown);
+  fs.outputFileSync(
+    EVALS_REPORT_MD,
+    buildEvalsReportMarkdown(allResults, history),
+  );
 }

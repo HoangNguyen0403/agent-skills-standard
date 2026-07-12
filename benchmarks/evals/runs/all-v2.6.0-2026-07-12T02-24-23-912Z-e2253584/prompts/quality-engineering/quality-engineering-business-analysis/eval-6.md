@@ -1,0 +1,1 @@
+The story has a VN-specific AC: 'VN {APP_NAME} users see a Tender Available tag'. How should this be written and what additional ACs are implied?

@@ -76,5 +76,8 @@
     "How do I run Android lint as part of a pre-push hook?",
     "Set up SonarQube for code quality monitoring in Android",
     "Add checkstyle for Java code in my Android project"
+  ],
+  "should_trigger": [
+    "How do I configure Detekt to fail the build when a method exceeds 30 lines or a class exceeds 300 lines?"
   ]
 }

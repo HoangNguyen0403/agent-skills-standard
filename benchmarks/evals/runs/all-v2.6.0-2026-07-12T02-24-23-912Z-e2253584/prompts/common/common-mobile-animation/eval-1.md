@@ -1,0 +1,1 @@
+How should I implement common mobile animation best practices?

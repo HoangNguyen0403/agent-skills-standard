@@ -1,0 +1,1 @@
+Use guard clauses instead of nested if/else in PHP

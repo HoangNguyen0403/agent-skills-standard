@@ -1,0 +1,1 @@
+When should I use REQUEST scope in NestJS providers?

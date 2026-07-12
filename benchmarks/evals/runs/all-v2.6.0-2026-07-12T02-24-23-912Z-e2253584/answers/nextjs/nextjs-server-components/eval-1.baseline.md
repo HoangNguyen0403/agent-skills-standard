@@ -1,0 +1,4 @@
+Place `'use client'` at the smallest component boundary that needs client-only capabilities: state, effects, event handlers, browser APIs, or a client-only library. Components above it can remain Server Components and can fetch data securely. Once a module is marked client, its imported component subtree is included in the client graph, so do not put the directive on a whole layout/page unless the whole tree truly needs it.
+
+For example, keep `ProductPage` as a Server Component that loads the product, then render `<AddToCart productId={product.id} />` as a Client Component. Pass serializable props across the boundary; do not pass a database client, function, or secret. A Client Component can still be rendered by a Server Component, and a Server Component can render a Client Component, but a Client Component should not import a Server Component module directly. Keep server authorization in the server action/DAL even when the button is client-rendered.
+

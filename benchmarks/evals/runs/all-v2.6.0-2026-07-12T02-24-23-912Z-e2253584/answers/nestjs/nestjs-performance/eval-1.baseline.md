@@ -1,0 +1,4 @@
+Measure first with load tests, CPU/heap profiles, database query plans, and event-loop lag. Typical throughput improvements are to use asynchronous nonblocking code, keep controllers/services lightweight, eliminate N+1 queries, add appropriate database indexes, select only required columns, paginate, reuse connection pools, and cache safe hot reads.
+
+Avoid request-scoped providers unless needed, bound payloads and concurrency, and move slow/CPU-heavy work to workers. Tune Node and the database based on measurements, use compression/HTTP keep-alive appropriately, and scale horizontally only after state and bottlenecks are understood. Instrument p50/p95/p99 latency, throughput, errors, event-loop delay, memory, pool saturation, and downstream latency. Verify improvements under representative load; a larger pod or more replicas can hide rather than fix a bottleneck.
+

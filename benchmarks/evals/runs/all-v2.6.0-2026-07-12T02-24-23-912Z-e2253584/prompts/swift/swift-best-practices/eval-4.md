@@ -1,0 +1,1 @@
+How do I name Boolean properties in Swift?

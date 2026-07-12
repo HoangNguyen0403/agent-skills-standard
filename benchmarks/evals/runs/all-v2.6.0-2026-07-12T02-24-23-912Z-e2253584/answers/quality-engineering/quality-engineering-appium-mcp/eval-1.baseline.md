@@ -1,0 +1,3 @@
+I cannot create the live session from the prompt alone. A LambdaTest account, credentials, app build or app URL, device availability, and login details are required, and I would need the Appium MCP connection to execute it.
+
+The session would need capabilities for Android, Samsung S26, the requested OS version, the app identifier or uploaded app, and the LambdaTest project/build/name. After the session starts, I would locate the login controls by accessibility identifiers, enter the supplied credentials, submit the form, and verify a post-login element. I would record the session id and failure logs. Please provide the app artifact or URL, OS version, credentials through a secure channel, and the desired login-success assertion.

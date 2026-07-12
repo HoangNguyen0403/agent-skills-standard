@@ -1,0 +1,1 @@
+Migrate to Kotlin DSL and use `build.gradle.kts` exclusively for type safety and IDE support. Move version declarations to `libs.versions.toml`, then verify the build and test configuration rather than retaining the legacy Groovy script.

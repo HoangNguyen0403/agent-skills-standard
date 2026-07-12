@@ -1,0 +1,1 @@
+I have an if/else chain in Java checking instanceof for 4 different types and calling different methods. How do I modernize this?

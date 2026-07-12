@@ -1,1 +1,0 @@
-Use Record types for this — Dart 3 lets you return multiple values without a custom class, e.g. `(String? error, User? data) fetchUser() { ... }`, or a named record `({String? error, User? data})`. Destructure at the call site: `final (error, data) = fetchUser();`.

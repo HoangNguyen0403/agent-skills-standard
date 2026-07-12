@@ -137,7 +137,7 @@ Modern Angular standards (Standalone components, Signals).
 Core language idioms and patterns.
 
 - [**Language**](dart/dart-language/SKILL.md) (P0) - Dart 3.x language feature standards: null safety, records, sealed classes, switch pattern matching, extensions, and async/await. Use when using !, ?., ??, late, sealed classes, record types, switch expressions, or async patterns — and before introducing any new Dart 3.x construct to confirm the modern idiomatic approach.
-- [**Best Practices**](dart/dart-best-practices/SKILL.md) (P1) - Dart code quality conventions: naming, const/final/var hierarchy, single quotes, trailing commas, collection idioms, tear-offs, and import organization. Use when writing new Dart code or reviewing for style violations — wrong import style, global variables, var misuse, anonymous lambdas where tear-offs fit, or missing trailing commas.
+- [**Best Practices**](dart/dart-best-practices/SKILL.md) (P1) - Dart code quality conventions: naming, const/final/var hierarchy, single quotes, trailing commas, collection idioms, tear-offs, and import organization. Use when writing Dart code or reviewing style violations; activate for style-focused changes, not configuration-only lint setup, unrelated feature work, or widget tests.
 - [**Tooling**](dart/dart-tooling/SKILL.md) (P1) - Dart static analysis, linting, formatting, and code-generation standards. Use when touching analysis_options.yaml, running build_runner, configuring dart format line length, setting up DCM metrics, or adding pre-commit hooks via lefthook — and whenever a CI job fails on analyze or format steps.
 
 ### 🔷 TypeScript (Language)

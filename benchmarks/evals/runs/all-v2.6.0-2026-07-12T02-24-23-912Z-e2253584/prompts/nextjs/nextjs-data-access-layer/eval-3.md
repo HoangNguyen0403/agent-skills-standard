@@ -1,0 +1,1 @@
+My Client Component needs to access user data from the database. How should I do this?

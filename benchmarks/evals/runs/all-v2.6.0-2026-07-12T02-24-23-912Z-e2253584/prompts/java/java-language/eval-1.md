@@ -1,0 +1,1 @@
+I have a Java DTO with 5 fields, a no-arg constructor, getters, setters, equals, hashCode, and toString. Is there a cleaner way in Java 21?

@@ -1,0 +1,1 @@
+My LazyColumn scrolling is janky. How do I diagnose and fix UI jank in my Compose app?

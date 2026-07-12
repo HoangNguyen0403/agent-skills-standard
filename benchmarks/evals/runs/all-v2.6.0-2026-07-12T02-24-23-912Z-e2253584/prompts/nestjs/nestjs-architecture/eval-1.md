@@ -1,0 +1,1 @@
+How do I structure NestJS modules for a large application?

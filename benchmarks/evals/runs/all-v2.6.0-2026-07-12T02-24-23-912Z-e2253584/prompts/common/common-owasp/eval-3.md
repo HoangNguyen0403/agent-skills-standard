@@ -1,0 +1,1 @@
+Write a login endpoint that checks the user's password.

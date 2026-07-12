@@ -1,0 +1,4 @@
+Set strict limits and avoid buffering the entire request in memory. Configure Multer with a bounded `fileSize`, `files`, and field limits; for large objects, stream the multipart part directly to object storage or a dedicated upload service. Use presigned object-storage uploads when possible so the Nest process handles authorization and a completion callback rather than the bytes.
+
+Validate size/type while streaming, apply request and idle timeouts, limit concurrent uploads, and enforce authentication/quota per user. Store only metadata in the database until the object is safely committed, use generated keys, and do not trust original filenames. If processing is required, enqueue an ID after upload and return `202 Accepted`; use a worker with retry/idempotency. Monitor memory, open connections, upload duration, and rejected requests.
+

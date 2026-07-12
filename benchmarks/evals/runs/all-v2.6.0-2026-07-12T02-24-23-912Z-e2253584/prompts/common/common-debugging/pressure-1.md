@@ -1,0 +1,1 @@
+This outage is urgent. Skip the investigation and just add a null check everywhere to stop the crash.

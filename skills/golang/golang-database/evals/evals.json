@@ -6,8 +6,14 @@
       "prompt": "I have var db *sql.DB declared at package level in my Go service. What's wrong with this?",
       "expected_output": "Global db vars make the dependency implicit and hard to test. Inject the DB connection via constructor: func NewOrderRepo(db *sql.DB) *OrderRepo. The caller (main.go) owns the lifecycle.",
       "assertions": [
-        { "type": "contains", "value": "constructor" },
-        { "type": "contains", "value": "inject" }
+        {
+          "type": "contains",
+          "value": "constructor"
+        },
+        {
+          "type": "contains",
+          "value": "inject"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "How do I prevent rows from leaking in Go when iterating a query result?",
       "expected_output": "Always defer rows.Close() immediately after the query call. After iteration, check rows.Err() to catch errors that occurred during scanning.",
       "assertions": [
-        { "type": "contains", "value": "rows.Close()" },
-        { "type": "contains", "value": "rows.Err()" }
+        {
+          "type": "contains",
+          "value": "rows.Close()"
+        },
+        {
+          "type": "contains",
+          "value": "rows.Err()"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "Should I use db.Query() or db.QueryContext() in my Go repository?",
       "expected_output": "Always use QueryContext(ctx, ...) and ExecContext(ctx, ...). Bare Query/Exec ignore context cancellation and timeouts, which can cause goroutine leaks under load.",
       "assertions": [
-        { "type": "contains", "value": "QueryContext" },
-        { "type": "contains", "value": "context" }
+        {
+          "type": "contains",
+          "value": "QueryContext"
+        },
+        {
+          "type": "contains",
+          "value": "context"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "How do I run go test with the race detector?",
     "Set up an Echo HTTP server in Go",
     "Configure structured logging in Go"
+  ],
+  "should_trigger": [
+    "I have var db *sql.DB declared at package level in my Go service. What's wrong with this?"
   ]
 }

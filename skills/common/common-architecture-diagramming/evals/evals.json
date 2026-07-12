@@ -16,7 +16,8 @@
         },
         {
           "type": "contains",
-          "value": "Priority: P1 (HIGH)"
+          "value": "Use C4 Model",
+          "description": "Checks user-visible framework guidance"
         }
       ]
     },
@@ -64,5 +65,8 @@
     "How do I install common dependencies?",
     "What is common?",
     "Configure CI/CD for an unrelated platform"
+  ],
+  "should_trigger": [
+    "How should I implement common architecture diagramming best practices?"
   ]
 }

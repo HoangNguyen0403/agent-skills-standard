@@ -1,0 +1,1 @@
+This Python function validates input, queries Postgres, formats Markdown, and sends Telegram messages. How should I refactor it?

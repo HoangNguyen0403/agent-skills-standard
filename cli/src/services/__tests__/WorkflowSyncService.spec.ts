@@ -137,6 +137,26 @@ describe('WorkflowSyncService', () => {
       expect(result).toBe(false); // No change to .skillsrc
       expect(config.workflows).toBe(true);
     });
+
+    it('should never auto-discover or add the internal-only evals-run workflow', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: '.agents/workflows/code-review.md' },
+          { path: '.agents/workflows/evals-run.md' },
+        ],
+      });
+
+      await workflowSyncService.reconcileWorkflows(config);
+
+      expect(config.workflows).toContain('code-review');
+      expect(config.workflows).not.toContain('evals-run');
+    });
   });
 
   describe('assembleWorkflows', () => {
@@ -185,6 +205,56 @@ describe('WorkflowSyncService', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0].skill).toBe('workflows');
+    });
+
+    it('should never sync internal-only workflows (evals-run) even when workflows is true', async () => {
+      const config = {
+        workflows: true,
+        registry: 'https://github.com/o/r',
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: '.agents/workflows/w1.md' },
+          { path: '.agents/workflows/evals-run.md' },
+        ],
+      });
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue([
+        { path: '.agents/workflows/w1.md', content: 'c1' },
+      ]);
+
+      await workflowSyncService.assembleWorkflows(config);
+
+      expect(mockGithubService.downloadFilesConcurrent).toHaveBeenCalledWith([
+        expect.objectContaining({ path: '.agents/workflows/w1.md' }),
+      ]);
+    });
+
+    it('should never sync internal-only workflows (evals-run) even when explicitly listed', async () => {
+      const config = {
+        workflows: ['w1', 'evals-run'],
+        registry: 'https://github.com/o/r',
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: '.agents/workflows/w1.md' },
+          { path: '.agents/workflows/evals-run.md' },
+        ],
+      });
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue([
+        { path: '.agents/workflows/w1.md', content: 'c1' },
+      ]);
+
+      await workflowSyncService.assembleWorkflows(config);
+
+      expect(mockGithubService.downloadFilesConcurrent).toHaveBeenCalledWith([
+        expect.objectContaining({ path: '.agents/workflows/w1.md' }),
+      ]);
     });
 
     it('should only discover workflows from .agents/workflows source path', async () => {

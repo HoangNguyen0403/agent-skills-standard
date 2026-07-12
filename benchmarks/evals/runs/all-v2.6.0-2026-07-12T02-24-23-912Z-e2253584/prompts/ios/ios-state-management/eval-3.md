@@ -1,0 +1,1 @@
+How do I represent view state in iOS?

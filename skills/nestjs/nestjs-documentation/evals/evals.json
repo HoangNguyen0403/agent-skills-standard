@@ -49,6 +49,15 @@
           "description": "Mentions @ApiTags",
           "type": "contains",
           "value": "ApiTags"
+        },
+        {
+          "id": "a3",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Call SwaggerModule",
+            "swaggermodule"
+          ]
         }
       ]
     }
@@ -57,5 +66,8 @@
     "How do I write a NestJS guard?",
     "How do I generate Swagger in Spring Boot?",
     "How do I write JSDoc for a Go function?"
+  ],
+  "should_trigger": [
+    "How do I reduce Swagger boilerplate in NestJS DTOs?"
   ]
 }

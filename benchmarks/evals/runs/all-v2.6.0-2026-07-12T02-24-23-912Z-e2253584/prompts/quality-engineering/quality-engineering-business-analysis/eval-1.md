@@ -1,0 +1,1 @@
+The AC for TICK-1234 says 'User can view order history'. Analyze this requirement and identify all missing logic, actor permissions, and edge cases before we write test cases.

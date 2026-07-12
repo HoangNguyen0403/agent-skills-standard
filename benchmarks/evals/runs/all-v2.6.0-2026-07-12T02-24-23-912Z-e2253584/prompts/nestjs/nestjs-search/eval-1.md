@@ -1,0 +1,1 @@
+How do I keep Elasticsearch in sync with my PostgreSQL database in NestJS?

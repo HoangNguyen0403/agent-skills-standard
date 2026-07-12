@@ -24,6 +24,15 @@
         {
           "type": "contains",
           "value": "200ms"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Violation",
+            "name"
+          ]
         }
       ]
     },
@@ -47,8 +56,14 @@
       "prompt": "The code seems already done, but we do not have PRD or acceptance criteria.",
       "expected_output": "Report partial or unverified status, separate implementation evidence from missing requirements evidence, route to PM-owned plan-feature, and require REQ/AC IDs before implementation closure.",
       "assertions": [
-        { "type": "contains", "value": "partial" },
-        { "type": "contains", "value": "AC" }
+        {
+          "type": "contains",
+          "value": "partial"
+        },
+        {
+          "type": "contains",
+          "value": "AC"
+        }
       ]
     },
     {
@@ -56,8 +71,14 @@
       "prompt": "We are an offshore delivery team; plan this feature before dev starts.",
       "expected_output": "Include PM-owned PRD, BA/PM/RACI, rollout/ops, validation owner, acceptance criteria IDs, and implementation-readiness before dev tasks.",
       "assertions": [
-        { "type": "contains", "value": "RACI" },
-        { "type": "contains", "value": "implementation-readiness" }
+        {
+          "type": "contains",
+          "value": "RACI"
+        },
+        {
+          "type": "contains",
+          "value": "implementation-readiness"
+        }
       ]
     }
   ],
@@ -67,5 +88,8 @@
     "Design architecture for event-driven order sync",
     "Write a Go function to parse JSON",
     "Add unit tests for the auth service"
+  ],
+  "should_trigger": [
+    "Create a PRD for a new user notifications feature."
   ]
 }

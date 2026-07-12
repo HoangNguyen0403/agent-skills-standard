@@ -1,0 +1,1 @@
+Working on tooltip.directive.ts — how do I handle host bindings correctly?

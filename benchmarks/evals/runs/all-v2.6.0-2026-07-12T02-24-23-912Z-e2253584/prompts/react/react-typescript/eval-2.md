@@ -1,0 +1,1 @@
+Type a generic list component that works with any data type and renders each item.

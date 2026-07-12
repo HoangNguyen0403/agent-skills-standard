@@ -1,0 +1,1 @@
+Validate the request body of a user registration endpoint in a TypeScript Express API.

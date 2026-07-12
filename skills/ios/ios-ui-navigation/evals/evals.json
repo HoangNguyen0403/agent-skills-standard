@@ -54,7 +54,8 @@
         },
         {
           "type": "contains",
-          "value": "Priority: P0"
+          "value": "UIStackView",
+          "description": "Checks user-visible framework guidance"
         }
       ]
     }
@@ -64,5 +65,8 @@
     "How do I install ios dependencies?",
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
+  ],
+  "should_trigger": [
+    "How should I implement ios ui navigation best practices?"
   ]
 }

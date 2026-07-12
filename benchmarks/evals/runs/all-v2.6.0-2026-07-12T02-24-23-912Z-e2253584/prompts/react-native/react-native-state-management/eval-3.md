@@ -1,0 +1,1 @@
+How do I share theme and authentication state across all screens in React Native without prop drilling?

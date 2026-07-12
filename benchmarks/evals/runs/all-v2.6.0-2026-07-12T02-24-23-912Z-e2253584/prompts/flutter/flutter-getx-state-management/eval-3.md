@@ -1,0 +1,1 @@
+Show an error snackbar from inside a GetxController after an API call fails, without accessing BuildContext.

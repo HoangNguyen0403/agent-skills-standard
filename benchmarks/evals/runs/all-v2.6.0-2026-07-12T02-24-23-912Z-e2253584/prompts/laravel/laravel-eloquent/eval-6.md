@@ -1,0 +1,1 @@
+Prevent lazy loading with Eloquent::preventLazyLoading()

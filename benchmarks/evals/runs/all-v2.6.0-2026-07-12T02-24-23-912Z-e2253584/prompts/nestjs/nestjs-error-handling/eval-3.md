@@ -1,0 +1,1 @@
+How do I prevent stack traces from leaking in production NestJS responses?

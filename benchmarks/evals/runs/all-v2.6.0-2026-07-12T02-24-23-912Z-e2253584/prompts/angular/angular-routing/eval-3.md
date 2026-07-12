@@ -1,0 +1,1 @@
+How do I bind route params to component inputs in Angular?

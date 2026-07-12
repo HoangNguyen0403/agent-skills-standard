@@ -1,0 +1,1 @@
+How do I create a truncate pipe in Angular?

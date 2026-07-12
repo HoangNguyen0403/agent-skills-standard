@@ -1,0 +1,1 @@
+How do I return typed responses instead of Map<String, Object> in Spring Boot?

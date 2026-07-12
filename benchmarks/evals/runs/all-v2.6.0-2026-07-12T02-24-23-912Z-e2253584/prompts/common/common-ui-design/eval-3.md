@@ -1,0 +1,1 @@
+The design looks generic — it's just white background with purple gradient buttons like every other AI startup.

@@ -213,3 +213,9 @@ _Date: 2026-05-14_
 _Date: 2026-05-14_
 **Decision**: Keep `skills/specialists/*/SKILL.md` as registry source, but sync them directly to native sub-agent folders instead of normal skill folders. Specialists stay compact, budgeted, and focused on one review or automation lens.
 **Reason**: Review fanout, Jira/ADO/Zephyr handoffs, traceability, and test generation need role isolation without loading broad skill catalogs into the parent context.
+
+### ADR-008: Immutable v2 Live-Eval Inputs
+
+_Date: 2026-07-11_
+**Decision**: Live eval manifests use one shared v2 builder for category and aggregate scopes. A completed run records source hashes and an immutable `inputs.json`; root scripts, the published CLI verifier, and MCP verify against that snapshot. Aggregate reports project the `all` run into category partitions before selecting the newest complete view.
+**Reason**: Mutable eval definitions and incompatible aggregate answer paths made historical scores non-reproducible and allowed incomplete or compromised runs to look valid. v1 manifests remain read-only compatible for historical verification.

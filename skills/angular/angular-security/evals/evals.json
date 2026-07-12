@@ -11,8 +11,12 @@
           "value": "DomSanitizer.sanitize"
         },
         {
-          "type": "contains",
-          "value": "Never mark user-provided HTML as trusted"
+          "type": "contains_any",
+          "value": [
+            "Never mark user-provided HTML as trusted",
+            "mark"
+          ],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]
     },
@@ -52,8 +56,12 @@
       "expected_output": "Only mark HTML as trusted for content you control (e.g., a trusted CMS). Never trust-mark user-provided content. Trust Angular's sanitization for most cases. Audit every trust-marking API call in code reviews as a potential XSS vector.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Only mark HTML as trusted for content you control"
+          "type": "contains_any",
+          "value": [
+            "Only mark HTML as trusted for content you control",
+            "mark"
+          ],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
           "type": "contains",
@@ -105,5 +113,8 @@
     "How do I secure a NestJS API with JWT guards?",
     "How do I configure HTTPS and TLS certificates in nginx?",
     "How do I set up CORS in an Express.js server?"
+  ],
+  "should_trigger": [
+    "How do I prevent XSS in Angular?"
   ]
 }

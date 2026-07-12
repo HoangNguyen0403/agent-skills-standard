@@ -117,5 +117,8 @@
     "How do I use Spring Boot @Autowired annotation?",
     "How do I manage state with Redux Toolkit?",
     "How do I configure Docker networking between containers?"
+  ],
+  "should_trigger": [
+    "How do I use the inject() function in Angular?"
   ]
 }

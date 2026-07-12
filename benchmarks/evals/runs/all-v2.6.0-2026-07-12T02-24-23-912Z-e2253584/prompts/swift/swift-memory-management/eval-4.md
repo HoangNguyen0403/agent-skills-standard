@@ -1,0 +1,1 @@
+How do I implement a delegate pattern without a retain cycle?

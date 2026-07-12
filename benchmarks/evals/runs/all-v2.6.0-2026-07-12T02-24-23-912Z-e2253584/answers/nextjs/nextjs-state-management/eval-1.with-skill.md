@@ -1,0 +1,2 @@
+Put shareable filter state in URL search parameters using `useSearchParams` and `useRouter` (or server `searchParams` when filtering in a Server Component). Encode only the necessary primitives, update the URL with the desired history behavior, and derive the displayed results from those params. This makes links bookmarkable and shareable; do not use a global client store for state whose source of truth is the URL.
+

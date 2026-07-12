@@ -1,0 +1,1 @@
+A QA engineer filed a bug where a button label has extra spacing on iOS. What priority should it be and why?

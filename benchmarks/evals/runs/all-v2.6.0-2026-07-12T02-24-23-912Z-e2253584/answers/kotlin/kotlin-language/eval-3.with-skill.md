@@ -1,0 +1,1 @@
+Use a sealed interface or class for result state and data classes for payloads, for example `sealed interface Result<out T>` with `Success(data)`, `Error(message)`, and optionally `Loading`. Handle it with an exhaustive `when` expression so each state is explicit and typed.

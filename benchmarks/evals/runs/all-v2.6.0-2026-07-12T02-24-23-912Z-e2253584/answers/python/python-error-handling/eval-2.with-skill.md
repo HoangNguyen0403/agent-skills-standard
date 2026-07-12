@@ -1,0 +1,1 @@
+Restore the mutable state with an explicit rollback before returning. Catch the narrow database exception at the boundary, add operation context without losing the cause, and either re-raise or return a structured failure that identifies the partial mutation and required next action.

@@ -1,0 +1,1 @@
+My API endpoint that fetches a user's orders and their products is slow. Each order triggers separate product queries.

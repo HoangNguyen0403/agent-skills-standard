@@ -1,0 +1,1 @@
+Set up a tsconfig.json for a new TypeScript project with maximum type safety.

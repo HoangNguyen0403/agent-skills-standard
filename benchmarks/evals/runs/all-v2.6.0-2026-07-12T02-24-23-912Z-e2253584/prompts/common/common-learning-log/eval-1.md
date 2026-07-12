@@ -1,0 +1,1 @@
+You just told me to use localStorage for auth tokens but that's wrong — tokens should be in HttpOnly cookies.

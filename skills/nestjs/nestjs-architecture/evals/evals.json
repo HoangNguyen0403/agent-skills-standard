@@ -10,8 +10,14 @@
           "type": "contains",
           "value": "Feature Modules (Auth) vs Core (Config/DB) vs Shared (Utils)"
         },
-        { "type": "contains", "value": "circular dependencies" },
-        { "type": "contains", "value": "madge" }
+        {
+          "type": "contains",
+          "value": "circular dependencies"
+        },
+        {
+          "type": "contains",
+          "value": "madge"
+        }
       ]
     },
     {
@@ -19,10 +25,22 @@
       "prompt": "Should I put business logic in NestJS controllers?",
       "expected_output": "No. Controllers should be thin: validate DTO, call service, return response. All business logic lives in Services. Never return ORM entities directly.",
       "assertions": [
-        { "type": "contains", "value": "Thin controllers, fat services" },
-        { "type": "contains", "value": "Don't return ORM entities" },
-        { "type": "contains", "value": "No business in Controller" },
-        { "type": "contains", "value": "Move logic to Service" }
+        {
+          "type": "contains",
+          "value": "Thin controllers, fat services"
+        },
+        {
+          "type": "contains",
+          "value": "Don't return ORM entities"
+        },
+        {
+          "type": "contains",
+          "value": "No business in Controller"
+        },
+        {
+          "type": "contains",
+          "value": "Move logic to Service"
+        }
       ]
     },
     {
@@ -30,9 +48,18 @@
       "prompt": "How do I inject a TypeORM repository in NestJS?",
       "expected_output": "Use @InjectRepository(Entity) in provider. Ensure TypeOrmModule.forFeature([Entity]) is listed in module imports. Use DI, never new Repository().",
       "assertions": [
-        { "type": "contains", "value": "InjectRepository" },
-        { "type": "contains", "value": "TypeOrmModule.forFeature" },
-        { "type": "contains", "value": "Dependency Integrity" }
+        {
+          "type": "contains",
+          "value": "InjectRepository"
+        },
+        {
+          "type": "contains",
+          "value": "TypeOrmModule.forFeature"
+        },
+        {
+          "type": "contains",
+          "value": "Dependency Integrity"
+        }
       ]
     }
   ],
@@ -40,5 +67,8 @@
     "How do I implement JWT authentication?",
     "How do I structure a Go project?",
     "How do I cache data in NestJS?"
+  ],
+  "should_trigger": [
+    "How do I structure NestJS modules for a large application?"
   ]
 }

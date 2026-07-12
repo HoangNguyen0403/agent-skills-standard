@@ -1,0 +1,1 @@
+My Redux store has 50 slices and managing the boilerplate is overwhelming the team.

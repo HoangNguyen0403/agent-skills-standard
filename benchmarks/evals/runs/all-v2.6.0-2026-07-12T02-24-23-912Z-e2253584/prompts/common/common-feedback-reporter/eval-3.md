@@ -1,0 +1,1 @@
+Add a TypeScript function that uses a class component pattern for React.

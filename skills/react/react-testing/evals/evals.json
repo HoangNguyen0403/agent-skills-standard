@@ -24,6 +24,15 @@
         {
           "type": "contains",
           "value": "MSW"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Violation",
+            "name"
+          ]
         }
       ]
     },
@@ -47,5 +56,8 @@
     "Write a PostgreSQL stored procedure",
     "Configure a Kubernetes deployment",
     "Set up a Go gRPC interceptor"
+  ],
+  "should_trigger": [
+    "Write a test for my UserCard component that shows the user's name and email."
   ]
 }

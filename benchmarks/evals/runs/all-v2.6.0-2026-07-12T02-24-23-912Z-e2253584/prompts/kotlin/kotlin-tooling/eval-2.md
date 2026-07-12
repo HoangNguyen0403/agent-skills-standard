@@ -1,0 +1,1 @@
+My Kotlin project has dependency versions scattered across multiple build.gradle.kts files. How do I centralize them?

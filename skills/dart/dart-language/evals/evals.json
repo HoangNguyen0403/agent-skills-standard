@@ -15,8 +15,13 @@
           "value": "String"
         },
         {
-          "type": "contains",
-          "value": "Use Record"
+          "type": "contains_any",
+          "value": [
+            "destructure",
+            "destructuring",
+            "final (error",
+            "result.error"
+          ]
         }
       ]
     },
@@ -45,8 +50,26 @@
       "expected_output": "Replace ! with ?. (null-aware access), ?? (default value), early return with if (value == null) return, or pattern matching. Only use ! when non-nullability is proven via assert or type narrowing.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Only"
+          "type": "contains_any",
+          "value": [
+            "prove value non-null",
+            "proven",
+            "non-nullability",
+            "only use !",
+            "type narrowing",
+            "if or assert",
+            "late",
+            "initialization is guaranteed",
+            "explicit null check",
+            "null check",
+            "no !"
+          ]
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["Replace ! with ?", "name"]
         }
       ]
     }
@@ -56,5 +79,8 @@
     "Set up build_runner for code generation",
     "Add error handling in the repository using Either",
     "How do I format my Dart files with dart format?"
+  ],
+  "should_trigger": [
+    "I need a function that returns both a success value and an error message without using a custom class. What's the modern Dart way to do this?"
   ]
 }

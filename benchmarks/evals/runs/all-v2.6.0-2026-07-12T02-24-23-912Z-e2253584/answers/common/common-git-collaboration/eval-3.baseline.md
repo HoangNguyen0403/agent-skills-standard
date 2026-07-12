@@ -1,0 +1,6 @@
+Treat the API key as compromised immediately. Do not merely delete it in a later commit, because the key remains in repository history and may already be present in logs, clones, caches, or forks.
+
+1. Revoke or disable the exposed key at the provider, then create a replacement through the normal secret-management process. Audit provider usage for suspicious activity and notify the security owner according to incident policy.
+2. Remove the key from the current branch and all relevant Git history using an approved history-rewrite tool such as `git filter-repo` or BFG. Coordinate this rewrite with every collaborator, force-push only the agreed protected-branch procedure, and have everyone reclone or carefully reset their local copies. Check tags, other branches, release artifacts, CI logs, and caches as well.
+3. Search the repository and CI configuration for other copies, add the secret file/pattern to appropriate ignore and secret-scanning rules, and enable or run secret scanning. Update applications and deployments to use the replacement secret from a secure store, not source control.
+4. Record the incident, scope, actions, and verification. If the branch is public or shared, assume external access and preserve evidence needed for investigation. The key must be rotated even if history cleanup succeeds.

@@ -1,0 +1,1 @@
+Use `source-map-explorer` for webpack or `rollup-plugin-visualizer` for Vite to analyze the bundle. Inspect large vendor chunks, duplicated dependencies, and whole-library imports; verify the production bundle after removing the bloat.

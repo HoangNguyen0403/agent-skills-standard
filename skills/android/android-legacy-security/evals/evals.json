@@ -6,9 +6,24 @@
       "prompt": "I'm loading a user URL in a WebView. Should I enable JavaScript? What other security settings should I configure?",
       "expected_output": "Default to javaScriptEnabled = false. Only enable for trusted, controlled domains. Disable allowFileAccess and allowFileAccessFromFileURLs to prevent local file theft via XSS.",
       "assertions": [
-        { "id": "a1", "description": "Defaults JS to false", "type": "contains", "value": "javaScriptEnabled" },
-        { "id": "a2", "description": "Mentions allowFileAccess", "type": "contains", "value": "allowFileAccess" },
-        { "id": "a3", "description": "Mentions trusted domains", "type": "contains", "value": "trusted" }
+        {
+          "id": "a1",
+          "description": "Defaults JS to false",
+          "type": "contains",
+          "value": "javaScriptEnabled"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions allowFileAccess",
+          "type": "contains",
+          "value": "allowFileAccess"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions trusted domains",
+          "type": "contains",
+          "value": "trusted"
+        }
       ]
     },
     {
@@ -16,9 +31,24 @@
       "prompt": "My app shares a file with an external app using a file:// URI. I'm getting a FileUriExposedException. How do I fix it?",
       "expected_output": "Use FileProvider. Define it in AndroidManifest.xml, create file_paths.xml with allowed paths, and share content:// URIs via FileProvider.getUriForFile().",
       "assertions": [
-        { "id": "a1", "description": "Recommends FileProvider", "type": "contains", "value": "FileProvider" },
-        { "id": "a2", "description": "Rejects file:// URIs", "type": "contains", "value": "file://" },
-        { "id": "a3", "description": "Mentions content:// URI", "type": "contains", "value": "content://" }
+        {
+          "id": "a1",
+          "description": "Recommends FileProvider",
+          "type": "contains",
+          "value": "FileProvider"
+        },
+        {
+          "id": "a2",
+          "description": "Rejects file:// URIs",
+          "type": "contains",
+          "value": "file://"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions content:// URI",
+          "type": "contains",
+          "value": "content://"
+        }
       ]
     },
     {
@@ -26,8 +56,18 @@
       "prompt": "My Activity receives an implicit Intent with user data. What security checks should I do on the incoming Intent extras?",
       "expected_output": "Treat all Intent extras as untrusted. Validate and sanitize before use. Verify resolveActivity before starting implicit intents. Do not use legacy public-read file modes for any files.",
       "assertions": [
-        { "id": "a1", "description": "Treats extras as untrusted", "type": "contains", "value": "untrusted" },
-        { "id": "a2", "description": "Validates or sanitizes input", "type": "contains", "value": "validat" }
+        {
+          "id": "a1",
+          "description": "Treats extras as untrusted",
+          "type": "contains",
+          "value": "untrusted"
+        },
+        {
+          "id": "a2",
+          "description": "Validates or sanitizes input",
+          "type": "contains",
+          "value": "validat"
+        }
       ]
     }
   ],
@@ -42,5 +82,8 @@
     "How do I observe a LiveData safely in a Fragment using viewLifecycleOwner?",
     "My Activity uses a raw string Bundle key to pass a user ID — fix it",
     "Configure Hilt module for the data layer security components"
+  ],
+  "should_trigger": [
+    "I'm loading a user URL in a WebView. Should I enable JavaScript? What other security settings should I configure?"
   ]
 }

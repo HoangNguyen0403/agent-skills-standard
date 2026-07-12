@@ -1,0 +1,1 @@
+Verify the fix for a broken dropdown border in the header.

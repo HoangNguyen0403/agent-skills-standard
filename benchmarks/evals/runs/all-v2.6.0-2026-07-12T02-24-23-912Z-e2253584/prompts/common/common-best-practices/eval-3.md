@@ -1,0 +1,1 @@
+Review my naming conventions — I have functions like doStuff(), handleIt(), and process().

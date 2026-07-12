@@ -1,0 +1,4 @@
+Accept and persist the upload quickly, then enqueue an image-processing job for a worker. Return `202 Accepted` with an asset/job ID and expose status or send an event when processing completes. Do not perform CPU-heavy resizing, transcoding, or virus scanning synchronously in the HTTP handler.
+
+Use a queue such as BullMQ or an external worker, store the original in private object storage, and pass an object key rather than a large buffer in the job. The worker should download/stream the object, validate it again, process to a temporary location, atomically publish derivatives, update database status, and clean up on success/failure. Set bounded retries/backoff, idempotency keys, resource/time limits, and quarantine handling. Protect the endpoint with upload limits and authorization, and observe queue latency and processing failures.
+

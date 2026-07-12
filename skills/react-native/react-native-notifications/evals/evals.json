@@ -64,5 +64,8 @@
     "How do I implement secure storage?",
     "How do I write tests with RNTL?",
     "How do I reduce FlatList re-renders?"
+  ],
+  "should_trigger": [
+    "How do I set up Firebase Cloud Messaging push notifications in a bare React Native app?"
   ]
 }

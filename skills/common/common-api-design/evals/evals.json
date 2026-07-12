@@ -64,5 +64,8 @@
     "How do I install common dependencies?",
     "What is common?",
     "Configure CI/CD for an unrelated platform"
+  ],
+  "should_trigger": [
+    "How should I implement common api design best practices?"
   ]
 }

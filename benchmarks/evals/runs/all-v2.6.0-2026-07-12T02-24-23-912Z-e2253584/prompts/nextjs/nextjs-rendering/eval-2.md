@@ -1,0 +1,1 @@
+My dashboard page has a slow data fetch (3 seconds) that blocks the entire page from loading.

@@ -1,0 +1,1 @@
+Handle exceptions in PHP with try/catch

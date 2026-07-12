@@ -1,0 +1,1 @@
+How should I organize barrel files in Angular?

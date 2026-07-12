@@ -1,0 +1,1 @@
+Two features in my app directly import from each other — the cart feature imports from the product feature and vice versa.

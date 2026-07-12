@@ -1,0 +1,1 @@
+Validate email input with filter_var in PHP

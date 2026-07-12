@@ -1,0 +1,1 @@
+Configure PHP CS Fixer for PSR-12

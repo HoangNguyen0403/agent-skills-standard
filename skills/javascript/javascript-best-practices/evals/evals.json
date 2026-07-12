@@ -46,7 +46,8 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Priority: P1 (HIGH)"
+          "value": "Comments",
+          "description": "Checks user-visible framework guidance"
         },
         {
           "type": "contains",
@@ -60,5 +61,8 @@
     "How do I install javascript dependencies?",
     "What is javascript?",
     "Configure CI/CD for an unrelated platform"
+  ],
+  "should_trigger": [
+    "How should I implement javascript best practices best practices?"
   ]
 }

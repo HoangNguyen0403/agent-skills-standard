@@ -9,13 +9,42 @@
         {
           "type": "contains",
           "value": "SharedPreferences"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "No — use fluttersecurestorage instead",
+            "name"
+          ]
         }
       ]
     },
     {
       "id": 2,
       "prompt": "How should I store the API base URL and API key for production vs staging builds?",
-      "expected_output": "Use --dart-define for build-time values, never commit keys to source. Show flutter_dotenv or --dart-define-from-file pattern."
+      "expected_output": "Use --dart-define for build-time values, never commit keys to source. Show flutter_dotenv or --dart-define-from-file pattern.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Use --dart-define for build-time values",
+            "dart-define"
+          ]
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "never commit keys to source",
+            "keys"
+          ]
+        }
+      ]
     },
     {
       "id": 3,
@@ -42,5 +71,8 @@
     "How do I handle 401 errors from the API?",
     "Set up Firebase Authentication",
     "Write a test for the secure storage service"
+  ],
+  "should_trigger": [
+    "I need to store the user's auth token after login. I'm currently using SharedPreferences — is that okay?"
   ]
 }

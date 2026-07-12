@@ -1,0 +1,1 @@
+Apply global middleware in Laravel bootstrap/app.php

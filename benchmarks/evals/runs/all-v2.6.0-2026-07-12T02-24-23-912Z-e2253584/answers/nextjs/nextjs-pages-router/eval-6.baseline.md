@@ -1,0 +1,4 @@
+`'use client'` is an App Router directive; it marks a module boundary between Server and Client Components. The Pages Router predates that model: pages and their imported components are rendered through the Pages Router's normal server-rendering/HTML hydration pipeline, and hooks/event handlers work without the directive.
+
+You can remove `'use client'` from a Pages Router file unless another tool or shared source file also needs it as a harmless annotation. It will not turn a Pages Router page into a Server Component or provide App Router semantics. Use `getServerSideProps`/`getStaticProps` for server-side initial data, and use regular React hooks for browser interactivity. If the same component is shared by `app/` and `pages/`, keep the boundary concerns clear: the directive may matter when imported from `app/`, but it is not what controls client behavior under `pages/`. Avoid importing server-only modules into browser code in either router.
+

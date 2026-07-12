@@ -1,0 +1,1 @@
+My RecyclerView Adapter calls notifyDataSetChanged() on every update. Is there a better approach?

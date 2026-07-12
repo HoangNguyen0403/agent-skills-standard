@@ -9,6 +9,15 @@
         {
           "type": "contains",
           "value": "Throwable"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "try { } catch (SpecificException $e) { $logger-error($e-getMessage())",
+            "catch"
+          ]
         }
       ]
     },
@@ -35,6 +44,15 @@
         {
           "type": "contains",
           "value": "Throwable"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "httpresponsecode(500)",
+            "name"
+          ]
         }
       ]
     },
@@ -65,13 +83,42 @@
         {
           "type": "contains",
           "value": "LoggerInterface"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "call $logger-error($e-getMessage()",
+            "name"
+          ]
         }
       ]
     },
     {
       "id": 6,
       "prompt": "Use finally block for resource cleanup in PHP",
-      "expected_output": "try { $conn = connect(); $conn->query(); } catch (QueryException $e) { log($e); } finally { $conn?->close(); $file?->close(); }; finally always executes; never return from finally block"
+      "expected_output": "try { $conn = connect(); $conn->query(); } catch (QueryException $e) { log($e); } finally { $conn?->close(); $file?->close(); }; finally always executes; never return from finally block",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "try { $conn = connect()",
+            "conn"
+          ]
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "$conn-query()",
+            "name"
+          ]
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -79,5 +126,8 @@
     "Java exception hierarchy and checked exceptions",
     "Try/catch in JavaScript with async/await",
     "Result type in Swift error handling"
+  ],
+  "should_trigger": [
+    "Handle exceptions in PHP with try/catch"
   ]
 }

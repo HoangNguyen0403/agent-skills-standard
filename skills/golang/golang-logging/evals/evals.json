@@ -24,6 +24,15 @@
         {
           "type": "contains",
           "value": "inject"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Do not use a global logger variable",
+            "logger"
+          ]
         }
       ]
     },
@@ -47,5 +56,8 @@
     "Write a table-driven unit test in Go",
     "How do I set up Clean Architecture in Go?",
     "Configure golangci-lint linters"
+  ],
+  "should_trigger": [
+    "How should I add structured logging to my Go HTTP service?"
   ]
 }

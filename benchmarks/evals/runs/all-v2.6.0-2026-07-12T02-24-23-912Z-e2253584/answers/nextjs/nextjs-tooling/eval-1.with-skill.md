@@ -1,0 +1,2 @@
+Profile the CI build first, then enable the appropriate tooling improvements: cache `.next/cache` keyed by lockfile and relevant build inputs, use Turbopack for supported development/incremental work, remove unused or heavy dependencies, and inspect bundle growth with `@next/bundle-analyzer`. Keep `next lint`/ESLint and `tsc` as CI gates, and compare build timings before and after each change rather than assuming a cache helps.
+

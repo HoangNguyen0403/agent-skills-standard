@@ -1,0 +1,1 @@
+My Flutter app freezes when parsing a large JSON file. How do I fix it?

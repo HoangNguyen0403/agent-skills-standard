@@ -61,6 +61,12 @@
           "description": "Recommends Coil or Glide",
           "type": "contains",
           "value": "Coil"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the outcome includes crossfade",
+          "type": "contains",
+          "value": "crossfade"
         }
       ]
     }
@@ -76,5 +82,8 @@
     "Optimize Room queries to avoid loading unnecessary columns",
     "Configure ProGuard to strip unused classes in release builds",
     "How do I profile memory usage with Android Profiler?"
+  ],
+  "should_trigger": [
+    "My Android app takes 3 seconds to start. How do I reduce the startup time?"
   ]
 }

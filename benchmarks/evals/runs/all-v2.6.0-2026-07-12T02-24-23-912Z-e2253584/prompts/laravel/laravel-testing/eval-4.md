@@ -1,0 +1,1 @@
+Mock external services in Laravel tests

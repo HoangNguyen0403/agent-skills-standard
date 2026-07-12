@@ -6,8 +6,14 @@
       "prompt": "Set up a tsconfig.json for a new TypeScript project with maximum type safety.",
       "expected_output": "Enable strict: true (covers noImplicitAny, strictNullChecks, strictFunctionTypes). Add noImplicitReturns: true, noUnusedLocals: true, noUnusedParameters: true, esModuleInterop: true. For existing projects with strict: false, migrate incrementally starting with strictNullChecks: true. Run tsc --noEmit in CI to catch type errors.",
       "assertions": [
-        { "type": "contains", "value": "strict" },
-        { "type": "contains", "value": "tsc --noEmit" }
+        {
+          "type": "contains",
+          "value": "strict"
+        },
+        {
+          "type": "contains",
+          "value": "tsc --noEmit"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Configure ESLint for a TypeScript project to enforce our code standards.",
       "expected_output": "Use @typescript-eslint/recommended at minimum. Enable no-explicit-any and no-unsafe-* rules — NEVER disable them. For unused params: prefix with underscore (_data) rather than eslint-disable. For Express request typing: import from centralized interfaces, not inline any. Add lint-staged with Prettier for pre-commit formatting.",
       "assertions": [
-        { "type": "contains", "value": "@typescript-eslint" },
-        { "type": "contains", "value": "lint-staged" }
+        {
+          "type": "contains",
+          "value": "@typescript-eslint"
+        },
+        {
+          "type": "contains",
+          "value": "lint-staged"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "I have a TypeScript error I can't figure out — can I just add @ts-ignore to suppress it?",
       "expected_output": "Do not use @ts-ignore — it silently masks all errors on the line, including future ones. Use @ts-expect-error instead for documented edge-cases: it fails if the error disappears (documents intent). Better: fix the root cause. Run tsc --noEmit to see the full error with context. Use eslint with @typescript-eslint/ban-ts-comment to disallow @ts-ignore.",
       "assertions": [
-        { "type": "contains", "value": "@ts-expect-error" },
-        { "type": "contains", "value": "@ts-ignore" }
+        {
+          "type": "contains",
+          "value": "@ts-expect-error"
+        },
+        {
+          "type": "contains",
+          "value": "@ts-ignore"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Write a Go database migration script",
     "Configure Kubernetes pod affinity rules",
     "Set up a Redis cluster"
+  ],
+  "should_trigger": [
+    "Set up a tsconfig.json for a new TypeScript project with maximum type safety."
   ]
 }

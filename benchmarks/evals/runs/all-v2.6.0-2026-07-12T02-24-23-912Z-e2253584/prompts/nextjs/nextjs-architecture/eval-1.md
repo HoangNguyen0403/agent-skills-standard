@@ -1,0 +1,1 @@
+Our Next.js app is growing fast — we have 30+ features all mixed in a components/ folder. How should we restructure?

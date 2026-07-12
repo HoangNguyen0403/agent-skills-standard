@@ -1,0 +1,1 @@
+Implement getServerSideProps in Next.js pages/ directory

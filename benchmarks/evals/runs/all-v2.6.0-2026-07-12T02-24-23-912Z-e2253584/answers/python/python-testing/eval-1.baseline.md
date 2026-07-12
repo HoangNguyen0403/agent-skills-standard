@@ -1,0 +1,1 @@
+Use pytest with an async test setup, replacing the RPC and Postgres helpers with fakes or `monkeypatch`. Assert the calls, results, and error behavior while keeping the test isolated from live services.

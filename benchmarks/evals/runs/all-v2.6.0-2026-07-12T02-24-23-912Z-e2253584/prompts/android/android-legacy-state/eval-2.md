@@ -1,0 +1,1 @@
+My Fragment is observing LiveData using `observe(this, ...)`. The app crashes when navigating back and the screen updates. How do I fix it?

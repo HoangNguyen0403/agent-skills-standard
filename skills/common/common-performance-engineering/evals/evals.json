@@ -6,8 +6,14 @@
       "prompt": "My API endpoint that fetches a user's orders and their products is slow. Each order triggers separate product queries.",
       "expected_output": "N+1 query detected. Fix: use JOIN or eager loading to batch-fetch products with orders in one query. Measure before/after with profiling. Add pagination (limit/offset). Implement caching for frequently accessed order data with appropriate TTL.",
       "assertions": [
-        { "type": "contains", "value": "N+1" },
-        { "type": "contains", "value": "batch" }
+        {
+          "type": "contains",
+          "value": "N+1"
+        },
+        {
+          "type": "contains",
+          "value": "batch"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Our React app has a 10-second initial load for a page with a large data table of 5000 rows.",
       "expected_output": "Use virtualization (react-window or react-virtual) — render only visible rows. Implement lazy loading / pagination. Check for large bundle: use bundle-analyzer to find heavy deps. Apply code splitting with React.lazy. Wrap with Suspense for streaming. Target LCP < 2.5s.",
       "assertions": [
-        { "type": "contains", "value": "virtuali" },
-        { "type": "contains", "value": "lazy" }
+        {
+          "type": "contains",
+          "value": "virtuali"
+        },
+        {
+          "type": "contains",
+          "value": "lazy"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "I want to preemptively optimize all functions before we see any performance issues.",
       "expected_output": "Violation of performance engineering principle: No premature optimization. Profile first — measure CPU, memory, and latency baselines. Identify the actual top bottleneck (N+1, hot loop, memory leak). Fix only proven bottlenecks. Re-profile to confirm improvement and check for regressions. YAGNI applies to optimization too.",
       "assertions": [
-        { "type": "contains", "value": "profile" },
-        { "type": "contains", "value": "premature" }
+        {
+          "type": "contains",
+          "value": "profile"
+        },
+        {
+          "type": "contains",
+          "value": "premature"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Write a README file for the project",
     "Explain the OSI model",
     "Create a Git branching strategy"
+  ],
+  "should_trigger": [
+    "My API endpoint that fetches a user's orders and their products is slow. Each order triggers separate product queries."
   ]
 }

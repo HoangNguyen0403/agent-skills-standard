@@ -1,0 +1,1 @@
+Prefer an explicit contract over a raw dict. Use a frozen dataclass when the result is an immutable value object with behavior or stable attributes; use TypedDict when the boundary is intentionally mapping-shaped or JSON-like. Either gives type checking and documented fields, whereas raw dict leaves the contract implicit.

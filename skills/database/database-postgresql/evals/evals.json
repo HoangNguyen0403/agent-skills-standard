@@ -55,6 +55,15 @@
           "description": "Mentions queryRunner for RLS",
           "type": "contains",
           "value": "queryRunner"
+        },
+        {
+          "id": "a3",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Explains ENABLE ROW LEVEL SECURITY",
+            "name"
+          ]
         }
       ]
     }
@@ -63,5 +72,8 @@
     "How do I design a MongoDB document?",
     "What Redis data structure should I use for a leaderboard?",
     "How do I set up a NestJS module?"
+  ],
+  "should_trigger": [
+    "I need to add a column to a production PostgreSQL table without downtime. How?"
   ]
 }

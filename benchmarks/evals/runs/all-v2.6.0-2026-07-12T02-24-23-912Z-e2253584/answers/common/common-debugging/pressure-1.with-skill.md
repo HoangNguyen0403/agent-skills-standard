@@ -1,0 +1,7 @@
+Do not add null checks everywhere as the first action. That may stop one crash while converting a violated data contract into silent empty behavior, hiding the root cause and potentially corrupting results.
+
+For the urgent outage, mitigate safely while investigating: capture the failing stack trace and request/context identifiers, identify the affected release and input shape, and use an existing rollback, feature-flag disablement, traffic reduction, or known-good artifact if one is available and approved. Add narrowly scoped, structured observability at the failing boundary—not production debug prints—and preserve the evidence.
+
+State one hypothesis, such as “the upstream response omits `items` after release X.” Test it with a representative production payload or a production-like replay and compare the runtime value/type before the read. If the value is legitimately optional, add a boundary-level validation and explicit empty/error state at that contract boundary. If it is required, fail with a clear handled error and repair the producer, sequencing, or deployment mismatch. Never swallow the exception without a defined recovery path.
+
+After the cause is proven, deploy the smallest fix, then verify the original crash reproduction, valid and malformed inputs, dependent workflows, and error-rate recovery. Remove temporary instrumentation and document the root cause, mitigation, and rollback plan.

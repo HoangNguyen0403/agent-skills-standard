@@ -1,0 +1,1 @@
+My UI test uses Thread.sleep(2000) to wait for an async operation. Why is that bad and what should I use instead?

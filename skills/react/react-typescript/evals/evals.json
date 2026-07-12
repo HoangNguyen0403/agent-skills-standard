@@ -6,8 +6,14 @@
       "prompt": "How should I type my React component that accepts children and a className prop?",
       "expected_output": "Use interface Props with PropsWithChildren<T> or explicit React.ReactNode: interface Props { className?: string; children: React.ReactNode; }. Don't use React.FC — it has deprecated implicit children. Return type: JSX.Element or ReactNode. Use ComponentPropsWithoutRef<'div'> to extend native div attributes safely.",
       "assertions": [
-        { "type": "contains", "value": "ReactNode" },
-        { "type": "contains", "value": "PropsWithChildren" }
+        {
+          "type": "contains",
+          "value": "ReactNode"
+        },
+        {
+          "type": "contains",
+          "value": "PropsWithChildren"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Type a generic list component that works with any data type and renders each item.",
       "expected_output": "Use generic component: interface ListProps<T> { items: T[]; renderItem: (item: T) => ReactNode; keyExtractor: (item: T) => string; }. Component signature: function List<T,>(props: ListProps<T>): JSX.Element. Comma after T prevents TSX parser confusion. Use in: <List<User> items={users} renderItem={(u) => <div>{u.name}</div>} keyExtractor={(u) => u.id} />",
       "assertions": [
-        { "type": "contains", "value": "generic" },
-        { "type": "contains", "value": "<T" }
+        {
+          "type": "contains",
+          "value": "generic"
+        },
+        {
+          "type": "contains",
+          "value": "<T"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "I'm using React.FC to type all my components. Is this a problem?",
       "expected_output": "Yes — React.FC is problematic. Violation: No React.FC. It includes implicit children (deprecated), has return type issues, and is verbose. Fix: use plain function declarations with typed Props interface. Before: const Component: React.FC<Props> = (props) => {}. After: function Component(props: Props): JSX.Element {}. Explicitly type children as React.ReactNode if needed.",
       "assertions": [
-        { "type": "contains", "value": "React.FC" },
-        { "type": "contains", "value": "interface" }
+        {
+          "type": "contains",
+          "value": "React.FC"
+        },
+        {
+          "type": "contains",
+          "value": "interface"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Configure a PostgreSQL connection pool in Go",
     "Write a shell script for database backup",
     "Set up Terraform for AWS infrastructure"
+  ],
+  "should_trigger": [
+    "How should I type my React component that accepts children and a className prop?"
   ]
 }

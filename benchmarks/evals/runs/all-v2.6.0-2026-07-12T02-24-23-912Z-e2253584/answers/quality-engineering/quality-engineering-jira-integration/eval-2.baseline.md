@@ -1,0 +1,3 @@
+Link Zephyr test case TICK-T892 to Jira story TICK-3301 using the project’s configured issue-link or Zephyr traceability mechanism. Then update the story with the agreed test-presence label, commonly `has-zephyr-tests`, if that is the team convention.
+
+Verify both directions: TICK-3301 shows the link to TICK-T892, and the Zephyr test case shows the story association. Check that the label was added idempotently, preserve existing labels and links, and record the API responses or issue URLs. The exact link type and update endpoint depend on the Jira/Zephyr integration configuration, so they must be confirmed before changing production issues.

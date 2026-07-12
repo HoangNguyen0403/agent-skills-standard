@@ -1,0 +1,1 @@
+My React Native app shows the notification permission dialog immediately on launch and users deny it. How do I fix this?

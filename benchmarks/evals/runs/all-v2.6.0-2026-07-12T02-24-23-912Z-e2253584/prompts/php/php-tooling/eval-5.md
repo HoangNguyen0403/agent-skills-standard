@@ -1,0 +1,1 @@
+Disable Xdebug in production PHP

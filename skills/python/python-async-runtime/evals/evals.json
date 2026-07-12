@@ -6,8 +6,14 @@
       "prompt": "Can I call psycopg2 and subprocess.run directly inside an async Python polling loop?",
       "expected_output": "No. Keep blocking calls out of the event loop; use async-native clients or explicit to_thread boundaries.",
       "assertions": [
-        { "type": "contains", "value": "to_thread" },
-        { "type": "contains", "value": "blocking" }
+        {
+          "type": "contains",
+          "value": "to_thread"
+        },
+        {
+          "type": "contains",
+          "value": "blocking"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "What should I verify when refactoring an asyncio background watcher?",
       "expected_output": "Check cancellation, timeout, cleanup, and task ownership behavior.",
       "assertions": [
-        { "type": "contains", "value": "cancellation" },
-        { "type": "contains", "value": "cleanup" }
+        {
+          "type": "contains",
+          "value": "cancellation"
+        },
+        {
+          "type": "contains",
+          "value": "cleanup"
+        }
       ]
     }
   ],
@@ -24,5 +36,8 @@
     "Set up Python dependency audits in CI",
     "Design Python ports and adapters for clean architecture",
     "Parameterize SQL queries in a Python repository"
+  ],
+  "should_trigger": [
+    "Can I call psycopg2 and subprocess.run directly inside an async Python polling loop?"
   ]
 }

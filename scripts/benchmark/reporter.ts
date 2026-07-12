@@ -41,6 +41,23 @@ function latestEvalsPerCategory(
   return latest;
 }
 
+export function formatLiveEvalCoverage(
+  records: EvalsHistoryRecordLike[],
+  allCategories: string[],
+): string | null {
+  if (records.some((record) => record.category === 'all')) {
+    return `> Full-catalog live eval run covers all ${allCategories.length} categories; see the [Live Evals Report](evals-report.md) for the per-category breakdown.`;
+  }
+
+  const coveredCategories = new Set(records.map((record) => record.category));
+  const uncovered = allCategories.filter(
+    (category) => !coveredCategories.has(category),
+  );
+  if (uncovered.length === 0) return null;
+
+  return `> No live eval run yet for: ${uncovered.map((category) => `\`${category}\``).join(', ')}. Run \.agents/workflows/evals-run.md\` (or \`/evals-run <category>\`) to add measured results for these.`;
+}
+
 function skillKey(category: string, skillName: string): string {
   return `${category}/${skillName}`;
 }
@@ -270,13 +287,12 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
       );
     }
     lines.push('');
-    const coveredCategories = new Set(evalsHistory.keys());
-    const allCategories = new Set(skills.map((s) => s.category));
-    const uncovered = [...allCategories].filter((c) => !coveredCategories.has(c)).sort();
-    if (uncovered.length > 0) {
-      lines.push(
-        `> No live eval run yet for: ${uncovered.map((c) => `\`${c}\``).join(', ')}. Run \`.agents/workflows/evals-run.md\` (or \`/evals-run <category>\`) to add measured results for these.`,
-      );
+    const coverageNote = formatLiveEvalCoverage(
+      loadEvalsHistory(),
+      [...new Set(skills.map((skill) => skill.category))].sort(),
+    );
+    if (coverageNote) {
+      lines.push(coverageNote);
       lines.push('');
     }
   }

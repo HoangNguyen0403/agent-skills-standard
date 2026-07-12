@@ -6,8 +6,14 @@
       "prompt": "What verification chain should I run after changing Python workflow runtime code?",
       "expected_output": "Run lint, type checks, focused pytest, compileall, and smoke or security gates as needed.",
       "assertions": [
-        { "type": "contains", "value": "compileall" },
-        { "type": "contains", "value": "pytest" }
+        {
+          "type": "contains",
+          "value": "compileall"
+        },
+        {
+          "type": "contains",
+          "value": "pytest"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "How do I keep multiple Python requirements files safe in CI?",
       "expected_output": "Audit every tracked requirements surface and keep security report coverage in sync.",
       "assertions": [
-        { "type": "contains", "value": "requirements" },
-        { "type": "contains", "value": "audit" }
+        {
+          "type": "contains",
+          "value": "requirements"
+        },
+        {
+          "type": "contains",
+          "value": "audit"
+        }
       ]
     }
   ],
@@ -24,5 +36,8 @@
     "Model a Python route result with dataclasses and TypedDict",
     "Refactor a Python service into ports and adapters",
     "Fix a Python except Exception that hides blocker truth"
+  ],
+  "should_trigger": [
+    "What verification chain should I run after changing Python workflow runtime code?"
   ]
 }

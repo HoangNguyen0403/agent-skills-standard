@@ -1,0 +1,1 @@
+Implement revalidation in Next.js data fetching

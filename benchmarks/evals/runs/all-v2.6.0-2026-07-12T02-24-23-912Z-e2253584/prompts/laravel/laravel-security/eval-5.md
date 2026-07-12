@@ -1,0 +1,1 @@
+Add CSRF protection to Laravel forms

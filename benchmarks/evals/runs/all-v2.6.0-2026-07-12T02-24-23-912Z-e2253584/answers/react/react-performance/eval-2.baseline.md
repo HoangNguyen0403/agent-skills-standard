@@ -1,0 +1,3 @@
+Build in production mode and inspect compressed and uncompressed composition with the matching tool: Rollup/Vite visualizer, webpack Bundle Analyzer, or source-map-explorer. Look for duplicate dependencies, whole-library imports, large locales/data files, polyfills, and assets in the initial chunk.
+
+Reduce the critical path with tree-shakable imports, dependency removal, route/component splitting with React.lazy, lazy below-the-fold features, and asset optimization. Enable Brotli or gzip and cache hashed assets. Add a CI bundle budget and validate LCP or equivalent load metrics; a 4MB total report is less useful than the bytes on the initial path.

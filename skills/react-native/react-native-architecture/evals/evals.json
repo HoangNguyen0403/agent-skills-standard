@@ -68,5 +68,8 @@
     "How do I implement certificate pinning?",
     "How do I write a unit test for a React Native component?",
     "How do I set up EAS Build?"
+  ],
+  "should_trigger": [
+    "How should I organize my React Native project as it grows to 20+ screens?"
   ]
 }

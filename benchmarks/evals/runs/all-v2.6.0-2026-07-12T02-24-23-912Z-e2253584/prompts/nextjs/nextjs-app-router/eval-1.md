@@ -1,0 +1,1 @@
+Create a new dashboard route in my Next.js App Router project with a loading skeleton and error boundary.

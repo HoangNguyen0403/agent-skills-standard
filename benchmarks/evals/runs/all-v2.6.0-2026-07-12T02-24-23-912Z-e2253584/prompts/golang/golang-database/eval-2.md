@@ -1,0 +1,1 @@
+How do I prevent rows from leaking in Go when iterating a query result?

@@ -1,0 +1,1 @@
+Write test cases for the 'Add to Cart' button on the Product Detail screen. The button behaves differently when the user is a Sales Rep vs a Customer, and it's only available on Mobile.

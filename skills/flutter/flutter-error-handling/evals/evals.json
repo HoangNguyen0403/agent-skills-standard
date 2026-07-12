@@ -64,5 +64,8 @@
     "How do I show a SnackBar when an error occurs?",
     "Write a widget test for the error state",
     "Set up Sentry for crash reporting"
+  ],
+  "should_trigger": [
+    "The API call in my repository throws a DioException when the server returns 401. How should I handle this?"
   ]
 }

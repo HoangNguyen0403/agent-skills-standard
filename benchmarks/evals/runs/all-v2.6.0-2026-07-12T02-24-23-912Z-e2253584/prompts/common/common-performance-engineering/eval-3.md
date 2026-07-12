@@ -1,0 +1,1 @@
+I want to preemptively optimize all functions before we see any performance issues.

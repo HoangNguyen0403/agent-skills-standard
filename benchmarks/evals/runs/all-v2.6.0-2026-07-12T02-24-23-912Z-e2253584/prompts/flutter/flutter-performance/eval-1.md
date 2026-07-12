@@ -1,0 +1,1 @@
+My product list with 500 items is laggy when scrolling. I'm using a Column with children mapped to ProductCard widgets.

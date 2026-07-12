@@ -1,0 +1,1 @@
+How should I handle cleanup when a NestJS module is destroyed?

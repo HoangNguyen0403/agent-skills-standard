@@ -6,10 +6,22 @@
       "prompt": "I have a Java DTO with 5 fields, a no-arg constructor, getters, setters, equals, hashCode, and toString. Is there a cleaner way in Java 21?",
       "expected_output": "Use a record: `record Product(String id, String name, double price) {}`. Records provide equals, hashCode, toString, and accessor methods automatically. No Lombok needed.",
       "assertions": [
-        { "type": "contains", "value": "record" },
-        { "type": "contains", "value": "equals" },
-        { "type": "contains", "value": "Lombok" },
-        { "type": "contains", "value": "DTOs/Value Objects" }
+        {
+          "type": "contains",
+          "value": "record"
+        },
+        {
+          "type": "contains",
+          "value": "equals"
+        },
+        {
+          "type": "contains",
+          "value": "Lombok"
+        },
+        {
+          "type": "contains",
+          "value": "DTOs/Value Objects"
+        }
       ]
     },
     {
@@ -17,10 +29,22 @@
       "prompt": "I have an if/else chain in Java checking instanceof for 4 different types and calling different methods. How do I modernize this?",
       "expected_output": "Use a switch expression with pattern matching (Java 21): `switch (obj) { case Dog d -> d.bark(); case Cat c -> c.meow(); ... }`. Cleaner than instanceof chains.",
       "assertions": [
-        { "type": "contains", "value": "switch" },
-        { "type": "contains", "value": "Pattern Matching" },
-        { "type": "contains", "value": "instanceof" },
-        { "type": "contains", "value": "if/else chains" }
+        {
+          "type": "contains",
+          "value": "switch"
+        },
+        {
+          "type": "contains",
+          "value": "Pattern Matching"
+        },
+        {
+          "type": "contains",
+          "value": "instanceof"
+        },
+        {
+          "type": "contains",
+          "value": "if/else chains"
+        }
       ]
     },
     {
@@ -28,9 +52,18 @@
       "prompt": "I want to model a Payment type in Java that can only be Card, Cash, or Voucher. What's the Java 21 way?",
       "expected_output": "Use a sealed interface with permits: `sealed interface Payment permits CardPayment, CashPayment, VoucherPayment`. Each subtype is a record or final class. Switch expressions are then exhaustive.",
       "assertions": [
-        { "type": "contains", "value": "sealed interface/class" },
-        { "type": "contains", "value": "exhaustive switch" },
-        { "type": "contains", "value": "permits" }
+        {
+          "type": "contains",
+          "value": "sealed interface/class"
+        },
+        {
+          "type": "contains",
+          "value": "exhaustive switch"
+        },
+        {
+          "type": "contains",
+          "value": "permits"
+        }
       ]
     }
   ],
@@ -45,5 +78,8 @@
     "Use StructuredTaskScope with ShutdownOnFailure in Java 21",
     "How do I avoid NullPointerException in Java without Optional?",
     "Refactor my Java class to use Builder pattern for 6-parameter constructor"
+  ],
+  "should_trigger": [
+    "I have a Java DTO with 5 fields, a no-arg constructor, getters, setters, equals, hashCode, and toString. Is there a cleaner way in Java 21?"
   ]
 }

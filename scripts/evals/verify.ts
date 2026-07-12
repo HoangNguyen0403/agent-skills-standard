@@ -1,8 +1,14 @@
-import fs from 'fs-extra';
-import * as path from 'path';
-import { RESULTS_FILENAME, RUNS_DIR } from './constants';
-import { scoreRun } from './scorer';
-import { RunResults } from './types';
+import fs from "fs-extra";
+import * as path from "path";
+import { RESULTS_FILENAME, ROOT_DIR, RUNS_DIR } from "./constants";
+import { loadManifest } from "./manifest";
+import { loadRunInputs } from "./snapshot";
+import { scoreRun } from "./scorer";
+import { RunResults } from "./types";
+
+export interface VerifyOptions {
+  repoRoot?: string;
+}
 
 export interface VerifyOutcome {
   runId: string;
@@ -11,101 +17,125 @@ export interface VerifyOutcome {
   diffs?: string[];
 }
 
-/** Strips fields that legitimately change between scoring passes (timestamps). */
+function runsDirectory(repoRoot: string): string {
+  return repoRoot === ROOT_DIR
+    ? RUNS_DIR
+    : path.join(repoRoot, "benchmarks", "evals", "runs");
+}
+
 function normalize(results: RunResults): unknown {
   const { scoredAt: _scoredAt, ...rest } = results;
   void _scoredAt;
   return rest;
 }
 
-function diffSkillResults(
-  committed: RunResults,
-  recomputed: RunResults,
-): string[] {
+function diffResults(committed: RunResults, recomputed: RunResults): string[] {
+  if (
+    JSON.stringify(normalize(committed)) ===
+    JSON.stringify(normalize(recomputed))
+  )
+    return [];
   const diffs: string[] = [];
-  const a = JSON.stringify(normalize(committed));
-  const b = JSON.stringify(normalize(recomputed));
-  if (a === b) return diffs;
-
   const committedBySkill = new Map(
-    committed.skills.map((s) => [s.skillName, s]),
+    committed.skills.map((skill) => [
+      `${skill.category}/${skill.skillName}`,
+      skill,
+    ]),
   );
-  for (const rs of recomputed.skills) {
-    const cs = committedBySkill.get(rs.skillName);
-    if (!cs) {
-      diffs.push(`${rs.skillName}: present in recomputed but not in committed results.json`);
+  for (const skill of recomputed.skills) {
+    const key = `${skill.category}/${skill.skillName}`;
+    const committedSkill = committedBySkill.get(key);
+    if (!committedSkill) {
+      diffs.push(
+        `${key}: present in recomputed but not in committed results.json`,
+      );
       continue;
     }
-    if (cs.baselinePassRate !== rs.baselinePassRate) {
-      diffs.push(
-        `${rs.skillName}: baselinePassRate committed=${cs.baselinePassRate} recomputed=${rs.baselinePassRate}`,
-      );
-    }
-    if (cs.withSkillPassRate !== rs.withSkillPassRate) {
-      diffs.push(
-        `${rs.skillName}: withSkillPassRate committed=${cs.withSkillPassRate} recomputed=${rs.withSkillPassRate}`,
-      );
-    }
-    if (cs.triggerPrecision !== rs.triggerPrecision) {
-      diffs.push(
-        `${rs.skillName}: triggerPrecision committed=${cs.triggerPrecision} recomputed=${rs.triggerPrecision}`,
-      );
+    if (JSON.stringify(committedSkill) !== JSON.stringify(skill)) {
+      diffs.push(`${key}: committed score differs from recomputed score`);
     }
   }
-  if (diffs.length === 0) {
-    diffs.push('results differ in a field not covered by per-skill checks above — inspect results.json directly');
-  }
+  if (diffs.length === 0)
+    diffs.push(
+      "results differ outside per-skill details; inspect results.json directly",
+    );
   return diffs;
 }
 
-export function verifyRun(runId: string): VerifyOutcome {
-  const runDir = path.join(RUNS_DIR, runId);
+export function verifyRun(
+  runId: string,
+  options: VerifyOptions = {},
+): VerifyOutcome {
+  const repoRoot = options.repoRoot ?? ROOT_DIR;
+  const runDir = path.join(runsDirectory(repoRoot), runId);
   const resultsPath = path.join(runDir, RESULTS_FILENAME);
-  if (!fs.existsSync(runDir)) {
+  if (!fs.existsSync(runDir))
     return { runId, ok: false, reason: `run directory not found: ${runDir}` };
-  }
-  if (!fs.existsSync(resultsPath)) {
-    return { runId, ok: false, reason: `no committed results.json at ${resultsPath}` };
-  }
-
-  const committed: RunResults = fs.readJSONSync(resultsPath);
-  const recomputed = scoreRun(runDir);
-
-  // scoreRun overwrites results.json as a side effect of manifest bookkeeping;
-  // restore the committed file so `verify` is read-only from the caller's POV.
-  fs.writeJSONSync(resultsPath, committed, { spaces: 2 });
-
-  const diffs = diffSkillResults(committed, recomputed);
-  if (diffs.length > 0) {
-    return { runId, ok: false, reason: 'recomputed scores differ from committed results.json', diffs };
-  }
-
-  const anySuspicious = recomputed.skills.some((s) =>
-    s.scores.some((sc) => sc.suspicious.length > 0),
-  );
-  if (anySuspicious) {
-    const flagged = recomputed.skills
-      .flatMap((s) =>
-        s.scores
-          .filter((sc) => sc.suspicious.length > 0)
-          .map((sc) => `${s.skillName}/${sc.id}.${sc.arm}: ${sc.suspicious.join('; ')}`),
-      );
+  if (!fs.existsSync(resultsPath))
     return {
       runId,
       ok: false,
-      reason: 'transcripts flagged as suspicious (possible copy-paste from expected_output)',
-      diffs: flagged,
+      reason: `no committed results.json at ${resultsPath}`,
+    };
+
+  const manifest = loadManifest(runDir);
+  if (manifest.schemaVersion === 2 && loadRunInputs(runDir) === null) {
+    return {
+      runId,
+      ok: false,
+      reason: "v2 run is missing immutable inputs.json",
     };
   }
 
+  const committed = fs.readJSONSync(resultsPath) as RunResults;
+  let recomputed: RunResults;
+  try {
+    recomputed = scoreRun(runDir, {
+      repoRoot,
+      writeResults: false,
+      writeManifest: false,
+    });
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    return { runId, ok: false, reason };
+  }
+
+  const diffs = diffResults(committed, recomputed);
+  if (diffs.length > 0) {
+    return {
+      runId,
+      ok: false,
+      reason: "recomputed scores differ from committed results.json",
+      diffs,
+    };
+  }
+
+  const suspicious = recomputed.skills.flatMap((skill) =>
+    skill.scores
+      .filter((score) => score.suspicious.length > 0)
+      .map(
+        (score) =>
+          `${skill.skillName}/${score.id}.${score.arm}: ${score.suspicious.join("; ")}`,
+      ),
+  );
+  if (suspicious.length > 0) {
+    return {
+      runId,
+      ok: false,
+      reason:
+        "transcripts flagged as suspicious (possible copy-paste from expected_output)",
+      diffs: suspicious,
+    };
+  }
   return { runId, ok: true };
 }
 
-export function verifyAllRuns(): VerifyOutcome[] {
-  if (!fs.existsSync(RUNS_DIR)) return [];
-  const runIds = fs
-    .readdirSync(RUNS_DIR, { withFileTypes: true })
-    .filter((e) => e.isDirectory())
-    .map((e) => e.name);
-  return runIds.map(verifyRun);
+export function verifyAllRuns(options: VerifyOptions = {}): VerifyOutcome[] {
+  const repoRoot = options.repoRoot ?? ROOT_DIR;
+  const runsDir = runsDirectory(repoRoot);
+  if (!fs.existsSync(runsDir)) return [];
+  return fs
+    .readdirSync(runsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => verifyRun(entry.name, { repoRoot }));
 }

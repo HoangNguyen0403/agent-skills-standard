@@ -1,0 +1,1 @@
+Add security headers via middleware in Laravel

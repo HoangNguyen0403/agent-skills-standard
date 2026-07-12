@@ -1,0 +1,1 @@
+After upgrading to Next.js 15, all my pages are showing stale cached data.

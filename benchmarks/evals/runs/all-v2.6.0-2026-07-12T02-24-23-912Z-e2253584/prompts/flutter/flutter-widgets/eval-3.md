@@ -1,0 +1,1 @@
+Show an empty state when there are no orders, with an icon and a 'No orders yet' message.

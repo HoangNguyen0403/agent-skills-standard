@@ -6,8 +6,14 @@
       "prompt": "Add multi-language support to my Next.js App Router project. I need English and French.",
       "expected_output": "Install next-intl. Create messages/en.json and messages/fr.json. Add locale detection in middleware.ts using Accept-Language header. Create app/[lang]/layout.tsx with locale param. Load translations server-side via getMessages(). Add hreflang tags in generateMetadata. Pre-render both locales with generateStaticParams.",
       "assertions": [
-        { "type": "contains", "value": "next-intl" },
-        { "type": "contains", "value": "[lang]" }
+        {
+          "type": "contains",
+          "value": "next-intl"
+        },
+        {
+          "type": "contains",
+          "value": "[lang]"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I have hardcoded English strings scattered throughout my JSX. My designer wants to add Spanish.",
       "expected_output": "Violation: No hardcoded strings in JSX. Replace all raw text with translation keys: {t('nav.home')} instead of 'Home'. Load translation dictionaries server-side with getMessages() to keep client bundle small. Create messages/es.json with all keys. Use next-intl's useTranslations hook in Client Components only.",
       "assertions": [
-        { "type": "contains", "value": "translation key" },
-        { "type": "contains", "value": "hardcoded" }
+        {
+          "type": "contains",
+          "value": "translation key"
+        },
+        {
+          "type": "contains",
+          "value": "hardcoded"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "My i18n URLs use both /en/about and /about/en depending on the page. Users complain they can't share links.",
       "expected_output": "Violation: No mixed URL locale patterns. Choose one pattern and use it consistently. Recommendation: sub-paths (/en/about, /fr/about) — best for SEO and caching. Configure in next.config.js i18n settings. Update middleware.ts to enforce the pattern. Add canonical/hreflang tags for all translated routes.",
       "assertions": [
-        { "type": "contains", "value": "sub-path" },
-        { "type": "contains", "value": "consistent" }
+        {
+          "type": "contains",
+          "value": "sub-path"
+        },
+        {
+          "type": "contains",
+          "value": "consistent"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Write a Go REST API for user management",
     "Configure Kubernetes pod resource limits",
     "Set up a Redis cache with expiration"
+  ],
+  "should_trigger": [
+    "Add multi-language support to my Next.js App Router project. I need English and French."
   ]
 }

@@ -1,0 +1,1 @@
+Prevent server secrets from leaking into client bundles

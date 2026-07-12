@@ -1,0 +1,1 @@
+Add an integration test that logs in with test credentials, navigates to the orders tab, and verifies the first order card is visible.

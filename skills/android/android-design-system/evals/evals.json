@@ -6,9 +6,24 @@
       "prompt": "I have hardcoded Color(0xFF6200EE) in my Composable. How should I handle colors properly in a Jetpack Compose app?",
       "expected_output": "Define all colors in Color.kt, map them to lightColorScheme/darkColorScheme in Theme.kt. Access colors via MaterialTheme.colorScheme.primary — never hardcode hex values.",
       "assertions": [
-        { "id": "a1", "description": "Rejects hardcoded hex colors", "type": "contains", "value": "hardcode" },
-        { "id": "a2", "description": "Recommends MaterialTheme.colorScheme", "type": "contains", "value": "MaterialTheme.colorScheme" },
-        { "id": "a3", "description": "Mentions Color.kt or Theme.kt", "type": "contains", "value": "Color.kt" }
+        {
+          "id": "a1",
+          "description": "Rejects hardcoded hex colors",
+          "type": "contains",
+          "value": "hardcode"
+        },
+        {
+          "id": "a2",
+          "description": "Recommends MaterialTheme.colorScheme",
+          "type": "contains",
+          "value": "MaterialTheme.colorScheme"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions Color.kt or Theme.kt",
+          "type": "contains",
+          "value": "Color.kt"
+        }
       ]
     },
     {
@@ -16,9 +31,24 @@
       "prompt": "How should I define and use typography in Material Design 3 with Jetpack Compose?",
       "expected_output": "Define Typography in Type.kt using M3 text style slots. Access via MaterialTheme.typography.bodyLarge etc. Never use raw fontSize = 16.sp inline.",
       "assertions": [
-        { "id": "a1", "description": "Uses MaterialTheme.typography", "type": "contains", "value": "MaterialTheme.typography" },
-        { "id": "a2", "description": "Mentions Type.kt", "type": "contains", "value": "Type.kt" },
-        { "id": "a3", "description": "Rejects inline raw font sizes", "type": "contains", "value": "fontSize" }
+        {
+          "id": "a1",
+          "description": "Uses MaterialTheme.typography",
+          "type": "contains",
+          "value": "MaterialTheme.typography"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions Type.kt",
+          "type": "contains",
+          "value": "Type.kt"
+        },
+        {
+          "id": "a3",
+          "description": "Rejects inline raw font sizes",
+          "type": "contains",
+          "value": "fontSize"
+        }
       ]
     },
     {
@@ -26,8 +56,18 @@
       "prompt": "How do I support dark mode in my Jetpack Compose app without duplicating all my color definitions?",
       "expected_output": "Define lightColorScheme and darkColorScheme in Theme.kt. MaterialTheme detects dark mode automatically. All colors accessed via MaterialTheme.colorScheme update automatically.",
       "assertions": [
-        { "id": "a1", "description": "Uses lightColorScheme and darkColorScheme", "type": "contains", "value": "darkColorScheme" },
-        { "id": "a2", "description": "Uses MaterialTheme for automatic switching", "type": "contains", "value": "MaterialTheme" }
+        {
+          "id": "a1",
+          "description": "Uses lightColorScheme and darkColorScheme",
+          "type": "contains",
+          "value": "darkColorScheme"
+        },
+        {
+          "id": "a2",
+          "description": "Uses MaterialTheme for automatic switching",
+          "type": "contains",
+          "value": "MaterialTheme"
+        }
       ]
     }
   ],
@@ -42,5 +82,8 @@
     "How do I handle state hoisting for a search bar Composable?",
     "Configure string plurals for item counts in strings.xml",
     "Set up Hilt modules for the data layer"
+  ],
+  "should_trigger": [
+    "I have hardcoded Color(0xFF6200EE) in my Composable. How should I handle colors properly in a Jetpack Compose app?"
   ]
 }

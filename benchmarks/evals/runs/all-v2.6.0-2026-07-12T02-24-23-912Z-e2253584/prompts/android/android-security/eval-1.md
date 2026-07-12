@@ -1,0 +1,1 @@
+I'm storing the user's auth token in regular SharedPreferences. Is that safe?

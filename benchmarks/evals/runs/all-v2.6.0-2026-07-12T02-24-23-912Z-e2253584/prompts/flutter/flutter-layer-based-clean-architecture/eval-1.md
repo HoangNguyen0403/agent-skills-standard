@@ -1,0 +1,1 @@
+Create a UserRepository that fetches user profile from the API and caches it locally. The UI should never know about Dio or SharedPreferences.

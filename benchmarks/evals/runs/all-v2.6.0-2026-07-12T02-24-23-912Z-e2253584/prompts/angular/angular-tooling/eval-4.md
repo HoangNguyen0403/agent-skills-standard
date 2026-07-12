@@ -1,0 +1,1 @@
+How do I update Angular CLI to the latest version?

@@ -1,0 +1,4 @@
+Do not authorize a child-resource request solely from the URL shape `/users/:id`; a user ID is an identifier, not proof that the caller may access it. Resolve the authenticated principal and tenant, then query the child with both the requested parent ID and authorized scope, or use a tenant-scoped route such as `/tenants/:tenantId/users/:userId/...` while still checking ownership.
+
+Prefer repository methods such as `findChildForTenant({ tenantId, userId, childId })` so the scope cannot be accidentally omitted. Verify parent-child relationships in the same query/transaction, return 404 or a deliberately safe 403 policy without leaking existence, and apply the same checks to writes, bulk operations, jobs, caches, and events. Add IDOR/cross-tenant tests and database RLS/constraints as defense in depth.
+

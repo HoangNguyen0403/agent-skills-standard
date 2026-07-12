@@ -1,0 +1,1 @@
+My Server Components are calling the database directly. Should I add a data access layer?

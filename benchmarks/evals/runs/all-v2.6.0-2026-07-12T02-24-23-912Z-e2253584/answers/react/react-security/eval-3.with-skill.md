@@ -1,0 +1,1 @@
+Run `npm audit` regularly and remediate high and critical vulnerabilities. Pin specific dependency versions, review transitive changes, and keep an audit gate in CI. Do not treat an outdated dependency as harmless because it is client-side.

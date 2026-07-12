@@ -1,0 +1,3 @@
+Fifty slices often means several kinds of state have been combined in Redux. Keep Redux Toolkit for shared client state with complex transitions, move server/cache state to React Query or an equivalent data layer, and keep component-local state local. Group remaining store state by domain and use selectors.
+
+Refactor incrementally: identify ownership and update frequency, remove duplicated server data, combine trivial slices around a domain, and migrate one domain at a time with tests. If needs are mostly simple shared state, a focused Context or Zustand store may reduce ceremony. A full rewrite is unnecessary.

@@ -1,0 +1,1 @@
+No. Keep the domain rule independent from psycopg2: define a repository port for the task lookup and inject its implementation into the use case. The database adapter belongs at the edge, while the domain decides status from the returned contract.

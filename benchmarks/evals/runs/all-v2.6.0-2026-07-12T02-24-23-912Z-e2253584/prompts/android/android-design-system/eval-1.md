@@ -1,0 +1,1 @@
+I have hardcoded Color(0xFF6200EE) in my Composable. How should I handle colors properly in a Jetpack Compose app?

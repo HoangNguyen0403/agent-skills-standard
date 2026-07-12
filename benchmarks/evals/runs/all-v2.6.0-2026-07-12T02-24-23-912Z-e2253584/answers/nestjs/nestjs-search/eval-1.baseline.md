@@ -1,0 +1,4 @@
+Use the PostgreSQL transaction as the source-of-truth boundary and update Elasticsearch through an outbox or change-event pipeline. In the same transaction as the row change, write an outbox event containing entity ID, operation, version, and relevant data. A worker reads events, indexes/deletes the document idempotently, retries transient failures, and records failures for replay.
+
+Do not attempt to make a database and Elasticsearch dual write atomic. Use document IDs and a monotonically increasing version/updated-at check so stale events cannot overwrite newer documents. Run an initial bulk reindex, then consume changes, reconcile periodically, and expose index lag/failed events. Treat search as eventually consistent and fetch authoritative details from PostgreSQL when required. Restrict indexed fields and avoid putting secrets or tenant data into a shared index without proper isolation.
+

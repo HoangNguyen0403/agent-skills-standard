@@ -1,0 +1,1 @@
+How do I enforce Google Java Format automatically in my Gradle build so devs don't have to think about formatting?

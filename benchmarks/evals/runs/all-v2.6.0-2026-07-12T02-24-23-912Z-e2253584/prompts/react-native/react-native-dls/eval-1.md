@@ -1,0 +1,1 @@
+I have hardcoded colors like '#FF5733' and fontSize: 16 scattered throughout my React Native components. How do I fix this?

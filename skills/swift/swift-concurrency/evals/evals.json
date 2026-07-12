@@ -20,9 +20,12 @@
         },
         {
           "id": "a3",
-          "description": "Warns against completion handlers",
-          "type": "contains",
-          "value": "completion handlers"
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "completion handlers",
+            "name"
+          ]
         }
       ]
     },
@@ -126,5 +129,8 @@
     "How do I use NSLayoutAnchor?",
     "How do I implement MVVM?",
     "How do I configure SwiftLint?"
+  ],
+  "should_trigger": [
+    "How do I use async/await in Swift?"
   ]
 }

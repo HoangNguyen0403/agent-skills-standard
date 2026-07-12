@@ -1,0 +1,1 @@
+How do I write integration tests for Spring Boot with a real database?

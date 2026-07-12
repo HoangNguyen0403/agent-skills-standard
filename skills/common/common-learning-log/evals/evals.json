@@ -24,6 +24,15 @@
         {
           "type": "contains",
           "value": "Pre-write"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Append to AGENTSLEARNING",
+            "append"
+          ]
         }
       ]
     },
@@ -47,5 +56,8 @@
     "Write a Dockerfile for a Node.js application",
     "Create a React component for a product card",
     "Set up PostgreSQL connection pooling"
+  ],
+  "should_trigger": [
+    "You just told me to use localStorage for auth tokens but that's wrong — tokens should be in HttpOnly cookies."
   ]
 }

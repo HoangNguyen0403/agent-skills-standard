@@ -1,0 +1,1 @@
+Add metadata and Open Graph tags to my Next.js pages for better SEO.

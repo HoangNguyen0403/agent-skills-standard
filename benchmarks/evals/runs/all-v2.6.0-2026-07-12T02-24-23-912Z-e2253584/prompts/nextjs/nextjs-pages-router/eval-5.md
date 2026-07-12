@@ -1,0 +1,1 @@
+Set up _app.tsx in Next.js Pages Router

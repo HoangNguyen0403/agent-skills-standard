@@ -1,0 +1,1 @@
+I'm defining a child component inside the parent render function in React Native. Is this a problem?

@@ -9,6 +9,16 @@
         {
           "type": "contains",
           "value": "missing_required_param: error"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "analysis_options.yaml",
+            "dart_code_metrics",
+            "linter rules"
+          ]
         }
       ]
     },
@@ -18,8 +28,12 @@
       "expected_output": "Always run: dart run build_runner build --delete-conflicting-outputs. Explain why: stale generated files from previous runs conflict with new generation. Add this as the project-standard command.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Always"
+          "type": "contains_any",
+          "value": [
+            "--delete-conflicting-outputs",
+            "delete-conflicting",
+            "stale generated"
+          ]
         },
         {
           "type": "contains",
@@ -52,5 +66,8 @@
     "Add null safety checks to my repository",
     "Set up a GitHub Actions CI pipeline for Flutter",
     "Write a unit test for the UserBloc"
+  ],
+  "should_trigger": [
+    "Set up analysis_options.yaml to enforce trailing commas, single quotes, and treat missing required parameters as errors. Also integrate dart_code_metrics."
   ]
 }

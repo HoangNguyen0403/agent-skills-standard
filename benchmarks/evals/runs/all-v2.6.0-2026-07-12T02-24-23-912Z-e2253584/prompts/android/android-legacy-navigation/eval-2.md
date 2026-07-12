@@ -1,0 +1,1 @@
+Should I use multiple NavHostFragments or nested navigation graphs in my large XML-based Android app?

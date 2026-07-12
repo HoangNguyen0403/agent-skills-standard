@@ -6,8 +6,14 @@
       "prompt": "How should I structure my Laravel controllers?",
       "expected_output": "Controllers should be slim — no business logic. Delegate to Action or Service classes. Use Form Requests for validation. Inject dependencies via constructor.",
       "assertions": [
-        { "type": "contains", "value": "Action" },
-        { "type": "contains", "value": "Form Request" }
+        {
+          "type": "contains",
+          "value": "Action"
+        },
+        {
+          "type": "contains",
+          "value": "Form Request"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Where do I put business logic in Laravel?",
       "expected_output": "Create Action classes with a single handle() method, or Service classes. Inject via Service Container. Keep controllers slim — they only handle request/response.",
       "assertions": [
-        { "type": "contains", "value": "Action" },
-        { "type": "contains", "value": "handle()" }
+        {
+          "type": "contains",
+          "value": "Action"
+        },
+        {
+          "type": "contains",
+          "value": "handle()"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "How do I validate requests in Laravel?",
       "expected_output": "Use Form Requests with authorize() and rules() methods. Call $request->validated() for mass assignment. Never use inline $request->validate().",
       "assertions": [
-        { "type": "contains", "value": "Form Request" },
-        { "type": "contains", "value": "validated()" }
+        {
+          "type": "contains",
+          "value": "Form Request"
+        },
+        {
+          "type": "contains",
+          "value": "validated()"
+        }
       ]
     },
     {
@@ -33,8 +51,14 @@
       "prompt": "How do I set up dependency injection in Laravel?",
       "expected_output": "Bind interfaces to implementations in AppServiceProvider. Type-hint the interface in controller constructors. Laravel auto-resolves from the container.",
       "assertions": [
-        { "type": "contains", "value": "AppServiceProvider" },
-        { "type": "contains", "value": "interface" }
+        {
+          "type": "contains",
+          "value": "AppServiceProvider"
+        },
+        {
+          "type": "contains",
+          "value": "interface"
+        }
       ]
     },
     {
@@ -42,8 +66,14 @@
       "prompt": "What are the anti-patterns in Laravel architecture?",
       "expected_output": "No logic in controllers — move to Services or Actions. No manual instantiation — use Service Container. No inline $request->validate() — use Form Requests. No excessive global helpers.",
       "assertions": [
-        { "type": "contains", "value": "No logic in" },
-        { "type": "contains", "value": "Service Container" }
+        {
+          "type": "contains",
+          "value": "No logic in"
+        },
+        {
+          "type": "contains",
+          "value": "Service Container"
+        }
       ]
     },
     {
@@ -51,8 +81,14 @@
       "prompt": "Working on a Laravel controller — what workflow should I follow?",
       "expected_output": "1. Create Form Request for validation. 2. Create Action class with handle() method. 3. Inject Action into controller via constructor. 4. Bind interfaces in AppServiceProvider.",
       "assertions": [
-        { "type": "contains", "value": "Form Request" },
-        { "type": "contains", "value": "constructor" }
+        {
+          "type": "contains",
+          "value": "Form Request"
+        },
+        {
+          "type": "contains",
+          "value": "constructor"
+        }
       ]
     }
   ],
@@ -61,5 +97,8 @@
     "Create a NestJS service layer",
     "Structure a Spring Boot application",
     "What is MVC in general?"
+  ],
+  "should_trigger": [
+    "How should I structure my Laravel controllers?"
   ]
 }

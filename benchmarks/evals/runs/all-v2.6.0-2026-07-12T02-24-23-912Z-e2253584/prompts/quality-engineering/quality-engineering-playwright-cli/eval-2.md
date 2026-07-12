@@ -1,0 +1,1 @@
+I need to take a screenshot of a sticky header that only appears after scrolling.

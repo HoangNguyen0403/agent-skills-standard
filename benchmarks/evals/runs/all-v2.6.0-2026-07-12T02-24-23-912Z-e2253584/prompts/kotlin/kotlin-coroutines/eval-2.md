@@ -1,0 +1,1 @@
+My Kotlin coroutine has a long-running loop. How do I make sure it stops when the scope is cancelled?

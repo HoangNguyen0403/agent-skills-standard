@@ -1,0 +1,1 @@
+Advanced SQL with joinSub or whereExists in Laravel

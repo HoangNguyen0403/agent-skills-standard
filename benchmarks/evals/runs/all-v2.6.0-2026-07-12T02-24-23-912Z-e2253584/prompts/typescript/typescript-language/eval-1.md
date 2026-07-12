@@ -1,0 +1,1 @@
+I'm using enums in TypeScript for user roles. Is this the right approach?

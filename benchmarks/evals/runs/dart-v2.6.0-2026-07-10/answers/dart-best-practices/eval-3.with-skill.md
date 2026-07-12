@@ -1,1 +1,0 @@
-No — this project's standard is "no package imports within the same package": use relative imports for intra-package files (e.g. `import 'models/user.dart';`) and reserve `package:` imports for files outside this package. Using absolute `package:` imports locally is flagged as an anti-pattern here.

@@ -1,1 +1,0 @@
-Avoid `!` here. Replace it with `?.` for safe member access, `??` to supply a default, or an early `if (value == null) return;` guard. Only use `!` when you can prove non-nullability via an `if` narrowing check or an `assert` — this codebase's standard treats bare `!` as an anti-pattern otherwise.

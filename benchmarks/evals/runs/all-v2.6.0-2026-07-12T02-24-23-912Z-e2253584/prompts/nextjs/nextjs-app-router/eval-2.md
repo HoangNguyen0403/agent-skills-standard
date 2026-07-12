@@ -1,0 +1,1 @@
+I want to group my auth routes (login, register, forgot-password) without those words appearing in the URL.

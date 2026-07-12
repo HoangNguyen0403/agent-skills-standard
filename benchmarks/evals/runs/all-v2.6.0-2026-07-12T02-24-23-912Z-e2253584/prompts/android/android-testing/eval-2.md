@@ -1,0 +1,1 @@
+How do I test a Composable screen that requires a real ViewModel with Hilt injection?

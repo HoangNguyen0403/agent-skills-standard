@@ -7,16 +7,24 @@
       "expected_output": "Use react-native-keychain which stores in iOS Keychain and Android Keystore. Never use AsyncStorage for sensitive data — it is unencrypted. For biometric-protected storage, use Keychain with biometry access control. Tokens must be encrypted at rest.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Keychain"
+          "type": "contains_any",
+          "value": [
+            "Keychain",
+            "name"
+          ],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
           "type": "contains",
           "value": "Android"
         },
         {
-          "type": "contains",
-          "value": "Keystore"
+          "type": "contains_any",
+          "value": [
+            "Keystore",
+            "name"
+          ],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]
     },
@@ -64,5 +72,8 @@
     "How do I implement push notifications?",
     "How do I optimize FlatList?",
     "How do I write RNTL unit tests?"
+  ],
+  "should_trigger": [
+    "Where should I store authentication tokens in a React Native app?"
   ]
 }

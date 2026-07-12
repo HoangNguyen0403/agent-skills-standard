@@ -1,0 +1,1 @@
+Where should I put the logic that validates if a user can check out based on cart total and available credit?

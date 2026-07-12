@@ -1,0 +1,1 @@
+I'm concatenating strings in Kotlin to build a UI message: "Hello " + userName + "!". What's the Android best practice?

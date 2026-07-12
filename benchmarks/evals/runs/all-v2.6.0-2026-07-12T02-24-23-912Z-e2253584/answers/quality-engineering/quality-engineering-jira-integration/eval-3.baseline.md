@@ -1,0 +1,3 @@
+First compare the changed checkout behavior with each existing Zephyr test case and map every case to the current acceptance criteria. Classify each test as still valid, needing steps/assertion updates, duplicated, or obsolete.
+
+Update valid-but-changed tests in place when their intent and coverage remain the same. Create new cases when the behavior introduces a distinct condition or outcome. Mark obsolete cases as retired/deprecated according to the team’s Zephyr policy rather than silently deleting history. Update Jira links, labels, steps, expected results, test data, and platform/role scope, then run the affected cases and record the result. Leave an auditable link from the checkout story to the current tests and note which old cases were replaced.

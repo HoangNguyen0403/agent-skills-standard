@@ -1,1 +1,0 @@
-Yes — this project's style standard prefers `.map`/`.where`/`.fold`/`.any` over manual for-loops when it improves clarity. Chain `.where(...).map(...).toList()`, or use a collection `for`/`if` inside a list literal if the transform is simple. If the method body reduces to that single expression, write it as an expression body with `=>` instead of a block body.

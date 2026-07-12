@@ -61,6 +61,12 @@
           "description": "Recommends waitUntil or IdlingResource",
           "type": "contains",
           "value": "waitUntil"
+        },
+        {
+          "id": "a3",
+          "description": "Checks the outcome includes Thread",
+          "type": "contains",
+          "value": "Thread"
         }
       ]
     }
@@ -76,5 +82,8 @@
     "How do I test Room DAO queries using an in-memory database?",
     "Write an end-to-end test using Patrol for Flutter",
     "Create a test plan for a login feature in the QA process"
+  ],
+  "should_trigger": [
+    "How do I unit test a ViewModel that uses viewModelScope to launch a coroutine and emits a StateFlow?"
   ]
 }

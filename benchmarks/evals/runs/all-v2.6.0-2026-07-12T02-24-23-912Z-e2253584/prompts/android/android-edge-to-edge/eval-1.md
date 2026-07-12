@@ -1,0 +1,1 @@
+My bottom button is hidden behind the navigation bar after targeting SDK 35. How do I fix it?

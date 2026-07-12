@@ -1,0 +1,4 @@
+Common architecture anti-patterns include fat controllers, duplicated validation/business rules, direct use of `env()` in application code, hidden service-locator dependencies, static facades everywhere, and models that coordinate unrelated workflows. Other problems are unbounded “repository” abstractions that only proxy Eloquent, querying inside Blade templates, coupling domain code to HTTP requests, and dispatching jobs/events without idempotency.
+
+Prefer explicit boundaries: Form Requests for input, policies for authorization, actions/services for use cases, domain objects for invariants, resources for API output, and jobs for asynchronous work. Avoid abstracting until there is a real variation or test seam. Keep transactions, retries, events, and external side effects deliberate and observable.
+

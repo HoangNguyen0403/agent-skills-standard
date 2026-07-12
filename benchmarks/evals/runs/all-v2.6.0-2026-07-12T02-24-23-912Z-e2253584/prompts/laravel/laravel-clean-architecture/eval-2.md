@@ -1,0 +1,1 @@
+Use DTOs in a Laravel application

@@ -6,8 +6,14 @@
       "prompt": "Validate the request body of a user registration endpoint in a TypeScript Express API.",
       "expected_output": "Use Zod at the API boundary: const schema = z.object({ email: z.string().email(), password: z.string().min(8) }). Use safeParse for error handling: const result = schema.safeParse(req.body); if (!result.success) return res.status(400).json(result.error). Never trust req.body without validation. Type the validated data with z.infer<typeof schema>.",
       "assertions": [
-        { "type": "contains", "value": "Zod" },
-        { "type": "contains", "value": "safeParse" }
+        {
+          "type": "contains",
+          "value": "Zod"
+        },
+        {
+          "type": "contains",
+          "value": "safeParse"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I'm building a JWT authentication flow. Where should I store the JWT secret?",
       "expected_output": "Store JWT_SECRET in environment variables or Secret Manager (AWS Secrets Manager, HashiCorp Vault). NEVER commit to Git. Use RS256 (asymmetric) for public/private key pairs in distributed systems. Implement HttpOnly Secure cookies for token storage client-side. Add Refresh Token rotation to limit exposure window. Use jose or jsonwebtoken library.",
       "assertions": [
-        { "type": "contains", "value": "environment variable" },
-        { "type": "contains", "value": "HttpOnly" }
+        {
+          "type": "contains",
+          "value": "environment variable"
+        },
+        {
+          "type": "contains",
+          "value": "HttpOnly"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "My TypeScript API is accepting user input and building SQL queries by string concatenation.",
       "expected_output": "SQL Injection vulnerability. Use Parameterized Queries: pool.query('SELECT * FROM users WHERE id = $1', [userId]) or Type-safe ORMs (Prisma/TypeORM). Use Prisma.sql template tag for raw queries. Never concatenate user input into query strings. Validate and sanitize all user-controlled input before any database operation.",
       "assertions": [
-        { "type": "contains", "value": "Parameterized" },
-        { "type": "contains", "value": "injection" }
+        {
+          "type": "contains",
+          "value": "Parameterized"
+        },
+        {
+          "type": "contains",
+          "value": "injection"
+        }
       ]
     },
     {
@@ -33,9 +51,18 @@
       "prompt": "I need to run a git command in CI using an env var for the branch name: execSync(`git diff --name-only origin/${process.env.GITHUB_BASE_REF}...HEAD`)",
       "expected_output": "Command injection risk (OWASP A03). Environment variable values can contain shell metacharacters. Replace execSync with execFileSync and pass args as an array: execFileSync('git', ['diff', '--name-only', `origin/${process.env.GITHUB_BASE_REF}...HEAD`], { encoding: 'utf8' }). Validate GITHUB_BASE_REF matches /^[\\w./-]+$/ before use.",
       "assertions": [
-        { "type": "contains", "value": "execFileSync" },
-        { "type": "contains", "value": "injection" },
-        { "type": "contains", "value": "args" }
+        {
+          "type": "contains",
+          "value": "execFileSync"
+        },
+        {
+          "type": "contains",
+          "value": "injection"
+        },
+        {
+          "type": "contains",
+          "value": "args"
+        }
       ]
     },
     {
@@ -43,8 +70,14 @@
       "prompt": "I'm fetching from a URL stored in process.env.API_URL without any validation. Is that safe?",
       "expected_output": "Potential SSRF. Validate the URL origin against an explicit allowlist before fetching: const ALLOWED = new URL('https://api.example.com'); const target = new URL(apiUrl); if (target.origin !== ALLOWED.origin) throw new Error('Disallowed origin'). Reject any value not matching your expected scheme+host.",
       "assertions": [
-        { "type": "contains", "value": "allowlist" },
-        { "type": "contains", "value": "SSRF" }
+        {
+          "type": "contains",
+          "value": "allowlist"
+        },
+        {
+          "type": "contains",
+          "value": "SSRF"
+        }
       ]
     }
   ],
@@ -52,5 +85,8 @@
     "Configure ESLint rules for the project",
     "Write a React hook for form validation",
     "Set up Kubernetes network policies"
+  ],
+  "should_trigger": [
+    "Validate the request body of a user registration endpoint in a TypeScript Express API."
   ]
 }

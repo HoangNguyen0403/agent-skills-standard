@@ -60,5 +60,8 @@
     "Add an animation to the button press",
     "Write a widget test for the ProductCard",
     "Set up go_router for navigation"
+  ],
+  "should_trigger": [
+    "Create a reusable ProductCard widget with an image, title, price, and an add-to-cart button."
   ]
 }

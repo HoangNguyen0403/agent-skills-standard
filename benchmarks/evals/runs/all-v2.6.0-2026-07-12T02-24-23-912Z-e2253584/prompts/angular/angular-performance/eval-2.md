@@ -1,0 +1,1 @@
+How do I use @defer to lazy load a heavy component?

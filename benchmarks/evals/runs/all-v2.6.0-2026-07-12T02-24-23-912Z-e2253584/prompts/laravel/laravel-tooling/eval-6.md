@@ -1,0 +1,1 @@
+Bundle CSS and JS assets in Laravel
