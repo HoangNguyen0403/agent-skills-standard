@@ -69,7 +69,9 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": ["Replace ! with ?", "name"]
+          "value": [
+            "Replace ! with ?"
+          ]
         }
       ]
     }

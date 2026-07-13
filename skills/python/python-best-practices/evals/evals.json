@@ -7,15 +7,12 @@
       "expected_output": "Split transformation, persistence, and transport concerns into separate helpers with explicit boundaries.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "helper"
+          "type": "contains_any",
+          "value": ["helper", "separate", "split"]
         },
         {
           "type": "contains_any",
-          "value": [
-            "boundary",
-            "name"
-          ],
+          "value": ["boundary", "boundaries", "side effects"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]

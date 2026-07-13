@@ -40,6 +40,9 @@ export interface ManifestBuildOptions {
   repoRoot?: string;
   now?: Date;
   runId?: string;
+  /** Restrict a selective manifest to these category/skill keys. */
+  selectedSkills?: ReadonlySet<string>;
+  baselineRunId?: string;
 }
 
 function repoPath(repoRoot: string, ...parts: string[]): string {
@@ -89,6 +92,7 @@ function frontmatterDescription(skillMarkdown: string): string {
 function triggerPromptBody(
   skillName: string,
   description: string,
+  caseId: string,
   prompt: string,
 ): string {
   return [
@@ -100,7 +104,7 @@ function triggerPromptBody(
     "",
     `> ${prompt}`,
     "",
-    "Answer with exactly one line in the form `TRIGGER: yes` or `TRIGGER: no`, followed by a one-sentence justification on the next line.",
+    `Start with exactly \`CASE: ${caseId}\`, then answer with exactly one line in the form \`TRIGGER: yes\` or \`TRIGGER: no\`, followed by a one-sentence justification on the next line.`,
   ].join("\n");
 }
 
@@ -130,7 +134,7 @@ function isKnownCompromised(category: string, skillName: string): boolean {
 function buildSkill(
   repoRoot: string,
   runDir: string,
-  scope: RunScopeKind,
+  isAggregate: boolean,
   category: string,
   skillName: string,
   sourceHashes: ManifestV2["sourceHashes"],
@@ -178,13 +182,13 @@ function buildSkill(
   const promptsDir = path.join(
     runDir,
     "prompts",
-    ...(scope === "all" ? [category] : []),
+    ...(isAggregate ? [category] : []),
     skillName,
   );
   const answersDir = path.join(
     runDir,
     "answers",
-    ...(scope === "all" ? [category] : []),
+    ...(isAggregate ? [category] : []),
     skillName,
   );
   fs.ensureDirSync(promptsDir);
@@ -211,7 +215,7 @@ function buildSkill(
       const id = `trigger-${++triggerIndex}`;
       fs.writeFileSync(
         path.join(promptsDir, `${id}.md`),
-        triggerPromptBody(skillName, description, prompt),
+        triggerPromptBody(skillName, description, id, prompt),
       );
       cases.push(
         makeCase(id, "trigger", { "with-skill": "pending" }, expected),
@@ -263,7 +267,11 @@ export function buildManifest(
   const repoRoot = options.repoRoot ?? ROOT_DIR;
   const runsDir = runDirectory(repoRoot);
   const categories = listCategories(repoRoot);
-  const scope: RunScopeKind = category === "all" ? "all" : "category";
+  const scope: RunScopeKind = options.selectedSkills
+    ? "selective"
+    : category === "all"
+      ? "all"
+      : "category";
   if (scope === "category" && !categories.includes(category)) {
     throw new Error(`Unknown category: ${category}`);
   }
@@ -279,7 +287,7 @@ export function buildManifest(
   const sourceHashes: ManifestV2["sourceHashes"] = {};
   const compromisedSkills: CompromisedSkillRecord[] = [];
   const skills: ManifestSkill[] = [];
-  for (const currentCategory of scope === "all" ? categories : [category]) {
+  for (const currentCategory of category === "all" ? categories : [category]) {
     const categoryDir = repoPath(repoRoot, "skills", currentCategory);
     const skillDirs = fs
       .readdirSync(categoryDir, { withFileTypes: true })
@@ -287,10 +295,16 @@ export function buildManifest(
       .map((entry) => entry.name)
       .sort();
     for (const skillName of skillDirs) {
+      if (
+        options.selectedSkills &&
+        !options.selectedSkills.has(sourceKey(currentCategory, skillName))
+      ) {
+        continue;
+      }
       const skill = buildSkill(
         repoRoot,
         runDir,
-        scope,
+        category === "all",
         currentCategory,
         skillName,
         sourceHashes,
@@ -309,7 +323,7 @@ export function buildManifest(
     metadata: { startedAt: now.toISOString() },
     scope: {
       kind: scope,
-      categories: scope === "all" ? categories : [category],
+      categories: category === "all" ? categories : [category],
     },
     protocol: {
       isolation: "worker-per-arm",
@@ -319,6 +333,8 @@ export function buildManifest(
     },
     sourceHashes,
     compromisedSkills,
+    activationEvidenceVersion: 3,
+    ...(options.baselineRunId ? { baselineRunId: options.baselineRunId } : {}),
     skills,
   };
   fs.writeJSONSync(path.join(runDir, MANIFEST_FILENAME), manifest, {

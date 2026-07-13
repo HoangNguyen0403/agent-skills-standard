@@ -15,8 +15,7 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "Builder()",
-            "name"
+            "Builder()"
           ]
         }
       ]
@@ -53,12 +52,12 @@
     }
   ],
   "should_not_trigger": [
-    "Configure network_security_config.xml to block HTTP traffic",
-    "Set up certificate pinning for high-security endpoints",
     "Load an image from a URL using Coil",
     "Set up an OkHttp MockWebServer for unit tests"
   ],
   "should_trigger": [
-    "How do I set up a Retrofit client with authentication in Android?"
+    "How do I set up a Retrofit client with authentication in Android?",
+    "Configure network_security_config.xml to block HTTP traffic",
+    "Set up certificate pinning for high-security endpoints"
   ]
 }

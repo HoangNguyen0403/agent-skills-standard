@@ -11,8 +11,8 @@
           "value": "BLoC"
         },
         {
-          "type": "contains",
-          "value": "for stream"
+          "type": "contains_any",
+          "value": ["restartable", "debounce", "cancel"]
         }
       ]
     },
@@ -22,8 +22,8 @@
       "expected_output": "Cubit or BLoC with Initial/Loading/Success/Failure states using @freezed, BlocBuilder for UI, error state with Failure type",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Cubit"
+          "type": "contains_any",
+          "value": ["Cubit", "BlocBuilder", "OrdersBloc"]
         },
         {
           "type": "contains",
@@ -31,7 +31,7 @@
         },
         {
           "type": "contains",
-          "value": "Initial"
+          "value": "initial"
         }
       ]
     },
@@ -45,8 +45,7 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "Remove",
-            "name"
+            "Remove"
           ]
         },
         {

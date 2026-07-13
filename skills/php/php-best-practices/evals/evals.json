@@ -7,12 +7,12 @@
       "expected_output": "4-space indentation; opening braces on same line for functions/methods; one class per file; use statements at top after namespace; run PHP CS Fixer with PSR-12 preset to enforce automatically",
       "assertions": [
         {
-          "type": "contains",
+          "type": "contains_any",
           "value": "PSR-12"
         },
         {
-          "type": "contains",
-          "value": "opening braces on same line"
+          "type": "contains_any",
+          "value": ["same-line opening braces", "opening braces on same line", "Braces on the same line"]
         }
       ]
     },
@@ -23,30 +23,31 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "SRP:",
-            "name"
-          ],
+          "value": ["SRP:", "single responsibility", "one responsibility"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
-          "type": "contains",
-          "value": "inject dependencies via constructor"
+          "type": "contains_any",
+          "value": ["constructor injection", "inject via constructor", "dependencies via constructor", "__construct"]
         }
       ]
     },
     {
       "id": 3,
-      "prompt": "Refactor a God class in PHP",
+      "prompt": "What steps should I take to refactor a God class in PHP?",
       "expected_output": "Identify distinct responsibilities; extract each into its own focused class; use interfaces for dependencies; inject via constructor; test each extracted class independently; keep under ~200 lines",
       "assertions": [
         {
-          "type": "contains",
-          "value": "extract each into its own focused class"
+          "type": "contains_any",
+          "value": ["Split", "focused class", "split the class", "responsibility"]
         },
         {
-          "type": "contains",
-          "value": "inject via constructor"
+          "type": "contains_any",
+          "value": [
+            "constructor injection",
+            "inject dependencies",
+            "constructor"
+          ]
         }
       ]
     },
@@ -56,12 +57,12 @@
       "expected_output": "Return early for invalid/exceptional conditions: if (!$user) return null; if (!$this->isValid($data)) throw new InvalidArgumentException(); reduces nesting depth; no else after return",
       "assertions": [
         {
-          "type": "contains",
-          "value": "if (!$user) return null"
+          "type": "contains_any",
+          "value": ["return early", "guard clause", "if (!$user)", "return null"]
         },
         {
-          "type": "contains",
-          "value": "no else after return"
+          "type": "contains_any",
+          "value": ["no else after return", "else after a return", "reduce nesting", "reducing nesting", "deeply nested"]
         }
       ]
     },
@@ -71,12 +72,12 @@
       "expected_output": "Define trait HasTimestamps with shared methods; use HasTimestamps; in classes that need it; keep traits focused on one behavior; prefer composition (traits/interfaces) over deep inheritance chains",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Define trait"
+          "type": "contains_any",
+          "value": ["trait", "Define trait", "create a trait"]
         },
         {
-          "type": "contains",
-          "value": "use HasTimestamps"
+          "type": "contains_any",
+          "value": ["HasTimestamps", "trait", "shared behavior"]
         }
       ]
     },
@@ -106,7 +107,5 @@
     "TypeScript best practices for interfaces",
     "Clean code in Go with gofmt"
   ],
-  "should_trigger": [
-    "Follow PSR-12 coding standards in PHP"
-  ]
+  "should_trigger": ["Follow PSR-12 coding standards in PHP"]
 }

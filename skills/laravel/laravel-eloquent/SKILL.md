@@ -19,7 +19,7 @@ metadata:
 ## Workflow: Add Model with Safe Queries
 
 1. **Define model** — Set `$fillable`, `$casts`, and relationships.
-2. **Enable strict loading** — Call `preventLazyLoading(!app()->isProduction())` in AppServiceProvider.
+2. **Enable strict loading** — Call `Model::preventLazyLoading(!app()->isProduction())` in AppServiceProvider.
 3. **Add scopes** — Create `scopeActive()`, `scopeVerified()` for reusable filters.
 4. **Eager-load in queries** — Use `with()` for all relationship access.
 5. **Process large datasets** — Use `chunk()` or `cursor()` instead of `get()`.
@@ -33,7 +33,7 @@ See [implementation examples](references/implementation.md#scope--eager-loading-
 ### Query Efficiency & Performance
 
 - **N+1 Prevention**: **Always use `with()`** or `$with` for relationships. Never access relationship properties in loop without eager loading (**N+1 Prevention**).
-- **Strict Loading**: Call **`Eloquent::preventLazyLoading(!app()->isProduction())`** in **`AppServiceProvider::boot()`** to throw **`LazyLoadingViolationException`** in local/dev.
+- **Strict Loading**: Call **`Model::preventLazyLoading(!app()->isProduction())`** in **`AppServiceProvider::boot()`** to throw **`LazyLoadingViolationException`** in local/dev.
 - **Large Datasets**: Use **`chunk()`**, **`lazy()`**, or **`cursor()`** for processing many records without memory issues (**Memory Efficiency**).
 
 ### Query Logic & Scopes

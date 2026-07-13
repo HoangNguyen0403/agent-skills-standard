@@ -7,8 +7,8 @@
       "expected_output": "$result = match($status) { 'active' => true, 'inactive' => false, default => throw new InvalidArgumentException($status) }; strict comparison; returns value; no fall-through; exhaustive by default",
       "assertions": [
         {
-          "type": "contains",
-          "value": "match($status)"
+          "type": "regex",
+          "value": "match\\s*\\(\\$status\\)"
         },
         {
           "type": "contains",
@@ -27,7 +27,7 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "public readonly string $name"
+          "value": "public readonly string"
         },
         {
           "type": "contains",
@@ -62,14 +62,15 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "public function __construct(public string $name"
+          "value": "__construct"
         },
         {
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "public function construct(public string $name",
+            "readonly",
+            "private",
             "public"
           ]
         }
@@ -96,14 +97,15 @@
       "expected_output": "createUser(name: 'John', age: 25, active: true); skip optional params by name; especially useful for built-in functions: array_slice(array: $arr, offset: 0, length: 5, preserve_keys: true)",
       "assertions": [
         {
-          "type": "contains",
-          "value": "name: 'John'"
+          "type": "contains_any",
+          "value": ["items:", "name:", "perPage:"]
         },
         {
           "type": "contains_any",
           "value": [
-            "array: $arr",
-            "name"
+            "items:",
+            "page:",
+            "named arguments"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }

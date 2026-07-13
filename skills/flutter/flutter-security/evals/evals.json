@@ -15,8 +15,8 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "No — use fluttersecurestorage instead",
-            "name"
+            "flutter_secure_storage",
+            "secure OS-backed storage"
           ]
         }
       ]
@@ -52,16 +52,16 @@
       "expected_output": "Enable --obfuscate + --split-debug-info, verify no secrets in code, review PII in logs, SSL pinning if applicable, root detection for sensitive app",
       "assertions": [
         {
-          "type": "contains",
-          "value": "--obfuscate --split-debug-info"
+          "type": "contains_any",
+          "value": ["--obfuscate", "--split-debug-info"]
         },
         {
-          "type": "contains",
-          "value": "SSL pinning"
+          "type": "contains_any",
+          "value": ["certificate pinning", "SSL pinning"]
         },
         {
-          "type": "contains",
-          "value": "root detection"
+          "type": "contains_any",
+          "value": ["root/jailbreak detection", "root detection", "jailbreak detection"]
         }
       ]
     }

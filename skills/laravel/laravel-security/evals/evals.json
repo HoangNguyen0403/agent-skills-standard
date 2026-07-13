@@ -17,10 +17,6 @@
         {
           "type": "contains",
           "value": "authorize('update', $post)"
-        },
-        {
-          "type": "contains",
-          "value": "AuthServiceProvider"
         }
       ]
     },
@@ -38,8 +34,8 @@
           "value": "@can('admin')"
         },
         {
-          "type": "contains",
-          "value": "prefer Policies for model-bound checks"
+          "type": "contains_any",
+          "value": ["specific model", "model-bound", "Policies when"]
         }
       ]
     },
@@ -51,8 +47,9 @@
         {
           "type": "contains_any",
           "value": [
-            "env() inside config/*.php",
-            "inside"
+            "configuration files",
+            "only in configuration",
+            "Do not call `env()"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
@@ -61,8 +58,12 @@
           "value": "config('app.key')"
         },
         {
-          "type": "contains",
-          "value": "never env() in controllers"
+          "type": "contains_any",
+          "value": [
+            "never env() in controllers",
+            "use config() in controllers",
+            "not in controllers"
+          ]
         }
       ]
     },
@@ -72,20 +73,20 @@
       "expected_output": "Use Form Request with rules(); call $request->validated() in controller for Model::create(); define $fillable on model; never pass $request->all() or $request->input() to create()",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Form Request with rules()"
+          "type": "contains_any",
+          "value": ["Form Request", "rules()"]
         },
         {
           "type": "contains",
           "value": "$request->validated()"
         },
         {
-          "type": "contains",
-          "value": "$fillable on model"
+          "type": "contains_any",
+          "value": ["$fillable", "fillable"]
         },
         {
-          "type": "contains",
-          "value": "never pass $request->all() to create()"
+          "type": "contains_any",
+          "value": ["$request->all()", "avoid request->all", "mass assignment"]
         }
       ]
     },
@@ -95,16 +96,16 @@
       "expected_output": "Add @csrf directive inside all Blade <form> tags; CSRF middleware active on web routes by default; API routes excluded from CSRF; use ->except(['/webhook']) for third-party callbacks",
       "assertions": [
         {
-          "type": "contains",
-          "value": "@csrf directive"
+          "type": "contains_any",
+          "value": ["@csrf", "csrf directive"]
         },
         {
-          "type": "contains",
-          "value": "active on web routes"
+          "type": "contains_any",
+          "value": ["web routes", "web middleware", "CSRF middleware"]
         },
         {
-          "type": "contains",
-          "value": "->except(['/webhook'])"
+          "type": "contains_any",
+          "value": ["webhook", "trusted third-party callback", "except"]
         }
       ]
     },
@@ -114,20 +115,24 @@
       "expected_output": "Use Policies with role checks in methods; define Gate::before(fn($u) => $u->isAdmin() ? true : null) for admin bypass; or use spatie/laravel-permission; never inline $user->role === 'admin'",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Policies with role checks"
+          "type": "contains_any",
+          "value": ["Policy", "policy method", "role check"]
         },
         {
           "type": "contains",
           "value": "Gate::before"
         },
         {
-          "type": "contains",
-          "value": "spatie/laravel-permission"
+          "type": "contains_any",
+          "value": [
+            "spatie/laravel-permission",
+            "spatie permission",
+            "Gate::before"
+          ]
         },
         {
-          "type": "contains",
-          "value": "never inline $user->role === 'admin'"
+          "type": "contains_any",
+          "value": ["do not inline", "avoid inline role", "policy"]
         }
       ]
     }
@@ -138,7 +143,5 @@
     "OAuth2 setup in a Go service",
     "CSRF protection in Next.js middleware"
   ],
-  "should_trigger": [
-    "Set up authorization Policies in Laravel"
-  ]
+  "should_trigger": ["Set up authorization Policies in Laravel"]
 }

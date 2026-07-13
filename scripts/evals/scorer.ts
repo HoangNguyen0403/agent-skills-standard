@@ -140,24 +140,37 @@ function triggerDecision(transcript: string): TriggerDecision | undefined {
 function scoreTriggerCase(
   transcript: string,
   currentCase: EvalCaseRef,
+  requireCaseToken: boolean,
 ): CaseScore {
   const actual = triggerDecision(transcript);
   const expected = currentCase.expectedTrigger ?? "no";
-  const passed = actual === expected;
+  const hasCaseToken = transcript.includes(`CASE: ${currentCase.id}`);
+  const failedAssertions = [
+    ...(actual === expected ? [] : [`trigger marker expected ${expected}`]),
+    ...(!requireCaseToken || hasCaseToken
+      ? []
+      : [`trigger case token expected ${currentCase.id}`]),
+  ];
+  const passed = failedAssertions.length === 0;
   return {
     id: currentCase.id,
     kind: "trigger",
     arm: "with-skill",
     passed,
     missingAnswer: false,
-    suspicious: actual
-      ? []
-      : ['answer missing required "TRIGGER: yes|no" marker line'],
-    failedAssertions: passed ? [] : [`trigger marker expected ${expected}`],
+    suspicious: [
+      ...(actual
+        ? []
+        : ['answer missing required "TRIGGER: yes|no" marker line']),
+      ...(!requireCaseToken || hasCaseToken
+        ? []
+        : ["answer missing required CASE token"]),
+    ],
+    failedAssertions,
     expectedTrigger: expected,
     actualTrigger: actual,
-    passedAssertions: passed ? 1 : 0,
-    totalAssertions: 1,
+    passedAssertions: (requireCaseToken ? 2 : 1) - failedAssertions.length,
+    totalAssertions: requireCaseToken ? 2 : 1,
   };
 }
 
@@ -295,7 +308,14 @@ function scoreSkill(
         throw new Error(
           `Missing answer after completeness check: ${currentCase.id}`,
         );
-      scores.push(scoreTriggerCase(transcript, currentCase));
+      scores.push(
+        scoreTriggerCase(
+          transcript,
+          currentCase,
+          manifest.schemaVersion === 2 &&
+            manifest.activationEvidenceVersion === 3,
+        ),
+      );
       continue;
     }
 

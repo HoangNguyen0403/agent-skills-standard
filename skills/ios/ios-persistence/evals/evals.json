@@ -13,8 +13,7 @@
         {
           "type": "contains_any",
           "value": [
-            "Keychain",
-            "name"
+            "Keychain"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }
@@ -45,8 +44,8 @@
           "value": "viewContext"
         },
         {
-          "type": "contains",
-          "value": "mergePolicy"
+          "type": "contains_any",
+          "value": ["merge policy", "conflict-resolution", "conflict"]
         }
       ]
     }

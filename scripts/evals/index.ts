@@ -17,6 +17,14 @@ import { buildManifest, listCategories, resumeManifest } from "./manifest";
 import { generateReport } from "./reporter";
 import { scoreRun } from "./scorer";
 import { verifyAllRuns, verifyRun } from "./verify";
+import { createBaselineRun, planBaseline } from "./impact";
+import { promoteCategoryBaseline } from "./promote";
+import {
+  EvalQuotaPausedError,
+  evalWorkerConfig,
+  executeMissingAnswers,
+  missingAnswerCount,
+} from "./execute";
 
 function arg(name: string): string | undefined {
   const idx = process.argv.indexOf(`--${name}`);
@@ -71,6 +79,60 @@ async function main() {
       break;
     }
 
+    case "baseline": {
+      const category = arg("category") ?? "all";
+      const baselineRunId = arg("baseline");
+      if (hasFlag("plan")) {
+        const plan = planBaseline(category, { baselineRunId });
+        console.log(JSON.stringify(plan, null, 2));
+        break;
+      }
+      const run = createBaselineRun(category, version, { baselineRunId });
+      if (!run.runId || !run.runDir) {
+        console.log(
+          `✅ Baseline is current (${run.plan.baselineRunId}); no live evals required.`,
+        );
+        break;
+      }
+      console.log(
+        `✅ Incremental baseline run: ${path.relative(ROOT_DIR, run.runDir)}`,
+      );
+      console.log(`   Reference: ${run.plan.baselineRunId}`);
+      if (run.resumed)
+        console.log("   Resuming the existing compatible incomplete run.");
+      console.log(
+        `   ${run.plan.impacts.length} changed skills; ${run.reusedAnswers} compatible answers reused.`,
+      );
+      const workerConfig = evalWorkerConfig();
+      const configuredConcurrency = Number(process.env.EVALS_CONCURRENCY ?? 1);
+      const concurrency = Math.max(1, Math.min(4, configuredConcurrency || 1));
+      const plannedWorkers = missingAnswerCount(run.runDir);
+      console.log(
+        `   Worker configuration: ${workerConfig.model}; reasoning ${workerConfig.reasoningEffort}; concurrency ${concurrency}.`,
+      );
+      console.log(`   Fresh isolated answers to generate: ${plannedWorkers}.`);
+      if (!hasFlag("execute")) {
+        console.log(
+          "   No workers started. This is a quota-consuming operation; rerun with --execute only after reviewing this plan.",
+        );
+        console.log(
+          `   Run: pnpm evals:baseline -- --execute${category === "all" ? "" : ` --category ${category}`}`,
+        );
+        break;
+      }
+      const generated = await executeMissingAnswers(run.runDir, {
+        repoRoot: ROOT_DIR,
+        concurrency,
+        workerConfig,
+      });
+      scoreRun(run.runDir);
+      generateReport();
+      console.log(
+        `✅ Completed ${generated} fresh isolated answers, scored, and regenerated evals-report.md.`,
+      );
+      break;
+    }
+
     case "score": {
       const runId = arg("run");
       if (!runId) {
@@ -109,6 +171,30 @@ async function main() {
       break;
     }
 
+    case "promote": {
+      const runId = arg("run");
+      const category = arg("category");
+      const reviewer = arg("reviewer");
+      const reason = arg("reason");
+      if (!runId || !category || !reviewer || !reason) {
+        console.error(
+          "❌ --run, --category, --reviewer, and --reason are required.",
+        );
+        process.exit(1);
+      }
+      const promoted = promoteCategoryBaseline(
+        runId,
+        category,
+        reviewer,
+        reason,
+      );
+      generateReport();
+      console.log(
+        `✅ Promoted ${promoted.category} baseline: ${promoted.runId} (${promoted.tag})`,
+      );
+      break;
+    }
+
     case "report": {
       generateReport();
       console.log("✅ evals-report.md generated.");
@@ -139,13 +225,17 @@ async function main() {
 
     default:
       console.error(
-        "Usage: tsx scripts/evals/index.ts <manifest|score|report|verify> [options]",
+        "Usage: tsx scripts/evals/index.ts <manifest|baseline|score|report|verify|promote> [options] (baseline requires --execute to start workers)",
       );
       process.exit(1);
   }
 }
 
 main().catch((err) => {
+  if (err instanceof EvalQuotaPausedError) {
+    console.error(`⏸️ Eval execution paused: ${err.message}`);
+    process.exit(1);
+  }
   console.error("❌ Eval run failed:", err);
   process.exit(1);
 });

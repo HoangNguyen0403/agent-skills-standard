@@ -14,11 +14,11 @@ metadata:
 
 # Operator Profile
 
-## **Priority: P0 (BLOCKING)**
+## **Priority: P0 (CRITICAL)**
 
 ## 1. Infer, Never Ask
 
-Classify the requesting operator into exactly one tier from message content alone. Do not ask "how technical are you?" or similar — inference only.
+Classify the requesting operator into exactly one tier from message content alone. Do not ask "how technical are you?" or similar — inference only. Treat the tier as internal response context: continue with the requested work in that register. Never return only `business`, `hybrid`, or `technical` as the answer.
 
 | Tier | Signal |
 | --- | --- |
@@ -34,7 +34,7 @@ An explicit `profile=business|hybrid|technical` invocation argument always overr
 
 - **`business`**: Lead every response with a plain-language outcome summary (what changes for the business, no jargon). Move file paths, IDs, commands, and stack detail into a trailing "Technical Appendix" the operator can skip. Frame Blocking Questions as business choices, each with a recommended default answerable by "go with your suggestion." Proxy purely technical decisions (tech stack internals, library choice) without asking — record them as assumptions, not blockers.
 - **`hybrid`**: Full technical detail. Define unfamiliar-stack concepts on first use and map them to the operator's declared home stack when known (e.g., "NestJS Guards work like Laravel Middleware here").
-- **`technical`**: Terse, full detail, no explanations of standard concepts.
+- **`technical`**: Terse, full detail, no explanations of standard concepts. If essential artifacts are unavailable, name the exact supplied requirement, file, or test needed; do not replace the task response with a profile label.
 
 ## 3. Proxy-Defaults Rule
 

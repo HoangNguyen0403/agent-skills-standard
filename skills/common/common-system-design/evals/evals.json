@@ -3,59 +3,67 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common system design best practices?",
-      "expected_output": "**SoC**: Divide into distinct sections per concern.",
+      "prompt": "I am splitting an order service into API, domain, and persistence modules. What boundaries and dependency direction should I define?",
+      "expected_output": "Separates API, domain, and persistence concerns; defines the domain as independent of framework/data adapters; identifies one owner for order state.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Divide into distinct sections per concern",
-          "description": "Checks user-visible framework guidance"
+          "type": "contains_any",
+          "value": [
+            "separation of concerns",
+            "separate concerns",
+            "module boundary",
+            "module boundaries",
+            "domain module",
+            "cohesive modules",
+            "storage concerns"
+          ],
+          "description": "Defines a boundary rather than a generic architecture slogan"
         },
         {
-          "type": "contains",
-          "value": "SoC"
+          "type": "contains_any",
+          "value": ["domain", "business logic", "core logic"]
         },
         {
-          "type": "contains",
-          "value": "SSOT"
+          "type": "contains_any",
+          "value": ["owner", "owns", "source of truth", "authoritative"]
         }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common system design?",
-      "expected_output": "**SSOT**: One source, reference elsewhere.",
+      "prompt": "A checkout service synchronously calls inventory, pricing, and email. Inventory is intermittently failing. How should I avoid cascading failure?",
+      "expected_output": "Separates the critical checkout path from non-critical email, applies explicit timeout/retry/circuit-breaker behavior, and describes degraded behavior.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Fail Fast"
+          "type": "contains_any",
+          "value": ["timeout", "circuit breaker", "fail fast"]
         },
         {
-          "type": "contains",
-          "value": "Graceful Degradation"
+          "type": "contains_any",
+          "value": ["degrade", "fallback", "non-critical"]
         },
         {
-          "type": "contains",
-          "value": "High Cohesion"
+          "type": "contains_any",
+          "value": ["email", "asynchronous", "event"]
         }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common system design.",
-      "expected_output": "**Fail Fast**: Fail visibly when errors occur.",
+      "prompt": "Should a reporting service read the orders database directly, or consume order events? Explain the trade-off and a safe default.",
+      "expected_output": "Explains ownership and coupling; recommends an explicit integration contract such as events for an independently evolving reporting service; notes eventual consistency.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Loose Coupling"
+          "type": "contains_any",
+          "value": ["coupling", "contract", "boundary", "bounded context", "loosely coupled", "service ownership"]
         },
         {
-          "type": "contains",
-          "value": "Layered"
+          "type": "contains_any",
+          "value": ["events", "event-driven", "direct database"]
         },
         {
-          "type": "contains",
-          "value": "Event-Driven"
+          "type": "contains_any",
+          "value": ["eventual consistency", "asynchronous", "trade-off"]
         }
       ]
     }

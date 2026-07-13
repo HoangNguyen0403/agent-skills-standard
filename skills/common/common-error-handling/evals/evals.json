@@ -45,8 +45,9 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "Violation",
-            "name"
+            "swallows",
+            "empty `catch",
+            "silently ignore"
           ]
         }
       ]

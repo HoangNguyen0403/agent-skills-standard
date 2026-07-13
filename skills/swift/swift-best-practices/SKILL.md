@@ -1,6 +1,6 @@
 ---
 name: swift-best-practices
-description: Apply Guard, Value Types, Immutability, and Naming conventions in Swift. Use when writing idiomatic Swift using guard, value types, immutability, or naming conventions.
+description: Apply Guard, Value Types, Immutability, and Naming conventions in Swift. Use when writing idiomatic Swift with guard, value types, immutability, or naming conventions—not Swift concurrency/actor-isolation, persistence, linting, or release tooling.
 metadata:
   triggers:
     files:

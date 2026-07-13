@@ -42,8 +42,7 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "Define ProductDetail(val productId",
-            "name"
+            "Define ProductDetail(val productId"
           ]
         }
       ]

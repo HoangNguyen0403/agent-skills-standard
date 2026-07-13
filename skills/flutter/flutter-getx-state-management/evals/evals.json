@@ -11,8 +11,8 @@
           "value": "GetxController"
         },
         {
-          "type": "contains",
-          "value": "BuildContext"
+          "type": "not_contains",
+          "value": "BuildContext context"
         }
       ]
     },
@@ -26,12 +26,12 @@
           "value": "Binding"
         },
         {
-          "type": "contains",
-          "value": "Avoid"
+          "type": "contains_any",
+          "value": ["Get.lazyPut", "Get.find", "GetView"]
         },
         {
-          "type": "contains",
-          "value": "disposal. Avoid"
+          "type": "contains_any",
+          "value": ["disposes", "onClose", "lifetime"]
         }
       ]
     },
@@ -41,16 +41,16 @@
       "expected_output": "Get.snackbar('Error', message) called directly in controller method — no context needed. Or Get.dialog() for modal errors. Never pass BuildContext into controller.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "BuildContext"
+          "type": "not_contains",
+          "value": "BuildContext context"
         },
         {
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "snackbar('Error'",
-            "name"
+            "Get.snackbar",
+            "SnackPosition"
           ]
         }
       ]

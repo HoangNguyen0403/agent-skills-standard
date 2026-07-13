@@ -28,8 +28,9 @@
         {
           "type": "contains_any",
           "value": [
-            "Abstractions",
-            "name"
+            "protocol-based",
+            "protocols",
+            "initializer injection"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
@@ -45,8 +46,8 @@
       "expected_output": "**Factory**: Use the `Factory` library for lightweight, type-safe navigation-friendly DI.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Swinject"
+          "type": "contains_any",
+          "value": ["Factory", "@Injected", "Container"]
         },
         {
           "type": "contains",

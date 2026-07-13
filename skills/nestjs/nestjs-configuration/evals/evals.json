@@ -55,8 +55,9 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "get('KEY')",
-            "name"
+            "getOrThrow",
+            "ConfigService",
+            "typed configuration"
           ]
         }
       ]

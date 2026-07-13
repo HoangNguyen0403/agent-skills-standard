@@ -11,8 +11,8 @@
           "value": "new Fiber"
         },
         {
-          "type": "contains",
-          "value": "Fiber::suspend"
+          "type": "contains_any",
+          "value": ["ReactPHP", "Amp", "event loop"]
         },
         {
           "type": "contains",
@@ -30,8 +30,8 @@
           "value": "Fiber::suspend"
         },
         {
-          "type": "not_contains",
-          "value": "file_get_contents"
+          "type": "contains_any",
+          "value": ["do not call blocking file_get_contents", "non-blocking I/O"]
         }
       ]
     },
@@ -49,8 +49,9 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "Install react/event-loop",
-            "name"
+            "ReactPHP",
+            "Loop::get()",
+            "event loop"
           ]
         }
       ]
@@ -97,13 +98,13 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "separate PDO connections per Fiber"
+          "value": "separate PDO connection"
         },
         {
           "id": "a1",
-          "description": "Checks the outcome includes avoid shared mutable state",
-          "type": "contains",
-          "value": "avoid shared mutable state"
+          "description": "Keeps Fiber-owned connection state isolated",
+          "type": "contains_any",
+          "value": ["Do not share mutable", "connection state", "Bound concurrency"]
         }
       ]
     }

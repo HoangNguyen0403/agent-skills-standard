@@ -116,8 +116,7 @@
         {
           "type": "contains_any",
           "value": [
-            "non-VN",
-            "name"
+            "non-VN"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },

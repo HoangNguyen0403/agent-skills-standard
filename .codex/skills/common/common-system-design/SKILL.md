@@ -1,17 +1,18 @@
 ---
 name: common-system-design
-description: Enforce separation of concerns, dependency inversion, and resilience patterns across layered and distributed architectures. Use when designing new features, evaluating module boundaries, selecting architectural patterns, or resolving scalability bottlenecks.
+description: Define module boundaries, dependency direction, data ownership, resilience, and distributed-system trade-offs. Use for architecture, service boundaries, coupling, scalability, or failure-cascade decisions; not generic project setup.
 metadata:
   triggers:
     keywords:
-    - architecture
-    - design
-    - system
-    - scalability
-    - microservice
-    - module boundary
-    - coupling
+      - architecture
+      - design
+      - system
+      - scalability
+      - microservice
+      - module boundary
+      - coupling
 ---
+
 # System Design & Architecture Standards
 
 ## **Priority: P0 (CRITICAL)**
@@ -19,10 +20,12 @@ metadata:
 ## Workflow: Evaluate Architecture for New Feature
 
 1. Identify bounded contexts and module boundaries
-2. Define dependency direction (outer layers depend on inner)
-3. Select communication pattern (sync REST, async event, or hybrid)
-4. Validate against CAP trade-offs for distributed components
-5. Document decision in Architecture Decision Record (ADR)
+2. Name the data owner and define dependency direction (outer layers depend on inner)
+3. Select communication pattern (sync REST, async event, or hybrid) and failure behavior
+4. Validate CAP trade-offs only for distributed components
+5. Record boundary, trade-off, and rollback in an ADR
+
+For a failing synchronous dependency, keep the critical path explicit: timeout and circuit-break the dependency, return a defined degraded/fallback result where safe, and move non-critical notifications to an asynchronous event.
 
 ## Architectural Principles
 

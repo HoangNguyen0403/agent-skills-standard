@@ -85,6 +85,9 @@ export function loadAllResults(): RunResults[] {
 }
 
 export function partitionRun(run: RunResults): RunResults[] {
+  // A selective run is development evidence. It cannot replace a complete
+  // category projection or make unchanged skills disappear from the report.
+  if (run.scope?.kind === "selective") return [];
   if (run.category !== "all") return [run];
   const byCategory = new Map<string, SkillResult[]>();
   for (const skill of run.skills) {
@@ -178,6 +181,16 @@ function isCompromised(skill: SkillResult): boolean {
   );
 }
 
+function activationEvidenceTrusted(run: RunResults): boolean {
+  const manifestPath = path.join(RUNS_DIR, run.runId, "manifest.json");
+  // Keep pure reporter/unit-test inputs usable when no physical run exists.
+  if (!fs.existsSync(manifestPath)) return true;
+  const manifest = loadManifest(path.dirname(manifestPath));
+  return (
+    manifest.schemaVersion === 2 && manifest.activationEvidenceVersion === 3
+  );
+}
+
 function displayDelta(skill: SkillResult): string {
   if (isCompromised(skill)) return "n/a";
   return pct(skill.delta);
@@ -193,6 +206,7 @@ export function buildEvalsReportMarkdown(
     `> Generated: ${new Date().toISOString()}`,
     "> Measured, not structural: outcome assertions are evaluated against immutable run inputs. Baseline and with-skill arms are generated in isolated workers; trigger arms receive only the skill name and description.",
     "> Historical v1 runs remain readable through the compatibility adapter. v2 metrics report case pass rate, assertion pass rate, trigger recall, trigger specificity, and balanced trigger accuracy.",
+    "> Activation metrics are omitted for legacy trigger evidence until a clean activation-evidence v2 run replaces it.",
     "",
   ];
   if (allResults.length === 0) {
@@ -229,10 +243,14 @@ export function buildEvalsReportMarkdown(
   lines.push(
     `| Avg. assertion pass rate | **${pct(avgOrNa(allSkillResults.map((skill) => skill.assertionPassRate?.withSkill)))}** |`,
   );
-  const triggerable = allSkillResults.filter(
-    (skill) =>
-      skill.balancedTriggerAccuracy !== null &&
-      skill.balancedTriggerAccuracy !== undefined,
+  const triggerable = [...latest.values()].flatMap((run) =>
+    activationEvidenceTrusted(run)
+      ? run.skills.filter(
+          (skill) =>
+            skill.balancedTriggerAccuracy !== null &&
+            skill.balancedTriggerAccuracy !== undefined,
+        )
+      : [],
   );
   lines.push(
     `| Avg. balanced trigger accuracy | **${triggerable.length > 0 ? pct(avg(triggerable.map((skill) => skill.balancedTriggerAccuracy))) : "n/a"}** (${triggerable.length} skills) |`,
@@ -263,11 +281,13 @@ export function buildEvalsReportMarkdown(
   for (const [category, run] of [...latest.entries()].sort(([a], [b]) =>
     a.localeCompare(b),
   )) {
-    const triggerSkills = run.skills.filter(
-      (skill) =>
-        skill.balancedTriggerAccuracy !== null &&
-        skill.balancedTriggerAccuracy !== undefined,
-    );
+    const triggerSkills = activationEvidenceTrusted(run)
+      ? run.skills.filter(
+          (skill) =>
+            skill.balancedTriggerAccuracy !== null &&
+            skill.balancedTriggerAccuracy !== undefined,
+        )
+      : [];
     lines.push(
       `| ${category} | \`${run.runId}\` | ${run.scoredAt.split("T")[0]} | ${run.skills.length} | ${pct(avg(run.skills.map((skill) => skill.casePassRate?.baseline ?? skill.baselinePassRate)))} | ${pct(avg(run.skills.map((skill) => skill.casePassRate?.withSkill ?? skill.withSkillPassRate)))} | ${pct(avg(run.skills.filter((skill) => !isCompromised(skill)).map((skill) => skill.delta)))} | ${pct(avgOrNa(run.skills.map((skill) => skill.assertionPassRate?.withSkill)))} | ${pct(avgOrNa(triggerSkills.map((skill) => skill.triggerRecall)))} | ${pct(avgOrNa(triggerSkills.map((skill) => skill.triggerSpecificity)))} | ${pct(avgOrNa(triggerSkills.map((skill) => skill.balancedTriggerAccuracy)))} |`,
     );
@@ -285,8 +305,12 @@ export function buildEvalsReportMarkdown(
       a.category.localeCompare(b.category) ||
       a.skillName.localeCompare(b.skillName),
   )) {
+    const sourceRun = latest.get(skill.category);
+    const trustedActivation = sourceRun
+      ? activationEvidenceTrusted(sourceRun)
+      : false;
     lines.push(
-      `| \`${skill.skillName}\` | ${skill.category} | ${pct(skill.casePassRate?.baseline ?? skill.baselinePassRate)} | ${pct(skill.casePassRate?.withSkill ?? skill.withSkillPassRate)} | ${displayDelta(skill)} | ${pct(skill.assertionPassRate?.withSkill)} | ${pct(skill.triggerRecall)} | ${pct(skill.triggerSpecificity ?? skill.triggerPrecision)} | ${pct(skill.balancedTriggerAccuracy)} | ${skill.guardrailApplicable ? "yes" : "no"} |`,
+      `| \`${skill.skillName}\` | ${skill.category} | ${pct(skill.casePassRate?.baseline ?? skill.baselinePassRate)} | ${pct(skill.casePassRate?.withSkill ?? skill.withSkillPassRate)} | ${displayDelta(skill)} | ${pct(skill.assertionPassRate?.withSkill)} | ${trustedActivation ? pct(skill.triggerRecall) : "n/a"} | ${trustedActivation ? pct(skill.triggerSpecificity ?? skill.triggerPrecision) : "n/a"} | ${trustedActivation ? pct(skill.balancedTriggerAccuracy) : "n/a"} | ${skill.guardrailApplicable ? "yes" : "no"} |`,
     );
   }
   lines.push("");

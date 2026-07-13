@@ -1,6 +1,6 @@
 ---
 name: flutter-idiomatic-flutter
-description: Compose modern Flutter layouts and widgets idiomatically. Use when composing widget trees, managing layout constraints, or following idiomatic Flutter patterns.
+description: Compose modern Flutter layouts and widgets idiomatically. Use for widget trees, layout constraints, mounted safety, and UI composition—not BLoC state management, routing, dependency injection, or tests.
 metadata:
   triggers:
     files:

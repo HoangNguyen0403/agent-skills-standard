@@ -11,16 +11,8 @@
           "value": "kebab-case"
         },
         {
-          "type": "contains",
-          "value": "type suffix"
-        },
-        {
-          "type": "contains",
-          "value": "PascalCase"
-        },
-        {
-          "type": "contains",
-          "value": "camelCase"
+          "type": "contains_any",
+          "value": ["type suffix", "suffix such as .component"]
         }
       ]
     },
@@ -34,8 +26,8 @@
           "value": "PascalCase"
         },
         {
-          "type": "contains",
-          "value": "app prefix"
+          "type": "contains_any",
+          "value": ["app prefix", "appHighlight", "appFocusTrap"]
         }
       ]
     },
@@ -45,8 +37,8 @@
       "expected_output": "Locate code quickly, Identify files by name, keep the Flattest structure possible, Try to be DRY. Keep files under 400 lines. One component/service per file. Use feature-based folders, not type-based folders (/components, /services at root level).",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Identify files"
+          "type": "contains_any",
+          "value": ["Identify", "descriptive filenames", "file's role"]
         },
         {
           "type": "contains",
@@ -64,12 +56,14 @@
       "expected_output": "No — do not use IUser or IHero. Name interfaces as User, Hero. The I-prefix is a C# convention not recommended by Angular style guide. TypeScript types and interfaces should read as nouns: User, AuthConfig, RouteData.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "No — do not use"
-        },
-        {
-          "type": "contains",
-          "value": "not recommended"
+          "type": "contains_any",
+          "value": [
+            "do not use I",
+            "avoid the I-prefix",
+            "no I-prefix",
+            "do not prefix",
+            "No. Do not"
+          ]
         },
         {
           "type": "contains",
@@ -87,8 +81,8 @@
           "value": "index.ts"
         },
         {
-          "type": "contains",
-          "value": "public APIs"
+          "type": "contains_any",
+          "value": ["public APIs", "public API", "public entry point"]
         },
         {
           "type": "contains",
@@ -102,16 +96,16 @@
       "expected_output": "src/app/core/ (singletons), src/app/shared/ (reusable UI), src/app/features/feature-name/ (lazy-loaded features). Keep folder depth ≤3 levels. Each feature folder contains its own components, services, models, and routes file.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "src/app/core/"
+          "type": "contains_any",
+          "value": ["core/", "src/app/core"]
         },
         {
-          "type": "contains",
-          "value": "src/app/features/"
+          "type": "contains_any",
+          "value": ["features/", "src/app/features"]
         },
         {
-          "type": "contains",
-          "value": "depth ≤3 levels"
+          "type": "contains_any",
+          "value": ["three levels", "3 levels", "depth ≤3"]
         }
       ]
     }
@@ -122,7 +116,5 @@
     "How do I configure ESLint rules for a Node.js project?",
     "How do I set up Python PEP8 code style enforcement?"
   ],
-  "should_trigger": [
-    "What naming conventions should I use for Angular files?"
-  ]
+  "should_trigger": ["What naming conventions should I use for Angular files?"]
 }

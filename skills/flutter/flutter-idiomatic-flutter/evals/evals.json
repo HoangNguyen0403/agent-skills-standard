@@ -11,8 +11,8 @@
           "value": "BuildContext"
         },
         {
-          "type": "contains",
-          "value": "before using"
+          "type": "contains_any",
+          "value": ["context.mounted", "if (!mounted)", "after every `await`"]
         }
       ]
     },
@@ -31,26 +31,26 @@
         },
         {
           "type": "contains",
-          "value": "into small"
+          "value": "small"
         }
       ]
     },
     {
       "id": 3,
-      "prompt": "I need 16px spacing between elements — I'm using Padding(padding: EdgeInsets.all(16)) everywhere.",
-      "expected_output": "Use Gap(16) or SizedBox(height: 16) for simple spacing instead of Padding wrapping — simpler and more readable",
+      "prompt": "I need 16px spacing between elements in a Flutter 3.27 app. I am using Padding(padding: EdgeInsets.all(16)) everywhere.",
+      "expected_output": "Prefer the Row/Column spacing parameter in Flutter 3.27+ for uniform siblings. Use Gap or SizedBox only when spacing cannot express conditional or asymmetric gaps; do not use Padding only to create space.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "SizedBox"
+          "type": "contains_any",
+          "value": ["spacing", "Gap", "SizedBox"]
         },
         {
-          "type": "contains",
-          "value": "Padding"
+          "type": "contains_any",
+          "value": ["Padding", "padding"]
         },
         {
-          "type": "contains",
-          "value": "for simple"
+          "type": "contains_any",
+          "value": ["spacing", "cannot express", "between every element"]
         }
       ]
     }

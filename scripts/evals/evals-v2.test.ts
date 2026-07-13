@@ -14,6 +14,43 @@ import { scoreRun } from "./scorer";
 import { verifyRun } from "./verify";
 import { latestPerCategory } from "./reporter";
 import { auditEvalDefinitions } from "./quality";
+import { createBaselineRun, planBaseline } from "./impact";
+import { promoteCategoryBaseline } from "./promote";
+import {
+  codexExecArgs,
+  EvalQuotaPausedError,
+  evalWorkerConfig,
+  executeMissingAnswers,
+} from "./execute";
+
+test("eval workers explicitly pin the approved model and reasoning effort", () => {
+  const config = evalWorkerConfig({});
+  assert.deepEqual(config, {
+    model: "gpt-5.6-luna",
+    reasoningEffort: "high",
+  });
+  assert.deepEqual(codexExecArgs("/repo", config), [
+    "exec",
+    "--ephemeral",
+    "--ignore-user-config",
+    "--ignore-rules",
+    "--model",
+    "gpt-5.6-luna",
+    "--config",
+    'model_reasoning_effort="high"',
+    "--sandbox",
+    "read-only",
+    "-C",
+    "/repo",
+  ]);
+  assert.deepEqual(
+    evalWorkerConfig({
+      EVALS_MODEL: "test-model",
+      EVALS_REASONING_EFFORT: "low",
+    }),
+    { model: "test-model", reasoningEffort: "low" },
+  );
+});
 
 async function fixture(): Promise<{
   root: string;
@@ -24,7 +61,7 @@ async function fixture(): Promise<{
     path.join(root, "skills", "dart", "dart-tooling", "evals"),
   );
   await fs.writeJson(path.join(root, "skills", "metadata.json"), {
-    categories: { dart: { version: "1.0.0" } },
+    categories: { dart: { version: "1.0.0", tag_prefix: "dart-v" } },
   });
   await writeFile(
     path.join(root, "skills", "dart", "dart-tooling", "SKILL.md"),
@@ -68,8 +105,8 @@ async function writeCompleteAnswers(
     }
     const answer =
       currentCase.expectedTrigger === "yes"
-        ? "TRIGGER: yes\nRelevant."
-        : "TRIGGER: no\nUnrelated.";
+        ? `CASE: ${currentCase.id}\nTRIGGER: yes\nRelevant.`
+        : `CASE: ${currentCase.id}\nTRIGGER: no\nUnrelated.`;
     await writeFile(
       answerPath(runDir, manifest, skill, currentCase.id),
       answer,
@@ -137,6 +174,25 @@ test("v2 trigger case identifiers do not disclose the expected label", async () 
   }
 });
 
+test("selective aggregate manifests keep category-qualified prompt paths", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const { runDir, manifest } = buildManifest("all", "9.9.9", {
+      repoRoot: root,
+      runId: "all-v9.9.9-2099-01-01-selective-path",
+      selectedSkills: new Set(["dart/dart-tooling"]),
+    });
+    assert.equal(manifest.scope.kind, "selective");
+    assert.ok(
+      await fs.pathExists(
+        path.join(runDir, "prompts", "dart", "dart-tooling", "eval-1.md"),
+      ),
+    );
+  } finally {
+    await cleanup();
+  }
+});
+
 test("v2 trigger prompts include only the frontmatter name and description", async () => {
   const { root, cleanup } = await fixture();
   try {
@@ -185,6 +241,36 @@ test("eval audit reports missing eval prompts before manifest generation", async
   }
 });
 
+test("eval audit rejects generic contains_any alternatives", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    await fs.writeJson(
+      path.join(root, "skills", "dart", "dart-tooling", "evals", "evals.json"),
+      {
+        evals: [
+          {
+            id: 1,
+            prompt: "Format this",
+            assertions: [
+              { type: "contains_any", value: ["dart format", "name"] },
+              { type: "contains", value: "format" },
+            ],
+          },
+        ],
+        should_trigger: ["Format Dart code."],
+        should_not_trigger: ["Design a logo."],
+      },
+    );
+    assert.ok(
+      auditEvalDefinitions(root).some(
+        (issue) => issue.kind === "generic-alternative",
+      ),
+    );
+  } finally {
+    await cleanup();
+  }
+});
+
 test("v2 scoring snapshots inputs, calculates outcome and balanced trigger metrics, and verifies after source drift", async () => {
   const { root, cleanup } = await fixture();
   try {
@@ -197,6 +283,8 @@ test("v2 scoring snapshots inputs, calculates outcome and balanced trigger metri
     const results = scoreRun(runDir, { repoRoot: root });
     const skill = results.skills[0];
     assert.ok(skill);
+    assert.ok(skill.casePassRate);
+    assert.ok(skill.assertionPassRate);
     assert.equal(results.schemaVersion, 2);
     assert.equal(skill.casePassRate.baseline, 0);
     assert.equal(skill.casePassRate.withSkill, 1);
@@ -370,4 +458,270 @@ test("aggregate reporting projects categories before selecting the newest partit
   assert.deepEqual([...latest.keys()].sort(), ["dart", "flutter"]);
   assert.equal(latest.get("dart")?.runId, "all-v2");
   assert.equal(latest.get("flutter")?.runId, "all-v2");
+});
+
+test("selective runs do not replace a complete category report projection", () => {
+  const latest = latestPerCategory([
+    {
+      schemaVersion: 2,
+      runId: "dart-complete-v2",
+      category: "dart",
+      version: "2",
+      scoredAt: "2099-01-01T00:00:00.000Z",
+      metadata: {},
+      skills: [],
+    },
+    {
+      schemaVersion: 2,
+      runId: "all-selective-v2",
+      category: "all",
+      version: "2",
+      scoredAt: "2099-01-02T00:00:00.000Z",
+      metadata: {},
+      scope: { kind: "selective", categories: ["dart"] },
+      skills: [],
+    },
+  ]);
+  assert.equal(latest.get("dart")?.runId, "dart-complete-v2");
+});
+
+test("incremental baseline reuses only evidence compatible with the changed source", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const initial = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      runId: "dart-v9.9.9-2099-01-01-reference",
+    });
+    await writeCompleteAnswers(initial.runDir, initial.manifest);
+    scoreRun(initial.runDir, { repoRoot: root });
+
+    await writeFile(
+      path.join(root, "skills", "dart", "dart-tooling", "SKILL.md"),
+      "---\nname: dart-tooling\ndescription: Dart tooling\n---\nUse dart format and analyze output.\n",
+    );
+    const bodyPlan = planBaseline("dart", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.equal(bodyPlan.impacts[0]?.outcome, "generate");
+    assert.equal(bodyPlan.impacts[0]?.activation, "reuse");
+    assert.equal(bodyPlan.impacts[0]?.reuseBaselineOutcome, true);
+    const bodyRun = createBaselineRun("dart", "9.9.9", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.ok(bodyRun.runDir && bodyRun.runId);
+    const bodyManifest = loadManifest(bodyRun.runDir as string);
+    const skill = bodyManifest.skills[0];
+    assert.ok(skill);
+    assert.ok(
+      await fs.pathExists(
+        answerPath(
+          bodyRun.runDir as string,
+          bodyManifest,
+          skill,
+          "eval-1",
+          "baseline",
+        ),
+      ),
+    );
+    assert.equal(
+      await fs.pathExists(
+        answerPath(
+          bodyRun.runDir as string,
+          bodyManifest,
+          skill,
+          "eval-1",
+          "with-skill",
+        ),
+      ),
+      false,
+    );
+    assert.ok(
+      await fs.pathExists(
+        answerPath(bodyRun.runDir as string, bodyManifest, skill, "trigger-1"),
+      ),
+    );
+    const resumed = createBaselineRun("dart", "9.9.9", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.equal(resumed.runId, bodyRun.runId);
+    assert.equal(resumed.resumed, true);
+    const generated = await executeMissingAnswers(bodyRun.runDir as string, {
+      repoRoot: root,
+      runner: async () => "answer with the requested formatter guidance",
+    });
+    assert.equal(generated, 1);
+    assert.equal(
+      scoreRun(bodyRun.runDir as string, { repoRoot: root }).skills[0]
+        ?.incompleteArms.length,
+      0,
+    );
+    const candidatePlan = planBaseline("dart", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.equal(candidatePlan.impacts[0]?.outcome, "reuse");
+    const candidateReuse = createBaselineRun("dart", "9.9.9", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.ok(candidateReuse.reusedAnswers > 0);
+
+    await writeFile(
+      path.join(root, "skills", "dart", "dart-tooling", "SKILL.md"),
+      "---\nname: dart-tooling\ndescription: Dart tooling\n---\nUse dart format.\n",
+    );
+    await fs.writeJson(
+      path.join(root, "skills", "dart", "dart-tooling", "evals", "evals.json"),
+      {
+        evals: [
+          {
+            id: 1,
+            prompt: "How should this Dart code be formatted?",
+            assertions: [
+              { type: "contains", value: "answer" },
+              { type: "contains", value: "guidance" },
+            ],
+          },
+        ],
+        should_trigger: ["Format this Dart code with the project tool."],
+        should_not_trigger: ["Design a database migration."],
+      },
+    );
+    const assertionPlan = planBaseline("dart", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.equal(assertionPlan.impacts[0]?.outcome, "reuse");
+    const assertionRun = createBaselineRun("dart", "9.9.9", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.ok(assertionRun.runDir);
+    const result = scoreRun(assertionRun.runDir as string, { repoRoot: root });
+    assert.equal(result.skills[0]?.incompleteArms.length, 0);
+  } finally {
+    await cleanup();
+  }
+});
+
+test("promotion requires a current complete category run and records review provenance", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const { runDir, manifest } = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      runId: "dart-v9.9.9-2099-01-01-promote",
+    });
+    await writeCompleteAnswers(runDir, manifest);
+    scoreRun(runDir, { repoRoot: root });
+    const promoted = promoteCategoryBaseline(
+      manifest.runId,
+      "dart",
+      "maintainer",
+      "release gate reviewed",
+      { repoRoot: root, now: new Date("2099-01-02T00:00:00.000Z") },
+    );
+    assert.equal(promoted.tag, "dart-v1.0.0");
+    const registry = await fs.readJson(
+      path.join(root, "benchmarks", "evals", "baselines.json"),
+    );
+    assert.equal(registry.categories.dart.runId, manifest.runId);
+  } finally {
+    await cleanup();
+  }
+});
+
+test("missing eval answers run in a bounded worker pool", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const { runDir } = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      runId: "dart-v9.9.9-2099-01-01-concurrency",
+    });
+    let active = 0;
+    let maxActive = 0;
+    const generated = await executeMissingAnswers(runDir, {
+      repoRoot: root,
+      concurrency: 3,
+      runner: async () => {
+        active += 1;
+        maxActive = Math.max(maxActive, active);
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        active -= 1;
+        return "worker answer";
+      },
+    });
+    assert.equal(generated, 4);
+    assert.equal(maxActive, 3);
+  } finally {
+    await cleanup();
+  }
+});
+
+test("an unusably short worker response is rejected without writing an answer", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const { runDir } = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      runId: "dart-v9.9.9-2099-01-01-short-answer",
+    });
+    await assert.rejects(
+      executeMissingAnswers(runDir, {
+        repoRoot: root,
+        concurrency: 1,
+        runner: async () => "hybrid",
+      }),
+      /unusably short answer/i,
+    );
+    const manifest = loadManifest(runDir);
+    const skill = manifest.skills[0];
+    assert.ok(skill);
+    assert.equal(
+      await fs.pathExists(
+        answerPath(runDir, manifest, skill, "eval-1", "baseline"),
+      ),
+      false,
+    );
+  } finally {
+    await cleanup();
+  }
+});
+
+test("a quota pause preserves completed answers and reports a resumable error", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const { runDir } = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      runId: "dart-v9.9.9-2099-01-01-quota-pause",
+    });
+    let calls = 0;
+    await assert.rejects(
+      executeMissingAnswers(runDir, {
+        repoRoot: root,
+        concurrency: 1,
+        runner: async () => {
+          calls += 1;
+          if (calls === 1) return "first answer";
+          throw new EvalQuotaPausedError("Codex usage limit reached.");
+        },
+      }),
+      (error: unknown) =>
+        error instanceof EvalQuotaPausedError &&
+        /Progress is saved; 3 fresh answer\(s\) remain/i.test(error.message),
+    );
+    assert.equal(calls, 2);
+    const manifest = loadManifest(runDir);
+    const skill = manifest.skills[0];
+    assert.ok(skill);
+    assert.ok(
+      await fs.pathExists(
+        answerPath(runDir, manifest, skill, "eval-1", "baseline"),
+      ),
+    );
+    assert.equal(loadManifest(runDir).metadata.completedAt, undefined);
+  } finally {
+    await cleanup();
+  }
 });

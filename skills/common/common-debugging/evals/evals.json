@@ -45,8 +45,9 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "git bisect)",
-            "name"
+            "git bisect",
+            "known-good",
+            "GOOD..BAD"
           ]
         }
       ]
@@ -63,8 +64,8 @@
       "failure_mode": "Agent patches symptoms before proving root cause.",
       "behavior_assertions": [
         "root cause",
-        "reproduce",
-        "one variable"
+        "production-like replay",
+        "one hypothesis"
       ]
     },
     {

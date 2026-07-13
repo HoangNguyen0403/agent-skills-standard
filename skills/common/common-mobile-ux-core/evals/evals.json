@@ -3,59 +3,58 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common mobile ux core best practices?",
-      "expected_output": "**Touch Targets**: Min 44x44pt (iOS) / 48x48dp (Android). Add padding if needed.",
+      "prompt": "A mobile checkout has a 24px close icon, a fixed Pay button under the home indicator, and address inputs hidden by the keyboard. What must change?",
+      "expected_output": "Expands the touch target to platform minimums, applies safe-area/window-inset handling to the fixed action, and scrolls inputs above the keyboard with appropriate input actions.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "SafeArea"
+          "type": "contains_any",
+          "value": ["44", "48", "touch target"]
         },
         {
-          "type": "contains",
-          "value": "WindowInsets"
+          "type": "contains_any",
+          "value": ["SafeArea", "WindowInsets", "home indicator"]
         },
         {
-          "type": "contains",
-          "value": "InputType"
+          "type": "contains_any",
+          "value": ["keyboard", "scroll", "InputType"]
         }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common mobile ux core?",
-      "expected_output": "**Safe Areas**: Wrap content in `SafeArea`/`WindowInsets`. Avoid notches.",
+      "prompt": "A design review proposes desktop hover tooltips, 32px icon buttons, and the same navigation behavior on iOS and Android. What do you reject?",
+      "expected_output": "Rejects hover-only interaction and undersized targets; requires pressed/active feedback and platform-appropriate Material/Cupertino behavior.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Action"
+          "type": "contains_any",
+          "value": ["hover", "pressed", "active"]
         },
         {
-          "type": "contains",
-          "value": "Safe Areas",
-          "description": "Checks user-visible framework guidance"
+          "type": "contains_any",
+          "value": ["44", "48", "touch target"]
         },
         {
-          "type": "contains",
-          "value": "Touch Targets"
+          "type": "contains_any",
+          "value": ["Material", "Cupertino", "platform"]
         }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common mobile ux core.",
-      "expected_output": "**Interactions**: Use active states (no hover). Haptic feedback (short).",
+      "prompt": "Give me a mobile UX acceptance checklist for a destructive account-delete action.",
+      "expected_output": "Covers reachable touch target, safe-area and keyboard behavior, active/disabled/loading states, confirmation feedback, and platform-specific conventions.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Safe Areas"
+          "type": "contains_any",
+          "value": ["touch target", "44", "48"]
         },
         {
-          "type": "contains",
-          "value": "Interactions"
+          "type": "contains_any",
+          "value": ["loading", "disabled", "active"]
         },
         {
-          "type": "contains",
-          "value": "Typography"
+          "type": "contains_any",
+          "value": ["safe area", "keyboard", "platform"]
         }
       ]
     }

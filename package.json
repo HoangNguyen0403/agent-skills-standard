@@ -49,6 +49,8 @@
     "benchmark:report": "tsx scripts/benchmark/index.ts --report-only",
     "evals:manifest": "tsx scripts/evals/index.ts manifest",
     "evals:manifest:all": "tsx scripts/evals/index.ts manifest --all",
+    "evals:baseline": "tsx scripts/evals/index.ts baseline",
+    "evals:promote": "tsx scripts/evals/index.ts promote",
     "evals:score": "tsx scripts/evals/index.ts score",
     "evals:report": "tsx scripts/evals/index.ts report",
     "evals:verify": "tsx scripts/evals/index.ts verify",

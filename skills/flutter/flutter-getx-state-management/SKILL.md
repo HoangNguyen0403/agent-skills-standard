@@ -1,6 +1,6 @@
 ---
 name: flutter-getx-state-management
-description: Implement reactive state with GetX controllers and observables in Flutter. Use when managing state with GetxController, Obx, or reactive observables.
+description: Implement reactive state with GetX controllers, bindings, and observables in Flutter. Use when managing app state with GetxController, Obx, GetBuilder, or dependency lifecycle—not unit tests for existing controllers.
 metadata:
   triggers:
     files:

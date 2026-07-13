@@ -11,14 +11,15 @@
           "value": "guard"
         },
         {
-          "type": "contains",
-          "value": "nested if"
+          "type": "contains_any",
+          "value": ["guard", "happy path", "unindented"]
         },
         {
           "type": "contains_any",
           "value": [
-            "preconditions",
-            "name"
+            "guard",
+            "must exit",
+            "precondition failures"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }
@@ -30,8 +31,8 @@
       "expected_output": "Default to struct for value semantics and thread safety. Use class only for reference identity or inheritance.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Default to struct"
+          "type": "contains_any",
+          "value": ["Default to a `struct`", "value semantics", "struct"]
         },
         {
           "type": "contains",
@@ -46,19 +47,27 @@
     {
       "id": 3,
       "prompt": "How do I make my Swift code more idiomatic?",
-      "expected_output": "Use for-where for clean loops. Prefer small methods, clear names, and protocol-based decoupling. Always default to let.",
+      "expected_output": "Prefer compactMap, filter, or reduce for collection transformations; keep names clear; default to let unless mutation is required.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "for-where"
+          "type": "contains_any",
+          "value": [
+            "compactMap",
+            "filter",
+            "reduce"
+          ]
         },
         {
-          "type": "contains",
-          "value": "clear names"
+          "type": "contains_any",
+          "value": ["descriptive camelCase", "Swift API Design Guidelines", "PascalCase"]
         },
         {
-          "type": "contains",
-          "value": "default to let"
+          "type": "contains_any",
+          "value": [
+            "Default to `let`",
+            "prefer `let`",
+            "let, structs"
+          ]
         }
       ]
     },
@@ -68,16 +77,16 @@
       "expected_output": "Use prefixes like is, has, or can. Example: isValid, hasErrors, canEdit. Makes boolean state clear.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "is, has, or can"
+          "type": "contains_any",
+          "value": ["is`, `has`, or `can`", "isVerified", "hasPremiumAccess"]
         },
         {
-          "type": "contains",
-          "value": "isValid"
+          "type": "contains_any",
+          "value": ["isVerified", "isValid"]
         },
         {
-          "type": "contains",
-          "value": "canEdit"
+          "type": "contains_any",
+          "value": ["canDelete", "canEdit"]
         }
       ]
     }

@@ -7,16 +7,25 @@
       "expected_output": "Use easy_localization with sheet_loader_localization, CSV format in assets/langs/, EasyLocalization wrap in main, tr() extension usage",
       "assertions": [
         {
-          "type": "contains",
-          "value": "EasyLocalization"
+          "type": "contains_any",
+          "value": [
+            "easy_localization",
+            "EasyLocalization"
+          ]
         },
         {
-          "type": "contains",
-          "value": "easy_localization with"
+          "type": "contains_any",
+          "value": [
+            "sheet_loader_localization",
+            "assets/langs"
+          ]
         },
         {
-          "type": "contains",
-          "value": "CSV format"
+          "type": "contains_any",
+          "value": [
+            "CSV",
+            "Google Sheets"
+          ]
         }
       ]
     },
@@ -30,8 +39,8 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "Use 'hellouser'",
-            "name"
+            "namedArgs",
+            "args:"
           ]
         },
         {
@@ -39,8 +48,8 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "tr(args",
-            "name"
+            "welcome_user",
+            "{name}"
           ]
         }
       ]
@@ -55,26 +64,28 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "Use 'cartitems'",
-            "name"
+            "plural("
           ]
         },
         {
           "id": "a2",
-          "description": "Checks the outcome includes Localization",
-          "type": "contains",
-          "value": "Localization"
+          "description": "Uses a cart/item translation key rather than hardcoded plural strings",
+          "type": "contains_any",
+          "value": [
+            "item_count",
+            "cart"
+          ]
         }
       ]
     }
   ],
   "should_not_trigger": [
-    "Add a language toggle button to settings",
+    "Add multi-language support for English and Vietnamese. Our translators use Google Sheets.",
     "How do I format a date in Vietnamese locale?",
     "Write a test for the settings BLoC",
     "Set up RTL layout support"
   ],
   "should_trigger": [
-    "Add multi-language support for English and Vietnamese. Our translators use Google Sheets."
+    "Add a Flutter language toggle button to settings using easy_localization"
   ]
 }

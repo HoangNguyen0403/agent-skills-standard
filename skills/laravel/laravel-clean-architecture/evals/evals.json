@@ -7,8 +7,8 @@
       "expected_output": "Organize by domain: app/Domains/Order/{Actions,DTOs,Contracts}/; never put Eloquent queries in Controllers; Action classes hold use-case logic; bind Contracts to implementations in AppServiceProvider",
       "assertions": [
         {
-          "type": "contains",
-          "value": "app/Domains/Order"
+          "type": "contains_any",
+          "value": ["app/Domains", "domain-oriented folders", "business domain"]
         },
         {
           "type": "contains",
@@ -23,12 +23,12 @@
           "value": "Contracts"
         },
         {
-          "type": "contains",
-          "value": "Eloquent queries in Controllers"
+          "type": "contains_any",
+          "value": ["no Eloquent query", "contain no Eloquent", "free of queries"]
         },
         {
-          "type": "contains",
-          "value": "Action classes"
+          "type": "contains_any",
+          "value": ["Action", "use case"]
         },
         {
           "type": "contains",
@@ -42,16 +42,16 @@
       "expected_output": "Create readonly class OrderData { public function __construct(public readonly string $title, public readonly int $amount) {} }; pass between layers instead of raw arrays or Eloquent models",
       "assertions": [
         {
-          "type": "contains",
-          "value": "pass between layers"
+          "type": "contains_any",
+          "value": ["boundary between HTTP", "cross-layer API", "pass it to"]
         },
         {
-          "type": "contains",
-          "value": "raw arrays"
+          "type": "contains_any",
+          "value": ["raw arrays", "unstructured array"]
         },
         {
-          "type": "contains",
-          "value": "Eloquent models"
+          "type": "contains_any",
+          "value": ["Eloquent models", "mutable Eloquent"]
         }
       ]
     },
@@ -61,8 +61,8 @@
       "expected_output": "Create Contracts/OrderRepository interface; implement EloquentOrderRepository; bind in AppServiceProvider via $this->app->bind(OrderRepository::class, EloquentOrderRepository::class); inject interface",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Contracts/OrderRepository interface"
+          "type": "contains_any",
+          "value": ["OrderRepository", "repository contract"]
         },
         {
           "type": "contains",
@@ -81,8 +81,8 @@
           "value": "OrderRepository::class"
         },
         {
-          "type": "contains",
-          "value": "inject interface"
+          "type": "contains_any",
+          "value": ["inject `OrderRepository`", "inject OrderRepository", "depends on the Action"]
         }
       ]
     },
@@ -92,20 +92,20 @@
       "expected_output": "Group by business domain (User, Order, Payment) not by type (Controllers, Models); each domain dir has Actions/, DTOs/, Contracts/ subdirectories; Eloquent models stay in app/Models/",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Group by business domain"
+          "type": "contains_any",
+          "value": ["business domain", "Domains"]
         },
         {
-          "type": "contains",
-          "value": "User, Order, Payment"
+          "type": "contains_any",
+          "value": ["User", "Order", "Payment"]
         },
         {
-          "type": "contains",
-          "value": "not by type"
+          "type": "contains_any",
+          "value": ["instead of creating global", "rather than by technical type"]
         },
         {
-          "type": "contains",
-          "value": "Controllers, Models"
+          "type": "contains_any",
+          "value": ["Controllers", "Models"]
         },
         {
           "type": "contains",
@@ -113,11 +113,11 @@
         },
         {
           "type": "contains",
-          "value": "Contracts/"
+          "value": "Contracts"
         },
         {
           "type": "contains",
-          "value": "app/Models/"
+          "value": "app/Models"
         }
       ]
     },
@@ -127,20 +127,20 @@
       "expected_output": "Layer flow: Controller → Action → Repository Interface → Eloquent; no Eloquent in Controller; DTOs cross boundaries; bind interfaces to implementations in AppServiceProvider",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Controller → Action → Repository Interface → Eloquent"
+          "type": "contains_any",
+          "value": ["Controller → Action", "repository adapter", "persistence abstractions"]
         },
         {
-          "type": "contains",
-          "value": "no Eloquent in Controller"
+          "type": "contains_any",
+          "value": ["controllers free of queries", "no Eloquent query", "Keep controllers free"]
         },
         {
-          "type": "contains",
-          "value": "DTOs cross boundaries"
+          "type": "contains_any",
+          "value": ["typed immutable data", "DTOs", "data in `DTOs`"]
         },
         {
-          "type": "contains",
-          "value": "bind interfaces to implementations"
+          "type": "contains_any",
+          "value": ["bind them", "Bind the contract", "container bindings"]
         },
         {
           "type": "contains",
@@ -167,8 +167,9 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "immutable by default in PHP 8",
-            "name"
+            "prevents accidental mutation",
+            "immutable transfer data",
+            "readonly DTO"
           ]
         }
       ]

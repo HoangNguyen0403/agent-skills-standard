@@ -1,6 +1,6 @@
 # 🧪 Live Skill Evals Report
 
-> Generated: 2026-07-13T02:11:41.395Z
+> Generated: 2026-07-13T02:11:41.131Z
 > Measured, not structural: outcome assertions are evaluated against immutable run inputs. Baseline and with-skill arms are generated in isolated workers; trigger arms receive only the skill name and description.
 > Historical v1 runs remain readable through the compatibility adapter. v2 metrics report case pass rate, assertion pass rate, trigger recall, trigger specificity, and balanced trigger accuracy.
 > Activation metrics are omitted for legacy trigger evidence until a clean activation-evidence v2 run replaces it.
@@ -16,12 +16,6 @@
 | Avg. delta (valid baselines only) | **26%** |
 | Avg. assertion pass rate | **81%** |
 | Avg. balanced trigger accuracy | **n/a** (0 skills) |
-
-## 📜 Physical Run History
-
-| Run | Category | Date | Skills | Baseline | With-Skill | Delta | Agent |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `all-v2.6.0-2026-07-12T02-24-23-912Z-e2253584` | all | 2026-07-12 | 264 | 40% | 66% | +26% | Codex |
 
 ## 📦 Per-Category Results (latest complete partition)
 

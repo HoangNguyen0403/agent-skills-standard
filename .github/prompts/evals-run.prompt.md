@@ -11,6 +11,10 @@ Measure whether a skill changes agent behavior with isolated, immutable, outcome
 
 ## 1. Choose or resume a run
 
+- For ordinary maintenance after a complete catalog baseline exists, run `pnpm evals:baseline` first. It creates or resumes a selective manifest, reuses only compatible evidence, and prints the model, reasoning level, concurrency, and fresh-answer count without starting workers.
+- Review that plan before spending quota. Start workers only with `pnpm evals:baseline -- --execute`; the default is `gpt-5.6-luna` with `high` reasoning and one worker. Override intentionally with `EVALS_MODEL`, `EVALS_REASONING_EFFORT`, or `EVALS_CONCURRENCY` (maximum four workers).
+- If usage is exhausted, keep the run directory and rerun the identical `--execute` command after access resumes; completed answers are reused automatically.
+
 - Use `pnpm evals:manifest -- --category <category>` for one category or `pnpm evals:manifest -- --all` for the complete catalog.
 - Use `pnpm evals:manifest -- --resume <runId>` only when deliberately continuing an existing run; a new invocation always creates a collision-safe run ID.
 - Record the printed run ID. The manifest records source hashes, the v2 schema, and the generation protocol.

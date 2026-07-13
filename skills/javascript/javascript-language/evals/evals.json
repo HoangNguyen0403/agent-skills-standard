@@ -36,8 +36,7 @@
         {
           "type": "contains_any",
           "value": [
-            "user?.profile?.name",
-            "name"
+            "user?.profile?.name"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }

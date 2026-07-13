@@ -23,8 +23,9 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "completion handlers",
-            "name"
+            "async",
+            "await",
+            "structured tasks"
           ]
         }
       ]
@@ -67,9 +68,9 @@
         },
         {
           "id": "a2",
-          "description": "Mentions main thread",
-          "type": "contains",
-          "value": "main thread"
+          "description": "Uses Swift main-actor isolation for UI state",
+          "type": "contains_any",
+          "value": ["@MainActor", "MainActor.run", "main actor"]
         },
         {
           "id": "a3",
@@ -117,9 +118,9 @@
         },
         {
           "id": "id2",
-          "description": "Mentions Task.isCancelled",
-          "type": "contains",
-          "value": "isCancelled"
+          "description": "Checks or propagates task cancellation",
+          "type": "contains_any",
+          "value": ["Task.isCancelled", "Task.checkCancellation", "cancellation"]
         }
       ]
     }

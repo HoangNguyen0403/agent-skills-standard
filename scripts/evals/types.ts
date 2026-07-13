@@ -4,7 +4,7 @@
 export type ArmName = "baseline" | "with-skill";
 export type ArmStatus = "pending" | "done";
 export type SchemaVersion = 1 | 2;
-export type RunScopeKind = "category" | "all";
+export type RunScopeKind = "category" | "all" | "selective";
 export type MetricValue = number | "n/a";
 export type TriggerDecision = "yes" | "no";
 
@@ -29,6 +29,7 @@ export interface ManifestSkill {
 export interface RunMetadata {
   agent?: string; // e.g. "Claude Code", "GitHub Copilot"
   model?: string; // e.g. "claude-sonnet-5"
+  reasoningEffort?: "low" | "medium" | "high" | "xhigh";
   startedAt?: string;
   completedAt?: string;
 }
@@ -76,6 +77,10 @@ export interface ManifestV2 extends ManifestBase {
   protocol: GenerationProtocol;
   sourceHashes: Record<string, SourceHash>;
   compromisedSkills: CompromisedSkillRecord[];
+  /** Immutable source run used to populate reused prompt-only evidence. */
+  baselineRunId?: string;
+  /** Trigger transcript protocol; legacy runs are not reused for activation evidence. */
+  activationEvidenceVersion?: 2 | 3;
 }
 
 export type Manifest = ManifestV1 | ManifestV2;

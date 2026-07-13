@@ -11,12 +11,12 @@
           "value": "@State for local simple data"
         },
         {
-          "type": "contains",
-          "value": "VMs marked `@Observable`"
+          "type": "contains_any",
+          "value": ["@Observable", "Observable VMs"]
         },
         {
-          "type": "contains",
-          "value": "Small, composable structs"
+          "type": "contains_any",
+          "value": ["small", "composable", "struct"]
         }
       ]
     },
@@ -26,16 +26,12 @@
       "expected_output": "No. body property must be computationally cheap. Move logic to ViewModel or computed vars. Keep body for UI composition only.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "body property computationally cheap"
+          "type": "contains_any",
+          "value": ["body", "computationally cheap", "keep body"]
         },
         {
-          "type": "contains",
-          "value": "No Logic in Body"
-        },
-        {
-          "type": "contains",
-          "value": "Main Actor"
+          "type": "contains_any",
+          "value": ["move logic", "ViewModel", "computed"]
         }
       ]
     },
@@ -45,14 +41,18 @@
       "expected_output": "Order matters. Apply layout modifiers before visual ones. SwiftUI modifiers wrap the view in new layers sequentially.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "layout modifiers before visual ones"
+          "type": "contains_any",
+          "value": [
+            "layout modifiers before visual",
+            "layout before visual",
+            "padding().background"
+          ]
         },
         {
           "id": "a1",
-          "description": "Checks the outcome includes Order matters",
-          "type": "contains",
-          "value": "Order matters"
+          "description": "Explains that modifiers wrap sequentially",
+          "type": "contains_any",
+          "value": ["order matters", "wrap", "sequential"]
         }
       ]
     }

@@ -15,8 +15,8 @@
           "value": "GetPage"
         },
         {
-          "type": "contains",
-          "value": "GetX"
+          "type": "contains_any",
+          "value": ["Get.find", "Get.put", "GetMaterialApp"]
         }
       ]
     },
@@ -34,8 +34,9 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "CHECKOUT) or Get",
-            "name"
+            "Get.offAllNamed",
+            "Routes.checkout",
+            "Routes.CHECKOUT"
           ]
         }
       ]

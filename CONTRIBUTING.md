@@ -96,10 +96,17 @@ For live-eval or eval-definition changes, also run:
 
 ```bash
 pnpm evals:audit
+pnpm evals:baseline -- --plan
 pnpm evals:verify -- --all
 pnpm evals:report
 pnpm evals:queue -- --run <runId>
 ```
+
+For routine maintenance, `pnpm evals:baseline` is the single starting command.
+It selects the latest complete immutable reference and creates a selective run
+only for changed skills; it reuses only source-compatible transcripts. Do not
+replace it with a full `--all` run unless the protocol, model, or generation
+environment changed.
 
 Never hand-edit `results.json` or historical transcripts. New runs must be complete, must contain immutable `inputs.json`, and must use the canonical `.agents/workflows/evals-run.md` workflow; regenerate exported workflow copies from the canonical source.
 

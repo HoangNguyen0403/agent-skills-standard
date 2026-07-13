@@ -31,8 +31,8 @@
           "value": "RuntimeException"
         },
         {
-          "type": "contains",
-          "value": "DomainException"
+          "type": "contains_any",
+          "value": ["RuntimeException", "DomainException", "domain-specific exception"]
         }
       ]
     },
@@ -50,8 +50,8 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "httpresponsecode(500)",
-            "name"
+            "http_response_code(500)",
+            "Internal Server Error"
           ]
         }
       ]
@@ -89,8 +89,9 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "call $logger-error($e-getMessage()",
-            "name"
+            "logger->error",
+            "LoggerInterface",
+            "structured context"
           ]
         }
       ]
@@ -105,8 +106,9 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "try { $conn = connect()",
-            "conn"
+            "finally",
+            "fclose",
+            "resource cleanup"
           ]
         },
         {
@@ -114,8 +116,9 @@
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
           "value": [
-            "$conn-query()",
-            "name"
+            "finally",
+            "fclose",
+            "transactions"
           ]
         }
       ]

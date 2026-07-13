@@ -40,8 +40,7 @@
         {
           "type": "contains_any",
           "value": [
-            "composer",
-            "name"
+            "composer"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
@@ -52,8 +51,7 @@
         {
           "type": "contains_any",
           "value": [
-            "config/horizon.php",
-            "name"
+            "config/horizon.php"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },

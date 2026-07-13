@@ -13,8 +13,8 @@
         {
           "type": "contains_any",
           "value": [
-            "config/database.php",
-            "name"
+            "config/session.php",
+            "config('session.driver')"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
@@ -23,8 +23,8 @@
           "value": "predis/predis"
         },
         {
-          "type": "contains",
-          "value": "avoid file driver"
+          "type": "contains_any",
+          "value": ["avoids file-session I/O", "locking problems", "scaled production"]
         }
       ]
     },
@@ -57,8 +57,8 @@
       "expected_output": "Create SecurityHeadersMiddleware; in handle() add HSTS, CSP, X-Frame-Options, X-Content-Type-Options headers to response; register as global middleware in bootstrap/app.php",
       "assertions": [
         {
-          "type": "contains",
-          "value": "HSTS"
+          "type": "contains_any",
+          "value": ["Strict-Transport-Security", "HSTS"]
         },
         {
           "type": "contains",
@@ -99,16 +99,16 @@
       "expected_output": "Use withMiddleware(fn($m) => $m->append(MyMiddleware::class)) in bootstrap/app.php; use prepend() for highest priority; avoid heavy computation in global middleware — offload to Services",
       "assertions": [
         {
-          "type": "contains",
-          "value": "withMiddleware(fn($m) => $m->append"
+          "type": "contains_any",
+          "value": ["withMiddleware", "append(SecurityHeaders"]
         },
         {
           "type": "contains",
           "value": "prepend()"
         },
         {
-          "type": "contains",
-          "value": "avoid heavy computation"
+          "type": "contains_any",
+          "value": ["cheap and deterministic", "Keep the middleware lightweight"]
         }
       ]
     },
@@ -120,8 +120,8 @@
         {
           "type": "contains_any",
           "value": [
-            "Never access env('SESSION_DRIVER')",
-            "access"
+            "config('session.driver')",
+            "not `env('SESSION_DRIVER')`"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },

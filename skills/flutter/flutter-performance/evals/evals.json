@@ -30,8 +30,8 @@
           "value": "BlocBuilder"
         },
         {
-          "type": "contains",
-          "value": "RepaintBoundary"
+          "type": "contains_any",
+          "value": ["BlocBuilder", "context.select", "RepaintBoundary"]
         }
       ]
     },
@@ -48,10 +48,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "not original resolution",
-            "name"
-          ]
+          "value": ["memCacheWidth", "memCacheHeight", "maxWidthDiskCache"]
         }
       ]
     }

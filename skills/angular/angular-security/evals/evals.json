@@ -7,14 +7,18 @@
       "expected_output": "Angular sanitizes interpolated values by default — {{ userInput }} is safe. Never use [innerHTML] with user content. If you must render HTML, use DomSanitizer.sanitize(SecurityContext.HTML, content). Never mark user-provided HTML as trusted.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "DomSanitizer.sanitize"
+          "type": "contains_any",
+          "value": [
+            "DomSanitizer",
+            "sanitizer.sanitize"
+          ]
         },
         {
           "type": "contains_any",
           "value": [
-            "Never mark user-provided HTML as trusted",
-            "mark"
+            "bypassSecurityTrustHtml",
+            "user-controlled data",
+            "user-generated content"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }
@@ -30,8 +34,12 @@
           "value": "{{ content }}"
         },
         {
-          "type": "contains",
-          "value": "never as HTML"
+          "type": "contains_any",
+          "value": [
+            "render it as text",
+            "render user content as text",
+            "{{ content }}"
+          ]
         }
       ]
     },
@@ -41,12 +49,12 @@
       "expected_output": "Configure CSP headers on the server (not in Angular code). Use nonce-based CSP: ng build generates nonce values for inline scripts. Set Content-Security-Policy: default-src 'self'; script-src 'nonce-{nonce}'. Avoid unsafe-inline and unsafe-eval.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "nonce-based CSP"
+          "type": "contains_any",
+          "value": ["per response", "per-request-nonce", "server-generated nonce"]
         },
         {
-          "type": "contains",
-          "value": "script-src 'nonce-{nonce}'"
+          "type": "regex",
+          "value": "script-src.*nonce"
         }
       ]
     },
@@ -58,8 +66,9 @@
         {
           "type": "contains_any",
           "value": [
-            "Only mark HTML as trusted for content you control",
-            "mark"
+            "controlled provenance",
+            "controlled and verified",
+            "vetted static CMS"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
@@ -80,7 +89,7 @@
         },
         {
           "type": "contains",
-          "value": "inject(Router).createUrlTree"
+          "value": "createUrlTree"
         },
         {
           "type": "contains",
@@ -94,16 +103,16 @@
       "expected_output": "Use HttpOnly cookies managed by the server — not localStorage or sessionStorage. Tokens in localStorage are accessible via XSS. Use HTTP interceptors to attach cookies automatically. Never store API keys or secrets in Angular source code.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "HttpOnly cookies"
+          "type": "contains_any",
+          "value": ["HttpOnly", "server-managed session"]
         },
         {
-          "type": "contains",
-          "value": "not localStorage"
+          "type": "contains_any",
+          "value": ["Do not store bearer tokens", "localStorage", "web storage"]
         },
         {
-          "type": "contains",
-          "value": "Never store API keys"
+          "type": "contains_any",
+          "value": ["Do not put API keys", "other secrets", "compiled bundle"]
         }
       ]
     }

@@ -51,7 +51,8 @@ export interface EvalAuditIssue {
     | "invalid-assertion"
     | "internal-format"
     | "legacy-reference"
-    | "missing-trigger-class";
+    | "missing-trigger-class"
+    | "generic-alternative";
   message: string;
 }
 
@@ -248,6 +249,11 @@ function assertionValues(assertion: Assertion): string[] {
   return assertion.values ?? [assertion.value];
 }
 
+function isGenericAlternative(value: string): boolean {
+  const normalized = value.trim().toLowerCase();
+  return ["name", "inside", "mark"].includes(normalized);
+}
+
 function repairAlignmentAssertions(
   assertions: Assertion[],
   skillMarkdown: string,
@@ -407,6 +413,19 @@ export function auditEvalDefinitions(repoRoot = ROOT_DIR): EvalAuditIssue[] {
               kind: "legacy-reference",
               message:
                 "Migrate file_reference to a user-visible behavior assertion",
+            });
+          if (
+            assertion.type === "contains_any" &&
+            assertionValues(assertion).some(isGenericAlternative)
+          )
+            issues.push({
+              category,
+              skillName: entry.name,
+              evalId: evaluation.id,
+              severity: "error",
+              kind: "generic-alternative",
+              message:
+                "contains_any alternatives must be meaningful outcome phrases, never generic tokens",
             });
         }
       }
@@ -583,7 +602,7 @@ export function buildRemediationQueue(
   return queue;
 }
 
-function main(): void {
+export function main(): void {
   const action = process.argv[2] ?? "audit";
   if (action === "audit") {
     const initialIssues = standardizeEvalDefinitions(
@@ -623,7 +642,12 @@ function main(): void {
 }
 
 try {
-  main();
+  if (
+    process.argv[1] &&
+    path.resolve(process.argv[1]) === path.resolve(__filename)
+  ) {
+    main();
+  }
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
   process.exit(1);

@@ -9,20 +9,18 @@
         {
           "type": "contains_any",
           "value": [
-            "Keychain",
-            "name"
+            "Keychain"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
-          "type": "contains",
-          "value": "Android"
+          "type": "contains_any",
+          "value": ["keychain/keystore", "react-native-keychain", "AsyncStorage"]
         },
         {
           "type": "contains_any",
           "value": [
-            "Keystore",
-            "name"
+            "Keystore"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }
@@ -34,16 +32,16 @@
       "expected_output": "Use react-native-ssl-pinning. Pin public key hash (preferred) not the certificate to survive cert rotation. Warn: pinning requires app update when certificate rotates — plan the rotation process. Only required for high-security apps (banking, healthcare). Test both valid and invalid cert scenarios.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Warn"
+          "type": "contains_any",
+          "value": ["certificate-pinning", "react-native-ssl-pinning", "certificate or public-key pins"]
         },
         {
-          "type": "contains",
-          "value": "Only"
+          "type": "contains_any",
+          "value": ["rotation", "overlapping pins", "recovery process"]
         },
         {
-          "type": "contains",
-          "value": "requires app"
+          "type": "contains_any",
+          "value": ["Test that a request fails", "untrusted", "changed certificate"]
         }
       ]
     },

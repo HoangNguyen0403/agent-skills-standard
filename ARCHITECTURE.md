@@ -219,3 +219,9 @@ _Date: 2026-05-14_
 _Date: 2026-07-11_
 **Decision**: Live eval manifests use one shared v2 builder for category and aggregate scopes. A completed run records source hashes and an immutable `inputs.json`; root scripts, the published CLI verifier, and MCP verify against that snapshot. Aggregate reports project the `all` run into category partitions before selecting the newest complete view.
 **Reason**: Mutable eval definitions and incompatible aggregate answer paths made historical scores non-reproducible and allowed incomplete or compromised runs to look valid. v1 manifests remain read-only compatible for historical verification.
+
+### ADR-009: Incremental Live-Eval Evidence
+
+_Date: 2026-07-12_
+**Decision**: `pnpm evals:baseline` plans normal maintenance runs from the latest complete immutable reference. It creates a selective manifest and copies only compatible evidence: prompt-only answers survive a skill-body change, activation answers survive a body-only change, and assertion-only changes regrade existing transcripts. Changed prompts, descriptions, and activation corpora require fresh applicable answers.
+**Reason**: A full catalog run generated 3,220 answers and took roughly 54 minutes. Hash-only invalidation would either rerun too much or reuse the wrong lane. Lane-specific dependency checks preserve reproducibility while making a normal one-skill update practical.

@@ -39,5 +39,7 @@
   "should_trigger": [
     "Apply common-telemetry guidance to the task before handing it off."
   ],
-  "should_not_trigger": ["Design a logo for a marketing landing page."]
+  "should_not_trigger": [
+    "Design a logo for a marketing landing page."
+  ]
 }
