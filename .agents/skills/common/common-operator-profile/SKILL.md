@@ -14,7 +14,7 @@ metadata:
 
 # Operator Profile
 
-## **Priority: P0 (BLOCKING)**
+## **Priority: P0 (CRITICAL)**
 
 ## 1. Infer, Never Ask
 
