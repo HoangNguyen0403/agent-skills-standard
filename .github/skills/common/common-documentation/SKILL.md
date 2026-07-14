@@ -19,6 +19,7 @@ metadata:
 - Use triple-slash (Dart/Swift) or JSDoc (TS/JS) for public members.
 - Delete commented-out code. Use Git history.
 - Format: `TODO(username): description`. Link tickets.
+- For retry backoff, explain that jitter prevents the **thundering herd**; document intent rather than restating the delay calculation.
 
 ## 2. README Structure
 
@@ -44,3 +45,10 @@ metadata:
 - **No "what" comments**: Explain intent. Refactor mechanics.
 - **No orphan TODOs**: Require owner and ticket.
 - **No stale docs**: Document during development.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- JSDoc
+- Usage
+- why

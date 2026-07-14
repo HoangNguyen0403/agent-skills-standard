@@ -14,9 +14,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Builder()"
-          ]
+          "value": ["Builder()"]
         }
       ]
     },

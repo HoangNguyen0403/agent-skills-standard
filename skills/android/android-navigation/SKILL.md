@@ -1,6 +1,6 @@
 ---
 name: android-navigation
-description: Implement navigation with Jetpack Compose Navigation and App Links on Android. Use when implementing navigation flows, deep links, or backstack handling.
+description: Implement screen routes and deep-link/App Link routing with Jetpack Compose Navigation on Android. Use when the primary task is Compose route configuration or external URL routing; defer typed-route APIs, XML/fragments, generic back-stack, and transition questions to their specific navigation skills.
 metadata:
   triggers:
     files:

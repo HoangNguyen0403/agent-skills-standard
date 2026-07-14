@@ -108,6 +108,13 @@ only for changed skills; it reuses only source-compatible transcripts. Do not
 replace it with a full `--all` run unless the protocol, model, or generation
 environment changed.
 
+When evaluating release trustworthiness after broad remediation, use a fresh
+aggregate manifest and execute it with one pinned model/reasoning configuration.
+The release gate is per skill: with-skill case pass must be strictly above 85%,
+assertion pass must be at least 85%, delta must be non-negative, and trigger
+recall/specificity must each be at least 90%. A composite or reused run may be
+kept as historical evidence but cannot be promoted as release proof.
+
 Never hand-edit `results.json` or historical transcripts. New runs must be complete, must contain immutable `inputs.json`, and must use the canonical `.agents/workflows/evals-run.md` workflow; regenerate exported workflow copies from the canonical source.
 
 For release candidates, also run:

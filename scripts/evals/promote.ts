@@ -4,6 +4,7 @@ import { ROOT_DIR } from "./constants";
 import { loadManifest } from "./manifest";
 import { loadRunInputs, readCurrentSource, sourceKey } from "./snapshot";
 import type { RunResults } from "./types";
+import { evaluateSkillReadiness } from "./readiness";
 
 const REGISTRY_FILE = "baselines.json";
 
@@ -50,23 +51,16 @@ function assertGate(results: RunResults, category: string): void {
     throw new Error(`Run ${results.runId} has no ${category} results.`);
   const failed: string[] = [];
   for (const skill of skills) {
-    const assertion = skill.assertionPassRate?.withSkill;
-    if (typeof assertion !== "number" || assertion < 0.85)
-      failed.push(`${skill.skillName}: outcome assertion <85%`);
-    if (
-      skill.triggerRecall !== null &&
-      skill.triggerRecall !== undefined &&
-      skill.triggerRecall < 0.9
-    )
-      failed.push(`${skill.skillName}: activation recall <90%`);
-    if (
-      skill.triggerSpecificity !== null &&
-      skill.triggerSpecificity !== undefined &&
-      skill.triggerSpecificity < 0.9
-    )
-      failed.push(`${skill.skillName}: activation specificity <90%`);
-    if (typeof skill.delta === "number" && skill.delta < 0)
-      failed.push(`${skill.skillName}: negative outcome delta`);
+    const readiness = evaluateSkillReadiness(skill, {
+      compromised: results.compromisedSkills?.some(
+        (record) =>
+          record.category === skill.category &&
+          record.skillName === skill.skillName &&
+          record.arm === "baseline",
+      ),
+    });
+    for (const failure of readiness.failures)
+      failed.push(`${skill.skillName}: ${failure}`);
   }
   if (failed.length)
     throw new Error(`Promotion gate failed:\n- ${failed.join("\n- ")}`);
@@ -95,6 +89,14 @@ export function promoteCategoryBaseline(
   const results = fs.readJSONSync(
     path.join(runDir, "results.json"),
   ) as RunResults;
+  if (
+    results.metadata.evidenceMode !== "fresh" ||
+    (results.metadata.reusedAnswerCount ?? 0) !== 0
+  ) {
+    throw new Error(
+      "Promotion requires one fresh run with zero reused answers.",
+    );
+  }
   const runSkills = manifest.skills.filter(
     (skill) => skill.category === category,
   );

@@ -68,3 +68,8 @@ See [examples](references/isolate-examples.md) for complete code.
 ## References
 
 - [Isolate Examples](references/isolate-examples.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Dart Concurrency and Isolates

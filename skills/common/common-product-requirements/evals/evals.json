@@ -8,11 +8,7 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "Discovery",
-            "What outcome",
-            "Which channels"
-          ]
+          "value": ["Discovery"]
         },
         {
           "type": "contains",
@@ -27,21 +23,13 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "baseline",
-            "p95",
-            "threshold"
-          ]
+          "value": ["baseline"]
         },
         {
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "not actionable",
-            "not an actionable",
-            "baseline"
-          ]
+          "value": ["baseline"]
         }
       ]
     },
@@ -51,16 +39,14 @@
       "expected_output": "Discovery Phase: ask about payment providers (Stripe/PayPal), currencies supported, guest vs. account checkout, 3DS requirements, refund flows, mobile vs. web. Verification checklist: functional flows defined, edge cases (failed payment, timeout, duplicate submit), security requirements (PCI compliance), performance targets. Write to docs/prd/prd-checkout-flow.md.",
       "assertions": [
         {
-          "type": "contains_any",
-          "value": [
-            "edge/error",
-            "failure and recovery",
-            "invalid input"
-          ]
-        },
-        {
           "type": "contains",
           "value": "security"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes Discovery Phase:",
+          "type": "contains",
+          "value": "discovery"
         }
       ]
     },
@@ -85,16 +71,14 @@
       "expected_output": "Include PM-owned PRD, BA/PM/RACI, rollout/ops, validation owner, acceptance criteria IDs, and implementation-readiness before dev tasks.",
       "assertions": [
         {
-          "type": "contains_any",
-          "value": [
-            "Product owner",
-            "Engineering owner",
-            "QA/release owner"
-          ]
-        },
-        {
           "type": "contains",
           "value": "implementation-readiness"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes Include PM-owned",
+          "type": "contains",
+          "value": "RACI"
         }
       ]
     }
@@ -106,7 +90,5 @@
     "Write a Go function to parse JSON",
     "Add unit tests for the auth service"
   ],
-  "should_trigger": [
-    "Create a PRD for a new user notifications feature."
-  ]
+  "should_trigger": ["Create a PRD for a new user notifications feature."]
 }

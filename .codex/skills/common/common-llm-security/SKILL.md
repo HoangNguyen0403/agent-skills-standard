@@ -50,3 +50,8 @@ metadata:
 ## References
 
 - [OWASP LLM — Full Detection Signals](references/owasp-llm.md) — load when auditing any LLM client code
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- sanitize

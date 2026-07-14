@@ -61,10 +61,10 @@
   ],
   "should_not_trigger": [
     "Write a Flutter widget test for the order screen",
-    "Analyze the business rules in the AC before writing tests",
     "Set up build_runner for code generation"
   ],
   "should_trigger": [
-    "Generate Zephyr test cases for {PROJECT}-{ID}: 'As a Customer in VN market, I can download invoices from the Order Detail screen. Web only.'"
+    "Generate Zephyr test cases for {PROJECT}-{ID}: 'As a Customer in VN market, I can download invoices from the Order Detail screen. Web only.'",
+    "Analyze the business rules in the AC before writing tests"
   ]
 }

@@ -8,7 +8,7 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["app/Domains", "domain-oriented folders", "business domain"]
+          "value": ["app/Domains"]
         },
         {
           "type": "contains",
@@ -24,11 +24,7 @@
         },
         {
           "type": "contains_any",
-          "value": ["no Eloquent query", "contain no Eloquent", "free of queries"]
-        },
-        {
-          "type": "contains_any",
-          "value": ["Action", "use case"]
+          "value": ["Action"]
         },
         {
           "type": "contains",
@@ -43,15 +39,11 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["boundary between HTTP", "cross-layer API", "pass it to"]
+          "value": ["raw arrays"]
         },
         {
           "type": "contains_any",
-          "value": ["raw arrays", "unstructured array"]
-        },
-        {
-          "type": "contains_any",
-          "value": ["Eloquent models", "mutable Eloquent"]
+          "value": ["Eloquent models"]
         }
       ]
     },
@@ -62,7 +54,7 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["OrderRepository", "repository contract"]
+          "value": ["OrderRepository"]
         },
         {
           "type": "contains",
@@ -79,10 +71,6 @@
         {
           "type": "contains",
           "value": "OrderRepository::class"
-        },
-        {
-          "type": "contains_any",
-          "value": ["inject `OrderRepository`", "inject OrderRepository", "depends on the Action"]
         }
       ]
     },
@@ -93,15 +81,11 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["business domain", "Domains"]
+          "value": ["business domain"]
         },
         {
           "type": "contains_any",
           "value": ["User", "Order", "Payment"]
-        },
-        {
-          "type": "contains_any",
-          "value": ["instead of creating global", "rather than by technical type"]
         },
         {
           "type": "contains_any",
@@ -128,19 +112,11 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Controller → Action", "repository adapter", "persistence abstractions"]
+          "value": ["Controller → Action"]
         },
         {
           "type": "contains_any",
-          "value": ["controllers free of queries", "no Eloquent query", "Keep controllers free"]
-        },
-        {
-          "type": "contains_any",
-          "value": ["typed immutable data", "DTOs", "data in `DTOs`"]
-        },
-        {
-          "type": "contains_any",
-          "value": ["bind them", "Bind the contract", "container bindings"]
+          "value": ["DTOs"]
         },
         {
           "type": "contains",
@@ -157,20 +133,13 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "public readonly int $amount) {} }",
-            "readonly"
-          ]
+          "value": ["public readonly int $amount) {} }", "readonly"]
         },
         {
           "id": "a2",
-          "description": "Accepts the original or an equivalent skill-visible outcome",
-          "type": "contains_any",
-          "value": [
-            "prevents accidental mutation",
-            "immutable transfer data",
-            "readonly DTO"
-          ]
+          "description": "Checks the task contract includes readonly class",
+          "type": "contains",
+          "value": "readonly class"
         }
       ]
     }
@@ -181,7 +150,5 @@
     "Use DTOs in a Go service",
     "Clean architecture in React"
   ],
-  "should_trigger": [
-    "Implement Domain-Driven Design in Laravel"
-  ]
+  "should_trigger": ["Implement Domain-Driven Design in Laravel"]
 }

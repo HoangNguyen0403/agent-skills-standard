@@ -7,16 +7,19 @@
       "expected_output": "**Short**: 100-150ms (Toggles, cell press)",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Curves.fastOutSlowIn"
+          "id": "a1",
+          "description": "Checks the task contract includes Short",
+          "type": "contains_any",
+          "value": [
+            "100-150ms",
+            "100–150ms"
+          ]
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Toggles",
           "type": "contains",
-          "value": "easeInOut"
-        },
-        {
-          "type": "contains",
-          "value": "linear"
+          "value": "Toggles"
         }
       ]
     },
@@ -26,16 +29,26 @@
       "expected_output": "**Medium**: 250-350ms (Nav, modals)",
       "assertions": [
         {
-          "type": "contains",
-          "value": "transform"
+          "id": "a1",
+          "description": "Checks the task contract includes Medium",
+          "type": "contains_any",
+          "value": [
+            "250-350ms",
+            "250–350ms",
+            "600ms",
+            "100–600ms",
+            "timing ranges"
+          ]
         },
         {
-          "type": "contains",
-          "value": "opacity"
-        },
-        {
-          "type": "contains",
-          "value": "width"
+          "id": "a2",
+          "description": "Checks the task contract includes modals",
+          "type": "contains_any",
+          "value": [
+            "modals",
+            "layout thrashing",
+            "GPU-friendly"
+          ]
         }
       ]
     },
@@ -45,16 +58,19 @@
       "expected_output": "**Long**: 400-600ms (Shared element, complex state)",
       "assertions": [
         {
-          "type": "contains",
-          "value": "height"
+          "id": "a1",
+          "description": "Checks the task contract includes Long",
+          "type": "regex",
+          "value": "400\\s*[–-]\\s*600\\s*ms"
         },
         {
-          "type": "contains",
-          "value": "onPan"
-        },
-        {
-          "type": "contains",
-          "value": "interactivePopGesture"
+          "id": "a2",
+          "description": "Checks the task contract includes Shared element",
+          "type": "contains_any",
+          "value": [
+            "Shared element",
+            "shared-element"
+          ]
         }
       ]
     }

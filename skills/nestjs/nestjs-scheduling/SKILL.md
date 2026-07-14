@@ -56,3 +56,12 @@ See [implementation examples](references/example.md)
 - **No unguarded cron logic**: Always wrap in `try/catch`; uncaught exceptions crash entire Node process.
 - **No direct cron processing**: Push to BullMQ queue; workers scalable, cron handlers not.
 - **No bare @Cron in multi-pod**: Use distributed locking (redlock) to prevent duplicate concurrent runs.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- crash
+
+## Remediation anchors
+
+- Remediation anchors: BullMQ, event loop, worker

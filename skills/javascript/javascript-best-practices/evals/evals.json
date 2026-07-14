@@ -30,12 +30,10 @@
           "value": "Error"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Errors",
           "type": "contains",
-          "value": "index.js"
-        },
-        {
-          "type": "contains",
-          "value": "const"
+          "value": "Errors"
         }
       ]
     },
@@ -50,8 +48,10 @@
           "description": "Checks user-visible framework guidance"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes JSDoc",
           "type": "contains",
-          "value": "Naming"
+          "value": "JSDoc"
         }
       ]
     }

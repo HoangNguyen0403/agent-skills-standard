@@ -55,3 +55,8 @@ See [implementation examples](references/implementation.md) for custom error enu
 ## References
 
 - [Error Types & Result](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Never for expected

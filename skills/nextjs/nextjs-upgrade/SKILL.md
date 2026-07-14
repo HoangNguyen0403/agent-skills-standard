@@ -43,3 +43,9 @@ Automated and manual migration steps for Next.js version upgrades (e.g., v14 to 
 - **No manual breaking-change fixes**: Always run `npx @next/codemod@latest` transforms first.
 - **No assumed caching behavior post-upgrade**: v15 defaults to `no-store`; audit all `fetch` calls.
 - **No async page functions in Pages Router**: `export default async function Page()` fatal.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- incremental
+- one major

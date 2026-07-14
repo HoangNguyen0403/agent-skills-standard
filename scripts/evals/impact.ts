@@ -10,6 +10,8 @@ import {
 import { loadRunInputs, readCurrentSource, sourceKey } from "./snapshot";
 import type { ManifestSkill, ManifestV2, RunInputSource } from "./types";
 
+const CURRENT_INSTRUCTION_VERSION = "governing-skill-v3" as const;
+
 export type EvidenceAction = "reuse" | "generate" | "regrade";
 
 export interface SkillImpact {
@@ -199,6 +201,10 @@ function compatibleEvidenceRun(
   const current = readCurrentSource(repoRoot, skill);
   const currentParts = evalParts(current.evals);
   return completeBaselineRuns(repoRoot).find((run) => {
+    if (
+      run.manifest.protocol.instructionVersion !== CURRENT_INSTRUCTION_VERSION
+    )
+      return false;
     const source = run.sources[sourceKey(skill.category, skill.skillName)];
     if (!source || source.hashes.skill !== current.hashes.skill) return false;
     const sourceParts = evalParts(source.evals);
@@ -216,6 +222,10 @@ function compatibleActivationEvidenceRun(
   const current = readCurrentSource(repoRoot, skill);
   const currentParts = evalParts(current.evals);
   return completeBaselineRuns(repoRoot).find((run) => {
+    if (
+      run.manifest.protocol.instructionVersion !== CURRENT_INSTRUCTION_VERSION
+    )
+      return false;
     if (run.manifest.activationEvidenceVersion !== 3) return false;
     const source = run.sources[sourceKey(skill.category, skill.skillName)];
     if (
@@ -240,6 +250,9 @@ export function planBaseline(
       !options.baselineRunId ||
       baselineKeys.has(sourceKey(skill.category, skill.skillName)),
   );
+  const protocolChanged =
+    baseline.manifest.protocol.instructionVersion !==
+    CURRENT_INSTRUCTION_VERSION;
   for (const skill of scopedSkills) {
     const key = sourceKey(skill.category, skill.skillName);
     const previous = baseline.sources[key];
@@ -269,6 +282,7 @@ export function planBaseline(
       previousParts.assertions !== currentParts.assertions;
     const triggersChanged = previousParts.triggers !== currentParts.triggers;
     if (
+      !protocolChanged &&
       !skillBodyChanged &&
       !descriptionChanged &&
       !promptsChanged &&
@@ -276,16 +290,20 @@ export function planBaseline(
       !triggersChanged
     )
       continue;
-    const outcome: EvidenceAction = promptsChanged
-      ? "generate"
-      : skillBodyChanged || descriptionChanged
+    const outcome: EvidenceAction =
+      protocolChanged || promptsChanged
         ? "generate"
-        : assertionsChanged
-          ? "regrade"
-          : "reuse";
+        : skillBodyChanged || descriptionChanged
+          ? "generate"
+          : assertionsChanged
+            ? "regrade"
+            : "reuse";
     const activation: EvidenceAction =
-      descriptionChanged || triggersChanged ? "generate" : "reuse";
+      protocolChanged || descriptionChanged || triggersChanged
+        ? "generate"
+        : "reuse";
     const reason = [
+      protocolChanged ? "generation protocol" : "",
       skillBodyChanged ? "skill body" : "",
       descriptionChanged ? "description" : "",
       promptsChanged ? "outcome prompts" : "",
@@ -304,9 +322,19 @@ export function planBaseline(
       category: skill.category,
       skillName: skill.skillName,
       reason,
-      outcome: compatible && !promptsChanged ? "reuse" : outcome,
+      outcome:
+        assertionsChanged &&
+        compatible &&
+        !protocolChanged &&
+        !skillBodyChanged &&
+        !descriptionChanged &&
+        !promptsChanged
+          ? "regrade"
+          : compatible && !protocolChanged && !promptsChanged
+            ? "reuse"
+            : outcome,
       activation: activationCompatible ? "reuse" : "generate",
-      reuseBaselineOutcome: !promptsChanged,
+      reuseBaselineOutcome: !protocolChanged && !promptsChanged,
     });
   }
   const counts = impacts.reduce(
@@ -431,6 +459,20 @@ export function createBaselineRun(
       }
     }
   }
+  const regradeOnly =
+    plan.impacts.length > 0 &&
+    plan.impacts.every(
+      (impact) => impact.outcome === "regrade" && impact.activation === "reuse",
+    );
+  manifest.metadata = {
+    ...manifest.metadata,
+    evidenceMode: regradeOnly ? "regraded" : "incremental",
+    freshAnswerCount: manifest.metadata.freshAnswerCount ?? 0,
+    reusedAnswerCount: reusedAnswers,
+  };
+  fs.writeJSONSync(path.join(runDir, "manifest.json"), manifest, {
+    spaces: 2,
+  });
   fs.writeJSONSync(path.join(runDir, "baseline-plan.json"), plan, {
     spaces: 2,
   });

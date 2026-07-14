@@ -81,10 +81,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "Never use @HostBinding",
-            "hostbinding"
-          ],
+          "value": ["Never use @HostBinding", "hostbinding"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
@@ -108,10 +105,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "Do not declare in NgModule",
-            "declare"
-          ],
+          "value": ["Do not declare in NgModule", "declare"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]
@@ -146,7 +140,5 @@
     "How do I build a Go HTTP middleware?",
     "How do I style elements using CSS custom properties?"
   ],
-  "should_trigger": [
-    "How do I create a custom attribute directive in Angular?"
-  ]
+  "should_trigger": ["How do I create a custom attribute directive in Angular?"]
 }

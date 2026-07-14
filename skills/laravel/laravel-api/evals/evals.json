@@ -134,7 +134,5 @@
     "Set up Axios in a React project",
     "How do I authenticate users in a Next.js app?"
   ],
-  "should_trigger": [
-    "Build a REST API endpoint in Laravel"
-  ]
+  "should_trigger": ["Build a REST API endpoint in Laravel"]
 }

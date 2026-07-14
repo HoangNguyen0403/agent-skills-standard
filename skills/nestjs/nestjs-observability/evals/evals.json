@@ -64,7 +64,5 @@
     "How do I add Prometheus to Spring Boot?",
     "How do I configure NestJS modules?"
   ],
-  "should_trigger": [
-    "What logging library should I use in NestJS?"
-  ]
+  "should_trigger": ["What logging library should I use in NestJS?"]
 }

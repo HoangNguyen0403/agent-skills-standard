@@ -98,7 +98,5 @@
     "Structure a Spring Boot application",
     "What is MVC in general?"
   ],
-  "should_trigger": [
-    "How should I structure my Laravel controllers?"
-  ]
+  "should_trigger": ["How should I structure my Laravel controllers?"]
 }

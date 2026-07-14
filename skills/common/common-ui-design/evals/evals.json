@@ -7,8 +7,12 @@
       "expected_output": "Phase 0 Design Thinking first: (1) Purpose — what problem does the SaaS solve? (2) Tone — commit to one: brutally minimal / maximalist / editorial / luxury. (3) Differentiation — one thing users will remember. Then: pair display font + body font (not system defaults), choose dominant color + sharp accent, plan one orchestrated entrance animation, use gradient mesh or texture background.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "tone"
+          "type": "contains_any",
+          "value": [
+            "tone",
+            "aesthetic",
+            "industrial/utilitarian"
+          ]
         },
         {
           "type": "contains",
@@ -22,8 +26,11 @@
       "expected_output": "Commit to aesthetic: industrial/utilitarian or editorial/magazine for data-heavy dashboards. Typography: pair a distinctive monospace or condensed display font with clean body type. Spatial composition: generous negative space OR controlled density — never accidental middleground. Background: layer transparencies or subtle noise texture. Avoid: white background with generic Inter font.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "aesthetic"
+          "type": "contains_any",
+          "value": [
+            "aesthetic",
+            "design direction"
+          ]
         },
         {
           "type": "contains",
@@ -37,8 +44,12 @@
       "expected_output": "No purple-gradient-on-white — most overused AI aesthetic. Commit to something context-specific: (1) Choose a contrasting tone (dark editorial / retro-futuristic / brutalist). (2) Use a characterful display font (not Inter/Roboto). (3) One orchestrated entrance beat ten hover effects. (4) Break the grid intentionally with asymmetry or diagonal flow.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "generic"
+          "type": "contains_any",
+          "value": [
+            "generic",
+            "another AI startup",
+            "generic Inter"
+          ]
         },
         {
           "type": "contains",

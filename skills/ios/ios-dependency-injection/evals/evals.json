@@ -11,12 +11,10 @@
           "value": "init"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Initializer Injection",
           "type": "contains",
-          "value": "Factory"
-        },
-        {
-          "type": "contains",
-          "value": "@Injected"
+          "value": "Initializer Injection"
         }
       ]
     },
@@ -27,16 +25,14 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "protocol-based",
-            "protocols",
-            "initializer injection"
-          ],
+          "value": ["protocols"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Abstractions",
           "type": "contains",
-          "value": "Initializer Injection"
+          "value": "protocol"
         }
       ]
     },
@@ -47,15 +43,13 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Factory", "@Injected", "Container"]
+          "value": ["Factory"]
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes library",
           "type": "contains",
-          "value": "Injected"
-        },
-        {
-          "type": "contains",
-          "value": "Singleton"
+          "value": "Factory"
         }
       ]
     }

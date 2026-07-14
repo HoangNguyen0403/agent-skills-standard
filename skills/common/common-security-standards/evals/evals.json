@@ -7,17 +7,17 @@
       "expected_output": "Apply security standards: (1) Hash passwords with Argon2id (not MD5/bcrypt). (2) No hardcoded secrets — JWT_SECRET in env var. (3) No raw SQL — use parameterized query or ORM. (4) Return generic error messages only. (5) Implement rate limiting on the auth endpoint. (6) Use HttpOnly Secure cookies for session. (7) Add audit log for login events.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "parameterized"
+          "type": "contains_any",
+          "value": [
+            "parameterized",
+            "ORM"
+          ]
         },
         {
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Apply security standards",
-            "apply"
-          ]
+          "value": "Argon2id"
         }
       ]
     },

@@ -53,3 +53,8 @@ See [implementation examples](references/REFERENCE.md#xss-prevention-with-dompur
 ## References
 
 See [references/REFERENCE.md](references/REFERENCE.md) for DOMPurify usage, CSP headers, OAuth2/JWT auth patterns, and CSRF protection.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Pin specific dependency versions

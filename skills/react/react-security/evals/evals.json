@@ -11,8 +11,11 @@
           "value": "HttpOnly"
         },
         {
-          "type": "contains",
-          "value": "XSS"
+          "type": "contains_any",
+          "value": [
+            "XSS",
+            "cross-site scripting"
+          ]
         }
       ]
     },

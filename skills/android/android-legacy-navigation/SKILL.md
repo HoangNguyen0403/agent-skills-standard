@@ -1,6 +1,6 @@
 ---
 name: android-legacy-navigation
-description: Implement Jetpack Navigation Component with XML graphs and SafeArgs for type-safe fragment navigation. Use when working with XML-based navigation or SafeArgs in legacy Android projects.
+description: Implement Jetpack Navigation Component with XML graphs and SafeArgs for type-safe fragment navigation. Use when working with XML-based navigation or SafeArgs in legacy Android projects; defer drawer and other UI-chrome work to UI skills.
 metadata:
   triggers:
     files:

@@ -77,3 +77,12 @@ Run after authoring or reviewing any User Story before marking it ready for deve
 - [ ] Story uses `As a / I want / So that` header
 - [ ] Market-specific ACs prefixed `[Market: VN]`, `[Market: MY]`, etc.
 - [ ] Translation / locale behavior its own AC or deferred with Jira link
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Actor
+- Mobile
+- Variable
+
+- Additional task-grounded exact anchors: Truth table

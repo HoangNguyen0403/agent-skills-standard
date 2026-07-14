@@ -64,7 +64,5 @@
     "How do I connect NestJS to PostgreSQL?",
     "How do I structure a Spring Boot API?"
   ],
-  "should_trigger": [
-    "How do I standardize API responses in NestJS?"
-  ]
+  "should_trigger": ["How do I standardize API responses in NestJS?"]
 }

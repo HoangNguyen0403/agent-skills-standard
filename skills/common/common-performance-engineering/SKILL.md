@@ -74,3 +74,10 @@ See [implementation examples](references/implementation.md) for memoization and 
 ## References
 
 - [Implementation Patterns](references/implementation.md) — profiling patterns, benchmark setup
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- lazy
+
+- Additional task-grounded exact anchors: premature

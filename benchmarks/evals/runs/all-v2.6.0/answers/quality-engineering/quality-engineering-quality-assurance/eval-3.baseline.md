@@ -1,0 +1,1 @@
+Priority: P3 (medium-low). It is a cosmetic, iOS-specific UI defect that does not block functionality, but should be fixed to maintain visual consistency and polish. Raise it to P2 if the spacing harms readability, truncates the label, or affects tap usability.

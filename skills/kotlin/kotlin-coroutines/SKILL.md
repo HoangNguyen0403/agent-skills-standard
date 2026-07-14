@@ -1,6 +1,6 @@
 ---
 name: kotlin-coroutines
-description: Write safe, structured concurrent code with Kotlin Coroutines. Use when writing suspend functions, choosing coroutine scopes, handling cancellation in loops, selecting between StateFlow and SharedFlow, debugging coroutine leaks, or asked why GlobalScope is dangerous.
+description: Write safe, structured concurrent code with Kotlin Coroutines. Use for suspend functions, coroutine scopes, cancellation, and coroutine leaks; defer Java Virtual Threads, Android WorkManager/Fragment lifecycle, Compose state hoisting, and Detekt/tooling configuration.
 metadata:
   triggers:
     files:

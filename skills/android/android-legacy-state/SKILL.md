@@ -1,6 +1,6 @@
 ---
 name: android-legacy-state
-description: Integrate ViewModel state with Views using Coroutines and Lifecycle on Android. Use when managing state with repeatOnLifecycle or lifecycle-aware coroutines in Fragment/Activity.
+description: Integrate ViewModel state with XML Views using Coroutines and Lifecycle on Android. Use when managing state with repeatOnLifecycle or lifecycle-aware coroutines in Fragment/Activity; defer Compose state and generic Flow design to their specific skills.
 metadata:
   triggers:
     files:

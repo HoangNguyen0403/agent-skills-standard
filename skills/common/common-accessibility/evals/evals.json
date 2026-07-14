@@ -44,10 +44,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Add an error icon or text message (e",
-            "error"
-          ]
+          "value": ["Add an error icon or text message (e", "error"]
         }
       ]
     }

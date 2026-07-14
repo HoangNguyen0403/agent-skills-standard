@@ -34,6 +34,8 @@ metadata:
 | 4 | `playwright-cli -s={ID} screenshot` | Visual evidence. Use `--mask <ref>` for dynamic content. |
 | 5 | `playwright-cli -s={ID} close` | **MANDATORY Cleanup**. |
 
+For a sticky header that appears after scrolling, scroll until the header is visible, use `hover` on the header (or its stable role/reference) to establish the visible state, then capture the `screenshot`. Keep the named session open until the evidence is captured.
+
 ## 💡 Agent-Native Optimization
 - **Aria-First**: Use `snapshot --aria` as primary way to "see" page. Filters noise.
 - **Robust Locators**: Prefer Role-based references (e.g. `button[name="Submit"]`) over fragile CSS classes.
@@ -57,3 +59,12 @@ metadata:
 - **Web Visual Testing**: [common-web-visual-testing](../../common/common-web-visual-testing/SKILL.md) — Methodology for what to verify.
 - **Anti-Patterns Rationale**: [anti-patterns-rationale](references/anti-patterns-rationale.md) — Why these rules exist.
 - **Project Context**: [project-context](references/project-context.md) — Project-specific market/VPN/auth patterns.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- 🎭 Playwright CLI (Web Automation)
+
+## Remediation anchors
+
+- Remediation anchors: hover, screenshot

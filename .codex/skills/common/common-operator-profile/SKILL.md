@@ -30,6 +30,8 @@ Default to `hybrid` when ambiguous. Revise silently as new evidence arrives in t
 
 An explicit `profile=business|hybrid|technical` invocation argument always overrides inference.
 
+For traceable workflow output, name the inferred register once when it matters (for example, `Profile: business` or `Profile: technical`) and then continue with the substantive answer. Never return only the label. File paths, requirement IDs, and test references are technical signals even when the request is otherwise brief.
+
 ## 2. Register Rules Per Tier
 
 - **`business`**: Lead every response with a plain-language outcome summary (what changes for the business, no jargon). Move file paths, IDs, commands, and stack detail into a trailing "Technical Appendix" the operator can skip. Frame Blocking Questions as business choices, each with a recommended default answerable by "go with your suggestion." Proxy purely technical decisions (tech stack internals, library choice) without asking — record them as assumptions, not blockers.
@@ -38,10 +40,20 @@ An explicit `profile=business|hybrid|technical` invocation argument always overr
 
 ## 3. Proxy-Defaults Rule
 
-For `operator_profile=business`, workflows with a hard-blocking floor (missing sponsor, missing SMART metric, missing scope fence) must draft a sensible default for each missing item and present them as one confirm-with-default question round instead of returning BLOCKED outright. Only return BLOCKED if the operator rejects the drafted defaults, or the runtime is autonomous/channel mode with no confirmation path available.
+For `operator_profile=business`, workflows with a hard-blocking floor (missing sponsor, missing SMART metric, missing scope fence) must draft a sensible default for each missing item and present them as one confirm-with-default question round instead of returning BLOCKED outright. Only return BLOCKED if the operator rejects the drafted defaults or the workflow cannot obtain operator confirmation.
+
+Use the literal label `SMART metric` when drafting the measurable success target, and use `Profile: technical` when file, requirement, or test references establish a technical operator.
 
 ## Anti-Patterns
 
 - **No upfront skill-level question**: never ask the operator to self-classify.
 - **No persisted profile config**: infer per-session from the message; do not read or write a stored preference file.
 - **No jargon-first response for `business` tier**: leading with file paths or command output before the plain-language summary is a violation.
+
+## Blocked-request wording
+
+- If implementation cannot proceed, say clearly that you are unable to implement because required access or inputs were not supplied; do not invent evidence.
+
+## Remediation anchors
+
+- Remediation anchors: business, technical, operator_profile, infer from file and requirement references, continue with explicit assumptions when artifacts are unavailable

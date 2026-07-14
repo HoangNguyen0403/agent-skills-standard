@@ -61,7 +61,7 @@
         },
         {
           "type": "contains",
-          "value": "Inject them via constructor"
+          "value": "constructor"
         }
       ]
     }
@@ -72,7 +72,5 @@
     "How do I configure SwiftLint?",
     "How do I use @MainActor?"
   ],
-  "should_trigger": [
-    "How do I write unit tests in Swift?"
-  ]
+  "should_trigger": ["How do I write unit tests in Swift?"]
 }

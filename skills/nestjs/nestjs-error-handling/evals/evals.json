@@ -64,7 +64,5 @@
     "How do I validate DTOs in NestJS?",
     "How do I set up Spring Boot exception handling?"
   ],
-  "should_trigger": [
-    "How do I create a global exception filter in NestJS?"
-  ]
+  "should_trigger": ["How do I create a global exception filter in NestJS?"]
 }

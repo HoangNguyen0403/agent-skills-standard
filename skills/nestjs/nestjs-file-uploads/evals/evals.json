@@ -64,7 +64,5 @@
     "How do I upload files to S3 from Go?",
     "How do I configure NestJS database module?"
   ],
-  "should_trigger": [
-    "How do I validate uploaded file types in NestJS?"
-  ]
+  "should_trigger": ["How do I validate uploaded file types in NestJS?"]
 }

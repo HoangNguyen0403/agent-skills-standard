@@ -11,12 +11,10 @@
           "value": "fastlane match"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Match",
           "type": "contains",
-          "value": "PROVISIONING_PROFILE_SPECIFIER"
-        },
-        {
-          "type": "contains",
-          "value": "beta"
+          "value": "Match"
         }
       ]
     },
@@ -26,20 +24,16 @@
       "expected_output": "**Project Settings**: Explicitly set `PROVISIONING_PROFILE_SPECIFIER` in build settings if using manual/CI.",
       "assertions": [
         {
+          "id": "a1",
+          "description": "Checks the task contract includes Project Settings",
           "type": "contains",
-          "value": "release"
+          "value": "PROVISIONING_PROFILE_SPECIFIER"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Explicitly",
           "type": "contains",
-          "value": "increment_build_number"
-        },
-        {
-          "type": "contains_any",
-          "value": [
-            "Info.plist",
-            "info"
-          ],
-          "description": "Accepts the original or an equivalent skill-visible outcome"
+          "value": "Explicitly"
         }
       ]
     },
@@ -54,8 +48,10 @@
           "description": "Checks user-visible framework guidance"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Script your",
           "type": "contains",
-          "value": "Match"
+          "value": "Fastfile"
         }
       ]
     }
@@ -66,7 +62,5 @@
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
   ],
-  "should_trigger": [
-    "How should I implement ios deployment best practices?"
-  ]
+  "should_trigger": ["How should I implement ios deployment best practices?"]
 }

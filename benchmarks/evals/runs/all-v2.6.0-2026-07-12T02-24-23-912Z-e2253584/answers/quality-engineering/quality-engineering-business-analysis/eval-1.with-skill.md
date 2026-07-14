@@ -1,1 +1,0 @@
-Start with Atomic AC decomposition: logged-in versus guest, non-empty versus empty history, pagination, and failure states. Build an actor matrix for Customer, Sales Rep, and Admin, verify Web/Mobile parity, and cover offline, no orders, expired session, and unauthorized access. Undefined behavior is a P0 blocker before test creation.

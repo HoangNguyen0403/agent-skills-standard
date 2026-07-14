@@ -58,3 +58,11 @@ See [references/controller-example.md](references/controller-example.md) for con
 ## Related Topics
 
 getx-navigation | layer-based-clean-architecture | dependency-injection
+
+## Controller boundary
+
+- Keep `BuildContext` out of controllers. Use GetX services such as `Get.snackbar` for controller-owned feedback and expose reactive state to the view.
+
+## Remediation anchors
+
+- Remediation anchors: onInit, Obx, no BuildContext in the controller

@@ -23,7 +23,7 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Cubit", "BlocBuilder", "OrdersBloc"]
+          "value": ["Cubit", "BlocBuilder"]
         },
         {
           "type": "contains",
@@ -44,9 +44,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Remove"
-          ]
+          "value": ["Remove"]
         },
         {
           "id": "a2",

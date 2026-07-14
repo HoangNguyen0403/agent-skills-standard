@@ -45,8 +45,11 @@
       "expected_output": "Use theme.textTheme.headlineSmall or VTypography.heading, VColors.* for the color — no inline TextStyle or hex Color literal",
       "assertions": [
         {
-          "type": "contains",
-          "value": "VTypography"
+          "type": "contains_any",
+          "value": [
+            "VTypography",
+            "textTheme"
+          ]
         },
         {
           "type": "contains",

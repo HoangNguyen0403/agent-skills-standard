@@ -30,10 +30,10 @@
           "value": "Factory"
         },
         {
-          "id": "a1",
-          "description": "Checks the outcome includes Dependency Injection",
+          "id": "a2",
+          "description": "Checks the task contract includes Change CartBloc",
           "type": "contains",
-          "value": "Dependency Injection"
+          "value": "factory"
         }
       ]
     },
@@ -46,10 +46,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "In setUp",
-            "setup"
-          ]
+          "value": ["In setUp", "setup"]
         },
         {
           "id": "a2",

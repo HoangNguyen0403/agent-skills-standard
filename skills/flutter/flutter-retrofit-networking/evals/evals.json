@@ -53,7 +53,5 @@
     "Write a unit test for the repository",
     "Set up GraphQL with ferry or artemis"
   ],
-  "should_trigger": [
-    "Create a Retrofit client for the orders API in Flutter."
-  ]
+  "should_trigger": ["Create a Retrofit client for the orders API in Flutter."]
 }

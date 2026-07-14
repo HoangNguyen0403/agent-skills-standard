@@ -1,6 +1,6 @@
 ---
 name: android-security
-description: Secure data encryption, network configuration, and permissions in Android apps. Use when handling API keys, auth tokens, certificate pinning, EncryptedSharedPreferences, or securing exported components.
+description: Secure Android data at rest and authentication secrets. Use for auth tokens, encrypted storage, and app-data isolation; defer WebView/Intent/FileProvider to android-legacy-security and TLS/certificate pinning to android-networking.
 metadata:
   triggers:
     files:

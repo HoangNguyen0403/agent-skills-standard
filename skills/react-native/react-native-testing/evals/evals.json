@@ -29,19 +29,13 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Use jest",
-            "jest"
-          ]
+          "value": ["Use jest", "jest"]
         },
         {
           "id": "a2",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "mock at the top of the test file",
-            "mock"
-          ]
+          "value": ["mock at the top of the test file", "mock"]
         }
       ]
     },

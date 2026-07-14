@@ -1,6 +1,6 @@
 ---
 name: kotlin-best-practices
-description: Core patterns for robust Kotlin code including scope functions and backing properties. Use when writing idiomatic Kotlin, choosing between scope functions (let/apply/run/also/with), encapsulating mutable state with backing properties, or exposing read-only collection interfaces.
+description: Core Kotlin patterns for scope functions, backing properties, and read-only collection interfaces. Use for let/apply/run/also/with choices or encapsulating mutable state; defer general language constructs, extension functions, coroutines/runCatching, Android/Room recipes, and testing/tooling setup.
 metadata:
   triggers:
     files:

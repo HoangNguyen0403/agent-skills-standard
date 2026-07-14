@@ -7,6 +7,8 @@ export type SchemaVersion = 1 | 2;
 export type RunScopeKind = "category" | "all" | "selective";
 export type MetricValue = number | "n/a";
 export type TriggerDecision = "yes" | "no";
+export type EvidenceMode = "fresh" | "incremental" | "regraded" | "composite";
+export type AssertionSemanticsVersion = 1 | 2;
 
 export interface EvalCaseRef {
   /** Stable id within a skill, e.g. "eval-1", "trigger-2", "pressure-1". */
@@ -32,6 +34,9 @@ export interface RunMetadata {
   reasoningEffort?: "low" | "medium" | "high" | "xhigh";
   startedAt?: string;
   completedAt?: string;
+  evidenceMode?: EvidenceMode;
+  freshAnswerCount?: number;
+  reusedAnswerCount?: number;
 }
 
 export interface RunScope {
@@ -40,6 +45,8 @@ export interface RunScope {
 }
 
 export interface GenerationProtocol {
+  /** Historical v1 runs remain readable; new runs and composites must use v3. */
+  instructionVersion: "governing-skill-v1" | "governing-skill-v3";
   isolation: "worker-per-arm";
   baseline: "prompt-only";
   withSkill: "prompt-plus-skill";
@@ -81,6 +88,10 @@ export interface ManifestV2 extends ManifestBase {
   baselineRunId?: string;
   /** Trigger transcript protocol; legacy runs are not reused for activation evidence. */
   activationEvidenceVersion?: 2 | 3;
+  /** v2 preserves literal values while tolerating Markdown/formatting variants. */
+  assertionSemanticsVersion?: AssertionSemanticsVersion;
+  /** Per-skill source record for self-contained composite runs. */
+  provenance?: Record<string, SkillProvenance>;
 }
 
 export type Manifest = ManifestV1 | ManifestV2;
@@ -143,7 +154,18 @@ export interface RunResults {
   metadata: RunMetadata;
   scope?: RunScope;
   compromisedSkills?: CompromisedSkillRecord[];
+  provenance?: Record<string, SkillProvenance>;
   skills: SkillResult[];
+}
+
+export interface SkillProvenance {
+  sourceRunId: string;
+  sourceHash: SourceHash;
+  model?: string;
+  protocol: GenerationProtocol;
+  evidenceMode: EvidenceMode;
+  activationEvidenceVersion?: 2 | 3;
+  assertionSemanticsVersion?: AssertionSemanticsVersion;
 }
 
 export interface RunInputSource {
@@ -174,6 +196,7 @@ export interface EvalsHistoryRecord {
   avgDelta: number;
   agent?: string;
   model?: string;
+  evidenceMode?: EvidenceMode;
 }
 
 export interface EvalsHistory {

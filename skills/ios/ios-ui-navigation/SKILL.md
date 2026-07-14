@@ -47,3 +47,13 @@ metadata:
 ## References
 
 - [Auto Layout & HIG Compliance](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- UIViewControllerRepresentable
+- UIViewRepresentable
+
+## Remediation anchors
+
+- Remediation anchors: NSLayoutAnchor, safeAreaLayoutGuide, UIStackView

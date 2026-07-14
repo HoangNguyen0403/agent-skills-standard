@@ -3,15 +3,14 @@ import fs from "fs-extra";
 import * as path from "path";
 import { isGuardrailApplicable } from "../benchmark/utils";
 import {
-  KNOWN_COMPROMISED_BASELINES,
   MANIFEST_FILENAME,
+  RESULTS_FILENAME,
   ROOT_DIR,
   RUNS_DIR,
 } from "./constants";
 import { readCurrentSource, sourceKey } from "./snapshot";
 import {
   Assertion,
-  CompromisedSkillRecord,
   EvalCaseRef,
   Manifest,
   ManifestSkill,
@@ -45,6 +44,12 @@ export interface ManifestBuildOptions {
   baselineRunId?: string;
 }
 
+export interface RunReferenceOptions {
+  repoRoot?: string;
+  version: string;
+  category?: string;
+}
+
 function repoPath(repoRoot: string, ...parts: string[]): string {
   return path.join(repoRoot, ...parts);
 }
@@ -72,6 +77,14 @@ function createRunId(
     if (!fs.existsSync(path.join(runsDir, runId))) return runId;
   }
   throw new Error(`Unable to allocate a unique run id for ${scope}`);
+}
+
+function validateRunId(runId: string): void {
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(runId)) {
+    throw new Error(
+      `Invalid run ID '${runId}'. Use letters, numbers, dots, hyphens, and underscores only.`,
+    );
+  }
 }
 
 function frontmatterDescription(skillMarkdown: string): string {
@@ -125,12 +138,6 @@ function makeCase(
   return { id, kind, arms, ...(expectedTrigger ? { expectedTrigger } : {}) };
 }
 
-function isKnownCompromised(category: string, skillName: string): boolean {
-  return KNOWN_COMPROMISED_BASELINES.some(
-    (record) => record.category === category && record.skillName === skillName,
-  );
-}
-
 function buildSkill(
   repoRoot: string,
   runDir: string,
@@ -138,7 +145,6 @@ function buildSkill(
   category: string,
   skillName: string,
   sourceHashes: ManifestV2["sourceHashes"],
-  compromisedSkills: CompromisedSkillRecord[],
 ): ManifestSkill | null {
   const skillMdPath = repoPath(
     repoRoot,
@@ -241,15 +247,6 @@ function buildSkill(
   }
   if (cases.length === 0) return null;
 
-  if (isKnownCompromised(category, skillName)) {
-    compromisedSkills.push({
-      category,
-      skillName,
-      arm: "baseline",
-      reason: "baseline-compromised",
-    });
-  }
-
   return {
     category,
     skillName,
@@ -278,6 +275,7 @@ export function buildManifest(
 
   const now = options.now ?? new Date();
   const runId = options.runId ?? createRunId(category, version, runsDir, now);
+  validateRunId(runId);
   const runDir = path.join(runsDir, runId);
   if (fs.existsSync(runDir)) {
     throw new Error(`Run already exists: ${runId}; use --resume ${runId}`);
@@ -285,7 +283,7 @@ export function buildManifest(
   fs.ensureDirSync(runDir);
 
   const sourceHashes: ManifestV2["sourceHashes"] = {};
-  const compromisedSkills: CompromisedSkillRecord[] = [];
+  const compromisedSkills = [];
   const skills: ManifestSkill[] = [];
   for (const currentCategory of category === "all" ? categories : [category]) {
     const categoryDir = repoPath(repoRoot, "skills", currentCategory);
@@ -308,7 +306,6 @@ export function buildManifest(
         currentCategory,
         skillName,
         sourceHashes,
-        compromisedSkills,
       );
       if (skill) skills.push(skill);
     }
@@ -320,12 +317,18 @@ export function buildManifest(
     category,
     version,
     createdAt: now.toISOString(),
-    metadata: { startedAt: now.toISOString() },
+    metadata: {
+      startedAt: now.toISOString(),
+      evidenceMode: options.baselineRunId ? "incremental" : "fresh",
+      freshAnswerCount: 0,
+      reusedAnswerCount: 0,
+    },
     scope: {
       kind: scope,
       categories: category === "all" ? categories : [category],
     },
     protocol: {
+      instructionVersion: "governing-skill-v3",
       isolation: "worker-per-arm",
       baseline: "prompt-only",
       withSkill: "prompt-plus-skill",
@@ -334,6 +337,7 @@ export function buildManifest(
     sourceHashes,
     compromisedSkills,
     activationEvidenceVersion: 3,
+    assertionSemanticsVersion: 2,
     ...(options.baselineRunId ? { baselineRunId: options.baselineRunId } : {}),
     skills,
   };
@@ -351,6 +355,73 @@ export function resumeManifest(
   const runDir = path.join(runDirectory(repoRoot), runId);
   if (!fs.existsSync(runDir)) throw new Error(`Run not found: ${runId}`);
   return { manifest: loadManifest(runDir), runDir };
+}
+
+/**
+ * Resolve a human-friendly run reference without changing immutable run IDs.
+ * `latest` selects the newest completed run for the requested version/scope;
+ * exact physical IDs and canonical IDs continue to work unchanged.
+ */
+export function resolveRunId(
+  runReference: string,
+  options: RunReferenceOptions,
+): string {
+  const repoRoot = options.repoRoot ?? ROOT_DIR;
+  const runsDir = runDirectory(repoRoot);
+  const exactDir = path.join(runsDir, runReference);
+  if (fs.existsSync(exactDir)) return runReference;
+
+  if (runReference !== "latest") {
+    throw new Error(
+      `Run not found: ${runReference}. Use the full run ID or --run latest --version ${options.version} --category ${options.category ?? "all"}.`,
+    );
+  }
+
+  const category = options.category ?? "all";
+  const canonicalId = `${category}-v${options.version}`;
+  const canonicalDir = path.join(runsDir, canonicalId);
+  if (fs.existsSync(path.join(canonicalDir, MANIFEST_FILENAME))) {
+    const canonical = loadManifest(canonicalDir);
+    if (
+      canonical.version === options.version &&
+      canonical.category === category &&
+      fs.existsSync(path.join(canonicalDir, RESULTS_FILENAME))
+    )
+      return canonicalId;
+  }
+
+  const candidates = fs
+    .readdirSync(runsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .flatMap((runId) => {
+      const runDir = path.join(runsDir, runId);
+      try {
+        const manifest = loadManifest(runDir);
+        if (
+          manifest.version !== options.version ||
+          manifest.category !== category ||
+          !manifest.metadata.completedAt ||
+          !fs.existsSync(path.join(runDir, RESULTS_FILENAME))
+        )
+          return [];
+        return [{ runId, createdAt: manifest.createdAt ?? "" }];
+      } catch {
+        return [];
+      }
+    })
+    .sort((a, b) =>
+      a.createdAt === b.createdAt
+        ? a.runId.localeCompare(b.runId)
+        : a.createdAt.localeCompare(b.createdAt),
+    );
+
+  const latest = candidates.at(-1);
+  if (!latest)
+    throw new Error(
+      `No completed ${category} run found for version ${options.version}.`,
+    );
+  return latest.runId;
 }
 
 export function answerPath(

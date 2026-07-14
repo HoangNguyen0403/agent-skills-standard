@@ -46,10 +46,7 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "Network instrument",
-            "instrument"
-          ],
+          "value": ["Network instrument", "instrument"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
@@ -69,7 +66,5 @@
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
   ],
-  "should_trigger": [
-    "How should I implement ios performance best practices?"
-  ]
+  "should_trigger": ["How should I implement ios performance best practices?"]
 }

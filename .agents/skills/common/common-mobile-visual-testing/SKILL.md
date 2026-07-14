@@ -1,6 +1,6 @@
 ---
 name: common-mobile-visual-testing
-description: Standardizes mobile UI audits, RTL verification, and state-specific testing on iOS/Android.
+description: Standardizes mobile UI audits, performance/scroll checks, RTL verification, and state-specific testing on iOS/Android.
 metadata:
   triggers:
     keywords:
@@ -51,7 +51,7 @@ Analyze diff + answer:
 
 ## 🚫 Anti-Patterns
 
-- **Ignore QoS**: Apps crash/lag under load. **MUST** check `appium_mobile_performance_data` (scroll/video).
+- **Ignore QoS**: Apps crash/lag under load. **MUST** check and report **QoS** from `appium_mobile_performance_data` (scroll/video).
 - **Blind Tap**: Check state before interact. Use `appium_screenshot`.
 - **Alert Paralysis**: Unexpected alert? Use `appium_alert` → `accept`/`dismiss`.
 - **Happy-Path Bias**: Never ignore Empty, Loading, or Error state.

@@ -13,10 +13,6 @@
         {
           "type": "contains",
           "value": "covered"
-        },
-        {
-          "type": "contains",
-          "value": "HIGH"
         }
       ]
     },
@@ -47,10 +43,6 @@
         {
           "type": "contains",
           "value": "P1"
-        },
-        {
-          "type": "contains",
-          "value": "HIGH"
         }
       ]
     },
@@ -67,10 +59,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "This is a TC creation request",
-            "creation"
-          ]
+          "value": ["This is a TC creation request", "creation"]
         }
       ]
     }

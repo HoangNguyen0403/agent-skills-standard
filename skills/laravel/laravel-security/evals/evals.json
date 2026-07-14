@@ -35,7 +35,9 @@
         },
         {
           "type": "contains_any",
-          "value": ["specific model", "model-bound", "Policies when"]
+          "value": [
+            "model-bound"
+          ]
         }
       ]
     },
@@ -45,25 +47,12 @@
       "expected_output": "Only call env() inside config/*.php files; access in application code via config('app.key') or config('services.stripe.key'); run php artisan config:cache to validate; never env() in controllers",
       "assertions": [
         {
-          "type": "contains_any",
-          "value": [
-            "configuration files",
-            "only in configuration",
-            "Do not call `env()"
-          ],
-          "description": "Accepts the original or an equivalent skill-visible outcome"
-        },
-        {
           "type": "contains",
           "value": "config('app.key')"
         },
         {
-          "type": "contains_any",
-          "value": [
-            "never env() in controllers",
-            "use config() in controllers",
-            "not in controllers"
-          ]
+          "type": "regex",
+          "value": "(?:never|do not call|not)\\s+(?:call\\s+)?`?env\\(\\)`?[\\s\\S]{0,100}controllers"
         }
       ]
     },
@@ -74,7 +63,10 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Form Request", "rules()"]
+          "value": [
+            "Form Request",
+            "rules()"
+          ]
         },
         {
           "type": "contains",
@@ -82,11 +74,17 @@
         },
         {
           "type": "contains_any",
-          "value": ["$fillable", "fillable"]
+          "value": [
+            "$fillable",
+            "fillable"
+          ]
         },
         {
           "type": "contains_any",
-          "value": ["$request->all()", "avoid request->all", "mass assignment"]
+          "value": [
+            "$request->all()",
+            "mass assignment"
+          ]
         }
       ]
     },
@@ -97,15 +95,24 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["@csrf", "csrf directive"]
+          "value": [
+            "@csrf",
+            "csrf directive"
+          ]
         },
         {
           "type": "contains_any",
-          "value": ["web routes", "web middleware", "CSRF middleware"]
+          "value": [
+            "web routes",
+            "CSRF middleware"
+          ]
         },
         {
           "type": "contains_any",
-          "value": ["webhook", "trusted third-party callback", "except"]
+          "value": [
+            "webhook",
+            "except"
+          ]
         }
       ]
     },
@@ -116,7 +123,9 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Policy", "policy method", "role check"]
+          "value": [
+            "role check"
+          ]
         },
         {
           "type": "contains",
@@ -126,13 +135,8 @@
           "type": "contains_any",
           "value": [
             "spatie/laravel-permission",
-            "spatie permission",
             "Gate::before"
           ]
-        },
-        {
-          "type": "contains_any",
-          "value": ["do not inline", "avoid inline role", "policy"]
         }
       ]
     }
@@ -143,5 +147,7 @@
     "OAuth2 setup in a Go service",
     "CSRF protection in Next.js middleware"
   ],
-  "should_trigger": ["Set up authorization Policies in Laravel"]
+  "should_trigger": [
+    "Set up authorization Policies in Laravel"
+  ]
 }

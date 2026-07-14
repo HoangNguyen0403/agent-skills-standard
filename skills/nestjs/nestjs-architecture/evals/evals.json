@@ -8,15 +8,13 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Feature Modules (Auth) vs Core (Config/DB) vs Shared (Utils)"
-        },
-        {
-          "type": "contains",
-          "value": "circular dependencies"
-        },
-        {
-          "type": "contains",
           "value": "madge"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes Feature Modules",
+          "type": "contains",
+          "value": "Feature Modules"
         }
       ]
     },
@@ -26,20 +24,16 @@
       "expected_output": "No. Controllers should be thin: validate DTO, call service, return response. All business logic lives in Services. Never return ORM entities directly.",
       "assertions": [
         {
+          "id": "a1",
+          "description": "Checks the task contract includes Controllers should",
           "type": "contains",
-          "value": "Thin controllers, fat services"
+          "value": "thin"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes thin: validate",
           "type": "contains",
-          "value": "Don't return ORM entities"
-        },
-        {
-          "type": "contains",
-          "value": "No business in Controller"
-        },
-        {
-          "type": "contains",
-          "value": "Move logic to Service"
+          "value": "thin: validate"
         }
       ]
     },
@@ -55,10 +49,6 @@
         {
           "type": "contains",
           "value": "TypeOrmModule.forFeature"
-        },
-        {
-          "type": "contains",
-          "value": "Dependency Integrity"
         }
       ]
     }

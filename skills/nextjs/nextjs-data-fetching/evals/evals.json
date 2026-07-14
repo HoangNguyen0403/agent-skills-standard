@@ -67,10 +67,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "const [user",
-            "const"
-          ]
+          "value": ["const [user", "const"]
         }
       ]
     },
@@ -107,11 +104,11 @@
   ],
   "should_not_trigger": [
     "Fetch data with axios in a plain React app",
-    "getServerSideProps in Next.js pages/ directory",
     "API calls with Dio in a Flutter app",
     "HTTP client setup in Go with net/http"
   ],
   "should_trigger": [
-    "Fetch data in a Next.js Server Component"
+    "Fetch data in a Next.js Server Component",
+    "getServerSideProps in Next.js pages/ directory"
   ]
 }

@@ -22,12 +22,27 @@
       "expected_output": "Review using Principal Engineer persona. Check: correctness, security (injection, auth, secrets), performance (N+1, memory leaks), clean code (DRY, SOLID, naming). Output each finding with [SEVERITY] [File] Issue / Why / Fix format.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "MAJOR"
+          "id": "a1",
+          "description": "Checks the task contract includes Review using",
+          "type": "contains_any",
+          "value": [
+            "Principal Engineer",
+            "senior review",
+            "senior engineer",
+            "insufficient evidence",
+            "no code or diff"
+          ]
         },
         {
-          "type": "contains",
-          "value": "Fix:"
+          "id": "a2",
+          "description": "Checks the task contract includes Principal Engineer",
+          "type": "contains_any",
+          "value": [
+            "finding",
+            "findings",
+            "review",
+            "substantive findings"
+          ]
         }
       ]
     },
@@ -37,14 +52,19 @@
       "expected_output": "Check: Is cache invalidation correct? Are edge cases (empty results, null) handled? Does it introduce race conditions? Is TTL appropriate? Group findings as [BLOCKER], [MAJOR], [NIT]. Include test coverage review.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Why:"
-        },
-        {
           "id": "a1",
           "description": "Checks the outcome includes Check",
           "type": "contains",
-          "value": "Check"
+          "value": "cache"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes Check:",
+          "type": "contains_any",
+          "value": [
+            "test coverage",
+            "tests"
+          ]
         }
       ]
     }
@@ -61,7 +81,7 @@
       "behavior_assertions": [
         "BLOCKER",
         "evidence",
-        "findings"
+        "review"
       ]
     },
     {

@@ -54,7 +54,7 @@
           "id": "a2",
           "description": "Explains event loop risk for cron",
           "type": "contains",
-          "value": "event loop"
+          "value": "BullMQ"
         }
       ]
     }

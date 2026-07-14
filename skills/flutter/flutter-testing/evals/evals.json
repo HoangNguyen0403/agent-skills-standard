@@ -34,8 +34,11 @@
           "value": "TestWrapper"
         },
         {
-          "type": "contains",
-          "value": "GetIt registration"
+          "type": "contains_any",
+          "value": [
+            "GetIt registration",
+            "registerSingleton"
+          ]
         }
       ]
     },

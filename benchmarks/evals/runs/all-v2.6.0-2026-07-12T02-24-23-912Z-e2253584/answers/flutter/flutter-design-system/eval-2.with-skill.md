@@ -1,4 +1,0 @@
-The spacing between list items should be expressed as a spacing token, not as a raw `8` in UI code. In this design-system pattern, that means using something like `VSpacing.xs`, `VSpacing.sm`, `AppSpacing.itemGapSm`, or whichever token in the project’s scale resolves to 8px. Avoid `SizedBox(height: 8)`, `EdgeInsets.only(bottom: 8)`, or any other magic-number spacing in presentation code.
-
-At the implementation level, the gap can still be applied through a list separator, item padding, or a spacing widget, but each of those should read from the token scale. That keeps list rhythm aligned with the rest of the system and allows global spacing adjustments without hunting through screens for literal values. The correct answer is therefore not “use 8 pixels,” but “use the design-system spacing token that represents the 8px step for list item separation.”
-

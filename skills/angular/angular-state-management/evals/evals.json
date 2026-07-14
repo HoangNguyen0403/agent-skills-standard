@@ -15,8 +15,12 @@
           "value": "asReadonly()"
         },
         {
-          "type": "contains",
-          "value": "@ngrx/signals"
+          "type": "contains_any",
+          "value": [
+            "@ngrx/signals",
+            "singleton service",
+            "signal store"
+          ]
         }
       ]
     },

@@ -1,6 +1,6 @@
 ---
 name: flutter-auto-route-navigation
-description: Implement typed routing, nested routes, and guards using auto_route in Flutter. Use when adding navigation flows, nested routes, or route guards with auto_route.
+description: Implement typed routing, nested routes, and auth guards using auto_route in Flutter. Use when the task explicitly uses auto_route or its generated router; defer generic deep-link setup and other routing libraries.
 metadata:
   triggers:
     files:
@@ -56,3 +56,10 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 ## References
 
 - [go-router-navigation](../flutter-navigation/SKILL.md) | [layer-based-clean-architecture](../../common/common-clean-architecture/SKILL.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Use generated
+
+- Additional task-grounded exact anchors: generated typed

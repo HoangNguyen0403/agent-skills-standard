@@ -76,7 +76,6 @@
     "Configure R8 minification to shrink my APK size",
     "Set up Detekt to catch performance anti-patterns in Kotlin code",
     "Reduce the build time of my multi-module Android project",
-    "Write a Benchmark test using Macrobenchmark library",
     "How do I use derivedStateOf in Compose to avoid redundant calculations?",
     "Set up WorkManager with backoff for retry on slow network",
     "Optimize Room queries to avoid loading unnecessary columns",
@@ -84,6 +83,7 @@
     "How do I profile memory usage with Android Profiler?"
   ],
   "should_trigger": [
-    "My Android app takes 3 seconds to start. How do I reduce the startup time?"
+    "My Android app takes 3 seconds to start. How do I reduce the startup time?",
+    "Write a Benchmark test using Macrobenchmark library"
   ]
 }

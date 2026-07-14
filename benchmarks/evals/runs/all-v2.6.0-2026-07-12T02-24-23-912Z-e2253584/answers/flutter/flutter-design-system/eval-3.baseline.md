@@ -1,4 +1,0 @@
-Add the section heading as a typography style backed by design tokens instead of a locally defined text override. The requested appearance is a heading with `fontSize: 24`, bold weight, and color `#1A1A1A`, which typically aligns with a large title or section-header role in a Flutter design system. That role should ideally be exposed as a semantic text style such as `headingLarge`, `sectionTitle`, or equivalent.
-
-In Flutter, the heading should be rendered with a `Text` widget using a `TextStyle` or theme extension that resolves to `fontSize: 24`, `fontWeight: FontWeight.bold`, and `color: Color(0xFF1A1A1A)`. If the system already defines heading line height, letter spacing, and responsive behavior, those should remain inherited. The end result is a section heading that matches the requested visual spec while staying consistent with the broader typography system.
-

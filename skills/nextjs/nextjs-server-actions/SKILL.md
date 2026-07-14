@@ -51,3 +51,9 @@ Build action files as secure server entrypoints, not as thin wrappers around uns
 
 - [Framework Map](../references/framework-map.md)
 - [Secure Action Example](references/secure-actions.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- action={action}
+- action={createPost}

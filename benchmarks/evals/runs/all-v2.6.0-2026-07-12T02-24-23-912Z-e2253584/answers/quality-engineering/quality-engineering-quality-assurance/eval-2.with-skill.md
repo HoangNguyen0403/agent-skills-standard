@@ -1,1 +1,0 @@
-It violates the `1 condition on 1 screen` rule because “all payment methods” bundles paths. Split into separate TCs, for example `Checkout_Verify payment on Review Order when Credit Card is selected` and one for Bank Transfer. Correct the naming violations and avoid shared OR logic.

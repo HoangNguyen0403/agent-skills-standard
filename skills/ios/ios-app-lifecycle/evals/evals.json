@@ -62,7 +62,5 @@
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
   ],
-  "should_trigger": [
-    "How should I implement ios app lifecycle best practices?"
-  ]
+  "should_trigger": ["How should I implement ios app lifecycle best practices?"]
 }

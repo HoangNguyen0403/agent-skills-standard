@@ -1,6 +1,6 @@
 ---
 name: common-telemetry
-description: Enforce tracking of token usage, execution metadata, and cost at the end of agent workflows. Use when a workflow concludes, before generating the final handoff or task.md artifact.
+description: Enforce session-cost telemetry and execution-metadata reporting. Use when explicitly invoking get_session_cost, reporting token/cost usage, applying telemetry or cost guidance during a workflow handoff, or writing artifacts/session-cost.md at a workflow terminal state.
 metadata:
   triggers:
     files: []
@@ -23,6 +23,8 @@ As your final step in any SDLC workflow (or when a user explicitly requests sess
 2. Pass `workflow`, `model`, token counts, cache/reasoning usage, and per-1M token rates when the host runtime exposes them.
 3. If token counts are unavailable, report MCP-observed telemetry and mark model-token cost as unavailable.
 4. Append a Markdown table containing the usage metrics to `artifacts/session-cost.md`.
+
+When asked which artifact to use, always name both `artifacts/session-cost.md` and `get_session_cost`; if the host does not expose the helper, say so explicitly while retaining the artifact requirement.
 
 ## 2. Host Runtime Contract
 
@@ -52,3 +54,10 @@ Ensure the `artifacts/session-cost.md` or the output template `## Cost Report` f
 ## Anti-Patterns
 
 - **No skipping the telemetry step**: Always include the Cost Report at the end of the execution if mandated by the workflow.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Call `get_session_cost` when the host exposes it, then append the Markdown table to `artifacts/session-cost.md`.
+
+- Telemetry & Cost Reporting

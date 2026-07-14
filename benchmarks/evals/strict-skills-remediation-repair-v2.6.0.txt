@@ -1,0 +1,16 @@
+# Second selective overlay: only the 15 skills whose paid overlay missed strict readiness.
+angular/angular-http-client
+common/common-code-review
+common/common-feedback-reporter
+common/common-mobile-animation
+common/common-telemetry
+common/common-ui-design
+common/common-web-visual-testing
+ios/ios-design-system
+javascript/javascript-tooling
+laravel/laravel-security
+quality-engineering/quality-engineering-business-analysis
+quality-engineering/quality-engineering-jira-integration
+quality-engineering/quality-engineering-quality-assurance
+swift/swift-memory-management
+swift/swift-swiftui

@@ -35,10 +35,7 @@
           "id": "a2",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Mock service dependencies with @MockBean",
-            "mock"
-          ]
+          "value": ["Mock service dependencies with @MockBean", "mock"]
         }
       ]
     },

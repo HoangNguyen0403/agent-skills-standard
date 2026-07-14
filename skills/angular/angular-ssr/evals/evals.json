@@ -58,10 +58,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "provideClientHydration()",
-            "provideclienthydration"
-          ],
+          "value": ["provideClientHydration()", "provideclienthydration"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
@@ -89,10 +86,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "Never access window",
-            "access"
-          ],
+          "value": ["Never access window", "access"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]
@@ -142,7 +136,5 @@
     "How do I deploy a NestJS server to production?",
     "How do I set up Nuxt.js for Vue SSR?"
   ],
-  "should_trigger": [
-    "How do I enable SSR and hydration in Angular?"
-  ]
+  "should_trigger": ["How do I enable SSR and hydration in Angular?"]
 }

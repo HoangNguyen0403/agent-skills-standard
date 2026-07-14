@@ -55,7 +55,7 @@
         },
         {
           "type": "contains",
-          "value": "flat"
+          "value": "lib/shared/"
         }
       ]
     }

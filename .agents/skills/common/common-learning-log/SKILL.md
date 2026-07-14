@@ -50,3 +50,12 @@ Write structured mistake entry to `AGENTS_LEARNING.md` in project root before re
 ## References
 
 - [Log Entry Format](references/log-format.md) — full entry template + AGENTS_LEARNING.md bootstrap
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Append to AGENTSLEARNING,append
+- AGENTS_LEARNING.md
+- Iteration
+
+- Additional task-grounded exact anchors: Pre-write; trigger

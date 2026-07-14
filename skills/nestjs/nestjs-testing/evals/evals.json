@@ -64,7 +64,5 @@
     "How do I write Spring Boot integration tests?",
     "How do I set up NestJS database module?"
   ],
-  "should_trigger": [
-    "How do I write a NestJS unit test for a service?"
-  ]
+  "should_trigger": ["How do I write a NestJS unit test for a service?"]
 }

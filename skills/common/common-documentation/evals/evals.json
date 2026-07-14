@@ -7,12 +7,16 @@
       "expected_output": "Add JSDoc with @param, @returns, @example. Add inline comment explaining WHY jitter is added (prevents thundering herd), not WHAT the calculation does (code is self-explanatory). Remove any commented-out code — use git history instead.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "why"
+          "type": "contains_any",
+          "value": [
+            "thundering herd",
+            "retrying simultaneously",
+            "jitter"
+          ]
         },
         {
           "type": "contains",
-          "value": "JSDoc"
+          "value": "@param"
         }
       ]
     },

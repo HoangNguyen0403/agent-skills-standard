@@ -13,7 +13,7 @@ metadata:
 
 ## **Priority: P1 (HIGH)**
 
-**Role: Principal Engineer.** Focus: logic, security, architecture. constructive.
+**Role: Principal Engineer / senior review.** Focus: logic, security, architecture. constructive.
 
 ## Review Principles
 
@@ -23,6 +23,7 @@ metadata:
 - **Sync**: Enforce active framework P0 rules.
 - **Evidence First**: Findings need file, AC, test, or diff evidence.
 - **Findings First**: Lead with risks, not summary.
+- **Review completeness**: Include test coverage and edge-case coverage even when CI is green or the requester asks for a quick review.
 
 ## Review Checklist (Mandatory)
 
@@ -36,6 +37,8 @@ See [references/checklist.md](references/checklist.md).
 ## Output Format (Strict)
 
 ```
+
+Every substantive finding must include the literal `Why:` field. If code or a diff is missing, state the evidence needed before offering a substantive finding.
 [SEVERITY] [File] Issue Description
 Why: Risk or impact description.
 Fix: 1-2 line code or action.
@@ -63,3 +66,12 @@ Fix: 1-2 line code or action.
 
 - [Output Templates](references/output-format.md)
 - [Full Checklist](references/checklist.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- BLOCKER
+- Check
+- MAJOR
+- edge cases
+- tests

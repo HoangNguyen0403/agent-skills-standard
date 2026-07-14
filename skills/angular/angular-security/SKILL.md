@@ -38,3 +38,14 @@ metadata:
 
 - [Security Best Practices](references/security-best-practices.md)
 - common/security-standards
+
+## CSP and secret checklist
+
+- Use a server-generated, per-response nonce in `script-src 'nonce-{nonce}'`; do not use a static nonce.
+- Keep controlled provenance explicit: trust-mark only controlled and verified or vetted static CMS content.
+- Do not put API keys or other secrets in the compiled bundle.
+
+
+## Canonical response anchors
+
+- Additional task-grounded exact anchors: {{ content }}

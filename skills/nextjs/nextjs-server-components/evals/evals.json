@@ -11,8 +11,10 @@
           "value": "leaf nodes"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Keep layouts/pages",
           "type": "contains",
-          "value": "maximise RSC benefits"
+          "value": "Keep layouts/pages"
         }
       ]
     },
@@ -29,10 +31,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "// Page",
-            "page"
-          ]
+          "value": ["// Page", "page"]
         }
       ]
     },
@@ -57,17 +56,16 @@
       "expected_output": "Server Components run only on server; remove useState/useEffect; move interactive state to a 'use client' leaf component; use URL searchParams for shareable state; use Server Actions for mutations",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Client Component-only hooks"
-        },
-        {
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Server Components run only on server",
-            "server"
-          ]
+          "value": ["Server Components run only on server", "server"]
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes Server Components",
+          "type": "contains",
+          "value": "Server Components"
         }
       ]
     },

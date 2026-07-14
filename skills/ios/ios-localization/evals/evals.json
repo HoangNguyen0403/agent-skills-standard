@@ -7,16 +7,16 @@
       "expected_output": "**String Catalogs (.stringcatalog)**: Use for primary localization in Xcode 15+. It provides a visual editor and compile-time checks for missing translations.",
       "assertions": [
         {
+          "id": "a1",
+          "description": "Checks the task contract includes String Catalogs",
           "type": "contains",
-          "value": "String(localized: \"key\")"
+          "value": "String Catalogs"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes stringcatalog",
           "type": "contains",
-          "value": "LocalizedStringResource"
-        },
-        {
-          "type": "contains",
-          "value": "NSLocalizedString"
+          "value": "stringcatalog"
         }
       ]
     },
@@ -26,20 +26,15 @@
       "expected_output": "**Native Implementation**: Use `String(localized: \"key\")` or `LocalizedStringResource`. Avoid manual `NSLocalizedString` where possible.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Formatted"
-        },
-        {
-          "type": "contains",
-          "value": "Base"
-        },
-        {
           "type": "contains_any",
-          "value": [
-            "Native Implementation",
-            "implementation"
-          ],
+          "value": ["Native Implementation", "implementation"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes String(localized: \"key\")",
+          "type": "contains",
+          "value": "String(localized: \"key\")"
         }
       ]
     },
@@ -53,8 +48,10 @@
           "value": "Pluralization"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes String Catalogs'",
           "type": "contains",
-          "value": "Formatting"
+          "value": "String Catalogs'"
         }
       ]
     }
@@ -65,7 +62,5 @@
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
   ],
-  "should_trigger": [
-    "How should I implement ios localization best practices?"
-  ]
+  "should_trigger": ["How should I implement ios localization best practices?"]
 }

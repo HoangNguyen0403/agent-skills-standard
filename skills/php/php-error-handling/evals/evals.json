@@ -32,7 +32,11 @@
         },
         {
           "type": "contains_any",
-          "value": ["RuntimeException", "DomainException", "domain-specific exception"]
+          "value": [
+            "RuntimeException",
+            "DomainException",
+            "domain-specific exception"
+          ]
         }
       ]
     },
@@ -49,10 +53,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "http_response_code(500)",
-            "Internal Server Error"
-          ]
+          "value": ["http_response_code(500)", "Internal Server Error"]
         }
       ]
     },
@@ -88,11 +89,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "logger->error",
-            "LoggerInterface",
-            "structured context"
-          ]
+          "value": ["logger->error", "LoggerInterface", "structured context"]
         }
       ]
     },
@@ -105,21 +102,13 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "finally",
-            "fclose",
-            "resource cleanup"
-          ]
+          "value": ["finally", "fclose", "resource cleanup"]
         },
         {
           "id": "a2",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "finally",
-            "fclose",
-            "transactions"
-          ]
+          "value": ["finally", "fclose", "transactions"]
         }
       ]
     }
@@ -130,7 +119,5 @@
     "Try/catch in JavaScript with async/await",
     "Result type in Swift error handling"
   ],
-  "should_trigger": [
-    "Handle exceptions in PHP with try/catch"
-  ]
+  "should_trigger": ["Handle exceptions in PHP with try/catch"]
 }

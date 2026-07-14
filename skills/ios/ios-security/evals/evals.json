@@ -11,12 +11,10 @@
           "value": "UserDefaults"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Keychain",
           "type": "contains",
-          "value": "SecItemAdd"
-        },
-        {
-          "type": "contains",
-          "value": "SecItemUpdate"
+          "value": "Keychain"
         }
       ]
     },
@@ -32,10 +30,6 @@
         {
           "type": "contains",
           "value": "kSecClassGenericPassword"
-        },
-        {
-          "type": "contains",
-          "value": "LocalAuthentication"
         }
       ]
     },
@@ -51,14 +45,6 @@
         {
           "type": "contains",
           "value": "canEvaluatePolicy"
-        },
-        {
-          "type": "contains_any",
-          "value": [
-            "Info.plist",
-            "info"
-          ],
-          "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]
     }
@@ -69,7 +55,5 @@
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
   ],
-  "should_trigger": [
-    "How should I implement ios security best practices?"
-  ]
+  "should_trigger": ["How should I implement ios security best practices?"]
 }

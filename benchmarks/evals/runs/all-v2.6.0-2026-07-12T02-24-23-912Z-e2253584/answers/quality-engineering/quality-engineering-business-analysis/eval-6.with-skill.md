@@ -1,1 +1,0 @@
-Write it as `[Market: VN] [BOTH] Actor: VN {APP_NAME} Customer — Given a VN customer views the item, when tender is available, then “Tender Available” is visible and the CTA reads “Buy with tender”. Add explicit non-VN behavior, such as the tag being hidden, and state the actor and platform rather than assuming them.

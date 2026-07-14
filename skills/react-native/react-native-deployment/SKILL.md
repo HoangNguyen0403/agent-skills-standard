@@ -69,3 +69,8 @@ See [deployment reference](references/codepush-setup.md) for EAS build profile c
 ## References
 
 See [references/codepush-setup.md](references/codepush-setup.md) for CodePush config, EAS profiles, and Fastlane automation.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Microsoft

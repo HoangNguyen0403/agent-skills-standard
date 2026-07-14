@@ -1,0 +1,1 @@
+I can’t approve based solely on seniority and green CI. Guardrail violated: approval requires independent, evidence-based review. Stop and perform the required diff, requirements, security, and test verification. Proceed only with the reviewed diff, acceptance-criteria mapping, test results, and documented unresolved risks.

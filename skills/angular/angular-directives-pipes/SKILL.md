@@ -1,16 +1,17 @@
 ---
 name: angular-directives-pipes
-description: Compose HostDirectives and Pure Pipes in Angular. Use when creating attribute directives with HostDirectives or writing pure pipes in Angular.
+description: Build custom Angular attribute directives, HostDirectives, and pure pipes. Use for Angular directive or pipe implementation, including custom attribute directives; defer React/CSS middleware and unrelated framework work.
 metadata:
   triggers:
     files:
-    - '**/*.directive.ts'
-    - '**/*.pipe.ts'
+      - "**/*.directive.ts"
+      - "**/*.pipe.ts"
     keywords:
-    - hostDirectives
-    - PipeTransform
-    - pure
+      - hostDirectives
+      - PipeTransform
+      - pure
 ---
+
 # Directives & Pipes
 
 ## **Priority: P2 (MEDIUM)**
@@ -35,3 +36,13 @@ metadata:
 ## References
 
 - [Composition](references/composition.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+
+- cache results
+- host: {} object
+- imports array
+- not set pure: false
+- not with @HostBinding

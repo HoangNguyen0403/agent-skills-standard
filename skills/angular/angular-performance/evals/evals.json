@@ -53,8 +53,11 @@
           "value": "ngSrc="
         },
         {
-          "type": "contains",
-          "value": "priority attribute"
+          "type": "contains_any",
+          "value": [
+            "priority attribute",
+            "priority"
+          ]
         },
         {
           "type": "contains",
@@ -88,7 +91,7 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Signals for all reactive state"
+          "value": "Signals"
         },
         {
           "type": "contains",

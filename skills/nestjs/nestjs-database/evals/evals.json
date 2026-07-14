@@ -61,10 +61,10 @@
   ],
   "should_not_trigger": [
     "How do I implement Redis caching in NestJS?",
-    "How do I use MongoDB with NestJS?",
     "How do I configure database in a Go service?"
   ],
   "should_trigger": [
-    "How do I run TypeORM migrations in NestJS production?"
+    "How do I run TypeORM migrations in NestJS production?",
+    "How do I use MongoDB with NestJS?"
   ]
 }

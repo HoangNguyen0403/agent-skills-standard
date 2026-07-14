@@ -12,10 +12,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "it('creates a post'",
-            "creates"
-          ],
+          "value": ["it('creates a post'", "creates"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
@@ -142,7 +139,5 @@
     "Testing in NestJS with supertest",
     "Go table-driven tests with testify"
   ],
-  "should_trigger": [
-    "Write a Pest feature test in Laravel"
-  ]
+  "should_trigger": ["Write a Pest feature test in Laravel"]
 }

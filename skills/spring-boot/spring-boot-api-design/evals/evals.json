@@ -64,7 +64,5 @@
     "How do I write a NestJS controller?",
     "How do I set up Swagger in NestJS?"
   ],
-  "should_trigger": [
-    "How do I set up Swagger/OpenAPI in Spring Boot 3?"
-  ]
+  "should_trigger": ["How do I set up Swagger/OpenAPI in Spring Boot 3?"]
 }

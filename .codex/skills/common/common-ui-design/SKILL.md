@@ -75,3 +75,10 @@ Bold maximalism and refined minimalism both work — intentionality, not intensi
 
 - [Tone Palette & Font Pairings](references/tones.md) — load when choosing aesthetic direction or fonts
 - [Motion Patterns](references/motion.md) — load when implementing animations or transitions
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- aesthetic
+
+- Additional task-grounded exact anchors: typography

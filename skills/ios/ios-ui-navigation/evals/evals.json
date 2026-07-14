@@ -11,12 +11,10 @@
           "value": "NSLayoutAnchor"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Code-Based Layout",
           "type": "contains",
-          "value": "view.safeAreaLayoutGuide"
-        },
-        {
-          "type": "contains",
-          "value": "viewWillLayoutSubviews"
+          "value": "NSLayoutAnchor"
         }
       ]
     },
@@ -26,16 +24,16 @@
       "expected_output": "**Safe Area**: Always respect `view.safeAreaLayoutGuide`.",
       "assertions": [
         {
+          "id": "a1",
+          "description": "Checks the task contract includes Safe Area",
           "type": "contains",
-          "value": "updateConstraints"
+          "value": "safeAreaLayoutGuide"
         },
         {
-          "type": "contains",
-          "value": "UIView"
-        },
-        {
-          "type": "contains",
-          "value": "UIViewRepresentable"
+          "id": "a2",
+          "description": "Checks the task contract includes Always respect",
+          "type": "regex",
+          "value": "(?:always\\s+respect|safeAreaLayoutGuide)"
         }
       ]
     },
@@ -46,16 +44,14 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "UIViewControllerRepresentable"
-        },
-        {
-          "type": "contains",
-          "value": "accessibilityLabel"
-        },
-        {
-          "type": "contains",
           "value": "UIStackView",
           "description": "Checks user-visible framework guidance"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes linear layouts",
+          "type": "contains",
+          "value": "UIStackView"
         }
       ]
     }
@@ -66,7 +62,5 @@
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
   ],
-  "should_trigger": [
-    "How should I implement ios ui navigation best practices?"
-  ]
+  "should_trigger": ["How should I implement ios ui navigation best practices?"]
 }

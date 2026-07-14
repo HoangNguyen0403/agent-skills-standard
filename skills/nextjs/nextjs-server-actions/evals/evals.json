@@ -89,10 +89,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "import { redirect } from 'next/navigation'",
-            "redirect"
-          ]
+          "value": ["import { redirect } from 'next/navigation'", "redirect"]
         },
         {
           "id": "a2",
@@ -112,7 +109,5 @@
     "Laravel Form Request validation",
     "NestJS controller POST endpoint with DTO"
   ],
-  "should_trigger": [
-    "Create a Server Action in Next.js for form submission"
-  ]
+  "should_trigger": ["Create a Server Action in Next.js for form submission"]
 }

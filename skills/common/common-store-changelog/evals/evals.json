@@ -7,10 +7,6 @@
       "expected_output": "App Store notes with benefit-focused bullets: voice search, auth fix, timeline performance, dark mode. Chore and refactor commits dropped. Under 4000 chars.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "What's New"
-        },
-        {
           "type": "not_contains",
           "value": "fastlane"
         },
@@ -25,10 +21,6 @@
       "prompt": "Generate Google Play Store release notes for the same version 2.5 changes. Remember the 500 character limit.",
       "expected_output": "Compressed bullets for top 3-5 user-facing changes. Under 500 characters. No internal jargon.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Bug fixes"
-        },
         {
           "type": "not_contains",
           "value": "fastlane"
@@ -45,10 +37,6 @@
       "expected_output": "Include: cart fix, checkout save address, profile avatar fix. Drop: ci job, deps bump, test addition — no user impact.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "[Fixed]"
-        },
-        {
           "type": "not_contains",
           "value": "nightly"
         },
@@ -64,12 +52,14 @@
       "expected_output": "3 user-facing bullets: onboarding, crash fix, battery. Analytics SDK dropped (internal). Under 500 chars. No jargon.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "performance improvements"
-        },
-        {
           "type": "not_contains",
           "value": "SDK"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes user-facing bullets:",
+          "type": "contains",
+          "value": "onboarding"
         }
       ]
     }

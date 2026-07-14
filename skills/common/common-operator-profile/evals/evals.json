@@ -7,10 +7,15 @@
       "expected_output": "Infer operator_profile=business from outcome-only, no-artifact language; open with a plain-language summary before any technical detail; do not ask the operator to self-rate their skill level.",
       "assertions": [
         {
-          "type": "contains_any",
-          "value": ["simple", "online bakery", "Recommended starting version"]
+          "type": "not_contains",
+          "value": "how technical are you"
         },
-        { "type": "not_contains", "value": "how technical are you" }
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes Infer operator_profile",
+          "type": "contains",
+          "value": "business"
+        }
       ]
     },
     {
@@ -24,7 +29,7 @@
         },
         {
           "type": "contains_any",
-          "value": ["Module", "Provider", "constructor injection"]
+          "value": ["Module", "Provider"]
         }
       ]
     },
@@ -35,11 +40,13 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["prd-checkout.md", "checkout.spec.ts", "required spec"]
+          "value": ["prd-checkout.md", "checkout.spec.ts"]
         },
         {
-          "type": "contains_any",
-          "value": ["Unable to implement", "without access", "were not supplied"]
+          "id": "a2",
+          "description": "Checks the task contract includes Infer operator_profile",
+          "type": "contains",
+          "value": "technical"
         }
       ]
     },
@@ -49,10 +56,15 @@
       "expected_output": "For operator_profile=business, draft sponsor/SMART metric/scope fence defaults and present them as one confirm-with-default question round instead of returning BLOCKED.",
       "assertions": [
         {
-          "type": "contains_any",
-          "value": ["Recommended defaults", "Sponsor:", "Success metric:"]
+          "type": "not_contains",
+          "value": "BLOCKED"
         },
-        { "type": "not_contains", "value": "BLOCKED" }
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes operator_profile",
+          "type": "contains",
+          "value": "SMART metric"
+        }
       ]
     }
   ],

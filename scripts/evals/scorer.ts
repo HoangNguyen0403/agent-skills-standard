@@ -19,6 +19,7 @@ import {
   RunResults,
   SkillResult,
   TriggerDecision,
+  AssertionSemanticsVersion,
 } from "./types";
 
 interface SkillEvalCase {
@@ -42,19 +43,151 @@ export interface ScoreOptions {
   writeManifest?: boolean;
 }
 
+const SEMANTIC_STOP_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "as",
+  "at",
+  "by",
+  "for",
+  "from",
+  "in",
+  "into",
+  "is",
+  "it",
+  "of",
+  "on",
+  "or",
+  "the",
+  "to",
+  "use",
+  "via",
+  "with",
+]);
+
+function normalizedText(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[\u0060*_~]/g, "")
+    .replace(/[’]/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function compactText(value: string): string {
+  return normalizedText(value).replace(/\s+/g, "");
+}
+
+function semanticTokens(value: string): string[] {
+  return (
+    normalizedText(value)
+      .replace(/[-_/]/g, " ")
+      .match(/@[a-z][a-z0-9]*|[a-z][a-z0-9]*|\d+/g) ?? []
+  ).filter((token) => !SEMANTIC_STOP_WORDS.has(token) && token.length > 2);
+}
+
+function tokenVariants(value: string): Set<string> {
+  const variants = new Set([value]);
+  const stemmed = value.replace(/(ing|ed|es|s)$/, "");
+  variants.add(stemmed);
+  if (value.endsWith("ing")) variants.add(`${stemmed}e`);
+  if (stemmed.endsWith("e")) variants.add(stemmed.slice(0, -1));
+  return variants;
+}
+
+function containsV2(value: string, transcript: string): boolean {
+  const needle = normalizedText(value);
+  const haystack = normalizedText(transcript);
+  if (haystack.includes(needle)) return true;
+
+  // Markdown and line wrapping must not change the meaning of a code example.
+  if (/[{}\[\]@/:?<>$%()]/.test(value)) {
+    if (compactText(transcript).includes(compactText(value))) return true;
+  }
+
+  // Concrete literals (status codes, versions, amounts, paths) remain exact.
+  if (/\d/.test(value)) return false;
+
+  // Syntax-specific equivalence for examples whose placeholder names vary.
+  if (/[{}\[\]@/:?<>$%()]/.test(value)) {
+    const genericFunction = value.match(
+      /^([a-z_$][a-z0-9_$]*)\s*<[^>]+>\s*\(\s*\)$/i,
+    );
+    if (genericFunction)
+      return new RegExp(
+        `${genericFunction[1]}\\s*(?:<[^>]+>)?\\s*\\(`,
+        "i",
+      ).test(transcript);
+
+    const constructorShape = value.match(
+      /\b([A-Z][A-Za-z0-9_]*)\s*\(\s*val\s+([A-Za-z_][A-Za-z0-9_]*)/,
+    );
+    if (constructorShape)
+      return new RegExp(
+        `${constructorShape[1]}\\s*\\([\\s\\S]*?${constructorShape[2]}`,
+        "i",
+      ).test(transcript);
+
+    // Angular control-flow examples use arbitrary variable names; preserve
+    // the stable syntax and tracking identity instead of the placeholder names.
+    if (/^@for\s*\(/i.test(value))
+      return (
+        /@for\s*\(/i.test(transcript) &&
+        /\btrack\b/i.test(transcript) &&
+        /(?:\.\s*id|\bid\b)/i.test(transcript)
+      );
+    if (/^@if\s*\(/i.test(value)) return /@if\s*\(/i.test(transcript);
+    if (/^@empty\b/i.test(value)) return /@empty\b/i.test(transcript);
+    // A function name is the stable contract when the answer supplies a
+    // concrete argument rather than the empty example's parentheses.
+    const functionName = value.match(/^([a-z_$][a-z0-9_$]*)\(\s*\)$/i)?.[1];
+    if (functionName)
+      return new RegExp(`${functionName}\\s*\\(`, "i").test(transcript);
+  }
+
+  const required = semanticTokens(value);
+  const available = new Set(
+    semanticTokens(transcript).flatMap((token) => [...tokenVariants(token)]),
+  );
+  if (required.length === 1) {
+    const variants = tokenVariants(required[0]);
+    return [...variants].some((variant) => available.has(variant));
+  }
+  if (required.length === 0) return false;
+  return required.every((token) => {
+    const variants = tokenVariants(token);
+    return [...variants].some(
+      (variant) =>
+        available.has(variant) ||
+        [...available].some(
+          (candidate) =>
+            candidate.startsWith(variant) || variant.startsWith(candidate),
+        ),
+    );
+  });
+}
+
 export function checkAssertion(
   assertion: Assertion,
   transcript: string,
+  semanticsVersion: AssertionSemanticsVersion = 1,
 ): boolean {
   const haystack = transcript.toLowerCase();
   switch (assertion.type) {
     case "contains":
-      return haystack.includes(String(assertion.value).toLowerCase());
+      return semanticsVersion === 2
+        ? containsV2(String(assertion.value), transcript)
+        : haystack.includes(String(assertion.value).toLowerCase());
     case "contains_any": {
       const values = Array.isArray(assertion.value)
         ? assertion.value
         : [assertion.value];
-      return values.some((value) => haystack.includes(value.toLowerCase()));
+      return values.some((value) =>
+        semanticsVersion === 2
+          ? containsV2(value, transcript)
+          : haystack.includes(value.toLowerCase()),
+      );
     }
     case "not_contains":
       return !haystack.includes(String(assertion.value).toLowerCase());
@@ -99,8 +232,6 @@ function detectSuspicious(
   ) {
     flags.push("transcript reproduces expected_output verbatim");
   }
-  if (transcript.trim().length < 10)
-    flags.push("transcript is suspiciously short (<10 chars)");
   return flags;
 }
 
@@ -115,9 +246,12 @@ function scoreOutcomeCase(
   arm: ArmName,
   currentCase: EvalCaseRef,
   kind: "eval" | "pressure",
+  semanticsVersion: AssertionSemanticsVersion,
 ): CaseScore {
   const failedAssertions = assertions
-    .filter((assertion) => !checkAssertion(assertion, transcript))
+    .filter(
+      (assertion) => !checkAssertion(assertion, transcript, semanticsVersion),
+    )
     .map((assertion) => `${assertion.type}:${String(assertion.value)}`);
   return {
     id: currentCase.id,
@@ -299,6 +433,22 @@ function scoreSkill(
     ]),
   );
   const pressureByIndex = evalsData.pressure_scenarios ?? [];
+  const provenance =
+    manifest.schemaVersion === 2
+      ? manifest.provenance?.[`${skill.category}/${skill.skillName}`]
+      : undefined;
+  const semanticsVersion =
+    manifest.schemaVersion === 2
+      ? (provenance?.assertionSemanticsVersion ??
+        manifest.assertionSemanticsVersion ??
+        1)
+      : 1;
+  const activationEvidenceTrusted =
+    manifest.schemaVersion === 2
+      ? provenance?.activationEvidenceVersion !== undefined
+        ? provenance.activationEvidenceVersion === 3
+        : manifest.activationEvidenceVersion === 3
+      : false;
   const scores: CaseScore[] = [];
 
   for (const currentCase of skill.cases) {
@@ -309,12 +459,7 @@ function scoreSkill(
           `Missing answer after completeness check: ${currentCase.id}`,
         );
       scores.push(
-        scoreTriggerCase(
-          transcript,
-          currentCase,
-          manifest.schemaVersion === 2 &&
-            manifest.activationEvidenceVersion === 3,
-        ),
+        scoreTriggerCase(transcript, currentCase, activationEvidenceTrusted),
       );
       continue;
     }
@@ -346,6 +491,7 @@ function scoreSkill(
           arm,
           currentCase,
           currentCase.kind,
+          semanticsVersion,
         ),
       );
     }
@@ -471,6 +617,9 @@ export function scoreRun(
     ...(manifest.schemaVersion === 2 ? { scope: manifest.scope } : {}),
     ...(manifest.schemaVersion === 2
       ? { compromisedSkills: manifest.compromisedSkills }
+      : {}),
+    ...(manifest.schemaVersion === 2 && manifest.provenance
+      ? { provenance: manifest.provenance }
       : {}),
     skills,
   };

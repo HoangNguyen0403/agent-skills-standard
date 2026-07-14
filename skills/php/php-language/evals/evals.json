@@ -48,10 +48,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "<?php declare(stricttypes=1)",
-            "declare"
-          ]
+          "value": ["<?php declare(stricttypes=1)", "declare"]
         }
       ]
     },
@@ -68,11 +65,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "readonly",
-            "private",
-            "public"
-          ]
+          "value": ["readonly", "private", "public"]
         }
       ]
     },
@@ -102,11 +95,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "items:",
-            "page:",
-            "named arguments"
-          ],
+          "value": ["items:", "page:", "named arguments"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]
@@ -118,7 +107,5 @@
     "Java records in Java 21",
     "Swift optionals and guard let"
   ],
-  "should_trigger": [
-    "Use PHP 8 match expression instead of switch"
-  ]
+  "should_trigger": ["Use PHP 8 match expression instead of switch"]
 }

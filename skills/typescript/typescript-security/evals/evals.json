@@ -22,8 +22,8 @@
       "expected_output": "Store JWT_SECRET in environment variables or Secret Manager (AWS Secrets Manager, HashiCorp Vault). NEVER commit to Git. Use RS256 (asymmetric) for public/private key pairs in distributed systems. Implement HttpOnly Secure cookies for token storage client-side. Add Refresh Token rotation to limit exposure window. Use jose or jsonwebtoken library.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "environment variable"
+          "type": "regex",
+          "value": "(?:process\\.env|environment\\s+variables?)"
         },
         {
           "type": "contains",
@@ -42,7 +42,7 @@
         },
         {
           "type": "contains",
-          "value": "injection"
+          "value": "parameterized"
         }
       ]
     },
@@ -61,7 +61,7 @@
         },
         {
           "type": "contains",
-          "value": "args"
+          "value": "execFileSync"
         }
       ]
     },

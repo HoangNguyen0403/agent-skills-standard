@@ -106,7 +106,5 @@
     "Secure password storage in NestJS",
     "Input validation in Spring Boot with Bean Validation"
   ],
-  "should_trigger": [
-    "Prevent SQL injection in PHP with PDO"
-  ]
+  "should_trigger": ["Prevent SQL injection in PHP with PDO"]
 }

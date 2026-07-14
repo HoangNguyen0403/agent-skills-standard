@@ -12,9 +12,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "Keychain"
-          ],
+          "value": ["Keychain"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]
@@ -55,7 +53,5 @@
     "How do I install iOS dependencies?",
     "Configure CI/CD for an unrelated platform"
   ],
-  "should_trigger": [
-    "How should I implement persistence in iOS?"
-  ]
+  "should_trigger": ["How should I implement persistence in iOS?"]
 }

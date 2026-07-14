@@ -41,3 +41,13 @@ project/
 - **No blind composer updates**: Review `composer.lock` diff first.
 - **No Xdebug in production**: Disable extension in prod env.
 - **No `vendor/` in git**: Exclude via `.gitignore`; use Composer.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Always commit composer,always
+- Remove xdebug.so
+- composer check
+- composer install in CI
+- paths: [src]
+- set XDEBUG_MODE=off

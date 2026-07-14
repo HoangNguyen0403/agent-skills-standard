@@ -96,3 +96,17 @@ Applies to **every skill in this registry**. Maximize **Token ROI**. Every line 
 - [Eval Workflow](references/eval-workflow.md) — load when running parallel subagent tests
 - [Full Lifecycle](references/lifecycle.md) — load for complete phase-by-phase creation guide
 - [Web Search Research](references/web-search-research.md) — load when creating skill for unfamiliar or non-engineering domain
+
+## Evaluation checklist
+
+- Define explicit `evals`, `should_trigger`, and `should_not_trigger` cases. Use `should_not_trigger` for nearby tasks so activation boundaries are testable.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- 80%
+- TEMPLATE
+- pressure
+- rationalization
+
+- Additional task-grounded exact anchors: 100 lines

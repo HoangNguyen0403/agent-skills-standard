@@ -8,24 +8,15 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "easy_localization",
-            "EasyLocalization"
-          ]
+          "value": ["easy_localization", "EasyLocalization"]
         },
         {
           "type": "contains_any",
-          "value": [
-            "sheet_loader_localization",
-            "assets/langs"
-          ]
+          "value": ["sheet_loader_localization", "assets/langs"]
         },
         {
           "type": "contains_any",
-          "value": [
-            "CSV",
-            "Google Sheets"
-          ]
+          "value": ["CSV", "Google Sheets"]
         }
       ]
     },
@@ -38,19 +29,13 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "namedArgs",
-            "args:"
-          ]
+          "value": ["namedArgs", "args:"]
         },
         {
           "id": "a2",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "welcome_user",
-            "{name}"
-          ]
+          "value": ["welcome_user", "{name}"]
         }
       ]
     },
@@ -63,18 +48,13 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "plural("
-          ]
+          "value": ["plural("]
         },
         {
           "id": "a2",
           "description": "Uses a cart/item translation key rather than hardcoded plural strings",
           "type": "contains_any",
-          "value": [
-            "item_count",
-            "cart"
-          ]
+          "value": ["item_count", "cart"]
         }
       ]
     }

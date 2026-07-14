@@ -52,3 +52,9 @@ See [optimization guide](references/optimization-guide.md) for FlatList configur
 ## References
 
 See [references/optimization-guide.md](references/optimization-guide.md) for FlatList configuration, memoization rules, and bundle analysis.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Android
+- Provide

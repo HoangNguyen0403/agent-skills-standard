@@ -12,7 +12,7 @@
         },
         {
           "type": "contains_any",
-          "value": ["type suffix", "suffix such as .component"]
+          "value": ["type suffix"]
         }
       ]
     },
@@ -27,7 +27,7 @@
         },
         {
           "type": "contains_any",
-          "value": ["app prefix", "appHighlight", "appFocusTrap"]
+          "value": ["app prefix", "appFocusTrap"]
         }
       ]
     },
@@ -38,7 +38,7 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Identify", "descriptive filenames", "file's role"]
+          "value": ["Identify"]
         },
         {
           "type": "contains",
@@ -57,13 +57,7 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "do not use I",
-            "avoid the I-prefix",
-            "no I-prefix",
-            "do not prefix",
-            "No. Do not"
-          ]
+          "value": ["do not use I"]
         },
         {
           "type": "contains",
@@ -82,7 +76,7 @@
         },
         {
           "type": "contains_any",
-          "value": ["public APIs", "public API", "public entry point"]
+          "value": ["public APIs", "public API"]
         },
         {
           "type": "contains",
@@ -105,7 +99,7 @@
         },
         {
           "type": "contains_any",
-          "value": ["three levels", "3 levels", "depth ≤3"]
+          "value": ["3 levels", "depth ≤3"]
         }
       ]
     }

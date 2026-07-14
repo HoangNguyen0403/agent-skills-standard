@@ -79,11 +79,11 @@
     "Write a JUnit 5 test for my OrderService using AssertJ",
     "How do I set up GitHub Actions to run my Java test suite?",
     "Configure ProGuard rules to keep reflection classes in Android release",
-    "Add static analysis to my Flutter project using dart analyze",
-    "How do I run Checkstyle only on changed files in a pull request?",
-    "Set up SonarQube quality gate for a Java microservice project"
+    "Add static analysis to my Flutter project using dart analyze"
   ],
   "should_trigger": [
-    "How do I enforce Google Java Format automatically in my Gradle build so devs don't have to think about formatting?"
+    "How do I enforce Google Java Format automatically in my Gradle build so devs don't have to think about formatting?",
+    "How do I run Checkstyle only on changed files in a pull request?",
+    "Set up SonarQube quality gate for a Java microservice project"
   ]
 }

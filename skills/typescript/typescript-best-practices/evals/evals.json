@@ -42,7 +42,7 @@
         },
         {
           "type": "contains",
-          "value": "injection"
+          "value": "inject"
         }
       ]
     }

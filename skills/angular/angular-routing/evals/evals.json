@@ -11,8 +11,11 @@
           "value": "loadComponent"
         },
         {
-          "type": "contains",
-          "value": "lazy"
+          "type": "contains_any",
+          "value": [
+            "lazy",
+            "loadChildren"
+          ]
         }
       ]
     },

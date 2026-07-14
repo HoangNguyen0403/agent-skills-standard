@@ -80,12 +80,15 @@
       "expected_output": "Encapsulate all HTTP calls in this service — never in components. Use httpResource() for reactive GET calls. Use http.post<T>() for mutations with explicit subscribe or lastValueFrom. Handle errors in the service or global interceptor.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Encapsulate all HTTP calls"
+          "type": "contains_any",
+          "value": [
+            "Encapsulate all HTTP calls",
+            "keep all HTTP calls inside"
+          ]
         },
         {
-          "type": "contains",
-          "value": "httpResource()"
+          "type": "regex",
+          "value": "httpResource(?:<[^>]+>)?\\s*\\("
         },
         {
           "type": "contains",
@@ -95,7 +98,9 @@
           "type": "contains_any",
           "value": [
             "Handle errors in the service",
-            "handle"
+            "handle",
+            "catchError",
+            "notifications"
           ],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }

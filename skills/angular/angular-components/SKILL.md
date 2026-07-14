@@ -53,3 +53,13 @@ metadata:
 
 - [Standalone Pattern](references/standalone-pattern.md)
 - [Control Flow](references/control-flow.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- @empty { }
+- Never use @HostBinding
+- Signal inputs
+- inputs and emit events via outputs
+
+- Additional task-grounded exact anchors: @if (condition); @for (item of items; track item.id); booleanAttribute; model(); Smart (Container); toSignal()

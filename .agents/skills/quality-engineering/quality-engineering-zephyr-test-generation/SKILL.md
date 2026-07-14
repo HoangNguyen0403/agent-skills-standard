@@ -1,6 +1,6 @@
 ---
 name: quality-engineering-zephyr-test-generation
-description: 'Generate Zephyr test cases from Jira stories: parse ACs, impact-analyze existing TCs (update vs. create new), and draft correctly named/linked test cases. Use when converting a Jira story into Zephyr TCs, or when a requirement change should update an existing TC instead of a duplicate.'
+description: 'Generate Zephyr test cases from Jira stories: parse acceptance criteria and business rules, impact-analyze existing TCs (update vs. create new), and draft correctly named test cases. Use for AC-to-test generation; defer post-generation Jira linking and manual test-case quality review.'
 metadata:
   triggers:
     files:
@@ -79,3 +79,17 @@ metadata:
 - **No coverage skip**: Coverage Analysis table must open every artifact.
 - **No ghost update**: Update Zephyr TC whenever matching code changes.
 - **No vague steps**: Use specific observable outcomes — e.g., `"System works"` → `"Banner 'Success' is visible"`.
+
+## Coverage wording
+
+- During impact analysis, map each AC to Covered, Partial, or Not Covered and check for duplicate test cases before drafting new ones.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- duplicate
+- impact analysis
+- no platform prefix
+- separate
+
+- Additional task-grounded exact anchors: Issue Link

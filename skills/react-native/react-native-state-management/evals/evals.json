@@ -28,10 +28,7 @@
         {
           "description": "Accepts an equivalent user-visible outcome",
           "type": "contains_any",
-          "value": [
-            "React",
-            "Query"
-          ]
+          "value": ["React", "Query"]
         },
         {
           "type": "contains",

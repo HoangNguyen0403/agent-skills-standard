@@ -58,10 +58,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "{ posts }",
-            "posts"
-          ]
+          "value": ["{ posts }", "posts"]
         }
       ]
     },
@@ -74,19 +71,13 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Create pages/posts/[id]",
-            "create"
-          ]
+          "value": ["Create pages/posts/[id]", "create"]
         },
         {
           "id": "a2",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "access via router",
-            "access"
-          ]
+          "value": ["access via router", "access"]
         }
       ]
     },
@@ -103,10 +94,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Create pages/app",
-            "create"
-          ]
+          "value": ["create"]
         }
       ]
     },
@@ -136,7 +124,5 @@
     "React Router in a Vite React app",
     "Routing in Next.js 15 with app/ folder"
   ],
-  "should_trigger": [
-    "Implement getServerSideProps in Next.js pages/ directory"
-  ]
+  "should_trigger": ["Implement getServerSideProps in Next.js pages/ directory"]
 }

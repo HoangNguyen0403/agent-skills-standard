@@ -7,16 +7,16 @@
       "expected_output": "**Lowercase, kebab-case**: `/user-profiles`, not `/UserProfiles` or `/user_profiles`.",
       "assertions": [
         {
+          "id": "a1",
+          "description": "Checks the task contract includes Lowercase",
           "type": "contains",
-          "value": "GET"
+          "value": "Lowercase"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes kebab-case",
           "type": "contains",
-          "value": "POST"
-        },
-        {
-          "type": "contains",
-          "value": "PUT"
+          "value": "kebab-case"
         }
       ]
     },
@@ -26,16 +26,16 @@
       "expected_output": "**Plural nouns**: `/orders`, `/products`. Not `/order`, `/getProducts`.",
       "assertions": [
         {
+          "id": "a1",
+          "description": "Checks the task contract includes Plural nouns",
           "type": "contains",
-          "value": "PATCH"
+          "value": "Plural nouns"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes /orders",
           "type": "contains",
-          "value": "DELETE"
-        },
-        {
-          "type": "contains",
-          "value": "POST /orders/:id/cancel"
+          "value": "/orders"
         }
       ]
     },
@@ -45,16 +45,16 @@
       "expected_output": "**No verbs in paths** (except action sub-resources): `/orders/:id/cancel` ✅, `/cancelOrder` ❌.",
       "assertions": [
         {
+          "id": "a1",
+          "description": "Checks the task contract includes verbs",
           "type": "contains",
-          "value": "200"
+          "value": "verbs"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes paths",
           "type": "contains",
-          "value": "201"
-        },
-        {
-          "type": "contains",
-          "value": "Location"
+          "value": "paths"
         }
       ]
     }
@@ -65,7 +65,5 @@
     "What is common?",
     "Configure CI/CD for an unrelated platform"
   ],
-  "should_trigger": [
-    "How should I implement common api design best practices?"
-  ]
+  "should_trigger": ["How should I implement common api design best practices?"]
 }

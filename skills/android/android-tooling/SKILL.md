@@ -1,6 +1,6 @@
 ---
 name: android-tooling
-description: Configure static analysis with Detekt, Ktlint, and Android Lint for CI/CD quality gates. Use when adding lint rules, configuring code quality checks, or setting up analysis as a CI gate.
+description: Configure Android static analysis with Detekt, Ktlint, and Android Lint for CI/CD quality gates. Use for Android-specific lint and quality tooling; defer generic Java Checkstyle, SonarQube, and standalone CI configuration.
 metadata:
   triggers:
     files:

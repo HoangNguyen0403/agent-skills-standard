@@ -46,3 +46,16 @@ metadata:
 ## References
 
 - [Bug Report Template](references/bug-report-template.md)
+
+## Incident pressure checklist
+
+- For production incidents, reproduce with a production-like replay and state one hypothesis before changing code; stop symptom patches until the root cause is proven.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- hypothesis
+- one hypothesis
+- stop
+
+- Additional task-grounded exact anchors: minimal

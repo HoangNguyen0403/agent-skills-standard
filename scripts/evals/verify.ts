@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import * as path from "path";
 import { RESULTS_FILENAME, ROOT_DIR, RUNS_DIR } from "./constants";
 import { loadManifest } from "./manifest";
-import { loadRunInputs } from "./snapshot";
+import { assertInputsSnapshotIntegrity, loadRunInputs } from "./snapshot";
 import { scoreRun } from "./scorer";
 import { RunResults } from "./types";
 
@@ -79,12 +79,24 @@ export function verifyRun(
     };
 
   const manifest = loadManifest(runDir);
-  if (manifest.schemaVersion === 2 && loadRunInputs(runDir) === null) {
+  const inputs = loadRunInputs(runDir);
+  if (manifest.schemaVersion === 2 && inputs === null) {
     return {
       runId,
       ok: false,
       reason: "v2 run is missing immutable inputs.json",
     };
+  }
+  if (manifest.schemaVersion === 2 && inputs) {
+    try {
+      assertInputsSnapshotIntegrity(manifest, inputs);
+    } catch (error) {
+      return {
+        runId,
+        ok: false,
+        reason: error instanceof Error ? error.message : String(error),
+      };
+    }
   }
 
   const committed = fs.readJSONSync(resultsPath) as RunResults;

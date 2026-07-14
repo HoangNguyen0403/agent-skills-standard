@@ -44,3 +44,8 @@ metadata:
 - **No ObservedObject Init**: **NOT** init `@ObservedObject` inside View settings — this causes leaks and performance issues.
 - **No New `ObservableObject` VMs on iOS 17+**: Use `@Observable` for new code; reserve `ObservableObject`/`@Published` for code that must support pre-17 or already depends on Combine operators.
 - **No Hardcoded Sizes**: Use flexible frames and spacers for responsive UI.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- @State for local simple data

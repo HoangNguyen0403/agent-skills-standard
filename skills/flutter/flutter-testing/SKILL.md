@@ -1,6 +1,6 @@
 ---
 name: flutter-testing
-description: Write unit, widget, and integration tests with robot patterns, widget keys, and Patrol in Flutter. Use when writing tests or implementing test automation.
+description: Write unit, widget, and integration tests with robot patterns, widget keys, and Patrol in Flutter. Use when implementing test behavior; defer CI-only configuration without test changes.
 metadata:
   triggers:
     files:
@@ -69,3 +69,10 @@ metadata:
 - [ ] Every View has widget tests with faked ViewModel.
 - [ ] Critical user flows have at least one integration test.
 - [ ] `flutter test` passes.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- GetIt registration
+- Register the mock with `GetIt` in `setUpAll` before building the widget under test.
+- native interactions

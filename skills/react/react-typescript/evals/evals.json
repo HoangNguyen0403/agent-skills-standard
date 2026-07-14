@@ -22,8 +22,8 @@
       "expected_output": "Use generic component: interface ListProps<T> { items: T[]; renderItem: (item: T) => ReactNode; keyExtractor: (item: T) => string; }. Component signature: function List<T,>(props: ListProps<T>): JSX.Element. Comma after T prevents TSX parser confusion. Use in: <List<User> items={users} renderItem={(u) => <div>{u.name}</div>} keyExtractor={(u) => u.id} />",
       "assertions": [
         {
-          "type": "contains",
-          "value": "generic"
+          "type": "contains_any",
+          "value": ["ListProps<T>", "List<T,>"]
         },
         {
           "type": "contains",

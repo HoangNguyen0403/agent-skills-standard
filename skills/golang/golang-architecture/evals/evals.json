@@ -57,7 +57,7 @@
   ],
   "should_not_trigger": [
     "How do I write a goroutine in Go?",
-    "Configure Redis caching in Go",
+    "How do I configure Redis eviction policy in Go?",
     "Write a table-driven test in Go"
   ],
   "should_trigger": [

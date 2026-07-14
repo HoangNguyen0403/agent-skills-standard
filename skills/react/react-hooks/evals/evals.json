@@ -41,8 +41,10 @@
           "value": "useEffect"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Custom hook",
           "type": "contains",
-          "value": "cleanup"
+          "value": "useOnlineStatus"
         }
       ]
     }

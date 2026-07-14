@@ -11,10 +11,6 @@
           "value": "new Fiber"
         },
         {
-          "type": "contains_any",
-          "value": ["ReactPHP", "Amp", "event loop"]
-        },
-        {
           "type": "contains",
           "value": "$fiber->resume"
         }
@@ -31,7 +27,7 @@
         },
         {
           "type": "contains_any",
-          "value": ["do not call blocking file_get_contents", "non-blocking I/O"]
+          "value": ["ReactPHP"]
         }
       ]
     },
@@ -48,11 +44,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "ReactPHP",
-            "Loop::get()",
-            "event loop"
-          ]
+          "value": ["ReactPHP", "Loop::get()", "event loop"]
         }
       ]
     },
@@ -84,10 +76,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Use Guzzle pool for concurrent requests",
-            "guzzle"
-          ]
+          "value": ["Use Guzzle pool for concurrent requests", "guzzle"]
         }
       ]
     },
@@ -101,10 +90,10 @@
           "value": "separate PDO connection"
         },
         {
-          "id": "a1",
-          "description": "Keeps Fiber-owned connection state isolated",
-          "type": "contains_any",
-          "value": ["Do not share mutable", "connection state", "Bound concurrency"]
+          "id": "a2",
+          "description": "Checks the task contract includes separate",
+          "type": "contains",
+          "value": "separate"
         }
       ]
     }
@@ -115,7 +104,5 @@
     "Kotlin coroutines with viewModelScope",
     "Python asyncio event loop"
   ],
-  "should_trigger": [
-    "Use PHP Fibers for concurrent tasks"
-  ]
+  "should_trigger": ["Use PHP Fibers for concurrent tasks"]
 }

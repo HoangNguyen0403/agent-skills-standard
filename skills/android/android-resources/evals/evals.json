@@ -59,25 +59,28 @@
         {
           "id": "a2",
           "description": "Explains density independence",
-          "type": "contains",
-          "value": "density"
+          "type": "contains_any",
+          "value": [
+            "density",
+            "mdpi"
+          ]
         }
       ]
     }
   ],
   "should_not_trigger": [
-    "How do I use MaterialTheme.colorScheme to apply colors in Compose?",
     "Set up easy_localization with CSV files in a Flutter app",
-    "How do I localize my Jetpack Compose app into multiple languages?",
-    "Add a custom font to my Compose app using MaterialTheme.typography",
     "How do I manage translations using ARB files in Flutter?",
-    "Use R.drawable directly in a Compose Image composable",
     "How do I define design tokens for spacing in my Android theme?",
     "Load an image from the network using Coil in Compose",
-    "Set dark mode colors using values-night in resources",
     "Configure lint to flag hardcoded strings in layout XML files"
   ],
   "should_trigger": [
-    "I have \"You have 1 items in your cart\" in my strings.xml. How do I handle singular vs plural properly?"
+    "I have \"You have 1 items in your cart\" in my strings.xml. How do I handle singular vs plural properly?",
+    "How do I use MaterialTheme.colorScheme to apply colors in Compose?",
+    "How do I localize my Jetpack Compose app into multiple languages?",
+    "Add a custom font to my Compose app using MaterialTheme.typography",
+    "Use R.drawable directly in a Compose Image composable",
+    "Set dark mode colors using values-night in resources"
   ]
 }

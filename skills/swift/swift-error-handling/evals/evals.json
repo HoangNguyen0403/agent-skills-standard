@@ -68,7 +68,5 @@
     "How do I use NavigationStack?",
     "How do I implement SSL pinning?"
   ],
-  "should_trigger": [
-    "How do I handle errors in Swift?"
-  ]
+  "should_trigger": ["How do I handle errors in Swift?"]
 }

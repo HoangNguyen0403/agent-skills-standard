@@ -1,6 +1,6 @@
 ---
 name: java-tooling
-description: Configure Maven, Gradle, and static analysis for Java projects. Use when setting up Java build tooling, configuring Spotless or Checkstyle, managing JDK versions with sdkman, writing Dockerfiles for Java services, or adding SpotBugs/SonarLint.
+description: Configure Maven, Gradle, and static analysis for Java projects. Use for Java-only build and quality tooling such as Spotless, Checkstyle, SpotBugs, SonarLint, JDK versions, and Java service Dockerfiles; defer Kotlin, Android, Flutter, and GitHub Actions-specific configuration.
 metadata:
   triggers:
     files:

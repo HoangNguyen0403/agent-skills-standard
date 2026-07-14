@@ -8,7 +8,7 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Atomic"
+          "value": "Actor"
         },
         {
           "type": "contains",
@@ -26,16 +26,24 @@
       "expected_output": "Truth table with toggle ON/OFF × order status (Delivered/Cancelled/Pending/etc) combinations, flag any undefined states, identify platform parity (same on Web and Mobile?), extract all actors who can see the button",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Truth"
+          "type": "contains_any",
+          "value": [
+            "Truth",
+            "Truth table",
+            "| Toggle"
+          ]
         },
         {
           "type": "contains",
           "value": "Mobile"
         },
         {
-          "type": "contains",
-          "value": "Truth table"
+          "type": "contains_any",
+          "value": [
+            "Truth table",
+            "| Toggle",
+            "toggle"
+          ]
         }
       ]
     },
@@ -45,8 +53,12 @@
       "expected_output": "Variable identification: Market (VN vs others), actor mapping (which roles can download), platform check (Web/Mobile parity), boundary analysis (what happens in MY/SG markets — hidden or error?), flag whether 'other markets' behavior is undefined",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Variable"
+          "type": "contains_any",
+          "value": [
+            "Variable",
+            "identify",
+            "impact analysis"
+          ]
         },
         {
           "type": "contains",

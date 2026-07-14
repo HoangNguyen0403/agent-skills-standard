@@ -64,7 +64,5 @@
     "How do I implement caching in NestJS?",
     "How do I scale a Spring Boot app?"
   ],
-  "should_trigger": [
-    "How do I improve NestJS throughput significantly?"
-  ]
+  "should_trigger": ["How do I improve NestJS throughput significantly?"]
 }

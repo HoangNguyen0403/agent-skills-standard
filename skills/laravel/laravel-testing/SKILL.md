@@ -64,3 +64,15 @@ See [implementation examples](references/implementation.md#pest-feature-test-exa
 ## References
 
 - [Testing & Mocking Guide](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- DB_CONNECTION' value='sqlite
+- DB_DATABASE' value=':memory
+- DatabaseTransactions
+- assertJson(['data'
+- database rolled back
+- never DB::table()->insert()
+
+- Additional task-grounded exact anchors: once()->with(100); assertStatus(201)

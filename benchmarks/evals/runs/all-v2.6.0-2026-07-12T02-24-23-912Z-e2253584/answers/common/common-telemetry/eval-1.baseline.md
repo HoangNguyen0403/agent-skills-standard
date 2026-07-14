@@ -1,1 +1,0 @@
-Before the final handoff, perform the end-of-workflow telemetry capture and persist the session's token usage, execution metadata, and cost in the canonical workflow record. Verify that the telemetry was recorded successfully, then use those values in the handoff.

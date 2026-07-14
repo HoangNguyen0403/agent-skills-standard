@@ -16,12 +16,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "destructure",
-            "destructuring",
-            "final (error",
-            "result.error"
-          ]
+          "value": ["destructuring", "final (error"]
         }
       ]
     },
@@ -51,27 +46,13 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "prove value non-null",
-            "proven",
-            "non-nullability",
-            "only use !",
-            "type narrowing",
-            "if or assert",
-            "late",
-            "initialization is guaranteed",
-            "explicit null check",
-            "null check",
-            "no !"
-          ]
+          "value": ["proven", "non-nullability", "only use !", "type narrowing"]
         },
         {
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Replace ! with ?"
-          ]
+          "value": ["null-aware"]
         }
       ]
     }

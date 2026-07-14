@@ -59,3 +59,20 @@ See [implementation examples](references/implementation.md#action--dto-example) 
 ## References
 
 - [DDD & Repository Patterns](references/implementation.md)
+
+## Boundary checklist
+
+- Keep controllers free of Eloquent queries and pass DTOs across the boundary between HTTP and domain layers.
+- Inject `OrderRepository` contracts into Actions; bind them in the container instead of creating globals or grouping code only by technical type.
+- Prefer immutable transfer data or readonly DTOs to prevent accidental mutation.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- bind them,Bind the contract,container bindings
+- boundary between HTTP,cross-layer API,pass it to
+- controllers free of queries,no Eloquent query,Keep controllers free
+- inject `OrderRepository`,inject OrderRepository,depends on the Action
+- instead of creating global,rather than by technical type
+- no Eloquent query,contain no Eloquent,free of queries
+- prevents accidental mutation,immutable transfer data,readonly DTO

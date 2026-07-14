@@ -21,9 +21,13 @@
       "prompt": "What is the difference between @StateObject and @ObservedObject?",
       "expected_output": "Use @StateObject when the view is creating the instance. Use @ObservedObject when receiving an instance from an external source.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "@ObservedObject when receiving"
+      {
+        "type": "contains_any",
+        "value": [
+          "@ObservedObject when receiving",
+          "externally owned object",
+          "external instance"
+        ]
         },
         {
           "id": "a1",
@@ -61,8 +65,8 @@
           "value": "large number of views"
         },
         {
-          "type": "contains",
-          "value": "load them only as they appear"
+          "type": "regex",
+          "value": "(?:load(?:ing|s)?\\s+(?:views|them)(?:\\s+only)?|creates rows)\\s+as they appear"
         }
       ]
     }

@@ -29,10 +29,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Use dataset for data-driven tests",
-            "dataset"
-          ]
+          "value": ["Use dataset for data-driven tests", "dataset"]
         }
       ]
     },
@@ -108,7 +105,5 @@
     "Go table-driven tests with testify",
     "Vitest tests for a Next.js application"
   ],
-  "should_trigger": [
-    "Write a PHPUnit test for a PHP service class"
-  ]
+  "should_trigger": ["Write a PHPUnit test for a PHP service class"]
 }

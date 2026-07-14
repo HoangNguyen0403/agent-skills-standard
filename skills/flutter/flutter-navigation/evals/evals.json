@@ -37,19 +37,16 @@
       "expected_output": "go_router redirect callback checking auth state, redirect: (context, state) => isLoggedIn ? null : '/login', not middleware",
       "assertions": [
         {
-          "id": "a1",
-          "description": "Accepts the original or an equivalent skill-visible outcome",
-          "type": "contains_any",
-          "value": [
-            "gorouter redirect callback checking auth state",
-            "gorouter"
-          ]
-        },
-        {
           "id": "a2",
           "description": "Checks the outcome includes redirect",
           "type": "contains",
           "value": "redirect"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes go_router redirect",
+          "type": "contains",
+          "value": "go_router redirect"
         }
       ]
     }

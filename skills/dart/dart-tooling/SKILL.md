@@ -1,6 +1,6 @@
 ---
 name: dart-tooling
-description: Dart static analysis, linting, formatting, and code-generation standards. Use when touching analysis_options.yaml, running build_runner, configuring dart format line length, setting up DCM metrics, or adding pre-commit hooks via lefthook — and whenever a CI job fails on analyze or format steps.
+description: Dart static analysis, linting, formatting, and code-generation standards. Use only for analysis_options.yaml, build_runner, dart format, DCM, lefthook, or analyze/format CI failures; defer Dart language, null-safety, Flutter tests, and generic CI questions.
 metadata:
   triggers:
     files:

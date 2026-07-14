@@ -1,1 +1,0 @@
-Never store JWT secrets in localStorage: XSS can read them. Store the session in `HttpOnly` and `Secure` cookies, add an appropriate SameSite/CSRF strategy, and keep tokens out of the JavaScript bundle.

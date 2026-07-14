@@ -5,17 +5,18 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [cli-v2.6.0] - 2026-07-12
+## [cli-v2.6.0] - 2026-07-14
 
 **Category**: Live eval evidence retention and report clarity
 
 ### Added
 
-- **Canonical Full-Catalog Evidence**: Retained one verified all-category eval run with 3,220/3,220 answer arms across 264 skills and 22 categories.
+- **Canonical Full-Catalog Evidence**: Retained one verified `all-v2.6.0` artifact with 3,233/3,233 answer arms across 265 skills and 22 categories, with zero compromised evidence records.
 
 ### Changed
 
-- **Eval History Retention**: Removed superseded live-eval run folders and reset the eval history index to the canonical run while preserving structural release archives.
+- **Eval History Retention**: Removed superseded live-eval run folders and reset the eval history index to the single canonical run, retaining only its matching archive report.
+- **Selective Remediation Evidence**: Consolidated the verified 38-skill remediation overlay into the canonical catalog; all 38 changed skills pass the strict readiness gate without rerunning unchanged skills.
 - **Remediation Queue**: Regenerated the remediation queue from the canonical run so follow-up work is tied to current evidence.
 - **Report Navigation**: Refreshed the structural and behavioral reports so users can distinguish token/structure measurements from live with-skill effectiveness results.
 
@@ -23,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Queue Classification**: Remediation items now use the current run manifest's compromised-arm metadata instead of stale historical classifications.
 - **Full-Catalog Coverage Display**: Structural benchmark reports now identify a full-catalog run as covering all categories instead of incorrectly listing them as untested.
+- **Mixed-Generation Composition Verification**: Composite runs preserve per-skill scoring and activation semantics and re-score assembled immutable transcripts, preventing legacy source metadata from producing false verification failures.
 
 ## [cli-v2.6.0] / [mcp-v0.6.0] - 2026-07-09
 

@@ -68,6 +68,26 @@ function readInputs(runDir: string): RunInputsV2 | null {
   return fs.readJSONSync(inputsPath) as RunInputsV2;
 }
 
+export function assertInputsSnapshotIntegrity(
+  manifest: Manifest,
+  inputs: RunInputsV2,
+): void {
+  if (manifest.schemaVersion !== 2) return;
+  for (const skill of manifest.skills) {
+    const key = sourceKey(skill.category, skill.skillName);
+    const expected = manifest.sourceHashes[key];
+    const actual = inputs.sources[key]?.hashes;
+    if (
+      !expected ||
+      !actual ||
+      expected.skill !== actual.skill ||
+      expected.evals !== actual.evals
+    ) {
+      throw new Error(`Immutable input hash mismatch for ${key}`);
+    }
+  }
+}
+
 export function loadRunInputs(runDir: string): RunInputsV2 | null {
   return readInputs(runDir);
 }
@@ -84,6 +104,7 @@ export function writeInputsSnapshot(
         `Invalid immutable inputs snapshot for ${manifest.runId}`,
       );
     }
+    assertInputsSnapshotIntegrity(manifest, existing);
     return existing;
   }
 
@@ -113,6 +134,7 @@ export function writeInputsSnapshot(
     capturedAt: options.capturedAt ?? new Date().toISOString(),
     sources,
   };
+  assertInputsSnapshotIntegrity(manifest, inputs);
   const inputsPath = path.join(runDir, INPUTS_FILENAME);
   fs.ensureDirSync(runDir);
   try {

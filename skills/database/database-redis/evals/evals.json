@@ -7,16 +7,16 @@
       "expected_output": "Recommends colon-separated namespacing (app:tenant:resource:id). Keep keys descriptive but compact. Set TTL on all non-permanent keys.",
       "assertions": [
         {
-          "id": "a1",
-          "description": "Mentions namespacing with colons",
-          "type": "contains",
-          "value": "namespace"
-        },
-        {
           "id": "a2",
           "description": "Mentions TTL",
           "type": "contains",
           "value": "TTL"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes Recommends colon-separated",
+          "type": "contains",
+          "value": "tenant:"
         }
       ]
     },
@@ -58,9 +58,9 @@
         },
         {
           "id": "a2",
-          "description": "Mentions lazy freeing",
+          "description": "Checks the task contract includes the eviction policy",
           "type": "contains",
-          "value": "lazyfree"
+          "value": "allkeys-lru"
         }
       ]
     }

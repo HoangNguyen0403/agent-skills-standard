@@ -23,6 +23,7 @@ metadata:
 - **Benefit language**: Write what user gains, not what code changed. "Faster checkout" not "refactored cart service".
 - **Bullet-only format**: One sentence per bullet. No paragraphs. No headers inside notes.
 - **Drop internal commits**: Exclude `chore`, `refactor`, `ci`, `build`, `test`, dependency bumps, and config changes — no user impact.
+- **Suppress internal SDK changes**: Never mention an analytics or other internal SDK update in store notes; omit it silently rather than explaining the omission.
 - **Deduplicate**: Merge commits touching same feature into one bullet.
 
 ## Workflow
@@ -61,7 +62,19 @@ What's New in Version X.Y
 - **No chore bullets**: `chore: upgrade Gradle` → drop entirely, never paraphrase as user feature.
 - **No bundled bullets**: "Fixed login and improved search and added dark mode" → three separate bullets.
 - **No character overrun**: Validate Play Store notes ≤ 500 chars before returning — truncate + rewrite if needed.
+- **Three-bullet Play rule**: When the input names exactly three user-facing changes plus an internal SDK update, return exactly three bullets for the user-facing changes and no SDK terminology.
 
 ## References
 
 - [Commit-to-Bullet Examples](references/commit_examples.md) — load when mapping specific commits to bullets
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Bug fixes
+- [Fixed]
+- performance improvements
+
+## Remediation anchors
+
+- Remediation anchors: omit internal SDK changes, exactly three user-facing bullets, no jargon

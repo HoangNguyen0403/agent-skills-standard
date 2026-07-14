@@ -58,3 +58,8 @@ For detailed setup with common libraries, refer to:
 - **No hardcoded strings in JSX**: Use translation keys; never commit raw text.
 - **No client-side translation bundles**: Load dictionaries server-side with `getMessages()`.
 - **No mixed URL locale patterns**: Use sub-paths or domains consistently.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- consistent

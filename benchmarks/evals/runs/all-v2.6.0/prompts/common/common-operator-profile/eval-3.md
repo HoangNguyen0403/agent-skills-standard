@@ -1,0 +1,1 @@
+Implement REQ-12 per prd-checkout.md, see the failing test in checkout.spec.ts.

@@ -1,0 +1,7 @@
+# Final selective overlay: only the six skills still failing strict readiness after repair-15.
+common/common-code-review
+common/common-mobile-animation
+common/common-ui-design
+laravel/laravel-security
+quality-engineering/quality-engineering-jira-integration
+swift/swift-swiftui

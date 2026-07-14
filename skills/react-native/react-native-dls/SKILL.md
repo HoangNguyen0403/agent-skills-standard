@@ -36,3 +36,11 @@ Enforce design token usage in React Native apps.
 ## References
 
 See [references/usage.md](references/usage.md) for design token usage examples.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Define
+- theme tokens
+
+- Additional task-grounded exact anchors: Enforce; Reference

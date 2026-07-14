@@ -64,7 +64,5 @@
     "How do I write a NestJS guard?",
     "How do I implement caching in Spring Boot?"
   ],
-  "should_trigger": [
-    "How do I set up multi-level caching in NestJS?"
-  ]
+  "should_trigger": ["How do I set up multi-level caching in NestJS?"]
 }

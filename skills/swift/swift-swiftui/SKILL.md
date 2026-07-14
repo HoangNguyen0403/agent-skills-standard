@@ -47,3 +47,13 @@ metadata:
 ## References
 
 - [State & Binding](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- @Binding for data passed down
+- @ObservedObject when receiving
+- @State for data owned
+- inject data into the view's hierarchy
+- large number of views
+- load them only as they appear

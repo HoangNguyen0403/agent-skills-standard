@@ -1,1 +1,0 @@
-Build a Truth table for `DisplayReorder = ON/OFF` crossed with `Delivered/Cancelled/Pending/other` statuses. Mark the button visible only for the specified combination, define all remaining rows, and verify platform parity for Web and Mobile plus actor permissions. The table must expose every undefined state.

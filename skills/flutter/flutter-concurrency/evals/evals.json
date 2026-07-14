@@ -58,9 +58,9 @@
         },
         {
           "id": "a2",
-          "description": "Checks the outcome includes Dart Concurrency and Isolates",
+          "description": "Checks the task contract includes future",
           "type": "contains",
-          "value": "Dart Concurrency and Isolates"
+          "value": "future"
         }
       ]
     }

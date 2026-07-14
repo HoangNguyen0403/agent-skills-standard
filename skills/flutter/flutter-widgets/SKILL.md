@@ -1,6 +1,6 @@
 ---
 name: flutter-widgets
-description: Build maintainable Flutter UI components with composition and theming. Use when building, refactoring, or reviewing widget implementations.
+description: Build maintainable Flutter UI components with composition and theming. Use when changing widget implementation; defer animation-only changes and widget-test authoring.
 metadata:
   triggers:
     files:
@@ -53,3 +53,10 @@ class AppButton extends StatelessWidget {
 ## References
 
 - performance | testing
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Extract
+- interactive elements
+- into private

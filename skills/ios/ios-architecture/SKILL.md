@@ -55,3 +55,14 @@ metadata:
 ## References
 
 - [MVVM-C & VIP Implementation](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Inputs/Outputs
+- UIImage
+- ViewModel Responsibility
+
+## Remediation anchors
+
+- Remediation anchors: ViewState, @Published, explicit Inputs/Outputs

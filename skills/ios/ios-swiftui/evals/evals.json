@@ -12,11 +12,11 @@
         },
         {
           "type": "contains_any",
-          "value": ["@Observable", "Observable VMs"]
+          "value": ["@Observable"]
         },
         {
           "type": "contains_any",
-          "value": ["small", "composable", "struct"]
+          "value": ["small", "struct"]
         }
       ]
     },
@@ -42,11 +42,7 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "layout modifiers before visual",
-            "layout before visual",
-            "padding().background"
-          ]
+          "value": ["layout modifiers before visual", "padding().background"]
         },
         {
           "id": "a1",

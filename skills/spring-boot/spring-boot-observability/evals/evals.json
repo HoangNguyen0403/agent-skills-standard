@@ -64,7 +64,5 @@
     "How do I monitor a Go service?",
     "How do I implement Spring Security?"
   ],
-  "should_trigger": [
-    "How do I add structured logging in Spring Boot?"
-  ]
+  "should_trigger": ["How do I add structured logging in Spring Boot?"]
 }

@@ -1,22 +1,22 @@
 ---
 name: flutter-go-router-navigation
-description: Implement typed routes, redirection, and guards using go_router in Flutter. Use when building declarative navigation with go_router.
+description: Implement typed routes, redirection, and guards using go_router in Flutter. Use when changing go_router navigation; defer widget tests that merely assert redirect behavior and defer slide/transition animation work.
 metadata:
   triggers:
     files:
-    - '**/router.dart'
-    - '**/app_router.dart'
+      - "**/router.dart"
+      - "**/app_router.dart"
     keywords:
-    - GoRouter
-    - GoRoute
-    - StatefulShellRoute
-    - redirection
-    - typed-routes
+      - GoRouter
+      - GoRoute
+      - StatefulShellRoute
+      - redirection
+      - typed-routes
 ---
+
 # GoRouter Navigation
 
 ## **Priority: P0 (CRITICAL)**
-
 
 ## Structure
 
@@ -51,3 +51,9 @@ See [references/typed-routes.md](references/typed-routes.md) for GoRouteData + r
 ## Related Topics
 
 layer-based-clean-architecture | auto-route-navigation | security
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+
+- redirect callback

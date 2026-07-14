@@ -16,7 +16,7 @@
         },
         {
           "type": "contains",
-          "value": "interactive elements"
+          "value": "widget_keys.dart"
         }
       ]
     },
@@ -35,7 +35,7 @@
         },
         {
           "type": "contains",
-          "value": "into private"
+          "value": "StatelessWidget"
         }
       ]
     },

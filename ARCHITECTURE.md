@@ -225,3 +225,17 @@ _Date: 2026-07-11_
 _Date: 2026-07-12_
 **Decision**: `pnpm evals:baseline` plans normal maintenance runs from the latest complete immutable reference. It creates a selective manifest and copies only compatible evidence: prompt-only answers survive a skill-body change, activation answers survive a body-only change, and assertion-only changes regrade existing transcripts. Changed prompts, descriptions, and activation corpora require fresh applicable answers.
 **Reason**: A full catalog run generated 3,220 answers and took roughly 54 minutes. Hash-only invalidation would either rerun too much or reuse the wrong lane. Lane-specific dependency checks preserve reproducibility while making a normal one-skill update practical.
+
+### ADR-010: Outcome-Quality Release Gate
+
+_Date: 2026-07-13_
+**Decision**: Keep activation metrics separate from outcome metrics. A skill is
+release-ready only when its with-skill case pass rate is strictly above 85%,
+with-skill assertion pass rate is at least 85%, outcome delta is non-negative,
+and trigger recall and specificity are each at least 90%. Catalog promotion
+requires one fresh run with zero reused answers; composite runs remain audit
+history only.
+**Reason**: Perfect trigger selection does not prove that the loaded skill
+produces a correct answer. The previous aggregate report could show 100%
+activation while most with-skill cases still failed, so the report and
+promotion gate now expose and enforce outcome readiness explicitly.

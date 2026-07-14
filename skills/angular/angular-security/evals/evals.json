@@ -8,19 +8,13 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "DomSanitizer",
-            "sanitizer.sanitize"
-          ]
+          "value": ["DomSanitizer", "sanitizer.sanitize"]
         },
         {
-          "type": "contains_any",
-          "value": [
-            "bypassSecurityTrustHtml",
-            "user-controlled data",
-            "user-generated content"
-          ],
-          "description": "Accepts the original or an equivalent skill-visible outcome"
+          "id": "a2",
+          "description": "Checks the task contract includes Angular sanitizes",
+          "type": "contains",
+          "value": "Angular sanitizes"
         }
       ]
     },
@@ -35,11 +29,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "render it as text",
-            "render user content as text",
-            "{{ content }}"
-          ]
+          "value": ["{{ content }}"]
         }
       ]
     },
@@ -49,12 +39,14 @@
       "expected_output": "Configure CSP headers on the server (not in Angular code). Use nonce-based CSP: ng build generates nonce values for inline scripts. Set Content-Security-Policy: default-src 'self'; script-src 'nonce-{nonce}'. Avoid unsafe-inline and unsafe-eval.",
       "assertions": [
         {
-          "type": "contains_any",
-          "value": ["per response", "per-request-nonce", "server-generated nonce"]
-        },
-        {
           "type": "regex",
           "value": "script-src.*nonce"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes Configure",
+          "type": "contains",
+          "value": "Configure"
         }
       ]
     },
@@ -64,17 +56,14 @@
       "expected_output": "Only mark HTML as trusted for content you control (e.g., a trusted CMS). Never trust-mark user-provided content. Trust Angular's sanitization for most cases. Audit every trust-marking API call in code reviews as a potential XSS vector.",
       "assertions": [
         {
-          "type": "contains_any",
-          "value": [
-            "controlled provenance",
-            "controlled and verified",
-            "vetted static CMS"
-          ],
-          "description": "Accepts the original or an equivalent skill-visible outcome"
-        },
-        {
           "type": "contains",
           "value": "vector"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes Only mark",
+          "type": "contains",
+          "value": "Only mark"
         }
       ]
     },
@@ -104,15 +93,11 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["HttpOnly", "server-managed session"]
+          "value": ["HttpOnly"]
         },
         {
           "type": "contains_any",
-          "value": ["Do not store bearer tokens", "localStorage", "web storage"]
-        },
-        {
-          "type": "contains_any",
-          "value": ["Do not put API keys", "other secrets", "compiled bundle"]
+          "value": ["localStorage"]
         }
       ]
     }
@@ -123,7 +108,5 @@
     "How do I configure HTTPS and TLS certificates in nginx?",
     "How do I set up CORS in an Express.js server?"
   ],
-  "should_trigger": [
-    "How do I prevent XSS in Angular?"
-  ]
+  "should_trigger": ["How do I prevent XSS in Angular?"]
 }

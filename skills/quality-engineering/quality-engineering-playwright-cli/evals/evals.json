@@ -30,10 +30,10 @@
           "value": "screenshot"
         },
         {
-          "id": "a1",
-          "description": "Checks the outcome includes 🎭 Playwright CLI (Web Automation)",
+          "id": "a2",
+          "description": "Checks the task contract includes hover'",
           "type": "contains",
-          "value": "🎭 Playwright CLI (Web Automation)"
+          "value": "hover"
         }
       ]
     }

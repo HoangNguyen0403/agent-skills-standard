@@ -1,1 +1,0 @@
-Priority: **Low: Cosmetic**. Extra spacing in a button label is UI polish, not a functional blocker. **High: Critical path** is reserved for blocked or business-critical flows; document the priority rationale and use Normal for standard validation or edge cases.

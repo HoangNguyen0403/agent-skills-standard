@@ -27,7 +27,7 @@
         },
         {
           "type": "contains",
-          "value": "Use generated"
+          "value": "generated typed route"
         },
         {
           "type": "contains",
@@ -44,19 +44,13 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Use AutoTabsRouter with children routes",
-            "children"
-          ]
+          "value": ["Use AutoTabsRouter with children routes", "children"]
         },
         {
           "id": "a2",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "IndexedStack preserves state",
-            "state"
-          ]
+          "value": ["IndexedStack preserves state", "state"]
         }
       ]
     }
@@ -68,6 +62,6 @@
     "Write a widget test for the navigation drawer"
   ],
   "should_trigger": [
-    "I need to add an auth guard so unauthenticated users trying to access the cart get redirected to the login screen."
+    "Using auto_route, I need to add an auth guard so unauthenticated users trying to access the cart get redirected to the login screen."
   ]
 }

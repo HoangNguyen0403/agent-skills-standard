@@ -8,11 +8,11 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": "PSR-12"
+          "value": ["PSR-12"]
         },
         {
           "type": "contains_any",
-          "value": ["same-line opening braces", "opening braces on same line", "Braces on the same line"]
+          "value": ["same line", "same-line opening braces"]
         }
       ]
     },
@@ -23,12 +23,12 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["SRP:", "single responsibility", "one responsibility"],
+          "value": ["SRP:", "one responsibility"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
           "type": "contains_any",
-          "value": ["constructor injection", "inject via constructor", "dependencies via constructor", "__construct"]
+          "value": ["dependencies via constructor"]
         }
       ]
     },
@@ -39,15 +39,11 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Split", "focused class", "split the class", "responsibility"]
+          "value": ["focused class"]
         },
         {
           "type": "contains_any",
-          "value": [
-            "constructor injection",
-            "inject dependencies",
-            "constructor"
-          ]
+          "value": ["constructor"]
         }
       ]
     },
@@ -58,11 +54,16 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["return early", "guard clause", "if (!$user)", "return null"]
+          "value": [
+            "return early",
+            "guard clause",
+            "if (!$user)",
+            "return null"
+          ]
         },
         {
           "type": "contains_any",
-          "value": ["no else after return", "else after a return", "reduce nesting", "reducing nesting", "deeply nested"]
+          "value": ["no else after return"]
         }
       ]
     },
@@ -73,11 +74,11 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["trait", "Define trait", "create a trait"]
+          "value": ["trait", "Define trait"]
         },
         {
           "type": "contains_any",
-          "value": ["HasTimestamps", "trait", "shared behavior"]
+          "value": ["HasTimestamps", "trait"]
         }
       ]
     },

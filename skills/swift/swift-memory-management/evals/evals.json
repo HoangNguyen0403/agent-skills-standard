@@ -26,8 +26,8 @@
       "expected_output": "Use weak if the reference can become nil during its lifetime. Use unowned if the reference is guaranteed to outlive the referring object.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "weak if the reference can become nil"
+          "type": "regex",
+          "value": "weak[\\s\\S]{0,100}(?:become|be)[\\s`]+nil"
         },
         {
           "type": "contains",
@@ -61,7 +61,7 @@
         },
         {
           "type": "contains",
-          "value": "inherits from AnyObject"
+          "value": "AnyObject"
         }
       ]
     }

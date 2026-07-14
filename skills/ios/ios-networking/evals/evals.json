@@ -52,7 +52,5 @@
     "How do I install iOS dependencies?",
     "Configure CI/CD for an unrelated platform"
   ],
-  "should_trigger": [
-    "How should I build API URLs in iOS?"
-  ]
+  "should_trigger": ["How should I build API URLs in iOS?"]
 }

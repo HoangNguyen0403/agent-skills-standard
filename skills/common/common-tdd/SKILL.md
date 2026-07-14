@@ -93,3 +93,5 @@ Every test must follow Arrange-Act-Assert:
 - **No test-after**: Writing tests post-implementation defeats TDD. Delete and restart.
 - **No assertion-free tests**: test without assert not test.
 - **No testing implementation**: Test behavior and contracts, not internal calls.
+
+- A passing test alone is not enough: the failing test must demonstrate missing behavior before implementation.

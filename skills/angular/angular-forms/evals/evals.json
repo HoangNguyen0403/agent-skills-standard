@@ -26,8 +26,12 @@
           "value": "standalone"
         },
         {
-          "type": "contains",
-          "value": "separate file"
+          "type": "contains_any",
+          "value": [
+            "separate file",
+            "standalone file",
+            "validators.ts"
+          ]
         }
       ]
     },

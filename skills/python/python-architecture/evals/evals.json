@@ -26,8 +26,12 @@
           "value": "render"
         },
         {
-          "type": "contains",
-          "value": "transport"
+          "type": "contains_any",
+          "value": [
+            "transport",
+            "notification",
+            "adapter"
+          ]
         }
       ]
     }

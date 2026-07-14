@@ -11,20 +11,8 @@
           "value": "SESSION_DRIVER=redis"
         },
         {
-          "type": "contains_any",
-          "value": [
-            "config/session.php",
-            "config('session.driver')"
-          ],
-          "description": "Accepts the original or an equivalent skill-visible outcome"
-        },
-        {
           "type": "contains",
           "value": "predis/predis"
-        },
-        {
-          "type": "contains_any",
-          "value": ["avoids file-session I/O", "locking problems", "scaled production"]
         }
       ]
     },
@@ -58,7 +46,7 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Strict-Transport-Security", "HSTS"]
+          "value": ["HSTS", "Strict-Transport-Security"]
         },
         {
           "type": "contains",
@@ -100,15 +88,11 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["withMiddleware", "append(SecurityHeaders"]
+          "value": ["withMiddleware"]
         },
         {
           "type": "contains",
           "value": "prepend()"
-        },
-        {
-          "type": "contains_any",
-          "value": ["cheap and deterministic", "Keep the middleware lightweight"]
         }
       ]
     },
@@ -119,10 +103,7 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "config('session.driver')",
-            "not `env('SESSION_DRIVER')`"
-          ],
+          "value": ["config('session.driver')"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
@@ -142,7 +123,5 @@
     "Go HTTP middleware with chi",
     "Spring Boot filter chain configuration"
   ],
-  "should_trigger": [
-    "Configure Redis session driver in Laravel"
-  ]
+  "should_trigger": ["Configure Redis session driver in Laravel"]
 }

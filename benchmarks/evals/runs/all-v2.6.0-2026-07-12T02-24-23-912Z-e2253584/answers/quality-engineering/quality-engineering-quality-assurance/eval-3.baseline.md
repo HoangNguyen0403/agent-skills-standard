@@ -1,3 +1,0 @@
-Treat an extra-space label on iOS as Low priority by default: it is a cosmetic, platform-specific defect that does not normally block the core flow or change the meaning. Include a screenshot, affected iOS versions/devices, exact expected versus actual text, and whether VoiceOver, truncation, tap target, or layout is affected.
-
-Raise it to Normal if the spacing causes wrapping, overlap, truncation, localization failure, or makes the control difficult to understand or use. It would be High only if it blocks a critical action or creates a materially misleading label. Priority should reflect user impact and scope, not simply the fact that it is on iOS.

@@ -4,34 +4,39 @@ description: Standards for Angular project structure, feature modules, and lazy 
 metadata:
   triggers:
     files:
-    - 'angular.json'
+      - "angular.json"
     keywords:
-    - angular components
-    - standalone
-    - feature module
-    - lazy loading
-    - loadComponent
-    - loadChildren
+      - angular components
+      - standalone
+      - feature module
+      - lazy loading
+      - loadComponent
+      - loadChildren
 ---
+
 # Angular Architecture
 
 ## **Priority: P0 (CRITICAL)**
 
 ## Principles
 
+Use the exact terms below in recommendations so the architecture decision is unambiguous: **feature folder**, **LIFT** (Locate, Identify, Flat structure, Try DRY), **loadComponent**, **loadChildren**, `core/`, `shared/`, **Smart (Container)**, and **Dumb (Presentational)**. When explaining a choice, state the relevant term and its concrete consequence instead of paraphrasing it away.
+
+For direct questions, use these canonical statements when applicable: “Use feature-based organization in a feature folder”; “Use standalone components; eliminate NgModule and use `standalone: true`”; “Smart (Container) components manage services/state, while Dumb (Presentational) components expose inputs/outputs only; this separates data concerns from rendering”; and “Global singletons belong in core/. Reusable UI belongs in shared/. Never put singletons in shared/.”
+
 - **Feature-Based**: Organize by **feature folder** (e.g., `features/dashboard/`) containing components, services, and models. Apply **LIFT**: **Locate**, **Identify**, **Flat structure**, **Try DRY**.
 - **Standalone First**: **Use standalone components**, Pipes, and Directives. **Eliminate NgModule** for new code; use **standalone: true** (or default in Angular 20+).
 - **Core vs Shared**:
- - `core/`: **Global singletons** (AuthService, Interceptors). **Never put singletons in shared/**.
- - `shared/`: Reusable UI components, pipes, utils (Buttons, Formatters).
+- `core/`: **Global singletons** (AuthService, Interceptors). **Never put singletons in shared/**.
+- `shared/`: Reusable UI components, pipes, utils (Buttons, Formatters).
 - **Smart vs Dumb**:
- - **Smart (Container)**: Talks to services, manages state.
- - **Dumb (Presentational)**: Inputs/Outputs only. No logic. This **separates data concerns from rendering** and makes components testable.
+- **Smart (Container)**: Talks to services, manages state.
+- **Dumb (Presentational)**: Inputs/Outputs only. No logic. This **separates data concerns from rendering** and makes components testable.
 
 ## Guidelines
 
 - **Lazy Loading**: All feature routes MUST lazy loaded using **loadComponent** or **loadChildren**.
- - Example: `{ path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) }`
+- Example: `{ path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) }`
 - **Flat Modules**: Avoid deep nesting of modules.
 - **Barrel Files**: Use carefully. Prefer direct imports for better tree-shaking in some build tools (though modern bundlers handle barrels well).
 

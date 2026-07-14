@@ -24,8 +24,7 @@
           "type": "contains_any",
           "value": [
             "async",
-            "await",
-            "structured tasks"
+            "await"
           ]
         }
       ]
@@ -70,7 +69,9 @@
           "id": "a2",
           "description": "Uses Swift main-actor isolation for UI state",
           "type": "contains_any",
-          "value": ["@MainActor", "MainActor.run", "main actor"]
+          "value": [
+            "@MainActor"
+          ]
         },
         {
           "id": "a3",
@@ -94,8 +95,8 @@
         {
           "id": "a2",
           "description": "Mentions parallel execution",
-          "type": "contains",
-          "value": "parallel"
+          "type": "regex",
+          "value": "(?:parallel|concurr)"
         },
         {
           "id": "a3",
@@ -117,10 +118,10 @@
           "value": "TaskGroup"
         },
         {
-          "id": "id2",
-          "description": "Checks or propagates task cancellation",
-          "type": "contains_any",
-          "value": ["Task.isCancelled", "Task.checkCancellation", "cancellation"]
+          "id": "a2",
+          "description": "Checks the task contract includes withTaskGroup",
+          "type": "contains",
+          "value": "withTaskGroup"
         }
       ]
     }

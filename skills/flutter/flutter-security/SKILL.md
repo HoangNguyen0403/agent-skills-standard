@@ -46,3 +46,12 @@ SSL Pinning & Secure Storage: [references/REFERENCE.md](references/REFERENCE.md)
 ## Related Topics
 
 common/security-standards | layer-based-clean-architecture | performance
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- certificate pinning,SSL pinning
+
+## Remediation anchors
+
+- Remediation anchors: root/jailbreak detection, --obfuscate, --split-debug-info

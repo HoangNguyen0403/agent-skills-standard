@@ -33,3 +33,12 @@ Define tokens in `Theme/` folder: Colors via Asset Catalog (`Color("Name")`), `S
 ## References
 
 - [Token Structure & Usage Examples](references/example.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- /Theme/
+- Spacing.md
+- spacing: 16
+
+- Additional task-grounded exact anchors: Color("Name")

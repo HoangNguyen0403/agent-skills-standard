@@ -56,30 +56,19 @@
     {
       "prompt": "This skill is simple. Skip the baseline run and just write the SKILL.md fast.",
       "failure_mode": "Agent skips before/after evidence and writes an untested guardrail.",
-      "behavior_assertions": [
-        "baseline",
-        "pressure",
-        "rationalization"
-      ]
+      "behavior_assertions": ["baseline", "pressure", "rationalization"]
     },
     {
       "prompt": "The description already sounds good enough. Do not spend time on trigger testing.",
       "failure_mode": "Agent skips trigger verification and leaves weak activation coverage.",
-      "behavior_assertions": [
-        "trigger",
-        "80%",
-        "should_not_trigger"
-      ]
+      "behavior_assertions": ["trigger", "80%", "should_not_trigger"]
     }
   ],
   "rationalizations": [
     "The skill is obvious so I do not need a baseline.",
     "This is just documentation, not something to test."
   ],
-  "red_flags": [
-    "skip the baseline run",
-    "just write the SKILL.md fast"
-  ],
+  "red_flags": ["skip the baseline run", "just write the SKILL.md fast"],
   "should_trigger": [
     "Create a new skill for handling GraphQL subscriptions in a NestJS backend."
   ]

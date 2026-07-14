@@ -8,11 +8,13 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "hypothesis"
+          "value": "reproduce"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Apply Scientific",
           "type": "contains",
-          "value": "reproduce"
+          "value": "Observe"
         }
       ]
     },
@@ -23,11 +25,13 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "hypothesis"
+          "value": "minimal"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Stop shotgun",
           "type": "contains",
-          "value": "minimal"
+          "value": "minimal reproduction"
         }
       ]
     },
@@ -44,11 +48,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "git bisect",
-            "known-good",
-            "GOOD..BAD"
-          ]
+          "value": ["git bisect", "known-good"]
         }
       ]
     }
@@ -71,21 +71,14 @@
     {
       "prompt": "I already tried three random fixes. Give me two more ideas fast.",
       "failure_mode": "Agent continues shotgun debugging instead of restarting the method.",
-      "behavior_assertions": [
-        "stop",
-        "hypothesis",
-        "experiment"
-      ]
+      "behavior_assertions": ["stop", "hypothesis", "one hypothesis"]
     }
   ],
   "rationalizations": [
     "A quick patch now is better than investigation.",
     "More random fixes will eventually reveal the answer."
   ],
-  "red_flags": [
-    "skip the investigation",
-    "random fixes"
-  ],
+  "red_flags": ["skip the investigation", "random fixes"],
   "should_trigger": [
     "My app crashes with 'Cannot read properties of undefined (reading length)' but only in production, not locally."
   ]

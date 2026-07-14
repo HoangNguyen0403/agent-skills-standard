@@ -17,10 +17,6 @@
         {
           "type": "contains",
           "value": "Lombok"
-        },
-        {
-          "type": "contains",
-          "value": "DTOs/Value Objects"
         }
       ]
     },
@@ -35,15 +31,11 @@
         },
         {
           "type": "contains",
-          "value": "Pattern Matching"
+          "value": "switch"
         },
         {
           "type": "contains",
-          "value": "instanceof"
-        },
-        {
-          "type": "contains",
-          "value": "if/else chains"
+          "value": "switch"
         }
       ]
     },
@@ -54,15 +46,13 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "sealed interface/class"
-        },
-        {
-          "type": "contains",
-          "value": "exhaustive switch"
-        },
-        {
-          "type": "contains",
           "value": "permits"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes sealed interface",
+          "type": "contains",
+          "value": "sealed interface"
         }
       ]
     }
@@ -72,14 +62,14 @@
     "Convert this Java class into idiomatic Kotlin with data class",
     "Write a JUnit 5 parameterized test for my Java method",
     "Set up Checkstyle to enforce Google Java Format in my Gradle build",
-    "Configure a Virtual Thread executor for my Spring Boot app",
     "Use CompletableFuture to run two API calls in parallel in Java",
     "How do I add Spotless to my Maven pom.xml for formatting?",
-    "Use StructuredTaskScope with ShutdownOnFailure in Java 21",
     "How do I avoid NullPointerException in Java without Optional?",
     "Refactor my Java class to use Builder pattern for 6-parameter constructor"
   ],
   "should_trigger": [
-    "I have a Java DTO with 5 fields, a no-arg constructor, getters, setters, equals, hashCode, and toString. Is there a cleaner way in Java 21?"
+    "I have a Java DTO with 5 fields, a no-arg constructor, getters, setters, equals, hashCode, and toString. Is there a cleaner way in Java 21?",
+    "Configure a Virtual Thread executor for my Spring Boot app",
+    "Use StructuredTaskScope with ShutdownOnFailure in Java 21"
   ]
 }

@@ -37,8 +37,12 @@
       "expected_output": "CLS (Cumulative Layout Shift) violation. Fix with next/image — always specify width and height or use fill prop. Target CLS < 0.1. Example: <Image src={...} width={800} height={600} alt='...' /> or <Image src={...} fill className='object-cover' alt='...'>. Never use raw <img> tags.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "CLS"
+          "type": "contains_any",
+          "value": [
+            "CLS",
+            "layout shift",
+            "layout shifts"
+          ]
         },
         {
           "id": "a1",

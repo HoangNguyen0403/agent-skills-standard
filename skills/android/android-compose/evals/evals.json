@@ -42,12 +42,6 @@
           "description": "Recommends passing data and callbacks",
           "type": "contains",
           "value": "callback"
-        },
-        {
-          "id": "a3",
-          "description": "Mentions state hoisting",
-          "type": "contains",
-          "value": "hoist"
         }
       ]
     },

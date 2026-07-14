@@ -55,7 +55,14 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["coupling", "contract", "boundary", "bounded context", "loosely coupled", "service ownership"]
+          "value": [
+            "coupling",
+            "contract",
+            "boundary",
+            "bounded context",
+            "loosely coupled",
+            "service ownership"
+          ]
         },
         {
           "type": "contains_any",

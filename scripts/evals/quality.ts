@@ -4,8 +4,9 @@ import * as path from "path";
 import { EVALS_DIR, ROOT_DIR } from "./constants";
 import { listCategories } from "./manifest";
 import { loadManifest } from "./manifest";
+import { evaluateSkillReadiness } from "./readiness";
 import { loadRunInputs } from "./snapshot";
-import type { ManifestV2 } from "./types";
+import type { ManifestV2, SkillResult } from "./types";
 
 type AssertionType =
   | "contains"
@@ -56,6 +57,14 @@ export interface EvalAuditIssue {
   message: string;
 }
 
+export interface EvalPreflightIssue {
+  category: string;
+  skillName: string;
+  evalId: number | string;
+  assertion: string;
+  message: string;
+}
+
 export interface RemediationQueueItem {
   category: string;
   skillName: string;
@@ -69,6 +78,11 @@ export interface RemediationQueueItem {
     | "trigger-boundary collision"
     | "compromised generation";
   evidence: string;
+}
+
+export interface RemediationQueueOptions {
+  /** Keep only non-baseline evidence for skills that fail the strict gate. */
+  strictOnly?: boolean;
 }
 
 const FILE_REFERENCE_REPLACEMENTS: Record<string, Assertion> = {
@@ -164,9 +178,13 @@ function derivedAssertions(
   const needed = Math.max(0, 2 - current.length);
   if (needed === 0) return [];
   const used = existingAssertionText(current);
+  // Derived assertions must come from the task contract, never merely from
+  // a term found somewhere in SKILL.md. Skill-only terms create false
+  // failures for otherwise correct answers (for example a section heading
+  // that the user was never asked to repeat).
   const candidates = [
+    ...extractCandidates(evaluation.prompt ?? ""),
     ...extractCandidates(evaluation.expected_output ?? ""),
-    ...skillCandidates(repoRoot, category, skillName),
   ].filter(
     (candidate) =>
       !used.some(
@@ -247,6 +265,65 @@ function collapseRedundantContains(assertions: Assertion[]): Assertion[] {
 function assertionValues(assertion: Assertion): string[] {
   if (Array.isArray(assertion.value)) return assertion.value;
   return assertion.values ?? [assertion.value];
+}
+
+export function isAssertionTaskAnchored(
+  assertion: Assertion,
+  prompt = "",
+  expectedOutput = "",
+): boolean {
+  if (assertion.type !== "contains" && assertion.type !== "contains_any")
+    return true;
+  // The existing eval schema defines the task contract as the user prompt
+  // plus its expected behavior. Skill text alone is never an assertion source.
+  const task = `${prompt}\n${expectedOutput}`.toLowerCase();
+  return assertionValues(assertion).some((value) =>
+    task.includes(value.toLowerCase()),
+  );
+}
+
+export function auditAssertionAlignment(
+  repoRoot = ROOT_DIR,
+  selectedSkills?: ReadonlySet<string>,
+): EvalPreflightIssue[] {
+  const issues: EvalPreflightIssue[] = [];
+  for (const category of listCategories(repoRoot)) {
+    const categoryDir = path.join(repoRoot, "skills", category);
+    for (const entry of fs
+      .readdirSync(categoryDir, { withFileTypes: true })
+      .filter((item) => item.isDirectory())) {
+      const key = `${category}/${entry.name}`;
+      if (selectedSkills && !selectedSkills.has(key)) continue;
+      const evalsPath = path.join(
+        categoryDir,
+        entry.name,
+        "evals",
+        "evals.json",
+      );
+      if (!fs.existsSync(evalsPath)) continue;
+      const definition = readDefinition(repoRoot, category, entry.name);
+      for (const evaluation of definition.evals ?? []) {
+        for (const assertion of evaluation.assertions ?? []) {
+          if (
+            !isAssertionTaskAnchored(
+              assertion,
+              evaluation.prompt,
+              evaluation.expected_output,
+            )
+          )
+            issues.push({
+              category,
+              skillName: entry.name,
+              evalId: evaluation.id,
+              assertion: `${assertion.type}:${String(assertion.value)}`,
+              message:
+                "Outcome assertion is not grounded in the user prompt or expected behavior contract",
+            });
+        }
+      }
+    }
+  }
+  return issues;
 }
 
 function isGenericAlternative(value: string): boolean {
@@ -548,24 +625,28 @@ export function isCompromisedRunArm(
 export function buildRemediationQueue(
   runId: string,
   repoRoot = ROOT_DIR,
+  options: RemediationQueueOptions = {},
 ): RemediationQueueItem[] {
   const runDir = path.join(repoRoot, "benchmarks", "evals", "runs", runId);
   const manifest = loadManifest(runDir);
   const inputs = loadRunInputs(runDir);
   const results = fs.readJSONSync(path.join(runDir, "results.json")) as {
-    skills: Array<{
-      category: string;
-      skillName: string;
-      scores: Array<{
-        id: string;
-        arm: string;
-        kind: string;
-        failedAssertions: string[];
-      }>;
-    }>;
+    skills: SkillResult[];
   };
   const queue: RemediationQueueItem[] = [];
   for (const skill of results.skills) {
+    const compromised =
+      manifest.schemaVersion === 2 &&
+      manifest.compromisedSkills.some(
+        (record) =>
+          record.category === skill.category &&
+          record.skillName === skill.skillName,
+      );
+    if (
+      options.strictOnly &&
+      evaluateSkillReadiness(skill, { compromised }).ready
+    )
+      continue;
     const skillMarkdown =
       inputs?.sources[`${skill.category}/${skill.skillName}`]?.skillMarkdown ??
       fs.readFileSync(
@@ -579,31 +660,63 @@ export function buildRemediationQueue(
         "utf8",
       );
     for (const score of skill.scores)
-      for (const failure of score.failedAssertions)
-        queue.push({
-          category: skill.category,
-          skillName: skill.skillName,
-          caseId: score.id,
-          arm: score.arm,
-          classification: classifyFailure(
-            skillMarkdown,
-            failure,
-            manifest.schemaVersion === 2 &&
-              isCompromisedRunArm(
-                manifest,
-                skill.category,
-                skill.skillName,
-                score.arm,
-              ),
-          ),
-          evidence: failure,
-        });
+      if (
+        (!options.strictOnly || score.arm !== "baseline") &&
+        score.failedAssertions.length > 0
+      )
+        for (const failure of score.failedAssertions)
+          queue.push({
+            category: skill.category,
+            skillName: skill.skillName,
+            caseId: score.id,
+            arm: score.arm,
+            classification: classifyFailure(
+              skillMarkdown,
+              failure,
+              manifest.schemaVersion === 2 &&
+                isCompromisedRunArm(
+                  manifest,
+                  skill.category,
+                  skill.skillName,
+                  score.arm,
+                ),
+            ),
+            evidence: failure,
+          });
   }
   return queue;
 }
 
 export function main(): void {
   const action = process.argv[2] ?? "audit";
+  if (action === "preflight") {
+    const selectionIndex = process.argv.indexOf("--skills-file");
+    const selectionPath =
+      selectionIndex === -1 ? undefined : process.argv[selectionIndex + 1];
+    const selectedSkills = selectionPath
+      ? new Set(
+          fs
+            .readFileSync(path.resolve(selectionPath), "utf8")
+            .split(/\r?\n/)
+            .map((line) => line.replace(/#.*/, "").trim())
+            .filter(Boolean),
+        )
+      : undefined;
+    const issues = auditAssertionAlignment(ROOT_DIR, selectedSkills);
+    const output = path.join(EVALS_DIR, "eval-preflight.json");
+    fs.writeJSONSync(
+      output,
+      {
+        generatedAt: new Date().toISOString(),
+        issueCount: issues.length,
+        issues,
+      },
+      { spaces: 2 },
+    );
+    console.log(`Eval preflight: ${issues.length} issues (${output})`);
+    if (issues.length > 0) process.exitCode = 1;
+    return;
+  }
   if (action === "audit") {
     const initialIssues = standardizeEvalDefinitions(
       ROOT_DIR,
@@ -628,14 +741,22 @@ export function main(): void {
   if (action === "queue") {
     const runId = process.argv[process.argv.indexOf("--run") + 1];
     if (!runId) throw new Error("--run <runId> is required");
-    const queue = buildRemediationQueue(runId);
+    const strictOnly = process.argv.includes("--strict");
+    const queue = buildRemediationQueue(runId, ROOT_DIR, { strictOnly });
     const output = path.join(EVALS_DIR, "remediation-queue.json");
     fs.writeJSONSync(
       output,
-      { runId, generatedAt: new Date().toISOString(), items: queue },
+      {
+        runId,
+        generatedAt: new Date().toISOString(),
+        scope: strictOnly ? "strict-release-blockers" : "all-failed-assertions",
+        items: queue,
+      },
       { spaces: 2 },
     );
-    console.log(`Remediation queue: ${queue.length} items (${output})`);
+    console.log(
+      `Remediation queue${strictOnly ? " (strict)" : ""}: ${queue.length} items (${output})`,
+    );
     return;
   }
   throw new Error(`Unknown action: ${action}; use audit or queue`);

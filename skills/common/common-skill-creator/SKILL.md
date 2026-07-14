@@ -84,7 +84,7 @@ Applies to **every skill in this registry**. Maximize **Token ROI**. Every line 
 - [ ] **Implementation ≥ 90%**: No general-purpose explanations; all examples executable.
 - [ ] **Structural Compliance**: SKILL.md ≤ 100 lines; code blocks moved to `references/`.
 - [ ] Trigger rate ≥80% on should-trigger queries.
-- [ ] Guardrail skills include rationalizations, red flags, and behavior eval fields.
+- [ ] Guardrail skills include rationalizations, red flags, behavior eval fields, and `should_trigger`/`should_not_trigger` cases.
 
 ## References
 

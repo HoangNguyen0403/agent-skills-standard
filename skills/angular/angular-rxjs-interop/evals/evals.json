@@ -89,10 +89,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "Never use a global Subject",
-            "global"
-          ],
+          "value": ["Never use a global Subject", "global"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]
@@ -142,7 +139,5 @@
     "How do I use React Query for server state management?",
     "How do I implement the Observer pattern in Java with listeners?"
   ],
-  "should_trigger": [
-    "How do I convert an Observable to a Signal in Angular?"
-  ]
+  "should_trigger": ["How do I convert an Observable to a Signal in Angular?"]
 }

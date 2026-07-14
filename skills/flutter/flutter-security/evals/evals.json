@@ -14,10 +14,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "flutter_secure_storage",
-            "secure OS-backed storage"
-          ]
+          "value": ["flutter_secure_storage"]
         }
       ]
     },
@@ -30,19 +27,13 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Use --dart-define for build-time values",
-            "dart-define"
-          ]
+          "value": ["Use --dart-define for build-time values", "dart-define"]
         },
         {
           "id": "a2",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "never commit keys to source",
-            "keys"
-          ]
+          "value": ["never commit keys to source", "keys"]
         }
       ]
     },
@@ -57,11 +48,11 @@
         },
         {
           "type": "contains_any",
-          "value": ["certificate pinning", "SSL pinning"]
+          "value": ["SSL pinning"]
         },
         {
           "type": "contains_any",
-          "value": ["root/jailbreak detection", "root detection", "jailbreak detection"]
+          "value": ["root"]
         }
       ]
     }

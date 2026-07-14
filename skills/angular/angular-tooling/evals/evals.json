@@ -92,10 +92,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "--skip-tests",
-            "skip-tests"
-          ],
+          "value": ["--skip-tests", "skip-tests"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
@@ -130,7 +127,5 @@
     "How do I configure webpack for code splitting?",
     "How do I set up a Vite dev server for a Vue project?"
   ],
-  "should_trigger": [
-    "How do I generate a new Angular component with the CLI?"
-  ]
+  "should_trigger": ["How do I generate a new Angular component with the CLI?"]
 }

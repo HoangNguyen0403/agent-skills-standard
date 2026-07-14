@@ -1,286 +1,191 @@
 {
-  "runId": "all-v2.6.0-2026-07-12T15-40-45-083Z-1d558d66",
-  "generatedAt": "2026-07-12T16:36:02.254Z",
+  "runId": "all-v2.6.0-final-136",
+  "generatedAt": "2026-07-14T11:08:42.740Z",
+  "scope": "strict-release-blockers",
   "items": [
     {
       "category": "android",
-      "skillName": "android-navigation-type-safe",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Define ProductDetail(val productId"
-    },
-    {
-      "category": "android",
-      "skillName": "android-navigation-type-safe",
-      "caseId": "eval-2",
-      "arm": "with-skill",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Define ProductDetail(val productId"
-    },
-    {
-      "category": "android",
-      "skillName": "android-navigation-type-safe",
-      "caseId": "trigger-5",
-      "arm": "with-skill",
-      "classification": "trigger-boundary collision",
-      "evidence": "trigger marker expected no"
-    },
-    {
-      "category": "android",
-      "skillName": "android-networking",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Kotlinx Serialization"
-    },
-    {
-      "category": "android",
-      "skillName": "android-networking",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:SerialName"
-    },
-    {
-      "category": "android",
-      "skillName": "android-networking",
-      "caseId": "trigger-2",
-      "arm": "with-skill",
-      "classification": "trigger-boundary collision",
-      "evidence": "trigger marker expected no"
-    },
-    {
-      "category": "android",
-      "skillName": "android-networking",
-      "caseId": "trigger-3",
-      "arm": "with-skill",
-      "classification": "trigger-boundary collision",
-      "evidence": "trigger marker expected no"
-    },
-    {
-      "category": "android",
-      "skillName": "android-networking",
-      "caseId": "trigger-5",
-      "arm": "with-skill",
-      "classification": "trigger-boundary collision",
-      "evidence": "trigger marker expected no"
-    },
-    {
-      "category": "angular",
-      "skillName": "angular-security",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:DomSanitizer,sanitizer.sanitize"
-    },
-    {
-      "category": "angular",
-      "skillName": "angular-security",
+      "skillName": "android-resources",
       "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:per response,per-request-nonce,server-generated nonce"
-    },
-    {
-      "category": "angular",
-      "skillName": "angular-security",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:controlled provenance,controlled and verified,vetted static CMS"
-    },
-    {
-      "category": "angular",
-      "skillName": "angular-security",
-      "caseId": "eval-4",
-      "arm": "baseline",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:vector"
+      "evidence": "contains:density"
     },
     {
       "category": "angular",
-      "skillName": "angular-security",
-      "caseId": "eval-6",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Do not put API keys,other secrets,compiled bundle"
-    },
-    {
-      "category": "angular",
-      "skillName": "angular-style-guide",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:type suffix,suffix such as .component"
-    },
-    {
-      "category": "angular",
-      "skillName": "angular-style-guide",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Flattest structure"
-    },
-    {
-      "category": "angular",
-      "skillName": "angular-style-guide",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:nouns"
-    },
-    {
-      "category": "angular",
-      "skillName": "angular-style-guide",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:tree-shaking"
-    },
-    {
-      "category": "angular",
-      "skillName": "angular-style-guide",
-      "caseId": "eval-6",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:features/,src/app/features"
-    },
-    {
-      "category": "angular",
-      "skillName": "angular-style-guide",
-      "caseId": "eval-6",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:three levels,3 levels,depth ≤3"
-    },
-    {
-      "category": "common",
-      "skillName": "common-architecture-diagramming",
+      "skillName": "angular-forms",
       "caseId": "eval-2",
-      "arm": "baseline",
+      "arm": "with-skill",
       "classification": "missing skill guidance",
-      "evidence": "contains_any:label,legend,arrow"
+      "evidence": "contains_any:separate file,standalone file"
     },
     {
-      "category": "common",
-      "skillName": "common-debugging",
+      "category": "angular",
+      "skillName": "angular-http-client",
+      "caseId": "eval-4",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Encapsulate all HTTP calls"
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-http-client",
+      "caseId": "eval-4",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:httpResource()"
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-performance",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:priority attribute"
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-routing",
       "caseId": "eval-1",
-      "arm": "baseline",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:hypothesis"
+      "evidence": "contains:lazy"
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-state-management",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:@ngrx/signals"
     },
     {
       "category": "common",
-      "skillName": "common-debugging",
-      "caseId": "pressure-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:root cause"
-    },
-    {
-      "category": "common",
-      "skillName": "common-debugging",
-      "caseId": "pressure-1",
-      "arm": "baseline",
+      "skillName": "common-code-review",
+      "caseId": "eval-2",
+      "arm": "with-skill",
       "classification": "missing skill guidance",
-      "evidence": "contains:production-like replay"
+      "evidence": "contains_any:Principal Engineer,senior review"
     },
     {
       "category": "common",
-      "skillName": "common-debugging",
-      "caseId": "pressure-1",
-      "arm": "baseline",
+      "skillName": "common-code-review",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "missing skill guidance",
+      "evidence": "contains:test coverage"
+    },
+    {
+      "category": "common",
+      "skillName": "common-code-review",
+      "caseId": "pressure-2",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:one hypothesis"
+      "evidence": "contains:Why:"
+    },
+    {
+      "category": "common",
+      "skillName": "common-documentation",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "missing skill guidance",
+      "evidence": "contains:thundering herd"
     },
     {
       "category": "common",
       "skillName": "common-error-handling",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:domain"
-    },
-    {
-      "category": "common",
-      "skillName": "common-exploit-verification",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Proof of concept,Preconditions,Payload"
-    },
-    {
-      "category": "common",
-      "skillName": "common-mobile-ux-core",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:SafeArea,WindowInsets,home indicator"
-    },
-    {
-      "category": "common",
-      "skillName": "common-mobile-ux-core",
-      "caseId": "eval-1",
+      "caseId": "eval-3",
       "arm": "with-skill",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:SafeArea,WindowInsets,home indicator"
-    },
-    {
-      "category": "common",
-      "skillName": "common-mobile-ux-core",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:44,48,touch target"
-    },
-    {
-      "category": "common",
-      "skillName": "common-mobile-ux-core",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:touch target,44,48"
-    },
-    {
-      "category": "common",
-      "skillName": "common-mobile-ux-core",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:safe area,keyboard,platform"
-    },
-    {
-      "category": "common",
-      "skillName": "common-observability",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:structured logger,pino,zap"
-    },
-    {
-      "category": "common",
-      "skillName": "common-operator-profile",
-      "caseId": "eval-1",
-      "arm": "baseline",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:business"
+      "evidence": "contains_any:silently ignore"
     },
     {
       "category": "common",
-      "skillName": "common-operator-profile",
+      "skillName": "common-feedback-reporter",
       "caseId": "eval-1",
       "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:business"
+      "evidence": "contains:VIOLATION"
     },
     {
       "category": "common",
-      "skillName": "common-operator-profile",
-      "caseId": "eval-3",
-      "arm": "baseline",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-1",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:technical"
+      "evidence": "contains:Auto-fixed"
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Root Cause"
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:User Intent"
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Skill Gap"
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:100"
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Root Cause"
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Skill Gap"
+    },
+    {
+      "category": "common",
+      "skillName": "common-mobile-animation",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "missing skill guidance",
+      "evidence": "contains_any:250-350ms,250–350ms"
+    },
+    {
+      "category": "common",
+      "skillName": "common-mobile-animation",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "missing skill guidance",
+      "evidence": "contains_any:400-600ms,400–600ms"
+    },
+    {
+      "category": "common",
+      "skillName": "common-mobile-visual-testing",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:QoS"
     },
     {
       "category": "common",
@@ -294,253 +199,109 @@
       "category": "common",
       "skillName": "common-operator-profile",
       "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Recommended defaults,Sponsor:,Success metric:"
-    },
-    {
-      "category": "common",
-      "skillName": "common-product-requirements",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Discovery,What outcome,Which channels"
-    },
-    {
-      "category": "common",
-      "skillName": "common-product-requirements",
-      "caseId": "eval-1",
-      "arm": "baseline",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:docs/prd"
+      "evidence": "contains:SMART metric"
     },
     {
       "category": "common",
-      "skillName": "common-product-requirements",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:edge/error,failure and recovery,invalid input"
-    },
-    {
-      "category": "common",
-      "skillName": "common-product-requirements",
-      "caseId": "eval-3",
-      "arm": "baseline",
+      "skillName": "common-owasp",
+      "caseId": "eval-1",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:security"
+      "evidence": "contains:IDOR"
     },
     {
       "category": "common",
       "skillName": "common-product-requirements",
       "caseId": "eval-5",
-      "arm": "baseline",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:implementation-readiness"
+      "evidence": "contains:RACI"
     },
     {
       "category": "common",
-      "skillName": "common-system-design",
+      "skillName": "common-security-standards",
       "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:separation of concerns,separate concerns,module boundary,module boundaries,domain module"
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:parameterized"
     },
     {
       "category": "common",
-      "skillName": "common-system-design",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:degrade,fallback,non-critical"
-    },
-    {
-      "category": "dart",
-      "skillName": "dart-language",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Replace ! with ?"
-    },
-    {
-      "category": "dart",
-      "skillName": "dart-language",
-      "caseId": "eval-3",
+      "skillName": "common-session-retrospective",
+      "caseId": "eval-1",
       "arm": "with-skill",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Replace ! with ?"
-    },
-    {
-      "category": "database",
-      "skillName": "database-postgresql",
-      "caseId": "eval-1",
-      "arm": "baseline",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Expand"
+      "evidence": "contains:AGENTS.md"
     },
     {
-      "category": "database",
-      "skillName": "database-postgresql",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:migration"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-bloc-state-management",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Remove"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-bloc-state-management",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:then()"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-bloc-state-management",
-      "caseId": "eval-3",
-      "arm": "with-skill",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Remove"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-getx-navigation",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Routes"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-getx-state-management",
-      "caseId": "trigger-5",
-      "arm": "with-skill",
-      "classification": "trigger-boundary collision",
-      "evidence": "trigger marker expected no"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-idiomatic-flutter",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:BuildContext"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-idiomatic-flutter",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:StatelessWidget"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-idiomatic-flutter",
-      "caseId": "trigger-2",
-      "arm": "with-skill",
-      "classification": "trigger-boundary collision",
-      "evidence": "trigger marker expected no"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-localization",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:easy_localization,EasyLocalization"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-localization",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:sheet_loader_localization,assets/langs"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-localization",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:namedArgs,args:"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-localization",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:welcome_user,{name}"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-localization",
+      "category": "common",
+      "skillName": "common-telemetry",
       "caseId": "eval-2",
       "arm": "with-skill",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:welcome_user,{name}"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-localization",
-      "caseId": "eval-3",
-      "arm": "baseline",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains_any:plural("
+      "evidence": "contains:get_session_cost"
     },
     {
-      "category": "flutter",
-      "skillName": "flutter-localization",
+      "category": "common",
+      "skillName": "common-telemetry",
       "caseId": "trigger-1",
       "arm": "with-skill",
       "classification": "trigger-boundary collision",
       "evidence": "trigger marker expected yes"
     },
     {
-      "category": "flutter",
-      "skillName": "flutter-performance",
+      "category": "common",
+      "skillName": "common-ui-design",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:aesthetic"
+    },
+    {
+      "category": "common",
+      "skillName": "common-web-visual-testing",
       "caseId": "eval-1",
-      "arm": "baseline",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:ValueKey"
+      "evidence": "contains:Before"
     },
     {
-      "category": "flutter",
-      "skillName": "flutter-performance",
+      "category": "common",
+      "skillName": "common-web-visual-testing",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:After"
+    },
+    {
+      "category": "common",
+      "skillName": "common-web-visual-testing",
       "caseId": "eval-2",
-      "arm": "baseline",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:BlocBuilder"
+      "evidence": "contains:opacity: 0"
     },
     {
       "category": "flutter",
-      "skillName": "flutter-performance",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:RepaintBoundary"
-    },
-    {
-      "category": "flutter",
-      "skillName": "flutter-performance",
+      "skillName": "flutter-bloc-state-management",
       "caseId": "eval-3",
-      "arm": "baseline",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:CachedNetworkImage"
+      "evidence": "contains_any:Remove"
     },
     {
       "category": "flutter",
-      "skillName": "flutter-performance",
+      "skillName": "flutter-design-system",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:VTypography"
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-feature-based-clean-architecture",
       "caseId": "trigger-3",
       "arm": "with-skill",
       "classification": "trigger-boundary collision",
@@ -548,651 +309,35 @@
     },
     {
       "category": "flutter",
-      "skillName": "flutter-security",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:--obfuscate,--split-debug-info"
+      "skillName": "flutter-testing",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:GetIt registration"
     },
     {
-      "category": "flutter",
-      "skillName": "flutter-security",
+      "category": "ios",
+      "skillName": "ios-design-system",
       "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:certificate pinning,SSL pinning"
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Color.blue"
     },
     {
-      "category": "flutter",
-      "skillName": "flutter-security",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:root/jailbreak detection,root detection,jailbreak detection"
+      "category": "javascript",
+      "skillName": "javascript-tooling",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Priority"
     },
     {
-      "category": "flutter",
-      "skillName": "flutter-security",
-      "caseId": "trigger-5",
+      "category": "kotlin",
+      "skillName": "kotlin-language",
+      "caseId": "trigger-6",
       "arm": "with-skill",
       "classification": "trigger-boundary collision",
-      "evidence": "trigger marker expected no"
-    },
-    {
-      "category": "ios",
-      "skillName": "ios-dependency-injection",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Factory"
-    },
-    {
-      "category": "ios",
-      "skillName": "ios-dependency-injection",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:@Injected"
-    },
-    {
-      "category": "ios",
-      "skillName": "ios-dependency-injection",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Initializer Injection"
-    },
-    {
-      "category": "ios",
-      "skillName": "ios-dependency-injection",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Factory,@Injected,Container"
-    },
-    {
-      "category": "ios",
-      "skillName": "ios-dependency-injection",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Injected"
-    },
-    {
-      "category": "ios",
-      "skillName": "ios-dependency-injection",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Singleton"
-    },
-    {
-      "category": "ios",
-      "skillName": "ios-persistence",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:@Model"
-    },
-    {
-      "category": "ios",
-      "skillName": "ios-persistence",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:ModelContainer"
-    },
-    {
-      "category": "ios",
-      "skillName": "ios-persistence",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:newBackgroundContext"
-    },
-    {
-      "category": "ios",
-      "skillName": "ios-persistence",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:viewContext"
-    },
-    {
-      "category": "ios",
-      "skillName": "ios-persistence",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:merge policy,conflict-resolution,conflict"
-    },
-    {
-      "category": "ios",
-      "skillName": "ios-swiftui",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:@State for local simple data"
-    },
-    {
-      "category": "ios",
-      "skillName": "ios-swiftui",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:small,composable,struct"
-    },
-    {
-      "category": "ios",
-      "skillName": "ios-swiftui",
-      "caseId": "eval-1",
-      "arm": "with-skill",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:@State for local simple data"
-    },
-    {
-      "category": "javascript",
-      "skillName": "javascript-language",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:const default"
-    },
-    {
-      "category": "javascript",
-      "skillName": "javascript-language",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:let if needed"
-    },
-    {
-      "category": "javascript",
-      "skillName": "javascript-language",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:No var"
-    },
-    {
-      "category": "javascript",
-      "skillName": "javascript-language",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Optional Chain ?."
-    },
-    {
-      "category": "javascript",
-      "skillName": "javascript-language",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Nullish ??"
-    },
-    {
-      "category": "javascript",
-      "skillName": "javascript-language",
-      "caseId": "eval-2",
-      "arm": "with-skill",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:user?.profile?.name"
-    },
-    {
-      "category": "javascript",
-      "skillName": "javascript-language",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:async/await"
-    },
-    {
-      "category": "javascript",
-      "skillName": "javascript-language",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:try/catch"
-    },
-    {
-      "category": "javascript",
-      "skillName": "javascript-language",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:No Callbacks"
-    },
-    {
-      "category": "javascript",
-      "skillName": "javascript-language",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:ESM import/export"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-background-processing",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:handle()"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-background-processing",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:model ID"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-background-processing",
-      "caseId": "eval-1",
-      "arm": "with-skill",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:model ID"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-background-processing",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:composer"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-background-processing",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:queue:work"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-background-processing",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:SendConfirmation"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-background-processing",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Event::dispatch"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-background-processing",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:ProcessPayment"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-background-processing",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:SendReceipt"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-background-processing",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:ImportRow"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-background-processing",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:batch()->cancel"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-background-processing",
-      "caseId": "eval-6",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:failed(Throwable $exception)"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-background-processing",
-      "caseId": "eval-6",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:queue:failed-table"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-background-processing",
-      "caseId": "eval-6",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Horizon"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:app/Domains,domain-oriented folders,business domain"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:DTOs"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Contracts"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:no Eloquent query,contain no Eloquent,free of queries"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:AppServiceProvider"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:boundary between HTTP,cross-layer API,pass it to"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:raw arrays,unstructured array"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Eloquent models,mutable Eloquent"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:AppServiceProvider"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:inject `OrderRepository`,inject OrderRepository,depends on the Action"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:business domain,Domains"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:instead of creating global,rather than by technical type"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Controllers,Models"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Actions/"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Contracts"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:app/Models"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Controller → Action,repository adapter,persistence abstractions"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:controllers free of queries,no Eloquent query,Keep controllers free"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:typed immutable data,DTOs,data in `DTOs`"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:bind them,Bind the contract,container bindings"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-clean-architecture",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:AppServiceProvider"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-eloquent",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:strict lazy-loading,missing eager load,non-production"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-eloquent",
-      "caseId": "eval-2",
-      "arm": "with-skill",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:eager load,eager loading,load()"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-eloquent",
-      "caseId": "eval-2",
-      "arm": "with-skill",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:strict lazy-loading,missing eager load,non-production"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-eloquent",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:local scope,prevent controllers from duplicating,query vocabulary"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-eloquent",
-      "caseId": "eval-3",
-      "arm": "with-skill",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:local scope,prevent controllers from duplicating,query vocabulary"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-eloquent",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:chunk()"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-eloquent",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:lazy()"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-eloquent",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:cursor()"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-eloquent",
-      "caseId": "eval-4",
-      "arm": "with-skill",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:lazy()"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-eloquent",
-      "caseId": "eval-4",
-      "arm": "with-skill",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:cursor()"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-eloquent",
-      "caseId": "eval-6",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:LazyLoadingViolationException"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-eloquent",
-      "caseId": "eval-6",
-      "arm": "with-skill",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:LazyLoadingViolationException"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-security",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Gate::define('admin'"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-security",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:@can('admin')"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-security",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:specific model,model-bound,Policies when"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-security",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:configuration files,only in configuration,Do not call `env()"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-security",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:config('app.key')"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-security",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:never env() in controllers,use config() in controllers,not in controllers"
+      "evidence": "trigger marker expected yes"
     },
     {
       "category": "laravel",
@@ -1200,237 +345,37 @@
       "caseId": "eval-3",
       "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:config('app.key')"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-security",
-      "caseId": "eval-3",
-      "arm": "with-skill",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:never env() in controllers,use config() in controllers,not in controllers"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-security",
-      "caseId": "eval-6",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Gate::before"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-security",
-      "caseId": "eval-6",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:spatie/laravel-permission,spatie permission,Gate::before"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-sessions-middleware",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:predis/predis"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-sessions-middleware",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:avoids file-session I/O,locking problems,scaled production"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-sessions-middleware",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:bootstrap/app.php"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-sessions-middleware",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:withMiddleware()"
+      "evidence": "contains_any:never env() in controllers"
     },
     {
       "category": "laravel",
       "skillName": "laravel-sessions-middleware",
       "caseId": "eval-3",
-      "arm": "baseline",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
       "evidence": "contains:CSP"
     },
     {
-      "category": "laravel",
-      "skillName": "laravel-sessions-middleware",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:prepend()"
-    },
-    {
-      "category": "laravel",
-      "skillName": "laravel-sessions-middleware",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:cheap and deterministic,Keep the middleware lightweight"
-    },
-    {
-      "category": "nestjs",
-      "skillName": "nestjs-configuration",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:env.validation"
-    },
-    {
-      "category": "php",
-      "skillName": "php-best-practices",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:same-line opening braces,opening braces on same line"
-    },
-    {
-      "category": "php",
-      "skillName": "php-best-practices",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains:constructor injection"
-    },
-    {
-      "category": "php",
-      "skillName": "php-best-practices",
-      "caseId": "eval-2",
-      "arm": "with-skill",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains_any:SRP:,single responsibility,one responsibility"
-    },
-    {
-      "category": "php",
-      "skillName": "php-best-practices",
+      "category": "nextjs",
+      "skillName": "nextjs-styling",
       "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Split,focused class,split the class,responsibility"
-    },
-    {
-      "category": "php",
-      "skillName": "php-best-practices",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:no else after return,else after a return,reduce nesting"
-    },
-    {
-      "category": "php",
-      "skillName": "php-best-practices",
-      "caseId": "trigger-2",
       "arm": "with-skill",
-      "classification": "trigger-boundary collision",
-      "evidence": "trigger marker expected no"
-    },
-    {
-      "category": "php",
-      "skillName": "php-concurrency",
-      "caseId": "eval-2",
-      "arm": "baseline",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Fiber::suspend"
+      "evidence": "contains:CLS"
     },
     {
-      "category": "php",
-      "skillName": "php-concurrency",
+      "category": "python",
+      "skillName": "python-architecture",
       "caseId": "eval-2",
       "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Fiber::suspend"
-    },
-    {
-      "category": "php",
-      "skillName": "php-concurrency",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Pool($client"
-    },
-    {
-      "category": "php",
-      "skillName": "php-concurrency",
-      "caseId": "eval-6",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:separate PDO connection"
-    },
-    {
-      "category": "php",
-      "skillName": "php-concurrency",
-      "caseId": "eval-6",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Do not share mutable,connection state,Bound concurrency"
-    },
-    {
-      "category": "php",
-      "skillName": "php-language",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:throw new InvalidArgumentException"
-    },
-    {
-      "category": "php",
-      "skillName": "php-language",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Countable&Traversable"
-    },
-    {
-      "category": "php",
-      "skillName": "php-language",
-      "caseId": "eval-6",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:items:,name:,perPage:"
-    },
-    {
-      "category": "python",
-      "skillName": "python-best-practices",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:helper"
-    },
-    {
-      "category": "python",
-      "skillName": "python-best-practices",
-      "caseId": "trigger-3",
-      "arm": "with-skill",
-      "classification": "trigger-boundary collision",
-      "evidence": "trigger marker expected no"
-    },
-    {
-      "category": "python",
-      "skillName": "python-best-practices",
-      "caseId": "trigger-4",
-      "arm": "with-skill",
-      "classification": "trigger-boundary collision",
-      "evidence": "trigger marker expected no"
+      "evidence": "contains:transport"
     },
     {
       "category": "quality-engineering",
       "skillName": "quality-engineering-business-analysis",
       "caseId": "eval-2",
-      "arm": "baseline",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
       "evidence": "contains:Truth"
     },
@@ -1438,161 +383,65 @@
       "category": "quality-engineering",
       "skillName": "quality-engineering-business-analysis",
       "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Mobile"
-    },
-    {
-      "category": "quality-engineering",
-      "skillName": "quality-engineering-business-analysis",
-      "caseId": "eval-2",
-      "arm": "baseline",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
       "evidence": "contains:Truth table"
     },
     {
       "category": "quality-engineering",
-      "skillName": "quality-engineering-business-analysis",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Variable"
-    },
-    {
-      "category": "quality-engineering",
-      "skillName": "quality-engineering-business-analysis",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Deferred"
-    },
-    {
-      "category": "quality-engineering",
-      "skillName": "quality-engineering-business-analysis",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Jira"
-    },
-    {
-      "category": "quality-engineering",
-      "skillName": "quality-engineering-business-analysis",
-      "caseId": "eval-6",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:Market: VN"
-    },
-    {
-      "category": "react",
-      "skillName": "react-testing",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:MSW"
-    },
-    {
-      "category": "react",
-      "skillName": "react-testing",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:findByText"
-    },
-    {
-      "category": "react-native",
-      "skillName": "react-native-architecture",
+      "skillName": "quality-engineering-jira-integration",
       "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:absolute import,absolute TypeScript imports,typed absolute imports"
-    },
-    {
-      "category": "react-native",
-      "skillName": "react-native-architecture",
-      "caseId": "eval-1",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:TypeScript imports,typed absolute imports,path alias"
-    },
-    {
-      "category": "react-native",
-      "skillName": "react-native-architecture",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:single responsibility,one purpose,single-purpose"
-    },
-    {
-      "category": "react-native",
-      "skillName": "react-native-architecture",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:web-parity,web parity"
-    },
-    {
-      "category": "react-native",
-      "skillName": "react-native-security",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:certificate-pinning,react-native-ssl-pinning,certificate or public-key pins"
-    },
-    {
-      "category": "react-native",
-      "skillName": "react-native-security",
-      "caseId": "eval-2",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Test that a request fails,untrusted,changed certificate"
-    },
-    {
-      "category": "swift",
-      "skillName": "swift-best-practices",
-      "caseId": "eval-2",
-      "arm": "baseline",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:value semantics"
+      "evidence": "contains:Fetch"
     },
     {
-      "category": "swift",
-      "skillName": "swift-best-practices",
-      "caseId": "eval-3",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:descriptive camelCase,Swift API Design Guidelines,PascalCase"
-    },
-    {
-      "category": "swift",
-      "skillName": "swift-best-practices",
-      "caseId": "eval-4",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:canDelete,canEdit"
-    },
-    {
-      "category": "swift",
-      "skillName": "swift-best-practices",
-      "caseId": "trigger-4",
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-jira-integration",
+      "caseId": "trigger-2",
       "arm": "with-skill",
       "classification": "trigger-boundary collision",
       "evidence": "trigger marker expected no"
     },
     {
-      "category": "swift",
-      "skillName": "swift-concurrency",
-      "caseId": "eval-2",
-      "arm": "baseline",
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-quality-assurance",
+      "caseId": "eval-3",
+      "arm": "with-skill",
       "classification": "guidance present but insufficiently actionable",
-      "evidence": "contains:isolation"
+      "evidence": "contains:priority rationale"
+    },
+    {
+      "category": "react",
+      "skillName": "react-security",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:XSS"
     },
     {
       "category": "swift",
       "skillName": "swift-concurrency",
-      "caseId": "eval-5",
-      "arm": "baseline",
-      "classification": "missing skill guidance",
-      "evidence": "contains_any:Task.isCancelled,Task.checkCancellation,cancellation"
+      "caseId": "eval-4",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:parallel"
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-memory-management",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:weak if the reference can become nil"
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-swiftui",
+      "caseId": "eval-4",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:load them only as they appear"
     }
   ]
 }

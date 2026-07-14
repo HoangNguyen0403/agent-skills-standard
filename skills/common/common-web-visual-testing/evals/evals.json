@@ -7,16 +7,26 @@
       "expected_output": "Perform a Comparative Audit: Capture Before Fix (DOM + screenshot) → Capture After Fix → Diff. Check for side effects in neighboring elements.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Comparative Audit"
+          "type": "contains_any",
+          "value": [
+            "Comparative Audit",
+            "Verification",
+            "diff"
+          ]
         },
         {
-          "type": "contains",
-          "value": "Before"
+          "type": "contains_any",
+          "value": [
+            "Before",
+            "baseline"
+          ]
         },
         {
-          "type": "contains",
-          "value": "After"
+          "type": "contains_any",
+          "value": [
+            "After",
+            "fixed"
+          ]
         }
       ]
     },
@@ -30,8 +40,11 @@
           "value": "mask"
         },
         {
-          "type": "contains",
-          "value": "opacity: 0"
+          "type": "contains_any",
+          "value": [
+            "opacity: 0",
+            "--mask"
+          ]
         }
       ]
     }

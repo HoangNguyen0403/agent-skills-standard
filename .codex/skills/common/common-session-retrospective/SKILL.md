@@ -64,3 +64,8 @@ Emit trigger miss block (schema in [references/methodology.md](references/method
 
 Signal tables, root cause taxonomy, report template, real-world example:
 [references/methodology.md](references/methodology.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- AGENTS.md and AGENTS_LEARNING.md

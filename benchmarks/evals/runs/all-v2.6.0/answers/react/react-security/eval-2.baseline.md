@@ -1,0 +1,1 @@
+This is an Insecure Direct Object Reference (IDOR), also called Broken Object Level Authorization (BOLA). Enforce server-side authorization to verify that the authenticated user may access the requested user ID; never rely on the URL value alone. Return `403 Forbidden` or `404 Not Found` when unauthorized.

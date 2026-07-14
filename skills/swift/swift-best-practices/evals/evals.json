@@ -16,11 +16,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "guard",
-            "must exit",
-            "precondition failures"
-          ],
+          "value": ["guard", "must exit", "precondition failures"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]
@@ -51,23 +47,19 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "compactMap",
-            "filter",
-            "reduce"
-          ]
-        },
-        {
-          "type": "contains_any",
-          "value": ["descriptive camelCase", "Swift API Design Guidelines", "PascalCase"]
+          "value": ["compactMap", "filter", "reduce"]
         },
         {
           "type": "contains_any",
           "value": [
-            "Default to `let`",
-            "prefer `let`",
-            "let, structs"
+            "descriptive camelCase",
+            "Swift API Design Guidelines",
+            "PascalCase"
           ]
+        },
+        {
+          "type": "contains_any",
+          "value": ["Default to `let`", "prefer `let`", "let, structs"]
         }
       ]
     },
@@ -97,7 +89,5 @@
     "How do I use @MainActor in Swift concurrency?",
     "How do I use SwiftLint?"
   ],
-  "should_trigger": [
-    "How do I use guard for early exit in Swift?"
-  ]
+  "should_trigger": ["How do I use guard for early exit in Swift?"]
 }

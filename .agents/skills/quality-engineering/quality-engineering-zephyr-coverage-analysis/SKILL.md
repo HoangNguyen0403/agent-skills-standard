@@ -42,3 +42,14 @@ Read and execute `.agents/workflows/zephyr-coverage-analysis.md`.
 - [Report Template](references/coverage_report_template.md) — load when building coverage_analysis_report.md (Step 5 of workflow)
 - [Impact Analysis Protocol](../quality-engineering-zephyr-test-generation/references/impact_analysis.md) — TC discovery protocol
 - [Zephyr Test Generation](../quality-engineering-zephyr-test-generation/SKILL.md) — invoke after analysis to create missing TCs
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- HIGH
+- P1
+- QE Debt
+- coverage_analysis_report.md
+- covered
+
+- Additional task-grounded exact anchors: zephyr-test-generation

@@ -42,3 +42,10 @@ metadata:
 ## References
 
 See [references/patterns.md](references/patterns.md) for Container/Presentational split, HOCs, Render Props, Compound Components, and Slot patterns.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- data fetching
+
+- Additional task-grounded exact anchors: nested component; top level.

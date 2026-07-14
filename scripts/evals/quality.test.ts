@@ -1,6 +1,33 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { isCompromisedRunArm } from "./quality";
+import { isAssertionTaskAnchored, isCompromisedRunArm } from "./quality";
+
+test("preflight requires outcome assertions to be grounded in the task contract", () => {
+  assert.equal(
+    isAssertionTaskAnchored(
+      { type: "contains", value: "session-cost.md" },
+      "Which artifact records session cost?",
+      "Write metrics to session-cost.md.",
+    ),
+    true,
+  );
+  assert.equal(
+    isAssertionTaskAnchored(
+      { type: "contains", value: "Telemetry & Cost Reporting" },
+      "Which artifact records session cost?",
+      "Write metrics to session-cost.md.",
+    ),
+    false,
+  );
+  assert.equal(
+    isAssertionTaskAnchored(
+      { type: "contains", value: "Principal Engineer" },
+      "Can you critique this code? I want a senior engineer's perspective.",
+      "Review using Principal Engineer persona.",
+    ),
+    true,
+  );
+});
 
 test("remediation queue uses the current run's compromised arms", () => {
   const manifest = {

@@ -39,9 +39,7 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "composer"
-          ],
+          "value": ["composer"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
@@ -50,17 +48,12 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "config/horizon.php"
-          ],
+          "value": ["config/horizon.php"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
           "type": "contains_any",
-          "value": [
-            "/horizon",
-            "horizon"
-          ],
+          "value": ["/horizon", "horizon"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
@@ -200,7 +193,5 @@
     "Schedule a cron job in Spring Boot",
     "Use Celery for async tasks in Python"
   ],
-  "should_trigger": [
-    "Create a queued Job in Laravel"
-  ]
+  "should_trigger": ["Create a queued Job in Laravel"]
 }

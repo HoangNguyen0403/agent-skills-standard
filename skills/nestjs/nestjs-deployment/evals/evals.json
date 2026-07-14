@@ -64,7 +64,5 @@
     "How do I configure NestJS modules?",
     "How do I write a Dockerfile for a Go app?"
   ],
-  "should_trigger": [
-    "How do I optimize my NestJS Docker image size?"
-  ]
+  "should_trigger": ["How do I optimize my NestJS Docker image size?"]
 }

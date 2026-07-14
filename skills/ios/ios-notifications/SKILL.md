@@ -36,3 +36,13 @@ See [APNs registration and permission examples](references/implementation.md)
 ## References
 
 - [Implementation Details](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Framework
+- Permissions
+
+## Remediation anchors
+
+- Remediation anchors: UNUserNotificationCenterDelegate, .alert, .badge, .sound

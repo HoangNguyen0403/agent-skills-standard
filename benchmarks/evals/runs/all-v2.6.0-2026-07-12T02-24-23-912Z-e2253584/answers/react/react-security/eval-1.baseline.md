@@ -1,3 +1,0 @@
-A JWT in localStorage is readable by any JavaScript running in the origin. XSS, a compromised dependency, or another unsafe script can exfiltrate it, and it stays available until expiry or removal.
-
-Prefer a short-lived access token in memory plus a refresh token in a Secure, HttpOnly, appropriately scoped SameSite cookie. Protect cookie-authenticated state-changing requests against CSRF, enforce HTTPS and a strict Content Security Policy, avoid unsafe HTML injection, audit dependencies, and rotate or revoke refresh tokens. If localStorage is retained, document the XSS tradeoff and keep the token short-lived; client code cannot make it HttpOnly.

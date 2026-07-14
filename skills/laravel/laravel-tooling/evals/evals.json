@@ -138,7 +138,5 @@
     "Go toolchain setup with golangci-lint",
     "npm scripts in a plain Node.js project"
   ],
-  "should_trigger": [
-    "Create a custom Artisan command in Laravel"
-  ]
+  "should_trigger": ["Create a custom Artisan command in Laravel"]
 }

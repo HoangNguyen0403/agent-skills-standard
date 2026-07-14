@@ -32,10 +32,6 @@
         },
         {
           "type": "contains",
-          "value": "Linting"
-        },
-        {
-          "type": "contains",
           "value": "Formatting"
         }
       ]
@@ -50,8 +46,12 @@
           "value": "Testing"
         },
         {
-          "type": "contains",
-          "value": "Build"
+          "type": "contains_any",
+          "value": [
+            "Build",
+            "Vite",
+            "Rollup"
+          ]
         },
         {
           "type": "contains",

@@ -20,11 +20,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "expand",
-            "backfill",
-            "contract"
-          ],
+          "value": ["expand", "backfill", "contract"],
           "description": "Describes an expand-backfill-contract migration rollout"
         }
       ]

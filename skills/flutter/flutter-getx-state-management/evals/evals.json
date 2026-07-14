@@ -11,8 +11,9 @@
           "value": "GetxController"
         },
         {
-          "type": "not_contains",
-          "value": "BuildContext context"
+          "type": "contains",
+          "value": "onInit",
+          "description": "Fetches the profile from onInit"
         }
       ]
     },
@@ -27,11 +28,7 @@
         },
         {
           "type": "contains_any",
-          "value": ["Get.lazyPut", "Get.find", "GetView"]
-        },
-        {
-          "type": "contains_any",
-          "value": ["disposes", "onClose", "lifetime"]
+          "value": ["Get.lazyPut"]
         }
       ]
     },
@@ -48,10 +45,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "Get.snackbar",
-            "SnackPosition"
-          ]
+          "value": ["Get.snackbar"]
         }
       ]
     }

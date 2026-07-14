@@ -62,3 +62,12 @@ See [implementation examples](references/implementation.md#custom-artisan-comman
 ## References
 
 - [Artisan & Vite Patterns](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- @vite directive
+- Vite (not Mix)
+- npm run build for production
+- preset: 'laravel'
+- replace mix() with vite()

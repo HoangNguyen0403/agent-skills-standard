@@ -23,7 +23,7 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "prose"
+          "value": "imperative"
         },
         {
           "type": "contains",
@@ -42,7 +42,7 @@
         },
         {
           "type": "contains",
-          "value": "extract"
+          "value": "references/"
         }
       ]
     },

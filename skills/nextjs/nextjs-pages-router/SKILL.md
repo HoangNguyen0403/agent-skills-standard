@@ -50,3 +50,10 @@ See [implementation examples](references/implementation.md)
 ## References
 
 - [Server-Side Props Example](references/server-side-props.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Create pages/posts/[id],create
+- GetServerSidePropsContext) { const data = await getUser(context,data
+- access via router,access

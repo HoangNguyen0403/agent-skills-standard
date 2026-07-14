@@ -58,10 +58,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "no stored properties",
-            "stored"
-          ],
+          "value": ["stored"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]
@@ -111,7 +108,5 @@
     "How do I set up Fastlane?",
     "How do I use Instruments for profiling?"
   ],
-  "should_trigger": [
-    "How do I safely unwrap optionals in Swift?"
-  ]
+  "should_trigger": ["How do I safely unwrap optionals in Swift?"]
 }

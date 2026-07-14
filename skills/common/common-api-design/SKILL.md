@@ -82,3 +82,8 @@ metadata:
 ## References
 
 - [URL Examples, Status Codes & Pagination Envelope](references/REFERENCE.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- DELETE

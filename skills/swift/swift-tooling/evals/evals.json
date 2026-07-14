@@ -72,7 +72,5 @@
     "How do I use @MainActor?",
     "How do I implement SSL pinning?"
   ],
-  "should_trigger": [
-    "How do I add a Swift package dependency?"
-  ]
+  "should_trigger": ["How do I add a Swift package dependency?"]
 }

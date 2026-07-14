@@ -78,12 +78,12 @@
     "Write a Kotlin unit test using MockK and Truth assertions",
     "Set up ktlint and Detekt for a Kotlin project",
     "Use AssertJ for fluent Kotlin assertions in my JUnit tests",
-    "How do I use Cucumber with Java for BDD-style acceptance tests?",
-    "Run tests in parallel using JUnit 5 @Execution(CONCURRENT)",
-    "Set up a test coverage report with JaCoCo in Maven",
-    "Write a Spring Boot integration test with @SpringBootTest"
+    "Set up a test coverage report with JaCoCo in Maven"
   ],
   "should_trigger": [
-    "How do I write a JUnit 5 test for my UserService that uses a Repository dependency?"
+    "How do I write a JUnit 5 test for my UserService that uses a Repository dependency?",
+    "How do I use Cucumber with Java for BDD-style acceptance tests?",
+    "Run tests in parallel using JUnit 5 @Execution(CONCURRENT)",
+    "Write a Spring Boot integration test with @SpringBootTest"
   ]
 }

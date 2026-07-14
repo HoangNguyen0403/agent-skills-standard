@@ -47,3 +47,9 @@ See [Secure storage and biometrics implementation examples](references/implement
 
 - common/security-standards
 - architecture
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Info.plist,info
+- LocalAuthentication

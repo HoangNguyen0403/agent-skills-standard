@@ -52,7 +52,5 @@
     "How do I install iOS dependencies?",
     "Configure CI/CD for an unrelated platform"
   ],
-  "should_trigger": [
-    "How should I manage state in an iOS app?"
-  ]
+  "should_trigger": ["How should I manage state in an iOS app?"]
 }

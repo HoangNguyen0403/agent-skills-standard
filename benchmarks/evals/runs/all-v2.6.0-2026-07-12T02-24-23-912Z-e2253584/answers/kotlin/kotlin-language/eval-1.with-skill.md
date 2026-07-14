@@ -1,1 +1,0 @@
-Never use `!!` in production. Use nullable types, safe calls `?.`, Elvis `?:`, a guard clause, or `requireNotNull` for a proved invariant; let Kotlin's smart casts narrow values after checks rather than forcing an optional open everywhere.

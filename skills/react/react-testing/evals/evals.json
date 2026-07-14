@@ -29,11 +29,7 @@
           "id": "a1",
           "description": "Accepts the original or an equivalent skill-visible outcome",
           "type": "contains_any",
-          "value": [
-            "no-real-network",
-            "MSW",
-            "Mock Service Worker"
-          ]
+          "value": ["MSW", "Mock Service Worker"]
         }
       ]
     },

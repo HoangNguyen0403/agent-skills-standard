@@ -7,8 +7,11 @@
       "expected_output": "Two violations: (1) A01/API1 — BOLA/IDOR: findById without owner filter. Fix: add AND owner_id = req.user.id to the query. (2) API3 — full entity returned, no DTO projection. Fix: return only the fields needed, never serialize raw ORM output. P0 finding — Security score capped at 40/100.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "IDOR"
+          "type": "contains_any",
+          "value": [
+            "IDOR",
+            "BOLA"
+          ]
         },
         {
           "type": "contains",
@@ -34,15 +37,18 @@
     {
       "id": 3,
       "prompt": "Write a login endpoint that checks the user's password.",
-      "expected_output": "Apply OWASP always-apply rules: (1) Hash passwords with Argon2id (never MD5/bcrypt). (2) Add rate limiting — no limit on auth is A04 Insecure Design. (3) Issue JWT with expiry — missing exp is A07. (4) Use HttpOnly cookie for token storage. (5) Return generic error ('Invalid credentials') for both wrong user and wrong password.",
+      "expected_output": "Apply OWASP always-apply rules: (1) Hash passwords with Argon2id (never MD5/bcrypt). (2) Add rate limiting — no limit on auth is A04 Insecure Design. (3) Issue a short-lived JWT with expiry or use a secure opaque session cookie — missing exp or session invalidation is A07. (4) Use HttpOnly cookie for token storage. (5) Return generic error ('Invalid credentials') for both wrong user and wrong password.",
       "assertions": [
         {
           "type": "contains",
           "value": "rate limit"
         },
         {
-          "type": "contains",
-          "value": "JWT"
+          "type": "contains_any",
+          "value": [
+            "JWT",
+            "opaque session"
+          ]
         }
       ]
     }

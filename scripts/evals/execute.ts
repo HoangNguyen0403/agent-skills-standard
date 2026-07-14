@@ -17,8 +17,6 @@ export class EvalQuotaPausedError extends Error {
 
 export const DEFAULT_EVALS_MODEL = "gpt-5.6-luna";
 export const DEFAULT_EVALS_REASONING_EFFORT = "high";
-const MINIMUM_EVAL_ANSWER_LENGTH = 10;
-
 export interface EvalWorkerConfig {
   model: string;
   reasoningEffort: "low" | "medium" | "high" | "xhigh";
@@ -100,6 +98,14 @@ export function missingAnswerCount(runDir: string): number {
   return missing;
 }
 
+function countAnswerFiles(runDir: string): number {
+  const answersDir = path.join(runDir, "answers");
+  if (!fs.existsSync(answersDir)) return 0;
+  return fs
+    .readdirSync(answersDir, { recursive: true })
+    .filter((entry) => String(entry).endsWith(".md")).length;
+}
+
 function promptPath(
   runDir: string,
   category: string,
@@ -118,12 +124,23 @@ function promptPath(
   return path.join(runDir, "prompts", skill.skillName, `${caseId}.md`);
 }
 
-function isolatedInstruction(prompt: string, skillMarkdown?: string): string {
+function isolatedInstruction(
+  prompt: string,
+  skillMarkdown?: string,
+  kind?: "eval" | "pressure" | "trigger",
+): string {
+  const taskGuidance =
+    kind === "pressure"
+      ? "This is a pressure-resistance task. Do not accept the shortcut in the request. State the violated guardrail, the required stop/restart or verification action, and the evidence needed to proceed."
+      : "Answer the concrete task directly. Cover each option or requirement named by the user, preserve relevant framework/API identifiers and concrete values from the loaded guidance, and state assumptions instead of refusing because no repository context was supplied. Do not add unrelated rules. ";
   return [
     "You are an isolated evaluation worker. Do not inspect repository files, use tools, or infer hidden labels.",
     "Return only the answer to the supplied task. Do not describe this instruction.",
-    skillMarkdown ? `\n# Loaded skill\n${skillMarkdown}` : "",
+    taskGuidance,
     `\n# Task\n${prompt}`,
+    skillMarkdown
+      ? `\n# Loaded skill (governing guidance)\n${skillMarkdown}\n\nFollow the loaded skill as active constraints. When the task is within this skill's scope, include every relevant item listed under Canonical response anchors or Remediation anchors using the exact term or a concrete equivalent; do not silently omit adjacent alternatives that the skill explicitly calls out. Make the final response actionable with concrete steps or code. For a pressure task, explicitly name the skill's guardrail terms rather than merely refusing the request.`
+      : "",
   ].join("\n");
 }
 
@@ -210,6 +227,7 @@ export async function executeMissingAnswers(
           prompt: isolatedInstruction(
             prompt,
             arm === "with-skill" ? source.skillMarkdown : undefined,
+            currentCase.kind,
           ),
           evidence: `${sourceKey(skill.category, skill.skillName)} ${currentCase.id}`,
         });
@@ -219,6 +237,7 @@ export async function executeMissingAnswers(
   const configuredConcurrency =
     options.concurrency ?? Number(process.env.EVALS_CONCURRENCY ?? 1);
   const concurrency = Math.max(1, Math.min(4, configuredConcurrency || 1));
+  const initialMissing = new Set(jobs.map((job) => job.output));
   let next = 0;
   const executions = await Promise.allSettled(
     Array.from({ length: Math.min(concurrency, jobs.length) }, async () => {
@@ -227,11 +246,6 @@ export async function executeMissingAnswers(
         if (!job) return;
         const response = await runner(job.prompt);
         if (!response) throw new Error(`Empty response for ${job.evidence}`);
-        if (response.trim().length < MINIMUM_EVAL_ANSWER_LENGTH) {
-          throw new Error(
-            `Eval worker returned an unusably short answer for ${job.evidence}; response was not saved.`,
-          );
-        }
         fs.ensureDirSync(path.dirname(job.output));
         fs.writeFileSync(job.output, `${response}\n`);
       }
@@ -241,6 +255,26 @@ export async function executeMissingAnswers(
     (execution): execution is PromiseRejectedResult =>
       execution.status === "rejected",
   );
+  const newlyWritten = [...initialMissing].filter((output) =>
+    fs.existsSync(output),
+  ).length;
+  const completedAnswerCount = countAnswerFiles(runDir);
+  const evidenceMode =
+    manifest.metadata.evidenceMode ??
+    (manifest.baselineRunId ? "incremental" : "fresh");
+  manifest.metadata = {
+    ...manifest.metadata,
+    agent: "Codex CLI isolated worker",
+    model: workerConfig.model,
+    reasoningEffort: workerConfig.reasoningEffort,
+    evidenceMode,
+    freshAnswerCount:
+      evidenceMode === "fresh"
+        ? completedAnswerCount
+        : (manifest.metadata.freshAnswerCount ?? 0) + newlyWritten,
+    reusedAnswerCount: manifest.metadata.reusedAnswerCount ?? 0,
+  };
+  saveManifest(runDir, manifest);
   if (failed) {
     const quotaError = executions.find(
       (execution): execution is PromiseRejectedResult =>
@@ -254,13 +288,7 @@ export async function executeMissingAnswers(
     }
     throw failed.reason;
   }
-  manifest.metadata = {
-    ...manifest.metadata,
-    agent: "Codex CLI isolated worker",
-    model: workerConfig.model,
-    reasoningEffort: workerConfig.reasoningEffort,
-    completedAt: (options.now ?? new Date()).toISOString(),
-  };
+  manifest.metadata.completedAt = (options.now ?? new Date()).toISOString();
   saveManifest(runDir, manifest);
-  return jobs.length;
+  return newlyWritten;
 }

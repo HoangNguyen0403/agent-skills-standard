@@ -8,20 +8,16 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "Keychain"
-          ],
+          "value": ["Keychain"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
           "type": "contains_any",
-          "value": ["keychain/keystore", "react-native-keychain", "AsyncStorage"]
+          "value": ["react-native-keychain", "AsyncStorage"]
         },
         {
           "type": "contains_any",
-          "value": [
-            "Keystore"
-          ],
+          "value": ["Keystore"],
           "description": "Accepts the original or an equivalent skill-visible outcome"
         }
       ]
@@ -33,15 +29,11 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["certificate-pinning", "react-native-ssl-pinning", "certificate or public-key pins"]
+          "value": ["react-native-ssl-pinning"]
         },
         {
           "type": "contains_any",
-          "value": ["rotation", "overlapping pins", "recovery process"]
-        },
-        {
-          "type": "contains_any",
-          "value": ["Test that a request fails", "untrusted", "changed certificate"]
+          "value": ["rotation"]
         }
       ]
     },

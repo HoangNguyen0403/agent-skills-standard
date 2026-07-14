@@ -72,12 +72,12 @@
     "How do I create a custom layout in Jetpack Compose using Layout?",
     "Use Modifier.clickable in a Composable instead of a click listener",
     "Navigate to a detail Fragment using NavController in an XML Navigation app",
-    "Set up SafeArgs for passing typed arguments in XML navigation graphs",
+    "Set up SafeArgs for passing typed arguments in XML navigation graphs"
+  ],
+  "should_trigger": [
+    "I'm still using findViewById in my Fragment. What should I use instead in modern Android?",
     "Use ViewBinding with DataBinding for two-way binding in a Fragment",
     "How do I animate item additions in a RecyclerView with ItemAnimator?",
     "Configure a StaggeredGridLayoutManager for a photo grid RecyclerView"
-  ],
-  "should_trigger": [
-    "I'm still using findViewById in my Fragment. What should I use instead in modern Android?"
   ]
 }

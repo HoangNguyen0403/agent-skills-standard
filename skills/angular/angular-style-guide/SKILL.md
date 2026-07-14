@@ -1,6 +1,6 @@
 ---
 name: angular-style-guide
-description: Naming conventions, file structure, and coding standards for Angular projects. Use when naming Angular files, organizing project structure, or following Angular style guide.
+description: Naming conventions, file structure, and coding standards for Angular projects. Use for Angular-specific naming and organization; defer language-only TypeScript naming questions.
 metadata:
   triggers:
     keywords:
@@ -45,3 +45,10 @@ metadata:
 ## References
 
 - [Naming Conventions](references/naming-convention.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- app prefix,appHighlight,appFocusTrap
+- Flattest structure
+- do not use I,avoid the I-prefix,no I-prefix,do not prefix,No. Do not

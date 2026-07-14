@@ -1,6 +1,6 @@
 ---
 name: react-native-platform-specific
-description: Resolve iOS and Android differences using Platform API and native modules in React Native. Use when handling platform-specific behavior or integrating native modules in React Native.
+description: Resolve iOS and Android differences using Platform API and native modules in React Native. Use when platform branching or native-module integration is the primary task; defer cross-platform feature implementation such as push notifications.
 metadata:
   triggers:
     files:

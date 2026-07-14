@@ -20,11 +20,7 @@
         },
         {
           "type": "contains_any",
-          "value": [
-            "cardinality",
-            "ownership",
-            "lifecycle"
-          ],
+          "value": ["cardinality", "ownership", "lifecycle"],
           "description": "Explains schema boundaries using ownership or lifecycle"
         }
       ]

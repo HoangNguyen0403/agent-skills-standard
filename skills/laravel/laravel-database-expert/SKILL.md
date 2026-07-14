@@ -59,3 +59,14 @@ See [implementation examples](references/implementation.md#cache-aside-with-tags
 ## References
 
 - [Advanced SQL & Cache Patterns](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- INSERT/UPDATE/DELETE
+- correlated subqueries
+- grouped invalidation
+- no code changes needed
+- posts.all
+
+- Additional task-grounded exact anchors: Cache::remember; withAvg

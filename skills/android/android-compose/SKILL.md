@@ -1,6 +1,6 @@
 ---
 name: android-compose
-description: Build high-performance declarative UI with Jetpack Compose. Use when writing Composable functions, optimizing recomposition, hoisting state, or working with LazyColumn and side effects.
+description: Build high-performance declarative UI with Jetpack Compose. Use when writing Composable functions, optimizing recomposition, hoisting state, or working with LazyColumn and side effects; defer deep-link and navigation routing to android-navigation.
 metadata:
   triggers:
     files:
@@ -64,3 +64,8 @@ See [implementation examples](references/implementation.md) for `derivedStateOf`
 ## References
 
 - [Optimization Patterns](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- hoist
