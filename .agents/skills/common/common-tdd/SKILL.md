@@ -94,17 +94,4 @@ Every test must follow Arrange-Act-Assert:
 - **No assertion-free tests**: test without assert not test.
 - **No testing implementation**: Test behavior and contracts, not internal calls.
 
-## Red-green reminder
-
-- A passing test alone is not enough: the failing test must first demonstrate the missing behavior, then the implementation must make it pass without weakening the assertion.
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- not enough
-
-- Additional task-grounded exact anchors: Iron Law
-
-## Remediation anchors
-
-- Remediation anchors: RED, GREEN, REFACTOR, failing test first
+- A passing test alone is not enough: the failing test must demonstrate missing behavior before implementation.

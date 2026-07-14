@@ -23,8 +23,6 @@ metadata:
 
 For any request that writes code or edits `SKILL.md`, treat the requested change as a planned write. Before showing code, run this audit and emit the complete violation block when a loaded skill rule is violated. The block must include these exact labels: `SKILL VIOLATION DETECTED`, `Auto-fixed`, `Root Cause`, `User Intent`, and `Skill Gap`. Then apply the fix and show the corrected result. Do not silently produce the violating implementation, and do not replace the required block with a summary.
 
-For a request to create or draft a `SKILL.md`, the violation block must appear before the draft itself when the 100-line or other skill-creator rule is implicated; never output the draft first and explain the audit afterward.
-
 Apply the same contract to these cases:
 
 - If a draft `SKILL.md` exceeds the 100-line limit, report the `100`-line violation, move large examples to `references/`, and include `Root Cause`, `User Intent`, and `Skill Gap` before rewriting it.
@@ -45,28 +43,6 @@ For the oversized-draft case, include this exact sentence pattern before the rew
 
 - NO → ✅ Proceed silently — ** NOT submit feedback report**
 - YES → Output violation block below, then fix immediately
-
-## Detection Flow
-
-```
-Before file write?
-├─ Check file extension → Identify loaded skills
-├─ Review skill anti-patterns/rules
-├─ Code matches anti-pattern?
-│  ├─ YES → 🚨 VIOLATION → feedback command
-│  └─ NO → ✅ Proceed
-└─ No skills loaded → ✅ Proceed
-```
-
-## Examples (Quick Reference)
-
-**Flutter**: `color: Colors.blue` → Rule: No hardcoded colors → Report + use theme
-
-**React**: `class MyComponent extends...` → Rule: Use functions → Report + convert
-
-**SKILL.md**: 105 lines → Rule: ≤100 lines max → Report + extract to references/
-
-[More examples →](references/violation-examples.md)
 
 ## Violation Report Format
 
@@ -112,13 +88,4 @@ Before `notify_user` or task completion:
 - **No "clean-pass report"**: If no violation found, proceed silently — NOT submit report
 - **No "shallow report"**: Always populate Root Cause, User Intent, and Skill Gap — these drive improvement
 
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- `SKILL VIOLATION DETECTED`
-- `Auto-fixed`
-- Root Cause
-- User Intent
-- Skill Gap
-- For oversized drafts, report the `100`-line limit before rewriting and include `references/` in the remediation.
-- references/
+Use report labels `SKILL VIOLATION DETECTED`, `Auto-fixed`, `Root Cause`, `User Intent`, and `Skill Gap`; move oversized examples to `references/`.
