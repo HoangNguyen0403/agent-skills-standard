@@ -30,12 +30,12 @@ Default to `hybrid` when ambiguous. Revise silently as new evidence arrives in t
 
 An explicit `profile=business|hybrid|technical` invocation argument always overrides inference.
 
-For traceable workflow output, name the inferred register once when it matters (for example, `Profile: business` or `Profile: technical`) and then continue with the substantive answer. Never return only the label. File paths, requirement IDs, and test references are technical signals even when the request is otherwise brief.
+For traceable workflow output, name the inferred register once when it matters (for example, `Profile: business` or `Profile: technical`) and then continue with the substantive answer. Never return only the label. File paths, requirement IDs, and test references such as `prd-checkout.md` and `checkout.spec.ts` are technical signals even when the request is otherwise brief.
 
 ## 2. Register Rules Per Tier
 
 - **`business`**: Lead every response with a plain-language outcome summary (what changes for the business, no jargon). Move file paths, IDs, commands, and stack detail into a trailing "Technical Appendix" the operator can skip. Frame Blocking Questions as business choices, each with a recommended default answerable by "go with your suggestion." Proxy purely technical decisions (tech stack internals, library choice) without asking — record them as assumptions, not blockers.
-- **`hybrid`**: Full technical detail. Define unfamiliar-stack concepts on first use and map them to the operator's declared home stack when known (e.g., "NestJS Guards work like Laravel Middleware here").
+- **`hybrid`**: Full technical detail. Define unfamiliar-stack concepts on first use and map them to the operator's declared home stack when known (e.g., map a NestJS `Module` or `Provider` to its Laravel equivalent).
 - **`technical`**: Terse, full detail, no explanations of standard concepts. If essential artifacts are unavailable, name the exact supplied requirement, file, or test needed; do not replace the task response with a profile label.
 
 ## 3. Proxy-Defaults Rule

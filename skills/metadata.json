@@ -295,8 +295,8 @@
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 12971,
-        "avg_tokens_per_skill": 590,
+        "total_tokens": 13013,
+        "avg_tokens_per_skill": 592,
         "largest_skill": "flutter-testing (926 tokens)"
       }
     },
@@ -383,8 +383,8 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 39,
-        "total_tokens": 30259,
-        "avg_tokens_per_skill": 776,
+        "total_tokens": 30291,
+        "avg_tokens_per_skill": 777,
         "largest_skill": "common-skill-creator (1646 tokens)"
       }
     },
@@ -493,7 +493,7 @@
       "tag_prefix": "ios-v",
       "token_metrics": {
         "total_skills": 15,
-        "total_tokens": 6581,
+        "total_tokens": 6591,
         "avg_tokens_per_skill": 439,
         "largest_skill": "ios-architecture (743 tokens)"
       }

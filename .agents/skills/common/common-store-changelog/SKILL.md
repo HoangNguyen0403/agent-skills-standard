@@ -30,7 +30,7 @@ metadata:
 
 1. **Collect**: Run `git log <last-tag>..HEAD --oneline` (or use provided commit list). If no tag exists, use full history.
 2. **Triage**: Scan commits and touched files. Group by theme: `New`, `Improved`, `Fixed`. Drop internal-only.
-3. **Draft — App Store**: Write 5–10 benefit-focused bullets. Optional `What's New in [Version]` header.
+3. **Draft — App Store**: Write 5–10 benefit-focused bullets, including user-facing changes such as onboarding when present. Optional `What's New in [Version]` header.
 4. **Draft — Google Play**: Compress App Store draft to ≤ 500 chars. Prioritise top 3–5 user-facing changes.
 5. **Validate**: Count characters per store. Check every bullet maps to real commit. Remove jargon.
 

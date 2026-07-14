@@ -46,9 +46,9 @@ assets/translations/
 
 1. **Initialize** — Call `await EasyLocalization.ensureInitialized()` before `runApp`.
 2. **Wrap root** — Wrap app with `EasyLocalization` widget specifying supported locales and path.
-3. **Translate strings** — Use `.tr()` extension on keys (e.g., `'welcome'.tr()`).
+3. **Translate strings** — Use `.tr()` extension on keys (e.g., `'welcome'.tr()`). For dynamic text, use `'welcome_user'.tr(namedArgs: {'name': 'John'})` with a `{name}` placeholder, or pass positional `args:`.
 4. **Switch locale** — Change via `context.setLocale(Locale('vi'))`.
-5. **Handle plurals** — Use `plural()` for quantity-dependent strings.
+5. **Handle plurals** — Use `plural()` for quantity-dependent strings, such as `item_count` or `cart` keys.
 6. **Sync translations** — Use `sheet_loader_localization` to auto-generate CSV/JSON from Google Sheets.
 
 ### Bootstrap & Usage Examples
