@@ -63,5 +63,8 @@
     "How do I structure a NestJS application?",
     "How do I configure Spring Security?",
     "How do I write a Spring Boot test?"
+  ],
+  "should_trigger": [
+    "How should I structure a Spring Boot project with Clean Architecture?"
   ]
 }

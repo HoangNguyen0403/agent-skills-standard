@@ -1,0 +1,1 @@
+My domain entity needs to call a database query. Should I import the DB package directly in the domain layer?

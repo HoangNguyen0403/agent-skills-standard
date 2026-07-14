@@ -1,0 +1,1 @@
+Add a middleware in GetX that redirects unauthenticated users to the login screen when they try to access any route in AppPages.

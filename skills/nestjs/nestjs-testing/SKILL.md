@@ -14,7 +14,7 @@ metadata:
 ---
 # NestJS Testing
 
-## **Priority: P2 (MAINTENANCE)**
+## **Priority: P2 (MEDIUM)**
 
 ## Structure
 

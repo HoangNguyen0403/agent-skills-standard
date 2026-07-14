@@ -1,0 +1,1 @@
+I have hardcoded English strings scattered throughout my JSX. My designer wants to add Spanish.

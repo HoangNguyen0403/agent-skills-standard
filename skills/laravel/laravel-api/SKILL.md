@@ -62,3 +62,12 @@ See [implementation examples](references/implementation.md#api-resource-example)
 ## References
 
 - [API Resource Patterns](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- ApiResource
+- routes/api.php
+- toArray()
+
+- Additional task-grounded exact anchors: UserResource

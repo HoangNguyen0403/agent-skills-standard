@@ -1,0 +1,1 @@
+I have a utility method that's 20 lines with a for loop building a filtered and mapped list. Can I make this more idiomatic Dart?

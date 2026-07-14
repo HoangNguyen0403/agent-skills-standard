@@ -1,0 +1,1 @@
+How do I manage global state with Angular Signals?

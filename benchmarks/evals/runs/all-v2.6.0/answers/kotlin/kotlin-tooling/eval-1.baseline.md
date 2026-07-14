@@ -1,0 +1,3 @@
+Both work. MockK is often the more Kotlin-oriented choice: it has concise Kotlin syntax and built-in support for final classes, object mocks, extension functions, and suspend functions (`coEvery`, `coVerify`). Mockito is a good choice when the project already uses it, the team has Mockito expertise, or Java and Kotlin tests share one established ecosystem; `mockito-kotlin` improves its Kotlin syntax.
+
+Choose one consistently, prefer real collaborators where practical, and avoid mocking implementation details. For coroutine tests, use a test dispatcher and `runTest`; a mocking-library choice does not replace deterministic coroutine test scheduling.

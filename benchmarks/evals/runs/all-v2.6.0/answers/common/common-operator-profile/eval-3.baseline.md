@@ -1,0 +1,1 @@
+Assumption: REQ-12’s exact behavior and API contract are defined only in `prd-checkout.md` and the failing assertion in `checkout.spec.ts`. Those contents were not supplied, so a concrete implementation cannot be determined reliably.

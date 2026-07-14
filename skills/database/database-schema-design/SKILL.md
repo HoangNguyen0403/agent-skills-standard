@@ -16,7 +16,7 @@ metadata:
 ---
 # Database Schema Design
 
-## **Priority: P0 (FOUNDATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
 Start from reads, writes, and ownership. Schema follows access patterns, not vice versa.
 
@@ -43,3 +43,4 @@ Start from reads, writes, and ownership. Schema follows access patterns, not vic
 ## References
 
 - [Framework Map](../references/framework-map.md)
+- [Normalization Tradeoffs](references/normalization-tradeoffs.md)

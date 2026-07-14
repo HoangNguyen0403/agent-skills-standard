@@ -1,0 +1,1 @@
+Use Cache::tags for grouped cache invalidation in Laravel

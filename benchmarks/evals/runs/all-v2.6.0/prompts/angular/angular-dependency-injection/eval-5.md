@@ -1,0 +1,1 @@
+How do I use provideAppInitializer in Angular 19+?

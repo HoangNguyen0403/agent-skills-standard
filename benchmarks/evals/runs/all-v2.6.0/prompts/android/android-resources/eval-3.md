@@ -1,0 +1,1 @@
+Should I use PNG or XML drawables for icons in my Android app?

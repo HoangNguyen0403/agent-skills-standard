@@ -1,0 +1,1 @@
+How do I set up golangci-lint for my Go project and which linters should I enable?

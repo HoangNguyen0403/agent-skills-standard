@@ -1,0 +1,1 @@
+My Dart file imports other files in the same package using 'package:myapp/...' imports everywhere. Is this correct?

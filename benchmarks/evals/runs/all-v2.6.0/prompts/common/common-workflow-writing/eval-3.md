@@ -1,0 +1,1 @@
+Update this SKILL.md — it has an inline code block of 15 lines showing an example configuration.

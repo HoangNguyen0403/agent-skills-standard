@@ -1,6 +1,6 @@
 ---
 name: spring-boot-best-practices
-description: Apply core coding standards, dependency injection, and configuration for Spring Boot 3. Use when applying Spring Boot 3 coding standards or configuring dependency injection.
+description: Apply core coding standards, dependency injection, and configuration for Spring Boot 3. Use for Spring Boot application structure and DI/configuration; defer Spring Security hardening and test-specific setup to their focused skills.
 metadata:
   triggers:
     files:
@@ -14,7 +14,7 @@ metadata:
 ---
 # Spring Boot Best Practices
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Guidelines
 

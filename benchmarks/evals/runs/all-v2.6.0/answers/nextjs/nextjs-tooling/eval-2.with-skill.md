@@ -1,0 +1,2 @@
+Configure `output: 'standalone'` in `next.config.js`, build the app, and copy the generated `.next/standalone` tree plus `.next/static` and `public` into a minimal production image. Install dependencies with a lockfile, run as a non-root user, expose only the needed port, and pass runtime configuration through the environment. Verify the image with `next start`/the standalone server and do not bake secrets into the image.
+

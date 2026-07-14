@@ -1,0 +1,1 @@
+Implement JWT authentication in my Next.js app. Where should I store the token?

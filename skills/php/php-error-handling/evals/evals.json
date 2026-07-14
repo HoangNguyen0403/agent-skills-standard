@@ -9,6 +9,15 @@
         {
           "type": "contains",
           "value": "Throwable"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "try { } catch (SpecificException $e) { $logger-error($e-getMessage())",
+            "catch"
+          ]
         }
       ]
     },
@@ -22,8 +31,12 @@
           "value": "RuntimeException"
         },
         {
-          "type": "contains",
-          "value": "DomainException"
+          "type": "contains_any",
+          "value": [
+            "RuntimeException",
+            "DomainException",
+            "domain-specific exception"
+          ]
         }
       ]
     },
@@ -35,6 +48,12 @@
         {
           "type": "contains",
           "value": "Throwable"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["http_response_code(500)", "Internal Server Error"]
         }
       ]
     },
@@ -65,13 +84,33 @@
         {
           "type": "contains",
           "value": "LoggerInterface"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["logger->error", "LoggerInterface", "structured context"]
         }
       ]
     },
     {
       "id": 6,
       "prompt": "Use finally block for resource cleanup in PHP",
-      "expected_output": "try { $conn = connect(); $conn->query(); } catch (QueryException $e) { log($e); } finally { $conn?->close(); $file?->close(); }; finally always executes; never return from finally block"
+      "expected_output": "try { $conn = connect(); $conn->query(); } catch (QueryException $e) { log($e); } finally { $conn?->close(); $file?->close(); }; finally always executes; never return from finally block",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["finally", "fclose", "resource cleanup"]
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["finally", "fclose", "transactions"]
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -79,5 +118,6 @@
     "Java exception hierarchy and checked exceptions",
     "Try/catch in JavaScript with async/await",
     "Result type in Swift error handling"
-  ]
+  ],
+  "should_trigger": ["Handle exceptions in PHP with try/catch"]
 }

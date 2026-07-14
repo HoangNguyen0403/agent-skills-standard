@@ -1,0 +1,1 @@
+How do I make my Swift code more idiomatic?

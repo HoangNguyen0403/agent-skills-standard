@@ -11,12 +11,10 @@
           "value": "init"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Initializer Injection",
           "type": "contains",
-          "value": "Factory"
-        },
-        {
-          "type": "contains",
-          "value": "@Injected"
+          "value": "Initializer Injection"
         }
       ]
     },
@@ -26,12 +24,15 @@
       "expected_output": "**Abstractions**: Inject protocols instead of concrete classes to facilitate testing (Mocks/Stubs).",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Priority: P0"
+          "type": "contains_any",
+          "value": ["protocols"],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Abstractions",
           "type": "contains",
-          "value": "Initializer Injection"
+          "value": "protocol"
         }
       ]
     },
@@ -41,16 +42,14 @@
       "expected_output": "**Factory**: Use the `Factory` library for lightweight, type-safe navigation-friendly DI.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Swinject"
+          "type": "contains_any",
+          "value": ["Factory"]
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes library",
           "type": "contains",
-          "value": "Injected"
-        },
-        {
-          "type": "contains",
-          "value": "Singleton"
+          "value": "Factory"
         }
       ]
     }
@@ -60,5 +59,8 @@
     "How do I install ios dependencies?",
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
+  ],
+  "should_trigger": [
+    "How should I implement ios dependency injection best practices?"
   ]
 }

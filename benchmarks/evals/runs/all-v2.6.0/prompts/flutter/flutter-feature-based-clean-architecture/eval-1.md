@@ -1,0 +1,1 @@
+I'm adding a new 'promotions' feature. Where should I put the files?

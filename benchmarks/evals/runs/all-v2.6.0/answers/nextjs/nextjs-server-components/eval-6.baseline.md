@@ -1,0 +1,4 @@
+Hydration is React attaching event handlers and reconciling the server-rendered HTML with the first client render. The first client render must produce the same markup as the server output; browser-only values such as `window`, `localStorage`, current time, and random IDs can otherwise cause hydration errors.
+
+Keep the initial render deterministic. Move browser-dependent behavior into a Client Component and read it in `useEffect`, or use a stable `useId`/framework-supported mechanism. Use CSS for responsive presentation where possible, and render a consistent placeholder until client-only state is known. In App Router, Server Components render on the server while Client Components still participate in the initial HTML and then hydrate in the browser; `'use client'` does not mean “skip SSR.” Avoid hiding mismatches with `suppressHydrationWarning` except for a narrowly understood intentional difference, and fix the source of the divergent markup instead.
+

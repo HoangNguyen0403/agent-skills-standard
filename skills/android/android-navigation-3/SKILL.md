@@ -18,7 +18,7 @@ metadata:
 ---
 # Jetpack Navigation 3
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 Guide for implementing and migrating to Navigation 3 in Jetpack Compose.
 

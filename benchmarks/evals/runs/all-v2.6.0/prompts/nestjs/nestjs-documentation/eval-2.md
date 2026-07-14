@@ -1,0 +1,1 @@
+How do I document a generic paginated response in NestJS Swagger?

@@ -1,0 +1,1 @@
+Use the backing-property pattern: `private val _state = MutableStateFlow(initial)` and `val state = _state.asStateFlow()`. The public surface is read-only and mutation stays in the ViewModel; avoid a public `var` and minimize public visibility.

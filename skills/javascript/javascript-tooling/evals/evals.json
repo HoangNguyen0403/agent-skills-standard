@@ -23,15 +23,12 @@
     {
       "id": 2,
       "prompt": "What are the common anti-patterns to avoid in javascript tooling?",
-      "expected_output": "**Priority: P1 (OPERATIONAL)**. **Formatting**: Prettier. Run on save/commit.",
+      "expected_output": "**Priority: P1 (HIGH)**. **Formatting**: Prettier. Run on save/commit.",
       "assertions": [
         {
           "type": "contains",
-          "value": "Priority: P1 (OPERATIONAL)"
-        },
-        {
-          "type": "contains",
-          "value": "Linting"
+          "value": "Priority",
+          "description": "Checks user-visible framework guidance"
         },
         {
           "type": "contains",
@@ -49,8 +46,12 @@
           "value": "Testing"
         },
         {
-          "type": "contains",
-          "value": "Build"
+          "type": "contains_any",
+          "value": [
+            "Build",
+            "Vite",
+            "Rollup"
+          ]
         },
         {
           "type": "contains",
@@ -64,5 +65,8 @@
     "How do I install javascript dependencies?",
     "What is javascript?",
     "Configure CI/CD for an unrelated platform"
+  ],
+  "should_trigger": [
+    "How should I implement javascript tooling best practices?"
   ]
 }

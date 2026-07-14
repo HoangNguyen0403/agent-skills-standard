@@ -57,3 +57,13 @@ Before UI refactoring, identify project's Theme Archetype:
 ## Related Topics
 
 mobile-ux-core | flutter/widgets | idiomatic-flutter
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- ElevatedButton
+- SizedBox
+- VColors
+- magic number
+
+- Additional task-grounded exact anchors: TextStyle

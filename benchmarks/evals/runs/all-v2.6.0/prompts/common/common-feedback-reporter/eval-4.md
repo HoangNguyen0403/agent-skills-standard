@@ -1,0 +1,1 @@
+I'm using Next.js 14 App Router but the skill told me to put my route in the pages/ directory.

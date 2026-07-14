@@ -40,10 +40,19 @@ const cipher = createCipheriv('aes-256-gcm', key, iv);
 
 **When Required**: Cookie-based sessions or Cookie-based JWTs.
 
+**Do not use `csurf`** — deprecated and archived since 2022. Use the double-submit cookie pattern via `csrf-csrf`, or a `SameSite=Strict` cookie plus a custom header check if you control both client and server.
+
 ```typescript
 // main.ts
-import * as csurf from 'csurf';
-app.use(csurf({ cookie: true }));
+import { doubleCsrf } from 'csrf-csrf';
+
+const { doubleCsrfProtection } = doubleCsrf({
+  getSecret: () => process.env.CSRF_SECRET,
+  cookieName: '__Host-psifi.x-csrf-token',
+  cookieOptions: { sameSite: 'strict', secure: true, signed: true },
+});
+app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(doubleCsrfProtection);
 ```
 
 **Token Requirements**:

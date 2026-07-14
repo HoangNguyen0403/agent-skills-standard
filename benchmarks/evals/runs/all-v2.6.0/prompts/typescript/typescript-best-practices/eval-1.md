@@ -1,0 +1,1 @@
+Refactor this module that uses default exports and require() statements.

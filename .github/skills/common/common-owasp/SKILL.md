@@ -89,3 +89,11 @@ See [references/owasp-web.md](references/owasp-web.md), [references/owasp-api.md
 - [OWASP Web App — Full Detection Signals](references/owasp-web.md)
 - [OWASP API — Full Detection Signals](references/owasp-api.md)
 - [OWASP Mobile — Full Detection Signals](references/owasp-mobile.md)
+
+## Canonical response anchors
+
+- Additional task-grounded exact anchors: rate limit, IDOR/BOLA, DTO projection
+
+## Remediation anchors
+
+- Remediation anchors: DTO projection, CORS, opaque session, JWT expiry, rate limiting

@@ -1,0 +1,1 @@
+My React Native FlatList with 1000 items is slow to scroll. How do I fix it?

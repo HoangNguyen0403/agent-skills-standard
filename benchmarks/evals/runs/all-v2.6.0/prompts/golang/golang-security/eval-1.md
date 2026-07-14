@@ -1,0 +1,1 @@
+How do I build a parameterized SQL query in Go to prevent SQL injection?

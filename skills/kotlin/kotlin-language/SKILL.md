@@ -1,29 +1,29 @@
 ---
 name: kotlin-language
-description: Write idiomatic Kotlin 1.9+ with null safety, sealed classes, and expression syntax. Use when working with Kotlin null safety, data classes, sealed interfaces, extension functions, or migrating Java code to Kotlin.
+description: Write idiomatic Kotlin 1.9+ with null safety, sealed classes, data classes, extension functions, delegates, collections, inline/reified generics, and expression syntax. Use for Kotlin language constructs, Java-to-Kotlin migration, lazy delegates, data classes, backing properties, or inline/reified generics; keep language constructs in scope even inside response models, and defer coroutine configuration, Android Context/framework, Retrofit/OkHttp client setup, and other library-specific recipes.
 metadata:
   triggers:
     files:
-    - '**/*.kt'
-    - '**/*.kts'
+      - "**/*.kt"
+      - "**/*.kts"
     keywords:
-    - val
-    - var
-    - "?."
-    - "?:"
-    - "!!"
-    - data class
-    - sealed
-    - when
-    - extension
-    - lazy
-    - lateinit
-    - object
+      - val
+      - var
+      - "?."
+      - "?:"
+      - "!!"
+      - data class
+      - sealed
+      - when
+      - extension
+      - lazy
+      - lateinit
+      - object
 ---
+
 # Kotlin Language Patterns
 
 ## **Priority: P0 (CRITICAL)**
-
 
 ## Implementation Guidelines
 
@@ -45,3 +45,8 @@ metadata:
 ## References
 
 - [Sealed Class, When Expression & Extension Examples](references/example.md)
+
+
+## Canonical response anchors
+
+- Additional task-grounded exact anchors: data class

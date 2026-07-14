@@ -1,0 +1,1 @@
+Audit every tracked requirements surface for dependency drift, run pip-audit and the configured security checks, and verify that the CI gates cover each file and environment. Review secret redaction, input-boundary changes, and the resulting security report rather than accepting a format-only green build.

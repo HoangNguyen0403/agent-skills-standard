@@ -1,0 +1,1 @@
+Should I use a global variable to hold the Echo router in my Go service?

@@ -1,0 +1,1 @@
+My Android app is getting large. How should I split it into modules? I have a login screen, a product listing, and a cart.

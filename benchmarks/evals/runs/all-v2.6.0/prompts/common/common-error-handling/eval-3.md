@@ -1,0 +1,1 @@
+I have multiple catch blocks that just silently ignore errors: catch(e) {}

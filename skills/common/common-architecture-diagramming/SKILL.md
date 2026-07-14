@@ -4,19 +4,20 @@ description: Standards for creating clear, audience-appropriate C4 and UML archi
 metadata:
   triggers:
     files:
-    - 'ARCHITECTURE.md'
-    - '**/*.mermaid'
-    - '**/*.drawio'
+      - "ARCHITECTURE.md"
+      - "**/*.mermaid"
+      - "**/*.drawio"
     keywords:
-    - diagram
-    - architecture
-    - c4
-    - system design
-    - mermaid
+      - diagram
+      - architecture
+      - c4
+      - system design
+      - mermaid
 ---
+
 # Architecture Diagramming Standard
 
-## **Priority: P1 (Standard)**
+## **Priority: P1 (HIGH)**
 
 ## Guidelines
 
@@ -30,6 +31,14 @@ metadata:
 - **Direction**: `graph LR` (Flow) or `graph TD` (Hierarchy).
 - **Deployment**: Map containers to infrastructure.
 - **Governance**: CRITICAL: Review [best-practices.md](references/best-practices.md) before starting.
+
+## Workflow
+
+1. Name audience and the decision the diagram must support.
+2. Pick one level: context for external actors, container for deployable systems, component for one container; never mix levels.
+3. Pick notation: sequence for a request protocol, ERD for data ownership, state for lifecycle, deployment for infrastructure.
+4. Draw only decision-relevant nodes; label every relationship with protocol or event.
+5. Add title, scope/date/version, legend, and one review question for the intended audience.
 
 See [implementation examples](references/implementation.md) for C4 container diagram in Mermaid.
 

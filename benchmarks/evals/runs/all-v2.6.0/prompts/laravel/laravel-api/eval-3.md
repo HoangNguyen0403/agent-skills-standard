@@ -1,0 +1,1 @@
+How do I use Sanctum for API authentication in Laravel?

@@ -1,0 +1,1 @@
+My Kotlin code uses GlobalScope.launch to start a background task. My tech lead says this is wrong. Why?

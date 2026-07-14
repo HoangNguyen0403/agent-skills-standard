@@ -13,7 +13,7 @@ metadata:
 ---
 # Search Engine & Full-Text
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 - **Pattern**: **CQRS (Command Query Responsibility Segregation)**.
  - **Write**: To Primary Database (Postgres/MySQL). Source of Truth.

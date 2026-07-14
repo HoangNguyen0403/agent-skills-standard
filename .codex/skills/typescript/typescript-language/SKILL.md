@@ -73,3 +73,9 @@ After any type change that crosses module boundaries or involves generics, union
 
 For advanced type patterns and utility types:
 See [references/REFERENCE.md](references/REFERENCE.md).
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Discriminated Union
+- kind

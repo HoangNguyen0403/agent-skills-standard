@@ -1,0 +1,1 @@
+My controller is catching a database error and returning the raw Postgres error message to the client.

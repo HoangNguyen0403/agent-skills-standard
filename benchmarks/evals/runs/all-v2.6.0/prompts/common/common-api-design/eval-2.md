@@ -1,0 +1,1 @@
+What are the common anti-patterns to avoid in common api design?

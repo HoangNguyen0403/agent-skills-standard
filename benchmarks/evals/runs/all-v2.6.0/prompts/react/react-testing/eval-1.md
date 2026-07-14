@@ -1,0 +1,1 @@
+Write a test for my UserCard component that shows the user's name and email.

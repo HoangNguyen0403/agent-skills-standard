@@ -6,8 +6,18 @@
       "prompt": "What logging library should I use in NestJS?",
       "expected_output": "Use nestjs-pino for high-performance JSON structured logging. Node's console.log is blocking and unstructured. Configure redaction for sensitive fields (password, token, email).",
       "assertions": [
-        {"id": "a1", "description": "Recommends nestjs-pino", "type": "contains", "value": "pino"},
-        {"id": "a2", "description": "Warns against console.log", "type": "contains", "value": "console.log"}
+        {
+          "id": "a1",
+          "description": "Recommends nestjs-pino",
+          "type": "contains",
+          "value": "pino"
+        },
+        {
+          "id": "a2",
+          "description": "Warns against console.log",
+          "type": "contains",
+          "value": "console.log"
+        }
       ]
     },
     {
@@ -15,8 +25,18 @@
       "prompt": "How do I correlate logs across a request in NestJS?",
       "expected_output": "nestjs-pino uses AsyncLocalStorage to automatically attach reqId to every log line. Propagate x-request-id header to downstream services and database queries.",
       "assertions": [
-        {"id": "a1", "description": "Mentions reqId in logs", "type": "contains", "value": "reqId"},
-        {"id": "a2", "description": "Mentions x-request-id propagation", "type": "contains", "value": "x-request-id"}
+        {
+          "id": "a1",
+          "description": "Mentions reqId in logs",
+          "type": "contains",
+          "value": "reqId"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions x-request-id propagation",
+          "type": "contains",
+          "value": "x-request-id"
+        }
       ]
     },
     {
@@ -24,8 +44,18 @@
       "prompt": "How do I expose Prometheus metrics from NestJS?",
       "expected_output": "Use @willsoto/nestjs-prometheus to expose /metrics endpoint. Track http_request_duration_seconds (Histogram), db_query_duration_seconds, memory_usage_bytes (Gauge).",
       "assertions": [
-        {"id": "a1", "description": "Mentions willsoto/nestjs-prometheus", "type": "contains", "value": "prometheus"},
-        {"id": "a2", "description": "Mentions /metrics endpoint", "type": "contains", "value": "/metrics"}
+        {
+          "id": "a1",
+          "description": "Mentions willsoto/nestjs-prometheus",
+          "type": "contains",
+          "value": "prometheus"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions /metrics endpoint",
+          "type": "contains",
+          "value": "/metrics"
+        }
       ]
     }
   ],
@@ -33,5 +63,6 @@
     "How do I implement structured logging in Go?",
     "How do I add Prometheus to Spring Boot?",
     "How do I configure NestJS modules?"
-  ]
+  ],
+  "should_trigger": ["What logging library should I use in NestJS?"]
 }

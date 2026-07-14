@@ -63,6 +63,7 @@ metadata:
 - **No Vagueness**: "Fast" -> "Load < 200ms".
 - **No Implementation**: PRD = "What", Implementation Plan = "How".
 - **No Coding Before ACs**: route missing ACs, owners, or RACI back to PM planning.
+- **Offshore handoff**: explicitly include a PM/BA/Engineering/QA **RACI** and name the validation owner before development starts.
 - **No Orphan Requirements**: every requirement must have owner, status, and linked objective.
 - **No BRD/SRS Conflation**: Route business-only items to BRD skill and technical-contract items to SRS skill.
 - **No Generic Actors**: replace "user" with a specific role or persona.
@@ -71,3 +72,14 @@ metadata:
 
 - [Full PRD Template](references/prd-template.md)
 - [Validation Checklist](references/checklist.md)
+
+## Ownership checklist
+
+- Record the Product owner, Engineering owner, and QA/release owner for every requirement or release decision.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Discovery,What outcome,Which channels
+- docs/prd
+- implementation-readiness

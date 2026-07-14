@@ -48,3 +48,10 @@ See [implementation examples](references/implementation.md#controller-pattern) f
 ## References
 
 - [Slim Controller Patterns](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- No logic in
+
+- Additional task-grounded exact anchors: handle()

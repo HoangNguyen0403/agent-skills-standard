@@ -1,0 +1,4 @@
+Persist the notification intent and deliver it asynchronously. In the application transaction, create a notification/outbox row containing recipient, type, template/data, status, and an idempotency key. A dispatcher publishes an event/job after commit; a worker sends through FCM/APNs/email, records the provider response, and retries only transient failures.
+
+An outbox table or transactionally coupled event mechanism prevents a database commit from succeeding while the notification is lost. Make the worker idempotent with a unique delivery key, cap retries with backoff, handle invalid tokens by disabling/removing them, and record attempts without storing secrets. Keep provider calls outside the database transaction, authorize recipient access, and expose delivery status separately from the user-facing notification record.
+

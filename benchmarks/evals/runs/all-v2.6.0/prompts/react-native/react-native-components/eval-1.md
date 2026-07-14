@@ -1,0 +1,1 @@
+How do I build a reusable card component in React Native that works across multiple features?

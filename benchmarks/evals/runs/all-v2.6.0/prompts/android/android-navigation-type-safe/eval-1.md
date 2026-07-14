@@ -1,0 +1,1 @@
+How do I use type-safe navigation in Jetpack Compose Navigation 2.8 without string routes?

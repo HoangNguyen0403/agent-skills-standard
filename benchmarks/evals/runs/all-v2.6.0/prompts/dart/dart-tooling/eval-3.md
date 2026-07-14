@@ -1,0 +1,1 @@
+Set up lefthook to run dart format and flutter analyze automatically before every commit so unformatted code never reaches the PR.

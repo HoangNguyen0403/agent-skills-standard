@@ -39,6 +39,16 @@
         {
           "type": "contains",
           "value": "log"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "silently ignore",
+            "empty catch",
+            "swallowing"
+          ]
         }
       ]
     }
@@ -47,5 +57,8 @@
     "Write a React component with a loading spinner",
     "Configure Tailwind CSS dark mode",
     "Explain the difference between TCP and UDP"
+  ],
+  "should_trigger": [
+    "My controller is catching a database error and returning the raw Postgres error message to the client."
   ]
 }

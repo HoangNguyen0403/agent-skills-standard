@@ -1,0 +1,1 @@
+My React Native app passes an auth token in the deep link URL. Is this a security issue?

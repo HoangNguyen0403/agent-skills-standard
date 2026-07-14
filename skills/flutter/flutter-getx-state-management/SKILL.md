@@ -1,6 +1,6 @@
 ---
 name: flutter-getx-state-management
-description: Implement reactive state with GetX controllers and observables in Flutter. Use when managing state with GetxController, Obx, or reactive observables.
+description: Implement reactive state with GetX controllers, bindings, and observables in Flutter. Use when managing app state with GetxController, Obx, GetBuilder, or dependency lifecycle—not unit tests for existing controllers.
 metadata:
   triggers:
     files:
@@ -58,3 +58,11 @@ See [references/controller-example.md](references/controller-example.md) for con
 ## Related Topics
 
 getx-navigation | layer-based-clean-architecture | dependency-injection
+
+## Controller boundary
+
+- Keep `BuildContext` out of controllers. Use GetX services such as `Get.snackbar` for controller-owned feedback and expose reactive state to the view.
+
+## Remediation anchors
+
+- Remediation anchors: onInit, Obx, no BuildContext in the controller

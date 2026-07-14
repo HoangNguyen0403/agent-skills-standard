@@ -101,6 +101,15 @@ export const DEFAULT_WORKFLOWS = [
   'incident-hotfix',
 ];
 
+/**
+ * Workflows that must never be synced to a consumer project, regardless of
+ * `.skillsrc` (even `workflows: true`). These depend on agent-skills-standard's
+ * own repo-root tooling (e.g. `scripts/evals/*` and its `pnpm evals:*` scripts,
+ * `benchmarks/evals/`) which is never distributed to consumers — the workflow
+ * would be broken/non-functional outside this monorepo.
+ */
+export const INTERNAL_ONLY_WORKFLOWS = ['evals-run'];
+
 // Configurable via ENV or hardcoded for production convenience
 /**
  * Defines how workflows are delivered to each agent platform.

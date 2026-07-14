@@ -1,0 +1,1 @@
+I'm still using findViewById in my Fragment. What should I use instead in modern Android?

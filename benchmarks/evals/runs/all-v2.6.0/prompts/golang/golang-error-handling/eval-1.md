@@ -1,0 +1,1 @@
+How do I wrap an error with context in Go so callers can still check the original error type?

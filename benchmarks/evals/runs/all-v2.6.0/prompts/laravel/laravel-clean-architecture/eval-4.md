@@ -1,0 +1,1 @@
+Organize code by domain in Laravel

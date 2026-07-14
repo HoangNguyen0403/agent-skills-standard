@@ -6,8 +6,14 @@
       "prompt": "How do I build a parameterized SQL query in Go to prevent SQL injection?",
       "expected_output": "Use $1, $2 placeholders with database/sql or pgx. Never concatenate user input into queries with fmt.Sprintf. Example: db.QueryContext(ctx, \"SELECT * FROM users WHERE id = $1\", userID).",
       "assertions": [
-        { "type": "contains", "value": "$1" },
-        { "type": "contains", "value": "fmt.Sprintf" }
+        {
+          "type": "contains",
+          "value": "$1"
+        },
+        {
+          "type": "contains",
+          "value": "fmt.Sprintf"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I need to generate a secure random token for password reset in Go. How should I do this?",
       "expected_output": "Use crypto/rand to generate cryptographically secure tokens. Never use math/rand — it is deterministic and predictable. Example: rand.Read(b) from crypto/rand.",
       "assertions": [
-        { "type": "contains", "value": "crypto/rand" },
-        { "type": "contains", "value": "math/rand" }
+        {
+          "type": "contains",
+          "value": "crypto/rand"
+        },
+        {
+          "type": "contains",
+          "value": "math/rand"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "What's the recommended password hashing algorithm for Go?",
       "expected_output": "Use Argon2id via golang.org/x/crypto/argon2. Do not use bcrypt (weaker) or MD5/SHA1 (insecure). Recommended params: time=1, memory=64MB, threads=4.",
       "assertions": [
-        { "type": "contains", "value": "Argon2id" },
-        { "type": "contains", "value": "bcrypt" }
+        {
+          "type": "contains",
+          "value": "Argon2id"
+        },
+        {
+          "type": "contains",
+          "value": "bcrypt"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Write a goroutine to process background jobs",
     "How do I set up structured logging in Go?",
     "Configure golangci-lint for my project"
+  ],
+  "should_trigger": [
+    "How do I build a parameterized SQL query in Go to prevent SQL injection?"
   ]
 }

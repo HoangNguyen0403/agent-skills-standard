@@ -1,0 +1,1 @@
+I have deeply nested LinearLayouts in my XML layout causing performance issues. What should I use instead?

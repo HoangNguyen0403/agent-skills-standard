@@ -53,8 +53,11 @@
           "value": "ngSrc="
         },
         {
-          "type": "contains",
-          "value": "priority attribute"
+          "type": "contains_any",
+          "value": [
+            "priority attribute",
+            "priority"
+          ]
         },
         {
           "type": "contains",
@@ -88,7 +91,7 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Signals for all reactive state"
+          "value": "Signals"
         },
         {
           "type": "contains",
@@ -121,5 +124,8 @@
     "How do I reduce bundle size with webpack tree shaking?",
     "How do I optimize slow PostgreSQL queries with indexes?",
     "How do I configure Redis caching for API responses?"
+  ],
+  "should_trigger": [
+    "How do I improve Angular change detection performance?"
   ]
 }

@@ -1,0 +1,1 @@
+Write Google Play release notes: new onboarding flow, fixed crash on Android 14 camera, improved battery in background sync, updated analytics SDK.

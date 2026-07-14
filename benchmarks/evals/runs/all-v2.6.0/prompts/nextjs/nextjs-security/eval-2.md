@@ -1,0 +1,1 @@
+My component renders user-provided HTML content using raw innerHTML injection.

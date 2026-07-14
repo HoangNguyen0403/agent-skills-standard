@@ -1,0 +1,1 @@
+Create a failure type for when the product is out of stock, with a user-facing message.

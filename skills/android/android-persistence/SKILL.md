@@ -1,6 +1,6 @@
 ---
 name: android-persistence
-description: Implement Room database schemas and DataStore preferences with proper async patterns in Android. Use when defining Room entities, DAOs, migrations, or replacing SharedPreferences with DataStore.
+description: Implement Room schemas and DataStore preferences with proper async patterns in Android. Use when the primary task is storage schema, DAO, migration, or preference isolation; defer auth-token/security storage, any CoroutineWorker/WorkManager task, Hilt graph wiring, and cache-policy design.
 metadata:
   triggers:
     files:
@@ -14,7 +14,7 @@ metadata:
 ---
 # Android Persistence Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## 1. Configure Room Database
 

@@ -6,8 +6,14 @@
       "prompt": "How do I create a typed reactive form in Angular?",
       "expected_output": "Use strictly typed FormGroup<T>. Never use untyped FormGroup. Use FormBuilder with nonNullable to avoid null values.",
       "assertions": [
-        { "type": "contains", "value": "FormGroup" },
-        { "type": "contains", "value": "nonNullable" }
+        {
+          "type": "contains",
+          "value": "FormGroup"
+        },
+        {
+          "type": "contains",
+          "value": "nonNullable"
+        }
       ]
     },
     {
@@ -15,8 +21,18 @@
       "prompt": "How do I write a custom validator for an Angular form?",
       "expected_output": "Create standalone validator functions in a separate file. Do not put validation logic inside the component class.",
       "assertions": [
-        { "type": "contains", "value": "standalone" },
-        { "type": "contains", "value": "separate file" }
+        {
+          "type": "contains",
+          "value": "standalone"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "separate file",
+            "standalone file",
+            "validators.ts"
+          ]
+        }
       ]
     },
     {
@@ -24,8 +40,14 @@
       "prompt": "Should I use template-driven or reactive forms in Angular?",
       "expected_output": "Use Reactive Forms for any non-trivial inputs. Template-driven forms are not recommended.",
       "assertions": [
-        { "type": "contains", "value": "Reactive" },
-        { "type": "contains", "value": "non-trivial" }
+        {
+          "type": "contains",
+          "value": "Reactive"
+        },
+        {
+          "type": "contains",
+          "value": "non-trivial"
+        }
       ]
     },
     {
@@ -33,8 +55,14 @@
       "prompt": "How do I use nonNullable reactive forms?",
       "expected_output": "Use fb.nonNullable.group() or set nonNullable: true on individual controls. This ensures form values are always strings, not null.",
       "assertions": [
-        { "type": "contains", "value": "nonNullable" },
-        { "type": "contains", "value": "group" }
+        {
+          "type": "contains",
+          "value": "nonNullable"
+        },
+        {
+          "type": "contains",
+          "value": "group"
+        }
       ]
     },
     {
@@ -42,8 +70,14 @@
       "prompt": "How do I sync a form with a signal store in Angular?",
       "expected_output": "Use valueChanges with takeUntilDestroyed() to subscribe to form changes.",
       "assertions": [
-        { "type": "contains", "value": "valueChanges" },
-        { "type": "contains", "value": "takeUntilDestroyed" }
+        {
+          "type": "contains",
+          "value": "valueChanges"
+        },
+        {
+          "type": "contains",
+          "value": "takeUntilDestroyed"
+        }
       ]
     },
     {
@@ -51,8 +85,14 @@
       "prompt": "What are the anti-patterns in Angular forms?",
       "expected_output": "No Template-Driven Forms for complex inputs. No untyped FormGroup. No validation logic in the component — extract to standalone functions.",
       "assertions": [
-        { "type": "contains", "value": "Template-Driven" },
-        { "type": "contains", "value": "standalone" }
+        {
+          "type": "contains",
+          "value": "Template-Driven"
+        },
+        {
+          "type": "contains",
+          "value": "standalone"
+        }
       ]
     }
   ],
@@ -61,5 +101,8 @@
     "How do I validate request bodies in NestJS?",
     "How do I use Zod for schema validation?",
     "How do I create a Django ModelForm?"
+  ],
+  "should_trigger": [
+    "How do I create a typed reactive form in Angular?"
   ]
 }

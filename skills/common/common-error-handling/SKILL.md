@@ -22,7 +22,7 @@ metadata:
 ---
 # Error Handling Standards
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 ## Error Architecture
 
@@ -42,8 +42,13 @@ See [implementation examples](references/implementation.md) for standard error r
 ## Anti-Patterns
 
 - **Swallowing Errors**: Never `catch(e) {}` without logging or re-throwing.
+- Never silently ignore an error: an empty catch must become an explicit log, handling branch, returned error, or rethrow.
 - **Stack Traces**: Never expose stack traces in API responses.
 - **Generic 500s**: Use `400` with specific details for validation instead of 500.
 
 ## References
 - [API Error Contract](references/api-error-contract.md)
+
+## Failure-handling checklist
+
+- Never swallow errors: do not use an empty `catch` or silently ignore a failure. Log, wrap, rethrow, or map it deliberately at the correct boundary.

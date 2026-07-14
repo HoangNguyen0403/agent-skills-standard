@@ -1,0 +1,1 @@
+My TypeScript API is accepting user input and building SQL queries by string concatenation.

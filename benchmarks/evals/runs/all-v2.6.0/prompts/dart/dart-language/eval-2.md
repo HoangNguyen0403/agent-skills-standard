@@ -1,0 +1,1 @@
+I have a Result type with Success and Failure subtypes and I want the compiler to enforce that all cases are handled in a switch. How?

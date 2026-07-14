@@ -1,0 +1,1 @@
+My React app has outdated npm dependencies. What should I do?

@@ -1,0 +1,1 @@
+Prefer SWR or TanStack Query for server data. If `useEffect` owns the request, create an `AbortController`, pass its signal, and return cleanup that aborts it. Keep the dependency array accurate and do not use an effect to derive render state.

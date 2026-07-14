@@ -14,7 +14,7 @@ metadata:
 ---
 # Spring Boot Data Access
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Configure JPA and Spring Data
 

@@ -1,0 +1,1 @@
+How do I navigate from one screen to another with typed parameters in React Navigation 6?

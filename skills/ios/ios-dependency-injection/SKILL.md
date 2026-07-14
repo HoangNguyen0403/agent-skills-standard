@@ -15,7 +15,7 @@ metadata:
 ---
 # iOS Dependency Injection
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Workflow
 
@@ -35,3 +35,12 @@ See [protocol-based DI and Factory registration examples](references/implementat
 ## References
 
 - [Manual & Library DI Setup](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Injected
+
+## Remediation anchors
+
+- Remediation anchors: protocol injection, Factory library, initializer injection

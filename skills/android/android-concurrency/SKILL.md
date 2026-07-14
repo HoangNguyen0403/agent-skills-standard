@@ -1,6 +1,6 @@
 ---
 name: android-concurrency
-description: Write correct coroutine scopes, Flow collection, and dispatcher injection in Android. Use when writing suspend functions, choosing between StateFlow and SharedFlow, or injecting Dispatchers for testability.
+description: Write correct coroutine scopes, lifecycle collection, and dispatcher injection in Android production code. Use for suspend functions, coroutine scopes, and dispatcher mechanics; defer ViewModel StateFlow/LiveData architecture, Fragment lifecycle recipes, persistence/notifications, and unit-test recipes to their specific skills.
 metadata:
   triggers:
     files:
@@ -19,7 +19,7 @@ metadata:
 ---
 # Android Concurrency Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Guidelines
 
@@ -43,3 +43,8 @@ metadata:
 ## References
 
 - [Dispatcher Pattern](references/implementation.md)
+
+
+## Canonical response anchors
+
+- Additional task-grounded exact anchors: hardcode

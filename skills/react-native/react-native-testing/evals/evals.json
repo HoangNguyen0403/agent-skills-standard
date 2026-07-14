@@ -23,7 +23,21 @@
     {
       "id": 2,
       "prompt": "How do I mock native modules like AsyncStorage in React Native tests?",
-      "expected_output": "Use jest.mock at the top of the test file: jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock')). For custom modules, mock in __mocks__/ directory. Never call actual native code in unit tests."
+      "expected_output": "Use jest.mock at the top of the test file: jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock')). For custom modules, mock in __mocks__/ directory. Never call actual native code in unit tests.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["Use jest", "jest"]
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["mock at the top of the test file", "mock"]
+        }
+      ]
     },
     {
       "id": 3,
@@ -50,5 +64,8 @@
     "How do I implement certificate pinning?",
     "How do I configure EAS Build?",
     "How do I optimize FlatList performance?"
+  ],
+  "should_trigger": [
+    "How do I write a test that simulates a button press and checks the result in React Native?"
   ]
 }

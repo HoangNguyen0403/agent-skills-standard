@@ -1,0 +1,4 @@
+Use `Scope.REQUEST` when a provider genuinely needs per-request state or request-specific dependencies, such as a request-scoped tenant/user context that cannot be passed explicitly. Nest creates a new instance for each request, so request scope adds allocation and dependency-resolution overhead and can make otherwise singleton providers request-scoped through the dependency graph.
+
+Keep stateless services singleton by default. Prefer explicit method parameters, an interceptor/context object, or `AsyncLocalStorage` for correlation context when that is sufficient. Be especially careful with high-throughput endpoints and WebSocket/message workloads, where “request” semantics differ. If using request scope, benchmark it, understand lifecycle behavior, and do not store mutable cross-request state in a singleton as a workaround.
+

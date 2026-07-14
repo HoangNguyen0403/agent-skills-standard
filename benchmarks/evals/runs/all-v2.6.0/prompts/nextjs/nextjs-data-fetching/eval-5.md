@@ -1,0 +1,1 @@
+Call a database directly from a Next.js Server Component

@@ -1,0 +1,1 @@
+I just created Zephyr test case TICK-T892 for the story TICK-3301. How do I link it back and update Jira so the team knows tests exist?

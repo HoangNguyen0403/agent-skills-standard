@@ -1,0 +1,1 @@
+Our bundle size is 4MB and the initial page load is very slow.

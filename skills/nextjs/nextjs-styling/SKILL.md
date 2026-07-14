@@ -63,3 +63,8 @@ For specific library setups, see:
 - **No `<img>` without dimensions**: Always set `width`/`height` or use `fill` to prevent CLS.
 - **No hardcoded conditional classes**: Use `clsx`+`tailwind-merge` (`cn`) for dynamic styles.
 - **No Google Fonts `<link>` tag**: Use `next/font` for zero-CLS self-hosted fonts.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Fix with next/image — always specify width and height or use fill prop,always

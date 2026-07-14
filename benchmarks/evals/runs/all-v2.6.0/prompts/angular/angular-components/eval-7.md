@@ -1,0 +1,1 @@
+What is the Smart/Dumb component pattern in Angular?

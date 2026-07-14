@@ -1,0 +1,1 @@
+The skill I created has low trigger accuracy — it only fires 40% of the time when it should.

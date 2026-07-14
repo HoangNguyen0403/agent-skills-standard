@@ -1,0 +1,1 @@
+When should I use Elasticsearch vs a database index for search?

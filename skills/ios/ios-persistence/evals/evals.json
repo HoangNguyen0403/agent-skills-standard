@@ -6,8 +6,15 @@
       "prompt": "How should I implement persistence in iOS?",
       "expected_output": "Choose storage tier: SwiftData for iOS 17+, Core Data for legacy, Keychain for secrets, UserDefaults for flags only. Use @Model macro for SwiftData models.",
       "assertions": [
-        { "type": "contains", "value": "@Model" },
-        { "type": "contains", "value": "Keychain" }
+        {
+          "type": "contains",
+          "value": "@Model"
+        },
+        {
+          "type": "contains_any",
+          "value": ["Keychain"],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
+        }
       ]
     },
     {
@@ -15,8 +22,14 @@
       "prompt": "How do I configure the data container in iOS?",
       "expected_output": "Use @MainActor for ModelContainer (SwiftData) or NSPersistentContainer (Core Data). Perform background writes with newBackgroundContext() to avoid UI lag.",
       "assertions": [
-        { "type": "contains", "value": "ModelContainer" },
-        { "type": "contains", "value": "newBackgroundContext" }
+        {
+          "type": "contains",
+          "value": "ModelContainer"
+        },
+        {
+          "type": "contains",
+          "value": "newBackgroundContext"
+        }
       ]
     },
     {
@@ -24,8 +37,14 @@
       "prompt": "What are the anti-patterns in iOS persistence?",
       "expected_output": "No heavy I/O on viewContext — use private background contexts. No string-based predicates — use KeyPaths. Always set mergePolicy explicitly.",
       "assertions": [
-        { "type": "contains", "value": "viewContext" },
-        { "type": "contains", "value": "mergePolicy" }
+        {
+          "type": "contains",
+          "value": "viewContext"
+        },
+        {
+          "type": "contains_any",
+          "value": ["merge policy", "conflict-resolution", "conflict"]
+        }
       ]
     }
   ],
@@ -33,5 +52,6 @@
     "Set up a basic iOS project from scratch",
     "How do I install iOS dependencies?",
     "Configure CI/CD for an unrelated platform"
-  ]
+  ],
+  "should_trigger": ["How should I implement persistence in iOS?"]
 }

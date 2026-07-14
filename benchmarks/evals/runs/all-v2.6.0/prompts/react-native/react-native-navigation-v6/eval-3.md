@@ -1,0 +1,1 @@
+How do I configure Universal Links (deep linking) in React Navigation 6?

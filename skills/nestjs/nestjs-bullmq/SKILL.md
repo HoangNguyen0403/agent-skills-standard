@@ -24,7 +24,7 @@ metadata:
 ---
 # NestJS BullMQ Implementation
 
-## **Priority: P0 (Critical)**
+## **Priority: P0 (CRITICAL)**
 
 ## Guidelines
 

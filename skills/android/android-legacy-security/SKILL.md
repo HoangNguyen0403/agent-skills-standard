@@ -1,6 +1,6 @@
 ---
 name: android-legacy-security
-description: Harden Intent handling, WebView configuration, and FileProvider access in Android apps. Use when securing Intent extras, configuring WebViews, or exposing files via FileProvider.
+description: Harden Intent handling, WebView configuration, and FileProvider access in Android apps. Use when securing Intent extras, configuring WebViews, or exposing files via FileProvider; defer manifest export flags and generic Bundle typing to focused Android security guidance.
 metadata:
   triggers:
     files:
@@ -15,7 +15,7 @@ metadata:
 ---
 # Android Legacy Security Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## 1. Secure Intents and Components
 

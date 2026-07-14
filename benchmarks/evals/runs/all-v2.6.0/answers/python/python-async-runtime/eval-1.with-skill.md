@@ -1,0 +1,1 @@
+No. psycopg2 and subprocess.run are blocking calls and can stall the event loop. Prefer async-native clients; otherwise put each blocking operation behind one explicit asyncio.to_thread boundary, with visible timeout and cancellation behavior.

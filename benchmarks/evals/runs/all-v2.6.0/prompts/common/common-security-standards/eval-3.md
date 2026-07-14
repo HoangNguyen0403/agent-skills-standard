@@ -1,0 +1,1 @@
+Review my code that builds a SQL query by concatenating user input: 'SELECT * FROM users WHERE name = ' + userName

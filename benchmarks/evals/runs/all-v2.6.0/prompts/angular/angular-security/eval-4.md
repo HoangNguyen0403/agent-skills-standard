@@ -1,0 +1,1 @@
+Should I mark HTML as trusted with DomSanitizer in Angular?

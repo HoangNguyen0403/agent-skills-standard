@@ -1,0 +1,1 @@
+An 'Allow Notifications' system popup appeared. What should I do?

@@ -13,7 +13,7 @@ metadata:
 ---
 # NestJS Error Handling Standards
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 - **Requirement**: Centralize error formatting.
@@ -64,3 +64,7 @@ metadata:
 - **No stack traces in production**: Gate stack exposure behind `NODE_ENV === 'production'` check.
 - **No Express types in filters**: Use `HttpAdapterHost` for platform-agnostic error handling.
 - **No HttpException in services**: Throw domain errors in services; let Interceptors map to HTTP exceptions.
+
+## Canonical response anchors
+
+- Additional task-grounded exact anchors: sanitiz

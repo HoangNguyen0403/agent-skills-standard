@@ -1,0 +1,1 @@
+Use RefreshDatabase in Laravel tests

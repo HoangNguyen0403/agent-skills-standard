@@ -1,0 +1,3 @@
+A reusable Select is best modeled as a controlled component with a compound-component API. Keep selected value and open state in the parent, expose state and actions to Select.Trigger, Select.Options, and Select.Option through a narrowly scoped context, and optionally support uncontrolled defaultValue.
+
+Use a generic or discriminated-union option type and a renderOption callback instead of hard-coding one shape. The component should own keyboard navigation, focus management, stable IDs, disabled options, and correct combobox/listbox ARIA semantics. Keep the public API small; profile before adding memoization or virtualization.

@@ -1,0 +1,1 @@
+How do I create a typed bottom tab navigator with React Navigation 6?

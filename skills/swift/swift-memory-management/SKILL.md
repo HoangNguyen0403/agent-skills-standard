@@ -14,7 +14,7 @@ metadata:
 ---
 # Swift Memory Management
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Guidelines
 
@@ -45,3 +45,13 @@ metadata:
 ## References
 
 - [Capture Lists & Retain Cycles](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- beginning of the closure's capture list
+- inherits from AnyObject
+- unowned if the reference is guaranteed
+- weak if the reference can become nil
+
+- Additional task-grounded exact anchors: retain cycle

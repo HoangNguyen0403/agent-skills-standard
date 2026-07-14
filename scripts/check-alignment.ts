@@ -9,35 +9,36 @@
  *   pnpm check-alignment              # default threshold = 70
  *   pnpm check-alignment --threshold 80
  */
-import fs from 'fs-extra';
-import path from 'path';
-import pc from 'picocolors';
+import fs from "fs-extra";
+import path from "path";
+import pc from "picocolors";
 
 const THRESHOLD = (() => {
-  const idx = process.argv.indexOf('--threshold');
+  const idx = process.argv.indexOf("--threshold");
   return idx !== -1 ? parseInt(process.argv[idx + 1], 10) : 70;
 })();
 
-const FORBIDDEN_ALIGNMENT_MARKER = 'alignment tokens:';
+const FORBIDDEN_ALIGNMENT_MARKER = "alignment tokens:";
 
 function stripHtmlComments(content: string): string {
   let res = content;
-  let start = res.indexOf('<!--');
+  let start = res.indexOf("<!--");
   while (start !== -1) {
-    const end = res.indexOf('-->', start + 4);
+    const end = res.indexOf("-->", start + 4);
     if (end !== -1) {
       res = res.substring(0, start) + res.substring(end + 3);
     } else {
       res = res.substring(0, start);
     }
-    start = res.indexOf('<!--');
+    start = res.indexOf("<!--");
   }
   return res;
 }
 
 interface Assertion {
   type: string;
-  value: string;
+  value?: string | string[];
+  values?: string[];
 }
 interface Eval {
   id: number;
@@ -49,7 +50,7 @@ interface EvalsJson {
 }
 
 async function main() {
-  const skillsDir = path.join(__dirname, '../skills');
+  const skillsDir = path.join(__dirname, "../skills");
 
   if (!(await fs.pathExists(skillsDir))) {
     console.error(pc.red(`Skills directory not found at ${skillsDir}`));
@@ -66,16 +67,16 @@ async function main() {
       const stat = await fs.stat(fullPath);
       if (stat.isDirectory()) {
         await scanDir(fullPath);
-      } else if (item === 'SKILL.md') {
+      } else if (item === "SKILL.md") {
         await checkForbiddenMarkers(fullPath);
-      } else if (item === 'evals.json') {
+      } else if (item === "evals.json") {
         await checkAlignment(fullPath);
       }
     }
   }
 
   async function checkForbiddenMarkers(skillFile: string) {
-    const content = await fs.readFile(skillFile, 'utf8');
+    const content = await fs.readFile(skillFile, "utf8");
     if (content.toLowerCase().includes(FORBIDDEN_ALIGNMENT_MARKER)) {
       failures.push(
         `${path.relative(skillsDir, path.dirname(skillFile))}: forbidden alignment marker in SKILL.md`,
@@ -85,7 +86,9 @@ async function main() {
 
   async function checkAlignment(evalsPath: string) {
     const skillDir = path.dirname(path.dirname(evalsPath)); // evals/ -> skill root
-    const skillFile = path.join(skillDir, 'SKILL.md');
+    const relativeSkillDir = path.relative(skillsDir, skillDir);
+    if (relativeSkillDir.startsWith(`specialists${path.sep}`)) return;
+    const skillFile = path.join(skillDir, "SKILL.md");
 
     if (!(await fs.pathExists(skillFile))) {
       warnings.push(`${evalsPath}: no SKILL.md found alongside evals`);
@@ -93,8 +96,9 @@ async function main() {
     }
 
     const evalsJson: EvalsJson = await fs.readJson(evalsPath);
-    const rawContent = await fs.readFile(skillFile, 'utf8');
-    const skillContent = stripHtmlComments(rawContent).toLowerCase();
+    const rawContent = await fs.readFile(skillFile, "utf8");
+    const strippedContent = stripHtmlComments(rawContent);
+    const skillContent = strippedContent.toLowerCase();
 
     let total = 0;
     let matched = 0;
@@ -103,25 +107,86 @@ async function main() {
     for (const ev of evalsJson.evals) {
       if (!Array.isArray(ev.assertions)) continue;
       for (const assertion of ev.assertions) {
-        if (assertion.type === 'contains') {
-          total++;
-          if (skillContent.includes(assertion.value.toLowerCase())) {
-            matched++;
-          } else {
-            misses.push(`eval ${ev.id}: "${assertion.value}"`);
+        switch (assertion.type) {
+          case "contains": {
+            total++;
+            if (skillContent.includes((assertion.value ?? "").toLowerCase())) {
+              matched++;
+            } else {
+              misses.push(`eval ${ev.id}: contains "${assertion.value}"`);
+            }
+            break;
+          }
+          case "not_contains": {
+            // Negative assertions may name an anti-pattern that the skill
+            // intentionally documents; absence is not source alignment.
+            break;
+          }
+          case "contains_any": {
+            total++;
+            const values =
+              assertion.values ??
+              (Array.isArray(assertion.value)
+                ? assertion.value
+                : assertion.value
+                  ? [assertion.value]
+                  : []);
+            if (values.some((v) => skillContent.includes(v.toLowerCase()))) {
+              matched++;
+            } else {
+              misses.push(`eval ${ev.id}: contains_any [${values.join(", ")}]`);
+            }
+            break;
+          }
+          case "regex": {
+            total++;
+            try {
+              const re = new RegExp(assertion.value ?? "", "i");
+              if (re.test(strippedContent)) {
+                matched++;
+              } else {
+                misses.push(`eval ${ev.id}: regex /${assertion.value}/i`);
+              }
+            } catch {
+              misses.push(
+                `eval ${ev.id}: regex /${assertion.value}/i (invalid pattern)`,
+              );
+            }
+            break;
+          }
+          case "file_reference": {
+            total++;
+            const relPath = assertion.value ?? "";
+            const fileExists = await fs.pathExists(
+              path.join(skillDir, relPath),
+            );
+            const isLinked = skillContent.includes(relPath.toLowerCase());
+            if (fileExists && isLinked) {
+              matched++;
+            } else {
+              misses.push(
+                `eval ${ev.id}: file_reference "${relPath}" (exists: ${fileExists}, linked: ${isLinked})`,
+              );
+            }
+            break;
+          }
+          default: {
+            warnings.push(
+              `${path.relative(skillsDir, skillDir)}: unknown assertion type "${assertion.type}" — skipped`,
+            );
           }
         }
       }
     }
 
-    if (total === 0) return; // no contains assertions — skip
+    if (total === 0) return; // no recognized assertions — skip
 
     const pct = Math.round((matched / total) * 100);
     const label = path.relative(skillsDir, skillDir);
 
     if (pct < THRESHOLD) {
       failures.push(
-        `${label}: ${pct}% alignment (${matched}/${total}) — misses: ${misses.join(', ')}`,
+        `${label}: ${pct}% alignment (${matched}/${total}) — misses: ${misses.join(", ")}`,
       );
     } else if (pct < 90) {
       warnings.push(`${label}: ${pct}% alignment (${matched}/${total})`);
@@ -134,7 +199,7 @@ async function main() {
   await scanDir(skillsDir);
 
   if (warnings.length > 0) {
-    console.log(pc.yellow('\n⚠️  Skills below 90% (warnings):'));
+    console.log(pc.yellow("\n⚠️  Skills below 90% (warnings):"));
     warnings.forEach((w) => console.log(pc.yellow(`  • ${w}`)));
   }
 

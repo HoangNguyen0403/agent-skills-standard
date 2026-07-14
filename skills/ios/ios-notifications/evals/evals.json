@@ -11,12 +11,10 @@
           "value": "UserNotifications"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Framework",
           "type": "contains",
-          "value": ".alert"
-        },
-        {
-          "type": "contains",
-          "value": ".badge"
+          "value": "Framework"
         }
       ]
     },
@@ -27,15 +25,14 @@
       "assertions": [
         {
           "type": "contains",
-          "value": ".sound"
+          "value": "Delegate",
+          "description": "Checks user-visible framework guidance"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Implement",
           "type": "contains",
-          "value": "AppDelegate"
-        },
-        {
-          "type": "contains",
-          "value": "Priority: P2 (OPTIONAL)"
+          "value": "UNUserNotificationCenterDelegate"
         }
       ]
     },
@@ -46,15 +43,13 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Framework"
+          "value": ".alert"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Request",
           "type": "contains",
-          "value": "Delegate"
-        },
-        {
-          "type": "contains",
-          "value": "Permissions"
+          "value": "Request"
         }
       ]
     }
@@ -64,5 +59,6 @@
     "How do I install ios dependencies?",
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
-  ]
+  ],
+  "should_trigger": ["How should I implement ios notifications best practices?"]
 }

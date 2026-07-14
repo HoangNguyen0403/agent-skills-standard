@@ -1,0 +1,2 @@
+Pages Router pages must not be async React components. Move request-time data fetching into `getServerSideProps` and pass the result as serializable props, or use `getStaticProps` for build-time data. Keep the default page component synchronous and use `useRouter()` from `next/router` for client navigation. Do not apply App Router Server Component patterns such as async page components or `'use client'`.
+

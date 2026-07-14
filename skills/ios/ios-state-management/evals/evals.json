@@ -6,8 +6,14 @@
       "prompt": "How should I manage state in an iOS app?",
       "expected_output": "Use @Observable (iOS 17+) for modern SwiftUI. Use Combine with @Published for UIKit or broader compatibility. Expose state with UDF pattern: Input enum (events) and Output struct (state).",
       "assertions": [
-        { "type": "contains", "value": "@Observable" },
-        { "type": "contains", "value": "@Published" }
+        {
+          "type": "contains",
+          "value": "@Observable"
+        },
+        {
+          "type": "contains",
+          "value": "@Published"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "What are the anti-patterns in iOS state management?",
       "expected_output": "No uncleared subscriptions — use .store(in: &cancellables). No UI updates on background thread — use @MainActor or .receive(on: .main). No manual objectWillChange.send().",
       "assertions": [
-        { "type": "contains", "value": "cancellables" },
-        { "type": "contains", "value": "MainActor" }
+        {
+          "type": "contains",
+          "value": "cancellables"
+        },
+        {
+          "type": "contains",
+          "value": "MainActor"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "How do I represent view state in iOS?",
       "expected_output": "Use an exhaustive ViewState enum with cases: .loading, .success(data), .error(failure). This ensures all states are handled in the UI.",
       "assertions": [
-        { "type": "contains", "value": "ViewState" },
-        { "type": "contains", "value": "loading" }
+        {
+          "type": "contains",
+          "value": "ViewState"
+        },
+        {
+          "type": "contains",
+          "value": "loading"
+        }
       ]
     }
   ],
@@ -33,5 +51,6 @@
     "Set up a basic iOS project from scratch",
     "How do I install iOS dependencies?",
     "Configure CI/CD for an unrelated platform"
-  ]
+  ],
+  "should_trigger": ["How should I manage state in an iOS app?"]
 }

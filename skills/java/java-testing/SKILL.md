@@ -1,6 +1,6 @@
 ---
 name: java-testing
-description: Testing standards using JUnit 5, AssertJ, and Mockito for Java. Use when writing or reviewing Java unit tests, setting up parameterized tests, writing integration tests with Testcontainers, or working with Mockito mocks.
+description: Testing standards using JUnit 5, AssertJ, Mockito, Cucumber, and Spring Boot integration tests for Java. Use when writing or reviewing Java test behavior, including parallel execution and BDD; defer Kotlin-only tests, virtual-thread test infrastructure, and coverage-report/tooling configuration.
 metadata:
   triggers:
     files:

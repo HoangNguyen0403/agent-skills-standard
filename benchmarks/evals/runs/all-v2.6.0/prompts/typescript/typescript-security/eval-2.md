@@ -1,0 +1,1 @@
+I'm building a JWT authentication flow. Where should I store the JWT secret?

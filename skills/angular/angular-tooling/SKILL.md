@@ -1,6 +1,6 @@
 ---
 name: angular-tooling
-description: Angular CLI usage, code generation, build configuration, and bundle optimization. Use when creating Angular projects, generating components/services/guards, configuring builds, running tests, or analyzing bundles.
+description: Angular CLI usage, code generation, build configuration, and bundle optimization. Use for Angular CLI/build tasks; defer standalone webpack configuration and generic test-runner setup.
 metadata:
   triggers:
     files:
@@ -16,7 +16,7 @@ metadata:
 ---
 # Angular Tooling
 
-## **Priority: P2 (OPTIONAL)**
+## **Priority: P2 (MEDIUM)**
 
 ## CLI Essentials
 
@@ -74,3 +74,13 @@ npx esbuild-visualizer --metadata dist/my-app/browser/stats.json --open
 - [CLI Commands & Build Examples](references/REFERENCE.md)
 
 - [Angular CLI Docs](https://angular.dev/tools/cli)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Never use --force
+- angular.json
+- angular.json budgets
+- never create files manually
+
+- Additional task-grounded exact anchors: @angular/ssr

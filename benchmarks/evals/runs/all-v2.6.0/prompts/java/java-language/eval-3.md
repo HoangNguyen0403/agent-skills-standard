@@ -1,0 +1,1 @@
+I want to model a Payment type in Java that can only be Card, Cash, or Voucher. What's the Java 21 way?

@@ -1,0 +1,1 @@
+How do I reduce Swagger boilerplate in NestJS DTOs?

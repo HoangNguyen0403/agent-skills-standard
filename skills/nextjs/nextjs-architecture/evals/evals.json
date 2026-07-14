@@ -6,8 +6,14 @@
       "prompt": "Our Next.js app is growing fast — we have 30+ features all mixed in a components/ folder. How should we restructure?",
       "expected_output": "Adopt Feature-Sliced Design (FSD): create src/features/[feature]/ with ui/, model/, api/ segments. Layer hierarchy: App -> Widgets -> Features -> Entities -> Shared. Group by business domain (features/auth/login/) not file type (components/, hooks/). Each slice exports via index.ts public API.",
       "assertions": [
-        { "type": "contains", "value": "Feature-Sliced" },
-        { "type": "contains", "value": "slice" }
+        {
+          "type": "contains",
+          "value": "Feature-Sliced"
+        },
+        {
+          "type": "contains",
+          "value": "slice"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I have useEffect and fetch calls directly inside my page.tsx files.",
       "expected_output": "Violation: No business logic in page.tsx. Pages import Widgets/Features only — zero useEffect/fetch in page files. Move fetch to Server Components in features/*/api/. Move useEffect logic to custom hooks in features/*/model/. Pages should be thin wrappers that compose widgets.",
       "assertions": [
-        { "type": "contains", "value": "thin" },
-        { "type": "contains", "value": "page.tsx" }
+        {
+          "type": "contains",
+          "value": "thin"
+        },
+        {
+          "type": "contains",
+          "value": "page.tsx"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "Two features in my app directly import from each other — the cart feature imports from the product feature and vice versa.",
       "expected_output": "Violation: No cross-slice imports. Slices in the same layer must not import from each other. Fix: extract shared data/types to a lower layer (Entities or Shared). Create entities/product/ for shared product types. Both cart and product features import from entities/product/ — never from each other.",
       "assertions": [
-        { "type": "contains", "value": "cross-slice" },
-        { "type": "contains", "value": "entities" }
+        {
+          "type": "contains",
+          "value": "cross-slice"
+        },
+        {
+          "type": "contains",
+          "value": "entities"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Configure ESLint rules for the project",
     "Write unit tests for the order service",
     "Set up Docker Compose for development"
+  ],
+  "should_trigger": [
+    "Our Next.js app is growing fast — we have 30+ features all mixed in a components/ folder. How should we restructure?"
   ]
 }

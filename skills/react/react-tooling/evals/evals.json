@@ -6,8 +6,14 @@
       "prompt": "My React component is re-rendering too often. How do I figure out why?",
       "expected_output": "Use React DevTools Flamegraph to profile: open Performance tab, record interaction, find expensive components. Enable 'Highlight Updates' to visualize re-renders. Install why-did-you-render for development: it logs which prop/state change caused a re-render. Profile before optimizing — find the actual culprit first.",
       "assertions": [
-        { "type": "contains", "value": "React DevTools" },
-        { "type": "contains", "value": "re-render" }
+        {
+          "type": "contains",
+          "value": "React DevTools"
+        },
+        {
+          "type": "contains",
+          "value": "re-render"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Should I use Create React App or Vite for a new React project?",
       "expected_output": "Use Vite — CRA is deprecated and should not be used for new projects. Vite provides faster builds, better HMR, and modern tooling. For Next.js projects, use next dev. For standalone React SPAs: Vite with @vitejs/plugin-react. Configure .env for environment variables. Use Vite's rollup-plugin-visualizer for bundle analysis.",
       "assertions": [
-        { "type": "contains", "value": "Vite" },
-        { "type": "contains", "value": "CRA" }
+        {
+          "type": "contains",
+          "value": "Vite"
+        },
+        {
+          "type": "contains",
+          "value": "CRA"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "How do I analyze my React app's bundle size before shipping to production?",
       "expected_output": "Use source-map-explorer (for webpack) or rollup-plugin-visualizer (for Vite). Run: source-map-explorer 'build/static/js/*.js'. Look for: large vendor chunks, duplicated dependencies, unexpected libraries. Common culprits: moment.js (replace with dayjs), lodash (use native/radash), icon libraries (import individually not whole package).",
       "assertions": [
-        { "type": "contains", "value": "source-map-explorer" },
-        { "type": "contains", "value": "bundle" }
+        {
+          "type": "contains",
+          "value": "source-map-explorer"
+        },
+        {
+          "type": "contains",
+          "value": "bundle"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Configure a Go HTTP server with TLS",
     "Write PostgreSQL indexes for a large table",
     "Set up Redis Sentinel for high availability"
+  ],
+  "should_trigger": [
+    "My React component is re-rendering too often. How do I figure out why?"
   ]
 }

@@ -1,0 +1,1 @@
+Use getStaticProps for static generation in Next.js

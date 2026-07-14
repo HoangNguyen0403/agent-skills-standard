@@ -6,9 +6,18 @@
       "prompt": "Generate Zephyr test cases for {PROJECT}-{ID}: 'As a Customer in VN market, I can download invoices from the Order Detail screen. Web only.'",
       "expected_output": "Run impact analysis first (Get Issue Link Test Cases). Platform = Web, so use Web_ prefix in TC name. Create TC with customFields, then Create Test Case Steps, then Create Test Case Issue Link to {PROJECT}-{ID}.",
       "assertions": [
-        { "type": "contains", "value": "impact analysis" },
-        { "type": "contains", "value": "Web_" },
-        { "type": "contains", "value": "Issue Link" }
+        {
+          "type": "contains",
+          "value": "impact analysis"
+        },
+        {
+          "type": "contains",
+          "value": "Web_"
+        },
+        {
+          "type": "contains",
+          "value": "Issue Link"
+        }
       ]
     },
     {
@@ -16,9 +25,18 @@
       "prompt": "The Reorder button behavior changed in {PROJECT}-{ID}. There are existing Zephyr TCs. What should I do?",
       "expected_output": "Run impact analysis: Step A direct lookup via Get Issue Link Test Cases, then Step B supplemental search. Map ACs to coverage: Covered, Partial, Not Covered. For covered TCs, show before/after diff and wait for approval before updating. Do not create duplicates.",
       "assertions": [
-        { "type": "contains", "value": "impact analysis" },
-        { "type": "contains", "value": "Covered" },
-        { "type": "contains", "value": "duplicate" }
+        {
+          "type": "contains",
+          "value": "impact analysis"
+        },
+        {
+          "type": "contains",
+          "value": "Covered"
+        },
+        {
+          "type": "contains",
+          "value": "duplicate"
+        }
       ]
     },
     {
@@ -26,15 +44,27 @@
       "prompt": "Create test cases for a feature that applies to both Web and Mobile, but Sales Reps and Customers see different data.",
       "expected_output": "Create separate TCs per actor — no OR conditions. Since the feature applies to both Web and Mobile (single AC row), use no platform prefix and set Platform = Web and Mobile. Populate Roles custom field per TC.",
       "assertions": [
-        { "type": "contains", "value": "separate" },
-        { "type": "contains", "value": "Web and Mobile" },
-        { "type": "contains", "value": "no platform prefix" }
+        {
+          "type": "contains",
+          "value": "separate"
+        },
+        {
+          "type": "contains",
+          "value": "Web and Mobile"
+        },
+        {
+          "type": "contains",
+          "value": "no platform prefix"
+        }
       ]
     }
   ],
   "should_not_trigger": [
     "Write a Flutter widget test for the order screen",
-    "Analyze the business rules in the AC before writing tests",
     "Set up build_runner for code generation"
+  ],
+  "should_trigger": [
+    "Generate Zephyr test cases for {PROJECT}-{ID}: 'As a Customer in VN market, I can download invoices from the Order Detail screen. Web only.'",
+    "Analyze the business rules in the AC before writing tests"
   ]
 }

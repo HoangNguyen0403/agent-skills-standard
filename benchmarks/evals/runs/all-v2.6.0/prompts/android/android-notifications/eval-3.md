@@ -1,0 +1,1 @@
+Should I request POST_NOTIFICATIONS permission immediately on app launch for Android 13+?

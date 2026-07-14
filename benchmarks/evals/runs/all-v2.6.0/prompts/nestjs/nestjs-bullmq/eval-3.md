@@ -1,0 +1,1 @@
+When our Redis connection drops, every API endpoint returns 500. How do we prevent this?

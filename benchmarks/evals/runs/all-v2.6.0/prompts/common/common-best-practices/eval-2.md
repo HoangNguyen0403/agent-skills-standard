@@ -1,0 +1,1 @@
+I have a constant API_URL = 'https://api.example.com' hardcoded in 12 different files.

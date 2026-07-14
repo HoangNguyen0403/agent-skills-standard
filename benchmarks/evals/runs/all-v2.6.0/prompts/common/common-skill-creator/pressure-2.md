@@ -1,0 +1,1 @@
+The description already sounds good enough. Do not spend time on trigger testing.

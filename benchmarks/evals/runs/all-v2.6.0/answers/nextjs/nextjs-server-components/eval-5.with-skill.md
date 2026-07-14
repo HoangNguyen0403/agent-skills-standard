@@ -1,0 +1,2 @@
+Put secrets and database logic in modules marked `import 'server-only'`, and keep those modules out of Client Component import graphs. Pass only minimal, serializable DTOs to client leaves; never pass raw database objects, tokens, or secret environment values. Use Server Actions or Route Handlers as explicit bridges for client-triggered operations and keep secret environment variables unprefixed by `NEXT_PUBLIC_`.
+

@@ -1,0 +1,1 @@
+I'm passing my ViewModel directly into a child Composable. Is that the right approach?

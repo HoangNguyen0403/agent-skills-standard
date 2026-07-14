@@ -56,3 +56,9 @@ metadata:
 - [ ] every table row real structure, not example data?
 - [ ] there any paragraphs bullet list could replace?
 - [ ] Would cutting this in half still give agent enough to act on?
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- 80 lines
+- delete

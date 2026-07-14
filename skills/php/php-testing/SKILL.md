@@ -52,3 +52,10 @@ See [implementation examples](references/implementation.md#pest-dataset-example)
 ## References
 
 - [Testing Patterns & Mocks](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Define a static method returning test cases as arrays,method
+- independent
+- type coercion

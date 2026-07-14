@@ -15,7 +15,7 @@ metadata:
 ---
 # iOS Navigation (SwiftUI)
 
-## **Priority: P2 (OPTIONAL)**
+## **Priority: P2 (MEDIUM)**
 
 
 ## Guidelines

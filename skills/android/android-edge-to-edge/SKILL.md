@@ -19,7 +19,7 @@ metadata:
 ---
 # Edge-to-Edge Migration
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 Structured workflow for migrating a Compose app to edge-to-edge display.
 

@@ -1,6 +1,6 @@
 ---
 name: nestjs-architecture
-description: Design NestJS module boundaries, provider scope, and request pipeline choices. Use when structuring modules, placing guards/pipes/interceptors, or reviewing provider lifetime in NestJS.
+description: Design NestJS module boundaries and provider ownership. Use only when structuring feature/core/shared modules, controller-service boundaries, or provider lifetime; defer JWT/security, caching, and unrelated request-pipeline recipes.
 metadata:
   triggers:
     files:
@@ -52,3 +52,14 @@ Design feature modules with singleton-first providers and explicit request-pipel
 - [Framework Map](../references/framework-map.md)
 - [Advanced Patterns](references/advanced-patterns.md)
 - [Dynamic Modules](references/dynamic-module.md)
+
+## Module-boundary checklist
+
+- Separate Feature Modules (Auth) from Core (Config/DB) and Shared (Utils); keep controllers thin and do not return ORM entities directly.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Dependency Integrity
+- Don't return ORM entities
+- Feature Modules (Auth) vs Core (Config/DB) vs Shared (Utils)

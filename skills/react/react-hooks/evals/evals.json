@@ -6,8 +6,14 @@
       "prompt": "My useEffect runs in an infinite loop. I'm passing an object as a dependency.",
       "expected_output": "Objects are recreated each render — strict equality fails, causing infinite loop. Fix: memoize the object with useMemo before adding to deps: const config = useMemo(() => ({ id, type }), [id, type]). Or restructure to use primitive dependencies (id, type separately). Never add unstable object references to dependency arrays.",
       "assertions": [
-        { "type": "contains", "value": "useMemo" },
-        { "type": "contains", "value": "recreated" }
+        {
+          "type": "contains",
+          "value": "useMemo"
+        },
+        {
+          "type": "contains",
+          "value": "recreated"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I need to fetch data when a component mounts. Should I use useEffect?",
       "expected_output": "For server data fetching, prefer SWR or TanStack Query over useEffect. If useEffect is necessary: use AbortController for cleanup to prevent state updates after unmount. Return cleanup: return () => controller.abort(). Add the dependency array. Avoid derived state — useEffect to sync state is an anti-pattern; compute during render instead.",
       "assertions": [
-        { "type": "contains", "value": "AbortController" },
-        { "type": "contains", "value": "cleanup" }
+        {
+          "type": "contains",
+          "value": "AbortController"
+        },
+        {
+          "type": "contains",
+          "value": "cleanup"
+        }
       ]
     },
     {
@@ -24,8 +36,16 @@
       "prompt": "Write a custom hook that tracks whether a user is online.",
       "expected_output": "Custom hook starting with 'use': function useOnlineStatus() { const [isOnline, setIsOnline] = useState(navigator.onLine); useEffect(() => { const handler = () => setIsOnline(navigator.onLine); window.addEventListener('online', handler); window.addEventListener('offline', handler); return () => { window.removeEventListener('online', handler); window.removeEventListener('offline', handler); }; }, []); return isOnline; }",
       "assertions": [
-        { "type": "contains", "value": "useEffect" },
-        { "type": "contains", "value": "cleanup" }
+        {
+          "type": "contains",
+          "value": "useEffect"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes Custom hook",
+          "type": "contains",
+          "value": "useOnlineStatus"
+        }
       ]
     }
   ],
@@ -33,5 +53,8 @@
     "Write a SQL query to find the top 10 customers",
     "Configure a Docker network for microservices",
     "Set up a Go HTTP server with middleware"
+  ],
+  "should_trigger": [
+    "My useEffect runs in an infinite loop. I'm passing an object as a dependency."
   ]
 }

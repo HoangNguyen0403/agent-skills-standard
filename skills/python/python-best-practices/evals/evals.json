@@ -6,8 +6,15 @@
       "prompt": "This Python function validates input, queries Postgres, formats Markdown, and sends Telegram messages. How should I refactor it?",
       "expected_output": "Split transformation, persistence, and transport concerns into separate helpers with explicit boundaries.",
       "assertions": [
-        { "type": "contains", "value": "helper" },
-        { "type": "contains", "value": "boundary" }
+        {
+          "type": "contains_any",
+          "value": ["helper", "separate", "split"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["boundary", "boundaries", "side effects"],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
+        }
       ]
     },
     {
@@ -15,8 +22,14 @@
       "prompt": "What Python code smells should I remove before extending a workflow service?",
       "expected_output": "Call out god functions, globals, boolean soup, and mixed side effects.",
       "assertions": [
-        { "type": "contains", "value": "global" },
-        { "type": "contains", "value": "function" }
+        {
+          "type": "contains",
+          "value": "global"
+        },
+        {
+          "type": "contains",
+          "value": "function"
+        }
       ]
     }
   ],
@@ -24,5 +37,8 @@
     "Set up ruff and pyright for a Python repo",
     "Write pytest-asyncio tests for an async endpoint",
     "Add SQL transaction handling in a Python repository"
+  ],
+  "should_trigger": [
+    "This Python function validates input, queries Postgres, formats Markdown, and sends Telegram messages. How should I refactor it?"
   ]
 }

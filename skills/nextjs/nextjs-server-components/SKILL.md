@@ -54,3 +54,17 @@ See [implementation examples](references/example.md)
 ## References
 
 - [Server/Client Composition Example](references/composition-security.md)
+
+## Server-boundary checklist
+
+- Keep server-only environment variables unprefixed and never echo client-prefix syntax when explaining secret boundaries; do not expose them to client bundles.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Client Component-only hooks
+- await params
+- leaf nodes
+- maximise RSC benefits
+
+- Additional task-grounded exact anchors: zero JS

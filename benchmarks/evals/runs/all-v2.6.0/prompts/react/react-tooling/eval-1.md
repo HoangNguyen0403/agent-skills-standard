@@ -1,0 +1,1 @@
+My React component is re-rendering too often. How do I figure out why?

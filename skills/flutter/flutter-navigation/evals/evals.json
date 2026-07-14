@@ -34,7 +34,21 @@
     {
       "id": 3,
       "prompt": "The app should redirect unauthenticated users to the login screen when they try to access the cart route.",
-      "expected_output": "go_router redirect callback checking auth state, redirect: (context, state) => isLoggedIn ? null : '/login', not middleware"
+      "expected_output": "go_router redirect callback checking auth state, redirect: (context, state) => isLoggedIn ? null : '/login', not middleware",
+      "assertions": [
+        {
+          "id": "a2",
+          "description": "Checks the outcome includes redirect",
+          "type": "contains",
+          "value": "redirect"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes go_router redirect",
+          "type": "contains",
+          "value": "go_router redirect"
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -42,5 +56,8 @@
     "How do I pass data from a BLoC to another screen?",
     "Set up auto_route for typed routing",
     "Add a back button to the app bar"
+  ],
+  "should_trigger": [
+    "Add deep linking so that opening ourapp://orders/123 from a push notification takes the user directly to that order detail screen."
   ]
 }

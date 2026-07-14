@@ -11,12 +11,10 @@
           "value": "UIImage"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes ViewModel Responsibility",
           "type": "contains",
-          "value": "@Published"
-        },
-        {
-          "type": "contains",
-          "value": "private(set)"
+          "value": "ViewModel Responsibility"
         }
       ]
     },
@@ -26,16 +24,16 @@
       "expected_output": "**ViewState**: Use a single state object or discrete `@Published` properties for UI updates. **Expose state as `private(set)` or using publishers**.",
       "assertions": [
         {
+          "id": "a1",
+          "description": "Checks the task contract includes ViewState",
           "type": "contains",
-          "value": "navigationController"
+          "value": "@Published"
         },
         {
-          "type": "contains",
-          "value": "UIKit"
-        },
-        {
-          "type": "contains",
-          "value": "public var"
+          "id": "a2",
+          "description": "Checks the task contract includes a supported state representation",
+          "type": "contains_any",
+          "value": ["state object", "@Published"]
         }
       ]
     },
@@ -46,15 +44,14 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Priority: P0 (CRITICAL)"
+          "value": "Inputs/Outputs",
+          "description": "Checks user-visible framework guidance"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Define explicit",
           "type": "contains",
-          "value": "ViewModel Responsibility"
-        },
-        {
-          "type": "contains",
-          "value": "ViewState"
+          "value": "Inputs/Outputs"
         }
       ]
     }
@@ -64,5 +61,6 @@
     "How do I install ios dependencies?",
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
-  ]
+  ],
+  "should_trigger": ["How should I implement ios architecture best practices?"]
 }

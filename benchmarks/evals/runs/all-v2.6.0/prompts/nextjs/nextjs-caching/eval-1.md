@@ -1,0 +1,1 @@
+After a user updates their profile in a Server Action, the profile page still shows old data. How do I fix this?

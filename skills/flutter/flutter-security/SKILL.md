@@ -1,6 +1,6 @@
 ---
 name: flutter-security
-description: Enforce OWASP Mobile security standards for Flutter apps. Use when storing sensitive data, making network calls, handling tokens/PII, or preparing release builds.
+description: Secure Flutter token/PII storage, build-time secrets, network trust, and release hardening using OWASP Mobile practices. Use for secure storage, secret injection, certificate pinning, jailbreak/root risk, or release builds—not generic form validation, API error handling, auth-provider setup, or tests of existing security services.
 metadata:
   triggers:
     files:
@@ -46,3 +46,12 @@ SSL Pinning & Secure Storage: [references/REFERENCE.md](references/REFERENCE.md)
 ## Related Topics
 
 common/security-standards | layer-based-clean-architecture | performance
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- certificate pinning,SSL pinning
+
+## Remediation anchors
+
+- Remediation anchors: root/jailbreak detection, --obfuscate, --split-debug-info

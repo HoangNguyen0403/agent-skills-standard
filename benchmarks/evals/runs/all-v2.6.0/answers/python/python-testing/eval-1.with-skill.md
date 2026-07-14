@@ -1,0 +1,1 @@
+Use pytest with pytest-asyncio for the async workflow. Patch the RPC and Postgres helpers at their external seams using fakes or monkeypatch, then assert the structured route/result, emitted calls, and failure behavior. Keep the test isolated from live network and DB and cover timeout, malformed data, and missing-environment paths.

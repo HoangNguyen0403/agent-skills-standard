@@ -1,6 +1,6 @@
 ---
 name: android-xml-views
-description: Implement ViewBinding, RecyclerView, and XML layouts correctly on Android. Use when working with XML layouts, ViewBinding, or RecyclerView adapters in legacy Android projects.
+description: Implement ViewBinding, RecyclerView, and XML layouts correctly on Android. Use when changing XML view binding or RecyclerView behavior, including its item animations and layout managers; defer standalone animation or layout-manager questions unrelated to RecyclerView.
 metadata:
   triggers:
     files:
@@ -14,7 +14,7 @@ metadata:
 ---
 # Android XML Views Standards
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 ## Implementation Guidelines
 

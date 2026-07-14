@@ -15,7 +15,7 @@ metadata:
 ---
 # iOS App Lifecycle
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Workflow
 

@@ -1,0 +1,1 @@
+Profile first with the React DevTools Flamegraph, then enable Highlight Updates or `why-did-you-render` in development to identify the prop/state change. Fix the measured hotspot and re-check render counts; do not add memoization by reflex.

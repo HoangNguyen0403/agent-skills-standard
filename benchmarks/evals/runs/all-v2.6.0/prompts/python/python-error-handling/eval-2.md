@@ -1,0 +1,1 @@
+How should I handle a Python DB update failure after partial state mutation?

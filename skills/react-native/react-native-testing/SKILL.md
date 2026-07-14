@@ -17,7 +17,7 @@ metadata:
 ---
 # React Native Testing
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 ## Setup
 
@@ -65,3 +65,11 @@ test('fetches and displays data', async () => {
 ## References
 
 See [references/testing-library.md](references/testing-library.md) for RNTL setup, mocking providers, and integration flow examples.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Integration
+- RNTL
+
+- Additional task-grounded exact anchors: test behavior

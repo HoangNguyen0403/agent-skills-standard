@@ -1,0 +1,4 @@
+Let errors propagate upward until the layer that can make the correct transport decision. Domain/application services should throw typed domain errors or return a defined result; repositories translate driver errors into persistence errors; controllers generally do not catch every error. A global HTTP filter maps known errors to status codes and a safe response, while an RPC filter maps them to the microservice error format.
+
+Catch only when adding useful context, compensating, retrying a known transient failure, or translating an error at a boundary. Preserve the original cause for logs and tracing. Do not return `null` for every failure, swallow exceptions, or expose database/stack details. Use stable application error codes so clients do not depend on exception class names or message text.
+

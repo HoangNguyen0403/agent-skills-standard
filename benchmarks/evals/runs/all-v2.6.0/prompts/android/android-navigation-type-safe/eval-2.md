@@ -1,0 +1,1 @@
+How should I pass a productId (Long) to a detail screen using type-safe Compose Navigation?

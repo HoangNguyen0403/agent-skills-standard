@@ -1,0 +1,1 @@
+How do I create a type-safe @CurrentUser() decorator in NestJS?

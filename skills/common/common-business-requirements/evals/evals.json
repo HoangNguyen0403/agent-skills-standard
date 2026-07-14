@@ -6,9 +6,18 @@
       "prompt": "Create a BRD for reducing ticket resolution cost in customer support.",
       "expected_output": "Ask for objective baseline and target, stakeholder map, AS-IS to TO-BE, scope boundary, and value hypothesis before drafting BRD-lite.",
       "assertions": [
-        { "type": "contains", "value": "AS-IS" },
-        { "type": "contains", "value": "TO-BE" },
-        { "type": "contains", "value": "objective" }
+        {
+          "type": "contains",
+          "value": "AS-IS"
+        },
+        {
+          "type": "contains",
+          "value": "TO-BE"
+        },
+        {
+          "type": "contains",
+          "value": "objective"
+        }
       ]
     },
     {
@@ -16,8 +25,14 @@
       "prompt": "Draft business requirements for onboarding automation and include approval owners.",
       "expected_output": "Use BRD-lite flow with measurable objective, stakeholders, risks, and owner/accountability.",
       "assertions": [
-        { "type": "contains", "value": "stakeholder" },
-        { "type": "contains", "value": "risk" }
+        {
+          "type": "contains",
+          "value": "stakeholder"
+        },
+        {
+          "type": "contains",
+          "value": "risk"
+        }
       ]
     },
     {
@@ -25,8 +40,14 @@
       "prompt": "Implement playbook feature.",
       "expected_output": "Do not jump to code. Draft BRD-lite first with BA owner, business why, SMART metric, scope fence, assumptions, and recommended defaults for blocking questions; route next to plan-feature.",
       "assertions": [
-        { "type": "contains", "value": "BRD-lite" },
-        { "type": "contains", "value": "plan-feature" }
+        {
+          "type": "contains",
+          "value": "BRD-lite"
+        },
+        {
+          "type": "contains",
+          "value": "plan-feature"
+        }
       ]
     }
   ],
@@ -36,5 +57,8 @@
     "Design clean architecture for NestJS modules.",
     "Add unit tests for auth middleware.",
     "Review this pull request for vulnerabilities."
+  ],
+  "should_trigger": [
+    "Create a BRD for reducing ticket resolution cost in customer support."
   ]
 }

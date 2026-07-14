@@ -15,9 +15,9 @@ metadata:
 
 # Agent Skill Creator Standard
 
-## **Priority: P0 — Apply to ALL skills**
+## **Priority: P0 (CRITICAL)**
 
-Maximize **Token ROI**. Every line in SKILL.md must provide specific procedural value. **Activation** (how it triggers) and **Implementation** (how it helps) primary quality metrics.
+Applies to **every skill in this registry**. Maximize **Token ROI**. Every line in SKILL.md must provide specific procedural value. **Activation** (how it triggers) and **Implementation** (how it helps) primary quality metrics.
 
 ## Three-Level Loading System
 
@@ -84,7 +84,7 @@ Maximize **Token ROI**. Every line in SKILL.md must provide specific procedural 
 - [ ] **Implementation ≥ 90%**: No general-purpose explanations; all examples executable.
 - [ ] **Structural Compliance**: SKILL.md ≤ 100 lines; code blocks moved to `references/`.
 - [ ] Trigger rate ≥80% on should-trigger queries.
-- [ ] Guardrail skills include rationalizations, red flags, and behavior eval fields.
+- [ ] Guardrail skills include rationalizations, red flags, behavior eval fields, and `should_trigger`/`should_not_trigger` cases.
 
 ## References
 

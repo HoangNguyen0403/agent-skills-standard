@@ -1,0 +1,1 @@
+How do I configure SwiftLint for my project?

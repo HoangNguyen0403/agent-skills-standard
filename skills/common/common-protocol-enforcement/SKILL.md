@@ -1,6 +1,6 @@
 ---
 name: common-protocol-enforcement
-description: Enforce Red-Team verification and adversarial protocol audit. Use when verifying tasks, performing self-scans, or checking for protocol violations. Load as composite for all sessions.
+description: Enforce Red-Team verification and adversarial protocol audit. Use only when verifying completion, performing self-scans, or checking protocol violations; do not activate for ordinary implementation, configuration, or unit-test requests.
 metadata:
   triggers:
     keywords:
@@ -64,3 +64,18 @@ Look for:
 - Missing `Pre-Write Audit Log` in thoughts.
 
 ## References
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- active skill
+- active skills
+- reload
+
+- Additional task-grounded exact anchors: Pre-Write Audit; Standard Defaults; Anti-Patterns
+
+When reporting a UI or implementation self-scan, explicitly check for hardcoded styles and missing design tokens, and name the `Pre-Write Audit` evidence before accepting the result.
+
+## Remediation anchors
+
+- Remediation anchors: Pre-Write Audit, hardcoded styles, design tokens

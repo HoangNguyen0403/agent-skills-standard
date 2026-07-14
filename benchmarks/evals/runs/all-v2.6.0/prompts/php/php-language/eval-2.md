@@ -1,0 +1,1 @@
+Add readonly properties in PHP 8.1

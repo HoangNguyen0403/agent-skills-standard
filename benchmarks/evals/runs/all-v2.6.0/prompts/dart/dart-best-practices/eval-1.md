@@ -1,0 +1,1 @@
+Review this Dart file — it has global variables, uses var everywhere, and has anonymous lambdas where tear-offs would work. Fix it.

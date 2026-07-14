@@ -1,0 +1,1 @@
+Use finally block for resource cleanup in PHP

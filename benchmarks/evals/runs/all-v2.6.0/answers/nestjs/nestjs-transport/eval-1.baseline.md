@@ -1,0 +1,4 @@
+Choose gRPC for synchronous request/response or streaming between strongly typed services where a protobuf contract, low latency, generated clients, deadlines, and HTTP/2 are valuable. Choose RabbitMQ for asynchronous work/events, buffering during outages, routing patterns, consumer acknowledgements, retries, and loose temporal coupling.
+
+gRPC callers generally need the other service available and must handle deadlines/status errors; RabbitMQ introduces broker operations and eventual processing but allows durable queues and independent scaling. Consider message ordering, delivery semantics, replay, schema evolution, fan-out, throughput, and failure recovery. Many systems use both: gRPC for query/command calls and RabbitMQ/outbox events for asynchronous integration. Define contracts, authentication, timeouts, idempotency, observability, and backpressure regardless of transport.
+

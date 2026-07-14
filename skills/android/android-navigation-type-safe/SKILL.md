@@ -1,6 +1,6 @@
 ---
 name: android-navigation-type-safe
-description: Implement type-safe Jetpack Navigation Compose routes using Kotlin serialization. Use when defining navigation graphs with type-safe destinations in Jetpack Compose.
+description: Implement type-safe Jetpack Navigation Compose routes using Kotlin serialization. Use only when defining typed Compose destinations and arguments; defer XML navigation, deep links, animations, and generic auth or bottom-navigation work.
 metadata:
   triggers:
     files:
@@ -13,7 +13,7 @@ metadata:
 ---
 # Android Navigation Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Guidelines
 
@@ -36,3 +36,12 @@ metadata:
 ## References
 
 - [Route Definitions](references/implementation.md)
+
+## Required route example
+
+- For a product detail argument, define `@Serializable data class ProductDetail(val productId: Long)` and navigate with the typed destination; retrieve it with `toRoute<ProductDetail>()`.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Define ProductDetail(val productId

@@ -294,6 +294,78 @@ describe("tools — happy path tracker", () => {
     expect(t).toContain("| **Missing Host Fields** | _(none)_ |");
   });
 
+  it("returns a dedup stub instead of a full body on a repeat load within the same session", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+    const first = await loadSkillsForFiles(
+      { files: ["lib/cart_bloc.dart"] },
+      ctx,
+    );
+    const second = await loadSkillsForFiles(
+      { files: ["lib/cart_bloc.dart"] },
+      ctx,
+    );
+    expect(text(first)).toContain("# flutter-bloc");
+    expect(text(second)).not.toContain("# flutter-bloc");
+    expect(text(second)).toContain("already loaded this session");
+    expect(text(second)).toContain("force_reload");
+  });
+
+  it("force_reload bypasses dedup and returns the full body again", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+    await loadSkillsForFiles({ files: ["lib/cart_bloc.dart"] }, ctx);
+    const again = await loadSkillsForFiles(
+      { files: ["lib/cart_bloc.dart"], force_reload: true },
+      ctx,
+    );
+    expect(text(again)).toContain("# flutter-bloc");
+    expect(text(again)).not.toContain("already loaded this session");
+  });
+
+  it("reports skill context cost and dedup savings in get_session_cost", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+    await loadSkillsForFiles({ files: ["lib/cart_bloc.dart"] }, ctx);
+    await loadSkillsForFiles({ files: ["lib/cart_bloc.dart"] }, ctx); // repeat → dedup
+
+    const cost = await getSessionCost({ workflow: "implement-feature" }, ctx);
+    const t = text(cost);
+
+    expect(t).toContain("## Skill Context Cost");
+    expect(t).toContain("**Skills Deduped (context reused, not resent)** | 2");
+    expect(t).toMatch(/\*\*Est\. Tokens Saved by Dedup\*\* \| \d+/);
+  });
+
+  it("reports no coverage gaps when every routed category loads a skill", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+    await loadSkillsForFiles({ files: ["lib/cart_bloc.dart"] }, ctx);
+    const audit = await auditSessionCompliance({}, ctx);
+    const t = text(audit);
+    expect(t).toContain("## Coverage gaps");
+    expect(t).toContain(
+      "none — every routed category loaded at least one skill",
+    );
+  });
+
+  it("flags a coverage gap when a routed category never loads a skill", async () => {
+    // Extend the fixture with a category whose only skill has a narrow glob
+    // that the probed file cannot match, while the extension is still routed.
+    await fs.writeJson(path.join(f.root, "skills", "metadata.json"), {
+      file_routing: { dart: ["flutter"], kt: ["android"] },
+      broad_globs: ["**/*.dart"],
+      base_language_skills: { flutter: "flutter-language" },
+    });
+    await writeSkill(path.join(f.root, "skills"), "android", "android-narrow", {
+      files: ["**/*_only.kt"],
+      keywords: ["narrow"],
+    });
+
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+    await loadSkillsForFiles({ files: ["src/Main.kt"] }, ctx);
+    const audit = await auditSessionCompliance({}, ctx);
+    const t = text(audit);
+    expect(t).toContain('Files with .kt route to "android"');
+    expect(t).toContain("no android skill was loaded this session");
+  });
+
   it("tracks get_skill misses without inflating telemetry no-match counts for cost calls", async () => {
     const ctx = await makeCtx(path.join(f.root, "skills"));
 

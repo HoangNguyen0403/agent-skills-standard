@@ -1,0 +1,1 @@
+How do I scope a service to a specific route in Angular?

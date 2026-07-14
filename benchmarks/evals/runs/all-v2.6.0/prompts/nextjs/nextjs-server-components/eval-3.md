@@ -1,0 +1,1 @@
+Access database directly in a Next.js Server Component

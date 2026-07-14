@@ -1,0 +1,1 @@
+I want to test my Java code with 5 different input values. How do I avoid writing 5 identical test methods?

@@ -1,0 +1,1 @@
+Should I use LiveData or StateFlow for new code in my Fragment-based Android app?

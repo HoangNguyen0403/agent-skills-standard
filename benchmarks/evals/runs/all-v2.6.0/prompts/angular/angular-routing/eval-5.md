@@ -1,0 +1,1 @@
+How do I use a resolver to prefetch data before navigation?

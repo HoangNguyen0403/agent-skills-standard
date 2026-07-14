@@ -1,0 +1,1 @@
+Follow PSR-12 coding standards in PHP

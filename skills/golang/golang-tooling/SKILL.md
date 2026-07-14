@@ -16,7 +16,7 @@ metadata:
 ---
 # Golang Tooling Standards
 
-## **Priority: P1 (Operational)**
+## **Priority: P1 (HIGH)**
 
 ## Verification Workflow (Mandatory)
 

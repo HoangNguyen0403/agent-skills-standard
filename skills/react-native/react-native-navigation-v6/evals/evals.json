@@ -52,5 +52,8 @@
     "How do I set up secure storage?",
     "How do I write RNTL tests?",
     "How do I set up EAS Build?"
+  ],
+  "should_trigger": [
+    "How do I create a typed bottom tab navigator with React Navigation 6?"
   ]
 }

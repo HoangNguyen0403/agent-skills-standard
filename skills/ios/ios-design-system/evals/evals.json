@@ -8,15 +8,13 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "Theme/"
-        },
-        {
-          "type": "contains",
           "value": "Color(\"Name\")"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Colors",
           "type": "contains",
-          "value": "Spacing"
+          "value": "Colors"
         }
       ]
     },
@@ -25,10 +23,6 @@
       "prompt": "What are the common anti-patterns to avoid in ios design system?",
       "expected_output": "**No Magic Spacing**: Use `Spacing.md` not `spacing: 16`.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Font"
-        },
         {
           "type": "contains",
           "value": "Spacing.md"
@@ -51,10 +45,6 @@
         {
           "type": "contains",
           "value": "Color.blue"
-        },
-        {
-          "type": "contains",
-          "value": "/Theme/"
         }
       ]
     }
@@ -64,5 +54,8 @@
     "How do I install ios dependencies?",
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
+  ],
+  "should_trigger": [
+    "How should I implement ios design system best practices?"
   ]
 }

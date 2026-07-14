@@ -1,15 +1,15 @@
 ---
 name: common-web-visual-testing
-description: Standardizes visual audits, responsive design, and behavioral testing for web apps.
+description: Standardizes visual audits, responsive design, and behavioral testing for web apps. Use to verify a web UI fix or cross-browser behavior; defer backend API refactors, Playwright installation/tooling setup, and Appium/mobile automation.
 metadata:
   triggers:
     keywords:
-    - web test
-    - browser test
-    - responsive audit
-    - verify web ui
-    - cross-browser check
-    - web accessibility
+      - web test
+      - browser test
+      - responsive audit
+      - verify web ui
+      - cross-browser check
+      - web accessibility
 ---
 
 # 🌐 Web Visual & Behavioral Testing
@@ -23,19 +23,22 @@ metadata:
 ## 🧪 Testing Mindset (Comparative Audit)
 
 Visual test best as **Comparative Audit** loop:
+
 1.  **Baseline (Before)**: Capture `snapshot --aria` + `screenshot` prod/main.
 2.  **Implementation (After)**: Capture same local/feature.
 3.  **Audit**: Compare state for regression, CLS, Aria drift.
 
+Responses must label the two captures as **Before** and **After** (or Baseline and Fixed) and include the diff and neighboring-element side-effect check.
+
 ## 📋 Scenario Matrix
 
-| Change Type | Scenarios to Run |
-| :--- | :--- |
-| **CSS/Layout** | Responsive Audit + Hover + CLS Check |
-| **Forms/Input** | Validation Msg + Focus State + Error Boundary |
-| **Navigation** | URL Sync + Sticky Header + Back-Button Persistence |
-| **Assets/Fonts** | Lazy Load + Icon Check + LCP Audit |
-| **Accessibility** | Tab Order + Aria-Snapshot + Color Contrast |
+| Change Type       | Scenarios to Run                                   |
+| :---------------- | :------------------------------------------------- |
+| **CSS/Layout**    | Responsive Audit + Hover + CLS Check               |
+| **Forms/Input**   | Validation Msg + Focus State + Error Boundary      |
+| **Navigation**    | URL Sync + Sticky Header + Back-Button Persistence |
+| **Assets/Fonts**  | Lazy Load + Icon Check + LCP Audit                 |
+| **Accessibility** | Tab Order + Aria-Snapshot + Color Contrast         |
 
 ## 🚫 Anti-Patterns
 

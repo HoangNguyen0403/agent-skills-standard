@@ -1,0 +1,1 @@
+Log exceptions with PSR-3 in PHP

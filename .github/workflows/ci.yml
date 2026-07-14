@@ -85,6 +85,9 @@ jobs:
       - name: Eval Alignment Gate
         run: pnpm check-alignment
 
+      - name: Live Eval Run Verification
+        run: pnpm evals:verify -- --all
+
       - name: Documentation Coverage Scan
         run: pnpm docs:scan
 

@@ -1,0 +1,1 @@
+How do I set up deep linking in React Navigation so my app opens to the right screen from a URL?

@@ -1,0 +1,1 @@
+How do I share data across a view hierarchy in SwiftUI?

@@ -55,6 +55,12 @@
           "description": "Identifies inline future creation as the cause",
           "type": "contains",
           "value": "build"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes future",
+          "type": "contains",
+          "value": "future"
         }
       ]
     }
@@ -65,5 +71,8 @@
     "Migrate my Flutter app to Material 3 theming",
     "Write a widget test with robot pattern",
     "How do I use Hilt DI in Android?"
+  ],
+  "should_trigger": [
+    "My Flutter app freezes when parsing a large JSON file. How do I fix it?"
   ]
 }

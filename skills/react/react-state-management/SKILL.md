@@ -22,6 +22,7 @@ metadata:
 
 - **Selection**: **Zustand for small-medium apps** (minimal boilerplate, no Providers). **Redux Toolkit (RTK) for large apps** needing **time-travel debugging** or complex middleware.
 - **Server Data**: **Use React Query or SWR for server state**. **Never sync server data into `useState`** manually. Let **cache source of truth**.
+- **Form/Mutation State (React 19)**: Use `useActionState` for a form's pending/result/error triad instead of three separate `useState` calls; use `useOptimistic` to show an optimistic value while a mutation is in flight, reverting on error automatically.
 - **Context API**: Use for **low-frequency data** like **theme, auth, locale**, or DI. Not for high-frequency updates (causes global re-renders). **Split Context** between State and Dispatch to optimize.
 - **Global Updates**: Use **Zustand, Jotai, or Redux for frequent/complex updates** across app.
 - **Local**: `useState` for simple UI toggles. `useReducer` for complex state machines.
@@ -30,6 +31,28 @@ metadata:
 - **Immutability**: Never mutate. Use spread or Immer. Use `useMemo` on context value to prevent unnecessary re-renders (primitive performance tuning belongs in `hooks` skill).
 
 > **Boundary note**: `hooks` skill covers primitive API usage (`useMemo`, `useCallback` rules). This skill covers _architectural_ state decisions — which tool to use for which state scope.
+
+```tsx
+function LikeButton({ postId, initialLiked }: { postId: string; initialLiked: boolean }) {
+  const [optimisticLiked, setOptimisticLiked] = useOptimistic(initialLiked);
+  return (
+    <button
+      onClick={async () => {
+        setOptimisticLiked(!optimisticLiked);
+        await toggleLike(postId);
+      }}
+    >
+      {optimisticLiked ? 'Liked' : 'Like'}
+    </button>
+  );
+}
+```
+
+## Verify
+
+- [ ] Form pending/error/result state uses `useActionState`, not three `useState` calls.
+- [ ] In-flight mutation UI uses `useOptimistic` rather than a manual "isSaving" flag.
+- [ ] Server data lives in React Query/SWR cache, never duplicated into `useState`.
 
 ## Reference & Examples
 
@@ -41,3 +64,4 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 - **No Context for High-Freq**: Use Zustand/Redux for state that changes frequently.
 - **No State Sync**: Compute derived values during render; avoid `useEffect` to sync state.
 - **No Server Cache as UI State**: React Query/SWR for server data; don't duplicate into `useState`.
+- **No Manual Optimistic Flags**: Use `useOptimistic` instead of a hand-rolled temporary state + rollback.

@@ -1,0 +1,1 @@
+How should I design a MongoDB schema for storing user posts where each post has many comments?

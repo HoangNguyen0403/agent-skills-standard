@@ -1,0 +1,1 @@
+Write middleware to protect my /dashboard route — redirect to login if not authenticated.

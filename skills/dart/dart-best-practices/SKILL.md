@@ -1,25 +1,25 @@
 ---
 name: dart-best-practices
-description: 'Dart code quality conventions: naming, const/final/var hierarchy, single quotes, trailing commas, collection idioms, tear-offs, and import organization. Use when writing new Dart code or reviewing for style violations — wrong import style, global variables, var misuse, anonymous lambdas where tear-offs fit, or missing trailing commas.'
+description: "Dart code quality conventions: naming, const/final/var hierarchy, single quotes, trailing commas, collection idioms, tear-offs, and import organization. Use only for Dart style-focused changes or reviews; never activate for configuration-only lint setup, unrelated feature work, or widget tests."
 metadata:
   triggers:
     files:
-    - '**/*.dart'
+      - "**/*.dart"
     keywords:
-    - naming
-    - convention
-    - trailing comma
-    - import
-    - tear-off
+      - naming
+      - convention
+      - trailing comma
+      - import
+      - tear-off
 ---
+
 # Dart Best Practices
 
-## **Priority: P1 (OPERATIONAL)**
-
+## **Priority: P1 (HIGH)**
 
 - **Scoping**:
- - No global variables.
- - Private globals (if required) must start with `_`.
+- No global variables.
+- Private globals (if required) must start with `_`.
 - **Immutability**: Use `const` > `final` > `var`.
 - **Config**: Use `--dart-define` for secrets. Never hardcode API keys.
 - **Naming**: Follow [effective-dart](https://dart.dev/guides/language/effective-dart) (PascalCase classes, camelCase members).
@@ -27,9 +27,9 @@ metadata:
 - **Trailing Commas**: Always use trailing commas for multi-line literals/params.
 - **Expression Bodies**: Prefer `=>` for single-expression functions/getters.
 - **Collections**:
- - Use `.map`, `.where`, `.fold`, `.any` over manual loops when clarity improves.
- - Type empty collections (`<String>[]`, `<String, User>{}`) to avoid `dynamic`.
- - Use collection `if`/`for` and spread operators for composable lists/maps.
+- Use `.map`, `.where`, `.fold`, `.any` over manual loops when clarity improves.
+- Type empty collections (`<String>[]`, `<String, User>{}`) to avoid `dynamic`.
+- Use collection `if`/`for` and spread operators for composable lists/maps.
 - **Async**: Always `await` futures unless intentionally fire-and-forget.
 
 ```dart

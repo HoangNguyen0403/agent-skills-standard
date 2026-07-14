@@ -6,8 +6,14 @@
       "prompt": "How do I handle errors in Swift?",
       "expected_output": "Use do-catch blocks with specific catch clauses. Handle errors close to the source. Use try for recoverable errors, try? for non-critical errors where nil is acceptable.",
       "assertions": [
-        { "type": "contains", "value": "do-catch" },
-        { "type": "contains", "value": "try" }
+        {
+          "type": "contains",
+          "value": "do-catch"
+        },
+        {
+          "type": "contains",
+          "value": "try"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "How do I define custom error types in Swift?",
       "expected_output": "Define as an enum conforming to the Error protocol. For example: enum NetworkError: Error { case connectionLost, serverError(Int) }.",
       "assertions": [
-        { "type": "contains", "value": "enum" },
-        { "type": "contains", "value": "Error" }
+        {
+          "type": "contains",
+          "value": "enum"
+        },
+        {
+          "type": "contains",
+          "value": "Error"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "When should I use Result vs throws in Swift?",
       "expected_output": "Use throws for synchronous, path-based error handling. Use Result<Success, Failure> for callbacks or deferred error states where async/await is not available.",
       "assertions": [
-        { "type": "contains", "value": "throws" },
-        { "type": "contains", "value": "Result" }
+        {
+          "type": "contains",
+          "value": "throws"
+        },
+        {
+          "type": "contains",
+          "value": "Result"
+        }
       ]
     },
     {
@@ -33,8 +51,14 @@
       "prompt": "When is it okay to use fatalError in Swift?",
       "expected_output": "Only for unrecoverable states or unreachable code paths. Never for expected errors — use throws or Result instead.",
       "assertions": [
-        { "type": "contains", "value": "unrecoverable" },
-        { "type": "contains", "value": "Never for expected" }
+        {
+          "type": "contains",
+          "value": "unrecoverable"
+        },
+        {
+          "type": "contains",
+          "value": "Never for expected"
+        }
       ]
     }
   ],
@@ -43,5 +67,6 @@
     "How do I store data in Core Data?",
     "How do I use NavigationStack?",
     "How do I implement SSL pinning?"
-  ]
+  ],
+  "should_trigger": ["How do I handle errors in Swift?"]
 }

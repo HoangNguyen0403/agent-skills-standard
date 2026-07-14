@@ -1,0 +1,1 @@
+I'm returning raw Prisma model objects from my data access functions to my components.

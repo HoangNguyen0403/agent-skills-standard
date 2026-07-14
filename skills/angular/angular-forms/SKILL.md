@@ -25,6 +25,7 @@ See [typed forms](references/typed-forms.md) for typed FormGroup examples.
 ## 2. Extract Validation Logic
 
 - Create standalone validator functions in separate file.
+- Name the validator module as a separate file (for example, `validators.ts`) in the response and keep validation out of the component class.
 - Sync `valueChanges` to stores using `takeUntilDestroyed()`.
 
 See [typed forms](references/typed-forms.md) for standalone validator examples.
@@ -43,3 +44,7 @@ See [typed forms](references/typed-forms.md) for standalone validator examples.
 ## References
 
 - [Typed Forms](references/typed-forms.md)
+
+## Canonical response anchors
+
+- Additional task-grounded exact anchors: separate file

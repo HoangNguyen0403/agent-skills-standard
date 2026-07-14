@@ -6,8 +6,14 @@
       "prompt": "Create a new skill for handling GraphQL subscriptions in a NestJS backend.",
       "expected_output": "Follow skill creation workflow: (1) Research best practices for NestJS WebSockets/PubSub. (2) Capture: what it does (subscription resolvers, PubSub patterns), when it triggers (*.resolver.ts, subscription, pubsub, websocket). (3) Write SKILL.md using TEMPLATE.md — ≤100 lines, description ≤100 words. (4) Extract code blocks >10 lines to references/. (5) Create evals/evals.json with 3 should-trigger and 3 should-not-trigger.",
       "assertions": [
-        { "type": "contains", "value": "TEMPLATE" },
-        { "type": "contains", "value": "evals" }
+        {
+          "type": "contains",
+          "value": "TEMPLATE"
+        },
+        {
+          "type": "contains",
+          "value": "evals"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Audit this SKILL.md — it's 150 lines long with a 20-line code block in the body.",
       "expected_output": "Quality violations: (1) SKILL.md >100 lines — extract content to references/. (2) Code block >10 lines — move to references/example.md. (3) Check description is ≤100 words with What+When structure. (4) Verify anti-patterns follow 'No X: Do Y' format. (5) Check triggers are specific globs/keywords, not **/*. Fix each violation.",
       "assertions": [
-        { "type": "contains", "value": "100 lines" },
-        { "type": "contains", "value": "references/" }
+        {
+          "type": "contains",
+          "value": "100 lines"
+        },
+        {
+          "type": "contains",
+          "value": "references/"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "The skill I created has low trigger accuracy — it only fires 40% of the time when it should.",
       "expected_output": "Optimize description for trigger accuracy: (1) Add missing keywords to triggers list. (2) Add scenario-based phrases to description (what situations trigger this). (3) Run trigger eval queries. (4) Target ≥80% accuracy. (5) Spawn parallel subagents: with-skill vs without-skill (baseline). Grade assertions, iterate description until target met.",
       "assertions": [
-        { "type": "contains", "value": "trigger" },
-        { "type": "contains", "value": "80%" }
+        {
+          "type": "contains",
+          "value": "trigger"
+        },
+        {
+          "type": "contains",
+          "value": "80%"
+        }
       ]
     }
   ],
@@ -50,8 +68,8 @@
     "The skill is obvious so I do not need a baseline.",
     "This is just documentation, not something to test."
   ],
-  "red_flags": [
-    "skip the baseline run",
-    "just write the SKILL.md fast"
+  "red_flags": ["skip the baseline run", "just write the SKILL.md fast"],
+  "should_trigger": [
+    "Create a new skill for handling GraphQL subscriptions in a NestJS backend."
   ]
 }

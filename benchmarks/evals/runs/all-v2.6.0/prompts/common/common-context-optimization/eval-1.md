@@ -1,0 +1,1 @@
+Our AI agent conversation is 15,000 tokens and getting slow. The last tool call returned 2000 lines of raw JSON logs. How should we handle this?

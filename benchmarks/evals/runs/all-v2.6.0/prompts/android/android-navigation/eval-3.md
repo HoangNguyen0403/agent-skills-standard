@@ -1,0 +1,1 @@
+My Compose screen uses a string like "product/$id" as a navigation route. Is that okay?

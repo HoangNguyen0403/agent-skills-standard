@@ -1,0 +1,1 @@
+My React Native tests are testing component.state and component.props. Is this correct?

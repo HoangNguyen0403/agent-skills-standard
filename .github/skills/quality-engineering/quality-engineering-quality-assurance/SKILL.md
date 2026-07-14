@@ -1,6 +1,6 @@
 ---
 name: quality-engineering-quality-assurance
-description: Write manual test cases with 1-condition-per-TC granularity, Module_Action on Screen when Condition naming, platform prefix rules, and High/Normal/Low priority classification. Use when writing or reviewing manual test cases for Zephyr — to split compound TCs, fix naming violations, assign correct platform tags, or determine bug priority.
+description: Write or review manual Zephyr test cases with 1-condition-per-TC granularity, Module_Action on Screen when Condition naming, platform prefix rules, and High/Normal/Low priority classification. Use for test-case authoring and review; defer Jira traceability, linking, and pushing cases to Zephyr.
 metadata:
   triggers:
     keywords:
@@ -46,3 +46,19 @@ Use priority rationale to justify each classification:
 - **No Shared TCs (Divergent)**: Testing Web and Mobile behavior in single TC when behavior diverges — split into separate TCs per platform
 - **No Incomplete Naming**: `Order_Verify page` — name must follow full pattern: `Module_Action on Screen when Condition`
 - **No Priority Inflation**: Marking cosmetic spacing bug as High priority — reserve High for critical path blockers only
+
+## Review wording
+
+- Call out naming violations explicitly when a test case breaks the naming convention, then split it into separate TCs with one condition on one screen.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+-  naming violations
+- 1 Test Case = 1 Condition
+- High: Critical path
+- Low: Cosmetic
+- Module_Action on Screen when Condition
+- No "OR" Logic
+- Split into separate TCs
+- priority rationale

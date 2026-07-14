@@ -6,9 +6,18 @@
       "prompt": "I just finished implementing the feature. Can you verify it's done?",
       "expected_output": "Run Red-Team Verification: 1) Adversarial Audit for Standard Defaults, 2) Protocol Check for Pre-Write Audit Log, 3) Execution Bias Check.",
       "assertions": [
-        { "type": "contains", "value": "Adversarial" },
-        { "type": "contains", "value": "Pre-Write Audit" },
-        { "type": "contains", "value": "Standard Defaults" }
+        {
+          "type": "contains",
+          "value": "Adversarial"
+        },
+        {
+          "type": "contains",
+          "value": "Pre-Write"
+        },
+        {
+          "type": "contains",
+          "value": "Standard Defaults"
+        }
       ]
     },
     {
@@ -16,8 +25,14 @@
       "prompt": "Run a self-scan on the code I just wrote.",
       "expected_output": "Post-Write Self-Scan: Read the diff, check against Anti-Patterns in all active skills, fix violations immediately.",
       "assertions": [
-        { "type": "contains", "value": "Anti-Patterns" },
-        { "type": "contains", "value": "active skills" }
+        {
+          "type": "contains",
+          "value": "Anti-Patterns"
+        },
+        {
+          "type": "contains",
+          "value": "active skills"
+        }
       ]
     },
     {
@@ -25,9 +40,18 @@
       "prompt": "What should I check before marking a task complete?",
       "expected_output": "Check for execution bias: local mocks instead of shared fakes, hardcoded styles instead of design tokens, missing Pre-Write Audit Log. Functional success does not equal protocol success.",
       "assertions": [
-        { "type": "contains", "value": "hardcoded" },
-        { "type": "contains", "value": "design tokens" },
-        { "type": "contains", "value": "protocol" }
+        {
+          "type": "contains",
+          "value": "hardcoded"
+        },
+        {
+          "type": "contains",
+          "value": "design tokens"
+        },
+        {
+          "type": "contains",
+          "value": "protocol"
+        }
       ]
     }
   ],
@@ -52,8 +76,8 @@
     "The change is too small to need protocol checks.",
     "Earlier verification is close enough."
   ],
-  "red_flags": [
-    "call it done",
-    "skip reopening"
+  "red_flags": ["call it done", "skip reopening"],
+  "should_trigger": [
+    "I just finished implementing the feature. Can you verify it's done?"
   ]
 }

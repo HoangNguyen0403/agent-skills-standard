@@ -64,5 +64,8 @@
     "How do I implement push notifications?",
     "How do I optimize FlatList?",
     "How do I write RNTL tests?"
+  ],
+  "should_trigger": [
+    "How should I apply styles to React Native components? What's wrong with inline style objects?"
   ]
 }

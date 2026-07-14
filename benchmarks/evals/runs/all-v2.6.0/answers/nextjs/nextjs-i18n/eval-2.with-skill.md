@@ -1,0 +1,2 @@
+Move user-visible text into translation dictionaries, for example `messages/en.json` and `messages/es.json`, and replace JSX literals with translation keys. Use `next-intl` for the App Router, load dictionaries server-side, and pass only the needed translated values to Client Components. Add locale middleware and an `app/[lang]` route segment, then verify that every translated route has consistent locale URLs and SEO metadata.
+

@@ -9,4 +9,5 @@ export const BENCHMARKS_DIR = path.join(ROOT_DIR, 'benchmarks');
 export const ARCHIVE_DIR = path.join(BENCHMARKS_DIR, 'archive');
 export const HISTORY_JSON = path.join(BENCHMARKS_DIR, 'history.json');
 
+/** Fallback approximation, only used if the real tokenizer throws. */
 export const CHARS_PER_TOKEN = 4;

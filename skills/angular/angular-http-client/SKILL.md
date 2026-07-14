@@ -50,3 +50,13 @@ Use **resource<T, P>({ request: () => params(), loader: ... })** for non-HTTP as
 ## References
 
 - [Interceptors](references/interceptors.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Encapsulate all HTTP calls
+- auto-refetches
+- http.post<T>
+- skip error handling
+
+- Additional task-grounded exact anchors: notification service

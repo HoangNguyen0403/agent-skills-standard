@@ -11,8 +11,8 @@
           "value": "BLoC"
         },
         {
-          "type": "contains",
-          "value": "for stream"
+          "type": "contains_any",
+          "value": ["restartable", "debounce", "cancel"]
         }
       ]
     },
@@ -22,8 +22,8 @@
       "expected_output": "Cubit or BLoC with Initial/Loading/Success/Failure states using @freezed, BlocBuilder for UI, error state with Failure type",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Cubit"
+          "type": "contains_any",
+          "value": ["Cubit", "BlocBuilder"]
         },
         {
           "type": "contains",
@@ -31,14 +31,28 @@
         },
         {
           "type": "contains",
-          "value": "Initial"
+          "value": "initial"
         }
       ]
     },
     {
       "id": 3,
       "prompt": "Fix this code — I'm getting a bad state error:\nclass CounterBloc extends Bloc<CounterEvent, int> {\n  CounterBloc() : super(0);\n  void increment() {\n    emit(state + 1).then((_) => print('done'));\n  }\n}",
-      "expected_output": "Remove .then(), use await, register on<CounterEvent> handler properly, note that emit() is not a Future"
+      "expected_output": "Remove .then(), use await, register on<CounterEvent> handler properly, note that emit() is not a Future",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["Remove"]
+        },
+        {
+          "id": "a2",
+          "description": "Checks the outcome includes then()",
+          "type": "contains",
+          "value": "then()"
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -46,5 +60,8 @@
     "How do I center a widget in Flutter?",
     "Set up Firebase for this Flutter project",
     "Write a unit test for a repository that calls an API"
+  ],
+  "should_trigger": [
+    "I need to add a search feature to the product list screen. It should debounce user input and cancel the previous request if a new one comes in."
   ]
 }

@@ -1,0 +1,1 @@
+Should I use @Autowired field injection in Spring Boot?

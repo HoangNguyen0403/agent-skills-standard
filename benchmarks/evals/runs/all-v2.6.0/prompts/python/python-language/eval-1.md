@@ -1,0 +1,1 @@
+Should I use a dataclass, TypedDict, or raw dict for a Python result contract?

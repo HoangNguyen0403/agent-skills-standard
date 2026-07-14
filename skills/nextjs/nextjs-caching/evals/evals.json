@@ -6,8 +6,14 @@
       "prompt": "After a user updates their profile in a Server Action, the profile page still shows old data. How do I fix this?",
       "expected_output": "Call revalidateTag('user-profile') inside the Server Action after the mutation. Tag your fetch calls with next: { tags: ['user-profile'] }. Alternatively use revalidatePath('/profile') to clear the full route cache. Avoid router.refresh() for server data — use revalidateTag for targeted busting.",
       "assertions": [
-        { "type": "contains", "value": "revalidateTag" },
-        { "type": "contains", "value": "mutation" }
+        {
+          "type": "contains",
+          "value": "revalidateTag"
+        },
+        {
+          "type": "contains",
+          "value": "mutation"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I need to choose between SSG with revalidation vs SSR for my blog posts page. The posts update a few times per day.",
       "expected_output": "Use ISR (Incremental Static Regeneration): fetch with revalidate: 3600 (1 hour). This is faster than SSR while keeping content fresh. For Next.js 15+ consider 'use cache' with cacheLife(). Tag posts fetch with cacheTag('posts') for on-demand invalidation when a post is published.",
       "assertions": [
-        { "type": "contains", "value": "ISR" },
-        { "type": "contains", "value": "revalidate" }
+        {
+          "type": "contains",
+          "value": "ISR"
+        },
+        {
+          "type": "contains",
+          "value": "revalidate"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "My Next.js 15 app fetches the same user data in 5 different Server Components on the same page. Is this causing 5 separate DB calls?",
       "expected_output": "Wrap the data fetch in React cache() to deduplicate within a single render cycle. This is Request Memoization — the same fetch with the same arguments is executed once per render, not 5 times. Place the cached function in a DAL file: const getUser = cache(async (id) => db.users.find(id)).",
       "assertions": [
-        { "type": "contains", "value": "cache()" },
-        { "type": "contains", "value": "memoization" }
+        {
+          "type": "contains",
+          "value": "cache()"
+        },
+        {
+          "type": "contains",
+          "value": "memoization"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Write a custom React hook for form validation",
     "Configure ESLint for TypeScript",
     "Set up Docker for local development"
+  ],
+  "should_trigger": [
+    "After a user updates their profile in a Server Action, the profile page still shows old data. How do I fix this?"
   ]
 }

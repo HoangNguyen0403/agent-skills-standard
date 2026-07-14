@@ -1,14 +1,25 @@
-import { CHARS_PER_TOKEN } from './constants';
+import { countTokensForText } from './utils';
 
+/**
+ * These prompts are a synthetic reference — NOT a measured survey of what
+ * developers actually type. They approximate two size bands (a compact
+ * inline instruction set vs. a comprehensive architect-level one) using
+ * NestJS as one illustrative stack, so that "tokens saved" has a stable
+ * unit of comparison across the whole skill catalog. Treat the resulting
+ * savings % as "skill size relative to a reference instruction-volume
+ * band", not as a measured behavioral improvement — see
+ * scripts/benchmark/README (Methodology) and the Live Evals report for the
+ * measured with/without-skill delta.
+ */
 export const BASELINE_EXAMPLES = {
   /**
-   * LIGHT baseline (~1,500 tokens): A typical inline system prompt a developer
-   * writes when they haven't structured their domain knowledge into a skill.
+   * LIGHT band: a compact inline system prompt a developer might write when
+   * they haven't structured their domain knowledge into a skill.
    */
   light: {
-    label: 'Reference Technical Prompt — Light (e.g., NestJS)',
+    label: 'Synthetic Reference Prompt — Light (e.g., NestJS)',
     description:
-      'A compact inline system prompt used as a reference for token count calibration. Representative of focused developer instructions without a structured skill.',
+      'A compact inline system prompt used as a reference instruction-volume band. Representative of focused developer instructions without a structured skill. Not a measured average of real prompts.',
     examplePrompt: `You are an expert NestJS developer. Follow these practices:
 - Use dependency injection and providers correctly
 - Apply proper error handling with exception filters
@@ -37,18 +48,18 @@ In order to create a basic controller, we use classes and decorators. Decorators
 For input validation, we use the ValidationPipe. The ValidationPipe provides a convenient way of enforcing validation rules for all incoming client payloads, where the specific rules are declared with local annotations in each DTO (Data Transfer Object) being validated.
 
 By following these patterns, we ensure the application remains scalable and maintainable.
-`.repeat(2),
+`,
   },
 
   /**
-   * HEAVY baseline (~3,000 tokens): A verbose, comprehensive inline prompt
-   * a developer might write for a complex, multi-step task — includes patterns,
-   * anti-patterns, and inline examples.
+   * HEAVY band: a verbose, comprehensive inline prompt a developer might
+   * write for a complex, multi-step task — includes patterns, anti-patterns,
+   * and inline reference material.
    */
   heavy: {
-    label: 'Reference Technical Prompt — Heavy (e.g., NestJS Architecture)',
+    label: 'Synthetic Reference Prompt — Heavy (e.g., NestJS Architecture)',
     description:
-      'A comprehensive architect-level inline prompt used as a reference for complex tasks. Includes deep patterns and rules sent by developers when no skill is present.',
+      'A comprehensive architect-level inline prompt used as a reference instruction-volume band. Includes deep patterns and rules a developer might send when no skill is present. Not a measured average of real prompts.',
     examplePrompt:
       `You are a senior NestJS architect. For this task, follow all of these detailed rules:
 
@@ -120,14 +131,14 @@ Middleware functions are called before the route handler. Middleware functions h
 Interceptors have a set of useful capabilities which are inspired by the Aspect-Oriented Programming (AOP) technique. They can bind extra logic before or after method execution, transform the result returned from a function, transform the exception thrown from a function, extend the basic function behavior, or completely override a function depending on specific conditions (e.g., for caching purposes).
 
 Now implement the feature described below, following ALL rules above.
-`.repeat(3),
+`,
   },
 } as const;
 
-// Measure baseline tokens from the actual example prompts
-export const BASELINE_LIGHT = Math.ceil(
-  BASELINE_EXAMPLES.light.examplePrompt.length / CHARS_PER_TOKEN,
+// Real-tokenized length of the reference prompts above (no artificial padding).
+export const BASELINE_LIGHT = countTokensForText(
+  BASELINE_EXAMPLES.light.examplePrompt,
 );
-export const BASELINE_HEAVY = Math.ceil(
-  BASELINE_EXAMPLES.heavy.examplePrompt.length / CHARS_PER_TOKEN,
+export const BASELINE_HEAVY = countTokensForText(
+  BASELINE_EXAMPLES.heavy.examplePrompt,
 );

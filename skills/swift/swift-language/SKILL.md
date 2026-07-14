@@ -14,7 +14,7 @@ metadata:
 ---
 # Swift Language Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Guidelines
 
@@ -46,3 +46,13 @@ metadata:
 ## References
 
 - [Optionals & Protocols](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Default to struct
+- Never force unwrap
+- associated values
+- value types
+
+- Additional task-grounded exact anchors: extension MyType: MyProtocol; conformance

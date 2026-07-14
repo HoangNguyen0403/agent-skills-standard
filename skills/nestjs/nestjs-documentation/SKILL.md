@@ -14,7 +14,7 @@ metadata:
 ---
 # OpenAPI & Documentation
 
-## **Priority: P2 (MAINTENANCE)**
+## **Priority: P2 (MEDIUM)**
 
 
 ## Workflow

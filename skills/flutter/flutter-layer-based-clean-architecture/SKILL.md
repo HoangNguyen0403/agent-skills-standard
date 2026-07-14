@@ -1,6 +1,6 @@
 ---
 name: flutter-layer-based-clean-architecture
-description: Enforce inward dependency flow, pure domain layers, and DTO-to-entity mapping in Flutter DDD architecture. Use when structuring domain, infrastructure, application, or presentation layers.
+description: Enforce inward dependency flow, pure domain layers, and DTO-to-entity mapping in Flutter DDD architecture. Use when structuring layers or boundaries; defer navigation-only routing and feature implementation such as notifications.
 metadata:
   triggers:
     files:
@@ -65,3 +65,8 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 ## References
 
 - feature-based-clean-architecture | bloc-state-management | dependency-injection | error-handling
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Flutter

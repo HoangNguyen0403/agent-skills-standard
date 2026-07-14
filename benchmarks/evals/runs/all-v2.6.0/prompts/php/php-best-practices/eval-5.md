@@ -1,0 +1,1 @@
+Extract repetitive logic into PHP traits

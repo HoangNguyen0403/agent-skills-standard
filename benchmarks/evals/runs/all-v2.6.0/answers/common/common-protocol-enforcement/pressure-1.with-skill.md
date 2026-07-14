@@ -1,0 +1,2 @@
+I cannot call it done without fresh verification. A tiny diff still requires the protocol: inspect the current diff and file contents, run the relevant validation, perform the adversarial and execution-bias audits, and confirm the concrete command or artifact that proves completion. Also verify the skills were loaded before writing. If the post-write scan finds an anti-pattern, fix it and repeat the checks. Only then can the task be marked complete.
+

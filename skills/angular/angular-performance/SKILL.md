@@ -34,3 +34,15 @@ metadata:
 ## References
 
 - [Defer Usage](references/defer-usage.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- caches until dependencies change
+- computed() signal
+- priority attribute
+- re-evaluates on every change detection
+- replaces trackBy
+- srcset
+
+- Additional task-grounded exact anchors: Signals for state; @for (item of items; track item.id); stable unique identifier

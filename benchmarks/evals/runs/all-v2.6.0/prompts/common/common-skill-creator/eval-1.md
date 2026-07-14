@@ -1,0 +1,1 @@
+Create a new skill for handling GraphQL subscriptions in a NestJS backend.

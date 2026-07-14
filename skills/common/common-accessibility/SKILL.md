@@ -20,7 +20,7 @@ metadata:
 ---
 # Common Accessibility (a11y) Standards
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 > Legal req: EU (Web Accessibility Directive), USA (ADA/Section 508). Non-compliance = litigation risk. Minimum: **WCAG 2.2 Level AA**.
 

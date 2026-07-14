@@ -13,7 +13,7 @@ metadata:
 ---
 # Spring Boot Testing Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Follow TDD Workflow
 

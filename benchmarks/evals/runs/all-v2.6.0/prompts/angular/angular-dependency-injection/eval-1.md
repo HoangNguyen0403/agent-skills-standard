@@ -1,0 +1,1 @@
+How do I use the inject() function in Angular?

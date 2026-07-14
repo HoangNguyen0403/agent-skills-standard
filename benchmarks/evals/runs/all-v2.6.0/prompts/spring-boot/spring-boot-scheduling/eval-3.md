@@ -1,0 +1,1 @@
+How do I make Spring Boot scheduled tasks handle failures gracefully?

@@ -1,0 +1,1 @@
+Help me write a user story for the {APP_NAME} tax breakdown feature. When DisplayItemTaxBreakdown is ON, {APP_NAME} users should see Price After Tax, Price Before Tax, and Tax on product cards. The Tender Contract page is out of scope.

@@ -6,8 +6,18 @@
       "prompt": "What are the most important Spring Boot best practices for production?",
       "expected_output": "Use constructor injection, externalize configuration via application.properties/yml, use Spring profiles (dev/prod), enable Actuator health checks, avoid field injection.",
       "assertions": [
-        {"id": "a1", "description": "Mentions constructor injection", "type": "contains", "value": "constructor"},
-        {"id": "a2", "description": "Mentions Spring profiles or externalized config", "type": "contains", "value": "profile"}
+        {
+          "id": "a1",
+          "description": "Mentions constructor injection",
+          "type": "contains",
+          "value": "constructor"
+        },
+        {
+          "id": "a2",
+          "description": "Mentions Spring profiles or externalized config",
+          "type": "contains",
+          "value": "profile"
+        }
       ]
     },
     {
@@ -15,8 +25,18 @@
       "prompt": "Should I use @Autowired field injection in Spring Boot?",
       "expected_output": "No. Use constructor injection. Field injection makes testing harder (can't inject mocks without Spring context), hides dependencies, and is not final-safe.",
       "assertions": [
-        {"id": "a1", "description": "Recommends constructor injection", "type": "contains", "value": "constructor"},
-        {"id": "a2", "description": "Warns against @Autowired field injection", "type": "contains", "value": "Autowired"}
+        {
+          "id": "a1",
+          "description": "Recommends constructor injection",
+          "type": "contains",
+          "value": "constructor"
+        },
+        {
+          "id": "a2",
+          "description": "Warns against @Autowired field injection",
+          "type": "contains",
+          "value": "Autowired"
+        }
       ]
     },
     {
@@ -24,8 +44,18 @@
       "prompt": "How do I manage application properties for different environments in Spring Boot?",
       "expected_output": "Use Spring profiles with application-dev.yml, application-prod.yml. Set active profile via SPRING_PROFILES_ACTIVE env var. Never hardcode secrets in properties files.",
       "assertions": [
-        {"id": "a1", "description": "Mentions profile-specific properties files", "type": "contains", "value": "profile"},
-        {"id": "a2", "description": "Warns against hardcoded secrets", "type": "contains", "value": "secret"}
+        {
+          "id": "a1",
+          "description": "Mentions profile-specific properties files",
+          "type": "contains",
+          "value": "profile"
+        },
+        {
+          "id": "a2",
+          "description": "Warns against hardcoded secrets",
+          "type": "contains",
+          "value": "secret"
+        }
       ]
     }
   ],
@@ -33,5 +63,8 @@
     "What are NestJS best practices?",
     "How do I configure Spring Security?",
     "How do I write a Spring Boot test?"
+  ],
+  "should_trigger": [
+    "What are the most important Spring Boot best practices for production?"
   ]
 }

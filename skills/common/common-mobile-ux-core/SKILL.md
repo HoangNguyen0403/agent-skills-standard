@@ -4,24 +4,24 @@ description: Enforce universal mobile UX principles for touch-first interfaces i
 metadata:
   triggers:
     files:
-    - '**/*_page.dart'
-    - '**/*_screen.dart'
-    - '**/*_view.dart'
-    - '**/*.swift'
-    - '**/*Activity.kt'
-    - '**/*Screen.tsx'
+      - "**/*_page.dart"
+      - "**/*_screen.dart"
+      - "**/*_view.dart"
+      - "**/*.swift"
+      - "**/*Activity.kt"
+      - "**/*Screen.tsx"
     keywords:
-    - mobile
-    - responsive
-    - SafeArea
-    - touch
-    - gesture
-    - viewport
+      - mobile
+      - responsive
+      - SafeArea
+      - touch
+      - gesture
+      - viewport
 ---
+
 # Mobile UX Core
 
 ## **Priority: P0 (CRITICAL)**
-
 
 ## Guidelines
 
@@ -35,6 +35,13 @@ metadata:
 
 - **Correct**: `IconButton(icon: Icon(Icons.close), padding: EdgeInsets.all(12))`
 - **Avoid**: `Icon(Icons.close, size: 16)` (Touch target too small)
+
+## Review Workflow
+
+1. Test the smallest interactive element against 44pt iOS / 48dp Android.
+2. Test content, keyboard, and fixed actions with notch/home-indicator/window insets.
+3. Check pressed, loading, error, and disabled states; do not port desktop hover behavior.
+4. Verify platform conventions separately before calling the screen complete.
 
 ## Anti-Patterns
 

@@ -13,7 +13,7 @@ metadata:
 ---
 # Spring Boot API Design Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Guidelines
 

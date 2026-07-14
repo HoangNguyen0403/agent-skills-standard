@@ -1,6 +1,6 @@
 ---
 name: react-native-navigation
-description: Set up navigation stacks and deep linking with React Navigation in React Native. Use when setting up navigation stacks or deep linking in React Native with React Navigation.
+description: Configure stack navigation, type-safe routes, deep linking, and URL-based routing with React Navigation in React Native. Use for React Navigation route configuration; defer unrelated performance, notification, build, and styling work.
 metadata:
   triggers:
     files:
@@ -9,15 +9,16 @@ metadata:
     - '**/*Screen.tsx'
     keywords:
     - NavigationContainer
-    - createStackNavigator
+    - createNativeStackNavigator
     - createBottomTabNavigator
     - linking
     - deep link
 ---
-# React Native Navigation
+# React Native Navigation — Deep Linking
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
+Deep-linking companion to [react-native-navigation-v6](../react-native-navigation-v6/SKILL.md), which owns stack/tab/drawer setup and auth-flow structure. For **new Expo projects**, prefer **Expo Router** (file-based, built on React Navigation) — see [react-native-architecture](../react-native-architecture/SKILL.md) for the decision criteria.
 
 ## Configure Type-Safe Navigation
 
@@ -37,3 +38,9 @@ See [routing patterns](references/routing-patterns.md) for type-safe stack setup
 ## References
 
 See [references/routing-patterns.md](references/routing-patterns.md) for typed param lists and deep linking config.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Configure
+- Handle

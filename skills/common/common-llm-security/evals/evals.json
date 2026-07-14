@@ -6,8 +6,14 @@
       "prompt": "Audit this AI chatbot code — it builds the system prompt by concatenating the user's message directly into it.",
       "expected_output": "LLM01 — Prompt Injection (P0 finding). User input string-concatenated into system prompt is the #1 LLM vulnerability. Fix: Pass user input as a separate 'user' turn, never interpolated into system prompts. This caps Security score at 40/100 if not fixed.",
       "assertions": [
-        { "type": "contains", "value": "LLM01" },
-        { "type": "contains", "value": "injection" }
+        {
+          "type": "contains",
+          "value": "LLM01"
+        },
+        {
+          "type": "contains",
+          "value": "injection"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Review this AI agent that can read and delete files. It acts autonomously without any confirmation step.",
       "expected_output": "LLM06 — Excessive Agency (P0 finding). Agent tools with delete/write capabilities without human-in-the-loop are P0. Fix: Add confirmation step before any destructive action. Implement max iteration/depth limit to prevent runaway agent loops.",
       "assertions": [
-        { "type": "contains", "value": "LLM06" },
-        { "type": "contains", "value": "confirmation" }
+        {
+          "type": "contains",
+          "value": "LLM06"
+        },
+        {
+          "type": "contains",
+          "value": "confirmation"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "Our RAG pipeline takes user search queries and injects the retrieved document chunks into the prompt without any validation.",
       "expected_output": "LLM08 — Vector & Embedding Weaknesses. User text inserted into vector store without sanitization. Also check LLM01 — retrieved docs in system turn is injection risk. Fix: Sanitize retrieved content before inserting into prompt. Ensure tenant namespace isolation in the vector store.",
       "assertions": [
-        { "type": "contains", "value": "LLM08" },
-        { "type": "contains", "value": "sanitize" }
+        {
+          "type": "contains",
+          "value": "LLM08"
+        },
+        {
+          "type": "contains",
+          "value": "sanitize"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Write a REST API endpoint in Go",
     "Configure a PostgreSQL connection pool",
     "Set up Tailwind CSS with dark mode support"
+  ],
+  "should_trigger": [
+    "Audit this AI chatbot code — it builds the system prompt by concatenating the user's message directly into it."
   ]
 }

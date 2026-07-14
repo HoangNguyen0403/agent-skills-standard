@@ -1,0 +1,1 @@
+The orders feature needs loyalty points from a separate loyalty feature. How should orders access that data?

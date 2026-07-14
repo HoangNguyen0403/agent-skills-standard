@@ -1,0 +1,1 @@
+Give me a quick-start example for javascript best practices.

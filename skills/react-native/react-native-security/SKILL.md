@@ -56,3 +56,7 @@ See [secure storage reference](references/secure-storage.md) for deep link URL v
 ## References
 
 See [references/secure-storage.md](references/secure-storage.md) for secure storage, Biometrics, SSL Pinning, and PII Masking.
+
+## Pinning verification checklist
+
+- Test that a request fails with an untrusted or changed certificate, and document rotation and recovery before shipping certificate pins.

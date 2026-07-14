@@ -1,0 +1,1 @@
+How do I run database migrations in Spring Boot?

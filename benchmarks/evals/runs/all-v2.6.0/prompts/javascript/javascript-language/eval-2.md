@@ -1,0 +1,1 @@
+How do I safely access nested object properties if some of them might be missing?

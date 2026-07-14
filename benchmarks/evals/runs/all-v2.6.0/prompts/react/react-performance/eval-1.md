@@ -1,0 +1,1 @@
+My React app fetches user data, then their orders, then each order's products in sequence. It's very slow.

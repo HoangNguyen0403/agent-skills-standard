@@ -20,7 +20,7 @@ metadata:
 ---
 # React TypeScript
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Implementation Guidelines
@@ -43,3 +43,8 @@ metadata:
 ## References
 
 See [references/example.md](references/example.md) for typed props, generic components, and hook ref patterns.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- generic

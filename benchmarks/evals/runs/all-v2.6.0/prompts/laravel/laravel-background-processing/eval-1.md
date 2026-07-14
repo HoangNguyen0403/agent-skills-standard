@@ -1,0 +1,1 @@
+Create a queued Job in Laravel

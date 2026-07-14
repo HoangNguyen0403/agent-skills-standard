@@ -6,8 +6,14 @@
       "prompt": "My users want to share filtered search results via URL. How should I manage the filter state?",
       "expected_output": "Use URL state: useSearchParams() + useRouter(). Update filters with router.push('?category=shoes&sort=price'). This makes state shareable, bookmarkable, and survives page refresh. Use useTransition to keep UI responsive while URL updates. Avoid Zustand for state that should be in the URL.",
       "assertions": [
-        { "type": "contains", "value": "useSearchParams" },
-        { "type": "contains", "value": "URL" }
+        {
+          "type": "contains",
+          "value": "useSearchParams"
+        },
+        {
+          "type": "contains",
+          "value": "URL"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I'm syncing server data into useState and calling an API on component mount with useEffect.",
       "expected_output": "Violation: No useEffect for data fetching. Use SWR or TanStack Query for server state — they handle caching, revalidation, loading and error states. Never manually sync server data into useState. Let the query cache be the source of truth. In Next.js App Router, prefer Server Components for initial data fetch.",
       "assertions": [
-        { "type": "contains", "value": "SWR" },
-        { "type": "contains", "value": "useEffect" }
+        {
+          "type": "contains",
+          "value": "SWR"
+        },
+        {
+          "type": "contains",
+          "value": "useEffect"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "My app reads from localStorage in a Server Component and gets hydration errors.",
       "expected_output": "localStorage is browser-only and cannot be read in Server Components or during SSR. Fix: wrap localStorage reads in useEffect or behind a mounted flag: const [mounted, setMounted] = useState(false); useEffect(() => setMounted(true), []). For optimistic updates in Next.js 15+, use useOptimistic hook.",
       "assertions": [
-        { "type": "contains", "value": "localStorage" },
-        { "type": "contains", "value": "mounted" }
+        {
+          "type": "contains",
+          "value": "localStorage"
+        },
+        {
+          "type": "contains",
+          "value": "mounted"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Configure a Go gRPC server",
     "Write database migration scripts",
     "Set up monitoring alerts in Datadog"
+  ],
+  "should_trigger": [
+    "My users want to share filtered search results via URL. How should I manage the filter state?"
   ]
 }

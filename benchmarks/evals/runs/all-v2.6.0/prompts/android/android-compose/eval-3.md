@@ -1,0 +1,1 @@
+I'm triggering a side effect inside the composable body (not in a LaunchedEffect). Why is this wrong?

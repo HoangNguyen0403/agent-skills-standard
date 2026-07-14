@@ -1,6 +1,6 @@
 ---
 name: flutter-riverpod-state-management
-description: Implement reactive state management using Riverpod 2.0 with code generation in Flutter. Use when defining providers, building AsyncNotifiers, or overriding providers in tests.
+description: Implement reactive state management using Riverpod 3.x with code generation in Flutter. Use when defining providers, building AsyncNotifiers, or overriding providers in tests.
 metadata:
   triggers:
     files:
@@ -19,6 +19,7 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
+Targets **Riverpod 3.x**. Notifier/AsyncNotifier codegen surface is unchanged from 2.x; Riverpod 3 adds automatic retry with backoff and pause/resume for offline — do not hand-roll retry logic that the framework already provides.
 
 ## Structure
 

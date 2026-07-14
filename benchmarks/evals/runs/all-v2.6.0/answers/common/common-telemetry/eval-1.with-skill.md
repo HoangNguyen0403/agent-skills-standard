@@ -1,0 +1,1 @@
+Call `get_session_cost` before the final handoff, passing workflow, model, token/cache/reasoning usage, and rates when available. Then append the usage metrics as a Markdown table to `artifacts/session-cost.md`; if token counts are unavailable, record MCP-observed telemetry and mark model-token cost unavailable.

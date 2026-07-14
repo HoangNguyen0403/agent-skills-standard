@@ -1,0 +1,1 @@
+How do I navigate from a product list screen to a product detail screen in Jetpack Compose and pass the product ID?

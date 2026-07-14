@@ -1,0 +1,1 @@
+Split the function into focused helpers with an explicit boundary between concerns: validate input, gather data through a persistence collaborator, compute pure policy, render Markdown, and send through a Telegram transport. Pass collaborators in, keep side effects at the edges, and test the helpers and orchestration separately.

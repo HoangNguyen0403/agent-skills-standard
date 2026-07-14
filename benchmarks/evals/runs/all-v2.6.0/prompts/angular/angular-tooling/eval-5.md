@@ -1,0 +1,1 @@
+What are the ng generate flags I should know?

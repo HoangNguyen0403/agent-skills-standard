@@ -1,0 +1,1 @@
+Show '1 item' vs '3 items' in the cart count — how do I handle plural strings?

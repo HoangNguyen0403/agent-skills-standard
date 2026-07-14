@@ -19,7 +19,7 @@ metadata:
 ---
 # Mobile Animation
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Timing Standards
@@ -35,6 +35,8 @@ metadata:
 ## Workflow
 
 1. **Choose duration** from timing table based on interaction type.
+   - Use **250-350ms** for medium navigation/modals and **400-600ms** for long shared-element or complex-state transitions; state the selected range in quick-start examples.
+   - A quick-start example must demonstrate the **Long** `400-600ms` shared-element or complex-state pattern; do not substitute the Medium range.
 2. **Select easing curve** per platform — `Curves.fastOutSlowIn` (Material) or `easeInOut` (iOS). Never use `linear`.
 3. **Animate GPU-friendly properties** (`transform`, `opacity`). Avoid `width`/`height` which trigger layout.
 4. **Wire gestures** using `onPan` / `interactivePopGesture` for fluid, interruptible UX.
@@ -58,3 +60,8 @@ See [implementation examples](references/implementation.md) for Flutter and iOS 
 - [common-mobile-ux-core](../common-mobile-ux-core/SKILL.md)
 - [flutter-performance](../../flutter/flutter-performance/SKILL.md)
 - [common-performance-engineering](../common-performance-engineering/SKILL.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- interactivePopGesture

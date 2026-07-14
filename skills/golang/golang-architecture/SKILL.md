@@ -1,6 +1,6 @@
 ---
 name: golang-architecture
-description: Structure Go code with package-first boundaries, `cmd/` and `internal/`, and explicit dependency wiring. Use when shaping project layout, package ownership, or service boundaries in Go.
+description: Structure Go code with package-first boundaries, `cmd/` and `internal/`, and explicit dependency wiring. Use when shaping project layout, package ownership, or service boundaries in Go; defer Redis/cache-specific implementation recipes to database skills.
 metadata:
   triggers:
     files:
@@ -53,3 +53,8 @@ metadata:
 - [Framework Map](../references/framework-map.md)
 - [Standard Project Layout](references/project-layout.md)
 - [Clean Architecture Layers](references/clean-arch.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- inject

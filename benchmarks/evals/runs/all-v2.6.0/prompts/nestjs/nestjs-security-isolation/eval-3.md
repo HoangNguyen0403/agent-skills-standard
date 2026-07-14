@@ -1,0 +1,1 @@
+Is it OK to use /users/:id routes for child data in a multi-tenant NestJS app?

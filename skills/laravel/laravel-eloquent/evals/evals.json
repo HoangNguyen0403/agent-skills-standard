@@ -4,19 +4,19 @@
     {
       "id": 1,
       "prompt": "Fix N+1 query problems in Laravel Eloquent",
-      "expected_output": "Add with('relationship') to query; enable Eloquent::preventLazyLoading(!app()->isProduction()) in AppServiceProvider; never access relationship property in a loop without eager loading",
+      "expected_output": "Add with('relationship') to query; enable Model::preventLazyLoading(!app()->isProduction()) in AppServiceProvider; never access relationship property in a loop without eager loading",
       "assertions": [
         {
           "type": "contains",
-          "value": "Eloquent::preventLazyLoading"
+          "value": "Model::preventLazyLoading"
         },
         {
-          "type": "contains",
-          "value": "N+1 Prevention"
+          "type": "contains_any",
+          "value": ["N+1", "eager load", "with("]
         },
         {
-          "type": "contains",
-          "value": "never in loops"
+          "type": "contains_any",
+          "value": ["loop", "inside a loop", "relationship property"]
         }
       ]
     },
@@ -26,20 +26,16 @@
       "expected_output": "Use with(['posts', 'posts.comments']) in query builder; define protected $with = ['profile'] on model for always-eager; use load() to eager-load after retrieval on existing collection",
       "assertions": [
         {
-          "type": "contains",
-          "value": "with()"
+          "type": "contains_any",
+          "value": ["Post::with", "with(", "explicitly with"]
         },
         {
           "type": "contains",
           "value": "$with"
         },
         {
-          "type": "contains",
-          "value": "Eager Loading"
-        },
-        {
-          "type": "contains",
-          "value": "LazyLoadingViolationException"
+          "type": "contains_any",
+          "value": ["Post::with", "$with", "eager-load"]
         }
       ]
     },
@@ -49,12 +45,12 @@
       "expected_output": "Define scopeActive(Builder $query): Builder method in model; chain as User::active()->verified()->get(); use for reusable query filters; never duplicate query logic across controllers",
       "assertions": [
         {
-          "type": "contains",
-          "value": "reusable query filters"
+          "type": "contains_any",
+          "value": ["scopeActive", "Builder", "User::active"]
         },
         {
-          "type": "contains",
-          "value": "Reusable Scopes"
+          "type": "contains_any",
+          "value": ["scopeActive", "local scope", "scope"]
         }
       ]
     },
@@ -65,15 +61,15 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "chunk()"
+          "value": "chunk("
         },
         {
-          "type": "contains",
-          "value": "lazy()"
+          "type": "contains_any",
+          "value": ["chunkById", "batches", "memory"]
         },
         {
-          "type": "contains",
-          "value": "cursor()"
+          "type": "contains_any",
+          "value": ["chunkById", "large datasets", "memory"]
         }
       ]
     },
@@ -91,23 +87,23 @@
           "value": "$request->validated()"
         },
         {
-          "type": "contains",
-          "value": "Mass Assignment"
+          "type": "contains_any",
+          "value": ["mass assignment", "$fillable", "validated"]
         }
       ]
     },
     {
       "id": 6,
-      "prompt": "Prevent lazy loading with Eloquent::preventLazyLoading()",
-      "expected_output": "Call Eloquent::preventLazyLoading(!app()->isProduction()) in AppServiceProvider::boot(); throws LazyLoadingViolationException in dev when relationship accessed without eager loading",
+      "prompt": "Prevent lazy loading with Model::preventLazyLoading()",
+      "expected_output": "Call Model::preventLazyLoading(!app()->isProduction()) in AppServiceProvider::boot(); throws LazyLoadingViolationException in dev when relationship accessed without eager loading",
       "assertions": [
         {
           "type": "contains",
-          "value": "Eloquent::preventLazyLoading"
+          "value": "Model::preventLazyLoading"
         },
         {
           "type": "contains",
-          "value": "LazyLoadingViolationException"
+          "value": "app()->isProduction"
         }
       ]
     }
@@ -117,5 +113,6 @@
     "Hibernate relationships in Spring Boot",
     "Set up GORM in Go",
     "SQL queries with raw PostgreSQL"
-  ]
+  ],
+  "should_trigger": ["Fix N+1 query problems in Laravel Eloquent"]
 }

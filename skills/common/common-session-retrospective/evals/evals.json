@@ -6,8 +6,14 @@
       "prompt": "Let's do a session retrospective — you made 3 mistakes today that I had to correct.",
       "expected_output": "Extract correction signals: identify each of the 3 corrections. Classify root causes (Skill Missing / Incomplete / Trigger Miss). For each: cite the concrete conversation moment, propose one targeted fix (trigger alias, skill update, or new skill). Check for trigger misses — was a relevant skill available but not loaded? Update AGENTS.md. Log to AGENTS_LEARNING.md via common-learning-log.",
       "assertions": [
-        { "type": "contains", "value": "root cause" },
-        { "type": "contains", "value": "AGENTS.md" }
+        {
+          "type": "contains",
+          "value": "root cause"
+        },
+        {
+          "type": "contains",
+          "value": "AGENTS.md"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I noticed the agent kept ignoring the security skill when writing API endpoints. Add keywords to fix this.",
       "expected_output": "Trigger Miss detected. Skill: common-owasp. Indirect phrase used: 'API endpoint'. Fix: add 'endpoint', 'route handler', 'REST' to triggers in AGENTS.md. Emit trigger-miss block with schema. Apply to all agent skill dirs in .skillsrc. Verify trigger rate improves to >= 80%.",
       "assertions": [
-        { "type": "contains", "value": "trigger" },
-        { "type": "contains", "value": "AGENTS.md" }
+        {
+          "type": "contains",
+          "value": "trigger"
+        },
+        {
+          "type": "contains",
+          "value": "AGENTS.md"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "We need to improve our skills library based on this session's feedback.",
       "expected_output": "Run retrospective protocol: (1) Extract all correction signals from the session. (2) Classify each root cause. (3) Propose one fix per root cause — extend existing skills before creating new ones. (4) Apply changes to all agent directories. (5) Output: correction count, skills changed, trigger misses found, estimated rounds saved.",
       "assertions": [
-        { "type": "contains", "value": "correction" },
-        { "type": "contains", "value": "skill" }
+        {
+          "type": "contains",
+          "value": "correction"
+        },
+        {
+          "type": "contains",
+          "value": "skill"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Write a function to sort an array",
     "Deploy the application to AWS",
     "Configure PostgreSQL replication"
+  ],
+  "should_trigger": [
+    "Let's do a session retrospective — you made 3 mistakes today that I had to correct."
   ]
 }

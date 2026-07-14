@@ -1,0 +1,1 @@
+I'm using real fetch calls in my component tests and they're failing in CI.

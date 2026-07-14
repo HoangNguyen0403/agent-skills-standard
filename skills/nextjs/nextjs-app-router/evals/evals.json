@@ -6,8 +6,14 @@
       "prompt": "Create a new dashboard route in my Next.js App Router project with a loading skeleton and error boundary.",
       "expected_output": "Create: app/dashboard/page.tsx (Server Component), app/dashboard/layout.tsx returning {children}, app/dashboard/loading.tsx for Suspense skeleton, app/dashboard/error.tsx with 'use client' and reset prop. In Next.js 15+ await params, cookies(), headers().",
       "assertions": [
-        { "type": "contains", "value": "loading.tsx" },
-        { "type": "contains", "value": "error.tsx" }
+        {
+          "type": "contains",
+          "value": "loading.tsx"
+        },
+        {
+          "type": "contains",
+          "value": "error.tsx"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I want to group my auth routes (login, register, forgot-password) without those words appearing in the URL.",
       "expected_output": "Use Route Groups with parentheses: create app/(auth)/login/page.tsx, app/(auth)/register/page.tsx, app/(auth)/forgot-password/page.tsx. The (auth) segment is excluded from the URL path — /login, /register, /forgot-password will be the routes. Add app/(auth)/layout.tsx for shared auth UI.",
       "assertions": [
-        { "type": "contains", "value": "(auth)" },
-        { "type": "contains", "value": "Route Group" }
+        {
+          "type": "contains",
+          "value": "(auth)"
+        },
+        {
+          "type": "contains",
+          "value": "Route Group"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "My Next.js 15 app throws 'cookies() should be awaited' errors.",
       "expected_output": "In Next.js 15+, cookies(), headers(), and params are Promises and must be awaited. Fix: const cookieStore = await cookies(); const headersList = await headers(); Also await params in dynamic routes: const { slug } = await params;. This is the next-async-request-api breaking change.",
       "assertions": [
-        { "type": "contains", "value": "await" },
-        { "type": "contains", "value": "cookies()" }
+        {
+          "type": "contains",
+          "value": "await"
+        },
+        {
+          "type": "contains",
+          "value": "cookies()"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Set up a PostgreSQL database connection",
     "Write a Python Flask API endpoint",
     "Configure Kubernetes deployment manifests"
+  ],
+  "should_trigger": [
+    "Create a new dashboard route in my Next.js App Router project with a loading skeleton and error boundary."
   ]
 }

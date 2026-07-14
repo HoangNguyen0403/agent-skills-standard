@@ -20,9 +20,12 @@
         },
         {
           "id": "a3",
-          "description": "Warns against completion handlers",
-          "type": "contains",
-          "value": "completion handlers"
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "async",
+            "await"
+          ]
         }
       ]
     },
@@ -64,9 +67,11 @@
         },
         {
           "id": "a2",
-          "description": "Mentions main thread",
-          "type": "contains",
-          "value": "main thread"
+          "description": "Uses Swift main-actor isolation for UI state",
+          "type": "contains_any",
+          "value": [
+            "@MainActor"
+          ]
         },
         {
           "id": "a3",
@@ -90,8 +95,8 @@
         {
           "id": "a2",
           "description": "Mentions parallel execution",
-          "type": "contains",
-          "value": "parallel"
+          "type": "regex",
+          "value": "(?:parallel|concurr)"
         },
         {
           "id": "a3",
@@ -113,10 +118,10 @@
           "value": "TaskGroup"
         },
         {
-          "id": "id2",
-          "description": "Mentions Task.isCancelled",
+          "id": "a2",
+          "description": "Checks the task contract includes withTaskGroup",
           "type": "contains",
-          "value": "isCancelled"
+          "value": "withTaskGroup"
         }
       ]
     }
@@ -126,5 +131,8 @@
     "How do I use NSLayoutAnchor?",
     "How do I implement MVVM?",
     "How do I configure SwiftLint?"
+  ],
+  "should_trigger": [
+    "How do I use async/await in Swift?"
   ]
 }

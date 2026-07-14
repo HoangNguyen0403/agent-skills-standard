@@ -1,0 +1,1 @@
+How should I structure a Spring Boot project with Clean Architecture?

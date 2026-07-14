@@ -27,7 +27,7 @@
         },
         {
           "type": "contains",
-          "value": "Use generated"
+          "value": "generated typed route"
         },
         {
           "type": "contains",
@@ -38,7 +38,21 @@
     {
       "id": 3,
       "prompt": "I have a bottom tab bar with 3 tabs using auto_route. When I switch tabs the scroll position resets — how do I preserve state?",
-      "expected_output": "Use AutoTabsRouter with children routes, IndexedStack preserves state, configure initialRoute and tabs properly"
+      "expected_output": "Use AutoTabsRouter with children routes, IndexedStack preserves state, configure initialRoute and tabs properly",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["Use AutoTabsRouter with children routes", "children"]
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["IndexedStack preserves state", "state"]
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -46,5 +60,8 @@
     "How do I pass data between two BLoCs?",
     "Set up deep linking for push notifications",
     "Write a widget test for the navigation drawer"
+  ],
+  "should_trigger": [
+    "Using auto_route, I need to add an auth guard so unauthenticated users trying to access the cart get redirected to the login screen."
   ]
 }

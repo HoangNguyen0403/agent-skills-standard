@@ -1,0 +1,1 @@
+I already wrote the implementation. Now I'll add tests to reach 80% coverage.

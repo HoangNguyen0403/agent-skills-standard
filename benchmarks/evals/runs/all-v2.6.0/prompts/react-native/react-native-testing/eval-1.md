@@ -1,0 +1,1 @@
+How do I write a test that simulates a button press and checks the result in React Native?

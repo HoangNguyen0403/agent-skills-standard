@@ -213,3 +213,29 @@ _Date: 2026-05-14_
 _Date: 2026-05-14_
 **Decision**: Keep `skills/specialists/*/SKILL.md` as registry source, but sync them directly to native sub-agent folders instead of normal skill folders. Specialists stay compact, budgeted, and focused on one review or automation lens.
 **Reason**: Review fanout, Jira/ADO/Zephyr handoffs, traceability, and test generation need role isolation without loading broad skill catalogs into the parent context.
+
+### ADR-008: Immutable v2 Live-Eval Inputs
+
+_Date: 2026-07-11_
+**Decision**: Live eval manifests use one shared v2 builder for category and aggregate scopes. A completed run records source hashes and an immutable `inputs.json`; root scripts, the published CLI verifier, and MCP verify against that snapshot. Aggregate reports project the `all` run into category partitions before selecting the newest complete view.
+**Reason**: Mutable eval definitions and incompatible aggregate answer paths made historical scores non-reproducible and allowed incomplete or compromised runs to look valid. v1 manifests remain read-only compatible for historical verification.
+
+### ADR-009: Incremental Live-Eval Evidence
+
+_Date: 2026-07-12_
+**Decision**: `pnpm evals:baseline` plans normal maintenance runs from the latest complete immutable reference. It creates a selective manifest and copies only compatible evidence: prompt-only answers survive a skill-body change, activation answers survive a body-only change, and assertion-only changes regrade existing transcripts. Changed prompts, descriptions, and activation corpora require fresh applicable answers.
+**Reason**: A full catalog run generated 3,220 answers and took roughly 54 minutes. Hash-only invalidation would either rerun too much or reuse the wrong lane. Lane-specific dependency checks preserve reproducibility while making a normal one-skill update practical.
+
+### ADR-010: Outcome-Quality Release Gate
+
+_Date: 2026-07-13_
+**Decision**: Keep activation metrics separate from outcome metrics. A skill is
+release-ready only when its with-skill case pass rate is strictly above 85%,
+with-skill assertion pass rate is at least 85%, outcome delta is non-negative,
+and trigger recall and specificity are each at least 90%. Catalog promotion
+requires one fresh run with zero reused answers; composite runs remain audit
+history only.
+**Reason**: Perfect trigger selection does not prove that the loaded skill
+produces a correct answer. The previous aggregate report could show 100%
+activation while most with-skill cases still failed, so the report and
+promotion gate now expose and enforce outcome readiness explicitly.

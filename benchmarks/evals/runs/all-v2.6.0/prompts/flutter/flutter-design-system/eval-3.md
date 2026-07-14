@@ -1,0 +1,1 @@
+Add a section heading with font size 24, bold weight, and color #1A1A1A.

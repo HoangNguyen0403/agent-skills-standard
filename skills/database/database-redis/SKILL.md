@@ -47,3 +47,8 @@ Redis is fast only when key shape, TTL ownership, and command complexity are exp
 - [Framework Map](../references/framework-map.md)
 - [Best Practices Guide](references/best-practices.md)
 - [Checklist](references/checklist.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- lazyfree

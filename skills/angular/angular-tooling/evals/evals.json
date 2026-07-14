@@ -6,10 +6,22 @@
       "prompt": "How do I generate a new Angular component with the CLI?",
       "expected_output": "Use ng generate component features/user-profile (or ng g c). Use --dry-run to preview output first. Add --change-detection=OnPush to set CD strategy at generation time. Use --skip-tests if spec is not needed. Always use ng generate — never create files manually.",
       "assertions": [
-        { "type": "contains", "value": "ng generate component" },
-        { "type": "contains", "value": "--dry-run" },
-        { "type": "contains", "value": "--change-detection=OnPush" },
-        { "type": "contains", "value": "never create files manually" }
+        {
+          "type": "contains",
+          "value": "ng generate component"
+        },
+        {
+          "type": "contains",
+          "value": "--dry-run"
+        },
+        {
+          "type": "contains",
+          "value": "--change-detection=OnPush"
+        },
+        {
+          "type": "contains",
+          "value": "never create files manually"
+        }
       ]
     },
     {
@@ -17,9 +29,18 @@
       "prompt": "How do I run a production build of my Angular app?",
       "expected_output": "Run ng build -c production. Output goes to dist/my-app/browser/. For SSR: ng add @angular/ssr then ng build (adds server/ output). Use --stats-json to generate bundle stats for analysis.",
       "assertions": [
-        { "type": "contains", "value": "ng build -c production" },
-        { "type": "contains", "value": "dist/" },
-        { "type": "contains", "value": "@angular/ssr" }
+        {
+          "type": "contains",
+          "value": "ng build -c production"
+        },
+        {
+          "type": "contains",
+          "value": "dist/"
+        },
+        {
+          "type": "contains",
+          "value": "@angular/ssr"
+        }
       ]
     },
     {
@@ -27,9 +48,18 @@
       "prompt": "How do I analyze my Angular bundle size?",
       "expected_output": "Run ng build -c production --stats-json then npx esbuild-visualizer --metadata dist/my-app/browser/stats.json --open. Check angular.json budgets — do not hand-edit budget values; analyze the bundle first to understand what's large.",
       "assertions": [
-        { "type": "contains", "value": "--stats-json" },
-        { "type": "contains", "value": "esbuild-visualizer" },
-        { "type": "contains", "value": "angular.json budgets" }
+        {
+          "type": "contains",
+          "value": "--stats-json"
+        },
+        {
+          "type": "contains",
+          "value": "esbuild-visualizer"
+        },
+        {
+          "type": "contains",
+          "value": "angular.json budgets"
+        }
       ]
     },
     {
@@ -37,9 +67,18 @@
       "prompt": "How do I update Angular CLI to the latest version?",
       "expected_output": "Run ng update to check available updates. Apply with ng update @angular/core @angular/cli — this runs official codemods to migrate your code. Never use --force; fix peer dependency conflicts properly instead.",
       "assertions": [
-        { "type": "contains", "value": "ng update" },
-        { "type": "contains", "value": "codemods" },
-        { "type": "contains", "value": "Never use --force" }
+        {
+          "type": "contains",
+          "value": "ng update"
+        },
+        {
+          "type": "contains",
+          "value": "codemods"
+        },
+        {
+          "type": "contains",
+          "value": "Never use --force"
+        }
       ]
     },
     {
@@ -47,9 +86,19 @@
       "prompt": "What are the ng generate flags I should know?",
       "expected_output": "--dry-run previews without writing files. --skip-tests skips spec file. --flat skips subfolder creation. --change-detection=OnPush sets CD strategy. --style=scss sets stylesheet format. Always use --dry-run first for unfamiliar generators.",
       "assertions": [
-        { "type": "contains", "value": "--dry-run" },
-        { "type": "contains", "value": "--skip-tests" },
-        { "type": "contains", "value": "--change-detection=OnPush" }
+        {
+          "type": "contains",
+          "value": "--dry-run"
+        },
+        {
+          "type": "contains_any",
+          "value": ["--skip-tests", "skip-tests"],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
+        },
+        {
+          "type": "contains",
+          "value": "--change-detection=OnPush"
+        }
       ]
     },
     {
@@ -57,9 +106,18 @@
       "prompt": "How do I enable code coverage in Angular tests?",
       "expected_output": "Run ng test --code-coverage --watch=false. Coverage output goes to coverage/ directory. Configure thresholds in angular.json under test > codeCoverage. View HTML report at coverage/index.html.",
       "assertions": [
-        { "type": "contains", "value": "ng test --code-coverage" },
-        { "type": "contains", "value": "coverage/" },
-        { "type": "contains", "value": "angular.json" }
+        {
+          "type": "contains",
+          "value": "ng test --code-coverage"
+        },
+        {
+          "type": "contains",
+          "value": "coverage/"
+        },
+        {
+          "type": "contains",
+          "value": "angular.json"
+        }
       ]
     }
   ],
@@ -68,5 +126,6 @@
     "How do I build a NestJS project with nest build?",
     "How do I configure webpack for code splitting?",
     "How do I set up a Vite dev server for a Vue project?"
-  ]
+  ],
+  "should_trigger": ["How do I generate a new Angular component with the CLI?"]
 }

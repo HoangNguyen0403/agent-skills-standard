@@ -1,0 +1,1 @@
+Remove god functions that mix orchestration and side effects, hidden globals, boolean soup, duplicated shape cleanup, hidden retries, and print-debugging. Split the function into named, tested helpers with explicit collaborators and visible retry policy.

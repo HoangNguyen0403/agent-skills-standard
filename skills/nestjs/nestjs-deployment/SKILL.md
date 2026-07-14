@@ -13,7 +13,7 @@ metadata:
 ---
 # Deployment & Ops Standards
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Workflow: Containerize NestJS App

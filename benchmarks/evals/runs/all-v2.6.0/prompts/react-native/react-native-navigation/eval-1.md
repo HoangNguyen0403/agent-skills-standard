@@ -1,0 +1,1 @@
+How do I set up React Navigation with a stack navigator and type-safe navigation?

@@ -1,0 +1,1 @@
+I'm using React.FC to type all my components. Is this a problem?

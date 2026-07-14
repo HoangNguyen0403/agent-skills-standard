@@ -1,0 +1,2 @@
+Mock the network boundary with MSW rather than allowing real `fetch` calls. Define shared request handlers for the success and failure responses, start the MSW server in the test setup, reset handlers after each test, and close it after the suite. Keep assertions focused on user-visible behavior and use `findByRole`/`waitFor` for async results. This makes CI deterministic and still exercises the request path.
+

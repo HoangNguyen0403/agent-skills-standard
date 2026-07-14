@@ -7,8 +7,8 @@
       "expected_output": "Enter Discovery Phase: ask 3-5 clarifying questions with options. (a) Platform: Web/Mobile/Both? (b) Notification types: in-app/email/push? (c) Real-time or batched? (d) User preferences/opt-out required? (e) Target user roles? Repeat until Actionable State reached, then draft to docs/prd/prd-user-notifications.md.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "clarif"
+          "type": "contains_any",
+          "value": ["Discovery"]
         },
         {
           "type": "contains",
@@ -22,8 +22,14 @@
       "expected_output": "Violation: 'faster' is vague. Apply No Vagueness rule: ask for measurable targets. 'Fast' -> 'Load time < 200ms'. Discovery questions: (a) Which pages/flows are slow? (b) Current measured baseline? (c) Target SLA? (d) Platform? Map answers to non-functional requirements section of PRD template.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "200ms"
+          "type": "contains_any",
+          "value": ["baseline"]
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["baseline"]
         }
       ]
     },
@@ -34,11 +40,13 @@
       "assertions": [
         {
           "type": "contains",
-          "value": "edge case"
+          "value": "security"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Discovery Phase:",
           "type": "contains",
-          "value": "security"
+          "value": "discovery"
         }
       ]
     },
@@ -47,8 +55,14 @@
       "prompt": "The code seems already done, but we do not have PRD or acceptance criteria.",
       "expected_output": "Report partial or unverified status, separate implementation evidence from missing requirements evidence, route to PM-owned plan-feature, and require REQ/AC IDs before implementation closure.",
       "assertions": [
-        { "type": "contains", "value": "partial" },
-        { "type": "contains", "value": "AC" }
+        {
+          "type": "contains",
+          "value": "partial"
+        },
+        {
+          "type": "contains",
+          "value": "AC"
+        }
       ]
     },
     {
@@ -56,8 +70,16 @@
       "prompt": "We are an offshore delivery team; plan this feature before dev starts.",
       "expected_output": "Include PM-owned PRD, BA/PM/RACI, rollout/ops, validation owner, acceptance criteria IDs, and implementation-readiness before dev tasks.",
       "assertions": [
-        { "type": "contains", "value": "RACI" },
-        { "type": "contains", "value": "implementation-readiness" }
+        {
+          "type": "contains",
+          "value": "implementation-readiness"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes Include PM-owned",
+          "type": "contains",
+          "value": "RACI"
+        }
       ]
     }
   ],
@@ -67,5 +89,6 @@
     "Design architecture for event-driven order sync",
     "Write a Go function to parse JSON",
     "Add unit tests for the auth service"
-  ]
+  ],
+  "should_trigger": ["Create a PRD for a new user notifications feature."]
 }

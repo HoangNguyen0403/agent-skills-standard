@@ -1,0 +1,1 @@
+Create technical requirements spec for API timeout fallback and event retries.

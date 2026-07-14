@@ -1,0 +1,1 @@
+How do I use resource() for non-HTTP async operations in Angular?

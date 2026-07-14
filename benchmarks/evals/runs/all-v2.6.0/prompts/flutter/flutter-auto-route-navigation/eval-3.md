@@ -1,0 +1,1 @@
+I have a bottom tab bar with 3 tabs using auto_route. When I switch tabs the scroll position resets — how do I preserve state?

@@ -1,6 +1,6 @@
 ---
 name: android-background-work
-description: Implement WorkManager and background processing correctly on Android. Use when creating Worker classes, scheduling tasks, choosing between WorkManager and Foreground Services, or setting up Hilt in workers.
+description: Implement WorkManager and background processing correctly on Android. Use when creating Worker classes, scheduling tasks, choosing between WorkManager and Foreground Services, or setting up Hilt in workers; defer FCM and notification delivery to android-notifications.
 metadata:
   triggers:
     files:
@@ -16,7 +16,7 @@ metadata:
 
 # Android Background Work Standards
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 ## Implementation Guidelines
 

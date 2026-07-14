@@ -1,0 +1,1 @@
+I'm fetching from a URL stored in process.env.API_URL without any validation. Is that safe?

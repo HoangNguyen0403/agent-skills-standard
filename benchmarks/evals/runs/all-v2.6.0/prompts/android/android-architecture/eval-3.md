@@ -1,0 +1,1 @@
+The UI in my Android app is calling the repository directly from a Composable. Is that a problem?

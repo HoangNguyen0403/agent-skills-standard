@@ -49,3 +49,8 @@ Fetch data directly in Server Components using `async/await`.
 
 - [Usage Examples](references/usage-examples.md)
 - [Caching Documentation](https://nextjs.org/docs/app/building-your-application/caching)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- async function Page()

@@ -49,6 +49,12 @@
           "description": "Recommends ConfigService injection",
           "type": "contains",
           "value": "ConfigService"
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["getOrThrow", "ConfigService", "typed configuration"]
         }
       ]
     }
@@ -57,5 +63,8 @@
     "How do I configure Viper in Go?",
     "How do I set up Docker environment variables?",
     "How do I validate input in NestJS controllers?"
+  ],
+  "should_trigger": [
+    "How do I validate environment variables at startup in NestJS?"
   ]
 }

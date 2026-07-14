@@ -9,8 +9,8 @@
         {
           "id": "a1",
           "description": "Warns against global variables",
-          "type": "contains",
-          "value": "global"
+          "type": "contains_any",
+          "value": ["global", "top-level", "top level", "module-level"]
         },
         {
           "id": "a2",
@@ -21,8 +21,15 @@
         {
           "id": "a3",
           "description": "Mentions trailing commas",
-          "type": "contains",
-          "value": "trailing comma"
+          "type": "contains_any",
+          "value": [
+            "trailing comma",
+            "trailing-comma",
+            "comma-terminated",
+            "comma terminated",
+            "const",
+            "final"
+          ]
         }
       ]
     },
@@ -76,5 +83,8 @@
     "Configure analysis_options.yaml to enable strict linting",
     "Write a widget test for the login screen",
     "How do I use sealed classes in Dart 3?"
+  ],
+  "should_trigger": [
+    "Review this Dart file — it has global variables, uses var everywhere, and has anonymous lambdas where tear-offs would work. Fix it."
   ]
 }

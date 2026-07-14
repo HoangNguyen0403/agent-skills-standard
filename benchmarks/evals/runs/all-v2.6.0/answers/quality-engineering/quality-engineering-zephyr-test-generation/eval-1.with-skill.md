@@ -1,0 +1,1 @@
+Run impact analysis first with `Get Issue Link Test Cases`, then draft the Web-only case with a `Web_` name prefix and the correct Customer/VN role. After approval, create the test case and steps, then call `Create Test Case Issue Link` to link it to `{PROJECT}-{ID}`.

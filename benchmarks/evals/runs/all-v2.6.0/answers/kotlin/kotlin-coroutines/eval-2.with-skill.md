@@ -1,0 +1,1 @@
+Run the loop in an owned structured scope and cooperate with cancellation by checking `isActive` or calling `yield()`. Ensure child tasks are joined or awaited, let scope cancellation propagate, clean up on lifecycle termination, and do not use `runBlocking` in production.

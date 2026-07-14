@@ -1,0 +1,1 @@
+I'm a Laravel developer but I've never touched NestJS. Can you help me add a module that mirrors what I'd build with a Laravel service provider?

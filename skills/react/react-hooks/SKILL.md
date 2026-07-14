@@ -59,3 +59,9 @@ Effects sync external systems. Everything else should stay in render, event hand
 
 - [Framework Map](../references/framework-map.md)
 - [Optimization Patterns](references/REFERENCE.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- cleanup
+- recreated

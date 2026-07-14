@@ -55,6 +55,12 @@
           "description": "Recommends NavController",
           "type": "contains",
           "value": "NavController"
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["navigate() instead", "navigate"]
         }
       ]
     }
@@ -70,5 +76,8 @@
     "How do I define deep links in Jetpack Compose Navigation?",
     "Set up animated transitions between screens in Compose Navigation",
     "Add an in-app navigation drawer with NavigationUI in XML"
+  ],
+  "should_trigger": [
+    "How do I pass a product ID safely from a list fragment to a detail fragment using Jetpack Navigation in an XML-based app?"
   ]
 }

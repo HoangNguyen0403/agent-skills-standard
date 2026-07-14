@@ -52,3 +52,17 @@ See [implementation examples](references/implementation.md#guzzle-pool-example) 
 ## References
 
 - [Fiber Implementation Guide](references/implementation.md)
+
+## Isolation checklist
+
+- Do not share mutable connection state across Fibers; use a separate PDO connection per Fiber or enforce bounded concurrency with queued work.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Do not share mutable,connection state,Bound concurrency
+- Use Guzzle pool for concurrent requests,guzzle
+- Pool($client
+- do not call blocking file_get_contents,non-blocking I/O
+
+- Additional task-grounded exact anchors: Loop::get(); separate PDO connection

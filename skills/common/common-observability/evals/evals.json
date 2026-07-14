@@ -3,58 +3,58 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "How should I implement common observability best practices?",
-      "expected_output": "**JSON Logs**: Always emit JSON structured logs. Never plain-text in prod.",
+      "prompt": "Instrument GET /orders/:id in a service that calls inventory asynchronously. What logs, trace context, spans, and metrics should we add?",
+      "expected_output": "Uses structured logs with request/trace correlation, propagates W3C traceparent to inventory, names a route-normalized span, records RED metrics, and avoids secrets/IDs as high-cardinality labels.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "X-Request-Id"
+          "type": "contains_any",
+          "value": ["JSON", "structured log", "correlation"]
         },
         {
-          "type": "contains",
-          "value": "traceparent"
+          "type": "contains_any",
+          "value": ["traceparent", "OpenTelemetry", "trace context"]
         },
         {
-          "type": "contains",
-          "value": "<HTTP_METHOD> <route>"
+          "type": "contains_any",
+          "value": ["GET /orders/:id", "route", "span"]
         }
       ]
     },
     {
       "id": 2,
-      "prompt": "What are the common anti-patterns to avoid in common observability?",
-      "expected_output": "**Correlation**: Extract `X-Request-Id` or `traceparent`. Attach to async context.",
+      "prompt": "Our production logs use console.log, spans are named GET /users/123, and alerts fire whenever latency crosses 500ms. What should be fixed?",
+      "expected_output": "Replaces console logging with structured logs, normalizes dynamic span paths, and uses SLO burn-rate alerts rather than raw threshold spikes.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "GET /users/:id"
+          "type": "contains_any",
+          "value": ["GET /users/:id", "normalized", "cardinality"]
         },
         {
-          "type": "contains",
-          "value": "pino"
+          "type": "contains_any",
+          "value": ["structured logger", "pino", "zap"]
         },
         {
-          "type": "contains",
-          "value": "zap"
+          "type": "contains_any",
+          "value": ["burn rate", "SLO", "not raw threshold"]
         }
       ]
     },
     {
       "id": 3,
-      "prompt": "Give me a quick-start example for common observability.",
-      "expected_output": "**Tracing**: Use OpenTelemetry. Propagate W3C `traceparent`.",
+      "prompt": "Give me a release checklist to verify observability before deploying a new payment endpoint.",
+      "expected_output": "Checks structured logs and redaction, trace propagation and ended spans, RED metrics, normalized labels, and an SLO alert tied to the endpoint.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "GET /users/123"
+          "type": "contains_any",
+          "value": ["structured", "redact", "PII"]
         },
         {
-          "type": "contains",
-          "value": "Priority: P1 (OPERATIONAL)"
+          "type": "contains_any",
+          "value": ["trace", "span", "traceparent"]
         },
         {
-          "type": "contains",
-          "value": "JSON Logs"
+          "type": "contains_any",
+          "value": ["RED", "request rate", "SLO"]
         }
       ]
     }
@@ -64,5 +64,8 @@
     "How do I install common dependencies?",
     "What is common?",
     "Configure CI/CD for an unrelated platform"
+  ],
+  "should_trigger": [
+    "How should I implement common observability best practices?"
   ]
 }

@@ -1,0 +1,1 @@
+Explain why using {count && <List />} to render a list of items is a bug when the count is zero.

@@ -1,0 +1,1 @@
+I need a function that returns both a success value and an error message without using a custom class. What's the modern Dart way to do this?

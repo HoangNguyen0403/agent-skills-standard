@@ -6,9 +6,18 @@
       "prompt": "I want to structure a new Go microservice following Clean Architecture. What are the top-level directories and what goes in each?",
       "expected_output": "cmd/ for entry points, internal/domain for interfaces and entities, internal/adapter for HTTP handlers and DB repos, pkg/ for shared libraries. Dependencies flow inward only — adapters depend on domain, not vice versa.",
       "assertions": [
-        { "type": "contains", "value": "cmd" },
-        { "type": "contains", "value": "internal" },
-        { "type": "contains", "value": "domain" }
+        {
+          "type": "contains",
+          "value": "cmd"
+        },
+        {
+          "type": "contains",
+          "value": "internal"
+        },
+        {
+          "type": "contains",
+          "value": "domain"
+        }
       ]
     },
     {
@@ -16,9 +25,18 @@
       "prompt": "My domain entity needs to call a database query. Should I import the DB package directly in the domain layer?",
       "expected_output": "No. Domain must have zero external dependencies. Define a repository interface in the domain layer; the adapter (infrastructure) layer implements it. Inject via constructor.",
       "assertions": [
-        { "type": "contains", "value": "interface" },
-        { "type": "contains", "value": "domain" },
-        { "type": "contains", "value": "inject" }
+        {
+          "type": "contains",
+          "value": "interface"
+        },
+        {
+          "type": "contains",
+          "value": "domain"
+        },
+        {
+          "type": "contains",
+          "value": "inject"
+        }
       ]
     },
     {
@@ -26,14 +44,23 @@
       "prompt": "I have a Go service that handles orders, inventory, and notifications. Should this all be in one service struct?",
       "expected_output": "No god services. Split into single-responsibility components: OrderService, InventoryService, NotificationService. Wire them together in main.go via DI.",
       "assertions": [
-        { "type": "contains", "value": "single" },
-        { "type": "contains", "value": "main" }
+        {
+          "type": "contains",
+          "value": "single"
+        },
+        {
+          "type": "contains",
+          "value": "main"
+        }
       ]
     }
   ],
   "should_not_trigger": [
     "How do I write a goroutine in Go?",
-    "Configure Redis caching in Go",
+    "How do I configure Redis eviction policy in Go?",
     "Write a table-driven test in Go"
+  ],
+  "should_trigger": [
+    "I want to structure a new Go microservice following Clean Architecture. What are the top-level directories and what goes in each?"
   ]
 }

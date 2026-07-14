@@ -1,0 +1,4 @@
+Use WebSockets when clients need bidirectional, low-latency communication or server and client both send events, such as chat, collaboration, or interactive sessions. Use Server-Sent Events when the flow is primarily server-to-client updates, the client can use normal HTTP for commands, and automatic browser reconnect with a simple text/event stream is useful.
+
+Consider proxy/load-balancer support, connection lifetime, authentication, backpressure, reconnect behavior, and horizontal scaling. SSE is often simpler and works over HTTP but is one-way and has browser connection limits; WebSockets support richer protocols but require explicit heartbeats, reconnect and authorization handling. For either choice, define event schemas, version them, bound payloads, and do not assume an in-memory connection map works across replicas.
+

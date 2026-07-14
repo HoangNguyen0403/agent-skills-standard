@@ -1,0 +1,1 @@
+Create a reusable ProductCard widget with an image, title, price, and an add-to-cart button.

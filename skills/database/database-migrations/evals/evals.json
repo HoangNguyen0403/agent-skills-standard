@@ -6,9 +6,23 @@
       "prompt": "Rename `status` to `lifecycle_status` on a busy orders table.",
       "expected_output": "Use expand -> backfill -> contract. Additive schema first, resumable backfill, coexistence of old and new paths, and later removal of the old column.",
       "assertions": [
-        { "type": "contains", "value": "expand" },
-        { "type": "contains", "value": "backfill" },
-        { "type": "contains", "value": "old" }
+        {
+          "type": "contains",
+          "value": "expand"
+        },
+        {
+          "type": "contains",
+          "value": "backfill"
+        },
+        {
+          "type": "contains",
+          "value": "old"
+        },
+        {
+          "type": "contains_any",
+          "value": ["expand", "backfill", "contract"],
+          "description": "Describes an expand-backfill-contract migration rollout"
+        }
       ]
     }
   ],
@@ -16,5 +30,8 @@
     "Improve React Suspense loading state",
     "Add a Golang slog field",
     "Write a BRD"
+  ],
+  "should_trigger": [
+    "Rename `status` to `lifecycle_status` on a busy orders table."
   ]
 }

@@ -1,0 +1,1 @@
+My Next.js page has a large hero image that causes layout shift and slow LCP.

@@ -1,0 +1,1 @@
+How do I create an optimized Docker image for a Spring Boot app?

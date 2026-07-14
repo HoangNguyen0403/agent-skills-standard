@@ -12,7 +12,7 @@ metadata:
 ---
 # Database Transactions
 
-## **Priority: P0 (FOUNDATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
 One business action should have one clear consistency strategy.
 
@@ -39,3 +39,4 @@ One business action should have one clear consistency strategy.
 ## References
 
 - [Framework Map](../references/framework-map.md)
+- [Isolation Levels](references/isolation-levels.md)

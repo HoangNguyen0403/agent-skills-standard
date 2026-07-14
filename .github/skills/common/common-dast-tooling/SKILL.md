@@ -18,7 +18,7 @@ metadata:
 ---
 # DAST Tooling Standard
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 ## Always-Apply Rules
 

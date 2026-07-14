@@ -1,16 +1,16 @@
 ---
 name: dart-language
-description: 'Dart 3.x language feature standards: null safety, records, sealed classes, switch pattern matching, extensions, and async/await. Use when using !, ?., ??, late, sealed classes, record types, switch expressions, or async patterns — and before introducing any new Dart 3.x construct to confirm the modern idiomatic approach.'
+description: "Dart 3.x language feature standards: null safety, records, sealed classes, switch pattern matching, extensions, and async/await. Use when using !, ?., ??, late, sealed classes, record types, switch expressions, or async patterns — and before introducing any new Dart 3.x construct to confirm the modern idiomatic approach."
 metadata:
   triggers:
     files:
-      - '**/*.dart'
+      - "**/*.dart"
     keywords:
       - sealed
       - record
       - switch
       - pattern
-      - '!'
+      - "!"
       - late
       - async
       - extension
@@ -25,7 +25,7 @@ metadata:
 - **Null Safety**: Avoid `!`. Use `?.`, `??`, or short-circuiting. Use `late` only if necessary.
 - **Immutability**: Use `final` for all variables. Use `@freezed` for data classes.
 - **Pattern Matching (3.x)**: Use `switch (value)` with patterns and destructuring.
-- **Records**: Use Records (e.g., `(String, int)`) for returning multiple values.
+- **Records**: Use a Record (e.g., `(String, int)`) for multiple values; use named fields when meaning matters. Destructure at call sites: `final (error, data) = fetchUser();`.
 - **Sealed Classes**: Use `sealed class` for exhaustive state handling in domain logic.
 - **Extensions**: Use `extension` to add utility methods to third-party types.
 - **Wildcards (3.7+)**: Use `_` for unused variables in declarations and patterns.
@@ -62,3 +62,13 @@ String message(Result r) => switch (r) {
 ## References
 
 - feature-based-clean-architecture | tooling
+
+## Null-safety checklist
+
+- Replace `!` with `?`-aware access, explicit narrowing, or a guard clause; do not silence nullability with a force unwrap.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Replace ! with ?
+- destructure,destructuring,final (error,result.error

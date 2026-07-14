@@ -1,0 +1,1 @@
+Multiple goroutines need to update a shared counter. What's the idiomatic Go approach?

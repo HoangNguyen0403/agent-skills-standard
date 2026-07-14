@@ -1,0 +1,4 @@
+Treat the new child-data table as a security-sensitive schema and review it end to end. Add a non-null tenant/parent foreign key, enforce referential integrity, and make repository queries require the authenticated tenant scope. Add PostgreSQL RLS or equivalent policies if the system uses database-level isolation, including policies for inserts, updates, deletes, joins, and service roles.
+
+Audit every controller, route parameter, background job, cache key, event consumer, serializer, and direct query that can access the table. Authorize the user’s relationship to the parent and avoid trusting a client-provided tenant ID. Add indexes that preserve both performance and scope, ensure logs/search indexes do not leak data, and write negative tests proving tenant A cannot read or mutate tenant B’s rows. Review migrations, seed data, backups/exports, and least-privilege database permissions before release.
+

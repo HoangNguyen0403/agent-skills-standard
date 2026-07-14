@@ -1,0 +1,1 @@
+My Activity receives an implicit Intent with user data. What security checks should I do on the incoming Intent extras?

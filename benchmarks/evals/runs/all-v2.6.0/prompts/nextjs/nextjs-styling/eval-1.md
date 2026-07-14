@@ -1,0 +1,1 @@
+Set up styling for a new Next.js project. We use Tailwind CSS and need a utility for combining classes.

@@ -1,0 +1,1 @@
+My Go function returns an error but I'm ignoring it with _. Is this ever acceptable?

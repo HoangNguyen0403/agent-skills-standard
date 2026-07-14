@@ -1,0 +1,1 @@
+How should I organize my React Native project as it grows to 20+ screens?

@@ -1,0 +1,1 @@
+The PR is from a senior engineer and CI is green. Give me a quick approval summary without digging for issues.

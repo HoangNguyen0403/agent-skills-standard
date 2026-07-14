@@ -1,6 +1,6 @@
 ---
 name: flutter-feature-based-clean-architecture
-description: Organize Flutter apps with modular feature-based clean architecture. Use when creating features under lib/features/ with domain, data, and presentation layers.
+description: Organize Flutter apps with modular feature-based clean architecture. Use when creating features under lib/features/ with domain, data, and presentation layers. Do not use for test-only, BlocBuilder, navigation, or spinner requests.
 metadata:
   triggers:
     files:
@@ -55,3 +55,8 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 ## Related Topics
 
 layer-based-clean-architecture | retrofit-networking | go-router-navigation | bloc-state-management | dependency-injection
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- entities) but never import from loyalty's data/ or presentation/ layers,entities

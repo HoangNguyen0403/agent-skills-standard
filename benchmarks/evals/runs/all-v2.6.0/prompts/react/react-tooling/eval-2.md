@@ -1,0 +1,1 @@
+Should I use Create React App or Vite for a new React project?

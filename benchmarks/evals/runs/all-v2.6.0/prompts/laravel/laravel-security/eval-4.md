@@ -1,0 +1,1 @@
+Secure mass assignment with validated() in Laravel

@@ -1,0 +1,1 @@
+Design an error handling strategy for a layered Go service with HTTP API, domain logic, and database access.

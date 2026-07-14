@@ -72,9 +72,12 @@
     "How do I generate a signed APK from the command line?",
     "Set up a Macrobenchmark to measure my app's startup performance",
     "Add static analysis checks to a Flutter project using dart analyze",
-    "Configure lint to flag hardcoded strings in layout XML files",
-    "How do I run Android lint as part of a pre-push hook?",
     "Set up SonarQube for code quality monitoring in Android",
     "Add checkstyle for Java code in my Android project"
+  ],
+  "should_trigger": [
+    "How do I configure Detekt to fail the build when a method exceeds 30 lines or a class exceeds 300 lines?",
+    "Configure lint to flag hardcoded strings in layout XML files",
+    "How do I run Android lint as part of a pre-push hook?"
   ]
 }

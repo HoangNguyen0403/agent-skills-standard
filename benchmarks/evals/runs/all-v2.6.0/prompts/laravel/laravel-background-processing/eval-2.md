@@ -1,0 +1,1 @@
+Use Laravel Horizon for queue monitoring

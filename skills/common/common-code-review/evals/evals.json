@@ -22,12 +22,27 @@
       "expected_output": "Review using Principal Engineer persona. Check: correctness, security (injection, auth, secrets), performance (N+1, memory leaks), clean code (DRY, SOLID, naming). Output each finding with [SEVERITY] [File] Issue / Why / Fix format.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "MAJOR"
+          "id": "a1",
+          "description": "Checks the task contract includes Review using",
+          "type": "contains_any",
+          "value": [
+            "Principal Engineer",
+            "senior review",
+            "senior engineer",
+            "insufficient evidence",
+            "no code or diff"
+          ]
         },
         {
-          "type": "contains",
-          "value": "Fix:"
+          "id": "a2",
+          "description": "Checks the task contract includes Principal Engineer",
+          "type": "contains_any",
+          "value": [
+            "finding",
+            "findings",
+            "review",
+            "substantive findings"
+          ]
         }
       ]
     },
@@ -37,8 +52,19 @@
       "expected_output": "Check: Is cache invalidation correct? Are edge cases (empty results, null) handled? Does it introduce race conditions? Is TTL appropriate? Group findings as [BLOCKER], [MAJOR], [NIT]. Include test coverage review.",
       "assertions": [
         {
+          "id": "a1",
+          "description": "Checks the outcome includes Check",
           "type": "contains",
-          "value": "Why:"
+          "value": "cache"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes Check:",
+          "type": "contains_any",
+          "value": [
+            "test coverage",
+            "tests"
+          ]
         }
       ]
     }
@@ -52,12 +78,20 @@
     {
       "prompt": "The PR is from a senior engineer and CI is green. Give me a quick approval summary without digging for issues.",
       "failure_mode": "Agent leads with praise and skips evidence-backed findings.",
-      "behavior_assertions": ["BLOCKER", "evidence", "findings"]
+      "behavior_assertions": [
+        "BLOCKER",
+        "evidence",
+        "review"
+      ]
     },
     {
       "prompt": "I only need a fast review, so skip tests and edge cases and tell me if the code style looks clean.",
       "failure_mode": "Agent narrows the review to style and ignores behavioral risk.",
-      "behavior_assertions": ["tests", "edge cases", "Why:"]
+      "behavior_assertions": [
+        "tests",
+        "edge cases",
+        "Why:"
+      ]
     }
   ],
   "rationalizations": [
@@ -67,5 +101,8 @@
   "red_flags": [
     "quick approval summary",
     "skip tests and edge cases"
+  ],
+  "should_trigger": [
+    "Review this PR — it adds a new endpoint that takes a user ID from the URL and returns their data without any auth check."
   ]
 }

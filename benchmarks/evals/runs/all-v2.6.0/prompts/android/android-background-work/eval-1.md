@@ -1,0 +1,1 @@
+I need to sync my app's data with the server every 6 hours even when the app is closed. How do I set that up in Android?

@@ -14,7 +14,7 @@ metadata:
 ---
 # Golang Logging Standards
 
-## **Priority: P1 (STANDARD)**
+## **Priority: P1 (HIGH)**
 
 ## Principles
 

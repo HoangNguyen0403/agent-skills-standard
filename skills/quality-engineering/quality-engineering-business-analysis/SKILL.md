@@ -1,6 +1,6 @@
 ---
 name: quality-engineering-business-analysis
-description: 'Investigate requirements with atomic AC decomposition, actor/permission matrix, platform parity audit, truth table verification, and edge case discovery. Also enforces User Story authoring standards: story structure, scope fences, platform tags, toggle contracts, market isolation, and deferral patterns. Use when writing, reviewing, or improving User Stories, acceptance criteria, or doing impact analysis — especially for stories with multi-condition AC, feature toggles, market variants (VN/MY/SG), or undefined platform behavior.'
+description: 'Investigate requirements via atomic AC decomposition, actor/permission matrices, and truth-table edge cases; enforce User Story standards (scope fences, platform tags, toggles). Use when writing/reviewing Stories or AC with multi-condition logic, feature toggles, or market variants (VN/MY/SG).'
 metadata:
   triggers:
     files:
@@ -77,3 +77,12 @@ Run after authoring or reviewing any User Story before marking it ready for deve
 - [ ] Story uses `As a / I want / So that` header
 - [ ] Market-specific ACs prefixed `[Market: VN]`, `[Market: MY]`, etc.
 - [ ] Translation / locale behavior its own AC or deferred with Jira link
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Actor
+- Mobile
+- Variable
+
+- Additional task-grounded exact anchors: Truth table

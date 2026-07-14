@@ -7,34 +7,65 @@
       "expected_output": "Use easy_localization with sheet_loader_localization, CSV format in assets/langs/, EasyLocalization wrap in main, tr() extension usage",
       "assertions": [
         {
-          "type": "contains",
-          "value": "EasyLocalization"
+          "type": "contains_any",
+          "value": ["easy_localization", "EasyLocalization"]
         },
         {
-          "type": "contains",
-          "value": "easy_localization with"
+          "type": "contains_any",
+          "value": ["sheet_loader_localization", "assets/langs"]
         },
         {
-          "type": "contains",
-          "value": "CSV format"
+          "type": "contains_any",
+          "value": ["CSV", "Google Sheets"]
         }
       ]
     },
     {
       "id": 2,
       "prompt": "Show a welcome message like 'Hello, John!' where the name is dynamic.",
-      "expected_output": "Use 'hello_user'.tr(args: ['John']) or tr(namedArgs: {'name': 'John'}) with {} placeholder in translation file"
+      "expected_output": "Use 'hello_user'.tr(args: ['John']) or tr(namedArgs: {'name': 'John'}) with {} placeholder in translation file",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["namedArgs", "args:"]
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["welcome_user", "{name}"]
+        }
+      ]
     },
     {
       "id": 3,
       "prompt": "Show '1 item' vs '3 items' in the cart count — how do I handle plural strings?",
-      "expected_output": "Use 'cart_items'.plural(count) with plural key variants in translation file (zero/one/many or 0/1/2 keys)"
+      "expected_output": "Use 'cart_items'.plural(count) with plural key variants in translation file (zero/one/many or 0/1/2 keys)",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["plural("]
+        },
+        {
+          "id": "a2",
+          "description": "Uses a cart/item translation key rather than hardcoded plural strings",
+          "type": "contains_any",
+          "value": ["item_count", "cart"]
+        }
+      ]
     }
   ],
   "should_not_trigger": [
-    "Add a language toggle button to settings",
+    "Add multi-language support for English and Vietnamese. Our translators use Google Sheets.",
     "How do I format a date in Vietnamese locale?",
     "Write a test for the settings BLoC",
     "Set up RTL layout support"
+  ],
+  "should_trigger": [
+    "Add a Flutter language toggle button to settings using easy_localization"
   ]
 }

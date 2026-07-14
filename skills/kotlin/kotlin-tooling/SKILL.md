@@ -1,6 +1,6 @@
 ---
 name: kotlin-tooling
-description: Configure Gradle Kotlin DSL, Version Catalogs, and MockK for Kotlin projects. Use when configuring build.gradle.kts, setting up libs.versions.toml, adding MockK for tests, or choosing between Kotlin-compatible test assertion libraries.
+description: Configure Kotlin build and quality tooling, including Gradle Kotlin DSL, Version Catalogs, KMP, ktlint, Detekt, MockK, coverage, and quality plugins. Use for Kotlin-specific build, lint, test-tool, or coverage setup; defer Java-only tooling and Spring test behavior.
 metadata:
   triggers:
     files:
@@ -15,7 +15,7 @@ metadata:
 ---
 # Kotlin Tooling Standards
 
-## **Priority: P2 (RECOMMENDED)**
+## **Priority: P2 (MEDIUM)**
 
 
 ## Implementation Guidelines

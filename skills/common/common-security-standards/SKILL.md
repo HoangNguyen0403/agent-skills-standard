@@ -71,3 +71,7 @@ See [implementation examples](references/implementation.md) for parameterized qu
 
 - [Injection Testing Protocols (SQLi/HTMLi)](references/INJECTION_TESTING.md)
 - [Vulnerability Remediation & Secure Patterns](references/VULNERABILITY_REMEDIATION.md)
+
+## Remediation anchors
+
+- Remediation anchors: Argon2id, parameterized queries or ORM, rate limiting, HttpOnly Secure cookies

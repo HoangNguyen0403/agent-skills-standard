@@ -1,0 +1,1 @@
+My app shares a file with an external app using a file:// URI. I'm getting a FileUriExposedException. How do I fix it?

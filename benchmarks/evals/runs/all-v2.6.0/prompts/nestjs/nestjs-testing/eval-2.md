@@ -1,0 +1,1 @@
+Should I mock the database in NestJS E2E tests?

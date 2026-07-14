@@ -4,7 +4,27 @@
     {
       "id": 1,
       "prompt": "Implement getServerSideProps in Next.js pages/ directory",
-      "expected_output": "export async function getServerSideProps(context: GetServerSidePropsContext) { const data = await getUser(context.params.id); return { props: { user: toJSON(data) } }; } runs server-side per request"
+      "expected_output": "export async function getServerSideProps(context: GetServerSidePropsContext) { const data = await getUser(context.params.id); return { props: { user: toJSON(data) } }; } runs server-side per request",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "export async function getServerSideProps(context",
+            "export"
+          ]
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "GetServerSidePropsContext) { const data = await getUser(context",
+            "data"
+          ]
+        }
+      ]
     },
     {
       "id": 2,
@@ -33,13 +53,33 @@
         {
           "type": "contains",
           "value": "Props"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["{ posts }", "posts"]
         }
       ]
     },
     {
       "id": 4,
       "prompt": "Create dynamic routes in Next.js pages/ with [id].tsx",
-      "expected_output": "Create pages/posts/[id].tsx; access via router.query.id in client or context.params.id in getServerSideProps; catch-all: pages/posts/[...slug].tsx; optional catch-all: [[...slug]].tsx"
+      "expected_output": "Create pages/posts/[id].tsx; access via router.query.id in client or context.params.id in getServerSideProps; catch-all: pages/posts/[...slug].tsx; optional catch-all: [[...slug]].tsx",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["Create pages/posts/[id]", "create"]
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["access via router", "access"]
+        }
+      ]
     },
     {
       "id": 5,
@@ -49,6 +89,12 @@
         {
           "type": "contains",
           "value": "global CSS"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["create"]
         }
       ]
     },
@@ -77,5 +123,6 @@
     "Server Components in Next.js App Router",
     "React Router in a Vite React app",
     "Routing in Next.js 15 with app/ folder"
-  ]
+  ],
+  "should_trigger": ["Implement getServerSideProps in Next.js pages/ directory"]
 }

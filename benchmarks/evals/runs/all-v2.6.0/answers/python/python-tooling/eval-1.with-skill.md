@@ -1,0 +1,1 @@
+Run the verification chain in layers: ruff check, pyright or basedpyright, focused pytest for changed behavior, and python -m compileall -q on the changed runtime tree. Because this is workflow runtime code, also run the relevant integration or smoke checks and security gates, then inspect the real failure paths.

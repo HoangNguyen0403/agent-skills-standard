@@ -1,0 +1,1 @@
+Should I use assertSame or assertEquals in PHPUnit?

@@ -21,9 +21,22 @@
       "prompt": "What is the difference between @StateObject and @ObservedObject?",
       "expected_output": "Use @StateObject when the view is creating the instance. Use @ObservedObject when receiving an instance from an external source.",
       "assertions": [
+      {
+        "type": "contains_any",
+        "value": [
+          "@ObservedObject when receiving",
+          "externally owned object",
+          "external instance"
+        ]
+        },
         {
-          "type": "contains",
-          "value": "@ObservedObject when receiving"
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Use @StateObject when the view is creating the instance",
+            "stateobject"
+          ]
         }
       ]
     },
@@ -52,8 +65,8 @@
           "value": "large number of views"
         },
         {
-          "type": "contains",
-          "value": "load them only as they appear"
+          "type": "regex",
+          "value": "(?:load(?:ing|s)?\\s+(?:views|them)(?:\\s+only)?|creates rows)\\s+as they appear"
         }
       ]
     }
@@ -63,5 +76,8 @@
     "How do I implement SSL pinning?",
     "How do I configure SwiftLint?",
     "How do I set up Core Data?"
+  ],
+  "should_trigger": [
+    "When should I use @State vs @Binding in SwiftUI?"
   ]
 }

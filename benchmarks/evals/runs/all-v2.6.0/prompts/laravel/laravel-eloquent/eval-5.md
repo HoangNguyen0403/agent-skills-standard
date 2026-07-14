@@ -1,0 +1,1 @@
+Set up mass assignment protection in Eloquent

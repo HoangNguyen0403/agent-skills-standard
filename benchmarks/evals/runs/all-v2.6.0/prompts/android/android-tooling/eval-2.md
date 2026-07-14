@@ -1,0 +1,1 @@
+A developer added @Suppress("LongMethod") to bypass a Detekt warning. Should I allow this in production code?

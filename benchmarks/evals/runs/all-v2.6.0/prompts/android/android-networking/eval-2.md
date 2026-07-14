@@ -1,0 +1,1 @@
+Which JSON serialization should I use with Retrofit in Android?

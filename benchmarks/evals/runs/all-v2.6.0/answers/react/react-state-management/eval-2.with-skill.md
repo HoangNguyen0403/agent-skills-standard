@@ -1,0 +1,1 @@
+This is the server-cache-as-UI-state anti-pattern. Use React Query or SWR as the cache source of truth; use its mutation and invalidation APIs instead of syncing the response through `useEffect` and `useState`.

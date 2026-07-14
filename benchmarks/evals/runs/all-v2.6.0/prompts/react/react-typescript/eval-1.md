@@ -1,0 +1,1 @@
+How should I type my React component that accepts children and a className prop?

@@ -1,0 +1,2 @@
+Do not assume the new cache behavior; audit every fetch and classify its freshness. Add `force-cache` or `next: { revalidate: N }` for data that should be cached, use `no-store` for request-specific data, and add `revalidateTag`/`revalidatePath` after mutations. Also check Router/Data/Full Route cache interactions, then verify the stale path with a production build and a mutation-to-refresh test.
+

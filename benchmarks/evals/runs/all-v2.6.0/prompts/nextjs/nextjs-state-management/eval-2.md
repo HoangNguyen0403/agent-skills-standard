@@ -1,0 +1,1 @@
+I'm syncing server data into useState and calling an API on component mount with useEffect.

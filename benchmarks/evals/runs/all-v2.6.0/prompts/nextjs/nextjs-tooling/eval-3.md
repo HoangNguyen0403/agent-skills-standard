@@ -1,0 +1,1 @@
+How should I manage environment variables in my Next.js project? Some are secrets, some are public.

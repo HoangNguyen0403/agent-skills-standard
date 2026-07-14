@@ -1,0 +1,1 @@
+How should I model a Result type in Kotlin that can be Success with data or Failure with an error message?

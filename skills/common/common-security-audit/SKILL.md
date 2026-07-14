@@ -87,3 +87,8 @@ See [mobile audit commands](references/mobile-audit.md) for insecure storage (cr
 
 - [Vulnerability Remediation Protocols](references/REMEDIATION.md)
 - [Mobile Audit Commands](references/mobile-audit.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- -25

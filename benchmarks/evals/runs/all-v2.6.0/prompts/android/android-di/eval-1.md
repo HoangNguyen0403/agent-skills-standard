@@ -1,0 +1,1 @@
+How do I provide a Retrofit instance as a singleton using Hilt so it's shared across the whole app?

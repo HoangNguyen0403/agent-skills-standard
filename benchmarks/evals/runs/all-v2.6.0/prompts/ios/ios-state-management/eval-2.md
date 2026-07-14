@@ -1,0 +1,1 @@
+What are the anti-patterns in iOS state management?

@@ -6,8 +6,14 @@
       "prompt": "Should I use a dataclass, TypedDict, or raw dict for a Python result contract?",
       "expected_output": "Prefer dataclass or TypedDict over raw dict for explicit contracts and type checking.",
       "assertions": [
-        { "type": "contains", "value": "dataclass" },
-        { "type": "contains", "value": "TypedDict" }
+        {
+          "type": "contains",
+          "value": "dataclass"
+        },
+        {
+          "type": "contains",
+          "value": "TypedDict"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "What's the modern Python replacement for os.path joins and string paths?",
       "expected_output": "Use pathlib.Path for joins and path operations.",
       "assertions": [
-        { "type": "contains", "value": "pathlib" },
-        { "type": "contains", "value": "Path" }
+        {
+          "type": "contains",
+          "value": "pathlib"
+        },
+        {
+          "type": "contains",
+          "value": "Path"
+        }
       ]
     }
   ],
@@ -24,5 +36,8 @@
     "Write a pytest fixture for database rollback",
     "Tune PostgreSQL pooling in Python",
     "Harden Python subprocess calls against shell injection"
+  ],
+  "should_trigger": [
+    "Should I use a dataclass, TypedDict, or raw dict for a Python result contract?"
   ]
 }

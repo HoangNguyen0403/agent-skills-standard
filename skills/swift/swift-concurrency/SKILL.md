@@ -14,7 +14,7 @@ metadata:
 ---
 # Swift Concurrency
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Write Structured Async Code
 

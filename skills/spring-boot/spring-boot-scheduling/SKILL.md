@@ -13,7 +13,7 @@ metadata:
 ---
 # Spring Boot Scheduling Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Configure Scheduled Tasks
 

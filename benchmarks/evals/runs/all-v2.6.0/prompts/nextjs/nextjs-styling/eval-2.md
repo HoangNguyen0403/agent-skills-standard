@@ -1,0 +1,1 @@
+I want to use MUI (Material UI) in my Next.js App Router project.

@@ -1,0 +1,1 @@
+My MongoDB query is slow even with an index. How do I diagnose it?

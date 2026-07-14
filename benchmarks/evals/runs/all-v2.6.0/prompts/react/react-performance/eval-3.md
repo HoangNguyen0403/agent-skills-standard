@@ -1,0 +1,1 @@
+My Context causes all consumers to re-render every time any value changes. There are 50+ components subscribed.

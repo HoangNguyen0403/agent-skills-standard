@@ -1,0 +1,1 @@
+My Next.js 15 app throws 'cookies() should be awaited' errors.

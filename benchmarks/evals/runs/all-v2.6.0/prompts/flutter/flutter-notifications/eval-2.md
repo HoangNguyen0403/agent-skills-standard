@@ -1,0 +1,1 @@
+When the app is terminated and the user taps a push notification, it should navigate to a specific order. How do I handle this?

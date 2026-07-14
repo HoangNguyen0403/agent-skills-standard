@@ -1,0 +1,2 @@
+I would not call it done solely because the diff is tiny. A small change can still break an important boundary or invalidate an existing contract. At minimum, inspect the full diff, map it to the acceptance criteria, and rerun the smallest relevant verification suite. Include tests for the changed behavior and any affected failure or compatibility paths. If verification is impossible, report the limitation and mark the task unverified rather than claiming completion.
+

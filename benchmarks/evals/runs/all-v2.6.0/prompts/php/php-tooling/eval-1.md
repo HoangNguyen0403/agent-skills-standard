@@ -1,0 +1,1 @@
+Set up PHPStan for static analysis in PHP

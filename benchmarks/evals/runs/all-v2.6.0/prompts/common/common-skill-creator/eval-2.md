@@ -1,0 +1,1 @@
+Audit this SKILL.md — it's 150 lines long with a 20-line code block in the body.

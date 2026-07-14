@@ -6,8 +6,14 @@
       "prompt": "Build a REST endpoint in Go that handles POST /orders. It should parse the request, call an order service, and return JSON. Where does business logic go?",
       "expected_output": "Handler parses request and calls service method only. Business logic lives in the service layer, not the handler. Handler returns JSON response.",
       "assertions": [
-        { "type": "contains", "value": "service" },
-        { "type": "contains", "value": "handler" }
+        {
+          "type": "contains",
+          "value": "service"
+        },
+        {
+          "type": "contains",
+          "value": "handler"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "How do I add graceful shutdown to my Go HTTP server using Echo?",
       "expected_output": "Listen for SIGINT/SIGTERM via signal.NotifyContext or os/signal, call server.Shutdown(ctx) to drain in-flight requests before exiting.",
       "assertions": [
-        { "type": "contains", "value": "Shutdown" },
-        { "type": "contains", "value": "SIGTERM" }
+        {
+          "type": "contains",
+          "value": "Shutdown"
+        },
+        {
+          "type": "contains",
+          "value": "SIGTERM"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "Should I use a global variable to hold the Echo router in my Go service?",
       "expected_output": "No global router variables. Pass the router via constructor or dependency injection to keep the dependency graph explicit.",
       "assertions": [
-        { "type": "contains", "value": "constructor" },
-        { "type": "contains", "value": "global" }
+        {
+          "type": "contains",
+          "value": "constructor"
+        },
+        {
+          "type": "contains",
+          "value": "global"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Write a Dockerfile for a Go app",
     "How do I use GORM to query the database?",
     "Set up GitHub Actions CI for Go"
+  ],
+  "should_trigger": [
+    "Build a REST endpoint in Go that handles POST /orders. It should parse the request, call an order service, and return JSON. Where does business logic go?"
   ]
 }

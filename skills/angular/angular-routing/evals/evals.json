@@ -6,8 +6,17 @@
       "prompt": "How do I set up lazy loading in Angular?",
       "expected_output": "Use loadComponent for standalone components or loadChildren for route files. All feature routes MUST be lazy loaded. No eager feature imports.",
       "assertions": [
-        { "type": "contains", "value": "loadComponent" },
-        { "type": "contains", "value": "lazy" }
+        {
+          "type": "contains",
+          "value": "loadComponent"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "lazy",
+            "loadChildren"
+          ]
+        }
       ]
     },
     {
@@ -15,8 +24,14 @@
       "prompt": "How do I write a route guard in Angular?",
       "expected_output": "Use functional CanActivateFn — class-based guards are deprecated. Inject services with inject(). Return true or createUrlTree for redirect.",
       "assertions": [
-        { "type": "contains", "value": "CanActivateFn" },
-        { "type": "contains", "value": "deprecated" }
+        {
+          "type": "contains",
+          "value": "CanActivateFn"
+        },
+        {
+          "type": "contains",
+          "value": "deprecated"
+        }
       ]
     },
     {
@@ -24,8 +39,14 @@
       "prompt": "How do I bind route params to component inputs in Angular?",
       "expected_output": "Configure withComponentInputBinding() in provideRouter(). Define input.required<string>() in the component. Angular auto-maps route params, query params, and resolve data to matching inputs.",
       "assertions": [
-        { "type": "contains", "value": "withComponentInputBinding" },
-        { "type": "contains", "value": "input.required" }
+        {
+          "type": "contains",
+          "value": "withComponentInputBinding"
+        },
+        {
+          "type": "contains",
+          "value": "input.required"
+        }
       ]
     },
     {
@@ -33,8 +54,14 @@
       "prompt": "Working on app.routes.ts — how should I structure routes?",
       "expected_output": "No logic in route config. Use guards for access control, resolvers for data pre-fetching. Lazy load all features with loadComponent or loadChildren.",
       "assertions": [
-        { "type": "contains", "value": "No logic" },
-        { "type": "contains", "value": "guard" }
+        {
+          "type": "contains",
+          "value": "No logic"
+        },
+        {
+          "type": "contains",
+          "value": "guard"
+        }
       ]
     },
     {
@@ -42,8 +69,14 @@
       "prompt": "How do I use a resolver to prefetch data before navigation?",
       "expected_output": "Create a ResolveFn<T> function. Use inject() to get services. Register in route config with resolve: { key: resolver }.",
       "assertions": [
-        { "type": "contains", "value": "ResolveFn" },
-        { "type": "contains", "value": "resolve" }
+        {
+          "type": "contains",
+          "value": "ResolveFn"
+        },
+        {
+          "type": "contains",
+          "value": "resolve"
+        }
       ]
     },
     {
@@ -51,8 +84,14 @@
       "prompt": "How do I configure page titles in Angular Router?",
       "expected_output": "Use title property in route data, or provide a custom TitleStrategy service for dynamic titles.",
       "assertions": [
-        { "type": "contains", "value": "TitleStrategy" },
-        { "type": "contains", "value": "title" }
+        {
+          "type": "contains",
+          "value": "TitleStrategy"
+        },
+        {
+          "type": "contains",
+          "value": "title"
+        }
       ]
     }
   ],
@@ -61,5 +100,8 @@
     "How do I create route handlers in NestJS?",
     "How do I configure nginx reverse proxy routing?",
     "How do I set up Vue Router navigation guards?"
+  ],
+  "should_trigger": [
+    "How do I set up lazy loading in Angular?"
   ]
 }

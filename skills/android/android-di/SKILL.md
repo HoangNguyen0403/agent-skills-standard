@@ -1,6 +1,6 @@
 ---
 name: android-di
-description: Configure Hilt dependency injection with proper scoping, modules, and constructor injection in Android. Use when setting up Hilt DI, defining modules, or configuring component scoping.
+description: Configure Hilt dependency injection with proper scoping, modules, and constructor injection in Android. Use when changing the production Hilt graph; defer test overrides, Room wiring, navigation-specific scopes, and generic DI explanations to their specific skills.
 metadata:
   triggers:
     files:
@@ -14,7 +14,7 @@ metadata:
 ---
 # Android Dependency Injection (Hilt)
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## 1. Bootstrap Hilt
 

@@ -1,0 +1,1 @@
+Add a new BullMQ processor for sending weekly digest emails in the notifications module.

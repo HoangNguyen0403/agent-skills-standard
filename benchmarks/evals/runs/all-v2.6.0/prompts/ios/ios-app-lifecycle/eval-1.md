@@ -1,0 +1,1 @@
+How should I implement ios app lifecycle best practices?

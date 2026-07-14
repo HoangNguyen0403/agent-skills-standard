@@ -1,0 +1,1 @@
+Implement user authentication with email and password for our new web app.

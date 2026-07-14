@@ -1,0 +1,1 @@
+I want to run a dynamic security scan on our staging API before the release. What tools should I use and how?

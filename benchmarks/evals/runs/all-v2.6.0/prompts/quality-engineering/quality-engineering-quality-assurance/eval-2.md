@@ -1,0 +1,1 @@
+I have a test case named 'Verify checkout works for all payment methods'. What's wrong with it and how should I split it?

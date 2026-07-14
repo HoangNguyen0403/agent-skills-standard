@@ -14,7 +14,7 @@ metadata:
 ---
 # Real-Time & WebSockets
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Workflow: Add Real-Time Feature

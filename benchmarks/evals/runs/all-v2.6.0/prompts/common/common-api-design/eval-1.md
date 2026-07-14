@@ -1,0 +1,1 @@
+How should I implement common api design best practices?

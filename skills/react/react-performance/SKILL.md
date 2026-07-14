@@ -52,3 +52,8 @@ metadata:
 
 - [Framework Map](../references/framework-map.md)
 - [REFERENCE.md](references/REFERENCE.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Split Context

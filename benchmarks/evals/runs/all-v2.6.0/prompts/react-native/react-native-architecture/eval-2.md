@@ -1,0 +1,1 @@
+My React Native screen component has API calls, business logic, and UI all in one 400-line file. How do I refactor it?

@@ -1,0 +1,1 @@
+We don't have ZAP or Nuclei installed. How can I still do adversarial testing on our API endpoints?

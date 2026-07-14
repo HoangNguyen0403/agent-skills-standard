@@ -12,5 +12,8 @@
       ]
     }
   ],
-  "should_not_trigger": ["Fetch Jira sprint plan", "Create architecture diagram"]
+  "should_not_trigger": [
+    "Fetch Jira sprint plan",
+    "Create architecture diagram"
+  ]
 }

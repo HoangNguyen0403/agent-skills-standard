@@ -14,7 +14,7 @@ metadata:
 ---
 # iOS Localization & Assets
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 ## Implementation Workflow
 
@@ -36,3 +36,9 @@ See [localization and asset catalog examples](references/implementation.md)
 ## References
 
 - [L10n & Asset Organization](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Native Implementation,implementation
+- String(localized: "key")

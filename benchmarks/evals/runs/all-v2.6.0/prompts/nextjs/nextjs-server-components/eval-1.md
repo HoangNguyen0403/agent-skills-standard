@@ -1,0 +1,1 @@
+Decide where to put 'use client' in a Next.js component tree

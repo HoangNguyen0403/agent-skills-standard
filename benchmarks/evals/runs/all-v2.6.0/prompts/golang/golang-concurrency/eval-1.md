@@ -1,0 +1,1 @@
+I'm spawning goroutines inside a for loop to process orders in parallel. How do I make sure none of them leak?

@@ -1,0 +1,1 @@
+We found a hardcoded database password in our Go source code. How severe is this?

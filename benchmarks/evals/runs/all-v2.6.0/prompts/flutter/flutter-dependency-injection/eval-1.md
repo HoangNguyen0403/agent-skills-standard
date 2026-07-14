@@ -1,0 +1,1 @@
+I'm adding a new OrderRepository that depends on Dio and a local Hive database. How do I register it with injectable/get_it?

@@ -1,0 +1,1 @@
+Monitor queues with Laravel Horizon

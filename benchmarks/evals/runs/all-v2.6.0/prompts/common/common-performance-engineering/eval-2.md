@@ -1,0 +1,1 @@
+Our React app has a 10-second initial load for a page with a large data table of 5000 rows.

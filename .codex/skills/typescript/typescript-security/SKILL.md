@@ -1,6 +1,6 @@
 ---
 name: typescript-security
-description: Validate input, secure auth tokens, and prevent injection attacks in TypeScript. Use when validating input, handling auth tokens, sanitizing data, or managing secrets and sensitive configuration.
+description: Secure server-side TypeScript input, auth tokens, and injection boundaries. Use for API/request validation, sanitization, secrets, and sensitive configuration; defer client-only React form validation and generic linting.
 metadata:
   triggers:
     files:
@@ -54,3 +54,8 @@ After typing validation schemas (Zod/joi) or auth guards, call `getDiagnostics` 
 ## References
 
 See [references/REFERENCE.md](references/REFERENCE.md) for Zod validation, secure cookie setup, JWT auth, security headers, and RBAC patterns.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- HttpOnly

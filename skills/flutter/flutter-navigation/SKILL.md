@@ -1,6 +1,6 @@
 ---
 name: flutter-navigation
-description: Implement navigation patterns with go_router, deep linking, and named routes in Flutter. Use when building navigation, deep linking, or routing.
+description: Implement route configuration, go_router/deep linking, and named routes in Flutter. Use for route declarations, route guards, and URL-to-screen mapping; defer transition-only animation, state-transfer/BLoC questions, auto_route-specific setup, and generic app-bar controls.
 metadata:
   triggers:
     files:
@@ -17,7 +17,7 @@ metadata:
 ---
 # Flutter Navigation
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Implementation Workflow
@@ -44,3 +44,9 @@ See [implementation examples](references/implementation.md) for GoRouter configu
 ## Related Topics
 
 flutter-design-system | flutter-notifications | mobile-ux-core
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Android
+- iOS URL-type

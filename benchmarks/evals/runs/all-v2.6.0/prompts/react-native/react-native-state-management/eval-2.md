@@ -1,0 +1,1 @@
+How do I fetch and cache API data in React Native without duplicating into useState?

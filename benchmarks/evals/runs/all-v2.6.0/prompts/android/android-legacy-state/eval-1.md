@@ -1,0 +1,1 @@
+I'm collecting a StateFlow from my ViewModel inside a Fragment using lifecycleScope.launchWhenStarted. Is there a problem with this?

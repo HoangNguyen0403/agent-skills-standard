@@ -1,0 +1,5 @@
+An 800-line PR is not automatically wrong, but it is large enough to increase review risk. First determine whether the size reflects one coherent change or unrelated work.
+
+If it contains multiple concerns, split it into focused PRs or a stack of dependent PRs. Separate refactoring, formatting, generated files, migrations, and behavior changes where practical. Keep each PR independently understandable and testable, and explain dependencies and rollout order in the descriptions.
+
+If it is one inseparable feature, make it easier to review: remove unrelated changes, avoid drive-by formatting, separate mechanical changes from logic, include a concise problem/solution summary, document design decisions and risks, and add tests for the changed behavior. Ask the reviewer whether a specific split would help before rewriting history. Do not hide a large risky change by splitting it into misleadingly small commits; preserve a clear, reviewable story and call out generated or unavoidable lines explicitly.

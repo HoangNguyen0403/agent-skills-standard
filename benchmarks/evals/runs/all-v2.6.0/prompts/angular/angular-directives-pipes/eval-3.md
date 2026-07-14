@@ -1,0 +1,1 @@
+How do I write a pure pipe in Angular?

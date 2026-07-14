@@ -12,7 +12,7 @@ metadata:
     - summarize history
     - clear output
 ---
-## **Priority: P1 (OPTIMIZATION)**
+## **Priority: P1 (HIGH)**
 
 
 ## 1. Observation Masking (Noise Reduction)

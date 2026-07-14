@@ -1,0 +1,1 @@
+I want to commit my changes that fix a login bug and also add a new user profile feature. Should I do one commit or two?

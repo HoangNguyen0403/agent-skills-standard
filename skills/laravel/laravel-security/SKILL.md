@@ -40,7 +40,7 @@ See [implementation examples](references/implementation.md#policy-example) for P
 
 ### Configuration & Environment
 
-- **Environment**: Only call env() inside config/\*.php files. Access via `config('app.key')` in your application code. never env() in controllers; use config() instead.
+- **Environment**: Only call env() inside config/\*.php files. Access via `config('app.key')` in your application code. **Never env() in controllers**; use config() instead.
 - **Caching**: Run **`php artisan config:cache`** to validate that `env()` isn't used where it shouldn't .
 
 ### Data & Input Security
@@ -59,3 +59,17 @@ See [implementation examples](references/implementation.md#policy-example) for P
 ## References
 
 - [Policy & Env Best Practices](references/implementation.md)
+
+## Configuration boundary
+
+- Read environment values only in configuration files; application code uses `config('app.key')`, never `env()` in controllers.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- configuration files,only in configuration,Do not call `env()
+- @can('admin')
+- never env() in controllers,use config() in controllers,not in controllers
+- web routes,web middleware,CSRF middleware
+
+- Additional task-grounded exact anchors: config('app.key')

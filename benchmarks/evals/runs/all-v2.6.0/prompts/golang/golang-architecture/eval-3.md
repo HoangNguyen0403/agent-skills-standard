@@ -1,0 +1,1 @@
+I have a Go service that handles orders, inventory, and notifications. Should this all be in one service struct?

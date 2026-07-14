@@ -1,0 +1,1 @@
+Union types and intersection types in PHP 8

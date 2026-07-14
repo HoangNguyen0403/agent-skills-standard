@@ -64,5 +64,8 @@
     "How do I write RNTL tests?",
     "How do I implement push notifications?",
     "How do I structure my React Native project?"
+  ],
+  "should_trigger": [
+    "How do I set up over-the-air updates for my React Native app without going through the app store?"
   ]
 }

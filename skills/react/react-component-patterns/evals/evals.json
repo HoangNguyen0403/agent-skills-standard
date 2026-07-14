@@ -6,8 +6,14 @@
       "prompt": "Build a reusable Select dropdown component that supports multiple option types and shared state between parent and children.",
       "expected_output": "Use Compound Components pattern: <Select> manages state via Context, <Select.Option> consumes it. Use React.createContext() for state sharing. Parent renders <Select value={v} onChange={fn}><Select.Option value='a'>A</Select.Option></Select>. Each Option reads from context rather than receiving props from parent.",
       "assertions": [
-        { "type": "contains", "value": "Compound" },
-        { "type": "contains", "value": "Context" }
+        {
+          "type": "contains",
+          "value": "Compound"
+        },
+        {
+          "type": "contains",
+          "value": "Context"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "I'm passing the same 8 props down through 4 levels of components to reach the one that needs them.",
       "expected_output": "Violation: No Prop Drilling. Fix: use Context API for global/deeply nested state. Create a Context provider at the common ancestor. The deep child consumes context directly with useContext(). For complex state, use Zustand instead. Alternative: use Render Props or Compound Components to avoid the hierarchy entirely.",
       "assertions": [
-        { "type": "contains", "value": "Prop Drilling" },
-        { "type": "contains", "value": "Context" }
+        {
+          "type": "contains",
+          "value": "Prop Drilling"
+        },
+        {
+          "type": "contains",
+          "value": "Context"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "Explain why using {count && <List />} to render a list of items is a bug when the count is zero.",
       "expected_output": "Use ternary instead of && for rendering: {count > 0 ? <List /> : null} not {count && <List />}. In JavaScript, the && operator evaluates to the first falsy operand encountered. When count is 0, {0 && <List />} evaluates to 0, which React then renders into the DOM as text. Always use ternary or explicit boolean checks (!!count or count > 0) to avoid rendering a literal 0.",
       "assertions": [
-        { "type": "contains", "value": "ternary" },
-        { "type": "contains", "value": "0" }
+        {
+          "type": "contains",
+          "value": "ternary"
+        },
+        {
+          "type": "contains",
+          "value": "0"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Configure a Go gRPC server with TLS",
     "Write PostgreSQL migration scripts",
     "Set up Kubernetes resource quotas"
+  ],
+  "should_trigger": [
+    "Build a reusable Select dropdown component that supports multiple option types and shared state between parent and children."
   ]
 }

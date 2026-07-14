@@ -1,0 +1,1 @@
+We create an order, reserve inventory, and publish an event. What should I think about for the transaction?

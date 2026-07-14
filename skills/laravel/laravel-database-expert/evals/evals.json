@@ -132,7 +132,7 @@
         },
         {
           "type": "contains",
-          "value": "whereIn"
+          "value": "whereExists"
         },
         {
           "type": "contains",
@@ -177,5 +177,6 @@
     "Use Eloquent for basic CRUD operations",
     "Configure PostgreSQL connection in a Go service",
     "Database optimization in Spring Boot with JPA"
-  ]
+  ],
+  "should_trigger": ["Optimize complex queries in Laravel"]
 }

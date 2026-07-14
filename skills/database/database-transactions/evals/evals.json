@@ -6,9 +6,23 @@
       "prompt": "We create an order, reserve inventory, and publish an event. What should I think about for the transaction?",
       "expected_output": "Define the unit of work, decide what must be atomic vs eventual, keep the transaction short, and record isolation, retry, and idempotency expectations.",
       "assertions": [
-        { "type": "contains", "value": "atomic" },
-        { "type": "contains", "value": "idempotency" },
-        { "type": "contains", "value": "transaction" }
+        {
+          "type": "contains",
+          "value": "atomic"
+        },
+        {
+          "type": "contains",
+          "value": "idempotency"
+        },
+        {
+          "type": "contains",
+          "value": "transaction"
+        },
+        {
+          "type": "contains_any",
+          "value": ["unit of work", "idempotency", "isolation"],
+          "description": "Defines transaction atomicity, isolation, or retry behavior"
+        }
       ]
     }
   ],
@@ -16,5 +30,8 @@
     "Optimize bundle size in React",
     "Write a Next.js layout",
     "Create release notes"
+  ],
+  "should_trigger": [
+    "We create an order, reserve inventory, and publish an event. What should I think about for the transaction?"
   ]
 }

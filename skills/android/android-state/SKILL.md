@@ -1,6 +1,6 @@
 ---
 name: android-state
-description: Configure ViewModel state emission with StateFlow, sealed UiState classes, and lifecycle-safe collection in Android. Use when working with ViewModels, UiState patterns, or exposing state to Compose UI.
+description: Configure ViewModel state emission with StateFlow, SharedFlow, and sealed UiState classes in Android. Use for state modeling and sharing policies; defer generic lifecycle collection, navigation-event plumbing, Hilt injection, test code, and configuration-change recipes to their specific skills.
 metadata:
   triggers:
     files:
@@ -18,7 +18,7 @@ metadata:
 ---
 # Android State Management
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## 1. Structure ViewModel
 

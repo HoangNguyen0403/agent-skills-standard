@@ -1,0 +1,1 @@
+How do I configure Detekt to fail the build when a method exceeds 30 lines or a class exceeds 300 lines?

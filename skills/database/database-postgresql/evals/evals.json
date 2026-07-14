@@ -13,12 +13,6 @@
           "value": "Expand"
         },
         {
-          "id": "a2",
-          "description": "Warns against synchronize:true",
-          "type": "contains",
-          "value": "synchronize"
-        },
-        {
           "id": "a3",
           "description": "Mentions migrations",
           "type": "contains",
@@ -34,8 +28,8 @@
         {
           "id": "a1",
           "description": "Mentions query builder or join",
-          "type": "contains",
-          "value": "query builder"
+          "type": "contains_any",
+          "value": ["QueryBuilder", "createQueryBuilder", "relations"]
         },
         {
           "id": "a2",
@@ -55,6 +49,16 @@
           "description": "Mentions queryRunner for RLS",
           "type": "contains",
           "value": "queryRunner"
+        },
+        {
+          "id": "a3",
+          "description": "Enables RLS explicitly in migration SQL",
+          "type": "contains_any",
+          "value": [
+            "ENABLE ROW LEVEL SECURITY",
+            "enable row level security",
+            "ALTER TABLE"
+          ]
         }
       ]
     }
@@ -63,5 +67,8 @@
     "How do I design a MongoDB document?",
     "What Redis data structure should I use for a leaderboard?",
     "How do I set up a NestJS module?"
+  ],
+  "should_trigger": [
+    "I need to add a column to a production PostgreSQL table without downtime. How?"
   ]
 }

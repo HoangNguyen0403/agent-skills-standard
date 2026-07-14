@@ -1,0 +1,1 @@
+Before we close {PROJECT}-{ID}, can you give me the test coverage breakdown? I need to show the release manager what percentage of ACs are covered and what the risk is if we ship with the current gaps.

@@ -1,6 +1,6 @@
 ---
 name: android-performance
-description: Optimize Android app startup, UI rendering, and frame stability with Baseline Profiles and lazy initialization. Use when reducing startup time, diagnosing jank, or improving rendering performance.
+description: Optimize Android app startup, UI rendering, frame stability, and benchmark performance with Baseline Profiles, Macrobenchmark, and lazy initialization. Use when reducing startup time, diagnosing jank, or measuring rendering; defer Compose state API and test-only questions.
 metadata:
   triggers:
     files:
@@ -13,7 +13,7 @@ metadata:
 ---
 # Android Performance Standards
 
-## **Priority: P1**
+## **Priority: P1 (HIGH)**
 
 ## 1. Accelerate Startup
 
@@ -43,3 +43,8 @@ See [baseline & startup](references/implementation.md) for LazyColumn optimizati
 ## References
 
 - [Baseline & Startup](references/implementation.md)
+
+
+## Canonical response anchors
+
+- Additional task-grounded exact anchors: Baseline Profile

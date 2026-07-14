@@ -1,6 +1,6 @@
 ---
 name: quality-engineering-jira-integration
-description: "Jira ↔ Zephyr traceability: fetch story AC and components, detect existing TC links, link new Zephyr TCs back to Jira, and apply has-zephyr-tests labels. Use after creating Zephyr test cases that need linking, when fetching a Jira story's details for test generation, or when auditing and cleaning up stale TC links."
+description: "Trigger only when the user explicitly requests live Jira or Zephyr retrieval, existing-link inspection, linking authored test cases, label updates, or stale-link audits. Do not trigger for analysis-only prompts such as 'Analyze the acceptance criteria for TICK-4521', supplied acceptance criteria, test-case authoring, or AC-to-test generation."
 metadata:
   triggers:
     keywords:
@@ -46,3 +46,9 @@ metadata:
 - **No Ghosting**: Create tests then link to Jira (Traceability).
 - **No Spam**: Post single comment per link.
 - **No Missing Labels**: Update Jira labels after linking.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Identify
+- has-zephyr-tests label

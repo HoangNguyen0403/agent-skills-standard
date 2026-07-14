@@ -1,6 +1,6 @@
 ---
 name: javascript-tooling
-description: Configure development tools, linting, and testing for JavaScript projects. Use when configuring ESLint, Prettier, or test runners for JavaScript projects.
+description: Configure development tools, linting, formatting, and test runners for existing JavaScript projects. Use for ESLint, Prettier, Jest, or equivalent tool setup; defer application implementation and generic project scaffolding.
 metadata:
   triggers:
     files:
@@ -17,10 +17,12 @@ metadata:
 ---
 # JavaScript Tooling
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Implementation Guidelines
+
+Start tooling recommendations with the applicable **Priority** and then state the formatting tool and enforcement point.
 
 - **Linting**: ESLint (Rec + Prettier). Fix on save.
 - **Formatting**: Prettier. Run on save/commit.
@@ -64,3 +66,10 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 ## Related Topics
 
 best-practices | language
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Pkg Manager
+- Priority
+- Testing

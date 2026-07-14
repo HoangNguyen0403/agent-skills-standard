@@ -1,0 +1,1 @@
+Generate test cases for {PROJECT}-{ID}. I want to create Zephyr TCs for all the acceptance criteria in this ticket.

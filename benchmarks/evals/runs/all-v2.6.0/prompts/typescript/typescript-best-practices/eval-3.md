@@ -1,0 +1,1 @@
+My TypeScript class uses inheritance and the base class is getting very large.

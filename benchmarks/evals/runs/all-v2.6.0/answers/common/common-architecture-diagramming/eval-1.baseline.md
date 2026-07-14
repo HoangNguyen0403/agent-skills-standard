@@ -1,0 +1,16 @@
+# Implementing architecture diagramming best practices
+
+Architecture diagrams are most useful when they communicate one decision or view clearly to a specific audience. Implement them as maintained technical documentation, not as a single picture that attempts to describe the entire system.
+
+1. Define the purpose, audience, and scope before drawing. State whether the diagram explains system context, containers and services, component structure, deployment topology, a request flow, or a particular decision. Include the system boundary and a small “as of” or version note when the view can change.
+2. Choose an appropriate level of abstraction. A context diagram can show users and external systems; a container diagram can show deployable applications and data stores; a component diagram can show internal modules; a deployment diagram can show runtime nodes and environments. Keep separate views rather than mixing all levels in one crowded canvas.
+3. Use a consistent visual vocabulary. Give each shape a clear meaning, use stable names across diagrams and code, and provide a legend for colors, line styles, protocols, and trust boundaries. Prefer labels such as “HTTPS POST /orders” or “publishes OrderCreated” over unexplained arrows.
+4. Make relationships explicit. Label important connections with direction, interaction type, protocol, and—where relevant—synchronous versus asynchronous behavior. Distinguish dependencies from data flow and control flow. Show ownership of data stores and identify system-of-record responsibilities.
+5. Show boundaries that affect design or risk. Mark network zones, tenant boundaries, security or trust boundaries, and environment boundaries when they change authentication, authorization, encryption, availability, or deployment decisions. Do not imply security merely through color; label the control or policy.
+6. Optimize readability. Use a clear left-to-right or top-to-bottom flow, minimize crossings, align related elements, keep text large enough to read at normal size, and avoid decorative shapes. If a diagram needs a long explanation, split it into smaller views and link them.
+7. Record operationally meaningful details. For architecture decisions, include interfaces, ownership, failure or retry behavior, key dependencies, and relevant nonfunctional constraints. For deployment views, show replicas, routing, zones, and managed services only when they matter to the question being answered.
+8. Keep diagrams close to the architecture source of truth. Store source in a reviewable, version-controlled format such as Mermaid, PlantUML, or a diagram-as-code tool when practical. Review diagram changes with code and architecture decisions, and assign an owner or update trigger so diagrams do not silently become stale.
+9. Validate the result. Check names and boundaries against the implementation, test representative flows, verify that every arrow has an intended meaning, and ask a reader from the target audience to explain the diagram back. Update or remove views that no longer support a decision.
+
+A good diagram should let a reader answer quickly: What is in scope? Who talks to what? Where does data live? Which boundaries and failure modes matter? If those answers are not obvious, reduce scope or add a more focused view.
+

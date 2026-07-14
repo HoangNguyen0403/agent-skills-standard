@@ -1,0 +1,1 @@
+Use the 🎭 Playwright CLI (Web Automation) workflow: start a named session, use `hover` or scroll to bring the sticky header into view, freeze animations if needed, then call `screenshot` for evidence. Close the session afterward.

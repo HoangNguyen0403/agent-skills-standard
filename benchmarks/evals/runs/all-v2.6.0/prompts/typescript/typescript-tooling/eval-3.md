@@ -1,0 +1,1 @@
+I have a TypeScript error I can't figure out — can I just add @ts-ignore to suppress it?

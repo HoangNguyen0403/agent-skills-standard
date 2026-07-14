@@ -1,0 +1,1 @@
+How do I define routes in Navigation 3? I'm used to string-based routes from Navigation 2.

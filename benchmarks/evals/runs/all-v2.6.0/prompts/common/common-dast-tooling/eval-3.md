@@ -1,0 +1,1 @@
+Our DAST scan found the server exposes its version string in response headers. How severe is this?

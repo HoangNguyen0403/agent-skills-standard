@@ -1,0 +1,1 @@
+What's the idiomatic way to define a set of related constants in Go?

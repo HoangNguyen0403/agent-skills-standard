@@ -1,0 +1,1 @@
+How do I define custom error types in Swift?

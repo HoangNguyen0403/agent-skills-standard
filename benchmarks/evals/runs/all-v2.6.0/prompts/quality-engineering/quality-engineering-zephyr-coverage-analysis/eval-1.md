@@ -1,0 +1,1 @@
+Can you check the coverage for {PROJECT}-{ID}? I want to know if we have enough test cases before we ship this sprint. We're planning a release next week and the QE lead asked me to run a coverage check.

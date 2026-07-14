@@ -1,0 +1,1 @@
+Sequential awaits create a request waterfall. Parallelize independent work with `Promise.all`, for example `Promise.all([getUser(id), getOrders(id)])`, then fetch only the data that depends on those results. Use Suspense boundaries to stream slow branches and profile the result.

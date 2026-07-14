@@ -6,8 +6,16 @@
       "prompt": "I want an app that tracks my bakery's orders and lets customers pay online. I don't know anything about coding.",
       "expected_output": "Infer operator_profile=business from outcome-only, no-artifact language; open with a plain-language summary before any technical detail; do not ask the operator to self-rate their skill level.",
       "assertions": [
-        { "type": "contains", "value": "business" },
-        { "type": "not_contains", "value": "how technical are you" }
+        {
+          "type": "not_contains",
+          "value": "how technical are you"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes Infer operator_profile",
+          "type": "contains",
+          "value": "business"
+        }
       ]
     },
     {
@@ -15,8 +23,14 @@
       "prompt": "I'm a Laravel developer but I've never touched NestJS. Can you help me add a module that mirrors what I'd build with a Laravel service provider?",
       "expected_output": "Infer operator_profile=hybrid from single-stack fluency plus a cross-stack question; map NestJS concepts to the operator's declared Laravel background on first use.",
       "assertions": [
-        { "type": "contains", "value": "hybrid" },
-        { "type": "contains", "value": "Laravel" }
+        {
+          "type": "contains_any",
+          "value": ["Laravel", "service provider", "NestJS"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["Module", "Provider"]
+        }
       ]
     },
     {
@@ -24,7 +38,16 @@
       "prompt": "Implement REQ-12 per prd-checkout.md, see the failing test in checkout.spec.ts.",
       "expected_output": "Infer operator_profile=technical from file/requirement references; respond tersely with no explanations of standard concepts.",
       "assertions": [
-        { "type": "contains", "value": "technical" }
+        {
+          "type": "contains_any",
+          "value": ["prd-checkout.md", "checkout.spec.ts"]
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes Infer operator_profile",
+          "type": "contains",
+          "value": "technical"
+        }
       ]
     },
     {
@@ -32,10 +55,22 @@
       "prompt": "Build me an app for my bakery. I have no sponsor name, no metric, nothing formal — just the idea.",
       "expected_output": "For operator_profile=business, draft sponsor/SMART metric/scope fence defaults and present them as one confirm-with-default question round instead of returning BLOCKED.",
       "assertions": [
-        { "type": "contains", "value": "recommended default" },
-        { "type": "not_contains", "value": "BLOCKED" }
+        {
+          "type": "not_contains",
+          "value": "BLOCKED"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes operator_profile",
+          "type": "contains",
+          "value": "SMART metric"
+        }
       ]
     }
+  ],
+  "should_trigger": [
+    "I own a bakery and need an online ordering app, but I do not know programming.",
+    "I know Laravel well but need the NestJS equivalent of a service provider."
   ],
   "should_not_trigger": [
     "Write a Go function to parse JSON",

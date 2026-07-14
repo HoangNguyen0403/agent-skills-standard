@@ -28,6 +28,12 @@
         {
           "type": "contains",
           "value": "screenshot"
+        },
+        {
+          "id": "a2",
+          "description": "Checks the task contract includes hover'",
+          "type": "contains",
+          "value": "hover"
         }
       ]
     }
@@ -36,5 +42,8 @@
     "Write a unit test for the search component",
     "Explain how CSS grid works",
     "Analyze the mobile app hierarchy"
+  ],
+  "should_trigger": [
+    "Verify the search results on SG market using playwright-cli."
   ]
 }

@@ -24,7 +24,7 @@ metadata:
 ---
 # Global Best Practices
 
-## **Priority: P0 (FOUNDATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
 ## Core Principles
 

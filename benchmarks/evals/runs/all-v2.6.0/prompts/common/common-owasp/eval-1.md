@@ -1,0 +1,1 @@
+Review this code: const user = await db.findById(req.params.id); return res.json(user);

@@ -1,0 +1,1 @@
+Pass Server Component as children to a Client Component

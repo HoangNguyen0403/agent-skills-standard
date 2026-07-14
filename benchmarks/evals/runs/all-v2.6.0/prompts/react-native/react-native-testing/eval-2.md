@@ -1,0 +1,1 @@
+How do I mock native modules like AsyncStorage in React Native tests?

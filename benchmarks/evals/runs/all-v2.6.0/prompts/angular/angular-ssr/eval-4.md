@@ -1,0 +1,1 @@
+How do I safely access window in an Angular SSR app?

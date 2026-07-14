@@ -1,0 +1,1 @@
+My Python domain rule imports psycopg2 directly to look up a task before deciding status. Is that acceptable?

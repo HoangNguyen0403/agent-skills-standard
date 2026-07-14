@@ -1,0 +1,1 @@
+How should I configure lazy loading with loadComponent?

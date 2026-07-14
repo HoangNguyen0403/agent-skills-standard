@@ -1,0 +1,26 @@
+Common Angular forms anti-patterns include:
+
+- Mixing `[(ngModel)]` with `formControl`, `formControlName`, or `FormGroup` on the same element.
+- Creating or rebuilding `FormGroup` instances inside the template or during every change-detection cycle.
+- Accessing controls with repeated unsafe casts instead of typed forms or reusable getters.
+- Using `patchValue()` when all fields are required and `setValue()` would catch missing or misspelled controls.
+- Updating form state by mutating `control.value` directly; use `setValue()`, `patchValue()`, `reset()`, or `disable()`.
+- Binding `[disabled]` directly to a reactive-form input; use `control.disable()` or `control.enable()`.
+- Relying only on browser HTML validation instead of Angular validators such as `Validators.required`, `Validators.email`, and custom validators.
+- Showing validation errors before a control is `touched`, `dirty`, or the form is submitted.
+- Writing complex validation logic directly in templates.
+- Putting reusable validators inside components instead of standalone validator functions or directives.
+- Performing HTTP calls on every `valueChanges` event without `debounceTime()`, `distinctUntilChanged()`, cancellation, or error handling.
+- Subscribing to `valueChanges` or `statusChanges` without cleanup, causing memory leaks; use `takeUntilDestroyed()` or an equivalent teardown strategy.
+- Creating feedback loops by calling `setValue()` inside a `valueChanges` subscription without guarding emissions or using `{ emitEvent: false }`.
+- Performing side effects in validators; validators should be deterministic and return `ValidationErrors | null`.
+- Implementing asynchronous checks as ordinary validators, or failing to return an `Observable`/`Promise` from an `AsyncValidatorFn`.
+- Ignoring `PENDING`, `INVALID`, and disabled-control states when enabling submission.
+- Using one enormous component for form creation, validation, submission, and presentation instead of splitting reusable controls and services.
+- Using uncontrolled string paths everywhere, especially in large forms; typed reactive forms reduce runtime errors.
+- Resetting the entire form when only one control or section needs resetting.
+- Treating disabled controls as ordinary values: `form.value` excludes disabled controls; use `form.getRawValue()` when appropriate.
+- Omitting accessible labels, error messaging, `aria-describedby`, keyboard support, and clear invalid-state indicators.
+- Using `*ngIf` or dynamic rendering in ways that unintentionally destroy controls and lose their values, touched state, or subscriptions.
+- Using `FormArray` incorrectly by indexing manually without checking bounds or by failing to add/remove controls through the `FormArray` API.
+- Trusting client-side validation for security; the server must validate and authorize submitted data independently.

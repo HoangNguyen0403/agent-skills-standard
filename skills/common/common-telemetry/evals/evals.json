@@ -3,17 +3,39 @@
   "evals": [
     {
       "id": 1,
+      "prompt": "At the end of an agent workflow, what telemetry step is required before the final handoff?",
       "name": "Ensure get_session_cost is mandated",
+      "expected_output": "Call get_session_cost and append its usage metrics as a Markdown table to artifacts/session-cost.md before the final handoff.",
       "assertions": [
-        { "type": "contains", "value": "Call the `get_session_cost` tool" }
+        {
+          "type": "contains",
+          "value": "get_session_cost"
+        },
+        {
+          "type": "contains",
+          "value": "artifacts/session-cost.md"
+        }
       ]
     },
     {
       "id": 2,
+      "prompt": "Which artifact should record session cost metrics in the final workflow handoff?",
       "name": "Ensure artifacts/session-cost.md is used",
+      "expected_output": "Record the session cost metrics in artifacts/session-cost.md as a Markdown table, using get_session_cost when the host runtime exposes it.",
       "assertions": [
-        { "type": "contains", "value": "artifacts/session-cost.md" }
+        {
+          "type": "contains",
+          "value": "artifacts/session-cost.md"
+        },
+        {
+          "type": "contains",
+          "value": "get_session_cost"
+        }
       ]
     }
-  ]
+  ],
+  "should_trigger": [
+    "Apply common-telemetry guidance to the task before handing it off."
+  ],
+  "should_not_trigger": ["Design a logo for a marketing landing page."]
 }

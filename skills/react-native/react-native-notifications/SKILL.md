@@ -16,7 +16,7 @@ metadata:
 ---
 # React Native Notifications
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Guidelines

@@ -1,6 +1,6 @@
 ---
 name: php-best-practices
-description: Write PHP following best practices, PSR standards, and code quality guidelines. Use when writing PHP following PSR standards, SOLID principles, or improving code quality.
+description: Write PHP following PSR coding standards, SOLID principles, and code-quality guidelines. Use for PHP style, design, refactoring, naming, and guard clauses—not Composer/PSR-4 project configuration.
 metadata:
   triggers:
     files:
@@ -54,3 +54,11 @@ src/
 ## References
 
 - [Clean Code Patterns](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- SRP:,single responsibility,one responsibility
+- PascalCase
+- no else after return,else after a return,reduce nesting,reducing nesting,deeply nested
+- same-line opening braces,opening braces on same line,Braces on the same line

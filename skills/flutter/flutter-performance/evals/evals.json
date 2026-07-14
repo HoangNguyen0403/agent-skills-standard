@@ -30,8 +30,8 @@
           "value": "BlocBuilder"
         },
         {
-          "type": "contains",
-          "value": "RepaintBoundary"
+          "type": "contains_any",
+          "value": ["BlocBuilder", "context.select", "RepaintBoundary"]
         }
       ]
     },
@@ -43,6 +43,12 @@
         {
           "type": "contains",
           "value": "CachedNetworkImage"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["memCacheWidth", "memCacheHeight", "maxWidthDiskCache"]
         }
       ]
     }
@@ -52,5 +58,8 @@
     "Write a performance test for the BLoC",
     "Set up Firebase Performance Monitoring",
     "Add pagination to the API call in the repository"
+  ],
+  "should_trigger": [
+    "My product list with 500 items is laggy when scrolling. I'm using a Column with children mapped to ProductCard widgets."
   ]
 }

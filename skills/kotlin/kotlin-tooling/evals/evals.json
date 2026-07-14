@@ -72,12 +72,15 @@
     }
   ],
   "should_not_trigger": [
-    "Configure ktlint and Detekt for an Android project specifically",
     "How do I set up Spotless with Google Java Format in a Gradle project?",
     "Add SpotBugs to catch null pointer dereferences in my Java code",
-    "Configure a version catalog for an Android multi-module project",
     "How do I use JUnit 5 with Spring Boot in Kotlin?",
-    "Set up Checkstyle for my Java project in Maven",
+    "Set up Checkstyle for my Java project in Maven"
+  ],
+  "should_trigger": [
+    "Should I use Mockito or MockK for mocking in my Kotlin unit tests?",
+    "Configure ktlint and Detekt for an Android project specifically",
+    "Configure a version catalog for an Android multi-module project",
     "How do I configure Gradle for a Kotlin Multiplatform (KMP) project?",
     "Add a pre-commit hook to run ktlint formatting automatically",
     "Configure SonarQube for code quality tracking in a Kotlin service",

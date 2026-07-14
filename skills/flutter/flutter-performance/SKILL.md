@@ -1,6 +1,6 @@
 ---
 name: flutter-performance
-description: Optimize Flutter widget rebuilds, memory usage, and rendering performance. Use when diagnosing jank, reducing rebuilds, or improving list performance.
+description: Optimize Flutter widget rebuilds, memory usage, rendering, and scrolling performance. Use when diagnosing jank, reducing rebuilds, or improving list performance—not performance tests, monitoring setup, or API optimization.
 metadata:
   triggers:
     files:
@@ -15,7 +15,7 @@ metadata:
 ---
 # Performance
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 - **Rebuilds**: Use `const` widgets and `buildWhen` / `select` for granular updates.

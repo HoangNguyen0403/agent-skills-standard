@@ -1,0 +1,1 @@
+Should I use computed signals or functions in Angular templates?

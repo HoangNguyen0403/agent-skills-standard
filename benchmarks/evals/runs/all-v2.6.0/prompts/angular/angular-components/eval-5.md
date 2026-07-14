@@ -1,0 +1,1 @@
+How do I use output() instead of EventEmitter in Angular?

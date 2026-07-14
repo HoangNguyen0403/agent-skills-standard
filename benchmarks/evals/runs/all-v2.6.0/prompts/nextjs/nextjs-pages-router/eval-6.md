@@ -1,0 +1,1 @@
+Why can't I use 'use client' in Pages Router?

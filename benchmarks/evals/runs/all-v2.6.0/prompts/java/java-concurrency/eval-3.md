@@ -1,0 +1,1 @@
+I'm using synchronized blocks with blocking I/O inside a Java Virtual Thread app. My colleague says this is a problem. Why?

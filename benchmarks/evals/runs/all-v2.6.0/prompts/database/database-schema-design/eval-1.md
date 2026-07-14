@@ -1,0 +1,1 @@
+We need to model comments, attachments, and audit history for a ticketing feature. How should we shape the schema?

@@ -1,0 +1,3 @@
+Remove god functions that mix orchestration, SQL, business rules, formatting, and external side effects. Other common smells are hidden dependencies and mutable globals, duplicated logic, magic constants, weak names, missing type hints, unbounded retries, broad exception handlers, swallowed errors, blocking calls in async code, and work performed at import time.
+
+Before extending the service, separate pure logic from I/O, inject collaborators, centralize configuration, use narrow exception handling with actionable logging, add timeouts and cancellation behavior, and make side effects explicit and idempotent. Establish tests around the current behavior before changing structure, especially for failure paths and external-service interactions.

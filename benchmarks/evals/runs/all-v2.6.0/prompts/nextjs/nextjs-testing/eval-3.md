@@ -1,0 +1,1 @@
+Write E2E tests for the checkout flow that tests the full user journey from cart to order confirmation.

@@ -1,0 +1,1 @@
+The orders listing is slow. Should I just add another index?

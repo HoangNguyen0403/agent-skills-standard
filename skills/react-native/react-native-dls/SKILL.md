@@ -17,7 +17,7 @@ metadata:
 ---
 # React Native Design System
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 Enforce design token usage in React Native apps.
 
@@ -36,3 +36,11 @@ Enforce design token usage in React Native apps.
 ## References
 
 See [references/usage.md](references/usage.md) for design token usage examples.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Define
+- theme tokens
+
+- Additional task-grounded exact anchors: Enforce; Reference

@@ -15,7 +15,7 @@ metadata:
 ---
 # React Native State Management
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 ## State Strategy
 
@@ -59,3 +59,8 @@ const count = useStore((state) => state.count);
 ## References
 
 See [references/REFERENCE.md](references/REFERENCE.md) for Context patterns, Zustand store setup, Redux Toolkit, and React Query.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Provider

@@ -1,0 +1,1 @@
+We refactored the checkout feature and some old Zephyr test cases are now outdated. How should I clean up Jira so it reflects the current state?

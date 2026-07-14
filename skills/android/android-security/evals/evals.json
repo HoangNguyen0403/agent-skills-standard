@@ -70,5 +70,8 @@
     "Configure Retrofit to use HTTPS-only endpoints",
     "Add permission checks before accessing contacts or location",
     "How do I store files safely so other apps can't read them?"
+  ],
+  "should_trigger": [
+    "I'm storing the user's auth token in regular SharedPreferences. Is that safe?"
   ]
 }

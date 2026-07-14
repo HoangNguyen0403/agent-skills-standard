@@ -1,0 +1,1 @@
+What's the Compose equivalent of a RecyclerView with a LinearLayoutManager?

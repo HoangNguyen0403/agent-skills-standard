@@ -1,0 +1,1 @@
+How do I pass a product ID safely from a list fragment to a detail fragment using Jetpack Navigation in an XML-based app?

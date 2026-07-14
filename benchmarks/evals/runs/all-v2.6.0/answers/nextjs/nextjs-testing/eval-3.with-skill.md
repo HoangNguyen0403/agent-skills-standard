@@ -1,0 +1,2 @@
+Use Playwright for the full checkout journey: add a test that starts with an empty or prepared cart, navigates through checkout, fills customer/payment test data, submits, and asserts the order confirmation. Prefer accessible locators such as `getByRole`, isolate external payment calls with a test environment or route mock, and keep authentication/fixtures deterministic. Cover the critical flow without replacing unit tests for individual business rules.
+

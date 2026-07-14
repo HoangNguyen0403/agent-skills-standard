@@ -14,7 +14,7 @@ metadata:
 ---
 # NestJS Controllers & Services Standards
 
-## **Priority: P0 (FOUNDATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
 ## Controllers
 

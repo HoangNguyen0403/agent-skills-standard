@@ -61,16 +61,14 @@ export class WorkflowTransformer {
   static transform(
     source: WorkflowSource,
     format: WorkflowFormat,
-    workflowSourcePath: string = '.agents/workflows',
   ): TransformedWorkflow | null {
     const parsed = this.parse(source);
-    return this.transformParsed(parsed, format, workflowSourcePath);
+    return this.transformParsed(parsed, format);
   }
 
   static transformParsed(
     parsed: ParsedWorkflow,
     format: WorkflowFormat,
-    workflowSourcePath: string = '.agents/workflows',
   ): TransformedWorkflow | null {
     if (format === 'none') return null;
 

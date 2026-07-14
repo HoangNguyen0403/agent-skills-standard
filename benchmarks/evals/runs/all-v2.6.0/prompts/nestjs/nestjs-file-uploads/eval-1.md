@@ -1,0 +1,1 @@
+How do I validate uploaded file types in NestJS?

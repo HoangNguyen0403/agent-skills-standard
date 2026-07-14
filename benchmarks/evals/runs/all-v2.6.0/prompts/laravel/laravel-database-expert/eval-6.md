@@ -1,0 +1,1 @@
+Avoid N+1 query issues with subqueries in Laravel

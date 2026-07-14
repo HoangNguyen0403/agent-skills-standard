@@ -1,6 +1,6 @@
 ---
 name: flutter-localization
-description: Add multi-language support using easy_localization with CSV or JSON assets. Use when implementing localization or translations in Flutter.
+description: Add Flutter translation assets, locale initialization, localized strings, locale switching, and plurals with easy_localization and CSV or JSON files. Use for Flutter i18n work; not RTL-only layout or locale-specific date formatting.
 metadata:
   triggers:
     files:
@@ -17,13 +17,18 @@ metadata:
 ---
 # Localization
 
-## **Priority: P1 (STANDARD)**
+## **Priority: P1 (HIGH)**
 
 
 ## Format Selection
 
 - **CSV** (Recommended for teams with translators): Google Sheets compatibility via `sheet_loader_localization`. Store in `assets/langs/`.
 - **JSON** (Developer-friendly): Nested structure support with IDE validation. Store in `assets/translations/`.
+
+## Scope Boundary
+
+- Use this skill for translation assets, `EasyLocalization` bootstrap, `.tr()`, `plural()`, and a language/locale switcher.
+- Do not use it for RTL-only widget direction, typography, or locale-aware date/number formatting when translation assets are unchanged.
 
 ## Structure
 
@@ -41,9 +46,9 @@ assets/translations/
 
 1. **Initialize** — Call `await EasyLocalization.ensureInitialized()` before `runApp`.
 2. **Wrap root** — Wrap app with `EasyLocalization` widget specifying supported locales and path.
-3. **Translate strings** — Use `.tr()` extension on keys (e.g., `'welcome'.tr()`).
+3. **Translate strings** — Use `.tr()` extension on keys (e.g., `'welcome'.tr()`). For dynamic text, use `'welcome_user'.tr(namedArgs: {'name': 'John'})` with a `{name}` placeholder, or pass positional `args:`.
 4. **Switch locale** — Change via `context.setLocale(Locale('vi'))`.
-5. **Handle plurals** — Use `plural()` for quantity-dependent strings.
+5. **Handle plurals** — Use `plural()` for quantity-dependent strings, such as `item_count` or `cart` keys.
 6. **Sync translations** — Use `sheet_loader_localization` to auto-generate CSV/JSON from Google Sheets.
 
 ### Bootstrap & Usage Examples

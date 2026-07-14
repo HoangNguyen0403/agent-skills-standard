@@ -1,0 +1,1 @@
+I have a legacy Groovy build.gradle in my Kotlin project. Should I migrate it to Kotlin DSL?

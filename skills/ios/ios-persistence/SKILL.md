@@ -16,11 +16,11 @@ metadata:
 ---
 # iOS Persistence
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Implementation Workflow
 
-1. **Choose storage tier** — SwiftData for iOS 17+, Core Data for legacy, secure storage for secrets, UserDefaults for flags only.
+1. **Choose storage tier** — SwiftData for iOS 17+, Core Data for legacy, Keychain or other secure storage for secrets, UserDefaults for flags only.
 2. **Define models** — Use `@Model` macro (SwiftData) or `.xcdatamodeld` (Core Data).
 3. **Configure container** — Use `@MainActor` for `ModelContainer` (SwiftData) or `NSPersistentContainer` (Core Data).
 4. **Perform background writes** — Use `newBackgroundContext()` (Core Data) to avoid UI lag; never heavy I/O on `viewContext`.
@@ -32,7 +32,7 @@ See [SwiftData and Core Data implementation examples](references/implementation.
 
 - **No Heavy I/O on `viewContext`**: Use private background contexts
 - **No String-based Predicates**: Use KeyPaths or generated helpers
-- **No Missing Merge Strategy**: Set `mergePolicy` explicitly (e.g., `mergeByPropertyObjectTrump`)
+- **No Missing Merge Strategy**: Set the merge policy (`mergePolicy`) explicitly (e.g., `mergeByPropertyObjectTrump`)
 
 ## References
 

@@ -1,0 +1,1 @@
+Keep one authoritative dependency surface per environment, enumerate every tracked requirements file in CI, and audit each one with the same security policy. Keep dependency reports and pip-audit coverage synchronized, and fail CI when a requirements surface is omitted or vulnerable.

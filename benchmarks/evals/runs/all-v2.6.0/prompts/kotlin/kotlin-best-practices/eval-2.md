@@ -1,0 +1,1 @@
+My Kotlin ViewModel has a public MutableStateFlow. My code review flagged this. What's the correct pattern?

@@ -1,0 +1,1 @@
+My app crashes with 'Cannot read properties of undefined (reading length)' but only in production, not locally.

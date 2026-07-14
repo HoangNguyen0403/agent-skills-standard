@@ -6,8 +6,14 @@
       "prompt": "I'm using enums in TypeScript for user roles. Is this the right approach?",
       "expected_output": "No runtime enum. TypeScript enums have runtime cost and can cause issues with tree-shaking. Use literal unions or as const instead: type Role = 'admin' | 'user' | 'guest' or const ROLES = { ADMIN: 'admin', USER: 'user' } as const; type Role = typeof ROLES[keyof typeof ROLES]. This is zero-runtime and type-safe.",
       "assertions": [
-        { "type": "contains", "value": "as const" },
-        { "type": "contains", "value": "union" }
+        {
+          "type": "contains",
+          "value": "as const"
+        },
+        {
+          "type": "contains",
+          "value": "union"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Write a type-safe event system where different event types have different payloads.",
       "expected_output": "Use Discriminated Unions with a literal kind property: type AppEvent = { kind: 'user.created'; payload: { userId: string } } | { kind: 'order.placed'; payload: { orderId: string; total: number } }. Switch on discriminant for exhaustive handling. Add never exhaustiveness check in default case.",
       "assertions": [
-        { "type": "contains", "value": "Discriminated Union" },
-        { "type": "contains", "value": "kind" }
+        {
+          "type": "contains",
+          "value": "Discriminated Union"
+        },
+        {
+          "type": "contains",
+          "value": "kind"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "How do I ensure a function parameter is always a string ID, not just any string?",
       "expected_output": "Use Branded Types: type UserId = string & { __brand: 'UserId' }. Create a type guard function: function asUserId(id: string): UserId { return id as UserId; }. This prevents accidentally passing an email or name where a user ID is expected at compile time. Branded types add zero runtime overhead.",
       "assertions": [
-        { "type": "contains", "value": "Branded" },
-        { "type": "contains", "value": "__brand" }
+        {
+          "type": "contains",
+          "value": "Branded"
+        },
+        {
+          "type": "contains",
+          "value": "__brand"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Configure a Kubernetes ingress controller",
     "Write a Go HTTP handler for user authentication",
     "Set up Prometheus monitoring"
+  ],
+  "should_trigger": [
+    "I'm using enums in TypeScript for user roles. Is this the right approach?"
   ]
 }

@@ -1,0 +1,1 @@
+Redirect after a successful Server Action mutation

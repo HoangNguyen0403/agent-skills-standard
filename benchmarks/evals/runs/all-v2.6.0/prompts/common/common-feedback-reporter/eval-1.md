@@ -1,0 +1,1 @@
+Write a Flutter widget that displays a user's name with a blue text color.

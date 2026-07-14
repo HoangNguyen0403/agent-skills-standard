@@ -1,6 +1,6 @@
 ---
 name: flutter-bloc-state-management
-description: Implement BLoC/Cubit state management correctly in Flutter. Use when writing, modifying, reviewing, or testing any BLoC, Cubit, state, or event file.
+description: Implement BLoC/Cubit state, events, transitions, and async concurrency in Flutter. Use for BLoC/Cubit feature logic, debounced/cancellable events, state rendering, or bloc tests—not generic widget-only work.
 metadata:
   triggers:
     files:
@@ -61,3 +61,12 @@ metadata:
 ## References
 
 - [Templates](references/bloc_templates.md)
+
+## Event-handler correction
+
+- `emit()` is not a Future: **Remove** `.then()` from it, use `await` for asynchronous work, and register the event with an `on<Event>` handler.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Remove

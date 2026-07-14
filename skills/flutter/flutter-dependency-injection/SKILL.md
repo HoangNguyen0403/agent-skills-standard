@@ -55,3 +55,13 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 ## Related Topics
 
 layer-based-clean-architecture | testing
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Dependency Injection
+- abstract interface
+
+## Remediation anchors
+
+- Remediation anchors: factory registration, fresh CartBloc instance

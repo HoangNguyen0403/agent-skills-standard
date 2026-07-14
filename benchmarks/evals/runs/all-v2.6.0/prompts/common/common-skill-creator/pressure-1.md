@@ -1,0 +1,1 @@
+This skill is simple. Skip the baseline run and just write the SKILL.md fast.

@@ -1,0 +1,1 @@
+Test the mobile app's performance during a long list scroll.

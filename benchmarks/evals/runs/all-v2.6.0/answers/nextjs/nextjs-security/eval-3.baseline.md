@@ -1,0 +1,4 @@
+Do not expose a database password to a Client Component. Keep it in a server-only environment variable such as `DATABASE_PASSWORD` without the `NEXT_PUBLIC_` prefix, and use it only in server code. Next.js inlines variables prefixed `NEXT_PUBLIC_` into browser bundles, and any value passed as a Client Component prop or returned from an endpoint can also be exposed.
+
+If the client needs an outcome derived from the secret, perform that operation in a Server Component, Route Handler, or Server Action and return only the minimum safe result. Add `import 'server-only'` to the database module, prevent accidental client imports with the framework's checks, and ensure logs/errors do not print the password. Configure the secret through the deployment secret manager, not source control; rotate it if it has already been exposed. Treat all server endpoints as authorization boundaries and do not create a proxy that lets arbitrary browser input query the database.
+

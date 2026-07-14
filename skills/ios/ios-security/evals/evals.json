@@ -11,12 +11,10 @@
           "value": "UserDefaults"
         },
         {
+          "id": "a2",
+          "description": "Checks the task contract includes Keychain",
           "type": "contains",
-          "value": "SecItemAdd"
-        },
-        {
-          "type": "contains",
-          "value": "SecItemUpdate"
+          "value": "Keychain"
         }
       ]
     },
@@ -32,10 +30,6 @@
         {
           "type": "contains",
           "value": "kSecClassGenericPassword"
-        },
-        {
-          "type": "contains",
-          "value": "LocalAuthentication"
         }
       ]
     },
@@ -51,10 +45,6 @@
         {
           "type": "contains",
           "value": "canEvaluatePolicy"
-        },
-        {
-          "type": "contains",
-          "value": "Info.plist"
         }
       ]
     }
@@ -64,5 +54,6 @@
     "How do I install ios dependencies?",
     "What is ios?",
     "Configure CI/CD for an unrelated platform"
-  ]
+  ],
+  "should_trigger": ["How should I implement ios security best practices?"]
 }

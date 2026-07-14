@@ -1,0 +1,18 @@
+{
+  "lastUpdated": "2026-07-14T15:08:55.644Z",
+  "records": [
+    {
+      "runId": "all-v2.6.0",
+      "category": "all",
+      "version": "2.6.0",
+      "date": "2026-07-14T15:08:55.644Z",
+      "skillCount": 265,
+      "avgBaselinePassRate": 0.4157651991614255,
+      "avgWithSkillPassRate": 0.7188888888888888,
+      "avgDelta": 0.30312368972746334,
+      "agent": "Composite immutable evidence",
+      "model": "GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna",
+      "evidenceMode": "composite"
+    }
+  ]
+}

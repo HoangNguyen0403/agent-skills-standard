@@ -1,0 +1,1 @@
+Assert the parsed route fields and the structured outcome for valid input, then assert that malformed or unsupported input produces the intended error or blocker result. Use explicit pytest assert statements on route, metadata, and failure details rather than only checking a truthy output.

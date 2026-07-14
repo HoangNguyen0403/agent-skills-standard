@@ -1,6 +1,6 @@
 ---
 name: java-language
-description: Modern Java 21+ standards including Records, Pattern Matching, and Virtual Threads. Use when working with Java records, sealed classes, switch expressions, text blocks, Optional, or upgrading from older Java versions.
+description: Modern Java 21+ language standards including Records, Pattern Matching, and Virtual Threads. Use for Java language constructs or Java-to-Java upgrades; defer Kotlin, tests, formatting/build tools, CompletableFuture, builder patterns, and isolated null-handling questions.
 metadata:
   triggers:
     files:
@@ -47,3 +47,12 @@ metadata:
 ## References
 
 - [Records, Pattern Matching & Virtual Threads](references/example.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- DTOs/Value Objects
+- Lombok
+- exhaustive switch
+- if/else chains
+- sealed interface/class

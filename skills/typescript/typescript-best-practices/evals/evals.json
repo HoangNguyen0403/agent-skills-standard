@@ -6,8 +6,14 @@
       "prompt": "Refactor this module that uses default exports and require() statements.",
       "expected_output": "Violations: (1) No default exports — use named exports for better refactoring and auto-import. (2) No require() — use ES6 import. Fix: replace module.exports = MyClass with export class MyClass {}. Replace require('mod') with import { MyClass } from './mod'. Enable eslint-plugin-import to enforce order: external -> internal -> relative.",
       "assertions": [
-        { "type": "contains", "value": "named export" },
-        { "type": "contains", "value": "import" }
+        {
+          "type": "contains",
+          "value": "named export"
+        },
+        {
+          "type": "contains",
+          "value": "import"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "Write an async function that fetches data from multiple APIs in parallel.",
       "expected_output": "Use async/await with Promise.all() for parallel execution: const [users, orders] = await Promise.all([fetchUsers(), fetchOrders()]). Wrap in try-catch with typed error: catch(e: unknown) { if (e instanceof ApiError) {...} }. Never use .then().catch() chains. Type the return type explicitly for public API functions.",
       "assertions": [
-        { "type": "contains", "value": "Promise.all" },
-        { "type": "contains", "value": "async/await" }
+        {
+          "type": "contains",
+          "value": "Promise.all"
+        },
+        {
+          "type": "contains",
+          "value": "async/await"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "My TypeScript class uses inheritance and the base class is getting very large.",
       "expected_output": "Prefer composition over inheritance. Extract shared behavior into small, focused services injected via constructor. Use interfaces for contracts: class OrderService { constructor(private repo: OrderRepository, private notifier: NotificationService) {} }. Explicitly use private, protected, public modifiers. Favor dependency injection for testability over singleton patterns.",
       "assertions": [
-        { "type": "contains", "value": "composition" },
-        { "type": "contains", "value": "injection" }
+        {
+          "type": "contains",
+          "value": "composition"
+        },
+        {
+          "type": "contains",
+          "value": "inject"
+        }
       ]
     }
   ],
@@ -33,5 +51,8 @@
     "Configure a Kubernetes pod autoscaler",
     "Write a PostgreSQL query with CTEs",
     "Set up Nginx for SSL termination"
+  ],
+  "should_trigger": [
+    "Refactor this module that uses default exports and require() statements."
   ]
 }

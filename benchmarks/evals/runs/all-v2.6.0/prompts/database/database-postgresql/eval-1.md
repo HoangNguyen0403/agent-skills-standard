@@ -1,0 +1,1 @@
+I need to add a column to a production PostgreSQL table without downtime. How?

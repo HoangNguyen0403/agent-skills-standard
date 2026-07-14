@@ -1,0 +1,1 @@
+Add multi-language support for English and Vietnamese. Our translators use Google Sheets.

@@ -1,0 +1,1 @@
+I have a BroadcastReceiver in my AndroidManifest. A security reviewer flagged android:exported. What should I do?

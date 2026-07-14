@@ -1,0 +1,1 @@
+I'm getting 'Failed to apply plugin org.jetbrains.kotlin.android' after upgrading to AGP 9. What's wrong?

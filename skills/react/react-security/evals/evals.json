@@ -11,8 +11,11 @@
           "value": "HttpOnly"
         },
         {
-          "type": "contains",
-          "value": "XSS"
+          "type": "contains_any",
+          "value": [
+            "XSS",
+            "cross-site scripting"
+          ]
         }
       ]
     },
@@ -39,6 +42,12 @@
         {
           "type": "contains",
           "value": "npm audit"
+        },
+        {
+          "id": "a1",
+          "description": "Checks the outcome includes Pin specific dependency versions",
+          "type": "contains",
+          "value": "Pin specific dependency versions"
         }
       ]
     }
@@ -47,5 +56,8 @@
     "Configure PostgreSQL replication",
     "Write a Go database migration",
     "Set up Kubernetes network policies"
+  ],
+  "should_trigger": [
+    "My React app stores the JWT access token in localStorage."
   ]
 }

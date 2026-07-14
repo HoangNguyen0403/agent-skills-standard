@@ -6,9 +6,18 @@
       "prompt": "Write an SRS for checkout retry and idempotency behavior.",
       "expected_output": "Define functional requirement IDs, interface contracts, failure modes, and NFR thresholds with verification mapping.",
       "assertions": [
-        { "type": "contains", "value": "SRS" },
-        { "type": "contains", "value": "NFR" },
-        { "type": "contains", "value": "verification" }
+        {
+          "type": "contains",
+          "value": "SRS"
+        },
+        {
+          "type": "contains",
+          "value": "NFR"
+        },
+        {
+          "type": "contains",
+          "value": "verification"
+        }
       ]
     },
     {
@@ -16,8 +25,14 @@
       "prompt": "Create technical requirements spec for API timeout fallback and event retries.",
       "expected_output": "Capture trigger/input/output/error behavior, interfaces, thresholds, and requirement trace links.",
       "assertions": [
-        { "type": "contains", "value": "interface" },
-        { "type": "contains", "value": "error" }
+        {
+          "type": "contains",
+          "value": "interface"
+        },
+        {
+          "type": "contains",
+          "value": "error"
+        }
       ]
     },
     {
@@ -25,8 +40,14 @@
       "prompt": "Design the technical implementation, but the PRD has no AC IDs.",
       "expected_output": "Block or route back to plan-feature instead of inventing scope; require REQ/AC IDs before SRS mapping and implementation readiness.",
       "assertions": [
-        { "type": "contains", "value": "AC" },
-        { "type": "contains", "value": "plan-feature" }
+        {
+          "type": "contains",
+          "value": "AC"
+        },
+        {
+          "type": "contains",
+          "value": "plan-feature"
+        }
       ]
     }
   ],
@@ -36,5 +57,8 @@
     "Write release notes for version 2.5.0.",
     "Review architecture consistency in this PR.",
     "Fix flaky tests in payment service."
+  ],
+  "should_trigger": [
+    "Write an SRS for checkout retry and idempotency behavior."
   ]
 }

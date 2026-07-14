@@ -1,0 +1,1 @@
+Run impact analysis with Step A direct `Get Issue Link Test Cases`, then Step B supplemental search. Map each AC to `Covered`, `Partial`, or `Not Covered`; update Covered cases only after showing a before/after diff and getting approval, and create only the needed new cases. Never create a duplicate.

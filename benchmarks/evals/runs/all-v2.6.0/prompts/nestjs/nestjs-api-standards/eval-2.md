@@ -1,0 +1,1 @@
+How do I validate nested DTO objects in NestJS?

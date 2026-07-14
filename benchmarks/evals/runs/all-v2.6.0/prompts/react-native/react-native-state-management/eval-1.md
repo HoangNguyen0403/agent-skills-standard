@@ -1,0 +1,1 @@
+Should I use Zustand or Redux Toolkit for a medium-sized React Native app?

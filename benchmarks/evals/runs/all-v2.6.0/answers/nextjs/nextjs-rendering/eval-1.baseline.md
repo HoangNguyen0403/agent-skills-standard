@@ -1,0 +1,4 @@
+Use static generation with revalidation (ISR) for content that is public and rarely changes. Render the product list ahead of time and choose a revalidation interval, or trigger on-demand invalidation when the catalog changes. In the App Router, make the query explicit, for example `fetch(url, { next: { revalidate: 3600, tags: ['products'] } })`; in the Pages Router use `getStaticProps` with `revalidate`.
+
+Do not blindly prerender thousands of full pages if the build becomes expensive. Paginate or virtualize the listing, generate only high-traffic routes, and use dynamic/ISR generation for the rest. Use stable cache keys, invalidate after catalog updates, and ensure the result is not personalized. A static shell with streamed/paginated product data may be better than one enormous HTML/RSC payload. Measure build time, response size, TTFB, LCP, and memory rather than choosing solely by item count.
+

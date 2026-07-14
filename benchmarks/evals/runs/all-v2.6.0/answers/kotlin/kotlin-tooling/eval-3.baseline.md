@@ -1,0 +1,3 @@
+Migrating to Kotlin DSL (`build.gradle.kts`) is optional, not a Kotlin requirement. It is worthwhile when you want better IDE completion and refactoring, compile-time checking, and one Kotlin-based build language across the project. The tradeoffs are migration effort, different syntax, and potentially slower script compilation or harder-to-find examples.
+
+Migrate incrementally: convert one script, preserve behavior, run the Gradle wrapper's checks, and then continue. Use `settings.gradle.kts` and `pluginManagement` consistently, and consider a version catalog plus convention plugins for shared configuration. Keep the Groovy script if it is stable and the team has no meaningful benefit from migration; do not migrate merely for style.

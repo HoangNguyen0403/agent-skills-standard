@@ -1,6 +1,6 @@
 ---
 name: android-notifications
-description: Integrate push notifications using Firebase Cloud Messaging and NotificationCompat on Android. Use when setting up FCM, creating notification channels, or handling local notifications.
+description: Integrate Android app notifications using Firebase Cloud Messaging and NotificationCompat. Use when setting up FCM, notification channels, or client-side notification taps; defer Flutter, server sends, WorkManager orchestration, and generic Intent handling.
 metadata:
   triggers:
     files:
@@ -14,7 +14,7 @@ metadata:
 ---
 # Android Notifications
 
-## **Priority: P2 (OPTIONAL)**
+## **Priority: P2 (MEDIUM)**
 
 
 ## Implementation Guidelines

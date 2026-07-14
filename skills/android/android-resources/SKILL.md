@@ -1,6 +1,6 @@
 ---
 name: android-resources
-description: Organize strings, drawables, and localization resources in Android projects. Use when managing Android resources, plurals, or adding multi-language support.
+description: Organize Android strings, drawables, fonts, themes, localization, and concrete resource-backed Compose values such as MaterialTheme colors. Use for resource declarations and their direct UI lookup; defer design-system token architecture, network image loading, lint-rule configuration, and general Compose implementation.
 metadata:
   triggers:
     files:
@@ -13,7 +13,7 @@ metadata:
 ---
 # Android Resources Standards
 
-## **Priority: P2**
+## **Priority: P2 (MEDIUM)**
 
 ## Implementation Guidelines
 
@@ -39,3 +39,8 @@ metadata:
 ## References
 
 - [XML Structure](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- %s

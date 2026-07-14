@@ -1,0 +1,1 @@
+My React Native screen has API calls, state management, and JSX all mixed together. How do I clean it up?

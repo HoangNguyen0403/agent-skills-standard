@@ -13,7 +13,7 @@ metadata:
 ---
 # NestJS API Standards & Common Patterns
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 ## Workflow: Standardize API Endpoint
 

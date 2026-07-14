@@ -1,6 +1,6 @@
 ---
 name: flutter-error-handling
-description: Implement functional error recovery with Either/Failure patterns in Flutter. Use when writing repositories, handling exceptions, or using dartz Either types.
+description: Implement functional repository error recovery with Either/Failure patterns in Flutter. Use when handling exceptions or dartz Either types in data flows; defer UI-only retry buttons.
 metadata:
   triggers:
     files:
@@ -50,3 +50,8 @@ See [references/REFERENCE.md](references/REFERENCE.md).
 ## Related Topics
 
 layer-based-clean-architecture | bloc-state-management
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- TRObject

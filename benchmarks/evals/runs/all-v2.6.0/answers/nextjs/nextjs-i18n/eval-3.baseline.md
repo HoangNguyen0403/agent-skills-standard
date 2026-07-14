@@ -1,0 +1,4 @@
+Choose one canonical URL shape, such as `/{locale}/{path}` (`/en/about`, `/fr/about`), and use it everywhere: filesystem routes, links, middleware, sitemap, canonical tags, and locale switchers. Put the locale in a single dynamic segment (`app/[locale]/...`) rather than supporting both `/en/about` and `/about/en`.
+
+Add middleware or route redirects for the legacy form, preserving the path and query only after validating the locale and path. Return a permanent redirect once clients and search engines should learn the canonical URL; use a temporary redirect during migration if needed. Generate `hreflang` alternates and a canonical link from the same URL builder, and update internal links so new navigation never produces the old shape. Test direct visits, shared links, unknown locales, query strings, trailing slashes, and language switching. Do not infer a locale from arbitrary path text without an allowlist.
+

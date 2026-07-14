@@ -1,0 +1,1 @@
+Use force-cache vs no-store in Next.js fetch

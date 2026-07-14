@@ -1,0 +1,1 @@
+My product listing page renders thousands of products. It's static content that rarely changes. What rendering strategy should I use?

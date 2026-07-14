@@ -1,0 +1,1 @@
+Catch both Errors and Exceptions in PHP

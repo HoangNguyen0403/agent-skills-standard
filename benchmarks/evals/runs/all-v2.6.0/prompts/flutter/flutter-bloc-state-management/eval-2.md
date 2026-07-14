@@ -1,0 +1,1 @@
+The API returns a list of orders. Show a loading spinner while fetching, then display the list, and if it fails show an error message with a retry button.

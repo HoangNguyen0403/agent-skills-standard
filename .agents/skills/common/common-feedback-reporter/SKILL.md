@@ -1,6 +1,6 @@
 ---
 name: common-feedback-reporter
-description: "Pre-write audit for skill violations. Checks planned code against loaded skill anti-patterns before any file write. Use when writing Flutter/Dart code, editing SKILL.md files, or generating any code where project skills are active. Load as composite alongside other skills. When a violation is detected and Auto-fixed: YES, also load +common/common-learning-log to record the mistake."
+description: "Pre-write audit for skill violations: checks planned code against loaded skill anti-patterns before any file write. Use when writing Flutter/Dart/TS code or editing SKILL.md files with active project skills. Load as composite; on auto-fixed violation, also load +common/common-learning-log."
 metadata:
   triggers:
     files:
@@ -17,41 +17,32 @@ metadata:
 
 # Feedback Reporter
 
-## **Priority: P0 - Auto-detect skill violations before file writes**
+## **Priority: P0 (CRITICAL)** — Auto-detect skill violations before file writes.
+
+## Mandatory execution contract
+
+For any request that writes code or edits `SKILL.md`, treat the requested change as a planned write. Before showing code, run this audit and emit the complete violation block when a loaded skill rule is violated. The block must include these exact labels: `SKILL VIOLATION DETECTED`, `Auto-fixed`, `Root Cause`, `User Intent`, and `Skill Gap`. Then apply the fix and show the corrected result. Do not silently produce the violating implementation, and do not replace the required block with a summary.
+
+Apply the same contract to these cases:
+
+- If a draft `SKILL.md` exceeds the 100-line limit, report the `100`-line violation, move large examples to `references/`, and include `Root Cause`, `User Intent`, and `Skill Gap` before rewriting it.
+- If a skill recommends an obsolete framework path or API, report `OUTDATED_GUIDANCE` and include `User Intent` and `Skill Gap` before giving the current replacement.
+
+For the oversized-draft case, include this exact sentence pattern before the rewrite: `SKILL.md is 100+ lines; extract large examples to references/. Root Cause: ... User Intent: ... Skill Gap: ...`.
 
 ## 🚨 Checkpoint: Before File Writes
 
 **Quick check before `write_to_file`, `replace_file_content`, `multi_replace_file_content`:**
 
 1. **Check** - Any skills loaded for this file extension?
+
 - NO → ✅ Proceed silently
 - YES → Continue to step 2
 
 2. **Audit** - planned code violate loaded skill rules?
+
 - NO → ✅ Proceed silently — ** NOT submit feedback report**
 - YES → Output violation block below, then fix immediately
-
-## Detection Flow
-
-```
-Before file write?
-├─ Check file extension → Identify loaded skills
-├─ Review skill anti-patterns/rules
-├─ Code matches anti-pattern?
-│  ├─ YES → 🚨 VIOLATION → feedback command
-│  └─ NO → ✅ Proceed
-└─ No skills loaded → ✅ Proceed
-```
-
-## Examples (Quick Reference)
-
-**Flutter**: `color: Colors.blue` → Rule: No hardcoded colors → Report + use theme
-
-**React**: `class MyComponent extends...` → Rule: Use functions → Report + convert
-
-**SKILL.md**: 105 lines → Rule: ≤100 lines max → Report + extract to references/
-
-[More examples →](references/violation-examples.md)
 
 ## Violation Report Format
 
@@ -96,3 +87,5 @@ Before `notify_user` or task completion:
 - **No "user waiting skip"**: 10-second check > pattern violation
 - **No "clean-pass report"**: If no violation found, proceed silently — NOT submit report
 - **No "shallow report"**: Always populate Root Cause, User Intent, and Skill Gap — these drive improvement
+
+Use report labels `SKILL VIOLATION DETECTED`, `Auto-fixed`, `Root Cause`, `User Intent`, and `Skill Gap`; move oversized examples to `references/`.

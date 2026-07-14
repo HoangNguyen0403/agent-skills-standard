@@ -1,0 +1,1 @@
+Use PHP 8 match expression instead of switch

@@ -1,0 +1,1 @@
+I need to share user authentication state across my entire React app. Which state management should I use?

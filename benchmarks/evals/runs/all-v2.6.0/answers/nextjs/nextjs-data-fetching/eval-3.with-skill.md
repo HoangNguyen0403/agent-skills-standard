@@ -1,0 +1,2 @@
+Choose the policy from freshness needs: `cache: 'force-cache'` for static data, `next: { revalidate: N }` for ISR, and `cache: 'no-store'` for request-time data. For mutations, call `revalidatePath('/route')` for route ownership or `revalidateTag('data-key')` for data ownership. Use `router.refresh()` when a Client Component needs a fresh server render, and test the full write/invalidate/read sequence.
+

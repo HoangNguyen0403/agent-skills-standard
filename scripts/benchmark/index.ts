@@ -26,8 +26,31 @@ import {
   BenchmarkHistoryRecord,
   BenchmarkSummary,
   SkillBenchmark,
+  SkillSnapshot,
+  VersionSnapshot,
 } from './types';
 import { costUSD, countTokens, scoreQuality } from './utils';
+
+function snapshotPath(version: string): string {
+  return path.join(ARCHIVE_DIR, `v${version}.json`);
+}
+
+/** Finds the most recent version snapshot strictly before `beforeVersion`, by history order. */
+function loadPreviousSnapshot(
+  history: BenchmarkHistory,
+  beforeVersion: string,
+): VersionSnapshot | undefined {
+  const idx = history.records.findIndex((r) => r.version === beforeVersion);
+  const candidates =
+    idx >= 0 ? history.records.slice(0, idx) : history.records;
+  for (let i = candidates.length - 1; i >= 0; i--) {
+    const p = snapshotPath(candidates[i].version);
+    if (fs.existsSync(p)) {
+      return fs.readJSONSync(p) as VersionSnapshot;
+    }
+  }
+  return undefined;
+}
 
 function benchmarkSkill(category: string, skillName: string): SkillBenchmark {
   const skillDir = path.join(SKILLS_DIR, category, skillName);
@@ -182,7 +205,13 @@ async function main() {
       const qualityIcon =
         b.qualityScore >= 8 ? '🌟' : b.qualityScore >= 6 ? '✅' : '❌';
       const evalIcon =
-        b.evalCount === 0 ? '❌' : b.evalAlignmentPct >= 70 ? '✅' : '⚠️';
+        b.evalCount === 0
+          ? '❌'
+          : b.evalAlignmentPct < 0 || b.evalAlignmentPct >= 70
+            ? '✅'
+            : '⚠️';
+      const alignmentLog =
+        b.evalAlignmentPct >= 0 ? `${b.evalAlignmentPct}% aligned` : 'n/a aligned';
       const behaviorLabel = b.behaviorGuardrailApplicable
         ? `${b.behaviorQualityScore}/4 behavior`
         : 'n/a behavior';
@@ -190,7 +219,7 @@ async function main() {
         `   ${statusIcon} ${entry.name}: ${b.tokensWithSkill} tokens | ` +
           `saves ${b.savingsPctHeavy}% (heavy) | ` +
           `quality ${qualityIcon} ${b.qualityScore}/10 | ` +
-          `evals ${evalIcon} ${b.evalCount} (${b.evalAlignmentPct}% aligned) | ` +
+          `evals ${evalIcon} ${b.evalCount} (${alignmentLog}) | ` +
           `${behaviorLabel}`,
       );
     }
@@ -268,6 +297,8 @@ async function main() {
   }
   history.lastUpdated = newRecord.date;
 
+  const previousSnapshot = loadPreviousSnapshot(history, version);
+
   const summary: BenchmarkSummary = {
     totalSkills,
     avgTokensWithSkill,
@@ -280,6 +311,7 @@ async function main() {
     totalCostSavingsHeavy,
     skills: allBenchmarks,
     history,
+    previousSnapshot,
   };
 
   // Write reports
@@ -292,6 +324,18 @@ async function main() {
     fs.ensureDirSync(ARCHIVE_DIR);
     fs.writeFileSync(archivePath, markdownReport);
     console.log(`📦 Archived: ${archivePath}`);
+
+    const snapshot: { version: string; date: string; skills: SkillSnapshot[] } = {
+      version,
+      date: newRecord.date,
+      skills: allBenchmarks.map((b) => ({
+        category: b.category,
+        skillName: b.skillName,
+        tokensWithSkill: b.tokensWithSkill,
+        qualityScore: b.qualityScore,
+      })),
+    };
+    fs.writeJSONSync(snapshotPath(version), snapshot, { spaces: 2 });
   } else {
     console.log('ℹ️ Report-only mode: skipped archive/history/README writes.');
   }

@@ -21,7 +21,7 @@ export interface SkillBenchmark {
   behaviorDetail: string[];
   // Eval coverage
   evalCount: number; // number of evals in evals.json (0 = no evals)
-  evalAlignmentPct: number; // % of eval "contains" assertions whose value appears in SKILL.md
+  evalAlignmentPct: number; // % of eval "contains" assertions whose value appears in SKILL.md; -1 = n/a (no contains assertions)
 }
 
 export interface BenchmarkHistoryRecord {
@@ -39,6 +39,20 @@ export interface BenchmarkHistory {
   records: BenchmarkHistoryRecord[];
 }
 
+/** Compact per-skill snapshot archived alongside each version's report, used to diff releases. */
+export interface SkillSnapshot {
+  category: string;
+  skillName: string;
+  tokensWithSkill: number;
+  qualityScore: number;
+}
+
+export interface VersionSnapshot {
+  version: string;
+  date: string;
+  skills: SkillSnapshot[];
+}
+
 export interface BenchmarkSummary {
   totalSkills: number;
   avgTokensWithSkill: number;
@@ -51,4 +65,6 @@ export interface BenchmarkSummary {
   totalCostSavingsHeavy: Record<string, number>;
   skills: SkillBenchmark[];
   history?: BenchmarkHistory;
+  /** Previous version's per-skill snapshot, if found, for the "What Changed" section. */
+  previousSnapshot?: VersionSnapshot;
 }

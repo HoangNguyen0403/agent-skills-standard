@@ -1,0 +1,1 @@
+Create separate cases for Sales Reps and Customers; do not combine actors with OR conditions. Since one AC row covers both platforms, set Platform to `Web and Mobile` and use no platform prefix. Populate the Roles field independently for each case.

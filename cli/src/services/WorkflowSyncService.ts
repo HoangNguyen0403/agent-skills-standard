@@ -1,7 +1,12 @@
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
-import { Agent, DEFAULT_WORKFLOWS, SUPPORTED_AGENTS } from '../constants';
+import {
+  Agent,
+  DEFAULT_WORKFLOWS,
+  INTERNAL_ONLY_WORKFLOWS,
+  SUPPORTED_AGENTS,
+} from '../constants';
 import { SkillConfig } from '../models/config';
 import { CollectedSkill } from '../models/types';
 import { GithubService } from './GithubService';
@@ -32,7 +37,8 @@ export class WorkflowSyncService {
 
     const availableWorkflows = treeData.tree
       .filter((f) => this.isWorkflowMarkdownPath(f.path))
-      .map((f) => this.workflowNameFromPath(f.path));
+      .map((f) => this.workflowNameFromPath(f.path))
+      .filter((wf) => !INTERNAL_ONLY_WORKFLOWS.includes(wf));
 
     if (availableWorkflows.length === 0) return false;
 
@@ -107,6 +113,13 @@ export class WorkflowSyncService {
 
     const workflowFiles = treeData.tree.filter((f) => {
       if (!this.isWorkflowMarkdownPath(f.path)) return false;
+      // Internal-only workflows are never synced to a consumer project, even
+      // with `workflows: true` or an explicit entry in the array — they
+      // depend on this monorepo's own root tooling and would be non-functional
+      // anywhere else.
+      if (INTERNAL_ONLY_WORKFLOWS.includes(this.workflowNameFromPath(f.path))) {
+        return false;
+      }
 
       if (typeof config.workflows === 'boolean') return config.workflows;
       if (Array.isArray(config.workflows)) {
@@ -176,12 +189,6 @@ export class WorkflowSyncService {
 
       // Calculate relative path from workflow dir to the source workflow files (.agents/workflows)
       // This is used by Gemini (TOML) to reference the canonical markdown source.
-      const sourceWorkflowDir = path.join(process.cwd(), '.agents/workflows');
-      const workflowSourceRelative = path.relative(
-        workflowDir,
-        sourceWorkflowDir,
-      );
-
       let written = 0;
       for (const wf of workflows) {
         if (wf.skill !== 'workflows') continue;
@@ -194,7 +201,6 @@ export class WorkflowSyncService {
           const transformed = WorkflowTransformer.transformParsed(
             parsed,
             agentDef.workflowFormat,
-            workflowSourceRelative,
           );
           if (!transformed) continue;
 

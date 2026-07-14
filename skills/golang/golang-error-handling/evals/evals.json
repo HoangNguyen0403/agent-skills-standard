@@ -24,6 +24,12 @@
         {
           "type": "contains",
           "value": "errors.Is"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["Define as var ErrNotFound = errors", "errors"]
         }
       ]
     },
@@ -47,5 +53,8 @@
     "How do I write a table-driven test in Go?",
     "Set up CORS middleware for my Echo server",
     "Configure golangci-lint"
+  ],
+  "should_trigger": [
+    "How do I wrap an error with context in Go so callers can still check the original error type?"
   ]
 }

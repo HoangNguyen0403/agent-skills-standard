@@ -4,23 +4,25 @@ description: Apply PostgreSQL standards for migrations, indexing, transactions, 
 metadata:
   triggers:
     files:
-    - '**/*.entity.ts'
-    - 'prisma/schema.prisma'
-    - '**/migrations/*.sql'
+      - "**/*.entity.ts"
+      - "prisma/schema.prisma"
+      - "**/migrations/*.sql"
     keywords:
-    - TypeOrmModule
-    - PrismaService
-    - PostgresModule
+      - TypeOrmModule
+      - PrismaService
+      - PostgresModule
 ---
+
 # PostgreSQL Database Standards
 
-## **Priority: P0 (FOUNDATIONAL)**
+## **Priority: P0 (CRITICAL)**
 
 ## Rules
 
 - Keep PostgreSQL choices driven by real read/write paths.
 - Use explicit migrations; never rely on `synchronize: true` in production.
 - Treat RLS, constraints, and indexes as first-class schema behavior; use `queryRunner.query()` when raw migration SQL is required.
+- Enable RLS explicitly in a migration (`ALTER TABLE <table> ENABLE ROW LEVEL SECURITY`) and create tenant policies before application rollout.
 - Put multi-step consistency inside one transaction boundary.
 
 ## Verify

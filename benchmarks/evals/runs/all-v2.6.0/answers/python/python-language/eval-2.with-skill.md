@@ -1,0 +1,1 @@
+Use pathlib.Path for filesystem paths and joins, for example Path(base) / "reports" / name. It is clearer and type-safe for path operations than string concatenation or os.path, while boundary APIs can receive str(path) when needed.

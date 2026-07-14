@@ -1,0 +1,1 @@
+Users are complaining that the notification permission popup appears immediately when they open the app for the first time.

@@ -15,8 +15,12 @@
           "value": "asReadonly()"
         },
         {
-          "type": "contains",
-          "value": "@ngrx/signals"
+          "type": "contains_any",
+          "value": [
+            "@ngrx/signals",
+            "singleton service",
+            "signal store"
+          ]
         }
       ]
     },
@@ -108,6 +112,15 @@
         {
           "type": "contains",
           "value": "Never update signals inside effect()"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Use computed() for derived state (totals",
+            "computed"
+          ]
         }
       ]
     }
@@ -117,5 +130,8 @@
     "How do I set up Vuex for Vue state management?",
     "How do I implement MobX observables?",
     "How do I manage state in a NestJS service?"
+  ],
+  "should_trigger": [
+    "How do I manage global state with Angular Signals?"
   ]
 }

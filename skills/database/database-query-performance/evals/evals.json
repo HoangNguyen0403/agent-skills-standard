@@ -6,9 +6,23 @@
       "prompt": "The orders listing is slow. Should I just add another index?",
       "expected_output": "Capture the exact query and run explain first. Proposed index must map to filter, join, sort, or coverage needs, and write cost must be acceptable.",
       "assertions": [
-        { "type": "contains", "value": "explain" },
-        { "type": "contains", "value": "query" },
-        { "type": "contains", "value": "write cost" }
+        {
+          "type": "contains",
+          "value": "explain"
+        },
+        {
+          "type": "contains",
+          "value": "query"
+        },
+        {
+          "type": "contains",
+          "value": "write cost"
+        },
+        {
+          "type": "contains_any",
+          "value": ["EXPLAIN", "query plan", "index"],
+          "description": "Uses query-plan evidence before choosing an index"
+        }
       ]
     }
   ],
@@ -16,5 +30,8 @@
     "Rotate JWT secrets",
     "Add a loading spinner to a form",
     "Create a NestJS module"
+  ],
+  "should_trigger": [
+    "The orders listing is slow. Should I just add another index?"
   ]
 }

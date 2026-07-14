@@ -1,0 +1,1 @@
+How do I prevent developers from hardcoding styles instead of using the design system?

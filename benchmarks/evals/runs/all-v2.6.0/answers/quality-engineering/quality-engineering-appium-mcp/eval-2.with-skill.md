@@ -1,0 +1,1 @@
+Find the button semantically rather than with a hardcoded XPath or raw coordinates. Prefer an `accessibility id` or a `uiautomator` text match for `Submit`; use coordinates only for a raw Flutter canvas interaction after taking a screenshot and scaling to the window size.

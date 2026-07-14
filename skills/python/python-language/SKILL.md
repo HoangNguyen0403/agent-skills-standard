@@ -1,6 +1,6 @@
 ---
 name: python-language
-description: Core Python 3.11+ standards for typing, dataclasses, imports, pathlib, and stdlib-first code. Use when editing Python modules, stubs, `pyproject.toml`, or choosing idiomatic Python constructs.
+description: Core Python 3.11+ language standards for typing, dataclasses, imports, pathlib, and stdlib-first code. Use for idiomatic language constructs in Python modules or stubs; defer pytest fixtures, database/client configuration, subprocess security, and other specialized concerns.
 metadata:
   triggers:
     files:

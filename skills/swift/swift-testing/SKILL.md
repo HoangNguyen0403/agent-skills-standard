@@ -12,7 +12,7 @@ metadata:
 ---
 # Swift Testing Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Write XCTest Cases
 
@@ -43,3 +43,10 @@ See [implementation examples](references/implementation.md) for XCTest setup/tea
 ## References
 
 - [XCTest Patterns & Async Tests](references/implementation.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Inject them via constructor
+- Use protocols
+- prefixed by 'test'

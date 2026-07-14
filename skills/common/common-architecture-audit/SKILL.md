@@ -18,7 +18,7 @@ metadata:
 ---
 # Architecture Audit
 
-## **Priority: P1 (STANDARD)**
+## **Priority: P1 (HIGH)**
 
 ## 1. Discover Structural Duplication
 

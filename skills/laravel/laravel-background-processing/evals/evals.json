@@ -6,12 +6,30 @@
       "prompt": "Create a queued Job in Laravel",
       "expected_output": "php artisan make:job ProcessOrder; class implements ShouldQueue; implement handle() method; dispatch with ProcessOrder::dispatch($orderId); pass model ID not full Eloquent model",
       "assertions": [
-        { "type": "contains", "value": "php artisan make:job" },
-        { "type": "contains", "value": "ProcessOrder" },
-        { "type": "contains", "value": "ShouldQueue" },
-        { "type": "contains", "value": "handle()" },
-        { "type": "contains", "value": "ProcessOrder::dispatch" },
-        { "type": "contains", "value": "model ID" }
+        {
+          "type": "contains",
+          "value": "php artisan make:job"
+        },
+        {
+          "type": "contains",
+          "value": "ProcessOrder"
+        },
+        {
+          "type": "contains",
+          "value": "ShouldQueue"
+        },
+        {
+          "type": "contains",
+          "value": "handle()"
+        },
+        {
+          "type": "contains",
+          "value": "ProcessOrder::dispatch"
+        },
+        {
+          "type": "contains",
+          "value": "model ID"
+        }
       ]
     },
     {
@@ -19,12 +37,33 @@
       "prompt": "Use Laravel Horizon for queue monitoring",
       "expected_output": "Install via composer; publish config; run php artisan horizon; configure supervisors per queue in config/horizon.php; access /horizon dashboard; never use queue:work in production",
       "assertions": [
-        { "type": "contains", "value": "composer" },
-        { "type": "contains", "value": "php artisan horizon" },
-        { "type": "contains", "value": "config/horizon.php" },
-        { "type": "contains", "value": "/horizon" },
-        { "type": "contains", "value": "queue:work" },
-        { "type": "contains", "value": "production" }
+        {
+          "type": "contains_any",
+          "value": ["composer"],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
+        },
+        {
+          "type": "contains",
+          "value": "php artisan horizon"
+        },
+        {
+          "type": "contains_any",
+          "value": ["config/horizon.php"],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
+        },
+        {
+          "type": "contains_any",
+          "value": ["/horizon", "horizon"],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
+        },
+        {
+          "type": "contains",
+          "value": "queue:work"
+        },
+        {
+          "type": "contains",
+          "value": "production"
+        }
       ]
     },
     {
@@ -32,12 +71,30 @@
       "prompt": "Dispatch an Event and Listener in Laravel",
       "expected_output": "php artisan make:event OrderPlaced; php artisan make:listener SendConfirmation --event=OrderPlaced; add ShouldQueue to Listener for async; Event::dispatch(new OrderPlaced($order))",
       "assertions": [
-        { "type": "contains", "value": "php artisan make:event" },
-        { "type": "contains", "value": "OrderPlaced" },
-        { "type": "contains", "value": "php artisan make:listener" },
-        { "type": "contains", "value": "SendConfirmation" },
-        { "type": "contains", "value": "ShouldQueue" },
-        { "type": "contains", "value": "Event::dispatch" }
+        {
+          "type": "contains",
+          "value": "php artisan make:event"
+        },
+        {
+          "type": "contains",
+          "value": "OrderPlaced"
+        },
+        {
+          "type": "contains",
+          "value": "php artisan make:listener"
+        },
+        {
+          "type": "contains",
+          "value": "SendConfirmation"
+        },
+        {
+          "type": "contains",
+          "value": "ShouldQueue"
+        },
+        {
+          "type": "contains",
+          "value": "Event::dispatch"
+        }
       ]
     },
     {
@@ -45,11 +102,26 @@
       "prompt": "Chain multiple jobs in Laravel",
       "expected_output": "Bus::chain([new ProcessPayment($order), new SendReceipt($order)])->dispatch(); each job runs after previous succeeds; use ->catch(fn => ...) for chain failure handling",
       "assertions": [
-        { "type": "contains", "value": "Bus::chain" },
-        { "type": "contains", "value": "ProcessPayment" },
-        { "type": "contains", "value": "SendReceipt" },
-        { "type": "contains", "value": "dispatch" },
-        { "type": "contains", "value": "->catch" }
+        {
+          "type": "contains",
+          "value": "Bus::chain"
+        },
+        {
+          "type": "contains",
+          "value": "ProcessPayment"
+        },
+        {
+          "type": "contains",
+          "value": "SendReceipt"
+        },
+        {
+          "type": "contains",
+          "value": "dispatch"
+        },
+        {
+          "type": "contains",
+          "value": "->catch"
+        }
       ]
     },
     {
@@ -57,13 +129,34 @@
       "prompt": "Implement job batching in Laravel",
       "expected_output": "Bus::batch([new ImportRow(1), new ImportRow(2)])->then(fn($batch) => ...)->catch(fn => ...)->dispatch(); call $this->batch()->cancel() to abort; track with $batch->progress()",
       "assertions": [
-        { "type": "contains", "value": "Bus::batch" },
-        { "type": "contains", "value": "ImportRow" },
-        { "type": "contains", "value": "->then" },
-        { "type": "contains", "value": "->catch" },
-        { "type": "contains", "value": "->dispatch" },
-        { "type": "contains", "value": "batch()->cancel" },
-        { "type": "contains", "value": "progress" }
+        {
+          "type": "contains",
+          "value": "Bus::batch"
+        },
+        {
+          "type": "contains",
+          "value": "ImportRow"
+        },
+        {
+          "type": "contains",
+          "value": "->then"
+        },
+        {
+          "type": "contains",
+          "value": "->catch"
+        },
+        {
+          "type": "contains",
+          "value": "->dispatch"
+        },
+        {
+          "type": "contains",
+          "value": "batch()->cancel"
+        },
+        {
+          "type": "contains",
+          "value": "progress"
+        }
       ]
     },
     {
@@ -71,11 +164,26 @@
       "prompt": "Handle failed jobs in Laravel",
       "expected_output": "Implement public function failed(Throwable $exception) in Job class; set public int $tries = 3 and public int $backoff = 60; run queue:failed-table migration; monitor with Horizon",
       "assertions": [
-        { "type": "contains", "value": "failed(Throwable $exception)" },
-        { "type": "contains", "value": "$tries" },
-        { "type": "contains", "value": "$backoff" },
-        { "type": "contains", "value": "queue:failed-table" },
-        { "type": "contains", "value": "Horizon" }
+        {
+          "type": "contains",
+          "value": "failed(Throwable $exception)"
+        },
+        {
+          "type": "contains",
+          "value": "$tries"
+        },
+        {
+          "type": "contains",
+          "value": "$backoff"
+        },
+        {
+          "type": "contains",
+          "value": "queue:failed-table"
+        },
+        {
+          "type": "contains",
+          "value": "Horizon"
+        }
       ]
     }
   ],
@@ -84,5 +192,6 @@
     "Create a background worker in Go",
     "Schedule a cron job in Spring Boot",
     "Use Celery for async tasks in Python"
-  ]
+  ],
+  "should_trigger": ["Create a queued Job in Laravel"]
 }

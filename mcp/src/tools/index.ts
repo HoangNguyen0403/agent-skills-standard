@@ -5,6 +5,11 @@ import { SessionTracker } from "../services/SessionTracker";
 import { MatchResult, SkillIndex } from "../services/SkillIndex";
 import { summarizeSessionCostCoverage } from "../services/WorkflowTelemetry";
 import { scanWorkflows, readWorkflowBody } from "../services/WorkflowIndex";
+import {
+  listEvalRuns,
+  readEvalsReport,
+  verifyEvalRun,
+} from "../services/EvalsIndex";
 
 export interface ToolContext {
   projectRoot: string;
@@ -74,17 +79,29 @@ export const loadSkillsForFilesSchema = z.object({
     .describe(
       'Project-relative file paths the agent is about to read or modify (e.g. ["src/cart.dart", "internal/auth.go"]).',
     ),
+  force_reload: z
+    .boolean()
+    .optional()
+    .describe(
+      "Return full skill bodies even for skills already loaded this session (bypasses dedup). Default false.",
+    ),
 });
 
 export async function loadSkillsForFiles(
-  args: { files: string[] },
+  args: { files: string[]; force_reload?: boolean },
   ctx: ToolContext,
 ): Promise<ToolResult> {
   const empty = maybeEmptyState(ctx);
   if (empty) return empty;
 
   const matches = ctx.index.matchFiles(args.files);
-  return await finalize("load_skills_for_files", args.files, matches, ctx);
+  return await finalize(
+    "load_skills_for_files",
+    args.files,
+    matches,
+    ctx,
+    args.force_reload ?? false,
+  );
 }
 
 // ---------- load_skills_for_keywords ----------
@@ -96,10 +113,16 @@ export const loadSkillsForKeywordsSchema = z.object({
     .describe(
       'Concept words from the user request (e.g. ["auth", "performance", "migration"]). Matched against each skill\'s keyword triggers.',
     ),
+  force_reload: z
+    .boolean()
+    .optional()
+    .describe(
+      "Return full skill bodies even for skills already loaded this session (bypasses dedup). Default false.",
+    ),
 });
 
 export async function loadSkillsForKeywords(
-  args: { keywords: string[] },
+  args: { keywords: string[]; force_reload?: boolean },
   ctx: ToolContext,
 ): Promise<ToolResult> {
   const empty = maybeEmptyState(ctx);
@@ -111,6 +134,7 @@ export async function loadSkillsForKeywords(
     args.keywords,
     matches,
     ctx,
+    args.force_reload ?? false,
   );
 }
 
@@ -309,6 +333,7 @@ export async function auditSessionCompliance(
 ): Promise<ToolResult> {
   const loaded = ctx.tracker.loadedSkills();
   const events = ctx.tracker.events_();
+  const gaps = complianceGaps(ctx);
   const lines: string[] = [
     "# Session compliance",
     "",
@@ -317,6 +342,11 @@ export async function auditSessionCompliance(
     "",
     "## Loaded skills",
     ...(loaded.length ? loaded.map((s) => `- ${s}`) : ["_(none yet)_"]),
+    "",
+    "## Coverage gaps",
+    ...(gaps.length
+      ? gaps.map((g) => `- ⚠️  ${g}`)
+      : ["_(none — every routed category loaded at least one skill)_"]),
     "",
     "## Tool calls",
     ...(events.length
@@ -327,6 +357,41 @@ export async function auditSessionCompliance(
       : ["_(none yet)_"]),
   ];
   return { content: [{ type: "text", text: lines.join("\n") }] };
+}
+
+/**
+ * Flags categories that files were routed to (via load_skills_for_files calls)
+ * but for which the session never actually loaded a skill — e.g. the agent
+ * edited .kt files but no android/kotlin skill was ever loaded.
+ */
+function complianceGaps(ctx: ToolContext): string[] {
+  const routing = ctx.index.getRouting();
+  const loadedCategories = new Set(
+    ctx.tracker.loadedSkills().map((s) => s.split("/")[0]),
+  );
+  const touched = new Map<string, Set<string>>();
+
+  for (const event of ctx.tracker.events_()) {
+    if (event.via !== "load_skills_for_files") continue;
+    for (const file of event.input) {
+      const match = /\.([a-zA-Z0-9]+)$/.exec(file);
+      if (!match) continue;
+      for (const category of routing[match[1]] ?? []) {
+        if (!touched.has(category)) touched.set(category, new Set());
+        touched.get(category)!.add(`.${match[1]}`);
+      }
+    }
+  }
+
+  const gaps: string[] = [];
+  for (const [category, exts] of touched) {
+    if (!loadedCategories.has(category)) {
+      gaps.push(
+        `Files with ${[...exts].join(", ")} route to "${category}", but no ${category} skill was loaded this session.`,
+      );
+    }
+  }
+  return gaps;
 }
 
 // ---------- get_session_cost ----------
@@ -439,6 +504,11 @@ export async function getSessionCost(
   const events = ctx.tracker.events_();
   const summary = ctx.tracker.summary();
   const costCoverage = summarizeSessionCostCoverage(args);
+  const skillCost = ctx.tracker.skillContextCost();
+  const skillShareOfPrompt =
+    args.promptTokens && args.promptTokens > 0
+      ? `${Math.round((skillCost.totalEstimatedTokens / args.promptTokens) * 100)}%`
+      : "[Agent: provide promptTokens to compute share]";
 
   const lines: string[] = [
     "# Session Telemetry",
@@ -462,7 +532,19 @@ export async function getSessionCost(
     `| **Other Runtime Cost** | ${formatOtherCost(args.otherCost, args.currency) ?? "[Agent: fill if runtime has extra billed items]"} |`,
     `| **Cost Status** | ${costCoverage.exactCostAvailable ? "Exact estimate available" : "Partial - host usage or pricing fields missing"} |`,
     `| **Estimated Cost** | ${costCoverage.estimatedCost ?? "[Agent: provide tokens and rates to calculate]"} |`,
-    `| **Missing Host Fields** | ${costCoverage.missingHostFields.length ? costCoverage.missingHostFields.join(", ") : "_(none)_" } |`,
+    `| **Missing Host Fields** | ${costCoverage.missingHostFields.length ? costCoverage.missingHostFields.join(", ") : "_(none)_"} |`,
+    "",
+    "## Skill Context Cost",
+    "",
+    "Estimated from skill body size (chars/4) — not exact tokenizer output, but a stable relative signal for how much of the prompt budget skill loading consumed.",
+    "",
+    "| Metric | Value |",
+    "|---|---|",
+    `| **Est. Skill Context Tokens (this session)** | ${skillCost.totalEstimatedTokens} |`,
+    `| **Skills Deduped (context reused, not resent)** | ${skillCost.dedupedSkillCount} |`,
+    `| **Est. Tokens Saved by Dedup** | ${skillCost.estimatedTokensSaved} |`,
+    `| **Skill Context Share of Prompt Tokens** | ${skillShareOfPrompt} |`,
+    `| **No-Match Calls (wasted lookups)** | ${summary.noMatchCalls} |`,
     "",
     "## Calls By Tool",
     "",
@@ -598,6 +680,79 @@ export async function getWorkflow(
   };
 }
 
+// ---------- verify_eval_run ----------
+
+export const verifyEvalRunSchema = z.object({
+  run_id: z
+    .string()
+    .optional()
+    .describe(
+      "A specific run id under benchmarks/evals/runs/ (e.g. 'dart-v2.6.0-2026-07-10'). Omit to verify all committed runs.",
+    ),
+});
+
+export async function verifyEvalRunTool(
+  args: { run_id?: string },
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const runIds = args.run_id ? [args.run_id] : listEvalRuns(ctx.projectRoot);
+
+  if (runIds.length === 0) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: "No eval runs found under `benchmarks/evals/runs/`. Run the `evals-run` workflow first (see docs/EVALS.md) to produce one.",
+        },
+      ],
+    };
+  }
+
+  const outcomes = runIds.map((id: string) =>
+    verifyEvalRun(ctx.projectRoot, id),
+  );
+  const lines: string[] = ["# Eval Run Verification", ""];
+  let anyFailed = false;
+  for (const o of outcomes) {
+    if (o.ok) {
+      lines.push(
+        `✅ \`${o.runId}\`: verified — committed results.json matches recomputed scores.`,
+      );
+    } else {
+      anyFailed = true;
+      lines.push(`❌ \`${o.runId}\`: ${o.reason}`);
+      for (const d of o.diffs || []) lines.push(`   - ${d}`);
+    }
+  }
+
+  return {
+    content: [{ type: "text", text: lines.join("\n") }],
+    isError: anyFailed,
+  };
+}
+
+// ---------- get_eval_report ----------
+
+export const getEvalReportSchema = z.object({});
+
+export async function getEvalReport(
+  _args: Record<string, never>,
+  ctx: ToolContext,
+): Promise<ToolResult> {
+  const report = readEvalsReport(ctx.projectRoot);
+  if (!report) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: "No `evals-report.md` found at the project root yet. Run the `evals-run` workflow (see docs/EVALS.md) and then `pnpm evals:report` to generate one.",
+        },
+      ],
+    };
+  }
+  return { content: [{ type: "text", text: report }] };
+}
+
 // ---------- helpers ----------
 
 async function finalize(
@@ -605,35 +760,59 @@ async function finalize(
   input: string[],
   matches: MatchResult[],
   ctx: ToolContext,
+  forceReload = false,
 ): Promise<ToolResult> {
   if (matches.length === 0) {
     ctx.tracker.record({ via, input, loaded: [] });
     return noMatchGuidance(via, input, ctx);
   }
 
+  const alreadyLoaded = new Set(ctx.tracker.loadedSkills());
   const blocks: string[] = [];
   const loaded: string[] = [];
+  const dedupedSkills: string[] = [];
+  let estimatedTokens = 0;
+  let estimatedTokensSaved = 0;
+
   for (const match of matches) {
+    const key = `${match.skill.category}/${match.skill.id}`;
+    const why = `${match.matchedBy}:${match.reason}`;
     try {
       const body = await fs.readFile(match.skill.path, "utf8");
-      blocks.push(
-        renderSkill(
-          match.skill.category,
-          match.skill.id,
-          body,
-          `${match.matchedBy}:${match.reason}`,
-        ),
-      );
-      loaded.push(`${match.skill.category}/${match.skill.id}`);
+      if (!forceReload && alreadyLoaded.has(key)) {
+        blocks.push(dedupStub(match.skill.category, match.skill.id, why));
+        dedupedSkills.push(key);
+        estimatedTokensSaved += estimateTokens(body);
+      } else {
+        blocks.push(
+          renderSkill(match.skill.category, match.skill.id, body, why),
+        );
+        estimatedTokens += estimateTokens(body);
+      }
+      loaded.push(key);
     } catch {
       // Don't leak filesystem paths on error.
-      blocks.push(
-        `### ERROR: Could not read skill content for ${match.skill.category}/${match.skill.id}`,
-      );
+      blocks.push(`### ERROR: Could not read skill content for ${key}`);
     }
   }
-  ctx.tracker.record({ via, input, loaded });
+  ctx.tracker.record({
+    via,
+    input,
+    loaded,
+    estimatedTokens,
+    dedupedSkills,
+    estimatedTokensSaved,
+  });
   return { content: [{ type: "text", text: blocks.join("\n\n---\n\n") }] };
+}
+
+/** Rough token estimate (chars/4) — good enough for relative cost/savings reporting. */
+function estimateTokens(text: string): number {
+  return Math.ceil(text.length / 4);
+}
+
+function dedupStub(category: string, id: string, why: string): string {
+  return `<!-- skill: ${category}/${id} | matched: ${why} | already loaded this session, body omitted (pass force_reload: true to resend) -->`;
 }
 
 /**

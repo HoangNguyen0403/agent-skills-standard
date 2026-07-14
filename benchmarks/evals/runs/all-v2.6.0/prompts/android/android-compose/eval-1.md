@@ -1,0 +1,1 @@
+My Composable keeps recomposing whenever any state changes, even when the data it uses hasn't changed. How do I fix that?

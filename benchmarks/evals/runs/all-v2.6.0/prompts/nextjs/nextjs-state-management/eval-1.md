@@ -1,0 +1,1 @@
+My users want to share filtered search results via URL. How should I manage the filter state?

@@ -1,0 +1,1 @@
+Build me an app for my bakery. I have no sponsor name, no metric, nothing formal — just the idea.

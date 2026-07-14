@@ -1,0 +1,4 @@
+Redis has no native “delete by group” operation, so choose a key strategy. The safest common approach is a versioned namespace: store `users:v3:123`, keep the current version in a small group key, and include that version in reads. Incrementing the group version invalidates all old entries atomically from the application’s perspective; old keys expire by TTL.
+
+If immediate deletion is required, maintain a Redis Set such as `cache-group:users` containing member keys, then use a Lua script or `SMEMBERS` plus pipelined `DEL` and `SREM`. Bound the set size and handle partial failures. Redis keyspace scans can be expensive and should not be run on every request. Whichever strategy is used, namespace keys by tenant/resource, define ownership, and test invalidation across all application instances.
+

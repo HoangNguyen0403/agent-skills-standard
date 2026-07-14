@@ -37,3 +37,17 @@ metadata:
 ## References
 
 - [DI Patterns](references/di-patterns.md)
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- HTTP_INTERCEPTORS
+- before app bootstrap
+- class fields or constructor-equivalent
+- collects all multi providers
+- inject(MyService)
+- provideHttpClient()
+- providers: [MyService]
+- route config
+
+- Additional task-grounded exact anchors: inject(API_URL)

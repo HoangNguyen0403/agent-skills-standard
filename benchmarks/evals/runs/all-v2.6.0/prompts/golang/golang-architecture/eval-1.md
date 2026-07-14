@@ -1,0 +1,1 @@
+I want to structure a new Go microservice following Clean Architecture. What are the top-level directories and what goes in each?

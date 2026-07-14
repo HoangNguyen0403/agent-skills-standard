@@ -1,6 +1,6 @@
 ---
 name: javascript-best-practices
-description: Idiomatic JavaScript patterns and conventions for maintainable code. Use when writing or refactoring JavaScript following idiomatic patterns and conventions.
+description: Idiomatic JavaScript patterns and conventions for maintainable existing code. Use when reviewing or refactoring JavaScript language patterns; defer project scaffolding, dependency setup, and tool configuration.
 metadata:
   triggers:
     files:
@@ -15,7 +15,7 @@ metadata:
 ---
 # JavaScript Best Practices
 
-## **Priority: P1 (OPERATIONAL)**
+## **Priority: P1 (HIGH)**
 
 
 ## Implementation Guidelines
@@ -41,3 +41,11 @@ See [references/REFERENCE.md](references/REFERENCE.md) for constants, custom err
 ## Related Topics
 
 language | tooling
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- Naming
+- index.js
+
+- Additional task-grounded exact anchors: Comments

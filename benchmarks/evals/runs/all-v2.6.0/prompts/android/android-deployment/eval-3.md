@@ -1,0 +1,1 @@
+How do I upload the ProGuard mapping file to Play Console so crash reports are de-obfuscated?

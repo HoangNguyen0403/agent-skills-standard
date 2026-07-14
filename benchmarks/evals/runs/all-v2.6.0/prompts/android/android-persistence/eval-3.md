@@ -1,0 +1,1 @@
+Can I pass a Room @Entity directly to my ViewModel to display in the UI?

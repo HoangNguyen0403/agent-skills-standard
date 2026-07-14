@@ -13,7 +13,7 @@ metadata:
 ---
 # Swift Tooling Standards
 
-## **Priority: P0**
+## **Priority: P0 (CRITICAL)**
 
 ## Define SPM Packages
 
@@ -44,3 +44,7 @@ See [implementation examples](references/implementation.md) for Package.swift st
 ## References
 
 - [SPM Setup & Build Configs](references/implementation.md)
+
+## Canonical response anchors
+
+- Additional task-grounded exact anchors: triple slashes; documentation comments

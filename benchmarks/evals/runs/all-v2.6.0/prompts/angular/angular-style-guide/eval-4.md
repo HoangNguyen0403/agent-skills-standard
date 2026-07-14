@@ -1,0 +1,1 @@
+Should I prefix Angular interfaces with I?

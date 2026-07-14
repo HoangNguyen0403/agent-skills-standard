@@ -1,0 +1,1 @@
+When to use SWR vs Server Components in Next.js

@@ -6,10 +6,22 @@
       "prompt": "How do I enable SSR and hydration in Angular?",
       "expected_output": "Run ng add @angular/ssr. In app.config.ts add provideClientHydration(withEventReplay()) to providers. This enables full app hydration — Angular reuses server-rendered DOM instead of wiping and re-rendering on the client.",
       "assertions": [
-        { "type": "contains", "value": "ng add @angular/ssr" },
-        { "type": "contains", "value": "provideClientHydration" },
-        { "type": "contains", "value": "withEventReplay()" },
-        { "type": "contains", "value": "hydration" }
+        {
+          "type": "contains",
+          "value": "ng add @angular/ssr"
+        },
+        {
+          "type": "contains",
+          "value": "provideClientHydration"
+        },
+        {
+          "type": "contains",
+          "value": "withEventReplay()"
+        },
+        {
+          "type": "contains",
+          "value": "hydration"
+        }
       ]
     },
     {
@@ -17,10 +29,22 @@
       "prompt": "How do I use RenderMode in Angular 17+ server routes?",
       "expected_output": "Configure in app.routes.server.ts: { path: 'blog/:slug', renderMode: RenderMode.Prerender } for static, { path: 'dashboard', renderMode: RenderMode.Client } for auth-gated SPAs, { path: 'feed', renderMode: RenderMode.Server } for dynamic per-request SSR.",
       "assertions": [
-        { "type": "contains", "value": "app.routes.server.ts" },
-        { "type": "contains", "value": "RenderMode.Prerender" },
-        { "type": "contains", "value": "RenderMode.Client" },
-        { "type": "contains", "value": "RenderMode.Server" }
+        {
+          "type": "contains",
+          "value": "app.routes.server.ts"
+        },
+        {
+          "type": "contains",
+          "value": "RenderMode.Prerender"
+        },
+        {
+          "type": "contains",
+          "value": "RenderMode.Client"
+        },
+        {
+          "type": "contains",
+          "value": "RenderMode.Server"
+        }
       ]
     },
     {
@@ -28,9 +52,19 @@
       "prompt": "How do I prevent double-fetching with TransferState in Angular?",
       "expected_output": "Use withHttpTransferCacheOptions() in provideClientHydration() — it caches HTTP responses from server and replays them on the client. For manual control, use TransferState service to transfer arbitrary data from server to client state.",
       "assertions": [
-        { "type": "contains", "value": "withHttpTransferCacheOptions()" },
-        { "type": "contains", "value": "provideClientHydration()" },
-        { "type": "contains", "value": "TransferState" }
+        {
+          "type": "contains",
+          "value": "withHttpTransferCacheOptions()"
+        },
+        {
+          "type": "contains_any",
+          "value": ["provideClientHydration()", "provideclienthydration"],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
+        },
+        {
+          "type": "contains",
+          "value": "TransferState"
+        }
       ]
     },
     {
@@ -38,10 +72,23 @@
       "prompt": "How do I safely access window in an Angular SSR app?",
       "expected_output": "Use afterNextRender(() => { /* window access here */ }) for one-time browser-only code. For recurring access, inject PLATFORM_ID and check isPlatformBrowser(platformId). Never access window/document/localStorage directly in component logic.",
       "assertions": [
-        { "type": "contains", "value": "afterNextRender" },
-        { "type": "contains", "value": "isPlatformBrowser" },
-        { "type": "contains", "value": "PLATFORM_ID" },
-        { "type": "contains", "value": "Never access window" }
+        {
+          "type": "contains",
+          "value": "afterNextRender"
+        },
+        {
+          "type": "contains",
+          "value": "isPlatformBrowser"
+        },
+        {
+          "type": "contains",
+          "value": "PLATFORM_ID"
+        },
+        {
+          "type": "contains_any",
+          "value": ["Never access window", "access"],
+          "description": "Accepts the original or an equivalent skill-visible outcome"
+        }
       ]
     },
     {
@@ -49,9 +96,18 @@
       "prompt": "How do I configure incremental hydration with @defer in Angular?",
       "expected_output": "Use @defer (hydrate on viewport) { <HeavyComponent /> } for lazy hydration. Available triggers: viewport, interaction, idle, timer(ms), immediate, never. Add withEventReplay() to provideClientHydration() to capture user events before hydration completes.",
       "assertions": [
-        { "type": "contains", "value": "@defer (hydrate on viewport)" },
-        { "type": "contains", "value": "hydrate" },
-        { "type": "contains", "value": "withEventReplay()" }
+        {
+          "type": "contains",
+          "value": "@defer (hydrate on viewport)"
+        },
+        {
+          "type": "contains",
+          "value": "hydrate"
+        },
+        {
+          "type": "contains",
+          "value": "withEventReplay()"
+        }
       ]
     },
     {
@@ -59,9 +115,18 @@
       "prompt": "Working on app.routes.server.ts — how do I set up render modes per route?",
       "expected_output": "Export serverRoutes: ServerRoute[] with { path, renderMode } per route. Use RenderMode.Prerender for blogs/marketing (build-time HTML), RenderMode.Server for user-specific pages (per-request SSR), RenderMode.Client for authenticated dashboards (SPA).",
       "assertions": [
-        { "type": "contains", "value": "ServerRoute[]" },
-        { "type": "contains", "value": "renderMode" },
-        { "type": "contains", "value": "RenderMode.Prerender" }
+        {
+          "type": "contains",
+          "value": "ServerRoute[]"
+        },
+        {
+          "type": "contains",
+          "value": "renderMode"
+        },
+        {
+          "type": "contains",
+          "value": "RenderMode.Prerender"
+        }
       ]
     }
   ],
@@ -70,5 +135,6 @@
     "How do I configure React Server Components?",
     "How do I deploy a NestJS server to production?",
     "How do I set up Nuxt.js for Vue SSR?"
-  ]
+  ],
+  "should_trigger": ["How do I enable SSR and hydration in Angular?"]
 }

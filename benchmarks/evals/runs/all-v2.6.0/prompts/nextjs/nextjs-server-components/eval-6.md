@@ -1,0 +1,1 @@
+Understand hydration in Next.js App Router

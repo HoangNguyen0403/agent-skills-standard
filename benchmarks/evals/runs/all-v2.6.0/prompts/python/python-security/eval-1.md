@@ -1,0 +1,1 @@
+Is subprocess.run(f"git show {user_input}", shell=True) acceptable in Python operator code?

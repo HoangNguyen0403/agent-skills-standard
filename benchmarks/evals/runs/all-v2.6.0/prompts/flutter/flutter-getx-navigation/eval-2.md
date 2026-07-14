@@ -1,0 +1,1 @@
+I need to navigate from the cart screen to the checkout screen and clear the back stack so the user can't go back. How do I do this in GetX?

@@ -1,0 +1,1 @@
+Run the sequence with a named session: `playwright-cli -s=verify-search open <url>`, then `playwright-cli -s=verify-search snapshot --aria` to assert the search results, capture a screenshot, inspect console output, and finish with `playwright-cli -s=verify-search close`.

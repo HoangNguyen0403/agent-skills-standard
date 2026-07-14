@@ -1,0 +1,1 @@
+My BLoC has a try/catch block that catches Exception and emits an error state with e.toString(). Is this the right approach?

@@ -1,0 +1,1 @@
+Optimize complex queries in Laravel

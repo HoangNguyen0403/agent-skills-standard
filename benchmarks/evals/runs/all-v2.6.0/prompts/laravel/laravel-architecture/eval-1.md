@@ -1,0 +1,1 @@
+How should I structure my Laravel controllers?

@@ -1,0 +1,2 @@
+Use Server Components for initial, SEO-relevant, or server-owned data: fetch close to the consuming component, keep secrets on the server, and use cache/revalidation policies. Use SWR for live, per-user, or frequently refreshed client data that benefits from focus revalidation, polling, or optimistic client updates. Do not mirror server data into `useState` with `useEffect`; choose SWR/React Query for client server-state behavior and keep UI-only state local.
+

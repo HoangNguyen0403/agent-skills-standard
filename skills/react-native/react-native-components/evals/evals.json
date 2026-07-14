@@ -35,7 +35,7 @@
         },
         {
           "type": "contains",
-          "value": "data fetching"
+          "value": "container"
         }
       ]
     },
@@ -64,5 +64,8 @@
     "How do I implement secure storage in React Native?",
     "How do I write tests with RNTL?",
     "How do I configure EAS Build?"
+  ],
+  "should_trigger": [
+    "How do I build a reusable card component in React Native that works across multiple features?"
   ]
 }

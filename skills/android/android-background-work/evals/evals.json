@@ -6,9 +6,24 @@
       "prompt": "I need to sync my app's data with the server every 6 hours even when the app is closed. How do I set that up in Android?",
       "expected_output": "Uses PeriodicWorkRequest with CoroutineWorker, sets network constraint, injects dependencies with @HiltWorker. Does NOT use IntentService or AlarmManager.",
       "assertions": [
-        { "id": "a1", "description": "Recommends WorkManager", "type": "contains", "value": "WorkManager" },
-        { "id": "a2", "description": "Uses CoroutineWorker", "type": "contains", "value": "CoroutineWorker" },
-        { "id": "a3", "description": "Sets network constraint", "type": "contains", "value": "Constraints" }
+        {
+          "id": "a1",
+          "description": "Recommends WorkManager",
+          "type": "contains",
+          "value": "WorkManager"
+        },
+        {
+          "id": "a2",
+          "description": "Uses CoroutineWorker",
+          "type": "contains",
+          "value": "CoroutineWorker"
+        },
+        {
+          "id": "a3",
+          "description": "Sets network constraint",
+          "type": "contains",
+          "value": "Constraints"
+        }
       ]
     },
     {
@@ -16,9 +31,24 @@
       "prompt": "Should I use a Foreground Service or WorkManager for playing music in the background on Android?",
       "expected_output": "Foreground Service — because it's a user-visible, active task (music playback). WorkManager is for deferrable background tasks. Foreground Service shows a persistent notification.",
       "assertions": [
-        { "id": "a1", "description": "Recommends Foreground Service for playback", "type": "contains", "value": "Foreground Service" },
-        { "id": "a2", "description": "Explains user-awareness criterion", "type": "contains", "value": "user" },
-        { "id": "a3", "description": "Mentions notification requirement", "type": "contains", "value": "notification" }
+        {
+          "id": "a1",
+          "description": "Recommends Foreground Service for playback",
+          "type": "contains",
+          "value": "Foreground Service"
+        },
+        {
+          "id": "a2",
+          "description": "Explains user-awareness criterion",
+          "type": "contains",
+          "value": "user"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions notification requirement",
+          "type": "contains",
+          "value": "notification"
+        }
       ]
     },
     {
@@ -26,9 +56,24 @@
       "prompt": "How do I inject a repository into my WorkManager worker using Hilt?",
       "expected_output": "Annotate worker class with @HiltWorker, use @AssistedInject constructor, add HiltWorkerFactory to WorkManager configuration.",
       "assertions": [
-        { "id": "a1", "description": "Uses @HiltWorker", "type": "contains", "value": "@HiltWorker" },
-        { "id": "a2", "description": "Uses @AssistedInject", "type": "contains", "value": "@AssistedInject" },
-        { "id": "a3", "description": "Mentions HiltWorkerFactory", "type": "contains", "value": "HiltWorkerFactory" }
+        {
+          "id": "a1",
+          "description": "Uses @HiltWorker",
+          "type": "contains",
+          "value": "@HiltWorker"
+        },
+        {
+          "id": "a2",
+          "description": "Uses @AssistedInject",
+          "type": "contains",
+          "value": "@AssistedInject"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions HiltWorkerFactory",
+          "type": "contains",
+          "value": "HiltWorkerFactory"
+        }
       ]
     }
   ],
@@ -43,5 +88,8 @@
     "Run a one-shot network request when the user taps a button",
     "How do I use repeatOnLifecycle in a Fragment?",
     "Configure CI to run unit tests on every pull request"
+  ],
+  "should_trigger": [
+    "I need to sync my app's data with the server every 6 hours even when the app is closed. How do I set that up in Android?"
   ]
 }

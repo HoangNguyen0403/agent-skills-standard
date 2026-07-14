@@ -1,0 +1,1 @@
+How do I prevent my Android app from communicating over HTTP instead of HTTPS?

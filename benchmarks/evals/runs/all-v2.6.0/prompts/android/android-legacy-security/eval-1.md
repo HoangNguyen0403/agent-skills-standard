@@ -1,0 +1,1 @@
+I'm loading a user URL in a WebView. Should I enable JavaScript? What other security settings should I configure?

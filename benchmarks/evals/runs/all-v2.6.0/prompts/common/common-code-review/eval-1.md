@@ -1,0 +1,1 @@
+Review this PR — it adds a new endpoint that takes a user ID from the URL and returns their data without any auth check.

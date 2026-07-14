@@ -1,0 +1,447 @@
+{
+  "runId": "all-v2.6.0-final-136",
+  "generatedAt": "2026-07-14T11:08:42.740Z",
+  "scope": "strict-release-blockers",
+  "items": [
+    {
+      "category": "android",
+      "skillName": "android-resources",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:density"
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-forms",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "missing skill guidance",
+      "evidence": "contains_any:separate file,standalone file"
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-http-client",
+      "caseId": "eval-4",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Encapsulate all HTTP calls"
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-http-client",
+      "caseId": "eval-4",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:httpResource()"
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-performance",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:priority attribute"
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-routing",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:lazy"
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-state-management",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:@ngrx/signals"
+    },
+    {
+      "category": "common",
+      "skillName": "common-code-review",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "missing skill guidance",
+      "evidence": "contains_any:Principal Engineer,senior review"
+    },
+    {
+      "category": "common",
+      "skillName": "common-code-review",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "missing skill guidance",
+      "evidence": "contains:test coverage"
+    },
+    {
+      "category": "common",
+      "skillName": "common-code-review",
+      "caseId": "pressure-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Why:"
+    },
+    {
+      "category": "common",
+      "skillName": "common-documentation",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "missing skill guidance",
+      "evidence": "contains:thundering herd"
+    },
+    {
+      "category": "common",
+      "skillName": "common-error-handling",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains_any:silently ignore"
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:VIOLATION"
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Auto-fixed"
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Root Cause"
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:User Intent"
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Skill Gap"
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:100"
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Root Cause"
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Skill Gap"
+    },
+    {
+      "category": "common",
+      "skillName": "common-mobile-animation",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "missing skill guidance",
+      "evidence": "contains_any:250-350ms,250–350ms"
+    },
+    {
+      "category": "common",
+      "skillName": "common-mobile-animation",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "missing skill guidance",
+      "evidence": "contains_any:400-600ms,400–600ms"
+    },
+    {
+      "category": "common",
+      "skillName": "common-mobile-visual-testing",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:QoS"
+    },
+    {
+      "category": "common",
+      "skillName": "common-operator-profile",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:technical"
+    },
+    {
+      "category": "common",
+      "skillName": "common-operator-profile",
+      "caseId": "eval-4",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:SMART metric"
+    },
+    {
+      "category": "common",
+      "skillName": "common-owasp",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:IDOR"
+    },
+    {
+      "category": "common",
+      "skillName": "common-product-requirements",
+      "caseId": "eval-5",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:RACI"
+    },
+    {
+      "category": "common",
+      "skillName": "common-security-standards",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:parameterized"
+    },
+    {
+      "category": "common",
+      "skillName": "common-session-retrospective",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:AGENTS.md"
+    },
+    {
+      "category": "common",
+      "skillName": "common-telemetry",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:get_session_cost"
+    },
+    {
+      "category": "common",
+      "skillName": "common-telemetry",
+      "caseId": "trigger-1",
+      "arm": "with-skill",
+      "classification": "trigger-boundary collision",
+      "evidence": "trigger marker expected yes"
+    },
+    {
+      "category": "common",
+      "skillName": "common-ui-design",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:aesthetic"
+    },
+    {
+      "category": "common",
+      "skillName": "common-web-visual-testing",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Before"
+    },
+    {
+      "category": "common",
+      "skillName": "common-web-visual-testing",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:After"
+    },
+    {
+      "category": "common",
+      "skillName": "common-web-visual-testing",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:opacity: 0"
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-bloc-state-management",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains_any:Remove"
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-design-system",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:VTypography"
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-feature-based-clean-architecture",
+      "caseId": "trigger-3",
+      "arm": "with-skill",
+      "classification": "trigger-boundary collision",
+      "evidence": "trigger marker expected no"
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-testing",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:GetIt registration"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-design-system",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Color.blue"
+    },
+    {
+      "category": "javascript",
+      "skillName": "javascript-tooling",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Priority"
+    },
+    {
+      "category": "kotlin",
+      "skillName": "kotlin-language",
+      "caseId": "trigger-6",
+      "arm": "with-skill",
+      "classification": "trigger-boundary collision",
+      "evidence": "trigger marker expected yes"
+    },
+    {
+      "category": "laravel",
+      "skillName": "laravel-security",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains_any:never env() in controllers"
+    },
+    {
+      "category": "laravel",
+      "skillName": "laravel-sessions-middleware",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:CSP"
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-styling",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:CLS"
+    },
+    {
+      "category": "python",
+      "skillName": "python-architecture",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:transport"
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-business-analysis",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Truth"
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-business-analysis",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Truth table"
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-jira-integration",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:Fetch"
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-jira-integration",
+      "caseId": "trigger-2",
+      "arm": "with-skill",
+      "classification": "trigger-boundary collision",
+      "evidence": "trigger marker expected no"
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-quality-assurance",
+      "caseId": "eval-3",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:priority rationale"
+    },
+    {
+      "category": "react",
+      "skillName": "react-security",
+      "caseId": "eval-1",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:XSS"
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-concurrency",
+      "caseId": "eval-4",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:parallel"
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-memory-management",
+      "caseId": "eval-2",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:weak if the reference can become nil"
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-swiftui",
+      "caseId": "eval-4",
+      "arm": "with-skill",
+      "classification": "guidance present but insufficiently actionable",
+      "evidence": "contains:load them only as they appear"
+    }
+  ]
+}

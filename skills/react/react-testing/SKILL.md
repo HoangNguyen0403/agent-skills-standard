@@ -14,7 +14,7 @@ metadata:
 ---
 # React Testing
 
-## **Priority: P2 (MAINTENANCE)**
+## **Priority: P2 (MEDIUM)**
 
 
 ## Implementation Guidelines
@@ -51,3 +51,9 @@ test('submits form', async () => {
   expect(await screen.findByText(/welcome/i)).toBeInTheDocument();
 });
 ```
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- findByText
+- getByRole

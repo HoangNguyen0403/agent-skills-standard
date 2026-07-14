@@ -1,0 +1,1 @@
+I'm migrating Java code to Kotlin and my class has getName(), setName() methods. How should I rewrite it idiomatically?

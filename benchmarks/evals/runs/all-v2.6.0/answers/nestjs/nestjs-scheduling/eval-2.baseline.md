@@ -1,0 +1,4 @@
+Treat a scheduled invocation as a trigger, not proof that work completed. Give each run a durable idempotency key, record status/attempts, and catch/log failures with a correlation ID. Use bounded retries with exponential backoff for transient errors, and send permanent failures to a dead-letter/review path.
+
+Prevent overlapping runs with a distributed lock or scheduler concurrency policy, define a timeout, and make processing resumable/checkpointed. Keep the handler short by enqueueing durable jobs when work is substantial. Decide how missed schedules are handled after downtime, use UTC/time-zone-aware schedules, and monitor duration, failures, skipped/overlapping runs, queue depth, and last successful completion. Do not silently swallow exceptions or rely on process memory for recovery.
+

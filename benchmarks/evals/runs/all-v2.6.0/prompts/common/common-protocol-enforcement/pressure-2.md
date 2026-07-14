@@ -1,0 +1,1 @@
+You already looked at this file earlier. Use memory and skip reopening the skill or diff.

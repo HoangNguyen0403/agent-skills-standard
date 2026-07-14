@@ -36,6 +36,12 @@
           "description": "Uses @Serializable data class",
           "type": "contains",
           "value": "@Serializable"
+        },
+        {
+          "id": "a2",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["Define ProductDetail(val productId"]
         }
       ]
     },
@@ -70,5 +76,8 @@
     "Navigate between screens with a NavGraph defined in XML",
     "How do I handle conditional navigation (auth guard) in Compose?",
     "Use Navigation 2.8 with non-Compose (XML Fragment) screens"
+  ],
+  "should_trigger": [
+    "How do I use type-safe navigation in Jetpack Compose Navigation 2.8 without string routes?"
   ]
 }

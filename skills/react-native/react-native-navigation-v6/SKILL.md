@@ -18,7 +18,7 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-Use **React Navigation** (official solution).
+Use **React Navigation** for stack/tab/drawer setup and auth-flow structure. For **new Expo projects**, prefer **Expo Router** instead (file-based, built on React Navigation) — see [react-native-architecture](../react-native-architecture/SKILL.md) for the decision criteria. Deep-linking config detail lives in [react-native-navigation](../react-native-navigation/SKILL.md).
 
 ## Build Type-Safe Navigation Stacks
 

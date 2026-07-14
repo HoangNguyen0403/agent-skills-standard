@@ -1,0 +1,8 @@
+Server-version disclosure in response headers is usually a low-severity information-disclosure finding, not an immediate vulnerability by itself. It can help an attacker fingerprint the stack and select known exploits, so severity increases when the disclosed version is outdated, end-of-life, or demonstrably vulnerable, or when the header reveals unusually precise internal details.
+
+Confirm whether the value is present on all responses, including errors, redirects, and unauthenticated endpoints; identify the emitting component (application, reverse proxy, web server, framework, or CDN); and verify the exact version against the deployed artifact. Check whether the version has known exploitable CVEs and whether the service is internet-exposed. Do not infer exploitability from the banner alone.
+
+Recommended remediation is defense in depth: remove or generalize headers such as `Server` and framework-specific headers where practical, configure the edge and application consistently, avoid detailed versions in error pages, and keep the underlying server, framework, and dependencies patched. Verify that observability and support workflows do not depend on exposing the value publicly.
+
+Retest multiple status classes and deployment paths after the change, because a proxy may re-add the header or an error handler may bypass the normal configuration. Record the before/after response, affected component, patch status, and any related vulnerabilities. Treat the disclosure as a release-blocking issue only if organizational policy requires it or the identified version has a relevant exploitable weakness; otherwise track it as low priority alongside patching and hardening.
+

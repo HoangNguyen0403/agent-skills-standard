@@ -1,0 +1,1 @@
+My useEffect runs in an infinite loop. I'm passing an object as a dependency.

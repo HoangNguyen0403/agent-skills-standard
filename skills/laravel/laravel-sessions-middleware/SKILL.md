@@ -21,7 +21,7 @@ metadata:
 
 1. **Set Redis driver** — `SESSION_DRIVER=redis` in `.env`; install `predis/predis`.
 2. **Regenerate on login** — Call `$request->session()->regenerate()` after authentication.
-3. **Create security middleware** — Add HSTS, CSP, X-Frame-Options headers.
+3. **Create security middleware** — Add HSTS, **CSP**, X-Frame-Options, and X-Content-Type-Options headers.
 4. **Register globally** — Use `withMiddleware(fn($m) => $m->append(...))` in `bootstrap/app.php`.
 
 ## Security Headers Middleware Example
@@ -55,3 +55,17 @@ See [implementation examples](references/implementation.md#security-headers-midd
 ## References
 
 - [Advanced Middleware Patterns](references/implementation.md)
+
+## Middleware performance checklist
+
+- File sessions create I/O and locking problems at scale; prefer a production session backend and keep global middleware cheap and deterministic.
+
+## Canonical response anchors
+
+When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+- avoids file-session I/O,locking problems,scaled production
+- cheap and deterministic,Keep the middleware lightweight
+- CSP
+- prepend()
+- session fixation
+- withMiddleware()

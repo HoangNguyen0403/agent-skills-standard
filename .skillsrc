@@ -30,6 +30,7 @@ workflows:
   - plan-feature
   - review-ticket
   - skill-benchmark
+  - evals-run
   - pentest
   - dev-fix
   - implement-feature

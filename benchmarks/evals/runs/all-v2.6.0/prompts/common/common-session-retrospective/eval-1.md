@@ -1,0 +1,1 @@
+Let's do a session retrospective — you made 3 mistakes today that I had to correct.

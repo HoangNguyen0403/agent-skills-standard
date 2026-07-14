@@ -1,6 +1,6 @@
 ---
 name: android-architecture
-description: Apply Clean Architecture layering, modularization, and Unidirectional Data Flow in Android projects. Use when setting up project structure, placing code in layers, configuring feature/core modules, or implementing UDF patterns.
+description: Apply Clean Architecture layering, modularization, and Unidirectional Data Flow in Android projects. Use when setting up project structure, placing code in layers, configuring feature/core modules, or implementing UDF patterns; defer Compose state and ViewModel/StateFlow implementation to their specific skills.
 metadata:
   triggers:
     files:

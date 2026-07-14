@@ -1,6 +1,6 @@
 ---
 name: python-best-practices
-description: Write maintainable Python with small functions, explicit boundaries, guard clauses, and readable state flow. Use when refactoring Python services, helpers, modules, or async logic for clarity.
+description: Write maintainable Python with small functions, explicit boundaries, guard clauses, and readable state flow. Use when refactoring Python services, helpers, modules, or async logic for clarity—not generic test writing, tooling setup, or database transaction implementation.
 metadata:
   triggers:
     files:

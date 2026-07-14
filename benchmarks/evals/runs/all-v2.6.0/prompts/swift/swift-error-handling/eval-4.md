@@ -1,0 +1,1 @@
+When is it okay to use fatalError in Swift?

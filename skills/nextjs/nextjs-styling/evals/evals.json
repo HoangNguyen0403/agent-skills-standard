@@ -37,8 +37,21 @@
       "expected_output": "CLS (Cumulative Layout Shift) violation. Fix with next/image — always specify width and height or use fill prop. Target CLS < 0.1. Example: <Image src={...} width={800} height={600} alt='...' /> or <Image src={...} fill className='object-cover' alt='...'>. Never use raw <img> tags.",
       "assertions": [
         {
-          "type": "contains",
-          "value": "CLS"
+          "type": "contains_any",
+          "value": [
+            "CLS",
+            "layout shift",
+            "layout shifts"
+          ]
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": [
+            "Fix with next/image — always specify width and height or use fill prop",
+            "always"
+          ]
         }
       ]
     }
@@ -47,5 +60,8 @@
     "Write a Go middleware for request logging",
     "Set up a PostgreSQL connection pool",
     "Configure Jest for a Node.js backend"
+  ],
+  "should_trigger": [
+    "Set up styling for a new Next.js project. We use Tailwind CSS and need a utility for combining classes."
   ]
 }

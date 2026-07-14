@@ -6,9 +6,24 @@
       "prompt": "Should I use GlobalScope to launch a coroutine in my Android ViewModel?",
       "expected_output": "Never use GlobalScope. Use viewModelScope — it's lifecycle-aware and cancels automatically when the ViewModel is cleared. GlobalScope leaks and ignores structured concurrency.",
       "assertions": [
-        { "id": "a1", "description": "Condemns GlobalScope", "type": "contains", "value": "GlobalScope" },
-        { "id": "a2", "description": "Recommends viewModelScope", "type": "contains", "value": "viewModelScope" },
-        { "id": "a3", "description": "Mentions lifecycle-awareness", "type": "contains", "value": "lifecycle" }
+        {
+          "id": "a1",
+          "description": "Condemns GlobalScope",
+          "type": "contains",
+          "value": "GlobalScope"
+        },
+        {
+          "id": "a2",
+          "description": "Recommends viewModelScope",
+          "type": "contains",
+          "value": "viewModelScope"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions lifecycle-awareness",
+          "type": "contains",
+          "value": "lifecycle"
+        }
       ]
     },
     {
@@ -16,9 +31,24 @@
       "prompt": "How do I make my coroutine dispatcher injectable so I can swap it in tests?",
       "expected_output": "Create a DispatcherProvider interface with IO/Main/Default properties. Inject it via Hilt. In tests, inject TestDispatcher/StandardTestDispatcher. Never hardcode Dispatchers.IO.",
       "assertions": [
-        { "id": "a1", "description": "Mentions DispatcherProvider", "type": "contains", "value": "DispatcherProvider" },
-        { "id": "a2", "description": "Against hardcoding Dispatchers.IO", "type": "contains", "value": "hardcode" },
-        { "id": "a3", "description": "Mentions testability", "type": "contains", "value": "test" }
+        {
+          "id": "a1",
+          "description": "Mentions DispatcherProvider",
+          "type": "contains",
+          "value": "DispatcherProvider"
+        },
+        {
+          "id": "a2",
+          "description": "Against hardcoding Dispatchers.IO",
+          "type": "contains",
+          "value": "hardcode"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions testability",
+          "type": "contains",
+          "value": "test"
+        }
       ]
     },
     {
@@ -26,9 +56,24 @@
       "prompt": "When should I use SharedFlow vs StateFlow in my ViewModel?",
       "expected_output": "StateFlow for UI state (single current value, replays last). SharedFlow for one-time events (navigation, snackbar) that should not replay. Expose StateFlow via .asStateFlow().",
       "assertions": [
-        { "id": "a1", "description": "Distinguishes StateFlow from SharedFlow", "type": "contains", "value": "StateFlow" },
-        { "id": "a2", "description": "SharedFlow for events", "type": "contains", "value": "SharedFlow" },
-        { "id": "a3", "description": "Mentions replay behavior", "type": "contains", "value": "replay" }
+        {
+          "id": "a1",
+          "description": "Distinguishes StateFlow from SharedFlow",
+          "type": "contains",
+          "value": "StateFlow"
+        },
+        {
+          "id": "a2",
+          "description": "SharedFlow for events",
+          "type": "contains",
+          "value": "SharedFlow"
+        },
+        {
+          "id": "a3",
+          "description": "Mentions replay behavior",
+          "type": "contains",
+          "value": "replay"
+        }
       ]
     }
   ],
@@ -43,5 +88,8 @@
     "How do I write a unit test for a suspend function in a Repository?",
     "Set up certificate pinning in my network_security_config.xml",
     "Add Ktlint formatting check to my CI pipeline"
+  ],
+  "should_trigger": [
+    "Should I use GlobalScope to launch a coroutine in my Android ViewModel?"
   ]
 }

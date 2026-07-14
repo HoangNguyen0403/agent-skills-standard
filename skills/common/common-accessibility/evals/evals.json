@@ -39,6 +39,12 @@
         {
           "type": "contains",
           "value": "color"
+        },
+        {
+          "id": "a1",
+          "description": "Accepts the original or an equivalent skill-visible outcome",
+          "type": "contains_any",
+          "value": ["Add an error icon or text message (e", "error"]
         }
       ]
     }
@@ -47,5 +53,8 @@
     "How do I configure webpack for production builds?",
     "What is the difference between SQL JOIN types?",
     "Set up a Redis cache for a Node.js API"
+  ],
+  "should_trigger": [
+    "Add a custom dropdown menu component in React. The user clicks a button to open it and can select options with keyboard arrows."
   ]
 }

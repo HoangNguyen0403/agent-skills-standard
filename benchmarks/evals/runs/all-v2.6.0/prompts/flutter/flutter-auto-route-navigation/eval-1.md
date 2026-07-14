@@ -1,0 +1,1 @@
+I need to add an auth guard so unauthenticated users trying to access the cart get redirected to the login screen.

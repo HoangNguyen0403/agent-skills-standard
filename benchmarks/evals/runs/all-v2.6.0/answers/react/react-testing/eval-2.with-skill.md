@@ -1,0 +1,1 @@
+This violates the no-real-network rule. Use MSW (Mock Service Worker) to intercept API calls, start the server in test setup, reset handlers after each test, and close it after the suite. Tests should assert user-visible behavior, not network availability.

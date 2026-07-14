@@ -1,0 +1,1 @@
+How do I improve Angular change detection performance?

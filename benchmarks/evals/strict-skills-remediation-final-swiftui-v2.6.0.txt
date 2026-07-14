@@ -1,0 +1,2 @@
+# Final one-skill overlay: contract-only correction for SwiftUI lazy-loading wording.
+swift/swift-swiftui
