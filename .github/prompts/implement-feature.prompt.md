@@ -26,7 +26,8 @@ Goal: Build an approved feature through TDD slices and route completed work to v
    - For each slice, write or update the failing test first.
    - Before the test, record its observable contract, distinct fault, smallest layer, minimal cases, and exact focused command (the Test Intent Record).
    - Consume the named `REQ-*` and `AC-*` for each slice; do not invent scope from code inspection.
-   - Do not keep pre-test implementation code as "reference".
+   - For new behavior, do not keep pre-test implementation code as a reference: observe the expected RED first.
+   - For legacy or bug-fix slices, characterize only when needed, then make the intended change RED while preserving unrelated existing code.
    - Implement the smallest passing code.
    - Refactor without expanding scope.
    - Run the focused target in foreground, single-run, sequential mode; classify invalid RED, unexpected GREEN, timeout, and cleanup instead of retrying blindly.
