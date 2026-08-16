@@ -38,6 +38,6 @@ Structure every test clearly:
 
 ## 6. TDD vs BDD (Behavior-Driven Development)
 
-- **TDD**: Focuses on the implementation correctness of individual units (functions, classes). "Does this function return X when given Y?"
+- **TDD**: Starts at the smallest honest layer: use a unit for pure owned behavior, and a broader contract/integration layer when the behavior crosses components.
 - **BDD**: Focuses on system behavior from a user's perspective. "Given I am logged in, When I check out, Then my order is placed."
 - _Tip_: Use TDD for internal logic and BDD (often with tools like Cucumber or Gherkin syntax) for high-level user flows.

@@ -9,7 +9,7 @@ description: Implementation patterns and discovery protocols for Test-Driven Dev
 
 1. **Arrange**: Set up the world (Mocks, Data, Context).
 2. **Act**: Execute the single action being tested.
-3. **Assert**: Verify the EXACT result and side effects.
+3. **Assert**: Verify the observable result and required side effects.
 
 ## Standard: F.I.R.S.T.
 
@@ -17,7 +17,7 @@ description: Implementation patterns and discovery protocols for Test-Driven Dev
 - **Independent**: No order dependency; clean state per test.
 - **Repeatable**: Deterministic results (no flake).
 - **Self-Validating**: Binary Pass/Fail; no manual output check.
-- **Thorough**: Covers edge cases, error paths, and security boundaries.
+- **Thorough**: Covers required contract boundaries and distinct plausible faults without low-signal combinations.
 
 ## Protocol: Bug Fix Discovery
 
