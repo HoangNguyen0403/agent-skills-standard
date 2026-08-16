@@ -378,13 +378,13 @@
       }
     },
     "common": {
-      "version": "2.3.0",
-      "last_updated": "2026-07-15",
+      "version": "2.4.0",
+      "last_updated": "2026-08-16",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 39,
-        "total_tokens": 30291,
-        "avg_tokens_per_skill": 777,
+        "total_tokens": 30277,
+        "avg_tokens_per_skill": 776,
         "largest_skill": "common-skill-creator (1646 tokens)"
       }
     },
@@ -400,14 +400,14 @@
       }
     },
     "specialists": {
-      "version": "1.1.3",
-      "last_updated": "2026-06-18",
+      "version": "1.2.0",
+      "last_updated": "2026-08-16",
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 16,
-        "total_tokens": 7424,
-        "avg_tokens_per_skill": 464,
-        "largest_skill": "specialist-security-reviewer (721 tokens)"
+        "total_tokens": 7753,
+        "avg_tokens_per_skill": 485,
+        "largest_skill": "specialist-tdd-implementer (820 tokens)"
       }
     },
     "golang": {
