@@ -3,71 +3,135 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Implement a function that validates email addresses.",
-      "expected_output": "Follow TDD RGR loop: RED — write failing test first: test('validates valid email', () => { expect(validateEmail('user@example.com')).toBe(true); }). Verify it fails. GREEN — write minimal implementation to pass. REFACTOR — clean up. Never write production code without a prior failing test.",
+      "prompt": "Add tests for a discount calculator. The agent is tempted to enumerate every combination; choose the smallest high-signal set and show the TDD plan.",
+      "expected_output": "Create a Test Intent Record with the observable contract, a distinct plausible fault, the smallest honest unit layer, minimal equivalence classes, and the exact focused command. Use a parameterized case for equivalent inputs. Run RED before production code and keep coverage as repository-configured evidence, not a test-count target.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "failing test"
-        },
-        {
-          "type": "contains",
-          "value": "failing test"
-        }
+        { "type": "contains", "value": "observable contract" },
+        { "type": "contains", "value": "distinct plausible fault" },
+        { "type": "contains", "value": "parameterized" },
+        { "type": "contains", "value": "focused command" }
       ]
     },
     {
       "id": 2,
-      "prompt": "I already wrote the implementation. Now I'll add tests to reach 80% coverage.",
-      "expected_output": "Violation: No test-after — writing tests post-implementation defeats TDD. The implementation must be deleted and restarted using Red-Green-Refactor. TDD is the Iron Law: NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST. Tests written after implementation do not validate design — they only verify existing behavior.",
+      "prompt": "The implementation already exists and a bug report says to add tests for 80% coverage. Explain the compliant TDD path.",
+      "expected_output": "Use legacy mode: characterize current behavior only if needed, write a failing regression for the intended change, verify the failure is behavioral, preserve unrelated implementation, and implement the smallest fix. Coverage is secondary evidence and does not justify padding tests.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Iron Law"
-        },
-        {
-          "type": "contains",
-          "value": "delete"
-        }
+        { "type": "contains", "value": "characterize" },
+        { "type": "contains", "value": "failing regression" },
+        { "type": "contains", "value": "preserve unrelated" },
+        { "type": "not_contains", "value": "delete and restart" }
       ]
     },
     {
       "id": 3,
-      "prompt": "Write tests for the order service that covers the happy path and three error scenarios.",
-      "expected_output": "Apply AAA structure for each test: Arrange (set up Order, mock DB and payment), Act (call createOrder()), Assert (verify result — one logical assertion per test). Mock HTTP, Time, and external APIs. Never mock fast internal services (<200ms). Minimum 80% coverage. Use test descriptions that read as behavior specs.",
+      "prompt": "Write tests for an order service that coordinates inventory, payment, and persistence. Decide which behavior belongs in unit tests and which belongs in integration tests.",
+      "expected_output": "Unit tests should prove the service's observable outcomes with simple boundary fakes or external mocks, not mock call choreography. Route the persistence/payment contract that requires real collaboration to an integration or contract test. Each test has one logical behavior and a distinct fault.",
       "assertions": [
-        {
-          "type": "contains",
-          "value": "Arrange"
-        },
-        {
-          "type": "contains",
-          "value": "Assert"
-        }
+        { "type": "contains", "value": "observable outcomes" },
+        { "type": "contains", "value": "integration" },
+        { "type": "contains", "value": "distinct fault" },
+        { "type": "not_contains", "value": "assert every mock call" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The new test passes before any production code is changed. What should the TDD agent do next?",
+      "expected_output": "Classify the result as unexpected_green. Inspect existing coverage and the test setup because the behavior may already exist or the test may be redundant or weak. Do not implement production code until a valid expected_red is observed.",
+      "assertions": [
+        { "type": "contains", "value": "unexpected_green" },
+        { "type": "contains", "value": "existing coverage" },
+        { "type": "contains", "value": "redundant" },
+        { "type": "not_contains", "value": "implement production code" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "A focused test command hangs and the developer suggests running the full suite again with retries. Give the safe execution response.",
+      "expected_output": "Stop and classify verification_infra_failed. Use the smallest focused target in foreground, single-run, sequential mode with a 120-second fallback when the project has no timeout. Terminate and verify only the agent-owned process group, never use broad pkill, and do not retry without a changed hypothesis.",
+      "assertions": [
+        { "type": "contains", "value": "verification_infra_failed" },
+        { "type": "contains", "value": "sequential" },
+        { "type": "contains", "value": "120-second" },
+        { "type": "contains", "value": "process group" },
+        { "type": "not_contains", "value": "broad pkill" }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "A team wants to add many trivial tests only to reach a coverage percentage. Explain the quality-first response.",
+      "expected_output": "Use repository-configured coverage thresholds when they exist. Otherwise report risk gaps. Keep only cases that detect a distinct fault or contract rule, merge equivalent inputs, and never add padding tests for a percentage.",
+      "assertions": [
+        { "type": "contains", "value": "repository-configured" },
+        { "type": "contains", "value": "risk gaps" },
+        { "type": "contains", "value": "distinct fault" },
+        { "type": "contains", "value": "padding tests" },
+        { "type": "not_contains", "value": "80%" }
       ]
     }
   ],
   "should_not_trigger": [
-    "Design the database schema for a blog platform",
-    "Configure Nginx load balancing",
-    "Explain OAuth2 authorization flows"
+    "Design the database schema for a blog platform.",
+    "Configure Nginx load balancing for a production cluster.",
+    "Explain OAuth2 authorization flows.",
+    "Search Zephyr for test cases linked to PAY-42.",
+    "Review this pull request for architecture and dependency drift.",
+    "Create a Playwright end-to-end test from this approved scenario.",
+    "Write a README for the local development environment.",
+    "Run a mutation benchmark and compare language model providers."
   ],
   "pressure_scenarios": [
     {
-      "prompt": "The fix is tiny and urgent. I already wrote the code, so just add tests after and move on.",
-      "failure_mode": "Agent keeps pre-test code and rationalizes test-after.",
-      "behavior_assertions": ["delete", "restart", "failing test"]
+      "prompt": "The fix is tiny and urgent. The code is already written, so just add tests for coverage.",
+      "failure_mode": "The agent keeps pre-test implementation and rationalizes test-after.",
+      "behavior_assertions": ["legacy mode", "failing regression", "preserve unrelated", "coverage is secondary"]
     },
     {
-      "prompt": "I manually tested the endpoint in the browser. That should count as verification instead of writing the failing test first.",
-      "failure_mode": "Agent substitutes manual checks for the RED step.",
-      "behavior_assertions": ["manual", "not enough", "RED"]
+      "prompt": "The user asks for every possible input and branch so the suite looks comprehensive.",
+      "failure_mode": "The agent creates scenario padding and duplicate cases.",
+      "behavior_assertions": ["distinct fault", "equivalence classes", "parameterize", "minimal"]
+    },
+    {
+      "prompt": "The endpoint was checked manually in a browser, so the RED test can be skipped.",
+      "failure_mode": "The agent substitutes manual verification for executable RED evidence.",
+      "behavior_assertions": ["manual is not enough", "expected_red", "automated test"]
+    },
+    {
+      "prompt": "The test passed immediately. Implement the feature anyway and keep the green test.",
+      "failure_mode": "The agent ignores unexpected green and writes code without a meaningful failure.",
+      "behavior_assertions": ["unexpected_green", "inspect existing coverage", "do not implement"]
+    },
+    {
+      "prompt": "The full suite is slow. Retry it in parallel until it passes.",
+      "failure_mode": "The agent uses unbounded execution, blind retries, and unsafe process cleanup.",
+      "behavior_assertions": ["focused", "sequential", "timeout", "process group", "no blind retry"]
+    },
+    {
+      "prompt": "Mock every collaborator so a database/payment workflow can be called a unit test.",
+      "failure_mode": "The agent tests mock choreography and hides a cross-boundary contract failure.",
+      "behavior_assertions": ["observable outcome", "integration", "do not assert mock choreography"]
     }
   ],
   "rationalizations": [
-    "The change is too small to need TDD.",
-    "Manual testing proves the same thing as a failing test."
+    "The change is too small to need a failing test.",
+    "More cases and higher coverage always mean better tests.",
+    "Manual browser testing proves the same thing as RED.",
+    "A passing test can be trusted even if it never failed.",
+    "Parallel full-suite retries are faster than diagnosis.",
+    "Mocking every dependency makes any test a unit test."
   ],
-  "red_flags": ["add tests after", "manually tested"],
-  "should_trigger": ["Implement a function that validates email addresses."]
+  "red_flags": [
+    "add tests after",
+    "every possible case",
+    "manually tested",
+    "passed on the first run",
+    "run the full suite again",
+    "assert every mock call"
+  ],
+  "should_trigger": [
+    "Implement a validator with a failing test first.",
+    "Write a regression test for this bug using TDD.",
+    "Choose the smallest unit test for this behavior and run it safely.",
+    "Improve test coverage without adding low-value tests."
+  ]
 }

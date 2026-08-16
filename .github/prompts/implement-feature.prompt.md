@@ -19,13 +19,17 @@ Goal: Build an approved feature through TDD slices and route completed work to v
 2. Prepare workspace:
    - Confirm clean or intentionally dirty git state.
    - Create branch or worktree only when project workflow expects it.
+   - Provision dependencies BEFORE tests (`npm ci`/`pnpm i`/`yarn`, `flutter pub get`, `./gradlew dependencies`, or `pip install -e .` from the lockfile); isolated worktrees lack ignored toolchains.
+   - If install fails from network, auth, or time budget, report `verification_infra_failed` with the exact command/error; never claim tests passed or silently skip verification.
    - Initialize or update `docs/srs/srs-task-list.md` with small vertical slices.
 3. Implement slices:
    - For each slice, write or update the failing test first.
+   - Before the test, record its observable contract, distinct fault, smallest layer, minimal cases, and exact focused command (the Test Intent Record).
    - Consume the named `REQ-*` and `AC-*` for each slice; do not invent scope from code inspection.
    - Do not keep pre-test implementation code as "reference".
    - Implement the smallest passing code.
    - Refactor without expanding scope.
+   - Run the focused target in foreground, single-run, sequential mode; classify invalid RED, unexpected GREEN, timeout, and cleanup instead of retrying blindly.
    - Keep slice evidence near the task item.
    - Use sub-agents only when the runtime supports them and ownership is disjoint.
    - If a fix path is unclear, stop and apply root-cause debugging before more code changes.
@@ -54,21 +58,13 @@ Goal: Build an approved feature through TDD slices and route completed work to v
 
 ```md
 # Implementation Handoff: [Name]
-
 ## Completed Slices
-
 ## Tests Run
-
 ## Changed Contracts
-
 ## Requirement Trace Updates
-
 ## Evidence
-
 ## Known Risks
-
 ## Delegation Packets
-
 ## Outcome Report
 feature_status: partially_implemented | implemented | blocked
 requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence

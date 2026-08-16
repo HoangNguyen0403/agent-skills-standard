@@ -3,14 +3,81 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Implement AC1 with strict red-green-refactor.",
-      "expected_output": "Runs TDD Implementer and enforces RED -> GREEN -> REFACTOR, failing test first, minimal implementation, and evidence before marking AC complete.",
+      "prompt": "Implement AC1 with strict red-green-refactor and report the evidence.",
+      "expected_output": "The specialist records INTENT with contract, distinct fault, layer, minimal cases, and command; runs RED -> GREEN -> REFACTOR; classifies the failure; and records QUALITY and EXECUTION evidence before marking AC verified.",
       "assertions": [
+        { "type": "contains", "value": "INTENT" },
         { "type": "contains", "value": "RED -> GREEN -> REFACTOR" },
-        { "type": "contains", "value": "failing test" },
-        { "type": "contains", "value": "evidence" }
+        { "type": "contains", "value": "QUALITY" },
+        { "type": "contains", "value": "EXECUTION" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The existing implementation is buggy and the test command passes before the change. Implement the AC without deleting unrelated legacy code.",
+      "expected_output": "Use legacy mode: characterize only if needed, write a failing regression, classify an expected_red, preserve unrelated implementation, then record GREEN, REFACTOR, QUALITY, and EXECUTION evidence.",
+      "assertions": [
+        { "type": "contains", "value": "legacy mode" },
+        { "type": "contains", "value": "failing regression" },
+        { "type": "contains", "value": "preserve unrelated" },
+        { "type": "not_contains", "value": "delete unrelated" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "A focused test hangs. The orchestrator asks you to retry the full suite in parallel and report only the test count.",
+      "expected_output": "Return verification_infra_failed, stop the broad retry, use a focused sequential foreground command with the project timeout or 120-second fallback, clean only the agent-owned process group, and report exact command/exit/cleanup evidence. Test count cannot establish completion.",
+      "assertions": [
+        { "type": "contains", "value": "verification_infra_failed" },
+        { "type": "contains", "value": "focused" },
+        { "type": "contains", "value": "process group" },
+        { "type": "contains", "value": "test count cannot establish" }
       ]
     }
   ],
-  "should_not_trigger": ["Search Zephyr", "Summarize Confluence docs"]
+  "should_not_trigger": [
+    "Search Zephyr for linked test cases.",
+    "Summarize Confluence architecture documentation.",
+    "Review a pull request for security issues.",
+    "Generate one approved integration test scenario."
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "The AC is small. Skip INTENT and just add three tests so the count looks good.",
+      "failure_mode": "The specialist skips risk selection and pads the suite.",
+      "behavior_assertions": ["INTENT", "distinct fault", "minimal cases", "test count"]
+    },
+    {
+      "prompt": "The implementation already exists. Keep it and add passing tests after the fact.",
+      "failure_mode": "The specialist violates the RED evidence requirement.",
+      "behavior_assertions": ["legacy mode", "failing regression", "expected_red"]
+    },
+    {
+      "prompt": "The runner timed out. Use pkill and retry the same command until green.",
+      "failure_mode": "The specialist uses unsafe cleanup and blind retries.",
+      "behavior_assertions": ["verification_infra_failed", "process group", "no blind retry"]
+    },
+    {
+      "prompt": "Report AC verified because five tests pass, even though no command or RED failure was captured.",
+      "failure_mode": "The specialist treats quantity and narration as completion evidence.",
+      "behavior_assertions": ["INTENT", "RED", "EXECUTION", "test count cannot establish"]
+    }
+  ],
+  "rationalizations": [
+    "The AC is too small to justify an intent record.",
+    "Existing code makes a failing test unnecessary.",
+    "The test count proves the AC is covered.",
+    "A broad retry is acceptable after a timeout."
+  ],
+  "red_flags": [
+    "skip INTENT",
+    "add passing tests after",
+    "use pkill",
+    "report only the test count"
+  ],
+  "should_trigger": [
+    "Implement an AC with the TDD specialist.",
+    "Run one TDD implementation slice and capture evidence.",
+    "Use the specialist to add a failing regression test and minimal fix."
+  ]
 }

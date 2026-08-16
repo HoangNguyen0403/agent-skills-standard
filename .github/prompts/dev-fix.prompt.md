@@ -45,7 +45,8 @@ Goal: Take a bug ticket from root-cause analysis through a locally-verified PR/M
     - Use the **Task Template** below.
     - Initialize project-local `docs/srs/srs-task-list.md`.
 3.  **Code**: Implement the fix using `common-tdd` or the `@specialist-tdd-implementer` sub-agent. Follow `common-best-practices` and service-specific `AGENTS.md` rules.
-    - Delete any pre-test implementation spike before starting the TDD loop.
+    - Use `common-tdd`: strict RED first for new behavior; for legacy fixes, characterize only when needed and reproduce the intended change as RED without deleting unrelated implementation.
+    - Record the Test Intent Record and run the smallest foreground, single-run target with a project timeout or 120-second fallback before escalating.
 
 ### Step 3: Local Verification (Enterprise Standard)
 

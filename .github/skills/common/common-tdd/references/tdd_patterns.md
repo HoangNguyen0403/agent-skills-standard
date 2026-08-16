@@ -28,8 +28,18 @@ When a bug is reported:
 3. **FIX**: Write minimal code to pass.
 4. **VERIFY GREEN**: Test passes + prevents regressions forever.
 
+For legacy code, characterization can document current behavior first. The intended change still needs its own RED evidence; unrelated existing implementation is not deleted.
+
 ## Protocol: Scaffolding (When Stuck)
 
 - **API First**: Write the test you _wish_ you could run. Use the ideal interface.
 - **Assertion First**: Work backwards from `expect(...)`.
 - **Simplification**: If the test is too hard to write, the design is too coupled. Refactor design _before_ finishing the test.
+
+## Protocol: Bounded Verification
+
+1. Run lint/type checks when configured.
+2. Run one focused target in foreground, single-run, sequential mode.
+3. Classify `expected_red`, `invalid_red`, `unexpected_green`, or `verification_infra_failed`.
+4. Escalate to related or full suites only when the changed boundary requires it.
+5. Use the project timeout or 120 seconds for a focused command; clean only its process group and never retry unchanged failures.
