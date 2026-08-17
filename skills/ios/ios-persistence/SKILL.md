@@ -20,7 +20,7 @@ metadata:
 
 ## Implementation Workflow
 
-1. **Choose storage tier** — SwiftData for iOS 17+, Core Data for legacy, Keychain or other secure storage for secrets, UserDefaults for flags only.
+1. **Choose storage tier** — SwiftData for iOS 17+, Core Data for legacy, Apple secure credential storage for secrets, UserDefaults for flags only.
 2. **Define models** — Use `@Model` macro (SwiftData) or `.xcdatamodeld` (Core Data).
 3. **Configure container** — Use `@MainActor` for `ModelContainer` (SwiftData) or `NSPersistentContainer` (Core Data).
 4. **Perform background writes** — Use `newBackgroundContext()` (Core Data) to avoid UI lag; never heavy I/O on `viewContext`.

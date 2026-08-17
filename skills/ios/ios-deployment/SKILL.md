@@ -39,7 +39,7 @@ See [Fastlane and Match setup examples](references/implementation.md)
 ## Canonical response anchors
 
 When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- Info.plist,info
+- iOS app configuration
 
 ## Remediation anchors
 
