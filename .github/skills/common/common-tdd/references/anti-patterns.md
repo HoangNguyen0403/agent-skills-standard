@@ -28,3 +28,13 @@ Avoid these common pitfalls to keep tests reliable and maintainable.
 
 **Bad**: Mocks that have their own logic, state engines, or complex setups.
 **Good**: If a mock is that complex, you probably need a real object or a fake (lightweight implementation).
+
+## 6. Scenario Explosion
+
+**Bad**: Adding every conceivable input or branch to increase test count.
+**Good**: Keep one case per distinct plausible fault; merge equivalent inputs with a table-driven or parameterized test.
+
+## 7. Layer Mismatch
+
+**Bad**: Mocking every collaborator to call an orchestration unit test a unit test.
+**Good**: Test owned pure behavior in isolation and route cross-boundary contracts to integration or contract tests.

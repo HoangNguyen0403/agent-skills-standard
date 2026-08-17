@@ -18,7 +18,7 @@
 | specialist-pr-reviewer | PR review metadata, pull request summary, merge request summary, GitHub PR, GitLab MR, Azure DevOps PR |
 | specialist-security-reviewer | security review, vulnerability audit, OWASP check, security findings |
 | specialist-tc-creator | create test case, Zephyr TC creation, test management, link TC to Jira |
-| **specialist-tdd-implementer** | tdd implementation, red green refactor, implement ac |
+| **specialist-tdd-implementer** | tdd implementation, red green refactor, implement ac, quality unit test |
 | specialist-test-gap-finder | test gap, missing tests, coverage review, assertion quality |
 | specialist-zephyr-scanner | zephyr scanner, linked test cases, test coverage, TC discovery |
 

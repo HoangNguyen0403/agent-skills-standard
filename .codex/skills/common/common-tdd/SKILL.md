@@ -1,6 +1,6 @@
 ---
 name: common-tdd
-description: "Implements a strict Red-Green-Refactor loop to ensure zero production code is written without a prior failing test. Use when: creating new features, fixing bugs, or expanding test coverage."
+description: "Guides quality-first TDD for new behavior, bug fixes, and test changes. Selects the smallest test layer, proves a distinct regression risk, and runs bounded RED-GREEN-REFACTOR verification."
 metadata:
   triggers:
     files:
@@ -19,79 +19,55 @@ metadata:
       - test coverage
 ---
 
-# Test-Driven Development (TDD) Standard
+# Quality-First TDD
 
 ## **Priority: P0 (CRITICAL)**
 
-> **Iron Law: NO PRODUCTION CODE WITHOUT FAILING TEST FIRST.**
-> Code written before test MUST deleted. Start over.
+A passing test is insufficient; the test must prove an owned behavior and a distinct plausible fault.
 
-## **Step 1: RGR Loop (Red-Green-Refactor)**
+## Choose the mode
 
-> [!TIP]
-> **Orchestration**: If sub-agents are available, delegate each AC implementation to `specialist-tdd-implementer`.
+- **New behavior:** strict RED -> GREEN -> REFACTOR. Do not write production code before the expected RED.
+- **Legacy or bug fix:** characterize only when needed, then reproduce the intended change as a failing regression (RED). Preserve unrelated existing code; do not delete it merely because it predates the test.
 
-1. **RED**: Write minimal failing test. **Verify failure** (Expected error, not typo).
-2. **GREEN**: Write simplest code to pass. **Verify pass**.
-3. **REFACTOR**: Clean up code while staying green.
+## Before writing a test
 
-## **Red Flags**
+Create one Test Intent Record per behavior/risk:
 
-- **Stop if code exists before test**: Delete it. Restart from RED.
-- **Stop if test passes first run**: You tested old behavior.
-- **Stop if "tests after" appears**: That is not TDD.
+- `contract`: observable contract — an application-owned result or side effect
+- `fault`: distinct fault — a distinct plausible regression this test would catch
+- `layer`: smallest honest unit, component, contract, integration, or E2E layer
+- `cases`: minimal distinct equivalence classes; use a parameterized test for equivalent inputs
+- `command`: exact focused single-run command
 
-## **AAA Structure (Mandatory)**
+Reject tests that duplicate an existing fault, assert implementation detail or mock choreography, depend on time/network/order, or force a broader behavior into a unit.
 
-Every test must follow Arrange-Act-Assert:
+## Bounded loop
 
-- **Arrange**: Set up inputs, stubs, mocks, and expected values.
-- **Act**: Call single unit under test.
-- **Assert**: Verify output and side effects. One logical assertion per test.
-  **(See [AAA Example](references/aaa_example.md) for code structure)**.
+1. Run configured lint/type checks, inspect nearby tests, and derive the smallest command.
+2. **RED:** add one intent group and run it in the foreground, sequentially, single-run mode.
+3. Classify RED as `expected_red`, `invalid_red`, `unexpected_green`, or `verification_infra_failed`. If it is `unexpected_green`, inspect existing coverage and remove a redundant or weak case before implementing production code.
+4. **GREEN:** implement only enough to satisfy `expected_red`; rerun the same command.
+5. **REFACTOR:** improve structure without changing behavior; rerun the same command.
+6. Escalate only when evidence requires it: related unit target, integration/contract target, then explicit release/full-suite gate.
 
-## **Step 3: Verification & Thresholds**
+## Execution safety
 
-- **Minimum Coverage**: 80% (Stat/Func/Line), 75% (Branch).
-- **Mocks**:
-- Always mock: HTTP, Time/Date, Filesystem.
-- Never mock: Fast internal services (<200ms), pure domain logic.
-- See [Test Runner Reference](references/test_runners.md) for environment-specific commands.
+- Honor project timeouts; otherwise use a 120-second fallback to bound a focused command.
+- On timeout, terminate only the agent-owned process group and verify child cleanup.
+- Never watch, blanket-kill, or retry an unchanged failure. Record the new hypothesis or corrective change first.
+- Coverage is repository-configured, project-owned evidence. Without a configured threshold, report risk gaps and never add padding tests for a percentage.
 
-## **Step 4: Principles & Mocks**
+## Red flags and rationalizations
 
-- **Watch it Fail**: Prove test works before writing code.
-- **Minimalism**: Don't add features/options beyond current test (YAGNI).
-- **Isolation**: Mock external APIs (HTTP) and Time.
-- **Realism**: Prefer real DBs (test containers) and fast internal services (<200ms).
+- Stop on: `add tests after`, `too small`, `passed first run`, `run the full suite again`, or `mock every collaborator`.
+- Urgency, manual testing, test count, or a coverage target never bypasses the intent record, expected RED, bounded command, or fault proof.
 
-## **Rationalization Prevention**
+## Test shape
 
-- **"Too small to test"**: Small code still regresses. Write the test.
-- **"Manual testing is enough"**: Manual checks do not prove the RED step.
-- **"Keep code as reference"**: Pre-test code biases the implementation. Delete it.
-- **"Tests after are equivalent"**: Passing immediately proves little.
+- Use clear Arrange, Act, Assert phases; comments are optional.
+- Assert observable outcomes. Assert an interaction only when that interaction is the contract.
+- Mock external boundaries only when isolation requires it; prefer real pure/domain behavior and simple fakes.
+- Keep test names behavior-focused, without ticket IDs or TODO/FIXME markers.
 
-## **Verification Checklist**
-
-- [ ] Every new function/method failing test first?
-- [ ] Failure message expected?
-- [ ] Minimal code implemented passed?
-- [ ] AAA structure followed?
-- [ ] Coverage thresholds met?
-
-## **Expert References**
-
-- [AAA Example](references/aaa_example.md)
-- [AAA Methodology](references/aaa_methodology.md)
-- [Test Runners](references/test_runners.md)
-- [TDD Patterns](references/tdd_patterns.md)
-- [Testing Anti-Patterns](references/testing_anti_patterns.md)
-
-## Anti-Patterns
-
-- **No test-after**: Writing tests post-implementation defeats TDD. Delete and restart.
-- **No assertion-free tests**: test without assert not test.
-- **No testing implementation**: Test behavior and contracts, not internal calls.
-
-- A passing test alone is not enough: the failing test must demonstrate missing behavior before implementation.
+See `references/quality-contract.md` for the intent record, failure taxonomy, layer routing, and runner examples.

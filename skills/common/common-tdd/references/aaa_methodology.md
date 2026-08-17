@@ -16,12 +16,12 @@ Execute the SINGLE behavior under test.
 
 ## **3. Assert (The Feedback)**
 
-Verify expectations.
+Verify the observable contract.
 
-- **Rule**: Check for both Success (Return Value) and Side Effects (Mock calls).
+- **Rule**: Assert the result and required state/side effect. Assert an interaction only when that interaction is the contract.
 - **Pattern**:
   - `expect(result).toBe(expected);`
-  - `expect(mockService.call).toHaveBeenCalledWith(args);`
+  - `expect(savedOrder.status).toBe('created');`
 
 ## **Code Example (TypeScript)**
 

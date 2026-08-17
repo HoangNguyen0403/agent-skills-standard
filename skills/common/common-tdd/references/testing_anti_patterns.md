@@ -34,12 +34,24 @@ Rules to prevent technical debt in test suites.
 
 ### 4. Over-Mocking
 
-- **Violation**: Mock setup is >50% of the test file.
-- **Fix**: Use true Integration Tests with real (but fast) dependencies. Complex mocks indicate over-coupling or poor test strategy.
+- **Violation**: The test spends more effort simulating collaborators than proving an owned behavior.
+- **Fix**: Keep real pure/domain behavior and simple fakes; route cross-boundary behavior to an integration or contract test.
+
+### 5. Scenario Padding
+
+- **Violation**: Equivalent inputs are added only to raise test count or coverage.
+- **Fix**: Record the distinct fault for each case and parameterize equivalent inputs.
+
+### 6. Unbounded Execution
+
+- **Violation**: A broad suite is launched during each RED/GREEN loop, with watch mode, blind retries, or orphaned child processes.
+- **Fix**: Run the smallest foreground target sequentially, apply a timeout, clean only the owned process group, and escalate by evidence.
 
 ## Verification Checklist
 
 - [ ] Is this method/field used ONLY by tests? (Move to utils/extensions).
 - [ ] Are we testing what the code DOES or what the MOCK does?
 - [ ] Does the mock mirror the FULL data structure of the real dependency?
-- [ ] Is mock setup simpler than the actual business logic?
+- [ ] Does mock setup stay smaller than the behavior being proved?
+- [ ] Does every case detect a distinct fault or contract rule?
+- [ ] Is the command focused, bounded, and cleanly terminated?
