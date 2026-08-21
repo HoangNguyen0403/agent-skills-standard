@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [cli-v2.6.1] - 2026-08-21
 
-**Category**: Claude specialist sync bug fix
+**Category**: Sync-format bug fixes
 
 ### Fixed
 
 - **Claude Specialist Frontmatter**: `SpecialistTransformer` now preserves `tools`, `model`, and `color` metadata from a specialist's `SKILL.md` frontmatter when generating `.claude/agents/*.md`, instead of silently dropping them ([#104](https://github.com/HoangNguyen0403/agent-skills-standard/issues/104)).
+- **Doubled Quotes in Emitted Workflow Descriptions**: `WorkflowTransformer.parseSource()` now strips a matching surrounding-quote pair (`"..."` or `'...'`) from a workflow source's frontmatter `description` before it reaches format emitters. Previously, a quoted description (required when the value contains a `:`, e.g. `description: "Phase one: do the thing"`) was passed through with its quotes intact, and the TOML (Gemini CLI), Copilot prompt, and SKILL.md emitters re-wrapped it in a fresh pair of quotes, producing invalid doubled-quote output (`description: ""Phase one: do the thing""`) that failed to parse. Unquoted descriptions were unaffected. (#105)
+- **Unescaped Quotes in Copilot Prompt Descriptions**: `toCopilotPrompt` now escapes `\` and `"` in `description` before embedding it in frontmatter, matching the escaping already applied by the TOML and SKILL.md emitters. Previously an internal `"` in an unquoted description could break the emitted `.prompt.md` frontmatter.
 
 ## [cli-v2.6.0] - 2026-07-14
 
