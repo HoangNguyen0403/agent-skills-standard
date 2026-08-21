@@ -2,7 +2,7 @@ registry: https://github.com/HoangNguyen0403/agent-skills-standard
 agents:
   - copilot
   - antigravity
-  - openai
+  - codex
   - claude
 skills:
   typescript:
