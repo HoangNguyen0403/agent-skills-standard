@@ -5,6 +5,14 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [cli-v2.6.1] - 2026-08-21
+
+**Category**: Claude specialist sync bug fix
+
+### Fixed
+
+- **Claude Specialist Frontmatter**: `SpecialistTransformer` now preserves `tools`, `model`, and `color` metadata from a specialist's `SKILL.md` frontmatter when generating `.claude/agents/*.md`, instead of silently dropping them ([#104](https://github.com/HoangNguyen0403/agent-skills-standard/issues/104)).
+
 ## [cli-v2.6.0] - 2026-07-14
 
 **Category**: Live eval evidence retention and report clarity
