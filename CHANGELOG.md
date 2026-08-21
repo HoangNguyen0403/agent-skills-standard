@@ -5,6 +5,14 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [cli-v2.6.1] - 2026-08-21
+
+**Category**: License consistency fix
+
+### Fixed
+
+- **LICENSE mismatch**: Replaced the Apache License 2.0 text in `LICENSE` and `cli/LICENSE` with the MIT License, matching the license already declared in `README.md`, `cli/package.json`, and `mcp/package.json`. The published `cli` npm package previously bundled a license file that contradicted its own `package.json` metadata ([#106](https://github.com/HoangNguyen0403/agent-skills-standard/issues/106)).
+
 ## [cli-v2.6.0] - 2026-07-14
 
 **Category**: Live eval evidence retention and report clarity
