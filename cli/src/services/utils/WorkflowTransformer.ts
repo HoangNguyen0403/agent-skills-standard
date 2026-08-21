@@ -186,7 +186,10 @@ ${escapedBody}
    * User invokes via /prompt-name in Copilot chat.
    */
   private static toCopilotPrompt(description: string, body: string): string {
-    return `---\ndescription: "${description}"\n---\n${body}`;
+    const escapedDescription = description
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"');
+    return `---\ndescription: "${escapedDescription}"\n---\n${body}`;
   }
 
   /**

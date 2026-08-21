@@ -180,6 +180,18 @@ describe('WorkflowTransformer', () => {
       expect(result!.content).toContain('## Step 1');
       expect(result!.content).toContain('git diff');
     });
+
+    it('should escape quotes and backslashes in description', () => {
+      const quoted = {
+        name: 'test.md',
+        content:
+          '---\ndescription: Use "strict" mode and \\ escape.\n---\n# Test',
+      };
+      const result = WorkflowTransformer.transform(quoted, 'prompt');
+      expect(result!.content).toContain(
+        'description: "Use \\"strict\\" mode and \\\\ escape."',
+      );
+    });
   });
 
   it('should handle content without frontmatter', () => {
