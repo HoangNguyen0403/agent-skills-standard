@@ -2,12 +2,13 @@ registry: https://github.com/HoangNguyen0403/agent-skills-standard
 agents:
   - copilot
   - antigravity
-  - codex
+  - openai
+  - claude
 skills:
   typescript:
-    ref: typescript-v1.3.3
+    ref: typescript-v1.3.4
   common:
-    ref: common-v2.0.5
+    ref: common-v2.4.0
     exclude:
       - common-accessibility
       - common-api-design
@@ -18,7 +19,7 @@ skills:
       - common-mobile-ux-core
       - common-observability
   quality-engineering:
-    ref: quality-engineering-v1.5.0
+    ref: quality-engineering-v1.5.1
 custom_overrides: []
 workflows:
   - sdlc
