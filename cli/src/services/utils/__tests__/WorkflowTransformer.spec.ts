@@ -241,6 +241,75 @@ describe('WorkflowTransformer', () => {
     });
   });
 
+  describe('quoted frontmatter description (issue #105)', () => {
+    it('strips a matching double-quoted pair when parsing', () => {
+      const source = {
+        name: 'test.md',
+        content:
+          '---\ndescription: "Phase one: do the thing"\n---\n# Test',
+      };
+      const parsed = WorkflowTransformer.parse(source);
+      expect(parsed.description).toBe('Phase one: do the thing');
+    });
+
+    it('strips a matching single-quoted pair when parsing', () => {
+      const source = {
+        name: 'test.md',
+        content: "---\ndescription: 'Phase one: do the thing'\n---\n# Test",
+      };
+      const parsed = WorkflowTransformer.parse(source);
+      expect(parsed.description).toBe('Phase one: do the thing');
+    });
+
+    it('does not double-quote a double-quoted description in toml format', () => {
+      const source = {
+        name: 'test.md',
+        content:
+          '---\ndescription: "Phase one: do the thing"\n---\n# Test',
+      };
+      const result = WorkflowTransformer.transform(source, 'toml');
+      expect(result!.content).toContain(
+        'description = "Phase one: do the thing"',
+      );
+      expect(result!.content).not.toContain('""Phase');
+    });
+
+    it('does not double-quote a double-quoted description in prompt format', () => {
+      const source = {
+        name: 'test.md',
+        content:
+          '---\ndescription: "Phase one: do the thing"\n---\n# Test',
+      };
+      const result = WorkflowTransformer.transform(source, 'prompt');
+      expect(result!.content).toContain(
+        'description: "Phase one: do the thing"',
+      );
+      expect(result!.content).not.toContain('""');
+    });
+
+    it('does not double-quote a double-quoted description in skill format', () => {
+      const source = {
+        name: 'test.md',
+        content:
+          '---\ndescription: "Phase one: do the thing"\n---\n# Test',
+      };
+      const result = WorkflowTransformer.transform(source, 'skill');
+      expect(result!.content).toContain(
+        'description: "Phase one: do the thing"',
+      );
+      expect(result!.content).not.toContain('""');
+    });
+
+    it('leaves an unmatched leading quote alone', () => {
+      const source = {
+        name: 'test.md',
+        content: '---\ndescription: "Quote at start only\n---\n# Test',
+      };
+      const parsed = WorkflowTransformer.parse(source);
+      expect(parsed.description).toBe('"Quote at start only');
+    });
+  });
+
   describe('WorkflowTransformer - Additional Branch Coverage', () => {
     it('handles frontmatter without description', () => {
       const source = {

@@ -113,8 +113,14 @@ export class WorkflowTransformer {
     if (!match) return { description: '', body: content };
 
     const descMatch = match[1].match(/description:\s*(.+)/);
+    const rawDescription = descMatch ? descMatch[1].trim() : '';
+    const quotedMatch = rawDescription.match(/^"(.*)"$|^'(.*)'$/);
+    const description = quotedMatch
+      ? (quotedMatch[1] ?? quotedMatch[2])
+      : rawDescription;
+
     return {
-      description: descMatch ? descMatch[1].trim() : '',
+      description,
       body: match[2],
     };
   }
