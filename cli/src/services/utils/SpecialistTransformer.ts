@@ -34,11 +34,21 @@ export class SpecialistTransformer {
       metadata.description || `Specialist persona for ${baseName}`;
 
     switch (agentId) {
-      case Agent.Claude:
+      case Agent.Claude: {
+        const fmLines = [`name: ${baseName}`, `description: "${description}"`];
+        if (metadata.tools) {
+          const tools = Array.isArray(metadata.tools)
+            ? metadata.tools.join(', ')
+            : metadata.tools;
+          fmLines.push(`tools: ${tools}`);
+        }
+        if (metadata.model) fmLines.push(`model: ${metadata.model}`);
+        if (metadata.color) fmLines.push(`color: ${metadata.color}`);
         return {
           name: `${baseName}.md`,
-          content: `---\nname: ${baseName}\ndescription: "${description}"\n---\n\n${body}`,
+          content: `---\n${fmLines.join('\n')}\n---\n\n${body}`,
         };
+      }
 
       case Agent.Cursor:
         return {

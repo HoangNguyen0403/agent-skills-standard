@@ -23,6 +23,40 @@ Check OWASP.`,
     expect(result!.content).toContain('# Rules');
   });
 
+  it('should include tools/model/color in Claude frontmatter when present', () => {
+    const sourceWithMeta = {
+      name: 'specialist-security-reviewer',
+      content: `---
+name: specialist-security-reviewer
+description: "Review security"
+tools:
+  - Read
+  - Edit
+model: sonnet
+color: blue
+---
+# Rules
+Check OWASP.`,
+    };
+    const result = SpecialistTransformer.transform(sourceWithMeta, Agent.Claude);
+    expect(result).not.toBeNull();
+    const content = result!.content;
+    expect(content).toContain('tools: Read, Edit');
+    expect(content).toContain('model: sonnet');
+    expect(content).toContain('color: blue');
+    expect(content.indexOf('description:')).toBeLessThan(content.indexOf('tools:'));
+    expect(content.indexOf('tools:')).toBeLessThan(content.indexOf('model:'));
+    expect(content.indexOf('model:')).toBeLessThan(content.indexOf('color:'));
+  });
+
+  it('should omit tools/model/color from Claude frontmatter when absent', () => {
+    const result = SpecialistTransformer.transform(source, Agent.Claude);
+    expect(result).not.toBeNull();
+    expect(result!.content).not.toContain('tools:');
+    expect(result!.content).not.toContain('model:');
+    expect(result!.content).not.toContain('color:');
+  });
+
   it('should transform for Cursor (rule style)', () => {
     const result = SpecialistTransformer.transform(source, Agent.Cursor);
     expect(result).not.toBeNull();
