@@ -1,4 +1,5 @@
 import { WorkflowFormat } from '../../constants';
+import { escapeTomlString } from './tomlEscape';
 
 interface WorkflowSource {
   /** Original filename (e.g., 'code-review.md') */
@@ -164,11 +165,10 @@ ${body}`;
    * User invokes via /<name> [arguments]
    */
   private static toGeminiCommand(description: string, body: string): string {
-    const escapedDescription = description
-      .replace(/\\/g, '\\\\')
-      .replace(/"/g, '\\"');
-    // TOML basic multi-line strings use """; escape any occurrence in the body.
-    const escapedBody = body.replace(/"""/g, '\\"\\"\\"');
+    const escapedDescription = escapeTomlString(description);
+    // Escaping every quote (not just runs of 3+) avoids the ambiguity a
+    // partial escape leaves for 4+ consecutive quote characters in body.
+    const escapedBody = escapeTomlString(body);
     return `description = "${escapedDescription}"
 prompt = """
 Execute this workflow for: {{args}}
