@@ -12,6 +12,7 @@ import { McpCommand } from './commands/mcp';
 import { SyncCommand } from './commands/sync';
 import { UpgradeCommand } from './commands/upgrade';
 import { ValidateCommand } from './commands/validate-skills';
+import { VerifyCommand } from './commands/verify';
 
 // Load .env from current directory (for development and other env vars)
 dotenv.config();
@@ -66,6 +67,20 @@ program
   .action(async (options) => {
     const sync = new SyncCommand();
     await sync.run(options);
+  });
+
+program
+  .command('verify')
+  .description(
+    'Check installed skill files against .skills-lock.json (catches tampering, partial writes, or manual drift)',
+  )
+  .option(
+    '--agent <agent>',
+    'Which agent skill directory to verify (default: first configured agent)',
+  )
+  .action(async (options) => {
+    const cmd = new VerifyCommand();
+    await cmd.run(options);
   });
 
 program

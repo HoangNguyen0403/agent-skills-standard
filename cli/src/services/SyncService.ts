@@ -13,6 +13,7 @@ import { SkillSyncService } from './SkillSyncService';
 import { WorkflowSyncService } from './WorkflowSyncService';
 import { SpecialistSyncService } from './SpecialistSyncService';
 import { GitService } from './GitService';
+import { LockfileService } from './LockfileService';
 import { MarkdownUtils } from './utils/MarkdownUtils';
 
 /**
@@ -28,6 +29,7 @@ export class SyncService {
   private workflowSyncService = new WorkflowSyncService(this.githubService);
   private specialistSyncService = new SpecialistSyncService();
   private gitService = new GitService();
+  private lockfileService = new LockfileService();
 
   async reconcileConfig(
     config: SkillConfig,
@@ -94,7 +96,29 @@ export class SyncService {
   ): Promise<void> {
     await this.cleanupOldFolders();
     const agents = await this.resolveTargetAgents(config);
-    return this.skillSyncService.writeSkills(skills, config, agents);
+    await this.skillSyncService.writeSkills(skills, config, agents);
+    await this.writeLockfile(skills, config);
+  }
+
+  /**
+   * Records what was actually fetched (per-file sha256) so `ags verify` can
+   * later detect drift between the lockfile and what's on disk. No-op if
+   * nothing was fetched (e.g. every category failed to resolve).
+   */
+  private async writeLockfile(
+    skills: CollectedSkill[],
+    config: SkillConfig,
+  ): Promise<void> {
+    const refByCategory: Record<string, string> = {};
+    for (const [category, entry] of Object.entries(config.skills)) {
+      refByCategory[category] = entry.ref || 'main';
+    }
+    await this.lockfileService.write(
+      process.cwd(),
+      config.registry,
+      skills,
+      refByCategory,
+    );
   }
 
   async assembleWorkflows(config: SkillConfig): Promise<CollectedSkill[]> {
@@ -303,6 +327,38 @@ export class SyncService {
     // Return empty if no agents are detected and none are configured.
     // This ensures we never create "ghost" directories in the workspace.
     return [];
+  }
+
+  /**
+   * Verifies installed skill files against `.skills-lock.json`. Checks the
+   * first configured agent's skill directory by default (or `agentId` if
+   * given) — the standard `<agentPath>/<category>/<skill>/<file>` layout;
+   * Kiro's flattened `<category>-<skill>/` layout isn't supported yet.
+   */
+  async verifyLockfile(
+    config: SkillConfig,
+    agentId?: Agent,
+  ): Promise<{
+    agent: Agent | null;
+    result: Awaited<ReturnType<LockfileService['verify']>>;
+  }> {
+    const targetAgentId = agentId ?? config.agents?.[0];
+    const agentDef = SUPPORTED_AGENTS.find((a) => a.id === targetAgentId);
+    if (!agentDef?.path) {
+      return {
+        agent: null,
+        result: {
+          ok: false,
+          mismatches: [],
+          missing: ['no configured agent with a skill directory to verify'],
+        },
+      };
+    }
+    const result = await this.lockfileService.verify(
+      process.cwd(),
+      path.join(process.cwd(), agentDef.path),
+    );
+    return { agent: agentDef.id, result };
   }
 
   private async cleanupOldFolders(): Promise<void> {

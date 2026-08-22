@@ -16,6 +16,7 @@ vi.mock('../DetectionService');
 vi.mock('../AgentBridgeService');
 vi.mock('../SkillSyncService');
 vi.mock('../WorkflowSyncService');
+vi.mock('../LockfileService');
 vi.mock('../utils/MarkdownUtils');
 vi.mock('../ConfigService');
 
@@ -83,6 +84,10 @@ type SyncServicePrivates = {
   githubService: {
     getRepoInfo: ReturnType<typeof vi.fn>;
     getRawFile: ReturnType<typeof vi.fn>;
+  };
+  lockfileService: {
+    write: ReturnType<typeof vi.fn>;
+    verify: ReturnType<typeof vi.fn>;
   };
   configService: {
     reconcileDependencies: ReturnType<typeof vi.fn>;
@@ -212,6 +217,76 @@ describe('SyncService', () => {
         skills,
         config,
         [Agent.Cursor],
+      );
+    });
+
+    it('should write the lockfile with a ref-by-category map derived from config.skills', async () => {
+      const config = makeConfig({
+        agents: [Agent.Cursor],
+        registry: 'https://github.com/o/r',
+        skills: {
+          typescript: { ref: 'typescript-v1.3.4' },
+          common: {}, // no explicit ref → defaults to 'main'
+        },
+      });
+      const skills: Parameters<typeof syncService.writeSkills>[0] = [
+        { category: 'typescript', skill: 'typescript-core', files: [] },
+      ];
+
+      await syncService.writeSkills(skills, config);
+
+      const p = privatesOf(syncService);
+      expect(p.lockfileService.write).toHaveBeenCalledWith(
+        process.cwd(),
+        'https://github.com/o/r',
+        skills,
+        { typescript: 'typescript-v1.3.4', common: 'main' },
+      );
+    });
+  });
+
+  describe('verifyLockfile', () => {
+    it('returns agent:null with an explanatory message when no agent has a known skill path', async () => {
+      const config = makeConfig({ agents: [] });
+      const result = await syncService.verifyLockfile(config);
+      expect(result.agent).toBeNull();
+      expect(result.result.ok).toBe(false);
+      expect(result.result.missing[0]).toContain('no configured agent');
+    });
+
+    it('verifies against the first configured agent by default', async () => {
+      const config = makeConfig({ agents: [Agent.Claude] });
+      const p = privatesOf(syncService);
+      vi.mocked(p.lockfileService.verify).mockResolvedValue({
+        ok: true,
+        mismatches: [],
+        missing: [],
+      });
+
+      const result = await syncService.verifyLockfile(config);
+
+      expect(result.agent).toBe(Agent.Claude);
+      expect(p.lockfileService.verify).toHaveBeenCalledWith(
+        process.cwd(),
+        expect.stringContaining('.claude/skills'),
+      );
+    });
+
+    it('honors an explicit agentId override', async () => {
+      const config = makeConfig({ agents: [Agent.Claude] });
+      const p = privatesOf(syncService);
+      vi.mocked(p.lockfileService.verify).mockResolvedValue({
+        ok: true,
+        mismatches: [],
+        missing: [],
+      });
+
+      const result = await syncService.verifyLockfile(config, Agent.Cursor);
+
+      expect(result.agent).toBe(Agent.Cursor);
+      expect(p.lockfileService.verify).toHaveBeenCalledWith(
+        process.cwd(),
+        expect.stringContaining('.cursor/skills'),
       );
     });
   });
@@ -391,10 +466,11 @@ describe('SyncService', () => {
         expect.stringContaining('Skipped AGENTS.md update: index markers'),
       );
       expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Skipped server/AGENTS.md update: index markers'),
+        expect.stringContaining(
+          'Skipped server/AGENTS.md update: index markers',
+        ),
       );
     });
-
 
     it('fetches metadata from registry main branch and injects it into the generator', async () => {
       const remoteMetadata = {
@@ -844,7 +920,8 @@ describe('SyncService', () => {
   describe('warnIfSyncingFromSameRepo (Lines 78-83)', () => {
     it('should warn when local git remote matches the registry URL', async () => {
       const { GitService } = await import('../GitService');
-      const gitRemoteSpy = vi.spyOn(GitService.prototype, 'getRemoteUrl')
+      const gitRemoteSpy = vi
+        .spyOn(GitService.prototype, 'getRemoteUrl')
         .mockReturnValue('https://github.com/owner/repo');
 
       const logSpy = vi.spyOn(console, 'log');
@@ -856,7 +933,9 @@ describe('SyncService', () => {
 
       expect(gitRemoteSpy).toHaveBeenCalled();
       expect(logSpy).toHaveBeenCalledWith(
-        expect.stringContaining('You are syncing from the registry repository itself'),
+        expect.stringContaining(
+          'You are syncing from the registry repository itself',
+        ),
       );
 
       gitRemoteSpy.mockRestore();
@@ -872,7 +951,8 @@ describe('SyncService', () => {
       });
 
       const p = privatesOf(syncService);
-      const syncSpy = vi.spyOn(p.specialistSyncService as any, 'syncSpecialists')
+      const syncSpy = vi
+        .spyOn(p.specialistSyncService as any, 'syncSpecialists')
         .mockResolvedValue(undefined);
 
       await syncService.syncSpecialists(config);
