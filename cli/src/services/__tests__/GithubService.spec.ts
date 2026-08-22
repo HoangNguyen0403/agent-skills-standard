@@ -325,10 +325,10 @@ describe('GithubService', () => {
     });
 
     it('should handle undefined task if shift returns nothing (line 104 coverage)', async () => {
-      // @ts-expect-error - testing defensive logic
-      const { ok, failed } = await githubService.downloadFilesConcurrent([
-        undefined,
-      ]);
+      const { ok, failed } = await githubService.downloadFilesConcurrent(
+        // @ts-expect-error - testing defensive logic
+        [undefined],
+      );
       expect(ok).toEqual([]);
       expect(failed).toEqual([]);
     });

@@ -2,6 +2,7 @@ import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
 import { Agent } from '../constants';
+import { MCP_COMPATIBLE_VERSION } from '../constants/mcp';
 import { McpConfig } from '../models/config';
 
 /**
@@ -274,9 +275,15 @@ export interface UserScopePrompt {
  * a user-home file is about to be modified.
  */
 export class McpConfigService {
-  /** Returns the standard MCP server entry our CLI proposes. */
+  /**
+   * Returns the standard MCP server entry our CLI proposes. Defaults to the
+   * version this CLI was released with rather than an unversioned `npx -y
+   * <package>`, which would otherwise pull whatever is latest on npm the
+   * moment the agent starts — an unpinned update-drift surface (AST07).
+   * Pass an explicit `version` (from `mcp.version` in .skillsrc) to override.
+   */
   buildEntry(version?: string): { command: string; args: string[] } {
-    const spec = version ? `${PACKAGE}@${version}` : PACKAGE;
+    const spec = `${PACKAGE}@${version || MCP_COMPATIBLE_VERSION}`;
     return { command: 'npx', args: ['-y', spec] };
   }
 

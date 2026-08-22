@@ -6,9 +6,11 @@ import { Agent } from '../../constants';
 import { McpConfig } from '../../models/config';
 import {
   McpConfigService,
+  PACKAGE,
   SERVER_NAME,
   defaultMcpConfig,
 } from '../McpConfigService';
+import { MCP_COMPATIBLE_VERSION } from '../../constants/mcp';
 
 describe('McpConfigService', () => {
   let service: McpConfigService;
@@ -38,6 +40,19 @@ describe('McpConfigService', () => {
   function mcp(scope: McpConfig['scope']): McpConfig {
     return { enabled: true, scope, prompted: true };
   }
+
+  describe('buildEntry', () => {
+    it('pins to the CLI-compatible MCP version by default (no unversioned npx)', () => {
+      const entry = service.buildEntry();
+      expect(entry.args).toContain(`${PACKAGE}@${MCP_COMPATIBLE_VERSION}`);
+      expect(entry.args).not.toContain(PACKAGE);
+    });
+
+    it('honors an explicit version override', () => {
+      const entry = service.buildEntry('1.2.3');
+      expect(entry.args).toContain(`${PACKAGE}@1.2.3`);
+    });
+  });
 
   describe('install', () => {
     it('writes project-scope configs and snippets', async () => {
