@@ -102,6 +102,97 @@ describe('HookService', () => {
       );
     });
 
+    it('refreshes a stale (older-marker) script instead of preserving it forever', async () => {
+      const scriptPath = path.join(
+        root,
+        '.claude/hooks/preedit-skill-loader.js',
+      );
+      await fs.ensureDir(path.dirname(scriptPath));
+      const stale = UNIVERSAL_SKILL_LOADER_JS.replace(
+        /^\/\/ ags-hook-version: \S+$/m,
+        '// ags-hook-version: 0.0.1-older-release',
+      );
+      await fs.writeFile(scriptPath, stale);
+
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+      });
+
+      expect(await fs.readFile(scriptPath, 'utf8')).toBe(
+        UNIVERSAL_SKILL_LOADER_JS,
+      );
+      expect(
+        report.writes.find((w) => w.file.endsWith('preedit-skill-loader.js'))
+          ?.action,
+      ).toBe('updated');
+    });
+
+    it('does not rewrite when the installed script already carries the current version marker', async () => {
+      const scriptPath = path.join(
+        root,
+        '.claude/hooks/preedit-skill-loader.js',
+      );
+      await fs.ensureDir(path.dirname(scriptPath));
+      await fs.writeFile(scriptPath, UNIVERSAL_SKILL_LOADER_JS);
+
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+      });
+
+      expect(
+        report.writes.find((w) => w.file.endsWith('preedit-skill-loader.js'))
+          ?.action,
+      ).toBe('skipped-existing');
+    });
+
+    it('gates the permissions.allow write behind promptPermission and skips it when declined', async () => {
+      const promptPermission = vi.fn().mockResolvedValue(false);
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        promptPermission,
+      });
+
+      expect(promptPermission).toHaveBeenCalledWith(Agent.Claude);
+      const settings = await fs.readJson(
+        path.join(root, '.claude/settings.json'),
+      );
+      expect(settings.permissions?.allow ?? []).not.toContain(
+        'mcp__agent-skills-standard__*',
+      );
+    });
+
+    it('writes the permission when promptPermission approves it', async () => {
+      const promptPermission = vi.fn().mockResolvedValue(true);
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        promptPermission,
+      });
+
+      const settings = await fs.readJson(
+        path.join(root, '.claude/settings.json'),
+      );
+      expect(settings.permissions?.allow).toContain(
+        'mcp__agent-skills-standard__*',
+      );
+    });
+
+    it('does not re-prompt once the permission is already granted', async () => {
+      await service.install({ rootDir: root, agents: [Agent.Claude] });
+
+      const promptPermission = vi.fn().mockResolvedValue(true);
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        promptPermission,
+      });
+
+      expect(promptPermission).not.toHaveBeenCalled();
+    });
+
     it('is idempotent — second install does not duplicate entries', async () => {
       await service.install({ rootDir: root, agents: [Agent.Claude] });
       await service.install({ rootDir: root, agents: [Agent.Claude] });
@@ -523,13 +614,15 @@ describe('HookService', () => {
 
       // Now create it again, mock fs.remove to reject, and check that it doesn't throw
       await fs.writeFile(legacyPyPath, '# legacy python');
-      const spy = vi.spyOn(fs, 'remove').mockRejectedValueOnce(new Error('simulated delete error') as never);
+      const spy = vi
+        .spyOn(fs, 'remove')
+        .mockRejectedValueOnce(new Error('simulated delete error') as never);
 
       await service.install({ rootDir: root, agents: [Agent.Claude] });
       expect(spy).toHaveBeenCalled();
       // even if deletion failed, the installation should still succeed/not throw:
       expect(await fs.pathExists(scriptPath)).toBe(true);
-      
+
       spy.mockRestore();
     });
   });

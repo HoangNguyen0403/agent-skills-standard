@@ -443,8 +443,8 @@ describe('SyncCommand', () => {
 
       expect(mockMcpService.install).toHaveBeenCalledWith(
         expect.objectContaining({
-          mcp: expect.objectContaining({ snippets: true })
-        })
+          mcp: expect.objectContaining({ snippets: true }),
+        }),
       );
     });
 
@@ -458,7 +458,10 @@ describe('SyncCommand', () => {
       // 1. Check options.yes = true branch
       await command.run({ yes: true });
       const installCallYes = mockMcpService.install.mock.calls[0][0];
-      const resultYes = await installCallYes.userScopePrompt('claude', 'some/file');
+      const resultYes = await installCallYes.userScopePrompt(
+        'claude',
+        'some/file',
+      );
       expect(resultYes).toBe(true);
 
       // 2. Check options.yes = false branch
@@ -466,7 +469,10 @@ describe('SyncCommand', () => {
       await command.run({ yes: false });
       // The second run is the second call to install
       const installCallNo = mockMcpService.install.mock.calls[1][0];
-      const resultNo = await installCallNo.userScopePrompt('claude', 'some/file');
+      const resultNo = await installCallNo.userScopePrompt(
+        'claude',
+        'some/file',
+      );
       expect(resultNo).toBe(true);
     });
   });
@@ -555,6 +561,67 @@ describe('SyncCommand', () => {
       await command.run();
 
       expect(mockHookService.install).not.toHaveBeenCalled();
+    });
+
+    it('should pass a promptPermission callback that auto-approves under --yes', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: { common: { ref: 'v1.0.0' } },
+        agents: ['claude' as any],
+        mcp: { enabled: true, scope: 'project', prompted: true },
+      } as any);
+
+      await command.run({ yes: true });
+
+      const installArgs = mockHookService.install.mock.calls[0][0];
+      expect(installArgs.promptPermission).toBeInstanceOf(Function);
+      await expect(
+        installArgs.promptPermission!('claude' as any),
+      ).resolves.toBe(true);
+      expect(inquirer.prompt).not.toHaveBeenCalled();
+    });
+
+    it('should pass a promptPermission callback that declines without prompting in a non-TTY, non --yes run', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: { common: { ref: 'v1.0.0' } },
+        agents: ['claude' as any],
+        mcp: { enabled: true, scope: 'project', prompted: true },
+      } as any);
+      const originalIsTTY = process.stdin.isTTY;
+      process.stdin.isTTY = false;
+
+      await command.run();
+
+      const installArgs = mockHookService.install.mock.calls[0][0];
+      await expect(
+        installArgs.promptPermission!('claude' as any),
+      ).resolves.toBe(false);
+      expect(inquirer.prompt).not.toHaveBeenCalled();
+
+      process.stdin.isTTY = originalIsTTY;
+    });
+
+    it('should ask via inquirer when interactive and not --yes', async () => {
+      mockConfigService.loadConfig.mockResolvedValue({
+        registry: 'url',
+        skills: { common: { ref: 'v1.0.0' } },
+        agents: ['claude' as any],
+        mcp: { enabled: true, scope: 'project', prompted: true },
+      } as any);
+      const originalIsTTY = process.stdin.isTTY;
+      process.stdin.isTTY = true;
+      vi.mocked(inquirer.prompt).mockResolvedValueOnce({ ok: true });
+
+      await command.run();
+
+      const installArgs = mockHookService.install.mock.calls[0][0];
+      await expect(
+        installArgs.promptPermission!('claude' as any),
+      ).resolves.toBe(true);
+      expect(inquirer.prompt).toHaveBeenCalled();
+
+      process.stdin.isTTY = originalIsTTY;
     });
   });
 
