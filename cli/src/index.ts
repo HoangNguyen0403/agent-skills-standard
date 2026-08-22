@@ -10,6 +10,7 @@ import { InitCommand } from './commands/init';
 import { ListSkillsCommand } from './commands/list-skills';
 import { McpCommand } from './commands/mcp';
 import { SyncCommand } from './commands/sync';
+import { AuditCommand } from './commands/audit';
 import { UpgradeCommand } from './commands/upgrade';
 import { ValidateCommand } from './commands/validate-skills';
 import { VerifyCommand } from './commands/verify';
@@ -81,6 +82,16 @@ program
   .action(async (options) => {
     const cmd = new VerifyCommand();
     await cmd.run(options);
+  });
+
+program
+  .command('audit')
+  .description(
+    'Print the installed skill inventory recorded in .skills-lock.json',
+  )
+  .action(async () => {
+    const cmd = new AuditCommand();
+    await cmd.run();
   });
 
 program

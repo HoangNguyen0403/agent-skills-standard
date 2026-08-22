@@ -4,18 +4,18 @@
 
 This repository tracks its posture against the [OWASP Agentic Skills Top 10 v1.0](https://owasp.org/www-project-agentic-skills-top-10/) (AST), the community security standard for the agent-skill ecosystem. "Status" reflects what actually runs in this repo's CI/CLI today, not aspiration — update this table in the same PR that changes the control it describes.
 
-| AST  | Risk                             | Control in this repo                                                                                                                                             | Status      |
-| ---- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| AST01 | Malicious Skills                 | SkillSpector CI scan (below) + [`scripts/scan-injection.ts`](../scripts/scan-injection.ts) (description + body + `references/`)                                | Partial     |
-| AST02 | Supply Chain Compromise          | Blob-sha + size-cap verification on every skill/workflow download ([`GithubService.getRawFile`](../cli/src/services/GithubService.ts)); anchored registry-URL parsing; `npm publish --provenance`; gitleaks secret scan; blocking `dependency-review`; Dependabot | Partial     |
-| AST03 | Over-Privileged Skills            | `SpecialistTransformer` no longer lets a crafted `description` inject a `tools:`/permission key into emitted agent files                                       | Partial     |
-| AST04 | Insecure Metadata                 | Anchored frontmatter parsing (no `split('---')`); js-yaml-based safe emission instead of string interpolation; `FrontmatterRule`/`TriggersRule` validation      | Partial     |
-| AST05 | Untrusted External Instructions   | `scan-injection.ts` body/reference scan (zero-width/bidi chars, imperative HTML comments, base64 blobs, curl\|sh pipelines); trust-review-policy guidance        | Partial     |
-| AST06 | Weak Isolation                    | Codex specialists get `sandbox_mode = "read-only"`; PreToolUse hook is advisory-only elsewhere                                                                  | Guidance    |
-| AST07 | Update Drift                      | MCP server pinned to `MCP_COMPATIBLE_VERSION` by default (no more unversioned `npx -y`); download integrity check aborts a skill if `SKILL.md` fails             | Partial     |
-| AST08 | Poor Scanning                     | SkillSpector (static + optional LLM semantic pass) + independent `scan-injection.ts` pattern set + gitleaks; weekly drift-detection cron                        | Partial     |
-| AST09 | No Governance                     | [CODEOWNERS](../.github/CODEOWNERS) requires review on security-sensitive paths; this table; skill disclosure process below                                    | Partial     |
-| AST10 | Cross-Platform Reuse               | `scan-injection.ts --roots` can scan CLI-emitted mirrors (`.claude/`, `.agents/`, `.codex/`, ...); per-platform permission projection not yet implemented        | Planned     |
+| AST   | Risk                            | Control in this repo                                                                                                                                                                                                                                              | Status   |
+| ----- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| AST01 | Malicious Skills                | SkillSpector CI scan (below) + [`scripts/scan-injection.ts`](../scripts/scan-injection.ts) (description + body + `references/`)                                                                                                                                   | Partial  |
+| AST02 | Supply Chain Compromise         | Blob-sha + size-cap verification on every skill/workflow download ([`GithubService.getRawFile`](../cli/src/services/GithubService.ts)); anchored registry-URL parsing; `npm publish --provenance`; gitleaks secret scan; blocking `dependency-review`; Dependabot | Partial  |
+| AST03 | Over-Privileged Skills          | `SpecialistTransformer` no longer lets a crafted `description` inject a `tools:`/permission key into emitted agent files                                                                                                                                          | Partial  |
+| AST04 | Insecure Metadata               | Anchored frontmatter parsing (no `split('---')`); js-yaml-based safe emission instead of string interpolation; `FrontmatterRule`/`TriggersRule` validation                                                                                                        | Partial  |
+| AST05 | Untrusted External Instructions | `scan-injection.ts` body/reference scan (zero-width/bidi chars, imperative HTML comments, base64 blobs, curl\|sh pipelines); trust-review-policy guidance                                                                                                         | Partial  |
+| AST06 | Weak Isolation                  | Codex specialists get `sandbox_mode = "read-only"`; PreToolUse hook is advisory-only elsewhere                                                                                                                                                                    | Guidance |
+| AST07 | Update Drift                    | MCP server pinned to `MCP_COMPATIBLE_VERSION` by default (no more unversioned `npx -y`); download integrity check aborts a skill if `SKILL.md` fails                                                                                                              | Partial  |
+| AST08 | Poor Scanning                   | SkillSpector (static + optional LLM semantic pass) + independent `scan-injection.ts` pattern set + gitleaks; weekly drift-detection cron                                                                                                                          | Partial  |
+| AST09 | No Governance                   | [CODEOWNERS](../.github/CODEOWNERS); per-category `owners` in `skills/metadata.json`; `ags audit` skill inventory; `revocations` list checked on every sync                                                                                                       | Partial  |
+| AST10 | Cross-Platform Reuse            | `scan-injection.ts --roots` can scan CLI-emitted mirrors (`.claude/`, `.agents/`, `.codex/`, ...); per-platform permission projection not yet implemented                                                                                                         | Planned  |
 
 **What "Partial" means concretely**: each row above is a real, running control — not every sub-case AST describes is covered. Known follow-up work, not yet implemented: a skill-content lockfile with `ags verify`, a declared `risk_tier`/`permissions` frontmatter field enforced at sync time, Sigstore-signed release manifests, and per-category ownership delegation (see [CHANGELOG.md](../CHANGELOG.md) for what has actually landed).
 
@@ -143,6 +143,30 @@ We aim to respond within **48 hours** and remediate within **7 days** for HIGH/C
 ## Governance
 
 [CODEOWNERS](../.github/CODEOWNERS) requires review on: security-guidance skill content, code paths that emit prompts/config into every consumer's machine, and registry integrity records (`skills/metadata.json`, the skill lockfile). Every skill category also has an explicit CODEOWNERS entry so ownership can be delegated per-category later without restructuring the file — today they all resolve to the single maintainer, which is the starting point, not the end state.
+
+Each category in `skills/metadata.json` also carries an `owners` field (GitHub handles) — informational today, mirroring but not replacing CODEOWNERS, which is what GitHub actually enforces.
+
+### Skill inventory
+
+Run `ags audit` in a synced project to print what's installed: every skill's category/id, the ref it was fetched at, and its file count, read from `.skills-lock.json`.
+
+### Revocation process
+
+If a previously-released category/ref combination turns out to be unsafe (e.g. a disclosed vulnerability, an accidentally-shipped secret pattern), a maintainer adds an entry to the top-level `revocations` array in `skills/metadata.json`:
+
+```json
+{
+  "category": "typescript",
+  "refs": ["typescript-v1.3.3"],
+  "reason": "short human-readable description",
+  "advisory": "https://github.com/HoangNguyen0403/agent-skills-standard/security/advisories/GHSA-xxxx",
+  "date": "2026-08-22"
+}
+```
+
+`ags sync`/`ags update` fetch the registry's live `metadata.json` on every run (already required for version-update checks) and print a warning — pointing at the advisory and suggesting `ags sync --yes` — for any installed category ref that matches a revocation entry. This is advisory only: it does not block sync or delete the affected files, since the consumer may be mid-remediation already.
+
+**SLA**: aim to record a revocation entry within 24 hours of confirming a HIGH/CRITICAL issue in a released version, alongside the private-advisory process above.
 
 ---
 

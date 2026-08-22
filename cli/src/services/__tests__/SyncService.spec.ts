@@ -666,6 +666,67 @@ describe('SyncService', () => {
       const updates = await syncService.checkForUpdates(config);
       expect(updates).toEqual({});
     });
+
+    it('should warn when an installed ref matches a revocation entry', async () => {
+      const config = makeConfig({
+        registry: 'https://github.com/o/r',
+        skills: { ts: { ref: 'ts-v1.0.0' } },
+      });
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRawFile.mockResolvedValue(
+        JSON.stringify({
+          categories: { ts: { version: '1.0.0', tag_prefix: 'ts-v' } },
+          revocations: [
+            {
+              category: 'ts',
+              refs: ['ts-v1.0.0'],
+              reason: 'contained a leaked-credential example',
+              advisory: 'https://example.com/advisory/1',
+              date: '2026-08-01',
+            },
+          ],
+        }),
+      );
+      const logSpy = vi.spyOn(console, 'log');
+
+      await syncService.checkForUpdates(config);
+
+      const logged = logSpy.mock.calls.flat().join('\n');
+      expect(logged).toContain('ts@ts-v1.0.0 has been revoked');
+      expect(logged).toContain('contained a leaked-credential example');
+      expect(logged).toContain('https://example.com/advisory/1');
+    });
+
+    it('should not warn for a category/ref not in the revocation list', async () => {
+      const config = makeConfig({
+        registry: 'https://github.com/o/r',
+        skills: { ts: { ref: 'ts-v2.0.0' } },
+      });
+      mockGithubService.getRepoInfo.mockResolvedValue({
+        default_branch: 'main',
+      });
+      mockGithubService.getRawFile.mockResolvedValue(
+        JSON.stringify({
+          categories: { ts: { version: '2.0.0', tag_prefix: 'ts-v' } },
+          revocations: [
+            {
+              category: 'ts',
+              refs: ['ts-v1.0.0'],
+              reason: 'old issue',
+              date: '2026-08-01',
+            },
+          ],
+        }),
+      );
+      const logSpy = vi.spyOn(console, 'log');
+
+      await syncService.checkForUpdates(config);
+
+      const logged = logSpy.mock.calls.flat().join('\n');
+      expect(logged).not.toContain('has been revoked');
+    });
   });
 
   describe('resolveTargetAgents fallback', () => {

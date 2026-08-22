@@ -38,6 +38,32 @@ export interface CategoryMetadata {
   last_updated?: string;
   /** Prefix used for Git tags in this category */
   tag_prefix?: string;
+  /**
+   * GitHub handles responsible for reviewing changes to this category.
+   * Informational today (mirrors, but does not replace, .github/CODEOWNERS
+   * — a real per-category CODEOWNERS entry is what GitHub actually
+   * enforces); this field exists so the ownership record travels with the
+   * published registry metadata itself, not only this repo's local config.
+   */
+  owners?: string[];
+}
+
+/**
+ * A category/ref pair a consumer should stop trusting — e.g. a version that
+ * turned out to carry a vulnerability disclosed after release. `ags sync`/
+ * `ags update` check the installed ref for each category against this list.
+ */
+export interface RevocationEntry {
+  /** Category this revocation applies to. */
+  category: string;
+  /** Exact ref(s) affected (e.g. ["typescript-v1.3.3"]). */
+  refs: string[];
+  /** Human-readable reason, shown to the user. */
+  reason: string;
+  /** Link to a security advisory, if one exists. */
+  advisory?: string;
+  /** ISO date the revocation was recorded. */
+  date: string;
 }
 
 /**
@@ -55,6 +81,8 @@ export interface RegistryMetadata {
   categories: {
     [key: string]: CategoryMetadata;
   };
+  /** Category/ref combinations consumers should no longer trust. See docs/SECURITY.md's revocation process. */
+  revocations?: RevocationEntry[];
 }
 
 /**

@@ -3,7 +3,7 @@ import path from 'path';
 import pc from 'picocolors';
 import { Agent, SUPPORTED_AGENTS } from '../constants';
 import { SkillConfig } from '../models/config';
-import { CollectedSkill } from '../models/types';
+import { CollectedSkill, RegistryMetadata } from '../models/types';
 import { AgentBridgeService } from './AgentBridgeService';
 import { ConfigService } from './ConfigService';
 import { DetectionService } from './DetectionService';
@@ -294,7 +294,7 @@ export class SyncService {
     );
     if (!metadataRaw) return {};
 
-    const remoteMeta = JSON.parse(metadataRaw);
+    const remoteMeta = JSON.parse(metadataRaw) as RegistryMetadata;
     const updates: Record<string, string> = {};
 
     for (const [cat, catConfig] of Object.entries(config.skills)) {
@@ -307,7 +307,45 @@ export class SyncService {
       }
     }
 
+    this.warnAboutRevokedRefs(config, remoteMeta);
+
     return updates;
+  }
+
+  /**
+   * Prints a warning (does not block sync) for any installed category ref
+   * that appears in the registry's `revocations` list — e.g. a version
+   * later found to carry a vulnerability. Checked against the *live*
+   * registry metadata.json (fetched above), not this repo's own local copy,
+   * so a revocation recorded after a consumer's initial sync is still seen
+   * on their next sync/update check.
+   */
+  private warnAboutRevokedRefs(
+    config: SkillConfig,
+    remoteMeta: RegistryMetadata,
+  ): void {
+    const revocations = remoteMeta.revocations ?? [];
+    if (revocations.length === 0) return;
+
+    for (const [cat, catConfig] of Object.entries(config.skills)) {
+      if (!catConfig.ref) continue;
+      const hit = revocations.find(
+        (r) => r.category === cat && r.refs.includes(catConfig.ref!),
+      );
+      if (!hit) continue;
+
+      console.log(
+        pc.red(`\n🚨 ${cat}@${catConfig.ref} has been revoked: ${hit.reason}`),
+      );
+      if (hit.advisory) {
+        console.log(pc.gray(`   Advisory: ${hit.advisory}`));
+      }
+      console.log(
+        pc.yellow(
+          '   Run `ags sync --yes` to update to a non-revoked version.',
+        ),
+      );
+    }
   }
 
   public async resolveTargetAgents(config: SkillConfig): Promise<Agent[]> {
