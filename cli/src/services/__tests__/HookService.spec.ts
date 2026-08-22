@@ -1,3 +1,4 @@
+import { spawnSync } from 'child_process';
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
@@ -213,6 +214,89 @@ describe('HookService', () => {
         );
       });
       expect(matching).toHaveLength(1);
+    });
+
+    function findHookCommand(settings: Record<string, unknown>): string {
+      const preToolUse = (settings.hooks as Record<string, unknown>)
+        .PreToolUse as Array<Record<string, unknown>>;
+      const entry = preToolUse[0];
+      const hooks = entry.hooks as Array<Record<string, unknown>>;
+      return hooks[0].command as string;
+    }
+
+    it('prefixes the registered command with AGS_HOOK_ENFORCE=1 when enforce is requested', async () => {
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        enforce: true,
+      });
+
+      const settings = await fs.readJson(
+        path.join(root, '.claude/settings.json'),
+      );
+      expect(findHookCommand(settings)).toMatch(/^AGS_HOOK_ENFORCE=1 node /);
+    });
+
+    it('does not prefix the command when enforce is omitted or false', async () => {
+      await service.install({ rootDir: root, agents: [Agent.Claude] });
+
+      const settings = await fs.readJson(
+        path.join(root, '.claude/settings.json'),
+      );
+      expect(findHookCommand(settings)).not.toContain('AGS_HOOK_ENFORCE');
+    });
+
+    it('updates an already-registered command when enforce is toggled on later', async () => {
+      await service.install({ rootDir: root, agents: [Agent.Claude] });
+      let settings = await fs.readJson(
+        path.join(root, '.claude/settings.json'),
+      );
+      expect(findHookCommand(settings)).not.toContain('AGS_HOOK_ENFORCE');
+
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        enforce: true,
+      });
+
+      settings = await fs.readJson(path.join(root, '.claude/settings.json'));
+      expect(findHookCommand(settings)).toMatch(/^AGS_HOOK_ENFORCE=1 node /);
+      expect(
+        report.writes.find((w) => w.file === '.claude/settings.json')?.action,
+      ).toBe('updated');
+    });
+
+    it('reverts the command when enforce is toggled back off', async () => {
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        enforce: true,
+      });
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        enforce: false,
+      });
+
+      const settings = await fs.readJson(
+        path.join(root, '.claude/settings.json'),
+      );
+      expect(findHookCommand(settings)).not.toContain('AGS_HOOK_ENFORCE');
+    });
+
+    it('does not duplicate the PreToolUse entry when enforce toggles the command', async () => {
+      await service.install({ rootDir: root, agents: [Agent.Claude] });
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        enforce: true,
+      });
+
+      const settings = await fs.readJson(
+        path.join(root, '.claude/settings.json'),
+      );
+      const preToolUse = settings.hooks.PreToolUse as unknown[];
+      expect(preToolUse).toHaveLength(1);
     });
 
     it('preserves existing settings.json content', async () => {
@@ -624,6 +708,61 @@ describe('HookService', () => {
       expect(await fs.pathExists(scriptPath)).toBe(true);
 
       spy.mockRestore();
+    });
+  });
+
+  describe('UNIVERSAL_SKILL_LOADER_JS enforce mode (real subprocess)', () => {
+    function runHook(
+      input: Record<string, unknown>,
+      env: Record<string, string>,
+    ): { code: number | null; stdout: string; stderr: string } {
+      const result = spawnSync('node', ['-e', UNIVERSAL_SKILL_LOADER_JS], {
+        input: JSON.stringify(input),
+        env: { ...process.env, ...env },
+        encoding: 'utf8',
+      });
+      return {
+        code: result.status,
+        stdout: result.stdout,
+        stderr: result.stderr,
+      };
+    }
+
+    it('blocks (exit 2) an edit to SOUL.md when AGS_HOOK_ENFORCE=1', () => {
+      const result = runHook(
+        { tool_name: 'Edit', tool_input: { file_path: '/tmp/proj/SOUL.md' } },
+        { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: '/tmp/proj' },
+      );
+      expect(result.code).toBe(2);
+      expect(result.stderr).toContain('AGS BLOCKED');
+    });
+
+    it('blocks a nested .env file when enforced', () => {
+      const result = runHook(
+        {
+          tool_name: 'Write',
+          tool_input: { file_path: '/tmp/proj/config/.env.production' },
+        },
+        { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: '/tmp/proj' },
+      );
+      expect(result.code).toBe(2);
+    });
+
+    it('does not block an ordinary source file when enforced', () => {
+      const result = runHook(
+        { tool_name: 'Edit', tool_input: { file_path: '/tmp/proj/src/x.ts' } },
+        { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: '/tmp/proj' },
+      );
+      expect(result.code).toBe(0);
+      expect(result.stdout).toContain('SKILL TRIGGER');
+    });
+
+    it('does not block SOUL.md when AGS_HOOK_ENFORCE is unset (advisory-only)', () => {
+      const result = runHook(
+        { tool_name: 'Edit', tool_input: { file_path: '/tmp/proj/SOUL.md' } },
+        { CLAUDE_PROJECT_DIR: '/tmp/proj' },
+      );
+      expect(result.code).toBe(0);
     });
   });
 });

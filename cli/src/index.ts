@@ -194,9 +194,13 @@ program
   .description(
     'Manage the PreToolUse skill-loader hook. Actions: status | install | uninstall',
   )
-  .action(async (action: string) => {
+  .option(
+    '--enforce',
+    'With "install": Claude blocks (does not just remind) edits to SOUL.md, MEMORY.md, .env*, .ssh/, credentials*.json|yaml',
+  )
+  .action(async (action: string, options: { enforce?: boolean }) => {
     const cmd = new HooksCommand();
-    await cmd.run(action);
+    await cmd.run(action, options);
   });
 
 program
