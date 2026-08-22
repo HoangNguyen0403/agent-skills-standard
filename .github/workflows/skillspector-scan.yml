@@ -106,6 +106,12 @@ jobs:
 
     env:
       SKILLSPECTOR_THRESHOLD: ${{ (github.event.inputs && github.event.inputs.threshold) || '25' }}
+      # Manual dispatch always wins; otherwise fall back to a repo variable
+      # (Settings -> Secrets and variables -> Actions -> Variables) so the
+      # weekly drift-detection cron can also run the LLM semantic pass once a
+      # maintainer opts in by setting it (and the matching *_API_KEY secret)
+      # — empty by default, so nothing changes for repos that haven't set it.
+      SKILLSPECTOR_LLM_PROVIDER: ${{ (github.event.inputs && github.event.inputs.llm_provider) || vars.SKILLSPECTOR_DEFAULT_PROVIDER || '' }}
 
     steps:
       - name: Checkout skills repo
@@ -150,8 +156,9 @@ jobs:
           find /tmp/skills-scan -name "SKILL.md" | wc -l
 
       # ── Static scan: SARIF output (for GitHub Security tab) ──────────────────
+      # No continue-on-error here: a scan that fails to run at all (bad image,
+      # docker crash) must fail the job, not silently proceed as if it passed.
       - name: Run SkillSpector — SARIF output
-        continue-on-error: true
         run: |
           docker run --rm \
             -v "/tmp/skills-scan:/scan" \
@@ -164,7 +171,6 @@ jobs:
 
       # ── Static scan: JSON output (for score gate + step summary) ─────────────
       - name: Run SkillSpector — JSON output
-        continue-on-error: true
         run: |
           docker run --rm \
             -v "/tmp/skills-scan:/scan" \
@@ -175,15 +181,16 @@ jobs:
             --format json \
             --output /output/skillspector-report.json
 
-      # ── LLM-enhanced scan (only when provider is set via manual dispatch) ────
+      # ── LLM-enhanced scan (manual dispatch with a provider, or a scheduled
+      #    run once SKILLSPECTOR_DEFAULT_PROVIDER is configured — see env) ────
       - name: Run SkillSpector — LLM semantic analysis
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs && github.event.inputs.llm_provider
+        if: env.SKILLSPECTOR_LLM_PROVIDER != ''
         continue-on-error: true
         run: |
           docker run --rm \
             -v "/tmp/skills-scan:/scan" \
             -v "${{ github.workspace }}:/output" \
-            -e SKILLSPECTOR_PROVIDER=${{ github.event.inputs && github.event.inputs.llm_provider || '' }} \
+            -e SKILLSPECTOR_PROVIDER=${{ env.SKILLSPECTOR_LLM_PROVIDER }} \
             -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
             -e ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }} \
             skillspector:ci \
