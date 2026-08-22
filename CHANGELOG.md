@@ -5,11 +5,11 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [cli-v2.6.2] - 2026-08-22
 
 **Category**: OWASP Agentic Skills Top 10 (AST) hardening
 
-Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](https://owasp.org/www-project-agentic-skills-top-10/) standard — see `docs/SECURITY.md`'s new coverage table for the full picture. Not a version bump by itself; run `pnpm release-cli` separately per `CONTRIBUTING.md` §7.
+Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](https://owasp.org/www-project-agentic-skills-top-10/) standard — see `docs/SECURITY.md`'s new coverage table for the full picture.
 
 ### Added
 
@@ -23,7 +23,7 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 
 ### Changed
 
-- **SkillSpector scan scope**: the 7 security-guidance skills' `SKILL.md` are now scanned like every other skill (previously `rm -rf`'d entirely before scanning) — only their `references/`/`evals/` false-positive sources are still excluded. Scan re-triggers on changes to the transformer/hook/bridge services that emit prompts into every consumer's machine. Static scan steps are no longer `continue-on-error`.
+- **SkillSpector scan scope**: 4 of the 7 security-guidance skills' `SKILL.md` are now scanned like every other skill (previously all 7 had their entire directory, including `SKILL.md`, `rm -rf`'d before scanning). A real CI run confirmed the other 3 (`common-owasp`, `common-pentest-methodology`, `common-llm-security`) legitimately trip the scanner from their own prose, so those stay excluded — narrower than the original 7-skill blanket exclusion and backed by evidence. Scan re-triggers on changes to the transformer/hook/bridge services that emit prompts into every consumer's machine.
 - **`scripts/scan-injection.ts`**: now also scans SKILL.md bodies and `references/*.md` (warn-level by default; `--strict` promotes to error; `--roots` scans CLI-emitted mirrors), not just the frontmatter `description`.
 - **`GithubService`**: verifies a downloaded file's git blob sha1 against the tree API and enforces a 1 MiB size cap; `downloadFilesConcurrent` reports failures instead of silently dropping them; a skill aborts if its `SKILL.md` specifically fails to download. `parseGitHubUrl` is anchored to the actual protocol+host instead of matching `github.com/...` as a substring anywhere in the URL.
 - **MCP server**: `SKILLS_PROJECT_ROOT` is validated (rejects the filesystem root, the home directory, and non-existent paths); frontmatter parses with js-yaml's `JSON_SCHEMA`; files over 1 MiB are rejected; parsed descriptions have zero-width/bidi control characters stripped.
@@ -35,6 +35,8 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 - **`SpecialistTransformer`**: a crafted `description` could inject a new top-level frontmatter key (e.g. a second `tools:`) into an emitted `.claude/agents/*.md`, `.cursor/agents/*.mdc`, etc., via raw string interpolation into a hand-built YAML/TOML template. Now built via `js-yaml.dump()` / a proper TOML escaper, and frontmatter parsing is anchored so a bare `---` in the specialist body can no longer shift where it's believed to end.
 - **`SkillSyncService.transformSkillForKiro`**: had the identical key-injection bug (`description: ${description}` via raw interpolation); fixed the same way, and now preserves every declared field (including the new optional ones) instead of silently dropping everything except `name`/`description`.
 - **`WorkflowTransformer.toGeminiCommand`**: the TOML body escaper only handled exactly-3-consecutive quote characters and never escaped backslashes, so 4+ consecutive quotes or a literal `\` (e.g. a Windows path) in a workflow body produced invalid TOML.
+- **LICENSE**: root `LICENSE` and `cli/LICENSE` still had the old Apache License 2.0 text on `develop` (this repo's actual GitHub default branch) even though `cli/package.json`/`mcp/package.json` both declare `"license": "MIT"` and an earlier PR had already fixed this on `main` — GitHub's license badge/detection scans the default branch, so it kept showing Apache-2.0. Replaced both files with the MIT text already on `main`.
+- **CI**: new `.gitleaks.toml` allowlists `skills/*/references/*.md` — gitleaks (full git-history scan) was flagging an educational placeholder credential (`API_KEY=prod_key_67890`) in an old, since-removed example file; matches the same false-positive rationale SkillSpector already applies to `references/`. Restored `continue-on-error` on SkillSpector's two static-scan steps, which a prior commit in this same release had removed — without it, a scan scoring above SkillSpector's own internal default threshold (as opposed to this repo's configured, lower `SKILLSPECTOR_THRESHOLD`) failed the job before the dedicated "Evaluate results" step (which applies this repo's own threshold and posts the PR comment) ever ran.
 
 ## [cli-v2.6.1] - 2026-08-21
 

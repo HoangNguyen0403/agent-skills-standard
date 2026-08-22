@@ -7,7 +7,7 @@
 
 **The portable SDLC standards layer for AI coding agents. Sync once, then work in your own runtime.**
 
-**Current release:** `v2.5.1` — trust-gated review workflows, markdown-first security handoff, expanded framework/database guidance, and a new Python backend skill pack for SDLC delivery.
+**Current release:** `cli-v2.6.2` — OWASP Agentic Skills Top 10 hardening: skill-content lockfile (`ags verify`), opt-in enforcing hooks, blocking secret/dependency scanning, and a per-category governance/revocation model. See [CHANGELOG.md](CHANGELOG.md).
 
 280 ready-to-use coding standards for **Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, Roo** and more — synced, versioned, and optimized to use **85% fewer tokens** than traditional prompt engineering.
 
@@ -150,6 +150,19 @@ mcp:
   scope: project # project | user | snippets-only | disabled
   prompted: true # set to false to be re-asked next sync
 ```
+
+#### Manage the pre-edit hook with the `hooks` subcommand
+
+`sync` installs a PreToolUse hook that reminds your agent to call `load_skills_for_files` before every edit — advisory by default, never blocks work:
+
+```bash
+ags hooks status                 # Show which hook files are installed per agent
+ags hooks install                # (Re)install the reminder hook — advisory only
+ags hooks install --enforce      # Claude also BLOCKS edits to SOUL.md, MEMORY.md, .env*, .ssh/, credentials*.json|yaml
+ags hooks uninstall              # Deregister the hook (keeps the script file)
+```
+
+Independently, `ags verify` checks installed skill files against `.skills-lock.json` (written by every `sync`) to catch drift — a tampered file, a partial write, or a manual edit — and `ags audit` prints the current skill inventory.
 
 #### Manual install (if you prefer)
 
@@ -448,7 +461,7 @@ Agent Skills Standard supports **Specialist Sub-Agents**. These are focused pers
 
 ## Security & Trust
 
-Skills are **text files, not code**. They cannot execute commands, access your filesystem, or make network requests. Here's the full picture:
+Skills are **text files, not code**. They cannot execute commands, access your filesystem, or make network requests. This repo's posture is mapped against the [OWASP Agentic Skills Top 10](https://owasp.org/www-project-agentic-skills-top-10/) — see [docs/SECURITY.md](./docs/SECURITY.md) for the full AST01–AST10 coverage table. Here's the full picture:
 
 ### SkillSpector Security Scanning
 
@@ -456,7 +469,7 @@ Every skill in this repository is automatically scanned by **[NVIDIA SkillSpecto
 
 - ✅ **PR gate**: Any PR that modifies `skills/**` must pass the scan before merging
 - 🔒 **Verified by SkillSpector**: A dated `skillspector-verified-vYYYYMMDD` tag is created on `main` when all scanned skills pass the gate
-- ⚠️ **Skipped verification**: Security guidance skills such as `common-llm-security`, `common-security-audit`, and `common-security-standards` are intentionally excluded from the automated scan because they contain educational attack examples and AI security guidance
+- ⚠️ **Skipped verification**: 3 security-guidance skills — `common-owasp`, `common-pentest-methodology`, `common-llm-security` — are excluded from the automated scan; a real CI run confirmed their `SKILL.md` legitimately trips the scanner from educational content. The other 4 (including `common-security-audit`) are scanned like every other skill
 - 📊 **SARIF reports**: Results are uploaded to the [GitHub Security tab](https://github.com/HoangNguyen0403/agent-skills-standard/security/code-scanning) for full transparency
 
 See [docs/SECURITY.md](./docs/SECURITY.md) for the full security policy, threshold definitions, and instructions for running the scanner locally before submitting a PR.
@@ -470,16 +483,22 @@ See [docs/SECURITY.md](./docs/SECURITY.md) for the full security policy, thresho
 ### What the CLI Does
 
 - **Downloads text only** — fetches Markdown and JSON from the [public registry](https://github.com/HoangNguyen0403/agent-skills-standard)
+- **Verifies before writing** — every downloaded file's git blob sha is checked against the tree API, with a 1 MiB size cap, before it's written to disk
 - **No telemetry** — zero data collection, no analytics, no background daemons
 - **No code or project data leaves your machine** — feedback is only sent if you explicitly run `ags feedback`
 
 ### How Skills Stay Safe
 
-- **Prompt injection scanning** — every skill description is sanitized against known injection patterns (e.g., "ignore previous instructions") at index-generation time
+- **Prompt injection scanning** — every skill's `description`, body, and `references/*.md` are scanned against known injection patterns (zero-width/bidi characters, imperative HTML comments, curl-pipe-to-shell, etc.) at CI time and index-generation time
+- **Skill-content lockfile** — `ags sync` writes `.skills-lock.json` (a sha256 per installed file); run `ags verify` any time to detect drift between what was fetched and what's actually on disk
+- **Least-privilege declarations** — skills can optionally declare `risk_tier`, `allowed-tools`, and `permissions` in frontmatter, projected onto each platform's native mechanism where one exists (e.g. Codex `sandbox_mode`)
+- **Opt-in enforcement** — `ags hooks install --enforce` makes Claude's PreToolUse hook actually block (not just remind) edits to a fixed identity/secret deny-list (`SOUL.md`, `MEMORY.md`, `.env*`, `.ssh/`, `credentials*.json|yaml`)
 - **Automated eval testing** — most skills include `evals.json` datasets that verify AI adherence to constraints via regression tests
 - **Zero-Trust protocol** — the generated `AGENTS.md` enforces a mandatory audit: the AI must declare which skills it loaded before writing code, preventing silent rule-skipping
 - **Continuous benchmarking** — skills are periodically tested against adversarial prompts to identify logic gaps and instruction drift
 - **Vibe Security Scan** — review and pentest workflows include a compact lens for the 20 common AI-generated security bugs, including IDOR, SSRF, traversal, weak JWTs, upload abuse, and slopsquatting
+- **Supply chain** — pinned secret scanning (gitleaks), blocking dependency review, Dependabot, and `npm publish --provenance` on every published package
+- **Governance** — [CODEOWNERS](./.github/CODEOWNERS) on security-sensitive paths, per-category owners, and a `revocations` list checked on every sync (`ags audit` prints the current inventory)
 
 ---
 
@@ -548,15 +567,15 @@ See [docs/EVALS.md](./docs/EVALS.md) for the full protocol, the trust model, and
 
 ### 📜 Benchmark History
 
-| Version | Date | Skills | Avg Tokens | Savings (%) | Report |
-| --- | --- | --- | --- | --- | --- |
-| v2.6.0 | 2026-07-10 | 264 | 528 | 46% | [Report](benchmarks/archive/v2.6.0.md) |
-| v2.4.7 | 2026-06-15 | 251 | 551 | 85% | [Report](benchmarks/archive/v2.4.7.md) |
-| v2.4.6 | 2026-06-10 | 251 | 548 | 85% | [Report](benchmarks/archive/v2.4.6.md) |
-| v2.4.1 | 2026-05-18 | 247 | 540 | 85% | [Report](benchmarks/archive/v2.4.1.md) |
-| v2.4.0 | 2026-05-14 | 246 | 540 | 85% | [Report](benchmarks/archive/v2.4.0.md) |
-| v2.3.0 | 2026-05-13 | 246 | 540 | 85% | [Report](benchmarks/archive/v2.3.0.md) |
-| v2.2.2 | 2026-05-09 | 249 | 539 | 85% | [Report](benchmarks/archive/v2.2.2.md) |
-| v2.2.0 | 2026-04-22 | 242 | 538 | 85% | [Report](benchmarks/archive/v2.2.0.md) |
-| v2.1.2 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.2.md) |
-| v2.1.1 | 2026-04-11 | 237 | 516 | 86% | [Report](benchmarks/archive/v2.1.1.md) |
+| Version | Date       | Skills | Avg Tokens | Savings (%) | Report                                 |
+| ------- | ---------- | ------ | ---------- | ----------- | -------------------------------------- |
+| v2.6.0  | 2026-07-10 | 264    | 528        | 46%         | [Report](benchmarks/archive/v2.6.0.md) |
+| v2.4.7  | 2026-06-15 | 251    | 551        | 85%         | [Report](benchmarks/archive/v2.4.7.md) |
+| v2.4.6  | 2026-06-10 | 251    | 548        | 85%         | [Report](benchmarks/archive/v2.4.6.md) |
+| v2.4.1  | 2026-05-18 | 247    | 540        | 85%         | [Report](benchmarks/archive/v2.4.1.md) |
+| v2.4.0  | 2026-05-14 | 246    | 540        | 85%         | [Report](benchmarks/archive/v2.4.0.md) |
+| v2.3.0  | 2026-05-13 | 246    | 540        | 85%         | [Report](benchmarks/archive/v2.3.0.md) |
+| v2.2.2  | 2026-05-09 | 249    | 539        | 85%         | [Report](benchmarks/archive/v2.2.2.md) |
+| v2.2.0  | 2026-04-22 | 242    | 538        | 85%         | [Report](benchmarks/archive/v2.2.0.md) |
+| v2.1.2  | 2026-04-11 | 237    | 516        | 86%         | [Report](benchmarks/archive/v2.1.2.md) |
+| v2.1.1  | 2026-04-11 | 237    | 516        | 86%         | [Report](benchmarks/archive/v2.1.1.md) |
