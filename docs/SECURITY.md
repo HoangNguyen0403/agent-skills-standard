@@ -1,5 +1,26 @@
 # Security Policy
 
+## OWASP Agentic Skills Top 10 coverage
+
+This repository tracks its posture against the [OWASP Agentic Skills Top 10 v1.0](https://owasp.org/www-project-agentic-skills-top-10/) (AST), the community security standard for the agent-skill ecosystem. "Status" reflects what actually runs in this repo's CI/CLI today, not aspiration — update this table in the same PR that changes the control it describes.
+
+| AST  | Risk                             | Control in this repo                                                                                                                                             | Status      |
+| ---- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| AST01 | Malicious Skills                 | SkillSpector CI scan (below) + [`scripts/scan-injection.ts`](../scripts/scan-injection.ts) (description + body + `references/`)                                | Partial     |
+| AST02 | Supply Chain Compromise          | Blob-sha + size-cap verification on every skill/workflow download ([`GithubService.getRawFile`](../cli/src/services/GithubService.ts)); anchored registry-URL parsing; `npm publish --provenance`; gitleaks secret scan; blocking `dependency-review`; Dependabot | Partial     |
+| AST03 | Over-Privileged Skills            | `SpecialistTransformer` no longer lets a crafted `description` inject a `tools:`/permission key into emitted agent files                                       | Partial     |
+| AST04 | Insecure Metadata                 | Anchored frontmatter parsing (no `split('---')`); js-yaml-based safe emission instead of string interpolation; `FrontmatterRule`/`TriggersRule` validation      | Partial     |
+| AST05 | Untrusted External Instructions   | `scan-injection.ts` body/reference scan (zero-width/bidi chars, imperative HTML comments, base64 blobs, curl\|sh pipelines); trust-review-policy guidance        | Partial     |
+| AST06 | Weak Isolation                    | Codex specialists get `sandbox_mode = "read-only"`; PreToolUse hook is advisory-only elsewhere                                                                  | Guidance    |
+| AST07 | Update Drift                      | MCP server pinned to `MCP_COMPATIBLE_VERSION` by default (no more unversioned `npx -y`); download integrity check aborts a skill if `SKILL.md` fails             | Partial     |
+| AST08 | Poor Scanning                     | SkillSpector (static + optional LLM semantic pass) + independent `scan-injection.ts` pattern set + gitleaks; weekly drift-detection cron                        | Partial     |
+| AST09 | No Governance                     | [CODEOWNERS](../.github/CODEOWNERS) requires review on security-sensitive paths; this table; skill disclosure process below                                    | Partial     |
+| AST10 | Cross-Platform Reuse               | `scan-injection.ts --roots` can scan CLI-emitted mirrors (`.claude/`, `.agents/`, `.codex/`, ...); per-platform permission projection not yet implemented        | Planned     |
+
+**What "Partial" means concretely**: each row above is a real, running control — not every sub-case AST describes is covered. Known follow-up work, not yet implemented: a skill-content lockfile with `ags verify`, a declared `risk_tier`/`permissions` frontmatter field enforced at sync time, Sigstore-signed release manifests, and per-category ownership delegation (see [CHANGELOG.md](../CHANGELOG.md) for what has actually landed).
+
+---
+
 ## SkillSpector Verified
 
 [![SkillSpector Verified](https://img.shields.io/badge/SkillSpector-Verified-76b900?logo=nvidia&logoColor=white)](https://github.com/HoangNguyen0403/agent-skills-standard/security/code-scanning)
@@ -119,18 +140,25 @@ We aim to respond within **48 hours** and remediate within **7 days** for HIGH/C
 
 ---
 
+## Governance
+
+[CODEOWNERS](../.github/CODEOWNERS) requires review on: security-guidance skill content, code paths that emit prompts/config into every consumer's machine, and registry integrity records (`skills/metadata.json`, the skill lockfile). Every skill category also has an explicit CODEOWNERS entry so ownership can be delegated per-category later without restructuring the file — today they all resolve to the single maintainer, which is the starting point, not the end state.
+
+---
+
 ## CI Pipeline Integration
 
 The security scan is wired into the pipeline as follows:
 
 ```
-PR touches skills/**
+PR touches skills/** (or a transformer/hook/bridge service — see below)
     → skillspector-scan.yml triggered
-    → SkillSpector Docker image built (cached)
-    → Filtered directory created (SKILL.md files only)
-    → Security documentation skills excluded
-    → SKILL.md files scanned (64 patterns, --no-llm)
-    → references/ and evals/ directories excluded (contain educational examples)
+    → SkillSpector Docker image built (cached, exact-commit key only)
+    → Filtered directory created (SKILL.md/_INDEX.md files only)
+    → SKILL.md files scanned (64 patterns, --no-llm) — including the 7
+      security-guidance skills listed below
+    → references/, evals/, scripts/ directories excluded (contain
+      educational examples that trigger false positives)
     → SARIF uploaded → GitHub Security tab
     → Score evaluated: pass/fail gate
     → PR comment posted with results
@@ -140,23 +168,31 @@ Push to main (scan passes)
     → GitHub Release created
 ```
 
+The scan also re-triggers on changes to the code paths that emit prompts/config into every consumer's machine (`SpecialistTransformer.ts`, `WorkflowTransformer.ts`, `HookService.ts`, `AgentBridgeService.ts`) — a bug there reaches every user the same way a compromised skill body would, even though those files live outside `skills/`.
+
 ### Scan Scope
 
-- ✅ **Scanned**: SKILL.md and \_INDEX.md files (actual skill instructions)
-- ❌ **Excluded**: references/, evals/ directories (supporting docs with educational code examples)
+- ✅ **Scanned**: every `SKILL.md` and `_INDEX.md` — including the 7 security-guidance skills below; nothing is skipped based on which skill it is.
+- ❌ **Excluded**: `references/`, `evals/`, `scripts/` subdirectories (supporting docs/code with educational examples that are a known false-positive source across the whole registry, not specific to any one skill).
 
-### Excluded Skills
+### Security-guidance skills
 
-The following skills are **excluded from automated scanning** because they contain educational security content, penetration testing examples, or AI security guidance that intentionally includes exploit patterns, threat-modeling language, and prompt-injection examples. These skills are skipped from SkillSpector verification to avoid false positives while preserving their educational and guidance value.
+These skills intentionally contain exploit patterns, penetration-testing examples, and prompt-injection reference material as part of teaching security practices:
 
-- `common-pentest-methodology` — Penetration testing methodology and exploit examples
-- `common-dast-tooling` — Dynamic application security testing tools and usage
-- `common-exploit-verification` — Exploit verification techniques
-- `common-owasp` — OWASP Top 10 vulnerabilities with examples
-- `common-llm-security` — LLM security patterns and AI-security guidance
-- `common-security-audit` — Security audit methodology (contains vulnerability patterns)
-- `common-security-standards` — Security standards documentation (contains vulnerability remediation examples)
+- `common-pentest-methodology`, `common-dast-tooling`, `common-exploit-verification`, `common-owasp`, `common-llm-security`, `common-security-audit`, `common-security-standards`
 
-These skills are **safe** — they teach security testing practices, AI security guidance, and vulnerability examples for educational purposes. They are excluded to prevent false positives in the automated scan and are therefore skipped from the SkillSpector verification gate.
+Their `SKILL.md` **is scanned** like every other skill's — only their `references/`/`evals/` false-positive sources are excluded, same as for any other category. They also carry a [CODEOWNERS](../.github/CODEOWNERS) requirement, since a compromised edit here is the highest-value target in the registry. If a scan produces a false positive specifically from `SKILL.md` prose (not `references/`), fix the wording rather than suppressing the finding — a SkillSpector `--baseline` suppression file is a documented follow-up (see the OWASP AST table above, AST01/AST08) but isn't wired into CI yet.
 
 See the [workflow file](../.github/workflows/skillspector-scan.yml) for full implementation details.
+
+---
+
+## Other automated checks
+
+Alongside SkillSpector, this repo runs:
+
+- **[`scripts/scan-injection.ts`](../scripts/scan-injection.ts)** (`pnpm audit:injection`, in `ci.yml`) — regex-based prompt-injection scan. The frontmatter `description` field is always error-level; the SKILL.md body and `references/*.md` are warn-level by default (pass `--strict` to promote to error-level once a corpus cleanup pass has landed), and `--roots` can additionally scan CLI-emitted mirrors.
+- **Secret scanning** — a pinned, checksum-verified [gitleaks](https://github.com/gitleaks/gitleaks) CLI run in `ci.yml`.
+- **[`dependency-review`](../.github/workflows/dependency-review.yml)** — blocks (`fail-on-severity: high`) PRs into `main`/`develop` that introduce a known-vulnerable dependency.
+- **[Dependabot](../.github/dependabot.yml)** — weekly dependency-update PRs for every workspace package plus GitHub Actions.
+- **`npm publish --provenance`** — both published npm packages (`agent-skills-standard`, `agent-skills-standard-mcp`) carry a verifiable link back to the GitHub Actions run and source commit that built them.
