@@ -19,6 +19,10 @@ describe('AuditCommand', () => {
     process.exitCode = undefined;
   });
 
+  it('constructs its own LockfileService when none is injected', () => {
+    expect(() => new AuditCommand()).not.toThrow();
+  });
+
   it('reports and sets exitCode 1 when no lockfile exists', async () => {
     vi.mocked(lockfileService.read).mockResolvedValue(null);
 

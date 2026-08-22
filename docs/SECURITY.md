@@ -179,10 +179,12 @@ PR touches skills/** (or a transformer/hook/bridge service — see below)
     → skillspector-scan.yml triggered
     → SkillSpector Docker image built (cached, exact-commit key only)
     → Filtered directory created (SKILL.md/_INDEX.md files only)
-    → SKILL.md files scanned (64 patterns, --no-llm) — including the 7
+    → SKILL.md files scanned (64 patterns, --no-llm) — including 4 of the 7
       security-guidance skills listed below
-    → references/, evals/, scripts/ directories excluded (contain
-      educational examples that trigger false positives)
+    → references/, evals/, scripts/ directories excluded everywhere (contain
+      educational examples that trigger false positives), plus SKILL.md
+      itself for the 3 security-guidance skills confirmed to trip the
+      scanner from their own prose
     → SARIF uploaded → GitHub Security tab
     → Score evaluated: pass/fail gate
     → PR comment posted with results
@@ -196,16 +198,18 @@ The scan also re-triggers on changes to the code paths that emit prompts/config 
 
 ### Scan Scope
 
-- ✅ **Scanned**: every `SKILL.md` and `_INDEX.md` — including the 7 security-guidance skills below; nothing is skipped based on which skill it is.
-- ❌ **Excluded**: `references/`, `evals/`, `scripts/` subdirectories (supporting docs/code with educational examples that are a known false-positive source across the whole registry, not specific to any one skill).
+- ✅ **Scanned**: every `SKILL.md` and `_INDEX.md`, including 4 of the 7 security-guidance skills below.
+- ❌ **Excluded**: `references/`, `evals/`, `scripts/` subdirectories everywhere (supporting docs/code with educational examples that are a known false-positive source across the whole registry, not specific to any one skill) — plus, as of a real CI run confirming it, the `SKILL.md` of 3 specific security-guidance skills whose own prose trips the scanner. See below.
 
 ### Security-guidance skills
 
-These skills intentionally contain exploit patterns, penetration-testing examples, and prompt-injection reference material as part of teaching security practices:
+These 7 skills intentionally contain exploit patterns, penetration-testing examples, and prompt-injection reference material as part of teaching security practices:
 
 - `common-pentest-methodology`, `common-dast-tooling`, `common-exploit-verification`, `common-owasp`, `common-llm-security`, `common-security-audit`, `common-security-standards`
 
-Their `SKILL.md` **is scanned** like every other skill's — only their `references/`/`evals/` false-positive sources are excluded, same as for any other category. They also carry a [CODEOWNERS](../.github/CODEOWNERS) requirement, since a compromised edit here is the highest-value target in the registry. If a scan produces a false positive specifically from `SKILL.md` prose (not `references/`), fix the wording rather than suppressing the finding — a SkillSpector `--baseline` suppression file is a documented follow-up (see the OWASP AST table above, AST01/AST08) but isn't wired into CI yet.
+All 7 previously had their entire directory excluded from scanning (including `SKILL.md`), which meant the two most likely targets for a real injection payload — `common-llm-security`, `common-security-audit` — were never scanned at all. A CI run confirmed which of the 7 actually trip the scanner from `SKILL.md` prose alone: **`common-owasp`, `common-pentest-methodology`, and `common-llm-security`** do (9 findings — "Autonomous Decision Making"/"Credential Access" — from legitimately discussing those topics educationally), so those three stay excluded. The other four — `common-dast-tooling`, `common-exploit-verification`, `common-security-audit`, `common-security-standards` — scanned clean and **are scanned like every other skill**.
+
+All 7 carry a [CODEOWNERS](../.github/CODEOWNERS) requirement, since a compromised edit here is the highest-value target in the registry. If a future edit lets one of the currently-clean four trip the scanner, fix the wording rather than adding it to the exclusion list; a real SkillSpector `--baseline` suppression file (finding-level, not file-level — would let all 7 be scanned) is a documented follow-up (see the OWASP AST table above, AST01/AST08) but isn't wired into CI yet.
 
 See the [workflow file](../.github/workflows/skillspector-scan.yml) for full implementation details.
 

@@ -75,6 +75,61 @@ describe('VerifyCommand', () => {
     expect(logged).toContain('common/common-api-design/SKILL.md');
   });
 
+  it('errors and sets exitCode when no agent has a known skill path', async () => {
+    vi.mocked(configService.loadConfig).mockResolvedValue(makeConfig());
+    vi.mocked(syncService.verifyLockfile).mockResolvedValue({
+      agent: null,
+      result: {
+        ok: false,
+        mismatches: [],
+        missing: ['no configured agent with a skill directory to verify'],
+      },
+    });
+
+    await command.run();
+
+    expect(process.exitCode).toBe(1);
+    expect(logSpy).toHaveBeenCalledWith(
+      expect.stringContaining('no configured agent'),
+    );
+  });
+
+  it('reports only missing files when there are no content mismatches', async () => {
+    vi.mocked(configService.loadConfig).mockResolvedValue(makeConfig());
+    vi.mocked(syncService.verifyLockfile).mockResolvedValue({
+      agent: Agent.Claude,
+      result: {
+        ok: false,
+        mismatches: [],
+        missing: ['common/common-api-design/SKILL.md'],
+      },
+    });
+
+    await command.run();
+
+    const logged = logSpy.mock.calls.flat().join('\n');
+    expect(logged).toContain('Missing (1)');
+    expect(logged).not.toContain('Content mismatch');
+  });
+
+  it('reports only content mismatches when there are no missing files', async () => {
+    vi.mocked(configService.loadConfig).mockResolvedValue(makeConfig());
+    vi.mocked(syncService.verifyLockfile).mockResolvedValue({
+      agent: Agent.Claude,
+      result: {
+        ok: false,
+        mismatches: ['typescript/typescript-core/SKILL.md'],
+        missing: [],
+      },
+    });
+
+    await command.run();
+
+    const logged = logSpy.mock.calls.flat().join('\n');
+    expect(logged).toContain('Content mismatch (1)');
+    expect(logged).not.toContain('Missing (');
+  });
+
   it('passes an explicit --agent through to verifyLockfile', async () => {
     vi.mocked(configService.loadConfig).mockResolvedValue(makeConfig());
     vi.mocked(syncService.verifyLockfile).mockResolvedValue({
