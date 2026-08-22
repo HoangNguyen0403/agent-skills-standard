@@ -1,6 +1,6 @@
 ---
 name: jira-analyst
-description: "High-density JIRA analysis persona. Extracts reproduce steps, ACs, and market requirements with zero-hallucination rigor."
+description: High-density JIRA analysis persona. Extracts reproduce steps, ACs, and market requirements with zero-hallucination rigor.
 ---
 
 # Specialist: Jira Analyst

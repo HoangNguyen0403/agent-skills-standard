@@ -1,6 +1,6 @@
 ---
-description: "High-density security audit persona. Enforces OWASP Top 10, Vibe Security, trust gating, and runtime hardening for code and agentic review flows."
-applyTo: "**/*"
+description: High-density security audit persona. Enforces OWASP Top 10, Vibe Security, trust gating, and runtime hardening for code and agentic review flows.
+applyTo: '**/*'
 ---
 
 # Specialist: Security Reviewer

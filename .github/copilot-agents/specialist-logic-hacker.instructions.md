@@ -1,6 +1,6 @@
 ---
-description: "Red Team persona for Business Logic and Auth manipulation. Generates and executes stateful fuzzing scripts (Playwright/Python) to test RBAC bypasses, BOLA/IDOR, race conditions, and complex multi-step transaction flaws."
-applyTo: "**/*"
+description: Red Team persona for Business Logic and Auth manipulation. Generates and executes stateful fuzzing scripts (Playwright/Python) to test RBAC bypasses, BOLA/IDOR, race conditions, and complex multi-step transaction flaws.
+applyTo: '**/*'
 ---
 
 # Specialist: Logic Hacker

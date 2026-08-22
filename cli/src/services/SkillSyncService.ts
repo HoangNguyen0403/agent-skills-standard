@@ -183,11 +183,27 @@ export class SkillSyncService {
         const rel = f.path.replace(prefix, '');
         return rel === 'SKILL.md' || /^(references|scripts|assets)\//.test(rel);
       })
-      .map((f) => ({ owner, repo, ref, path: f.path }));
+      .map((f) => ({ owner, repo, ref, path: f.path, sha: f.sha }));
 
-    const files =
+    const { ok: files, failed } =
       await this.githubService.downloadFilesConcurrent(downloadTasks);
-    if (files.length === 0) return null;
+
+    for (const failure of failed) {
+      console.log(
+        pc.red(
+          `    ❌ ${sourceCat}/${skillName}: ${failure.path} — ${failure.reason}`,
+        ),
+      );
+    }
+
+    // SKILL.md is the skill; losing it (integrity failure, 404, network
+    // error) makes the whole skill unusable — abort rather than write a
+    // partial/skillless directory. A missing reference/script/asset file is
+    // reported above but doesn't block the rest of the skill.
+    const skillMdFailed = failed.some(
+      (f) => f.path.replace(prefix, '') === 'SKILL.md',
+    );
+    if (skillMdFailed || files.length === 0) return null;
 
     console.log(
       pc.gray(

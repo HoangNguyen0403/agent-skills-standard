@@ -1,6 +1,6 @@
 ---
 name: pr-reviewer
-description: "Summarizes GitHub PR, GitLab MR, or Azure DevOps PR metadata, review threads, changed files, and template completeness. Use during review-ticket or code-review workflows when PR/MR context exists."
+description: Summarizes GitHub PR, GitLab MR, or Azure DevOps PR metadata, review threads, changed files, and template completeness. Use during review-ticket or code-review workflows when PR/MR context exists.
 ---
 
 # Specialist: PR/MR Reviewer

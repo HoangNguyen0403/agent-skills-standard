@@ -1,6 +1,6 @@
 ---
-description: "Searches Confluence and related tickets for product, architecture, rollout, and test-data context. Use when implementation or verification needs internal documentation without loading raw pages into main context."
-applyTo: "**/*"
+description: Searches Confluence and related tickets for product, architecture, rollout, and test-data context. Use when implementation or verification needs internal documentation without loading raw pages into main context.
+applyTo: '**/*'
 ---
 
 # Specialist: Confluence Searcher

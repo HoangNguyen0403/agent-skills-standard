@@ -1,6 +1,6 @@
 ---
-description: "Posts sanitized batches of PR review comments or replies through configured review tooling. Use after review-ticket when findings are approved for publication."
-applyTo: "**/*"
+description: Posts sanitized batches of PR review comments or replies through configured review tooling. Use after review-ticket when findings are approved for publication.
+applyTo: '**/*'
 ---
 
 # Specialist: PR Commenter Batch

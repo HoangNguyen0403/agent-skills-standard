@@ -92,8 +92,10 @@ describe('SkillSyncService', () => {
         ],
       });
       mockGithubService.downloadFilesConcurrent.mockImplementation(
-        (tasks: { path: string }[]) =>
-          tasks.map((t) => ({ path: t.path, content: 'c' })),
+        (tasks: { path: string }[]) => ({
+          ok: tasks.map((t) => ({ path: t.path, content: 'c' })),
+          failed: [],
+        }),
       );
       const result = await skillSyncService.assembleSkills(['cat1'], config);
       expect(result).toHaveLength(2);
@@ -296,8 +298,10 @@ describe('SkillSyncService', () => {
         { path: 'skills/c/s/ignored', type: 'blob' },
       ];
       mockGithubService.downloadFilesConcurrent.mockImplementation(
-        (t: { path: string }[]) =>
-          t.map((x) => ({ path: x.path, content: 'c' })),
+        (t: { path: string }[]) => ({
+          ok: t.map((x) => ({ path: x.path, content: 'c' })),
+          failed: [],
+        }),
       );
       // @ts-ignore - private
       const res = await skillSyncService.fetchSkill(
@@ -313,9 +317,10 @@ describe('SkillSyncService', () => {
 
     it('should handle relative vs absolute skill fetch', async () => {
       const tree = [{ path: 'skills/other/s/SKILL.md', type: 'blob' }];
-      mockGithubService.downloadFilesConcurrent.mockResolvedValue([
-        { path: 'skills/other/s/SKILL.md', content: 'c' },
-      ]);
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+        ok: [{ path: 'skills/other/s/SKILL.md', content: 'c' }],
+        failed: [],
+      });
       // @ts-ignore - private
       const res = await skillSyncService.fetchSkill(
         'o',
@@ -329,7 +334,10 @@ describe('SkillSyncService', () => {
     });
 
     it('should return null if no files were downloaded', async () => {
-      mockGithubService.downloadFilesConcurrent.mockResolvedValue([]);
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+        ok: [],
+        failed: [],
+      });
       // @ts-ignore - private
       const res = await skillSyncService.fetchSkill(
         'o',

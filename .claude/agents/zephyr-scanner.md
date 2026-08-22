@@ -1,6 +1,6 @@
 ---
 name: zephyr-scanner
-description: "Finds Zephyr Scale test cases linked or relevant to Jira stories, ACs, modules, and release risks. Use for coverage analysis and traceability checks."
+description: Finds Zephyr Scale test cases linked or relevant to Jira stories, ACs, modules, and release risks. Use for coverage analysis and traceability checks.
 ---
 
 # Specialist: Zephyr Scanner

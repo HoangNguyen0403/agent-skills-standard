@@ -1,6 +1,6 @@
 ---
-description: "Application Security Posture Management persona. Correlates findings from SAST, DAST, and SCA tools, deduplicates noise, maps vulnerabilities to specific code commits, and generates targeted remediation PRs."
-applyTo: "**/*"
+description: Application Security Posture Management persona. Correlates findings from SAST, DAST, and SCA tools, deduplicates noise, maps vulnerabilities to specific code commits, and generates targeted remediation PRs.
+applyTo: '**/*'
 ---
 
 # Specialist: ASPM Correlator

@@ -128,9 +128,20 @@ export class WorkflowSyncService {
       return false;
     });
 
-    const files = await this.githubService.downloadFilesConcurrent(
-      workflowFiles.map((f) => ({ owner, repo, ref, path: f.path })),
-    );
+    const { ok: files, failed } =
+      await this.githubService.downloadFilesConcurrent(
+        workflowFiles.map((f) => ({
+          owner,
+          repo,
+          ref,
+          path: f.path,
+          sha: f.sha,
+        })),
+      );
+
+    for (const failure of failed) {
+      console.log(pc.red(`    ❌ ${failure.path} — ${failure.reason}`));
+    }
 
     if (files.length > 0) {
       console.log(pc.gray(`    + Fetched ${files.length} workflows`));
