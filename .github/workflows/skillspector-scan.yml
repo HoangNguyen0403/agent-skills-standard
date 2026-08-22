@@ -7,6 +7,13 @@ on:
     paths:
       - 'skills/**'
       - '.github/workflows/skillspector-scan.yml'
+      # Prompt-emitting code paths: a bug here reaches every consumer the same
+      # way a malicious skill body would, so PRs touching them must re-run the
+      # gate even though they live outside skills/.
+      - 'cli/src/services/utils/SpecialistTransformer.ts'
+      - 'cli/src/services/utils/WorkflowTransformer.ts'
+      - 'cli/src/services/HookService.ts'
+      - 'cli/src/services/AgentBridgeService.ts'
 
   # Full scan on every push to main → update verified tag
   push:
@@ -60,8 +67,8 @@ jobs:
         with:
           path: /tmp/skillspector-image
           key: skillspector-docker-${{ env.SKILLSPECTOR_COMMIT }}-v3
-          restore-keys: |
-            skillspector-docker-
+          # No restore-keys fallback: a partial-key match could silently load
+          # a cached image built from a different (unpinned) commit.
 
       - name: Clone SkillSpector
         if: steps.cache.outputs.cache-hit != 'true'
@@ -127,15 +134,16 @@ jobs:
             cp "$file" "/tmp/skills-scan/$file"
           done
 
-          # Exclude security guidance skills that intentionally contain educational exploit examples or AI-security prompt patterns
-          # These skills are skipped from SkillSpector verification to avoid false positives
-          rm -rf /tmp/skills-scan/skills/common/common-pentest-methodology 2>/dev/null || true
-          rm -rf /tmp/skills-scan/skills/common/common-dast-tooling 2>/dev/null || true
-          rm -rf /tmp/skills-scan/skills/common/common-exploit-verification 2>/dev/null || true
-          rm -rf /tmp/skills-scan/skills/common/common-owasp 2>/dev/null || true
-          rm -rf /tmp/skills-scan/skills/common/common-llm-security 2>/dev/null || true
-          rm -rf /tmp/skills-scan/skills/common/common-security-audit 2>/dev/null || true
-          rm -rf /tmp/skills-scan/skills/common/common-security-standards 2>/dev/null || true
+          # NOTE: this filtered copy already contains SKILL.md/_INDEX.md only
+          # (references/ and evals/ — the actual source of educational-exploit
+          # false positives — are never copied in above). Previously these 7
+          # security-guidance skills had their *entire* directory (including
+          # SKILL.md) rm -rf'd here, which meant common-llm-security and
+          # common-security-audit — the skills most likely to legitimately
+          # carry an injection payload if compromised — were never scanned at
+          # all. They are intentionally scanned like every other skill now;
+          # see docs/SECURITY.md "Baseline-suppressed findings" for how any
+          # remaining false positives in their SKILL.md are handled.
 
           echo "ℹ️ Scanning SKILL.md files only (excluding references/ and evals/ directories)"
           echo "📊 Files to scan:"
