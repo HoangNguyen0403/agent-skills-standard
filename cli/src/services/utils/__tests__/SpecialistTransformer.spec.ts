@@ -103,4 +103,101 @@ describe('SpecialistTransformer', () => {
     );
     expect(result).toBeNull();
   });
+
+  describe('permission projection', () => {
+    const withRiskTier = (riskTier: string, extra = '') =>
+      specialistSource(
+        `description: "reviews code"\nrisk_tier: ${riskTier}${extra}`,
+      );
+
+    it('projects allowed-tools onto Claude tools: when metadata.tools is absent', () => {
+      const source = specialistSource(
+        `description: "reviews code"\nallowed-tools:\n  - Read\n  - Grep`,
+      );
+      const result = SpecialistTransformer.transform(source, Agent.Claude);
+      const fm = yaml.load(
+        result!.content.match(/^---\r?\n([\s\S]*?)\r?\n---/)![1],
+      ) as Record<string, unknown>;
+      expect(fm.tools).toBe('Read, Grep');
+    });
+
+    it('prefers an explicit metadata.tools over allowed-tools on Claude', () => {
+      const source = specialistSource(
+        `description: "reviews code"\ntools: Bash\nallowed-tools:\n  - Read`,
+      );
+      const result = SpecialistTransformer.transform(source, Agent.Claude);
+      const fm = yaml.load(
+        result!.content.match(/^---\r?\n([\s\S]*?)\r?\n---/)![1],
+      ) as Record<string, unknown>;
+      expect(fm.tools).toBe('Bash');
+    });
+
+    it('maps risk_tier L0/L1 to Codex sandbox_mode "read-only"', () => {
+      const result = SpecialistTransformer.transform(
+        withRiskTier('L1'),
+        Agent.Codex,
+      );
+      expect(result!.content).toContain('sandbox_mode = "read-only"');
+    });
+
+    it('maps risk_tier L2/L3 to Codex sandbox_mode "workspace-write", never auto-escalating to danger-full-access', () => {
+      const l2 = SpecialistTransformer.transform(
+        withRiskTier('L2'),
+        Agent.Codex,
+      );
+      expect(l2!.content).toContain('sandbox_mode = "workspace-write"');
+      expect(l2!.content).not.toContain('danger-full-access');
+
+      const l3 = SpecialistTransformer.transform(
+        withRiskTier('L3'),
+        Agent.Codex,
+      );
+      expect(l3!.content).toContain('sandbox_mode = "workspace-write"');
+      expect(l3!.content).not.toContain('danger-full-access');
+    });
+
+    it('flags unenforceable allowed-tools/permissions in a Codex TOML comment', () => {
+      const source = specialistSource(
+        `description: "reviews code"\nrisk_tier: L2\nallowed-tools:\n  - Bash`,
+      );
+      const result = SpecialistTransformer.transform(source, Agent.Codex);
+      expect(result!.content).toContain('# ags:');
+      expect(result!.content).toContain('allowed-tools');
+    });
+
+    it('does not add a warning comment for Codex when only risk_tier is declared', () => {
+      const result = SpecialistTransformer.transform(
+        withRiskTier('L2'),
+        Agent.Codex,
+      );
+      expect(result!.content).not.toContain('# ags:');
+    });
+
+    it('prepends a visible warning comment on platforms that cannot express risk_tier/permissions', () => {
+      for (const agent of [
+        Agent.Cursor,
+        Agent.Copilot,
+        Agent.OpenCode,
+        Agent.Gemini,
+        Agent.Kiro,
+      ]) {
+        const result = SpecialistTransformer.transform(
+          withRiskTier('L2'),
+          agent,
+        );
+        expect(result!.content).toContain(
+          '<!-- ags: permissions not enforceable on',
+        );
+        expect(result!.content).toContain('risk_tier: L2');
+      }
+    });
+
+    it('adds no warning comment on those platforms when nothing risk-relevant is declared', () => {
+      const source = specialistSource('description: "reviews code"');
+      for (const agent of [Agent.Cursor, Agent.Copilot, Agent.Gemini]) {
+        const result = SpecialistTransformer.transform(source, agent);
+        expect(result!.content).not.toContain('ags: permissions');
+      }
+    });
+  });
 });

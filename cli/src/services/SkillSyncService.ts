@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+import yaml from 'js-yaml';
 import path from 'path';
 import pc from 'picocolors';
 import { Agent, SUPPORTED_AGENTS } from '../constants';
@@ -288,19 +289,50 @@ export class SkillSyncService {
     }
   }
 
+  /**
+   * Kiro has no file/keyword routing concept, so `metadata.triggers` is
+   * intentionally dropped here (Kiro users get skills with no auto-routing
+   * — a known, documented limitation, not a bug). Every other declared
+   * field — including the optional Universal-Skill-Format fields
+   * (version/risk_tier/allowed-tools/permissions/content_hash/signature) —
+   * is preserved rather than silently discarded.
+   *
+   * Uses a real YAML parse + js-yaml dump (matching SpecialistTransformer)
+   * instead of regex-extract-and-reinterpolate: the previous implementation
+   * built `description: ${description}` via raw string interpolation, which
+   * had the same YAML-key-injection exposure fixed elsewhere in this PR — a
+   * description containing a quote+newline could inject a new top-level key
+   * into the emitted Kiro frontmatter.
+   */
   private transformSkillForKiro(content: string, category: string): string {
-    const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+    const frontmatterMatch = content.match(
+      /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/,
+    );
     if (!frontmatterMatch) return content;
 
-    const [fullMatch, frontmatter] = frontmatterMatch;
-    const body = content.slice(fullMatch.length);
+    let metadata: Record<string, unknown>;
+    try {
+      metadata =
+        (yaml.load(frontmatterMatch[1]) as Record<string, unknown>) ?? {};
+    } catch {
+      return content;
+    }
 
-    const name = frontmatter.match(/^name:\s*(.+)$/m)?.[1].trim() || '';
-    const description =
-      frontmatter.match(/^description:\s*(.+)$/m)?.[1].trim() || '';
+    const body = frontmatterMatch[2];
+    const name = typeof metadata.name === 'string' ? metadata.name : '';
     const displayName = `${category.charAt(0).toUpperCase() + category.slice(1)} - ${name}`;
 
-    return `---\nname: ${displayName}\ndescription: ${description}\n---` + body;
+    const fm: Record<string, unknown> = {
+      ...metadata,
+      name: displayName,
+      // Always present (even empty), matching the field this transform has
+      // always emitted regardless of whether the source declared one.
+      description:
+        typeof metadata.description === 'string' ? metadata.description : '',
+    };
+    delete fm.metadata; // drop triggers — Kiro has no routing to feed them to
+
+    return `---\n${yaml.dump(fm, { lineWidth: -1 }).trimEnd()}\n---\n\n${body}`;
   }
 
   private isOverridden(targetPath: string, overrides: string[]): boolean {

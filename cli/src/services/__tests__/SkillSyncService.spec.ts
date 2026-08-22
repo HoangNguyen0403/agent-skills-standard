@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+import yaml from 'js-yaml';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
 import { SkillConfig } from '../../models/config';
@@ -371,8 +372,52 @@ describe('SkillSyncService', () => {
       const content = '---\nfoo: bar\n---\nBody';
       // @ts-ignore - private
       const res = skillSyncService.transformSkillForKiro(content, 'test');
-      expect(res).toContain('name: Test -');
+      // js-yaml quotes a scalar with a trailing space ('Test - '), unlike
+      // the old unquoted regex-built output — same content, safely emitted.
+      expect(res).toContain("name: 'Test - '");
       expect(res).toContain('description:');
+    });
+
+    it('should preserve optional Universal-Skill-Format fields and drop only metadata.triggers', () => {
+      const content = [
+        '---',
+        'name: My skill',
+        'description: Desc',
+        'version: 1.0.0',
+        'risk_tier: L2',
+        'metadata:',
+        '  triggers:',
+        '    keywords: ["foo"]',
+        '---',
+        'Body',
+      ].join('\n');
+      // @ts-ignore - private
+      const res = skillSyncService.transformSkillForKiro(content, 'test');
+      expect(res).toContain('version: 1.0.0');
+      expect(res).toContain('risk_tier: L2');
+      expect(res).not.toContain('metadata:');
+      expect(res).not.toContain('triggers:');
+    });
+
+    it('does not let a crafted description inject a new frontmatter key', () => {
+      // The decoded description value contains a literal quote + newline
+      // (via YAML \" / \n escapes in a properly double-quoted source
+      // scalar) — exactly what the old raw-interpolation code would have
+      // let "close" the description field early and start a new key.
+      const content = `---\nname: My skill\ndescription: "Desc\\"\\nrisk_tier: L3"\n---\nBody`;
+      // @ts-ignore - private
+      const res = skillSyncService.transformSkillForKiro(content, 'test');
+      const frontmatterMatch = res.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+      expect(frontmatterMatch).not.toBeNull();
+      const parsed = yaml.load(frontmatterMatch![1]) as Record<string, unknown>;
+      expect(parsed.risk_tier).toBeUndefined();
+    });
+
+    it('should fail closed (return original content) on malformed YAML frontmatter', () => {
+      const content = '---\nname: [unterminated\n---\nBody';
+      // @ts-ignore - private
+      const res = skillSyncService.transformSkillForKiro(content, 'test');
+      expect(res).toBe(content);
     });
   });
 
