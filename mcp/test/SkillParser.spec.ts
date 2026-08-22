@@ -50,4 +50,72 @@ describe("SkillParser", () => {
     const result = await readSkillBody(skillPath);
     expect(result).toBe(content);
   });
+
+  it("refuses to parse a file larger than the 1 MiB cap", async () => {
+    const skillPath = path.join(tmpDir, "SKILL.md");
+    const oversized =
+      "---\nname: big\ndescription: big\n---\n" + "x".repeat(2 * 1024 * 1024);
+    await fs.writeFile(skillPath, oversized);
+    const result = await parseSkill(skillPath, "test", "big");
+    expect(result).toBeNull();
+  });
+
+  it("strips zero-width/bidi control characters from description", async () => {
+    const skillPath = path.join(tmpDir, "SKILL.md");
+    const zeroWidthSpace = String.fromCodePoint(0x200b);
+    const rtlOverride = String.fromCodePoint(0x202e);
+    const description = `Innocent${zeroWidthSpace}looking${rtlOverride}description`;
+    await fs.writeFile(
+      skillPath,
+      `---\nname: hidden\ndescription: "${description}"\n---\nContent`,
+    );
+    const result = await parseSkill(skillPath, "test", "hidden");
+    expect(result?.description).toBe("Innocentlookingdescription");
+  });
+
+  it("parses ordinary JSON-compatible YAML frontmatter unaffected by JSON_SCHEMA", async () => {
+    const skillPath = path.join(tmpDir, "SKILL.md");
+    await fs.writeFile(
+      skillPath,
+      [
+        "---",
+        "name: full",
+        "description: A full skill",
+        "metadata:",
+        "  triggers:",
+        "    files: ['**/*.ts']",
+        "    keywords: [foo, bar]",
+        "---",
+        "Body",
+      ].join("\n"),
+    );
+    const result = await parseSkill(skillPath, "test", "full");
+    expect(result?.name).toBe("full");
+    expect(result?.triggers.files).toEqual(["**/*.ts"]);
+    expect(result?.triggers.keywords).toEqual(["foo", "bar"]);
+  });
+
+  it("does not silently drop a date-shaped keyword by coercing it to a Date object", async () => {
+    const skillPath = path.join(tmpDir, "SKILL.md");
+    // Under js-yaml's DEFAULT_SCHEMA, an unquoted "2024-01-01" implicitly
+    // resolves to a Date instance, which toStringArray's `typeof v ===
+    // 'string'` filter then silently drops — the keyword just vanishes
+    // with no error. JSON_SCHEMA has no such implicit-timestamp resolver,
+    // so it stays a plain string and survives the filter.
+    await fs.writeFile(
+      skillPath,
+      [
+        "---",
+        "name: dated",
+        "description: x",
+        "metadata:",
+        "  triggers:",
+        "    keywords: [2024-01-01, foo]",
+        "---",
+        "Body",
+      ].join("\n"),
+    );
+    const result = await parseSkill(skillPath, "test", "dated");
+    expect(result?.triggers.keywords).toEqual(["2024-01-01", "foo"]);
+  });
 });

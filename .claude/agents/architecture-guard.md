@@ -1,6 +1,6 @@
 ---
 name: architecture-guard
-description: "Audits PR diffs for architecture boundary violations, design simplicity, dependency drift, and established-pattern mismatches. Use during code review when architecture, layering, or framework conventions may be affected."
+description: Audits PR diffs for architecture boundary violations, design simplicity, dependency drift, and established-pattern mismatches. Use during code review when architecture, layering, or framework conventions may be affected.
 ---
 
 # Specialist: Architecture Guard

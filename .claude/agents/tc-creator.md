@@ -1,6 +1,6 @@
 ---
 name: tc-creator
-description: "Creates one test case in Zephyr or another test-management system from an approved structured spec. Use for bulk TC creation by spawning one independent specialist per TC."
+description: Creates one test case in Zephyr or another test-management system from an approved structured spec. Use for bulk TC creation by spawning one independent specialist per TC.
 ---
 
 # Specialist: TC Creator

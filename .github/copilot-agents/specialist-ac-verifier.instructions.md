@@ -1,6 +1,6 @@
 ---
-description: "Maps acceptance criteria to implementation evidence, tests, and scope creep. Use during review when a diff, PR, ticket, or story includes numbered ACs."
-applyTo: "**/*"
+description: Maps acceptance criteria to implementation evidence, tests, and scope creep. Use during review when a diff, PR, ticket, or story includes numbered ACs.
+applyTo: '**/*'
 ---
 
 # Specialist: AC Verifier

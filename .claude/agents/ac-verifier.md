@@ -1,6 +1,6 @@
 ---
 name: ac-verifier
-description: "Maps acceptance criteria to implementation evidence, tests, and scope creep. Use during review when a diff, PR, ticket, or story includes numbered ACs."
+description: Maps acceptance criteria to implementation evidence, tests, and scope creep. Use during review when a diff, PR, ticket, or story includes numbered ACs.
 ---
 
 # Specialist: AC Verifier

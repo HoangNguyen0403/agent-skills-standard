@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Educational example code in skill reference docs — same false-positive source SkillSpector already excludes references/ for. Historical example credentials (e.g. API_KEY=prod_key_67890) look like real secrets to entropy-based rules but were never real."
+paths = [
+  '''skills/.+/references/.+\.md$''',
+]

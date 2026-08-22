@@ -1,20 +1,33 @@
 /**
- * CI Scanner: Detects prompt injection patterns in skill descriptions.
+ * CI Scanner: Detects prompt injection patterns in skill content.
  *
- * Scans all SKILL.md frontmatter `description` fields in skills/.
- * Exits with code 1 if any injection pattern is found, failing the CI check.
+ * - SKILL.md frontmatter `description`: always error-level (fails the build).
+ * - SKILL.md body + references/*.md: warn-level by default; pass --strict to
+ *   promote these to error-level too, once a corpus cleanup pass has landed.
+ * - Pass --roots <dir1,dir2,...> to also scan CLI-emitted mirrors (e.g.
+ *   .claude,.agents,.codex) alongside the skills/ source of truth.
  *
- * Usage: tsx scripts/scan-injection.ts
+ * Usage: tsx scripts/scan-injection.ts [--strict] [--roots .claude,.agents]
  */
 import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
 import pc from 'picocolors';
-import { INJECTION_PATTERNS } from '../cli/src/constants/security';
+import { scanContent, type InjectionFinding } from '../cli/src/constants/security';
 
-interface ScanResult {
+interface ScanResult extends InjectionFinding {
   skill: string;
-  pattern: string;
+  file: string;
+}
+
+function parseArgs(argv: string[]): { strict: boolean; roots: string[] } {
+  const strict = argv.includes('--strict');
+  const rootsIdx = argv.indexOf('--roots');
+  const roots =
+    rootsIdx !== -1 && argv[rootsIdx + 1]
+      ? argv[rootsIdx + 1].split(',').map((r) => r.trim()).filter(Boolean)
+      : [];
+  return { strict, roots };
 }
 
 async function scanSkillFile(
@@ -22,25 +35,43 @@ async function scanSkillFile(
   skillId: string,
 ): Promise<ScanResult[]> {
   const content = await fs.readFile(filePath, 'utf8');
-  const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  if (!frontmatterMatch) return [];
-
-  const fm = yaml.load(frontmatterMatch[1]) as { description?: string } | null;
-  const description = fm?.description ?? '';
-  if (!description) return [];
+  const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
 
   const findings: ScanResult[] = [];
-  for (const pattern of INJECTION_PATTERNS) {
-    pattern.lastIndex = 0;
-    if (pattern.test(description)) {
-      findings.push({ skill: skillId, pattern: pattern.toString() });
+
+  if (frontmatterMatch) {
+    const fm = yaml.load(frontmatterMatch[1]) as { description?: string } | null;
+    const description = fm?.description ?? '';
+    if (description) {
+      for (const finding of scanContent(description, 'description')) {
+        findings.push({ ...finding, skill: skillId, file: filePath });
+      }
     }
-    pattern.lastIndex = 0;
   }
+
+  const body = frontmatterMatch
+    ? content.slice(frontmatterMatch[0].length)
+    : content;
+  for (const finding of scanContent(body, 'body')) {
+    findings.push({ ...finding, skill: skillId, file: filePath });
+  }
+
   return findings;
 }
 
-async function scanDir(
+async function scanReferenceFile(
+  filePath: string,
+  skillId: string,
+): Promise<ScanResult[]> {
+  const content = await fs.readFile(filePath, 'utf8');
+  return scanContent(content, 'body').map((finding) => ({
+    ...finding,
+    skill: skillId,
+    file: filePath,
+  }));
+}
+
+async function scanSkillDir(
   dir: string,
   baseSkillsDir: string,
 ): Promise<ScanResult[]> {
@@ -52,7 +83,24 @@ async function scanDir(
     const stat = await fs.stat(fullPath);
 
     if (stat.isDirectory()) {
-      const nested = await scanDir(fullPath, baseSkillsDir);
+      if (item === 'references') {
+        const refFiles = await fs.readdir(fullPath);
+        const skillId = path.relative(baseSkillsDir, dir);
+        for (const refFile of refFiles) {
+          if (!refFile.endsWith('.md')) continue;
+          const results = await scanReferenceFile(
+            path.join(fullPath, refFile),
+            skillId,
+          );
+          findings.push(...results);
+        }
+        continue;
+      }
+      // evals/ and scripts/ are not prose an agent reads as instructions —
+      // skip them the same way the SkillSpector CI gate does.
+      if (item === 'evals' || item === 'scripts') continue;
+
+      const nested = await scanSkillDir(fullPath, baseSkillsDir);
       findings.push(...nested);
     } else if (item === 'SKILL.md') {
       const skillId = path.relative(baseSkillsDir, path.dirname(fullPath));
@@ -63,7 +111,13 @@ async function scanDir(
   return findings;
 }
 
+async function scanRoot(root: string): Promise<ScanResult[]> {
+  if (!(await fs.pathExists(root))) return [];
+  return scanSkillDir(root, root);
+}
+
 async function main(): Promise<void> {
+  const { strict, roots } = parseArgs(process.argv.slice(2));
   const skillsDir = path.join(process.cwd(), 'skills');
 
   if (!(await fs.pathExists(skillsDir))) {
@@ -75,26 +129,53 @@ async function main(): Promise<void> {
     pc.blue('🔍 Scanning skills/ for prompt injection patterns...\n'),
   );
 
-  const findings = await scanDir(skillsDir, skillsDir);
+  let findings = await scanSkillDir(skillsDir, skillsDir);
 
-  if (findings.length === 0) {
+  for (const root of roots) {
+    console.log(pc.blue(`🔍 Scanning mirror ${root}/ ...`));
+    findings = findings.concat(await scanRoot(path.join(process.cwd(), root)));
+  }
+
+  const errors = findings.filter(
+    (f) => f.mode === 'description' || strict,
+  );
+  const warnings = findings.filter(
+    (f) => f.mode === 'body' && !strict,
+  );
+
+  if (warnings.length > 0) {
+    console.warn(
+      pc.yellow(
+        `\n⚠️  ${warnings.length} body-level finding(s) (warn-only; pass --strict to fail on these):\n`,
+      ),
+    );
+    for (const finding of warnings) {
+      console.warn(
+        pc.yellow(`  - [${finding.skill}] ${finding.file} matched: ${finding.pattern}`),
+      );
+    }
+  }
+
+  if (errors.length === 0) {
     console.log(
-      pc.green('✅ No injection patterns detected in skill descriptions.'),
+      pc.green('\n✅ No error-level injection patterns detected.'),
     );
     process.exit(0);
   }
 
   console.error(
-    pc.red(`\n🚨 Found ${findings.length} prompt injection finding(s):\n`),
+    pc.red(`\n🚨 Found ${errors.length} error-level injection finding(s):\n`),
   );
-  for (const finding of findings) {
+  for (const finding of errors) {
     console.error(
-      pc.red(`  - [${finding.skill}] matched pattern: ${finding.pattern}`),
+      pc.red(
+        `  - [${finding.skill}] ${finding.file} (${finding.mode}) matched pattern: ${finding.pattern}`,
+      ),
     );
   }
   console.error(
     pc.yellow(
-      '\nReview the skills above and remove or sanitize the flagged descriptions.',
+      '\nReview the findings above and remove or sanitize the flagged content.',
     ),
   );
   process.exit(1);

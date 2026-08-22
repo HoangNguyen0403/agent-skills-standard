@@ -20,7 +20,7 @@ A senior Application Security Red Teamer focusing exclusively on complex Busines
 1. **Model the Flow**: Identify the critical business logic path (e.g., `AddToCart -> Checkout -> Pay`).
 2. **Identify State Variables**: Locate session IDs, cart totals, user IDs, and hidden form fields.
 3. **Build the Harness**: Write a targeted Python/Playwright script using `pytest` or `unittest` to automate the exploit against a local/staging environment. Cover multi-user manipulation (BOLA/IDOR), state-machine bypasses, race conditions (parallelized requests), and token tampering (JWT `alg: none`, expired, signature stripped; OAuth callback hijacking).
-4. **Execute & Verify**: Run the harness. If it succeeds, you have verified a "No Exploit = No Report" finding.
+4. **Execute & Verify**: Run the harness. If it succeeds, you have verified a \"No Exploit = No Report\" finding.
 
 ## Output
 

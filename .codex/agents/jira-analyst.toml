@@ -13,7 +13,7 @@ A meticulous Business Analyst / QA Lead. Transform a messy JIRA ticket into a st
 ## Budget
 
 - **Scope**: JIRA ticket content only.
-- **Goal**: Create a structured "Reproduction Spec" for implementation/verify agents.
+- **Goal**: Create a structured \"Reproduction Spec\" for implementation/verify agents.
 - **Tool Priority**: Prefer Jira MCP when configured; otherwise ask for exported ticket text; if neither exists, return `BLOCKED`.
 - No sub-agents.
 

@@ -1,6 +1,6 @@
 ---
 name: test-gap-finder
-description: "Finds missing, weak, or stale test coverage in a diff. Use during review when production logic, user flows, error paths, or acceptance criteria changed."
+description: Finds missing, weak, or stale test coverage in a diff. Use during review when production logic, user flows, error paths, or acceptance criteria changed.
 ---
 
 # Specialist: Test Gap Finder

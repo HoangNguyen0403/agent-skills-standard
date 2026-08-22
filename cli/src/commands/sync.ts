@@ -8,7 +8,7 @@ import {
   McpConfigService,
   defaultMcpConfig,
 } from '../services/McpConfigService';
-import { HookService } from '../services/HookService';
+import { CLAUDE_MCP_PERMISSION, HookService } from '../services/HookService';
 import { SyncService } from '../services/SyncService';
 
 /**
@@ -136,7 +136,7 @@ export class SyncCommand {
       await this.runMcpPhase(config, options);
 
       // 8. Hook installation — always runs; idempotent.
-      await this.runHookPhase(config);
+      await this.runHookPhase(config, options);
     } catch (error) {
       if (error instanceof Error) {
         console.error(pc.red('❌ Sync failed:'), error.message);
@@ -344,7 +344,10 @@ export class SyncCommand {
    * files up to date. Claude's script is preserved if already customized; Kiro's
    * markdown hook is kept in sync with the embedded template.
    */
-  private async runHookPhase(config: SkillConfig): Promise<void> {
+  private async runHookPhase(
+    config: SkillConfig,
+    options: { yes?: boolean } = {},
+  ): Promise<void> {
     const agents = config.agents ?? [];
     if (agents.length === 0) return;
 
@@ -354,9 +357,32 @@ export class SyncCommand {
       return;
     }
 
+    const promptPermission = options.yes
+      ? async () => true
+      : async (agent: Agent): Promise<boolean> => {
+          if (!process.stdin.isTTY) {
+            console.log(
+              pc.gray(
+                `\nℹ️  Skipping MCP permission grant for ${agent} (non-interactive; use --yes to auto-confirm).`,
+              ),
+            );
+            return false;
+          }
+          const { ok } = await inquirer.prompt([
+            {
+              type: 'confirm',
+              name: 'ok',
+              message: `Allow ${pc.cyan(agent)} to auto-run the agent-skills-standard MCP tools (adds "${CLAUDE_MCP_PERMISSION}" to permissions.allow)?`,
+              default: true,
+            },
+          ]);
+          return ok;
+        };
+
     const report = await this.hookService.install({
       rootDir: process.cwd(),
       agents,
+      promptPermission,
     });
 
     const writes = report.writes.filter((w) => w.action !== 'skipped-existing');

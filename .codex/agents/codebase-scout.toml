@@ -43,6 +43,6 @@ Map affected services, files, architecture layers, tests, conventions, and impac
 ## Anti-Patterns
 
 - No raw file dumps.
-- No "unused/dead code" claims without runtime-proof caveat.
+- No \"unused/dead code\" claims without runtime-proof caveat.
 - No broad repository inventory; answer caller topic only.
 """

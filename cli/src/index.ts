@@ -10,8 +10,10 @@ import { InitCommand } from './commands/init';
 import { ListSkillsCommand } from './commands/list-skills';
 import { McpCommand } from './commands/mcp';
 import { SyncCommand } from './commands/sync';
+import { AuditCommand } from './commands/audit';
 import { UpgradeCommand } from './commands/upgrade';
 import { ValidateCommand } from './commands/validate-skills';
+import { VerifyCommand } from './commands/verify';
 
 // Load .env from current directory (for development and other env vars)
 dotenv.config();
@@ -66,6 +68,30 @@ program
   .action(async (options) => {
     const sync = new SyncCommand();
     await sync.run(options);
+  });
+
+program
+  .command('verify')
+  .description(
+    'Check installed skill files against .skills-lock.json (catches tampering, partial writes, or manual drift)',
+  )
+  .option(
+    '--agent <agent>',
+    'Which agent skill directory to verify (default: first configured agent)',
+  )
+  .action(async (options) => {
+    const cmd = new VerifyCommand();
+    await cmd.run(options);
+  });
+
+program
+  .command('audit')
+  .description(
+    'Print the installed skill inventory recorded in .skills-lock.json',
+  )
+  .action(async () => {
+    const cmd = new AuditCommand();
+    await cmd.run();
   });
 
 program
@@ -168,9 +194,13 @@ program
   .description(
     'Manage the PreToolUse skill-loader hook. Actions: status | install | uninstall',
   )
-  .action(async (action: string) => {
+  .option(
+    '--enforce',
+    'With "install": Claude blocks (does not just remind) edits to SOUL.md, MEMORY.md, .env*, .ssh/, credentials*.json|yaml',
+  )
+  .action(async (action: string, options: { enforce?: boolean }) => {
     const cmd = new HooksCommand();
-    await cmd.run(action);
+    await cmd.run(action, options);
   });
 
 program

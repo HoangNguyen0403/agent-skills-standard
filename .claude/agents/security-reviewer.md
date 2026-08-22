@@ -1,6 +1,6 @@
 ---
 name: security-reviewer
-description: "High-density security audit persona. Enforces OWASP Top 10, Vibe Security, trust gating, and runtime hardening for code and agentic review flows."
+description: High-density security audit persona. Enforces OWASP Top 10, Vibe Security, trust gating, and runtime hardening for code and agentic review flows.
 ---
 
 # Specialist: Security Reviewer

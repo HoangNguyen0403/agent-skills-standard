@@ -1,6 +1,6 @@
 ---
-description: "Summarizes GitHub PR, GitLab MR, or Azure DevOps PR metadata, review threads, changed files, and template completeness. Use during review-ticket or code-review workflows when PR/MR context exists."
-applyTo: "**/*"
+description: Summarizes GitHub PR, GitLab MR, or Azure DevOps PR metadata, review threads, changed files, and template completeness. Use during review-ticket or code-review workflows when PR/MR context exists.
+applyTo: '**/*'
 ---
 
 # Specialist: PR/MR Reviewer

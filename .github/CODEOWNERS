@@ -1,0 +1,71 @@
+# Code owners for agent-skills-standard.
+#
+# Every skill category currently has one owner (the repo maintainer); this
+# file exists primarily to (a) require review on paths that can affect every
+# consumer at once, and (b) give future per-category delegation a place to
+# land — see docs/SECURITY.md "Governance" for the process to add one.
+
+# Default owner for everything not matched below.
+* @HoangNguyen0403
+
+# ── Security-sensitive skill content ────────────────────────────────────────
+# These are the skills SkillSpector's CI gate deliberately does NOT
+# rm -rf-exclude from scanning (see .github/workflows/skillspector-scan.yml);
+# they intentionally carry exploit examples / prompt-injection reference
+# material, so a compromised edit here is the highest-value target in the
+# whole registry.
+/skills/common/common-owasp/                  @HoangNguyen0403
+/skills/common/common-llm-security/           @HoangNguyen0403
+/skills/common/common-security-audit/         @HoangNguyen0403
+/skills/common/common-security-standards/     @HoangNguyen0403
+/skills/common/common-pentest-methodology/    @HoangNguyen0403
+/skills/common/common-dast-tooling/           @HoangNguyen0403
+/skills/common/common-exploit-verification/   @HoangNguyen0403
+
+# ── Code paths that emit prompts/config into every consumer's machine ──────
+# A bug or malicious change here reaches every user the same way a
+# compromised skill body would, regardless of which skills they sync.
+/.skillspector/                                    @HoangNguyen0403
+/.github/workflows/                                @HoangNguyen0403
+/.github/CODEOWNERS                                @HoangNguyen0403
+/.github/dependabot.yml                            @HoangNguyen0403
+/scripts/scan-injection.ts                         @HoangNguyen0403
+/cli/src/constants/security.ts                     @HoangNguyen0403
+/cli/src/services/GithubService.ts                 @HoangNguyen0403
+/cli/src/services/utils/SpecialistTransformer.ts   @HoangNguyen0403
+/cli/src/services/utils/WorkflowTransformer.ts     @HoangNguyen0403
+/cli/src/services/utils/tomlEscape.ts              @HoangNguyen0403
+/cli/src/services/HookService.ts                   @HoangNguyen0403
+/cli/src/services/AgentBridgeService.ts            @HoangNguyen0403
+
+# ── Registry integrity records ──────────────────────────────────────────────
+/skills/metadata.json                              @HoangNguyen0403
+/cli/skills-lock.json                              @HoangNguyen0403
+/docs/SECURITY.md                                  @HoangNguyen0403
+
+# ── Per-category skill content ──────────────────────────────────────────────
+# One line per category so ownership can be delegated independently later
+# without touching this file's structure.
+/skills/android/               @HoangNguyen0403
+/skills/angular/                @HoangNguyen0403
+/skills/common/                @HoangNguyen0403
+/skills/dart/                  @HoangNguyen0403
+/skills/database/              @HoangNguyen0403
+/skills/flutter/               @HoangNguyen0403
+/skills/golang/                @HoangNguyen0403
+/skills/ios/                   @HoangNguyen0403
+/skills/java/                  @HoangNguyen0403
+/skills/javascript/            @HoangNguyen0403
+/skills/kotlin/                @HoangNguyen0403
+/skills/laravel/                @HoangNguyen0403
+/skills/nestjs/                @HoangNguyen0403
+/skills/nextjs/                @HoangNguyen0403
+/skills/php/                   @HoangNguyen0403
+/skills/python/                @HoangNguyen0403
+/skills/quality-engineering/   @HoangNguyen0403
+/skills/react/                 @HoangNguyen0403
+/skills/react-native/          @HoangNguyen0403
+/skills/specialists/           @HoangNguyen0403
+/skills/spring-boot/           @HoangNguyen0403
+/skills/swift/                 @HoangNguyen0403
+/skills/typescript/            @HoangNguyen0403

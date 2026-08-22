@@ -1,6 +1,10 @@
 import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import path from 'path';
+import {
+  optionalSkillFieldsSchema,
+  validateRiskTierNeedsPermissions,
+} from '../../schemas/skill-frontmatter';
 import { RuleResult, ValidationRule } from './types';
 
 /**
@@ -26,7 +30,15 @@ export class SizeRule implements ValidationRule {
 }
 
 /**
- * Validates frontmatter presence and required fields.
+ * Validates frontmatter presence, required fields, and — for any of the
+ * optional Universal-Skill-Format fields a skill chooses to declare
+ * (version, risk_tier, allowed-tools, permissions, content_hash, signature)
+ * — their shape, via cli/src/schemas/skill-frontmatter.ts.
+ *
+ * Uses a real YAML parse (`yaml.load`) rather than substring `includes()`
+ * checks, so e.g. a body line that happens to contain the text `name:`
+ * cannot be mistaken for the frontmatter field, and a malformed YAML block
+ * is reported instead of silently passing.
  */
 export class FrontmatterRule implements ValidationRule {
   name = 'Frontmatter';
@@ -43,28 +55,50 @@ export class FrontmatterRule implements ValidationRule {
       };
     }
 
-    const frontmatter = frontmatterMatch[1];
+    let parsed: unknown;
+    try {
+      parsed = yaml.load(frontmatterMatch[1]);
+    } catch {
+      return {
+        passed: false,
+        errors: ['Invalid YAML frontmatter'],
+        warnings: [],
+      };
+    }
 
-    if (!frontmatter.includes('name:')) {
+    const fm = (parsed && typeof parsed === 'object' ? parsed : {}) as Record<
+      string,
+      unknown
+    >;
+
+    if (typeof fm.name !== 'string' || fm.name.length === 0) {
       result.errors.push('Missing "name" field in frontmatter');
       result.passed = false;
     }
 
-    if (!frontmatter.includes('description:')) {
+    if (typeof fm.description !== 'string' || fm.description.length === 0) {
       result.errors.push('Missing "description" field in frontmatter');
       result.passed = false;
-    } else {
-      const descMatch = frontmatter.match(/description:\s*(.+)/);
-      if (descMatch && descMatch[1].length > 1024) {
-        result.errors.push(
-          `Description too long (${descMatch[1].length} chars > 1024 limit)`,
-        );
-        result.passed = false;
-      } else if (descMatch && descMatch[1].length > 300) {
-        result.warnings.push(
-          `Description is ${descMatch[1].length} chars (> 300); trim for _INDEX.md readability`,
-        );
+    } else if (fm.description.length > 1024) {
+      result.errors.push(
+        `Description too long (${fm.description.length} chars > 1024 limit)`,
+      );
+      result.passed = false;
+    } else if (fm.description.length > 300) {
+      result.warnings.push(
+        `Description is ${fm.description.length} chars (> 300); trim for _INDEX.md readability`,
+      );
+    }
+
+    const optionalParse = optionalSkillFieldsSchema.safeParse(fm);
+    if (!optionalParse.success) {
+      for (const issue of optionalParse.error.issues) {
+        result.errors.push(`${issue.path.join('.')}: ${issue.message}`);
       }
+      result.passed = false;
+    } else {
+      const tierWarning = validateRiskTierNeedsPermissions(optionalParse.data);
+      if (tierWarning) result.warnings.push(tierWarning);
     }
 
     return result;
@@ -196,7 +230,9 @@ export class TriggersRule implements ValidationRule {
     }
 
     const triggers = (
-      parsed as { metadata?: { triggers?: { files?: unknown; keywords?: unknown } } }
+      parsed as {
+        metadata?: { triggers?: { files?: unknown; keywords?: unknown } };
+      }
     )?.metadata?.triggers;
     const files = Array.isArray(triggers?.files) ? triggers.files : [];
     const keywords = Array.isArray(triggers?.keywords) ? triggers.keywords : [];

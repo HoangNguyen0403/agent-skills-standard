@@ -80,9 +80,85 @@ describe('Validation Rules', () => {
 
     it('should not warn if description is within 300 chars', async () => {
       const rule = new FrontmatterRule();
-      const content = '---\nname: Test\ndescription: A short description\n---\nbody';
+      const content =
+        '---\nname: Test\ndescription: A short description\n---\nbody';
       const result = await rule.validate(content);
       expect(result.warnings).toHaveLength(0);
+    });
+
+    it('should fail on malformed YAML instead of silently passing', async () => {
+      const rule = new FrontmatterRule();
+      const content = '---\nname: [unterminated\n---\nbody';
+      const result = await rule.validate(content);
+      expect(result.passed).toBe(false);
+      expect(result.errors).toContain('Invalid YAML frontmatter');
+    });
+
+    it('should not mistake a body line containing "name:" for the frontmatter field', async () => {
+      const rule = new FrontmatterRule();
+      const content =
+        '---\ndescription: A test\n---\nSee name: this is prose, not frontmatter.';
+      const result = await rule.validate(content);
+      expect(result.passed).toBe(false);
+      expect(result.errors).toContain('Missing "name" field in frontmatter');
+    });
+
+    it('should pass when optional Universal-Skill-Format fields are absent (existing corpus)', async () => {
+      const rule = new FrontmatterRule();
+      const content = '---\nname: Test\ndescription: A test\n---\nbody';
+      const result = await rule.validate(content);
+      expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should accept a valid risk_tier + permissions declaration', async () => {
+      const rule = new FrontmatterRule();
+      const content = [
+        '---',
+        'name: Test',
+        'description: A test',
+        'version: 1.0.0',
+        'risk_tier: L2',
+        'allowed-tools: ["Bash", "Read"]',
+        'permissions:',
+        '  exec: true',
+        '  network:',
+        '    allow: ["api.example.com"]',
+        '---',
+        'body',
+      ].join('\n');
+      const result = await rule.validate(content);
+      expect(result.passed).toBe(true);
+      expect(result.warnings).toHaveLength(0);
+    });
+
+    it('should reject an invalid risk_tier value', async () => {
+      const rule = new FrontmatterRule();
+      const content =
+        '---\nname: Test\ndescription: A test\nrisk_tier: L9\n---\nbody';
+      const result = await rule.validate(content);
+      expect(result.passed).toBe(false);
+      expect(result.errors.some((e) => e.includes('risk_tier'))).toBe(true);
+    });
+
+    it('should reject a malformed content_hash', async () => {
+      const rule = new FrontmatterRule();
+      const content =
+        '---\nname: Test\ndescription: A test\ncontent_hash: not-a-hash\n---\nbody';
+      const result = await rule.validate(content);
+      expect(result.passed).toBe(false);
+      expect(result.errors.some((e) => e.includes('content_hash'))).toBe(true);
+    });
+
+    it('should warn (not fail) when risk_tier L2/L3 is declared without a permissions block', async () => {
+      const rule = new FrontmatterRule();
+      const content =
+        '---\nname: Test\ndescription: A test\nrisk_tier: L2\n---\nbody';
+      const result = await rule.validate(content);
+      expect(result.passed).toBe(true);
+      expect(result.warnings.some((w) => w.includes('permissions block'))).toBe(
+        true,
+      );
     });
   });
 

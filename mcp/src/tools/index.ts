@@ -46,6 +46,13 @@ function setupGuidance(setup: SetupHint): string {
         "",
         "After running `sync`, restart this MCP server (or reload your AI tool) so it can pick up the new skills.",
       ].join("\n");
+    case "invalid-root":
+      return [
+        `SKILLS_PROJECT_ROOT is set to "${setup.requested}", which is not usable:`,
+        `  ${setup.reason}`,
+        "",
+        "Unset SKILLS_PROJECT_ROOT to auto-detect the project root, or point it at a specific project directory.",
+      ].join("\n");
     case "ready":
       return "";
   }

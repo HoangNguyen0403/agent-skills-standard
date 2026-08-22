@@ -1,6 +1,6 @@
 ---
 name: integration-test-generator
-description: "Generates one integration/E2E test from an approved test case spec using existing project patterns. Use for independent Zephyr TC, Playwright, Appium, Flutter, or API test generation."
+description: Generates one integration/E2E test from an approved test case spec using existing project patterns. Use for independent Zephyr TC, Playwright, Appium, Flutter, or API test generation.
 ---
 
 # Specialist: Integration Test Generator

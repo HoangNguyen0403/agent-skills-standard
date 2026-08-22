@@ -5,33 +5,40 @@ on:
   pull_request:
     branches: [main, develop]
     paths:
-      - 'skills/**'
-      - '.github/workflows/skillspector-scan.yml'
+      - "skills/**"
+      - ".github/workflows/skillspector-scan.yml"
+      # Prompt-emitting code paths: a bug here reaches every consumer the same
+      # way a malicious skill body would, so PRs touching them must re-run the
+      # gate even though they live outside skills/.
+      - "cli/src/services/utils/SpecialistTransformer.ts"
+      - "cli/src/services/utils/WorkflowTransformer.ts"
+      - "cli/src/services/HookService.ts"
+      - "cli/src/services/AgentBridgeService.ts"
 
   # Full scan on every push to main → update verified tag
   push:
     branches: [main]
     paths:
-      - 'skills/**'
+      - "skills/**"
 
   # Ongoing drift detection — every Monday at 06:00 UTC
   schedule:
-    - cron: '0 6 * * 1'
+    - cron: "0 6 * * 1"
 
   # Manual trigger (useful for debugging or on-demand audits)
   workflow_dispatch:
     inputs:
       threshold:
-        description: 'Max risk score to pass (0-100)'
+        description: "Max risk score to pass (0-100)"
         required: false
-        default: '25'
+        default: "25"
       llm_provider:
-        description: 'LLM provider for semantic scan (leave empty for static-only)'
+        description: "LLM provider for semantic scan (leave empty for static-only)"
         required: false
-        default: ''
+        default: ""
         type: choice
         options:
-          - ''
+          - ""
           - openai
           - anthropic
 
@@ -60,8 +67,8 @@ jobs:
         with:
           path: /tmp/skillspector-image
           key: skillspector-docker-${{ env.SKILLSPECTOR_COMMIT }}-v3
-          restore-keys: |
-            skillspector-docker-
+          # No restore-keys fallback: a partial-key match could silently load
+          # a cached image built from a different (unpinned) commit.
 
       - name: Clone SkillSpector
         if: steps.cache.outputs.cache-hit != 'true'
@@ -99,6 +106,12 @@ jobs:
 
     env:
       SKILLSPECTOR_THRESHOLD: ${{ (github.event.inputs && github.event.inputs.threshold) || '25' }}
+      # Manual dispatch always wins; otherwise fall back to a repo variable
+      # (Settings -> Secrets and variables -> Actions -> Variables) so the
+      # weekly drift-detection cron can also run the LLM semantic pass once a
+      # maintainer opts in by setting it (and the matching *_API_KEY secret)
+      # — empty by default, so nothing changes for repos that haven't set it.
+      SKILLSPECTOR_LLM_PROVIDER: ${{ (github.event.inputs && github.event.inputs.llm_provider) || vars.SKILLSPECTOR_DEFAULT_PROVIDER || '' }}
 
     steps:
       - name: Checkout skills repo
@@ -127,23 +140,40 @@ jobs:
             cp "$file" "/tmp/skills-scan/$file"
           done
 
-          # Exclude security guidance skills that intentionally contain educational exploit examples or AI-security prompt patterns
-          # These skills are skipped from SkillSpector verification to avoid false positives
-          rm -rf /tmp/skills-scan/skills/common/common-pentest-methodology 2>/dev/null || true
-          rm -rf /tmp/skills-scan/skills/common/common-dast-tooling 2>/dev/null || true
-          rm -rf /tmp/skills-scan/skills/common/common-exploit-verification 2>/dev/null || true
+          # This filtered copy already contains SKILL.md/_INDEX.md only
+          # (references/ and evals/ — the actual source of educational-exploit
+          # false positives — are never copied in above). All 7 security-
+          # guidance skills used to have their *entire* directory (including
+          # SKILL.md) rm -rf'd here; that blanket exclusion meant
+          # common-llm-security and common-security-audit — the skills most
+          # likely to legitimately carry an injection payload if compromised
+          # — were never scanned at all.
+          #
+          # A real CI run (PR #110) confirmed which of the 7 actually produce
+          # false positives from their SKILL.md prose alone: common-owasp,
+          # common-pentest-methodology, and common-llm-security do (9 findings
+          # total — "Autonomous Decision Making"/"Credential Access", from
+          # legitimately discussing those topics educationally); the other
+          # four (common-dast-tooling, common-exploit-verification,
+          # common-security-audit, common-security-standards) scanned clean.
+          # Only the three confirmed offenders are excluded below — narrower
+          # than the original blanket list, and backed by evidence rather
+          # than an untested guess. Re-run this scan and drop an entry here
+          # if its content changes and it stops tripping the gate; a real
+          # SkillSpector --baseline suppression file (finding-level, not
+          # file-level) is a documented follow-up — see docs/SECURITY.md.
           rm -rf /tmp/skills-scan/skills/common/common-owasp 2>/dev/null || true
+          rm -rf /tmp/skills-scan/skills/common/common-pentest-methodology 2>/dev/null || true
           rm -rf /tmp/skills-scan/skills/common/common-llm-security 2>/dev/null || true
-          rm -rf /tmp/skills-scan/skills/common/common-security-audit 2>/dev/null || true
-          rm -rf /tmp/skills-scan/skills/common/common-security-standards 2>/dev/null || true
 
           echo "ℹ️ Scanning SKILL.md files only (excluding references/ and evals/ directories)"
           echo "📊 Files to scan:"
           find /tmp/skills-scan -name "SKILL.md" | wc -l
 
       # ── Static scan: SARIF output (for GitHub Security tab) ──────────────────
+      # No continue-on-error here: a scan that fails to run at all (bad image,
+      # docker crash) must fail the job, not silently proceed as if it passed.
       - name: Run SkillSpector — SARIF output
-        continue-on-error: true
         run: |
           docker run --rm \
             -v "/tmp/skills-scan:/scan" \
@@ -156,7 +186,6 @@ jobs:
 
       # ── Static scan: JSON output (for score gate + step summary) ─────────────
       - name: Run SkillSpector — JSON output
-        continue-on-error: true
         run: |
           docker run --rm \
             -v "/tmp/skills-scan:/scan" \
@@ -167,15 +196,16 @@ jobs:
             --format json \
             --output /output/skillspector-report.json
 
-      # ── LLM-enhanced scan (only when provider is set via manual dispatch) ────
+      # ── LLM-enhanced scan (manual dispatch with a provider, or a scheduled
+      #    run once SKILLSPECTOR_DEFAULT_PROVIDER is configured — see env) ────
       - name: Run SkillSpector — LLM semantic analysis
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs && github.event.inputs.llm_provider
+        if: env.SKILLSPECTOR_LLM_PROVIDER != ''
         continue-on-error: true
         run: |
           docker run --rm \
             -v "/tmp/skills-scan:/scan" \
             -v "${{ github.workspace }}:/output" \
-            -e SKILLSPECTOR_PROVIDER=${{ github.event.inputs && github.event.inputs.llm_provider || '' }} \
+            -e SKILLSPECTOR_PROVIDER=${{ env.SKILLSPECTOR_LLM_PROVIDER }} \
             -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
             -e ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }} \
             skillspector:ci \
@@ -377,7 +407,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.create_tag.outputs.tag }}
-          name: '🔒 SkillSpector Verified — ${{ steps.create_tag.outputs.tag }}'
+          name: "🔒 SkillSpector Verified — ${{ steps.create_tag.outputs.tag }}"
           body: |
             ## ✅ All skills passed SkillSpector security scan
 
