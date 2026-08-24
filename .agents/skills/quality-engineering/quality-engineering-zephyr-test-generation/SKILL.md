@@ -24,8 +24,8 @@ metadata:
  - See [Actor/Permission Matrix](../quality-engineering-business-analysis/references/analysis_patterns.md) for role/market logic.
 
 2. **Impact Analysis** (run before any TC creation)
- - **Step — Direct Lookup**: Call `Get Issue Link Test Cases` with Jira issue key (e.g., `{PROJECT}-{ID}`).
- - **Step B — Supplemental**: If Step 0, search by `[Module]` and `[Screen]` keywords + check sibling issue links.
+ - **Step A — Direct Lookup**: Call `Get Issue Link Test Cases` with Jira issue key (e.g., `{PROJECT}-{ID}`).
+ - **Step B — Supplemental**: If Step A yields < 3 TCs, search by `[Module]` and `[Screen]` keywords + check sibling issue links.
  - See [Discovery Protocol](references/impact_analysis.md) for full chain.
  - Map each AC to coverage status:
  - **Covered** → ask user: skip or update to current format?
@@ -74,7 +74,7 @@ metadata:
 - **No WEB+MOBILE split**: One AC row = one TC with Platform "Web and Mobile".
 - **No platform merge**: Two AC rows, different platforms = two separate TCs.
 - **No silent update**: Show before/after diff; wait for explicit approval.
-- **No lookup skip**: Always run Step direct link lookup before supplemental search.
+- **No lookup skip**: Always run Step A direct link lookup before supplemental search.
 - **No stale artifact**: Delete existing `zephyr_test_plan.md` before each run.
 - **No coverage skip**: Coverage Analysis table must open every artifact.
 - **No ghost update**: Update Zephyr TC whenever matching code changes.

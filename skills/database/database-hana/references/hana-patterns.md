@@ -90,7 +90,7 @@ func FetchProductsStream(ctx context.Context, db *sql.DB, query string, args ...
     }
     defer rows.Close()
 
-    var products []*Product
+    products := make([]*Product, 0)
     for rows.Next() {
         var p Product
         if err := rows.Scan(&p.ID, &p.Code, &p.Name, &p.Status); err != nil {
