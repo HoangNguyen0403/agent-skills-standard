@@ -17,27 +17,30 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-## Router Selection
+## Router & GraphQL Selection
 
 - **Standard Lib (`net/http`)**: Use for simple services or zero-dependency requirements. `http.ServeMux` (Go 1.22+) method-based routing.
-- **Echo (`labstack/echo`)**: Recommended for production REST APIs with middleware, binding, and error handling.
-- **Gin (`gin-gonic/gin`)**: High performance alternative.
+- **Echo (`labstack/echo`) / Gin**: Recommended for production REST APIs with middleware, binding, and error handling.
+- **GraphQL (`99designs/gqlgen`)**: Standard for schema-first GraphQL services. Handlers/resolvers act as thin transport adapters.
 
 ## Implementation Workflow
 
-1. **Choose router** — Select based on complexity needs (stdlib for simple, Echo/Gin for production).
-2. **Separate concerns** — Handlers parse requests, call services, and format responses. No business logic in handlers.
-3. **Add middleware** — Use middleware for cross-cutting concerns (Logging, Recovery, CORS, Auth, Tracing).
-4. **Include health endpoints** — Always expose `/health` and `/ready` endpoints.
-5. **Enforce content types** — Require `application/json` for REST APIs.
-6. **Implement graceful shutdown** — Handle SIGINT/SIGTERM to drain in-flight requests.
+1. **Choose transport layer** — REST (Echo/Gin/stdlib) or GraphQL (gqlgen).
+2. **Thin Handlers & Resolvers** — Handlers and resolvers parse/validate inputs, invoke use-case services, and map to transport models. Zero direct database queries or business rules.
+3. **Transport-to-Domain Mapping** — Domain models remain pure; transport models adapt to domain models via dedicated mappers.
+4. **Response Nullability & Slice Defaulting** — Default empty slices to `[]` (not `null`) unless the schema explicitly requires null. Avoid unnecessary `nullable` fields in GraphQL response schemas when zero-values suffice.
+5. **Add middleware** — Use middleware for cross-cutting concerns (Logging, Recovery, CORS, Auth, Tracing, RequestID).
+6. **Enforce pagination limits** — Support `first/after` (GraphQL cursor) or `limit/offset` (REST) with strict max caps to prevent memory exhaustion.
+7. **Implement graceful shutdown** — Handle SIGINT/SIGTERM to drain in-flight requests.
 
 See [graceful shutdown example](references/graceful-shutdown.md) and [Echo handler patterns](references/middleware-patterns.md)
 
 ## Anti-Patterns
 
-- **No business logic in handlers**: parse request, call service, and format response only.
-- **No global router vars**: pass router instance via constructor or DI.
+- **No business logic in handlers or resolvers**: parse request, call service, and format response only.
+- **No direct DB calls in resolvers**: resolvers must call service interfaces, never execute SQL queries.
+- **No nil slices in responses**: return empty slice `[]` rather than `null` in API responses unless distinguishing null from empty.
+- **No global router/schema vars**: pass router/handler dependencies explicitly via constructor.
 - **No missing shutdown**: handle SIGTERM to drain in-flight requests.
 
 ## References

@@ -363,6 +363,7 @@ Modern Swift language standards (5.9+).
 
 Expert data access and optimization patterns.
 
+- [**Hana**](database/database-hana/SKILL.md) (P0) - Apply SAP HANA database standards for SQL parameterization, in-memory engine optimization, dynamic IN query chunking, column aliasing on joins, and datatype casting. Use when writing SQL for SAP HANA, optimizing HANA queries, or diagnosing HANA driver errors.
 - [**Migrations**](database/database-migrations/SKILL.md) (P0) - Plan additive, zero-downtime schema migrations with rollout, backfill, and rollback awareness. Use when renaming columns, backfilling data, or shipping risky database changes.
 - [**Mongodb**](database/database-mongodb/SKILL.md) (P0) - Apply MongoDB data-modeling, indexing, and query rules from access patterns. Use when designing schemas, choosing embed vs reference, or tuning MongoDB query behavior.
 - [**Postgresql**](database/database-postgresql/SKILL.md) (P0) - Apply PostgreSQL standards for migrations, indexing, transactions, and ORM boundaries. Use when editing entities, Prisma schema, migrations, RLS, or query-performance work for PostgreSQL.

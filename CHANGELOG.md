@@ -5,6 +5,45 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [database-v1.4.1] - 2026-08-24
+
+### Added
+- **`database-hana` skill**: Introduced comprehensive SAP HANA database engine skill covering:
+  - Strict parameterization (`?` placeholders, no string concatenation).
+  - Dynamic `IN (...)` parameter chunking limit (≤ 1,000 items per query) to avoid engine/driver limits.
+  - Mandatory explicit column aliasing on multi-table joins to prevent silent driver column scan collisions.
+  - Explicit datatype casting in built-in functions (`COALESCE`, `SUBSTR`, `TO_VARCHAR`, `CAST`).
+  - Streaming query results via `rows.Next()` directly into models for columnar memory efficiency.
+- **SAP HANA References**: Added `references/hana-patterns.md`, `references/sql-gotchas.md`, and test evaluation suites in `evals/evals.json`.
+
+---
+
+## [golang-v1.3.7] - 2026-08-24
+
+### Changed
+- **`golang-database`**:
+  - Standardized safe dynamic `IN` placeholder generation and 1,000-item chunking helper.
+  - Codified explicit column aliasing on join queries (avoid `SELECT *`).
+  - Enforced `withTx(ctx, db, fn)` pattern with mandatory `defer tx.Rollback()`.
+  - Added streaming query pattern with `rows.Next()` to avoid unbounded memory allocation.
+- **`golang-api-server`**:
+  - Added GraphQL (`99designs/gqlgen`) thin resolver patterns alongside REST.
+  - Added transport-to-domain mapping isolation rules.
+  - Codified response nullability and slice defaulting (default empty collections to `[]` instead of `null`).
+  - Added strict pagination upper limits.
+- **`golang-logging`**:
+  - Codified **Strict Single-Log Boundary Rule**: log errors once where handled or at the boundary; never double-log in repository or utility helpers.
+  - Added typed context keys (`type ctxKey string`) pattern.
+  - Documented business traceability keys vs PII/secret redaction.
+- **`golang-concurrency`**:
+  - Added Database-Load Throttling warning: reserve goroutines for external API calls; do not hammer internal DBs.
+  - Codified bounded semaphore worker pool pattern (`errgroup` + `sem := make(chan struct{}, maxWorkers)`).
+  - Added loop pointer variable capture prevention.
+- **`golang-testing`**:
+  - Added Volatile Field Zeroing guideline: zero out dynamic timestamps and generated IDs before `assert.Equal` in table-driven tests.
+
+---
+
 ## [cli-v2.6.2] - 2026-08-22
 
 **Category**: OWASP Agentic Skills Top 10 (AST) hardening
