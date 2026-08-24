@@ -444,14 +444,14 @@
       ]
     },
     "golang": {
-      "version": "1.3.6",
-      "last_updated": "2026-07-15",
+      "version": "1.3.7",
+      "last_updated": "2026-08-24",
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 5191,
-        "avg_tokens_per_skill": 472,
-        "largest_skill": "golang-architecture (577 tokens)"
+        "total_tokens": 6228,
+        "avg_tokens_per_skill": 566,
+        "largest_skill": "golang-database (824 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -598,14 +598,14 @@
       ]
     },
     "database": {
-      "version": "1.4.0",
-      "last_updated": "2026-07-15",
+      "version": "1.4.1",
+      "last_updated": "2026-08-24",
       "tag_prefix": "database-v",
       "token_metrics": {
-        "total_skills": 7,
-        "total_tokens": 2858,
-        "avg_tokens_per_skill": 408,
-        "largest_skill": "database-redis (518 tokens)"
+        "total_skills": 8,
+        "total_tokens": 3753,
+        "avg_tokens_per_skill": 469,
+        "largest_skill": "database-hana (895 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
