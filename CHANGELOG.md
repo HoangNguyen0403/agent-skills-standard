@@ -43,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [common-v3.0.0] - 2026-08-30
+## [common-v2.4.1] - 2026-08-30
 
 **Category**: System design relocation out of the common pack
 
@@ -67,11 +67,11 @@ skills:
     ref: system-design-v1.0.0
 ```
 
-Without it, upgrading past `common-v2.4.0` removes the P0 architecture guidance from the install. This is the breaking change behind the major version bump.
+Without it, upgrading past `common-v2.4.0` removes the P0 architecture guidance from the install. Read this section before upgrading: the skill moved rather than disappeared.
 
 ### Versions
 
-- **Common Skills**: `2.4.0` → `3.0.0`
+- **Common Skills**: `2.4.0` → `2.4.1`
 
 ---
 

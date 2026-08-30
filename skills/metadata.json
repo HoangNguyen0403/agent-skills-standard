@@ -402,7 +402,7 @@
       ]
     },
     "common": {
-      "version": "3.0.0",
+      "version": "2.4.1",
       "last_updated": "2026-08-30",
       "tag_prefix": "common-v",
       "token_metrics": {
