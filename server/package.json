@@ -45,7 +45,7 @@
     "@nestjs/testing": "^11.1.18",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
-    "@types/supertest": "^6.0.2",
+    "@types/supertest": "^7.2.1",
     "jest": "^30.0.0",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
