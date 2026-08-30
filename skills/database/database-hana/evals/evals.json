@@ -1,0 +1,58 @@
+{
+  "skill_name": "database-hana",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How should I handle a dynamic query with a list of 5,000 product IDs in SAP HANA?",
+      "expected_output": "Recommends chunking the list into batches of ≤ 1,000 items, using parameterized ? placeholders, and avoiding raw string concatenation.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Mentions batching or chunking under 1,000 items",
+          "type": "contains_any",
+          "value": ["1000", "1,000", "chunk", "batch"]
+        },
+        {
+          "id": "a2",
+          "description": "Mentions parameterized query or question mark placeholders",
+          "type": "contains_any",
+          "value": ["parameter", "placeholder", "?"]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Why am I getting inconsistent datatype error with COALESCE in SAP HANA SQL?",
+      "expected_output": "Explains that SAP HANA requires matching datatypes in COALESCE arguments and advises using explicit type casting like TO_VARCHAR or CAST.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Mentions type casting or matching datatype",
+          "type": "contains_any",
+          "value": ["cast", "datatype", "type", "TO_VARCHAR", "matching"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I avoid column collision when joining two tables in SAP HANA Go driver?",
+      "expected_output": "Explains that drivers map scan columns by name and requires explicit column aliases on joins instead of SELECT *.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Mentions explicit column aliasing",
+          "type": "contains_any",
+          "value": ["alias", "aliasing", "AS", "SELECT *"]
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I create a MongoDB collection?",
+    "How do I configure Redis eviction policy?",
+    "How do I setup PostgreSQL RLS?"
+  ],
+  "should_trigger": [
+    "How should I handle a dynamic query with a list of 5,000 product IDs in SAP HANA?"
+  ]
+}

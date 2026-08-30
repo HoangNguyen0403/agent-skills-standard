@@ -418,7 +418,7 @@ jobs:
             - Scan type: Static analysis (`--no-llm`)
 
             **What was scanned:**
-            - All 22 skill categories in `skills/`
+            - Every skill category in `skills/`
             - Prompt injection, data exfiltration, privilege escalation, supply chain, excessive agency, output handling, system prompt leakage, memory poisoning, tool misuse, rogue agent, trigger abuse, dangerous code (AST), taint tracking, YARA signatures, MCP least privilege, MCP tool poisoning
 
             **Verification commit:** ${{ github.sha }}

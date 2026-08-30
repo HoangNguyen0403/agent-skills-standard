@@ -8,15 +8,27 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["context", "system context", "C4"]
+          "value": [
+            "context",
+            "system context",
+            "C4"
+          ]
         },
         {
           "type": "contains_any",
-          "value": ["actor", "payment provider", "relationship"]
+          "value": [
+            "actor",
+            "payment provider",
+            "relationship"
+          ]
         },
         {
           "type": "contains_any",
-          "value": ["legend", "scope", "title"]
+          "value": [
+            "legend",
+            "scope",
+            "title"
+          ]
         }
       ]
     },
@@ -27,15 +39,27 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["mixed levels", "separate", "abstraction"]
+          "value": [
+            "mixed levels",
+            "separate",
+            "abstraction"
+          ]
         },
         {
           "type": "contains_any",
-          "value": ["sequence", "deployment", "container"]
+          "value": [
+            "sequence",
+            "deployment",
+            "container"
+          ]
         },
         {
           "type": "contains_any",
-          "value": ["label", "legend", "arrow"]
+          "value": [
+            "label",
+            "legend",
+            "arrow"
+          ]
         }
       ]
     },
@@ -46,15 +70,27 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["event", "asynchronous", "order-created"]
+          "value": [
+            "event",
+            "asynchronous",
+            "order-created"
+          ]
         },
         {
           "type": "contains_any",
-          "value": ["checkout", "fulfillment", "email"]
+          "value": [
+            "checkout",
+            "fulfillment",
+            "email"
+          ]
         },
         {
           "type": "contains_any",
-          "value": ["retry", "failure", "label"]
+          "value": [
+            "retry",
+            "failure",
+            "label"
+          ]
         }
       ]
     }
@@ -62,10 +98,12 @@
   "should_not_trigger": [
     "Set up a basic common project from scratch",
     "How do I install common dependencies?",
-    "What is common?",
-    "Configure CI/CD for an unrelated platform"
+    "Configure CI/CD for an unrelated platform",
+    "Author the Archify spec for the design doc"
   ],
   "should_trigger": [
-    "How should I implement common architecture diagramming best practices?"
+    "Draw a C4 container diagram for this service",
+    "Update the mermaid diagram in ARCHITECTURE.md",
+    "Create an ERD for these tables"
   ]
 }

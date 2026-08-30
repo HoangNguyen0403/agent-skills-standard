@@ -5,6 +5,7 @@
 
 | Skill | File pattern | Keywords |
 | ----- | ------------ | -------- |
+| **database-hana** | `**/*hana*.go`, `**/*sap*.go`, `**/hana/**`, `**/*hana*.sql` | HANA, SAP HANA, hdb, go-hdb, CalculationView |
 | **database-migrations** | `**/migrations/*.sql`, `prisma/schema.prisma`, `**/*.entity.ts` | migration, backfill, rollout, rename column, zero downtime |
 | **database-mongodb** | `**/*.json` | mongo, mongoose, objectid, schema, model |
 | **database-postgresql** | `**/*.entity.ts`, `prisma/schema.prisma`, `**/migrations/*.sql` | TypeOrmModule, PrismaService, PostgresModule |
