@@ -42,12 +42,36 @@ Save test cases to `evals/evals.json` next to `SKILL.md`:
 }
 ```
 
-**Assertion types**: `contains`, `not_contains`, `matches_regex`, `file_exists`.
+**Assertion types** (the runner accepts these five and nothing else — `scripts/evals/types.ts`):
+`contains`, `contains_any`, `not_contains`, `regex`, `file_reference`.
 
-- Write 2–3 `evals` (should-trigger) per skill. Use prompts a real user would type — specific, with context, not abstract.
+An unknown type is not ignored: `scorer.ts` returns `false` for it, so the assertion fails on every
+transcript and the case can never pass. `matches_regex` and `file_exists` do not exist.
+
+- Write at least 3 `evals` with at least 2 assertions each; fewer is flagged by `pnpm evals:audit`.
+- **Ground every assertion in the prompt plus `expected_output`**, never in `SKILL.md` alone. `pnpm evals:preflight` rejects skill-only assertions and blocks the paid run. Write the behavior contract first, then assert on its wording.
+- Both `should_trigger` and `should_not_trigger` must be non-empty, or the audit errors with `missing-trigger-class`.
 - Write 8–10 `should_not_trigger` entries. Focus on near-misses that share keywords but belong to a different skill.
-- Add `pressure_scenarios` for discipline skills where agents rationalize shortcuts.
-- Keep `rationalizations` and `red_flags` short; benchmark tooling reads them statically.
+- Add `pressure_scenarios` for discipline skills where agents rationalize shortcuts. Their prompts become real two-arm eval cases and their `behavior_assertions` are scored as `contains` against the transcript.
+- Keep `rationalizations` and `red_flags` short; benchmark tooling reads them statically and never feeds them to a model.
+
+### Testing a trade-off, not a vocabulary
+
+A string matcher cannot grade judgment, but it can grade whether the answer **changes when the
+constraint changes**. Pair a scale-up case with an inverted one in the same domain and use
+`not_contains` to assert the over-engineered option is absent:
+
+```json
+{ "id": 4,
+  "prompt": "Internal admin tool, 200 requests per second, two engineers. One page takes 4 seconds.",
+  "expected_output": "Declines the cache because no component without a constraint is allowed; fixes the query first.",
+  "assertions": [
+    { "type": "contains_any", "value": ["no component without a constraint", "fix the query"] },
+    { "type": "not_contains", "value": "consistent hashing" }
+  ] }
+```
+
+A skill that always reaches for the same component passes the first case and fails the second.
 
 ## 2. Trigger Rate Queries
 
@@ -74,7 +98,7 @@ Trigger rate = % of should-trigger queries that correctly activate the skill.
 
 ### Scoring
 
-Run each query, record `triggered: true/false`. Target ≥ 80% accuracy across both sets.
+Run each query, record `triggered: true/false`. The release gate in `scripts/evals/readiness.ts` requires **≥ 90%** recall and ≥ 90% specificity, so treat 90% as the target, not 80%.
 
 ## 3. Optimizing the Description for Triggering
 
