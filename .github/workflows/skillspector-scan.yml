@@ -404,7 +404,7 @@ jobs:
           echo "✅ Created tag: ${TAG}"
 
       - name: Create GitHub Release for verified tag
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.create_tag.outputs.tag }}
           name: "🔒 SkillSpector Verified — ${{ steps.create_tag.outputs.tag }}"
