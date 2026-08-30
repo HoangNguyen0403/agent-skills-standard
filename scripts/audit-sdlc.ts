@@ -63,6 +63,7 @@ const TRUST_POLICY_WORKFLOWS = [
 // update-docs, zephyr-coverage-analysis) are invoked directly and are not routed by sdlc.
 const CORE_SDLC_CHAIN = [
   "brainstorm-feature",
+  "review-system-design",
   "plan-feature",
   "system-design-session",
   "design-solution",
@@ -192,6 +193,13 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
   },
 
   // Exceptions / Complex workflows
+  "review-system-design": {
+    maxLines: 80,
+    requireGoal: true,
+    requireOutputTemplate: true,
+    notes:
+      "Reviews a provided design artifact (image, drawio, doc, IaC) rather than running a session; ingestion and confirmation gate live in system-design-artifact-intake.",
+  },
   "code-review": {
     maxLines: 80,
     requireGoal: true,

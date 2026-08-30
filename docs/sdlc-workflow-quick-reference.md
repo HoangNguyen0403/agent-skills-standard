@@ -21,6 +21,7 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Session                | What happened in this delivery?                 | `session-report`           | Need concise run summary and follow-ups              | session report           |
 | Fix                    | How do we remediate a bug?                      | `dev-fix`                  | Bug ticket needs remediation                         | fix plan and evidence    |
 | Review                 | What risks are in this change?                  | `review-ticket`            | Ticket or complex change needs specialist fanout     | review verdict           |
+| Review (Design)        | Is this provided design sound?                  | `review-system-design`     | A diagram, doc, or IaC repo arrives for review       | scorecard + findings     |
 | Review (PR)            | Is this PR safe to merge?                       | `code-review`              | PR diff needs focused merge-risk review              | review findings          |
 | Review (Repo)          | What structural risks exist in the codebase?    | `codebase-review`          | Need broader architecture/quality scan               | prioritized findings     |
 | Security               | What exploitable risk exists now?               | `security-test`            | Need SAST/SCA/secrets or branch security checks      | security report          |

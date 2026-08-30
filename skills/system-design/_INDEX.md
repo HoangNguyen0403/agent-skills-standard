@@ -5,6 +5,7 @@
 
 | Skill | Match when user mentions |
 | ----- | ----------------------- |
+| system-design-artifact-intake | review this design, review this diagram, review this architecture, drawio, excalidraw, plantuml, structurizr, design screenshot, whiteboard photo, architecture image |
 | system-design-building-blocks | load balancer, cache strategy, message queue, cdn, api gateway, consistent hashing, pub/sub, rate limiter, backpressure |
 | system-design-case-catalog | system design interview, design twitter, design url shortener, news feed, design chat system, web crawler, mock interview, unique id generator |
 | system-design-communication | grpc, graphql vs rest, websocket, server-sent events, webhook, service discovery, protocol choice, api paradigm, dns routing |

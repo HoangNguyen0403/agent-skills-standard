@@ -30,6 +30,7 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Production incident or urgent regression -> `incident-hotfix`
    - Bug ticket needs fix (non-urgent) -> `dev-fix`
    - Ticket or cross-functional change needs specialist fanout, AC coverage, and PR metadata review -> `review-ticket`
+   - Design arrives as an artifact (diagram, doc, board export, IaC) and needs review -> `review-system-design`
    - PR diff needs focused merge-risk review -> `code-review`
    - Code complete but unproven -> `verify-work`
    - Fix implemented and ticket has a UAT/Jira flow -> `verify-bug`

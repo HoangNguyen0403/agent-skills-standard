@@ -29,6 +29,7 @@ workflows:
   - code-review
   - codebase-review
   - system-design-session
+  - review-system-design
   - design-solution
   - implementation-readiness
   - plan-feature

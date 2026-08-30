@@ -81,6 +81,7 @@ export const DEFAULT_WORKFLOWS = [
   'code-review',
   'codebase-review',
   'system-design-session',
+  'review-system-design',
   'design-solution',
   'deploy-release',
   'plan-feature',
