@@ -11,6 +11,11 @@ import * as path from 'path';
 type ArmName = 'baseline' | 'with-skill';
 type Metric = number | 'n/a';
 type TriggerDecision = 'yes' | 'no';
+import {
+  checkAssertion,
+  type AssertionSemanticsVersion,
+} from './assertion-semantics';
+
 type AssertionType =
   | 'contains'
   | 'contains_any'
@@ -38,6 +43,11 @@ interface ManifestSkill {
 
 interface Manifest {
   schemaVersion?: 1 | 2;
+  assertionSemanticsVersion?: AssertionSemanticsVersion;
+  provenance?: Record<
+    string,
+    { assertionSemanticsVersion?: AssertionSemanticsVersion }
+  >;
   runId: string;
   category: string;
   version: string;
@@ -99,30 +109,6 @@ export interface EvalsVerifyOutcome {
   ok: boolean;
   reason?: string;
   diffs?: string[];
-}
-
-function checkAssertion(assertion: Assertion, transcript: string): boolean {
-  const haystack = transcript.toLowerCase();
-  if (assertion.type === 'contains_any') {
-    const values = Array.isArray(assertion.value)
-      ? assertion.value
-      : [assertion.value];
-    return values.some((value) => haystack.includes(value.toLowerCase()));
-  }
-  if (assertion.type === 'not_contains')
-    return !haystack.includes(String(assertion.value).toLowerCase());
-  if (assertion.type === 'regex') {
-    try {
-      return new RegExp(String(assertion.value), 'i').test(transcript);
-    } catch {
-      return false;
-    }
-  }
-  if (assertion.type === 'file_reference') {
-    const value = String(assertion.value).toLowerCase();
-    return haystack.includes(value) || haystack.includes(path.basename(value));
-  }
-  return haystack.includes(String(assertion.value).toLowerCase());
 }
 
 function answerPath(
@@ -223,6 +209,16 @@ function summarizeSkill(
     ]),
   );
   const pressureByIndex = evalsData.pressure_scenarios ?? [];
+  // Mirror scripts/evals/scorer.ts: v2 runs resolve the semantics per skill from
+  // provenance, falling back to the manifest default. Verifying a v2 run with v1
+  // semantics reports diffs that are artefacts of this verifier, not real drift.
+  const semanticsVersion: AssertionSemanticsVersion =
+    manifest.schemaVersion === 2
+      ? (manifest.provenance?.[`${skill.category}/${skill.skillName}`]
+          ?.assertionSemanticsVersion ??
+        manifest.assertionSemanticsVersion ??
+        1)
+      : 1;
   const baseline: boolean[] = [];
   const withSkill: boolean[] = [];
   const baselineAssertions: Array<{ passed: number; total: number }> = [];
@@ -256,7 +252,7 @@ function summarizeSkill(
           `missing answer: ${skill.skillName}/${currentCase.id}.${arm}`,
         );
       const checks = assertions.map((assertion) =>
-        checkAssertion(assertion, transcript),
+        checkAssertion(assertion, transcript, semanticsVersion),
       );
       const passed = checks.every(Boolean);
       (arm === 'baseline' ? baseline : withSkill).push(passed);

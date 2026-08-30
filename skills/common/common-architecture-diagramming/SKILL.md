@@ -1,6 +1,6 @@
 ---
 name: common-architecture-diagramming
-description: Standards for creating clear, audience-appropriate C4 and UML architecture diagrams with Mermaid. Use when producing system context diagrams, container views, sequence diagrams, or updating ARCHITECTURE.md files.
+description: Standards for creating clear, audience-appropriate C4 and UML architecture diagrams with Mermaid. Use when producing system context diagrams, container views, sequence diagrams, ERDs, or updating ARCHITECTURE.md files; defer design-session deliverables to system-design-diagramming.
 metadata:
   triggers:
     files:
@@ -9,10 +9,10 @@ metadata:
       - "**/*.drawio"
     keywords:
       - diagram
-      - architecture
       - c4
-      - system design
       - mermaid
+      - drawio
+      - erd
 ---
 
 # Architecture Diagramming Standard
@@ -53,6 +53,7 @@ See [implementation examples](references/implementation.md) for C4 container dia
 
 ## References
 
+- For design-session deliverables, `system-design-diagramming` supersedes Mermaid with the Archify typed-spec style.
 - [Diagram Selection](references/diagram-selection.md)
 - [Cloud Architecture](references/cloud-architecture.md)
 - [C4 Model Guide](references/c4-model.md)
