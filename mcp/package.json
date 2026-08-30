@@ -42,11 +42,11 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.4",
-    "fs-extra": "^11.2.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "fs-extra": "^11.4.0",
     "js-yaml": "^5.4.1",
-    "minimatch": "^10.0.1",
     "express": "^5.2.1",
+    "minimatch": "^10.2.6",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -54,11 +54,11 @@
     "@types/js-yaml": "^4.0.9",
     "@types/express": "^5.0.6",
     "@types/node": "^26.4.0",
-    "@vitest/coverage-v8": "^4.1.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "vite": "^8.2.2",
     "tsup": "^8.3.5",
-    "tsx": "^4.19.3",
+    "tsx": "^4.23.12",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.11"
   }
 }
