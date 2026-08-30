@@ -278,7 +278,7 @@
       "activity",
       "fragment"
     ],
-    "common/system-design": [
+    "system-design/principles": [
       "architecture",
       "migration",
       "microservices",
@@ -402,13 +402,13 @@
       ]
     },
     "common": {
-      "version": "2.4.0",
-      "last_updated": "2026-08-16",
+      "version": "2.4.1",
+      "last_updated": "2026-08-30",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 39,
-        "total_tokens": 30339,
-        "avg_tokens_per_skill": 778,
+        "total_skills": 38,
+        "total_tokens": 29593,
+        "avg_tokens_per_skill": 779,
         "largest_skill": "common-skill-creator (1646 tokens)"
       },
       "owners": [
@@ -430,13 +430,13 @@
       ]
     },
     "specialists": {
-      "version": "1.2.0",
-      "last_updated": "2026-08-16",
+      "version": "1.2.1",
+      "last_updated": "2026-08-30",
       "tag_prefix": "specialists-v",
       "token_metrics": {
-        "total_skills": 16,
-        "total_tokens": 7757,
-        "avg_tokens_per_skill": 485,
+        "total_skills": 17,
+        "total_tokens": 8357,
+        "avg_tokens_per_skill": 492,
         "largest_skill": "specialist-tdd-implementer (824 tokens)"
       },
       "owners": [
@@ -444,14 +444,14 @@
       ]
     },
     "golang": {
-      "version": "1.3.6",
-      "last_updated": "2026-07-15",
+      "version": "1.3.7",
+      "last_updated": "2026-08-24",
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 5191,
-        "avg_tokens_per_skill": 472,
-        "largest_skill": "golang-architecture (577 tokens)"
+        "total_tokens": 6228,
+        "avg_tokens_per_skill": 566,
+        "largest_skill": "golang-database (824 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -597,15 +597,29 @@
         "HoangNguyen0403"
       ]
     },
+    "system-design": {
+      "version": "1.0.0",
+      "last_updated": "2026-08-30",
+      "tag_prefix": "system-design-v",
+      "token_metrics": {
+        "total_skills": 12,
+        "total_tokens": 11376,
+        "avg_tokens_per_skill": 948,
+        "largest_skill": "system-design-artifact-intake (1140 tokens)"
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
+    },
     "database": {
-      "version": "1.4.0",
-      "last_updated": "2026-07-15",
+      "version": "1.4.1",
+      "last_updated": "2026-08-24",
       "tag_prefix": "database-v",
       "token_metrics": {
-        "total_skills": 7,
-        "total_tokens": 2858,
-        "avg_tokens_per_skill": 408,
-        "largest_skill": "database-redis (518 tokens)"
+        "total_skills": 8,
+        "total_tokens": 3753,
+        "avg_tokens_per_skill": 469,
+        "largest_skill": "database-hana (895 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

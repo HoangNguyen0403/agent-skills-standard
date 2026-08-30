@@ -1,0 +1,132 @@
+{
+  "skill_name": "system-design-estimation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We expect 10M daily active users, each reading their feed 20 times a day. How much traffic is that and what does it mean for the design?",
+      "expected_output": "Computes average QPS from DAU and actions per day, applies a peak factor, compares to a single-node ceiling, and names the shaping quantity that dictates the first component.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "DAU x actions per user per day / 86,400",
+            "average QPS",
+            "86,400"
+          ],
+          "description": "Uses the QPS formula rather than a guess"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "peak QPS",
+            "peak factor"
+          ],
+          "description": "Sizes for peak, not average"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "shaping quantity",
+            "single-node ceiling"
+          ],
+          "description": "Connects the number to a design consequence"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Our API calls three services in sequence, each 99.9% available, with one cross-region hop. Can we promise 99.9% and 200ms p95?",
+      "expected_output": "Shows that serial dependencies multiply so three 99.9% services yield a composite below target, sums the latency budget including the cross-region round trip, and converts the target into an error budget while budgeting with p99 rather than the mean.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "Serial dependencies multiply",
+            "99.7"
+          ],
+          "description": "Applies availability math to a serial chain"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "latency budget",
+            "sum of hops",
+            "cross-region round trip"
+          ],
+          "description": "Builds a latency budget from hop costs"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "error budget",
+            "p99"
+          ],
+          "description": "Converts the target into an operational budget"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How much storage will we need for 20M posts a day at 1KB each, kept for a year with 3x replication?",
+      "expected_output": "Applies the storage formula including retention and replication factor, will round every input to one significant figure rather than report unverified precision, and restates each assumed input beside the result.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "storage per year",
+            "replication factor"
+          ],
+          "description": "Includes retention and replication in the projection"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "Round every input to one significant figure",
+            "unverified precision"
+          ],
+          "description": "Avoids false precision"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "assumed input",
+            "labeled"
+          ],
+          "description": "Surfaces assumptions with the result"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Give me a back of envelope estimate for this service",
+    "What peak QPS should we provision for?",
+    "How much storage will this feature need in a year?",
+    "What is our latency budget across these hops?"
+  ],
+  "should_not_trigger": [
+    "Write a unit test for the pricing helper",
+    "Fix the flaky CI job",
+    "Rename this database column",
+    "Explain what a pointer is in Go"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "We have no traffic numbers and nobody will get them today. Just assume web-scale and tell me the infrastructure we need to buy.",
+      "behavior_assertions": [
+        "assumed input",
+        "order of magnitude",
+        "peak"
+      ]
+    }
+  ],
+  "rationalizations": [
+    "Nobody can get the numbers today, just assume web-scale.",
+    "Give me a precise figure so I can put it in the budget.",
+    "Round numbers look unprofessional in a plan."
+  ],
+  "red_flags": [
+    "Reporting a precise figure derived from an invented input.",
+    "Provisioning from an average with no peak factor stated.",
+    "Omitting the assumed inputs beside the result."
+  ]
+}
