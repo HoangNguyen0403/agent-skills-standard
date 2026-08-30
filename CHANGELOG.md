@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [specialists-v1.3.0] - 2026-08-30
+## [specialists-v1.2.1] - 2026-08-30
 
 **Category**: Deep-dive fanout for design sessions
 
@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Versions
 
-- **Specialists**: `1.2.0` → `1.3.0`
+- **Specialists**: `1.2.0` → `1.2.1`
 
 ---
 
