@@ -54,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Diagramming pointer**: `common-architecture-diagramming` now names `system-design-diagramming` as the superseding format for design-session deliverables; its own Mermaid and C4 guidance is unchanged for every other use.
+- **Diagramming triggers narrowed**: that skill's keywords drop `architecture` and `system design` — now owned by `system-design-principles` and `system-design-methodology` — and become `diagram`, `c4`, `mermaid`, `drawio`, `erd`. Design-session questions no longer pull the Mermaid skill in as noise for projects that install both categories.
 - **Composite injection**: The `foundational_composite_rules` key `common/system-design` is now `system-design/principles`, so every skill whose id contains `architecture`, `migration`, `microservices`, `transport`, `background-work`, `background-processing`, or `clean-architecture` still auto-injects the same foundational guidance.
 - **Mobile excludes**: Dropped the now-dead `common-system-design` entry from `COMMON_SKILL_EXCLUDES.mobile`.
 
