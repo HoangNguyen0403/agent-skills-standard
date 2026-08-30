@@ -305,6 +305,15 @@ export class IndexGeneratorServiceImpl extends IndexGeneratorService {
       );
     }
 
+    // Keyword-routed category: no file extension owns a system design request,
+    // so it needs an explicit router row to stay reachable without the MCP.
+    if (availableCategories.includes('system-design')) {
+      coveredCategories.add('system-design');
+      routerRows.push(
+        '| Architecture or scale request | `<SKILLS>/system-design/_INDEX.md` |',
+      );
+    }
+
     // The MCP block is always present (not conditional on .skillsrc.mcp.enabled)
     // because:
     //   1. .skillsrc.mcp.enabled records CLI consent to manage configs — it's
