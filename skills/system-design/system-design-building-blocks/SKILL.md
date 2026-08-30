@@ -48,6 +48,12 @@ Add a component only to remove a named constraint. Every component adds failure 
 - Size the queue for the burst, and define the drain rate. An unbounded queue converts a throughput problem into a latency and memory problem.
 - Apply backpressure at the producer when depth exceeds the drain budget; shedding beats silent growth.
 
+## Session State
+
+- Default to a stateless token (signed JWT or opaque id verified at the edge); the app tier keeps nothing per user.
+- Move to a shared session store (Redis) when sessions must be revocable immediately or carry more than a token can hold.
+- Sticky sessions are a last resort: they survive one deploy badly and block scale-in. Never store session state in app memory.
+
 ## Edge and Traffic Rules
 
 - L4 balances connections, L7 routes on content; use L7 when routing needs paths, headers, or canaries.

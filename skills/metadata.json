@@ -602,10 +602,10 @@
       "last_updated": "2026-08-30",
       "tag_prefix": "system-design-v",
       "token_metrics": {
-        "total_skills": 9,
-        "total_tokens": 7850,
-        "avg_tokens_per_skill": 872,
-        "largest_skill": "system-design-diagramming (927 tokens)"
+        "total_skills": 11,
+        "total_tokens": 9840,
+        "avg_tokens_per_skill": 895,
+        "largest_skill": "system-design-building-blocks (970 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

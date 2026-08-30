@@ -52,6 +52,7 @@ See [implementation examples](references/implementation.md) for dependency flow 
 - **Event-Driven**: Async communication between decoupled components.
 - **Clean/Hexagonal**: Core logic independent of frameworks.
 - **Statelessness**: Favor stateless for scaling/testing.
+- **Monolith first**: Start modular-monolith; split a service out only when a module needs independent scaling, release cadence, or ownership.
 
 ## Distributed Systems
 

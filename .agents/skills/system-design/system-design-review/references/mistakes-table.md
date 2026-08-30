@@ -20,3 +20,6 @@
 | Hot partition on the newest range | Time-ordered partition key | Add a hash or bucket component to the key; salt the hot entity |
 | Derived index treated as source of truth | Rebuild path never tested | Prove the index can be rebuilt from the owning store |
 | Team cannot answer "who owns this data" | No ownership assignment | Assign one writer per entity; convert other writers to API or event consumers |
+| One user action fans out to dozens of remote calls | Chatty I/O across a network boundary | Batch or aggregate at the boundary; add a purpose-built endpoint or BFF |
+| Endpoints return far more data than callers use | Extraneous fetching | Project only needed fields; paginate; measure payload against the client's real need |
+| Database writes and event publishes drift apart | Dual write with no outbox | Write the outbox row in the same transaction; relay via poller or CDC |

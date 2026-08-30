@@ -67,3 +67,19 @@ or fail-closed (protection first) when the counter is unreachable. Return `429` 
 - Maps keys and nodes onto a ring so adding or removing a node moves only `K/N` keys instead of remapping everything.
 - Use virtual nodes (100-200 per physical node) to smooth distribution; without them, load skews badly at small cluster sizes.
 - Consistent hashing balances key placement, not key popularity. A single hot key still overloads its owner; replicate that key or cache it client-side.
+
+## Session State
+
+| Approach | How | Choose when | Cost |
+| --- | --- | --- | --- |
+| Stateless token | Signed JWT or opaque id verified at the edge | Default. Any instance serves any request | Revocation needs a deny list or short expiry plus refresh |
+| Shared session store | Redis or equivalent keyed by session id | Immediate revocation, server-side data beyond a token | One more dependency on the request path; it becomes a SPOF if unreplicated |
+| Sticky sessions | Load balancer pins a client to an instance | Legacy apps that cannot be changed | Breaks on deploy and scale-in; uneven load; blocks autoscaling |
+| In-memory session | State lives in the app process | Never in a multi-instance system | Any restart logs everyone out |
+
+Token sizing: keep claims small — the token rides on every request. Put identity and coarse
+authorization in the token, and everything else behind an id.
+
+Revocation: a stateless token cannot be un-issued. Either accept the window until expiry (keep it
+short and pair with refresh tokens), or check a deny list, which reintroduces the shared store you
+were avoiding. Decide this explicitly; it is the trade-off that defines the approach.
