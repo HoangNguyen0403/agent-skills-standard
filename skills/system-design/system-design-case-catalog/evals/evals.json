@@ -4,21 +4,30 @@
     {
       "id": 1,
       "prompt": "Design a news feed like Twitter's home timeline.",
-      "expected_output": "Names fan-out cost versus read latency with celebrity skew as the defining constraint, then derives push, pull, or hybrid from the follower distribution rather than presenting a fixed architecture.",
+      "expected_output": "Names fan-out cost versus read latency with celebrity skew as the defining constraint, derives the strategy from the follower distribution with push for normal accounts and a hybrid merge at read for celebrities, and applies no pattern-matching without numbers by requiring the sizing to be re-derived for this system.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Fan-out cost versus read latency", "celebrity skew"],
+          "value": [
+            "Fan-out cost versus read latency",
+            "celebrity skew"
+          ],
           "description": "Leads with the defining constraint"
         },
         {
           "type": "contains_any",
-          "value": ["Push for normal accounts", "hybrid merge at read"],
+          "value": [
+            "Push for normal accounts",
+            "hybrid merge at read"
+          ],
           "description": "Derives the strategy from the constraint"
         },
         {
           "type": "contains_any",
-          "value": ["No pattern-matching without numbers", "re-derive the numbers"],
+          "value": [
+            "No pattern-matching without numbers",
+            "re-derive the numbers"
+          ],
           "description": "Refuses to skip sizing"
         }
       ]
@@ -26,21 +35,30 @@
     {
       "id": 2,
       "prompt": "Practice a system design interview with me. The question is: design a URL shortener.",
-      "expected_output": "Runs coaching mode - restates the problem, asks for scope, walks the methodology phases, and withholds the model answer until the candidate commits.",
+      "expected_output": "Runs coaching mode: restates the problem, asks for scope, and walks the phases from system-design-methodology so it does not answer with a finished architecture. Applies no full solution dump in coaching mode, pushing on the weakest area with one concrete follow-up question until the candidate commits.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Coaching Mode", "ask for scope"],
+          "value": [
+            "Coaching Mode",
+            "ask for scope"
+          ],
           "description": "Acts as interviewer rather than answer key"
         },
         {
           "type": "contains_any",
-          "value": ["system-design-methodology", "do not answer with a finished architecture"],
+          "value": [
+            "system-design-methodology",
+            "do not answer with a finished architecture"
+          ],
           "description": "Drives the session through the phase method"
         },
         {
           "type": "contains_any",
-          "value": ["No full solution dump in coaching mode", "one concrete follow-up question"],
+          "value": [
+            "No full solution dump in coaching mode",
+            "one concrete follow-up question"
+          ],
           "description": "Keeps the candidate working"
         }
       ]
@@ -48,21 +66,29 @@
     {
       "id": 3,
       "prompt": "Our internal audit tool needs a feed of recent events. Can we just copy the Twitter feed design?",
-      "expected_output": "Maps the problem to the nearest catalog shape, states where the analogy breaks, and requires re-deriving capacity for this system before reusing the design.",
+      "expected_output": "Maps the problem to the nearest catalog shape, must state where the analogy breaks, treats the catalog answer as a starting hypothesis rather than an interview answer as a build plan, and requires re-deriving capacity for this system.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["nearest catalog shape", "The shape transfers, the sizing never does"],
+          "value": [
+            "nearest catalog shape",
+            "The shape transfers, the sizing never does"
+          ],
           "description": "Reuses shape, not sizing"
         },
         {
           "type": "contains_any",
-          "value": ["State where the analogy breaks"],
+          "value": [
+            "State where the analogy breaks"
+          ],
           "description": "Names the limits of the analogy"
         },
         {
           "type": "contains_any",
-          "value": ["starting hypothesis", "No interview answer as a build plan"],
+          "value": [
+            "starting hypothesis",
+            "No interview answer as a build plan"
+          ],
           "description": "Distinguishes catalog answer from production plan"
         }
       ]

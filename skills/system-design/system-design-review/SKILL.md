@@ -19,7 +19,7 @@ metadata:
 
 Score against evidence, not intent. A claim with no number or artifact scores zero.
 
-## Eight Axes (score each 0-10)
+## Nine Axes (score each 0-10)
 
 | Axis | Scores 10 when | Scores 0 when |
 | --- | --- | --- |
@@ -31,8 +31,9 @@ Score against evidence, not intent. A claim with no number or artifact scores ze
 | Async offload | Slow and bursty work queued with drain rate and DLQ | Everything synchronous on the request path |
 | Observability | Traffic, error, latency, saturation instrumented with owned alerts | Logs only, or alerts with no runbook |
 | Rollout | Canary or flag with metric rollback trigger and reversible migrations | Big-bang deploy, irreversible migration |
+| Cost proportionality | Spend is sized to the traffic and the risk, and someone can state it | Topology bought for an imagined scale nobody measured |
 
-Report each score with the evidence used. Weight axes by the system's actual risk: a 100 RPS internal
+Report each score with the evidence used, out of 90. Weight axes by the system's actual risk: a 100 RPS internal
 tool is not failed for lacking multi-region.
 
 ## Review Method
@@ -42,6 +43,7 @@ tool is not failed for lacking multi-region.
 3. Trace the hottest and the most critical path end to end; the worst hop is the real bottleneck.
 4. List findings as `severity - axis - evidence - consequence - smallest fix`.
 5. Convert findings into a roadmap: stop-the-bleeding now, structural next, optional later.
+6. Check operability: who runs this at 3am, which team owns which piece, and whether that team can actually operate it.
 
 ## Common Mistakes to Check
 

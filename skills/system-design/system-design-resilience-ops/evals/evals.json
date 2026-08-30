@@ -4,21 +4,31 @@
     {
       "id": 1,
       "prompt": "We promise 99.99% but we run a single primary database in one region with nightly backups. What is missing?",
-      "expected_output": "Names the single writer as a SPOF, requires RPO/RTO numbers before picking a failover topology, and demands a tested restore and failover drill.",
+      "expected_output": "Names the single primary as a single point of failure, requires RPO and RTO numbers before picking a failover topology, and demands a tested restore plus a failover drill with a measured RTO.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["single point of failure", "one writer"],
+          "value": [
+            "single point of failure",
+            "one writer"
+          ],
           "description": "Identifies the SPOF"
         },
         {
           "type": "contains_any",
-          "value": ["RPO", "RTO"],
+          "value": [
+            "RPO",
+            "RTO"
+          ],
           "description": "Requires recovery objectives before topology"
         },
         {
           "type": "contains_any",
-          "value": ["No untested failover", "restore test", "drill"],
+          "value": [
+            "No untested failover",
+            "restore test",
+            "drill"
+          ],
           "description": "Requires evidence, not a claim"
         }
       ]
@@ -26,21 +36,32 @@
     {
       "id": 2,
       "prompt": "A downstream service got slow and our whole fleet started restarting, then retries made it worse. How should this have been designed?",
-      "expected_output": "Separates liveness from readiness so a downstream outage cannot restart the fleet, and bounds retries with backoff, jitter, and a budget plus load shedding.",
+      "expected_output": "Separates liveness from readiness so a downstream outage cannot restart the fleet, and bounds retries with backoff with jitter, a per-client budget, and a stop condition, plus load shedding at the edge.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["No liveness probe on dependencies", "readiness"],
+          "value": [
+            "No liveness probe on dependencies",
+            "readiness"
+          ],
           "description": "Fixes the restart cascade"
         },
         {
           "type": "contains_any",
-          "value": ["No unbounded retry", "backoff with jitter", "stop condition"],
+          "value": [
+            "No unbounded retry",
+            "backoff with jitter",
+            "stop condition"
+          ],
           "description": "Bounds retry amplification"
         },
         {
           "type": "contains_any",
-          "value": ["load shedding", "blast radius", "bulkheads"],
+          "value": [
+            "load shedding",
+            "blast radius",
+            "bulkheads"
+          ],
           "description": "Contains the failure"
         }
       ]
@@ -52,18 +73,57 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Canary", "Feature flag"],
+          "value": [
+            "Canary",
+            "Feature flag"
+          ],
           "description": "Chooses a bounded-blast-radius rollout"
         },
         {
           "type": "contains_any",
-          "value": ["expand, migrate, contract", "deploy separately"],
+          "value": [
+            "expand, migrate, contract",
+            "deploy separately"
+          ],
           "description": "Decouples schema from code"
         },
         {
           "type": "contains_any",
-          "value": ["rollback trigger", "No deploy without rollback"],
+          "value": [
+            "rollback trigger",
+            "No deploy without rollback"
+          ],
           "description": "Defines the abort condition up front"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Internal wiki used by 40 staff, about 100 requests per second, single region. Leadership asked whether we should go active-active across two regions.",
+      "expected_output": "Declines multi-region because RPO and RTO numbers pick the topology and a single region with multi-AZ fits this profile; spends the effort on a restore test and a failover drill instead, since an untested failover is only a claim.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "Single region, multi-AZ",
+            "RPO",
+            "RTO"
+          ],
+          "description": "Sizes the topology from recovery objectives, not ambition"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "No untested failover",
+            "restore test",
+            "drill"
+          ],
+          "description": "Prefers proven recovery over unproven redundancy"
+        },
+        {
+          "type": "not_contains",
+          "value": "active-active across regions",
+          "description": "Does not recommend the expensive topology for a low-traffic internal tool"
         }
       ]
     }

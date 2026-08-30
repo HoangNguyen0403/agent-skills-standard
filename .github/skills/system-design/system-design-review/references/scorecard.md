@@ -2,7 +2,7 @@
 
 ## Scoring Rubric
 
-Score each axis 0-10 using observable evidence only.
+Score each of the nine axes 0-10 using observable evidence only.
 
 | Band | Meaning | Evidence standard |
 | --- | --- | --- |
@@ -21,9 +21,12 @@ An unverifiable claim is not a 5. Score it against what is proven and tag the ro
 | Public read-heavy product | Caching, capacity evidence, observability | Async offload |
 | Transactional/money | Data scaling, redundancy, rollout | Caching |
 | Batch or data pipeline | Data scaling, async offload, observability | Caching, redundancy |
-| Startup pre-product-market-fit | Requirements, rollout | Redundancy, data scaling |
+| Startup pre-product-market-fit | Requirements, rollout, cost proportionality | Redundancy, data scaling |
 
 State the profile before scoring, so the weighting is a declared choice rather than an implicit bias.
+
+Operability is a weighting input in every profile: a design the owning team cannot run at 3am scores badly on
+rollout and observability no matter how elegant the topology is.
 
 ## Report Template
 
@@ -40,7 +43,7 @@ State the profile before scoring, so the weighting is a declared choice rather t
 | Axis | Score | Evidence | Gap |
 | --- | --- | --- | --- |
 
-Total: [n]/80 - Profile: [profile] - Weighted verdict: [ship | fix first | redesign scope]
+Total: [n]/90 - Profile: [profile] - Weighted verdict: [ship | fix first | redesign scope]
 
 ## Critical Path Trace
 [hop-by-hop, with the measured or estimated cost of each hop]

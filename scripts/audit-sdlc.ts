@@ -134,11 +134,11 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
     requireOutputTemplate: true,
   },
   "system-design-session": {
-    maxLines: 80,
+    maxLines: 90,
     requireGoal: true,
     requireOutputTemplate: true,
     notes:
-      "Architecture/capacity session upstream of design-solution; phase-gated with adaptive depth.",
+      "Architecture/capacity session upstream of design-solution; phase-gated with adaptive depth. Allows 90 lines for the brownfield branch, null-option gate, cost estimate, and staged-plan output.",
   },
   "design-solution": {
     maxLines: 80,

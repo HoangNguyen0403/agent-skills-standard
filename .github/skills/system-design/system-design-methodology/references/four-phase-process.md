@@ -35,6 +35,8 @@ in full-session depth, and a labeled assumption in quick-sketch depth.
 
 - Entry: component set agreed.
 - Output: 2-3 deep dives, bottleneck list, SPOF list, rejected alternatives with reasons, ADRs, scorecard, next scaling step.
+- Stage the design: what to build now, the seam that makes the next step cheap, and the metric threshold that triggers it.
+- Every ADR carries a reversal trigger: the observation that would make us revisit the decision. A decision with no reversal trigger is a decision nobody can revisit safely.
 - Deep-dive candidates: the highest-QPS path, the strongest consistency requirement, the largest data set, the least reversible choice.
 - Gate: scorecard from `system-design-review` reaches an agreed threshold, or gaps are recorded as follow-up work.
 
@@ -45,5 +47,6 @@ in full-session depth, and a labeled assumption in quick-sketch depth.
 | Requirement table | Phase 1 | design doc, downstream SRS |
 | Capacity numbers | Phase 2 | provisioning, cost model |
 | Component and data map | Phase 3 | diagrams, implementation plan |
-| ADRs | Phase 4 | future maintainers, review |
+| ADRs + reversal triggers | Phase 4 | future maintainers, review |
+| Staged plan (now / seam / trigger) | Phase 4 | roadmap, implementation sequencing |
 | Scorecard and risk register | Phase 4 | readiness gate, roadmap |

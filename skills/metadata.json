@@ -603,9 +603,9 @@
       "tag_prefix": "system-design-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 9840,
-        "avg_tokens_per_skill": 895,
-        "largest_skill": "system-design-building-blocks (970 tokens)"
+        "total_tokens": 10236,
+        "avg_tokens_per_skill": 931,
+        "largest_skill": "system-design-methodology (1111 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

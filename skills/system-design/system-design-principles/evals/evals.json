@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "I am splitting an order service into API, domain, and persistence modules. What boundaries and dependency direction should I define?",
-      "expected_output": "Separates API, domain, and persistence concerns; defines the domain as independent of framework/data adapters; identifies one owner for order state.",
+      "expected_output": "Separates API, domain, and persistence concerns along a clear module boundary; defines the domain as independent of framework and data adapters; identifies one owner for order state.",
       "assertions": [
         {
           "type": "contains_any",
@@ -21,11 +21,20 @@
         },
         {
           "type": "contains_any",
-          "value": ["domain", "business logic", "core logic"]
+          "value": [
+            "domain",
+            "business logic",
+            "core logic"
+          ]
         },
         {
           "type": "contains_any",
-          "value": ["owner", "owns", "source of truth", "authoritative"]
+          "value": [
+            "owner",
+            "owns",
+            "source of truth",
+            "authoritative"
+          ]
         }
       ]
     },
@@ -36,15 +45,27 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["timeout", "circuit breaker", "fail fast"]
+          "value": [
+            "timeout",
+            "circuit breaker",
+            "fail fast"
+          ]
         },
         {
           "type": "contains_any",
-          "value": ["degrade", "fallback", "non-critical"]
+          "value": [
+            "degrade",
+            "fallback",
+            "non-critical"
+          ]
         },
         {
           "type": "contains_any",
-          "value": ["email", "asynchronous", "event"]
+          "value": [
+            "email",
+            "asynchronous",
+            "event"
+          ]
         }
       ]
     },
@@ -66,11 +87,19 @@
         },
         {
           "type": "contains_any",
-          "value": ["events", "event-driven", "direct database"]
+          "value": [
+            "events",
+            "event-driven",
+            "direct database"
+          ]
         },
         {
           "type": "contains_any",
-          "value": ["eventual consistency", "asynchronous", "trade-off"]
+          "value": [
+            "eventual consistency",
+            "asynchronous",
+            "trade-off"
+          ]
         }
       ]
     }

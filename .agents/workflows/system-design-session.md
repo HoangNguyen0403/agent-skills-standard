@@ -17,20 +17,23 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
    - Escalate quick to full when an irreversible or cross-team choice appears.
 3. Intake (gate):
    - Ask max 3 blocking questions per turn from the intake checklist; supply a recommended default for each.
-   - Record functional requirements, NFR targets, out-of-scope fence, and every `ASSUMED` value.
+   - Record functional requirements, NFR targets, out-of-scope fence, operating team, and every `ASSUMED` value.
+   - Review-existing mode: map current state, measure real traffic and incidents, and name the binding constraint before proposing change.
 4. Estimate (gate):
-   - Compute average and peak QPS, storage over retention, bandwidth, and working-set memory.
+   - Compute average and peak QPS, storage over retention, bandwidth, working-set memory, and monthly cost at that scale.
    - Name the shaping quantity and confirm the order of magnitude before any component is drawn.
 5. Design incrementally:
+   - Price the null option first (do nothing, buy, or extend an existing service); rejecting it needs a stated reason.
    - Start from client, API, service, store; add one component at a time as `constraint -> component -> cost`.
    - Fix API surface, data ownership, and consistency class per flow.
    - Render diagrams only after the component set is agreed, per `system-design-diagramming`: an `architecture` view plus `sequence` or `dataflow` for the critical path.
 6. Deep dive and decide:
    - Dispatch the 2-3 riskiest components to `specialist-system-architect`, one brief each with its numbers and consistency requirement.
    - Merge the returned options, failure modes, and irreversible decisions; state bottlenecks, SPOFs, and rejected alternatives with reasons.
-   - Write one ADR per irreversible decision; save the design to `docs/design/system-design-[slug].md` when file writes are allowed.
+   - Write one ADR per irreversible decision, each with its reversal trigger; stage the plan as build now, enabling seam, and the metric threshold that triggers the next step.
+   - Save the design to `docs/design/system-design-[slug].md` when file writes are allowed.
 7. Score and hand off:
-   - Run the eight-axis scorecard, record the risk register, and emit the handoff payload.
+   - Run the nine-axis scorecard (including cost proportionality), record the risk register, and emit the handoff payload.
    - Route to `design-solution`; return to `plan-feature` when product scope is still undefined.
 
 ## Runtime Contract
@@ -55,14 +58,16 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
 ## Mode And Depth
 ## Requirements (Functional / NFR / Out Of Scope)
 ## Assumptions
-## Capacity Estimation
+## Capacity Estimation (incl. monthly cost)
+## Null Option Considered
 ## Component Architecture (constraint -> component -> cost)
 ## Diagrams (Architecture / Sequence / Data Flow)
 ## Data Ownership And Consistency
 ## Deep Dives
 ## Trade-offs And Rejected Alternatives
-## ADRs
-## Design Scorecard (8 axes)
+## Staged Plan (Now / Seam / Trigger)
+## ADRs (with reversal triggers)
+## Design Scorecard (9 axes)
 ## Risk Register
 
 ## Outcome Report

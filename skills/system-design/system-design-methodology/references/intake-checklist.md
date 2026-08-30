@@ -22,6 +22,8 @@ Anything the user declines to answer becomes an `ASSUMED` line in the design doc
 | Retention and audit needs | Drives storage growth and archival tier | 12 months hot, then cold |
 | Availability target | Drives redundancy and multi-region cost | 99.9% single region |
 | Geography of users | Drives edge, replication, data residency | Single region |
+| Operating team and on-call | Who runs this at 3am; caps how much machinery the design may add | Owning team, business-hours on-call |
+| Team and service ownership | Conway's law: boundaries follow the org that maintains them | One team owns the whole flow |
 
 ## Tier 3 - Constraining (rule options in or out)
 

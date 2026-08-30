@@ -4,21 +4,30 @@
     {
       "id": 1,
       "prompt": "Our service saves the order to Postgres and then publishes to Kafka. Sometimes the publish fails and the event is lost. How do we fix it?",
-      "expected_output": "Identifies the dual write, replaces it with a transactional outbox written in the same transaction, and names the relay (poller or CDC) plus at-least-once deduplication.",
+      "expected_output": "Identifies the dual write and applies the rule to never dual-write, replacing it with a transactional outbox written in the same transaction, and names the relay (poller or CDC) plus at-least-once deduplication on the consumer.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["No dual write", "Never dual-write"],
+          "value": [
+            "No dual write",
+            "Never dual-write"
+          ],
           "description": "Names the dual write as the defect"
         },
         {
           "type": "contains_any",
-          "value": ["Transactional outbox", "outbox"],
+          "value": [
+            "Transactional outbox",
+            "outbox"
+          ],
           "description": "Selects the pattern that makes write and publish atomic"
         },
         {
           "type": "contains_any",
-          "value": ["poller or CDC", "A relay"],
+          "value": [
+            "poller or CDC",
+            "A relay"
+          ],
           "description": "Specifies how events leave the outbox"
         }
       ]
@@ -26,21 +35,30 @@
     {
       "id": 2,
       "prompt": "Placing an order touches inventory, payments, shipping, and loyalty across four services. How do we keep it consistent without a distributed transaction?",
-      "expected_output": "Chooses a saga, recommends orchestration at this step count, requires a compensation per step defined up front, and rejects two-phase commit on the hot path.",
+      "expected_output": "Chooses a saga and recommends orchestration because orchestration puts the sequence in one coordinator at this step count; every saga step needs its compensation defined before implementation, and it applies no two-phase commit on the hot path.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Saga with compensations", "saga"],
+          "value": [
+            "Saga with compensations",
+            "saga"
+          ],
           "description": "Selects the pattern for a cross-service transaction"
         },
         {
           "type": "contains_any",
-          "value": ["No choreography past 4 steps", "orchestration puts the sequence in one coordinator"],
+          "value": [
+            "No choreography past 4 steps",
+            "orchestration puts the sequence in one coordinator"
+          ],
           "description": "Picks the coordination style by step count"
         },
         {
           "type": "contains_any",
-          "value": ["Every saga step needs its compensation defined before implementation", "No two-phase commit on the hot path"],
+          "value": [
+            "Every saga step needs its compensation defined before implementation",
+            "No two-phase commit on the hot path"
+          ],
           "description": "Requires compensations and refuses 2PC"
         }
       ]
@@ -48,22 +66,60 @@
     {
       "id": 3,
       "prompt": "The team wants to rebuild our CRUD admin panel with CQRS and event sourcing because it is more scalable.",
-      "expected_output": "Declines both by default, states the specific constraint that would justify each, and names the ongoing costs of projections and event versioning.",
+      "expected_output": "Applies no CQRS by default, separating models only after one model demonstrably fails both sides, and no event sourcing for ordinary CRUD because an audit needs an audit log; names the ongoing cost of projections, event versioning, and two models, sync lag, doubled tests.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["No CQRS by default", "only after one model demonstrably fails both sides"],
+          "value": [
+            "No CQRS by default",
+            "only after one model demonstrably fails both sides"
+          ],
           "description": "Refuses CQRS without evidence"
         },
         {
           "type": "contains_any",
-          "value": ["No event sourcing for ordinary CRUD", "audit needs an audit log"],
+          "value": [
+            "No event sourcing for ordinary CRUD",
+            "audit needs an audit log"
+          ],
           "description": "Refuses event sourcing for plain CRUD"
         },
         {
           "type": "contains_any",
-          "value": ["Projections, event versioning", "Two models, sync lag, doubled tests"],
+          "value": [
+            "Projections, event versioning",
+            "Two models, sync lag, doubled tests"
+          ],
           "description": "States the cost each pattern charges"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "We have one service that writes a settings row and reads it back on the same page. The team wants CQRS with an event-sourced audit log so we are future-proof.",
+      "expected_output": "Applies no CQRS by default and no event sourcing for ordinary CRUD, states the constraint that would justify each, and notes that an audit needs an audit log rather than a rebuilt world.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "No CQRS by default",
+            "No event sourcing for ordinary CRUD"
+          ],
+          "description": "Refuses both patterns without evidence"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "audit needs an audit log",
+            "complexity",
+            "cost"
+          ],
+          "description": "Names the cheaper alternative and the complexity charged"
+        },
+        {
+          "type": "not_contains",
+          "value": "saga",
+          "description": "Does not introduce cross-service coordination for a single-service CRUD flow"
         }
       ]
     }

@@ -37,6 +37,12 @@ Estimate before you architect. One order of magnitude decides cache, shard, and 
 4. Name the **shaping quantity** - the first number that breaks a single-node ceiling. It dictates the first component added in high-level design.
 5. Restate every assumed input beside the result so a wrong assumption is visible, not buried.
 
+## Cost
+
+- Convert the sized capacity into monthly spend before recommending it: compute, storage plus egress, managed-service premiums, and the multiplier any redundancy applies.
+- Cost is a design constraint, not an afterthought. A topology the budget cannot hold is not a design, it is a proposal to be rejected later.
+- State cost per unit of value where it clarifies: cost per 1k requests, per GB retained, per nine of availability added.
+
 ## Latency Budget
 
 - Build the p95 budget as a sum of hops; every remote call spends from one fixed budget.

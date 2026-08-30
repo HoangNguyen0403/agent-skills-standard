@@ -4,21 +4,30 @@
     {
       "id": 1,
       "prompt": "Our order service calls the pricing service on the hot path, and it is a JSON REST call today. Should we move it to gRPC?",
-      "expected_output": "Selects the internal paradigm by constraint (latency, streaming, schema-first) rather than preference, notes the proxy and browser cost of gRPC, and warns about chaining synchronous internal hops.",
+      "expected_output": "Selects gRPC for the internal hot path by constraint (low latency, streaming, schema-first) rather than preference, states the cost that a browser needs a proxy and L7 balancers need HTTP/2 awareness, and warns that each hop multiplies latency on a user-facing path.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Internal service-to-service, low latency, streaming, schema-first", "gRPC"],
+          "value": [
+            "Internal service-to-service, low latency, streaming, schema-first",
+            "gRPC"
+          ],
           "description": "Matches the paradigm to the internal hot-path constraint"
         },
         {
           "type": "contains_any",
-          "value": ["Browser needs a proxy", "L7 balancers need HTTP/2 awareness"],
+          "value": [
+            "Browser needs a proxy",
+            "L7 balancers need HTTP/2 awareness"
+          ],
           "description": "States the cost accepted"
         },
         {
           "type": "contains_any",
-          "value": ["Never chain more than 2 synchronous internal hops", "each hop multiplies latency"],
+          "value": [
+            "Never chain more than 2 synchronous internal hops",
+            "each hop multiplies latency"
+          ],
           "description": "Checks the synchronous chain depth"
         }
       ]
@@ -26,21 +35,31 @@
     {
       "id": 2,
       "prompt": "We need to push live order status to the customer's browser. The team wants WebSockets.",
-      "expected_output": "Chooses SSE for a server-push-only flow, reserves WebSocket for bidirectional needs, and names the reconnect and load-balancer affinity costs.",
+      "expected_output": "Chooses SSE for a server-push-only flow because it is cheaper and survives proxies better, reserves WebSocket for bidirectional needs, and names the stateful connections, LB affinity, and reconnect protocol costs it would charge.",
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Server push only", "SSE"],
+          "value": [
+            "Server push only",
+            "SSE"
+          ],
           "description": "Picks the one-directional option for a one-directional need"
         },
         {
           "type": "contains_any",
-          "value": ["No WebSocket for server-push-only", "cheaper and survives proxies better"],
+          "value": [
+            "No WebSocket for server-push-only",
+            "cheaper and survives proxies better"
+          ],
           "description": "Rejects the heavier option explicitly"
         },
         {
           "type": "contains_any",
-          "value": ["Stateful connections", "LB affinity", "reconnect protocol"],
+          "value": [
+            "Stateful connections",
+            "LB affinity",
+            "reconnect protocol"
+          ],
           "description": "Names the cost of the connection-based option"
         }
       ]
@@ -52,18 +71,57 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": ["Cross-organization async callback", "Webhook"],
+          "value": [
+            "Cross-organization async callback",
+            "Webhook"
+          ],
           "description": "Selects the cross-org paradigm"
         },
         {
           "type": "contains_any",
-          "value": ["No webhook without signature, retry policy, and idempotency key", "signature verification"],
+          "value": [
+            "No webhook without signature, retry policy, and idempotency key",
+            "signature verification"
+          ],
           "description": "Requires all three controls"
         },
         {
           "type": "contains_any",
-          "value": ["Receiver retries", "idempotency"],
+          "value": [
+            "Receiver retries",
+            "idempotency"
+          ],
           "description": "Designs for duplicate delivery"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "A nightly job calls our billing service once per run to fetch a summary. Someone suggested moving it to gRPC with streaming for consistency with the rest of the stack.",
+      "expected_output": "Keeps REST for a cold, once-per-night call because the paradigm is chosen per hop from the constraint, and notes that mixing REST at the edge with gRPC internally is normal rather than an inconsistency to fix.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "No one-paradigm-everywhere",
+            "per hop",
+            "Choose the paradigm per hop"
+          ],
+          "description": "Chooses per hop instead of standardizing for its own sake"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "REST",
+            "debuggability",
+            "cold"
+          ],
+          "description": "Keeps the simpler protocol for a cold path"
+        },
+        {
+          "type": "not_contains",
+          "value": "bidirectional streaming",
+          "description": "Does not add streaming machinery for one call per night"
         }
       ]
     }
