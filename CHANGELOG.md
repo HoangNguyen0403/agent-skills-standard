@@ -38,9 +38,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [tooling] - 2026-08-30
 
-**Area**: Eval pipeline correctness and CI
+**Area**: Release pipeline, eval pipeline correctness, and CI
 
 ### Fixed
+
+- **Six categories could not publish a release**: `.github/workflows/publish.yml` triggers on an explicit list of tag globs, and `database`, `laravel`, `python`, `quality-engineering`, `system-design`, and `specialists` were absent from it — the last as a singular/plural mismatch (`specialist-v*` never matches `specialists-v1.2.1`). `pnpm release-all-skills` reads categories from `metadata.json`, so it would create and push those tags successfully while the release job never ran: no version validation against metadata, no GitHub Release, and no error anywhere. Added all six triggers.
+- **The same drift cannot recur**: `pnpm verify:release-tags` (already run by CI) now cross-checks every category's `tag_prefix` against the publish triggers and fails when one is unreachable, and warns on a trigger pattern that matches no category — which is what surfaces a typo like the singular `specialist-v*`. A blanket `*-v*` glob was rejected deliberately: it would also match `skillspector-verified-v<date>`, whose category lookup would fail the release job.
+- **Stale count in the SkillSpector release body**: it claimed "All 22 skill categories" while the registry has 24. Reworded so it cannot drift again.
 
 - **Contradictory assertion-grounding gates**: `check-alignment.ts` required every assertion value to appear in `SKILL.md` while `evals/quality.ts` required it to appear in the prompt/`expected_output` and explicitly forbade skill-only sourcing. Authors could not satisfy both, which is what blocked 82 assertions repo-wide from a paid eval run. Alignment now counts an assertion as grounded when the skill teaches it **or** the eval's own task contract states it; the anti-cheat marker rule is unchanged. Skills below 90% alignment dropped from 16 to 2.
 - **v1/v2 semantics drift in the published verifiers**: `EvalsVerifier` (CLI) and `EvalsIndex` (MCP) implemented literal v1 matching only, so verifying the shipped v2 run reported diffs that were artefacts of the verifier. Both now use the full v2 matcher and resolve the semantics version per skill from manifest provenance, exactly as `scorer.ts` does — making the claim in `docs/EVALS.md` true rather than aspirational.
