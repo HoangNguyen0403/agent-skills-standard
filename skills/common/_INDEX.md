@@ -8,7 +8,7 @@
 | common-accessibility | `**/*.html`, `**/*.vue`, `**/*.component.html` | accessibility, a11y, wcag, aria, screen reader, focus, alt text |
 | common-api-design | `**/*.controller.ts`, `**/*.router.ts`, `**/*.routes.ts`, `**/routes/**`, `**/controllers/**`, `**/handlers/**` | rest api, endpoint, http method, status code, versioning, pagination, openapi, api design, api contract |
 | common-architecture-audit | `package.json`, `pubspec.yaml`, `go.mod`, `pom.xml`, `nest-cli.json` | architecture audit, code review, tech debt, logic leakage, refactor |
-| common-architecture-diagramming | `ARCHITECTURE.md`, `**/*.mermaid`, `**/*.drawio` | diagram, architecture, c4, system design, mermaid |
+| common-architecture-diagramming | `ARCHITECTURE.md`, `**/*.mermaid`, `**/*.drawio` | diagram, c4, mermaid, drawio, erd |
 | **common-business-requirements** | `BRD.md`, `docs/brd/brd-*.md`, `specs/*.md` | create brd, business requirements, business case, stakeholder impact, as-is to to-be, roi justification |
 | common-context-optimization | `*.log`, `chat-history.json` | reduce tokens, optimize context, summarize history, clear output |
 | common-error-handling | `**/*.service.ts`, `**/*.handler.ts`, `**/*.controller.ts` | error handling, exception, try catch, error boundary, error response, error code, throw |
