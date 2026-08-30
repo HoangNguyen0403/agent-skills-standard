@@ -661,6 +661,35 @@ describe('IndexGeneratorService', () => {
       expect(result).toContain('quality-engineering/_INDEX.md');
     });
 
+    it('should include system-design when present', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue(['golang', 'common', 'system-design']);
+      (fs.readFile as any).mockImplementation(async (p: string) => {
+        if (p.includes('metadata.json')) {
+          return JSON.stringify({ file_routing: { go: ['golang'] } });
+        }
+        return '';
+      });
+
+      const result = await service.assembleRouterIndex('/skills');
+      expect(result).toContain('system-design/_INDEX.md');
+      expect(result).toContain('Architecture or scale request');
+    });
+
+    it('should omit system-design when the category is not installed', async () => {
+      (fs.pathExists as any).mockResolvedValue(true);
+      (fs.readdir as any).mockResolvedValue(['golang', 'common']);
+      (fs.readFile as any).mockImplementation(async (p: string) => {
+        if (p.includes('metadata.json')) {
+          return JSON.stringify({ file_routing: { go: ['golang'] } });
+        }
+        return '';
+      });
+
+      const result = await service.assembleRouterIndex('/skills');
+      expect(result).not.toContain('system-design/_INDEX.md');
+    });
+
     it('should handle missing metadata.json gracefully', async () => {
       (fs.pathExists as any).mockResolvedValue(true);
       (fs.readdir as any).mockResolvedValue(['common']);
