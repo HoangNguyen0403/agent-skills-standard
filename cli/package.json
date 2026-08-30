@@ -39,16 +39,16 @@
   "dependencies": {
     "commander": "^15.0.0",
     "cross-fetch": "^4.1.0",
-    "dotenv": "^17.2.3",
-    "fs-extra": "^11.2.0",
-    "inquirer": "^14.0.2",
+    "dotenv": "^17.4.2",
+    "fs-extra": "^11.4.0",
+    "inquirer": "^14.2.0",
     "js-yaml": "^4.2.0",
     "picocolors": "^1.0.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.1.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "vite": "^8.2.2",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.11"
   }
 }
