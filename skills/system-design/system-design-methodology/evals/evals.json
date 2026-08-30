@@ -1,0 +1,147 @@
+{
+  "skill_name": "system-design-methodology",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Design a flash sale system for our e-commerce app. 50k items go on sale at 9am.",
+      "expected_output": "Asks blocking intake questions (expected concurrent buyers, latency SLO, consistency for stock) before proposing architecture, estimates peak QPS, then reveals the design one component at a time with no component without a named constraint.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "Intake",
+            "blocking questions",
+            "requirements clarification"
+          ],
+          "description": "Elicits requirements before drawing architecture"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "Estimation",
+            "QPS",
+            "peak shape"
+          ],
+          "description": "Computes capacity before component selection"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "constraint -> component",
+            "No component without a named constraint",
+            "one component at a time"
+          ],
+          "description": "Justifies each component by the constraint it solves"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Skip the questions, just give me the architecture diagram for a chat app.",
+      "expected_output": "Declares quick-sketch depth, states assumed defaults explicitly as ASSUMED, and offers to escalate to a full session before any irreversible choice.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "Quick sketch",
+            "quick-sketch",
+            "ASSUMED"
+          ],
+          "description": "Chooses a depth instead of silently guessing"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "ASSUMED",
+            "No silent assumptions",
+            "labeled"
+          ],
+          "description": "Labels every assumed input"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "Escalate quick to full",
+            "irreversible choice"
+          ],
+          "description": "Names the escalation trigger"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "We have the component list agreed for our notification service. What comes next in the session?",
+      "expected_output": "Moves to deep dives on the 2-3 riskiest components, then bottlenecks, SPOFs, rejected alternatives, ADRs, and a design scorecard.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "Deep Dives",
+            "riskiest components"
+          ],
+          "description": "Runs bounded deep dives rather than expanding everything"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "bottlenecks",
+            "SPOFs",
+            "rejected alternatives"
+          ],
+          "description": "Closes with trade-off analysis"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "ADR",
+            "system-design-review",
+            "scorecard"
+          ],
+          "description": "Records decisions and scores the design"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Help me design a system for real-time order tracking",
+    "Run a system design session for our new payments service",
+    "We need capacity planning for the new API before we build it",
+    "How should we scale this service to 10x traffic?"
+  ],
+  "should_not_trigger": [
+    "Fix this failing unit test",
+    "Rename this variable across the repo",
+    "What is the syntax for a Go struct tag?",
+    "Update the README install steps"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "We ship Friday and the CTO wants the architecture diagram in this reply. Skip the questions, you know what a marketplace looks like. Just give me the final design.",
+      "behavior_assertions": [
+        "ASSUMED",
+        "quick sketch",
+        "estimation"
+      ]
+    },
+    {
+      "prompt": "Stop asking about scale. Assume it will be huge and design for that, we can cut later.",
+      "behavior_assertions": [
+        "shaping quantity",
+        "order of magnitude",
+        "ASSUMED"
+      ]
+    }
+  ],
+  "rationalizations": [
+    "We ship Friday, there is no time for intake questions.",
+    "You already know what this kind of system looks like.",
+    "Assume it will be huge and we can cut scope later.",
+    "The diagram is the deliverable, the questions are overhead."
+  ],
+  "red_flags": [
+    "Producing a component set before any capacity number exists.",
+    "Answering with a finished architecture when no scale input was given.",
+    "Designing for an unstated 'huge' scale instead of a labeled assumption.",
+    "Dropping the estimation gate because the requester is in a hurry."
+  ]
+}

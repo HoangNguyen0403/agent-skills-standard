@@ -8,7 +8,7 @@ skills:
   typescript:
     ref: typescript-v1.3.4
   common:
-    ref: common-v2.4.0
+    ref: common-v2.4.1
     exclude:
       - common-accessibility
       - common-api-design
@@ -20,12 +20,16 @@ skills:
       - common-observability
   quality-engineering:
     ref: quality-engineering-v1.5.1
+  system-design:
+    ref: system-design-v1.0.0
 custom_overrides: []
 workflows:
   - sdlc
   - brainstorm-feature
   - code-review
   - codebase-review
+  - system-design-session
+  - review-system-design
   - design-solution
   - implementation-readiness
   - plan-feature
