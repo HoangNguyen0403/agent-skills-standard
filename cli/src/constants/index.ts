@@ -56,7 +56,6 @@ export const COMMON_SKILL_EXCLUDES: Record<
     'common-accessibility',
     'common-api-design',
     'common-observability',
-    'common-system-design',
   ],
 };
 
@@ -81,6 +80,7 @@ export const DEFAULT_WORKFLOWS = [
   'brainstorm-feature',
   'code-review',
   'codebase-review',
+  'system-design-session',
   'design-solution',
   'deploy-release',
   'plan-feature',

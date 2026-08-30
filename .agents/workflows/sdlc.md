@@ -22,6 +22,7 @@ Goal: Select the next native workflow without loading every workflow body, while
 2. Choose next workflow (apply tie-break order when multiple bullets match: (1) workflow explicitly named by the operator or by the latest `recommended_next_workflow`, (2) production-incident/urgent-regression signals, (3) earliest missing artifact along the chain below — never skip forward past a gap, (4) cross-cutting audits only on request or as a pre-release gate):
    - Unclear idea, missing business case, missing stakeholder owner, or missing measurable value (BRD-lite / Why, BA-owned intake) -> `brainstorm-feature`
    - BRD-lite exists or business direction is clear but product scope, priorities, acceptance criteria, rollout, or delivery plan are unclear (PRD / What, PM-owned planning) -> `plan-feature`
+   - Scale, topology, capacity, or store choice unsettled, or an existing system needs an architecture audit -> `system-design-session`
    - PRD exists but technical behavior/contracts unclear (SRS/FRS / How) -> `design-solution`
    - Architecture, auth, trust boundaries, compliance controls, or agent/runtime safety need deeper technical validation -> `design-solution`
    - BRD-lite, PRD, or SRS/FRS exists but readiness unclear -> `implementation-readiness`

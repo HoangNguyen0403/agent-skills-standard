@@ -278,7 +278,7 @@
       "activity",
       "fragment"
     ],
-    "common/system-design": [
+    "system-design/principles": [
       "architecture",
       "migration",
       "microservices",
@@ -406,8 +406,8 @@
       "last_updated": "2026-08-16",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 39,
-        "total_tokens": 30339,
+        "total_skills": 38,
+        "total_tokens": 29550,
         "avg_tokens_per_skill": 778,
         "largest_skill": "common-skill-creator (1646 tokens)"
       },
@@ -592,6 +592,20 @@
         "total_tokens": 7645,
         "avg_tokens_per_skill": 765,
         "largest_skill": "laravel-clean-architecture (913 tokens)"
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
+    },
+    "system-design": {
+      "version": "1.0.0",
+      "last_updated": "2026-08-30",
+      "tag_prefix": "system-design-v",
+      "token_metrics": {
+        "total_skills": 8,
+        "total_tokens": 6882,
+        "avg_tokens_per_skill": 860,
+        "largest_skill": "system-design-data-architecture (910 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

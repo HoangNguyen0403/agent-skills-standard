@@ -1,0 +1,83 @@
+{
+  "skill_name": "system-design-data-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our orders table is slow at 300 QPS. The team wants to shard it across 8 nodes. Is that right?",
+      "expected_output": "Rejects sharding at this stage, walks the scaling order from indexes and query fixes through replicas and caching, and names the costs sharding would lock in.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["No premature sharding", "Shard last", "Scaling Order"],
+          "description": "Applies the scaling order before sharding"
+        },
+        {
+          "type": "contains_any",
+          "value": ["index and query fixes", "read replicas", "caching"],
+          "description": "Names cheaper steps first"
+        },
+        {
+          "type": "contains_any",
+          "value": ["cross-shard queries", "permanent partition key commitment", "rebalancing"],
+          "description": "States the cost of sharding"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Should the reporting service read the orders database directly, and should we move product search to Elasticsearch?",
+      "expected_output": "Keeps one writer per entity and forbids the shared database, routing reporting through an API or event stream; accepts the search index only as a derived view that can be rebuilt from the owning store.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["No shared database between services", "One writer owns each entity"],
+          "description": "Enforces single ownership"
+        },
+        {
+          "type": "contains_any",
+          "value": ["event stream", "API"],
+          "description": "Gives an explicit integration contract"
+        },
+        {
+          "type": "contains_any",
+          "value": ["search index for text and facets", "Every additional store adds sync lag"],
+          "description": "Treats the search index as a derived, justified store"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "We shard user activity by user_id, but one influencer account is saturating a single node. What do we do?",
+      "expected_output": "Identifies a celebrity key, and offers salting, replication of the record, or dedicated capacity, noting that partition keys spread placement but not popularity.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["celebrity key", "hot partition"],
+          "description": "Names the skew failure mode"
+        },
+        {
+          "type": "contains_any",
+          "value": ["salting the key", "replicating the record", "dedicated cache"],
+          "description": "Gives a concrete mitigation"
+        },
+        {
+          "type": "contains_any",
+          "value": ["high-cardinality", "evenly distributed"],
+          "description": "Ties the problem back to partition key choice"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Should we use SQL or NoSQL for this workload?",
+    "What partition key should we shard on?",
+    "How do we scale reads on this database?",
+    "One partition is running hot, what now?"
+  ],
+  "should_not_trigger": [
+    "Write a Prisma schema for a blog post model",
+    "Fix this failing integration test",
+    "What is the syntax for a LEFT JOIN?",
+    "Set up eslint for this repo"
+  ]
+}

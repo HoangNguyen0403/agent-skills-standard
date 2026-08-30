@@ -20,12 +20,15 @@ skills:
       - common-observability
   quality-engineering:
     ref: quality-engineering-v1.5.1
+  system-design:
+    ref: system-design-v1.0.0
 custom_overrides: []
 workflows:
   - sdlc
   - brainstorm-feature
   - code-review
   - codebase-review
+  - system-design-session
   - design-solution
   - implementation-readiness
   - plan-feature

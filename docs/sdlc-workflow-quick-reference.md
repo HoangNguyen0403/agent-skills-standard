@@ -7,6 +7,7 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Route                  | Which workflow now?                             | `sdlc`                     | Unsure what to run next                              | next workflow            |
 | BRD-lite               | Why are we doing this?                          | `brainstorm-feature`       | Idea is vague or business case unclear               | `docs/brd/brd-[slug].md` |
 | PRD                    | What are we building?                           | `plan-feature`             | Feature needs scope, requirements, and AC IDs        | `docs/prd/prd-[slug].md` |
+| Architecture           | How big and what shape?                         | `system-design-session`            | Scale, topology, or store choice is unsettled        | `docs/design/system-design-[slug].md` |
 | SRS/FRS                | How will it work technically?                   | `design-solution`          | Contracts, behavior, or architecture are unclear     | `docs/srs/srs-[slug].md` |
 | Readiness              | Are we ready to build?                          | `implementation-readiness` | BRD/PRD/SRS or test plan needs go/no-go              | readiness verdict        |
 | Build                  | Can we implement safely?                        | `implement-feature`        | Approved feature needs code                          | `task.md` and handoff    |

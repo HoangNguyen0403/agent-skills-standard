@@ -1,0 +1,83 @@
+{
+  "skill_name": "system-design-resilience-ops",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We promise 99.99% but we run a single primary database in one region with nightly backups. What is missing?",
+      "expected_output": "Names the single writer as a SPOF, requires RPO/RTO numbers before picking a failover topology, and demands a tested restore and failover drill.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["single point of failure", "one writer"],
+          "description": "Identifies the SPOF"
+        },
+        {
+          "type": "contains_any",
+          "value": ["RPO", "RTO"],
+          "description": "Requires recovery objectives before topology"
+        },
+        {
+          "type": "contains_any",
+          "value": ["No untested failover", "restore test", "drill"],
+          "description": "Requires evidence, not a claim"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "A downstream service got slow and our whole fleet started restarting, then retries made it worse. How should this have been designed?",
+      "expected_output": "Separates liveness from readiness so a downstream outage cannot restart the fleet, and bounds retries with backoff, jitter, and a budget plus load shedding.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["No liveness probe on dependencies", "readiness"],
+          "description": "Fixes the restart cascade"
+        },
+        {
+          "type": "contains_any",
+          "value": ["No unbounded retry", "backoff with jitter", "stop condition"],
+          "description": "Bounds retry amplification"
+        },
+        {
+          "type": "contains_any",
+          "value": ["load shedding", "blast radius", "bulkheads"],
+          "description": "Contains the failure"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "We are releasing a risky pricing change plus a schema migration on Friday. What rollout should we use?",
+      "expected_output": "Recommends canary or feature-flagged rollout with a metric-based rollback trigger, and separates the migration into expand, migrate, contract so code and schema can roll back independently.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["Canary", "Feature flag"],
+          "description": "Chooses a bounded-blast-radius rollout"
+        },
+        {
+          "type": "contains_any",
+          "value": ["expand, migrate, contract", "deploy separately"],
+          "description": "Decouples schema from code"
+        },
+        {
+          "type": "contains_any",
+          "value": ["rollback trigger", "No deploy without rollback"],
+          "description": "Defines the abort condition up front"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Where are the single points of failure in this design?",
+    "Do we need multi-region failover for this service?",
+    "What RPO and RTO should we target?",
+    "Should this release be canary or blue-green?"
+  ],
+  "should_not_trigger": [
+    "Write a regex to validate emails",
+    "Explain the difference between let and const",
+    "Refactor this function to use early returns",
+    "Add a tooltip to this button"
+  ]
+}

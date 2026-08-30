@@ -20,6 +20,7 @@ const AGENTIC_RUNTIME_WORKFLOWS = [
   "sdlc",
   "brainstorm-feature",
   "plan-feature",
+  "system-design-session",
   "design-solution",
   "implementation-readiness",
   "implement-feature",
@@ -63,6 +64,7 @@ const TRUST_POLICY_WORKFLOWS = [
 const CORE_SDLC_CHAIN = [
   "brainstorm-feature",
   "plan-feature",
+  "system-design-session",
   "design-solution",
   "implementation-readiness",
   "implement-feature",
@@ -88,6 +90,7 @@ const OPERATOR_FACING_WORKFLOWS = [
   "sdlc",
   "brainstorm-feature",
   "plan-feature",
+  "system-design-session",
   "verify-work",
   "uat-signoff",
   "publish-notes",
@@ -129,6 +132,13 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
     maxLines: 80,
     requireGoal: true,
     requireOutputTemplate: true,
+  },
+  "system-design-session": {
+    maxLines: 80,
+    requireGoal: true,
+    requireOutputTemplate: true,
+    notes:
+      "Architecture/capacity session upstream of design-solution; phase-gated with adaptive depth.",
   },
   "design-solution": {
     maxLines: 80,

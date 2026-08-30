@@ -1,0 +1,83 @@
+{
+  "skill_name": "system-design-case-catalog",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Design a news feed like Twitter's home timeline.",
+      "expected_output": "Names fan-out cost versus read latency with celebrity skew as the defining constraint, then derives push, pull, or hybrid from the follower distribution rather than presenting a fixed architecture.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["Fan-out cost versus read latency", "celebrity skew"],
+          "description": "Leads with the defining constraint"
+        },
+        {
+          "type": "contains_any",
+          "value": ["Push for normal accounts", "hybrid merge at read"],
+          "description": "Derives the strategy from the constraint"
+        },
+        {
+          "type": "contains_any",
+          "value": ["No pattern-matching without numbers", "re-derive the numbers"],
+          "description": "Refuses to skip sizing"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Practice a system design interview with me. The question is: design a URL shortener.",
+      "expected_output": "Runs coaching mode - restates the problem, asks for scope, walks the methodology phases, and withholds the model answer until the candidate commits.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["Coaching Mode", "ask for scope"],
+          "description": "Acts as interviewer rather than answer key"
+        },
+        {
+          "type": "contains_any",
+          "value": ["system-design-methodology", "do not answer with a finished architecture"],
+          "description": "Drives the session through the phase method"
+        },
+        {
+          "type": "contains_any",
+          "value": ["No full solution dump in coaching mode", "one concrete follow-up question"],
+          "description": "Keeps the candidate working"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Our internal audit tool needs a feed of recent events. Can we just copy the Twitter feed design?",
+      "expected_output": "Maps the problem to the nearest catalog shape, states where the analogy breaks, and requires re-deriving capacity for this system before reusing the design.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["nearest catalog shape", "The shape transfers, the sizing never does"],
+          "description": "Reuses shape, not sizing"
+        },
+        {
+          "type": "contains_any",
+          "value": ["State where the analogy breaks"],
+          "description": "Names the limits of the analogy"
+        },
+        {
+          "type": "contains_any",
+          "value": ["starting hypothesis", "No interview answer as a build plan"],
+          "description": "Distinguishes catalog answer from production plan"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Design a URL shortener",
+    "Run a mock system design interview with me",
+    "How would you build a rate limiter?",
+    "Design a chat system like WhatsApp"
+  ],
+  "should_not_trigger": [
+    "Fix this null pointer exception",
+    "Add pagination to this REST endpoint",
+    "Write a bash script to rotate logs",
+    "What Python version does this repo use?"
+  ]
+}

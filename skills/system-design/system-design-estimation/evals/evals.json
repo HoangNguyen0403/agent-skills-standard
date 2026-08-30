@@ -1,0 +1,83 @@
+{
+  "skill_name": "system-design-estimation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We expect 10M daily active users, each reading their feed 20 times a day. How much traffic is that and what does it mean for the design?",
+      "expected_output": "Computes average QPS from DAU and actions per day, applies a peak factor, compares to a single-node ceiling, and names the shaping quantity that dictates the first component.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["DAU x actions per user per day / 86,400", "average QPS", "86,400"],
+          "description": "Uses the QPS formula rather than a guess"
+        },
+        {
+          "type": "contains_any",
+          "value": ["peak QPS", "peak factor"],
+          "description": "Sizes for peak, not average"
+        },
+        {
+          "type": "contains_any",
+          "value": ["shaping quantity", "single-node ceiling"],
+          "description": "Connects the number to a design consequence"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Our API calls three services in sequence, each 99.9% available, with one cross-region hop. Can we promise 99.9% and 200ms p95?",
+      "expected_output": "Multiplies serial availability to show the composite is below target, and sums the latency budget noting the cross-region round trip cost.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["Serial dependencies multiply", "99.7"],
+          "description": "Applies availability math to a serial chain"
+        },
+        {
+          "type": "contains_any",
+          "value": ["latency budget", "sum of hops", "cross-region round trip"],
+          "description": "Builds a latency budget from hop costs"
+        },
+        {
+          "type": "contains_any",
+          "value": ["error budget", "p99"],
+          "description": "Converts the target into an operational budget"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How much storage will we need for 20M posts a day at 1KB each, kept for a year with 3x replication?",
+      "expected_output": "Applies the storage formula including retention and replication factor, rounds to one significant figure, and restates the assumed inputs.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["storage per year", "replication factor"],
+          "description": "Includes retention and replication in the projection"
+        },
+        {
+          "type": "contains_any",
+          "value": ["Round every input to one significant figure", "unverified precision"],
+          "description": "Avoids false precision"
+        },
+        {
+          "type": "contains_any",
+          "value": ["assumed input", "labeled"],
+          "description": "Surfaces assumptions with the result"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Give me a back of envelope estimate for this service",
+    "What peak QPS should we provision for?",
+    "How much storage will this feature need in a year?",
+    "What is our latency budget across these hops?"
+  ],
+  "should_not_trigger": [
+    "Write a unit test for the pricing helper",
+    "Fix the flaky CI job",
+    "Rename this database column",
+    "Explain what a pointer is in Go"
+  ]
+}
