@@ -42,6 +42,8 @@ interface Assertion {
 }
 interface Eval {
   id: number;
+  prompt?: string;
+  expected_output?: string;
   assertions: Assertion[];
 }
 interface EvalsJson {
@@ -106,11 +108,21 @@ async function main() {
 
     for (const ev of evalsJson.evals) {
       if (!Array.isArray(ev.assertions)) continue;
+      // An assertion is "aligned" when the skill teaches the behavior OR the
+      // eval's own task contract states it. `scripts/evals/quality.ts` requires
+      // task-contract grounding and forbids skill-only sourcing; scoring both
+      // sources here keeps the two gates from demanding opposite things of the
+      // same field, which previously made some skills unable to satisfy both.
+      const taskContract = `${ev.prompt ?? ""}\n${ev.expected_output ?? ""}`
+        .toLowerCase();
+      const grounded = (value: string) =>
+        skillContent.includes(value.toLowerCase()) ||
+        taskContract.includes(value.toLowerCase());
       for (const assertion of ev.assertions) {
         switch (assertion.type) {
           case "contains": {
             total++;
-            if (skillContent.includes((assertion.value ?? "").toLowerCase())) {
+            if (grounded(String(assertion.value ?? ""))) {
               matched++;
             } else {
               misses.push(`eval ${ev.id}: contains "${assertion.value}"`);
@@ -131,7 +143,7 @@ async function main() {
                 : assertion.value
                   ? [assertion.value]
                   : []);
-            if (values.some((v) => skillContent.includes(v.toLowerCase()))) {
+            if (values.some((v) => grounded(v))) {
               matched++;
             } else {
               misses.push(`eval ${ev.id}: contains_any [${values.join(", ")}]`);
@@ -142,7 +154,7 @@ async function main() {
             total++;
             try {
               const re = new RegExp(assertion.value ?? "", "i");
-              if (re.test(strippedContent)) {
+              if (re.test(strippedContent) || re.test(taskContract)) {
                 matched++;
               } else {
                 misses.push(`eval ${ev.id}: regex /${assertion.value}/i`);

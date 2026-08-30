@@ -35,6 +35,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [tooling] - 2026-08-30
+
+**Area**: Eval pipeline correctness and CI
+
+### Fixed
+
+- **Contradictory assertion-grounding gates**: `check-alignment.ts` required every assertion value to appear in `SKILL.md` while `evals/quality.ts` required it to appear in the prompt/`expected_output` and explicitly forbade skill-only sourcing. Authors could not satisfy both, which is what blocked 82 assertions repo-wide from a paid eval run. Alignment now counts an assertion as grounded when the skill teaches it **or** the eval's own task contract states it; the anti-cheat marker rule is unchanged. Skills below 90% alignment dropped from 16 to 2.
+- **v1/v2 semantics drift in the published verifiers**: `EvalsVerifier` (CLI) and `EvalsIndex` (MCP) implemented literal v1 matching only, so verifying the shipped v2 run reported diffs that were artefacts of the verifier. Both now use the full v2 matcher and resolve the semantics version per skill from manifest provenance, exactly as `scorer.ts` does — making the claim in `docs/EVALS.md` true rather than aspirational.
+- **Matcher drift is now caught**: the matcher must live in three places (`mcp/tsconfig.json` pins `rootDir: src`, and each package bundles independently), so `scripts/evals/assertion-parity.test.ts` runs all three implementations over a shared corpus under both semantics versions and fails if they diverge.
+- **`references/testing.md` documented a schema that does not exist**: it listed `matches_regex` and `file_exists` (neither is real, and an unknown type fails closed on every transcript) and omitted `contains_any`, the second-most-used type. Corrected, along with the eval-count rule, the mandatory trigger classes, the task-contract grounding requirement, and the trigger target (80% → the real 90% release gate). Added guidance on testing a trade-off with counterfactual pairs.
+- **`secret-scan` CI failure**: gitleaks flagged the fake placeholder `prod_key_67890` on every PR. It appears in the CHANGELOG entry that documented the allowlist for it, and only `skills/*/references/*.md` was allowlisted. Scoped the allowlist to that one known-fake literal rather than to `CHANGELOG.md`, so a real secret committed there is still caught. Verified locally against gitleaks 8.30.1: full-history scan clean, and a planted AWS-style key still fails.
+
+---
+
 ## [specialists-v1.2.1] - 2026-08-30
 
 **Category**: Deep-dive fanout for design sessions
