@@ -20,6 +20,7 @@ const AGENTIC_RUNTIME_WORKFLOWS = [
   "sdlc",
   "brainstorm-feature",
   "plan-feature",
+  "system-design-session",
   "design-solution",
   "implementation-readiness",
   "implement-feature",
@@ -62,7 +63,9 @@ const TRUST_POLICY_WORKFLOWS = [
 // update-docs, zephyr-coverage-analysis) are invoked directly and are not routed by sdlc.
 const CORE_SDLC_CHAIN = [
   "brainstorm-feature",
+  "review-system-design",
   "plan-feature",
+  "system-design-session",
   "design-solution",
   "implementation-readiness",
   "implement-feature",
@@ -88,6 +91,7 @@ const OPERATOR_FACING_WORKFLOWS = [
   "sdlc",
   "brainstorm-feature",
   "plan-feature",
+  "system-design-session",
   "verify-work",
   "uat-signoff",
   "publish-notes",
@@ -129,6 +133,13 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
     maxLines: 80,
     requireGoal: true,
     requireOutputTemplate: true,
+  },
+  "system-design-session": {
+    maxLines: 90,
+    requireGoal: true,
+    requireOutputTemplate: true,
+    notes:
+      "Architecture/capacity session upstream of design-solution; phase-gated with adaptive depth. Allows 90 lines for the brownfield branch, null-option gate, cost estimate, and staged-plan output.",
   },
   "design-solution": {
     maxLines: 80,
@@ -182,6 +193,13 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
   },
 
   // Exceptions / Complex workflows
+  "review-system-design": {
+    maxLines: 80,
+    requireGoal: true,
+    requireOutputTemplate: true,
+    notes:
+      "Reviews a provided design artifact (image, drawio, doc, IaC) rather than running a session; ingestion and confirmation gate live in system-design-artifact-intake.",
+  },
   "code-review": {
     maxLines: 80,
     requireGoal: true,
@@ -253,6 +271,7 @@ const REQUIRED_SPECIALISTS = [
   "specialist-pr-commenter-batch",
   "specialist-pr-reviewer",
   "specialist-security-reviewer",
+  "specialist-system-architect",
   "specialist-tc-creator",
   "specialist-tdd-implementer",
   "specialist-test-gap-finder",
