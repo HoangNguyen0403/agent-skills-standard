@@ -41,7 +41,7 @@
     "cross-fetch": "^4.1.0",
     "dotenv": "^17.2.3",
     "fs-extra": "^11.2.0",
-    "inquirer": "^8.2.5",
+    "inquirer": "^14.0.2",
     "js-yaml": "^4.2.0",
     "picocolors": "^1.0.0",
     "zod": "^3.22.4"
