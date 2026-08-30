@@ -5,7 +5,7 @@
 
 **Sync 242 AI coding standards to any project in one command.** Works with Cursor, Claude Code, GitHub Copilot, Gemini, Windsurf, Trae, Kiro, and Roo.
 
-**Current release:** `v2.5.1` — automated SkillSpector security scanning, pull request evaluation gates, and verified release tags.
+**Current release:** `cli-v2.6.2` — OWASP Agentic Skills Top 10 hardening: skill-content lockfile (`ags verify`), opt-in enforcing hooks, blocking secret/dependency scanning, and a per-category governance/revocation model. See [CHANGELOG.md](https://github.com/HoangNguyen0403/agent-skills-standard/blob/main/CHANGELOG.md).
 
 ```bash
 npx agent-skills-standard@latest init   # detect your stack

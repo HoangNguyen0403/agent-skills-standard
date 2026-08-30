@@ -18,6 +18,25 @@ const PUBLISH_WORKFLOW_PATH = path.join(
   ROOT_DIR,
   ".github/workflows/publish.yml",
 );
+const ROOT_README_PATH = path.join(ROOT_DIR, "README.md");
+const CLI_README_PATH = path.join(ROOT_DIR, "cli/README.md");
+
+/**
+ * Both READMEs hand-maintain their own "Current release" line for the same
+ * `agent-skills-standard` CLI package — root README.md for GitHub,
+ * cli/README.md because npm renders the package's own README, not the repo
+ * root's. Nothing keeps them in sync: cli/README.md was found three releases
+ * behind (`v2.5.1` while the repo was on `cli-v2.6.2`), and that stale copy is
+ * exactly what ends up on npmjs.com once publish succeeds.
+ */
+async function readCurrentReleaseTag(
+  filePath: string,
+): Promise<string | null> {
+  if (!(await fs.pathExists(filePath))) return null;
+  const content = await fs.readFile(filePath, "utf8");
+  const match = content.match(/\*\*Current release:\*\*\s*`([^`]+)`/);
+  return match ? match[1] : null;
+}
 
 /**
  * `publish.yml` triggers on an explicit list of tag globs. A category whose
@@ -104,6 +123,19 @@ async function main() {
     }
   }
 
+  const rootReleaseTag = await readCurrentReleaseTag(ROOT_README_PATH);
+  const cliReleaseTag = await readCurrentReleaseTag(CLI_README_PATH);
+  if (rootReleaseTag === null) {
+    failures.push(`README.md: missing a "**Current release:** \`...\`" line`);
+  } else if (cliReleaseTag === null) {
+    failures.push(`cli/README.md: missing a "**Current release:** \`...\`" line`);
+  } else if (rootReleaseTag !== cliReleaseTag) {
+    failures.push(
+      `README.md says the current release is "${rootReleaseTag}" but cli/README.md says "${cliReleaseTag}" — ` +
+        `npm renders cli/README.md, so this is what ships to npmjs.com. Update both together.`,
+    );
+  }
+
   if (failures.length > 0) {
     console.error(pc.red("❌ Release tag validation failed:"));
     for (const failure of failures) {
@@ -114,7 +146,7 @@ async function main() {
 
   console.log(
     pc.green(
-      `✅ Release tag validation passed for ${Object.keys(categories).length} categories, each reachable from publish.yml.`,
+      `✅ Release tag validation passed for ${Object.keys(categories).length} categories, each reachable from publish.yml, and README.md/cli/README.md agree on "${rootReleaseTag}".`,
     ),
   );
 }
