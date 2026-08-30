@@ -1,0 +1,142 @@
+{
+  "skill_name": "system-design-building-blocks",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our product page does 40k reads per second against a Postgres primary that tops out around 8k. What should we add?",
+      "expected_output": "Adds a read-through or cache-aside layer justified by the read ceiling, accepts stale reads up to TTL as the cost, sets TTL from tolerable staleness with a named invalidation trigger, and guards the miss path with single-flight against a stampede on hot keys.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "Read-through cache",
+            "cache-aside",
+            "Read QPS exceeds store ceiling"
+          ],
+          "description": "Selects the component that removes the observed constraint"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "Stale reads up to TTL",
+            "tolerable staleness",
+            "invalidation trigger"
+          ],
+          "description": "States the cost accepted with the component"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "single-flight",
+            "stampede"
+          ],
+          "description": "Protects the miss path"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Checkout spikes overwhelm our inventory writes. Should we put a queue in front?",
+      "expected_output": "Recognizes that write spikes exceed sustainable store throughput and adds a queue plus async worker, requires idempotent consumers and at-least-once semantics, defines drain rate, DLQ, and backpressure, and notes ordering is per partition.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "Queue plus async worker",
+            "Write spikes exceed sustainable store throughput"
+          ],
+          "description": "Matches the queue to the write-spike constraint"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "at-least-once",
+            "idempotent consumers"
+          ],
+          "description": "Fixes delivery semantics explicitly"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "drain rate",
+            "backpressure",
+            "DLQ"
+          ],
+          "description": "Bounds the queue instead of letting it grow"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "We are adding two more cache nodes next month. How do we avoid a full cache flush, and how do we handle one extremely popular key?",
+      "expected_output": "Recommends consistent hashing with virtual nodes for rebalancing, and separately treats the hot key with replication or client-side caching since hashing does not fix popularity skew.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "Consistent hashing",
+            "virtual nodes"
+          ],
+          "description": "Chooses hashing for node-count changes"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "hot-key skew",
+            "Hot key"
+          ],
+          "description": "Separates placement from popularity"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "Rebalancing",
+            "moves only"
+          ],
+          "description": "Names the rebalancing cost"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Internal admin tool, about 200 requests per second, two engineers maintain it. One report page takes 4 seconds. Should we add Redis and a queue?",
+      "expected_output": "Declines the cache and the queue because no component without a constraint is allowed and 200 requests per second does not exceed the store ceiling; the correct move is to fix the query first, since caching hides a slow query rather than removing the bottleneck.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "No component without a constraint",
+            "no component without a constraint"
+          ],
+          "description": "Refuses a component that solves no stated constraint"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "No cache as a correctness fix",
+            "caching hides a slow query",
+            "fix the query"
+          ],
+          "description": "Fixes the query before caching"
+        },
+        {
+          "type": "not_contains",
+          "value": "consistent hashing",
+          "description": "Does not reach for cluster-scale machinery at 200 RPS"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Should we put a message queue between these services?",
+    "Which cache strategy fits this read-heavy endpoint?",
+    "Do we need an API gateway in front of these services?",
+    "How should we rate limit this public endpoint?"
+  ],
+  "should_not_trigger": [
+    "Write the SQL migration for this new column",
+    "Fix the lint errors in this file",
+    "Explain how JavaScript closures work",
+    "Update the changelog for the release"
+  ]
+}

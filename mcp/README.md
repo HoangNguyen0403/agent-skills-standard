@@ -225,7 +225,7 @@ composite via typescript/typescript-language common/common-best-practices
 composite via nestjs/nestjs-api-standards    common/common-api-design
 composite via nestjs/nestjs-file-uploads     common/common-security-standards
 composite via nestjs/nestjs-real-time        common/common-performance-engineering
-composite via nestjs/nestjs-transport        common/common-system-design
+composite via nestjs/nestjs-transport        system-design/system-design-principles
 ```
 
 ### 4. The agent now has these team rules in context
@@ -239,7 +239,7 @@ composite via nestjs/nestjs-transport        common/common-system-design
 | `common-best-practices`          | Functions < 30 lines, guard clauses, intention-revealing names |
 | `common-api-design`              | Status codes, pagination, idempotency, OpenAPI conventions     |
 | `common-security-standards`      | Authn/authz, input sanitization, secret handling               |
-| `common-system-design`           | Module boundaries, coupling rules                              |
+| `system-design-principles`      | Module boundaries, coupling rules                              |
 | `common-performance-engineering` | Async patterns, N+1 query checks                               |
 
 ### 5. The agent writes the code AND calls the audit before claiming done
@@ -255,7 +255,7 @@ Skills loaded: 11
 - common/common-best-practices
 - common/common-performance-engineering
 - common/common-security-standards
-- common/common-system-design
+- system-design/system-design-principles
 - nestjs/nestjs-api-standards
 - nestjs/nestjs-controllers-services
 - nestjs/nestjs-file-uploads

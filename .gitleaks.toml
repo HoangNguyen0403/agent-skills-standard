@@ -6,3 +6,11 @@ description = "Educational example code in skill reference docs — same false-p
 paths = [
   '''skills/.+/references/.+\.md$''',
 ]
+# The placeholder itself, wherever git history surfaces it. The paths rule above
+# covers the example file it came from, but the CHANGELOG entry that documented
+# that rule quotes the placeholder verbatim, so every PR re-detects it on the
+# full-history scan. Scoped to this one known-fake literal, not to CHANGELOG.md,
+# so a real secret committed there is still caught.
+regexes = [
+  '''prod_key_67890''',
+]

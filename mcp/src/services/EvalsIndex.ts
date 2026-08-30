@@ -4,17 +4,11 @@ import path from "path";
 type ArmName = "baseline" | "with-skill";
 type Metric = number | "n/a";
 type TriggerDecision = "yes" | "no";
-type AssertionType =
-  | "contains"
-  | "contains_any"
-  | "not_contains"
-  | "regex"
-  | "file_reference";
-
-interface Assertion {
-  type: AssertionType;
-  value: string | string[];
-}
+import {
+  checkAssertion,
+  type Assertion,
+  type AssertionSemanticsVersion,
+} from "./assertion-semantics";
 interface EvalCaseRef {
   id: string;
   kind: "eval" | "trigger" | "pressure";
@@ -28,6 +22,11 @@ interface ManifestSkill {
 }
 interface Manifest {
   schemaVersion?: 1 | 2;
+  assertionSemanticsVersion?: AssertionSemanticsVersion;
+  provenance?: Record<
+    string,
+    { assertionSemanticsVersion?: AssertionSemanticsVersion }
+  >;
   runId: string;
   category: string;
   version: string;
@@ -77,29 +76,6 @@ export interface EvalsVerifyOutcome {
   diffs?: string[];
 }
 
-function checkAssertion(assertion: Assertion, transcript: string): boolean {
-  const haystack = transcript.toLowerCase();
-  if (assertion.type === "contains_any") {
-    const values = Array.isArray(assertion.value)
-      ? assertion.value
-      : [assertion.value];
-    return values.some((value) => haystack.includes(value.toLowerCase()));
-  }
-  if (assertion.type === "not_contains")
-    return !haystack.includes(String(assertion.value).toLowerCase());
-  if (assertion.type === "regex") {
-    try {
-      return new RegExp(String(assertion.value), "i").test(transcript);
-    } catch {
-      return false;
-    }
-  }
-  if (assertion.type === "file_reference") {
-    const value = String(assertion.value).toLowerCase();
-    return haystack.includes(value) || haystack.includes(path.basename(value));
-  }
-  return haystack.includes(String(assertion.value).toLowerCase());
-}
 
 function answerPath(
   runDir: string,
@@ -197,6 +173,16 @@ function summarizeSkill(
     ]),
   );
   const pressureByIndex = evalsData.pressure_scenarios ?? [];
+  // Mirror scripts/evals/scorer.ts: v2 runs resolve the semantics per skill from
+  // provenance, falling back to the manifest default. Verifying a v2 run with v1
+  // semantics reports diffs that are artefacts of this verifier, not real drift.
+  const semanticsVersion: AssertionSemanticsVersion =
+    manifest.schemaVersion === 2
+      ? (manifest.provenance?.[`${skill.category}/${skill.skillName}`]
+          ?.assertionSemanticsVersion ??
+        manifest.assertionSemanticsVersion ??
+        1)
+      : 1;
   const baseline: boolean[] = [];
   const withSkill: boolean[] = [];
   const baselineAssertions: Array<{ passed: number; total: number }> = [];
@@ -230,7 +216,7 @@ function summarizeSkill(
           `missing answer: ${skill.skillName}/${currentCase.id}.${arm}`,
         );
       const checks = assertions.map((assertion) =>
-        checkAssertion(assertion, transcript),
+        checkAssertion(assertion, transcript, semanticsVersion),
       );
       (arm === "baseline" ? baseline : withSkill).push(checks.every(Boolean));
       (arm === "baseline" ? baselineAssertions : withSkillAssertions).push({
