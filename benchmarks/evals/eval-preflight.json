@@ -1,5 +1,300 @@
 {
-  "generatedAt": "2026-07-14T15:21:13.007Z",
-  "issueCount": 0,
-  "issues": []
+  "generatedAt": "2026-08-30T14:15:20.103Z",
+  "issueCount": 42,
+  "issues": [
+    {
+      "category": "android",
+      "skillName": "android-background-work",
+      "evalId": 1,
+      "assertion": "contains:WorkManager",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "android",
+      "skillName": "android-background-work",
+      "evalId": 1,
+      "assertion": "contains:Constraints",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "android",
+      "skillName": "android-testing",
+      "evalId": 1,
+      "assertion": "contains:Mock",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "common",
+      "skillName": "common-mobile-ux-core",
+      "evalId": 2,
+      "assertion": "contains_any:44,48,touch target",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "common",
+      "skillName": "common-observability",
+      "evalId": 2,
+      "assertion": "contains_any:GET /users/:id,normalized,cardinality",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "common",
+      "skillName": "common-observability",
+      "evalId": 2,
+      "assertion": "contains_any:structured logger,pino,zap",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "database",
+      "skillName": "database-mongodb",
+      "evalId": 1,
+      "assertion": "contains:index",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "database",
+      "skillName": "database-postgresql",
+      "evalId": 1,
+      "assertion": "contains:migration",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-getx-navigation",
+      "evalId": 1,
+      "assertion": "contains_any:Get.find,Get.put,GetMaterialApp",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-localization",
+      "evalId": 2,
+      "assertion": "contains_any:welcome_user,{name}",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-app-lifecycle",
+      "evalId": 1,
+      "assertion": "contains:Bootstrapper",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-app-lifecycle",
+      "evalId": 1,
+      "assertion": "contains:AppCoordinator",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-app-lifecycle",
+      "evalId": 1,
+      "assertion": "contains:BGTaskScheduler",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-app-lifecycle",
+      "evalId": 2,
+      "assertion": "contains:expirationHandler",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-app-lifecycle",
+      "evalId": 2,
+      "assertion": "contains:SceneDelegate",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-app-lifecycle",
+      "evalId": 3,
+      "assertion": "contains:AppDelegate",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-app-lifecycle",
+      "evalId": 3,
+      "assertion": "contains:Universal Links",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-navigation",
+      "evalId": 1,
+      "assertion": "contains:onOpenURL",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-navigation",
+      "evalId": 2,
+      "assertion": "contains:applinks",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-navigation",
+      "evalId": 2,
+      "assertion": "contains:TabItem",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-navigation",
+      "evalId": 3,
+      "assertion": "contains:guard let",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-navigation",
+      "evalId": 3,
+      "assertion": "contains:Stack",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-performance",
+      "evalId": 1,
+      "assertion": "contains:dequeueReusableCell",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-performance",
+      "evalId": 1,
+      "assertion": "contains:cellForRowAt",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-performance",
+      "evalId": 1,
+      "assertion": "contains:SDWebImage",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-performance",
+      "evalId": 2,
+      "assertion": "contains:Kingfisher",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-performance",
+      "evalId": 2,
+      "assertion": "contains:AsyncImage",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-performance",
+      "evalId": 2,
+      "assertion": "contains:SWIFT_TREAT_WARNINGS_AS_ERRORS",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-performance",
+      "evalId": 3,
+      "assertion": "contains:Instruments",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-performance",
+      "evalId": 3,
+      "assertion": "contains:Allocations",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-persistence",
+      "evalId": 3,
+      "assertion": "contains_any:merge policy,conflict-resolution,conflict",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-bullmq",
+      "evalId": 1,
+      "assertion": "contains:QUEUE_DRAIN_DELAY_MS",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-bullmq",
+      "evalId": 1,
+      "assertion": "contains:QUEUE_STALLED_INTERVAL_MS",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-bullmq",
+      "evalId": 1,
+      "assertion": "contains:getSharedBullQueueOptions",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-file-uploads",
+      "evalId": 2,
+      "assertion": "contains:Memory",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "python",
+      "skillName": "python-security",
+      "evalId": 1,
+      "assertion": "contains:shell=False",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-architecture",
+      "evalId": 1,
+      "assertion": "contains_any:TypeScript imports,typed absolute imports,path alias",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-architecture",
+      "evalId": 2,
+      "assertion": "contains_any:single responsibility,one purpose,single-purpose",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "spring-boot",
+      "skillName": "spring-boot-architecture",
+      "evalId": 1,
+      "assertion": "contains:feature",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-best-practices",
+      "evalId": 3,
+      "assertion": "contains_any:descriptive camelCase,Swift API Design Guidelines,PascalCase",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-best-practices",
+      "evalId": 3,
+      "assertion": "contains_any:Default to `let`,prefer `let`,let, structs",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-best-practices",
+      "evalId": 4,
+      "assertion": "contains_any:is`, `has`, or `can`,isVerified,hasPremiumAccess",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    }
+  ]
 }

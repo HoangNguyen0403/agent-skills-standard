@@ -140,7 +140,7 @@ Without it, upgrading past `common-v2.4.0` removes the P0 architecture guidance 
 
 ---
 
-## [cli-v2.6.2] - 2026-08-22
+## [cli-v2.6.1] - 2026-08-22
 
 **Category**: OWASP Agentic Skills Top 10 (AST) hardening
 
