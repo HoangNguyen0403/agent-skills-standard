@@ -195,7 +195,7 @@ canonical `all-v<version>` run when one exists.
 
 Scoring refuses to create `results.json` while any required answer is pending. Before a v2 result is written, the manifest's skill/eval hashes are checked and the exact `SKILL.md` and eval definitions are written once to immutable `inputs.json`.
 
-The scorer supports live assertion types `contains`, `contains_any`, `not_contains`, and case-insensitive `regex`. `file_reference` remains available only for legacy runs and structural audits.
+The scorer supports live assertion types `contains`, `contains_any`, `not_contains`, and case-insensitive `regex`. `file_reference` is still evaluated against the transcript for legacy runs, but no live eval uses it; do not introduce new ones. Any other type fails closed — the scorer returns `false`, so the assertion can never pass.
 
 Results include:
 
@@ -264,6 +264,8 @@ results.json        # generated v2 metrics; never hand-edit
 ```
 
 The root scripts, published CLI verifier, and MCP verifier all use the same v2 path and assertion semantics. v1 manifests/results remain readable through a compatibility adapter.
+
+The matcher is duplicated in three places — `scripts/evals/scorer.ts`, `cli/src/services/assertion-semantics.ts`, and `mcp/src/services/assertion-semantics.ts` — because `mcp/tsconfig.json` pins `rootDir: src` and each package bundles independently. `scripts/evals/assertion-parity.test.ts` runs all three over a shared corpus under both semantics versions and fails if they diverge. Change all three together.
 
 ## Historical runs and reporting
 
