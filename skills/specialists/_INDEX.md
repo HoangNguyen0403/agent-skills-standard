@@ -17,6 +17,7 @@
 | specialist-pr-commenter-batch | batch PR comments, post review findings, resolve PR threads, ADO comments, GitHub comments, GitLab comments |
 | specialist-pr-reviewer | PR review metadata, pull request summary, merge request summary, GitHub PR, GitLab MR, Azure DevOps PR |
 | specialist-security-reviewer | security review, vulnerability audit, OWASP check, security findings |
+| specialist-system-architect | deep dive, component design, architecture options, design trade-off, failure mode analysis |
 | specialist-tc-creator | create test case, Zephyr TC creation, test management, link TC to Jira |
 | **specialist-tdd-implementer** | tdd implementation, red green refactor, implement ac, quality unit test |
 | specialist-test-gap-finder | test gap, missing tests, coverage review, assertion quality |
