@@ -263,6 +263,7 @@ const REQUIRED_SPECIALISTS = [
   "specialist-pr-commenter-batch",
   "specialist-pr-reviewer",
   "specialist-security-reviewer",
+  "specialist-system-architect",
   "specialist-tc-creator",
   "specialist-tdd-implementer",
   "specialist-test-gap-finder",

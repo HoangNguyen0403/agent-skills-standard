@@ -53,6 +53,7 @@ See [implementation examples](references/implementation.md) for C4 container dia
 
 ## References
 
+- For design-session deliverables, `system-design-diagramming` supersedes Mermaid with the Archify typed-spec style.
 - [Diagram Selection](references/diagram-selection.md)
 - [Cloud Architecture](references/cloud-architecture.md)
 - [C4 Model Guide](references/c4-model.md)

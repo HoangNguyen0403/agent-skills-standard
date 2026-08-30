@@ -8,7 +8,7 @@ skills:
   typescript:
     ref: typescript-v1.3.4
   common:
-    ref: common-v2.4.0
+    ref: common-v3.0.0
     exclude:
       - common-accessibility
       - common-api-design

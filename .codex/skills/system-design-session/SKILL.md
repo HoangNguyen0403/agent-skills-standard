@@ -26,7 +26,7 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
 ## Steps
 
 1. Load inputs:
-   - Load `system-design-methodology` plus matched siblings (estimation, building-blocks, data-architecture, resilience-ops, review, principles) and `common-architecture-diagramming`.
+   - Load `system-design-methodology` plus matched siblings (estimation, building-blocks, data-architecture, resilience-ops, review, principles, diagramming).
    - Load PRD or ticket, existing architecture docs, and current traffic/incident data when reviewing an existing system.
 2. Classify and announce:
    - Mode: new design | review existing | interview practice.
@@ -41,9 +41,10 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
 5. Design incrementally:
    - Start from client, API, service, store; add one component at a time as `constraint -> component -> cost`.
    - Fix API surface, data ownership, and consistency class per flow.
-   - Render diagrams only after the component set is agreed: architecture/C4, sequence for the critical path, data flow.
+   - Render diagrams only after the component set is agreed, per `system-design-diagramming`: an `architecture` view plus `sequence` or `dataflow` for the critical path.
 6. Deep dive and decide:
-   - Take the 2-3 riskiest components; state bottlenecks, SPOFs, and rejected alternatives with reasons.
+   - Dispatch the 2-3 riskiest components to `specialist-system-architect`, one brief each with its numbers and consistency requirement.
+   - Merge the returned options, failure modes, and irreversible decisions; state bottlenecks, SPOFs, and rejected alternatives with reasons.
    - Write one ADR per irreversible decision; save the design to `docs/design/system-design-[slug].md` when file writes are allowed.
 7. Score and hand off:
    - Run the eight-axis scorecard, record the risk register, and emit the handoff payload.

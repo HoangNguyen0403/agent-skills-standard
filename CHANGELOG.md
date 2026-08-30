@@ -5,6 +5,76 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [system-design-v1.0.0] - 2026-08-30
+
+**Category**: System Design skill pack launch and architecture session workflow
+
+### Added
+
+- **`system-design` category (8 skills)**: A design-session capability that acts as an active co-architect rather than a passive reference.
+  - `system-design-methodology` (P0): session driver with adaptive depth (quick sketch vs full session), four phase gates, and intake parsing (verbs to use cases, nouns to entities, adjectives to constraints).
+  - `system-design-estimation` (P1): QPS, storage, bandwidth, and working-set math, latency and availability budgets, single-node planning ceilings.
+  - `system-design-building-blocks` (P1): load balancer, cache, queue, CDN, gateway, rate limiter, and consistent hashing selected by the constraint each removes.
+  - `system-design-data-architecture` (P1): store selection per access pattern, single data ownership, replication, sharding, hot and celebrity key mitigation.
+  - `system-design-resilience-ops` (P1): SPOF elimination, failover topology, RPO/RTO, observability baseline, rollout and rollback strategy.
+  - `system-design-review` (P1): eight-axis 0-10 scorecard, mistakes table, and evolution roadmap for auditing an existing or proposed design.
+  - `system-design-case-catalog` (P2): classic designs as constraint-to-solution sketches plus interview coaching mode.
+  - `system-design-diagramming` (P1): the house diagram format. Adopts the [Archify](https://github.com/tt-a1i/archify) (MIT) visual language — typed JSON spec, dark canvas, semantic node and edge colors, numbered `01 / Label` lanes, masked edge labels, mandatory legend — across architecture, workflow, sequence, dataflow, and lifecycle views. Renders through the Archify CLI when that skill is installed, and falls back to inline SVG on the same token contract when it is not. Mermaid is demoted to an input format, never the deliverable.
+- **`system-design-session` workflow**: Phase-gated architecture session placed between `plan-feature` and `design-solution` in the SDLC spine, emitting a design document, diagrams, ADRs, the scorecard, a risk register, and a machine-readable handoff payload.
+- **Keyword router row**: `IndexGeneratorServiceImpl` emits an explicit `AGENTS.md` router row for the category, since no file extension owns an architecture request.
+
+### Versions
+
+- **System Design Skills**: new → `1.0.0`
+
+---
+
+## [specialists-v1.3.0] - 2026-08-30
+
+**Category**: Deep-dive fanout for design sessions
+
+### Added
+
+- **`specialist-system-architect`**: Bounded deep dive on one named component of a design. Returns candidate options with a rejection reason each, state ownership and idempotency for the recommendation, failure-mode analysis, and the irreversible decision that needs an ADR. Returns `BLOCKED` rather than inventing a scale figure when the brief lacks numbers.
+
+### Versions
+
+- **Specialists**: `1.2.0` → `1.3.0`
+
+---
+
+## [common-v3.0.0] - 2026-08-30
+
+**Category**: System design relocation out of the common pack
+
+### Removed
+
+- **`common-system-design`**: Relocated to `system-design/system-design-principles` in the new `system-design` category. The skill content is unchanged; only its category and id changed.
+
+### Changed
+
+- **Diagramming pointer**: `common-architecture-diagramming` now names `system-design-diagramming` as the superseding format for design-session deliverables; its own Mermaid and C4 guidance is unchanged for every other use.
+- **Composite injection**: The `foundational_composite_rules` key `common/system-design` is now `system-design/principles`, so every skill whose id contains `architecture`, `migration`, `microservices`, `transport`, `background-work`, `background-processing`, or `clean-architecture` still auto-injects the same foundational guidance.
+- **Mobile excludes**: Dropped the now-dead `common-system-design` entry from `COMMON_SKILL_EXCLUDES.mobile`.
+
+### Migration
+
+Projects that relied on `common-system-design` must add the `system-design` category to `.skillsrc`:
+
+```yaml
+skills:
+  system-design:
+    ref: system-design-v1.0.0
+```
+
+Without it, upgrading past `common-v2.4.0` removes the P0 architecture guidance from the install. This is the breaking change behind the major version bump.
+
+### Versions
+
+- **Common Skills**: `2.4.0` → `3.0.0`
+
+---
+
 ## [database-v1.4.1] - 2026-08-24
 
 ### Added

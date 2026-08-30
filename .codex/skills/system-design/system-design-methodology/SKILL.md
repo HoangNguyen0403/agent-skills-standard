@@ -43,11 +43,12 @@ Requirements before solutions. Never draw a full architecture before numbers jus
 - Start with the smallest system satisfying functional requirements: client, API, service, store.
 - Add one component at a time. For each, state `constraint -> component -> cost` in one line. No component without a named constraint.
 - Define API surface (one endpoint per functional requirement) and data ownership before optimizing.
-- Diagram only after the component set is agreed, per `common-architecture-diagramming`.
+- Diagram only after the component set is agreed, per `system-design-diagramming`.
 
 ## Phase 4 - Deep Dives and Trade-offs
 
 - User picks the 2-3 riskiest components; go deep only there.
+- Dispatch each deep dive to `specialist-system-architect` with the component name, its numbers, and its consistency requirement; keep the session gates in this thread.
 - Close with bottlenecks, SPOFs, rejected alternatives plus rejection reasons, and the next scaling step.
 - Record one ADR per irreversible decision. Score the result with `system-design-review`.
 

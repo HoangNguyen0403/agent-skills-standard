@@ -1,0 +1,83 @@
+{
+  "skill_name": "system-design-diagramming",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draw the architecture for our checkout service: browser, API gateway, order service, Redis cache, Postgres, and a payment provider.",
+      "expected_output": "Authors a typed architecture spec with semantic node types and edge variants, renders through Archify when installed or inline SVG otherwise, and includes a legend.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["typed JSON spec", "author the JSON", "spec is the source of truth"],
+          "description": "Authors a spec rather than hand-placing pixels"
+        },
+        {
+          "type": "contains_any",
+          "value": ["frontend", "messagebus", "external"],
+          "description": "Uses the semantic node type vocabulary"
+        },
+        {
+          "type": "contains_any",
+          "value": ["Legend is mandatory", "legend"],
+          "description": "Includes the legend"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Just give me a quick mermaid graph for this flow, that is easier.",
+      "expected_output": "Declines Mermaid as the deliverable, reads it only for topology, and produces the house format instead.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["No Mermaid deliverable", "never ship Mermaid"],
+          "description": "Refuses Mermaid as the output format"
+        },
+        {
+          "type": "contains_any",
+          "value": ["read Mermaid for topology", "author fresh"],
+          "description": "Still accepts Mermaid as input"
+        },
+        {
+          "type": "contains_any",
+          "value": ["archify validate", "Render Path"],
+          "description": "Routes to the supported render path"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The diagram is crowded and two arrows cross a node. Can we drop the arrow labels to make room?",
+      "expected_output": "Refuses to delete labels as a geometry fix, treats the edge crossing an opaque node as a hard failure, and applies the repair order with clear-gap spacing.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["No label deleted to fix geometry", "labels are data"],
+          "description": "Protects semantic labels"
+        },
+        {
+          "type": "contains_any",
+          "value": ["No edge through an unrelated node", "hard failure"],
+          "description": "Treats the crossing as a failure, not a trade"
+        },
+        {
+          "type": "contains_any",
+          "value": ["Repair Order", "clear gap"],
+          "description": "Applies the ordered repair procedure"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Draw the architecture diagram for this system",
+    "Make a sequence diagram of the checkout call chain",
+    "Use archify to visualize this pipeline",
+    "Show the data flow between these services"
+  ],
+  "should_not_trigger": [
+    "Write a unit test for this helper",
+    "Fix the failing lint rule",
+    "Explain what a mutex does",
+    "Bump the package version"
+  ]
+}
