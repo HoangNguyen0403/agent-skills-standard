@@ -1,0 +1,44 @@
+{
+  "skill_name": "specialist-system-architect",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Deep dive the stock reservation component. 20k peak reserve QPS across 50k SKU rows, oversell forbidden, reservation TTL 10 minutes.",
+      "expected_output": "Restates the constraint, offers 2-3 options with a rejection reason each, specifies state ownership and idempotency for the recommendation, runs failure-mode analysis, and names the irreversible decision.",
+      "assertions": [
+        { "type": "contains", "value": "Options Considered" },
+        { "type": "contains", "value": "Rejected because" },
+        { "type": "contains", "value": "Failure Modes" },
+        { "type": "contains", "value": "Irreversible Decision" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Design the notification fan-out for us. No traffic numbers yet, just make reasonable assumptions.",
+      "expected_output": "Returns BLOCKED because the brief lacks traffic or data numbers, rather than inventing a scale figure.",
+      "assertions": [
+        { "type": "contains", "value": "BLOCKED" },
+        { "type": "contains", "value": "never invent a scale figure" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "While you are looking at the feed ranker, also redesign our auth service and the billing flow.",
+      "expected_output": "Stays inside the named component, declines to expand into neighboring components, and respects the tool cap.",
+      "assertions": [
+        { "type": "contains", "value": "Tool cap" },
+        { "type": "contains", "value": "No expansion into neighboring components" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Deep dive this component of the design",
+    "What are the architecture options for the reservation path?",
+    "Run a failure mode analysis on the feed fan-out"
+  ],
+  "should_not_trigger": [
+    "Create Zephyr test cases",
+    "Write release notes",
+    "Review this PR diff for lint errors"
+  ]
+}

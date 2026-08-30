@@ -23,7 +23,12 @@ on:
       - 'ios-v*'
       - 'swift-v*'
       - 'php-v*'
-      - 'specialist-v*'
+      - 'python-v*'
+      - 'laravel-v*'
+      - 'database-v*'
+      - 'quality-engineering-v*'
+      - 'system-design-v*'
+      - 'specialists-v*'
 
 permissions:
   contents: write

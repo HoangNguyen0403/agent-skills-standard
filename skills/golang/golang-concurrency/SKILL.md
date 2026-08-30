@@ -19,26 +19,40 @@ metadata:
 
 ## Principles
 
-- **Share Memory by Communicating**: Use channels instead of shared memory.
-- **Context King**: Always pass `ctx` to manage cancellation/timeouts.
-- **Prevent Leaks**: Never start goroutine without knowing how it will stop.
-- **Race Detection**: Always run tests with `go test -race`.
+- **Share Memory by Communicating**: Use channels or synchronization primitives instead of unprotected shared memory.
+- **Context Propagation**: Always pass `ctx` to manage cancellation, deadlines, and graceful termination.
+- **Throttle Database Load**: Reserve goroutines for independent external API calls or CPU work. **Avoid unconstrained goroutines hitting databases** to prevent connection pool exhaustion.
+- **Prevent Leaks**: Never start a goroutine without a deterministic shutdown mechanism.
+- **Race Detection**: Always verify concurrent code with `go test -race`.
 
 ## Implementation Workflow
 
-1. **Choose primitive** — Channels for data passing, `sync.Mutex` for simple state protection, `errgroup` for parallel tasks with error handling.
-2. **Pass context** — Every goroutine that I/O or long work must accept `context.Context`.
-3. **Define exit paths** — Every goroutine must clear shutdown mechanism (context cancellation, channel close, or WaitGroup).
-4. **Use select for multiplexing** — Handle multiple channels or timeouts with `select`.
-5. **Test with race detector** — Run `go test -race` in CI.
+1. **Choose primitive** — `errgroup.Group` for parallel tasks with error propagation, channels for pipelines, `sync.Mutex` for simple shared state.
+2. **Bound Concurrency with Semaphore** — Cap maximum active goroutines using a buffered channel semaphore:
+   ```go
+   sem := make(chan struct{}, maxWorkers)
+   for _, task := range tasks {
+       task := task // prevent loop pointer capture
+       sem <- struct{}{}
+       g.Go(func() error {
+           defer func() { <-sem }()
+           return task.Execute(ctx)
+       })
+   }
+   ```
+3. **Respect Context Cancellation** — Goroutines performing I/O must honor `ctx.Done()`.
+4. **Avoid Loop Pointer Capture** — Capture iteration variables explicitly before launching goroutines.
+5. **Test with race detector** — Run `go test -race` in local dev and CI.
 
 See [ErrGroup and concurrency patterns](references/concurrency-patterns.md) and [context timeout examples](references/context-usage.md)
 
 ## Anti-Patterns
 
-- **No goroutine leaks**: ensure every goroutine known exit path.
-- **No shared global state**: use channels or sync primitives across goroutines.
-- **No bare goroutines**: use `errgroup` or `WaitGroup` for lifecycle management.
+- **No DB connection spam**: avoid spawning unbounded goroutines to query the database in parallel.
+- **No goroutine leaks**: ensure every goroutine has an exit path via `ctx.Done()` or channel closure.
+- **No loop variable pointer trap**: never pass the address of a loop variable (`&item`) into a concurrent closure.
+- **No unbuffered goroutine spawn storms**: always cap concurrency with worker pools or semaphores.
+- **No bare goroutines**: use `errgroup` or `sync.WaitGroup` for lifecycle tracking.
 
 ## References
 
