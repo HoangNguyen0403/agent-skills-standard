@@ -43,7 +43,7 @@ jobs:
       id-token: write # required for `npm publish --provenance`
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
@@ -133,7 +133,7 @@ jobs:
       id-token: write # required for `npm publish --provenance`
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
