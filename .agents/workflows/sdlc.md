@@ -30,6 +30,7 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Bug ticket needs fix (non-urgent) -> `dev-fix`
    - Ticket or cross-functional change needs specialist fanout, AC coverage, and PR metadata review -> `review-ticket`
    - PR diff needs focused merge-risk review -> `code-review`
+   - Implementation GREEN but ACs lack executable E2E/mobile coverage, or an E2E suite is red after a previously green slice -> `test-loop`.
    - Code complete but unproven -> `verify-work`
    - Fix implemented and ticket has a UAT/Jira flow -> `verify-bug`
    - `verify-work` PASS on a feature, business acceptance not yet granted -> `uat-signoff`
