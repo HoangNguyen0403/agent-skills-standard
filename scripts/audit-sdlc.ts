@@ -256,6 +256,7 @@ const REQUIRED_SPECIALISTS = [
   "specialist-tc-creator",
   "specialist-tdd-implementer",
   "specialist-test-gap-finder",
+  "specialist-test-planner",
   "specialist-zephyr-scanner",
 ];
 
