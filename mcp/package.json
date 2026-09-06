@@ -47,18 +47,18 @@
     "js-yaml": "^5.4.1",
     "express": "^5.2.1",
     "minimatch": "^10.2.6",
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/js-yaml": "^4.0.9",
     "@types/express": "^5.0.6",
-    "@types/node": "^26.4.0",
+    "@types/node": "^26.4.1",
     "@vitest/coverage-v8": "^4.1.11",
     "vite": "^8.2.2",
     "tsup": "^8.3.5",
     "typescript": "^7.0.2",
-    "tsx": "^4.23.12",
+    "tsx": "^4.23.13",
     "vitest": "^4.1.11"
   }
 }
