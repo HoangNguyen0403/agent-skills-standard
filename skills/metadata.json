@@ -390,23 +390,23 @@
     },
     "quality-engineering": {
       "version": "1.6.0",
-      "last_updated": "2026-07-15",
+      "last_updated": "2026-09-06",
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 7335,
-        "avg_tokens_per_skill": 734,
+        "total_tokens": 7373,
+        "avg_tokens_per_skill": 737,
         "largest_skill": "quality-engineering-zephyr-test-generation (1302 tokens)"
       }
     },
     "specialists": {
       "version": "1.3.0",
-      "last_updated": "2026-08-16",
+      "last_updated": "2026-09-06",
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 17,
-        "total_tokens": 8230,
-        "avg_tokens_per_skill": 484,
+        "total_tokens": 8262,
+        "avg_tokens_per_skill": 486,
         "largest_skill": "specialist-tdd-implementer (824 tokens)"
       }
     },

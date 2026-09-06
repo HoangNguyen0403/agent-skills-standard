@@ -17,7 +17,7 @@ Produce one executable test plan for one slug from its approved `AC-*`/SRS lanes
 - Read: PRD/SRS for the slug, the target repo's existing E2E test directory, one sibling test file as a style sample.
 - Write only `docs/srs/test-plan-[slug].md` (and `specs/[slug].md` if Playwright agents are initialised) plus the seed skeleton file.
 - No production code, no Git, no sub-agents.
-- Return `BLOCKED` if no stable `AC-*` trace exists for the slug.
+- Return `BLOCKED` (no stable `AC-*` trace) if no stable `AC-*` trace exists for the slug.
 
 ## Steps
 
@@ -25,7 +25,9 @@ Produce one executable test plan for one slug from its approved `AC-*`/SRS lanes
 2. Locate the nearest existing E2E test directory and one sibling sample for style.
 3. Write one scenario per AC condition with Steps/Expected/`@AC-n`/priority/lane.
 4. Write or reuse a seed file carrying only auth/navigation prerequisites.
-5. List every element the scenarios need that has no known stable selector as `Selector Gaps`.
+5. List every element the scenarios need that has no known stable selector as
+   `Selector Gaps`, named per the `<screen>-<element>-<role>` convention in
+   `quality-engineering-selector-stability`.
 
 ## Output
 

@@ -1028,7 +1028,7 @@ git commit -m "docs(sdlc): route ACs lacking executable E2E coverage to test-loo
 
 **Files:**
 - Modify: `skills/metadata.json` (quality-engineering, specialists version refs)
-- Regenerate (do not hand-edit): `_INDEX.md` files, `skills/index.json`, `skills/README.md`, `.codex/agents/specialist-test-planner.toml`, `.codex/skills/test-loop/SKILL.md`, `.github/copilot-agents/*`, `.github/prompts/test-loop.prompt.md`
+- Regenerate (do not hand-edit): `_INDEX.md` files, `skills/index.json`, `skills/README.md`, `.codex/agents/test-planner.toml`, `.codex/skills/test-loop/SKILL.md`, `.github/copilot-agents/*`, `.github/prompts/test-loop.prompt.md`
 
 **Interfaces:**
 - Consumes: all skills/specialist/workflow files created in Tasks 1-6.
@@ -1044,10 +1044,32 @@ Expected: shows the current `ref` values (e.g. `quality-engineering-v1.5.1`, `sp
 Run: `pnpm calculate-tokens && pnpm generate-indices`
 Expected: both exit 0; `git status` shows updates to `skills/metadata.json` (`token_metrics`, `last_updated`), `_INDEX.md` files, `skills/index.json`, `skills/README.md`.
 
-- [ ] **Step 3: Build and sync exports**
+- [ ] **Step 3: Propagate exports manually — do not run `sync`**
 
-Run: `pnpm build && node cli/dist/index.js sync`
-Expected: exits 0; `git status` shows new/updated `.codex/agents/specialist-test-planner.toml`, `.codex/skills/test-loop/SKILL.md`, `.codex/skills/quality-engineering-*/SKILL.md` (for the 3 new QE skills), `.github/copilot-agents/specialist-test-planner.instructions.md`, `.github/prompts/test-loop.prompt.md`. If `ags sync` prompts interactively, answer to sync this repo's own `.skillsrc` (agent-skills-standard dogfoods its own registry).
+`sync` cannot be used to generate exports for unreleased local content in this
+repo: it hangs without `-y`, and with `-y` it pulls from the *published
+remote* registry and deletes unpublished local skills — this actually
+happened and had to be reverted during Task 8. Do not run `pnpm build`,
+`node cli/dist/index.js sync`, or `ags sync` for this step.
+
+Instead:
+- For the `test-loop` workflow export, call `WorkflowTransformer.parse()` /
+  `transformParsed()` directly and offline — the same approach this repo's
+  own `cli/src/services/utils/__tests__/WorkflowTransformer.spec.ts` parity
+  test uses — to derive `.codex/skills/test-loop/SKILL.md` and
+  `.github/prompts/test-loop.prompt.md` from `.agents/workflows/test-loop.md`.
+- For skill-only content (the 3 new QE skills, `specialist-test-planner`),
+  manually copy the canonical `skills/**/SKILL.md` (and `references/*.md`)
+  body into each of the 4 export targets (`.agents/skills/`, `.codex/skills/`,
+  `.github/skills/`, plus `.codex/agents/test-planner.toml` and
+  `.github/copilot-agents/specialist-test-planner.instructions.md` for the
+  specialist), keeping every copy byte-identical to the canonical body.
+
+Expected: `git status` shows new/updated `.codex/agents/test-planner.toml`,
+`.codex/skills/test-loop/SKILL.md`, `.codex/skills/quality-engineering-*/SKILL.md`
+(for the 3 new QE skills), `.github/copilot-agents/specialist-test-planner.instructions.md`,
+`.github/prompts/test-loop.prompt.md` — each byte-identical (body-only) to its
+canonical source.
 
 - [ ] **Step 4: Commit generated files**
 
@@ -1102,5 +1124,5 @@ git commit -m "chore(test-loop): P0 gate suite green (audit:keywords/skills/sdlc
 
 - All 8 tasks committed on `feat/test-loop-skills-p0-2026-09-06`.
 - `pnpm validate:all && pnpm audit:sdlc && pnpm test` green.
-- `ags sync` output includes the 3 new QE skills, `specialist-test-planner`, and `test-loop`.
+- All 4 export targets (`.agents/skills/`, `.codex/skills/`, `.github/skills/`, plus `.codex/agents/test-planner.toml` and `.github/copilot-agents/specialist-test-planner.instructions.md`) carry byte-identical bodies for the 3 new QE skills, `specialist-test-planner`, and `test-loop` — propagated manually per Task 7 Step 3 (`ags sync`/`node cli/dist/index.js sync` is unsafe against this repo's unpublished local content and was not used).
 - Ready for Phase P1 planning (Playwright MCP authoring skill, POM generation skill, `specialist-testid-inserter`, wiring `test-loop` Generate step) — write that as a separate plan once P0 is merged and solo-corp's P0 plan (sandbox image, verifier regex, safe-commands allowlist) has also landed, since P1's acceptance test drives a real goal through both repos together.

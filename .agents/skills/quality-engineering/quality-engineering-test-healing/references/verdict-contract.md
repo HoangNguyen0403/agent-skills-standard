@@ -6,5 +6,6 @@
   product behavior change; hand off to `dev-fix` with the failure evidence.
 - `QUARANTINE_CANDIDATE`: fails intermittently across isolated reruns with no
   code change between runs; hand off to `quality-engineering-flaky-triage`
-  with a ticket, not left green-by-retry.
-- `BLOCKED`: no trace/screenshot/log artifact available to classify from.
+  (Phase P3, not yet implemented) with a ticket, not left green-by-retry.
+- `BLOCKED` (no evidence artifact): no trace/screenshot/log artifact available
+  to classify from.

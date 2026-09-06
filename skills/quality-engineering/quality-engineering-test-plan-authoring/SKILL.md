@@ -40,8 +40,10 @@ prerequisites: auth and navigation to the starting screen. No assertions.
 ## Mandatory Sections
 
 `Selector Gaps` (elements the plan needs that have no stable id yet — feeds
-`specialist-testid-inserter`) and `Data & Reset` (fixtures needed, how state
-resets between scenarios).
+`specialist-testid-inserter`, Phase P1, not yet implemented) and `Data & Reset`
+(fixtures needed, how state resets between scenarios). Gaps must follow the
+`<screen>-<element>-<role>` naming convention defined in
+`quality-engineering-selector-stability`.
 
 ## Relationship to Zephyr
 

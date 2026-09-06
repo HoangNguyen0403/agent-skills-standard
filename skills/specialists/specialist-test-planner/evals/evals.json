@@ -15,7 +15,8 @@
       "prompt": "There's no PRD for this slug yet, just plan tests from what the app currently does.",
       "expected_output": "Return BLOCKED, no stable AC-* trace.",
       "assertions": [
-        { "type": "contains", "value": "BLOCKED:" }
+        { "type": "contains", "value": "BLOCKED:" },
+        { "type": "not_contains", "value": "SCENARIOS:" }
       ]
     },
     {
