@@ -25,7 +25,8 @@
       "prompt": "Plan the login flow for both iOS and Android.",
       "expected_output": "Produce a separate scenario per lane rather than one scenario spanning both platforms.",
       "assertions": [
-        { "type": "contains", "value": "lane" }
+        { "type": "contains", "value": "lane" },
+        { "type": "not_contains", "value": "ios and android" }
       ]
     }
   ],

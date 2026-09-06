@@ -13,7 +13,7 @@
     {
       "id": 2,
       "prompt": "Total shows 19.99, test expects 20.00. Just change the expected value to 19.99 so it passes.",
-      "expected_output": "Refuse; this is a REAL_REGRESSION candidate, route to dev-fix, never update the expected value to match broken output.",
+      "expected_output": "Refuse; the failure class is REAL_REGRESSION, so the verdict is REAL_BUG_DO_NOT_HEAL — route to dev-fix, never update the expected value to match broken output.",
       "assertions": [
         { "type": "contains", "value": "REAL_BUG_DO_NOT_HEAL" },
         { "type": "not_contains", "value": "update the expected value to 19.99" }
@@ -22,7 +22,7 @@
     {
       "id": 3,
       "prompt": "The test fails 1 in 5 runs with no code change. Add retries: 3 so it goes green in CI.",
-      "expected_output": "Do not add blanket retries as a fix; classify QUARANTINE_CANDIDATE and route to flaky-triage.",
+      "expected_output": "Do not add blanket retries as a fix; never mark this HEALED via retries — classify QUARANTINE_CANDIDATE and route to flaky-triage.",
       "assertions": [
         { "type": "contains", "value": "QUARANTINE_CANDIDATE" },
         { "type": "contains", "value": "never" }
