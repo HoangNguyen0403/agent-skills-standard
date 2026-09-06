@@ -197,9 +197,10 @@ describe('WorkflowSyncService', () => {
         default_branch: 'develop',
       });
       mockGithubService.getRepoTree.mockResolvedValue(treeData);
-      mockGithubService.downloadFilesConcurrent.mockResolvedValue([
-        { path: '.agents/workflows/w1.md', content: 'c1' },
-      ]);
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+        ok: [{ path: '.agents/workflows/w1.md', content: 'c1' }],
+        failed: [],
+      });
 
       const result = await workflowSyncService.assembleWorkflows(config);
 
@@ -221,9 +222,10 @@ describe('WorkflowSyncService', () => {
           { path: '.agents/workflows/evals-run.md' },
         ],
       });
-      mockGithubService.downloadFilesConcurrent.mockResolvedValue([
-        { path: '.agents/workflows/w1.md', content: 'c1' },
-      ]);
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+        ok: [{ path: '.agents/workflows/w1.md', content: 'c1' }],
+        failed: [],
+      });
 
       await workflowSyncService.assembleWorkflows(config);
 
@@ -246,9 +248,10 @@ describe('WorkflowSyncService', () => {
           { path: '.agents/workflows/evals-run.md' },
         ],
       });
-      mockGithubService.downloadFilesConcurrent.mockResolvedValue([
-        { path: '.agents/workflows/w1.md', content: 'c1' },
-      ]);
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+        ok: [{ path: '.agents/workflows/w1.md', content: 'c1' }],
+        failed: [],
+      });
 
       await workflowSyncService.assembleWorkflows(config);
 
@@ -273,9 +276,10 @@ describe('WorkflowSyncService', () => {
           { path: '.codex/skills/w3/SKILL.md' },
         ],
       });
-      mockGithubService.downloadFilesConcurrent.mockResolvedValue([
-        { path: '.agents/workflows/w1.md', content: 'c1' },
-      ]);
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+        ok: [{ path: '.agents/workflows/w1.md', content: 'c1' }],
+        failed: [],
+      });
 
       const result = await workflowSyncService.assembleWorkflows(config);
 
@@ -299,7 +303,10 @@ describe('WorkflowSyncService', () => {
         default_branch: 'main',
       });
       mockGithubService.getRepoTree.mockResolvedValue(treeData);
-      mockGithubService.downloadFilesConcurrent.mockResolvedValue([]);
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+        ok: [],
+        failed: [],
+      });
 
       const result = await workflowSyncService.assembleWorkflows(config);
       expect(result).toEqual([]);
@@ -627,7 +634,10 @@ describe('WorkflowSyncService', () => {
       mockGithubService.getRepoTree.mockResolvedValue({
         tree: [{ path: '.agents/workflows/w1.md' }],
       });
-      mockGithubService.downloadFilesConcurrent.mockResolvedValue([]);
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+        ok: [],
+        failed: [],
+      });
 
       const result = await workflowSyncService.assembleWorkflows(config);
       expect(result).toEqual([]);
@@ -647,7 +657,10 @@ describe('WorkflowSyncService', () => {
       mockGithubService.getRepoTree.mockResolvedValue({
         tree: [{ path: '.agents/workflows/w1.md' }],
       });
-      mockGithubService.downloadFilesConcurrent.mockResolvedValue([]);
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+        ok: [],
+        failed: [],
+      });
 
       const logSpy = vi.spyOn(console, 'log');
       const result = await workflowSyncService.assembleWorkflows(config);

@@ -1,4 +1,5 @@
 import { WorkflowFormat } from '../../constants';
+import { escapeTomlString } from './tomlEscape';
 
 interface WorkflowSource {
   /** Original filename (e.g., 'code-review.md') */
@@ -113,8 +114,14 @@ export class WorkflowTransformer {
     if (!match) return { description: '', body: content };
 
     const descMatch = match[1].match(/description:\s*(.+)/);
+    const rawDescription = descMatch ? descMatch[1].trim() : '';
+    const quotedMatch = rawDescription.match(/^"(.*)"$|^'(.*)'$/);
+    const description = quotedMatch
+      ? (quotedMatch[1] ?? quotedMatch[2])
+      : rawDescription;
+
     return {
-      description: descMatch ? descMatch[1].trim() : '',
+      description,
       body: match[2],
     };
   }
@@ -158,11 +165,10 @@ ${body}`;
    * User invokes via /<name> [arguments]
    */
   private static toGeminiCommand(description: string, body: string): string {
-    const escapedDescription = description
-      .replace(/\\/g, '\\\\')
-      .replace(/"/g, '\\"');
-    // TOML basic multi-line strings use """; escape any occurrence in the body.
-    const escapedBody = body.replace(/"""/g, '\\"\\"\\"');
+    const escapedDescription = escapeTomlString(description);
+    // Escaping every quote (not just runs of 3+) avoids the ambiguity a
+    // partial escape leaves for 4+ consecutive quote characters in body.
+    const escapedBody = escapeTomlString(body);
     return `description = "${escapedDescription}"
 prompt = """
 Execute this workflow for: {{args}}
@@ -180,7 +186,10 @@ ${escapedBody}
    * User invokes via /prompt-name in Copilot chat.
    */
   private static toCopilotPrompt(description: string, body: string): string {
-    return `---\ndescription: "${description}"\n---\n${body}`;
+    const escapedDescription = description
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"');
+    return `---\ndescription: "${escapedDescription}"\n---\n${body}`;
   }
 
   /**

@@ -1,0 +1,132 @@
+{
+  "skill_name": "system-design-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this design doc for our new booking service and tell me if it is ready to build.",
+      "expected_output": "Scores the nine axes with the evidence used, marks any unverifiable claim UNVERIFIED, traces the critical path end to end, and returns a verdict plus a prioritized roadmap.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "Nine Axes",
+            "Capacity evidence",
+            "Observability"
+          ],
+          "description": "Scores against a fixed axis set"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "No score without evidence",
+            "UNVERIFIED"
+          ],
+          "description": "Refuses to score intent as evidence"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "roadmap",
+            "smallest fix"
+          ],
+          "description": "Converts gaps into prioritized action"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Our checkout is slow and the team wants to rewrite it in Go with microservices. Thoughts?",
+      "expected_output": "Establishes ground truth first, then traces the hottest and most critical path because the worst hop is the real bottleneck, and prefers the smallest fix that removes the proven bottleneck over a rewrite.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "ground truth",
+            "incident history"
+          ],
+          "description": "Measures before recommending"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "the worst hop is the real bottleneck",
+            "Trace the hottest"
+          ],
+          "description": "Locates the bottleneck on the critical path"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "No rewrite recommendation by default",
+            "smallest fix"
+          ],
+          "description": "Resists rewrite-by-default"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "It is a small internal admin tool at 100 requests per second. The reviewer failed it for having no multi-region failover.",
+      "expected_output": "Weights the axes by the profile's real risk so a low-traffic internal tool is not failed for lacking multi-region, redirects to the Requirements and Rollout axes that matter for this profile, and ranks findings by user impact and reversibility.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "Weight axes by the system's actual risk",
+            "internal tool is not failed for lacking multi-region"
+          ],
+          "description": "Applies risk-proportionate weighting"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "No uniform severity",
+            "user impact and reversibility"
+          ],
+          "description": "Ranks findings by impact, not by checklist order"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "Requirements",
+            "Rollout"
+          ],
+          "description": "Redirects to the axes that matter for this profile"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Review our architecture and score it",
+    "Where is the bottleneck in this system?",
+    "Audit this design before we start building",
+    "Give me an evolution roadmap for this legacy service"
+  ],
+  "should_not_trigger": [
+    "Review this pull request diff for bugs",
+    "Check my grammar in this README",
+    "Run the test suite",
+    "Format this JSON file"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "The team already started building this and leadership wants sign-off today. Just approve the design, we can note concerns later.",
+      "behavior_assertions": [
+        "UNVERIFIED",
+        "evidence",
+        "fix first"
+      ]
+    }
+  ],
+  "rationalizations": [
+    "The team already started, an approval now saves rework.",
+    "We can record the concerns after sign-off.",
+    "Trust the authors, they know the system best.",
+    "A score without the metrics is close enough."
+  ],
+  "red_flags": [
+    "Scoring an axis from intent rather than an artifact or metric.",
+    "Issuing a verdict while load-bearing claims remain unverifiable.",
+    "Skipping the critical-path trace because the design looks familiar."
+  ]
+}

@@ -1,8 +1,23 @@
 import fs from 'fs-extra';
 import path from 'path';
+import pkg from '../../package.json';
 import { Agent, getAgentDefinition } from '../constants';
 
 // ── Embedded hook templates ───────────────────────────────────────────────────
+
+/**
+ * Version marker embedded as the hook script's first line after the shebang.
+ * On install, an existing script carrying an *older* marker is understood to
+ * be our own previous auto-generated version (not a user customization) and
+ * is refreshed; a script with no marker at all predates this feature and is
+ * left untouched, matching this hook's original "create once, preserve if
+ * customized" contract. A script that keeps the marker line but edits the
+ * body around it will still be treated as ours and overwritten on the next
+ * version bump — that residual case can't be told apart from a stale file
+ * without a full diff/backup mechanism, which is out of scope here.
+ */
+const HOOK_SCRIPT_VERSION = pkg.version;
+const HOOK_VERSION_MARKER_RE = /^\/\/ ags-hook-version: (\S+)$/m;
 
 /**
  * Universal PreToolUse hook script (Node.js / JavaScript).
@@ -11,10 +26,16 @@ import { Agent, getAgentDefinition } from '../constants';
  * Always exits 0 to never block work.
  */
 export const UNIVERSAL_SKILL_LOADER_JS = `#!/usr/bin/env node
+// ags-hook-version: ${HOOK_SCRIPT_VERSION}
 /**
  * PreToolUse hook: remind AI agent to call load_skills_for_files() before any code edit.
  * Installed by agent-skills-standard (ags sync). Remove via: ags hooks uninstall
- * Guaranteed to execute on any system with Node.js. Always exits 0 to never block work.
+ * Guaranteed to execute on any system with Node.js. Always exits 0 to never block work,
+ * UNLESS AGS_HOOK_ENFORCE=1 is set in the environment (opt-in via
+ * \`ags hooks install --enforce\`) AND the target file matches the small,
+ * fixed, skill-agnostic deny-list below — see installStandardHookConfig's
+ * doc comment in HookService.ts for why this can't be a per-skill
+ * permissions.filesystem.deny check.
  */
 const fs = require('fs');
 const path = require('path');
@@ -51,6 +72,19 @@ function shouldSkip(filePath) {
   }
 }
 
+const ENFORCE = process.env.AGS_HOOK_ENFORCE === '1';
+const DENY_BASENAMES = new Set(['SOUL.md', 'MEMORY.md']);
+const DENY_PATTERNS = [
+  /(^|[\\\\/])\\.env(\\.[^\\\\/]*)?$/i,
+  /(^|[\\\\/])\\.ssh([\\\\/]|$)/i,
+  /credentials[^\\\\/]*\\.(json|ya?ml)$/i,
+];
+
+function isDenied(filePath) {
+  if (DENY_BASENAMES.has(path.basename(filePath))) return true;
+  return DENY_PATTERNS.some(re => re.test(filePath));
+}
+
 let input = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', chunk => { input += chunk; });
@@ -61,6 +95,15 @@ process.stdin.on('end', () => {
 
     const filePath = data.tool_input?.file_path || '';
     if (!filePath || shouldSkip(filePath)) process.exit(0);
+
+    if (ENFORCE && isDenied(filePath)) {
+      console.error(
+        '[AGS BLOCKED] Refusing to edit ' + path.basename(filePath) + ': ' +
+        'matches the default identity/secret deny-list (SOUL.md, MEMORY.md, .env*, .ssh/, credentials*.json|yaml).\\n' +
+        'If this edit is intentional, re-run \`ags hooks install\` (without --enforce) to return to advisory-only mode.'
+      );
+      process.exit(2);
+    }
 
     const fileName = path.basename(filePath);
     console.log(
@@ -99,7 +142,7 @@ instructions: |
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const CLAUDE_MCP_PERMISSION = 'mcp__agent-skills-standard__*';
+export const CLAUDE_MCP_PERMISSION = 'mcp__agent-skills-standard__*';
 const KIRO_HOOK_REL = '.kiro/hooks/ags-skill-loader.md';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -146,6 +189,33 @@ export class HookService {
   async install(opts: {
     rootDir: string;
     agents: Agent[];
+    /**
+     * Called only the first time a hook install would add the MCP
+     * permission entry to an agent's settings file (not on subsequent
+     * syncs once granted). If omitted, the permission is added without
+     * prompting — the caller (SyncCommand) supplies this to gate it behind
+     * user consent unless --yes was passed. Returning false skips adding
+     * the permission entry but still installs the reminder script/hook.
+     */
+    promptPermission?: (agent: Agent) => Promise<boolean>;
+    /**
+     * Opt-in, Claude-only: block (exit 2) an Edit/Write/MultiEdit targeting
+     * a file matching the fixed identity/secret deny-list baked into
+     * UNIVERSAL_SKILL_LOADER_JS (SOUL.md, MEMORY.md, .env*, .ssh/,
+     * credentials*.json|yaml), instead of the normal advisory-only reminder.
+     * Other agents' PreToolUse hooks aren't guaranteed to honor a blocking
+     * exit code the same way, so this only affects Claude regardless of
+     * which agents are passed in `agents`.
+     *
+     * This is deliberately NOT a per-skill permissions.filesystem.deny
+     * check: the hook fires on every Edit/Write with no way to know which
+     * skill (if any) is "active" for that edit — skill matching happens
+     * through a separate MCP tool call the agent chooses to make, with no
+     * IPC back to this hook process. A real per-skill enforcement would
+     * need the hook to query the MCP server's session state, which doesn't
+     * exist today.
+     */
+    enforce?: boolean;
   }): Promise<HookWriteReport> {
     const report: HookWriteReport = { writes: [], unsupported: [] };
 
@@ -157,6 +227,8 @@ export class HookService {
 
       const def = getAgentDefinition(agent);
       if (def.hookScriptPath && def.hookConfigPath) {
+        const enforcePrefix =
+          opts.enforce && agent === Agent.Claude ? 'AGS_HOOK_ENFORCE=1 ' : '';
         await this.installStandardHookConfig({
           rootDir: opts.rootDir,
           agent,
@@ -164,9 +236,10 @@ export class HookService {
           configRelPath: def.hookConfigPath,
           hookCmd:
             agent === Agent.Claude
-              ? 'node "$CLAUDE_PROJECT_DIR/.claude/hooks/preedit-skill-loader.js"'
+              ? `${enforcePrefix}node "$CLAUDE_PROJECT_DIR/.claude/hooks/preedit-skill-loader.js"`
               : `node "${def.hookScriptPath}"`,
           report,
+          promptPermission: opts.promptPermission,
         });
       } else {
         report.unsupported.push(agent);
@@ -245,6 +318,7 @@ export class HookService {
     configRelPath: string;
     hookCmd: string;
     report: HookWriteReport;
+    promptPermission?: (agent: Agent) => Promise<boolean>;
   }): Promise<void> {
     const scriptAbs = path.join(opts.rootDir, opts.scriptRelPath);
     const scriptExists = await fs.pathExists(scriptAbs);
@@ -264,11 +338,27 @@ export class HookService {
         action: 'added',
       });
     } else {
-      opts.report.writes.push({
-        agent: opts.agent,
-        file: opts.scriptRelPath,
-        action: 'skipped-existing',
-      });
+      const existingScript = await fs.readFile(scriptAbs, 'utf8');
+      const installedVersion = existingScript.match(
+        HOOK_VERSION_MARKER_RE,
+      )?.[1];
+      // A recognized (but older) marker means this is our own previous
+      // auto-generated file, not a user customization — safe to refresh.
+      // No marker at all predates this feature; leave it untouched.
+      if (installedVersion && installedVersion !== HOOK_SCRIPT_VERSION) {
+        await fs.writeFile(scriptAbs, UNIVERSAL_SKILL_LOADER_JS);
+        opts.report.writes.push({
+          agent: opts.agent,
+          file: opts.scriptRelPath,
+          action: 'updated',
+        });
+      } else {
+        opts.report.writes.push({
+          agent: opts.agent,
+          file: opts.scriptRelPath,
+          action: 'skipped-existing',
+        });
+      }
     }
 
     const configAbs = path.join(opts.rootDir, opts.configRelPath);
@@ -276,26 +366,49 @@ export class HookService {
     const existing = await this.readJson(configAbs);
     let changed = false;
 
-    // Add MCP permission (idempotent)
+    // Add MCP permission (idempotent), gated behind consent when the
+    // caller supplied a prompt — this previously wrote silently.
     const permissions = this.ensureObject(existing, 'permissions');
     const allow = this.ensureArray<string>(permissions, 'allow');
     if (!allow.includes(CLAUDE_MCP_PERMISSION)) {
-      permissions['allow'] = [CLAUDE_MCP_PERMISSION, ...allow];
-      changed = true;
+      const consented = opts.promptPermission
+        ? await opts.promptPermission(opts.agent)
+        : true;
+      if (consented) {
+        permissions['allow'] = [CLAUDE_MCP_PERMISSION, ...allow];
+        changed = true;
+      }
     }
 
-    // Add PreToolUse hook entry (idempotent — guard by script path fragment)
+    // Add or refresh the PreToolUse hook entry (matched by script path
+    // fragment, not exact command) — an existing entry whose command string
+    // differs from opts.hookCmd (e.g. an AGS_HOOK_ENFORCE=1 prefix toggled
+    // on/off since the last install) is replaced, not left stale.
     const hooks = this.ensureObject(existing, 'hooks');
     const preToolUse = this.ensureArray<Record<string, unknown>>(
       hooks,
       'PreToolUse',
     );
-    if (!this.claudeHookEntryExists(preToolUse)) {
+    const existingEntry = preToolUse.find((entry) =>
+      this.claudeHookEntryMatches(entry),
+    );
+    if (!existingEntry) {
       preToolUse.unshift({
         matcher: 'Edit|Write|MultiEdit|NotebookEdit',
         hooks: [{ type: 'command', command: opts.hookCmd, timeout: 5 }],
       });
       changed = true;
+    } else {
+      const entryHooks = (existingEntry['hooks'] ?? []) as Array<
+        Record<string, unknown>
+      >;
+      const matchingHook = entryHooks.find((h) =>
+        (h['command'] as string | undefined)?.includes('preedit-skill-loader'),
+      );
+      if (matchingHook && matchingHook['command'] !== opts.hookCmd) {
+        matchingHook['command'] = opts.hookCmd;
+        changed = true;
+      }
     }
 
     if (changed) {

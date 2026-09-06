@@ -1,6 +1,6 @@
 ---
-description: "Finds Zephyr Scale test cases linked or relevant to Jira stories, ACs, modules, and release risks. Use for coverage analysis and traceability checks."
-applyTo: "**/*"
+description: Finds Zephyr Scale test cases linked or relevant to Jira stories, ACs, modules, and release risks. Use for coverage analysis and traceability checks.
+applyTo: '**/*'
 ---
 
 # Specialist: Zephyr Scanner

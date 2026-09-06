@@ -21,7 +21,10 @@ export class HooksCommand {
     this.hookService = hookService ?? new HookService();
   }
 
-  async run(action: string): Promise<void> {
+  async run(
+    action: string,
+    options: { enforce?: boolean } = {},
+  ): Promise<void> {
     const config = await this.configService.loadConfig();
     if (!config) {
       console.log(
@@ -39,7 +42,7 @@ export class HooksCommand {
       case 'status':
         return this.actionStatus(cwd, agents);
       case 'install':
-        return this.actionInstall(cwd, agents);
+        return this.actionInstall(cwd, agents, options.enforce ?? false);
       case 'uninstall':
         return this.actionUninstall(cwd, agents);
       default:
@@ -73,9 +76,24 @@ export class HooksCommand {
     }
   }
 
-  private async actionInstall(cwd: string, agents: Agent[]): Promise<void> {
+  private async actionInstall(
+    cwd: string,
+    agents: Agent[],
+    enforce: boolean,
+  ): Promise<void> {
     console.log(pc.cyan('\n🪝 Installing skill-loader hooks...'));
-    const report = await this.hookService.install({ rootDir: cwd, agents });
+    if (enforce) {
+      console.log(
+        pc.yellow(
+          '   --enforce: Claude will BLOCK edits to SOUL.md, MEMORY.md, .env*, .ssh/, and credentials*.json|yaml.',
+        ),
+      );
+    }
+    const report = await this.hookService.install({
+      rootDir: cwd,
+      agents,
+      enforce,
+    });
     this.printReport(report);
   }
 

@@ -1,3 +1,4 @@
+import { spawnSync } from 'child_process';
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
@@ -102,6 +103,97 @@ describe('HookService', () => {
       );
     });
 
+    it('refreshes a stale (older-marker) script instead of preserving it forever', async () => {
+      const scriptPath = path.join(
+        root,
+        '.claude/hooks/preedit-skill-loader.js',
+      );
+      await fs.ensureDir(path.dirname(scriptPath));
+      const stale = UNIVERSAL_SKILL_LOADER_JS.replace(
+        /^\/\/ ags-hook-version: \S+$/m,
+        '// ags-hook-version: 0.0.1-older-release',
+      );
+      await fs.writeFile(scriptPath, stale);
+
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+      });
+
+      expect(await fs.readFile(scriptPath, 'utf8')).toBe(
+        UNIVERSAL_SKILL_LOADER_JS,
+      );
+      expect(
+        report.writes.find((w) => w.file.endsWith('preedit-skill-loader.js'))
+          ?.action,
+      ).toBe('updated');
+    });
+
+    it('does not rewrite when the installed script already carries the current version marker', async () => {
+      const scriptPath = path.join(
+        root,
+        '.claude/hooks/preedit-skill-loader.js',
+      );
+      await fs.ensureDir(path.dirname(scriptPath));
+      await fs.writeFile(scriptPath, UNIVERSAL_SKILL_LOADER_JS);
+
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+      });
+
+      expect(
+        report.writes.find((w) => w.file.endsWith('preedit-skill-loader.js'))
+          ?.action,
+      ).toBe('skipped-existing');
+    });
+
+    it('gates the permissions.allow write behind promptPermission and skips it when declined', async () => {
+      const promptPermission = vi.fn().mockResolvedValue(false);
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        promptPermission,
+      });
+
+      expect(promptPermission).toHaveBeenCalledWith(Agent.Claude);
+      const settings = await fs.readJson(
+        path.join(root, '.claude/settings.json'),
+      );
+      expect(settings.permissions?.allow ?? []).not.toContain(
+        'mcp__agent-skills-standard__*',
+      );
+    });
+
+    it('writes the permission when promptPermission approves it', async () => {
+      const promptPermission = vi.fn().mockResolvedValue(true);
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        promptPermission,
+      });
+
+      const settings = await fs.readJson(
+        path.join(root, '.claude/settings.json'),
+      );
+      expect(settings.permissions?.allow).toContain(
+        'mcp__agent-skills-standard__*',
+      );
+    });
+
+    it('does not re-prompt once the permission is already granted', async () => {
+      await service.install({ rootDir: root, agents: [Agent.Claude] });
+
+      const promptPermission = vi.fn().mockResolvedValue(true);
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        promptPermission,
+      });
+
+      expect(promptPermission).not.toHaveBeenCalled();
+    });
+
     it('is idempotent — second install does not duplicate entries', async () => {
       await service.install({ rootDir: root, agents: [Agent.Claude] });
       await service.install({ rootDir: root, agents: [Agent.Claude] });
@@ -122,6 +214,89 @@ describe('HookService', () => {
         );
       });
       expect(matching).toHaveLength(1);
+    });
+
+    function findHookCommand(settings: Record<string, unknown>): string {
+      const preToolUse = (settings.hooks as Record<string, unknown>)
+        .PreToolUse as Array<Record<string, unknown>>;
+      const entry = preToolUse[0];
+      const hooks = entry.hooks as Array<Record<string, unknown>>;
+      return hooks[0].command as string;
+    }
+
+    it('prefixes the registered command with AGS_HOOK_ENFORCE=1 when enforce is requested', async () => {
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        enforce: true,
+      });
+
+      const settings = await fs.readJson(
+        path.join(root, '.claude/settings.json'),
+      );
+      expect(findHookCommand(settings)).toMatch(/^AGS_HOOK_ENFORCE=1 node /);
+    });
+
+    it('does not prefix the command when enforce is omitted or false', async () => {
+      await service.install({ rootDir: root, agents: [Agent.Claude] });
+
+      const settings = await fs.readJson(
+        path.join(root, '.claude/settings.json'),
+      );
+      expect(findHookCommand(settings)).not.toContain('AGS_HOOK_ENFORCE');
+    });
+
+    it('updates an already-registered command when enforce is toggled on later', async () => {
+      await service.install({ rootDir: root, agents: [Agent.Claude] });
+      let settings = await fs.readJson(
+        path.join(root, '.claude/settings.json'),
+      );
+      expect(findHookCommand(settings)).not.toContain('AGS_HOOK_ENFORCE');
+
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        enforce: true,
+      });
+
+      settings = await fs.readJson(path.join(root, '.claude/settings.json'));
+      expect(findHookCommand(settings)).toMatch(/^AGS_HOOK_ENFORCE=1 node /);
+      expect(
+        report.writes.find((w) => w.file === '.claude/settings.json')?.action,
+      ).toBe('updated');
+    });
+
+    it('reverts the command when enforce is toggled back off', async () => {
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        enforce: true,
+      });
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        enforce: false,
+      });
+
+      const settings = await fs.readJson(
+        path.join(root, '.claude/settings.json'),
+      );
+      expect(findHookCommand(settings)).not.toContain('AGS_HOOK_ENFORCE');
+    });
+
+    it('does not duplicate the PreToolUse entry when enforce toggles the command', async () => {
+      await service.install({ rootDir: root, agents: [Agent.Claude] });
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Claude],
+        enforce: true,
+      });
+
+      const settings = await fs.readJson(
+        path.join(root, '.claude/settings.json'),
+      );
+      const preToolUse = settings.hooks.PreToolUse as unknown[];
+      expect(preToolUse).toHaveLength(1);
     });
 
     it('preserves existing settings.json content', async () => {
@@ -523,14 +698,71 @@ describe('HookService', () => {
 
       // Now create it again, mock fs.remove to reject, and check that it doesn't throw
       await fs.writeFile(legacyPyPath, '# legacy python');
-      const spy = vi.spyOn(fs, 'remove').mockRejectedValueOnce(new Error('simulated delete error') as never);
+      const spy = vi
+        .spyOn(fs, 'remove')
+        .mockRejectedValueOnce(new Error('simulated delete error') as never);
 
       await service.install({ rootDir: root, agents: [Agent.Claude] });
       expect(spy).toHaveBeenCalled();
       // even if deletion failed, the installation should still succeed/not throw:
       expect(await fs.pathExists(scriptPath)).toBe(true);
-      
+
       spy.mockRestore();
+    });
+  });
+
+  describe('UNIVERSAL_SKILL_LOADER_JS enforce mode (real subprocess)', () => {
+    function runHook(
+      input: Record<string, unknown>,
+      env: Record<string, string>,
+    ): { code: number | null; stdout: string; stderr: string } {
+      const result = spawnSync('node', ['-e', UNIVERSAL_SKILL_LOADER_JS], {
+        input: JSON.stringify(input),
+        env: { ...process.env, ...env },
+        encoding: 'utf8',
+      });
+      return {
+        code: result.status,
+        stdout: result.stdout,
+        stderr: result.stderr,
+      };
+    }
+
+    it('blocks (exit 2) an edit to SOUL.md when AGS_HOOK_ENFORCE=1', () => {
+      const result = runHook(
+        { tool_name: 'Edit', tool_input: { file_path: '/tmp/proj/SOUL.md' } },
+        { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: '/tmp/proj' },
+      );
+      expect(result.code).toBe(2);
+      expect(result.stderr).toContain('AGS BLOCKED');
+    });
+
+    it('blocks a nested .env file when enforced', () => {
+      const result = runHook(
+        {
+          tool_name: 'Write',
+          tool_input: { file_path: '/tmp/proj/config/.env.production' },
+        },
+        { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: '/tmp/proj' },
+      );
+      expect(result.code).toBe(2);
+    });
+
+    it('does not block an ordinary source file when enforced', () => {
+      const result = runHook(
+        { tool_name: 'Edit', tool_input: { file_path: '/tmp/proj/src/x.ts' } },
+        { AGS_HOOK_ENFORCE: '1', CLAUDE_PROJECT_DIR: '/tmp/proj' },
+      );
+      expect(result.code).toBe(0);
+      expect(result.stdout).toContain('SKILL TRIGGER');
+    });
+
+    it('does not block SOUL.md when AGS_HOOK_ENFORCE is unset (advisory-only)', () => {
+      const result = runHook(
+        { tool_name: 'Edit', tool_input: { file_path: '/tmp/proj/SOUL.md' } },
+        { CLAUDE_PROJECT_DIR: '/tmp/proj' },
+      );
+      expect(result.code).toBe(0);
     });
   });
 });

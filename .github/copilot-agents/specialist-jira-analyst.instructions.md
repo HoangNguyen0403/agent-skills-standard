@@ -1,6 +1,6 @@
 ---
-description: "High-density JIRA analysis persona. Extracts reproduce steps, ACs, and market requirements with zero-hallucination rigor."
-applyTo: "**/*"
+description: High-density JIRA analysis persona. Extracts reproduce steps, ACs, and market requirements with zero-hallucination rigor.
+applyTo: '**/*'
 ---
 
 # Specialist: Jira Analyst

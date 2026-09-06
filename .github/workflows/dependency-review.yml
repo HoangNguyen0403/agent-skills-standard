@@ -10,7 +10,7 @@
 name: 'Dependency review'
 on:
   pull_request:
-    branches: ['develop']
+    branches: ['main', 'develop']
 
 # If using a dependency submission action in this workflow this permission will need to be set to:
 #
@@ -30,10 +30,15 @@ jobs:
       - name: 'Checkout repository'
         uses: actions/checkout@v4
       - name: 'Dependency Review'
-        uses: actions/dependency-review-action@v4
+        uses: actions/dependency-review-action@v5
         # Commonly enabled options, see https://github.com/actions/dependency-review-action#configuration-options for all available options.
         with:
           comment-summary-in-pr: always
-        #   fail-on-severity: moderate
+          fail-on-severity: high
+          # Add a GHSA id here (with a comment explaining why) if a specific
+          # advisory is a false positive or an accepted risk for this repo —
+          # keeps the gate blocking by default without an escape hatch that
+          # silently widens over time.
+          # allow-ghsas: GHSA-xxxx-xxxx-xxxx
         #   deny-licenses: GPL-1.0-or-later, LGPL-2.0-or-later
         #   retry-on-snapshot-warnings: true

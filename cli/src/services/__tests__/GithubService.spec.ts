@@ -87,11 +87,15 @@ describe('GithubService', () => {
   });
 
   describe('getRawFile', () => {
-    it('should return file content as text', async () => {
+    function mockOkResponse(content: string) {
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
-        text: () => Promise.resolve('hello world'),
-      } as Response);
+        arrayBuffer: () => Promise.resolve(Buffer.from(content, 'utf8')),
+      } as unknown as Response);
+    }
+
+    it('should return file content as text', async () => {
+      mockOkResponse('hello world');
 
       const result = await githubService.getRawFile(
         'owner',
@@ -138,6 +142,37 @@ describe('GithubService', () => {
         expect.stringContaining('Failed to fetch file'),
       );
       consoleSpy.mockRestore();
+    });
+
+    it('should return content when the blob sha matches', async () => {
+      mockOkResponse('hello world');
+      // Precomputed: git hash-object for content "hello world"
+      const result = await githubService.getRawFile(
+        'owner',
+        'repo',
+        'main',
+        'file.txt',
+        { expectedSha: '95d09f2b10159347eece71399a7e2e907ea3df4f' },
+      );
+      expect(result).toBe('hello world');
+    });
+
+    it('should throw IntegrityError when the blob sha does not match', async () => {
+      mockOkResponse('hello world');
+      await expect(
+        githubService.getRawFile('owner', 'repo', 'main', 'file.txt', {
+          expectedSha: 'deadbeef00000000000000000000000000000000',
+        }),
+      ).rejects.toThrow(/blob sha mismatch/);
+    });
+
+    it('should throw IntegrityError when the file exceeds maxBytes', async () => {
+      mockOkResponse('x'.repeat(100));
+      await expect(
+        githubService.getRawFile('owner', 'repo', 'main', 'file.txt', {
+          maxBytes: 10,
+        }),
+      ).rejects.toThrow(/exceeds the 10-byte limit/);
     });
   });
 
@@ -208,8 +243,8 @@ describe('GithubService', () => {
     it('should hit concurrency limit', async () => {
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
-        text: () => Promise.resolve('ok'),
-      } as Response);
+        arrayBuffer: () => Promise.resolve(Buffer.from('ok', 'utf8')),
+      } as unknown as Response);
 
       const tasks = Array(5).fill({
         owner: 'o',
@@ -217,8 +252,8 @@ describe('GithubService', () => {
         ref: 'm',
         path: 'file',
       });
-      const results = await githubService.downloadFilesConcurrent(tasks, 2);
-      expect(results).toHaveLength(5);
+      const { ok } = await githubService.downloadFilesConcurrent(tasks, 2);
+      expect(ok).toHaveLength(5);
     });
     it('should download multiple files concurrently', async () => {
       vi.mocked(fetch).mockImplementation((url: RequestInfo | URL) => {
@@ -227,8 +262,8 @@ describe('GithubService', () => {
           : 'content2';
         return Promise.resolve({
           ok: true,
-          text: () => Promise.resolve(content),
-        } as Response);
+          arrayBuffer: () => Promise.resolve(Buffer.from(content, 'utf8')),
+        } as unknown as Response);
       });
 
       const tasks = [
@@ -236,21 +271,22 @@ describe('GithubService', () => {
         { owner: 'o', repo: 'r', ref: 'm', path: 'file2' },
       ];
 
-      const results = await githubService.downloadFilesConcurrent(tasks);
-      expect(results).toHaveLength(2);
-      expect(results).toContainEqual({ path: 'file1', content: 'content1' });
-      expect(results).toContainEqual({ path: 'file2', content: 'content2' });
+      const { ok, failed } = await githubService.downloadFilesConcurrent(tasks);
+      expect(ok).toHaveLength(2);
+      expect(failed).toHaveLength(0);
+      expect(ok).toContainEqual({ path: 'file1', content: 'content1' });
+      expect(ok).toContainEqual({ path: 'file2', content: 'content2' });
     });
 
-    it('should handle partial failures in concurrent download', async () => {
+    it('should collect partial failures instead of dropping them silently', async () => {
       vi.mocked(fetch).mockImplementation((url: RequestInfo | URL) => {
         if (url.toString().includes('fail')) {
           return Promise.resolve({ ok: false } as Response);
         }
         return Promise.resolve({
           ok: true,
-          text: () => Promise.resolve('ok'),
-        } as Response);
+          arrayBuffer: () => Promise.resolve(Buffer.from('ok', 'utf8')),
+        } as unknown as Response);
       });
 
       const tasks = [
@@ -258,20 +294,43 @@ describe('GithubService', () => {
         { owner: 'o', repo: 'r', ref: 'm', path: 'fail-file' },
       ];
 
-      const results = await githubService.downloadFilesConcurrent(tasks);
-      expect(results).toHaveLength(1);
-      expect(results[0].path).toBe('ok-file');
+      const { ok, failed } = await githubService.downloadFilesConcurrent(tasks);
+      expect(ok).toHaveLength(1);
+      expect(ok[0].path).toBe('ok-file');
+      expect(failed).toEqual([{ path: 'fail-file', reason: 'not found' }]);
+    });
+
+    it('should collect an integrity-check failure without aborting the rest of the batch', async () => {
+      vi.mocked(fetch).mockResolvedValue({
+        ok: true,
+        arrayBuffer: () => Promise.resolve(Buffer.from('hello world', 'utf8')),
+      } as unknown as Response);
+
+      const tasks = [
+        { owner: 'o', repo: 'r', ref: 'm', path: 'tampered', sha: 'deadbeef' },
+        { owner: 'o', repo: 'r', ref: 'm', path: 'untracked' },
+      ];
+
+      const { ok, failed } = await githubService.downloadFilesConcurrent(tasks);
+      expect(ok).toEqual([{ path: 'untracked', content: 'hello world' }]);
+      expect(failed).toHaveLength(1);
+      expect(failed[0].path).toBe('tampered');
+      expect(failed[0].reason).toMatch(/blob sha mismatch/);
     });
 
     it('should handle empty task list', async () => {
-      const results = await githubService.downloadFilesConcurrent([]);
-      expect(results).toEqual([]);
+      const { ok, failed } = await githubService.downloadFilesConcurrent([]);
+      expect(ok).toEqual([]);
+      expect(failed).toEqual([]);
     });
 
     it('should handle undefined task if shift returns nothing (line 104 coverage)', async () => {
-      // @ts-expect-error - testing defensive logic
-      const results = await githubService.downloadFilesConcurrent([undefined]);
-      expect(results).toEqual([]);
+      const { ok, failed } = await githubService.downloadFilesConcurrent(
+        // @ts-expect-error - testing defensive logic
+        [undefined],
+      );
+      expect(ok).toEqual([]);
+      expect(failed).toEqual([]);
     });
   });
 
@@ -297,6 +356,20 @@ describe('GithubService', () => {
       expect(GithubService.parseGitHubUrl('invalid-url')).toBeNull();
       expect(
         GithubService.parseGitHubUrl('https://gitlab.com/owner/repo'),
+      ).toBeNull();
+    });
+
+    it('should reject a URL that only contains "github.com/owner/repo" as a substring', () => {
+      // Previously unanchored — this would have resolved to { owner: 'a', repo: 'b' }
+      // and driven real requests to the actual github.com API, even though the
+      // registry URL's real host is evil.com.
+      expect(
+        GithubService.parseGitHubUrl('https://evil.com/?x=github.com/a/b'),
+      ).toBeNull();
+      expect(
+        GithubService.parseGitHubUrl(
+          'https://not-github.com.evil.com/owner/repo',
+        ),
       ).toBeNull();
     });
   });

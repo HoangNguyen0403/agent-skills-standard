@@ -37,7 +37,7 @@ export interface McpConfig {
   scope: McpScope;
   /** True once the user has been asked at least once — prevents re-prompting on every sync. */
   prompted: boolean;
-  /** Optional: pin a specific MCP server version. Default: tracks @latest via npx. */
+  /** Optional: pin a specific MCP server version. Default: MCP_COMPATIBLE_VERSION (the version this CLI release was built against). */
   version?: string;
   /** Whether to additionally generate snippet files during MCP install. Default: false. */
   snippets?: boolean;

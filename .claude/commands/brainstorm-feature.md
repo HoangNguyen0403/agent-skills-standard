@@ -1,0 +1,89 @@
+# Brainstorm Feature
+
+Clarify a rough product or engineering idea into a BRD-lite brief (Why) with measurable business value.
+
+**Input:** $ARGUMENTS
+
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false, profile=business|hybrid|technical.
+
+## Instructions
+
+Execute the following steps for **$ARGUMENTS**.
+
+
+# Brainstorm Feature Workflow (BRD-lite / Why)
+
+Goal: Convert vague intent into a compact BA-owned BRD-lite brief before PM PRD planning or technical design.
+
+## Steps
+
+1. Gather intent:
+   - Load baseline BRD section, `common-business-requirements`, and `common-operator-profile`.
+   - Infer `operator_profile` (business | hybrid | technical) from request phrasing; never ask the operator to self-rate. Carry it in the Handoff Payload.
+   - Draft a provisional brief before asking.
+   - Capture objective, sponsor, validation owner, stakeholders, users, pain/opportunity, value hypothesis, SMART metric, constraints, glossary, non-goals, and delivery context.
+2. Explore options:
+   - List 3 viable approaches.
+   - Capture benefit, cost, risk, and unknowns for each.
+   - Include funding/priority rationale.
+   - Mark one recommended approach.
+3. Pressure-test:
+   - Keep BRD solution-free; route functional behavior to PRD/SRS.
+   - Check security, privacy, accessibility, performance, data, rollout risks, and measurable approval criteria.
+   - Treat non-critical unknowns as assumptions.
+   - Split stakeholder asks into candidate `REQ-*` placeholders and flag platform, market, permission, and edge-case gaps for PM.
+4. Decide:
+   - Ask only true blocking product decisions, max 3 at a time.
+   - Include a recommended default and 2-3 options for each question.
+   - Record accepted approach and rejected alternatives.
+   - Draft defaults before blocking: sponsor/validation owner = the requesting operator; SMART metric drafted from the stated pain (mark `assumed`); scope fence drafted from the request with explicit non-goals.
+   - For `operator_profile=business`, present all three drafted defaults as one confirm-with-default question round (fits the max-3 rule) instead of blocking outright.
+   - Continue on non-critical assumptions; return BLOCKED only when the operator rejects the drafted defaults, or in autonomous/channel mode with no confirmation channel available.
+   - Save to `docs/brd/brd-[slug].md` when writes are allowed and route to `plan-feature`.
+
+## Runtime Contract
+
+- Use for rough feature, ops, or process-change ideas before PRD.
+- Required inputs: rough intent plus any known owner, metric, or scope fence; missing items get drafted defaults, not an automatic block.
+- Return BLOCKED only when the operator rejects drafted defaults for owner, measurable value, or scope boundary, or autonomous mode has no confirmation channel.
+
+## Handoff Payload
+
+- `slug`, `operator_profile`, executive summary, business objective, SMART metric, recommended approach, alternatives, constraints, non-goals, open questions, assumptions (flagged `assumed`), PM handoff checklist.
+- Outcome report with `feature_status=requirements_ready | blocked`, requirement trace seed, completed/missing evidence, decision needed, and recommended next workflow.
+
+## Blocking Questions
+
+- Ask max 3 at a time with a recommended default and 2-3 options.
+
+## Output Template
+
+```md
+# BRD-lite Brief: [Name]
+## Executive Summary
+## Business Objective
+## SMART Success Metric
+## Target Users
+## Problem
+## AS-IS To TO-BE
+## Stakeholders And Validation Owner
+## Success Metrics
+## Cost-Benefit / Value Hypothesis
+## Offshore Delivery Context
+## Recommended Approach
+## Alternatives Considered
+## Stakeholders
+## Constraints
+## Non-Goals
+## Glossary
+## PM Handoff Checklist
+## Outcome Report
+feature_status: requirements_ready | blocked
+requirement_trace: BRD-OBJ-* -> candidate REQ-*
+completed_evidence: []; missing_evidence: []; decision_needed: []; assumptions: []; recommended_next_workflow: plan-feature
+## Open Questions
+## Next Workflow
+plan-feature
+## Cost Report
+Call `get_session_cost(workflow="brainstorm-feature")` before final handoff.
+```

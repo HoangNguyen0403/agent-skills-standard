@@ -185,7 +185,8 @@ Check OWASP.` as any,
     );
     expect(fs.outputFile).toHaveBeenCalledWith(
       targetFile,
-      expect.stringContaining('globs: ["**/*"]'),
+      // Emitted via js-yaml (block-style array), not a hand-built template.
+      expect.stringContaining("globs:\n  - '**/*'"),
     );
   });
 
@@ -215,11 +216,13 @@ Check OWASP.` as any,
     );
     expect(fs.outputFile).toHaveBeenCalledWith(
       targetFile,
-      expect.stringContaining('description: "Review security"'),
+      // js-yaml uses the plain (unquoted) scalar style when a value needs
+      // no quoting — semantically identical to the old hand-quoted output.
+      expect.stringContaining('description: Review security'),
     );
     expect(fs.outputFile).toHaveBeenCalledWith(
       targetFile,
-      expect.stringContaining('applyTo: "**/*"'),
+      expect.stringContaining("applyTo: '**/*'"),
     );
   });
 

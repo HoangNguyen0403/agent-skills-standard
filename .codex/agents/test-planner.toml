@@ -34,7 +34,7 @@ Produce one executable test plan for one slug from its approved `AC-*`/SRS lanes
 PLAN: [path]
 LANES: [web|ios|android|api, ...]
 SCENARIOS: [n mapped to AC-*]
-SEED: [path or "existing: <path>"]
+SEED: [path or \"existing: <path>\"]
 SELECTOR_GAPS: [screen:element, ...]
 DATA: [fixtures/reset mechanism]
 BLOCKED: [reason, if any]

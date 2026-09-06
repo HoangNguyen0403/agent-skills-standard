@@ -5,6 +5,184 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [system-design-v1.0.0] - 2026-08-30
+
+**Category**: System Design skill pack launch and architecture session workflow
+
+### Added
+
+- **`system-design` category (8 skills)**: A design-session capability that acts as an active co-architect rather than a passive reference.
+  - `system-design-methodology` (P0): session driver with adaptive depth (quick sketch vs full session), four phase gates, and intake parsing (verbs to use cases, nouns to entities, adjectives to constraints).
+  - `system-design-estimation` (P1): QPS, storage, bandwidth, and working-set math, latency and availability budgets, single-node planning ceilings.
+  - `system-design-building-blocks` (P1): load balancer, cache, queue, CDN, gateway, rate limiter, and consistent hashing selected by the constraint each removes.
+  - `system-design-data-architecture` (P1): store selection per access pattern, single data ownership, replication, sharding, hot and celebrity key mitigation.
+  - `system-design-resilience-ops` (P1): SPOF elimination, failover topology, RPO/RTO, observability baseline, rollout and rollback strategy.
+  - `system-design-review` (P1): eight-axis 0-10 scorecard, mistakes table, and evolution roadmap for auditing an existing or proposed design.
+  - `system-design-case-catalog` (P2): classic designs as constraint-to-solution sketches plus interview coaching mode.
+  - `system-design-diagramming` (P1): the house diagram format. Adopts the [Archify](https://github.com/tt-a1i/archify) (MIT) visual language — typed JSON spec, dark canvas, semantic node and edge colors, numbered `01 / Label` lanes, masked edge labels, mandatory legend — across architecture, workflow, sequence, dataflow, and lifecycle views. Renders through the Archify CLI when that skill is installed, and falls back to inline SVG on the same token contract when it is not. Mermaid is demoted to an input format, never the deliverable.
+  - `system-design-communication` (P1): paradigm selection per hop — REST, gRPC, GraphQL, WebSocket, SSE, webhook — plus sync-versus-async per flow, service discovery mode, DNS/edge routing, and contract versioning. Defers REST contract detail to `common-api-design`.
+  - `system-design-integration-patterns` (P1): distributed integration and evolution patterns as `constraint -> pattern -> cost` — transactional outbox, CQRS, event sourcing, saga orchestration versus choreography with compensation tables, leader election with fencing tokens, sidecar, anti-corruption layer, backends-for-frontends, and strangler-fig migration.
+- **Real-scenario hardening**: The session no longer assumes greenfield or free infrastructure. Phase 3 prices the null option (do nothing, buy, or extend an existing service) before any component; a brownfield path maps and measures the current system, then names the binding constraint; estimation converts sized capacity into monthly cost; every ADR carries a reversal trigger and the design ships staged as build now, enabling seam, and the metric threshold that triggers the next step; the intake checklist asks who operates the system at 3am and which team owns which piece.
+- **Review scorecard is now nine axes**: added cost proportionality (spend sized to traffic and risk), total out of 90, with operability as a weighting input in every profile.
+- **Evals rebuilt to measure trade-off reasoning**: every assertion is now anchored in the prompt and behavior contract, clearing all 40 preflight blocks that made a paid eval run impossible for this category. Five decision skills gained counterfactual pairs - same domain, inverted constraint, with `not_contains` proving the answer changes and refuses to over-engineer (200 RPS internal tool must not get a cache, 20 QPS table must not get sharded, 100 RPS wiki must not get active-active). Methodology, estimation, and review gained executed `pressure_scenarios` with `behavior_assertions`, plus rationalizations and red flags.
+- **Coverage patches**: session-state selection (stateless token, shared store, sticky, in-memory) added to `system-design-building-blocks`; a monolith-first split rule added to `system-design-principles`; chatty I/O, extraneous fetching, and dual-write rows added to the review mistakes table.
+- **`system-design-artifact-intake` (P1) and the `review-system-design` workflow**: the path for reviewing a design somebody else produced. Classifies the artifact into four ingestion classes — structured text (Mermaid, PlantUML, Structurizr, Excalidraw JSON, raw drawio, IaC), embedded structure (`.drawio.png` PNG text chunks, `.drawio.svg` `content`, glued pptx connectors, Confluence macro attachments, Lucid/Miro/Figma exports), vision only, and mixed prose plus artifacts — and probes for embedded structure before any vision pass, since an exported "screenshot" often carries the whole model. Extraction normalizes into a design fact sheet with a confidence mark per edge and an `UNRECOVERABLE` list, is re-drawn for the author to confirm before any finding counts, and only then reaches the nine-axis scorecard. All extracted strings are treated as data: labels, notes, and metadata cannot instruct the reviewer, and off-canvas elements that exist in the file but never render are surfaced rather than silently ingested.
+- **`system-design-session` workflow**: Phase-gated architecture session placed between `plan-feature` and `design-solution` in the SDLC spine, emitting a design document, diagrams, ADRs, the scorecard, a risk register, and a machine-readable handoff payload.
+- **Keyword router row**: `IndexGeneratorServiceImpl` emits an explicit `AGENTS.md` router row for the category, since no file extension owns an architecture request.
+
+### Versions
+
+- **System Design Skills**: new → `1.0.0`
+
+---
+
+## [tooling] - 2026-08-30
+
+**Area**: Release pipeline, eval pipeline correctness, and CI
+
+### Fixed
+
+- **Six categories could not publish a release**: `.github/workflows/publish.yml` triggers on an explicit list of tag globs, and `database`, `laravel`, `python`, `quality-engineering`, `system-design`, and `specialists` were absent from it — the last as a singular/plural mismatch (`specialist-v*` never matches `specialists-v1.2.1`). `pnpm release-all-skills` reads categories from `metadata.json`, so it would create and push those tags successfully while the release job never ran: no version validation against metadata, no GitHub Release, and no error anywhere. Added all six triggers.
+- **The same drift cannot recur**: `pnpm verify:release-tags` (already run by CI) now cross-checks every category's `tag_prefix` against the publish triggers and fails when one is unreachable, and warns on a trigger pattern that matches no category — which is what surfaces a typo like the singular `specialist-v*`. A blanket `*-v*` glob was rejected deliberately: it would also match `skillspector-verified-v<date>`, whose category lookup would fail the release job.
+- **Stale count in the SkillSpector release body**: it claimed "All 22 skill categories" while the registry has 24. Reworded so it cannot drift again.
+
+- **Contradictory assertion-grounding gates**: `check-alignment.ts` required every assertion value to appear in `SKILL.md` while `evals/quality.ts` required it to appear in the prompt/`expected_output` and explicitly forbade skill-only sourcing. Authors could not satisfy both, which is what blocked 82 assertions repo-wide from a paid eval run. Alignment now counts an assertion as grounded when the skill teaches it **or** the eval's own task contract states it; the anti-cheat marker rule is unchanged. Skills below 90% alignment dropped from 16 to 2.
+- **v1/v2 semantics drift in the published verifiers**: `EvalsVerifier` (CLI) and `EvalsIndex` (MCP) implemented literal v1 matching only, so verifying the shipped v2 run reported diffs that were artefacts of the verifier. Both now use the full v2 matcher and resolve the semantics version per skill from manifest provenance, exactly as `scorer.ts` does — making the claim in `docs/EVALS.md` true rather than aspirational.
+- **Matcher drift is now caught**: the matcher must live in three places (`mcp/tsconfig.json` pins `rootDir: src`, and each package bundles independently), so `scripts/evals/assertion-parity.test.ts` runs all three implementations over a shared corpus under both semantics versions and fails if they diverge.
+- **`references/testing.md` documented a schema that does not exist**: it listed `matches_regex` and `file_exists` (neither is real, and an unknown type fails closed on every transcript) and omitted `contains_any`, the second-most-used type. Corrected, along with the eval-count rule, the mandatory trigger classes, the task-contract grounding requirement, and the trigger target (80% → the real 90% release gate). Added guidance on testing a trade-off with counterfactual pairs.
+- **`secret-scan` CI failure**: gitleaks flagged the fake placeholder `prod_key_67890` on every PR. It appears in the CHANGELOG entry that documented the allowlist for it, and only `skills/*/references/*.md` was allowlisted. Scoped the allowlist to that one known-fake literal rather than to `CHANGELOG.md`, so a real secret committed there is still caught. Verified locally against gitleaks 8.30.1: full-history scan clean, and a planted AWS-style key still fails.
+
+---
+
+## [specialists-v1.2.1] - 2026-08-30
+
+**Category**: Deep-dive fanout for design sessions
+
+### Added
+
+- **`specialist-system-architect`**: Bounded deep dive on one named component of a design. Returns candidate options with a rejection reason each, state ownership and idempotency for the recommendation, failure-mode analysis, and the irreversible decision that needs an ADR. Returns `BLOCKED` rather than inventing a scale figure when the brief lacks numbers.
+
+### Versions
+
+- **Specialists**: `1.2.0` → `1.2.1`
+
+---
+
+## [common-v2.4.1] - 2026-08-30
+
+**Category**: System design relocation out of the common pack
+
+### Removed
+
+- **`common-system-design`**: Relocated to `system-design/system-design-principles` in the new `system-design` category. The skill content is unchanged; only its category and id changed.
+
+### Changed
+
+- **Diagramming pointer**: `common-architecture-diagramming` now names `system-design-diagramming` as the superseding format for design-session deliverables; its own Mermaid and C4 guidance is unchanged for every other use.
+- **Diagramming triggers narrowed**: that skill's keywords drop `architecture` and `system design` — now owned by `system-design-principles` and `system-design-methodology` — and become `diagram`, `c4`, `mermaid`, `drawio`, `erd`. Design-session questions no longer pull the Mermaid skill in as noise for projects that install both categories.
+- **Composite injection**: The `foundational_composite_rules` key `common/system-design` is now `system-design/principles`, so every skill whose id contains `architecture`, `migration`, `microservices`, `transport`, `background-work`, `background-processing`, or `clean-architecture` still auto-injects the same foundational guidance.
+- **Mobile excludes**: Dropped the now-dead `common-system-design` entry from `COMMON_SKILL_EXCLUDES.mobile`.
+
+### Migration
+
+Projects that relied on `common-system-design` must add the `system-design` category to `.skillsrc`:
+
+```yaml
+skills:
+  system-design:
+    ref: system-design-v1.0.0
+```
+
+Without it, upgrading past `common-v2.4.0` removes the P0 architecture guidance from the install. Read this section before upgrading: the skill moved rather than disappeared.
+
+### Versions
+
+- **Common Skills**: `2.4.0` → `2.4.1`
+
+---
+
+## [database-v1.4.1] - 2026-08-24
+
+### Added
+- **`database-hana` skill**: Introduced comprehensive SAP HANA database engine skill covering:
+  - Strict parameterization (`?` placeholders, no string concatenation).
+  - Dynamic `IN (...)` parameter chunking limit (≤ 1,000 items per query) to avoid engine/driver limits.
+  - Mandatory explicit column aliasing on multi-table joins to prevent silent driver column scan collisions.
+  - Explicit datatype casting in built-in functions (`COALESCE`, `SUBSTR`, `TO_VARCHAR`, `CAST`).
+  - Streaming query results via `rows.Next()` directly into models for columnar memory efficiency.
+- **SAP HANA References**: Added `references/hana-patterns.md`, `references/sql-gotchas.md`, and test evaluation suites in `evals/evals.json`.
+
+---
+
+## [golang-v1.3.7] - 2026-08-24
+
+### Changed
+- **`golang-database`**:
+  - Standardized safe dynamic `IN` placeholder generation and 1,000-item chunking helper.
+  - Codified explicit column aliasing on join queries (avoid `SELECT *`).
+  - Enforced `withTx(ctx, db, fn)` pattern with mandatory `defer tx.Rollback()`.
+  - Added streaming query pattern with `rows.Next()` to avoid unbounded memory allocation.
+- **`golang-api-server`**:
+  - Added GraphQL (`99designs/gqlgen`) thin resolver patterns alongside REST.
+  - Added transport-to-domain mapping isolation rules.
+  - Codified response nullability and slice defaulting (default empty collections to `[]` instead of `null`).
+  - Added strict pagination upper limits.
+- **`golang-logging`**:
+  - Codified **Strict Single-Log Boundary Rule**: log errors once where handled or at the boundary; never double-log in repository or utility helpers.
+  - Added typed context keys (`type ctxKey string`) pattern.
+  - Documented business traceability keys vs PII/secret redaction.
+- **`golang-concurrency`**:
+  - Added Database-Load Throttling warning: reserve goroutines for external API calls; do not hammer internal DBs.
+  - Codified bounded semaphore worker pool pattern (`errgroup` + `sem := make(chan struct{}, maxWorkers)`).
+  - Added loop pointer variable capture prevention.
+- **`golang-testing`**:
+  - Added Volatile Field Zeroing guideline: zero out dynamic timestamps and generated IDs before `assert.Equal` in table-driven tests.
+
+---
+
+## [cli-v2.6.1] - 2026-08-22
+
+**Category**: OWASP Agentic Skills Top 10 (AST) hardening
+
+Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](https://owasp.org/www-project-agentic-skills-top-10/) standard — see `docs/SECURITY.md`'s new coverage table for the full picture.
+
+### Added
+
+- **Skill-content lockfile & `ags verify`**: `ags sync` now writes `.skills-lock.json` (sha256 per installed file, plus a skill-level content hash). `ags verify` recomputes those hashes against what's on disk and reports drift — a tampered file, a partial write, or a manual edit that silently diverged from the registry.
+- **Universal Skill Format frontmatter fields (optional)**: `version`, `risk_tier` (L0–L3), `allowed-tools`, `permissions` (network/filesystem/exec), `content_hash`, and a reserved `signature` block, validated by a new zod schema in `FrontmatterRule`. All optional — the existing 281-skill corpus validates unchanged.
+- **Permission projection**: `SpecialistTransformer` now projects `allowed-tools`→Claude `tools:` and `risk_tier`→Codex `sandbox_mode`; platforms with no enforcement mechanism (Cursor, Copilot, OpenCode, Gemini, Kiro) get a visible `<!-- ags: permissions not enforceable -->` comment instead of silently dropping the declaration.
+- **`ags hooks install --enforce`**: opt-in mode where Claude's PreToolUse hook blocks (exit 2) an Edit/Write targeting a fixed identity/secret deny-list (`SOUL.md`, `MEMORY.md`, `.env*`, `.ssh/`, `credentials*.json|yaml`) instead of only reminding. Default stays fully advisory.
+- **`ags audit`**: prints the skill inventory recorded in `.skills-lock.json`.
+- **Registry governance**: `skills/metadata.json` gains a top-level `revocations` list (checked on every `ags sync`/`ags update`, warns without blocking) and per-category `owners`. New `.github/CODEOWNERS`.
+- **CI**: pinned, checksum-verified gitleaks secret scan; blocking `dependency-review` on `main`+`develop`; `.github/dependabot.yml` for all workspace packages + GitHub Actions.
+
+### Changed
+
+- **SkillSpector scan scope**: 4 of the 7 security-guidance skills' `SKILL.md` are now scanned like every other skill (previously all 7 had their entire directory, including `SKILL.md`, `rm -rf`'d before scanning). A real CI run confirmed the other 3 (`common-owasp`, `common-pentest-methodology`, `common-llm-security`) legitimately trip the scanner from their own prose, so those stay excluded — narrower than the original 7-skill blanket exclusion and backed by evidence. Scan re-triggers on changes to the transformer/hook/bridge services that emit prompts into every consumer's machine.
+- **`scripts/scan-injection.ts`**: now also scans SKILL.md bodies and `references/*.md` (warn-level by default; `--strict` promotes to error; `--roots` scans CLI-emitted mirrors), not just the frontmatter `description`.
+- **`GithubService`**: verifies a downloaded file's git blob sha1 against the tree API and enforces a 1 MiB size cap; `downloadFilesConcurrent` reports failures instead of silently dropping them; a skill aborts if its `SKILL.md` specifically fails to download. `parseGitHubUrl` is anchored to the actual protocol+host instead of matching `github.com/...` as a substring anywhere in the URL.
+- **MCP server**: `SKILLS_PROJECT_ROOT` is validated (rejects the filesystem root, the home directory, and non-existent paths); frontmatter parses with js-yaml's `JSON_SCHEMA`; files over 1 MiB are rejected; parsed descriptions have zero-width/bidi control characters stripped.
+- **`npm publish`**: both published packages now use `--provenance`. The MCP server entry `ags sync` generates now defaults to a pinned `MCP_COMPATIBLE_VERSION` instead of an unversioned `npx -y ...`.
+- **Claude hook script**: re-verified by an embedded version marker and refreshed when stale, instead of being preserved forever after first install; the MCP `permissions.allow` grant is now gated behind interactive consent (auto-approved under `--yes`).
+
+### Fixed
+
+- **`SpecialistTransformer`**: a crafted `description` could inject a new top-level frontmatter key (e.g. a second `tools:`) into an emitted `.claude/agents/*.md`, `.cursor/agents/*.mdc`, etc., via raw string interpolation into a hand-built YAML/TOML template. Now built via `js-yaml.dump()` / a proper TOML escaper, and frontmatter parsing is anchored so a bare `---` in the specialist body can no longer shift where it's believed to end.
+- **`SkillSyncService.transformSkillForKiro`**: had the identical key-injection bug (`description: ${description}` via raw interpolation); fixed the same way, and now preserves every declared field (including the new optional ones) instead of silently dropping everything except `name`/`description`.
+- **`WorkflowTransformer.toGeminiCommand`**: the TOML body escaper only handled exactly-3-consecutive quote characters and never escaped backslashes, so 4+ consecutive quotes or a literal `\` (e.g. a Windows path) in a workflow body produced invalid TOML.
+- **LICENSE**: root `LICENSE` and `cli/LICENSE` still had the old Apache License 2.0 text on `develop` (this repo's actual GitHub default branch) even though `cli/package.json`/`mcp/package.json` both declare `"license": "MIT"` and an earlier PR had already fixed this on `main` — GitHub's license badge/detection scans the default branch, so it kept showing Apache-2.0. Replaced both files with the MIT text already on `main`.
+- **CI**: new `.gitleaks.toml` allowlists `skills/*/references/*.md` — gitleaks (full git-history scan) was flagging an educational placeholder credential (`API_KEY=prod_key_67890`) in an old, since-removed example file; matches the same false-positive rationale SkillSpector already applies to `references/`. Restored `continue-on-error` on SkillSpector's two static-scan steps, which a prior commit in this same release had removed — without it, a scan scoring above SkillSpector's own internal default threshold (as opposed to this repo's configured, lower `SKILLSPECTOR_THRESHOLD`) failed the job before the dedicated "Evaluate results" step (which applies this repo's own threshold and posts the PR comment) ever ran.
+
+## [cli-v2.6.1] - 2026-08-21
+
+**Category**: Sync-format bug fixes
+
+### Fixed
+
+- **Claude Specialist Frontmatter**: `SpecialistTransformer` now preserves `tools`, `model`, and `color` metadata from a specialist's `SKILL.md` frontmatter when generating `.claude/agents/*.md`, instead of silently dropping them ([#104](https://github.com/HoangNguyen0403/agent-skills-standard/issues/104)).
+- **Doubled Quotes in Emitted Workflow Descriptions**: `WorkflowTransformer.parseSource()` now strips a matching surrounding-quote pair (`"..."` or `'...'`) from a workflow source's frontmatter `description` before it reaches format emitters. Previously, a quoted description (required when the value contains a `:`, e.g. `description: "Phase one: do the thing"`) was passed through with its quotes intact, and the TOML (Gemini CLI), Copilot prompt, and SKILL.md emitters re-wrapped it in a fresh pair of quotes, producing invalid doubled-quote output (`description: ""Phase one: do the thing""`) that failed to parse. Unquoted descriptions were unaffected. (#105)
+- **Unescaped Quotes in Copilot Prompt Descriptions**: `toCopilotPrompt` now escapes `\` and `"` in `description` before embedding it in frontmatter, matching the escaping already applied by the TOML and SKILL.md emitters. Previously an internal `"` in an unquoted description could break the emitted `.prompt.md` frontmatter.
+
 ## [cli-v2.6.0] - 2026-07-14
 
 **Category**: Live eval evidence retention and report clarity

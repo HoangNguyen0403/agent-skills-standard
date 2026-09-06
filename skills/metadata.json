@@ -278,7 +278,7 @@
       "activity",
       "fragment"
     ],
-    "common/system-design": [
+    "system-design/principles": [
       "architecture",
       "migration",
       "microservices",
@@ -298,7 +298,10 @@
         "total_tokens": 13013,
         "avg_tokens_per_skill": 592,
         "largest_skill": "flutter-testing (926 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "dart": {
       "version": "1.3.6",
@@ -309,7 +312,10 @@
         "total_tokens": 1812,
         "avg_tokens_per_skill": 604,
         "largest_skill": "dart-language (820 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "typescript": {
       "version": "1.3.4",
@@ -320,7 +326,10 @@
         "total_tokens": 2884,
         "avg_tokens_per_skill": 721,
         "largest_skill": "typescript-security (817 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "javascript": {
       "version": "1.3.5",
@@ -331,7 +340,10 @@
         "total_tokens": 1364,
         "avg_tokens_per_skill": 455,
         "largest_skill": "javascript-language (547 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "react": {
       "version": "1.4.0",
@@ -342,7 +354,10 @@
         "total_tokens": 4804,
         "avg_tokens_per_skill": 601,
         "largest_skill": "react-state-management (797 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "react-native": {
       "version": "1.5.0",
@@ -353,7 +368,10 @@
         "total_tokens": 6385,
         "avg_tokens_per_skill": 491,
         "largest_skill": "react-native-performance (628 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "nestjs": {
       "version": "1.4.6",
@@ -364,7 +382,10 @@
         "total_tokens": 13471,
         "avg_tokens_per_skill": 641,
         "largest_skill": "nestjs-performance (961 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "nextjs": {
       "version": "1.4.6",
@@ -375,18 +396,24 @@
         "total_tokens": 12024,
         "avg_tokens_per_skill": 668,
         "largest_skill": "nextjs-architecture (1040 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "common": {
-      "version": "2.4.0",
-      "last_updated": "2026-08-16",
+      "version": "2.4.1",
+      "last_updated": "2026-08-30",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 39,
-        "total_tokens": 30339,
-        "avg_tokens_per_skill": 778,
+        "total_skills": 38,
+        "total_tokens": 29593,
+        "avg_tokens_per_skill": 779,
         "largest_skill": "common-skill-creator (1646 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "quality-engineering": {
       "version": "1.6.0",
@@ -397,29 +424,38 @@
         "total_tokens": 7373,
         "avg_tokens_per_skill": 737,
         "largest_skill": "quality-engineering-zephyr-test-generation (1302 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "specialists": {
-      "version": "1.3.0",
+      "version": "1.4.0",
       "last_updated": "2026-09-06",
       "tag_prefix": "specialists-v",
       "token_metrics": {
-        "total_skills": 17,
-        "total_tokens": 8262,
-        "avg_tokens_per_skill": 486,
+        "total_skills": 18,
+        "total_tokens": 8862,
+        "avg_tokens_per_skill": 492,
         "largest_skill": "specialist-tdd-implementer (824 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "golang": {
-      "version": "1.3.6",
-      "last_updated": "2026-07-15",
+      "version": "1.3.7",
+      "last_updated": "2026-08-24",
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 5191,
-        "avg_tokens_per_skill": 472,
-        "largest_skill": "golang-architecture (577 tokens)"
-      }
+        "total_tokens": 6228,
+        "avg_tokens_per_skill": 566,
+        "largest_skill": "golang-database (824 tokens)"
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "angular": {
       "version": "1.5.0",
@@ -430,7 +466,10 @@
         "total_tokens": 8904,
         "avg_tokens_per_skill": 594,
         "largest_skill": "angular-architecture (849 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "kotlin": {
       "version": "1.3.4",
@@ -441,7 +480,10 @@
         "total_tokens": 1796,
         "avg_tokens_per_skill": 449,
         "largest_skill": "kotlin-language (555 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "java": {
       "version": "1.3.4",
@@ -452,7 +494,10 @@
         "total_tokens": 2585,
         "avg_tokens_per_skill": 517,
         "largest_skill": "java-language (616 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "spring-boot": {
       "version": "1.4.0",
@@ -463,7 +508,10 @@
         "total_tokens": 4846,
         "avg_tokens_per_skill": 485,
         "largest_skill": "spring-boot-architecture (643 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "android": {
       "version": "1.5.0",
@@ -474,7 +522,10 @@
         "total_tokens": 11659,
         "avg_tokens_per_skill": 448,
         "largest_skill": "android-edge-to-edge (769 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "swift": {
       "version": "1.3.6",
@@ -485,7 +536,10 @@
         "total_tokens": 4376,
         "avg_tokens_per_skill": 547,
         "largest_skill": "swift-best-practices (725 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "ios": {
       "version": "1.5.0",
@@ -496,7 +550,10 @@
         "total_tokens": 6594,
         "avg_tokens_per_skill": 440,
         "largest_skill": "ios-architecture (743 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "php": {
       "version": "1.3.6",
@@ -507,7 +564,10 @@
         "total_tokens": 4113,
         "avg_tokens_per_skill": 588,
         "largest_skill": "php-concurrency (683 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "python": {
       "version": "1.0.0",
@@ -518,7 +578,10 @@
         "total_tokens": 3627,
         "avg_tokens_per_skill": 403,
         "largest_skill": "python-language (471 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "laravel": {
       "version": "1.4.0",
@@ -529,18 +592,39 @@
         "total_tokens": 7645,
         "avg_tokens_per_skill": 765,
         "largest_skill": "laravel-clean-architecture (913 tokens)"
-      }
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
+    },
+    "system-design": {
+      "version": "1.0.0",
+      "last_updated": "2026-08-30",
+      "tag_prefix": "system-design-v",
+      "token_metrics": {
+        "total_skills": 12,
+        "total_tokens": 11376,
+        "avg_tokens_per_skill": 948,
+        "largest_skill": "system-design-artifact-intake (1140 tokens)"
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     },
     "database": {
-      "version": "1.4.0",
-      "last_updated": "2026-07-15",
+      "version": "1.4.1",
+      "last_updated": "2026-08-24",
       "tag_prefix": "database-v",
       "token_metrics": {
-        "total_skills": 7,
-        "total_tokens": 2858,
-        "avg_tokens_per_skill": 408,
-        "largest_skill": "database-redis (518 tokens)"
-      }
+        "total_skills": 8,
+        "total_tokens": 3753,
+        "avg_tokens_per_skill": 469,
+        "largest_skill": "database-hana (895 tokens)"
+      },
+      "owners": [
+        "HoangNguyen0403"
+      ]
     }
-  }
+  },
+  "revocations": []
 }

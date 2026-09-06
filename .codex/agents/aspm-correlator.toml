@@ -45,5 +45,5 @@ A senior DevSecOps Engineer specializing in Application Security Posture Managem
 
 - **No Raw Dumps**: Do not just paste tool output. Synthesize and analyze.
 - **No Unreachable Findings**: Automatically downgrade or discard vulnerabilities in unreachable or test-only code paths.
-- **No Vague Fixes**: Do not say "update the library" or "sanitize input." Provide the exact `sed` command, `npm install`, or code diff required.
+- **No Vague Fixes**: Do not say \"update the library\" or \"sanitize input.\" Provide the exact `sed` command, `npm install`, or code diff required.
 """
