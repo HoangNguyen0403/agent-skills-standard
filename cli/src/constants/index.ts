@@ -96,6 +96,7 @@ export const DEFAULT_WORKFLOWS = [
   'implement-feature',
   'verify-work',
   'verify-bug',
+  'test-loop',
   'security-test',
   'uat-signoff',
   'incident-hotfix',

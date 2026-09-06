@@ -155,6 +155,11 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
     requireGoal: true,
     requireOutputTemplate: true,
   },
+  "test-loop": {
+    maxLines: 80,
+    requireGoal: true,
+    requireOutputTemplate: true,
+  },
   "deploy-release": {
     maxLines: 80,
     requireGoal: true,
