@@ -11,6 +11,7 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | SRS/FRS                | How will it work technically?                   | `design-solution`          | Contracts, behavior, or architecture are unclear     | `docs/srs/srs-[slug].md` |
 | Readiness              | Are we ready to build?                          | `implementation-readiness` | BRD/PRD/SRS or test plan needs go/no-go              | readiness verdict        |
 | Build                  | Can we implement safely?                        | `implement-feature`        | Approved feature needs code                          | `task.md` and handoff    |
+| Test Loop              | Do we have executable, traced test coverage?    | `test-loop`                | ACs have E2E/mobile lanes without executable coverage | test suite + verdicts   |
 | Verify                 | Did we prove it with fresh evidence?            | `verify-work`              | Work is code-complete but unproven                   | `walkthrough.md`         |
 | UAT Signoff            | Does the business accept it?                    | `uat-signoff`               | `verify-work` PASS needs business acceptance before release | signoff decision  |
 | Trace                  | Is every requirement covered?                   | `traceability-audit`       | Pre-release or handoff needs evidence mapping        | traceability report      |

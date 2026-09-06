@@ -6,6 +6,9 @@
 | Skill | File pattern | Keywords |
 | ----- | ------------ | -------- |
 | **quality-engineering-business-analysis** | `**/user_story.md` | acceptance criteria, AC, business rules, jira story, toggle, market, write user story, improve user story, review story, BA |
+| **quality-engineering-selector-stability** | `**/e2e/**/*.{ts,js}`, `**/*.e2e.{ts,js}` | selector, locator, data-testid, testID, accessibilityIdentifier, testTag, stable locator, selector drift |
+| **quality-engineering-test-healing** | `test-results/**`, `playwright-report/**` | heal test, failing e2e, selector repair, test healer, fix the test, timed out waiting for |
+| quality-engineering-test-plan-authoring | `specs/**/*.md`, `tests/seed.spec.*` | test plan, executable test plan, seed spec, scenario matrix, ac to scenario, planner |
 | quality-engineering-zephyr-coverage-analysis | `coverage_analysis_report.md` | coverage analysis, test coverage, coverage gaps, QE debt, QE audit, pre-release readiness, sprint readiness, zephyr coverage, test gap, AC coverage, test-ready |
 | quality-engineering-zephyr-test-generation | `**/user_story.md` | generate test cases, zephyr, impact analysis, create test case |
 

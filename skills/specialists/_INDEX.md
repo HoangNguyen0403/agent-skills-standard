@@ -21,6 +21,7 @@
 | specialist-tc-creator | create test case, Zephyr TC creation, test management, link TC to Jira |
 | **specialist-tdd-implementer** | tdd implementation, red green refactor, implement ac, quality unit test |
 | specialist-test-gap-finder | test gap, missing tests, coverage review, assertion quality |
+| specialist-test-planner | test planner, executable test plan, plan e2e, scenarios from ac |
 | specialist-zephyr-scanner | zephyr scanner, linked test cases, test coverage, TC discovery |
 
 > Load matched skills: `<SKILLS>/specialists/<skill>/SKILL.md`. Load ALL that match — the tier model already filters irrelevant ones.

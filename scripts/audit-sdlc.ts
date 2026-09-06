@@ -166,6 +166,11 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
     requireGoal: true,
     requireOutputTemplate: true,
   },
+  "test-loop": {
+    maxLines: 80,
+    requireGoal: true,
+    requireOutputTemplate: true,
+  },
   "deploy-release": {
     maxLines: 80,
     requireGoal: true,
@@ -275,6 +280,7 @@ const REQUIRED_SPECIALISTS = [
   "specialist-tc-creator",
   "specialist-tdd-implementer",
   "specialist-test-gap-finder",
+  "specialist-test-planner",
   "specialist-zephyr-scanner",
 ];
 

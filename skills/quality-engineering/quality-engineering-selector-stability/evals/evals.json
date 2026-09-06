@@ -1,0 +1,40 @@
+{
+  "skill_name": "quality-engineering-selector-stability",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Pick a locator for the Submit button in a Next.js checkout form.",
+      "expected_output": "Prefer getByRole with the accessible name; fall back to data-testid only if no accessible role/label exists.",
+      "assertions": [
+        { "type": "contains", "value": "getByRole" },
+        { "type": "contains", "value": "data-testid" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Add a stable identifier to a Jetpack Compose login screen's submit button.",
+      "expected_output": "Use Modifier.testTag with testTagsAsResourceId enabled at the app root.",
+      "assertions": [
+        { "type": "contains", "value": "testTag" },
+        { "type": "contains", "value": "testTagsAsResourceId" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Use //div[3]/button, it's faster than figuring out a proper locator.",
+      "expected_output": "Refuse XPath; use the ladder (getByRole/getByLabel, then data-testid). XPath is never an accepted temporary measure.",
+      "assertions": [
+        { "type": "contains", "value": "never" },
+        { "type": "not_contains", "value": "temporary xpath is fine" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Pick a locator for the Submit button in a Next.js checkout form.",
+    "What data-testid convention should I use for this new screen?"
+  ],
+  "should_not_trigger": [
+    "Explain what a page object model is.",
+    "Write a unit test for this reducer."
+  ]
+}

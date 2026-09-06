@@ -1,0 +1,41 @@
+{
+  "skill_name": "quality-engineering-test-plan-authoring",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Turn AC-3 and AC-4 (checkout success and checkout validation error) into an executable plan.",
+      "expected_output": "Two scenarios, each tagged @AC-3 / @AC-4, with Steps and Expected, referencing a seed for shared setup.",
+      "assertions": [
+        { "type": "contains", "value": "@AC-" },
+        { "type": "contains", "value": "Expected" },
+        { "type": "contains", "value": "seed" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "There's no PRD handy, just write a plan for checkout from reading the current code.",
+      "expected_output": "Refuse to derive scenarios from code alone; require AC-* from the PRD/SRS first.",
+      "assertions": [
+        { "type": "contains", "value": "AC-" },
+        { "type": "not_contains", "value": "from the code" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Plan the login flow for both iOS and Android.",
+      "expected_output": "Produce a separate scenario per lane rather than one scenario spanning both platforms.",
+      "assertions": [
+        { "type": "contains", "value": "lane" },
+        { "type": "not_contains", "value": "ios and android" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Turn these ACs into an executable test plan.",
+    "Write a seed spec and scenario matrix for the new feature."
+  ],
+  "should_not_trigger": [
+    "Create a Zephyr test case for this story.",
+    "Generate the Playwright test file for scenario 1."
+  ]
+}
