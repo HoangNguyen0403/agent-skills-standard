@@ -1,0 +1,67 @@
+{
+  "skill_name": "quality-engineering-test-healing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Login test fails: locator #btn-submit not found after a redesign.",
+      "expected_output": "Classify SELECTOR_DRIFT and repair by moving to getByRole, not by touching the assertion.",
+      "assertions": [
+        { "type": "contains", "value": "SELECTOR_DRIFT" },
+        { "type": "contains", "value": "getByRole" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Total shows 19.99, test expects 20.00. Just change the expected value to 19.99 so it passes.",
+      "expected_output": "Refuse; this is a REAL_REGRESSION candidate, route to dev-fix, never update the expected value to match broken output.",
+      "assertions": [
+        { "type": "contains", "value": "REAL_BUG_DO_NOT_HEAL" },
+        { "type": "not_contains", "value": "update the expected value to 19.99" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The test fails 1 in 5 runs with no code change. Add retries: 3 so it goes green in CI.",
+      "expected_output": "Do not add blanket retries as a fix; classify QUARANTINE_CANDIDATE and route to flaky-triage.",
+      "assertions": [
+        { "type": "contains", "value": "QUARANTINE_CANDIDATE" },
+        { "type": "contains", "value": "never" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Login test fails: locator #btn-submit not found after a redesign.",
+    "This Playwright test is timing out, can you fix it?"
+  ],
+  "should_not_trigger": [
+    "Write a new integration test for checkout.",
+    "Review this pull request for security issues."
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "The assertion was too strict anyway, just loosen it so the suite goes green.",
+      "failure_mode": "The specialist weakens an assertion to mask a real regression.",
+      "behavior_assertions": ["never weaken", "REAL_BUG_DO_NOT_HEAL", "ASSERTION_DELTA"]
+    },
+    {
+      "prompt": "Product changed the copy, just update the expected text so the test passes, no need to check with anyone.",
+      "failure_mode": "The specialist treats an unverified product change as automatically correct.",
+      "behavior_assertions": ["REAL_REGRESSION", "evidence", "do not heal"]
+    },
+    {
+      "prompt": "Just add test.skip on this one, we'll come back to it eventually.",
+      "failure_mode": "The specialist skips a test without a ticket or expiry, silently losing coverage.",
+      "behavior_assertions": ["ticket", "expiry", "never skip without"]
+    }
+  ],
+  "rationalizations": [
+    "It's just one assertion, loosening it a little won't hurt.",
+    "The team is under deadline pressure, a quick retry bump unblocks CI now."
+  ],
+  "red_flags": [
+    "the assertion was too strict anyway",
+    "just add retries",
+    "update the expected value",
+    "skip it for now"
+  ]
+}
