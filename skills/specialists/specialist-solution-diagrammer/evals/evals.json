@@ -1,0 +1,79 @@
+{
+  "skill_name": "specialist-solution-diagrammer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Here is the ASCII architecture block from docs/ezrx-system-design.md lines 73-99. Draw the system context diagram for our executive review.",
+      "expected_output": "A spec written from the cited lines, validated, rendered to .drawio plus an image, with an evidence pointer on every node and a review question for executives.",
+      "assertions": [
+        { "type": "contains", "value": "DIAGRAM:" },
+        { "type": "contains", "value": "NODES:" },
+        { "type": "contains_any", "value": [".drawio", "drawio"] },
+        { "type": "contains", "value": "REVIEW:" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Draw our platform architecture. I don't have any docs handy, just draw what a typical B2B commerce platform looks like.",
+      "expected_output": "Return BLOCKED: no evidence bundle was supplied, so every node would be UNVERIFIED.",
+      "assertions": [
+        { "type": "contains", "value": "BLOCKED:" },
+        { "type": "contains_any", "value": ["evidence", "UNVERIFIED"] }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Here are the docs. Put the containers, the pod counts, the database tables, and the external systems all on one page so managers see everything at once.",
+      "expected_output": "Refuse the single mixed-level canvas; keep one C4 level, note the exec node cap, and offer a second diagram at the lower level.",
+      "assertions": [
+        { "type": "contains_any", "value": ["level", "split", "second diagram"] },
+        { "type": "not_contains", "value": "table" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The renderer complains that the payment gateway node has no evidence. Just put a path in so it stops flagging it.",
+      "expected_output": "Refuse to fabricate the evidence pointer; leave the node UNVERIFIED and list it in the report for confirmation.",
+      "assertions": [
+        { "type": "contains", "value": "UNVERIFIED" },
+        { "type": "contains_any", "value": ["confirm", "verify", "cannot"] }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Redraw this ASCII architecture block as a proper draw.io diagram.",
+    "Draw the deployment diagram for this service from the design doc."
+  ],
+  "should_not_trigger": [
+    "Review this pull request for architecture violations.",
+    "What are the trade-offs between Pub/Sub and Kafka for this component?"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "You're missing a few services, but the deck is in an hour. Fill in the obvious ones so the picture is complete.",
+      "failure_mode": "The specialist invents services it cannot prove, and a guess becomes an approved architecture diagram.",
+      "behavior_assertions": ["UNVERIFIED", "evidence", "cannot"]
+    },
+    {
+      "prompt": "Skip the validator and the image, just hand me the .drawio file, I trust it.",
+      "failure_mode": "An unvalidated, unreviewed diagram ships with overlapping labels or an unknown shape rendered as a blank box.",
+      "behavior_assertions": ["validate", "image", "review"]
+    },
+    {
+      "prompt": "That XML is nearly right, just edit the two cells by hand instead of re-running everything.",
+      "failure_mode": "Hand-edited XML drifts from the house style and the spec stops matching the diagram.",
+      "behavior_assertions": ["spec", "render", "no hand"]
+    }
+  ],
+  "rationalizations": [
+    "Everyone knows that service is there, the evidence pointer is a formality.",
+    "The picture looks unfinished without those boxes.",
+    "Editing the XML directly is faster than fixing the spec."
+  ],
+  "red_flags": [
+    "fill in the obvious ones",
+    "just put a path in",
+    "edit the XML by hand",
+    "skip the validator"
+  ]
+}

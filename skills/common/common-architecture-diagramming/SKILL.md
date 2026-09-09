@@ -1,61 +1,73 @@
 ---
 name: common-architecture-diagramming
-description: Standards for creating clear, audience-appropriate C4 and UML architecture diagrams with Mermaid. Use when producing system context diagrams, container views, sequence diagrams, ERDs, or updating ARCHITECTURE.md files; defer design-session deliverables to system-design-diagramming.
+description: Draw architecture diagrams as editable draw.io files with a fixed house style, C4 levels, and evidence-tagged shapes. Use when producing a system context, container, deployment, data flow, sequence, or state diagram, or redrawing an ASCII or Mermaid one.
 metadata:
   triggers:
     files:
       - "ARCHITECTURE.md"
-      - "**/*.mermaid"
       - "**/*.drawio"
+      - "**/*.mermaid"
+      - "docs/architecture/**"
     keywords:
       - diagram
       - c4
-      - mermaid
       - drawio
+      - mermaid
       - erd
+      - architecture diagram
+      - solution architecture
+      - system context
+      - deployment diagram
 ---
-
 # Architecture Diagramming Standard
 
 ## **Priority: P1 (HIGH)**
 
+## Pipeline
+
+Never hand-write mxGraph XML. Write a spec; the scripts own every visual decision,
+so diagrams stay identical across authors, repositories, and sessions.
+
+1. Write `spec.json` — schema in [diagram-spec.md](references/diagram-spec.md).
+2. `python3 scripts/validate_spec.py spec.json`
+3. `python3 scripts/render_drawio.py spec.json -o docs/architecture/<slug>.drawio`
+4. `python3 scripts/export_drawio.py docs/architecture/<slug>.drawio -f png -o docs/architecture/<slug>.png`
+
+Commit the `.drawio` as the source of truth; the image is a copy for a deck.
+
 ## Guidelines
 
-- **Use C4 Model**: Context -> Container -> Component -> Code.
-- **Audience-Centric**: Tailor abstraction (Execs vs. Devs).
-- **Select Type**: Sequence (Protocol), ERD (Data), State (Lifecycle), Cloud (Infra). See [Selection](references/diagram-selection.md).
-- **Explicit Labels**: Label every arrow (e.g., "Uses", "HTTPS").
-- **Consistent Notation**: Cylinders=DB, Rectangles=Systems, Dashed=Async.
-- **Metadata**: Title, Date, Version, Author.
-- **Legend Mandatory**: Define all shapes/colors/styles.
-- **Direction**: `graph LR` (Flow) or `graph TD` (Hierarchy).
-- **Deployment**: Map containers to infrastructure.
-- **Governance**: CRITICAL: Review [best-practices.md](references/best-practices.md) before starting.
-
-## Workflow
-
-1. Name audience and the decision the diagram must support.
-2. Pick one level: context for external actors, container for deployable systems, component for one container; never mix levels.
-3. Pick notation: sequence for a request protocol, ERD for data ownership, state for lifecycle, deployment for infrastructure.
-4. Draw only decision-relevant nodes; label every relationship with protocol or event.
-5. Add title, scope/date/version, legend, and one review question for the intended audience.
-
-See [implementation examples](references/implementation.md) for C4 container diagram in Mermaid.
+- **Name the audience and the decision** before drawing anything.
+- **One C4 level per diagram**: context, container, or component, never mixed.
+- **Pick the type from the message**, not from habit. See [diagram-selection.md](references/diagram-selection.md).
+- **Evidence per node** as `path:line`. A node with no evidence renders dashed and
+  marked UNVERIFIED — leave the flag showing rather than asserting a guess.
+- **Label every edge** with its protocol or event; use `style: async` for events.
+- **Exec audience caps at 12 nodes.** Past that, split by level or by flow.
+- **Legend and title block are generated.** Do not remove or duplicate them.
+- **Refine in draw.io, not in XML.** Re-running the renderer overwrites layout tweaks.
 
 ## Anti-Patterns
 
-- **Mixed Levels**: DB columns in System Context.
-- **Unlabeled Arrows**: Ambiguous relations.
-- **Mystery Shapes**: Undefined in Legend.
-- **Dead Ends**: Unconnected nodes.
-- **Clutter**: >20 nodes/diagram.
-- **Acronyms**: Undefined abbreviations.
+- **No hand-written XML**: Write the spec, run the renderer.
+- **No invented boxes**: Omit what the evidence does not support.
+- **No mixed levels**: Table columns never appear in a context diagram.
+- **No unlabeled arrows**: State the protocol or the event.
+- **No mystery acronyms**: Expand every abbreviation on first use.
+- **No orphan nodes**: Connect it or cut it.
+
+## Red Flags
+
+| Thought | Reality |
+|---------|---------|
+| "It is one box, I will write the XML" | The renderer owns style, legend, and title block. Use it. |
+| "Close enough, I will guess this service" | Guesses ship as facts. Omit the evidence and let it render UNVERIFIED. |
+| "Managers want the whole system on one page" | Past 12 nodes they stop reading. Split it. |
 
 ## References
 
-- For design-session deliverables, `system-design-diagramming` supersedes Mermaid with the Archify typed-spec style.
-- [Diagram Selection](references/diagram-selection.md)
-- [Cloud Architecture](references/cloud-architecture.md)
-- [C4 Model Guide](references/c4-model.md)
-- [Checklist](references/checklist.md)
-- [Best Practices](references/best-practices.md)
+- [Diagram spec](references/diagram-spec.md) · [Style catalog](references/style-catalog.md) · [House style](references/house-style.md)
+- [Source extraction](references/source-extraction.md) · [Exec readability](references/exec-readability.md)
+- [C4 model](references/c4-model.md) · [Cloud](references/cloud-architecture.md) · [Best practices](references/best-practices.md)
+- [Checklist](references/checklist.md) · [Mermaid fallback](references/mermaid-fallback.md)
+- Batch or delegated drawing: `specialist-solution-diagrammer`.

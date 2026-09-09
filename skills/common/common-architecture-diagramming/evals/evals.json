@@ -3,107 +3,73 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Create a Mermaid diagram plan for executives deciding whether a mobile app, API, payment provider, and database are in scope. Which C4 level and diagram elements should I use?",
+      "prompt": "Plan a diagram for executives deciding whether a mobile app, API, payment provider, and database are in scope. Which C4 level and which elements should I use?",
       "expected_output": "Uses a C4 system-context diagram for actors and external systems, labels relationships, avoids database-table detail, and includes title/legend/scope metadata.",
       "assertions": [
-        {
-          "type": "contains_any",
-          "value": [
-            "context",
-            "system context",
-            "C4"
-          ]
-        },
-        {
-          "type": "contains_any",
-          "value": [
-            "actor",
-            "payment provider",
-            "relationship"
-          ]
-        },
-        {
-          "type": "contains_any",
-          "value": [
-            "legend",
-            "scope",
-            "title"
-          ]
-        }
+        { "type": "contains_any", "value": ["context", "system context", "C4"] },
+        { "type": "contains_any", "value": ["actor", "payment provider", "relationship"] },
+        { "type": "contains_any", "value": ["legend", "scope", "title"] }
       ]
     },
     {
       "id": 2,
       "prompt": "Our sequence diagram shows database columns, Kubernetes pods, and OAuth request steps together. What should we change before a design review?",
-      "expected_output": "Identifies mixed abstraction levels, recommends separate C4/container or deployment views from a sequence diagram, and requires labeled arrows and a legend.",
+      "expected_output": "Identifies mixed abstraction levels, recommends separate container or deployment views from a sequence diagram, and requires labeled arrows and a legend.",
       "assertions": [
-        {
-          "type": "contains_any",
-          "value": [
-            "mixed levels",
-            "separate",
-            "abstraction"
-          ]
-        },
-        {
-          "type": "contains_any",
-          "value": [
-            "sequence",
-            "deployment",
-            "container"
-          ]
-        },
-        {
-          "type": "contains_any",
-          "value": [
-            "label",
-            "legend",
-            "arrow"
-          ]
-        }
+        { "type": "contains_any", "value": ["mixed levels", "separate", "abstraction"] },
+        { "type": "contains_any", "value": ["sequence", "deployment", "container"] },
+        { "type": "contains_any", "value": ["label", "legend", "arrow"] }
       ]
     },
     {
       "id": 3,
       "prompt": "I need to explain an asynchronous order-created event from checkout to fulfillment and email. What diagram should I create and what must it show?",
-      "expected_output": "Chooses a sequence or event-flow diagram, labels the asynchronous event and participating services, distinguishes critical from secondary consumers, and documents failure/retry behavior.",
+      "expected_output": "Chooses a sequence or data-flow diagram, marks the event edge as async, names the participating services, and documents failure/retry behavior.",
       "assertions": [
-        {
-          "type": "contains_any",
-          "value": [
-            "event",
-            "asynchronous",
-            "order-created"
-          ]
-        },
-        {
-          "type": "contains_any",
-          "value": [
-            "checkout",
-            "fulfillment",
-            "email"
-          ]
-        },
-        {
-          "type": "contains_any",
-          "value": [
-            "retry",
-            "failure",
-            "label"
-          ]
-        }
+        { "type": "contains_any", "value": ["event", "asynchronous", "async"] },
+        { "type": "contains_any", "value": ["checkout", "fulfillment", "email"] },
+        { "type": "contains_any", "value": ["retry", "failure", "label"] }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Draw the container diagram for this service as a draw.io file I can edit afterwards.",
+      "expected_output": "Writes a spec JSON, runs validate_spec.py, render_drawio.py and export_drawio.py, and commits the .drawio alongside the exported image. Never hand-writes mxGraph XML.",
+      "assertions": [
+        { "type": "contains_any", "value": ["spec", "spec.json"] },
+        { "type": "contains_any", "value": ["render_drawio", "validate_spec", "export_drawio"] },
+        { "type": "not_contains", "value": "mxGraphModel" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I'm describing the architecture from memory, there's no doc. Three of these services I'm not certain about. Draw it anyway.",
+      "expected_output": "Draws it, leaves the evidence field absent on unproven nodes so they render dashed and labelled UNVERIFIED, and lists them for confirmation instead of asserting them.",
+      "assertions": [
+        { "type": "contains", "value": "UNVERIFIED" },
+        { "type": "contains_any", "value": ["evidence", "confirm", "verify"] }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Our executive context diagram has grown to nineteen boxes and leadership says it's unreadable. Fix it.",
+      "expected_output": "Cites the twelve-node cap for an exec audience and splits by C4 level or by flow rather than shrinking the shapes.",
+      "assertions": [
+        { "type": "contains_any", "value": ["12", "twelve", "cap"] },
+        { "type": "contains_any", "value": ["split", "second diagram", "level"] }
       ]
     }
+  ],
+  "should_trigger": [
+    "Draw a C4 container diagram for this service",
+    "Redraw this ASCII architecture block as a draw.io diagram",
+    "Update the diagram in ARCHITECTURE.md",
+    "Create a system context diagram for our platform"
   ],
   "should_not_trigger": [
     "Set up a basic common project from scratch",
     "How do I install common dependencies?",
     "Configure CI/CD for an unrelated platform",
     "Author the Archify spec for the design doc"
-  ],
-  "should_trigger": [
-    "Draw a C4 container diagram for this service",
-    "Update the mermaid diagram in ARCHITECTURE.md",
-    "Create an ERD for these tables"
   ]
 }
