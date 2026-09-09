@@ -1,0 +1,30 @@
+# Control band template. Copy to docs/ops/bands.yaml, populate, and review it like code.
+# Detection is deterministic and runs before any agent reads the signal. Tiers escalate by evidence:
+# log, then read-only diagnose, then propose. A tier never acts beyond its declared tools and routes.
+
+version: 1
+
+defaults:
+  baseline: # rolling window, e.g. rolling_30d — never a fixed target
+  rules: western_electric # 1 point beyond 3 sigma; 2 of 3 beyond 2 sigma same side;
+                          # 4 of 5 beyond 1 sigma same side; 8 consecutive same side
+  owner: # role that triages a breach
+
+bands:
+  - metric: # name of the measured signal
+    source: # pipeline, monitor, or artifact the value is read from
+    baseline:
+    owner:
+    tiers:
+      1sigma:
+        action: log
+      2sigma:
+        action: diagnose # read-only
+        tools: [] # read and search only; no write, no deploy
+      3sigma:
+        action: propose
+        routes: [] # pull_request, or runbook:<named pre-approved runbook>
+    harm_check: # condition that means users are affected now; routes to incident-hotfix instead
+    dismissals: # recorded reasons that tune this band
+      - date:
+        reason:

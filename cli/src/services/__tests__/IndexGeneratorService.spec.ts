@@ -663,7 +663,11 @@ describe('IndexGeneratorService', () => {
 
     it('should include system-design when present', async () => {
       (fs.pathExists as any).mockResolvedValue(true);
-      (fs.readdir as any).mockResolvedValue(['golang', 'common', 'system-design']);
+      (fs.readdir as any).mockResolvedValue([
+        'golang',
+        'common',
+        'system-design',
+      ]);
       (fs.readFile as any).mockImplementation(async (p: string) => {
         if (p.includes('metadata.json')) {
           return JSON.stringify({ file_routing: { go: ['golang'] } });

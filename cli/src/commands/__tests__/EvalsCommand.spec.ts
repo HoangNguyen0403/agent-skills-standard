@@ -127,7 +127,9 @@ describe('EvalsCommand', () => {
       await fs.writeFile(path.join(root, 'evals-report.md'), '# Live Evals\n');
       const cmd = new EvalsCommand();
       await cmd.run('report', {}, root);
-      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('# Live Evals'));
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining('# Live Evals'),
+      );
     });
   });
 });

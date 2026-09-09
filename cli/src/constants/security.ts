@@ -19,9 +19,20 @@ export const INJECTION_PATTERNS: RegExp[] = [
  * control character ends up embedded in this source file.
  */
 const ZERO_WIDTH_BIDI_CODEPOINTS = [
-  0x200b, 0x200c, 0x200d, 0x200e, 0x200f, // zero-width space/joiners, LTR/RTL marks
-  0x202a, 0x202b, 0x202c, 0x202d, 0x202e, // bidi embedding/override
-  0x2066, 0x2067, 0x2068, 0x2069, // bidi isolates
+  0x200b,
+  0x200c,
+  0x200d,
+  0x200e,
+  0x200f, // zero-width space/joiners, LTR/RTL marks
+  0x202a,
+  0x202b,
+  0x202c,
+  0x202d,
+  0x202e, // bidi embedding/override
+  0x2066,
+  0x2067,
+  0x2068,
+  0x2069, // bidi isolates
   0xfeff, // BOM / zero-width no-break space
 ];
 const zeroWidthBidiPattern = new RegExp(

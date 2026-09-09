@@ -22,8 +22,26 @@ export interface Assertion {
 }
 
 const SEMANTIC_STOP_WORDS = new Set([
-  'a', 'an', 'and', 'as', 'at', 'by', 'for', 'from', 'in', 'into', 'is', 'it',
-  'of', 'on', 'or', 'the', 'to', 'use', 'via', 'with',
+  'a',
+  'an',
+  'and',
+  'as',
+  'at',
+  'by',
+  'for',
+  'from',
+  'in',
+  'into',
+  'is',
+  'it',
+  'of',
+  'on',
+  'or',
+  'the',
+  'to',
+  'use',
+  'via',
+  'with',
 ]);
 
 function normalizedText(value: string): string {
@@ -75,9 +93,10 @@ function containsV2(value: string, transcript: string): boolean {
       /^([a-z_$][a-z0-9_$]*)\s*<[^>]+>\s*\(\s*\)$/i,
     );
     if (genericFunction)
-      return new RegExp(`${genericFunction[1]}\\s*(?:<[^>]+>)?\\s*\\(`, 'i').test(
-        transcript,
-      );
+      return new RegExp(
+        `${genericFunction[1]}\\s*(?:<[^>]+>)?\\s*\\(`,
+        'i',
+      ).test(transcript);
 
     const constructorShape = value.match(
       /\b([A-Z][A-Za-z0-9_]*)\s*\(\s*val\s+([A-Za-z_][A-Za-z0-9_]*)/,

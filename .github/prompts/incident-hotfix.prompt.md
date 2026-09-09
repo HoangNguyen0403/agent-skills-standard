@@ -23,6 +23,7 @@ Goal: Stop user-facing harm immediately, then hand off to root-cause discipline 
    - Do not skip `dev-fix`'s root-cause-before-code requirement just because mitigation already shipped.
 5. Route to learning:
    - After `verify-work` confirms the permanent fix, route to `retro-learn` for a postmortem.
+   - The confirmed root cause becomes a permanent eval case in the skill or workflow that should have prevented it.
 
 ## Runtime Contract
 - Use only for production incidents or urgent regressions with active user-facing harm; non-urgent bugs go directly to `dev-fix`.

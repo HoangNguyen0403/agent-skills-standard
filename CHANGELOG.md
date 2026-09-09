@@ -5,6 +5,57 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [common-v2.6.0] - 2026-09-09
+
+**Category**: Enforcement, review policy, delivery metrics, and a proactive maintain loop
+
+### Added
+
+- **`common-agent-guardrails` (P1)**: the standard for rules that must hold every time — protected
+  paths, secret deny, a test lock during bug fixes, post-edit formatters, production approval gates,
+  and a scope fence. Defines allow/block/ask decision semantics, fail-closed behaviour for
+  production classes, team versus organization placement, and the requirement that every block
+  decision is logged. References carry a runtime-neutral `guardrails.yaml` template and per-host
+  adapter notes, including the rule that an advisory hook is never reported as an enforced control.
+- **`common-review-policy` (P1)**: the contract for a repository `docs/review-policy.md` — declared
+  review passes, one severity ladder (Blocker, Major, Nit, with Minor and Suggestion collapsing into
+  Nit), a skip list for generated and vendored paths, a nit cap, monthly tuning against rated
+  findings, and separation of duties so the reviewing agent never approves its own change.
+- **`common-sdlc-metrics` (P2)**: the delivery metrics contract — DORA four plus per-stage leading
+  and lagging indicators derived from committed artifacts and git history (BRD survival, requirement
+  rework, plan adherence, first-pass CI, band breach to intake). Emits `artifacts/sdlc-metrics.md`
+  the way `common-telemetry` emits session cost, reports unavailable inputs as unavailable, and
+  refuses composite productivity scores or per-individual breakdowns. Owns the control-band schema.
+- **`monitor-respond` workflow**: the proactive maintain-stage loop. Reads deterministic control
+  bands from `docs/ops/bands.yaml`, checks for active user harm first, then acts strictly at the tier
+  the breach earned (log, read-only diagnose, or propose a pull request or named pre-approved
+  runbook). Triages scheduled scan results against a baseline with recorded dismissal reasons, and
+  routes outcomes to `brainstorm-feature`, `incident-hotfix`, or `retro-learn` instead of fixing in
+  place. Registered in the router, the quick reference, `DEFAULT_WORKFLOWS`, and the SDLC audit.
+- **Playbook alignment sections in `docs/sdlc-workflow-quick-reference.md`**: a crosswalk from
+  published AI-native SDLC vocabulary to this standard's requirement layers, role-and-stage
+  ownership at the gates, an adoption order starting from the practices with no prerequisites, and
+  the anti-patterns worth naming.
+- **`## Config-Change Gate` in `docs/EVALS.md`** plus a scoped preflight step in the CI
+  `validate-skills` job: a diff touching `skills/**`, `.agents/workflows/**`, or a hook script now
+  runs `pnpm evals:preflight` against only the skills it changed, keeping the whole-catalog legacy
+  alignment debt out of the gate.
+
+### Changed
+
+- `deploy-release`: environment autonomy tiers (dev deploys freely, staging behind the smoke gate,
+  production prepared by the agent and authorized by a named release owner), rollback rehearsed in
+  staging before promotion, acting identity logged separately from the triggering engineer, and
+  BLOCKED when a production deploy has no named authorizer.
+- `code-review` and `review-ticket`: load `docs/review-policy.md` when present and let its severity
+  ladder, skip list, and nit cap override workflow defaults. `review-ticket` severities collapse to
+  Blocker, Major, Nit so both workflows and `common-code-review` share one ladder.
+- `code-review`, `retro-learn`, and `incident-hotfix`: a Blocker finding or confirmed incident root
+  cause now adds a permanent case to the preventing skill's `evals/evals.json`, not only prose in
+  `SKILL.md`, so the eval suite grows into a regression net.
+- `common-learning-log`: a second entry for the same file or rule promotes the rule into the agent
+  instruction file, which stays about a page and changes only through a reviewed diff.
+
 ## [system-design-v1.0.0] - 2026-08-30
 
 **Category**: System Design skill pack launch and architecture session workflow

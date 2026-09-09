@@ -410,7 +410,12 @@ describe('McpCommand — actionStatus mismatch detection', () => {
 
       // Temporary override to check version print
       const configWithVersion = makeConfig({
-        mcp: { enabled: true, scope: 'project', prompted: true, version: '1.2.3' },
+        mcp: {
+          enabled: true,
+          scope: 'project',
+          prompted: true,
+          version: '1.2.3',
+        },
       });
       mockConfigService.loadConfig.mockResolvedValueOnce(configWithVersion);
 

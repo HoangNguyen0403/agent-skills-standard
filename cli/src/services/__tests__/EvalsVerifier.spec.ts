@@ -2,16 +2,17 @@ import fs from 'fs-extra';
 import os from 'os';
 import * as path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import {
-  listEvalRuns,
-  readEvalsReport,
-  verifyEvalRun,
-} from '../EvalsVerifier';
+import { listEvalRuns, readEvalsReport, verifyEvalRun } from '../EvalsVerifier';
 
 const RUN_ID = 'dart-v9.9.9-2099-01-01';
 
-async function fixture(): Promise<{ root: string; cleanup: () => Promise<void> }> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ags-cli-evals-fixture-'));
+async function fixture(): Promise<{
+  root: string;
+  cleanup: () => Promise<void>;
+}> {
+  const root = await fs.mkdtemp(
+    path.join(os.tmpdir(), 'ags-cli-evals-fixture-'),
+  );
   const skillDir = path.join(root, 'skills', 'dart', 'dart-tooling');
   await fs.ensureDir(path.join(skillDir, 'evals'));
   await fs.writeJson(path.join(skillDir, 'evals', 'evals.json'), {
@@ -134,13 +135,21 @@ describe('EvalsVerifier', () => {
   });
 
   it('verifies v2 aggregate answer paths and immutable input definitions', async () => {
-    const v2Root = await fs.mkdtemp(path.join(os.tmpdir(), 'ags-cli-evals-v2-'));
+    const v2Root = await fs.mkdtemp(
+      path.join(os.tmpdir(), 'ags-cli-evals-v2-'),
+    );
     const skillDir = path.join(v2Root, 'skills', 'dart', 'dart-tooling');
     const runId = 'all-v2-9.9.9-2099-01-01-test';
     const runDir = path.join(v2Root, 'benchmarks', 'evals', 'runs', runId);
     await fs.ensureDir(path.join(skillDir, 'evals'));
     await fs.writeJson(path.join(skillDir, 'evals', 'evals.json'), {
-      evals: [{ id: 1, prompt: 'changed', assertions: [{ type: 'contains', value: 'changed' }] }],
+      evals: [
+        {
+          id: 1,
+          prompt: 'changed',
+          assertions: [{ type: 'contains', value: 'changed' }],
+        },
+      ],
     });
     await fs.ensureDir(path.join(runDir, 'answers', 'dart', 'dart-tooling'));
     await fs.writeJson(path.join(runDir, 'manifest.json'), {
@@ -158,13 +167,21 @@ describe('EvalsVerifier', () => {
       },
       sourceHashes: { 'dart/dart-tooling': { skill: 'old', evals: 'old' } },
       compromisedSkills: [],
-      skills: [{
-        category: 'dart',
-        skillName: 'dart-tooling',
-        skillPath: 'skills/dart/dart-tooling/SKILL.md',
-        guardrailApplicable: false,
-        cases: [{ id: 'eval-1', kind: 'eval', arms: { baseline: 'done', 'with-skill': 'done' } }],
-      }],
+      skills: [
+        {
+          category: 'dart',
+          skillName: 'dart-tooling',
+          skillPath: 'skills/dart/dart-tooling/SKILL.md',
+          guardrailApplicable: false,
+          cases: [
+            {
+              id: 'eval-1',
+              kind: 'eval',
+              arms: { baseline: 'done', 'with-skill': 'done' },
+            },
+          ],
+        },
+      ],
     });
     await fs.writeJson(path.join(runDir, 'inputs.json'), {
       schemaVersion: 2,
@@ -178,12 +195,34 @@ describe('EvalsVerifier', () => {
           evalsPath: 'skills/dart/dart-tooling/evals/evals.json',
           hashes: { skill: 'old', evals: 'old' },
           skillMarkdown: 'old skill',
-          evals: { evals: [{ id: 1, assertions: [{ type: 'contains', value: 'answer' }] }] },
+          evals: {
+            evals: [
+              { id: 1, assertions: [{ type: 'contains', value: 'answer' }] },
+            ],
+          },
         },
       },
     });
-    await fs.writeFile(path.join(runDir, 'answers', 'dart', 'dart-tooling', 'eval-1.baseline.md'), 'generic formatter guidance');
-    await fs.writeFile(path.join(runDir, 'answers', 'dart', 'dart-tooling', 'eval-1.with-skill.md'), 'answer with formatter guidance');
+    await fs.writeFile(
+      path.join(
+        runDir,
+        'answers',
+        'dart',
+        'dart-tooling',
+        'eval-1.baseline.md',
+      ),
+      'generic formatter guidance',
+    );
+    await fs.writeFile(
+      path.join(
+        runDir,
+        'answers',
+        'dart',
+        'dart-tooling',
+        'eval-1.with-skill.md',
+      ),
+      'answer with formatter guidance',
+    );
     await fs.writeJson(path.join(runDir, 'results.json'), {
       schemaVersion: 2,
       runId,
@@ -192,18 +231,20 @@ describe('EvalsVerifier', () => {
       scoredAt: '2099-01-01T00:00:00.000Z',
       metadata: {},
       scope: { kind: 'all', categories: ['dart'] },
-      skills: [{
-        category: 'dart',
-        skillName: 'dart-tooling',
-        baselinePassRate: 0,
-        withSkillPassRate: 1,
-        delta: 1,
-        casePassRate: { baseline: 0, withSkill: 1 },
-        assertionPassRate: { baseline: 0, withSkill: 1 },
-        triggerRecall: null,
-        triggerSpecificity: null,
-        balancedTriggerAccuracy: null,
-      }],
+      skills: [
+        {
+          category: 'dart',
+          skillName: 'dart-tooling',
+          baselinePassRate: 0,
+          withSkillPassRate: 1,
+          delta: 1,
+          casePassRate: { baseline: 0, withSkill: 1 },
+          assertionPassRate: { baseline: 0, withSkill: 1 },
+          triggerRecall: null,
+          triggerSpecificity: null,
+          balancedTriggerAccuracy: null,
+        },
+      ],
     });
 
     expect(verifyEvalRun(v2Root, runId).ok).toBe(true);
