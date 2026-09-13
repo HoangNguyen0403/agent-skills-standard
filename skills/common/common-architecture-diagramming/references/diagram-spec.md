@@ -1,4 +1,4 @@
-# Diagram Spec (v1)
+# Diagram Spec (v1.1)
 
 The spec is the only thing you write. `render_drawio.py` turns it into draw.io XML.
 
@@ -19,10 +19,12 @@ The spec is the only thing you write. `render_drawio.py` turns it into draw.io X
     {"id": "customer", "label": "Customer", "sublabel": "Pharmacy buyer",
      "kind": "person", "evidence": "docs/ezrx-system-design.md:73"},
     {"id": "order", "label": "Order Engine", "sublabel": "Go", "kind": "container",
-     "group": "gke", "layer": 2, "evidence": "datasource/ezrx/order-engine/main.go:1"}
+     "group": "gke", "layer": 2, "evidence": "datasource/ezrx/order-engine/main.go:1",
+     "metric": "12k QPS peak · p99 200ms",
+     "constraint": "120k read QPS on a 3k QPS store"}
   ],
   "edges": [
-    {"from": "customer", "to": "order", "label": "Places order / HTTPS"},
+    {"from": "customer", "to": "order", "label": "Places order / HTTPS", "metric": "p99 120ms"},
     {"from": "order", "to": "sap", "label": "Syncs order", "style": "async"}
   ]
 }
@@ -40,8 +42,8 @@ The spec is the only thing you write. `render_drawio.py` turns it into draw.io X
 | `author` | no | Shown in the title block. |
 | `theme.accent` | no | Single accent colour. Default `#1E6FD9`. |
 | `groups[]` | no | `id`, `label`. Drawn as a dashed boundary box behind its members. |
-| `nodes[]` | yes | `id`, `label`, `kind`; optional `sublabel`, `group`, `layer`, `evidence`. |
-| `edges[]` | yes | `from`, `to`, `label`; optional `style`. |
+| `nodes[]` | yes | `id`, `label`, `kind`; optional `sublabel`, `group`, `layer`, `evidence`, `metric`, `constraint`. |
+| `edges[]` | yes | `from`, `to`, `label`; optional `style`, `metric`. |
 
 ## Node kinds
 
@@ -64,6 +66,18 @@ It is stored on the shape as a draw.io custom property, so a reviewer can click 
 see where it came from. A node **without** evidence renders dashed, orange, and labelled
 UNVERIFIED. That is the intended behaviour for a prose brief — never delete the field to
 make a diagram look finished.
+
+## Metrics and constraints
+
+`metric` is the one headline number that sized the box or the hop: peak QPS, p99, GB/day,
+RPO. It renders as a small line under the label (nodes) or under the protocol (edges), capped
+at 48 characters; longer text belongs in the doc. `constraint` is the left side of the
+`constraint -> component -> cost` line that justified the node. It is stored as a draw.io
+custom property beside `evidence`, so a reviewer can click the box and read why it exists.
+
+Both come from the estimation gate or from measured traffic, never from a guess: a node with
+no stated number gets no `metric`. The validator errors above 48 characters and warns, without
+failing, when a `tech` container, deployment, or dataflow diagram carries no metric at all.
 
 ## Layout
 

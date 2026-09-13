@@ -6,7 +6,7 @@ reader cannot decode, and executive diagrams dense enough to be skipped.
 
 Usage:
     python3 validate_spec.py spec.json
-Exit code 0 when clean, 1 when the spec has errors (printed one per line).
+Exit code 0 when clean or warnings only, 1 when the spec has errors (printed one per line).
 """
 
 import argparse
@@ -20,6 +20,11 @@ EXEC_NODE_CAP = 12
 
 REQUIRED_FIELDS = ("title", "type", "audience", "version", "date", "scope")
 AUDIENCES = ("exec", "tech")
+
+# A metric is the one headline number that sized the box; longer text belongs in the doc.
+METRIC_MAX_CHARS = 48
+# Diagram types where a tech reader expects to see the numbers that justified each box.
+METRIC_EXPECTED_TYPES = ("container", "deployment", "dataflow")
 
 
 def validate(spec):
@@ -59,6 +64,25 @@ def validate(spec):
     return errors
 
 
+def collect_warnings(spec):
+    """Return advisory warnings; the spec still renders, but a reader will miss something."""
+    if not isinstance(spec, dict):
+        return []
+    nodes = spec.get("nodes") or []
+    if (spec.get("audience") == "tech" and spec.get("type") in METRIC_EXPECTED_TYPES
+            and nodes and not any(n.get("metric") for n in nodes)):
+        return ["tech %s diagram has no node with a metric; put the number that justified "
+                "each box on the box, or say in scope why none applies" % spec["type"]]
+    return []
+
+
+def _validate_metric(owner, metric):
+    if metric and len(metric) > METRIC_MAX_CHARS:
+        return ["%s metric is %d chars; cap is %d. Keep the headline number, move the rest "
+                "to the doc" % (owner, len(metric), METRIC_MAX_CHARS)]
+    return []
+
+
 def _validate_nodes(spec, nodes):
     errors = []
     known_groups = {g.get("id") for g in (spec.get("groups") or [])}
@@ -79,6 +103,7 @@ def _validate_nodes(spec, nodes):
         group = node.get("group")
         if group and group not in known_groups:
             errors.append("node %s references undeclared group %r" % (node_id, group))
+        errors += _validate_metric("node %s" % node_id, node.get("metric"))
     return errors
 
 
@@ -98,6 +123,7 @@ def _validate_edges(nodes, edges):
         if style not in EDGE_STYLES:
             errors.append("edge %s -> %s has unknown style %r; known styles: %s"
                           % (source, target, style, ", ".join(sorted(EDGE_STYLES))))
+        errors += _validate_metric("edge %s -> %s" % (source, target), edge.get("metric"))
         connected.update([source, target])
     for node in nodes:
         if node.get("id") not in connected:
@@ -128,7 +154,10 @@ def main(argv=None):
     if errors:
         sys.stderr.write("\n%d problem(s); nothing rendered.\n" % len(errors))
         return 1
-    sys.stderr.write("spec OK\n")
+    warnings = collect_warnings(spec)
+    for warning in warnings:
+        sys.stderr.write("warning: %s\n" % warning)
+    sys.stderr.write("spec OK (%d warning(s))\n" % len(warnings) if warnings else "spec OK\n")
     return 0
 
 

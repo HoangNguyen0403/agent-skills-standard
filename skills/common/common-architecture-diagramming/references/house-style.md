@@ -22,7 +22,8 @@ word, and an unproven box cannot be mistaken for a confirmed one at a glance.
 ## Type
 
 One family throughout, set by draw.io's default. Title 20px bold, metadata 11px grey,
-node labels bold with a 10px bracketed technology sublabel, edge labels 10px on white.
+node labels bold with a 10px bracketed technology sublabel, then a 10px metric line when the
+spec carries one; edge labels 10px on white, with the edge metric as a 9px grey second line.
 
 ## Lines
 

@@ -148,6 +148,9 @@ EDGE_STYLES = {
     "return": _C4_EDGE + "dashed=1;dashPattern=4 4;endArrow=open;",
 }
 
+# Stored on the shape as draw.io custom properties, visible via Edit Data.
+NODE_PROPERTIES = ("evidence", "constraint")
+
 EDGE_LEGEND = {
     "sync": "Synchronous call",
     "async": "Asynchronous / event",
@@ -175,6 +178,8 @@ def _label_html(node):
     parts = ["<b>%s</b>" % node.get("label", "")] if node.get("label") else []
     if node.get("sublabel"):
         parts.append('<font style="font-size:10px">[%s]</font>' % node["sublabel"])
+    if node.get("metric"):
+        parts.append('<font style="font-size:10px">%s</font>' % node["metric"])
     if not node.get("evidence"):
         parts.append('<font style="font-size:10px">&#9888; UNVERIFIED</font>')
     return "<br>".join(parts)
@@ -202,10 +207,9 @@ def _shape_cell(root, node, x, y):
         style = _unverified_style(style)
     attrs = {"style": style, "vertex": "1", "parent": "1"}
     label = _label_html(node)
-    if node.get("evidence"):
-        holder = ET.SubElement(root, "object", {
-            "id": node["id"], "label": label, "evidence": node["evidence"],
-        })
+    props = {key: node[key] for key in NODE_PROPERTIES if node.get(key)}
+    if props:
+        holder = ET.SubElement(root, "object", dict({"id": node["id"], "label": label}, **props))
         cell = ET.SubElement(holder, "mxCell", attrs)
     else:
         attrs.update({"id": node["id"], "value": label})
@@ -343,7 +347,7 @@ def _render_sequence_body(root, nodes, edges, placed):
         source = _lifeline_x(_node_by_id(nodes, edge["from"]), placed)
         target = _lifeline_x(_node_by_id(nodes, edge["to"]), placed)
         cell = ET.SubElement(root, "mxCell", {
-            "id": "_msg_%d" % index, "value": edge.get("label", ""),
+            "id": "_msg_%d" % index, "value": _edge_value(edge),
             "style": EDGE_STYLES[edge.get("style", "sync")], "edge": "1", "parent": "1",
         })
         geometry = ET.SubElement(cell, "mxGeometry", {"relative": "1", "as": "geometry"})
@@ -355,6 +359,14 @@ def _render_sequence_body(root, nodes, edges, placed):
         ET.SubElement(points, "mxPoint",
                       {"x": str(int((source + target) / 2)), "y": str(int(y))})
     return bottom
+
+
+def _edge_value(edge):
+    """Edge label, with the metric as a smaller second line when the spec carries one."""
+    label = edge.get("label", "")
+    if not edge.get("metric"):
+        return label
+    return '%s<br><font style="font-size:9px;color:%s">%s</font>' % (label, MUTED, edge["metric"])
 
 
 def _node_by_id(nodes, node_id):
@@ -411,7 +423,7 @@ def _render_edges(root, spec, edges, boxes):
         if edge["from"] in boxes and edge["to"] in boxes:
             style += _anchor_style(boxes[edge["from"]], boxes[edge["to"]])
         cell = ET.SubElement(root, "mxCell", {
-            "id": "_edge_%d" % index, "value": edge.get("label", ""),
+            "id": "_edge_%d" % index, "value": _edge_value(edge),
             "style": style, "edge": "1", "parent": "1",
             "source": edge["from"], "target": edge["to"],
         })

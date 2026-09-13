@@ -190,6 +190,42 @@ class TestValidator(unittest.TestCase):
         }
         self.assertIn("start", " ".join(validate_spec.validate(spec)).lower())
 
+    def test_node_metric_over_48_chars_is_reported(self):
+        spec = container_spec()
+        spec["nodes"][1]["metric"] = "x" * 49
+        errors = " ".join(validate_spec.validate(spec))
+        self.assertIn("48", errors)
+        self.assertIn("api", errors)
+
+    def test_edge_metric_over_48_chars_is_reported(self):
+        spec = container_spec()
+        spec["edges"][0]["metric"] = "x" * 49
+        errors = " ".join(validate_spec.validate(spec))
+        self.assertIn("48", errors)
+        self.assertIn("web -> api", errors)
+
+    def test_metric_at_exactly_48_chars_is_accepted(self):
+        spec = container_spec()
+        spec["nodes"][1]["metric"] = "x" * 48
+        spec["edges"][0]["metric"] = "y" * 48
+        self.assertEqual(validate_spec.validate(spec), [])
+
+    def test_metric_warning_does_not_change_validate_result(self):
+        self.assertEqual(validate_spec.validate(container_spec()), [])
+
+    def test_tech_container_without_metrics_warns(self):
+        warnings = " ".join(validate_spec.collect_warnings(container_spec()))
+        self.assertIn("metric", warnings)
+
+    def test_warning_clears_when_any_node_has_metric(self):
+        spec = container_spec()
+        spec["nodes"][1]["metric"] = "12k QPS peak"
+        self.assertEqual(validate_spec.collect_warnings(spec), [])
+
+    def test_exec_context_diagram_never_warns_about_metrics(self):
+        self.assertEqual(validate_spec.collect_warnings(context_spec()), [])
+        self.assertEqual(validate_spec.collect_warnings(container_spec(audience="exec")), [])
+
 
 class TestRendererCommon(unittest.TestCase):
     def test_output_is_wellformed_mxfile(self):
@@ -283,6 +319,62 @@ class TestRendererCommon(unittest.TestCase):
     def test_accent_theme_colour_reaches_the_title_rule(self):
         xml = render_drawio.render(context_spec(theme={"accent": "#AA0000"}))
         self.assertIn("#AA0000", xml)
+
+    def test_metric_is_rendered_under_sublabel(self):
+        spec = container_spec()
+        spec["nodes"][1]["metric"] = "12k QPS peak · p99 200ms"
+        value = value_of(parse(render_drawio.render(spec)), "api")
+        self.assertIn("12k QPS peak", value)
+        self.assertLess(value.index("[Go]"), value.index("12k QPS peak"))
+
+    def test_constraint_is_stored_as_custom_property(self):
+        spec = container_spec()
+        spec["nodes"][1]["constraint"] = "3k QPS store ceiling"
+        holder = parse(render_drawio.render(spec)).find(".//object[@id='api']")
+        self.assertEqual(holder.get("constraint"), "3k QPS store ceiling")
+        self.assertEqual(holder.get("evidence"), "docs/a.md:11")
+
+    def test_constraint_without_evidence_still_renders_unverified(self):
+        spec = container_spec()
+        del spec["nodes"][1]["evidence"]
+        spec["nodes"][1]["constraint"] = "3k QPS store ceiling"
+        root = parse(render_drawio.render(spec))
+        self.assertIn("dashed=1", style_of(root, "api"))
+        self.assertIn("UNVERIFIED", value_of(root, "api"))
+        holder = root.find(".//object[@id='api']")
+        self.assertEqual(holder.get("constraint"), "3k QPS store ceiling")
+        self.assertIsNone(holder.get("evidence"))
+
+    def test_node_without_metric_has_no_extra_label_line(self):
+        value = value_of(parse(render_drawio.render(container_spec())), "web")
+        self.assertEqual(value.count("<br>"), 1)
+
+    def test_edge_metric_is_appended_as_second_label_line(self):
+        spec = container_spec()
+        spec["edges"][0]["metric"] = "p99 120ms"
+        root = parse(render_drawio.render(spec))
+        edges = {(c.get("source"), c.get("target")): c.get("value")
+                 for c in cells(root) if c.get("edge") == "1"}
+        self.assertIn("GraphQL<br>", edges[("web", "api")])
+        self.assertIn("p99 120ms", edges[("web", "api")])
+        self.assertNotIn("<br>", edges[("api", "db")])
+
+    def test_sequence_message_carries_edge_metric(self):
+        spec = {
+            "title": "Login", "type": "sequence", "audience": "tech", "version": "1.0",
+            "date": "2026-09-09", "author": "T", "scope": "Login handshake.",
+            "nodes": [
+                {"id": "u", "label": "User", "kind": "participant", "evidence": "x:1"},
+                {"id": "w", "label": "Web", "kind": "participant", "evidence": "x:2"},
+            ],
+            "edges": [
+                {"from": "u", "to": "w", "label": "opens app"},
+                {"from": "w", "to": "u", "label": "page", "style": "return", "metric": "p99 300ms"},
+            ],
+        }
+        root = parse(render_drawio.render(spec))
+        self.assertIn("p99 300ms", cell_by_id(root, "_msg_1").get("value"))
+        self.assertNotIn("<br>", cell_by_id(root, "_msg_0").get("value"))
 
 
 class TestLayouts(unittest.TestCase):

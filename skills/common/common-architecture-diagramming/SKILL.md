@@ -42,6 +42,8 @@ Commit the `.drawio` as the source of truth; the image is a copy for a deck.
 - **Pick the type from the message**, not from habit. See [diagram-selection.md](references/diagram-selection.md).
 - **Evidence per node** as `path:line`. A node with no evidence renders dashed and
   marked UNVERIFIED — leave the flag showing rather than asserting a guess.
+- **Put the number on the box.** `metric` carries the load or SLO that sized the node,
+  `constraint` says why it exists; never invent either.
 - **Label every edge** with its protocol or event; use `style: async` for events.
 - **Exec audience caps at 12 nodes.** Past that, split by level or by flow.
 - **Legend and title block are generated.** Do not remove or duplicate them.

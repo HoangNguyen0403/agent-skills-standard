@@ -26,7 +26,8 @@ Pick from the message you need to land, not from the diagram you drew last time.
   and keep it beside the migrations, where it can be regenerated.
 - **Flowcharts and decision trees.** Business logic is not architecture. Use Mermaid inline
   in the document that explains the decision.
-- **Design-session artefacts.** `system-design-diagramming` owns those, with its own style.
+- **Design-session artefacts** are drawn here too, not elsewhere;
+  `system-design-methodology/references/phase-deliverables.md` says which type at which phase.
 
 ## One more level, or one more diagram?
 

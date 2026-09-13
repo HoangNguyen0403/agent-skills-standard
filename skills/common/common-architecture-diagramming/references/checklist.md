@@ -10,6 +10,8 @@ judge. Run through it before handing a diagram to anyone.
 - [ ] Every edge is labelled and connects two declared nodes
 - [ ] No orphan nodes, no duplicate ids, no undeclared groups
 - [ ] Exec diagrams are at or under twelve nodes
+- [ ] Node and edge `metric` at or under 48 characters
+- [ ] (warning only) Tech container, deployment, and dataflow diagrams carry at least one metric
 
 ## Judgement (yours)
 
@@ -20,6 +22,8 @@ judge. Run through it before handing a diagram to anyone.
 - [ ] **Protocols on edges** where they matter, and only where they matter.
 - [ ] **Direction is honest.** Arrows point the way the request or data actually goes.
 - [ ] **Ours versus theirs** is visible without reading — internal blue, external grey.
+- [ ] **Numbers that justified the box are on the box.** Every node that exists because of a
+      constraint carries `metric` and `constraint`; a box with neither is decoration until proven otherwise.
 - [ ] **Every UNVERIFIED node is deliberate**, listed in your report, and not quietly dropped.
 - [ ] **Scope states the exclusions**, not just the inclusions.
 - [ ] **Rendered image checked by eye.** Labels clear of boxes, no line crossing a third box,

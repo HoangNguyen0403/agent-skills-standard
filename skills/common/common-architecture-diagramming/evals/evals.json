@@ -69,7 +69,6 @@
   "should_not_trigger": [
     "Set up a basic common project from scratch",
     "How do I install common dependencies?",
-    "Configure CI/CD for an unrelated platform",
-    "Author the Archify spec for the design doc"
+    "Configure CI/CD for an unrelated platform"
   ]
 }
