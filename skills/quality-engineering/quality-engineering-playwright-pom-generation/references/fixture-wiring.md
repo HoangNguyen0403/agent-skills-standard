@@ -25,6 +25,8 @@ export const test = base.extend<{ pages: Pages }>({
 export { expect } from '@playwright/test';
 ```
 
+`LoginPage` is an illustrative second entry; only page objects the plan needs are generated.
+
 Rules:
 
 - Adding a page object = one import + one property in `Pages` + one constructor call. Nothing else changes.
