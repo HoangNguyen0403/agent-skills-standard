@@ -66,6 +66,30 @@ def container_spec(**overrides):
     return spec
 
 
+def erd_spec(**overrides):
+    spec = {
+        "title": "Orders — ERD", "type": "erd", "audience": "tech", "version": "1.0",
+        "date": "2026-09-13", "author": "Test", "scope": "Order tables.",
+        "nodes": [
+            {"id": "customers", "label": "customers", "kind": "entity",
+             "evidence": "db/schema.sql:1",
+             "columns": [{"name": "id", "type": "uuid", "pk": True},
+                         {"name": "email", "type": "text", "nullable": False}]},
+            {"id": "orders", "label": "orders", "kind": "entity",
+             "evidence": "db/schema.sql:8", "metric": "4M rows",
+             "columns": [{"name": "id", "type": "uuid", "pk": True},
+                         {"name": "customer_id", "type": "uuid", "fk": True},
+                         {"name": "note", "type": "text"}]},
+        ],
+        "edges": [
+            {"from": "orders", "to": "customers", "cardinality": "many-to-one",
+             "label": "placed by"},
+        ],
+    }
+    spec.update(overrides)
+    return spec
+
+
 def parse(xml_text):
     return ET.fromstring(xml_text)
 
@@ -225,6 +249,57 @@ class TestValidator(unittest.TestCase):
     def test_exec_context_diagram_never_warns_about_metrics(self):
         self.assertEqual(validate_spec.collect_warnings(context_spec()), [])
         self.assertEqual(validate_spec.collect_warnings(container_spec(audience="exec")), [])
+
+    def test_valid_erd_spec_has_no_errors(self):
+        self.assertEqual(validate_spec.validate(erd_spec()), [])
+
+    def test_entity_without_columns_is_reported(self):
+        spec = erd_spec()
+        spec["nodes"][0]["columns"] = []
+        self.assertIn("columns", " ".join(validate_spec.validate(spec)))
+
+    def test_column_without_name_or_type_is_reported(self):
+        spec = erd_spec()
+        spec["nodes"][0]["columns"] = [{"name": "id"}]
+        self.assertIn("type", " ".join(validate_spec.validate(spec)))
+
+    def test_columns_on_non_entity_kind_is_reported(self):
+        spec = container_spec()
+        spec["nodes"][0]["columns"] = [{"name": "x", "type": "int"}]
+        self.assertIn("columns", " ".join(validate_spec.validate(spec)))
+
+    def test_entity_outside_erd_type_is_reported(self):
+        spec = container_spec()
+        spec["nodes"].append({"id": "t", "label": "t", "kind": "entity", "evidence": "a:1",
+                              "columns": [{"name": "id", "type": "int"}]})
+        spec["edges"].append({"from": "api", "to": "t", "label": "SQL"})
+        self.assertIn("erd", " ".join(validate_spec.validate(spec)))
+
+    def test_erd_edge_without_cardinality_is_reported(self):
+        spec = erd_spec()
+        del spec["edges"][0]["cardinality"]
+        self.assertIn("cardinality", " ".join(validate_spec.validate(spec)))
+
+    def test_unknown_cardinality_lists_known_values(self):
+        spec = erd_spec()
+        spec["edges"][0]["cardinality"] = "lots"
+        self.assertIn("one-to-many", " ".join(validate_spec.validate(spec)))
+
+    def test_cardinality_on_non_erd_spec_is_reported(self):
+        spec = container_spec()
+        spec["edges"][0]["cardinality"] = "one-to-many"
+        self.assertIn("cardinality", " ".join(validate_spec.validate(spec)))
+
+    def test_erd_edge_without_label_is_allowed(self):
+        spec = erd_spec()
+        del spec["edges"][0]["label"]
+        self.assertEqual(validate_spec.validate(spec), [])
+
+    def test_erd_without_entities_is_reported(self):
+        spec = erd_spec()
+        spec["nodes"] = [{"id": "a", "label": "A", "kind": "container", "evidence": "x:1"}]
+        spec["edges"] = []
+        self.assertIn("entity", " ".join(validate_spec.validate(spec)))
 
 
 class TestRendererCommon(unittest.TestCase):

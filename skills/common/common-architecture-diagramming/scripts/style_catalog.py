@@ -202,3 +202,24 @@ for _suffix, _style, _w, _h, _noun, _layer in _CLOUD:
         "style": _style, "w": _w, "h": _h,
         "legend": "%s (vendor in label)" % _noun, "layer": _layer,
     }
+
+CARDINALITIES = ("one-to-one", "one-to-many", "many-to-one", "many-to-many", "zero-or-one")
+ER_ARROWS = {
+    "one-to-one": ("ERmandOne", "ERmandOne"),
+    "one-to-many": ("ERmandOne", "ERmany"),
+    "many-to-one": ("ERmany", "ERmandOne"),
+    "many-to-many": ("ERmany", "ERmany"),
+    "zero-or-one": ("ERmandOne", "ERzeroToOne"),
+}
+ENTITY_HEADER_H = 30
+ENTITY_ROW_H = 22
+STYLE_CATALOG["entity"] = {
+    "style": ("swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=%d;"
+              "horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;"
+              "collapsible=0;marginBottom=0;html=1;whiteSpace=wrap;fillColor=#1061B0;"
+              "fontColor=#ffffff;strokeColor=#0D5091;fontSize=12;" % ENTITY_HEADER_H),
+    "w": 200, "h": ENTITY_HEADER_H, "legend": "Entity (table)", "layer": 2,
+}
+ENTITY_ROW_STYLE = ("text;strokeColor=#9AA5B1;fillColor=#ffffff;align=left;verticalAlign=middle;"
+                    "spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],"
+                    "[1,0.5]];portConstraint=eastwest;html=1;fontSize=11;fontColor=#1F2933;")
