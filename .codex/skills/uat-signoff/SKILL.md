@@ -28,6 +28,7 @@ Goal: Convert a `verify-work` PASS into an explicit, evidence-linked business ac
 1. Load scope:
    - `verify-work` report, AC list, PRD/BRD-lite business objective, and inherited `operator_profile` (carry, do not re-infer).
    - Load `common-operator-profile`.
+   - `release_confidence` from `test-loop` or `quality-engineering-automation-health` when available; present it in plain language.
 2. Draft demo script:
    - Map each AC to an observable business outcome in plain language; omit file paths, commands, and code identifiers from the primary script.
    - For `operator_profile=business` or `hybrid`, this plain-language script is the primary artifact; keep technical trace in a trailing appendix.
@@ -45,7 +46,7 @@ Goal: Convert a `verify-work` PASS into an explicit, evidence-linked business ac
 - Required inputs: a PASS verification report with an AC list to demo against.
 - Return BLOCKED only when no verification report exists or the approver is unavailable in autonomous/channel mode.
 ## Handoff Payload
-- `slug`, `operator_profile`, signoff owner, per-AC decision, conditions, outcome report, next workflow.
+- `slug`, `operator_profile`, `release_confidence`, signoff owner, per-AC decision, conditions, outcome report, next workflow.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 

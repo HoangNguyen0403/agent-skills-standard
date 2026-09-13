@@ -239,3 +239,18 @@ history only.
 produces a correct answer. The previous aggregate report could show 100%
 activation while most with-skill cases still failed, so the report and
 promotion gate now expose and enforce outcome readiness explicitly.
+
+### ADR-011: SNC Task-Difficulty Routing
+
+_Date: 2026-09-13_
+**Decision**: Route autonomy, verification depth, review mode, reviewer fanout,
+and model tier by a Spread/Novelty/Centrality score (0-6, summed, never
+averaged) rather than by ticket type. `common-task-complexity-routing` owns the
+rubric; `specialist-codebase-scout` emits the `SNC:` line; core SDLC workflows
+carry `snc_tier` and `model_tier` in their Handoff Payload. `model_tier` is a
+runtime-neutral hint (`fast|standard|strong`) that adapters map to their own
+model ladder.
+**Reason**: "Bug" and "feature" labels say nothing about engineering difficulty.
+A one-file typo and a cross-service pricing fix were previously routed through
+the same HARD STOP and the same review depth, wasting approval cycles on trivial
+work and under-reviewing high-centrality changes.

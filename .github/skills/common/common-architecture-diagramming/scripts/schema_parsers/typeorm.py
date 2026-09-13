@@ -12,18 +12,34 @@ from .model import Column, Entity, ParsedSchema, Relation, SchemaParseError, lin
 
 _ENTITY = re.compile(r"@Entity\(\s*(?:'([^']*)'|\"([^\"]*)\")?\s*[^)]*\)\s*(?:export\s+)?class\s+(\w+)"
                      r"[^{]*\{(.*?)^\}", re.MULTILINE | re.DOTALL)
-_MEMBER = re.compile(r"((?:@\w+\([^;]*?\)\s*)+)(\w+)\s*[?!]?:\s*([\w\[\]<>| ]+);", re.DOTALL)
+# Matches only the property declaration itself; the preceding decorator text is sliced out
+# by _members() below with plain string ops. A single group repeated with an internal lazy
+# quantifier (the previous ((?:@\w+\([^;]*?\)\s*)+) shape) is a classic ReDoS: on unclosed
+# input the engine tries exponentially many ways to split the text among repetitions.
+_PROPERTY = re.compile(r"(\w+)\s*[?!]?:\s*([\w\[\]<>| ]+);")
 _RELATION = re.compile(r"@(ManyToOne|OneToOne|ManyToMany|OneToMany)\(\s*\(\)\s*=>\s*(\w+)")
 _CARD = {"ManyToOne": "many-to-one", "OneToOne": "one-to-one", "ManyToMany": "many-to-many"}
+
+
+def _members(body):
+    """Yield (decorators, prop, ptype, prop_start) for each property in a class body.
+
+    `decorators` is the raw text since the previous property (or the class start), found by
+    slicing rather than matching, so it carries no regex risk regardless of its content.
+    """
+    prev_end = 0
+    for prop_match in _PROPERTY.finditer(body):
+        yield (body[prev_end:prop_match.start()], prop_match.group(1),
+               prop_match.group(2).strip(), prop_match.start())
+        prev_end = prop_match.end()
 
 
 def _parse_entity(text, path, match, class_to_table):
     table = class_to_table[match.group(3)]
     body, body_offset = match.group(4), match.start(4)
     columns, relations = [], []
-    for member in _MEMBER.finditer(body):
-        decorators, prop, ptype = member.group(1), member.group(2), member.group(3).strip()
-        evidence = "%s:%d" % (path, line_of(text, body_offset + member.start()))
+    for decorators, prop, ptype, prop_start in _members(body):
+        evidence = "%s:%d" % (path, line_of(text, body_offset + prop_start))
         nullable = "nullable: true" in decorators
         rel = _RELATION.search(decorators)
         if rel:

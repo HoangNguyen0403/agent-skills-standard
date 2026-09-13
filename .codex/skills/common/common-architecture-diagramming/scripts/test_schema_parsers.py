@@ -143,6 +143,22 @@ class TestTypeOrm(unittest.TestCase):
         with self.assertRaises(SchemaParseError):
             typeorm.parse("export class Nope {}", "n.ts")
 
+    def test_unclosed_decorator_like_text_does_not_hang(self):
+        """Regression for a ReDoS in the old member regex: a repeated group whose inner
+        quantifier was itself unbounded and lazy let the engine try exponentially many
+        ways to split unclosed '@x(...)@y(...)' text. CodeQL py/redos, PR #187."""
+        import time
+
+        from schema_parsers import typeorm
+
+        malicious = "@Entity()\nclass X {\n" + "@a(" + ")@0(" * 25000 + "\n}"
+        start = time.monotonic()
+        try:
+            typeorm.parse(malicious, "x.ts")
+        except SchemaParseError:
+            pass
+        self.assertLess(time.monotonic() - start, 2.0)
+
 
 class TestDjangoSqlAlchemy(unittest.TestCase):
     def setUp(self):

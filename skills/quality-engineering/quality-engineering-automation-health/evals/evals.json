@@ -1,0 +1,42 @@
+{
+  "skill_name": "quality-engineering-automation-health",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our checkout E2E suite hasn't failed in three months. It costs CI minutes every run. Should we delete it?",
+      "expected_output": "No. A test that never fails is a safety net, not dead weight; it is what lets the team refactor and bump dependencies without silent breakage. Judge it by whether it covers a core workflow and keeps the feedback loop fast, not by bugs caught.",
+      "assertions": [
+        { "type": "contains", "value": "safety net" },
+        { "type": "contains", "value": "core workflow" },
+        { "type": "not_contains", "value": "delete it" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Management wants a ranking of our test suites by number of bugs caught last quarter to decide which to invest in.",
+      "expected_output": "Reframe: rank by release confidence instead. Report feedback loop, suite reliability, release cadence, and production escape rate per suite; bug count on CI mostly reflects what developers did not catch locally.",
+      "assertions": [
+        { "type": "contains", "value": "escape rate" },
+        { "type": "contains", "value": "feedback loop" },
+        { "type": "contains", "value": "release confidence" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "CI takes 12 minutes, we had 2 flaky re-runs out of 40 runs this month, deploys went from weekly to daily, and zero hotfixes since. What's our release confidence?",
+      "expected_output": "release_confidence: high. Feedback loop 12 minutes within target, suite reliability 95% above threshold, cadence rose with escape rate flat at zero, so all three questions are answered yes with evidence.",
+      "assertions": [
+        { "type": "contains", "value": "release_confidence" },
+        { "type": "contains", "value": "high" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Is our automation suite actually worth the CI cost, and how confident should we be shipping Friday?",
+    "Compute the automation health metrics for the mobile regression suite before the release meeting."
+  ],
+  "should_not_trigger": [
+    "Fix this failing Playwright test, the locator changed.",
+    "How many acceptance criteria in PROJ-123 are covered by Zephyr test cases?"
+  ]
+}
