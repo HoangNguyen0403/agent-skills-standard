@@ -30,7 +30,7 @@ Move the locator up the selector ladder (e.g., `getByRole` if the ID changed); r
 
 ## Forbidden Repairs
 
-Never weaken an assertion. Never add `test.skip`/`fixme` as a heal; a test that must stop gating goes to quarantine per `quality-engineering-flaky-triage` with a ticket + expiry, and never skip without these. Never widen a matcher. Never inflate a timeout by more than 2x. Never blind `--update-snapshots`. Never catch-and-continue. Never touch production code — that is `REAL_REGRESSION`, not a heal.
+Never weaken an assertion. Never add `test.skip`/`fixme`; a test that must stop gating goes to quarantine per `quality-engineering-flaky-triage` with a ticket + expiry, and keeps running. Never widen a matcher. Never inflate a timeout by more than 2x. Never blind `--update-snapshots`. Never catch-and-continue. Never touch production code — that is `REAL_REGRESSION`, not a heal.
 
 ## Verdicts
 

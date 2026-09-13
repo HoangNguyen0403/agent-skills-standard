@@ -27,7 +27,7 @@ For one failing test, decide `SELECTOR_DRIFT | TIMING_SYNC | DATA_ENV | INFRA | 
 2. Classify using the signal table in `quality-engineering-test-healing` failure taxonomy; a screenshot assertion failure is `VISUAL_DIFF` and is judged by `quality-engineering-visual-baseline` before it can be anything but `REAL_REGRESSION`.
 3. `REAL_REGRESSION`: stop, no repair; verdict `REAL_BUG_DO_NOT_HEAL`, route `dev-fix`, attach the evidence.
 4. Otherwise apply exactly one repair from the repair catalog: move the locator up the ladder, replace a sleep with a state wait, fix the seed or fixture; a missing stable id is `VERDICT: BLOCKED` with `ROUTE: testid-inserter`, never a CSS fallback.
-5. Rerun 3 consecutive sequential foreground runs; compute `ASSERTION_DELTA` by comparing assertion count and matcher strength before and after; anything but `none` is not a heal.
+5. Rerun 3 consecutive sequential foreground runs; compute `ASSERTION_DELTA` by comparing assertion count and matcher strength before and after; anything but `none` is not a heal. Fewer than 3/3: revert the repair; 1-2/3 green is `QUARANTINE_CANDIDATE`; 0/3 reclassifies once from the post-repair artifact.
 6. Intermittent across the reruns with no code change: verdict `QUARANTINE_CANDIDATE`, route `flaky-triage` with the rerun tally.
 
 ## Output

@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `quality-engineering-visual-baseline`: capture in CI image, mask by locator, per-region thresholds, reviewed-diff baseline updates.
 
 ### Changed
-- `quality-engineering-test-healing`: references flaky-triage and visual-baseline; P3 placeholders removed.
+- `quality-engineering-test-healing`: references flaky-triage and visual-baseline; `test.skip`/`fixme` never allowed as a heal; second `BLOCKED` cause (no stable locator target); P3 placeholders removed.
 
 ### Versions
 - quality-engineering: 1.8.0

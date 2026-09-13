@@ -29,7 +29,7 @@ Only a `QUARANTINE_CANDIDATE` verdict enters triage: the test fails intermittent
 - Quarantine means the test still runs, its result is reported, and it does not gate merge; it never means `test.skip`.
 - Every quarantined test carries a ticket with an owner and an expiry of at most 14 days. No ticket, no quarantine.
 - On expiry: fixed and un-quarantined, or expiry extended once with a written reason, or the test is deleted with the coverage gap recorded in the coverage report. Silent expiry is forbidden.
-- Record each entry in `flake_quarantine[]` as `{test, ticket, expiry, bucket}` so `test-loop`, `verify-work`, and `deploy-release` see it.
+- Record each entry in `flake_quarantine[]` as `{test, ticket, expiry, bucket}` so `test-loop` carries it in its handoff.
 
 ## Root-Cause Buckets
 
@@ -45,7 +45,7 @@ A test leaves quarantine only when the root cause is fixed and it passes 10 cons
 
 ## Reliability Impact
 
-Each quarantined test lowers `suite_reliability_pct` in `quality-engineering-automation-health`; report the count and the oldest expiry next to `release_confidence`. See [Reliability Math](references/reliability-math.md).
+Each flaky test counts against `suite_reliability_pct` in `quality-engineering-automation-health` until its root cause is fixed; quarantine removes its reds from the merge gate, not from the report. State the quarantine count and the oldest expiry next to `release_confidence`.
 
 ## Red Flags
 

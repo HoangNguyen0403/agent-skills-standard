@@ -6,7 +6,7 @@
 | Jest + jest-image-snapshot | `expect(img).toMatchImageSnapshot()` | `__image_snapshots__/` | pre-crop only | `failureThreshold`, `failureThresholdType` | `-u -t "<name>"` |
 | Detox | `expect(element).toMatchImageSnapshot()` via plugin, or `device.takeScreenshot()` + jest-image-snapshot | `__image_snapshots__/` | pre-crop | as Jest | as Jest |
 | Maestro | `assertVisible` + `takeScreenshot` compared in CI by a script | `screenshots/` | crop by script | script-defined | rerun the flow only |
-| XCUITest | `XCTAttachment` screenshots compared with swift-snapshot-testing `assertSnapshot(as: .image(precision:))` | `__Snapshots__/` | `precision`, `perceptualPrecision` | `precision` | record mode per test |
+| XCUITest | `XCTAttachment` screenshots compared with swift-snapshot-testing `assertSnapshot(as: .image(precision:))` | `__Snapshots__/` | none (pre-crop) | `precision` | record mode per test |
 | Espresso / Compose | Roborazzi `captureRoboImage()` (Paparazzi: `paparazzi.snapshot(view)`) | `src/test/snapshots/` | compose `Modifier.testTag` regions cropped | `RoborazziOptions.CompareOptions(changeThreshold)` | `recordRoborazzi` per test class |
 
 Rules common to every row:

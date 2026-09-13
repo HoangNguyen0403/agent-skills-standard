@@ -41,7 +41,7 @@ A screenshot diff is `VISUAL_DIFF`. It is `REAL_REGRESSION` unless the whole dif
 
 - A baseline changes only through a reviewed diff: before and after images in the PR, the intended product change linked, and an approver named in the commit. See [Baseline Update Review](references/baseline-update-review.md).
 - Never blind `--update-snapshots`: it approves every diff in the run, including the regression you have not seen yet.
-- Update only the baselines whose diff was reviewed; regenerate the rest from the same commit so unrelated drift stays visible.
+- Update only the baselines whose diff was reviewed, scoped with `--grep` and the spec path; regenerate the rest from the same commit so unrelated drift stays visible.
 
 ## Red Flags
 

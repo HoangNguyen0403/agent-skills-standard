@@ -421,8 +421,8 @@
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 14,
-        "total_tokens": 10996,
-        "avg_tokens_per_skill": 785,
+        "total_tokens": 11011,
+        "avg_tokens_per_skill": 787,
         "largest_skill": "quality-engineering-zephyr-test-generation (1278 tokens)"
       },
       "owners": [
@@ -435,9 +435,9 @@
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 11301,
-        "avg_tokens_per_skill": 538,
-        "largest_skill": "specialist-test-healer (915 tokens)"
+        "total_tokens": 11333,
+        "avg_tokens_per_skill": 540,
+        "largest_skill": "specialist-test-healer (947 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

@@ -82,7 +82,7 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 ## Runtime Contract
 - Use for bug tickets that need root-cause remediation and a PR/MR.
 - Required inputs: issue URL/key or exported ticket text with reproduce steps.
-- Accepts a `test-loop` `REAL_BUG_DO_NOT_HEAL` handoff as the ticket input: the healer's `EVIDENCE:` artifacts are the reproduce steps.
+- Accepts a `test-loop` `REAL_BUG_DO_NOT_HEAL` handoff as the ticket input: the healer's `TEST:` and `EVIDENCE:` lines plus the failing AC are the reproduce steps.
 - Return BLOCKED only when repro steps, expected result, or root-cause hypothesis cannot be established.
 
 ## Handoff Payload
