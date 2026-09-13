@@ -37,7 +37,14 @@ If any assumed value differs, update this table first, then the affected special
 4. Step 3: `specialist-testid-inserter` returns `APPROVAL: required` with the component file list; approve; it returns `INSERTED:` for every gap and `CHECK: CLEAN`. Page object `tests/pages/checkout.page.ts` and `tests/fixtures.ts` exist with no `expect` inside the page object.
 5. Step 4: one generator call for `@AC-3` returns `Action: created`, `Format: CLEAN`, `Test: PASS`; the spec imports `test` from `./fixtures` and contains no `page.locator(`.
 6. The sandbox runs the spec via the allowlisted command; the verifier accepts the `Test: PASS` line; the workflow report shows `## Page Objects`, an empty `## Selector Gaps Remaining`, and `release_confidence` computed.
-7. Negative check: delete one inserted id, rerun step 4 for `@AC-3`; the generator must not silently fall back to a CSS or `nth` selector. Expected: `Test: FAIL` with the spec and page object unchanged (no new `page.locator(` or `nth`); the id reappears under `## Selector Gaps Remaining`, or routes to the healer path once P3 lands.
+7. Negative check: delete one inserted id, rerun step 4 for `@AC-3`; the generator must not silently fall back to a CSS or `nth` selector. Expected: `Test: FAIL` with the spec and page object unchanged (no new `page.locator(` or `nth`); the id reappears under `## Selector Gaps Remaining`, or `specialist-test-healer` returns `CLASS: SELECTOR_DRIFT` with `ROUTE: testid-inserter`.
+
+## P3 extension (Run and heal)
+
+8. Introduce a deliberate timing race in the seed (remove one explicit wait); run step 5. Expected: healer returns `CLASS: TIMING_SYNC`, `REPAIR:` names the state wait, `RERUNS: 3/3 green`, `ASSERTION_DELTA: none`, `VERDICT: HEALED`.
+9. Change the product rounding so the order total differs from the AC; run step 5. Expected: `CLASS: REAL_REGRESSION`, `VERDICT: REAL_BUG_DO_NOT_HEAL`, `ROUTE: dev-fix`, the test file unchanged, `real_bugs[]` has one entry.
+10. Make the seed non-deterministic (random cart item); run step 5 twice. Expected: `VERDICT: QUARANTINE_CANDIDATE`, `flake_quarantine[]` entry with ticket, expiry ≤ 14 days, bucket `DATA`; the test still runs and reports.
+11. Change the header color; run the visual check. Expected: `VISUAL_DIFF` → `REAL_REGRESSION` until the intended change is linked; baseline updated only with `--grep` scoping and a named approver in the commit.
 
 ## Evidence to capture
 
@@ -49,4 +56,4 @@ If any assumed value differs, update this table first, then the affected special
 
 ## Exit criteria
 
-All seven steps pass on one clean run; the negative check refuses fallback selectors. Record the run date and both repo SHAs at the top of this file.
+All eleven steps pass on one clean run; the negative check refuses fallback selectors. Record the run date and both repo SHAs at the top of this file.
