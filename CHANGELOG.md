@@ -32,6 +32,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`system-design-interview-coaching`** (P1): the `interview practice` mode finally has an owner.
+  The agent is the interviewer during the round and the coach after it: seven phases on a
+  45-minute time budget (scales to 60) with interrupt lines when a phase overruns, one deliberate
+  mid-round requirement change, one follow-up on the weakest area, the model answer only after
+  the candidate commits to an approach. Debrief on a six-criterion 0-3 rubric with a quoted line
+  of evidence per score, bands, the two fixes to work on first, and the next practice problem.
+  References: `time-budget.md`, `rubric.md`, `mistakes.md` (twelve symptom → coach line →
+  recovery rows), `whiteboard-rules.md` (Mermaid in chat during the round, same conventions as
+  the house style). Evals carry pressure scenarios for "just tell me the answer", "skip the
+  numbers", and "score it a hire".
 - **`system-design-methodology/references/phase-deliverables.md`**: maps the seven interview phases (requirements, estimation, high-level design, data model, API, deep dive, bottlenecks) onto the four methodology gates, names the deliverable per phase, the diagram type and audience that carries it, and where each node's `metric`, `constraint`, and `evidence` come from.
 
 ### Changed
@@ -39,7 +49,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`system-design-methodology`**: description and Phase 3 route to `common-architecture-diagramming`; a design-session diagram is a `container` view (audience tech) plus `sequence` or `dataflow` for the critical path, every node carrying `metric` and `constraint` from its `constraint -> component -> cost` line. `four-phase-process.md` lists diagrams as a Phase 3 output.
 - **`system-design-artifact-intake`**: the fact-sheet re-draw goes through the draw.io pipeline; confirmed rows carry `evidence` into the artifact, low-confidence rows omit it and render UNVERIFIED. The Archify JSON row is gone from the artifact-format table.
 - **`system-design-review`**: prose said "eight axes" while the scorecard has nine; fixed.
-- **Workflows** `system-design-session`, `review-system-design`, `design-solution`: load `common-architecture-diagramming`, render through it, and carry diagram paths in the handoff payload. `design-solution` gains a diagram step and a `## Diagrams` section it never had.
+- **`system-design-case-catalog`**: now the problem bank for the coaching skill; Coaching Mode is a
+  pointer; three problems added (video streaming, ride hailing, payment ledger); the
+  `mock interview` trigger moved to `system-design-interview-coaching`.
+- **`system-design-methodology`**: interview-practice mode routes to the coaching skill.
+- **Workflows** `system-design-session`, `review-system-design`, `design-solution`: load `common-architecture-diagramming`, render through it, and carry diagram paths in the handoff payload. `design-solution` gains a diagram step and a `## Diagrams` section it never had. `system-design-session` interview-practice mode runs the coaching skill and adds an interview scorecard to the output.
 
 ### Migration
 
@@ -125,7 +139,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `diagram-selection.md` covers ERDs; `cloud-architecture.md` and `style-catalog.md` document
   AWS, the vendor-neutral kinds, and why Azure has no icons.
 - `mermaid-fallback.md` opens with the export ladder: a draw.io MCP tool when the session has
-  one, else the Desktop CLI, else ship the `.drawio` and say the image was not exported.
+  one, else the Desktop CLI, else ship the `.drawio` and say the image was not exported. Mermaid
+  gains a third legitimate case: a live interview practice round in chat.
 - SKILL pipeline renders with `--strict`; triggers gain `entity relationship`, `schema diagram`,
   `aws`; evals gain an ERD-from-Prisma case and an AWS-plus-Azure-AD case.
 
