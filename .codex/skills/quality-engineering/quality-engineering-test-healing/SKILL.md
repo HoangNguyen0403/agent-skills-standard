@@ -34,7 +34,7 @@ Never weaken an assertion. Never add `test.skip`/`fixme` as a heal; a test that 
 
 ## Verdicts
 
-`HEALED` (repair verified by 3 consecutive green reruns, ASSERTION_DELTA: none) · `REAL_BUG_DO_NOT_HEAL` (route to dev-fix) · `QUARANTINE_CANDIDATE` (flaky, route to flaky-triage) · `BLOCKED` (no evidence artifact).
+`HEALED` (repair verified by 3 consecutive green reruns, ASSERTION_DELTA: none) · `REAL_BUG_DO_NOT_HEAL` (route to dev-fix) · `QUARANTINE_CANDIDATE` (flaky, route to flaky-triage) · `BLOCKED` (no evidence artifact, or no stable locator target: route to `specialist-testid-inserter`).
 
 ## Red Flags
 

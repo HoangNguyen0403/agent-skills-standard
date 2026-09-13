@@ -9,3 +9,4 @@
   with a ticket, not left green-by-retry.
 - `BLOCKED` (no evidence artifact): no trace/screenshot/log artifact available
   to classify from.
+- `BLOCKED` (no stable locator target): the ladder has no stable target for the element; hand off to `specialist-testid-inserter` with the gap named `<screen>-<element>-<role>`, then re-heal.
