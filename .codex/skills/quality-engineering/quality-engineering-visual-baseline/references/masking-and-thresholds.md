@@ -10,7 +10,7 @@
 | Animated or skeleton loaders | timing | freeze animations, wait for the final state, no mask |
 | Randomised ids in visible text | test data | seed with fixed ids instead of masking |
 
-Mask by stable locator (test id or role), never by pixel rectangle: a rectangle drifts when the layout moves and then hides the regression you wanted.
+Mask by stable locator (test id or role) wherever the tool supports it; where only pre-crop is available (see Tool Matrix), crop to the smallest region and re-check the crop whenever the layout changes, because a fixed rectangle drifts and then hides the regression you wanted.
 
 ## Freeze before capture
 
