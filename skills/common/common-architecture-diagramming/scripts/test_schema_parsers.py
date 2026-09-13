@@ -111,5 +111,38 @@ class TestPrisma(unittest.TestCase):
             prisma.parse('datasource db { provider = "postgresql" }', "s.prisma")
 
 
+class TestTypeOrm(unittest.TestCase):
+    def setUp(self):
+        from schema_parsers import typeorm
+        self.schema = typeorm.parse(read("orders.entity.ts"), "fixtures/schemas/orders.entity.ts")
+        self.by_name = {e.name: e for e in self.schema.entities}
+
+    def test_entity_names_prefer_decorator_argument(self):
+        self.assertEqual(sorted(self.by_name), ["Order", "Tag", "customers"])
+
+    def test_columns_types_and_nullability(self):
+        cols = {c.name: c for c in self.by_name["customers"].columns}
+        self.assertTrue(cols["id"].pk)
+        self.assertEqual(cols["email"].type, "string")
+        self.assertTrue(cols["name"].nullable)
+        self.assertFalse(cols["email"].nullable)
+        self.assertNotIn("orders", cols)
+
+    def test_many_to_one_adds_fk_column_and_relation(self):
+        cols = {c.name: c for c in self.by_name["Order"].columns}
+        self.assertTrue(cols["customerId"].fk)
+        rel = [r for r in self.schema.relations if r.source == "Order"][0]
+        self.assertEqual((rel.target, rel.cardinality), ("customers", "many-to-one"))
+
+    def test_many_to_many_with_join_table(self):
+        m2m = [r for r in self.schema.relations if r.cardinality == "many-to-many"]
+        self.assertEqual([(r.source, r.target) for r in m2m], [("customers", "Tag")])
+
+    def test_no_entities_is_an_error(self):
+        from schema_parsers import typeorm
+        with self.assertRaises(SchemaParseError):
+            typeorm.parse("export class Nope {}", "n.ts")
+
+
 if __name__ == "__main__":
     unittest.main()
