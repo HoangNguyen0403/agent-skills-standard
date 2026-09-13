@@ -24,7 +24,7 @@
     {
       "id": 3,
       "prompt": "The quarantined login test passed once this morning after the fix. Un-quarantine it?",
-      "expected_output": "Not yet: a test leaves quarantine only after 10 consecutive isolated green runs following the root-cause fix; one green is not evidence.",
+      "expected_output": "Not yet: a test leaves quarantine only after 10 consecutive isolated green runs following the root cause fix; one green is not evidence.",
       "assertions": [
         { "type": "contains", "value": "10 consecutive" },
         { "type": "contains", "value": "root cause" },

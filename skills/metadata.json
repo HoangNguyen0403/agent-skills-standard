@@ -421,7 +421,7 @@
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 13,
-        "total_tokens": 10053,
+        "total_tokens": 10055,
         "avg_tokens_per_skill": 773,
         "largest_skill": "quality-engineering-zephyr-test-generation (1278 tokens)"
       },
