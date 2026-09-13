@@ -434,9 +434,9 @@
       "last_updated": "2026-09-09",
       "tag_prefix": "specialists-v",
       "token_metrics": {
-        "total_skills": 19,
-        "total_tokens": 9582,
-        "avg_tokens_per_skill": 504,
+        "total_skills": 20,
+        "total_tokens": 10234,
+        "avg_tokens_per_skill": 512,
         "largest_skill": "specialist-tdd-implementer (824 tokens)"
       },
       "owners": [

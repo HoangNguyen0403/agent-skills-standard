@@ -281,6 +281,7 @@ const REQUIRED_SPECIALISTS = [
   "specialist-tdd-implementer",
   "specialist-test-gap-finder",
   "specialist-test-planner",
+  "specialist-testid-inserter",
   "specialist-zephyr-scanner",
 ];
 
