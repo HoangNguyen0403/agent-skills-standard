@@ -14,6 +14,7 @@ style_catalog.py and is explained in ../references/style-catalog.md.
 import argparse
 import json
 import sys
+from dataclasses import dataclass, field
 import xml.etree.ElementTree as ET
 
 import render_erd
@@ -258,23 +259,12 @@ def _node_by_id(nodes, node_id):
     raise SpecError("edge references unknown node %r" % node_id)
 
 
-def _render_groups(root, spec, placed):
+def _render_groups(root, spec, layout):
     """Boundary boxes are emitted before their members so they sit behind them."""
-    groups = spec.get("groups") or []
-    for group in groups:
-        members = [n for n in spec["nodes"] if n.get("group") == group["id"]]
-        if not members:
+    for group in spec.get("groups") or []:
+        if group["id"] not in layout.groups:
             continue
-        boxes = []
-        for node in members:
-            x, y = placed[node["id"]]
-            kind = _kind(node)
-            boxes.append((x, y, x + kind["w"], y + kind["h"]))
-        pad_x, pad_top, pad_bottom = 30, 46, 30
-        x0 = min(b[0] for b in boxes) - pad_x
-        y0 = min(b[1] for b in boxes) - pad_top
-        x1 = max(b[2] for b in boxes) + pad_x
-        y1 = max(b[3] for b in boxes) + pad_bottom
+        x, y, w, h = layout.groups[group["id"]]
         cell = ET.SubElement(root, "mxCell", {
             "id": "_group_%s" % group["id"], "value": group.get("label", ""),
             "style": ("rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9AA5B1;"
@@ -282,7 +272,7 @@ def _render_groups(root, spec, placed):
                       "spacingTop=6;fontColor=%s;fontSize=11;arcSize=6;" % MUTED),
             "vertex": "1", "parent": "1",
         })
-        _geometry(cell, int(x0), int(y0), int(x1 - x0), int(y1 - y0))
+        _geometry(cell, x, y, w, h)
 
 
 def _anchor_style(source_box, target_box):
@@ -380,14 +370,62 @@ def _render_legend(root, spec, edges, top):
         y += 30
 
 
-def render(spec):
-    """Return draw.io XML for one spec. Raises SpecError on anything unrenderable."""
+@dataclass(frozen=True)
+class Layout:
+    """Where every node box (x, y, w, h) and group box lands; render() draws exactly this."""
+    boxes: dict
+    groups: dict = field(default_factory=dict)
+
+
+def group_box(member_boxes):
+    pad_x, pad_top, pad_bottom = 30, 46, 30
+    x0 = min(b[0] for b in member_boxes) - pad_x
+    y0 = min(b[1] for b in member_boxes) - pad_top
+    x1 = max(b[0] + b[2] for b in member_boxes) + pad_x
+    y1 = max(b[1] + b[3] for b in member_boxes) + pad_bottom
+    return int(x0), int(y0), int(x1 - x0), int(y1 - y0)
+
+
+def _place(spec, nodes, edges):
+    if spec["type"] == "erd":
+        return render_erd.layout_erd(nodes, edges)
+    if spec["type"] == "context":
+        return _layout_context(nodes)
+    if spec["type"] == "sequence":
+        return _layout_sequence(nodes)
+    if spec["type"] == "state":
+        return _layout_state(nodes, edges)
+    return _layout_layered(nodes)
+
+
+def layout(spec):
+    """Geometry only. Raises SpecError on anything unrenderable."""
     if spec.get("type") not in DIAGRAM_TYPES:
         raise SpecError("unknown diagram type %r. Known types: %s"
                         % (spec.get("type"), ", ".join(DIAGRAM_TYPES)))
     nodes = spec.get("nodes") or []
     if not nodes:
         raise SpecError("spec has no nodes")
+    edges = spec.get("edges") or []
+    placed = _place(spec, nodes, edges)
+    boxes = {}
+    for node in nodes:
+        x, y = placed[node["id"]]
+        kind = _kind(node)
+        h = render_erd.entity_height(node) if node["kind"] == "entity" else kind["h"]
+        boxes[node["id"]] = (x, y, kind["w"], h)
+    groups = {}
+    for group in spec.get("groups") or []:
+        members = [boxes[n["id"]] for n in nodes if n.get("group") == group["id"]]
+        if members:
+            groups[group["id"]] = group_box(members)
+    return Layout(boxes=boxes, groups=groups)
+
+
+def render(spec):
+    """Return draw.io XML for one spec. Raises SpecError on anything unrenderable."""
+    lay = layout(spec)
+    nodes = spec.get("nodes") or []
     edges = spec.get("edges") or []
     accent = (spec.get("theme") or {}).get("accent", DEFAULT_ACCENT)
 
@@ -404,27 +442,12 @@ def render(spec):
     ET.SubElement(root, "mxCell", {"id": "0"})
     ET.SubElement(root, "mxCell", {"id": "1", "parent": "0"})
 
-    if spec["type"] == "erd":
-        placed = render_erd.layout_erd(nodes, edges)
-    elif spec["type"] == "context":
-        placed = _layout_context(nodes)
-    elif spec["type"] == "sequence":
-        placed = _layout_sequence(nodes)
-    elif spec["type"] == "state":
-        placed = _layout_state(nodes, edges)
-    else:
-        placed = _layout_layered(nodes)
-
-    boxes = {}
-    for node in nodes:
-        x, y = placed[node["id"]]
-        kind = _kind(node)
-        h = render_erd.entity_height(node) if node["kind"] == "entity" else kind["h"]
-        boxes[node["id"]] = (x, y, kind["w"], h)
+    boxes = lay.boxes
+    placed = {node_id: (x, y) for node_id, (x, y, _, _) in boxes.items()}
 
     width = max(x + w + 60 for x, _, w, _ in boxes.values())
     _render_title(root, spec, accent, width)
-    _render_groups(root, spec, placed)
+    _render_groups(root, spec, lay)
     if spec["type"] == "erd":
         render_erd.render_entities(root, nodes, placed)
     else:
@@ -448,11 +471,14 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Render a diagram spec to draw.io XML.")
     parser.add_argument("spec", help="path to the spec JSON file")
     parser.add_argument("-o", "--output", help="output .drawio path (default: stdout)")
+    parser.add_argument("--strict", action="store_true",
+                        help="exit 2 when the layout check reports a finding")
     args = parser.parse_args(argv)
 
     with open(args.spec, encoding="utf-8") as handle:
         spec = json.load(handle)
     try:
+        lay = layout(spec)
         xml = render(spec)
     except SpecError as error:
         sys.stderr.write("render failed: %s\n" % error)
@@ -463,6 +489,13 @@ def main(argv=None):
         sys.stderr.write("wrote %s\n" % args.output)
     else:
         sys.stdout.write(xml)
+    import check_layout
+    findings = check_layout.check(spec, lay)
+    for finding in findings:
+        sys.stderr.write("layout: %s\n" % finding)
+    if findings and args.strict:
+        sys.stderr.write("%d layout finding(s); fix the spec or drop --strict\n" % len(findings))
+        return 2
     return 0
 
 
