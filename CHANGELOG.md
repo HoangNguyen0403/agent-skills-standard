@@ -5,6 +5,23 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [cli-v2.6.2] - 2026-09-13
+
+**Category**: CLI Tool
+
+### Fixed
+
+- **Skill validator** (`DirectoryStructureRule`): a package directory under `scripts/` (for
+  example `common-architecture-diagramming/scripts/schema_parsers/`) no longer triggers
+  "Script without standard extension"; directories are skipped, files still need `.py`, `.js`,
+  `.ts`, or `.sh`.
+
+### Versions
+
+- **CLI**: `2.6.1` → `2.6.2`
+
+---
+
 ## [system-design-v2.0.0] - 2026-09-13
 
 **Category**: One diagram lane
