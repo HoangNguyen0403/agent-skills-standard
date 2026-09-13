@@ -24,6 +24,14 @@ Generate one test file or append one scenario from a structured TC/spec while fo
 - Format only changed test file.
 - No commit, push, or sub-agents.
 
+## Lane → Driver
+
+| Lane | Driver | Fallback |
+| --- | --- | --- |
+| `web` | `playwright-cli` | Playwright MCP (no shell); else `Test: BLOCKED (driver)` |
+| `ios` / `android` | Appium MCP local | Appium MCP `remoteServerUrl` cloud; else `Test: BLOCKED (driver)` |
+| `api` | none | — |
+
 ## Steps
 
 1. Load matching project skills for target file type before code.
@@ -42,7 +50,7 @@ Seed: [sample or self-search]
 File: [path]
 Action: appended | created
 Format: CLEAN | BLOCKED
-Test: PASS | FAIL | BLOCKED
+Test: PASS | FAIL | BLOCKED | BLOCKED (driver)
 ```
 
 ## Anti-Patterns
