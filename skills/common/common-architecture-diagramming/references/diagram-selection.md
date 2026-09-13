@@ -1,20 +1,35 @@
 # Diagram Selection Guide
 
-| Diagram Type              | Best For...                                      | Audience         | Tool/Syntax               |
-| :------------------------ | :----------------------------------------------- | :--------------- | :------------------------ |
-| **C4 Context**            | High-level system boundaries & actors.           | All Stakeholders | Mermaid `C4Context`       |
-| **C4 Container**          | Tech stack & high-level architecture.            | Architects, Devs | Mermaid `C4Container`     |
-| **SEQUENCE**              | Complex logic steps, API calls, race conditions. | Devs, Architects | Mermaid `sequenceDiagram` |
-| **ERD** (Entity Relation) | Database schema, data modeling.                  | Devs, DBA        | Mermaid `erDiagram`       |
-| **STATE**                 | Lifecycle of an entity (e.g., Order Status).     | Product, Devs    | Mermaid `stateDiagram-v2` |
-| **FLOWCHART**             | Decision trees, user flows, business logic.      | PM, Devs         | Mermaid `graph TD`        |
-| **DEPLOYMENT**            | Server/Cloud infrastructure mapping.             | DevOps           | Mermaid `C4Deployment`    |
+Pick from the message you need to land, not from the diagram you drew last time.
 
-## Decision Tree
+| Message | `type` | Audience |
+| :--- | :--- | :--- |
+| Who uses this system and what does it depend on | `context` | Everyone |
+| What are the deployable parts and what do they run on | `container` | Architects, developers |
+| Where does it run: region, cluster, network boundary | `deployment` | Ops, architects |
+| How does data travel end to end, including batch and events | `dataflow` | Architects, data |
+| What is the exact order of calls in one flow | `sequence` | Developers |
+| What states can one entity be in | `state` | Product, developers |
 
-1. **Mapping the entire ecosystem?** -> `C4 Context`
-2. **Showing technical building blocks?** -> `C4 Container`
-3. **Debugging a specific API flow?** -> `Sequence Diagram`
-4. **Designing a database?** -> `ERD`
-5. **Tracking an item's status changes?** -> `State Diagram`
-6. **Explaining "If X then Y"?** -> `Flowchart`
+## Decision tree
+
+1. Mapping the whole ecosystem and its external dependencies? `context`
+2. Showing technology choices and deployable units? `container`
+3. Explaining where things physically run? `deployment`
+4. Following a record through extraction, transformation, and load? `dataflow`
+5. Debugging or specifying one request path in order? `sequence`
+6. Describing a lifecycle such as order status? `state`
+
+## Not covered here
+
+- **Entity relationship diagrams.** The spec has no ERD layout; generate one from the schema
+  and keep it beside the migrations, where it can be regenerated.
+- **Flowcharts and decision trees.** Business logic is not architecture. Use Mermaid inline
+  in the document that explains the decision.
+- **Design-session artefacts.** `system-design-diagramming` owns those, with its own style.
+
+## One more level, or one more diagram?
+
+If adding a box would push an executive diagram past twelve nodes, or force two levels of
+abstraction into one canvas, draw a second diagram at the lower level and link them. Two
+readable diagrams always beat one complete one.

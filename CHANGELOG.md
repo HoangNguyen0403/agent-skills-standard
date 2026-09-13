@@ -5,6 +5,56 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [common-v2.5.0] - 2026-09-09
+
+**Category**: Architecture diagramming moves from Mermaid guidance to a draw.io render pipeline
+
+### Added
+
+- **`scripts/` for `common-architecture-diagramming`** (stdlib Python 3, no dependencies): the
+  agent writes a small JSON spec and the scripts own every visual decision, so diagrams look the
+  same across authors, repositories, and sessions.
+  - `validate_spec.py`: schema, unknown shape kinds, orphan nodes, unlabeled edges, undeclared
+    groups, and a 12-node cap for `audience: exec`.
+  - `render_drawio.py`: spec to editable draw.io XML. Owns layout per diagram type, the shape
+    catalogue, the generated legend, and the title block.
+  - `export_drawio.py`: draw.io Desktop CLI wrapper. Resolves the binary via `DRAWIO_BIN`, then
+    `PATH`, then per-OS install locations, and fails with an install hint rather than silently
+    producing nothing.
+  - `test_render_drawio.py`: 41 unit tests covering the validator, renderer, layouts, and binary
+    resolution.
+- **Evidence-tagged shapes**: each node carries a `path:line` pointer, stored as a draw.io custom
+  property. A node without evidence renders dashed, orange, and labelled UNVERIFIED, so a guess
+  cannot be mistaken for a confirmed component.
+- **Official GCP icon kinds** (`gcp:gke`, `gcp:cloud-sql`, `gcp:pubsub`, and seven more), verified
+  against the shape names actually shipped in the draw.io Desktop bundle.
+- **New references**: `diagram-spec.md`, `style-catalog.md`, `house-style.md`,
+  `exec-readability.md`, `source-extraction.md`.
+
+### Changed
+
+- `SKILL.md` is now draw.io-first: a four-step pipeline replaces freehand Mermaid, with new
+  triggers for `docs/architecture/**`, `solution architecture`, `system context`, and
+  `deployment diagram`.
+- `references/implementation.md` renamed to `mermaid-fallback.md`; Mermaid is now scoped to
+  documents that render it inline and to the case where the draw.io CLI is unavailable.
+- `diagram-selection.md`, `cloud-architecture.md`, and `checklist.md` updated for the new lane;
+  the checklist now separates what the validator enforces from what still needs human judgement.
+- `evals/evals.json` extended from 3 to 6 scenarios, covering the render pipeline, UNVERIFIED
+  handling, and the executive node cap.
+
+## [specialists-v1.5.0] - 2026-09-09
+
+**Category**: Solution diagrammer specialist
+
+### Added
+
+- **`specialist-solution-diagrammer`**: draws exactly one evidence-grounded diagram per
+  invocation from a caller-supplied evidence bundle, then validates, renders, exports, and
+  reviews the exported image. Returns `BLOCKED` when given no evidence, no diagram type, or when
+  every node would be UNVERIFIED, so a batch redraw cannot quietly invent architecture.
+  Generated agent definitions ship for Claude, Codex, Antigravity, and Copilot.
+
 ## [system-design-v1.0.0] - 2026-08-30
 
 **Category**: System Design skill pack launch and architecture session workflow

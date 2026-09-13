@@ -12,3 +12,6 @@
 # which would otherwise make every commit look dirty. Real value is in a
 # downstream consumer project that syncs from this registry over the network.
 /.skills-lock.json
+# Python bytecode from skill scripts
+__pycache__/
+*.pyc

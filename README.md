@@ -244,13 +244,13 @@ For repository enforcement, keep the workflows and skills lean: the source of tr
 
 See also [Learning From agentic-ai](./docs/agentic-ai-learning.md) and the [Optional MCP Integration Guide](./docs/mcp-integration-guide.md).
 
-## 280 Skills Across 20+ Frameworks
+## 299 Skills Across 20+ Frameworks
 
 Every skill is audited for token efficiency (averaging ~500 tokens) and tested with automated evals.
 
 | Stack                | Key Skills                                     | Version  | Skills |
 | :------------------- | :--------------------------------------------- | :------- | :----- |
-| **Common Patterns**  | Best Practices, Security, TDD, Error Handling  | `v2.2.1` | 38     |
+| **Common Patterns**  | Best Practices, Security, TDD, Architecture Diagrams | `v2.5.0` | 38     |
 | **Flutter**          | BLoC, Riverpod, Architecture, Concurrency      | `v1.7.1` | 22     |
 | **React**            | Hooks, Performance, State Management           | `v1.3.6` | 8      |
 | **React Native**     | Architecture, Navigation, Performance          | `v1.4.4` | 13     |
@@ -272,7 +272,7 @@ Every skill is audited for token efficiency (averaging ~500 tokens) and tested w
 | **Dart**             | Null Safety, Sealed Classes                    | `v1.3.5` | 3      |
 | **Database**         | PostgreSQL, MongoDB, Redis, Migrations         | `v1.3.5` | 7      |
 | **Quality Engineer** | BA, TDD, Zephyr, Test Gen                      | `v1.5.0` | 7      |
-| **Specialists**      | Jira, Review, QA, Security, Zephyr, Confluence | `v1.1.3` | 16     |
+| **Specialists**      | Jira, Review, QA, Security, Zephyr, Diagramming | `v1.5.0` | 19     |
 
 > Full skill list with token metrics: [Skills Directory](./skills/README.md) | [Benchmark Report](./benchmark-report.md) | [Public Proof](./docs/public-proof.md)
 

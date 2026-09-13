@@ -1,23 +1,43 @@
-# Cloud Architecture Diagram Reference
+# Cloud Architecture Diagrams
 
 ## Purpose
 
-To visualize the virtualized infrastructure and resources provided by cloud providers (AWS, GCP, Azure).
+Show the managed infrastructure a system runs on: regions, networks, clusters, and the
+services someone else operates for you.
 
-## Key Elements
+## Key elements
 
-- **Regions & Zones**: Physical locations of data centers (e.g., `us-central1`, `us-central1-a`).
-- **VPCs & Subnets**: Virtual networks and their segmentations.
-- **Resources**: Compute (VMs, Functions), Storage (Buckets), Databases.
-- **Security Groups/Firewalls**: Network access controls.
-- **Gateways**: Internet Gateways, NAT Gateways, Load Balancers.
+- **Regions and zones** — name them (`asia-southeast1`), because latency and data residency
+  arguments start here.
+- **Boundaries** — VPC, cluster, environment. These become `groups` in the spec and render
+  as dashed boxes behind their members.
+- **Managed services** — compute, storage, database, queue. Use the `gcp:*` kinds so the
+  official icon appears and the reader recognises it without reading the label.
+- **Edge** — CDN and load balancer sit in their own layer above the services.
 
-## vs. C4 Deployment
+## GCP kinds
 
-- **C4 Deployment**: Focuses on _software containers_ mapped to nodes.
-- **Cloud Architecture**: Focuses on _cloud resources_ and networking.
+| Kind | Service |
+|---|---|
+| `gcp:gke` | Kubernetes Engine |
+| `gcp:cloud-sql` | Cloud SQL |
+| `gcp:memorystore` | Memorystore (Redis) |
+| `gcp:pubsub` | Pub/Sub |
+| `gcp:lb` | Cloud Load Balancing |
+| `gcp:cdn` | Cloud CDN |
+| `gcp:gcs` | Cloud Storage |
+| `gcp:composer` | Cloud Composer (Airflow) |
+| `gcp:functions` | Cloud Functions |
+| `gcp:bigquery` | BigQuery |
 
-## Syntax (Mermaid)
+Anything without an icon — SAP, Okta, a payment gateway, Datadog — is a `saas` or
+`system-ext` box. A labelled box beats a wrong logo.
 
-Use `C4Deployment` or standard `graph TD` with specific provider icons if available, or clear labeling.
-For high-fidelity, use Draw.io with official Cloud Provider Icon Sets.
+Other clouds have no kinds yet. Add them to the catalogue only after verifying the stencil
+name renders; see [style-catalog.md](style-catalog.md).
+
+## Deployment view versus container view
+
+The container view answers "what are the parts". The deployment view answers "where do they
+run". Do not merge them: pod counts and node pools in a container diagram bury the very
+thing a container diagram exists to show.
