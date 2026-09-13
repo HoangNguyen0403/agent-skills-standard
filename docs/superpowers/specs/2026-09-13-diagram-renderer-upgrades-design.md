@@ -101,8 +101,8 @@ check runs on the same geometry the XML gets.
    falling inside any box.
 4. A group boundary that contains a node not in the group.
 
-Sequence diagrams skip checks 2 and 3 (messages are horizontal by construction). `erd` uses
-straight `entityRelationEdgeStyle` lines, so check 2 tests the straight segment.
+Sequence diagrams skip checks 2 and 3 (messages are horizontal by construction). `erd`
+relations are side-anchored like every other edge, so they use the same route approximation.
 
 CLI: `render_drawio.py` prints each finding as `layout: ...` on stderr after writing the
 file; `--strict` returns exit code 2 when any finding exists. The specialist runs the renderer

@@ -77,13 +77,6 @@ def _segment_crosses(a, b, box):
     return y < a[1] < y + h and lo < x + w and hi > x
 
 
-def _edge_points(spec_type, source_box, target_box):
-    if spec_type == "erd":                 # straight entityRelationEdgeStyle line
-        a, b = _centre(source_box), _centre(target_box)
-        return [a, (b[0], a[1]), b]
-    return route(source_box, target_box)
-
-
 def _overlap_findings(boxes):
     ids = list(boxes)
     return ["nodes %s and %s overlap" % (a, b)
@@ -96,7 +89,7 @@ def _edge_findings(spec, boxes):
         src, dst = edge["from"], edge["to"]
         if src not in boxes or dst not in boxes:
             continue
-        points = _edge_points(spec.get("type"), boxes[src], boxes[dst])
+        points = route(boxes[src], boxes[dst])
         lp = label_point(points)
         for third in boxes:
             if third in (src, dst):
