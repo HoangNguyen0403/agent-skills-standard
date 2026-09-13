@@ -1,6 +1,6 @@
 ---
 name: system-design-review
-description: "Audit an existing or proposed architecture and return a scored verdict across eight axes, from requirements and capacity evidence to observability and rollout, then convert gaps into a prioritized roadmap. Use when reviewing a design doc, auditing a running system, or gating a design."
+description: "Audit an existing or proposed architecture and return a scored verdict across nine axes, from requirements and capacity evidence to observability and rollout, then convert gaps into a prioritized roadmap. Use when reviewing a design doc, auditing a running system, or gating a design."
 metadata:
   triggers:
     keywords:
@@ -39,7 +39,7 @@ tool is not failed for lacking multi-region.
 ## Review Method
 
 1. Establish ground truth first: current traffic, data volume, incident history, and the top pain the owner reports.
-2. Score the eight axes against artifacts and metrics; mark any unverifiable claim `UNVERIFIED`.
+2. Score the nine axes against artifacts and metrics; mark any unverifiable claim `UNVERIFIED`.
 3. Trace the hottest and the most critical path end to end; the worst hop is the real bottleneck.
 4. List findings as `severity - axis - evidence - consequence - smallest fix`.
 5. Convert findings into a roadmap: stop-the-bleeding now, structural next, optional later.

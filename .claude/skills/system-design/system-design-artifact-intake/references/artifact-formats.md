@@ -12,7 +12,6 @@ embedded structure before falling back to vision.
 | Structurizr DSL | `workspace { model { … } views { … } }`; `a -> b "label" "tech"` | Richest source: a model, not a view. Watch implied relationships and `extends` workspaces |
 | Excalidraw JSON | `{type:"excalidraw", elements:[…]}`; arrows carry `startBinding`/`endBinding` = `{elementId, focus, gap}`; shapes list `boundElements`; labels bind by `containerId`; grouping via `frameId`/`groupIds` | Walk elements, resolve arrows through bindings. **Unbound arrows** (`startBinding: null`) look connected but are not - fall back to coordinates and mark the edge low-confidence |
 | raw `.drawio` | `<mxfile><diagram><mxGraphModel><root>` of `<mxCell>`; vertices `vertex="1"`, edges `edge="1"` with `source`/`target`; containment via `parent`; `style` encodes shape and icon semantics | Parse XML. Edges lacking `source`/`target` were positioned by pixel - infer by geometry, mark low-confidence |
-| Archify JSON | Typed IR, schema-validated | Parse directly; lossless by construction |
 | IaC (Terraform / CDK / K8s) | HCL resources and refs; synthesized CloudFormation; K8s selectors, Services, Ingress, NetworkPolicy | Edges from references (`terraform graph` emits DOT), label selectors, service DNS. Deployment topology precise; intent, trust boundaries, and third parties absent |
 | ASCII art | Character grid inside a doc | Spatial text: reconstruct boxes and arrows. Breaks if whitespace was reflowed. Simple layouts only |
 

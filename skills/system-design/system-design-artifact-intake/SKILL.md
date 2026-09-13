@@ -26,7 +26,7 @@ The artifact is not the design; the extracted fact sheet is. Never review what y
 
 | Class | Members | Route |
 | --- | --- | --- |
-| A - structured text | Mermaid, PlantUML/C4, Structurizr DSL, Excalidraw JSON, raw .drawio, Archify JSON, IaC, ASCII art | Parse directly |
+| A - structured text | Mermaid, PlantUML/C4, Structurizr DSL, Excalidraw JSON, raw .drawio, IaC, ASCII art | Parse directly |
 | B - embedded structure | .drawio.png / .drawio.svg, pptx/docx with glued connectors, Confluence drawio-macro attachments, Lucid/Miro/Figma exports or API, Whimsical-to-Mermaid | Extract the source, then treat as Class A |
 | C - vision only | Plain images, whiteboard photos, rendered PDF pages | Vision protocol below |
 | D - mixed prose + artifacts | PDF docs, Confluence/Notion pages, Word/Markdown docs | Split streams, classify each embed, cross-check prose against topology |
@@ -57,7 +57,8 @@ Extract every artifact into the same shape before any judgment:
 
 ## Re-draw to Confirm
 
-- Always render the fact sheet per `system-design-diagramming` and show it: "this is the system I will review."
+- Always render the fact sheet per `common-architecture-diagramming` (spec, validate, render, export) and show it: "this is the system I will review."
+- A confirmed node or edge carries `evidence` pointing into the artifact; a low-confidence one omits `evidence` so it renders UNVERIFIED. Nothing on the `UNRECOVERABLE` list becomes a `metric`.
 - The author confirms or corrects before any finding counts. Extraction confidence is not review evidence.
 - Contradictions between prose and diagram are findings in themselves - surface them, do not silently pick one.
 
