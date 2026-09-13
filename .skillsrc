@@ -41,6 +41,9 @@ workflows:
   - verify-work
   - verify-bug
   - security-test
+  - test-loop
+  - uat-signoff
+  - deploy-release
 mcp:
   enabled: true
   scope: project

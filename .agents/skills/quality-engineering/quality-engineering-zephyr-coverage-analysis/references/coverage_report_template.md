@@ -17,9 +17,10 @@ Date: {today} | Market: {market} | Component: {component}
 | Existing TCs Found       | N         |
 | Proposed New TCs         | N         |
 | QE Debt Items Identified | N         |
+| Release Confidence       | high/medium/low |
 ```
 
-> **Release Readiness verdict**: one sentence on whether coverage is sufficient to release.
+> **Release Readiness verdict**: one sentence on whether coverage is sufficient to release; cite `release_confidence` per `quality-engineering-automation-health` when suite metrics exist.
 
 ## Section 2 — AC Coverage Heatmap
 

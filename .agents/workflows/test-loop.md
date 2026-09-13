@@ -14,6 +14,7 @@ Goal: Turn approved ACs into an executable, traced E2E suite, and classify any f
      (the specialist's `PLAN:` becomes this workflow's `test_plan_path`;
      `SELECTOR_GAPS:` becomes `selector_gaps`).
    - BLOCKED (no stable `AC-*` trace) if no stable `AC-*` trace exists; route to `plan-feature`/`design-solution`.
+   - BLOCKED (HALT: <trigger>) when the planner returns a `HALT:` trigger; ask before generating, never invent expected results.
 3. Prepare selectors (Phase P1, not yet implemented):
    - Run `specialist-testid-inserter` on `selector_gaps`; stop for approval when production files change in interactive mode.
 4. Generate (Phase P1, not yet implemented):
@@ -21,6 +22,7 @@ Goal: Turn approved ACs into an executable, traced E2E suite, and classify any f
 5. Run and heal (Phase P3, not yet implemented):
    - Run once; per failure, run `specialist-test-healer`. `HEALED` requires 3 green reruns. `REAL_BUG_DO_NOT_HEAL` routes to `dev-fix`. `QUARANTINE_CANDIDATE` routes to `quality-engineering-flaky-triage` with a ticket.
 6. Handoff:
+   - Compute Automation Health per `quality-engineering-automation-health` and carry `release_confidence`.
    - Route to `verify-work` with the generated suite and any unresolved `real_bugs[]`.
 
 ## Runtime Contract
@@ -28,7 +30,7 @@ Goal: Turn approved ACs into an executable, traced E2E suite, and classify any f
 - Required inputs: slug, stable `AC-*` trace, a runnable build/app target.
 - Return BLOCKED (no build target or AC trace) only when the build target cannot be established or `AC-*` is missing.
 ## Handoff Payload
-- `slug`, `operator_profile`, `test_plan_path`, `generated_tests[]`, `heal_verdicts[]`, `flake_quarantine[]`, `selector_gaps_remaining[]`, `real_bugs[]`, outcome report, next workflow.
+- `slug`, `operator_profile`, `test_plan_path`, `assumed_results[]`, `halt_triggers[]`, `generated_tests[]`, `heal_verdicts[]`, `flake_quarantine[]`, `selector_gaps_remaining[]`, `real_bugs[]`, `release_confidence`, outcome report, next workflow.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 ## Output Template
@@ -39,6 +41,8 @@ Goal: Turn approved ACs into an executable, traced E2E suite, and classify any f
 ## Generated Tests
 ## Heal Verdicts
 ## Real Bugs Found
+## Automation Health
+feedback_loop_minutes: ; suite_reliability_pct: ; release_cadence: ; prod_escape_rate: ; release_confidence: high | medium | low
 ## Outcome Report
 feature_status: implemented | partially_implemented | blocked
 requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence

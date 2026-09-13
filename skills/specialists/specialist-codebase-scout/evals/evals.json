@@ -6,11 +6,42 @@
       "prompt": "Find related files, tests, and blast radius for this checkout change.",
       "expected_output": "Runs Codebase Scout, maps affected modules, finds 2-3 sibling examples, related tests, and impact radius while labeling facts vs inferences.",
       "assertions": [
-        { "type": "contains", "value": "Impact Radius" },
-        { "type": "contains", "value": "sibling examples" },
-        { "type": "contains", "value": "facts vs inferences" }
+        {
+          "type": "contains",
+          "value": "Impact Radius"
+        },
+        {
+          "type": "contains",
+          "value": "sibling examples"
+        },
+        {
+          "type": "contains",
+          "value": "facts vs inferences"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Scout the pricing-service discount change and size it before we plan.",
+      "expected_output": "Maps affected files and Impact Radius, then emits an SNC: line with S, N, C, total and tier= label marked as inference.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "SNC:"
+        },
+        {
+          "type": "contains",
+          "value": "tier="
+        }
       ]
     }
   ],
-  "should_not_trigger": ["Post PR comments", "Create a PRD"]
+  "should_trigger": [
+    "Find related files, tests, and blast radius for this checkout change.",
+    "Map the structural context and impact radius for the invoice module refactor."
+  ],
+  "should_not_trigger": [
+    "Post PR comments",
+    "Create a PRD"
+  ]
 }

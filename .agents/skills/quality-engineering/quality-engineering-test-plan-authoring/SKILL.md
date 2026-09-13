@@ -1,6 +1,7 @@
 ---
 name: quality-engineering-test-plan-authoring
 description: Turn acceptance criteria into an executable test plan (scenarios, seed, selector gaps) before generating E2E code. Use when ACs exist but no runnable test plan does yet.
+guardrail: true
 metadata:
   triggers:
     files:
@@ -45,6 +46,10 @@ prerequisites: auth and navigation to the starting screen. No assertions.
 `<screen>-<element>-<role>` naming convention defined in
 `quality-engineering-selector-stability`.
 
+## Scenario Classes
+
+Each AC condition expands to `P` (positive), `N` (negative: a stated condition violated), and `E` (edge: boundary of a stated condition). Classes must differ by precondition or input, never by phrasing. Every `Expected` cites its AC or business rule, or is tagged `ASSUMED` and surfaced under an `Assumed Results` header. On a HALT trigger (ultra-short AC, no expected behavior, bundled ACs, contradiction, undefined state) stop and ask; return `HALT: <trigger>` in autonomous mode.
+
 ## Relationship to Zephyr
 
 Manual Zephyr TCs stay the system of record for business sign-off
@@ -59,6 +64,8 @@ replacement.
 - Duplicating unit-level coverage in an E2E scenario.
 - A scenario spanning more than one `lane`.
 - A plan with no seed reference.
+- A negative scenario that only rephrases the positive.
+- An expected outcome not traceable to an AC and not tagged `ASSUMED`.
 
 ## References
 
@@ -66,3 +73,5 @@ replacement.
 - [Playwright Agents Artifacts](references/playwright-agents-artifacts.md)
 - [AC to Scenario Mapping](references/ac-scenario-mapping.md)
 - [Mobile Lane Matrix](references/mobile-lane-matrix.md)
+- [Scenario Expansion: P/N/E, ASSUMED, HALT](references/scenario-expansion.md)
+- [Golden Requirements Fixtures](references/golden-requirements.md)

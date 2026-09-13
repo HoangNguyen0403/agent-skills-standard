@@ -42,7 +42,7 @@
     {
       "id": 3,
       "prompt": "Create test cases for a feature that applies to both Web and Mobile, but Sales Reps and Customers see different data.",
-      "expected_output": "Create separate TCs per actor — no OR conditions. Since the feature applies to both Web and Mobile (single AC row), use no platform prefix and set Platform = Web and Mobile. Populate Roles custom field per TC.",
+      "expected_output": "Create separate TCs per actor \u2014 no OR conditions. Since the feature applies to both Web and Mobile (single AC row), use no platform prefix and set Platform = Web and Mobile. Populate Roles custom field per TC.",
       "assertions": [
         {
           "type": "contains",
@@ -55,6 +55,36 @@
         {
           "type": "contains",
           "value": "no platform prefix"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "AC: 'Checkout works correctly.' That's the whole story. Generate the Zephyr test cases now.",
+      "expected_output": "HALT on the ambiguous AC: it is ultra-short with no actor, action, or outcome. Ask for the expected behavior before drafting; do not call Create Test Case.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "HALT"
+        },
+        {
+          "type": "not_contains",
+          "value": "Create Test Case Steps"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Generate negative and edge test cases for 'User can filter orders by date range'. The AC does not say what the filtered list shows.",
+      "expected_output": "Negative and edge cases must change a precondition or input (empty range, end before start, range with no orders). The AC is silent on the outcome, so every expected result is tagged ASSUMED and surfaced for review.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "ASSUMED"
+        },
+        {
+          "type": "contains",
+          "value": "precondition"
         }
       ]
     }
