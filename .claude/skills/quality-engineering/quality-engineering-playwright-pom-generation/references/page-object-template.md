@@ -16,6 +16,9 @@ export class CheckoutPage {
   get emailInput(): Locator {
     return this.page.getByLabel('Email');
   }
+  get addressInput(): Locator {
+    return this.page.getByLabel('Address');
+  }
   get submitButton(): Locator {
     return this.page.getByTestId('checkout-submit-button');
   }
@@ -29,7 +32,7 @@ export class CheckoutPage {
   }
   async fillShipping(data: { email: string; address: string }): Promise<void> {
     await this.emailInput.fill(data.email);
-    await this.page.getByLabel('Address').fill(data.address);
+    await this.addressInput.fill(data.address);
   }
   async submit(): Promise<void> {
     await this.submitButton.click();

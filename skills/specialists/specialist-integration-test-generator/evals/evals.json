@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "Generate a Playwright E2E test from this approved Zephyr TC.",
-      "expected_output": "Runs Integration Test Generator, loads matching project skills, reads nearest existing test sample, writes one scenario, formats, and runs smallest reliable test.",
+      "expected_output": "Runs Integration Test Generator, loads matching project skills, reads nearest existing test sample, writes one scenario, formats, and runs smallest reliable test. Reports Test: PASS.",
       "assertions": [
         { "type": "contains", "value": "Load matching project skills" },
         { "type": "contains", "value": "nearest existing test sample" },
@@ -18,7 +18,7 @@
       "assertions": [
         { "type": "contains", "value": "BLOCKED" },
         { "type": "contains", "value": "page object" },
-        { "type": "not_contains", "value": "page.locator(" }
+        { "type": "not_contains", "value": "Action: created" }
       ]
     }
   ],

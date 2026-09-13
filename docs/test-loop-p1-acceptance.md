@@ -14,7 +14,7 @@ Pass means: a Playwright spec tagged `@AC-3` exists in solo-corp, uses a generat
 
 | Side | Requirement |
 | --- | --- |
-| ASS | This branch merged; `ags sync` in solo-corp pulls `quality-engineering` at or above the version carrying `playwright-pom-generation` and `specialists` at or above the version carrying `testid-inserter`. |
+| ASS | This branch merged; `ags sync` in solo-corp pulls `quality-engineering` >= 1.7.0 and `specialists` >= 1.6.0. |
 | solo-corp | P0 landed: sandbox image with Node, pnpm, Playwright browsers; verifier regex matching the specialist Output lines; safe-commands allowlist. |
 | solo-corp | `docs/prd/prd-checkout.md` with stable `AC-3`; `tests/seed.spec.ts` present or Playwright agents initialised. |
 
@@ -37,7 +37,7 @@ If any assumed value differs, update this table first, then the affected special
 4. Step 3: `specialist-testid-inserter` returns `APPROVAL: required` with the component file list; approve; it returns `INSERTED:` for every gap and `CHECK: CLEAN`. Page object `tests/pages/checkout.page.ts` and `tests/fixtures.ts` exist with no `expect` inside the page object.
 5. Step 4: one generator call for `@AC-3` returns `Action: created`, `Format: CLEAN`, `Test: PASS`; the spec imports `test` from `./fixtures` and contains no `page.locator(`.
 6. The sandbox runs the spec via the allowlisted command; the verifier accepts the `Test: PASS` line; the workflow report shows `## Page Objects`, an empty `## Selector Gaps Remaining`, and `release_confidence` computed.
-7. Negative check: delete one inserted id, rerun step 4 for `@AC-3`; the generator must not silently fall back to a CSS or `nth` selector. Expected: `Test: BLOCKED` or the healer path (P3) once available.
+7. Negative check: delete one inserted id, rerun step 4 for `@AC-3`; the generator must not silently fall back to a CSS or `nth` selector. Expected: `Test: FAIL` with the spec and page object unchanged (no new `page.locator(` or `nth`); the id reappears under `## Selector Gaps Remaining`, or routes to the healer path once P3 lands.
 
 ## Evidence to capture
 

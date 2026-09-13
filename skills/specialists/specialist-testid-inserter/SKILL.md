@@ -23,7 +23,7 @@ Close every `SELECTOR_GAPS` entry for one slug by adding the missing id to the l
 - One slug per invocation; at most 12 tool calls.
 - Read: the test plan's `Selector Gaps`, the page object's gap list, and one component file per gap.
 - Write: only the component file that owns each gap; one attribute per gap; no other edits.
-- Interactive mode: stop and list every file before writing; write only after approval.
+- Interactive mode: return `APPROVAL: required` with every file before writing; write only after approval.
 - Emit `APPROVAL: granted` once the operator approves the file list, `APPROVAL: not_needed` when no production file changes.
 - Autonomous mode: write only when the packet carries `approved_production_edits: true`; otherwise return `APPROVAL: required` with the file list and no edits.
 - No production logic changes, no styling, no Git, no sub-agents.

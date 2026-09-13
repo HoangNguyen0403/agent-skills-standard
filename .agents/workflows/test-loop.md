@@ -16,8 +16,8 @@ Goal: Turn approved ACs into an executable, traced E2E suite, and classify any f
    - BLOCKED (no stable `AC-*` trace) if no stable `AC-*` trace exists; route to `plan-feature`/`design-solution`.
    - BLOCKED (HALT: <trigger>) when the planner returns a `HALT:` trigger; ask before generating, never invent expected results.
 3. Prepare selectors:
-   - Run `specialist-testid-inserter` on `selector_gaps`; in interactive mode stop for approval on its `APPROVAL: required` file list; in autonomous mode pass `approved_production_edits` only when the operator granted it, else carry gaps forward as `selector_gaps_remaining[]`.
-   - For `lane: web`, build or extend one page object per screen per `quality-engineering-playwright-pom-generation`; record paths in `page_objects[]`.
+   - Run `specialist-testid-inserter` on `selector_gaps`; in interactive mode stop for approval on its `APPROVAL: required` file list; in autonomous mode pass `approved_production_edits` only when the operator granted it, else carry gaps forward as `selector_gaps_remaining[]`; every gap not in `INSERTED:` (unresolved `SKIPPED`, `BLOCKED`, or declined approval) also lands in `selector_gaps_remaining[]`.
+   - For `lane: web`, build or extend one page object per screen per `quality-engineering-playwright-pom-generation`; record paths in `page_objects[]`; gaps a page object emits re-run the first bullet before step 4.
 4. Generate:
    - One scenario per `specialist-integration-test-generator` call, seed-first, using the MCP/tool matching the scenario's lane; a `Test: BLOCKED` naming a missing page object routes back to step 3.
    - Skip scenarios whose only elements are in `selector_gaps_remaining[]`; list them under Selector Gaps Remaining, never generate against an unstable locator.

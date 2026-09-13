@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `quality-engineering-test-plan-authoring`: `Selector Gaps` now feeds a live `specialist-testid-inserter`.
+- `quality-engineering-test-healing`: repair catalog no longer marks `specialist-testid-inserter` as a future phase.
 
 ### Versions
 - quality-engineering: 1.7.0

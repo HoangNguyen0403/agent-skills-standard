@@ -30,7 +30,7 @@ Generate one test file or append one scenario from a structured TC/spec while fo
 2. Locate target test folder and nearest sibling sample.
 3. Decide append vs new file based on existing structure.
 4. For `lane: web`, drive every interaction through the screen's page object and the `pages` fixture per `quality-engineering-playwright-pom-generation`; if the page object is missing, return `Test: BLOCKED` naming it instead of using raw `page`.
-5. Implement one scenario with assertions on page-object state getters and the plan's `Expected`; tag it `@AC-n`.
+5. Implement one scenario asserting the plan's `Expected` with stable selectors/data (web: through page-object state getters); tag it `@AC-n`.
 6. Run formatter and the smallest reliable test command.
 
 ## Output
