@@ -1,0 +1,104 @@
+{
+  "audience": "tech",
+  "author": "",
+  "date": "2026-09-13",
+  "edges": [
+    {
+      "cardinality": "many-to-one",
+      "evidence": "fixtures/schemas/orders.sql:9",
+      "from": "orders",
+      "to": "customers"
+    },
+    {
+      "cardinality": "many-to-one",
+      "evidence": "fixtures/schemas/orders.sql:19",
+      "from": "order_items",
+      "to": "orders"
+    }
+  ],
+  "nodes": [
+    {
+      "columns": [
+        {
+          "name": "id",
+          "nullable": false,
+          "pk": true,
+          "type": "uuid"
+        },
+        {
+          "name": "email",
+          "nullable": false,
+          "type": "text"
+        },
+        {
+          "name": "name",
+          "type": "text"
+        }
+      ],
+      "evidence": "fixtures/schemas/orders.sql:1",
+      "id": "customers",
+      "kind": "entity",
+      "label": "customers"
+    },
+    {
+      "columns": [
+        {
+          "name": "id",
+          "nullable": false,
+          "pk": true,
+          "type": "uuid"
+        },
+        {
+          "fk": true,
+          "name": "customer_id",
+          "nullable": false,
+          "type": "uuid"
+        },
+        {
+          "name": "status",
+          "nullable": false,
+          "type": "text"
+        },
+        {
+          "name": "placed_at",
+          "nullable": false,
+          "type": "timestamptz"
+        }
+      ],
+      "evidence": "fixtures/schemas/orders.sql:7",
+      "id": "orders",
+      "kind": "entity",
+      "label": "orders"
+    },
+    {
+      "columns": [
+        {
+          "fk": true,
+          "name": "order_id",
+          "nullable": false,
+          "pk": true,
+          "type": "uuid"
+        },
+        {
+          "name": "sku",
+          "nullable": false,
+          "pk": true,
+          "type": "text"
+        },
+        {
+          "name": "qty",
+          "nullable": false,
+          "type": "integer"
+        }
+      ],
+      "evidence": "fixtures/schemas/orders.sql:14",
+      "id": "order_items",
+      "kind": "entity",
+      "label": "order_items"
+    }
+  ],
+  "scope": "golden",
+  "title": "Golden",
+  "type": "erd",
+  "version": "1.0"
+}

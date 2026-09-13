@@ -1,0 +1,94 @@
+{
+  "audience": "tech",
+  "author": "",
+  "date": "2026-09-13",
+  "edges": [
+    {
+      "cardinality": "many-to-many",
+      "evidence": "fixtures/schemas/orders.entity.ts:17",
+      "from": "customers",
+      "label": "tags",
+      "to": "tag"
+    },
+    {
+      "cardinality": "many-to-one",
+      "evidence": "fixtures/schemas/orders.entity.ts:27",
+      "from": "order",
+      "label": "customer",
+      "to": "customers"
+    }
+  ],
+  "nodes": [
+    {
+      "columns": [
+        {
+          "name": "id",
+          "nullable": false,
+          "pk": true,
+          "type": "string"
+        },
+        {
+          "name": "email",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "evidence": "fixtures/schemas/orders.entity.ts:3",
+      "id": "customers",
+      "kind": "entity",
+      "label": "customers"
+    },
+    {
+      "columns": [
+        {
+          "name": "id",
+          "nullable": false,
+          "pk": true,
+          "type": "string"
+        },
+        {
+          "fk": true,
+          "name": "customerId",
+          "nullable": false,
+          "type": "fk"
+        },
+        {
+          "name": "status",
+          "nullable": false,
+          "type": "string"
+        }
+      ],
+      "evidence": "fixtures/schemas/orders.entity.ts:22",
+      "id": "order",
+      "kind": "entity",
+      "label": "Order"
+    },
+    {
+      "columns": [
+        {
+          "name": "id",
+          "nullable": false,
+          "pk": true,
+          "type": "number"
+        },
+        {
+          "name": "label",
+          "nullable": false,
+          "type": "string"
+        }
+      ],
+      "evidence": "fixtures/schemas/orders.entity.ts:34",
+      "id": "tag",
+      "kind": "entity",
+      "label": "Tag"
+    }
+  ],
+  "scope": "golden",
+  "title": "Golden",
+  "type": "erd",
+  "version": "1.0"
+}

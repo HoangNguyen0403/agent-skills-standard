@@ -1,0 +1,72 @@
+{
+  "version": "1.0",
+  "date": "2026-09-13",
+  "author": "Solution Architecture",
+  "title": "Acme Orders — Order Lifecycle",
+  "type": "state",
+  "audience": "tech",
+  "scope": "States an order passes through; payment retries excluded.",
+  "nodes": [
+    {
+      "id": "start",
+      "kind": "start",
+      "evidence": "services/order-api/state.go:10"
+    },
+    {
+      "id": "placed",
+      "label": "Placed",
+      "kind": "state",
+      "evidence": "services/order-api/state.go:14"
+    },
+    {
+      "id": "paid",
+      "label": "Paid",
+      "kind": "state",
+      "evidence": "services/order-api/state.go:15"
+    },
+    {
+      "id": "shipped",
+      "label": "Shipped",
+      "kind": "state",
+      "evidence": "services/order-api/state.go:16"
+    },
+    {
+      "id": "delivered",
+      "label": "Delivered",
+      "kind": "state",
+      "evidence": "services/order-api/state.go:17"
+    },
+    {
+      "id": "end",
+      "kind": "end",
+      "evidence": "services/order-api/state.go:20"
+    }
+  ],
+  "edges": [
+    {
+      "from": "start",
+      "to": "placed",
+      "label": "checkout"
+    },
+    {
+      "from": "placed",
+      "to": "paid",
+      "label": "payment captured"
+    },
+    {
+      "from": "paid",
+      "to": "shipped",
+      "label": "courier booked"
+    },
+    {
+      "from": "shipped",
+      "to": "delivered",
+      "label": "proof of delivery"
+    },
+    {
+      "from": "delivered",
+      "to": "end",
+      "label": "closed"
+    }
+  ]
+}
