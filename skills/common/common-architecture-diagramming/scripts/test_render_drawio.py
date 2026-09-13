@@ -376,6 +376,43 @@ class TestRendererCommon(unittest.TestCase):
         self.assertIn("p99 300ms", cell_by_id(root, "_msg_1").get("value"))
         self.assertNotIn("<br>", cell_by_id(root, "_msg_0").get("value"))
 
+    def test_aws_kinds_use_verified_resource_icons(self):
+        verified = {
+            "lambda", "ec2", "ecs", "eks", "fargate", "rds", "aurora", "dynamodb",
+            "elasticache", "s3", "sqs", "sns", "api_gateway", "cloudfront",
+            "elastic_load_balancing", "kinesis", "eventbridge", "route_53", "cloudwatch",
+            "cognito",
+        }
+        aws = {k: v for k, v in render_drawio.STYLE_CATALOG.items() if k.startswith("aws:")}
+        self.assertEqual(len(aws), 20)
+        for kind, entry in aws.items():
+            self.assertIn("shape=mxgraph.aws4.resourceIcon;", entry["style"], kind)
+            icon = entry["style"].split("resIcon=mxgraph.aws4.")[1].split(";")[0]
+            self.assertIn(icon, verified, kind)
+            self.assertTrue(entry["legend"], kind)
+
+    def test_cloud_kinds_render_managed_fill_and_vendor_sublabel(self):
+        spec = container_spec()
+        spec["nodes"][2] = {"id": "db", "label": "Orders DB", "kind": "cloud:managed-db",
+                            "sublabel": "Azure SQL", "group": "gcp", "evidence": "docs/a.md:12"}
+        root = parse(render_drawio.render(spec))
+        self.assertIn("fillColor=#2F6F8F", style_of(root, "db"))
+        self.assertIn("shape=cylinder3", style_of(root, "db"))
+        self.assertIn("[Azure SQL]", value_of(root, "db"))
+        self.assertIn("Managed database (vendor in label)", all_values(root))
+
+    def test_every_cloud_kind_has_managed_fill(self):
+        cloud = {k: v for k, v in render_drawio.STYLE_CATALOG.items() if k.startswith("cloud:")}
+        self.assertEqual(len(cloud), 11)
+        for kind, entry in cloud.items():
+            self.assertIn("fillColor=#2F6F8F", entry["style"], kind)
+            self.assertIn("vendor in label", entry["legend"], kind)
+
+    def test_catalog_is_importable_from_style_catalog_module(self):
+        import style_catalog
+        self.assertIs(style_catalog.STYLE_CATALOG, render_drawio.STYLE_CATALOG)
+        self.assertIn("erd", style_catalog.DIAGRAM_TYPES)
+
 
 class TestLayouts(unittest.TestCase):
     def geom(self, root, cell_id):

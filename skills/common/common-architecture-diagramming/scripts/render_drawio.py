@@ -7,8 +7,8 @@ stay consistent across authors, repositories, and sessions.
 Usage:
     python3 render_drawio.py spec.json -o out.drawio
 
-See ../references/diagram-spec.md for the schema and
-../references/style-catalog.md for the shape catalogue.
+See ../references/diagram-spec.md for the schema; the shape catalogue lives in
+style_catalog.py and is explained in ../references/style-catalog.md.
 """
 
 import argparse
@@ -29,134 +29,10 @@ COL_STEP = CELL_W + MIN_LABEL_GAP
 ROW_GAP = 46
 DEFAULT_ACCENT = "#1E6FD9"
 
-INK = "#1F2933"
-MUTED = "#616E7C"
-WARN = "#DD6B20"
-WARN_TEXT = "#7B341E"
-
-_C4_EDGE = ("endArrow=blockThin;html=1;fontSize=10;fontColor=#404040;strokeWidth=1;"
-            "endFill=1;strokeColor=#828282;edgeStyle=orthogonalEdgeStyle;rounded=0;"
-            "labelBackgroundColor=#ffffff;")
-
-# draw.io ships the 2018 "gcp2" icon set; names verified against the installed
-# desktop bundle, where Kubernetes Engine is still filed as container_engine.
-_GCP = ("sketch=0;html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;"
-        "fillColor=#3B8DF1;verticalAlign=top;labelPosition=center;"
-        "verticalLabelPosition=bottom;shape=mxgraph.gcp2.%s")
-
-
-def _gcp(icon, legend):
-    return {"style": _GCP % icon, "w": 66, "h": 58, "legend": legend, "layer": 3}
-
-
-STYLE_CATALOG = {
-    "person": {
-        "style": ("html=1;fontSize=11;dashed=0;whiteSpace=wrap;fillColor=#083F75;"
-                  "strokeColor=#06315C;fontColor=#ffffff;shape=mxgraph.c4.person2"),
-        "w": 80, "h": 100, "legend": "Person", "layer": 0,
-    },
-    "system": {
-        "style": ("rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;"
-                  "fillColor=#1061B0;fontColor=#ffffff;align=center;arcSize=10;"
-                  "strokeColor=#0D5091"),
-        "w": 180, "h": 80, "legend": "Software System", "layer": 2,
-    },
-    "system-ext": {
-        "style": ("rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;"
-                  "fillColor=#8C8496;fontColor=#ffffff;align=center;arcSize=10;"
-                  "strokeColor=#736782"),
-        "w": 180, "h": 80, "legend": "External System", "layer": 4,
-    },
-    "container": {
-        "style": ("rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;"
-                  "fillColor=#23A2D9;fontColor=#ffffff;align=center;arcSize=10;"
-                  "strokeColor=#0E7DAD"),
-        "w": 180, "h": 80, "legend": "Container (deployable unit)", "layer": 2,
-    },
-    "component": {
-        "style": ("rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;"
-                  "fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;"
-                  "strokeColor=#2086C9"),
-        "w": 180, "h": 80, "legend": "Component", "layer": 2,
-    },
-    "db": {
-        "style": ("shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;"
-                  "labelBackgroundColor=none;fillColor=#23A2D9;fontSize=12;"
-                  "fontColor=#ffffff;align=center;strokeColor=#0E7DAD"),
-        "w": 140, "h": 90, "legend": "Database", "layer": 3,
-    },
-    "cache": {
-        "style": ("shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;"
-                  "labelBackgroundColor=none;fillColor=#5AB8E0;fontSize=12;"
-                  "fontColor=#ffffff;align=center;strokeColor=#0E7DAD"),
-        "w": 140, "h": 90, "legend": "Cache", "layer": 3,
-    },
-    "queue": {
-        "style": ("shape=mxgraph.flowchart.direct_data;whiteSpace=wrap;html=1;"
-                  "fillColor=#23A2D9;fontColor=#ffffff;strokeColor=#0E7DAD;align=center"),
-        "w": 160, "h": 80, "legend": "Queue / topic", "layer": 3,
-    },
-    "saas": {
-        "style": ("rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;"
-                  "fillColor=#F5F7FA;fontColor=#1F2933;align=center;arcSize=10;"
-                  "strokeColor=#9AA5B1"),
-        "w": 180, "h": 80, "legend": "Third-party service", "layer": 4,
-    },
-    "participant": {
-        "style": ("rounded=0;whiteSpace=wrap;html=1;fillColor=#1061B0;fontColor=#ffffff;"
-                  "strokeColor=#0D5091;align=center"),
-        "w": 160, "h": 50, "legend": "Participant", "layer": 0,
-    },
-    "state": {
-        "style": ("rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#23A2D9;"
-                  "fontColor=#ffffff;strokeColor=#0E7DAD;align=center"),
-        "w": 160, "h": 60, "legend": "State", "layer": 1,
-    },
-    "start": {
-        "style": "ellipse;html=1;fillColor=#1F2933;strokeColor=#1F2933;",
-        "w": 40, "h": 40, "legend": "Start", "layer": 0,
-    },
-    "end": {
-        "style": ("ellipse;shape=doubleEllipse;html=1;fillColor=#1F2933;"
-                  "strokeColor=#1F2933;margin=3;"),
-        "w": 40, "h": 40, "legend": "End", "layer": 9,
-    },
-    "gcp:gke": _gcp("container_engine", "GKE cluster"),
-    "gcp:cloud-sql": _gcp("cloud_sql", "Cloud SQL"),
-    "gcp:pubsub": _gcp("cloud_pubsub", "Pub/Sub"),
-    "gcp:lb": _gcp("cloud_load_balancing", "Cloud Load Balancing"),
-    "gcp:gcs": _gcp("cloud_storage", "Cloud Storage"),
-    "gcp:memorystore": _gcp("cloud_memorystore", "Memorystore"),
-    "gcp:cdn": _gcp("cloud_cdn", "Cloud CDN"),
-    "gcp:composer": _gcp("cloud_composer", "Cloud Composer"),
-    "gcp:functions": _gcp("cloud_functions", "Cloud Functions"),
-    "gcp:bigquery": _gcp("big_query", "BigQuery"),
-}
-
-STYLE_CATALOG["gcp:lb"]["layer"] = 1
-STYLE_CATALOG["gcp:cdn"]["layer"] = 1
-STYLE_CATALOG["gcp:gke"]["layer"] = 2
-STYLE_CATALOG["gcp:composer"]["layer"] = 2
-STYLE_CATALOG["gcp:functions"]["layer"] = 2
-
-DIAGRAM_TYPES = ("context", "container", "deployment", "dataflow", "sequence", "state")
-
-EDGE_STYLES = {
-    "sync": _C4_EDGE,
-    "async": _C4_EDGE + "dashed=1;dashPattern=6 4;",
-    "reverse": _C4_EDGE + "strokeColor=#B0B7BF;",
-    "return": _C4_EDGE + "dashed=1;dashPattern=4 4;endArrow=open;",
-}
-
-# Stored on the shape as draw.io custom properties, visible via Edit Data.
-NODE_PROPERTIES = ("evidence", "constraint")
-
-EDGE_LEGEND = {
-    "sync": "Synchronous call",
-    "async": "Asynchronous / event",
-    "reverse": "Reverse / callback flow",
-    "return": "Response",
-}
+from style_catalog import (  # noqa: F401  (re-exported for validate_spec and tests)
+    AWS_ICONS, CLOUD_KINDS, DIAGRAM_TYPES, EDGE_LEGEND, EDGE_STYLES, INK, MUTED,
+    NODE_PROPERTIES, STYLE_CATALOG, WARN, WARN_TEXT, _C4_EDGE,
+)
 
 
 class SpecError(ValueError):
