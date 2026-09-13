@@ -30,6 +30,7 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
    - Load PRD or ticket, existing architecture docs, and current traffic/incident data when reviewing an existing system.
 2. Classify and announce:
    - Mode: new design | review existing | interview practice.
+   - Interview practice: load `system-design-interview-coaching`, run the seven phases on its time budget as the interviewer, score with its rubric after; steps 3-6 below are the candidate's work, not the agent's.
    - Depth: quick sketch (defaults assumed, each labeled `ASSUMED`) or full session (every gate confirmed).
    - Escalate quick to full when an irreversible or cross-team choice appears.
 3. Intake (gate):
@@ -85,6 +86,7 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
 ## Staged Plan (Now / Seam / Trigger)
 ## ADRs (with reversal triggers)
 ## Design Scorecard (9 axes)
+## Interview Scorecard (6 × 0-3, interview mode only)
 ## Risk Register
 
 ## Outcome Report

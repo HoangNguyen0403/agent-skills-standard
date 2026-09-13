@@ -603,8 +603,8 @@
       "tag_prefix": "system-design-v",
       "token_metrics": {
         "total_skills": 12,
-        "total_tokens": 11866,
-        "avg_tokens_per_skill": 989,
+        "total_tokens": 12000,
+        "avg_tokens_per_skill": 1000,
         "largest_skill": "system-design-interview-coaching (1266 tokens)"
       },
       "owners": [

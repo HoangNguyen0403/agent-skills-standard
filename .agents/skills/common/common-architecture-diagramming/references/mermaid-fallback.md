@@ -19,12 +19,16 @@ first path that exists, in this order:
 
 ## When Mermaid is right
 
-draw.io is the deliverable. Mermaid is correct in exactly two cases:
+draw.io is the deliverable. Mermaid is correct in exactly three cases:
 
 1. **The diagram has to live inside a file that renders it** — a README, an ADR, a pull
    request description, a Confluence page. Nobody expands a `.drawio` attachment mid-review.
 2. **draw.io Desktop is unavailable** and the reader needs a picture now. Write the spec
    anyway, ship the Mermaid, and render the `.drawio` when the CLI is back.
+3. **A live interview practice round in chat**, where the candidate is on a whiteboard clock
+   and nobody opens a `.drawio` mid-round. Rules in
+   `system-design-interview-coaching/references/whiteboard-rules.md`; the model answer after
+   the round may go through the pipeline.
 
 Everything else — anything an executive will read, anything that needs official cloud icons,
 a legend, a title block, or hand-refinement afterwards — goes through the spec pipeline.

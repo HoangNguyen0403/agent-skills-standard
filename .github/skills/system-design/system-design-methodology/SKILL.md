@@ -23,7 +23,7 @@ Requirements before solutions. Never draw a full architecture before numbers jus
 
 - **Quick sketch**: exploratory ask, no scale numbers available, answer needed now. Assume defaults, label each one `ASSUMED`, skip gates.
 - **Full session**: real build, migration, or budget commitment. Run every phase gate.
-- State depth and mode (new design | review existing | interview practice) in one line, then continue.
+- State depth and mode (new design | review existing | interview practice) in one line, then continue. Interview practice runs through `system-design-interview-coaching`: the round on a clock, the rubric after.
 - Escalate quick to full when a hard constraint or irreversible choice appears.
 
 ## Phase 1 - Intake (gate)
@@ -79,3 +79,4 @@ Requirements before solutions. Never draw a full architecture before numbers jus
 - [Four-Phase Process](references/four-phase-process.md) - per-phase gates, outputs, escalation rules
 - [Intake Checklist](references/intake-checklist.md) - question bank with defaults
 - [Phase Deliverables](references/phase-deliverables.md) - interview phase to artifact and diagram map
+- [Interview Coaching](../system-design-interview-coaching/SKILL.md) - timed mock rounds, rubric, mistakes
