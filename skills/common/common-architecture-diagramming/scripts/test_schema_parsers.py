@@ -144,5 +144,45 @@ class TestTypeOrm(unittest.TestCase):
             typeorm.parse("export class Nope {}", "n.ts")
 
 
+class TestDjangoSqlAlchemy(unittest.TestCase):
+    def setUp(self):
+        from schema_parsers import django_sqlalchemy as ds
+        self.schema = ds.parse(read("orders_models.py"), "fixtures/schemas/orders_models.py")
+        self.by_name = {e.name: e for e in self.schema.entities}
+
+    def test_django_models_get_implicit_id_pk(self):
+        cols = {c.name: c for c in self.by_name["Customer"].columns}
+        self.assertTrue(cols["id"].pk)
+        self.assertEqual(cols["id"].type, "AutoField")
+        self.assertTrue(cols["name"].nullable)
+        self.assertFalse(cols["email"].nullable)
+
+    def test_explicit_primary_key_suppresses_implicit_id(self):
+        cols = {c.name: c for c in self.by_name["Tag"].columns}
+        self.assertTrue(cols["label"].pk)
+        self.assertNotIn("id", cols)
+
+    def test_foreign_key_and_many_to_many(self):
+        cols = {c.name: c for c in self.by_name["Order"].columns}
+        self.assertTrue(cols["customer_id"].fk)
+        rels = {(r.source, r.target): r.cardinality for r in self.schema.relations}
+        self.assertEqual(rels[("Order", "Customer")], "many-to-one")
+        self.assertEqual(rels[("Order", "Tag")], "many-to-many")
+
+    def test_sqlalchemy_table_uses_tablename_and_foreign_key(self):
+        cols = {c.name: c for c in self.by_name["invoices"].columns}
+        self.assertTrue(cols["id"].pk)
+        self.assertTrue(cols["order_id"].fk)
+        self.assertFalse(cols["order_id"].nullable)
+        self.assertTrue(cols["total"].nullable)
+        rels = {(r.source, r.target): r.cardinality for r in self.schema.relations}
+        self.assertEqual(rels[("invoices", "orders")], "many-to-one")
+
+    def test_no_models_is_an_error(self):
+        from schema_parsers import django_sqlalchemy as ds
+        with self.assertRaises(SchemaParseError):
+            ds.parse("x = 1", "m.py")
+
+
 if __name__ == "__main__":
     unittest.main()
