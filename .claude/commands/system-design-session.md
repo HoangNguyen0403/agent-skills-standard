@@ -18,7 +18,7 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
 ## Steps
 
 1. Load inputs:
-   - Load `system-design-methodology` plus matched siblings (estimation, building-blocks, data-architecture, resilience-ops, review, principles, diagramming).
+   - Load `system-design-methodology` plus matched siblings (estimation, building-blocks, data-architecture, resilience-ops, review, principles) and `common-architecture-diagramming` for the draw.io render pipeline.
    - Load PRD or ticket, existing architecture docs, and current traffic/incident data when reviewing an existing system.
 2. Classify and announce:
    - Mode: new design | review existing | interview practice.
@@ -35,7 +35,7 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
    - Price the null option first (do nothing, buy, or extend an existing service); rejecting it needs a stated reason.
    - Start from client, API, service, store; add one component at a time as `constraint -> component -> cost`.
    - Fix API surface, data ownership, and consistency class per flow.
-   - Render diagrams only after the component set is agreed, per `system-design-diagramming`: an `architecture` view plus `sequence` or `dataflow` for the critical path.
+   - Render diagrams only after the component set is agreed, per `common-architecture-diagramming`: a `container` diagram (audience tech) plus `sequence` or `dataflow` for the critical path. Every node carries `metric` and `constraint` from its `constraint -> component -> cost` line; `evidence` points at that line in the design doc (`docs/design/system-design-[slug].md:<line>`), so write the Component Architecture section before rendering. No doc yet (quick sketch, or writes disallowed): leave `evidence` absent and let the node render UNVERIFIED. Output `docs/architecture/[slug]-<type>.drawio` plus the exported image. Phase map: `system-design-methodology/references/phase-deliverables.md`.
 6. Deep dive and decide:
    - Dispatch the 2-3 riskiest components to `specialist-system-architect`, one brief each with its numbers and consistency requirement.
    - Merge the returned options, failure modes, and irreversible decisions; state bottlenecks, SPOFs, and rejected alternatives with reasons.
@@ -54,7 +54,7 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
 
 ## Handoff Payload
 
-- `slug`, `operator_profile`, design doc path, mode and depth, requirement table, capacity numbers, component list with justifications, data ownership map, NFR thresholds, ADR list, scorecard, risk register, next workflow.
+- `slug`, `operator_profile`, design doc path, mode and depth, requirement table, capacity numbers, component list with justifications, data ownership map, NFR thresholds, diagram paths (.drawio + image), ADR list, scorecard, risk register, next workflow.
 
 ## Blocking Questions
 

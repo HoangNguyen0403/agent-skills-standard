@@ -1,6 +1,6 @@
 ---
 name: system-design-methodology
-description: "Drives an interactive system design session: classifies depth, elicits scale/SLO/consistency inputs, computes capacity, then reveals components one at a time with a constraint justification each. Use when designing a system or running a design session; defer diagrams to the diagramming skill."
+description: "Drives an interactive system design session: classifies depth, elicits scale/SLO/consistency inputs, computes capacity, then reveals components one by one, each justified by a constraint. Use when designing a system or running a design session; diagrams go through `common-architecture-diagramming`."
 metadata:
   triggers:
     keywords:
@@ -44,7 +44,7 @@ Requirements before solutions. Never draw a full architecture before numbers jus
 - Start with the smallest system satisfying functional requirements: client, API, service, store.
 - Add one component at a time. For each, state `constraint -> component -> cost` in one line. No component without a named constraint.
 - Define API surface (one endpoint per functional requirement) and data ownership before optimizing.
-- Diagram only after the component set is agreed, per `system-design-diagramming`.
+- Diagram only after the component set is agreed, per `common-architecture-diagramming`: a `container` diagram (audience tech) plus `sequence` or `dataflow` for the critical path; every node carries `metric` and `constraint` from its `constraint -> component -> cost` line. Which artifact at which phase: [phase deliverables](references/phase-deliverables.md).
 
 ## Brownfield Path (review-existing mode)
 
@@ -78,3 +78,4 @@ Requirements before solutions. Never draw a full architecture before numbers jus
 
 - [Four-Phase Process](references/four-phase-process.md) - per-phase gates, outputs, escalation rules
 - [Intake Checklist](references/intake-checklist.md) - question bank with defaults
+- [Phase Deliverables](references/phase-deliverables.md) - interview phase to artifact and diagram map

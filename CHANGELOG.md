@@ -5,6 +5,35 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [system-design-v2.0.0] - 2026-09-13
+
+**Category**: One diagram lane
+
+### Removed
+
+- **`system-design-diagramming`** (Archify dark-SVG lane): superseded by `common-architecture-diagramming`. Two render lanes with different visual languages shipped side by side, and the Archify lane depended on an external CLI this repository never carried, had no validator, and no tests. The draw.io lane has both.
+
+### Added
+
+- **`system-design-methodology/references/phase-deliverables.md`**: maps the seven interview phases (requirements, estimation, high-level design, data model, API, deep dive, bottlenecks) onto the four methodology gates, names the deliverable per phase, the diagram type and audience that carries it, and where each node's `metric`, `constraint`, and `evidence` come from.
+
+### Changed
+
+- **`system-design-methodology`**: description and Phase 3 route to `common-architecture-diagramming`; a design-session diagram is a `container` view (audience tech) plus `sequence` or `dataflow` for the critical path, every node carrying `metric` and `constraint` from its `constraint -> component -> cost` line. `four-phase-process.md` lists diagrams as a Phase 3 output.
+- **`system-design-artifact-intake`**: the fact-sheet re-draw goes through the draw.io pipeline; confirmed rows carry `evidence` into the artifact, low-confidence rows omit it and render UNVERIFIED. The Archify JSON row is gone from the artifact-format table.
+- **`system-design-review`**: prose said "eight axes" while the scorecard has nine; fixed.
+- **Workflows** `system-design-session`, `review-system-design`, `design-solution`: load `common-architecture-diagramming`, render through it, and carry diagram paths in the handoff payload. `design-solution` gains a diagram step and a `## Diagrams` section it never had.
+
+### Migration
+
+- `.skillsrc` must not exclude `common-architecture-diagramming`, and `common` must be at `common-v2.5.0` or later. The keywords `diagram` and `architecture diagram` are now served by the common skill only.
+
+### Versions
+
+- **System Design Skills**: `1.0.0` → `2.0.0`
+
+---
+
 ## [common-v2.5.0] - 2026-09-09
 
 **Category**: Architecture diagramming moves from Mermaid guidance to a draw.io render pipeline
@@ -21,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `export_drawio.py`: draw.io Desktop CLI wrapper. Resolves the binary via `DRAWIO_BIN`, then
     `PATH`, then per-OS install locations, and fails with an install hint rather than silently
     producing nothing.
-  - `test_render_drawio.py`: 41 unit tests covering the validator, renderer, layouts, and binary
+  - `test_render_drawio.py`: 54 unit tests covering the validator, renderer, layouts, and binary
     resolution.
 - **Evidence-tagged shapes**: each node carries a `path:line` pointer, stored as a draw.io custom
   property. A node without evidence renders dashed, orange, and labelled UNVERIFIED, so a guess
@@ -30,6 +59,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   against the shape names actually shipped in the draw.io Desktop bundle.
 - **New references**: `diagram-spec.md`, `style-catalog.md`, `house-style.md`,
   `exec-readability.md`, `source-extraction.md`.
+- **Spec v1.1, numbers on the box**: nodes and edges carry an optional `metric` (max 48
+  characters, the one headline number that sized the box or the hop: peak QPS, p99, GB/day),
+  rendered as a small line under the label; nodes carry an optional `constraint` (the left side
+  of the `constraint -> component -> cost` line), stored as a draw.io custom property beside
+  `evidence`. The validator errors on over-long metrics and gains an advisory warnings channel
+  (exit 0): a `tech` container, deployment, or dataflow diagram with no metric on any node is
+  flagged, so design-session diagrams stop dropping the numbers that justified them.
 
 ### Changed
 
@@ -42,6 +78,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the checklist now separates what the validator enforces from what still needs human judgement.
 - `evals/evals.json` extended from 3 to 6 scenarios, covering the render pipeline, UNVERIFIED
   handling, and the executive node cap.
+- `diagram-selection.md` owns design-session artefacts too, per
+  `system-design-methodology/references/phase-deliverables.md`; the deferral to the retired
+  `system-design-diagramming` skill is gone, as is its should-not-trigger eval case.
+- `house-style.md` type scale and `checklist.md` ("numbers that justified the box are on the
+  box") updated for spec v1.1; the SKILL guideline "Put the number on the box" added.
 
 ## [specialists-v1.5.0] - 2026-09-09
 
@@ -53,7 +94,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   invocation from a caller-supplied evidence bundle, then validates, renders, exports, and
   reviews the exported image. Returns `BLOCKED` when given no evidence, no diagram type, or when
   every node would be UNVERIFIED, so a batch redraw cannot quietly invent architecture.
-  Generated agent definitions ship for Claude, Codex, Antigravity, and Copilot.
+  Generated agent definitions ship for Claude, Codex, Antigravity, and Copilot. Carries
+  `metric` and `constraint` from the evidence bundle onto each node, never invents a number,
+  and reports a `METRICS:` line in its output block.
 
 ## [system-design-v1.0.0] - 2026-08-30
 

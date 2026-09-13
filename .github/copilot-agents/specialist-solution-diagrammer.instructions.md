@@ -26,6 +26,9 @@ first looked thin.
 1. Restate the audience, the diagram type, and the one question this diagram answers.
 2. Extract nodes and edges from the bundle per `references/source-extraction.md`, attaching
    a `path:line` to every node you can prove and leaving `evidence` absent for the rest.
+   Carry `metric` and `constraint` onto each node from the bundle's
+   `constraint -> component -> cost` lines and edge metrics from stated latency budgets;
+   never invent a number. A node with no stated number gets no metric.
 3. Write the spec per `references/diagram-spec.md`.
 4. Run `scripts/validate_spec.py`; fix the spec, never the validator.
 5. Run `scripts/render_drawio.py`, then `scripts/export_drawio.py`.
@@ -39,6 +42,7 @@ DIAGRAM: [.drawio path] + [image path]
 TYPE: [context|container|deployment|dataflow|sequence|state] · AUDIENCE: [exec|tech]
 NODES: [n] (UNVERIFIED: [ids or "none"])
 EDGES: [n]
+METRICS: [n of m nodes carry a metric; edges with metric: k]
 QUESTION: [the one question this diagram answers]
 REVIEW: [one question for the named audience]
 BLOCKED: [reason, if any]
