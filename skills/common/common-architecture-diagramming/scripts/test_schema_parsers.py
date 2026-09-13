@@ -73,5 +73,43 @@ class TestDetect(unittest.TestCase):
         self.assertEqual(set(PARSERS), {"sql", "prisma", "typeorm", "django_sqlalchemy"})
 
 
+class TestPrisma(unittest.TestCase):
+    def setUp(self):
+        from schema_parsers import prisma
+        self.schema = prisma.parse(read("orders.prisma"), "fixtures/schemas/orders.prisma")
+        self.by_name = {e.name: e for e in self.schema.entities}
+
+    def test_models_and_scalar_columns(self):
+        self.assertEqual(sorted(self.by_name), ["Customer", "Order", "Tag"])
+        cols = {c.name: c for c in self.by_name["Order"].columns}
+        self.assertEqual(sorted(cols), ["customerId", "id", "placedAt", "status"])
+        self.assertTrue(cols["id"].pk)
+        self.assertTrue(cols["customerId"].fk)
+        self.assertFalse(cols["status"].nullable)
+
+    def test_optional_field_is_nullable(self):
+        cols = {c.name: c for c in self.by_name["Customer"].columns}
+        self.assertTrue(cols["name"].nullable)
+        self.assertFalse(cols["email"].nullable)
+
+    def test_relation_from_owning_side(self):
+        rels = {(r.source, r.target): r for r in self.schema.relations}
+        self.assertEqual(rels[("Order", "Customer")].cardinality, "many-to-one")
+        self.assertEqual(rels[("Order", "Customer")].evidence, "fixtures/schemas/orders.prisma:12")
+
+    def test_implicit_many_to_many_emitted_once(self):
+        m2m = [r for r in self.schema.relations if r.cardinality == "many-to-many"]
+        self.assertEqual(len(m2m), 1)
+        self.assertEqual((m2m[0].source, m2m[0].target), ("Customer", "Tag"))
+
+    def test_model_evidence_is_declaration_line(self):
+        self.assertEqual(self.by_name["Order"].evidence, "fixtures/schemas/orders.prisma:9")
+
+    def test_no_models_is_an_error(self):
+        from schema_parsers import prisma
+        with self.assertRaises(SchemaParseError):
+            prisma.parse('datasource db { provider = "postgresql" }', "s.prisma")
+
+
 if __name__ == "__main__":
     unittest.main()
