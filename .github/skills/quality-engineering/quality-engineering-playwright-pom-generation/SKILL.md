@@ -1,6 +1,6 @@
 ---
 name: quality-engineering-playwright-pom-generation
-description: Generates Playwright page objects from an executable test plan, one class per screen with ladder-compliant locators and no assertions, and wires them into a shared fixture. Use when a web scenario needs a page object that does not exist yet, or when locators drift and the page object must be rebuilt.
+description: Generates Playwright page objects from an executable test plan, one class per screen with ladder-compliant locators and no assertions, wired into a shared fixture. Use when a web scenario needs a page object that does not exist yet, or when locators drift and the page object must be rebuilt.
 metadata:
   triggers:
     files:
