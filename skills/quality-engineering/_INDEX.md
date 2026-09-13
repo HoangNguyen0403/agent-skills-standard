@@ -6,6 +6,7 @@
 | Skill | File pattern | Keywords |
 | ----- | ------------ | -------- |
 | **quality-engineering-business-analysis** | `**/user_story.md` | acceptance criteria, AC, business rules, jira story, toggle, market, write user story, improve user story, review story, BA |
+| quality-engineering-playwright-pom-generation | `tests/pages/**/*.ts`, `**/page-objects/**/*.ts`, `**/*.page.ts` | page object, page object model, pom generation, generate page objects, playwright fixture, pages fixture |
 | **quality-engineering-selector-stability** | `**/e2e/**/*.{ts,js}`, `**/*.e2e.{ts,js}` | selector, locator, data-testid, testID, accessibilityIdentifier, testTag, stable locator, selector drift |
 | **quality-engineering-test-healing** | `test-results/**`, `playwright-report/**` | heal test, failing e2e, selector repair, test healer, fix the test, timed out waiting for |
 | quality-engineering-test-plan-authoring | `specs/**/*.md`, `tests/seed.spec.*` | test plan, executable test plan, seed spec, scenario matrix, ac to scenario, planner |

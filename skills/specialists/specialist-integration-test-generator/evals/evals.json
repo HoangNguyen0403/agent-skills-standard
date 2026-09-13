@@ -4,13 +4,27 @@
     {
       "id": 1,
       "prompt": "Generate a Playwright E2E test from this approved Zephyr TC.",
-      "expected_output": "Runs Integration Test Generator, loads matching project skills, reads nearest existing test sample, writes one scenario, formats, and runs smallest reliable test.",
+      "expected_output": "Runs Integration Test Generator, loads matching project skills, reads nearest existing test sample, writes one scenario, formats, and runs smallest reliable test. Reports Test: PASS.",
       "assertions": [
         { "type": "contains", "value": "Load matching project skills" },
         { "type": "contains", "value": "nearest existing test sample" },
         { "type": "contains", "value": "Test: PASS" }
       ]
+    },
+    {
+      "id": 2,
+      "prompt": "Generate the Playwright test for scenario @AC-3 (checkout success). There is no checkout page object yet.",
+      "expected_output": "Return Test: BLOCKED naming the missing CheckoutPage page object; do not write the scenario with raw page.locator calls. Generation resumes after quality-engineering-playwright-pom-generation produces it.",
+      "assertions": [
+        { "type": "contains", "value": "BLOCKED" },
+        { "type": "contains", "value": "page object" },
+        { "type": "not_contains", "value": "Action: created" }
+      ]
     }
+  ],
+  "should_trigger": [
+    "Generate the Playwright test for scenario 1 from the approved test plan.",
+    "Write the Appium test for TC PROJ-T42 using the existing test folder conventions."
   ],
   "should_not_trigger": ["Scan PR comments", "Write PRD"]
 }

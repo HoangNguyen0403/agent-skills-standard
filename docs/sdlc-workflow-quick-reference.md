@@ -148,4 +148,5 @@ When running workflows in sequence (e.g., `brainstorm` -> `plan` -> `implement`)
 | Confluence context                  | `specialist-confluence-searcher`        |
 | Approved PR comment posting         | `specialist-pr-commenter-batch`         |
 | Integration test generation         | `specialist-integration-test-generator` |
+| Selector gap closure (test ids)     | `specialist-testid-inserter`            |
 | TC creation                         | `specialist-tc-creator`                 |

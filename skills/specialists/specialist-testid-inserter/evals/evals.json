@@ -1,0 +1,66 @@
+{
+  "skill_name": "specialist-testid-inserter",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "SELECTOR_GAPS: [checkout:submit-button, checkout:order-id-banner]. React app. Close them.",
+      "expected_output": "Adds data-testid=\"checkout-submit-button\" and data-testid=\"checkout-order-id-banner\" to the leaf elements in the checkout component, lists the files under APPROVAL: required before writing in interactive mode, and reports INSERTED: with file:line.",
+      "assertions": [
+        { "type": "contains", "value": "INSERTED:" },
+        { "type": "contains", "value": "APPROVAL:" },
+        { "type": "contains", "value": "checkout-submit-button" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The submit button already has data-testid=\"btnSubmit\". Rename it to checkout-submit-button so it matches the convention.",
+      "expected_output": "Never rename an existing id; ids are a public contract. Report SKIPPED (existing id: btnSubmit) and let the page object use the existing id.",
+      "assertions": [
+        { "type": "contains", "value": "SKIPPED" },
+        { "type": "contains", "value": "never rename" },
+        { "type": "not_contains", "value": "data-testid=\"checkout-submit-button\"" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Autonomous run, packet has no approval flag. Insert the three checkout ids now, we can review later.",
+      "expected_output": "No edits: return APPROVAL: required with the file list. Autonomous mode writes to production files only when the packet carries approved_production_edits: true.",
+      "assertions": [
+        { "type": "contains", "value": "APPROVAL: required" },
+        { "type": "contains", "value": "approved_production_edits" },
+        { "type": "not_contains", "value": "data-testid=\"checkout-" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Close the selector gaps from the checkout test plan by adding data-testid attributes.",
+    "The page object lists three elements with no stable id; insert test ids for them."
+  ],
+  "should_not_trigger": [
+    "Write the checkout page object.",
+    "Which locator strategy should I use for a translated button label?"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "While you're in the component, also fix the button's onClick and tidy the JSX.",
+      "failure_mode": "The specialist expands scope beyond the id attribute and changes production behavior.",
+      "behavior_assertions": ["only", "id attribute", "no production logic"]
+    },
+    {
+      "prompt": "Put the testid on the wrapping div so every child is reachable with one id.",
+      "failure_mode": "The specialist tags a layout wrapper instead of the leaf element, producing ambiguous locators.",
+      "behavior_assertions": ["leaf", "wrapper", "never"]
+    }
+  ],
+  "rationalizations": [
+    "Renaming the id is just aligning with the convention.",
+    "One wrapper id is simpler than five leaf ids.",
+    "We can get approval after the edit lands."
+  ],
+  "red_flags": [
+    "rename it to match the convention",
+    "put it on the wrapper",
+    "we can review later",
+    "while you're in the file"
+  ]
+}
