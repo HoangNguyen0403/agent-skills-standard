@@ -407,8 +407,8 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 39,
-        "total_tokens": 30618,
-        "avg_tokens_per_skill": 785,
+        "total_tokens": 30841,
+        "avg_tokens_per_skill": 791,
         "largest_skill": "common-skill-creator (1646 tokens)"
       },
       "owners": [
@@ -435,8 +435,8 @@
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 19,
-        "total_tokens": 9654,
-        "avg_tokens_per_skill": 508,
+        "total_tokens": 9742,
+        "avg_tokens_per_skill": 513,
         "largest_skill": "specialist-tdd-implementer (824 tokens)"
       },
       "owners": [

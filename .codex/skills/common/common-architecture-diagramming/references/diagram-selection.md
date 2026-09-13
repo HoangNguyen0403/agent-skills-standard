@@ -10,6 +10,7 @@ Pick from the message you need to land, not from the diagram you drew last time.
 | How does data travel end to end, including batch and events | `dataflow` | Architects, data |
 | What is the exact order of calls in one flow | `sequence` | Developers |
 | What states can one entity be in | `state` | Product, developers |
+| Which tables exist and how they relate | `erd` | Developers, data |
 
 ## Decision tree
 
@@ -19,11 +20,10 @@ Pick from the message you need to land, not from the diagram you drew last time.
 4. Following a record through extraction, transformation, and load? `dataflow`
 5. Debugging or specifying one request path in order? `sequence`
 6. Describing a lifecycle such as order status? `state`
+7. Documenting a schema? `erd`, generated from the schema files with `schema_to_spec.py`
 
 ## Not covered here
 
-- **Entity relationship diagrams.** The spec has no ERD layout; generate one from the schema
-  and keep it beside the migrations, where it can be regenerated.
 - **Flowcharts and decision trees.** Business logic is not architecture. Use Mermaid inline
   in the document that explains the decision.
 - **Design-session artefacts** are drawn here too, not elsewhere;

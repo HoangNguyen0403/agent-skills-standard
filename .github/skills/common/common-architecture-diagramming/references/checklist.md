@@ -12,6 +12,9 @@ judge. Run through it before handing a diagram to anyone.
 - [ ] Exec diagrams are at or under twelve nodes
 - [ ] Node and edge `metric` at or under 48 characters
 - [ ] (warning only) Tech container, deployment, and dataflow diagrams carry at least one metric
+- [ ] Layout check clean (`render_drawio.py --strict`): no overlaps, no edge through a third
+      box, no label on a box or on another label
+- [ ] ERD entities list their columns; every relation has a cardinality
 
 ## Judgement (yours)
 

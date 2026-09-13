@@ -13,7 +13,7 @@ import argparse
 import json
 import sys
 
-from render_drawio import DIAGRAM_TYPES, EDGE_STYLES, STYLE_CATALOG
+from render_drawio import CARDINALITIES, DIAGRAM_TYPES, EDGE_STYLES, STYLE_CATALOG
 
 # Above this, an executive stops reading and asks for a walkthrough instead.
 EXEC_NODE_CAP = 12
@@ -54,7 +54,7 @@ def validate(spec):
         return errors
 
     errors += _validate_nodes(spec, nodes)
-    errors += _validate_edges(nodes, edges)
+    errors += _validate_edges(spec, nodes, edges)
     errors += _validate_type_rules(diagram_type, nodes)
 
     if audience == "exec" and len(nodes) > EXEC_NODE_CAP:
@@ -83,6 +83,24 @@ def _validate_metric(owner, metric):
     return []
 
 
+def _validate_entity(node, diagram_type):
+    node_id = node.get("id")
+    is_entity = node.get("kind") == "entity"
+    columns = node.get("columns")
+    errors = []
+    if is_entity and diagram_type != "erd":
+        errors.append("node %s is an entity but the diagram type is %r; entities belong to "
+                      "type 'erd'" % (node_id, diagram_type))
+    if is_entity and not columns:
+        errors.append("entity %s has no columns; list at least one {name, type}" % node_id)
+    if not is_entity and columns:
+        errors.append("node %s has columns but is not an entity" % node_id)
+    for column in columns or []:
+        if not column.get("name") or not column.get("type"):
+            errors.append("entity %s has a column without name or type: %r" % (node_id, column))
+    return errors
+
+
 def _validate_nodes(spec, nodes):
     errors = []
     known_groups = {g.get("id") for g in (spec.get("groups") or [])}
@@ -104,21 +122,30 @@ def _validate_nodes(spec, nodes):
         if group and group not in known_groups:
             errors.append("node %s references undeclared group %r" % (node_id, group))
         errors += _validate_metric("node %s" % node_id, node.get("metric"))
+        errors += _validate_entity(node, spec.get("type"))
     return errors
 
 
-def _validate_edges(nodes, edges):
+def _validate_edges(spec, nodes, edges):
     errors = []
     ids = {n.get("id") for n in nodes}
     connected = set()
+    is_erd = spec.get("type") == "erd"
     for edge in edges:
         source, target = edge.get("from"), edge.get("to")
         for end in (source, target):
             if end not in ids:
                 errors.append("edge references unknown node %r" % end)
-        if not edge.get("label"):
+        if not is_erd and not edge.get("label"):
             errors.append("edge %s -> %s has no label; every relationship must state "
                           "its protocol or event" % (source, target))
+        cardinality = edge.get("cardinality")
+        if is_erd and cardinality not in CARDINALITIES:
+            errors.append("edge %s -> %s needs a cardinality; known values: %s"
+                          % (source, target, ", ".join(CARDINALITIES)))
+        if not is_erd and cardinality:
+            errors.append("edge %s -> %s has a cardinality but the diagram is not an erd"
+                          % (source, target))
         style = edge.get("style", "sync")
         if style not in EDGE_STYLES:
             errors.append("edge %s -> %s has unknown style %r; known styles: %s"
@@ -138,6 +165,8 @@ def _validate_type_rules(diagram_type, nodes):
         return ["sequence diagrams need nodes of kind 'participant'"]
     if diagram_type == "state" and "start" not in kinds:
         return ["state diagrams need exactly one node of kind 'start'"]
+    if diagram_type == "erd" and "entity" not in kinds:
+        return ["erd diagrams need at least one node of kind 'entity'"]
     return []
 
 

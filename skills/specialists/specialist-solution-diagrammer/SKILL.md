@@ -38,14 +38,16 @@ first looked thin.
    never invent a number. A node with no stated number gets no metric.
 3. Write the spec per `references/diagram-spec.md`.
 4. Run `scripts/validate_spec.py`; fix the spec, never the validator.
-5. Run `scripts/render_drawio.py`, then `scripts/export_drawio.py`.
+5. Run `scripts/render_drawio.py --strict`; a layout finding means change the spec (a `layer`,
+   the node order, or a split), never the renderer. Then export: a draw.io MCP tool if the
+   session has one, else `scripts/export_drawio.py`, else report the image as not exported.
 6. Look at the exported image before reporting. Labels clear of boxes, no line crossing a
    third box, legend complete.
 
 ## Output
 
 ```text
-DIAGRAM: [.drawio path] + [image path]
+DIAGRAM: [.drawio path] + [image path | "image: not exported (no draw.io MCP or CLI)"]
 TYPE: [context|container|deployment|dataflow|sequence|state] · AUDIENCE: [exec|tech]
 NODES: [n] (UNVERIFIED: [ids or "none"])
 EDGES: [n]
@@ -62,3 +64,4 @@ BLOCKED: [reason, if any]
 - **No mixed C4 levels**: Draw a second diagram instead.
 - **No silent overwrite**: Warn before re-rendering a hand-tuned `.drawio`.
 - **No unreviewed export**: Look at the image before you report success.
+- **No hand-drawn substitute**: With no MCP and no CLI, ship the `.drawio`; never SVG or ASCII.

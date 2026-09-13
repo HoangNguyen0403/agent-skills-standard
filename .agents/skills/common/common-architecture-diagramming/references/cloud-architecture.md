@@ -30,11 +30,43 @@ services someone else operates for you.
 | `gcp:functions` | Cloud Functions |
 | `gcp:bigquery` | BigQuery |
 
-Anything without an icon — SAP, Okta, a payment gateway, Datadog — is a `saas` or
-`system-ext` box. A labelled box beats a wrong logo.
+## AWS kinds
 
-Other clouds have no kinds yet. Add them to the catalogue only after verifying the stencil
-name renders; see [style-catalog.md](style-catalog.md).
+| Kind | Service |
+|---|---|
+| `aws:lambda` | Lambda |
+| `aws:ec2` | EC2 |
+| `aws:ecs` / `aws:eks` / `aws:fargate` | ECS / EKS / Fargate |
+| `aws:rds` / `aws:aurora` | RDS / Aurora |
+| `aws:dynamodb` | DynamoDB |
+| `aws:elasticache` | ElastiCache |
+| `aws:s3` | S3 |
+| `aws:sqs` / `aws:sns` / `aws:kinesis` / `aws:eventbridge` | SQS / SNS / Kinesis / EventBridge |
+| `aws:api-gateway` / `aws:elb` / `aws:cloudfront` / `aws:route53` | API Gateway / ELB / CloudFront / Route 53 |
+| `aws:cloudwatch` / `aws:cognito` | CloudWatch / Cognito |
+
+## Vendor-neutral kinds
+
+For Azure, Cloudflare, DigitalOcean, or any service above without an icon. The vendor and
+product go in `sublabel`; the shape says what role it plays.
+
+| Kind | Stands for |
+|---|---|
+| `cloud:compute` | VMs, app platforms |
+| `cloud:serverless` | function runtimes |
+| `cloud:container-platform` | managed Kubernetes or container apps |
+| `cloud:managed-db` | relational or document database |
+| `cloud:cache` | in-memory cache |
+| `cloud:object-store` | blob storage |
+| `cloud:message-bus` | queue, topic, event hub |
+| `cloud:edge` | CDN, edge network |
+| `cloud:gateway` | API gateway, load balancer, front door |
+| `cloud:identity` | identity provider, SSO |
+| `cloud:observability` | logs, metrics, tracing |
+
+Azure specifically: draw.io Desktop carries only the 2014 stencil set, so Azure always uses
+`cloud:*`. Anything that is a product rather than infrastructure (SAP, Okta, a payment
+gateway) stays a `saas` or `system-ext` box. A labelled box beats a wrong logo.
 
 ## Deployment view versus container view
 
