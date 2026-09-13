@@ -51,42 +51,65 @@ def route(source_box, target_box):
     return [start, (start[0], mid_y), (end[0], mid_y), end]
 
 
-def plan_routes(spec, boxes):
-    """Every edge's polyline, with fan-out edges from one node staggered across the gap.
+LABEL_W, LABEL_H = 96, 16   # a typical 10px edge label, for collision checks
 
-    Edges that leave the same node through the same side would all bend at the same
-    height and stack their labels; each gets its own height inside the band between the
-    source port and the nearest target port instead. A straight edge in the fan keeps a
-    straight line but gets a zero-length middle leg so its label lands in its own slot.
+
+def _band_key(src, dst, side, rows):
+    """Edges that bend in the same row gap share slots; otherwise fans are per source."""
+    if rows and src in rows and dst in rows and side in ("top", "bottom"):
+        upper = min(rows[src], rows[dst])
+        return ("gap", upper)
+    return ("fan", src, side)
+
+
+def _band_limits(key, members, routes, rows, boxes):
+    """The interval a band's bends may use: between the upper row and the row below it."""
+    if key[0] == "gap":
+        upper = key[1]
+        lo = max(y + h for n, (x, y, w, h) in boxes.items() if rows.get(n) == upper)
+        hi = min(y for n, (x, y, w, h) in boxes.items() if rows.get(n) == upper + 1)
+        return lo, hi, 1
+    side = key[2]
+    axis = 1 if side in ("top", "bottom") else 0
+    starts = [routes[i][1][0][axis] for i in members]
+    ends = [routes[i][1][-1][axis] for i in members]
+    lo = starts[0]
+    hi = min(ends) if side in ("bottom", "right") else max(ends)
+    return lo, hi, axis
+
+
+def plan_routes(spec, boxes, rows=None):
+    """Every edge's polyline, with bends staggered so labels never stack.
+
+    Vertical edges that bend inside the same row gap (any source, either direction)
+    share that gap's slots; without row information, edges leaving one node through
+    one side share a band instead. A straight edge in a band keeps a straight line but
+    gets a zero-length middle leg so its label lands in its own slot.
     """
-    routes = []
-    fans = {}
-    for index, edge in enumerate(spec.get("edges") or []):
+    routes, bands = [], {}
+    for edge in spec.get("edges") or []:
         src, dst = edge.get("from"), edge.get("to")
         if src not in boxes or dst not in boxes:
             continue
-        points = route(boxes[src], boxes[dst])
-        routes.append([edge, points])
+        routes.append([edge, route(boxes[src], boxes[dst])])
         side = anchor_sides(boxes[src], boxes[dst])[0]
-        fans.setdefault((src, side), []).append(len(routes) - 1)
-    for (src, side), members in fans.items():
+        bands.setdefault(_band_key(src, dst, side, rows), []).append(len(routes) - 1)
+    for key, members in bands.items():
         if len(members) < 2:
             continue
-        vertical = side in ("top", "bottom")
-        axis = 1 if vertical else 0
-        starts = [routes[i][1][0][axis] for i in members]
-        ends = [routes[i][1][-1][axis] for i in members]
-        lo = starts[0]
-        hi = min(ends) if side in ("bottom", "right") else max(ends)
+        lo, hi, axis = _band_limits(key, members, routes, rows, boxes)
         step = (hi - lo) / (len(members) + 1)
-        order = sorted(members, key=lambda i: routes[i][1][-1][1 - axis])
+        order = sorted(members, key=lambda i: (routes[i][1][-1][1 - axis], routes[i][1][0][1 - axis]))
         for slot, i in enumerate(order):
             bend = lo + step * (slot + 1)
             a, d = routes[i][1][0], routes[i][1][-1]
-            # A straight edge keeps its line but labels at its slot: a zero-length middle leg.
-            routes[i][1] = ([a, (a[0], bend), (d[0], bend), d] if vertical
+            routes[i][1] = ([a, (a[0], bend), (d[0], bend), d] if axis == 1
                             else [a, (bend, a[1]), (bend, d[1]), d])
     return [(edge, points) for edge, points in routes]
+
+
+def labels_collide(p, q):
+    return abs(p[0] - q[0]) < LABEL_W and abs(p[1] - q[1]) < LABEL_H
 
 
 def _dist(a, b):
@@ -143,11 +166,19 @@ def _overlap_findings(boxes):
             for i, a in enumerate(ids) for b in ids[i + 1:] if _overlap(boxes[a], boxes[b])]
 
 
-def _edge_findings(spec, boxes):
-    findings = []
-    for edge, points in plan_routes(spec, boxes):
+def _edge_findings(spec, layout):
+    findings, boxes = [], layout.boxes
+    routes = plan_routes(spec, boxes, layout.rows)
+    labels = []
+    for edge, points in routes:
         src, dst = edge["from"], edge["to"]
         lp = label_point(points)
+        for other, (osrc, odst) in labels:
+            if labels_collide(lp, other):
+                findings.append("labels of edges %s -> %s and %s -> %s overlap"
+                                % (osrc, odst, src, dst))
+        if edge.get("label"):
+            labels.append((lp, (src, dst)))
         for third in boxes:
             if third in (src, dst):
                 continue
@@ -173,7 +204,7 @@ def check(spec, layout):
     """Return human-readable findings; empty means the picture should be clean."""
     findings = _overlap_findings(layout.boxes)
     if spec.get("type") != "sequence":    # messages are horizontal by construction
-        findings += _edge_findings(spec, layout.boxes)
+        findings += _edge_findings(spec, layout)
     findings += _group_findings(spec, layout)
     return findings
 

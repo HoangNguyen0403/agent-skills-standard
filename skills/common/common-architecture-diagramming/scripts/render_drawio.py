@@ -116,6 +116,11 @@ def _footprint(kind):
     return kind["h"] + kind.get("label_h", 0)
 
 
+def _footprint_w(kind):
+    """Horizontal room, including a label wider than the icon it sits under."""
+    return max(kind["w"], kind.get("label_w", 0))
+
+
 def _place_columns(columns):
     """Stack each column and centre the columns against each other.
 
@@ -131,7 +136,7 @@ def _place_columns(columns):
     for column in sorted(columns):
         y = BODY_Y + (tallest - heights[column]) / 2.0
         for node, kind in columns[column]:
-            x = MARGIN_X + column * COL_STEP + (CELL_W - kind["w"]) / 2.0
+            x = MARGIN_X + column * COL_STEP + (CELL_W - _footprint_w(kind)) / 2.0
             placed[node["id"]] = (int(x), int(y))
             y += _footprint(kind) + ROW_GAP
     return placed
@@ -141,7 +146,7 @@ def _place_rows(rows, align="centre", gap=ROW_GAP + 30):
     """Lay rows out top-down; centred on the widest row, or left-aligned for group bands."""
     widths = {}
     for row, members in rows.items():
-        widths[row] = (sum(k["w"] for _, k in members)
+        widths[row] = (sum(_footprint_w(k) for _, k in members)
                        + MIN_LABEL_GAP * max(0, len(members) - 1))
     widest = max(widths.values()) if widths else 0
     placed = {}
@@ -152,7 +157,7 @@ def _place_rows(rows, align="centre", gap=ROW_GAP + 30):
         row_height = max(_footprint(k) for _, k in members)
         for node, kind in members:
             placed[node["id"]] = (int(x), int(y + (row_height - _footprint(kind)) / 2.0))
-            x += kind["w"] + MIN_LABEL_GAP
+            x += _footprint_w(kind) + MIN_LABEL_GAP
         y += row_height + gap
     return placed
 
@@ -181,7 +186,8 @@ def _push_past_group_bands(rows, placed, ranks):
         members = [(n, k) for row in rows.values() for n, k in row if n.get("group") == group]
         if not members:
             continue
-        limit = max(placed[n["id"]][0] + k["w"] for n, k in members) + MIN_LABEL_GAP + GROUP_PAD_X * 2
+        limit = (max(placed[n["id"]][0] + _footprint_w(k) for n, k in members)
+                 + MIN_LABEL_GAP + GROUP_PAD_X * 2)
         for row in rows.values():
             shift = 0
             for node, _ in row:
@@ -367,9 +373,11 @@ def _anchor_style(source_box, target_box, source_label_h=0, target_label_h=0):
     return style
 
 
-def _render_edges(root, spec, edges, boxes):
+def _render_edges(root, spec, edges, lay):
+    boxes = lay.boxes
     label_h = {n["id"]: _kind(n).get("label_h", 0) for n in spec["nodes"]}
-    routes = {id(edge): points for edge, points in check_layout.plan_routes(spec, boxes)}
+    routes = {id(edge): points
+              for edge, points in check_layout.plan_routes(spec, boxes, lay.rows)}
     for index, edge in enumerate(edges):
         style = EDGE_STYLES[edge.get("style", "sync")]
         points = routes.get(id(edge))
@@ -458,9 +466,16 @@ def _render_legend(root, spec, edges, top):
 
 @dataclass(frozen=True)
 class Layout:
-    """Where every node box (x, y, w, h) and group box lands; render() draws exactly this."""
+    """Where everything lands; render() draws exactly this.
+
+    boxes: visual footprint per node (x, y, w, h), including an icon's label block.
+    cells: the shape geometry per node, centred inside its footprint.
+    groups: boundary boxes. rows: row index per node for layered types, else empty.
+    """
     boxes: dict
+    cells: dict = field(default_factory=dict)
     groups: dict = field(default_factory=dict)
+    rows: dict = field(default_factory=dict)
 
 
 GROUP_PAD_X = 30
@@ -497,18 +512,29 @@ def layout(spec):
         raise SpecError("spec has no nodes")
     edges = spec.get("edges") or []
     placed = _place(spec, nodes, edges)
-    boxes = {}
+    boxes, cells = {}, {}
     for node in nodes:
         x, y = placed[node["id"]]
         kind = _kind(node)
-        h = render_erd.entity_height(node) if node["kind"] == "entity" else _footprint(kind)
-        boxes[node["id"]] = (x, y, kind["w"], h)
+        if node["kind"] == "entity":
+            h, fw, fh = render_erd.entity_height(node), kind["w"], render_erd.entity_height(node)
+        else:
+            h, fw, fh = kind["h"], _footprint_w(kind), _footprint(kind)
+        boxes[node["id"]] = (x, y, fw, fh)
+        cells[node["id"]] = (int(x + (fw - kind["w"]) / 2.0), y, kind["w"], h)
     groups = {}
     for group in spec.get("groups") or []:
         members = [boxes[n["id"]] for n in nodes if n.get("group") == group["id"]]
         if members:
             groups[group["id"]] = group_box(members)
-    return Layout(boxes=boxes, groups=groups)
+    return Layout(boxes=boxes, cells=cells, groups=groups, rows=_rows(spec, nodes))
+
+
+def _rows(spec, nodes):
+    if spec["type"] not in ("container", "deployment", "dataflow"):
+        return {}
+    layers = sorted({n.get("layer", _kind(n)["layer"]) for n in nodes})
+    return {n["id"]: layers.index(n.get("layer", _kind(n)["layer"])) for n in nodes}
 
 
 def render(spec):
@@ -532,7 +558,7 @@ def render(spec):
     ET.SubElement(root, "mxCell", {"id": "1", "parent": "0"})
 
     boxes = lay.boxes
-    placed = {node_id: (x, y) for node_id, (x, y, _, _) in boxes.items()}
+    placed = {node_id: (x, y) for node_id, (x, y, _, _) in lay.cells.items()}
 
     width = max(x + w + 60 for x, _, w, _ in boxes.values())
     _render_title(root, spec, accent, width)
@@ -550,7 +576,7 @@ def render(spec):
         render_erd.render_relations(root, edges)
         bottom = max(y + h for _, y, _, h in boxes.values())
     else:
-        _render_edges(root, spec, edges, boxes)
+        _render_edges(root, spec, edges, lay)
         bottom = max(y + h for _, y, _, h in boxes.values())
     _render_legend(root, spec, edges, bottom + 70)
     return ET.tostring(mxfile, encoding="unicode")

@@ -102,7 +102,7 @@ class TestRendererIntegration(unittest.TestCase):
         spec = container_spec()
         lay = render_drawio.layout(spec)
         root = ET.fromstring(render_drawio.render(spec))
-        for node_id, (x, y, w, h) in lay.boxes.items():
+        for node_id, (x, y, w, h) in lay.cells.items():
             g = root.find(".//object[@id='%s']/mxCell/mxGeometry" % node_id)
             if g is None:
                 g = root.find(".//mxCell[@id='%s']/mxGeometry" % node_id)
@@ -127,7 +127,8 @@ class TestLayoutRules(unittest.TestCase):
         lay = render_drawio.layout(spec)
         x, y, w, h = lay.boxes["db"]
         self.assertGreater(h, 58, "footprint must include the label block under the icon")
-        self.assertEqual(w, 66)
+        self.assertGreater(w, 66, "footprint must include a label wider than the icon")
+        self.assertEqual(lay.cells["db"][2:], (66, 58))
 
     def test_group_members_are_contiguous_and_non_members_sit_outside(self):
         spec = container_spec()
@@ -201,6 +202,64 @@ class TestRoutePlanning(unittest.TestCase):
         spec = self.fan_spec()
         lay = render_drawio.layout(spec)
         self.assertEqual(check_layout.check(spec, lay), [])
+
+
+class TestFootprintsAndRows(unittest.TestCase):
+    def test_icon_footprint_is_wider_than_its_cell_and_centred_on_it(self):
+        spec = container_spec()
+        spec["nodes"][2] = {"id": "db", "label": "Postgres", "sublabel": "Multi-AZ",
+                            "kind": "aws:rds", "group": "gcp", "evidence": "docs/a.md:12"}
+        lay = render_drawio.layout(spec)
+        bx, by, bw, bh = lay.boxes["db"]
+        cx, cy, cw, ch = lay.cells["db"]
+        self.assertEqual((cw, ch), (66, 58))
+        self.assertGreater(bw, cw)
+        self.assertEqual(cx - bx, (bw - cw) / 2)
+        self.assertEqual(lay.cells["web"], lay.boxes["web"])
+
+    def test_layered_layout_reports_row_per_node(self):
+        lay = render_drawio.layout(container_spec())
+        self.assertEqual(lay.rows["web"], lay.rows["api"])
+        self.assertEqual(lay.rows["db"], lay.rows["api"] + 1)
+        self.assertEqual(render_drawio.layout(context_spec()).rows, {})
+
+
+class TestGapSlots(unittest.TestCase):
+    def spec(self):
+        return {"type": "container",
+                "nodes": [{"id": "a"}, {"id": "b"}, {"id": "c"}, {"id": "d"}],
+                "edges": [{"from": "a", "to": "c"}, {"from": "b", "to": "d"}, {"from": "d", "to": "a"}]}
+
+    def boxes(self):
+        return {"a": (0, 0, 100, 50), "b": (400, 0, 100, 50),
+                "c": (400, 200, 100, 50), "d": (0, 200, 100, 50)}
+
+    def rows(self):
+        return {"a": 0, "b": 0, "c": 1, "d": 1}
+
+    def test_edges_sharing_a_row_gap_take_distinct_slots_regardless_of_source_or_direction(self):
+        routes = check_layout.plan_routes(self.spec(), self.boxes(), self.rows())
+        ys = [check_layout.label_point(pts)[1] for _, pts in routes]
+        self.assertEqual(len(set(ys)), 3)
+        self.assertTrue(all(50 < y < 200 for y in ys))
+
+    def test_without_rows_fans_are_per_source(self):
+        routes = check_layout.plan_routes(self.spec(), self.boxes())
+        self.assertEqual(len(routes), 3)
+
+    def test_overlapping_labels_are_reported(self):
+        spec = {"type": "container", "nodes": [{"id": "a"}, {"id": "b"}, {"id": "c"}],
+                "edges": [{"from": "a", "to": "b"}, {"from": "c", "to": "b"}]}
+        boxes = {"a": (0, 0, 100, 50), "b": (0, 300, 100, 50), "c": (0, 600, 100, 50)}
+        # a->b centres its label at y=175; c->b (upward) centres at y=475: no overlap.
+        self.assertEqual(check_layout.check(spec, layout_of(boxes)), [])
+        boxes["c"] = (300, 0, 100, 50)   # now both labels land in the same gap band
+        routes = dict(((e["from"], e["to"]), pts) for e, pts in check_layout.plan_routes(spec, boxes))
+        self.assertNotEqual(check_layout.label_point(routes[("a", "b")]),
+                            check_layout.label_point(routes[("c", "b")]))
+        stacked = [check_layout.label_point(routes[("a", "b")])] * 2
+        self.assertTrue(check_layout.labels_collide(stacked[0], stacked[1]))
+        self.assertFalse(check_layout.labels_collide((0, 0), (0, 40)))
 
 
 if __name__ == "__main__":
