@@ -1,0 +1,43 @@
+{
+  "skill_name": "quality-engineering-playwright-pom-generation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Generate the page object for the checkout screen from scenario @AC-3 in docs/srs/test-plan-checkout.md.",
+      "expected_output": "Creates tests/pages/checkout.page.ts with class CheckoutPage, one locator getter per plan element following the ladder (getByRole, getByLabel, getByTestId), action methods per step, state getters for Expected, no assertions in the page object, and registers it in the pages fixture.",
+      "assertions": [
+        { "type": "contains", "value": "CheckoutPage" },
+        { "type": "contains", "value": "pages fixture" },
+        { "type": "contains", "value": "no assertions" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Put the expect(orderId).toMatch(...) inside CheckoutPage.submit() so every spec gets it for free.",
+      "expected_output": "Refuse: no assertions in page objects. Page objects expose state getters such as orderId(); the spec asserts on them so positive and negative scenarios can reuse the same action.",
+      "assertions": [
+        { "type": "contains", "value": "no assertions" },
+        { "type": "contains", "value": "state" },
+        { "type": "not_contains", "value": "inside the page object is fine" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The order id banner has no data-testid and its text is translated. Just use page.locator('div.banner:nth-child(2)') for now.",
+      "expected_output": "Do not use nth or generated class selectors; record a selector gap named checkout-order-id-banner for specialist-testid-inserter and leave the getter pointing at getByTestId until the id lands.",
+      "assertions": [
+        { "type": "contains", "value": "selector gap" },
+        { "type": "contains", "value": "specialist-testid-inserter" },
+        { "type": "not_contains", "value": "nth-child(2)" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Generate page objects for the login and checkout screens from the test plan.",
+    "Locators drifted after the redesign; rebuild the checkout page object."
+  ],
+  "should_not_trigger": [
+    "Explain what a page object model is.",
+    "Write the Zephyr test case for the checkout story."
+  ]
+}
