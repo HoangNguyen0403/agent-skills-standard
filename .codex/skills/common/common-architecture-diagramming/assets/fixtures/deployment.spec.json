@@ -1,0 +1,111 @@
+{
+  "version": "1.0",
+  "date": "2026-09-13",
+  "author": "Solution Architecture",
+  "title": "Acme Orders — AWS Deployment",
+  "type": "deployment",
+  "audience": "tech",
+  "scope": "Where Acme Orders runs in AWS ap-southeast-1; application internals excluded.",
+  "groups": [
+    {
+      "id": "vpc",
+      "label": "VPC prod — ap-southeast-1",
+      "kind": "boundary"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "cdn",
+      "label": "CloudFront",
+      "sublabel": "Static assets",
+      "kind": "aws:cloudfront",
+      "evidence": "infra/cdn.tf:1",
+      "metric": "95% cache hit"
+    },
+    {
+      "id": "alb",
+      "label": "ALB",
+      "sublabel": "TLS termination",
+      "kind": "aws:elb",
+      "evidence": "infra/alb.tf:1",
+      "metric": "12k req/s peak",
+      "group": "vpc"
+    },
+    {
+      "id": "eks",
+      "label": "EKS",
+      "sublabel": "3 node groups",
+      "kind": "aws:eks",
+      "evidence": "infra/eks.tf:1",
+      "metric": "24 pods",
+      "group": "vpc"
+    },
+    {
+      "id": "rds",
+      "label": "RDS Postgres",
+      "sublabel": "Multi-AZ",
+      "kind": "aws:rds",
+      "evidence": "infra/rds.tf:1",
+      "metric": "2 TB · r6g.2xlarge",
+      "group": "vpc"
+    },
+    {
+      "id": "redis",
+      "label": "ElastiCache",
+      "sublabel": "Redis cluster",
+      "kind": "aws:elasticache",
+      "evidence": "infra/redis.tf:1",
+      "metric": "40 GB",
+      "group": "vpc"
+    },
+    {
+      "id": "sqs",
+      "label": "SQS",
+      "sublabel": "order-events",
+      "kind": "aws:sqs",
+      "evidence": "infra/sqs.tf:1",
+      "metric": "~1k msg/s"
+    },
+    {
+      "id": "sso",
+      "label": "Entra ID",
+      "sublabel": "Azure AD",
+      "kind": "cloud:identity",
+      "evidence": "docs/sso.md:3",
+      "layer": 3
+    }
+  ],
+  "edges": [
+    {
+      "from": "cdn",
+      "to": "alb",
+      "label": "HTTPS origin"
+    },
+    {
+      "from": "alb",
+      "to": "eks",
+      "label": "HTTP / target group"
+    },
+    {
+      "from": "eks",
+      "to": "rds",
+      "label": "SQL / TLS"
+    },
+    {
+      "from": "eks",
+      "to": "redis",
+      "label": "Redis protocol"
+    },
+    {
+      "from": "eks",
+      "to": "sqs",
+      "label": "SendMessage",
+      "style": "async"
+    },
+    {
+      "from": "eks",
+      "to": "sso",
+      "label": "OIDC"
+    }
+  ]
+}

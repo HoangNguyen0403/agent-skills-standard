@@ -22,7 +22,7 @@ export class MarkdownUtils {
 
     for (const target of targets) {
       const targetPath = path.join(rootDir, target);
-      let content = '';
+      let content: string;
       const markerStart = '<!-- SKILLS_INDEX_START -->';
       const markerEnd = '<!-- SKILLS_INDEX_END -->';
 

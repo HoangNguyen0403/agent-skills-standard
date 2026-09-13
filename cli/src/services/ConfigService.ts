@@ -388,7 +388,7 @@ export class ConfigService {
 
       return parsed.data as SkillConfig;
     } catch (error) {
-      throw new Error(`Failed to load config: ${error}`);
+      throw new Error(`Failed to load config: ${error}`, { cause: error });
     }
   }
 

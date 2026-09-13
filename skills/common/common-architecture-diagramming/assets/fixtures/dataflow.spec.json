@@ -1,0 +1,75 @@
+{
+  "version": "1.0",
+  "date": "2026-09-13",
+  "author": "Solution Architecture",
+  "title": "Acme Orders — Reporting Data Flow",
+  "type": "dataflow",
+  "audience": "tech",
+  "scope": "How order events reach the warehouse and dashboards; transactional path excluded.",
+  "nodes": [
+    {
+      "id": "events",
+      "label": "Order Events",
+      "sublabel": "Pub/Sub",
+      "kind": "queue",
+      "evidence": "infra/pubsub.tf:1",
+      "metric": "~1k events/s"
+    },
+    {
+      "id": "landing",
+      "label": "Landing Bucket",
+      "sublabel": "Parquet, hourly",
+      "kind": "gcp:gcs",
+      "evidence": "infra/gcs.tf:8",
+      "metric": "30 GB/day"
+    },
+    {
+      "id": "composer",
+      "label": "Composer",
+      "sublabel": "Airflow DAGs",
+      "kind": "gcp:composer",
+      "evidence": "dags/orders.py:1",
+      "metric": "24 runs/day"
+    },
+    {
+      "id": "bq",
+      "label": "BigQuery",
+      "sublabel": "orders_dw",
+      "kind": "gcp:bigquery",
+      "evidence": "infra/bq.tf:1",
+      "metric": "6 TB"
+    },
+    {
+      "id": "obs",
+      "label": "Datadog",
+      "sublabel": "Datadog",
+      "kind": "cloud:observability",
+      "evidence": "infra/datadog.tf:1",
+      "layer": 3
+    }
+  ],
+  "edges": [
+    {
+      "from": "events",
+      "to": "landing",
+      "label": "Streams JSON",
+      "style": "async"
+    },
+    {
+      "from": "landing",
+      "to": "composer",
+      "label": "Triggers hourly load",
+      "style": "async"
+    },
+    {
+      "from": "composer",
+      "to": "bq",
+      "label": "Loads and transforms / SQL"
+    },
+    {
+      "from": "composer",
+      "to": "obs",
+      "label": "DAG metrics / HTTPS"
+    }
+  ]
+}

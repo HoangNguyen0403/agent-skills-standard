@@ -26,7 +26,7 @@ in full-session depth, and a labeled assumption in quick-sketch depth.
 ## Phase 3 - High-Level Design
 
 - Entry: numbers confirmed.
-- Output: component list, API surface, data ownership map, diagram.
+- Output: component list, API surface, data ownership map, diagrams per `common-architecture-diagramming`.
 - Method: begin with client, API, service, store. Add each further component with one line of the form
   `constraint -> component -> cost`, for example `120k read QPS on a 3k QPS store -> read-through cache -> stale reads up to TTL`.
 - Gate: user agrees to the component set before any diagram is rendered.
@@ -47,6 +47,7 @@ in full-session depth, and a labeled assumption in quick-sketch depth.
 | Requirement table | Phase 1 | design doc, downstream SRS |
 | Capacity numbers | Phase 2 | provisioning, cost model |
 | Component and data map | Phase 3 | diagrams, implementation plan |
+| Diagrams (.drawio + image) | Phase 3 | design doc, review-system-design, design-solution |
 | ADRs + reversal triggers | Phase 4 | future maintainers, review |
 | Staged plan (now / seam / trigger) | Phase 4 | roadmap, implementation sequencing |
 | Scorecard and risk register | Phase 4 | readiness gate, roadmap |

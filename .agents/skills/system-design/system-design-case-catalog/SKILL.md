@@ -10,8 +10,10 @@ metadata:
       - news feed
       - design chat system
       - web crawler
-      - mock interview
       - unique id generator
+      - video streaming
+      - ride hailing
+      - payment ledger
 ---
 
 # Case Catalog
@@ -32,14 +34,14 @@ Each classic problem has one defining constraint. Name it first; the rest of the
 | Autocomplete | Sub-100ms prefix lookup over a huge term space | Trie or prefix index in memory, precomputed top-k per prefix, async rebuild |
 | Web crawler | Politeness and dedupe at scale, not raw fetching | Frontier queue per host, robots cache, URL fingerprint dedupe, freshness policy |
 | Unique id | Ordered, unique, generated without a central lock | Snowflake-style timestamp plus node plus sequence; clock-skew handling |
+| Video streaming | Bitrate ladder and CDN economics, not the upload | Transcode pipeline per rendition, adaptive manifests (HLS/DASH), edge cache hit ratio as the cost lever |
+| Ride hailing | Geo matching under moving supply and demand | Geohash or S2 cells, driver location stream with TTL, matching window and surge as a pricing signal |
+| Payment ledger | Exactly-once effect under retries and partial failure | Idempotency key per attempt, double-entry ledger, reconciliation job against the processor |
 
 ## Coaching Mode
 
-- Restate the problem, then ask for scope: which use cases are in, which are out.
-- Run the phases from `system-design-methodology`; do not answer with a finished architecture.
-- Grade the candidate on: requirements first, numbers before components, one justification per component, awareness of the defining constraint, and honest trade-offs.
-- Push on the weakest area with one concrete follow-up question rather than listing every gap.
-- Give the model answer only after the candidate commits to an approach.
+- Mock rounds, the clock, the rubric, and the debrief live in `system-design-interview-coaching`; this catalog is its problem bank.
+- Give the model answer only after the candidate commits to an approach; the defining constraint above is the follow-up question when they stall.
 
 ## Reuse Rules
 

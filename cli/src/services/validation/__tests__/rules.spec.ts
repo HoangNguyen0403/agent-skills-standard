@@ -318,6 +318,7 @@ describe('Validation Rules', () => {
       vi.mocked(fs.readdir).mockImplementation(async (p: any) =>
         p.includes('scripts') ? ['test.txt'] : [],
       );
+      vi.mocked(fs.stat).mockResolvedValue({ isDirectory: () => false } as any);
 
       const rule = new DirectoryStructureRule();
       const result = await rule.validate(
@@ -327,6 +328,26 @@ describe('Validation Rules', () => {
       expect(result.warnings).toContain(
         'Script without standard extension: test.txt',
       );
+    });
+
+    it('should not warn about a package directory inside scripts', async () => {
+      vi.mocked(fs.pathExists).mockImplementation(async (p: any) =>
+        p.includes('scripts'),
+      );
+      vi.mocked(fs.readdir).mockImplementation(async (p: any) =>
+        p.includes('scripts') ? ['render.py', 'schema_parsers'] : [],
+      );
+      vi.mocked(fs.stat).mockImplementation(
+        async (p: any) =>
+          ({ isDirectory: () => String(p).endsWith('schema_parsers') }) as any,
+      );
+
+      const rule = new DirectoryStructureRule();
+      const result = await rule.validate(
+        'content',
+        '/app/skills/test/SKILL.md',
+      );
+      expect(result.warnings).toEqual([]);
     });
 
     it('should warn if references directory is empty or lacks .md files', async () => {

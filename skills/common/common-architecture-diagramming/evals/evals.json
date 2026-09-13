@@ -59,17 +59,78 @@
         { "type": "contains_any", "value": ["split", "second diagram", "level"] }
       ]
     }
+,
+    {
+      "id": 7,
+      "prompt": "Draw the ERD for our Prisma schema at prisma/schema.prisma. Two models reference a Tenant model that lives in another repo.",
+      "expected_output": "Runs schema_to_spec.py on the Prisma file rather than typing entities by hand, keeps the undeclared Tenant as an UNVERIFIED entity instead of inventing its columns, and gives every relation a cardinality.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "schema_to_spec",
+            "generate"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "UNVERIFIED",
+            "not declared",
+            "undeclared"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "cardinality",
+            "many-to-one",
+            "one-to-many"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Deployment diagram for our AWS setup: CloudFront, an ALB, EKS, RDS, ElastiCache, SQS, with Azure AD for SSO.",
+      "expected_output": "Uses the aws:* icon kinds for the AWS services and a cloud:identity kind with 'Azure AD' in the sublabel, because no Azure stencil is verified; never invents an Azure icon.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "aws:",
+            "aws4"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "cloud:identity",
+            "vendor-neutral",
+            "cloud:"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "sublabel",
+            "vendor in label"
+          ]
+        }
+      ]
+    }
   ],
   "should_trigger": [
     "Draw a C4 container diagram for this service",
     "Redraw this ASCII architecture block as a draw.io diagram",
     "Update the diagram in ARCHITECTURE.md",
-    "Create a system context diagram for our platform"
+    "Create a system context diagram for our platform",
+    "Draw the ERD from our schema",
+    "Deployment diagram for our AWS architecture"
   ],
   "should_not_trigger": [
     "Set up a basic common project from scratch",
     "How do I install common dependencies?",
-    "Configure CI/CD for an unrelated platform",
-    "Author the Archify spec for the design doc"
+    "Configure CI/CD for an unrelated platform"
   ]
 }
