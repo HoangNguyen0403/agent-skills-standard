@@ -36,6 +36,25 @@
           "value": "hover"
         }
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "I'm in Antigravity, there is no shell, and I need to verify the checkout page renders the discount banner.",
+      "expected_output": "Run the driver ladder: preflight is not possible without a shell, so use Playwright MCP with --isolated --headless --output-dir .playwright-cli/<session>: browser_navigate, browser_snapshot to assert the banner, browser_take_screenshot, browser_close. If no Playwright MCP is registered, ask for exported evidence; if none, return BLOCKED (driver: playwright).",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "browser_snapshot"
+        },
+        {
+          "type": "contains",
+          "value": "--isolated"
+        },
+        {
+          "type": "contains",
+          "value": "BLOCKED (driver: playwright)"
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -44,6 +63,7 @@
     "Analyze the mobile app hierarchy"
   ],
   "should_trigger": [
-    "Verify the search results on SG market using playwright-cli."
+    "Verify the search results on SG market using playwright-cli.",
+    "Use playwright mcp to check the login page and capture a browser_snapshot."
   ]
 }

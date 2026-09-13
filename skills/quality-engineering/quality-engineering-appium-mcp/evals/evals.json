@@ -30,6 +30,25 @@
           "value": "uiautomator"
         }
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "No emulator on this laptop but LAMBDATEST_USERNAME is set. Verify the profile screen on Android.",
+      "expected_output": "Run scripts/preflight.sh; MODE: remote. Create the session with remoteServerUrl matching REMOTE_SERVER_URL_ALLOW_REGEX, capture screenshots into .appium-mcp/<session>/, delete the session, pull video.url. If no cloud credentials either, ask for exported evidence or return BLOCKED (driver: appium).",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "remoteServerUrl"
+        },
+        {
+          "type": "contains",
+          "value": "REMOTE_SERVER_URL_ALLOW_REGEX"
+        },
+        {
+          "type": "contains",
+          "value": "BLOCKED (driver: appium)"
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -38,6 +57,7 @@
     "Analyze git commit logs"
   ],
   "should_trigger": [
-    "Create a LambdaTest session for a Samsung S26 device and login to the app."
+    "Create a LambdaTest session for a Samsung S26 device and login to the app.",
+    "Run appium doctor style checks and tell me if I can drive the Android emulator."
   ]
 }
