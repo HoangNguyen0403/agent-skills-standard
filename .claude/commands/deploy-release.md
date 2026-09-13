@@ -1,6 +1,15 @@
----
-description: Prepare and verify a staged or production deployment with rollback and smoke checks.
----
+# Deploy Release
+
+Prepare and verify a staged or production deployment with rollback and smoke checks.
+
+**Input:** $ARGUMENTS
+
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false, profile=business|hybrid|technical.
+
+## Instructions
+
+Execute the following steps for **$ARGUMENTS**.
+
 
 # Deploy Release Workflow
 

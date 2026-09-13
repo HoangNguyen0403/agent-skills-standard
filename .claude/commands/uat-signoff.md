@@ -1,22 +1,14 @@
----
-name: uat-signoff
-description: "Walk a business/UAT approver through a plain-language demo of a verified feature and capture business acceptance signoff."
-metadata:
-  triggers:
-    keywords:
-    - uat signoff
-    - workflow
----
-# Uat Signoff Skill
+# Uat Signoff
 
-> [!IMPORTANT]
-> Walk a business/UAT approver through a plain-language demo of a verified feature and capture business acceptance signoff.
+Walk a business/UAT approver through a plain-language demo of a verified feature and capture business acceptance signoff.
+
+**Input:** $ARGUMENTS
 
 Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false, profile=business|hybrid|technical.
 
 ## Instructions
 
-When the user asks to perform this workflow, execute the following steps:
+Execute the following steps for **$ARGUMENTS**.
 
 
 # UAT Signoff Workflow
@@ -78,4 +70,3 @@ deploy-release | dev-fix
 ## Cost Report
 Call `get_session_cost(workflow="uat-signoff")` before final handoff.
 ```
-

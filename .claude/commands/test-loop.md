@@ -1,6 +1,15 @@
----
-description: "Plan, generate, and heal an executable E2E test suite from approved acceptance criteria (web and mobile)."
----
+# Test Loop
+
+Plan, generate, and heal an executable E2E test suite from approved acceptance criteria (web and mobile).
+
+**Input:** $ARGUMENTS
+
+Optional args: slug=<feature>, ticket=<id/url>, mode=interactive|autonomous|channel, channel=<id>, auto_continue=true|false, profile=business|hybrid|technical.
+
+## Instructions
+
+Execute the following steps for **$ARGUMENTS**.
+
 
 # Test Loop Workflow
 
