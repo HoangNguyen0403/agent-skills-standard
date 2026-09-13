@@ -26,6 +26,7 @@ Goal: Evaluate PR diffs for security, logic, and architecture without treating u
 
 2. Load review rules:
    - Load `common-code-review`, `common-security-audit`, `common-owasp`, and `common-llm-security`.
+   - Load `docs/review-policy.md` when present; its severity ladder, skip list, and nit cap override workflow defaults.
    - Load framework P0/P1 skills from `AGENTS.md`.
    - Prefer `review-ticket` when specialist fanout or PR metadata review is needed.
 
@@ -48,7 +49,7 @@ Goal: Evaluate PR diffs for security, logic, and architecture without treating u
    - `APPROVE`: no Blocker/Major and evidence sufficient.
    - `CHANGES REQUESTED`: fixable Blocker/Major or unresolved `needs validation`.
    - `BLOCKED`: missing diff, required export, or safe runtime for untrusted review.
-   - For every Blocker/Major, update the preventing skill/eval when a skill should have caught it.
+   - For every Blocker/Major a skill should have caught, add a permanent case to that skill's `evals/evals.json`, not only `SKILL.md` prose.
 
 ## Runtime Contract
 - Use for a focused PR diff merge-risk review; keep it lean and PR-first.

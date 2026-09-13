@@ -6,6 +6,7 @@
 | Skill | File pattern | Keywords |
 | ----- | ------------ | -------- |
 | common-accessibility | `**/*.html`, `**/*.vue`, `**/*.component.html` | accessibility, a11y, wcag, aria, screen reader, focus, alt text |
+| common-agent-guardrails | `guardrails.yaml`, `hooks.json`, `.claude/settings.json`, `**/hooks/*.py`, `**/hooks/*.js` | guardrail, protected path, block edit, approval gate, hook policy, pretooluse |
 | common-api-design | `**/*.controller.ts`, `**/*.router.ts`, `**/*.routes.ts`, `**/routes/**`, `**/controllers/**`, `**/handlers/**` | rest api, endpoint, http method, status code, versioning, pagination, openapi, api design, api contract |
 | common-architecture-audit | `package.json`, `pubspec.yaml`, `go.mod`, `pom.xml`, `nest-cli.json` | architecture audit, code review, tech debt, logic leakage, refactor |
 | common-architecture-diagramming | `ARCHITECTURE.md`, `**/*.drawio`, `**/*.mermaid`, `docs/architecture/**` | diagram, c4, drawio, mermaid, erd, entity relationship, schema diagram, aws, architecture diagram, solution architecture, system context, deployment diagram |
@@ -18,6 +19,8 @@
 | **common-mobile-ux-core** | `**/*_page.dart`, `**/*_screen.dart`, `**/*_view.dart`, `**/*Activity.kt`, `**/*Screen.tsx` | mobile, responsive, SafeArea, touch, gesture, viewport |
 | common-observability | `**/*.service.ts`, `**/*.handler.ts`, `**/*.middleware.ts`, `**/*.interceptor.ts` | logging, tracing, metrics, opentelemetry, observability, slo |
 | **common-product-requirements** | `PRD.md`, `docs/prd/prd-*.md`, `specs/*.md` | create prd, product requirements, draft requirements, new feature spec, acceptance criteria |
+| common-review-policy | `docs/review-policy.md`, `REVIEW.md`, `CODEOWNERS` | review policy, severity ladder, review noise, nit cap, review tuning, who approves |
+| common-sdlc-metrics | `docs/ops/bands.yaml`, `artifacts/sdlc-metrics.md` | dora metrics, lead time, change failure rate, plan adherence, control band, delivery metrics |
 | **common-security-audit** | `package.json`, `go.mod`, `pubspec.yaml`, `pom.xml`, `Cargo.toml`, `requirements.txt`, `AndroidManifest.xml` | Dockerfile, security audit, vulnerability scan, secrets detection, injection probe, pentest |
 | common-session-retrospective | `**/*.spec.ts`, `**/*.test.ts`, `SKILL.md`, `AGENTS.md`, `+common/common-learning-log` | retrospective, self-learning, improve skills, session review, correction, rework |
 | **common-skill-creator** | `SKILL.md`, `evals/evals.json` | create skill, audit skill, trigger rate, optimize description |

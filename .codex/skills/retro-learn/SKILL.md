@@ -47,6 +47,7 @@ Goal: Turn defects, missed expectations, and delivery friction into durable stan
    - Workflow caused drift: update `.agents/workflows`.
    - Specialist caused drift: add budget, fallback, or output-format rule.
    - Tooling can catch it: add or update an audit script.
+   - Incident or Blocker finding: add a permanent case to the preventing skill's `evals/evals.json`, not only `SKILL.md` prose.
 4. Verify learning:
    - Run changed skill validation.
    - Run eval alignment.

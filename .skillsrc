@@ -44,6 +44,7 @@ workflows:
   - test-loop
   - uat-signoff
   - deploy-release
+  - monitor-respond
 mcp:
   enabled: true
   scope: project

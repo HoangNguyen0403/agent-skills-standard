@@ -17,6 +17,7 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Trace                  | Is every requirement covered?                   | `traceability-audit`       | Pre-release or handoff needs evidence mapping        | traceability report      |
 | Release                | Is deployment safe?                             | `deploy-release`           | Verification passed and deployment is planned        | deployment report        |
 | Incident               | How do we stop harm right now?                  | `incident-hotfix`          | Production incident or urgent regression needs mitigate-first response | mitigation + handoff |
+| Maintain               | Is production still inside its control bands?   | `monitor-respond`          | Control band breached or a scheduled scan completed  | tiered response + routed intake |
 | Publish                | What do users need to know?                     | `publish-notes`            | Need release communication                           | release notes            |
 | Learn                  | How do we prevent repeat issues?                | `retro-learn`              | Need standards/process feedback loop                 | retro report             |
 | Session                | What happened in this delivery?                 | `session-report`           | Need concise run summary and follow-ups              | session report           |
@@ -39,6 +40,59 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Gemini              | TOML command files            |
 | Copilot             | prompt files                  |
 | Cursor/Trae/Codex   | skill folders with `SKILL.md` |
+
+## Industry Playbook Crosswalk
+
+Published AI-native SDLC guidance names six stages and a chain of committed markdown artifacts. This
+standard already covers that chain under requirement-layer names; the mapping below is for readers
+arriving with the other vocabulary. Do not rename our artifacts to match it.
+
+| Playbook stage | Playbook artifact | This standard | Our artifact |
+| -------------- | ----------------- | ------------- | ------------ |
+| Plan | `intent.md` | `brainstorm-feature` | `docs/brd/brd-[slug].md` |
+| Design | `spec.md` | `plan-feature`, `design-solution` | `docs/prd/prd-[slug].md`, `docs/srs/srs-[slug].md` |
+| Build | `plan.md` | `implementation-readiness`, `implement-feature` | readiness verdict, `task.md` |
+| Test | test + eval evidence | `test-loop`, `verify-work`, `evals-run` | `walkthrough.md`, eval run results |
+| Deploy | review policy + gates | `code-review`, `review-ticket`, `deploy-release` | `docs/review-policy.md`, deployment report |
+| Maintain | control bands, scans | `monitor-respond`, `incident-hotfix` | `docs/ops/bands.yaml`, `artifacts/security-review.md` |
+| Cross-cutting | metrics, guardrails | `common-sdlc-metrics`, `common-agent-guardrails` | `artifacts/sdlc-metrics.md`, guardrail policy |
+
+## Role And Stage Ownership
+
+Authority concentrates at gates. Automation runs freely between them.
+
+| Role | Owns the decision at |
+| ---- | -------------------- |
+| Originator | raising the need; authors the BRD-lite input |
+| Product owner | accepting the BRD-lite and the PRD |
+| Technical lead | higher-risk design and plans; owns `docs/review-policy.md` |
+| Engineer | approving the implementation plan; addressing review findings |
+| Policy owner | signing off the standards a spec must satisfy; owns their skills |
+| Platform engineer | instruction files, guardrails, specialists, eval suite |
+| Release manager | authorizing the production release |
+| Security lead | scan cadence, finding triage, dismissal reasons |
+
+## Adoption Order
+
+Start with any practice that has no prerequisite, then follow the arrows.
+
+- No prerequisite: `common-agent-guardrails`, `brainstorm-feature`, `common-tdd` feedback loop, instruction-file hygiene.
+- `plan-feature`, `design-solution` <- a committed BRD-lite.
+- `implementation-readiness`, `implement-feature` <- PRD and SRS with testable ACs.
+- `code-review`, `review-ticket` <- `docs/review-policy.md` and the framework skills.
+- `evals-run` config gate <- eval definitions plus a stable command to run them.
+- `deploy-release` tiers <- guardrail approval gates and a rehearsed rollback.
+- `monitor-respond` <- `docs/ops/bands.yaml`, deploy tiers, and guardrails.
+
+## Anti-Patterns Worth Naming
+
+- **No line-by-line human review of agent-written diffs**: Move human attention to intent, risk, and the gates.
+- **No editing the failing test to close a bug**: Lock test paths for the duration of the fix.
+- **No component-specific logic in a shared skill**: Keep it in the project instruction file or the prompt.
+- **No agent-config change without an eval**: Gate skill, workflow, and hook edits on the eval suite.
+- **No human approval inside the build loop**: Gate at deploy, not at every edit.
+- **No stale instruction file**: Keep it to a page and update it the second time a mistake repeats.
+- **No two sources of truth without linkage**: Declare one authoritative and link the other.
 
 ## Rule
 

@@ -103,6 +103,26 @@ jobs:
       - name: Prompt Injection Scan
         run: pnpm audit:injection
 
+      - name: Eval Preflight Gate (changed skills)
+        run: |
+          BASE="origin/${{ github.base_ref || 'main' }}"
+          git fetch --no-tags --depth=1 origin "${{ github.base_ref || 'main' }}" || true
+          git diff --name-only "$BASE"...HEAD \
+            | sed -n 's#^skills/\([^/]*\)/\([^/]*\)/.*#\1/\2#p' \
+            | sort -u > "$RUNNER_TEMP/changed-skills.txt"
+          if [ ! -s "$RUNNER_TEMP/changed-skills.txt" ]; then
+            echo "No skill changes in this diff; skipping preflight."
+            exit 0
+          fi
+          echo "Preflighting:"; cat "$RUNNER_TEMP/changed-skills.txt"
+          set +e
+          pnpm evals:preflight -- --skills-file "$RUNNER_TEMP/changed-skills.txt"
+          STATUS=$?
+          set -e
+          # preflight rewrites a tracked report; restore it so the later clean-tree check stays meaningful
+          git checkout -- benchmarks/evals/eval-preflight.json || true
+          exit $STATUS
+
       - name: Eval Alignment Gate
         run: pnpm check-alignment
 

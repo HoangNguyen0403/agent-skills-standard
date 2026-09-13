@@ -29,6 +29,7 @@ Goal: Select the next native workflow without loading every workflow body, while
    - BRD-lite, PRD, or SRS/FRS exists but readiness unclear -> `implementation-readiness`
    - Approved plan with BRD/PRD/SRS trace and testable ACs needs code -> `implement-feature`
    - Production incident or urgent regression -> `incident-hotfix`
+   - Control-band breach or scheduled security-scan result needs tiered diagnosis -> `monitor-respond`
    - Bug ticket needs fix (non-urgent) -> `dev-fix`
    - Ticket or cross-functional change needs specialist fanout, AC coverage, and PR metadata review -> `review-ticket`
    - Design arrives as an artifact (diagram, doc, board export, IaC) and needs review -> `review-system-design`

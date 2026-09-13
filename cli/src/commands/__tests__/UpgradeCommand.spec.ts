@@ -109,12 +109,16 @@ describe('UpgradeCommand', () => {
 
     vi.mocked(execSync).mockImplementation((command: unknown) => {
       const text = String(command);
-      if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
-      if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
-      if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+      if (text.includes('npm view agent-skills-standard version'))
+        return '2.0.0\n' as any;
+      if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0'))
+        return '' as any;
+      if (text === 'pnpm root -g')
+        return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
       if (text.startsWith('node -p')) return '2.0.0\n' as any;
       if (text === 'ags -V') return '1.0.0\n' as any;
-      if (text === 'type -a ags') return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
+      if (text === 'type -a ags')
+        return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
       if (text === 'pnpm bin -g') return '/Users/test/Library/pnpm\n' as any;
       return '' as any;
     });
@@ -139,12 +143,16 @@ describe('UpgradeCommand', () => {
 
     vi.mocked(execSync).mockImplementation((command: unknown) => {
       const text = String(command);
-      if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
-      if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
-      if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+      if (text.includes('npm view agent-skills-standard version'))
+        return '2.0.0\n' as any;
+      if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0'))
+        return '' as any;
+      if (text === 'pnpm root -g')
+        return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
       if (text.startsWith('node -p')) return '2.0.0\n' as any;
       if (text === 'ags -V') return '1.0.0\n' as any;
-      if (text === 'type -a ags') return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
+      if (text === 'type -a ags')
+        return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
       if (text === 'pnpm bin -g') return '/Users/test/Library/pnpm\n' as any;
       return '' as any;
     });
@@ -311,7 +319,11 @@ describe('UpgradeCommand', () => {
       delete process.env.npm_config_user_agent;
       const execPathMock = new String('/usr/local/bin/ags');
       let includesCallCount = 0;
-      (execPathMock as unknown as { includes: (searchString: string) => boolean }).includes = function(searchString: string) {
+      (
+        execPathMock as unknown as {
+          includes: (searchString: string) => boolean;
+        }
+      ).includes = function (searchString: string) {
         if (searchString === 'pnpm') {
           includesCallCount++;
           return includesCallCount > 1;
@@ -378,12 +390,16 @@ describe('UpgradeCommand', () => {
 
       vi.mocked(execSync).mockImplementation((command: unknown) => {
         const text = String(command);
-        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
-        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
-        if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+        if (text.includes('npm view agent-skills-standard version'))
+          return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0'))
+          return '' as any;
+        if (text === 'pnpm root -g')
+          return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
         if (text.startsWith('node -p')) return '2.0.0\n' as any;
         if (text === 'ags -V') return '1.0.0\n' as any;
-        if (text === 'type -a ags') return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
+        if (text === 'type -a ags')
+          return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
         if (text === 'pnpm bin -g') return '/Users/test/Library/pnpm\n' as any;
         return '' as any;
       });
@@ -400,7 +416,9 @@ describe('UpgradeCommand', () => {
       await upgradeCommand.run({});
 
       expect(consoleLogMock).toHaveBeenCalledWith(
-        expect.stringContaining('Correct shim not found at /Users/test/Library/pnpm/ags'),
+        expect.stringContaining(
+          'Correct shim not found at /Users/test/Library/pnpm/ags',
+        ),
       );
       expect(inquirer.prompt).not.toHaveBeenCalled();
     });
@@ -410,12 +428,16 @@ describe('UpgradeCommand', () => {
 
       vi.mocked(execSync).mockImplementation((command: unknown) => {
         const text = String(command);
-        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
-        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
-        if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+        if (text.includes('npm view agent-skills-standard version'))
+          return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0'))
+          return '' as any;
+        if (text === 'pnpm root -g')
+          return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
         if (text.startsWith('node -p')) return '2.0.0\n' as any;
         if (text === 'ags -V') return '1.0.0\n' as any;
-        if (text === 'type -a ags') return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
+        if (text === 'type -a ags')
+          return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
         if (text === 'pnpm bin -g') return '/Users/test/Library/pnpm\n' as any;
         return '' as any;
       });
@@ -440,12 +462,16 @@ describe('UpgradeCommand', () => {
 
       vi.mocked(execSync).mockImplementation((command: unknown) => {
         const text = String(command);
-        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
-        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
-        if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+        if (text.includes('npm view agent-skills-standard version'))
+          return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0'))
+          return '' as any;
+        if (text === 'pnpm root -g')
+          return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
         if (text.startsWith('node -p')) return '2.0.0\n' as any;
         if (text === 'ags -V') return '1.0.0\n' as any;
-        if (text === 'type -a ags') return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
+        if (text === 'type -a ags')
+          return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
         if (text === 'pnpm bin -g') {
           throw new Error('pnpm bin failed');
         }
@@ -466,8 +492,10 @@ describe('UpgradeCommand', () => {
 
       vi.mocked(execSync).mockImplementation((command: unknown) => {
         const text = String(command);
-        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
-        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
+        if (text.includes('npm view agent-skills-standard version'))
+          return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0'))
+          return '' as any;
         if (text === 'pnpm root -g') throw new Error('pnpm root failed');
         return '' as any;
       });
@@ -484,9 +512,12 @@ describe('UpgradeCommand', () => {
 
       vi.mocked(execSync).mockImplementation((command: unknown) => {
         const text = String(command);
-        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
-        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
-        if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+        if (text.includes('npm view agent-skills-standard version'))
+          return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0'))
+          return '' as any;
+        if (text === 'pnpm root -g')
+          return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
         if (text.startsWith('node -p')) return ' \n' as any;
         return '' as any;
       });
@@ -503,9 +534,12 @@ describe('UpgradeCommand', () => {
 
       vi.mocked(execSync).mockImplementation((command: unknown) => {
         const text = String(command);
-        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
-        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
-        if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+        if (text.includes('npm view agent-skills-standard version'))
+          return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0'))
+          return '' as any;
+        if (text === 'pnpm root -g')
+          return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
         if (text.startsWith('node -p')) return '2.0.0\n' as any;
         if (text === 'ags -V') return '1.0.0\n' as any;
         if (text === 'type -a ags') throw new Error('type -a failed');
@@ -519,7 +553,9 @@ describe('UpgradeCommand', () => {
       await upgradeCommand.run({});
 
       expect(consoleLogMock).toHaveBeenCalledWith(
-        expect.stringContaining("pnpm installed v2.0.0, but 'ags -V' still reports v1.0.0."),
+        expect.stringContaining(
+          "pnpm installed v2.0.0, but 'ags -V' still reports v1.0.0.",
+        ),
       );
     });
 
@@ -528,12 +564,16 @@ describe('UpgradeCommand', () => {
 
       vi.mocked(execSync).mockImplementation((command: unknown) => {
         const text = String(command);
-        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
-        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
-        if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+        if (text.includes('npm view agent-skills-standard version'))
+          return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0'))
+          return '' as any;
+        if (text === 'pnpm root -g')
+          return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
         if (text.startsWith('node -p')) return '2.0.0\n' as any;
         if (text === 'ags -V') return '1.0.0\n' as any;
-        if (text === 'type -a ags') return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
+        if (text === 'type -a ags')
+          return 'ags is /Users/test/Library/pnpm/bin/ags\n' as any;
         if (text === 'pnpm bin -g') return '/Users/test/Library/pnpm\n' as any;
         return '' as any;
       });
@@ -569,8 +609,10 @@ describe('UpgradeCommand', () => {
 
       vi.mocked(execSync).mockImplementation((command: unknown) => {
         const text = String(command);
-        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
-        if (text.startsWith('npm install -g agent-skills-standard@2.0.0')) return '' as any;
+        if (text.includes('npm view agent-skills-standard version'))
+          return '2.0.0\n' as any;
+        if (text.startsWith('npm install -g agent-skills-standard@2.0.0'))
+          return '' as any;
         if (text === 'ags -V') return '1.0.0\n' as any;
         if (text === 'type -a ags') return 'ags is /usr/local/bin/ags\n' as any;
         return '' as any;
@@ -579,7 +621,9 @@ describe('UpgradeCommand', () => {
       await upgradeCommand.run({});
 
       expect(consoleLogMock).toHaveBeenCalledWith(
-        expect.stringContaining("Installation complete, but 'ags -V' still reports v1.0.0."),
+        expect.stringContaining(
+          "Installation complete, but 'ags -V' still reports v1.0.0.",
+        ),
       );
       expect(consoleLogMock).toHaveBeenCalledWith(
         expect.stringContaining('Resolved binary:\nags is /usr/local/bin/ags'),
@@ -591,8 +635,10 @@ describe('UpgradeCommand', () => {
 
       vi.mocked(execSync).mockImplementation((command: unknown) => {
         const text = String(command);
-        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
-        if (text.startsWith('npm install -g agent-skills-standard@2.0.0')) return '' as any;
+        if (text.includes('npm view agent-skills-standard version'))
+          return '2.0.0\n' as any;
+        if (text.startsWith('npm install -g agent-skills-standard@2.0.0'))
+          return '' as any;
         if (text === 'ags -V') throw new Error('Command failed');
         return '' as any;
       });
@@ -612,9 +658,12 @@ describe('UpgradeCommand', () => {
 
       vi.mocked(execSync).mockImplementation((command: unknown) => {
         const text = String(command);
-        if (text.includes('npm view agent-skills-standard version')) return '2.0.0\n' as any;
-        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0')) return '' as any;
-        if (text === 'pnpm root -g') return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
+        if (text.includes('npm view agent-skills-standard version'))
+          return '2.0.0\n' as any;
+        if (text.startsWith('pnpm add -g agent-skills-standard@2.0.0'))
+          return '' as any;
+        if (text === 'pnpm root -g')
+          return '/Users/test/Library/pnpm/global/5/node_modules\n' as any;
         if (text.startsWith('node -p')) return '2.0.0\n' as any;
         if (text === 'ags -V') throw new Error('Command failed');
         return '' as any;
@@ -626,7 +675,9 @@ describe('UpgradeCommand', () => {
         expect.stringContaining('Upgrade command finished.'),
       );
       expect(consoleLogMock).toHaveBeenCalledWith(
-        expect.stringContaining('Installed version verified via pnpm; please check the shell command'),
+        expect.stringContaining(
+          'Installed version verified via pnpm; please check the shell command',
+        ),
       );
     });
   });

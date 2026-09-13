@@ -101,6 +101,7 @@ export const DEFAULT_WORKFLOWS = [
   'security-test',
   'uat-signoff',
   'incident-hotfix',
+  'monitor-respond',
 ];
 
 /**

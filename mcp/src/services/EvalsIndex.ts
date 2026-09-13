@@ -76,7 +76,6 @@ export interface EvalsVerifyOutcome {
   diffs?: string[];
 }
 
-
 function answerPath(
   runDir: string,
   manifest: Manifest,
