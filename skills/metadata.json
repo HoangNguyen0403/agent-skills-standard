@@ -403,7 +403,7 @@
     },
     "common": {
       "version": "2.5.0",
-      "last_updated": "2026-09-09",
+      "last_updated": "2026-09-13",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 38,
@@ -431,7 +431,7 @@
     },
     "specialists": {
       "version": "1.5.0",
-      "last_updated": "2026-09-09",
+      "last_updated": "2026-09-13",
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 19,
@@ -598,14 +598,14 @@
       ]
     },
     "system-design": {
-      "version": "1.0.0",
-      "last_updated": "2026-08-30",
+      "version": "2.0.0",
+      "last_updated": "2026-09-13",
       "tag_prefix": "system-design-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 10601,
+        "total_tokens": 10600,
         "avg_tokens_per_skill": 964,
-        "largest_skill": "system-design-methodology (1209 tokens)"
+        "largest_skill": "system-design-methodology (1208 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

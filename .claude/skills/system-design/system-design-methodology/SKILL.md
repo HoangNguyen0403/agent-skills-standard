@@ -1,6 +1,6 @@
 ---
 name: system-design-methodology
-description: "Drives an interactive system design session: classifies depth, elicits scale/SLO/consistency inputs, computes capacity, then reveals components one at a time with a constraint justification each. Use when designing a system or running a design session; defer diagrams to `common-architecture-diagramming`."
+description: "Drives an interactive system design session: classifies depth, elicits scale/SLO/consistency inputs, computes capacity, then reveals components one by one, each justified by a constraint. Use when designing a system or running a design session; diagrams go through `common-architecture-diagramming`."
 metadata:
   triggers:
     keywords:

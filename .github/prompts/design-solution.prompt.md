@@ -16,6 +16,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
    - Choose sync, async, or hybrid communication.
    - Record data ownership and migration needs.
    - Define early mock/schema contracts so frontend, mobile, and backend can start in parallel.
+   - Draw a `container` diagram (audience tech) plus one `sequence` per complex flow via `common-architecture-diagramming`; `evidence` points at the SRS section or the system-design doc, `metric` comes from the NFR thresholds; output `docs/architecture/[slug]-<type>.drawio` plus the exported image.
 3. Define contracts:
    - Functional flows (FRS): user/system steps, inputs/outputs, validations, and error states.
    - For complex flows, use one actor, one goal, one session; split normal course from alternatives and exceptions.
@@ -43,7 +44,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 
 ## Handoff Payload
 
-- `slug`, SRS path, requirement trace, architecture decisions, contracts, data/migration plan, NFR thresholds, verification matrix, ADR, outcome report, next workflow.
+- `slug`, SRS path, requirement trace, architecture decisions, diagram paths, contracts, data/migration plan, NFR thresholds, verification matrix, ADR, outcome report, next workflow.
 
 ## Blocking Questions
 
@@ -56,6 +57,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 ## Context
 ## Requirement Trace (BRD -> PRD -> SRS)
 ## Architecture & RACI
+## Diagrams (Container / Sequence)
 ## Functional Flows (FRS)
 ## Parallel Readiness (Mocks/Schemes)
 ## Requirement Cards

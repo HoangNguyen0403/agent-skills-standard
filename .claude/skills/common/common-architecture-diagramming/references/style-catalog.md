@@ -1,0 +1,48 @@
+# Style Catalog
+
+`STYLE_CATALOG` in `scripts/render_drawio.py` is the single source of truth. This page
+explains what the entries mean and how to add one.
+
+## Where the style strings come from
+
+C4 fills and strokes are the official palette from draw.io's own C4 shape library
+(`Sidebar-C4.js`): internal blues, grey-purple for external, white text.
+
+GCP icons come from the `gcp2` stencil shipped inside draw.io Desktop. Two traps:
+
+- **Kubernetes Engine is filed as `container_engine`**, its 2018 product name. There is no
+  `gcp2.kubernetes_engine`, and no `gcp2.cloud_run` at all — use a plain `container` for
+  Cloud Run, or add a modern stencil name only after verifying it exists.
+- Verify any new name against the installed bundle before using it. An unknown shape name
+  renders as a blank rectangle with no error:
+
+```bash
+grep -ao "mxgraph\.gcp2\.[a-z_0-9]*" \
+  "/Applications/draw.io.app/Contents/Resources/app.asar" | sort -u
+```
+
+## Kinds
+
+| Kind | Shape | Use for |
+|---|---|---|
+| `person` | C4 person, dark blue | A human role, not a job title |
+| `system` | Rounded box, blue | The system this diagram is about |
+| `system-ext` | Rounded box, grey-purple | A system someone else owns |
+| `container` | Rounded box, light blue | A separately deployable unit |
+| `component` | Rounded box, pale blue | A module inside one container |
+| `db` / `cache` | Cylinder | A store you run |
+| `queue` | Direct-data shape | A topic or queue |
+| `saas` | White box, grey border | A third-party service |
+| `gcp:*` | Official GCP icon | Managed infrastructure |
+| `participant` | Flat box | Sequence lifeline head |
+| `start` / `state` / `end` | Circle / pill / double circle | State machine |
+
+## Adding a kind
+
+1. Verify the shape name renders (grep above, then export a one-box test file).
+2. Add an entry with `style`, `w`, `h`, `legend`, and a default `layer`.
+3. `legend` is what a non-engineer reads, so write "Cloud SQL", not `gcp:cloud-sql`.
+4. Add a renderer test asserting the style reaches the cell.
+
+Sizes matter: GCP icons are 66×58 with the label underneath, so they need more vertical
+room than a 180×80 box. The layout centres each shape in its grid cell using these numbers.
