@@ -1,0 +1,65 @@
+{
+  "skill_name": "quality-engineering-visual-baseline",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Six screenshot tests fail after the header redesign. Run --update-snapshots and commit?",
+      "expected_output": "No blind snapshot update. Review each diff image against the intended product change, update only the baselines whose diff was reviewed with --grep scoping, and name the approver in the commit; any unrelated drift stays red.",
+      "assertions": [
+        { "type": "contains", "value": "reviewed diff" },
+        { "type": "contains", "value": "approver" },
+        { "type": "not_contains", "value": "run --update-snapshots and commit" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The checkout summary screenshot differs by 3% because the order total changed with seeded data. Raise the threshold to 5%?",
+      "expected_output": "No threshold inflation. The total is dynamic data: seed it deterministically or mask that region by test id, keep text and controls at 0.1%, and rerun.",
+      "assertions": [
+        { "type": "contains", "value": "mask" },
+        { "type": "contains", "value": "0.1%" },
+        { "type": "not_contains", "value": "raise the threshold to 5%" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "A screenshot diff shows the submit button is now clipped on mobile. Product did not ask for that. Verdict?",
+      "expected_output": "VISUAL_DIFF classified as REAL_REGRESSION: a clipped control is a product change with no intended change behind it; route to dev-fix, do not update the baseline.",
+      "assertions": [
+        { "type": "contains", "value": "REAL_REGRESSION" },
+        { "type": "contains", "value": "VISUAL_DIFF" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Our toHaveScreenshot baselines are out of date after the redesign; how do we update them safely?",
+    "Which regions should be masked before comparing the dashboard screenshot?"
+  ],
+  "should_not_trigger": [
+    "What should we visually verify on the checkout page after this fix?",
+    "Write the Appium test for the login flow."
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "Release is in an hour, just update all the snapshots so the suite is green and we'll look at the diffs later.",
+      "failure_mode": "The agent approves every diff in the run unseen, including an unnoticed regression.",
+      "behavior_assertions": ["reviewed diff", "never", "--grep"]
+    },
+    {
+      "prompt": "Mask the whole header so the clock stops breaking the screenshot.",
+      "failure_mode": "The agent masks a large region containing real UI, hiding future regressions in it.",
+      "behavior_assertions": ["only", "dynamic", "test id"]
+    }
+  ],
+  "rationalizations": [
+    "The diffs are probably all from the redesign anyway.",
+    "A bigger threshold is easier than masking every widget.",
+    "It looks the same to me."
+  ],
+  "red_flags": [
+    "just update the snapshots",
+    "bump the threshold",
+    "mask the whole header",
+    "it looks the same to me"
+  ]
+}
