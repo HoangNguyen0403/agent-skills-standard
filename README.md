@@ -242,7 +242,7 @@ In practice that means:
 
 For repository enforcement, keep the workflows and skills lean: the source of truth lives in `skills/` and `.agents/workflows/`, not in MCP-only artifact helpers, fixture packs, or replay chains.
 
-See also [Learning From agentic-ai](./docs/agentic-ai-learning.md) and the [Optional MCP Integration Guide](./docs/mcp-integration-guide.md).
+See also [Learning From agentic-ai](./docs/agentic-ai-learning.md) and the [Optional MCP Integration Guide](./docs/mcp-integration-guide.md) and [UI Automation Drivers](./docs/ui-automation-drivers.md).
 
 ## 299 Skills Across 20+ Frameworks
 
