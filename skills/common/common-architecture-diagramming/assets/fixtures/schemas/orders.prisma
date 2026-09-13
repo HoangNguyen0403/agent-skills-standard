@@ -1,0 +1,21 @@
+model Customer {
+  id     String  @id @default(uuid())
+  email  String  @unique
+  name   String?
+  orders Order[]
+  tags   Tag[]
+}
+
+model Order {
+  id         String   @id @default(uuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  status     String
+  placedAt   DateTime @default(now())
+}
+
+model Tag {
+  id        Int        @id @default(autoincrement())
+  label     String
+  customers Customer[]
+}

@@ -1,0 +1,72 @@
+{
+  "version": "1.0",
+  "date": "2026-09-13",
+  "author": "Solution Architecture",
+  "title": "Acme Orders — Checkout",
+  "type": "sequence",
+  "audience": "tech",
+  "scope": "The happy-path checkout call order; failure branches excluded.",
+  "nodes": [
+    {
+      "id": "buyer",
+      "label": "Buyer",
+      "kind": "participant",
+      "evidence": "docs/prd.md:12"
+    },
+    {
+      "id": "web",
+      "label": "Storefront",
+      "kind": "participant",
+      "evidence": "apps/web/checkout.tsx:1"
+    },
+    {
+      "id": "api",
+      "label": "Order API",
+      "kind": "participant",
+      "evidence": "services/order-api/checkout.go:1"
+    },
+    {
+      "id": "db",
+      "label": "Orders DB",
+      "kind": "participant",
+      "evidence": "infra/sql.tf:4"
+    }
+  ],
+  "edges": [
+    {
+      "from": "buyer",
+      "to": "web",
+      "label": "Confirm order"
+    },
+    {
+      "from": "web",
+      "to": "api",
+      "label": "POST /orders",
+      "metric": "p99 120ms"
+    },
+    {
+      "from": "api",
+      "to": "db",
+      "label": "INSERT order (tx)",
+      "metric": "p99 15ms"
+    },
+    {
+      "from": "db",
+      "to": "api",
+      "label": "order id",
+      "style": "return"
+    },
+    {
+      "from": "api",
+      "to": "web",
+      "label": "201 Created",
+      "style": "return"
+    },
+    {
+      "from": "web",
+      "to": "buyer",
+      "label": "Confirmation page",
+      "style": "return"
+    }
+  ]
+}

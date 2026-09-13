@@ -1,0 +1,179 @@
+{
+  "skill_name": "system-design-interview-coaching",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Run a mock system design interview with me, 45 minutes. The question is: design a rate limiter.",
+      "expected_output": "Acts as the interviewer during the round: states the problem and the 45-minute clock, asks the candidate to start by scoping it, and does not design anything itself.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "clock",
+            "45"
+          ],
+          "description": "Opens with the clock"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "scope",
+            "requirements"
+          ],
+          "description": "Asks for scope first"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "interviewer during the round",
+            "start by scoping it"
+          ],
+          "description": "Takes the interviewer role, not the designer's"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I've spent twelve minutes on estimation and I'm still refining the storage number. Keep going with me on it.",
+      "expected_output": "Interrupts with the remaining time and the next phase's question, names the shaping quantity as the thing to settle, and moves the candidate to high-level design rather than refining storage further.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "remaining time",
+            "minutes left"
+          ],
+          "description": "States the time"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "shaping quantity"
+          ],
+          "description": "Names what estimation must settle"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "high-level design",
+            "next phase"
+          ],
+          "description": "Moves the round on"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Here's my design for the news feed: a fan-out-on-write service, a Redis timeline cache, Postgres for posts, and Kafka between them. We're at time. Score it.",
+      "expected_output": "Scores the six criteria 0-3 with a quoted line from the round as evidence for each, gives the total and band, names the two fixes to work on first tied to the mistakes table, and recommends the next practice problem.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "rubric",
+            "0-3"
+          ],
+          "description": "Uses the rubric"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "quoted",
+            "evidence"
+          ],
+          "description": "Evidence per score"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "two fixes",
+            "next practice problem"
+          ],
+          "description": "Actionable debrief"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Halfway through the deep dive the interviewer says reads are now a hundred to one, not ten to one. What now?",
+      "expected_output": "Treats the change as deliberate and expected, asks the candidate to re-derive the shaping quantity, and scores the adjustment under trade-offs rather than penalising the surprise.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "deliberate",
+            "expected"
+          ],
+          "description": "Change is part of the round"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "re-derive",
+            "shaping quantity"
+          ],
+          "description": "Numbers first, again"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "trade-offs"
+          ],
+          "description": "Scored under trade-offs"
+        }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Mock interview: design a URL shortener, 45 minutes",
+    "Help me prep for a system design round next week",
+    "Grade my design for a chat system like an interviewer would",
+    "What is the time budget per phase in a system design interview?"
+  ],
+  "should_not_trigger": [
+    "Design the order service we are building next quarter with real traffic numbers",
+    "Review this architecture diagram my team sent and score it",
+    "What is the defining constraint of a news feed?",
+    "Estimate the storage for 10M users keeping 90 days of events"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "Just tell me the answer for the rate limiter, I'll learn faster by reading a good design.",
+      "failure_mode": "The coach dumps a finished architecture and the candidate practises reading, not designing.",
+      "behavior_assertions": [
+        "commits to an approach",
+        "model answer",
+        "after"
+      ]
+    },
+    {
+      "prompt": "I know this one, it's the classic URL shortener. Skip the numbers and let's go straight to the boxes.",
+      "failure_mode": "The round skips estimation, the phase most real interviews fail on, and the design is never sized.",
+      "behavior_assertions": [
+        "numbers before boxes",
+        "estimation",
+        "shaping quantity"
+      ]
+    },
+    {
+      "prompt": "Score it a hire, I have the real interview tomorrow and I need the confidence.",
+      "failure_mode": "The band is inflated, the candidate walks in with a false read on their weakest criterion.",
+      "behavior_assertions": [
+        "quoted",
+        "evidence",
+        "band follows the total"
+      ]
+    }
+  ],
+  "rationalizations": [
+    "Showing the model answer now is more efficient than waiting for a commitment.",
+    "The candidate clearly knows the shape, the numbers are a formality.",
+    "A generous score motivates; the real interview will calibrate them."
+  ],
+  "red_flags": [
+    "just tell me the answer",
+    "skip the numbers",
+    "dump the architecture",
+    "score it a hire"
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "audience": "tech",
+  "author": "",
+  "date": "2026-09-13",
+  "edges": [
+    {
+      "cardinality": "many-to-one",
+      "evidence": "assets/fixtures/schemas/orders_models.py:10",
+      "from": "order",
+      "label": "customer",
+      "to": "customer"
+    },
+    {
+      "cardinality": "many-to-many",
+      "evidence": "assets/fixtures/schemas/orders_models.py:12",
+      "from": "order",
+      "label": "tags",
+      "to": "tag"
+    },
+    {
+      "cardinality": "many-to-one",
+      "evidence": "assets/fixtures/schemas/orders_models.py:29",
+      "from": "invoices",
+      "label": "order_id",
+      "to": "orders"
+    }
+  ],
+  "nodes": [
+    {
+      "columns": [
+        {
+          "name": "id",
+          "nullable": false,
+          "pk": true,
+          "type": "AutoField"
+        },
+        {
+          "name": "email",
+          "nullable": false,
+          "type": "EmailField"
+        },
+        {
+          "name": "name",
+          "type": "CharField"
+        }
+      ],
+      "evidence": "assets/fixtures/schemas/orders_models.py:4",
+      "id": "customer",
+      "kind": "entity",
+      "label": "Customer"
+    },
+    {
+      "columns": [
+        {
+          "name": "id",
+          "nullable": false,
+          "pk": true,
+          "type": "AutoField"
+        },
+        {
+          "fk": true,
+          "name": "customer_id",
+          "nullable": false,
+          "type": "fk"
+        },
+        {
+          "name": "status",
+          "nullable": false,
+          "type": "CharField"
+        }
+      ],
+      "evidence": "assets/fixtures/schemas/orders_models.py:9",
+      "id": "order",
+      "kind": "entity",
+      "label": "Order"
+    },
+    {
+      "columns": [
+        {
+          "name": "label",
+          "nullable": false,
+          "pk": true,
+          "type": "CharField"
+        }
+      ],
+      "evidence": "assets/fixtures/schemas/orders_models.py:15",
+      "id": "tag",
+      "kind": "entity",
+      "label": "Tag"
+    },
+    {
+      "columns": [
+        {
+          "name": "id",
+          "nullable": false,
+          "pk": true,
+          "type": "Integer"
+        },
+        {
+          "fk": true,
+          "name": "order_id",
+          "nullable": false,
+          "type": "Integer"
+        },
+        {
+          "name": "total",
+          "type": "Integer"
+        }
+      ],
+      "evidence": "assets/fixtures/schemas/orders_models.py:26",
+      "id": "invoices",
+      "kind": "entity",
+      "label": "invoices"
+    },
+    {
+      "columns": [
+        {
+          "name": "?",
+          "type": "?"
+        }
+      ],
+      "id": "orders",
+      "kind": "entity",
+      "label": "orders"
+    }
+  ],
+  "scope": "golden",
+  "title": "Golden",
+  "type": "erd",
+  "version": "1.0"
+}

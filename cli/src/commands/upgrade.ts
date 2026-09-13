@@ -20,7 +20,7 @@ export class UpgradeCommand {
     console.log(pc.cyan('🔍 Checking for updates...'));
 
     const currentVersion = this.currentVersion;
-    let latestVersion: string | null = null;
+    let latestVersion: string;
 
     try {
       latestVersion = execSync('npm view agent-skills-standard version', {

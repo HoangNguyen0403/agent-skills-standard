@@ -1,0 +1,104 @@
+{
+  "title": "Orders — ERD",
+  "type": "erd",
+  "audience": "tech",
+  "version": "1.0",
+  "date": "2026-09-13",
+  "author": "Solution Architecture",
+  "scope": "Order and customer tables from the SQL schema.",
+  "nodes": [
+    {
+      "id": "customers",
+      "label": "customers",
+      "kind": "entity",
+      "evidence": "../fixtures/schemas/orders.sql:1",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "pk": true,
+          "nullable": false
+        },
+        {
+          "name": "email",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "orders",
+      "label": "orders",
+      "kind": "entity",
+      "evidence": "../fixtures/schemas/orders.sql:7",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "pk": true,
+          "nullable": false
+        },
+        {
+          "name": "customer_id",
+          "type": "uuid",
+          "fk": true,
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "placed_at",
+          "type": "timestamptz",
+          "nullable": false
+        }
+      ]
+    },
+    {
+      "id": "order_items",
+      "label": "order_items",
+      "kind": "entity",
+      "evidence": "../fixtures/schemas/orders.sql:14",
+      "columns": [
+        {
+          "name": "order_id",
+          "type": "uuid",
+          "pk": true,
+          "fk": true,
+          "nullable": false
+        },
+        {
+          "name": "sku",
+          "type": "text",
+          "pk": true,
+          "nullable": false
+        },
+        {
+          "name": "qty",
+          "type": "integer",
+          "nullable": false
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "orders",
+      "to": "customers",
+      "cardinality": "many-to-one",
+      "evidence": "../fixtures/schemas/orders.sql:9"
+    },
+    {
+      "from": "order_items",
+      "to": "orders",
+      "cardinality": "many-to-one",
+      "evidence": "../fixtures/schemas/orders.sql:19"
+    }
+  ]
+}
