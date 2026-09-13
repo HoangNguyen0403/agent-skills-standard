@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "Six screenshot tests fail after the header redesign. Run --update-snapshots and commit?",
-      "expected_output": "No blind snapshot update. Review each diff image against the intended product change, update only the baselines whose diff was reviewed with --grep scoping, and name the approver in the commit; any unrelated drift stays red.",
+      "expected_output": "No blind snapshot update. Review each diff image against the intended product change, update only the baselines with a reviewed diff, using --grep scoping, and name the approver in the commit; any unrelated drift stays red.",
       "assertions": [
         { "type": "contains", "value": "reviewed diff" },
         { "type": "contains", "value": "approver" },
