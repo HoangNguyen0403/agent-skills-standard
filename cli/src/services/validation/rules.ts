@@ -266,6 +266,10 @@ export class DirectoryStructureRule implements ValidationRule {
     if (await fs.pathExists(scriptsDir)) {
       const scriptFiles = await fs.readdir(scriptsDir);
       for (const file of scriptFiles) {
+        const stat = await fs.stat(path.join(scriptsDir, file));
+        if (stat.isDirectory()) {
+          continue; // a package (e.g. a Python module directory) is fine
+        }
         if (!['.py', '.js', '.ts', '.sh'].includes(path.extname(file))) {
           result.warnings.push(`Script without standard extension: ${file}`);
         }

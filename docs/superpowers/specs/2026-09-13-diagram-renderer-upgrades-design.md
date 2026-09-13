@@ -139,8 +139,8 @@ python3 schema_to_spec.py db/schema.sql prisma/schema.prisma --title "Orders —
 
 ## E. Golden fixtures
 
-`fixtures/<type>.spec.json` and `fixtures/<type>.drawio` for all seven types, plus
-`fixtures/schemas/{orders.sql, orders.prisma, orders.entity.ts, orders_models.py}` with
+`assets/fixtures/<type>.spec.json` and `assets/fixtures/<type>.drawio` for all seven types
+(`assets/` is what the skill sync ships), plus `assets/fixtures/schemas/{orders.sql, orders.prisma, orders.entity.ts, orders_models.py}` with
 `fixtures/schemas/<name>.expected.json`. `test_fixtures.py` renders or parses each and asserts
 byte equality; `UPDATE_GOLDEN=1 python3 test_fixtures.py` rewrites them. The fixtures double
 as the runnable examples the skill never had.

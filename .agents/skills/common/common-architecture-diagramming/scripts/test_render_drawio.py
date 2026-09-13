@@ -66,6 +66,30 @@ def container_spec(**overrides):
     return spec
 
 
+def erd_spec(**overrides):
+    spec = {
+        "title": "Orders — ERD", "type": "erd", "audience": "tech", "version": "1.0",
+        "date": "2026-09-13", "author": "Test", "scope": "Order tables.",
+        "nodes": [
+            {"id": "customers", "label": "customers", "kind": "entity",
+             "evidence": "db/schema.sql:1",
+             "columns": [{"name": "id", "type": "uuid", "pk": True},
+                         {"name": "email", "type": "text", "nullable": False}]},
+            {"id": "orders", "label": "orders", "kind": "entity",
+             "evidence": "db/schema.sql:8", "metric": "4M rows",
+             "columns": [{"name": "id", "type": "uuid", "pk": True},
+                         {"name": "customer_id", "type": "uuid", "fk": True},
+                         {"name": "note", "type": "text"}]},
+        ],
+        "edges": [
+            {"from": "orders", "to": "customers", "cardinality": "many-to-one",
+             "label": "placed by"},
+        ],
+    }
+    spec.update(overrides)
+    return spec
+
+
 def parse(xml_text):
     return ET.fromstring(xml_text)
 
@@ -226,6 +250,57 @@ class TestValidator(unittest.TestCase):
         self.assertEqual(validate_spec.collect_warnings(context_spec()), [])
         self.assertEqual(validate_spec.collect_warnings(container_spec(audience="exec")), [])
 
+    def test_valid_erd_spec_has_no_errors(self):
+        self.assertEqual(validate_spec.validate(erd_spec()), [])
+
+    def test_entity_without_columns_is_reported(self):
+        spec = erd_spec()
+        spec["nodes"][0]["columns"] = []
+        self.assertIn("columns", " ".join(validate_spec.validate(spec)))
+
+    def test_column_without_name_or_type_is_reported(self):
+        spec = erd_spec()
+        spec["nodes"][0]["columns"] = [{"name": "id"}]
+        self.assertIn("type", " ".join(validate_spec.validate(spec)))
+
+    def test_columns_on_non_entity_kind_is_reported(self):
+        spec = container_spec()
+        spec["nodes"][0]["columns"] = [{"name": "x", "type": "int"}]
+        self.assertIn("columns", " ".join(validate_spec.validate(spec)))
+
+    def test_entity_outside_erd_type_is_reported(self):
+        spec = container_spec()
+        spec["nodes"].append({"id": "t", "label": "t", "kind": "entity", "evidence": "a:1",
+                              "columns": [{"name": "id", "type": "int"}]})
+        spec["edges"].append({"from": "api", "to": "t", "label": "SQL"})
+        self.assertIn("erd", " ".join(validate_spec.validate(spec)))
+
+    def test_erd_edge_without_cardinality_is_reported(self):
+        spec = erd_spec()
+        del spec["edges"][0]["cardinality"]
+        self.assertIn("cardinality", " ".join(validate_spec.validate(spec)))
+
+    def test_unknown_cardinality_lists_known_values(self):
+        spec = erd_spec()
+        spec["edges"][0]["cardinality"] = "lots"
+        self.assertIn("one-to-many", " ".join(validate_spec.validate(spec)))
+
+    def test_cardinality_on_non_erd_spec_is_reported(self):
+        spec = container_spec()
+        spec["edges"][0]["cardinality"] = "one-to-many"
+        self.assertIn("cardinality", " ".join(validate_spec.validate(spec)))
+
+    def test_erd_edge_without_label_is_allowed(self):
+        spec = erd_spec()
+        del spec["edges"][0]["label"]
+        self.assertEqual(validate_spec.validate(spec), [])
+
+    def test_erd_without_entities_is_reported(self):
+        spec = erd_spec()
+        spec["nodes"] = [{"id": "a", "label": "A", "kind": "container", "evidence": "x:1"}]
+        spec["edges"] = []
+        self.assertIn("entity", " ".join(validate_spec.validate(spec)))
+
 
 class TestRendererCommon(unittest.TestCase):
     def test_output_is_wellformed_mxfile(self):
@@ -285,6 +360,43 @@ class TestRendererCommon(unittest.TestCase):
                  for c in cells(root) if c.get("edge") == "1"}
         self.assertIn("dashed=1", edges[("acme", "sap")])
         self.assertNotIn("dashed=1", edges[("cust", "acme")])
+
+    def test_edge_between_rows_is_pinned_bottom_to_top(self):
+        root = parse(render_drawio.render(container_spec()))
+        edges = {(c.get("source"), c.get("target")): c.get("style")
+                 for c in cells(root) if c.get("edge") == "1"}
+        self.assertIn("exitX=0.5;exitY=1;", edges[("api", "db")])
+        self.assertIn("entryX=0.5;entryY=0;", edges[("api", "db")])
+        self.assertIn("exitX=1;exitY=0.5;", edges[("web", "api")])
+
+    def test_icon_source_exits_below_its_label_block(self):
+        spec = container_spec()
+        spec["nodes"][1] = {"id": "api", "label": "Lambda", "kind": "aws:lambda", "group": "gcp",
+                            "evidence": "docs/a.md:11"}
+        root = parse(render_drawio.render(spec))
+        edges = {(c.get("source"), c.get("target")): c
+                 for c in cells(root) if c.get("edge") == "1"}
+        self.assertIn("exitY=1;exitDx=0;exitDy=52;", edges[("api", "db")].get("style"))
+        self.assertIn("exitPerimeter=0;", edges[("api", "db")].get("style"))
+        self.assertNotIn("entryPerimeter=0;", edges[("api", "db")].get("style"))
+
+    def test_fan_out_edges_carry_waypoints_and_centred_labels(self):
+        spec = container_spec()
+        spec["nodes"].append({"id": "queue", "label": "Events", "kind": "queue", "group": "gcp",
+                              "evidence": "docs/a.md:13"})
+        spec["edges"].append({"from": "api", "to": "queue", "label": "publishes", "style": "async"})
+        root = parse(render_drawio.render(spec))
+        edges = {(c.get("source"), c.get("target")): c
+                 for c in cells(root) if c.get("edge") == "1"}
+        for key in (("api", "db"), ("api", "queue")):
+            points = edges[key].findall("./mxGeometry/Array/mxPoint")
+            self.assertEqual(len(points), 2, key)
+            self.assertEqual(points[0].get("y"), points[1].get("y"), key)
+        ys = {edges[k].find("./mxGeometry/Array/mxPoint").get("y") for k in (("api", "db"), ("api", "queue"))}
+        self.assertEqual(len(ys), 2)
+        straight = edges[("web", "api")]
+        self.assertIsNone(straight.find("./mxGeometry/Array"))
+        self.assertEqual(straight.find("./mxGeometry").get("x"), "0")
 
     def test_legend_lists_every_kind_used(self):
         text = all_values(parse(render_drawio.render(context_spec())))
@@ -375,6 +487,95 @@ class TestRendererCommon(unittest.TestCase):
         root = parse(render_drawio.render(spec))
         self.assertIn("p99 300ms", cell_by_id(root, "_msg_1").get("value"))
         self.assertNotIn("<br>", cell_by_id(root, "_msg_0").get("value"))
+
+    def test_aws_kinds_use_verified_resource_icons(self):
+        verified = {
+            "lambda", "ec2", "ecs", "eks", "fargate", "rds", "aurora", "dynamodb",
+            "elasticache", "s3", "sqs", "sns", "api_gateway", "cloudfront",
+            "elastic_load_balancing", "kinesis", "eventbridge", "route_53", "cloudwatch",
+            "cognito",
+        }
+        aws = {k: v for k, v in render_drawio.STYLE_CATALOG.items() if k.startswith("aws:")}
+        self.assertEqual(len(aws), 20)
+        for kind, entry in aws.items():
+            self.assertIn("shape=mxgraph.aws4.resourceIcon;", entry["style"], kind)
+            icon = entry["style"].split("resIcon=mxgraph.aws4.")[1].split(";")[0]
+            self.assertIn(icon, verified, kind)
+            self.assertTrue(entry["legend"], kind)
+
+    def test_cloud_kinds_render_managed_fill_and_vendor_sublabel(self):
+        spec = container_spec()
+        spec["nodes"][2] = {"id": "db", "label": "Orders DB", "kind": "cloud:managed-db",
+                            "sublabel": "Azure SQL", "group": "gcp", "evidence": "docs/a.md:12"}
+        root = parse(render_drawio.render(spec))
+        self.assertIn("fillColor=#2F6F8F", style_of(root, "db"))
+        self.assertIn("shape=cylinder3", style_of(root, "db"))
+        self.assertIn("[Azure SQL]", value_of(root, "db"))
+        self.assertIn("Managed database (vendor in label)", all_values(root))
+
+    def test_every_cloud_kind_has_managed_fill(self):
+        cloud = {k: v for k, v in render_drawio.STYLE_CATALOG.items() if k.startswith("cloud:")}
+        self.assertEqual(len(cloud), 11)
+        for kind, entry in cloud.items():
+            self.assertIn("fillColor=#2F6F8F", entry["style"], kind)
+            self.assertIn("vendor in label", entry["legend"], kind)
+
+    def test_catalog_is_importable_from_style_catalog_module(self):
+        import style_catalog
+        self.assertIs(style_catalog.STYLE_CATALOG, render_drawio.STYLE_CATALOG)
+        self.assertIn("erd", style_catalog.DIAGRAM_TYPES)
+
+
+class TestErdRenderer(unittest.TestCase):
+    def geom(self, root, cell_id):
+        g = cell_by_id(root, cell_id).find("mxGeometry")
+        return float(g.get("x")), float(g.get("y")), float(g.get("width")), float(g.get("height"))
+
+    def test_referenced_entity_sits_left_of_referencing_entity(self):
+        root = parse(render_drawio.render(erd_spec()))
+        self.assertLess(self.geom(root, "customers")[0], self.geom(root, "orders")[0])
+
+    def test_entity_rows_are_children_of_the_entity(self):
+        root = parse(render_drawio.render(erd_spec()))
+        rows = [c for c in cells(root) if c.get("parent") == "orders"]
+        self.assertEqual(len(rows), 3)
+        texts = [c.get("value") for c in rows]
+        self.assertEqual(texts[0], "PK id : uuid")
+        self.assertEqual(texts[1], "FK customer_id : uuid ?")
+        self.assertEqual(texts[2], "note : text ?")
+
+    def test_entity_height_grows_with_columns(self):
+        root = parse(render_drawio.render(erd_spec()))
+        self.assertEqual(self.geom(root, "orders")[3], 30 + 3 * 22)
+        self.assertEqual(self.geom(root, "customers")[3], 30 + 2 * 22)
+
+    def test_relation_carries_er_arrows_for_cardinality(self):
+        root = parse(render_drawio.render(erd_spec()))
+        edge = [c for c in cells(root) if c.get("source") == "orders"][0]
+        self.assertIn("edgeStyle=entityRelationEdgeStyle", edge.get("style"))
+        self.assertIn("startArrow=ERmany", edge.get("style"))
+        self.assertIn("endArrow=ERmandOne", edge.get("style"))
+        self.assertEqual(edge.get("value"), "placed by")
+
+    def test_legend_names_entity_and_each_cardinality_used(self):
+        text = all_values(parse(render_drawio.render(erd_spec())))
+        self.assertIn("Entity (table)", text)
+        self.assertIn("many-to-one", text)
+
+    def test_entity_metric_and_unverified_render_in_header(self):
+        spec = erd_spec()
+        del spec["nodes"][1]["evidence"]
+        root = parse(render_drawio.render(spec))
+        self.assertIn("4M rows", value_of(root, "orders"))
+        self.assertIn("UNVERIFIED", value_of(root, "orders"))
+        self.assertIn("dashed=1", style_of(root, "orders"))
+
+    def test_fk_cycle_does_not_hang_layout(self):
+        spec = erd_spec()
+        spec["nodes"][0]["columns"].append({"name": "last_order_id", "type": "uuid", "fk": True})
+        spec["edges"].append({"from": "customers", "to": "orders", "cardinality": "zero-or-one"})
+        root = parse(render_drawio.render(spec))
+        self.assertIsNotNone(cell_by_id(root, "orders"))
 
 
 class TestLayouts(unittest.TestCase):

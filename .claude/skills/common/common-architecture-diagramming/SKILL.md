@@ -14,6 +14,9 @@ metadata:
       - drawio
       - mermaid
       - erd
+      - entity relationship
+      - schema diagram
+      - aws
       - architecture diagram
       - solution architecture
       - system context
@@ -28,10 +31,14 @@ metadata:
 Never hand-write mxGraph XML. Write a spec; the scripts own every visual decision,
 so diagrams stay identical across authors, repositories, and sessions.
 
-1. Write `spec.json` — schema in [diagram-spec.md](references/diagram-spec.md).
+1. Write `spec.json` — schema in [diagram-spec.md](references/diagram-spec.md). For an ERD,
+   generate it: `python3 scripts/schema_to_spec.py db/schema.sql --title "<System> — ERD" -o spec.json`
 2. `python3 scripts/validate_spec.py spec.json`
-3. `python3 scripts/render_drawio.py spec.json -o docs/architecture/<slug>.drawio`
-4. `python3 scripts/export_drawio.py docs/architecture/<slug>.drawio -f png -o docs/architecture/<slug>.png`
+3. `python3 scripts/render_drawio.py spec.json -o docs/architecture/<slug>.drawio --strict`
+   (exit 2 = a layout finding; change the spec, per [layout-rules.md](references/layout-rules.md))
+4. Export the image: a draw.io MCP tool if the session has one, else
+   `python3 scripts/export_drawio.py docs/architecture/<slug>.drawio -f png -o docs/architecture/<slug>.png`,
+   else ship the `.drawio` and say the image was not exported. See [export paths](references/mermaid-fallback.md).
 
 Commit the `.drawio` as the source of truth; the image is a copy for a deck.
 
@@ -45,6 +52,9 @@ Commit the `.drawio` as the source of truth; the image is a copy for a deck.
 - **Put the number on the box.** `metric` carries the load or SLO that sized the node,
   `constraint` says why it exists; never invent either.
 - **Label every edge** with its protocol or event; use `style: async` for events.
+- **Cloud icons only where verified.** `gcp:*` and `aws:*` are official icons; every other
+  vendor is a `cloud:*` kind with the service named in `sublabel`. No Azure logos exist in
+  the bundle, so Azure is always `cloud:*`.
 - **Exec audience caps at 12 nodes.** Past that, split by level or by flow.
 - **Legend and title block are generated.** Do not remove or duplicate them.
 - **Refine in draw.io, not in XML.** Re-running the renderer overwrites layout tweaks.
@@ -71,5 +81,6 @@ Commit the `.drawio` as the source of truth; the image is a copy for a deck.
 - [Diagram spec](references/diagram-spec.md) · [Style catalog](references/style-catalog.md) · [House style](references/house-style.md)
 - [Source extraction](references/source-extraction.md) · [Exec readability](references/exec-readability.md)
 - [C4 model](references/c4-model.md) · [Cloud](references/cloud-architecture.md) · [Best practices](references/best-practices.md)
-- [Checklist](references/checklist.md) · [Mermaid fallback](references/mermaid-fallback.md)
+- [Layout rules](references/layout-rules.md) · [Checklist](references/checklist.md) · [Export paths and Mermaid fallback](references/mermaid-fallback.md)
+- Runnable examples: `assets/fixtures/<type>.spec.json`, one per diagram type, plus schema samples under `assets/fixtures/schemas/`.
 - Batch or delegated drawing: `specialist-solution-diagrammer`.

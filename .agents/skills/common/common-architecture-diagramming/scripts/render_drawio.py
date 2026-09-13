@@ -7,14 +7,18 @@ stay consistent across authors, repositories, and sessions.
 Usage:
     python3 render_drawio.py spec.json -o out.drawio
 
-See ../references/diagram-spec.md for the schema and
-../references/style-catalog.md for the shape catalogue.
+See ../references/diagram-spec.md for the schema; the shape catalogue lives in
+style_catalog.py and is explained in ../references/style-catalog.md.
 """
 
 import argparse
 import json
 import sys
+from dataclasses import dataclass, field
 import xml.etree.ElementTree as ET
+
+import check_layout
+import render_erd
 
 # Wide enough that an edge label sits between two columns instead of on top of a
 # box; the value was set after a rendered-PNG review, not from theory.
@@ -29,134 +33,10 @@ COL_STEP = CELL_W + MIN_LABEL_GAP
 ROW_GAP = 46
 DEFAULT_ACCENT = "#1E6FD9"
 
-INK = "#1F2933"
-MUTED = "#616E7C"
-WARN = "#DD6B20"
-WARN_TEXT = "#7B341E"
-
-_C4_EDGE = ("endArrow=blockThin;html=1;fontSize=10;fontColor=#404040;strokeWidth=1;"
-            "endFill=1;strokeColor=#828282;edgeStyle=orthogonalEdgeStyle;rounded=0;"
-            "labelBackgroundColor=#ffffff;")
-
-# draw.io ships the 2018 "gcp2" icon set; names verified against the installed
-# desktop bundle, where Kubernetes Engine is still filed as container_engine.
-_GCP = ("sketch=0;html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;"
-        "fillColor=#3B8DF1;verticalAlign=top;labelPosition=center;"
-        "verticalLabelPosition=bottom;shape=mxgraph.gcp2.%s")
-
-
-def _gcp(icon, legend):
-    return {"style": _GCP % icon, "w": 66, "h": 58, "legend": legend, "layer": 3}
-
-
-STYLE_CATALOG = {
-    "person": {
-        "style": ("html=1;fontSize=11;dashed=0;whiteSpace=wrap;fillColor=#083F75;"
-                  "strokeColor=#06315C;fontColor=#ffffff;shape=mxgraph.c4.person2"),
-        "w": 80, "h": 100, "legend": "Person", "layer": 0,
-    },
-    "system": {
-        "style": ("rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;"
-                  "fillColor=#1061B0;fontColor=#ffffff;align=center;arcSize=10;"
-                  "strokeColor=#0D5091"),
-        "w": 180, "h": 80, "legend": "Software System", "layer": 2,
-    },
-    "system-ext": {
-        "style": ("rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;"
-                  "fillColor=#8C8496;fontColor=#ffffff;align=center;arcSize=10;"
-                  "strokeColor=#736782"),
-        "w": 180, "h": 80, "legend": "External System", "layer": 4,
-    },
-    "container": {
-        "style": ("rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;"
-                  "fillColor=#23A2D9;fontColor=#ffffff;align=center;arcSize=10;"
-                  "strokeColor=#0E7DAD"),
-        "w": 180, "h": 80, "legend": "Container (deployable unit)", "layer": 2,
-    },
-    "component": {
-        "style": ("rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;"
-                  "fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;"
-                  "strokeColor=#2086C9"),
-        "w": 180, "h": 80, "legend": "Component", "layer": 2,
-    },
-    "db": {
-        "style": ("shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;"
-                  "labelBackgroundColor=none;fillColor=#23A2D9;fontSize=12;"
-                  "fontColor=#ffffff;align=center;strokeColor=#0E7DAD"),
-        "w": 140, "h": 90, "legend": "Database", "layer": 3,
-    },
-    "cache": {
-        "style": ("shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;"
-                  "labelBackgroundColor=none;fillColor=#5AB8E0;fontSize=12;"
-                  "fontColor=#ffffff;align=center;strokeColor=#0E7DAD"),
-        "w": 140, "h": 90, "legend": "Cache", "layer": 3,
-    },
-    "queue": {
-        "style": ("shape=mxgraph.flowchart.direct_data;whiteSpace=wrap;html=1;"
-                  "fillColor=#23A2D9;fontColor=#ffffff;strokeColor=#0E7DAD;align=center"),
-        "w": 160, "h": 80, "legend": "Queue / topic", "layer": 3,
-    },
-    "saas": {
-        "style": ("rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;"
-                  "fillColor=#F5F7FA;fontColor=#1F2933;align=center;arcSize=10;"
-                  "strokeColor=#9AA5B1"),
-        "w": 180, "h": 80, "legend": "Third-party service", "layer": 4,
-    },
-    "participant": {
-        "style": ("rounded=0;whiteSpace=wrap;html=1;fillColor=#1061B0;fontColor=#ffffff;"
-                  "strokeColor=#0D5091;align=center"),
-        "w": 160, "h": 50, "legend": "Participant", "layer": 0,
-    },
-    "state": {
-        "style": ("rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#23A2D9;"
-                  "fontColor=#ffffff;strokeColor=#0E7DAD;align=center"),
-        "w": 160, "h": 60, "legend": "State", "layer": 1,
-    },
-    "start": {
-        "style": "ellipse;html=1;fillColor=#1F2933;strokeColor=#1F2933;",
-        "w": 40, "h": 40, "legend": "Start", "layer": 0,
-    },
-    "end": {
-        "style": ("ellipse;shape=doubleEllipse;html=1;fillColor=#1F2933;"
-                  "strokeColor=#1F2933;margin=3;"),
-        "w": 40, "h": 40, "legend": "End", "layer": 9,
-    },
-    "gcp:gke": _gcp("container_engine", "GKE cluster"),
-    "gcp:cloud-sql": _gcp("cloud_sql", "Cloud SQL"),
-    "gcp:pubsub": _gcp("cloud_pubsub", "Pub/Sub"),
-    "gcp:lb": _gcp("cloud_load_balancing", "Cloud Load Balancing"),
-    "gcp:gcs": _gcp("cloud_storage", "Cloud Storage"),
-    "gcp:memorystore": _gcp("cloud_memorystore", "Memorystore"),
-    "gcp:cdn": _gcp("cloud_cdn", "Cloud CDN"),
-    "gcp:composer": _gcp("cloud_composer", "Cloud Composer"),
-    "gcp:functions": _gcp("cloud_functions", "Cloud Functions"),
-    "gcp:bigquery": _gcp("big_query", "BigQuery"),
-}
-
-STYLE_CATALOG["gcp:lb"]["layer"] = 1
-STYLE_CATALOG["gcp:cdn"]["layer"] = 1
-STYLE_CATALOG["gcp:gke"]["layer"] = 2
-STYLE_CATALOG["gcp:composer"]["layer"] = 2
-STYLE_CATALOG["gcp:functions"]["layer"] = 2
-
-DIAGRAM_TYPES = ("context", "container", "deployment", "dataflow", "sequence", "state")
-
-EDGE_STYLES = {
-    "sync": _C4_EDGE,
-    "async": _C4_EDGE + "dashed=1;dashPattern=6 4;",
-    "reverse": _C4_EDGE + "strokeColor=#B0B7BF;",
-    "return": _C4_EDGE + "dashed=1;dashPattern=4 4;endArrow=open;",
-}
-
-# Stored on the shape as draw.io custom properties, visible via Edit Data.
-NODE_PROPERTIES = ("evidence", "constraint")
-
-EDGE_LEGEND = {
-    "sync": "Synchronous call",
-    "async": "Asynchronous / event",
-    "reverse": "Reverse / callback flow",
-    "return": "Response",
-}
+from style_catalog import (  # noqa: F401  (re-exported for validate_spec and tests)
+    AWS_ICONS, CARDINALITIES, CLOUD_KINDS, DIAGRAM_TYPES, EDGE_LEGEND, EDGE_STYLES, ER_ARROWS,
+    INK, MUTED, NODE_PROPERTIES, STYLE_CATALOG, WARN, WARN_TEXT, _C4_EDGE,
+)
 
 
 class SpecError(ValueError):
@@ -202,7 +82,11 @@ def _text_cell(root, cell_id, value, x, y, w, h, size, colour, bold=False):
 
 def _shape_cell(root, node, x, y):
     spec_kind = _kind(node)
-    style = spec_kind["style"]
+    _node_cell(root, node, spec_kind["style"], x, y, spec_kind["w"], spec_kind["h"])
+
+
+def _node_cell(root, node, style, x, y, w, h):
+    """One vertex per node: object-wrapped when it carries evidence or a constraint."""
     if not node.get("evidence"):
         style = _unverified_style(style)
     attrs = {"style": style, "vertex": "1", "parent": "1"}
@@ -214,7 +98,7 @@ def _shape_cell(root, node, x, y):
     else:
         attrs.update({"id": node["id"], "value": label})
         cell = ET.SubElement(root, "mxCell", attrs)
-    _geometry(cell, x, y, spec_kind["w"], spec_kind["h"])
+    _geometry(cell, x, y, w, h)
 
 
 def _unverified_style(style):
@@ -227,6 +111,16 @@ def _unverified_style(style):
     return ";".join(kept)
 
 
+def _footprint(kind):
+    """Vertical room a shape needs, including a label drawn underneath an icon."""
+    return kind["h"] + kind.get("label_h", 0)
+
+
+def _footprint_w(kind):
+    """Horizontal room, including a label wider than the icon it sits under."""
+    return max(kind["w"], kind.get("label_w", 0))
+
+
 def _place_columns(columns):
     """Stack each column and centre the columns against each other.
 
@@ -235,36 +129,73 @@ def _place_columns(columns):
     """
     heights = {}
     for column, members in columns.items():
-        heights[column] = (sum(k["h"] for _, k in members)
+        heights[column] = (sum(_footprint(k) for _, k in members)
                            + ROW_GAP * max(0, len(members) - 1))
     tallest = max(heights.values()) if heights else 0
     placed = {}
     for column in sorted(columns):
         y = BODY_Y + (tallest - heights[column]) / 2.0
         for node, kind in columns[column]:
-            x = MARGIN_X + column * COL_STEP + (CELL_W - kind["w"]) / 2.0
+            x = MARGIN_X + column * COL_STEP + (CELL_W - _footprint_w(kind)) / 2.0
             placed[node["id"]] = (int(x), int(y))
-            y += kind["h"] + ROW_GAP
+            y += _footprint(kind) + ROW_GAP
     return placed
 
 
-def _place_rows(rows):
-    """Lay rows out top-down, each row centred on the widest one."""
+def _place_rows(rows, align="centre", gap=ROW_GAP + 30):
+    """Lay rows out top-down; centred on the widest row, or left-aligned for group bands."""
     widths = {}
     for row, members in rows.items():
-        widths[row] = (sum(k["w"] for _, k in members)
+        widths[row] = (sum(_footprint_w(k) for _, k in members)
                        + MIN_LABEL_GAP * max(0, len(members) - 1))
     widest = max(widths.values()) if widths else 0
     placed = {}
     y = BODY_Y
     for row in sorted(rows):
         members = rows[row]
-        x = MARGIN_X + (widest - widths[row]) / 2.0
-        row_height = max(k["h"] for _, k in members)
+        x = MARGIN_X + ((widest - widths[row]) / 2.0 if align == "centre" else 0)
+        row_height = max(_footprint(k) for _, k in members)
         for node, kind in members:
-            placed[node["id"]] = (int(x), int(y + (row_height - kind["h"]) / 2.0))
-            x += kind["w"] + MIN_LABEL_GAP
-        y += row_height + ROW_GAP + 30
+            placed[node["id"]] = (int(x), int(y + (row_height - _footprint(kind)) / 2.0))
+            x += _footprint_w(kind) + MIN_LABEL_GAP
+        y += row_height + gap
+    return placed
+
+
+def _group_rank(nodes):
+    """Groups in order of first appearance; ungrouped nodes sort after every group."""
+    ranks = {}
+    for node in nodes:
+        group = node.get("group")
+        if group and group not in ranks:
+            ranks[group] = len(ranks)
+    return ranks
+
+
+def _push_past_group_bands(rows, placed, ranks):
+    """Shift nodes right so nothing outside a group sits inside its column band.
+
+    Groups are handled in rank order and only nodes of a later rank (or no group)
+    move; a shift only ever moves nodes right, so each band is final by the time
+    the next group is measured.
+    """
+    def rank(node):
+        return ranks.get(node.get("group"), len(ranks))
+
+    for group in sorted(ranks, key=ranks.get):
+        members = [(n, k) for row in rows.values() for n, k in row if n.get("group") == group]
+        if not members:
+            continue
+        limit = (max(placed[n["id"]][0] + _footprint_w(k) for n, k in members)
+                 + MIN_LABEL_GAP + GROUP_PAD_X * 2)
+        for row in rows.values():
+            shift = 0
+            for node, _ in row:
+                if rank(node) <= ranks[group]:
+                    continue
+                x, y = placed[node["id"]]
+                shift = max(shift, limit - x) if x + shift < limit else shift
+                placed[node["id"]] = (int(x + shift), y)
     return placed
 
 
@@ -283,15 +214,44 @@ def _layout_context(nodes):
     return _place_columns({c: m for c, m in columns.items() if m})
 
 
-def _layout_layered(nodes):
-    """Rows read as the request travels: clients, edge, services, data, external."""
+FAN_LABEL_STEP = 22   # vertical room per staggered fan-out edge so labels do not stack
+
+
+def _row_gap(nodes, edges):
+    """Widen the gap between rows when one node fans out to several nodes in other rows."""
+    layer_of = {n["id"]: n.get("layer", _kind(n)["layer"]) for n in nodes}
+    fan = {}
+    for edge in edges:
+        src, dst = edge.get("from"), edge.get("to")
+        if src in layer_of and dst in layer_of and layer_of[src] != layer_of[dst]:
+            fan[src] = fan.get(src, 0) + 1
+    widest = max(fan.values(), default=0)
+    return max(ROW_GAP + 30, FAN_LABEL_STEP * (widest + 1))
+
+
+def _layout_layered(nodes, edges):
+    """Rows read as the request travels: clients, edge, services, data, external.
+
+    With groups present, each row lists grouped nodes first (in group order) and rows
+    are left-aligned, so a group's members form one column band that outsiders are
+    pushed past; without groups, rows are centred against each other.
+    """
+    ranks = _group_rank(nodes)
     layers = {}
     for node in nodes:
         kind = _kind(node)
         layer = node.get("layer", kind["layer"])
         layers.setdefault(layer, []).append((node, kind))
-    rows = {index: layers[layer] for index, layer in enumerate(sorted(layers))}
-    return _place_rows(rows)
+    gap = _row_gap(nodes, edges)
+    if not ranks:
+        rows = {index: layers[layer] for index, layer in enumerate(sorted(layers))}
+        return _place_rows(rows, gap=gap)
+    rows = {}
+    for index, layer in enumerate(sorted(layers)):
+        rows[index] = sorted(layers[layer],
+                             key=lambda pair: ranks.get(pair[0].get("group"), len(ranks)))
+    placed = _place_rows(rows, align="left", gap=gap)
+    return _push_past_group_bands(rows, placed, ranks)
 
 
 def _layout_state(nodes, edges):
@@ -376,23 +336,12 @@ def _node_by_id(nodes, node_id):
     raise SpecError("edge references unknown node %r" % node_id)
 
 
-def _render_groups(root, spec, placed):
+def _render_groups(root, spec, layout):
     """Boundary boxes are emitted before their members so they sit behind them."""
-    groups = spec.get("groups") or []
-    for group in groups:
-        members = [n for n in spec["nodes"] if n.get("group") == group["id"]]
-        if not members:
+    for group in spec.get("groups") or []:
+        if group["id"] not in layout.groups:
             continue
-        boxes = []
-        for node in members:
-            x, y = placed[node["id"]]
-            kind = _kind(node)
-            boxes.append((x, y, x + kind["w"], y + kind["h"]))
-        pad_x, pad_top, pad_bottom = 30, 46, 30
-        x0 = min(b[0] for b in boxes) - pad_x
-        y0 = min(b[1] for b in boxes) - pad_top
-        x1 = max(b[2] for b in boxes) + pad_x
-        y1 = max(b[3] for b in boxes) + pad_bottom
+        x, y, w, h = layout.groups[group["id"]]
         cell = ET.SubElement(root, "mxCell", {
             "id": "_group_%s" % group["id"], "value": group.get("label", ""),
             "style": ("rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9AA5B1;"
@@ -400,37 +349,54 @@ def _render_groups(root, spec, placed):
                       "spacingTop=6;fontColor=%s;fontSize=11;arcSize=6;" % MUTED),
             "vertex": "1", "parent": "1",
         })
-        _geometry(cell, int(x0), int(y0), int(x1 - x0), int(y1 - y0))
+        _geometry(cell, x, y, w, h)
 
 
-def _anchor_style(source_box, target_box):
-    """Pin each end to the facing side, so a line never cuts through a third box."""
-    sx, sy, sw, sh = source_box
-    tx, ty, tw, th = target_box
-    dx = (tx + tw / 2.0) - (sx + sw / 2.0)
-    dy = (ty + th / 2.0) - (sy + sh / 2.0)
-    if abs(dx) >= abs(dy):
-        exit_point, entry_point = ((1, 0.5), (0, 0.5)) if dx >= 0 else ((0, 0.5), (1, 0.5))
-    else:
-        exit_point, entry_point = ((0.5, 1), (0.5, 0)) if dy >= 0 else ((0.5, 0), (0.5, 1))
-    return ("exitX=%s;exitY=%s;exitDx=0;exitDy=0;entryX=%s;entryY=%s;entryDx=0;entryDy=0;"
-            % (exit_point[0], exit_point[1], entry_point[0], entry_point[1]))
+_PORTS = {"left": (0, 0.5), "right": (1, 0.5), "top": (0.5, 0), "bottom": (0.5, 1)}
 
 
-def _render_edges(root, spec, edges, boxes):
+def _anchor_style(source_box, target_box, source_label_h=0, target_label_h=0):
+    """Pin each end to the side check_layout.anchor_sides picks, so the checker and the
+    renderer agree on where a line runs. A bottom port on an icon is pushed below the
+    label drawn under it."""
+    exit_side, entry_side = check_layout.anchor_sides(source_box, target_box)
+    (ex, ey), (nx, ny) = _PORTS[exit_side], _PORTS[entry_side]
+    exit_dy = source_label_h if exit_side == "bottom" else 0
+    entry_dy = target_label_h if entry_side == "bottom" else 0
+    style = ("exitX=%s;exitY=%s;exitDx=0;exitDy=%d;entryX=%s;entryY=%s;entryDx=0;entryDy=%d;"
+             % (ex, ey, exit_dy, nx, ny, entry_dy))
+    # draw.io snaps an offset port back onto the shape unless perimeter projection is off.
+    if exit_dy:
+        style += "exitPerimeter=0;"
+    if entry_dy:
+        style += "entryPerimeter=0;"
+    return style
+
+
+def _render_edges(root, spec, edges, lay):
+    boxes = lay.boxes
+    label_h = {n["id"]: _kind(n).get("label_h", 0) for n in spec["nodes"]}
+    routes = {id(edge): points
+              for edge, points in check_layout.plan_routes(spec, boxes, lay.rows)}
     for index, edge in enumerate(edges):
         style = EDGE_STYLES[edge.get("style", "sync")]
-        if edge["from"] in boxes and edge["to"] in boxes:
-            style += _anchor_style(boxes[edge["from"]], boxes[edge["to"]])
+        points = routes.get(id(edge))
+        if points:
+            style += _anchor_style(boxes[edge["from"]], boxes[edge["to"]],
+                                   label_h[edge["from"]], label_h[edge["to"]])
         cell = ET.SubElement(root, "mxCell", {
             "id": "_edge_%d" % index, "value": _edge_value(edge),
             "style": style, "edge": "1", "parent": "1",
             "source": edge["from"], "target": edge["to"],
         })
-        # Push the label off the midpoint: on a dog-legged route the midpoint
-        # lands on the turn, which puts the text on top of the box it left.
-        ET.SubElement(cell, "mxGeometry",
-                      {"x": "-0.35", "relative": "1", "as": "geometry"})
+        # Label position is relative along the path: -1 source, 0 middle, 1 target.
+        fraction = check_layout.label_fraction(points) if points else 0.5
+        geometry = ET.SubElement(cell, "mxGeometry",
+                                 {"x": "%g" % (2 * fraction - 1), "relative": "1", "as": "geometry"})
+        if points and len(points) == 4 and points[1] != points[2]:
+            waypoints = ET.SubElement(geometry, "Array", {"as": "points"})
+            for x, y in points[1:3]:
+                ET.SubElement(waypoints, "mxPoint", {"x": str(int(x)), "y": str(int(y))})
 
 
 def _render_title(root, spec, accent, width):
@@ -459,12 +425,15 @@ def _render_legend(root, spec, edges, top):
             seen.add(node["kind"])
             kinds.append(node["kind"])
     entries = [(STYLE_CATALOG[k]["style"], STYLE_CATALOG[k]["legend"]) for k in kinds]
-    edge_styles, seen_edges = [], set()
-    for edge in edges:
-        style = edge.get("style", "sync")
-        if style not in seen_edges:
-            seen_edges.add(style)
-            edge_styles.append(style)
+    if spec.get("type") == "erd":
+        edge_entries = render_erd.legend_entries(edges)
+    else:
+        edge_entries, seen_edges = [], set()
+        for edge in edges:
+            style = edge.get("style", "sync")
+            if style not in seen_edges:
+                seen_edges.add(style)
+                edge_entries.append((EDGE_STYLES[style], EDGE_LEGEND[style]))
     if any(not n.get("evidence") for n in spec["nodes"]):
         entries.append((_unverified_style(STYLE_CATALOG["system"]["style"]),
                         "UNVERIFIED — not yet confirmed against code or docs"))
@@ -480,29 +449,98 @@ def _render_legend(root, spec, edges, top):
         _text_cell(root, "_legend_text_%d" % index, label, MARGIN_X + 46, y, 460, 22,
                    11, MUTED)
         y += 30
-    for index, style in enumerate(edge_styles):
+    for index, (style, label) in enumerate(edge_entries):
         line = ET.SubElement(root, "mxCell", {
             "id": "_legend_edge_%d" % index, "value": "",
-            "style": EDGE_STYLES[style], "edge": "1", "parent": "1",
+            "style": style, "edge": "1", "parent": "1",
         })
         geometry = ET.SubElement(line, "mxGeometry", {"relative": "1", "as": "geometry"})
         ET.SubElement(geometry, "mxPoint",
                       {"x": str(MARGIN_X), "y": str(y + 11), "as": "sourcePoint"})
         ET.SubElement(geometry, "mxPoint",
                       {"x": str(MARGIN_X + 34), "y": str(y + 11), "as": "targetPoint"})
-        _text_cell(root, "_legend_edge_text_%d" % index, EDGE_LEGEND[style],
+        _text_cell(root, "_legend_edge_text_%d" % index, label,
                    MARGIN_X + 46, y, 460, 22, 11, MUTED)
         y += 30
 
 
-def render(spec):
-    """Return draw.io XML for one spec. Raises SpecError on anything unrenderable."""
+@dataclass(frozen=True)
+class Layout:
+    """Where everything lands; render() draws exactly this.
+
+    boxes: visual footprint per node (x, y, w, h), including an icon's label block.
+    cells: the shape geometry per node, centred inside its footprint.
+    groups: boundary boxes. rows: row index per node for layered types, else empty.
+    """
+    boxes: dict
+    cells: dict = field(default_factory=dict)
+    groups: dict = field(default_factory=dict)
+    rows: dict = field(default_factory=dict)
+
+
+GROUP_PAD_X = 30
+
+
+def group_box(member_boxes):
+    pad_x, pad_top, pad_bottom = GROUP_PAD_X, 46, 30
+    x0 = min(b[0] for b in member_boxes) - pad_x
+    y0 = min(b[1] for b in member_boxes) - pad_top
+    x1 = max(b[0] + b[2] for b in member_boxes) + pad_x
+    y1 = max(b[1] + b[3] for b in member_boxes) + pad_bottom
+    return int(x0), int(y0), int(x1 - x0), int(y1 - y0)
+
+
+def _place(spec, nodes, edges):
+    if spec["type"] == "erd":
+        return render_erd.layout_erd(nodes, edges)
+    if spec["type"] == "context":
+        return _layout_context(nodes)
+    if spec["type"] == "sequence":
+        return _layout_sequence(nodes)
+    if spec["type"] == "state":
+        return _layout_state(nodes, edges)
+    return _layout_layered(nodes, edges)
+
+
+def layout(spec):
+    """Geometry only. Raises SpecError on anything unrenderable."""
     if spec.get("type") not in DIAGRAM_TYPES:
         raise SpecError("unknown diagram type %r. Known types: %s"
                         % (spec.get("type"), ", ".join(DIAGRAM_TYPES)))
     nodes = spec.get("nodes") or []
     if not nodes:
         raise SpecError("spec has no nodes")
+    edges = spec.get("edges") or []
+    placed = _place(spec, nodes, edges)
+    boxes, cells = {}, {}
+    for node in nodes:
+        x, y = placed[node["id"]]
+        kind = _kind(node)
+        if node["kind"] == "entity":
+            h, fw, fh = render_erd.entity_height(node), kind["w"], render_erd.entity_height(node)
+        else:
+            h, fw, fh = kind["h"], _footprint_w(kind), _footprint(kind)
+        boxes[node["id"]] = (x, y, fw, fh)
+        cells[node["id"]] = (int(x + (fw - kind["w"]) / 2.0), y, kind["w"], h)
+    groups = {}
+    for group in spec.get("groups") or []:
+        members = [boxes[n["id"]] for n in nodes if n.get("group") == group["id"]]
+        if members:
+            groups[group["id"]] = group_box(members)
+    return Layout(boxes=boxes, cells=cells, groups=groups, rows=_rows(spec, nodes))
+
+
+def _rows(spec, nodes):
+    if spec["type"] not in ("container", "deployment", "dataflow"):
+        return {}
+    layers = sorted({n.get("layer", _kind(n)["layer"]) for n in nodes})
+    return {n["id"]: layers.index(n.get("layer", _kind(n)["layer"])) for n in nodes}
+
+
+def render(spec):
+    """Return draw.io XML for one spec. Raises SpecError on anything unrenderable."""
+    lay = layout(spec)
+    nodes = spec.get("nodes") or []
     edges = spec.get("edges") or []
     accent = (spec.get("theme") or {}).get("accent", DEFAULT_ACCENT)
 
@@ -519,32 +557,26 @@ def render(spec):
     ET.SubElement(root, "mxCell", {"id": "0"})
     ET.SubElement(root, "mxCell", {"id": "1", "parent": "0"})
 
-    if spec["type"] == "context":
-        placed = _layout_context(nodes)
-    elif spec["type"] == "sequence":
-        placed = _layout_sequence(nodes)
-    elif spec["type"] == "state":
-        placed = _layout_state(nodes, edges)
-    else:
-        placed = _layout_layered(nodes)
-
-    boxes = {}
-    for node in nodes:
-        x, y = placed[node["id"]]
-        kind = _kind(node)
-        boxes[node["id"]] = (x, y, kind["w"], kind["h"])
+    boxes = lay.boxes
+    placed = {node_id: (x, y) for node_id, (x, y, _, _) in lay.cells.items()}
 
     width = max(x + w + 60 for x, _, w, _ in boxes.values())
     _render_title(root, spec, accent, width)
-    _render_groups(root, spec, placed)
-    for node in nodes:
-        x, y = placed[node["id"]]
-        _shape_cell(root, node, x, y)
+    _render_groups(root, spec, lay)
+    if spec["type"] == "erd":
+        render_erd.render_entities(root, nodes, placed)
+    else:
+        for node in nodes:
+            x, y = placed[node["id"]]
+            _shape_cell(root, node, x, y)
 
     if spec["type"] == "sequence":
         bottom = _render_sequence_body(root, nodes, edges, placed)
+    elif spec["type"] == "erd":
+        render_erd.render_relations(root, edges)
+        bottom = max(y + h for _, y, _, h in boxes.values())
     else:
-        _render_edges(root, spec, edges, boxes)
+        _render_edges(root, spec, edges, lay)
         bottom = max(y + h for _, y, _, h in boxes.values())
     _render_legend(root, spec, edges, bottom + 70)
     return ET.tostring(mxfile, encoding="unicode")
@@ -554,11 +586,14 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Render a diagram spec to draw.io XML.")
     parser.add_argument("spec", help="path to the spec JSON file")
     parser.add_argument("-o", "--output", help="output .drawio path (default: stdout)")
+    parser.add_argument("--strict", action="store_true",
+                        help="exit 2 when the layout check reports a finding")
     args = parser.parse_args(argv)
 
     with open(args.spec, encoding="utf-8") as handle:
         spec = json.load(handle)
     try:
+        lay = layout(spec)
         xml = render(spec)
     except SpecError as error:
         sys.stderr.write("render failed: %s\n" % error)
@@ -569,6 +604,12 @@ def main(argv=None):
         sys.stderr.write("wrote %s\n" % args.output)
     else:
         sys.stdout.write(xml)
+    findings = check_layout.check(spec, lay)
+    for finding in findings:
+        sys.stderr.write("layout: %s\n" % finding)
+    if findings and args.strict:
+        sys.stderr.write("%d layout finding(s); fix the spec or drop --strict\n" % len(findings))
+        return 2
     return 0
 
 

@@ -50,8 +50,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `export_drawio.py`: draw.io Desktop CLI wrapper. Resolves the binary via `DRAWIO_BIN`, then
     `PATH`, then per-OS install locations, and fails with an install hint rather than silently
     producing nothing.
-  - `test_render_drawio.py`: 54 unit tests covering the validator, renderer, layouts, and binary
-    resolution.
+  - `check_layout.py`: geometric lint on the same layout the renderer draws (overlapping
+    nodes, an edge through a third node, a label on a node or on another label, a group box
+    enclosing an outsider); `render_drawio.py --strict` exits 2 on any finding.
+  - `schema_to_spec.py` with the `schema_parsers/` package: SQL DDL, Prisma, TypeORM, Django
+    and SQLAlchemy models become an `erd` spec, evidence per table and relation; a referenced
+    but undeclared table renders UNVERIFIED.
+  - 138 unit tests across validator, renderer, ERD, layout check, parsers, and golden fixtures.
 - **Evidence-tagged shapes**: each node carries a `path:line` pointer, stored as a draw.io custom
   property. A node without evidence renders dashed, orange, and labelled UNVERIFIED, so a guess
   cannot be mistaken for a confirmed component.
@@ -59,6 +64,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   against the shape names actually shipped in the draw.io Desktop bundle.
 - **New references**: `diagram-spec.md`, `style-catalog.md`, `house-style.md`,
   `exec-readability.md`, `source-extraction.md`.
+- **`erd` diagram type**: `entity` nodes with `columns[]` render as a header plus one row per
+  column (`PK`, `FK`, `?` markers); relations carry a `cardinality` drawn with IE crow's-foot
+  arrows; entities lay out by foreign-key depth.
+- **Cloud kinds beyond GCP**: 20 `aws:*` kinds using `resIcon` names verified against the
+  draw.io Desktop bundle, and 11 vendor-neutral `cloud:*` kinds in a managed fill for clouds
+  without a trustworthy icon set (draw.io ships only 2014 Azure stencils).
+- **Golden fixtures** under `assets/fixtures/`: one runnable spec and pinned `.drawio` per diagram
+  type, one schema per parser with its expected spec (`UPDATE_GOLDEN=1` rewrites).
+- **`layout-rules.md`**: direction per type, grid, the anchor rule, what the check catches, and
+  the spec-level fixes for each finding.
+- **Layout engine**: edges between rows leave the bottom and enter the top so the horizontal
+  run stays in the row gap; edges bending in one gap get staggered slots and the gap widens
+  with the fan-out; icon kinds reserve a footprint for the label under the shape and push
+  their bottom port below it; with groups, rows are left-aligned and each group claims a
+  column band so a boundary never encloses an outsider.
 - **Spec v1.1, numbers on the box**: nodes and edges carry an optional `metric` (max 48
   characters, the one headline number that sized the box or the hop: peak QPS, p99, GB/day),
   rendered as a small line under the label; nodes carry an optional `constraint` (the left side
@@ -83,6 +103,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `system-design-diagramming` skill is gone, as is its should-not-trigger eval case.
 - `house-style.md` type scale and `checklist.md` ("numbers that justified the box are on the
   box") updated for spec v1.1; the SKILL guideline "Put the number on the box" added.
+- The catalogue moved to `scripts/style_catalog.py` (re-exported from `render_drawio.py`);
+  `diagram-spec.md` is v1.2 (`erd`, `entity`, `cardinality`, `aws:*`, `cloud:*`).
+- `diagram-selection.md` covers ERDs; `cloud-architecture.md` and `style-catalog.md` document
+  AWS, the vendor-neutral kinds, and why Azure has no icons.
+- `mermaid-fallback.md` opens with the export ladder: a draw.io MCP tool when the session has
+  one, else the Desktop CLI, else ship the `.drawio` and say the image was not exported.
+- SKILL pipeline renders with `--strict`; triggers gain `entity relationship`, `schema diagram`,
+  `aws`; evals gain an ERD-from-Prisma case and an AWS-plus-Azure-AD case.
 
 ## [specialists-v1.5.0] - 2026-09-09
 
@@ -96,7 +124,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   every node would be UNVERIFIED, so a batch redraw cannot quietly invent architecture.
   Generated agent definitions ship for Claude, Codex, Antigravity, and Copilot. Carries
   `metric` and `constraint` from the evidence bundle onto each node, never invents a number,
-  and reports a `METRICS:` line in its output block.
+  and reports a `METRICS:` line in its output block. Renders with `--strict` and exports
+  through a draw.io MCP tool, the Desktop CLI, or reports the image as not exported.
 
 ## [system-design-v1.0.0] - 2026-08-30
 
