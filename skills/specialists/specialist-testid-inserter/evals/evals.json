@@ -18,7 +18,7 @@
       "assertions": [
         { "type": "contains", "value": "SKIPPED" },
         { "type": "contains", "value": "never rename" },
-        { "type": "not_contains", "value": "renamed to checkout-submit-button" }
+        { "type": "not_contains", "value": "data-testid=\"checkout-submit-button\"" }
       ]
     },
     {
@@ -28,7 +28,7 @@
       "assertions": [
         { "type": "contains", "value": "APPROVAL: required" },
         { "type": "contains", "value": "approved_production_edits" },
-        { "type": "not_contains", "value": "INSERTED: checkout" }
+        { "type": "not_contains", "value": "data-testid=\"checkout-" }
       ]
     }
   ],

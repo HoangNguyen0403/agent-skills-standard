@@ -24,6 +24,7 @@ Close every `SELECTOR_GAPS` entry for one slug by adding the missing id to the l
 - Read: the test plan's `Selector Gaps`, the page object's gap list, and one component file per gap.
 - Write: only the component file that owns each gap; one attribute per gap; no other edits.
 - Interactive mode: stop and list every file before writing; write only after approval.
+- Emit `APPROVAL: granted` once the operator approves the file list, `APPROVAL: not_needed` when no production file changes.
 - Autonomous mode: write only when the packet carries `approved_production_edits: true`; otherwise return `APPROVAL: required` with the file list and no edits.
 - No production logic changes, no styling, no Git, no sub-agents.
 - Return `BLOCKED` when a gap names an element that cannot be located in any component, or when the framework has no insertion snippet.
@@ -52,5 +53,5 @@ BLOCKED: [reason, if any]
 - Renaming an existing id to match the convention: ids are a public contract; report and skip.
 - Adding ids to wrappers "so the whole block is reachable".
 - Using `accessibilityLabel` or `contentDescription` as the test id.
-- Editing anything beyond the id attribute while in the file.
+- Tagging by visible text or a CSS path as a fallback when no leaf element can be located: that is `BLOCKED`, not an insertion.
 - Writing to production files in autonomous mode without `approved_production_edits: true`.
