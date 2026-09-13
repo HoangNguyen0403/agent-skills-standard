@@ -8,12 +8,12 @@
       "lodash": "npm:lodash-es@^4.17.21",
       "path-to-regexp": ">=8.4.2",
       "ip-address": "10.3.1",
-      "hono": "4.12.34",
+      "hono": "4.13.7",
       "fast-uri": "3.1.7",
       "picomatch": ">=4.0.4",
       "serialize-javascript": ">=7.0.5",
       "qs": ">=6.15.2",
-      "js-yaml": "4.3.1",
+      "js-yaml": "4.3.2",
       "multer": ">=2.2.0",
       "vite": "8.2.2",
       "postcss": "8.5.23",
@@ -85,11 +85,11 @@
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.5",
+    "@eslint/js": "^10.0.1",
     "@types/fs-extra": "^11.0.4",
     "@types/inquirer": "^9.0.10",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^26.4.1",
+    "@types/node": "^26.5.1",
     "eslint": "^10.9.1",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.5.6",
@@ -97,12 +97,12 @@
     "globals": "^17.12.0",
     "gpt-tokenizer": "^4.0.0",
     "husky": "^9.1.7",
-    "inquirer": "^14.2.1",
+    "inquirer": "^14.2.2",
     "js-yaml": "^5.4.1",
     "picocolors": "^1.1.1",
     "prettier": "^3.9.6",
     "tsx": "^4.23.13",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.69.0"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.0"
   }
 }
