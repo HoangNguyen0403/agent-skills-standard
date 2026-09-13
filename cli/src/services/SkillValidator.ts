@@ -187,6 +187,7 @@ export class SkillValidator {
     } catch (error) {
       throw new Error(
         `Metadata validation failed: ${error instanceof Error ? error.message : error}`,
+        { cause: error },
       );
     }
   }
