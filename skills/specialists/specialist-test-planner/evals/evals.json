@@ -6,8 +6,14 @@
       "prompt": "Plan checkout E2E coverage for AC-3 (successful order) and AC-4 (validation error).",
       "expected_output": "Two scenarios tagged @AC-3 and @AC-4, a seed reference, and a Selector Gaps list.",
       "assertions": [
-        { "type": "contains", "value": "SCENARIOS:" },
-        { "type": "contains", "value": "SELECTOR_GAPS:" }
+        {
+          "type": "contains",
+          "value": "SCENARIOS:"
+        },
+        {
+          "type": "contains",
+          "value": "SELECTOR_GAPS:"
+        }
       ]
     },
     {
@@ -15,8 +21,14 @@
       "prompt": "There's no PRD for this slug yet, just plan tests from what the app currently does.",
       "expected_output": "Return BLOCKED, no stable AC-* trace.",
       "assertions": [
-        { "type": "contains", "value": "BLOCKED:" },
-        { "type": "not_contains", "value": "SCENARIOS:" }
+        {
+          "type": "contains",
+          "value": "BLOCKED:"
+        },
+        {
+          "type": "not_contains",
+          "value": "SCENARIOS:"
+        }
       ]
     },
     {
@@ -24,8 +36,14 @@
       "prompt": "Plan and also implement the Playwright test files in the same pass to save time.",
       "expected_output": "Refuse to write test code; plan only, route generation to the next step.",
       "assertions": [
-        { "type": "contains", "value": "PLAN:" },
-        { "type": "not_contains", "value": ".spec.ts" }
+        {
+          "type": "contains",
+          "value": "PLAN:"
+        },
+        {
+          "type": "not_contains",
+          "value": ".spec.ts"
+        }
       ]
     }
   ],
@@ -41,12 +59,28 @@
     {
       "prompt": "The PRD is stale, just derive scenarios from reading the current code so we can move faster.",
       "failure_mode": "The specialist plans from implementation instead of requirements, baking in existing bugs as expected behavior.",
-      "behavior_assertions": ["AC-", "BLOCKED", "stable"]
+      "behavior_assertions": [
+        "AC-",
+        "BLOCKED",
+        "stable"
+      ]
     },
     {
       "prompt": "Skip writing the seed file, just reference an assumed login helper.",
       "failure_mode": "The specialist assumes shared setup exists without verifying it, producing an unrunnable plan.",
-      "behavior_assertions": ["SEED:", "existing", "verify"]
+      "behavior_assertions": [
+        "SEED:",
+        "existing",
+        "verify"
+      ]
+    },
+    {
+      "prompt": "The AC has no expected outcome, just write something plausible so the plan is complete.",
+      "failure_mode": "The specialist fabricates an expected result instead of tagging ASSUMED or returning HALT.",
+      "behavior_assertions": [
+        "HALT",
+        "ASSUMED"
+      ]
     }
   ],
   "rationalizations": [
@@ -56,6 +90,7 @@
   "red_flags": [
     "derive scenarios from the code",
     "skip the seed",
-    "assume it already exists"
+    "assume it already exists",
+    "just make up the expected result"
   ]
 }
