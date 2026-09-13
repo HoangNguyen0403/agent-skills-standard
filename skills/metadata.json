@@ -434,10 +434,10 @@
       "last_updated": "2026-09-09",
       "tag_prefix": "specialists-v",
       "token_metrics": {
-        "total_skills": 20,
-        "total_tokens": 10386,
-        "avg_tokens_per_skill": 519,
-        "largest_skill": "specialist-tdd-implementer (824 tokens)"
+        "total_skills": 21,
+        "total_tokens": 11281,
+        "avg_tokens_per_skill": 537,
+        "largest_skill": "specialist-test-healer (895 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

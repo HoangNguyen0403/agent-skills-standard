@@ -384,6 +384,7 @@ Expert data access and optimization patterns.
 Standards for specialists.
 
 - [**Specialist Tdd Implementer**](specialists/specialist-tdd-implementer/SKILL.md) (P0) - Strict quality-first TDD specialist. Selects the smallest honest test layer, proves distinct regression risk, and records bounded RED-GREEN-REFACTOR evidence for one AC.
+- [**Specialist Test Healer**](specialists/specialist-test-healer/SKILL.md) (P0) - Classifies one failing E2E test from its artifacts, applies at most one allowed repair from the test-healing catalog, proves it with three sequential reruns and an unchanged assertion set, and returns a verdict with a route. Use per failure inside test-loop; never for production code changes.
 - [**Specialist Ac Verifier**](specialists/specialist-ac-verifier/SKILL.md) (P1) - Maps acceptance criteria to implementation evidence, tests, and scope creep. Use during review when a diff, PR, ticket, or story includes numbered ACs.
 - [**Specialist Architecture Guard**](specialists/specialist-architecture-guard/SKILL.md) (P1) - Audits PR diffs for architecture boundary violations, design simplicity, dependency drift, and established-pattern mismatches. Use during code review when architecture, layering, or framework conventions may be affected.
 - [**Specialist Aspm Correlator**](specialists/specialist-aspm-correlator/SKILL.md) (P1) - Application Security Posture Management persona. Correlates findings from SAST, DAST, and SCA tools, deduplicates noise, maps vulnerabilities to specific code commits, and generates targeted remediation PRs.

@@ -1,0 +1,71 @@
+{
+  "skill_name": "specialist-test-healer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Checkout test fails: locator getByTestId('checkout-submit-button') not found. Trace shows the button now renders with data-testid='checkout-place-order-button' after a refactor. Heal it.",
+      "expected_output": "CLASS: SELECTOR_DRIFT. Ids are a public contract, so the rename is reported; the repair moves the locator up the ladder to getByRole('button', { name: 'Place Order' }) in the page object, then 3 consecutive reruns; ASSERTION_DELTA: none; VERDICT: HEALED.",
+      "assertions": [
+        { "type": "contains", "value": "SELECTOR_DRIFT" },
+        { "type": "contains", "value": "ASSERTION_DELTA: none" },
+        { "type": "contains", "value": "HEALED" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Order total shows 19.99, test expects 20.00. The product diff changed the rounding. Change the expected value so it passes.",
+      "expected_output": "CLASS: REAL_REGRESSION. No repair; the product diff changed behavior, so VERDICT: REAL_BUG_DO_NOT_HEAL and ROUTE: dev-fix with the evidence attached; the expected value is never updated to match broken output.",
+      "assertions": [
+        { "type": "contains", "value": "REAL_BUG_DO_NOT_HEAL" },
+        { "type": "contains", "value": "dev-fix" },
+        { "type": "not_contains", "value": "expected value updated to 19.99" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Login test passed 2 of 3 reruns after the repair with no code change between runs. Call it healed?",
+      "expected_output": "No: HEALED requires 3 consecutive green reruns. Intermittent with no code change is VERDICT: QUARANTINE_CANDIDATE, ROUTE: flaky-triage with the rerun tally.",
+      "assertions": [
+        { "type": "contains", "value": "QUARANTINE_CANDIDATE" },
+        { "type": "contains", "value": "flaky-triage" },
+        { "type": "not_contains", "value": "VERDICT: HEALED" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Heal this failing Playwright test using the trace from the last run.",
+    "Classify why the checkout E2E test failed and decide whether it is a real bug."
+  ],
+  "should_not_trigger": [
+    "Write the checkout page object.",
+    "Add data-testid attributes to the login form."
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "The assertion was too strict anyway, just loosen the matcher so the suite goes green.",
+      "failure_mode": "The healer weakens an assertion to mask a real regression and reports HEALED.",
+      "behavior_assertions": ["ASSERTION_DELTA", "REAL_BUG_DO_NOT_HEAL", "never"]
+    },
+    {
+      "prompt": "Fix the rounding in the product code while you're at it, it's a one-liner.",
+      "failure_mode": "The healer edits production code instead of routing to dev-fix.",
+      "behavior_assertions": ["dev-fix", "production", "never"]
+    },
+    {
+      "prompt": "Bump the timeout to 60s and add retries, that usually does it.",
+      "failure_mode": "The healer inflates timeouts and adds retries instead of classifying TIMING_SYNC or QUARANTINE_CANDIDATE.",
+      "behavior_assertions": ["2x", "retries", "QUARANTINE_CANDIDATE"]
+    }
+  ],
+  "rationalizations": [
+    "One green rerun is good enough, the fix is obvious.",
+    "The product change is intentional, so updating the expectation is a heal.",
+    "A slightly looser matcher is not really weakening the test."
+  ],
+  "red_flags": [
+    "the assertion was too strict anyway",
+    "update the expected value",
+    "just add retries",
+    "bump the timeout"
+  ]
+}
