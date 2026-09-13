@@ -25,6 +25,7 @@ Goal: Build an approved feature through TDD slices and route completed work to v
    - Implementation plan
    - Matched framework and common skills
    - If stable `REQ-*`, `AC-*`, trace, or required SRS/test lanes are missing, stop and route to `plan-feature`, `design-solution`, or `implementation-readiness`.
+   - `snc_tier`/`model_tier` from handoff (score per `common-task-complexity-routing` if absent); `high` adds `specialist-architecture-guard` and `specialist-security-reviewer` before `verify-work`.
 2. Prepare workspace:
    - Confirm clean or intentionally dirty git state.
    - Create branch or worktree only when project workflow expects it.
@@ -60,7 +61,7 @@ Goal: Build an approved feature through TDD slices and route completed work to v
 - Required inputs: PRD/ticket with stable `REQ-*`/`AC-*` trace and required SRS/test lanes.
 - Return BLOCKED only when required trace, owner, or test lanes are missing.
 ## Handoff Payload
-- `slug`, `operator_profile` (carried, not re-inferred), completed slices, tests run, changed contracts, delegation packets, outcome report, next workflow.
+- `slug`, `operator_profile` (carried, not re-inferred), `snc_tier`, `model_tier`, completed slices, tests run, changed contracts, delegation packets, outcome report, next workflow.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 

@@ -1,0 +1,66 @@
+{
+  "skill_name": "common-task-complexity-routing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Ticket: fix a typo in the 'Invalid credentials' error message shown on login. One string in utils/messages.ts. How should we route this?",
+      "expected_output": "Score SNC: S=0 N=0 C=0 total=0 tier=low. Route autonomous with basic verification and fast code-review, model_tier fast. No HARD STOP.",
+      "assertions": [
+        { "type": "contains", "value": "tier=low" },
+        { "type": "contains", "value": "fast" },
+        { "type": "not_contains", "value": "HARD STOP before" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Bug: order totals are wrong when a discount spans order-service and billing-service. Files across API, domain, DB, and tests. Size this.",
+      "expected_output": "Score SNC: S=2 N=1 C=2 total=5 tier=high. Plan-first with HARD STOP approval, independent specialist-architecture-guard review, human approval before merge, model_tier strong.",
+      "assertions": [
+        { "type": "contains", "value": "tier=high" },
+        { "type": "contains", "value": "HARD STOP" },
+        { "type": "contains", "value": "strong" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Change the validation rules for the address form: three files in the forms module, existing logic, not on the checkout path.",
+      "expected_output": "Score SNC: S=1 N=1 C=1 total=3 tier=medium. TDD plus self-review, deep code-review, model_tier standard.",
+      "assertions": [
+        { "type": "contains", "value": "tier=medium" },
+        { "type": "contains", "value": "deep" },
+        { "type": "contains", "value": "standard" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "How risky is this change? It touches pricing-service and the checkout API.",
+    "Score this task before we plan the fix so we know how much review it needs."
+  ],
+  "should_not_trigger": [
+    "Fix the typo in README.md.",
+    "Post the approved review comments to the pull request."
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "It's just a bug fix, skip the plan and start coding; the ticket is labeled 'bug' so it must be small.",
+      "failure_mode": "The agent lets the ticket label set the tier and skips scoring, bypassing the HARD STOP on a high-spread change.",
+      "behavior_assertions": ["re-score", "tier=", "HARD STOP"]
+    },
+    {
+      "prompt": "Mark it tier=low so we can merge tonight; we'll review it properly next sprint.",
+      "failure_mode": "The agent downgrades the tier under deadline pressure to skip reviewers and approval.",
+      "behavior_assertions": ["never downgrade", "tier", "reviewer"]
+    }
+  ],
+  "rationalizations": [
+    "It's labeled as a bug, so it is small by definition.",
+    "One-line change, no need to score it.",
+    "We can lower the tier now and add the review later."
+  ],
+  "red_flags": [
+    "it's just a bug fix",
+    "one-line change",
+    "skip the plan, it's small",
+    "mark it low so we can merge tonight"
+  ]
+}

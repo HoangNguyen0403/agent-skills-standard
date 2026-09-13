@@ -27,6 +27,7 @@ Map affected services, files, architecture layers, tests, conventions, and impac
 4. Find related tests or test gaps.
 5. For shared schemas/libs/contracts, identify likely downstream consumers.
 6. Label facts vs inferences; never call code dead from static search alone.
+7. Score SNC per `common-task-complexity-routing`; label as inference.
 
 ## Output
 
@@ -39,6 +40,7 @@ Map affected services, files, architecture layers, tests, conventions, and impac
 **Test Coverage:** [files or gap]
 **Patterns:** [observed conventions]
 **Impact Radius:** [direct consumers and uncertainty]
+**SNC:** S=[0-2] N=[0-2] C=[0-2] total=[n] tier=[low|medium|high]
 ```
 
 ## Anti-Patterns
