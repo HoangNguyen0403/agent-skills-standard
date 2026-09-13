@@ -3,7 +3,7 @@
 - SELECTOR_DRIFT -> move the locator up the ladder in `quality-engineering-selector-stability`
   (e.g. `getByTestId` if the role/label changed; a new `data-testid` if the
   ladder itself has no stable target — route the missing id to
-  `specialist-testid-inserter`, Phase P1).
+  `specialist-testid-inserter`).
 - TIMING_SYNC -> replace `sleep`/`waitForTimeout` with an explicit wait for the
   actual state (`expect(locator).toBeVisible()`, `waitForExistence(timeout:)`,
   `IdlingResource`), never a longer sleep.
