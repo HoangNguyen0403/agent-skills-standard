@@ -49,7 +49,8 @@ Goal: Take a bug ticket from root-cause analysis through a locally-verified PR/M
     - **Proposed Changes**: Exact files and logic to be modified.
     - **Verification Plan**: Detail which QE skill will be used to verify the fix _locally_ before PR.
     - Do not propose code changes until repro steps, expected result, and root cause hypothesis are explicit.
-4.  **HARD STOP**: Request user approval for the implementation plan.
+    - **SNC**: score per `common-task-complexity-routing`; record `snc_tier`/`model_tier` in the plan.
+4.  **HARD STOP**: Request user approval for the implementation plan. Mandatory at `snc_tier=high`; `medium` requires self-review first; `low` may skip approval in autonomous mode only.
 5.  **Readiness Gate**: Run `implementation-readiness`; code only after READY or approved PARTIAL.
 
 ### Step 2: Implementation (TDD Phase)
@@ -92,7 +93,7 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 - Return BLOCKED only when repro steps, expected result, or root-cause hypothesis cannot be established.
 
 ## Handoff Payload
-- `slug`, `operator_profile` (carried, not re-inferred), implementation plan path, task list path, walkthrough path, PR/MR link, outcome report, next workflow.
+- `slug`, `operator_profile` (carried, not re-inferred), `snc_tier`, `model_tier`, implementation plan path, task list path, walkthrough path, PR/MR link, outcome report, next workflow.
 
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.

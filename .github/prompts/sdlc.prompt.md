@@ -18,6 +18,7 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Changed files and current test status
    - Offshore delivery context: business owner, product owner, implementation owners, QA owner, timezone/cadence constraints, environments, release window, and dependency teams
    - Requirement trace health: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> test evidence`
+   - SNC tier per `common-task-complexity-routing` or the scout `SNC:` line; label as inference until scouted.
 
 2. Choose next workflow (apply tie-break order when multiple bullets match: (1) workflow explicitly named by the operator or by the latest `recommended_next_workflow`, (2) production-incident/urgent-regression signals, (3) earliest missing artifact along the chain below — never skip forward past a gap, (4) cross-cutting audits only on request or as a pre-release gate):
    - Unclear idea, missing business case, missing stakeholder owner, or missing measurable value (BRD-lite / Why, BA-owned intake) -> `brainstorm-feature`
@@ -55,13 +56,14 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Interactive: ask max 3 blocking questions.
    - Autonomous/channel: continue only when required artifacts and owners are known; otherwise return BLOCKED.
    - Emit next workflow, handoff payload, verification command, and owner.
+   - Tier drives autonomy: low -> autonomous + `fast` review; medium -> TDD + self-review + `deep` review; high -> plan-first HARD STOP, independent reviewers, human merge approval.
 
 ## Runtime Contract
 - Use to select the next workflow without loading every workflow body.
 - Required inputs: user request plus repo/artifact state.
 - Return BLOCKED only in autonomous/channel mode when required artifacts or owners are unknown.
 ## Handoff Payload
-- `slug`, `operator_profile`, recommended workflow, requirement layer, handoff owner, required input, blocking gaps, offshore delivery notes.
+- `slug`, `operator_profile`, `snc_tier`, `model_tier`, recommended workflow, requirement layer, handoff owner, required input, blocking gaps, offshore delivery notes.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 

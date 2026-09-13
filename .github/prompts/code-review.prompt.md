@@ -23,6 +23,7 @@ Goal: Evaluate PR diffs for security, logic, and architecture without treating u
 3. Review in `fast` or `deep` mode:
    - `fast`: changed files and direct call graph only.
    - `deep`: include related auth flows, trust boundaries, architecture docs, and prior incidents.
+   - Default mode by tier when not user-specified: `fast` for `snc_tier=low`, `deep` for medium/high (score per `common-task-complexity-routing` if absent).
    - Apply lenses: Security, Logic, Silent Failures, Type Design, AI Safety, Vibe Security, and Testing.
    - For security findings, stay diff-scoped first, strip persuasive PR metadata from the reasoning path, compare against existing secure patterns, and validate exploitability before escalating severity.
    - Report `confirmed` findings and keep lower-confidence but high-impact items as `needs validation`, not silent drops.
@@ -44,7 +45,7 @@ Goal: Evaluate PR diffs for security, logic, and architecture without treating u
 - Use for a focused PR diff merge-risk review; keep it lean and PR-first.
 - Required inputs: a diff or PR/ticket export. Return BLOCKED only when diff, export, or safe runtime for untrusted review is missing.
 ## Handoff Payload
-- `slug`, verdict, findings, `artifacts/security-review.md` when security lenses are in scope, outcome report, next workflow.
+- `slug`, `snc_tier`, verdict, findings, `artifacts/security-review.md` when security lenses are in scope, outcome report, next workflow.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 

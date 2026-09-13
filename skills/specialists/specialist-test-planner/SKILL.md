@@ -29,7 +29,7 @@ Produce one executable test plan for one slug from its approved `AC-*`/SRS lanes
 
 1. Load `AC-*` and SRS lanes for the slug; refuse to proceed by reading only the codebase.
 2. Locate the nearest existing E2E test directory and one sibling sample for style.
-3. Write one scenario per AC condition with Steps/Expected/`@AC-n`/priority/lane.
+3. Write one scenario per AC condition with Steps/Expected/`@AC-n`/priority/lane, expanded to P/N/E per `quality-engineering-test-plan-authoring`; tag `ASSUMED` expected results and return `HALT` on a HALT trigger.
 4. Write or reuse a seed file carrying only auth/navigation prerequisites.
 5. List every element the scenarios need that has no known stable selector as
    `Selector Gaps`, named per the `<screen>-<element>-<role>` convention in
@@ -44,6 +44,8 @@ SCENARIOS: [n mapped to AC-*]
 SEED: [path or "existing: <path>"]
 SELECTOR_GAPS: [screen:element, ...]
 DATA: [fixtures/reset mechanism]
+CLASSES: P=[n] N=[n] E=[n] ASSUMED=[n]
+HALT: [trigger, if any]
 BLOCKED: [reason, if any]
 ```
 
@@ -52,3 +54,4 @@ BLOCKED: [reason, if any]
 - Deriving scenarios from source code instead of `AC-*` when the PRD looks stale — stop and report BLOCKED instead.
 - Skipping the seed file to save a step.
 - Writing test code (out of scope — that is the generator's job).
+- Inventing an `Expected` when the AC is silent — tag `ASSUMED` or return `HALT`.

@@ -45,6 +45,7 @@
 | **common-protocol-enforcement** | verify done, protocol check, self-scan, pre-write audit, task complete, audit violations, retrospective, scan, red-team |
 | **common-security-standards** | security, encrypt, authenticate, authorize |
 | common-store-changelog | generate changelog, app store notes, play store release, what's new, release notes, version notes, store release |
+| common-task-complexity-routing | task complexity, snc score, complexity tier, difficulty tier, autonomy level, review depth, model tier, how big is this change |
 | common-telemetry | token cost, token usage, session telemetry, cost report |
 | **common-ui-design** | build a page, create a component, design a dashboard, landing page, UI for, build a layout, make it look good, improve the design, build UI, create interface, design screen |
 | common-web-visual-testing | web test, browser test, responsive audit, verify web ui, cross-browser check, web accessibility |

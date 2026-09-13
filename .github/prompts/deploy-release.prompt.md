@@ -12,6 +12,7 @@ Goal: Ship verified work with explicit deployment steps, smoke checks, and rollb
    - Verification report is PASS or accepted with documented risk.
    - Required approvals are present.
    - Migrations and feature flags are accounted for.
+   - `release_confidence` is `high`, or `medium` with documented risk; `low` means NO-GO unless the release owner overrides in writing.
 2. Prepare release:
    - Identify version, environment, deploy command, and owner.
    - Confirm secrets, config, queues, cron, and external services.
@@ -32,7 +33,7 @@ Goal: Ship verified work with explicit deployment steps, smoke checks, and rollb
 - Required inputs: verification report plus release version, environment, and rollback path.
 - Return BLOCKED only when required approvals, migrations, or rollback path are unresolved.
 ## Handoff Payload
-- `slug`, release verdict (GO/NO-GO/ROLLED-BACK), smoke check results, rollback path, outcome report, next workflow.
+- `slug`, `release_confidence`, release verdict (GO/NO-GO/ROLLED-BACK), smoke check results, rollback path, outcome report, next workflow.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 

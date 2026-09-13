@@ -22,6 +22,7 @@ metadata:
  - Fetch Jira with `?expand=renderedFields` — HTML authoritative for platform colors:
  `#00B8D9` = Web · `#36B37E` = Mobile · `#FF991F` = Web+Mobile
  - See [Actor/Permission Matrix](../quality-engineering-business-analysis/references/analysis_patterns.md) for role/market logic.
+ - HALT on ambiguous AC per `quality-engineering-test-plan-authoring` scenario expansion: ultra-short AC, no expected behavior, bundled ACs, contradiction. Ask before drafting.
 
 2. **Impact Analysis** (run before any TC creation)
  - **Step — Direct Lookup**: Call `Get Issue Link Test Cases` with Jira issue key (e.g., `{PROJECT}-{ID}`).
@@ -41,6 +42,7 @@ metadata:
 4. **Create in Zephyr** (after explicit user approval)
  - `Create Test Case` (with `customFields` included — no separate Update needed) → `Create Test Case Steps` → `Create Test Case Issue Link`
  - For **updates** to existing TCs: fetch current steps via `Get Test Case Steps`, show before/after diff, wait for explicit approval, then `Update Test Case`.
+ - Param contract per [SmartBear API Notes](references/smartbear-api.md).
 
 ## Platform Rules
 
@@ -58,14 +60,6 @@ metadata:
 
 - **CRITICAL**: If Acceptance Criteria uses generic terms like "user", "buyer", or "customer" in ordering/checkout context, it MUST mapped to ALL purchasing roles: `["Client user", "Client admin", "Internal sales rep", "External sales rep"]`. not default to `Client user`.
 
-## API Critical Notes (SmartBear MCP — `@smartbear/smartbear-mcp`)
-
-- **`Create Test Case`** requires `projectKey="{PROJECT}"` and supports `customFields` directly (no separate Update needed for Roles/Platform).
-- **`Create Test Case Steps`** uses `testCaseKey` + `mode` (APPEND/OVERWRITE) + `items[]`.
-- **`Create Test Case Issue Link`** uses `testCaseKey` + `issueId` (numeric Jira issue ID — get from ticket's `id` field, not key string).
-- **`Get Issue Link Test Cases`** uses `issueKey` (e.g., `{PROJECT}-{ID}`) — returns linked TC keys directly.
-- **`Update Test Case`** uses `testCaseKey` — only needed when modifying existing TCs, not for new creation.
-
 ## Anti-Patterns
 
 - **No prefix omission**: TC name sent to Zephyr API must include `Web_` or `Mobile_` prefix for platform-exclusive TCs — copy verbatim from artifact draft; omit prefix only when Platform = "Web and Mobile".
@@ -79,6 +73,9 @@ metadata:
 - **No coverage skip**: Coverage Analysis table must open every artifact.
 - **No ghost update**: Update Zephyr TC whenever matching code changes.
 - **No vague steps**: Use specific observable outcomes — e.g., `"System works"` → `"Banner 'Success' is visible"`.
+- **No invented expected result**: cite the AC or business rule, or tag `ASSUMED` and surface it for review.
+- **No rephrased negatives**: N and E scenarios must change a precondition or input, not the wording.
+- **No generation on ambiguous AC**: HALT and ask; a convincing TC must not hide a missing requirement.
 
 ## Coverage wording
 
