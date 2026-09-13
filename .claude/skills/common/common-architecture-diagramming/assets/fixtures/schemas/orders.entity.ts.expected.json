@@ -5,14 +5,14 @@
   "edges": [
     {
       "cardinality": "many-to-many",
-      "evidence": "assets/fixtures/schemas/orders.entity.ts:17",
+      "evidence": "assets/fixtures/schemas/orders.entity.ts:19",
       "from": "customers",
       "label": "tags",
       "to": "tag"
     },
     {
       "cardinality": "many-to-one",
-      "evidence": "assets/fixtures/schemas/orders.entity.ts:27",
+      "evidence": "assets/fixtures/schemas/orders.entity.ts:28",
       "from": "order",
       "label": "customer",
       "to": "customers"
