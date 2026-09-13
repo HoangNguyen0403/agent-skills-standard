@@ -16,6 +16,8 @@ import json
 import sys
 import xml.etree.ElementTree as ET
 
+import render_erd
+
 # Wide enough that an edge label sits between two columns instead of on top of a
 # box; the value was set after a rendered-PNG review, not from theory.
 MIN_LABEL_GAP = 180
@@ -78,7 +80,11 @@ def _text_cell(root, cell_id, value, x, y, w, h, size, colour, bold=False):
 
 def _shape_cell(root, node, x, y):
     spec_kind = _kind(node)
-    style = spec_kind["style"]
+    _node_cell(root, node, spec_kind["style"], x, y, spec_kind["w"], spec_kind["h"])
+
+
+def _node_cell(root, node, style, x, y, w, h):
+    """One vertex per node: object-wrapped when it carries evidence or a constraint."""
     if not node.get("evidence"):
         style = _unverified_style(style)
     attrs = {"style": style, "vertex": "1", "parent": "1"}
@@ -90,7 +96,7 @@ def _shape_cell(root, node, x, y):
     else:
         attrs.update({"id": node["id"], "value": label})
         cell = ET.SubElement(root, "mxCell", attrs)
-    _geometry(cell, x, y, spec_kind["w"], spec_kind["h"])
+    _geometry(cell, x, y, w, h)
 
 
 def _unverified_style(style):
@@ -335,12 +341,15 @@ def _render_legend(root, spec, edges, top):
             seen.add(node["kind"])
             kinds.append(node["kind"])
     entries = [(STYLE_CATALOG[k]["style"], STYLE_CATALOG[k]["legend"]) for k in kinds]
-    edge_styles, seen_edges = [], set()
-    for edge in edges:
-        style = edge.get("style", "sync")
-        if style not in seen_edges:
-            seen_edges.add(style)
-            edge_styles.append(style)
+    if spec.get("type") == "erd":
+        edge_entries = render_erd.legend_entries(edges)
+    else:
+        edge_entries, seen_edges = [], set()
+        for edge in edges:
+            style = edge.get("style", "sync")
+            if style not in seen_edges:
+                seen_edges.add(style)
+                edge_entries.append((EDGE_STYLES[style], EDGE_LEGEND[style]))
     if any(not n.get("evidence") for n in spec["nodes"]):
         entries.append((_unverified_style(STYLE_CATALOG["system"]["style"]),
                         "UNVERIFIED — not yet confirmed against code or docs"))
@@ -356,17 +365,17 @@ def _render_legend(root, spec, edges, top):
         _text_cell(root, "_legend_text_%d" % index, label, MARGIN_X + 46, y, 460, 22,
                    11, MUTED)
         y += 30
-    for index, style in enumerate(edge_styles):
+    for index, (style, label) in enumerate(edge_entries):
         line = ET.SubElement(root, "mxCell", {
             "id": "_legend_edge_%d" % index, "value": "",
-            "style": EDGE_STYLES[style], "edge": "1", "parent": "1",
+            "style": style, "edge": "1", "parent": "1",
         })
         geometry = ET.SubElement(line, "mxGeometry", {"relative": "1", "as": "geometry"})
         ET.SubElement(geometry, "mxPoint",
                       {"x": str(MARGIN_X), "y": str(y + 11), "as": "sourcePoint"})
         ET.SubElement(geometry, "mxPoint",
                       {"x": str(MARGIN_X + 34), "y": str(y + 11), "as": "targetPoint"})
-        _text_cell(root, "_legend_edge_text_%d" % index, EDGE_LEGEND[style],
+        _text_cell(root, "_legend_edge_text_%d" % index, label,
                    MARGIN_X + 46, y, 460, 22, 11, MUTED)
         y += 30
 
@@ -395,7 +404,9 @@ def render(spec):
     ET.SubElement(root, "mxCell", {"id": "0"})
     ET.SubElement(root, "mxCell", {"id": "1", "parent": "0"})
 
-    if spec["type"] == "context":
+    if spec["type"] == "erd":
+        placed = render_erd.layout_erd(nodes, edges)
+    elif spec["type"] == "context":
         placed = _layout_context(nodes)
     elif spec["type"] == "sequence":
         placed = _layout_sequence(nodes)
@@ -408,17 +419,24 @@ def render(spec):
     for node in nodes:
         x, y = placed[node["id"]]
         kind = _kind(node)
-        boxes[node["id"]] = (x, y, kind["w"], kind["h"])
+        h = render_erd.entity_height(node) if node["kind"] == "entity" else kind["h"]
+        boxes[node["id"]] = (x, y, kind["w"], h)
 
     width = max(x + w + 60 for x, _, w, _ in boxes.values())
     _render_title(root, spec, accent, width)
     _render_groups(root, spec, placed)
-    for node in nodes:
-        x, y = placed[node["id"]]
-        _shape_cell(root, node, x, y)
+    if spec["type"] == "erd":
+        render_erd.render_entities(root, nodes, placed)
+    else:
+        for node in nodes:
+            x, y = placed[node["id"]]
+            _shape_cell(root, node, x, y)
 
     if spec["type"] == "sequence":
         bottom = _render_sequence_body(root, nodes, edges, placed)
+    elif spec["type"] == "erd":
+        render_erd.render_relations(root, edges)
+        bottom = max(y + h for _, y, _, h in boxes.values())
     else:
         _render_edges(root, spec, edges, boxes)
         bottom = max(y + h for _, y, _, h in boxes.values())

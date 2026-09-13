@@ -489,6 +489,58 @@ class TestRendererCommon(unittest.TestCase):
         self.assertIn("erd", style_catalog.DIAGRAM_TYPES)
 
 
+class TestErdRenderer(unittest.TestCase):
+    def geom(self, root, cell_id):
+        g = cell_by_id(root, cell_id).find("mxGeometry")
+        return float(g.get("x")), float(g.get("y")), float(g.get("width")), float(g.get("height"))
+
+    def test_referenced_entity_sits_left_of_referencing_entity(self):
+        root = parse(render_drawio.render(erd_spec()))
+        self.assertLess(self.geom(root, "customers")[0], self.geom(root, "orders")[0])
+
+    def test_entity_rows_are_children_of_the_entity(self):
+        root = parse(render_drawio.render(erd_spec()))
+        rows = [c for c in cells(root) if c.get("parent") == "orders"]
+        self.assertEqual(len(rows), 3)
+        texts = [c.get("value") for c in rows]
+        self.assertEqual(texts[0], "PK id : uuid")
+        self.assertEqual(texts[1], "FK customer_id : uuid ?")
+        self.assertEqual(texts[2], "note : text ?")
+
+    def test_entity_height_grows_with_columns(self):
+        root = parse(render_drawio.render(erd_spec()))
+        self.assertEqual(self.geom(root, "orders")[3], 30 + 3 * 22)
+        self.assertEqual(self.geom(root, "customers")[3], 30 + 2 * 22)
+
+    def test_relation_carries_er_arrows_for_cardinality(self):
+        root = parse(render_drawio.render(erd_spec()))
+        edge = [c for c in cells(root) if c.get("source") == "orders"][0]
+        self.assertIn("edgeStyle=entityRelationEdgeStyle", edge.get("style"))
+        self.assertIn("startArrow=ERmany", edge.get("style"))
+        self.assertIn("endArrow=ERmandOne", edge.get("style"))
+        self.assertEqual(edge.get("value"), "placed by")
+
+    def test_legend_names_entity_and_each_cardinality_used(self):
+        text = all_values(parse(render_drawio.render(erd_spec())))
+        self.assertIn("Entity (table)", text)
+        self.assertIn("many-to-one", text)
+
+    def test_entity_metric_and_unverified_render_in_header(self):
+        spec = erd_spec()
+        del spec["nodes"][1]["evidence"]
+        root = parse(render_drawio.render(spec))
+        self.assertIn("4M rows", value_of(root, "orders"))
+        self.assertIn("UNVERIFIED", value_of(root, "orders"))
+        self.assertIn("dashed=1", style_of(root, "orders"))
+
+    def test_fk_cycle_does_not_hang_layout(self):
+        spec = erd_spec()
+        spec["nodes"][0]["columns"].append({"name": "last_order_id", "type": "uuid", "fk": True})
+        spec["edges"].append({"from": "customers", "to": "orders", "cardinality": "zero-or-one"})
+        root = parse(render_drawio.render(spec))
+        self.assertIsNotNone(cell_by_id(root, "orders"))
+
+
 class TestLayouts(unittest.TestCase):
     def geom(self, root, cell_id):
         cell = cell_by_id(root, cell_id)
