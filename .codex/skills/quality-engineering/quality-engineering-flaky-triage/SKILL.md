@@ -41,7 +41,7 @@ Run the test alone 10 times sequentially in the foreground. Record pass count, t
 
 ## Un-quarantine
 
-A test leaves quarantine only when the root cause is fixed and it passes 10 consecutive isolated runs after the fix. Retries, longer timeouts, or a wider matcher are not fixes; they hide the bucket.
+A test leaves quarantine only when the root cause is fixed and it passes 10 consecutive isolated green runs after the fix. Retries, longer timeouts, or a wider matcher are not fixes; they hide the bucket.
 
 ## Reliability Impact
 
@@ -56,7 +56,7 @@ Each quarantined test lowers `suite_reliability_pct` in `quality-engineering-aut
 - **No skip as quarantine**: a skipped test reports nothing; quarantine still runs and reports.
 - **No ticketless quarantine**: a quarantine without owner and expiry is a permanent skip in disguise.
 - **No retry as fix**: `retries: N` is not a fix; it raises the pass rate and leaves the bucket unnamed.
-- **No un-quarantine on a single green**: ten consecutive isolated greens after the fix, or it stays.
+- **No un-quarantine on a single green**: 10 consecutive isolated green runs after the fix, or it stays.
 
 ## References
 

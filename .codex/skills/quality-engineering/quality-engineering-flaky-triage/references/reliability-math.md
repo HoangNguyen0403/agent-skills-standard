@@ -1,6 +1,6 @@
 # Reliability Math
 
-`quality-engineering-automation-health` defines `suite_reliability_pct` as the share of red runs the team could trust. Quarantine changes that number in two ways; report both.
+`quality-engineering-automation-health` computes `suite_reliability_pct` from red runs; in plain words, the share of red runs the team could trust. Quarantine changes that number in two ways; report both.
 
 - **Trusted-red share**: `100 * (red runs caused by a real defect or real infra outage) / (all red runs)`. A quarantined test that still fails does not count as a red run of the gating suite, so quarantine raises this number only by removing the untrusted reds, never by hiding them.
 - **Quarantine load**: `quarantined tests / total tests` and the age of the oldest open quarantine ticket. Report next to `release_confidence`; a rising load with flat fixes means the suite is being hollowed out.
