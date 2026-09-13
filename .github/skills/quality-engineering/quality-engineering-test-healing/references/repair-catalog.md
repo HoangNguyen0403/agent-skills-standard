@@ -9,5 +9,6 @@
   `IdlingResource`), never a longer sleep.
 - DATA_ENV -> fix the fixture/seed/env value the test depends on; do not change
   the assertion to match broken data.
+- DATA_ENV (VISUAL_DIFF inside dynamic content) -> mask the region by locator per `quality-engineering-visual-baseline`; never raise the threshold or update the baseline.
 - INFRA -> retry once, only for this class; if it recurs, `QUARANTINE_CANDIDATE`
-  and route to `quality-engineering-flaky-triage` (Phase P3), not a silent retry loop.
+  and route to `quality-engineering-flaky-triage`, not a silent retry loop.

@@ -30,8 +30,10 @@ Goal: Turn approved ACs into an executable, traced E2E suite, and classify any f
 4. Generate:
    - One scenario per `specialist-integration-test-generator` call, seed-first, using the MCP/tool matching the scenario's lane; a `Test: BLOCKED` naming a missing page object routes back to step 3.
    - Skip scenarios whose only elements are in `selector_gaps_remaining[]`; list them under Selector Gaps Remaining, never generate against an unstable locator.
-5. Run and heal (Phase P3, not yet implemented):
-   - Run once; per failure, run `specialist-test-healer`. `HEALED` requires 3 green reruns. `REAL_BUG_DO_NOT_HEAL` routes to `dev-fix`. `QUARANTINE_CANDIDATE` routes to `quality-engineering-flaky-triage` with a ticket.
+5. Run and heal:
+   - Run the generated suite once; per failure, run `specialist-test-healer` with the run artifact; append its block to `heal_verdicts[]` as `{test, class, verdict, route, evidence}`.
+   - `HEALED` only with `RERUNS: 3/3 green` and `ASSERTION_DELTA: none`; `REAL_BUG_DO_NOT_HEAL` appends to `real_bugs[]` and routes to `dev-fix`; `QUARANTINE_CANDIDATE` opens a ticket per `quality-engineering-flaky-triage` and appends `{test, ticket, expiry, bucket}` to `flake_quarantine[]`; `BLOCKED` with `ROUTE: testid-inserter` (no stable locator target) returns to step 3; `BLOCKED` (no evidence artifact) reruns the test once with tracing on and re-runs the healer; if still no artifact, it stays in `heal_verdicts[]` unresolved and is listed under `missing_evidence`.
+   - Screenshot failures follow `quality-engineering-visual-baseline`: a baseline changes only through a reviewed diff with a named approver, never by `--update-snapshots` inside this loop.
 6. Handoff:
    - Compute Automation Health per `quality-engineering-automation-health` and carry `release_confidence`.
    - Route to `verify-work` with the generated suite and any unresolved `real_bugs[]`.
@@ -53,6 +55,7 @@ Goal: Turn approved ACs into an executable, traced E2E suite, and classify any f
 ## Page Objects
 ## Selector Gaps Remaining
 ## Heal Verdicts
+## Flake Quarantine
 ## Real Bugs Found
 ## Automation Health
 feedback_loop_minutes: ; suite_reliability_pct: ; release_cadence: ; prod_escape_rate: ; release_confidence: high | medium | low

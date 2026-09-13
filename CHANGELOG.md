@@ -5,6 +5,30 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [quality-engineering-v1.8.0] - 2026-09-13
+
+**Category**: Test-loop P3 — flaky triage and visual baselines
+
+### Added
+- `quality-engineering-flaky-triage`: quarantine behind a ticket with owner and 14-day expiry, root-cause buckets, 10-run isolated evidence, un-quarantine criteria.
+- `quality-engineering-visual-baseline`: capture in CI image, mask by locator, per-region thresholds, reviewed-diff baseline updates.
+
+### Changed
+- `quality-engineering-test-healing`: references flaky-triage and visual-baseline; `test.skip`/`fixme` never allowed as a heal; second `BLOCKED` cause (no stable locator target); P3 placeholders removed.
+
+### Versions
+- quality-engineering: 1.8.0
+
+## [specialists-v1.7.0] - 2026-09-13
+
+**Category**: Test-loop P3 — test healer
+
+### Added
+- `specialist-test-healer`: classifies one failing test from artifacts, one allowed repair, 3 consecutive reruns, `ASSERTION_DELTA` gate, verdict + route.
+
+### Versions
+- specialists: 1.7.0
+
 ## [quality-engineering-v1.7.0] - 2026-09-13
 
 **Category**: Test-loop P1 — Playwright page-object generation

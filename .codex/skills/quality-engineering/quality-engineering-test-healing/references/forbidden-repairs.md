@@ -3,7 +3,7 @@
 | Forbidden | Why |
 |---|---|
 | Weaken/remove an assertion | Turns a real regression into a silent pass. |
-| `test.skip`/`fixme` without ticket + expiry | Removes coverage permanently by default. |
+| `test.skip`/`fixme` as a heal | Removes coverage; quarantine with ticket + expiry keeps the test running and reporting. |
 | Widen a matcher (`toContain` instead of `toEqual`) | Hides a value regression. |
 | Timeout inflation >2x | Masks a real performance regression as a healed test. |
 | Blind `--update-snapshots` | Approves an unreviewed visual regression. |

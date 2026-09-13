@@ -416,13 +416,13 @@
       ]
     },
     "quality-engineering": {
-      "version": "1.6.0",
+      "version": "1.8.0",
       "last_updated": "2026-09-06",
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
-        "total_skills": 12,
-        "total_tokens": 9206,
-        "avg_tokens_per_skill": 767,
+        "total_skills": 14,
+        "total_tokens": 11011,
+        "avg_tokens_per_skill": 787,
         "largest_skill": "quality-engineering-zephyr-test-generation (1278 tokens)"
       },
       "owners": [
@@ -430,14 +430,14 @@
       ]
     },
     "specialists": {
-      "version": "1.5.0",
-      "last_updated": "2026-09-13",
+      "version": "1.7.0",
+      "last_updated": "2026-09-09",
       "tag_prefix": "specialists-v",
       "token_metrics": {
-        "total_skills": 20,
-        "total_tokens": 10546,
-        "avg_tokens_per_skill": 527,
-        "largest_skill": "specialist-tdd-implementer (824 tokens)"
+        "total_skills": 21,
+        "total_tokens": 11493,
+        "avg_tokens_per_skill": 547,
+        "largest_skill": "specialist-test-healer (947 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
