@@ -5,6 +5,32 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [quality-engineering-v1.7.0] - 2026-09-13
+
+**Category**: Test-loop P1 — Playwright page-object generation
+
+### Added
+- `quality-engineering-playwright-pom-generation`: one page object per screen, ladder-compliant locators, no assertions, `pages` fixture; MCP-assisted locator confirmation.
+
+### Changed
+- `quality-engineering-test-plan-authoring`: `Selector Gaps` now feeds a live `specialist-testid-inserter`.
+
+### Versions
+- quality-engineering: 1.7.0
+
+## [specialists-v1.6.0] - 2026-09-13
+
+**Category**: Test-loop P1 — selector gap closure and page-object-aware generation
+
+### Added
+- `specialist-testid-inserter`: closes `SELECTOR_GAPS` under an approval gate; never renames ids.
+
+### Changed
+- `specialist-integration-test-generator`: web lane must use page objects; returns `Test: BLOCKED` when one is missing.
+
+### Versions
+- specialists: 1.6.0
+
 ## [common-v2.5.0] - 2026-09-09
 
 **Category**: Architecture diagramming moves from Mermaid guidance to a draw.io render pipeline
