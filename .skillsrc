@@ -42,6 +42,7 @@ workflows:
   - verify-work
   - verify-bug
   - security-test
+  - monitor-respond
 mcp:
   enabled: true
   scope: project

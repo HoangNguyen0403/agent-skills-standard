@@ -13,6 +13,30 @@ and equivalent placeholder names do not fail a concrete assertion, while
 numeric/status/path literals remain exact. Historical manifests without this
 field retain literal v1 scoring semantics.
 
+## Config-Change Gate
+
+Agent configuration is code. A diff that touches `skills/**`, `.agents/workflows/**`, or a hook
+script changes how every future session behaves, so it passes the same gate as a source change:
+
+```bash
+pnpm validate:all      # skill format, structure, injection scan
+pnpm audit:sdlc        # workflow schema, router reachability, line budgets
+pnpm check-alignment   # eval alignment across the catalog
+pnpm evals:preflight -- --skills-file <changed skills>
+```
+
+`evals:preflight` costs no model quota and exits non-zero on any ungrounded assertion. Scope it to
+the skills the diff touched: a bare run audits the whole catalog and will fail on known legacy
+alignment debt that the change did not introduce.
+
+CI enforces this in the `validate-skills` job of `.github/workflows/ci.yml`. Merge on the eval
+thresholds the promotion gate already uses: case pass rate, assertion pass rate, and balanced
+trigger accuracy. A change that lowers any of them is a regression, not a new baseline.
+
+Every production incident and every Blocker review finding that a skill should have caught earns a
+permanent case in that skill's `evals/evals.json`, so the suite grows into a regression net rather
+than a fixed snapshot.
+
 ## Run a category or the complete catalog
 
 ```bash

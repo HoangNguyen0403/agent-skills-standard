@@ -44,3 +44,4 @@ Date: 2026-05-14
 - Strict 90% alignment gate currently fails on 71 older framework skills; current 70% repository gate passes.
 - Need real-world sample runs for `review-ticket`, `traceability-audit`, and `session-report`.
 - Need future optional standards pack for support/IT workflows if the team wants L1/L2 lifecycle coverage.
+- Published AI-native SDLC playbook gaps closed in `common-v2.6.0` (guardrails, review policy, delivery metrics, `monitor-respond`); enforcing those guardrails from `ags hooks install` still needs a policy-file reader in `HookService`.

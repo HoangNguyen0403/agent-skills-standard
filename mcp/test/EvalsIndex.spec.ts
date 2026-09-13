@@ -146,13 +146,29 @@ describe("EvalsIndex", () => {
   });
 
   it("verifies v2 aggregate answer paths from immutable inputs", async () => {
-    const v2Root = await fs.mkdtemp(path.join(os.tmpdir(), "ags-mcp-evals-v2-"));
+    const v2Root = await fs.mkdtemp(
+      path.join(os.tmpdir(), "ags-mcp-evals-v2-"),
+    );
     const runId = "all-v2-9.9.9-2099-01-01-test";
     const runDir = path.join(v2Root, "benchmarks", "evals", "runs", runId);
-    await fs.ensureDir(path.join(v2Root, "skills", "dart", "dart-tooling", "evals"));
-    await fs.writeJson(path.join(v2Root, "skills", "dart", "dart-tooling", "evals", "evals.json"), {
-      evals: [{ id: 1, assertions: [{ type: "contains", value: "changed" }] }],
-    });
+    await fs.ensureDir(
+      path.join(v2Root, "skills", "dart", "dart-tooling", "evals"),
+    );
+    await fs.writeJson(
+      path.join(
+        v2Root,
+        "skills",
+        "dart",
+        "dart-tooling",
+        "evals",
+        "evals.json",
+      ),
+      {
+        evals: [
+          { id: 1, assertions: [{ type: "contains", value: "changed" }] },
+        ],
+      },
+    );
     await fs.ensureDir(path.join(runDir, "answers", "dart", "dart-tooling"));
     await fs.writeJson(path.join(runDir, "manifest.json"), {
       schemaVersion: 2,
@@ -169,11 +185,19 @@ describe("EvalsIndex", () => {
       },
       sourceHashes: { "dart/dart-tooling": { skill: "old", evals: "old" } },
       compromisedSkills: [],
-      skills: [{
-        category: "dart",
-        skillName: "dart-tooling",
-        cases: [{ id: "eval-1", kind: "eval", arms: { baseline: "done", "with-skill": "done" } }],
-      }],
+      skills: [
+        {
+          category: "dart",
+          skillName: "dart-tooling",
+          cases: [
+            {
+              id: "eval-1",
+              kind: "eval",
+              arms: { baseline: "done", "with-skill": "done" },
+            },
+          ],
+        },
+      ],
     });
     await fs.writeJson(path.join(runDir, "inputs.json"), {
       schemaVersion: 2,
@@ -183,12 +207,34 @@ describe("EvalsIndex", () => {
         "dart/dart-tooling": {
           category: "dart",
           skillName: "dart-tooling",
-          evals: { evals: [{ id: 1, assertions: [{ type: "contains", value: "answer" }] }] },
+          evals: {
+            evals: [
+              { id: 1, assertions: [{ type: "contains", value: "answer" }] },
+            ],
+          },
         },
       },
     });
-    await fs.writeFile(path.join(runDir, "answers", "dart", "dart-tooling", "eval-1.baseline.md"), "generic formatter guidance");
-    await fs.writeFile(path.join(runDir, "answers", "dart", "dart-tooling", "eval-1.with-skill.md"), "answer with formatter guidance");
+    await fs.writeFile(
+      path.join(
+        runDir,
+        "answers",
+        "dart",
+        "dart-tooling",
+        "eval-1.baseline.md",
+      ),
+      "generic formatter guidance",
+    );
+    await fs.writeFile(
+      path.join(
+        runDir,
+        "answers",
+        "dart",
+        "dart-tooling",
+        "eval-1.with-skill.md",
+      ),
+      "answer with formatter guidance",
+    );
     await fs.writeJson(path.join(runDir, "results.json"), {
       schemaVersion: 2,
       runId,
@@ -196,18 +242,20 @@ describe("EvalsIndex", () => {
       version: "9.9.9",
       scoredAt: "2099-01-01T00:00:00.000Z",
       metadata: {},
-      skills: [{
-        category: "dart",
-        skillName: "dart-tooling",
-        baselinePassRate: 0,
-        withSkillPassRate: 1,
-        delta: 1,
-        casePassRate: { baseline: 0, withSkill: 1 },
-        assertionPassRate: { baseline: 0, withSkill: 1 },
-        triggerRecall: null,
-        triggerSpecificity: null,
-        balancedTriggerAccuracy: null,
-      }],
+      skills: [
+        {
+          category: "dart",
+          skillName: "dart-tooling",
+          baselinePassRate: 0,
+          withSkillPassRate: 1,
+          delta: 1,
+          casePassRate: { baseline: 0, withSkill: 1 },
+          assertionPassRate: { baseline: 0, withSkill: 1 },
+          triggerRecall: null,
+          triggerSpecificity: null,
+          balancedTriggerAccuracy: null,
+        },
+      ],
     });
 
     expect(verifyEvalRun(v2Root, runId).ok).toBe(true);

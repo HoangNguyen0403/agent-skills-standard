@@ -83,7 +83,8 @@ export class UpgradeCommand {
       }
 
       if (pm === 'pnpm') {
-        const installedVersion = this.getInstalledVersionFromPnpm(latestVersion);
+        const installedVersion =
+          this.getInstalledVersionFromPnpm(latestVersion);
 
         if (installedVersion !== latestVersion) {
           console.log(
@@ -245,9 +246,7 @@ export class UpgradeCommand {
     }
   }
 
-  private getInstalledVersionFromPnpm(
-    version: string,
-  ): string | null {
+  private getInstalledVersionFromPnpm(version: string): string | null {
     try {
       const globalRoot = execSync('pnpm root -g', {
         encoding: 'utf8',
@@ -354,9 +353,7 @@ export class UpgradeCommand {
         return;
       }
 
-      console.log(
-        '\n' + pc.yellow(`🔍 Stale shim detected: ${staleShimPath}`),
-      );
+      console.log('\n' + pc.yellow(`🔍 Stale shim detected: ${staleShimPath}`));
       console.log(
         pc.gray(
           '   It points to an old install path and will always report the wrong version.',

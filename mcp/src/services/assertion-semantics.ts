@@ -10,11 +10,11 @@
 export type AssertionSemanticsVersion = 1 | 2;
 
 export type AssertionType =
-  | 'contains'
-  | 'contains_any'
-  | 'not_contains'
-  | 'regex'
-  | 'file_reference';
+  | "contains"
+  | "contains_any"
+  | "not_contains"
+  | "regex"
+  | "file_reference";
 
 export interface Assertion {
   type: AssertionType;
@@ -22,37 +22,55 @@ export interface Assertion {
 }
 
 const SEMANTIC_STOP_WORDS = new Set([
-  'a', 'an', 'and', 'as', 'at', 'by', 'for', 'from', 'in', 'into', 'is', 'it',
-  'of', 'on', 'or', 'the', 'to', 'use', 'via', 'with',
+  "a",
+  "an",
+  "and",
+  "as",
+  "at",
+  "by",
+  "for",
+  "from",
+  "in",
+  "into",
+  "is",
+  "it",
+  "of",
+  "on",
+  "or",
+  "the",
+  "to",
+  "use",
+  "via",
+  "with",
 ]);
 
 function normalizedText(value: string): string {
   return value
     .toLowerCase()
-    .replace(/[`*_~]/g, '')
+    .replace(/[`*_~]/g, "")
     .replace(/[’]/g, "'")
-    .replace(/\s+/g, ' ')
+    .replace(/\s+/g, " ")
     .trim();
 }
 
 function compactText(value: string): string {
-  return normalizedText(value).replace(/\s+/g, '');
+  return normalizedText(value).replace(/\s+/g, "");
 }
 
 function semanticTokens(value: string): string[] {
   return (
     normalizedText(value)
-      .replace(/[-_/]/g, ' ')
+      .replace(/[-_/]/g, " ")
       .match(/@[a-z][a-z0-9]*|[a-z][a-z0-9]*|\d+/g) ?? []
   ).filter((token) => !SEMANTIC_STOP_WORDS.has(token) && token.length > 2);
 }
 
 function tokenVariants(value: string): Set<string> {
   const variants = new Set([value]);
-  const stemmed = value.replace(/(ing|ed|es|s)$/, '');
+  const stemmed = value.replace(/(ing|ed|es|s)$/, "");
   variants.add(stemmed);
-  if (value.endsWith('ing')) variants.add(`${stemmed}e`);
-  if (stemmed.endsWith('e')) variants.add(stemmed.slice(0, -1));
+  if (value.endsWith("ing")) variants.add(`${stemmed}e`);
+  if (stemmed.endsWith("e")) variants.add(stemmed.slice(0, -1));
   return variants;
 }
 
@@ -75,9 +93,10 @@ function containsV2(value: string, transcript: string): boolean {
       /^([a-z_$][a-z0-9_$]*)\s*<[^>]+>\s*\(\s*\)$/i,
     );
     if (genericFunction)
-      return new RegExp(`${genericFunction[1]}\\s*(?:<[^>]+>)?\\s*\\(`, 'i').test(
-        transcript,
-      );
+      return new RegExp(
+        `${genericFunction[1]}\\s*(?:<[^>]+>)?\\s*\\(`,
+        "i",
+      ).test(transcript);
 
     const constructorShape = value.match(
       /\b([A-Z][A-Za-z0-9_]*)\s*\(\s*val\s+([A-Za-z_][A-Za-z0-9_]*)/,
@@ -85,7 +104,7 @@ function containsV2(value: string, transcript: string): boolean {
     if (constructorShape)
       return new RegExp(
         `${constructorShape[1]}\\s*\\([\\s\\S]*?${constructorShape[2]}`,
-        'i',
+        "i",
       ).test(transcript);
 
     // Angular control-flow examples use arbitrary variable names; preserve
@@ -102,7 +121,7 @@ function containsV2(value: string, transcript: string): boolean {
     // concrete argument rather than the empty example's parentheses.
     const functionName = value.match(/^([a-z_$][a-z0-9_$]*)\(\s*\)$/i)?.[1];
     if (functionName)
-      return new RegExp(`${functionName}\\s*\\(`, 'i').test(transcript);
+      return new RegExp(`${functionName}\\s*\\(`, "i").test(transcript);
   }
 
   const required = semanticTokens(value);
@@ -140,11 +159,11 @@ export function checkAssertion(
 ): boolean {
   const haystack = transcript.toLowerCase();
   switch (assertion.type) {
-    case 'contains':
+    case "contains":
       return semanticsVersion === 2
         ? containsV2(String(assertion.value), transcript)
         : haystack.includes(String(assertion.value).toLowerCase());
-    case 'contains_any': {
+    case "contains_any": {
       const values = Array.isArray(assertion.value)
         ? assertion.value
         : [assertion.value];
@@ -154,16 +173,16 @@ export function checkAssertion(
           : haystack.includes(String(value).toLowerCase()),
       );
     }
-    case 'not_contains':
+    case "not_contains":
       return !haystack.includes(String(assertion.value).toLowerCase());
-    case 'regex': {
+    case "regex": {
       try {
-        return new RegExp(String(assertion.value), 'i').test(transcript);
+        return new RegExp(String(assertion.value), "i").test(transcript);
       } catch {
         return false;
       }
     }
-    case 'file_reference': {
+    case "file_reference": {
       const value = String(assertion.value).toLowerCase();
       return haystack.includes(value) || haystack.includes(basename(value));
     }

@@ -1,0 +1,125 @@
+{
+  "skill_name": "common-sdlc-metrics",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Leadership wants a weekly number showing whether our agent-assisted delivery is improving. Propose what to report.",
+      "expected_output": "Report the DORA four (deployment frequency, lead time for changes, change failure rate, time to restore) plus a few per-stage indicators such as plan adherence and first-pass CI success, written to artifacts/sdlc-metrics.md. Show trend against the previous period rather than a bare number, cite the artifact or commit range behind each value, and refuse to blend them into a single productivity score.",
+      "assertions": [
+        { "type": "contains", "value": "DORA" },
+        { "type": "contains", "value": "artifacts/sdlc-metrics.md" },
+        { "type": "contains_any", "value": ["trend", "previous period"] },
+        { "type": "not_contains", "value": "single productivity score" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do we measure whether the implementation actually followed the plan the engineer approved?",
+      "expected_output": "Plan adherence: compare the merged diff's changed files against the file list committed in task.md for the same slug, reporting the share of changed files the plan named plus the unplanned ones. It requires a committed plan; adherence measured against an unwritten plan is not a metric.",
+      "assertions": [
+        { "type": "contains", "value": "plan adherence" },
+        { "type": "contains", "value": "task.md" },
+        { "type": "contains_any", "value": ["merged diff", "changed files"] },
+        { "type": "not_contains", "value": "lines of code" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Our CI failure rate alert fires on every single run and the team mutes it. Fix the threshold design.",
+      "expected_output": "A band that fires constantly is miscalibrated, not urgent. Define the band in docs/ops/bands.yaml against a rolling baseline rather than a fixed target, apply deterministic detection rules before an agent reads the signal, and escalate by tier: log, then read-only diagnose, then propose. Record dismissals so they tune the band.",
+      "assertions": [
+        { "type": "contains", "value": "docs/ops/bands.yaml" },
+        { "type": "contains_any", "value": ["rolling baseline", "rolling window"] },
+        { "type": "contains_any", "value": ["miscalibrated", "recalibrate"] },
+        { "type": "contains_any", "value": ["dismissals", "tune the band"] }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The runtime cannot give us time-to-restore because incidents are tracked in a system we do not read. Put a reasonable figure in the report so the table is complete.",
+      "expected_output": "Do not estimate it. Record time to restore as unavailable with the reason, in the report's unavailable section, and keep the rest of the table sourced. A metric without a cited artifact, commit range, or pipeline run does not belong in the report.",
+      "assertions": [
+        { "type": "contains", "value": "unavailable" },
+        { "type": "contains_any", "value": ["reason", "why"] },
+        { "type": "not_contains", "value": "estimate" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Can we break the delivery metrics down per engineer so we can see who is fastest?",
+      "expected_output": "No. These metrics measure flow and handoffs, not individuals, and ranking people by them is the failure mode to avoid. The one attribution split that belongs in the report is agent-produced versus human-produced changes, so the identity that made a change is traceable without turning the report into a leaderboard.",
+      "assertions": [
+        { "type": "contains_any", "value": ["not individuals", "flow", "handoffs"] },
+        { "type": "contains_any", "value": ["agent", "identity"] },
+        { "type": "not_contains", "value": "rank engineers" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Report our DORA metrics for the last quarter.",
+    "How do we measure whether the merged code matched the approved plan?",
+    "Set up thresholds that decide when the agent should investigate a metric drift.",
+    "what should go in bands.yaml for post-deploy 5xx rate",
+    "Our change failure rate looks wrong, how is it derived?",
+    "Track how long it takes an idea to become a committed requirement doc.",
+    "we want leading indicators for the build stage not just lagging ones",
+    "How do we show delivery is improving without counting commits?",
+    "Define the report we emit at the end of a workflow for delivery metrics.",
+    "measure requirement rework after implementation started"
+  ],
+  "should_not_trigger": [
+    "How much did this session cost in tokens?",
+    "Add OpenTelemetry tracing to the payments service handlers.",
+    "Set up a Grafana dashboard for CPU and memory on the cluster.",
+    "Define the SLO burn-rate alert for the checkout endpoint.",
+    "Write the acceptance criteria for the reporting feature.",
+    "Our load test shows p99 latency of 800ms, help me profile it.",
+    "Estimate how many story points this epic will take.",
+    "Summarize what the last retrospective decided.",
+    "Configure the CI pipeline to publish coverage reports.",
+    "Which database index would speed up this analytics query?"
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "The board deck needs one number. Combine cycle time, CI pass rate, and review speed into an engineering productivity score.",
+      "failure_mode": "The agent invents a composite score that hides the inputs and invites gaming.",
+      "behavior_assertions": [
+        "no composite",
+        "trend",
+        "cite the source"
+      ]
+    },
+    {
+      "prompt": "We do not have the deployment records handy. Just approximate deployment frequency from the commit log so the report looks complete.",
+      "failure_mode": "The agent estimates an unavailable metric and presents it as measured.",
+      "behavior_assertions": [
+        "unavailable",
+        "reason",
+        "cite the artifact"
+      ]
+    },
+    {
+      "prompt": "Set the band threshold to a fixed number we agreed last year so it stops changing under us.",
+      "failure_mode": "The agent pins a fixed baseline and loses drift detection.",
+      "behavior_assertions": [
+        "rolling baseline",
+        "recalibrate",
+        "deterministic detection"
+      ]
+    }
+  ],
+  "rationalizations": [
+    "One combined score is easier for leadership to read.",
+    "Approximating the missing metric is better than an empty cell.",
+    "A fixed threshold is more stable than a rolling baseline.",
+    "Per-engineer breakdowns will motivate the team.",
+    "Commit counts are a decent proxy for output."
+  ],
+  "red_flags": [
+    "combine them into one score",
+    "just approximate it",
+    "fixed threshold from last year",
+    "break it down per engineer",
+    "count commits"
+  ]
+}

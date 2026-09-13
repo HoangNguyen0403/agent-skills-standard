@@ -28,6 +28,7 @@ const AGENTIC_RUNTIME_WORKFLOWS = [
   "retro-learn",
   "uat-signoff",
   "incident-hotfix",
+  "monitor-respond",
 ];
 const REQUIRED_RUNTIME_SECTIONS = [
   "## Runtime Contract",
@@ -82,6 +83,7 @@ const CORE_SDLC_CHAIN = [
   "codebase-review",
   "verify-bug",
   "incident-hotfix",
+  "monitor-respond",
 ];
 
 // Workflows that talk directly to the requesting operator and must carry `operator_profile`
@@ -258,6 +260,13 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
     maxLines: 80,
     requireGoal: true,
     requireOutputTemplate: true,
+  },
+  "monitor-respond": {
+    maxLines: 80,
+    requireGoal: true,
+    requireOutputTemplate: true,
+    notes:
+      "Proactive maintain-stage loop for control-band breaches and scheduled scan triage; routes to incident-hotfix, brainstorm-feature, or retro-learn rather than fixing in place.",
   },
 };
 
