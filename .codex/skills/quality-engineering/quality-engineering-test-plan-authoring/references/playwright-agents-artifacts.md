@@ -13,3 +13,5 @@ bootstrap test with pre-configured page context). This skill's
 convention — when a target repo has Playwright agents initialised, mirror the
 plan into `specs/[slug].md` as well, so the vendor generator/healer agents
 remain usable directly by a developer working locally.
+
+The vendor agents drive Playwright MCP internally; that is independent of the verification driver chosen by `quality-engineering-playwright-cli`'s ladder. `--loop` selects the agent runtime, not the driver.

@@ -2,9 +2,24 @@
 
 Copy-paste argument shapes for the most-used `mcp__appium-mcp__*` tools.
 
+Prefix `mcp__appium-mcp__` assumes the server key `appium-mcp`; if the user registered it as `appium`, the prefix is `mcp__appium__`.
+
+## Device selection (local rung)
+
+```jsonc
+// mcp__appium-mcp__select_device
+{ "platform": "android" }                          // lists adb devices/emulators, picks one
+{ "platform": "android", "udid": "emulator-5554" }
+
+// mcp__appium-mcp__prepare_ios_simulator
+{ "deviceName": "iPhone 15" }                      // boots simulator if needed (macOS only)
+```
+
 ## Session lifecycle
 
 ### Create remote session (LambdaTest)
+
+The URL must match the server's `REMOTE_SERVER_URL_ALLOW_REGEX` env or the create call is refused.
 
 ```jsonc
 // mcp__appium-mcp__appium_session_management
@@ -66,6 +81,13 @@ Copy-paste argument shapes for the most-used `mcp__appium-mcp__*` tools.
 { "action": "dismiss" }
 ```
 
+## Page source (assertion backing)
+
+```jsonc
+// mcp__appium-mcp__appium_get_page_source
+{}                                                // XML hierarchy; save as <label>.source.xml
+```
+
 ## Screen capture
 
 ```jsonc
@@ -93,3 +115,15 @@ Copy-paste argument shapes for the most-used `mcp__appium-mcp__*` tools.
 // mcp__appium-mcp__appium_geolocation
 { "action": "set", "latitude": 10.762, "longitude": 106.660 }   // Ho Chi Minh
 ```
+
+## Test generation (feeds test-loop step 4)
+
+```jsonc
+// mcp__appium-mcp__generate_locators
+{ "elementUUID": "<uuid>" }                       // ranked: accessibility id > id > uiautomator > xpath
+
+// mcp__appium-mcp__appium_generate_tests
+{ "description": "login with valid credentials then open profile", "framework": "webdriverio" }
+```
+
+Output is candidate code only; it still goes through `specialist-integration-test-generator` and the selector ladder.

@@ -1,8 +1,8 @@
-# Playwright MCP Authoring — Confirming Locators Before Writing the Page Object
+# Confirming Locators with playwright-cli or Playwright MCP Before Writing the Page Object
 
 Use the browser only to **confirm** locators the plan needs, never to discover what to test.
 
-Session discipline follows `quality-engineering-playwright-cli`: named session, aria-first, mandatory close.
+Session discipline and driver choice follow `quality-engineering-playwright-cli` (`references/driver-ladder.md`): named session, aria-first, mandatory close. CLI when a shell exists, Playwright MCP otherwise.
 
 ```bash
 playwright-cli -s=pom-checkout open http://localhost:3000/checkout
@@ -10,6 +10,8 @@ playwright-cli -s=pom-checkout snapshot --aria
 # read the aria tree: find role/name for each plan element
 playwright-cli -s=pom-checkout close
 ```
+
+Playwright MCP equivalent (no-shell runtimes): `browser_navigate` → `browser_snapshot` → read the same aria tree → `browser_close`.
 
 Decision per element from the aria snapshot:
 

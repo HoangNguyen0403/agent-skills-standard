@@ -17,7 +17,7 @@ lane at all.
 
 Skill prose, references, two read-only preflight scripts, four workflows, one specialist, evals,
 two docs pages, CHANGELOG. Folded into the unreleased `quality-engineering-v1.7.0`,
-`common-v2.5.0` and `specialists-v1.5.0` entries; no tag exists for any of them.
+`common-v2.5.0` and `specialists-v1.6.0` entries; no tag exists for any of them.
 
 Out of scope: any change under `cli/` or `mcp/`; adding servers to the repo `.mcp.json` or
 `mcp-config-snippets/`; `test-loop` Step 5 run/heal, `specialist-test-healer`,

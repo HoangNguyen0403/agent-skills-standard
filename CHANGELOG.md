@@ -7,14 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [quality-engineering-v1.7.0] - 2026-09-13
 
-**Category**: Test-loop P1 — Playwright page-object generation
+**Category**: Test-loop P1 — Playwright page-object generation; UI automation driver ladders
 
 ### Added
 - `quality-engineering-playwright-pom-generation`: one page object per screen, ladder-compliant locators, no assertions, `pages` fixture; MCP-assisted locator confirmation.
+- `quality-engineering-playwright-cli`: driver ladder (preflight → `playwright-cli` → Playwright MCP → exported evidence → `BLOCKED (driver: playwright)`), `scripts/preflight.sh` with `PLAYWRIGHT_CLI_BIN` override and exit 0/1/2, `references/driver-ladder.md` with CLI↔MCP tool equivalence and launch flags, evidence dir convention `.playwright-cli/<session>/`, keywords `playwright mcp`, `browser_snapshot`, `playwright-cli install`, fallback eval.
+- `quality-engineering-appium-mcp`: driver ladder (preflight → local device → `remoteServerUrl` cloud → exported evidence → `BLOCKED (driver: appium)`), `scripts/preflight.sh` reporting Node/JDK/adb/emulator/simctl/cloud creds with a `MODE` line, `references/driver-ladder.md` with prerequisites per rung and server env (`NO_UI`, `AI_VISION_ENABLED`, `REMOTE_SERVER_URL_ALLOW_REGEX`), evidence dir `.appium-mcp/<session>/`, keywords `appium-mcp`, `appium doctor`, `android emulator`, `ios simulator`, `select_device`, cloud-fallback eval.
+- `docs/ui-automation-drivers.md`: install matrix, per-runtime MCP config snippets, security notes, and the evaluated-not-adopted record for Obscura, Lightpanda and google/artemis.
 
 ### Changed
-- `quality-engineering-test-plan-authoring`: `Selector Gaps` now feeds a live `specialist-testid-inserter`.
+- `quality-engineering-test-plan-authoring`: `Selector Gaps` now feeds a live `specialist-testid-inserter`; Playwright agents reference notes the vendor agents use Playwright MCP independently of the verification driver.
 - `quality-engineering-test-healing`: repair catalog no longer marks `specialist-testid-inserter` as a future phase.
+- `quality-engineering-playwright-cli`: install guidance unpinned (`@latest` + `playwright-cli install --skills`, pin in the consuming project); Playwright MCP named as the sanctioned no-shell exception.
+- `quality-engineering-appium-mcp`: cheatsheet adds `select_device`, `prepare_ios_simulator`, `appium_get_page_source`, `generate_locators`, `appium_generate_tests`; LambdaTest setup documents the allowlist regex and `video.url`.
+- `quality-engineering-playwright-pom-generation`: MCP authoring reference now shows both drivers.
+- Workflows `verify-work`, `verify-bug`, `test-loop` (steps 1–4), `dev-fix`: run the driver preflight, record `driver:` / `evidence_dir:`, carry `driver_blocked[]`.
 
 ### Versions
 - quality-engineering: 1.7.0
@@ -27,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `specialist-testid-inserter`: closes `SELECTOR_GAPS` under an approval gate; never renames ids.
 
 ### Changed
-- `specialist-integration-test-generator`: web lane must use page objects; returns `Test: BLOCKED` when one is missing.
+- `specialist-integration-test-generator`: web lane must use page objects; returns `Test: BLOCKED` when one is missing; lane → driver table (web `playwright-cli` → Playwright MCP, mobile Appium MCP local → cloud) and the `Test: BLOCKED (driver)` verdict.
 
 ### Versions
 - specialists: 1.6.0
@@ -176,6 +183,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [specialists-v1.5.0] - 2026-09-09
 
 **Category**: Solution diagrammer specialist
+- `common-web-visual-testing`, `common-mobile-visual-testing`: Evidence section naming `.playwright-cli/<session>/` and `.appium-mcp/<session>/`, `browser_snapshot` alias for the MCP rung, link to the driver ladders; `appium_get_source` corrected to `appium_get_page_source`.
 
 ### Added
 

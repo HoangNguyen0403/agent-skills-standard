@@ -55,8 +55,8 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 
 1.  **Launch Dev Server**: Run the local dev environment for the service.
 2.  **Execute QE Audit**:
-    - **Web**: Load `quality-engineering-playwright-cli`. Run the reproduction steps. Capture "After" snapshots.
-    - **Mobile**: Load `quality-engineering-appium-mcp`. Run the reproduction steps on an emulator.
+    - **Web**: Load `quality-engineering-playwright-cli`. Run its preflight, take the first driver rung (CLI, else Playwright MCP). Run the reproduction steps. Capture "After" snapshots.
+    - **Mobile**: Load `quality-engineering-appium-mcp`. Run its preflight, take the first driver rung (local device, else cloud). Run the reproduction steps.
 3.  **Final Verdict**: Compare results against the issue `Expected Result`. If any sub-3px regressions exist, fix them now.
     - No success claim without fresh local evidence in `docs/srs/srs-walkthrough.md`.
 

@@ -35,7 +35,7 @@ playwright-cli -s={SESSION} snapshot 2>&1 | grep "id='<offending-element-id>'"  
 
 # 3. Optional screenshot for the human reviewer
 playwright-cli -s={SESSION} hover <surrounding-ref>
-playwright-cli -s={SESSION} screenshot --filename=.playwright-cli/<TICKET>-after.png
+playwright-cli -s={SESSION} screenshot --filename=.playwright-cli/{SESSION}/<TICKET>-after.png
 ```
 
 If the agent's screenshot Read shows "looks clean" but the DOM still has the offending element → **the fix is incomplete**. Trust the DOM snapshot.

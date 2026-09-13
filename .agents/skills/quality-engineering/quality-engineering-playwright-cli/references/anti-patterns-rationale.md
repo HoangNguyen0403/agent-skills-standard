@@ -10,9 +10,11 @@ The bare form (`playwright-cli click ...`) uses an implicit default browser. If 
 
 The CLI does not implement a `wait-for` subcommand. Calling it returns "unknown command". Use the snapshot-grep poll documented in SKILL.md "Waiting for content".
 
-## No `npx @playwright/cli`
+## No `npx @playwright/cli` per call
 
-`npx @playwright/cli@latest …` adds 1-3 s of latency per call (npm registry round-trip + cache check) and silently upgrades the version between runs. Pin via `npm i -g @playwright/cli@0.1.8` and call the installed `playwright-cli` binary directly.
+`npx @playwright/cli@latest …` adds 1-3 s of latency per call (npm registry round-trip + cache check) and silently upgrades the version between runs. Install once with `npm i -g @playwright/cli@latest && playwright-cli install --skills`, pin the version in the consuming project (lockfile or `.tool-versions`), and call the installed `playwright-cli` binary directly. `scripts/preflight.sh` confirms the binary before the first `open`.
+
+The one sanctioned exception is rung 2 of the driver ladder: when the runtime has no shell, the Playwright MCP server (`npx -y @playwright/mcp@latest`) is launched once by the runtime, not per call. See `references/driver-ladder.md`.
 
 ## No paths outside cwd
 
