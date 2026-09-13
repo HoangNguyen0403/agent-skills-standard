@@ -416,7 +416,7 @@
       ]
     },
     "quality-engineering": {
-      "version": "1.7.0",
+      "version": "1.8.0",
       "last_updated": "2026-09-06",
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
@@ -430,7 +430,7 @@
       ]
     },
     "specialists": {
-      "version": "1.6.0",
+      "version": "1.7.0",
       "last_updated": "2026-09-09",
       "tag_prefix": "specialists-v",
       "token_metrics": {
