@@ -361,6 +361,43 @@ class TestRendererCommon(unittest.TestCase):
         self.assertIn("dashed=1", edges[("acme", "sap")])
         self.assertNotIn("dashed=1", edges[("cust", "acme")])
 
+    def test_edge_between_rows_is_pinned_bottom_to_top(self):
+        root = parse(render_drawio.render(container_spec()))
+        edges = {(c.get("source"), c.get("target")): c.get("style")
+                 for c in cells(root) if c.get("edge") == "1"}
+        self.assertIn("exitX=0.5;exitY=1;", edges[("api", "db")])
+        self.assertIn("entryX=0.5;entryY=0;", edges[("api", "db")])
+        self.assertIn("exitX=1;exitY=0.5;", edges[("web", "api")])
+
+    def test_icon_source_exits_below_its_label_block(self):
+        spec = container_spec()
+        spec["nodes"][1] = {"id": "api", "label": "Lambda", "kind": "aws:lambda", "group": "gcp",
+                            "evidence": "docs/a.md:11"}
+        root = parse(render_drawio.render(spec))
+        edges = {(c.get("source"), c.get("target")): c
+                 for c in cells(root) if c.get("edge") == "1"}
+        self.assertIn("exitY=1;exitDx=0;exitDy=52;", edges[("api", "db")].get("style"))
+        self.assertIn("exitPerimeter=0;", edges[("api", "db")].get("style"))
+        self.assertNotIn("entryPerimeter=0;", edges[("api", "db")].get("style"))
+
+    def test_fan_out_edges_carry_waypoints_and_centred_labels(self):
+        spec = container_spec()
+        spec["nodes"].append({"id": "queue", "label": "Events", "kind": "queue", "group": "gcp",
+                              "evidence": "docs/a.md:13"})
+        spec["edges"].append({"from": "api", "to": "queue", "label": "publishes", "style": "async"})
+        root = parse(render_drawio.render(spec))
+        edges = {(c.get("source"), c.get("target")): c
+                 for c in cells(root) if c.get("edge") == "1"}
+        for key in (("api", "db"), ("api", "queue")):
+            points = edges[key].findall("./mxGeometry/Array/mxPoint")
+            self.assertEqual(len(points), 2, key)
+            self.assertEqual(points[0].get("y"), points[1].get("y"), key)
+        ys = {edges[k].find("./mxGeometry/Array/mxPoint").get("y") for k in (("api", "db"), ("api", "queue"))}
+        self.assertEqual(len(ys), 2)
+        straight = edges[("web", "api")]
+        self.assertIsNone(straight.find("./mxGeometry/Array"))
+        self.assertEqual(straight.find("./mxGeometry").get("x"), "0")
+
     def test_legend_lists_every_kind_used(self):
         text = all_values(parse(render_drawio.render(context_spec())))
         self.assertIn("Legend", text)

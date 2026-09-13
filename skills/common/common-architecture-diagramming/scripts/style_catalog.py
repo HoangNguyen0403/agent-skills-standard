@@ -22,8 +22,13 @@ _GCP = ("sketch=0;html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;"
         "verticalLabelPosition=bottom;shape=mxgraph.gcp2.%s")
 
 
+# Icon kinds draw their label under the shape; the layout reserves this much for it.
+ICON_LABEL_H = 52
+
+
 def _gcp(icon, legend):
-    return {"style": _GCP % icon, "w": 66, "h": 58, "legend": legend, "layer": 3}
+    return {"style": _GCP % icon, "w": 66, "h": 58, "label_h": ICON_LABEL_H,
+            "legend": legend, "layer": 3}
 
 
 STYLE_CATALOG = {
@@ -168,7 +173,7 @@ _AWS = ("sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0
 
 for _suffix, _icon in AWS_ICONS.items():
     STYLE_CATALOG["aws:" + _suffix] = {
-        "style": _AWS % _icon, "w": 66, "h": 58,
+        "style": _AWS % _icon, "w": 66, "h": 58, "label_h": ICON_LABEL_H,
         "legend": _AWS_LEGEND[_suffix], "layer": _AWS_LAYER.get(_suffix, 3),
     }
 

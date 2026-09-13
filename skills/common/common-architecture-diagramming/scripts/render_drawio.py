@@ -17,6 +17,7 @@ import sys
 from dataclasses import dataclass, field
 import xml.etree.ElementTree as ET
 
+import check_layout
 import render_erd
 
 # Wide enough that an edge label sits between two columns instead of on top of a
@@ -110,6 +111,11 @@ def _unverified_style(style):
     return ";".join(kept)
 
 
+def _footprint(kind):
+    """Vertical room a shape needs, including a label drawn underneath an icon."""
+    return kind["h"] + kind.get("label_h", 0)
+
+
 def _place_columns(columns):
     """Stack each column and centre the columns against each other.
 
@@ -118,7 +124,7 @@ def _place_columns(columns):
     """
     heights = {}
     for column, members in columns.items():
-        heights[column] = (sum(k["h"] for _, k in members)
+        heights[column] = (sum(_footprint(k) for _, k in members)
                            + ROW_GAP * max(0, len(members) - 1))
     tallest = max(heights.values()) if heights else 0
     placed = {}
@@ -127,12 +133,12 @@ def _place_columns(columns):
         for node, kind in columns[column]:
             x = MARGIN_X + column * COL_STEP + (CELL_W - kind["w"]) / 2.0
             placed[node["id"]] = (int(x), int(y))
-            y += kind["h"] + ROW_GAP
+            y += _footprint(kind) + ROW_GAP
     return placed
 
 
-def _place_rows(rows):
-    """Lay rows out top-down, each row centred on the widest one."""
+def _place_rows(rows, align="centre", gap=ROW_GAP + 30):
+    """Lay rows out top-down; centred on the widest row, or left-aligned for group bands."""
     widths = {}
     for row, members in rows.items():
         widths[row] = (sum(k["w"] for _, k in members)
@@ -142,12 +148,48 @@ def _place_rows(rows):
     y = BODY_Y
     for row in sorted(rows):
         members = rows[row]
-        x = MARGIN_X + (widest - widths[row]) / 2.0
-        row_height = max(k["h"] for _, k in members)
+        x = MARGIN_X + ((widest - widths[row]) / 2.0 if align == "centre" else 0)
+        row_height = max(_footprint(k) for _, k in members)
         for node, kind in members:
-            placed[node["id"]] = (int(x), int(y + (row_height - kind["h"]) / 2.0))
+            placed[node["id"]] = (int(x), int(y + (row_height - _footprint(kind)) / 2.0))
             x += kind["w"] + MIN_LABEL_GAP
-        y += row_height + ROW_GAP + 30
+        y += row_height + gap
+    return placed
+
+
+def _group_rank(nodes):
+    """Groups in order of first appearance; ungrouped nodes sort after every group."""
+    ranks = {}
+    for node in nodes:
+        group = node.get("group")
+        if group and group not in ranks:
+            ranks[group] = len(ranks)
+    return ranks
+
+
+def _push_past_group_bands(rows, placed, ranks):
+    """Shift nodes right so nothing outside a group sits inside its column band.
+
+    Groups are handled in rank order and only nodes of a later rank (or no group)
+    move; a shift only ever moves nodes right, so each band is final by the time
+    the next group is measured.
+    """
+    def rank(node):
+        return ranks.get(node.get("group"), len(ranks))
+
+    for group in sorted(ranks, key=ranks.get):
+        members = [(n, k) for row in rows.values() for n, k in row if n.get("group") == group]
+        if not members:
+            continue
+        limit = max(placed[n["id"]][0] + k["w"] for n, k in members) + MIN_LABEL_GAP + GROUP_PAD_X * 2
+        for row in rows.values():
+            shift = 0
+            for node, _ in row:
+                if rank(node) <= ranks[group]:
+                    continue
+                x, y = placed[node["id"]]
+                shift = max(shift, limit - x) if x + shift < limit else shift
+                placed[node["id"]] = (int(x + shift), y)
     return placed
 
 
@@ -166,15 +208,44 @@ def _layout_context(nodes):
     return _place_columns({c: m for c, m in columns.items() if m})
 
 
-def _layout_layered(nodes):
-    """Rows read as the request travels: clients, edge, services, data, external."""
+FAN_LABEL_STEP = 22   # vertical room per staggered fan-out edge so labels do not stack
+
+
+def _row_gap(nodes, edges):
+    """Widen the gap between rows when one node fans out to several nodes in other rows."""
+    layer_of = {n["id"]: n.get("layer", _kind(n)["layer"]) for n in nodes}
+    fan = {}
+    for edge in edges:
+        src, dst = edge.get("from"), edge.get("to")
+        if src in layer_of and dst in layer_of and layer_of[src] != layer_of[dst]:
+            fan[src] = fan.get(src, 0) + 1
+    widest = max(fan.values(), default=0)
+    return max(ROW_GAP + 30, FAN_LABEL_STEP * (widest + 1))
+
+
+def _layout_layered(nodes, edges):
+    """Rows read as the request travels: clients, edge, services, data, external.
+
+    With groups present, each row lists grouped nodes first (in group order) and rows
+    are left-aligned, so a group's members form one column band that outsiders are
+    pushed past; without groups, rows are centred against each other.
+    """
+    ranks = _group_rank(nodes)
     layers = {}
     for node in nodes:
         kind = _kind(node)
         layer = node.get("layer", kind["layer"])
         layers.setdefault(layer, []).append((node, kind))
-    rows = {index: layers[layer] for index, layer in enumerate(sorted(layers))}
-    return _place_rows(rows)
+    gap = _row_gap(nodes, edges)
+    if not ranks:
+        rows = {index: layers[layer] for index, layer in enumerate(sorted(layers))}
+        return _place_rows(rows, gap=gap)
+    rows = {}
+    for index, layer in enumerate(sorted(layers)):
+        rows[index] = sorted(layers[layer],
+                             key=lambda pair: ranks.get(pair[0].get("group"), len(ranks)))
+    placed = _place_rows(rows, align="left", gap=gap)
+    return _push_past_group_bands(rows, placed, ranks)
 
 
 def _layout_state(nodes, edges):
@@ -275,34 +346,49 @@ def _render_groups(root, spec, layout):
         _geometry(cell, x, y, w, h)
 
 
-def _anchor_style(source_box, target_box):
-    """Pin each end to the facing side, so a line never cuts through a third box."""
-    sx, sy, sw, sh = source_box
-    tx, ty, tw, th = target_box
-    dx = (tx + tw / 2.0) - (sx + sw / 2.0)
-    dy = (ty + th / 2.0) - (sy + sh / 2.0)
-    if abs(dx) >= abs(dy):
-        exit_point, entry_point = ((1, 0.5), (0, 0.5)) if dx >= 0 else ((0, 0.5), (1, 0.5))
-    else:
-        exit_point, entry_point = ((0.5, 1), (0.5, 0)) if dy >= 0 else ((0.5, 0), (0.5, 1))
-    return ("exitX=%s;exitY=%s;exitDx=0;exitDy=0;entryX=%s;entryY=%s;entryDx=0;entryDy=0;"
-            % (exit_point[0], exit_point[1], entry_point[0], entry_point[1]))
+_PORTS = {"left": (0, 0.5), "right": (1, 0.5), "top": (0.5, 0), "bottom": (0.5, 1)}
+
+
+def _anchor_style(source_box, target_box, source_label_h=0, target_label_h=0):
+    """Pin each end to the side check_layout.anchor_sides picks, so the checker and the
+    renderer agree on where a line runs. A bottom port on an icon is pushed below the
+    label drawn under it."""
+    exit_side, entry_side = check_layout.anchor_sides(source_box, target_box)
+    (ex, ey), (nx, ny) = _PORTS[exit_side], _PORTS[entry_side]
+    exit_dy = source_label_h if exit_side == "bottom" else 0
+    entry_dy = target_label_h if entry_side == "bottom" else 0
+    style = ("exitX=%s;exitY=%s;exitDx=0;exitDy=%d;entryX=%s;entryY=%s;entryDx=0;entryDy=%d;"
+             % (ex, ey, exit_dy, nx, ny, entry_dy))
+    # draw.io snaps an offset port back onto the shape unless perimeter projection is off.
+    if exit_dy:
+        style += "exitPerimeter=0;"
+    if entry_dy:
+        style += "entryPerimeter=0;"
+    return style
 
 
 def _render_edges(root, spec, edges, boxes):
+    label_h = {n["id"]: _kind(n).get("label_h", 0) for n in spec["nodes"]}
+    routes = {id(edge): points for edge, points in check_layout.plan_routes(spec, boxes)}
     for index, edge in enumerate(edges):
         style = EDGE_STYLES[edge.get("style", "sync")]
-        if edge["from"] in boxes and edge["to"] in boxes:
-            style += _anchor_style(boxes[edge["from"]], boxes[edge["to"]])
+        points = routes.get(id(edge))
+        if points:
+            style += _anchor_style(boxes[edge["from"]], boxes[edge["to"]],
+                                   label_h[edge["from"]], label_h[edge["to"]])
         cell = ET.SubElement(root, "mxCell", {
             "id": "_edge_%d" % index, "value": _edge_value(edge),
             "style": style, "edge": "1", "parent": "1",
             "source": edge["from"], "target": edge["to"],
         })
-        # Push the label off the midpoint: on a dog-legged route the midpoint
-        # lands on the turn, which puts the text on top of the box it left.
-        ET.SubElement(cell, "mxGeometry",
-                      {"x": "-0.35", "relative": "1", "as": "geometry"})
+        # Label position is relative along the path: -1 source, 0 middle, 1 target.
+        fraction = check_layout.label_fraction(points) if points else 0.5
+        geometry = ET.SubElement(cell, "mxGeometry",
+                                 {"x": "%g" % (2 * fraction - 1), "relative": "1", "as": "geometry"})
+        if points and len(points) == 4 and points[1] != points[2]:
+            waypoints = ET.SubElement(geometry, "Array", {"as": "points"})
+            for x, y in points[1:3]:
+                ET.SubElement(waypoints, "mxPoint", {"x": str(int(x)), "y": str(int(y))})
 
 
 def _render_title(root, spec, accent, width):
@@ -377,8 +463,11 @@ class Layout:
     groups: dict = field(default_factory=dict)
 
 
+GROUP_PAD_X = 30
+
+
 def group_box(member_boxes):
-    pad_x, pad_top, pad_bottom = 30, 46, 30
+    pad_x, pad_top, pad_bottom = GROUP_PAD_X, 46, 30
     x0 = min(b[0] for b in member_boxes) - pad_x
     y0 = min(b[1] for b in member_boxes) - pad_top
     x1 = max(b[0] + b[2] for b in member_boxes) + pad_x
@@ -395,7 +484,7 @@ def _place(spec, nodes, edges):
         return _layout_sequence(nodes)
     if spec["type"] == "state":
         return _layout_state(nodes, edges)
-    return _layout_layered(nodes)
+    return _layout_layered(nodes, edges)
 
 
 def layout(spec):
@@ -412,7 +501,7 @@ def layout(spec):
     for node in nodes:
         x, y = placed[node["id"]]
         kind = _kind(node)
-        h = render_erd.entity_height(node) if node["kind"] == "entity" else kind["h"]
+        h = render_erd.entity_height(node) if node["kind"] == "entity" else _footprint(kind)
         boxes[node["id"]] = (x, y, kind["w"], h)
     groups = {}
     for group in spec.get("groups") or []:
@@ -489,7 +578,6 @@ def main(argv=None):
         sys.stderr.write("wrote %s\n" % args.output)
     else:
         sys.stdout.write(xml)
-    import check_layout
     findings = check_layout.check(spec, lay)
     for finding in findings:
         sys.stderr.write("layout: %s\n" % finding)
