@@ -45,12 +45,17 @@ Responses must label the two captures as **Before** and **After** (or Baseline a
 - **Single-Viewport**: Never verify Desktop only. Check Mobile (375px) + Tablet (768px).
 - **Ignore Layout Shift**: Check loading state (skeleton) → no page jump.
 - **Unmasked Dynamic**: **MUST** mask timestamp/balance via `--mask` or JS (`opacity: 0`). Avoid "False Regression".
-- **Blind Assertion**: Use `playwright-cli snapshot --aria` verify state before done.
+- **Blind Assertion**: Use `playwright-cli snapshot --aria` (CLI) or `browser_snapshot` (Playwright MCP) verify state before done.
+
+## 📁 Evidence
+
+Before/After pairs live in `.playwright-cli/<session>/` as `<AC|step>-before.png` / `<AC|step>-after.png` plus matching `.aria.txt`. Driver rung and dir go in the walkthrough `driver:` / `evidence_dir:` lines.
 - **External Dependency**: Mock/bypass 3rd-party (Chat, Analytics) → prevent flakiness.
 
 ## 🔗 References
 
 - **playwright-cli**: [playwright-cli](../../quality-engineering/quality-engineering-playwright-cli/SKILL.md)
+- **Driver Ladder**: [driver-ladder](../../quality-engineering/quality-engineering-playwright-cli/references/driver-ladder.md) — CLI first, Playwright MCP fallback, BLOCKED rule.
 - **Diagnostic Decoder**: [diagnostic-decoder](references/diagnostic-decoder.md)
 - **DOM vs Screenshot**: [dom-snapshot-vs-screenshot](references/dom-snapshot-vs-screenshot.md)
 - **Login & Data**: [login-and-test-data](references/login-and-test-data.md)

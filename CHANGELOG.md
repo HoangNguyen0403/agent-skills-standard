@@ -5,56 +5,53 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [quality-engineering-v1.8.0] - 2026-09-13
+## [quality-engineering-v1.6.0] - Unreleased
 
-**Category**: Test-loop P3 — flaky triage and visual baselines
+**Category**: Test-loop program P0–P3, requirement-to-TC hardening, automation health, UI automation driver ladders
+
+> Consolidated in #192. The untagged headers `quality-engineering-v1.6.0`–`v1.8.0` written by #169, #184, #186 and #188 were merged into this one entry because nothing after `quality-engineering-v1.5.1` has been released. One minor bump per release, not per PR.
 
 ### Added
-- `quality-engineering-flaky-triage`: quarantine behind a ticket with owner and 14-day expiry, root-cause buckets, 10-run isolated evidence, un-quarantine criteria.
-- `quality-engineering-visual-baseline`: capture in CI image, mask by locator, per-region thresholds, reviewed-diff baseline updates.
+- `quality-engineering-selector-stability` (#169): cross-stack locator ladder (web `getByRole` > `getByLabel` > `getByTestId`; mobile a11y id > resource-id/testTag), test-id naming `<screen>-<element>-<role>`, never XPath.
+- `quality-engineering-test-healing` (#169): failure taxonomy `SELECTOR_DRIFT / TIMING_SYNC / DATA_ENV / INFRA / REAL_REGRESSION`, allowed and forbidden repairs, verdict contract.
+- `quality-engineering-test-plan-authoring` (#169): AC-* into an executable test plan with lanes, seed, and `Selector Gaps`.
+- `quality-engineering-automation-health` (#184): feedback-loop, suite reliability, release cadence and prod-escape metrics rolled into a `release_confidence` verdict.
+- `quality-engineering-playwright-pom-generation` (#186): one page object per screen, ladder-compliant locators, no assertions, `pages` fixture; MCP-assisted locator confirmation.
+- `quality-engineering-flaky-triage` (#188): quarantine behind a ticket with owner and 14-day expiry, root-cause buckets, 10-run isolated evidence, un-quarantine criteria.
+- `quality-engineering-visual-baseline` (#188): capture in CI image, mask by locator, per-region thresholds, reviewed-diff baseline updates.
+- `quality-engineering-playwright-cli` (#192): driver ladder (preflight → `playwright-cli` → Playwright MCP → exported evidence → `BLOCKED (driver: playwright)`), `scripts/preflight.sh` with `PLAYWRIGHT_CLI_BIN` override and exit 0/1/2, `references/driver-ladder.md` with CLI↔MCP tool equivalence and launch flags, evidence dir convention `.playwright-cli/<session>/`, keywords `playwright mcp`, `browser_snapshot`, `playwright-cli install`, fallback eval.
+- `quality-engineering-appium-mcp` (#192): driver ladder (preflight → local device → `remoteServerUrl` cloud → exported evidence → `BLOCKED (driver: appium)`), `scripts/preflight.sh` reporting Node/JDK/adb/emulator/simctl/cloud creds with a `MODE` line, `references/driver-ladder.md` with prerequisites per rung and server env (`NO_UI`, `AI_VISION_ENABLED`, `REMOTE_SERVER_URL_ALLOW_REGEX`), evidence dir `.appium-mcp/<session>/`, keywords `appium-mcp`, `appium doctor`, `android emulator`, `ios simulator`, `select_device`, cloud-fallback eval.
+- `references/setup.md` in both driver skills (#192): install matrix, MCP config snippet, security notes, and the evaluated-not-adopted record for Obscura, Lightpanda (web) and google/artemis (mobile). `docs/ui-automation-drivers.md` is a maintainer summary only; skills never link to `docs/`.
 
 ### Changed
-- `quality-engineering-test-healing`: references flaky-triage and visual-baseline; `test.skip`/`fixme` never allowed as a heal; second `BLOCKED` cause (no stable locator target); P3 placeholders removed.
+- `quality-engineering-zephyr-test-generation` (#184): P/N/E scenario contract, `ASSUMED` tagging, `HALT` on ambiguous AC, golden requirement fixtures, three new anti-patterns.
+- `quality-engineering-test-plan-authoring` (#186, #192): `Selector Gaps` now feeds a live `specialist-testid-inserter`; Playwright agents reference notes the vendor agents use Playwright MCP independently of the verification driver.
+- `quality-engineering-test-healing` (#186, #188): repair catalog no longer marks `specialist-testid-inserter` as a future phase; references flaky-triage and visual-baseline; `test.skip`/`fixme` never allowed as a heal; second `BLOCKED` cause (no stable locator target); P3 placeholders removed.
+- `quality-engineering-playwright-cli` (#192): install guidance unpinned (`@latest` + `playwright-cli install --skills`, pin in the consuming project); Playwright MCP named as the sanctioned no-shell exception.
+- `quality-engineering-appium-mcp` (#192): cheatsheet adds `select_device`, `prepare_ios_simulator`, `appium_get_page_source`, `generate_locators`, `appium_generate_tests`; LambdaTest setup documents the allowlist regex and `video.url`.
+- `quality-engineering-playwright-pom-generation` (#192): MCP authoring reference now shows both drivers.
+- Workflows `verify-work`, `verify-bug`, `test-loop` (steps 1–4), `dev-fix` (#192): run the driver preflight, record `driver:` / `evidence_dir:`, carry `driver_blocked[]`.
 
 ### Versions
-- quality-engineering: 1.8.0
+- quality-engineering: 1.6.0
 
-## [specialists-v1.7.0] - 2026-09-13
+## [specialists-v1.3.0] - Unreleased
 
-**Category**: Test-loop P3 — test healer
+**Category**: Test-loop specialists (planner, testid-inserter, healer), solution diagrammer, driver-aware generation
 
-### Added
-- `specialist-test-healer`: classifies one failing test from artifacts, one allowed repair, 3 consecutive reruns, `ASSERTION_DELTA` gate, verdict + route.
-
-### Versions
-- specialists: 1.7.0
-
-## [quality-engineering-v1.7.0] - 2026-09-13
-
-**Category**: Test-loop P1 — Playwright page-object generation
+> Consolidated in #192. The untagged headers `specialists-v1.4.0`–`v1.7.0` written by #169, #172, #186 and #188 were merged into this one entry because nothing after `specialists-v1.2.1` has been released. One minor bump per release, not per PR.
 
 ### Added
-- `quality-engineering-playwright-pom-generation`: one page object per screen, ladder-compliant locators, no assertions, `pages` fixture; MCP-assisted locator confirmation.
+- `specialist-test-planner` (#169): turns approved AC/SRS into `PLAN: / LANES: / SCENARIOS: / SEED: / SELECTOR_GAPS:` output with `HALT:` triggers.
+- `specialist-solution-diagrammer` (#172): draws exactly one evidence-grounded diagram per invocation from a caller-supplied evidence bundle, then validates, renders, exports, and reviews the exported image. Returns `BLOCKED` when given no evidence, no diagram type, or when every node would be UNVERIFIED. Generated agent definitions ship for Claude, Codex, Antigravity, and Copilot. Carries `metric` and `constraint` onto each node, never invents a number, reports a `METRICS:` line. Renders with `--strict` and exports through a draw.io MCP tool, the Desktop CLI, or reports the image as not exported.
+- `specialist-testid-inserter` (#186): closes `SELECTOR_GAPS` under an approval gate; never renames ids.
+- `specialist-test-healer` (#188): classifies one failing test from artifacts, one allowed repair, 3 consecutive reruns, `ASSERTION_DELTA` gate, verdict + route.
 
 ### Changed
-- `quality-engineering-test-plan-authoring`: `Selector Gaps` now feeds a live `specialist-testid-inserter`.
-- `quality-engineering-test-healing`: repair catalog no longer marks `specialist-testid-inserter` as a future phase.
+- `specialist-integration-test-generator` (#186, #192): web lane must use page objects; returns `Test: BLOCKED` when one is missing; lane → driver table (web `playwright-cli` → Playwright MCP, mobile Appium MCP local → cloud) and the `Test: BLOCKED (driver)` verdict.
 
 ### Versions
-- quality-engineering: 1.7.0
-
-## [specialists-v1.6.0] - 2026-09-13
-
-**Category**: Test-loop P1 — selector gap closure and page-object-aware generation
-
-### Added
-- `specialist-testid-inserter`: closes `SELECTOR_GAPS` under an approval gate; never renames ids.
-
-### Changed
-- `specialist-integration-test-generator`: web lane must use page objects; returns `Test: BLOCKED` when one is missing.
-
-### Versions
-- specialists: 1.6.0
+- specialists: 1.3.0
 
 ---
 
@@ -75,9 +72,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [system-design-v2.0.0] - 2026-09-13
+## [system-design-v1.1.0] - Unreleased
 
 **Category**: One diagram lane
+
+> Renumbered from `2.0.0` in #192. The `system-design-diagramming` removal is recorded below, but the category is versioned as a minor bump because consumers sync by category, not by skill name.
 
 ### Removed
 
@@ -114,7 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Versions
 
-- **System Design Skills**: `1.0.0` → `2.0.0`
+- **System Design Skills**: `1.0.0` → `1.1.0`
 
 ---
 
@@ -196,21 +195,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   gains a third legitimate case: a live interview practice round in chat.
 - SKILL pipeline renders with `--strict`; triggers gain `entity relationship`, `schema diagram`,
   `aws`; evals gain an ERD-from-Prisma case and an AWS-plus-Azure-AD case.
-
-## [specialists-v1.5.0] - 2026-09-09
-
-**Category**: Solution diagrammer specialist
-
-### Added
-
-- **`specialist-solution-diagrammer`**: draws exactly one evidence-grounded diagram per
-  invocation from a caller-supplied evidence bundle, then validates, renders, exports, and
-  reviews the exported image. Returns `BLOCKED` when given no evidence, no diagram type, or when
-  every node would be UNVERIFIED, so a batch redraw cannot quietly invent architecture.
-  Generated agent definitions ship for Claude, Codex, Antigravity, and Copilot. Carries
-  `metric` and `constraint` from the evidence bundle onto each node, never invents a number,
-  and reports a `METRICS:` line in its output block. Renders with `--strict` and exports
-  through a draw.io MCP tool, the Desktop CLI, or reports the image as not exported.
+- `common-software-requirements` (#192): `docs/requirements-standards-baseline.md` moved into `references/requirements-standards-baseline.md` so it ships with the skill; `common-business-requirements`, `common-product-requirements` and the `sdlc` workflow now link there instead of the unsynced `docs/` folder.
+- `common-web-visual-testing`, `common-mobile-visual-testing` (#192): Evidence section naming `.playwright-cli/<session>/` and `.appium-mcp/<session>/`, `browser_snapshot` alias for the MCP rung, link to the driver ladders; `appium_get_source` corrected to `appium_get_page_source`.
 
 ## [system-design-v1.0.0] - 2026-08-30
 

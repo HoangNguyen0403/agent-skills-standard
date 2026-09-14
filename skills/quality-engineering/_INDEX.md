@@ -19,10 +19,10 @@
 
 | Skill | Match when user mentions |
 | ----- | ----------------------- |
-| quality-engineering-appium-mcp | appium, mobile verify, android verify, ios verify, lambdatest, real device cloud, flutter widget tap |
+| quality-engineering-appium-mcp | appium, appium-mcp, appium doctor, android emulator, ios simulator, select_device, mobile verify, android verify, ios verify, lambdatest, real device cloud, flutter widget tap |
 | quality-engineering-automation-health | automation health, release confidence, suite reliability, flaky rate, feedback loop, escape rate, automation roi, suite value |
 | quality-engineering-jira-integration | jira issue, zephyr link, has-zephyr-tests, traceability, link test case |
-| quality-engineering-playwright-cli | playwright-cli, browser automation, web verify, browser navigate, page verification |
+| quality-engineering-playwright-cli | playwright-cli, playwright mcp, browser_snapshot, browser automation, web verify, browser navigate, page verification, playwright-cli install |
 | quality-engineering-quality-assurance | test case, manual test, zephyr, test scenario, naming convention, acceptance criteria |
 
 > Load matched skills: `<SKILLS>/quality-engineering/<skill>/SKILL.md`. Load ALL that match — the tier model already filters irrelevant ones.

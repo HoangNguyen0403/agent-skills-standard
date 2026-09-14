@@ -1,6 +1,8 @@
 # Requirements Standards Baseline
 
-This baseline defines where BRD, PRD, and SRS/FRS workflow guidance is derived from.
+This baseline defines where BRD, PRD, and SRS/FRS workflow guidance is derived from. It ships
+with `common-software-requirements` so consumers always have it; `common-business-requirements`,
+`common-product-requirements` and the `sdlc` workflow link here.
 
 ## Why You Can Trust This Baseline
 
@@ -73,7 +75,7 @@ This baseline defines where BRD, PRD, and SRS/FRS workflow guidance is derived f
 
 ## Operator Profile Contract
 
-Every operator-facing workflow (`sdlc`, `brainstorm-feature`, `plan-feature`, `verify-work`, `uat-signoff`, `publish-notes`, `session-report`) infers `operator_profile` (`business | hybrid | technical`) from request phrasing per `common-operator-profile` — never by asking the operator to self-classify — and carries it in the Handoff Payload so downstream workflows never re-infer it. See `skills/common/common-operator-profile/SKILL.md` for inference signals, per-tier register rules, and the proxy-defaults rule that lets `brainstorm-feature` draft sponsor/metric/scope defaults instead of blocking a non-technical operator outright.
+Every operator-facing workflow (`sdlc`, `brainstorm-feature`, `plan-feature`, `verify-work`, `uat-signoff`, `publish-notes`, `session-report`) infers `operator_profile` (`business | hybrid | technical`) from request phrasing per `common-operator-profile` — never by asking the operator to self-classify — and carries it in the Handoff Payload so downstream workflows never re-infer it. See the `common-operator-profile` skill for inference signals, per-tier register rules, and the proxy-defaults rule that lets `brainstorm-feature` draft sponsor/metric/scope defaults instead of blocking a non-technical operator outright.
 
 ## Portable Outcome Report Contract
 

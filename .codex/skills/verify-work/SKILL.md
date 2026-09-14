@@ -30,10 +30,10 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
    - Unit/component, integration/API, E2E/visual, mobile, security, migration, or deployment smoke.
 3. Execute:
    - Run the smallest reliable automated checks first.
-   - Use Playwright/Appium only when user-facing behavior changed.
+   - Use Playwright/Appium only when user-facing behavior changed. Run the driver skill's `scripts/preflight.sh` and take the first rung that works (web: `playwright-cli` → Playwright MCP; mobile: Appium MCP local → cloud). A lane whose driver is missing and has no exported evidence is `BLOCKED (driver: <name>)`.
    - Use Zephyr/Jira/GitHub/GitLab/ADO MCPs only when configured; otherwise record local evidence.
    - If external MCP is unavailable, ask for exported ticket/PR/TC data or mark that lane BLOCKED.
-   - **Capture Evidence**: logs, screenshots, traces, or terminal output summaries.
+   - **Capture Evidence**: logs, screenshots, traces, or terminal output summaries, under `.playwright-cli/<session>/` or `.appium-mcp/<session>/` as `<AC|step>-<before|after>.*`.
    - **Comparative Audit**: If it's a bug fix, prove the "Before" (failure) vs "After" (success).
 4. Judge:
    - PASS: all acceptance criteria proven.
@@ -70,6 +70,9 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
 ## Negative Testing Proof (Fail Cases)
 
 ## Evidence (Screenshots/Logs)
+
+driver: playwright-cli | playwright-mcp | appium-mcp | none (BLOCKED)
+evidence_dir: <relative path>
 
 ## Risks Observed
 

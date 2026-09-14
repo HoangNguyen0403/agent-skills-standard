@@ -21,7 +21,7 @@ Goal: Select the next native workflow without loading every workflow body, while
    - User request; infer `operator_profile` (business | hybrid | technical) per `common-operator-profile` and carry it in every Handoff Payload.
    - Search `docs/brd/`, `docs/prd/`, and `docs/srs/` for a matching `[slug]`; if absent, use the newest BRD or `git status`. Slug = lowercase kebab-case, minted once at `brainstorm-feature`, reused verbatim downstream; never re-derived.
    - If multiple candidates exist, list them and ask whether to focus, consolidate, or sequence.
-   - Baseline reference: `docs/requirements-standards-baseline.md`
+   - Baseline reference: `common-software-requirements/references/requirements-standards-baseline.md` (ships with the skill)
    - Existing ticket, BRD-lite brief, PRD, SRS/FRS design, implementation plan, task list, walkthrough, UAT signoff, deployment report, release notes, and retro
    - Jira, ADO, Zephyr, or other MCP context when already configured
    - Changed files and current test status

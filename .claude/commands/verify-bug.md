@@ -37,7 +37,7 @@ Goal: Prove a bug fix works in the UAT environment via comparative Before/After 
 For each market in scope:
 
 1.  **Environment Setup**: Run the DNS probe from `<SKILLS>/common/common-web-visual-testing/references/diagnostic-decoder.md`; if it indicates VPN is required, connect VPN and retry.
-2.  **Named Session**: Start `playwright-cli -s={TICKET}-{MARKET}` or Appium session.
+2.  **Named Session**: Run the driver skill's `scripts/preflight.sh`, then start `playwright-cli -s={TICKET}-{MARKET}` (Playwright MCP with `--output-dir .playwright-cli/{TICKET}-{MARKET}` on no-shell runtimes) or an Appium MCP session. Evidence lands in that session dir; a missing driver with no exported evidence is `BLOCKED (driver: <name>)`.
 3.  **Walk Steps**: Execute reproduction steps.
     - **Hover Discipline**: Always `hover` the target element (warning, button, price) before screenshotting.
     - **Stability**: Disable animations and mask dynamic fields (clocks, balances).
@@ -56,7 +56,7 @@ If the verdict is NOT PASS:
 
 ### Step 3: Evidence & JIRA Sync
 
-1.  **Upload**: Push screenshots as attachments to the JIRA ticket.
+1.  **Upload**: Push screenshots from the session evidence dir as attachments to the JIRA ticket.
 2.  **Wiki Comment**: Post a verdict comment using JIRA Wiki Markup (orientation-aware widths).
     - Use `🟢 PASS` / `🔴 FAIL` badges.
     - Embed the most diagnostic screenshot inline.

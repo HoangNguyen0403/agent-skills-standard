@@ -47,7 +47,7 @@ Analyze diff + answer:
 | **System Alert** | `appium_alert` (check hierarchy first) |
 | **Performance** | `appium_mobile_performance_data` (monitor during flow) |
 | **Visual Check** | `appium_screenshot` (base/diff) |
-| **Layout Audit** | `appium_get_source` (hierarchy/aria) |
+| **Layout Audit** | `appium_get_page_source` (hierarchy/aria) |
 
 ## 🚫 Anti-Patterns
 
@@ -58,7 +58,12 @@ Analyze diff + answer:
 - **Deep Link Neglect**: Verify "Cold Start" via deep link.
 - **Single-Device Tunnel Vision**: Verify smallest/largest screen size.
 
+## 📁 Evidence
+
+`.appium-mcp/<session>/` holds `<AC|step>-<before|after>.png`, `<label>.source.xml`, `perf.json` (QoS proof), `video.url`. Driver rung and dir go in the walkthrough `driver:` / `evidence_dir:` lines.
+
 ## 🔗 References
 
 - **appium-mcp**: [appium-mcp](../../quality-engineering/quality-engineering-appium-mcp/SKILL.md)
+- **Driver Ladder**: [driver-ladder](../../quality-engineering/quality-engineering-appium-mcp/references/driver-ladder.md) — local then cloud, BLOCKED rule.
 - **Scenario Details**: [scenarios](references/scenarios.md)

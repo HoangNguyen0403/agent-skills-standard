@@ -10,6 +10,12 @@ remoteServerUrl: https://${LAMBDATEST_USERNAME}:${LAMBDATEST_ACCESSKEY}@mobile-h
 
 The userinfo segment carries credentials — do not log this URL; treat it like a bearer token.
 
+The Appium MCP server refuses any `remoteServerUrl` that does not match its allowlist. Set it in the server env before the first create:
+
+```text
+REMOTE_SERVER_URL_ALLOW_REGEX=^https://[^@]+@mobile-hub\.lambdatest\.com/wd/hub$
+```
+
 ## Capabilities template (Android skeleton)
 
 ```jsonc
@@ -71,4 +77,4 @@ LambdaTest converts `.aab` to device-specific APKs and **re-signs with their int
 
 - Metering starts when first command lands.
 - typical session: 3–8 min.
-- LambdaTest auto-records video — pull via REST `GET /automation/api/v1/sessions/<sessionId>`.
+- LambdaTest auto-records video — pull via REST `GET /automation/api/v1/sessions/<sessionId>` after `delete`, write the link to `.appium-mcp/<session>/video.url`.
