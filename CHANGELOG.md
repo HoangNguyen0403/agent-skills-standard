@@ -72,9 +72,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [system-design-v2.0.0] - 2026-09-13
+## [system-design-v1.1.0] - Unreleased
 
 **Category**: One diagram lane
+
+> Renumbered from `2.0.0` in #192. The `system-design-diagramming` removal is recorded below, but the category is versioned as a minor bump because consumers sync by category, not by skill name.
 
 ### Removed
 
@@ -111,7 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Versions
 
-- **System Design Skills**: `1.0.0` → `2.0.0`
+- **System Design Skills**: `1.0.0` → `1.1.0`
 
 ---
 

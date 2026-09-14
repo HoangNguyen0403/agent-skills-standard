@@ -18,7 +18,7 @@ opened.
 - Wiring: methodology's interview mode, the `system-design-session` workflow's interview
   branch, the case catalog (pointer, three new problems, trigger hand-off), and a third
   legitimate Mermaid case in `common-architecture-diagramming`.
-- Versions: `system-design-v2.0.0` and `common-v2.5.0` are both unreleased; entries extended,
+- Versions: `system-design-v1.1.0` and `common-v2.5.0` are both unreleased; entries extended,
   no bump.
 
 Out of scope: an interviewer specialist agent, low-level-design problems (parking lot,
@@ -108,7 +108,7 @@ score with quoted evidence, a mid-round requirement change), `should_trigger` an
 
 ## E. Versions and regeneration
 
-CHANGELOG: extend `[system-design-v2.0.0]` (new skill, catalog changes, workflow) and
+CHANGELOG: extend `[system-design-v1.1.0]` (new skill, catalog changes, workflow) and
 `[common-v2.5.0]` (Mermaid case 3). `skills/metadata.json` system-design `total_skills` 11 →
 12 is owned by `pnpm calculate-tokens` in the pre-commit hook. `pnpm generate-indices` for
 mirrors, `_INDEX.md`, `index.json`, `README.md`.

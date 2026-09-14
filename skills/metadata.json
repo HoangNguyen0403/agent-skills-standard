@@ -598,8 +598,8 @@
       ]
     },
     "system-design": {
-      "version": "2.0.0",
-      "last_updated": "2026-09-13",
+      "version": "1.1.0",
+      "last_updated": "2026-09-14",
       "tag_prefix": "system-design-v",
       "token_metrics": {
         "total_skills": 12,
