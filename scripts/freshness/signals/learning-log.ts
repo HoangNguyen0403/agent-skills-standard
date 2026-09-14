@@ -31,6 +31,27 @@ const SKILL_ID_EXACT = /^[a-z0-9-]+\/[a-z0-9-]+$/;
 /** Strips HTML comments (e.g. the template's inline hint) before parsing a line. */
 const HTML_COMMENT_RE = /<!--[\s\S]*?-->/g;
 
+/** Any leftover comment delimiter fragment once well-formed comments are gone. */
+const STRAY_COMMENT_DELIMITER_RE = /<!--|-->/g;
+
+/**
+ * Removes every HTML comment. A single `.replace` pass can leave a stray
+ * `<!--` behind on malformed or adjacent comments (e.g. removing the inner
+ * comment in `<!<!---->--` reassembles a new, unterminated `<!--`), so this
+ * first re-scans to a fixed point and then strips any remaining bare
+ * delimiter fragment — the line is for parsing headings/ids, never
+ * rendered, so no partial delimiter needs to survive either way.
+ */
+function stripHtmlComments(text: string): string {
+  let stripped = text;
+  let previous: string;
+  do {
+    previous = stripped;
+    stripped = stripped.replace(HTML_COMMENT_RE, "");
+  } while (stripped !== previous);
+  return stripped.replace(STRAY_COMMENT_DELIMITER_RE, "");
+}
+
 /** Reads AGENTS_LEARNING.md; null when the repo has none. */
 export function readLearningLog(repoRoot: string): string | null {
   const file = path.join(repoRoot, LEARNING_LOG_PATH);
@@ -56,7 +77,7 @@ export function parseLearningLog(
     if (!entry.skills.includes(id)) entry.skills.push(id);
   };
   lines.forEach((raw, index) => {
-    const line = raw.replace(HTML_COMMENT_RE, "").trimEnd();
+    const line = stripHtmlComments(raw).trimEnd();
     const heading = line.match(HEADING_RE);
     if (heading) {
       current = { iteration: Number(heading[1]), date: "", task: "", signal: "", skills: [], line: index + 1 };

@@ -65,6 +65,16 @@ test("parseLearningLog strips HTML comments, keeps only known-skill explicit ids
   ]);
 });
 
+test("parseLearningLog strips adjacent/malformed HTML comments that a single regex pass would leave partially intact", () => {
+  // Removing the inner well-formed comment from "<!<!---->--" reassembles
+  // "<!--" with no closing "-->" anywhere in the string, so this line must
+  // not leave a bare "<!--" in front of the skill id after sanitization.
+  const evil =
+    "## Agent Learning Log: Iteration #7\n\n**Date**: 2026-09-11 | **Task**: X.\n**Signal**: User correction\n**Skills**: <!<!---->--common/common-tdd\n";
+  const [entry] = parseLearningLog(evil, known);
+  assert.deepEqual(entry.skills, ["common/common-tdd"]);
+});
+
 test("parseLearningLog reads a combined Date | Task | Signal line", () => {
   const combined = "## Agent Learning Log: Iteration #9\n\n**Date**: 2026-09-10 | **Task**: Logging | **Signal**: User correction\n";
   const [entry] = parseLearningLog(combined, known);
