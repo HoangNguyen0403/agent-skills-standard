@@ -24,6 +24,11 @@ describe('upstreamEntrySchema', () => {
     if (!result.success) expect(result.error.issues[0].path).toEqual(['repo']);
   });
 
+  it('accepts an optional acknowledged version string', () => {
+    expect(upstreamEntrySchema.safeParse({ ...github, acknowledged: '17.2.0' }).success).toBe(true);
+    expect(upstreamEntrySchema.safeParse({ ...github, acknowledged: 17 }).success).toBe(false);
+  });
+
   it('rejects malformed reviewed dates and unknown keys', () => {
     expect(upstreamEntrySchema.safeParse({ ...github, reviewed: '17 June' }).success).toBe(false);
     expect(upstreamEntrySchema.safeParse({ ...github, extra: 1 }).success).toBe(false);

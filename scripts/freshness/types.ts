@@ -14,6 +14,13 @@ export interface UpstreamEntry {
   tag_pattern?: string;
   /** YYYY-MM-DD of the last human review of this pin. */
   reviewed: string;
+  /**
+   * Newest upstream version the maintainers already know about but have
+   * not re-reviewed the skill against. Drift up to this version reports
+   * at low instead of high so the weekly job stays green while the review
+   * is pending.
+   */
+  acknowledged?: string;
 }
 
 /** A skill on disk with parsed frontmatter. */
@@ -66,7 +73,10 @@ export type IssueType =
   | "reviewed-stale"
   | "reviewed-mismatch"
   | "missing-pin"
-  | "fetch-failed";
+  | "fetch-failed"
+  | "eval-outdated"
+  | "eval-remediation"
+  | "learning-log-gap";
 
 /** high/med/low gate severity; warn never gates. */
 export type Severity = "high" | "med" | "low" | "warn";

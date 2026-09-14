@@ -69,3 +69,8 @@ test("isUpstreamEntry requires repo for github source", () => {
   assert.equal(isUpstreamEntry({ ...next, repo: undefined }), false);
   assert.equal(isUpstreamEntry({ name: "ios", source: "manual", pinned: "17", reviewed: "2026-07-09" }), true);
 });
+
+test("isUpstreamEntry accepts an optional acknowledged string and rejects other types", () => {
+  assert.equal(isUpstreamEntry({ ...next, acknowledged: "17.2.0" }), true);
+  assert.equal(isUpstreamEntry({ ...next, acknowledged: 17 }), false);
+});

@@ -40,6 +40,8 @@ export interface UpstreamEntry {
   pinned: string;
   tag_pattern?: string;
   reviewed: string;
+  /** Newest known upstream version not yet reviewed against; drift up to it reports low. */
+  acknowledged?: string;
 }
 
 /**

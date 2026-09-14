@@ -58,6 +58,7 @@ export const upstreamEntrySchema = z
     pinned: z.string().min(1),
     tag_pattern: z.string().min(1).optional(),
     reviewed: z.string().regex(ISO_DATE_RE, 'reviewed must be YYYY-MM-DD'),
+    acknowledged: z.string().min(1).optional(),
   })
   .strict()
   .refine((e) => e.source !== 'github' || Boolean(e.repo), {

@@ -42,7 +42,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           STALE_DAYS: ${{ github.event.inputs.stale_days || '120' }}
-        run: pnpm freshness:check --stale-days "$STALE_DAYS"
+        run: pnpm freshness:check --internal --stale-days "$STALE_DAYS"
         continue-on-error: true
 
       - name: Publish step summary

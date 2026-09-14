@@ -38,7 +38,7 @@ common/session-retrospective/
  - If yes: record skill ID, indirect phrase used, and fix (add keyword alias to triggers)
 4. **Propose** — One fix per root cause: revise existing guidance, update reference, add new skill, or add new workflow
 5. **Implement** — Only when current task explicitly authorizes repository maintenance, apply the approved repo changes across configured agent dirs. Keep SKILL.md concise; move large tables to `references/`. Update `AGENTS.md`
-6. **Log to AGENTS_LEARNING.md** — For each correction loop found, append one entry using `common/common-learning-log` protocol (Signal: `Session retrospective`)
+6. **Log to AGENTS_LEARNING.md** — For each correction loop found, append one entry using `common/common-learning-log` protocol (Signal: `Session retrospective`, `**Skills**:` line naming the skills involved)
 7. **Report** — Output correction count, skills changed, trigger misses found, estimated rounds saved
 
 ## Trigger Miss Output
