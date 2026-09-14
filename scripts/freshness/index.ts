@@ -6,6 +6,8 @@ import { auditFreshness } from "./audit";
 import { checkUpstream } from "./check";
 import { effectivePins, loadCategoryPins } from "./pins";
 import { buildReport, renderMarkdown } from "./report";
+import { evalSignalIssues, readRemediationQueue } from "./signals/evals";
+import { learningLogIssues, parseLearningLog, readLearningLog } from "./signals/learning-log";
 import { walkSkills } from "./skills";
 import { GithubSource } from "./sources";
 import type { EffectivePin, FreshnessIssue, FreshnessReport } from "./types";
@@ -19,6 +21,7 @@ export const FRESHNESS_MD = path.join(FRESHNESS_DIR, "freshness-report.md");
 
 const DEFAULT_STALE_DAYS = 120;
 const DEFAULT_CONCURRENCY = 5;
+const DEFAULT_WINDOW_DAYS = 90;
 
 function flagValue(name: string): string | undefined {
   const index = process.argv.indexOf(name);
@@ -69,6 +72,15 @@ function collectPins(): EffectivePin[] {
   return walkSkills(skillsDir).flatMap((skill) => effectivePins(skill, categoryPins));
 }
 
+/** Eval-queue and learning-log issues; empty when the files are absent. */
+function internalSignals(windowDays: number): FreshnessIssue[] {
+  const evals = evalSignalIssues(readRemediationQueue(ROOT_DIR));
+  const log = readLearningLog(ROOT_DIR);
+  if (!log) return evals;
+  const known = new Set(walkSkills(path.join(ROOT_DIR, "skills")).map((s) => `${s.category}/${s.name}`));
+  return [...evals, ...learningLogIssues(parseLearningLog(log, known), { today: new Date(), windowDays })];
+}
+
 /**
  * CLI entry. Actions:
  * - `audit` (default): offline rules; prints a summary; `--write` saves the
@@ -76,14 +88,18 @@ function collectPins(): EffectivePin[] {
  * - `check`: offline rules plus the GitHub upstream check; always writes
  *   the report; exits 1 on any high issue. Reads GITHUB_TOKEN when set.
  * - `report`: re-renders Markdown from the last JSON report.
- * Flags: `--stale-days <n>` (default 120), `--concurrency <n>` (check, default 5).
+ * Flags: `--stale-days <n>` (default 120), `--concurrency <n>` (check, default 5),
+ * `--internal` (adds eval-queue and learning-log signals), `--window-days <n>`
+ * (default 90; bounds the learning-log window).
  */
 export async function main(): Promise<void> {
   const action = process.argv[2] ?? "audit";
   const staleDays = positiveNumberFlag("--stale-days", DEFAULT_STALE_DAYS);
+  const internal = process.argv.includes("--internal");
+  const windowDays = positiveNumberFlag("--window-days", DEFAULT_WINDOW_DAYS);
 
   if (action === "audit") {
-    const issues = auditFreshness(ROOT_DIR, { staleDays });
+    const issues = [...auditFreshness(ROOT_DIR, { staleDays }), ...(internal ? internalSignals(windowDays) : [])];
     const report = buildReport("audit", staleDays, issues, []);
     const write = process.argv.includes("--write");
     if (write) writeReport(report);
@@ -101,7 +117,12 @@ export async function main(): Promise<void> {
     const offline = auditFreshness(ROOT_DIR, { staleDays });
     const github = new GithubSource({ token: process.env.GITHUB_TOKEN || undefined });
     const { issues: drift, upstream } = await checkUpstream(collectPins(), github, { concurrency });
-    const report = buildReport("check", staleDays, [...offline, ...drift], upstream);
+    const report = buildReport(
+      "check",
+      staleDays,
+      [...offline, ...drift, ...(internal ? internalSignals(windowDays) : [])],
+      upstream,
+    );
     writeReport(report);
     printIssues(report, "Freshness check", ` → ${FRESHNESS_JSON}`);
     if (!process.env.GITHUB_TOKEN) {

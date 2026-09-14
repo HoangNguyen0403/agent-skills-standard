@@ -41,8 +41,9 @@ Categories `common`, `specialists`, and `system-design` are version-agnostic and
 | `pnpm freshness:audit --stale-days 90` | change the review-age threshold (default 120)                                                                | —                                          |
 | `pnpm freshness:check`                 | offline rules **plus** latest GitHub release/tag per pin; runs weekly                                        | always writes both report files            |
 | `pnpm freshness:check --concurrency 3` | limit parallel GitHub requests (default 5)                                                                   | —                                          |
+| `pnpm freshness:audit --internal`      | adds eval-queue and learning-log signals (`--window-days`, default 90)                                       | no                                         |
 
-Reports land in `benchmarks/freshness/` (gitignored).
+Reports land in `benchmarks/freshness/` (gitignored). The weekly workflow runs `check --internal`.
 
 ## Issue types
 
@@ -56,6 +57,9 @@ Reports land in `benchmarks/freshness/` (gitignored).
 | `upstream-major-drift` | high      | upstream major newer than pin                                                                                                                                                                                                                                                             |
 | `upstream-minor-drift` | low       | upstream minor/patch newer than the pin at the same major (or same major.minor for Go/Flutter-style versioning); informational                                                                                                                                                            |
 | `fetch-failed`         | warn      | never gates                                                                                                                                                                                                                                                                               |
+| `eval-outdated`        | med       | eval runner classified a failing case as an outdated domain expectation                                                                                                                                                                                                                   |
+| `eval-remediation`     | low       | any other failing eval classification for the skill                                                                                                                                                                                                                                       |
+| `learning-log-gap`     | low       | `AGENTS_LEARNING.md` entries in the window name the skill                                                                                                                                                                                                                                 |
 
 ## Upstream check
 
@@ -67,7 +71,20 @@ Set `GITHUB_TOKEN` (any token with public repo read) to lift the unauthenticated
 
 Requests are not retried: a transient failure shows as `fetch-failed` this week and resolves itself next week. A `github` pin whose repo or `tag_pattern` matches nothing is also reported as `fetch-failed` rather than silently showing `?`, so a misconfigured pin is visible in every run. Repos that reach the tags fallback today (no Releases, or release tags that miss the pattern): dart, flutter, go, cpython, openjdk, postgres, mongo.
 
-The weekly workflow `.github/workflows/skill-freshness.yml` runs the check every Monday, attaches `benchmarks/freshness/` as the `freshness-report` artifact, prints the Markdown report as the job summary, and goes red only on `upstream-major-drift`. Trigger it by hand from the Actions tab (`workflow_dispatch`, optional `stale_days`).
+The weekly workflow `.github/workflows/skill-freshness.yml` runs the check every Monday, attaches `benchmarks/freshness/` as the `freshness-report` artifact, prints the Markdown report as the job summary, and goes red only on `upstream-major-drift`. Trigger it by hand from the Actions tab (`workflow_dispatch`, optional `stale_days`). The weekly run passes `--internal`, so its report also carries eval-queue and learning-log signals.
+
+## Internal signals
+
+`--internal` adds two offline readers, both of which fail open (missing file → no issues, never an error):
+
+- `scripts/freshness/signals/evals.ts` reads `benchmarks/evals/remediation-queue.json` (overwritten each time the eval suite runs — it is a snapshot of the latest run, not a history) and reports one issue per `(category, skill, classification)` group: `eval-outdated` (med) when the eval runner itself classified the failure as an outdated domain expectation, `eval-remediation` (low) for every other classification.
+- `scripts/freshness/signals/learning-log.ts` reads `AGENTS_LEARNING.md` and reports one `learning-log-gap` (low) per skill named by at least one entry inside `--window-days` (default 90). An entry names a skill via an explicit `**Skills**: category/skill-name` line (see `skills/common/common-learning-log/references/log-format.md`) or by simply mentioning a known `category/skill` id in its body — the explicit line is optional, not required, because older entries and prose mentions are picked up too.
+
+Both signals are informational: `--strict` never blocks on `eval-*` or `learning-log-gap` issues, in either `audit` or `check`.
+
+## Acknowledged drift
+
+A pin's `upstream` entry accepts an optional `acknowledged` version (same shape as `pinned`). Set it when you know upstream has shipped past the pin, the drift is expected, and a review is already scheduled — for example, after triaging a release and deciding it can wait a sprint. While the current upstream version is at or below `acknowledged`, `upstream-major-drift` reports `low` instead of `high` (message: "Drift acknowledged up to `<version>`; review pending"). Remove `acknowledged` or bump it forward once the review lands — an `acknowledged` version does not decay on its own and stale acknowledgements hide real drift.
 
 ## Reviewing a category
 
@@ -75,6 +92,8 @@ The weekly workflow `.github/workflows/skill-freshness.yml` runs the check every
 2. Update the affected `SKILL.md` and `references/*.md`.
 3. Set `pinned` to the version you reviewed against and `reviewed` to today, in `skills/metadata.json` (and the category `framework-map.md` `Reviewed:` line).
 4. Run `pnpm freshness:audit --strict` and `pnpm check-alignment`.
+
+The Markdown report's "Improve next" table ranks skills and categories by a weighted score (high 3, med 2, low 1) over all their issues, highest first. Use it as the suggested order for a review sweep when there is more to fix than time to fix it.
 
 ## Baseline (2026-09-14)
 
