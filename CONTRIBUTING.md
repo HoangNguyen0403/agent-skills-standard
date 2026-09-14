@@ -89,10 +89,11 @@ pnpm audit:skills
 pnpm audit:sdlc
 pnpm check-alignment
 pnpm freshness:audit
-pnpm freshness:check   # network: latest GitHub release per pin (set GITHUB_TOKEN)
 pnpm test
 pnpm build
 ```
+
+`pnpm freshness:check` is the weekly upstream drift job (`.github/workflows/skill-freshness.yml`), not a PR gate: it needs a `GITHUB_TOKEN` (up to ~110 GitHub requests) and exits 1 whenever any upstream has shipped a new major, regardless of your change. Run it locally only when reviewing pins; see `docs/FRESHNESS.md`.
 
 For live-eval or eval-definition changes, also run:
 

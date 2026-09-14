@@ -41,12 +41,18 @@ jobs:
         id: check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm freshness:check --stale-days "${{ github.event.inputs.stale_days || '120' }}"
+          STALE_DAYS: ${{ github.event.inputs.stale_days || '120' }}
+        run: pnpm freshness:check --stale-days "$STALE_DAYS"
         continue-on-error: true
 
       - name: Publish step summary
         if: always()
-        run: cat benchmarks/freshness/freshness-report.md >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          if [ -f benchmarks/freshness/freshness-report.md ]; then
+            cat benchmarks/freshness/freshness-report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No freshness report was produced (the check step failed before writing it)." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Upload report
         if: always()
@@ -57,7 +63,14 @@ jobs:
           retention-days: 90
 
       - name: Fail on high-severity drift
-        if: steps.check.outcome == 'failure'
+        if: always()
         run: |
-          echo "::error::Upstream major drift detected — open the step summary for the affected categories."
-          exit 1
+          if [ ! -f benchmarks/freshness/freshness-report.json ]; then
+            echo "::error::freshness:check did not produce a report; see the check step log."
+            exit 1
+          fi
+          HIGH=$(node -e 'process.stdout.write(String(require("./benchmarks/freshness/freshness-report.json").summary.bySeverity.high))')
+          if [ "$HIGH" != "0" ]; then
+            echo "::error::$HIGH upstream major drift issue(s) — open the step summary for the affected categories."
+            exit 1
+          fi

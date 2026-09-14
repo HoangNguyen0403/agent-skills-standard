@@ -576,7 +576,7 @@
           "source": "github",
           "repo": "angular/angular",
           "pinned": "20.0.0",
-          "tag_pattern": "^(\\d+\\.\\d+\\.\\d+)$",
+          "tag_pattern": "^v?(\\d+\\.\\d+\\.\\d+)$",
           "reviewed": "2026-07-09"
         }
       ]

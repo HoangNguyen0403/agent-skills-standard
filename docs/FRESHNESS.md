@@ -59,11 +59,13 @@ Reports land in `benchmarks/freshness/` (gitignored).
 
 ## Upstream check
 
-`pnpm freshness:check` resolves every `source: github` pin through the GitHub API: `GET /repos/{repo}/releases/latest` first, then `GET /repos/{repo}/tags` (up to 1,000 tags) when the repo publishes no Releases or the latest release tag does not match `tag_pattern`. Prerelease tags never match a well-formed `tag_pattern`, so they are ignored. `source: manual` pins are listed in the report with no `latest`.
+`pnpm freshness:check` resolves every `source: github` pin through the GitHub API: `GET /repos/{repo}/releases` (newest 100; highest non-prerelease version wins, so multi-line repos like Node report the true maximum) first, then `GET /repos/{repo}/tags` (up to 1,000 tags) when the repo publishes no Releases or the latest release tag does not match `tag_pattern`. Prerelease tags never match a well-formed `tag_pattern`, so they are ignored. `source: manual` pins are listed in the report with no `latest`.
 
 Repositories with thousands of tags and no Releases (today: `flutter/flutter`) can exhaust the 1,000-tag window before a stable tag appears and show `latest: ?`; treat them like `manual` pins until the source supports prefix lookups via `git/matching-refs`.
 
 Set `GITHUB_TOKEN` (any token with public repo read) to lift the unauthenticated limit of 60 requests/hour; the token is only sent as a header and never written to the report. Requests that fail (rate limit, 5xx, network) become `fetch-failed` (warn) and never fail the run.
+
+Requests are not retried: a transient failure shows as `fetch-failed` this week and resolves itself next week. A `github` pin whose repo or `tag_pattern` matches nothing is also reported as `fetch-failed` rather than silently showing `?`, so a misconfigured pin is visible in every run. Repos that reach the tags fallback today (no Releases, or release tags that miss the pattern): dart, flutter, go, cpython, openjdk, postgres, mongo.
 
 The weekly workflow `.github/workflows/skill-freshness.yml` runs the check every Monday, attaches `benchmarks/freshness/` as the `freshness-report` artifact, prints the Markdown report as the job summary, and goes red only on `upstream-major-drift`. Trigger it by hand from the Actions tab (`workflow_dispatch`, optional `stale_days`).
 
@@ -87,6 +89,8 @@ Skill-level pins cost 5-7 frontmatter lines against the SKILL.md size budget. Pr
 `reviewed-mismatch` compares category pins against `framework-map.md` only. Skill-level pins track a library or engine the category map does not cover, so their `reviewed` date is independent of the map by design.
 
 `file:line` points at the real line in the file on disk (frontmatter included).
+
+Known follow-ups (P3): an optional per-pin `acknowledged` version so known drift reports as `low` until reviewed; a separate drift significance from the claim significance (PHP 8.4→8.5 currently counts as major drift).
 
 ```
 Freshness audit: 8 issues (high 0, med 3, low 5, warn 0)
