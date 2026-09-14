@@ -55,3 +55,27 @@ test("scanClaims covers SKILL.md body and references/*.md with repo-relative pat
     await fs.remove(root);
   }
 });
+
+test("scanClaims reports real file line numbers for SKILL.md (frontmatter counted)", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "ags-claims-lines-"));
+  const dir = path.join(root, "skills", "java", "java-language");
+  await fs.ensureDir(dir);
+  const content = "---\nname: java-language\ndescription: d\nmetadata:\n  triggers:\n    keywords:\n      - java\n---\n\n# Java\n\nUse Java 21 records.\n";
+  await writeFile(path.join(dir, "SKILL.md"), content);
+  const skill: SkillRecord = {
+    category: "java",
+    name: "java-language",
+    dir,
+    skillPath: path.join(dir, "SKILL.md"),
+    frontmatter: { name: "java-language" },
+    body: "\n# Java\n\nUse Java 21 records.\n",
+  };
+  try {
+    const claims = scanClaims(skill, root);
+    assert.equal(claims.length, 1);
+    assert.equal(claims[0].name, "java");
+    assert.equal(claims[0].line, 12);
+  } finally {
+    await fs.remove(root);
+  }
+});

@@ -78,7 +78,7 @@ test("auditFreshness emits the expected issue set", async () => {
     const behind = issues.find((i) => i.type === "claim-behind-pin");
     assert.equal(behind?.severity, "med");
     assert.equal(behind?.file, "skills/nextjs/nextjs-legacy/SKILL.md");
-    assert.equal(behind?.line, 1);
+    assert.equal(behind?.line, 5);
     assert.equal(issues.find((i) => i.type === "missing-pin")?.severity, "low");
   } finally {
     await cleanup();

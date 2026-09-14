@@ -67,13 +67,15 @@ export function scanText(
 }
 
 /**
- * Scans a skill's SKILL.md body and every `references/*.md` beside it.
+ * Scans a skill's full SKILL.md file (frontmatter included) and every `references/*.md` beside it.
+ * Line numbers in the result match the actual file on disk.
  * File paths in the result are relative to `repoRoot` with forward slashes.
  */
 export function scanClaims(skill: SkillRecord, repoRoot: string): VersionClaim[] {
   const rel = (abs: string) => path.relative(repoRoot, abs).split(path.sep).join("/");
   const who = { category: skill.category, name: skill.name };
-  const claims = scanText(skill.body, rel(skill.skillPath), who);
+  // Scan the whole file (frontmatter included) so `line` matches the file on disk.
+  const claims = scanText(fs.readFileSync(skill.skillPath, "utf8"), rel(skill.skillPath), who);
   const refDir = path.join(skill.dir, "references");
   if (fs.existsSync(refDir)) {
     for (const entry of fs.readdirSync(refDir).filter((f) => f.endsWith(".md")).sort()) {
