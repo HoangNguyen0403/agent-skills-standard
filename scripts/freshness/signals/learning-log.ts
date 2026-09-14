@@ -21,10 +21,15 @@ export interface LearningLogEntry {
 export const LEARNING_LOG_PATH = "AGENTS_LEARNING.md";
 
 const HEADING_RE = /^## Agent Learning Log: Iteration #(\d+)\s*$/;
-const DATE_RE = /^\*\*Date\*\*:\s*(\d{4}-\d{2}-\d{2})(?:\s*\|\s*\*\*Task\*\*:\s*(.*))?$/;
+const DATE_RE =
+  /^\*\*Date\*\*:\s*(\d{4}-\d{2}-\d{2})(?:\s*\|\s*\*\*Task\*\*:\s*(.*?))?(?:\s*\|\s*\*\*Signal\*\*.*)?$/;
 const SIGNAL_RE = /^\*\*Signal\*\*:\s*(.+?)\s*$/;
 const SKILLS_RE = /^\*\*Skills\*\*:\s*(.+?)\s*$/;
 const SKILL_ID_RE = /[a-z0-9-]+\/[a-z0-9-]+/g;
+/** An explicit `**Skills**:` id must look exactly like `category/skill`. */
+const SKILL_ID_EXACT = /^[a-z0-9-]+\/[a-z0-9-]+$/;
+/** Strips HTML comments (e.g. the template's inline hint) before parsing a line. */
+const HTML_COMMENT_RE = /<!--[\s\S]*?-->/g;
 
 /** Reads AGENTS_LEARNING.md; null when the repo has none. */
 export function readLearningLog(repoRoot: string): string | null {
@@ -36,8 +41,14 @@ export function readLearningLog(repoRoot: string): string | null {
  * Splits the log into iterations. Skills are collected from an explicit
  * `**Skills**:` line and from any `category/skill` token in the body
  * that names a skill in `knownSkills` (so older entries count too).
+ * Explicit ids are kept only when they name a known skill; unknown or
+ * malformed ids are reported via `onUnknown` and otherwise ignored.
  */
-export function parseLearningLog(text: string, knownSkills: ReadonlySet<string>): LearningLogEntry[] {
+export function parseLearningLog(
+  text: string,
+  knownSkills: ReadonlySet<string>,
+  onUnknown: (id: string, line: number) => void = () => {},
+): LearningLogEntry[] {
   const lines = text.split(/\r?\n/);
   const entries: LearningLogEntry[] = [];
   let current: LearningLogEntry | null = null;
@@ -45,7 +56,7 @@ export function parseLearningLog(text: string, knownSkills: ReadonlySet<string>)
     if (!entry.skills.includes(id)) entry.skills.push(id);
   };
   lines.forEach((raw, index) => {
-    const line = raw.trimEnd();
+    const line = raw.replace(HTML_COMMENT_RE, "").trimEnd();
     const heading = line.match(HEADING_RE);
     if (heading) {
       current = { iteration: Number(heading[1]), date: "", task: "", signal: "", skills: [], line: index + 1 };
@@ -66,7 +77,13 @@ export function parseLearningLog(text: string, knownSkills: ReadonlySet<string>)
     }
     const explicit = line.match(SKILLS_RE);
     if (explicit) {
-      for (const id of explicit[1].split(",").map((s) => s.trim()).filter(Boolean)) add(current, id);
+      for (const id of explicit[1].split(",").map((s) => s.trim()).filter(Boolean)) {
+        if (!SKILL_ID_EXACT.test(id) || !knownSkills.has(id)) {
+          onUnknown(id, index + 1);
+          continue;
+        }
+        add(current, id);
+      }
       return;
     }
     for (const id of line.match(SKILL_ID_RE) ?? []) {

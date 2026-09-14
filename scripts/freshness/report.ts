@@ -26,7 +26,7 @@ export interface ScoredTarget {
 export function scoreTargets(issues: FreshnessIssue[], limit = 10): ScoredTarget[] {
   const byTarget = new Map<string, ScoredTarget>();
   for (const issue of issues) {
-    const target = issue.skillName ? `${issue.category}/${issue.skillName}` : issue.category;
+    const target = issue.skillName ? `${issue.category}/${issue.skillName}` : `${issue.category} (category)`;
     const entry = byTarget.get(target) ?? { target, score: 0, counts: {} };
     entry.score += SEVERITY_WEIGHT[issue.severity];
     entry.counts[issue.type] = (entry.counts[issue.type] ?? 0) + 1;
@@ -102,6 +102,9 @@ export function renderMarkdown(report: FreshnessReport): string {
         .join(", ");
       lines.push(`| ${i + 1} | ${t.target} | ${t.score} | ${signals} |`);
     });
+    const all = scoreTargets(report.issues, Number.MAX_SAFE_INTEGER);
+    const hiddenOnes = all.slice(top.length).filter((t) => t.score === 1).length;
+    if (hiddenOnes > 0) lines.push(`_+${hiddenOnes} more target(s) at score 1_`);
     lines.push("");
   }
 

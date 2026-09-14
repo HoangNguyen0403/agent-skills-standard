@@ -72,13 +72,31 @@ function collectPins(): EffectivePin[] {
   return walkSkills(skillsDir).flatMap((skill) => effectivePins(skill, categoryPins));
 }
 
-/** Eval-queue and learning-log issues; empty when the files are absent. */
+/**
+ * Eval-queue and learning-log issues; empty when the files are absent.
+ * Never throws: any parsing/IO failure becomes a single `fetch-failed`
+ * (warn) issue instead of aborting the audit or check run.
+ */
 function internalSignals(windowDays: number): FreshnessIssue[] {
-  const evals = evalSignalIssues(readRemediationQueue(ROOT_DIR));
-  const log = readLearningLog(ROOT_DIR);
-  if (!log) return evals;
-  const known = new Set(walkSkills(path.join(ROOT_DIR, "skills")).map((s) => `${s.category}/${s.name}`));
-  return [...evals, ...learningLogIssues(parseLearningLog(log, known), { today: new Date(), windowDays })];
+  try {
+    const today = new Date();
+    const evals = evalSignalIssues(readRemediationQueue(ROOT_DIR), { today, windowDays });
+    const log = readLearningLog(ROOT_DIR);
+    if (!log) return evals;
+    const known = new Set(walkSkills(path.join(ROOT_DIR, "skills")).map((s) => `${s.category}/${s.name}`));
+    const entries = parseLearningLog(log, known, (id, line) => {
+      console.error(`  warn AGENTS_LEARNING.md:${line}: unknown skill id "${id}" in **Skills** line ignored`);
+    });
+    return [...evals, ...learningLogIssues(entries, { today, windowDays })];
+  } catch (error) {
+    return [{
+      type: "fetch-failed",
+      severity: "warn",
+      category: "internal",
+      skillName: "",
+      message: `Internal signals skipped: ${error instanceof Error ? error.message : String(error)}`,
+    }];
+  }
 }
 
 /**
@@ -115,12 +133,13 @@ export async function main(): Promise<void> {
   if (action === "check") {
     const concurrency = positiveNumberFlag("--concurrency", DEFAULT_CONCURRENCY);
     const offline = auditFreshness(ROOT_DIR, { staleDays });
+    const signals = internal ? internalSignals(windowDays) : [];
     const github = new GithubSource({ token: process.env.GITHUB_TOKEN || undefined });
     const { issues: drift, upstream } = await checkUpstream(collectPins(), github, { concurrency });
     const report = buildReport(
       "check",
       staleDays,
-      [...offline, ...drift, ...(internal ? internalSignals(windowDays) : [])],
+      [...offline, ...drift, ...signals],
       upstream,
     );
     writeReport(report);

@@ -62,7 +62,7 @@ test("scoreTargets weights severities and renderMarkdown lists the top targets",
   const scored = scoreTargets(mixed);
   assert.deepEqual(
     scored.map((s) => [s.target, s.score]),
-    [["nextjs/nextjs-caching", 4], ["java", 3], ["golang/golang-logging", 1]],
+    [["nextjs/nextjs-caching", 4], ["java (category)", 3], ["golang/golang-logging", 1]],
   );
   assert.deepEqual(scored[0].counts, { "claim-behind-pin": 1, "eval-remediation": 2 });
   const md = renderMarkdown(buildReport("audit", 120, mixed, [], "2026-09-14T00:00:00.000Z"));
@@ -70,4 +70,16 @@ test("scoreTargets weights severities and renderMarkdown lists the top targets",
   assert.match(md, /\| 1 \| nextjs\/nextjs-caching \| 4 \| claim-behind-pin×1, eval-remediation×2 \|/);
   assert.ok(md.indexOf("## Improve next") < md.indexOf("## golang"));
   assert.equal(scoreTargets([], 10).length, 0);
+});
+
+test("renderMarkdown notes hidden score-1 targets beyond the top-10 limit", () => {
+  const many: FreshnessIssue[] = Array.from({ length: 12 }, (_, i) => ({
+    type: "eval-remediation" as const,
+    severity: "low" as const,
+    category: "cat",
+    skillName: `skill-${i}`,
+    message: "",
+  }));
+  const md = renderMarkdown(buildReport("audit", 120, many, [], "2026-09-14T00:00:00.000Z"));
+  assert.match(md, /_\+2 more target\(s\) at score 1_/);
 });

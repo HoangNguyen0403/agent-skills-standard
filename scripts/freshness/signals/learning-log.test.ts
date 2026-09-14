@@ -36,6 +36,7 @@ Recommended unstable_cache; nextjs/nextjs-caching still documents it.
 
 **Date**: 2026-09-10 | **Task**: Logging.
 **Signal**: User correction
+**Skills**: golang/golang-logging  <!-- optional; the freshness report counts these -->, bogus/skill, not an id
 
 ### ✅ Better Approach
 Follow \`golang/golang-logging\` and ignore made-up/skill-id.
@@ -52,6 +53,22 @@ test("parseLearningLog reads headings, dates, explicit Skills line, and known sk
     ],
   );
   assert.equal(entries[1].task, "Fix caching guidance.");
+});
+
+test("parseLearningLog strips HTML comments, keeps only known-skill explicit ids, and reports unknown ones", () => {
+  const unknown: Array<[string, number]> = [];
+  const entries = parseLearningLog(log, known, (id, line) => unknown.push([id, line]));
+  assert.deepEqual(entries[2].skills, ["golang/golang-logging"]);
+  assert.deepEqual(unknown, [
+    ["bogus/skill", 32],
+    ["not an id", 32],
+  ]);
+});
+
+test("parseLearningLog reads a combined Date | Task | Signal line", () => {
+  const combined = "## Agent Learning Log: Iteration #9\n\n**Date**: 2026-09-10 | **Task**: Logging | **Signal**: User correction\n";
+  const [entry] = parseLearningLog(combined, known);
+  assert.equal(entry.task, "Logging");
 });
 
 test("learningLogIssues counts entries per skill inside the window", () => {

@@ -47,7 +47,10 @@ export function driftIssue(pin: EffectivePin, latest: LatestRelease): FreshnessI
   };
   if (compareVersions(significantPart(current, significance), significantPart(pinned, significance)) > 0) {
     const acknowledged = pin.acknowledged ? parseVersion(pin.acknowledged) : null;
-    const covered = acknowledged !== null && compareVersions(current, acknowledged) <= 0;
+    const covered =
+      acknowledged !== null &&
+      compareVersions(significantPart(current, significance), significantPart(acknowledged, significance)) <= 0;
+    const badAck = pin.acknowledged && acknowledged === null ? ` (acknowledged value "${pin.acknowledged}" is not a version)` : "";
     return {
       ...base,
       type: "upstream-major-drift",
@@ -56,7 +59,7 @@ export function driftIssue(pin: EffectivePin, latest: LatestRelease): FreshnessI
         `Upstream "${pin.name}" is at ${latest.version} (${latest.tag}); pin is ${pin.pinned}. ` +
         (covered
           ? `Drift acknowledged up to ${pin.acknowledged}; review pending: ${latest.url}`
-          : `Review the skill(s) against the new release: ${latest.url}`),
+          : `Review the skill(s) against the new release: ${latest.url}${badAck}`),
     };
   }
   if (compareVersions(current, pinned) > 0) {

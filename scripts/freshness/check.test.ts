@@ -120,11 +120,24 @@ test("checkUpstream reports fetch-failed when a github pin matches no release or
 
 test("driftIssue downgrades drift covered by an acknowledged version", () => {
   const rel = (version: string) => ({ version, tag: `v${version}`, publishedAt: null, url: "u" });
-  const ack = pin({ acknowledged: "17.2.0" });
+  const ack = pin({ acknowledged: "17" });
   assert.equal(driftIssue(ack, rel("17.0.0"))?.severity, "low");
   assert.equal(driftIssue(ack, rel("17.0.0"))?.type, "upstream-major-drift");
-  assert.match(driftIssue(ack, rel("17.0.0"))?.message ?? "", /acknowledged up to 17\.2\.0/);
-  assert.equal(driftIssue(ack, rel("17.2.0"))?.severity, "low");
+  assert.match(driftIssue(ack, rel("17.0.0"))?.message ?? "", /acknowledged up to 17/);
+  assert.equal(driftIssue(ack, rel("17.9.3"))?.severity, "low"); // same major covered
   assert.equal(driftIssue(ack, rel("18.0.0"))?.severity, "high");
-  assert.equal(driftIssue(pin({ acknowledged: "not-a-version" }), rel("17.0.0"))?.severity, "high");
+  const badAck = driftIssue(pin({ acknowledged: "not-a-version" }), rel("17.0.0"));
+  assert.equal(badAck?.severity, "high");
+  assert.match(badAck?.message ?? "", /not a version/);
+
+  // minor-significant alias: acknowledging 1.25 covers all 1.25.x
+  const go = pin({
+    name: "go",
+    pinned: "1.24.0",
+    acknowledged: "1.25",
+    category: "golang",
+    tag_pattern: "^go(\\d+\\.\\d+(?:\\.\\d+)?)$",
+  });
+  assert.equal(driftIssue(go, rel("1.25.4"))?.severity, "low");
+  assert.equal(driftIssue(go, rel("1.26.0"))?.severity, "high");
 });

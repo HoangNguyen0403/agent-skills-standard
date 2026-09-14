@@ -1,6 +1,7 @@
 // scripts/freshness/signals/evals.ts
 import fs from "fs-extra";
 import path from "path";
+import { daysBetween } from "../audit";
 import type { FreshnessIssue } from "../types";
 
 /** One failed-assertion triage row from scripts/evals/quality.ts `queue`. */
@@ -42,7 +43,11 @@ export function readRemediationQueue(repoRoot: string): RemediationQueueFile | n
       scope: data.scope,
       items: data.items.filter(
         (i): i is RemediationItem =>
-          !!i && typeof i.category === "string" && typeof i.skillName === "string" && typeof i.classification === "string",
+          !!i &&
+          typeof i.category === "string" &&
+          typeof i.skillName === "string" &&
+          typeof i.classification === "string" &&
+          typeof i.caseId === "string",
       ),
     };
   } catch {
@@ -50,31 +55,57 @@ export function readRemediationQueue(repoRoot: string): RemediationQueueFile | n
   }
 }
 
+/** Options for {@link evalSignalIssues}. */
+export interface EvalSignalOptions {
+  today: Date;
+  /** Queues generated more than this many days ago are ignored. */
+  windowDays: number;
+}
+
 /**
- * One issue per (category, skill, classification). "outdated domain
- * expectation" is the eval runner's own stale-content verdict and is
- * reported at med; every other classification is a low "this skill is
- * weak" signal.
+ * One `eval-remediation` (low) per skill summarising every failing
+ * classification, plus one `eval-outdated` (med) per skill when the run
+ * classified any case as "outdated domain expectation" (reserved: the
+ * current classifier in scripts/evals/quality.ts never emits it). Queues
+ * older than the window are ignored; case ids are deduped so a case with
+ * several failed assertions counts once.
  */
-export function evalSignalIssues(queue: RemediationQueueFile | null): FreshnessIssue[] {
+export function evalSignalIssues(queue: RemediationQueueFile | null, options: EvalSignalOptions): FreshnessIssue[] {
   if (!queue) return [];
-  const groups = new Map<string, { item: RemediationItem; cases: string[] }>();
+  const runDate = queue.generatedAt.slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(runDate) || daysBetween(runDate, options.today) > options.windowDays) return [];
+  const bySkill = new Map<string, { category: string; skillName: string; byClass: Map<string, Set<string>> }>();
   for (const item of queue.items) {
-    const key = `${item.category}:${item.skillName}:${item.classification}`;
-    const group = groups.get(key);
-    if (group) group.cases.push(item.caseId);
-    else groups.set(key, { item, cases: [item.caseId] });
+    const key = `${item.category}/${item.skillName}`;
+    const entry = bySkill.get(key) ?? { category: item.category, skillName: item.skillName, byClass: new Map() };
+    const cases = entry.byClass.get(item.classification) ?? new Set<string>();
+    cases.add(item.caseId);
+    entry.byClass.set(item.classification, cases);
+    bySkill.set(key, entry);
   }
   const issues: FreshnessIssue[] = [];
-  for (const { item, cases } of groups.values()) {
-    const outdated = item.classification === OUTDATED;
-    const shown = cases.slice(0, 3).join(", ") + (cases.length > 3 ? ", …" : "");
+  for (const { category, skillName, byClass } of bySkill.values()) {
+    const outdatedCases = byClass.get(OUTDATED);
+    if (outdatedCases && outdatedCases.size > 0) {
+      issues.push({
+        type: "eval-outdated",
+        severity: "med",
+        category,
+        skillName,
+        message: `${outdatedCases.size} eval case(s) classified "${OUTDATED}" in run ${queue.runId} (${runDate}): ${[...outdatedCases].slice(0, 3).join(", ")}`,
+        file: REMEDIATION_QUEUE_PATH,
+      });
+    }
+    const others = [...byClass.entries()].filter(([c]) => c !== OUTDATED);
+    if (others.length === 0) continue;
+    const total = new Set(others.flatMap(([, cases]) => [...cases])).size;
+    const breakdown = others.map(([c, cases]) => `${c}×${cases.size}`).join("; ");
     issues.push({
-      type: outdated ? "eval-outdated" : "eval-remediation",
-      severity: outdated ? "med" : "low",
-      category: item.category,
-      skillName: item.skillName,
-      message: `${cases.length} failing eval case(s) classified "${item.classification}" in run ${queue.runId} (${shown})`,
+      type: "eval-remediation",
+      severity: "low",
+      category,
+      skillName,
+      message: `${total} failing eval case(s) in run ${queue.runId} (${runDate}): ${breakdown}`,
       file: REMEDIATION_QUEUE_PATH,
     });
   }
