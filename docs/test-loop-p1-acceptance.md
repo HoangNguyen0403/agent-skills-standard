@@ -14,7 +14,7 @@ Pass means: a Playwright spec tagged `@AC-3` exists in solo-corp, uses a generat
 
 | Side | Requirement |
 | --- | --- |
-| ASS | This branch merged; `ags sync` in solo-corp pulls `quality-engineering` >= 1.7.0 and `specialists` >= 1.6.0. |
+| ASS | This branch merged; `ags sync` in solo-corp pulls `quality-engineering` >= 1.8.0 and `specialists` >= 1.7.0. |
 | solo-corp | P0 landed: sandbox image with Node, pnpm, Playwright browsers; verifier regex matching the specialist Output lines; safe-commands allowlist. |
 | solo-corp | `docs/prd/prd-checkout.md` with stable `AC-3`; `tests/seed.spec.ts` present or Playwright agents initialised. |
 
@@ -23,7 +23,7 @@ Pass means: a Playwright spec tagged `@AC-3` exists in solo-corp, uses a generat
 | Contract item | Owner | Value this runbook assumes |
 | --- | --- | --- |
 | Sandbox image | solo-corp | can run `npx playwright test tests/checkout.spec.ts --grep @AC-3` headless |
-| Verifier regex | solo-corp | accepts `^Test: (PASS\|FAIL\|BLOCKED)$` from `specialist-integration-test-generator` and `^CHECK: (CLEAN\|FAILED)$` from `specialist-testid-inserter` |
+| Verifier regex | solo-corp | accepts `^Test: (PASS\|FAIL\|BLOCKED)$` from `specialist-integration-test-generator` and `^CHECK: (CLEAN\|FAILED)$` from `specialist-testid-inserter` and `^VERDICT: (HEALED\|REAL_BUG_DO_NOT_HEAL\|QUARANTINE_CANDIDATE\|BLOCKED)$` from `specialist-test-healer` |
 | Safe-commands allowlist | solo-corp | includes `npx playwright test`, `npx tsc --noEmit`, `pnpm lint`; excludes anything that writes outside the worktree |
 | Production-edit approval | solo-corp operator | passes `approved_production_edits: true` in the `test-loop` packet, or approves the `APPROVAL: required` file list interactively |
 
@@ -31,13 +31,20 @@ If any assumed value differs, update this table first, then the affected special
 
 ## Steps
 
-1. In solo-corp: `ags sync -y` then `git status` shows updated `.claude/skills/quality-engineering/`, `.claude/agents/testid-inserter.md`, `.claude/commands/test-loop.md`.
+1. In solo-corp: `ags sync -y` then `git status` shows updated `.claude/skills/quality-engineering/`, `.claude/agents/testid-inserter.md`, `.claude/agents/test-healer.md`, `.claude/commands/test-loop.md`.
 2. Run `/test-loop checkout` (interactive).
 3. Step 2 output must show `PLAN: docs/srs/test-plan-checkout.md`, `CLASSES:` with at least one P and one N, `HALT:` empty, `SELECTOR_GAPS:` listing the checkout elements that lack ids.
 4. Step 3: `specialist-testid-inserter` returns `APPROVAL: required` with the component file list; approve; it returns `INSERTED:` for every gap and `CHECK: CLEAN`. Page object `tests/pages/checkout.page.ts` and `tests/fixtures.ts` exist with no `expect` inside the page object.
 5. Step 4: one generator call for `@AC-3` returns `Action: created`, `Format: CLEAN`, `Test: PASS`; the spec imports `test` from `./fixtures` and contains no `page.locator(`.
 6. The sandbox runs the spec via the allowlisted command; the verifier accepts the `Test: PASS` line; the workflow report shows `## Page Objects`, an empty `## Selector Gaps Remaining`, and `release_confidence` computed.
-7. Negative check: delete one inserted id, rerun step 4 for `@AC-3`; the generator must not silently fall back to a CSS or `nth` selector. Expected: `Test: FAIL` with the spec and page object unchanged (no new `page.locator(` or `nth`); the id reappears under `## Selector Gaps Remaining`, or routes to the healer path once P3 lands.
+7. Negative check: delete one inserted id, rerun step 4 for `@AC-3`; the generator must not silently fall back to a CSS or `nth` selector. Expected: `Test: FAIL` with the spec and page object unchanged (no new `page.locator(` or `nth`); the id reappears under `## Selector Gaps Remaining`, or `specialist-test-healer` returns `CLASS: SELECTOR_DRIFT`, `VERDICT: BLOCKED`, `ROUTE: testid-inserter`.
+
+## P3 extension (Run and heal)
+
+8. Introduce a deliberate timing race in the AC-3 spec (remove one explicit state wait); run step 5. Expected: healer returns `CLASS: TIMING_SYNC`, `REPAIR:` names the state wait, `RERUNS: 3/3 green`, `ASSERTION_DELTA: none`, `VERDICT: HEALED`.
+9. Change the product rounding so the order total differs from the AC; run step 5. Expected: `CLASS: REAL_REGRESSION`, `VERDICT: REAL_BUG_DO_NOT_HEAL`, `ROUTE: dev-fix`, the test file unchanged, `real_bugs[]` has one entry.
+10. Run the suite with two parallel workers sharing one seeded customer account; run step 5 twice. Expected: `VERDICT: QUARANTINE_CANDIDATE`, `ROUTE: flaky-triage`; flaky-triage runs 10 isolated reruns, assigns bucket `SHARED_STATE`, and `flake_quarantine[]` gains an entry with ticket and expiry ≤ 14 days; the test still runs and reports, never `test.skip`.
+11. Add `await expect(page).toHaveScreenshot('checkout-summary-desktop.png')` to the AC-3 spec and capture the baseline in the CI image; then change the header color and run step 5. Expected: `CLASS: REAL_REGRESSION` (`VISUAL_DIFF` outside any masked region), `VERDICT: REAL_BUG_DO_NOT_HEAL`, baseline file unchanged; the baseline is accepted only by a commit carrying `Visual-Baseline-Approved-By:` and an `--update-snapshots --grep` command.
 
 ## Evidence to capture
 
@@ -46,7 +53,9 @@ If any assumed value differs, update this table first, then the affected special
 - `tests/pages/checkout.page.ts`, `tests/fixtures.ts`, `tests/checkout.spec.ts`
 - Sandbox run log with the verifier decision
 - `test-loop` report with Outcome Report and `release_confidence`
+- Healer Output blocks for steps 8-11
+- Quarantine ticket from step 10
 
 ## Exit criteria
 
-All seven steps pass on one clean run; the negative check refuses fallback selectors. Record the run date and both repo SHAs at the top of this file.
+All eleven steps pass on one clean run; the negative check refuses fallback selectors. Record the run date and both repo SHAs at the top of this file.

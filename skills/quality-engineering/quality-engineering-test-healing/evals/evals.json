@@ -51,7 +51,7 @@
     {
       "prompt": "Just add test.skip on this one, we'll come back to it eventually.",
       "failure_mode": "The specialist skips a test without a ticket or expiry, silently losing coverage.",
-      "behavior_assertions": ["ticket", "expiry", "never skip without"]
+      "behavior_assertions": ["ticket", "expiry", "never"]
     }
   ],
   "rationalizations": [

@@ -30,11 +30,11 @@ Move the locator up the selector ladder (e.g., `getByRole` if the ID changed); r
 
 ## Forbidden Repairs
 
-Never weaken an assertion. Never add `test.skip`/`fixme` without a ticket + expiry; never skip without these. Never widen a matcher. Never inflate a timeout by more than 2x. Never blind `--update-snapshots`. Never catch-and-continue. Never touch production code — that is `REAL_REGRESSION`, not a heal.
+Never weaken an assertion. Never add `test.skip`/`fixme`; a test that must stop gating goes to quarantine per `quality-engineering-flaky-triage` with a ticket + expiry, and keeps running. Never widen a matcher. Never inflate a timeout by more than 2x. Never blind `--update-snapshots`. Never catch-and-continue. Never touch production code — that is `REAL_REGRESSION`, not a heal.
 
 ## Verdicts
 
-`HEALED` (repair verified by 3 consecutive green reruns, ASSERTION_DELTA: none) · `REAL_BUG_DO_NOT_HEAL` (route to dev-fix) · `QUARANTINE_CANDIDATE` (flaky, route to flaky-triage) · `BLOCKED` (no evidence artifact).
+`HEALED` (repair verified by 3 consecutive green reruns, ASSERTION_DELTA: none) · `REAL_BUG_DO_NOT_HEAL` (route to dev-fix) · `QUARANTINE_CANDIDATE` (flaky, route to flaky-triage) · `BLOCKED` (no evidence artifact, or no stable locator target: route to `specialist-testid-inserter`).
 
 ## Red Flags
 
@@ -46,3 +46,5 @@ Never weaken an assertion. Never add `test.skip`/`fixme` without a ticket + expi
 - [Repair Catalog](references/repair-catalog.md)
 - [Forbidden Repairs](references/forbidden-repairs.md)
 - [Verdict Contract](references/verdict-contract.md)
+- [Flaky Triage](../quality-engineering-flaky-triage/SKILL.md) — quarantine contract for `QUARANTINE_CANDIDATE`
+- [Visual Baseline](../quality-engineering-visual-baseline/SKILL.md) — screenshot failures before `REAL_REGRESSION`

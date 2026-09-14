@@ -22,6 +22,7 @@
 | specialist-tc-creator | create test case, Zephyr TC creation, test management, link TC to Jira |
 | **specialist-tdd-implementer** | tdd implementation, red green refactor, implement ac, quality unit test |
 | specialist-test-gap-finder | test gap, missing tests, coverage review, assertion quality |
+| **specialist-test-healer** | run the healer, heal this failure, classify test failure, heal verdict, repair failing test |
 | specialist-test-planner | test planner, executable test plan, plan e2e, scenarios from ac |
 | specialist-testid-inserter | testid inserter, insert test ids, close selector gaps, add data-testid, selector gaps |
 | specialist-zephyr-scanner | zephyr scanner, linked test cases, test coverage, TC discovery |

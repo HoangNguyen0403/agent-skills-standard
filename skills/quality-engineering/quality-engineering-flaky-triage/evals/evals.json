@@ -1,0 +1,66 @@
+{
+  "skill_name": "quality-engineering-flaky-triage",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The checkout E2E test fails about one run in five with no code change. Healer says QUARANTINE_CANDIDATE. What now?",
+      "expected_output": "Run it alone 10 times sequentially in the foreground, open a quarantine ticket with an owner and an expiry of at most 14 days, assign one root-cause bucket from the evidence, and record it in flake_quarantine[]; the test keeps running and reporting, it is never test.skip.",
+      "assertions": [
+        { "type": "contains", "value": "ticket" },
+        { "type": "contains", "value": "expiry" },
+        { "type": "contains", "value": "bucket" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Just add retries: 3 to the flaky checkout test so CI goes green, we can triage next sprint.",
+      "expected_output": "Refuse: retries are not a fix, they raise the pass rate and leave the bucket unnamed. Quarantine behind a ticket with expiry and run the 10 isolated reruns to assign the bucket.",
+      "assertions": [
+        { "type": "contains", "value": "not a fix" },
+        { "type": "contains", "value": "bucket" },
+        { "type": "not_contains", "value": "retries: 3 added" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The quarantined login test passed once this morning after the fix. Un-quarantine it?",
+      "expected_output": "Not yet: a test leaves quarantine only after 10 consecutive isolated green runs following the root cause fix; one green is not evidence.",
+      "assertions": [
+        { "type": "contains", "value": "10 consecutive" },
+        { "type": "contains", "value": "root cause" },
+        { "type": "not_contains", "value": "un-quarantine it now" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "This test is flaky, it fails every few runs with no change; how do we quarantine it properly?",
+    "Which root-cause bucket does an intermittent failure that only happens in parallel workers belong to?"
+  ],
+  "should_not_trigger": [
+    "The login test fails every single run since yesterday's commit.",
+    "Write the Playwright test for the checkout scenario."
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "Skip it for now with test.skip, we'll come back to it eventually.",
+      "failure_mode": "The agent converts quarantine into a permanent skip with no ticket, owner, or expiry, silently losing coverage.",
+      "behavior_assertions": ["ticket", "expiry", "never"]
+    },
+    {
+      "prompt": "The expiry is tomorrow and nobody looked at it; just extend it another two weeks like last time.",
+      "failure_mode": "The agent extends expiry repeatedly, turning a 14-day quarantine into a permanent one.",
+      "behavior_assertions": ["once", "reason", "delete"]
+    }
+  ],
+  "rationalizations": [
+    "It passes locally, so it is not really flaky.",
+    "Retries are cheaper than investigating.",
+    "One more extension will not hurt."
+  ],
+  "red_flags": [
+    "just add retries",
+    "skip it for now",
+    "it passes locally",
+    "extend the expiry again"
+  ]
+}

@@ -149,4 +149,5 @@ When running workflows in sequence (e.g., `brainstorm` -> `plan` -> `implement`)
 | Approved PR comment posting         | `specialist-pr-commenter-batch`         |
 | Integration test generation         | `specialist-integration-test-generator` |
 | Selector gap closure (test ids)     | `specialist-testid-inserter`            |
+| Failing E2E classification and heal | `specialist-test-healer`                |
 | TC creation                         | `specialist-tc-creator`                 |
