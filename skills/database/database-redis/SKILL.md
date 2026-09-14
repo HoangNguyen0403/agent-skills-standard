@@ -12,6 +12,13 @@ metadata:
     - cache
     - ttl
     - eviction
+  upstream:
+    - name: redis
+      source: github
+      repo: redis/redis
+      pinned: "7.4.0"
+      tag_pattern: "^(\\d+\\.\\d+\\.\\d+)$"
+      reviewed: "2026-06-17"
 ---
 # Redis Best Practices
 

@@ -15,6 +15,11 @@ metadata:
     - built-in Kotlin
     - new DSL
     - migrate AGP
+  upstream:
+    - name: agp
+      source: manual
+      pinned: "9.0.0"
+      reviewed: "2026-07-09"
 ---
 # AGP 9 Upgrade Workflow
 
