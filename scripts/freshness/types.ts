@@ -51,6 +51,7 @@ export interface VersionClaim {
   line: number;
 }
 
+/** Kind of freshness finding; see docs/FRESHNESS.md issue table. */
 export type IssueType =
   | "upstream-major-drift"
   | "upstream-minor-drift"
@@ -61,6 +62,7 @@ export type IssueType =
   | "missing-pin"
   | "fetch-failed";
 
+/** high/med/low gate severity; warn never gates. */
 export type Severity = "high" | "med" | "low" | "warn";
 
 /** One finding of the freshness audit. */
