@@ -117,3 +117,14 @@ test("checkUpstream reports fetch-failed when a github pin matches no release or
   const iosRow = result.upstream.find((u) => u.name === "ios");
   assert.equal(iosRow?.latest, null);
 });
+
+test("driftIssue downgrades drift covered by an acknowledged version", () => {
+  const rel = (version: string) => ({ version, tag: `v${version}`, publishedAt: null, url: "u" });
+  const ack = pin({ acknowledged: "17.2.0" });
+  assert.equal(driftIssue(ack, rel("17.0.0"))?.severity, "low");
+  assert.equal(driftIssue(ack, rel("17.0.0"))?.type, "upstream-major-drift");
+  assert.match(driftIssue(ack, rel("17.0.0"))?.message ?? "", /acknowledged up to 17\.2\.0/);
+  assert.equal(driftIssue(ack, rel("17.2.0"))?.severity, "low");
+  assert.equal(driftIssue(ack, rel("18.0.0"))?.severity, "high");
+  assert.equal(driftIssue(pin({ acknowledged: "not-a-version" }), rel("17.0.0"))?.severity, "high");
+});

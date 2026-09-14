@@ -46,11 +46,17 @@ export function driftIssue(pin: EffectivePin, latest: LatestRelease): FreshnessI
     upstream: pin.name,
   };
   if (compareVersions(significantPart(current, significance), significantPart(pinned, significance)) > 0) {
+    const acknowledged = pin.acknowledged ? parseVersion(pin.acknowledged) : null;
+    const covered = acknowledged !== null && compareVersions(current, acknowledged) <= 0;
     return {
       ...base,
       type: "upstream-major-drift",
-      severity: "high",
-      message: `Upstream "${pin.name}" is at ${latest.version} (${latest.tag}); pin is ${pin.pinned}. Review the skill(s) against the new release: ${latest.url}`,
+      severity: covered ? "low" : "high",
+      message:
+        `Upstream "${pin.name}" is at ${latest.version} (${latest.tag}); pin is ${pin.pinned}. ` +
+        (covered
+          ? `Drift acknowledged up to ${pin.acknowledged}; review pending: ${latest.url}`
+          : `Review the skill(s) against the new release: ${latest.url}`),
     };
   }
   if (compareVersions(current, pinned) > 0) {

@@ -18,6 +18,7 @@ export function isUpstreamEntry(value: unknown): value is UpstreamEntry {
   if (typeof v.pinned !== "string" || v.pinned.length === 0) return false;
   if (typeof v.reviewed !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v.reviewed))
     return false;
+  if (v.acknowledged !== undefined && typeof v.acknowledged !== "string") return false;
   return true;
 }
 
