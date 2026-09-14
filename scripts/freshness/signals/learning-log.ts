@@ -28,11 +28,16 @@ const SKILLS_RE = /^\*\*Skills\*\*:\s*(.+?)\s*$/;
 const SKILL_ID_RE = /[a-z0-9-]+\/[a-z0-9-]+/g;
 /** An explicit `**Skills**:` id must look exactly like `category/skill`. */
 const SKILL_ID_EXACT = /^[a-z0-9-]+\/[a-z0-9-]+$/;
-/** Strips HTML comments (e.g. the template's inline hint) before parsing a line. */
-const HTML_COMMENT_RE = /<!--[\s\S]*?-->/g;
+/**
+ * Strips HTML comments (e.g. the template's inline hint) before parsing a
+ * line. The HTML spec allows a comment to end at either `-->` or the
+ * legacy error-recovery terminator `--!>` (browsers honor both), so both
+ * must be recognized or a `--!>`-closed comment leaks its contents.
+ */
+const HTML_COMMENT_RE = /<!--[\s\S]*?--!?>/g;
 
 /** Any leftover comment delimiter fragment once well-formed comments are gone. */
-const STRAY_COMMENT_DELIMITER_RE = /<!--|-->/g;
+const STRAY_COMMENT_DELIMITER_RE = /<!--|--!?>/g;
 
 /**
  * Removes every HTML comment. A single `.replace` pass can leave a stray

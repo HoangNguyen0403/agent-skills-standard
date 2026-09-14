@@ -65,6 +65,13 @@ test("parseLearningLog strips HTML comments, keeps only known-skill explicit ids
   ]);
 });
 
+test("parseLearningLog strips a comment closed with the legacy --!> terminator", () => {
+  const legacy =
+    "## Agent Learning Log: Iteration #8\n\n**Date**: 2026-09-12 | **Task**: X.\n**Signal**: User correction\n**Skills**: common/common-tdd  <!-- legacy closer --!>\n";
+  const [entry] = parseLearningLog(legacy, known);
+  assert.deepEqual(entry.skills, ["common/common-tdd"]);
+});
+
 test("parseLearningLog strips adjacent/malformed HTML comments that a single regex pass would leave partially intact", () => {
   // Removing the inner well-formed comment from "<!<!---->--" reassembles
   // "<!--" with no closing "-->" anywhere in the string, so this line must
