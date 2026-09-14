@@ -1,7 +1,7 @@
 // scripts/freshness/report.test.ts
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildReport, renderMarkdown } from "./report";
+import { buildReport, renderMarkdown, scoreTargets } from "./report";
 import type { FreshnessIssue } from "./types";
 
 const issues: FreshnessIssue[] = [
@@ -48,4 +48,26 @@ test("renderMarkdown escapes backslashes before pipes and strips newlines in mes
     md.includes(`| low | missing-pin | (category) |  | ${expectedMessageCell} |  |`),
     `expected escaped message cell "${expectedMessageCell}" in:\n${md}`,
   );
+});
+
+test("scoreTargets weights severities and renderMarkdown lists the top targets", () => {
+  const mixed: FreshnessIssue[] = [
+    { type: "upstream-major-drift", severity: "high", category: "java", skillName: "", upstream: "java", message: "" },
+    { type: "claim-behind-pin", severity: "med", category: "nextjs", skillName: "nextjs-caching", message: "" },
+    { type: "eval-remediation", severity: "low", category: "nextjs", skillName: "nextjs-caching", message: "" },
+    { type: "eval-remediation", severity: "low", category: "nextjs", skillName: "nextjs-caching", message: "" },
+    { type: "learning-log-gap", severity: "low", category: "golang", skillName: "golang-logging", message: "" },
+    { type: "fetch-failed", severity: "warn", category: "flutter", skillName: "", message: "" },
+  ];
+  const scored = scoreTargets(mixed);
+  assert.deepEqual(
+    scored.map((s) => [s.target, s.score]),
+    [["nextjs/nextjs-caching", 4], ["java", 3], ["golang/golang-logging", 1]],
+  );
+  assert.deepEqual(scored[0].counts, { "claim-behind-pin": 1, "eval-remediation": 2 });
+  const md = renderMarkdown(buildReport("audit", 120, mixed, [], "2026-09-14T00:00:00.000Z"));
+  assert.match(md, /^## Improve next/m);
+  assert.match(md, /\| 1 \| nextjs\/nextjs-caching \| 4 \| claim-behind-pin×1, eval-remediation×2 \|/);
+  assert.ok(md.indexOf("## Improve next") < md.indexOf("## golang"));
+  assert.equal(scoreTargets([], 10).length, 0);
 });

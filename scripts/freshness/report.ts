@@ -2,11 +2,41 @@
 import type {
   FreshnessIssue,
   FreshnessReport,
+  IssueType,
   Severity,
   UpstreamStatus,
 } from "./types";
 
 const SEVERITY_ORDER: Severity[] = ["high", "med", "low", "warn"];
+
+const SEVERITY_WEIGHT: Record<Severity, number> = { high: 3, med: 2, low: 1, warn: 0 };
+
+/** A skill (or category) ranked by the weighted sum of its issues. */
+export interface ScoredTarget {
+  /** `category/skill`, or `category` for category-level issues. */
+  target: string;
+  score: number;
+  counts: Partial<Record<IssueType, number>>;
+}
+
+/**
+ * Ranks targets by severity weight (high 3, med 2, low 1). Warn-only
+ * targets are dropped. Ties break on target name so output is stable.
+ */
+export function scoreTargets(issues: FreshnessIssue[], limit = 10): ScoredTarget[] {
+  const byTarget = new Map<string, ScoredTarget>();
+  for (const issue of issues) {
+    const target = issue.skillName ? `${issue.category}/${issue.skillName}` : issue.category;
+    const entry = byTarget.get(target) ?? { target, score: 0, counts: {} };
+    entry.score += SEVERITY_WEIGHT[issue.severity];
+    entry.counts[issue.type] = (entry.counts[issue.type] ?? 0) + 1;
+    byTarget.set(target, entry);
+  }
+  return [...byTarget.values()]
+    .filter((t) => t.score > 0)
+    .sort((a, b) => b.score - a.score || a.target.localeCompare(b.target))
+    .slice(0, limit);
+}
 
 /**
  * Escapes a value for a Markdown table cell: backslashes first (so an
@@ -58,6 +88,22 @@ export function renderMarkdown(report: FreshnessReport): string {
   lines.push("|---|---|");
   for (const sev of SEVERITY_ORDER) lines.push(`| ${sev} | ${report.summary.bySeverity[sev]} |`);
   lines.push("");
+
+  const top = scoreTargets(report.issues);
+  if (top.length > 0) {
+    lines.push("## Improve next");
+    lines.push("");
+    lines.push("| # | target | score | signals |");
+    lines.push("|---|---|---|---|");
+    top.forEach((t, i) => {
+      const signals = Object.entries(t.counts)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([type, n]) => `${type}×${n}`)
+        .join(", ");
+      lines.push(`| ${i + 1} | ${t.target} | ${t.score} | ${signals} |`);
+    });
+    lines.push("");
+  }
 
   if (report.issues.length === 0) {
     lines.push("No freshness issues.");
