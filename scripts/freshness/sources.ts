@@ -50,7 +50,7 @@ interface GithubSourceOptions {
   token?: string;
   /** API origin; defaults to https://api.github.com. */
   baseUrl?: string;
-  /** How many 100-tag pages to scan when falling back to tags. */
+  /** How many 100-tag pages to scan when falling back to tags; default 10 (1,000 tags). */
   maxTagPages?: number;
 }
 
@@ -65,7 +65,7 @@ export class GithubSource implements UpstreamSource {
     this.fetchImpl = options.fetchImpl ?? globalThis.fetch;
     this.token = options.token;
     this.baseUrl = options.baseUrl ?? "https://api.github.com";
-    this.maxTagPages = options.maxTagPages ?? 3;
+    this.maxTagPages = options.maxTagPages ?? 10;
   }
 
   /** See UpstreamSource.latest. */

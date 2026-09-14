@@ -116,6 +116,23 @@ test("GithubSource falls back to tags when the latest release tag does not match
   assert.equal(latest?.version, "16.3.0");
 });
 
+test("GithubSource scans up to ten tag pages by default and stops at the first empty page", async () => {
+  const routes: Record<string, { status: number; body?: unknown }> = {
+    [`${API}/repos/postgres/postgres/releases/latest`]: { status: 404 },
+  };
+  for (let page = 1; page <= 4; page++) {
+    routes[`${API}/repos/postgres/postgres/tags?per_page=100&page=${page}`] = {
+      status: 200,
+      body: page === 4 ? [{ name: "REL_19_0" }] : [{ name: `noise-${page}` }],
+    };
+  }
+  routes[`${API}/repos/postgres/postgres/tags?per_page=100&page=5`] = { status: 200, body: [] };
+  const { fetchImpl, calls } = stubFetch(routes);
+  const latest = await new GithubSource({ fetchImpl }).latest(postgres);
+  assert.equal(latest?.version, "19.0");
+  assert.equal(calls.length, 6); // releases/latest + pages 1-5 (page 5 empty stops the loop)
+});
+
 test("GithubSource returns null when no tag matches and throws on other errors", async () => {
   const none = stubFetch({
     [`${API}/repos/vercel/next.js/releases/latest`]: { status: 404 },
