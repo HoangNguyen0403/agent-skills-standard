@@ -8,6 +8,15 @@ import type {
 
 const SEVERITY_ORDER: Severity[] = ["high", "med", "low", "warn"];
 
+/**
+ * Escapes a value for a Markdown table cell: backslashes first (so an
+ * escaped pipe is never re-interpreted as a literal backslash followed by
+ * an unescaped pipe), then pipes, then collapses newlines.
+ */
+function escapeTableCell(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
+}
+
 /** Assembles the JSON report with severity and category counts. */
 export function buildReport(
   action: "audit" | "check",
@@ -62,7 +71,7 @@ export function renderMarkdown(report: FreshnessReport): string {
       for (const issue of report.issues.filter((i) => i.category === category)) {
         const location = issue.file ? `\`${issue.file}${issue.line ? `:${issue.line}` : ""}\`` : "";
         lines.push(
-          `| ${issue.severity} | ${issue.type} | ${issue.skillName || "(category)"} | ${issue.upstream ?? ""} | ${issue.message.replace(/\|/g, "\\|")} | ${location} |`,
+          `| ${issue.severity} | ${issue.type} | ${issue.skillName || "(category)"} | ${issue.upstream ?? ""} | ${escapeTableCell(issue.message)} | ${location} |`,
         );
       }
       lines.push("");

@@ -33,3 +33,19 @@ test("renderMarkdown says clean when there are no issues", () => {
   const md = renderMarkdown(buildReport("audit", 120, [], []));
   assert.match(md, /No freshness issues/);
 });
+
+test("renderMarkdown escapes backslashes before pipes and strips newlines in messages", () => {
+  // Real characters in the message: a \ b | c <newline> d
+  const backslashIssues: FreshnessIssue[] = [
+    { type: "missing-pin", severity: "low", category: "php", skillName: "", message: "a\\b|c\nd" },
+  ];
+  const md = renderMarkdown(buildReport("audit", 120, backslashIssues, [], "2026-09-14T00:00:00.000Z"));
+  // Escaping order matters: the original backslash is doubled first, then
+  // the pipe gets its own escaping backslash, then the newline becomes a
+  // space — giving the real character sequence a \ \ b \ | c ' ' d.
+  const expectedMessageCell = "a\\\\b\\|c d";
+  assert.ok(
+    md.includes(`| low | missing-pin | (category) |  | ${expectedMessageCell} |  |`),
+    `expected escaped message cell "${expectedMessageCell}" in:\n${md}`,
+  );
+});
