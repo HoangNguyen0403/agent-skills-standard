@@ -56,6 +56,25 @@ test("scanClaims covers SKILL.md body and references/*.md with repo-relative pat
   }
 });
 
+test("scanText marks claims as historical from same-line context words", () => {
+  const text = [
+    "Stdlib since Go 1.21 ships log/slog.",          // historical
+    "Use Go 1.24 generics freely.",                  // current
+    "Pre-iOS 17 builds need the fallback.",          // historical (pre-)
+    "Migrating from PHP 7 to PHP 8 is documented.",  // both historical (migrat + from)
+    "AGP 8 → AGP 9 upgrade guide",                   // historical (upgrad)
+  ].join("\n");
+  const claims = scanText(text, "f.md", who);
+  const ctx = Object.fromEntries(claims.map((c) => [`${c.name}:${c.version}:${c.line}`, c.context]));
+  assert.equal(ctx["go:1.21:1"], "historical");
+  assert.equal(ctx["go:1.24:2"], "current");
+  assert.equal(ctx["ios:17:3"], "historical");
+  assert.equal(ctx["php:7:4"], "historical");
+  assert.equal(ctx["php:8:4"], "historical");
+  assert.equal(ctx["agp:8:5"], "historical");
+  assert.equal(ctx["agp:9:5"], "historical");
+});
+
 test("scanClaims reports real file line numbers for SKILL.md (frontmatter counted)", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "ags-claims-lines-"));
   const dir = path.join(root, "skills", "java", "java-language");

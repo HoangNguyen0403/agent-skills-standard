@@ -136,13 +136,18 @@ export function auditFreshness(
           line: claim.line,
         });
       } else if (cmp < 0 && !claim.floor) {
+        const historical = claim.context === "historical";
         issues.push({
           type: "claim-behind-pin",
-          severity: "med",
+          severity: historical ? "low" : "med",
           category: skill.category,
           skillName: skill.name,
           upstream: claim.name,
-          message: `Claims "${claim.name} ${claim.version}" but pin is ${pin.pinned}; update the guidance or mark as a floor with "+"`,
+          message:
+            `Claims "${claim.name} ${claim.version}" but pin is ${pin.pinned}; ` +
+            (historical
+              ? "historical reference on the same line, review only if the guidance itself is stale"
+              : 'update the guidance or mark as a floor with "+"'),
           file: claim.file,
           line: claim.line,
         });
