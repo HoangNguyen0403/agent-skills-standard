@@ -1,0 +1,63 @@
+# .github/workflows/skill-freshness.yml
+name: Skill Freshness Check
+
+# Weekly upstream drift check: compares every pin in skills/metadata.json
+# (and per-skill metadata.upstream) against the latest GitHub release/tag
+# and publishes benchmarks/freshness/ as an artifact and step summary.
+# A red run means at least one upstream shipped a new major; see
+# docs/FRESHNESS.md "Reviewing a category".
+
+on:
+  schedule:
+    - cron: "0 7 * * 1" # Mondays 07:00 UTC, an hour after skillspector-scan
+  workflow_dispatch:
+    inputs:
+      stale_days:
+        description: "Days before a pin's reviewed date counts as stale"
+        required: false
+        default: "120"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Upstream drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "20.x"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Freshness check (audit + GitHub upstream)
+        id: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm freshness:check --stale-days "${{ github.event.inputs.stale_days || '120' }}"
+        continue-on-error: true
+
+      - name: Publish step summary
+        if: always()
+        run: cat benchmarks/freshness/freshness-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: freshness-report
+          path: benchmarks/freshness/
+          retention-days: 90
+
+      - name: Fail on high-severity drift
+        if: steps.check.outcome == 'failure'
+        run: |
+          echo "::error::Upstream major drift detected — open the step summary for the affected categories."
+          exit 1

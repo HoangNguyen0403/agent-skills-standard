@@ -89,6 +89,7 @@ pnpm audit:skills
 pnpm audit:sdlc
 pnpm check-alignment
 pnpm freshness:audit
+pnpm freshness:check   # network: latest GitHub release per pin (set GITHUB_TOKEN)
 pnpm test
 pnpm build
 ```
