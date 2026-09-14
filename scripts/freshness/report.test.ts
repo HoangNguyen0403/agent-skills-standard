@@ -83,3 +83,23 @@ test("renderMarkdown notes hidden score-1 targets beyond the top-10 limit", () =
   const md = renderMarkdown(buildReport("audit", 120, many, [], "2026-09-14T00:00:00.000Z"));
   assert.match(md, /_\+2 more target\(s\) at score 1_/);
 });
+
+test("scoreTargets breaks ties by loads and renderMarkdown shows telemetry", () => {
+  const tied: FreshnessIssue[] = [
+    { type: "claim-behind-pin", severity: "med", category: "nextjs", skillName: "nextjs-a", message: "" },
+    { type: "claim-behind-pin", severity: "med", category: "nextjs", skillName: "nextjs-b", message: "" },
+  ];
+  const loads = { "nextjs/nextjs-b": 40, "nextjs/nextjs-a": 3 };
+  assert.deepEqual(scoreTargets(tied, 10, loads).map((t) => [t.target, t.loads]), [["nextjs/nextjs-b", 40], ["nextjs/nextjs-a", 3]]);
+  const report = buildReport("audit", 120, tied, [], "2026-09-14T00:00:00.000Z", {
+    source: "~/.agent-skills-standard/telemetry.jsonl",
+    sessions: 22,
+    from: "2026-09-01T10:00:00Z",
+    to: "2026-09-13T10:00:00Z",
+    loadsByTarget: loads,
+  });
+  const md = renderMarkdown(report);
+  assert.match(md, /^Telemetry: 22 sessions \(2026-09-01T10:00:00Z → 2026-09-13T10:00:00Z\) from ~\/\.agent-skills-standard\/telemetry\.jsonl$/m);
+  assert.match(md, /\| # \| target \| score \| loads \| signals \|/);
+  assert.match(md, /\| 1 \| nextjs\/nextjs-b \| 2 \| 40 \| claim-behind-pin×1 \|/);
+});

@@ -76,7 +76,8 @@ export type IssueType =
   | "fetch-failed"
   | "eval-outdated"
   | "eval-remediation"
-  | "learning-log-gap";
+  | "learning-log-gap"
+  | "unused-skill";
 
 /** high/med/low gate severity; warn never gates. */
 export type Severity = "high" | "med" | "low" | "warn";
@@ -119,4 +120,13 @@ export interface FreshnessReport {
   };
   issues: FreshnessIssue[];
   upstream: UpstreamStatus[];
+  /** Present when the report was built with --telemetry. */
+  telemetry?: {
+    source: string;
+    sessions: number;
+    from: string | null;
+    to: string | null;
+    /** `category/skill` and `category (category)` → loads in the window. */
+    loadsByTarget: Record<string, number>;
+  };
 }
