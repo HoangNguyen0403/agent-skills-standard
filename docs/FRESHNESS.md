@@ -33,15 +33,17 @@ Categories `common`, `specialists`, and `system-design` are version-agnostic and
 
 ## Commands
 
-| command                                | what it does                                                                                                                         | writes files                               |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ |
-| `pnpm freshness:audit`                 | offline rules (below); runs in PR CI and `validate:all`                                                                              | no (`--write` to save)                     |
-| `pnpm freshness:audit --strict`        | same, exit 1 on any `missing-pin` or any `claim-*` issue that is not `low` (historical references are `low`)                         | no                                         |
-| `pnpm freshness:report`                | re-render Markdown from the last JSON                                                                                                | `benchmarks/freshness/freshness-report.md` |
-| `pnpm freshness:audit --stale-days 90` | change the review-age threshold (default 120)                                                                                        | —                                          |
-| `pnpm freshness:check`                 | offline rules **plus** latest GitHub release/tag per pin; runs weekly                                                                | always writes both report files            |
-| `pnpm freshness:check --concurrency 3` | limit parallel GitHub requests (default 5)                                                                                           | —                                          |
-| `pnpm freshness:audit --internal`      | adds eval-queue and learning-log signals (`--window-days`, default 90; also bounds `check --internal` and the eval queue's run date) | no                                         |
+| command                                        | what it does                                                                                                                         | writes files                               |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ |
+| `pnpm freshness:audit`                         | offline rules (below); runs in PR CI and `validate:all`                                                                              | no (`--write` to save)                     |
+| `pnpm freshness:audit --strict`                | same, exit 1 on any `missing-pin` or any `claim-*` issue that is not `low` (historical references are `low`)                         | no                                         |
+| `pnpm freshness:report`                        | re-render Markdown from the last JSON                                                                                                | `benchmarks/freshness/freshness-report.md` |
+| `pnpm freshness:audit --stale-days 90`         | change the review-age threshold (default 120)                                                                                        | —                                          |
+| `pnpm freshness:check`                         | offline rules **plus** latest GitHub release/tag per pin; runs weekly                                                                | always writes both report files            |
+| `pnpm freshness:check --concurrency 3`         | limit parallel GitHub requests (default 5)                                                                                           | —                                          |
+| `pnpm freshness:audit --internal`              | adds eval-queue and learning-log signals (`--window-days`, default 90; also bounds `check --internal` and the eval queue's run date) | no                                         |
+| `pnpm freshness:audit --telemetry <file\|dir>` | reads local MCP usage logs (JSONL); adds `unused-skill` issues and a `loads` column to "Improve next"                                | no                                         |
+| `pnpm freshness:audit --min-sessions <n>`      | minimum telemetry sessions before `unused-skill` fires (default 20)                                                                  | no                                         |
 
 Reports land in `benchmarks/freshness/` (gitignored). The weekly workflow runs `check --internal`.
 
@@ -60,6 +62,7 @@ Reports land in `benchmarks/freshness/` (gitignored). The weekly workflow runs `
 | `eval-outdated`        | med       | reserved for the eval runner's "outdated domain expectation" classification; the current classifier in `scripts/evals/quality.ts` never emits it, so this row stays empty until that lands                                                                                                |
 | `eval-remediation`     | low       | one per skill; message lists failing cases per classification (deduped case ids); queues older than `--window-days` are ignored                                                                                                                                                           |
 | `learning-log-gap`     | low       | `AGENTS_LEARNING.md` entries in the window name the skill                                                                                                                                                                                                                                 |
+| `unused-skill`         | low       | version-sensitive skill never loaded across ≥ `--min-sessions` sessions in the telemetry window                                                                                                                                                                                           |
 
 ## Upstream check
 
@@ -81,6 +84,16 @@ The weekly workflow `.github/workflows/skill-freshness.yml` runs the check every
 - `scripts/freshness/signals/learning-log.ts` reads `AGENTS_LEARNING.md` and reports one `learning-log-gap` (low) per skill named by at least one entry inside `--window-days` (default 90). An entry names a skill via an explicit `**Skills**: category/skill-name` line (see `skills/common/common-learning-log/references/log-format.md`) or by simply mentioning a known `category/skill` id in its body — the explicit line is optional, not required, because older entries and prose mentions are picked up too. An explicit id must name an existing skill; unknown or malformed ids are ignored and logged as a warning on stderr rather than silently dropped.
 
 Both signals are informational: `--strict` never blocks on `eval-*` or `learning-log-gap` issues, in either `audit` or `check`.
+
+## Usage telemetry (local, opt-in)
+
+The MCP server can append one line per session to a local JSON Lines file. It is **off by default** and nothing is ever uploaded.
+
+Enable it with `AGS_TELEMETRY=1` in the MCP server's environment, or `telemetry: true` in the project's `.skillsrc` (`AGS_TELEMETRY=0` overrides). The file is `~/.agent-skills-standard/telemetry.jsonl` (`AGS_TELEMETRY_PATH` to change it) and is written when the session ends.
+
+Each line contains only: timestamp, MCP version, session start and duration, a 12-hex-char hash of the project path, load counts per `category/skill`, load counts per workflow, call counts per MCP tool, and the number of calls that matched no skill. It never contains file paths, keywords, prompts, skill text, or the inputs of unmatched calls.
+
+Feed it to the report with `pnpm freshness:audit --internal --telemetry ~/.agent-skills-standard/telemetry.jsonl` (a directory of `.jsonl` files works too, so a team can pool exported logs). The report header shows the session count and window, "Improve next" gains a `loads` column and breaks score ties by usage, and version-sensitive skills that were never loaded across at least `--min-sessions` (default 20) sessions are reported as `unused-skill` (low).
 
 ## Acknowledged drift
 
