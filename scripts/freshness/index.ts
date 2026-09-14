@@ -17,7 +17,11 @@ const DEFAULT_STALE_DAYS = 120;
 
 function flagValue(name: string): string | undefined {
   const index = process.argv.indexOf(name);
-  return index === -1 ? undefined : process.argv[index + 1];
+  if (index === -1) return undefined;
+  if (index + 1 >= process.argv.length) {
+    throw new Error(`${name} requires a value`);
+  }
+  return process.argv[index + 1];
 }
 
 function writeReport(report: FreshnessReport): void {

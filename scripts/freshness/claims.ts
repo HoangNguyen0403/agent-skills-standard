@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import path from "path";
 import type { SkillRecord, VersionClaim } from "./types";
 
-/** Regex per upstream name; group 1 is the version. Order matters: longer product names first. */
+/** Regex per upstream name; group 1 is the version. Each alias is matched independently, so order is irrelevant. */
 export const CLAIM_ALIASES: Record<
   string,
   { pattern: RegExp; significance: "major" | "minor" }

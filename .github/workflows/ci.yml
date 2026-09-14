@@ -109,6 +109,9 @@ jobs:
       - name: Skill Freshness Audit (offline)
         run: pnpm freshness:audit
 
+      - name: Freshness Script Tests
+        run: pnpm test:freshness
+
       - name: Live Eval Run Verification
         run: pnpm evals:verify -- --all
 

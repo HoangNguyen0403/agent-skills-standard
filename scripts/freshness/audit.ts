@@ -115,9 +115,14 @@ export function auditFreshness(
       const claimed = parseVersion(claim.version);
       const pinned = parseVersion(pin.pinned);
       if (!claimed || !pinned) continue;
+      // A claim written with fewer parts than the alias significance
+      // ("PHP 8" against a minor-significant pin) is only as precise as
+      // what was written: compare at the claim's own precision.
+      const significance =
+        claimed.length === 1 ? "major" : alias.significance;
       const cmp = compareVersions(
-        significantPart(claimed, alias.significance),
-        significantPart(pinned, alias.significance),
+        significantPart(claimed, significance),
+        significantPart(pinned, significance),
       );
       if (cmp > 0) {
         issues.push({
