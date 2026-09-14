@@ -15,3 +15,6 @@
 # Python bytecode from skill scripts
 __pycache__/
 *.pyc
+
+# freshness audit output; the weekly workflow uploads it as an artifact
+/benchmarks/freshness/

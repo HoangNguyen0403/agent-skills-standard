@@ -14,6 +14,11 @@ metadata:
       - hdb
       - go-hdb
       - CalculationView
+  upstream:
+    - name: hana
+      source: manual
+      pinned: "2.0"
+      reviewed: "2026-08-24"
 ---
 
 # SAP HANA Database Standards

@@ -295,12 +295,22 @@
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 13013,
-        "avg_tokens_per_skill": 592,
+        "total_tokens": 13056,
+        "avg_tokens_per_skill": 593,
         "largest_skill": "flutter-testing (926 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "flutter",
+          "source": "github",
+          "repo": "flutter/flutter",
+          "pinned": "3.32.0",
+          "tag_pattern": "^(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-07-09"
+        }
       ]
     },
     "dart": {
@@ -315,6 +325,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "dart",
+          "source": "github",
+          "repo": "dart-lang/sdk",
+          "pinned": "3.8.0",
+          "tag_pattern": "^(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-07-15"
+        }
       ]
     },
     "typescript": {
@@ -329,6 +349,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "typescript",
+          "source": "github",
+          "repo": "microsoft/TypeScript",
+          "pinned": "5.8.0",
+          "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-07-15"
+        }
       ]
     },
     "javascript": {
@@ -343,6 +373,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "node",
+          "source": "github",
+          "repo": "nodejs/node",
+          "pinned": "22.0.0",
+          "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-07-15"
+        }
       ]
     },
     "react": {
@@ -357,6 +397,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "react",
+          "source": "github",
+          "repo": "facebook/react",
+          "pinned": "19.1.0",
+          "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-06-17"
+        }
       ]
     },
     "react-native": {
@@ -371,6 +421,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "react-native",
+          "source": "github",
+          "repo": "facebook/react-native",
+          "pinned": "0.79.0",
+          "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-07-09"
+        }
       ]
     },
     "nestjs": {
@@ -385,6 +445,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "nestjs",
+          "source": "github",
+          "repo": "nestjs/nest",
+          "pinned": "11.0.0",
+          "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-06-17"
+        }
       ]
     },
     "nextjs": {
@@ -399,6 +469,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "next",
+          "source": "github",
+          "repo": "vercel/next.js",
+          "pinned": "16.0.0",
+          "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-06-17"
+        }
       ]
     },
     "common": {
@@ -427,6 +507,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "playwright",
+          "source": "github",
+          "repo": "microsoft/playwright",
+          "pinned": "1.52.0",
+          "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-09-06"
+        }
       ]
     },
     "specialists": {
@@ -455,6 +545,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "go",
+          "source": "github",
+          "repo": "golang/go",
+          "pinned": "1.24.0",
+          "tag_pattern": "^go(\\d+\\.\\d+(?:\\.\\d+)?)$",
+          "reviewed": "2026-06-17"
+        }
       ]
     },
     "angular": {
@@ -469,6 +569,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "angular",
+          "source": "github",
+          "repo": "angular/angular",
+          "pinned": "20.0.0",
+          "tag_pattern": "^(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-07-09"
+        }
       ]
     },
     "kotlin": {
@@ -483,6 +593,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "kotlin",
+          "source": "github",
+          "repo": "JetBrains/kotlin",
+          "pinned": "2.1.0",
+          "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-07-15"
+        }
       ]
     },
     "java": {
@@ -497,6 +617,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "java",
+          "source": "github",
+          "repo": "openjdk/jdk",
+          "pinned": "21",
+          "tag_pattern": "^jdk-(\\d+)-ga$",
+          "reviewed": "2026-07-15"
+        }
       ]
     },
     "spring-boot": {
@@ -511,6 +641,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "spring-boot",
+          "source": "github",
+          "repo": "spring-projects/spring-boot",
+          "pinned": "3.4.0",
+          "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-07-09"
+        }
       ]
     },
     "android": {
@@ -519,12 +659,26 @@
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 26,
-        "total_tokens": 11659,
-        "avg_tokens_per_skill": 448,
+        "total_tokens": 11684,
+        "avg_tokens_per_skill": 449,
         "largest_skill": "android-edge-to-edge (769 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "android",
+          "source": "manual",
+          "pinned": "15",
+          "reviewed": "2026-07-09"
+        },
+        {
+          "name": "agp",
+          "source": "manual",
+          "pinned": "9.0.0",
+          "reviewed": "2026-07-09"
+        }
       ]
     },
     "swift": {
@@ -539,6 +693,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "swift",
+          "source": "github",
+          "repo": "swiftlang/swift",
+          "pinned": "6.1.0",
+          "tag_pattern": "^swift-(\\d+\\.\\d+(?:\\.\\d+)?)-RELEASE$",
+          "reviewed": "2026-07-15"
+        }
       ]
     },
     "ios": {
@@ -553,6 +717,20 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "ios",
+          "source": "manual",
+          "pinned": "18",
+          "reviewed": "2026-07-09"
+        },
+        {
+          "name": "xcode",
+          "source": "manual",
+          "pinned": "16",
+          "reviewed": "2026-07-09"
+        }
       ]
     },
     "php": {
@@ -567,6 +745,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "php",
+          "source": "github",
+          "repo": "php/php-src",
+          "pinned": "8.4.0",
+          "tag_pattern": "^php-(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-05-16"
+        }
       ]
     },
     "python": {
@@ -581,6 +769,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "python",
+          "source": "github",
+          "repo": "python/cpython",
+          "pinned": "3.13.0",
+          "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-06-29"
+        }
       ]
     },
     "laravel": {
@@ -595,6 +793,16 @@
       },
       "owners": [
         "HoangNguyen0403"
+      ],
+      "upstream": [
+        {
+          "name": "laravel",
+          "source": "github",
+          "repo": "laravel/framework",
+          "pinned": "12.0.0",
+          "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
+          "reviewed": "2026-07-09"
+        }
       ]
     },
     "system-design": {
@@ -617,9 +825,9 @@
       "tag_prefix": "database-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 3753,
-        "avg_tokens_per_skill": 469,
-        "largest_skill": "database-hana (895 tokens)"
+        "total_tokens": 3906,
+        "avg_tokens_per_skill": 488,
+        "largest_skill": "database-hana (920 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

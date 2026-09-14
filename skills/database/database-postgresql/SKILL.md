@@ -11,6 +11,13 @@ metadata:
       - TypeOrmModule
       - PrismaService
       - PostgresModule
+  upstream:
+    - name: postgresql
+      source: github
+      repo: postgres/postgres
+      pinned: "17"
+      tag_pattern: "^REL_(\\d+)_(\\d+)$"
+      reviewed: "2026-06-17"
 ---
 
 # PostgreSQL Database Standards

@@ -115,6 +115,7 @@ See [testing.md](testing.md) for the full process including:
 - Performance issues in specific agents
 - New use cases discovered
 - Better patterns identified
+- The freshness audit (`pnpm freshness:audit`, `docs/FRESHNESS.md`) reports a `claim-*` or `reviewed-stale` issue for the skill
 
 ### Optimization Strategies
 

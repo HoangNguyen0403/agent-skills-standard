@@ -13,6 +13,13 @@ metadata:
     - objectid
     - schema
     - model
+  upstream:
+    - name: mongodb
+      source: github
+      repo: mongodb/mongo
+      pinned: "8.0.0"
+      tag_pattern: "^r(\\d+\\.\\d+\\.\\d+)$"
+      reviewed: "2026-06-17"
 ---
 # MongoDB Best Practices
 

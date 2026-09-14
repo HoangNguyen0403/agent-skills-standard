@@ -38,6 +38,33 @@ export const skillSignatureSchema = z
   })
   .strict();
 
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const GITHUB_REPO_RE = /^[\w.-]+\/[\w.-]+$/;
+
+/**
+ * One upstream dependency a skill (or, in skills/metadata.json, a category)
+ * tracks for freshness auditing. `source: github` needs a `repo`;
+ * `source: manual` is checked only by its `reviewed` age.
+ * See docs/FRESHNESS.md.
+ */
+export const upstreamEntrySchema = z
+  .object({
+    name: z.string().min(1),
+    source: z.enum(['github', 'manual']),
+    repo: z
+      .string()
+      .regex(GITHUB_REPO_RE, 'repo must be "owner/name"')
+      .optional(),
+    pinned: z.string().min(1),
+    tag_pattern: z.string().min(1).optional(),
+    reviewed: z.string().regex(ISO_DATE_RE, 'reviewed must be YYYY-MM-DD'),
+  })
+  .strict()
+  .refine((e) => e.source !== 'github' || Boolean(e.repo), {
+    message: 'repo is required when source is "github"',
+    path: ['repo'],
+  });
+
 /**
  * Validates only the *optional, additive* Universal-Skill-Format fields.
  * `name`/`description` (required, with legacy hand-rolled error messages)
@@ -63,6 +90,14 @@ export const optionalSkillFieldsSchema = z.object({
     .regex(SHA256_RE, 'content_hash must match "sha256:<64 hex chars>"')
     .optional(),
   signature: skillSignatureSchema.optional(),
+  /**
+   * `metadata` also carries `triggers` (validated by TriggersRule) — passthrough
+   * keeps those keys intact while `upstream` gets schema-checked here.
+   */
+  metadata: z
+    .object({ upstream: z.array(upstreamEntrySchema).optional() })
+    .passthrough()
+    .optional(),
 });
 
 /**

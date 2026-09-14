@@ -88,6 +88,7 @@ pnpm --filter ./cli validate:all
 pnpm audit:skills
 pnpm audit:sdlc
 pnpm check-alignment
+pnpm freshness:audit
 pnpm test
 pnpm build
 ```

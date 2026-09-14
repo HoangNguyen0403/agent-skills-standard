@@ -14,6 +14,13 @@ metadata:
     - BlocListener
     - Cubit
     - Emitter
+  upstream:
+    - name: bloc
+      source: github
+      repo: felangel/bloc
+      pinned: "9.0.0"
+      tag_pattern: "^v(\\d+\\.\\d+\\.\\d+)$"
+      reviewed: "2026-07-09"
 ---
 # BLoC State Management
 

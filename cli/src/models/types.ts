@@ -29,6 +29,20 @@ export interface GitHubTreeResponse {
 }
 
 /**
+ * Upstream dependency pin used by the freshness audit
+ * (scripts/freshness). Mirrors `upstreamEntrySchema` in
+ * cli/src/schemas/skill-frontmatter.ts.
+ */
+export interface UpstreamEntry {
+  name: string;
+  source: 'github' | 'manual';
+  repo?: string;
+  pinned: string;
+  tag_pattern?: string;
+  reviewed: string;
+}
+
+/**
  * Metadata for a specific skill category.
  */
 export interface CategoryMetadata {
@@ -46,6 +60,8 @@ export interface CategoryMetadata {
    * published registry metadata itself, not only this repo's local config.
    */
   owners?: string[];
+  /** Upstream pins the category's skills were reviewed against. */
+  upstream?: UpstreamEntry[];
 }
 
 /**
