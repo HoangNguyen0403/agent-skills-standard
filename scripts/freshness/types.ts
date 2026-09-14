@@ -46,6 +46,12 @@ export interface VersionClaim {
   version: string;
   /** True when the text had a trailing "+" (a floor, not a ceiling). */
   floor: boolean;
+  /**
+   * "historical" when the same line reads as a reference to an older
+   * version ("since Go 1.21", "pre-iOS 17", "migrating from PHP 7"),
+   * "current" otherwise. Only claim-behind-pin severity depends on it.
+   */
+  context: "current" | "historical";
   /** Repo-relative file path. */
   file: string;
   line: number;

@@ -35,6 +35,18 @@ export const CLAIM_ALIASES: Record<
 };
 
 /**
+ * Same-line words that mark a version mention as a reference to the past
+ * rather than guidance to use that version. Matched case-insensitively.
+ */
+export const HISTORICAL_CONTEXT =
+  /\b(since|before|legacy|migrat\w*|upgrad\w*|deprecated|unsupported|older|previous|from)\b|\bpre-/i;
+
+/** Alias regexes compiled once with the global flag; reset lastIndex before each use. */
+const COMPILED_ALIASES: [string, RegExp][] = Object.entries(CLAIM_ALIASES).map(
+  ([name, alias]) => [name, new RegExp(alias.pattern.source, "g")],
+);
+
+/**
  * Scans text line by line for every alias. A `+` immediately after the
  * version marks the claim as a floor ("Next.js 15+").
  */
@@ -46,8 +58,9 @@ export function scanText(
   const claims: VersionClaim[] = [];
   const lines = text.split(/\r?\n/);
   lines.forEach((lineText, index) => {
-    for (const [name, alias] of Object.entries(CLAIM_ALIASES)) {
-      const re = new RegExp(alias.pattern.source, "g");
+    const context = HISTORICAL_CONTEXT.test(lineText) ? "historical" : "current";
+    for (const [name, re] of COMPILED_ALIASES) {
+      re.lastIndex = 0;
       let match: RegExpExecArray | null;
       while ((match = re.exec(lineText)) !== null) {
         const after = lineText.charAt(match.index + match[0].length);
@@ -57,6 +70,7 @@ export function scanText(
           name,
           version: match[1],
           floor: after === "+",
+          context,
           file,
           line: index + 1,
         });

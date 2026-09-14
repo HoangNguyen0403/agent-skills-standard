@@ -20,6 +20,7 @@ async function fixture(): Promise<{ root: string; cleanup: () => Promise<void> }
   };
   await mk("nextjs", "nextjs-app-router", "Use Next.js 15+.");
   await mk("nextjs", "nextjs-legacy", "Targets Next.js 14 only.");
+  await mk("nextjs", "nextjs-upgrade", "Upgrading from Next.js 14 to 16.\nStill targets Next.js 14 in the old app.");
   await mk("java", "java-language", "Java 21 and Java 16+ features.");
   await mk("angular", "angular-components", "Angular 21 signals.");
   await mk("php", "php-language", "PHP 8.2+");
@@ -73,6 +74,8 @@ test("auditFreshness emits the expected issue set", async () => {
     assert.deepEqual(keys, [
       "claim-ahead-of-pin:angular:angular-components:angular",
       "claim-behind-pin:nextjs:nextjs-legacy:next",
+      "claim-behind-pin:nextjs:nextjs-upgrade:next",
+      "claim-behind-pin:nextjs:nextjs-upgrade:next",
       "claim-behind-pin:php2:php2-language:php",
       "missing-pin:php::",
       "reviewed-mismatch:angular::angular",
@@ -83,6 +86,22 @@ test("auditFreshness emits the expected issue set", async () => {
     assert.equal(behind?.file, "skills/nextjs/nextjs-legacy/SKILL.md");
     assert.equal(behind?.line, 5);
     assert.equal(issues.find((i) => i.type === "missing-pin")?.severity, "low");
+  } finally {
+    await cleanup();
+  }
+});
+
+test("historical claim-behind-pin is downgraded to low; current stays med", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const issues = auditFreshness(root, { staleDays: 60, today: TODAY }).filter(
+      (i) => i.type === "claim-behind-pin" && i.skillName === "nextjs-upgrade",
+    );
+    assert.equal(issues.length, 2);
+    const byLine = Object.fromEntries(issues.map((i) => [i.line, i]));
+    assert.equal(byLine[5]?.severity, "low");
+    assert.match(byLine[5]?.message ?? "", /historical reference/);
+    assert.equal(byLine[6]?.severity, "med");
   } finally {
     await cleanup();
   }
