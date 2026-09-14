@@ -66,7 +66,10 @@ export type IssueType =
   | "reviewed-stale"
   | "reviewed-mismatch"
   | "missing-pin"
-  | "fetch-failed";
+  | "fetch-failed"
+  | "eval-outdated"
+  | "eval-remediation"
+  | "learning-log-gap";
 
 /** high/med/low gate severity; warn never gates. */
 export type Severity = "high" | "med" | "low" | "warn";
