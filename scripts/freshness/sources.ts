@@ -54,7 +54,7 @@ interface GithubSourceOptions {
   maxTagPages?: number;
 }
 
-/** GitHub releases/latest with a tags fallback for repos that publish no Releases. */
+/** GitHub Releases (highest non-prerelease version among the 100 newest) with a tags fallback for repos that publish no Releases. */
 export class GithubSource implements UpstreamSource {
   private readonly fetchImpl: typeof fetch;
   private readonly token: string | undefined;
@@ -94,18 +94,33 @@ export class GithubSource implements UpstreamSource {
 
   private async latestRelease(entry: UpstreamEntry): Promise<LatestRelease | null> {
     const repo = entry.repo as string;
-    const { status, json } = await this.get(`/repos/${repo}/releases/latest`, repo);
-    if (status === 404 || !json || typeof json !== "object") return null;
-    const data = json as { tag_name?: string; published_at?: string | null; html_url?: string };
-    if (!data.tag_name) return null;
-    const version = extractVersionFromTag(data.tag_name, entry.tag_pattern);
-    if (!version) return null;
-    return {
-      version,
-      tag: data.tag_name,
-      publishedAt: data.published_at ?? null,
-      url: data.html_url ?? `https://github.com/${repo}/releases/tag/${data.tag_name}`,
-    };
+    const { status, json } = await this.get(`/repos/${repo}/releases?per_page=100`, repo);
+    if (status === 404 || !Array.isArray(json)) return null;
+    let best: { release: LatestRelease; parts: number[] } | null = null;
+    for (const item of json as {
+      tag_name?: string;
+      draft?: boolean;
+      prerelease?: boolean;
+      published_at?: string | null;
+      html_url?: string;
+    }[]) {
+      if (!item.tag_name || item.draft || item.prerelease) continue;
+      const version = extractVersionFromTag(item.tag_name, entry.tag_pattern);
+      const parts = version ? parseVersion(version) : null;
+      if (!version || !parts) continue;
+      if (!best || compareVersions(parts, best.parts) > 0) {
+        best = {
+          parts,
+          release: {
+            version,
+            tag: item.tag_name,
+            publishedAt: item.published_at ?? null,
+            url: item.html_url ?? `https://github.com/${repo}/releases/tag/${item.tag_name}`,
+          },
+        };
+      }
+    }
+    return best?.release ?? null;
   }
 
   private async latestTag(entry: UpstreamEntry): Promise<LatestRelease | null> {

@@ -55,20 +55,25 @@ test("extractVersionFromTag without a pattern accepts plain semver with optional
   assert.equal(extractVersionFromTag("release-9", undefined), null);
 });
 
-test("GithubSource uses releases/latest when its tag matches the pattern", async () => {
+test("GithubSource picks the highest non-prerelease release version, not the newest created", async () => {
   const { fetchImpl, calls } = stubFetch({
-    [`${API}/repos/vercel/next.js/releases/latest`]: {
+    [`${API}/repos/vercel/next.js/releases?per_page=100`]: {
       status: 200,
-      body: { tag_name: "v16.2.0", published_at: "2026-08-01T00:00:00Z", html_url: "https://github.com/vercel/next.js/releases/tag/v16.2.0" },
+      body: [
+        { tag_name: "v24.21.0", draft: false, prerelease: false, published_at: "2026-09-08T00:00:00Z", html_url: "https://github.com/vercel/next.js/releases/tag/v24.21.0" },
+        { tag_name: "v26.9.0", draft: false, prerelease: true,  published_at: "2026-09-10T00:00:00Z", html_url: "x" },
+        { tag_name: "v26.8.2", draft: false, prerelease: false, published_at: "2026-09-09T00:00:00Z", html_url: "https://github.com/vercel/next.js/releases/tag/v26.8.2" },
+        { tag_name: "v27.0.0", draft: true,  prerelease: false, published_at: null, html_url: "y" },
+      ],
     },
   });
   const source = new GithubSource({ fetchImpl, token: "secret" });
   const latest = await source.latest(next);
   assert.deepEqual(latest, {
-    version: "16.2.0",
-    tag: "v16.2.0",
-    publishedAt: "2026-08-01T00:00:00Z",
-    url: "https://github.com/vercel/next.js/releases/tag/v16.2.0",
+    version: "26.8.2",
+    tag: "v26.8.2",
+    publishedAt: "2026-09-09T00:00:00Z",
+    url: "https://github.com/vercel/next.js/releases/tag/v26.8.2",
   });
   assert.equal(calls.length, 1);
   assert.equal(calls[0].headers.Authorization, "Bearer secret");
@@ -77,7 +82,7 @@ test("GithubSource uses releases/latest when its tag matches the pattern", async
 
 test("GithubSource falls back to tags on 404 and picks the highest matching tag across pages", async () => {
   const { fetchImpl, calls } = stubFetch({
-    [`${API}/repos/postgres/postgres/releases/latest`]: { status: 404 },
+    [`${API}/repos/postgres/postgres/releases?per_page=100`]: { status: 404 },
     [`${API}/repos/postgres/postgres/tags?per_page=100&page=1`]: {
       status: 200,
       body: [{ name: "REL_17_2" }, { name: "REL_18_BETA3" }, { name: "REL_16_9" }],
@@ -102,9 +107,9 @@ test("GithubSource falls back to tags on 404 and picks the highest matching tag 
 
 test("GithubSource falls back to tags when the latest release tag does not match the pattern", async () => {
   const { fetchImpl } = stubFetch({
-    [`${API}/repos/vercel/next.js/releases/latest`]: {
+    [`${API}/repos/vercel/next.js/releases?per_page=100`]: {
       status: 200,
-      body: { tag_name: "v17.0.0-canary.1", published_at: null, html_url: "x" },
+      body: [{ tag_name: "v17.0.0-canary.1", draft: false, prerelease: false, published_at: null, html_url: "x" }],
     },
     [`${API}/repos/vercel/next.js/tags?per_page=100&page=1`]: {
       status: 200,
@@ -118,7 +123,7 @@ test("GithubSource falls back to tags when the latest release tag does not match
 
 test("GithubSource scans up to ten tag pages by default and stops at the first empty page", async () => {
   const routes: Record<string, { status: number; body?: unknown }> = {
-    [`${API}/repos/postgres/postgres/releases/latest`]: { status: 404 },
+    [`${API}/repos/postgres/postgres/releases?per_page=100`]: { status: 404 },
   };
   for (let page = 1; page <= 4; page++) {
     routes[`${API}/repos/postgres/postgres/tags?per_page=100&page=${page}`] = {
@@ -130,19 +135,19 @@ test("GithubSource scans up to ten tag pages by default and stops at the first e
   const { fetchImpl, calls } = stubFetch(routes);
   const latest = await new GithubSource({ fetchImpl }).latest(postgres);
   assert.equal(latest?.version, "19.0");
-  assert.equal(calls.length, 6); // releases/latest + pages 1-5 (page 5 empty stops the loop)
+  assert.equal(calls.length, 6); // releases + pages 1-5 (page 5 empty stops the loop)
 });
 
 test("GithubSource returns null when no tag matches and throws on other errors", async () => {
   const none = stubFetch({
-    [`${API}/repos/vercel/next.js/releases/latest`]: { status: 404 },
+    [`${API}/repos/vercel/next.js/releases?per_page=100`]: { status: 404 },
     [`${API}/repos/vercel/next.js/tags?per_page=100&page=1`]: { status: 200, body: [{ name: "weird" }] },
     [`${API}/repos/vercel/next.js/tags?per_page=100&page=2`]: { status: 200, body: [] },
   });
   assert.equal(await new GithubSource({ fetchImpl: none.fetchImpl }).latest(next), null);
 
   const limited = stubFetch({
-    [`${API}/repos/vercel/next.js/releases/latest`]: { status: 403 },
+    [`${API}/repos/vercel/next.js/releases?per_page=100`]: { status: 403 },
   });
   await assert.rejects(
     () => new GithubSource({ fetchImpl: limited.fetchImpl }).latest(next),

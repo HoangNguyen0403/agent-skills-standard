@@ -56,10 +56,10 @@ test("checkUpstream fetches once per unique pin, reports drift, fetch-failed, an
   const fetchImpl = (async (input: string | URL | Request) => {
     const url = String(input);
     urls.push(url);
-    if (url.includes("vercel/next.js/releases/latest")) {
-      return new Response(JSON.stringify({ tag_name: "v17.0.0", published_at: "2026-09-01T00:00:00Z", html_url: "https://github.com/vercel/next.js/releases/tag/v17.0.0" }), { status: 200 });
+    if (url.includes("vercel/next.js/releases?per_page=100")) {
+      return new Response(JSON.stringify([{ tag_name: "v17.0.0", draft: false, prerelease: false, published_at: "2026-09-01T00:00:00Z", html_url: "https://github.com/vercel/next.js/releases/tag/v17.0.0" }]), { status: 200 });
     }
-    if (url.includes("facebook/react/releases/latest")) {
+    if (url.includes("facebook/react/releases?per_page=100")) {
       return new Response("", { status: 403, statusText: "rate limited" });
     }
     return new Response("", { status: 500, statusText: "unexpected" });
@@ -90,4 +90,30 @@ test("checkUpstream fetches once per unique pin, reports drift, fetch-failed, an
     ["nextjs", "next", "16.0.0", "17.0.0", "https://github.com/vercel/next.js/releases/tag/v17.0.0"],
     ["react", "react", "19.1.0", null, null],
   ]);
+});
+
+test("checkUpstream reports fetch-failed when a github pin matches no release or tag, and leaves manual pins issue-free", async () => {
+  const fetchImpl = (async (input: string | URL | Request) => {
+    const url = String(input);
+    if (url.includes("releases?per_page=100")) return new Response(JSON.stringify([]), { status: 404 });
+    if (url.includes("tags?per_page=100&page=1")) return new Response(JSON.stringify([]), { status: 200 });
+    return new Response("", { status: 500, statusText: "unexpected" });
+  }) as typeof fetch;
+
+  const pins: EffectivePin[] = [
+    pin({ skillName: "nextjs-app-router" }),
+    pin({ name: "ios", source: "manual", repo: undefined, tag_pattern: undefined, pinned: "18", category: "ios", skillName: "ios-swiftui" }),
+  ];
+  const result = await checkUpstream(pins, new GithubSource({ fetchImpl }));
+
+  assert.equal(result.issues.length, 1);
+  const issue = result.issues[0];
+  assert.equal(issue.type, "fetch-failed");
+  assert.equal(issue.severity, "warn");
+  assert.match(issue.message, /matched tag_pattern/);
+
+  const nextRow = result.upstream.find((u) => u.name === "next");
+  assert.equal(nextRow?.latest, null);
+  const iosRow = result.upstream.find((u) => u.name === "ios");
+  assert.equal(iosRow?.latest, null);
 });

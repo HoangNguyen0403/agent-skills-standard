@@ -58,7 +58,7 @@ export function driftIssue(pin: EffectivePin, latest: LatestRelease): FreshnessI
       ...base,
       type: "upstream-minor-drift",
       severity: "low",
-      message: `Upstream "${pin.name}" is at ${latest.version}; pin is ${pin.pinned} (same ${significance})`,
+      message: `Upstream "${pin.name}" is at ${latest.version}; pin is ${pin.pinned} (same ${significance === "minor" ? "major.minor" : "major"})`,
     };
   }
   return null;
@@ -107,7 +107,20 @@ export async function checkUpstream(
     };
     try {
       const latest = await resolveSource(pin, github).latest(pin);
-      if (!latest) return { status, issue: null };
+      if (!latest) {
+        if (pin.source !== "github") return { status, issue: null };
+        return {
+          status,
+          issue: {
+            type: "fetch-failed" as const,
+            severity: "warn" as const,
+            category: pin.category,
+            skillName: pin.skillName,
+            upstream: pin.name,
+            message: `No release or tag of ${pin.repo} matched tag_pattern ${pin.tag_pattern ?? "(none)"}; check the repo and pattern in the pin`,
+          },
+        };
+      }
       status.latest = latest.version;
       status.publishedAt = latest.publishedAt;
       status.releaseUrl = latest.url;
