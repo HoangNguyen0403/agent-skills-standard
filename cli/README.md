@@ -109,7 +109,7 @@ The CLI **never** modifies user-home files (`~/.cursor/mcp.json`, `~/.gemini/set
 ## Privacy & Security
 
 - **Text only** — the CLI downloads Markdown and JSON files, never binaries or scripts
-- **No telemetry** — zero data collection, no background processes
+- **No telemetry by default** — zero data collection unless you opt into the local usage log (see docs/FRESHNESS.md)
 - **Transparent** — fetches from the [public registry](https://github.com/HoangNguyen0403/agent-skills-standard), nothing hidden
 - **Override protection** — `custom_overrides` prevents the CLI from touching your local modifications
 - **MCP consent model** — runtime configs in `$HOME` are only ever modified with explicit per-file consent

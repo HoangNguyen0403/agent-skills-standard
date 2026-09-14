@@ -129,6 +129,8 @@ Report: `benchmarks/freshness/freshness-report.json` `{generatedAt, summary:{byC
 
 ### 5. Phase 3 — MCP load telemetry (opt-in)
 
+> **Amended 2026-09-14:** implemented local-only — no server module, no HTTP. The MCP appends counts to `~/.agent-skills-standard/telemetry.jsonl` and `freshness --telemetry <path>` reads it. The original server design below is kept for history.
+
 - `mcp/src/services/SessionTracker.ts` already records per-skill loads. Add `TelemetryFlusher`: on exit or every N calls POST `{skills:{"cat/id":count}, noMatchInputsHashed:[], mcpVersion}`. Off unless `AGS_TELEMETRY=1` or `.skillsrc` `telemetry: true`. No prompts, paths, or raw keywords.
 - `server/src/telemetry/` mirrors `server/src/feedback/` (controller, DTO with class-validator, service, same storage). `POST /telemetry`, `GET /telemetry/aggregate?days=30`.
 - `freshness --telemetry <url>`: zero-load + drift → severity bump; high-load + drift → top of list. Unreachable → `fetch-failed`, never gates.

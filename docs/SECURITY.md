@@ -148,7 +148,7 @@ Each category in `skills/metadata.json` also carries an `owners` field (GitHub h
 
 ### Telemetry & data collection
 
-The CLI and MCP server collect nothing by default. The opt-in local usage log (`AGS_TELEMETRY=1`, see [docs/FRESHNESS.md](FRESHNESS.md#usage-telemetry-local-opt-in)) contains only counts — timestamp, MCP version, session start and duration, a 12-hex-char hash of the project path, load counts per `category/skill`, load counts per workflow, call counts per MCP tool, and the number of no-match calls — is written to a file under the user's home directory, is never transmitted anywhere, and can be disabled at any time by unsetting `AGS_TELEMETRY` (or setting it to `0`).
+The CLI and MCP server collect nothing by default. The opt-in local usage log (`AGS_TELEMETRY=1`, see [docs/FRESHNESS.md](FRESHNESS.md#usage-telemetry-local-opt-in)) contains only counts — timestamp, MCP version, session start and duration, load counts per `category/skill`, load counts per category guide, load counts per workflow, call counts per MCP tool, and the number of no-match calls — is written to a file under the user's home directory, is never transmitted anywhere, and can be disabled at any time with `AGS_TELEMETRY=0` (which also overrides a `telemetry: true` committed in `.skillsrc`).
 
 ### Skill inventory
 

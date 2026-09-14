@@ -205,7 +205,7 @@ What is measured:
 - The skill content authors (`SKILL.md` is a prompt-able document; malicious authors could embed instructions).
 - npm to deliver an unmodified package (mitigated via `npm audit`, `--ignore-scripts`, or pinned versions).
 
-The MCP itself is small, has no native bindings, no postinstall scripts, and keeps only in-memory session telemetry for the active process.
+The MCP itself is small, has no native bindings, no postinstall scripts, and keeps only in-memory session telemetry for the active process, plus an opt-in local JSONL usage log (`AGS_TELEMETRY`, see docs/FRESHNESS.md).
 
 ## 8. Failure Modes
 

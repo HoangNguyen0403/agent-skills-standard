@@ -152,6 +152,15 @@ export PORT=8768
 npx agent-skills-standard-mcp
 ```
 
+### Usage Telemetry (Opt-In)
+
+Off by default. Set these to write a local, counts-only JSONL usage log (see `docs/FRESHNESS.md`):
+
+```bash
+export AGS_TELEMETRY=1
+export AGS_TELEMETRY_PATH=~/.agent-skills-standard/telemetry.jsonl
+```
+
 #### GoClaw Configuration
 
 Add to your `config.json`:

@@ -484,7 +484,7 @@ See [docs/SECURITY.md](./docs/SECURITY.md) for the full security policy, thresho
 
 - **Downloads text only** — fetches Markdown and JSON from the [public registry](https://github.com/HoangNguyen0403/agent-skills-standard)
 - **Verifies before writing** — every downloaded file's git blob sha is checked against the tree API, with a 1 MiB size cap, before it's written to disk
-- **No telemetry by default** — no data collection, no analytics, no background daemons. An opt-in local usage log (`AGS_TELEMETRY=1`) writes per-session skill-load counts to `~/.agent-skills-standard/telemetry.jsonl` and is never uploaded; see [docs/FRESHNESS.md](docs/FRESHNESS.md#usage-telemetry-local-opt-in)
+- **No telemetry by default** — no data collection, no analytics, no background daemons. An opt-in local usage log (`AGS_TELEMETRY=1`) writes per-session skill-load counts to `~/.agent-skills-standard/telemetry.jsonl` and is never uploaded; see [docs/FRESHNESS.md](docs/FRESHNESS.md#usage-telemetry-local-opt-in); a project's `.skillsrc` can also enable it, in which case the MCP prints a startup notice
 - **No code or project data leaves your machine** — feedback is only sent if you explicitly run `ags feedback`
 
 ### How Skills Stay Safe
