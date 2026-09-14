@@ -70,6 +70,7 @@
     "evals:preflight": "tsx scripts/evals/quality.ts preflight",
     "evals:queue": "tsx scripts/evals/quality.ts queue",
     "freshness:audit": "tsx scripts/freshness/index.ts audit",
+    "freshness:check": "tsx scripts/freshness/index.ts check",
     "freshness:report": "tsx scripts/freshness/index.ts report",
     "evals:standardize": "tsx scripts/evals/quality.ts audit --write",
     "generate-indices": "tsx scripts/generate-indices.ts",
