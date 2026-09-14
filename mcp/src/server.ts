@@ -54,6 +54,9 @@ function register(server: McpServer, tool: ToolDef): void {
   );
 }
 
+/** MCP server version, shared with telemetry records. */
+export const SERVER_VERSION = "0.6.0";
+
 /**
  * Server-level instructions. Pinned to the McpServer constructor so every
  * connecting client (and every sub-agent of that client) sees the same
@@ -127,10 +130,13 @@ follow the same workflow above — load skills first, then act, then audit.
 Do not assume the orchestrator has pre-loaded skills for you.
 `.trim();
 
-export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
+export async function buildServer(
+  config: ResolvedConfig,
+  options: { tracker?: SessionTracker } = {},
+): Promise<McpServer> {
   const index = new SkillIndex(config.skillsDir, config.metadataPath);
   await index.load();
-  const tracker = new SessionTracker();
+  const tracker = options.tracker ?? new SessionTracker();
   const ctx = {
     projectRoot: config.projectRoot,
     index,
@@ -141,7 +147,7 @@ export async function buildServer(config: ResolvedConfig): Promise<McpServer> {
   const server = new McpServer(
     {
       name: "agent-skills-standard-mcp",
-      version: "0.6.0",
+      version: SERVER_VERSION,
     },
     {
       instructions: SERVER_INSTRUCTIONS,
