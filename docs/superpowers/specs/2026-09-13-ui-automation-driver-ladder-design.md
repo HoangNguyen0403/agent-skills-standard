@@ -98,9 +98,10 @@ Consumers add `.playwright-cli/` and `.appium-mcp/` to `.gitignore`.
 
 ## D. Files
 
-New: `docs/ui-automation-drivers.md` (install matrix, per-runtime MCP snippets, security notes,
-evaluated-not-adopted record); `references/driver-ladder.md` and `scripts/preflight.sh` in
-both driver skills.
+New: `references/driver-ladder.md`, `references/setup.md` (install matrix, MCP snippet, security
+notes, evaluated-not-adopted record) and `scripts/preflight.sh` in both driver skills;
+`docs/ui-automation-drivers.md` as a maintainer summary only. `docs/` is not synced to consumers,
+so no skill, reference or workflow may link to it.
 
 Changed: both driver `SKILL.md` (ladder, evidence, keywords); `anti-patterns-rationale.md`
 (unpinned install); Appium `tool-cheatsheet.md` and `lambdatest-cloud-setup.md` (new tools,

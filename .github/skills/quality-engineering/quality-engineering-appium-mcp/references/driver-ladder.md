@@ -24,7 +24,7 @@ Take the first rung that works. Say which rung you used in the walkthrough (`dri
 | `REMOTE_SERVER_URL_ALLOW_REGEX` | — | — | required |
 
 Nothing is installed by the skill. Missing items print as `INSTALL:` lines from the preflight.
-`docs/ui-automation-drivers.md` carries the full install matrix and the `.mcp.json` snippet.
+`setup.md` carries the full install matrix, the `.mcp.json` snippet and the alternatives considered.
 
 ## Server registration
 

@@ -75,6 +75,7 @@ For a sticky header that appears after scrolling, scroll until the header is vis
 
 - **Web Visual Testing**: [common-web-visual-testing](../../common/common-web-visual-testing/SKILL.md) — Methodology for what to verify.
 - **Driver Ladder**: [driver-ladder](references/driver-ladder.md) — CLI ↔ MCP equivalence, launch flags, degradation rules.
+- **Setup**: [setup](references/setup.md) — install, MCP registration snippet, security, alternatives not adopted.
 - **Anti-Patterns Rationale**: [anti-patterns-rationale](references/anti-patterns-rationale.md) — Why these rules exist.
 - **Project Context**: [project-context](references/project-context.md) — Project-specific market/VPN/auth patterns.
 

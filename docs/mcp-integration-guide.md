@@ -26,7 +26,7 @@ Every workflow that mentions external systems must follow this order:
 3. If neither exists, mark that lane `BLOCKED` and continue other lanes.
 4. Never invent ticket, PR, TC, design, or environment facts.
 
-Browser and device drivers follow the same order through a per-lane ladder with a read-only preflight script; see `docs/ui-automation-drivers.md` for install, config snippets, and the evaluated-not-adopted record.
+Browser and device drivers follow the same order through a per-lane ladder with a read-only preflight script; install, config snippets and the evaluated-not-adopted record ship inside each driver skill as `references/setup.md` (`quality-engineering-playwright-cli`, `quality-engineering-appium-mcp`); `docs/ui-automation-drivers.md` is the maintainer summary.
 
 ## High-Risk Security Review Rule
 

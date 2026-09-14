@@ -8,7 +8,7 @@ Take the first rung that works. Say which rung you used in the walkthrough (`dri
 | --- | --- | --- | --- |
 | 0 | `sh scripts/preflight.sh` | Always, before opening anything. Exit 0 found, 2 missing, 1 broken. `PLAYWRIGHT_CLI_BIN=/path` overrides lookup. | — |
 | 1 | `playwright-cli -s=<session> …` | Preflight exit 0 and the runtime has a shell (Claude Code, Codex CLI, CI). | `.playwright-cli/<session>/` |
-| 2 | Playwright MCP `browser_*` tools | Preflight exit 2, or no shell (Antigravity, Copilot). Server must be registered by the user; see `docs/ui-automation-drivers.md`. | same dir via `--output-dir .playwright-cli/<session>` |
+| 2 | Playwright MCP `browser_*` tools | Preflight exit 2, or no shell (Antigravity, Copilot). Server must be registered by the user; snippet in `setup.md`. | same dir via `--output-dir .playwright-cli/<session>` |
 | 3 | Exported evidence | Neither driver. Ask for screenshots + console log from a human run; label them as human-provided. | wherever the user put them |
 | 4 | `BLOCKED (driver: playwright)` | Nothing exported. Continue other lanes; never invent a verdict. | — |
 
@@ -58,7 +58,7 @@ npx playwright install chromium
 ```
 
 Pin the version in the consuming project (lockfile, `.tool-versions`), not here. Versions
-verified on a given date live only in `docs/ui-automation-drivers.md`.
+verified on a given date, runtime matrix, security notes and the alternatives considered live in `setup.md`.
 
 ## Degradation rules
 

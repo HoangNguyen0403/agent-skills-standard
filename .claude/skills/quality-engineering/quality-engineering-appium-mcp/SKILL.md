@@ -78,6 +78,7 @@ metadata:
 
 - **Visual Testing**: [common-mobile-visual-testing](../../common/common-mobile-visual-testing/SKILL.md) — Methodology for what to verify.
 - **Driver Ladder**: [driver-ladder](references/driver-ladder.md) — prerequisites per rung, server env, canonical tools.
+- **Setup**: [setup](references/setup.md) — install, MCP registration snippet, security, alternatives not adopted.
 - **LambdaTest Setup**: [lambdatest-cloud-setup](references/lambdatest-cloud-setup.md) — RDC configuration.
 - **Tool Cheatsheet**: [tool-cheatsheet](references/tool-cheatsheet.md) — Fast copy-paste args.
 - **Project Context**: [project-context](references/project-context.md) — Project-specific overlays/macros.
