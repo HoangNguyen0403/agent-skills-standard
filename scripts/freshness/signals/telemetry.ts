@@ -21,7 +21,10 @@ export function readTelemetryFiles(target: string): string[] {
   const files = fs.statSync(target).isDirectory()
     ? fs.readdirSync(target).filter((f) => f.endsWith(".jsonl")).sort().map((f) => path.join(target, f))
     : [target];
-  return files.flatMap((file) => fs.readFileSync(file, "utf8").replace(/\r?\n$/, "").split(/\r?\n/));
+  return files.flatMap((file) => {
+    const text = fs.readFileSync(file, "utf8");
+    return text === "" ? [] : text.replace(/\r?\n$/, "").split(/\r?\n/);
+  });
 }
 
 /** Parses JSONL records written by the MCP TelemetryWriter; invalid or out-of-window lines are skipped. */
@@ -37,7 +40,7 @@ export function aggregateTelemetry(lines: string[], options: { today: Date; wind
     } catch {
       continue;
     }
-    if (typeof record.at !== "string" || !record.skills || typeof record.skills !== "object") continue;
+    if (typeof record.at !== "string" || !record.skills || typeof record.skills !== "object" || Array.isArray(record.skills)) continue;
     const at = new Date(record.at).getTime();
     if (!Number.isFinite(at) || at < cutoff || at > options.today.getTime()) continue;
     agg.sessions += 1;

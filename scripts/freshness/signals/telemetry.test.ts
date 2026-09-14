@@ -20,6 +20,7 @@ function sample(): string[] {
   lines.push(line("2026-05-03T00:00:00Z", { "php/php-language": 9 }));
   lines.push("{not json");
   lines.push("");
+  lines.push(line("2026-09-05T00:00:00Z", [1, 2, 3] as unknown as Record<string, number>));
   return lines;
 }
 
@@ -32,6 +33,7 @@ test("aggregateTelemetry keeps in-window valid records and sums loads", () => {
   assert.equal(agg.noMatchCalls, 5);
   assert.equal(agg.from, "2026-09-01T10:00:00Z");
   assert.equal(agg.to, "2026-09-13T10:00:00Z");
+  assert.equal(agg.loadsBySkill.has("0"), false);
 });
 
 test("telemetryIssues flags unused version-sensitive skills only past minSessions", () => {
@@ -60,8 +62,10 @@ test("readTelemetryFiles reads a file or every .jsonl in a directory, and reject
   try {
     await writeFile(path.join(root, "a.jsonl"), "1\n2\n");
     await writeFile(path.join(root, "b.jsonl"), "3\n");
+    await writeFile(path.join(root, "c.jsonl"), "");
     await writeFile(path.join(root, "ignore.txt"), "9\n");
     assert.deepEqual(readTelemetryFiles(path.join(root, "a.jsonl")), ["1", "2"]);
+    assert.deepEqual(readTelemetryFiles(path.join(root, "c.jsonl")), []);
     assert.deepEqual(readTelemetryFiles(root), ["1", "2", "3"]);
     assert.throws(() => readTelemetryFiles(path.join(root, "nope.jsonl")), /telemetry path not found/);
   } finally {
