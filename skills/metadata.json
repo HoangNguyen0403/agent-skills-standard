@@ -678,14 +678,6 @@
           "source": "manual",
           "pinned": "9.0.0",
           "reviewed": "2026-07-09"
-        },
-        {
-          "name": "gradle",
-          "source": "github",
-          "repo": "gradle/gradle",
-          "pinned": "8.14.0",
-          "tag_pattern": "^v(\\d+\\.\\d+(?:\\.\\d+)?)$",
-          "reviewed": "2026-07-09"
         }
       ]
     },

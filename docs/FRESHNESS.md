@@ -12,7 +12,7 @@ Every version-sensitive category declares what its skills were reviewed against 
 "nextjs": {
   "upstream": [
     { "name": "next", "source": "github", "repo": "vercel/next.js",
-      "pinned": "15.3.0", "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
+      "pinned": "16.0.0", "tag_pattern": "^v(\\d+\\.\\d+\\.\\d+)$",
       "reviewed": "2026-06-17" }
   ]
 }
@@ -64,12 +64,20 @@ Reports land in `benchmarks/freshness/` (gitignored).
 
 ## Baseline (2026-09-14)
 
-Issues present when the gate landed; strict mode stays off until this list is empty.
+Issues present when the gate landed. Strict mode stays off until no `claim-*` or `missing-pin` issues remain (`reviewed-stale` never blocks).
+
+Most `claim-behind-pin` hits in this baseline are historical references ("since Go 1.21", "pre-iOS 17", "PHP 7 is unsupported"), not guidance to use the old version. The scanner cannot yet tell the two apart; a same-line context filter (`since`, `pre-`, `before`, `legacy`, `migrat`, `upgrad`) that downgrades such hits is the first P2 task. Do not rewrite prose to silence them.
+
+The `nextjs` pin was raised from 15.3.0 to 16.0.0 on the strength of three reference files that already document Next.js 16 (`nextjs-architecture`, `nextjs-caching`, `nextjs-data-fetching`); most prose still says 15+. A full category review against 16 is pending; `reviewed` was left at the framework-map date on purpose.
+
+Skill-level pins cost 5-7 frontmatter lines against the SKILL.md size budget. Prefer category pins; add a skill pin only for a library or engine the category does not track (databases, AGP, bloc).
+
+`reviewed-mismatch` currently compares only category pins against `framework-map.md`; skill-level pins are not checked (P2).
 
 `file:line` points at the real line in the file on disk (frontmatter included).
 
 ```
-Freshness audit: 10 issues (high 0, med 10, low 0, warn 0)
+Freshness audit: 8 issues (high 0, med 8, low 0, warn 0)
   med  claim-behind-pin     android/android-agp-upgrade [skills/android/android-agp-upgrade/references/dsl-migration.md:6]: Claims "agp 8" but pin is 9.0.0; update the guidance or mark as a floor with "+"
   med  claim-behind-pin     android/android-compose-migration [skills/android/android-compose-migration/references/dependency-setup.md:29]: Claims "agp 8" but pin is 9.0.0; update the guidance or mark as a floor with "+"
   med  claim-behind-pin     golang/golang-logging [skills/golang/golang-logging/SKILL.md:30]: Claims "go 1.21" but pin is 1.24.0; update the guidance or mark as a floor with "+"
@@ -78,6 +86,4 @@ Freshness audit: 10 issues (high 0, med 10, low 0, warn 0)
   med  claim-behind-pin     nextjs/nextjs-upgrade [skills/nextjs/nextjs-upgrade/SKILL.md:37]: Claims "next 15" but pin is 16.0.0; update the guidance or mark as a floor with "+"
   med  reviewed-stale       php/-: Pin "php" (8.4.0) last reviewed 2026-05-16, 121 days ago (> 120)
   med  claim-behind-pin     php/php-error-handling [skills/php/php-error-handling/SKILL.md:33]: Claims "php 7" but pin is 8.4.0; update the guidance or mark as a floor with "+"
-  med  claim-behind-pin     php/php-language [skills/php/php-language/SKILL.md:3]: Claims "php 8" but pin is 8.4.0; update the guidance or mark as a floor with "+"
-  med  claim-behind-pin     php/php-language [skills/php/php-language/references/implementation.md:3]: Claims "php 8" but pin is 8.4.0; update the guidance or mark as a floor with "+"
 ```
