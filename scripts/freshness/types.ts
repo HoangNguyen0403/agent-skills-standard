@@ -126,6 +126,8 @@ export interface FreshnessReport {
     sessions: number;
     from: string | null;
     to: string | null;
+    /** Tool calls in the window that matched no skill, workflow, or category. */
+    noMatchCalls: number;
     /** `category/skill` and `category (category)` → loads in the window. */
     loadsByTarget: Record<string, number>;
   };

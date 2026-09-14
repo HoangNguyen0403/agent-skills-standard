@@ -92,14 +92,15 @@ test("scoreTargets breaks ties by loads and renderMarkdown shows telemetry", () 
   const loads = { "nextjs/nextjs-b": 40, "nextjs/nextjs-a": 3 };
   assert.deepEqual(scoreTargets(tied, 10, loads).map((t) => [t.target, t.loads]), [["nextjs/nextjs-b", 40], ["nextjs/nextjs-a", 3]]);
   const report = buildReport("audit", 120, tied, [], "2026-09-14T00:00:00.000Z", {
-    source: "~/.agent-skills-standard/telemetry.jsonl",
+    source: "telemetry.jsonl",
     sessions: 22,
     from: "2026-09-01T10:00:00Z",
     to: "2026-09-13T10:00:00Z",
+    noMatchCalls: 5,
     loadsByTarget: loads,
   });
   const md = renderMarkdown(report);
-  assert.match(md, /^Telemetry: 22 sessions \(2026-09-01T10:00:00Z → 2026-09-13T10:00:00Z\) from ~\/\.agent-skills-standard\/telemetry\.jsonl$/m);
+  assert.match(md, /^Telemetry: 22 sessions \(2026-09-01T10:00:00Z → 2026-09-13T10:00:00Z\), 5 no-match calls, from telemetry\.jsonl$/m);
   assert.match(md, /\| # \| target \| score \| loads \| signals \|/);
   assert.match(md, /\| 1 \| nextjs\/nextjs-b \| 2 \| 40 \| claim-behind-pin×1 \|/);
 });

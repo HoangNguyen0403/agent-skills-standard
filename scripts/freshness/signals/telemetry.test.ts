@@ -42,11 +42,67 @@ test("telemetryIssues flags unused version-sensitive skills only past minSession
     { category: "nextjs", name: "nextjs-caching" },
     { category: "nextjs", name: "nextjs-pages-router" },
     { category: "common", name: "common-tdd" },
+    { category: "android", name: "android-compose" },
   ];
   const issues = telemetryIssues(agg, skills, { minSessions: 20, windowDays: 90 });
   assert.deepEqual(issues.map((i) => `${i.type}:${i.category}/${i.skillName}:${i.severity}`), ["unused-skill:nextjs/nextjs-pages-router:low"]);
   assert.match(issues[0].message, /22 sessions/);
   assert.deepEqual(telemetryIssues(agg, skills, { minSessions: 50, windowDays: 90 }), []);
+});
+
+test("telemetryIssues does not flag a skill in a category with zero observed loads", () => {
+  const agg = aggregateTelemetry(sample(), { today: TODAY, windowDays: 90 });
+  const issues = telemetryIssues(agg, [{ category: "android", name: "android-compose" }], { minSessions: 20, windowDays: 90 });
+  assert.deepEqual(issues, []);
+});
+
+test("a record.categories entry marks a category as seen even with zero skill loads", () => {
+  const raw = JSON.stringify({
+    at: "2026-09-05T00:00:00Z",
+    mcpVersion: "0.6.0",
+    skills: {},
+    workflows: {},
+    categories: { "category/android": 1 },
+    callsByTool: {},
+    noMatchCalls: 0,
+  });
+  const agg = aggregateTelemetry([raw], { today: TODAY, windowDays: 90 });
+  assert.equal(agg.categoriesSeen.has("android"), true);
+  const issues = telemetryIssues(agg, [{ category: "android", name: "android-compose" }], { minSessions: 1, windowDays: 90 });
+  assert.deepEqual(issues.map((i) => i.skillName), ["android-compose"]);
+});
+
+test("aggregateTelemetry ignores negative, non-integer, and unsafely large counts", () => {
+  const raw = line("2026-09-05T00:00:00Z", { "nextjs/nextjs-caching": -1, "golang/golang-logging": 1.5, "php/php-language": 1e308 });
+  const agg = aggregateTelemetry([raw], { today: TODAY, windowDays: 90 });
+  assert.equal(agg.loadsBySkill.size, 0);
+  assert.equal(agg.categoriesSeen.size, 0);
+  assert.equal(agg.sessions, 1);
+});
+
+test("aggregateTelemetry ignores an invalid noMatchCalls", () => {
+  const raw = JSON.stringify({ at: "2026-09-05T00:00:00Z", skills: {}, noMatchCalls: -3 });
+  const agg = aggregateTelemetry([raw], { today: TODAY, windowDays: 90 });
+  assert.equal(agg.noMatchCalls, 0);
+});
+
+test("aggregateTelemetry picks from/to by epoch order", () => {
+  const lines = [
+    line("2026-09-10T00:00:01Z", { "nextjs/nextjs-caching": 1 }),
+    line("2026-09-02T23:59:59Z", { "nextjs/nextjs-caching": 1 }),
+  ];
+  const agg = aggregateTelemetry(lines, { today: TODAY, windowDays: 90 });
+  assert.equal(agg.sessions, 2);
+  assert.equal(agg.from, "2026-09-02T23:59:59Z");
+  assert.equal(agg.to, "2026-09-10T00:00:01Z");
+});
+
+test("legacy category/ keys in skills are ignored by aggregation and ranking", () => {
+  const raw = line("2026-09-05T00:00:00Z", { "category/android": 3 });
+  const agg = aggregateTelemetry([raw], { today: TODAY, windowDays: 90 });
+  assert.equal(agg.loadsBySkill.size, 0);
+  assert.equal(agg.categoriesSeen.has("android"), false);
+  assert.deepEqual(loadsByTarget(agg), {});
 });
 
 test("loadsByTarget includes category sums", () => {

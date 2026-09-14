@@ -117,10 +117,11 @@ function telemetrySignals(
   return {
     issues: telemetryIssues(aggregate, skills, { minSessions, windowDays }),
     telemetry: {
-      source: target,
+      source: path.basename(target),
       sessions: aggregate.sessions,
       from: aggregate.from,
       to: aggregate.to,
+      noMatchCalls: aggregate.noMatchCalls,
       loadsByTarget: loadsByTarget(aggregate),
     },
   };

@@ -90,7 +90,7 @@ export function renderMarkdown(report: FreshnessReport): string {
   lines.push("");
   lines.push(`Generated: ${report.generatedAt} · action: \`${report.action}\` · stale after ${report.staleDays} days`);
   if (report.telemetry) {
-    lines.push(`Telemetry: ${report.telemetry.sessions} sessions (${report.telemetry.from ?? "?"} → ${report.telemetry.to ?? "?"}) from ${report.telemetry.source}`);
+    lines.push(`Telemetry: ${report.telemetry.sessions} sessions (${report.telemetry.from ?? "?"} → ${report.telemetry.to ?? "?"}), ${report.telemetry.noMatchCalls} no-match calls, from ${report.telemetry.source}`);
   }
   lines.push("");
   lines.push("| severity | count |");

@@ -10,6 +10,18 @@ export interface TelemetryAggregate {
   to: string | null;
   loadsBySkill: Map<string, number>;
   noMatchCalls: number;
+  /** Category names with any skill load or any `category/<name>` load, observed anywhere in the window. */
+  categoriesSeen: Set<string>;
+}
+
+/** True for a JSON count that is a non-negative, safe integer. */
+function isValidCount(value: unknown): value is number {
+  return (
+    typeof value === "number" &&
+    Number.isInteger(value) &&
+    value >= 0 &&
+    value <= Number.MAX_SAFE_INTEGER
+  );
 }
 
 /**
@@ -30,27 +42,42 @@ export function readTelemetryFiles(target: string): string[] {
 /** Parses JSONL records written by the MCP TelemetryWriter; invalid or out-of-window lines are skipped. */
 export function aggregateTelemetry(lines: string[], options: { today: Date; windowDays: number }): TelemetryAggregate {
   const cutoff = options.today.getTime() - options.windowDays * 86_400_000;
-  const agg: TelemetryAggregate = { sessions: 0, from: null, to: null, loadsBySkill: new Map(), noMatchCalls: 0 };
+  const agg: TelemetryAggregate = { sessions: 0, from: null, to: null, loadsBySkill: new Map(), noMatchCalls: 0, categoriesSeen: new Set() };
+  let fromEpoch = Infinity;
+  let toEpoch = -Infinity;
   for (const raw of lines) {
     const text = raw.trim();
     if (!text) continue;
-    let record: { at?: unknown; skills?: unknown; noMatchCalls?: unknown };
+    let record: { at?: unknown; skills?: unknown; noMatchCalls?: unknown; categories?: unknown };
     try {
       record = JSON.parse(text);
     } catch {
       continue;
     }
     if (typeof record.at !== "string" || !record.skills || typeof record.skills !== "object" || Array.isArray(record.skills)) continue;
-    const at = new Date(record.at).getTime();
-    if (!Number.isFinite(at) || at < cutoff || at > options.today.getTime()) continue;
+    const epoch = new Date(record.at).getTime();
+    if (!Number.isFinite(epoch) || epoch < cutoff || epoch > options.today.getTime()) continue;
     agg.sessions += 1;
-    if (!agg.from || record.at < agg.from) agg.from = record.at;
-    if (!agg.to || record.at > agg.to) agg.to = record.at;
-    for (const [key, count] of Object.entries(record.skills as Record<string, unknown>)) {
-      if (typeof count !== "number" || !Number.isFinite(count)) continue;
-      agg.loadsBySkill.set(key, (agg.loadsBySkill.get(key) ?? 0) + count);
+    if (epoch < fromEpoch) {
+      fromEpoch = epoch;
+      agg.from = record.at;
     }
-    if (typeof record.noMatchCalls === "number") agg.noMatchCalls += record.noMatchCalls;
+    if (epoch > toEpoch) {
+      toEpoch = epoch;
+      agg.to = record.at;
+    }
+    for (const [key, count] of Object.entries(record.skills as Record<string, unknown>)) {
+      if (key.startsWith("category/") || key.startsWith("workflow/")) continue;
+      if (!isValidCount(count)) continue;
+      agg.loadsBySkill.set(key, (agg.loadsBySkill.get(key) ?? 0) + count);
+      agg.categoriesSeen.add(key.split("/")[0]);
+    }
+    if (record.categories && typeof record.categories === "object" && !Array.isArray(record.categories)) {
+      for (const key of Object.keys(record.categories as Record<string, unknown>)) {
+        if (key.startsWith("category/")) agg.categoriesSeen.add(key.slice("category/".length));
+      }
+    }
+    if (isValidCount(record.noMatchCalls)) agg.noMatchCalls += record.noMatchCalls;
   }
   return agg;
 }
@@ -68,6 +95,7 @@ export function telemetryIssues(
   const issues: FreshnessIssue[] = [];
   for (const skill of skills) {
     if (VERSION_AGNOSTIC_CATEGORIES.has(skill.category)) continue;
+    if (!aggregate.categoriesSeen.has(skill.category)) continue;
     const loads = aggregate.loadsBySkill.get(`${skill.category}/${skill.name}`) ?? 0;
     if (loads > 0) continue;
     issues.push({
@@ -75,7 +103,7 @@ export function telemetryIssues(
       severity: "low",
       category: skill.category,
       skillName: skill.name,
-      message: `Never loaded across ${aggregate.sessions} sessions in the last ${options.windowDays} days; check its triggers or consider retiring it`,
+      message: `Category "${skill.category}" was loaded in this window but this skill never was, across ${aggregate.sessions} sessions in ${options.windowDays} days; check its triggers or consider retiring it`,
     });
   }
   return issues;
