@@ -33,7 +33,6 @@ async function main() {
     writer.flush(
       buildTelemetryRecord(tracker, {
         mcpVersion: SERVER_VERSION,
-        projectRoot: config.projectRoot,
       }),
     );
   };
@@ -41,7 +40,7 @@ async function main() {
   for (const signal of ["SIGINT", "SIGTERM"] as const) {
     process.once(signal, () => {
       flushOnce();
-      process.exit(0);
+      process.exit(signal === "SIGINT" ? 130 : 143);
     });
   }
 
@@ -89,8 +88,9 @@ async function main() {
     });
   } else {
     const transport = new StdioServerTransport();
-    await server.connect(transport);
     transport.onclose = flushOnce;
+    await server.connect(transport);
+    process.stdin.once("end", flushOnce);
     process.stderr.write(`[ags-mcp] stdio transport connected\n`);
   }
 }
