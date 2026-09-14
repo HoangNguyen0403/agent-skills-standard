@@ -36,7 +36,7 @@ Recommended unstable_cache; nextjs/nextjs-caching still documents it.
 
 **Date**: 2026-09-10 | **Task**: Logging.
 **Signal**: User correction
-**Skills**: golang/golang-logging  <!-- optional; the freshness report counts these -->, bogus/skill, not an id
+**Skills**: golang/golang-logging, bogus/skill, not an id  <!-- optional; the freshness report counts these -->
 
 ### ✅ Better Approach
 Follow \`golang/golang-logging\` and ignore made-up/skill-id.
@@ -65,21 +65,31 @@ test("parseLearningLog strips HTML comments, keeps only known-skill explicit ids
   ]);
 });
 
-test("parseLearningLog strips a comment closed with the legacy --!> terminator", () => {
-  const legacy =
-    "## Agent Learning Log: Iteration #8\n\n**Date**: 2026-09-12 | **Task**: X.\n**Signal**: User correction\n**Skills**: common/common-tdd  <!-- legacy closer --!>\n";
-  const [entry] = parseLearningLog(legacy, known);
-  assert.deepEqual(entry.skills, ["common/common-tdd"]);
+test("parseLearningLog truncates a line at a trailing comment regardless of how (or whether) it closes", () => {
+  // Neither the standard `-->` nor the legacy `--!>` closer, nor an
+  // unterminated `<!--` with no closer at all, can leave a `<!--` behind:
+  // truncation at the first occurrence never depends on recognizing a
+  // closing delimiter in the first place.
+  for (const closer of ["-->", "--!>", ""]) {
+    const withComment = `## Agent Learning Log: Iteration #8\n\n**Date**: 2026-09-12 | **Task**: X.\n**Signal**: User correction\n**Skills**: common/common-tdd  <!-- trailing note ${closer}\n`;
+    const [entry] = parseLearningLog(withComment, known);
+    assert.deepEqual(entry.skills, ["common/common-tdd"], `closer=${JSON.stringify(closer)}`);
+  }
 });
 
-test("parseLearningLog strips adjacent/malformed HTML comments that a single regex pass would leave partially intact", () => {
-  // Removing the inner well-formed comment from "<!<!---->--" reassembles
-  // "<!--" with no closing "-->" anywhere in the string, so this line must
-  // not leave a bare "<!--" in front of the skill id after sanitization.
-  const evil =
-    "## Agent Learning Log: Iteration #7\n\n**Date**: 2026-09-11 | **Task**: X.\n**Signal**: User correction\n**Skills**: <!<!---->--common/common-tdd\n";
-  const [entry] = parseLearningLog(evil, known);
+test("parseLearningLog never lets <!-- survive an adjacent/malformed comment marker, even mid-field", () => {
+  // Removing the inner well-formed comment from "<!<!---->--" would
+  // reassemble a bare, unterminated "<!--" if comments were stripped by
+  // matching paired delimiters; truncating at the first literal "<!--"
+  // never reassembles anything, so nothing after it — however malformed —
+  // can smuggle a "<!--" back into the parsed text.
+  const unknown: Array<[string, number]> = [];
+  const weird =
+    "## Agent Learning Log: Iteration #7\n\n**Date**: 2026-09-11 | **Task**: X <!<!---->--Y.\n**Signal**: User correction\n**Skills**: common/common-tdd\n";
+  const [entry] = parseLearningLog(weird, known, (id, line) => unknown.push([id, line]));
   assert.deepEqual(entry.skills, ["common/common-tdd"]);
+  assert.equal(entry.task.includes("<!--"), false);
+  for (const [id] of unknown) assert.equal(id.includes("<!--"), false);
 });
 
 test("parseLearningLog reads a combined Date | Task | Signal line", () => {
