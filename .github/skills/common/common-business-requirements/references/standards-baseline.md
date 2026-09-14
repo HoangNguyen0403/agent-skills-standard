@@ -1,7 +1,7 @@
 # BRD Baseline References
 
-- Shared baseline (canonical in repo):
-  - docs/requirements-standards-baseline.md
+- Shared baseline (ships with `common-software-requirements`):
+  - [requirements-standards-baseline.md](../../common-software-requirements/references/requirements-standards-baseline.md)
 
 - BRD / PRD / SRS / FRS comparisons (primary sources for this SDLC upgrade):
   - https://www.bacs.vn/vi/phan-biet-cac-tai-lieu-brd-vs-srs-vs-frs-8783.html

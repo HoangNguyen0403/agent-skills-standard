@@ -83,7 +83,7 @@ When users ask for BRD, PRD, or SRS:
 
 ## Trust Baseline
 
-Use `docs/requirements-standards-baseline.md` as the shared source baseline for BRD/PRD/SRS phases.
+Use `skills/common/common-software-requirements/references/requirements-standards-baseline.md` as the shared source baseline for BRD/PRD/SRS phases (it ships with the skill; `docs/` does not sync to consumers).
 
 ## Requirement Quality Rule
 

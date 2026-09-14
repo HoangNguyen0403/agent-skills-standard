@@ -183,6 +183,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [specialists-v1.5.0] - 2026-09-09
 
 **Category**: Solution diagrammer specialist
+- `common-software-requirements`: `docs/requirements-standards-baseline.md` moved into `references/requirements-standards-baseline.md` so it ships with the skill; `common-business-requirements`, `common-product-requirements` and the `sdlc` workflow now link there instead of the unsynced `docs/` folder.
 - `common-web-visual-testing`, `common-mobile-visual-testing`: Evidence section naming `.playwright-cli/<session>/` and `.appium-mcp/<session>/`, `browser_snapshot` alias for the MCP rung, link to the driver ladders; `appium_get_source` corrected to `appium_get_page_source`.
 
 ### Added
