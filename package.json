@@ -37,7 +37,7 @@
     "format:check": "pnpm -r format:check",
     "lint:check": "pnpm -r lint:check",
     "validate": "pnpm --filter ./cli validate",
-    "validate:all": "pnpm --filter ./cli validate:all && pnpm audit:skills && pnpm audit:injection",
+    "validate:all": "pnpm --filter ./cli validate:all && pnpm audit:skills && pnpm audit:injection && pnpm freshness:audit",
     "test": "pnpm --filter ./cli test && pnpm test:evals && pnpm test:freshness",
     "test:evals": "node --import tsx --test scripts/evals/*.test.ts",
     "test:freshness": "node --import tsx --test scripts/freshness/*.test.ts",
