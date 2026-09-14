@@ -51,6 +51,7 @@ const SkillConfigSchema = z.object({
   custom_overrides: z.array(z.string()).optional(),
   workflows: z.union([z.boolean(), z.array(z.string())]).optional(),
   mcp: McpConfigSchema.optional(),
+  telemetry: z.boolean().optional(),
 });
 
 const DEFAULT_SDLC_SUPPORT_CATEGORIES = ['quality-engineering'] as const;

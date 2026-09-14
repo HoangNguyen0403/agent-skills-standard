@@ -63,4 +63,6 @@ export interface SkillConfig {
   prune?: boolean;
   /** Optional: opt-in MCP server integration. See McpConfig. */
   mcp?: McpConfig;
+  /** Opt-in local MCP usage log (never uploaded). See docs/FRESHNESS.md "Usage telemetry". */
+  telemetry?: boolean;
 }
