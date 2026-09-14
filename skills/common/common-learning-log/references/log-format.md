@@ -11,7 +11,7 @@ Append this block to the **bottom** of `AGENTS_LEARNING.md` for each new learnin
 
 **Date**: YYYY-MM-DD | **Task**: [one-line task description]
 **Signal**: [Pre-write violation | User correction | Session retrospective]
-**Skills**: category/skill-name, category/skill-name  <!-- optional; the freshness report counts these -->
+**Skills**: category/skill-name, category/skill-name
 
 ### ❌ Mistake Made
 [Concrete description — specific file, rule, function, or output that was wrong]
@@ -30,7 +30,7 @@ Append this block to the **bottom** of `AGENTS_LEARNING.md` for each new learnin
 | **Mistake Made** | 1–3 sentences | Name file/function/line if known; quote the wrong output or rule |
 | **Pattern to Avoid** | 1–3 bullets | Format: `**No X**: [consequence]` |
 | **Better Approach** | 1–3 sentences | Must state what TO DO, not just what to avoid |
-| **Skills** | 0–5 ids | `category/skill` ids the mistake concerns; omit when none |
+| **Skills** | 0–5 ids | `category/skill` ids the mistake concerns; omit when none; unknown ids are ignored with a warning by the freshness report |
 
 ## Bootstrap Template
 

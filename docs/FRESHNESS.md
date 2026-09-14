@@ -33,15 +33,15 @@ Categories `common`, `specialists`, and `system-design` are version-agnostic and
 
 ## Commands
 
-| command                                | what it does                                                                                                 | writes files                               |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------ |
-| `pnpm freshness:audit`                 | offline rules (below); runs in PR CI and `validate:all`                                                      | no (`--write` to save)                     |
-| `pnpm freshness:audit --strict`        | same, exit 1 on any `missing-pin` or any `claim-*` issue that is not `low` (historical references are `low`) | no                                         |
-| `pnpm freshness:report`                | re-render Markdown from the last JSON                                                                        | `benchmarks/freshness/freshness-report.md` |
-| `pnpm freshness:audit --stale-days 90` | change the review-age threshold (default 120)                                                                | —                                          |
-| `pnpm freshness:check`                 | offline rules **plus** latest GitHub release/tag per pin; runs weekly                                        | always writes both report files            |
-| `pnpm freshness:check --concurrency 3` | limit parallel GitHub requests (default 5)                                                                   | —                                          |
-| `pnpm freshness:audit --internal`      | adds eval-queue and learning-log signals (`--window-days`, default 90)                                       | no                                         |
+| command                                | what it does                                                                                                                         | writes files                               |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ |
+| `pnpm freshness:audit`                 | offline rules (below); runs in PR CI and `validate:all`                                                                              | no (`--write` to save)                     |
+| `pnpm freshness:audit --strict`        | same, exit 1 on any `missing-pin` or any `claim-*` issue that is not `low` (historical references are `low`)                         | no                                         |
+| `pnpm freshness:report`                | re-render Markdown from the last JSON                                                                                                | `benchmarks/freshness/freshness-report.md` |
+| `pnpm freshness:audit --stale-days 90` | change the review-age threshold (default 120)                                                                                        | —                                          |
+| `pnpm freshness:check`                 | offline rules **plus** latest GitHub release/tag per pin; runs weekly                                                                | always writes both report files            |
+| `pnpm freshness:check --concurrency 3` | limit parallel GitHub requests (default 5)                                                                                           | —                                          |
+| `pnpm freshness:audit --internal`      | adds eval-queue and learning-log signals (`--window-days`, default 90; also bounds `check --internal` and the eval queue's run date) | no                                         |
 
 Reports land in `benchmarks/freshness/` (gitignored). The weekly workflow runs `check --internal`.
 
@@ -57,8 +57,8 @@ Reports land in `benchmarks/freshness/` (gitignored). The weekly workflow runs `
 | `upstream-major-drift` | high      | upstream major newer than pin                                                                                                                                                                                                                                                             |
 | `upstream-minor-drift` | low       | upstream minor/patch newer than the pin at the same major (or same major.minor for Go/Flutter-style versioning); informational                                                                                                                                                            |
 | `fetch-failed`         | warn      | never gates                                                                                                                                                                                                                                                                               |
-| `eval-outdated`        | med       | eval runner classified a failing case as an outdated domain expectation                                                                                                                                                                                                                   |
-| `eval-remediation`     | low       | any other failing eval classification for the skill                                                                                                                                                                                                                                       |
+| `eval-outdated`        | med       | reserved for the eval runner's "outdated domain expectation" classification; the current classifier in `scripts/evals/quality.ts` never emits it, so this row stays empty until that lands                                                                                                |
+| `eval-remediation`     | low       | one per skill; message lists failing cases per classification (deduped case ids); queues older than `--window-days` are ignored                                                                                                                                                           |
 | `learning-log-gap`     | low       | `AGENTS_LEARNING.md` entries in the window name the skill                                                                                                                                                                                                                                 |
 
 ## Upstream check
@@ -77,14 +77,14 @@ The weekly workflow `.github/workflows/skill-freshness.yml` runs the check every
 
 `--internal` adds two offline readers, both of which fail open (missing file → no issues, never an error):
 
-- `scripts/freshness/signals/evals.ts` reads `benchmarks/evals/remediation-queue.json` (overwritten each time the eval suite runs — it is a snapshot of the latest run, not a history) and reports one issue per `(category, skill, classification)` group: `eval-outdated` (med) when the eval runner itself classified the failure as an outdated domain expectation, `eval-remediation` (low) for every other classification.
-- `scripts/freshness/signals/learning-log.ts` reads `AGENTS_LEARNING.md` and reports one `learning-log-gap` (low) per skill named by at least one entry inside `--window-days` (default 90). An entry names a skill via an explicit `**Skills**: category/skill-name` line (see `skills/common/common-learning-log/references/log-format.md`) or by simply mentioning a known `category/skill` id in its body — the explicit line is optional, not required, because older entries and prose mentions are picked up too.
+- `scripts/freshness/signals/evals.ts` reads `benchmarks/evals/remediation-queue.json` (overwritten each time the eval suite runs — it is a snapshot of the latest run, not a history) and reports at most two issues per skill: one `eval-remediation` (low) summarising every failing classification for that skill as a breakdown (case ids deduped so a case with several failed assertions counts once), plus one `eval-outdated` (med) when the run classified any case as an outdated domain expectation. Queues older than `--window-days` (by `generatedAt`) are ignored.
+- `scripts/freshness/signals/learning-log.ts` reads `AGENTS_LEARNING.md` and reports one `learning-log-gap` (low) per skill named by at least one entry inside `--window-days` (default 90). An entry names a skill via an explicit `**Skills**: category/skill-name` line (see `skills/common/common-learning-log/references/log-format.md`) or by simply mentioning a known `category/skill` id in its body — the explicit line is optional, not required, because older entries and prose mentions are picked up too. An explicit id must name an existing skill; unknown or malformed ids are ignored and logged as a warning on stderr rather than silently dropped.
 
 Both signals are informational: `--strict` never blocks on `eval-*` or `learning-log-gap` issues, in either `audit` or `check`.
 
 ## Acknowledged drift
 
-A pin's `upstream` entry accepts an optional `acknowledged` version (same shape as `pinned`). Set it when you know upstream has shipped past the pin, the drift is expected, and a review is already scheduled — for example, after triaging a release and deciding it can wait a sprint. While the current upstream version is at or below `acknowledged`, `upstream-major-drift` reports `low` instead of `high` (message: "Drift acknowledged up to `<version>`; review pending"). Remove `acknowledged` or bump it forward once the review lands — an `acknowledged` version does not decay on its own and stale acknowledgements hide real drift.
+A pin's `upstream` entry accepts an optional `acknowledged` version (same shape as `pinned`). Set it when you know upstream has shipped past the pin, the drift is expected, and a review is already scheduled — for example, after triaging a release and deciding it can wait a sprint. The comparison is at the alias's drift significance, not full-version equality: acknowledging `18` covers every `18.x` release for a major-significant alias, and for Go/Flutter-style minor-significant aliases, acknowledging `1.25` covers every `1.25.x` release. While the current upstream version is covered, `upstream-major-drift` reports `low` instead of `high` (message: "Drift acknowledged up to `<version>`; review pending"). An `acknowledged` value that does not parse as a version is treated as not covering anything, and the `high` message says so (`... is not a version`). Acknowledgements are not aged — remove `acknowledged` or bump it forward once the review lands, or a stale acknowledgement will keep hiding real drift.
 
 ## Reviewing a category
 
@@ -109,7 +109,7 @@ Skill-level pins cost 5-7 frontmatter lines against the SKILL.md size budget. Pr
 
 `file:line` points at the real line in the file on disk (frontmatter included).
 
-Known follow-ups (P3): an optional per-pin `acknowledged` version so known drift reports as `low` until reviewed; a separate drift significance from the claim significance (PHP 8.4→8.5 currently counts as major drift).
+Known follow-ups (P3): a separate drift significance from the claim significance (PHP 8.4→8.5 currently counts as major drift).
 
 ```
 Freshness audit: 8 issues (high 0, med 3, low 5, warn 0)
