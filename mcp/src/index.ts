@@ -2,12 +2,47 @@
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js";
-import { buildServer } from "./server";
+import { buildServer, SERVER_VERSION } from "./server";
 import { resolveConfig } from "./config";
+import { SessionTracker } from "./services/SessionTracker";
+import {
+  TelemetryWriter,
+  buildTelemetryRecord,
+} from "./services/TelemetryWriter";
+import { resolveTelemetry } from "./services/telemetryConfig";
 
 async function main() {
   const config = await resolveConfig();
   const transportMode = process.env.MCP_TRANSPORT || "stdio";
+  const tracker = new SessionTracker();
+  const telemetry = resolveTelemetry(config.projectRoot);
+  const writer = new TelemetryWriter({
+    enabled: telemetry.enabled,
+    filePath: telemetry.filePath,
+    debug: !!process.env.DEBUG,
+  });
+  if (telemetry.enabled) {
+    process.stderr.write(
+      `[ags-mcp] telemetry: on (${telemetry.source}) → ${telemetry.filePath}\n`,
+    );
+  }
+  let flushed = false;
+  const flushOnce = () => {
+    if (flushed) return;
+    flushed = true;
+    writer.flush(
+      buildTelemetryRecord(tracker, {
+        mcpVersion: SERVER_VERSION,
+      }),
+    );
+  };
+  process.on("exit", flushOnce);
+  for (const signal of ["SIGINT", "SIGTERM"] as const) {
+    process.once(signal, () => {
+      flushOnce();
+      process.exit(signal === "SIGINT" ? 130 : 143);
+    });
+  }
 
   // Log to stderr — stdout is reserved for MCP JSON-RPC frames in stdio mode.
   process.stderr.write(`[ags-mcp] transport: ${transportMode}\n`);
@@ -19,7 +54,7 @@ async function main() {
     );
   }
 
-  const server = await buildServer(config);
+  const server = await buildServer(config, { tracker });
 
   if (transportMode === "sse") {
     // createMcpExpressApp handles DNS rebinding protection and localhost security by default.
@@ -53,7 +88,9 @@ async function main() {
     });
   } else {
     const transport = new StdioServerTransport();
+    transport.onclose = flushOnce;
     await server.connect(transport);
+    process.stdin.once("end", flushOnce);
     process.stderr.write(`[ags-mcp] stdio transport connected\n`);
   }
 }

@@ -248,31 +248,31 @@ See also [Learning From agentic-ai](./docs/agentic-ai-learning.md) and the [Opti
 
 Every skill is audited for token efficiency (averaging ~500 tokens) and tested with automated evals.
 
-| Stack                | Key Skills                                     | Version  | Skills |
-| :------------------- | :--------------------------------------------- | :------- | :----- |
+| Stack                | Key Skills                                           | Version  | Skills |
+| :------------------- | :--------------------------------------------------- | :------- | :----- |
 | **Common Patterns**  | Best Practices, Security, TDD, Architecture Diagrams | `v2.5.0` | 38     |
-| **Flutter**          | BLoC, Riverpod, Architecture, Concurrency      | `v1.7.1` | 22     |
-| **React**            | Hooks, Performance, State Management           | `v1.3.6` | 8      |
-| **React Native**     | Architecture, Navigation, Performance          | `v1.4.4` | 13     |
-| **Next.js**          | App Router, Server Components, Caching, ISR    | `v1.4.5` | 18     |
-| **Angular**          | Signals, Components, RxJS, SSR                 | `v1.4.2` | 15     |
-| **NestJS**           | Architecture, Security, BullMQ                 | `v1.4.5` | 21     |
-| **TypeScript**       | Type Safety, Security, Tooling                 | `v1.3.3` | 4      |
-| **JavaScript**       | ES2024+, Patterns, Tooling                     | `v1.3.4` | 3      |
-| **Go (Golang)**      | Clean Arch, Concurrency                        | `v1.3.5` | 11     |
-| **Python**           | Clean Arch, Async, Testing, Security           | `v1.0.0` | 9      |
-| **Spring Boot**      | Architecture, Security, JPA                    | `v1.3.3` | 10     |
-| **Android**          | Compose, Navigation 3, Edge-to-Edge, AGP 9     | `v1.4.1` | 26     |
-| **iOS**              | SwiftUI, Arch, Persistence                     | `v1.4.5` | 15     |
-| **Swift**            | Concurrency, Memory                            | `v1.3.5` | 8      |
-| **Kotlin**           | Coroutines, Language                           | `v1.3.3` | 4      |
-| **Java**             | Records, Virtual Threads                       | `v1.3.3` | 5      |
-| **PHP**              | PHP 8.4+, Error Handling                       | `v1.3.5` | 7      |
-| **Laravel**          | Eloquent, Clean Arch                           | `v1.3.4` | 10     |
-| **Dart**             | Null Safety, Sealed Classes                    | `v1.3.5` | 3      |
-| **Database**         | PostgreSQL, MongoDB, Redis, Migrations         | `v1.3.5` | 7      |
-| **Quality Engineer** | BA, TDD, Zephyr, Test Gen                      | `v1.5.0` | 7      |
-| **Specialists**      | Jira, Review, QA, Security, Zephyr, Diagramming | `v1.5.0` | 19     |
+| **Flutter**          | BLoC, Riverpod, Architecture, Concurrency            | `v1.7.1` | 22     |
+| **React**            | Hooks, Performance, State Management                 | `v1.3.6` | 8      |
+| **React Native**     | Architecture, Navigation, Performance                | `v1.4.4` | 13     |
+| **Next.js**          | App Router, Server Components, Caching, ISR          | `v1.4.5` | 18     |
+| **Angular**          | Signals, Components, RxJS, SSR                       | `v1.4.2` | 15     |
+| **NestJS**           | Architecture, Security, BullMQ                       | `v1.4.5` | 21     |
+| **TypeScript**       | Type Safety, Security, Tooling                       | `v1.3.3` | 4      |
+| **JavaScript**       | ES2024+, Patterns, Tooling                           | `v1.3.4` | 3      |
+| **Go (Golang)**      | Clean Arch, Concurrency                              | `v1.3.5` | 11     |
+| **Python**           | Clean Arch, Async, Testing, Security                 | `v1.0.0` | 9      |
+| **Spring Boot**      | Architecture, Security, JPA                          | `v1.3.3` | 10     |
+| **Android**          | Compose, Navigation 3, Edge-to-Edge, AGP 9           | `v1.4.1` | 26     |
+| **iOS**              | SwiftUI, Arch, Persistence                           | `v1.4.5` | 15     |
+| **Swift**            | Concurrency, Memory                                  | `v1.3.5` | 8      |
+| **Kotlin**           | Coroutines, Language                                 | `v1.3.3` | 4      |
+| **Java**             | Records, Virtual Threads                             | `v1.3.3` | 5      |
+| **PHP**              | PHP 8.4+, Error Handling                             | `v1.3.5` | 7      |
+| **Laravel**          | Eloquent, Clean Arch                                 | `v1.3.4` | 10     |
+| **Dart**             | Null Safety, Sealed Classes                          | `v1.3.5` | 3      |
+| **Database**         | PostgreSQL, MongoDB, Redis, Migrations               | `v1.3.5` | 7      |
+| **Quality Engineer** | BA, TDD, Zephyr, Test Gen                            | `v1.5.0` | 7      |
+| **Specialists**      | Jira, Review, QA, Security, Zephyr, Diagramming      | `v1.5.0` | 19     |
 
 > Full skill list with token metrics: [Skills Directory](./skills/README.md) | [Benchmark Report](./benchmark-report.md) | [Public Proof](./docs/public-proof.md)
 
@@ -408,7 +408,7 @@ composite via nestjs/nestjs-transport        system-design/system-design-princip
 | `common-best-practices`          | Functions < 30 lines, guard clauses, intention-revealing names |
 | `common-api-design`              | Status codes, pagination, idempotency, OpenAPI conventions     |
 | `common-security-standards`      | Authn/authz, input sanitization, secret handling               |
-| `system-design-principles`      | Module boundaries, coupling rules                              |
+| `system-design-principles`       | Module boundaries, coupling rules                              |
 | `common-performance-engineering` | Async patterns, N+1 query checks                               |
 
 ### 5. The agent writes the code AND calls the audit before claiming done
@@ -484,7 +484,7 @@ See [docs/SECURITY.md](./docs/SECURITY.md) for the full security policy, thresho
 
 - **Downloads text only** — fetches Markdown and JSON from the [public registry](https://github.com/HoangNguyen0403/agent-skills-standard)
 - **Verifies before writing** — every downloaded file's git blob sha is checked against the tree API, with a 1 MiB size cap, before it's written to disk
-- **No telemetry** — zero data collection, no analytics, no background daemons
+- **No telemetry by default** — no data collection, no analytics, no background daemons. An opt-in local usage log (`AGS_TELEMETRY=1`) writes per-session skill-load counts to `~/.agent-skills-standard/telemetry.jsonl` and is never uploaded; see [docs/FRESHNESS.md](docs/FRESHNESS.md#usage-telemetry-local-opt-in); a project's `.skillsrc` can also enable it, in which case the MCP prints a startup notice
 - **No code or project data leaves your machine** — feedback is only sent if you explicitly run `ags feedback`
 
 ### How Skills Stay Safe

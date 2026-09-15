@@ -8,6 +8,7 @@ import { effectivePins, loadCategoryPins } from "./pins";
 import { buildReport, renderMarkdown } from "./report";
 import { evalSignalIssues, readRemediationQueue } from "./signals/evals";
 import { learningLogIssues, parseLearningLog, readLearningLog } from "./signals/learning-log";
+import { aggregateTelemetry, loadsByTarget, readTelemetryFiles, telemetryIssues } from "./signals/telemetry";
 import { walkSkills } from "./skills";
 import { GithubSource } from "./sources";
 import type { EffectivePin, FreshnessIssue, FreshnessReport } from "./types";
@@ -22,6 +23,7 @@ export const FRESHNESS_MD = path.join(FRESHNESS_DIR, "freshness-report.md");
 const DEFAULT_STALE_DAYS = 120;
 const DEFAULT_CONCURRENCY = 5;
 const DEFAULT_WINDOW_DAYS = 90;
+const DEFAULT_MIN_SESSIONS = 20;
 
 function flagValue(name: string): string | undefined {
   const index = process.argv.indexOf(name);
@@ -100,6 +102,32 @@ function internalSignals(windowDays: number): FreshnessIssue[] {
 }
 
 /**
+ * Reads `--telemetry` files, returns issues plus the report's telemetry
+ * block; `null` when the flag is absent.
+ */
+function telemetrySignals(
+  target: string | undefined,
+  windowDays: number,
+  minSessions: number,
+): { issues: FreshnessIssue[]; telemetry: FreshnessReport["telemetry"] } | null {
+  if (!target) return null;
+  const today = new Date();
+  const aggregate = aggregateTelemetry(readTelemetryFiles(target), { today, windowDays });
+  const skills = walkSkills(path.join(ROOT_DIR, "skills")).map((s) => ({ category: s.category, name: s.name }));
+  return {
+    issues: telemetryIssues(aggregate, skills, { minSessions, windowDays }),
+    telemetry: {
+      source: path.basename(target),
+      sessions: aggregate.sessions,
+      from: aggregate.from,
+      to: aggregate.to,
+      noMatchCalls: aggregate.noMatchCalls,
+      loadsByTarget: loadsByTarget(aggregate),
+    },
+  };
+}
+
+/**
  * CLI entry. Actions:
  * - `audit` (default): offline rules; prints a summary; `--write` saves the
  *   report; `--strict` exits 1 on any missing-pin or non-low claim-* issue.
@@ -108,17 +136,26 @@ function internalSignals(windowDays: number): FreshnessIssue[] {
  * - `report`: re-renders Markdown from the last JSON report.
  * Flags: `--stale-days <n>` (default 120), `--concurrency <n>` (check, default 5),
  * `--internal` (adds eval-queue and learning-log signals), `--window-days <n>`
- * (default 90; bounds the learning-log window).
+ * (default 90; bounds the learning-log window), `--telemetry <file|dir>` (reads
+ * local MCP usage logs, JSONL), `--min-sessions <n>` (default 20; gates
+ * `unused-skill` on having observed at least this many telemetry sessions).
  */
 export async function main(): Promise<void> {
   const action = process.argv[2] ?? "audit";
   const staleDays = positiveNumberFlag("--stale-days", DEFAULT_STALE_DAYS);
   const internal = process.argv.includes("--internal");
   const windowDays = positiveNumberFlag("--window-days", DEFAULT_WINDOW_DAYS);
+  const telemetryPath = flagValue("--telemetry");
+  const minSessions = positiveNumberFlag("--min-sessions", DEFAULT_MIN_SESSIONS);
+  const tel = telemetrySignals(telemetryPath, windowDays, minSessions);
 
   if (action === "audit") {
-    const issues = [...auditFreshness(ROOT_DIR, { staleDays }), ...(internal ? internalSignals(windowDays) : [])];
-    const report = buildReport("audit", staleDays, issues, []);
+    const issues = [
+      ...auditFreshness(ROOT_DIR, { staleDays }),
+      ...(internal ? internalSignals(windowDays) : []),
+      ...(tel?.issues ?? []),
+    ];
+    const report = buildReport("audit", staleDays, issues, [], undefined, tel?.telemetry);
     const write = process.argv.includes("--write");
     if (write) writeReport(report);
     printIssues(report, "Freshness audit", write ? ` → ${FRESHNESS_JSON}` : "");
@@ -139,8 +176,10 @@ export async function main(): Promise<void> {
     const report = buildReport(
       "check",
       staleDays,
-      [...offline, ...drift, ...signals],
+      [...offline, ...drift, ...signals, ...(tel?.issues ?? [])],
       upstream,
+      undefined,
+      tel?.telemetry,
     );
     writeReport(report);
     printIssues(report, "Freshness check", ` → ${FRESHNESS_JSON}`);

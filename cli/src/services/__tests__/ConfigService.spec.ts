@@ -118,6 +118,19 @@ describe('ConfigService', () => {
       expect(config?.mcp?.snippets).toBe(true);
     });
 
+    it('keeps the opt-in telemetry flag and rejects a non-boolean value', async () => {
+      vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(true));
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve('registry: https://example.com\nskills: {}\ntelemetry: true' as unknown as Buffer),
+      );
+      vi.mocked(yaml.load).mockReturnValue({ registry: 'https://example.com', skills: {}, telemetry: true });
+      const config = await configService.loadConfig(mockCwd);
+      expect(config?.telemetry).toBe(true);
+
+      vi.mocked(yaml.load).mockReturnValue({ registry: 'https://example.com', skills: {}, telemetry: 'yes' });
+      await expect(configService.loadConfig(mockCwd)).rejects.toThrow();
+    });
+
     it('should auto-migrate legacy "openai" agent to "codex" both in memory and on disk', async () => {
       const legacyRawConfig = {
         registry: 'https://example.com',
