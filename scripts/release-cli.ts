@@ -48,7 +48,7 @@ async function main() {
 
   const { nextVersion } = await inquirer.prompt([
     {
-      type: 'list',
+      type: 'rawlist',
       name: 'nextVersion',
       message: 'Select release type:',
       choices,

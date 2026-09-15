@@ -56,7 +56,7 @@ export class ListSkillsCommand {
 
       const answer = await inquirer.prompt([
         {
-          type: 'list',
+          type: 'rawlist',
           name: 'framework',
           message: 'Select framework to list available skills for:',
           choices,

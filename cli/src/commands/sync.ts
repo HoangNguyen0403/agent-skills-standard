@@ -314,7 +314,7 @@ export class SyncCommand {
         default: true,
       },
       {
-        type: 'list',
+        type: 'rawlist',
         name: 'scope',
         message: 'Where should sync write MCP configs?',
         when: (a) => a.enabled === true,

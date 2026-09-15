@@ -107,7 +107,7 @@ export class FeedbackCommand {
           when: !loadedSkills,
         },
         {
-          type: 'list',
+          type: 'rawlist',
           name: 'rootCause',
           message: 'Root cause of the violation (optional)',
           when: !rootCause,

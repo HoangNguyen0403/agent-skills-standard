@@ -54,7 +54,7 @@ export class InitCommand {
     // 4. Prompt User
     const answers = await inquirer.prompt<InitAnswers>([
       {
-        type: 'list',
+        type: 'rawlist',
         name: 'framework',
         message: 'Select Framework:',
         choices: frameworkChoices,
@@ -87,7 +87,7 @@ export class InitCommand {
         default: true,
       },
       {
-        type: 'list',
+        type: 'rawlist',
         name: 'mcpScope',
         message: 'Where should sync write MCP configs?',
         when: (a) => a.mcpEnabled === true,
