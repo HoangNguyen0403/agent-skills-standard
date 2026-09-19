@@ -44,7 +44,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
     "fs-extra": "^11.4.0",
-    "js-yaml": "^5.4.1",
+    "js-yaml": "^5.4.2",
     "express": "^5.2.1",
     "minimatch": "^10.2.6",
     "zod": "^4.6.0"
