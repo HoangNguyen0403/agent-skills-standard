@@ -148,6 +148,16 @@ Creates agent-specific rule files that point to AGENTS.md.
 
 - **Responsibility**: Generates discovery instructions for each agent (Cursor `.mdc`, Copilot instructions, Claude `CLAUDE.md` protocol, Antigravity/Windsurf/Trae rule files).
 
+### System-Design Diagram Pipeline
+
+System-design methodology owns requirements, capacity, and the HLD → component → LLD → verification trace. Worked production cases stay lazy-loaded under `system-design-case-catalog/references/`; views are selected for a named audience and decision, not as a required checklist.
+
+`common-architecture-diagramming/scripts/` remains the only production renderer. The JSON spec is semantic authority, draw.io is editable presentation, and exported images are derived artifacts. Lifecycle, evidence source kind/confidence, and metric provenance are independent. Compact citation-only nodes remain unverified.
+
+Optional manifests bind scoped views through canonical identities, refinement, ownership, and relationship IDs. Validation reads only bounded regular local files under the manifest directory, compares captured hashes, and reports evidence requiring review without claiming production drift. Generated draw.io content baselines protect manual edits while allowing normal spec updates.
+
+System-design eval assertions are lexical smoke checks. The independent semantic rubric verifies calculations, mechanisms, failure outcomes, and justified simplicity; historical catalog scores are not rewritten to imply unmeasured improvement.
+
 ## 6. Token Economy (Design Constraint)
 
 This is a **High-Density** project. Every feature must be evaluated against its impact on the AI's context window.

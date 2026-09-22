@@ -1,6 +1,6 @@
 ---
 name: common-architecture-diagramming
-description: Draw architecture diagrams as editable draw.io files with a fixed house style, C4 levels, and evidence-tagged shapes. Use when producing a system context, container, deployment, data flow, sequence, or state diagram, or redrawing an ASCII or Mermaid one.
+description: Draws architecture diagrams as editable draw.io files with a fixed house style, C4 levels, evidence-tagged shapes, and optional multi-view identity checks. Use when producing a system context, container, component, deployment, data flow, sequence, state, or ERD, or redrawing an ASCII or Mermaid one.
 metadata:
   triggers:
     files:
@@ -36,19 +36,23 @@ so diagrams stay identical across authors, repositories, and sessions.
 2. `python3 scripts/validate_spec.py spec.json`
 3. `python3 scripts/render_drawio.py spec.json -o docs/architecture/<slug>.drawio --strict`
    (exit 2 = a layout finding; change the spec, per [layout-rules.md](references/layout-rules.md))
-4. Export the image: a draw.io MCP tool if the session has one, else
+4. For related views, optionally validate [view-manifest.md](references/view-manifest.md):
+   `python3 scripts/validate_manifest.py view-manifest.json`
+5. Export the image: a draw.io MCP tool if the session has one, else
    `python3 scripts/export_drawio.py docs/architecture/<slug>.drawio -f png -o docs/architecture/<slug>.png`,
    else ship the `.drawio` and say the image was not exported. See [export paths](references/mermaid-fallback.md).
 
-Commit the `.drawio` as the source of truth; the image is a copy for a deck.
+The JSON spec is the semantic source of truth; `.drawio` is the editable presentation and the
+image is a copy for a deck. Generated XML records its own baseline; regeneration protects
+manual edits by default. Use `--acknowledge-manual-edits` only after returning semantic changes to the spec.
 
 ## Guidelines
 
 - **Name the audience and the decision** before drawing anything.
 - **One C4 level per diagram**: context, container, or component, never mixed.
 - **Pick the type from the message**, not from habit. See [diagram-selection.md](references/diagram-selection.md).
-- **Evidence per node** as `path:line`. A node with no evidence renders dashed and
-  marked UNVERIFIED — leave the flag showing rather than asserting a guess.
+- **Evidence and confidence are separate.** Code citations are documented evidence, not runtime
+  observations; use `assumed` or `unverified` for honest design uncertainty.
 - **Put the number on the box.** `metric` carries the load or SLO that sized the node,
   `constraint` says why it exists; never invent either.
 - **Label every edge** with its protocol or event; use `style: async` for events.
@@ -57,7 +61,8 @@ Commit the `.drawio` as the source of truth; the image is a copy for a deck.
   the bundle, so Azure is always `cloud:*`.
 - **Exec audience caps at 12 nodes.** Past that, split by level or by flow.
 - **Legend and title block are generated.** Do not remove or duplicate them.
-- **Refine in draw.io, not in XML.** Re-running the renderer overwrites layout tweaks.
+- **Refine in the spec, not by mutating generated XML.** Regeneration preserves files with a
+  valid own baseline, but refuses hand mutation until explicitly acknowledged.
 
 ## Anti-Patterns
 
@@ -78,7 +83,7 @@ Commit the `.drawio` as the source of truth; the image is a copy for a deck.
 
 ## References
 
-- [Diagram spec](references/diagram-spec.md) · [Style catalog](references/style-catalog.md) · [House style](references/house-style.md)
+- [Diagram spec](references/diagram-spec.md) · [View manifest](references/view-manifest.md) · [Style catalog](references/style-catalog.md) · [House style](references/house-style.md)
 - [Source extraction](references/source-extraction.md) · [Exec readability](references/exec-readability.md)
 - [C4 model](references/c4-model.md) · [Cloud](references/cloud-architecture.md) · [Best practices](references/best-practices.md)
 - [Layout rules](references/layout-rules.md) · [Checklist](references/checklist.md) · [Export paths and Mermaid fallback](references/mermaid-fallback.md)

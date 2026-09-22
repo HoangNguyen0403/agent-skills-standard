@@ -5,7 +5,9 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - Governed cybersecurity skills
+## [cybersecurity-v1.0.0] - Unreleased
+
+**Category**: Governed cybersecurity skills
 
 ### Added
 
@@ -60,6 +62,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   autonomous self-promotion is introduced. No external cybersecurity pack was
   imported or executed.
 
+### Versions
+
+- **Cybersecurity Skills**: new → `1.0.0` (unreleased; no tag or release created)
+
+## [common-v2.6.0] - Unreleased
+
+**Category**: Decision-oriented diagrams and local evidence integrity
+
+### Added
+
+- First-class `component` diagrams in the existing draw.io renderer, with a paired container/component fixture demonstrating canonical HLD-to-LLD identities and relationship refinement.
+- Optional `view-manifest.json` validation for scoped identities, ownership/refinement cycles, expected relationships, and cross-view direction consistency. Local evidence sources are allowlisted, size-bounded, and SHA-256 checked; stale or unavailable captures return `review-needed`, not a runtime-drift claim.
+- Separate lifecycle, source kind, evidence confidence, and metric provenance on nodes and edges, including ERD entities/relations and sequence messages.
+
+### Changed
+
+- Selected views describe their question, decision, scenario, invariant, scope, status, evidence, and omissions. Code/document citations do not prove runtime deployment.
+- Generated draw.io output carries its own content baseline. Regeneration permits ordinary spec changes but preserves and refuses hand-edited or untracked output unless replacement is explicitly acknowledged.
+- The renderer validates input before writing. Compact citation-only nodes and relationships remain visibly `UNVERIFIED`; a pointer alone no longer establishes confidence.
+- Schema-to-ERD generation supplies documented code provenance for parsed declarations and relationships; unresolved referenced tables remain unverified rather than implying a deployed schema.
+- Diagram evals cover HLD/LLD routing near-misses and documentary provenance. Lexical assertions remain smoke checks, not proof of semantic correctness.
+
+### Migration
+
+- Return semantic draw.io edits to the JSON spec before regeneration. Existing outputs without a generated baseline require deliberate review and `--acknowledge-manual-edits` before replacement.
+- Add explicit provenance metadata to establish documentary or observed confidence; complete view contracts and captured source digests are required for manifest participation. Citations use a local `path:positive-line` form.
+
+### Versions
+
+- **Common Skills**: `2.5.0` → `2.6.0` (unreleased; no tag or release created)
+
 ## [quality-engineering-v1.6.0] - Unreleased
 
 **Category**: Test-loop program P0–P3, requirement-to-TC hardening, automation health, UI automation driver ladders
@@ -90,7 +123,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Versions
 - quality-engineering: 1.6.0
 
-## [specialists-v1.3.0] - Unreleased
+## [specialists-v1.4.0] - Unreleased
+
+**Category**: HLD-to-LLD deep-dive and diagrammer provenance alignment
+
+### Changed
+
+- `specialist-system-architect`: bounded HLD-to-LLD briefs carry scope and evidence status; responses include invariant-linked verification hooks and measurable ADR reversal triggers.
+- `specialist-solution-diagrammer`: component and ERD output share the existing renderer; node/edge provenance, metric provenance, optional manifests, and protected regeneration use the canonical diagram contract.
+
+### Versions
+
+- **Specialists**: `1.3.0` → `1.4.0` (unreleased; no tag or release created)
+
+## [specialists-v1.3.0] - 2026-09-15
 
 **Category**: Test-loop specialists (planner, testid-inserter, healer), solution diagrammer, driver-aware generation
 
@@ -127,7 +173,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [system-design-v1.1.0] - Unreleased
+## [system-design-v1.2.0] - Unreleased
+
+**Category**: HLD-to-LLD decision quality, production case packs, and nine-axis review profiles
+
+### Added
+
+- **Ten lazy-loaded production case packs**: payment timeout/duplicate webhook, flash-sale expiry/payment race, tenant isolation, cache stampede, notification outage, chat reconnect, live migration, a small internal-app counterexample, video publishing, and ride dispatch. Each states synthetic workload/SLO/team/budget assumptions, an invariant, minimal design, rejected alternative, failure/recovery timeline, changed constraint, acceptance criteria, and review thresholds.
+- **Independent semantic evaluation rubric**: recomputes quantities and checks mechanisms, invariants, recovery, justified exclusions, and view routing. Paired eval cases and scorer regressions reject vocabulary-only shortcuts while accepting ordinary rounding and multiline calculations; no aggregate quality uplift is claimed.
+
+### Changed
+
+- **`system-design-methodology`**: explicit `HLD`, `LLD`, and `low-level design` routing; stable requirement → HLD decision → component → LLD contract → verification trace. Choose diagrams by audience/question rather than requiring a fixed view set. Omit unstated metrics instead of inventing numbers.
+- **`system-design-artifact-intake`**: the fact-sheet re-draw uses the draw.io pipeline. Documentary rows carry `evidence_kind: document` and `evidence_confidence: documented`; inferred rows remain unverified. Citations point to numbered fact-sheet evidence and never imply runtime deployment.
+- **`system-design-review`**: nine axes with declared profile weighting, justified `N/A` exclusions, and applicable-axis denominators. Adding caches, queues, replicas, or regions does not earn credit without a demonstrated need and recovery plan.
+- **Workflows** `system-design-session`, `review-system-design`, `design-solution`: keep the common renderer as the only production diagram lane; carry selected-view contracts, precise provenance, HLD/LLD trace, and specialist verification/reversal hooks into handoffs.
+
+### Migration
+
+- Sync the updated common diagramming contract with these system-design and specialist changes. Component views, explicit provenance, manifests, and protected regeneration require the `common-v2.6.0` feature set.
+
+### Versions
+
+- **System Design Skills**: `1.1.0` → `1.2.0` (unreleased; no tag or release created)
+
+## [system-design-v1.1.0] - 2026-09-15
 
 **Category**: One diagram lane
 

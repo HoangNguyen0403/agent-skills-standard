@@ -85,6 +85,10 @@ def _relation_edges(schemas, nodes, seen):
 def build_spec(schemas, title, scope, date, author=""):
     nodes, seen = _entity_nodes(schemas)
     edges = _relation_edges(schemas, nodes, seen)
+    for items in (nodes, edges):
+        for item in items:
+            if item.get("evidence"):
+                item.update(evidence_kind="code", evidence_confidence="documented")
     return {"title": title, "type": "erd", "audience": "tech", "version": "1.0", "date": date,
             "author": author, "scope": scope, "nodes": nodes, "edges": edges}
 

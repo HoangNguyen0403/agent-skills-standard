@@ -20,11 +20,10 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 1. Load inputs:
    - Load baseline SRS/FRS section, `common-software-requirements`, PRD or ticket, implementation plan, matched framework skills, architecture docs, and trace source `BRD-OBJ-* -> REQ-* -> AC-*`.
 2. Define architecture:
-   - Name bounded contexts and module owners.
-   - Define dependency direction and component RACI.
-   - Choose sync, async, or hybrid communication.
-   - Record data ownership and migration needs.
-   - Define early mock/schema contracts so frontend, mobile, and backend can start in parallel; draw a `container` diagram plus one `sequence` per complex flow via `common-architecture-diagramming` (`evidence` cites the SRS or system-design doc, `metric` from NFR thresholds).
+   - Name bounded contexts, module/data owners, and migration needs.
+   - Consume or create the HLD trace: requirements, audience, scope, shaping constraints, lifecycle status, ownership, failure domains, and decisions.
+   - Define dependency direction, component RACI, and sync, async, or hybrid communication.
+   - Define early mock/schema contracts so frontend, mobile, and backend can start in parallel; create LLD contracts only for the components or flows that need them. Select a `container`, `sequence`, or other view only when it answers a named question through `common-architecture-diagramming` (`evidence` cites the SRS or system-design doc, `metric` comes from stated NFR thresholds). A diagram is not mandatory when prose or a table is precise enough; never fabricate a metric.
 3. Define contracts:
    - Functional flows (FRS): user/system steps, inputs/outputs, validations, and error states.
    - For complex flows, use one actor, one goal, one session; split normal course from alternatives and exceptions.
@@ -33,6 +32,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
    - Events/jobs and async guarantees (at-least-once, idempotent).
    - Storage shape, ownership, retention, and migration rules.
    - Security, permission, and privacy checks.
+   - Carry `REQ-* -> HLD-* -> CMP-* -> LLD-* -> VER-*` IDs into requirement cards and interface contracts. LLD is the low-level-design lane: specify ownership, consistency, ordering/idempotency, adverse timeline, recovery, and verification for each chosen component; do not force every component into a diagram.
    - NFR thresholds for performance, reliability, and scalability.
 4. Plan verification:
    - Unit, integration, E2E, visual, mobile, security, and migration checks.
@@ -65,7 +65,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 ## Context
 ## Requirement Trace (BRD -> PRD -> SRS)
 ## Architecture & RACI
-## Diagrams (Container / Sequence)
+## Selected Views (optional; prose or tables allowed)
 ## Functional Flows (FRS)
 ## Parallel Readiness (Mocks/Schemes)
 ## Requirement Cards

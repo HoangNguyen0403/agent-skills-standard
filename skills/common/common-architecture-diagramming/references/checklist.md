@@ -16,6 +16,12 @@ judge. Run through it before handing a diagram to anyone.
       box, no label on a box or on another label
 - [ ] ERD entities list their columns; every relation has a cardinality
 
+For any manifest-participating view, require the complete view contract, canonical identities,
+separate `lifecycle`/`evidence_confidence`, captured evidence revision/digest, and metric
+provenance. This applies to context, container, component, deployment, dataflow, sequence, state,
+and ERD views. For related views, require bounded allowlisted source records and expected
+relationship IDs; treat changed captures as `review-needed`, not proof of runtime drift.
+
 ## Judgement (yours)
 
 - [ ] **One question.** Can you state in a sentence what this diagram answers?

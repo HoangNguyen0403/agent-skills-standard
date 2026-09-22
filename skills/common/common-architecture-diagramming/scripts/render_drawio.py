@@ -12,9 +12,11 @@ style_catalog.py and is explained in ../references/style-catalog.md.
 """
 
 import argparse
+import hashlib
 import json
 import sys
 from dataclasses import dataclass, field
+from pathlib import Path
 import xml.etree.ElementTree as ET
 
 import check_layout
@@ -34,8 +36,8 @@ ROW_GAP = 46
 DEFAULT_ACCENT = "#1E6FD9"
 
 from style_catalog import (  # noqa: F401  (re-exported for validate_spec and tests)
-    AWS_ICONS, CARDINALITIES, CLOUD_KINDS, DIAGRAM_TYPES, EDGE_LEGEND, EDGE_STYLES, ER_ARROWS,
-    INK, MUTED, NODE_PROPERTIES, STYLE_CATALOG, WARN, WARN_TEXT, _C4_EDGE,
+    AWS_ICONS, CARDINALITIES, DIAGRAM_TYPES, EDGE_LEGEND, EDGE_PROPERTIES, EDGE_STYLES,
+    ER_ARROWS, INK, MUTED, NODE_PROPERTIES, STYLE_CATALOG, WARN, WARN_TEXT, _C4_EDGE,
 )
 
 
@@ -53,16 +55,40 @@ def _kind(node):
     return STYLE_CATALOG[kind]
 
 
+def _has_supported_evidence(item):
+    return bool(item.get("evidence")) and (
+        (item.get("evidence_confidence") == "documented" and
+         item.get("evidence_kind") in ("code", "document")) or
+        (item.get("evidence_confidence") == "observed" and
+         item.get("evidence_kind") in ("runtime", "deployment"))
+    )
+
+
 def _label_html(node):
-    """Build the cell label: bold name, muted sublabel, warning when unproven."""
+    """Build the cell label: identity state, metric, and warning when unproven."""
     parts = ["<b>%s</b>" % node.get("label", "")] if node.get("label") else []
     if node.get("sublabel"):
         parts.append('<font style="font-size:10px">[%s]</font>' % node["sublabel"])
+    state = " · ".join(filter(None, [
+        node.get("lifecycle"),
+        node.get("evidence_confidence"),
+    ]))
+    if state:
+        parts.append('<font style="font-size:9px">[%s]</font>' % state)
     if node.get("metric"):
-        parts.append('<font style="font-size:10px">%s</font>' % node["metric"])
-    if not node.get("evidence"):
+        metric = node["metric"]
+        if node.get("metric_provenance"):
+            metric = "%s · %s" % (metric, node["metric_provenance"])
+        parts.append('<font style="font-size:10px">%s</font>' % metric)
+    if not _has_supported_evidence(node):
         parts.append('<font style="font-size:10px">&#9888; UNVERIFIED</font>')
     return "<br>".join(parts)
+
+
+def _property_value(value):
+    if isinstance(value, list):
+        return ",".join(str(item) for item in value)
+    return str(value)
 
 
 def _geometry(parent, x, y, w, h):
@@ -86,14 +112,19 @@ def _shape_cell(root, node, x, y):
 
 
 def _node_cell(root, node, style, x, y, w, h):
-    """One vertex per node: object-wrapped when it carries evidence or a constraint."""
-    if not node.get("evidence"):
+    """One vertex per node: object-wrapped when it carries custom properties."""
+    if not _has_supported_evidence(node):
         style = _unverified_style(style)
     attrs = {"style": style, "vertex": "1", "parent": "1"}
     label = _label_html(node)
-    props = {key: node[key] for key in NODE_PROPERTIES if node.get(key)}
+    props = {
+        key: _property_value(node[key])
+        for key in NODE_PROPERTIES if node.get(key) is not None
+    }
     if props:
-        holder = ET.SubElement(root, "object", dict({"id": node["id"], "label": label}, **props))
+        holder = ET.SubElement(
+            root, "object", dict({"id": node["id"], "label": label}, **props)
+        )
         cell = ET.SubElement(holder, "mxCell", attrs)
     else:
         attrs.update({"id": node["id"], "value": label})
@@ -306,10 +337,18 @@ def _render_sequence_body(root, nodes, edges, placed):
         y = BODY_Y + CELL_H + 80 + index * 60
         source = _lifeline_x(_node_by_id(nodes, edge["from"]), placed)
         target = _lifeline_x(_node_by_id(nodes, edge["to"]), placed)
-        cell = ET.SubElement(root, "mxCell", {
+        style = EDGE_STYLES[edge.get("style", "sync")]
+        if not _has_supported_evidence(edge):
+            style = _unverified_style(style)
+        attrs = {
             "id": "_msg_%d" % index, "value": _edge_value(edge),
-            "style": EDGE_STYLES[edge.get("style", "sync")], "edge": "1", "parent": "1",
+            "style": style, "edge": "1", "parent": "1",
+        }
+        attrs.update({
+            key: _property_value(edge[key])
+            for key in EDGE_PROPERTIES if edge.get(key) is not None
         })
+        cell = ET.SubElement(root, "mxCell", attrs)
         geometry = ET.SubElement(cell, "mxGeometry", {"relative": "1", "as": "geometry"})
         ET.SubElement(geometry, "mxPoint",
                       {"x": str(int(source)), "y": str(int(y)), "as": "sourcePoint"})
@@ -322,11 +361,16 @@ def _render_sequence_body(root, nodes, edges, placed):
 
 
 def _edge_value(edge):
-    """Edge label, with the metric as a smaller second line when the spec carries one."""
-    label = edge.get("label", "")
-    if not edge.get("metric"):
-        return label
-    return '%s<br><font style="font-size:9px;color:%s">%s</font>' % (label, MUTED, edge["metric"])
+    """Edge label, metric, and warning when provenance is unsupported."""
+    parts = [edge.get("label", "")] if edge.get("label") else []
+    if edge.get("metric"):
+        metric = edge["metric"]
+        if edge.get("metric_provenance"):
+            metric = "%s · %s" % (metric, edge["metric_provenance"])
+        parts.append('<font style="font-size:9px;color:%s">%s</font>' % (MUTED, metric))
+    if not _has_supported_evidence(edge):
+        parts.append('<font style="font-size:10px;color:%s">&#9888; UNVERIFIED</font>' % WARN_TEXT)
+    return "<br>".join(parts)
 
 
 def _node_by_id(nodes, node_id):
@@ -380,15 +424,22 @@ def _render_edges(root, spec, edges, lay):
               for edge, points in check_layout.plan_routes(spec, boxes, lay.rows)}
     for index, edge in enumerate(edges):
         style = EDGE_STYLES[edge.get("style", "sync")]
+        if not _has_supported_evidence(edge):
+            style = _unverified_style(style)
         points = routes.get(id(edge))
         if points:
             style += _anchor_style(boxes[edge["from"]], boxes[edge["to"]],
                                    label_h[edge["from"]], label_h[edge["to"]])
-        cell = ET.SubElement(root, "mxCell", {
+        attrs = {
             "id": "_edge_%d" % index, "value": _edge_value(edge),
             "style": style, "edge": "1", "parent": "1",
             "source": edge["from"], "target": edge["to"],
+        }
+        attrs.update({
+            key: _property_value(edge[key])
+            for key in EDGE_PROPERTIES if edge.get(key) is not None
         })
+        cell = ET.SubElement(root, "mxCell", attrs)
         # Label position is relative along the path: -1 source, 0 middle, 1 target.
         fraction = check_layout.label_fraction(points) if points else 0.5
         geometry = ET.SubElement(cell, "mxGeometry",
@@ -409,12 +460,26 @@ def _render_title(root, spec, accent, width):
         spec.get("author", ""),
     ]))
     _text_cell(root, "_meta", meta, MARGIN_X, TITLE_Y + 30, width, 18, 11, MUTED)
+    view = spec.get("view") or {}
+    if view:
+        contract = "<br>".join(
+            "%s: %s" % (label, view.get(key, ""))
+            for key, label in (
+                ("question", "Question"), ("decision", "Decision"),
+                ("scenario", "Scenario"), ("invariant", "Invariant"),
+                ("status", "Status"), ("evidence", "View evidence"),
+                ("omissions", "Omissions"),
+            )
+        )
+        _text_cell(root, "_view_contract", contract, MARGIN_X, TITLE_Y + 52, width, 66,
+                   9, MUTED)
+    rule_y = TITLE_Y + (126 if view else 52)
     rule = ET.SubElement(root, "mxCell", {
         "id": "_rule", "value": "",
         "style": "line;html=1;strokeWidth=3;strokeColor=%s;" % accent,
         "vertex": "1", "parent": "1",
     })
-    _geometry(rule, MARGIN_X, TITLE_Y + 52, 120, 10)
+    _geometry(rule, MARGIN_X, rule_y, 120, 10)
 
 
 def _render_legend(root, spec, edges, top):
@@ -434,9 +499,10 @@ def _render_legend(root, spec, edges, top):
             if style not in seen_edges:
                 seen_edges.add(style)
                 edge_entries.append((EDGE_STYLES[style], EDGE_LEGEND[style]))
-    if any(not n.get("evidence") for n in spec["nodes"]):
+    if (any(not _has_supported_evidence(n) for n in spec["nodes"]) or
+            any(not _has_supported_evidence(edge) for edge in edges)):
         entries.append((_unverified_style(STYLE_CATALOG["system"]["style"]),
-                        "UNVERIFIED — not yet confirmed against code or docs"))
+                        "UNVERIFIED — supporting provenance not established"))
 
     _text_cell(root, "_legend_title", "Legend", MARGIN_X, top, 200, 20, 12, INK, bold=True)
     y = top + 26
@@ -531,7 +597,7 @@ def layout(spec):
 
 
 def _rows(spec, nodes):
-    if spec["type"] not in ("container", "deployment", "dataflow"):
+    if spec["type"] not in ("container", "component", "deployment", "dataflow"):
         return {}
     layers = sorted({n.get("layer", _kind(n)["layer"]) for n in nodes})
     return {n["id"]: layers.index(n.get("layer", _kind(n)["layer"])) for n in nodes}
@@ -579,7 +645,59 @@ def render(spec):
         _render_edges(root, spec, edges, lay)
         bottom = max(y + h for _, y, _, h in boxes.values())
     _render_legend(root, spec, edges, bottom + 70)
-    return ET.tostring(mxfile, encoding="unicode")
+    return _stamp_generated_baseline(ET.tostring(mxfile, encoding="unicode"))
+
+GENERATED_BASELINE = "data-generated-sha256"
+
+
+def _parse_xml(xml):
+    parser = ET.XMLParser(target=ET.TreeBuilder(insert_comments=True, insert_pis=True))
+    return ET.fromstring(xml, parser=parser)
+
+
+def _canonical_xml(xml):
+    root = _parse_xml(xml)
+    root.attrib.pop(GENERATED_BASELINE, None)
+    for element in root.iter():
+        if element.text is not None and not element.text.strip():
+            element.text = None
+        if element.tail is not None and not element.tail.strip():
+            element.tail = None
+    return ET.tostring(root, encoding="unicode")
+
+
+def _stamp_generated_baseline(xml):
+    root = _parse_xml(xml)
+    root.attrib.pop(GENERATED_BASELINE, None)
+    canonical = _canonical_xml(ET.tostring(root, encoding="unicode"))
+    root.set(GENERATED_BASELINE, hashlib.sha256(canonical.encode("utf-8")).hexdigest())
+    return ET.tostring(root, encoding="unicode")
+
+
+def _manual_edit_error(reason):
+    return SpecError(
+        "%s; pass --acknowledge-manual-edits only after returning semantic changes to the spec"
+        % reason
+    )
+
+
+def write_output(xml, output, acknowledge_manual_edits=False):
+    """Write a stamped render after checking the output's own prior generated baseline."""
+    path = Path(output)
+    if path.exists():
+        current = path.read_text(encoding="utf-8")
+        try:
+            root = _parse_xml(current)
+            baseline = root.attrib.get(GENERATED_BASELINE)
+        except ET.ParseError:
+            baseline = None
+        if not baseline:
+            if not acknowledge_manual_edits:
+                raise _manual_edit_error("existing output has no generated baseline")
+        elif hashlib.sha256(_canonical_xml(current).encode("utf-8")).hexdigest() != baseline:
+            if not acknowledge_manual_edits:
+                raise _manual_edit_error("manual edits detected in existing output")
+    path.write_text(xml, encoding="utf-8")
 
 
 def main(argv=None):
@@ -588,19 +706,32 @@ def main(argv=None):
     parser.add_argument("-o", "--output", help="output .drawio path (default: stdout)")
     parser.add_argument("--strict", action="store_true",
                         help="exit 2 when the layout check reports a finding")
+    parser.add_argument("--acknowledge-manual-edits", action="store_true",
+                        help="explicitly allow replacing an untrusted or hand-edited output")
     args = parser.parse_args(argv)
 
-    with open(args.spec, encoding="utf-8") as handle:
-        spec = json.load(handle)
+    import validate_spec
+
     try:
+        with open(args.spec, encoding="utf-8") as handle:
+            spec = json.load(handle)
+        errors = validate_spec.validate(spec)
+        if errors:
+            raise SpecError("; ".join(errors))
         lay = layout(spec)
         xml = render(spec)
-    except SpecError as error:
+    except (SpecError, OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
         sys.stderr.write("render failed: %s\n" % error)
         return 1
     if args.output:
-        with open(args.output, "w", encoding="utf-8") as handle:
-            handle.write(xml)
+        try:
+            write_output(
+                xml, args.output,
+                acknowledge_manual_edits=args.acknowledge_manual_edits,
+            )
+        except (OSError, SpecError) as error:
+            sys.stderr.write("render failed: %s\n" % error)
+            return 1
         sys.stderr.write("wrote %s\n" % args.output)
     else:
         sys.stdout.write(xml)

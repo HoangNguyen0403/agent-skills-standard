@@ -44,15 +44,19 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
    - Price the null option first (do nothing, buy, or extend an existing service); rejecting it needs a stated reason.
    - Start from client, API, service, store; add one component at a time as `constraint -> component -> cost`.
    - Fix API surface, data ownership, and consistency class per flow.
-   - Render diagrams only after the component set is agreed, per `common-architecture-diagramming`: a `container` diagram (audience tech) plus `sequence` or `dataflow` for the critical path. Every node carries `metric` and `constraint` from its `constraint -> component -> cost` line; `evidence` points at that line in the design doc (`docs/design/system-design-[slug].md:<line>`), so write the Component Architecture section before rendering. No doc yet (quick sketch, or writes disallowed): leave `evidence` absent and let the node render UNVERIFIED. Output `docs/architecture/[slug]-<type>.drawio` plus the exported image. Phase map: `system-design-methodology/references/phase-deliverables.md`.
+   - Route the result as HLD first: record audience, scope, shaping constraint, ownership, failure domain, lifecycle status, and the decision to review. HLD may be prose or a selected context/container view; do not require every diagram.
+   - For each chosen deep dive, create an LLD handoff (`REQ-* -> HLD-* -> CMP-* -> LLD-* -> VER-*`) covering the component contract, invariant, ordering/idempotency, failure/recovery, and verification. “Low-level design” is the same lane as LLD.
+   - Render only selected views through `common-architecture-diagramming` when they answer named questions: use context/container, sequence, dataflow, deployment, or state as appropriate; prose or a table is sufficient otherwise. Carry `metric` and `constraint` only when stated, and leave them absent rather than inventing numbers. No doc yet (quick sketch, or writes disallowed): leave `evidence` absent and let the node render UNVERIFIED. Output only the selected `docs/architecture/[slug]-<type>.drawio` artifacts plus exported images. Phase map: `system-design-methodology/references/phase-deliverables.md`.
 6. Deep dive and decide:
-   - Dispatch the 2-3 riskiest components to `specialist-system-architect`, one brief each with its numbers and consistency requirement.
+   - Dispatch the 2-3 riskiest components to `specialist-system-architect`, one brief each with profile, audience/question, workload, SLO, team/budget, invariant, scope, evidence status, and HLD decision.
+   - Require options with rejection reasons, an LLD contract, concrete adverse timeline/recovery, verification hooks, and an ADR reversal trigger. The specialist must not re-run intake or add machinery without a constraint.
    - Merge the returned options, failure modes, and irreversible decisions; state bottlenecks, SPOFs, and rejected alternatives with reasons.
    - Write one ADR per irreversible decision, each with its reversal trigger; stage the plan as build now, enabling seam, and the metric threshold that triggers the next step.
    - Save the design to `docs/design/system-design-[slug].md` when file writes are allowed.
 7. Score and hand off:
-   - Run the nine-axis scorecard (including cost proportionality), record the risk register, and emit the handoff payload.
-   - Route to `design-solution`; return to `plan-feature` when product scope is still undefined.
+   - Run the nine-axis scorecard with a declared system profile; permit a justified `N/A` axis and do not reward caches/queues/replicas/regions without a measured need, owner, cost, and recovery behavior.
+   - Run independent semantic review in `system-design-review/references/semantic-evaluation.md`; lexical checks remain smoke signals.
+   - Emit the HLD/LLD trace and handoff payload; route to `design-solution`.
 
 ## Runtime Contract
 
@@ -79,7 +83,7 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
 ## Capacity Estimation (incl. monthly cost)
 ## Null Option Considered
 ## Component Architecture (constraint -> component -> cost)
-## Diagrams (Architecture / Sequence / Data Flow)
+## Selected Views (optional; prose or tables allowed)
 ## Data Ownership And Consistency
 ## Deep Dives
 ## Trade-offs And Rejected Alternatives

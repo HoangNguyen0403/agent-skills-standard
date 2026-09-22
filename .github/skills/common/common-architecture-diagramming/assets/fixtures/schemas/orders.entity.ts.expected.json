@@ -6,6 +6,8 @@
     {
       "cardinality": "many-to-many",
       "evidence": "assets/fixtures/schemas/orders.entity.ts:19",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "from": "customers",
       "label": "tags",
       "to": "tag"
@@ -13,6 +15,8 @@
     {
       "cardinality": "many-to-one",
       "evidence": "assets/fixtures/schemas/orders.entity.ts:28",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "from": "order",
       "label": "customer",
       "to": "customers"
@@ -38,6 +42,8 @@
         }
       ],
       "evidence": "assets/fixtures/schemas/orders.entity.ts:3",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "id": "customers",
       "kind": "entity",
       "label": "customers"
@@ -63,6 +69,8 @@
         }
       ],
       "evidence": "assets/fixtures/schemas/orders.entity.ts:22",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "id": "order",
       "kind": "entity",
       "label": "Order"
@@ -82,6 +90,8 @@
         }
       ],
       "evidence": "assets/fixtures/schemas/orders.entity.ts:34",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "id": "tag",
       "kind": "entity",
       "label": "Tag"

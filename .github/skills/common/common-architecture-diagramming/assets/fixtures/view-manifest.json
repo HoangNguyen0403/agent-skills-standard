@@ -1,0 +1,52 @@
+{
+  "version": "1.0",
+  "regeneration": {
+    "authority": "spec",
+    "presentation": "drawio",
+    "export": "image",
+    "manual_edits": "protect"
+  },
+  "sources": [
+    {
+      "id": "component-view",
+      "path": "evidence/component-view.md",
+      "revision": "synthetic-fixture-v1",
+      "digest": "sha256:e28150330c46dac86d03b5793bda25e06a423ecd4491d6c7ec146f6990bc7f67"
+    },
+    {
+      "id": "orders-api",
+      "path": "evidence/orders_api.py",
+      "revision": "synthetic-fixture-v1",
+      "digest": "sha256:02cae4c9aacce387ee00619989c5bd3338e5abe5365542fbfa8a323729b53f38"
+    },
+    {
+      "id": "orders-retry",
+      "path": "evidence/orders_retry.py",
+      "revision": "synthetic-fixture-v1",
+      "digest": "sha256:48e67c61faad357b0b6376b1260f1218e42581376311a13482384567399916bb"
+    },
+    {
+      "id": "orders-schema",
+      "path": "evidence/orders_schema.sql",
+      "revision": "synthetic-fixture-v1",
+      "digest": "sha256:e5c7876aff46b23a63ff972f09d9359b5540411fcf7b7cfb8538584a2a633581"
+    }
+  ],
+  "views": [
+    {
+      "id": "orders-containers",
+      "spec": "views/orders-containers.spec.json",
+      "scope": ["orders.service", "orders.database"],
+      "relationships": ["orders.retry-writes-outcome"]
+    },
+    {
+      "id": "orders-components",
+      "spec": "component.spec.json",
+      "scope": ["orders.api", "orders.retry-policy", "orders.database"],
+      "relationships": [
+        "orders.api-uses-retry-policy",
+        "orders.retry-writes-outcome"
+      ]
+    }
+  ]
+}

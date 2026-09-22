@@ -6,6 +6,7 @@ Pick from the message you need to land, not from the diagram you drew last time.
 | :--- | :--- | :--- |
 | Who uses this system and what does it depend on | `context` | Everyone |
 | What are the deployable parts and what do they run on | `container` | Architects, developers |
+| Which modules inside one container own a decision or dependency | `component` | Developers |
 | Where does it run: region, cluster, network boundary | `deployment` | Ops, architects |
 | How does data travel end to end, including batch and events | `dataflow` | Architects, data |
 | What is the exact order of calls in one flow | `sequence` | Developers |
@@ -16,11 +17,12 @@ Pick from the message you need to land, not from the diagram you drew last time.
 
 1. Mapping the whole ecosystem and its external dependencies? `context`
 2. Showing technology choices and deployable units? `container`
-3. Explaining where things physically run? `deployment`
-4. Following a record through extraction, transformation, and load? `dataflow`
-5. Debugging or specifying one request path in order? `sequence`
-6. Describing a lifecycle such as order status? `state`
-7. Documenting a schema? `erd`, generated from the schema files with `schema_to_spec.py`
+3. Showing module boundaries and dependencies inside one container? `component`
+4. Explaining where things physically run? `deployment`
+5. Following a record through extraction, transformation, and load? `dataflow`
+6. Debugging or specifying one request path in order? `sequence`
+7. Describing a lifecycle such as order status? `state`
+8. Documenting a schema? `erd`, generated from the schema files with `schema_to_spec.py`
 
 ## Not covered here
 
