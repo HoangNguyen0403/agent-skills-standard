@@ -1,0 +1,1 @@
+Only an alert title remains; no raw event, acquisition record, or owner is available. Can the incident be closed as benign?

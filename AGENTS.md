@@ -72,6 +72,7 @@ Each `_INDEX.md` has two sections - follow both:
 | Any file (keyword match) | `<SKILLS>/common/_INDEX.md` |
 | QE workflow | `<SKILLS>/quality-engineering/_INDEX.md` |
 | Architecture or scale request | `<SKILLS>/system-design/_INDEX.md` |
+| Cybersecurity investigation or authorized exercise | `<SKILLS>/cybersecurity/_INDEX.md` |
 
 > [!NOTE] **Test/spec file precedence:** `.spec.ts`, `.test.ts` -> use the `common` row (takes precedence over the generic `*.ts` row). `.spec.tsx`, `.test.tsx` -> use the `react` row (takes precedence over the generic `*.tsx` row).
 

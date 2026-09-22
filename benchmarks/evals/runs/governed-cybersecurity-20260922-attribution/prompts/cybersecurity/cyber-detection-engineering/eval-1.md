@@ -1,0 +1,1 @@
+Review a Sigma rule that uses the field severity: high and status: experimental, but required process telemetry is not collected. Identify the metadata defect and readiness.

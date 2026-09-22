@@ -5,6 +5,61 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - Governed cybersecurity skills
+
+### Added
+
+- Opt-in `cybersecurity` category with eleven original skills: authorization,
+  evidence, framework mapping, exercise control, exercise adjudication,
+  engagement planning, scoped validation, incident triage, detection engineering,
+  threat hunting and detection validation. Includes synthetic/offline eval cases,
+  pressure scenarios and lazy primary references.
+- Canonical `cyber-exercise`, `cyber-triage` and `cyber-purple-validation`
+  workflows, category discovery/indexes and `cybersecurity-v*` release routing.
+  The initial category version is `1.0.0`; this PR does not publish its tag.
+
+### Changed
+
+- Skill sync transports complete supported package resources, including binary
+  assets and root LICENSE/NOTICE attribution, rather than reconstructing them
+  from UTF-8 text. Incomplete packages are rejected and replacements are staged.
+- New eval runs fingerprint the full package and preserve immutable inputs;
+  resource-only drift invalidates skill-loaded evidence while compatible
+  baseline/activation evidence remains reusable. Legacy runs stay readable,
+  but cannot stand in for fresh whole-package promotion evidence.
+- Retrospectives and learning logs distinguish redacted proposals, authorized
+  canonical edits, candidate/current/no-skill comparisons, independent review,
+  promotion and rollback. `retro-learn`, `pentest` and LLM-security guidance now
+  preserve blocked/not-tested evidence and reject unsupported runtime claims.
+- Engagement restart gates require both current authorization and verified host
+  enforcement; owner exceptions cannot replace either. Triage makes unassigned
+  ownership explicit, mapping revisions retain prior evidence, and blocked
+  validation responses must offer safe offline alternatives.
+- Frontmatter accepts standard scalar or list `allowed-tools`; supported native
+  exports project that metadata without claiming enforcement on other hosts.
+
+### Fixed
+
+- Binary lockfile verification hashes the original bytes; distinct invalid
+  UTF-8 payloads can no longer collapse into the same decoded text hash.
+- Failed selected-package assembly aborts sync before installation or lockfile
+  replacement, rather than retaining a package on disk but silently dropping
+  its integrity coverage. Unsafe write paths propagate a failure too.
+- Raw eval and skill bytes are rehashed before scoring and portable verification;
+  changing parsed assertions while retaining copied hash strings is rejected.
+- Zod risk-tier validation uses the supported v4 error option.
+
+### Security boundaries
+
+- Package hashes verify integrity, not authorship or authorization. Reviewer
+  names record attribution, not authenticated independent approval.
+- Host runtimes remain responsible for permissions, credentials, network and
+  filesystem restrictions, cancellation and audit controls. Unsupported live
+  execution stays blocked; safe offline analysis remains available.
+- No production attacks, control-efficacy claims, compliance certification or
+  autonomous self-promotion is introduced. No external cybersecurity pack was
+  imported or executed.
+
 ## [quality-engineering-v1.6.0] - Unreleased
 
 **Category**: Test-loop program P0–P3, requirement-to-TC hardening, automation health, UI automation driver ladders

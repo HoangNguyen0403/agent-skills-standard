@@ -2,9 +2,15 @@ import fs from "fs-extra";
 import * as path from "node:path";
 import { ROOT_DIR } from "./constants";
 import { loadManifest } from "./manifest";
-import { loadRunInputs, readCurrentSource, sourceKey } from "./snapshot";
+import {
+  assertCurrentSourceMatchesManifest,
+  loadRunInputs,
+  readCurrentSource,
+  sourceKey,
+} from "./snapshot";
 import type { RunResults } from "./types";
 import { evaluateSkillReadiness } from "./readiness";
+import { verifyRun } from "./verify";
 
 const REGISTRY_FILE = "baselines.json";
 
@@ -86,6 +92,11 @@ export function promoteCategoryBaseline(
   }
   const inputs = loadRunInputs(runDir);
   if (!inputs) throw new Error(`Run ${runId} lacks immutable inputs.json.`);
+  const verification = verifyRun(runId, { repoRoot });
+  if (!verification.ok)
+    throw new Error(
+      `Promotion requires a verified run: ${verification.reason ?? "unknown verification failure"}`,
+    );
   const results = fs.readJSONSync(
     path.join(runDir, "results.json"),
   ) as RunResults;
@@ -135,17 +146,24 @@ export function promoteCategoryBaseline(
     );
   }
   for (const skill of runSkills) {
-    const source = inputs.sources[sourceKey(skill.category, skill.skillName)];
-    const current = readCurrentSource(repoRoot, skill);
-    if (
-      !source ||
-      source.hashes.skill !== current.hashes.skill ||
-      source.hashes.evals !== current.hashes.evals
-    ) {
+    const key = sourceKey(skill.category, skill.skillName);
+    if (manifest.inputProvenanceVersion !== 1) {
       throw new Error(
-        `Current source drift for ${sourceKey(skill.category, skill.skillName)}; rerun before promotion.`,
+        `Promotion requires raw immutable input provenance for ${key}.`,
       );
     }
+    if (!manifest.resourceFingerprints?.[key]) {
+      throw new Error(
+        `Promotion requires whole-package resource provenance for ${key}.`,
+      );
+    }
+    if (!inputs.sources[key])
+      throw new Error(`Run ${runId} lacks immutable input for ${key}.`);
+    assertCurrentSourceMatchesManifest(
+      manifest,
+      key,
+      readCurrentSource(repoRoot, skill),
+    );
   }
   assertGate(results, category);
   const info = categoryTag(repoRoot, category);

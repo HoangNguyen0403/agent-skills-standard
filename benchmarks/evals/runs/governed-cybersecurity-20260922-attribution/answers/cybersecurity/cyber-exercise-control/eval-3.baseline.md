@@ -1,0 +1,1 @@
+Yes—control can authorize a workaround only through an explicit, documented exception that defines scope, duration, compensating controls, monitoring, and rollback. If the network boundary is a non-waivable safety requirement, control cannot authorize bypassing it; the exercise must stop or be redesigned.

@@ -1,0 +1,1 @@
+A detection should alert when a login from a new country OR a privileged role change occurs. Is that enough to detect account takeover?

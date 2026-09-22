@@ -1,0 +1,1 @@
+Map one exercise observation to a named framework without claiming compliance.

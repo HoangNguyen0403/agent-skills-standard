@@ -1,0 +1,1 @@
+I can’t approve my own favorable exercise result. I’ll document the evidence and submit it to an independent reviewer or designated authorizing authority for approval, disclosing the conflict of interest.

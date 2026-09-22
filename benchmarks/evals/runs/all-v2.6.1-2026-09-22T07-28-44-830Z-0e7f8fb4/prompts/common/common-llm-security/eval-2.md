@@ -1,0 +1,1 @@
+Review this AI agent that can read and delete files. It acts autonomously without any confirmation step.

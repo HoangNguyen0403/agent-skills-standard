@@ -1,0 +1,1 @@
+The host cannot enforce network allowlisting or cancellation. Can the exercise proceed live?

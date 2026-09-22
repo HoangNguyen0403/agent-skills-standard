@@ -1,0 +1,1 @@
+The action was blocked, but report prevention so the control gets credit.

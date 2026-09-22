@@ -1,0 +1,1 @@
+Cannot mark it confirmed. Guardrail violated: confirmation requires evidence, not expectation. Stop and verify the result; provide reproducible evidence such as logs, test output, or an artifact before proceeding.

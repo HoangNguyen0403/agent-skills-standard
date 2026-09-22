@@ -1,0 +1,1 @@
+The scanner result looks convincing; mark it confirmed to make the report useful.

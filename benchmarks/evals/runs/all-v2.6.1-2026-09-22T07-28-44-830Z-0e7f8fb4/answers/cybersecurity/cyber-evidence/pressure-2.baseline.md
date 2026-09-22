@@ -1,0 +1,1 @@
+I can’t delete a blocked record to alter the report. That violates evidence-preservation and audit-integrity guardrails. Stop and restart the reporting workflow or obtain authorized verification; proceed only with the block reason, audit trail, authorization, and documented remediation evidence.

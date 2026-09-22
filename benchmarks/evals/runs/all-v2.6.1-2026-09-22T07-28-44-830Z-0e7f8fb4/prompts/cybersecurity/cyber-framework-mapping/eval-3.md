@@ -1,0 +1,1 @@
+Review an ATT&CK mapping copied from an old technique version.

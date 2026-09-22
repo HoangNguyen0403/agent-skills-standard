@@ -1,0 +1,1307 @@
+{
+  "schemaVersion": 2,
+  "runId": "governed-cybersecurity-20260922-attribution",
+  "category": "all",
+  "version": "2.6.1",
+  "createdAt": "2026-09-22T07:01:58.114Z",
+  "metadata": {
+    "startedAt": "2026-09-22T07:01:58.114Z",
+    "evidenceMode": "fresh",
+    "freshAnswerCount": 167,
+    "reusedAnswerCount": 0,
+    "agent": "Codex CLI isolated worker",
+    "model": "gpt-5.6-luna",
+    "reasoningEffort": "high",
+    "completedAt": "2026-09-22T07:12:16.066Z"
+  },
+  "scope": {
+    "kind": "selective",
+    "categories": [
+      "android",
+      "angular",
+      "common",
+      "cybersecurity",
+      "dart",
+      "database",
+      "flutter",
+      "golang",
+      "ios",
+      "java",
+      "javascript",
+      "kotlin",
+      "laravel",
+      "nestjs",
+      "nextjs",
+      "php",
+      "python",
+      "quality-engineering",
+      "react",
+      "react-native",
+      "spring-boot",
+      "swift",
+      "system-design",
+      "typescript"
+    ]
+  },
+  "protocol": {
+    "instructionVersion": "governing-skill-v3",
+    "isolation": "worker-per-arm",
+    "baseline": "prompt-only",
+    "withSkill": "prompt-plus-skill",
+    "trigger": "name-description-only"
+  },
+  "sourceHashes": {
+    "common/common-learning-log": {
+      "skill": "eb7de548b093db6c75722e2ab45949dee47c261beefe99e94968c0b61ed9064b",
+      "evals": "c3e06d81253c15ae243e0535f02a1fa1084be815f89d9946aaa90630a3107ed3"
+    },
+    "common/common-llm-security": {
+      "skill": "65928195f1930411b9affb56f1027706842e939583d5a7980373ef5345a83b20",
+      "evals": "6a67515f56365b99ed46466d9045affae3a2a44494f1bd78dc6a280b847be879"
+    },
+    "common/common-session-retrospective": {
+      "skill": "2f5785f501b029654d187a0579e72b9d88c6fd96eabbfea79809b91590a2adda",
+      "evals": "6b1ee4af4b6390bcbeeda4728f8d48215b73744c27aa2b430d659af3a76f386c"
+    },
+    "cybersecurity/cyber-authorization": {
+      "skill": "0ebc725c778b139563d97908f98758617a615221b92342f5fab237695648d2e9",
+      "evals": "8c5a49deb92cb6126ee2e0e71fe2acc1101bc879b039f30a230c483f553977d1"
+    },
+    "cybersecurity/cyber-detection-engineering": {
+      "skill": "ed888e5753bf25d9eda34c3693704fbd8772d554eb0abe726cb78e97cfd040ec",
+      "evals": "aaa0621c12df4b1757a0cc2254cdb3a2242e1b1c465276f0629d1171da28a552"
+    },
+    "cybersecurity/cyber-detection-validation": {
+      "skill": "1055b46268d7ec0208eb06bbae45768b2c860c1ae073ba7304e6d84f892adc81",
+      "evals": "ecccaa9368756a6533a6f39a75104022f56c64c333445333add0445e60d09a95"
+    },
+    "cybersecurity/cyber-engagement-planning": {
+      "skill": "f0b12950aa3e6cd63d6a2d7b389c254484d527fc7cb483de36b4dabdd4088544",
+      "evals": "55defc353b52415e0e44608738d0393d3bb15598c414c9951e5d904fbdbfbffb"
+    },
+    "cybersecurity/cyber-evidence": {
+      "skill": "9ae4722c8a75fb238d1b302c694ad57287199fc3758f52fdf02e9c7bcf1083ba",
+      "evals": "8276c71abcf217a2e2252bfa9a3ade81551bcbad3a5a85ba34cb56518f712456"
+    },
+    "cybersecurity/cyber-exercise-adjudication": {
+      "skill": "42ef1b50fd9fc2874879504d484b9ee3c53e49d2722170667a1ca2f094ebf16d",
+      "evals": "35f85f226642a8dfe252bb63a25ddff4a1f1c31fa90a78a9ab7b5c44bcce3c9b"
+    },
+    "cybersecurity/cyber-exercise-control": {
+      "skill": "233e95d978fa66bd47f3336890f2a127d63e805766125d68d5c04a44977906b7",
+      "evals": "7f88ead7d5c6cd7b25b2fc9e0d035beaa5d47fcefaa61157f30f269d4247e9c5"
+    },
+    "cybersecurity/cyber-framework-mapping": {
+      "skill": "5fee2e6bf990883da7fbfc7dca36c51c676f3ab9c4a273a814f4efa546383246",
+      "evals": "6f8b86e0a806919a43c29169462ee47d7ba400a5c4ddfa168dd0f827f32c0536"
+    },
+    "cybersecurity/cyber-incident-triage": {
+      "skill": "e41cc21ef8774dc9f62598f5f581eb822feddad2df38d01ae2839d55a435c129",
+      "evals": "6ae1be178493716ed34d137b9622d14fb356b7b88f2c10d36b51bf1a8438b072"
+    },
+    "cybersecurity/cyber-scoped-validation": {
+      "skill": "567163e0500cdc6a2caceed3e1f62163ecf7e68ac5dc86df85da093c4a2c6d2c",
+      "evals": "2e63e3d2b9ede7615ff5e04210045e01061666a696e948de9b61d2c35090ff7b"
+    },
+    "cybersecurity/cyber-threat-hunting": {
+      "skill": "dd227d90ef3ef86ed1a7c74fef3480e1267f1a70bc5fcd1e6c9f251dfb6ab093",
+      "evals": "f6a52123f3e5f59bd656ea47f90397fc46fe90ca99432b23fb9934f7b95f1dce"
+    }
+  },
+  "resourceFingerprints": {
+    "common/common-learning-log": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/log-format.md": "fc72b2b56ab110f192f6dbddd0e29687e857c9b09feb24fecce86d6e66d0b49a",
+        "SKILL.md": "eb7de548b093db6c75722e2ab45949dee47c261beefe99e94968c0b61ed9064b"
+      }
+    },
+    "common/common-llm-security": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/owasp-llm.md": "706844477abb74f0b5f4f6ce75ef79761b0de1bd19cb17012e73dd7072455c10",
+        "SKILL.md": "65928195f1930411b9affb56f1027706842e939583d5a7980373ef5345a83b20"
+      }
+    },
+    "common/common-session-retrospective": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/methodology.md": "ad238c73478f83da27347dd8f93c9d36ca72a8f1cd0e3b660a56db694719fc0d",
+        "SKILL.md": "2f5785f501b029654d187a0579e72b9d88c6fd96eabbfea79809b91590a2adda"
+      }
+    },
+    "cybersecurity/cyber-authorization": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/runtime-authorization-matrix.md": "bc1000580f26b2d9c4680d64ae78c7a3a7b00d102897a774bd9c6be03523430f",
+        "SKILL.md": "0ebc725c778b139563d97908f98758617a615221b92342f5fab237695648d2e9"
+      }
+    },
+    "cybersecurity/cyber-detection-engineering": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "SKILL.md": "ed888e5753bf25d9eda34c3693704fbd8772d554eb0abe726cb78e97cfd040ec"
+      }
+    },
+    "cybersecurity/cyber-detection-validation": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "SKILL.md": "1055b46268d7ec0208eb06bbae45768b2c860c1ae073ba7304e6d84f892adc81"
+      }
+    },
+    "cybersecurity/cyber-engagement-planning": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/engagement-brief.md": "61cd312e475fc178069649c88a7bda9b850dedf1ac840171b90d2d940009cfb7",
+        "SKILL.md": "f0b12950aa3e6cd63d6a2d7b389c254484d527fc7cb483de36b4dabdd4088544"
+      }
+    },
+    "cybersecurity/cyber-evidence": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/evidence-record.md": "8c6708729157450cf8b394dda7db6bef4c1193a486dadfce438c10325535f0bf",
+        "SKILL.md": "9ae4722c8a75fb238d1b302c694ad57287199fc3758f52fdf02e9c7bcf1083ba"
+      }
+    },
+    "cybersecurity/cyber-exercise-adjudication": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/adjudication-record.md": "307ecebd8b66c162c1cf41047fc4863f83d59c49d605b7a84e185349430624b0",
+        "SKILL.md": "42ef1b50fd9fc2874879504d484b9ee3c53e49d2722170667a1ca2f094ebf16d"
+      }
+    },
+    "cybersecurity/cyber-exercise-control": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/control-log.md": "e740da5c449085fd5469f3e4616a394f78e2f8963e68556981a97eba3a88f629",
+        "SKILL.md": "233e95d978fa66bd47f3336890f2a127d63e805766125d68d5c04a44977906b7"
+      }
+    },
+    "cybersecurity/cyber-framework-mapping": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/edge-record.md": "590c05775906e58d5460a1e0be5349efa85fcef171cf47dfd52a0b03415d2f60",
+        "SKILL.md": "5fee2e6bf990883da7fbfc7dca36c51c676f3ab9c4a273a814f4efa546383246"
+      }
+    },
+    "cybersecurity/cyber-incident-triage": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "SKILL.md": "e41cc21ef8774dc9f62598f5f581eb822feddad2df38d01ae2839d55a435c129"
+      }
+    },
+    "cybersecurity/cyber-scoped-validation": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "references/validation-record.md": "070255f63efd71f401fcbdb1a1d50a571ce3cb3663118aee9e762b54000d336a",
+        "SKILL.md": "567163e0500cdc6a2caceed3e1f62163ecf7e68ac5dc86df85da093c4a2c6d2c"
+      }
+    },
+    "cybersecurity/cyber-threat-hunting": {
+      "version": 1,
+      "resources": {
+        "LICENSE": "4d7986336b20626e0f4b37bdcd8010f718856bdf0fecb11f40dfdd5f705d49e1",
+        "SKILL.md": "dd227d90ef3ef86ed1a7c74fef3480e1267f1a70bc5fcd1e6c9f251dfb6ab093"
+      }
+    }
+  },
+  "inputProvenanceVersion": 1,
+  "compromisedSkills": [],
+  "activationEvidenceVersion": 3,
+  "assertionSemanticsVersion": 2,
+  "skills": [
+    {
+      "category": "common",
+      "skillName": "common-learning-log",
+      "skillPath": "skills/common/common-learning-log/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        }
+      ]
+    },
+    {
+      "category": "common",
+      "skillName": "common-llm-security",
+      "skillPath": "skills/common/common-llm-security/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-5",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        }
+      ]
+    },
+    {
+      "category": "common",
+      "skillName": "common-session-retrospective",
+      "skillPath": "skills/common/common-session-retrospective/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        }
+      ]
+    },
+    {
+      "category": "cybersecurity",
+      "skillName": "cyber-authorization",
+      "skillPath": "skills/cybersecurity/cyber-authorization/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        }
+      ]
+    },
+    {
+      "category": "cybersecurity",
+      "skillName": "cyber-detection-engineering",
+      "skillPath": "skills/cybersecurity/cyber-detection-engineering/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        }
+      ]
+    },
+    {
+      "category": "cybersecurity",
+      "skillName": "cyber-detection-validation",
+      "skillPath": "skills/cybersecurity/cyber-detection-validation/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        }
+      ]
+    },
+    {
+      "category": "cybersecurity",
+      "skillName": "cyber-engagement-planning",
+      "skillPath": "skills/cybersecurity/cyber-engagement-planning/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        }
+      ]
+    },
+    {
+      "category": "cybersecurity",
+      "skillName": "cyber-evidence",
+      "skillPath": "skills/cybersecurity/cyber-evidence/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        }
+      ]
+    },
+    {
+      "category": "cybersecurity",
+      "skillName": "cyber-exercise-adjudication",
+      "skillPath": "skills/cybersecurity/cyber-exercise-adjudication/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        }
+      ]
+    },
+    {
+      "category": "cybersecurity",
+      "skillName": "cyber-exercise-control",
+      "skillPath": "skills/cybersecurity/cyber-exercise-control/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        }
+      ]
+    },
+    {
+      "category": "cybersecurity",
+      "skillName": "cyber-framework-mapping",
+      "skillPath": "skills/cybersecurity/cyber-framework-mapping/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        }
+      ]
+    },
+    {
+      "category": "cybersecurity",
+      "skillName": "cyber-incident-triage",
+      "skillPath": "skills/cybersecurity/cyber-incident-triage/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        }
+      ]
+    },
+    {
+      "category": "cybersecurity",
+      "skillName": "cyber-scoped-validation",
+      "skillPath": "skills/cybersecurity/cyber-scoped-validation/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        }
+      ]
+    },
+    {
+      "category": "cybersecurity",
+      "skillName": "cyber-threat-hunting",
+      "skillPath": "skills/cybersecurity/cyber-threat-hunting/SKILL.md",
+      "guardrailApplicable": false,
+      "cases": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arms": {
+            "baseline": "pending",
+            "with-skill": "pending"
+          }
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "yes"
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arms": {
+            "with-skill": "pending"
+          },
+          "expectedTrigger": "no"
+        }
+      ]
+    }
+  ]
+}

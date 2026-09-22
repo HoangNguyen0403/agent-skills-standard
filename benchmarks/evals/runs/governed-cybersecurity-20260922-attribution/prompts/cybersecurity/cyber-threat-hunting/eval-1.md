@@ -1,0 +1,1 @@
+Hunt for unusual PowerShell in synthetic endpoint events. State the hypothesis and what a clean result means.

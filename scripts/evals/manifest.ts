@@ -8,7 +8,7 @@ import {
   ROOT_DIR,
   RUNS_DIR,
 } from "./constants";
-import { readCurrentSource, sourceKey } from "./snapshot";
+import { readCurrentSource, resourceFingerprint, sourceKey } from "./snapshot";
 import {
   Assertion,
   EvalCaseRef,
@@ -145,6 +145,7 @@ function buildSkill(
   category: string,
   skillName: string,
   sourceHashes: ManifestV2["sourceHashes"],
+  resourceFingerprints: NonNullable<ManifestV2["resourceFingerprints"]>,
 ): ManifestSkill | null {
   const skillMdPath = repoPath(
     repoRoot,
@@ -172,13 +173,15 @@ function buildSkill(
     );
   }
   const key = sourceKey(category, skillName);
-  sourceHashes[key] = readCurrentSource(repoRoot, {
+  const source = readCurrentSource(repoRoot, {
     category,
     skillName,
     skillPath: `skills/${category}/${skillName}/SKILL.md`,
     guardrailApplicable: false,
     cases: [],
-  }).hashes;
+  });
+  sourceHashes[key] = source.hashes;
+  resourceFingerprints[key] = resourceFingerprint(source.resources ?? {});
 
   const guardrailApplicable = isGuardrailApplicable(
     category,
@@ -283,6 +286,8 @@ export function buildManifest(
   fs.ensureDirSync(runDir);
 
   const sourceHashes: ManifestV2["sourceHashes"] = {};
+  const resourceFingerprints: NonNullable<ManifestV2["resourceFingerprints"]> =
+    {};
   const compromisedSkills = [];
   const skills: ManifestSkill[] = [];
   for (const currentCategory of category === "all" ? categories : [category]) {
@@ -306,6 +311,7 @@ export function buildManifest(
         currentCategory,
         skillName,
         sourceHashes,
+        resourceFingerprints,
       );
       if (skill) skills.push(skill);
     }
@@ -335,6 +341,8 @@ export function buildManifest(
       trigger: "name-description-only",
     },
     sourceHashes,
+    resourceFingerprints,
+    inputProvenanceVersion: 1,
     compromisedSkills,
     activationEvidenceVersion: 3,
     assertionSemanticsVersion: 2,

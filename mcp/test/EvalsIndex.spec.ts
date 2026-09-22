@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import fs from "fs-extra";
 import os from "os";
 import path from "path";
@@ -90,6 +91,139 @@ async function fixture(): Promise<{
   };
 }
 
+function resourceHash(encodedResource: string): string {
+  const bytes = Buffer.from(encodedResource, "base64");
+  return createHash("sha256").update(bytes).digest("hex");
+}
+
+async function v2Fixture(withResourceFingerprints: boolean): Promise<{
+  root: string;
+  runId: string;
+  runDir: string;
+  cleanup: () => Promise<void>;
+}> {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "ags-mcp-evals-v2-"));
+  const runId = "all-v2-9.9.9-2099-01-01-test";
+  const runDir = path.join(root, "benchmarks", "evals", "runs", runId);
+  const sourceKey = "dart/dart-tooling";
+  const skillMarkdown = "old skill";
+  const evals = {
+    evals: [{ id: 1, assertions: [{ type: "contains", value: "answer" }] }],
+  };
+  const skillMarkdownBase64 = Buffer.from(skillMarkdown).toString("base64");
+  const evalsBase64 = Buffer.from(JSON.stringify(evals)).toString("base64");
+  const resources = {
+    "SKILL.md": skillMarkdownBase64,
+    "references/guide.md": Buffer.from("use the formatter guide").toString(
+      "base64",
+    ),
+  };
+  await fs.ensureDir(path.join(runDir, "answers", "dart", "dart-tooling"));
+  await fs.writeJson(path.join(runDir, "manifest.json"), {
+    schemaVersion: 2,
+    runId,
+    category: "all",
+    version: "9.9.9",
+    metadata: {},
+    scope: { kind: "all", categories: ["dart"] },
+    protocol: {
+      isolation: "worker-per-arm",
+      baseline: "prompt-only",
+      withSkill: "prompt-plus-skill",
+      trigger: "name-description-only",
+    },
+    sourceHashes: {
+      [sourceKey]: {
+        skill: resourceHash(skillMarkdownBase64),
+        evals: resourceHash(evalsBase64),
+      },
+    },
+    ...(withResourceFingerprints ? { inputProvenanceVersion: 1 } : {}),
+    ...(withResourceFingerprints
+      ? {
+          resourceFingerprints: {
+            [sourceKey]: {
+              version: 1,
+              resources: {
+                "SKILL.md": resourceHash(resources["SKILL.md"]),
+                "references/guide.md": resourceHash(
+                  resources["references/guide.md"],
+                ),
+              },
+            },
+          },
+        }
+      : {}),
+    compromisedSkills: [],
+    skills: [
+      {
+        category: "dart",
+        skillName: "dart-tooling",
+        cases: [
+          {
+            id: "eval-1",
+            kind: "eval",
+            arms: { baseline: "done", "with-skill": "done" },
+          },
+        ],
+      },
+    ],
+  });
+  await fs.writeJson(path.join(runDir, "inputs.json"), {
+    schemaVersion: 2,
+    runId,
+    capturedAt: "2099-01-01T00:00:00.000Z",
+    sources: {
+      [sourceKey]: {
+        category: "dart",
+        skillName: "dart-tooling",
+        skillMarkdown,
+        skillMarkdownBase64,
+        evals,
+        evalsBase64,
+        ...(withResourceFingerprints ? { resources } : {}),
+      },
+    },
+  });
+  await fs.writeFile(
+    path.join(runDir, "answers", "dart", "dart-tooling", "eval-1.baseline.md"),
+    "generic formatter guidance",
+  );
+  await fs.writeFile(
+    path.join(
+      runDir,
+      "answers",
+      "dart",
+      "dart-tooling",
+      "eval-1.with-skill.md",
+    ),
+    "answer with formatter guidance",
+  );
+  await fs.writeJson(path.join(runDir, "results.json"), {
+    schemaVersion: 2,
+    runId,
+    category: "all",
+    version: "9.9.9",
+    scoredAt: "2099-01-01T00:00:00.000Z",
+    metadata: {},
+    skills: [
+      {
+        category: "dart",
+        skillName: "dart-tooling",
+        baselinePassRate: 0,
+        withSkillPassRate: 1,
+        delta: 1,
+        casePassRate: { baseline: 0, withSkill: 1 },
+        assertionPassRate: { baseline: 0, withSkill: 1 },
+        triggerRecall: null,
+        triggerSpecificity: null,
+        balancedTriggerAccuracy: null,
+      },
+    ],
+  });
+  return { root, runId, runDir, cleanup: () => fs.remove(root) };
+}
+
 describe("EvalsIndex", () => {
   let root: string;
   let cleanup: () => Promise<void>;
@@ -114,9 +248,8 @@ describe("EvalsIndex", () => {
     await fs.remove(empty);
   });
 
-  it("verifyEvalRun passes when recomputed scores match committed results.json", () => {
-    const outcome = verifyEvalRun(root, RUN_ID);
-    expect(outcome.ok).toBe(true);
+  it("verifies legacy v1 runs without resource fingerprints", () => {
+    expect(verifyEvalRun(root, RUN_ID).ok).toBe(true);
   });
 
   it("verifyEvalRun fails when a transcript is tampered with after scoring", async () => {
@@ -145,73 +278,92 @@ describe("EvalsIndex", () => {
     expect(readEvalsReport(root)).toContain("# Live Evals");
   });
 
-  it("verifies v2 aggregate answer paths from immutable inputs", async () => {
-    const v2Root = await fs.mkdtemp(path.join(os.tmpdir(), "ags-mcp-evals-v2-"));
-    const runId = "all-v2-9.9.9-2099-01-01-test";
-    const runDir = path.join(v2Root, "benchmarks", "evals", "runs", runId);
-    await fs.ensureDir(path.join(v2Root, "skills", "dart", "dart-tooling", "evals"));
-    await fs.writeJson(path.join(v2Root, "skills", "dart", "dart-tooling", "evals", "evals.json"), {
-      evals: [{ id: 1, assertions: [{ type: "contains", value: "changed" }] }],
-    });
-    await fs.ensureDir(path.join(runDir, "answers", "dart", "dart-tooling"));
-    await fs.writeJson(path.join(runDir, "manifest.json"), {
-      schemaVersion: 2,
-      runId,
-      category: "all",
-      version: "9.9.9",
-      metadata: {},
-      scope: { kind: "all", categories: ["dart"] },
-      protocol: {
-        isolation: "worker-per-arm",
-        baseline: "prompt-only",
-        withSkill: "prompt-plus-skill",
-        trigger: "name-description-only",
-      },
-      sourceHashes: { "dart/dart-tooling": { skill: "old", evals: "old" } },
-      compromisedSkills: [],
-      skills: [{
-        category: "dart",
-        skillName: "dart-tooling",
-        cases: [{ id: "eval-1", kind: "eval", arms: { baseline: "done", "with-skill": "done" } }],
-      }],
-    });
-    await fs.writeJson(path.join(runDir, "inputs.json"), {
-      schemaVersion: 2,
-      runId,
-      capturedAt: "2099-01-01T00:00:00.000Z",
-      sources: {
-        "dart/dart-tooling": {
-          category: "dart",
-          skillName: "dart-tooling",
-          evals: { evals: [{ id: 1, assertions: [{ type: "contains", value: "answer" }] }] },
-        },
-      },
-    });
-    await fs.writeFile(path.join(runDir, "answers", "dart", "dart-tooling", "eval-1.baseline.md"), "generic formatter guidance");
-    await fs.writeFile(path.join(runDir, "answers", "dart", "dart-tooling", "eval-1.with-skill.md"), "answer with formatter guidance");
-    await fs.writeJson(path.join(runDir, "results.json"), {
-      schemaVersion: 2,
-      runId,
-      category: "all",
-      version: "9.9.9",
-      scoredAt: "2099-01-01T00:00:00.000Z",
-      metadata: {},
-      skills: [{
-        category: "dart",
-        skillName: "dart-tooling",
-        baselinePassRate: 0,
-        withSkillPassRate: 1,
-        delta: 1,
-        casePassRate: { baseline: 0, withSkill: 1 },
-        assertionPassRate: { baseline: 0, withSkill: 1 },
-        triggerRecall: null,
-        triggerSpecificity: null,
-        balancedTriggerAccuracy: null,
-      }],
-    });
+  it("verifies legacy v2 runs without resource fingerprints", async () => {
+    const v2 = await v2Fixture(false);
 
-    expect(verifyEvalRun(v2Root, runId).ok).toBe(true);
-    await fs.remove(v2Root);
+    expect(verifyEvalRun(v2.root, v2.runId).ok).toBe(true);
+
+    await v2.cleanup();
+  });
+
+  it("verifies v2 resource provenance when snapshot bytes match manifest hashes", async () => {
+    const v2 = await v2Fixture(true);
+
+    expect(verifyEvalRun(v2.root, v2.runId).ok).toBe(true);
+
+    await v2.cleanup();
+  });
+
+  it("rejects v2 resource fingerprints without resource provenance", async () => {
+    const v2 = await v2Fixture(true);
+    const inputsPath = path.join(v2.runDir, "inputs.json");
+    const inputs = await fs.readJson(inputsPath);
+    delete inputs.sources["dart/dart-tooling"].resources;
+    await fs.writeJson(inputsPath, inputs);
+
+    const outcome = verifyEvalRun(v2.root, v2.runId);
+
+    expect(outcome.ok).toBe(false);
+    expect(outcome.reason).toBe(
+      "immutable source provenance differs from manifest",
+    );
+    expect(outcome.diffs).toContain(
+      "Missing immutable resource provenance for dart/dart-tooling",
+    );
+
+    await v2.cleanup();
+  });
+
+  it("rejects tampered v2 resource bytes even when manifest hashes remain unchanged", async () => {
+    const v2 = await v2Fixture(true);
+    const inputsPath = path.join(v2.runDir, "inputs.json");
+    const inputs = await fs.readJson(inputsPath);
+    inputs.sources["dart/dart-tooling"].resources["references/guide.md"] =
+      Buffer.from("tampered formatter guide").toString("base64");
+    await fs.writeJson(inputsPath, inputs);
+
+    const outcome = verifyEvalRun(v2.root, v2.runId);
+
+    expect(outcome.ok).toBe(false);
+    expect(outcome.diffs).toContain(
+      "Immutable resource mismatch for dart/dart-tooling/references/guide.md",
+    );
+
+    await v2.cleanup();
+  });
+
+  it("rejects parsed eval assertions that diverge from committed raw source bytes", async () => {
+    const v2 = await v2Fixture(true);
+    const inputsPath = path.join(v2.runDir, "inputs.json");
+    const inputs = await fs.readJson(inputsPath);
+    inputs.sources["dart/dart-tooling"].evals.evals[0].assertions = [
+      { type: "contains", value: "formatter" },
+    ];
+    await fs.writeJson(inputsPath, inputs);
+
+    const outcome = verifyEvalRun(v2.root, v2.runId);
+
+    expect(outcome.ok).toBe(false);
+    expect(outcome.diffs).toContain(
+      "Raw eval snapshot mismatch for dart/dart-tooling",
+    );
+    await v2.cleanup();
+  });
+
+  it("rejects parsed skill bodies that diverge from committed raw source bytes", async () => {
+    const v2 = await v2Fixture(true);
+    const inputsPath = path.join(v2.runDir, "inputs.json");
+    const inputs = await fs.readJson(inputsPath);
+    inputs.sources["dart/dart-tooling"].skillMarkdown = "tampered skill body";
+    await fs.writeJson(inputsPath, inputs);
+
+    const outcome = verifyEvalRun(v2.root, v2.runId);
+
+    expect(outcome.ok).toBe(false);
+    expect(outcome.diffs).toContain(
+      "Raw skill snapshot mismatch for dart/dart-tooling",
+    );
+    await v2.cleanup();
   });
 });
 

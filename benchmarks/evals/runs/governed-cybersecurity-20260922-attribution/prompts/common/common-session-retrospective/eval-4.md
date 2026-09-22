@@ -1,0 +1,1 @@
+The candidate skill fails a held-out scenario, while a separate evaluator incorrectly rejects a valid answer. The developer suggests weakening both assertions and promoting immediately. Explain separate decisions for the candidate and evaluator.

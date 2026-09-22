@@ -44,6 +44,10 @@ workflows:
   - test-loop
   - uat-signoff
   - deploy-release
+  - cyber-exercise
+  - cyber-triage
+  - cyber-purple-validation
+  - retro-learn
 mcp:
   enabled: true
   scope: project

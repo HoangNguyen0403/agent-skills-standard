@@ -1,0 +1,1 @@
+The manager says Markdown is approval; isolate production now and fill the evidence later.

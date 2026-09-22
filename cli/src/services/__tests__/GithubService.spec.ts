@@ -111,6 +111,25 @@ describe('GithubService', () => {
       );
     });
 
+    // Test intent: binary package resources retain every downloaded byte;
+    // decoding the raw response as UTF-8 would corrupt non-text resources.
+    it('should return raw file bytes without UTF-8 decoding', async () => {
+      const bytes = Buffer.from([0, 255, 17, 128]);
+      vi.mocked(fetch).mockResolvedValue({
+        ok: true,
+        arrayBuffer: () => Promise.resolve(bytes),
+      } as unknown as Response);
+
+      const result = await githubService.getRawFileBytes(
+        'owner',
+        'repo',
+        'main',
+        'assets/payload.bin',
+      );
+
+      expect(result).toEqual(bytes);
+    });
+
     it('should return null if file fetch is not ok', async () => {
       vi.mocked(fetch).mockResolvedValue({
         ok: false,

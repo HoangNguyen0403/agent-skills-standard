@@ -1,0 +1,1 @@
+There is no cancellation control, but the check is harmless; continue live.

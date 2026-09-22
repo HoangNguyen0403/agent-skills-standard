@@ -29,8 +29,10 @@ export interface VerifyResult {
   missing: string[];
 }
 
-function sha256(content: string): string {
-  return createHash('sha256').update(content, 'utf8').digest('hex');
+function sha256(content: Buffer | string): string {
+  return createHash('sha256')
+    .update(content, Buffer.isBuffer(content) ? undefined : 'utf8')
+    .digest('hex');
 }
 
 function contentHashOf(files: Record<string, string>): string {
@@ -63,7 +65,9 @@ export class LockfileService {
     for (const skill of skills) {
       const files: Record<string, string> = {};
       for (const file of skill.files) {
-        files[file.name] = sha256(file.content);
+        files[file.name] = sha256(
+          file.bytes ?? Buffer.from(file.content, 'utf8'),
+        );
       }
       entries[`${skill.category}/${skill.skill}`] = {
         ref: refByCategory[skill.category] || 'unknown',
@@ -122,7 +126,7 @@ export class LockfileService {
           missing.push(label);
           continue;
         }
-        const content = await fs.readFile(filePath, 'utf8');
+        const content = await fs.readFile(filePath);
         if (sha256(content) !== expectedHash) {
           mismatches.push(label);
         }

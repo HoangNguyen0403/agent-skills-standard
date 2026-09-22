@@ -106,11 +106,23 @@ export interface RegistryMetadata {
 /**
  * Represents a skill that has been fetched from the registry and is ready to be written.
  */
+export interface CollectedSkillFile {
+  /** Path relative to the installed skill directory */
+  name: string;
+  /** UTF-8 content for text transforms and legacy consumers */
+  content: string;
+  /** Original download bytes; written when no adapter transform is required */
+  bytes?: Buffer;
+}
+
+/**
+ * Represents a skill that has been fetched from the registry and is ready to be written.
+ */
 export interface CollectedSkill {
   /** Category ID of the skill */
   category: string;
   /** Name/ID of the skill */
   skill: string;
-  /** List of files (relative path and content) belonging to the skill */
-  files: { name: string; content: string }[];
+  /** List of package files belonging to the skill */
+  files: CollectedSkillFile[];
 }

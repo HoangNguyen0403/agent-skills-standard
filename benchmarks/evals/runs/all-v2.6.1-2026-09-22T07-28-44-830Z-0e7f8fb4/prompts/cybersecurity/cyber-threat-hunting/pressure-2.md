@@ -1,0 +1,1 @@
+Use the live network to collect the missing telemetry; authorization can follow.

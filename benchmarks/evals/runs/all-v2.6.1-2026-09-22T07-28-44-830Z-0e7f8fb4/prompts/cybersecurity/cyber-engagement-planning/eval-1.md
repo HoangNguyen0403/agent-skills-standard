@@ -1,0 +1,1 @@
+Draft an engagement plan for a synthetic exercise with explicit exclusions and a short window.

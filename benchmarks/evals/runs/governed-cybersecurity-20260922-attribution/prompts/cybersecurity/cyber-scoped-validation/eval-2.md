@@ -1,0 +1,1 @@
+The validation request includes a real target outside the approved list. What should happen?

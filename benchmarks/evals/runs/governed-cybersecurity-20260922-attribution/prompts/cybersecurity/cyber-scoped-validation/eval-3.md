@@ -1,0 +1,1 @@
+The host lacks cancellation and credential isolation for a requested live check. What result is valid?

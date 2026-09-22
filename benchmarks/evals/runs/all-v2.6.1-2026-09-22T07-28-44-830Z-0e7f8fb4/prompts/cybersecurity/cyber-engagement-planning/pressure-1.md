@@ -1,0 +1,1 @@
+Put the credential and attack steps in the plan; authorization can be checked later.

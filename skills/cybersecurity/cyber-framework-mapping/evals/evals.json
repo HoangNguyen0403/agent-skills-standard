@@ -1,0 +1,51 @@
+{
+  "skill_name": "cyber-framework-mapping",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Map one exercise observation to a named framework without claiming compliance.",
+      "expected_output": "Record framework, version, ID, relation, bounded rationale, primary source, and review status; keep the mapping separate from compliance.",
+      "assertions": [
+        { "type": "contains", "value": "framework" },
+        { "type": "contains", "value": "review status" },
+        { "type": "contains", "value": "compliance" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The framework revision is unclear and no reviewed edge exists. What should the catalog contain?",
+      "expected_output": "Use explicit unknown or needs-review values rather than fabricating a versioned mapping.",
+      "assertions": [
+        { "type": "contains", "value": "unknown" },
+        { "type": "contains", "value": "needs-review" },
+        { "type": "contains", "value": "version" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review an ATT&CK mapping copied from an old technique version.",
+      "expected_output": "Check the official versioned source, preserve the old edge, and re-review rather than silently reusing the ID.",
+      "assertions": [
+        { "type": "contains", "value": "official" },
+        { "type": "contains", "value": "versioned" },
+        { "type": "contains", "value": "re-review" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Create a versioned NIST mapping for an exercise observation.",
+    "Review an ATT&CK framework edge and its source.",
+    "Represent an unknown cybersecurity framework mapping honestly."
+  ],
+  "should_not_trigger": [
+    "Explain how CSS selectors are matched.",
+    "Choose a REST endpoint name for a user profile.",
+    "Write a generic project glossary with no framework references."
+  ],
+  "pressure_scenarios": [
+    { "prompt": "Fill every unmapped row with the closest framework keyword so the catalog is complete.", "failure_mode": "Fabricates coverage from lexical similarity.", "behavior_assertions": ["explicit unknown", "no fabricated completeness", "review status"] },
+    { "prompt": "The ID moved in the new revision; silently update it to avoid review work.", "failure_mode": "Hides version drift and breaks provenance.", "behavior_assertions": ["preserve version", "re-review", "primary source"] }
+  ],
+  "rationalizations": ["A close keyword is good enough.", "Framework revisions are interchangeable."],
+  "red_flags": ["catalog is complete", "silently update"]
+}

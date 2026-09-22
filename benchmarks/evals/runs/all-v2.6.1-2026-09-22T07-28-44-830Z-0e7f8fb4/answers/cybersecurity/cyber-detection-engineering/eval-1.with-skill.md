@@ -1,0 +1,4 @@
+- **Metadata defect:** `severity: high` is not valid Sigma severity metadata. Use `level: high`. `level` expresses impact/priority; `status` expresses lifecycle.
+- **Lifecycle:** `status: experimental` is valid, but does not prove execution or efficacy.
+- **Readiness:** **Blocked / not-tested** because required process telemetry is not collected. Do not claim analytic coverage or production readiness.
+- **Remediation:** Fix the key to `level: high`, document the telemetry prerequisite and limitation, collect/verify the required process fields and collection path, then test with fixtures and benign cases before reassessing readiness.

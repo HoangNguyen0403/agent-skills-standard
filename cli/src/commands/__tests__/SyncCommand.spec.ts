@@ -103,6 +103,25 @@ describe('SyncCommand', () => {
     );
   });
 
+  // Test intent: a retained package fetch failure is non-success and must stop
+  // before writeSkills can replace the lockfile with an incomplete selection.
+  it('reports assembly failure without writing skills or claiming success', async () => {
+    mockSyncService.assembleSkills.mockRejectedValue(
+      new Error('Failed to assemble cybersecurity/cyber-evidence'),
+    );
+
+    await command.run();
+
+    expect(mockSyncService.writeSkills).not.toHaveBeenCalled();
+    expect(console.log).not.toHaveBeenCalledWith(
+      expect.stringContaining('All skills synced successfully'),
+    );
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining('Sync failed'),
+      'Failed to assemble cybersecurity/cyber-evidence',
+    );
+  });
+
   it('should save config when new workflows are discovered during reconciliation', async () => {
     mockSyncService.reconcileWorkflows.mockResolvedValue(true);
     await command.run();

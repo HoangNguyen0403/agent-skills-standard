@@ -132,6 +132,17 @@ describe('Validation Rules', () => {
       expect(result.warnings).toHaveLength(0);
     });
 
+    // Test intent: universal allowed-tools accepts both established scalar and
+    // list declarations; rejecting a scalar blocks compatible governed packages.
+    it('should accept a string allowed-tools declaration', async () => {
+      const rule = new FrontmatterRule();
+      const content =
+        '---\nname: Test\ndescription: A test\nallowed-tools: "Read, Grep"\n---\nbody';
+      const result = await rule.validate(content);
+      expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
     it('should reject an invalid risk_tier value', async () => {
       const rule = new FrontmatterRule();
       const content =

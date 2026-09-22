@@ -104,6 +104,11 @@ export class SpecialistTransformer {
         } else if (Array.isArray(allowedTools) && allowedTools.length > 0) {
           // Project the Universal-Skill-Format field onto Claude's native shape.
           fm.tools = allowedTools.join(', ');
+        } else if (
+          typeof allowedTools === 'string' &&
+          allowedTools.trim().length > 0
+        ) {
+          fm.tools = allowedTools.trim();
         }
         if (metadata.model) fm.model = metadata.model;
         if (metadata.color) fm.color = metadata.color;
@@ -152,8 +157,7 @@ export class SpecialistTransformer {
         const unenforceable: string[] = [];
         if (metadata['allowed-tools']) unenforceable.push('allowed-tools');
         const permissions = metadata.permissions as
-          | { network?: unknown; filesystem?: unknown }
-          | undefined;
+          { network?: unknown; filesystem?: unknown } | undefined;
         if (permissions?.network) unenforceable.push('permissions.network');
         if (permissions?.filesystem) {
           unenforceable.push('permissions.filesystem');

@@ -3,7 +3,11 @@ import os from "node:os";
 import fs from "fs-extra";
 import * as path from "node:path";
 import { answerPath, loadManifest, saveManifest } from "./manifest";
-import { readCurrentSource, sourceKey } from "./snapshot";
+import {
+  assertCurrentSourceMatchesManifest,
+  readCurrentSource,
+  sourceKey,
+} from "./snapshot";
 import type { ArmName, ManifestSkill } from "./types";
 
 export type EvalRunner = (prompt: string) => Promise<string>;
@@ -210,6 +214,11 @@ export async function executeMissingAnswers(
   const jobs: Array<{ output: string; prompt: string; evidence: string }> = [];
   for (const skill of manifest.skills) {
     const source = readCurrentSource(options.repoRoot, skill);
+    assertCurrentSourceMatchesManifest(
+      manifest,
+      sourceKey(skill.category, skill.skillName),
+      source,
+    );
     for (const currentCase of skill.cases) {
       const prompt = fs.readFileSync(
         promptPath(runDir, manifest.category, skill, currentCase.id),

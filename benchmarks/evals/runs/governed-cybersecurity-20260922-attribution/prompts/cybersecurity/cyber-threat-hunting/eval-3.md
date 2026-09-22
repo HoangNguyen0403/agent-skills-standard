@@ -1,0 +1,1 @@
+A hunt returns one hit, but the timestamp is from an unsynchronized source and the identity field is missing. What conclusion is valid?

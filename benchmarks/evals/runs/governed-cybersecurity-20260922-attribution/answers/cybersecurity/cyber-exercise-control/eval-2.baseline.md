@@ -1,0 +1,1 @@
+White-team control should immediately pause the affected activity, record the report and preserve relevant evidence, verify whether the exclusion was crossed, and notify the exercise director/safety authority. It should then rule on containment, resumption, re-scoping, or termination, document the decision, and communicate it to all participants.

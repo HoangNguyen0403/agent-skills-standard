@@ -58,6 +58,16 @@ export interface SourceHash {
   evals: string;
 }
 
+/** Whole-package content commitment for one skill. */
+export interface ResourceFingerprint {
+  version: 1;
+  /** POSIX-relative package paths mapped to SHA-256 digests. */
+  resources: Record<string, string>;
+}
+
+/** Base64-encoded bytes captured from a whole-package resource. */
+export type ResourceSnapshot = Record<string, string>;
+
 export interface CompromisedSkillRecord {
   category: string;
   skillName: string;
@@ -83,6 +93,13 @@ export interface ManifestV2 extends ManifestBase {
   scope: RunScope;
   protocol: GenerationProtocol;
   sourceHashes: Record<string, SourceHash>;
+  /**
+   * Optional for historical v2 compatibility. New runs commit every package
+   * resource; absent fingerprints can never establish a current promotion.
+   */
+  resourceFingerprints?: Record<string, ResourceFingerprint>;
+  /** New snapshots bind parsed source objects to their exact raw input bytes. */
+  inputProvenanceVersion?: 1;
   compromisedSkills: CompromisedSkillRecord[];
   /** Immutable source run used to populate reused prompt-only evidence. */
   baselineRunId?: string;
@@ -97,11 +114,7 @@ export interface ManifestV2 extends ManifestBase {
 export type Manifest = ManifestV1 | ManifestV2;
 
 export type AssertionType =
-  | "contains"
-  | "contains_any"
-  | "not_contains"
-  | "regex"
-  | "file_reference";
+  "contains" | "contains_any" | "not_contains" | "regex" | "file_reference";
 
 export interface Assertion {
   type: AssertionType;
@@ -176,6 +189,12 @@ export interface RunInputSource {
   hashes: SourceHash;
   skillMarkdown: string;
   evals: Record<string, unknown>;
+  /** Raw UTF-8 skill bytes, base64-encoded for byte-exact verification. */
+  skillMarkdownBase64?: string;
+  /** Raw eval JSON bytes, base64-encoded for byte-exact verification. */
+  evalsBase64?: string;
+  /** Raw package files, keyed by POSIX-relative path and encoded as base64. */
+  resources?: ResourceSnapshot;
 }
 
 export interface RunInputsV2 {

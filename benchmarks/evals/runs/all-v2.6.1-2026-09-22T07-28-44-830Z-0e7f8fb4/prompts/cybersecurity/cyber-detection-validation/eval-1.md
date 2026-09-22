@@ -1,0 +1,1 @@
+An approved synthetic action was stopped by the control; paired telemetry shows the prevention event. Classify the outcome.

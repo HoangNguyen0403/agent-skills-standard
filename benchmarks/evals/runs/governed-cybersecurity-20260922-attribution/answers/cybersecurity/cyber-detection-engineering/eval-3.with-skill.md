@@ -1,0 +1,3 @@
+Request changes: the proposed Sigma `logsource` is not parseable by the target backend, so the rule is not executable there. A portable Sigma rule does not prove backend execution; map it to a supported logsource and validate it with the backend parser.
+
+The fixture also lacks clock-quality metadata, so time-window or ordered-correlation efficacy is unverified. Mark analytic coverage `blocked` or `not-tested`, not successful. Add clock quality plus source, fields, retention, collection path, observation time, expected matches, exclusions, benign cases, evidence references, limitations, and owner. Keep Sigma `level` (impact) separate from `status` (lifecycle); do not use `severity`.

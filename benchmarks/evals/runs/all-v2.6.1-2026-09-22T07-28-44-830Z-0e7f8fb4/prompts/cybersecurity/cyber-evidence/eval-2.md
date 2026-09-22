@@ -1,0 +1,1 @@
+A scanner flags a possible issue, but no corroborating observation exists. How should it be recorded?

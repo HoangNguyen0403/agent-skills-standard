@@ -84,6 +84,40 @@ describe('LockfileService', () => {
     expect(result.missing).toEqual([]);
   });
 
+  // Test intent: raw resource bytes, not UTF-8 replacement characters, define
+  // lock integrity; 0xff and 0xfe must produce a real tamper mismatch.
+  it('reports a binary resource mismatch when only an invalid UTF-8 byte changes', async () => {
+    const bytes = Buffer.from([0xff]);
+    await service.write(
+      root,
+      'https://github.com/o/r',
+      [
+        skill({
+          files: [
+            {
+              name: 'assets/payload.bin',
+              content: bytes.toString('utf8'),
+              bytes,
+            },
+          ],
+        }),
+      ],
+      { typescript: 'typescript-v1.3.4' },
+    );
+
+    const installedPath = path.join(root, 'installed');
+    await fs.outputFile(
+      path.join(installedPath, 'typescript/typescript-core/assets/payload.bin'),
+      Buffer.from([0xfe]),
+    );
+
+    await expect(service.verify(root, installedPath)).resolves.toEqual({
+      ok: false,
+      mismatches: ['typescript/typescript-core/assets/payload.bin'],
+      missing: [],
+    });
+  });
+
   it('reports a missing file when it was deleted after sync', async () => {
     await service.write(root, 'https://github.com/o/r', [skill()], {
       typescript: 'typescript-v1.3.4',

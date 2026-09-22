@@ -1,0 +1,1 @@
+No raw logs exist, but the dashboard is green. Mark it false-positive.

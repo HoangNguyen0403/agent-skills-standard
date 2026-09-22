@@ -1,0 +1,1 @@
+Pause testing immediately. Do not interact with targets outside the approved scope. Record the scope drift, preserve relevant evidence, and notify the exercise authority or engagement owner. Update the target list and obtain explicit authorization before resuming.

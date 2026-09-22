@@ -1,9 +1,11 @@
 import fs from 'fs-extra';
+import path from 'node:path';
 import yaml from 'js-yaml';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
 import { SkillConfig } from '../../models/config';
 import { GithubService } from '../GithubService';
+import type { GitHubTreeItem } from '../../models/types';
 import { SkillSyncService } from '../SkillSyncService';
 
 // Mock fs-extra
@@ -20,6 +22,7 @@ describe('SkillSyncService', () => {
       getRepoTree: vi.fn(),
       fetchSkillFiles: vi.fn(),
       downloadFilesConcurrent: vi.fn(),
+      downloadFilesConcurrentBytes: vi.fn(),
       getRawFile: vi.fn(),
       getRepoInfo: vi.fn(),
     };
@@ -35,8 +38,9 @@ describe('SkillSyncService', () => {
       const oldParse = GithubService.parseGitHubUrl;
       GithubService.parseGitHubUrl = vi.fn().mockReturnValue(null);
       const config = { registry: 'invalid' } as unknown as SkillConfig;
-      const result = await skillSyncService.assembleSkills(['test'], config);
-      expect(result).toEqual([]);
+      await expect(
+        skillSyncService.assembleSkills(['test'], config),
+      ).rejects.toThrow('Failed to assemble');
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Only GitHub registries supported'),
       );
@@ -72,8 +76,9 @@ describe('SkillSyncService', () => {
         skills: { test: { ref: 'v1' } },
       } as unknown as SkillConfig;
       mockGithubService.getRepoTree.mockResolvedValue(null);
-      const result = await skillSyncService.assembleSkills(['test'], config);
-      expect(result).toEqual([]);
+      await expect(
+        skillSyncService.assembleSkills(['test'], config),
+      ).rejects.toThrow('Failed to assemble');
       GithubService.parseGitHubUrl = oldParse;
     });
 
@@ -92,9 +97,9 @@ describe('SkillSyncService', () => {
           { path: 'skills/other/s2/SKILL.md', type: 'blob' },
         ],
       });
-      mockGithubService.downloadFilesConcurrent.mockImplementation(
+      mockGithubService.downloadFilesConcurrentBytes.mockImplementation(
         (tasks: { path: string }[]) => ({
-          ok: tasks.map((t) => ({ path: t.path, content: 'c' })),
+          ok: tasks.map((t) => ({ path: t.path, content: Buffer.from('c') })),
           failed: [],
         }),
       );
@@ -207,7 +212,9 @@ describe('SkillSyncService', () => {
       const skills = [{ category: 'common', skill: 'new-skill', files: [] }];
       const agents = [Agent.Cursor];
 
-      vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+      vi.mocked(fs.pathExists).mockImplementation(async (candidate) =>
+        String(candidate).endsWith(path.join('.cursor', 'skills', 'common')),
+      );
       vi.mocked(fs.readdir).mockResolvedValue(['old-skill'] as any);
 
       await skillSyncService.writeSkills(skills as any, config, agents);
@@ -227,7 +234,9 @@ describe('SkillSyncService', () => {
       const skills = [{ category: 'common', skill: 'new-skill', files: [] }];
       const agents = [Agent.Cursor];
 
-      vi.mocked(fs.pathExists).mockResolvedValue(true as never);
+      vi.mocked(fs.pathExists).mockImplementation(async (candidate) =>
+        String(candidate).endsWith(path.join('.cursor', 'skills', 'common')),
+      );
       vi.mocked(fs.readdir).mockResolvedValue(['old-skill'] as any);
 
       await skillSyncService.writeSkills(skills as any, config, agents);
@@ -254,7 +263,9 @@ describe('SkillSyncService', () => {
         custom_overrides: ['O'],
       } as unknown as SkillConfig;
       vi.spyOn(skillSyncService as any, 'isOverridden').mockReturnValue(true);
-      await skillSyncService.writeSkills(skills, config, [Agent.Cursor]);
+      await expect(
+        skillSyncService.writeSkills(skills, config, [Agent.Cursor]),
+      ).resolves.toBeUndefined();
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Skipping overridden'),
       );
@@ -274,7 +285,9 @@ describe('SkillSyncService', () => {
       normalizeSpy.mockRestore();
     });
 
-    it('should handle security error in isPathSafe', async () => {
+    // Test intent: unsafe downloaded paths are a terminal sync failure, never
+    // a retained-package warning that permits lockfile replacement.
+    it('rejects an unsafe skill resource path', async () => {
       const skills = [
         {
           category: 'test',
@@ -282,7 +295,9 @@ describe('SkillSyncService', () => {
           files: [{ name: '../malicious', content: 'c' }],
         },
       ] as any[];
-      await skillSyncService.writeSkills(skills, {} as any, [Agent.Cursor]);
+      await expect(
+        skillSyncService.writeSkills(skills, {} as any, [Agent.Cursor]),
+      ).rejects.toThrow('Invalid path ../malicious');
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Security Error'),
       );
@@ -298,9 +313,9 @@ describe('SkillSyncService', () => {
         { path: 'skills/c/s/assets/f', type: 'blob' },
         { path: 'skills/c/s/ignored', type: 'blob' },
       ];
-      mockGithubService.downloadFilesConcurrent.mockImplementation(
+      mockGithubService.downloadFilesConcurrentBytes.mockImplementation(
         (t: { path: string }[]) => ({
-          ok: t.map((x) => ({ path: x.path, content: 'c' })),
+          ok: t.map((x) => ({ path: x.path, content: Buffer.from('c') })),
           failed: [],
         }),
       );
@@ -316,10 +331,154 @@ describe('SkillSyncService', () => {
       expect(res!.files).toHaveLength(4);
     });
 
+    // Test intent: selected package resources include root attribution files and
+    // retain their source bytes; omitting any selected resource rejects the package.
+    it('should fetch root attribution files and package resources as bytes', async () => {
+      const tree: GitHubTreeItem[] = [
+        {
+          path: 'LICENSE.md',
+          type: 'blob',
+          sha: 'license',
+          url: 'license-url',
+        },
+        { path: 'NOTICE', type: 'blob', sha: 'notice', url: 'notice-url' },
+        {
+          path: 'skills/c/s/SKILL.md',
+          type: 'blob',
+          sha: 'skill',
+          url: 'skill-url',
+        },
+        {
+          path: 'skills/c/s/assets/payload.bin',
+          type: 'blob',
+          sha: 'asset',
+          url: 'asset-url',
+        },
+      ];
+      const asset = Buffer.from([0, 255, 17]);
+      mockGithubService.downloadFilesConcurrentBytes.mockResolvedValue({
+        ok: [
+          { path: 'LICENSE.md', content: Buffer.from('license') },
+          { path: 'NOTICE', content: Buffer.from('notice') },
+          { path: 'skills/c/s/SKILL.md', content: Buffer.from('skill') },
+          { path: 'skills/c/s/assets/payload.bin', content: asset },
+        ],
+        failed: [],
+      });
+
+      // fetchSkill accepts tree data returned by the GitHub tree API.
+      // @ts-expect-error - testing private package assembly boundary
+      const result = await skillSyncService.fetchSkill(
+        'o',
+        'r',
+        'ref',
+        'c',
+        's',
+        tree,
+      );
+
+      expect(result?.files.map((file) => file.name)).toEqual([
+        'LICENSE.md',
+        'NOTICE',
+        'SKILL.md',
+        'assets/payload.bin',
+      ]);
+      expect(
+        result?.files.find((file) => file.name === 'assets/payload.bin')?.bytes,
+      ).toEqual(asset);
+    });
+
+    // Test intent: a package-specific attribution file must win over a
+    // repository-root fallback with the same basename, avoiding a collision.
+    it('prefers skill-root attribution over a same-named repository resource', async () => {
+      const tree: GitHubTreeItem[] = [
+        { path: 'LICENSE.md', type: 'blob', sha: 'global', url: 'global-url' },
+        {
+          path: 'skills/c/s/LICENSE.md',
+          type: 'blob',
+          sha: 'local',
+          url: 'local-url',
+        },
+        {
+          path: 'skills/c/s/SKILL.md',
+          type: 'blob',
+          sha: 'skill',
+          url: 'skill-url',
+        },
+      ];
+      mockGithubService.downloadFilesConcurrentBytes.mockImplementation(
+        (tasks: { path: string }[]) => ({
+          ok: tasks.map((task) => ({
+            path: task.path,
+            content: Buffer.from(
+              task.path === 'skills/c/s/LICENSE.md' ? 'local license' : 'skill',
+            ),
+          })),
+          failed: [],
+        }),
+      );
+
+      // @ts-expect-error - testing private package assembly boundary
+      const result = await skillSyncService.fetchSkill(
+        'o',
+        'r',
+        'ref',
+        'c',
+        's',
+        tree,
+      );
+
+      expect(result?.files).toEqual([
+        {
+          name: 'LICENSE.md',
+          content: 'local license',
+          bytes: Buffer.from('local license'),
+        },
+        { name: 'SKILL.md', content: 'skill', bytes: Buffer.from('skill') },
+      ]);
+      expect(
+        mockGithubService.downloadFilesConcurrentBytes.mock.calls[0][0].map(
+          (task: { path: string }) => task.path,
+        ),
+      ).toEqual(['skills/c/s/LICENSE.md', 'skills/c/s/SKILL.md']);
+    });
+
+    it('should fail closed when a selected package resource download fails', async () => {
+      const tree: GitHubTreeItem[] = [
+        {
+          path: 'skills/c/s/SKILL.md',
+          type: 'blob',
+          sha: 'skill',
+          url: 'skill-url',
+        },
+        {
+          path: 'skills/c/s/references/source.md',
+          type: 'blob',
+          sha: 'reference',
+          url: 'reference-url',
+        },
+      ];
+      mockGithubService.downloadFilesConcurrentBytes.mockResolvedValue({
+        ok: [{ path: 'skills/c/s/SKILL.md', content: Buffer.from('skill') }],
+        failed: [
+          { path: 'skills/c/s/references/source.md', reason: 'not found' },
+        ],
+      });
+
+      mockGithubService.getRepoTree.mockResolvedValue({ tree });
+      await expect(
+        skillSyncService.assembleSkills(['c'], {
+          registry: 'https://github.com/o/r',
+          agents: [Agent.Codex],
+          skills: { c: { ref: 'ref', include: ['s'] } },
+        }),
+      ).rejects.toThrow('Failed to assemble selected skills: c/s');
+    });
+
     it('should handle relative vs absolute skill fetch', async () => {
       const tree = [{ path: 'skills/other/s/SKILL.md', type: 'blob' }];
-      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
-        ok: [{ path: 'skills/other/s/SKILL.md', content: 'c' }],
+      mockGithubService.downloadFilesConcurrentBytes.mockResolvedValue({
+        ok: [{ path: 'skills/other/s/SKILL.md', content: Buffer.from('c') }],
         failed: [],
       });
       // @ts-ignore - private
@@ -335,7 +494,7 @@ describe('SkillSyncService', () => {
     });
 
     it('should return null if no files were downloaded', async () => {
-      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+      mockGithubService.downloadFilesConcurrentBytes.mockResolvedValue({
         ok: [],
         failed: [],
       });
@@ -378,7 +537,7 @@ describe('SkillSyncService', () => {
       expect(res).toContain('description:');
     });
 
-    it('should preserve optional Universal-Skill-Format fields and drop only metadata.triggers', () => {
+    it('should preserve Kiro metadata except routing triggers', () => {
       const content = [
         '---',
         'name: My skill',
@@ -386,6 +545,9 @@ describe('SkillSyncService', () => {
         'version: 1.0.0',
         'risk_tier: L2',
         'metadata:',
+        '  upstream:',
+        '    - source: github',
+        '      repo: owner/repo',
         '  triggers:',
         '    keywords: ["foo"]',
         '---',
@@ -395,7 +557,8 @@ describe('SkillSyncService', () => {
       const res = skillSyncService.transformSkillForKiro(content, 'test');
       expect(res).toContain('version: 1.0.0');
       expect(res).toContain('risk_tier: L2');
-      expect(res).not.toContain('metadata:');
+      expect(res).toContain('metadata:');
+      expect(res).toContain('upstream:');
       expect(res).not.toContain('triggers:');
     });
 

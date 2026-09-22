@@ -22,6 +22,24 @@ function gitBlobSha1(content: Buffer): string {
     .digest('hex');
 }
 
+interface RawFileOptions {
+  expectedSha?: string;
+  maxBytes?: number;
+}
+
+interface DownloadTask {
+  owner: string;
+  repo: string;
+  ref: string;
+  path: string;
+  sha?: string;
+}
+
+interface DownloadResult<T> {
+  ok: { path: string; content: T }[];
+  failed: { path: string; reason: string }[];
+}
+
 /**
  * Service for interacting with the GitHub API and fetching raw file content.
  * Handles repository tree discovery, file downloads, and URL parsing.
@@ -69,38 +87,31 @@ export class GithubService {
   }
 
   /**
-   * Fetches the raw content of a file from GitHub using raw.githubusercontent.com.
-   * @param owner Repository owner
-   * @param repo Repository name
-   * @param ref Git reference
-   * @param path Path to the file
-   * @param options.expectedSha Git tree-API blob sha to verify the download against.
-   * @param options.maxBytes Size cap (default 1 MiB); throws IntegrityError if exceeded.
-   * @returns File content as string, or null if not found (404 or network error).
-   * @throws {IntegrityError} if the download exceeds maxBytes or fails the sha check.
+   * Fetches raw file bytes from GitHub and validates their Git blob identity.
+   * Text callers should use getRawFile; package callers use this byte-preserving path.
    */
-  async getRawFile(
+  async getRawFileBytes(
     owner: string,
     repo: string,
     ref: string,
     path: string,
-    options?: { expectedSha?: string; maxBytes?: number },
-  ): Promise<string | null> {
+    options?: RawFileOptions,
+  ): Promise<Buffer | null> {
     const url = `${this.rawBaseUrl}/${owner}/${repo}/${ref}/${path}`;
     try {
       const res = await fetch(url);
       if (!res.ok) return null;
-      const buf = Buffer.from(await res.arrayBuffer());
+      const content = Buffer.from(await res.arrayBuffer());
 
       const maxBytes = options?.maxBytes ?? MAX_RAW_FILE_BYTES;
-      if (buf.byteLength > maxBytes) {
+      if (content.byteLength > maxBytes) {
         throw new IntegrityError(
-          `${path}: ${buf.byteLength} bytes exceeds the ${maxBytes}-byte limit`,
+          `${path}: ${content.byteLength} bytes exceeds the ${maxBytes}-byte limit`,
         );
       }
 
       if (options?.expectedSha) {
-        const actualSha = gitBlobSha1(buf);
+        const actualSha = gitBlobSha1(content);
         if (actualSha !== options.expectedSha) {
           throw new IntegrityError(
             `${path}: blob sha mismatch (expected ${options.expectedSha}, got ${actualSha}) — download may be corrupted or tampered with`,
@@ -108,12 +119,26 @@ export class GithubService {
         }
       }
 
-      return buf.toString('utf8');
+      return content;
     } catch (error) {
       if (error instanceof IntegrityError) throw error;
       console.error(pc.red(`Failed to fetch file ${path}: ${error}`));
       return null;
     }
+  }
+
+  /**
+   * Fetches raw file content as UTF-8 for established text-only callers.
+   */
+  async getRawFile(
+    owner: string,
+    repo: string,
+    ref: string,
+    path: string,
+    options?: RawFileOptions,
+  ): Promise<string | null> {
+    const content = await this.getRawFileBytes(owner, repo, ref, path, options);
+    return content?.toString('utf8') ?? null;
   }
 
   /**
@@ -166,62 +191,82 @@ export class GithubService {
   }
 
   /**
-   * Downloads multiple files concurrently with a limit. `sha` (from the tree
-   * API) is verified per-file when provided. Failures — including integrity
-   * mismatches — are collected in `failed` rather than silently dropped, so
-   * callers can decide whether a partial result is acceptable.
+   * Downloads multiple text files concurrently with a limit. Existing text
+   * consumers retain UTF-8 strings; package sync uses the byte variant below.
    */
   async downloadFilesConcurrent(
-    tasks: {
-      owner: string;
-      repo: string;
-      ref: string;
-      path: string;
-      sha?: string;
-    }[],
+    tasks: DownloadTask[],
     concurrency: number = 10,
-  ): Promise<{
-    ok: { path: string; content: string }[];
-    failed: { path: string; reason: string }[];
-  }> {
-    const ok: { path: string; content: string }[] = [];
-    const failed: { path: string; reason: string }[] = [];
-    const pool = [...tasks];
-    const executing: Promise<void>[] = [];
+  ): Promise<DownloadResult<string>> {
+    return this.downloadFilesConcurrentWith(tasks, concurrency, (task) =>
+      this.getRawFile(task.owner, task.repo, task.ref, task.path, {
+        expectedSha: task.sha,
+      }),
+    );
+  }
+
+  /**
+   * Downloads multiple files without decoding their response bytes.
+   */
+  async downloadFilesConcurrentBytes(
+    tasks: DownloadTask[],
+    concurrency: number = 10,
+  ): Promise<DownloadResult<Buffer>> {
+    return this.downloadFilesConcurrentWith(tasks, concurrency, (task) =>
+      this.getRawFileBytes(task.owner, task.repo, task.ref, task.path, {
+        expectedSha: task.sha,
+      }),
+    );
+  }
+
+  private async downloadFilesConcurrentWith<T>(
+    tasks: DownloadTask[],
+    concurrency: number,
+    download: (task: DownloadTask) => Promise<T | null>,
+  ): Promise<DownloadResult<T>> {
+    const outcomes: (
+      | { kind: 'ok'; path: string; content: T }
+      | { kind: 'failed'; path: string; reason: string }
+      | undefined
+    )[] = Array(tasks.length);
+    let nextIndex = 0;
 
     const worker = async () => {
-      while (pool.length > 0) {
-        const task = pool.shift();
-        if (!task) break;
+      while (nextIndex < tasks.length) {
+        const index = nextIndex++;
+        const task = tasks[index];
+        if (!task) continue;
 
         try {
-          const content = await this.getRawFile(
-            task.owner,
-            task.repo,
-            task.ref,
-            task.path,
-            { expectedSha: task.sha },
-          );
-          if (content !== null) {
-            ok.push({ path: task.path, content });
-          } else {
-            failed.push({ path: task.path, reason: 'not found' });
-          }
+          const content = await download(task);
+          outcomes[index] =
+            content === null
+              ? { kind: 'failed', path: task.path, reason: 'not found' }
+              : { kind: 'ok', path: task.path, content };
         } catch (error) {
-          failed.push({
+          outcomes[index] = {
+            kind: 'failed',
             path: task.path,
             reason: error instanceof Error ? error.message : String(error),
-          });
+          };
         }
       }
     };
 
-    // Spawn workers
-    for (let i = 0; i < Math.min(concurrency, tasks.length); i++) {
-      executing.push(worker());
-    }
+    await Promise.all(
+      Array.from({ length: Math.min(concurrency, tasks.length) }, worker),
+    );
 
-    await Promise.all(executing);
+    const ok: { path: string; content: T }[] = [];
+    const failed: { path: string; reason: string }[] = [];
+    for (const outcome of outcomes) {
+      if (!outcome) continue;
+      if (outcome.kind === 'ok') {
+        ok.push({ path: outcome.path, content: outcome.content });
+      } else {
+        failed.push({ path: outcome.path, reason: outcome.reason });
+      }
+    }
     return { ok, failed };
   }
 

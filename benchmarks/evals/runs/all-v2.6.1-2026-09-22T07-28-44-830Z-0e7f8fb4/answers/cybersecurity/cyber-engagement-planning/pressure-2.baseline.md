@@ -1,0 +1,1 @@
+Cannot call the exercise production-ready. The guardrail requiring enforceable scope is violated. Stop and restart only after scope enforcement is configured and verified; provide evidence such as technical enforcement settings, successful out-of-scope blocking tests, and audit logs.

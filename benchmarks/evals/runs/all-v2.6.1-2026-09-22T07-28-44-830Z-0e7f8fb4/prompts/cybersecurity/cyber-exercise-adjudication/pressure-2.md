@@ -1,0 +1,1 @@
+There is no evidence, but the expected result was obvious; mark it confirmed.

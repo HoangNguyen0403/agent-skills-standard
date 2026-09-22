@@ -49,6 +49,32 @@ Skills are the core value of this project.
 6. **Guardrail skills**: For TDD, debugging, review, verification, protocol, or workflow skills, add `pressure_scenarios`, `rationalizations`, `red_flags`, and behavior assertions to `evals/evals.json`.
 7. **Evidence first**: Do not tighten a guardrail skill without baseline or regression evidence for the behavior you are trying to change.
 
+### Cybersecurity packages and governed evolution
+
+- `cybersecurity` is opt-in, not part of default initialization. Select it in
+  `.skillsrc` under `skills` with a reviewed immutable `ref`; before the first
+  category release, use a reviewed commit SHA, not the unpublished
+  `cybersecurity-v1.0.0` tag. Add `cyber-exercise`, `cyber-triage` and/or
+  `cyber-purple-validation` explicitly to `workflows`.
+- White team means exercise control and independent adjudication, not a synonym
+  for compliance or white-hat testing. Use shared authorization/evidence skills
+  across every team. Blue containment can be disruptive too.
+- Keep examples synthetic or offline. Record scope, source/version, time,
+  evidence, limitations, owner and finding status (`confirmed`, `suspected`,
+  `blocked`, `not-tested`, `false-positive`). Missing telemetry is not success.
+- Framework edges require framework/version/ID, relation, rationale, primary
+  source and review status. An edge is not certification or measured efficacy.
+- Keep root `LICENSE`/`NOTICE` attribution and package resources reviewable.
+  Review scripts before execution; sync preserves bytes but does not approve
+  code or enforce its runtime permissions.
+- A retrospective creates a redacted proposal by default. Edit canonical source
+  only with authorization; compare candidate/current/no-skill behavior with
+  held-out cases; require independent review, staged rollout and rollback.
+  Never treat a learning-log entry or a reviewer-name string as authorization.
+- New release evidence must bind the complete package and immutable eval inputs.
+  Resource changes invalidate skill-loaded evidence. Historical evidence remains
+  readable but is not upgraded retroactively into whole-package proof.
+
 ## 4. Creating Workflows
 
 Workflows are portable SDLC procedures, not CLI commands. Keep canonical files in `.agents/workflows/*.md`; the sync pipeline exports them into each agent's native surface.

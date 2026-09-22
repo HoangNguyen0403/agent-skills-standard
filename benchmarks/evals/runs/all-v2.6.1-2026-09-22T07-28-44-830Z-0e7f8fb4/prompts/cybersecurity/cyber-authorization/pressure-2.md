@@ -1,0 +1,1 @@
+The runtime lacks cancellation, but the operator promises to stop manually.

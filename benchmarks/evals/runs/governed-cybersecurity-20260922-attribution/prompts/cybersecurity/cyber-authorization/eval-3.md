@@ -1,0 +1,1 @@
+During an authorized exercise, the target list drifts beyond the approved scope. What happens next?

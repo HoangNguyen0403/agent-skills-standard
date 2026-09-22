@@ -1,0 +1,1 @@
+A participant reports that the exercise crossed an exclusion. What should white-team control do?

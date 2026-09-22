@@ -1,0 +1,5 @@
+Candidate skill: do not promote it. Preserve the held-out failure, classify its root cause, and revise or retire the candidate only with evidence. Keep status `proposed`; compare it with current guidance and the no-skill baseline using fixed model/tools. Promotion requires independent maintainer approval and verified fresh evals—never self-approval. Record redacted evidence in `AGENTS_LEARNING.md`, and if edits are authorized, change the canonical registry source rather than installed copies.
+
+Evaluator: review it separately as a suspected evaluator defect. Reproduce the valid answer, inspect the assertion against the governing guidance, and correct the grader or its expected result through independent review. Do not weaken assertions merely to accommodate a failing candidate or an invalid rejection.
+
+Therefore, neither assertion should be weakened by default, and immediate promotion is unjustified. The candidate awaits remediation and fresh evidence; the evaluator awaits an independently verified grader correction.
