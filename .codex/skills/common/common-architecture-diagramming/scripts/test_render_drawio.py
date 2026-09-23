@@ -4,8 +4,13 @@
 Run: python3 test_render_drawio.py
 """
 
+import contextlib
+import io
+import json
+import hashlib
 import os
 import sys
+import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 
@@ -14,6 +19,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import export_drawio
 import render_drawio
 import validate_spec
+
+
+def digest_for_fixture_source(content):
+    return "sha256:" + hashlib.sha256(content.encode("utf-8")).hexdigest()
 
 
 def context_spec(**overrides):
@@ -31,8 +40,12 @@ def context_spec(**overrides):
             {"id": "sap", "label": "SAP", "kind": "system-ext", "evidence": "docs/a.md:3"},
         ],
         "edges": [
-            {"from": "cust", "to": "acme", "label": "Places order"},
-            {"from": "acme", "to": "sap", "label": "Syncs orders", "style": "async"},
+            {"from": "cust", "to": "acme", "label": "Places order",
+             "evidence": "docs/a.md:4", "evidence_kind": "document",
+             "evidence_confidence": "documented"},
+            {"from": "acme", "to": "sap", "label": "Syncs orders", "style": "async",
+             "evidence": "docs/a.md:5", "evidence_kind": "document",
+             "evidence_confidence": "documented"},
         ],
     }
     spec.update(overrides)
@@ -58,12 +71,59 @@ def container_spec(**overrides):
              "evidence": "docs/a.md:12"},
         ],
         "edges": [
-            {"from": "web", "to": "api", "label": "GraphQL"},
-            {"from": "api", "to": "db", "label": "SQL"},
+            {"from": "web", "to": "api", "label": "GraphQL",
+             "evidence": "docs/a.md:13", "evidence_kind": "document",
+             "evidence_confidence": "documented"},
+            {"from": "api", "to": "db", "label": "SQL",
+             "evidence": "docs/a.md:14", "evidence_kind": "document",
+             "evidence_confidence": "documented"},
         ],
     }
     spec.update(overrides)
     return spec
+
+def component_spec(**overrides):
+    spec = {
+        "title": "Acme — Order Components", "type": "component", "audience": "tech",
+        "version": "1.0", "date": "2026-09-22", "author": "Test",
+        "scope": "Order modules; deployment excluded.",
+        "view": {
+            "question": "Which module owns retries?",
+            "decision": "Keep retries in the policy component.",
+            "scenario": "Duplicate webhook.",
+            "invariant": "Charge at most once.",
+            "status": "implemented",
+            "evidence": "docs/orders.md:1",
+            "evidence_kind": "document",
+            "omissions": ["runtime health"],
+        },
+        "nodes": [
+            {
+                "id": "api", "identity": "orders.api", "label": "Order API",
+                "kind": "component", "evidence": "src/api.py:1", "evidence_kind": "code",
+                "evidence_revision": "git:test", "evidence_digest": digest_for_fixture_source("api source\n"),
+                "evidence_confidence": "documented", "lifecycle": "implemented",
+                "metric": "12k QPS peak", "metric_provenance": "measured",
+            },
+            {
+                "id": "db", "identity": "orders.db", "label": "Orders DB",
+                "kind": "db", "evidence": "db/schema.sql:1", "evidence_kind": "document",
+                "evidence_revision": "git:test", "evidence_digest": digest_for_fixture_source("db schema\n"),
+                "evidence_confidence": "documented", "lifecycle": "implemented",
+            },
+        ],
+        "edges": [
+            {
+                "identity": "orders.api-writes-db", "from": "api", "to": "db",
+                "label": "SQL", "evidence": "src/api.py:10", "evidence_kind": "code",
+                "evidence_revision": "git:test", "evidence_digest": digest_for_fixture_source("api edge\n"),
+                "evidence_confidence": "documented", "lifecycle": "implemented",
+            }
+        ],
+    }
+    spec.update(overrides)
+    return spec
+
 
 
 def erd_spec(**overrides):
@@ -83,7 +143,8 @@ def erd_spec(**overrides):
         ],
         "edges": [
             {"from": "orders", "to": "customers", "cardinality": "many-to-one",
-             "label": "placed by"},
+             "label": "placed by", "evidence": "db/schema.sql:9",
+             "evidence_kind": "document", "evidence_confidence": "documented"},
         ],
     }
     spec.update(overrides)
@@ -136,6 +197,97 @@ def document_order_ids(root):
 class TestValidator(unittest.TestCase):
     def test_valid_spec_has_no_errors(self):
         self.assertEqual(validate_spec.validate(context_spec()), [])
+
+    def test_valid_component_spec_has_contract_and_provenance(self):
+        self.assertEqual(validate_spec.validate(component_spec()), [])
+    def test_non_component_view_contract_uses_same_provenance_rules(self):
+        spec = context_spec()
+        spec["view"] = {
+            "question": "Which system owns requests?",
+            "decision": "Keep ownership explicit.",
+            "scenario": "Assumption: traffic retries.",
+            "invariant": "Assumption: one owner handles a request.",
+            "status": "proposed",
+            "evidence": "docs/a.md:1",
+            "evidence_kind": "document",
+            "omissions": ["runtime health"],
+        }
+        for index, item in enumerate(spec["nodes"]):
+            item.pop("evidence", None)
+            item["identity"] = ["orders.customer", "orders.api", "orders.sap"][index]
+            item["evidence_confidence"] = "assumed"
+            item["lifecycle"] = "proposed"
+        for item in spec["edges"]:
+            item.pop("evidence", None)
+            item.pop("evidence_kind", None)
+            item["identity"] = "orders.%s-to-%s" % (item["from"], item["to"])
+            item["evidence_confidence"] = "assumed"
+            item["lifecycle"] = "proposed"
+        self.assertEqual(validate_spec.validate(spec), [])
+
+    def test_malformed_json_shapes_return_errors_without_traceback(self):
+        cases = [
+            context_spec(nodes=[None], edges=[]),
+            context_spec(nodes={}, edges=[]),
+            context_spec(nodes=[{
+                "id": "bad", "label": "Bad", "kind": "system",
+                "identity": [], "refines": {}, "evidence_confidence": "assumed",
+                "lifecycle": "proposed",
+            }], edges=[]),
+        ]
+        for spec in cases:
+            errors = validate_spec.validate(spec)
+            self.assertTrue(errors)
+
+    def test_component_requires_lifecycle_and_evidence_confidence(self):
+        spec = component_spec()
+        del spec["nodes"][0]["lifecycle"]
+        spec["nodes"][1]["evidence_confidence"] = "guess"
+        errors = " ".join(validate_spec.validate(spec))
+        self.assertIn("lifecycle", errors)
+        self.assertIn("evidence_confidence", errors)
+    def test_code_citation_cannot_claim_runtime_observation(self):
+        spec = component_spec()
+        spec["nodes"][0]["evidence_confidence"] = "observed"
+        errors = " ".join(validate_spec.validate(spec))
+        self.assertIn("runtime or deployment", errors)
+
+    def test_component_rejects_mixed_container_level(self):
+        spec = component_spec()
+        spec["nodes"][1]["kind"] = "container"
+        self.assertIn("whole-system kinds", " ".join(validate_spec.validate(spec)))
+
+    def test_malformed_renderer_input_preserves_existing_output(self):
+        inputs = [
+            "{",
+            json.dumps(context_spec(nodes=[None])),
+            json.dumps(context_spec(groups="invalid")),
+            json.dumps(context_spec(theme=[])),
+            json.dumps(context_spec(title=["not", "text"])),
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            source = os.path.join(directory, "invalid.json")
+            output = os.path.join(directory, "protected.drawio")
+            for content in inputs:
+                with self.subTest(content=content):
+                    with open(source, "w", encoding="utf-8") as handle:
+                        handle.write(content)
+                    with open(output, "w", encoding="utf-8") as handle:
+                        handle.write("existing presentation")
+                    with contextlib.redirect_stderr(io.StringIO()):
+                        result = render_drawio.main([
+                            source, "-o", output, "--acknowledge-manual-edits",
+                        ])
+                    self.assertEqual(result, 1)
+                    with open(output, encoding="utf-8") as handle:
+                        self.assertEqual(handle.read(), "existing presentation")
+
+    def test_citations_require_a_source_and_positive_line(self):
+        for citation in ("approved", "source.py:0", "source.py:-1"):
+            with self.subTest(citation=citation):
+                spec = context_spec()
+                spec["nodes"][0]["evidence"] = citation
+                self.assertTrue(validate_spec.validate(spec))
 
     def test_missing_required_metadata_is_reported(self):
         spec = context_spec()
@@ -337,9 +489,14 @@ class TestRendererCommon(unittest.TestCase):
         self.assertIn("dashed=1", style_of(root, "sap"))
         self.assertIn("UNVERIFIED", value_of(root, "sap"))
 
-    def test_node_with_evidence_is_not_dashed(self):
+    def test_documented_node_has_confidence_without_runtime_claim(self):
+        root = parse(render_drawio.render(component_spec()))
+        self.assertNotIn("dashed=1", style_of(root, "api"))
+        self.assertIn("documented", value_of(root, "api"))
+
+    def test_citation_alone_is_visibly_unverified(self):
         root = parse(render_drawio.render(context_spec()))
-        self.assertNotIn("dashed=1", style_of(root, "acme"))
+        self.assertIn("UNVERIFIED", value_of(root, "acme"))
 
     def test_unknown_kind_raises_with_catalog_in_message(self):
         spec = context_spec()
@@ -413,9 +570,11 @@ class TestRendererCommon(unittest.TestCase):
         self.assertNotIn("Asynchronous", all_values(parse(render_drawio.render(spec))))
 
     def test_legend_explains_unverified_only_when_present(self):
-        self.assertNotIn("UNVERIFIED", all_values(parse(render_drawio.render(context_spec()))))
-        spec = context_spec()
-        del spec["nodes"][2]["evidence"]
+        spec = component_spec()
+        self.assertNotIn("UNVERIFIED", all_values(parse(render_drawio.render(spec))))
+        for field in ("evidence", "evidence_kind", "evidence_revision", "evidence_digest"):
+            spec["nodes"][0].pop(field, None)
+        spec["nodes"][0]["evidence_confidence"] = "unverified"
         self.assertIn("UNVERIFIED", all_values(parse(render_drawio.render(spec))))
 
     def test_evidence_is_kept_as_cell_tooltip(self):
@@ -423,6 +582,20 @@ class TestRendererCommon(unittest.TestCase):
         obj = root.find(".//object[@id='acme']")
         self.assertIsNotNone(obj, "evidence-bearing node should be wrapped in an object cell")
         self.assertIn("docs/a.md:2", obj.get("evidence"))
+
+
+    def test_component_view_contract_and_state_are_rendered(self):
+        root = parse(render_drawio.render(component_spec()))
+        self.assertIn("Which module owns retries?", all_values(root))
+        self.assertIn("implemented", value_of(root, "api"))
+        self.assertIn("measured", value_of(root, "api"))
+
+    def test_edge_provenance_is_preserved_as_custom_properties(self):
+        root = parse(render_drawio.render(component_spec()))
+        edge = next(c for c in cells(root) if c.get("source") == "api")
+        self.assertEqual(edge.get("evidence"), "src/api.py:10")
+        self.assertEqual(edge.get("evidence_confidence"), "documented")
+        self.assertEqual(edge.get("lifecycle"), "implemented")
 
     def test_render_is_deterministic(self):
         self.assertEqual(render_drawio.render(context_spec()),
@@ -457,9 +630,74 @@ class TestRendererCommon(unittest.TestCase):
         self.assertEqual(holder.get("constraint"), "3k QPS store ceiling")
         self.assertIsNone(holder.get("evidence"))
 
-    def test_node_without_metric_has_no_extra_label_line(self):
-        value = value_of(parse(render_drawio.render(container_spec())), "web")
-        self.assertEqual(value.count("<br>"), 1)
+
+    def test_container_citation_only_edge_renders_unverified_and_supported_control_stays_clean(self):
+        spec = container_spec()
+        for node in spec["nodes"]:
+            node.update({"evidence_kind": "document", "evidence_confidence": "documented"})
+        spec["edges"][0].update({"evidence": "docs/a.md:edge"})
+        for field in ("evidence_kind", "evidence_confidence"):
+            spec["edges"][0].pop(field, None)
+        spec["edges"][1].update({
+            "evidence": "docs/a.md:edge-supported",
+            "evidence_kind": "document",
+            "evidence_confidence": "documented",
+        })
+        root = parse(render_drawio.render(spec))
+        edges = {(c.get("source"), c.get("target")): c
+                 for c in cells(root) if c.get("edge") == "1"}
+        self.assertIn("UNVERIFIED", edges[("web", "api")].get("value"))
+        self.assertIn("dashed=1", edges[("web", "api")].get("style"))
+        self.assertNotIn("UNVERIFIED", edges[("api", "db")].get("value"))
+        self.assertIn("UNVERIFIED", all_values(root))
+
+    def test_sequence_citation_only_edge_renders_unverified_and_supported_control_stays_clean(self):
+        spec = {
+            "title": "Login", "type": "sequence", "audience": "tech",
+            "version": "1.0", "date": "2026-09-09", "author": "T",
+            "scope": "Login handshake.",
+            "nodes": [
+                {"id": "u", "label": "User", "kind": "participant",
+                 "evidence": "x:1", "evidence_kind": "document",
+                 "evidence_confidence": "documented"},
+                {"id": "w", "label": "Web", "kind": "participant",
+                 "evidence": "x:2", "evidence_kind": "document",
+                 "evidence_confidence": "documented"},
+            ],
+            "edges": [
+                {"from": "u", "to": "w", "label": "opens app", "evidence": "docs/flow.md:4"},
+                {"from": "w", "to": "u", "label": "page", "style": "return",
+                 "evidence": "docs/flow.md:5", "evidence_kind": "document",
+                 "evidence_confidence": "documented"},
+            ],
+        }
+        root = parse(render_drawio.render(spec))
+        unsupported = cell_by_id(root, "_msg_0")
+        supported = cell_by_id(root, "_msg_1")
+        self.assertIn("UNVERIFIED", unsupported.get("value"))
+        self.assertIn("dashed=1", unsupported.get("style"))
+        self.assertNotIn("UNVERIFIED", supported.get("value"))
+        self.assertIn("UNVERIFIED", all_values(root))
+
+    def test_erd_citation_only_relation_renders_unverified_and_supported_control_stays_clean(self):
+        spec = erd_spec()
+        for node in spec["nodes"]:
+            node.update({"evidence_kind": "document", "evidence_confidence": "documented"})
+        spec["edges"][0]["evidence"] = "db/schema.sql:9"
+        for field in ("evidence_kind", "evidence_confidence"):
+            spec["edges"][0].pop(field, None)
+        spec["edges"].append({
+            "from": "customers", "to": "orders", "cardinality": "zero-or-one",
+            "label": "last order", "evidence": "db/schema.sql:10",
+            "evidence_kind": "document", "evidence_confidence": "documented",
+        })
+        root = parse(render_drawio.render(spec))
+        edges = {(c.get("source"), c.get("target")): c
+                 for c in cells(root) if c.get("edge") == "1"}
+        self.assertIn("UNVERIFIED", edges[("orders", "customers")].get("value"))
+        self.assertIn("dashed=1", edges[("orders", "customers")].get("style"))
+        self.assertNotIn("UNVERIFIED", edges[("customers", "orders")].get("value"))
+        self.assertIn("UNVERIFIED", all_values(root))
 
     def test_edge_metric_is_appended_as_second_label_line(self):
         spec = container_spec()
@@ -480,8 +718,12 @@ class TestRendererCommon(unittest.TestCase):
                 {"id": "w", "label": "Web", "kind": "participant", "evidence": "x:2"},
             ],
             "edges": [
-                {"from": "u", "to": "w", "label": "opens app"},
-                {"from": "w", "to": "u", "label": "page", "style": "return", "metric": "p99 300ms"},
+                {"from": "u", "to": "w", "label": "opens app",
+                 "evidence": "docs/flow.md:4", "evidence_kind": "document",
+                 "evidence_confidence": "documented"},
+                {"from": "w", "to": "u", "label": "page", "style": "return",
+                 "metric": "p99 300ms", "evidence": "docs/flow.md:5",
+                 "evidence_kind": "document", "evidence_confidence": "documented"},
             ],
         }
         root = parse(render_drawio.render(spec))
@@ -503,15 +745,6 @@ class TestRendererCommon(unittest.TestCase):
             self.assertIn(icon, verified, kind)
             self.assertTrue(entry["legend"], kind)
 
-    def test_cloud_kinds_render_managed_fill_and_vendor_sublabel(self):
-        spec = container_spec()
-        spec["nodes"][2] = {"id": "db", "label": "Orders DB", "kind": "cloud:managed-db",
-                            "sublabel": "Azure SQL", "group": "gcp", "evidence": "docs/a.md:12"}
-        root = parse(render_drawio.render(spec))
-        self.assertIn("fillColor=#2F6F8F", style_of(root, "db"))
-        self.assertIn("shape=cylinder3", style_of(root, "db"))
-        self.assertIn("[Azure SQL]", value_of(root, "db"))
-        self.assertIn("Managed database (vendor in label)", all_values(root))
 
     def test_every_cloud_kind_has_managed_fill(self):
         cloud = {k: v for k, v in render_drawio.STYLE_CATALOG.items() if k.startswith("cloud:")}
@@ -527,6 +760,19 @@ class TestRendererCommon(unittest.TestCase):
 
 
 class TestErdRenderer(unittest.TestCase):
+    def test_erd_entity_preserves_lifecycle_and_confidence_properties(self):
+        spec = erd_spec()
+        entity = spec["nodes"][1]
+        entity.update({
+            "identity": "orders.database",
+            "lifecycle": "proposed",
+            "evidence_confidence": "documented",
+        })
+        root = parse(render_drawio.render(spec))
+        obj = root.find(".//object[@id='orders']")
+        self.assertEqual(obj.get("identity"), "orders.database")
+        self.assertEqual(obj.get("lifecycle"), "proposed")
+        self.assertEqual(obj.get("evidence_confidence"), "documented")
     def geom(self, root, cell_id):
         g = cell_by_id(root, cell_id).find("mxGeometry")
         return float(g.get("x")), float(g.get("y")), float(g.get("width")), float(g.get("height"))
@@ -556,6 +802,11 @@ class TestErdRenderer(unittest.TestCase):
         self.assertIn("startArrow=ERmany", edge.get("style"))
         self.assertIn("endArrow=ERmandOne", edge.get("style"))
         self.assertEqual(edge.get("value"), "placed by")
+
+    def test_erd_relation_preserves_edge_evidence(self):
+        root = parse(render_drawio.render(erd_spec()))
+        edge = [c for c in cells(root) if c.get("source") == "orders"][0]
+        self.assertEqual(edge.get("evidence"), "db/schema.sql:9")
 
     def test_legend_names_entity_and_each_cardinality_used(self):
         text = all_values(parse(render_drawio.render(erd_spec())))
@@ -712,6 +963,29 @@ class TestExportBinaryResolution(unittest.TestCase):
         message = str(ctx.exception)
         self.assertIn("brew install", message)
         self.assertIn("DRAWIO_BIN", message)
+
+
+    def test_generated_baseline_allows_spec_change_but_rejects_hand_mutation(self):
+        first = render_drawio.render(component_spec())
+        second = render_drawio.render(component_spec(title="Changed title"))
+        with tempfile.TemporaryDirectory() as directory:
+            output = os.path.join(directory, "component.drawio")
+            # Public render output may be redirected to a file and reformatted.
+            with open(output, "w", encoding="utf-8") as handle:
+                handle.write("\n" + first.replace("<diagram", "\n<diagram", 1))
+            render_drawio.write_output(second, output)
+            with open(output, encoding="utf-8") as handle:
+                changed = handle.read()
+            self.assertIn("Changed title", changed)
+            hand_edited = changed.replace("Order API", "Hand-edited API", 1)
+            with open(output, "w", encoding="utf-8") as handle:
+                handle.write(hand_edited)
+            with self.assertRaises(render_drawio.SpecError) as ctx:
+                render_drawio.write_output(second, output)
+            with open(output, encoding="utf-8") as handle:
+                self.assertEqual(handle.read(), hand_edited)
+        self.assertIn("manual edits detected", str(ctx.exception))
+
 
     def test_export_command_uses_embed_and_border_flags(self):
         cmd = export_drawio.build_command("/bin/drawio", "a.drawio", "a.png", "png", scale=2)

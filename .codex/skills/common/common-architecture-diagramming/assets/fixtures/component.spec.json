@@ -1,0 +1,107 @@
+{
+  "version": "1.0",
+  "date": "2026-09-22",
+  "author": "Solution Architecture",
+  "title": "Acme Orders — Proposed Order Components",
+  "type": "component",
+  "audience": "tech",
+  "scope": "Proposed order capture components inside one container; deployment health excluded.",
+  "view": {
+    "question": "Which modules would own order writes and retry handling?",
+    "decision": "Keep idempotency in the order service and persist outcomes in the repository.",
+    "scenario": "Assumption: a payment timeout is followed by a duplicate webhook.",
+    "invariant": "Assumption: an order is charged at most once.",
+    "status": "proposed",
+    "evidence": "evidence/component-view.md:3",
+    "evidence_kind": "document",
+    "evidence_revision": "synthetic-fixture-v1",
+    "evidence_digest": "sha256:e28150330c46dac86d03b5793bda25e06a423ecd4491d6c7ec146f6990bc7f67",
+    "omissions": [
+      "deployment health",
+      "runtime failover state",
+      "production measurements"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "api",
+      "identity": "orders.api",
+      "refines": ["orders.service"],
+      "owner": "orders.service",
+      "label": "Order API",
+      "sublabel": "HTTP boundary",
+      "kind": "component",
+      "evidence": "evidence/orders_api.py:6",
+      "evidence_kind": "code",
+      "evidence_revision": "synthetic-fixture-v1",
+      "evidence_digest": "sha256:02cae4c9aacce387ee00619989c5bd3338e5abe5365542fbfa8a323729b53f38",
+      "evidence_confidence": "documented",
+      "lifecycle": "proposed",
+      "metric": "12k QPS",
+      "metric_provenance": "target",
+      "constraint": "Checkout remains available during webhook retries"
+    },
+    {
+      "id": "retry",
+      "identity": "orders.retry-policy",
+      "refines": ["orders.service"],
+      "owner": "orders.service",
+      "label": "Retry Policy",
+      "sublabel": "Outcome-aware retry gate",
+      "kind": "component",
+      "evidence": "evidence/orders_retry.py:3",
+      "evidence_kind": "code",
+      "evidence_revision": "synthetic-fixture-v1",
+      "evidence_digest": "sha256:48e67c61faad357b0b6376b1260f1218e42581376311a13482384567399916bb",
+      "evidence_confidence": "documented",
+      "lifecycle": "proposed",
+      "metric": "p99 200ms",
+      "metric_provenance": "target",
+      "constraint": "Duplicate webhook delivery must not charge twice"
+    },
+    {
+      "id": "orders-db",
+      "identity": "orders.database",
+      "label": "Orders Database",
+      "kind": "db",
+      "evidence": "evidence/orders_schema.sql:2",
+      "evidence_kind": "document",
+      "evidence_revision": "synthetic-fixture-v1",
+      "evidence_digest": "sha256:e5c7876aff46b23a63ff972f09d9359b5540411fcf7b7cfb8538584a2a633581",
+      "evidence_confidence": "documented",
+      "lifecycle": "proposed",
+      "metric": "4M rows",
+      "metric_provenance": "estimated",
+      "constraint": "Transactional order outcomes are durable"
+    }
+  ],
+  "edges": [
+    {
+      "identity": "orders.api-uses-retry-policy",
+      "from": "api",
+      "to": "retry",
+      "label": "Routes outcome / in-process",
+      "evidence": "evidence/orders_api.py:6",
+      "evidence_kind": "code",
+      "evidence_revision": "synthetic-fixture-v1",
+      "evidence_digest": "sha256:02cae4c9aacce387ee00619989c5bd3338e5abe5365542fbfa8a323729b53f38",
+      "evidence_confidence": "documented",
+      "lifecycle": "proposed"
+    },
+    {
+      "identity": "orders.retry-writes-outcome",
+      "from": "retry",
+      "to": "orders-db",
+      "label": "Persists outcome / SQL",
+      "style": "sync",
+      "evidence": "evidence/component-view.md:8",
+      "evidence_kind": "document",
+      "evidence_revision": "synthetic-fixture-v1",
+      "evidence_digest": "sha256:e28150330c46dac86d03b5793bda25e06a423ecd4491d6c7ec146f6990bc7f67",
+      "evidence_confidence": "documented",
+      "lifecycle": "proposed",
+      "metric": "p99 15ms",
+      "metric_provenance": "target"
+    }
+  ]
+}

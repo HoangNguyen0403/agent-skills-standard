@@ -58,7 +58,7 @@ Extract every artifact into the same shape before any judgment:
 ## Re-draw to Confirm
 
 - Always render the fact sheet per `common-architecture-diagramming` (spec, validate, render, export) and show it: "this is the system I will review."
-- A confirmed node or edge carries `evidence` pointing into the artifact; a low-confidence one omits `evidence` so it renders UNVERIFIED. Nothing on the `UNRECOVERABLE` list becomes a `metric`.
+- Confirmed rows cite numbered fact-sheet lines with `evidence_kind: document` and `evidence_confidence: documented`; retain original artifact/cell IDs in the fact sheet. This proves extraction provenance, not deployment. Capture source revision/digest per the diagram spec; low-confidence rows omit evidence and use `assumed` or `unverified`. Never invent an `UNRECOVERABLE` metric.
 - The author confirms or corrects before any finding counts. Extraction confidence is not review evidence.
 - Contradictions between prose and diagram are findings in themselves - surface them, do not silently pick one.
 

@@ -6,6 +6,8 @@
     {
       "cardinality": "many-to-one",
       "evidence": "assets/fixtures/schemas/orders_models.py:10",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "from": "order",
       "label": "customer",
       "to": "customer"
@@ -13,6 +15,8 @@
     {
       "cardinality": "many-to-many",
       "evidence": "assets/fixtures/schemas/orders_models.py:12",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "from": "order",
       "label": "tags",
       "to": "tag"
@@ -20,6 +24,8 @@
     {
       "cardinality": "many-to-one",
       "evidence": "assets/fixtures/schemas/orders_models.py:29",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "from": "invoices",
       "label": "order_id",
       "to": "orders"
@@ -45,6 +51,8 @@
         }
       ],
       "evidence": "assets/fixtures/schemas/orders_models.py:4",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "id": "customer",
       "kind": "entity",
       "label": "Customer"
@@ -70,6 +78,8 @@
         }
       ],
       "evidence": "assets/fixtures/schemas/orders_models.py:9",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "id": "order",
       "kind": "entity",
       "label": "Order"
@@ -84,6 +94,8 @@
         }
       ],
       "evidence": "assets/fixtures/schemas/orders_models.py:15",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "id": "tag",
       "kind": "entity",
       "label": "Tag"
@@ -108,6 +120,8 @@
         }
       ],
       "evidence": "assets/fixtures/schemas/orders_models.py:26",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "id": "invoices",
       "kind": "entity",
       "label": "invoices"

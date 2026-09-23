@@ -129,8 +129,15 @@ EDGE_STYLES = {
     "return": _C4_EDGE + "dashed=1;dashPattern=4 4;endArrow=open;",
 }
 
-# Stored on the shape as draw.io custom properties, visible via Edit Data.
-NODE_PROPERTIES = ("evidence", "constraint")
+# Stored on shapes as draw.io custom properties, visible via Edit Data.
+NODE_PROPERTIES = (
+    "identity", "refines", "owner", "evidence", "evidence_kind", "evidence_revision",
+    "evidence_digest", "evidence_confidence", "lifecycle", "constraint", "metric_provenance",
+)
+EDGE_PROPERTIES = (
+    "identity", "evidence", "evidence_kind", "evidence_revision", "evidence_digest",
+    "evidence_confidence", "lifecycle", "metric_provenance",
+)
 
 EDGE_LEGEND = {
     "sync": "Synchronous call",
@@ -139,7 +146,8 @@ EDGE_LEGEND = {
     "return": "Response",
 }
 
-DIAGRAM_TYPES = ("context", "container", "deployment", "dataflow", "sequence", "state", "erd")
+DIAGRAM_TYPES = ("context", "container", "component", "deployment", "dataflow",
+                 "sequence", "state", "erd")
 
 MANAGED_FILL = "#2F6F8F"
 MANAGED_STROKE = "#1F4F66"

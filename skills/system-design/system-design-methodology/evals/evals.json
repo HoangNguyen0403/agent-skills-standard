@@ -3,35 +3,49 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Design a flash sale system for our e-commerce app. 50k items go on sale at 9am.",
-      "expected_output": "Asks blocking intake questions (expected concurrent buyers, latency SLO, consistency for stock) before proposing architecture, estimates peak QPS, then reveals the design one component at a time with no component without a named constraint.",
+      "prompt": "Give an exploratory quick sketch of a flash sale reservation flow, not an approved production design. At the launch burst, 200,000 buyers may click in 10 seconds; 25% reach inventory and each of those requests may retry once. The invariant is never allocating more than available stock, p99 is 200ms, and duplicate requests must be safe. Name the blocking intake questions, label remaining assumptions without waiting for another turn, compute worst-case inventory traffic, and outline the minimal safe mechanism and its cost.",
+      "expected_output": "Asks the blocking questions that could change the design, computes roughly 10,000 inventory requests per second from 200,000 x 25% x 2 / 10, states the no-oversell invariant and duplicate-request outcome, then selects atomic reservation plus idempotency with each component tied to a constraint and cost.",
       "assertions": [
         {
           "type": "contains_any",
           "value": [
-            "Intake",
-            "blocking questions",
-            "requirements clarification"
+            "blocking intake questions",
+            "requirements clarification",
+            "ask the blocking questions"
           ],
-          "description": "Elicits requirements before drawing architecture"
+          "description": "Elicits the few requirements that can change the design"
+        },
+        {
+          "type": "regex",
+          "value": "(?:200\\s*k|200,?000)[\\s\\S]*?(?:25\\s*%|0\\.25)[\\s\\S]*?(?:10\\s*(?:s|seconds))[\\s\\S]*?(?:10\\s*k|10,?000)",
+          "description": "Smoke-checks the stated burst calculation; semantic graders verify the arithmetic independently"
         },
         {
           "type": "contains_any",
           "value": [
-            "Estimation",
-            "QPS",
-            "peak shape"
+            "atomic reservation",
+            "idempotency",
+            "duplicate-request outcome"
           ],
-          "description": "Computes capacity before component selection"
+          "description": "Names a concrete mechanism and its duplicate-request behavior"
         },
         {
           "type": "contains_any",
           "value": [
-            "constraint -> component",
-            "No component without a named constraint",
-            "one component at a time"
+            "never allocating more than available stock",
+            "no-oversell invariant",
+            "never oversell"
           ],
-          "description": "Justifies each component by the constraint it solves"
+          "description": "States the safety invariant instead of only naming components"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "constraint and cost",
+            "constraint -> component -> cost",
+            "each component tied to a constraint"
+          ],
+          "description": "Connects each selected component to a constraint and cost"
         }
       ]
     },
@@ -42,28 +56,17 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "Quick sketch",
-            "quick-sketch",
-            "ASSUMED"
-          ],
+          "value": ["Quick sketch", "quick-sketch", "ASSUMED"],
           "description": "Chooses a depth instead of silently guessing"
         },
         {
           "type": "contains_any",
-          "value": [
-            "ASSUMED",
-            "No silent assumptions",
-            "labeled"
-          ],
+          "value": ["ASSUMED", "No silent assumptions", "labeled"],
           "description": "Labels every assumed input"
         },
         {
           "type": "contains_any",
-          "value": [
-            "Escalate quick to full",
-            "irreversible choice"
-          ],
+          "value": ["Escalate quick to full", "irreversible choice"],
           "description": "Names the escalation trigger"
         }
       ]
@@ -75,29 +78,98 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "Deep Dives",
-            "riskiest components"
-          ],
+          "value": ["Deep Dives", "riskiest components"],
           "description": "Runs bounded deep dives rather than expanding everything"
         },
         {
           "type": "contains_any",
-          "value": [
-            "bottlenecks",
-            "SPOFs",
-            "rejected alternatives"
-          ],
+          "value": ["bottlenecks", "SPOFs", "rejected alternatives"],
           "description": "Closes with trade-off analysis"
         },
         {
           "type": "contains_any",
-          "value": [
-            "ADR",
-            "system-design-review",
-            "scorecard"
-          ],
+          "value": ["ADR", "system-design-review", "scorecard"],
           "description": "Records decisions and scores the design"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Paired change to the flash-sale case: keep the 200,000 buyers and 10-second burst, but product now allows at most 0.1% bounded oversell and checkout may settle within 30 seconds. Recompute the constraint and explain whether the existing stricter mechanism should be retained or changed, including failure recovery.",
+      "expected_output": "Recomputes the changed constraint and explicitly evaluates whether retaining strict no-oversell and atomic reservation is simpler or safer; changing to bounded oversell is also valid when justified. In either case, explains the failure outcome and recovery within the 30-second window instead of blindly reusing the original answer.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": [
+            "changed constraint",
+            "changed requirement",
+            "paired change",
+            "recompute the constraint"
+          ],
+          "description": "Re-evaluates the design after the requirement changes"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "recomputed invariant",
+            "re-evaluates the invariant",
+            "bounded-oversell invariant",
+            "bounded oversell",
+            "retains strict no-oversell"
+          ],
+          "description": "Checks that the new constraint is evaluated without forcing a particular architecture"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "reconciliation",
+            "compensation",
+            "eventual consistency",
+            "strict reservation",
+            "atomic reservation"
+          ],
+          "description": "Provides a concrete failure outcome and recovery mechanism"
+        },
+        {
+          "type": "regex",
+          "value": "(?:0\\.1\\s*%|0\\.1\\s*percent)[\\s\\S]*?(?:30\\s*(?:s|seconds))",
+          "description": "Smoke-checks that the paired limits remain visible; semantic graders judge the recomputation and justification independently"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Simplicity counterexample: an internal admin report serves 100 RPS, is maintained by two engineers, and one query takes 4 seconds. Leadership asks for Redis, Kafka, and multi-region. Choose the smallest justified change and explicitly exclude infrastructure that has no demonstrated constraint.",
+      "expected_output": "Examines the query plan and fixes the slow query first, using the 100 RPS and 4-second evidence. Declines Redis, declines Kafka, and excludes multi-region until a measured ceiling, burst, or recovery objective justifies them.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["fix the query first", "query plan", "profile the query"],
+          "description": "Chooses the smallest change that removes the observed bottleneck"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "no demonstrated constraint",
+            "measured ceiling",
+            "until a measured"
+          ],
+          "description": "Justifies excluding infrastructure rather than adding it by fashion"
+        },
+        {
+          "type": "contains_any",
+          "value": ["declines Redis", "no Redis", "do not add Redis"],
+          "description": "Rejects the cache when the evidence does not require it"
+        },
+        {
+          "type": "contains_any",
+          "value": ["no Kafka", "do not add Kafka", "declines Kafka"],
+          "description": "Rejects asynchronous infrastructure without a burst or durability constraint"
+        },
+        {
+          "type": "regex",
+          "value": "(?:100\\s*RPS|100\\s*requests\\s*(?:per|/)?\\s*second)[\\s\\S]*?(?:4\\s*(?:s|seconds)|4,?000\\s*ms)",
+          "description": "Smoke-checks that the counterexample evidence is carried into the recommendation"
         }
       ]
     }
@@ -117,11 +189,7 @@
   "pressure_scenarios": [
     {
       "prompt": "We ship Friday and the CTO wants the architecture diagram in this reply. Skip the questions, you know what a marketplace looks like. Just give me the final design.",
-      "behavior_assertions": [
-        "ASSUMED",
-        "quick sketch",
-        "estimation"
-      ]
+      "behavior_assertions": ["ASSUMED", "quick sketch", "estimation"]
     },
     {
       "prompt": "Stop asking about scale. Assume it will be huge and design for that, we can cut later.",

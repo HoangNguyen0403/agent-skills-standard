@@ -3,32 +3,31 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "We expect 10M daily active users, each reading their feed 20 times a day. How much traffic is that and what does it mean for the design?",
-      "expected_output": "Computes average QPS from DAU and actions per day, applies a peak factor, compares to a single-node ceiling, and names the shaping quantity that dictates the first component.",
+      "prompt": "We expect 10M daily active users, each reading their feed 20 times a day. Use a 5x peak factor and assume the feed payload is 4KB. How much traffic is that and what quantity shapes the first design choice?",
+      "expected_output": "Computes average QPS as 10M x 20 / 86,400, approximately 2.3k QPS, then applies 5x to get approximately 12k peak QPS, compares that to a single-node ceiling, and names peak QPS as the shaping quantity.",
       "assertions": [
         {
           "type": "contains_any",
           "value": [
             "DAU x actions per user per day / 86,400",
             "average QPS",
-            "86,400"
+            "10M x 20 / 86,400"
           ],
           "description": "Uses the QPS formula rather than a guess"
         },
         {
+          "type": "regex",
+          "value": "(?:2\\.3\\d*\\s*k|2,?3\\d{2}(?:\\.\\d+)?)[\\s\\S]*?(?:5\\s*[x×]|5-fold|peak factor)[\\s\\S]*?(?:1[12](?:\\.[0-9]+)?\\s*k|1[12],?\\d{3}(?:\\.\\d+)?|1\\.[12]\\d*\\s*[eE]\\s*4)",
+          "description": "Smoke-checks average-to-peak arithmetic; semantic graders recompute the result independently"
+        },
+        {
           "type": "contains_any",
-          "value": [
-            "peak QPS",
-            "peak factor"
-          ],
+          "value": ["peak QPS", "peak factor"],
           "description": "Sizes for peak, not average"
         },
         {
           "type": "contains_any",
-          "value": [
-            "shaping quantity",
-            "single-node ceiling"
-          ],
+          "value": ["shaping quantity", "single-node ceiling"],
           "description": "Connects the number to a design consequence"
         }
       ]
@@ -36,31 +35,21 @@
     {
       "id": 2,
       "prompt": "Our API calls three services in sequence, each 99.9% available, with one cross-region hop. Can we promise 99.9% and 200ms p95?",
-      "expected_output": "Shows that serial dependencies multiply so three 99.9% services yield a composite below target, sums the latency budget including the cross-region round trip, and converts the target into an error budget while budgeting with p99 rather than the mean.",
+      "expected_output": "Shows that serial dependencies multiply to 99.7%, rejects a 99.9% end-to-end promise without more redundancy, sums the latency budget including the cross-region round trip against 200ms p95, and converts the target into an error budget while budgeting with p99 rather than the mean.",
       "assertions": [
         {
-          "type": "contains_any",
-          "value": [
-            "Serial dependencies multiply",
-            "99.7"
-          ],
-          "description": "Applies availability math to a serial chain"
+          "type": "regex",
+          "value": "99\\.9\\s*%[\\s\\S]*?(?:3|three)[\\s\\S]*?(?:99\\.7\\d*\\s*%|0\\.997\\d*)",
+          "description": "Smoke-checks the serial availability calculation; semantic graders verify independence assumptions"
         },
         {
           "type": "contains_any",
-          "value": [
-            "latency budget",
-            "sum of hops",
-            "cross-region round trip"
-          ],
+          "value": ["latency budget", "sum of hops", "cross-region round trip"],
           "description": "Builds a latency budget from hop costs"
         },
         {
           "type": "contains_any",
-          "value": [
-            "error budget",
-            "p99"
-          ],
+          "value": ["error budget", "p99"],
           "description": "Converts the target into an operational budget"
         }
       ]
@@ -68,31 +57,57 @@
     {
       "id": 3,
       "prompt": "How much storage will we need for 20M posts a day at 1KB each, kept for a year with 3x replication?",
-      "expected_output": "Applies the storage formula including retention and replication factor, will round every input to one significant figure rather than report unverified precision, and restates each assumed input beside the result.",
+      "expected_output": "Applies 20M x 1KB x 365 x 3, rounds the result to roughly 20TB rather than reporting unverified precision, and restates each assumed input beside the result.",
       "assertions": [
         {
           "type": "contains_any",
           "value": [
             "storage per year",
-            "replication factor"
+            "replication factor",
+            "20M x 1KB x 365 x 3"
           ],
           "description": "Includes retention and replication in the projection"
+        },
+        {
+          "type": "regex",
+          "value": "(?:20\\s*M|20,?000,?000)[\\s\\S]*?(?:1\\s*KB|1\\s*kilobyte)[\\s\\S]*?(?:365|one year)[\\s\\S]*?(?:3\\s*[x×]|[x×]\\s*3|three times)[\\s\\S]*?(?:2[0-2](?:\\.\\d+)?\\s*(?:TB|terabytes))",
+          "description": "Smoke-checks the storage inputs and order of magnitude; semantic graders check units and multiplication"
         },
         {
           "type": "contains_any",
           "value": [
             "Round every input to one significant figure",
-            "unverified precision"
+            "unverified precision",
+            "roughly"
           ],
           "description": "Avoids false precision"
         },
         {
           "type": "contains_any",
-          "value": [
-            "assumed input",
-            "labeled"
-          ],
+          "value": ["assumed input", "labeled"],
           "description": "Surfaces assumptions with the result"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Paired change to the feed estimate: keep 10M DAU and 20 reads per day, but a scheduled push creates a 20x peak factor instead of 5x and the payload is 4KB. Recompute the peak traffic and bandwidth, then state what design consequence changes.",
+      "expected_output": "Keeps average traffic near 2.3k QPS, recomputes peak near 46k QPS with the 20x factor, computes roughly 184MB/s of egress at 4KB per request, and explains why the changed peak or bandwidth may move the shaping quantity and first scaling step.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "(?:2\\.3\\d*\\s*k|2,?3\\d{2}(?:\\.\\d+)?)[\\s\\S]*?(?:20\\s*[x×]|20-fold|peak factor)[\\s\\S]*?(?:4[5-7](?:\\.\\d+)?\\s*k|4[5-7],?\\d{3}(?:\\.\\d+)?|4\\.[5-7]\\d*\\s*[eE]\\s*4)",
+          "description": "Smoke-checks that the paired peak constraint changes the result; semantic graders recompute it"
+        },
+        {
+          "type": "regex",
+          "value": "(?:4\\s*KB|4\\s*kilobytes)[\\s\\S]*?(?:18\\d(?:\\.\\d+)?\\s*MB\\s*(?:/\\s*s|per\\s*second)|1\\.8\\d*\\s*[eE]\\s*2\\s*MB/s)",
+          "description": "Smoke-checks the bandwidth consequence; semantic graders verify units and direction"
+        },
+        {
+          "type": "contains_any",
+          "value": ["changed peak", "shaping quantity", "first scaling step"],
+          "description": "Maps the changed number to a changed design consequence"
         }
       ]
     }
@@ -112,11 +127,7 @@
   "pressure_scenarios": [
     {
       "prompt": "We have no traffic numbers and nobody will get them today. Just assume web-scale and tell me the infrastructure we need to buy.",
-      "behavior_assertions": [
-        "assumed input",
-        "order of magnitude",
-        "peak"
-      ]
+      "behavior_assertions": ["assumed input", "order of magnitude", "peak"]
     }
   ],
   "rationalizations": [

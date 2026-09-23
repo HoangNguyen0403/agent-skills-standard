@@ -19,7 +19,7 @@ metadata:
 
 Score against evidence, not intent. A claim with no number or artifact scores zero.
 
-## Nine Axes (score each 0-10)
+## Nine Axes (score each applicable axis 0-10)
 
 | Axis | Scores 10 when | Scores 0 when |
 | --- | --- | --- |
@@ -33,8 +33,21 @@ Score against evidence, not intent. A claim with no number or artifact scores ze
 | Rollout | Canary or flag with metric rollback trigger and reversible migrations | Big-bang deploy, irreversible migration |
 | Cost proportionality | Spend is sized to the traffic and the risk, and someone can state it | Topology bought for an imagined scale nobody measured |
 
-Report each score with the evidence used, out of 90. Weight axes by the system's actual risk: a 100 RPS internal
-tool is not failed for lacking multi-region.
+Report each applicable axis with evidence and a declared profile weighting. Use an applicable-axis denominator
+(`10 × applicable-axis count`), not a fixed `/90`, when an axis is justified `N/A`.
+
+## Profile-Aware Scoring
+
+- Declare the system profile and weighting before scoring. An axis may be `N/A` only when the profile and evidence show that it is outside the system's risk envelope; record the rationale, exclude it from the denominator, and do not silently convert it to zero.
+- Do not reward adding a cache, queue, replica, or region by vocabulary alone. A component earns credit only when a measured constraint, invariant, owner, cost, and failure/recovery behavior require it; unjustified machinery lowers cost proportionality and operability.
+- Review HLD and LLD as one trace: requirements and shaping decisions must resolve into component ownership, contracts, verification, and a stated changed-constraint trigger. A diagram is optional when prose answers the question.
+- Separate lifecycle (`proposed|implemented|retired`), source kind (`code|document|runtime|deployment`), and evidence confidence (`unverified|assumed|documented|observed`). Code/document citations are `documented`, not deployment proof; runtime/deployment captures may be `observed`. `assumed` and `unverified` carry no citation; explicit citations require `evidence_kind`.
+
+## Independent Semantic Review
+
+Lexical checks are smoke signals, not proof of a sound design. Apply the independent behavioral rubric in
+[semantic evaluation](references/semantic-evaluation.md) and record missing calculations, mechanisms,
+adverse timelines, invariants, or recovery as findings even when the expected vocabulary appears.
 
 ## Review Method
 

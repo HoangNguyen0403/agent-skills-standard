@@ -6,12 +6,16 @@
     {
       "cardinality": "many-to-one",
       "evidence": "assets/fixtures/schemas/orders.sql:9",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "from": "orders",
       "to": "customers"
     },
     {
       "cardinality": "many-to-one",
       "evidence": "assets/fixtures/schemas/orders.sql:19",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "from": "order_items",
       "to": "orders"
     }
@@ -36,6 +40,8 @@
         }
       ],
       "evidence": "assets/fixtures/schemas/orders.sql:1",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "id": "customers",
       "kind": "entity",
       "label": "customers"
@@ -66,6 +72,8 @@
         }
       ],
       "evidence": "assets/fixtures/schemas/orders.sql:7",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "id": "orders",
       "kind": "entity",
       "label": "orders"
@@ -92,6 +100,8 @@
         }
       ],
       "evidence": "assets/fixtures/schemas/orders.sql:14",
+      "evidence_confidence": "documented",
+      "evidence_kind": "code",
       "id": "order_items",
       "kind": "entity",
       "label": "order_items"

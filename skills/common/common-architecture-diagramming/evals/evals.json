@@ -6,8 +6,14 @@
       "prompt": "Plan a diagram for executives deciding whether a mobile app, API, payment provider, and database are in scope. Which C4 level and which elements should I use?",
       "expected_output": "Uses a C4 system-context diagram for actors and external systems, labels relationships, avoids database-table detail, and includes title/legend/scope metadata.",
       "assertions": [
-        { "type": "contains_any", "value": ["context", "system context", "C4"] },
-        { "type": "contains_any", "value": ["actor", "payment provider", "relationship"] },
+        {
+          "type": "contains_any",
+          "value": ["context", "system context", "C4"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["actor", "payment provider", "relationship"]
+        },
         { "type": "contains_any", "value": ["legend", "scope", "title"] }
       ]
     },
@@ -16,8 +22,14 @@
       "prompt": "Our sequence diagram shows database columns, Kubernetes pods, and OAuth request steps together. What should we change before a design review?",
       "expected_output": "Identifies mixed abstraction levels, recommends separate container or deployment views from a sequence diagram, and requires labeled arrows and a legend.",
       "assertions": [
-        { "type": "contains_any", "value": ["mixed levels", "separate", "abstraction"] },
-        { "type": "contains_any", "value": ["sequence", "deployment", "container"] },
+        {
+          "type": "contains_any",
+          "value": ["mixed levels", "separate", "abstraction"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["sequence", "deployment", "container"]
+        },
         { "type": "contains_any", "value": ["label", "legend", "arrow"] }
       ]
     },
@@ -27,7 +39,10 @@
       "expected_output": "Chooses a sequence or data-flow diagram, marks the event edge as async, names the participating services, and documents failure/retry behavior.",
       "assertions": [
         { "type": "contains_any", "value": ["event", "asynchronous", "async"] },
-        { "type": "contains_any", "value": ["checkout", "fulfillment", "email"] },
+        {
+          "type": "contains_any",
+          "value": ["checkout", "fulfillment", "email"]
+        },
         { "type": "contains_any", "value": ["retry", "failure", "label"] }
       ]
     },
@@ -37,7 +52,10 @@
       "expected_output": "Writes a spec JSON, runs validate_spec.py, render_drawio.py and export_drawio.py, and commits the .drawio alongside the exported image. Never hand-writes mxGraph XML.",
       "assertions": [
         { "type": "contains_any", "value": ["spec", "spec.json"] },
-        { "type": "contains_any", "value": ["render_drawio", "validate_spec", "export_drawio"] },
+        {
+          "type": "contains_any",
+          "value": ["render_drawio", "validate_spec", "export_drawio"]
+        },
         { "type": "not_contains", "value": "mxGraphModel" }
       ]
     },
@@ -56,10 +74,12 @@
       "expected_output": "Cites the twelve-node cap for an exec audience and splits by C4 level or by flow rather than shrinking the shapes.",
       "assertions": [
         { "type": "contains_any", "value": ["12", "twelve", "cap"] },
-        { "type": "contains_any", "value": ["split", "second diagram", "level"] }
+        {
+          "type": "contains_any",
+          "value": ["split", "second diagram", "level"]
+        }
       ]
-    }
-,
+    },
     {
       "id": 7,
       "prompt": "Draw the ERD for our Prisma schema at prisma/schema.prisma. Two models reference a Tenant model that lives in another repo.",
@@ -67,26 +87,15 @@
       "assertions": [
         {
           "type": "contains_any",
-          "value": [
-            "schema_to_spec",
-            "generate"
-          ]
+          "value": ["schema_to_spec", "generate"]
         },
         {
           "type": "contains_any",
-          "value": [
-            "UNVERIFIED",
-            "not declared",
-            "undeclared"
-          ]
+          "value": ["UNVERIFIED", "not declared", "undeclared"]
         },
         {
           "type": "contains_any",
-          "value": [
-            "cardinality",
-            "many-to-one",
-            "one-to-many"
-          ]
+          "value": ["cardinality", "many-to-one", "one-to-many"]
         }
       ]
     },
@@ -97,25 +106,125 @@
       "assertions": [
         {
           "type": "contains_any",
+          "value": ["aws:", "aws4"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["cloud:identity", "vendor-neutral", "cloud:"]
+        },
+        {
+          "type": "contains_any",
+          "value": ["sublabel", "vendor in label"]
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Route the same architecture for two audiences: executives need to decide whether the product boundary and payment provider are in scope, while developers need to implement inventory reservation and inspect entity relationships. Which HLD and LLD views should be separate?",
+      "expected_output": "Uses separate views: a system-context diagram for the executive HLD question and a component, sequence, or ERD view for the developer LLD question. Keeps actors and external systems out of schema/class detail, and does not force every level into one diagram.",
+      "assertions": [
+        {
+          "type": "contains_any",
           "value": [
-            "aws:",
-            "aws4"
-          ]
+            "system-context diagram",
+            "context diagram",
+            "executive HLD"
+          ],
+          "description": "Routes the executive boundary decision to an HLD context view"
+        },
+        {
+          "type": "contains_any",
+          "value": ["component view", "sequence view", "ERD", "developer LLD"],
+          "description": "Routes implementation detail to an LLD view"
         },
         {
           "type": "contains_any",
           "value": [
-            "cloud:identity",
-            "vendor-neutral",
-            "cloud:"
-          ]
+            "separate diagrams",
+            "separate views",
+            "one C4 level per diagram"
+          ],
+          "description": "Preserves a single abstraction level per artifact"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Near-miss routing: the executive review asks whether checkout, the payment provider, and the trust boundary are in scope, but the draft diagram includes SQL columns, retry state-machine transitions, and Kubernetes pods. Should this be one HLD diagram?",
+      "expected_output": "Rejects the mixed-level draft. Uses an executive system-context HLD diagram for actors, external payment, and boundaries; moves retry states to a separate LLD state or sequence view and pods to a deployment view, without putting SQL columns in the context diagram.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["mixed-level", "mixed abstraction", "mixed levels"],
+          "description": "Identifies why the near-miss is routed away from one artifact"
+        },
+        {
+          "type": "contains_any",
+          "value": ["executive system-context HLD", "context diagram", "HLD"],
+          "description": "Chooses the correct high-level view for the stated decision"
+        },
+        {
+          "type": "contains_any",
+          "value": ["LLD state", "sequence view", "deployment view"],
+          "description": "Routes state detail and runtime topology to concrete low-level views"
         },
         {
           "type": "contains_any",
           "value": [
-            "sublabel",
-            "vendor in label"
-          ]
+            "SQL columns in the context diagram",
+            "do not put SQL columns",
+            "not in the context diagram"
+          ],
+          "description": "Excludes implementation detail from the executive artifact"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "A proposed fraud-check service is drawn beside an implemented checkout service, and an edge is copied from documentation but not observed in production. How should the diagram record lifecycle and evidence?",
+      "expected_output": "Labels node lifecycle separately as proposed or implemented, preserves provenance on the edge as well as the nodes, sets evidence_kind=document and evidence_confidence=documented for the documentary edge while leaving the deployment/runtime claim unproven or review-needed, and distinguishes target metrics from measured or estimated metrics.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["proposed", "implemented"],
+          "description": "Separates lifecycle status from evidence confidence"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "edge provenance",
+            "provenance on the edge",
+            "relationship evidence"
+          ],
+          "description": "Preserves evidence for relationships, not only nodes"
+        },
+        {
+          "type": "regex",
+          "value": "\"?evidence_kind\"?\\s*[:=]\\s*\"?document\\b",
+          "description": "Smoke-checks the required documentary source-kind field, independently of confidence"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "evidence_confidence=documented",
+            "confidence=documented",
+            "documented evidence"
+          ],
+          "description": "Records documentary evidence without changing the lifecycle enum"
+        },
+        {
+          "type": "contains_any",
+          "value": [
+            "deployment/runtime claim unproven",
+            "runtime not proven",
+            "deployment remains unproven"
+          ],
+          "description": "Keeps runtime deployment claims separate from evidence confidence"
+        },
+        {
+          "type": "contains_any",
+          "value": ["target metrics", "measured metrics", "estimated metrics"],
+          "description": "Labels metric provenance instead of presenting targets as observations"
         }
       ]
     }

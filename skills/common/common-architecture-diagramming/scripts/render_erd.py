@@ -7,8 +7,8 @@ draw.io's entityRelationEdgeStyle with IE-notation arrows chosen by cardinality.
 
 import xml.etree.ElementTree as ET
 
-from style_catalog import (ENTITY_HEADER_H, ENTITY_ROW_H, ENTITY_ROW_STYLE, ER_ARROWS,
-                           STYLE_CATALOG, _C4_EDGE)
+from style_catalog import (EDGE_PROPERTIES, ENTITY_HEADER_H, ENTITY_ROW_H, ENTITY_ROW_STYLE,
+                           ER_ARROWS, STYLE_CATALOG, _C4_EDGE)
 
 ENTITY_W = STYLE_CATALOG["entity"]["w"]
 
@@ -77,13 +77,18 @@ def relation_style(cardinality):
 
 
 def render_relations(root, edges):
-    from render_drawio import _edge_value
+    from render_drawio import _edge_value, _has_supported_evidence, _unverified_style
     for index, edge in enumerate(edges):
-        cell = ET.SubElement(root, "mxCell", {
+        style = relation_style(edge["cardinality"])
+        if not _has_supported_evidence(edge):
+            style = _unverified_style(style)
+        attrs = {
             "id": "_rel_%d" % index, "value": _edge_value(edge),
-            "style": relation_style(edge["cardinality"]), "edge": "1", "parent": "1",
+            "style": style, "edge": "1", "parent": "1",
             "source": edge["from"], "target": edge["to"],
-        })
+        }
+        attrs.update({key: edge[key] for key in EDGE_PROPERTIES if edge.get(key) is not None})
+        cell = ET.SubElement(root, "mxCell", attrs)
         ET.SubElement(cell, "mxGeometry", {"relative": "1", "as": "geometry"})
 
 

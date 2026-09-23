@@ -12,8 +12,17 @@ metadata:
       - web crawler
       - unique id generator
       - video streaming
+      - video publishing
       - ride hailing
+      - ride dispatch
       - payment ledger
+      - payment timeout
+      - flash sale
+      - multi-tenant SaaS
+      - cache stampede
+      - notification outage
+      - chat reconnect
+      - database migration
 ---
 
 # Case Catalog
@@ -42,6 +51,13 @@ Each classic problem has one defining constraint. Name it first; the rest of the
 
 - Mock rounds, the clock, the rubric, and the debrief live in `system-design-interview-coaching`; this catalog is its problem bank.
 - Give the model answer only after the candidate commits to an approach; the defining constraint above is the follow-up question when they stall.
+- For production practice, lazy-load [production case packs](references/production-case-packs.md). They are synthetic fixtures unless a named primary source says otherwise; never present their numbers or timelines as deployed facts.
+
+## Production Case Routing
+
+- Choose one pack only after stating the profile, workload, SLO, team, budget, and invariant. Recalculate all numbers for the user's system.
+- Carry the pack's selected views through the HLD-to-LLD trace; use only the view that answers the current question and do not create a second diagramming lane.
+
 
 ## Reuse Rules
 

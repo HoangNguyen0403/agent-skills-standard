@@ -8,6 +8,9 @@ metadata:
       - design a system
       - design session
       - high-level design
+      - low-level design
+      - HLD
+      - LLD
       - requirements clarification
       - capacity planning
       - scale this
@@ -44,7 +47,20 @@ Requirements before solutions. Never draw a full architecture before numbers jus
 - Start with the smallest system satisfying functional requirements: client, API, service, store.
 - Add one component at a time. For each, state `constraint -> component -> cost` in one line. No component without a named constraint.
 - Define API surface (one endpoint per functional requirement) and data ownership before optimizing.
-- Diagram only after the component set is agreed, per `common-architecture-diagramming`: a `container` diagram (audience tech) plus `sequence` or `dataflow` for the critical path; every node carries `metric` and `constraint` from its `constraint -> component -> cost` line. Which artifact at which phase: [phase deliverables](references/phase-deliverables.md).
+- Select views only when they answer a named question, per `common-architecture-diagramming`: a context/container, sequence, dataflow, deployment, or state view may be used when useful; prose or a table is sufficient otherwise. Carry `metric` and `constraint` only when the design states them; never invent a number to populate a node. See [phase deliverables](references/phase-deliverables.md).
+
+## HLD, LLD, and Low-Level Design Routing
+
+- **HLD** answers audience-level boundaries, shaping constraints, ownership, failure domains, and the decision to make. Use context/container or prose only when that is enough; no diagram is mandatory.
+- **LLD** (the same lane as “low-level design”) answers one component or critical flow: data/state ownership, API or event contracts, ordering, idempotency, failure behavior, and verification. Use sequence, dataflow, or state only when that view resolves a named question.
+- Trace every handoff as `requirement -> HLD decision -> component -> LLD contract -> verification`. Give each link a stable ID and carry unresolved assumptions forward; an LLD must not silently change the HLD invariant.
+- Each selected view declares `audience`, `question`, `decision`, `scenario`, `invariant`, `scope`, `status`, `evidence`, and `omissions`. Lifecycle is `proposed|implemented|retired`; `evidence` is a citation, not confidence. Keep `evidence_kind` and `evidence_confidence` separate per the renderer-owned [diagram spec](../../common/common-architecture-diagramming/references/diagram-spec.md) and [view manifest](../../common/common-architecture-diagramming/references/view-manifest.md); never infer deployment from a code/document citation.
+- Views are evidence for a question, not a completeness checklist. Prefer a precise paragraph or table over a diagram that adds no decision value.
+
+## Specialist Deep-Dive Contract
+
+- Send one specialist brief per risky component with profile, audience/question, workload/SLO/team/budget, invariant, scope, evidence status, and current HLD decision. The specialist does not re-run intake, add neighboring components, or invent numbers.
+- Require options with rejection reasons, the recommended LLD contract, failure timeline/recovery, verification hooks, and any ADR reversal trigger. Merge the result back into the HLD-to-LLD trace before scoring.
 
 ## Brownfield Path (review-existing mode)
 
