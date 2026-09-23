@@ -91,13 +91,13 @@ The MCP server can append one line per session to a local JSON Lines file. It is
 
 Enable it with `AGS_TELEMETRY=1` in the MCP server's environment, or `telemetry: true` in the project's `.skillsrc` (`AGS_TELEMETRY=0` overrides). The file is `~/.agent-skills-standard/telemetry.jsonl` (`AGS_TELEMETRY_PATH` to change it) and is written when the session ends (stdio); the SSE server writes one line per process on shutdown.
 
-`telemetry: true` in a committed `.skillsrc` enables the log for everyone who clones that project; the server prints `[ags-mcp] telemetry: on (skillsrc) → <path>` at startup, and `AGS_TELEMETRY=0` opts out locally.
+`telemetry: true` in a committed `.skillsrc` enables the log for everyone who clones that project; the server prints `[ags-mcp] telemetry: on (skillsrc) → <path>` at startup, and `AGS_TELEMETRY=0` opts out locally. This repository's own `.skillsrc` sets `telemetry: true` so the project dogfoods its own instrument — export `AGS_TELEMETRY=0` before starting the MCP server to opt out locally.
 
-Each line contains only: timestamp, MCP version, session start and duration, load counts per `category/skill`, load counts per category guide, load counts per workflow, call counts per MCP tool, and the number of calls that matched no skill. It never contains file paths, keywords, prompts, skill text, or the inputs of unmatched calls.
+Each line contains only: timestamp, MCP version, session start and duration, load counts per `category/skill`, load counts per category guide, load counts per workflow, call counts per MCP tool, and the number of calls that matched no skill. When the session called `get_session_cost` at least once, the line also carries the workflow name, a user-authored feature/workspace `slug`, and the workflow's terminal `outcome` (`feature_status`, e.g. `verified`, `blocked`) from that call — all three are optional and omitted entirely when never supplied, so older lines and non-workflow sessions still parse. It never contains file paths, keywords, prompts, skill text, or the inputs of unmatched calls.
 
 Feed it to the report with `pnpm freshness:audit --internal --telemetry ~/.agent-skills-standard/telemetry.jsonl` (a directory of `.jsonl` files works too, so a team can pool exported logs). The report header shows the session count, window, and no-match call count, "Improve next" gains a `loads` column and breaks score ties by usage, and version-sensitive skills that were never loaded although their category was, across at least `--min-sessions` (default 20) sessions, are reported as `unused-skill` (low).
 
-Skill ids from the public registry are not sensitive; custom workflow names and project-local skill ids are user-authored and will appear in pooled logs.
+Skill ids from the public registry are not sensitive; custom workflow names, project-local skill ids, and user-authored feature `slug`s are user-authored and will appear in pooled logs.
 
 ## Acknowledged drift
 

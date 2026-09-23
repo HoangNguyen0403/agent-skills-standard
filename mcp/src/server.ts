@@ -294,6 +294,8 @@ export async function buildServer(
       getSessionCost(
         args as {
           workflow?: string;
+          slug?: string;
+          outcome?: string;
           model?: string;
           promptTokens?: number;
           cachedPromptTokens?: number;
@@ -305,6 +307,7 @@ export async function buildServer(
           reasoningCostPer1M?: number;
           otherCost?: number;
           currency?: string;
+          costSource?: "host" | "agent-estimate";
         },
         ctx,
       ),

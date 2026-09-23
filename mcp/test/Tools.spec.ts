@@ -236,7 +236,7 @@ describe("tools — happy path tracker", () => {
     expect(text(audit)).toContain("_(none yet)_");
   });
 
-  it("returns MCP-observed telemetry with platform token placeholders", async () => {
+  it("provenance defaults to unavailable when no host token usage is supplied", async () => {
     const ctx = await makeCtx(path.join(f.root, "skills"));
     await loadSkillsForFiles({ files: ["lib/cart_bloc.dart"] }, ctx);
 
@@ -248,12 +248,13 @@ describe("tools — happy path tracker", () => {
     expect(t).toContain("| **MCP Tool Calls** | 2 |");
     expect(t).toContain("| **Skills Loaded** | 2 |");
     expect(t).toContain("| **No-Match Calls** | 0 |");
+    expect(t).toContain("| **Cost Provenance** | unavailable |");
     expect(t).toContain(
       "| **Cost Status** | Partial - host usage or pricing fields missing |",
     );
-    expect(t).toContain("[Agent: fill from platform usage]");
-    expect(t).toContain("[Agent: fill if runtime reports cache]");
-    expect(t).toContain("[Agent: fill if runtime reports reasoning]");
+    expect(t.match(/unavailable \(host did not expose token usage\)/g)?.length).toBeGreaterThanOrEqual(6);
+    expect(t).not.toContain("[Agent: fill");
+    expect(t).not.toContain("$0.00");
     expect(t).toContain(
       "| **Missing Host Fields** | promptTokens, completionTokens, inputCostPer1M, outputCostPer1M |",
     );
@@ -261,7 +262,7 @@ describe("tools — happy path tracker", () => {
     expect(t).toContain("get_session_cost");
   });
 
-  it("calculates total estimated cost when host usage and rates are supplied", async () => {
+  it("renders agent-estimate provenance with real numbers when tokens are hand-supplied", async () => {
     const ctx = await makeCtx(path.join(f.root, "skills"));
 
     const cost = await getSessionCost(
@@ -289,9 +290,48 @@ describe("tools — happy path tracker", () => {
     expect(t).toContain("| **Completion Tokens** | 500000 |");
     expect(t).toContain("| **Reasoning Tokens** | 250000 |");
     expect(t).toContain("| **Other Runtime Cost** | USD 0.250000 |");
+    expect(t).toContain("| **Cost Provenance** | agent-estimate |");
     expect(t).toContain("| **Cost Status** | Exact estimate available |");
     expect(t).toContain("| **Estimated Cost** | USD 8.500000 |");
     expect(t).toContain("| **Missing Host Fields** | _(none)_ |");
+  });
+
+  it("renders host provenance with real numbers when the request is host-flagged", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+
+    const cost = await getSessionCost(
+      {
+        workflow: "verify-work",
+        model: "example-model",
+        promptTokens: 1_000_000,
+        completionTokens: 500_000,
+        inputCostPer1M: 2,
+        outputCostPer1M: 10,
+        currency: "USD",
+        costSource: "host",
+      },
+      ctx,
+    );
+    const t = text(cost);
+
+    expect(t).toContain("| **Prompt Tokens** | 1000000 |");
+    expect(t).toContain("| **Cost Provenance** | host |");
+    expect(t).not.toContain("$0.00");
+  });
+
+  it("surfaces missingHostFields for a partially host-flagged request", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+
+    const cost = await getSessionCost(
+      { workflow: "verify-work", promptTokens: 1000, costSource: "host" },
+      ctx,
+    );
+    const t = text(cost);
+
+    expect(t).toContain("| **Cost Provenance** | unavailable |");
+    expect(t).toContain(
+      "| **Missing Host Fields** | completionTokens, inputCostPer1M, outputCostPer1M |",
+    );
   });
 
   it("returns a dedup stub instead of a full body on a repeat load within the same session", async () => {

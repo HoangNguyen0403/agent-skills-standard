@@ -1,0 +1,1734 @@
+{
+  "version": "2.6.1",
+  "date": "2026-09-23T06:01:26.391Z",
+  "skills": [
+    {
+      "category": "android",
+      "skillName": "android-agp-upgrade",
+      "tokensWithSkill": 710,
+      "qualityScore": 8
+    },
+    {
+      "category": "android",
+      "skillName": "android-architecture",
+      "tokensWithSkill": 577,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-background-work",
+      "tokensWithSkill": 290,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-compose",
+      "tokensWithSkill": 540,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-compose-migration",
+      "tokensWithSkill": 687,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-concurrency",
+      "tokensWithSkill": 378,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-deployment",
+      "tokensWithSkill": 323,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-design-system",
+      "tokensWithSkill": 279,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-di",
+      "tokensWithSkill": 328,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-edge-to-edge",
+      "tokensWithSkill": 770,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-legacy-navigation",
+      "tokensWithSkill": 308,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-legacy-security",
+      "tokensWithSkill": 442,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-legacy-state",
+      "tokensWithSkill": 267,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-navigation",
+      "tokensWithSkill": 285,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-navigation-3",
+      "tokensWithSkill": 667,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-navigation-type-safe",
+      "tokensWithSkill": 345,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-networking",
+      "tokensWithSkill": 415,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-notifications",
+      "tokensWithSkill": 403,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-performance",
+      "tokensWithSkill": 389,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-persistence",
+      "tokensWithSkill": 318,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-resources",
+      "tokensWithSkill": 490,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-security",
+      "tokensWithSkill": 378,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-state",
+      "tokensWithSkill": 443,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-testing",
+      "tokensWithSkill": 322,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-tooling",
+      "tokensWithSkill": 317,
+      "qualityScore": 10
+    },
+    {
+      "category": "android",
+      "skillName": "android-xml-views",
+      "tokensWithSkill": 316,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-architecture",
+      "tokensWithSkill": 780,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-components",
+      "tokensWithSkill": 723,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-dependency-injection",
+      "tokensWithSkill": 584,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-directives-pipes",
+      "tokensWithSkill": 558,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-forms",
+      "tokensWithSkill": 367,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-http-client",
+      "tokensWithSkill": 616,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-performance",
+      "tokensWithSkill": 543,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-routing",
+      "tokensWithSkill": 386,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-rxjs-interop",
+      "tokensWithSkill": 528,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-security",
+      "tokensWithSkill": 553,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-ssr",
+      "tokensWithSkill": 490,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-state-management",
+      "tokensWithSkill": 426,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-style-guide",
+      "tokensWithSkill": 591,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-testing",
+      "tokensWithSkill": 493,
+      "qualityScore": 10
+    },
+    {
+      "category": "angular",
+      "skillName": "angular-tooling",
+      "tokensWithSkill": 711,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-accessibility",
+      "tokensWithSkill": 1075,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-agent-guardrails",
+      "tokensWithSkill": 949,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-api-design",
+      "tokensWithSkill": 895,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-architecture-audit",
+      "tokensWithSkill": 628,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-architecture-diagramming",
+      "tokensWithSkill": 1083,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-best-practices",
+      "tokensWithSkill": 425,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-business-requirements",
+      "tokensWithSkill": 630,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-code-review",
+      "tokensWithSkill": 622,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-context-optimization",
+      "tokensWithSkill": 513,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-dast-tooling",
+      "tokensWithSkill": 958,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-debugging",
+      "tokensWithSkill": 476,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-documentation",
+      "tokensWithSkill": 416,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-error-handling",
+      "tokensWithSkill": 467,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-exploit-verification",
+      "tokensWithSkill": 742,
+      "qualityScore": 9
+    },
+    {
+      "category": "common",
+      "skillName": "common-feedback-reporter",
+      "tokensWithSkill": 999,
+      "qualityScore": 8
+    },
+    {
+      "category": "common",
+      "skillName": "common-git-collaboration",
+      "tokensWithSkill": 523,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-learning-log",
+      "tokensWithSkill": 670,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-llm-security",
+      "tokensWithSkill": 705,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-mobile-animation",
+      "tokensWithSkill": 613,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-mobile-ux-core",
+      "tokensWithSkill": 483,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-mobile-visual-testing",
+      "tokensWithSkill": 727,
+      "qualityScore": 9
+    },
+    {
+      "category": "common",
+      "skillName": "common-observability",
+      "tokensWithSkill": 506,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-operator-profile",
+      "tokensWithSkill": 925,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-owasp",
+      "tokensWithSkill": 1273,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-pentest-methodology",
+      "tokensWithSkill": 1068,
+      "qualityScore": 9
+    },
+    {
+      "category": "common",
+      "skillName": "common-performance-engineering",
+      "tokensWithSkill": 664,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-product-requirements",
+      "tokensWithSkill": 1034,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-protocol-enforcement",
+      "tokensWithSkill": 614,
+      "qualityScore": 8
+    },
+    {
+      "category": "common",
+      "skillName": "common-review-policy",
+      "tokensWithSkill": 967,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-sdlc-metrics",
+      "tokensWithSkill": 975,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-security-audit",
+      "tokensWithSkill": 990,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-security-standards",
+      "tokensWithSkill": 694,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-session-retrospective",
+      "tokensWithSkill": 731,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-skill-creator",
+      "tokensWithSkill": 1559,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-software-requirements",
+      "tokensWithSkill": 657,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-store-changelog",
+      "tokensWithSkill": 805,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-task-complexity-routing",
+      "tokensWithSkill": 846,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-tdd",
+      "tokensWithSkill": 786,
+      "qualityScore": 6
+    },
+    {
+      "category": "common",
+      "skillName": "common-telemetry",
+      "tokensWithSkill": 653,
+      "qualityScore": 7
+    },
+    {
+      "category": "common",
+      "skillName": "common-ui-design",
+      "tokensWithSkill": 732,
+      "qualityScore": 10
+    },
+    {
+      "category": "common",
+      "skillName": "common-web-visual-testing",
+      "tokensWithSkill": 743,
+      "qualityScore": 9
+    },
+    {
+      "category": "common",
+      "skillName": "common-workflow-writing",
+      "tokensWithSkill": 613,
+      "qualityScore": 8
+    },
+    {
+      "category": "dart",
+      "skillName": "dart-best-practices",
+      "tokensWithSkill": 481,
+      "qualityScore": 10
+    },
+    {
+      "category": "dart",
+      "skillName": "dart-language",
+      "tokensWithSkill": 815,
+      "qualityScore": 8
+    },
+    {
+      "category": "dart",
+      "skillName": "dart-tooling",
+      "tokensWithSkill": 496,
+      "qualityScore": 10
+    },
+    {
+      "category": "database",
+      "skillName": "database-hana",
+      "tokensWithSkill": 867,
+      "qualityScore": 9
+    },
+    {
+      "category": "database",
+      "skillName": "database-migrations",
+      "tokensWithSkill": 312,
+      "qualityScore": 9
+    },
+    {
+      "category": "database",
+      "skillName": "database-mongodb",
+      "tokensWithSkill": 467,
+      "qualityScore": 10
+    },
+    {
+      "category": "database",
+      "skillName": "database-postgresql",
+      "tokensWithSkill": 464,
+      "qualityScore": 10
+    },
+    {
+      "category": "database",
+      "skillName": "database-query-performance",
+      "tokensWithSkill": 321,
+      "qualityScore": 9
+    },
+    {
+      "category": "database",
+      "skillName": "database-redis",
+      "tokensWithSkill": 544,
+      "qualityScore": 10
+    },
+    {
+      "category": "database",
+      "skillName": "database-schema-design",
+      "tokensWithSkill": 331,
+      "qualityScore": 9
+    },
+    {
+      "category": "database",
+      "skillName": "database-transactions",
+      "tokensWithSkill": 283,
+      "qualityScore": 9
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-auto-route-navigation",
+      "tokensWithSkill": 509,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-bloc-state-management",
+      "tokensWithSkill": 854,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-cicd",
+      "tokensWithSkill": 599,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-concurrency",
+      "tokensWithSkill": 674,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-dependency-injection",
+      "tokensWithSkill": 520,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-design-system",
+      "tokensWithSkill": 612,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-error-handling",
+      "tokensWithSkill": 599,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-feature-based-clean-architecture",
+      "tokensWithSkill": 568,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-getx-navigation",
+      "tokensWithSkill": 335,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-getx-state-management",
+      "tokensWithSkill": 544,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-go-router-navigation",
+      "tokensWithSkill": 599,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-idiomatic-flutter",
+      "tokensWithSkill": 451,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-layer-based-clean-architecture",
+      "tokensWithSkill": 639,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-localization",
+      "tokensWithSkill": 585,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-navigation",
+      "tokensWithSkill": 440,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-notifications",
+      "tokensWithSkill": 349,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-performance",
+      "tokensWithSkill": 481,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-retrofit-networking",
+      "tokensWithSkill": 547,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-riverpod-state-management",
+      "tokensWithSkill": 563,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-security",
+      "tokensWithSkill": 536,
+      "qualityScore": 10
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-testing",
+      "tokensWithSkill": 945,
+      "qualityScore": 8
+    },
+    {
+      "category": "flutter",
+      "skillName": "flutter-widgets",
+      "tokensWithSkill": 542,
+      "qualityScore": 8
+    },
+    {
+      "category": "golang",
+      "skillName": "golang-api-server",
+      "tokensWithSkill": 609,
+      "qualityScore": 10
+    },
+    {
+      "category": "golang",
+      "skillName": "golang-architecture",
+      "tokensWithSkill": 509,
+      "qualityScore": 10
+    },
+    {
+      "category": "golang",
+      "skillName": "golang-concurrency",
+      "tokensWithSkill": 576,
+      "qualityScore": 10
+    },
+    {
+      "category": "golang",
+      "skillName": "golang-configuration",
+      "tokensWithSkill": 401,
+      "qualityScore": 10
+    },
+    {
+      "category": "golang",
+      "skillName": "golang-database",
+      "tokensWithSkill": 780,
+      "qualityScore": 10
+    },
+    {
+      "category": "golang",
+      "skillName": "golang-error-handling",
+      "tokensWithSkill": 372,
+      "qualityScore": 10
+    },
+    {
+      "category": "golang",
+      "skillName": "golang-language",
+      "tokensWithSkill": 550,
+      "qualityScore": 10
+    },
+    {
+      "category": "golang",
+      "skillName": "golang-logging",
+      "tokensWithSkill": 579,
+      "qualityScore": 10
+    },
+    {
+      "category": "golang",
+      "skillName": "golang-security",
+      "tokensWithSkill": 540,
+      "qualityScore": 10
+    },
+    {
+      "category": "golang",
+      "skillName": "golang-testing",
+      "tokensWithSkill": 496,
+      "qualityScore": 10
+    },
+    {
+      "category": "golang",
+      "skillName": "golang-tooling",
+      "tokensWithSkill": 598,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-app-lifecycle",
+      "tokensWithSkill": 319,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-architecture",
+      "tokensWithSkill": 670,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-dependency-injection",
+      "tokensWithSkill": 335,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-deployment",
+      "tokensWithSkill": 386,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-design-system",
+      "tokensWithSkill": 315,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-localization",
+      "tokensWithSkill": 399,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-navigation",
+      "tokensWithSkill": 278,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-networking",
+      "tokensWithSkill": 388,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-notifications",
+      "tokensWithSkill": 326,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-performance",
+      "tokensWithSkill": 388,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-persistence",
+      "tokensWithSkill": 368,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-security",
+      "tokensWithSkill": 460,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-state-management",
+      "tokensWithSkill": 362,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-swiftui",
+      "tokensWithSkill": 627,
+      "qualityScore": 10
+    },
+    {
+      "category": "ios",
+      "skillName": "ios-ui-navigation",
+      "tokensWithSkill": 463,
+      "qualityScore": 10
+    },
+    {
+      "category": "java",
+      "skillName": "java-best-practices",
+      "tokensWithSkill": 436,
+      "qualityScore": 10
+    },
+    {
+      "category": "java",
+      "skillName": "java-concurrency",
+      "tokensWithSkill": 407,
+      "qualityScore": 10
+    },
+    {
+      "category": "java",
+      "skillName": "java-language",
+      "tokensWithSkill": 585,
+      "qualityScore": 10
+    },
+    {
+      "category": "java",
+      "skillName": "java-testing",
+      "tokensWithSkill": 593,
+      "qualityScore": 10
+    },
+    {
+      "category": "java",
+      "skillName": "java-tooling",
+      "tokensWithSkill": 532,
+      "qualityScore": 10
+    },
+    {
+      "category": "javascript",
+      "skillName": "javascript-best-practices",
+      "tokensWithSkill": 357,
+      "qualityScore": 10
+    },
+    {
+      "category": "javascript",
+      "skillName": "javascript-language",
+      "tokensWithSkill": 545,
+      "qualityScore": 10
+    },
+    {
+      "category": "javascript",
+      "skillName": "javascript-tooling",
+      "tokensWithSkill": 469,
+      "qualityScore": 10
+    },
+    {
+      "category": "kotlin",
+      "skillName": "kotlin-best-practices",
+      "tokensWithSkill": 448,
+      "qualityScore": 10
+    },
+    {
+      "category": "kotlin",
+      "skillName": "kotlin-coroutines",
+      "tokensWithSkill": 408,
+      "qualityScore": 10
+    },
+    {
+      "category": "kotlin",
+      "skillName": "kotlin-language",
+      "tokensWithSkill": 518,
+      "qualityScore": 10
+    },
+    {
+      "category": "kotlin",
+      "skillName": "kotlin-tooling",
+      "tokensWithSkill": 365,
+      "qualityScore": 10
+    },
+    {
+      "category": "laravel",
+      "skillName": "laravel-api",
+      "tokensWithSkill": 749,
+      "qualityScore": 10
+    },
+    {
+      "category": "laravel",
+      "skillName": "laravel-architecture",
+      "tokensWithSkill": 388,
+      "qualityScore": 10
+    },
+    {
+      "category": "laravel",
+      "skillName": "laravel-background-processing",
+      "tokensWithSkill": 720,
+      "qualityScore": 10
+    },
+    {
+      "category": "laravel",
+      "skillName": "laravel-clean-architecture",
+      "tokensWithSkill": 819,
+      "qualityScore": 10
+    },
+    {
+      "category": "laravel",
+      "skillName": "laravel-database-expert",
+      "tokensWithSkill": 791,
+      "qualityScore": 10
+    },
+    {
+      "category": "laravel",
+      "skillName": "laravel-eloquent",
+      "tokensWithSkill": 613,
+      "qualityScore": 10
+    },
+    {
+      "category": "laravel",
+      "skillName": "laravel-security",
+      "tokensWithSkill": 836,
+      "qualityScore": 10
+    },
+    {
+      "category": "laravel",
+      "skillName": "laravel-sessions-middleware",
+      "tokensWithSkill": 751,
+      "qualityScore": 10
+    },
+    {
+      "category": "laravel",
+      "skillName": "laravel-testing",
+      "tokensWithSkill": 802,
+      "qualityScore": 10
+    },
+    {
+      "category": "laravel",
+      "skillName": "laravel-tooling",
+      "tokensWithSkill": 756,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-api-standards",
+      "tokensWithSkill": 556,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-architecture",
+      "tokensWithSkill": 674,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-bullmq",
+      "tokensWithSkill": 946,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-caching",
+      "tokensWithSkill": 584,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-configuration",
+      "tokensWithSkill": 557,
+      "qualityScore": 8
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-controllers-services",
+      "tokensWithSkill": 697,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-database",
+      "tokensWithSkill": 618,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-deployment",
+      "tokensWithSkill": 693,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-documentation",
+      "tokensWithSkill": 521,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-error-handling",
+      "tokensWithSkill": 572,
+      "qualityScore": 8
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-file-uploads",
+      "tokensWithSkill": 419,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-notification",
+      "tokensWithSkill": 495,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-observability",
+      "tokensWithSkill": 448,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-performance",
+      "tokensWithSkill": 937,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-real-time",
+      "tokensWithSkill": 847,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-scheduling",
+      "tokensWithSkill": 585,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-search",
+      "tokensWithSkill": 488,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-security",
+      "tokensWithSkill": 825,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-security-isolation",
+      "tokensWithSkill": 512,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-testing",
+      "tokensWithSkill": 600,
+      "qualityScore": 10
+    },
+    {
+      "category": "nestjs",
+      "skillName": "nestjs-transport",
+      "tokensWithSkill": 408,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-app-router",
+      "tokensWithSkill": 1019,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-architecture",
+      "tokensWithSkill": 1039,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-authentication",
+      "tokensWithSkill": 465,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-caching",
+      "tokensWithSkill": 644,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-data-access-layer",
+      "tokensWithSkill": 515,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-data-fetching",
+      "tokensWithSkill": 525,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-i18n",
+      "tokensWithSkill": 612,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-optimization",
+      "tokensWithSkill": 516,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-pages-router",
+      "tokensWithSkill": 735,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-rendering",
+      "tokensWithSkill": 750,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-security",
+      "tokensWithSkill": 658,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-server-actions",
+      "tokensWithSkill": 569,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-server-components",
+      "tokensWithSkill": 668,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-state-management",
+      "tokensWithSkill": 595,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-styling",
+      "tokensWithSkill": 707,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-testing",
+      "tokensWithSkill": 658,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-tooling",
+      "tokensWithSkill": 406,
+      "qualityScore": 10
+    },
+    {
+      "category": "nextjs",
+      "skillName": "nextjs-upgrade",
+      "tokensWithSkill": 616,
+      "qualityScore": 10
+    },
+    {
+      "category": "php",
+      "skillName": "php-best-practices",
+      "tokensWithSkill": 608,
+      "qualityScore": 10
+    },
+    {
+      "category": "php",
+      "skillName": "php-concurrency",
+      "tokensWithSkill": 629,
+      "qualityScore": 10
+    },
+    {
+      "category": "php",
+      "skillName": "php-error-handling",
+      "tokensWithSkill": 455,
+      "qualityScore": 10
+    },
+    {
+      "category": "php",
+      "skillName": "php-language",
+      "tokensWithSkill": 464,
+      "qualityScore": 10
+    },
+    {
+      "category": "php",
+      "skillName": "php-security",
+      "tokensWithSkill": 635,
+      "qualityScore": 10
+    },
+    {
+      "category": "php",
+      "skillName": "php-testing",
+      "tokensWithSkill": 593,
+      "qualityScore": 10
+    },
+    {
+      "category": "php",
+      "skillName": "php-tooling",
+      "tokensWithSkill": 699,
+      "qualityScore": 10
+    },
+    {
+      "category": "python",
+      "skillName": "python-architecture",
+      "tokensWithSkill": 377,
+      "qualityScore": 9
+    },
+    {
+      "category": "python",
+      "skillName": "python-async-runtime",
+      "tokensWithSkill": 329,
+      "qualityScore": 9
+    },
+    {
+      "category": "python",
+      "skillName": "python-best-practices",
+      "tokensWithSkill": 323,
+      "qualityScore": 9
+    },
+    {
+      "category": "python",
+      "skillName": "python-database",
+      "tokensWithSkill": 331,
+      "qualityScore": 9
+    },
+    {
+      "category": "python",
+      "skillName": "python-error-handling",
+      "tokensWithSkill": 292,
+      "qualityScore": 9
+    },
+    {
+      "category": "python",
+      "skillName": "python-language",
+      "tokensWithSkill": 438,
+      "qualityScore": 9
+    },
+    {
+      "category": "python",
+      "skillName": "python-security",
+      "tokensWithSkill": 335,
+      "qualityScore": 9
+    },
+    {
+      "category": "python",
+      "skillName": "python-testing",
+      "tokensWithSkill": 383,
+      "qualityScore": 9
+    },
+    {
+      "category": "python",
+      "skillName": "python-tooling",
+      "tokensWithSkill": 414,
+      "qualityScore": 9
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-appium-mcp",
+      "tokensWithSkill": 1170,
+      "qualityScore": 10
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-automation-health",
+      "tokensWithSkill": 743,
+      "qualityScore": 10
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-business-analysis",
+      "tokensWithSkill": 1044,
+      "qualityScore": 10
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-flaky-triage",
+      "tokensWithSkill": 820,
+      "qualityScore": 10
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-jira-integration",
+      "tokensWithSkill": 607,
+      "qualityScore": 10
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-playwright-cli",
+      "tokensWithSkill": 1196,
+      "qualityScore": 10
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-playwright-pom-generation",
+      "tokensWithSkill": 769,
+      "qualityScore": 10
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-quality-assurance",
+      "tokensWithSkill": 593,
+      "qualityScore": 10
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-selector-stability",
+      "tokensWithSkill": 510,
+      "qualityScore": 10
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-test-healing",
+      "tokensWithSkill": 678,
+      "qualityScore": 8
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-test-plan-authoring",
+      "tokensWithSkill": 756,
+      "qualityScore": 10
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-visual-baseline",
+      "tokensWithSkill": 771,
+      "qualityScore": 10
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-zephyr-coverage-analysis",
+      "tokensWithSkill": 521,
+      "qualityScore": 10
+    },
+    {
+      "category": "quality-engineering",
+      "skillName": "quality-engineering-zephyr-test-generation",
+      "tokensWithSkill": 1192,
+      "qualityScore": 10
+    },
+    {
+      "category": "react",
+      "skillName": "react-component-patterns",
+      "tokensWithSkill": 659,
+      "qualityScore": 10
+    },
+    {
+      "category": "react",
+      "skillName": "react-hooks",
+      "tokensWithSkill": 575,
+      "qualityScore": 10
+    },
+    {
+      "category": "react",
+      "skillName": "react-performance",
+      "tokensWithSkill": 519,
+      "qualityScore": 10
+    },
+    {
+      "category": "react",
+      "skillName": "react-security",
+      "tokensWithSkill": 573,
+      "qualityScore": 10
+    },
+    {
+      "category": "react",
+      "skillName": "react-state-management",
+      "tokensWithSkill": 777,
+      "qualityScore": 10
+    },
+    {
+      "category": "react",
+      "skillName": "react-testing",
+      "tokensWithSkill": 582,
+      "qualityScore": 10
+    },
+    {
+      "category": "react",
+      "skillName": "react-tooling",
+      "tokensWithSkill": 405,
+      "qualityScore": 10
+    },
+    {
+      "category": "react",
+      "skillName": "react-typescript",
+      "tokensWithSkill": 534,
+      "qualityScore": 10
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-architecture",
+      "tokensWithSkill": 500,
+      "qualityScore": 10
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-components",
+      "tokensWithSkill": 411,
+      "qualityScore": 10
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-deployment",
+      "tokensWithSkill": 581,
+      "qualityScore": 10
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-dls",
+      "tokensWithSkill": 333,
+      "qualityScore": 10
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-navigation",
+      "tokensWithSkill": 437,
+      "qualityScore": 10
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-navigation-v6",
+      "tokensWithSkill": 561,
+      "qualityScore": 10
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-notifications",
+      "tokensWithSkill": 313,
+      "qualityScore": 10
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-performance",
+      "tokensWithSkill": 622,
+      "qualityScore": 10
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-platform-specific",
+      "tokensWithSkill": 385,
+      "qualityScore": 10
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-security",
+      "tokensWithSkill": 573,
+      "qualityScore": 10
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-state-management",
+      "tokensWithSkill": 458,
+      "qualityScore": 10
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-styling",
+      "tokensWithSkill": 324,
+      "qualityScore": 10
+    },
+    {
+      "category": "react-native",
+      "skillName": "react-native-testing",
+      "tokensWithSkill": 492,
+      "qualityScore": 10
+    },
+    {
+      "category": "spring-boot",
+      "skillName": "spring-boot-api-design",
+      "tokensWithSkill": 331,
+      "qualityScore": 10
+    },
+    {
+      "category": "spring-boot",
+      "skillName": "spring-boot-architecture",
+      "tokensWithSkill": 598,
+      "qualityScore": 10
+    },
+    {
+      "category": "spring-boot",
+      "skillName": "spring-boot-best-practices",
+      "tokensWithSkill": 564,
+      "qualityScore": 10
+    },
+    {
+      "category": "spring-boot",
+      "skillName": "spring-boot-data-access",
+      "tokensWithSkill": 538,
+      "qualityScore": 10
+    },
+    {
+      "category": "spring-boot",
+      "skillName": "spring-boot-deployment",
+      "tokensWithSkill": 517,
+      "qualityScore": 10
+    },
+    {
+      "category": "spring-boot",
+      "skillName": "spring-boot-microservices",
+      "tokensWithSkill": 443,
+      "qualityScore": 10
+    },
+    {
+      "category": "spring-boot",
+      "skillName": "spring-boot-observability",
+      "tokensWithSkill": 460,
+      "qualityScore": 10
+    },
+    {
+      "category": "spring-boot",
+      "skillName": "spring-boot-scheduling",
+      "tokensWithSkill": 336,
+      "qualityScore": 10
+    },
+    {
+      "category": "spring-boot",
+      "skillName": "spring-boot-security",
+      "tokensWithSkill": 516,
+      "qualityScore": 10
+    },
+    {
+      "category": "spring-boot",
+      "skillName": "spring-boot-testing",
+      "tokensWithSkill": 328,
+      "qualityScore": 10
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-best-practices",
+      "tokensWithSkill": 735,
+      "qualityScore": 10
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-concurrency",
+      "tokensWithSkill": 522,
+      "qualityScore": 10
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-error-handling",
+      "tokensWithSkill": 527,
+      "qualityScore": 10
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-language",
+      "tokensWithSkill": 518,
+      "qualityScore": 10
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-memory-management",
+      "tokensWithSkill": 456,
+      "qualityScore": 10
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-swiftui",
+      "tokensWithSkill": 501,
+      "qualityScore": 10
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-testing",
+      "tokensWithSkill": 484,
+      "qualityScore": 10
+    },
+    {
+      "category": "swift",
+      "skillName": "swift-tooling",
+      "tokensWithSkill": 409,
+      "qualityScore": 10
+    },
+    {
+      "category": "system-design",
+      "skillName": "system-design-artifact-intake",
+      "tokensWithSkill": 1097,
+      "qualityScore": 10
+    },
+    {
+      "category": "system-design",
+      "skillName": "system-design-building-blocks",
+      "tokensWithSkill": 823,
+      "qualityScore": 10
+    },
+    {
+      "category": "system-design",
+      "skillName": "system-design-case-catalog",
+      "tokensWithSkill": 775,
+      "qualityScore": 10
+    },
+    {
+      "category": "system-design",
+      "skillName": "system-design-communication",
+      "tokensWithSkill": 783,
+      "qualityScore": 10
+    },
+    {
+      "category": "system-design",
+      "skillName": "system-design-data-architecture",
+      "tokensWithSkill": 779,
+      "qualityScore": 10
+    },
+    {
+      "category": "system-design",
+      "skillName": "system-design-estimation",
+      "tokensWithSkill": 851,
+      "qualityScore": 10
+    },
+    {
+      "category": "system-design",
+      "skillName": "system-design-integration-patterns",
+      "tokensWithSkill": 830,
+      "qualityScore": 10
+    },
+    {
+      "category": "system-design",
+      "skillName": "system-design-interview-coaching",
+      "tokensWithSkill": 1176,
+      "qualityScore": 10
+    },
+    {
+      "category": "system-design",
+      "skillName": "system-design-methodology",
+      "tokensWithSkill": 1109,
+      "qualityScore": 10
+    },
+    {
+      "category": "system-design",
+      "skillName": "system-design-principles",
+      "tokensWithSkill": 726,
+      "qualityScore": 10
+    },
+    {
+      "category": "system-design",
+      "skillName": "system-design-resilience-ops",
+      "tokensWithSkill": 810,
+      "qualityScore": 10
+    },
+    {
+      "category": "system-design",
+      "skillName": "system-design-review",
+      "tokensWithSkill": 827,
+      "qualityScore": 10
+    },
+    {
+      "category": "typescript",
+      "skillName": "typescript-best-practices",
+      "tokensWithSkill": 659,
+      "qualityScore": 10
+    },
+    {
+      "category": "typescript",
+      "skillName": "typescript-language",
+      "tokensWithSkill": 726,
+      "qualityScore": 10
+    },
+    {
+      "category": "typescript",
+      "skillName": "typescript-security",
+      "tokensWithSkill": 822,
+      "qualityScore": 10
+    },
+    {
+      "category": "typescript",
+      "skillName": "typescript-tooling",
+      "tokensWithSkill": 714,
+      "qualityScore": 10
+    }
+  ]
+}

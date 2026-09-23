@@ -29,9 +29,12 @@ pnpm evals:preflight -- --skills-file <changed skills>
 the skills the diff touched: a bare run audits the whole catalog and will fail on known legacy
 alignment debt that the change did not introduce.
 
-CI enforces this in the `validate-skills` job of `.github/workflows/ci.yml`. Merge on the eval
-thresholds the promotion gate already uses: case pass rate, assertion pass rate, and balanced
-trigger accuracy. A change that lowers any of them is a regression, not a new baseline.
+CI enforces the grounding preflight in the `validate-skills` job of `.github/workflows/ci.yml`; it
+does not enforce the promotion pass-rate thresholds themselves. `pnpm evals:gate -- --all` applies
+those thresholds (case pass rate, assertion pass rate, activation recall/specificity, and outcome
+delta) to any scored run not yet recorded in `benchmarks/evals/history.json` and exits non-zero on
+breach; see "Usage, cost, and regression gates" below for what it checks today versus what is still
+a manual `evals:promote` review.
 
 Every production incident and every Blocker review finding that a skill should have caught earns a
 permanent case in that skill's `evals/evals.json`, so the suite grows into a regression net rather
@@ -227,6 +230,78 @@ Results include:
 - trigger recall for positive cases;
 - trigger specificity for negative cases;
 - balanced trigger accuracy, the mean of recall and specificity.
+
+## Usage, cost, and regression gates
+
+`RunMetadata.usage` records real token and wall-clock cost for every worker execution; it is
+populated automatically by `evals:manifest -- --execute` and `evals:baseline -- --execute` and
+persists into the manifest, `results.json`, and any run composed or pruned from it.
+
+### How usage is captured
+
+Each worker invocation runs `codex exec --json` in addition to `--output-last-message`. The answer
+is always read from the `--output-last-message` file, byte-identical to before; `--json` only adds
+a JSONL event stream on stdout that is parsed for `token_count` events (`info.total_token_usage`).
+Parsing is tolerant by construction: an empty stream, a stream with no `token_count` event, or a
+line that fails to parse all resolve to `usage: null` for that lane. A missing usage number is
+never estimated or guessed and never fails the run — it is counted under `lanesUnmetered` and
+surfaced as "unavailable," per the `common-sdlc-metrics` report-unavailable rule.
+
+`RunMetadata.usage.overall` and `RunMetadata.usage.byArm.baseline` / `.byArm["with-skill"]` each
+carry `promptTokens`, `completionTokens`, `cachedPromptTokens`, `reasoningTokens`, `totalTokens`,
+`wallMs`, `lanesMetered`, `lanesUnmetered`, and `estimatedUsd`. Resumed and quota-paused runs merge
+usage cumulatively across `--execute` invocations rather than overwriting it.
+
+`estimatedUsd` resolves against the fixed pricing table in `scripts/benchmark/models.ts` by an
+exact, case-insensitive model-name match only. There is no fuzzy matching and no fallback price:
+an unresolved model (which includes the default `gpt-5.6-luna` worker model today) reports
+`estimatedUsd: null`, not a guess.
+
+### Pre-flight cost estimate
+
+Before spending quota on a manifest, run:
+
+```bash
+pnpm evals:estimate -- --run <runId>
+```
+
+It reports the lane count still missing an answer, the configured model and reasoning effort, and,
+only when a prior run recorded usage for that same model, a projected token and dollar range
+derived from the observed low/high cost-per-lane across those prior runs. With no matching prior
+usage history it reports lanes and model and says the cost projection is unavailable; it never
+fabricates a projection from an assumed token count.
+
+### Regression gate
+
+```bash
+pnpm evals:gate -- --run <runId>
+pnpm evals:gate -- --all
+pnpm evals:gate -- --all --json
+```
+
+`evals:gate` applies the same thresholds `evals:promote` enforces per skill — with-skill case pass
+rate above 85%, with-skill assertion pass rate at or above 85%, non-negative outcome delta, no
+incomplete arms, and trigger recall/specificity at or above 90% — to every skill in a scored run's
+`results.json`, and exits non-zero if any skill breaches. Unlike `evals:promote`, it does not write
+a baseline registry entry; it is a pass/fail check safe to wire into CI.
+
+`--run <runId>` gates one explicit run. `--all` gates every physical run under
+`benchmarks/evals/runs` whose `results.json` is **not already recorded** in
+`benchmarks/evals/history.json` — a run already promoted and recorded was already reviewed through
+`evals:promote`, so it is not re-gated here. When nothing is pending, `--all` reports "no scored run
+available" and exits `0`; this is what makes it safe to add to CI immediately, before any team
+workflow produces a fresh selective run every time.
+
+For each gated run, the report also includes a `trend` comparing the run's average with-skill pass
+rate against the most recent `history.json` record for the same category (excluding the run itself)
+dated before it, reporting `improved`, `regressed`, `unchanged`, or `no-prior-data` — never just the
+absolute number, per the `common-sdlc-metrics` trend-over-snapshot rule.
+
+`readiness.ts` previously also exported a one-time `finalManifestShapeErrors` check pinned to the
+exact `v2.6.0` remediation manifest shape (136 skills, 1221 cases). That check was only referenced
+by one now-obsolete guard in `evals:manifest -- --execute` for that single historical manifest; it
+has been removed along with the guard. It was not load-bearing for `evals:gate`, `evals:promote`, or
+any other manifest shape validation, which validate schema fields and per-skill thresholds directly.
 
 ## Compose and prune a release artifact
 

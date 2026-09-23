@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [tooling] - Unreleased
 
+**Area**: Eval-harness cost metering, benchmark regression gate, MCP cost provenance (#205)
+
+### Added
+- `scripts/evals/`: codex workers run with `--json`; token-count events parse into a per-lane `UsageSample` with per-arm totals, so the baseline arm's price is separable from the with-skill arm. Parsing fails open — an unparseable stream records `usage: null`, never a guess. `evals:estimate` projects lanes/tokens/dollars for a pending run from observed mean cost per lane, or reports "unavailable" with no prior usage. `evals:gate` applies the `readiness.ts` thresholds to pending scored runs, reporting direction against the previous history record; wired into the CI PR gate.
+- `scripts/benchmark/gate.ts`: `benchmark:gate` fails on `avgTokens` growth > 10%, any `avgQuality` drop, or a `savingsPctHeavy` drop > 10 points, citing the previous record by version and date. Wired into the weekly drift workflow rather than the PR gate, since it measures corpus drift over time.
+- MCP `get_session_cost`: explicit provenance (`host` | `agent-estimate` | `unavailable`) on every token/cost value. `TelemetryRecord` gains optional `workflow`, `slug`, `outcome` so the opt-in JSONL can answer "what did this feature cost." `.skillsrc` sets `telemetry: true` — this repo now dogfoods its own instrument.
+
+### Changed
+- `docs/EVALS.md` corrected a false claim that CI already enforced the promotion thresholds; it now describes what `evals:gate` actually does.
+- Every savings % and $ figure in `benchmark-report.md` now carries inline provenance naming it a synthetic-baseline upper bound against the specific constant and price-table date; `avgQuality` is labelled a structural rubric score with its saturation stated (96% of skills score ≥ 9/10 as of this release).
+- `get_session_cost`'s `[Agent: fill from platform usage]` placeholder — which invited a fabricated number — and its default `$0.00` are gone; an unavailable value now renders `unavailable (host did not expose token usage)` with no number.
+
+### Removed
+- `readiness.ts`'s `FINAL_REMEDIATION_SKILL_COUNT = 136` / `FINAL_REMEDIATION_CASE_COUNT = 1221`: a one-release manifest shape assertion frozen into shared code.
+
+### Known issue
+- `pnpm benchmark:gate` fails on real pre-existing drift: `avgTokens` +12.5% vs the `v2.6.0` record (528 → 594), from 25 skills added and none removed since the benchmark was last run (2026-07-10). This is the gate working as designed, not a regression introduced here.
+
+---
+
+## [tooling] - Unreleased
+
 **Area**: SDLC run ledger, requirement traceability, slug-scoped artifacts (#204)
 
 ### Added

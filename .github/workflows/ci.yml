@@ -143,6 +143,9 @@ jobs:
       - name: Live Eval Run Verification
         run: pnpm evals:verify -- --all
 
+      - name: Eval Regression Gate
+        run: pnpm evals:gate -- --all
+
       - name: Documentation Coverage Scan
         run: pnpm docs:scan
 

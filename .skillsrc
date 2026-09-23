@@ -57,3 +57,4 @@ mcp:
   enabled: true
   scope: project
   prompted: true
+telemetry: true
