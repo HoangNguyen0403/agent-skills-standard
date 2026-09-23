@@ -31,9 +31,10 @@ Goal: Turn defects, missed expectations, and delivery friction into durable stan
    - Specialist caused drift: add budget, fallback, or output-format rule.
    - Tooling can catch it: add or update an audit script.
    - Incident or Blocker finding: add a permanent case to the preventing skill's `evals/evals.json`, not only `SKILL.md` prose.
-4. Verify learning:
+4. Verify and persist:
    - Run changed skill validation.
    - Run eval alignment.
+   - Write the run record to `artifacts/runs/[slug]/[compactISO]-retro-learn.json` when file writes are allowed.
    - Record remaining follow-ups.
 
 ## Runtime Contract
@@ -61,9 +62,7 @@ Goal: Turn defects, missed expectations, and delivery friction into durable stan
 ## Skill Or Eval Updates
 
 ## Outcome Report
-feature_status: implemented
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: none
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: retro-learn, feature_status: implemented, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: null, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 

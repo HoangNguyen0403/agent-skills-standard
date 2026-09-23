@@ -95,9 +95,7 @@ Goal: Select the next native workflow without loading every workflow body, while
 ## Offshore Delivery Notes
 
 ## Outcome Report
-feature_status: not_started | requirements_ready | design_ready | partially_implemented | implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow:
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: sdlc, feature_status: not_started, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: brainstorm-feature, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 

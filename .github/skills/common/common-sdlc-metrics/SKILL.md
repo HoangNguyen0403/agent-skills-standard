@@ -42,8 +42,8 @@ git history, so it survives a change of runtime and cannot be inflated by activi
 | Stage | Leading | Lagging |
 | --- | --- | --- |
 | BRD | first conversation to committed BRD | BRD survival rate into PRD |
-| PRD / SRS | BRD to PRD to SRS commit deltas | requirement rework after first `task.md` |
-| Build | share merging on first implementation pass | plan adherence, merged diff versus `task.md` |
+| PRD / SRS | BRD to PRD to SRS commit deltas | requirement rework after first `docs/srs/srs-task-list-[slug].md` |
+| Build | share merging on first implementation pass | plan adherence, merged diff versus `docs/srs/srs-task-list-[slug].md` |
 | Test | first-pass CI success, eval pass rate | defect escape rate |
 | Review | time to first finding | findings per review by severity |
 | Release | change lead time | change failure rate |
@@ -78,7 +78,7 @@ git history, so it survives a change of runtime and cannot be inflated by activi
 
 - **Stop if a metric ranks individuals**: Report the flow, not the person.
 - **Stop if a band fires every run**: Recalibrate before responding.
-- **Stop if adherence is measured against an unwritten plan**: Require the committed `task.md`.
+- **Stop if adherence is measured against an unwritten plan**: Require the committed `docs/srs/srs-task-list-[slug].md`.
 
 ## References
 
@@ -95,3 +95,4 @@ When this skill applies, preserve the following domain terminology or equivalent
 - rolling baseline
 - docs/ops/bands.yaml
 - report unavailable
+- artifacts/runs/<slug>/

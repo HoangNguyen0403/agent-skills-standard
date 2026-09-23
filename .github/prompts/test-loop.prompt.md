@@ -52,9 +52,7 @@ Goal: Turn approved ACs into an executable, traced E2E suite, and classify any f
 ## Automation Health
 feedback_loop_minutes: ; suite_reliability_pct: ; release_cadence: ; prod_escape_rate: ; release_confidence: high | medium | low
 ## Outcome Report
-feature_status: implemented | partially_implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: verify-work | dev-fix
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: test-loop, feature_status: implemented, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: verify-work, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 ## Next Workflow
 verify-work | dev-fix
 ## Cost Report

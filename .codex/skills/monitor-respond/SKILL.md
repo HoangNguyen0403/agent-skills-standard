@@ -79,9 +79,7 @@ Goal: Convert a deterministic signal into the smallest sanctioned action and rou
 ## Band Calibration
 
 ## Outcome Report
-feature_status: not_started | partially_implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: brainstorm-feature | incident-hotfix | retro-learn
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: monitor-respond, feature_status: partially_implemented, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: brainstorm-feature, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 

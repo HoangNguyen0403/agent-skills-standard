@@ -43,7 +43,8 @@ Goal: Ship verified work with explicit deployment steps, smoke checks, and rollb
 4. Monitor:
    - Check logs, metrics, errors, latency, and core user flows.
    - Stop or roll back on defined failure signals.
-5. Route:
+5. Persist and route:
+   - Write the run record to `artifacts/runs/[slug]/[compactISO]-deploy-release.json` when file writes are allowed.
    - User-facing notes -> `publish-notes`.
    - Process and standards feedback -> `retro-learn`.
 
@@ -79,9 +80,7 @@ GO | NO-GO | ROLLED-BACK
 ## Rollback
 
 ## Outcome Report
-feature_status: implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: publish-notes | retro-learn
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: deploy-release, feature_status: released, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: publish-notes, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 

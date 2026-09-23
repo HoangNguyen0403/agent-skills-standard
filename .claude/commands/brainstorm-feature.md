@@ -78,9 +78,7 @@ Goal: Convert vague intent into a compact BA-owned BRD-lite brief before PM PRD 
 ## Glossary
 ## PM Handoff Checklist
 ## Outcome Report
-feature_status: requirements_ready | blocked
-requirement_trace: BRD-OBJ-* -> candidate REQ-*
-completed_evidence: []; missing_evidence: []; decision_needed: []; assumptions: []; recommended_next_workflow: plan-feature
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: brainstorm-feature, feature_status: requirements_ready, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: plan-feature, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 ## Open Questions
 ## Next Workflow
 plan-feature

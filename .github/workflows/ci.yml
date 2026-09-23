@@ -70,6 +70,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Run Unit Tests with Coverage
         run: pnpm test:cov
+      - name: Run Outcome/Trace Script Tests
+        run: pnpm test:outcome && pnpm test:trace
       - name: Run E2E Tests
         run: pnpm test:e2e
 
@@ -99,6 +101,12 @@ jobs:
 
       - name: SDLC Workflow Schema Audit
         run: pnpm audit:sdlc
+
+      - name: Outcome Audit
+        run: pnpm audit:outcome
+
+      - name: Trace Audit
+        run: pnpm audit:trace
 
       - name: Prompt Injection Scan
         run: pnpm audit:injection

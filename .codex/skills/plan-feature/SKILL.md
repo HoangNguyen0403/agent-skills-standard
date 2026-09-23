@@ -87,9 +87,7 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
 ## Task Slices And Delivery Estimate
 ## Verification Plan
 ## Outcome Report
-feature_status: requirements_ready | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-*
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: design-solution | implementation-readiness
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: plan-feature, feature_status: requirements_ready, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: design-solution, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 ## Next Workflow
 design-solution | implementation-readiness
 ## Cost Report
