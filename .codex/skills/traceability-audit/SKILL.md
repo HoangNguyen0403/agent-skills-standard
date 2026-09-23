@@ -44,6 +44,8 @@ Goal: Prove every acceptance criterion has implementation and verification evide
    - Missing AC implementation.
    - Missing test or manual coverage.
    - Release note missing shipped user impact.
+5. Persist:
+   - Write the run record to `artifacts/runs/[slug]/[compactISO]-traceability-audit.json` when file writes are allowed.
 
 ## Runtime Contract
 - Use pre-release or handoff to prove requirement-to-evidence coverage.
@@ -70,9 +72,7 @@ Goal: Prove every acceptance criterion has implementation and verification evide
 ## Gaps
 
 ## Outcome Report
-feature_status: implemented | partially_implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: implement-feature | dev-fix | deploy-release
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: traceability-audit, feature_status: verified, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: deploy-release, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 

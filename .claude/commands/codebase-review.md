@@ -53,3 +53,31 @@ Execute the following steps for **$ARGUMENTS**.
    - For every Critical/High finding that a loaded skill should have prevented, update that skill's anti-patterns and evals.
    - If runtime hardening is weak, recommend least-privilege tools, default-deny egress, credential indirection, and reviewable log loops as first-class remediation.
    - Return the artifact paths, coverage status, confirmed findings, evidence gaps, and the next workflow.
+
+## Runtime Contract
+- Use for repo-wide health, architecture, or exploitable-risk review with no single feature in scope.
+- Required inputs: repo access plus stack markers to map components, boundaries, and entry points.
+- Return BLOCKED only when the codebase cannot be read or no evidence source is reachable.
+## Handoff Payload
+- `slug`, `analysis`/`deliverable` mode, artifact paths, confirmed findings, evidence gaps, next workflow.
+## Blocking Questions
+- Ask max 3 at a time with a recommended default and 2-3 options.
+
+## Output Template
+
+```md
+# Codebase Review: [Name]
+## Scope And Review Context
+## Component Map
+## Findings
+## Evidence Gaps
+## Remediation Plan
+
+## Outcome Report
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: codebase-review, feature_status: implemented, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: design-solution, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
+
+## Next Workflow
+design-solution | dev-fix
+## Cost Report
+Call `get_session_cost(workflow="codebase-review")` before final handoff.
+```

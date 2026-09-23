@@ -29,7 +29,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
    - Unit, integration, E2E, visual, mobile, security, and migration checks.
    - Failure mode analysis for dependencies, fallbacks, retries, and rollback/degradation.
    - Save technical requirements to `docs/srs/srs-[slug].md` when file writes are allowed.
-   - Record evidence in `docs/srs/srs-walkthrough.md`.
+   - Record evidence in `docs/srs/srs-walkthrough-[slug].md`.
 5. Record ADR:
    - Write one concise ADR when architecture or public contract changes.
    - Continue when patterns are inferable; return BLOCKED for cross-team contracts, migrations, permissions, or NFR uncertainty.
@@ -69,9 +69,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 ## ADR
 
 ## Outcome Report
-feature_status: design_ready | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-*
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: implementation-readiness
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: design-solution, feature_status: design_ready, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: implementation-readiness, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 implementation-readiness | dev-fix

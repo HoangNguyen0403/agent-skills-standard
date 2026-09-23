@@ -90,9 +90,7 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
 ## Risk Register
 
 ## Outcome Report
-feature_status: design_ready | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-*
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: design-solution
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: system-design-session, feature_status: design_ready, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: design-solution, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 design-solution | plan-feature

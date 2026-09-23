@@ -75,7 +75,7 @@ _Strict format: As a [persona/role], I want to [Action], so that [Benefit]._
 
 - **SRS/FRS Doc**: `docs/srs/srs-[slug].md` (when needed)
 - **Implementation Plan**: `docs/prd/prd-plan-[slug].md`
-- **Verification Evidence**: `docs/srs/srs-walkthrough.md`
+- **Verification Evidence**: `docs/srs/srs-walkthrough-[slug].md`
 
 ## 12. Change Log
 

@@ -23,7 +23,7 @@ Goal: Prove the delivered change works against explicit acceptance criteria befo
 5. Record evidence:
    - If verification reveals behavior drift, require PRD/SRS updates before PASS.
    - Update traceability notes from BRD objective -> PRD requirement -> SRS/FRS contract -> **verification evidence**.
-   - Update project-local `docs/srs/srs-walkthrough.md`.
+   - Update project-local `docs/srs/srs-walkthrough-[slug].md`.
    - Route next step back to implementation or `dev-fix`.
 
 ## Runtime Contract
@@ -69,9 +69,7 @@ driver: playwright-cli | playwright-mcp | appium-mcp | none (BLOCKED); evidence_
 ## Observed Risks & Edge Cases
 
 ## Outcome Report
-feature_status: implemented | partially_implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: uat-signoff | dev-fix | implement-feature
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: verify-work, feature_status: implemented, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: uat-signoff, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 uat-signoff | implement-feature | dev-fix

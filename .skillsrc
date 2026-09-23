@@ -45,6 +45,14 @@ workflows:
   - uat-signoff
   - deploy-release
   - monitor-respond
+  - incident-hotfix
+  - traceability-audit
+  - session-report
+  - publish-notes
+  - retro-learn
+  - battle-test
+  - update-docs
+  - zephyr-coverage-analysis
 mcp:
   enabled: true
   scope: project

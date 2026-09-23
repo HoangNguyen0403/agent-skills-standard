@@ -39,7 +39,7 @@ Goal: Build an approved feature through TDD slices and route completed work to v
    - Create branch or worktree only when project workflow expects it.
    - Provision dependencies BEFORE tests (`npm ci`/`pnpm i`/`yarn`, `flutter pub get`, `./gradlew dependencies`, or `pip install -e .` from the lockfile); isolated worktrees lack ignored toolchains.
    - If install fails from network, auth, or time budget, report `verification_infra_failed` with the exact command/error; never claim tests passed or silently skip verification.
-   - Initialize or update `docs/srs/srs-task-list.md` with small vertical slices.
+   - Initialize or update `docs/srs/srs-task-list-[slug].md` with small vertical slices.
 3. Implement slices:
    - For each slice, write or update the failing test first.
    - Before the test, record its observable contract, distinct fault, smallest layer, minimal cases, and exact focused command (the Test Intent Record).
@@ -54,13 +54,13 @@ Goal: Build an approved feature through TDD slices and route completed work to v
    - If a fix path is unclear, stop and apply root-cause debugging before more code changes.
 4. Maintain context hygiene:
    - Start fresh context for large independent slices when possible.
-   - Preserve decisions in `docs/srs/srs-task-list.md` or `docs/prd/prd-plan-[slug].md`.
+   - Preserve decisions in `docs/srs/srs-task-list-[slug].md` or `docs/prd/prd-plan-[slug].md`.
    - If behavior or scope changes, update `docs/prd/prd-[slug].md` and `docs/srs/srs-[slug].md` before closing the slice.
    - Avoid carrying raw logs; summarize failures and fixes.
 5. Prepare handoff:
    - Run fresh local automated checks before claiming success.
    - Update requirement trace notes for changed AC coverage.
-   - Capture evidence in `docs/srs/srs-walkthrough.md`.
+   - Capture evidence in `docs/srs/srs-walkthrough-[slug].md`.
    - For autonomous/channel mode, delegate only with disjoint files, owner, AC IDs, expected artifact, and verification command.
    - Route next step to `verify-work`.
 
@@ -85,9 +85,7 @@ Goal: Build an approved feature through TDD slices and route completed work to v
 ## Known Risks
 ## Delegation Packets
 ## Outcome Report
-feature_status: partially_implemented | implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: verify-work | plan-feature | design-solution
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: implement-feature, feature_status: implemented, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: verify-work, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 ## Next Workflow
 verify-work
 ## Cost Report

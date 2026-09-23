@@ -48,9 +48,11 @@ Generated at:
 ## Derivation Notes
 
 - **Plan adherence**: compare the merged diff's changed files against the file list committed in
-  `task.md`. Report the share of changed files the plan named, plus unplanned files.
+  `docs/srs/srs-task-list-[slug].md`. Report the share of changed files the plan named, plus unplanned files.
 - **Requirement rework**: count commits to `docs/prd/prd-[slug].md` and `docs/srs/srs-[slug].md`
-  after the first `task.md` commit for the same slug.
+  after the first `docs/srs/srs-task-list-[slug].md` commit for the same slug.
 - **BRD survival rate**: BRDs that reached a committed PRD, divided by BRDs committed in the period.
 - **First-pass CI success**: pipeline runs green on first attempt for the change, divided by changes.
 - **Band breach to intake**: breach timestamp to the commit that created the intake artifact.
+- **Run-record health**: read `artifacts/runs/<slug>/*.json` for `feature_status`, `cost`, and
+  `requirement_trace` per stage instead of re-deriving them from chat transcripts.

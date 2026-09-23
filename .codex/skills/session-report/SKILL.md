@@ -36,7 +36,8 @@ Goal: Preserve a concise artifact of what changed, how it was verified, and what
 3. Record requirements drift:
    - BRD-lite, PRD, and SRS/FRS updates completed or missing.
    - Traceability gaps found during implementation or verification.
-4. Route:
+4. Persist and route:
+   - Write the run record to `artifacts/runs/[slug]/[compactISO]-session-report.json` when file writes are allowed.
    - Remaining code work -> `implement-feature` or `dev-fix`.
    - Missing evidence -> `verify-work` or `traceability-audit`.
    - Standards update -> `retro-learn`.
@@ -73,9 +74,7 @@ Goal: Preserve a concise artifact of what changed, how it was verified, and what
 ## Skill Feedback Candidates
 
 ## Outcome Report
-feature_status: partially_implemented | implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: implement-feature | verify-work | publish-notes | retro-learn
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: session-report, feature_status: implemented, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: retro-learn, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 

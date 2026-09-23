@@ -40,7 +40,6 @@
 
 # ── Registry integrity records ──────────────────────────────────────────────
 /skills/metadata.json                              @HoangNguyen0403
-/cli/skills-lock.json                              @HoangNguyen0403
 /docs/SECURITY.md                                  @HoangNguyen0403
 
 # ── Per-category skill content ──────────────────────────────────────────────

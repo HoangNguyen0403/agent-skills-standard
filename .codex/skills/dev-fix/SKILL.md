@@ -61,7 +61,7 @@ Goal: Take a bug ticket from root-cause analysis through a locally-verified PR/M
 1.  **Worktree Branching**: Create a new worktree for the fix using `git worktree add ../<ticket-key> -b fix/<ticket-key>` and `cd` into it.
 2.  **Task Tracking**:
     - Use the **Task Template** below.
-    - Initialize project-local `docs/srs/srs-task-list.md`.
+    - Initialize project-local `docs/srs/srs-task-list-[slug].md`.
 3.  **Code**: Implement the fix using `common-tdd` or the `@specialist-tdd-implementer` sub-agent. Follow `common-best-practices` and service-specific `AGENTS.md` rules.
     - Use `common-tdd`: strict RED first for new behavior; for legacy fixes, characterize only when needed and reproduce the intended change as RED without deleting unrelated implementation.
     - Record the Test Intent Record and run the smallest foreground, single-run target with a project timeout or 120-second fallback before escalating.
@@ -75,7 +75,7 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
     - **Web**: Load `quality-engineering-playwright-cli`. Run its preflight, take the first driver rung (CLI, else Playwright MCP). Run the reproduction steps. Capture "After" snapshots.
     - **Mobile**: Load `quality-engineering-appium-mcp`. Run its preflight, take the first driver rung (local device, else cloud). Run the reproduction steps.
 3.  **Final Verdict**: Compare results against the issue `Expected Result`. If any sub-3px regressions exist, fix them now.
-    - No success claim without fresh local evidence in `docs/srs/srs-walkthrough.md`.
+    - No success claim without fresh local evidence in `docs/srs/srs-walkthrough-[slug].md`.
 
 ### Step 4: Deliver PR
 
@@ -83,7 +83,7 @@ Do NOT rely on "it builds" — verify the fix against the issue reproduction ste
 2.  **PR/MR Details**: Draft provider-appropriate PR/MR notes and link the source issue.
 3.  **Walkthrough**:
     - Use the **Walkthrough Template** below.
-    - Create project-local `docs/srs/srs-walkthrough.md` with evidence of the local verification.
+    - Create project-local `docs/srs/srs-walkthrough-[slug].md` with evidence of the local verification.
 
 ---
 
@@ -161,9 +161,7 @@ verify-work
 ## Risks
 
 ## Outcome Report
-feature_status: implemented | partially_implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: verify-bug | verify-work
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: dev-fix, feature_status: implemented, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: verify-work, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 verify-bug | verify-work
@@ -177,5 +175,5 @@ Call `get_session_cost(workflow="dev-fix")` before final handoff.
 
 - **No Blind Implementation**: Never write code before the implementation plan is approved.
 - **No Orphan Sessions**: Always `close` browser/appium sessions used during verification.
-- **No skipping local verify**: "I checked it manually" is not enough. Provide snapshots/logs in the project-local `docs/srs/srs-walkthrough.md`.
+- **No skipping local verify**: "I checked it manually" is not enough. Provide snapshots/logs in the project-local `docs/srs/srs-walkthrough-[slug].md`.
 
