@@ -1,5 +1,22 @@
 {
-  "generatedAt": "2026-07-14T15:21:12.222Z",
-  "issueCount": 0,
-  "issues": []
+  "generatedAt": "2026-09-22T08:08:39.422Z",
+  "issueCount": 2,
+  "issues": [
+    {
+      "category": "database",
+      "skillName": "database-hana",
+      "evalId": 2,
+      "severity": "error",
+      "kind": "single-assertion",
+      "message": "Eval must have at least two independent outcome assertions"
+    },
+    {
+      "category": "database",
+      "skillName": "database-hana",
+      "evalId": 3,
+      "severity": "error",
+      "kind": "single-assertion",
+      "message": "Eval must have at least two independent outcome assertions"
+    }
+  ]
 }

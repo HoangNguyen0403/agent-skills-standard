@@ -1,0 +1,1 @@
+Our RAG pipeline takes user search queries and injects the retrieved document chunks into the prompt without any validation.

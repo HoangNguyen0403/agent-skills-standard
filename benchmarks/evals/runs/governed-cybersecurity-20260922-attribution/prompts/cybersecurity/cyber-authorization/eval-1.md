@@ -1,0 +1,1 @@
+Draft a bounded authorization check for a synthetic exercise whose approval expires tonight.

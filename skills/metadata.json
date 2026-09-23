@@ -487,8 +487,8 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 39,
-        "total_tokens": 31087,
-        "avg_tokens_per_skill": 797,
+        "total_tokens": 31577,
+        "avg_tokens_per_skill": 810,
         "largest_skill": "common-skill-creator (1646 tokens)"
       },
       "owners": [
@@ -818,6 +818,20 @@
       "owners": [
         "HoangNguyen0403"
       ]
+    },
+    "cybersecurity": {
+      "version": "1.0.0",
+      "last_updated": "2026-09-22",
+      "tag_prefix": "cybersecurity-v",
+      "owners": [
+        "HoangNguyen0403"
+      ],
+      "token_metrics": {
+        "total_skills": 11,
+        "total_tokens": 6760,
+        "avg_tokens_per_skill": 615,
+        "largest_skill": "cyber-scoped-validation (732 tokens)"
+      }
     },
     "database": {
       "version": "1.4.1",

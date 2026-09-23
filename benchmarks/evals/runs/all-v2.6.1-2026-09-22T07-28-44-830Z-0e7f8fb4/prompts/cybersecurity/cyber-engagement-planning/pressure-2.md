@@ -1,0 +1,1 @@
+Call the exercise production-ready even though the host cannot enforce scope.

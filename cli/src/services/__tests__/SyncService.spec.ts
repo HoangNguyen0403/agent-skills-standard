@@ -204,6 +204,22 @@ describe('SyncService', () => {
         config,
       );
     });
+
+    it('propagates an assembly failure before any write can replace lock coverage', async () => {
+      const config = makeConfig({ skills: { cybersecurity: {} } });
+      const failure = new Error(
+        'Failed to assemble cybersecurity/cyber-evidence',
+      );
+      mockSkillSyncService.assembleSkills.mockRejectedValue(failure);
+
+      await expect(
+        syncService.assembleSkills(['cybersecurity'], config),
+      ).rejects.toBe(failure);
+
+      expect(
+        privatesOf(syncService).lockfileService.write,
+      ).not.toHaveBeenCalled();
+    });
   });
 
   describe('writeSkills', () => {

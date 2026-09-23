@@ -1,6 +1,6 @@
 # 🧪 Live Skill Evals Report
 
-> Generated: 2026-07-14T15:20:26.717Z
+> Generated: 2026-09-22T07:37:23.350Z
 > Measured, not structural: outcome assertions are evaluated against immutable run inputs. Baseline and with-skill arms are generated in isolated workers; trigger arms receive only the skill name and description.
 > Historical v1 runs remain readable through the compatibility adapter. v2 metrics report case pass rate, assertion pass rate, trigger recall, trigger specificity, and balanced trigger accuracy.
 > Activation metrics are omitted for legacy trigger evidence until a clean activation-evidence v2 run replaces it.
@@ -31,6 +31,8 @@
 
 | Run | Category | Date | Skills | Baseline | With-Skill | Delta | Evidence | Agent |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `all-v2.6.1-2026-09-22T07-28-44-830Z-0e7f8fb4` | all | 2026-09-22 | 14 | 10% | 68% | +57% | incremental | Codex CLI isolated worker |
+| `governed-cybersecurity-20260922-attribution` | all | 2026-09-22 | 14 | 4% | 67% | +63% | fresh | Codex CLI isolated worker |
 | `all-v2.6.0` | all | 2026-07-14 | 265 | 42% | 72% | +30% | composite | Composite immutable evidence |
 
 ## 📦 Per-Category Results (latest complete partition)

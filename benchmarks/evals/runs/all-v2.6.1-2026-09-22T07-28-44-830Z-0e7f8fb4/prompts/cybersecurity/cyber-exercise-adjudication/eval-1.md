@@ -1,0 +1,1 @@
+Adjudicate a synthetic observation against ground truth held by a separate coordinator.

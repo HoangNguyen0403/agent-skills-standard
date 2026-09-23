@@ -1,0 +1,1 @@
+The runtime denied the exercise because scope approval was missing. The analyst wants to record a successful detection anyway.

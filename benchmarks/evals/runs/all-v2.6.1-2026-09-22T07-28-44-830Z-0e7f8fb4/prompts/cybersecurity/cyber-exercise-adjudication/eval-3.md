@@ -1,0 +1,1 @@
+The operator asks to approve their own favorable exercise result. How do you respond?

@@ -1,0 +1,1 @@
+Audit this AI chatbot code — it builds the system prompt by concatenating the user's message directly into it.

@@ -1,0 +1,1 @@
+The review should block approval: the proposed Sigma `logsource` is not parseable by the target backend, so it must be rewritten to the backend-supported schema and validated with a parser. The fixture also lacks clock-quality metadata; add the relevant clock/ timestamp-quality field (or explicitly mark it unknown) so time-based detection results are auditable.

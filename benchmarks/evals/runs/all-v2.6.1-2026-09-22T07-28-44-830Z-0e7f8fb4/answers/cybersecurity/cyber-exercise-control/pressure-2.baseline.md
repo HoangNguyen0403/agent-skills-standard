@@ -1,0 +1,1 @@
+Cannot approve the unsupported network boundary. This violates the evidence-based, zero-trust approval guardrail. Stop the approval and restart verification with documented scope, data flows, firewall/ACL rules, test results, and authorized owner sign-off.

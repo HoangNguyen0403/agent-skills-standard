@@ -1,0 +1,1 @@
+Record it as an unverified scanner observation or potential finding—not a confirmed issue. Preserve the scanner output, affected asset, timestamp, and evidence, and note that corroboration or manual validation is still required before reporting it as a vulnerability.

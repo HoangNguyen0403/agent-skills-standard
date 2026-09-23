@@ -1,0 +1,1 @@
+Delete the blocked record so the final report looks clean.

@@ -121,6 +121,19 @@ describe('SpecialistTransformer', () => {
       expect(fm.tools).toBe('Read, Grep');
     });
 
+    // Test intent: scalar allowed-tools is a valid universal declaration and
+    // must project to Claude's native tools field rather than being dropped.
+    it('projects scalar allowed-tools onto Claude tools', () => {
+      const source = specialistSource(
+        `description: "reviews code"\nallowed-tools: "Read, Grep"`,
+      );
+      const result = SpecialistTransformer.transform(source, Agent.Claude);
+      const fm = yaml.load(
+        result!.content.match(/^---\r?\n([\s\S]*?)\r?\n---/)![1],
+      ) as Record<string, unknown>;
+      expect(fm.tools).toBe('Read, Grep');
+    });
+
     it('prefers an explicit metadata.tools over allowed-tools on Claude', () => {
       const source = specialistSource(
         `description: "reviews code"\ntools: Bash\nallowed-tools:\n  - Read`,

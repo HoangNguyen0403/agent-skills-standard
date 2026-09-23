@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-30T14:15:20.103Z",
-  "issueCount": 42,
+  "generatedAt": "2026-09-22T08:08:40.136Z",
+  "issueCount": 43,
   "issues": [
     {
       "category": "android",
@@ -294,6 +294,13 @@
       "skillName": "swift-best-practices",
       "evalId": 4,
       "assertion": "contains_any:is`, `has`, or `can`,isVerified,hasPremiumAccess",
+      "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
+    },
+    {
+      "category": "system-design",
+      "skillName": "system-design-interview-coaching",
+      "evalId": 1,
+      "assertion": "contains_any:scope,requirements",
       "message": "Outcome assertion is not grounded in the user prompt or expected behavior contract"
     }
   ]

@@ -1,0 +1,1 @@
+The dataset is empty, so report no compromise and close the hunt.

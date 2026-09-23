@@ -1,0 +1,1 @@
+During the session retrospective we found I missed loading the security skill when writing an API endpoint.

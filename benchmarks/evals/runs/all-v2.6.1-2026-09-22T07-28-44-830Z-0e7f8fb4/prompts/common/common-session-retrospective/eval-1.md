@@ -1,0 +1,1 @@
+Review three correction events without changing files: an available skill was not selected, its example used an unsupported flag, and the tool ignored its network policy. Return a root-cause table and candidate actions; this is analysis only.

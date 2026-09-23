@@ -254,3 +254,28 @@ model ladder.
 A one-file typo and a cross-service pricing fix were previously routed through
 the same HARD STOP and the same review depth, wasting approval cycles on trivial
 work and under-reviewing high-centrality changes.
+
+### ADR-012: Governed Cybersecurity Packages and Evolution
+
+_Date: 2026-09-22_
+**Decision**: Add an opt-in cybersecurity category with shared authorization,
+evidence and versioned framework mappings; white-team exercise control and
+independent adjudication; bounded red-team planning/validation; blue-team
+triage/detection/hunting; and paired purple-team validation. Team color does
+not determine execution risk. Unsupported host controls block live actions,
+not offline analysis.
+
+Treat a skill as a package: preserve binary resources and attribution, reject
+incomplete downloads, and stage replacement before changing an installed
+package. New eval manifests fingerprint package resources and preserve
+immutable input bytes. Legacy evidence remains readable, but cannot substitute
+for fresh whole-package evidence at promotion.
+
+Evolution separates observation, redacted proposal, authorized source edit,
+held-out comparison, independent review, promotion and rollback. Review names
+and hashes are audit data, not authenticated identities or permission grants.
+**Reason**: Instructions cannot enforce filesystem/network scope, credential
+isolation, cancellation or organizational approval. The registry distributes
+standards and verifies artifact integrity; the consuming host and accountable
+maintainers must enforce authority. No autonomous self-promotion or production
+security efficacy is claimed.

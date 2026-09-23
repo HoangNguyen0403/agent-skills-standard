@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-14T15:08:55.644Z",
+  "lastUpdated": "2026-09-22T07:37:22.484Z",
   "records": [
     {
       "runId": "all-v2.6.0",
@@ -13,6 +13,32 @@
       "agent": "Composite immutable evidence",
       "model": "GPT-5 + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna + gpt-5.6-luna",
       "evidenceMode": "composite"
+    },
+    {
+      "runId": "governed-cybersecurity-20260922-attribution",
+      "category": "all",
+      "version": "2.6.1",
+      "date": "2026-09-22T07:12:16.105Z",
+      "skillCount": 14,
+      "avgBaselinePassRate": 0.041666666666666664,
+      "avgWithSkillPassRate": 0.6726190476190477,
+      "avgDelta": 0.630952380952381,
+      "agent": "Codex CLI isolated worker",
+      "model": "gpt-5.6-luna",
+      "evidenceMode": "fresh"
+    },
+    {
+      "runId": "all-v2.6.1-2026-09-22T07-28-44-830Z-0e7f8fb4",
+      "category": "all",
+      "version": "2.6.1",
+      "date": "2026-09-22T07:37:22.484Z",
+      "skillCount": 14,
+      "avgBaselinePassRate": 0.10136054421768706,
+      "avgWithSkillPassRate": 0.6755102040816326,
+      "avgDelta": 0.5741496598639456,
+      "agent": "Codex CLI isolated worker",
+      "model": "gpt-5.6-luna",
+      "evidenceMode": "incremental"
     }
   ]
 }

@@ -1,0 +1,3 @@
+Review: **Coverage is blocked/not-tested.** The proposed Sigma `logsource` is not executable by the target backend, so rule validity or portability does not prove backend execution. Replace it with the backend-supported schema/adapter and confirm compilation.
+
+The fixture also lacks **clock-quality metadata**, so ordered correlation and time-window efficacy cannot be evaluated. Add clock-quality/observation-time metadata, or mark it unknown and retain the limitation. Record the telemetry prerequisites, expected matches, exclusions/benign cases, scope, status, evidence references, and owner; do not lower `level` to conceal these gaps.

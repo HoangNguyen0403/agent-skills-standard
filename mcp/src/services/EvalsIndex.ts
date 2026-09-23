@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import fs from "fs-extra";
 import path from "path";
 
@@ -20,6 +21,15 @@ interface ManifestSkill {
   skillName: string;
   cases: EvalCaseRef[];
 }
+interface ResourceFingerprint {
+  version: 1;
+  resources: Record<string, string>;
+}
+
+interface SourceHash {
+  skill: string;
+  evals: string;
+}
 interface Manifest {
   schemaVersion?: 1 | 2;
   assertionSemanticsVersion?: AssertionSemanticsVersion;
@@ -37,6 +47,9 @@ interface Manifest {
     arm: ArmName;
   }>;
   skills: ManifestSkill[];
+  resourceFingerprints?: Record<string, ResourceFingerprint>;
+  sourceHashes?: Record<string, SourceHash>;
+  inputProvenanceVersion?: 1;
 }
 interface SkillEvalCase {
   id: number | string;
@@ -49,10 +62,17 @@ interface EvalsJson {
   evals?: SkillEvalCase[];
   pressure_scenarios?: PressureScenario[];
 }
+interface InputsSource {
+  evals: Record<string, unknown>;
+  resources?: Record<string, string>;
+  skillMarkdown?: string;
+  skillMarkdownBase64?: string;
+  evalsBase64?: string;
+}
 interface InputsSnapshot {
   schemaVersion: 2;
   runId: string;
-  sources: Record<string, { evals: Record<string, unknown> }>;
+  sources: Record<string, InputsSource>;
 }
 interface ScoreSummary {
   baselinePassRate: Metric;
@@ -75,7 +95,6 @@ export interface EvalsVerifyOutcome {
   reason?: string;
   diffs?: string[];
 }
-
 
 function answerPath(
   runDir: string,
@@ -111,6 +130,138 @@ function readInputs(runDir: string): InputsSnapshot | null {
   return fs.existsSync(inputsPath)
     ? (fs.readJSONSync(inputsPath) as InputsSnapshot)
     : null;
+}
+
+function isStringRecord(value: unknown): value is Record<string, string> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.values(value).every((entry) => typeof entry === "string")
+  );
+}
+
+function isBase64(value: string): boolean {
+  return /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(
+    value,
+  );
+}
+
+function resourceFingerprintDiffs(
+  manifest: Manifest,
+  inputs: InputsSnapshot | null,
+): string[] {
+  if (
+    manifest.schemaVersion !== 2 ||
+    manifest.resourceFingerprints === undefined
+  )
+    return [];
+  if (
+    typeof manifest.resourceFingerprints !== "object" ||
+    manifest.resourceFingerprints === null ||
+    Array.isArray(manifest.resourceFingerprints)
+  )
+    return ["Invalid immutable resource fingerprint manifest"];
+
+  const diffs: string[] = [];
+  for (const key of manifest.skills
+    .map((skill) => `${skill.category}/${skill.skillName}`)
+    .sort()) {
+    if (!Object.hasOwn(manifest.resourceFingerprints, key))
+      diffs.push(`Missing immutable resource provenance for ${key}`);
+  }
+  for (const key of Object.keys(manifest.resourceFingerprints).sort()) {
+    const fingerprint = manifest.resourceFingerprints[key];
+    if (
+      !fingerprint ||
+      fingerprint.version !== 1 ||
+      !isStringRecord(fingerprint.resources)
+    ) {
+      diffs.push(`Invalid immutable resource fingerprint for ${key}`);
+      continue;
+    }
+
+    const resources = inputs?.sources[key]?.resources;
+    if (!isStringRecord(resources)) {
+      diffs.push(`Missing immutable resource provenance for ${key}`);
+      continue;
+    }
+
+    const expectedPaths = Object.keys(fingerprint.resources).sort();
+    const actualPaths = Object.keys(resources).sort();
+    for (const resourcePath of expectedPaths) {
+      const content = resources[resourcePath];
+      if (content === undefined) {
+        diffs.push(
+          `Missing immutable resource provenance for ${key}/${resourcePath}`,
+        );
+        continue;
+      }
+      if (
+        !isBase64(content) ||
+        createHash("sha256")
+          .update(Buffer.from(content, "base64"))
+          .digest("hex") !== fingerprint.resources[resourcePath]
+      ) {
+        diffs.push(`Immutable resource mismatch for ${key}/${resourcePath}`);
+      }
+    }
+    for (const resourcePath of actualPaths) {
+      if (!(resourcePath in fingerprint.resources))
+        diffs.push(`Immutable resource mismatch for ${key}/${resourcePath}`);
+    }
+  }
+  return diffs;
+}
+
+function rawSourceDiffs(
+  manifest: Manifest,
+  inputs: InputsSnapshot | null,
+): string[] {
+  if (manifest.schemaVersion !== 2 || manifest.inputProvenanceVersion !== 1)
+    return [];
+  const diffs: string[] = [];
+  for (const skill of manifest.skills) {
+    const key = `${skill.category}/${skill.skillName}`;
+    const expected = manifest.sourceHashes?.[key];
+    const source = inputs?.sources[key];
+    if (!expected || !source) {
+      diffs.push(`Missing immutable raw source provenance for ${key}`);
+      continue;
+    }
+    const skillBase64 = source.skillMarkdownBase64;
+    if (skillBase64 === undefined || !isBase64(skillBase64)) {
+      diffs.push(`Missing immutable raw skill provenance for ${key}`);
+    } else {
+      const skillBytes = Buffer.from(skillBase64, "base64");
+      if (
+        createHash("sha256").update(skillBytes).digest("hex") !== expected.skill
+      )
+        diffs.push(`Raw skill snapshot hash mismatch for ${key}`);
+      if (source.skillMarkdown !== skillBytes.toString("utf8"))
+        diffs.push(`Raw skill snapshot mismatch for ${key}`);
+    }
+    const evalsBase64 = source.evalsBase64;
+    if (evalsBase64 === undefined || !isBase64(evalsBase64)) {
+      diffs.push(`Missing immutable raw eval provenance for ${key}`);
+      continue;
+    }
+    const evalsBytes = Buffer.from(evalsBase64, "base64");
+    if (
+      createHash("sha256").update(evalsBytes).digest("hex") !== expected.evals
+    )
+      diffs.push(`Raw eval snapshot hash mismatch for ${key}`);
+    try {
+      if (
+        JSON.stringify(JSON.parse(evalsBytes.toString("utf8"))) !==
+        JSON.stringify(source.evals)
+      )
+        diffs.push(`Raw eval snapshot mismatch for ${key}`);
+    } catch {
+      diffs.push(`Invalid immutable raw eval JSON for ${key}`);
+    }
+  }
+  return diffs;
 }
 
 function evalDataFor(
@@ -293,11 +444,23 @@ export function verifyEvalRun(
       reason: "run is missing manifest.json or results.json",
     };
   const manifest = fs.readJSONSync(manifestPath) as Manifest;
-  if (manifest.schemaVersion === 2 && readInputs(runDir) === null)
+  const inputs = readInputs(runDir);
+  if (manifest.schemaVersion === 2 && inputs === null)
     return {
       runId,
       ok: false,
       reason: "v2 run is missing immutable inputs.json",
+    };
+  const provenanceDiffs = [
+    ...resourceFingerprintDiffs(manifest, inputs),
+    ...rawSourceDiffs(manifest, inputs),
+  ];
+  if (provenanceDiffs.length > 0)
+    return {
+      runId,
+      ok: false,
+      reason: "immutable source provenance differs from manifest",
+      diffs: provenanceDiffs,
     };
   const committed = fs.readJSONSync(resultsPath) as {
     schemaVersion?: 1 | 2;

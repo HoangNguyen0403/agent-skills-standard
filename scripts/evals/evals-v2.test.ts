@@ -1533,3 +1533,279 @@ test("a quota pause preserves completed answers and reports a resumable error", 
     await cleanup();
   }
 });
+
+test("v2 snapshots deterministically fingerprint package resources and detect byte tampering", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const resourcePath = path.join(
+      root,
+      "skills",
+      "dart",
+      "dart-tooling",
+      "references",
+      "formatter.md",
+    );
+    await fs.outputFile(resourcePath, "Use the project formatter.\n");
+    const { runDir, manifest } = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      runId: "dart-v9.9.9-resource-snapshot",
+    });
+    const fingerprint = manifest.resourceFingerprints?.["dart/dart-tooling"];
+    assert.equal(fingerprint?.version, 1);
+    assert.deepEqual(
+      Object.keys(fingerprint?.resources ?? {}),
+      [...Object.keys(fingerprint?.resources ?? {})].sort((left, right) =>
+        left.localeCompare(right),
+      ),
+    );
+    assert.ok(fingerprint?.resources["references/formatter.md"]);
+    assert.ok(fingerprint?.resources["SKILL.md"]);
+    assert.ok(!fingerprint?.resources["evals/evals.json"]);
+    await writeCompleteAnswers(runDir, manifest);
+    scoreRun(runDir, { repoRoot: root });
+
+    const inputsPath = path.join(runDir, "inputs.json");
+    const inputs = fs.readJsonSync(inputsPath);
+    inputs.sources["dart/dart-tooling"].resources["references/formatter.md"] =
+      Buffer.from("Tampered resource bytes.\n").toString("base64");
+    fs.writeJsonSync(inputsPath, inputs, { spaces: 2 });
+
+    const outcome = verifyRun(manifest.runId, { repoRoot: root });
+    assert.equal(outcome.ok, false);
+    assert.match(outcome.reason ?? "", /resource.*mismatch/i);
+  } finally {
+    await cleanup();
+  }
+});
+
+test("registry attribution drift invalidates evidence unless overridden by package attribution", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    await fs.outputFile(path.join(root, "LICENSE"), "Registry license one\n");
+    const initial = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      runId: "dart-registry-attribution",
+    });
+    await writeCompleteAnswers(initial.runDir, initial.manifest);
+    scoreRun(initial.runDir, { repoRoot: root });
+    await fs.writeFile(path.join(root, "LICENSE"), "Registry license two\n");
+    const changed = planBaseline("dart", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.equal(changed.impacts[0]?.outcome, "generate");
+
+    await fs.outputFile(
+      path.join(root, "skills/dart/dart-tooling/License"),
+      "Package-specific license\n",
+    );
+    const overridden = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      runId: "dart-package-attribution",
+    });
+    await writeCompleteAnswers(overridden.runDir, overridden.manifest);
+    scoreRun(overridden.runDir, { repoRoot: root });
+    await fs.writeFile(path.join(root, "LICENSE"), "Registry license three\n");
+    const unchanged = planBaseline("dart", {
+      repoRoot: root,
+      baselineRunId: overridden.manifest.runId,
+    });
+    assert.deepEqual(unchanged.impacts, []);
+  } finally {
+    await cleanup();
+  }
+});
+
+test("package resource changes regenerate with-skill evidence but retain prompt-only and activation reuse", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const resourcePath = path.join(
+      root,
+      "skills",
+      "dart",
+      "dart-tooling",
+      "references",
+      "formatter.md",
+    );
+    await fs.outputFile(resourcePath, "Use the project formatter.\n");
+    const initial = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      runId: "dart-v9.9.9-resource-reference",
+    });
+    await writeCompleteAnswers(initial.runDir, initial.manifest);
+    scoreRun(initial.runDir, { repoRoot: root });
+
+    await writeFile(resourcePath, "Use the project formatter with analysis.\n");
+    const plan = planBaseline("dart", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.equal(plan.impacts[0]?.outcome, "generate");
+    assert.equal(plan.impacts[0]?.activation, "reuse");
+    assert.equal(plan.impacts[0]?.reuseBaselineOutcome, true);
+
+    const next = createBaselineRun("dart", "9.9.9", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.ok(next.runDir);
+    const manifest = loadManifest(next.runDir);
+    const skill = manifest.skills[0];
+    assert.ok(skill);
+    assert.equal(
+      await fs.pathExists(
+        answerPath(next.runDir, manifest, skill, "eval-1", "baseline"),
+      ),
+      true,
+    );
+    assert.equal(
+      await fs.pathExists(
+        answerPath(next.runDir, manifest, skill, "eval-1", "with-skill"),
+      ),
+      false,
+    );
+    assert.equal(
+      await fs.pathExists(
+        answerPath(next.runDir, manifest, skill, "trigger-1"),
+      ),
+      true,
+    );
+  } finally {
+    await cleanup();
+  }
+});
+
+test("promotion requires whole-package provenance and re-verifies immutable inputs and results", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const { runDir, manifest } = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      runId: "dart-v9.9.9-resource-promotion",
+    });
+    await writeCompleteAnswers(runDir, manifest);
+    scoreRun(runDir, { repoRoot: root });
+
+    const manifestPath = path.join(runDir, "manifest.json");
+    const legacyManifest = fs.readJsonSync(manifestPath);
+    delete legacyManifest.resourceFingerprints;
+    fs.writeJsonSync(manifestPath, legacyManifest, { spaces: 2 });
+    assert.equal(verifyRun(manifest.runId, { repoRoot: root }).ok, true);
+    assert.throws(
+      () =>
+        promoteCategoryBaseline(
+          manifest.runId,
+          "dart",
+          "maintainer",
+          "release gate reviewed",
+          { repoRoot: root },
+        ),
+      /resource provenance/i,
+    );
+
+    fs.writeJsonSync(manifestPath, manifest, { spaces: 2 });
+    const inputsPath = path.join(runDir, "inputs.json");
+    const originalInputs = fs.readJsonSync(inputsPath);
+    const tamperedInputs = structuredClone(originalInputs);
+    tamperedInputs.sources["dart/dart-tooling"].resources["SKILL.md"] =
+      Buffer.from("tampered").toString("base64");
+    fs.writeJsonSync(inputsPath, tamperedInputs, { spaces: 2 });
+    assert.throws(
+      () =>
+        promoteCategoryBaseline(
+          manifest.runId,
+          "dart",
+          "maintainer",
+          "release gate reviewed",
+          { repoRoot: root },
+        ),
+      /not verified|resource.*mismatch/i,
+    );
+    fs.writeJsonSync(inputsPath, originalInputs, { spaces: 2 });
+    const withSkillAnswer = answerPath(
+      runDir,
+      manifest,
+      manifest.skills[0]!,
+      "eval-1",
+      "with-skill",
+    );
+    await fs.remove(withSkillAnswer);
+    assert.throws(
+      () =>
+        promoteCategoryBaseline(
+          manifest.runId,
+          "dart",
+          "maintainer",
+          "release gate reviewed",
+          { repoRoot: root },
+        ),
+      /not verified|incomplete/i,
+    );
+    await writeFile(withSkillAnswer, "tampered transcript");
+    assert.throws(
+      () =>
+        promoteCategoryBaseline(
+          manifest.runId,
+          "dart",
+          "maintainer",
+          "release gate reviewed",
+          { repoRoot: root },
+        ),
+      /not verified|recomputed scores/i,
+    );
+  } finally {
+    await cleanup();
+  }
+});
+
+test("v2 verification binds scored source objects to raw skill and eval bytes", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const { runDir, manifest } = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      runId: "dart-v9.9.9-raw-source-integrity",
+    });
+    await writeCompleteAnswers(runDir, manifest);
+    scoreRun(runDir, { repoRoot: root });
+
+    const inputsPath = path.join(runDir, "inputs.json");
+    const inputs = fs.readJsonSync(inputsPath);
+    const source = inputs.sources["dart/dart-tooling"];
+    source.skillMarkdownBase64 = Buffer.from(
+      await readFile(
+        path.join(root, "skills", "dart", "dart-tooling", "SKILL.md"),
+      ),
+    ).toString("base64");
+    source.evalsBase64 = Buffer.from(
+      await readFile(
+        path.join(
+          root,
+          "skills",
+          "dart",
+          "dart-tooling",
+          "evals",
+          "evals.json",
+        ),
+      ),
+    ).toString("base64");
+
+    source.skillMarkdown = "Tampered skill body.";
+    fs.writeJsonSync(inputsPath, inputs, { spaces: 2 });
+    let outcome = verifyRun(manifest.runId, { repoRoot: root });
+    assert.equal(outcome.ok, false);
+    assert.match(outcome.reason ?? "", /raw skill snapshot mismatch/i);
+
+    source.skillMarkdown = Buffer.from(
+      source.skillMarkdownBase64,
+      "base64",
+    ).toString("utf8");
+    source.evals.evals[0].assertions = [
+      { type: "contains", value: "formatter" },
+    ];
+    fs.writeJsonSync(inputsPath, inputs, { spaces: 2 });
+    outcome = verifyRun(manifest.runId, { repoRoot: root });
+    assert.equal(outcome.ok, false);
+    assert.match(outcome.reason ?? "", /raw eval snapshot mismatch/i);
+  } finally {
+    await cleanup();
+  }
+});

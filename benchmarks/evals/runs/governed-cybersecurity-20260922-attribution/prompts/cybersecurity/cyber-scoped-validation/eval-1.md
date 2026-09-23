@@ -1,0 +1,1 @@
+Validate one approved synthetic claim while recording redacted evidence.

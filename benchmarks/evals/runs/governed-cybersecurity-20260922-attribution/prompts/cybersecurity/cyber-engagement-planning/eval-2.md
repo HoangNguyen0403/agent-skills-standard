@@ -1,0 +1,1 @@
+The requester wants the plan to include credentials and attack commands so operators can move faster.

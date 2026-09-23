@@ -1,0 +1,1 @@
+Coordinate three synthetic injects for an authorized exercise and log their release decisions.

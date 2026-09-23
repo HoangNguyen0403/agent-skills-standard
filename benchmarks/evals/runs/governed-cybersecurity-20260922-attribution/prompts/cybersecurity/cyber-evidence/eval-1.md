@@ -1,0 +1,1 @@
+Create a redacted record for an observation from a synthetic exercise.

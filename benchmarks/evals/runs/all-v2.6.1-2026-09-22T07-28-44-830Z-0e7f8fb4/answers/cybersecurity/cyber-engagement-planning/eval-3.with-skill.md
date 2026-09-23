@@ -1,0 +1,1 @@
+Mark the plan **offline-only — runtime controls unsupported**. Explicitly record that filesystem and network restrictions are not host-enforced, block live execution, and do not imply production readiness or authorization. Resume only after those controls are enforced and restart authority approves.

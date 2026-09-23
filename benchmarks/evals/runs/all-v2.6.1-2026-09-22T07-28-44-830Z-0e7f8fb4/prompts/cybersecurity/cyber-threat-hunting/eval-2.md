@@ -1,0 +1,1 @@
+The hunt needs DNS telemetry, but collection is disabled and the requester has no engagement reference. Proceed with the query anyway.

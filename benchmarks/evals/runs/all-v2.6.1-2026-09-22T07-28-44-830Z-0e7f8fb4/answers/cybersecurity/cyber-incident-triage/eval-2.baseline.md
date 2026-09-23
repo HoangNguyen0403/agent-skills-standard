@@ -1,0 +1,1 @@
+Do not delete them immediately. Treat them as potential evidence: preserve and document the files, capture hashes, paths, timestamps, and related process/user/network activity, then contain the affected host (for example, isolate it) using approved procedures. Confirm maliciousness and obtain authorization before quarantining or deleting; escalate if needed.

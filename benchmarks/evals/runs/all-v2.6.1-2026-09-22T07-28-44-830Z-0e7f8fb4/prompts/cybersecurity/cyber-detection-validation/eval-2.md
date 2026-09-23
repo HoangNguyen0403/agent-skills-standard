@@ -1,0 +1,1 @@
+The action record exists, but the sensor produced no usable observation. Can we call it detected?

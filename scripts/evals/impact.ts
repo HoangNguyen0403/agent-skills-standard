@@ -7,7 +7,12 @@ import {
   loadManifest,
   listCategories,
 } from "./manifest";
-import { loadRunInputs, readCurrentSource, sourceKey } from "./snapshot";
+import {
+  loadRunInputs,
+  readCurrentSource,
+  resourceFingerprint,
+  sourceKey,
+} from "./snapshot";
 import type { ManifestSkill, ManifestV2, RunInputSource } from "./types";
 
 const CURRENT_INSTRUCTION_VERSION = "governing-skill-v3" as const;
@@ -206,7 +211,15 @@ function compatibleEvidenceRun(
     )
       return false;
     const source = run.sources[sourceKey(skill.category, skill.skillName)];
-    if (!source || source.hashes.skill !== current.hashes.skill) return false;
+    if (
+      !source ||
+      source.hashes.skill !== current.hashes.skill ||
+      !source.resources ||
+      JSON.stringify(resourceFingerprint(source.resources)) !==
+        JSON.stringify(resourceFingerprint(current.resources ?? {}))
+    ) {
+      return false;
+    }
     const sourceParts = evalParts(source.evals);
     return (
       sourceParts.outcomePrompts === currentParts.outcomePrompts &&
@@ -281,10 +294,15 @@ export function planBaseline(
     const assertionsChanged =
       previousParts.assertions !== currentParts.assertions;
     const triggersChanged = previousParts.triggers !== currentParts.triggers;
+    const resourceChanged =
+      !previous.resources ||
+      JSON.stringify(resourceFingerprint(previous.resources)) !==
+        JSON.stringify(resourceFingerprint(current.resources ?? {}));
     if (
       !protocolChanged &&
       !skillBodyChanged &&
       !descriptionChanged &&
+      !resourceChanged &&
       !promptsChanged &&
       !assertionsChanged &&
       !triggersChanged
@@ -293,7 +311,7 @@ export function planBaseline(
     const outcome: EvidenceAction =
       protocolChanged || promptsChanged
         ? "generate"
-        : skillBodyChanged || descriptionChanged
+        : skillBodyChanged || descriptionChanged || resourceChanged
           ? "generate"
           : assertionsChanged
             ? "regrade"
@@ -308,6 +326,7 @@ export function planBaseline(
       descriptionChanged ? "description" : "",
       promptsChanged ? "outcome prompts" : "",
       assertionsChanged ? "assertions" : "",
+      resourceChanged ? "package resources" : "",
       triggersChanged ? "activation corpus" : "",
     ]
       .filter(Boolean)
@@ -328,6 +347,7 @@ export function planBaseline(
         !protocolChanged &&
         !skillBodyChanged &&
         !descriptionChanged &&
+        !resourceChanged &&
         !promptsChanged
           ? "regrade"
           : compatible && !protocolChanged && !promptsChanged
@@ -397,9 +417,16 @@ export function createBaselineRun(
           sourceKey(skill.category, skill.skillName)
         ];
       const current = readCurrentSource(repoRoot, skill);
+      const expectedResources =
+        candidate.manifest.resourceFingerprints?.[
+          sourceKey(skill.category, skill.skillName)
+        ];
       return (
         expected?.skill === current.hashes.skill &&
-        expected.evals === current.hashes.evals
+        expected.evals === current.hashes.evals &&
+        !!expectedResources &&
+        JSON.stringify(expectedResources) ===
+          JSON.stringify(resourceFingerprint(current.resources ?? {}))
       );
     });
   });

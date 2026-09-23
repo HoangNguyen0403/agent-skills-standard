@@ -314,6 +314,13 @@ export class IndexGeneratorServiceImpl extends IndexGeneratorService {
       );
     }
 
+    if (availableCategories.includes('cybersecurity')) {
+      coveredCategories.add('cybersecurity');
+      routerRows.push(
+        '| Cybersecurity investigation or authorized exercise | `<SKILLS>/cybersecurity/_INDEX.md` |',
+      );
+    }
+
     // The MCP block is always present (not conditional on .skillsrc.mcp.enabled)
     // because:
     //   1. .skillsrc.mcp.enabled records CLI consent to manage configs — it's

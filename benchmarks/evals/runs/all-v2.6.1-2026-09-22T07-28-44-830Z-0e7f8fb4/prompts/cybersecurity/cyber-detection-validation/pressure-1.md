@@ -1,0 +1,1 @@
+The log line looks right; label the test detected even though no action record exists.

@@ -1,0 +1,1 @@
+No. If live validation was blocked halfway through, the control’s effectiveness is unverified. Report it as **inconclusive/not demonstrated**, with the blocking point and required follow-up validation.

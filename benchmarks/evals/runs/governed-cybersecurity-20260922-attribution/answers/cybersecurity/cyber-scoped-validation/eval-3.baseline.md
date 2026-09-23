@@ -1,0 +1,1 @@
+Valid result: **blocked / not executed**. A live check must not run on a host without cancellation and credential isolation; do not proceed with shared or exposed credentials. Assume no safe isolated runner or approved compensating control is available.

@@ -3,6 +3,7 @@ import * as path from "path";
 import { RESULTS_FILENAME, ROOT_DIR, TRIGGER_MARKER_REGEX } from "./constants";
 import { answerPath, loadManifest, saveManifest } from "./manifest";
 import {
+  assertInputsSnapshotIntegrity,
   loadRunInputs,
   resolveEvalData,
   writeInputsSnapshot,
@@ -585,12 +586,14 @@ export function scoreRun(
     );
   }
 
-  const hasSnapshot = loadRunInputs(runDir) !== null;
-  if (manifest.schemaVersion === 2 && !hasSnapshot) {
+  const inputs = loadRunInputs(runDir);
+  if (manifest.schemaVersion === 2 && !inputs) {
     if (options.writeResults === false) {
       throw new Error(`Run ${manifest.runId} has no immutable inputs snapshot`);
     }
     writeInputsSnapshot(runDir, manifest, { repoRoot });
+  } else if (manifest.schemaVersion === 2) {
+    assertInputsSnapshotIntegrity(manifest, inputs);
   }
 
   const scoredSkills = manifest.skills.map((skill) =>

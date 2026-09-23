@@ -1,6 +1,6 @@
 # 📊 Agent Skill Benchmark Report
 
-> Generated: 2026-07-14T16:26:08.382Z
+> Generated: 2026-09-22T08:08:38.648Z
 > Token counting: real cl100k-family tokenizer (`gpt-tokenizer`), chars/4 as fallback only.
 > Baselines: **synthetic reference instruction-volume bands**, not a measured survey of real prompts (see Methodology). Token/cost figures below measure *skill size*, not *behavioral effectiveness*.
 > Quality: structural rubric (0–10), no live LLM calls required. For measured with/without-skill behavioral results, see the [Live Evals Report](evals-report.md).
@@ -10,7 +10,7 @@
 This benchmark answers: **"How much smaller is a skill than a reference band of inline instructions a developer might otherwise write?"** It is a size/structure metric, not a measured behavioral improvement — that is what the [Live Evals Report](evals-report.md) is for.
 
 **Reference band (no skill)**: a synthetic stand-in for domain knowledge written directly into the prompt every time.
-**WITH a skill**: the agent loads the SKILL.md file (avg. 561 tokens this run) — structured, reusable, cached.
+**WITH a skill**: the agent loads the SKILL.md file (avg. 587 tokens this run) — structured, reusable, cached.
 
 **Eval–Skill Consistency** (labeled "Aligned" below): % of eval `contains` assertion values that are literal substrings of SKILL.md. This only checks that the skill and its evals were written consistently with each other — it is **not** evidence the skill changes agent behavior. Evals are written from the skill, so near-100% is expected and does not by itself indicate quality. Measured behavioral delta lives in the [Live Evals Report](evals-report.md).
 
@@ -18,17 +18,152 @@ This benchmark answers: **"How much smaller is a skill than a reference band of 
 
 | Metric                            | Value                             |
 | --------------------------------- | --------------------------------- |
-| Total Skills Benchmarked          | **265**           |
-| Avg. Tokens WITH Skill (SKILL.md) | **561 tokens**    |
+| Total Skills Benchmarked          | **296**           |
+| Avg. Tokens WITH Skill (SKILL.md) | **587 tokens**    |
 | Baseline: Light prompt (no skill) | **529 tokens** ↓ see Methodology |
 | Baseline: Heavy prompt (no skill) | **986 tokens** ↓ see Methodology |
-| Avg. Token Savings vs Light       | **-6%** (-32 tokens/call) |
-| Avg. Token Savings vs Heavy       | **43%** (425 tokens/call) |
+| Avg. Token Savings vs Light       | **-11%** (-58 tokens/call) |
+| Avg. Token Savings vs Heavy       | **40%** (399 tokens/call) |
 | Avg. Quality Score                | **9.8/10** |
-| Guardrail Skills Covered          | **7** |
-| Avg. Behavior Quality             | **2.9/4** (guardrail skills only) |
-| Skills with Evals                 | **265 / 265** |
-| Avg. Eval–Skill Consistency       | **99%** (260 skills with `contains` assertions — see caveat above) |
+| Guardrail Skills Covered          | **26** |
+| Avg. Behavior Quality             | **3.5/4** (guardrail skills only) |
+| Skills with Evals                 | **296 / 296** |
+| Avg. Eval–Skill Consistency       | **99%** (280 skills with `contains` assertions — see caveat above) |
+
+## 🆕 What Changed Since v2.6.0
+
+**New skills (33)**: `common-operator-profile`, `common-task-complexity-routing`, `cyber-authorization`, `cyber-detection-engineering`, `cyber-detection-validation`, `cyber-engagement-planning`, `cyber-evidence`, `cyber-exercise-adjudication`, `cyber-exercise-control`, `cyber-framework-mapping`, `cyber-incident-triage`, `cyber-scoped-validation`, `cyber-threat-hunting`, `database-hana`, `quality-engineering-automation-health`, `quality-engineering-flaky-triage`, `quality-engineering-playwright-pom-generation`, `quality-engineering-selector-stability`, `quality-engineering-test-healing`, `quality-engineering-test-plan-authoring`, `quality-engineering-visual-baseline`, `system-design-artifact-intake`, `system-design-building-blocks`, `system-design-case-catalog`, `system-design-communication`, `system-design-data-architecture`, `system-design-estimation`, `system-design-integration-patterns`, `system-design-interview-coaching`, `system-design-methodology`, `system-design-principles`, `system-design-resilience-ops`, `system-design-review`
+
+**Removed skills (1)**: `common-system-design`
+
+**Quality-score changes**:
+
+| Skill | Category | Before | After |
+| --- | --- | --- | --- |
+| `common-tdd` | common | 10/10 | 6/10 |
+| `common-feedback-reporter` | common | 10/10 | 8/10 |
+| `common-telemetry` | common | 9/10 | 7/10 |
+| `common-workflow-writing` | common | 10/10 | 8/10 |
+| `flutter-widgets` | flutter | 10/10 | 8/10 |
+| `android-networking` | android | 9/10 | 10/10 |
+| `common-accessibility` | common | 9/10 | 10/10 |
+| `common-code-review` | common | 9/10 | 10/10 |
+| `common-debugging` | common | 9/10 | 10/10 |
+| `common-error-handling` | common | 9/10 | 10/10 |
+| `common-learning-log` | common | 9/10 | 10/10 |
+| `common-product-requirements` | common | 9/10 | 10/10 |
+| `common-security-standards` | common | 9/10 | 10/10 |
+| `flutter-auto-route-navigation` | flutter | 9/10 | 10/10 |
+| `flutter-bloc-state-management` | flutter | 9/10 | 10/10 |
+| `flutter-dependency-injection` | flutter | 9/10 | 10/10 |
+| `flutter-localization` | flutter | 9/10 | 10/10 |
+| `flutter-navigation` | flutter | 9/10 | 10/10 |
+| `flutter-notifications` | flutter | 9/10 | 10/10 |
+| `flutter-security` | flutter | 9/10 | 10/10 |
+| `golang-error-handling` | golang | 9/10 | 10/10 |
+| `golang-logging` | golang | 9/10 | 10/10 |
+| `golang-testing` | golang | 9/10 | 10/10 |
+| `nestjs-configuration` | nestjs | 7/10 | 8/10 |
+| `nestjs-documentation` | nestjs | 9/10 | 10/10 |
+| `nextjs-pages-router` | nextjs | 9/10 | 10/10 |
+| `nextjs-server-actions` | nextjs | 9/10 | 10/10 |
+| `nextjs-server-components` | nextjs | 9/10 | 10/10 |
+| `nextjs-styling` | nextjs | 9/10 | 10/10 |
+| `php-concurrency` | php | 9/10 | 10/10 |
+| `php-error-handling` | php | 9/10 | 10/10 |
+| `php-language` | php | 9/10 | 10/10 |
+| `php-testing` | php | 9/10 | 10/10 |
+| `quality-engineering-appium-mcp` | quality-engineering | 9/10 | 10/10 |
+| `quality-engineering-playwright-cli` | quality-engineering | 9/10 | 10/10 |
+| `react-security` | react | 9/10 | 10/10 |
+| `react-testing` | react | 9/10 | 10/10 |
+| `spring-boot-testing` | spring-boot | 9/10 | 10/10 |
+| `swift-swiftui` | swift | 9/10 | 10/10 |
+
+**Token-size changes ≥10%**:
+
+| Skill | Category | Change |
+| --- | --- | --- |
+| `common-architecture-diagramming` | common | +129% (1083 tokens now) |
+| `quality-engineering-playwright-cli` | quality-engineering | +75% (1196 tokens now) |
+| `golang-database` | golang | +70% (780 tokens now) |
+| `quality-engineering-appium-mcp` | quality-engineering | +58% (1170 tokens now) |
+| `golang-logging` | golang | +44% (579 tokens now) |
+| `golang-concurrency` | golang | +41% (576 tokens now) |
+| `golang-api-server` | golang | +39% (609 tokens now) |
+| `android-navigation-type-safe` | android | +35% (345 tokens now) |
+| `common-web-visual-testing` | common | +35% (743 tokens now) |
+| `common-learning-log` | common | +34% (677 tokens now) |
+| `angular-architecture` | angular | +30% (780 tokens now) |
+| `laravel-clean-architecture` | laravel | +29% (819 tokens now) |
+| `flutter-localization` | flutter | +28% (585 tokens now) |
+| `common-protocol-enforcement` | common | +25% (614 tokens now) |
+| `common-llm-security` | common | +23% (833 tokens now) |
+| `common-observability` | common | +22% (506 tokens now) |
+| `php-concurrency` | php | +22% (629 tokens now) |
+| `quality-engineering-quality-assurance` | quality-engineering | +22% (593 tokens now) |
+| `common-store-changelog` | common | +21% (805 tokens now) |
+| `common-telemetry` | common | +21% (653 tokens now) |
+| `database-postgresql` | database | +21% (464 tokens now) |
+| `flutter-bloc-state-management` | flutter | +21% (854 tokens now) |
+| `flutter-security` | flutter | +21% (536 tokens now) |
+| `ios-notifications` | ios | +21% (326 tokens now) |
+| `common-code-review` | common | +20% (622 tokens now) |
+| `common-debugging` | common | +20% (476 tokens now) |
+| `common-mobile-animation` | common | +20% (613 tokens now) |
+| `database-redis` | database | +20% (544 tokens now) |
+| `ios-design-system` | ios | +20% (315 tokens now) |
+| `angular-performance` | angular | +19% (543 tokens now) |
+| `common-documentation` | common | +19% (416 tokens now) |
+| `common-mobile-visual-testing` | common | +19% (727 tokens now) |
+| `common-session-retrospective` | common | +19% (816 tokens now) |
+| `common-mobile-ux-core` | common | +18% (483 tokens now) |
+| `javascript-language` | javascript | +18% (545 tokens now) |
+| `swift-memory-management` | swift | +18% (456 tokens now) |
+| `angular-dependency-injection` | angular | +17% (584 tokens now) |
+| `angular-security` | angular | +17% (553 tokens now) |
+| `common-error-handling` | common | +17% (467 tokens now) |
+| `ios-dependency-injection` | ios | +17% (335 tokens now) |
+| `ios-deployment` | ios | +17% (386 tokens now) |
+| `javascript-best-practices` | javascript | +17% (357 tokens now) |
+| `javascript-tooling` | javascript | +17% (469 tokens now) |
+| `php-best-practices` | php | +17% (608 tokens now) |
+| `swift-swiftui` | swift | +17% (501 tokens now) |
+| `flutter-navigation` | flutter | +16% (440 tokens now) |
+| `laravel-security` | laravel | +16% (836 tokens now) |
+| `laravel-sessions-middleware` | laravel | +16% (751 tokens now) |
+| `nestjs-architecture` | nestjs | +16% (674 tokens now) |
+| `nextjs-server-components` | nextjs | +16% (668 tokens now) |
+| `react-native-dls` | react-native | +16% (333 tokens now) |
+| `common-feedback-reporter` | common | +15% (999 tokens now) |
+| `dart-language` | dart | +15% (815 tokens now) |
+| `database-mongodb` | database | +15% (467 tokens now) |
+| `flutter-getx-state-management` | flutter | +15% (544 tokens now) |
+| `ios-ui-navigation` | ios | +15% (463 tokens now) |
+| `kotlin-language` | kotlin | +15% (518 tokens now) |
+| `angular-components` | angular | +14% (723 tokens now) |
+| `angular-forms` | angular | +14% (367 tokens now) |
+| `common-product-requirements` | common | +14% (1034 tokens now) |
+| `golang-testing` | golang | +14% (496 tokens now) |
+| `android-resources` | android | +13% (490 tokens now) |
+| `angular-directives-pipes` | angular | +13% (558 tokens now) |
+| `angular-style-guide` | angular | +13% (591 tokens now) |
+| `laravel-background-processing` | laravel | +13% (720 tokens now) |
+| `quality-engineering-zephyr-coverage-analysis` | quality-engineering | +13% (521 tokens now) |
+| `swift-language` | swift | +13% (518 tokens now) |
+| `flutter-feature-based-clean-architecture` | flutter | +12% (568 tokens now) |
+| `java-language` | java | +12% (585 tokens now) |
+| `laravel-architecture` | laravel | +12% (388 tokens now) |
+| `laravel-testing` | laravel | +12% (802 tokens now) |
+| `react-native-components` | react-native | +12% (411 tokens now) |
+| `android-concurrency` | android | +11% (378 tokens now) |
+| `angular-http-client` | angular | +11% (616 tokens now) |
+| `angular-testing` | angular | +11% (493 tokens now) |
+| `flutter-dependency-injection` | flutter | +11% (520 tokens now) |
+| `ios-localization` | ios | +11% (399 tokens now) |
+| `android-navigation` | android | +10% (285 tokens now) |
+| `angular-state-management` | angular | +10% (426 tokens now) |
+| `flutter-auto-route-navigation` | flutter | +10% (509 tokens now) |
 
 ## 🧪 Measured Effectiveness — Live Evals (latest run per category)
 
@@ -36,15 +171,16 @@ Unlike everything else in this report, these numbers come from actually running 
 
 | Category | Baseline Pass Rate | With-Skill Pass Rate | Delta | Last Run |
 | --- | --- | --- | --- | --- |
-| all | 42% | 72% | +30% | 2026-07-14 |
+| all | 10% | 68% | +57% | 2026-09-22 |
 
-> Full-catalog live eval run covers all 22 categories; see the [Live Evals Report](evals-report.md) for the per-category breakdown.
+> Full-catalog live eval run covers all 24 categories; see the [Live Evals Report](evals-report.md) for the per-category breakdown.
 
 ## 📜 History
 
 | Version | Date       | Skills | Avg Tokens | Savings (%) | Quality | Report |
 | ------- | ---------- | ------ | ---------- | ----------- | ------- | ------ |
-| v2.6.0 | 2026-07-14 | 265 | 561 | 43% | 9.8/10 | [Full Report](benchmarks/archive/v2.6.0.md) |
+| v2.6.1 | 2026-09-22 | 296 | 587 | 40% | 9.8/10 | [Full Report](benchmarks/archive/v2.6.1.md) |
+| v2.6.0 | 2026-07-10 | 264 | 528 | 46% | 9.8/10 | [Full Report](benchmarks/archive/v2.6.0.md) |
 | v2.4.7 | 2026-06-15 | 251 | 551 | 85% | 9.8/10 | [Full Report](benchmarks/archive/v2.4.7.md) |
 | v2.4.6 | 2026-06-10 | 251 | 548 | 85% | 9.8/10 | [Full Report](benchmarks/archive/v2.4.6.md) |
 | v2.4.1 | 2026-05-18 | 247 | 540 | 85% | 9.9/10 | [Full Report](benchmarks/archive/v2.4.1.md) |
@@ -74,9 +210,9 @@ Unlike everything else in this report, these numbers come from actually running 
 
 | Metric | Value |
 | --- | --- |
-| Avg. frontmatter tokens per skill | **101 tokens** |
-| Total frontmatter overhead (all 265 skills registered, paid every session) | **26846 tokens** |
-| Break-even (skill *uses*, at avg. savings/use, to offset the whole catalog's per-session frontmatter cost) | **~64 use(s)** |
+| Avg. frontmatter tokens per skill | **105 tokens** |
+| Total frontmatter overhead (all 296 skills registered, paid every session) | **30952 tokens** |
+| Break-even (skill *uses*, at avg. savings/use, to offset the whole catalog's per-session frontmatter cost) | **~78 use(s)** |
 
 > **Prompt caching caveat**: all cost figures in this report price every token at the full input rate. In practice, static context (including skill frontmatter and any skill body loaded early in a session) is frequently served from a prompt cache at a fraction of the input price on providers that support it. Real savings are directionally consistent with this report but smaller in absolute $ than the tables below imply.
 
@@ -86,10 +222,10 @@ Unlike everything else in this report, these numbers come from actually running 
 
 | Model             | Original Cost | Skill Cost | Net Savings | % Saved |
 | ----------------- | ------------- | ---------- | ----------- | ------- |
-| Gemini 3 Flash | $0.0004930 | $0.0002805 | **$0.0002125** | 43% |
-| GPT-5 | $0.0012325 | $0.0007012 | **$0.0005312** | 43% |
-| Gemini 3.1 Pro | $0.0019720 | $0.0011220 | **$0.0008500** | 43% |
-| Claude Sonnet 4.5 | $0.0029580 | $0.0016830 | **$0.0012750** | 43% |
+| Gemini 3 Flash | $0.0004930 | $0.0002935 | **$0.0001995** | 40% |
+| GPT-5 | $0.0012325 | $0.0007337 | **$0.0004987** | 40% |
+| Gemini 3.1 Pro | $0.0019720 | $0.0011740 | **$0.0007980** | 40% |
+| Claude Sonnet 4.5 | $0.0029580 | $0.0017610 | **$0.0011970** | 40% |
 
 ### 📈 Monthly Savings at Scale — (Avg Skill vs Heavy Reference Band)
 
@@ -97,14 +233,14 @@ Unlike everything else in this report, these numbers come from actually running 
 
 | Daily Calls | Original Cost/mo | Monthly Savings (1 skill) | Model |
 | ----------- | ---------------- | -------------------------- | ----- |
-| 1,000 | $36.9750/mo | $15.9375/mo | GPT-5 |
-| 1,000 | $88.7400/mo | $38.2500/mo | Claude Sonnet 4.5 |
-| 1,000 | $59.1600/mo | $25.5000/mo | Gemini 3.1 Pro |
+| 1,000 | $36.9750/mo | $14.9625/mo | GPT-5 |
+| 1,000 | $88.7400/mo | $35.9100/mo | Claude Sonnet 4.5 |
+| 1,000 | $59.1600/mo | $23.9400/mo | Gemini 3.1 Pro |
 
 ## 📦 Per-Category Summary
 
 <details>
-<summary><h3>📦 android (26 skills | avg 421 tokens | quality 9.9/10 | eval–skill consistency 100%)</h3></summary>
+<summary><h3>📦 android (26 skills | avg 423 tokens | quality 9.9/10 | eval–skill consistency 100%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
@@ -133,7 +269,7 @@ Unlike everything else in this report, these numbers come from actually running 
 | `android-testing      ` | 322    | ███████░░░ 67%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `android-tooling      ` | 317    | ███████░░░ 68%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `android-xml-views    ` | 316    | ███████░░░ 68%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `android-agp-upgrade  ` | 674    | ███░░░░░░░ 32%     | 8/10 | n/a      | 3 | ✅ 100% |
+| `android-agp-upgrade  ` | 710    | ███░░░░░░░ 28%     | 8/10 | n/a      | 3 | ✅ 100% |
 
 </details>
 
@@ -161,14 +297,14 @@ Unlike everything else in this report, these numbers come from actually running 
 </details>
 
 <details>
-<summary><h3>📦 common (39 skills | avg 732 tokens | quality 9.7/10 | eval–skill consistency 98%)</h3></summary>
+<summary><h3>📦 common (39 skills | avg 763 tokens | quality 9.6/10 | eval–skill consistency 98%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
 | `common-accessibility ` | 1075   | ⚠️ Overhead 9%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-api-design    ` | 895    | █░░░░░░░░░ 9%      | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-architecture-audit` | 628    | ████░░░░░░ 36%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `common-architecture-diagramming` | 575    | ████░░░░░░ 42%     | 10/10 | n/a      | 3 | n/a |
+| `common-architecture-diagramming` | 1083   | ⚠️ Overhead 10%    | 10/10 | n/a      | 8 | ✅ 100% |
 | `common-best-practices` | 425    | ██████░░░░ 57%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-business-requirements` | 630    | ████░░░░░░ 36%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-code-review   ` | 622    | ████░░░░░░ 37%     | 10/10 | 4/4      | 3 | ⚠️ 67% |
@@ -178,32 +314,51 @@ Unlike everything else in this report, these numbers come from actually running 
 | `common-documentation ` | 416    | ██████░░░░ 58%     | 10/10 | n/a      | 3 | ✅ 80% |
 | `common-error-handling` | 467    | █████░░░░░ 53%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-git-collaboration` | 523    | █████░░░░░ 47%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `common-learning-log  ` | 564    | ████░░░░░░ 43%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `common-llm-security  ` | 705    | ███░░░░░░░ 28%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `common-learning-log  ` | 677    | ███░░░░░░░ 31%     | 10/10 | 1/4      | 4 | ✅ 100% |
+| `common-llm-security  ` | 833    | ██░░░░░░░░ 16%     | 10/10 | 4/4      | 5 | ✅ 100% |
 | `common-mobile-animation` | 613    | ████░░░░░░ 38%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-mobile-ux-core` | 483    | █████░░░░░ 51%     | 10/10 | n/a      | 3 | n/a |
 | `common-observability ` | 506    | █████░░░░░ 49%     | 10/10 | n/a      | 3 | n/a |
 | `common-operator-profile` | 925    | █░░░░░░░░░ 6%      | 10/10 | n/a      | 4 | ✅ 100% |
 | `common-owasp         ` | 1273   | ⚠️ Overhead 29%    | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-performance-engineering` | 664    | ███░░░░░░░ 33%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `common-product-requirements` | 1010   | ⚠️ Overhead 2%     | 10/10 | n/a      | 5 | ✅ 100% |
+| `common-product-requirements` | 1034   | ⚠️ Overhead 5%     | 10/10 | n/a      | 5 | ✅ 100% |
 | `common-security-audit` | 990    | ░░░░░░░░░░ 0%      | 10/10 | 0/4      | 3 | ✅ 100% |
 | `common-security-standards` | 694    | ███░░░░░░░ 30%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `common-session-retrospective` | 720    | ███░░░░░░░ 27%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `common-session-retrospective` | 816    | ██░░░░░░░░ 17%     | 10/10 | 4/4      | 4 | ✅ 100% |
 | `common-skill-creator ` | 1559   | ⚠️ Overhead 58%    | 10/10 | 4/4      | 3 | ✅ 100% |
 | `common-software-requirements` | 657    | ███░░░░░░░ 33%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-store-changelog` | 805    | ██░░░░░░░░ 18%     | 10/10 | n/a      | 4 | ✅ 100% |
-| `common-system-design ` | 667    | ███░░░░░░░ 32%     | 10/10 | n/a      | 3 | n/a |
-| `common-tdd           ` | 861    | █░░░░░░░░░ 13%     | 10/10 | 4/4      | 3 | ✅ 100% |
+| `common-task-complexity-routing` | 846    | █░░░░░░░░░ 14%     | 10/10 | 4/4      | 3 | ✅ 100% |
 | `common-ui-design     ` | 732    | ███░░░░░░░ 26%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-exploit-verification` | 742    | ███░░░░░░░ 25%     | 9/10 | n/a      | 2 | ✅ 100% |
-| `common-mobile-visual-testing` | 621    | ████░░░░░░ 37%     | 9/10 | n/a      | 2 | ✅ 100% |
+| `common-mobile-visual-testing` | 727    | ███░░░░░░░ 26%     | 9/10 | n/a      | 2 | ✅ 100% |
 | `common-pentest-methodology` | 1068   | ⚠️ Overhead 8%     | 9/10 | n/a      | 2 | ✅ 100% |
-| `common-web-visual-testing` | 625    | ████░░░░░░ 37%     | 9/10 | n/a      | 2 | ✅ 100% |
+| `common-web-visual-testing` | 743    | ███░░░░░░░ 25%     | 9/10 | n/a      | 2 | ✅ 100% |
 | `common-feedback-reporter` | 999    | ⚠️ Overhead 1%     | 8/10 | n/a      | 4 | ✅ 94% |
 | `common-protocol-enforcement` | 614    | ████░░░░░░ 38%     | 8/10 | 4/4      | 3 | ✅ 100% |
 | `common-workflow-writing` | 613    | ████░░░░░░ 38%     | 8/10 | 0/4      | 4 | ✅ 100% |
 | `common-telemetry     ` | 653    | ███░░░░░░░ 34%     | 7/10 | n/a      | 2 | ✅ 100% |
+| `common-tdd           ` | 786    | ██░░░░░░░░ 20%     | 6/10 | 4/4      | 6 | ✅ 100% |
+
+</details>
+
+<details>
+<summary><h3>📦 cybersecurity (11 skills | avg 515 tokens | quality 10.0/10 | eval–skill consistency 85%)</h3></summary>
+
+| Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
+| ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
+| `cyber-authorization  ` | 532    | █████░░░░░ 46%     | 10/10 | 4/4      | 3 | ✅ 83% |
+| `cyber-detection-engineering` | 490    | █████░░░░░ 50%     | 10/10 | 4/4      | 3 | ⚠️ 67% |
+| `cyber-detection-validation` | 483    | █████░░░░░ 51%     | 10/10 | 4/4      | 3 | ✅ 88% |
+| `cyber-engagement-planning` | 567    | ████░░░░░░ 42%     | 10/10 | 4/4      | 4 | ✅ 100% |
+| `cyber-evidence       ` | 540    | █████░░░░░ 45%     | 10/10 | 4/4      | 3 | ✅ 100% |
+| `cyber-exercise-adjudication` | 480    | █████░░░░░ 51%     | 10/10 | 4/4      | 3 | ✅ 100% |
+| `cyber-exercise-control` | 492    | █████░░░░░ 50%     | 10/10 | 4/4      | 3 | ✅ 100% |
+| `cyber-framework-mapping` | 515    | █████░░░░░ 48%     | 10/10 | 4/4      | 3 | ✅ 100% |
+| `cyber-incident-triage` | 511    | █████░░░░░ 48%     | 10/10 | 4/4      | 3 | ✅ 73% |
+| `cyber-scoped-validation` | 599    | ████░░░░░░ 39%     | 10/10 | 4/4      | 3 | ⚠️ 56% |
+| `cyber-threat-hunting ` | 453    | █████░░░░░ 54%     | 10/10 | 4/4      | 3 | ⚠️ 67% |
 
 </details>
 
@@ -219,13 +374,14 @@ Unlike everything else in this report, these numbers come from actually running 
 </details>
 
 <details>
-<summary><h3>📦 database (7 skills | avg 363 tokens | quality 9.4/10 | eval–skill consistency 98%)</h3></summary>
+<summary><h3>📦 database (8 skills | avg 449 tokens | quality 9.4/10 | eval–skill consistency 98%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
-| `database-mongodb     ` | 405    | ██████░░░░ 59%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `database-postgresql  ` | 409    | ██████░░░░ 59%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `database-redis       ` | 483    | █████░░░░░ 51%     | 10/10 | n/a      | 3 | ✅ 86% |
+| `database-mongodb     ` | 467    | █████░░░░░ 53%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `database-postgresql  ` | 464    | █████░░░░░ 53%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `database-redis       ` | 544    | █████░░░░░ 45%     | 10/10 | n/a      | 3 | ✅ 86% |
+| `database-hana        ` | 867    | █░░░░░░░░░ 12%     | 9/10 | n/a      | 3 | n/a |
 | `database-migrations  ` | 312    | ███████░░░ 68%     | 9/10 | n/a      | 1 | ✅ 100% |
 | `database-query-performance` | 321    | ███████░░░ 67%     | 9/10 | n/a      | 1 | ✅ 100% |
 | `database-schema-design` | 331    | ███████░░░ 66%     | 9/10 | n/a      | 1 | ✅ 100% |
@@ -234,12 +390,12 @@ Unlike everything else in this report, these numbers come from actually running 
 </details>
 
 <details>
-<summary><h3>📦 flutter (22 skills | avg 565 tokens | quality 9.8/10 | eval–skill consistency 99%)</h3></summary>
+<summary><h3>📦 flutter (22 skills | avg 568 tokens | quality 9.8/10 | eval–skill consistency 99%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
 | `flutter-auto-route-navigation` | 509    | █████░░░░░ 48%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `flutter-bloc-state-management` | 790    | ██░░░░░░░░ 20%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `flutter-bloc-state-management` | 854    | █░░░░░░░░░ 13%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `flutter-cicd         ` | 599    | ████░░░░░░ 39%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `flutter-concurrency  ` | 674    | ███░░░░░░░ 32%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `flutter-dependency-injection` | 520    | █████░░░░░ 47%     | 10/10 | n/a      | 3 | ✅ 100% |
@@ -264,20 +420,20 @@ Unlike everything else in this report, these numbers come from actually running 
 </details>
 
 <details>
-<summary><h3>📦 golang (11 skills | avg 465 tokens | quality 10.0/10 | eval–skill consistency 100%)</h3></summary>
+<summary><h3>📦 golang (11 skills | avg 546 tokens | quality 10.0/10 | eval–skill consistency 100%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
-| `golang-api-server    ` | 437    | ██████░░░░ 56%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `golang-api-server    ` | 609    | ████░░░░░░ 38%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `golang-architecture  ` | 509    | █████░░░░░ 48%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `golang-concurrency   ` | 409    | ██████░░░░ 59%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `golang-concurrency   ` | 576    | ████░░░░░░ 42%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `golang-configuration ` | 401    | ██████░░░░ 59%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `golang-database      ` | 460    | █████░░░░░ 53%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `golang-database      ` | 780    | ██░░░░░░░░ 21%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `golang-error-handling` | 372    | ██████░░░░ 62%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `golang-language      ` | 550    | ████░░░░░░ 44%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `golang-logging       ` | 402    | ██████░░░░ 59%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `golang-logging       ` | 579    | ████░░░░░░ 41%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `golang-security      ` | 540    | █████░░░░░ 45%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `golang-testing       ` | 436    | ██████░░░░ 56%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `golang-testing       ` | 496    | █████░░░░░ 50%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `golang-tooling       ` | 598    | ████░░░░░░ 39%     | 10/10 | n/a      | 3 | ✅ 100% |
 
 </details>
@@ -290,15 +446,15 @@ Unlike everything else in this report, these numbers come from actually running 
 | `ios-app-lifecycle    ` | 319    | ███████░░░ 68%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-architecture     ` | 670    | ███░░░░░░░ 32%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-dependency-injection` | 335    | ███████░░░ 66%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `ios-deployment       ` | 387    | ██████░░░░ 61%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `ios-deployment       ` | 386    | ██████░░░░ 61%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-design-system    ` | 315    | ███████░░░ 68%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-localization     ` | 399    | ██████░░░░ 60%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-navigation       ` | 278    | ███████░░░ 72%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-networking       ` | 388    | ██████░░░░ 61%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-notifications    ` | 326    | ███████░░░ 67%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-performance      ` | 388    | ██████░░░░ 61%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `ios-persistence      ` | 370    | ██████░░░░ 62%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `ios-security         ` | 461    | █████░░░░░ 53%     | 10/10 | n/a      | 3 | ✅ 83% |
+| `ios-persistence      ` | 368    | ██████░░░░ 63%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `ios-security         ` | 460    | █████░░░░░ 53%     | 10/10 | n/a      | 3 | ✅ 83% |
 | `ios-state-management ` | 362    | ██████░░░░ 63%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-swiftui          ` | 627    | ████░░░░░░ 36%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `ios-ui-navigation    ` | 463    | █████░░░░░ 53%     | 10/10 | n/a      | 3 | ✅ 100% |
@@ -447,17 +603,24 @@ Unlike everything else in this report, these numbers come from actually running 
 </details>
 
 <details>
-<summary><h3>📦 quality-engineering (7 skills | avg 791 tokens | quality 9.7/10 | eval–skill consistency 100%)</h3></summary>
+<summary><h3>📦 quality-engineering (14 skills | avg 812 tokens | quality 9.9/10 | eval–skill consistency 100%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
+| `quality-engineering-appium-mcp` | 1170   | ⚠️ Overhead 19%    | 10/10 | n/a      | 3 | ✅ 100% |
+| `quality-engineering-automation-health` | 743    | ███░░░░░░░ 25%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `quality-engineering-business-analysis` | 1044   | ⚠️ Overhead 6%     | 10/10 | n/a      | 6 | ✅ 100% |
+| `quality-engineering-flaky-triage` | 820    | ██░░░░░░░░ 17%     | 10/10 | 4/4      | 3 | ✅ 100% |
 | `quality-engineering-jira-integration` | 607    | ████░░░░░░ 38%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `quality-engineering-playwright-cli` | 1196   | ⚠️ Overhead 21%    | 10/10 | n/a      | 3 | ✅ 100% |
+| `quality-engineering-playwright-pom-generation` | 769    | ██░░░░░░░░ 22%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `quality-engineering-quality-assurance` | 593    | ████░░░░░░ 40%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `quality-engineering-selector-stability` | 510    | █████░░░░░ 48%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `quality-engineering-test-plan-authoring` | 756    | ██░░░░░░░░ 23%     | 10/10 | 4/4      | 5 | ✅ 100% |
+| `quality-engineering-visual-baseline` | 771    | ██░░░░░░░░ 22%     | 10/10 | 4/4      | 3 | ✅ 100% |
 | `quality-engineering-zephyr-coverage-analysis` | 521    | █████░░░░░ 47%     | 10/10 | n/a      | 4 | ✅ 100% |
-| `quality-engineering-zephyr-test-generation` | 1245   | ⚠️ Overhead 26%    | 10/10 | n/a      | 3 | ✅ 100% |
-| `quality-engineering-appium-mcp` | 740    | ███░░░░░░░ 25%     | 9/10 | n/a      | 2 | ✅ 100% |
-| `quality-engineering-playwright-cli` | 787    | ██░░░░░░░░ 20%     | 9/10 | n/a      | 2 | ✅ 100% |
+| `quality-engineering-zephyr-test-generation` | 1192   | ⚠️ Overhead 21%    | 10/10 | n/a      | 5 | ✅ 100% |
+| `quality-engineering-test-healing` | 678    | ███░░░░░░░ 31%     | 8/10 | n/a      | 3 | ✅ 100% |
 
 </details>
 
@@ -533,6 +696,26 @@ Unlike everything else in this report, these numbers come from actually running 
 </details>
 
 <details>
+<summary><h3>📦 system-design (12 skills | avg 882 tokens | quality 10.0/10 | eval–skill consistency 0%)</h3></summary>
+
+| Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
+| ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
+| `system-design-artifact-intake` | 1097   | ⚠️ Overhead 11%    | 10/10 | n/a      | 4 | n/a |
+| `system-design-building-blocks` | 823    | ██░░░░░░░░ 17%     | 10/10 | n/a      | 4 | n/a |
+| `system-design-case-catalog` | 775    | ██░░░░░░░░ 21%     | 10/10 | n/a      | 3 | n/a |
+| `system-design-communication` | 783    | ██░░░░░░░░ 21%     | 10/10 | n/a      | 4 | n/a |
+| `system-design-data-architecture` | 779    | ██░░░░░░░░ 21%     | 10/10 | n/a      | 4 | n/a |
+| `system-design-estimation` | 851    | █░░░░░░░░░ 14%     | 10/10 | n/a      | 3 | n/a |
+| `system-design-integration-patterns` | 830    | ██░░░░░░░░ 16%     | 10/10 | n/a      | 4 | n/a |
+| `system-design-interview-coaching` | 1176   | ⚠️ Overhead 19%    | 10/10 | n/a      | 4 | n/a |
+| `system-design-methodology` | 1109   | ⚠️ Overhead 12%    | 10/10 | n/a      | 3 | n/a |
+| `system-design-principles` | 726    | ███░░░░░░░ 26%     | 10/10 | n/a      | 3 | n/a |
+| `system-design-resilience-ops` | 810    | ██░░░░░░░░ 18%     | 10/10 | n/a      | 4 | n/a |
+| `system-design-review ` | 827    | ██░░░░░░░░ 16%     | 10/10 | 3/4      | 3 | n/a |
+
+</details>
+
+<details>
 <summary><h3>📦 typescript (4 skills | avg 730 tokens | quality 10.0/10 | eval–skill consistency 100%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
@@ -550,7 +733,10 @@ Unlike everything else in this report, these numbers come from actually running 
 
 | Skill                   | Category | Consistency | Evals | Action |
 | ----------------------- | -------- | ----------- | ----- | ------ |
+| `cyber-scoped-validation` | cybersecurity | ⚠️ 56% | 3 | Reconcile wording between evals/evals.json and SKILL.md |
 | `common-code-review   ` | common   | ⚠️ 67% | 3 | Reconcile wording between evals/evals.json and SKILL.md |
+| `cyber-detection-engineering` | cybersecurity | ⚠️ 67% | 3 | Reconcile wording between evals/evals.json and SKILL.md |
+| `cyber-threat-hunting ` | cybersecurity | ⚠️ 67% | 3 | Reconcile wording between evals/evals.json and SKILL.md |
 
 ## ⚠️ Guardrail Skills Missing Behavior Coverage
 
@@ -560,6 +746,8 @@ Unlike everything else in this report, these numbers come from actually running 
 | ----- | -------- | -------- | ------ |
 | `common-security-audit` | common | 0/4 | Add pressure_scenarios, rationalizations, red_flags, and behavior_assertions |
 | `common-workflow-writing` | common | 0/4 | Add pressure_scenarios, rationalizations, red_flags, and behavior_assertions |
+| `common-learning-log` | common | 1/4 | Add pressure_scenarios, rationalizations, red_flags, and behavior_assertions |
+| `system-design-review` | system-design | 3/4 | Add pressure_scenarios, rationalizations, red_flags, and behavior_assertions |
 
 ## 📊 Quality Distribution
 
@@ -567,10 +755,11 @@ Unlike everything else in this report, these numbers come from actually running 
 
 | Score | Count | Share |
 | --- | --- | --- |
-| 10/10 | 236 | █████████████░░ 89% |
-| 9/10 | 19 | █░░░░░░░░░░░░░░ 7% |
-| 8/10 | 9 | ░░░░░░░░░░░░░░░ 3% |
+| 10/10 | 266 | ██████████████░ 90% |
+| 9/10 | 18 | █░░░░░░░░░░░░░░ 6% |
+| 8/10 | 10 | ░░░░░░░░░░░░░░░ 3% |
 | 7/10 | 1 | ░░░░░░░░░░░░░░░ 0% |
+| 6/10 | 1 | ░░░░░░░░░░░░░░░ 0% |
 
 ## 🔧 Needs Attention
 
@@ -580,8 +769,9 @@ Unlike everything else in this report, these numbers come from actually running 
 
 | Skill | Category | Quality | Tokens | Evals | Consistency |
 | --- | --- | --- | --- | --- | --- |
+| `common-tdd` | common | 6/10 | 786 | 6 | ✅ 100% |
 | `common-telemetry` | common | 7/10 | 653 | 2 | ✅ 100% |
-| `android-agp-upgrade` | android | 8/10 | 674 | 3 | ✅ 100% |
+| `android-agp-upgrade` | android | 8/10 | 710 | 3 | ✅ 100% |
 | `common-feedback-reporter` | common | 8/10 | 999 | 4 | ✅ 94% |
 | `common-protocol-enforcement` | common | 8/10 | 614 | 3 | ✅ 100% |
 | `common-workflow-writing` | common | 8/10 | 613 | 4 | ✅ 100% |
@@ -589,7 +779,6 @@ Unlike everything else in this report, these numbers come from actually running 
 | `flutter-testing` | flutter | 8/10 | 945 | 3 | ✅ 100% |
 | `flutter-widgets` | flutter | 8/10 | 542 | 3 | ✅ 100% |
 | `nestjs-configuration` | nestjs | 8/10 | 557 | 3 | ✅ 100% |
-| `nestjs-error-handling` | nestjs | 8/10 | 572 | 3 | ✅ 100% |
 
 **Largest token footprint** (candidates for splitting or trimming):
 
@@ -597,14 +786,14 @@ Unlike everything else in this report, these numbers come from actually running 
 | --- | --- | --- | --- |
 | `common-skill-creator` | common | 1559 | 10/10 |
 | `common-owasp` | common | 1273 | 10/10 |
-| `quality-engineering-zephyr-test-generation` | quality-engineering | 1245 | 10/10 |
+| `quality-engineering-playwright-cli` | quality-engineering | 1196 | 10/10 |
+| `quality-engineering-zephyr-test-generation` | quality-engineering | 1192 | 10/10 |
+| `system-design-interview-coaching` | system-design | 1176 | 10/10 |
+| `quality-engineering-appium-mcp` | quality-engineering | 1170 | 10/10 |
+| `system-design-methodology` | system-design | 1109 | 10/10 |
+| `system-design-artifact-intake` | system-design | 1097 | 10/10 |
+| `common-architecture-diagramming` | common | 1083 | 10/10 |
 | `common-accessibility` | common | 1075 | 10/10 |
-| `common-pentest-methodology` | common | 1068 | 9/10 |
-| `quality-engineering-business-analysis` | quality-engineering | 1044 | 10/10 |
-| `nextjs-architecture` | nextjs | 1039 | 10/10 |
-| `nextjs-app-router` | nextjs | 1019 | 10/10 |
-| `common-product-requirements` | common | 1010 | 10/10 |
-| `common-feedback-reporter` | common | 999 | 8/10 |
 
 ## 📐 Methodology & Baseline Justification
 

@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "baselineRunId": "governed-cybersecurity-20260922-attribution",
+  "category": "all",
+  "createdAt": "2026-09-22T07:28:44.826Z",
+  "impacts": [
+    {
+      "key": "common/common-learning-log",
+      "category": "common",
+      "skillName": "common-learning-log",
+      "reason": "package resources",
+      "outcome": "generate",
+      "activation": "reuse",
+      "reuseBaselineOutcome": true
+    },
+    {
+      "key": "common/common-llm-security",
+      "category": "common",
+      "skillName": "common-llm-security",
+      "reason": "outcome prompts, assertions, package resources",
+      "outcome": "generate",
+      "activation": "reuse",
+      "reuseBaselineOutcome": false
+    },
+    {
+      "key": "common/common-session-retrospective",
+      "category": "common",
+      "skillName": "common-session-retrospective",
+      "reason": "skill body, description, package resources",
+      "outcome": "generate",
+      "activation": "generate",
+      "reuseBaselineOutcome": true
+    },
+    {
+      "key": "cybersecurity/cyber-authorization",
+      "category": "cybersecurity",
+      "skillName": "cyber-authorization",
+      "reason": "assertions, package resources",
+      "outcome": "generate",
+      "activation": "reuse",
+      "reuseBaselineOutcome": true
+    },
+    {
+      "key": "cybersecurity/cyber-detection-engineering",
+      "category": "cybersecurity",
+      "skillName": "cyber-detection-engineering",
+      "reason": "assertions, package resources",
+      "outcome": "generate",
+      "activation": "reuse",
+      "reuseBaselineOutcome": true
+    },
+    {
+      "key": "cybersecurity/cyber-detection-validation",
+      "category": "cybersecurity",
+      "skillName": "cyber-detection-validation",
+      "reason": "assertions, package resources",
+      "outcome": "generate",
+      "activation": "reuse",
+      "reuseBaselineOutcome": true
+    },
+    {
+      "key": "cybersecurity/cyber-engagement-planning",
+      "category": "cybersecurity",
+      "skillName": "cyber-engagement-planning",
+      "reason": "assertions, package resources",
+      "outcome": "generate",
+      "activation": "reuse",
+      "reuseBaselineOutcome": true
+    },
+    {
+      "key": "cybersecurity/cyber-evidence",
+      "category": "cybersecurity",
+      "skillName": "cyber-evidence",
+      "reason": "package resources",
+      "outcome": "generate",
+      "activation": "reuse",
+      "reuseBaselineOutcome": true
+    },
+    {
+      "key": "cybersecurity/cyber-exercise-adjudication",
+      "category": "cybersecurity",
+      "skillName": "cyber-exercise-adjudication",
+      "reason": "assertions, package resources",
+      "outcome": "generate",
+      "activation": "reuse",
+      "reuseBaselineOutcome": true
+    },
+    {
+      "key": "cybersecurity/cyber-exercise-control",
+      "category": "cybersecurity",
+      "skillName": "cyber-exercise-control",
+      "reason": "assertions, package resources",
+      "outcome": "generate",
+      "activation": "reuse",
+      "reuseBaselineOutcome": true
+    },
+    {
+      "key": "cybersecurity/cyber-framework-mapping",
+      "category": "cybersecurity",
+      "skillName": "cyber-framework-mapping",
+      "reason": "skill body, package resources",
+      "outcome": "generate",
+      "activation": "reuse",
+      "reuseBaselineOutcome": true
+    },
+    {
+      "key": "cybersecurity/cyber-incident-triage",
+      "category": "cybersecurity",
+      "skillName": "cyber-incident-triage",
+      "reason": "assertions, package resources",
+      "outcome": "generate",
+      "activation": "reuse",
+      "reuseBaselineOutcome": true
+    },
+    {
+      "key": "cybersecurity/cyber-scoped-validation",
+      "category": "cybersecurity",
+      "skillName": "cyber-scoped-validation",
+      "reason": "skill body, outcome prompts, assertions, package resources",
+      "outcome": "generate",
+      "activation": "reuse",
+      "reuseBaselineOutcome": false
+    },
+    {
+      "key": "cybersecurity/cyber-threat-hunting",
+      "category": "cybersecurity",
+      "skillName": "cyber-threat-hunting",
+      "reason": "assertions, package resources",
+      "outcome": "generate",
+      "activation": "reuse",
+      "reuseBaselineOutcome": true
+    }
+  ],
+  "reusedLanes": 13,
+  "generatedLanes": 15,
+  "regradedLanes": 0
+}

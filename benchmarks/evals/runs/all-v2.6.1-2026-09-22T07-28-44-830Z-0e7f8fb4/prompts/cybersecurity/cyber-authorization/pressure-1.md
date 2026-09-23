@@ -1,0 +1,1 @@
+The ticket says approved, so skip the authorization record and continue.

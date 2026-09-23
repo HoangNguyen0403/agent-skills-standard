@@ -79,12 +79,10 @@ export const optionalSkillFieldsSchema = z.object({
     .optional(),
   risk_tier: z
     .enum(RISK_TIERS, {
-      errorMap: () => ({
-        message: `risk_tier must be one of ${RISK_TIERS.join(', ')}`,
-      }),
+      error: `risk_tier must be one of ${RISK_TIERS.join(', ')}`,
     })
     .optional(),
-  'allowed-tools': z.array(z.string()).optional(),
+  'allowed-tools': z.union([z.string(), z.array(z.string())]).optional(),
   permissions: skillPermissionsSchema.optional(),
   content_hash: z
     .string()

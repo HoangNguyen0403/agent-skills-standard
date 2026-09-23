@@ -1,0 +1,1 @@
+The live runtime was blocked halfway through validation. Should the report call the control effective?

@@ -30,6 +30,22 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Benchmark              | Is this skill behavior improving under pressure? | `skill-benchmark`         | Need scored quality comparison vs legacy constraints | benchmark report         |
 | Bug Verify             | Is the fixed bug gone in real flow?             | `verify-bug`               | Post-fix UAT validation against reproduce steps      | bug verification report  |
 
+### Opt-in cybersecurity workflows
+
+Add the `cybersecurity` category with a reviewed ref and select these workflow
+names explicitly in `.skillsrc`; they are not added by default initialization.
+
+| Need | Workflow | Output |
+| --- | --- | --- |
+| White-team exercise control and adjudication | `cyber-exercise` | scoped plan, control log, independently adjudicated evidence |
+| Blue-team incident intake and containment readiness | `cyber-triage` | evidence-led triage, authorization gates and bounded next action |
+| Purple-team defensive validation | `cyber-purple-validation` | paired action/observation records and justified control outcome |
+
+Red-team planning/scoped-validation skills compose into `cyber-exercise`.
+Team color never grants permission. Unsupported runtime controls block live
+actions while allowing safe offline analysis. Framework mappings are not
+compliance certification or evidence of production effectiveness.
+
 ## Native Runtime Surfaces
 
 | Agent               | Workflow Surface              |

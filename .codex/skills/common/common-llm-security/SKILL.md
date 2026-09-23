@@ -1,5 +1,6 @@
 ---
 name: common-llm-security
+guardrail: true
 description: OWASP LLM Top 10 (2025) audit checklist for AI applications, agent tools, RAG pipelines, and prompt construction. Use when performing any security review touching LLM client code, prompt templates, agent tools, or vector stores.
 metadata:
   triggers:
@@ -25,6 +26,11 @@ metadata:
 - **Mark each item**: ✅ not affected | ⚠️ needs review | 🔴 confirmed finding.
 - **P0 finding caps Security score at 40/100** — not skip any item.
 - See [references/owasp-llm.md](references/owasp-llm.md) for full detection signals.
+- **Agent skill supply chain**: Review all package resources; pin source revision and hashes. Treat hashes as integrity, not trusted authorship.
+- **Memory poisoning**: Treat logs, retrieved documents and proposed learning entries as untrusted data; redact before persistence.
+- **Permission boundaries**: Tool/network/filesystem restrictions require host enforcement; skill text and `allowed-tools` declarations are not universal enforcement.
+- **Evolution approval**: Separate candidate author from approval; block promotion without independent review and verified evidence.
+- **Offline fallback**: Unsupported execution controls block live actions, not safe offline analysis of supplied artifacts.
 
 ## OWASP LLM Top 10 (2025)
 

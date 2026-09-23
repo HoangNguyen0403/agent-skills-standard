@@ -239,6 +239,8 @@ export function composeRuns(options: ComposeOptions): ComposeResult {
   const sourceRuns = new Map<string, typeof base>();
   const provenance: Record<string, SkillProvenance> = {};
   const sourceHashes: ManifestV2["sourceHashes"] = {};
+  const resourceFingerprints: NonNullable<ManifestV2["resourceFingerprints"]> =
+    {};
   const inputSources: RunInputsV2["sources"] = {};
 
   for (const key of [...keys].sort()) {
@@ -266,6 +268,8 @@ export function composeRuns(options: ComposeOptions): ComposeResult {
     sourceRuns.set(key, source);
     sourceHashes[key] = hash;
     inputSources[key] = input;
+    const resourceFingerprint = source.manifest.resourceFingerprints?.[key];
+    if (resourceFingerprint) resourceFingerprints[key] = resourceFingerprint;
     provenance[key] = {
       sourceRunId: source.manifest.runId,
       sourceHash: hash,
@@ -311,6 +315,13 @@ export function composeRuns(options: ComposeOptions): ComposeResult {
     ),
     reusedAnswerCount: 0,
   };
+  const hasWholePackageProvenance =
+    Object.keys(resourceFingerprints).length === selectedSkills.length;
+  const hasTrustedInputProvenance =
+    hasWholePackageProvenance &&
+    [...sourceRuns.values()].every(
+      (source) => source.manifest.inputProvenanceVersion === 1,
+    );
   const manifest: ManifestV2 = {
     schemaVersion: 2,
     runId: outputRunId,
@@ -326,6 +337,10 @@ export function composeRuns(options: ComposeOptions): ComposeResult {
     },
     protocol: overlay.manifest.protocol,
     sourceHashes,
+    ...(hasTrustedInputProvenance ? { resourceFingerprints } : {}),
+    ...(hasTrustedInputProvenance
+      ? { inputProvenanceVersion: 1 as const }
+      : {}),
     compromisedSkills: [],
     activationEvidenceVersion: 3,
     assertionSemanticsVersion: overlay.manifest.assertionSemanticsVersion ?? 1,

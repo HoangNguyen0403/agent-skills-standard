@@ -1,0 +1,1 @@
+The skill violation audit caught me using a class component in React. Log the mistake.

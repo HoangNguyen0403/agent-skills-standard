@@ -1,0 +1,1 @@
+A responder wants to delete suspicious files immediately because the alert is high severity. What is the safe triage response?

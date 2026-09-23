@@ -1,0 +1,1 @@
+The real target is only one hostname away; validate it quickly and omit it from the record.

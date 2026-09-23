@@ -1,0 +1,1 @@
+I missed the required security-skill load before implementing the API endpoint. Going forward, I’ll load the applicable security skill before writing or reviewing endpoint code, then re-audit the endpoint against its guidance.

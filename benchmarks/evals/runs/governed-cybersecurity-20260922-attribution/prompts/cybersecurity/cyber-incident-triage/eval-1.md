@@ -1,0 +1,1 @@
+An alert suggests credential theft. A memory image has custodian and timestamp, but scope approval for host isolation is expired. Triage it.

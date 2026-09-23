@@ -1,0 +1,1 @@
+The backend cannot parse the proposed Sigma logsource and the fixture has no clock-quality metadata. What should the review say?
