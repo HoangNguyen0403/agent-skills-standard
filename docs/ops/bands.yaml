@@ -1,0 +1,148 @@
+# Control bands for agent-skills-standard. Consumed by `.agents/workflows/monitor-respond.md`.
+# Schema: skills/common/common-sdlc-metrics/SKILL.md §4 and references/bands-template.yaml.
+# Detection is deterministic and runs BEFORE any agent reads a value — either a CI gate script
+# (exact numeric threshold, cited by path) or the western_electric SPC ruleset over a persisted
+# history file. No band below was invented: every `source` is a file and field that exists in this
+# repo today, verified while authoring this file (2026-09-23, commit on feat/sdlc-dogfood-metrics).
+#
+# Signals considered and explicitly excluded (never banded on data nobody has):
+#   - benchmarks/freshness/freshness-report.json -> summary.bySeverity.high
+#     `.github/workflows/skill-freshness.yml` generates this weekly and uploads it as a CI artifact
+#     (`actions/upload-artifact`, 90-day retention) but never commits it to the repo. The path does
+#     not exist in this checkout. Cannot band on a file that isn't there; the workflow already gates
+#     on `bySeverity.high != 0` internally (see that file, "Fail on high-severity drift" step).
+#   - benchmarks/evals/remediation-queue.json -> items.length ("failing-assertion counts")
+#     `scripts/evals/quality.ts` (the `queue` action) overwrites this single file on every run
+#     (`fs.writeJSONSync`, no array of prior runs) — there is no persisted time series to compute a
+#     rolling baseline from. Today it holds one snapshot (55 items, runId all-v2.6.0-final-136,
+#     scope strict-release-blockers). Add a band once run counts are archived per-release the way
+#     benchmarks/history.json already archives benchmark records.
+#   - CI outcomes / git-log-derived flow metrics (deploy frequency, lead time, change failure rate)
+#     No committed artifact exists to read from: `artifacts/` is not present in this checkout, and
+#     `common-sdlc-metrics` only defines `artifacts/sdlc-metrics.md` as an output emitted "at a
+#     workflow terminal state" — none has been generated yet.
+
+version: 1
+
+defaults:
+  baseline: rolling_release # each band states its own exact window; no band uses a fixed target
+  rules: western_electric # 1 point beyond 3 sigma; 2 of 3 beyond 2 sigma same side;
+                          # 4 of 5 beyond 1 sigma same side; 8 consecutive same side
+  owner: repo-maintainer # role, not a person — today every path in .github/CODEOWNERS resolves to
+                          # the single maintainer (see docs/SECURITY.md "Governance"); this band
+                          # file follows that same convention and gets per-category owners the same
+                          # way CODEOWNERS does, without restructuring this file.
+
+bands:
+  - metric: avgTokens
+    source: benchmarks/history.json (avgTokens field), gated live by `pnpm benchmark:gate`
+      (scripts/benchmark/gate.ts)
+    baseline: rolling_release # findPreviousGateRecord() compares each new record only to the most
+      # recent DIFFERENT-version record already in history.records — never a fixed target, and
+      # never against itself.
+    owner: repo-maintainer
+    rules: fixed_gate_threshold # scripts/benchmark/gate.ts DEFAULT_MAX_TOKEN_GROWTH_PCT = 10 (%).
+      # Overrides `defaults.rules`: this signal already has a bespoke deterministic script: a
+      # single fixed-percentage gate, not an SPC sigma ladder. western_electric does not apply.
+    tiers:
+      1sigma:
+        action: log
+      2sigma:
+        action: diagnose # read-only
+        tools: [read, grep, glob] # inspect skills/**, benchmarks/archive/v<version>.md; no write
+      3sigma:
+        action: propose
+        routes: [pull_request] # a token-reduction PR against the skills that grew
+    harm_check: # token growth alone is not user harm; never routes to incident-hotfix by itself
+    dismissals: []
+    # STATUS AT AUTHORING (2026-09-23): BREACHED, not dismissed. v2.6.1 avgTokens = 593 vs the
+    # v2.6.0 record's 528 = +12.3% growth, past the 10% gate threshold. `pnpm benchmark:gate` fails
+    # today. Recorded honestly here instead of widening the threshold to hide it — per
+    # common-sdlc-metrics anti-pattern "no fixed baseline used to mask a real breach." Route per the
+    # 3sigma tier: diagnose which skills grew between benchmarks/archive/v2.6.0.md and v2.6.1.md,
+    # then propose a token-reduction PR.
+
+  - metric: savingsPctHeavy
+    source: benchmarks/history.json (savingsPctHeavy field), same `pnpm benchmark:gate` run as
+      avgTokens
+    baseline: rolling_release
+    owner: repo-maintainer
+    rules: fixed_gate_threshold # scripts/benchmark/gate.ts DEFAULT_MAX_SAVINGS_DROP_PTS = 10 (pts)
+    tiers:
+      1sigma:
+        action: log
+      2sigma:
+        action: diagnose
+        tools: [read, grep, glob]
+      3sigma:
+        action: propose
+        routes: [pull_request]
+    harm_check:
+    dismissals: []
+    # STATUS AT AUTHORING: healthy. v2.6.1 = 40 vs the v2.6.0 record's 46 = a 6pt drop, inside the
+    # 10pt gate threshold. Not fabricated as red to match avgTokens — the gate genuinely passes.
+
+  - metric: avgQuality
+    source: benchmarks/history.json (avgQuality field), same `pnpm benchmark:gate` run as avgTokens
+    baseline: rolling_release
+    owner: repo-maintainer
+    rules: fixed_gate_threshold # scripts/benchmark/gate.ts DEFAULT_MAX_QUALITY_DROP = 0 — any drop
+      # vs the previous record fails; there is no tolerance band for this one.
+    tiers:
+      1sigma:
+        action: log
+      2sigma:
+        action: diagnose
+        tools: [read, grep, glob]
+      3sigma:
+        action: propose
+        routes: [pull_request]
+    harm_check: avgQuality drop ships in a tagged release (not caught pre-release by the gate) ->
+      route to incident-hotfix instead
+    dismissals: []
+    # STATUS AT AUTHORING: healthy. v2.6.1 avgQuality = 9.8, unchanged from the v2.6.0 record's 9.8.
+
+  - metric: avgWithSkillPassRate
+    source: benchmarks/evals/history.json (avgWithSkillPassRate field), appended by
+      `pnpm evals:gate -- --all`
+    baseline: rolling_all_runs # every recorded evals:gate run, oldest to newest; western_electric
+      # needs >=3 points for the 2-of-3 rule and >=8 for the 8-consecutive rule.
+    owner: repo-maintainer
+    tiers:
+      1sigma:
+        action: log
+      2sigma:
+        action: diagnose
+        tools: [read, grep, glob] # inspect benchmarks/evals/runs/**, remediation-queue.json
+      3sigma:
+        action: propose
+        routes: [pull_request, "runbook:evals-standardize"] # `pnpm evals:standardize` fixes
+          # mechanically-detectable guidance gaps; anything else needs a proposed skill-content PR
+    harm_check: avgWithSkillPassRate < avgBaselinePassRate # skill guidance measurably worse than no
+      # skill at all -> route to incident-hotfix, do not wait for a tier
+    dismissals: []
+    # STATUS AT AUTHORING: only one record exists (runId all-v2.6.0, 2026-07-14): skillCount 265,
+    # avgBaselinePassRate 0.4158, avgWithSkillPassRate 0.7189. n=1 — western_electric cannot fire
+    # yet on this signal. The band is declared and wired now so it starts working the next time
+    # `pnpm evals:gate -- --all` appends a second record; not backfilled with an invented history.
+
+  - metric: avgDelta
+    source: benchmarks/evals/history.json (avgDelta field), same `pnpm evals:gate -- --all` run as
+      avgWithSkillPassRate
+    baseline: rolling_all_runs
+    owner: repo-maintainer
+    tiers:
+      1sigma:
+        action: log
+      2sigma:
+        action: diagnose
+        tools: [read, grep, glob]
+      3sigma:
+        action: propose
+        routes: [pull_request, "runbook:evals-standardize"]
+    harm_check: avgDelta <= 0 # skills add zero or negative value over the no-skill baseline
+    dismissals: []
+    # STATUS AT AUTHORING: n=1 (avgDelta 0.3031 from the same all-v2.6.0 record above). Tracks a
+    # distinct failure mode from avgWithSkillPassRate: pass rate can stay high while delta shrinks
+    # if the baseline itself improves, which is an early signal that skill guidance is losing its
+    # marginal value even before the absolute pass rate drops.

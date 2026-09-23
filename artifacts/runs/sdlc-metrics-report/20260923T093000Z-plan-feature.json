@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "run_id": "sdlc-metrics-report-plan-feature-20260923T093000Z",
+  "slug": "sdlc-metrics-report",
+  "workflow": "plan-feature",
+  "feature_status": "requirements_ready",
+  "started_at": "2026-09-23T09:30:00Z",
+  "completed_at": "2026-09-23T09:55:00Z",
+  "requirement_trace": {
+    "brd_objectives": ["BRD-OBJ-001"],
+    "requirements": ["REQ-001", "REQ-002", "REQ-003"],
+    "acceptance_criteria": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005"],
+    "srs": []
+  },
+  "completed_evidence": [
+    "docs/prd/prd-sdlc-metrics-report.md"
+  ],
+  "missing_evidence": [
+    "docs/srs/srs-sdlc-metrics-report.md",
+    "docs/srs/srs-task-list-sdlc-metrics-report.md"
+  ],
+  "decision_needed": [],
+  "recommended_next_workflow": "design-solution",
+  "cost": {
+    "source": "unavailable"
+  },
+  "agent": {
+    "identity": "sdlc-dogfood-slice-b",
+    "model": "claude-sonnet-5"
+  }
+}
