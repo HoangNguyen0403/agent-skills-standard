@@ -14,6 +14,14 @@ export interface RuntimePricingSnapshot {
   currency?: string;
 }
 
+/**
+ * Where a cost value came from. `host` means the request was assembled by
+ * the runtime's own telemetry adapter (`buildSessionCostRequest`) from real
+ * measured usage/pricing. `agent-estimate` means a caller typed values
+ * directly into `get_session_cost` without going through that adapter.
+ * `unavailable` means required token/pricing fields are missing entirely.
+ */
+export type CostSource = "host" | "agent-estimate" | "unavailable";
 export interface SessionCostRequest {
   workflow: string;
   model?: string;
@@ -27,12 +35,20 @@ export interface SessionCostRequest {
   reasoningCostPer1M?: number;
   otherCost?: number;
   currency?: string;
+  /**
+   * Caller-declared provenance for the token/pricing fields above. Only
+   * `buildSessionCostRequest` (the host adapter path) should ever set this
+   * to `"host"`; omit it when hand-supplying numbers.
+   */
+  costSource?: "host" | "agent-estimate";
 }
 
 export interface SessionCostCoverage {
   estimatedCost: string | null;
   exactCostAvailable: boolean;
   missingHostFields: string[];
+  /** Provenance of the token/USD values above; see `CostSource`. */
+  costSource: CostSource;
 }
 
 export function summarizeSessionCostCoverage(
@@ -49,10 +65,18 @@ export function summarizeSessionCostCoverage(
     missingHostFields.push("outputCostPer1M");
   }
 
+  const costSource: CostSource =
+    missingHostFields.length > 0
+      ? "unavailable"
+      : args.costSource === "host"
+        ? "host"
+        : "agent-estimate";
+
   return {
     estimatedCost: calculateEstimatedSessionCost(args),
     exactCostAvailable: missingHostFields.length === 0,
     missingHostFields,
+    costSource,
   };
 }
 
@@ -128,6 +152,9 @@ export function buildSessionCostRequest(args: {
     reasoningCostPer1M: pricing?.reasoningCostPer1M,
     otherCost: pricing?.otherCost,
     currency: pricing?.currency,
+    // This is the documented host-adapter path: usage/pricing came from the
+    // runtime's own telemetry, not from an agent typing numbers.
+    costSource: "host",
   };
 }
 

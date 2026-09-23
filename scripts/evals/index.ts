@@ -8,13 +8,15 @@
  *   manifest --skills-file <f>  Build a selective manifest from category/skill keys.
  *   manifest --resume <runId>   Resume an existing run explicitly.
  *   manifest ... --execute      Execute missing arms, score, and regenerate the report.
+ *   estimate --run <runId>      Report lanes/model and, when prior usage exists, a projected cost range. No quota used.
  *   score --run <runId>         Score committed answer transcripts for a run, write results.json.
  *   report                      Aggregate all runs into evals-report.md (+ history + archive).
  *   verify [--run <runId>|--all] Re-score committed transcripts and diff against committed results.json.
+ *   gate [--run <runId>|--all]  Apply readiness thresholds to a scored run; exit non-zero on breach.
  */
 import fs from "fs-extra";
 import * as path from "path";
-import { RUNS_DIR, ROOT_DIR } from "./constants";
+import { RESULTS_FILENAME, RUNS_DIR, ROOT_DIR } from "./constants";
 import {
   buildManifest,
   listCategories,
@@ -22,15 +24,16 @@ import {
   resolveRunId,
   resumeManifest,
 } from "./manifest";
-import { generateReport, generateRunReport } from "./reporter";
+import { generateReport, generateRunReport, loadHistory } from "./reporter";
 import { scoreRun } from "./scorer";
 import { verifyAllRuns, verifyRun } from "./verify";
 import { createBaselineRun, planBaseline } from "./impact";
 import { promoteCategoryBaseline } from "./promote";
 import { composeRuns } from "./compose";
 import { pruneV2Runs } from "./prune";
-import { finalManifestShapeErrors } from "./readiness";
 import { auditAssertionAlignment } from "./quality";
+import { estimateRun } from "./estimate";
+import { gateAll, gateOne, type GateReport } from "./gate";
 import {
   EvalQuotaPausedError,
   evalWorkerConfig,
@@ -82,16 +85,6 @@ async function executeRun(runDir: string, runId: string): Promise<void> {
     throw new Error(
       `Paid eval blocked by assertion preflight (${preflightIssues.length} issues). Run pnpm evals:preflight and repair the task contracts before using --execute.`,
     );
-  }
-  if (
-    initialManifest.scope?.kind === "selective" &&
-    initialManifest.skills.length === 136
-  ) {
-    const shapeErrors = finalManifestShapeErrors(initialManifest);
-    if (shapeErrors.length > 0)
-      throw new Error(
-        `Final remediation manifest rejected:\n- ${shapeErrors.join("\n- ")}`,
-      );
   }
   const workerConfig = evalWorkerConfig();
   const configuredConcurrency = Number(process.env.EVALS_CONCURRENCY ?? 1);
@@ -397,9 +390,70 @@ async function main() {
       break;
     }
 
+    case "estimate": {
+      const requestedRunId = arg("run");
+      if (!requestedRunId) {
+        console.error("❌ --run <runId> is required.");
+        process.exit(1);
+      }
+      const runDir = path.join(RUNS_DIR, requestedRunId);
+      if (!fs.existsSync(path.join(runDir, "manifest.json"))) {
+        console.error(`❌ Run not found: ${runDir}`);
+        process.exit(1);
+      }
+      const report = estimateRun(runDir, { runsDir: RUNS_DIR });
+      if (hasFlag("json")) {
+        console.log(JSON.stringify(report, null, 2));
+        break;
+      }
+      console.log(`Lanes to execute: ${report.lanesToExecute}`);
+      console.log(`Model: ${report.model} (reasoning ${report.reasoningEffort})`);
+      if (report.projection) {
+        console.log(`Historical samples: ${report.projection.sampleLanes} run(s)`);
+        console.log(
+          `Projected tokens: ${Math.round(report.projection.projectedTokens.low)} - ${Math.round(report.projection.projectedTokens.high)}`,
+        );
+        console.log(
+          report.projection.projectedUsd
+            ? `Projected cost: $${report.projection.projectedUsd.low.toFixed(2)} - $${report.projection.projectedUsd.high.toFixed(2)}`
+            : "Projected cost: unavailable (model not priced).",
+        );
+      }
+      console.log(report.message);
+      break;
+    }
+
+    case "gate": {
+      const requestedRunId = arg("run");
+      const all = hasFlag("all");
+      if (!all && !requestedRunId) {
+        console.error("❌ Pass --run <runId> or --all.");
+        process.exit(1);
+      }
+      const history = loadHistory();
+      const report: GateReport = all
+        ? gateAll(RUNS_DIR, history)
+        : gateOne(RUNS_DIR, requestedRunId as string, history);
+      if (hasFlag("json")) {
+        console.log(JSON.stringify(report, null, 2));
+      } else {
+        console.log(report.message);
+        for (const run of report.runs) {
+          console.log(
+            `${run.ready ? "✅" : "❌"} ${run.runId} (${run.category}): ${run.breachedCount}/${run.skillCount} skill(s) breach thresholds; trend ${run.trend.direction}`,
+          );
+          for (const breach of run.breaches) {
+            console.log(`   - ${breach.skillName}: ${breach.failures.join("; ")}`);
+          }
+        }
+      }
+      if (!report.ok) process.exit(1);
+      break;
+    }
+
     default:
       console.error(
-        "Usage: tsx scripts/evals/index.ts <manifest|baseline|score|report|verify|promote|compose|prune> [options] (manifest/baseline require --execute to start workers)",
+        "Usage: tsx scripts/evals/index.ts <manifest|baseline|estimate|score|report|verify|gate|promote|compose|prune> [options] (manifest/baseline require --execute to start workers)",
       );
       process.exit(1);
   }

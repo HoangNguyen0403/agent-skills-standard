@@ -12,7 +12,16 @@ import * as path from 'path';
 const SKILLS_DIR = path.join(__dirname, '../skills');
 const METADATA_PATH = path.join(SKILLS_DIR, 'metadata.json');
 const CHARS_PER_TOKEN = 4; // Approximate ratio for cl100k_base tokenizer
-const HEAVY_BASELINE = 3656; // Reference unit for savings calculation
+/**
+ * Reference unit for the per-category "Savings %" written into README.md's
+ * legacy stack table. This is a synthetic-baseline upper bound, NOT a
+ * measured survey of real prompts, and it is a SEPARATE constant from
+ * `BASELINE_HEAVY` in scripts/benchmark/baselines.ts (the source of truth
+ * for benchmark-report.md) — the two are not currently reconciled and may
+ * legitimately differ. Do not read this file's savings % as measured
+ * behavioral improvement; see scripts/benchmark/README (Methodology).
+ */
+const HEAVY_BASELINE = 3656;
 
 const CATEGORY_NAME_MAP: Record<string, string> = {
   common: 'Common Patterns',
@@ -210,6 +219,11 @@ async function main() {
           if (categoryMatch && line.split('|').length >= 8) {
             const metrics = results[category];
             const version = metadata.categories[category]?.version;
+            // NOTE: this is a synthetic-baseline upper bound vs the fixed
+            // HEAVY_BASELINE constant above (3656 tokens), not a measured
+            // behavioral saving. It intentionally does not fit inline in
+            // the README's fixed-width "Saving" column; the caveat lives
+            // here and in this file's HEAVY_BASELINE doc comment instead.
             const savings = Math.round((1 - metrics.avgTokensPerSkill / HEAVY_BASELINE) * 100);
             const cells = line.split('|');
             

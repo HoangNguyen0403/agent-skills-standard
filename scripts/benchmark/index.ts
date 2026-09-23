@@ -19,6 +19,7 @@ import {
   ROOT_DIR,
   SKILLS_DIR,
 } from './constants';
+import { evaluateGate, findPreviousGateRecord, parseGateThresholds } from './gate';
 import { MODELS } from './models';
 import { buildMarkdownReport } from './reporter';
 import {
@@ -105,7 +106,10 @@ function benchmarkSkill(category: string, skillName: string): SkillBenchmark {
 }
 
 const ROOT_PACKAGE_JSON = path.join(ROOT_DIR, 'package.json');
-const reportOnly = process.argv.includes('--report-only');
+const gateMode = process.argv.includes('--gate');
+const gateThresholds = parseGateThresholds(process.argv);
+// Gate mode is a read-only CI check: never persist archive/history/README writes.
+const reportOnly = process.argv.includes('--report-only') || gateMode;
 
 function loadHistory(): BenchmarkHistory {
   if (fs.existsSync(HISTORY_JSON)) {
@@ -274,6 +278,9 @@ async function main() {
 
   // Handle History
   const history = loadHistory();
+  // Snapshot BEFORE this run's record is added/updated, so the gate always
+  // compares against a genuinely prior release, never against itself.
+  const historyRecordsBeforeThisRun = [...history.records];
   const relativeArchivePath = `benchmarks/archive/v${version}.md`;
 
   // Update history record BEFORE building report so history shows up in the current report
@@ -349,6 +356,27 @@ async function main() {
   if (!reportOnly) console.log('📝 README history trend updated.');
 
   console.log('\n📊 Benchmark summary generated successfully.');
+
+  if (gateMode) {
+    const previousRecord = findPreviousGateRecord(historyRecordsBeforeThisRun, version);
+    const gateResult = evaluateGate(
+      { avgTokensWithSkill, avgSavingsPctHeavy, avgQualityScore },
+      previousRecord,
+      gateThresholds,
+    );
+    console.log('\n🚦 Regression Gate (--gate)');
+    console.log(
+      `   Thresholds: max token growth ${gateThresholds.maxTokenGrowthPct}% | max quality drop ${gateThresholds.maxQualityDrop} | max savings drop ${gateThresholds.maxSavingsDropPts} pts`,
+    );
+    for (const line of gateResult.summaryLines) {
+      console.log(`   ${line}`);
+    }
+    if (!gateResult.passed) {
+      console.error('\n❌ Gate FAILED — regression detected vs the cited previous history record.');
+      process.exit(1);
+    }
+    console.log('\n✅ Gate PASSED.');
+  }
 }
 
 main().catch((err) => {

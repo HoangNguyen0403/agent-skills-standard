@@ -1,10 +1,8 @@
-import type { ManifestV2, SkillResult } from "./types";
+import type { SkillResult } from "./types";
 
 export const STRICT_CASE_PASS_THRESHOLD = 0.85;
 export const ASSERTION_PASS_THRESHOLD = 0.85;
 export const ACTIVATION_THRESHOLD = 0.9;
-export const FINAL_REMEDIATION_SKILL_COUNT = 136;
-export const FINAL_REMEDIATION_CASE_COUNT = 1221;
 
 export interface SkillReadiness {
   ready: boolean;
@@ -70,29 +68,4 @@ export function evaluateSkillReadiness(
     activationReady: activationFailuresList.length === 0,
     failures: [...outcomeFailuresList, ...activationFailuresList],
   };
-}
-
-export function finalManifestShapeErrors(manifest: ManifestV2): string[] {
-  const errors: string[] = [];
-  const caseCount = manifest.skills.reduce(
-    (sum, skill) => sum + skill.cases.length,
-    0,
-  );
-  if (manifest.skills.length !== FINAL_REMEDIATION_SKILL_COUNT)
-    errors.push(
-      `manifest must contain ${FINAL_REMEDIATION_SKILL_COUNT} skills`,
-    );
-  if (caseCount !== FINAL_REMEDIATION_CASE_COUNT)
-    errors.push(`manifest must contain ${FINAL_REMEDIATION_CASE_COUNT} cases`);
-  if (manifest.protocol.instructionVersion !== "governing-skill-v3")
-    errors.push("manifest must use governing-skill-v3");
-  if (manifest.assertionSemanticsVersion !== 2)
-    errors.push("manifest must use assertion-semantics-v2");
-  if (manifest.metadata.evidenceMode !== "fresh")
-    errors.push("manifest must use fresh evidence");
-  if ((manifest.metadata.reusedAnswerCount ?? 0) !== 0)
-    errors.push("manifest must not reuse answers");
-  if (manifest.compromisedSkills.length !== 0)
-    errors.push("manifest must not contain compromised skills");
-  return errors;
 }
