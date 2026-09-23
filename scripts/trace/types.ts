@@ -28,6 +28,12 @@ export interface TraceRef {
   /** 1-indexed line number within `fromFile`. */
   line: number;
   role: TraceRole;
+  /**
+   * True when the declaration role was inferred only from a table's first
+   * cell. A trace matrix restates ids that a heading already declared, so a
+   * weak declaration is demoted to a reference when a strong one exists.
+   */
+  weak?: boolean;
   /** True when `id` matches `ID_GRAMMAR[kind]`. */
   valid: boolean;
 }

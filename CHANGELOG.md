@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [tooling] - Unreleased
 
+**Area**: SDLC standard dogfooding — control bands, review policy, first real requirement chain, metrics producer (#206)
+
+### Added
+- `docs/ops/bands.yaml`: 5 control bands over signals this repo actually produces (`avgTokens`, `savingsPctHeavy`, `avgQuality` from `benchmarks/history.json`; `avgWithSkillPassRate`, `avgDelta` from `benchmarks/evals/history.json`), the first real input to `monitor-respond`. Every band names an owner, a rolling window, a deterministic rule, and a tier route.
+- `docs/review-policy.md`: one severity ladder reconciling `review-ticket`'s four-level vocabulary with `common-code-review`'s three levels, a verified skip list, a nit cap, and separation of duties — the first real input to `code-review`/`review-ticket`.
+- The first real instance of the requirement-ID chain (slug `sdlc-metrics-report`): `docs/brd/`, `docs/prd/`, `docs/srs/`, and three schema-valid run records, fully covered end to end (`BRD-OBJ-001 -> REQ-001..003 -> AC-001..005 -> SRS-001..004`). Its final acceptance criterion is self-referential: it asserts that `pnpm audit:trace` reports this slug clean, so the artifact proves the gate and the gate proves the artifact.
+- `scripts/metrics/`: the collector `common-sdlc-metrics` describes but never shipped. Emits `artifacts/sdlc-metrics.md` from git history and committed artifacts via `pnpm metrics:report` / `metrics:check`, enforcing the skill's own rules as code — every value cites a source, no composite score, no per-individual ranking, missing inputs reported unavailable with a reason.
+
+### Fixed
+- `scripts/trace/parse.ts` treated any markdown table's first cell as an ID declaration, so the repo's own SRS template — whose trace matrix restates ids a heading already declared — failed the gate with `duplicate-id` when followed literally. Declarations inferred from a table cell are now demoted to references only when a stronger declaration already exists; a PRD's requirements table remains a genuine declaration site, so two rows for one id there still raises `duplicate-id`.
+- `srs-task-list-<slug>.md` and `srs-walkthrough-<slug>.md` each matched the slug-file pattern and minted a phantom slug whose ids all dangled. They now join their feature's slug.
+
+### Known issue
+- `pnpm metrics:check` independently detects and routes the same `avgTokens` drift as `benchmark:gate` (`tier 3sigma -> pull_request`) — confirming the band config, detection, and routing all work end to end. Not yet cleared or acknowledged.
+
+---
+
+## [tooling] - Unreleased
+
 **Area**: Eval-harness cost metering, benchmark regression gate, MCP cost provenance (#205)
 
 ### Added

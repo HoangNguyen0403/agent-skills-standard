@@ -42,3 +42,79 @@ test("hasNoRequirementSources is fail-open only when both docs/brd and docs/prd 
 
   assert.equal(hasNoRequirementSources(path.join(FIXTURES, "clean")), false);
 });
+
+/** Writes a minimal slug tree under a fresh temp root and returns the root. */
+function writeSlugTree(files: Record<string, string>): string {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "trace-tree-"));
+  for (const [rel, body] of Object.entries(files)) {
+    const abs = path.join(root, rel);
+    fs.mkdirSync(path.dirname(abs), { recursive: true });
+    fs.writeFileSync(abs, body);
+  }
+  return root;
+}
+
+test("a trace matrix restating a heading-declared id is a reference, not a second declaration", () => {
+  // The shipped SRS template puts already-declared ids back into a table's
+  // first cell (`| BRD-OBJ-001 | REQ-001 | AC-001 | SRS-001 |`). Following the
+  // template literally must not raise duplicate-id.
+  const root = writeSlugTree({
+    "docs/brd/brd-demo.md": "# BRD\n\n- **Objective ID**: BRD-OBJ-001\n",
+    "docs/prd/prd-demo.md": [
+      "# PRD",
+      "",
+      "| ID | Statement | BRD |",
+      "| --- | --- | --- |",
+      "| REQ-001 | do the thing | BRD-OBJ-001 |",
+      "",
+      "| AC | REQ |",
+      "| --- | --- |",
+      "| AC-001 | REQ-001 |",
+      "",
+    ].join("\n"),
+    "docs/srs/srs-demo.md": [
+      "# SRS",
+      "",
+      "### SRS-001: the contract",
+      "",
+      "- **Source**: REQ-001, AC-001",
+      "",
+      "| BRD-OBJ | REQ | AC | SRS | Evidence |",
+      "| --- | --- | --- | --- | --- |",
+      "| BRD-OBJ-001 | REQ-001 | AC-001 | SRS-001 | test |",
+      "",
+      "| SRS | Method | Evidence |",
+      "| --- | --- | --- |",
+      "| SRS-001 | manual | test |",
+      "",
+    ].join("\n"),
+  });
+
+  const demo = parseRepo(root).find((s) => s.slug === "demo");
+  assert.ok(demo, "expected a demo slug");
+  const srsDeclarations = demo!.references.filter(
+    (r) => r.kind === "SRS" && r.id === "SRS-001" && r.role === "declaration",
+  );
+  assert.equal(srsDeclarations.length, 1, "SRS-001 must be declared exactly once (the heading)");
+  const brdDeclarations = demo!.references.filter(
+    (r) => r.kind === "BRD-OBJ" && r.id === "BRD-OBJ-001" && r.role === "declaration",
+  );
+  assert.equal(brdDeclarations.length, 1, "BRD-OBJ-001 must be declared exactly once (the BRD)");
+});
+
+test("srs-task-list-<slug> and srs-walkthrough-<slug> join their feature slug", () => {
+  const root = writeSlugTree({
+    "docs/prd/prd-demo.md": "# PRD\n\n| ID | Statement |\n| --- | --- |\n| REQ-001 | do it |\n",
+    "docs/srs/srs-demo.md": "# SRS\n\n### SRS-001: c\n\n- **Source**: REQ-001\n",
+    "docs/srs/srs-task-list-demo.md": "# Tasks\n\nImplements SRS-001.\n",
+    "docs/srs/srs-walkthrough-demo.md": "# Walkthrough\n\nProves SRS-001.\n",
+  });
+
+  const slugs = parseRepo(root);
+  assert.deepEqual(
+    slugs.map((s) => s.slug),
+    ["demo"],
+    "artifact-kind files must not mint phantom slugs",
+  );
+  assert.equal(slugs[0].files.length, 4);
+});

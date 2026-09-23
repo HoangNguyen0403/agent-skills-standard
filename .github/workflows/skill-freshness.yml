@@ -84,3 +84,7 @@ jobs:
       - name: Benchmark regression gate
         if: always()
         run: pnpm benchmark:gate
+
+      - name: SDLC control-band check
+        if: always()
+        run: pnpm metrics:check
