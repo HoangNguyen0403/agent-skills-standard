@@ -5,6 +5,28 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [tooling] - Unreleased
+
+**Area**: SDLC run ledger, requirement traceability, slug-scoped artifacts (#204)
+
+### Added
+- `scripts/outcome/`: schema-validated run-record shape (`schema_version: 1`) at `artifacts/runs/<slug>/<compactISO>-<workflow>.json`, plus `pnpm audit:outcome`. Rejects unfilled template tokens in real records (`REQ-*`, `<...>`, `TODO`) against `^REQ-\d{3,}$`-style grammar; enforces that a `cost.source: unavailable` record omits token/USD fields rather than estimating them.
+- `scripts/trace/`: per-slug `BRD-OBJ -> REQ -> AC -> SRS` graph, plus `pnpm audit:trace`. Reports `duplicate-id`, `dangling-ref`, `orphan-req`, `orphan-ac`, `unlinked-req`, `malformed-id`, `slug-file-mismatch`. IDs are scoped per slug; fenced code blocks are skipped so template examples never register as real requirements. Both CLIs fail open on absent inputs and fail closed on malformed content.
+- `scripts/workflow-chain.ts`: single source of truth for `CORE_SDLC_CHAIN`, so the outcome auditor can consume it without an import cycle through `audit-sdlc.ts`.
+
+### Changed
+- `audit-sdlc.ts` now YAML-parses each core workflow's `Outcome Report` and requires all 14 run-record keys, replacing a `feature_status:` substring test that a literal placeholder could pass.
+- All 21 `CORE_SDLC_CHAIN` workflows plus `sdlc` and `test-loop`: the `Outcome Report` body was not valid YAML (four keys crammed onto one line separated by `;`, which `js-yaml` rejects). Rewritten as a single valid YAML flow mapping; `feature_status` is now a closed enum taken from the vocabulary the workflows already authored, plus `verified`/`released` for post-verification stages.
+- `implementation-readiness`, `traceability-audit`, `uat-signoff`, `deploy-release`, `publish-notes`, `session-report`, `retro-learn` now persist a run record instead of a chat-only verdict.
+- `docs/srs/srs-task-list.md` and `srs-walkthrough.md` were the only non-slug-scoped artifacts in the chain, so concurrent features overwrote each other's task list and verification evidence. Now `-[slug]` suffixed.
+- `.skillsrc`: 8 workflows shipped checked-in wrappers but were absent from the sync list, so `generate-indices` never refreshed them; caught by the CLI wrapper-parity test.
+- CI: `audit:outcome` and `audit:trace` gate `validate-skills`; `test:cov` is now `pnpm -r test:cov` — `mcp/` and `server/` suites previously never executed in CI at all.
+
+### Removed
+- `cli/skills-lock.json`: no reader or writer anywhere in `cli/src`, `mcp/src`, `scripts/`, or any workflow. The real lockfile is `.skills-lock.json`, written by `LockfileService` at consumer sites.
+
+---
+
 ## [quality-engineering-v1.6.0] - Unreleased
 
 **Category**: Test-loop program P0–P3, requirement-to-TC hardening, automation health, UI automation driver ladders
