@@ -18,7 +18,7 @@
 
 import fs from "fs";
 import path from "path";
-import yaml from "js-yaml";
+import * as yaml from "js-yaml";
 import {
   DEFAULT_MAX_QUALITY_DROP,
   DEFAULT_MAX_SAVINGS_DROP_PTS,

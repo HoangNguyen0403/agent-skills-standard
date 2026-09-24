@@ -10,7 +10,7 @@
  * Usage: tsx scripts/scan-injection.ts [--strict] [--roots .claude,.agents]
  */
 import fs from 'fs-extra';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import path from 'path';
 import pc from 'picocolors';
 import { scanContent, type InjectionFinding } from '../cli/src/constants/security';

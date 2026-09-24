@@ -1,7 +1,7 @@
 // scripts/outcome/template.ts
 import fs from "fs-extra";
 import path from "path";
-import yaml from "js-yaml";
+import * as yaml from "js-yaml";
 import { REQUIRED_TOP_LEVEL_KEYS } from "./schema";
 import type { ValidationIssue } from "./schema";
 

@@ -1,5 +1,5 @@
 import fs from 'fs-extra';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { IndexContentBuilder } from '../IndexContentBuilder';
 import { IndexGeneratorServiceImpl } from '../IndexGeneratorServiceImpl';
