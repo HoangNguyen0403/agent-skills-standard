@@ -1,5 +1,5 @@
 import fs from "fs-extra";
-import yaml from "js-yaml";
+import * as yaml from "js-yaml";
 
 /** SKILL.md files are prose, not payloads — refuse to parse anything absurdly large. */
 const MAX_SKILL_FILE_BYTES = 1024 * 1024; // 1 MiB

@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
-import yaml from "js-yaml";
+import * as yaml from "js-yaml";
 
 export interface WorkflowMetadata {
   /** Workflow identifier without extension (e.g. `dev-fix`) */
