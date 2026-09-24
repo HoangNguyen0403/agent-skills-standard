@@ -5,60 +5,66 @@ All notable changes to the Programming Languages and Frameworks Agent Skills wil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### Quick Navigation
+
+- **Unreleased / Active Packages**: [Cybersecurity (v1.0.0)](#cybersecurity-v100---unreleased) • [Common (v2.6.0)](#common-v260---unreleased) • [Tooling & SDLC](#tooling---unreleased) • [Quality Engineering (v1.6.0)](#quality-engineering-v160---unreleased) • [Specialists (v1.4.0)](#specialists-v140---unreleased) • [System Design (v1.2.0)](#system-design-v120---unreleased)
+- **Recent Releases**: [Specialists v1.3.0](#specialists-v130---2026-09-15) • [System Design v1.1.0](#system-design-v110---2026-09-15) • [CLI v2.6.2](#cli-v262---2026-09-13) • [Common v2.5.0](#common-v250---2026-09-09) • [System Design v1.0.0](#system-design-v100---2026-08-30) • [CLI v2.6.1](#cli-v261---2026-08-22) • [CLI v2.6.0 / MCP v0.6.0](#cli-v260--mcp-v060---2026-07-09)
+- **Archive**: [v2.0–v2.1](#213---2026-04-22) • [v1.x Archive](#1104---2026-03-21)
+
 ## [cybersecurity-v1.0.0] - Unreleased
 
 **Category**: Governed cybersecurity skills
 
 ### Added
 
-- Opt-in `cybersecurity` category with eleven original skills: authorization,
+- **Category Launch**: Opt-in `cybersecurity` category with eleven original skills: authorization,
   evidence, framework mapping, exercise control, exercise adjudication,
   engagement planning, scoped validation, incident triage, detection engineering,
   threat hunting and detection validation. Includes synthetic/offline eval cases,
   pressure scenarios and lazy primary references.
-- Canonical `cyber-exercise`, `cyber-triage` and `cyber-purple-validation`
+- **Governed Workflows & Release Routing**: Canonical `cyber-exercise`, `cyber-triage` and `cyber-purple-validation`
   workflows, category discovery/indexes and `cybersecurity-v*` release routing.
   The initial category version is `1.0.0`; this PR does not publish its tag.
 
 ### Changed
 
-- Skill sync transports complete supported package resources, including binary
+- **Complete Resource Transport**: Skill sync transports complete supported package resources, including binary
   assets and root LICENSE/NOTICE attribution, rather than reconstructing them
   from UTF-8 text. Incomplete packages are rejected and replacements are staged.
-- New eval runs fingerprint the full package and preserve immutable inputs;
+- **Whole-Package Eval Provenance**: New eval runs fingerprint the full package and preserve immutable inputs;
   resource-only drift invalidates skill-loaded evidence while compatible
   baseline/activation evidence remains reusable. Legacy runs stay readable,
   but cannot stand in for fresh whole-package promotion evidence.
-- Retrospectives and learning logs distinguish redacted proposals, authorized
+- **Evidence-Grounded Learning Logs**: Retrospectives and learning logs distinguish redacted proposals, authorized
   canonical edits, candidate/current/no-skill comparisons, independent review,
   promotion and rollback. `retro-learn`, `pentest` and LLM-security guidance now
   preserve blocked/not-tested evidence and reject unsupported runtime claims.
-- Engagement restart gates require both current authorization and verified host
+- **Engagement & Validation Gates**: Engagement restart gates require both current authorization and verified host
   enforcement; owner exceptions cannot replace either. Triage makes unassigned
   ownership explicit, mapping revisions retain prior evidence, and blocked
   validation responses must offer safe offline alternatives.
-- Frontmatter accepts standard scalar or list `allowed-tools`; supported native
+- **Allowed-Tools Schema**: Frontmatter accepts standard scalar or list `allowed-tools`; supported native
   exports project that metadata without claiming enforcement on other hosts.
 
 ### Fixed
 
-- Binary lockfile verification hashes the original bytes; distinct invalid
+- **Binary Lockfile Verification**: Binary lockfile verification hashes the original bytes; distinct invalid
   UTF-8 payloads can no longer collapse into the same decoded text hash.
-- Failed selected-package assembly aborts sync before installation or lockfile
+- **Atomic Package Assembly**: Failed selected-package assembly aborts sync before installation or lockfile
   replacement, rather than retaining a package on disk but silently dropping
   its integrity coverage. Unsafe write paths propagate a failure too.
-- Raw eval and skill bytes are rehashed before scoring and portable verification;
+- **Eval Byte Re-hashing**: Raw eval and skill bytes are rehashed before scoring and portable verification;
   changing parsed assertions while retaining copied hash strings is rejected.
-- Zod risk-tier validation uses the supported v4 error option.
+- **Zod Error Option**: Zod risk-tier validation uses the supported v4 error option.
 
 ### Security boundaries
 
-- Package hashes verify integrity, not authorship or authorization. Reviewer
+- **Hash Integrity Scope**: Package hashes verify integrity, not authorship or authorization. Reviewer
   names record attribution, not authenticated independent approval.
-- Host runtimes remain responsible for permissions, credentials, network and
+- **Host Runtime Responsibility**: Host runtimes remain responsible for permissions, credentials, network and
   filesystem restrictions, cancellation and audit controls. Unsupported live
   execution stays blocked; safe offline analysis remains available.
-- No production attacks, control-efficacy claims, compliance certification or
+- **Scope & Non-Goals**: No production attacks, control-efficacy claims, compliance certification or
   autonomous self-promotion is introduced. No external cybersecurity pack was
   imported or executed.
 
@@ -72,87 +78,91 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- First-class `component` diagrams in the existing draw.io renderer, with a paired container/component fixture demonstrating canonical HLD-to-LLD identities and relationship refinement.
-- Optional `view-manifest.json` validation for scoped identities, ownership/refinement cycles, expected relationships, and cross-view direction consistency. Local evidence sources are allowlisted, size-bounded, and SHA-256 checked; stale or unavailable captures return `review-needed`, not a runtime-drift claim.
-- Separate lifecycle, source kind, evidence confidence, and metric provenance on nodes and edges, including ERD entities/relations and sequence messages.
+- **Component Diagrams**: First-class `component` diagrams in the existing draw.io renderer, with a paired container/component fixture demonstrating canonical HLD-to-LLD identities and relationship refinement.
+- **View Manifest Validation**: Optional `view-manifest.json` validation for scoped identities, ownership/refinement cycles, expected relationships, and cross-view direction consistency. Local evidence sources are allowlisted, size-bounded, and SHA-256 checked; stale or unavailable captures return `review-needed`, not a runtime-drift claim.
+- **Fine-Grained Provenance Metadata**: Separate lifecycle, source kind, evidence confidence, and metric provenance on nodes and edges, including ERD entities/relations and sequence messages.
 
 ### Changed
 
-- Selected views describe their question, decision, scenario, invariant, scope, status, evidence, and omissions. Code/document citations do not prove runtime deployment.
-- Generated draw.io output carries its own content baseline. Regeneration permits ordinary spec changes but preserves and refuses hand-edited or untracked output unless replacement is explicitly acknowledged.
-- The renderer validates input before writing. Compact citation-only nodes and relationships remain visibly `UNVERIFIED`; a pointer alone no longer establishes confidence.
-- Schema-to-ERD generation supplies documented code provenance for parsed declarations and relationships; unresolved referenced tables remain unverified rather than implying a deployed schema.
-- Diagram evals cover HLD/LLD routing near-misses and documentary provenance. Lexical assertions remain smoke checks, not proof of semantic correctness.
+- **View Contracts**: Selected views describe their question, decision, scenario, invariant, scope, status, evidence, and omissions. Code/document citations do not prove runtime deployment.
+- **Content Baseline & Edit Protection**: Generated draw.io output carries its own content baseline. Regeneration permits ordinary spec changes but preserves and refuses hand-edited or untracked output unless replacement is explicitly acknowledged.
+- **Pre-Write Input Validation**: The renderer validates input before writing. Compact citation-only nodes and relationships remain visibly `UNVERIFIED`; a pointer alone no longer establishes confidence.
+- **Schema-to-ERD Code Provenance**: Schema-to-ERD generation supplies documented code provenance for parsed declarations and relationships; unresolved referenced tables remain unverified rather than implying a deployed schema.
+- **Diagram Evals**: Diagram evals cover HLD/LLD routing near-misses and documentary provenance. Lexical assertions remain smoke checks, not proof of semantic correctness.
 
 ### Migration
 
-- Return semantic draw.io edits to the JSON spec before regeneration. Existing outputs without a generated baseline require deliberate review and `--acknowledge-manual-edits` before replacement.
-- Add explicit provenance metadata to establish documentary or observed confidence; complete view contracts and captured source digests are required for manifest participation. Citations use a local `path:positive-line` form.
+- **Spec-First Edits**: Return semantic draw.io edits to the JSON spec before regeneration. Existing outputs without a generated baseline require deliberate review and `--acknowledge-manual-edits` before replacement.
+- **Provenance & Digest Requirements**: Add explicit provenance metadata to establish documentary or observed confidence; complete view contracts and captured source digests are required for manifest participation. Citations use a local `path:positive-line` form.
 
 ### Versions
 
 - **Common Skills**: `2.5.0` → `2.6.0` (unreleased; no tag or release created)
-## [tooling] - Unreleased
-
-**Area**: SDLC standard dogfooding — control bands, review policy, first real requirement chain, metrics producer (#206)
-
-### Added
-- `docs/ops/bands.yaml`: 5 control bands over signals this repo actually produces (`avgTokens`, `savingsPctHeavy`, `avgQuality` from `benchmarks/history.json`; `avgWithSkillPassRate`, `avgDelta` from `benchmarks/evals/history.json`), the first real input to `monitor-respond`. Every band names an owner, a rolling window, a deterministic rule, and a tier route.
-- `docs/review-policy.md`: one severity ladder reconciling `review-ticket`'s four-level vocabulary with `common-code-review`'s three levels, a verified skip list, a nit cap, and separation of duties — the first real input to `code-review`/`review-ticket`.
-- The first real instance of the requirement-ID chain (slug `sdlc-metrics-report`): `docs/brd/`, `docs/prd/`, `docs/srs/`, and three schema-valid run records, fully covered end to end (`BRD-OBJ-001 -> REQ-001..003 -> AC-001..005 -> SRS-001..004`). Its final acceptance criterion is self-referential: it asserts that `pnpm audit:trace` reports this slug clean, so the artifact proves the gate and the gate proves the artifact.
-- `scripts/metrics/`: the collector `common-sdlc-metrics` describes but never shipped. Emits `artifacts/sdlc-metrics.md` from git history and committed artifacts via `pnpm metrics:report` / `metrics:check`, enforcing the skill's own rules as code — every value cites a source, no composite score, no per-individual ranking, missing inputs reported unavailable with a reason.
-
-### Fixed
-- `scripts/trace/parse.ts` treated any markdown table's first cell as an ID declaration, so the repo's own SRS template — whose trace matrix restates ids a heading already declared — failed the gate with `duplicate-id` when followed literally. Declarations inferred from a table cell are now demoted to references only when a stronger declaration already exists; a PRD's requirements table remains a genuine declaration site, so two rows for one id there still raises `duplicate-id`.
-- `srs-task-list-<slug>.md` and `srs-walkthrough-<slug>.md` each matched the slug-file pattern and minted a phantom slug whose ids all dangled. They now join their feature's slug.
-
-### Known issue
-- `pnpm metrics:check` independently detects and routes the same `avgTokens` drift as `benchmark:gate` (`tier 3sigma -> pull_request`) — confirming the band config, detection, and routing all work end to end. Not yet cleared or acknowledged.
-
----
 
 ## [tooling] - Unreleased
 
-**Area**: Eval-harness cost metering, benchmark regression gate, MCP cost provenance (#205)
+**Area**: SDLC run ledger, requirement traceability, cost metering, benchmark gates, and control bands
 
-### Added
-- `scripts/evals/`: codex workers run with `--json`; token-count events parse into a per-lane `UsageSample` with per-arm totals, so the baseline arm's price is separable from the with-skill arm. Parsing fails open — an unparseable stream records `usage: null`, never a guess. `evals:estimate` projects lanes/tokens/dollars for a pending run from observed mean cost per lane, or reports "unavailable" with no prior usage. `evals:gate` applies the `readiness.ts` thresholds to pending scored runs, reporting direction against the previous history record; wired into the CI PR gate.
-- `scripts/benchmark/gate.ts`: `benchmark:gate` fails on `avgTokens` growth > 10%, any `avgQuality` drop, or a `savingsPctHeavy` drop > 10 points, citing the previous record by version and date. Wired into the weekly drift workflow rather than the PR gate, since it measures corpus drift over time.
-- MCP `get_session_cost`: explicit provenance (`host` | `agent-estimate` | `unavailable`) on every token/cost value. `TelemetryRecord` gains optional `workflow`, `slug`, `outcome` so the opt-in JSONL can answer "what did this feature cost." `.skillsrc` sets `telemetry: true` — this repo now dogfoods its own instrument.
+### SDLC Control Bands & Metrics (#206)
 
-### Changed
-- `docs/EVALS.md` corrected a false claim that CI already enforced the promotion thresholds; it now describes what `evals:gate` actually does.
-- Every savings % and $ figure in `benchmark-report.md` now carries inline provenance naming it a synthetic-baseline upper bound against the specific constant and price-table date; `avgQuality` is labelled a structural rubric score with its saturation stated (96% of skills score ≥ 9/10 as of this release).
-- `get_session_cost`'s `[Agent: fill from platform usage]` placeholder — which invited a fabricated number — and its default `$0.00` are gone; an unavailable value now renders `unavailable (host did not expose token usage)` with no number.
+#### Added
 
-### Removed
-- `readiness.ts`'s `FINAL_REMEDIATION_SKILL_COUNT = 136` / `FINAL_REMEDIATION_CASE_COUNT = 1221`: a one-release manifest shape assertion frozen into shared code.
+- **Control Bands Configuration** (`docs/ops/bands.yaml`): 5 control bands over signals this repo actually produces (`avgTokens`, `savingsPctHeavy`, `avgQuality` from `benchmarks/history.json`; `avgWithSkillPassRate`, `avgDelta` from `benchmarks/evals/history.json`), the first real input to `monitor-respond`. Every band names an owner, a rolling window, a deterministic rule, and a tier route.
+- **Unified Review Policy** (`docs/review-policy.md`): one severity ladder reconciling `review-ticket`'s four-level vocabulary with `common-code-review`'s three levels, a verified skip list, a nit cap, and separation of duties — the first real input to `code-review`/`review-ticket`.
+- **Requirement-ID Traceability Chain**: The first real instance of the requirement-ID chain (slug `sdlc-metrics-report`): `docs/brd/`, `docs/prd/`, `docs/srs/`, and three schema-valid run records, fully covered end to end (`BRD-OBJ-001 -> REQ-001..003 -> AC-001..005 -> SRS-001..004`). Its final acceptance criterion is self-referential: it asserts that `pnpm audit:trace` reports this slug clean, so the artifact proves the gate and the gate proves the artifact.
+- **SDLC Metrics Collector** (`scripts/metrics/`): the collector `common-sdlc-metrics` describes but never shipped. Emits `artifacts/sdlc-metrics.md` from git history and committed artifacts via `pnpm metrics:report` / `metrics:check`, enforcing the skill's own rules as code — every value cites a source, no composite score, no per-individual ranking, missing inputs reported unavailable with a reason.
 
-### Known issue
-- `pnpm benchmark:gate` fails on real pre-existing drift: `avgTokens` +12.5% vs the `v2.6.0` record (528 → 594), from 25 skills added and none removed since the benchmark was last run (2026-07-10). This is the gate working as designed, not a regression introduced here.
+#### Fixed
 
----
+- **Table Cell ID Parsing** (`scripts/trace/parse.ts`): treated any markdown table's first cell as an ID declaration, so the repo's own SRS template — whose trace matrix restates ids a heading already declared — failed the gate with `duplicate-id` when followed literally. Declarations inferred from a table cell are now demoted to references only when a stronger declaration already exists; a PRD's requirements table remains a genuine declaration site, so two rows for one id there still raises `duplicate-id`.
+- **Slug File Pattern Matching**: `srs-task-list-<slug>.md` and `srs-walkthrough-<slug>.md` each matched the slug-file pattern and minted a phantom slug whose ids all dangled. They now join their feature's slug.
 
-## [tooling] - Unreleased
+#### Known issues
 
-**Area**: SDLC run ledger, requirement traceability, slug-scoped artifacts (#204)
+- **Token Drift Warning**: `pnpm metrics:check` independently detects and routes the same `avgTokens` drift as `benchmark:gate` (`tier 3sigma -> pull_request`) — confirming the band config, detection, and routing all work end to end. Not yet cleared or acknowledged.
 
-### Added
-- `scripts/outcome/`: schema-validated run-record shape (`schema_version: 1`) at `artifacts/runs/<slug>/<compactISO>-<workflow>.json`, plus `pnpm audit:outcome`. Rejects unfilled template tokens in real records (`REQ-*`, `<...>`, `TODO`) against `^REQ-\d{3,}$`-style grammar; enforces that a `cost.source: unavailable` record omits token/USD fields rather than estimating them.
-- `scripts/trace/`: per-slug `BRD-OBJ -> REQ -> AC -> SRS` graph, plus `pnpm audit:trace`. Reports `duplicate-id`, `dangling-ref`, `orphan-req`, `orphan-ac`, `unlinked-req`, `malformed-id`, `slug-file-mismatch`. IDs are scoped per slug; fenced code blocks are skipped so template examples never register as real requirements. Both CLIs fail open on absent inputs and fail closed on malformed content.
-- `scripts/workflow-chain.ts`: single source of truth for `CORE_SDLC_CHAIN`, so the outcome auditor can consume it without an import cycle through `audit-sdlc.ts`.
+### Eval Metering & Regression Gate (#205)
 
-### Changed
-- `audit-sdlc.ts` now YAML-parses each core workflow's `Outcome Report` and requires all 14 run-record keys, replacing a `feature_status:` substring test that a literal placeholder could pass.
-- All 21 `CORE_SDLC_CHAIN` workflows plus `sdlc` and `test-loop`: the `Outcome Report` body was not valid YAML (four keys crammed onto one line separated by `;`, which `js-yaml` rejects). Rewritten as a single valid YAML flow mapping; `feature_status` is now a closed enum taken from the vocabulary the workflows already authored, plus `verified`/`released` for post-verification stages.
-- `implementation-readiness`, `traceability-audit`, `uat-signoff`, `deploy-release`, `publish-notes`, `session-report`, `retro-learn` now persist a run record instead of a chat-only verdict.
-- `docs/srs/srs-task-list.md` and `srs-walkthrough.md` were the only non-slug-scoped artifacts in the chain, so concurrent features overwrote each other's task list and verification evidence. Now `-[slug]` suffixed.
-- `.skillsrc`: 8 workflows shipped checked-in wrappers but were absent from the sync list, so `generate-indices` never refreshed them; caught by the CLI wrapper-parity test.
-- CI: `audit:outcome` and `audit:trace` gate `validate-skills`; `test:cov` is now `pnpm -r test:cov` — `mcp/` and `server/` suites previously never executed in CI at all.
+#### Added
 
-### Removed
-- `cli/skills-lock.json`: no reader or writer anywhere in `cli/src`, `mcp/src`, `scripts/`, or any workflow. The real lockfile is `.skills-lock.json`, written by `LockfileService` at consumer sites.
+- **Eval Cost Metering & Gates** (`scripts/evals/`): codex workers run with `--json`; token-count events parse into a per-lane `UsageSample` with per-arm totals, so the baseline arm's price is separable from the with-skill arm. Parsing fails open — an unparseable stream records `usage: null`, never a guess. `evals:estimate` projects lanes/tokens/dollars for a pending run from observed mean cost per lane, or reports "unavailable" with no prior usage. `evals:gate` applies the `readiness.ts` thresholds to pending scored runs, reporting direction against the previous history record; wired into the CI PR gate.
+- **Benchmark Regression Gate** (`scripts/benchmark/gate.ts`): `benchmark:gate` fails on `avgTokens` growth > 10%, any `avgQuality` drop, or a `savingsPctHeavy` drop > 10 points, citing the previous record by version and date. Wired into the weekly drift workflow rather than the PR gate, since it measures corpus drift over time.
+- **Session Cost Provenance** (MCP `get_session_cost`): explicit provenance (`host` | `agent-estimate` | `unavailable`) on every token/cost value. `TelemetryRecord` gains optional `workflow`, `slug`, `outcome` so the opt-in JSONL can answer "what did this feature cost." `.skillsrc` sets `telemetry: true` — this repo now dogfoods its own instrument.
 
+#### Changed
+
+- **Eval Gate Documentation** (`docs/EVALS.md`): corrected a false claim that CI already enforced the promotion thresholds; it now describes what `evals:gate` actually does.
+- **Benchmark Report Provenance**: Every savings % and $ figure in `benchmark-report.md` now carries inline provenance naming it a synthetic-baseline upper bound against the specific constant and price-table date; `avgQuality` is labelled a structural rubric score with its saturation stated (96% of skills score ≥ 9/10 as of this release).
+- **Placeholder Elimination**: `get_session_cost`'s `[Agent: fill from platform usage]` placeholder — which invited a fabricated number — and its default `$0.00` are gone; an unavailable value now renders `unavailable (host did not expose token usage)` with no number.
+
+#### Removed
+
+- **Hardcoded Manifest Counts**: `readiness.ts`'s `FINAL_REMEDIATION_SKILL_COUNT = 136` / `FINAL_REMEDIATION_CASE_COUNT = 1221`: a one-release manifest shape assertion frozen into shared code.
+
+#### Known issues
+
+- **Pre-existing Corpus Drift**: `pnpm benchmark:gate` fails on real pre-existing drift: `avgTokens` +12.5% vs the `v2.6.0` record (528 → 594), from 25 skills added and none removed since the benchmark was last run (2026-07-10). This is the gate working as designed, not a regression introduced here.
+
+### SDLC Run Ledger & Traceability (#204)
+
+#### Added
+
+- **Schema-Validated Run Records** (`scripts/outcome/`): schema-validated run-record shape (`schema_version: 1`) at `artifacts/runs/<slug>/<compactISO>-<workflow>.json`, plus `pnpm audit:outcome`. Rejects unfilled template tokens in real records (`REQ-*`, `<...>`, `TODO`) against `^REQ-\d{3,}$`-style grammar; enforces that a `cost.source: unavailable` record omits token/USD fields rather than estimating them.
+- **Slug-Scoped Requirement Trace Graph** (`scripts/trace/`): per-slug `BRD-OBJ -> REQ -> AC -> SRS` graph, plus `pnpm audit:trace`. Reports `duplicate-id`, `dangling-ref`, `orphan-req`, `orphan-ac`, `unlinked-req`, `malformed-id`, `slug-file-mismatch`. IDs are scoped per slug; fenced code blocks are skipped so template examples never register as real requirements. Both CLIs fail open on absent inputs and fail closed on malformed content.
+- **Workflow Chain Single Source of Truth** (`scripts/workflow-chain.ts`): single source of truth for `CORE_SDLC_CHAIN`, so the outcome auditor can consume it without an import cycle through `audit-sdlc.ts`.
+
+#### Changed
+
+- **Strict Outcome Report YAML Parsing**: `audit-sdlc.ts` now YAML-parses each core workflow's `Outcome Report` and requires all 14 run-record keys, replacing a `feature_status:` substring test that a literal placeholder could pass.
+- **YAML Flow Mapping for Workflows**: All 21 `CORE_SDLC_CHAIN` workflows plus `sdlc` and `test-loop`: the `Outcome Report` body was not valid YAML (four keys crammed onto one line separated by `;`, which `js-yaml` rejects). Rewritten as a single valid YAML flow mapping; `feature_status` is now a closed enum taken from the vocabulary the workflows already authored, plus `verified`/`released` for post-verification stages.
+- **Persistent Run Records**: `implementation-readiness`, `traceability-audit`, `uat-signoff`, `deploy-release`, `publish-notes`, `session-report`, `retro-learn` now persist a run record instead of a chat-only verdict.
+- **Slug-Scoped Artifact Names**: `docs/srs/srs-task-list.md` and `srs-walkthrough.md` were the only non-slug-scoped artifacts in the chain, so concurrent features overwrote each other's task list and verification evidence. Now `-[slug]` suffixed.
+- **Sync List Completeness** (`.skillsrc`): 8 workflows shipped checked-in wrappers but were absent from the sync list, so `generate-indices` never refreshed them; caught by the CLI wrapper-parity test.
+- **CI Suite Expansion**: `audit:outcome` and `audit:trace` gate `validate-skills`; `test:cov` is now `pnpm -r test:cov` — `mcp/` and `server/` suites previously never executed in CI at all.
+
+#### Removed
+
+- **Dead Lockfile Reference**: `cli/skills-lock.json`: no reader or writer anywhere in `cli/src`, `mcp/src`, `scripts/`, or any workflow. The real lockfile is `.skills-lock.json`, written by `LockfileService` at consumer sites.
 ---
 
 ## [quality-engineering-v1.6.0] - Unreleased
@@ -162,27 +172,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Consolidated in #192. The untagged headers `quality-engineering-v1.6.0`–`v1.8.0` written by #169, #184, #186 and #188 were merged into this one entry because nothing after `quality-engineering-v1.5.1` has been released. One minor bump per release, not per PR.
 
 ### Added
-- `quality-engineering-selector-stability` (#169): cross-stack locator ladder (web `getByRole` > `getByLabel` > `getByTestId`; mobile a11y id > resource-id/testTag), test-id naming `<screen>-<element>-<role>`, never XPath.
-- `quality-engineering-test-healing` (#169): failure taxonomy `SELECTOR_DRIFT / TIMING_SYNC / DATA_ENV / INFRA / REAL_REGRESSION`, allowed and forbidden repairs, verdict contract.
-- `quality-engineering-test-plan-authoring` (#169): AC-* into an executable test plan with lanes, seed, and `Selector Gaps`.
-- `quality-engineering-automation-health` (#184): feedback-loop, suite reliability, release cadence and prod-escape metrics rolled into a `release_confidence` verdict.
-- `quality-engineering-playwright-pom-generation` (#186): one page object per screen, ladder-compliant locators, no assertions, `pages` fixture; MCP-assisted locator confirmation.
-- `quality-engineering-flaky-triage` (#188): quarantine behind a ticket with owner and 14-day expiry, root-cause buckets, 10-run isolated evidence, un-quarantine criteria.
-- `quality-engineering-visual-baseline` (#188): capture in CI image, mask by locator, per-region thresholds, reviewed-diff baseline updates.
-- `quality-engineering-playwright-cli` (#192): driver ladder (preflight → `playwright-cli` → Playwright MCP → exported evidence → `BLOCKED (driver: playwright)`), `scripts/preflight.sh` with `PLAYWRIGHT_CLI_BIN` override and exit 0/1/2, `references/driver-ladder.md` with CLI↔MCP tool equivalence and launch flags, evidence dir convention `.playwright-cli/<session>/`, keywords `playwright mcp`, `browser_snapshot`, `playwright-cli install`, fallback eval.
-- `quality-engineering-appium-mcp` (#192): driver ladder (preflight → local device → `remoteServerUrl` cloud → exported evidence → `BLOCKED (driver: appium)`), `scripts/preflight.sh` reporting Node/JDK/adb/emulator/simctl/cloud creds with a `MODE` line, `references/driver-ladder.md` with prerequisites per rung and server env (`NO_UI`, `AI_VISION_ENABLED`, `REMOTE_SERVER_URL_ALLOW_REGEX`), evidence dir `.appium-mcp/<session>/`, keywords `appium-mcp`, `appium doctor`, `android emulator`, `ios simulator`, `select_device`, cloud-fallback eval.
-- `references/setup.md` in both driver skills (#192): install matrix, MCP config snippet, security notes, and the evaluated-not-adopted record for Obscura, Lightpanda (web) and google/artemis (mobile). `docs/ui-automation-drivers.md` is a maintainer summary only; skills never link to `docs/`.
+
+- **Locator Ladder** (`quality-engineering-selector-stability`, #169): cross-stack locator ladder (web `getByRole` > `getByLabel` > `getByTestId`; mobile a11y id > resource-id/testTag), test-id naming `<screen>-<element>-<role>`, never XPath.
+- **Test Healing Taxonomy** (`quality-engineering-test-healing`, #169): failure taxonomy `SELECTOR_DRIFT / TIMING_SYNC / DATA_ENV / INFRA / REAL_REGRESSION`, allowed and forbidden repairs, verdict contract.
+- **Test Plan Authoring** (`quality-engineering-test-plan-authoring`, #169): AC-* into an executable test plan with lanes, seed, and `Selector Gaps`.
+- **Automation Health Metrics** (`quality-engineering-automation-health`, #184): feedback-loop, suite reliability, release cadence and prod-escape metrics rolled into a `release_confidence` verdict.
+- **Playwright POM Generation** (`quality-engineering-playwright-pom-generation`, #186): one page object per screen, ladder-compliant locators, no assertions, `pages` fixture; MCP-assisted locator confirmation.
+- **Flaky Test Triage** (`quality-engineering-flaky-triage`, #188): quarantine behind a ticket with owner and 14-day expiry, root-cause buckets, 10-run isolated evidence, un-quarantine criteria.
+- **Visual Baseline Testing** (`quality-engineering-visual-baseline`, #188): capture in CI image, mask by locator, per-region thresholds, reviewed-diff baseline updates.
+- **Playwright CLI Driver** (`quality-engineering-playwright-cli`, #192): driver ladder (preflight → `playwright-cli` → Playwright MCP → exported evidence → `BLOCKED (driver: playwright)`), `scripts/preflight.sh` with `PLAYWRIGHT_CLI_BIN` override and exit 0/1/2, `references/driver-ladder.md` with CLI↔MCP tool equivalence and launch flags, evidence dir convention `.playwright-cli/<session>/`, keywords `playwright mcp`, `browser_snapshot`, `playwright-cli install`, fallback eval.
+- **Appium MCP Driver** (`quality-engineering-appium-mcp`, #192): driver ladder (preflight → local device → `remoteServerUrl` cloud → exported evidence → `BLOCKED (driver: appium)`), `scripts/preflight.sh` reporting Node/JDK/adb/emulator/simctl/cloud creds with a `MODE` line, `references/driver-ladder.md` with prerequisites per rung and server env (`NO_UI`, `AI_VISION_ENABLED`, `REMOTE_SERVER_URL_ALLOW_REGEX`), evidence dir `.appium-mcp/<session>/`, keywords `appium-mcp`, `appium doctor`, `android emulator`, `ios simulator`, `select_device`, cloud-fallback eval.
+- **Driver Setup Reference** (`references/setup.md` in both driver skills, #192): install matrix, MCP config snippet, security notes, and the evaluated-not-adopted record for Obscura, Lightpanda (web) and google/artemis (mobile). `docs/ui-automation-drivers.md` is a maintainer summary only; skills never link to `docs/`.
 
 ### Changed
-- `quality-engineering-zephyr-test-generation` (#184): P/N/E scenario contract, `ASSUMED` tagging, `HALT` on ambiguous AC, golden requirement fixtures, three new anti-patterns.
-- `quality-engineering-test-plan-authoring` (#186, #192): `Selector Gaps` now feeds a live `specialist-testid-inserter`; Playwright agents reference notes the vendor agents use Playwright MCP independently of the verification driver.
-- `quality-engineering-test-healing` (#186, #188): repair catalog no longer marks `specialist-testid-inserter` as a future phase; references flaky-triage and visual-baseline; `test.skip`/`fixme` never allowed as a heal; second `BLOCKED` cause (no stable locator target); P3 placeholders removed.
-- `quality-engineering-playwright-cli` (#192): install guidance unpinned (`@latest` + `playwright-cli install --skills`, pin in the consuming project); Playwright MCP named as the sanctioned no-shell exception.
-- `quality-engineering-appium-mcp` (#192): cheatsheet adds `select_device`, `prepare_ios_simulator`, `appium_get_page_source`, `generate_locators`, `appium_generate_tests`; LambdaTest setup documents the allowlist regex and `video.url`.
-- `quality-engineering-playwright-pom-generation` (#192): MCP authoring reference now shows both drivers.
-- Workflows `verify-work`, `verify-bug`, `test-loop` (steps 1–4), `dev-fix` (#192): run the driver preflight, record `driver:` / `evidence_dir:`, carry `driver_blocked[]`.
+
+- **Zephyr Test Generation** (`quality-engineering-zephyr-test-generation`, #184): P/N/E scenario contract, `ASSUMED` tagging, `HALT` on ambiguous AC, golden requirement fixtures, three new anti-patterns.
+- **Selector Gap Integration** (`quality-engineering-test-plan-authoring`, #186, #192): `Selector Gaps` now feeds a live `specialist-testid-inserter`; Playwright agents reference notes the vendor agents use Playwright MCP independently of the verification driver.
+- **Test Healing Refinements** (`quality-engineering-test-healing`, #186, #188): repair catalog no longer marks `specialist-testid-inserter` as a future phase; references flaky-triage and visual-baseline; `test.skip`/`fixme` never allowed as a heal; second `BLOCKED` cause (no stable locator target); P3 placeholders removed.
+- **Unpinned Driver Guidance** (`quality-engineering-playwright-cli`, #192): install guidance unpinned (`@latest` + `playwright-cli install --skills`, pin in the consuming project); Playwright MCP named as the sanctioned no-shell exception.
+- **Appium Cheatsheet & LambdaTest** (`quality-engineering-appium-mcp`, #192): cheatsheet adds `select_device`, `prepare_ios_simulator`, `appium_get_page_source`, `generate_locators`, `appium_generate_tests`; LambdaTest setup documents the allowlist regex and `video.url`.
+- **Dual-Driver Authoring Reference** (`quality-engineering-playwright-pom-generation`, #192): MCP authoring reference now shows both drivers.
+- **Workflow Preflight & Evidence Tracking** (workflows `verify-work`, `verify-bug`, `test-loop` steps 1–4, `dev-fix`, #192): run the driver preflight, record `driver:` / `evidence_dir:`, carry `driver_blocked[]`.
 
 ### Versions
+
 - quality-engineering: 1.6.0
 
 ## [specialists-v1.4.0] - Unreleased
@@ -191,12 +204,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `specialist-system-architect`: bounded HLD-to-LLD briefs carry scope and evidence status; responses include invariant-linked verification hooks and measurable ADR reversal triggers.
-- `specialist-solution-diagrammer`: component and ERD output share the existing renderer; node/edge provenance, metric provenance, optional manifests, and protected regeneration use the canonical diagram contract.
+- **`specialist-system-architect`**: bounded HLD-to-LLD briefs carry scope and evidence status; responses include invariant-linked verification hooks and measurable ADR reversal triggers.
+- **`specialist-solution-diagrammer`**: component and ERD output share the existing renderer; node/edge provenance, metric provenance, optional manifests, and protected regeneration use the canonical diagram contract.
 
 ### Versions
 
 - **Specialists**: `1.3.0` → `1.4.0` (unreleased; no tag or release created)
+
+## [system-design-v1.2.0] - Unreleased
+
+**Category**: HLD-to-LLD decision quality, production case packs, and nine-axis review profiles
+
+### Added
+
+- **Ten lazy-loaded production case packs**: payment timeout/duplicate webhook, flash-sale expiry/payment race, tenant isolation, cache stampede, notification outage, chat reconnect, live migration, a small internal-app counterexample, video publishing, and ride dispatch. Each states synthetic workload/SLO/team/budget assumptions, an invariant, minimal design, rejected alternative, failure/recovery timeline, changed constraint, acceptance criteria, and review thresholds.
+- **Independent semantic evaluation rubric**: recomputes quantities and checks mechanisms, invariants, recovery, justified exclusions, and view routing. Paired eval cases and scorer regressions reject vocabulary-only shortcuts while accepting ordinary rounding and multiline calculations; no aggregate quality uplift is claimed.
+
+### Changed
+
+- **`system-design-methodology`**: explicit `HLD`, `LLD`, and `low-level design` routing; stable requirement → HLD decision → component → LLD contract → verification trace. Choose diagrams by audience/question rather than requiring a fixed view set. Omit unstated metrics instead of inventing numbers.
+- **`system-design-artifact-intake`**: the fact-sheet re-draw uses the draw.io pipeline. Documentary rows carry `evidence_kind: document` and `evidence_confidence: documented`; inferred rows remain unverified. Citations point to numbered fact-sheet evidence and never imply runtime deployment.
+- **`system-design-review`**: nine axes with declared profile weighting, justified `N/A` exclusions, and applicable-axis denominators. Adding caches, queues, replicas, or regions does not earn credit without a demonstrated need and recovery plan.
+- **Workflows** `system-design-session`, `review-system-design`, `design-solution`: keep the common renderer as the only production diagram lane; carry selected-view contracts, precise provenance, HLD/LLD trace, and specialist verification/reversal hooks into handoffs.
+
+### Migration
+
+- **Diagramming Contract Sync**: Sync the updated common diagramming contract with these system-design and specialist changes. Component views, explicit provenance, manifests, and protected regeneration require the `common-v2.6.0` feature set.
+
+### Versions
+
+- **System Design Skills**: `1.1.0` → `1.2.0` (unreleased; no tag or release created)
+
+---
 
 ## [specialists-v1.3.0] - 2026-09-15
 
@@ -205,15 +244,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Consolidated in #192. The untagged headers `specialists-v1.4.0`–`v1.7.0` written by #169, #172, #186 and #188 were merged into this one entry because nothing after `specialists-v1.2.1` has been released. One minor bump per release, not per PR.
 
 ### Added
+
 - `specialist-test-planner` (#169): turns approved AC/SRS into `PLAN: / LANES: / SCENARIOS: / SEED: / SELECTOR_GAPS:` output with `HALT:` triggers.
 - `specialist-solution-diagrammer` (#172): draws exactly one evidence-grounded diagram per invocation from a caller-supplied evidence bundle, then validates, renders, exports, and reviews the exported image. Returns `BLOCKED` when given no evidence, no diagram type, or when every node would be UNVERIFIED. Generated agent definitions ship for Claude, Codex, Antigravity, and Copilot. Carries `metric` and `constraint` onto each node, never invents a number, reports a `METRICS:` line. Renders with `--strict` and exports through a draw.io MCP tool, the Desktop CLI, or reports the image as not exported.
 - `specialist-testid-inserter` (#186): closes `SELECTOR_GAPS` under an approval gate; never renames ids.
 - `specialist-test-healer` (#188): classifies one failing test from artifacts, one allowed repair, 3 consecutive reruns, `ASSERTION_DELTA` gate, verdict + route.
 
 ### Changed
+
 - `specialist-integration-test-generator` (#186, #192): web lane must use page objects; returns `Test: BLOCKED` when one is missing; lane → driver table (web `playwright-cli` → Playwright MCP, mobile Appium MCP local → cloud) and the `Test: BLOCKED (driver)` verdict.
 
 ### Versions
+
 - specialists: 1.3.0
 
 ---
@@ -234,30 +276,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CLI**: `2.6.1` → `2.6.2`
 
 ---
-
-## [system-design-v1.2.0] - Unreleased
-
-**Category**: HLD-to-LLD decision quality, production case packs, and nine-axis review profiles
-
-### Added
-
-- **Ten lazy-loaded production case packs**: payment timeout/duplicate webhook, flash-sale expiry/payment race, tenant isolation, cache stampede, notification outage, chat reconnect, live migration, a small internal-app counterexample, video publishing, and ride dispatch. Each states synthetic workload/SLO/team/budget assumptions, an invariant, minimal design, rejected alternative, failure/recovery timeline, changed constraint, acceptance criteria, and review thresholds.
-- **Independent semantic evaluation rubric**: recomputes quantities and checks mechanisms, invariants, recovery, justified exclusions, and view routing. Paired eval cases and scorer regressions reject vocabulary-only shortcuts while accepting ordinary rounding and multiline calculations; no aggregate quality uplift is claimed.
-
-### Changed
-
-- **`system-design-methodology`**: explicit `HLD`, `LLD`, and `low-level design` routing; stable requirement → HLD decision → component → LLD contract → verification trace. Choose diagrams by audience/question rather than requiring a fixed view set. Omit unstated metrics instead of inventing numbers.
-- **`system-design-artifact-intake`**: the fact-sheet re-draw uses the draw.io pipeline. Documentary rows carry `evidence_kind: document` and `evidence_confidence: documented`; inferred rows remain unverified. Citations point to numbered fact-sheet evidence and never imply runtime deployment.
-- **`system-design-review`**: nine axes with declared profile weighting, justified `N/A` exclusions, and applicable-axis denominators. Adding caches, queues, replicas, or regions does not earn credit without a demonstrated need and recovery plan.
-- **Workflows** `system-design-session`, `review-system-design`, `design-solution`: keep the common renderer as the only production diagram lane; carry selected-view contracts, precise provenance, HLD/LLD trace, and specialist verification/reversal hooks into handoffs.
-
-### Migration
-
-- Sync the updated common diagramming contract with these system-design and specialist changes. Component views, explicit provenance, manifests, and protected regeneration require the `common-v2.6.0` feature set.
-
-### Versions
-
-- **System Design Skills**: `1.1.0` → `1.2.0` (unreleased; no tag or release created)
 
 ## [system-design-v1.1.0] - 2026-09-15
 
@@ -484,6 +502,7 @@ Without it, upgrading past `common-v2.4.0` removes the P0 architecture guidance 
 ## [database-v1.4.1] - 2026-08-24
 
 ### Added
+
 - **`database-hana` skill**: Introduced comprehensive SAP HANA database engine skill covering:
   - Strict parameterization (`?` placeholders, no string concatenation).
   - Dynamic `IN (...)` parameter chunking limit (≤ 1,000 items per query) to avoid engine/driver limits.
@@ -497,6 +516,7 @@ Without it, upgrading past `common-v2.4.0` removes the P0 architecture guidance 
 ## [golang-v1.3.7] - 2026-08-24
 
 ### Changed
+
 - **`golang-database`**:
   - Standardized safe dynamic `IN` placeholder generation and 1,000-item chunking helper.
   - Codified explicit column aliasing on join queries (avoid `SELECT *`).
@@ -1704,7 +1724,8 @@ The following category-specific versions were bumped to reflect the global "Cave
 - **🧪 Testing Enhancements**:
   - Created dedicated unit test suites for all new services.
   - Refactored existing tests to utilize Dependency Injection (DI) and robust mocking.
-  </details>
+
+</details>
 
 <details>
 <summary>v1.6.x History</summary>
@@ -2514,5 +2535,4 @@ Includes 18 specialized High-Density skills for Enterprise Backend Development.
 **Maintainer**: Hoang Nguyen  
 **Registry**: <https://github.com/HoangNguyen0403/agent-skills-standard>
 
-</details>
 </details>
