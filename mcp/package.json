@@ -38,6 +38,15 @@
   ],
   "author": "Hoang Nguyen",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HoangNguyen0403/agent-skills-standard",
+    "directory": "mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/HoangNguyen0403/agent-skills-standard/issues"
+  },
+  "homepage": "https://github.com/HoangNguyen0403/agent-skills-standard#readme",
   "engines": {
     "node": ">=20.0.0"
   },
