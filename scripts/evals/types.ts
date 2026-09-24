@@ -28,6 +28,34 @@ export interface ManifestSkill {
   cases: EvalCaseRef[];
 }
 
+export interface UsageSample {
+  promptTokens: number;
+  completionTokens: number;
+  cachedPromptTokens?: number;
+  reasoningTokens?: number;
+  wallMs: number;
+}
+
+export interface UsageTotals {
+  promptTokens: number;
+  completionTokens: number;
+  cachedPromptTokens: number;
+  reasoningTokens: number;
+  totalTokens: number;
+  wallMs: number;
+  /** Lanes with a parsed usage sample. */
+  lanesMetered: number;
+  /** Lanes whose usage stream was absent or unparseable (fail-open, never estimated). */
+  lanesUnmetered: number;
+  /** `null` unless the run's model resolves in the pricing table. */
+  estimatedUsd: number | null;
+}
+
+export interface RunUsage {
+  overall: UsageTotals;
+  byArm: Partial<Record<ArmName, UsageTotals>>;
+}
+
 export interface RunMetadata {
   agent?: string; // e.g. "Claude Code", "GitHub Copilot"
   model?: string; // e.g. "claude-sonnet-5"
@@ -37,6 +65,7 @@ export interface RunMetadata {
   evidenceMode?: EvidenceMode;
   freshAnswerCount?: number;
   reusedAnswerCount?: number;
+  usage?: RunUsage;
 }
 
 export interface RunScope {

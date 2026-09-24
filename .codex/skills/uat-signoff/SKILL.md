@@ -40,6 +40,8 @@ Goal: Convert a `verify-work` PASS into an explicit, evidence-linked business ac
    - Signoff owner, date, and per-AC accept/reject status.
    - Reject on any AC -> route to `dev-fix`.
    - Full accept -> route to `deploy-release`.
+5. Persist:
+   - Write the run record to `artifacts/runs/[slug]/[compactISO]-uat-signoff.json` when file writes are allowed.
 
 ## Runtime Contract
 - Use after `verify-work` PASS on a feature, before `deploy-release`.
@@ -68,9 +70,7 @@ Goal: Convert a `verify-work` PASS into an explicit, evidence-linked business ac
 ## Technical Appendix
 
 ## Outcome Report
-feature_status: implemented | partially_implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: deploy-release | dev-fix
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: uat-signoff, feature_status: verified, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: deploy-release, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 deploy-release | dev-fix

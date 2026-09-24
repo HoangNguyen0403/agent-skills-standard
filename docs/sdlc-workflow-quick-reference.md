@@ -10,13 +10,14 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Architecture           | How big and what shape?                         | `system-design-session`            | Scale, topology, or store choice is unsettled        | `docs/design/system-design-[slug].md` |
 | SRS/FRS                | How will it work technically?                   | `design-solution`          | Contracts, behavior, or architecture are unclear     | `docs/srs/srs-[slug].md` |
 | Readiness              | Are we ready to build?                          | `implementation-readiness` | BRD/PRD/SRS or test plan needs go/no-go              | readiness verdict        |
-| Build                  | Can we implement safely?                        | `implement-feature`        | Approved feature needs code                          | `task.md` and handoff    |
+| Build                  | Can we implement safely?                        | `implement-feature`        | Approved feature needs code                          | `docs/srs/srs-task-list-[slug].md` |
 | Test Loop              | Do we have executable, traced test coverage?    | `test-loop`                | ACs have E2E/mobile lanes without executable coverage | test suite + verdicts   |
-| Verify                 | Did we prove it with fresh evidence?            | `verify-work`              | Work is code-complete but unproven                   | `walkthrough.md`         |
+| Verify                 | Did we prove it with fresh evidence?            | `verify-work`              | Work is code-complete but unproven                   | `docs/srs/srs-walkthrough-[slug].md` |
 | UAT Signoff            | Does the business accept it?                    | `uat-signoff`               | `verify-work` PASS needs business acceptance before release | signoff decision  |
 | Trace                  | Is every requirement covered?                   | `traceability-audit`       | Pre-release or handoff needs evidence mapping        | traceability report      |
 | Release                | Is deployment safe?                             | `deploy-release`           | Verification passed and deployment is planned        | deployment report        |
 | Incident               | How do we stop harm right now?                  | `incident-hotfix`          | Production incident or urgent regression needs mitigate-first response | mitigation + handoff |
+| Maintain               | Is production still inside its control bands?   | `monitor-respond`          | Control band breached or a scheduled scan completed  | tiered response + routed intake |
 | Publish                | What do users need to know?                     | `publish-notes`            | Need release communication                           | release notes            |
 | Learn                  | How do we prevent repeat issues?                | `retro-learn`              | Need standards/process feedback loop                 | retro report             |
 | Session                | What happened in this delivery?                 | `session-report`           | Need concise run summary and follow-ups              | session report           |
@@ -56,6 +57,59 @@ compliance certification or evidence of production effectiveness.
 | Copilot             | prompt files                  |
 | Cursor/Trae/Codex   | skill folders with `SKILL.md` |
 
+## Industry Playbook Crosswalk
+
+Published AI-native SDLC guidance names six stages and a chain of committed markdown artifacts. This
+standard already covers that chain under requirement-layer names; the mapping below is for readers
+arriving with the other vocabulary. Do not rename our artifacts to match it.
+
+| Playbook stage | Playbook artifact | This standard | Our artifact |
+| -------------- | ----------------- | ------------- | ------------ |
+| Plan | `intent.md` | `brainstorm-feature` | `docs/brd/brd-[slug].md` |
+| Design | `spec.md` | `plan-feature`, `design-solution` | `docs/prd/prd-[slug].md`, `docs/srs/srs-[slug].md` |
+| Build | `plan.md` | `implementation-readiness`, `implement-feature` | readiness verdict, `docs/srs/srs-task-list-[slug].md` |
+| Test | test + eval evidence | `test-loop`, `verify-work`, `evals-run` | `docs/srs/srs-walkthrough-[slug].md`, eval run results |
+| Deploy | review policy + gates | `code-review`, `review-ticket`, `deploy-release` | `docs/review-policy.md`, deployment report |
+| Maintain | control bands, scans | `monitor-respond`, `incident-hotfix` | `docs/ops/bands.yaml`, `artifacts/security-review.md` |
+| Cross-cutting | metrics, guardrails | `common-sdlc-metrics`, `common-agent-guardrails` | `artifacts/sdlc-metrics.md`, guardrail policy |
+
+## Role And Stage Ownership
+
+Authority concentrates at gates. Automation runs freely between them.
+
+| Role | Owns the decision at |
+| ---- | -------------------- |
+| Originator | raising the need; authors the BRD-lite input |
+| Product owner | accepting the BRD-lite and the PRD |
+| Technical lead | higher-risk design and plans; owns `docs/review-policy.md` |
+| Engineer | approving the implementation plan; addressing review findings |
+| Policy owner | signing off the standards a spec must satisfy; owns their skills |
+| Platform engineer | instruction files, guardrails, specialists, eval suite |
+| Release manager | authorizing the production release |
+| Security lead | scan cadence, finding triage, dismissal reasons |
+
+## Adoption Order
+
+Start with any practice that has no prerequisite, then follow the arrows.
+
+- No prerequisite: `common-agent-guardrails`, `brainstorm-feature`, `common-tdd` feedback loop, instruction-file hygiene.
+- `plan-feature`, `design-solution` <- a committed BRD-lite.
+- `implementation-readiness`, `implement-feature` <- PRD and SRS with testable ACs.
+- `code-review`, `review-ticket` <- `docs/review-policy.md` and the framework skills.
+- `evals-run` config gate <- eval definitions plus a stable command to run them.
+- `deploy-release` tiers <- guardrail approval gates and a rehearsed rollback.
+- `monitor-respond` <- `docs/ops/bands.yaml`, deploy tiers, and guardrails.
+
+## Anti-Patterns Worth Naming
+
+- **No line-by-line human review of agent-written diffs**: Move human attention to intent, risk, and the gates.
+- **No editing the failing test to close a bug**: Lock test paths for the duration of the fix.
+- **No component-specific logic in a shared skill**: Keep it in the project instruction file or the prompt.
+- **No agent-config change without an eval**: Gate skill, workflow, and hook edits on the eval suite.
+- **No human approval inside the build loop**: Gate at deploy, not at every edit.
+- **No stale instruction file**: Keep it to a page and update it the second time a mistake repeats.
+- **No two sources of truth without linkage**: Declare one authoritative and link the other.
+
 ## Rule
 
 Do not run daily SDLC work through `ags`. Use `ags` to initialize, sync, validate, and update standards; run the synced workflows inside your agent.
@@ -67,12 +121,20 @@ Core SDLC workflows emit `Runtime Contract`, `Handoff Payload`, `Blocking Questi
 They also emit an adapter-neutral `Outcome Report`:
 
 ```yaml
-feature_status: not_started | requirements_ready | design_ready | partially_implemented | implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
+schema_version: 1
+run_id: "<compactISO>-<workflow>"
+slug: "<slug>"
+workflow: "<workflow>"
+feature_status: not_started | requirements_ready | design_ready | partially_implemented | implemented | verified | released | blocked
+started_at: "<ISO-8601 UTC>"
+completed_at: "<ISO-8601 UTC>"
+requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}
 completed_evidence: []
 missing_evidence: []
 decision_needed: []
 recommended_next_workflow: brainstorm-feature | plan-feature | design-solution | implementation-readiness | implement-feature | verify-work
+cost: {source: host | agent-estimate | unavailable}
+agent: {identity: "<omp/provider/model>", model: "<model>"}
 ```
 
 Generic task boards, MCP servers, Jira, GitHub, GitLab, Azure DevOps, Zephyr, and project-specific runtimes may map this payload to their own primitives. Canonical workflows must not require runtime-specific IDs, chat channels, containers, or filesystem mount paths.
@@ -84,6 +146,10 @@ Capture trust class, review context, runtime contract, findings, evidence gaps, 
 That report should stay continuous across `design-solution` / `implementation-readiness` -> `code-review` / `review-ticket` -> `pentest` so later stages refine the same trust and evidence record instead of starting over.
 When `code-review` or `review-ticket` findings are approved for publication or channel handoff, also emit `artifacts/review-delivery.md` as the sanitized delivery packet for `specialist-pr-commenter-batch` or channel-driven follow-up.
 For full-repo health checks, `codebase-review` should also emit `artifacts/codebase-review.md`, using `security-review.md` only for the security slice.
+
+Every terminal-verdict workflow (`implementation-readiness`, `traceability-audit`, `uat-signoff`, `deploy-release`, `publish-notes`, `session-report`, `retro-learn`) also persists this payload as a
+run record at `artifacts/runs/<slug>/<compactISO>-<workflow>.json` when file writes are allowed, so the verdict outlives the chat context. `scripts/audit-sdlc.ts` and `scripts/outcome/index.ts`
+parse the `Outcome Report` block and validate run records against this schema.
 
 ## Task Difficulty Routing (SNC)
 

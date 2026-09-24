@@ -1,11 +1,17 @@
 # .github/workflows/skill-freshness.yml
 name: Skill Freshness Check
 
-# Weekly upstream drift check: compares every pin in skills/metadata.json
-# (and per-skill metadata.upstream) against the latest GitHub release/tag
-# and publishes benchmarks/freshness/ as an artifact and step summary.
-# A red run means at least one upstream shipped a new major; see
-# docs/FRESHNESS.md "Reviewing a category".
+# Weekly drift check. Two independent bands:
+#  1. Upstream pins: compares every pin in skills/metadata.json (and per-skill
+#     metadata.upstream) against the latest GitHub release/tag, publishing
+#     benchmarks/freshness/ as an artifact and step summary. A red run means at
+#     least one upstream shipped a new major; see docs/FRESHNESS.md
+#     "Reviewing a category".
+#  2. Benchmark regression: `pnpm benchmark:gate` compares the current corpus
+#     against the most recent benchmarks/history.json record and fails on token
+#     growth, quality drop, or a savings collapse. This band lives here rather
+#     than in the PR gate because it measures corpus drift over time, not the
+#     content of any single diff.
 
 on:
   schedule:
@@ -74,3 +80,11 @@ jobs:
             echo "::error::$HIGH upstream major drift issue(s) — open the step summary for the affected categories."
             exit 1
           fi
+
+      - name: Benchmark regression gate
+        if: always()
+        run: pnpm benchmark:gate
+
+      - name: SDLC control-band check
+        if: always()
+        run: pnpm metrics:check

@@ -1,0 +1,46 @@
+# Guardrail policy template. Copy to the consumer repo, populate, and review it like code.
+# Every entry needs a rule id, a decision, and an owner. Empty sections are valid; vague ones are not.
+
+version: 1
+owner: # role accountable for this policy, not a person's name
+
+logging:
+  destination: # path or sink that records rule, tool, target, decision, timestamp
+  retain_days:
+
+protected_paths:
+  - id:
+    paths: [] # explicit directories or globs; never the repo root
+    decision: block
+    reason:
+
+deny_rules:
+  - id: secrets
+    paths: [] # identity and credential files
+    applies_to: [read, edit] # tool classes
+    decision: block
+    reason:
+
+test_lock:
+  workflows: [] # workflows during which test files are frozen
+  paths: [] # test globs to lock
+  decision: block
+  unlock_condition: # who may lift it and on what evidence
+
+formatters:
+  - id:
+    run_after: [edit] # tool classes that trigger it
+    command:
+    on_failure: # report | block
+
+approval_gates:
+  - id:
+    match: # tool + argument pattern that identifies the guarded action
+    environment: # dev | staging | production
+    authorizer_role: # human role, never the agent
+    decision: ask
+    fail_closed: true
+
+scope_fence:
+  declared_scope_source: # artifact that defines the task's allowed paths
+  decision: ask

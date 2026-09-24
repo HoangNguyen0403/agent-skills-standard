@@ -2,6 +2,7 @@ import fs from "fs-extra";
 import path from "path";
 import pc from "picocolors";
 import { DEFAULT_WORKFLOWS } from "../cli/src/constants";
+import { validateOutcomeReportTemplate } from "./outcome/template";
 
 const ROOT = path.join(__dirname, "..");
 const WORKFLOWS_DIR = path.join(ROOT, ".agents", "workflows");
@@ -28,6 +29,7 @@ const AGENTIC_RUNTIME_WORKFLOWS = [
   "retro-learn",
   "uat-signoff",
   "incident-hotfix",
+  "monitor-respond",
 ];
 const REQUIRED_RUNTIME_SECTIONS = [
   "## Runtime Contract",
@@ -58,31 +60,9 @@ const TRUST_POLICY_WORKFLOWS = [
   "security-test",
 ];
 
-// Core BA->PM->IT->QA->release chain that the `sdlc` router must be able to reach.
-// Adjacent/specialist workflows (pentest, security-test, skill-benchmark, battle-test,
-// update-docs, zephyr-coverage-analysis) are invoked directly and are not routed by sdlc.
-const CORE_SDLC_CHAIN = [
-  "brainstorm-feature",
-  "review-system-design",
-  "plan-feature",
-  "system-design-session",
-  "design-solution",
-  "implementation-readiness",
-  "implement-feature",
-  "verify-work",
-  "uat-signoff",
-  "traceability-audit",
-  "deploy-release",
-  "publish-notes",
-  "retro-learn",
-  "session-report",
-  "dev-fix",
-  "review-ticket",
-  "code-review",
-  "codebase-review",
-  "verify-bug",
-  "incident-hotfix",
-];
+import { CORE_SDLC_CHAIN } from "./workflow-chain";
+
+export { CORE_SDLC_CHAIN };
 
 // Workflows that talk directly to the requesting operator and must carry `operator_profile`
 // in their Handoff Payload per `common-operator-profile`. Implementation-side workflows only
@@ -264,6 +244,13 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
     requireGoal: true,
     requireOutputTemplate: true,
   },
+  "monitor-respond": {
+    maxLines: 80,
+    requireGoal: true,
+    requireOutputTemplate: true,
+    notes:
+      "Proactive maintain-stage loop for control-band breaches and scheduled scan triage; routes to incident-hotfix, brainstorm-feature, or retro-learn rather than fixing in place.",
+  },
 };
 
 const REQUIRED_SPECIALISTS = [
@@ -389,11 +376,19 @@ async function main() {
         if (!hasOutputTemplate) {
           fail(`${workflow}.md missing Output Template`, failures);
         }
-        if (CORE_SDLC_CHAIN.includes(workflow) && !content.includes("feature_status:")) {
-          fail(
-            `${workflow}.md fenced Output Template missing feature_status Outcome Report field`,
-            failures,
+        if (CORE_SDLC_CHAIN.includes(workflow)) {
+          const outcomeIssues = validateOutcomeReportTemplate(
+            workflow,
+            content,
+            path.relative(ROOT, file),
           );
+          if (outcomeIssues.length > 0) {
+            for (const issue of outcomeIssues) {
+              fail(issue.message, failures);
+            }
+          } else {
+            pass(`${workflow}.md Outcome Report block declares the run-record schema`);
+          }
         }
       }
 
@@ -714,7 +709,9 @@ async function main() {
   console.log(pc.green("\n✅ SDLC audit passed."));
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

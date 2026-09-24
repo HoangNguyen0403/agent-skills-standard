@@ -68,9 +68,7 @@ Goal: Turn a provided design artifact into a confirmed model, then a scored verd
 ## Risk Register
 
 ## Outcome Report
-feature_status: design_ready | partially_implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-*
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: system-design-session
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: review-system-design, feature_status: design_ready, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: system-design-session, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 system-design-session | design-solution

@@ -49,6 +49,7 @@ Goal: Decide whether a planned change is ready for implementation or must return
    - READY -> `implement-feature` or `dev-fix`.
    - BLOCKED -> `plan-feature` or `design-solution`.
    - PARTIAL -> slice task list plus blockers.
+   - Write the run record to `artifacts/runs/[slug]/[compactISO]-implementation-readiness.json` when file writes are allowed.
 
 ## Runtime Contract
 - Use before implementation starts to gate go/no-go.
@@ -75,9 +76,7 @@ Goal: Decide whether a planned change is ready for implementation or must return
 | [area] | [gap] | [owner/input] |
 
 ## Outcome Report
-feature_status: design_ready | partially_implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> planned evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: implement-feature | plan-feature | design-solution
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: implementation-readiness, feature_status: design_ready, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: implement-feature, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 

@@ -23,6 +23,7 @@ Goal: Stop user-facing harm immediately, then hand off to root-cause discipline 
    - Do not skip `dev-fix`'s root-cause-before-code requirement just because mitigation already shipped.
 5. Route to learning:
    - After `verify-work` confirms the permanent fix, route to `retro-learn` for a postmortem.
+   - The confirmed root cause becomes a permanent eval case in the skill or workflow that should have prevented it.
 
 ## Runtime Contract
 - Use only for production incidents or urgent regressions with active user-facing harm; non-urgent bugs go directly to `dev-fix`.
@@ -51,9 +52,7 @@ Goal: Stop user-facing harm immediately, then hand off to root-cause discipline 
 ## Root Cause Handoff
 
 ## Outcome Report
-feature_status: partially_implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: dev-fix
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: incident-hotfix, feature_status: partially_implemented, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: dev-fix, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 dev-fix | verify-work | retro-learn

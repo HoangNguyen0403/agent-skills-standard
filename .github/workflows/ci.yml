@@ -70,6 +70,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Run Unit Tests with Coverage
         run: pnpm test:cov
+      - name: Run Outcome/Trace Script Tests
+        run: pnpm test:outcome && pnpm test:trace
       - name: Run E2E Tests
         run: pnpm test:e2e
 
@@ -100,8 +102,34 @@ jobs:
       - name: SDLC Workflow Schema Audit
         run: pnpm audit:sdlc
 
+      - name: Outcome Audit
+        run: pnpm audit:outcome
+
+      - name: Trace Audit
+        run: pnpm audit:trace
+
       - name: Prompt Injection Scan
         run: pnpm audit:injection
+
+      - name: Eval Preflight Gate (changed skills)
+        run: |
+          BASE="origin/${{ github.base_ref || 'main' }}"
+          git fetch --no-tags --depth=1 origin "${{ github.base_ref || 'main' }}" || true
+          git diff --name-only "$BASE"...HEAD \
+            | sed -n 's#^skills/\([^/]*\)/\([^/]*\)/.*#\1/\2#p' \
+            | sort -u > "$RUNNER_TEMP/changed-skills.txt"
+          if [ ! -s "$RUNNER_TEMP/changed-skills.txt" ]; then
+            echo "No skill changes in this diff; skipping preflight."
+            exit 0
+          fi
+          echo "Preflighting:"; cat "$RUNNER_TEMP/changed-skills.txt"
+          set +e
+          pnpm evals:preflight -- --skills-file "$RUNNER_TEMP/changed-skills.txt"
+          STATUS=$?
+          set -e
+          # preflight rewrites a tracked report; restore it so the later clean-tree check stays meaningful
+          git checkout -- benchmarks/evals/eval-preflight.json || true
+          exit $STATUS
 
       - name: Eval Alignment Gate
         run: pnpm check-alignment
@@ -114,6 +142,9 @@ jobs:
 
       - name: Live Eval Run Verification
         run: pnpm evals:verify -- --all
+
+      - name: Eval Regression Gate
+        run: pnpm evals:gate -- --all
 
       - name: Documentation Coverage Scan
         run: pnpm docs:scan

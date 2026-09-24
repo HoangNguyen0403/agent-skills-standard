@@ -8,9 +8,11 @@ import {
   readCurrentSource,
   sourceKey,
 } from "./snapshot";
-import type { ArmName, ManifestSkill } from "./types";
+import { aggregateUsage, mergeRunUsage, parseUsageFromJsonl } from "./usage";
+import type { ArmName, ManifestSkill, UsageSample } from "./types";
 
-export type EvalRunner = (prompt: string) => Promise<string>;
+export type EvalRunnerResult = string | { answer: string; usage: UsageSample | null };
+export type EvalRunner = (prompt: string) => Promise<EvalRunnerResult>;
 
 export class EvalQuotaPausedError extends Error {
   constructor(message: string) {
@@ -61,6 +63,7 @@ export function codexExecArgs(
     `model_reasoning_effort=${JSON.stringify(config.reasoningEffort)}`,
     "--sandbox",
     "read-only",
+    "--json",
     "-C",
     repoRoot,
   ];
@@ -152,49 +155,55 @@ export function codexRunner(
   repoRoot: string,
   config = evalWorkerConfig(),
 ): EvalRunner {
-  return (prompt) =>
-    new Promise((resolve, reject) => {
-      const tempDir = fs.mkdtempSync(
-        path.join(os.tmpdir(), "ags-eval-worker-"),
-      );
-      const outputPath = path.join(tempDir, "answer.md");
-      const execution = spawn(
-        "codex",
-        [
-          ...codexExecArgs(repoRoot, config),
-          "--output-last-message",
-          outputPath,
-          "-",
-        ],
-        { stdio: ["pipe", "ignore", "pipe"] },
-      );
-      let stderr = "";
-      execution.stderr.on("data", (chunk: Buffer) => {
-        stderr += chunk.toString();
-      });
-      execution.on("error", (error) => {
-        fs.removeSync(tempDir);
-        reject(error);
-      });
-      execution.on("close", (code) => {
-        try {
-          if (code !== 0) {
-            const quotaError = quotaPausedError(stderr);
-            if (quotaError) throw quotaError;
-            throw new Error(`Codex eval worker failed: ${stderr}`);
-          }
-          const answer = fs.readFileSync(outputPath, "utf8").trim();
-          if (!answer)
-            throw new Error("Codex eval worker returned no final answer.");
-          resolve(answer);
-        } catch (error) {
-          reject(error);
-        } finally {
-          fs.removeSync(tempDir);
-        }
-      });
-      execution.stdin.end(prompt);
+  return (prompt) => {
+    const { promise, resolve, reject } =
+      Promise.withResolvers<EvalRunnerResult>();
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "ags-eval-worker-"));
+    const outputPath = path.join(tempDir, "answer.md");
+    const startedAt = Date.now();
+    const execution = spawn(
+      "codex",
+      [
+        ...codexExecArgs(repoRoot, config),
+        "--output-last-message",
+        outputPath,
+        "-",
+      ],
+      { stdio: ["pipe", "pipe", "pipe"] },
+    );
+    let stderr = "";
+    let stdout = "";
+    execution.stderr.on("data", (chunk: Buffer) => {
+      stderr += chunk.toString();
     });
+    execution.stdout.on("data", (chunk: Buffer) => {
+      stdout += chunk.toString();
+    });
+    execution.on("error", (error) => {
+      fs.removeSync(tempDir);
+      reject(error);
+    });
+    execution.on("close", (code) => {
+      try {
+        if (code !== 0) {
+          const quotaError = quotaPausedError(stderr);
+          if (quotaError) throw quotaError;
+          throw new Error(`Codex eval worker failed: ${stderr}`);
+        }
+        const answer = fs.readFileSync(outputPath, "utf8").trim();
+        if (!answer)
+          throw new Error("Codex eval worker returned no final answer.");
+        const usage = parseUsageFromJsonl(stdout, Date.now() - startedAt);
+        resolve({ answer, usage });
+      } catch (error) {
+        reject(error);
+      } finally {
+        fs.removeSync(tempDir);
+      }
+    });
+    execution.stdin.end(prompt);
+    return promise;
+  };
 }
 
 /** Execute only answer files not already reused from an immutable baseline. */
@@ -211,7 +220,12 @@ export async function executeMissingAnswers(
   const manifest = loadManifest(runDir);
   const workerConfig = options.workerConfig ?? evalWorkerConfig();
   const runner = options.runner ?? codexRunner(options.repoRoot, workerConfig);
-  const jobs: Array<{ output: string; prompt: string; evidence: string }> = [];
+  const jobs: Array<{
+    output: string;
+    prompt: string;
+    evidence: string;
+    arm?: ArmName;
+  }> = [];
   for (const skill of manifest.skills) {
     const source = readCurrentSource(options.repoRoot, skill);
     assertCurrentSourceMatchesManifest(
@@ -239,6 +253,7 @@ export async function executeMissingAnswers(
             currentCase.kind,
           ),
           evidence: `${sourceKey(skill.category, skill.skillName)} ${currentCase.id}`,
+          arm,
         });
       }
     }
@@ -247,16 +262,23 @@ export async function executeMissingAnswers(
     options.concurrency ?? Number(process.env.EVALS_CONCURRENCY ?? 1);
   const concurrency = Math.max(1, Math.min(4, configuredConcurrency || 1));
   const initialMissing = new Set(jobs.map((job) => job.output));
+  const usageSamples: Array<{ arm?: ArmName; usage: UsageSample | null }> = [];
   let next = 0;
   const executions = await Promise.allSettled(
     Array.from({ length: Math.min(concurrency, jobs.length) }, async () => {
       while (next < jobs.length) {
         const job = jobs[next++];
         if (!job) return;
-        const response = await runner(job.prompt);
-        if (!response) throw new Error(`Empty response for ${job.evidence}`);
+        const result = await runner(job.prompt);
+        if (!result) throw new Error(`Empty response for ${job.evidence}`);
+        const { answer, usage } =
+          typeof result === "string"
+            ? { answer: result, usage: null as UsageSample | null }
+            : result;
+        if (!answer) throw new Error(`Empty response for ${job.evidence}`);
         fs.ensureDirSync(path.dirname(job.output));
-        fs.writeFileSync(job.output, `${response}\n`);
+        fs.writeFileSync(job.output, `${answer}\n`);
+        usageSamples.push({ arm: job.arm, usage });
       }
     }),
   );
@@ -271,6 +293,7 @@ export async function executeMissingAnswers(
   const evidenceMode =
     manifest.metadata.evidenceMode ??
     (manifest.baselineRunId ? "incremental" : "fresh");
+  const freshUsage = aggregateUsage(usageSamples, workerConfig.model);
   manifest.metadata = {
     ...manifest.metadata,
     agent: "Codex CLI isolated worker",
@@ -282,6 +305,11 @@ export async function executeMissingAnswers(
         ? completedAnswerCount
         : (manifest.metadata.freshAnswerCount ?? 0) + newlyWritten,
     reusedAnswerCount: manifest.metadata.reusedAnswerCount ?? 0,
+    usage: mergeRunUsage(
+      manifest.metadata.usage,
+      freshUsage,
+      workerConfig.model,
+    ),
   };
   saveManifest(runDir, manifest);
   if (failed) {

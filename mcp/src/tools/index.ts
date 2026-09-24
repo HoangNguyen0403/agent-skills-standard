@@ -409,6 +409,20 @@ export const getSessionCostSchema = z.object({
     .min(1)
     .optional()
     .describe("Workflow name being finalized, e.g. 'plan-feature'."),
+  slug: z
+    .string()
+    .min(1)
+    .optional()
+    .describe(
+      "User-authored feature/workspace slug for per-feature cost attribution, when this call finalizes a workflow.",
+    ),
+  outcome: z
+    .string()
+    .min(1)
+    .optional()
+    .describe(
+      "Workflow's terminal feature_status (e.g. 'verified', 'blocked'), when this call finalizes a workflow.",
+    ),
   model: z
     .string()
     .min(1)
@@ -478,11 +492,19 @@ export const getSessionCostSchema = z.object({
     .min(1)
     .default("USD")
     .describe("Currency label for estimated cost."),
+  costSource: z
+    .enum(["host", "agent-estimate"])
+    .optional()
+    .describe(
+      "Provenance of the token/pricing fields above. Only set this to 'host' when the caller is the runtime's own telemetry adapter (buildSessionCostRequest) passing real measured usage/pricing — never set it when typing numbers by hand.",
+    ),
 });
 
 export async function getSessionCost(
   args: {
     workflow?: string;
+    slug?: string;
+    outcome?: string;
     model?: string;
     promptTokens?: number;
     cachedPromptTokens?: number;
@@ -494,6 +516,7 @@ export async function getSessionCost(
     reasoningCostPer1M?: number;
     otherCost?: number;
     currency?: string;
+    costSource?: "host" | "agent-estimate";
   },
   ctx: ToolContext,
 ): Promise<ToolResult> {
@@ -504,6 +527,11 @@ export async function getSessionCost(
     via: "get_session_cost",
     input: args.workflow ? [args.workflow] : [],
     loaded: [],
+  });
+  ctx.tracker.setCostContext({
+    workflow: args.workflow,
+    slug: args.slug,
+    outcome: args.outcome,
   });
 
   const loaded = ctx.tracker.loadedSkills();
@@ -516,11 +544,12 @@ export async function getSessionCost(
     args.promptTokens && args.promptTokens > 0
       ? `${Math.round((skillCost.totalEstimatedTokens / args.promptTokens) * 100)}%`
       : "[Agent: provide promptTokens to compute share]";
+  const unavailableMsg = "unavailable (host did not expose token usage)";
 
   const lines: string[] = [
     "# Session Telemetry",
     "",
-    "Exact LLM token usage depends on the host runtime. MCP-observed fields below are measured directly; token and cost fields are exact only when the host supplies usage numbers.",
+    "Exact LLM token usage depends on the host runtime. MCP-observed fields below are measured directly; token and cost fields carry an explicit provenance (host, agent-estimate, or unavailable) instead of a guessed placeholder.",
     "",
     "| Metric | Value |",
     "|---|---|",
@@ -531,14 +560,15 @@ export async function getSessionCost(
     `| **Skills Loaded** | ${loaded.length} |`,
     `| **Workflows Loaded** | ${workflows.length} |`,
     `| **No-Match Calls** | ${summary.noMatchCalls} |`,
-    `| **Model** | ${args.model ?? "[Agent: fill from platform usage]"} |`,
-    `| **Prompt Tokens** | ${args.promptTokens ?? "[Agent: fill from platform usage]"} |`,
-    `| **Cached Prompt Tokens** | ${args.cachedPromptTokens ?? "[Agent: fill if runtime reports cache]"} |`,
-    `| **Completion Tokens** | ${args.completionTokens ?? "[Agent: fill from platform usage]"} |`,
-    `| **Reasoning Tokens** | ${args.reasoningTokens ?? "[Agent: fill if runtime reports reasoning]"} |`,
-    `| **Other Runtime Cost** | ${formatOtherCost(args.otherCost, args.currency) ?? "[Agent: fill if runtime has extra billed items]"} |`,
+    `| **Model** | ${args.model ?? unavailableMsg} |`,
+    `| **Prompt Tokens** | ${args.promptTokens ?? unavailableMsg} |`,
+    `| **Cached Prompt Tokens** | ${args.cachedPromptTokens ?? unavailableMsg} |`,
+    `| **Completion Tokens** | ${args.completionTokens ?? unavailableMsg} |`,
+    `| **Reasoning Tokens** | ${args.reasoningTokens ?? unavailableMsg} |`,
+    `| **Other Runtime Cost** | ${formatOtherCost(args.otherCost, args.currency) ?? unavailableMsg} |`,
+    `| **Cost Provenance** | ${costCoverage.costSource} |`,
     `| **Cost Status** | ${costCoverage.exactCostAvailable ? "Exact estimate available" : "Partial - host usage or pricing fields missing"} |`,
-    `| **Estimated Cost** | ${costCoverage.estimatedCost ?? "[Agent: provide tokens and rates to calculate]"} |`,
+    `| **Estimated Cost** | ${costCoverage.estimatedCost ?? unavailableMsg} |`,
     `| **Missing Host Fields** | ${costCoverage.missingHostFields.length ? costCoverage.missingHostFields.join(", ") : "_(none)_"} |`,
     "",
     "## Skill Context Cost",

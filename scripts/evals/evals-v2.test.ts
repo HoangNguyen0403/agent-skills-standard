@@ -45,6 +45,7 @@ test("eval workers explicitly pin the approved model and reasoning effort", () =
     'model_reasoning_effort="high"',
     "--sandbox",
     "read-only",
+    "--json",
     "-C",
     "/repo",
   ]);

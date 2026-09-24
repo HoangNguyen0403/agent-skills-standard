@@ -73,7 +73,7 @@ If the verdict is NOT PASS:
     - If **FAIL**: → `Reopened`.
 4.  **Walkthrough**:
     - Use the **Walkthrough Template** below.
-    - Update project-local `docs/srs/srs-walkthrough.md`.
+    - Update project-local `docs/srs/srs-walkthrough-[slug].md`.
 
 ## Runtime Contract
 - Use for post-merge UAT verification of a bug fix against JIRA reproduce steps.
@@ -106,9 +106,7 @@ If the verdict is NOT PASS:
 ## Risks
 
 ## Outcome Report
-feature_status: implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: deploy-release | dev-fix
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: verify-bug, feature_status: verified, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: deploy-release, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 deploy-release | dev-fix

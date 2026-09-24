@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import path from 'node:path';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
 import { SkillConfig } from '../../models/config';

@@ -41,6 +41,7 @@ describe("WorkflowTelemetry", () => {
       reasoningCostPer1M: 15,
       otherCost: 0.02,
       currency: "USD",
+      costSource: "host",
     });
   });
 
@@ -83,6 +84,7 @@ describe("WorkflowTelemetry", () => {
       estimatedCost: null,
       exactCostAvailable: false,
       missingHostFields: ["completionTokens", "outputCostPer1M"],
+      costSource: "unavailable",
     });
   });
 
@@ -144,7 +146,31 @@ describe("WorkflowTelemetry", () => {
       reasoningCostPer1M: undefined,
       otherCost: undefined,
       currency: "USD",
+      costSource: "host",
     });
     expect(result).toEqual({ ok: true, report: "telemetry" });
+  });
+
+  it("reports host provenance only when the host adapter supplied the request", () => {
+    expect(
+      summarizeSessionCostCoverage(
+        buildSessionCostRequest({
+          workflow: "verify-work",
+          usage: { promptTokens: 100, completionTokens: 50 },
+          pricing: { inputCostPer1M: 1, outputCostPer1M: 2 },
+        }),
+      ).costSource,
+    ).toBe("host");
+  });
+
+  it("defaults to agent-estimate provenance when tokens are hand-supplied without costSource", () => {
+    expect(
+      summarizeSessionCostCoverage({
+        promptTokens: 100,
+        completionTokens: 50,
+        inputCostPer1M: 1,
+        outputCostPer1M: 2,
+      }).costSource,
+    ).toBe("agent-estimate");
   });
 });

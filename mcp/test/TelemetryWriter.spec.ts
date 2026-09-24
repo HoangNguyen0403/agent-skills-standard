@@ -4,6 +4,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { SessionTracker } from "../src/services/SessionTracker";
 import { TelemetryWriter, buildTelemetryRecord } from "../src/services/TelemetryWriter";
+import { aggregateTelemetry } from "../../scripts/freshness/signals/telemetry";
 
 function tracker(): SessionTracker {
   const t = new SessionTracker();
@@ -33,6 +34,42 @@ describe("buildTelemetryRecord", () => {
     const record = buildTelemetryRecord(tracker(), { mcpVersion: "0.6.0", now: new Date() });
     expect(record.categories).toEqual({ "category/nestjs": 1 });
     expect(Object.keys(record.skills).some((key) => key.startsWith("category/"))).toBe(false);
+  });
+
+  it("omits workflow/slug/outcome when get_session_cost was never called", () => {
+    const record = buildTelemetryRecord(tracker(), { mcpVersion: "0.6.0", now: new Date() });
+    expect(record.workflow).toBeUndefined();
+    expect(record.slug).toBeUndefined();
+    expect(record.outcome).toBeUndefined();
+    expect(Object.keys(record)).not.toContain("slug");
+  });
+
+  it("carries workflow/slug/outcome from the most recent get_session_cost call, without leaking prompt content", () => {
+    const t = tracker();
+    t.setCostContext({ workflow: "implement-feature", slug: "cost-gates", outcome: "verified" });
+    const record = buildTelemetryRecord(t, { mcpVersion: "0.6.0", now: new Date() });
+    expect(record.workflow).toBe("implement-feature");
+    expect(record.slug).toBe("cost-gates");
+    expect(record.outcome).toBe("verified");
+  });
+
+  it("a legacy record without workflow/slug/outcome still parses through the freshness telemetry consumer", () => {
+    const legacyLine = JSON.stringify({
+      at: "2026-09-20T10:00:00Z",
+      mcpVersion: "0.5.0",
+      skills: { "typescript/typescript-language": 3 },
+      workflows: {},
+      categories: {},
+      callsByTool: { get_skill: 1 },
+      noMatchCalls: 0,
+      // no workflow / slug / outcome fields — pre-dates this change
+    });
+    const aggregate = aggregateTelemetry([legacyLine], {
+      today: new Date("2026-09-21T00:00:00Z"),
+      windowDays: 30,
+    });
+    expect(aggregate.sessions).toBe(1);
+    expect(aggregate.loadsBySkill.get("typescript/typescript-language")).toBe(3);
   });
 });
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import { Agent } from '../../../constants/enums';
 import { SpecialistTransformer } from '../SpecialistTransformer';
 
@@ -52,8 +52,13 @@ describe('SpecialistTransformer', () => {
   });
 
   it('produces parseable YAML frontmatter for every YAML-based agent', () => {
+    // `\\n` here is a literal backslash+n YAML escape sequence that decodes to
+    // an embedded newline in the *value*, on a single physical source line —
+    // not a real line break in the source. A genuine multi-line physical
+    // continuation of a double-quoted scalar must be indented past the block
+    // context per the YAML spec; js-yaml 5 enforces that (v4 was lenient).
     const source = specialistSource(
-      `description: "handles: colons, \\"quotes\\", and\nmultiple lines"`,
+      `description: "handles: colons, \\"quotes\\", and\\nmultiple lines"`,
     );
     for (const agent of [
       Agent.Cursor,

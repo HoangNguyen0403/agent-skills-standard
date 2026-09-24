@@ -22,6 +22,12 @@ export interface TelemetryRecord {
   callsByTool: Record<string, number>;
   /** Count of tool calls that matched no skill, workflow, or category. */
   noMatchCalls: number;
+  /** Workflow name from the most recent `get_session_cost` call, when supplied. Never a file path or prompt. */
+  workflow?: string;
+  /** User-authored feature/workspace slug for cost attribution, when supplied. */
+  slug?: string;
+  /** Terminal `feature_status` (e.g. "verified", "blocked") when this call finalized a workflow. */
+  outcome?: string;
 }
 
 interface RecordMeta {
@@ -49,6 +55,7 @@ export function buildTelemetryRecord(
     }
   }
   const summary = tracker.summary(now);
+  const costContext = tracker.costContext_();
   return {
     at: now.toISOString(),
     mcpVersion: meta.mcpVersion,
@@ -59,6 +66,13 @@ export function buildTelemetryRecord(
     categories,
     callsByTool: { ...summary.callsByTool },
     noMatchCalls: summary.noMatchCalls,
+    ...(costContext.workflow !== undefined
+      ? { workflow: costContext.workflow }
+      : {}),
+    ...(costContext.slug !== undefined ? { slug: costContext.slug } : {}),
+    ...(costContext.outcome !== undefined
+      ? { outcome: costContext.outcome }
+      : {}),
   };
 }
 

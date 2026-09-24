@@ -49,6 +49,7 @@ export interface SkillContextCost {
 export class SessionTracker {
   private events: LoadEvent[] = [];
   private startedAt = new Date().toISOString();
+  private costContext: CostContext = {};
   private readonly noMatchTools = new Set<LoadEvent["via"]>([
     "load_skills_for_files",
     "load_skills_for_keywords",
@@ -132,6 +133,17 @@ export class SessionTracker {
     return this.startedAt;
   }
 
+  /** Records the most recently supplied workflow/slug/outcome for telemetry attribution. Only defined fields overwrite. */
+  setCostContext(ctx: CostContext): void {
+    if (ctx.workflow !== undefined) this.costContext.workflow = ctx.workflow;
+    if (ctx.slug !== undefined) this.costContext.slug = ctx.slug;
+    if (ctx.outcome !== undefined) this.costContext.outcome = ctx.outcome;
+  }
+
+  costContext_(): CostContext {
+    return { ...this.costContext };
+  }
+
   private emptyCallCounts(): Record<LoadEvent["via"], number> {
     return {
       load_skills_for_files: 0,
@@ -144,4 +156,11 @@ export class SessionTracker {
       get_session_cost: 0,
     };
   }
+}
+
+/** Cost-attribution metadata carried across from `get_session_cost` to telemetry flush. */
+export interface CostContext {
+  workflow?: string;
+  slug?: string;
+  outcome?: string;
 }

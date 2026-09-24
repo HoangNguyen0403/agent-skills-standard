@@ -120,38 +120,44 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
 
   lines.push('## 🔢 Executive Summary');
   lines.push('');
+
+  const nearMaxQuality = skills.filter((s) => s.qualityScore >= 9).length;
+  const nearMaxQualityPct =
+    skills.length > 0 ? Math.round((nearMaxQuality / skills.length) * 100) : 0;
+  const qualitySaturated = nearMaxQualityPct >= 80;
+
   lines.push(
-    '| Metric                            | Value                             |',
+    '| Metric                            | Value                             | Basis / Provenance |',
   );
   lines.push(
-    '| --------------------------------- | --------------------------------- |',
+    '| --------------------------------- | --------------------------------- | --- |',
   );
   lines.push(
-    `| Total Skills Benchmarked          | **${summary.totalSkills}**           |`,
+    `| Total Skills Benchmarked          | **${summary.totalSkills}**           | Measured: count of \`skills/*/*/SKILL.md\` this run |`,
   );
   lines.push(
-    `| Avg. Tokens WITH Skill (SKILL.md) | **${summary.avgTokensWithSkill} tokens**    |`,
+    `| Avg. Tokens WITH Skill (SKILL.md) | **${summary.avgTokensWithSkill} tokens**    | Measured: real cl100k-family tokenizer over SKILL.md files |`,
   );
   lines.push(
-    `| Baseline: Light prompt (no skill) | **${BASELINE_LIGHT} tokens** ↓ see Methodology |`,
+    `| Baseline: Light prompt (no skill) | **${BASELINE_LIGHT} tokens** ↓ see Methodology | Synthetic reference (\`BASELINE_LIGHT\`, scripts/benchmark/baselines.ts) — not a measured survey |`,
   );
   lines.push(
-    `| Baseline: Heavy prompt (no skill) | **${BASELINE_HEAVY} tokens** ↓ see Methodology |`,
+    `| Baseline: Heavy prompt (no skill) | **${BASELINE_HEAVY} tokens** ↓ see Methodology | Synthetic reference (\`BASELINE_HEAVY\`, scripts/benchmark/baselines.ts) — not a measured survey |`,
   );
   lines.push(
-    `| Avg. Token Savings vs Light       | **${summary.avgSavingsPctLight}%** (${BASELINE_LIGHT - summary.avgTokensWithSkill} tokens/call) |`,
+    `| Avg. Token Savings vs Light       | **${summary.avgSavingsPctLight}%** (${BASELINE_LIGHT - summary.avgTokensWithSkill} tokens/call) | ⚠️ Synthetic-baseline upper bound vs \`BASELINE_LIGHT\` = ${BASELINE_LIGHT} tokens — not a measured behavioral saving |`,
   );
   lines.push(
-    `| Avg. Token Savings vs Heavy       | **${summary.avgSavingsPctHeavy}%** (${BASELINE_HEAVY - summary.avgTokensWithSkill} tokens/call) |`,
+    `| Avg. Token Savings vs Heavy       | **${summary.avgSavingsPctHeavy}%** (${BASELINE_HEAVY - summary.avgTokensWithSkill} tokens/call) | ⚠️ Synthetic-baseline upper bound vs \`BASELINE_HEAVY\` = ${BASELINE_HEAVY} tokens — not a measured behavioral saving |`,
   );
   lines.push(
-    `| Avg. Quality Score                | **${summary.avgQualityScore}/10** |`,
+    `| Avg. Quality Score                | **${summary.avgQualityScore}/10** | ⚠️ Structural rubric score (bullet count, anti-patterns, line budget, eval coverage) — not measured behavioral quality${qualitySaturated ? `. Rubric is saturated: ${nearMaxQualityPct}% of skills score ≥9/10, so this average has little discriminative power` : ''} |`,
   );
   lines.push(
-    `| Guardrail Skills Covered          | **${summary.applicableBehaviorSkills}** |`,
+    `| Guardrail Skills Covered          | **${summary.applicableBehaviorSkills}** | Measured: skills matching the guardrail-applicability heuristic |`,
   );
   lines.push(
-    `| Avg. Behavior Quality             | **${summary.avgBehaviorQualityScore}/4** (guardrail skills only) |`,
+    `| Avg. Behavior Quality             | **${summary.avgBehaviorQualityScore}/4** (guardrail skills only) | ⚠️ Structural rubric score, not measured behavioral quality |`,
   );
 
   const skillsWithEvals = skills.filter((s) => s.evalCount > 0).length;
@@ -164,10 +170,14 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
         )
       : 0;
   lines.push(
-    `| Skills with Evals                 | **${skillsWithEvals} / ${summary.totalSkills}** |`,
+    `| Skills with Evals                 | **${skillsWithEvals} / ${summary.totalSkills}** | Measured: evals.json presence, not behavioral pass rate |`,
   );
   lines.push(
-    `| Avg. Eval–Skill Consistency       | **${avgAlignment}%** (${alignableSkills.length} skills with \`contains\` assertions — see caveat above) |`,
+    `| Avg. Eval–Skill Consistency       | **${avgAlignment}%** (${alignableSkills.length} skills with \`contains\` assertions — see caveat above) | Wording-overlap heuristic, not a behavioral signal |`,
+  );
+  lines.push('');
+  lines.push(
+    `> All "⚠️ Synthetic-baseline upper bound" figures above are priced/sized against the fixed reference constants in \`scripts/benchmark/baselines.ts\` (\`BASELINE_LIGHT\` = ${BASELINE_LIGHT}, \`BASELINE_HEAVY\` = ${BASELINE_HEAVY}), not a measured population of real prompts. Dollar figures further down also depend on the pricing table dated **${PRICING_AS_OF}** (\`PRICING_AS_OF\`, scripts/benchmark/models.ts). See Methodology for the full caveat and the [Live Evals Report](evals-report.md) for the one measured (non-synthetic) effectiveness signal in this report.`,
   );
   lines.push('');
 
@@ -301,6 +311,10 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
     lines.push('## 📜 History');
     lines.push('');
     lines.push(
+      `> ⚠️ \`Savings (%)\` per row is that release's \`savingsPctHeavy\` against the synthetic \`BASELINE_HEAVY\` reference band **in effect at generation time** (currently ${BASELINE_HEAVY} tokens, scripts/benchmark/baselines.ts) — not a measured behavioral saving, and not necessarily comparable across rows if the reference prompt changed. \`Quality\` is the structural rubric score, not measured behavior. Use \`pnpm benchmark:gate\` (see Regression Gate) to catch a within-tolerance drift between adjacent releases.`,
+    );
+    lines.push('');
+    lines.push(
       '| Version | Date       | Skills | Avg Tokens | Savings (%) | Quality | Report |',
     );
     lines.push(
@@ -368,7 +382,7 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
   lines.push('### 💰 Cost Comparison — Per Single Call (Average Skill)');
   lines.push('');
   lines.push(
-    '> Comparison based on the **Heavy reference band** vs. current model pricing. Ignores prompt caching (see caveat above) — treat as an upper bound, not an exact figure.',
+    `> ⚠️ **Synthetic-baseline upper bound**: priced from the Heavy reference band \`BASELINE_HEAVY\` = ${BASELINE_HEAVY} tokens (scripts/benchmark/baselines.ts, not a measured survey) against the model pricing table dated **${PRICING_AS_OF}** (\`PRICING_AS_OF\`, scripts/benchmark/models.ts). Ignores prompt caching (see caveat above) — treat every $ and % below as an upper bound, not a measured result.`,
   );
   lines.push('');
   lines.push(
@@ -393,7 +407,7 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
   lines.push('### 📈 Monthly Savings at Scale — (Avg Skill vs Heavy Reference Band)');
   lines.push('');
   lines.push(
-    `> Illustrative only: assumes 1,000 calls/day for a single average skill, no prompt caching, and constant token counts. Real savings depend heavily on caching and actual call volume — do not treat this as a budgeting figure.`,
+    `> ⚠️ **Synthetic-baseline upper bound**, illustrative only: assumes 1,000 calls/day for a single average skill against \`BASELINE_HEAVY\` = ${BASELINE_HEAVY} tokens (scripts/benchmark/baselines.ts) and pricing dated **${PRICING_AS_OF}** (\`PRICING_AS_OF\`), no prompt caching, and constant token counts. Real savings depend heavily on caching and actual call volume — do not treat this as a budgeting figure.`,
   );
   lines.push('');
   lines.push(
@@ -421,6 +435,10 @@ export function buildMarkdownReport(summary: BenchmarkSummary): string {
   lines.push('');
 
   lines.push('## 📦 Per-Category Summary');
+  lines.push('');
+  lines.push(
+    `> ⚠️ Every \`Savings (vs Heavy)\` value below is a synthetic-baseline upper bound vs \`BASELINE_HEAVY\` = ${BASELINE_HEAVY} tokens (scripts/benchmark/baselines.ts) — skill size relative to a reference instruction band, not a measured behavioral improvement. \`Quality\` is the structural rubric score (see Detailed Quality Rubric below), not measured behavior.`,
+  );
   lines.push('');
 
   const categories = [...new Set(skills.map((s) => s.category))].sort();

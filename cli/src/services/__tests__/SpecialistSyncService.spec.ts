@@ -409,7 +409,11 @@ description: "Review security"
         agents: [],
         skills: {},
       });
-      expect(githubService.getRepoTree).toHaveBeenCalledWith('owner', 'repo', 'main');
+      expect(githubService.getRepoTree).toHaveBeenCalledWith(
+        'owner',
+        'repo',
+        'main',
+      );
     });
 
     it('should return empty if getRepoTree returns null', async () => {
@@ -434,7 +438,10 @@ description: "Review security"
         getRepoTree: vi.fn().mockResolvedValue({
           tree: [
             { path: 'skills/specialists//SKILL.md', type: 'blob' },
-            { path: 'skills/specialists/specialist-empty/SKILL.md', type: 'blob' },
+            {
+              path: 'skills/specialists/specialist-empty/SKILL.md',
+              type: 'blob',
+            },
           ],
         }),
         getRawFile: vi.fn().mockResolvedValue(null),
@@ -458,7 +465,11 @@ description: "Review security"
           files: [{ name: 'SKILL.md', content: 'content' }],
         },
       ];
-      await service.syncCollectedSpecialists(rootDir, ['non-existent-agent' as any], specialists);
+      await service.syncCollectedSpecialists(
+        rootDir,
+        ['non-existent-agent' as any],
+        specialists,
+      );
       expect(fs.outputFile).not.toHaveBeenCalled();
     });
 
@@ -470,7 +481,11 @@ description: "Review security"
           files: [{ name: 'other.md', content: 'content' }],
         },
       ];
-      await service.syncCollectedSpecialists(rootDir, [Agent.Claude], specialists);
+      await service.syncCollectedSpecialists(
+        rootDir,
+        [Agent.Claude],
+        specialists,
+      );
       expect(fs.outputFile).not.toHaveBeenCalled();
     });
 
@@ -482,7 +497,11 @@ description: "Review security"
           files: [{ name: 'SKILL.md', content: 'content' }],
         },
       ];
-      await service.syncCollectedSpecialists(rootDir, [Agent.Claude], specialists);
+      await service.syncCollectedSpecialists(
+        rootDir,
+        [Agent.Claude],
+        specialists,
+      );
       expect(fs.outputFile).not.toHaveBeenCalled();
     });
 
@@ -495,7 +514,11 @@ description: "Review security"
           files: [{ name: 'SKILL.md', content: 'content' }],
         },
       ];
-      await service.syncCollectedSpecialists(rootDir, [Agent.Claude], specialists);
+      await service.syncCollectedSpecialists(
+        rootDir,
+        [Agent.Claude],
+        specialists,
+      );
       expect(logSpy).not.toHaveBeenCalled();
     });
   });

@@ -1,5 +1,5 @@
 import fs from 'fs-extra';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { IndexGeneratorServiceImpl } from '../IndexGeneratorServiceImpl';
 import { MetadataReader } from '../MetadataReader';
@@ -183,10 +183,15 @@ describe('IndexGeneratorService - Additional Coverage', () => {
       (yaml.load as any).mockReturnValue({
         name: 'TS Skill',
         description: 'TS Desc',
-        metadata: { triggers: { files: ['*.ts', 'specific.txt'], keywords: ['k1'] } },
+        metadata: {
+          triggers: { files: ['*.ts', 'specific.txt'], keywords: ['k1'] },
+        },
       });
 
-      const result = await metaService.generateCategoryIndex('/skills', 'typescript');
+      const result = await metaService.generateCategoryIndex(
+        '/skills',
+        'typescript',
+      );
 
       expect(result).toContain('| ts-skill | `specific.txt` | k1 |');
     });
@@ -205,7 +210,9 @@ describe('IndexGeneratorService - Additional Coverage', () => {
         }),
       );
 
-      const result = await service.assembleRouterIndex('/skills', ['typescript']);
+      const result = await service.assembleRouterIndex('/skills', [
+        'typescript',
+      ]);
 
       expect(result).toContain('`<SKILLS>/typescript/_INDEX.md`');
       expect(result).not.toContain('`<SKILLS>/python/_INDEX.md`');
@@ -226,7 +233,8 @@ describe('IndexGeneratorService - Additional Coverage', () => {
         return [];
       });
       (fs.stat as any).mockImplementation(async (p: string) => {
-        if (p.endsWith('standalone-skill.md')) return { isDirectory: () => false };
+        if (p.endsWith('standalone-skill.md'))
+          return { isDirectory: () => false };
         return { isDirectory: () => true };
       });
       (fs.readFile as any).mockResolvedValue(
@@ -238,7 +246,10 @@ describe('IndexGeneratorService - Additional Coverage', () => {
         metadata: { triggers: { keywords: ['k1'] } },
       });
 
-      const result = await service.generateCategoryIndex('/skills', 'typescript');
+      const result = await service.generateCategoryIndex(
+        '/skills',
+        'typescript',
+      );
       expect(result).toContain('| **standalone-skill** | k1 |');
     });
   });
@@ -269,7 +280,10 @@ describe('IndexGeneratorService - Additional Coverage', () => {
         metadata: { triggers: { keywords: ['k1'] } },
       });
 
-      const result = await metaService.generateCategoryIndex('/skills', 'typescript');
+      const result = await metaService.generateCategoryIndex(
+        '/skills',
+        'typescript',
+      );
       expect(result).toContain('| base-skill | — | k1 |');
     });
   });
@@ -277,7 +291,11 @@ describe('IndexGeneratorService - Additional Coverage', () => {
   describe('assembleRouterIndex edge cases', () => {
     it('should skip _comment key in file_routing and ignore _INDEX.md directory', async () => {
       (fs.pathExists as any).mockResolvedValue(true);
-      (fs.readdir as any).mockResolvedValue(['common', 'typescript', '_INDEX.md']);
+      (fs.readdir as any).mockResolvedValue([
+        'common',
+        'typescript',
+        '_INDEX.md',
+      ]);
       (fs.readFile as any).mockResolvedValue(
         JSON.stringify({
           file_routing: {
@@ -318,7 +336,10 @@ describe('IndexGeneratorService - Additional Coverage', () => {
         return { isDirectory: () => true };
       });
 
-      const result = await service.generateCategoryIndex('/skills', 'typescript');
+      const result = await service.generateCategoryIndex(
+        '/skills',
+        'typescript',
+      );
       expect(result).not.toContain('invalid-folder-or-file');
     });
 
@@ -331,9 +352,14 @@ describe('IndexGeneratorService - Additional Coverage', () => {
       });
       (fs.stat as any).mockResolvedValue({ isDirectory: () => true });
 
-      const spy = vi.spyOn(MetadataReader.prototype, 'parseSkill').mockResolvedValue(null);
+      const spy = vi
+        .spyOn(MetadataReader.prototype, 'parseSkill')
+        .mockResolvedValue(null);
 
-      const result = await service.generateCategoryIndex('/skills', 'typescript');
+      const result = await service.generateCategoryIndex(
+        '/skills',
+        'typescript',
+      );
       expect(result).not.toContain('some-skill');
       spy.mockRestore();
     });
@@ -347,16 +373,21 @@ describe('IndexGeneratorService - Additional Coverage', () => {
       });
       (fs.stat as any).mockResolvedValue({ isDirectory: () => true });
 
-      const spy = vi.spyOn(MetadataReader.prototype, 'parseSkill').mockResolvedValue({
-        name: 'Some Skill',
-        description: 'Some Desc',
-        priority: 'P1',
-        triggers: {
-          // files and keywords are missing/empty
-        },
-      } as any);
+      const spy = vi
+        .spyOn(MetadataReader.prototype, 'parseSkill')
+        .mockResolvedValue({
+          name: 'Some Skill',
+          description: 'Some Desc',
+          priority: 'P1',
+          triggers: {
+            // files and keywords are missing/empty
+          },
+        } as any);
 
-      const result = await service.generateCategoryIndex('/skills', 'typescript');
+      const result = await service.generateCategoryIndex(
+        '/skills',
+        'typescript',
+      );
       // Should format keywords trigger as '—'
       expect(result).toContain('| some-skill | — |');
       spy.mockRestore();
@@ -399,19 +430,28 @@ describe('IndexGeneratorService - Additional Coverage', () => {
       (fs.pathExists as any).mockResolvedValue(true);
       (fs.readdir as any).mockImplementation(async (p: string) => {
         if (p === '/skills') {
-          return ['.git', '_INDEX.md', 'common', 'typescript', 'not-a-dir-file.txt'];
+          return [
+            '.git',
+            '_INDEX.md',
+            'common',
+            'typescript',
+            'not-a-dir-file.txt',
+          ];
         }
         if (p.endsWith('common')) return [];
         if (p.endsWith('typescript')) return [];
         return [];
       });
       (fs.stat as any).mockImplementation(async (p: string) => {
-        if (p.endsWith('not-a-dir-file.txt')) return { isDirectory: () => false };
+        if (p.endsWith('not-a-dir-file.txt'))
+          return { isDirectory: () => false };
         return { isDirectory: () => true };
       });
 
       // Mock generateCategoryIndex to return a dummy string if called
-      vi.spyOn(service, 'generateCategoryIndex').mockResolvedValue('dummy index content');
+      vi.spyOn(service, 'generateCategoryIndex').mockResolvedValue(
+        'dummy index content',
+      );
 
       const result = await service.generateAllCategoryIndices('/skills');
 

@@ -1,6 +1,6 @@
 # 📊 Agent Skill Benchmark Report
 
-> Generated: 2026-09-22T08:08:38.648Z
+> Generated: 2026-09-23T06:17:26.300Z
 > Token counting: real cl100k-family tokenizer (`gpt-tokenizer`), chars/4 as fallback only.
 > Baselines: **synthetic reference instruction-volume bands**, not a measured survey of real prompts (see Methodology). Token/cost figures below measure *skill size*, not *behavioral effectiveness*.
 > Quality: structural rubric (0–10), no live LLM calls required. For measured with/without-skill behavioral results, see the [Live Evals Report](evals-report.md).
@@ -10,29 +10,31 @@
 This benchmark answers: **"How much smaller is a skill than a reference band of inline instructions a developer might otherwise write?"** It is a size/structure metric, not a measured behavioral improvement — that is what the [Live Evals Report](evals-report.md) is for.
 
 **Reference band (no skill)**: a synthetic stand-in for domain knowledge written directly into the prompt every time.
-**WITH a skill**: the agent loads the SKILL.md file (avg. 587 tokens this run) — structured, reusable, cached.
+**WITH a skill**: the agent loads the SKILL.md file (avg. 594 tokens this run) — structured, reusable, cached.
 
 **Eval–Skill Consistency** (labeled "Aligned" below): % of eval `contains` assertion values that are literal substrings of SKILL.md. This only checks that the skill and its evals were written consistently with each other — it is **not** evidence the skill changes agent behavior. Evals are written from the skill, so near-100% is expected and does not by itself indicate quality. Measured behavioral delta lives in the [Live Evals Report](evals-report.md).
 
 ## 🔢 Executive Summary
 
-| Metric                            | Value                             |
-| --------------------------------- | --------------------------------- |
-| Total Skills Benchmarked          | **296**           |
-| Avg. Tokens WITH Skill (SKILL.md) | **587 tokens**    |
-| Baseline: Light prompt (no skill) | **529 tokens** ↓ see Methodology |
-| Baseline: Heavy prompt (no skill) | **986 tokens** ↓ see Methodology |
-| Avg. Token Savings vs Light       | **-11%** (-58 tokens/call) |
-| Avg. Token Savings vs Heavy       | **40%** (399 tokens/call) |
-| Avg. Quality Score                | **9.8/10** |
-| Guardrail Skills Covered          | **26** |
-| Avg. Behavior Quality             | **3.5/4** (guardrail skills only) |
-| Skills with Evals                 | **296 / 296** |
-| Avg. Eval–Skill Consistency       | **99%** (280 skills with `contains` assertions — see caveat above) |
+| Metric                            | Value                             | Basis / Provenance |
+| --------------------------------- | --------------------------------- | --- |
+| Total Skills Benchmarked          | **288**           | Measured: count of `skills/*/*/SKILL.md` this run |
+| Avg. Tokens WITH Skill (SKILL.md) | **594 tokens**    | Measured: real cl100k-family tokenizer over SKILL.md files |
+| Baseline: Light prompt (no skill) | **529 tokens** ↓ see Methodology | Synthetic reference (`BASELINE_LIGHT`, scripts/benchmark/baselines.ts) — not a measured survey |
+| Baseline: Heavy prompt (no skill) | **986 tokens** ↓ see Methodology | Synthetic reference (`BASELINE_HEAVY`, scripts/benchmark/baselines.ts) — not a measured survey |
+| Avg. Token Savings vs Light       | **-12%** (-65 tokens/call) | ⚠️ Synthetic-baseline upper bound vs `BASELINE_LIGHT` = 529 tokens — not a measured behavioral saving |
+| Avg. Token Savings vs Heavy       | **40%** (392 tokens/call) | ⚠️ Synthetic-baseline upper bound vs `BASELINE_HEAVY` = 986 tokens — not a measured behavioral saving |
+| Avg. Quality Score                | **9.8/10** | ⚠️ Structural rubric score (bullet count, anti-patterns, line budget, eval coverage) — not measured behavioral quality. Rubric is saturated: 96% of skills score ≥9/10, so this average has little discriminative power |
+| Guardrail Skills Covered          | **13** | Measured: skills matching the guardrail-applicability heuristic |
+| Avg. Behavior Quality             | **3.3/4** (guardrail skills only) | ⚠️ Structural rubric score, not measured behavioral quality |
+| Skills with Evals                 | **288 / 288** | Measured: evals.json presence, not behavioral pass rate |
+| Avg. Eval–Skill Consistency       | **99%** (272 skills with `contains` assertions — see caveat above) | Wording-overlap heuristic, not a behavioral signal |
+
+> All "⚠️ Synthetic-baseline upper bound" figures above are priced/sized against the fixed reference constants in `scripts/benchmark/baselines.ts` (`BASELINE_LIGHT` = 529, `BASELINE_HEAVY` = 986), not a measured population of real prompts. Dollar figures further down also depend on the pricing table dated **Feb 2026** (`PRICING_AS_OF`, scripts/benchmark/models.ts). See Methodology for the full caveat and the [Live Evals Report](evals-report.md) for the one measured (non-synthetic) effectiveness signal in this report.
 
 ## 🆕 What Changed Since v2.6.0
 
-**New skills (33)**: `common-operator-profile`, `common-task-complexity-routing`, `cyber-authorization`, `cyber-detection-engineering`, `cyber-detection-validation`, `cyber-engagement-planning`, `cyber-evidence`, `cyber-exercise-adjudication`, `cyber-exercise-control`, `cyber-framework-mapping`, `cyber-incident-triage`, `cyber-scoped-validation`, `cyber-threat-hunting`, `database-hana`, `quality-engineering-automation-health`, `quality-engineering-flaky-triage`, `quality-engineering-playwright-pom-generation`, `quality-engineering-selector-stability`, `quality-engineering-test-healing`, `quality-engineering-test-plan-authoring`, `quality-engineering-visual-baseline`, `system-design-artifact-intake`, `system-design-building-blocks`, `system-design-case-catalog`, `system-design-communication`, `system-design-data-architecture`, `system-design-estimation`, `system-design-integration-patterns`, `system-design-interview-coaching`, `system-design-methodology`, `system-design-principles`, `system-design-resilience-ops`, `system-design-review`
+**New skills (25)**: `common-agent-guardrails`, `common-operator-profile`, `common-review-policy`, `common-sdlc-metrics`, `common-task-complexity-routing`, `database-hana`, `quality-engineering-automation-health`, `quality-engineering-flaky-triage`, `quality-engineering-playwright-pom-generation`, `quality-engineering-selector-stability`, `quality-engineering-test-healing`, `quality-engineering-test-plan-authoring`, `quality-engineering-visual-baseline`, `system-design-artifact-intake`, `system-design-building-blocks`, `system-design-case-catalog`, `system-design-communication`, `system-design-data-architecture`, `system-design-estimation`, `system-design-integration-patterns`, `system-design-interview-coaching`, `system-design-methodology`, `system-design-principles`, `system-design-resilience-ops`, `system-design-review`
 
 **Removed skills (1)**: `common-system-design`
 
@@ -86,6 +88,7 @@ This benchmark answers: **"How much smaller is a skill than a reference band of 
 | --- | --- | --- |
 | `common-architecture-diagramming` | common | +129% (1083 tokens now) |
 | `quality-engineering-playwright-cli` | quality-engineering | +75% (1196 tokens now) |
+| `common-telemetry` | common | +71% (926 tokens now) |
 | `golang-database` | golang | +70% (780 tokens now) |
 | `quality-engineering-appium-mcp` | quality-engineering | +58% (1170 tokens now) |
 | `golang-logging` | golang | +44% (579 tokens now) |
@@ -93,17 +96,17 @@ This benchmark answers: **"How much smaller is a skill than a reference band of 
 | `golang-api-server` | golang | +39% (609 tokens now) |
 | `android-navigation-type-safe` | android | +35% (345 tokens now) |
 | `common-web-visual-testing` | common | +35% (743 tokens now) |
-| `common-learning-log` | common | +34% (677 tokens now) |
+| `common-learning-log` | common | +33% (670 tokens now) |
 | `angular-architecture` | angular | +30% (780 tokens now) |
 | `laravel-clean-architecture` | laravel | +29% (819 tokens now) |
 | `flutter-localization` | flutter | +28% (585 tokens now) |
 | `common-protocol-enforcement` | common | +25% (614 tokens now) |
-| `common-llm-security` | common | +23% (833 tokens now) |
+
 | `common-observability` | common | +22% (506 tokens now) |
 | `php-concurrency` | php | +22% (629 tokens now) |
 | `quality-engineering-quality-assurance` | quality-engineering | +22% (593 tokens now) |
 | `common-store-changelog` | common | +21% (805 tokens now) |
-| `common-telemetry` | common | +21% (653 tokens now) |
+
 | `database-postgresql` | database | +21% (464 tokens now) |
 | `flutter-bloc-state-management` | flutter | +21% (854 tokens now) |
 | `flutter-security` | flutter | +21% (536 tokens now) |
@@ -116,7 +119,7 @@ This benchmark answers: **"How much smaller is a skill than a reference band of 
 | `angular-performance` | angular | +19% (543 tokens now) |
 | `common-documentation` | common | +19% (416 tokens now) |
 | `common-mobile-visual-testing` | common | +19% (727 tokens now) |
-| `common-session-retrospective` | common | +19% (816 tokens now) |
+
 | `common-mobile-ux-core` | common | +18% (483 tokens now) |
 | `javascript-language` | javascript | +18% (545 tokens now) |
 | `swift-memory-management` | swift | +18% (456 tokens now) |
@@ -173,13 +176,15 @@ Unlike everything else in this report, these numbers come from actually running 
 | --- | --- | --- | --- | --- |
 | all | 10% | 68% | +57% | 2026-09-22 |
 
-> Full-catalog live eval run covers all 24 categories; see the [Live Evals Report](evals-report.md) for the per-category breakdown.
+> Full-catalog live eval run covers all 23 categories; see the [Live Evals Report](evals-report.md) for the per-category breakdown.
 
 ## 📜 History
 
+> ⚠️ `Savings (%)` per row is that release's `savingsPctHeavy` against the synthetic `BASELINE_HEAVY` reference band **in effect at generation time** (currently 986 tokens, scripts/benchmark/baselines.ts) — not a measured behavioral saving, and not necessarily comparable across rows if the reference prompt changed. `Quality` is the structural rubric score, not measured behavior. Use `pnpm benchmark:gate` (see Regression Gate) to catch a within-tolerance drift between adjacent releases.
+
 | Version | Date       | Skills | Avg Tokens | Savings (%) | Quality | Report |
 | ------- | ---------- | ------ | ---------- | ----------- | ------- | ------ |
-| v2.6.1 | 2026-09-22 | 296 | 587 | 40% | 9.8/10 | [Full Report](benchmarks/archive/v2.6.1.md) |
+| v2.6.1 | 2026-09-23 | 288 | 594 | 40% | 9.8/10 | [Full Report](benchmarks/archive/v2.6.1.md) |
 | v2.6.0 | 2026-07-10 | 264 | 528 | 46% | 9.8/10 | [Full Report](benchmarks/archive/v2.6.0.md) |
 | v2.4.7 | 2026-06-15 | 251 | 551 | 85% | 9.8/10 | [Full Report](benchmarks/archive/v2.4.7.md) |
 | v2.4.6 | 2026-06-10 | 251 | 548 | 85% | 9.8/10 | [Full Report](benchmarks/archive/v2.4.6.md) |
@@ -211,33 +216,35 @@ Unlike everything else in this report, these numbers come from actually running 
 | Metric | Value |
 | --- | --- |
 | Avg. frontmatter tokens per skill | **105 tokens** |
-| Total frontmatter overhead (all 296 skills registered, paid every session) | **30952 tokens** |
+| Total frontmatter overhead (all 288 skills registered, paid every session) | **30237 tokens** |
 | Break-even (skill *uses*, at avg. savings/use, to offset the whole catalog's per-session frontmatter cost) | **~78 use(s)** |
 
 > **Prompt caching caveat**: all cost figures in this report price every token at the full input rate. In practice, static context (including skill frontmatter and any skill body loaded early in a session) is frequently served from a prompt cache at a fraction of the input price on providers that support it. Real savings are directionally consistent with this report but smaller in absolute $ than the tables below imply.
 
 ### 💰 Cost Comparison — Per Single Call (Average Skill)
 
-> Comparison based on the **Heavy reference band** vs. current model pricing. Ignores prompt caching (see caveat above) — treat as an upper bound, not an exact figure.
+> ⚠️ **Synthetic-baseline upper bound**: priced from the Heavy reference band `BASELINE_HEAVY` = 986 tokens (scripts/benchmark/baselines.ts, not a measured survey) against the model pricing table dated **Feb 2026** (`PRICING_AS_OF`, scripts/benchmark/models.ts). Ignores prompt caching (see caveat above) — treat every $ and % below as an upper bound, not a measured result.
 
 | Model             | Original Cost | Skill Cost | Net Savings | % Saved |
 | ----------------- | ------------- | ---------- | ----------- | ------- |
-| Gemini 3 Flash | $0.0004930 | $0.0002935 | **$0.0001995** | 40% |
-| GPT-5 | $0.0012325 | $0.0007337 | **$0.0004987** | 40% |
-| Gemini 3.1 Pro | $0.0019720 | $0.0011740 | **$0.0007980** | 40% |
-| Claude Sonnet 4.5 | $0.0029580 | $0.0017610 | **$0.0011970** | 40% |
+| Gemini 3 Flash | $0.0004930 | $0.0002970 | **$0.0001960** | 40% |
+| GPT-5 | $0.0012325 | $0.0007425 | **$0.0004900** | 40% |
+| Gemini 3.1 Pro | $0.0019720 | $0.0011880 | **$0.0007840** | 40% |
+| Claude Sonnet 4.5 | $0.0029580 | $0.0017820 | **$0.0011760** | 40% |
 
 ### 📈 Monthly Savings at Scale — (Avg Skill vs Heavy Reference Band)
 
-> Illustrative only: assumes 1,000 calls/day for a single average skill, no prompt caching, and constant token counts. Real savings depend heavily on caching and actual call volume — do not treat this as a budgeting figure.
+> ⚠️ **Synthetic-baseline upper bound**, illustrative only: assumes 1,000 calls/day for a single average skill against `BASELINE_HEAVY` = 986 tokens (scripts/benchmark/baselines.ts) and pricing dated **Feb 2026** (`PRICING_AS_OF`), no prompt caching, and constant token counts. Real savings depend heavily on caching and actual call volume — do not treat this as a budgeting figure.
 
 | Daily Calls | Original Cost/mo | Monthly Savings (1 skill) | Model |
 | ----------- | ---------------- | -------------------------- | ----- |
-| 1,000 | $36.9750/mo | $14.9625/mo | GPT-5 |
-| 1,000 | $88.7400/mo | $35.9100/mo | Claude Sonnet 4.5 |
-| 1,000 | $59.1600/mo | $23.9400/mo | Gemini 3.1 Pro |
+| 1,000 | $36.9750/mo | $14.7000/mo | GPT-5 |
+| 1,000 | $88.7400/mo | $35.2800/mo | Claude Sonnet 4.5 |
+| 1,000 | $59.1600/mo | $23.5200/mo | Gemini 3.1 Pro |
 
 ## 📦 Per-Category Summary
+
+> ⚠️ Every `Savings (vs Heavy)` value below is a synthetic-baseline upper bound vs `BASELINE_HEAVY` = 986 tokens (scripts/benchmark/baselines.ts) — skill size relative to a reference instruction band, not a measured behavioral improvement. `Quality` is the structural rubric score (see Detailed Quality Rubric below), not measured behavior.
 
 <details>
 <summary><h3>📦 android (26 skills | avg 423 tokens | quality 9.9/10 | eval–skill consistency 100%)</h3></summary>
@@ -297,11 +304,12 @@ Unlike everything else in this report, these numbers come from actually running 
 </details>
 
 <details>
-<summary><h3>📦 common (39 skills | avg 763 tokens | quality 9.6/10 | eval–skill consistency 98%)</h3></summary>
+<summary><h3>📦 common (42 skills | avg 779 tokens | quality 9.6/10 | eval–skill consistency 98%)</h3></summary>
 
 | Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
 | ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
 | `common-accessibility ` | 1075   | ⚠️ Overhead 9%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `common-agent-guardrails` | 949    | ░░░░░░░░░░ 4%      | 10/10 | n/a      | 5 | ✅ 88% |
 | `common-api-design    ` | 895    | █░░░░░░░░░ 9%      | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-architecture-audit` | 628    | ████░░░░░░ 36%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-architecture-diagramming` | 1083   | ⚠️ Overhead 10%    | 10/10 | n/a      | 8 | ✅ 100% |
@@ -314,8 +322,8 @@ Unlike everything else in this report, these numbers come from actually running 
 | `common-documentation ` | 416    | ██████░░░░ 58%     | 10/10 | n/a      | 3 | ✅ 80% |
 | `common-error-handling` | 467    | █████░░░░░ 53%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-git-collaboration` | 523    | █████░░░░░ 47%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `common-learning-log  ` | 677    | ███░░░░░░░ 31%     | 10/10 | 1/4      | 4 | ✅ 100% |
-| `common-llm-security  ` | 833    | ██░░░░░░░░ 16%     | 10/10 | 4/4      | 5 | ✅ 100% |
+| `common-learning-log  ` | 670    | ███░░░░░░░ 32%     | 10/10 | n/a      | 3 | ✅ 100% |
+| `common-llm-security  ` | 705    | ███░░░░░░░ 28%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-mobile-animation` | 613    | ████░░░░░░ 38%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-mobile-ux-core` | 483    | █████░░░░░ 51%     | 10/10 | n/a      | 3 | n/a |
 | `common-observability ` | 506    | █████░░░░░ 49%     | 10/10 | n/a      | 3 | n/a |
@@ -323,9 +331,11 @@ Unlike everything else in this report, these numbers come from actually running 
 | `common-owasp         ` | 1273   | ⚠️ Overhead 29%    | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-performance-engineering` | 664    | ███░░░░░░░ 33%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-product-requirements` | 1034   | ⚠️ Overhead 5%     | 10/10 | n/a      | 5 | ✅ 100% |
+| `common-review-policy ` | 967    | ░░░░░░░░░░ 2%      | 10/10 | 4/4      | 5 | ✅ 100% |
+| `common-sdlc-metrics  ` | 975    | ░░░░░░░░░░ 1%      | 10/10 | n/a      | 5 | ✅ 83% |
 | `common-security-audit` | 990    | ░░░░░░░░░░ 0%      | 10/10 | 0/4      | 3 | ✅ 100% |
 | `common-security-standards` | 694    | ███░░░░░░░ 30%     | 10/10 | n/a      | 3 | ✅ 100% |
-| `common-session-retrospective` | 816    | ██░░░░░░░░ 17%     | 10/10 | 4/4      | 4 | ✅ 100% |
+| `common-session-retrospective` | 731    | ███░░░░░░░ 26%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-skill-creator ` | 1559   | ⚠️ Overhead 58%    | 10/10 | 4/4      | 3 | ✅ 100% |
 | `common-software-requirements` | 657    | ███░░░░░░░ 33%     | 10/10 | n/a      | 3 | ✅ 100% |
 | `common-store-changelog` | 805    | ██░░░░░░░░ 18%     | 10/10 | n/a      | 4 | ✅ 100% |
@@ -338,27 +348,8 @@ Unlike everything else in this report, these numbers come from actually running 
 | `common-feedback-reporter` | 999    | ⚠️ Overhead 1%     | 8/10 | n/a      | 4 | ✅ 94% |
 | `common-protocol-enforcement` | 614    | ████░░░░░░ 38%     | 8/10 | 4/4      | 3 | ✅ 100% |
 | `common-workflow-writing` | 613    | ████░░░░░░ 38%     | 8/10 | 0/4      | 4 | ✅ 100% |
-| `common-telemetry     ` | 653    | ███░░░░░░░ 34%     | 7/10 | n/a      | 2 | ✅ 100% |
+| `common-telemetry     ` | 926    | █░░░░░░░░░ 6%      | 7/10 | n/a      | 2 | ✅ 100% |
 | `common-tdd           ` | 786    | ██░░░░░░░░ 20%     | 6/10 | 4/4      | 6 | ✅ 100% |
-
-</details>
-
-<details>
-<summary><h3>📦 cybersecurity (11 skills | avg 515 tokens | quality 10.0/10 | eval–skill consistency 85%)</h3></summary>
-
-| Skill                   | Tokens | Savings (vs Heavy) | Quality | Behavior | Evals | Aligned |
-| ----------------------- | ------ | ------------------ | ------- | -------- | ----- | ------- |
-| `cyber-authorization  ` | 532    | █████░░░░░ 46%     | 10/10 | 4/4      | 3 | ✅ 83% |
-| `cyber-detection-engineering` | 490    | █████░░░░░ 50%     | 10/10 | 4/4      | 3 | ⚠️ 67% |
-| `cyber-detection-validation` | 483    | █████░░░░░ 51%     | 10/10 | 4/4      | 3 | ✅ 88% |
-| `cyber-engagement-planning` | 567    | ████░░░░░░ 42%     | 10/10 | 4/4      | 4 | ✅ 100% |
-| `cyber-evidence       ` | 540    | █████░░░░░ 45%     | 10/10 | 4/4      | 3 | ✅ 100% |
-| `cyber-exercise-adjudication` | 480    | █████░░░░░ 51%     | 10/10 | 4/4      | 3 | ✅ 100% |
-| `cyber-exercise-control` | 492    | █████░░░░░ 50%     | 10/10 | 4/4      | 3 | ✅ 100% |
-| `cyber-framework-mapping` | 515    | █████░░░░░ 48%     | 10/10 | 4/4      | 3 | ✅ 100% |
-| `cyber-incident-triage` | 511    | █████░░░░░ 48%     | 10/10 | 4/4      | 3 | ✅ 73% |
-| `cyber-scoped-validation` | 599    | ████░░░░░░ 39%     | 10/10 | 4/4      | 3 | ⚠️ 56% |
-| `cyber-threat-hunting ` | 453    | █████░░░░░ 54%     | 10/10 | 4/4      | 3 | ⚠️ 67% |
 
 </details>
 
@@ -746,7 +737,7 @@ Unlike everything else in this report, these numbers come from actually running 
 | ----- | -------- | -------- | ------ |
 | `common-security-audit` | common | 0/4 | Add pressure_scenarios, rationalizations, red_flags, and behavior_assertions |
 | `common-workflow-writing` | common | 0/4 | Add pressure_scenarios, rationalizations, red_flags, and behavior_assertions |
-| `common-learning-log` | common | 1/4 | Add pressure_scenarios, rationalizations, red_flags, and behavior_assertions |
+
 | `system-design-review` | system-design | 3/4 | Add pressure_scenarios, rationalizations, red_flags, and behavior_assertions |
 
 ## 📊 Quality Distribution
@@ -755,7 +746,7 @@ Unlike everything else in this report, these numbers come from actually running 
 
 | Score | Count | Share |
 | --- | --- | --- |
-| 10/10 | 266 | ██████████████░ 90% |
+| 10/10 | 258 | ██████████████░ 90% |
 | 9/10 | 18 | █░░░░░░░░░░░░░░ 6% |
 | 8/10 | 10 | ░░░░░░░░░░░░░░░ 3% |
 | 7/10 | 1 | ░░░░░░░░░░░░░░░ 0% |
@@ -770,7 +761,7 @@ Unlike everything else in this report, these numbers come from actually running 
 | Skill | Category | Quality | Tokens | Evals | Consistency |
 | --- | --- | --- | --- | --- | --- |
 | `common-tdd` | common | 6/10 | 786 | 6 | ✅ 100% |
-| `common-telemetry` | common | 7/10 | 653 | 2 | ✅ 100% |
+| `common-telemetry` | common | 7/10 | 926 | 2 | ✅ 100% |
 | `android-agp-upgrade` | android | 8/10 | 710 | 3 | ✅ 100% |
 | `common-feedback-reporter` | common | 8/10 | 999 | 4 | ✅ 94% |
 | `common-protocol-enforcement` | common | 8/10 | 614 | 3 | ✅ 100% |

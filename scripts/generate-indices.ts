@@ -1,14 +1,14 @@
-import fs from "fs-extra";
-import yaml from "js-yaml";
-import path from "path";
-import { Agent } from "../cli/src/constants";
-import { AgentBridgeService } from "../cli/src/services/AgentBridgeService";
-import { IndexGeneratorServiceImpl } from "../cli/src/services/IndexGeneratorServiceImpl";
-import { MarkdownUtils } from "../cli/src/services/utils/MarkdownUtils";
-import { SpecialistSyncService } from "../cli/src/services/SpecialistSyncService";
-import { ConfigService } from "../cli/src/services/ConfigService";
-import { SyncService } from "../cli/src/services/SyncService";
-import { CollectedSkill } from "../cli/src/models/types";
+import fs from 'fs-extra';
+import * as yaml from 'js-yaml';
+import path from 'path';
+import { Agent } from '../cli/src/constants';
+import { AgentBridgeService } from '../cli/src/services/AgentBridgeService';
+import { IndexGeneratorServiceImpl } from '../cli/src/services/IndexGeneratorServiceImpl';
+import { MarkdownUtils } from '../cli/src/services/utils/MarkdownUtils';
+import { SpecialistSyncService } from '../cli/src/services/SpecialistSyncService';
+import { ConfigService } from '../cli/src/services/ConfigService';
+import { SyncService } from '../cli/src/services/SyncService';
+import { CollectedSkill } from '../cli/src/models/types';
 
 function getFirstLine(text: string): string {
   if (!text) return "";

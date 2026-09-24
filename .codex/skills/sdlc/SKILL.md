@@ -46,6 +46,7 @@ Goal: Select the next native workflow without loading every workflow body, while
    - BRD-lite, PRD, or SRS/FRS exists but readiness unclear -> `implementation-readiness`
    - Approved plan with BRD/PRD/SRS trace and testable ACs needs code -> `implement-feature`
    - Production incident or urgent regression -> `incident-hotfix`
+   - Control-band breach or scheduled security-scan result needs tiered diagnosis -> `monitor-respond`
    - Bug ticket needs fix (non-urgent) -> `dev-fix`
    - Ticket or cross-functional change needs specialist fanout, AC coverage, and PR metadata review -> `review-ticket`
    - Design arrives as an artifact (diagram, doc, board export, IaC) and needs review -> `review-system-design`
@@ -102,9 +103,7 @@ Goal: Select the next native workflow without loading every workflow body, while
 ## Offshore Delivery Notes
 
 ## Outcome Report
-feature_status: not_started | requirements_ready | design_ready | partially_implemented | implemented | blocked
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow:
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: sdlc, feature_status: not_started, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: brainstorm-feature, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 

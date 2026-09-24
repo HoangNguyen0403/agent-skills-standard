@@ -42,9 +42,10 @@ Goal: Convert verified changes into accurate user-facing and internal release no
    - Use plain language and business outcomes for every tier; `operator_profile=business` gets Public Notes as the primary artifact, Internal Notes as an appendix.
    - Keep sensitive security details high-level.
    - Respect platform character limits.
-4. Verify:
+4. Verify and persist:
    - Cross-check notes against shipped scope.
    - Remove unshipped claims.
+   - Write the run record to `artifacts/runs/[slug]/[compactISO]-publish-notes.json` when file writes are allowed.
    - Route process lessons to `retro-learn`.
 
 ## Runtime Contract
@@ -70,9 +71,7 @@ Goal: Convert verified changes into accurate user-facing and internal release no
 ## Verification Source
 
 ## Outcome Report
-feature_status: implemented
-requirement_trace: BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> evidence
-completed_evidence: []; missing_evidence: []; decision_needed: []; recommended_next_workflow: retro-learn
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: publish-notes, feature_status: released, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: retro-learn, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 

@@ -92,6 +92,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Versions
 
 - **Common Skills**: `2.5.0` → `2.6.0` (unreleased; no tag or release created)
+## [tooling] - Unreleased
+
+**Area**: SDLC standard dogfooding — control bands, review policy, first real requirement chain, metrics producer (#206)
+
+### Added
+- `docs/ops/bands.yaml`: 5 control bands over signals this repo actually produces (`avgTokens`, `savingsPctHeavy`, `avgQuality` from `benchmarks/history.json`; `avgWithSkillPassRate`, `avgDelta` from `benchmarks/evals/history.json`), the first real input to `monitor-respond`. Every band names an owner, a rolling window, a deterministic rule, and a tier route.
+- `docs/review-policy.md`: one severity ladder reconciling `review-ticket`'s four-level vocabulary with `common-code-review`'s three levels, a verified skip list, a nit cap, and separation of duties — the first real input to `code-review`/`review-ticket`.
+- The first real instance of the requirement-ID chain (slug `sdlc-metrics-report`): `docs/brd/`, `docs/prd/`, `docs/srs/`, and three schema-valid run records, fully covered end to end (`BRD-OBJ-001 -> REQ-001..003 -> AC-001..005 -> SRS-001..004`). Its final acceptance criterion is self-referential: it asserts that `pnpm audit:trace` reports this slug clean, so the artifact proves the gate and the gate proves the artifact.
+- `scripts/metrics/`: the collector `common-sdlc-metrics` describes but never shipped. Emits `artifacts/sdlc-metrics.md` from git history and committed artifacts via `pnpm metrics:report` / `metrics:check`, enforcing the skill's own rules as code — every value cites a source, no composite score, no per-individual ranking, missing inputs reported unavailable with a reason.
+
+### Fixed
+- `scripts/trace/parse.ts` treated any markdown table's first cell as an ID declaration, so the repo's own SRS template — whose trace matrix restates ids a heading already declared — failed the gate with `duplicate-id` when followed literally. Declarations inferred from a table cell are now demoted to references only when a stronger declaration already exists; a PRD's requirements table remains a genuine declaration site, so two rows for one id there still raises `duplicate-id`.
+- `srs-task-list-<slug>.md` and `srs-walkthrough-<slug>.md` each matched the slug-file pattern and minted a phantom slug whose ids all dangled. They now join their feature's slug.
+
+### Known issue
+- `pnpm metrics:check` independently detects and routes the same `avgTokens` drift as `benchmark:gate` (`tier 3sigma -> pull_request`) — confirming the band config, detection, and routing all work end to end. Not yet cleared or acknowledged.
+
+---
+
+## [tooling] - Unreleased
+
+**Area**: Eval-harness cost metering, benchmark regression gate, MCP cost provenance (#205)
+
+### Added
+- `scripts/evals/`: codex workers run with `--json`; token-count events parse into a per-lane `UsageSample` with per-arm totals, so the baseline arm's price is separable from the with-skill arm. Parsing fails open — an unparseable stream records `usage: null`, never a guess. `evals:estimate` projects lanes/tokens/dollars for a pending run from observed mean cost per lane, or reports "unavailable" with no prior usage. `evals:gate` applies the `readiness.ts` thresholds to pending scored runs, reporting direction against the previous history record; wired into the CI PR gate.
+- `scripts/benchmark/gate.ts`: `benchmark:gate` fails on `avgTokens` growth > 10%, any `avgQuality` drop, or a `savingsPctHeavy` drop > 10 points, citing the previous record by version and date. Wired into the weekly drift workflow rather than the PR gate, since it measures corpus drift over time.
+- MCP `get_session_cost`: explicit provenance (`host` | `agent-estimate` | `unavailable`) on every token/cost value. `TelemetryRecord` gains optional `workflow`, `slug`, `outcome` so the opt-in JSONL can answer "what did this feature cost." `.skillsrc` sets `telemetry: true` — this repo now dogfoods its own instrument.
+
+### Changed
+- `docs/EVALS.md` corrected a false claim that CI already enforced the promotion thresholds; it now describes what `evals:gate` actually does.
+- Every savings % and $ figure in `benchmark-report.md` now carries inline provenance naming it a synthetic-baseline upper bound against the specific constant and price-table date; `avgQuality` is labelled a structural rubric score with its saturation stated (96% of skills score ≥ 9/10 as of this release).
+- `get_session_cost`'s `[Agent: fill from platform usage]` placeholder — which invited a fabricated number — and its default `$0.00` are gone; an unavailable value now renders `unavailable (host did not expose token usage)` with no number.
+
+### Removed
+- `readiness.ts`'s `FINAL_REMEDIATION_SKILL_COUNT = 136` / `FINAL_REMEDIATION_CASE_COUNT = 1221`: a one-release manifest shape assertion frozen into shared code.
+
+### Known issue
+- `pnpm benchmark:gate` fails on real pre-existing drift: `avgTokens` +12.5% vs the `v2.6.0` record (528 → 594), from 25 skills added and none removed since the benchmark was last run (2026-07-10). This is the gate working as designed, not a regression introduced here.
+
+---
+
+## [tooling] - Unreleased
+
+**Area**: SDLC run ledger, requirement traceability, slug-scoped artifacts (#204)
+
+### Added
+- `scripts/outcome/`: schema-validated run-record shape (`schema_version: 1`) at `artifacts/runs/<slug>/<compactISO>-<workflow>.json`, plus `pnpm audit:outcome`. Rejects unfilled template tokens in real records (`REQ-*`, `<...>`, `TODO`) against `^REQ-\d{3,}$`-style grammar; enforces that a `cost.source: unavailable` record omits token/USD fields rather than estimating them.
+- `scripts/trace/`: per-slug `BRD-OBJ -> REQ -> AC -> SRS` graph, plus `pnpm audit:trace`. Reports `duplicate-id`, `dangling-ref`, `orphan-req`, `orphan-ac`, `unlinked-req`, `malformed-id`, `slug-file-mismatch`. IDs are scoped per slug; fenced code blocks are skipped so template examples never register as real requirements. Both CLIs fail open on absent inputs and fail closed on malformed content.
+- `scripts/workflow-chain.ts`: single source of truth for `CORE_SDLC_CHAIN`, so the outcome auditor can consume it without an import cycle through `audit-sdlc.ts`.
+
+### Changed
+- `audit-sdlc.ts` now YAML-parses each core workflow's `Outcome Report` and requires all 14 run-record keys, replacing a `feature_status:` substring test that a literal placeholder could pass.
+- All 21 `CORE_SDLC_CHAIN` workflows plus `sdlc` and `test-loop`: the `Outcome Report` body was not valid YAML (four keys crammed onto one line separated by `;`, which `js-yaml` rejects). Rewritten as a single valid YAML flow mapping; `feature_status` is now a closed enum taken from the vocabulary the workflows already authored, plus `verified`/`released` for post-verification stages.
+- `implementation-readiness`, `traceability-audit`, `uat-signoff`, `deploy-release`, `publish-notes`, `session-report`, `retro-learn` now persist a run record instead of a chat-only verdict.
+- `docs/srs/srs-task-list.md` and `srs-walkthrough.md` were the only non-slug-scoped artifacts in the chain, so concurrent features overwrote each other's task list and verification evidence. Now `-[slug]` suffixed.
+- `.skillsrc`: 8 workflows shipped checked-in wrappers but were absent from the sync list, so `generate-indices` never refreshed them; caught by the CLI wrapper-parity test.
+- CI: `audit:outcome` and `audit:trace` gate `validate-skills`; `test:cov` is now `pnpm -r test:cov` — `mcp/` and `server/` suites previously never executed in CI at all.
+
+### Removed
+- `cli/skills-lock.json`: no reader or writer anywhere in `cli/src`, `mcp/src`, `scripts/`, or any workflow. The real lockfile is `.skills-lock.json`, written by `LockfileService` at consumer sites.
+
+---
 
 ## [quality-engineering-v1.6.0] - Unreleased
 
@@ -500,6 +562,11 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 - **Claude Specialist Frontmatter**: `SpecialistTransformer` now preserves `tools`, `model`, and `color` metadata from a specialist's `SKILL.md` frontmatter when generating `.claude/agents/*.md`, instead of silently dropping them ([#104](https://github.com/HoangNguyen0403/agent-skills-standard/issues/104)).
 - **Doubled Quotes in Emitted Workflow Descriptions**: `WorkflowTransformer.parseSource()` now strips a matching surrounding-quote pair (`"..."` or `'...'`) from a workflow source's frontmatter `description` before it reaches format emitters. Previously, a quoted description (required when the value contains a `:`, e.g. `description: "Phase one: do the thing"`) was passed through with its quotes intact, and the TOML (Gemini CLI), Copilot prompt, and SKILL.md emitters re-wrapped it in a fresh pair of quotes, producing invalid doubled-quote output (`description: ""Phase one: do the thing""`) that failed to parse. Unquoted descriptions were unaffected. (#105)
 - **Unescaped Quotes in Copilot Prompt Descriptions**: `toCopilotPrompt` now escapes `\` and `"` in `description` before embedding it in frontmatter, matching the escaping already applied by the TOML and SKILL.md emitters. Previously an internal `"` in an unquoted description could break the emitted `.prompt.md` frontmatter.
+**Category**: License consistency fix
+
+### Fixed
+
+- **LICENSE mismatch**: Replaced the Apache License 2.0 text in `LICENSE` and `cli/LICENSE` with the MIT License, matching the license already declared in `README.md`, `cli/package.json`, and `mcp/package.json`. The published `cli` npm package previously bundled a license file that contradicted its own `package.json` metadata ([#106](https://github.com/HoangNguyen0403/agent-skills-standard/issues/106)).
 
 ## [cli-v2.6.0] - 2026-07-14
 
