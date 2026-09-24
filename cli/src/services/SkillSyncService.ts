@@ -296,9 +296,28 @@ export class SkillSyncService {
     catConfig: SkillEntry,
     tree: GitHubTreeItem[],
   ): string[] {
+    const hasSkillMd = tree.some(
+      (f) =>
+        f.type === 'blob' &&
+        f.path.startsWith(`skills/${category}/`) &&
+        f.path.endsWith('/SKILL.md'),
+    );
+
     const skillFolders = new Set(
       tree
-        .filter((f) => f.path.startsWith(`skills/${category}/`))
+        .filter((f) => {
+          if (!f.path.startsWith(`skills/${category}/`)) return false;
+          if (hasSkillMd) {
+            return f.type === 'blob' && f.path.endsWith('/SKILL.md');
+          }
+          // Fallback for mocked trees or subtrees without explicit SKILL.md
+          const rel = f.path.slice(`skills/${category}/`.length);
+          return (
+            !rel.startsWith('references/') &&
+            rel !== 'references' &&
+            rel !== '_INDEX.md'
+          );
+        })
         .map((f) => f.path.split('/')[2])
         .filter(Boolean),
     );
@@ -330,9 +349,26 @@ export class SkillSyncService {
     if (!targetCat || !targetSkill) return;
 
     if (targetSkill === '*') {
+      const hasTargetSkillMd = tree.some(
+        (f) =>
+          f.type === 'blob' &&
+          f.path.startsWith(`skills/${targetCat}/`) &&
+          f.path.endsWith('/SKILL.md'),
+      );
       const catSkills = new Set(
         tree
-          .filter((f) => f.path.startsWith(`skills/${targetCat}/`))
+          .filter((f) => {
+            if (!f.path.startsWith(`skills/${targetCat}/`)) return false;
+            if (hasTargetSkillMd) {
+              return f.type === 'blob' && f.path.endsWith('/SKILL.md');
+            }
+            const rel = f.path.slice(`skills/${targetCat}/`.length);
+            return (
+              !rel.startsWith('references/') &&
+              rel !== 'references' &&
+              rel !== '_INDEX.md'
+            );
+          })
           .map((f) => f.path.split('/')[2])
           .filter(Boolean),
       );
