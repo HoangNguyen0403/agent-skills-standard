@@ -48,7 +48,7 @@
   "dependencies": {
     "commander": "^15.0.0",
     "cross-fetch": "^4.1.0",
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.3",
     "fs-extra": "^11.4.0",
     "inquirer": "^14.2.2",
     "js-yaml": "^5.4.2",
