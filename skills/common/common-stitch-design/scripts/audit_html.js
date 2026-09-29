@@ -40,10 +40,10 @@ function contrastRatio(a, b) {
 
 function textOf(html) {
   return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<(span|i)[^>]*material-(symbols|icons)[^>]*>[^<]*<\/\1>/gi, ' ')
-    .replace(/<svg[\s\S]*?<\/svg>/gi, ' ')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script[^>]*>/gi, ' ')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style[^>]*>/gi, ' ')
+    .replace(/<(span|i)\b[^>]*material-(symbols|icons)[^>]*>[^<]*<\/\1[^>]*>/gi, ' ')
+    .replace(/<svg\b[^>]*>[\s\S]*?<\/svg[^>]*>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/g, ' ')
     .replace(/\s+/g, ' ')

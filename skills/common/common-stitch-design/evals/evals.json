@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "How do I connect my agent to Google Stitch so it can read my project screens?",
-      "expected_output": "Gives the remote MCP endpoint and API-key header, notes a restart is needed, and verifies with a list-projects call.",
+      "expected_output": "Gives the remote MCP endpoint (stitch.googleapis.com/mcp) and X-Goog-Api-Key header (API key), notes a restart is needed, and verifies with a list_projects call.",
       "assertions": [
         { "type": "contains_any", "value": ["X-Goog-Api-Key", "api key"] },
         { "type": "contains_any", "value": ["stitch.googleapis.com/mcp", "mcp"] },

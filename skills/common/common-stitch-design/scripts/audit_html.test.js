@@ -192,3 +192,12 @@ test('transparent backgrounds inherit while theme background colors override', (
   ));
   assert.equal(find(themeBackground, 'white-on-primary'), undefined);
 });
+
+test('script and style end tags with whitespace or attributes are stripped from text', () => {
+  const result = auditHtml(page(
+    '<script type="text/javascript">var secret = "ignore";</script >' +
+    '<style media="screen">body { color: red; }</style >' +
+    '<button aria-label="Đóng"><svg></svg></button>'
+  ));
+  assert.equal(find(result, 'unlabeled-icon-button'), undefined);
+});
