@@ -2,6 +2,7 @@
 name: security-test
 description: "Fast, continuous DevSecOps pipeline for Pull Requests and active branches. Runs SAST, SCA, and secrets detection to catch vulnerabilities before they merge."
 metadata:
+  internal: true
   triggers:
     keywords:
     - security test

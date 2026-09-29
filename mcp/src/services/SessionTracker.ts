@@ -83,6 +83,19 @@ export class SessionTracker {
     return Array.from(set).sort();
   }
 
+  /** Unique files passed to load_skills_for_files so far this session. */
+  loadedFiles(): string[] {
+    const set = new Set<string>();
+    for (const e of this.events) {
+      if (e.via === "load_skills_for_files") {
+        for (const f of e.input) {
+          set.add(f);
+        }
+      }
+    }
+    return Array.from(set).sort();
+  }
+
   summary(now = new Date()): SessionSummary {
     const started = new Date(this.startedAt);
     const elapsedSeconds = Math.max(

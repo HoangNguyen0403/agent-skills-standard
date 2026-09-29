@@ -2,6 +2,7 @@
 name: specialist-tdd-implementer
 description: Strict quality-first TDD specialist. Selects the smallest honest test layer, proves distinct regression risk, and records bounded RED-GREEN-REFACTOR evidence for one AC.
 metadata:
+  internal: true
   triggers:
     keywords:
     - tdd implementation

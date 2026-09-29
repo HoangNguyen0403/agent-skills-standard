@@ -104,6 +104,7 @@ Rules:
 6. Workflows may call available tasking/test MCPs, but must still work from local artifacts.
 7. Channel agents must continue only when required artifacts/owners are known; otherwise return BLOCKED with max 3 blocking questions.
 8. New specialists must include `evals/evals.json`, strict budgets, structured output, and `No sub-agents`.
+9. Specialists and generated workflow skills set `metadata.internal: true` so skill installers (`npx skills`) don't offer them as installable skills.
 
 ## 6. Quality Gates
 
@@ -170,7 +171,10 @@ Guardrail-oriented skill changes should also verify that the benchmark report sh
 We use specialized scripts for releasing components independently:
 
 - `pnpm release-cli`: Bumps `cli/package.json` and updates `CHANGELOG.md`.
-- `pnpm release-all-skills`: Syncs and pushes git tags for newly bumped versions in `skills/metadata.json`.
+- `pnpm release-all-skills`: Syncs and pushes git tags for newly bumped versions in `skills/metadata.json` (`categories` and `releases`).
 - `pnpm release-server`: Releases the backend component.
+- `pnpm release:manifest --tag <tag> [--out <file>]`: Rebuilds the deterministic `MANIFEST.json` locally for any release tag.
+
+When `.agents/workflows/**` changes, bump `releases.workflows.version` in `skills/metadata.json`. Every registry release publishes a `MANIFEST.json` containing sha256 checksums of all released files along with a GitHub build-provenance attestation.
 
 Ensure you update `CHANGELOG.md` manually before running release scripts if significant features were added.

@@ -84,6 +84,52 @@ function isDenied(filePath) {
   if (DENY_BASENAMES.has(path.basename(filePath))) return true;
   return DENY_PATTERNS.some(re => re.test(filePath));
 }
+// Mirrors match.ts
+function normalizePath(p) {
+  let norm = p.split('\\\\').join('/');
+  while (norm.startsWith('./')) norm = norm.slice(2);
+  return norm;
+}
+
+function matchesPattern(pattern, relPath) {
+  const normPat = normalizePath(pattern);
+  const normPath = normalizePath(relPath);
+  if (normPat === '**') return true;
+  if (!normPat.includes('/')) {
+    const base = normPath.includes('/') ? normPath.slice(normPath.lastIndexOf('/') + 1) : normPath;
+    let segRe = '^';
+    for (let i = 0; i < normPat.length; i++) {
+      const c = normPat[i];
+      if (c === '*') segRe += '[^/]*';
+      else if (c === '?') segRe += '[^/]';
+      else segRe += '-\\\\^$*+?.()|[]{}'.indexOf(c) !== -1 ? '\\\\' + c : c;
+    }
+    segRe += '$';
+    return new RegExp(segRe).test(base);
+  }
+  let reStr = '^';
+  let i = 0;
+  while (i < normPat.length) {
+    if (normPat.startsWith('/**/', i)) {
+      reStr += '(?:/.+)?/';
+      i += 4;
+    } else if (i === 0 && normPat.startsWith('**/', i)) {
+      reStr += '(?:.+/)?';
+      i += 3;
+    } else if (normPat.startsWith('/**', i) && i + 3 === normPat.length) {
+      reStr += '(?:/.*)?';
+      i += 3;
+    } else {
+      const c = normPat[i];
+      if (c === '*') reStr += '[^/]*';
+      else if (c === '?') reStr += '[^/]';
+      else reStr += '-\\\\^$*+?.()|[]{}'.indexOf(c) !== -1 ? '\\\\' + c : c;
+      i++;
+    }
+  }
+  reStr += '$';
+  return new RegExp(reStr).test(normPath);
+}
 
 let input = '';
 process.stdin.setEncoding('utf8');
@@ -95,6 +141,89 @@ process.stdin.on('end', () => {
 
     const filePath = data.tool_input?.file_path || '';
     if (!filePath || shouldSkip(filePath)) process.exit(0);
+    const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const policyFile = path.join(projectDir, '.ags/policy.json');
+    let policyDoc = null;
+    if (fs.existsSync(policyFile)) {
+      try {
+        const raw = fs.readFileSync(policyFile, 'utf8');
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.schema_version === 1 && Array.isArray(parsed.rules)) {
+          let hasConflict = false;
+          let invalidShape = false;
+          const patternActions = {};
+          for (let i = 0; i < parsed.rules.length; i++) {
+            const r = parsed.rules[i];
+            if (r && r.kind === 'protected_path') {
+              if (!Array.isArray(r.paths) || !r.paths.every(function(p) { return typeof p === 'string'; })) {
+                invalidShape = true;
+                break;
+              }
+              const act = r.action || 'warn';
+              for (let j = 0; j < r.paths.length; j++) {
+                const np = normalizePath(r.paths[j]);
+                if (patternActions[np] && patternActions[np] !== act) {
+                  hasConflict = true;
+                  break;
+                }
+                patternActions[np] = act;
+              }
+              if (hasConflict) break;
+            }
+          }
+          if (invalidShape) {
+            console.error('[AGS POLICY] ignored: invalid protected_path rule shape');
+          } else if (hasConflict) {
+            console.error('[AGS POLICY] ignored: conflicting action for pattern');
+          } else {
+            policyDoc = parsed;
+          }
+        } else {
+          console.error('[AGS POLICY] ignored: schema_version must be 1 and rules must be an array');
+        }
+      } catch (err) {
+        console.error('[AGS POLICY] ignored: ' + (err && err.message ? err.message : String(err)));
+      }
+    }
+
+    if (policyDoc) {
+      const relPath = normalizePath(path.isAbsolute(filePath) ? path.relative(projectDir, filePath) : filePath);
+      const matched = [];
+      for (let i = 0; i < policyDoc.rules.length; i++) {
+        const r = policyDoc.rules[i];
+        if (r && r.kind === 'protected_path' && Array.isArray(r.paths)) {
+          if (r.paths.some(function(p) { return matchesPattern(p, relPath); })) {
+            matched.push(r);
+          }
+        }
+      }
+
+      if (matched.length > 0) {
+        const BYPASS = process.env.AGS_POLICY_BYPASS === '1' || process.env.AGS_POLICY_BYPASS === 'true';
+        if (BYPASS) {
+          const waived = matched.map(function(m) { return m.id; }).join(', ');
+          console.error('[AGS POLICY] bypass active: waived ' + waived);
+          process.exit(0);
+        }
+
+        const blockRule = matched.find(function(m) { return (m.action || 'warn') === 'block'; });
+        if (blockRule) {
+          if (ENFORCE) {
+            console.error('[AGS BLOCKED] ' + blockRule.id + ': ' + blockRule.reason);
+            process.exit(2);
+          } else {
+            console.error('[AGS POLICY WARN] ' + blockRule.id + ': ' + blockRule.reason);
+          }
+        }
+
+        for (let i = 0; i < matched.length; i++) {
+          const m = matched[i];
+          if ((m.action || 'warn') === 'warn') {
+            console.error('[AGS POLICY WARN] ' + m.id + ': ' + m.reason);
+          }
+        }
+      }
+    }
 
     if (ENFORCE && isDenied(filePath)) {
       console.error(
@@ -220,13 +349,17 @@ export class HookService {
     const report: HookWriteReport = { writes: [], unsupported: [] };
 
     for (const agent of opts.agents) {
-      if (agent === Agent.Kiro) {
+      const def = getAgentDefinition(agent);
+      if (def.hookKind === 'kiro-md') {
         await this.installKiroHook(opts.rootDir, report);
         continue;
       }
 
-      const def = getAgentDefinition(agent);
-      if (def.hookScriptPath && def.hookConfigPath) {
+      if (
+        def.hookKind === 'js-pretooluse' &&
+        def.hookScriptPath &&
+        def.hookConfigPath
+      ) {
         const enforcePrefix =
           opts.enforce && agent === Agent.Claude ? 'AGS_HOOK_ENFORCE=1 ' : '';
         await this.installStandardHookConfig({
@@ -256,7 +389,8 @@ export class HookService {
     const removed: Array<{ agent: Agent; file: string }> = [];
 
     for (const agent of opts.agents) {
-      if (agent === Agent.Kiro) {
+      const def = getAgentDefinition(agent);
+      if (def.hookKind === 'kiro-md') {
         const abs = path.join(opts.rootDir, KIRO_HOOK_REL);
         if (await fs.pathExists(abs)) {
           await fs.remove(abs);
@@ -265,7 +399,6 @@ export class HookService {
         continue;
       }
 
-      const def = getAgentDefinition(agent);
       if (def.hookConfigPath) {
         const files = await this.uninstallStandardHookConfig(
           opts.rootDir,
@@ -285,7 +418,8 @@ export class HookService {
     const rows: HookStatusRow[] = [];
 
     for (const agent of opts.agents) {
-      if (agent === Agent.Kiro) {
+      const def = getAgentDefinition(agent);
+      if (def.hookKind === 'kiro-md') {
         const exists = await fs.pathExists(
           path.join(opts.rootDir, KIRO_HOOK_REL),
         );
@@ -293,8 +427,11 @@ export class HookService {
         continue;
       }
 
-      const def = getAgentDefinition(agent);
-      if (def.hookScriptPath && def.hookConfigPath) {
+      if (
+        def.hookKind === 'js-pretooluse' &&
+        def.hookScriptPath &&
+        def.hookConfigPath
+      ) {
         rows.push(
           await this.standardHookStatus(
             opts.rootDir,
@@ -489,8 +626,7 @@ export class HookService {
     const hooks = data['hooks'] as Record<string, unknown> | undefined;
     if (!hooks) return false;
     const preToolUse = hooks['PreToolUse'] as
-      | Array<Record<string, unknown>>
-      | undefined;
+      Array<Record<string, unknown>> | undefined;
     if (!Array.isArray(preToolUse)) return false;
     return this.claudeHookEntryExists(preToolUse);
   }

@@ -1,5 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
+import { createHash } from 'node:crypto';
+import { sha256 } from '../LockfileService';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
 import { SkillConfig } from '../../models/config';
@@ -84,10 +86,13 @@ type SyncServicePrivates = {
   githubService: {
     getRepoInfo: ReturnType<typeof vi.fn>;
     getRawFile: ReturnType<typeof vi.fn>;
+    resolveCommit: ReturnType<typeof vi.fn>;
+    getReleaseManifest: ReturnType<typeof vi.fn>;
   };
   lockfileService: {
+    load: ReturnType<typeof vi.fn>;
     write: ReturnType<typeof vi.fn>;
-    verify: ReturnType<typeof vi.fn>;
+    verifyEntries: ReturnType<typeof vi.fn>;
   };
   configService: {
     reconcileDependencies: ReturnType<typeof vi.fn>;
@@ -121,6 +126,10 @@ describe('SyncService', () => {
     );
 
     vi.mocked(MarkdownUtils.injectIndex).mockResolvedValue(['AGENTS.md']);
+    vi.mocked(fs.remove).mockResolvedValue(undefined as never);
+    vi.mocked(fs.writeJson).mockResolvedValue(undefined as never);
+    vi.mocked(fs.copy).mockResolvedValue(undefined as never);
+    vi.mocked(fs.ensureDir).mockResolvedValue(undefined as never);
 
     syncService = new SyncService();
 
@@ -137,6 +146,8 @@ describe('SyncService', () => {
       .mockResolvedValue({ default_branch: 'main' });
     mockGithubService.getRawFile = vi.fn().mockResolvedValue('{}');
 
+    mockGithubService.resolveCommit = vi.fn().mockResolvedValue('1111111111111111111111111111111111111111');
+    mockGithubService.getReleaseManifest = vi.fn().mockResolvedValue(null);
     vi.spyOn(console, 'log').mockImplementation(() => {});
   });
 
@@ -176,6 +187,7 @@ describe('SyncService', () => {
       expect(result).toBe(true);
       expect(mockWorkflowSyncService.reconcileWorkflows).toHaveBeenCalledWith(
         config,
+        'main',
       );
     });
 
@@ -187,6 +199,7 @@ describe('SyncService', () => {
 
       expect(mockWorkflowSyncService.reconcileWorkflows).toHaveBeenCalledWith(
         config,
+        'main',
       );
     });
   });
@@ -202,6 +215,7 @@ describe('SyncService', () => {
       expect(mockSkillSyncService.assembleSkills).toHaveBeenCalledWith(
         categories,
         config,
+        {},
       );
     });
 
@@ -233,79 +247,115 @@ describe('SyncService', () => {
         skills,
         config,
         [Agent.Cursor],
-      );
-    });
-
-    it('should write the lockfile with a ref-by-category map derived from config.skills', async () => {
-      const config = makeConfig({
-        agents: [Agent.Cursor],
-        registry: 'https://github.com/o/r',
-        skills: {
-          typescript: { ref: 'typescript-v1.3.4' },
-          common: {}, // no explicit ref → defaults to 'main'
-        },
-      });
-      const skills: Parameters<typeof syncService.writeSkills>[0] = [
-        { category: 'typescript', skill: 'typescript-core', files: [] },
-      ];
-
-      await syncService.writeSkills(skills, config);
-
-      const p = privatesOf(syncService);
-      expect(p.lockfileService.write).toHaveBeenCalledWith(
-        process.cwd(),
-        'https://github.com/o/r',
-        skills,
-        { typescript: 'typescript-v1.3.4', common: 'main' },
+        expect.anything(),
       );
     });
   });
 
-  describe('verifyLockfile', () => {
-    it('returns agent:null with an explanatory message when no agent has a known skill path', async () => {
-      const config = makeConfig({ agents: [] });
-      const result = await syncService.verifyLockfile(config);
-      expect(result.agent).toBeNull();
+  describe('verifyInstall', () => {
+    it('returns found:false with an empty result when no lockfile exists', async () => {
+      const config = makeConfig({ agents: [Agent.Claude] });
+      const p = privatesOf(syncService);
+      vi.mocked(p.lockfileService.load).mockResolvedValue({
+        lock: null,
+        migratedFromV1: false,
+      });
+
+      const result = await syncService.verifyInstall(config);
+      expect(result.found).toBe(false);
+      expect(result.checked).toBe(0);
       expect(result.result.ok).toBe(false);
-      expect(result.result.missing[0]).toContain('no configured agent');
     });
 
-    it('verifies against the first configured agent by default', async () => {
-      const config = makeConfig({ agents: [Agent.Claude] });
+    it('verifies entries across all agents when no agent is specified', async () => {
+      const config = makeConfig({ agents: [Agent.Claude, Agent.Cursor] });
       const p = privatesOf(syncService);
-      vi.mocked(p.lockfileService.verify).mockResolvedValue({
+      const entries = {
+        '.claude/skills/ts/SKILL.md': {
+          owner: 'skill' as const,
+          source: 's',
+          agent: 'claude',
+          sha256: 'h1',
+        },
+        '.cursor/skills/ts/SKILL.md': {
+          owner: 'skill' as const,
+          source: 's',
+          agent: 'cursor',
+          sha256: 'h2',
+        },
+      };
+      vi.mocked(p.lockfileService.load).mockResolvedValue({
+        lock: {
+          version: 2,
+          registry: 'r',
+          generatedAt: 't',
+          sources: {},
+          entries,
+        },
+        migratedFromV1: false,
+      });
+      vi.mocked(p.lockfileService.verifyEntries).mockResolvedValue({
         ok: true,
         mismatches: [],
         missing: [],
       });
 
-      const result = await syncService.verifyLockfile(config);
+      const result = await syncService.verifyInstall(config);
 
-      expect(result.agent).toBe(Agent.Claude);
-      expect(p.lockfileService.verify).toHaveBeenCalledWith(
+      expect(result.found).toBe(true);
+      expect(result.checked).toBe(2);
+      expect(p.lockfileService.verifyEntries).toHaveBeenCalledWith(
         process.cwd(),
-        expect.stringContaining('.claude/skills'),
+        entries,
+        undefined,
       );
     });
 
-    it('honors an explicit agentId override', async () => {
-      const config = makeConfig({ agents: [Agent.Claude] });
+    it('filters checked count and passes agent to verifyEntries when agent is specified', async () => {
+      const config = makeConfig({ agents: [Agent.Claude, Agent.Cursor] });
       const p = privatesOf(syncService);
-      vi.mocked(p.lockfileService.verify).mockResolvedValue({
+      const entries = {
+        '.claude/skills/ts/SKILL.md': {
+          owner: 'skill' as const,
+          source: 's',
+          agent: 'claude',
+          sha256: 'h1',
+        },
+        '.cursor/skills/ts/SKILL.md': {
+          owner: 'skill' as const,
+          source: 's',
+          agent: 'cursor',
+          sha256: 'h2',
+        },
+      };
+      vi.mocked(p.lockfileService.load).mockResolvedValue({
+        lock: {
+          version: 2,
+          registry: 'r',
+          generatedAt: 't',
+          sources: {},
+          entries,
+        },
+        migratedFromV1: false,
+      });
+      vi.mocked(p.lockfileService.verifyEntries).mockResolvedValue({
         ok: true,
         mismatches: [],
         missing: [],
       });
 
-      const result = await syncService.verifyLockfile(config, Agent.Cursor);
+      const result = await syncService.verifyInstall(config, Agent.Cursor);
 
-      expect(result.agent).toBe(Agent.Cursor);
-      expect(p.lockfileService.verify).toHaveBeenCalledWith(
+      expect(result.found).toBe(true);
+      expect(result.checked).toBe(1);
+      expect(p.lockfileService.verifyEntries).toHaveBeenCalledWith(
         process.cwd(),
-        expect.stringContaining('.cursor/skills'),
+        entries,
+        Agent.Cursor,
       );
     });
   });
+
 
   describe('assembleWorkflows', () => {
     it('should delegate to workflowSyncService for any agent', async () => {
@@ -333,6 +383,7 @@ describe('SyncService', () => {
         [{ skill: 'wf' }],
         config,
         [Agent.Cursor],
+        expect.anything(),
       );
     });
   });
@@ -758,6 +809,7 @@ describe('SyncService', () => {
         [],
         config,
         [],
+        expect.anything(),
       );
     });
 
@@ -775,6 +827,7 @@ describe('SyncService', () => {
         [],
         config,
         [Agent.Claude],
+        expect.anything(),
       );
     });
 
@@ -1038,7 +1091,694 @@ describe('SyncService', () => {
         process.cwd(),
         [Agent.Claude],
         expect.stringContaining('skills/specialists'),
+        expect.anything(),
       );
     });
   });
+
+  describe('resolvePins, lock sources, and moved-tag warnings', () => {
+    it('resolves pins, fetches manifests for pinned sources, and returns ResolvedRefs', async () => {
+      const config = makeConfig({
+        registry: 'https://github.com/owner/repo',
+        skills: { common: { ref: 'v1.0.0' } },
+      });
+      const meta = JSON.stringify({
+        global: { author: 'test', repository: 'https://github.com/owner/repo' },
+        categories: {
+          common: { version: '1.0.0', tag_prefix: 'common-v' },
+          specialists: { version: '2.0.0', tag_prefix: 'specialists-v' },
+        },
+        releases: {
+          workflows: { version: '1.0.0', tag_prefix: 'workflows-v' },
+        },
+      });
+      mockGithubService.getRawFile.mockResolvedValue(meta);
+      mockGithubService.resolveCommit.mockResolvedValue('1111111111111111111111111111111111111111');
+      mockGithubService.getReleaseManifest.mockResolvedValue({
+        schema_version: 1,
+        tag: 'workflows-v1.0.0',
+        commit: '1111111111111111111111111111111111111111',
+        files: {},
+      });
+
+      const resolved = await syncService.resolvePins(config);
+
+      expect(resolved.workflows.ref).toBe('workflows-v1.0.0');
+      expect(resolved.workflows.pinned).toBe(true);
+      expect(resolved.specialists.ref).toBe('specialists-v2.0.0');
+      expect(resolved.specialists.pinned).toBe(true);
+      expect(resolved.newPins).toEqual({
+        workflows_ref: 'workflows-v1.0.0',
+        specialists_ref: 'specialists-v2.0.0',
+      });
+      expect(mockGithubService.getReleaseManifest).toHaveBeenCalledWith(
+        'owner',
+        'repo',
+        'workflows-v1.0.0',
+      );
+    });
+
+    it('prints moved-tag warning when lock commit differs from current resolved commit', async () => {
+      const config = makeConfig({
+        registry: 'https://github.com/owner/repo',
+        workflows_ref: 'workflows-v1.0.0',
+      });
+      const p = privatesOf(syncService);
+      p.lockfileService.load.mockResolvedValue({
+        lock: {
+          version: 2,
+          registry: 'https://github.com/owner/repo',
+          generatedAt: '2026-01-01',
+          sources: {
+            workflows: {
+              ref: 'workflows-v1.0.0',
+              commit: '1111111111111111111111111111111111111111',
+            },
+          },
+          entries: {},
+        },
+        migratedFromV1: false,
+      });
+      mockGithubService.resolveCommit.mockResolvedValue('2222222222222222222222222222222222222222');
+
+      const logSpy = vi.spyOn(console, 'log');
+      await syncService.resolvePins(config);
+
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining('workflows@workflows-v1.0.0 moved: 1111111 → 2222222'),
+      );
+    });
+
+    it('does NOT print moved-tag warning when commits are equal or null', async () => {
+      const config = makeConfig({
+        registry: 'https://github.com/owner/repo',
+        workflows_ref: 'workflows-v1.0.0',
+      });
+      const p = privatesOf(syncService);
+      p.lockfileService.load.mockResolvedValue({
+        lock: {
+          version: 2,
+          registry: 'https://github.com/owner/repo',
+          generatedAt: '2026-01-01',
+          sources: {
+            workflows: {
+              ref: 'workflows-v1.0.0',
+              commit: '1111111111111111111111111111111111111111',
+            },
+          },
+          entries: {},
+        },
+        migratedFromV1: false,
+      });
+      mockGithubService.resolveCommit.mockResolvedValue('1111111111111111111111111111111111111111');
+
+      const logSpy = vi.spyOn(console, 'log');
+      await syncService.resolvePins(config);
+
+      expect(logSpy).not.toHaveBeenCalledWith(
+        expect.stringContaining('moved:'),
+      );
+    });
+
+    it('completeInstall records resolved commits in lock sources', async () => {
+      const config = makeConfig({
+        registry: 'https://github.com/owner/repo',
+        workflows_ref: 'workflows-v1.0.0',
+        skills: { common: { ref: 'common-v1.0.0' } },
+      });
+      mockGithubService.resolveCommit.mockResolvedValue('3333333333333333333333333333333333333333');
+      const p = privatesOf(syncService);
+      p.lockfileService.load.mockResolvedValue({ lock: null, migratedFromV1: false });
+
+      await syncService.resolvePins(config);
+      await syncService.beginInstall(config, { dryRun: false, force: [] });
+      await syncService.completeInstall(config, {
+        skills: [],
+        workflows: [],
+        specialistsOk: true,
+      });
+
+      expect(p.lockfileService.write).toHaveBeenCalledWith(
+        process.cwd(),
+        expect.objectContaining({
+          sources: expect.objectContaining({
+            'skills/common': {
+              ref: 'common-v1.0.0',
+              commit: '3333333333333333333333333333333333333333',
+            },
+            workflows: {
+              ref: 'workflows-v1.0.0',
+              commit: '3333333333333333333333333333333333333333',
+            },
+          }),
+        }),
+      );
+    });
+
+    it('assembleWorkflows uses the resolved tag from resolvePins', async () => {
+      const config = makeConfig({
+        registry: 'https://github.com/owner/repo',
+        workflows: true,
+      });
+      const meta = JSON.stringify({
+        global: { author: 'test', repository: 'https://github.com/owner/repo' },
+        categories: {},
+        releases: {
+          workflows: { version: '2.5.0', tag_prefix: 'workflows-v' },
+        },
+      });
+      mockGithubService.getRawFile.mockResolvedValue(meta);
+      mockGithubService.resolveCommit.mockResolvedValue('1111111111111111111111111111111111111111');
+
+      await syncService.resolvePins(config);
+      await syncService.assembleWorkflows(config);
+
+      expect(mockWorkflowSyncService.assembleWorkflows).toHaveBeenCalledWith(
+        config,
+        'workflows-v2.5.0',
+        expect.anything(),
+      );
+    });
+
+    it('checkForUpdates offers workflows and specialists when pin differs from latest', async () => {
+      const config = makeConfig({
+        registry: 'https://github.com/owner/repo',
+        workflows_ref: 'workflows-v1.0.0',
+        specialists_ref: 'specialists-v1.0.0',
+        skills: {},
+      });
+      const meta = JSON.stringify({
+        global: { author: 'test', repository: 'https://github.com/owner/repo' },
+        categories: {
+          specialists: { version: '2.0.0', tag_prefix: 'specialists-v' },
+        },
+        releases: {
+          workflows: { version: '2.0.0', tag_prefix: 'workflows-v' },
+        },
+      });
+      mockGithubService.getRawFile.mockResolvedValue(meta);
+
+      const updates = await syncService.checkForUpdates(config);
+
+      expect(updates).toEqual({
+        workflows: 'workflows-v2.0.0',
+        specialists: 'specialists-v2.0.0',
+      });
+    });
+
+    // Test intent: formats update refs without prefix when tag_prefix is omitted
+    it('formats update refs without prefix when tag_prefix is omitted', async () => {
+      const config = makeConfig({
+        registry: 'https://github.com/owner/repo',
+        workflows_ref: '1.0.0',
+        specialists_ref: '1.0.0',
+        skills: {},
+      });
+      const meta = JSON.stringify({
+        global: { author: 'test', repository: 'https://github.com/owner/repo' },
+        categories: {
+          specialists: { version: '2.0.0' },
+        },
+        releases: {
+          workflows: { version: '2.0.0' },
+        },
+      });
+      mockGithubService.getRawFile.mockResolvedValue(meta);
+
+      const updates = await syncService.checkForUpdates(config);
+
+      expect(updates).toEqual({
+        workflows: '2.0.0',
+        specialists: '2.0.0',
+      });
+    });
+
+    // Test intent: returns fallback unpinned refs when registry URL is not GitHub
+    it('returns fallback unpinned refs when registry URL is not GitHub', async () => {
+      const resolved = await syncService.resolvePins(
+        makeConfig({ registry: 'https://gitlab.com/other/repo' }),
+      );
+      expect(resolved.workflows.pinned).toBe(false);
+      expect(resolved.specialists.pinned).toBe(false);
+      expect(resolved.skills).toEqual({});
+    });
+  });
+
+  describe('source commits, attestations, and install lifecycle', () => {
+    // Test intent: returns empty array when registry is not a valid GitHub URL
+    it('checkSourceCommits returns empty array for non-GitHub registry', async () => {
+      const res = await syncService.checkSourceCommits(
+        makeConfig({ registry: 'https://gitlab.com/owner/repo' }),
+      );
+      expect(res).toEqual([]);
+    });
+
+    // Test intent: returns empty array when lockfile has no sources
+    it('checkSourceCommits returns empty array when lockfile contains no sources', async () => {
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: null,
+        migratedFromV1: false,
+      });
+      const res = await syncService.checkSourceCommits(
+        makeConfig({ registry: 'https://github.com/owner/repo' }),
+      );
+      expect(res).toEqual([]);
+    });
+
+    // Test intent: returns differences when remote commits differ from locked commits
+    it('checkSourceCommits returns differences when remote commits differ from locked commits', async () => {
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: {
+          version: 2,
+          sources: {
+            'skills/common': { ref: 'v1.0.0', commit: 'old-commit' },
+            workflows: { ref: 'v2.0.0', commit: 'same-commit' },
+          },
+        },
+        migratedFromV1: false,
+      });
+      mockGithubService.resolveCommit.mockImplementation((_o, _r, ref) =>
+        Promise.resolve(ref === 'v1.0.0' ? 'new-commit' : 'same-commit'),
+      );
+
+      const res = await syncService.checkSourceCommits(
+        makeConfig({ registry: 'https://github.com/owner/repo' }),
+      );
+      expect(res).toEqual([
+        {
+          key: 'skills/common',
+          ref: 'v1.0.0',
+          locked: 'old-commit',
+          current: 'new-commit',
+        },
+      ]);
+    });
+
+    // Test intent: returns empty array when registry is not a GitHub URL for attestations
+    it('verifyAttestations returns empty array for non-GitHub registry', async () => {
+      const res = await syncService.verifyAttestations(
+        makeConfig({ registry: 'https://gitlab.com/owner/repo' }),
+      );
+      expect(res).toEqual([]);
+    });
+
+    // Test intent: returns empty array when lockfile contains no sources for attestations
+    it('verifyAttestations returns empty array when lockfile has no sources', async () => {
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: null,
+        migratedFromV1: false,
+      });
+      const res = await syncService.verifyAttestations(
+        makeConfig({ registry: 'https://github.com/owner/repo' }),
+      );
+      expect(res).toEqual([]);
+    });
+
+    // Test intent: skips unpinned refs (main, master, default-branch) and reports missing manifest
+    it('verifyAttestations skips unpinned refs and flags missing manifest', async () => {
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: {
+          version: 2,
+          sources: {
+            'skills/unpinned': { ref: 'main', commit: '111' },
+            'skills/pinned': { ref: 'v1.0.0', commit: '222' },
+          },
+        },
+        migratedFromV1: false,
+      });
+      mockGithubService.getReleaseManifest.mockResolvedValue(null);
+
+      const res = await syncService.verifyAttestations(
+        makeConfig({ registry: 'https://github.com/owner/repo' }),
+      );
+      expect(res).toEqual([
+        {
+          key: 'skills/pinned',
+          ref: 'v1.0.0',
+          ok: false,
+          detail: 'no MANIFEST.json for this release',
+        },
+      ]);
+    });
+
+    // Test intent: verifies attestations with custom exec returning code 0
+    it('verifyAttestations verifies attestations successfully when gh command succeeds', async () => {
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: {
+          version: 2,
+          sources: {
+            'skills/pinned': { ref: 'v1.0.0', commit: '222' },
+          },
+        },
+        migratedFromV1: false,
+      });
+      mockGithubService.getReleaseManifest.mockResolvedValue({
+        version: 1,
+        schema: 'manifest',
+      });
+      const mockExec = vi.fn().mockResolvedValue({ code: 0, stderr: '' });
+
+      const res = await syncService.verifyAttestations(
+        makeConfig({ registry: 'https://github.com/owner/repo' }),
+        mockExec,
+      );
+      expect(res).toEqual([
+        {
+          key: 'skills/pinned',
+          ref: 'v1.0.0',
+          ok: true,
+          detail: 'attestation verified',
+        },
+      ]);
+    });
+
+    // Test intent: reports failure detail when gh command exits non-zero with stderr
+    it('verifyAttestations reports failure when gh verification fails with stderr', async () => {
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: {
+          version: 2,
+          sources: {
+            'skills/pinned': { ref: 'v1.0.0', commit: '222' },
+          },
+        },
+        migratedFromV1: false,
+      });
+      mockGithubService.getReleaseManifest.mockResolvedValue({
+        version: 1,
+        schema: 'manifest',
+      });
+      const mockExecFail = vi
+        .fn()
+        .mockResolvedValue({ code: 1, stderr: 'signature check failed' });
+
+      const res = await syncService.verifyAttestations(
+        makeConfig({ registry: 'https://github.com/owner/repo' }),
+        mockExecFail,
+      );
+      expect(res).toEqual([
+        {
+          key: 'skills/pinned',
+          ref: 'v1.0.0',
+          ok: false,
+          detail: 'signature check failed',
+        },
+      ]);
+    });
+
+    // Test intent: reports default failure message when gh verification fails without stderr
+    it('verifyAttestations reports exit code when gh fails with empty stderr', async () => {
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: {
+          version: 2,
+          sources: {
+            'skills/pinned': { ref: 'v1.0.0', commit: '222' },
+          },
+        },
+        migratedFromV1: false,
+      });
+      mockGithubService.getReleaseManifest.mockResolvedValue({
+        version: 1,
+        schema: 'manifest',
+      });
+      const mockExecEmptyStderr = vi
+        .fn()
+        .mockResolvedValue({ code: 3, stderr: '' });
+
+      const res = await syncService.verifyAttestations(
+        makeConfig({ registry: 'https://github.com/owner/repo' }),
+        mockExecEmptyStderr,
+      );
+      expect(res).toEqual([
+        {
+          key: 'skills/pinned',
+          ref: 'v1.0.0',
+          ok: false,
+          detail: 'verification failed with exit code 3',
+        },
+      ]);
+    });
+
+    // Test intent: throws informative error when gh CLI is missing (ENOENT)
+    it('verifyAttestations throws when gh CLI executable is missing', async () => {
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: {
+          version: 2,
+          sources: {
+            'skills/pinned': { ref: 'v1.0.0', commit: '222' },
+          },
+        },
+        migratedFromV1: false,
+      });
+      mockGithubService.getReleaseManifest.mockResolvedValue({
+        version: 1,
+        schema: 'manifest',
+      });
+      const mockExecEnoent = vi
+        .fn()
+        .mockRejectedValue({ code: 'ENOENT', message: 'spawn gh ENOENT' });
+
+      await expect(
+        syncService.verifyAttestations(
+          makeConfig({ registry: 'https://github.com/owner/repo' }),
+          mockExecEnoent,
+        ),
+      ).rejects.toThrow('gh CLI not found; install GitHub CLI to verify attestations');
+    });
+
+    // Test intent: records failure detail when execution throws generic error
+    it('verifyAttestations records error message when exec throws generic error', async () => {
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: {
+          version: 2,
+          sources: {
+            'skills/pinned': { ref: 'v1.0.0', commit: '222' },
+          },
+        },
+        migratedFromV1: false,
+      });
+      mockGithubService.getReleaseManifest.mockResolvedValue({
+        version: 1,
+        schema: 'manifest',
+      });
+      const mockExecGeneric = vi
+        .fn()
+        .mockRejectedValue(new Error('network connection lost'));
+
+      const res = await syncService.verifyAttestations(
+        makeConfig({ registry: 'https://github.com/owner/repo' }),
+        mockExecGeneric,
+      );
+      expect(res).toEqual([
+        {
+          key: 'skills/pinned',
+          ref: 'v1.0.0',
+          ok: false,
+          detail: 'network connection lost',
+        },
+      ]);
+    });
+
+    // Test intent: throws error when completeInstall is called before beginInstall
+    it('completeInstall throws when called before beginInstall', async () => {
+      await expect(
+        syncService.completeInstall(makeConfig(), {
+          skills: [],
+          workflows: [],
+          specialistsOk: true,
+        }),
+      ).rejects.toThrow('beginInstall() must run before completeInstall()');
+    });
+
+    // Test intent: handles specialist, bridge, and unknown agent pruning rules during finalize
+    it('completeInstall evaluates specialist, bridge, and agent pruning rules during finalize', async () => {
+      vi.mocked(sha256).mockImplementation((c) =>
+        createHash('sha256').update(c).digest('hex'),
+      );
+      const specContent = 'spec content';
+      const bridgeContent = 'bridge content';
+      const orphanContent = 'orphan content';
+      const unfetchedContent = 'unfetched content';
+
+      const specSha = createHash('sha256').update(specContent).digest('hex');
+      const bridgeSha = createHash('sha256').update(bridgeContent).digest('hex');
+      const orphanSha = createHash('sha256').update(orphanContent).digest('hex');
+      const unfetchedSha = createHash('sha256').update(unfetchedContent).digest('hex');
+
+      const prevEntries = {
+        'agent1/spec.md': {
+          owner: 'specialist' as const,
+          agent: 'cursor',
+          source: 'specialist:s1',
+          sha256: specSha,
+        },
+        'agent1/bridge.md': {
+          owner: 'bridge' as const,
+          agent: 'cursor',
+          source: 'bridge:b1',
+          sha256: bridgeSha,
+        },
+        'agent2/orphan.md': {
+          owner: 'skill' as const,
+          agent: 'other-agent',
+          source: 'skill:common/s2',
+          sha256: orphanSha,
+        },
+        'agent1/unfetched.md': {
+          owner: 'skill' as const,
+          agent: 'cursor',
+          source: 'skill:common/s3',
+          sha256: unfetchedSha,
+        },
+      };
+
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: {
+          version: 2,
+          entries: prevEntries,
+        },
+        migratedFromV1: false,
+      });
+
+      vi.mocked(fs.pathExists).mockImplementation(async (p) =>
+        p.toString().endsWith('.md'),
+      );
+      vi.mocked(fs.readdir).mockResolvedValue(['sibling-file.md'] as unknown as string[]);
+      vi.mocked(fs.readFile).mockImplementation(async (p) => {
+        const pStr = p.toString();
+        if (pStr.includes('spec.md')) return specContent;
+        if (pStr.includes('bridge.md')) return bridgeContent;
+        if (pStr.includes('orphan.md')) return 'user-edited-orphan-content';
+        if (pStr.includes('unfetched.md')) return unfetchedContent;
+        return '';
+      });
+
+      const config = makeConfig({ prune: true, skills: { common: {} } });
+      await syncService.beginInstall(config, { dryRun: false, force: [] });
+      const plan = await syncService.completeInstall(config, {
+        skills: [],
+        workflows: [],
+        specialistsOk: true,
+      });
+
+      // Completed groups with unchanged files are pruned
+      expect(plan.pruned).toEqual(['agent1/bridge.md', 'agent1/spec.md']);
+      // Unconfigured agent whose file was edited by user is kept as orphan
+      expect(plan.keptOrphans).toEqual(['agent2/orphan.md']);
+      // Unfetched group/category files are retained in lockfile entries
+      expect(privatesOf(syncService).lockfileService.write).toHaveBeenCalledWith(
+        process.cwd(),
+        expect.objectContaining({
+          entries: {
+            'agent1/unfetched.md': prevEntries['agent1/unfetched.md'],
+          },
+        }),
+      );
+    });
+
+    // Test intent: preserves entries when pruning is disabled in configuration
+    it('completeInstall retains entries when prune is explicitly disabled', async () => {
+      const prevEntry = {
+        owner: 'specialist' as const,
+        agent: 'cursor',
+        source: 'specialist:s1',
+        sha256: 'abc',
+      };
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: {
+          version: 2,
+          entries: {
+            'agent1/spec.md': prevEntry,
+          },
+        },
+        migratedFromV1: false,
+      });
+      const config = makeConfig({ prune: false });
+      await syncService.beginInstall(config, { dryRun: false, force: [] });
+      const plan = await syncService.completeInstall(config, {
+        skills: [],
+        workflows: [],
+        specialistsOk: true,
+      });
+      expect(plan.pruned).toEqual([]);
+      expect(plan.keptOrphans).toEqual([]);
+      expect(privatesOf(syncService).lockfileService.write).toHaveBeenCalledWith(
+        process.cwd(),
+        expect.objectContaining({
+          entries: {
+            'agent1/spec.md': prevEntry,
+          },
+        }),
+      );
+    });
+
+    // Test intent: does not write lockfile during dryRun completeInstall
+    it('completeInstall does not write lockfile when dryRun is true', async () => {
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: null,
+        migratedFromV1: false,
+      });
+      const config = makeConfig();
+      await syncService.beginInstall(config, { dryRun: true, force: [] });
+      await syncService.completeInstall(config, {
+        skills: [],
+        workflows: [],
+        specialistsOk: true,
+      });
+      expect(privatesOf(syncService).lockfileService.write).not.toHaveBeenCalled();
+    });
+
+    // Test intent: builds sources using default refs when resolvedRefs is not set
+    it('completeInstall builds sources using default refs when resolvedRefs is absent', async () => {
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: null,
+        migratedFromV1: false,
+      });
+      const config = makeConfig({
+        registry: 'https://github.com/owner/repo',
+        skills: { custom: { ref: 'feature-branch' } },
+      });
+      await syncService.beginInstall(config, { dryRun: false, force: [] });
+      await syncService.completeInstall(config, {
+        skills: [],
+        workflows: [],
+        specialistsOk: true,
+      });
+      expect(privatesOf(syncService).lockfileService.write).toHaveBeenCalledWith(
+        process.cwd(),
+        expect.objectContaining({
+          sources: expect.objectContaining({
+            'skills/custom': { ref: 'feature-branch', commit: null },
+            workflows: { ref: 'default-branch', commit: null },
+            specialists: { ref: 'default-branch', commit: null },
+          }),
+        }),
+      );
+    });
+
+    // Test intent: reuses cached registry metadata across multiple calls
+    it('caches registry metadata across multiple fetch calls', async () => {
+      const config = makeConfig({ registry: 'https://github.com/owner/repo' });
+      mockGithubService.getRawFile.mockResolvedValue(
+        JSON.stringify({ global: {}, categories: {}, releases: {} }),
+      );
+      await syncService.resolvePins(config);
+      await syncService.checkForUpdates(config);
+      expect(mockGithubService.getRawFile).toHaveBeenCalledTimes(1);
+    });
+
+    // Test intent: logs dry-run message when applying indices in dry-run mode
+    it('logs dry-run message when applyIndices runs in dryRun mode', async () => {
+      privatesOf(syncService).lockfileService.load.mockResolvedValue({
+        lock: null,
+        migratedFromV1: false,
+      });
+      const consoleSpy = vi.spyOn(console, 'log');
+      const config = makeConfig({ agents: [Agent.Cursor] });
+      await syncService.beginInstall(config, { dryRun: true, force: [] });
+      await syncService.applyIndices(config, [Agent.Cursor]);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('(dry-run) would update AGENTS.md'),
+      );
+    });
+});
 });

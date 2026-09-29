@@ -2,6 +2,7 @@
 name: evals-run
 description: "Workflow skill for evals run."
 metadata:
+  internal: true
   triggers:
     keywords:
     - evals run

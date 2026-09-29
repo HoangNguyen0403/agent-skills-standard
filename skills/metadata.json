@@ -290,7 +290,7 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.8.0",
+      "version": "1.8.1",
       "last_updated": "2026-07-15",
       "tag_prefix": "flutter-v",
       "token_metrics": {
@@ -482,13 +482,13 @@
       ]
     },
     "common": {
-      "version": "2.6.0",
-      "last_updated": "2026-09-22",
+      "version": "2.7.0",
+      "last_updated": "2026-09-28",
       "tag_prefix": "common-v",
       "token_metrics": {
-        "total_skills": 42,
-        "total_tokens": 35274,
-        "avg_tokens_per_skill": 840,
+        "total_skills": 43,
+        "total_tokens": 36320,
+        "avg_tokens_per_skill": 845,
         "largest_skill": "common-skill-creator (1646 tokens)"
       },
       "owners": [
@@ -520,14 +520,14 @@
       ]
     },
     "specialists": {
-      "version": "1.4.0",
-      "last_updated": "2026-09-23",
+      "version": "1.5.0",
+      "last_updated": "2026-09-28",
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 12049,
-        "avg_tokens_per_skill": 574,
-        "largest_skill": "specialist-solution-diagrammer (1025 tokens)"
+        "total_tokens": 12137,
+        "avg_tokens_per_skill": 578,
+        "largest_skill": "specialist-solution-diagrammer (1030 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -846,6 +846,12 @@
       "owners": [
         "HoangNguyen0403"
       ]
+    }
+  },
+  "releases": {
+    "workflows": {
+      "version": "1.0.0",
+      "tag_prefix": "workflows-v"
     }
   },
   "revocations": []

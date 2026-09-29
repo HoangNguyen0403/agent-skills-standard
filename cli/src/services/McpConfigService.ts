@@ -2,9 +2,15 @@ import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
 import { Agent } from '../constants';
+import { AGENT_CAPABILITIES } from '../capabilities/agentCapabilities';
 import { MCP_COMPATIBLE_VERSION } from '../constants/mcp';
 import { McpConfig } from '../models/config';
-
+import {
+  hasTomlMcpServer,
+  removeTomlMcpServer,
+  renderTomlMcpServer,
+  upsertTomlMcpServer,
+} from './utils/codexTomlMcp';
 /**
  * Per-runtime MCP config-file location and JSON path.
  *
@@ -27,219 +33,40 @@ export interface McpTarget {
   key: string;
   /** Whether the runtime stores servers as a map (key = server name) or a list. */
   shape: 'map' | 'list';
+  /** Configuration file format. Defaults to 'json'. */
+  format?: 'json' | 'toml';
+  /** Legacy JSON files to clean up when migrating to a new format. */
+  legacyJson?: { projectFile: string | null; userFile: string | null };
 }
 
 export const SERVER_NAME = 'agent-skills-standard';
 export const PACKAGE = 'agent-skills-standard-mcp';
 
-const getTargets = (home = os.homedir()): Record<string, McpTarget> => {
-  const HOME = home;
-  return {
-    [Agent.Claude]: {
-      agent: Agent.Claude,
-      projectFile: '.mcp.json',
-      userFile: path.join(HOME, '.claude', '.mcp.json'),
-      key: 'mcpServers',
-      shape: 'map',
-    },
-    [Agent.Cursor]: {
-      agent: Agent.Cursor,
-      projectFile: '.cursor/mcp.json',
-      userFile: (() => {
-        if (process.platform === 'win32') {
-          return path.join(
-            HOME,
-            'AppData',
-            'Roaming',
-            'Cursor',
-            'User',
-            'globalStorage',
-            'mcp.json',
-          );
-        }
-        if (process.platform === 'darwin') {
-          return path.join(
-            HOME,
-            'Library',
-            'Application Support',
-            'Cursor',
-            'User',
-            'globalStorage',
-            'mcp.json',
-          );
-        }
-        if (process.platform === 'linux') {
-          return path.join(
-            HOME,
-            '.config',
-            'Cursor',
-            'User',
-            'globalStorage',
-            'mcp.json',
-          );
-        }
-        return path.join(HOME, '.cursor', 'mcp.json');
-      })(),
-      key: 'mcpServers',
-      shape: 'map',
-    },
-    [Agent.Antigravity]: {
-      agent: Agent.Antigravity,
-      projectFile: '.antigravity/mcp_config.json',
-      userFile: (() => {
-        if (process.platform === 'win32') {
-          return path.join(
-            HOME,
-            'AppData',
-            'Local',
-            'Google',
-            'Antigravity',
-            'mcp_config.json',
-          );
-        }
-        if (process.platform === 'darwin') {
-          return path.join(
-            HOME,
-            'Library',
-            'Application Support',
-            'Google',
-            'Antigravity',
-            'mcp_config.json',
-          );
-        }
-        return path.join(HOME, '.gemini', 'antigravity', 'mcp_config.json');
-      })(),
-      key: 'mcpServers',
-      shape: 'map',
-    },
-    [Agent.Kiro]: {
-      agent: Agent.Kiro,
-      projectFile: '.kiro/settings/mcp.json',
-      userFile: (() => {
-        if (process.platform === 'win32') {
-          return path.join(
-            HOME,
-            'AppData',
-            'Roaming',
-            'Kiro',
-            'settings',
-            'mcp.json',
-          );
-        }
-        return path.join(HOME, '.kiro', 'settings', 'mcp.json');
-      })(),
-      key: 'mcpServers',
-      shape: 'map',
-    },
-    [Agent.Windsurf]: {
-      agent: Agent.Windsurf,
-      projectFile: '.codeium/windsurf/mcp_config.json',
-      userFile: (() => {
-        if (process.platform === 'win32') {
-          return path.join(
-            HOME,
-            'AppData',
-            'Roaming',
-            'Codeium',
-            'Windsurf',
-            'mcp_config.json',
-          );
-        }
-        if (process.platform === 'darwin') {
-          return path.join(
-            HOME,
-            'Library',
-            'Application Support',
-            'Codeium',
-            'Windsurf',
-            'mcp_config.json',
-          );
-        }
-        return path.join(HOME, '.codeium', 'windsurf', 'mcp_config.json');
-      })(),
-      key: 'mcpServers',
-      shape: 'map',
-    },
-    [Agent.Trae]: {
-      agent: Agent.Trae,
-      projectFile: '.trae/mcp.json',
-      userFile: null,
-      key: 'mcpServers',
-      shape: 'map',
-    },
-    [Agent.Roo]: {
-      agent: Agent.Roo,
-      projectFile: '.roo/mcp_config.json',
-      userFile: null,
-      key: 'mcpServers',
-      shape: 'map',
-    },
-    [Agent.Gemini]: {
-      agent: Agent.Gemini,
-      projectFile: '.gemini/settings.json',
-      userFile: path.join(HOME, '.gemini', 'settings.json'),
-      key: 'mcpServers',
-      shape: 'map',
-    },
-    [Agent.Copilot]: {
-      agent: Agent.Copilot,
-      projectFile: '.github/mcp.json',
-      userFile: (() => {
-        if (process.platform === 'darwin') {
-          return path.join(
-            HOME,
-            'Library',
-            'Application Support',
-            'Code',
-            'User',
-            'globalStorage',
-            'github.copilot-chat',
-            'mcp.json',
-          );
-        }
-        if (process.platform === 'win32') {
-          return path.join(
-            HOME,
-            'AppData',
-            'Roaming',
-            'Code',
-            'User',
-            'globalStorage',
-            'github.copilot-chat',
-            'mcp.json',
-          );
-        }
-        if (process.platform === 'linux') {
-          return path.join(
-            HOME,
-            '.config',
-            'Code',
-            'User',
-            'globalStorage',
-            'github.copilot-chat',
-            'mcp.json',
-          );
-        }
-        return null;
-      })(),
-      key: 'mcpServers',
-      shape: 'map',
-    },
-    [Agent.OpenCode]: {
-      agent: Agent.OpenCode,
-      projectFile: '.opencode/mcp_config.json',
-      userFile: path.join(HOME, '.opencode', 'mcp_config.json'),
-      key: 'mcpServers',
-      shape: 'map',
-    },
-    [Agent.Codex]: {
-      agent: Agent.Codex,
-      projectFile: '.codex/mcp_config.json',
-      userFile: path.join(HOME, '.codex', 'mcp_config.json'),
-      key: 'mcpServers',
-      shape: 'map',
-    },
-  };
+const getTargets = (
+  home = os.homedir(),
+  platform: NodeJS.Platform = process.platform,
+): Record<string, McpTarget> => {
+  const out: Record<string, McpTarget> = {};
+  for (const agent of Object.values(Agent)) {
+    const spec = AGENT_CAPABILITIES[agent].mcp;
+    if (!spec) continue;
+    const target: McpTarget = {
+      agent,
+      projectFile: spec.projectFile,
+      userFile: spec.userFile(home, platform),
+      key: spec.key,
+      shape: spec.shape,
+    };
+    if (spec.format) target.format = spec.format;
+    if (spec.legacyJson) {
+      target.legacyJson = {
+        projectFile: spec.legacyJson.projectFile,
+        userFile: spec.legacyJson.userFile(home),
+      };
+    }
+    out[agent] = target;
+  }
+  return out;
 };
 
 /** What a sync/install pass actually did, returned for reporting. */
@@ -346,6 +173,11 @@ export class McpConfigService {
         const abs = path.join(rootDir, target.projectFile);
         const action = await this.mergeFile(abs, target, entry);
         report.projectWrites.push({ agent, file: target.projectFile, action });
+        if (target.legacyJson?.projectFile) {
+          await this.cleanupLegacyJson(
+            path.join(rootDir, target.legacyJson.projectFile),
+          );
+        }
       }
 
       // User-scope writes — only with scope === 'user' AND per-file consent.
@@ -359,6 +191,9 @@ export class McpConfigService {
         }
         const action = await this.mergeFile(target.userFile, target, entry);
         report.userWrites.push({ agent, file: target.userFile, action });
+        if (target.legacyJson?.userFile) {
+          await this.cleanupLegacyJson(target.legacyJson.userFile);
+        }
       }
     }
 
@@ -399,6 +234,21 @@ export class McpConfigService {
         if (!(await fs.pathExists(abs))) continue;
         const removedHere = await this.removeFromFile(abs, target);
         if (removedHere) removed.push({ agent, file: rel });
+      }
+
+      if (
+        target.legacyJson?.projectFile &&
+        (opts.from === 'project' || opts.from === 'all')
+      ) {
+        await this.cleanupLegacyJson(
+          path.join(opts.rootDir, target.legacyJson.projectFile),
+        );
+      }
+      if (
+        target.legacyJson?.userFile &&
+        (opts.from === 'user' || opts.from === 'all')
+      ) {
+        await this.cleanupLegacyJson(target.legacyJson.userFile);
       }
     }
     return { removed };
@@ -445,10 +295,20 @@ export class McpConfigService {
     for (const agent of agents) {
       const target = TARGETS[agent];
       if (!target) continue;
-      const file = path.join(dir, `${agent}.json`);
-      const snippet = this.buildFreshDoc(target, entry);
-      await fs.writeJson(file, snippet, { spaces: 2 });
-      report.snippets.push({ agent, file: path.relative(rootDir, file) });
+      if (target.format === 'toml') {
+        const file = path.join(dir, `${agent}.toml`);
+        await fs.writeFile(
+          file,
+          renderTomlMcpServer(SERVER_NAME, entry),
+          'utf8',
+        );
+        report.snippets.push({ agent, file: path.relative(rootDir, file) });
+      } else {
+        const file = path.join(dir, `${agent}.json`);
+        const snippet = this.buildFreshDoc(target, entry);
+        await fs.writeJson(file, snippet, { spaces: 2 });
+        report.snippets.push({ agent, file: path.relative(rootDir, file) });
+      }
     }
   }
 
@@ -461,6 +321,16 @@ export class McpConfigService {
     target: McpTarget,
     entry: { command: string; args: string[] },
   ): Promise<'added' | 'updated' | 'skipped-existing'> {
+    if (target.format === 'toml') {
+      const text = (await fs.pathExists(abs))
+        ? await fs.readFile(abs, 'utf8')
+        : '';
+      const r = upsertTomlMcpServer(text, SERVER_NAME, entry);
+      if (r.action !== 'skipped-existing') {
+        await this.writeAtomicText(abs, r.content);
+      }
+      return r.action;
+    }
     const existing = (await fs.pathExists(abs))
       ? ((await fs.readJson(abs).catch(() => ({}))) as Record<string, unknown>)
       : {};
@@ -501,6 +371,15 @@ export class McpConfigService {
     abs: string,
     target: McpTarget,
   ): Promise<boolean> {
+    if (target.format === 'toml') {
+      if (!(await fs.pathExists(abs))) return false;
+      const r = removeTomlMcpServer(
+        await fs.readFile(abs, 'utf8'),
+        SERVER_NAME,
+      );
+      if (r.removed) await this.writeAtomicText(abs, r.content);
+      return r.removed;
+    }
     const data = (await fs.readJson(abs).catch(() => null)) as Record<
       string,
       unknown
@@ -526,6 +405,9 @@ export class McpConfigService {
 
   private async hasOurEntry(abs: string, target: McpTarget): Promise<boolean> {
     if (!(await fs.pathExists(abs))) return false;
+    if (target.format === 'toml') {
+      return hasTomlMcpServer(await fs.readFile(abs, 'utf8'), SERVER_NAME);
+    }
     const data = (await fs.readJson(abs).catch(() => null)) as Record<
       string,
       unknown
@@ -634,6 +516,24 @@ export class McpConfigService {
     const tmp = `${abs}.tmp`;
     await fs.writeJson(tmp, data, { spaces: 2 });
     await fs.move(tmp, abs, { overwrite: true });
+  }
+
+  private async writeAtomicText(abs: string, text: string): Promise<void> {
+    await fs.ensureDir(path.dirname(abs));
+    const tmp = `${abs}.tmp`;
+    await fs.writeFile(tmp, text, 'utf8');
+    await fs.move(tmp, abs, { overwrite: true });
+  }
+
+  private async cleanupLegacyJson(abs: string): Promise<void> {
+    if (!(await fs.pathExists(abs))) return;
+    await this.removeFromFile(abs, {
+      agent: Agent.Codex,
+      projectFile: null,
+      userFile: null,
+      key: 'mcpServers',
+      shape: 'map',
+    });
   }
 }
 

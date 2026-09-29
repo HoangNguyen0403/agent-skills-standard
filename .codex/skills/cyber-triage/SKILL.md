@@ -2,6 +2,7 @@
 name: cyber-triage
 description: "Evidence-led blue incident triage with authorization and runtime gates."
 metadata:
+  internal: true
   triggers:
     keywords:
     - cyber triage

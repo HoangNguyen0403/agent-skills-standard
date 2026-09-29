@@ -3,13 +3,14 @@ import path from "path";
 import pc from "picocolors";
 import { buildTagName } from "./release-utils";
 
-interface CategoryMetadata {
+export interface ReleaseEntryConfig {
   version?: string;
   tag_prefix?: string;
 }
 
-interface RegistryMetadata {
-  categories?: Record<string, CategoryMetadata>;
+export interface RegistryMetadata {
+  categories?: Record<string, ReleaseEntryConfig>;
+  releases?: Record<string, ReleaseEntryConfig>;
 }
 
 const ROOT_DIR = path.resolve(__dirname, "..");
@@ -30,7 +31,7 @@ const PUBLISH_WORKFLOW_PATH = path.join(
  * such as `skillspector-verified-v<date>`, whose category lookup would fail the
  * release job.
  */
-async function publishTriggerPatterns(): Promise<string[] | null> {
+export async function publishTriggerPatterns(): Promise<string[] | null> {
   if (!(await fs.pathExists(PUBLISH_WORKFLOW_PATH))) return null;
   const content = await fs.readFile(PUBLISH_WORKFLOW_PATH, "utf8");
   const triggerBlock = content.split(/^permissions:/m)[0] ?? "";
@@ -39,46 +40,63 @@ async function publishTriggerPatterns(): Promise<string[] | null> {
   );
 }
 
-async function main() {
+export function validateReleaseEntry(
+  name: string,
+  config: ReleaseEntryConfig,
+  patterns: string[] | null,
+): string[] {
+  const failures: string[] = [];
+
+  if (!config.version) {
+    failures.push(`${name}: missing version`);
+    return failures;
+  }
+
+  if (!config.tag_prefix) {
+    failures.push(`${name}: missing tag_prefix`);
+    return failures;
+  }
+
+  const tagName = buildTagName(config.tag_prefix, config.version);
+  if (!tagName.startsWith(config.tag_prefix)) {
+    failures.push(
+      `${name}: tag "${tagName}" does not start with "${config.tag_prefix}"`,
+    );
+  }
+
+  if (!tagName.endsWith(config.version)) {
+    failures.push(
+      `${name}: tag "${tagName}" does not end with version "${config.version}"`,
+    );
+  }
+
+  if (patterns && !patterns.includes(`${config.tag_prefix}*`)) {
+    failures.push(
+      `${name}: .github/workflows/publish.yml has no trigger for "${config.tag_prefix}*" — ` +
+        `releasing this category would push a tag that publishes nothing`,
+    );
+  }
+
+  return failures;
+}
+
+export async function main() {
   if (!(await fs.pathExists(METADATA_PATH))) {
     throw new Error(`Metadata file not found at ${METADATA_PATH}`);
   }
 
   const metadata = (await fs.readJson(METADATA_PATH)) as RegistryMetadata;
   const categories = metadata.categories ?? {};
+  const releases = metadata.releases ?? {};
   const failures: string[] = [];
   const patterns = await publishTriggerPatterns();
 
   for (const [category, config] of Object.entries(categories)) {
-    if (!config.version) {
-      failures.push(`${category}: missing version`);
-      continue;
-    }
+    failures.push(...validateReleaseEntry(category, config, patterns));
+  }
 
-    if (!config.tag_prefix) {
-      failures.push(`${category}: missing tag_prefix`);
-      continue;
-    }
-
-    const tagName = buildTagName(config.tag_prefix, config.version);
-    if (!tagName.startsWith(config.tag_prefix)) {
-      failures.push(
-        `${category}: tag "${tagName}" does not start with "${config.tag_prefix}"`,
-      );
-    }
-
-    if (!tagName.endsWith(config.version)) {
-      failures.push(
-        `${category}: tag "${tagName}" does not end with version "${config.version}"`,
-      );
-    }
-
-    if (patterns && !patterns.includes(`${config.tag_prefix}*`)) {
-      failures.push(
-        `${category}: .github/workflows/publish.yml has no trigger for "${config.tag_prefix}*" — ` +
-          `releasing this category would push a tag that publishes nothing`,
-      );
-    }
+  for (const [releaseName, config] of Object.entries(releases)) {
+    failures.push(...validateReleaseEntry(releaseName, config, patterns));
   }
 
   if (patterns === null) {
@@ -90,6 +108,7 @@ async function main() {
   } else {
     const knownPrefixes = new Set([
       ...Object.values(categories).map((config) => `${config.tag_prefix}*`),
+      ...Object.values(releases).map((config) => `${config.tag_prefix}*`),
       "cli-v*",
       "mcp-v*",
     ]);
@@ -112,15 +131,23 @@ async function main() {
     process.exit(1);
   }
 
+  const categoryCount = Object.keys(categories).length;
+  const releaseCount = Object.keys(releases).length;
   console.log(
     pc.green(
-      `✅ Release tag validation passed for ${Object.keys(categories).length} categories, each reachable from publish.yml.`,
+      `✅ Release tag validation passed for ${categoryCount} categories and ${releaseCount} releases, each reachable from publish.yml.`,
     ),
   );
 }
 
-main().catch((error) => {
-  const message = error instanceof Error ? error.message : String(error);
-  console.error(pc.red(`❌ ${message}`));
-  process.exit(1);
-});
+const isDirectRun =
+  Boolean(process.argv[1]) &&
+  path.resolve(process.argv[1]) === path.resolve(__filename);
+
+if (isDirectRun) {
+  main().catch((error) => {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(pc.red(`❌ ${message}`));
+    process.exit(1);
+  });
+}

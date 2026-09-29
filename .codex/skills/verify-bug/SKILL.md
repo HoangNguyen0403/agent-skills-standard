@@ -2,6 +2,7 @@
 name: verify-bug
 description: "Post-merge UAT verification workflow. Walks JIRA reproduce steps, performs comparative audits (Before/After), attaches evidence to JIRA, and transitions status on PASS."
 metadata:
+  internal: true
   triggers:
     keywords:
     - verify bug

@@ -54,7 +54,7 @@ Frame the business "Why" before product or technical specs.
 
 ## Anti-Patterns
 
-- No solution design in BRD.
+- No solution design in a Why-lane BRD; Direction-lane briefs record technical options per `common-decision-discipline`.
 - No vague goals ("improve efficiency") without baseline and target.
 - No missing owners for objectives or risks.
 - No coding or QA routing before the BA owner, value metric, and scope fence are clear.

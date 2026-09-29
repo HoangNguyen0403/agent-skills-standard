@@ -2,6 +2,7 @@
 name: specialist-aspm-correlator
 description: Application Security Posture Management persona. Correlates findings from SAST, DAST, and SCA tools, deduplicates noise, maps vulnerabilities to specific code commits, and generates targeted remediation PRs.
 metadata:
+  internal: true
   triggers:
     keywords:
     - aspm correlator

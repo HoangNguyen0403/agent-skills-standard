@@ -11,6 +11,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Recent Releases**: [Specialists v1.3.0](#specialists-v130---2026-09-15) • [System Design v1.1.0](#system-design-v110---2026-09-15) • [CLI v2.6.2](#cli-v262---2026-09-13) • [Common v2.5.0](#common-v250---2026-09-09) • [System Design v1.0.0](#system-design-v100---2026-08-30) • [CLI v2.6.1](#cli-v261---2026-08-22) • [CLI v2.6.0 / MCP v0.6.0](#cli-v260--mcp-v060---2026-07-09)
 - **Archive**: [v2.0–v2.1](#213---2026-04-22) • [v1.x Archive](#1104---2026-03-21)
 
+## [Unreleased]
+
+### Added
+- Real-CLI round-trip smoke test harness (`pnpm harness:smoke`, `scripts/harness-smoke/run.ts`) verifying `skills` installer discovery, `gh skill` publishing, Codex MCP discovery, and OpenCode specialist discovery with unit test coverage.
+- GitHub Actions workflow `.github/workflows/harness-smoke.yml` running round-trip CLI checks on PRs and nightly without model token billing.
+- `metadata.internal: true` flag on all specialist skills and generated workflow skills (`WorkflowTransformer`) to prevent discovery leakage into third-party skill installers.
+- Machine-checkable project policy layer in `.ags/policy.json` (`protected_path`, `command`, `required_check` rules).
+- `ags policy status`: Inspect policy rules in force and built-in hook rules with human or `--json` output.
+- `ags policy check`: Evaluate file paths, commands, or git diffs against policy rules with exit codes and `--json` support.
+- `ags policy validate`: Validate `.ags/policy.json` for schema errors, rule conflicts, and optional `--fail-on-stale` checks.
+- `ags policy compile` and `ags policy adopt`: Automatically extract proposed rules from `AGENTS.md` and `CLAUDE.md` into `.ags/policy-candidates.json`, with safe conflict-free adoption into `.ags/policy.json`.
+- PreToolUse hook integration (`HookService`): embedded dependency-free hook evaluates `.ags/policy.json` for protected paths, warning by default and blocking when `AGS_HOOK_ENFORCE=1` is set.
+- `AGS_POLICY_BYPASS=1`: Opt-in bypass reporting waived rule IDs.
+- ADR-017: Warning-First Policy Layer in `ARCHITECTURE.md`.
+- Workflows release pipeline: added `releases.workflows` metadata entry and `workflows-v*` release tags publishing `.agents/workflows/**`.
+- Deterministic `MANIFEST.json` containing sha256 checksums of released files and GitHub build-provenance attestation attached to every registry release.
+- `pnpm release:manifest`: CLI entrypoint (`scripts/release/build-manifest.ts`) to generate `MANIFEST.json` locally.
+- Pinned SDLC assets: workflows and specialists fetched from release tags (`workflows_ref` and `specialists_ref` in `.skillsrc`, written once from registry latest releases when absent).
+- Commit recording in `.skills-lock.json` `sources` for all sources, with moved-tag warnings when a tag resolves to a different commit.
+- Release manifest verification: downloaded files are checked against `MANIFEST.json` sha256 checksums before writing.
+- `ags verify --strict`: Fails if any locked ref has moved (resolves to a different commit) or cannot be resolved.
+- `ags verify --attestation`: Verifies build-provenance attestations of release assets using the GitHub CLI (`gh`).
+- ADR-016: Pinned SDLC Assets and Release Manifests in `ARCHITECTURE.md`.
+- `ags restore`: List and restore backups from `.ags/backups/<id>` (replace-only).
+- `ags uninstall`: Safe uninstallation removing only owned-unchanged entries, preserving user edits, backing up removed files and `.skills-lock.json`, with granular `--agent`, `--category`, or `--all` scopes, preview, and `--dry-run`.
+- `.skills-lock.json` v2 with per-path ownership manifest, source tracking, and v1 migration on read (skills exact, one-time adoption for workflows/specialists).
+- User-edit preservation during `ags sync`: user-modified owned files are kept and reported; unknown files are untouched.
+- Scoped backups under `.ags/backups/<timestamp>/` (retaining newest 3) before file pruning or forced overwrite.
+- Safe pruning of unchanged owned files upon completed sync of their group; never prunes on fetch failures, undefined workflows, `prune: false`, or `custom_overrides`.
+- CLI options on `ags sync`: `--dry-run` (mutation-free preview), `--verbose` (path-by-path listing), `--json` (`sync.plan` envelope), and `--force <paths...>` (overwrite user edits after backup).
+- ADR-015: Ownership Manifest and User-Edit Preservation in `ARCHITECTURE.md`.
+- Single agent capability table in `cli/src/capabilities/agentCapabilities.ts` (`AGENT_CAPABILITIES`) as the single source of truth for all per-agent paths, formats, hook kinds, MCP specs, and limits.
+- Generated `docs/agent-capabilities.md` matrix with CI drift check via `pnpm docs:capabilities:check`.
+- One-time unsupported-surface capability disclosure after sync, persisted in `.skills-lock.json` (`disclosed`).
+- ADR-014: Single Agent Capability Table in `ARCHITECTURE.md`.
+- `ags doctor`: Health check command with seven named checks (`config`, `agents`, `lockfile`, `mcp`, `hooks`, `legacy_folders`, `cli_version`), `--json` envelope (`doctor.report`), opt-in `--exit-on-fail` gate, confirmed safe repairs with `--fix` and `-y, --yes`, and `--offline` mode.
+- Interop validator rules: `NameMatchesDirectoryRule` (name must match directory name), `AgentSkillsSpecRule` (name pattern and 64-character limit), `TriggerPhraseRule` (warning for missing trigger phrases in description), `ReferenceLinksRule` (validation of relative links in Markdown), and `BodySizeRule` (8,192 byte cap without references/, 7,168 byte soft warning).
+
+### Changed
+- Cut over `McpConfigService`, `SpecialistTransformer`, `HookService`, and `constants/index.ts` to derive and dispatch from `AGENT_CAPABILITIES`.
+- Framed workflow `$ARGUMENTS` and Gemini `{{args}}` as caller-supplied data inside `<user_request>` tags with an explicit non-override data clause.
+- Registered Codex MCP server in `.codex/config.toml` table `[mcp_servers.agent-skills-standard]`, preserving foreign keys byte-for-byte, cleaning up legacy `.codex/mcp_config.json`, and exporting `.toml` snippets.
+- Fixed dead reference link in `flutter-auto-route-navigation/SKILL.md` (bumped flutter category patch).
+
+- Cut over `ags verify`, `ags audit`, and `ags doctor` to consume `.skills-lock.json` v2 across all agents (including Kiro) and owner types.
+- Bumped `specialists` category version to 1.5.0 in `skills/metadata.json`.
+
+### Fixed
+- Retain `prune`, `workflows_ref`, and `specialists_ref` when parsing `.skillsrc` with Zod schema.
+- Harness: capture CLI output through files (OpenCode truncated piped stdout), give `ags mcp snippets` a valid `.skillsrc`, run the specialist emitter from the repo so `tsx` resolves, and report the underlying error when a setup step fails.
+- Mark the vendored `.agents/skills/caveman*` skills and the new `cyber-*` Codex workflow wrappers `metadata.internal: true`, so `npx skills` lists exactly the 300 registry skills.
+- `interopRules` uses the js-yaml 5 namespace import (the default export was removed).
+
+## [common-v2.7.0] - Unreleased
+
+**Category**: Decision discipline and brainstorm lanes (T0)
+
+### Added
+- `common-decision-discipline`: Right-size, ground, and gate SDLC decisions with SNC-sized depth (Quick, Standard, Deep), said-vs-assumed write-back, evidence ledger (`confirmed(<path>)`, `assumed`, `unknown`), option cards for real choices, recorded approval (`pending`, `approved`, `assumed-autonomous`), and self-review.
+- ADR-013: Decision Discipline and Recorded Approval in `ARCHITECTURE.md`.
+
+### Changed
+- `brainstorm-feature`: Rebuilt with Why lane (solution-free BRD-lite) and Direction lane (delivery contract with technical option cards), SNC-sized depth, recorded approval, evidence ledger, and updated output template.
+- Workflows `sdlc`, `plan-feature`, `implementation-readiness`, `design-solution`, `system-design-session`, and `common-business-requirements` updated to consume `lane`, `snc_tier`, and `approval`.
+- `scripts/audit-sdlc.ts`: Added `requireTemplateTokens` check enforcing required template tokens (`## Approval`, `## Evidence`, `approval:`, `lane:`).
+
+### Versions
+- **Common Skills**: `2.6.0` → `2.7.0` (unreleased; no tag or release created)
+
 ## [cybersecurity-v1.0.0] - Unreleased
 
 **Category**: Governed cybersecurity skills

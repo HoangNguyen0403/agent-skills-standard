@@ -2,6 +2,7 @@
 name: specialist-ac-verifier
 description: Maps acceptance criteria to implementation evidence, tests, and scope creep. Use during review when a diff, PR, ticket, or story includes numbered ACs.
 metadata:
+  internal: true
   triggers:
     keywords:
       - AC verification

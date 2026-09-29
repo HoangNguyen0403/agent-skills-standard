@@ -2,6 +2,7 @@
 name: plan-feature
 description: "Plan a feature from BRD-lite brief or clear intent into PRD (What), decisions, implementation plan, and task slices."
 metadata:
+  internal: true
   triggers:
     keywords:
     - plan feature
@@ -26,8 +27,8 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
 ## Steps
 1. Load context:
    - Load baseline PRD section and search `docs/brd/` for the matching `[slug]`; if multiple candidates exist and intent is unclear, ask the user to choose/input the target slug.
-   - Load BRD-lite, ticket text, existing specs, repo patterns, `common-product-requirements`, `common-operator-profile`, `quality-engineering-business-analysis`, and matched framework skills.
-   - Carry forward `operator_profile`, BRD objective IDs, SMART metric, scope fence, assumptions, glossary, risks, and delivery context.
+   - Load BRD-lite, ticket text, existing specs, repo patterns, `common-product-requirements`, `common-operator-profile`, `common-decision-discipline`, `quality-engineering-business-analysis`, and matched framework skills.
+   - Carry forward `operator_profile`, `lane`, `snc_tier`, `approval`, BRD objective IDs, SMART metric, scope fence, assumptions, evidence ledger, glossary, risks, and delivery context.
 2. Interview:
    - Draft a provisional PRD direction from current context before asking.
    - Ask only for business logic, scope, constraints, and acceptance criteria that cannot be inferred.
@@ -62,7 +63,7 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
 - Required inputs: BRD-lite or equivalent intent, plus enough context to name users, goals, and constraints.
 - Return BLOCKED only for missing owner, untestable AC, approval, or release constraint.
 ## Handoff Payload
-- `slug`, `operator_profile`, PRD path, `REQ-*`, `AC-*`, decisions, RACI, rollout notes, task slices, delivery-window estimate, verification plan, outcome report, next workflow.
+- `slug`, `operator_profile`, `lane`, `snc_tier`, `approval`, PRD path, `REQ-*`, `AC-*`, decisions, RACI, rollout notes, task slices, delivery-window estimate, verification plan, outcome report, next workflow.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
 ## Output Template

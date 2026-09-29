@@ -1,4 +1,5 @@
 import pc from 'picocolors';
+import { ConfigService } from '../services/ConfigService';
 import { LockfileService } from '../services/LockfileService';
 
 /**
@@ -7,14 +8,21 @@ import { LockfileService } from '../services/LockfileService';
  * and how many files each skill carries.
  */
 export class AuditCommand {
+  private configService: ConfigService;
   private lockfileService: LockfileService;
 
-  constructor(lockfileService?: LockfileService) {
+  constructor(
+    configService?: ConfigService,
+    lockfileService?: LockfileService,
+  ) {
+    this.configService = configService || new ConfigService();
     this.lockfileService = lockfileService || new LockfileService();
   }
 
   async run(): Promise<void> {
-    const lock = await this.lockfileService.read(process.cwd());
+    const config = await this.configService.loadConfig();
+    const agents = config?.agents ?? [];
+    const { lock } = await this.lockfileService.load(process.cwd(), agents);
     if (!lock) {
       console.log(
         pc.yellow(
@@ -25,25 +33,48 @@ export class AuditCommand {
       return;
     }
 
-    const entries = Object.entries(lock.skills).sort(([a], [b]) =>
-      a.localeCompare(b),
-    );
-
     console.log(pc.cyan(`📋 Skill inventory (${lock.registry})`));
     console.log(pc.gray(`   Generated: ${lock.generatedAt}\n`));
 
-    if (entries.length === 0) {
-      console.log(pc.gray('  (no skills recorded)'));
+    console.log(pc.bold('Sources:'));
+    for (const [sourceKey, sourceVal] of Object.entries(lock.sources)) {
+      console.log(`  ${sourceKey}: ${sourceVal.ref}`);
+    }
+    console.log('');
+
+    const bySource: Record<
+      string,
+      { owner: string; agents: Set<string>; fileCount: number }
+    > = {};
+    for (const entry of Object.values(lock.entries)) {
+      if (!bySource[entry.source]) {
+        bySource[entry.source] = {
+          owner: entry.owner,
+          agents: new Set<string>(),
+          fileCount: 0,
+        };
+      }
+      bySource[entry.source].agents.add(entry.agent);
+      bySource[entry.source].fileCount++;
+    }
+
+    const sourceEntries = Object.entries(bySource).sort(([a], [b]) =>
+      a.localeCompare(b),
+    );
+
+    if (sourceEntries.length === 0) {
+      console.log(pc.gray('  (no entries recorded)'));
       return;
     }
 
-    for (const [skillKey, entry] of entries) {
-      const fileCount = Object.keys(entry.files).length;
+    console.log(pc.bold('Entries:'));
+    for (const [src, info] of sourceEntries) {
+      const agentList = Array.from(info.agents).sort().join(', ');
       console.log(
-        `  ${pc.bold(skillKey.padEnd(40))} ${pc.gray(entry.ref.padEnd(24))} ${fileCount} file${fileCount === 1 ? '' : 's'}`,
+        `  ${pc.bold(src.padEnd(45))} ${pc.gray(info.owner.padEnd(12))} ${info.fileCount} file(s) [${agentList}]`,
       );
     }
 
-    console.log(pc.gray(`\n  ${entries.length} skill(s) total`));
+    console.log(pc.gray(`\n  ${sourceEntries.length} item(s) total`));
   }
 }

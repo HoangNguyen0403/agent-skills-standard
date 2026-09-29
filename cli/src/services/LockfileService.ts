@@ -1,138 +1,165 @@
 import { createHash } from 'node:crypto';
 import fs from 'fs-extra';
 import path from 'path';
-import { CollectedSkill } from '../models/types';
+import { Agent, getAgentDefinition } from '../constants';
 
 export const LOCKFILE_NAME = '.skills-lock.json';
+export type Owner = 'skill' | 'workflow' | 'specialist' | 'bridge' | 'index';
 
-export interface LockedSkillEntry {
-  /** Git ref (tag/branch/sha) this skill was fetched at. */
+export interface ManifestEntry {
+  owner: Owner;
+  source: string;
+  agent: string;
+  sha256: string;
+}
+
+export interface SourceRef {
   ref: string;
-  /** relative file path -> sha256 hex of its content, as written to disk. */
-  files: Record<string, string>;
-  /** sha256 over the sorted `path\0hash\n` lines of `files` — one hash for the whole skill. */
-  contentHash: string;
+  commit: string | null;
 }
 
 export interface SkillsLockFile {
-  version: 1;
+  version: 2;
   registry: string;
   generatedAt: string;
-  skills: Record<string, LockedSkillEntry>;
+  sources: Record<string, SourceRef>;
+  entries: Record<string, ManifestEntry>;
+  disclosed?: Record<string, string[]>;
+}
+
+export interface LoadedLock {
+  lock: SkillsLockFile | null;
+  migratedFromV1: boolean;
 }
 
 export interface VerifyResult {
   ok: boolean;
-  /** Files present on disk whose content hash no longer matches the lockfile. */
   mismatches: string[];
-  /** Files the lockfile expects but that are missing on disk. */
   missing: string[];
 }
 
-function sha256(content: Buffer | string): string {
+export function sha256(content: Buffer | string): string {
   return createHash('sha256')
     .update(content, Buffer.isBuffer(content) ? undefined : 'utf8')
     .digest('hex');
 }
 
-function contentHashOf(files: Record<string, string>): string {
-  const lines = Object.keys(files)
-    .sort()
-    .map((p) => `${p}\0${files[p]}\n`)
-    .join('');
-  return sha256(lines);
+export function migrateV1(v1: unknown, agents: Agent[]): SkillsLockFile {
+  const old = v1 as {
+    registry?: string;
+    generatedAt?: string;
+    disclosed?: Record<string, string[]>;
+    skills?: Record<string, { ref: string; files: Record<string, string> }>;
+  };
+  const sources: Record<string, SourceRef> = {};
+  const entries: Record<string, ManifestEntry> = {};
+  for (const [key, skill] of Object.entries(old.skills ?? {})) {
+    const [category, name] = key.split('/');
+    sources[`skills/${category}`] = { ref: skill.ref, commit: null };
+    for (const agent of agents) {
+      if (agent === Agent.Kiro) continue; // v1 hashed pre-transform content; Kiro files are re-adopted
+      const base = getAgentDefinition(agent).path;
+      for (const [rel, hash] of Object.entries(skill.files)) {
+        entries[`${base}/${category}/${name}/${rel}`] = {
+          owner: 'skill',
+          source: `skill:${category}/${name}@${skill.ref}`,
+          agent,
+          sha256: hash,
+        };
+      }
+    }
+  }
+  return {
+    version: 2,
+    registry: old.registry ?? '',
+    generatedAt: old.generatedAt ?? '',
+    sources,
+    entries,
+    ...(old.disclosed ? { disclosed: old.disclosed } : {}),
+  };
 }
 
-/**
- * Records the sha256 of every file `ags sync` writes for a skill, so a later
- * `ags verify` can detect drift between what was fetched and what's actually
- * on disk — tampering, a partial write, or a manual edit that silently
- * diverged from the registry. This is deliberately scoped to local
- * tamper-detection: it does not (yet) resolve refs to commits or detect a
- * moved tag on the registry side — see docs/SECURITY.md's OWASP AST table
- * (AST07) for that follow-up.
- */
 export class LockfileService {
   private lockfilePath(rootDir: string): string {
     return path.join(rootDir, LOCKFILE_NAME);
   }
 
-  buildEntries(
-    skills: CollectedSkill[],
-    refByCategory: Record<string, string>,
-  ): Record<string, LockedSkillEntry> {
-    const entries: Record<string, LockedSkillEntry> = {};
-    for (const skill of skills) {
-      const files: Record<string, string> = {};
-      for (const file of skill.files) {
-        files[file.name] = sha256(
-          file.bytes ?? Buffer.from(file.content, 'utf8'),
-        );
-      }
-      entries[`${skill.category}/${skill.skill}`] = {
-        ref: refByCategory[skill.category] || 'unknown',
-        files,
-        contentHash: contentHashOf(files),
-      };
-    }
-    return entries;
-  }
-
-  async write(
-    rootDir: string,
-    registry: string,
-    skills: CollectedSkill[],
-    refByCategory: Record<string, string>,
-  ): Promise<void> {
-    if (skills.length === 0) return;
-    const lock: SkillsLockFile = {
-      version: 1,
-      registry,
-      generatedAt: new Date().toISOString(),
-      skills: this.buildEntries(skills, refByCategory),
-    };
-    await fs.writeJson(this.lockfilePath(rootDir), lock, { spaces: 2 });
-  }
-
-  async read(rootDir: string): Promise<SkillsLockFile | null> {
+  async load(rootDir: string, agents: Agent[]): Promise<LoadedLock> {
     const file = this.lockfilePath(rootDir);
-    if (!(await fs.pathExists(file))) return null;
-    return fs.readJson(file);
+    if (!(await fs.pathExists(file))) {
+      return { lock: null, migratedFromV1: false };
+    }
+    const raw = await fs.readJson(file);
+    if (raw.version === 2) {
+      return { lock: raw as SkillsLockFile, migratedFromV1: false };
+    }
+    if (raw.version === 1) {
+      return { lock: migrateV1(raw, agents), migratedFromV1: true };
+    }
+    throw new Error('Unsupported .skills-lock.json version');
   }
 
-  /**
-   * Recomputes the sha256 of every file the lockfile knows about, under
-   * `installedPath/<category>/<skill>/<relPath>` (the standard, non-Kiro
-   * layout `SkillSyncService.writeSkillForAgent` uses), and compares.
-   */
-  async verify(rootDir: string, installedPath: string): Promise<VerifyResult> {
-    const lock = await this.read(rootDir);
-    if (!lock) {
-      return {
-        ok: false,
-        mismatches: [],
-        missing: [`${LOCKFILE_NAME} not found — run 'ags sync' first`],
-      };
+  async write(rootDir: string, lock: SkillsLockFile): Promise<void> {
+    const file = this.lockfilePath(rootDir);
+    let existingDisclosed: Record<string, string[]> | undefined;
+    if (await fs.pathExists(file)) {
+      try {
+        const raw = await fs.readJson(file);
+        existingDisclosed = raw?.disclosed;
+      } catch {
+        // ignore malformed existing file
+      }
     }
+    const disclosed = lock.disclosed ?? existingDisclosed;
+    const sortedEntries: Record<string, ManifestEntry> = {};
+    for (const k of Object.keys(lock.entries).sort()) {
+      sortedEntries[k] = lock.entries[k];
+    }
+    const out: SkillsLockFile = {
+      ...lock,
+      entries: sortedEntries,
+      ...(disclosed ? { disclosed } : {}),
+    };
+    if (!disclosed) {
+      delete out.disclosed;
+    }
+    await fs.writeJson(file, out, { spaces: 2 });
+  }
 
+  async readDisclosed(rootDir: string): Promise<Record<string, string[]> | undefined> {
+    const file = this.lockfilePath(rootDir);
+    if (!(await fs.pathExists(file))) return undefined;
+    const raw = await fs.readJson(file);
+    return raw?.disclosed;
+  }
+
+  async writeDisclosed(rootDir: string, disclosed: Record<string, string[]>): Promise<void> {
+    const file = this.lockfilePath(rootDir);
+    if (!(await fs.pathExists(file))) return;
+    const raw = await fs.readJson(file);
+    await fs.writeJson(file, { ...raw, disclosed }, { spaces: 2 });
+  }
+
+  async verifyEntries(
+    rootDir: string,
+    entries: Record<string, ManifestEntry>,
+    agent?: Agent,
+  ): Promise<VerifyResult> {
     const mismatches: string[] = [];
     const missing: string[] = [];
-
-    for (const [skillKey, entry] of Object.entries(lock.skills)) {
-      for (const [relPath, expectedHash] of Object.entries(entry.files)) {
-        const label = `${skillKey}/${relPath}`;
-        const filePath = path.join(installedPath, skillKey, relPath);
-        if (!(await fs.pathExists(filePath))) {
-          missing.push(label);
-          continue;
-        }
-        const content = await fs.readFile(filePath);
-        if (sha256(content) !== expectedHash) {
-          mismatches.push(label);
-        }
+    for (const [rel, entry] of Object.entries(entries)) {
+      if (agent && entry.agent !== agent) continue;
+      const absPath = path.join(rootDir, rel);
+      if (!(await fs.pathExists(absPath))) {
+        missing.push(rel);
+        continue;
+      }
+      // Raw bytes, not UTF-8 decoded text, define integrity (binary resources).
+      const content = await fs.readFile(absPath);
+      if (sha256(content) !== entry.sha256) {
+        mismatches.push(rel);
       }
     }
-
     return {
       ok: mismatches.length === 0 && missing.length === 0,
       mismatches,

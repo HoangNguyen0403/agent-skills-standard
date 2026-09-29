@@ -2,6 +2,7 @@
 name: review-ticket
 description: "Review a ticket or PR through focused specialist lenses: scope, architecture, security, tests, AC coverage, and PR metadata."
 metadata:
+  internal: true
   triggers:
     keywords:
     - review ticket

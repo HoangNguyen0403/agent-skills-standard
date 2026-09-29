@@ -2,6 +2,7 @@
 name: zephyr-coverage-analysis
 description: "Analyze Zephyr test case coverage for a Jira user story and produce a QE management report with metrics, risk scoring, and prioritized recommendations."
 metadata:
+  internal: true
   triggers:
     keywords:
     - zephyr coverage analysis

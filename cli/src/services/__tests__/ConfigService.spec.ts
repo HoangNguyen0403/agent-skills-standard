@@ -61,6 +61,27 @@ describe('ConfigService', () => {
       const config = await configService.loadConfig(mockCwd);
       expect(config).toEqual(mockConfig);
     });
+    it('should keep prune, workflows_ref, and specialists_ref when parsing .skillsrc', async () => {
+      const mockConfig: SkillConfig = {
+        registry: 'https://example.com',
+        skills: {},
+        agents: [Agent.Cursor],
+        prune: false,
+        workflows_ref: 'workflows-v1.0.0',
+        specialists_ref: 'specialists-v2.0.0',
+      };
+
+      vi.mocked(fs.pathExists).mockImplementation(() => Promise.resolve(true));
+      vi.mocked(fs.readFile).mockImplementation(() =>
+        Promise.resolve('mockYaml' as unknown as Buffer),
+      );
+      vi.mocked(yaml.load).mockReturnValue(mockConfig);
+
+      const config = await configService.loadConfig(mockCwd);
+      expect(config?.prune).toBe(false);
+      expect(config?.workflows_ref).toBe('workflows-v1.0.0');
+      expect(config?.specialists_ref).toBe('specialists-v2.0.0');
+    });
 
     it('should fall back to .skillsrc.yaml and migrate it to .skillsrc', async () => {
       const mockYamlText = 'registry: https://example.com\nskills: {}';

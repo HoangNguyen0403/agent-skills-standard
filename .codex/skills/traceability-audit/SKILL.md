@@ -2,6 +2,7 @@
 name: traceability-audit
 description: "Map requirements, acceptance criteria, implementation, tests, and release artifacts into one traceability report."
 metadata:
+  internal: true
   triggers:
     keywords:
     - traceability audit

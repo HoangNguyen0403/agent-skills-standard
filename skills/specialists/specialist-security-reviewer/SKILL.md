@@ -2,6 +2,7 @@
 name: specialist-security-reviewer
 description: High-density security audit persona. Enforces OWASP Top 10, Vibe Security, trust gating, and runtime hardening for code and agentic review flows.
 metadata:
+  internal: true
   triggers:
     keywords:
       - security review

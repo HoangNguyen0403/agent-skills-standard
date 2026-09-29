@@ -1,4 +1,3 @@
-import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
 import {
@@ -12,6 +11,9 @@ import { CollectedSkill } from '../models/types';
 import { GithubService } from './GithubService';
 import { WorkflowTransformer } from './utils/WorkflowTransformer';
 
+import { isOverriddenRel, toPosixRel } from './install/pathMatch';
+import { InstallWriter, PassthroughWriter } from './install/OwnershipWriter';
+import { ManifestVerifier } from './install/ManifestVerifier';
 /**
  * Service responsible for synchronizing agent workflows from a remote registry.
  */
@@ -21,17 +23,16 @@ export class WorkflowSyncService {
   /**
    * Reconciles workflows by discovering new ones in the registry and adding them to the config.
    */
-  async reconcileWorkflows(config: SkillConfig): Promise<boolean> {
+  async reconcileWorkflows(
+    config: SkillConfig,
+    ref: string = 'main',
+  ): Promise<boolean> {
     if (config.workflows === false) return false;
 
     const githubMatch = GithubService.parseGitHubUrl(config.registry);
     if (!githubMatch) return false;
 
     const { owner, repo } = githubMatch;
-    const ref =
-      (await this.githubService.getRepoInfo(owner, repo))?.default_branch ||
-      'main';
-
     const treeData = await this.githubService.getRepoTree(owner, repo, ref);
     if (!treeData) return false;
 
@@ -92,17 +93,17 @@ export class WorkflowSyncService {
   /**
    * Assembles workflows from the remote registry.
    */
-  async assembleWorkflows(config: SkillConfig): Promise<CollectedSkill[]> {
+  async assembleWorkflows(
+    config: SkillConfig,
+    ref: string = 'main',
+    verifier?: ManifestVerifier,
+  ): Promise<CollectedSkill[]> {
     if (!config.workflows) return [];
 
     const githubMatch = GithubService.parseGitHubUrl(config.registry);
     if (!githubMatch) return [];
 
     const { owner, repo } = githubMatch;
-    const ref =
-      (await this.githubService.getRepoInfo(owner, repo))?.default_branch ||
-      'main';
-
     console.log(pc.gray(`  - Discovering workflows (${ref})...`));
 
     const treeData = await this.githubService.getRepoTree(owner, repo, ref);
@@ -139,17 +140,27 @@ export class WorkflowSyncService {
         })),
       );
 
+    const okFiles: typeof files = [];
+    for (const f of files) {
+      const rejection = verifier?.check(f.path, f.content);
+      if (rejection) {
+        failed.push({ path: f.path, reason: rejection });
+      } else {
+        okFiles.push(f);
+      }
+    }
+
     for (const failure of failed) {
       console.log(pc.red(`    ❌ ${failure.path} — ${failure.reason}`));
     }
 
-    if (files.length > 0) {
-      console.log(pc.gray(`    + Fetched ${files.length} workflows`));
+    if (okFiles.length > 0) {
+      console.log(pc.gray(`    + Fetched ${okFiles.length} workflows`));
       return [
         {
           category: '.agents',
           skill: 'workflows',
-          files: files.map((f) => ({
+          files: okFiles.map((f) => ({
             name: path.basename(f.path),
             content: f.content,
           })),
@@ -185,6 +196,7 @@ export class WorkflowSyncService {
     workflows: CollectedSkill[],
     config: SkillConfig,
     agents?: Agent[],
+    writer: InstallWriter = new PassthroughWriter(),
   ) {
     if (workflows.length === 0) return;
 
@@ -196,7 +208,6 @@ export class WorkflowSyncService {
       if (!agentDef || agentDef.workflowFormat === 'none') continue;
 
       const workflowDir = path.join(process.cwd(), agentDef.workflowPath);
-      await fs.ensureDir(workflowDir);
 
       // Calculate relative path from workflow dir to the source workflow files (.agents/workflows)
       // This is used by Gemini (TOML) to reference the canonical markdown source.
@@ -238,7 +249,11 @@ export class WorkflowSyncService {
             continue;
           }
 
-          await fs.outputFile(targetFilePath, transformed.content);
+          await writer.write(targetFilePath, transformed.content, {
+            owner: 'workflow',
+            source: `workflow:${fileItem.name.replace(/\.md$/, '')}`,
+            agent: agentId,
+          });
           written++;
         }
       }
@@ -270,19 +285,10 @@ export class WorkflowSyncService {
   }
 
   private isOverridden(targetPath: string, overrides: string[]): boolean {
-    const rel = this.normalizePath(targetPath);
-    return overrides.some((o) => {
-      const op = o.replace(/\\/g, '/').replace(/\/$/, '');
-      return (
-        rel === op ||
-        rel.startsWith(`${op}/`) ||
-        rel.includes(`/${op}/`) ||
-        rel.endsWith(`/${op}`)
-      );
-    });
+    return isOverriddenRel(this.normalizePath(targetPath), overrides);
   }
 
   private normalizePath(p: string): string {
-    return path.relative(process.cwd(), p).replace(/\\/g, '/');
+    return toPosixRel(process.cwd(), p);
   }
 }

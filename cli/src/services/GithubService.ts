@@ -11,6 +11,14 @@ export class IntegrityError extends Error {
   }
 }
 
+/** Release manifest attached to a release tag asset. */
+export interface ReleaseManifest {
+  schema_version: 1;
+  tag: string;
+  commit: string;
+  files: Record<string, string>;
+}
+
 /** Default cap on a single downloaded file; skill/workflow/reference files are prose, not payloads. */
 export const MAX_RAW_FILE_BYTES = 1024 * 1024; // 1 MiB
 
@@ -285,5 +293,74 @@ export class GithubService {
     );
     if (!m) return null;
     return { owner: m[1], repo: m[2].replace(/\.git$/, '') };
+  }
+
+  /**
+   * Resolves a Git reference (tag, branch, commit) to a full 40-character commit SHA.
+   * Returns null on non-200, invalid response, or network failure.
+   */
+  async resolveCommit(
+    owner: string,
+    repo: string,
+    ref: string,
+  ): Promise<string | null> {
+    const url = `${this.baseUrl}/repos/${owner}/${repo}/commits/${encodeURIComponent(ref)}`;
+    try {
+      const res = await fetch(url, {
+        headers: {
+          ...this.headers,
+          Accept: 'application/vnd.github.sha',
+        },
+      });
+      if (!res.ok) return null;
+      const text = (await res.text()).trim();
+      return /^[0-9a-f]{40}$/i.test(text) ? text : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Fetches and validates a release MANIFEST.json for a release tag.
+   * Release assets are public and downloaded without authentication headers.
+   * Returns null on 404, malformed JSON, invalid schema, or network failure.
+   */
+  async getReleaseManifest(
+    owner: string,
+    repo: string,
+    tag: string,
+  ): Promise<ReleaseManifest | null> {
+    const url = `https://github.com/${owner}/${repo}/releases/download/${tag}/MANIFEST.json`;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      const data = (await res.json()) as unknown;
+      if (
+        typeof data !== 'object' ||
+        data === null ||
+        Array.isArray(data)
+      ) {
+        return null;
+      }
+      const record = data as Record<string, unknown>;
+      if (record.schema_version !== 1) return null;
+      if (typeof record.tag !== 'string' || !record.tag) return null;
+      if (typeof record.commit !== 'string' || !record.commit) return null;
+      if (
+        typeof record.files !== 'object' ||
+        record.files === null ||
+        Array.isArray(record.files)
+      ) {
+        return null;
+      }
+      const files = record.files as Record<string, unknown>;
+      for (const [key, value] of Object.entries(files)) {
+        if (typeof key !== 'string' || typeof value !== 'string') return null;
+        if (!/^[0-9a-f]{64}$/i.test(value)) return null;
+      }
+      return record as unknown as ReleaseManifest;
+    } catch {
+      return null;
+    }
   }
 }

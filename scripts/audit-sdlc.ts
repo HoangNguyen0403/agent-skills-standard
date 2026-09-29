@@ -84,6 +84,7 @@ interface WorkflowRule {
   maxLines?: number;
   requireGoal?: boolean;
   requireOutputTemplate?: boolean;
+  requireTemplateTokens?: string[];
   notes?: string;
 }
 
@@ -108,6 +109,7 @@ const WORKFLOW_RULES: Record<string, WorkflowRule> = {
     maxLines: 80,
     requireGoal: true,
     requireOutputTemplate: true,
+    requireTemplateTokens: ["## Approval", "## Evidence", "approval:", "lane:"],
   },
   "plan-feature": {
     maxLines: 80,
@@ -389,6 +391,13 @@ async function main() {
           } else {
             pass(`${workflow}.md Outcome Report block declares the run-record schema`);
           }
+        }
+      }
+      for (const token of rules.requireTemplateTokens ?? []) {
+        if (content.includes(token)) {
+          pass(`${workflow}.md contains required token ${token}`);
+        } else {
+          fail(`${workflow}.md missing required token ${token}`, failures);
         }
       }
 

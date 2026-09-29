@@ -93,8 +93,8 @@ export class SpecialistTransformer {
       (metadata.description as string | undefined) ||
       `Specialist persona for ${baseName}`;
 
-    switch (agentId) {
-      case Agent.Claude: {
+    switch (agentDef.specialistFormat) {
+      case 'claude-md': {
         const fm: Record<string, unknown> = { name: baseName, description };
         const allowedTools = metadata['allowed-tools'];
         if (metadata.tools) {
@@ -118,37 +118,37 @@ export class SpecialistTransformer {
         };
       }
 
-      case Agent.Cursor:
+      case 'cursor-mdc':
         return {
           name: `${fullName}.mdc`,
           content: `${unenforceableWarningComment(metadata, 'Cursor')}---\n${dumpFrontmatter({ description, globs: ['**/*'] })}\n---\n# Specialist: ${baseName}\n\n${body}`,
         };
 
-      case Agent.Copilot:
+      case 'copilot-instructions':
         return {
           name: `${fullName}.instructions.md`,
           content: `${unenforceableWarningComment(metadata, 'Copilot')}---\n${dumpFrontmatter({ description, applyTo: '**/*' })}\n---\n\n${body}`,
         };
 
-      case Agent.OpenCode:
+      case 'opencode-md':
         return {
           name: `${baseName}.md`,
           content: `${unenforceableWarningComment(metadata, 'OpenCode')}---\n${dumpFrontmatter({ description, mode: 'subagent' })}\n---\n\n${body}`,
         };
 
-      case Agent.Gemini:
+      case 'gemini-md':
         return {
           name: `${baseName}.md`,
           content: `${unenforceableWarningComment(metadata, 'Gemini')}---\n${dumpFrontmatter({ name: baseName, description, kind: 'local' })}\n---\n\n${body}`,
         };
 
-      case Agent.Kiro:
+      case 'kiro-md':
         return {
           name: `${baseName}.md`,
           content: `${unenforceableWarningComment(metadata, 'Kiro')}---\n${dumpFrontmatter({ name: baseName, description })}\n---\n\n${body}`,
         };
 
-      case Agent.Codex: {
+      case 'codex-toml': {
         // Codex uses TOML, not YAML — escape separately. sandbox_mode is a
         // real least-privilege primitive; allowed-tools/permissions.network/
         // permissions.filesystem have no TOML equivalent here, so those are

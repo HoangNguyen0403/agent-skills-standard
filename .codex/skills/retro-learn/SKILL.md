@@ -2,6 +2,7 @@
 name: retro-learn
 description: "Convert delivery findings into skill, eval, workflow, and documentation improvements."
 metadata:
+  internal: true
   triggers:
     keywords:
     - retro learn

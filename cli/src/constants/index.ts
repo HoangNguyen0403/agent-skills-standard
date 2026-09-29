@@ -113,44 +113,16 @@ export const DEFAULT_WORKFLOWS = [
  */
 export const INTERNAL_ONLY_WORKFLOWS = ['evals-run'];
 
-// Configurable via ENV or hardcoded for production convenience
-/**
- * Defines how workflows are delivered to each agent platform.
- * Workflows are user-invoked multi-step procedures (not passive rules).
- * - 'native':  Direct markdown workflow files, executed by the agent's workflow runner (Antigravity, Kiro)
- * - 'command': Custom slash command files — inline the procedure (Claude: .claude/commands/*.md)
- * - 'toml':    TOML command files — reference the workflow by path (Gemini: .gemini/commands/*.toml)
- * - 'prompt':  Reusable prompt files (Copilot: .github/prompts/*.prompt.md)
- * - 'none':    Agent has no verified user-invoked command system
- */
-export type WorkflowFormat =
-  | 'native'
-  | 'command'
-  | 'toml'
-  | 'prompt'
-  | 'skill'
-  | 'none';
-
-export interface AgentDefinition {
-  id: Agent;
-  name: string;
-  path: string;
-  ruleFile: string;
-  ruleExtension: string;
-  ruleFileName?: string;
-  frontmatterStyle: 'cursor' | 'copilot' | 'none';
-  detectionFiles: string[];
-  /** How workflows should be transformed for this agent */
-  workflowFormat: WorkflowFormat;
-  /** Directory where transformed workflows are written (relative to cwd) */
-  workflowPath: string;
-  /** Directory where native specialist agent personas are written (optional) */
-  agentPath?: string;
-  /** Relative path to pre-edit hook reminder script (if supported) */
-  hookScriptPath?: string;
-  /** Relative path to hook configuration JSON file (if supported) */
-  hookConfigPath?: string;
-}
+export type {
+  AgentDefinition,
+  WorkflowFormat,
+  SpecialistFormat,
+  HookKind,
+  McpSpec,
+} from '../capabilities/agentCapabilities';
+import { AGENT_CAPABILITIES } from '../capabilities/agentCapabilities';
+import type { AgentDefinition } from '../capabilities/agentCapabilities';
+export { AGENT_CAPABILITIES };
 
 export interface FrameworkDefinition {
   id: Framework;
@@ -161,163 +133,8 @@ export interface FrameworkDefinition {
   languageDetection?: Record<string, string[]>;
 }
 
-export const getAgentDefinition = (id: Agent): AgentDefinition => {
-  switch (id) {
-    case Agent.Cursor:
-      return {
-        id,
-        name: 'Cursor',
-        path: '.cursor/skills',
-        ruleFile: '.cursor/rules',
-        ruleExtension: '.mdc',
-        frontmatterStyle: 'cursor',
-        detectionFiles: ['.cursor', '.cursorrules'],
-        workflowFormat: 'skill',
-        workflowPath: '.cursor/skills',
-        agentPath: '.cursor/agents',
-        hookScriptPath: '.cursor/hooks/preedit-skill-loader.js',
-        hookConfigPath: '.cursor/hooks.json',
-      };
-    case Agent.Trae:
-      return {
-        id,
-        name: 'Trae',
-        path: '.trae/skills',
-        ruleFile: '.trae/rules',
-        ruleExtension: '.mdc',
-        frontmatterStyle: 'cursor',
-        detectionFiles: ['.trae'],
-        workflowFormat: 'skill',
-        workflowPath: '.trae/skills',
-      };
-    case Agent.Claude:
-      return {
-        id,
-        name: 'Claude Code',
-        path: '.claude/skills',
-        ruleFile: '.',
-        ruleExtension: '.md',
-        ruleFileName: 'CLAUDE.md',
-        frontmatterStyle: 'none',
-        detectionFiles: ['.claude'],
-        workflowFormat: 'command',
-        workflowPath: '.claude/commands',
-        agentPath: '.claude/agents',
-        hookScriptPath: '.claude/hooks/preedit-skill-loader.js',
-        hookConfigPath: '.claude/settings.json',
-      };
-    case Agent.Copilot:
-      return {
-        id,
-        name: 'GitHub Copilot',
-        path: '.github/skills',
-        ruleFile: '.github/instructions',
-        ruleExtension: '.instructions.md',
-        frontmatterStyle: 'copilot',
-        detectionFiles: ['.github'],
-        workflowFormat: 'prompt',
-        workflowPath: '.github/prompts',
-        agentPath: '.github/copilot-agents',
-        hookScriptPath: '.github/hooks/preedit-skill-loader.js',
-        hookConfigPath: '.github/hooks.json',
-      };
-    case Agent.Antigravity:
-      return {
-        id,
-        name: 'Antigravity',
-        path: '.agents/skills',
-        ruleFile: '.agents/rules',
-        ruleExtension: '.md',
-        frontmatterStyle: 'cursor',
-        detectionFiles: ['.agents'],
-        workflowFormat: 'native',
-        workflowPath: '.agents/workflows',
-      };
-    case Agent.Codex:
-      return {
-        id,
-        name: 'Codex',
-        path: '.codex/skills',
-        ruleFile: '.codex/rules',
-        ruleExtension: '.md',
-        frontmatterStyle: 'cursor',
-        detectionFiles: ['.codex'],
-        workflowFormat: 'skill',
-        workflowPath: '.codex/skills',
-        agentPath: '.codex/agents',
-        hookScriptPath: '.codex/hooks/preedit-skill-loader.js',
-        hookConfigPath: '.codex/hooks.json',
-      };
-    case Agent.OpenCode:
-      return {
-        id,
-        name: 'OpenCode',
-        path: '.opencode/skills',
-        ruleFile: '.opencode/rules',
-        ruleExtension: '.md',
-        frontmatterStyle: 'cursor',
-        detectionFiles: ['.opencode'],
-        workflowFormat: 'command',
-        workflowPath: '.opencode/commands',
-        agentPath: '.opencode/agents',
-      };
-    case Agent.Gemini:
-      return {
-        id,
-        name: 'Gemini',
-        path: '.gemini/skills',
-        ruleFile: '.gemini/rules',
-        ruleExtension: '.md',
-        frontmatterStyle: 'cursor',
-        detectionFiles: ['.gemini'],
-        workflowFormat: 'toml',
-        workflowPath: '.gemini/commands',
-        agentPath: '.gemini/agents',
-        hookScriptPath: '.gemini/hooks/preedit-skill-loader.js',
-        hookConfigPath: '.gemini/hooks.json',
-      };
-    case Agent.Roo:
-      return {
-        id,
-        name: 'Roo Code',
-        path: '.roo/skills',
-        ruleFile: '.roo/rules',
-        ruleExtension: '.md',
-        frontmatterStyle: 'cursor',
-        detectionFiles: ['.roo'],
-        workflowFormat: 'command',
-        workflowPath: '.roo/commands',
-      };
-    case Agent.Windsurf:
-      return {
-        id,
-        name: 'Windsurf',
-        path: '.windsurf/skills',
-        ruleFile: '.windsurf/rules',
-        ruleExtension: '.md',
-        frontmatterStyle: 'cursor',
-        detectionFiles: ['.windsurf'],
-        workflowFormat: 'native',
-        workflowPath: '.windsurf/workflows',
-        hookScriptPath: '.windsurf/hooks/preedit-skill-loader.js',
-        hookConfigPath: '.windsurf/hooks.json',
-      };
-    case Agent.Kiro:
-      return {
-        id,
-        name: 'Kiro',
-        path: '.kiro/skills',
-        ruleFile: '.kiro/rules',
-        ruleExtension: '.md',
-        frontmatterStyle: 'cursor',
-        detectionFiles: ['.kiro'],
-        workflowFormat: 'native',
-        workflowPath: '.agents/workflows',
-        agentPath: '.kiro/agents',
-        hookScriptPath: '.kiro/hooks/ags-skill-loader.md',
-      };
-  }
-};
+export const getAgentDefinition = (id: Agent): AgentDefinition =>
+  AGENT_CAPABILITIES[id];
 
 export const getFrameworkDefinition = (id: Framework): FrameworkDefinition => {
   switch (id) {

@@ -2,6 +2,7 @@
 name: uat-signoff
 description: "Walk a business/UAT approver through a plain-language demo of a verified feature and capture business acceptance signoff."
 metadata:
+  internal: true
   triggers:
     keywords:
     - uat signoff

@@ -17,15 +17,44 @@ async function main() {
   }
 
   const metadata = await fs.readJson(METADATA_PATH);
-  const categories = Object.keys(metadata.categories);
+  const categories = Object.keys(metadata.categories ?? {});
+  const releases = Object.keys(metadata.releases ?? {});
 
-  console.log(pc.yellow(`Found ${categories.length} categories to process.`));
+  const itemsToRelease: Array<{
+    name: string;
+    version: string;
+    tag_prefix?: string;
+  }> = [];
+
+  for (const category of categories) {
+    const categoryMetadata = metadata.categories[category];
+    itemsToRelease.push({
+      name: category,
+      version: categoryMetadata.version,
+      tag_prefix: categoryMetadata.tag_prefix,
+    });
+  }
+
+  for (const release of releases) {
+    const releaseMetadata = metadata.releases[release];
+    itemsToRelease.push({
+      name: release,
+      version: releaseMetadata.version,
+      tag_prefix: releaseMetadata.tag_prefix,
+    });
+  }
+
+  console.log(
+    pc.yellow(
+      `Found ${categories.length} categories and ${releases.length} releases to process.`,
+    ),
+  );
 
   const { confirm } = await inquirer.prompt([
     {
       type: "confirm",
       name: "confirm",
-      message: `Do you want to release all ${categories.length} categories with their current version in metadata.json?`,
+      message: `Do you want to release all ${itemsToRelease.length} entries with their current version in metadata.json?`,
       default: false,
     },
   ]);
@@ -35,13 +64,12 @@ async function main() {
     return;
   }
 
-  for (const category of categories) {
-    const categoryMetadata = metadata.categories[category];
-    const version = categoryMetadata.version;
-    const tag = buildTagName(categoryMetadata.tag_prefix, version);
+  for (const item of itemsToRelease) {
+    const { name, version, tag_prefix } = item;
+    const tag = buildTagName(tag_prefix, version);
 
     console.log(
-      pc.cyan(`\n📦 Processing ${pc.bold(category)} (v${version})...`),
+      pc.cyan(`\n📦 Processing ${pc.bold(name)} (v${version})...`),
     );
 
     try {
@@ -61,17 +89,17 @@ async function main() {
         "tag",
         tag,
         "-m",
-        `release: ${category} v${version}`,
+        `release: ${name} v${version}`,
       ]);
 
       // 3. Push tag
       console.log(pc.gray(`Pushing tag: ${tag}`));
       execFileSync("git", ["push", "origin", tag]);
-      console.log(pc.green(`✅ Successfully released ${category} v${version}`));
+      console.log(pc.green(`✅ Successfully released ${name} v${version}`));
     } catch (error) {
       console.error(
-        pc.red(`❌ Failed to release ${category}:`),
-        (error as any).message,
+        pc.red(`❌ Failed to release ${name}:`),
+        error instanceof Error ? error.message : String(error),
       );
     }
   }

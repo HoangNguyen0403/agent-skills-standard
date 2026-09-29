@@ -2,6 +2,7 @@
 name: incident-hotfix
 description: "Mitigate a production incident or urgent regression first, then route to root-cause remediation and a postmortem."
 metadata:
+  internal: true
   triggers:
     keywords:
     - incident hotfix

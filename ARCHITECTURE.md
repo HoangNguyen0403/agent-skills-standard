@@ -37,7 +37,7 @@ This replaces the previous flat index (all skills in one list) and reduces scan 
 
 ## 2. Multi-Agent Compatibility (The "Integration Taxonomy")
 
-This project maintains a standardized bridge for multiple AI agents, each with varying levels of native support for hooks and context injection.
+This project maintains a standardized bridge for multiple AI agents, each with varying levels of native support for hooks and context injection. The canonical per-agent capability matrix is maintained in `cli/src/capabilities/agentCapabilities.ts` and generated to [docs/agent-capabilities.md](docs/agent-capabilities.md).
 
 | Agent / Tool        | Integration Strategy       | Primary Hook/Config                      | Scope        |
 | :------------------ | :------------------------- | :--------------------------------------- | :----------- |
@@ -103,7 +103,7 @@ The brain of the operation. It orchestrates the synchronization process.
 
 - **Responsibility**: Fetching, filtering/excluding, writing files, generating `_INDEX.md` per category, and generating router-style `AGENTS.md`.
 - **Key Dependencies**: `SkillSyncService`, `WorkflowSyncService`, `IndexGeneratorService`, `AgentBridgeService`.
-- **Design Principle**: "Safe Overwrite". It respects `custom_overrides` in `.skillsrc`.
+- **Design Principle**: "Ownership Manifest". It classifies every write against `.skills-lock.json` v2, preserves files the user edited, and respects `custom_overrides` in `.skillsrc`.
 
 ### IndexGeneratorService (`cli/src/services/IndexGeneratorService.ts`)
 
@@ -289,3 +289,34 @@ isolation, cancellation or organizational approval. The registry distributes
 standards and verifies artifact integrity; the consuming host and accountable
 maintainers must enforce authority. No autonomous self-promotion or production
 security efficacy is claimed.
+
+### ADR-013: Decision Discipline and Recorded Approval
+
+_Date: 2026-09-27_
+**Decision**: `brainstorm-feature` is one SDLC entry point with a Why lane (solution-free BRD-lite for business operators) and a Direction lane (delivery contract with technical options for technical operators), sized by SNC tier (Quick writes no file). Shared rules live in `common-decision-discipline`, loaded by `brainstorm-feature`, `plan-feature`, `design-solution`, and `system-design-session`: said-vs-assumed write-back, evidence ledger (`confirmed(<path>)`, `assumed`, `unknown`), at most 3 questions per round, option cards only for real choices, and `approval: pending | approved(<who>, <date>) | assumed-autonomous`. `implementation-readiness` blocks `pending`, warns on `assumed-autonomous`, and blocks it only at `tier=high`.
+**Reason**: The previous workflow told agents to stay solution-free and to recommend three approaches, never recorded approval before routing on, made unlabeled feasibility claims, and applied a 19-section template to every request. Superpowers and AgentKit showed that right-sizing, grounding, and explicit approval make intake trustworthy without adding questions for small work.
+
+### ADR-014: Single Agent Capability Table
+
+_Date: 2026-09-27_
+**Decision**: `cli/src/capabilities/agentCapabilities.ts` (`AGENT_CAPABILITIES`) is the only place per-agent facts live: skill, rule, workflow, specialist, hook, and MCP surfaces plus limits. `getAgentDefinition` is a one-line accessor; `McpConfigService`, `SpecialistTransformer`, and `HookService` read capability fields instead of keeping their own per-agent tables. `docs/agent-capabilities.md` is generated from the table and checked for drift in CI. After sync, each agent's unsupported surfaces are printed once and remembered in `.skills-lock.json` (`disclosed`).
+**Reason**: Per-agent behavior was split across four files, so adding or fixing an agent required matching edits in each, and unsupported surfaces were dropped silently. The Codex MCP path bug fixed in T4 came from exactly this split.
+
+### ADR-015: Ownership Manifest and User-Edit Preservation
+
+_Date: 2026-09-27_
+**Decision**: `.skills-lock.json` v2 records every whole file `ags sync` writes (skills, workflow exports, specialists, bridge rule files, per-agent `_INDEX.md`) with owner, source, agent, and sha256. Each write is classified against that manifest: new and owned-unchanged files are written; owned files the user edited are kept and reported; files ags does not own are left alone. Files that drop out of the desired set are pruned only when unchanged and only for groups that completed this run, after a backup under `.ags/backups/` (newest 3 kept). `ags sync --dry-run` computes the same plan without touching disk; `--force <path>` overwrites a kept file after backing it up. A v1 lock file is migrated on read; files without a prior record are adopted once during that migration. `ags uninstall` removes only owned-unchanged files (plus MCP entries, hook registrations, and the AGENTS.md index block for `--all`) after a backup; `ags restore` replays a backup (replace-only).
+**Packages (reconciled with ADR-012)**: Skill packages are assembled all-or-nothing (every resource, including binary assets and root `LICENSE`/`NOTICE`, must download and pass any release manifest check, or the sync aborts before writing). Hashes are computed over raw bytes. Every path is validated before the first write; files are then written through the ownership manifest one by one instead of replacing the whole package directory, so user-edited and unowned files inside a package survive. A disk failure part-way through a package can leave it mixed; the lock file is not written in that case, and the next sync repairs owned files.
+**Reason**: Sync previously overwrote user edits silently, recorded only skills, and could not safely prune or uninstall workflows, specialists, or bridge files. AgentKit's ownership model (replace unchanged, preserve modified, never adopt unknown) makes lifecycle operations safe without new prompts.
+
+### ADR-016: Pinned SDLC Assets and Release Manifests
+
+_Date: 2026-09-27_
+**Decision**: Workflows and specialists are fetched from release tags (`workflows_ref`, `specialists_ref` in `.skillsrc`, written once from the registry's latest release when absent) instead of the default branch. Every source ref is resolved to a commit and recorded in `.skills-lock.json` `sources`; a tag that later resolves to a different commit is reported. Releases publish `MANIFEST.json` (sha256 per file) with a build-provenance attestation; `ags sync` rejects downloaded files that do not match a release's manifest, and `ags verify --attestation` checks the attestation with the GitHub CLI. `ags verify --strict` fails when any locked ref has moved.
+**Reason**: Pinning categories did not pin workflows or specialists, so two installs from the same `.skillsrc` could differ, and the only integrity check (git blob SHA from the same API) protected transport, not the release.
+
+### ADR-017: Warning-First Policy Layer
+
+_Date: 2026-09-28_
+**Decision**: Machine-checkable project policy rules live in `.ags/policy.json` (`schema_version: 1`), covering three rule kinds: `protected_path` (`paths`, action `block | warn`), `command` (`executables`, action `block | warn | rewrite`, `rewrite_to`), and `required_check` (`when_changed`, `checks`, action `block | warn`). `ags policy compile` scans project agent docs (`AGENTS.md`, `CLAUDE.md`) line-by-line to propose rules into `.ags/policy-candidates.json`; compiled rules can only `warn` or `rewrite` (never `block`). `ags policy adopt <id...>` activates candidate rules into `.ags/policy.json` after conflict validation. The PreToolUse hook (`HookService`) reads `.ags/policy.json` dependency-free; `block` rules only block when `AGS_HOOK_ENFORCE=1` is set (e.g. `ags hooks install --enforce`), otherwise issuing warnings (warning-first). The MCP server surfaces policy rules advisory-only next to loaded skills. `AGS_POLICY_BYPASS=1` turns decisions into `allow` and reports waived rules. Policy prevents mistakes by cooperating agents; it is not a security boundary.
+**Reason**: Agent instructions in markdown files (`AGENTS.md`, `CLAUDE.md`) are advisory and frequently ignored or forgotten during multi-step tasks. Turning deterministic rules into machine-checkable policy enables early warning and hook/MCP enforcement without introducing disruptive hard blocks by default or treating cooperating AI agents as malicious adversaries.

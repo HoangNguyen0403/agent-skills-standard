@@ -2,6 +2,7 @@
 name: review-system-design
 description: "Review a system design someone else provided - screenshot, drawio, Mermaid, slides, doc, or IaC - by extracting it into a confirmed fact sheet, then scoring it on the nine axes."
 metadata:
+  internal: true
   triggers:
     keywords:
     - review system design

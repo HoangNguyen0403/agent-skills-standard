@@ -2,6 +2,7 @@
 name: specialist-architecture-guard
 description: Audits PR diffs for architecture boundary violations, design simplicity, dependency drift, and established-pattern mismatches. Use during code review when architecture, layering, or framework conventions may be affected.
 metadata:
+  internal: true
   triggers:
     keywords:
       - architecture review

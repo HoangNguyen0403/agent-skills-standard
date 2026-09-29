@@ -2,6 +2,7 @@
 name: publish-notes
 description: "Draft user-facing release notes, store changelogs, and internal publish summaries."
 metadata:
+  internal: true
   triggers:
     keywords:
     - publish notes

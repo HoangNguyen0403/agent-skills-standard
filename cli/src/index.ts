@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import pc from 'picocolors';
 import pkg from '../package.json';
 import { EvalsCommand } from './commands/evals';
+import { DoctorCommand } from './commands/doctor';
 import { FeedbackCommand } from './commands/feedback';
 import { HooksCommand } from './commands/hooks';
 import { InitCommand } from './commands/init';
@@ -14,6 +15,9 @@ import { AuditCommand } from './commands/audit';
 import { UpgradeCommand } from './commands/upgrade';
 import { ValidateCommand } from './commands/validate-skills';
 import { VerifyCommand } from './commands/verify';
+import { RestoreCommand } from './commands/restore';
+import { UninstallCommand } from './commands/uninstall';
+import { PolicyCommand } from './commands/policy';
 
 // Load .env from current directory (for development and other env vars)
 dotenv.config();
@@ -65,6 +69,13 @@ program
     '--snippets',
     'Generate JSON config snippets in ./mcp-config-snippets/; if MCP is disabled, run snippet-only mode',
   )
+  .option('--dry-run', 'Show what sync would change without writing anything')
+  .option(
+    '--force <paths...>',
+    'Overwrite these files even if you edited them (backed up first)',
+  )
+  .option('--verbose', 'With --dry-run: list every path')
+  .option('--json', 'With --dry-run: print the plan as JSON (sync.plan)')
   .action(async (options) => {
     const sync = new SyncCommand();
     await sync.run(options);
@@ -73,11 +84,19 @@ program
 program
   .command('verify')
   .description(
-    'Check installed skill files against .skills-lock.json (catches tampering, partial writes, or manual drift)',
+    'Check installed files against .skills-lock.json (catches tampering, partial writes, or manual drift)',
   )
   .option(
     '--agent <agent>',
     'Which agent skill directory to verify (default: first configured agent)',
+  )
+  .option(
+    '--strict',
+    'Fail if any locked ref has moved (resolves to a different commit)',
+  )
+  .option(
+    '--attestation',
+    'Verify build-provenance attestations using the GitHub CLI (gh)',
   )
   .action(async (options) => {
     const cmd = new VerifyCommand();
@@ -86,12 +105,38 @@ program
 
 program
   .command('audit')
-  .description(
-    'Print the installed skill inventory recorded in .skills-lock.json',
-  )
+  .description('Print the installed inventory recorded in .skills-lock.json')
   .action(async () => {
     const cmd = new AuditCommand();
     await cmd.run();
+  });
+
+program
+  .command('restore [id]')
+  .description('List backups in .ags/backups or restore one (replace-only)')
+  .option('--list', 'List available backups')
+  .action(async (id: string | undefined, options: { list?: boolean }) => {
+    await new RestoreCommand().run(id, options);
+  });
+
+program
+  .command('uninstall')
+  .description(
+    'Remove files ags installed (keeps files you edited); backs up first',
+  )
+  .option(
+    '--all',
+    'Remove everything ags installed, plus MCP entries, hook registrations, and the AGENTS.md index block',
+  )
+  .option(
+    '--agent <agents...>',
+    'Remove only what was installed for these agents',
+  )
+  .option('--category <categories...>', 'Remove only these skill categories')
+  .option('--dry-run', 'Show what would be removed')
+  .option('-y, --yes', 'Apply without prompting')
+  .action(async (options) => {
+    await new UninstallCommand().run(options);
   });
 
 program
@@ -204,6 +249,21 @@ program
   });
 
 program
+  .command('doctor')
+  .description(
+    'Check installation health (config, agents, lock file, MCP, hooks, CLI version)',
+  )
+  .option('--json', 'Emit a versioned JSON report (doctor.report)')
+  .option('--exit-on-fail', 'Exit 1 when any check fails')
+  .option('--fix', 'Apply available safe fixes (asks per fix unless --yes)')
+  .option('-y, --yes', 'Apply fixes without prompting')
+  .option('--offline', 'Skip the network-backed cli_version check')
+  .action(async (options) => {
+    const cmd = new DoctorCommand();
+    await cmd.run(options);
+  });
+
+program
   .command('evals <action>')
   .description(
     'Verify or display live skill-eval runs. Actions: verify | report',
@@ -215,6 +275,59 @@ program
   .action(async (action: string, opts: { run?: string }) => {
     const cmd = new EvalsCommand();
     await cmd.run(action, opts);
+  });
+
+const policyCmd = program
+  .command('policy')
+  .description(
+    'Manage and check project agent policies. Prevents mistakes by cooperating agents; not a security boundary.',
+  );
+
+policyCmd
+  .command('status')
+  .description('Show policy rules in force and built-in rules')
+  .option('--json', 'Output status as JSON')
+  .action(async (options) => {
+    await new PolicyCommand().status(options);
+  });
+
+policyCmd
+  .command('check')
+  .description(
+    'Evaluate a file path, command, or git diff against policy rules',
+  )
+  .option('--path <path>', 'Relative path to check')
+  .option('--command <command>', 'Executable to check')
+  .option('--diff', 'Check required checks against git diff')
+  .option('--no-bypass', 'Ignore AGS_POLICY_BYPASS environment variable')
+  .option('--json', 'Output decision as JSON')
+  .action(async (options) => {
+    await new PolicyCommand().check(options);
+  });
+
+policyCmd
+  .command('validate')
+  .description('Validate policy file for conflicts and stale compiled rules')
+  .option('--fail-on-stale', 'Fail if any compiled rules are stale')
+  .option('--json', 'Output validation result as JSON')
+  .action(async (options) => {
+    await new PolicyCommand().validate(options);
+  });
+
+policyCmd
+  .command('compile')
+  .description('Compile proposed policy rules from AGENTS.md and CLAUDE.md')
+  .option('--json', 'Output candidates as JSON')
+  .action(async (options) => {
+    await new PolicyCommand().compile(options);
+  });
+
+policyCmd
+  .command('adopt <ids...>')
+  .description('Adopt candidate rules into .ags/policy.json')
+  .option('--json', 'Output adoption result as JSON')
+  .action(async (ids: string[], options) => {
+    await new PolicyCommand().adopt(ids, options);
   });
 
 program.parse();

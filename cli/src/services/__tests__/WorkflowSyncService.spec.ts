@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent, DEFAULT_WORKFLOWS } from '../../constants';
 import { SkillConfig } from '../../models/config';
 import { WorkflowSyncService } from '../WorkflowSyncService';
+import type { ManifestVerifier } from '../install/ManifestVerifier';
 
 // Mock fs-extra
 vi.mock('fs-extra');
@@ -156,6 +157,23 @@ describe('WorkflowSyncService', () => {
 
       expect(config.workflows).toContain('code-review');
       expect(config.workflows).not.toContain('evals-run');
+    });
+
+    it('should fetch tree at the passed ref and not call getRepoInfo', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        workflows: true,
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoTree.mockResolvedValue({ tree: [] });
+
+      await workflowSyncService.reconcileWorkflows(config, 'workflows-v1.0.0');
+
+      expect(mockGithubService.getRepoTree).toHaveBeenCalledWith(
+        'o',
+        'r',
+        'workflows-v1.0.0',
+      );
+      expect(mockGithubService.getRepoInfo).not.toHaveBeenCalled();
     });
   });
 
@@ -311,6 +329,66 @@ describe('WorkflowSyncService', () => {
       const result = await workflowSyncService.assembleWorkflows(config);
       expect(result).toEqual([]);
     });
+
+    it('should fetch tree at the passed ref and not call getRepoInfo', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        workflows: true,
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoTree.mockResolvedValue({ tree: [] });
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+        ok: [],
+        failed: [],
+      });
+
+      await workflowSyncService.assembleWorkflows(config, 'workflows-v1.0.0');
+
+      expect(mockGithubService.getRepoTree).toHaveBeenCalledWith(
+        'o',
+        'r',
+        'workflows-v1.0.0',
+      );
+      expect(mockGithubService.getRepoInfo).not.toHaveBeenCalled();
+    });
+
+    it('should drop rejected workflow files and keep valid ones when verifier rejects a file', async () => {
+      const config = {
+        registry: 'https://github.com/o/r',
+        workflows: true,
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: '.agents/workflows/valid.md', type: 'blob' },
+          { path: '.agents/workflows/tampered.md', type: 'blob' },
+        ],
+      });
+      mockGithubService.downloadFilesConcurrent.mockResolvedValue({
+        ok: [
+          { path: '.agents/workflows/valid.md', content: 'good' },
+          { path: '.agents/workflows/tampered.md', content: 'bad' },
+        ],
+        failed: [],
+      });
+
+      const fakeVerifier = {
+        check: vi.fn().mockImplementation((path: string) => {
+          if (path.includes('tampered.md')) {
+            return 'sha256 does not match release MANIFEST.json';
+          }
+          return null;
+        }),
+      };
+
+      const result = await workflowSyncService.assembleWorkflows(
+        config,
+        'workflows-v1.0.0',
+        fakeVerifier as unknown as ManifestVerifier,
+      );
+
+      expect(result).toHaveLength(1);
+      expect(result[0].files).toHaveLength(1);
+      expect(result[0].files[0].name).toBe('valid.md');
+    });
   });
 
   describe('writeWorkflows', () => {
@@ -334,6 +412,32 @@ describe('WorkflowSyncService', () => {
       expect(fs.outputFile).toHaveBeenCalledWith(
         expect.stringContaining('test.md'),
         expect.any(String),
+      );
+    });
+    it('routes whole-file writes through injected InstallWriter with expected meta', async () => {
+      const workflows = [
+        {
+          skill: 'workflows',
+          files: [
+            { name: 'test.md', content: '---\ndescription: test\n---\n# Test' },
+          ],
+        },
+      ];
+      const fakeWriter = { write: vi.fn() };
+      await workflowSyncService.writeWorkflows(
+        workflows as unknown as CollectedSkill[],
+        {} as unknown as SkillConfig,
+        [Agent.Antigravity],
+        fakeWriter as unknown as InstallWriter,
+      );
+      expect(fakeWriter.write).toHaveBeenCalledWith(
+        expect.stringContaining('test.md'),
+        expect.any(String),
+        {
+          owner: 'workflow',
+          source: 'workflow:test',
+          agent: 'antigravity',
+        },
       );
     });
 

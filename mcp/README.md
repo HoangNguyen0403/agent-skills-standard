@@ -28,6 +28,16 @@ This MCP follows the [Core Architecture](../ARCHITECTURE.md) inspired by **Rust 
 
 The server honours the same tier model as `agent-skills-standard`'s index generator: broad globs (`**/*.dart`) only match if the skill is the registered `base_language_skills` for that category. Everything else is demoted to keyword match.
 
+## Project policy (.ags/policy.json)
+
+When a project defines `.ags/policy.json`, the MCP server automatically reads it synchronously and re-reads it whenever the file's modification time changes.
+
+- **`load_skills_for_files`**: appends matching `protected_path` rules and `required_check` items under `## Project policy for these files`.
+- **`audit_session_compliance`**: appends `## Required checks for files touched this session` covering files loaded during the session.
+
+> [!NOTE]
+> Policy rules surfaced by the MCP are advisory and designed to prevent mistakes by cooperating agents; they are **not a security boundary**.
+
 ## Install
 
 The easiest path is to let the CLI wire it for you:

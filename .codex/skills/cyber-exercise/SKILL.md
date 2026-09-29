@@ -2,6 +2,7 @@
 name: cyber-exercise
 description: "Run a bounded cybersecurity exercise workflow with authorization, runtime, control, evidence, and independent adjudication gates; supports safe offline planning when live controls are unavailable."
 metadata:
+  internal: true
   triggers:
     keywords:
     - cyber exercise

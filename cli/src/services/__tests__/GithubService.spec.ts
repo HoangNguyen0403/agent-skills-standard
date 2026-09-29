@@ -392,4 +392,116 @@ describe('GithubService', () => {
       ).toBeNull();
     });
   });
+
+  describe('resolveCommit', () => {
+    it('calls commits endpoint with Accept: application/vnd.github.sha and returns trimmed 40-hex sha', async () => {
+      const sha = 'a'.repeat(40);
+      vi.mocked(fetch).mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(`  ${sha}\n`),
+      } as Response);
+
+      const result = await githubService.resolveCommit('owner', 'repo', 'v1.0.0');
+      expect(result).toBe(sha);
+      expect(fetch).toHaveBeenCalledWith(
+        'https://api.github.com/repos/owner/repo/commits/v1.0.0',
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            Accept: 'application/vnd.github.sha',
+            Authorization: 'token mock-token',
+          }),
+        }),
+      );
+    });
+
+    it('returns null on non-200, on non-sha body, and when fetch throws', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      } as Response);
+      expect(await githubService.resolveCommit('owner', 'repo', 'v1.0.0')).toBeNull();
+
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        text: () => Promise.resolve('not-a-sha'),
+      } as Response);
+      expect(await githubService.resolveCommit('owner', 'repo', 'v1.0.0')).toBeNull();
+
+      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
+      expect(await githubService.resolveCommit('owner', 'repo', 'v1.0.0')).toBeNull();
+    });
+  });
+
+  describe('getReleaseManifest', () => {
+    it('fetches release MANIFEST.json without auth headers and returns valid manifest', async () => {
+      const manifest = {
+        schema_version: 1,
+        tag: 'workflows-v1.0.0',
+        commit: 'a'.repeat(40),
+        files: {
+          '.agents/workflows/dev-fix.md': 'b'.repeat(64),
+        },
+      };
+      vi.mocked(fetch).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(manifest),
+      } as Response);
+
+      const result = await githubService.getReleaseManifest(
+        'owner',
+        'repo',
+        'workflows-v1.0.0',
+      );
+      expect(result).toEqual(manifest);
+      expect(fetch).toHaveBeenCalledWith(
+        'https://github.com/owner/repo/releases/download/workflows-v1.0.0/MANIFEST.json',
+      );
+    });
+
+    it('returns null on 404, malformed JSON, schema_version !== 1, and when any files value is not 64-hex', async () => {
+      // 404
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      } as Response);
+      expect(await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0')).toBeNull();
+
+      // malformed JSON (res.json throws)
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.reject(new Error('Invalid JSON')),
+      } as Response);
+      expect(await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0')).toBeNull();
+
+      // schema_version !== 1
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            schema_version: 2,
+            tag: 'v1.0.0',
+            commit: 'a'.repeat(40),
+            files: { 'foo.md': 'b'.repeat(64) },
+          }),
+      } as Response);
+      expect(await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0')).toBeNull();
+
+      // files value not 64-hex
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            schema_version: 1,
+            tag: 'v1.0.0',
+            commit: 'a'.repeat(40),
+            files: { 'foo.md': 'short' },
+          }),
+      } as Response);
+      expect(await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0')).toBeNull();
+
+      // fetch throws
+      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
+      expect(await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0')).toBeNull();
+    });
+  });
 });

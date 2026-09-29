@@ -2,6 +2,7 @@
 name: skill-benchmark
 description: "Benchmark AI skill effectiveness by measuring implementation quality against legacy constraints."
 metadata:
+  internal: true
   triggers:
     keywords:
     - skill benchmark

@@ -36,6 +36,7 @@
 | common-code-review | review, pr, critique, analyze code |
 | common-dast-tooling | DAST, dynamic scan, zap, nuclei, nikto, curl probe, pentest, dynamic analysis, sqlmap, ffuf, mobile proxy |
 | common-debugging | debug, fix bug, crash, error, exception, troubleshooting |
+| **common-decision-discipline** | decision brief, delivery contract, compare approaches, evidence ledger, approval state, option trade-offs, shape a direction |
 | common-documentation | comment, docstring, readme, documentation |
 | **common-exploit-verification** | exploit verification, proof of concept, PoC, false positive, validate finding, exploit proof, pentest finding, security evidence |
 | **common-git-collaboration** | commit, branch, merge, pull-request, git |

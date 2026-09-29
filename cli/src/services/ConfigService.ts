@@ -50,6 +50,9 @@ const SkillConfigSchema = z.object({
   ),
   custom_overrides: z.array(z.string()).optional(),
   workflows: z.union([z.boolean(), z.array(z.string())]).optional(),
+  prune: z.boolean().optional(),
+  workflows_ref: z.string().optional(),
+  specialists_ref: z.string().optional(),
   mcp: McpConfigSchema.optional(),
   telemetry: z.boolean().optional(),
 });

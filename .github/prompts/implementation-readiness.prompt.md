@@ -13,7 +13,7 @@ Goal: Decide whether a planned change is ready for implementation or must return
    - Jira/GitHub/GitLab/ADO/Figma/Confluence MCP context when configured; otherwise use exported docs or local files.
 
 2. Check readiness:
-   - BRD-lite has business goal, stakeholder, AS-IS to TO-BE, and measurable success metric.
+   - Brief has its lane contract (Why: business goal, stakeholder, AS-IS to TO-BE, measurable metric; Direction: outcome, constraints, non-goals, acceptance criteria) and `approval`: `approved` passes, `pending` blocks, `assumed-autonomous` warns and blocks only when `snc_tier=high`.
    - ACs atomic, testable, scoped by platform/market/role where relevant.
    - PRD has stable requirement IDs, AC IDs, owner, priority, status, and last-updated note.
    - SRS/FRS identifies touched modules, API/data/interface changes, migrations, permissions, failure modes, and NFR thresholds.

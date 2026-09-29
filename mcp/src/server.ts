@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ResolvedConfig } from "./config";
 import { SessionTracker } from "./services/SessionTracker";
+import { loadPolicyView } from "./services/PolicyIndex";
 import { SkillIndex } from "./services/SkillIndex";
 import {
   auditSessionCompliance,
@@ -137,11 +138,13 @@ export async function buildServer(
   const index = new SkillIndex(config.skillsDir, config.metadataPath);
   await index.load();
   const tracker = options.tracker ?? new SessionTracker();
+  const policy = loadPolicyView(config.projectRoot);
   const ctx = {
     projectRoot: config.projectRoot,
     index,
     tracker,
     setup: config.setup,
+    policy,
   };
 
   const server = new McpServer(
@@ -157,7 +160,7 @@ export async function buildServer(
   register(server, {
     name: "load_skills_for_files",
     title: "Load skills for files",
-    description: `<use_case>Load the project's coding-standard rules (SKILL.md files) that apply to one or more files you are about to edit, write, or review. The router maps each file's extension to relevant skill categories and returns the matched rules.</use_case>
+    description: `<use_case>Load the project's coding-standard rules (SKILL.md files) that apply to one or more files you are about to edit, write, or review. The router maps each file's extension to relevant skill categories and returns the matched rules. Also returns matching rules from .ags/policy.json when present (advisory; not a security boundary).</use_case>
 
 <aliases>"what are our team's rules for editing X", "show project conventions for X", "review standards for file X", "how should I implement this in file Y"</aliases>
 
@@ -244,7 +247,7 @@ export async function buildServer(
   register(server, {
     name: "audit_session_compliance",
     title: "Audit which skills were loaded in this session",
-    description: `<use_case>Return the list of skills loaded so far in this session, plus the tool calls that loaded them. Use this BEFORE claiming a task is complete or posting a code review, so you can verify the relevant rules were actually consulted.</use_case>
+    description: `<use_case>Return the list of skills loaded so far in this session, plus the tool calls that loaded them. Use this BEFORE claiming a task is complete or posting a code review, so you can verify the relevant rules were actually consulted. Also returns matching rules from .ags/policy.json when present (advisory; not a security boundary).</use_case>
 
 <aliases>"which rules did I load", "what skills are active", "show my compliance log", "did I check the right standards", "audit my work"</aliases>
 - For PR reviews, paste the loaded-skills list into the review header so the author can verify.

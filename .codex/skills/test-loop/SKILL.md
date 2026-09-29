@@ -2,6 +2,7 @@
 name: test-loop
 description: "Plan, generate, and heal an executable E2E test suite from approved acceptance criteria (web and mobile)."
 metadata:
+  internal: true
   triggers:
     keywords:
     - test loop

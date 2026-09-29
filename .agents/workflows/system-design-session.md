@@ -9,7 +9,7 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
 ## Steps
 
 1. Load inputs:
-   - Load `system-design-methodology` plus matched siblings (estimation, building-blocks, data-architecture, resilience-ops, review, principles) and `common-architecture-diagramming` for the draw.io render pipeline.
+   - Load `system-design-methodology` plus matched siblings (estimation, building-blocks, data-architecture, resilience-ops, review, principles) and `common-architecture-diagramming` for the draw.io render pipeline, and `common-decision-discipline` for option cards and the evidence ledger.
    - Load PRD or ticket, existing architecture docs, and current traffic/incident data when reviewing an existing system.
 2. Classify and announce:
    - Mode: new design | review existing | interview practice.

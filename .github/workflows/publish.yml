@@ -30,6 +30,7 @@ on:
       - 'system-design-v*'
       - 'cybersecurity-v*'
       - 'specialists-v*'
+      - 'workflows-v*'
 
 permissions:
   contents: write
@@ -68,8 +69,21 @@ jobs:
   publish-skills:
     if: "!startsWith(github.ref, 'refs/tags/cli-v') && !startsWith(github.ref, 'refs/tags/mcp-v')"
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '20.x'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Extract Tag Info
         id: tag_info
@@ -83,7 +97,7 @@ jobs:
       - name: Validate Metadata
         run: |
           # Read version from metadata.json for this category
-          META_VERSION=$(jq -r ".categories[\"${TAG_INFO_CATEGORY}\"].version" skills/metadata.json)
+          META_VERSION=$(jq -r "(.categories[\"${TAG_INFO_CATEGORY}\"].version // .releases[\"${TAG_INFO_CATEGORY}\"].version)" skills/metadata.json)
 
           # Strip 'v' prefix from tag version (e.g., v1.0.0 -> 1.0.0)
           CLEAN_TAG_VERSION=${TAG_INFO_VERSION#v}
@@ -111,11 +125,20 @@ jobs:
           TAG_INFO_CATEGORY: ${{ steps.tag_info.outputs.category }}
           TAG_INFO_VERSION: ${{ steps.tag_info.outputs.version }}
 
+      - name: Build release manifest
+        run: pnpm release:manifest --tag "${GITHUB_REF_NAME}" --commit "${GITHUB_SHA}" --out dist-release/MANIFEST.json
+
+      - name: Attest release manifest
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist-release/MANIFEST.json
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
           name: '${{ steps.tag_info.outputs.category }} ${{ steps.tag_info.outputs.version }}'
+          files: dist-release/MANIFEST.json
           body: |
             New skills update for **${{ steps.tag_info.outputs.category }}**.
 
