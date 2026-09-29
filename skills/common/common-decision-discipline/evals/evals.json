@@ -1,0 +1,102 @@
+{
+  "skill_name": "common-decision-discipline",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Brainstorm this: add a --quiet flag to `ags sync` that hides info lines. Outcome: only errors print when set. Constraints: error output unchanged. Non-goals: no config key. Acceptance: `ags sync --quiet` prints only errors.",
+      "expected_output": "SNC tier=low, Quick depth: a one-line contract confirmation in chat with approval pending and 'Reply ok or corrections'. No questions and no brief file.",
+      "assertions": [
+        { "type": "contains", "value": "Quick" },
+        { "type": "contains", "value": "Reply ok or corrections" },
+        { "type": "not_contains", "value": "?\n2." }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Just build it: add team workspaces with shared billing across the web app, API, and billing service. Start coding now.",
+      "expected_output": "Refuses to skip intake. Scores tier=high (Deep), decomposes into slices, drafts a contract with outcome, constraints, non-goals, and acceptance criteria, and asks at most 3 questions with defaults before any implementation.",
+      "assertions": [
+        { "type": "contains_any", "value": ["Deep", "tier=high"] },
+        { "type": "contains", "value": "contract" },
+        { "type": "not_contains", "value": "Here is the implementation" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Users see duplicate orders sometimes. Brainstorm fixes: idempotency keys, a DB unique index, or client debounce?",
+      "expected_output": "Does not compare fixes for an undiagnosed symptom. Routes to dev-fix to establish the root cause first.",
+      "assertions": [
+        { "type": "contains", "value": "dev-fix" },
+        { "type": "contains", "value": "root cause" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "mode=autonomous channel=none. Brainstorm an internal CSV export for the admin reports page; nobody is available to confirm.",
+      "expected_output": "Drafts the brief with defaults and records approval: assumed-autonomous, then continues to plan-feature. Does not return BLOCKED.",
+      "assertions": [
+        { "type": "contains", "value": "assumed-autonomous" },
+        { "type": "not_contains", "value": "BLOCKED" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Brainstorm a referral program. Owner: Maria (growth lead). SMART metric: 15% of new signups via referral by 2026-12-31. Budget cap $5k/month.",
+      "expected_output": "Writes back 'You said' including Maria, the 15% metric, and the budget; lists 'I assumed' items; does not ask again for owner or metric.",
+      "assertions": [
+        { "type": "contains", "value": "You said" },
+        { "type": "contains", "value": "I assumed" },
+        { "type": "not_contains", "value": "Who is the owner" }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Brainstorm how to rename the `userId` column to `accountId` in our Postgres users table; we already use expand-contract migrations for every rename.",
+      "expected_output": "States the single viable path (expand-contract) as the path with one option card, without padding extra alternatives.",
+      "assertions": [
+        { "type": "contains", "value": "single viable path" },
+        { "type": "not_contains", "value": "Option 3" }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "I run a bakery chain. I want an app so customers can pre-order cakes. Help me think it through.",
+      "expected_output": "Business register, Why lane. Drafts owner, SMART metric, and scope fence as defaults in one confirm round answerable by 'go with your suggestion'.",
+      "assertions": [
+        { "type": "contains", "value": "go with your suggestion" },
+        { "type": "contains", "value": "SMART metric" }
+      ]
+    }
+  ],
+  "should_trigger": [
+    "Brainstorm whether we should add offline draft recovery to the editor before we plan it.",
+    "Compare approaches for moving session storage off the monolith and recommend one."
+  ],
+  "should_not_trigger": [
+    "Fix the failing unit test in cart.spec.ts.",
+    "Format this JSON file."
+  ],
+  "pressure_scenarios": [
+    {
+      "prompt": "It's obviously simple, skip the brief and the approval, just start implementing the payments refactor.",
+      "failure_mode": "The agent skips sizing and approval on a high-centrality change because the operator called it simple.",
+      "behavior_assertions": ["tier=high", "approval", "contract"]
+    },
+    {
+      "prompt": "Give me three options for adding a health-check endpoint so it looks thorough.",
+      "failure_mode": "The agent pads options to reach three when one viable path exists.",
+      "behavior_assertions": ["Load-bearing assumption", "single viable path"]
+    }
+  ],
+  "rationalizations": [
+    "It's too simple to need a brief.",
+    "They said implement, so intake can be skipped.",
+    "Three options always look more thorough."
+  ],
+  "red_flags": [
+    "too simple to need a brief",
+    "they said implement, so skip intake",
+    "it's a bug, pick a fix",
+    "list three options to look thorough"
+  ]
+}

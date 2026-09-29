@@ -1,4 +1,3 @@
-import fs from 'fs-extra';
 import * as yaml from 'js-yaml';
 import path from 'path';
 import pc from 'picocolors';
@@ -6,6 +5,9 @@ import { Agent, SUPPORTED_AGENTS } from '../constants';
 import { SkillConfig, SkillEntry } from '../models/config';
 import { CollectedSkill, GitHubTreeItem } from '../models/types';
 import { GithubService } from './GithubService';
+import { isOverriddenRel, toPosixRel } from './install/pathMatch';
+import { InstallWriter, PassthroughWriter } from './install/OwnershipWriter';
+import { ManifestVerifier } from './install/ManifestVerifier';
 
 /**
  * A selected registry category or package could not be assembled completely.
@@ -33,6 +35,7 @@ export class SkillSyncService {
   async assembleSkills(
     categories: string[],
     config: SkillConfig,
+    verifiers: Record<string, ManifestVerifier> = {},
   ): Promise<CollectedSkill[]> {
     this.failedPackagesByCategory.clear();
     this.failedCategories.clear();
@@ -71,6 +74,7 @@ export class SkillSyncService {
           category,
           absOrRelSkill,
           treeData.tree,
+          verifiers,
         );
         if (skill) {
           collected.push(skill);
@@ -104,34 +108,24 @@ export class SkillSyncService {
     skills: CollectedSkill[],
     config: SkillConfig,
     agents: Agent[],
+    writer: InstallWriter = new PassthroughWriter(),
   ): Promise<void> {
     const overrides = config.custom_overrides || [];
-    const fetchedSkillsByCategory: Record<string, Set<string>> = {};
-    for (const skill of skills) {
-      (fetchedSkillsByCategory[skill.category] ??= new Set()).add(skill.skill);
-    }
 
     for (const agentId of agents) {
       const agentDef = SUPPORTED_AGENTS.find((agent) => agent.id === agentId);
       if (!agentDef?.path) continue;
 
       const basePath = agentDef.path;
-      await fs.ensureDir(basePath);
+
       for (const skill of skills) {
-        const installed = await this.writeSkillForAgent(
+        await this.writeSkillForAgent(
           agentId,
           skill,
           overrides,
           basePath,
-        );
-        if (!installed) this.markPackageFailed(skill.category, skill.skill);
-      }
-
-      if (config.prune !== false) {
-        await this.pruneOrphanedSkills(
-          basePath,
-          fetchedSkillsByCategory,
-          overrides,
+          writer,
+          config,
         );
       }
       console.log(pc.gray(`  - Updated ${basePath}/ (${agentDef.name})`));
@@ -143,7 +137,9 @@ export class SkillSyncService {
     skill: CollectedSkill,
     overrides: string[],
     basePath: string,
-  ): Promise<boolean> {
+    writer: InstallWriter,
+    config: SkillConfig,
+  ): Promise<void> {
     const isKiro = agentId === Agent.Kiro;
     const skillPath = isKiro
       ? path.join(basePath, `${skill.category}-${skill.skill}`)
@@ -157,6 +153,12 @@ export class SkillSyncService {
       throw new Error(`Invalid skill path ${skill.category}/${skill.skill}`);
     }
 
+    // Validate every path and prepare every payload before the first write, so
+    // an unsafe package never partially lands. Writes then go through the
+    // ownership writer file by file (ADR-014): user-edited and unknown files
+    // are preserved instead of the whole package directory being replaced.
+    const source = `skill:${skill.category}/${skill.skill}@${config.skills?.[skill.category]?.ref ?? 'main'}`;
+    const pending: Array<{ target: string; content: string | Buffer }> = [];
     for (const fileItem of skill.files) {
       const targetFilePath = path.join(skillPath, fileItem.name);
       if (!this.isPathSafe(targetFilePath, skillPath)) {
@@ -165,50 +167,28 @@ export class SkillSyncService {
         );
         throw new Error(`Invalid path ${fileItem.name}`);
       }
+      if (this.isOverridden(targetFilePath, overrides)) {
+        console.log(
+          pc.yellow(
+            `    ⚠️  Skipping overridden: ${this.normalizePath(targetFilePath)}`,
+          ),
+        );
+        continue;
+      }
+      // Raw download bytes unless an adapter transform needs the text.
+      const content =
+        isKiro && fileItem.name === 'SKILL.md'
+          ? this.transformSkillForKiro(fileItem.content, skill.category)
+          : (fileItem.bytes ?? fileItem.content);
+      pending.push({ target: targetFilePath, content });
     }
 
-    const stagingPath = path.join(
-      path.dirname(skillPath),
-      `.${path.basename(skillPath)}.ags-staging`,
-    );
-    if (await fs.pathExists(stagingPath)) {
-      throw new Error(
-        `Refusing to replace ${skill.category}/${skill.skill}: staging path already exists at ${stagingPath}`,
-      );
-    }
-    await fs.ensureDir(path.dirname(skillPath));
-
-    try {
-      if (this.hasOverridesInsideSkill(skillPath, overrides)) {
-        await this.copyOverrides(skillPath, stagingPath, overrides);
-      }
-      for (const fileItem of skill.files) {
-        const targetFilePath = path.join(skillPath, fileItem.name);
-        if (this.isOverridden(targetFilePath, overrides)) {
-          console.log(
-            pc.yellow(
-              `    ⚠️  Skipping overridden: ${this.normalizePath(targetFilePath)}`,
-            ),
-          );
-          continue;
-        }
-
-        const stagedFilePath = path.join(stagingPath, fileItem.name);
-        let content: string | Buffer = fileItem.bytes ?? fileItem.content;
-        if (isKiro && fileItem.name === 'SKILL.md') {
-          content = this.transformSkillForKiro(
-            fileItem.content,
-            skill.category,
-          );
-        }
-        await fs.outputFile(stagedFilePath, content);
-      }
-
-      await this.replaceSkillDirectory(stagingPath, skillPath);
-      return true;
-    } catch (error) {
-      await fs.remove(stagingPath);
-      throw error;
+    for (const { target, content } of pending) {
+      await writer.write(target, content, {
+        owner: 'skill',
+        source,
+        agent: agentId,
+      });
     }
   }
 
@@ -219,6 +199,7 @@ export class SkillSyncService {
     category: string,
     absOrRelSkill: string,
     tree: GitHubTreeItem[],
+    verifiers: Record<string, ManifestVerifier> = {},
   ): Promise<CollectedSkill | null> {
     const [sourceCat, skillName] = absOrRelSkill.includes('/')
       ? absOrRelSkill.split('/')
@@ -254,6 +235,14 @@ export class SkillSyncService {
 
     const { ok: files, failed } =
       await this.githubService.downloadFilesConcurrentBytes(downloadTasks);
+
+    const verifier = verifiers[sourceCat] ?? verifiers[category];
+    if (verifier) {
+      for (const f of files) {
+        const rejection = verifier.check(f.path, f.content);
+        if (rejection) failed.push({ path: f.path, reason: rejection });
+      }
+    }
     for (const failure of failed) {
       console.log(
         pc.red(
@@ -468,128 +457,12 @@ export class SkillSyncService {
     failedSkills.add(skill);
   }
 
-  private async pruneOrphanedSkills(
-    basePath: string,
-    fetchedSkillsByCategory: Record<string, Set<string>>,
-    overrides: string[],
-  ): Promise<void> {
-    for (const [category, fetchedSkills] of Object.entries(
-      fetchedSkillsByCategory,
-    )) {
-      if (this.failedCategories.has(category)) continue;
-
-      const categoryPath = path.join(basePath, category);
-      if (!(await fs.pathExists(categoryPath))) continue;
-
-      const failedSkills = this.failedPackagesByCategory.get(category);
-      const existingDirs = await fs.readdir(categoryPath);
-      for (const directory of existingDirs) {
-        const fullPath = path.join(categoryPath, directory);
-        if (
-          fetchedSkills.has(directory) ||
-          failedSkills?.has(directory) ||
-          this.isOverridden(fullPath, overrides)
-        ) {
-          continue;
-        }
-        await fs.remove(fullPath);
-      }
-    }
-  }
-
-  private hasOverridesInsideSkill(
-    skillPath: string,
-    overrides: string[],
-  ): boolean {
-    const skillRelativePath = this.normalizePath(skillPath);
-    const skillSuffix = skillRelativePath.split('/').slice(-2).join('/');
-    return overrides.some((override) => {
-      const normalizedOverride = override
-        .replace(/\\/g, '/')
-        .replace(/\/$/, '');
-      return (
-        this.isOverridden(skillPath, [override]) ||
-        normalizedOverride.startsWith(`${skillRelativePath}/`) ||
-        normalizedOverride.includes(`/${skillRelativePath}/`) ||
-        normalizedOverride === skillSuffix ||
-        normalizedOverride.startsWith(`${skillSuffix}/`) ||
-        normalizedOverride.includes(`/${skillSuffix}/`)
-      );
-    });
-  }
-
-  private async copyOverrides(
-    sourcePath: string,
-    targetPath: string,
-    overrides: string[],
-  ): Promise<void> {
-    if (!(await fs.pathExists(sourcePath))) return;
-
-    const sourceStat = await fs.lstat(sourcePath);
-    if (sourceStat.isSymbolicLink() || !sourceStat.isDirectory()) {
-      console.log(
-        pc.yellow(
-          `    ⚠️  Skipping override copy outside installation root: ${this.normalizePath(sourcePath)}`,
-        ),
-      );
-      return;
-    }
-
-    const entries = await fs.readdir(sourcePath, { withFileTypes: true });
-    for (const entry of entries) {
-      const source = path.join(sourcePath, entry.name);
-      const target = path.join(targetPath, entry.name);
-      if (entry.isDirectory()) {
-        await this.copyOverrides(source, target, overrides);
-      } else if (entry.isFile() && this.isOverridden(source, overrides)) {
-        await fs.copy(source, target);
-      }
-    }
-  }
-
-  private async replaceSkillDirectory(
-    stagingPath: string,
-    skillPath: string,
-  ): Promise<void> {
-    const backupPath = `${skillPath}.ags-backup`;
-    if (await fs.pathExists(backupPath)) {
-      throw new Error(
-        `Refusing to replace ${this.normalizePath(skillPath)}: backup path already exists at ${backupPath}`,
-      );
-    }
-
-    const hadExistingSkill = await fs.pathExists(skillPath);
-    if (hadExistingSkill) {
-      await fs.move(skillPath, backupPath, { overwrite: false });
-    }
-
-    try {
-      await fs.move(stagingPath, skillPath, { overwrite: false });
-    } catch (error) {
-      if (hadExistingSkill) {
-        await fs.move(backupPath, skillPath, { overwrite: false });
-      }
-      throw error;
-    }
-
-    if (hadExistingSkill) await fs.remove(backupPath);
-  }
-
   private isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
   }
 
   private isOverridden(targetPath: string, overrides: string[]): boolean {
-    const rel = this.normalizePath(targetPath);
-    return overrides.some((o) => {
-      const op = o.replace(/\\/g, '/').replace(/\/$/, '');
-      return (
-        rel === op ||
-        rel.startsWith(`${op}/`) ||
-        rel.includes(`/${op}/`) ||
-        rel.endsWith(`/${op}`)
-      );
-    });
+    return isOverriddenRel(this.normalizePath(targetPath), overrides);
   }
 
   private isPathSafe(targetPath: string, skillPath: string): boolean {
@@ -598,6 +471,6 @@ export class SkillSyncService {
   }
 
   private normalizePath(p: string): string {
-    return path.relative(process.cwd(), p).replace(/\\/g, '/');
+    return toPosixRel(process.cwd(), p);
   }
 }

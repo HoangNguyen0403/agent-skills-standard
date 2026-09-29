@@ -5,6 +5,7 @@ import path from 'path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
 import { HookService, UNIVERSAL_SKILL_LOADER_JS } from '../HookService';
+import { matchesPattern as policyMatchesPattern } from '../policy/match';
 
 describe('HookService', () => {
   let service: HookService;
@@ -763,6 +764,260 @@ describe('HookService', () => {
         { CLAUDE_PROJECT_DIR: '/tmp/proj' },
       );
       expect(result.code).toBe(0);
+    });
+
+    it('proves parity between hook inlined matcher and policy match.ts', () => {
+      const matchFnCode = UNIVERSAL_SKILL_LOADER_JS.slice(
+        UNIVERSAL_SKILL_LOADER_JS.indexOf('function normalizePath'),
+        UNIVERSAL_SKILL_LOADER_JS.indexOf('let input ='),
+      );
+      const hookMatcher = new Function(
+        'pattern',
+        'relPath',
+        `${matchFnCode}\nreturn matchesPattern(pattern, relPath);`,
+      ) as (pattern: string, relPath: string) => boolean;
+
+      const cases: Array<[string, string]> = [
+        ['.env*', 'a/b/.env.local'],
+        ['.env*', '.env'],
+        ['.env*', 'config/.env.production'],
+        ['.env*', 'a/b/not-env'],
+        ['src/*.ts', 'src/a/b.ts'],
+        ['src/*.ts', 'src/b.ts'],
+        ['src/**/*.ts', 'src/b.ts'],
+        ['src/**/*.ts', 'src/a/b.ts'],
+        ['src/**/*.ts', 'src/a/x/b.ts'],
+        ['src/**/*.ts', 'other/b.ts'],
+        ['**', 'a/b/c.ts'],
+        ['**', 'index.ts'],
+        ['**', ''],
+        ['a/?.ts', 'a/b.ts'],
+        ['a/?.ts', 'a/1.ts'],
+        ['a/?.ts', 'a/bb.ts'],
+        ['a/?.ts', 'a/.ts'],
+        ['src/A.ts', 'src/a.ts'],
+        ['src/A.ts', 'src/A.ts'],
+        ['./src/*.ts', 'src/b.ts'],
+        ['src/*.ts', './src/b.ts'],
+        ['src\\*.ts', 'src/b.ts'],
+        ['src/*.ts', 'src\\b.ts'],
+        ['internal/gen/**', 'internal/gen/x.go'],
+        ['internal/gen/**', 'internal/gen/a/b/c.go'],
+        ['internal/gen/**', 'internal/gen'],
+        ['internal/gen/**', 'internal/gen_other'],
+        ['**/*.ts', 'b.ts'],
+        ['**/*.ts', 'a/b.ts'],
+      ];
+
+      for (const [pat, relPath] of cases) {
+        expect(hookMatcher(pat, relPath)).toBe(
+          policyMatchesPattern(pat, relPath),
+        );
+      }
+    });
+
+    it('warns (exit 0) on matching warn protected_path rule', async () => {
+      const projDir = await fs.mkdtemp(path.join(os.tmpdir(), 'hook-proj-'));
+      try {
+        await fs.ensureDir(path.join(projDir, '.ags'));
+        await fs.writeJson(path.join(projDir, '.ags/policy.json'), {
+          schema_version: 1,
+          rules: [
+            {
+              id: 'warn-doc',
+              kind: 'protected_path',
+              paths: ['docs/**'],
+              action: 'warn',
+              reason: 'Careful with docs',
+            },
+          ],
+        });
+
+        const result = spawnSync('node', ['-e', UNIVERSAL_SKILL_LOADER_JS], {
+          input: JSON.stringify({
+            tool_name: 'Edit',
+            tool_input: { file_path: path.join(projDir, 'docs/readme.md') },
+          }),
+          env: { ...process.env, CLAUDE_PROJECT_DIR: projDir },
+          encoding: 'utf8',
+        });
+
+        expect(result.status).toBe(0);
+        expect(result.stderr).toContain(
+          '[AGS POLICY WARN] warn-doc: Careful with docs',
+        );
+      } finally {
+        await fs.remove(projDir);
+      }
+    });
+
+    it('warns (exit 0) on block protected_path rule when AGS_HOOK_ENFORCE is NOT set', async () => {
+      const projDir = await fs.mkdtemp(path.join(os.tmpdir(), 'hook-proj-'));
+      try {
+        await fs.ensureDir(path.join(projDir, '.ags'));
+        await fs.writeJson(path.join(projDir, '.ags/policy.json'), {
+          schema_version: 1,
+          rules: [
+            {
+              id: 'no-gen',
+              kind: 'protected_path',
+              paths: ['internal/gen/**'],
+              action: 'block',
+              reason: 'Generated code',
+            },
+          ],
+        });
+
+        const result = spawnSync('node', ['-e', UNIVERSAL_SKILL_LOADER_JS], {
+          input: JSON.stringify({
+            tool_name: 'Edit',
+            tool_input: {
+              file_path: path.join(projDir, 'internal/gen/x.go'),
+            },
+          }),
+          env: {
+            ...process.env,
+            CLAUDE_PROJECT_DIR: projDir,
+            AGS_HOOK_ENFORCE: undefined,
+          },
+          encoding: 'utf8',
+        });
+
+        expect(result.status).toBe(0);
+        expect(result.stderr).toContain(
+          '[AGS POLICY WARN] no-gen: Generated code',
+        );
+      } finally {
+        await fs.remove(projDir);
+      }
+    });
+
+    it('blocks (exit 2) on block protected_path rule when AGS_HOOK_ENFORCE=1', async () => {
+      const projDir = await fs.mkdtemp(path.join(os.tmpdir(), 'hook-proj-'));
+      try {
+        await fs.ensureDir(path.join(projDir, '.ags'));
+        await fs.writeJson(path.join(projDir, '.ags/policy.json'), {
+          schema_version: 1,
+          rules: [
+            {
+              id: 'no-gen',
+              kind: 'protected_path',
+              paths: ['internal/gen/**'],
+              action: 'block',
+              reason: 'Generated code',
+            },
+          ],
+        });
+
+        const result = spawnSync('node', ['-e', UNIVERSAL_SKILL_LOADER_JS], {
+          input: JSON.stringify({
+            tool_name: 'Edit',
+            tool_input: {
+              file_path: path.join(projDir, 'internal/gen/x.go'),
+            },
+          }),
+          env: {
+            ...process.env,
+            CLAUDE_PROJECT_DIR: projDir,
+            AGS_HOOK_ENFORCE: '1',
+          },
+          encoding: 'utf8',
+        });
+
+        expect(result.status).toBe(2);
+        expect(result.stderr).toContain('[AGS BLOCKED] no-gen: Generated code');
+      } finally {
+        await fs.remove(projDir);
+      }
+    });
+
+    it('waives matched rules and exits 0 when AGS_POLICY_BYPASS=1', async () => {
+      const projDir = await fs.mkdtemp(path.join(os.tmpdir(), 'hook-proj-'));
+      try {
+        await fs.ensureDir(path.join(projDir, '.ags'));
+        await fs.writeJson(path.join(projDir, '.ags/policy.json'), {
+          schema_version: 1,
+          rules: [
+            {
+              id: 'no-gen',
+              kind: 'protected_path',
+              paths: ['internal/gen/**'],
+              action: 'block',
+              reason: 'Generated code',
+            },
+          ],
+        });
+
+        const result = spawnSync('node', ['-e', UNIVERSAL_SKILL_LOADER_JS], {
+          input: JSON.stringify({
+            tool_name: 'Edit',
+            tool_input: {
+              file_path: path.join(projDir, 'internal/gen/x.go'),
+            },
+          }),
+          env: {
+            ...process.env,
+            CLAUDE_PROJECT_DIR: projDir,
+            AGS_HOOK_ENFORCE: '1',
+            AGS_POLICY_BYPASS: '1',
+          },
+          encoding: 'utf8',
+        });
+
+        expect(result.status).toBe(0);
+        expect(result.stderr).toContain(
+          '[AGS POLICY] bypass active: waived no-gen',
+        );
+      } finally {
+        await fs.remove(projDir);
+      }
+    });
+
+    it('prints ignored message and continues (exit 0) when policy has conflicting actions', async () => {
+      const projDir = await fs.mkdtemp(path.join(os.tmpdir(), 'hook-proj-'));
+      try {
+        await fs.ensureDir(path.join(projDir, '.ags'));
+        await fs.writeJson(path.join(projDir, '.ags/policy.json'), {
+          schema_version: 1,
+          rules: [
+            {
+              id: 'r1',
+              kind: 'protected_path',
+              paths: ['src/**'],
+              action: 'block',
+              reason: 'Block',
+            },
+            {
+              id: 'r2',
+              kind: 'protected_path',
+              paths: ['src/**'],
+              action: 'warn',
+              reason: 'Warn',
+            },
+          ],
+        });
+
+        const result = spawnSync('node', ['-e', UNIVERSAL_SKILL_LOADER_JS], {
+          input: JSON.stringify({
+            tool_name: 'Edit',
+            tool_input: { file_path: path.join(projDir, 'src/x.ts') },
+          }),
+          env: {
+            ...process.env,
+            CLAUDE_PROJECT_DIR: projDir,
+            AGS_HOOK_ENFORCE: '1',
+          },
+          encoding: 'utf8',
+        });
+
+        expect(result.status).toBe(0);
+        expect(result.stderr).toContain(
+          '[AGS POLICY] ignored: conflicting action',
+        );
+        expect(result.stdout).toContain('SKILL TRIGGER');
+      } finally {
+        await fs.remove(projDir);
+      }
     });
   });
 });

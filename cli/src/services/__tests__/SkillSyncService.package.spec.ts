@@ -3,8 +3,10 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
+import { SkillConfig } from '../../models/config';
 import { CollectedSkill } from '../../models/types';
 import { GithubService } from '../GithubService';
+import { InstallWriter, PassthroughWriter } from '../install/OwnershipWriter';
 import { SkillSyncService } from '../SkillSyncService';
 
 interface SkillSyncServiceInternals {
@@ -13,9 +15,12 @@ interface SkillSyncServiceInternals {
     skill: CollectedSkill,
     overrides: string[],
     basePath: string,
-  ): Promise<boolean>;
+    writer: InstallWriter,
+    config: SkillConfig,
+  ): Promise<void>;
 }
 
+const CONFIG = { skills: { cybersecurity: { ref: 'v1.0.0' } } } as unknown as SkillConfig;
 const temporaryRoots: string[] = [];
 
 async function createRoot(): Promise<string> {
@@ -24,25 +29,29 @@ async function createRoot(): Promise<string> {
   return root;
 }
 
+function service(): SkillSyncServiceInternals {
+  return new SkillSyncService(
+    new GithubService(),
+  ) as unknown as SkillSyncServiceInternals;
+}
+
 afterEach(async () => {
   await Promise.all(temporaryRoots.splice(0).map((root) => fs.remove(root)));
   vi.restoreAllMocks();
 });
 
-// Test intent: installed packages retain an explicitly overridden local file while
-// atomically replacing all non-overridden files with byte-identical downloaded resources.
 describe('SkillSyncService package installation', () => {
-  it('replaces a complete package while retaining a user override and binary resource bytes', async () => {
+  // Test intent: package resources land byte-identical, attribution files are
+  // installed, an explicit override is retained, and a file the package does
+  // not own is left in place (ADR-014 preserves unknown files).
+  it('writes binary resources byte-for-byte while retaining overrides and unowned files', async () => {
     const root = await createRoot();
     const skillPath = path.join(root, 'cybersecurity', 'cyber-evidence');
     const overridePath = path.join(skillPath, 'references', 'local.md');
     await fs.outputFile(path.join(skillPath, 'SKILL.md'), 'old skill');
-    await fs.outputFile(path.join(skillPath, 'stale.md'), 'stale resource');
+    await fs.outputFile(path.join(skillPath, 'notes.md'), 'user notes');
     await fs.outputFile(overridePath, 'user content');
 
-    const service = new SkillSyncService(
-      new GithubService(),
-    ) as unknown as SkillSyncServiceInternals;
     const asset = Buffer.from([0, 255, 17, 128]);
     const skill: CollectedSkill = {
       category: 'cybersecurity',
@@ -51,131 +60,55 @@ describe('SkillSyncService package installation', () => {
         { name: 'SKILL.md', content: 'new skill' },
         { name: 'LICENSE.md', content: 'license text' },
         { name: 'NOTICE', content: 'notice text' },
+        { name: 'references/local.md', content: 'upstream content' },
         { name: 'assets/payload.bin', content: '', bytes: asset },
       ],
     };
-    const override = path
-      .relative(process.cwd(), overridePath)
-      .replace(/\\/g, '/');
+    const override = path.relative(process.cwd(), overridePath).replace(/\\/g, '/');
 
-    await service.writeSkillForAgent(Agent.Cursor, skill, [override], root);
+    await service().writeSkillForAgent(
+      Agent.Cursor,
+      skill,
+      [override],
+      root,
+      new PassthroughWriter(),
+      CONFIG,
+    );
 
-    await expect(
-      fs.readFile(path.join(skillPath, 'SKILL.md'), 'utf8'),
-    ).resolves.toBe('new skill');
-    await expect(fs.readFile(overridePath, 'utf8')).resolves.toBe(
-      'user content',
-    );
-    await expect(
-      fs.readFile(path.join(skillPath, 'assets', 'payload.bin')),
-    ).resolves.toEqual(asset);
-    await expect(fs.pathExists(path.join(skillPath, 'stale.md'))).resolves.toBe(
-      false,
-    );
+    expect(await fs.readFile(path.join(skillPath, 'SKILL.md'), 'utf8')).toBe('new skill');
+    expect(await fs.readFile(path.join(skillPath, 'NOTICE'), 'utf8')).toBe('notice text');
+    expect(await fs.readFile(overridePath, 'utf8')).toBe('user content');
+    expect(await fs.readFile(path.join(skillPath, 'assets', 'payload.bin'))).toEqual(asset);
+    expect(await fs.readFile(path.join(skillPath, 'notes.md'), 'utf8')).toBe('user notes');
   });
 
-  it('leaves an existing package intact when staging a downloaded file fails', async () => {
+  // Test intent: every path is validated before the first write, so an unsafe
+  // file later in the package leaves the installed package untouched.
+  it('writes nothing when any package file path escapes the skill directory', async () => {
     const root = await createRoot();
-    const skillPath = path.join(root, 'cybersecurity', 'cyber-evidence');
-    const existingSkill = path.join(skillPath, 'SKILL.md');
+    const existingSkill = path.join(root, 'cybersecurity', 'cyber-evidence', 'SKILL.md');
     await fs.outputFile(existingSkill, 'old skill');
-
-    const service = new SkillSyncService(
-      new GithubService(),
-    ) as unknown as SkillSyncServiceInternals;
-    const originalOutputFile = fs.outputFile;
-    vi.spyOn(fs, 'outputFile').mockImplementation(
-      async (file, data, options) => {
-        if (String(file).endsWith('broken.md')) {
-          throw new Error('disk full');
-        }
-        return originalOutputFile(file, data, options);
-      },
-    );
+    const writer = { write: vi.fn() };
 
     await expect(
-      service.writeSkillForAgent(
+      service().writeSkillForAgent(
         Agent.Cursor,
         {
           category: 'cybersecurity',
           skill: 'cyber-evidence',
           files: [
             { name: 'SKILL.md', content: 'new skill' },
-            { name: 'references/broken.md', content: 'cannot write' },
+            { name: '../../escape.md', content: 'malicious' },
           ],
         },
         [],
         root,
+        writer,
+        CONFIG,
       ),
-    ).rejects.toThrow('disk full');
+    ).rejects.toThrow('Invalid path ../../escape.md');
 
-    await expect(fs.readFile(existingSkill, 'utf8')).resolves.toBe('old skill');
-  });
-
-  // Test intent: deterministic recovery names must not erase operator-created
-  // recovery data; a pre-existing backup rejects replacement without mutation.
-  it('refuses to replace a package when its backup path already exists', async () => {
-    const root = await createRoot();
-    const skillPath = path.join(root, 'cybersecurity', 'cyber-evidence');
-    const backupPath = `${skillPath}.ags-backup`;
-    await fs.outputFile(
-      path.join(backupPath, 'recovery.txt'),
-      'operator recovery',
-    );
-
-    const service = new SkillSyncService(
-      new GithubService(),
-    ) as unknown as SkillSyncServiceInternals;
-    await expect(
-      service.writeSkillForAgent(
-        Agent.Cursor,
-        {
-          category: 'cybersecurity',
-          skill: 'cyber-evidence',
-          files: [{ name: 'SKILL.md', content: 'new skill' }],
-        },
-        [],
-        root,
-      ),
-    ).rejects.toThrow('backup path already exists');
-
-    await expect(
-      fs.readFile(path.join(backupPath, 'recovery.txt'), 'utf8'),
-    ).resolves.toBe('operator recovery');
-  });
-
-  // Test intent: an installed package symlink must never be traversed while
-  // copying overrides, otherwise sync could read from outside its installation root.
-  it('does not follow a symlinked package while copying overrides', async () => {
-    const root = await createRoot();
-    const skillPath = path.join(root, 'cybersecurity', 'cyber-evidence');
-    const externalPath = path.join(root, 'outside-installation');
-    const externalOverride = path.join(externalPath, 'references', 'local.md');
-    await fs.outputFile(externalOverride, 'outside user content');
-    await fs.ensureSymlink(externalPath, skillPath, 'dir');
-
-    const service = new SkillSyncService(
-      new GithubService(),
-    ) as unknown as SkillSyncServiceInternals;
-    const override = path
-      .relative(process.cwd(), path.join(skillPath, 'references', 'local.md'))
-      .replace(/\\/g, '/');
-    await service.writeSkillForAgent(
-      Agent.Cursor,
-      {
-        category: 'cybersecurity',
-        skill: 'cyber-evidence',
-        files: [{ name: 'SKILL.md', content: 'new skill' }],
-      },
-      [override],
-      root,
-    );
-
-    await expect(fs.readFile(externalOverride, 'utf8')).resolves.toBe(
-      'outside user content',
-    );
-    await expect(
-      fs.pathExists(path.join(skillPath, 'references', 'local.md')),
-    ).resolves.toBe(false);
+    expect(writer.write).not.toHaveBeenCalled();
+    expect(await fs.readFile(existingSkill, 'utf8')).toBe('old skill');
   });
 });

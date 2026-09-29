@@ -2,6 +2,7 @@
 name: update-docs
 description: "Automated workflow to detect and fix missing documentation"
 metadata:
+  internal: true
   triggers:
     keywords:
     - update docs

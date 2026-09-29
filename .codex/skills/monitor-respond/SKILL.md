@@ -2,6 +2,7 @@
 name: monitor-respond
 description: "Turn a control-band breach or scheduled scan result into a tiered, evidence-backed response and a routed intake."
 metadata:
+  internal: true
   triggers:
     keywords:
     - monitor respond

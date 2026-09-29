@@ -2,6 +2,7 @@
 name: battle-test
 description: "Deep audit of a skills directory against the Skill Creator standard. Produces a scored report and phased remediation plan."
 metadata:
+  internal: true
   triggers:
     keywords:
     - battle test

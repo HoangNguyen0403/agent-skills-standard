@@ -2,153 +2,202 @@ import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { CollectedSkill } from '../../models/types';
-import { LockfileService, LOCKFILE_NAME } from '../LockfileService';
+import { Agent } from '../../constants';
+import {
+  LockfileService,
+  LOCKFILE_NAME,
+  ManifestEntry,
+  SkillsLockFile,
+  sha256,
+} from '../LockfileService';
 
-describe('LockfileService', () => {
+describe('LockfileService v2', () => {
   let service: LockfileService;
   let root: string;
 
   beforeEach(async () => {
     service = new LockfileService();
-    root = await fs.mkdtemp(path.join(os.tmpdir(), 'lockfile-svc-'));
+    root = await fs.mkdtemp(path.join(os.tmpdir(), 'ags-lock-test-'));
   });
 
   afterEach(async () => {
     await fs.remove(root);
   });
 
-  function skill(overrides: Partial<CollectedSkill> = {}): CollectedSkill {
-    return {
-      category: 'typescript',
-      skill: 'typescript-core',
-      files: [{ name: 'SKILL.md', content: '# TS Core\ninstructions' }],
-      ...overrides,
+  it('load with no file returns lock: null, migratedFromV1: false', async () => {
+    const loaded = await service.load(root, [Agent.Claude]);
+    expect(loaded).toEqual({ lock: null, migratedFromV1: false });
+  });
+
+  it('load of a v1 file migrates to v2 format with entries and sources', async () => {
+    const v1Content = {
+      version: 1,
+      registry: 'r',
+      generatedAt: 't',
+      skills: {
+        'typescript/typescript-core': {
+          ref: 'typescript-v1.0.0',
+          files: {
+            'SKILL.md': 'h1',
+            'references/a.md': 'h2',
+          },
+          contentHash: 'x',
+        },
+      },
     };
-  }
+    await fs.writeJson(path.join(root, LOCKFILE_NAME), v1Content);
 
-  it('returns null when no lockfile exists yet', async () => {
-    expect(await service.read(root)).toBeNull();
-  });
-
-  it('writes a lockfile with a sha256 per file and a skill-level contentHash', async () => {
-    await service.write(root, 'https://github.com/o/r', [skill()], {
-      typescript: 'typescript-v1.3.4',
+    const loaded = await service.load(root, [Agent.Claude, Agent.Kiro]);
+    expect(loaded.migratedFromV1).toBe(true);
+    expect(loaded.lock).toBeDefined();
+    expect(loaded.lock?.version).toBe(2);
+    expect(loaded.lock?.registry).toBe('r');
+    expect(loaded.lock?.generatedAt).toBe('t');
+    expect(loaded.lock?.sources).toEqual({
+      'skills/typescript': { ref: 'typescript-v1.0.0', commit: null },
     });
 
-    const lock = await service.read(root);
-    expect(lock).not.toBeNull();
-    expect(lock!.version).toBe(1);
-    expect(lock!.registry).toBe('https://github.com/o/r');
-
-    const entry = lock!.skills['typescript/typescript-core'];
-    expect(entry.ref).toBe('typescript-v1.3.4');
-    expect(entry.files['SKILL.md']).toMatch(/^[0-9a-f]{64}$/);
-    expect(entry.contentHash).toMatch(/^[0-9a-f]{64}$/);
+    const entries = loaded.lock?.entries ?? {};
+    expect(Object.keys(entries).sort()).toEqual([
+      '.claude/skills/typescript/typescript-core/SKILL.md',
+      '.claude/skills/typescript/typescript-core/references/a.md',
+    ]);
+    expect(entries['.claude/skills/typescript/typescript-core/SKILL.md']).toEqual({
+      owner: 'skill',
+      source: 'skill:typescript/typescript-core@typescript-v1.0.0',
+      agent: 'claude',
+      sha256: 'h1',
+    });
+    expect(entries['.claude/skills/typescript/typescript-core/references/a.md']).toEqual({
+      owner: 'skill',
+      source: 'skill:typescript/typescript-core@typescript-v1.0.0',
+      agent: 'claude',
+      sha256: 'h2',
+    });
   });
 
-  it('is a no-op when there are no skills to lock', async () => {
-    await service.write(root, 'https://github.com/o/r', [], {});
+  it('write then load round-trips a v2 lock with sorted entry keys', async () => {
+    const lock: SkillsLockFile = {
+      version: 2,
+      registry: 'https://github.com/test/repo',
+      generatedAt: '2026-09-27T00:00:00.000Z',
+      sources: {
+        'skills/typescript': { ref: 'v1.0.0', commit: null },
+      },
+      entries: {
+        'z/file.md': {
+          owner: 'skill',
+          source: 'skill:typescript/z@v1.0.0',
+          agent: 'claude',
+          sha256: 'hz',
+        },
+        'a/file.md': {
+          owner: 'skill',
+          source: 'skill:typescript/a@v1.0.0',
+          agent: 'claude',
+          sha256: 'ha',
+        },
+      },
+    };
+
+    await service.write(root, lock);
+    const loaded = await service.load(root, [Agent.Claude]);
+    expect(loaded.migratedFromV1).toBe(false);
+    expect(loaded.lock).toEqual(lock);
+
+    // Verify raw JSON keys are written in sorted order
+    const raw = await fs.readJson(path.join(root, LOCKFILE_NAME));
+    expect(Object.keys(raw.entries)).toEqual(['a/file.md', 'z/file.md']);
+  });
+
+  it('disclosed handling: write preserves existing disclosed, writeDisclosed behavior', async () => {
+    // writeDisclosed on missing file creates nothing
+    await service.writeDisclosed(root, { claude: ['hooks'] });
     expect(await fs.pathExists(path.join(root, LOCKFILE_NAME))).toBe(false);
+    expect(await service.readDisclosed(root)).toBeUndefined();
+
+    // writeDisclosed on a v1 file keeps version: 1 content and adds disclosed
+    const v1Content = { version: 1, registry: 'r', generatedAt: 't', skills: {} };
+    await fs.writeJson(path.join(root, LOCKFILE_NAME), v1Content);
+    await service.writeDisclosed(root, { claude: ['hooks'] });
+    const rawV1 = await fs.readJson(path.join(root, LOCKFILE_NAME));
+    expect(rawV1.version).toBe(1);
+    expect(rawV1.disclosed).toEqual({ claude: ['hooks'] });
+    expect(await service.readDisclosed(root)).toEqual({ claude: ['hooks'] });
+
+    // write keeps existing disclosed when new lock has none
+    const lock: SkillsLockFile = {
+      version: 2,
+      registry: 'r',
+      generatedAt: 't2',
+      sources: {},
+      entries: {},
+    };
+    await service.write(root, lock);
+    const rawV2 = await fs.readJson(path.join(root, LOCKFILE_NAME));
+    expect(rawV2.disclosed).toEqual({ claude: ['hooks'] });
   });
 
-  it('reports ok:true when installed files match the lockfile', async () => {
-    await service.write(root, 'https://github.com/o/r', [skill()], {
-      typescript: 'typescript-v1.3.4',
-    });
+  it('verifyEntries checks matching, edited, and missing files, filtering by agent', async () => {
+    const fileA = 'a.md';
+    const fileB = 'b.md';
+    const fileC = 'c.md';
+    const fileD = 'd.md';
 
-    const installedPath = path.join(root, 'installed');
-    await fs.outputFile(
-      path.join(installedPath, 'typescript/typescript-core/SKILL.md'),
-      '# TS Core\ninstructions',
-    );
+    await fs.outputFile(path.join(root, fileA), 'content-a');
+    await fs.outputFile(path.join(root, fileB), 'content-b-edited');
+    await fs.outputFile(path.join(root, fileD), 'content-d');
+    // fileC is not created -> missing
 
-    const result = await service.verify(root, installedPath);
-    expect(result).toEqual({ ok: true, mismatches: [], missing: [] });
-  });
+    const hashA = sha256('content-a');
+    const hashBOrig = sha256('content-b-original');
+    const hashC = sha256('content-c');
+    const hashD = sha256('content-d');
 
-  it('reports a mismatch when the installed file content diverged', async () => {
-    await service.write(root, 'https://github.com/o/r', [skill()], {
-      typescript: 'typescript-v1.3.4',
-    });
+    const entries: Record<string, ManifestEntry> = {
+      [fileA]: { owner: 'skill', source: 's', agent: 'claude', sha256: hashA },
+      [fileB]: { owner: 'skill', source: 's', agent: 'claude', sha256: hashBOrig },
+      [fileC]: { owner: 'skill', source: 's', agent: 'claude', sha256: hashC },
+      [fileD]: { owner: 'skill', source: 's', agent: 'cursor', sha256: hashD },
+    };
 
-    const installedPath = path.join(root, 'installed');
-    await fs.outputFile(
-      path.join(installedPath, 'typescript/typescript-core/SKILL.md'),
-      '# TS Core\nTAMPERED',
-    );
+    // All agents
+    const resultAll = await service.verifyEntries(root, entries);
+    expect(resultAll.ok).toBe(false);
+    expect(resultAll.mismatches).toEqual([fileB]);
+    expect(resultAll.missing).toEqual([fileC]);
 
-    const result = await service.verify(root, installedPath);
-    expect(result.ok).toBe(false);
-    expect(result.mismatches).toEqual(['typescript/typescript-core/SKILL.md']);
-    expect(result.missing).toEqual([]);
+    // Filtered to cursor: only fileD which matches
+    const resultCursor = await service.verifyEntries(root, entries, Agent.Cursor);
+    expect(resultCursor.ok).toBe(true);
+    expect(resultCursor.mismatches).toEqual([]);
+    expect(resultCursor.missing).toEqual([]);
+
+    // Filtered to claude: fileB mismatches, fileC missing
+    const resultClaude = await service.verifyEntries(root, entries, Agent.Claude);
+    expect(resultClaude.ok).toBe(false);
+    expect(resultClaude.mismatches).toEqual([fileB]);
+    expect(resultClaude.missing).toEqual([fileC]);
   });
 
   // Test intent: raw resource bytes, not UTF-8 replacement characters, define
   // lock integrity; 0xff and 0xfe must produce a real tamper mismatch.
   it('reports a binary resource mismatch when only an invalid UTF-8 byte changes', async () => {
-    const bytes = Buffer.from([0xff]);
-    await service.write(
-      root,
-      'https://github.com/o/r',
-      [
-        skill({
-          files: [
-            {
-              name: 'assets/payload.bin',
-              content: bytes.toString('utf8'),
-              bytes,
-            },
-          ],
-        }),
-      ],
-      { typescript: 'typescript-v1.3.4' },
-    );
+    const rel = '.claude/skills/typescript/typescript-core/assets/payload.bin';
+    const entries: Record<string, ManifestEntry> = {
+      [rel]: {
+        owner: 'skill',
+        source: 's',
+        agent: 'claude',
+        sha256: sha256(Buffer.from([0xff])),
+      },
+    };
+    await fs.outputFile(path.join(root, rel), Buffer.from([0xfe]));
 
-    const installedPath = path.join(root, 'installed');
-    await fs.outputFile(
-      path.join(installedPath, 'typescript/typescript-core/assets/payload.bin'),
-      Buffer.from([0xfe]),
-    );
-
-    await expect(service.verify(root, installedPath)).resolves.toEqual({
+    await expect(service.verifyEntries(root, entries)).resolves.toEqual({
       ok: false,
-      mismatches: ['typescript/typescript-core/assets/payload.bin'],
+      mismatches: [rel],
       missing: [],
     });
-  });
-
-  it('reports a missing file when it was deleted after sync', async () => {
-    await service.write(root, 'https://github.com/o/r', [skill()], {
-      typescript: 'typescript-v1.3.4',
-    });
-
-    const installedPath = path.join(root, 'installed');
-    // Directory exists but the file itself doesn't.
-    await fs.ensureDir(installedPath);
-
-    const result = await service.verify(root, installedPath);
-    expect(result.ok).toBe(false);
-    expect(result.missing).toEqual(['typescript/typescript-core/SKILL.md']);
-  });
-
-  it('reports not-ok with a helpful message when no lockfile exists', async () => {
-    const result = await service.verify(root, path.join(root, 'installed'));
-    expect(result.ok).toBe(false);
-    expect(result.missing[0]).toContain(LOCKFILE_NAME);
-  });
-
-  it('produces the same lockfile content on repeated writes of the same skills (idempotent modulo timestamp)', async () => {
-    await service.write(root, 'https://github.com/o/r', [skill()], {
-      typescript: 'typescript-v1.3.4',
-    });
-    const first = await service.read(root);
-
-    await service.write(root, 'https://github.com/o/r', [skill()], {
-      typescript: 'typescript-v1.3.4',
-    });
-    const second = await service.read(root);
-
-    expect(second!.skills).toEqual(first!.skills);
   });
 });

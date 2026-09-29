@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { Agent, getAgentDefinition } from '../constants';
+import { InstallWriter, PassthroughWriter } from './install/OwnershipWriter';
 
 /**
  * Service responsible for bridging native AI agent rule files to AGENTS.md.
@@ -20,7 +21,12 @@ export class AgentBridgeService {
    * @param rootDir Project root directory
    * @param agents List of agents to generate rules for
    */
-  async bridge(rootDir: string, agents: Agent[]): Promise<void> {
+  async bridge(
+    rootDir: string,
+    agents: Agent[],
+    writer: InstallWriter = new PassthroughWriter(),
+    options: { dryRun?: boolean } = {},
+  ): Promise<void> {
     const fileNameBase = 'agent-skill-standard-rule';
     const commonDescription =
       'Rule for Agent Skills Standard - Always consult AGENTS.md for consolidated project context and technical triggers.';
@@ -91,8 +97,6 @@ export class AgentBridgeService {
         config.ruleFileName || `${fileNameBase}${config.ruleExtension}`,
       );
 
-      // Ensure directory exists (e.g. .cursor/rules inside .cursor)
-      await fs.ensureDir(path.dirname(ruleFilePath));
 
       let content = '';
 
@@ -111,6 +115,7 @@ export class AgentBridgeService {
       const isClaude = agentId === Agent.Claude;
 
       if (isClaude) {
+        if (options.dryRun) continue;
         const claudeProtocol = [
           '',
           '## Agent Protocol',
@@ -143,7 +148,11 @@ export class AgentBridgeService {
 
       content += commonBody;
 
-      await fs.outputFile(ruleFilePath, content);
+      await writer.write(ruleFilePath, content, {
+        owner: 'bridge',
+        source: `bridge:${agentId}`,
+        agent: agentId,
+      });
     }
   }
 }

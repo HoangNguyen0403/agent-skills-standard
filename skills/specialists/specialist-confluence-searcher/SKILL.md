@@ -2,6 +2,7 @@
 name: specialist-confluence-searcher
 description: Searches Confluence and related tickets for product, architecture, rollout, and test-data context. Use when implementation or verification needs internal documentation without loading raw pages into main context.
 metadata:
+  internal: true
   triggers:
     keywords:
       - confluence search

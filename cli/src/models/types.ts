@@ -99,6 +99,8 @@ export interface RegistryMetadata {
   categories: {
     [key: string]: CategoryMetadata;
   };
+  /** Non-skill release tracks published with this registry (e.g. workflows). */
+  releases?: Record<string, { version: string; tag_prefix: string }>;
   /** Category/ref combinations consumers should no longer trust. See docs/SECURITY.md's revocation process. */
   revocations?: RevocationEntry[];
 }

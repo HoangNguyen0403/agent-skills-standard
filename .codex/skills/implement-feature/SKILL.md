@@ -2,6 +2,7 @@
 name: implement-feature
 description: "Implement an approved feature plan with fresh-context slices, TDD, evidence, and PR-ready output."
 metadata:
+  internal: true
   triggers:
     keywords:
     - implement feature

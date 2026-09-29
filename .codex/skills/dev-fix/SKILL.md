@@ -2,6 +2,7 @@
 name: dev-fix
 description: "Unified developer workflow for fixing bugs. Analyzes issue-tracker context, cross-checks docs/code, proposes a solution, implements the fix, verifies locally, and delivers a PR/MR."
 metadata:
+  internal: true
   triggers:
     keywords:
     - dev fix

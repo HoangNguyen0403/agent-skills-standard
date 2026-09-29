@@ -102,6 +102,8 @@ jobs:
       - name: SDLC Workflow Schema Audit
         run: pnpm audit:sdlc
 
+      - name: Agent capability doc drift
+        run: pnpm docs:capabilities:check
       - name: Outcome Audit
         run: pnpm audit:outcome
 

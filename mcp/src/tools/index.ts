@@ -10,12 +10,14 @@ import {
   readEvalsReport,
   verifyEvalRun,
 } from "../services/EvalsIndex";
+import { PolicyView } from "../services/PolicyIndex";
 
 export interface ToolContext {
   projectRoot: string;
   index: SkillIndex;
   tracker: SessionTracker;
   setup: SetupHint;
+  policy: PolicyView;
 }
 
 export interface ToolResult {
@@ -94,6 +96,55 @@ export const loadSkillsForFilesSchema = z.object({
     ),
 });
 
+function renderPolicySection(
+  files: string[],
+  policy: PolicyView,
+): string | null {
+  if (!policy.loaded) {
+    if (policy.problem) {
+      return `Project policy not loaded: ${policy.problem}`;
+    }
+    return null;
+  }
+
+  const pathMatches: Array<{
+    file: string;
+    id: string;
+    action: string;
+    reason: string;
+  }> = [];
+  for (const file of files) {
+    for (const rule of policy.pathRules(file)) {
+      pathMatches.push({
+        file,
+        id: rule.id,
+        action: rule.action,
+        reason: rule.reason,
+      });
+    }
+  }
+  const checks = policy.requiredChecks(files);
+
+  if (pathMatches.length === 0 && checks.length === 0) {
+    return null;
+  }
+
+  const lines: string[] = ["## Project policy for these files"];
+  for (const m of pathMatches) {
+    lines.push(`- ${m.file}: ${m.id} (${m.action}) — ${m.reason}`);
+  }
+  if (checks.length > 0) {
+    lines.push("- Required checks:");
+    for (const c of checks) {
+      lines.push(
+        `  - ${c.id} (${c.action}) — ${c.reason}: ${c.checks.join(", ")}`,
+      );
+    }
+  }
+
+  return lines.join("\n");
+}
+
 export async function loadSkillsForFiles(
   args: { files: string[]; force_reload?: boolean },
   ctx: ToolContext,
@@ -102,13 +153,24 @@ export async function loadSkillsForFiles(
   if (empty) return empty;
 
   const matches = ctx.index.matchFiles(args.files);
-  return await finalize(
+  const result = await finalize(
     "load_skills_for_files",
     args.files,
     matches,
     ctx,
     args.force_reload ?? false,
   );
+
+  const policyText = renderPolicySection(args.files, ctx.policy);
+  if (policyText) {
+    if (result.content.length > 0) {
+      result.content[0].text += `\n\n${policyText}`;
+    } else {
+      result.content.push({ type: "text", text: policyText });
+    }
+  }
+
+  return result;
 }
 
 // ---------- load_skills_for_keywords ----------
@@ -363,6 +425,19 @@ export async function auditSessionCompliance(
         )
       : ["_(none yet)_"]),
   ];
+  const touchedFiles = ctx.tracker.loadedFiles();
+  const checks = ctx.policy.loaded
+    ? ctx.policy.requiredChecks(touchedFiles)
+    : [];
+  if (checks.length > 0) {
+    lines.push(
+      "",
+      "## Required checks for files touched this session",
+      ...checks.map(
+        (c) => `- ${c.id} (${c.action}) — ${c.reason}: ${c.checks.join(", ")}`,
+      ),
+    );
+  }
   return { content: [{ type: "text", text: lines.join("\n") }] };
 }
 

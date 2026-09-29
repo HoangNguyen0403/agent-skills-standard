@@ -2,8 +2,10 @@ import fs from "fs-extra";
 import os from "os";
 import path from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { buildServer } from "../src/server";
 import { SetupHint } from "../src/config";
 import { SessionTracker } from "../src/services/SessionTracker";
+import { loadPolicyView } from "../src/services/PolicyIndex";
 import { SkillIndex } from "../src/services/SkillIndex";
 import {
   auditSessionCompliance,
@@ -76,7 +78,13 @@ async function makeCtx(
     skillsDir ? path.join(skillsDir, "metadata.json") : undefined,
   );
   await index.load();
-  return { projectRoot, index, tracker: new SessionTracker(), setup };
+  return {
+    projectRoot,
+    index,
+    tracker: new SessionTracker(),
+    setup,
+    policy: loadPolicyView(projectRoot),
+  };
 }
 
 function text(result: { content: Array<{ text: string }> }): string {
@@ -428,6 +436,199 @@ describe("server — instructions & best practices (RTK inspiration)", () => {
     expect(SERVER_INSTRUCTIONS).toContain("authoritative project rules");
     expect(SERVER_INSTRUCTIONS).toContain(
       "OVERRIDE your pre-training defaults",
+    );
+  });
+});
+
+describe("tools — project policy integration", () => {
+  let policyFixture: { root: string; cleanup: () => Promise<void> };
+
+  beforeEach(async () => {
+    policyFixture = await fixture();
+  });
+
+  afterEach(async () => {
+    await policyFixture.cleanup();
+  });
+
+  it("load_skills_for_files appends matching rules and required checks when policy exists", async () => {
+    const agsDir = path.join(policyFixture.root, ".ags");
+    await fs.mkdirp(agsDir);
+    await fs.writeJson(path.join(agsDir, "policy.json"), {
+      schema_version: 1,
+      rules: [
+        {
+          id: "no-edit-cart",
+          kind: "protected_path",
+          paths: ["lib/cart*.dart"],
+          action: "block",
+          reason: "Cart is locked",
+          source: { origin: "declared" },
+        },
+        {
+          id: "cart-tests",
+          kind: "required_check",
+          when_changed: ["lib/**"],
+          checks: ["pnpm test:cart"],
+          action: "warn",
+          reason: "Cart changes require tests",
+          source: { origin: "declared" },
+        },
+      ],
+    });
+
+    const ctx = await makeCtx(
+      path.join(policyFixture.root, "skills"),
+      { kind: "ready" },
+      policyFixture.root,
+    );
+
+    const out = await loadSkillsForFiles(
+      { files: ["lib/cart_bloc.dart"] },
+      ctx,
+    );
+    const t = text(out);
+
+    expect(t).toContain("## Project policy for these files");
+    expect(t).toContain(
+      "- lib/cart_bloc.dart: no-edit-cart (block) — Cart is locked",
+    );
+    expect(t).toContain("Required checks");
+    expect(t).toContain(
+      "cart-tests (warn) — Cart changes require tests: pnpm test:cart",
+    );
+  });
+
+  it("load_skills_for_files appends nothing when no policy file exists", async () => {
+    const ctx = await makeCtx(
+      path.join(policyFixture.root, "skills"),
+      { kind: "ready" },
+      policyFixture.root,
+    );
+
+    const out = await loadSkillsForFiles(
+      { files: ["lib/cart_bloc.dart"] },
+      ctx,
+    );
+    const t = text(out);
+
+    expect(t).not.toContain("Project policy");
+    expect(t).not.toContain("Required checks");
+  });
+
+  it("load_skills_for_files appends 'Project policy not loaded: <problem>' when policy is invalid", async () => {
+    const agsDir = path.join(policyFixture.root, ".ags");
+    await fs.mkdirp(agsDir);
+    await fs.writeFile(path.join(agsDir, "policy.json"), "{ invalid JSON ");
+
+    const ctx = await makeCtx(
+      path.join(policyFixture.root, "skills"),
+      { kind: "ready" },
+      policyFixture.root,
+    );
+
+    const out = await loadSkillsForFiles(
+      { files: ["lib/cart_bloc.dart"] },
+      ctx,
+    );
+    const t = text(out);
+
+    expect(t).toContain("Project policy not loaded:");
+    expect(t).not.toContain("## Project policy for these files");
+  });
+
+  it("audit_session_compliance lists required checks for files loaded earlier in the session", async () => {
+    const agsDir = path.join(policyFixture.root, ".ags");
+    await fs.mkdirp(agsDir);
+    await fs.writeJson(path.join(agsDir, "policy.json"), {
+      schema_version: 1,
+      rules: [
+        {
+          id: "check-dart",
+          kind: "required_check",
+          when_changed: ["lib/**"],
+          checks: ["flutter test"],
+          action: "warn",
+          reason: "Tests for Dart files",
+          source: { origin: "declared" },
+        },
+      ],
+    });
+
+    const ctx = await makeCtx(
+      path.join(policyFixture.root, "skills"),
+      { kind: "ready" },
+      policyFixture.root,
+    );
+
+    // Before any file load
+    const before = await auditSessionCompliance({}, ctx);
+    expect(text(before)).not.toContain(
+      "## Required checks for files touched this session",
+    );
+
+    // Load files
+    await loadSkillsForFiles({ files: ["lib/cart_bloc.dart"] }, ctx);
+
+    // After file load
+    const after = await auditSessionCompliance({}, ctx);
+    const t = text(after);
+    expect(t).toContain("## Required checks for files touched this session");
+    expect(t).toContain(
+      "- check-dart (warn) — Tests for Dart files: flutter test",
+    );
+  });
+
+  it("audit_session_compliance appends nothing for required checks when none apply", async () => {
+    const agsDir = path.join(policyFixture.root, ".ags");
+    await fs.mkdirp(agsDir);
+    await fs.writeJson(path.join(agsDir, "policy.json"), {
+      schema_version: 1,
+      rules: [
+        {
+          id: "check-go",
+          kind: "required_check",
+          when_changed: ["internal/**"],
+          checks: ["go test ./..."],
+          action: "warn",
+          reason: "Go tests",
+          source: { origin: "declared" },
+        },
+      ],
+    });
+
+    const ctx = await makeCtx(
+      path.join(policyFixture.root, "skills"),
+      { kind: "ready" },
+      policyFixture.root,
+    );
+
+    await loadSkillsForFiles({ files: ["lib/cart_bloc.dart"] }, ctx);
+    const after = await auditSessionCompliance({}, ctx);
+    expect(text(after)).not.toContain(
+      "## Required checks for files touched this session",
+    );
+  });
+
+  it("buildServer registers tools with advisory sentence in descriptions", async () => {
+    const server = await buildServer({
+      projectRoot: policyFixture.root,
+      skillsDir: path.join(policyFixture.root, "skills"),
+      metadataPath: path.join(policyFixture.root, "skills", "metadata.json"),
+      setup: { kind: "ready" },
+    });
+    interface ServerWithTools {
+      _registeredTools: Record<string, { description: string }>;
+    }
+    const registeredTools = (server as unknown as ServerWithTools)
+      ._registeredTools;
+    const advisory =
+      "Also returns matching rules from .ags/policy.json when present (advisory; not a security boundary).";
+    expect(registeredTools["load_skills_for_files"].description).toContain(
+      advisory,
+    );
+    expect(registeredTools["audit_session_compliance"].description).toContain(
+      advisory,
     );
   });
 });

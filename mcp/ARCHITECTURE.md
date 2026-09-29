@@ -133,6 +133,7 @@ The expansion is **non-recursive** — composite-triggered skills cannot themsel
 | `AGENTS.md` (any ancestor)           | Once at startup (in `findProjectRoot`)                             | Anchors the project root                                    |
 | `skills/metadata.json` (or empty)    | Once at startup (in `SkillIndex.load`)                             | Loads `file_routing`, `broad_globs`, `base_language_skills` |
 | `skills/<category>/<skill>/SKILL.md` | Once at startup for parsing; again per-tool-call for body delivery | Builds the index; serves matched content                    |
+| `.ags/policy.json` (optional)        | At startup and re-read on file mtime change                        | Surfaces matching protected paths and required checks in tools |
 
 ### What the MCP NEVER reads
 
@@ -231,7 +232,8 @@ The principle: **the server starts even when nothing is set up**. Tools are resp
 | `services/SkillIndex.ts`        | Owns the in-memory index. Loads `metadata.json`, scans skills, exposes `matchFiles` / `matchKeywords` / `findSkill`.                       |
 | `services/SessionTracker.ts`    | Append-only log of tool calls in this process. Backs `audit_session_compliance` and `get_session_cost`.                                    |
 | `services/WorkflowTelemetry.ts` | Host-side helpers for assembling workflow-end usage/pricing payloads and triggering `get_session_cost` only on terminal workflow states.   |
-| `tools/index.ts`                | The 9 tool handlers. All graceful-empty-state checks live here.                                                                            |
+| `services/PolicyIndex.ts`      | Reads and validates `.ags/policy.json`, monitors mtime, and evaluates path rules and required checks.     |
+| `tools/index.ts`                | The tool handlers. Integrates policy rules alongside skills; all graceful-empty-state checks live here.    |
 | `server.ts`                     | `McpServer` factory. Owns the `instructions` field and per-tool descriptions (use_case / aliases / important_notes).                       |
 
 ## 10. Decision Records

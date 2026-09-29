@@ -2,6 +2,7 @@
 name: codebase-review
 description: "Review an entire codebase for architecture, engineering health, and exploitable risk; generate a prioritized remediation plan, an evidence-anchored system knowledge document, or both."
 metadata:
+  internal: true
   triggers:
     keywords:
     - codebase review

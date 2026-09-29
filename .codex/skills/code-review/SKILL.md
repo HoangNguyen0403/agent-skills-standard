@@ -2,6 +2,7 @@
 name: code-review
 description: "Run an AI-assisted PR code review using multi-layer lenses with confidence scoring."
 metadata:
+  internal: true
   triggers:
     keywords:
     - code review

@@ -7,6 +7,7 @@ import { SkillConfig } from '../../models/config';
 import { GithubService } from '../GithubService';
 import type { GitHubTreeItem } from '../../models/types';
 import { SkillSyncService } from '../SkillSyncService';
+import type { ManifestVerifier } from '../install/ManifestVerifier';
 
 // Mock fs-extra
 vi.mock('fs-extra');
@@ -107,6 +108,73 @@ describe('SkillSyncService', () => {
       expect(result).toHaveLength(2);
       GithubService.parseGitHubUrl = oldParse;
     });
+
+    // Test intent: a release-manifest rejection of any package file (not just
+    // SKILL.md) fails the whole package, so a tampered reference never installs
+    // beside a valid SKILL.md and the sync aborts before any write.
+    it('rejects the whole package when the verifier rejects a reference file', async () => {
+      const oldParse = GithubService.parseGitHubUrl;
+      GithubService.parseGitHubUrl = vi.fn().mockReturnValue({ owner: 'o', repo: 'r' });
+      const config = {
+        registry: 'https://github.com/o/r',
+        skills: { cat1: {} },
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: 'skills/cat1/s1/SKILL.md', type: 'blob' },
+          { path: 'skills/cat1/s1/references/guide.md', type: 'blob' },
+        ],
+      });
+      mockGithubService.downloadFilesConcurrentBytes.mockResolvedValue({
+        ok: [
+          { path: 'skills/cat1/s1/SKILL.md', content: Buffer.from('skill content') },
+          { path: 'skills/cat1/s1/references/guide.md', content: Buffer.from('bad guide') },
+        ],
+        failed: [],
+      });
+
+      const fakeVerifier = {
+        check: vi.fn().mockImplementation((path: string) =>
+          path.includes('references/guide.md')
+            ? 'sha256 does not match release MANIFEST.json'
+            : null,
+        ),
+      };
+
+      await expect(
+        skillSyncService.assembleSkills(['cat1'], config, {
+          cat1: fakeVerifier as unknown as ManifestVerifier,
+        }),
+      ).rejects.toThrow('Failed to assemble selected skills: cat1/s1');
+      GithubService.parseGitHubUrl = oldParse;
+    });
+
+    it('rejects the package when the verifier rejects SKILL.md', async () => {
+      const oldParse = GithubService.parseGitHubUrl;
+      GithubService.parseGitHubUrl = vi.fn().mockReturnValue({ owner: 'o', repo: 'r' });
+      const config = {
+        registry: 'https://github.com/o/r',
+        skills: { cat1: {} },
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [{ path: 'skills/cat1/s1/SKILL.md', type: 'blob' }],
+      });
+      mockGithubService.downloadFilesConcurrentBytes.mockResolvedValue({
+        ok: [{ path: 'skills/cat1/s1/SKILL.md', content: Buffer.from('tampered skill') }],
+        failed: [],
+      });
+
+      const fakeVerifier = {
+        check: vi.fn().mockReturnValue('sha256 does not match release MANIFEST.json'),
+      };
+
+      await expect(
+        skillSyncService.assembleSkills(['cat1'], config, {
+          cat1: fakeVerifier as unknown as ManifestVerifier,
+        }),
+      ).rejects.toThrow('cat1/s1');
+      GithubService.parseGitHubUrl = oldParse;
+    });
   });
 
   describe('identifyFoldersToSync & expandAbsoluteInclude', () => {
@@ -198,51 +266,34 @@ describe('SkillSyncService', () => {
         custom_overrides: [],
       } as unknown as SkillConfig;
       await skillSyncService.writeSkills(skills, config, [Agent.Kiro]);
-      expect(fs.ensureDir).toHaveBeenCalledWith(
+      expect(fs.outputFile).toHaveBeenCalledWith(
         expect.stringContaining('.kiro/skills'),
+        expect.any(String),
       );
     });
 
-    it('should prune orphaned skill directories if not overridden', async () => {
+    it('routes whole-file writes through injected InstallWriter with expected meta', async () => {
+      const skills = [
+        {
+          category: 'common',
+          skill: 'test-skill',
+          files: [{ name: 'SKILL.md', content: 'content' }],
+        },
+      ] as any[];
       const config = {
-        registry: 'https://github.com/o/r',
-        skills: { common: {} },
-        prune: true,
-      } as any;
-      const skills = [{ category: 'common', skill: 'new-skill', files: [] }];
-      const agents = [Agent.Cursor];
-
-      vi.mocked(fs.pathExists).mockImplementation(async (candidate) =>
-        String(candidate).endsWith(path.join('.cursor', 'skills', 'common')),
-      );
-      vi.mocked(fs.readdir).mockResolvedValue(['old-skill'] as any);
-
-      await skillSyncService.writeSkills(skills as any, config, agents);
-
-      expect(fs.remove).toHaveBeenCalledWith(
-        expect.stringContaining('old-skill'),
-      );
-    });
-
-    it('should NOT prune directories protected by custom_overrides', async () => {
-      const config = {
-        registry: 'https://github.com/o/r',
-        skills: { common: {} },
-        prune: true,
-        custom_overrides: ['common/old-skill'],
-      } as any;
-      const skills = [{ category: 'common', skill: 'new-skill', files: [] }];
-      const agents = [Agent.Cursor];
-
-      vi.mocked(fs.pathExists).mockImplementation(async (candidate) =>
-        String(candidate).endsWith(path.join('.cursor', 'skills', 'common')),
-      );
-      vi.mocked(fs.readdir).mockResolvedValue(['old-skill'] as any);
-
-      await skillSyncService.writeSkills(skills as any, config, agents);
-
-      expect(fs.remove).not.toHaveBeenCalledWith(
-        expect.stringContaining('old-skill'),
+        skills: { common: { ref: 'v1.0.0' } },
+        custom_overrides: [],
+      } as unknown as SkillConfig;
+      const fakeWriter = { write: vi.fn() };
+      await skillSyncService.writeSkills(skills, config, [Agent.Claude], fakeWriter as any);
+      expect(fakeWriter.write).toHaveBeenCalledWith(
+        expect.stringContaining('.claude/skills/common/test-skill/SKILL.md'),
+        'content',
+        {
+          owner: 'skill',
+          source: 'skill:common/test-skill@v1.0.0',
+          agent: 'claude',
+        },
       );
     });
 

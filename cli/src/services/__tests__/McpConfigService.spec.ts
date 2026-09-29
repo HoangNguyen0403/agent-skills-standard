@@ -454,4 +454,86 @@ describe('McpConfigService', () => {
       expect(targets[Agent.Copilot].userFile).toContain('.config/Code/User');
     });
   });
+
+  describe('Codex TOML target', () => {
+    it('writes [mcp_servers.agent-skills-standard] to .codex/config.toml, preserving other keys', async () => {
+      const file = path.join(root, '.codex', 'config.toml');
+      await fs.outputFile(file, 'sandbox_mode = "workspace-write"\n');
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Codex],
+        mcp: mcp('project'),
+      });
+      const text = await fs.readFile(file, 'utf8');
+      expect(text.startsWith('sandbox_mode = "workspace-write"\n')).toBe(true);
+      expect(text).toContain('[mcp_servers.agent-skills-standard]');
+      expect(report.projectWrites).toEqual([
+        { agent: Agent.Codex, file: '.codex/config.toml', action: 'added' },
+      ]);
+    });
+    it('second install is skipped-existing and leaves the file unchanged', async () => {
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Codex],
+        mcp: mcp('project'),
+      });
+      const file = path.join(root, '.codex', 'config.toml');
+      const before = await fs.readFile(file, 'utf8');
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Codex],
+        mcp: mcp('project'),
+      });
+      expect(report.projectWrites[0].action).toBe('skipped-existing');
+      expect(await fs.readFile(file, 'utf8')).toBe(before);
+    });
+    it('removes our stale entry from legacy .codex/mcp_config.json and keeps others', async () => {
+      const legacy = path.join(root, '.codex', 'mcp_config.json');
+      await fs.outputJson(legacy, {
+        mcpServers: {
+          'agent-skills-standard': { command: 'x' },
+          other: { command: 'y' },
+        },
+      });
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Codex],
+        mcp: mcp('project'),
+      });
+      expect(await fs.readJson(legacy)).toEqual({
+        mcpServers: { other: { command: 'y' } },
+      });
+    });
+    it('status and uninstall read the TOML table', async () => {
+      await service.install({
+        rootDir: root,
+        agents: [Agent.Codex],
+        mcp: mcp('project'),
+      });
+      expect(
+        (await service.status({ rootDir: root, agents: [Agent.Codex] }))[0]
+          .project,
+      ).toBe(true);
+      const res = await service.uninstall({
+        rootDir: root,
+        agents: [Agent.Codex],
+        from: 'project',
+      });
+      expect(res.removed).toEqual([
+        { agent: Agent.Codex, file: '.codex/config.toml' },
+      ]);
+      expect(
+        await fs.readFile(path.join(root, '.codex', 'config.toml'), 'utf8'),
+      ).not.toContain('agent-skills-standard');
+    });
+    it('writes a .toml snippet for Codex', async () => {
+      const report = await service.install({
+        rootDir: root,
+        agents: [Agent.Codex],
+        mcp: { ...mcp('project'), snippets: true },
+      });
+      const snip = report.snippets.find((s) => s.agent === Agent.Codex)!;
+      expect(snip.file).toBe(path.join('mcp-config-snippets', 'codex.toml'));
+    });
+  });
 });

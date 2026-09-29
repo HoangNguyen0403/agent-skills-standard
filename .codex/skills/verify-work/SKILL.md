@@ -2,6 +2,7 @@
 name: verify-work
 description: "Verify feature, bug, UI, API, mobile, security, or deployment work against acceptance criteria."
 metadata:
+  internal: true
   triggers:
     keywords:
     - verify work

@@ -1,0 +1,607 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`capability golden (must never change during T3) > agent definitions (original fields) 1`] = `
+[
+  {
+    "agentPath": ".cursor/agents",
+    "detectionFiles": [
+      ".cursor",
+      ".cursorrules",
+    ],
+    "frontmatterStyle": "cursor",
+    "hookConfigPath": ".cursor/hooks.json",
+    "hookScriptPath": ".cursor/hooks/preedit-skill-loader.js",
+    "id": "cursor",
+    "name": "Cursor",
+    "path": ".cursor/skills",
+    "ruleExtension": ".mdc",
+    "ruleFile": ".cursor/rules",
+    "workflowFormat": "skill",
+    "workflowPath": ".cursor/skills",
+  },
+  {
+    "detectionFiles": [
+      ".trae",
+    ],
+    "frontmatterStyle": "cursor",
+    "id": "trae",
+    "name": "Trae",
+    "path": ".trae/skills",
+    "ruleExtension": ".mdc",
+    "ruleFile": ".trae/rules",
+    "workflowFormat": "skill",
+    "workflowPath": ".trae/skills",
+  },
+  {
+    "agentPath": ".claude/agents",
+    "detectionFiles": [
+      ".claude",
+    ],
+    "frontmatterStyle": "none",
+    "hookConfigPath": ".claude/settings.json",
+    "hookScriptPath": ".claude/hooks/preedit-skill-loader.js",
+    "id": "claude",
+    "name": "Claude Code",
+    "path": ".claude/skills",
+    "ruleExtension": ".md",
+    "ruleFile": ".",
+    "ruleFileName": "CLAUDE.md",
+    "workflowFormat": "command",
+    "workflowPath": ".claude/commands",
+  },
+  {
+    "agentPath": ".github/copilot-agents",
+    "detectionFiles": [
+      ".github",
+    ],
+    "frontmatterStyle": "copilot",
+    "hookConfigPath": ".github/hooks.json",
+    "hookScriptPath": ".github/hooks/preedit-skill-loader.js",
+    "id": "copilot",
+    "name": "GitHub Copilot",
+    "path": ".github/skills",
+    "ruleExtension": ".instructions.md",
+    "ruleFile": ".github/instructions",
+    "workflowFormat": "prompt",
+    "workflowPath": ".github/prompts",
+  },
+  {
+    "detectionFiles": [
+      ".agents",
+    ],
+    "frontmatterStyle": "cursor",
+    "id": "antigravity",
+    "name": "Antigravity",
+    "path": ".agents/skills",
+    "ruleExtension": ".md",
+    "ruleFile": ".agents/rules",
+    "workflowFormat": "native",
+    "workflowPath": ".agents/workflows",
+  },
+  {
+    "agentPath": ".codex/agents",
+    "detectionFiles": [
+      ".codex",
+    ],
+    "frontmatterStyle": "cursor",
+    "hookConfigPath": ".codex/hooks.json",
+    "hookScriptPath": ".codex/hooks/preedit-skill-loader.js",
+    "id": "codex",
+    "name": "Codex",
+    "path": ".codex/skills",
+    "ruleExtension": ".md",
+    "ruleFile": ".codex/rules",
+    "workflowFormat": "skill",
+    "workflowPath": ".codex/skills",
+  },
+  {
+    "agentPath": ".opencode/agents",
+    "detectionFiles": [
+      ".opencode",
+    ],
+    "frontmatterStyle": "cursor",
+    "id": "opencode",
+    "name": "OpenCode",
+    "path": ".opencode/skills",
+    "ruleExtension": ".md",
+    "ruleFile": ".opencode/rules",
+    "workflowFormat": "command",
+    "workflowPath": ".opencode/commands",
+  },
+  {
+    "agentPath": ".gemini/agents",
+    "detectionFiles": [
+      ".gemini",
+    ],
+    "frontmatterStyle": "cursor",
+    "hookConfigPath": ".gemini/hooks.json",
+    "hookScriptPath": ".gemini/hooks/preedit-skill-loader.js",
+    "id": "gemini",
+    "name": "Gemini",
+    "path": ".gemini/skills",
+    "ruleExtension": ".md",
+    "ruleFile": ".gemini/rules",
+    "workflowFormat": "toml",
+    "workflowPath": ".gemini/commands",
+  },
+  {
+    "detectionFiles": [
+      ".roo",
+    ],
+    "frontmatterStyle": "cursor",
+    "id": "roo",
+    "name": "Roo Code",
+    "path": ".roo/skills",
+    "ruleExtension": ".md",
+    "ruleFile": ".roo/rules",
+    "workflowFormat": "command",
+    "workflowPath": ".roo/commands",
+  },
+  {
+    "detectionFiles": [
+      ".windsurf",
+    ],
+    "frontmatterStyle": "cursor",
+    "hookConfigPath": ".windsurf/hooks.json",
+    "hookScriptPath": ".windsurf/hooks/preedit-skill-loader.js",
+    "id": "windsurf",
+    "name": "Windsurf",
+    "path": ".windsurf/skills",
+    "ruleExtension": ".md",
+    "ruleFile": ".windsurf/rules",
+    "workflowFormat": "native",
+    "workflowPath": ".windsurf/workflows",
+  },
+  {
+    "agentPath": ".kiro/agents",
+    "detectionFiles": [
+      ".kiro",
+    ],
+    "frontmatterStyle": "cursor",
+    "hookScriptPath": ".kiro/hooks/ags-skill-loader.md",
+    "id": "kiro",
+    "name": "Kiro",
+    "path": ".kiro/skills",
+    "ruleExtension": ".md",
+    "ruleFile": ".kiro/rules",
+    "workflowFormat": "native",
+    "workflowPath": ".agents/workflows",
+  },
+]
+`;
+
+exports[`capability golden (must never change during T3) > hook install file sets 1`] = `
+{
+  "antigravity": {
+    "unsupported": [
+      "antigravity",
+    ],
+    "writes": [],
+  },
+  "claude": {
+    "unsupported": [],
+    "writes": [
+      ".claude/hooks/preedit-skill-loader.js:added",
+      ".claude/settings.json:added",
+    ],
+  },
+  "codex": {
+    "unsupported": [],
+    "writes": [
+      ".codex/hooks/preedit-skill-loader.js:added",
+      ".codex/hooks.json:added",
+    ],
+  },
+  "copilot": {
+    "unsupported": [],
+    "writes": [
+      ".github/hooks/preedit-skill-loader.js:added",
+      ".github/hooks.json:added",
+    ],
+  },
+  "cursor": {
+    "unsupported": [],
+    "writes": [
+      ".cursor/hooks/preedit-skill-loader.js:added",
+      ".cursor/hooks.json:added",
+    ],
+  },
+  "gemini": {
+    "unsupported": [],
+    "writes": [
+      ".gemini/hooks/preedit-skill-loader.js:added",
+      ".gemini/hooks.json:added",
+    ],
+  },
+  "kiro": {
+    "unsupported": [],
+    "writes": [
+      ".kiro/hooks/ags-skill-loader.md:added",
+    ],
+  },
+  "opencode": {
+    "unsupported": [
+      "opencode",
+    ],
+    "writes": [],
+  },
+  "roo": {
+    "unsupported": [
+      "roo",
+    ],
+    "writes": [],
+  },
+  "trae": {
+    "unsupported": [
+      "trae",
+    ],
+    "writes": [],
+  },
+  "windsurf": {
+    "unsupported": [],
+    "writes": [
+      ".windsurf/hooks/preedit-skill-loader.js:added",
+      ".windsurf/hooks.json:added",
+    ],
+  },
+}
+`;
+
+exports[`capability golden (must never change during T3) > mcp targets on darwin 1`] = `
+{
+  "antigravity": {
+    "agent": "antigravity",
+    "key": "mcpServers",
+    "projectFile": ".antigravity/mcp_config.json",
+    "shape": "map",
+    "userFile": "/home/u/Library/Application Support/Google/Antigravity/mcp_config.json",
+  },
+  "claude": {
+    "agent": "claude",
+    "key": "mcpServers",
+    "projectFile": ".mcp.json",
+    "shape": "map",
+    "userFile": "/home/u/.claude/.mcp.json",
+  },
+  "codex": {
+    "agent": "codex",
+    "format": "toml",
+    "key": "mcp_servers",
+    "legacyJson": {
+      "projectFile": ".codex/mcp_config.json",
+      "userFile": "/home/u/.codex/mcp_config.json",
+    },
+    "projectFile": ".codex/config.toml",
+    "shape": "map",
+    "userFile": "/home/u/.codex/config.toml",
+  },
+  "copilot": {
+    "agent": "copilot",
+    "key": "mcpServers",
+    "projectFile": ".github/mcp.json",
+    "shape": "map",
+    "userFile": "/home/u/Library/Application Support/Code/User/globalStorage/github.copilot-chat/mcp.json",
+  },
+  "cursor": {
+    "agent": "cursor",
+    "key": "mcpServers",
+    "projectFile": ".cursor/mcp.json",
+    "shape": "map",
+    "userFile": "/home/u/Library/Application Support/Cursor/User/globalStorage/mcp.json",
+  },
+  "gemini": {
+    "agent": "gemini",
+    "key": "mcpServers",
+    "projectFile": ".gemini/settings.json",
+    "shape": "map",
+    "userFile": "/home/u/.gemini/settings.json",
+  },
+  "kiro": {
+    "agent": "kiro",
+    "key": "mcpServers",
+    "projectFile": ".kiro/settings/mcp.json",
+    "shape": "map",
+    "userFile": "/home/u/.kiro/settings/mcp.json",
+  },
+  "opencode": {
+    "agent": "opencode",
+    "key": "mcpServers",
+    "projectFile": ".opencode/mcp_config.json",
+    "shape": "map",
+    "userFile": "/home/u/.opencode/mcp_config.json",
+  },
+  "roo": {
+    "agent": "roo",
+    "key": "mcpServers",
+    "projectFile": ".roo/mcp_config.json",
+    "shape": "map",
+    "userFile": null,
+  },
+  "trae": {
+    "agent": "trae",
+    "key": "mcpServers",
+    "projectFile": ".trae/mcp.json",
+    "shape": "map",
+    "userFile": null,
+  },
+  "windsurf": {
+    "agent": "windsurf",
+    "key": "mcpServers",
+    "projectFile": ".codeium/windsurf/mcp_config.json",
+    "shape": "map",
+    "userFile": "/home/u/Library/Application Support/Codeium/Windsurf/mcp_config.json",
+  },
+}
+`;
+
+exports[`capability golden (must never change during T3) > mcp targets on linux 1`] = `
+{
+  "antigravity": {
+    "agent": "antigravity",
+    "key": "mcpServers",
+    "projectFile": ".antigravity/mcp_config.json",
+    "shape": "map",
+    "userFile": "/home/u/.gemini/antigravity/mcp_config.json",
+  },
+  "claude": {
+    "agent": "claude",
+    "key": "mcpServers",
+    "projectFile": ".mcp.json",
+    "shape": "map",
+    "userFile": "/home/u/.claude/.mcp.json",
+  },
+  "codex": {
+    "agent": "codex",
+    "format": "toml",
+    "key": "mcp_servers",
+    "legacyJson": {
+      "projectFile": ".codex/mcp_config.json",
+      "userFile": "/home/u/.codex/mcp_config.json",
+    },
+    "projectFile": ".codex/config.toml",
+    "shape": "map",
+    "userFile": "/home/u/.codex/config.toml",
+  },
+  "copilot": {
+    "agent": "copilot",
+    "key": "mcpServers",
+    "projectFile": ".github/mcp.json",
+    "shape": "map",
+    "userFile": "/home/u/.config/Code/User/globalStorage/github.copilot-chat/mcp.json",
+  },
+  "cursor": {
+    "agent": "cursor",
+    "key": "mcpServers",
+    "projectFile": ".cursor/mcp.json",
+    "shape": "map",
+    "userFile": "/home/u/.config/Cursor/User/globalStorage/mcp.json",
+  },
+  "gemini": {
+    "agent": "gemini",
+    "key": "mcpServers",
+    "projectFile": ".gemini/settings.json",
+    "shape": "map",
+    "userFile": "/home/u/.gemini/settings.json",
+  },
+  "kiro": {
+    "agent": "kiro",
+    "key": "mcpServers",
+    "projectFile": ".kiro/settings/mcp.json",
+    "shape": "map",
+    "userFile": "/home/u/.kiro/settings/mcp.json",
+  },
+  "opencode": {
+    "agent": "opencode",
+    "key": "mcpServers",
+    "projectFile": ".opencode/mcp_config.json",
+    "shape": "map",
+    "userFile": "/home/u/.opencode/mcp_config.json",
+  },
+  "roo": {
+    "agent": "roo",
+    "key": "mcpServers",
+    "projectFile": ".roo/mcp_config.json",
+    "shape": "map",
+    "userFile": null,
+  },
+  "trae": {
+    "agent": "trae",
+    "key": "mcpServers",
+    "projectFile": ".trae/mcp.json",
+    "shape": "map",
+    "userFile": null,
+  },
+  "windsurf": {
+    "agent": "windsurf",
+    "key": "mcpServers",
+    "projectFile": ".codeium/windsurf/mcp_config.json",
+    "shape": "map",
+    "userFile": "/home/u/.codeium/windsurf/mcp_config.json",
+  },
+}
+`;
+
+exports[`capability golden (must never change during T3) > mcp targets on win32 1`] = `
+{
+  "antigravity": {
+    "agent": "antigravity",
+    "key": "mcpServers",
+    "projectFile": ".antigravity/mcp_config.json",
+    "shape": "map",
+    "userFile": "/home/u/AppData/Local/Google/Antigravity/mcp_config.json",
+  },
+  "claude": {
+    "agent": "claude",
+    "key": "mcpServers",
+    "projectFile": ".mcp.json",
+    "shape": "map",
+    "userFile": "/home/u/.claude/.mcp.json",
+  },
+  "codex": {
+    "agent": "codex",
+    "format": "toml",
+    "key": "mcp_servers",
+    "legacyJson": {
+      "projectFile": ".codex/mcp_config.json",
+      "userFile": "/home/u/.codex/mcp_config.json",
+    },
+    "projectFile": ".codex/config.toml",
+    "shape": "map",
+    "userFile": "/home/u/.codex/config.toml",
+  },
+  "copilot": {
+    "agent": "copilot",
+    "key": "mcpServers",
+    "projectFile": ".github/mcp.json",
+    "shape": "map",
+    "userFile": "/home/u/AppData/Roaming/Code/User/globalStorage/github.copilot-chat/mcp.json",
+  },
+  "cursor": {
+    "agent": "cursor",
+    "key": "mcpServers",
+    "projectFile": ".cursor/mcp.json",
+    "shape": "map",
+    "userFile": "/home/u/AppData/Roaming/Cursor/User/globalStorage/mcp.json",
+  },
+  "gemini": {
+    "agent": "gemini",
+    "key": "mcpServers",
+    "projectFile": ".gemini/settings.json",
+    "shape": "map",
+    "userFile": "/home/u/.gemini/settings.json",
+  },
+  "kiro": {
+    "agent": "kiro",
+    "key": "mcpServers",
+    "projectFile": ".kiro/settings/mcp.json",
+    "shape": "map",
+    "userFile": "/home/u/AppData/Roaming/Kiro/settings/mcp.json",
+  },
+  "opencode": {
+    "agent": "opencode",
+    "key": "mcpServers",
+    "projectFile": ".opencode/mcp_config.json",
+    "shape": "map",
+    "userFile": "/home/u/.opencode/mcp_config.json",
+  },
+  "roo": {
+    "agent": "roo",
+    "key": "mcpServers",
+    "projectFile": ".roo/mcp_config.json",
+    "shape": "map",
+    "userFile": null,
+  },
+  "trae": {
+    "agent": "trae",
+    "key": "mcpServers",
+    "projectFile": ".trae/mcp.json",
+    "shape": "map",
+    "userFile": null,
+  },
+  "windsurf": {
+    "agent": "windsurf",
+    "key": "mcpServers",
+    "projectFile": ".codeium/windsurf/mcp_config.json",
+    "shape": "map",
+    "userFile": "/home/u/AppData/Roaming/Codeium/Windsurf/mcp_config.json",
+  },
+}
+`;
+
+exports[`capability golden (must never change during T3) > specialist outputs 1`] = `
+{
+  "antigravity": {
+    "content": "<!-- ags: permissions not enforceable on Antigravity; declared: risk_tier: L2; allowed-tools: ["Read","Grep"]; permissions: {"network":false,"filesystem":"read"} -->
+Review the diff and report findings.",
+    "name": "demo.md",
+  },
+  "claude": {
+    "content": "---
+name: demo
+description: Demo reviewer
+tools: Read, Grep
+---
+
+Review the diff and report findings.",
+    "name": "demo.md",
+  },
+  "codex": {
+    "content": "# ags: allowed-tools, permissions.filesystem declared but not enforceable via Codex TOML (only sandbox_mode is projected)
+name = "demo"
+description = "Demo reviewer"
+sandbox_mode = "workspace-write"
+developer_instructions = """
+Review the diff and report findings.
+"""",
+    "name": "demo.toml",
+  },
+  "copilot": {
+    "content": "<!-- ags: permissions not enforceable on Copilot; declared: risk_tier: L2; allowed-tools: ["Read","Grep"]; permissions: {"network":false,"filesystem":"read"} -->
+---
+description: Demo reviewer
+applyTo: '**/*'
+---
+
+Review the diff and report findings.",
+    "name": "specialist-demo.instructions.md",
+  },
+  "cursor": {
+    "content": "<!-- ags: permissions not enforceable on Cursor; declared: risk_tier: L2; allowed-tools: ["Read","Grep"]; permissions: {"network":false,"filesystem":"read"} -->
+---
+description: Demo reviewer
+globs:
+  - '**/*'
+---
+# Specialist: demo
+
+Review the diff and report findings.",
+    "name": "specialist-demo.mdc",
+  },
+  "gemini": {
+    "content": "<!-- ags: permissions not enforceable on Gemini; declared: risk_tier: L2; allowed-tools: ["Read","Grep"]; permissions: {"network":false,"filesystem":"read"} -->
+---
+name: demo
+description: Demo reviewer
+kind: local
+---
+
+Review the diff and report findings.",
+    "name": "demo.md",
+  },
+  "kiro": {
+    "content": "<!-- ags: permissions not enforceable on Kiro; declared: risk_tier: L2; allowed-tools: ["Read","Grep"]; permissions: {"network":false,"filesystem":"read"} -->
+---
+name: demo
+description: Demo reviewer
+---
+
+Review the diff and report findings.",
+    "name": "demo.md",
+  },
+  "opencode": {
+    "content": "<!-- ags: permissions not enforceable on OpenCode; declared: risk_tier: L2; allowed-tools: ["Read","Grep"]; permissions: {"network":false,"filesystem":"read"} -->
+---
+description: Demo reviewer
+mode: subagent
+---
+
+Review the diff and report findings.",
+    "name": "demo.md",
+  },
+  "roo": {
+    "content": "<!-- ags: permissions not enforceable on Roo Code; declared: risk_tier: L2; allowed-tools: ["Read","Grep"]; permissions: {"network":false,"filesystem":"read"} -->
+Review the diff and report findings.",
+    "name": "demo.md",
+  },
+  "trae": {
+    "content": "<!-- ags: permissions not enforceable on Trae; declared: risk_tier: L2; allowed-tools: ["Read","Grep"]; permissions: {"network":false,"filesystem":"read"} -->
+Review the diff and report findings.",
+    "name": "demo.mdc",
+  },
+  "windsurf": {
+    "content": "<!-- ags: permissions not enforceable on Windsurf; declared: risk_tier: L2; allowed-tools: ["Read","Grep"]; permissions: {"network":false,"filesystem":"read"} -->
+Review the diff and report findings.",
+    "name": "demo.md",
+  },
+}
+`;

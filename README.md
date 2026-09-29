@@ -101,11 +101,22 @@ npx agent-skills-standard@latest init
 
 ### 2. Sync
 
-Downloads skills into your AI agent's folders and generates the index:
+Downloads skills into your AI agent's folders, records ownership in `.skills-lock.json` v2, and generates the index:
 
 ```bash
 npx agent-skills-standard@latest sync
 ```
+
+#### Safe Install & Local Edits
+
+- **Edit Protection**: User-modified owned files are preserved and reported; they are never silently overwritten.
+- `ags sync --dry-run`: Preview what would change without modifying files.
+- `ags sync --dry-run --verbose`: List every affected file path.
+- `ags sync --dry-run --json`: Output the install plan as JSON for CI or automation.
+- `ags sync --force <paths...>`: Overwrite kept files after automatically backing them up.
+- **Scoped Backups**: Pruned files and forced overwrites are saved to `.ags/backups/` (latest 3 kept).
+- **Restore**: Undo destructive changes with `ags restore <id>` or view backups with `ags restore --list`.
+- **Safe Uninstall**: `ags uninstall [--all] [--agent <agents...>] [--category <categories...>]` removes only owned-unchanged files, preserving user edits and backing up first.
 
 ### 3. Code
 
@@ -162,7 +173,7 @@ ags hooks install --enforce      # Claude also BLOCKS edits to SOUL.md, MEMORY.m
 ags hooks uninstall              # Deregister the hook (keeps the script file)
 ```
 
-Independently, `ags verify` checks installed skill files against `.skills-lock.json` (written by every `sync`) to catch drift — a tampered file, a partial write, or a manual edit — and `ags audit` prints the current skill inventory.
+Independently, `ags verify` checks installed skill files against `.skills-lock.json` (written by every `sync`) to catch drift — a tampered file, a partial write, or a manual edit — `ags audit` prints the current skill inventory, and `ags doctor` checks installation health (config, agents, lock file, MCP, hooks, CLI version) with opt-in safe fixes.
 
 #### Manual install (if you prefer)
 

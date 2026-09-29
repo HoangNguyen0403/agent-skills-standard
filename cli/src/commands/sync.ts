@@ -10,6 +10,16 @@ import {
 } from '../services/McpConfigService';
 import { CLAUDE_MCP_PERMISSION, HookService } from '../services/HookService';
 import { SyncService } from '../services/SyncService';
+import { InstallPlan } from '../services/install/OwnershipWriter';
+
+export interface SyncOptions {
+  yes?: boolean;
+  snippets?: boolean;
+  dryRun?: boolean;
+  force?: string[];
+  verbose?: boolean;
+  json?: boolean;
+}
 
 /**
  * Command for synchronizing skills and workflows from the remote registry to the local workspace.
@@ -40,7 +50,7 @@ export class SyncCommand {
    * Executes the synchronization flow.
    * Reconciles dependencies, fetches skills and workflows from the registry, and updates AGENTS.md.
    */
-  async run(options: { yes?: boolean; snippets?: boolean } = {}) {
+  async run(options: SyncOptions = {}) {
     try {
       // 1. Load Config
       const config = await this.configService.loadConfig();
@@ -58,57 +68,119 @@ export class SyncCommand {
       const workflowsChanged =
         await this.syncService.reconcileWorkflows(config);
 
-      if (skillsChanged || workflowsChanged) {
+      if (!options.dryRun && (skillsChanged || workflowsChanged)) {
         await this.configService.saveConfig(config);
+      }
+
+      // Resolve pins for workflows, specialists, and skills
+      const resolvedRefs = await this.syncService.resolvePins(config);
+
+      const pinEntries = Object.entries(resolvedRefs.newPins);
+      if (pinEntries.length > 0) {
+        const pinnedList = [
+          resolvedRefs.newPins.workflows_ref,
+          resolvedRefs.newPins.specialists_ref,
+        ]
+          .filter(Boolean)
+          .join(', ');
+
+        if (!options.dryRun) {
+          if (resolvedRefs.newPins.workflows_ref) {
+            config.workflows_ref = resolvedRefs.newPins.workflows_ref;
+          }
+          if (resolvedRefs.newPins.specialists_ref) {
+            config.specialists_ref = resolvedRefs.newPins.specialists_ref;
+          }
+          await this.configService.saveConfig(config);
+          console.log(pc.green(`📌 Pinned ${pinnedList} in .skillsrc`));
+        } else {
+          console.log(
+            pc.gray(`  (dry-run) would pin ${pinnedList} in .skillsrc`),
+          );
+        }
+      }
+
+      for (const warning of resolvedRefs.warnings) {
+        console.log(pc.yellow(warning));
       }
 
       // 3. Check for updates
       const updates = await this.syncService.checkForUpdates(config);
 
       if (updates && Object.keys(updates).length > 0) {
-        console.log(pc.yellow('\n🚀 New skill versions detected:'));
-        for (const [cat, ref] of Object.entries(updates)) {
-          console.log(
-            pc.gray(`  - ${cat}: ${config.skills[cat].ref} -> ${ref}`),
-          );
-        }
-
-        let update = options.yes;
-        if (update === undefined) {
-          if (!process.stdin.isTTY) {
-            console.log(
-              pc.cyan(
-                'ℹ️  Non-interactive environment detected. Skipping version updates. Use --yes to auto-confirm.',
-              ),
-            );
-            update = false;
-          } else {
-            const answer = await inquirer.prompt([
-              {
-                type: 'confirm',
-                name: 'update',
-                message: 'Do you want to update .skillsrc with these versions?',
-                default: true,
-              },
-            ]);
-            update = answer.update;
+        if (options.dryRun) {
+          if (!options.json) {
+            for (const [cat, ref] of Object.entries(updates)) {
+              console.log(
+                pc.gray(`  (dry-run) would offer: ${cat} -> ${ref}`),
+              );
+            }
           }
-        }
-
-        if (update) {
-          for (const [cat, ref] of Object.entries(updates)) {
-            config.skills[cat].ref = ref;
-          }
-          await this.configService.saveConfig(config);
-          console.log(pc.green('✅ .skillsrc updated.'));
         } else {
-          console.log(
-            pc.cyan('ℹ️  Skipping version updates, staying on pinned refs.'),
-          );
+          console.log(pc.yellow('\n🚀 New skill versions detected:'));
+          for (const [cat, ref] of Object.entries(updates)) {
+            const currentRef =
+              cat === 'workflows'
+                ? config.workflows_ref
+                : cat === 'specialists'
+                  ? config.specialists_ref
+                  : config.skills[cat]?.ref;
+            console.log(
+              pc.gray(`  - ${cat}: ${currentRef} -> ${ref}`),
+            );
+          }
+
+          let update = options.yes;
+          if (update === undefined) {
+            if (!process.stdin.isTTY) {
+              console.log(
+                pc.cyan(
+                  'ℹ️  Non-interactive environment detected. Skipping version updates. Use --yes to auto-confirm.',
+                ),
+              );
+              update = false;
+            } else {
+              const answer = await inquirer.prompt([
+                {
+                  type: 'confirm',
+                  name: 'update',
+                  message: 'Do you want to update .skillsrc with these versions?',
+                  default: true,
+                },
+              ]);
+              update = answer.update;
+            }
+          }
+
+          if (update) {
+            for (const [cat, ref] of Object.entries(updates)) {
+              if (cat === 'workflows') {
+                config.workflows_ref = ref;
+              } else if (cat === 'specialists') {
+                config.specialists_ref = ref;
+              } else if (config.skills[cat]) {
+                config.skills[cat].ref = ref;
+              }
+            }
+            await this.configService.saveConfig(config);
+            console.log(pc.green('✅ .skillsrc updated.'));
+          } else {
+            console.log(
+              pc.cyan('ℹ️  Skipping version updates, staying on pinned refs.'),
+            );
+          }
         }
       }
 
-      console.log(pc.cyan(`🚀 Syncing skills from ${config.registry}...`));
+      if (!options.json) {
+        console.log(pc.cyan(`🚀 Syncing skills from ${config.registry}...`));
+      }
+
+      // Begin ownership lifecycle
+      await this.syncService.beginInstall(config, {
+        dryRun: Boolean(options.dryRun),
+        force: options.force ?? [],
+      });
 
       // 4. Assemble skills from remote registry
       const enabledCategories = Object.keys(config.skills);
@@ -125,11 +197,43 @@ export class SyncCommand {
       await this.syncService.writeWorkflows(workflows, config);
 
       // 5b. Sync specialists (sub-agents)
-      await this.syncService.syncSpecialists(config);
+      const specialistsOk = await this.syncService.syncSpecialists(config);
 
       // 6. Automatically apply framework-specific indices to AGENTS.md
       await this.syncService.applyIndices(config, config.agents);
 
+      const plan = await this.syncService.completeInstall(config, {
+        skills,
+        workflows,
+        specialistsOk,
+      });
+
+      if (options.dryRun) {
+        if (options.json) {
+          console.log(
+            JSON.stringify({
+              schema_version: 1,
+              kind: 'sync.plan',
+              data: plan,
+            }),
+          );
+        } else {
+          console.log(pc.cyan('🔍 Dry run — no files written'));
+          this.printPlanCounts(plan);
+          if (options.verbose) {
+            this.printVerbosePlan(plan);
+          }
+          console.log(
+            pc.gray(
+              '  (dry-run) skipped: MCP registration, hooks, capability notes',
+            ),
+          );
+        }
+        return;
+      }
+
+      this.printSummary(plan);
+      await this.syncService.discloseCapabilities(config);
       console.log(pc.green('✅ All skills synced successfully!'));
 
       // 7. MCP integration (consent-respecting — see McpConfigService).
@@ -394,5 +498,54 @@ export class SyncCommand {
         w.action === 'added' ? pc.green('+ added   ') : pc.cyan('~ updated ');
       console.log(`  ${tag} ${w.agent.padEnd(12)} ${pc.gray(w.file)}`);
     }
+  }
+
+  private printPlanCounts(plan: InstallPlan): void {
+    console.log(
+      `📦 Install: ${plan.added.length} added, ${plan.updated.length} updated, ${plan.unchanged.length} unchanged, ${plan.kept.length} kept (your edits), ${plan.pruned.length} pruned`,
+    );
+  }
+
+  private printSummary(plan: InstallPlan): void {
+    this.printPlanCounts(plan);
+
+    const allKept = [...plan.kept, ...plan.keptOrphans];
+    if (allKept.length > 0) {
+      const preview = allKept.slice(0, 3).join(', ');
+      const more = allKept.length > 3 ? `, +${allKept.length - 3} more` : '';
+      console.log(
+        pc.yellow(
+          `   Kept your edits: ${preview}${more} — overwrite with ags sync --force <path>`,
+        ),
+      );
+    }
+
+    if (plan.unknown.length > 0) {
+      const preview = plan.unknown.slice(0, 3).join(', ');
+      const more =
+        plan.unknown.length > 3 ? `, +${plan.unknown.length - 3} more` : '';
+      console.log(
+        pc.gray(
+          `   Left ${plan.unknown.length} existing file(s) ags does not own: ${preview}${more}`,
+        ),
+      );
+    }
+
+    if (plan.backupId) {
+      console.log(
+        pc.gray(
+          `   Backup: .ags/backups/${plan.backupId} (undo with ags restore ${plan.backupId})`,
+        ),
+      );
+    }
+  }
+
+  private printVerbosePlan(plan: InstallPlan): void {
+    for (const p of plan.added) console.log(pc.green(`  + ${p}`));
+    for (const p of plan.updated) console.log(pc.cyan(`  ~ ${p}`));
+    for (const p of plan.kept) console.log(pc.yellow(`  = ${p}`));
+    for (const p of plan.unknown) console.log(pc.gray(`  ? ${p}`));
+    for (const p of plan.pruned) console.log(pc.red(`  - ${p}`));
+    for (const p of plan.keptOrphans) console.log(pc.yellow(`  ! ${p}`));
   }
 }

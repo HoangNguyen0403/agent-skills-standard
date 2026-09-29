@@ -51,7 +51,26 @@ describe('SyncCommand', () => {
       assembleWorkflows: vi.fn().mockResolvedValue([]),
       writeWorkflows: vi.fn(),
       reconcileWorkflows: vi.fn().mockResolvedValue(false),
-      syncSpecialists: vi.fn().mockResolvedValue(undefined),
+      resolvePins: vi.fn().mockResolvedValue({
+        workflows: { ref: 'main', commit: null, pinned: false },
+        specialists: { ref: 'main', commit: null, pinned: false },
+        skills: {},
+        newPins: {},
+        warnings: [],
+      }),
+      syncSpecialists: vi.fn().mockResolvedValue(true),
+      discloseCapabilities: vi.fn().mockResolvedValue(undefined),
+      beginInstall: vi.fn().mockResolvedValue(undefined),
+      completeInstall: vi.fn().mockResolvedValue({
+        added: [],
+        updated: [],
+        unchanged: [],
+        kept: [],
+        unknown: [],
+        pruned: [],
+        keptOrphans: [],
+        backupId: null,
+      }),
     } as unknown as Mocked<SyncService>;
     mockConfigService = {
       loadConfig: vi.fn().mockResolvedValue({
@@ -102,6 +121,119 @@ describe('SyncCommand', () => {
       expect.stringContaining('All skills synced successfully'),
     );
   });
+  describe('--dry-run and --force options', () => {
+    it('dry-run never calls saveConfig, runMcpPhase, HookService.install, or discloseCapabilities', async () => {
+      mockSyncService.reconcileConfig.mockResolvedValue(true);
+      await command.run({ dryRun: true });
+
+      expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+      expect(mockHookService.install).not.toHaveBeenCalled();
+      expect(mockSyncService.discloseCapabilities).not.toHaveBeenCalled();
+    });
+
+    it('--json prints parseable sync.plan and no extra output', async () => {
+      const plan = {
+        added: ['a.md'],
+        updated: [],
+        unchanged: [],
+        kept: [],
+        unknown: [],
+        pruned: [],
+        keptOrphans: [],
+        backupId: null,
+      };
+      mockSyncService.completeInstall.mockResolvedValue(plan);
+
+      await command.run({ dryRun: true, json: true });
+
+      expect(console.log).toHaveBeenCalledWith(
+        JSON.stringify({
+          schema_version: 1,
+          kind: 'sync.plan',
+          data: plan,
+        }),
+      );
+    });
+
+    it('force paths are passed to beginInstall', async () => {
+      await command.run({ force: ['a/b.md', './c/d.md'] });
+
+      expect(mockSyncService.beginInstall).toHaveBeenCalledWith(
+        expect.anything(),
+        {
+          dryRun: false,
+          force: ['a/b.md', './c/d.md'],
+        },
+      );
+    });
+
+    it('summary line shows counts from a stubbed plan', async () => {
+      const plan = {
+        added: ['a.md'],
+        updated: ['b.md'],
+        unchanged: ['c.md'],
+        kept: [],
+        unknown: ['u.md'],
+        pruned: ['p.md'],
+        keptOrphans: [],
+        backupId: '20260927-120000',
+      };
+      mockSyncService.completeInstall.mockResolvedValue(plan);
+
+      await command.run();
+
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining(
+          '📦 Install: 1 added, 1 updated, 1 unchanged, 0 kept (your edits), 1 pruned',
+        ),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'Left 1 existing file(s) ags does not own: u.md',
+        ),
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Backup: .ags/backups/20260927-120000'),
+      );
+    });
+
+    it('kept-edits line appears only when kept is non-empty', async () => {
+      // 1. empty kept
+      mockSyncService.completeInstall.mockResolvedValue({
+        added: [],
+        updated: [],
+        unchanged: [],
+        kept: [],
+        unknown: [],
+        pruned: [],
+        keptOrphans: [],
+        backupId: null,
+      });
+      await command.run();
+      expect(console.log).not.toHaveBeenCalledWith(
+        expect.stringContaining('Kept your edits:'),
+      );
+
+      // 2. non-empty kept
+      vi.clearAllMocks();
+      mockSyncService.completeInstall.mockResolvedValue({
+        added: [],
+        updated: [],
+        unchanged: [],
+        kept: ['k1.md', 'k2.md'],
+        unknown: [],
+        pruned: [],
+        keptOrphans: [],
+        backupId: null,
+      });
+      await command.run();
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'Kept your edits: k1.md, k2.md — overwrite with ags sync --force <path>',
+        ),
+      );
+    });
+  });
 
   // Test intent: a retained package fetch failure is non-success and must stop
   // before writeSkills can replace the lockfile with an incomplete selection.
@@ -127,6 +259,67 @@ describe('SyncCommand', () => {
     await command.run();
     expect(mockSyncService.reconcileWorkflows).toHaveBeenCalled();
     expect(mockConfigService.saveConfig).toHaveBeenCalled();
+  });
+
+  it('should write newPins to config and saveConfig when not dry-run', async () => {
+    mockSyncService.resolvePins.mockResolvedValue({
+      workflows: { ref: 'workflows-v1.0.0', commit: 'abc', pinned: true },
+      specialists: { ref: 'specialists-v2.0.0', commit: 'def', pinned: true },
+      skills: {},
+      newPins: {
+        workflows_ref: 'workflows-v1.0.0',
+        specialists_ref: 'specialists-v2.0.0',
+      },
+      warnings: [],
+    });
+
+    await command.run();
+
+    expect(mockConfigService.saveConfig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workflows_ref: 'workflows-v1.0.0',
+        specialists_ref: 'specialists-v2.0.0',
+      }),
+    );
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('📌 Pinned workflows-v1.0.0, specialists-v2.0.0 in .skillsrc'),
+    );
+  });
+
+  it('should not saveConfig or write newPins in dry-run mode', async () => {
+    mockSyncService.resolvePins.mockResolvedValue({
+      workflows: { ref: 'workflows-v1.0.0', commit: 'abc', pinned: true },
+      specialists: { ref: 'specialists-v2.0.0', commit: 'def', pinned: true },
+      skills: {},
+      newPins: {
+        workflows_ref: 'workflows-v1.0.0',
+        specialists_ref: 'specialists-v2.0.0',
+      },
+      warnings: [],
+    });
+
+    await command.run({ dryRun: true });
+
+    expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('(dry-run) would pin workflows-v1.0.0, specialists-v2.0.0 in .skillsrc'),
+    );
+  });
+
+  it('should not rewrite pins or print pin message when newPins is empty', async () => {
+    mockSyncService.resolvePins.mockResolvedValue({
+      workflows: { ref: 'workflows-v1.0.0', commit: 'abc', pinned: true },
+      specialists: { ref: 'specialists-v2.0.0', commit: 'def', pinned: true },
+      skills: {},
+      newPins: {},
+      warnings: [],
+    });
+
+    await command.run();
+
+    expect(console.log).not.toHaveBeenCalledWith(
+      expect.stringContaining('📌 Pinned'),
+    );
   });
 
   it('should handle Error instances in catch block', async () => {

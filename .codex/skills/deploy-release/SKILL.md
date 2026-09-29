@@ -2,6 +2,7 @@
 name: deploy-release
 description: "Prepare and verify a staged or production deployment with rollback and smoke checks."
 metadata:
+  internal: true
   triggers:
     keywords:
     - deploy release

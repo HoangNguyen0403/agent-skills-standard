@@ -2,6 +2,7 @@
 name: specialist-system-architect
 description: Runs one bounded deep dive on a single risky component of a system design and returns options, failure modes, and a justified recommendation. Use during a design session when a component needs expert depth beyond the main thread's budget.
 metadata:
+  internal: true
   triggers:
     keywords:
       - deep dive

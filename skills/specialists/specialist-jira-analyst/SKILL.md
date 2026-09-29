@@ -2,6 +2,7 @@
 name: specialist-jira-analyst
 description: High-density JIRA analysis persona. Extracts reproduce steps, ACs, and market requirements with zero-hallucination rigor.
 metadata:
+  internal: true
   triggers:
     keywords:
     - jira analysis

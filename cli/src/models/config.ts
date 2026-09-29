@@ -61,6 +61,10 @@ export interface SkillConfig {
   custom_overrides?: string[];
   /** Whether to delete orphaned skill folders (true by default) */
   prune?: boolean;
+  /** Pinned git ref (release tag) for workflows */
+  workflows_ref?: string;
+  /** Pinned git ref (release tag) for specialists */
+  specialists_ref?: string;
   /** Optional: opt-in MCP server integration. See McpConfig. */
   mcp?: McpConfig;
   /** Opt-in local MCP usage log (never uploaded). See docs/FRESHNESS.md "Usage telemetry". */

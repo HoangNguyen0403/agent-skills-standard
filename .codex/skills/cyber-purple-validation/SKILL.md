@@ -2,6 +2,7 @@
 name: cyber-purple-validation
 description: "Controlled purple validation using paired action-observation evidence and explicit defensive outcomes."
 metadata:
+  internal: true
   triggers:
     keywords:
     - cyber purple validation

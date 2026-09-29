@@ -2,6 +2,7 @@
 name: specialist-codebase-scout
 description: Explores codebase structure, affected files, blast radius, related tests, and local conventions for a focused topic. Use when review or planning needs structural lookup without bloating main context.
 metadata:
+  internal: true
   triggers:
     keywords:
       - codebase scout

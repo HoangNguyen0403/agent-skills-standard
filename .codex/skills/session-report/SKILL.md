@@ -2,6 +2,7 @@
 name: session-report
 description: "Capture delivery evidence, commands, changed files, blockers, and standards feedback after a work session."
 metadata:
+  internal: true
   triggers:
     keywords:
     - session report

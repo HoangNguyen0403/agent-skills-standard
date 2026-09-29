@@ -6,6 +6,8 @@ import { SkillConfig } from '../models/config';
 import { CollectedSkill } from '../models/types';
 import { GithubService } from './GithubService';
 import { SpecialistTransformer } from './utils/SpecialistTransformer';
+import { InstallWriter, PassthroughWriter } from './install/OwnershipWriter';
+import { ManifestVerifier } from './install/ManifestVerifier';
 
 /**
  * Service responsible for syncing specialist skills from the internal registry
@@ -16,14 +18,15 @@ export class SpecialistSyncService {
     private githubService = new GithubService(process.env.GITHUB_TOKEN),
   ) {}
 
-  async assembleSpecialists(config: SkillConfig): Promise<CollectedSkill[]> {
+  async assembleSpecialists(
+    config: SkillConfig,
+    ref: string = 'main',
+    verifier?: ManifestVerifier,
+  ): Promise<CollectedSkill[]> {
     const githubMatch = GithubService.parseGitHubUrl(config.registry);
     if (!githubMatch) return [];
 
     const { owner, repo } = githubMatch;
-    const ref =
-      (await this.githubService.getRepoInfo(owner, repo))?.default_branch ||
-      'main';
     const treeData = await this.githubService.getRepoTree(owner, repo, ref);
     if (!treeData) return [];
 
@@ -48,6 +51,12 @@ export class SpecialistSyncService {
       );
       if (!content) continue;
 
+
+      const rejection = verifier?.check(file.path, content);
+      if (rejection) {
+        console.log(pc.red(`    ❌ ${file.path} — ${rejection}`));
+        continue;
+      }
       specialists.push({
         category: 'specialists',
         skill: specialistName,
@@ -62,16 +71,15 @@ export class SpecialistSyncService {
     rootDir: string,
     agents: Agent[],
     specialists: CollectedSkill[],
-  ): Promise<void> {
-    if (specialists.length === 0) return;
+    writer: InstallWriter = new PassthroughWriter(),
+  ): Promise<number> {
+    if (specialists.length === 0) return 0;
 
     for (const agentId of agents) {
       const agentDef = SUPPORTED_AGENTS.find((a) => a.id === agentId);
       if (!agentDef || !agentDef.agentPath) continue;
 
       const targetDir = path.join(rootDir, agentDef.agentPath);
-      await fs.ensureDir(targetDir);
-
       let syncedCount = 0;
       for (const specialist of specialists) {
         const skillFile = specialist.files.find(
@@ -85,9 +93,14 @@ export class SpecialistSyncService {
         );
         if (!transformed) continue;
 
-        await fs.outputFile(
+        await writer.write(
           path.join(targetDir, transformed.name),
           transformed.content,
+          {
+            owner: 'specialist',
+            source: `specialist:${specialist.skill}`,
+            agent: agentId,
+          },
         );
         syncedCount++;
       }
@@ -100,6 +113,7 @@ export class SpecialistSyncService {
         );
       }
     }
+    return specialists.length;
   }
 
   /**
@@ -112,10 +126,11 @@ export class SpecialistSyncService {
     rootDir: string,
     agents: Agent[],
     sourceDir?: string,
-  ): Promise<void> {
+    writer: InstallWriter = new PassthroughWriter(),
+  ): Promise<number> {
     const specialistsDir =
       sourceDir || path.join(rootDir, 'skills/specialists');
-    if (!(await fs.pathExists(specialistsDir))) return;
+    if (!(await fs.pathExists(specialistsDir))) return 0;
 
     const specialistFolders = (await fs.readdir(specialistsDir)).filter((f) => {
       return fs.statSync(path.join(specialistsDir, f)).isDirectory();
@@ -134,6 +149,6 @@ export class SpecialistSyncService {
       });
     }
 
-    return this.syncCollectedSpecialists(rootDir, agents, collected);
+    return this.syncCollectedSpecialists(rootDir, agents, collected, writer);
   }
 }

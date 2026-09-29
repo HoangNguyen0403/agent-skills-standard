@@ -1,0 +1,13 @@
+│
+◇  Found 347 skills
+│
+◇  Available Skills
+│
+│    android-agp-upgrade
+│
+│      Upgrade an Android project to Android Gradle Plugin (AGP) 9. Use when migrating to AGP 9, updating Gradle build f…[+64]
+│
+│    android-architecture
+│
+│      Apply Clean Architecture layering, modularization, and Unidirectional Data Flow in Android projects. Use when set…[+199]
+│

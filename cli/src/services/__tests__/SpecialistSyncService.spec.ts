@@ -3,6 +3,8 @@ import fs from 'fs-extra';
 import path from 'path';
 import { SpecialistSyncService } from '../SpecialistSyncService';
 import { Agent } from '../../constants';
+import type { GithubService } from '../GithubService';
+import type { ManifestVerifier } from '../install/ManifestVerifier';
 
 vi.mock('fs-extra');
 
@@ -45,6 +47,38 @@ Check OWASP.` as any,
     expect(fs.outputFile).toHaveBeenCalledWith(
       targetFile,
       expect.stringContaining('Check OWASP.'),
+    );
+  });
+  it('routes whole-file writes through injected InstallWriter with expected meta and returns count', async () => {
+    const specialists = [
+      {
+        category: 'specialists',
+        skill: 'specialist-security-reviewer',
+        files: [
+          {
+            name: 'SKILL.md',
+            content:
+              '---\nname: specialist-security-reviewer\ndescription: "Review security"\n---\n# Rules\nCheck OWASP.',
+          },
+        ],
+      },
+    ];
+    const fakeWriter = { write: vi.fn() };
+    const count = await service.syncCollectedSpecialists(
+      rootDir,
+      [Agent.Claude],
+      specialists,
+      fakeWriter as unknown as any,
+    );
+    expect(count).toBe(1);
+    expect(fakeWriter.write).toHaveBeenCalledWith(
+      expect.stringContaining('.claude/agents/security-reviewer.md'),
+      expect.stringContaining('name: security-reviewer'),
+      {
+        owner: 'specialist',
+        source: 'specialist:specialist-security-reviewer',
+        agent: 'claude',
+      },
     );
   });
 
@@ -398,22 +432,72 @@ description: "Review security"
   });
 
   describe('assembleSpecialists github failures (Lines 24-28)', () => {
-    it('should default ref to main when getRepoInfo returns null', async () => {
+    it('should fetch tree at the passed ref and not call getRepoInfo', async () => {
       const githubService = {
-        getRepoInfo: vi.fn().mockResolvedValue(null),
+        getRepoInfo: vi.fn(),
         getRepoTree: vi.fn().mockResolvedValue({ tree: [] }),
-      } as any;
-      const remoteService = new SpecialistSyncService(githubService);
-      await remoteService.assembleSpecialists({
-        registry: 'https://github.com/owner/repo',
-        agents: [],
-        skills: {},
-      });
+      };
+      const remoteService = new SpecialistSyncService(
+        githubService as unknown as GithubService,
+      );
+      await remoteService.assembleSpecialists(
+        {
+          registry: 'https://github.com/owner/repo',
+          agents: [],
+          skills: {},
+        },
+        'specialists-v2.0.0',
+      );
       expect(githubService.getRepoTree).toHaveBeenCalledWith(
         'owner',
         'repo',
-        'main',
+        'specialists-v2.0.0',
       );
+      expect(githubService.getRepoInfo).not.toHaveBeenCalled();
+    });
+
+    it('should drop rejected specialist files and keep valid ones when verifier rejects a file', async () => {
+      const githubService = {
+        getRepoInfo: vi.fn(),
+        getRepoTree: vi.fn().mockResolvedValue({
+          tree: [
+            {
+              path: 'skills/specialists/specialist-one/SKILL.md',
+              type: 'blob',
+            },
+            {
+              path: 'skills/specialists/specialist-bad/SKILL.md',
+              type: 'blob',
+            },
+          ],
+        }),
+        getRawFile: vi.fn().mockImplementation((_o, _r, _ref, filePath: string) => {
+          if (filePath.includes('specialist-one')) return 'good content';
+          return 'bad content';
+        }),
+      };
+      const fakeVerifier = {
+        check: vi.fn().mockImplementation((filePath: string) => {
+          if (filePath.includes('specialist-bad')) {
+            return 'sha256 does not match release MANIFEST.json';
+          }
+          return null;
+        }),
+      };
+      const remoteService = new SpecialistSyncService(
+        githubService as unknown as GithubService,
+      );
+      const result = await remoteService.assembleSpecialists(
+        {
+          registry: 'https://github.com/owner/repo',
+          agents: [],
+          skills: {},
+        },
+        'specialists-v2.0.0',
+        fakeVerifier as unknown as ManifestVerifier,
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0].skill).toBe('specialist-one');
     });
 
     it('should return empty if getRepoTree returns null', async () => {

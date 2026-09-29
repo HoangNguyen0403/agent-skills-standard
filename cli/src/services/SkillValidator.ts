@@ -12,6 +12,13 @@ import {
   TriggersRule,
 } from './validation/rules';
 import { ValidationRule } from './validation/types';
+import {
+  AgentSkillsSpecRule,
+  BodySizeRule,
+  NameMatchesDirectoryRule,
+  ReferenceLinksRule,
+  TriggerPhraseRule,
+} from './validation/interopRules';
 
 /**
  * Result of validating a single skill file.
@@ -57,6 +64,11 @@ export class SkillValidator {
     new PriorityRule('error'),
     new TriggersRule(),
     new DirectoryStructureRule(),
+    new NameMatchesDirectoryRule(),
+    new AgentSkillsSpecRule(),
+    new TriggerPhraseRule(),
+    new ReferenceLinksRule(),
+    new BodySizeRule(),
   ];
 
   /**

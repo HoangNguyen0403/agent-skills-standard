@@ -9,7 +9,7 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 ## Steps
 
 1. Load inputs:
-   - Load baseline SRS/FRS section, `common-software-requirements`, PRD or ticket, implementation plan, matched framework skills, architecture docs, and trace source `BRD-OBJ-* -> REQ-* -> AC-*`.
+   - Load baseline SRS/FRS section, `common-software-requirements`, `common-decision-discipline` (option cards, evidence ledger), PRD or ticket, implementation plan, matched framework skills, architecture docs, and trace source `BRD-OBJ-* -> REQ-* -> AC-*`.
 2. Define architecture:
    - Name bounded contexts, module/data owners, and migration needs.
    - Consume or create the HLD trace: requirements, audience, scope, shaping constraints, lifecycle status, ownership, failure domains, and decisions.
