@@ -238,7 +238,11 @@ export class SkillSyncService {
 
     const verifier = verifiers[sourceCat] ?? verifiers[category];
     if (verifier) {
+      // Repo-root LICENSE/NOTICE sit outside every release scope (the manifest
+      // only covers skills/<category>), so they can never be listed. They are
+      // still blob-sha checked against the pinned tree in the download itself.
       for (const f of files) {
+        if (this.isRootAttributionFile(f.path)) continue;
         const rejection = verifier.check(f.path, f.content);
         if (rejection) failed.push({ path: f.path, reason: rejection });
       }

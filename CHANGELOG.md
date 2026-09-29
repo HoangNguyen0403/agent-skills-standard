@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Quick Navigation
 
+## [cli-v2.6.5] - 2026-09-29
+
+**Category**: CLI Tool
+
+### Fixed
+
+- `ags sync` no longer fails every pinned category with `LICENSE — not listed in release MANIFEST.json`: repo-root `LICENSE`/`NOTICE` copied into each package sit outside the release manifest scope (`skills/<category>`), so they are exempt from the manifest check and remain blob-sha verified against the pinned tag tree.
+
+## [cli-v2.6.4] - 2026-09-29
+
+**Category**: CLI Tool
+
 ### Added
 
 - Real-CLI round-trip smoke test harness (`pnpm harness:smoke`, `scripts/harness-smoke/run.ts`) verifying `skills` installer discovery, `gh skill` publishing, Codex MCP discovery, and OpenCode specialist discovery with unit test coverage.

@@ -175,6 +175,44 @@ describe('SkillSyncService', () => {
       ).rejects.toThrow('cat1/s1');
       GithubService.parseGitHubUrl = oldParse;
     });
+
+    // Test intent: repo-root LICENSE is copied into each package but is outside
+    // the manifest scope (skills/<category>); it must not fail a pinned sync.
+    it('does not manifest-check repo-root LICENSE while still checking package files', async () => {
+      const oldParse = GithubService.parseGitHubUrl;
+      GithubService.parseGitHubUrl = vi.fn().mockReturnValue({ owner: 'o', repo: 'r' });
+      const config = {
+        registry: 'https://github.com/o/r',
+        skills: { cat1: {} },
+      } as unknown as SkillConfig;
+      mockGithubService.getRepoTree.mockResolvedValue({
+        tree: [
+          { path: 'skills/cat1/s1/SKILL.md', type: 'blob' },
+          { path: 'LICENSE', type: 'blob' },
+        ],
+      });
+      mockGithubService.downloadFilesConcurrentBytes.mockImplementation(
+        (tasks: { path: string }[]) => ({
+          ok: tasks.map((t) => ({ path: t.path, content: Buffer.from('c') })),
+          failed: [],
+        }),
+      );
+      const fakeVerifier = {
+        check: vi.fn().mockImplementation((p: string) =>
+          p === 'skills/cat1/s1/SKILL.md'
+            ? null
+            : 'not listed in release MANIFEST.json',
+        ),
+      };
+
+      const result = await skillSyncService.assembleSkills(['cat1'], config, {
+        cat1: fakeVerifier as unknown as ManifestVerifier,
+      });
+
+      expect(result[0].files.map((f) => f.name).sort()).toEqual(['LICENSE', 'SKILL.md']);
+      expect(fakeVerifier.check).not.toHaveBeenCalledWith('LICENSE', expect.anything());
+      GithubService.parseGitHubUrl = oldParse;
+    });
   });
 
   describe('identifyFoldersToSync & expandAbsoluteInclude', () => {
