@@ -10,6 +10,13 @@ const MIN_TARGET_PX = 44;
 const AA_TEXT = 4.5;
 const EN_WORDS = ['the', 'and', 'your', 'add', 'save', 'view', 'edit', 'delete', 'settings', 'home', 'profile', 'next', 'back', 'done', 'cancel', 'upload', 'all'];
 const VI_CHARS = /[ăâđêôơưàáạảãằắặẳẵầấậẩẫèéẹẻẽềếệểễìíịỉĩòóọỏõồốộổỗờớợởỡùúụủũừứựửữỳýỵỷỹ]/i;
+const TAILWIND_COLOR_NAMES = '(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)';
+const BG_PALETTE_COLOR = new RegExp(`^bg-${TAILWIND_COLOR_NAMES}-\\d{2,3}(?:\\/\\d+)?$`);
+const TEXT_PALETTE_COLOR = new RegExp(`^text-${TAILWIND_COLOR_NAMES}-\\d{2,3}(?:\\/\\d+)?$`);
+const BG_ARBITRARY_COLOR = /^bg-\[(?:#[\da-f]{3,8}|color:[^\]]+)\]$/i;
+const TEXT_ARBITRARY_COLOR = /^text-\[(?:#[\da-f]{3,8}|color:[^\]]+)\]$/i;
+const VOID_TAGS = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+
 
 function normalizeHex(hex) {
   const h = hex.replace('#', '').toLowerCase();
@@ -66,39 +73,60 @@ function elements(html, tags) {
   return [...html.matchAll(re)].map((m) => ({ tag: m[1].toLowerCase(), attrs: m[2], inner: m[3] }));
 }
 
+function backgroundColor(classes) {
+  return classes.find((name) =>
+    name === 'bg-primary' ||
+    /^(?:bg-(?:black|white|current)|bg-background(?:-(?:light|dark))?)$/.test(name) ||
+    BG_PALETTE_COLOR.test(name) ||
+    BG_ARBITRARY_COLOR.test(name)
+  ) ?? null;
+}
+
+function textColor(classes) {
+  return classes.find((name) =>
+    name === 'text-white' ||
+    /^(?:text-(?:black|transparent|current))$/.test(name) ||
+    TEXT_PALETTE_COLOR.test(name) ||
+    TEXT_ARBITRARY_COLOR.test(name)
+  ) ?? null;
+}
+
 function whiteTextOnPrimaryCount(html) {
   const tagRe = /<\/?([a-z0-9-]+)\b([^>]*)>/gi;
   const stack = [];
   const primaryElements = new Set();
-  const voidTags = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
   let match;
   while ((match = tagRe.exec(html)) !== null) {
     const tag = match[1].toLowerCase();
     const token = match[0];
     if (token.startsWith('</')) {
-      const index = stack.map((entry) => entry.tag).lastIndexOf(tag);
-      if (index !== -1) stack.length = index;
+      let index = stack.length - 1;
+      while (index >= 0 && stack[index].tag !== tag) index--;
+      if (index >= 0) stack.length = index;
       continue;
     }
-    const attrs = match[2];
-    const classes = classTokens(attrs);
-    const background = classes.find((name) => name.startsWith('bg-') && !name.startsWith('bg-primary/'));
-    const entry = {
-      tag,
-      background: background === 'bg-primary' ? 'primary' : background ? 'other' : null,
-      primaryElement: background === 'bg-primary' ? {} : null,
-    };
-    if (classes.includes('text-white')) {
-      const effectiveBackground = entry.background ?? [...stack].reverse().find((parent) => parent.background)?.background;
-      if (effectiveBackground === 'primary') {
-        const primary = entry.primaryElement ?? [...stack].reverse().find((parent) => parent.background === 'primary')?.primaryElement;
-        if (primary) primaryElements.add(primary);
-      }
+
+    const classes = classTokens(match[2]);
+    const ownBackground = backgroundColor(classes);
+    const ownTextColor = textColor(classes);
+    const parent = stack[stack.length - 1];
+    const background = ownBackground ?? parent?.background ?? null;
+    const foreground = ownTextColor ?? parent?.foreground ?? null;
+    const primaryElement = ownBackground === 'bg-primary'
+      ? {}
+      : ownBackground
+        ? null
+        : parent?.primaryElement ?? null;
+    if (background === 'bg-primary' && foreground === 'text-white' && primaryElement) {
+      primaryElements.add(primaryElement);
     }
-    if (!voidTags.has(tag) && !/\/\s*>$/.test(token)) stack.push(entry);
+    if (!VOID_TAGS.has(tag) && !/\/\s*>$/.test(token)) {
+      stack.push({ tag, background, foreground, primaryElement });
+    }
   }
   return primaryElements.size;
 }
+
 
 function sizePx(token) {
   const scale = token.match(/^(?:w|h|size)-(\d+)$/);
