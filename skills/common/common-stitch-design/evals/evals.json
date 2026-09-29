@@ -1,0 +1,43 @@
+{
+  "skill_name": "common-stitch-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I connect my agent to Google Stitch so it can read my project screens?",
+      "expected_output": "Gives the remote MCP endpoint and API-key header, notes a restart is needed, and verifies with a list-projects call.",
+      "assertions": [
+        { "type": "contains_any", "value": ["X-Goog-Api-Key", "api key"] },
+        { "type": "contains_any", "value": ["stitch.googleapis.com/mcp", "mcp"] },
+        { "type": "contains_any", "value": ["restart", "list_projects"] }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Our Stitch home screen has low-contrast buttons. Just fix the screen directly.",
+      "expected_output": "Refuses to overwrite the original; proposes REFINE variants or a new design system, and asks approval before any overwriting call.",
+      "assertions": [
+        { "type": "contains_any", "value": ["generate_variants", "REFINE", "variant"] },
+        { "type": "contains_any", "value": ["new design system", "never overwrite", "originals"] },
+        { "type": "contains_any", "value": ["approval", "explicit approval"] }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Apply our design system to screen 98b50e2ddc9943efb387052637738f61 with apply_design_system.",
+      "expected_output": "Explains apply_design_system needs screen instance ids from get_project, and that applying to originals needs approval.",
+      "assertions": [
+        { "type": "contains_any", "value": ["instance", "instance ids"] },
+        { "type": "contains", "value": "get_project" }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Build a React login form with Tailwind",
+    "Review this Figma file for spacing issues",
+    "Set up a Postgres migration"
+  ],
+  "should_trigger": [
+    "Review my Google Stitch project screens",
+    "Write a DESIGN.md for our app and upload it to Stitch"
+  ]
+}
