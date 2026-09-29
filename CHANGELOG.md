@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Quick Navigation
 
+## [Unreleased]
+
+**Category**: CLI Tool, Quality Engineering
+
+### Fixed
+
+- Managed skill package files and ownership-writer operations refuse pre-existing symlinks below the project root before payload writes, reads, backups, or pruning; package resources across selected agents are checked before the first package write. This does not cover unrelated direct root-document writes or concurrent filesystem swaps.
+- Removed a cross-project environment and credential-handling reference from the reusable Playwright CLI skill and four tracked agent install mirrors.
+
 ## [cli-v2.6.5] - 2026-09-29
 
 **Category**: CLI Tool

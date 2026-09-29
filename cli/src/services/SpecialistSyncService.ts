@@ -71,7 +71,7 @@ export class SpecialistSyncService {
     rootDir: string,
     agents: Agent[],
     specialists: CollectedSkill[],
-    writer: InstallWriter = new PassthroughWriter(),
+    writer: InstallWriter = new PassthroughWriter(rootDir),
   ): Promise<number> {
     if (specialists.length === 0) return 0;
 
@@ -126,7 +126,7 @@ export class SpecialistSyncService {
     rootDir: string,
     agents: Agent[],
     sourceDir?: string,
-    writer: InstallWriter = new PassthroughWriter(),
+    writer: InstallWriter = new PassthroughWriter(rootDir),
   ): Promise<number> {
     const specialistsDir =
       sourceDir || path.join(rootDir, 'skills/specialists');

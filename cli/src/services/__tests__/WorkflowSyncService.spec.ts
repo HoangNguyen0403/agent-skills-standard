@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+import type { Stats } from 'node:fs';
 import path from 'path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent, DEFAULT_WORKFLOWS } from '../../constants';
@@ -15,6 +16,9 @@ describe('WorkflowSyncService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(fs.lstat as (path: string) => Promise<Stats>).mockResolvedValue({
+      isSymbolicLink: () => false,
+    } as Stats);
 
     mockGithubService = {
       getRepoTree: vi.fn(),

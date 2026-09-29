@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "run_id": "20260929T051058Z-implementation-readiness",
+  "slug": "open-source-security-remediation",
+  "workflow": "implementation-readiness",
+  "verdict": "PARTIAL",
+  "feature_status": "design_ready",
+  "approval": "approved by user in conversation on 2026-09-29",
+  "snc_tier": "high",
+  "model_tier": "strong",
+  "ready_slices": [
+    {
+      "id": "SEC-01",
+      "owner": "implementation worker, orchestrator integrates",
+      "scope": "CLI installed-payload path containment and synthetic regression tests",
+      "verification_lane": "local CLI Vitest and temporary-project smoke",
+      "environment": "local checkout and synthetic temporary directories; no network or credentials"
+    },
+    {
+      "id": "SEC-03",
+      "owner": "implementation worker, orchestrator integrates",
+      "scope": "remove publicly distributed cross-project Playwright reference and link",
+      "verification_lane": "skill validation and local injection audit",
+      "environment": "local repository; no network or credentials"
+    }
+  ],
+  "blocking_gaps": [
+    {
+      "area": "SEC-02 feedback policy",
+      "gap": "whether public issue submissions are intended and how callers are authenticated is not approved",
+      "owner_input_needed": "repository maintainer's API policy decision",
+      "effect": "exclude feedback changes from this implementation"
+    },
+    {
+      "area": "independent review",
+      "gap": "architecture/security reviewers have not reviewed resulting patch",
+      "owner_input_needed": "independent review before merge",
+      "effect": "blocks merge, not local synthetic fixes"
+    }
+  ],
+  "requirement_trace": {
+    "brd_objectives": [],
+    "requirements": ["SEC-01", "SEC-03"],
+    "acceptance_criteria": ["safe installed-payload containment", "generic skill contains no cross-project credential recipe"],
+    "srs": ["docs/prd/prd-plan-open-source-security-remediation.md", "docs/srs/srs-walkthrough-open-source-security-review.md"]
+  },
+  "completed_evidence": ["approved implementation plan", "source-backed root cause and test plan"],
+  "missing_evidence": ["RED/GREEN regression evidence", "local smoke", "independent patch review"],
+  "decision_needed": ["feedback endpoint policy for separate SEC-02 slice"],
+  "recommended_next_workflow": "dev-fix",
+  "cost": {"source": "unavailable"}
+}

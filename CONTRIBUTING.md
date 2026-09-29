@@ -48,6 +48,7 @@ Skills are the core value of this project.
 5. **Framework packs**: Large framework categories may add category-level `references/framework-map.md` for bundle-level guidance; keep `SKILL.md` files focused on decisions and verification.
 6. **Guardrail skills**: For TDD, debugging, review, verification, protocol, or workflow skills, add `pressure_scenarios`, `rationalizations`, `red_flags`, and behavior assertions to `evals/evals.json`.
 7. **Evidence first**: Do not tighten a guardrail skill without baseline or regression evidence for the behavior you are trying to change.
+8. **Public package boundary**: Do not ship project-specific environment, VPN, account-selection, or credential-handling recipes in a reusable skill or its `references/`. Keep private operational context in the consuming project; review generated agent mirrors before publishing.
 
 ### Cybersecurity packages and governed evolution
 

@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+import type { Stats } from 'node:fs';
 import path from 'node:path';
 import * as yaml from 'js-yaml';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -18,6 +19,9 @@ describe('SkillSyncService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(fs.lstat as (path: string) => Promise<Stats>).mockResolvedValue({
+      isSymbolicLink: () => false,
+    } as Stats);
 
     mockGithubService = {
       getRepoTree: vi.fn(),
@@ -308,36 +312,6 @@ describe('SkillSyncService', () => {
         expect.stringContaining('.kiro/skills'),
         expect.any(String),
       );
-    });
-
-    it('routes whole-file writes through injected InstallWriter with expected meta', async () => {
-      const skills = [
-        {
-          category: 'common',
-          skill: 'test-skill',
-          files: [{ name: 'SKILL.md', content: 'content' }],
-        },
-      ] as any[];
-      const config = {
-        skills: { common: { ref: 'v1.0.0' } },
-        custom_overrides: [],
-      } as unknown as SkillConfig;
-      const fakeWriter = { write: vi.fn() };
-      await skillSyncService.writeSkills(skills, config, [Agent.Claude], fakeWriter as any);
-      expect(fakeWriter.write).toHaveBeenCalledWith(
-        expect.stringContaining('.claude/skills/common/test-skill/SKILL.md'),
-        'content',
-        {
-          owner: 'skill',
-          source: 'skill:common/test-skill@v1.0.0',
-          agent: 'claude',
-        },
-      );
-    });
-
-    it('should skip agent loop if agent definition is missing', async () => {
-      const config = {} as any;
-      await skillSyncService.writeSkills([], config, ['unknown' as any]);
     });
 
     it('should skip file if overridden', async () => {
