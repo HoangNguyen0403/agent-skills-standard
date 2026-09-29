@@ -16,6 +16,8 @@ const TEXT_PALETTE_COLOR = new RegExp(`^text-${TAILWIND_COLOR_NAMES}-\\d{2,3}(?:
 const BG_ARBITRARY_COLOR = /^bg-\[(?:#[\da-f]{3,8}|color:[^\]]+)\]$/i;
 const TEXT_ARBITRARY_COLOR = /^text-\[(?:#[\da-f]{3,8}|color:[^\]]+)\]$/i;
 const VOID_TAGS = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+const TEXT_HEX_COLOR = /^text-\[(?:color:)?(#[0-9a-f]{3}|#[0-9a-f]{6})\]$/i;
+const SKIP_TEXT_TAGS = new Set(['script', 'style', 'svg', 'template']);
 
 
 function normalizeHex(hex) {
@@ -59,11 +61,39 @@ function extractClassTokens(str) {
     .filter(Boolean);
 }
 
-function hasAccessibleName(attrs) {
-  const matches = attrs.matchAll(/\b(?:aria-label(?:ledby)?|title)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi);
+function elementTextById(html) {
+  const tagRe = /<\/?([a-z0-9-]+)\b([^>]*)>/gi;
+  const stack = [];
+  const texts = new Map();
+  let match;
+  while ((match = tagRe.exec(html)) !== null) {
+    const tag = match[1].toLowerCase();
+    if (match[0].startsWith('</')) {
+      let index = stack.length - 1;
+      while (index >= 0 && stack[index].tag !== tag) index--;
+      if (index >= 0) {
+        const { id, start } = stack[index];
+        if (id) texts.set(id, textOf(html.slice(start, match.index)));
+        stack.length = index;
+      }
+      continue;
+    }
+    if (VOID_TAGS.has(tag) || /\/\s*>$/.test(match[0])) continue;
+    const idMatch = match[2].match(/(?:^|\s)id\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
+    stack.push({ tag, id: idMatch?.[1] ?? idMatch?.[2] ?? idMatch?.[3], start: tagRe.lastIndex });
+  }
+  return texts;
+}
+
+function hasAccessibleName(attrs, textsById) {
+  const matches = attrs.matchAll(/(?:^|\s)(aria-label|aria-labelledby|title)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi);
   for (const m of matches) {
-    const val = (m[1] ?? m[2] ?? m[3]).trim();
-    if (val.length > 0) return true;
+    const val = (m[2] ?? m[3] ?? m[4]).trim();
+    if (m[1].toLowerCase() === 'aria-labelledby') {
+      if (val.split(/\s+/).some((id) => textsById.get(id))) return true;
+    } else if (val.length > 0) {
+      return true;
+    }
   }
   return false;
 }
@@ -91,12 +121,32 @@ function textColor(classes) {
   ) ?? null;
 }
 
-function whiteTextOnPrimaryCount(html) {
+function primaryTextContrastCounts(html, primary) {
   const tagRe = /<\/?([a-z0-9-]+)\b([^>]*)>/gi;
   const stack = [];
-  const primaryElements = new Set();
+  const white = new Set();
+  const other = new Set();
+  const recordText = (start, end) => {
+    const active = stack[stack.length - 1];
+    if (!active || active.skip || active.background !== 'bg-primary' ||
+        !active.primaryElement || start === end) return;
+    const foreground = active.foreground;
+    const hex = foreground === 'text-white' ? '#ffffff'
+      : foreground === 'text-black' ? '#000000'
+        : foreground?.match(TEXT_HEX_COLOR)?.[1];
+    if (!hex || !textOf(html.slice(start, end))) return;
+    const ratio = primary ? contrastRatio(primary, hex) : null;
+    if (foreground === 'text-white') {
+      if (ratio === null || ratio < AA_TEXT) white.add(active.primaryElement);
+    } else if (ratio !== null && ratio < AA_TEXT) {
+      other.add(active.primaryElement);
+    }
+  };
   let match;
+  let cursor = 0;
   while ((match = tagRe.exec(html)) !== null) {
+    recordText(cursor, match.index);
+    cursor = tagRe.lastIndex;
     const tag = match[1].toLowerCase();
     const token = match[0];
     if (token.startsWith('</')) {
@@ -117,14 +167,16 @@ function whiteTextOnPrimaryCount(html) {
       : ownBackground
         ? null
         : parent?.primaryElement ?? null;
-    if (background === 'bg-primary' && foreground === 'text-white' && primaryElement) {
-      primaryElements.add(primaryElement);
-    }
     if (!VOID_TAGS.has(tag) && !/\/\s*>$/.test(token)) {
-      stack.push({ tag, background, foreground, primaryElement });
+      stack.push({
+        tag, background, foreground, primaryElement,
+        skip: parent?.skip || SKIP_TEXT_TAGS.has(tag) ||
+          classes.includes('material-symbols-outlined') || classes.includes('material-icons')
+      });
     }
   }
-  return primaryElements.size;
+  recordText(cursor, html.length);
+  return { white: white.size, other: other.size };
 }
 
 
@@ -154,12 +206,16 @@ function auditHtml(html) {
   const tiny = interactive.filter((el) => classTokens(el.attrs).some((t) => { const px = sizePx(t); return px !== null && px < MIN_TARGET_PX; }));
   add('small-target', tiny.length, `button/link with explicit width or height under ${MIN_TARGET_PX}px`);
 
-  const unlabeled = elements(html, 'button').filter((el) => !hasAccessibleName(el.attrs) && textOf(el.inner) === '');
-  add('unlabeled-icon-button', unlabeled.length, 'icon-only button without aria-label, aria-labelledby, or title');
+  const buttons = elements(html, 'button');
+  const iconButtons = buttons.filter((el) => textOf(el.inner) === '');
+  const textsById = iconButtons.some((el) => /(?:^|\s)aria-labelledby\s*=/i.test(el.attrs))
+    ? elementTextById(html) : new Map();
+  const unlabeled = iconButtons.filter((el) => !hasAccessibleName(el.attrs, textsById));
+  add('unlabeled-icon-button', unlabeled.length, 'icon-only button without a resolved accessible name');
 
-  if (primaryOnWhite === null || primaryOnWhite < AA_TEXT) {
-    add('white-on-primary', whiteTextOnPrimaryCount(html), `white text on primary ${primary ?? 'unknown'} (contrast ${primaryOnWhite ?? 'unknown'}:1, needs ${AA_TEXT}:1)`);
-  }
+  const primaryText = primaryTextContrastCounts(html, primary);
+  add('white-on-primary', primaryText.white, `white text on primary ${primary ?? 'unknown'} (contrast ${primaryOnWhite ?? 'unknown'}:1, needs ${AA_TEXT}:1)`);
+  add('low-contrast-primary-text', primaryText.other, `dark text on primary ${primary ?? 'unknown'} below ${AA_TEXT}:1`);
 
   const text = textOf(html);
   if (VI_CHARS.test(text)) {

@@ -42,6 +42,13 @@ test('white text on a low-contrast primary is flagged; on a dark primary it is n
   assert.equal(find(high, 'white-on-primary'), undefined);
 });
 
+test('dark text on a dark primary action fails contrast even when white would pass', () => {
+  const result = auditHtml(page(
+    '<button class="bg-primary text-[#333333]">Lưu</button>', '#222222'
+  ));
+  assert.equal(find(result, 'low-contrast-primary-text').count, 1);
+});
+
 test('prefixed and opacity primary classes are ignored', () => {
   const r = auditHtml(page('<a class="hover:bg-primary text-white">x</a><div class="bg-primary/10 text-white">y</div>'));
   assert.equal(find(r, 'white-on-primary'), undefined);
@@ -123,6 +130,15 @@ test('empty accessible name on icon-only button is flagged as unlabeled', () => 
   ));
   assert.equal(find(r, 'unlabeled-icon-button').count, 3);
 });
+
+test('aria-labelledby names icon buttons only when the referenced text exists', () => {
+  const result = auditHtml(page(
+    '<button aria-labelledby="missing"><svg></svg></button>' +
+    '<span id="empty">   </span><button aria-labelledby="empty"><svg></svg></button>' +
+    '<span id="close-label">Đóng</span><button aria-labelledby="close-label"><svg></svg></button>'
+  ));
+  assert.equal(find(result, 'unlabeled-icon-button').count, 2);
+});
 test('white text follows nested ancestry and nearest explicit background', () => {
   const nestedSameTag = auditHtml(page(
     '<div class="bg-primary"><div><div>nested</div><span class="text-white">Lưu</span></div></div>'
@@ -150,6 +166,13 @@ test('inherited white text on a primary button is flagged unless locally overrid
     '<div class="text-white"><button class="bg-primary text-slate-900">Lưu</button></div>'
   ));
   assert.equal(find(overridden, 'white-on-primary'), undefined);
+});
+
+test('text override inside an otherwise empty primary button does not fabricate white contrast', () => {
+  const result = auditHtml(page(
+    '<div class="text-white"><button class="bg-primary"><span class="text-slate-900">Lưu</span></button></div>'
+  ));
+  assert.equal(find(result, 'white-on-primary'), undefined);
 });
 
 test('background sizing utilities do not override primary background color', () => {
