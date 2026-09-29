@@ -1,0 +1,43 @@
+{
+  "skill_name": "common-family-ux",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review our parenting app for children aged 3+. The roadmap shows 9-month crawling milestones and the tan primary buttons use white text at 2.3:1 contrast.",
+      "expected_output": "Flags the infant content as an audience-fit Blocker for the declared age band and the white-on-tan buttons as an accessibility Blocker below 4.5:1, with smallest fixes.",
+      "assertions": [
+        { "type": "contains_any", "value": ["audience fit", "age band"] },
+        { "type": "contains_any", "value": ["4.5:1", "contrast"] },
+        { "type": "contains_any", "value": ["Blocker"] }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "A visit screen shows an AI summary with dosing advice and an 'AI VERIFIED' badge on the prescription. Is that fine for parents?",
+      "expected_output": "Rejects it: AI output must be labelled and separated from clinician-recorded data, and no verified badge without a source.",
+      "assertions": [
+        { "type": "contains_any", "value": ["labelled", "separated"] },
+        { "type": "contains_any", "value": ["verified", "source"] },
+        { "type": "contains_any", "value": ["clinician", "Safety and trust"] }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Design a counting game for 4-year-olds with a 30-second countdown, a daily streak, and 40px answer buttons.",
+      "expected_output": "Removes the countdown and streak as urgency mechanics, raises child targets to 64px, and uses sticker rewards.",
+      "assertions": [
+        { "type": "contains_any", "value": ["countdown", "streak", "urgency"] },
+        { "type": "contains_any", "value": ["64px", "child"] }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "Review our B2B analytics dashboard for enterprise admins",
+    "Optimize this SQL query",
+    "Set up CI for a Go service"
+  ],
+  "should_trigger": [
+    "Review our kids app screens for 3-6 year olds",
+    "Is this parenting app comfortable for tired parents on a phone?"
+  ]
+}
