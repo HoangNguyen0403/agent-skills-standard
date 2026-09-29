@@ -4,7 +4,7 @@ import { ManifestEntry, Owner, sha256 } from '../LockfileService';
 import { BackupService, BackupSession } from './BackupService';
 import { removeEmptyParents } from './fsUtil';
 import { isOverriddenRel, toPosixRel } from './pathMatch';
-
+import { assertNoSymlinksUnderRoot } from './safePath';
 export interface WriteMeta {
   owner: Owner;
   source: string;
@@ -12,11 +12,18 @@ export interface WriteMeta {
 }
 
 export interface InstallWriter {
-  write(absPath: string, content: string | Buffer, meta: WriteMeta): Promise<void>;
+  write(
+    absPath: string,
+    content: string | Buffer,
+    meta: WriteMeta,
+  ): Promise<void>;
 }
 
 export class PassthroughWriter implements InstallWriter {
+  constructor(private rootDir: string) {}
+
   async write(absPath: string, content: string | Buffer): Promise<void> {
+    await assertNoSymlinksUnderRoot(this.rootDir, absPath);
     await fs.outputFile(absPath, content);
   }
 }
@@ -59,7 +66,12 @@ export class OwnershipWriter implements InstallWriter {
 
   constructor(private opts: OwnershipWriterOptions) {}
 
-  async write(absPath: string, content: string | Buffer, meta: WriteMeta): Promise<void> {
+  async write(
+    absPath: string,
+    content: string | Buffer,
+    meta: WriteMeta,
+  ): Promise<void> {
+    await assertNoSymlinksUnderRoot(this.opts.rootDir, absPath);
     const rel = toPosixRel(this.opts.rootDir, absPath);
     this.touched.add(rel);
     const incoming = sha256(content);
@@ -109,11 +121,15 @@ export class OwnershipWriter implements InstallWriter {
     for (const rel of Object.keys(this.opts.previous).sort()) {
       if (this.touched.has(rel)) continue;
       const prev = this.opts.previous[rel];
-      if (isOverriddenRel(rel, this.opts.overrides) || !shouldPrune(rel, prev)) {
+      if (
+        isOverriddenRel(rel, this.opts.overrides) ||
+        !shouldPrune(rel, prev)
+      ) {
         this.next[rel] = prev;
         continue;
       }
       const abs = path.join(this.opts.rootDir, rel);
+      await assertNoSymlinksUnderRoot(this.opts.rootDir, abs);
       if (!(await fs.pathExists(abs))) continue;
       if (sha256(await fs.readFile(abs)) !== prev.sha256) {
         this.plan.keptOrphans.push(rel);
@@ -144,5 +160,4 @@ export class OwnershipWriter implements InstallWriter {
     this.session ??= await this.opts.backups.begin(this.opts.rootDir, 'sync');
     await this.session.add(rel);
   }
-
 }

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'fs-extra';
+import type { Stats } from 'node:fs';
 import path from 'path';
 import { SpecialistSyncService } from '../SpecialistSyncService';
 import { Agent } from '../../constants';
@@ -14,6 +15,9 @@ describe('SpecialistSyncService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(fs.lstat as (path: string) => Promise<Stats>).mockResolvedValue({
+      isSymbolicLink: () => false,
+    } as Stats);
   });
 
   it('should sync specialists to Claude agents folder', async () => {
@@ -471,10 +475,12 @@ description: "Review security"
             },
           ],
         }),
-        getRawFile: vi.fn().mockImplementation((_o, _r, _ref, filePath: string) => {
-          if (filePath.includes('specialist-one')) return 'good content';
-          return 'bad content';
-        }),
+        getRawFile: vi
+          .fn()
+          .mockImplementation((_o, _r, _ref, filePath: string) => {
+            if (filePath.includes('specialist-one')) return 'good content';
+            return 'bad content';
+          }),
       };
       const fakeVerifier = {
         check: vi.fn().mockImplementation((filePath: string) => {

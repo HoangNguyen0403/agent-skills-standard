@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
-
+import { assertNoSymlinksUnderRoot } from './safePath';
 export interface BackupManifest {
   id: string;
   createdAt: string;
@@ -24,9 +24,11 @@ export class BackupSession {
     const normalized = rel.replace(/\\/g, '/');
     if (this.added.has(normalized)) return;
     const src = path.join(this.rootDir, normalized);
+    await assertNoSymlinksUnderRoot(this.rootDir, src);
     if (!(await fs.pathExists(src))) return;
 
     const dest = path.join(this.backupDir, 'files', normalized);
+    await assertNoSymlinksUnderRoot(this.rootDir, dest);
     await fs.copy(src, dest, { overwrite: true });
     this.added.add(normalized);
   }
@@ -38,7 +40,9 @@ export class BackupSession {
       reason: this.reason,
       files: Array.from(this.added),
     };
-    await fs.outputJson(path.join(this.backupDir, 'manifest.json'), manifest, {
+    const manifestPath = path.join(this.backupDir, 'manifest.json');
+    await assertNoSymlinksUnderRoot(this.rootDir, manifestPath);
+    await fs.outputJson(manifestPath, manifest, {
       spaces: 2,
     });
 
@@ -87,8 +91,10 @@ export class BackupService {
 
   async begin(rootDir: string, reason: string): Promise<BackupSession> {
     const agsDir = path.join(rootDir, '.ags');
+    await assertNoSymlinksUnderRoot(rootDir, agsDir);
     await fs.ensureDir(agsDir);
     const gitignorePath = path.join(agsDir, '.gitignore');
+    await assertNoSymlinksUnderRoot(rootDir, gitignorePath);
     const defaultGitignore = 'backups/\npolicy-candidates.json\n';
     if (!(await fs.pathExists(gitignorePath))) {
       await fs.writeFile(gitignorePath, defaultGitignore, 'utf8');
@@ -100,6 +106,7 @@ export class BackupService {
     }
 
     const backupsDir = path.join(agsDir, 'backups');
+    await assertNoSymlinksUnderRoot(rootDir, backupsDir);
     await fs.ensureDir(backupsDir);
 
     const date = this.now();
@@ -112,6 +119,7 @@ export class BackupService {
     }
 
     const backupDir = path.join(backupsDir, id);
+    await assertNoSymlinksUnderRoot(rootDir, backupDir);
     await fs.ensureDir(backupDir);
 
     return new BackupSession(
@@ -169,6 +177,7 @@ export class BackupService {
       const src = path.join(backupDir, 'files', rel);
       if (await fs.pathExists(src)) {
         const dest = path.join(rootDir, rel);
+        await assertNoSymlinksUnderRoot(rootDir, dest);
         await fs.copy(src, dest, { overwrite: true });
         restored.push(rel);
       }

@@ -8,6 +8,7 @@ import { GithubService } from './GithubService';
 import { isOverriddenRel, toPosixRel } from './install/pathMatch';
 import { InstallWriter, PassthroughWriter } from './install/OwnershipWriter';
 import { ManifestVerifier } from './install/ManifestVerifier';
+import { assertNoSymlinksUnderRoot } from './install/safePath';
 
 /**
  * A selected registry category or package could not be assembled completely.
@@ -108,9 +109,30 @@ export class SkillSyncService {
     skills: CollectedSkill[],
     config: SkillConfig,
     agents: Agent[],
-    writer: InstallWriter = new PassthroughWriter(),
+    writer: InstallWriter = new PassthroughWriter(process.cwd()),
+    rootDir: string = process.cwd(),
   ): Promise<void> {
     const overrides = config.custom_overrides || [];
+
+    // Inspect every selected destination before writing the first agent's copy.
+    for (const agentId of agents) {
+      const basePath = SUPPORTED_AGENTS.find(
+        (agent) => agent.id === agentId,
+      )?.path;
+      if (!basePath) continue;
+      for (const skill of skills) {
+        await this.writeSkillForAgent(
+          agentId,
+          skill,
+          overrides,
+          basePath,
+          writer,
+          config,
+          true,
+          rootDir,
+        );
+      }
+    }
 
     for (const agentId of agents) {
       const agentDef = SUPPORTED_AGENTS.find((agent) => agent.id === agentId);
@@ -126,6 +148,8 @@ export class SkillSyncService {
           basePath,
           writer,
           config,
+          false,
+          rootDir,
         );
       }
       console.log(pc.gray(`  - Updated ${basePath}/ (${agentDef.name})`));
@@ -139,6 +163,8 @@ export class SkillSyncService {
     basePath: string,
     writer: InstallWriter,
     config: SkillConfig,
+    preflightOnly = false,
+    rootDir: string = basePath,
   ): Promise<void> {
     const isKiro = agentId === Agent.Kiro;
     const skillPath = isKiro
@@ -158,7 +184,8 @@ export class SkillSyncService {
     // ownership writer file by file (ADR-014): user-edited and unknown files
     // are preserved instead of the whole package directory being replaced.
     const source = `skill:${skill.category}/${skill.skill}@${config.skills?.[skill.category]?.ref ?? 'main'}`;
-    const pending: Array<{ target: string; content: string | Buffer }> = [];
+    const pending: Array<{ target: string; content: string | Buffer }> | null =
+      preflightOnly ? null : [];
     for (const fileItem of skill.files) {
       const targetFilePath = path.join(skillPath, fileItem.name);
       if (!this.isPathSafe(targetFilePath, skillPath)) {
@@ -175,6 +202,8 @@ export class SkillSyncService {
         );
         continue;
       }
+      await assertNoSymlinksUnderRoot(rootDir, targetFilePath);
+      if (pending === null) continue;
       // Raw download bytes unless an adapter transform needs the text.
       const content =
         isKiro && fileItem.name === 'SKILL.md'
@@ -182,6 +211,7 @@ export class SkillSyncService {
           : (fileItem.bytes ?? fileItem.content);
       pending.push({ target: targetFilePath, content });
     }
+    if (pending === null) return;
 
     for (const { target, content } of pending) {
       await writer.write(target, content, {
