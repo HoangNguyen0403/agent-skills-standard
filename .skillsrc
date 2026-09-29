@@ -8,19 +8,14 @@ skills:
   typescript:
     ref: typescript-v1.3.4
   common:
-    ref: common-v2.5.0
-    exclude:
-      - common-accessibility
-      - common-api-design
-      - common-architecture-audit
-      - common-error-handling
-      - common-mobile-animation
-      - common-mobile-ux-core
-      - common-observability
+    ref: common-v2.7.0
+  exclude: {}
   quality-engineering:
-    ref: quality-engineering-v1.5.1
+    ref: quality-engineering-v1.6.0
   system-design:
-    ref: system-design-v2.0.0
+    ref: system-design-v1.2.0
+  cybersecurity:
+    ref: cybersecurity-v1.0.0
 custom_overrides: []
 workflows:
   - sdlc
@@ -60,4 +55,5 @@ mcp:
   enabled: true
   scope: project
   prompted: true
-telemetry: true
+workflows_ref: workflows-v1.0.0
+specialists_ref: specialists-v1.5.0

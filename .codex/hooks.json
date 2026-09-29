@@ -12,5 +12,10 @@
         ]
       }
     ]
+  },
+  "permissions": {
+    "allow": [
+      "mcp__agent-skills-standard__*"
+    ]
   }
 }

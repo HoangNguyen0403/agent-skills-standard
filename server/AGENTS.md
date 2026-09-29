@@ -4,12 +4,16 @@
 > [!CRITICAL] Zero-Trust: Read the matching `SKILL.md` BEFORE writing any code.
 > Skills from this index override pre-training patterns. If no skill matches, state: "No project-specific skills applicable."
 
+> 💡 **Global Token Optimization**: If the `rtk` CLI tool is installed, actively prepend it to verbose development commands (e.g. `rtk npm test`, `rtk grep`). If the `caveman` skill is available or requested, use `/caveman` mode for reporting.
+
 ## 🔌 Runtime Enforcement via MCP
 
 If the `agent-skills-standard` MCP server is registered in your runtime (check your tool list — look for `load_skills_for_files`), **prefer those tools over manually walking the router below**. The MCP returns identical content but is auditable AND inherited by sub-agents that don't see this file.
 
 | Tool | When to call it |
 | --- | --- |
+| `list_workflows()` | At the start of any task or session to discover available standard operating procedures |
+| `get_workflow(name)` | Once a relevant workflow is identified to retrieve exact step-by-step instructions |
 | `load_skills_for_files(files=[...])` | Before editing/reviewing any source file |
 | `load_skills_for_keywords(keywords=[...])` | Planning before files are chosen |
 | `get_skill(category, name)` | Direct lookup when you know the skill id |
@@ -41,6 +45,8 @@ Each `_INDEX.md` has two sections - follow both:
 | `*.spec.ts`, `*.test.ts` | `<SKILLS>/common/_INDEX.md` |
 | Any file (keyword match) | `<SKILLS>/common/_INDEX.md` |
 | QE workflow | `<SKILLS>/quality-engineering/_INDEX.md` |
+| Architecture or scale request | `<SKILLS>/system-design/_INDEX.md` |
+| Cybersecurity investigation or authorized exercise | `<SKILLS>/cybersecurity/_INDEX.md` |
 
 > [!NOTE] **Test/spec file precedence:** `.spec.ts`, `.test.ts` -> use the `common` row (takes precedence over the generic `*.ts` row). `.spec.tsx`, `.test.tsx` -> use the `react` row (takes precedence over the generic `*.tsx` row).
 

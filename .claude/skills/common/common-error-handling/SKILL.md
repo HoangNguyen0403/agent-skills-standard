@@ -1,0 +1,54 @@
+---
+name: common-error-handling
+description: Cross-cutting standards for error design, response shapes, error codes, and boundary placement across API, domain, and infrastructure layers. Use when defining error hierarchies, wrapping exceptions, building standardized error responses, or placing error boundaries in layered architectures.
+metadata:
+  triggers:
+    files:
+    - '**/*.service.ts'
+    - '**/*.handler.ts'
+    - '**/*.controller.ts'
+    - '**/*.go'
+    - '**/*.java'
+    - '**/*.kt'
+    - '**/*.py'
+    keywords:
+    - error handling
+    - exception
+    - try catch
+    - error boundary
+    - error response
+    - error code
+    - throw
+---
+# Error Handling Standards
+
+## **Priority: P1 (HIGH)**
+
+## Error Architecture
+
+- **API Layer**: Map domain errors to HTTP responses globally.
+- **Domain Layer**: Throw pure business errors. NO HTTP status codes here.
+- **Infra Layer**: Wrap 3rd-party exceptions. NOT leak raw DB errors to API.
+- **Standard Shape**: APIs must return standardized JSON envelope:
+
+See [implementation examples](references/implementation.md) for standard error response shape.
+
+## Error Mechanics
+
+- **Wrap**: Add context (`fmt.Errorf("process: %w", err)`, `new Error('msg', { cause })`).
+- **Replace**: Only when original error leaks sensitive details.
+- **Error Codes**: Use `SCREAMING_SNAKE_CASE` IDs (`ORDER_PAYMENT_FAILED`).
+
+## Anti-Patterns
+
+- **Swallowing Errors**: Never `catch(e) {}` without logging or re-throwing.
+- Never silently ignore an error: an empty catch must become an explicit log, handling branch, returned error, or rethrow.
+- **Stack Traces**: Never expose stack traces in API responses.
+- **Generic 500s**: Use `400` with specific details for validation instead of 500.
+
+## References
+- [API Error Contract](references/api-error-contract.md)
+
+## Failure-handling checklist
+
+- Never swallow errors: do not use an empty `catch` or silently ignore a failure. Log, wrap, rethrow, or map it deliberately at the correct boundary.
