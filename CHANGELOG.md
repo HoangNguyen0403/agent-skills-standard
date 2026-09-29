@@ -73,6 +73,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mark the vendored `.agents/skills/caveman*` skills and the new `cyber-*` Codex workflow wrappers `metadata.internal: true`, so `npx skills` lists exactly the 300 registry skills.
 - `interopRules` uses the js-yaml 5 namespace import (the default export was removed).
 
+## [workflows-v1.1.0]
+
+**Category**: Opt-in Stitch design workflows
+
+### Added
+
+- `review-stitch-design`: review a Google Stitch project against the family-UX rubric with an HTML audit, gate fixes on approval, and improve through `REFINE` variants and a new design system without touching original screens.
+- `create-stitch-design`: brief, linted `DESIGN.md`, new design system, phone and tablet screens, gated by `review-stitch-design`.
+- Opt-in design workflows section in `docs/sdlc-workflow-quick-reference.md`.
+
+### Versions
+
+- **Workflows**: `1.0.0` → `1.1.0`
+
+## [common-v2.8.0]
+
+**Category**: Google Stitch design and family UX
+
+### Added
+
+- `common-stitch-design`: Stitch MCP setup and tool safety (variants over overwrites, approval before destructive calls, instance ids for `apply_design_system`), `DESIGN.md` lint gate, prompting patterns, and observed Stitch behaviour.
+- `common-stitch-design/scripts/audit_html.js`: read-only audit of Stitch HTML exports for small text, small targets, unlabeled icon buttons, white-on-primary contrast, mixed language, multiple fonts, and inconsistent primaries; exit 0/3/1.
+- `common-family-ux`: six-axis rubric for parent and child surfaces (audience fit, accessibility, safety and trust, comfort, consistency, human feel) with child-surface rules for ages 3-6 and an AI-tells table.
+
+### Versions
+
+- **Common Skills**: `2.7.0` → `2.8.0`
+
 ## [common-v2.7.0]
 
 **Category**: Decision discipline and brainstorm lanes (T0)

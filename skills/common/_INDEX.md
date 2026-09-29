@@ -25,6 +25,7 @@
 | common-session-retrospective | `**/*.spec.ts`, `**/*.test.ts`, `SKILL.md`, `AGENTS.md`, `+common/common-learning-log` | retrospective, self-learning, improve skills, session review, correction, rework |
 | **common-skill-creator** | `SKILL.md`, `evals/evals.json` | create skill, audit skill, trigger rate, optimize description |
 | **common-software-requirements** | `SRS.md`, `docs/srs/srs-*.md`, `specs/*.md` | create srs, software requirements, functional specification, system behavior spec, technical requirements, non-functional requirements |
+| common-stitch-design | `DESIGN.md`, `.stitch/**` | stitch, google stitch, stitch mcp, design.md, stitch screen, stitch variants |
 | **common-tdd** | `**/*.test.ts`, `**/*.spec.ts`, `**/*_test.go`, `**/*Test.java`, `**/*_test.dart`, `**/*_spec.rb` | tdd, unit test, write test, red green refactor, failing test, test coverage |
 | **common-workflow-writing** | `.agents/workflows/*.md`, `SKILL.md` | create workflow, write workflow, new skill, new workflow |
 
@@ -39,6 +40,7 @@
 | **common-decision-discipline** | decision brief, delivery contract, compare approaches, evidence ledger, approval state, option trade-offs, shape a direction |
 | common-documentation | comment, docstring, readme, documentation |
 | **common-exploit-verification** | exploit verification, proof of concept, PoC, false positive, validate finding, exploit proof, pentest finding, security evidence |
+| common-family-ux | family app, parents and children, kids app, child ux, parent gate, preschool, parenting app, designed for families, coppa |
 | **common-git-collaboration** | commit, branch, merge, pull-request, git |
 | **common-llm-security** | LLM security, prompt injection, agent security, RAG security, AI security, openai, anthropic, langchain, LLM review |
 | common-mobile-visual-testing | visual test, mobile test, verify ui, dark mode test, accessibility audit, behavioral test, visual regression, localization test |
