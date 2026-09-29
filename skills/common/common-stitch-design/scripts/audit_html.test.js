@@ -140,3 +140,32 @@ test('white text follows nested ancestry and nearest explicit background', () =>
   ));
   assert.equal(find(siblingOverride, 'white-on-primary').count, 1);
 });
+test('inherited white text on a primary button is flagged unless locally overridden', () => {
+  const inherited = auditHtml(page(
+    '<div class="text-white"><button class="bg-primary">Lưu</button></div>'
+  ));
+  assert.equal(find(inherited, 'white-on-primary').count, 1);
+
+  const overridden = auditHtml(page(
+    '<div class="text-white"><button class="bg-primary text-slate-900">Lưu</button></div>'
+  ));
+  assert.equal(find(overridden, 'white-on-primary'), undefined);
+});
+
+test('background sizing utilities do not override primary background color', () => {
+  const result = auditHtml(page(
+    '<button class="bg-cover bg-primary text-white">Lưu</button>'
+  ));
+  assert.equal(find(result, 'white-on-primary').count, 1);
+});
+test('transparent backgrounds inherit while theme background colors override', () => {
+  const transparent = auditHtml(page(
+    '<div class="bg-primary"><span class="bg-transparent text-white">Lưu</span></div>'
+  ));
+  assert.equal(find(transparent, 'white-on-primary').count, 1);
+
+  const themeBackground = auditHtml(page(
+    '<div class="bg-primary"><span class="bg-background-light text-white">Sáng</span></div>'
+  ));
+  assert.equal(find(themeBackground, 'white-on-primary'), undefined);
+});
