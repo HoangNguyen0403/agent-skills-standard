@@ -51,7 +51,7 @@ vendoring Google's `stitch-skills`; adding Stitch to the repo `.mcp.json`; stori
 
 ## B. `common-family-ux` skill
 
-`skills/common/common-family-ux/` — `SKILL.md` (≤500 tokens), `references/rubric.md`,
+`skills/common/common-family-ux/` — `SKILL.md` (≤100 lines, ≤3,400 chars), `references/rubric.md`,
 `references/child-surface.md`, `references/human-feel.md`, `evals/evals.json`.
 
 Keywords: `family app`, `parents and children`, `kids app`, `child ux`, `parent gate`, `preschool`,
@@ -77,7 +77,7 @@ ready-to-run Stitch edit prompt.
 ## C. `common-stitch-design` skill
 
 `skills/common/common-stitch-design/` — `SKILL.md`, `references/stitch-mcp.md`,
-`references/design-md.md`, `references/prompting.md`, `scripts/audit_html.mjs`, `evals/evals.json`.
+`references/design-md.md`, `references/prompting.md`, `scripts/audit_html.js`, `evals/evals.json`.
 
 Keywords: `stitch`, `google stitch`, `stitch mcp`, `design.md`, `stitch screen`, `stitch variants`.
 Files: `DESIGN.md`, `.stitch/**`.
@@ -85,7 +85,7 @@ Files: `DESIGN.md`, `.stitch/**`.
 - `stitch-mcp.md`: setup (`X-Goog-Api-Key` header, `https://stitch.googleapis.com/mcp`, omp / Claude Code / Codex config), tool table with read-only vs write flag (15 tools observed), `get_screen` returns signed `screenshot.downloadUrl` (append `=w390` for phone, `=w1280` desktop) and `htmlCode.downloadUrl`; `generate_*` may time out — poll `get_screen` every 30 s up to 10 times, never retry blindly; `apply_design_system` needs screen **instance** ids from `get_project`, not screen ids. Observed 2026-09-29: variant calls take about 4 minutes; `outputComponents[].design.screens` also carries generated illustration `IMAGE` screens (null `deviceType`) that must be filtered out; a `TABLET` request came back labelled `DESKTOP` at 2560×2048, so the device class is verified from the screenshot, not the label.
 - `design-md.md`: section order, token naming, contrast-pair rule (every `backgroundColor`/`textColor` component pair must pass lint), `designMd` vs base64 upload paths.
 - `prompting.md`: generation prompts carry layout and content only; edit/variant prompts may carry hex; one shared fix block plus per-screen specifics; `REFINE` for fixes, `EXPLORE` for new device classes. Observed: `REFINE` fixed contrast, language, sample data, navigation and AI labelling in one pass but did **not** enforce minimum text size (12px `text-xs` stayed on 4 of 6 screens), and "every icon button has a visible text label" produced wrapped two-line top-bar labels — standard back/notification icons need an accessible name, not a visible label.
-- `scripts/audit_html.mjs` (Node ≥18, no dependencies, read-only): input a directory of downloaded screen HTML; output JSON per screen — primary colour, font families, text-size violations (Tailwind `text-xs` is 12px and counts), sub-44px targets, icon-only buttons without `aria-label`, text colour used on `bg-primary`, language mix, and WCAG contrast of the primary against white and ink. Exit 0 clean, 3 findings, 1 bad input. This replaces the throwaway scripts used in the 2026-09-29 review.
+- `scripts/audit_html.js` (Node ≥18, CommonJS, no dependencies, read-only; `.js` because the skill validator warns on `.mjs`): input a directory of downloaded screen HTML; output JSON per screen — primary colour, font families, text-size violations (Tailwind `text-xs` is 12px and counts), sub-44px targets, icon-only buttons without `aria-label`, text colour used on `bg-primary`, language mix, and WCAG contrast of the primary against white and ink. Exit 0 clean, 3 findings, 1 bad input. This replaces the throwaway scripts used in the 2026-09-29 review.
 
 ## D. Workflows
 
@@ -93,7 +93,7 @@ Files: `DESIGN.md`, `.stitch/**`.
 
 1. Preflight: Stitch tools present, else `BLOCKED (stitch-mcp)` with the setup reference. Load `common-stitch-design`, `common-family-ux`, `common-accessibility`, `common-mobile-ux-core`.
 2. Scope: `list_projects` → `list_screens`; group by title; pick the current version per title with the author (default: most recent); declare surface profile and age band.
-3. Collect: download screenshot and HTML per selected screen to `.stitch/review/<date>/`; run `audit_html.mjs`; read `list_design_systems`.
+3. Collect: download screenshot and HTML per selected screen to `.stitch/review/<date>/`; run `audit_html.js`; read `list_design_systems`.
 4. Score: rubric per screen plus project-level findings; lexical audit results are evidence, visual judgement cites the screenshot. Cross-screen data check: allergies, conditions, names, ages and dates must agree across every screen — generation invents contradictions (observed: a tablet screen stated "no severe allergy" for a child with a severe peanut allergy).
 5. Gate: present findings and proposed fixes; wait for approval.
 6. Improve: write or repair `DESIGN.md` → lint → new design system; `generate_variants` `REFINE`, `variantCount: 1`, for approved screens; `TABLET` via `EXPLORE` when tablet is missing.
@@ -110,9 +110,7 @@ Files: `DESIGN.md`, `.stitch/**`.
 Both expose `Runtime Contract`, `Handoff Payload`, `Blocking Questions`, `Output Template`, `Next Workflow`
 (`create-stitch-design` → `review-stitch-design` → `plan-feature` or `implement-feature`).
 
-Registration: canonical files only (sync exports), `scripts/audit-sdlc.ts` entries, `sdlc.md` routing
-line ("Stitch design needs review or a new design" → these), `docs/sdlc-workflow-quick-reference.md`,
-bump `releases.workflows.version` to `1.1.0`, `common` to `2.8.0`, regenerate `skills/common/_INDEX.md`.
+Registration: canonical files only. Generated exports (`.claude/commands`, `.github/prompts`, `.codex/skills`) come from `ags sync` against the released `workflows-v1.1.0` tag, so they are not hand-written. Opt-in workflows follow the `cyber-*` precedent: listed in a new "Opt-in design workflows" section of `docs/sdlc-workflow-quick-reference.md`, not routed from `sdlc.md`, not in `DEFAULT_WORKFLOWS`, and therefore not covered by `pnpm audit:sdlc` (which checks default workflows only) — they still follow its section rules. Bump `releases.workflows.version` to `1.1.0`, `common` to `2.8.0`, regenerate `skills/common/_INDEX.md` with `pnpm generate-indices`.
 
 ## E. Evals
 
@@ -121,9 +119,10 @@ bump `releases.workflows.version` to `1.1.0`, `common` to `2.8.0`, regenerate `s
 
 ## F. Verification
 
-- `pnpm calculate-tokens` — both SKILL.md ≤500 tokens.
-- `pnpm audit:sdlc` — both workflows pass line and section rules.
-- `node skills/common/common-stitch-design/scripts/audit_html.mjs <dir>` against HTML downloaded from project `553376631581211302` reproduces the review's contrast (2.31:1) and icon-label counts.
+- Both SKILL.md ≤100 lines and ≤3,400 characters (≈850 tokens, the `common` average); `pnpm calculate-tokens` refreshes metrics.
+- `pnpm audit:sdlc` still passes (it does not cover opt-in workflows); both workflow files are ≤80 lines and contain Goal, Runtime Contract (before the fenced template), Handoff Payload, Blocking Questions, Output Template, Next Workflow and the exact `get_session_cost(workflow="<name>")` call.
+- `node --test skills/common/common-stitch-design/scripts/audit_html.test.js` passes.
+- `node skills/common/common-stitch-design/scripts/audit_html.js <dir>` against HTML downloaded from project `553376631581211302` reproduces the review's contrast (2.31:1) and icon-label counts.
 - `npx @google/design.md lint` on the Our Children `DESIGN.md` — 0 errors, 0 warnings (achieved 2026-09-29).
 - `pnpm evals:audit`; existing test suites green.
 
