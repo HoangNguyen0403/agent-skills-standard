@@ -47,6 +47,16 @@ Team color never grants permission. Unsupported runtime controls block live
 actions while allowing safe offline analysis. Framework mappings are not
 compliance certification or evidence of production effectiveness.
 
+### Opt-in design workflows
+
+Select these workflow names explicitly in `.skillsrc`; they need the Google
+Stitch MCP server and are not added by default initialization.
+
+| Need | Workflow | Output |
+| --- | --- | --- |
+| Review and improve an existing Stitch design | `review-stitch-design` | six-axis scorecard, findings, variant screen ids, before/after |
+| Create a new Stitch design from a brief | `create-stitch-design` | linted DESIGN.md, design system, phone and tablet screens, review scorecard |
+
 ## Native Runtime Surfaces
 
 | Agent               | Workflow Surface              |
