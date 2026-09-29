@@ -7,13 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Quick Navigation
 
-- **Unreleased / Active Packages**: [Cybersecurity (v1.0.0)](#cybersecurity-v100---unreleased) • [Common (v2.6.0)](#common-v260---unreleased) • [Tooling & SDLC](#tooling---unreleased) • [Quality Engineering (v1.6.0)](#quality-engineering-v160---unreleased) • [Specialists (v1.4.0)](#specialists-v140---unreleased) • [System Design (v1.2.0)](#system-design-v120---unreleased)
-- **Recent Releases**: [Specialists v1.3.0](#specialists-v130---2026-09-15) • [System Design v1.1.0](#system-design-v110---2026-09-15) • [CLI v2.6.2](#cli-v262---2026-09-13) • [Common v2.5.0](#common-v250---2026-09-09) • [System Design v1.0.0](#system-design-v100---2026-08-30) • [CLI v2.6.1](#cli-v261---2026-08-22) • [CLI v2.6.0 / MCP v0.6.0](#cli-v260--mcp-v060---2026-07-09)
-- **Archive**: [v2.0–v2.1](#213---2026-04-22) • [v1.x Archive](#1104---2026-03-21)
-
-## [Unreleased]
-
 ### Added
+
 - Real-CLI round-trip smoke test harness (`pnpm harness:smoke`, `scripts/harness-smoke/run.ts`) verifying `skills` installer discovery, `gh skill` publishing, Codex MCP discovery, and OpenCode specialist discovery with unit test coverage.
 - GitHub Actions workflow `.github/workflows/harness-smoke.yml` running round-trip CLI checks on PRs and nightly without model token billing.
 - `metadata.internal: true` flag on all specialist skills and generated workflow skills (`WorkflowTransformer`) to prevent discovery leakage into third-party skill installers.
@@ -50,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Interop validator rules: `NameMatchesDirectoryRule` (name must match directory name), `AgentSkillsSpecRule` (name pattern and 64-character limit), `TriggerPhraseRule` (warning for missing trigger phrases in description), `ReferenceLinksRule` (validation of relative links in Markdown), and `BodySizeRule` (8,192 byte cap without references/, 7,168 byte soft warning).
 
 ### Changed
+
 - Cut over `McpConfigService`, `SpecialistTransformer`, `HookService`, and `constants/index.ts` to derive and dispatch from `AGENT_CAPABILITIES`.
 - Framed workflow `$ARGUMENTS` and Gemini `{{args}}` as caller-supplied data inside `<user_request>` tags with an explicit non-override data clause.
 - Registered Codex MCP server in `.codex/config.toml` table `[mcp_servers.agent-skills-standard]`, preserving foreign keys byte-for-byte, cleaning up legacy `.codex/mcp_config.json`, and exporting `.toml` snippets.
@@ -59,28 +55,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped `specialists` category version to 1.5.0 in `skills/metadata.json`.
 
 ### Fixed
+
 - Retain `prune`, `workflows_ref`, and `specialists_ref` when parsing `.skillsrc` with Zod schema.
 - Harness: capture CLI output through files (OpenCode truncated piped stdout), give `ags mcp snippets` a valid `.skillsrc`, run the specialist emitter from the repo so `tsx` resolves, and report the underlying error when a setup step fails.
 - Mark the vendored `.agents/skills/caveman*` skills and the new `cyber-*` Codex workflow wrappers `metadata.internal: true`, so `npx skills` lists exactly the 300 registry skills.
 - `interopRules` uses the js-yaml 5 namespace import (the default export was removed).
 
-## [common-v2.7.0] - Unreleased
+## [common-v2.7.0]
 
 **Category**: Decision discipline and brainstorm lanes (T0)
 
 ### Added
+
 - `common-decision-discipline`: Right-size, ground, and gate SDLC decisions with SNC-sized depth (Quick, Standard, Deep), said-vs-assumed write-back, evidence ledger (`confirmed(<path>)`, `assumed`, `unknown`), option cards for real choices, recorded approval (`pending`, `approved`, `assumed-autonomous`), and self-review.
 - ADR-013: Decision Discipline and Recorded Approval in `ARCHITECTURE.md`.
 
 ### Changed
+
 - `brainstorm-feature`: Rebuilt with Why lane (solution-free BRD-lite) and Direction lane (delivery contract with technical option cards), SNC-sized depth, recorded approval, evidence ledger, and updated output template.
 - Workflows `sdlc`, `plan-feature`, `implementation-readiness`, `design-solution`, `system-design-session`, and `common-business-requirements` updated to consume `lane`, `snc_tier`, and `approval`.
 - `scripts/audit-sdlc.ts`: Added `requireTemplateTokens` check enforcing required template tokens (`## Approval`, `## Evidence`, `approval:`, `lane:`).
 
 ### Versions
-- **Common Skills**: `2.6.0` → `2.7.0` (unreleased; no tag or release created)
 
-## [cybersecurity-v1.0.0] - Unreleased
+- **Common Skills**: `2.6.0` → `2.7.0`
+
+## [cybersecurity-v1.0.0]
 
 **Category**: Governed cybersecurity skills
 
@@ -139,9 +139,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Versions
 
-- **Cybersecurity Skills**: new → `1.0.0` (unreleased; no tag or release created)
+- **Cybersecurity Skills**: new → `1.0.0`
 
-## [common-v2.6.0] - Unreleased
+## [common-v2.6.0]
 
 **Category**: Decision-oriented diagrams and local evidence integrity
 
@@ -166,9 +166,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Versions
 
-- **Common Skills**: `2.5.0` → `2.6.0` (unreleased; no tag or release created)
+- **Common Skills**: `2.5.0` → `2.6.0`
 
-## [tooling] - Unreleased
+## [tooling]
 
 **Area**: SDLC run ledger, requirement traceability, cost metering, benchmark gates, and control bands
 
@@ -232,9 +232,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Removed
 
 - **Dead Lockfile Reference**: `cli/skills-lock.json`: no reader or writer anywhere in `cli/src`, `mcp/src`, `scripts/`, or any workflow. The real lockfile is `.skills-lock.json`, written by `LockfileService` at consumer sites.
+
 ---
 
-## [quality-engineering-v1.6.0] - Unreleased
+## [quality-engineering-v1.6.0]
 
 **Category**: Test-loop program P0–P3, requirement-to-TC hardening, automation health, UI automation driver ladders
 
@@ -267,7 +268,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - quality-engineering: 1.6.0
 
-## [specialists-v1.4.0] - Unreleased
+## [specialists-v1.4.0]
 
 **Category**: HLD-to-LLD deep-dive and diagrammer provenance alignment
 
@@ -278,9 +279,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Versions
 
-- **Specialists**: `1.3.0` → `1.4.0` (unreleased; no tag or release created)
+- **Specialists**: `1.3.0` → `1.4.0`
 
-## [system-design-v1.2.0] - Unreleased
+## [system-design-v1.2.0]
 
 **Category**: HLD-to-LLD decision quality, production case packs, and nine-axis review profiles
 
@@ -302,7 +303,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Versions
 
-- **System Design Skills**: `1.1.0` → `1.2.0` (unreleased; no tag or release created)
+- **System Design Skills**: `1.1.0` → `1.2.0`
 
 ---
 
@@ -651,7 +652,7 @@ Maps this repo's security posture to the [OWASP Agentic Skills Top 10 v1.0](http
 - **Claude Specialist Frontmatter**: `SpecialistTransformer` now preserves `tools`, `model`, and `color` metadata from a specialist's `SKILL.md` frontmatter when generating `.claude/agents/*.md`, instead of silently dropping them ([#104](https://github.com/HoangNguyen0403/agent-skills-standard/issues/104)).
 - **Doubled Quotes in Emitted Workflow Descriptions**: `WorkflowTransformer.parseSource()` now strips a matching surrounding-quote pair (`"..."` or `'...'`) from a workflow source's frontmatter `description` before it reaches format emitters. Previously, a quoted description (required when the value contains a `:`, e.g. `description: "Phase one: do the thing"`) was passed through with its quotes intact, and the TOML (Gemini CLI), Copilot prompt, and SKILL.md emitters re-wrapped it in a fresh pair of quotes, producing invalid doubled-quote output (`description: ""Phase one: do the thing""`) that failed to parse. Unquoted descriptions were unaffected. (#105)
 - **Unescaped Quotes in Copilot Prompt Descriptions**: `toCopilotPrompt` now escapes `\` and `"` in `description` before embedding it in frontmatter, matching the escaping already applied by the TOML and SKILL.md emitters. Previously an internal `"` in an unquoted description could break the emitted `.prompt.md` frontmatter.
-**Category**: License consistency fix
+  **Category**: License consistency fix
 
 ### Fixed
 
