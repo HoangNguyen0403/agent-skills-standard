@@ -66,7 +66,7 @@ export class SyncService {
   private specialistSyncService = new SpecialistSyncService();
   private gitService = new GitService();
   private lockfileService = new LockfileService();
-  private writer: InstallWriter = new PassthroughWriter();
+  private writer: InstallWriter = new PassthroughWriter(process.cwd());
   private ownership: OwnershipWriter | null = null;
   private dryRun = false;
   private cachedRegistryMetadata: RegistryMetadata | null | undefined = undefined;

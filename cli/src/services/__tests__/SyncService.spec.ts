@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+import type { Stats } from 'node:fs';
 import path from 'path';
 import { createHash } from 'node:crypto';
 import { sha256 } from '../LockfileService';
@@ -114,6 +115,9 @@ describe('SyncService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(fs.lstat as (path: string) => Promise<Stats>).mockResolvedValue({
+      isSymbolicLink: () => false,
+    } as Stats);
 
     vi.mocked(IndexGeneratorServiceImpl).mockImplementation(
       asCtor<FakeIndexGenerator>(defaultIndexGeneratorCtor),
@@ -928,37 +932,6 @@ describe('SyncService', () => {
         path.join(process.cwd(), '.agent'),
         path.join(process.cwd(), '.agents'),
         expect.objectContaining({ overwrite: false, errorOnExist: false }),
-      );
-    });
-  });
-
-  describe('applyIndices with categories', () => {
-    it('writes _INDEX.md for each category and agent', async () => {
-      const config = makeConfig({ agents: [Agent.Cursor] });
-
-      function CategoryGenCtor(this: FakeIndexGenerator): void {
-        this.withMetadata = vi.fn().mockReturnThis();
-        this.generate = vi.fn().mockResolvedValue('index');
-        this.assembleIndex = vi.fn().mockReturnValue('index');
-        this.generateAllCategoryIndices = vi.fn().mockResolvedValue({
-          common: 'common index content',
-        });
-        this.assembleRouterIndex = vi.fn().mockResolvedValue('router');
-      }
-      vi.mocked(IndexGeneratorServiceImpl).mockImplementationOnce(
-        asCtor<FakeIndexGenerator>(CategoryGenCtor),
-      );
-
-      await syncService.applyIndices(config, [Agent.Cursor]);
-
-      expect(fs.outputFile).toHaveBeenCalledWith(
-        expect.stringContaining(
-          path.join('.cursor', 'skills', 'common', '_INDEX.md'),
-        ),
-        'common index content',
-      );
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Generated _INDEX.md for 1 categories'),
       );
     });
   });

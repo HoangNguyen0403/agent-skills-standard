@@ -196,7 +196,7 @@ export class WorkflowSyncService {
     workflows: CollectedSkill[],
     config: SkillConfig,
     agents?: Agent[],
-    writer: InstallWriter = new PassthroughWriter(),
+    writer: InstallWriter = new PassthroughWriter(process.cwd()),
   ) {
     if (workflows.length === 0) return;
 

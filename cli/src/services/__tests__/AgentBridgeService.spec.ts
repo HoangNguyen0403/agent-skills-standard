@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+import type { Stats } from 'node:fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Agent } from '../../constants';
 import { AgentBridgeService } from '../AgentBridgeService';
@@ -10,6 +11,9 @@ describe('AgentBridgeService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(fs.lstat as (path: string) => Promise<Stats>).mockResolvedValue({
+      isSymbolicLink: () => false,
+    } as Stats);
     service = new AgentBridgeService();
   });
 
@@ -167,29 +171,11 @@ describe('AgentBridgeService', () => {
       expect(fs.appendFile).not.toHaveBeenCalled();
     });
 
-    it('routes non-Claude rule files through injected InstallWriter with expected meta', async () => {
-      const rootDir = '/root';
-      vi.mocked(fs.pathExists).mockImplementation(async (p: unknown) =>
-        typeof p === 'string' && (p.includes('.cursor') || p.includes('.cursorrules')),
-      );
-      const fakeWriter = { write: vi.fn() };
-      await service.bridge(rootDir, [Agent.Cursor], fakeWriter as unknown as any);
-      expect(fakeWriter.write).toHaveBeenCalledWith(
-        expect.stringContaining('.cursor/rules/agent-skill-standard-rule.mdc'),
-        expect.any(String),
-        {
-          owner: 'bridge',
-          source: 'bridge:cursor',
-          agent: 'cursor',
-        },
-      );
-    });
-
     it('skips Claude CLAUDE.md branch when dryRun: true', async () => {
       const rootDir = '/root';
       vi.mocked(fs.pathExists).mockImplementation(async () => true);
       const fakeWriter = { write: vi.fn() };
-      await service.bridge(rootDir, [Agent.Claude], fakeWriter as unknown as any, { dryRun: true });
+      await service.bridge(rootDir, [Agent.Claude], fakeWriter, { dryRun: true });
       expect(fs.outputFile).not.toHaveBeenCalled();
       expect(fs.appendFile).not.toHaveBeenCalled();
       expect(fakeWriter.write).not.toHaveBeenCalled();

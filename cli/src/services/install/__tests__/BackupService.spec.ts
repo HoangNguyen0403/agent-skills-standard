@@ -151,4 +151,94 @@ describe('BackupService', () => {
     expect(session1.id).not.toBe(session2.id);
     expect(session2.id).toBe(`${session1.id}-2`);
   });
+
+  describe('SEC-01 symlink refusal', () => {
+    let outsideDir: string;
+
+    beforeEach(async () => {
+      outsideDir = await fs.mkdtemp(
+        path.join(os.tmpdir(), 'ags-backup-outside-'),
+      );
+    });
+
+    afterEach(async () => {
+      await fs.remove(outsideDir);
+    });
+
+    it('refuses to back up a file through a symlink under rootDir', async () => {
+      const secretFile = path.join(outsideDir, 'secret.txt');
+      await fs.writeFile(secretFile, 'secret content', 'utf8');
+
+      const symlinkFile = path.join(root, 'link.txt');
+      await fs.symlink(secretFile, symlinkFile);
+
+      const session = await service.begin(root, 'test-symlink');
+      await expect(session.add('link.txt')).rejects.toThrow(/symlink/i);
+    });
+
+    it('refuses to restore through a pre-existing symlink at destination', async () => {
+      const session = await service.begin(root, 'test-restore-symlink');
+      await fs.outputFile(path.join(root, 'file.txt'), 'version 1');
+      await session.add('file.txt');
+      const id = await session.commit();
+
+      const secretFile = path.join(outsideDir, 'victim.txt');
+      await fs.writeFile(secretFile, 'victim content', 'utf8');
+      await fs.remove(path.join(root, 'file.txt'));
+      await fs.symlink(secretFile, path.join(root, 'file.txt'));
+
+      await expect(service.restore(root, id)).rejects.toThrow(/symlink/i);
+      expect(await fs.readFile(secretFile, 'utf8')).toBe('victim content');
+    });
+
+    it('refuses to begin backup if .ags directory is a symlink pointing outside and leaves outside untouched', async () => {
+      const outsideTarget = path.join(outsideDir, 'fake-ags');
+      await fs.ensureDir(outsideTarget);
+      await fs.symlink(outsideTarget, path.join(root, '.ags'));
+
+      await expect(service.begin(root, 'test-ags-symlink')).rejects.toThrow(
+        /symlink/i,
+      );
+      expect(await fs.readdir(outsideTarget)).toEqual([]);
+    });
+
+    it('refuses to begin backup if .ags/backups directory is a symlink pointing outside', async () => {
+      await fs.ensureDir(path.join(root, '.ags'));
+      const outsideTarget = path.join(outsideDir, 'fake-backups');
+      await fs.ensureDir(outsideTarget);
+      await fs.symlink(outsideTarget, path.join(root, '.ags', 'backups'));
+
+      await expect(service.begin(root, 'test-backups-symlink')).rejects.toThrow(
+        /symlink/i,
+      );
+      expect(await fs.readdir(outsideTarget)).toEqual([]);
+    });
+
+    it('refuses to add to backup if destination files dir is a symlink pointing outside', async () => {
+      const session = await service.begin(root, 'test-files-symlink');
+      const outsideTarget = path.join(outsideDir, 'fake-files');
+      await fs.ensureDir(outsideTarget);
+
+      const backupDir = path.join(root, '.ags', 'backups', session.id);
+      await fs.symlink(outsideTarget, path.join(backupDir, 'files'));
+
+      await fs.outputFile(path.join(root, 'source.txt'), 'source content');
+      await expect(session.add('source.txt')).rejects.toThrow(/symlink/i);
+      expect(await fs.readdir(outsideTarget)).toEqual([]);
+    });
+
+    it('refuses to commit if manifest destination is a symlink pointing outside', async () => {
+      const session = await service.begin(root, 'test-manifest-symlink');
+      const outsideVictim = path.join(outsideDir, 'manifest-victim.json');
+      await fs.writeFile(outsideVictim, '{"original": true}', 'utf8');
+
+      const backupDir = path.join(root, '.ags', 'backups', session.id);
+      await fs.symlink(outsideVictim, path.join(backupDir, 'manifest.json'));
+
+      await expect(session.commit()).rejects.toThrow(/symlink/i);
+      expect(await fs.readFile(outsideVictim, 'utf8')).toBe(
+        '{"original": true}',
+      );
+    });
+  });
 });

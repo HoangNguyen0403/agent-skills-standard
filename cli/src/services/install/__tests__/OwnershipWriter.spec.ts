@@ -128,7 +128,12 @@ describe('OwnershipWriter', () => {
     expect(finalized.plan.backupId).toBeTruthy();
 
     // Verify backup contains the user's version
-    const backupDir = path.join(root, '.ags', 'backups', finalized.plan.backupId!);
+    const backupDir = path.join(
+      root,
+      '.ags',
+      'backups',
+      finalized.plan.backupId!,
+    );
     const backedUp = path.join(backupDir, 'files', testRel);
     expect(await fs.readFile(backedUp, 'utf8')).toBe('user edited');
   });
@@ -164,7 +169,10 @@ describe('OwnershipWriter', () => {
   it('8. finalize: previous entry not written this run, unchanged on disk, shouldPrune true -> pruned, empty parents removed up to depth 3', async () => {
     const absPath = path.join(root, testRel);
     await fs.outputFile(absPath, 'file content');
-    const prevEntry: ManifestEntry = { ...meta, sha256: sha256('file content') };
+    const prevEntry: ManifestEntry = {
+      ...meta,
+      sha256: sha256('file content'),
+    };
 
     const writer = makeWriter({ previous: { [testRel]: prevEntry } });
     // Write nothing this run
@@ -176,21 +184,37 @@ describe('OwnershipWriter', () => {
     expect(finalized.plan.backupId).toBeTruthy();
 
     // Verify backup contains the pruned file
-    const backedUp = path.join(root, '.ags', 'backups', finalized.plan.backupId!, 'files', testRel);
+    const backedUp = path.join(
+      root,
+      '.ags',
+      'backups',
+      finalized.plan.backupId!,
+      'files',
+      testRel,
+    );
     expect(await fs.readFile(backedUp, 'utf8')).toBe('file content');
 
     // Its empty s/ and c/ directories removed
-    expect(await fs.pathExists(path.join(root, '.claude', 'skills', 'c', 's'))).toBe(false);
-    expect(await fs.pathExists(path.join(root, '.claude', 'skills', 'c'))).toBe(false);
+    expect(
+      await fs.pathExists(path.join(root, '.claude', 'skills', 'c', 's')),
+    ).toBe(false);
+    expect(await fs.pathExists(path.join(root, '.claude', 'skills', 'c'))).toBe(
+      false,
+    );
     // .claude/skills and .claude kept
-    expect(await fs.pathExists(path.join(root, '.claude', 'skills'))).toBe(true);
+    expect(await fs.pathExists(path.join(root, '.claude', 'skills'))).toBe(
+      true,
+    );
     expect(await fs.pathExists(path.join(root, '.claude'))).toBe(true);
   });
 
   it('9. finalize: previous entry not written this run, user-edited -> file kept, keptOrphans, not in entries', async () => {
     const absPath = path.join(root, testRel);
     await fs.outputFile(absPath, 'user changed content');
-    const prevEntry: ManifestEntry = { ...meta, sha256: sha256('original content') };
+    const prevEntry: ManifestEntry = {
+      ...meta,
+      sha256: sha256('original content'),
+    };
 
     const writer = makeWriter({ previous: { [testRel]: prevEntry } });
     const finalized = await writer.finalize(() => true);
@@ -281,9 +305,135 @@ describe('OwnershipWriter', () => {
   });
 
   it('14. PassthroughWriter writes the file', async () => {
-    const writer = new PassthroughWriter();
+    const writer = new PassthroughWriter(root);
     const dest = path.join(root, 'pass', 'through.txt');
-    await writer.write(dest, 'passthrough content', meta);
+    await writer.write(dest, 'passthrough content');
     expect(await fs.readFile(dest, 'utf8')).toBe('passthrough content');
+  });
+
+  describe('SEC-01 symlink refusal', () => {
+    let outsideDir: string;
+
+    beforeEach(async () => {
+      outsideDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ags-outside-'));
+    });
+
+    afterEach(async () => {
+      await fs.remove(outsideDir);
+    });
+
+    it('rejects write through a symlinked parent directory and leaves outside dir untouched', async () => {
+      const targetDir = path.join(outsideDir, 'target');
+      await fs.ensureDir(targetDir);
+      const secretFile = path.join(targetDir, 'victim.txt');
+      await fs.writeFile(secretFile, 'original secret', 'utf8');
+
+      const symlinkParent = path.join(root, '.claude', 'skills');
+      await fs.ensureDir(path.dirname(symlinkParent));
+      await fs.symlink(targetDir, symlinkParent);
+
+      const writer = makeWriter();
+      const absPath = path.join(symlinkParent, 'payload.md');
+
+      await expect(writer.write(absPath, 'evil payload', meta)).rejects.toThrow(
+        /symlink/i,
+      );
+      expect(await fs.readFile(secretFile, 'utf8')).toBe('original secret');
+      expect(await fs.pathExists(path.join(targetDir, 'payload.md'))).toBe(
+        false,
+      );
+    });
+
+    it('rejects write through a symlinked terminal file and leaves outside file untouched', async () => {
+      const secretFile = path.join(outsideDir, 'victim.txt');
+      await fs.writeFile(secretFile, 'original secret', 'utf8');
+
+      const symlinkFile = path.join(root, testRel);
+      await fs.ensureDir(path.dirname(symlinkFile));
+      await fs.symlink(secretFile, symlinkFile);
+
+      const writer = makeWriter();
+      await expect(
+        writer.write(symlinkFile, 'evil payload', meta),
+      ).rejects.toThrow(/symlink/i);
+      expect(await fs.readFile(secretFile, 'utf8')).toBe('original secret');
+    });
+
+    it('rejects write through a dangling terminal symlink and does not create target outside', async () => {
+      const nonExistentTarget = path.join(outsideDir, 'dangling-target.txt');
+      const symlinkFile = path.join(root, testRel);
+      await fs.ensureDir(path.dirname(symlinkFile));
+      await fs.symlink(nonExistentTarget, symlinkFile);
+
+      const writer = makeWriter();
+      await expect(
+        writer.write(symlinkFile, 'evil payload', meta),
+      ).rejects.toThrow(/symlink/i);
+      expect(await fs.pathExists(nonExistentTarget)).toBe(false);
+    });
+
+    it('refuses symlinked path even when force or adoptUnknown is true', async () => {
+      const secretFile = path.join(outsideDir, 'victim.txt');
+      await fs.writeFile(secretFile, 'original secret', 'utf8');
+
+      const symlinkFile = path.join(root, testRel);
+      await fs.ensureDir(path.dirname(symlinkFile));
+      await fs.symlink(secretFile, symlinkFile);
+
+      const writer = makeWriter({
+        force: new Set([testRel]),
+        adoptUnknown: true,
+      });
+      await expect(
+        writer.write(symlinkFile, 'evil payload', meta),
+      ).rejects.toThrow(/symlink/i);
+      expect(await fs.readFile(secretFile, 'utf8')).toBe('original secret');
+    });
+
+    it('refuses to prune through a symlinked path in finalize and leaves target untouched', async () => {
+      const secretFile = path.join(outsideDir, 'victim.txt');
+      await fs.writeFile(secretFile, 'original secret', 'utf8');
+
+      const symlinkFile = path.join(root, testRel);
+      await fs.ensureDir(path.dirname(symlinkFile));
+      await fs.symlink(secretFile, symlinkFile);
+
+      const writer = makeWriter({
+        previous: {
+          [testRel]: {
+            ...meta,
+            sha256: sha256('original secret'),
+          },
+        },
+      });
+
+      await expect(writer.finalize(() => true)).rejects.toThrow(/symlink/i);
+      expect(await fs.readFile(secretFile, 'utf8')).toBe('original secret');
+    });
+
+    it('PassthroughWriter refuses write through a symlink when given rootDir', async () => {
+      const secretFile = path.join(outsideDir, 'victim.txt');
+      await fs.writeFile(secretFile, 'original secret', 'utf8');
+
+      const symlinkFile = path.join(root, 'pass', 'through.txt');
+      await fs.ensureDir(path.dirname(symlinkFile));
+      await fs.symlink(secretFile, symlinkFile);
+
+      const writer = new PassthroughWriter(root);
+      await expect(
+        writer.write(symlinkFile, 'evil passthrough'),
+      ).rejects.toThrow(/symlink/i);
+      expect(await fs.readFile(secretFile, 'utf8')).toBe('original secret');
+    });
+
+    it('allows valid in-root filenames starting with double-dot like ..notes.md', async () => {
+      const dotDotRel = '.claude/skills/c/s/..notes.md';
+      const absPath = path.join(root, dotDotRel);
+      const writer = makeWriter();
+
+      await writer.write(absPath, 'valid content', meta);
+      expect(writer.plan.added).toEqual([dotDotRel]);
+      expect(await fs.readFile(absPath, 'utf8')).toBe('valid content');
+    });
   });
 });

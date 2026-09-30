@@ -24,7 +24,7 @@ export class AgentBridgeService {
   async bridge(
     rootDir: string,
     agents: Agent[],
-    writer: InstallWriter = new PassthroughWriter(),
+    writer: InstallWriter = new PassthroughWriter(rootDir),
     options: { dryRun?: boolean } = {},
   ): Promise<void> {
     const fileNameBase = 'agent-skill-standard-rule';
