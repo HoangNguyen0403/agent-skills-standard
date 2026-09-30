@@ -26,6 +26,7 @@
 | **common-skill-creator** | `SKILL.md`, `evals/evals.json` | create skill, audit skill, trigger rate, optimize description |
 | **common-software-requirements** | `SRS.md`, `docs/srs/srs-*.md`, `specs/*.md` | create srs, software requirements, functional specification, system behavior spec, technical requirements, non-functional requirements |
 | common-stitch-design | `DESIGN.md`, `.stitch/**` | stitch, google stitch, stitch mcp, design.md, stitch screen, stitch variants |
+| common-subagent-driven-development | `docs/**/plans/*.md`, `.agent/sdd/**`, `*plan*.md`, `TODO.md` | subagent-driven-development, implement plan, execute plan, implement this plan, implement PR, implement tasks, execute tasks, start implementation, plan implementation, subagent driven, multi-task implementation, sdd |
 | **common-tdd** | `**/*.test.ts`, `**/*.spec.ts`, `**/*_test.go`, `**/*Test.java`, `**/*_test.dart`, `**/*_spec.rb` | tdd, unit test, write test, red green refactor, failing test, test coverage |
 | **common-workflow-writing** | `.agents/workflows/*.md`, `SKILL.md` | create workflow, write workflow, new skill, new workflow |
 

@@ -1,0 +1,59 @@
+{
+  "skill_name": "common-subagent-driven-development",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We have an approved 10-task implementation plan in docs/plans/feature.md. How should the orchestrator execute it without burning main session tokens?",
+      "expected_output": "Execute using Subagent-Driven Development (SDD): resolve the plan workspace via sdd_workspace.py, generate task briefs via task_brief.py, and dispatch a fresh worker per task on a cheap model tier. Verify each task with an independent review package before proceeding. Do not poll status in a loop; call wait and yield.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Subagent-Driven Development"
+        },
+        {
+          "type": "contains",
+          "value": "task brief"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What is the difference between TDD and SDD, and how do they work together?",
+      "expected_output": "TDD is a micro-level coding technique (RED -> GREEN -> REFACTOR) governing how code is written inside a task. SDD is a macro-level workflow governing how the orchestrator manages multi-task plans, isolates context across workers, and enforces review gates. SDD mandates that implementer subagents follow TDD inside their briefs.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "TDD"
+        },
+        {
+          "type": "contains",
+          "value": "SDD"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Why should an orchestrator avoid polling get_agent_status in a loop after dispatching a subagent?",
+      "expected_output": "Polling in a loop repeatedly re-sends the growing conversation context to the model on every turn, burning hundreds of thousands to millions of tokens unnecessarily. The orchestrator must call wait once and yield control; the host runtime notifies it upon subagent completion.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "tokens"
+        },
+        {
+          "type": "contains",
+          "value": "wait"
+        }
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    "How do I set up a PostgreSQL database?",
+    "Write a React component for a login form",
+    "Configure ESLint for a TypeScript project"
+  ],
+  "should_trigger": [
+    "We have an approved 10-task implementation plan in docs/plans/feature.md. How should the orchestrator execute it without burning main session tokens?",
+    "implement this plan inside PR 166646"
+  ]
+}
