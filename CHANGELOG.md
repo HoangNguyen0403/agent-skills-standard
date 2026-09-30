@@ -16,6 +16,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Managed skill package files and ownership-writer operations refuse pre-existing symlinks below the project root before payload writes, reads, backups, or pruning; package resources across selected agents are checked before the first package write. This does not cover unrelated direct root-document writes or concurrent filesystem swaps.
 - Removed a cross-project environment and credential-handling reference from the reusable Playwright CLI skill and four tracked agent install mirrors.
 
+## [common-v2.8.1] - 2026-09-30
+
+**Category**: Subagent-Driven Development and Plan Execution Gate
+
+### Added
+
+- `common-subagent-driven-development`: Orchestrates multi-task implementation plans by dispatching a fresh implementer subagent per task with independent review gates, preventing orchestrator context bloat. Includes cross-platform helper scripts (`sdd_workspace.py`, `task_brief.py`, `review_package.py`) and prompt templates for implementers, reviewers, and scoped re-reviewers.
+- Updated Agent Skills Routing Protocol (State 4) across rule generator templates (`AgentBridgeService.ts`), `.agents/rules/`, `.codex/rules/`, and `.github/instructions/`: Enforces the Plan Execution Confirmation Gate (Subagent-Driven vs. Inline) on multi-task implementation plans before direct file modifications.
+
+### Versions
+
+- **Common Skills**: `2.8.0` → `2.8.1`
 ## [cli-v2.6.5] - 2026-09-29
 
 **Category**: CLI Tool

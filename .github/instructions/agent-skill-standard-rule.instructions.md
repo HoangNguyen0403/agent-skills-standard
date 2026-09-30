@@ -32,7 +32,9 @@ You must execute these states sequentially. Do not proceed to the next state unt
 
 ### State 4: Execution & Audit Log (Output Generation)
 
-- **Action:** You may now begin answering the user or writing code.
+- **Action:**
+  - **Multi-task implementation plan (new or existing):** Do NOT edit files directly in the orchestrator session. Present the execution confirmation gate (Subagent-Driven vs. Inline) and use `subagent-driven-development`.
+  - **Analysis, review, or single-file fix:** You may begin answering the user or implementing.
 - **Constraint:** Your very first text output MUST be a "Pre-Write Audit Log" confirming which skills were loaded, or explicitly stating "No project-specific skills applicable."
 
 ## Self-Learning Protocol
