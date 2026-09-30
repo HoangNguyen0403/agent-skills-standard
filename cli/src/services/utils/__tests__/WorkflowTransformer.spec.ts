@@ -23,7 +23,7 @@ const REPO_ROOT = path.resolve(__dirname, '../../../../..');
 
 // Workflows without a checked-in generated wrapper yet: opt-in Stitch design
 // lane (registered canonically but exported only by `ags sync` against the
-// released workflows-v1.1.0 tag, per docs/superpowers/specs/2026-09-29-stitch-family-ux-design.md).
+// released workflows-v1.1.0 tag).
 const WORKFLOWS_WITHOUT_CHECKED_IN_WRAPPERS: Record<string, true> = {
   'review-stitch-design': true,
   'create-stitch-design': true,
