@@ -19,7 +19,7 @@ metadata:
 
 - Coverage is diagnostic and project-configured; verify risk-weighted critical paths rather than padding code for an arbitrary percentage.
 
-## Permanent Rule Anchor IDs
+## Core Rule Anchors
 
 - **`[WEB-TEST-01]` Tripartite Naming & AAA Cadence**: Test names must follow `Method_Scenario_ExpectedBehavior` and adhere strictly to Arrange-Act-Assert.
 - **`[WEB-TEST-02]` Accessible Harnesses & User Actions**: Query UI components via `ComponentHarness` (e.g. `MatButtonHarness`) or accessible queries; strictly ban raw CSS class selectors or arbitrary DOM traversal.

@@ -295,9 +295,9 @@
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 13496,
+        "total_tokens": 13494,
         "avg_tokens_per_skill": 613,
-        "largest_skill": "flutter-testing (1365 tokens)"
+        "largest_skill": "flutter-testing (1363 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -391,9 +391,9 @@
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 5538,
+        "total_tokens": 5536,
         "avg_tokens_per_skill": 692,
-        "largest_skill": "react-testing (1313 tokens)"
+        "largest_skill": "react-testing (1311 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -415,9 +415,9 @@
       "tag_prefix": "react-native-v",
       "token_metrics": {
         "total_skills": 13,
-        "total_tokens": 6529,
+        "total_tokens": 6527,
         "avg_tokens_per_skill": 502,
-        "largest_skill": "react-native-testing (649 tokens)"
+        "largest_skill": "react-native-testing (647 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -439,9 +439,9 @@
       "tag_prefix": "nestjs-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 13928,
+        "total_tokens": 13926,
         "avg_tokens_per_skill": 663,
-        "largest_skill": "nestjs-testing (1028 tokens)"
+        "largest_skill": "nestjs-testing (1026 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -487,7 +487,7 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 46,
-        "total_tokens": 38766,
+        "total_tokens": 38770,
         "avg_tokens_per_skill": 843,
         "largest_skill": "common-skill-creator (1646 tokens)"
       },
@@ -539,9 +539,9 @@
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 6706,
-        "avg_tokens_per_skill": 610,
-        "largest_skill": "golang-testing (991 tokens)"
+        "total_tokens": 6704,
+        "avg_tokens_per_skill": 609,
+        "largest_skill": "golang-testing (989 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -563,9 +563,9 @@
       "tag_prefix": "angular-v",
       "token_metrics": {
         "total_skills": 15,
-        "total_tokens": 9286,
+        "total_tokens": 9284,
         "avg_tokens_per_skill": 619,
-        "largest_skill": "angular-testing (924 tokens)"
+        "largest_skill": "angular-testing (922 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -611,9 +611,9 @@
       "tag_prefix": "java-v",
       "token_metrics": {
         "total_skills": 5,
-        "total_tokens": 3071,
+        "total_tokens": 3069,
         "avg_tokens_per_skill": 614,
-        "largest_skill": "java-testing (1043 tokens)"
+        "largest_skill": "java-testing (1041 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -635,9 +635,9 @@
       "tag_prefix": "spring-boot-v",
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 5332,
+        "total_tokens": 5330,
         "avg_tokens_per_skill": 533,
-        "largest_skill": "spring-boot-testing (821 tokens)"
+        "largest_skill": "spring-boot-testing (819 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -659,9 +659,9 @@
       "tag_prefix": "android-v",
       "token_metrics": {
         "total_skills": 26,
-        "total_tokens": 12262,
+        "total_tokens": 12260,
         "avg_tokens_per_skill": 472,
-        "largest_skill": "android-testing (903 tokens)"
+        "largest_skill": "android-testing (901 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -687,9 +687,9 @@
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4657,
+        "total_tokens": 4655,
         "avg_tokens_per_skill": 582,
-        "largest_skill": "swift-testing (803 tokens)"
+        "largest_skill": "swift-testing (801 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -739,9 +739,9 @@
       "tag_prefix": "php-v",
       "token_metrics": {
         "total_skills": 7,
-        "total_tokens": 4431,
+        "total_tokens": 4429,
         "avg_tokens_per_skill": 633,
-        "largest_skill": "php-testing (931 tokens)"
+        "largest_skill": "php-testing (929 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -787,9 +787,9 @@
       "tag_prefix": "laravel-v",
       "token_metrics": {
         "total_skills": 10,
-        "total_tokens": 7813,
+        "total_tokens": 7811,
         "avg_tokens_per_skill": 781,
-        "largest_skill": "laravel-testing (991 tokens)"
+        "largest_skill": "laravel-testing (989 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
