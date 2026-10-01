@@ -16,6 +16,126 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Managed skill package files and ownership-writer operations refuse pre-existing symlinks below the project root before payload writes, reads, backups, or pruning; package resources across selected agents are checked before the first package write. This does not cover unrelated direct root-document writes or concurrent filesystem swaps.
 - Removed a cross-project environment and credential-handling reference from the reusable Playwright CLI skill and four tracked agent install mirrors.
 
+## [android-v1.5.1]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `android-testing`: Integrated qualitative Four-Pillar framework, `[MOB-TEST-01..05]` rule anchors, diagnostic coverage, and banned smells against brittle state copies, pass-through mock echoing, and unverified bug fixes.
+
+### Versions
+
+- **Android Skills**: `1.5.0` → `1.5.1`
+
+## [angular-v1.5.1]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `angular-testing`: Introduced `[WEB-TEST-01..05]` rule anchors for ComponentHarness queries, banned private state inspections and raw CSS selectors, enforced HTTP boundary testing via HttpTestingController, and made coverage diagnostic.
+
+### Versions
+
+- **Angular Skills**: `1.5.0` → `1.5.1`
+
+## [java-v1.3.5]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `java-testing`: Introduced `[BE-TEST-01..05]` rule anchors for parameterized tests, banned brittle SQL string matching in mocks and shallow assertions, enforced bug-first regression testing, and defined coverage as diagnostic.
+
+### Versions
+
+- **Java Skills**: `1.3.4` → `1.3.5`
+
+## [laravel-v1.4.1]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `laravel-testing`: Introduced `[BE-TEST-01..05]` rule anchors for dataset-driven tests, banned brittle SQL string matching and shallow status-only assertions, banned pass-through mock echoing, and replaced arbitrary targets with diagnostic coverage.
+
+### Versions
+
+- **Laravel Skills**: `1.4.0` → `1.4.1`
+
+## [nestjs-v1.4.7]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `nestjs-testing`: Introduced `[BE-TEST-01..05]` rule anchors for `test.each` equivalent inputs, banned brittle DB mock string matching and shallow `toBeDefined` assertions, banned 1:1 pass-through mock echoing, and framed coverage as diagnostic.
+
+### Versions
+
+- **NestJS Skills**: `1.4.6` → `1.4.7`
+
+## [php-v1.3.7]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `php-testing`: Introduced `[BE-TEST-01..05]` rule anchors for data providers and datasets, banned brittle SQL string matching and shallow `assertNotNull` assertions, banned pass-through mock echoing, and removed arbitrary 80%+ coverage targets in favor of diagnostic coverage.
+
+### Versions
+
+- **PHP Skills**: `1.3.6` → `1.3.7`
+
+## [python-v1.0.1]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `python-testing`: Introduced `[BE-TEST-01..05]` rule anchors for parametrized inputs, banned SQL regex string matching and shallow truthiness assertions, banned 1:1 pass-through seam mocks, and made coverage diagnostic and risk-weighted.
+
+### Versions
+
+- **Python Skills**: `1.0.0` → `1.0.1`
+
+## [react-native-v1.5.1]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `react-native-testing`: Introduced `[MOB-TEST-01..05]` rule anchors for user-centric queries and visible outcomes, banned component internal state/prop inspection and pass-through mock echoing, and removed arbitrary 70%+ coverage targets in favor of diagnostic coverage.
+
+### Versions
+
+- **React Native Skills**: `1.5.0` → `1.5.1`
+
+## [spring-boot-v1.4.1]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `spring-boot-testing`: Introduced `[BE-TEST-01..05]` rule anchors for parameterized tests, banned brittle SQL string matching and shallow assertions, banned pass-through mock echoing in slice tests, and established diagnostic coverage.
+
+### Versions
+
+- **Spring Boot Skills**: `1.4.0` → `1.4.1`
+
+## [swift-v1.3.7]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `swift-testing`: Introduced `[MOB-TEST-01..05]` rule anchors for tripartite test naming and state invariants, banned trivial state mirror tests and 1:1 mock echoing, and treated coverage as diagnostic and project-configured.
+
+### Versions
+
+- **Swift Skills**: `1.3.6` → `1.3.7`
+
 ## [common-v2.8.3]
 
 **Category**: Quality-over-quantity test standards
