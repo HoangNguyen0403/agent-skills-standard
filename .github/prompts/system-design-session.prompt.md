@@ -35,6 +35,8 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
    - Require options with rejection reasons, an LLD contract, concrete adverse timeline/recovery, verification hooks, and an ADR reversal trigger. The specialist must not re-run intake or add machinery without a constraint.
    - Merge the returned options, failure modes, and irreversible decisions; state bottlenecks, SPOFs, and rejected alternatives with reasons.
    - Write one ADR per irreversible decision, each with its reversal trigger; stage the plan as build now, enabling seam, and the metric threshold that triggers the next step.
+   - Before producing independent post-decision docs/diagrams, list exact-file slices, acceptance checks, verification and integration owner; assign each bounded slice to the lowest-cost qualified configured executor where available. Keep decisions and final review with the lead.
+   - Allow one focused correction for a defective slice before escalating per configured fallback; record executor/model, exception or fallback reason, corrections and available usage/cost (otherwise `unavailable`) in the handoff. Do not claim savings without data.
    - Save the design to `docs/design/system-design-[slug].md` when file writes are allowed.
 7. Score and hand off:
    - Run the nine-axis scorecard with a declared system profile; permit a justified `N/A` axis and do not reward caches/queues/replicas/regions without a measured need, owner, cost, and recovery behavior.

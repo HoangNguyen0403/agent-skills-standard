@@ -59,7 +59,7 @@ Requirements before solutions. Never draw a full architecture before numbers jus
 
 ## Specialist Deep-Dive Contract
 
-- Send one specialist brief per risky component with profile, audience/question, workload/SLO/team/budget, invariant, scope, evidence status, and current HLD decision. The specialist does not re-run intake, add neighboring components, or invent numbers.
+- Have the user pick the 2-3 riskiest components, then send one specialist brief per component with profile, audience/question, workload/SLO/team/budget, invariant, scope, evidence status, and current HLD decision. The specialist does not re-run intake, add neighboring components, or invent numbers.
 - Require options with rejection reasons, the recommended LLD contract, failure timeline/recovery, verification hooks, and any ADR reversal trigger. Merge the result back into the HLD-to-LLD trace before scoring.
 
 ## Brownfield Path (review-existing mode)
@@ -71,11 +71,12 @@ Requirements before solutions. Never draw a full architecture before numbers jus
 
 ## Phase 4 - Deep Dives and Trade-offs
 
-- User picks the 2-3 riskiest components; go deep only there.
-- Dispatch each deep dive to `specialist-system-architect` with the component name, its numbers, and its consistency requirement; keep the session gates in this thread.
-- Close with bottlenecks, SPOFs, rejected alternatives plus rejection reasons, and the next scaling step.
-- Stage the result: what to build now, the seam that enables the next step, and the metric threshold that triggers it.
-- Record one ADR per irreversible decision, each with its reversal trigger - what would make us revisit this. Score the result with `system-design-review`.
+- Stage what to build now, the enabling seam and metric threshold; record one ADR per irreversible decision with its reversal trigger, then score with `system-design-review`.
+
+## Design-to-Delivery Gate
+
+- Once HLD/LLD is fixed, list bounded docs/diagram slices: exact files, evidence, acceptance, verification, integrator. Route production to the cheapest qualified configured executor if available; lead owns decisions and final review.
+- If still defective after one focused correction, use the configured fallback or report BLOCKED. Log executor/model, corrections, exceptions and fallback reason; report actual usage/cost or `unavailable`, never assumed savings.
 
 ## Anti-Patterns
 

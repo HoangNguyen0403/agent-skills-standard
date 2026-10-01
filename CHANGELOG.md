@@ -9,12 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-**Category**: CLI Tool, Quality Engineering
+**Category**: CLI Tool, Quality Engineering, System Design, Architecture Diagramming
 
 ### Fixed
 
 - Managed skill package files and ownership-writer operations refuse pre-existing symlinks below the project root before payload writes, reads, backups, or pruning; package resources across selected agents are checked before the first package write. This does not cover unrelated direct root-document writes or concurrent filesystem swaps.
 - Removed a cross-project environment and credential-handling reference from the reusable Playwright CLI skill and four tracked agent install mirrors.
+- System-design sessions now route bounded post-decision documentation and diagram production to the lowest-cost qualified configured executor, with owned slices, one corrective pass, fallback reasons, and cost-evidence reporting. Diagram handoff requires an exported-image readability check in addition to strict rendering.
 
 ## [common-v2.8.1] - 2026-09-30
 
