@@ -17,50 +17,33 @@ metadata:
 
 ## **Priority: P1 (HIGH)**
 
-## Workflow: Test New Feature
+## Permanent Rule Anchor IDs
 
-1. **Generate factory** — `php artisan make:factory PostFactory --model=Post`.
-2. **Write feature test** — Use Pest with `RefreshDatabase` for isolation.
-3. **Mock externals** — Use `$this->mock(Service::class)` for third-party calls.
-4. **Assert response** — Chain `assertStatus()`, `assertJson()`, `assertJsonStructure()`.
-5. **Run with SQLite** — Set `DB_CONNECTION=sqlite` and `DB_DATABASE=:memory:` in `phpunit.xml`.
-
-## Pest Feature Test Example
-
-See [implementation examples](references/implementation.md#pest-feature-test-example) for Pest feature tests and test directory structure.
+- **`[BE-TEST-01]` Parameterized Tests for Equivalent Cases**: Prefer `dataset` in Pest or PHPUnit data providers for equivalent inputs and boundary permutations. Distinct scenarios may stay separate test methods. Reviewers must not demand parameterized rewrites without a behavioral gap.
+- **`[BE-TEST-02]` Ban on Brittle DB Mock String Matching**: Do not use string-matching mocks for raw SQL queries. Test pure domain calculations directly, or use SQLite in-memory / real DB for repository verification.
+- **`[BE-TEST-03]` Ban on Shallow Assertions**: Never assert only `assertStatus(200)` without inspecting JSON response structures, payload fields, and invariants.
+- **`[BE-TEST-04]` Ban on Pass-Through Interface Mocks**: Repositories and service handlers must test contract compliance and error mapping. Ban 1:1 pass-through mock echoing without contract assertions.
+- **`[BE-TEST-05]` Bug-First Regression Lock`: Every PR fixing a bug ticket or with title `fix(...)` must introduce a test reproducing the defect prior to the fix.
 
 ## Implementation Guidelines
 
-### Pest & Modern Testing
-
-- **Feature Tests**: Use `uses(RefreshDatabase::class)` at top of Pest files. Example: `it('creates post', fn() => $this->postJson('/api/posts', [...])` verifies database rolled back after each test.
+- **Pest Feature Tests**: Use `uses(RefreshDatabase::class)` at top of Pest files. Example: `it('creates post', fn() => $this->postJson('/api/posts', [...])` verifies database rolled back after each test.
 - **Transactions**: For faster but non-truncating isolation, use **`DatabaseTransactions`**.
-
-### Mocking & External Services
-
-- **Service Mocking**: Use **`$this->mock(PaymentService::class)`** with **`shouldReceive('charge')->once()->with(100)`** to assert interaction.
-- **Loose Verification**: Use **`$this->spy()`** for behavior validation without strict ordering.
-- **Network Safety**: **Never make real network calls** in automated tests.
-
-### Test Data & Infrastructure
-
-- **Factories**: Create test data via **`Post::factory()->count(3)->create(['user_id' => $id])`**.
-- **Definition**: Implement **`definition(): array`** using **`fake()`** in factory classes.
-- **Generation**: Run **`php artisan make:factory PostFactory --model=Post`**.
-- **SQLite Support**: In **`phpunit.xml`**, set `DB_CONNECTION' value='sqlite'` and `DB_DATABASE' value=':memory:'` for in-memory, lightning-fast tests.
-
-### HTTP Assertions
-
-- **Fluent Assertions**: Chain **`assertStatus(201)`**, **`assertJson(['data' => ...])`**, and **`assertJsonStructure`**.
-- **Header Verification**: Use **`assertHeader('Content-Type', 'application/json')`**.
+- **Service Mocking (`[BE-TEST-04]`)**: Use **`$this->mock(PaymentService::class)`** with **`shouldReceive('charge')->once()->with(100)`** to assert interaction. Use `$this->spy()` for loose verification. Never make real network calls. Ban 1:1 pass-through mock echoing.
+- **Factories & DB (`[BE-TEST-02]`)**: Create test data via **`Post::factory()->count(3)->create(['user_id' => $id])`**. In **`phpunit.xml`**, set `DB_CONNECTION' value='sqlite'` and `DB_DATABASE' value=':memory:'` for in-memory tests.
+- **HTTP Assertions (`[BE-TEST-03]`)**: Chain **`assertStatus(201)`**, **`assertJson(['data' => ...])`**, and `assertJsonStructure`. Avoid shallow assertions.
+- **Coverage**: Coverage is diagnostic and project-configured; verify risk-weighted critical paths rather than padding code for an arbitrary percentage.
 
 ## Anti-Patterns
 
+- **`[BE-TEST-01]` Stylistic parameterized rewrites**: Do not demand dataset rewrites without a behavioral gap.
+- **`[BE-TEST-02]` Brittle DB mock string matching**: Do not match raw SQL strings in mocks; use SQLite in-memory or real DB.
+- **`[BE-TEST-03]` Shallow assertions**: Never assert status without verifying payload structures.
+- **`[BE-TEST-04]` Pass-through mock echoing**: Ban 1:1 mock echoing without contract assertions.
+- **`[BE-TEST-05]` Bug fix without reproduction test**: Ban bug fixes without a reproduction test.
 - **No real network calls**: Always mock or stub external services.
 - **No state leakage between tests**: Use `RefreshDatabase` trait.
 - **No `DB::table()->insert()`**: Never DB::table()->insert() raw data in tests — use Eloquent Factories instead.
-- **No heavy computations in unit tests**: Move to Feature layer.
-
 ## References
 
 - [Testing & Mocking Guide](references/implementation.md)

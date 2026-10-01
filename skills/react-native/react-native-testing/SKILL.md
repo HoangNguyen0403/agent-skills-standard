@@ -19,48 +19,36 @@ metadata:
 
 ## **Priority: P1 (HIGH)**
 
-## Setup
+## Permanent Rule Anchor IDs
 
-- **Jest**: Pre-configured in React Native.
-- **Testing Library**: Use `@testing-library/react-native` for user-centric tests.
-- **Mocking**: Use `jest.mock()` for native modules.
+- **`[MOB-TEST-01]` Tripartite Naming**: Follow `Method_Scenario_ExpectedBehavior`.
+- **`[MOB-TEST-02]` State & Component Invariant Rule**: Assert on visible user outcomes and accessible DOM state; never inspect component internal state or props directly.
+- **`[MOB-TEST-03]` Entity Invariant Rule**: Test calculations, validations, and domain invariants; ban trivial echo assertions.
+- **`[MOB-TEST-04]` Contract Testing Rule**: Intercept network requests at HTTP boundary (MSW) or native module boundary; ban 1:1 pass-through mock echoing without contract assertions.
+- **`[MOB-TEST-05]` Bug-First Regression Lock**: Every PR resolving a bug ticket or with title `fix(...)` must introduce a test reproducing the defect prior to the fix.
 
-## Component Testing
+## Setup & Component Testing
 
+- **Jest & RNTL**: Use `@testing-library/react-native` for user-centric tests. Mock native modules with `jest.mock()`.
+- **Component Example**:
 ```tsx
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
-
 test('increments counter on button press', () => {
   const { getByText, getByRole } = render(<Counter />);
-  const button = getByRole('button', { name: /increment/i });
-
-  fireEvent.press(button);
-
+  fireEvent.press(getByRole('button', { name: /increment/i }));
   expect(getByText('Count: 1')).toBeTruthy();
-});
-```
-
-## Async Testing
-
-```tsx
-test('fetches and displays data', async () => {
-  const { findByText } = render(<DataComponent />);
-  const element = await findByText(/loaded data/i);
-  expect(element).toBeTruthy();
 });
 ```
 
 ## Best Practices
 
-- **User-Centric**: Use `getByRole`, `getByText` over `testID` when possible.
-- **Integration > Unit**: Test features, not implementation.
-- **Avoid Snapshots**: Use sparingly. Brittle and hard to review.
-- **Coverage**: Aim for 70%+. Focus on critical paths.
+- **User-Centric**: Use `getByRole`, `getByText` over `testID`. Use `findBy*` for async elements.
+- **Integration > Unit**: Test features, not implementation. Avoid brittle snapshots.
+- **Coverage**: Coverage is diagnostic and project-configured; verify risk-weighted critical paths rather than padding code for an arbitrary percentage.
 
 ## Anti-Patterns
 
-- **No Testing Implementation**: Test behavior, not internals.
-- **No testID Overuse**: Prefer accessible queries.
+- **No Testing Implementation**: Test behavior, not internals. Avoid `testID` overuse.
+- **Banned Smells**: Ban vague names, inspecting component state/props, echo assertions, and pass-through mocks.
 
 ## References
 

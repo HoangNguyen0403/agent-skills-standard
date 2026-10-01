@@ -14,9 +14,17 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
+## Permanent Rule Anchor IDs
+
+- **`[MOB-TEST-01]` Tripartite Naming**: Test functions must follow `test_method_scenario_expectedBehavior` or `testMethod_scenario_expectedBehavior`.
+- **`[MOB-TEST-02]` State Invariant Rule**: Assert state transitions and invariants; ban trivial state mirror tests.
+- **`[MOB-TEST-03]` Entity Invariant & Codable Rule**: Test calculations, validations, domain invariants, and non-trivial `Codable` serialization/parsing or error mapping; ban testing trivial getters or echo tests.
+- **`[MOB-TEST-04]` Contract Testing Rule**: Repositories and data sources must be tested for contract compliance and error mapping; ban 1:1 pass-through mock echoing.
+- **`[MOB-TEST-05]` Bug-First Regression Lock**: Every PR fixing a bug ticket or with title `fix(...)` must introduce a test reproducing the defect prior to the fix.
+
 ## Write XCTest Cases
 
-- **Standard Naming**: Test functions must prefixed by 'test' (e.g., `func testUserLoginSuccessful()`).
+- **Standard Naming**: Test functions must prefixed by 'test' (`[MOB-TEST-01]`, e.g., `func test_userLogin_whenValid_isSuccessful()`).
 - **Setup/Teardown**: Use `setUpWithError()` and `tearDownWithError()` for environment management.
 - **Assertions**: Use specific assertions: `XCTAssertEqual`, `XCTAssertNil`, `XCTAssertTrue`, etc.
 
@@ -32,13 +40,14 @@ See [implementation examples](references/implementation.md) for XCTest setup/tea
 
 - **Unit Tests**: Use protocols for dependencies and inject them via constructor (e.g., `init(service: ServiceProtocol)`). Focus on logic isolation using mocks/stubs.
 - **UI Tests**: Test user flows using `XCUIApplication` and accessibility identifiers.
-- **Coverage**: Aim for high coverage on critical business logic and state transitions.
+- **Coverage**: Coverage is diagnostic and project-configured; verify risk-weighted critical paths rather than padding code for an arbitrary percentage.
 
 ## Anti-Patterns
 
+- **`[MOB-TEST-01..05]` Violations**: Ban vague names, trivial state mirrors, echo tests, 1:1 mock echoing, and unverified bug fixes.
 - **No Thread.sleep**: Use expectations or await.
-- **No force unwrap in tests**: Use XCTUnwrap() for better failure messages.
-- **No assertion-free tests**: test that only runs code not test.
+- **No force unwrap in tests**: Use `XCTUnwrap()` for better failure messages.
+- **No assertion-free tests**: A test that only runs code without asserting contract invariants is not a test.
 
 ## References
 

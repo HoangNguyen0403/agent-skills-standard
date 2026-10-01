@@ -15,37 +15,33 @@ metadata:
 
 ## **Priority: P1 (HIGH)**
 
-## 1. Query via Component Harnesses
+## Core Philosophy
 
-- Use `ComponentHarness` (e.g., `MatButtonHarness`) not CSS selectors — stable across DOM changes.
-- `loader.getHarness(MatButtonHarness)` + `await button.click()`. Never query by CSS class.
+- Coverage is diagnostic and project-configured; verify risk-weighted critical paths rather than padding code for an arbitrary percentage.
 
-See [harness pattern](references/harness-pattern.md) for ComponentHarness examples.
+## Permanent Rule Anchor IDs
 
-## 2. Mock HTTP with HttpTestingController
+- **`[WEB-TEST-01]` Tripartite Naming & AAA Cadence**: Test names must follow `Method_Scenario_ExpectedBehavior` and adhere strictly to Arrange-Act-Assert.
+- **`[WEB-TEST-02]` Accessible Harnesses & User Actions**: Query UI components via `ComponentHarness` (e.g. `MatButtonHarness`) or accessible roles (`getByRole`); strictly ban raw CSS selectors or DOM traversal.
+- **`[WEB-TEST-03]` Ban on Component Private State & Property Inspection**: Never inspect component private state or internal properties directly. Assert on visible DOM state, output events, or harness query outcomes.
+- **`[WEB-TEST-04]` HTTP Boundary Mocking**: Intercept HTTP requests at the boundary using `provideHttpClientTesting()` + `HttpTestingController` rather than mocking internal services or methods. Tests must verify true component data flow.
+- **`[WEB-TEST-05]` Bug-First Regression Lock**: Every PR resolving a bug ticket or with title `fix(...)` must introduce a test reproducing the defect prior to the fix.
 
-- `provideHttpClientTesting()` not manual HttpClient mocks.
-- Call `expectOne`, `.flush(mockData)`, `verify()` in `afterEach`.
+## Implementation Guidelines
 
-See [harness pattern](references/harness-pattern.md) for HttpTestingController examples.
-
-## 3. Test Signal Inputs Correctly
-
-- `fixture.componentRef.setInput('name', value)` — not direct assignment.
-- `fixture.detectChanges()` after `setInput()`.
-- Signals sync — no `fakeAsync` needed for most signal-driven tests.
-
-## 4. Choose Your Test Runner
-
-- Angular v20+: **Vitest** via `@angular/build:unit-test` — faster, native ESM, no Karma. Configure in `angular.json`.
-- Jasmine/Karma still supported for existing projects.
-- Standalone: import directly in `TestBed.configureTestingModule({ imports: [StandaloneComponent] })`.
+- **Query via Component Harnesses (`[WEB-TEST-02]`)**: Use `ComponentHarness` (e.g. `MatButtonHarness`) not CSS selectors. `loader.getHarness(MatButtonHarness)` + `await button.click()`. Never query by CSS class. See [harness pattern](references/harness-pattern.md).
+- **Mock HTTP (`[WEB-TEST-04]`)**: Intercept with `provideHttpClientTesting()` + `HttpTestingController` rather than manual mocks. Call `expectOne`, `.flush(mockData)`, and `verify()` in `afterEach`.
+- **Signal Inputs (`[WEB-TEST-03]`)**: Use `fixture.componentRef.setInput('name', value)` + `fixture.detectChanges()`, not direct assignment. Signals sync — no `fakeAsync` needed for most signal-driven tests.
+- **Test Runner**: Angular v20+ defaults to **Vitest** via `@angular/build:unit-test` (faster, native ESM, no Karma). Configure in `angular.json`. Jasmine/Karma still supported. Standalone: import directly in `TestBed.configureTestingModule({ imports: [StandaloneComponent] })`.
 
 ## Anti-Patterns
 
-- **No DOM CSS selectors**: Query via `ComponentHarness`, not CSS class strings.
-- **No manual HttpClient mock**: Use `provideHttpClientTesting()` + `HttpTestingController`.
-- **No direct @Input() assignment**: Use `fixture.componentRef.setInput()` for signal inputs.
+- **`[WEB-TEST-01]` Vague test names**: Banish non-descriptive names or mixed AAA phases; follow `Method_Scenario_ExpectedBehavior`.
+- **`[WEB-TEST-02]` Raw CSS selectors / DOM traversal**: Query via `ComponentHarness` or accessible roles, not CSS class strings.
+- **`[WEB-TEST-03]` Testing private state**: Never inspect internal properties or use direct `@Input()` assignment; use `setInput()`.
+- **`[WEB-TEST-04]` Manual HttpClient mocks**: Always mock the network boundary with `provideHttpClientTesting()` + `HttpTestingController`.
+- **`[WEB-TEST-05]` Bug fix without reproduction test**: Ban bug fix PRs lacking defect regression tests.
+- **Coverage padding**: Never write low-value tests solely to meet an arbitrary percentage.
 
 ## References
 
