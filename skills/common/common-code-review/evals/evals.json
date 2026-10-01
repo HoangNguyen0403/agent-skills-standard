@@ -81,12 +81,13 @@
         },
         {
           "id": "a2",
-          "description": "Declines per-symbol MAJOR missing-test finding",
+          "description": "Declines per-symbol missing-test finding",
           "type": "contains_any",
           "value": [
             "Decline",
             "Do not demand",
-            "MAJOR"
+            "Do not add",
+            "not warranted"
           ]
         }
       ]

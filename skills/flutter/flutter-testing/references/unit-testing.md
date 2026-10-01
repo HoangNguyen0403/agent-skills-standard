@@ -51,6 +51,7 @@ class UserBuilder {
 
 // Usage in test
 final user = UserBuilder().withId('99').build();
+final order = OrderBuilder().withQuantity(3).build();
 ```
 
 ### 2. Mocking with Mocktail
@@ -76,7 +77,7 @@ void main() {
   // 2. Test Group
   group('GetUserProfileUseCase', () {
 
-    test('should return Failure when repository fails', () async {
+    test('GetUser_WhenRepositoryFails_ThrowsServerException', () async {
       // ARRANGE
       when(() => mockRepo.getUser('1')).thenThrow(ServerException());
 
