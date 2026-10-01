@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Managed skill package files and ownership-writer operations refuse pre-existing symlinks below the project root before payload writes, reads, backups, or pruning; package resources across selected agents are checked before the first package write. This does not cover unrelated direct root-document writes or concurrent filesystem swaps.
 - Removed a cross-project environment and credential-handling reference from the reusable Playwright CLI skill and four tracked agent install mirrors.
 
-## [workflows-v1.2.0]
+## [workflows-v1.1.1]
 
 **Category**: Design-to-delivery execution gate
 
@@ -26,9 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Versions
 
-- **Workflows**: `1.1.0` → `1.2.0`
+- **Workflows**: `1.1.0` → `1.1.1`
 
-## [system-design-v1.3.0]
+## [system-design-v1.2.1]
 
 **Category**: HLD-to-LLD design delivery gate
 
@@ -38,11 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Versions
 
-- **System Design Skills**: `1.2.0` → `1.3.0`
+- **System Design Skills**: `1.2.0` → `1.2.1`
 
 ---
 
-## [common-v2.9.0]
+## [common-v2.8.2]
 
 **Category**: Exported architecture diagram readability gate
 
@@ -52,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Versions
 
-- **Common Skills**: `2.8.1` → `2.9.0`
+- **Common Skills**: `2.8.1` → `2.8.2`
 
 ---
 

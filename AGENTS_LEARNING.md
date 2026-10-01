@@ -54,3 +54,19 @@ I repeatedly asked for a run after the user had already completed `all-v2.6.0-20
 
 ### ✅ Better Approach
 At each user update, inspect `manifest.json`, `results.json`, and `completedAt` first. Treat the latest completed run as authoritative, finish analysis against that immutable evidence, and present any later verification as a separately named, one-time frozen batch with its exact scope.
+
+---
+
+## Agent Learning Log: Iteration #4
+
+**Date**: 2026-10-01 | **Task**: Correct skill release version bumps.
+**Signal**: User correction
+
+### ❌ Mistake Made
+I used minor version bumps for small additive workflow and skill guidance changes without matching the requested release scale.
+
+### 🚫 Pattern to Avoid
+- **No scope inflation in semantic versioning**: A small, backward-compatible guidance change does not automatically justify a minor bump.
+
+### ✅ Better Approach
+Classify the user-visible change by its actual impact and follow repository release conventions; use patch bumps for small compatible corrections, and align category/workflow metadata with the changelog.
