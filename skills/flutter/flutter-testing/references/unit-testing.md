@@ -4,8 +4,8 @@ Unit tests verify the smallest parts of your application (functions, methods, cl
 
 ## Core Rules
 
-1. **Isolation**: External dependencies (API, Database, SharedPreferences) **must** be mocked.
-2. **Scope**: One test file per source file (e.g., `user_repository.dart` -> `user_repository_test.dart`).
+1. **Isolation**: Use focused fakes or mocks only when isolation from external boundaries (network, databases, platform channels) is necessary; prefer pure domain logic and simple fakes over heavy mocks.
+2. **Scope**: Select tests based on risk and observable behavior rather than mandating a 1:1 test file per source file; group related behaviors by business contract.
 3. **Arrange-Act-Assert (AAA)**: Follow this structure strictly.
 4. **Explicit Matching**: **FORBIDDEN**: `any()` and `registerFallbackValue()`. Always use explicit values or specific instances in `when` and `verify` calls.
 
@@ -14,6 +14,27 @@ Unit tests verify the smallest parts of your application (functions, methods, cl
 ### 1. Test Data Builders
 
 Avoid hardcoding large objects in every test. Use a Builder pattern to generate valid default data with overrides.
+```dart
+class OrderBuilder {
+  double _unitPrice = 100.0;
+  int _quantity = 1;
+  double _discount = 0.0;
+  bool _isPriority = false;
+
+  OrderBuilder withUnitPrice(double price) { _unitPrice = price; return this; }
+  OrderBuilder withQuantity(int qty) { _quantity = qty; return this; }
+  OrderBuilder withDiscount(double discount) { _discount = discount; return this; }
+  OrderBuilder asPriority() { _isPriority = true; return this; }
+
+  Order build() => Order.empty().copyWith(
+    unitPrice: _unitPrice,
+    qty: _quantity,
+    discount: _discount,
+    isPriority: _isPriority,
+  );
+}
+```
+
 
 ```dart
 class UserBuilder {
@@ -54,19 +75,6 @@ void main() {
 
   // 2. Test Group
   group('GetUserProfileUseCase', () {
-    test('should return User when repository succeeds', () async {
-      // ARRANGE
-      final user = UserBuilder().build();
-      // ✅ Explicit matching of '1'
-      when(() => mockRepo.getUser('1')).thenAnswer((_) async => Right(user));
-
-      // ACT
-      final result = await useCase('1');
-
-      // ASSERT
-      expect(result, Right(user));
-      verify(() => mockRepo.getUser('1')).called(1);
-    });
 
     test('should return Failure when repository fails', () async {
       // ARRANGE
@@ -97,10 +105,10 @@ test('fetchUser runs', () async {
   // ❌ No assertion - test passes even if logic is broken
 });
 
-// GOOD
-test('fetchUser returns data', () async {
-  final result = await repo.fetchUser();
-  expect(result, isNotNull); // ✅ Always verify result
+// GOOD: Contract-specific assertion verifying business attributes
+test('FetchUser_WhenUserExists_ReturnsUserWithMatchingId', () async {
+  final result = await repo.fetchUser('123');
+  expect(result, isA<User>().having((u) => u.id, 'id', equals('123')));
 });
 ```
 

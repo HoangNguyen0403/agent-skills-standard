@@ -16,6 +16,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Managed skill package files and ownership-writer operations refuse pre-existing symlinks below the project root before payload writes, reads, backups, or pruning; package resources across selected agents are checked before the first package write. This does not cover unrelated direct root-document writes or concurrent filesystem swaps.
 - Removed a cross-project environment and credential-handling reference from the reusable Playwright CLI skill and four tracked agent install mirrors.
 
+## [common-v2.8.3]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `common-tdd`: Added pre-suite comparison, observable outward side effects focus, diagnostic coverage definition, and qualitative Four Pillars framework to quality contract.
+- `common-code-review`: Added Test-Review Evidence Gate requiring contract, plausible escaping fault, and lack of nearby coverage before flagging missing-test findings.
+
+### Versions
+
+- **Common Skills**: `2.8.2` → `2.8.3`
+
+## [flutter-v1.8.2]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `flutter-testing`: Integrated qualitative Four-Pillar framework, `[MOB-TEST-01..05]` rule anchors, contract-based optional negative assertions, and risk-based verification.
+
+### Versions
+
+- **Flutter Skills**: `1.8.1` → `1.8.2`
+
+## [golang-v1.3.8]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `golang-testing`: Introduced `[BE-TEST-01..05]` rule anchors for table-driven equivalent inputs, banned brittle SQL string matching and shallow assertions, and removed arbitrary coverage percentage targets.
+
+### Versions
+
+- **Golang Skills**: `1.3.7` → `1.3.8`
+
+## [nextjs-v1.4.7]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `nextjs-testing`: Scoped MSW network mocking to isolated unit/component determinism, permitted dedicated E2E network calls, and replaced arbitrary 80% coverage targets with risk-weighted verification.
+
+### Versions
+
+- **Next.js Skills**: `1.4.6` → `1.4.7`
+
+## [react-v1.4.1]
+
+**Category**: Quality-over-quantity test standards
+
+### Changed
+
+- `react-testing`: Upgraded to P1 with user-behavior core philosophy, `[WEB-TEST-01..05]` rule anchors, accessible role queries, MSW boundary mocking, and bug-first regression testing.
+
+### Versions
+
+- **React Skills**: `1.4.0` → `1.4.1`
+
 ## [workflows-v1.1.1]
 
 **Category**: Design-to-delivery execution gate

@@ -26,10 +26,10 @@ metadata:
 ## Workflow: Test New Feature
 
 1. **Write unit tests** — Use Jest (or Vitest for new projects) + RTL with Arrange-Act-Assert pattern.
-2. **Mock APIs** — Set up MSW handlers for all fetch boundaries.
+2. **Mock APIs for unit/component tests** — Set up MSW handlers for fetch boundaries in isolated tests where network determinism is required.
 3. **Test interactions** — Use `userEvent` (async) for clicks, typing, form submissions.
 4. **Add E2E tests** — Use Playwright for critical user flows (login, checkout).
-5. **Verify coverage** — Aim for 80%+ on core libraries via JSON coverage reports.
+5. **Verify coverage** — Rely on risk-weighted behavioral verification and project-configured CI coverage gates; never write padding tests to hit an arbitrary percentage.
 
 ## Component Test Example
 
@@ -39,15 +39,15 @@ See [implementation examples](references/implementation.md)
 
 - **Unit Testing**: Use **Jest** (existing projects) or **Vitest** (new projects) with **React Testing Library (RTL)**. Follow **Arrange-Act-Assert (AAA)** patterns.
 - **E2E Testing**: Use **Playwright** for full user flow validation. Focus on critical flows (Login, Checkout).
-- **Networking**: Mock all internal/external API boundaries using **Mock Service Worker (MSW)**. Ensure **`server` and `browser` handlers** correctly configured.
+- **Networking**: Intercept API boundaries using **Mock Service Worker (MSW)** for isolated component/unit tests to guarantee deterministic fixtures; allow intentional real-network or staging coverage in dedicated Playwright E2E/contract suites. Ensure **`server` and `browser` handlers** are correctly configured.
 - **Interactions**: Use **`userEvent` (async)** to simulate user actions: `await user.click(button)`.
 - **Selectors**: Favor **`getByRole`** / **`findByRole`** to test accessibility. Use **`data-testid`** only as fallback.
 - **Environment**: For Jest, use `jest-environment-jsdom`. For Vitest, configure `vitest.config.ts` with `jsdom` or `happy-dom`.
-- **Reporting**: Ensure tests generate **JSON coverage reports** for CI gates. Aim for **80%+ coverage** on core libraries.
+- **Reporting**: Ensure tests generate **JSON coverage reports** for CI gates. Verify risk-weighted behavioral paths rather than padding code to reach arbitrary percentage targets.
 
 ## Anti-Patterns
 
-- **No real network usage in tests**: Always use MSW handlers or mocks.
+- **No unisolated network in unit tests**: Use MSW handlers or fakes for unit/component tests; do not perform uncontrolled external network calls outside dedicated E2E suites.
 - **No implementation testing**: Test user behavior, not internal methods.
 - **No heavy E2E for unit logic**: Use Jest/Vitest for isolated logic tests.
 - **No global state leakage**: Reset MSW handlers and mocks after each test.

@@ -290,14 +290,14 @@
   },
   "categories": {
     "flutter": {
-      "version": "1.8.1",
-      "last_updated": "2026-07-15",
+      "version": "1.8.2",
+      "last_updated": "2026-10-01",
       "tag_prefix": "flutter-v",
       "token_metrics": {
         "total_skills": 22,
-        "total_tokens": 13057,
-        "avg_tokens_per_skill": 594,
-        "largest_skill": "flutter-testing (926 tokens)"
+        "total_tokens": 13477,
+        "avg_tokens_per_skill": 613,
+        "largest_skill": "flutter-testing (1346 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -386,14 +386,14 @@
       ]
     },
     "react": {
-      "version": "1.4.0",
-      "last_updated": "2026-07-15",
+      "version": "1.4.1",
+      "last_updated": "2026-10-01",
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4804,
-        "avg_tokens_per_skill": 601,
-        "largest_skill": "react-state-management (797 tokens)"
+        "total_tokens": 5538,
+        "avg_tokens_per_skill": 692,
+        "largest_skill": "react-testing (1313 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -458,13 +458,13 @@
       ]
     },
     "nextjs": {
-      "version": "1.4.6",
-      "last_updated": "2026-07-15",
+      "version": "1.4.7",
+      "last_updated": "2026-10-01",
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 12024,
-        "avg_tokens_per_skill": 668,
+        "total_tokens": 12144,
+        "avg_tokens_per_skill": 675,
         "largest_skill": "nextjs-architecture (1040 tokens)"
       },
       "owners": [
@@ -482,13 +482,13 @@
       ]
     },
     "common": {
-      "version": "2.8.2",
+      "version": "2.8.3",
       "last_updated": "2026-10-01",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 46,
-        "total_tokens": 38564,
-        "avg_tokens_per_skill": 838,
+        "total_tokens": 38766,
+        "avg_tokens_per_skill": 843,
         "largest_skill": "common-skill-creator (1646 tokens)"
       },
       "owners": [
@@ -534,14 +534,14 @@
       ]
     },
     "golang": {
-      "version": "1.3.7",
-      "last_updated": "2026-08-24",
+      "version": "1.3.8",
+      "last_updated": "2026-10-01",
       "tag_prefix": "golang-v",
       "token_metrics": {
         "total_skills": 11,
-        "total_tokens": 6228,
-        "avg_tokens_per_skill": 566,
-        "largest_skill": "golang-database (824 tokens)"
+        "total_tokens": 6706,
+        "avg_tokens_per_skill": 610,
+        "largest_skill": "golang-testing (991 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

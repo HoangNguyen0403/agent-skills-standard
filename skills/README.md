@@ -173,8 +173,8 @@ Modern React development patterns.
 - [**Performance**](react/react-performance/SKILL.md) (P0) - Optimize React rendering, bundle size, and data flow with profiler-led decisions. Use when reducing re-renders, fixing waterfalls, or deciding whether memoization is warranted in React.
 - [**Security**](react/react-security/SKILL.md) (P0) - Prevent XSS, secure auth flows, and harden React client-side applications. Use when preventing XSS, securing auth flows, or auditing third-party dependencies in React.
 - [**State Management**](react/react-state-management/SKILL.md) (P0) - Select and implement local, global, and server state patterns in React. Use when choosing or implementing state management (Context, Zustand, Redux, React Query) in React.
+- [**Testing**](react/react-testing/SKILL.md) (P1) - Test React components with RTL and Jest/Vitest. Use when writing React component tests with React Testing Library, Jest, or Vitest.
 - [**Typescript**](react/react-typescript/SKILL.md) (P1) - Type React components and hooks with TypeScript patterns. Use when typing React props, hooks, event handlers, or component generics in TypeScript.
-- [**Testing**](react/react-testing/SKILL.md) (P2) - Test React components with RTL and Jest/Vitest. Use when writing React component tests with React Testing Library, Jest, or Vitest.
 - [**Tooling**](react/react-tooling/SKILL.md) (P2) - Configure debugging, bundle analysis, and ecosystem tools for React applications. Use when setting up Vite/webpack build tooling, analyzing bundle size, debugging re-renders with React DevTools, or configuring ESLint and StrictMode for React projects.
 
 ### 📱 React Native (Framework)
