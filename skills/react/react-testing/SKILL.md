@@ -21,7 +21,7 @@ metadata:
 - **Test User Behavior, Not Implementation Mechanics**: Tests should verify that the application works for end users, rather than checking how components are implemented internally.
 - **Resistance to Refactoring**: Refactoring component internal state, props, or hooks must never break passing tests as long as the user-visible behavior remains unchanged.
 
-## Permanent Rule Anchor IDs (Four Pillars Enforcement)
+## Core Rule Anchors (Four Pillars Enforcement)
 
 - **`[WEB-TEST-01]` Tripartite Naming & AAA Cadence**: Test names must follow `Method_Scenario_ExpectedBehavior` and adhere strictly to Arrange-Act-Assert. Example: `SubmitOrder_WhenCreditLimitExceeded_DisplaysBlockedBanner`.
 - **`[WEB-TEST-02]` Accessible Roles & UserEvent**: Always use `userEvent.setup()` for user interactions (`await user.click(...)`) and query elements via accessible roles (`getByRole`, `findByLabelText`). Avoid `fireEvent` and ban arbitrary CSS / DOM hierarchy selectors.

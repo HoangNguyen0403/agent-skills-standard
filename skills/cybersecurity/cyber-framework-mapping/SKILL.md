@@ -42,7 +42,7 @@ For mapped observations, carry `engagement_scope_ref`, `skill_version`, `source`
 ## Anti-Patterns
 
 - **No broad equivalence**: One keyword does not establish a mapping.
-- **No version drift**: Do not reuse an ID without checking its revision.
+- **No version drift**: Verify the current revision before reusing an ID.
 - **No compliance leap**: Mapping never certifies a control or outcome.
 - **No fabricated completeness**: Mark unknown edges and gaps.
 

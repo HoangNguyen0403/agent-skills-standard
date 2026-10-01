@@ -14,7 +14,7 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-## Permanent Rule Anchor IDs
+## Core Rule Anchors
 
 - **`[MOB-TEST-01]` Tripartite Naming**: Test functions must follow `test_method_scenario_expectedBehavior` or `testMethod_scenario_expectedBehavior`.
 - **`[MOB-TEST-02]` State Invariant Rule**: Assert state transitions and invariants; ban trivial state mirror tests.

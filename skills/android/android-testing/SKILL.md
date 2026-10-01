@@ -29,7 +29,7 @@ Qualitative reasoning framework to evaluate unit test value:
 - **Maintainability**: Clean AAA structure, high readability, zero boilerplate duplication.
 Avoid inventing arbitrary numeric scores (e.g. P * R * F * M) statically without empirical measurement.
 
-## Permanent Rule Anchor IDs
+## Core Rule Anchors
 
 - **`[MOB-TEST-01]` Tripartite Naming**: Name tests `Method_Scenario_ExpectedBehavior` (e.g. `submitOrder_whenCreditLimitExceeded_displaysBlockedBanner`).
 - **`[MOB-TEST-02]` State & ViewModel Invariant Rule**: Assert UI state transitions (e.g. `StateFlow`/`UiState` via Turbine `test {}`); ban asserting 30-property boilerplate state copies.

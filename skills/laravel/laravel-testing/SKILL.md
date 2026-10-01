@@ -17,7 +17,7 @@ metadata:
 
 ## **Priority: P1 (HIGH)**
 
-## Permanent Rule Anchor IDs
+## Core Rule Anchors
 
 - **`[BE-TEST-01]` Parameterized Tests for Equivalent Cases**: Prefer `dataset` in Pest or PHPUnit data providers for equivalent inputs and boundary permutations. Distinct scenarios may stay separate test methods. Reviewers must not demand parameterized rewrites without a behavioral gap.
 - **`[BE-TEST-02]` Ban on Brittle DB Mock String Matching**: Do not use string-matching mocks for raw SQL queries. Test pure domain calculations directly, or use SQLite in-memory / real DB for repository verification.

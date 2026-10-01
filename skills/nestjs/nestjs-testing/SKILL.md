@@ -15,7 +15,7 @@ metadata:
 # NestJS Testing
 
 ## **Priority: P2 (MEDIUM)**
-## Permanent Rule Anchor IDs
+## Core Rule Anchors
 
 - **`[BE-TEST-01]` Parameterized Tests for Equivalent Cases**: Prefer `test.each` when methods have multiple equivalent inputs or boundary permutations. Distinct scenarios may stay separate test functions. Reviewers must not demand parameterized rewrites without a behavioral gap.
 - **`[BE-TEST-02]` Ban on Brittle DB Mock String Matching**: Do not use string-matching mocks for raw SQL queries. Test pure domain calculations directly, or use a real test DB for repository verification.

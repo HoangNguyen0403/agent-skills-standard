@@ -15,7 +15,7 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-## Permanent Rule Anchor IDs
+## Core Rule Anchors
 
 - **`[BE-TEST-01]` Parameterized Tests for Equivalent Cases**: Prefer `@ParameterizedTest` (`@CsvSource`, `@MethodSource`) when methods have multiple equivalent inputs or boundary permutations. Distinct scenarios may stay separate test methods. Reviewers must not demand parameterized rewrites without a behavioral gap.
 - **`[BE-TEST-02]` Ban on Brittle DB Mock String Matching**: Do not use string-matching mocks for raw SQL queries. Test pure domain calculations directly, or use `Testcontainers` for database repository verification.

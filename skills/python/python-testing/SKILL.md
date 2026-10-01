@@ -21,7 +21,7 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-## Permanent Rule Anchor IDs
+## Core Rule Anchors
 
 - **`[BE-TEST-01]` Parametrized Tests for Equivalent Inputs**: Prefer `pytest.mark.parametrize` for equivalent inputs and boundary permutations. Distinct scenarios may stay separate.
 - **`[BE-TEST-02]` Ban on Brittle SQL String Matching**: Test pure domain calculations directly or use fakes/testcontainers; do not regex-match SQL strings in mocks.
@@ -50,7 +50,7 @@ metadata:
 
 - **`[BE-TEST-01]` Stylistic parametrize rewrites**: Do not demand parameterized rewrites of passing tests without a behavioral gap.
 - **`[BE-TEST-02]` SQL regex matching**: Do not regex-match SQL strings in mocks.
-- **`[BE-TEST-03]` Shallow assertions**: Never assert only `assert result` without checking attributes/invariants.
+- **`[BE-TEST-03]` Shallow assertions**: Never assert only `assert result`; always verify domain attributes and invariants.
 - **`[BE-TEST-04]` Pass-through seam mocks**: Ban 1:1 mock echoing without contract assertions.
 - **`[BE-TEST-05]` Bug fix without reproduction test**: Ban bug fixes without a reproduction test.
 - **No live network or DB in unit tests**: Use fakes or testcontainers.

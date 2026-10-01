@@ -16,7 +16,7 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
-## Permanent Rule Anchor IDs
+## Core Rule Anchors
 
 - **`[BE-TEST-01]` Table-Driven Subtests for Equivalent Cases**: Prefer table-driven tests (`[]struct{ name, input, expected, expectErr }` with `t.Run`) when functions have multiple equivalent inputs, boundary permutations, or repetitive setup. Distinct scenarios or diverging setup may remain separate test functions; 2-3 distinct cases are fine. Reviewers must not raise stylistic table-driven findings without a behavioral gap.
 - **`[BE-TEST-02]` Ban on Brittle SQLMock String Matching**: Do not use `sqlmock.ExpectQuery` to regex-match raw SQL strings. Test pure domain business calculations directly, or use `testcontainers-go` for PostgreSQL repository verification.

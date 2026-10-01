@@ -19,7 +19,7 @@ metadata:
 
 ## **Priority: P1 (HIGH)**
 
-## Permanent Rule Anchor IDs
+## Core Rule Anchors
 
 - **`[MOB-TEST-01]` Tripartite Naming**: Follow `Method_Scenario_ExpectedBehavior`.
 - **`[MOB-TEST-02]` State & Component Invariant Rule**: Assert on visible user outcomes and accessible UI elements; never inspect component internal state or props directly.

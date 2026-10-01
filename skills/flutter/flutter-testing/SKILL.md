@@ -31,7 +31,7 @@ The Four Pillars provide a qualitative reasoning framework to assess test value:
 
 Avoid calculating or inventing arbitrary numeric scores (e.g. $P \times R \times F \times M$) statically without measured mutation or runtime evidence.
 
-## Permanent Rule Anchor IDs
+## Core Rule Anchors
 
 - **`[MOB-TEST-01]` Tripartite Naming**: Name tests `Method_Scenario_ExpectedBehavior`.
 - **`[MOB-TEST-02]` BLoC State Invariant Rule**: Assert state transitions using `isA<State>().having(...)` predicates; BAN full copyWith mirrors.
