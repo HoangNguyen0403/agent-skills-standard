@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "run_id": "system-design-routing-semver-20261001T054945Z",
+  "slug": "system-design-routing",
+  "workflow": "retro-learn",
+  "feature_status": "implemented",
+  "started_at": "2026-10-01T05:49:45Z",
+  "completed_at": "2026-10-01T05:51:00Z",
+  "requirement_trace": {
+    "brd_objectives": [],
+    "requirements": [],
+    "acceptance_criteria": [],
+    "srs": []
+  },
+  "completed_evidence": [
+    "User correction: small compatible skill and workflow guidance changes should receive patch, not minor, version bumps.",
+    "Updated category metadata and CHANGELOG.md: system-design 1.2.0 to 1.2.1, common 2.8.1 to 2.8.2, workflows 1.1.0 to 1.1.1.",
+    "Appended AGENTS_LEARNING.md Iteration #4: classify release scale by actual scope and repository conventions.",
+    "pnpm generate-indices passed; pnpm verify:release-tags passed for 25 categories and one release; pnpm --filter ./cli validate:all passed 324 skills with zero failures."
+  ],
+  "missing_evidence": [
+    "Updated commit CI checks are pending.",
+    "No held-out model evaluation or independent maintainer approval; PR remains proposed."
+  ],
+  "decision_needed": [],
+  "recommended_next_workflow": null,
+  "cost": { "source": "unavailable" },
+  "agent": { "identity": "omp coding assistant", "model": "openai-codex/gpt-6-luna" }
+}
