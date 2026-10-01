@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "run_id": "system-design-routing-20261001T031716Z",
+  "slug": "system-design-routing",
+  "workflow": "retro-learn",
+  "feature_status": "partially_implemented",
+  "started_at": "2026-10-01T03:00:00Z",
+  "completed_at": "2026-10-01T03:17:16Z",
+  "requirement_trace": {
+    "brd_objectives": [],
+    "requirements": [],
+    "acceptance_criteria": [],
+    "srs": []
+  },
+  "completed_evidence": [
+    "Proposed routing candidate: post-decision docs/diagram slices were sometimes authored by the lead despite a configured low-cost executor; handoff omitted executor/fallback evidence. Source: redacted 2026-10-01 retrospective; source checkout 6328c07.",
+    "Proposed visual candidate: structurally valid diagrams required corrective visual passes; an exported-image readability gate was missing.",
+    "Canonical baseline revision 1fa778900c4c620a4a580926830e552da799ea43; changed workflow, methodology and diagramming skills with corresponding regression cases.",
+    "Scoped eval preflight: zero issues; SDLC audit, catalog skill validation, skill audit, alignment, injection audit, full tests and build passed."
+  ],
+  "missing_evidence": [
+    "No paid held-out candidate/current/no-skill model evaluation yet.",
+    "Independent maintainer approval, canary and rollback after an approved release are pending.",
+    "Per-agent token usage and model pricing for the originating session were unavailable."
+  ],
+  "decision_needed": [
+    "Maintainers review the proposed gate and evaluate behavior before release/promotion."
+  ],
+  "recommended_next_workflow": null,
+  "cost": { "source": "unavailable" },
+  "agent": { "identity": "standards PR proposer", "model": "openai-codex/gpt-6-sol" }
+}

@@ -487,8 +487,8 @@
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 46,
-        "total_tokens": 38524,
-        "avg_tokens_per_skill": 837,
+        "total_tokens": 38564,
+        "avg_tokens_per_skill": 838,
         "largest_skill": "common-skill-creator (1646 tokens)"
       },
       "owners": [
@@ -811,9 +811,9 @@
       "tag_prefix": "system-design-v",
       "token_metrics": {
         "total_skills": 12,
-        "total_tokens": 13134,
-        "avg_tokens_per_skill": 1095,
-        "largest_skill": "system-design-methodology (1765 tokens)"
+        "total_tokens": 13160,
+        "avg_tokens_per_skill": 1097,
+        "largest_skill": "system-design-methodology (1791 tokens)"
       },
       "owners": [
         "HoangNguyen0403"

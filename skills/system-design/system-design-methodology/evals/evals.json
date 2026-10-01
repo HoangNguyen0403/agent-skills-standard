@@ -172,6 +172,48 @@
           "description": "Smoke-checks that the counterexample evidence is carried into the recommendation"
         }
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "The product owner approved an HLD and three LLD decisions. An architecture entry page, backend module map, and two final diagrams remain. A low-cost qualified worker profile is configured, but the design lead says writing these artifacts directly will be quicker. The first diagram draft passed structural validation yet its exported PNG has overlapping labels. The team wants a final handoff; the host gives no token counts or prices. What is the concrete execution and reporting plan?",
+      "expected_output": "Names bounded owned artifact slices with exact files, source evidence, acceptance and verification checks and an integration owner; routes independent production through the qualified low-cost worker while retaining decisions/integration/final review with the lead; inspects the image at reading size and allows one focused correction before a documented configured fallback. Reports executor/model, correction/fallback reasons and unavailable cost data without claiming savings.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["exact files", "file ownership", "owned slices"],
+          "description": "Allocates concrete bounded artifacts instead of an undifferentiated delegation"
+        },
+        {
+          "type": "contains_any",
+          "value": ["acceptance checks", "acceptance criteria", "verification checks"],
+          "description": "Defines outcomes to check before worker launch"
+        },
+        {
+          "type": "contains_any",
+          "value": ["low-cost qualified", "cheapest qualified", "lowest-cost qualified"],
+          "description": "Routes production to configured cheaper executor"
+        },
+        {
+          "type": "contains_any",
+          "value": ["integration owner", "lead integrates", "lead retains integration"],
+          "description": "Preserves a single accountable integrator"
+        },
+        {
+          "type": "contains_any",
+          "value": ["one focused correction", "one corrective pass", "one correction"],
+          "description": "Provides bounded recovery for defective worker output"
+        },
+        {
+          "type": "contains_any",
+          "value": ["configured fallback", "fallback model", "fallback executor"],
+          "description": "Escalates only the failed slice after correction"
+        },
+        {
+          "type": "contains_any",
+          "value": ["unavailable", "unknown cost", "cannot quantify savings"],
+          "description": "Does not invent token or cost savings"
+        }
+      ]
     }
   ],
   "should_trigger": [
@@ -198,18 +240,30 @@
         "order of magnitude",
         "ASSUMED"
       ]
+    },
+    {
+      "prompt": "The HLD is approved, but the lead wants to author four independent documents and diagrams personally to save coordination. A qualified cheaper worker exists; an earlier clean render has unreadable labels, and the host has no usage data. Decide who produces, corrects and reviews each artifact, and what the handoff says.",
+      "behavior_assertions": ["owned slices", "lowest-cost qualified", "one correction", "fallback", "unavailable"]
     }
   ],
   "rationalizations": [
     "We ship Friday, there is no time for intake questions.",
     "You already know what this kind of system looks like.",
     "Assume it will be huge and we can cut scope later.",
-    "The diagram is the deliverable, the questions are overhead."
+    "The diagram is the deliverable, the questions are overhead.",
+    "The lead can write post-decision artifacts faster than briefing a worker.",
+    "The diagram validator passed, so there is no need to inspect the exported image.",
+    "The artifacts are complete, so the executor and fallback route need not be reported.",
+    "The cheap model must have saved money even though usage and prices are absent."
   ],
   "red_flags": [
     "Producing a component set before any capacity number exists.",
     "Answering with a finished architecture when no scale input was given.",
     "Designing for an unstated 'huge' scale instead of a labeled assumption.",
-    "Dropping the estimation gate because the requester is in a hurry."
+    "Dropping the estimation gate because the requester is in a hurry.",
+    "The design lead writes independent approved-plan deliverables while a qualified low-cost executor is configured.",
+    "A worker diagram passes structural validation but is delivered unreadable.",
+    "A handoff omits executor/model, corrective rounds or fallback rationale.",
+    "A cost-saving claim has no usage and price evidence."
   ]
 }

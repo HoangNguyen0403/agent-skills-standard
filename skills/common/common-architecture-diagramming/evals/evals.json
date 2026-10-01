@@ -227,6 +227,33 @@
           "description": "Labels metric provenance instead of presenting targets as observations"
         }
       ]
+    },
+    {
+      "id": 12,
+      "prompt": "A container diagram's JSON passes validate_spec.py and render_drawio.py --strict, and the .drawio exports to PNG. At normal reading size the exported image still has overlapping arrow labels across service boxes. The review is today. Is the diagram ready to hand off, and what concrete steps come next?",
+      "expected_output": "The image is not ready for handoff despite successful validation. Inspect the PNG at normal reading size; fix the spec to remove overlaps, rerun validation and strict rendering, re-export and inspect the corrected image. Do not modify generated XML.",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "value": ["not ready", "do not hand off", "cannot hand off"],
+          "description": "Rejects unreadable output despite a passing validator"
+        },
+        {
+          "type": "contains_any",
+          "value": ["normal reading size", "readable size", "actual reading size"],
+          "description": "Checks the user-visible exported image"
+        },
+        {
+          "type": "contains_any",
+          "value": ["fix the spec", "change the spec", "edit the JSON spec"],
+          "description": "Repairs the semantic source rather than generated XML"
+        },
+        {
+          "type": "contains_any",
+          "value": ["re-export", "export again", "rerun export"],
+          "description": "Verifies the corrected render"
+        }
+      ]
     }
   ],
   "should_trigger": [

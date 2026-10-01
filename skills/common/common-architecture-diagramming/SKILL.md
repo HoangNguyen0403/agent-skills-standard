@@ -41,6 +41,7 @@ so diagrams stay identical across authors, repositories, and sessions.
 5. Export the image: a draw.io MCP tool if the session has one, else
    `python3 scripts/export_drawio.py docs/architecture/<slug>.drawio -f png -o docs/architecture/<slug>.png`,
    else ship the `.drawio` and say the image was not exported. See [export paths](references/mermaid-fallback.md).
+6. Inspect the exported image at normal reading size; strict validation cannot prove labels and edges are legible. Fix the spec and re-export before handoff.
 
 The JSON spec is the semantic source of truth; `.drawio` is the editable presentation and the
 image is a copy for a deck. Generated XML records its own baseline; regeneration protects
