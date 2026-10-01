@@ -22,7 +22,7 @@ metadata:
 ## Permanent Rule Anchor IDs
 
 - **`[MOB-TEST-01]` Tripartite Naming**: Follow `Method_Scenario_ExpectedBehavior`.
-- **`[MOB-TEST-02]` State & Component Invariant Rule**: Assert on visible user outcomes and accessible DOM state; never inspect component internal state or props directly.
+- **`[MOB-TEST-02]` State & Component Invariant Rule**: Assert on visible user outcomes and accessible UI elements; never inspect component internal state or props directly.
 - **`[MOB-TEST-03]` Entity Invariant Rule**: Test calculations, validations, and domain invariants; ban trivial echo assertions.
 - **`[MOB-TEST-04]` Contract Testing Rule**: Intercept network requests at HTTP boundary (MSW) or native module boundary; ban 1:1 pass-through mock echoing without contract assertions.
 - **`[MOB-TEST-05]` Bug-First Regression Lock**: Every PR resolving a bug ticket or with title `fix(...)` must introduce a test reproducing the defect prior to the fix.

@@ -32,7 +32,7 @@ Avoid inventing arbitrary numeric scores (e.g. P * R * F * M) statically without
 ## Permanent Rule Anchor IDs
 
 - **`[MOB-TEST-01]` Tripartite Naming**: Name tests `Method_Scenario_ExpectedBehavior` (e.g. `submitOrder_whenCreditLimitExceeded_displaysBlockedBanner`).
-- **`[MOB-TEST-02]` State & ViewModel Invariant Rule**: Assert UI/BLoC state transitions using explicit state assertions or Turbine; ban asserting 30-property boilerplate state copies.
+- **`[MOB-TEST-02]` State & ViewModel Invariant Rule**: Assert UI state transitions (e.g. `StateFlow`/`UiState` via Turbine `test {}`); ban asserting 30-property boilerplate state copies.
 - **`[MOB-TEST-03]` Entity Invariant & Serialization Rule**: Test calculations, validations, domain invariants, and non-trivial serialization/parsing or error mapping. Ban testing auto-generated code, trivial getters, or echo tests repeating literal assignments.
 - **`[MOB-TEST-04]` Contract Testing Rule**: Repositories and data sources must be tested for contract compliance and error mapping. Ban 1:1 pass-through mock echoing (`coEvery { dataSource.get() } returns x; repo.get() == x`).
 - **`[MOB-TEST-05]` Bug-First Regression Lock**: Every PR fixing a bug ticket or with title `fix(...)` must introduce a failing test reproducing the defect before fixing it.

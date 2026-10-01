@@ -23,7 +23,7 @@ metadata:
 - **`[BE-TEST-02]` Ban on Brittle DB Mock String Matching**: Do not use string-matching mocks for raw SQL queries. Test pure domain calculations directly, or use SQLite in-memory / real DB for database repository verification.
 - **`[BE-TEST-03]` Ban on Shallow Assertions**: Never assert only `assertNotNull($result)` without inspecting domain fields, status codes, and invariants.
 - **`[BE-TEST-04]` Ban on Pass-Through Interface Mocks**: Repositories and service handlers must test contract compliance and error mapping. Ban 1:1 pass-through mock echoing without contract assertions.
-- **`[BE-TEST-05]` Bug-First Regression Lock`: Every PR fixing a bug ticket or with title `fix(...)` must introduce a test reproducing the defect prior to the fix.
+- **`[BE-TEST-05]` Bug-First Regression Lock**: Every PR fixing a bug ticket or with title `fix(...)` must introduce a test reproducing the defect prior to the fix.
 
 ## Write Tests with PHPUnit and Pest
 
