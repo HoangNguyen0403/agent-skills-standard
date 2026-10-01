@@ -67,6 +67,29 @@
           ]
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Review this PR diff: internal string formatting logic was refactored into two private helper functions within OrderFormatter. Existing integration tests already exercise all order formatting paths and pass completely. Should I add a [MAJOR] missing-test finding for each private helper?",
+      "expected_output": "Decline the [MAJOR] missing-test finding. Apply the Test-Review Evidence Gate: the observable contract is unchanged, no plausible escaping fault exists, and existing integration tests already verify all formatting paths. Do not demand isolated tests per private method or internal symbol.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Applies Test-Review Evidence Gate",
+          "type": "contains",
+          "value": "Test-Review Evidence Gate"
+        },
+        {
+          "id": "a2",
+          "description": "Declines per-symbol MAJOR missing-test finding",
+          "type": "contains_any",
+          "value": [
+            "Decline",
+            "Do not demand",
+            "MAJOR"
+          ]
+        }
+      ]
     }
   ],
   "should_not_trigger": [
@@ -96,11 +119,13 @@
   ],
   "rationalizations": [
     "Green CI means the review can be shallow.",
-    "A fast style check is enough for this PR."
+    "A fast style check is enough for this PR.",
+    "Every private helper or function requires its own unit test regardless of existing coverage."
   ],
   "red_flags": [
     "quick approval summary",
-    "skip tests and edge cases"
+    "skip tests and edge cases",
+    "missing test for private helper"
   ],
   "should_trigger": [
     "Review this PR — it adds a new endpoint that takes a user ID from the URL and returns their data without any auth check."

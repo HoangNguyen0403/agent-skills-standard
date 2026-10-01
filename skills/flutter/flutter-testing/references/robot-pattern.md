@@ -71,23 +71,22 @@ class LoginRobot {
   void verifyLoginScreenVisible() =>
       expect(find.byKey(LoginWidgetKeys.submitButton), findsOne);
 
-  void verifyLoginButtonDisabled() =>
-      expect(find.byKey(LoginWidgetKeys.submitButton), findsOne);
 }
 ```
 
-## Symmetric Assertions (REQUIRED)
+## Contract-Based Negative Assertions (Optional)
 
-Provide both positive and negative variants. Prevents inline `expect` in tests.
+Provide negative assertion helpers when absence itself is the business contract (e.g. access restricted, item removed, action suppressed). Avoid mandatory symmetric pairs for all elements.
 
 ```dart
 // ─── Assertions ────────────────────────────────────────────────
 
-// ✅ GOOD: Symmetric pair
+// ✅ GOOD: Positive assertion for expected UI element
 void expectContentVisible(String text) {
   expect(find.text(text), findsOne);
 }
 
+// ✅ GOOD: Optional negative helper when absence is part of the business contract
 void expectContentNotVisible(String text) {
   expect(find.text(text), findsNothing);
 }
@@ -96,16 +95,6 @@ void expectContentNotVisible(String text) {
 void expectTextVisible(String text) {
   expect(find.text(text), findsOne);
 }
-
-void expectTextNotVisible(String text) {
-  expect(find.text(text), findsNothing);
-}
-
-// ❌ BAD: Only positive assertion — forces inline expect in tests
-void expectTitleVisible() {
-  expect(find.text('My Title'), findsOne);
-}
-// Missing: expectTitleNotVisible()
 ```
 
 ### When to Add Negative Assertions

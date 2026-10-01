@@ -34,7 +34,7 @@
     {
       "id": 3,
       "prompt": "Write E2E tests for the checkout flow that tests the full user journey from cart to order confirmation.",
-      "expected_output": "Use Playwright for App Router E2E validation. Test critical user flow: navigate to cart, fill shipping details, submit payment, verify order confirmation. Use role selectors: page.getByRole('button', { name: 'Place Order' }). Configure Playwright with baseURL. Run against dev or staging server. Aim for 80%+ coverage on critical flows.",
+      "expected_output": "Use Playwright for App Router E2E validation. Test critical user flow: navigate to cart, fill shipping details, submit payment, verify order confirmation. Use role selectors: page.getByRole('button', { name: 'Place Order' }). Configure Playwright with baseURL. Run against dev or staging server. Focus on risk-weighted behavioral verification of critical flows rather than arbitrary percentage targets.",
       "assertions": [
         {
           "type": "contains",

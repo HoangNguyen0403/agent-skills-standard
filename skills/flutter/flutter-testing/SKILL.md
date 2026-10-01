@@ -21,53 +21,54 @@ metadata:
 
 ## **Priority: P0 (CRITICAL)**
 
+## The Four-Pillar Test Value Framework
+
+The Four Pillars provide a qualitative reasoning framework to assess test value:
+- **Protection against Regressions ($P$)**: Catches real defects; evaluated qualitatively or via mutation kill score. A test that passes when defects exist has zero protection.
+- **Resistance to Refactoring ($R$)**: Decoupled from implementation details; zero false alarms on internal refactorings or domain additions. Tests coupled to private state or mock sequences score low on resistance.
+- **Fast Feedback ($F$)**: Executes in milliseconds; rapid local TDD feedback loop.
+- **Maintainability ($M$)**: Clean AAA structure, fluent test data builders when setup repetition obscures intent, high readability, zero boilerplate duplication.
+
+Avoid calculating or inventing arbitrary numeric scores (e.g. $P \times R \times F \times M$) statically without measured mutation or runtime evidence.
+
+## Permanent Rule Anchor IDs
+
+- **`[MOB-TEST-01]` Tripartite Naming**: Name tests `Method_Scenario_ExpectedBehavior`.
+- **`[MOB-TEST-02]` BLoC State Invariant Rule**: Assert state transitions using `isA<State>().having(...)` predicates; BAN full copyWith mirrors.
+- **`[MOB-TEST-03]` Entity Invariant & Serialization Rule**: Test calculations, validations, domain invariants, and non-trivial serialization/parsing or error mapping. BAN testing generated code, trivial getters/setters, `props`, or echo tests (`expect(item.discount, equals(5))`) where the test merely repeats literal assignments.
+- **`[MOB-TEST-04]` Contract Testing Rule**: Repositories and data sources must be tested for contract compliance, golden JSON parsing, and error mapping. BAN 1:1 pass-through mock echoing (`when(() => dataSource.get()).thenAnswer((_) async => x); expect(await repo.get(), x)`).
+- **`[MOB-TEST-05]` Bug-First Regression Lock**: Every PR fixing a bug ticket or with title `fix(...)` must introduce a failing test reproducing the defect before fixing it.
+
 ## Core Rules
 
 1. **Test Pyramid**: Unit > Widget > Integration.
-2. **Naming**: `should <behavior> when <condition>`.
+2. **Naming**: Follow `[MOB-TEST-01]` (`Method_Scenario_ExpectedBehavior`).
 3. **AAA**: Arrange, Act, Assert in all tests.
-4. **Shared Mocks**: `test/shared/` only — no local mocks.
+4. **Isolated Builders**: Fluent builders when setup complexity warrants (`OrderBuilder`); avoid brittle shared global mocks.
 5. **File Placement**: `_integration_test.dart` ONLY in `integration_test/`.
-6. **Robot-First**: ALL UI assertions/interactions via **Robot pattern** (e.g., `CheckoutRobot`) — never raw `find.*`/`expect()` in test body.
+6. **Robot-First**: All UI assertions/interactions via **Robot pattern** (extending `BaseRobot`) — never raw `find.*`/`expect()` in test body. Use `WidgetKeys` constants from `lib/core/keys/`.
+7. **Negative Assertions**: Add `expectXxxNotVisible()` in robot only when absence is part of the business contract (e.g. restricted action hidden), not blanket pairs for unrelated content.
+8. **Widget Testing & Mocking**: Setup with `TestWrapper.init()` and `tester.pumpLocalizedWidget(...)`. Register mock BLoCs with `GetIt` in `setUpAll`; stub `state` and `stream` in `setUp` (use `whenListen` and `settle: false` for loading/transition states). Prohibit `any()`.
+9. **Integration Testing**: Use `patrolTest` with `IntegrationAuthHelper.loginOrSkip($)` for auth flows and `native interactions` (`$.native.*`).
 
-## Widget Testing & Mocking
+## Anti-Patterns & Banned Smells
 
-- **Setup**: Use `TestWrapper.init()` in `setUpAll` and `tester.pumpLocalizedWidget(...)`.
-- **Mocking**: Use **GetIt registration** of Mock BLoCs in `setUpAll` if created internally. Use **blocTest** for BLoC logic and **whenListen** for state transitions.
-- **Stubbing**: Always stub **bloc.state** and **bloc.stream** in `setUp`. Prohibit `any()` / `anyNamed()`.
-- **Async**: Use **settle: false** for loading or stream states to verify mid-process transitions.
-
-## Robot Pattern
-
-- All interactions and assertions belong in `*Robot` (e.g., `expectFirstOrderVisible()`).
-- Symmetric: every `expectXxxVisible()` needs **expectXxxNotVisible()** pairs.
-- **BaseRobot Centralization**: Extract standard scrolling (`scrollDown`, `scrollToEnd`) and screen visibility assertions (`expectScreenVisible`, `expectScreenNotVisible`) into common `BaseRobot` or parent class to avoid duplication.
-- Widget tests: include `pumpScreen(bloc:, settle:)` helper.
-- **Widget Keys**: Use **WidgetKeys** constants from `lib/core/keys/` — never inline `Key('string')`.
-
-## Integration Testing
-
-- Use **patrolTest** with **IntegrationAuthHelper.loginOrSkip($)** for authenticated flows.
-- Use **$.native.tap()** or `$.native.*` for native interactions (e.g., system dialogs).
-- Create robot: `final robot = OrdersRobot($.tester)` — share same class as widget tests.
-- Only `$.native.*` and navigation helpers may remain inline in test body.
-
-## Anti-Patterns
-
+- **`[MOB-TEST-01]` Vague names**: Banish non-descriptive names (`testCart`).
+- **`[MOB-TEST-02]` Brittle state mirrors**: Ban 30-property `copyWith` trees in `blocTest`; use `isA<State>().having(...)`.
+- **`[MOB-TEST-03]` Entity echo tests**: Ban asserting trivial field assignments or auto-generated boilerplate (`discount: 5`). Meaningful serialization/parsing error handling remains valid.
+- **`[MOB-TEST-04]` Pass-through mock echoing**: Ban 1:1 repository-to-datasource pass-through mocks without contract assertions.
+- **`[MOB-TEST-05]` Missing bug reproduction**: Ban bug fix PRs without reproduction tests.
+- **No blanket negative assertions**: Avoid asserting absence of unrelated content.
 - **No inline Key**: Use `WidgetKeys` constant. **No `any()`**: Use typed matchers.
 - **No local mocks**: Use `test/shared/`. **No missing bloc stub**: Stub `state` + `stream`.
-- **No test-body logic**: Move `find.*`/`expect()` to robot. **No raw find in integration tests**.
-- **No `_integration_test.dart` in `test/`**: Rename or merge.
-- **No unused imports**: Remove `v_dls` when robots handle assertions. Check Material import needs.
-- **No happy-path-only**: Add `Edge cases` group. **No one-sided assertions**: Add `expectNotVisible` pairs.
-- **No unchecked text casing**: Verify `.toUpperCase()`, `.tr()` in source.
+- **No test-body logic**: Move `find.*`/`expect()` to robot. No raw find in integration tests.
 
 ## Verification
 
-- [ ] Fakes used over Mocks for Repositories (well-defined inputs/outputs).
-- [ ] Every ViewModel has unit tests covering loading, success, and error states.
-- [ ] Every View has widget tests with faked ViewModel.
-- [ ] Critical user flows have at least one integration test.
+- [ ] Repositories use fakes over mocks where appropriate.
+- [ ] Distinct BLoC/ViewModel behaviors covered (loading, success, error) with `isA<State>().having(...)`.
+- [ ] Views with distinct UI logic tested via Robot pattern at proper layer.
+- [ ] Critical user flows have at least one integration test using `patrolTest`.
 - [ ] `flutter test` passes.
 
 ## Canonical response anchors
