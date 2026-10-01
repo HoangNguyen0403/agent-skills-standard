@@ -62,6 +62,7 @@ Avoid calculating or inventing arbitrary numeric scores (e.g. $P \times R \times
 - **No inline Key**: Use `WidgetKeys` constant. **No `any()`**: Use typed matchers.
 - **No local mocks**: Use `test/shared/`. **No missing bloc stub**: Stub `state` + `stream`.
 - **No test-body logic**: Move `find.*`/`expect()` to robot. No raw find in integration tests.
+- **No unchecked text casing**: Verify `.toUpperCase()`, `.tr()` in source.
 
 ## Verification
 
