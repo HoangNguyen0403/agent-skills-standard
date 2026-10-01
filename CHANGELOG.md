@@ -9,13 +9,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-**Category**: CLI Tool, Quality Engineering, System Design, Architecture Diagramming
+**Category**: CLI Tool, Quality Engineering
 
 ### Fixed
 
 - Managed skill package files and ownership-writer operations refuse pre-existing symlinks below the project root before payload writes, reads, backups, or pruning; package resources across selected agents are checked before the first package write. This does not cover unrelated direct root-document writes or concurrent filesystem swaps.
 - Removed a cross-project environment and credential-handling reference from the reusable Playwright CLI skill and four tracked agent install mirrors.
-- System-design sessions now route bounded post-decision documentation and diagram production to the lowest-cost qualified configured executor, with owned slices, one corrective pass, fallback reasons, and cost-evidence reporting. Diagram handoff requires an exported-image readability check in addition to strict rendering.
+
+## [workflows-v1.2.0]
+
+**Category**: Design-to-delivery execution gate
+
+### Changed
+
+- `system-design-session` now requires bounded artifact slices with exact files, acceptance and verification checks, an integration owner, lowest-cost qualified production executor, one correction before fallback, and honest cost evidence.
+
+### Versions
+
+- **Workflows**: `1.1.0` → `1.2.0`
+
+## [system-design-v1.3.0]
+
+**Category**: HLD-to-LLD design delivery gate
+
+### Changed
+
+- `system-design-methodology` now routes bounded post-decision documentation and diagram work to the lowest-cost qualified configured executor while the lead retains design decisions and final review; defective slices get one focused correction before fallback.
+
+### Versions
+
+- **System Design Skills**: `1.2.0` → `1.3.0`
+
+---
+
+## [common-v2.9.0]
+
+**Category**: Exported architecture diagram readability gate
+
+### Changed
+
+- `common-architecture-diagramming` now requires visual inspection of exported images at normal reading size; strict validation does not prove labels and edges are legible.
+
+### Versions
+
+- **Common Skills**: `2.8.1` → `2.9.0`
+
+---
 
 ## [common-v2.8.1] - 2026-09-30
 
@@ -29,6 +68,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Versions
 
 - **Common Skills**: `2.8.0` → `2.8.1`
+
+---
+
 ## [cli-v2.6.5] - 2026-09-29
 
 **Category**: CLI Tool
