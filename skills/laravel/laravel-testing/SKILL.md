@@ -23,7 +23,7 @@ metadata:
 - **`[BE-TEST-02]` Ban on Brittle DB Mock String Matching**: Do not use string-matching mocks for raw SQL queries. Test pure domain calculations directly, or use SQLite in-memory / real DB for repository verification.
 - **`[BE-TEST-03]` Ban on Shallow Assertions**: Never assert only `assertStatus(200)` without inspecting JSON response structures, payload fields, and invariants.
 - **`[BE-TEST-04]` Ban on Pass-Through Interface Mocks**: Repositories and service handlers must test contract compliance and error mapping. Ban 1:1 pass-through mock echoing without contract assertions.
-- **`[BE-TEST-05]` Bug-First Regression Lock`: Every PR fixing a bug ticket or with title `fix(...)` must introduce a test reproducing the defect prior to the fix.
+- **`[BE-TEST-05]` Bug-First Regression Lock**: Every PR fixing a bug ticket or with title `fix(...)` must introduce a test reproducing the defect prior to the fix.
 
 ## Implementation Guidelines
 

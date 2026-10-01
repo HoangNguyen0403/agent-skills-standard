@@ -22,7 +22,7 @@ metadata:
 ## Permanent Rule Anchor IDs
 
 - **`[WEB-TEST-01]` Tripartite Naming & AAA Cadence**: Test names must follow `Method_Scenario_ExpectedBehavior` and adhere strictly to Arrange-Act-Assert.
-- **`[WEB-TEST-02]` Accessible Harnesses & User Actions**: Query UI components via `ComponentHarness` (e.g. `MatButtonHarness`) or accessible roles (`getByRole`); strictly ban raw CSS selectors or DOM traversal.
+- **`[WEB-TEST-02]` Accessible Harnesses & User Actions**: Query UI components via `ComponentHarness` (e.g. `MatButtonHarness`) or accessible queries; strictly ban raw CSS class selectors or arbitrary DOM traversal.
 - **`[WEB-TEST-03]` Ban on Component Private State & Property Inspection**: Never inspect component private state or internal properties directly. Assert on visible DOM state, output events, or harness query outcomes.
 - **`[WEB-TEST-04]` HTTP Boundary Mocking**: Intercept HTTP requests at the boundary using `provideHttpClientTesting()` + `HttpTestingController` rather than mocking internal services or methods. Tests must verify true component data flow.
 - **`[WEB-TEST-05]` Bug-First Regression Lock**: Every PR resolving a bug ticket or with title `fix(...)` must introduce a test reproducing the defect prior to the fix.

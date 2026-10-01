@@ -37,7 +37,7 @@ metadata:
 - **Integration Testing (`[BE-TEST-02]`)**: Use **`Testcontainers`** with `@Container` for real databases (PostgreSQL/Redis) in integration tests (`*IT.java`).
 - **Isolation**: Each test method MUST be isolated and independent; use **`@DirtiesContext`** sparingly.
 - **AssertJ Chaining (`[BE-TEST-03]`)**: Chain assertions for clarity: **`assertThat(result).isNotNull().hasSize(2).contains("X")`**.
-- **Mocking verification**: Use **`verify(mock, times(1)).method()`** to audit side-effects.
+- **Mocking Verification**: Audit observable contract outcomes and state changes; do not assert mock call counts or invocation sequences as a proxy for correctness.
 - **Exceptions**: Use **`assertThatThrownBy(() -> ...)`** to verify specific Exception types and messages.
 - **Coverage**: Coverage is diagnostic and project-configured; verify risk-weighted critical paths rather than padding code for an arbitrary percentage.
 
