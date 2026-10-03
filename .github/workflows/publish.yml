@@ -129,7 +129,7 @@ jobs:
         run: pnpm release:manifest --tag "${GITHUB_REF_NAME}" --commit "${GITHUB_SHA}" --out dist-release/MANIFEST.json
 
       - name: Attest release manifest
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: dist-release/MANIFEST.json
 
