@@ -7,7 +7,8 @@ metadata:
     - '**/*View.swift'
     keywords:
     - View
-    - State
+    - SwiftUI @State
+    - SwiftUI State
     - Binding
     - EnvironmentObject
 ---

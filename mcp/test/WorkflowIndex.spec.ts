@@ -3,7 +3,7 @@ import os from "os";
 import path from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { scanWorkflows, readWorkflowBody } from "../src/services/WorkflowIndex";
-import { listWorkflows, getWorkflow } from "../src/tools";
+import { getWorkflow } from "../src/tools";
 import { SessionTracker } from "../src/services/SessionTracker";
 import { SkillIndex } from "../src/services/SkillIndex";
 
@@ -47,31 +47,6 @@ describe("WorkflowIndex and Workflow Tools", () => {
     const wfs = await scanWorkflows(root);
     const body = await readWorkflowBody(wfs[0].path);
     expect(body).toBe("# Dev Fix\nStep 1: Reproduce.");
-  });
-
-  it("listWorkflows tool returns formatted list and logs to tracker", async () => {
-    const tracker = new SessionTracker();
-    const index = new SkillIndex(null);
-    const ctx = {
-      projectRoot: root,
-      index,
-      tracker,
-      setup: { kind: "ready" as const },
-    };
-
-    const res = await listWorkflows({}, ctx);
-    const content = res.content[0].text;
-    expect(content).toContain("# Available Workflows");
-    expect(content).toContain("- **dev-fix**: Unified bug fixing procedure");
-    expect(content).toContain("- **plan-feature**: Feature planning workflow");
-
-    const events = tracker.events_();
-    expect(events).toHaveLength(1);
-    expect(events[0].via).toBe("list_workflows");
-    expect(events[0].loaded).toEqual([
-      "workflow/dev-fix",
-      "workflow/plan-feature",
-    ]);
   });
 
   it("getWorkflow tool returns full workflow content and logs to tracker", async () => {

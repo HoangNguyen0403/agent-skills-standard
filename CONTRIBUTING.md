@@ -49,6 +49,7 @@ Skills are the core value of this project.
 6. **Guardrail skills**: For TDD, debugging, review, verification, protocol, or workflow skills, add `pressure_scenarios`, `rationalizations`, `red_flags`, and behavior assertions to `evals/evals.json`.
 7. **Evidence first**: Do not tighten a guardrail skill without baseline or regression evidence for the behavior you are trying to change.
 8. **Public package boundary**: Do not ship project-specific environment, VPN, account-selection, or credential-handling recipes in a reusable skill or its `references/`. Keep private operational context in the consuming project; review generated agent mirrors before publishing.
+9. **Trigger precision**: Qualify high-collision framework topics instead of declaring bare workflow words such as `profile`, `state`, or `Task`; include relevant qualified variants when punctuation or word order differs. Do not add generic service-directory globs for framework-only skills. Protect unrelated workflow negatives, explicit framework positives, and each distinct narrow file route with public matcher regressions.
 
 ### Cybersecurity packages and governed evolution
 

@@ -1,8 +1,12 @@
 import fs from "fs-extra";
 import os from "os";
 import path from "path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { fileURLToPath } from "node:url";
 import { SkillIndex } from "../src/services/SkillIndex";
+const repositorySkillsDir = fileURLToPath(
+  new URL("../../skills", import.meta.url),
+);
 
 async function makeFixture(): Promise<{
   root: string;
@@ -218,6 +222,197 @@ describe("SkillIndex", () => {
     expect(() => freshIndex.listCategories()).toThrow(
       "SkillIndex.load() must be called before querying.",
     );
+  });
+});
+
+describe("SkillIndex — repository trigger routing", () => {
+  let registryIndex: SkillIndex;
+
+  beforeAll(async () => {
+    registryIndex = new SkillIndex(
+      repositorySkillsDir,
+      path.join(repositorySkillsDir, "metadata.json"),
+    );
+    await registryIndex.load();
+  });
+
+  it("does not route an operator profile query to unrelated framework skills", () => {
+    const ids = registryIndex
+      .matchKeywords(["operator profile"])
+      .map((match) => match.skill.id);
+
+    expect(ids).not.toContain("react-tooling");
+    expect(ids).not.toContain("react-state-management");
+    expect(ids).not.toContain("ios-swiftui");
+    expect(ids).not.toContain("swift-concurrency");
+  });
+
+  it("does not route a task complexity query to unrelated framework skills", () => {
+    const ids = registryIndex
+      .matchKeywords(["task complexity"])
+      .map((match) => match.skill.id);
+
+    expect(ids).not.toContain("react-tooling");
+    expect(ids).not.toContain("react-state-management");
+    expect(ids).not.toContain("ios-swiftui");
+    expect(ids).not.toContain("swift-concurrency");
+  });
+
+  it("does not route an approval state query to unrelated framework skills", () => {
+    const ids = registryIndex
+      .matchKeywords(["approval state"])
+      .map((match) => match.skill.id);
+
+    expect(ids).not.toContain("react-tooling");
+    expect(ids).not.toContain("react-state-management");
+    expect(ids).not.toContain("ios-swiftui");
+    expect(ids).not.toContain("swift-concurrency");
+  });
+
+  it("does not route a worker role query to unrelated framework skills", () => {
+    const ids = registryIndex
+      .matchKeywords(["worker role"])
+      .map((match) => match.skill.id);
+
+    expect(ids).not.toContain("react-tooling");
+    expect(ids).not.toContain("react-state-management");
+    expect(ids).not.toContain("ios-swiftui");
+    expect(ids).not.toContain("swift-concurrency");
+  });
+
+  it("does not route a standalone profile keyword to React tooling", () => {
+    const ids = registryIndex
+      .matchKeywords(["profile"])
+      .map((match) => match.skill.id);
+
+    expect(ids).not.toContain("react-tooling");
+  });
+
+  it("does not route a standalone state keyword to framework skills", () => {
+    const ids = registryIndex
+      .matchKeywords(["state"])
+      .map((match) => match.skill.id);
+
+    expect(ids).not.toContain("ios-swiftui");
+    expect(ids).not.toContain("react-state-management");
+  });
+
+  it("does not route a standalone Task keyword to Swift concurrency", () => {
+    const ids = registryIndex
+      .matchKeywords(["Task"])
+      .map((match) => match.skill.id);
+
+    expect(ids).not.toContain("swift-concurrency");
+  });
+
+  it("keeps a SwiftUI @State request on the SwiftUI skill", () => {
+    const ids = registryIndex
+      .matchKeywords(["SwiftUI @State"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("ios-swiftui");
+  });
+
+  it("keeps a Swift Task request on the Swift concurrency skill", () => {
+    const ids = registryIndex
+      .matchKeywords(["Swift Task"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("swift-concurrency");
+  });
+
+  it("keeps a React state-management request on its relevant skill", () => {
+    const ids = registryIndex
+      .matchKeywords(["manage state in React"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("react-state-management");
+  });
+
+  it("keeps a React component profiling request on React tooling", () => {
+    const ids = registryIndex
+      .matchKeywords(["profile React components"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("react-tooling");
+  });
+
+  it("does not infer Next.js DAL from generic TypeScript service filenames", () => {
+    const ids = registryIndex
+      .matchFiles([
+        "mcp/src/services/SkillIndex.ts",
+        "cli/src/services/SkillLoader.ts",
+      ])
+      .map((match) => match.skill.id);
+
+    expect(ids).not.toContain("nextjs-data-access-layer");
+  });
+
+  it("does not route general service-layer review language to Next.js DAL", () => {
+    const ids = registryIndex
+      .matchKeywords([
+        "review access approval for data in the CLI service layer",
+      ])
+      .map((match) => match.skill.id);
+
+    expect(ids).not.toContain("nextjs-data-access-layer");
+  });
+
+  it("keeps an explicit React request on its relevant skill", () => {
+    const ids = registryIndex
+      .matchKeywords(["React useReducer"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("react-state-management");
+  });
+
+  it("keeps explicit React DevTools Profiler requests relevant", () => {
+    const ids = registryIndex
+      .matchKeywords(["React DevTools Profiler"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("react-tooling");
+  });
+
+  it("keeps explicit SwiftUI state requests relevant", () => {
+    const ids = registryIndex
+      .matchKeywords(["SwiftUI State"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("ios-swiftui");
+  });
+
+  it("keeps explicit Swift concurrency task requests relevant", () => {
+    const ids = registryIndex
+      .matchKeywords(["Swift concurrency Task"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("swift-concurrency");
+  });
+
+  it("matches the narrow Next.js data module filename", () => {
+    const ids = registryIndex
+      .matchFiles(["lib/data.ts"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("nextjs-data-access-layer");
+  });
+
+  it("matches the narrow Next.js DAL directory", () => {
+    const ids = registryIndex
+      .matchFiles(["src/dal/users.ts"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("nextjs-data-access-layer");
+  });
+
+  it("keeps Swift base-language routing without implying SwiftUI", () => {
+    const ids = registryIndex
+      .matchFiles(["Sources/Example.swift"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("swift-language");
+    expect(ids).not.toContain("ios-swiftui");
   });
 });
 

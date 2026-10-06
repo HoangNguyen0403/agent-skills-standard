@@ -13,8 +13,12 @@ export interface LoadEvent {
     | "get_session_cost";
   /** Input passed to the tool (files, keywords, or single id). */
   input: string[];
-  /** Skills returned to the agent, formatted as `category/id`. */
+  /** IDs returned as full bodies or dedup stubs; see `dedupedSkills` for stubs. */
   loaded: string[];
+  /** Catalog IDs enumerated by this call, not returned body content. */
+  discovered?: string[];
+  /** Category-guide bodies actually returned by this call. */
+  loadedGuides?: string[];
   /** Estimated tokens (chars/4) of skill bodies returned IN FULL this call. */
   estimatedTokens?: number;
   /** Skills already loaded this session that were returned as a stub instead of a full body. */
@@ -28,6 +32,7 @@ export interface SessionSummary {
   elapsedSeconds: number;
   toolCalls: number;
   skillsLoaded: number;
+  guidesLoaded: number;
   workflowsLoaded: number;
   noMatchCalls: number;
   callsByTool: Record<LoadEvent["via"], number>;
@@ -61,12 +66,14 @@ export class SessionTracker {
     this.events.push({ at: new Date().toISOString(), ...event });
   }
 
-  /** Unique skills loaded so far, formatted as `category/id`. */
+  /** Unique skill bodies loaded so far, formatted as `category/id`. */
   loadedSkills(): string[] {
     const set = new Set<string>();
-    for (const e of this.events) {
-      for (const s of e.loaded) {
-        if (!s.startsWith("workflow/")) set.add(s);
+    for (const event of this.events) {
+      for (const skill of event.loaded) {
+        if (!skill.startsWith("workflow/") && !skill.startsWith("category/")) {
+          set.add(skill);
+        }
       }
     }
     return Array.from(set).sort();
@@ -79,6 +86,15 @@ export class SessionTracker {
       for (const s of e.loaded) {
         if (s.startsWith("workflow/")) set.add(s);
       }
+    }
+    return Array.from(set).sort();
+  }
+
+  /** Unique category-guide bodies returned so far, formatted as `category/name`. */
+  loadedGuides(): string[] {
+    const set = new Set<string>();
+    for (const e of this.events) {
+      for (const guide of e.loadedGuides ?? []) set.add(guide);
     }
     return Array.from(set).sort();
   }
@@ -112,6 +128,7 @@ export class SessionTracker {
       elapsedSeconds,
       toolCalls: this.events.length,
       skillsLoaded: this.loadedSkills().length,
+      guidesLoaded: this.loadedGuides().length,
       workflowsLoaded: this.loadedWorkflows().length,
       noMatchCalls: this.events.filter(
         (event) =>
