@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import os
 import re
+import stat
 import subprocess
 import sys
 import tempfile
@@ -16,8 +17,8 @@ from sdd_workspace import resolve_workspace
 class GitCommandError(RuntimeError):
     """A Git command failed while collecting review evidence."""
 
-def run_git(args, allowed=(0,)):
-    result = subprocess.run(["git", *args], capture_output=True)
+def run_git(args, allowed=(0,), env=None):
+    result = subprocess.run(["git", *args], capture_output=True, env=env)
     if result.returncode not in allowed:
         detail = result.stderr.decode(errors="replace").strip()
         raise GitCommandError(f"git {' '.join(args)} failed ({result.returncode}): {detail}")
@@ -59,40 +60,54 @@ def validate_commit(ref, label):
 
 
 def collect_workspace_diff(base, scopes):
-    tracked_paths = {
-        decode_path(item) for item in run_git(["diff", "--name-only", "-z", base]).split(b"\0") if item
-    }
-    untracked_paths = {
-        decode_path(item) for item in run_git(["ls-files", "--others", "--exclude-standard", "-z"]).split(b"\0") if item
-    }
-    changed_paths = sorted(path for path in tracked_paths | untracked_paths if in_scope(path, scopes))
-    if not changed_paths:
-        raise LookupError("no changes found in workspace within owned scope")
+    with tempfile.TemporaryDirectory(prefix="ags-review-index-") as index_dir:
+        index_env = os.environ.copy()
+        index_env["GIT_INDEX_FILE"] = os.path.join(index_dir, "index")
 
-    tracked = [path for path in changed_paths if path in tracked_paths]
-    untracked = [path for path in changed_paths if path in untracked_paths and path not in tracked_paths]
-    stat_parts, diff_parts = [], []
-    if tracked:
-        path_args = ["--", *tracked]
-        stat_parts.append(run_git(["diff", "--stat", base, *path_args]).decode(errors="surrogateescape").strip())
-        diff_parts.append(run_git(["diff", "-U10", base, *path_args]).decode(errors="surrogateescape").strip())
+        run_git(["read-tree", base], env=index_env)
+        current_tracked_paths = [
+            decode_path(path)
+            for path in run_git(
+                ["ls-files", "--cached", "-z", "--", *scopes]
+            ).split(b"\0")
+            if path and in_scope(decode_path(path), scopes)
+        ]
+        # BASE seeding loses files added to the caller's index after BASE.
+        tracked_worktree_paths = []
+        # Force only present file leaves; forcing a directory imports ignored neighbors.
+        for path in current_tracked_paths:
+            try:
+                mode = os.lstat(path).st_mode
+            except (FileNotFoundError, NotADirectoryError):
+                continue
+            if stat.S_ISREG(mode) or stat.S_ISLNK(mode):
+                tracked_worktree_paths.append(f":(literal){path}")
+        if tracked_worktree_paths:
+            run_git(
+                ["add", "-f", "--", *tracked_worktree_paths],
+                env=index_env,
+            )
 
-    for path in untracked:
-        if not os.path.isfile(path):
-            raise FileNotFoundError(f"untracked file disappeared during collection: {path!r}")
-        stat_result = subprocess.run(["git", "diff", "--no-index", "--stat", "/dev/null", path], capture_output=True)
-        if stat_result.returncode not in (0, 1):
-            detail = stat_result.stderr.decode(errors="replace").strip()
-            raise GitCommandError(f"git diff --no-index --stat failed ({stat_result.returncode}) for {path!r}: {detail}")
-        diff_result = subprocess.run(["git", "diff", "--no-index", "-U10", "/dev/null", path], capture_output=True)
-        if diff_result.returncode not in (0, 1):
-            detail = diff_result.stderr.decode(errors="replace").strip()
-            raise GitCommandError(f"git diff --no-index failed ({diff_result.returncode}) for {path!r}: {detail}")
-        stat_parts.append(stat_result.stdout.decode(errors="surrogateescape").strip())
-        diff_parts.append(diff_result.stdout.decode(errors="surrogateescape").strip())
+        run_git(["add", "-A", "--", *scopes], env=index_env)
+        changed_paths = [
+            decode_path(item)
+            for item in run_git(
+                ["diff", "--cached", "--name-only", "-z", base, "--", *scopes],
+                env=index_env,
+            ).split(b"\0")
+            if item
+        ]
+        if not changed_paths:
+            raise LookupError("no changes found in workspace within owned scope")
 
-    return "\n".join(part for part in stat_parts if part), "\n\n".join(part for part in diff_parts if part), changed_paths
-
+        path_args = ["--", *scopes]
+        stat_output = run_git(
+            ["diff", "--cached", "--stat", base, *path_args], env=index_env
+        ).decode(errors="surrogateescape").strip()
+        diff = run_git(
+            ["diff", "--cached", "-U10", base, *path_args], env=index_env
+        ).decode(errors="surrogateescape").strip()
+        return stat_output, diff, sorted(changed_paths)
 
 def write_exclusive(outfile, contents):
     directory = os.path.dirname(os.path.abspath(outfile))

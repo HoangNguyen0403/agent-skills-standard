@@ -94,3 +94,72 @@ Repeated status replies described verification as pending or running without che
 
 ### Better Approach
 On each completion notification, assign the next dependency with exact ownership and verification commands. On a user-reported stall, inspect active-turn state, latest activity, saved evidence, and permissions once; resume the idle owner or report a concrete blocker. Keep ordinary asynchronous work notification-driven rather than polling.
+
+---
+
+## Agent Learning Log: Iteration #6
+
+**Date**: 2026-10-06 | **Task**: Finish PR223 remediation evidence.
+**Signal**: Session retrospective
+**Skills**: common/common-session-retrospective, common/common-learning-log
+**Scope**: project
+**Candidate**: evidence-namespace-selection | **Status**: proposed
+**Provenance**: base `fbb30b5`; `artifacts/evidence/pr223-remediation/integration-evidence.json`
+**Evaluation**: actual outcome audit passed 21 templates and 5 records after correction; no held-out skill evaluation
+**Review**: pending independent maintainer approval
+**Rollback**: not-applicable; no registry policy changed
+
+### Mistake Made
+Six readiness and verification JSON files were placed under `artifacts/runs`, where the auditor requires genuine Outcome Report records. The first integration audit rejected them.
+
+### Pattern to Avoid
+- **No evidence-schema impersonation**: Do not invent outcome fields or timestamps, weaken validation, or overwrite historical observations to make ad hoc evidence fit a reserved namespace.
+
+### Better Approach
+Inspect the namespace contract before writing artifacts. Put raw verification evidence under `artifacts/evidence`; create an Outcome Report only when its actual workflow state and required fields are known. Move misclassified files byte-for-byte and update citations, then run outcome and trace audits.
+
+---
+
+## Agent Learning Log: Iteration #7
+
+**Date**: 2026-10-06 | **Task**: Validate the bundled source-map boundary.
+**Signal**: Session retrospective
+**Skills**: javascript/javascript-language, common/common-session-retrospective
+**Scope**: session
+**Candidate**: javascript-router-base-fallback | **Status**: proposed
+**Provenance**: base `fbb30b5`; MCP file routing returned no match for `.mjs`; direct lookup loaded `javascript/javascript-language`
+**Evaluation**: not-run; routing candidate unpromoted
+**Review**: pending independent maintainer approval
+**Rollback**: not-applicable; no routing configuration changed
+
+### Mistake Made
+The installed JavaScript base skill was not loaded before the first bundled-map smoke helper. File routing returned no tier-eligible match; broad keyword routing loaded unrelated platform rules instead.
+
+### Pattern to Avoid
+- **No empty-router-as-no-standard assumption**: A missing file match does not establish that an installed language base skill is unavailable.
+
+### Better Approach
+After a no-match result, discover the available category and exact skill name, then load that base skill before writing. Record late loading honestly rather than claiming retroactive pre-write compliance. Propose a router fallback separately, with positive and negative activation tests before promotion.
+
+---
+
+## Agent Learning Log: Iteration #8
+
+**Date**: 2026-10-06 | **Task**: Reproduce composite-provenance review findings.
+**Signal**: Session retrospective
+**Skills**: common/common-tdd, common/common-code-review, common/common-session-retrospective
+**Scope**: session
+**Candidate**: public-contract-red-validation | **Status**: proposed
+**Provenance**: original base `1fb0537c`; `artifacts/evidence/pr223-remediation/whole-review-correction-evidence.json`
+**Evaluation**: corrected Node20 fixture control passed and four actual counterexamples failed before implementation; final text target54/54 passed; no held-out skill eval
+**Review**: pending independent maintainer approval
+**Rollback**: not-applicable; no registry procedure promoted
+
+### Mistake Made
+Three planning regressions selected nonexistent `SkillImpact.skillPath`, producing `undefined` instead of exercising the public `key` contract. The supposedly valid physical-source control also failed. The parent caught this before authorizing production changes.
+
+### Pattern to Avoid
+- **No assertion failure as automatic RED proof**: Fixture setup, selector errors, or a failing valid control do not establish the intended consumer defect.
+
+### Better Approach
+Read the public output shape before choosing regression selectors. Require the targeted record to exist, keep a valid control, and attribute each failure to the intended contract before source authorization. Preserve invalid attempts separately, correct tests first, then observe genuine RED and GREEN.

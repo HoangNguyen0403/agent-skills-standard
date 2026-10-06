@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "description": "Executable task-evaluation pilot manifest comparing minimal, current, and candidate guidance arms.",
+  "description": "Executable task-evaluation pilot comparing minimal, current, and candidate guidance arms. Verifier receipts are integrity evidence, not an OS sandbox against hostile same-UID code.",
   "tasks": [
     {
       "id": "pagination-boundary",

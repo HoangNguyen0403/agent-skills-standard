@@ -1,0 +1,1687 @@
+# Review package: fbb30b5f52181c0f0c2943e2ff6ca2b5c4d9f757..WORKSPACE (cumulative uncommitted snapshot)
+
+## Scope
+- benchmarks/tasks/guidance/authorization.candidate.md
+- benchmarks/tasks/guidance/authorization.current.md
+- benchmarks/tasks/guidance/authorization.minimal.md
+- benchmarks/tasks/pilot.json
+- benchmarks/tasks/verifiers
+- scripts/evals/task-index.ts
+- scripts/evals/task-runner.test.ts
+- scripts/evals/task-runner.ts
+- scripts/evals/task-types.ts
+
+## Files changed
+.../tasks/guidance/authorization.candidate.md      |   5 +-
+ benchmarks/tasks/guidance/authorization.current.md |   7 +-
+ benchmarks/tasks/guidance/authorization.minimal.md |   5 +-
+ benchmarks/tasks/pilot.json                        |   2 +-
+ benchmarks/tasks/verifiers/verify-authorization.js | 133 ++++++---
+ benchmarks/tasks/verifiers/verify-pagination.js    |  91 ++++--
+ scripts/evals/task-index.ts                        |   1 +
+ scripts/evals/task-runner.test.ts                  | 326 ++++++++++++++++++---
+ scripts/evals/task-runner.ts                       | 192 ++++++++++--
+ scripts/evals/task-types.ts                        |  22 ++
+ 10 files changed, 652 insertions(+), 132 deletions(-)
+
+## Diff
+diff --git a/benchmarks/tasks/guidance/authorization.candidate.md b/benchmarks/tasks/guidance/authorization.candidate.md
+index 7c97c5e4..b084591f 100644
+--- a/benchmarks/tasks/guidance/authorization.candidate.md
++++ b/benchmarks/tasks/guidance/authorization.candidate.md
+@@ -1,22 +1,23 @@
+ # Task Guidance: Multi-Tenant Authorization (Candidate Modernized Treatment)
+ 
+ *Notice: This is pilot fixture guidance for executable task evaluation, not production skill catalog evidence.*
+ 
+ ## Security Invariants
+ 
+ In `src/service.js`, secure `DocumentService` against cross-tenant leaks and privilege escalation:
+ 
+ ### 1. Tenant Boundary
+ - Strong tenant isolation: operations on resources outside `user.tenantId` throw `AuthorizationError`.
+-- Tenant spoofing immunity: `createDocument` always binds to `user.tenantId`.
+-- Listing boundary: `listDocuments` returns strictly `{ doc | doc.tenantId === user.tenantId }`.
++- Tenant spoofing: `createDocument` MUST ignore caller-supplied `docData.tenantId` and force `doc.tenantId = user.tenantId`.
++- Cross-tenant ID collisions: reject creation when the ID belongs to another tenant; preserve the existing document unchanged.
++- Listing: `listDocuments` returns only the user's tenant documents. Viewers do not receive restricted documents in listings; editors and admins may list restricted documents within their tenant.
+ 
+ ### 2. Role-Based Permissions Matrix
+ 
+ | Role | Read Public | Read Restricted | Create | Update | Delete |
+ |---|---|---|---|---|---|
+ | `viewer` | Yes | No (`AuthError`) | No (`AuthError`) | No (`AuthError`) | No (`AuthError`) |
+ | `editor` | Yes | Yes | Yes | Yes | No (`AuthError`) |
+ | `admin` | Yes | Yes | Yes | Yes | Yes |
+ 
+ ### 3. State Invariants
+diff --git a/benchmarks/tasks/guidance/authorization.current.md b/benchmarks/tasks/guidance/authorization.current.md
+index 0cf91718..85188d38 100644
+--- a/benchmarks/tasks/guidance/authorization.current.md
++++ b/benchmarks/tasks/guidance/authorization.current.md
+@@ -8,33 +8,34 @@ Execute this implementation with zero-trust defensive coding. Every method MUST
+ 
+ ### Phase 1: Authentication & Tenant Guardrails
+ 1. Validate that `user` object has valid `tenantId` and `roles` array.
+ 2. In `getDocument(user, docId)`:
+    - Retrieve document from map.
+    - If not found, return null.
+    - If `doc.tenantId !== user.tenantId`, you MUST immediately throw `new AuthorizationError("Access denied: cross-tenant access is forbidden")`.
+ 3. In `createDocument(user, docData)`:
+    - Check if user has permission to create (role must include `'editor'` or `'admin'`).
+    - If user only has `'viewer'`, you MUST immediately throw `new AuthorizationError("Viewer role cannot create documents")`.
+-   - FORCED TENANT OVERRIDE: Set `doc.tenantId = user.tenantId`. Do NOT trust `docData.tenantId`.
++   - FORCED TENANT OVERRIDE: Set `doc.tenantId = user.tenantId`; ignore `docData.tenantId` (do not reject the spoofing field).
++   - If the requested ID belongs to another tenant, MUST reject creation and preserve the original document unchanged.
+ 
+ ### Phase 2: Mutation & Deletion Controls
+ 1. In `updateDocument(user, docId, updates)`:
+    - Retrieve document. If not found, throw Error("Document not found").
+    - Cross-tenant check: if `doc.tenantId !== user.tenantId`, throw `new AuthorizationError("Access denied: cross-tenant update forbidden")`.
+    - Role check: user must have role `'editor'` or `'admin'`. If `'viewer'`, throw `new AuthorizationError("Viewer role cannot update documents")`.
+    - Immutable field protection: `updates.tenantId` MUST NEVER overwrite `doc.tenantId`.
+ 2. In `deleteDocument(user, docId)`:
+    - Retrieve document. If not found, return false.
+    - Cross-tenant check: if `doc.tenantId !== user.tenantId`, throw `new AuthorizationError("Access denied: cross-tenant delete forbidden")`.
+    - Strict admin requirement: only users with role `'admin'` may delete documents. Editors and viewers MUST be rejected with `new AuthorizationError("Only admin can delete documents")`.
+ 
+ ### Phase 3: Listing & Data Leakage Prevention
+ 1. In `listDocuments(user)`:
+    - Iterate through documents.
+-   - Filter ONLY documents where `doc.tenantId === user.tenantId`.
+-   - IMPORTANT: Even if `user.roles` includes `'admin'`, admin privileges are strictly tenant-scoped! Do NOT return documents belonging to other tenants.
++   - Filter `listDocuments` to `doc.tenantId === user.tenantId`; viewers MUST NOT receive restricted documents in listings.
++   - Editors and admins may list restricted documents within their own tenant only.
+ 
+ ### Phase 4: Restricted Content Controls
+ - If `doc.restricted === true`, only users with `'editor'` or `'admin'` roles may access it. Viewers attempting to read restricted documents MUST receive `new AuthorizationError("Restricted document access denied")`.
+ 
+ Verify every method against these four phases before completion.
+diff --git a/benchmarks/tasks/guidance/authorization.minimal.md b/benchmarks/tasks/guidance/authorization.minimal.md
+index 3e6de50a..afd43aed 100644
+--- a/benchmarks/tasks/guidance/authorization.minimal.md
++++ b/benchmarks/tasks/guidance/authorization.minimal.md
+@@ -2,17 +2,18 @@
+ 
+ *Notice: This is pilot fixture guidance for executable task evaluation, not production skill catalog evidence.*
+ 
+ ## Specification
+ 
+ Module `src/service.js` must export `DocumentService` and `AuthorizationError`.
+ 
+ ### Tenant Isolation
+ - Users may only access or mutate documents belonging to their `user.tenantId`.
+ - Any cross-tenant access attempt (read, update, delete) MUST throw `AuthorizationError`.
+-- Document creation must force `doc.tenantId = user.tenantId`. Caller-supplied `docData.tenantId` must be ignored or rejected.
+-- `listDocuments(user)` must only return documents where `doc.tenantId === user.tenantId`, even if the user has role `'admin'`.
++- Document creation MUST force `doc.tenantId = user.tenantId`; ignore caller-supplied `docData.tenantId` rather than rejecting that spoofing field.
++- If a requested ID already belongs to another tenant, creation MUST be rejected without changing the existing document.
++- `listDocuments(user)` MUST return only the user's tenant documents. Viewers MUST NOT receive restricted documents in listings; editors and admins may list restricted documents within their own tenant.
+ 
+ ### Role-Based Access Control (Within Tenant)
+ - `viewer`: Can read non-restricted documents. Cannot read `restricted: true` documents. Cannot create, update, or delete documents.
+ - `editor`: Can read, create, and update documents. Can read `restricted: true` documents. Cannot delete documents.
+ - `admin`: Full read, create, update, and delete permissions within their own tenant.
+diff --git a/benchmarks/tasks/pilot.json b/benchmarks/tasks/pilot.json
+index ed80ad99..c787d12f 100644
+--- a/benchmarks/tasks/pilot.json
++++ b/benchmarks/tasks/pilot.json
+@@ -1,13 +1,13 @@
+ {
+   "schemaVersion": 1,
+-  "description": "Executable task-evaluation pilot manifest comparing minimal, current, and candidate guidance arms.",
++  "description": "Executable task-evaluation pilot comparing minimal, current, and candidate guidance arms. Verifier receipts are integrity evidence, not an OS sandbox against hostile same-UID code.",
+   "tasks": [
+     {
+       "id": "pagination-boundary",
+       "split": "calibration",
+       "fixtureDir": "fixtures/pagination",
+       "prompt": "Fix and complete the pagination module in src/paginate.js. Implement complete boundary condition handling, input validation, and accurate metadata calculation according to the provided guidance.",
+       "guidance": {
+         "minimal": "guidance/pagination.minimal.md",
+         "current": "guidance/pagination.current.md",
+         "candidate": "guidance/pagination.candidate.md"
+diff --git a/benchmarks/tasks/verifiers/verify-authorization.js b/benchmarks/tasks/verifiers/verify-authorization.js
+index 7a5f501b..5bfceaa7 100755
+--- a/benchmarks/tasks/verifiers/verify-authorization.js
++++ b/benchmarks/tasks/verifiers/verify-authorization.js
+@@ -3,50 +3,47 @@
+  * Trusted Verifier for Cross-Tenant Authorization Task.
+  *
+  * This verifier runs OUTSIDE the mutable workspace and exercises
+  * adversarial tenant boundaries, role-based controls, state immutability,
+  * and positive same-tenant operations.
+  *
+  * Usage:
+  *   node verify-authorization.js <workspacePath>
+  */
+ 
++const fs = require("node:fs");
+ const path = require("node:path");
+ const assert = require("node:assert/strict");
+ 
+-const workspacePath = process.argv[2];
+-if (!workspacePath) {
+-  console.error("Usage: node verify-authorization.js <workspacePath>");
+-  process.exit(1);
+-}
+-
+-const modulePath = path.resolve(workspacePath, "src", "service.js");
++const completionResultPath = process.env.TASK_EVAL_VERIFICATION_RESULT_PATH;
+ 
++const workspacePath = process.argv[2];
++let setupFailure = null;
+ let DocumentService;
+ let AuthorizationError;
+-try {
+-  const mod = require(modulePath);
+-  DocumentService = mod.DocumentService;
+-  AuthorizationError = mod.AuthorizationError;
+-  assert.equal(
+-    typeof DocumentService,
+-    "function",
+-    "Module must export a 'DocumentService' class.",
+-  );
+-  assert.equal(
+-    typeof AuthorizationError,
+-    "function",
+-    "Module must export an 'AuthorizationError' class.",
+-  );
+-} catch (err) {
+-  console.error(`FAILED: Failed to load authorization service: ${err.message}`);
+-  process.exit(1);
++if (!workspacePath) {
++  setupFailure = "Usage: node verify-authorization.js <workspacePath>";
++}
++if (!completionResultPath) {
++  setupFailure = "Missing TASK_EVAL_VERIFICATION_RESULT_PATH.";
++}
++if (!setupFailure) {
++  const modulePath = path.resolve(workspacePath, "src", "service.js");
++  try {
++    const mod = require(modulePath);
++    DocumentService = mod.DocumentService;
++    AuthorizationError = mod.AuthorizationError;
++    assert.equal(typeof DocumentService, "function", "Module must export a 'DocumentService' class.");
++    assert.equal(typeof AuthorizationError, "function", "Module must export an 'AuthorizationError' class.");
++  } catch (err) {
++    setupFailure = `Failed to load authorization service: ${err instanceof Error ? err.message : String(err)}`;
++  }
+ }
+ 
+ function isAuthError(err) {
+   return err instanceof AuthorizationError;
+ }
+ 
+ function createSeededService() {
+   const svc = new DocumentService();
+   svc.seed([
+     {
+@@ -170,20 +167,46 @@ const testCases = [
+ 
+       // Verify tenant-2 user cannot access the spoofed document
+       const adminT2 = { id: "admin-2", tenantId: "tenant-2", roles: ["admin"] };
+       assert.throws(
+         () => svc.getDocument(adminT2, "doc-spoofed"),
+         (err) => isAuthError(err),
+         "Tenant-2 user must not be able to access document created by tenant-1",
+       );
+     },
+   },
++  {
++    name: "Adversarial: Existing foreign document ID cannot be overwritten by create",
++    run: () => {
++      const svc = createSeededService();
++      const editorT1 = { id: "e-collision", tenantId: "tenant-1", roles: ["editor"] };
++      const adminT1 = { id: "admin-1", tenantId: "tenant-1", roles: ["admin"] };
++      const adminT2 = { id: "admin-2", tenantId: "tenant-2", roles: ["admin"] };
++
++      assert.throws(() => svc.createDocument(editorT1, {
++        id: "doc-t2-public",
++        tenantId: "tenant-1",
++        title: "Overwritten by tenant 1",
++        content: "collision",
++      }), Error, "Creating an existing foreign ID must be rejected");
++
++      const foreignDocument = svc.getDocument(adminT2, "doc-t2-public");
++      assert.equal(foreignDocument.title, "T2 Public");
++      assert.equal(foreignDocument.content, "Gamma");
++      assert.equal(foreignDocument.tenantId, "tenant-2");
++      assert.throws(
++        () => svc.getDocument(adminT1, "doc-t2-public"),
++        (err) => isAuthError(err),
++        "The colliding tenant must not gain access to the existing foreign document",
++      );
++    },
++  },
+   {
+     name: "Adversarial: Tenant ID is immutable on update",
+     run: () => {
+       const svc = createSeededService();
+       const editorT1 = { id: "u5", tenantId: "tenant-1", roles: ["editor"] };
+ 
+       // Attempt to change tenantId via update
+       try {
+         svc.updateDocument(editorT1, "doc-t1-public", {
+           tenantId: "tenant-2",
+@@ -208,20 +231,25 @@ const testCases = [
+ 
+       const list = svc.listDocuments(adminT1);
+       assert.ok(list.length > 0, "Admin should see own tenant documents");
+       for (const doc of list) {
+         assert.equal(
+           doc.tenantId,
+           "tenant-1",
+           `Cross-tenant document leak in list: found document belonging to ${doc.tenantId}`,
+         );
+       }
++      const viewerT1 = { id: "v-list", tenantId: "tenant-1", roles: ["viewer"] };
++      const viewerList = svc.listDocuments(viewerT1);
++      assert.ok(viewerList.some((doc) => doc.id === "doc-t1-public"));
++      assert.equal(viewerList.some((doc) => doc.id === "doc-t1-secret"), false);
++      assert.ok(viewerList.every((doc) => doc.tenantId === "tenant-1" && !doc.restricted));
+     },
+   },
+   {
+     name: "Role boundary: Viewer role cannot create, update, or delete; state untouched",
+     run: () => {
+       const svc = createSeededService();
+       const viewerT1 = { id: "v1", tenantId: "tenant-1", roles: ["viewer"] };
+ 
+       assert.throws(
+         () => svc.createDocument(viewerT1, { id: "v-new", title: "New" }),
+@@ -329,28 +357,61 @@ const testCases = [
+         title: "Updated Positive Doc",
+       });
+       assert.equal(updated.title, "Updated Positive Doc");
+ 
+       const readBack = svc.getDocument(viewerT1, "doc-pos-1");
+       assert.equal(readBack.title, "Updated Positive Doc");
+     },
+   },
+ ];
+ 
+-let failed = 0;
+-for (const tc of testCases) {
++const checks = [];
++if (setupFailure) {
++  checks.push({
++    id: "verifier-setup",
++    outcome: "failed",
++    evidence: setupFailure,
++  });
++  console.error(`[FAIL] Verifier setup: ${setupFailure}`);
++} else {
++  for (const tc of testCases) {
++    try {
++      tc.run();
++      checks.push({ id: tc.name, outcome: "passed", evidence: `${tc.name} passed.` });
++      console.log(`[PASS] ${tc.name}`);
++    } catch (err) {
++      const evidence = err instanceof Error ? err.message : String(err);
++      checks.push({ id: tc.name, outcome: "failed", evidence: `${tc.name}: ${evidence}` });
++      console.error(`[FAIL] ${tc.name}: ${evidence}`);
++    }
++  }
++}
++
++const totalChecks = checks.length;
++const passedChecks = checks.filter((check) => check.outcome === "passed").length;
++const failedChecks = totalChecks - passedChecks;
++if (completionResultPath) {
+   try {
+-    tc.run();
+-    console.log(`[PASS] ${tc.name}`);
++    fs.writeFileSync(completionResultPath, JSON.stringify({
++      schemaVersion: 1,
++      status: "completed",
++      totalChecks,
++      passedChecks,
++      failedChecks,
++      checks,
++    }, null, 2), { encoding: "utf8", flag: "wx", mode: 0o600 });
+   } catch (err) {
+-    failed++;
+-    console.error(`[FAIL] ${tc.name}: ${err.message}`);
++    console.error(`Failed to write verifier completion result: ${err instanceof Error ? err.message : String(err)}`);
++    process.exitCode = 2;
+   }
++} else {
++  console.error("Missing TASK_EVAL_VERIFICATION_RESULT_PATH; cannot record completion evidence.");
++  process.exitCode = 2;
+ }
+ 
+-if (failed > 0) {
+-  console.error(`\nVerifier failed with ${failed} failed check(s).`);
+-  process.exit(1);
+-} else {
+-  console.log(`\nVerifier succeeded: All ${testCases.length} checks passed.`);
+-  process.exit(0);
++if (failedChecks > 0) {
++  console.error(`\nVerifier failed with ${failedChecks} failed check(s).`);
++  process.exitCode = 1;
++} else if (process.exitCode !== 2) {
++  console.log(`\nVerifier succeeded: All ${totalChecks} checks passed.`);
++  process.exitCode = 0;
+ }
+diff --git a/benchmarks/tasks/verifiers/verify-pagination.js b/benchmarks/tasks/verifiers/verify-pagination.js
+index 7e2d8617..d9c33799 100755
+--- a/benchmarks/tasks/verifiers/verify-pagination.js
++++ b/benchmarks/tasks/verifiers/verify-pagination.js
+@@ -2,43 +2,43 @@
+ /**
+  * Trusted Verifier for Pagination Boundary Task.
+  *
+  * This verifier runs OUTSIDE the mutable workspace and exercises
+  * consumer-visible behavior, boundary conditions, and error invariants.
+  *
+  * Usage:
+  *   node verify-pagination.js <workspacePath>
+  */
+ 
++const fs = require("node:fs");
+ const path = require("node:path");
+ const assert = require("node:assert/strict");
+ 
++const completionResultPath = process.env.TASK_EVAL_VERIFICATION_RESULT_PATH;
+ const workspacePath = process.argv[2];
++let setupFailure = null;
++let paginate;
+ if (!workspacePath) {
+-  console.error("Usage: node verify-pagination.js <workspacePath>");
+-  process.exit(1);
++  setupFailure = "Usage: node verify-pagination.js <workspacePath>";
+ }
+-
+-const modulePath = path.resolve(workspacePath, "src", "paginate.js");
+-
+-let paginate;
+-try {
+-  const mod = require(modulePath);
+-  paginate = mod.paginate;
+-  assert.equal(
+-    typeof paginate,
+-    "function",
+-    "Module must export a 'paginate' function.",
+-  );
+-} catch (err) {
+-  console.error(`FAILED: Failed to load paginate module: ${err.message}`);
+-  process.exit(1);
++if (!completionResultPath) {
++  setupFailure = "Missing TASK_EVAL_VERIFICATION_RESULT_PATH.";
++}
++if (!setupFailure) {
++  const modulePath = path.resolve(workspacePath, "src", "paginate.js");
++  try {
++    const mod = require(modulePath);
++    paginate = mod.paginate;
++    assert.equal(typeof paginate, "function", "Module must export a 'paginate' function.");
++  } catch (err) {
++    setupFailure = `Failed to load paginate module: ${err instanceof Error ? err.message : String(err)}`;
++  }
+ }
+ 
+ const testCases = [
+   {
+     name: "Input validation: throws TypeError for non-array items",
+     run: () => {
+       assert.throws(
+         () => paginate(null),
+         { name: "TypeError" },
+         "paginate(null) must throw TypeError",
+@@ -184,28 +184,61 @@ const testCases = [
+       assert.equal(
+         resZero.pagination.pageSize,
+         1,
+         "pageSize 0 should clamp to 1",
+       );
+       assert.equal(resZero.data.length, 1);
+     },
+   },
+ ];
+ 
+-let failed = 0;
+-for (const tc of testCases) {
++const checks = [];
++if (setupFailure) {
++  checks.push({
++    id: "verifier-setup",
++    outcome: "failed",
++    evidence: setupFailure,
++  });
++  console.error(`[FAIL] Verifier setup: ${setupFailure}`);
++} else {
++  for (const tc of testCases) {
++    try {
++      tc.run();
++      checks.push({ id: tc.name, outcome: "passed", evidence: `${tc.name} passed.` });
++      console.log(`[PASS] ${tc.name}`);
++    } catch (err) {
++      const evidence = err instanceof Error ? err.message : String(err);
++      checks.push({ id: tc.name, outcome: "failed", evidence: `${tc.name}: ${evidence}` });
++      console.error(`[FAIL] ${tc.name}: ${evidence}`);
++    }
++  }
++}
++
++const totalChecks = checks.length;
++const passedChecks = checks.filter((check) => check.outcome === "passed").length;
++const failedChecks = totalChecks - passedChecks;
++if (completionResultPath) {
+   try {
+-    tc.run();
+-    console.log(`[PASS] ${tc.name}`);
++    fs.writeFileSync(completionResultPath, JSON.stringify({
++      schemaVersion: 1,
++      status: "completed",
++      totalChecks,
++      passedChecks,
++      failedChecks,
++      checks,
++    }, null, 2), { encoding: "utf8", flag: "wx", mode: 0o600 });
+   } catch (err) {
+-    failed++;
+-    console.error(`[FAIL] ${tc.name}: ${err.message}`);
++    console.error(`Failed to write verifier completion result: ${err instanceof Error ? err.message : String(err)}`);
++    process.exitCode = 2;
+   }
++} else {
++  console.error("Missing TASK_EVAL_VERIFICATION_RESULT_PATH; cannot record completion evidence.");
++  process.exitCode = 2;
+ }
+ 
+-if (failed > 0) {
+-  console.error(`\nVerifier failed with ${failed} failed check(s).`);
+-  process.exit(1);
+-} else {
+-  console.log(`\nVerifier succeeded: All ${testCases.length} checks passed.`);
+-  process.exit(0);
++if (failedChecks > 0) {
++  console.error(`\nVerifier failed with ${failedChecks} failed check(s).`);
++  process.exitCode = 1;
++} else if (process.exitCode !== 2) {
++  console.log(`\nVerifier succeeded: All ${totalChecks} checks passed.`);
++  process.exitCode = 0;
+ }
+diff --git a/scripts/evals/task-index.ts b/scripts/evals/task-index.ts
+index c553c36c..1d2699f8 100755
+--- a/scripts/evals/task-index.ts
++++ b/scripts/evals/task-index.ts
+@@ -123,20 +123,21 @@ async function main(): Promise<void> {
+   console.log("================================================================");
+   console.log(`Manifest:        ${path.resolve(values.manifest)}`);
+   console.log(`Worker Config:   ${path.resolve(values.worker)}`);
+   console.log(`Output:          ${path.resolve(values.output)}`);
+   console.log(`Repetitions:     ${repeat}`);
+   console.log(`Split Filter:    ${split ?? "all (calibration + holdout)"}`);
+   console.log(`Keep Workspaces: ${Boolean(values["keep-workspaces"])}`);
+   console.log("----------------------------------------------------------------");
+   console.log("SECURITY NOTICE: Local execution is not an OS-level sandbox.");
+   console.log("Commands run with user privileges on isolated temporary fixtures.");
++  console.log("Verifier completion receipts record reported checks; they do not protect against hostile same-UID code.");
+   console.log("----------------------------------------------------------------\n");
+ 
+   try {
+     const summary = await runTaskSuite({
+       manifestPath: values.manifest,
+       workerConfigPath: values.worker,
+       outputDir: values.output,
+       repeat,
+       split,
+       keepWorkspaces: Boolean(values["keep-workspaces"]),
+diff --git a/scripts/evals/task-runner.test.ts b/scripts/evals/task-runner.test.ts
+index 6af344f5..eec6f92d 100644
+--- a/scripts/evals/task-runner.test.ts
++++ b/scripts/evals/task-runner.test.ts
+@@ -175,20 +175,115 @@ describe("Executable Task-Evaluation Harness", () => {
+       const hash2 = sha256("test-content");
+       assert.equal(hash1, hash2);
+ 
+       const fixtureHash = await hashDirectory(
+         path.resolve(manifestDir, "fixtures/pagination"),
+       );
+       assert.equal(typeof fixtureHash, "string");
+       assert.equal(fixtureHash.length, 64);
+     });
+   });
++    it("does not count a candidate that exits before completing verification", async () => {
++      const manifest = await validateManifest(await fs.readJson(manifestPath), manifestDir);
++      const task = manifest.tasks.find((entry) => entry.id === "pagination-boundary");
++      assert.ok(task);
++      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-test-verifier-early-exit-"));
++      const workerPath = path.join(tempDir, "write-early-exit.js");
++      await fs.writeFile(
++        workerPath,
++        `const fs = require("node:fs");
++const path = require("node:path");
++fs.writeFileSync(path.join(process.argv[2], "src", "paginate.js"), "process.exit(0);\\n");
++`,
++      );
++
++      try {
++        const result = await executeTaskRun({
++          task,
++          arm: "candidate",
++          repetition: 1,
++          workerConfig: {
++            executable: process.execPath,
++            args: [workerPath, "{workspace}"],
++            model: "early-exit-regression",
++            effort: "low",
++            timeoutMs: 5000,
++          },
++          manifestDir,
++          outputDir: path.join(tempDir, "results"),
++        });
++        assert.equal(result.exitOutcomes.workerExitCode, 0);
++        assert.equal(result.success, false, "Exit zero without verifier completion must not pass");
++        assert.ok(
++          result.exitOutcomes.infrastructureError || result.exitOutcomes.verifierExitCode !== 0,
++          "Incomplete verifier execution must have a distinct non-success outcome",
++        );
++      } finally {
++        await fs.remove(tempDir);
++      }
++    });
++
++
++    it("does not resolve normally while a non-detached ignored-stdio helper remains live", async () => {
++      if (process.platform === "win32") return;
++      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-test-normal-exit-helper-"));
++      const pidPath = path.join(tempDir, "helper.pid");
++      const workerPath = path.join(tempDir, "leader-exits.js");
++      const token = `task-eval-normal-exit-${process.pid}-${Date.now()}`;
++      // This real-process integration case must keep the helper alive until the runner proves cleanup.
++      const helperCode = `process.title = ${JSON.stringify(token)}; setInterval(() => {}, 1000); setTimeout(() => process.exit(0), 6000);`;
++      const workerCode = `
++const { spawn } = require("node:child_process");
++const fs = require("node:fs");
++const helper = spawn(process.execPath, ["-e", ${JSON.stringify(helperCode)}], { stdio: "ignore" });
++helper.unref();
++fs.writeFileSync(process.argv[2], String(helper.pid));
++`;
++      await fs.writeFile(workerPath, workerCode, "utf8");
++      let helperPid: number | undefined;
++
++      try {
++        const result = await runBoundedProcess({
++          executable: process.execPath,
++          args: [workerPath, pidPath],
++          cwd: tempDir,
++          timeoutMs: 5000,
++        });
++        helperPid = Number(await fs.readFile(pidPath, "utf8"));
++        const probe = spawnSync("ps", ["-o", "stat=,command=", "-p", String(helperPid)], {
++          encoding: "utf8",
++          timeout: 1000,
++        });
++        assert.equal(result.exitCode, 0);
++        assert.equal(result.timedOut, false);
++        assert.equal(probe.error, undefined, probe.error?.message);
++        assert.ok(
++          !probe.stdout.trim() || probe.stdout.trimStart().startsWith("Z"),
++          `Owned helper remained live after runner resolution: ${probe.stdout}`,
++        );
++      } finally {
++        if (helperPid !== undefined) {
++          const probe = spawnSync("ps", ["-o", "command=", "-p", String(helperPid)], {
++            encoding: "utf8",
++            timeout: 1000,
++          });
++          if (probe.stdout.includes(token)) {
++            try {
++              process.kill(helperPid, "SIGKILL");
++            } catch {
++              // The recorded fixture helper may exit between the process probe and signal.
++            }
++          }
++        }
++        await fs.remove(tempDir);
++      }
++    });
+ 
+   describe("Passing and Failing Implementation Writes", () => {
+     it("executes passing pagination task when worker writes correct code", async () => {
+       const rawManifest = await fs.readJson(manifestPath);
+       const manifest = await validateManifest(rawManifest, manifestDir);
+       const paginationTask = manifest.tasks.find((t) => t.id === "pagination-boundary")!;
+       assert.ok(paginationTask);
+ 
+       const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-test-worker-pass-"));
+       const workerScriptPath = path.join(tempDir, "solve-pagination.js");
+@@ -263,28 +358,28 @@ fs.writeFileSync(targetFile, ${JSON.stringify(correctPaginateCode)}, 'utf8');
+       assert.equal(result.exitOutcomes.verifierExitCode, 0);
+       assert.equal(result.exitOutcomes.timedOut, false);
+       assert.equal(result.exitOutcomes.verifierTampered, false);
+       assert.equal(result.exitOutcomes.promptTampered, false);
+       assert.equal(result.usage, null);
+       assert.equal(result.cost, null);
+ 
+       await fs.remove(tempDir);
+     });
+ 
+-    it("executes passing authorization task when worker writes correct code", async () => {
++    it("authorization behavior regressions", async (t) => {
+       const rawManifest = await fs.readJson(manifestPath);
+       const manifest = await validateManifest(rawManifest, manifestDir);
+       const authTask = manifest.tasks.find((t) => t.id === "cross-tenant-authz")!;
+       assert.ok(authTask);
+ 
+       const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-test-auth-pass-"));
+-      const workerScriptPath = path.join(tempDir, "solve-auth.js");
++      try {
+ 
+       // Robust compliant DocumentService implementation
+       const compliantAuthCode = `
+ class AuthorizationError extends Error {
+   constructor(message) {
+     super(message || "Unauthorized access");
+     this.name = "AuthorizationError";
+   }
+ }
+ 
+@@ -307,20 +402,24 @@ class DocumentService {
+     if (doc.tenantId !== user.tenantId) {
+       throw new AuthorizationError("Cross-tenant document access denied");
+     }
+     if (doc.restricted && (!user.roles || (!user.roles.includes("editor") && !user.roles.includes("admin")))) {
+       throw new AuthorizationError("Restricted document access requires editor or admin role");
+     }
+     return { ...doc };
+   }
+ 
+   createDocument(user, docData) {
++    const existing = this.#documents.get(docData.id);
++    if (existing && existing.tenantId !== user.tenantId) {
++      throw new AuthorizationError("Document ID belongs to another tenant");
++    }
+     if (!user.roles || (!user.roles.includes("editor") && !user.roles.includes("admin"))) {
+       throw new AuthorizationError("Viewer role cannot create documents");
+     }
+     const doc = {
+       id: docData.id || String(Date.now()),
+       tenantId: user.tenantId, // Prevent tenant spoofing
+       title: docData.title || "",
+       content: docData.content || "",
+       restricted: Boolean(docData.restricted),
+     };
+@@ -352,66 +451,116 @@ class DocumentService {
+     }
+     if (!user.roles || !user.roles.includes("admin")) {
+       throw new AuthorizationError("Only admin can delete documents");
+     }
+     return this.#documents.delete(docId);
+   }
+ 
+   listDocuments(user) {
+     const results = [];
+     for (const doc of this.#documents.values()) {
+-      if (doc.tenantId === user.tenantId) {
++      if (
++        doc.tenantId === user.tenantId &&
++        (!doc.restricted || user.roles?.includes("editor") || user.roles?.includes("admin"))
++      ) {
+         results.push({ ...doc });
+       }
+     }
+     return results;
+   }
+ }
+ 
+ module.exports = { DocumentService, AuthorizationError };
+ `;
+ 
+-      const workerCode = `
+-const fs = require('fs');
+-const path = require('path');
+-const targetWorkspace = process.argv[2];
+-const targetFile = path.join(targetWorkspace, 'src', 'service.js');
+-fs.writeFileSync(targetFile, ${JSON.stringify(compliantAuthCode)}, 'utf8');
++      const runImplementation = async (source: string, outputDir: string) => {
++        const implementationWorkerPath = path.join(tempDir, `${path.basename(outputDir)}.js`);
++        const implementationWorker = `
++const fs = require("node:fs");
++const path = require("node:path");
++fs.writeFileSync(path.join(process.argv[2], "src", "service.js"), ${JSON.stringify(source)}, "utf8");
+ `;
+-      await fs.writeFile(workerScriptPath, workerCode, "utf8");
+-
+-      const testOutputDir = path.join(tempDir, "eval-out");
+-
+-      const workerConfig: WorkerConfig = {
+-        executable: process.execPath,
+-        args: [workerScriptPath, "{workspace}"],
+-        model: "deterministic-auth-pass-worker",
+-        effort: "high",
+-        timeoutMs: 15000,
++        await fs.writeFile(implementationWorkerPath, implementationWorker, "utf8");
++        return executeTaskRun({
++          task: authTask,
++          arm: "candidate",
++          repetition: 1,
++          workerConfig: {
++            executable: process.execPath,
++            args: [implementationWorkerPath, "{workspace}"],
++            model: "deterministic-auth-regression-worker",
++            effort: "high",
++            timeoutMs: 15000,
++          },
++          manifestDir,
++          outputDir,
++        });
+       };
+ 
+-      const result = await executeTaskRun({
+-        task: authTask,
+-        arm: "candidate",
+-        repetition: 1,
+-        workerConfig,
+-        manifestDir,
+-        outputDir: testOutputDir,
++      await t.test("authorization secure baseline", async () => {
++        const result = await runImplementation(
++          compliantAuthCode,
++          path.join(tempDir, "secure-output"),
++        );
++        assert.equal(result.success, true);
++        assert.equal(result.exitOutcomes.workerExitCode, 0);
++        assert.equal(result.exitOutcomes.verifierExitCode, 0);
+       });
+ 
+-      assert.equal(result.success, true);
+-      assert.equal(result.exitOutcomes.workerExitCode, 0);
+-      assert.equal(result.exitOutcomes.verifierExitCode, 0);
++      const collisionGuard = `    const existing = this.#documents.get(docData.id);
++    if (existing && existing.tenantId !== user.tenantId) {
++      throw new AuthorizationError("Document ID belongs to another tenant");
++    }
++`;
++      const restrictedListingFilter = `      if (
++        doc.tenantId === user.tenantId &&
++        (!doc.restricted || user.roles?.includes("editor") || user.roles?.includes("admin"))
++      ) {`;
++
++      await t.test("authorization foreign-ID collision rejected", async () => {
++        const source = compliantAuthCode.replace(collisionGuard, "");
++        const result = await runImplementation(
++          source,
++          path.join(tempDir, "collision-output"),
++        );
++        assert.equal(result.exitOutcomes.workerExitCode, 0);
++        assert.equal(result.exitOutcomes.verifierExitCode, 1);
++        assert.equal(result.exitOutcomes.infrastructureError, null);
++        assert.ok(result.verificationResult);
++        assert.ok(result.verificationResult.failedChecks > 0);
++        assert.ok(result.verificationResult.checks.some(
++          (check) => check.outcome === "failed" && check.evidence.trim() !== "",
++        ));
++      });
+ 
+-      await fs.remove(tempDir);
++      await t.test("authorization viewer listing omits restricted documents", async () => {
++        const source = compliantAuthCode.replace(
++          restrictedListingFilter,
++          "      if (doc.tenantId === user.tenantId) {",
++        );
++        const result = await runImplementation(
++          source,
++          path.join(tempDir, "viewer-listing-output"),
++        );
++        assert.equal(result.exitOutcomes.workerExitCode, 0);
++        assert.equal(result.exitOutcomes.verifierExitCode, 1);
++        assert.equal(result.exitOutcomes.infrastructureError, null);
++        assert.ok(result.verificationResult);
++        assert.ok(result.verificationResult.failedChecks > 0);
++        assert.ok(result.verificationResult.checks.some(
++          (check) => check.outcome === "failed" && check.evidence.trim() !== "",
++        ));
++      });
++      } finally {
++        await fs.remove(tempDir);
++      }
+     });
+-
+     it("verifies adversarial rejection when worker writes insecure tenant spoofing implementation", async () => {
+       const rawManifest = await fs.readJson(manifestPath);
+       const manifest = await validateManifest(rawManifest, manifestDir);
+       const authTask = manifest.tasks.find((t) => t.id === "cross-tenant-authz")!;
+       assert.ok(authTask);
+ 
+       const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-test-insecure-write-"));
+       const workerScriptPath = path.join(tempDir, "write-insecure-auth.js");
+ 
+       // Insecure worker code that explicitly writes a cross-tenant leak / spoofing vulnerability
+@@ -913,70 +1062,168 @@ fs.writeFileSync(promptFile, 'Malicious prompt content overwrite', 'utf8');
+         "utf8",
+       )).trim();
+       assert.notEqual(workspacePath, "");
+       assert.equal(await fs.pathExists(workspacePath), false, "Owned temporary workspace must be removed");
+ 
+       await fs.remove(tempDir);
+     });
+   });
+ 
+   describe("Suite fixture snapshots and infrastructure aggregation", () => {
+-    async function createSuiteFixture(rootDir: string) {
++    async function createSuiteFixture(
++      rootDir: string,
++      taskId = "snapshot-task",
++      receiptMode: "valid" | "missing" | "malformed" | "duplicate" | "incomplete" | "mismatched-counts" = "valid",
++    ) {
+       const fixtureDir = path.join(rootDir, "fixtures", "task");
+       const guidanceDir = path.join(rootDir, "guidance");
+       const verifierPath = path.join(rootDir, "verifiers", "verify-starting-file.js");
+       const manifestPath = path.join(rootDir, "manifest.json");
+       await fs.mkdirp(fixtureDir);
+       await fs.mkdirp(guidanceDir);
+       await fs.mkdirp(path.dirname(verifierPath));
+       await fs.writeFile(path.join(fixtureDir, "starting.txt"), "starting-fixture\n");
+       await fs.writeFile(
+         verifierPath,
+         `const fs = require("node:fs");
+ const path = require("node:path");
+ const workspace = process.argv[2];
+-if (fs.readFileSync(path.join(workspace, "starting.txt"), "utf8") !== "starting-fixture\\n") {
+-  process.exit(1);
++const passed = fs.readFileSync(path.join(workspace, "starting.txt"), "utf8") === "starting-fixture\\n";
++const receiptMode = ${JSON.stringify(receiptMode)};
++const validCheck = { id: "starting-fixture-preserved", outcome: "passed", evidence: "Starting fixture was preserved." };
++const receipts = {
++  valid: { schemaVersion: 1, status: "completed", totalChecks: 1, passedChecks: 1, failedChecks: 0, checks: [validCheck] },
++  missing: null,
++  malformed: {},
++  duplicate: { schemaVersion: 1, status: "completed", totalChecks: 2, passedChecks: 2, failedChecks: 0, checks: [validCheck, validCheck] },
++  incomplete: { schemaVersion: 1, status: "completed", totalChecks: 1, passedChecks: 1, failedChecks: 0, checks: [{ id: "starting-fixture-preserved", outcome: "passed" }] },
++  "mismatched-counts": { schemaVersion: 1, status: "completed", totalChecks: 2, passedChecks: 1, failedChecks: 0, checks: [validCheck] },
++};
++const receipt = receipts[receiptMode];
++if (receipt !== null) {
++  fs.writeFileSync(process.env.TASK_EVAL_VERIFICATION_RESULT_PATH, JSON.stringify(receipt), { flag: "wx" });
+ }
++if (!passed) process.exitCode = 1;
+ `,
+       );
+       const guidance: Record<string, string> = {};
+       for (const arm of ["minimal", "current", "candidate"]) {
+         const relativePath = `guidance/${arm}.md`;
+         await fs.writeFile(path.join(rootDir, relativePath), `guidance:${arm}\n`);
+         guidance[arm] = relativePath;
+       }
+       await fs.writeJson(manifestPath, {
+         schemaVersion: 1,
+         tasks: [
+           {
+-            id: "snapshot-task",
++            id: taskId,
+             split: "calibration",
+             fixtureDir: "fixtures/task",
+             prompt: "Preserve the starting fixture file.",
+             guidance,
+             verifier: {
+               executable: process.execPath,
+               args: ["verifiers/verify-starting-file.js", "{workspace}"],
+               timeoutMs: 5000,
+             },
+           },
+         ],
+       });
+       return {
+         fixtureDir,
+         manifestPath,
+         verifierPath,
+         currentGuidancePath: path.join(guidanceDir, "current.md"),
+       };
+     }
+ 
++    it("rejects missing, malformed, duplicate, and incomplete verifier receipts", async (t) => {
++      const invalidModes = [
++        "missing",
++        "malformed",
++        "duplicate",
++        "incomplete",
++        "mismatched-counts",
++      ] as const;
++      for (const mode of invalidModes) {
++        await t.test(`verifier receipt ${mode} is infrastructure failure`, async () => {
++          const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), `task-receipt-${mode}-`));
++          const suite = await createSuiteFixture(tempDir, "receipt-contract", mode);
++          const manifestDir = path.dirname(suite.manifestPath);
++
++          try {
++            const manifest = await validateManifest(
++              await fs.readJson(suite.manifestPath),
++              manifestDir,
++            );
++            const task = manifest.tasks[0];
++            assert.ok(task);
++            const result = await executeTaskRun({
++              task,
++              arm: "candidate",
++              repetition: 1,
++              workerConfig: {
++                executable: process.execPath,
++                args: ["-e", "process.exit(0)"],
++                model: "invalid-verifier-receipt-test",
++                effort: "low",
++                timeoutMs: 5000,
++              },
++              manifestDir,
++              outputDir: path.join(tempDir, "output"),
++            });
++
++            assert.equal(result.exitOutcomes.workerExitCode, 0);
++            assert.equal(result.exitOutcomes.verifierExitCode, 0);
++            assert.equal(result.success, false);
++            assert.ok(result.exitOutcomes.infrastructureError);
++            assert.equal(result.verificationResult, null);
++          } finally {
++            await fs.remove(tempDir);
++          }
++        });
++      }
++    });
++
++    it("preserves valid __proto__ task IDs in aggregation and persisted JSON", async () => {
++      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-suite-proto-id-"));
++      const suite = await createSuiteFixture(tempDir, "__proto__");
++      const workerConfigPath = path.join(tempDir, "worker.json");
++      const outputDir = path.join(tempDir, "results");
++      await fs.writeJson(workerConfigPath, {
++        executable: process.execPath,
++        args: ["-e", "process.exit(0)"],
++        model: "proto-task-id-regression",
++        effort: "low",
++        timeoutMs: 5000,
++      });
++
++      try {
++        const summary = await runTaskSuite({
++          manifestPath: suite.manifestPath,
++          workerConfigPath,
++          outputDir,
++          repeat: 1,
++          split: "calibration",
++        });
++        const persisted = await fs.readJson(path.join(outputDir, "results.json"));
++
++        assert.equal(Object.hasOwn(summary.byTask, "__proto__"), true);
++        assert.equal(summary.byTask["__proto__"].total, 3);
++        assert.equal(Object.hasOwn(persisted.byTask, "__proto__"), true);
++        assert.equal(persisted.byTask["__proto__"].total, 3);
++        assert.equal(summary.runs.length, 3);
++      } finally {
++        await fs.remove(tempDir);
++      }
++    });
++
+     function snapshotPrefix(outputDir: string): string {
+       return `task-eval-fixture-snapshots-${path.basename(outputDir)}-`;
+     }
+ 
+     async function assertNoStagedSnapshots(outputDir: string): Promise<void> {
+       const leftovers = (await fs.readdir(os.tmpdir())).filter((entry) =>
+         entry.startsWith(snapshotPrefix(outputDir)),
+       );
+       assert.deepEqual(leftovers, [], "Staged fixture snapshots must be removed after suite exit");
+     }
+@@ -1187,21 +1434,21 @@ if (prompt.includes("guidance:candidate")) {
+         await assertNoStagedSnapshots(outputDir);
+       } finally {
+         await fs.remove(tempDir);
+       }
+     });
+ 
+     it("excludes verifier infrastructure failures from efficacy and exits nonzero", async () => {
+       const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-suite-infrastructure-"));
+       const suite = await createSuiteFixture(tempDir);
+       const workerConfigPath = path.join(tempDir, "worker.json");
+-      const outputDir = path.join(tempDir, "cli-results");
++      const outputDir = path.join(tempDir, `cli-results-${path.basename(tempDir)}`);
+       const workerCode = `
+ const fs = require("node:fs");
+ const verifier = process.argv[1];
+ const prompt = fs.readFileSync(process.argv[2], "utf8");
+ if (prompt.includes("guidance:candidate")) {
+   fs.writeFileSync(verifier, "process.exit(1);\\n");
+ }
+ `;
+       await fs.writeJson(workerConfigPath, {
+         executable: process.execPath,
+@@ -1222,27 +1469,24 @@ if (prompt.includes("guidance:candidate")) {
+             suite.manifestPath,
+             "--worker",
+             workerConfigPath,
+             "--output",
+             outputDir,
+             "--repeat",
+             "1",
+             "--split",
+             "calibration",
+           ],
+-          { cwd: repoRoot, encoding: "utf8" },
++          { cwd: repoRoot, encoding: "utf8", timeout: 15000 },
+         );
+         assert.equal(cli.error, undefined, cli.error?.message);
+         assert.equal(cli.status, 1, `CLI must fail on infrastructure errors:\n${cli.stdout}\n${cli.stderr}`);
+-        assert.match(cli.stdout, /Infrastructure Errors:\s+1/);
+-        assert.match(cli.stdout, /Evaluated Product Runs:\s+2/);
+-        assert.match(cli.stdout, /Overall Pass Rate:\s+100%/);
+ 
+         const summary = await fs.readJson(path.join(outputDir, "results.json"));
+         assert.equal(summary.totalRuns, 3);
+         assert.equal(summary.evaluatedRuns, 2);
+         assert.equal(summary.infrastructureErrorRuns, 1);
+         assert.equal(summary.successfulRuns, 2);
+         assert.equal(summary.failedRuns, 0);
+         assert.equal(summary.overallPassRate, 100);
+         assert.equal(summary.byArm.minimal.passRate, 100);
+         assert.equal(summary.byArm.current.passRate, 100);
+@@ -1276,21 +1520,21 @@ if (prompt.includes("guidance:candidate")) {
+             suite.manifestPath,
+             "--worker",
+             missingWorkerConfigPath,
+             "--output",
+             noEvidenceOutputDir,
+             "--repeat",
+             "1",
+             "--split",
+             "calibration",
+           ],
+-          { cwd: repoRoot, encoding: "utf8" },
++          { cwd: repoRoot, encoding: "utf8", timeout: 15000 },
+         );
+         assert.equal(noEvidenceCli.error, undefined, noEvidenceCli.error?.message);
+         assert.equal(noEvidenceCli.status, 1);
+         assert.match(noEvidenceCli.stdout, /Evaluated Product Runs:\s+0/);
+         assert.match(noEvidenceCli.stdout, /Infrastructure Errors:\s+3/);
+         assert.match(noEvidenceCli.stdout, /Overall Pass Rate:\s+N\/A \(no evaluated runs\)/);
+         assert.match(
+           noEvidenceCli.stdout,
+           /candidate\s+: Runs 1 \| Evaluated 0 \| Pass 0\/0 \(N\/A\)/,
+         );
+diff --git a/scripts/evals/task-runner.ts b/scripts/evals/task-runner.ts
+index bb3ee179..e6158471 100644
+--- a/scripts/evals/task-runner.ts
++++ b/scripts/evals/task-runner.ts
+@@ -30,22 +30,24 @@ import type {
+   TaskArmSummary,
+   TaskDefinition,
+   TaskGuidancePaths,
+   TaskManifest,
+   TaskRunOptions,
+   TaskRunResult,
+   TaskSplit,
+   TaskSuiteSummary,
+   TaskSummary,
+   WorkerConfig,
++  VerificationReceipt,
+ } from "./task-types";
+ import { GUIDANCE_ARMS } from "./task-types";
++const VERIFICATION_RESULT_ENV = "TASK_EVAL_VERIFICATION_RESULT_PATH";
+ 
+ // Maximum bytes captured per stream (stdout/stderr) before truncating to prevent memory exhaustion
+ export const MAX_CAPTURE_BYTES = 5 * 1024 * 1024; // 5 MB
+ 
+ // ============================================================================
+ // Hashing Utilities
+ // ============================================================================
+ 
+ export function sha256(content: string | Buffer): string {
+   return createHash("sha256").update(content).digest("hex");
+@@ -76,21 +78,21 @@ async function writePrivateJson(filePath: string, value: unknown): Promise<void>
+ }
+ 
+ export async function hashDirectory(dirPath: string): Promise<string> {
+   const rootStat = await fs.lstat(dirPath);
+   if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) {
+     throw new Error(`Fixture root must be a real directory: ${dirPath}`);
+   }
+   const entries: Array<{ relativePath: string; hash: string }> = [];
+ 
+   async function walk(currentDir: string): Promise<void> {
+-    const items = await fs.readdir(currentDir, { withFileTypes: false });
++    const items = await fs.readdir(currentDir, { encoding: "utf8" });
+     for (const itemName of items) {
+       const fullPath = path.join(currentDir, itemName);
+       const lstat = await fs.lstat(fullPath);
+ 
+       if (lstat.isSymbolicLink()) {
+         throw new Error(
+           `Security violation: Symbolic links in fixtures are strictly prohibited: ${fullPath}`,
+         );
+       }
+ 
+@@ -408,38 +410,115 @@ function redactCredentialValues(text: string, args: string[]): string {
+         const value = credential[1] ?? credential[2];
+         redacted = redacted.replaceAll(value, "[REDACTED]");
+       } else if (/-{1,2}[^=]*(?:secret|token|key|auth|password|credential)/i.test(argument)) {
+         redacted = redacted.replaceAll(nextArgument, "[REDACTED]");
+       }
+     }
+   }
+   return redacted;
+ }
+ 
++function validateVerificationReceipt(
++  value: unknown,
++  verifierExitCode: number | null,
++): { receipt: VerificationReceipt | null; error: string | null } {
++  if (!value || typeof value !== "object" || Array.isArray(value)) {
++    return { receipt: null, error: "Verifier completion result must be an object." };
++  }
++  const candidate = value as Record<string, unknown>;
++  if (
++    candidate.schemaVersion !== 1 ||
++    candidate.status !== "completed" ||
++    !Array.isArray(candidate.checks) ||
++    candidate.checks.length === 0
++  ) {
++    return { receipt: null, error: "Verifier completion result is missing required completed evidence." };
++  }
++
++  const seenIds = new Set<string>();
++  let passedChecks = 0;
++  let failedChecks = 0;
++  const checks: VerificationReceipt["checks"] = [];
++  for (const check of candidate.checks) {
++    if (!check || typeof check !== "object" || Array.isArray(check)) {
++      return { receipt: null, error: "Verifier completion result contains a malformed check." };
++    }
++    const row = check as Record<string, unknown>;
++    if (
++      typeof row.id !== "string" ||
++      row.id.trim() === "" ||
++      typeof row.evidence !== "string" ||
++      row.evidence.trim() === "" ||
++      (row.outcome !== "passed" && row.outcome !== "failed")
++    ) {
++      return { receipt: null, error: "Verifier completion result contains incomplete check evidence." };
++    }
++    const checkId = row.id.trim();
++    if (seenIds.has(checkId)) {
++      return { receipt: null, error: `Verifier completion result repeats check '${checkId}'.` };
++    }
++    seenIds.add(checkId);
++    if (row.outcome === "passed") passedChecks++;
++    else failedChecks++;
++    checks.push({
++      id: checkId,
++      outcome: row.outcome,
++      evidence: row.evidence,
++    });
++  }
++
++  const totalChecks = checks.length;
++  if (
++    candidate.totalChecks !== totalChecks ||
++    candidate.passedChecks !== passedChecks ||
++    candidate.failedChecks !== failedChecks
++  ) {
++    return { receipt: null, error: "Verifier completion result counts do not match its checks." };
++  }
++  if (verifierExitCode === null || (failedChecks === 0) !== (verifierExitCode === 0)) {
++    return { receipt: null, error: "Verifier exit status disagrees with completed check results." };
++  }
++
++  return {
++    receipt: {
++      schemaVersion: 1,
++      status: "completed",
++      totalChecks,
++      passedChecks,
++      failedChecks,
++      checks,
++    },
++    error: null,
++  };
++}
++
+ export function runBoundedProcess(options: {
+   executable: string;
+   args: string[];
+   cwd: string;
+   timeoutMs: number;
+   stdinInput?: string;
+   env?: NodeJS.ProcessEnv;
+ }): Promise<BoundedProcessResult> {
+-  const { promise, resolve } = Promise.withResolvers<BoundedProcessResult>();
++  let resolveProcess!: (result: BoundedProcessResult) => void;
++  const promise = new Promise<BoundedProcessResult>((resolve) => {
++    resolveProcess = resolve;
++  });
+   const startTime = Date.now();
+   let timedOut = false;
+   let stdoutBuffer = "";
+   let stderrBuffer = "";
+   let stdoutBytes = 0;
+   let stderrBytes = 0;
+   let stdoutTruncated = false;
+   let stderrTruncated = false;
+-  let settled = false;
++  let normalCleanupStarted = false;
+ 
+   // Filter environment to avoid secret leakage while preserving system essentials
+   const safeEnv: NodeJS.ProcessEnv = {
+     PATH: process.env.PATH ?? "/usr/local/bin:/usr/bin:/bin",
+     NODE_PATH: process.env.NODE_PATH,
+     HOME: process.env.HOME ?? os.homedir(),
+     LANG: process.env.LANG ?? "en_US.UTF-8",
+     ...options.env,
+   };
+ 
+@@ -450,21 +529,21 @@ export function runBoundedProcess(options: {
+     child = spawn(options.executable, options.args, {
+       cwd: options.cwd,
+       detached: isPosix,
+       shell: false,
+       env: safeEnv,
+       stdio: ["pipe", "pipe", "pipe"],
+     });
+   } catch (err: unknown) {
+     const durationMs = Date.now() - startTime;
+     const message = err instanceof Error ? err.message : String(err);
+-    resolve({
++    resolveProcess({
+       exitCode: null,
+       signal: null,
+       stdout: "",
+       stderr: "",
+       stdoutTruncated: false,
+       stderrTruncated: false,
+       timedOut: false,
+       infrastructureError: `Failed to spawn process (${options.executable}): ${message}`,
+       durationMs,
+     });
+@@ -520,85 +599,137 @@ export function runBoundedProcess(options: {
+   let escalationComplete = false;
+   let ownedProcessGroupExited = false;
+   let closeResult:
+     | { code: number | null; signal: NodeJS.Signals | null; infrastructureError: string | null }
+     | undefined;
+   let processExitResult:
+     | { code: number | null; signal: NodeJS.Signals | null }
+     | undefined;
+   let cleanupError: string | null = null;
+ 
++  let settled = false;
+   const resolveResult = (
+     code: number | null,
+     signal: NodeJS.Signals | null,
+     infraError: string | null,
+   ) => {
+     if (settled) return;
+     settled = true;
+     clearTimeout(timeoutHandle);
+     clearTimeout(killTimer);
+     if (timedOut) {
+       child.stdin?.destroy();
+       child.stdout?.destroy();
+       child.stderr?.destroy();
+     }
+-    resolve({
++    resolveProcess({
+       exitCode: code,
+       signal,
+       stdout: stdoutBuffer,
+       stderr: stderrBuffer,
+       stdoutTruncated,
+       stderrTruncated,
+       timedOut,
+       infrastructureError: infraError ?? cleanupError,
+       durationMs: Date.now() - startTime,
+     });
+   };
+ 
+   const finish = (
+     code: number | null,
+     signal: NodeJS.Signals | null,
+     infraError: string | null = null,
+   ) => {
+-    if (settled) return;
++    if (settled || normalCleanupStarted) return;
+     if (timedOut && !escalationComplete) {
+       closeResult = { code, signal, infrastructureError: infraError };
+       return;
+     }
+-    resolveResult(code, signal, infraError);
++    if (timedOut) {
++      resolveResult(code, signal, infraError);
++      return;
++    }
++
++    normalCleanupStarted = true;
++    clearTimeout(timeoutHandle);
++    if (!isPosix || !child.pid) {
++      resolveResult(code, signal, infraError);
++      return;
++    }
++
++    void (async () => {
++      const groupExited = await settleOwnedProcessGroup(child.pid as number);
++      resolveResult(
++        code,
++        signal,
++        infraError ?? (groupExited ? null : cleanupError ?? "Unable to establish owned process-group cleanup."),
++      );
++    })();
+   };
+ 
+-  const waitForProcessGroupExit = async (processGroupId: number): Promise<boolean> => {
+-    const deadline = Date.now() + 5000;
++  const waitForProcessGroupExit = async (
++    processGroupId: number,
++    waitMs = 5000,
++    failOnTimeout = true,
++  ): Promise<boolean> => {
++    const deadline = Date.now() + waitMs;
+     let permissionDenied = false;
+     while (Date.now() < deadline) {
+       try {
+         process.kill(-processGroupId, 0);
+       } catch (err: unknown) {
+         const code = (err as NodeJS.ErrnoException).code;
+         if (code === "ESRCH") return true;
+         if (code !== "EPERM") {
+-          cleanupError = `Unable to inspect timed-out process group: ${String(err)}`;
++          cleanupError = `Unable to inspect owned process group: ${String(err)}`;
+           return false;
+         }
+         permissionDenied = true;
+       }
+-      const { promise, resolve: resume } = Promise.withResolvers<void>();
+-      setTimeout(resume, 25);
+-      await promise;
++      await new Promise<void>((resume) => setTimeout(resume, 25));
++    }
++    if (failOnTimeout) {
++      cleanupError = permissionDenied
++        ? "Owned process group remained inaccessible after SIGKILL."
++        : "Owned process group did not exit after SIGKILL.";
+     }
+-    cleanupError = permissionDenied
+-      ? "Timed-out process group remained inaccessible after SIGKILL."
+-      : "Timed-out process group did not exit after SIGKILL.";
+     return false;
+   };
+ 
++  const settleOwnedProcessGroup = async (processGroupId: number): Promise<boolean> => {
++    try {
++      process.kill(-processGroupId, 0);
++    } catch (err: unknown) {
++      if ((err as NodeJS.ErrnoException).code === "ESRCH") return true;
++      cleanupError = `Unable to inspect owned process group: ${String(err)}`;
++      return false;
++    }
++
++    try {
++      process.kill(-processGroupId, "SIGTERM");
++    } catch (err: unknown) {
++      if ((err as NodeJS.ErrnoException).code === "ESRCH") return true;
++      cleanupError = `Unable to terminate owned process group: ${String(err)}`;
++      return false;
++    }
++    if (await waitForProcessGroupExit(processGroupId, 1500, false)) return true;
++
++    try {
++      process.kill(-processGroupId, "SIGKILL");
++    } catch (err: unknown) {
++      if ((err as NodeJS.ErrnoException).code === "ESRCH") return true;
++      cleanupError = `Unable to kill owned process group: ${String(err)}`;
++      return false;
++    }
++    return waitForProcessGroupExit(processGroupId);
++  };
++
+   timeoutHandle = setTimeout(() => {
+     timedOut = true;
+     if (!settled && child.pid) {
+       try {
+         if (isPosix) {
+           process.kill(-child.pid, "SIGTERM");
+         } else {
+           child.kill("SIGTERM");
+         }
+       } catch {
+@@ -755,20 +886,21 @@ async function executeTaskRunFromFixture(
+       } catch {
+         // Best-effort cleanup of a partial copy.
+       }
+     }
+   }
+ 
+   const workerStdoutPath = path.join(evidenceDir, "worker.stdout.log");
+   const workerStderrPath = path.join(evidenceDir, "worker.stderr.log");
+   const verifierStdoutPath = path.join(evidenceDir, "verifier.stdout.log");
+   const verifierStderrPath = path.join(evidenceDir, "verifier.stderr.log");
++  const verificationResultPath = path.join(evidenceDir, "verification-result.json");
+ 
+   const verifierScriptPath = task.verifier.args[0];
+   const verifierResolvedArgs = task.verifier.args.map((arg) =>
+     arg === "{workspace}" ? tempWorkspaceDir : arg,
+   );
+ 
+   // 5. Worker Execution
+   const substitutedWorkerArgs = workerConfig.args.map((arg) => {
+     let result = arg;
+     if (result.includes("{workspace}")) {
+@@ -797,20 +929,21 @@ async function executeTaskRunFromFixture(
+     exitCode: null,
+     signal: null,
+     stdout: "",
+     stderr: "",
+     stdoutTruncated: false,
+     stderrTruncated: false,
+     timedOut: false,
+     infrastructureError: null,
+     durationMs: 0,
+   };
++  let verificationResult: VerificationReceipt | null = null;
+ 
+   try {
+     try {
+       verifierHashBefore = await hashFile(verifierScriptPath);
+       if (verifierHashBefore !== task.verifier.scriptHash) {
+         infrastructureError = "Trusted verifier changed or disappeared after manifest validation.";
+         workerResult.infrastructureError = infrastructureError;
+         workerResult.stderr = infrastructureError;
+       } else {
+         workerResult = await runBoundedProcess({
+@@ -860,22 +993,41 @@ async function executeTaskRunFromFixture(
+         if (verifierHashForExecution !== task.verifier.scriptHash) {
+           infrastructureError = "Trusted verifier changed before execution.";
+           verifierResult.infrastructureError = infrastructureError;
+           verifierResult.stderr = infrastructureError;
+         } else {
+           verifierResult = await runBoundedProcess({
+             executable: task.verifier.executable,
+             args: verifierResolvedArgs,
+             cwd: manifestDir,
+             timeoutMs: task.verifier.timeoutMs ?? 30000,
++            env: { [VERIFICATION_RESULT_ENV]: verificationResultPath },
+           });
+-          infrastructureError = verifierResult.infrastructureError;
++          if (verifierResult.infrastructureError) {
++            infrastructureError = verifierResult.infrastructureError;
++          } else {
++            try {
++              const rawResult = await fs.readJson(verificationResultPath);
++              const validated = validateVerificationReceipt(rawResult, verifierResult.exitCode);
++              verificationResult = validated.receipt;
++              if (validated.error) {
++                infrastructureError = validated.error;
++                verifierResult.infrastructureError = validated.error;
++                verifierResult.stderr = `${verifierResult.stderr}${validated.error}\n`;
++              }
++            } catch (err: unknown) {
++              const reason = err instanceof Error ? err.message : String(err);
++              infrastructureError = `Verifier completion result unavailable or invalid: ${reason}`;
++              verifierResult.infrastructureError = infrastructureError;
++              verifierResult.stderr = `${verifierResult.stderr}${infrastructureError}\n`;
++            }
++          }
+         }
+       } catch (err: unknown) {
+         const msg = err instanceof Error ? err.message : String(err);
+         infrastructureError = `Verifier execution infrastructure failure: ${msg}`;
+         verifierResult.infrastructureError = infrastructureError;
+         verifierResult.stderr = infrastructureError;
+       }
+     }
+ 
+     await fs.writeFile(verifierStdoutPath, verifierResult.stdout, { encoding: "utf8", flag: "wx", mode: 0o600 });
+@@ -936,35 +1088,38 @@ async function executeTaskRunFromFixture(
+     promptTampered,
+     stdoutTruncated: workerResult.stdoutTruncated || verifierResult.stdoutTruncated,
+     stderrTruncated: workerResult.stderrTruncated || verifierResult.stderrTruncated,
+   };
+ 
+   const success =
+     !exitOutcomes.timedOut &&
+     exitOutcomes.workerExitCode === 0 &&
+     exitOutcomes.verifierExitCode === 0 &&
+     !verifierTampered &&
++    verificationResult !== null &&
++    verificationResult.failedChecks === 0 &&
+     !promptTampered &&
+     infrastructureError === null;
+ 
+   const wallTimeMs = {
+     workerMs: workerResult.durationMs,
+     verifierMs: verifierResult.durationMs,
+     totalMs: workerResult.durationMs + verifierResult.durationMs,
+   };
+ 
+   const evidencePaths = {
+     promptFile: path.relative(outputDir, promptFilePath),
+     workerStdout: path.relative(outputDir, workerStdoutPath),
+     workerStderr: path.relative(outputDir, workerStderrPath),
+     verifierStdout: path.relative(outputDir, verifierStdoutPath),
+     verifierStderr: path.relative(outputDir, verifierStderrPath),
++    verificationResult: path.relative(outputDir, verificationResultPath),
+   };
+ 
+   const completedAt = new Date().toISOString();
+ 
+   const runResult: TaskRunResult = {
+     schemaVersion: 1,
+     taskId: task.id,
+     split: task.split,
+     arm,
+     repetition,
+@@ -972,20 +1127,21 @@ async function executeTaskRunFromFixture(
+     effort: workerConfig.effort,
+     configHash,
+     promptHash,
+     fixtureHash,
+     guidanceHash,
+     verifierHashBefore,
+     verifierHashAfter,
+     exitOutcomes,
+     wallTimeMs,
+     evidencePaths,
++    verificationResult,
+     success,
+     usage: null,
+     cost: null,
+     startedAt,
+     completedAt,
+   };
+ 
+   await writePrivateJson(path.join(evidenceDir, "run-result.json"), runResult);
+ 
+   return runResult;
+@@ -1133,21 +1289,21 @@ export async function runTaskSuite(
+       timedOut: 0,
+       passRate: null,
+       avgWallMs: null,
+     });
+     const byArm: Record<GuidanceArm, TaskArmSummary> = {
+       minimal: createEmptyArmSummary(),
+       current: createEmptyArmSummary(),
+       candidate: createEmptyArmSummary(),
+     };
+ 
+-    const byTask: Record<string, TaskSummary> = {};
++    const byTask = Object.create(null) as Record<string, TaskSummary>;
+     for (const task of tasksToRun) {
+       byTask[task.id] = {
+         total: 0,
+         evaluated: 0,
+         infrastructureErrors: 0,
+         successful: 0,
+         failed: 0,
+         timedOut: 0,
+         passRate: null,
+       };
+diff --git a/scripts/evals/task-types.ts b/scripts/evals/task-types.ts
+index 73589a89..cd9c961c 100644
+--- a/scripts/evals/task-types.ts
++++ b/scripts/evals/task-types.ts
+@@ -75,45 +75,67 @@ export interface ExitOutcomes {
+   stdoutTruncated: boolean;
+   stderrTruncated: boolean;
+ }
+ 
+ export interface WallTimeMs {
+   workerMs: number;
+   verifierMs: number;
+   totalMs: number;
+ }
+ 
++export interface VerificationCheck {
++  id: string;
++  outcome: "passed" | "failed";
++  evidence: string;
++}
++
++/**
++ * Completion evidence proves the trusted verifier reached its end and reports
++ * its assertion results. It is not an OS sandbox or a security boundary against
++ * deliberately hostile code running as the same UID.
++ */
++export interface VerificationReceipt {
++  schemaVersion: 1;
++  status: "completed";
++  totalChecks: number;
++  passedChecks: number;
++  failedChecks: number;
++  checks: VerificationCheck[];
++}
++
+ export interface EvidencePaths {
+   promptFile: string;
+   workerStdout: string;
+   workerStderr: string;
+   verifierStdout: string;
+   verifierStderr: string;
++  verificationResult: string;
+ }
+ 
+ export interface TaskRunResult {
+   schemaVersion: 1;
+   taskId: string;
+   split: TaskSplit;
+   arm: GuidanceArm;
+   repetition: number;
+   model: string;
+   effort: string;
+   configHash: string;
+   promptHash: string;
+   fixtureHash: string;
+   guidanceHash: string;
+   verifierHashBefore: string;
+   verifierHashAfter: string;
+   exitOutcomes: ExitOutcomes;
+   wallTimeMs: WallTimeMs;
+   evidencePaths: EvidencePaths;
++  verificationResult: VerificationReceipt | null;
+   success: boolean;
+   usage: null;
+   cost: null;
+   startedAt: string;
+   completedAt: string;
+ }
+ 
+ export interface TaskArmSummary {
+   /** All attempts for this arm, including infrastructure failures. */
+   total: number;

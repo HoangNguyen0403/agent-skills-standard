@@ -9,29 +9,29 @@
  *   node verify-pagination.js <workspacePath>
  */
 
+const fs = require("node:fs");
 const path = require("node:path");
 const assert = require("node:assert/strict");
 
+const completionResultPath = process.env.TASK_EVAL_VERIFICATION_RESULT_PATH;
 const workspacePath = process.argv[2];
-if (!workspacePath) {
-  console.error("Usage: node verify-pagination.js <workspacePath>");
-  process.exit(1);
-}
-
-const modulePath = path.resolve(workspacePath, "src", "paginate.js");
-
+let setupFailure = null;
 let paginate;
-try {
-  const mod = require(modulePath);
-  paginate = mod.paginate;
-  assert.equal(
-    typeof paginate,
-    "function",
-    "Module must export a 'paginate' function.",
-  );
-} catch (err) {
-  console.error(`FAILED: Failed to load paginate module: ${err.message}`);
-  process.exit(1);
+if (!workspacePath) {
+  setupFailure = "Usage: node verify-pagination.js <workspacePath>";
+}
+if (!completionResultPath) {
+  setupFailure = "Missing TASK_EVAL_VERIFICATION_RESULT_PATH.";
+}
+if (!setupFailure) {
+  const modulePath = path.resolve(workspacePath, "src", "paginate.js");
+  try {
+    const mod = require(modulePath);
+    paginate = mod.paginate;
+    assert.equal(typeof paginate, "function", "Module must export a 'paginate' function.");
+  } catch (err) {
+    setupFailure = `Failed to load paginate module: ${err instanceof Error ? err.message : String(err)}`;
+  }
 }
 
 const testCases = [
@@ -154,6 +154,15 @@ const testCases = [
 
       const pNaN = paginate(items, { page: NaN });
       assert.equal(pNaN.pagination.page, 1, "page NaN should normalize to 1");
+
+      const fractionalItems = Array.from({ length: 12 }, (_, index) => index + 1);
+      const pFractional = paginate(fractionalItems, { page: 1.5, pageSize: 10 });
+      assert.equal(pFractional.pagination.page, 1, "positive fractional page should normalize to 1");
+      assert.deepEqual(
+        pFractional.data,
+        fractionalItems.slice(0, 10),
+        "positive fractional page should return the first ten items",
+      );
     },
   },
   {
@@ -191,21 +200,54 @@ const testCases = [
   },
 ];
 
-let failed = 0;
-for (const tc of testCases) {
-  try {
-    tc.run();
-    console.log(`[PASS] ${tc.name}`);
-  } catch (err) {
-    failed++;
-    console.error(`[FAIL] ${tc.name}: ${err.message}`);
+const checks = [];
+if (setupFailure) {
+  checks.push({
+    id: "verifier-setup",
+    outcome: "failed",
+    evidence: setupFailure,
+  });
+  console.error(`[FAIL] Verifier setup: ${setupFailure}`);
+} else {
+  for (const tc of testCases) {
+    try {
+      tc.run();
+      checks.push({ id: tc.name, outcome: "passed", evidence: `${tc.name} passed.` });
+      console.log(`[PASS] ${tc.name}`);
+    } catch (err) {
+      const evidence = err instanceof Error ? err.message : String(err);
+      checks.push({ id: tc.name, outcome: "failed", evidence: `${tc.name}: ${evidence}` });
+      console.error(`[FAIL] ${tc.name}: ${evidence}`);
+    }
   }
 }
 
-if (failed > 0) {
-  console.error(`\nVerifier failed with ${failed} failed check(s).`);
-  process.exit(1);
+const totalChecks = checks.length;
+const passedChecks = checks.filter((check) => check.outcome === "passed").length;
+const failedChecks = totalChecks - passedChecks;
+if (completionResultPath) {
+  try {
+    fs.writeFileSync(completionResultPath, JSON.stringify({
+      schemaVersion: 1,
+      status: "completed",
+      totalChecks,
+      passedChecks,
+      failedChecks,
+      checks,
+    }, null, 2), { encoding: "utf8", flag: "wx", mode: 0o600 });
+  } catch (err) {
+    console.error(`Failed to write verifier completion result: ${err instanceof Error ? err.message : String(err)}`);
+    process.exitCode = 2;
+  }
 } else {
-  console.log(`\nVerifier succeeded: All ${testCases.length} checks passed.`);
-  process.exit(0);
+  console.error("Missing TASK_EVAL_VERIFICATION_RESULT_PATH; cannot record completion evidence.");
+  process.exitCode = 2;
+}
+
+if (failedChecks > 0) {
+  console.error(`\nVerifier failed with ${failedChecks} failed check(s).`);
+  process.exitCode = 1;
+} else if (process.exitCode !== 2) {
+  console.log(`\nVerifier succeeded: All ${totalChecks} checks passed.`);
+  process.exitCode = 0;
 }

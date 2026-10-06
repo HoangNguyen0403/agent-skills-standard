@@ -6,68 +6,46 @@ description: Implement an approved feature plan with fresh-context slices, TDD, 
 
 Goal: Build an approved feature through TDD slices and route completed work to verification.
 
-## Steps
-
-1. Load plan:
-   - Approved plan, ticket, or in-chat brief contract for low-risk maintenance; require `docs/prd/` and `docs/srs/` trace for governed features.
-   - If multiple candidates exist, ask user to select target slug.
-   - Downstream workers execute against assigned briefs without reloading parent intake.
-   - Matched framework and common skills.
-   - `snc_tier`/`model_tier` from handoff; sensitive changes enforce risk floor; `high` adds architecture and security specialists before `verify-work`.
-2. Prepare workspace:
-   - Confirm clean or intentionally dirty git state.
-   - Create branch or worktree only when project workflow expects it.
-   - Provision dependencies BEFORE tests (`npm ci`/`pnpm i`/`yarn`, `flutter pub get`, `./gradlew dependencies`, or `pip install -e .` from the lockfile); isolated worktrees lack ignored toolchains.
-   - If install fails from network, auth, or time budget, report `verification_infra_failed` with the exact command/error; never claim tests passed or silently skip verification.
-   - Initialize or update `docs/srs/srs-task-list-[slug].md` with small vertical slices.
-3. Implement slices:
-   - For each slice, write or update the failing test first.
-   - Before the test, record its observable contract, distinct fault, smallest layer, minimal cases, and exact focused command (the Test Intent Record).
-   - Consume the named `REQ-*` and `AC-*` for each slice; do not invent scope from code inspection.
-   - For new behavior, do not keep pre-test implementation code as a reference: observe the expected RED first.
-   - For legacy or bug-fix slices, characterize only when needed, then make the intended change RED while preserving unrelated existing code.
-   - Implement the smallest passing code.
-   - Refactor without expanding scope.
-   - Run the focused target in foreground, single-run, sequential mode; classify invalid RED, unexpected GREEN, timeout, and cleanup instead of retrying blindly.
-   - Keep slice evidence near the task item.
-   - Use sub-agents only when the runtime supports them and ownership is disjoint.
-   - If a fix path is unclear, stop and apply root-cause debugging before more code changes.
-4. Maintain context hygiene:
-   - Start fresh context for large independent slices when possible.
-   - Preserve decisions in `docs/srs/srs-task-list-[slug].md` or `docs/prd/prd-plan-[slug].md`.
-   - If behavior or scope changes, update `docs/prd/prd-[slug].md` and `docs/srs/srs-[slug].md` before closing the slice.
-   - Avoid carrying raw logs; summarize failures and fixes.
-5. Prepare handoff:
-   - Run focused automated checks on changed paths; full test suites run during orchestrator integration.
-   - Update requirement trace notes for changed AC coverage.
-   - Capture evidence in walkthrough or task report.
-   - For autonomous/channel mode, delegate only with disjoint files, owner, AC IDs, expected artifact, and verification command.
-   - Route next step to `verify-work`.
-
+1. Load the approved plan, ticket, or brief. For sufficiently specified low-risk maintenance, the approved in-chat/brief contract is sufficient; retain its acceptance criteria, decisions, and verification evidence in chat or the task report. Do not require new BRD/PRD/SRS or task-list documents, REQ/AC IDs, or document updates.
+   - Governed delivery requires PRD/SRS trace, task-list slices, stable requirement/acceptance IDs, and decision trace. Update those artifacts when governed scope or behavior changes.
+   - Downstream workers use assigned briefs without repeating intake. Carry `snc_tier`/`model_tier`; sensitive changes enforce a minimum medium risk tier (high when applicable). High-risk work adds architecture and security review before verification and requires human approval and independent review.
+2. Prepare the workspace as project practice requires; confirm clean or intentionally dirty state and provision dependencies before tests. If install fails, report `verification_infra_failed` with exact command/error; never imply checks passed.
+3. Implement slices with TDD: record observable contract, distinct fault, smallest layer, minimal cases, and focused command before tests; observe expected RED before implementation; make the smallest passing change, refactor without scope expansion, then run focused checks sequentially. Characterize legacy behavior only when needed; preserve unrelated code. Keep evidence with the task item. If unclear, root-cause debug before changing code.
+4. Verify changed paths; run full suites during integration. Governed or sensitive work retains required human approvals and independent review; do not treat self-review or checks as approval. Record outcomes, changed contracts, and missing evidence in chat/task report for low-risk work or in governed trace artifacts.
+5. Return risk tier, approved criteria, evidence location, and blockers to the orchestrator; do not spawn agents. The orchestrator dispatches `verify-work` or independent review to a disjoint owner with a complete brief.
 ## Runtime Contract
-- Use for approved plans ready to build; failing test first, no pre-test implementation kept as reference.
-- Required inputs: PRD, ticket, or approved brief with stable ACs; full SRS trace for governed delivery.
-- Return BLOCKED only when required trace, owner, or test lanes are missing.
+- Use for approved work. Low-risk maintenance requires a sufficient approved brief; governed work requires full PRD/SRS trace. Sensitive risk floors and high-risk gates remain mandatory.
+- Return BLOCKED only when required brief/trace, owner, approval, or test lane is missing.
 ## Handoff Payload
-- `slug`, `operator_profile` (carried, not re-inferred), `snc_tier`, `model_tier`, completed slices, tests run, changed contracts, delegation packets, outcome report, next workflow.
+- `slug`, `operator_profile`, `snc_tier`, `model_tier`, completed slices, tests run, changed contracts, requirement trace when governed, evidence location, blockers, missing evidence, decisions, next workflow.
 ## Blocking Questions
-- Ask max 3 at a time with a recommended default and 2-3 options.
-
+- Ask only for missing required brief/trace, owner, approval, or test lane.
 ## Output Template
-
 ```md
-# Implementation Handoff: [Name]
+# Implementation Handoff
 ## Completed Slices
 ## Tests Run
 ## Changed Contracts
-## Requirement Trace Updates
+## Requirement Trace Updates (governed)
 ## Evidence
 ## Known Risks
-## Delegation Packets
 ## Outcome Report
-{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: implement-feature, feature_status: implemented, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: verify-work, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
+schema_version: 1
+run_id: "[run-id]"
+slug: "[slug]"
+workflow: implement-feature
+feature_status: implemented
+started_at: "[timestamp]"
+completed_at: "[timestamp]"
+requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}
+completed_evidence: []
+missing_evidence: []
+decision_needed: []
+recommended_next_workflow: verify-work
+cost: {source: unavailable}
+agent: {identity: "[agent-identity]", model: "[model]"}
+```
 ## Next Workflow
 verify-work
 ## Cost Report
-Call `get_session_cost(workflow="implement-feature")` before final handoff.
-```
+- Call `get_session_cost(workflow="implement-feature")` before final handoff.

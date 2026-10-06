@@ -91,6 +91,162 @@
           ]
         }
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "Review a specialist-export PR. A canonical writer now declares risk_tier: L2. The unchanged OpenCode transformer emits an HTML permission warning before the opening YAML delimiter, followed by description and mode: subagent. The pinned native parser recognizes frontmatter only at the beginning of the document; existing tests check only warning text. Identify the consumer-visible regression and a fix that retains the permission warning.",
+      "expected_output": "[MAJOR] The new declaration activates a warning prefix that prevents native frontmatter parsing. Why: OpenCode loses description and subagent mode. Fix: Keep the opening delimiter at the beginning and move the warning into the body after the closing delimiter. Validate permission-bearing canonical exports through the native parser.",
+      "assertions": [
+        { "type": "contains", "value": "frontmatter" },
+        { "type": "contains", "value": "subagent" }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Review an executable evaluation runner. Its external verifier requires the candidate module before running assertions. A candidate containing only process.exit(0) produces verifier exit 0 with no required exports and no assertion output, and the runner records success solely from exit status. Verifier hashes are unchanged. Is this a valid pass? The runner explicitly does not claim OS sandboxing.",
+      "expected_output": "[MAJOR] This is a false pass, not completed verification. Why: Successful process exit does not prove assertions ran. Fix: Require and validate a complete verification result outside candidate execution; reject missing or incomplete completion evidence. Do not treat a log marker as an adversarial sandbox boundary.",
+      "assertions": [
+        { "type": "contains_any", "value": ["false pass", "false positive", "invalid pass"] },
+        { "type": "contains_any", "value": ["completion", "complete verification", "verification result"] }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Review a bounded process runner. Timeout kills and inspects the owned process group, but normal leader close immediately resolves and clears the timer. A leader spawns a non-detached helper with ignored stdio, unrefs it, and exits 0; the helper remains alive while verification starts. Explicitly detached sessions are documented as out of scope. Existing tests cover timeout cleanup only.",
+      "expected_output": "[MAJOR] Normal completion abandons an owned descendant. Why: Leader closure does not establish group quiescence; the descendant can mutate the workspace during verification or consume resources indefinitely. Fix: Perform bounded process-group cleanup or fail closed before verification, preserving the documented detached-session limitation. Test the normal-exit transition.",
+      "assertions": [
+        { "type": "contains", "value": "descendant" },
+        { "type": "contains_any", "value": ["group quiescence", "process-group cleanup", "group cleanup"] }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Review a task-result aggregator: valid task IDs match [a-zA-Z0-9_-]+; const byTask = {}; byTask[id] = counters; later it enumerates Object.values(byTask) and JSON-serializes it. A valid __proto__ task completes three runs, but its per-task JSON row is absent. Identify the bug and fix it without special-casing a currently valid task ID.",
+      "expected_output": "[MAJOR] The inherited __proto__ setter changes the record prototype instead of creating an enumerable task entry. Why: Per-task JSON and CLI summaries silently omit accepted evidence. Fix: Use Object.create(null), or aggregate with Map and serialize using Object.fromEntries. Verify counters and key presence after JSON round-trip; do not claim global prototype pollution.",
+      "assertions": [
+        { "type": "contains", "value": "JSON" },
+        { "type": "contains_any", "value": ["Object.create(null)", "Map", "Object.fromEntries"] }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Review a three-arm authorization benchmark. Minimal guidance permits caller-supplied tenant IDs to be ignored or rejected. Current guidance requires overriding the tenant ID. The shared verifier unconditionally requires spoofed-tenant creation to succeed. A secure minimal-arm implementation rejects spoofing without state mutation and is marked failed. Is the comparison valid?",
+      "expected_output": "[MAJOR] The benchmark changes the required behavior across treatments. Why: A permitted secure rejection is penalized by the common verifier, biasing arm comparisons. Fix: Align all guidance and the verifier to one task contract, either requiring override consistently or accepting safe rejection consistently. Test the permitted rejection branch.",
+      "assertions": [
+        { "type": "contains", "value": "verifier" },
+        { "type": "contains_any", "value": ["rejection", "rejecting", "rejected"] }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Review text-evaluation recovery. A composite manifest has a current v4 top-level protocol but preserves historical v1 per-skill provenance. One historical baseline answer is missing. Execution checks only the top-level protocol and regenerates the missing lane using v4 instructions without changing leaf provenance; its historical sibling answer remains. Existing tests reject only historical top-level manifests and incomplete inputs before composition.",
+      "expected_output": "[MAJOR] Recovery regenerates current-protocol evidence under historical provenance and mixes paired instructions. Why: The composite no longer honestly identifies its sources. Fix: Refuse generation into immutable composites or preflight every missing lane's effective protocol before any worker invocation or write. Recover through a fresh run and recomposition, without relabeling historical evidence.",
+      "assertions": [
+        { "type": "contains", "value": "provenance" },
+        { "type": "contains_any", "value": ["Refuse", "reject", "immutable", "preflight"] }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Review report aggregation. All selected categories contribute to headline pass rates, but protocol classification filters out unknown categories. One category is known v4, another exported category has no manifest in this checkout and resolves to unknown. The summary claims v4-only provenance and emits no warning, while the category row says unknown.",
+      "expected_output": "[MAJOR] Unknown contributing evidence is silently dropped from provenance classification. Why: The headline appears homogeneous without evidence for all included categories. Fix: Retain unresolved categories, label aggregate provenance incomplete or unknown, and warn; do not infer actual mixed protocols solely from missing provenance. Support the correct evidence root or persist generation protocol.",
+      "assertions": [
+        { "type": "contains", "value": "provenance" },
+        { "type": "contains_any", "value": ["unknown", "incomplete", "unresolved"] }
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Review a cumulative BASE-to-WORKSPACE package collector. It gathers tracked-diff names and untracked names, then excludes every tracked-diff name from untracked collection. A base-tracked file is stage-deleted and recreated untracked at the same path with replacement implementation. Git reports that name in both sets; the package shows only deletion. Existing tests use different paths for tracked and untracked edits.",
+      "expected_output": "[MAJOR] The package omits the recreated replacement implementation. Why: Review can approve deletion while later staging unreviewed code. Fix: Handle overlapping tracked/untracked names as replacement state and include current contents against BASE without changing the user's index. Verify replacement evidence and exclusion of unrelated files.",
+      "assertions": [
+        { "type": "contains", "value": "replacement" },
+        { "type": "contains_any", "value": ["untracked", "recreated"] }
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Review an owned-workspace Git package collector. For each new untracked path it requires os.path.isfile(path), then invokes git diff --no-index. New directory-target and dangling symlinks are valid Git additions but fail that check as disappeared files, aborting the package. Existing fixtures contain only regular files. Recommend a fix that never imports outside target contents.",
+      "expected_output": "[MAJOR] Following-link existence checks reject valid symlink additions. Why: Review becomes unavailable for supported Git file types. Fix: Use lstat or lexists and serialize the link target and Git mode 120000 without dereferencing outside contents. Test directory-target and dangling links separately.",
+      "assertions": [
+        { "type": "contains", "value": "symlink" },
+        { "type": "contains_any", "value": ["lstat", "lexists", "link target", "120000"] }
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Review this pagination verifier change. The contract says pages must be positive integers; non-integers normalize to page 1. The verifier labels a case \"non-positive or non-integer\" but only supplies 0, -10, and NaN. Every positive page in the rest of the verifier is an integer. A plausible implementation guard is `if (!Number.isFinite(page) || page <= 0) page = 1`, which accepts 1.5 and slices from a fractional offset. Existing correct pagination code uses `Number.isInteger`; nearby tests cover worker timeout input 1.5, not pagination. What finding and oracle fix are warranted? No mutant execution was observed.",
+      "expected_output": "[MAJOR] The pagination oracle misses a positive fractional page despite the integer-page contract. Why: A finite-only guard accepts 1.5, so the verifier can certify behavior that returns the wrong page/data; timeout coverage of 1.5 is unrelated. Fix: Add 1.5 to the real pagination verifier and assert normalized page metadata plus first-page data. Add a real-worker regression for the finite-only predicate and require an evaluated product failure while retaining the correct baseline. State that the false pass is a source-based counterexample, not an observed mutant run.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Finds the untested positive fractional pagination contract",
+          "type": "contains_any",
+          "value": ["positive fractional", "fractional page", "non-integer page"]
+        },
+        {
+          "id": "a2",
+          "description": "Fixes the oracle with consumer-visible page proof",
+          "type": "contains_any",
+          "value": ["first-page data", "first page data", "page 1 data"]
+        },
+        {
+          "id": "a3",
+          "description": "Does not claim an unobserved mutant execution",
+          "type": "contains_any",
+          "value": ["not observed", "not executed", "source-based"]
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "Review composition and baseline reuse for evaluation evidence. An accepted verified composite has top-level `protocol: neutral-skill-v4` and a present but partial per-skill `provenance` map; selected base key `dart/dart-tooling` is absent, while another key has a valid current overlay. `composeRuns` currently resolves `sourceProvenance?.protocol ?? source.manifest.protocol`; the three `planBaseline` protocol lookups make the same fallback. `assertV2Source` checks integrity/completeness but not selected-leaf provenance. Existing composition tests use complete maps; partial-provenance tests cover rendering only. Review reports identify the output as unknown before composition, then inferred v4 after fallback. No partial-composite runtime scenario was executed.",
+      "expected_output": "[MAJOR] A missing selected leaf in a partial composite is incorrectly promoted to known v4 provenance and can become reusable. Why: The composite envelope cannot prove the omitted leaf's protocol; fallback erases uncertainty, may certify homogeneous-v4 evidence, and may suppress required generation. Fix: Refuse composition during preflight when a selected leaf is missing from a present provenance map, before output creation or copying; preserve top-level fallback only for map-free physical runs. Apply the same distinction to all reuse/planning lookups so unresolved composite evidence is not considered current. Add partial-composite refusal and reuse-planning behavior coverage while retaining complete-map history. Treat the failure as a source-based risk, not an executed result.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Identifies uncertainty lost at the composite leaf boundary",
+          "type": "contains_any",
+          "value": ["missing selected leaf", "partial provenance", "unresolved leaf"]
+        },
+        {
+          "id": "a2",
+          "description": "Rejects envelope fallback as provenance proof",
+          "type": "contains_any",
+          "value": ["do not fall back", "must not infer", "refuse composition", "preflight"]
+        },
+        {
+          "id": "a3",
+          "description": "Covers baseline reuse as well as composition",
+          "type": "contains_any",
+          "value": ["reuse", "reusable", "planBaseline"]
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "Review a change to an implementation workflow. It adds: \"Downstream workers delegate only with disjoint ownership, acceptance criteria, artifact, and verification command.\" The repository's single-worker contract says implementer workers do not recursively delegate; the orchestrator owns decomposition, dispatch, review gates, and integration. A bounded worker on a task-capable host could interpret the new sentence as permission to spawn a reviewer when its file list is disjoint. Is the clause safe, and what should the workflow say instead?",
+      "expected_output": "[MAJOR] The workflow gives implementation workers conditional recursive-delegation authority, contradicting the orchestrator-only dispatch contract. Why: Disjoint files and a task packet do not transfer dispatch authority; the worker can bypass single-owner review/integration control. Fix: Require workers to return risk tier, approved criteria, evidence location, and blockers to the orchestrator without spawning. Only the orchestrator dispatches verification or independent review to a disjoint owner with a complete brief. Do not claim a worker actually spawned.",
+      "assertions": [
+        {
+          "id": "a1",
+          "description": "Reserves dispatch authority to the orchestrator",
+          "type": "contains_any",
+          "value": ["orchestrator alone", "only the orchestrator", "orchestrator owns dispatch"]
+        },
+        {
+          "id": "a2",
+          "description": "Explicitly prohibits worker spawning",
+          "type": "contains_any",
+          "value": ["workers do not spawn", "worker must not spawn", "without spawning"]
+        },
+        {
+          "id": "a3",
+          "description": "Identifies the control-boundary consequence",
+          "type": "contains_any",
+          "value": ["dispatch authority", "recursive delegation", "single-owner"]
+        }
+      ]
     }
   ],
   "should_not_trigger": [

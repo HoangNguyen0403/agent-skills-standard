@@ -2,6 +2,7 @@
 name: project-skill-maintenance
 description: Maintenance procedures for contributing and managing skills within the agent-skills-standard repository — metadata versioning, mirror generation, and release quality gates. For general skill authoring standards, see common-skill-creator.
 metadata:
+  internal: true
   labels:
     [repository, maintenance, metadata, contribution, release-workflow]
   triggers:

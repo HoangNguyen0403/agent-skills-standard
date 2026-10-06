@@ -290,7 +290,7 @@ export function buildManifest(
   const sourceHashes: ManifestV2["sourceHashes"] = {};
   const resourceFingerprints: NonNullable<ManifestV2["resourceFingerprints"]> =
     {};
-  const compromisedSkills = [];
+  const compromisedSkills: ManifestV2["compromisedSkills"] = [];
   const skills: ManifestSkill[] = [];
   for (const currentCategory of category === "all" ? categories : [category]) {
     const categoryDir = repoPath(repoRoot, "skills", currentCategory);

@@ -6,7 +6,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ### Prequisites
 
-- Node.js v18+
+- Node.js v20+ (the supported runtime floor)
 - pnpm (v9+)
 
 ### Installation
@@ -110,6 +110,12 @@ Rules:
 9. Specialists and generated workflow skills set `metadata.internal: true` so skill installers (`npx skills`) don't offer them as installable skills.
 10. File-modifying specialists must declare `risk_tier: L2` in `SKILL.md` frontmatter so exporters project `workspace-write` permissions. Analysis and review specialists omit write tiers and remain least-privilege read-only. Advisory markdown instructions cannot enforce runtime boundaries; concrete isolation depends on host runtime controls.
 
+Native YAML specialist exports must begin with `---`; advisory permission warnings belong after the closing frontmatter delimiter so native parsers can read the metadata. The warning describes policy but is not enforcement.
+
+Review-package collection uses a scoped alternate Git index to capture BASE-relative current bytes and symlink target text without mutating the caller's index or dereferencing symlinks. The package includes paths currently tracked in the caller's index, including staged new files later ignored by Git, and excludes ignored untracked files.
+
+For implementation and verification, preserve the low-risk in-chat brief/criteria/evidence handoff across `implement-feature` → `verify-work`; risk-sized evidence does not waive applicable tests or verification. Governed changes still require formal trace and sensitive changes retain their risk, approval, and independent-review floors. See `.agents/workflows/implement-feature.md` and `.agents/workflows/verify-work.md`.
+
 ## 6. Quality Gates
 
 Run these before PR:
@@ -179,9 +185,12 @@ pnpm evals:tasks --manifest benchmarks/tasks/pilot.json --worker <path-to-worker
 ```
 
 - Worker configuration JSON: `{ "executable": string, "args": string[], "model": string, "effort": string, "timeoutMs": number }`. Supports `{workspace}` and `{promptFile}` substitution without shell interpolation.
-- Tests code modifications on fixture workspaces (`benchmarks/tasks/fixtures/pagination`, `benchmarks/tasks/fixtures/authorization`) using external verifiers. Task success requires a clean worker exit combined with verifier pass. Process group signaling escalates from SIGTERM to SIGKILL on timeout but does not track detached sessions.
-- **Security Notice / Nonproduction Trust**: Local task execution runs child processes with host user permissions. It provides **NO OS-level sandbox or container isolation**. Run only trusted worker configurations and nonproduction test fixtures.
-- **Missing Model Benchmarks & Metrics**: Pilot fixture suites and unit test deterministic child-process checks verify runner plumbing, process group isolation, and verifier mechanics; they do not represent live model capability sweeps. Pass rates evaluate product attempts only (excluding infrastructure errors) and remain null when no product evidence exists. Unknown token/cost metrics remain null rather than estimated.
+- Tests code modifications on fixture workspaces (`benchmarks/tasks/fixtures/pagination`, `benchmarks/tasks/fixtures/authorization`) using external verifiers. Completion requires a structured verifier receipt checked by the outer runner, not exit status alone. Missing or inconsistent evidence is an infrastructure failure; genuine failed checks remain evaluated product failures with their evidence.
+- POSIX owned process-group cleanup is bounded and fails closed if quiescence cannot be established. Windows descendant cleanup and deliberately detached sessions are outside that guarantee.
+- **Security notice / nonproduction trust**: Child processes use host user permissions and environment; the harness provides no OS-level sandbox. Receipts are not a boundary against hostile same-UID code. Run only trusted configurations on nonproduction fixtures.
+- **Measurement limits**: Fixture suites and deterministic child-process checks verify runner plumbing, cleanup, and verifier behavior; they do not measure live model capability. Product pass rates exclude infrastructure errors and are `null` without valid product evidence. Unknown token/cost metrics remain `null`, not estimated.
+
+`scripts/evals/*.test.ts` runs in the Node 20 CI lane through `pnpm test:evals`; the CI script-test step runs `pnpm test:evals && pnpm test:outcome && pnpm test:trace`. Remote-sync CI continues to use the actual GitHub sync path with the workflow's read-only token, not a mock.
 
 For release candidates, also run:
 

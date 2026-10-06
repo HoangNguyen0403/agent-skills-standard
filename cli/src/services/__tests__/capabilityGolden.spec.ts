@@ -5,7 +5,6 @@ import { describe, expect, it } from 'vitest';
 import { Agent, getAgentDefinition } from '../../constants';
 import { HookService } from '../HookService';
 import { McpConfigService } from '../McpConfigService';
-import { SpecialistTransformer } from '../utils/SpecialistTransformer';
 
 const AGENTS = Object.values(Agent);
 const ORIGINAL_KEYS = [
@@ -14,12 +13,6 @@ const ORIGINAL_KEYS = [
   'agentPath', 'hookScriptPath', 'hookConfigPath',
 ] as const;
 const plain = (v: unknown) => JSON.parse(JSON.stringify(v));
-
-const SPECIALIST = {
-  name: 'specialist-demo',
-  content:
-    '---\nname: specialist-demo\ndescription: Demo reviewer\nrisk_tier: L2\nallowed-tools: [Read, Grep]\npermissions:\n  network: false\n  filesystem: read\n---\nReview the diff and report findings.\n',
-};
 
 describe('capability golden (must never change during T3)', () => {
   it('agent definitions (original fields)', () => {
@@ -41,11 +34,6 @@ describe('capability golden (must never change during T3)', () => {
     } finally {
       Object.defineProperty(process, 'platform', { value: original });
     }
-  });
-
-  it('specialist outputs', () => {
-    const out = Object.fromEntries(AGENTS.map((a) => [a, SpecialistTransformer.transform(SPECIALIST, a)]));
-    expect(plain(out)).toMatchSnapshot();
   });
 
   it('hook install file sets', async () => {

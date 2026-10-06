@@ -147,6 +147,116 @@ class TestReviewPackage(unittest.TestCase):
         self.assertIn("+second round change", second_contents)
 
 
+    def test_staged_deletion_with_recreated_file_includes_replacement_without_changing_index(self):
+        run_git(self.test_dir, ["rm", "file_a.txt"])
+        with open(self.file_a, "w", encoding="utf-8") as stream:
+            stream.write("replacement content\n")
+        index_tree_before = run_git(self.test_dir, ["write-tree"])
+
+        output = self.package(["file_a.txt"])
+        package = self.read_package(output)
+
+
+        self.assertIn("+replacement content", package)
+        self.assertIn("-initial a", package)
+        self.assertEqual(
+            run_git(self.test_dir, ["write-tree"]),
+            index_tree_before,
+            "package collection must not mutate the caller's index",
+        )
+
+    def test_staged_new_file_ignored_after_staging_stays_in_scoped_package(self):
+        owned_dir = os.path.join(self.test_dir, "owned")
+        os.mkdir(owned_dir)
+        existing_path = os.path.join(owned_dir, "existing.txt")
+        with open(existing_path, "w", encoding="utf-8") as stream:
+            stream.write("base existing content\n")
+        run_git(self.test_dir, ["add", "owned/existing.txt"])
+        run_git(self.test_dir, ["commit", "-m", "Add existing owned file"])
+        self.base_sha = run_git(self.test_dir, ["rev-parse", "HEAD"])
+
+        staged_path = os.path.join(owned_dir, "new.txt")
+        with open(staged_path, "w", encoding="utf-8") as stream:
+            stream.write("staged new content\n")
+        run_git(self.test_dir, ["add", "owned/new.txt"])
+        index_tree_before = run_git(self.test_dir, ["write-tree"])
+
+        exclude_path = os.path.join(self.test_dir, ".git", "info", "exclude")
+        with open(exclude_path, "a", encoding="utf-8") as stream:
+            stream.write("\n/owned/new.txt\n/owned/ignored-neighbor.txt\n")
+        with open(os.path.join(owned_dir, "ignored-neighbor.txt"), "w", encoding="utf-8") as stream:
+            stream.write("ignored untracked neighbor sentinel\n")
+        with open(existing_path, "w", encoding="utf-8") as stream:
+            stream.write("modified existing content\n")
+
+        output = self.package(["owned"])
+
+        package = self.read_package(output)
+        self.assertIn("+staged new content", package)
+        self.assertIn("+modified existing content", package)
+        self.assertNotIn("ignored untracked neighbor sentinel", package)
+        self.assertNotIn("ignored-neighbor.txt", package)
+        self.assertEqual(
+            run_git(self.test_dir, ["write-tree"]),
+            index_tree_before,
+            "package collection must not mutate the caller's staged tree",
+        )
+
+    def test_directory_to_regular_file_replacement_packages_without_mutating_index(self):
+        old_directory = os.path.join(self.test_dir, "owned", "sub")
+        os.makedirs(old_directory)
+        old_path = os.path.join(old_directory, "file.txt")
+        with open(old_path, "w", encoding="utf-8") as stream:
+            stream.write("tracked child content\n")
+        run_git(self.test_dir, ["add", "owned/sub/file.txt"])
+        run_git(self.test_dir, ["commit", "-m", "Add owned subtree"])
+        self.base_sha = run_git(self.test_dir, ["rev-parse", "HEAD"])
+        index_tree_before = run_git(self.test_dir, ["write-tree"])
+
+        shutil.rmtree(old_directory)
+        replacement_path = os.path.join(self.test_dir, "owned", "sub")
+        with open(replacement_path, "w", encoding="utf-8") as stream:
+            stream.write("replacement regular-file content\n")
+
+        output = self.package(["owned"])
+
+        package = self.read_package(output)
+        self.assertIn("owned/sub/file.txt", package)
+        self.assertIn("-tracked child content", package)
+        self.assertIn("+replacement regular-file content", package)
+        self.assertEqual(
+            run_git(self.test_dir, ["write-tree"]),
+            index_tree_before,
+            "package collection must not mutate the caller's staged tree",
+        )
+
+    def test_directory_and_dangling_symlinks_are_packaged_as_link_text_without_dereference(self):
+        target_dir = os.path.join(self.test_dir, "outside-target")
+        os.mkdir(target_dir)
+        with open(os.path.join(target_dir, "private.txt"), "w", encoding="utf-8") as stream:
+            stream.write("target content must not be read\n")
+
+        link_dir = os.path.join(self.test_dir, "links")
+        os.mkdir(link_dir)
+        os.symlink("../outside-target", os.path.join(link_dir, "directory-link"))
+        os.symlink("../missing-target", os.path.join(link_dir, "dangling-link"))
+        index_tree_before = run_git(self.test_dir, ["write-tree"])
+
+        output = self.package(["links"])
+
+        package = self.read_package(output)
+        self.assertIn("new file mode 120000", package)
+        self.assertIn("+../outside-target", package)
+        self.assertIn("+../missing-target", package)
+        self.assertIn("directory-link", package)
+        self.assertIn("dangling-link", package)
+        self.assertNotIn("target content must not be read", package)
+        self.assertEqual(
+            run_git(self.test_dir, ["write-tree"]),
+            index_tree_before,
+            "package collection must not mutate the caller's index",
+        )
+
     def test_committed_commit_range(self):
         with open(self.file_a, "a", encoding="utf-8") as stream:
             stream.write("committed line\n")

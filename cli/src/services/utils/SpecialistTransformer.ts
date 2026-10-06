@@ -56,10 +56,8 @@ function summarizeDeclaredPermissions(
 
 /**
  * For platforms with no way to express a declared risk_tier/permissions/
- * allowed-tools, prepend a visible warning rather than silently dropping
- * the declaration — a persona authored as restricted for one platform
- * should not read as unconstrained everywhere else without at least a
- * trace of what was intended.
+ * allowed-tools, emit a visible warning after native frontmatter rather than
+ * silently dropping the declaration.
  */
 function unenforceableWarningComment(
   metadata: Record<string, unknown>,
@@ -121,31 +119,31 @@ export class SpecialistTransformer {
       case 'cursor-mdc':
         return {
           name: `${fullName}.mdc`,
-          content: `${unenforceableWarningComment(metadata, 'Cursor')}---\n${dumpFrontmatter({ description, globs: ['**/*'] })}\n---\n# Specialist: ${baseName}\n\n${body}`,
+          content: `---\n${dumpFrontmatter({ description, globs: ['**/*'] })}\n---\n${unenforceableWarningComment(metadata, 'Cursor')}\n# Specialist: ${baseName}\n\n${body}`,
         };
 
       case 'copilot-instructions':
         return {
           name: `${fullName}.instructions.md`,
-          content: `${unenforceableWarningComment(metadata, 'Copilot')}---\n${dumpFrontmatter({ description, applyTo: '**/*' })}\n---\n\n${body}`,
+          content: `---\n${dumpFrontmatter({ description, applyTo: '**/*' })}\n---\n${unenforceableWarningComment(metadata, 'Copilot')}\n${body}`,
         };
 
       case 'opencode-md':
         return {
           name: `${baseName}.md`,
-          content: `${unenforceableWarningComment(metadata, 'OpenCode')}---\n${dumpFrontmatter({ description, mode: 'subagent' })}\n---\n\n${body}`,
+          content: `---\n${dumpFrontmatter({ description, mode: 'subagent' })}\n---\n${unenforceableWarningComment(metadata, 'OpenCode')}\n${body}`,
         };
 
       case 'gemini-md':
         return {
           name: `${baseName}.md`,
-          content: `${unenforceableWarningComment(metadata, 'Gemini')}---\n${dumpFrontmatter({ name: baseName, description, kind: 'local' })}\n---\n\n${body}`,
+          content: `---\n${dumpFrontmatter({ name: baseName, description, kind: 'local' })}\n---\n${unenforceableWarningComment(metadata, 'Gemini')}\n${body}`,
         };
 
       case 'kiro-md':
         return {
           name: `${baseName}.md`,
-          content: `${unenforceableWarningComment(metadata, 'Kiro')}---\n${dumpFrontmatter({ name: baseName, description })}\n---\n\n${body}`,
+          content: `---\n${dumpFrontmatter({ name: baseName, description })}\n---\n${unenforceableWarningComment(metadata, 'Kiro')}\n${body}`,
         };
 
       case 'codex-toml': {

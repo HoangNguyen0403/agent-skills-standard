@@ -13,9 +13,12 @@ import {
   resourceFingerprint,
   sourceKey,
 } from "./snapshot";
-import type { ManifestSkill, ManifestV2, RunInputSource } from "./types";
-
-
+import type {
+  EvidenceMode,
+  ManifestSkill,
+  ManifestV2,
+  RunInputSource,
+} from "./types";
 
 export type EvidenceAction = "reuse" | "generate" | "regrade";
 
@@ -199,6 +202,24 @@ function chooseBaseline(
   return selected;
 }
 
+function isCompositeEvidence(manifest: ManifestV2): boolean {
+  return (
+    manifest.metadata.evidenceMode === "composite" ||
+    /composite/i.test(manifest.metadata.agent ?? "")
+  );
+}
+
+function skillProtocolVersion(
+  manifest: ManifestV2,
+  key: string,
+): ManifestV2["protocol"]["instructionVersion"] | undefined {
+  if (manifest.provenance)
+    return manifest.provenance[key]?.protocol?.instructionVersion;
+  return isCompositeEvidence(manifest)
+    ? undefined
+    : manifest.protocol.instructionVersion;
+}
+
 function compatibleEvidenceRun(
   repoRoot: string,
   skill: ManifestSkill,
@@ -207,9 +228,7 @@ function compatibleEvidenceRun(
   const currentParts = evalParts(current.evals);
   const key = sourceKey(skill.category, skill.skillName);
   return completeBaselineRuns(repoRoot).find((run) => {
-    const skillProtocol =
-      run.manifest.provenance?.[key]?.protocol.instructionVersion ??
-      run.manifest.protocol.instructionVersion;
+    const skillProtocol = skillProtocolVersion(run.manifest, key);
     if (skillProtocol !== CURRENT_INSTRUCTION_VERSION) return false;
     const source = run.sources[key];
     if (
@@ -237,9 +256,7 @@ function compatibleActivationEvidenceRun(
   const currentParts = evalParts(current.evals);
   const key = sourceKey(skill.category, skill.skillName);
   return completeBaselineRuns(repoRoot).find((run) => {
-    const skillProtocol =
-      run.manifest.provenance?.[key]?.protocol.instructionVersion ??
-      run.manifest.protocol.instructionVersion;
+    const skillProtocol = skillProtocolVersion(run.manifest, key);
     if (skillProtocol !== CURRENT_INSTRUCTION_VERSION) return false;
     if (run.manifest.activationEvidenceVersion !== 3) return false;
     const source = run.sources[key];
@@ -268,10 +285,9 @@ export function planBaseline(
   for (const skill of scopedSkills) {
     const key = sourceKey(skill.category, skill.skillName);
     const previous = baseline.sources[key];
-    const previousProtocol =
-      baseline.manifest.provenance?.[key]?.protocol.instructionVersion ??
-      baseline.manifest.protocol.instructionVersion;
-    const protocolChanged = previousProtocol !== CURRENT_INSTRUCTION_VERSION;
+    const protocolChanged =
+      skillProtocolVersion(baseline.manifest, key) !==
+      CURRENT_INSTRUCTION_VERSION;
     if (!previous) {
       impacts.push({
         key,

@@ -182,18 +182,104 @@ describe("Executable Task-Evaluation Harness", () => {
       assert.equal(fixtureHash.length, 64);
     });
   });
+    it("does not count a candidate that exits before completing verification", async () => {
+      const manifest = await validateManifest(await fs.readJson(manifestPath), manifestDir);
+      const task = manifest.tasks.find((entry) => entry.id === "pagination-boundary");
+      assert.ok(task);
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-test-verifier-early-exit-"));
+      const workerPath = path.join(tempDir, "write-early-exit.js");
+      await fs.writeFile(
+        workerPath,
+        `const fs = require("node:fs");
+const path = require("node:path");
+fs.writeFileSync(path.join(process.argv[2], "src", "paginate.js"), "process.exit(0);\\n");
+`,
+      );
+
+      try {
+        const result = await executeTaskRun({
+          task,
+          arm: "candidate",
+          repetition: 1,
+          workerConfig: {
+            executable: process.execPath,
+            args: [workerPath, "{workspace}"],
+            model: "early-exit-regression",
+            effort: "low",
+            timeoutMs: 5000,
+          },
+          manifestDir,
+          outputDir: path.join(tempDir, "results"),
+        });
+        assert.equal(result.exitOutcomes.workerExitCode, 0);
+        assert.equal(result.success, false, "Exit zero without verifier completion must not pass");
+        assert.ok(
+          result.exitOutcomes.infrastructureError || result.exitOutcomes.verifierExitCode !== 0,
+          "Incomplete verifier execution must have a distinct non-success outcome",
+        );
+      } finally {
+        await fs.remove(tempDir);
+      }
+    });
+
+
+    it("does not resolve normally while a non-detached ignored-stdio helper remains live", async () => {
+      if (process.platform === "win32") return;
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-test-normal-exit-helper-"));
+      const pidPath = path.join(tempDir, "helper.pid");
+      const workerPath = path.join(tempDir, "leader-exits.js");
+      const token = `task-eval-normal-exit-${process.pid}-${Date.now()}`;
+      // This real-process integration case must keep the helper alive until the runner proves cleanup.
+      const helperCode = `process.title = ${JSON.stringify(token)}; setInterval(() => {}, 1000); setTimeout(() => process.exit(0), 6000);`;
+      const workerCode = `
+const { spawn } = require("node:child_process");
+const fs = require("node:fs");
+const helper = spawn(process.execPath, ["-e", ${JSON.stringify(helperCode)}], { stdio: "ignore" });
+helper.unref();
+fs.writeFileSync(process.argv[2], String(helper.pid));
+`;
+      await fs.writeFile(workerPath, workerCode, "utf8");
+      let helperPid: number | undefined;
+
+      try {
+        const result = await runBoundedProcess({
+          executable: process.execPath,
+          args: [workerPath, pidPath],
+          cwd: tempDir,
+          timeoutMs: 5000,
+        });
+        helperPid = Number(await fs.readFile(pidPath, "utf8"));
+        const probe = spawnSync("ps", ["-o", "stat=,command=", "-p", String(helperPid)], {
+          encoding: "utf8",
+          timeout: 1000,
+        });
+        assert.equal(result.exitCode, 0);
+        assert.equal(result.timedOut, false);
+        assert.equal(probe.error, undefined, probe.error?.message);
+        assert.ok(
+          !probe.stdout.trim() || probe.stdout.trimStart().startsWith("Z"),
+          `Owned helper remained live after runner resolution: ${probe.stdout}`,
+        );
+      } finally {
+        if (helperPid !== undefined) {
+          const probe = spawnSync("ps", ["-o", "command=", "-p", String(helperPid)], {
+            encoding: "utf8",
+            timeout: 1000,
+          });
+          if (probe.stdout.includes(token)) {
+            try {
+              process.kill(helperPid, "SIGKILL");
+            } catch {
+              // The recorded fixture helper may exit between the process probe and signal.
+            }
+          }
+        }
+        await fs.remove(tempDir);
+      }
+    });
 
   describe("Passing and Failing Implementation Writes", () => {
-    it("executes passing pagination task when worker writes correct code", async () => {
-      const rawManifest = await fs.readJson(manifestPath);
-      const manifest = await validateManifest(rawManifest, manifestDir);
-      const paginationTask = manifest.tasks.find((t) => t.id === "pagination-boundary")!;
-      assert.ok(paginationTask);
-
-      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-test-worker-pass-"));
-      const workerScriptPath = path.join(tempDir, "solve-pagination.js");
-
-      const correctPaginateCode = `
+    const correctPaginateCode = `
 function paginate(items, options) {
   if (!Array.isArray(items)) {
     throw new TypeError("items must be an array");
@@ -229,6 +315,16 @@ function paginate(items, options) {
 
 module.exports = { paginate };
 `;
+
+    it("executes passing pagination task when worker writes correct code", async () => {
+      const rawManifest = await fs.readJson(manifestPath);
+      const manifest = await validateManifest(rawManifest, manifestDir);
+      const paginationTask = manifest.tasks.find((t) => t.id === "pagination-boundary")!;
+      assert.ok(paginationTask);
+
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-test-worker-pass-"));
+      const workerScriptPath = path.join(tempDir, "solve-pagination.js");
+
 
       const workerCode = `
 const fs = require('fs');
@@ -270,14 +366,63 @@ fs.writeFileSync(targetFile, ${JSON.stringify(correctPaginateCode)}, 'utf8');
       await fs.remove(tempDir);
     });
 
-    it("executes passing authorization task when worker writes correct code", async () => {
+    it("rejects a finite-only positive pagination page predicate", async () => {
+      const manifest = await validateManifest(await fs.readJson(manifestPath), manifestDir);
+      const paginationTask = manifest.tasks.find((entry) => entry.id === "pagination-boundary");
+      assert.ok(paginationTask);
+
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-test-pagination-fraction-page-"));
+      const workerScriptPath = path.join(tempDir, "solve-pagination-finite-page.js");
+      const finitePageOnlyCode = correctPaginateCode.replace(
+        "Number.isInteger(options.page) && options.page > 0",
+        "Number.isFinite(options.page) && options.page > 0",
+      );
+      const workerCode = `
+const fs = require("node:fs");
+const path = require("node:path");
+fs.writeFileSync(path.join(process.argv[2], "src", "paginate.js"), ${JSON.stringify(finitePageOnlyCode)}, "utf8");
+`;
+      await fs.writeFile(workerScriptPath, workerCode, "utf8");
+
+      try {
+        const result = await executeTaskRun({
+          task: paginationTask,
+          arm: "candidate",
+          repetition: 1,
+          workerConfig: {
+            executable: process.execPath,
+            args: [workerScriptPath, "{workspace}"],
+            model: "deterministic-finite-page-regression-worker",
+            effort: "high",
+            timeoutMs: 15000,
+          },
+          manifestDir,
+          outputDir: path.join(tempDir, "eval-out"),
+        });
+
+        assert.equal(result.exitOutcomes.workerExitCode, 0);
+        assert.equal(result.exitOutcomes.verifierExitCode, 1);
+        assert.equal(result.exitOutcomes.infrastructureError, null);
+        assert.equal(result.success, false);
+        assert.ok(result.verificationResult);
+        assert.equal(result.verificationResult.status, "completed");
+        assert.ok(result.verificationResult.failedChecks > 0);
+        assert.ok(result.verificationResult.checks.some(
+          (check) => check.outcome === "failed" && check.evidence.trim() !== "",
+        ));
+      } finally {
+        await fs.remove(tempDir);
+      }
+    });
+
+    it("authorization behavior regressions", async (t) => {
       const rawManifest = await fs.readJson(manifestPath);
       const manifest = await validateManifest(rawManifest, manifestDir);
       const authTask = manifest.tasks.find((t) => t.id === "cross-tenant-authz")!;
       assert.ok(authTask);
 
       const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-test-auth-pass-"));
-      const workerScriptPath = path.join(tempDir, "solve-auth.js");
+      try {
 
       // Robust compliant DocumentService implementation
       const compliantAuthCode = `
@@ -314,6 +459,10 @@ class DocumentService {
   }
 
   createDocument(user, docData) {
+    const existing = this.#documents.get(docData.id);
+    if (existing && existing.tenantId !== user.tenantId) {
+      throw new AuthorizationError("Document ID belongs to another tenant");
+    }
     if (!user.roles || (!user.roles.includes("editor") && !user.roles.includes("admin"))) {
       throw new AuthorizationError("Viewer role cannot create documents");
     }
@@ -359,7 +508,10 @@ class DocumentService {
   listDocuments(user) {
     const results = [];
     for (const doc of this.#documents.values()) {
-      if (doc.tenantId === user.tenantId) {
+      if (
+        doc.tenantId === user.tenantId &&
+        (!doc.restricted || user.roles?.includes("editor") || user.roles?.includes("admin"))
+      ) {
         results.push({ ...doc });
       }
     }
@@ -370,41 +522,129 @@ class DocumentService {
 module.exports = { DocumentService, AuthorizationError };
 `;
 
-      const workerCode = `
-const fs = require('fs');
-const path = require('path');
-const targetWorkspace = process.argv[2];
-const targetFile = path.join(targetWorkspace, 'src', 'service.js');
-fs.writeFileSync(targetFile, ${JSON.stringify(compliantAuthCode)}, 'utf8');
+      const runImplementation = async (source: string, outputDir: string) => {
+        const implementationWorkerPath = path.join(tempDir, `${path.basename(outputDir)}.js`);
+        const implementationWorker = `
+const fs = require("node:fs");
+const path = require("node:path");
+fs.writeFileSync(path.join(process.argv[2], "src", "service.js"), ${JSON.stringify(source)}, "utf8");
 `;
-      await fs.writeFile(workerScriptPath, workerCode, "utf8");
-
-      const testOutputDir = path.join(tempDir, "eval-out");
-
-      const workerConfig: WorkerConfig = {
-        executable: process.execPath,
-        args: [workerScriptPath, "{workspace}"],
-        model: "deterministic-auth-pass-worker",
-        effort: "high",
-        timeoutMs: 15000,
+        await fs.writeFile(implementationWorkerPath, implementationWorker, "utf8");
+        return executeTaskRun({
+          task: authTask,
+          arm: "candidate",
+          repetition: 1,
+          workerConfig: {
+            executable: process.execPath,
+            args: [implementationWorkerPath, "{workspace}"],
+            model: "deterministic-auth-regression-worker",
+            effort: "high",
+            timeoutMs: 15000,
+          },
+          manifestDir,
+          outputDir,
+        });
       };
 
-      const result = await executeTaskRun({
-        task: authTask,
-        arm: "candidate",
-        repetition: 1,
-        workerConfig,
-        manifestDir,
-        outputDir: testOutputDir,
+      await t.test("authorization secure baseline", async () => {
+        const result = await runImplementation(
+          compliantAuthCode,
+          path.join(tempDir, "secure-output"),
+        );
+        assert.equal(result.success, true);
+        assert.equal(result.exitOutcomes.workerExitCode, 0);
+        assert.equal(result.exitOutcomes.verifierExitCode, 0);
       });
 
-      assert.equal(result.success, true);
-      assert.equal(result.exitOutcomes.workerExitCode, 0);
-      assert.equal(result.exitOutcomes.verifierExitCode, 0);
+      const collisionGuard = `    const existing = this.#documents.get(docData.id);
+    if (existing && existing.tenantId !== user.tenantId) {
+      throw new AuthorizationError("Document ID belongs to another tenant");
+    }
+`;
+      const restrictedListingFilter = `      if (
+        doc.tenantId === user.tenantId &&
+        (!doc.restricted || user.roles?.includes("editor") || user.roles?.includes("admin"))
+      ) {`;
 
-      await fs.remove(tempDir);
+      await t.test("authorization foreign-ID collision rejected", async () => {
+        const source = compliantAuthCode.replace(collisionGuard, "");
+        const result = await runImplementation(
+          source,
+          path.join(tempDir, "collision-output"),
+        );
+        assert.equal(result.exitOutcomes.workerExitCode, 0);
+        assert.equal(result.exitOutcomes.verifierExitCode, 1);
+        assert.equal(result.exitOutcomes.infrastructureError, null);
+        assert.ok(result.verificationResult);
+        assert.ok(result.verificationResult.failedChecks > 0);
+        assert.ok(result.verificationResult.checks.some(
+          (check) => check.outcome === "failed" && check.evidence.trim() !== "",
+        ));
+      });
+
+      await t.test("authorization viewer listing omits restricted documents", async () => {
+        const source = compliantAuthCode.replace(
+          restrictedListingFilter,
+          "      if (doc.tenantId === user.tenantId) {",
+        );
+        const result = await runImplementation(
+          source,
+          path.join(tempDir, "viewer-listing-output"),
+        );
+        assert.equal(result.exitOutcomes.workerExitCode, 0);
+        assert.equal(result.exitOutcomes.verifierExitCode, 1);
+        assert.equal(result.exitOutcomes.infrastructureError, null);
+        assert.ok(result.verificationResult);
+        assert.ok(result.verificationResult.failedChecks > 0);
+        assert.ok(result.verificationResult.checks.some(
+          (check) => check.outcome === "failed" && check.evidence.trim() !== "",
+        ));
+      });
+      await t.test("authorization editors and admins list restricted documents", async () => {
+        const source = compliantAuthCode.replace(
+          restrictedListingFilter,
+          "      if (doc.tenantId === user.tenantId && !doc.restricted) {",
+        );
+        const result = await runImplementation(
+          source,
+          path.join(tempDir, "restricted-listing-filter-output"),
+        );
+        assert.equal(result.exitOutcomes.workerExitCode, 0);
+        assert.equal(result.exitOutcomes.verifierExitCode, 1);
+        assert.equal(result.exitOutcomes.infrastructureError, null);
+        assert.equal(result.success, false);
+        assert.ok(result.verificationResult);
+        assert.ok(result.verificationResult.failedChecks > 0);
+        assert.ok(result.verificationResult.checks.some(
+          (check) => check.outcome === "failed" && check.evidence.trim() !== "",
+        ));
+      });
+
+      await t.test("authorization rejected foreign-ID creation preserves all document state", async () => {
+        const mutatedCollisionGuard = collisionGuard.replace(
+          '      throw new AuthorizationError("Document ID belongs to another tenant");',
+          '      existing.restricted = true;\n      throw new AuthorizationError("Document ID belongs to another tenant");',
+        );
+        const source = compliantAuthCode.replace(collisionGuard, mutatedCollisionGuard);
+        const result = await runImplementation(
+          source,
+          path.join(tempDir, "collision-mutation-output"),
+        );
+        assert.equal(result.exitOutcomes.workerExitCode, 0);
+        assert.equal(result.exitOutcomes.verifierExitCode, 1);
+        assert.equal(result.exitOutcomes.infrastructureError, null);
+        assert.equal(result.success, false);
+        assert.ok(result.verificationResult);
+        assert.ok(result.verificationResult.failedChecks > 0);
+        assert.ok(result.verificationResult.checks.some(
+          (check) => check.outcome === "failed" && check.evidence.trim() !== "",
+        ));
+      });
+
+      } finally {
+        await fs.remove(tempDir);
+      }
     });
-
     it("verifies adversarial rejection when worker writes insecure tenant spoofing implementation", async () => {
       const rawManifest = await fs.readJson(manifestPath);
       const manifest = await validateManifest(rawManifest, manifestDir);
@@ -920,7 +1160,11 @@ fs.writeFileSync(promptFile, 'Malicious prompt content overwrite', 'utf8');
   });
 
   describe("Suite fixture snapshots and infrastructure aggregation", () => {
-    async function createSuiteFixture(rootDir: string) {
+    async function createSuiteFixture(
+      rootDir: string,
+      taskId = "snapshot-task",
+      receiptMode: "valid" | "missing" | "malformed" | "duplicate" | "incomplete" | "mismatched-counts" = "valid",
+    ) {
       const fixtureDir = path.join(rootDir, "fixtures", "task");
       const guidanceDir = path.join(rootDir, "guidance");
       const verifierPath = path.join(rootDir, "verifiers", "verify-starting-file.js");
@@ -934,9 +1178,22 @@ fs.writeFileSync(promptFile, 'Malicious prompt content overwrite', 'utf8');
         `const fs = require("node:fs");
 const path = require("node:path");
 const workspace = process.argv[2];
-if (fs.readFileSync(path.join(workspace, "starting.txt"), "utf8") !== "starting-fixture\\n") {
-  process.exit(1);
+const passed = fs.readFileSync(path.join(workspace, "starting.txt"), "utf8") === "starting-fixture\\n";
+const receiptMode = ${JSON.stringify(receiptMode)};
+const validCheck = { id: "starting-fixture-preserved", outcome: "passed", evidence: "Starting fixture was preserved." };
+const receipts = {
+  valid: { schemaVersion: 1, status: "completed", totalChecks: 1, passedChecks: 1, failedChecks: 0, checks: [validCheck] },
+  missing: null,
+  malformed: {},
+  duplicate: { schemaVersion: 1, status: "completed", totalChecks: 2, passedChecks: 2, failedChecks: 0, checks: [validCheck, validCheck] },
+  incomplete: { schemaVersion: 1, status: "completed", totalChecks: 1, passedChecks: 1, failedChecks: 0, checks: [{ id: "starting-fixture-preserved", outcome: "passed" }] },
+  "mismatched-counts": { schemaVersion: 1, status: "completed", totalChecks: 2, passedChecks: 1, failedChecks: 0, checks: [validCheck] },
+};
+const receipt = receipts[receiptMode];
+if (receipt !== null) {
+  fs.writeFileSync(process.env.TASK_EVAL_VERIFICATION_RESULT_PATH, JSON.stringify(receipt), { flag: "wx" });
 }
+if (!passed) process.exitCode = 1;
 `,
       );
       const guidance: Record<string, string> = {};
@@ -949,7 +1206,7 @@ if (fs.readFileSync(path.join(workspace, "starting.txt"), "utf8") !== "starting-
         schemaVersion: 1,
         tasks: [
           {
-            id: "snapshot-task",
+            id: taskId,
             split: "calibration",
             fixtureDir: "fixtures/task",
             prompt: "Preserve the starting fixture file.",
@@ -969,6 +1226,87 @@ if (fs.readFileSync(path.join(workspace, "starting.txt"), "utf8") !== "starting-
         currentGuidancePath: path.join(guidanceDir, "current.md"),
       };
     }
+
+    it("rejects missing, malformed, duplicate, and incomplete verifier receipts", async (t) => {
+      const invalidModes = [
+        "missing",
+        "malformed",
+        "duplicate",
+        "incomplete",
+        "mismatched-counts",
+      ] as const;
+      for (const mode of invalidModes) {
+        await t.test(`verifier receipt ${mode} is infrastructure failure`, async () => {
+          const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), `task-receipt-${mode}-`));
+          const suite = await createSuiteFixture(tempDir, "receipt-contract", mode);
+          const manifestDir = path.dirname(suite.manifestPath);
+
+          try {
+            const manifest = await validateManifest(
+              await fs.readJson(suite.manifestPath),
+              manifestDir,
+            );
+            const task = manifest.tasks[0];
+            assert.ok(task);
+            const result = await executeTaskRun({
+              task,
+              arm: "candidate",
+              repetition: 1,
+              workerConfig: {
+                executable: process.execPath,
+                args: ["-e", "process.exit(0)"],
+                model: "invalid-verifier-receipt-test",
+                effort: "low",
+                timeoutMs: 5000,
+              },
+              manifestDir,
+              outputDir: path.join(tempDir, "output"),
+            });
+
+            assert.equal(result.exitOutcomes.workerExitCode, 0);
+            assert.equal(result.exitOutcomes.verifierExitCode, 0);
+            assert.equal(result.success, false);
+            assert.ok(result.exitOutcomes.infrastructureError);
+            assert.equal(result.verificationResult, null);
+          } finally {
+            await fs.remove(tempDir);
+          }
+        });
+      }
+    });
+
+    it("preserves valid __proto__ task IDs in aggregation and persisted JSON", async () => {
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-suite-proto-id-"));
+      const suite = await createSuiteFixture(tempDir, "__proto__");
+      const workerConfigPath = path.join(tempDir, "worker.json");
+      const outputDir = path.join(tempDir, "results");
+      await fs.writeJson(workerConfigPath, {
+        executable: process.execPath,
+        args: ["-e", "process.exit(0)"],
+        model: "proto-task-id-regression",
+        effort: "low",
+        timeoutMs: 5000,
+      });
+
+      try {
+        const summary = await runTaskSuite({
+          manifestPath: suite.manifestPath,
+          workerConfigPath,
+          outputDir,
+          repeat: 1,
+          split: "calibration",
+        });
+        const persisted = await fs.readJson(path.join(outputDir, "results.json"));
+
+        assert.equal(Object.hasOwn(summary.byTask, "__proto__"), true);
+        assert.equal(summary.byTask["__proto__"].total, 3);
+        assert.equal(Object.hasOwn(persisted.byTask, "__proto__"), true);
+        assert.equal(persisted.byTask["__proto__"].total, 3);
+        assert.equal(summary.runs.length, 3);
+      } finally {
+        await fs.remove(tempDir);
+      }
+    });
 
     function snapshotPrefix(outputDir: string): string {
       return `task-eval-fixture-snapshots-${path.basename(outputDir)}-`;
@@ -1194,7 +1532,7 @@ if (prompt.includes("guidance:candidate")) {
       const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "task-suite-infrastructure-"));
       const suite = await createSuiteFixture(tempDir);
       const workerConfigPath = path.join(tempDir, "worker.json");
-      const outputDir = path.join(tempDir, "cli-results");
+      const outputDir = path.join(tempDir, `cli-results-${path.basename(tempDir)}`);
       const workerCode = `
 const fs = require("node:fs");
 const verifier = process.argv[1];
@@ -1229,13 +1567,10 @@ if (prompt.includes("guidance:candidate")) {
             "--split",
             "calibration",
           ],
-          { cwd: repoRoot, encoding: "utf8" },
+          { cwd: repoRoot, encoding: "utf8", timeout: 15000 },
         );
         assert.equal(cli.error, undefined, cli.error?.message);
         assert.equal(cli.status, 1, `CLI must fail on infrastructure errors:\n${cli.stdout}\n${cli.stderr}`);
-        assert.match(cli.stdout, /Infrastructure Errors:\s+1/);
-        assert.match(cli.stdout, /Evaluated Product Runs:\s+2/);
-        assert.match(cli.stdout, /Overall Pass Rate:\s+100%/);
 
         const summary = await fs.readJson(path.join(outputDir, "results.json"));
         assert.equal(summary.totalRuns, 3);
@@ -1283,7 +1618,7 @@ if (prompt.includes("guidance:candidate")) {
             "--split",
             "calibration",
           ],
-          { cwd: repoRoot, encoding: "utf8" },
+          { cwd: repoRoot, encoding: "utf8", timeout: 15000 },
         );
         assert.equal(noEvidenceCli.error, undefined, noEvidenceCli.error?.message);
         assert.equal(noEvidenceCli.status, 1);

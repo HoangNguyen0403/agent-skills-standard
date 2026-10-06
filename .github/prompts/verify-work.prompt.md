@@ -6,45 +6,31 @@ description: "Verify feature, bug, UI, API, mobile, security, or deployment work
 
 Goal: Prove the delivered change works against explicit acceptance criteria before handoff.
 
-## Steps
-1. Load scope:
-   - BRD-lite, PRD, SRS/FRS, ticket, implementation plan, release note, acceptance criteria, non-goals, changed files, matched skills, and inherited `operator_profile` (carry, do not re-infer).
-2. Select verification lanes:
-   - Unit/component, integration/API, E2E/visual, mobile, security, migration, or deployment smoke.
-3. Execute:
-   - Run the smallest reliable automated checks first.
-   - Use Playwright/Appium only when user-facing behavior changed. Run the driver skill's `scripts/preflight.sh` and take the first rung that works (web: `playwright-cli` → Playwright MCP; mobile: Appium MCP local → cloud). A lane whose driver is missing and has no exported evidence is `BLOCKED (driver: <name>)`.
-   - Use Zephyr/Jira/GitHub/GitLab/ADO MCPs only when configured; otherwise ask for exported ticket/PR/TC data or mark that lane BLOCKED.
-   - **Capture Evidence**: logs, screenshots, traces, or terminal output summaries, under `.playwright-cli/<session>/` or `.appium-mcp/<session>/` as `<AC|step>-<before|after>.*`.
-   - **Comparative Audit**: If it's a bug fix, prove the "Before" (failure) vs "After" (success).
-4. Judge:
-   - PASS: all acceptance criteria proven. FAIL: original bug or missed requirement still reproducible.
-   - BLOCKED: environment, credentials, or approval prevents proof.
-5. Record evidence:
-   - If verification reveals behavior drift, require PRD/SRS updates before PASS.
-   - Update traceability notes from BRD objective -> PRD requirement -> SRS/FRS contract -> **verification evidence**.
-   - Update project-local `docs/srs/srs-walkthrough-[slug].md`.
-   - Route next step back to implementation or `dev-fix`.
+1. Load the approved brief/acceptance criteria and changed files; use inherited `operator_profile` and risk tier. Preserve sensitive minimum medium risk (high when required); require PRD/SRS trace only for governed work.
+2. Select applicable unit/component, integration/API, E2E/visual, mobile, security, migration, and deployment-smoke lanes.
+3. Run smallest reliable checks first. Use Playwright/Appium only for changed user behavior; run driver `scripts/preflight.sh` and use first available rung (web: CLI then MCP; mobile: local then cloud). Missing required driver without exported proof is `BLOCKED (driver: <name>)`. Use ticket/TC integrations only when configured; otherwise request exports or mark that lane BLOCKED.
+   - Capture applicable logs, screenshots, traces, or terminal summaries as `<AC|step>-<before|after>.*` under `.playwright-cli/<session>/` or `.appium-mcp/<session>/`.
+   - For bug fixes, prove before-failure and after-success; preserve every applicable driver and verification lane.
+4. PASS only when all approved criteria are proven and required approval/independent review gates are met; FAIL when a defect or missed requirement remains; BLOCKED when environment, credentials, or approval prevents proof.
+5. If observed behavior exceeds the approved low-risk brief, do not silently change scope or redefine criteria: route the decision to the owner, then verify against the resolved contract. Governed behavior drift requires PRD/SRS updates before PASS.
+6. Record low-risk checks, outcomes, and evidence in chat/task report; do not require new BRD/PRD/SRS, task-list, REQ/AC-ID, trace, or walkthrough artifacts. Governed work updates BRD-to-PRD-to-SRS/FRS trace and `docs/srs/srs-walkthrough-[slug].md`. Hand off the risk-sized evidence location.
 
 ## Runtime Contract
 - Use after implementation, before handoff, or when validating a bug fix.
 - Required inputs: explicit scope plus acceptance criteria or expected behavior.
 - Return BLOCKED only when environment, credentials, or approval prevents proof.
 ## Handoff Payload
-- `operator_profile`, verification report, AC trace, comparative evidence, risks observed, updated walkthrough path, outcome report, next workflow.
+- `operator_profile`, criteria results, comparative evidence, risks, evidence location (chat/task report for low-risk; governed trace/walkthrough path when governed), outcome report, next workflow.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
-## Artifact Template
+## Governed Walkthrough Template
 ```md
 # Walkthrough: [Name]
-
 ## Scope
-
-## Acceptance Criteria Trace
-
-| AC ID   | Status    | Proof / Evidence Link |
-| ------- | --------- | --------------------- |
-| [ac-id] | PASS/FAIL | [link/summary]        |
+## Acceptance Criteria Trace (stable IDs when governed)
+| Criterion | Status | Proof / Evidence |
+| --- | --- | --- |
+| [criterion] | PASS/FAIL | [evidence] |
 
 ## Comparative Evidence (Before vs After)
 
@@ -65,7 +51,7 @@ driver: playwright-cli | playwright-mcp | appium-mcp | none (BLOCKED); evidence_
 ## Scope
 ## Checks Run (Lanes)
 ## Acceptance Criteria Status
-## Requirement Trace Status (Business -> Test)
+## Requirement Trace Status (governed only)
 ## Observed Risks & Edge Cases
 
 ## Outcome Report

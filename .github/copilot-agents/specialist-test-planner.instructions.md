@@ -1,8 +1,8 @@
-<!-- ags: permissions not enforceable on Copilot; declared: risk_tier: L2 -->
 ---
 description: Turns approved AC/SRS into an executable test plan (scenarios, seed, selector gaps) for the test-loop workflow. Use for independent test-plan generation from stable requirements.
 applyTo: '**/*'
 ---
+<!-- ags: permissions not enforceable on Copilot; declared: risk_tier: L2 -->
 
 # Specialist: Test Planner
 

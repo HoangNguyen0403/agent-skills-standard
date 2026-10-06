@@ -171,12 +171,35 @@ function mapSkills<T extends { category: string; skillName: string }>(
 }
 
 function compatibleProtocolFor(manifest: ManifestV2): string {
-  // The prescribed 129-skill base predates the v3 governing instruction label.
-  // Its arm-isolation and transcript protocols must still match the fresh
-  // overlay, but the composite must adopt v3 as its governing protocol.
+  // Source instruction labels may differ while the execution protocol remains compatible.
+  // The composed manifest uses the overlay label; per-skill provenance keeps each source label.
   const { instructionVersion: _instructionVersion, ...executionProtocol } =
     manifest.protocol;
   return JSON.stringify(executionProtocol);
+}
+
+function isCompositeEvidence(manifest: ManifestV2): boolean {
+  return (
+    manifest.metadata.evidenceMode === "composite" ||
+    /composite/i.test(manifest.metadata.agent ?? "")
+  );
+}
+
+function assertSelectedLeafProtocol(
+  manifest: ManifestV2,
+  skillKey: string,
+): void {
+  if (manifest.provenance) {
+    if (!manifest.provenance[skillKey]?.protocol?.instructionVersion)
+      throw new Error(
+        `Source run ${manifest.runId} has no leaf protocol provenance for ${skillKey}`,
+      );
+    return;
+  }
+  if (isCompositeEvidence(manifest))
+    throw new Error(
+      `Composite source run ${manifest.runId} has no leaf protocol provenance for ${skillKey}`,
+    );
 }
 
 export function composeRuns(options: ComposeOptions): ComposeResult {
@@ -231,6 +254,12 @@ export function composeRuns(options: ComposeOptions): ComposeResult {
         `Overlay is not strict-ready:\n- ${notReady.join("\n- ")}`,
       );
   }
+  const selectedSources = new Map<string, typeof base>();
+  for (const key of keys) {
+    const source = overlaySkills.has(key) ? overlay : base;
+    assertSelectedLeafProtocol(source.manifest, key);
+    selectedSources.set(key, source);
+  }
 
   const outputDir = runDirectory(repoRoot, outputRunId);
   if (fs.existsSync(outputDir))
@@ -245,7 +274,7 @@ export function composeRuns(options: ComposeOptions): ComposeResult {
   const inputSources: RunInputsV2["sources"] = {};
 
   for (const key of [...keys].sort()) {
-    const source = overlaySkills.has(key) ? overlay : base;
+    const source = selectedSources.get(key)!;
     const skill = overlaySkills.get(key) ?? baseSkills.get(key);
     const result = overlaySkills.has(key)
       ? overlayResults.get(key)

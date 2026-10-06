@@ -82,12 +82,33 @@ export interface WallTimeMs {
   totalMs: number;
 }
 
+export interface VerificationCheck {
+  id: string;
+  outcome: "passed" | "failed";
+  evidence: string;
+}
+
+/**
+ * Completion evidence proves the trusted verifier reached its end and reports
+ * its assertion results. It is not an OS sandbox or a security boundary against
+ * deliberately hostile code running as the same UID.
+ */
+export interface VerificationReceipt {
+  schemaVersion: 1;
+  status: "completed";
+  totalChecks: number;
+  passedChecks: number;
+  failedChecks: number;
+  checks: VerificationCheck[];
+}
+
 export interface EvidencePaths {
   promptFile: string;
   workerStdout: string;
   workerStderr: string;
   verifierStdout: string;
   verifierStderr: string;
+  verificationResult: string;
 }
 
 export interface TaskRunResult {
@@ -107,6 +128,7 @@ export interface TaskRunResult {
   exitOutcomes: ExitOutcomes;
   wallTimeMs: WallTimeMs;
   evidencePaths: EvidencePaths;
+  verificationResult: VerificationReceipt | null;
   success: boolean;
   usage: null;
   cost: null;

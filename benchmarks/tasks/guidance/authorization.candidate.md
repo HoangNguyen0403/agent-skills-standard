@@ -8,8 +8,9 @@ In `src/service.js`, secure `DocumentService` against cross-tenant leaks and pri
 
 ### 1. Tenant Boundary
 - Strong tenant isolation: operations on resources outside `user.tenantId` throw `AuthorizationError`.
-- Tenant spoofing immunity: `createDocument` always binds to `user.tenantId`.
-- Listing boundary: `listDocuments` returns strictly `{ doc | doc.tenantId === user.tenantId }`.
+- Tenant spoofing: `createDocument` MUST ignore caller-supplied `docData.tenantId` and force `doc.tenantId = user.tenantId`.
+- Cross-tenant ID collisions: reject creation when the ID belongs to another tenant; preserve the existing document unchanged.
+- Listing: `listDocuments` returns every document belonging to the user's tenant and no others. Editors and admins MUST receive the complete set, including restricted documents; for the seeded tenant-1 case, exactly `doc-t1-public` and `doc-t1-secret`. Viewers MUST NOT receive restricted documents.
 
 ### 2. Role-Based Permissions Matrix
 
