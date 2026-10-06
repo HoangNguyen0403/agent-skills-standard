@@ -24,31 +24,33 @@ Subagent (general-purpose):
     2. **GREEN:** Write the minimal code to pass the test. Confirm it passes.
     3. **REFACTOR:** Clean up duplication, naming, and dead code while staying green.
 
-    ## Your Job
-    1. Implement exactly what the task specifies (YAGNI — build nothing unrequested)
-    2. Run focused tests for your changes; run the project suite before finishing
-    3. Commit your changes with a clear commit message
+    ## Your Job (Single Worker Contract)
+    1. Implement exactly what the task specifies on owned files (YAGNI — build nothing unrequested)
+    2. Run focused tests for your changed paths; do NOT run full project test suites by default
+    3. Do NOT commit your changes with git; orchestrator owns git integration and commits
     4. Conduct a self-review of your diff
     5. Write your detailed report to [REPORT_FILE]
     6. Return your short status contract
 
     Work from: [directory]
 
-    ## You Do Not Dispatch Subagents
-    Do all of this task's work yourself. Never spawn a subagent to implement part
-    of the task, and never spawn a reviewer to check your work. Review is handled
-    by the orchestrator after you report.
+    ## Boundaries & Execution Rules
+    - **No Git Commits:** Leave changes uncommitted in the working tree; orchestrator integrates and commits.
+    - **No Recursive Delegation:** Do all of this task's work yourself. Never spawn a subagent to implement part of the task, and never spawn a reviewer. Review is handled by the orchestrator after you report.
+    - **Focused Verification:** Run only tests and checks covering touched paths; full test suites run during integration.
+    - **Escalation:** If blocked by missing context, external prerequisites, or permission boundaries, report BLOCKED with exact missing information.
 
     ## Report Format
     Write your full report to [REPORT_FILE]:
-    - What was implemented
+    - What was implemented and files changed
     - Verification commands run and test evidence (RED/GREEN outputs)
-    - Files changed and commits created
+    - Diff summary and uncommitted changes
     - Self-review notes or doubts
+    - Proposed verification commands for orchestrator integration
 
     Then reply with ONLY this short contract (under 15 lines):
     - **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
-    - **Commits:** [short SHA + subject]
+    - **Changed Files:** [list of touched paths]
     - **Tests:** [one-line test summary, e.g. "12/12 passing, output pristine"]
     - **Concerns:** [none, or specific doubts]
     - **Report File:** [REPORT_FILE]
@@ -79,11 +81,13 @@ Subagent (general-purpose):
     Read the implementer's report: [REPORT_FILE]
 
     ## Diff Under Review
-    **Base:** [BASE_SHA]
-    **Head:** [HEAD_SHA]
+    **Base:** [BASE_REF]
+    **Head:** [HEAD_REF / WORKSPACE]
+    **Scope / Owned paths:** [OWNED_PATHS]
     **Diff file:** [DIFF_FILE]
 
-    Read the diff file once — it contains the commit list, stat summary, and full diff.
+    A WORKSPACE package is cumulative from [BASE_REF] to the current workspace; it is not a fix-only delta. Assess the task-owned state shown by this snapshot.
+    Read the diff file once — it contains the file list, stat summary, and full diff.
     Do not crawl the broader codebase unless checking a concrete contract risk at a callsite.
     Your review is read-only. Do not mutate the working tree.
 
@@ -131,8 +135,8 @@ Subagent (general-purpose):
   description: "Re-review Task N Fixes (scoped)"
   model: [MODEL — cheap or mid-tier model]
   prompt: |
-    You are re-reviewing fixes made for Task N.
-    A previous review found issues; an implementer has applied a fix diff.
+    You are re-reviewing Task N after a fix round.
+    The package supplied below is cumulative from the original baseline to the current workspace, not a fix-only diff.
 
     ## Open Findings Under Review
     [LIST_OF_OPEN_FINDINGS]
@@ -140,26 +144,29 @@ Subagent (general-purpose):
     ## Context
     - Task brief: [BRIEF_FILE]
     - Implementer fix report: [REPORT_FILE]
+    - Prior package, if available: [PREVIOUS_DIFF_FILE]
 
-    ## Fix Diff
-    **Base (pre-fix):** [FIX_BASE_SHA]
-    **Head (post-fix):** [HEAD_SHA]
+    ## Cumulative Task Package
+    **Base:** [BASE_REF]
+    **Head:** WORKSPACE (current uncommitted cumulative snapshot)
+    **Scope / Owned paths:** [OWNED_PATHS]
     **Diff file:** [DIFF_FILE]
 
     ## Instructions
-    1. Check each open finding against the fix diff.
+    1. Check each open finding against the current cumulative task-owned state.
     2. Verdict each finding as ADDRESSED or NOT ADDRESSED.
-    3. Check for new regressions or breakage introduced in the fix diff only.
-    4. Do not re-evaluate untouched code.
+    3. Report regressions visible in the cumulative task-owned changes. Do not claim a regression was introduced in the latest fix round unless a prior snapshot supports that comparison.
+    4. Do not re-evaluate code outside the owned scope.
 
     ## Output Format
     ### Findings Verification
     - [Finding 1 summary]: ADDRESSED (file:line) | NOT ADDRESSED (explanation)
     - [Finding 2 summary]: ...
 
-    ### New Breakage in Fix Diff
-    - [None | Details of new Critical/Important issue]
+    ### Regressions in Cumulative Task State
+    - [None | Details of Critical/Important issue]
 
     ### Verdict
     [ALL FINDINGS ADDRESSED | FIXES INCOMPLETE]
+
 ```

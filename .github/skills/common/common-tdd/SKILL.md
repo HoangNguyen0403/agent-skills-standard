@@ -32,16 +32,17 @@ A passing test is insufficient; the test must prove an owned behavior and a dist
 
 ## Before writing a test
 
+Compare against the existing suite before adding or removing cases. Ensure the scenario is not already covered upstream or in nearby layers.
+
 Create one Test Intent Record per behavior/risk:
 
-- `contract`: observable contract — an application-owned result or side effect
-- `fault`: distinct fault — a distinct plausible regression this test would catch
+- `contract`: observable contract — an application-owned result or outward side effect
+- `fault`: distinct plausible fault this test catches
 - `layer`: smallest honest unit, component, contract, integration, or E2E layer
 - `cases`: minimal distinct equivalence classes; use a parameterized test for equivalent inputs
 - `command`: exact focused single-run command
 
-Reject tests that duplicate an existing fault, assert implementation detail or mock choreography, depend on time/network/order, or force a broader behavior into a unit.
-
+Reject tests that duplicate existing suite coverage, assert internal mock choreography over outward side effects, depend on time/network/order, or invent numeric four-pillar scores without measured evidence.
 ## Bounded loop
 
 1. Run configured lint/type checks, inspect nearby tests, and derive the smallest command.
@@ -56,7 +57,7 @@ Reject tests that duplicate an existing fault, assert implementation detail or m
 - Honor project timeouts; otherwise use a 120-second fallback to bound a focused command.
 - On timeout, terminate only the agent-owned process group and verify child cleanup.
 - Never watch, blanket-kill, or retry an unchanged failure. Record the new hypothesis or corrective change first.
-- Coverage is repository-configured, project-owned evidence. Without a configured threshold, report risk gaps and never add padding tests for a percentage.
+- Coverage percentages are diagnostic tools, never an admission criterion. Without a configured threshold, report risk gaps and never add padding tests for an arbitrary percentage.
 
 ## Red flags and rationalizations
 
@@ -65,8 +66,8 @@ Reject tests that duplicate an existing fault, assert implementation detail or m
 
 ## Test shape
 
-- Use clear Arrange, Act, Assert phases; comments are optional.
-- Assert observable outcomes. Assert an interaction only when that interaction is the contract.
+- Verify one logical contract per test; multiple assertions are allowed when verifying related aspects or side effects of that single contract.
+- Assert observable outcomes and outward side effects, not mock choreography or call sequences.
 - Mock external boundaries only when isolation requires it; prefer real pure/domain behavior and simple fakes.
 - Keep test names behavior-focused, without ticket IDs or TODO/FIXME markers.
 

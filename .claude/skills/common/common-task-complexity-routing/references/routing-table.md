@@ -22,3 +22,10 @@
 ## `model_tier` Semantics
 
 Runtime-neutral hint. Adapters map `fast` / `standard` / `strong` to whatever model ladder the runtime exposes; never hardcode a vendor model name in a workflow.
+
+## Sensitive-Change Risk Floor & Reassessment
+
+- **Sensitive-Change Floor**: Any task touching authentication, authorization, payments/financial data, data integrity, secrets, or system trust boundaries enforces a minimum of `tier=medium` (guided execution, deep review, human plan acknowledgment) even if arithmetic SNC score is 0-2.
+- **Sensitive High Tier**: When sensitive code involves non-zero novelty or spread (S≥1 or N≥1 with C=2), enforce `tier=high` (plan-first HARD STOP, independent security review, human merge approval).
+- **Irreversible Actions**: Actions involving data destruction, schema drops, credential rotation, privilege escalation, or production cutover strictly require explicit human authorization regardless of tier.
+- **Downward Reassessment**: Downward complexity reassessment is permitted ONLY with documented new evidence (e.g., scouted blast radius proves isolated scope with verified non-interference), NEVER to bypass unresolved risk, required approvals, or the sensitive-change risk floor.

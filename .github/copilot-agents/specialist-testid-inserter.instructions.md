@@ -1,3 +1,4 @@
+<!-- ags: permissions not enforceable on Copilot; declared: risk_tier: L2 -->
 ---
 description: Inserts stable test ids into production components for each selector gap named by a test plan, following the per-framework insertion policy and never renaming existing ids. Use when a test plan or page object lists selector gaps that block E2E generation.
 applyTo: '**/*'

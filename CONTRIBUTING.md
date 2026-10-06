@@ -90,6 +90,8 @@ Rules:
 6. Add the workflow to `DEFAULT_WORKFLOWS` only when it belongs in the standard SDLC spine, and add canonical source at `.agents/workflows/<name>.md`.
 7. Core SDLC workflows must expose `Runtime Contract`, `Handoff Payload`, `Blocking Questions`, and `Next Workflow` for interactive and channel-agent runtimes.
 8. Run `pnpm audit:sdlc` after changes.
+9. **Risk-sized routing**: Workflows must support risk-sized routing via SNC (Spread/Novelty/Centrality) tiers: sufficiently specified low-risk maintenance may use an in-chat delivery contract rather than requiring full BRD/PRD/SRS artifact sets.
+10. **Sensitive-change risk floor**: Changes touching authentication, authorization, payments/financial flows, cryptography, or security trust boundaries carry an irreducible risk floor independent of arithmetic SNC scores; they require rigorous verification and independent review.
 
 ## 5. Default Init Standards
 
@@ -106,6 +108,7 @@ Rules:
 7. Channel agents must continue only when required artifacts/owners are known; otherwise return BLOCKED with max 3 blocking questions.
 8. New specialists must include `evals/evals.json`, strict budgets, structured output, and `No sub-agents`.
 9. Specialists and generated workflow skills set `metadata.internal: true` so skill installers (`npx skills`) don't offer them as installable skills.
+10. File-modifying specialists must declare `risk_tier: L2` in `SKILL.md` frontmatter so exporters project `workspace-write` permissions. Analysis and review specialists omit write tiers and remain least-privilege read-only. Advisory markdown instructions cannot enforce runtime boundaries; concrete isolation depends on host runtime controls.
 
 ## 6. Quality Gates
 
@@ -158,6 +161,28 @@ kept as historical evidence but cannot be promoted as release proof.
 
 Never hand-edit `results.json` or historical transcripts. New runs must be complete, must contain immutable `inputs.json`, and must use the canonical `.agents/workflows/evals-run.md` workflow; regenerate exported workflow copies from the canonical source.
 
+### Neutral Text-Evaluation Protocol (`neutral-skill-v4`)
+
+New text-evaluation generation uses the `neutral-skill-v4` protocol:
+- Both baseline and with-skill arms receive identical prompt instructions; only the skill payload differs in the with-skill arm.
+- Answer-anchor and pressure-resistance coaching phrases are removed to eliminate evaluation bias.
+- **Transcript evidence limitations**: Text evals measure regex/contains assertion matches in transcripts. They are transcript evidence, not end-to-end proofs of runtime correctness or holistic model intelligence.
+- **Immutable historical evidence**: Historical v1/v3 transcripts and manifests are immutable. Never relabel or silently mix historical coached runs into fresh neutral-protocol evaluations.
+
+### Executable Task-Evaluation Pilot (`evals:tasks`)
+
+For empirical verification of code changes against real fixtures:
+
+```bash
+# Run the executable task pilot
+pnpm evals:tasks --manifest benchmarks/tasks/pilot.json --worker <path-to-worker.json> --output <new-output-dir> [--repeat N] [--split calibration|holdout]
+```
+
+- Worker configuration JSON: `{ "executable": string, "args": string[], "model": string, "effort": string, "timeoutMs": number }`. Supports `{workspace}` and `{promptFile}` substitution without shell interpolation.
+- Tests code modifications on fixture workspaces (`benchmarks/tasks/fixtures/pagination`, `benchmarks/tasks/fixtures/authorization`) using external verifiers. Task success requires a clean worker exit combined with verifier pass. Process group signaling escalates from SIGTERM to SIGKILL on timeout but does not track detached sessions.
+- **Security Notice / Nonproduction Trust**: Local task execution runs child processes with host user permissions. It provides **NO OS-level sandbox or container isolation**. Run only trusted worker configurations and nonproduction test fixtures.
+- **Missing Model Benchmarks & Metrics**: Pilot fixture suites and unit test deterministic child-process checks verify runner plumbing, process group isolation, and verifier mechanics; they do not represent live model capability sweeps. Pass rates evaluate product attempts only (excluding infrastructure errors) and remain null when no product evidence exists. Unknown token/cost metrics remain null rather than estimated.
+
 For release candidates, also run:
 
 ```bash
@@ -177,5 +202,6 @@ We use specialized scripts for releasing components independently:
 - `pnpm release:manifest --tag <tag> [--out <file>]`: Rebuilds the deterministic `MANIFEST.json` locally for any release tag.
 
 When `.agents/workflows/**` changes, bump `releases.workflows.version` in `skills/metadata.json`. Every registry release publishes a `MANIFEST.json` containing sha256 checksums of all released files along with a GitHub build-provenance attestation.
+- When `skills/<category>/**` changes, bump `categories.<category>.version` (e.g. patch increment) and update `last_updated` in `skills/metadata.json`.
 
 Ensure you update `CHANGELOG.md` manually before running release scripts if significant features were added.

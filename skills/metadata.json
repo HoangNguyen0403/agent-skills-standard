@@ -482,14 +482,14 @@
       ]
     },
     "common": {
-      "version": "2.8.3",
-      "last_updated": "2026-10-01",
+      "version": "2.8.4",
+      "last_updated": "2026-10-06",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 46,
-        "total_tokens": 38770,
-        "avg_tokens_per_skill": 843,
-        "largest_skill": "common-skill-creator (1646 tokens)"
+        "total_tokens": 39877,
+        "avg_tokens_per_skill": 867,
+        "largest_skill": "common-skill-creator (1693 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -520,14 +520,14 @@
       ]
     },
     "specialists": {
-      "version": "1.5.0",
-      "last_updated": "2026-09-28",
+      "version": "1.5.1",
+      "last_updated": "2026-10-06",
       "tag_prefix": "specialists-v",
       "token_metrics": {
         "total_skills": 21,
-        "total_tokens": 12137,
-        "avg_tokens_per_skill": 578,
-        "largest_skill": "specialist-solution-diagrammer (1030 tokens)"
+        "total_tokens": 12316,
+        "avg_tokens_per_skill": 586,
+        "largest_skill": "specialist-solution-diagrammer (1033 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -850,7 +850,7 @@
   },
   "releases": {
     "workflows": {
-      "version": "1.1.1",
+      "version": "1.1.2",
       "tag_prefix": "workflows-v"
     }
   },

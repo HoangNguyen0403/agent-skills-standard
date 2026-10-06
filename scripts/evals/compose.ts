@@ -1,6 +1,7 @@
 import fs from "fs-extra";
 import * as path from "node:path";
 import {
+  CURRENT_INSTRUCTION_VERSION,
   INPUTS_FILENAME,
   RESULTS_FILENAME,
   ROOT_DIR,
@@ -192,8 +193,8 @@ export function composeRuns(options: ComposeOptions): ComposeResult {
     compatibleProtocolFor(overlay.manifest)
   )
     throw new Error("Source generation protocols are incompatible");
-  if (overlay.manifest.protocol.instructionVersion !== "governing-skill-v3")
-    throw new Error("Overlay must use governing-skill-v3");
+  if (overlay.manifest.protocol.instructionVersion !== CURRENT_INSTRUCTION_VERSION)
+    throw new Error(`Overlay must use ${CURRENT_INSTRUCTION_VERSION}`);
   if (
     (options.expectedSkillCount ?? DEFAULT_COMPOSITE_SKILL_COUNT) ===
       DEFAULT_COMPOSITE_SKILL_COUNT &&
@@ -270,14 +271,24 @@ export function composeRuns(options: ComposeOptions): ComposeResult {
     inputSources[key] = input;
     const resourceFingerprint = source.manifest.resourceFingerprints?.[key];
     if (resourceFingerprint) resourceFingerprints[key] = resourceFingerprint;
+    const sourceProvenance = source.manifest.provenance?.[key];
     provenance[key] = {
-      sourceRunId: source.manifest.runId,
+      sourceRunId: sourceProvenance?.sourceRunId ?? source.manifest.runId,
       sourceHash: hash,
-      model: source.manifest.metadata.model,
-      protocol: source.manifest.protocol,
-      evidenceMode: source.manifest.metadata.evidenceMode ?? "fresh",
-      activationEvidenceVersion: source.manifest.activationEvidenceVersion ?? 2,
-      assertionSemanticsVersion: source.manifest.assertionSemanticsVersion ?? 1,
+      model: sourceProvenance?.model ?? source.manifest.metadata.model,
+      protocol: sourceProvenance?.protocol ?? source.manifest.protocol,
+      evidenceMode:
+        sourceProvenance?.evidenceMode ??
+        source.manifest.metadata.evidenceMode ??
+        "fresh",
+      activationEvidenceVersion:
+        sourceProvenance?.activationEvidenceVersion ??
+        source.manifest.activationEvidenceVersion ??
+        2,
+      assertionSemanticsVersion:
+        sourceProvenance?.assertionSemanticsVersion ??
+        source.manifest.assertionSemanticsVersion ??
+        1,
     };
     for (const kind of ["prompts", "answers"] as const) {
       fs.copySync(
@@ -298,6 +309,12 @@ export function composeRuns(options: ComposeOptions): ComposeResult {
       [...sourceRuns.values()].map((source) => [source.manifest.runId, source]),
     ).values(),
   ];
+  const uniqueProtocols = [
+    ...new Set(
+      Object.values(provenance).map((p) => p.protocol.instructionVersion),
+    ),
+  ].sort();
+  const isHomogeneous = uniqueProtocols.length === 1;
   const metadata = {
     agent: "Composite immutable evidence",
     model:
@@ -309,6 +326,8 @@ export function composeRuns(options: ComposeOptions): ComposeResult {
     startedAt: now.toISOString(),
     completedAt: now.toISOString(),
     evidenceMode: "composite" as const,
+    protocolProvenance: isHomogeneous ? uniqueProtocols[0] : ("mixed" as const),
+    isHomogeneousProtocol: isHomogeneous,
     freshAnswerCount: uniqueSources.reduce(
       (sum, source) => sum + (source.manifest.metadata.freshAnswerCount ?? 0),
       0,

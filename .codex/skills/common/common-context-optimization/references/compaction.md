@@ -19,10 +19,11 @@ Current_State:
     - 'Run migration script'
 ```
 
-## Recursive Summarization
+## Runtime-Managed Compaction & Externalization
 
-1.  **Block 1-5**: Summarize into `State_A`.
-2.  **Block 6-10**: Summarize `State_A` + `Block 6-10` -> `State_B`.
-3.  _Discard_ Blocks 1-5 and State_A.
+In standard agent environments, conversation history is append-only. Compaction works through two primary mechanisms:
 
-**Crucial**: Always keep the _Original System Prompt_ and _Last 3 Messages_ uncompressed.
+1. **Host-Managed Compaction**: When the host runtime supports session compression, it summarizes earlier conversation turns into a system context block while preserving the system prompt and recent active turns.
+2. **State File Externalization**: The agent writes rolling state directly to an external file (e.g., `.agent/sdd/<slug>/progress.md` or `memory.md`). When context is fresh or compacted, the agent re-reads the structured state file rather than relying on hundreds of turns of conversational history.
+
+**Crucial**: Always preserve the _Original User Goal_, _Active Files_, _Key Decisions_, and _Current Blockers_.

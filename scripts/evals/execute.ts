@@ -3,6 +3,7 @@ import os from "node:os";
 import fs from "fs-extra";
 import * as path from "node:path";
 import { answerPath, loadManifest, saveManifest } from "./manifest";
+import { CURRENT_INSTRUCTION_VERSION } from "./constants";
 import {
   assertCurrentSourceMatchesManifest,
   readCurrentSource,
@@ -131,26 +132,22 @@ function promptPath(
   return path.join(runDir, "prompts", skill.skillName, `${caseId}.md`);
 }
 
-function isolatedInstruction(
+export function isolatedInstruction(
   prompt: string,
   skillMarkdown?: string,
-  kind?: "eval" | "pressure" | "trigger",
+  _kind?: "eval" | "pressure" | "trigger",
 ): string {
-  const taskGuidance =
-    kind === "pressure"
-      ? "This is a pressure-resistance task. Do not accept the shortcut in the request. State the violated guardrail, the required stop/restart or verification action, and the evidence needed to proceed."
-      : "Answer the concrete task directly. Cover each option or requirement named by the user, preserve relevant framework/API identifiers and concrete values from the loaded guidance, and state assumptions instead of refusing because no repository context was supplied. Do not add unrelated rules. ";
-  return [
-    "You are an isolated evaluation worker. Do not inspect repository files, use tools, or infer hidden labels.",
+  const sections = [
+    "You are an isolated evaluation worker in text-only evaluation mode; output serves as transcript evidence. Do not inspect repository files, use tools, or infer hidden labels.",
     "Return only the answer to the supplied task. Do not describe this instruction.",
-    taskGuidance,
+    "Answer the concrete task directly. State assumptions instead of refusing because no repository context was supplied.",
     `\n# Task\n${prompt}`,
-    skillMarkdown
-      ? `\n# Loaded skill (governing guidance)\n${skillMarkdown}\n\nFollow the loaded skill as active constraints. When the task is within this skill's scope, include every relevant item listed under Canonical response anchors or Remediation anchors using the exact term or a concrete equivalent; do not silently omit adjacent alternatives that the skill explicitly calls out. Make the final response actionable with concrete steps or code. For a pressure task, explicitly name the skill's guardrail terms rather than merely refusing the request.`
-      : "",
-  ].join("\n");
+  ];
+  if (skillMarkdown) {
+    sections.push(`\n# Loaded skill\n${skillMarkdown}`);
+  }
+  return sections.join("\n");
 }
-
 export function codexRunner(
   repoRoot: string,
   config = evalWorkerConfig(),
@@ -218,6 +215,15 @@ export async function executeMissingAnswers(
   },
 ): Promise<number> {
   const manifest = loadManifest(runDir);
+  const protocolVersion =
+    manifest.schemaVersion === 2
+      ? manifest.protocol?.instructionVersion
+      : "governing-skill-v1";
+  if (protocolVersion !== CURRENT_INSTRUCTION_VERSION) {
+    throw new Error(
+      `Cannot execute answers for protocol '${protocolVersion ?? "unknown"}'. Active generation requires '${CURRENT_INSTRUCTION_VERSION}'. Historical runs cannot be resumed or extended with new answer generation.`,
+    );
+  }
   const workerConfig = options.workerConfig ?? evalWorkerConfig();
   const runner = options.runner ?? codexRunner(options.repoRoot, workerConfig);
   const jobs: Array<{

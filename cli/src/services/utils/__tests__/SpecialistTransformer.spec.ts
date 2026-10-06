@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
 import * as yaml from 'js-yaml';
 import { Agent } from '../../../constants/enums';
 import { SpecialistTransformer } from '../SpecialistTransformer';
@@ -215,6 +217,140 @@ describe('SpecialistTransformer', () => {
       for (const agent of [Agent.Cursor, Agent.Copilot, Agent.Gemini]) {
         const result = SpecialistTransformer.transform(source, agent);
         expect(result!.content).not.toContain('ags: permissions');
+      }
+    });
+  });
+
+  describe('canonical specialist permission projection (AC-3)', () => {
+    const rootSkillsDir = path.resolve(
+      __dirname,
+      '../../../../../skills/specialists',
+    );
+
+    const loadCanonicalSpecialist = (dirName: string) => {
+      const filePath = path.join(rootSkillsDir, dirName, 'SKILL.md');
+      const content = fs.readFileSync(filePath, 'utf8');
+      return { name: dirName, content };
+    };
+
+    const EXPECTED_WRITERS = [
+      'specialist-tdd-implementer',
+      'specialist-test-healer',
+      'specialist-testid-inserter',
+      'specialist-integration-test-generator',
+      'specialist-test-planner',
+      'specialist-solution-diagrammer',
+      'specialist-logic-hacker',
+    ] as const;
+
+    const EXPECTED_READ_ONLY = [
+      'specialist-ac-verifier',
+      'specialist-architecture-guard',
+      'specialist-aspm-correlator',
+      'specialist-codebase-scout',
+      'specialist-confluence-searcher',
+      'specialist-jira-analyst',
+      'specialist-mobile-reverser',
+      'specialist-pr-commenter-batch',
+      'specialist-pr-reviewer',
+      'specialist-security-reviewer',
+      'specialist-system-architect',
+      'specialist-tc-creator',
+      'specialist-test-gap-finder',
+      'specialist-zephyr-scanner',
+    ] as const;
+
+    const IS_WRITER: Record<string, true> = Object.fromEntries(
+      EXPECTED_WRITERS.map((name) => [name, true]),
+    );
+
+    const IS_READ_ONLY: Record<string, true> = Object.fromEntries(
+      EXPECTED_READ_ONLY.map((name) => [name, true]),
+    );
+
+    it('discovers all canonical specialists and enforces exact classification without unclassified roles', () => {
+      const entries = fs.readdirSync(rootSkillsDir, { withFileTypes: true });
+      const specialistDirs = entries
+        .filter(
+          (e) =>
+            e.isDirectory() &&
+            fs.existsSync(path.join(rootSkillsDir, e.name, 'SKILL.md')),
+        )
+        .map((e) => e.name)
+        .sort();
+
+      // Assert total count matches expected 21 specialists
+      expect(specialistDirs.length).toBe(21);
+      expect(EXPECTED_WRITERS.length + EXPECTED_READ_ONLY.length).toBe(21);
+
+      // Verify disjoint sets: no overlap between writer and read-only sets
+      for (const writer of EXPECTED_WRITERS) {
+        expect(IS_READ_ONLY[writer]).toBeUndefined();
+      }
+
+      // Assert every discovered specialist on disk has an explicit classification
+      const unclassified = specialistDirs.filter(
+        (name) => !IS_WRITER[name] && !IS_READ_ONLY[name],
+      );
+      expect(unclassified).toEqual([]);
+
+      // Assert every expected specialist exists on disk
+      for (const expected of [...EXPECTED_WRITERS, ...EXPECTED_READ_ONLY]) {
+        expect(specialistDirs).toContain(expected);
+      }
+    });
+
+    it('exports all canonical writing specialists to Codex with workspace-write and never danger-full-access', () => {
+      for (const writerName of EXPECTED_WRITERS) {
+        const source = loadCanonicalSpecialist(writerName);
+        const codexResult = SpecialistTransformer.transform(
+          source,
+          Agent.Codex,
+        );
+
+        expect(codexResult).not.toBeNull();
+        expect(codexResult!.content).toContain(
+          'sandbox_mode = "workspace-write"',
+        );
+        expect(codexResult!.content).not.toContain(
+          'sandbox_mode = "read-only"',
+        );
+        expect(codexResult!.content).not.toContain('danger-full-access');
+      }
+    });
+
+    it('exports all canonical reviewer, analysis, and discovery specialists to Codex with read-only sandbox mode', () => {
+      for (const reviewerName of EXPECTED_READ_ONLY) {
+        const source = loadCanonicalSpecialist(reviewerName);
+        const codexResult = SpecialistTransformer.transform(
+          source,
+          Agent.Codex,
+        );
+
+        expect(codexResult).not.toBeNull();
+        expect(codexResult!.content).toContain('sandbox_mode = "read-only"');
+        expect(codexResult!.content).not.toContain(
+          'sandbox_mode = "workspace-write"',
+        );
+        expect(codexResult!.content).not.toContain('danger-full-access');
+      }
+    });
+
+    it('preserves declared risk_tier L2 in comments on non-Codex platforms for canonical writers', () => {
+      const source = loadCanonicalSpecialist('specialist-tdd-implementer');
+      for (const agent of [
+        Agent.Cursor,
+        Agent.Copilot,
+        Agent.OpenCode,
+        Agent.Gemini,
+        Agent.Kiro,
+      ]) {
+        const result = SpecialistTransformer.transform(source, agent);
+        expect(result).not.toBeNull();
+        expect(result!.content).toContain(
+          '<!-- ags: permissions not enforceable on',
+        );
+        expect(result!.content).toContain('risk_tier: L2');
       }
     });
   });

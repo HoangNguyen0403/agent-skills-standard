@@ -33,7 +33,7 @@ Pick the file automatically. Rank candidates by the severity of anti-patterns:
 
 ## Step 3 — Build Eval-Driven Scorecard
 
-Source your scorecard from `evals/evals.json`, not from hardcoded patterns.
+Source scorecard from `evals/evals.json`. Distinguish structural checks, textual transcript assertions, and executable verifier outcomes. Never add canned assertion keywords to skills to artificially inflate scores (no answer-anchor padding).
 Follow the Scorecard Rubric in `<SKILLS>/common/common-skill-creator/references/benchmark.md` when synced:
 
 1. Read `<SKILLS>/<category>/<skill>/evals/evals.json`.
@@ -43,27 +43,23 @@ Follow the Scorecard Rubric in `<SKILLS>/common/common-skill-creator/references/
 
 ---
 
-## Step 4 — Benchmark Report & Compliance Delta
+## Step 4 — Benchmark Report & Evidence Breakdown
 
-Output the scorecard and compliant score using the templates in `<SKILLS>/common/common-skill-creator/references/benchmark.md` when synced.
+Output scorecard and evidence breakdown using templates in `<SKILLS>/common/common-skill-creator/references/benchmark.md` when synced.
 
-- **Compliance Score Before vs After**.
-- **Δ Delta: +Z%** 🚀.
-- **Eval Alignment**: How well does the skill teach what the eval tests?
-- **Behavior Coverage**: pressure scenarios, rationalizations, red flags, behavior assertions.
+- **Score Before vs After**: Report structural, textual transcript, and executable pass rates separately.
+- **Evidence Type**: Explicitly label transcript text matches vs deterministic executable outcomes.
+- **Behavior Coverage**: Pressure scenarios, rationalizations, red flags, behavior assertions.
 
 ---
 
-## Step 5 — Skill Applicability & Iteration
+## Step 5 — Skill Applicability, Ablation & Iteration
 
-For every `❌ FAIL`, identify the root cause using the **Iteration Table** in:
-`<SKILLS>/common/common-skill-creator/references/benchmark.md` when synced.
-
+For every failure or candidate rule, evaluate using the Iteration Table and ablation criteria in `benchmark.md`:
 1. Signal not matching file? → Refine trigger.
-2. Rule too vague? → Add Anti-Pattern rule.
+2. Rule ineffective? → Clarify procedural logic; do not pad canned keywords.
 3. Conflict? → Ensure P0 overrides P1.
-4. Guardrail weak under pressure? → Add rationalization counters and red flags.
-
+4. Baseline model passes or repeated ablation shows zero delta? → Flag as retirement candidate; preserve safety controls until deterministic enforcement exists.
 ### Suggested .skillsrc Exclusions
 
 Recommend any skills that are noisy or non-applicable for the project.

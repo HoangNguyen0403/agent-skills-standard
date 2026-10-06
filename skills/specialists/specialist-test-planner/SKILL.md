@@ -1,6 +1,7 @@
 ---
 name: specialist-test-planner
 description: Turns approved AC/SRS into an executable test plan (scenarios, seed, selector gaps) for the test-loop workflow. Use for independent test-plan generation from stable requirements.
+risk_tier: L2
 metadata:
   internal: true
   triggers:

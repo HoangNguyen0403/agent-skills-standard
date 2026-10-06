@@ -55,37 +55,35 @@ Applies to **every skill in this registry**. Maximize **Token ROI**. Every line 
 - **Trigger Hint**: Include `(triggers: *.ext, keyword)` suffix for technical skills.
 ## Content Quality (Implementation)
 
-- **No Redundant Knowledge**: **NOT** explain concepts AI already knows (e.g., HTTP status codes, standard library docs, basic SOLID principles). Focus strictly on _project-specific_ rules.
-- **Caveman Compression**: Use "Caveman Mode" for rules to save tokens. Drop articles (, , ), remove filler words ("should", "will", "), and use telegraphic snippets.
-- _Standard_: "You should ensure that database connection closed after every query to prevent leaks." (15 tokens)
-- _Caveman_: "Close DB connection after query. Prevent leaks." (7 tokens)
-- **Actionability**: Examples must copy-paste ready and executable.
+- **No Redundant Knowledge**: Do NOT explain concepts AI already knows (e.g., standard HTTP codes, common language syntax, basic SOLID definitions). Focus strictly on project-specific rules and constraints.
+- **Readable Compact Style**: Size is an editorial budget, not a behavioral quality claim. Prefer readable, compact, imperative language over filler words, conversational phrasing, or speculative prose.
+- **Actionability**: Examples must be copy-paste ready and executable.
 - **Workflow Clarity**: Use sequential ordered lists for multi-step processes.
 - **Progressive Disclosure**: Move code blocks >10 lines to `references/`.
 - **Pressure Hardening**: Discipline skills must name red flags, common excuses, and exact stop/restart conditions.
-## Behavior Guardrails
 
-- **Use pressure tests for discipline skills**: TDD, debugging, verification, review, protocol, and workflow skills need baseline failure evidence.
-- **Capture rationalizations**: Save the exact excuses agents use when they skip the rule.
-- **Add red flags**: Short phrases that tell the agent to stop and restart the protocol.
-- **Encode behavior in evals**: Add `pressure_scenarios`, `rationalizations`, `red_flags`, and `behavior_assertions` when the skill is guardrail-oriented.
-- **Keep it local**: Put behavior details in evals or `references/`; keep `SKILL.md` compact.
+## Evidence Tiers & Guardrails
+
+- **Three Evidence Tiers**: Distinguish (1) structural checks (line counts, frontmatter schema), (2) textual transcript evidence (assertions, rationalization counters), and (3) executable outcomes (runnable verification, verifier pass/fail).
+- **Rule Retirement & Ablation**: A rule is a candidate for retirement when repeated, representative, risk-appropriate evaluations (including adversarial cases) show zero regression without it. Candidate status does not authorize removing safety or approval controls; retain host and safety guardrails until verified deterministic runtime enforcement replaces them.
+- **Pressure Scenarios**: For discipline skills, record rationalizations agents use to skip rules, define red flags that trigger immediate stop/restart, and score against observable evidence.
+
 ## Anti-Patterns
 
-- **No "AI-splaining"**: not explain why pattern good unless it's unique project constraint.
-- **No Vague Triggers**: Never use `src/**` or `**/*`. surgical.
-- **No Description Bloat**: If description exceeds 100 words, some capabilities belong in body.
-- **No long code blocks**: >10 lines → extract to `references/`
-- **No redundancy**: don't repeat frontmatter content in body
-- **No untested guardrails**: Rules that were never pressure-tested are speculation.
+- **No "AI-splaining"**: Do not explain why a pattern is good unless it is a unique project constraint.
+- **No Answer-Anchor Padding**: Do not insert arbitrary keywords or phrases solely to satisfy string-match tests.
+- **No Vague Triggers**: Never use `src/**` or `**/*`. Keep triggers surgical.
+- **No Description Bloat**: If description exceeds 100 words, move capabilities to body.
+- **No Long Code Blocks**: Blocks >10 lines must be extracted to `references/`.
+- **No Untested Guardrails**: Rules not validated against baseline failure are unverified speculation.
+
 ## Quality Checklist (Tessl-Aligned)
 
-- [ ] **Activation ≥ 90%**: Description covers both capabilities ("What") and triggers ("When").
+- [ ] **Activation ≥ 90%**: Description covers capabilities ("What") and triggers ("When").
 - [ ] **Implementation ≥ 90%**: No general-purpose explanations; all examples executable.
 - [ ] **Structural Compliance**: SKILL.md ≤ 100 lines; code blocks moved to `references/`.
 - [ ] Trigger rate ≥80% on should-trigger queries.
-- [ ] Guardrail skills include rationalizations, red flags, behavior eval fields, and `should_trigger`/`should_not_trigger` cases.
-
+- [ ] Guardrail skills include rationalizations, red flags, behavior eval fields, and should/should-not trigger cases.
 ## References
 
 - [Skill Template](references/TEMPLATE.md) — load when starting new skill from scratch

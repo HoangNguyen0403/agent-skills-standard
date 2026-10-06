@@ -70,3 +70,27 @@ I used minor version bumps for small additive workflow and skill guidance change
 
 ### ✅ Better Approach
 Classify the user-visible change by its actual impact and follow repository release conventions; use patch bumps for small compatible corrections, and align category/workflow metadata with the changelog.
+
+---
+
+## Agent Learning Log: Iteration #5
+
+**Date**: 2026-10-06 | **Task**: Coordinate model-aware instruction modernization.
+**Signal**: User correction
+**Skills**: common/common-subagent-driven-development, common/common-session-retrospective
+**Scope**: session
+**Candidate**: modernization-worker-handoff | **Status**: proposed
+**Provenance**: base `1fb0537c`; `.agents/sdd/2026-10-05-model-aware-instruction-modernization/progress.md`
+**Evaluation**: not-run; no skill-policy change proposed as verified
+**Review**: pending
+**Rollback**: not-applicable
+
+### Mistake Made
+Repeated status replies described verification as pending or running without checking whether the responsible integration worker had become idle. A user-requested diagnostic found the worker idle with no pending permissions; integration required an explicit resume prompt.
+
+### Pattern to Avoid
+- **No inferred worker progress**: A previous dispatch or a stale running label is not evidence of current execution.
+- **No status-only handoff loop**: A worker's completed correction must trigger its dependent review or verification action, not another unassigned wait.
+
+### Better Approach
+On each completion notification, assign the next dependency with exact ownership and verification commands. On a user-reported stall, inspect active-turn state, latest activity, saved evidence, and permissions once; resume the idle owner or report a concrete blocker. Keep ordinary asynchronous work notification-driven rather than polling.

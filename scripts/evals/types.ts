@@ -66,6 +66,8 @@ export interface RunMetadata {
   freshAnswerCount?: number;
   reusedAnswerCount?: number;
   usage?: RunUsage;
+  protocolProvenance?: InstructionVersion | "mixed";
+  isHomogeneousProtocol?: boolean;
 }
 
 export interface RunScope {
@@ -73,9 +75,14 @@ export interface RunScope {
   categories: string[];
 }
 
+export type InstructionVersion =
+  | "governing-skill-v1"
+  | "governing-skill-v3"
+  | "neutral-skill-v4";
+
 export interface GenerationProtocol {
-  /** Historical v1 runs remain readable; new runs and composites must use v3. */
-  instructionVersion: "governing-skill-v1" | "governing-skill-v3";
+  /** Historical v1/v3 runs remain readable; new runs and composites must use neutral-skill-v4. */
+  instructionVersion: InstructionVersion;
   isolation: "worker-per-arm";
   baseline: "prompt-only";
   withSkill: "prompt-plus-skill";
@@ -245,6 +252,7 @@ export interface EvalsHistoryRecord {
   agent?: string;
   model?: string;
   evidenceMode?: EvidenceMode;
+  protocolProvenance?: InstructionVersion | "mixed";
 }
 
 export interface EvalsHistory {

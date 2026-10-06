@@ -5,8 +5,7 @@ description: Run blinded live skill evals and publish reproducible v2 results.
 
 # Goal
 
-Measure whether a skill changes agent behavior with isolated, immutable, outcome-based eval evidence.
-
+Measure whether a skill changes agent behavior with isolated, immutable, outcome-based eval evidence. Distinguish textual transcript assertions from executable task verifications.
 # Steps
 
 ## 1. Choose or resume a run
@@ -23,11 +22,11 @@ Measure whether a skill changes agent behavior with isolated, immutable, outcome
 
 - Run each baseline and with-skill arm in a separate worker/context.
 - Baseline receives only the prompt. With-skill receives the same prompt plus that skill's `SKILL.md`.
+- Neither arm receives coaching pressure or answer-anchor hints. Textual assertions measure transcript evidence; distinguish clearly from executable task outcomes.
 - Trigger cases receive only the skill name and one-line description; never open the full skill body or expose the expected label.
 - Trigger prompt filenames use opaque case IDs; never infer the expected label from filenames or ordering.
 - For `all` runs, write answers under `answers/<category>/<skill>/<case>`; category runs use `answers/<skill>/<case>`.
 - Mark known compromised baselines in the manifest and do not use them for delta calculations until clean reruns replace them.
-
 ## 3. Complete and score
 
 - Fill `metadata.agent`, `metadata.model`, and `metadata.completedAt` after every required answer exists.

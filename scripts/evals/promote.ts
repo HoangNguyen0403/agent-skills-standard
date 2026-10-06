@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import * as path from "node:path";
-import { ROOT_DIR } from "./constants";
+import { CURRENT_INSTRUCTION_VERSION, ROOT_DIR } from "./constants";
 import { loadManifest } from "./manifest";
 import {
   assertCurrentSourceMatchesManifest,
@@ -89,6 +89,11 @@ export function promoteCategoryBaseline(
   const manifest = loadManifest(runDir);
   if (manifest.schemaVersion !== 2) {
     throw new Error(`Promotion requires a v2 run: ${runId}`);
+  }
+  if (manifest.protocol.instructionVersion !== CURRENT_INSTRUCTION_VERSION) {
+    throw new Error(
+      `Promotion requires current generation protocol ${CURRENT_INSTRUCTION_VERSION}; found ${manifest.protocol.instructionVersion}.`,
+    );
   }
   const inputs = loadRunInputs(runDir);
   if (!inputs) throw new Error(`Run ${runId} lacks immutable inputs.json.`);

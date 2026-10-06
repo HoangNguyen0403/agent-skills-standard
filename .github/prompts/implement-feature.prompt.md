@@ -9,14 +9,11 @@ Goal: Build an approved feature through TDD slices and route completed work to v
 ## Steps
 
 1. Load plan:
-   - Search `docs/prd/` and `docs/srs/` for a matching `[slug]`; if absent, use the newest matching artifact.
-   - If multiple candidates exist, ask the user to choose or input the target slug.
-   - PRD or ticket
-   - SRS/FRS technical design if present
-   - Implementation plan
-   - Matched framework and common skills
-   - If stable `REQ-*`, `AC-*`, trace, or required SRS/test lanes are missing, stop and route to `plan-feature`, `design-solution`, or `implementation-readiness`.
-   - `snc_tier`/`model_tier` from handoff (score per `common-task-complexity-routing` if absent); `high` adds `specialist-architecture-guard` and `specialist-security-reviewer` before `verify-work`.
+   - Approved plan, ticket, or in-chat brief contract for low-risk maintenance; require `docs/prd/` and `docs/srs/` trace for governed features.
+   - If multiple candidates exist, ask user to select target slug.
+   - Downstream workers execute against assigned briefs without reloading parent intake.
+   - Matched framework and common skills.
+   - `snc_tier`/`model_tier` from handoff; sensitive changes enforce risk floor; `high` adds architecture and security specialists before `verify-work`.
 2. Prepare workspace:
    - Confirm clean or intentionally dirty git state.
    - Create branch or worktree only when project workflow expects it.
@@ -41,15 +38,15 @@ Goal: Build an approved feature through TDD slices and route completed work to v
    - If behavior or scope changes, update `docs/prd/prd-[slug].md` and `docs/srs/srs-[slug].md` before closing the slice.
    - Avoid carrying raw logs; summarize failures and fixes.
 5. Prepare handoff:
-   - Run fresh local automated checks before claiming success.
+   - Run focused automated checks on changed paths; full test suites run during orchestrator integration.
    - Update requirement trace notes for changed AC coverage.
-   - Capture evidence in `docs/srs/srs-walkthrough-[slug].md`.
+   - Capture evidence in walkthrough or task report.
    - For autonomous/channel mode, delegate only with disjoint files, owner, AC IDs, expected artifact, and verification command.
    - Route next step to `verify-work`.
 
 ## Runtime Contract
 - Use for approved plans ready to build; failing test first, no pre-test implementation kept as reference.
-- Required inputs: PRD/ticket with stable `REQ-*`/`AC-*` trace and required SRS/test lanes.
+- Required inputs: PRD, ticket, or approved brief with stable ACs; full SRS trace for governed delivery.
 - Return BLOCKED only when required trace, owner, or test lanes are missing.
 ## Handoff Payload
 - `slug`, `operator_profile` (carried, not re-inferred), `snc_tier`, `model_tier`, completed slices, tests run, changed contracts, delegation packets, outcome report, next workflow.
