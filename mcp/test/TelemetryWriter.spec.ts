@@ -3,23 +3,56 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { SessionTracker } from "../src/services/SessionTracker";
-import { TelemetryWriter, buildTelemetryRecord } from "../src/services/TelemetryWriter";
+import {
+  TelemetryWriter,
+  buildTelemetryRecord,
+} from "../src/services/TelemetryWriter";
 import { aggregateTelemetry } from "../../scripts/freshness/signals/telemetry";
 
 function tracker(): SessionTracker {
   const t = new SessionTracker();
-  t.record({ via: "load_skills_for_files", input: ["src/app.ts"], loaded: ["typescript/typescript-language", "nestjs/nestjs-architecture"] });
-  t.record({ via: "load_skills_for_keywords", input: ["jwt"], loaded: ["typescript/typescript-language"], dedupedSkills: ["typescript/typescript-language"] });
-  t.record({ via: "get_workflow", input: ["dev-fix"], loaded: ["workflow/dev-fix"] });
+  t.record({
+    via: "load_skills_for_files",
+    input: ["src/app.ts"],
+    loaded: ["typescript/typescript-language", "nestjs/nestjs-architecture"],
+  });
+  t.record({
+    via: "load_skills_for_keywords",
+    input: ["jwt"],
+    loaded: ["typescript/typescript-language"],
+    dedupedSkills: ["typescript/typescript-language"],
+  });
+  t.record({
+    via: "get_workflow",
+    input: ["dev-fix"],
+    loaded: ["workflow/dev-fix"],
+  });
   t.record({ via: "load_skills_for_keywords", input: ["nothing"], loaded: [] });
-  t.record({ via: "get_category_guide", input: ["nestjs"], loaded: ["category/nestjs"] });
+  t.record({
+    via: "list_categories",
+    input: [],
+    loaded: [],
+    discovered: ["category/flutter", "category/quality-engineering"],
+  });
+  t.record({
+    via: "get_category_guide",
+    input: ["flutter"],
+    loaded: [],
+    loadedGuides: ["category/flutter"],
+  });
   return t;
 }
 
 describe("buildTelemetryRecord", () => {
   it("counts skill and workflow loads, tool calls, and no-match calls", () => {
-    const record = buildTelemetryRecord(tracker(), { mcpVersion: "0.6.0", now: new Date() });
-    expect(record.skills).toEqual({ "typescript/typescript-language": 2, "nestjs/nestjs-architecture": 1 });
+    const record = buildTelemetryRecord(tracker(), {
+      mcpVersion: "0.6.0",
+      now: new Date(),
+    });
+    expect(record.skills).toEqual({
+      "typescript/typescript-language": 2,
+      "nestjs/nestjs-architecture": 1,
+    });
     expect(record.workflows).toEqual({ "workflow/dev-fix": 1 });
     expect(record.callsByTool.load_skills_for_keywords).toBe(2);
     expect(record.noMatchCalls).toBe(1);
@@ -30,14 +63,22 @@ describe("buildTelemetryRecord", () => {
     expect(serialized).not.toContain("nothing");
   });
 
-  it("buckets category guide loads separately from skills", () => {
-    const record = buildTelemetryRecord(tracker(), { mcpVersion: "0.6.0", now: new Date() });
-    expect(record.categories).toEqual({ "category/nestjs": 1 });
-    expect(Object.keys(record.skills).some((key) => key.startsWith("category/"))).toBe(false);
+  it("counts returned category guide bodies and excludes category discovery", () => {
+    const record = buildTelemetryRecord(tracker(), {
+      mcpVersion: "0.6.0",
+      now: new Date(),
+    });
+    expect(record.categories).toEqual({ "category/flutter": 1 });
+    expect(
+      Object.keys(record.skills).some((key) => key.startsWith("category/")),
+    ).toBe(false);
   });
 
   it("omits workflow/slug/outcome when get_session_cost was never called", () => {
-    const record = buildTelemetryRecord(tracker(), { mcpVersion: "0.6.0", now: new Date() });
+    const record = buildTelemetryRecord(tracker(), {
+      mcpVersion: "0.6.0",
+      now: new Date(),
+    });
     expect(record.workflow).toBeUndefined();
     expect(record.slug).toBeUndefined();
     expect(record.outcome).toBeUndefined();
@@ -46,8 +87,15 @@ describe("buildTelemetryRecord", () => {
 
   it("carries workflow/slug/outcome from the most recent get_session_cost call, without leaking prompt content", () => {
     const t = tracker();
-    t.setCostContext({ workflow: "implement-feature", slug: "cost-gates", outcome: "verified" });
-    const record = buildTelemetryRecord(t, { mcpVersion: "0.6.0", now: new Date() });
+    t.setCostContext({
+      workflow: "implement-feature",
+      slug: "cost-gates",
+      outcome: "verified",
+    });
+    const record = buildTelemetryRecord(t, {
+      mcpVersion: "0.6.0",
+      now: new Date(),
+    });
     expect(record.workflow).toBe("implement-feature");
     expect(record.slug).toBe("cost-gates");
     expect(record.outcome).toBe("verified");
@@ -69,13 +117,17 @@ describe("buildTelemetryRecord", () => {
       windowDays: 30,
     });
     expect(aggregate.sessions).toBe(1);
-    expect(aggregate.loadsBySkill.get("typescript/typescript-language")).toBe(3);
+    expect(aggregate.loadsBySkill.get("typescript/typescript-language")).toBe(
+      3,
+    );
   });
 });
 
 describe("TelemetryWriter", () => {
   const dirs: string[] = [];
-  afterEach(() => { for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true }); });
+  afterEach(() => {
+    for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true });
+  });
 
   it("appends one JSON line per flush, creating the directory", () => {
     const dir = mkdtempSync(path.join(os.tmpdir(), "ags-telemetry-"));
@@ -95,11 +147,15 @@ describe("TelemetryWriter", () => {
     dirs.push(dir);
     const filePath = path.join(dir, "telemetry.jsonl");
     const record = buildTelemetryRecord(tracker(), { mcpVersion: "0.6.0" });
-    expect(new TelemetryWriter({ enabled: false, filePath }).flush(record)).toBe(false);
+    expect(
+      new TelemetryWriter({ enabled: false, filePath }).flush(record),
+    ).toBe(false);
     expect(existsSync(filePath)).toBe(false);
     // A path whose parent is a file cannot be created.
     const blocked = path.join(filePath, "child.jsonl");
     new TelemetryWriter({ enabled: true, filePath }).flush(record);
-    expect(new TelemetryWriter({ enabled: true, filePath: blocked }).flush(record)).toBe(false);
+    expect(
+      new TelemetryWriter({ enabled: true, filePath: blocked }).flush(record),
+    ).toBe(false);
   });
 });

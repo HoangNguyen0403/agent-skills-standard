@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import { z } from "zod";
 import { SetupHint } from "../config";
-import { SessionTracker } from "../services/SessionTracker";
+import { SessionTracker, type LoadEvent } from "../services/SessionTracker";
 import { MatchResult, SkillIndex } from "../services/SkillIndex";
 import { summarizeSessionCostCoverage } from "../services/WorkflowTelemetry";
 import { scanWorkflows, readWorkflowBody } from "../services/WorkflowIndex";
@@ -24,6 +24,28 @@ export interface ToolResult {
   content: Array<{ type: "text"; text: string }>;
   isError?: boolean;
   [key: string]: unknown;
+}
+
+function formatConsultationEvent(event: LoadEvent): string {
+  const observations: string[] = [];
+  if (event.discovered?.length) {
+    observations.push(`discovered ${event.discovered.join(", ")}`);
+  }
+  const dedupedSkills = new Set(event.dedupedSkills ?? []);
+  const returnedBodies = event.loaded.filter((id) => !dedupedSkills.has(id));
+  if (returnedBodies.length) {
+    observations.push(`body returned ${returnedBodies.join(", ")}`);
+  }
+  if (dedupedSkills.size) {
+    observations.push(
+      `stub returned; body omitted ${Array.from(dedupedSkills).join(", ")}`,
+    );
+  }
+  if (event.loadedGuides?.length) {
+    observations.push(`guide body returned ${event.loadedGuides.join(", ")}`);
+  }
+  const result = observations.join("; ") || "(no body returned)";
+  return `- ${event.at} — ${event.via}(${event.input.join(", ")}) → ${result}`;
 }
 
 function setupGuidance(setup: SetupHint): string {
@@ -314,7 +336,7 @@ export async function getCategoryGuide(
     ctx.tracker.record({
       via: "get_category_guide",
       input: [args.category],
-      loaded: [`category/${categoryHit}`],
+      loaded: [],
     });
     return {
       content: [
@@ -342,7 +364,8 @@ export async function getCategoryGuide(
   ctx.tracker.record({
     via: "get_category_guide",
     input: [args.category],
-    loaded: [`category/${categoryHit}`],
+    loaded: [],
+    loadedGuides: [`category/${categoryHit}`],
   });
 
   const lines = [
@@ -377,7 +400,8 @@ export async function listCategories(
   ctx.tracker.record({
     via: "list_categories",
     input: [],
-    loaded: categories.map((category) => `category/${category}`),
+    loaded: [],
+    discovered: categories.map((category) => `category/${category}`),
   });
   const lines: string[] = ["# Skill categories", ""];
   for (const cat of categories) {
@@ -401,16 +425,29 @@ export async function auditSessionCompliance(
   ctx: ToolContext,
 ): Promise<ToolResult> {
   const loaded = ctx.tracker.loadedSkills();
+  const workflows = ctx.tracker.loadedWorkflows();
+  const guides = ctx.tracker.loadedGuides();
   const events = ctx.tracker.events_();
   const gaps = complianceGaps(ctx);
   const lines: string[] = [
     "# Session compliance",
     "",
     `Session started: ${ctx.tracker.startedAt_()}`,
+    "AGS consultation/body-return observations are limited to this MCP session. They do not establish fresh-worker delivery or observed edits, checks, or enforcement.",
     `Skills loaded: ${loaded.length}`,
+    `Workflow bodies returned: ${workflows.length}`,
+    `Category-guide bodies returned: ${guides.length}`,
     "",
     "## Loaded skills",
     ...(loaded.length ? loaded.map((s) => `- ${s}`) : ["_(none yet)_"]),
+    "",
+    "## Returned workflow bodies",
+    ...(workflows.length
+      ? workflows.map((workflow) => `- ${workflow}`)
+      : ["_(none)_"]),
+    "",
+    "## Returned category-guide bodies",
+    ...(guides.length ? guides.map((guide) => `- ${guide}`) : ["_(none)_"]),
     "",
     "## Coverage gaps",
     ...(gaps.length
@@ -418,23 +455,20 @@ export async function auditSessionCompliance(
       : ["_(none — every routed category loaded at least one skill)_"]),
     "",
     "## Tool calls",
-    ...(events.length
-      ? events.map(
-          (e) =>
-            `- ${e.at} — ${e.via}(${e.input.join(", ")}) → ${e.loaded.join(", ") || "(no match)"}`,
-        )
-      : ["_(none yet)_"]),
+    ...(events.length ? events.map(formatConsultationEvent) : ["_(none yet)_"]),
   ];
-  const touchedFiles = ctx.tracker.loadedFiles();
-  const checks = ctx.policy.loaded
-    ? ctx.policy.requiredChecks(touchedFiles)
+  const lookupFiles = ctx.tracker.loadedFiles();
+  const candidateChecks = ctx.policy.loaded
+    ? ctx.policy.requiredChecks(lookupFiles)
     : [];
-  if (checks.length > 0) {
+  if (candidateChecks.length > 0) {
     lines.push(
       "",
-      "## Required checks for files touched this session",
-      ...checks.map(
-        (c) => `- ${c.id} (${c.action}) — ${c.reason}: ${c.checks.join(", ")}`,
+      "## Policy-declared candidate checks for lookup paths",
+      "These checks are conditional on actual file changes; lookup inputs do not establish edits or check execution.",
+      ...candidateChecks.map(
+        (check) =>
+          `- ${check.id} (${check.action}) — ${check.reason}: ${check.checks.join(", ")}`,
       ),
     );
   }
@@ -442,34 +476,34 @@ export async function auditSessionCompliance(
 }
 
 /**
- * Flags categories that files were routed to (via load_skills_for_files calls)
- * but for which the session never actually loaded a skill — e.g. the agent
- * edited .kt files but no android/kotlin skill was ever loaded.
+ * Flags categories probed through file lookup without a returned skill body.
  */
 function complianceGaps(ctx: ToolContext): string[] {
   const routing = ctx.index.getRouting();
   const loadedCategories = new Set(
-    ctx.tracker.loadedSkills().map((s) => s.split("/")[0]),
+    ctx.tracker.loadedSkills().map((skill) => skill.split("/")[0]),
   );
-  const touched = new Map<string, Set<string>>();
+  const probedCategories = new Map<string, Set<string>>();
 
   for (const event of ctx.tracker.events_()) {
     if (event.via !== "load_skills_for_files") continue;
-    for (const file of event.input) {
-      const match = /\.([a-zA-Z0-9]+)$/.exec(file);
+    for (const lookupPath of event.input) {
+      const match = /\.([a-zA-Z0-9]+)$/.exec(lookupPath);
       if (!match) continue;
       for (const category of routing[match[1]] ?? []) {
-        if (!touched.has(category)) touched.set(category, new Set());
-        touched.get(category)!.add(`.${match[1]}`);
+        if (!probedCategories.has(category)) {
+          probedCategories.set(category, new Set());
+        }
+        probedCategories.get(category)?.add(`.${match[1]}`);
       }
     }
   }
 
   const gaps: string[] = [];
-  for (const [category, exts] of touched) {
+  for (const [category, extensions] of probedCategories) {
     if (!loadedCategories.has(category)) {
       gaps.push(
-        `Files with ${[...exts].join(", ")} route to "${category}", but no ${category} skill was loaded this session.`,
+        `Lookup paths with ${[...extensions].join(", ")} route to "${category}", but no ${category} skill body was returned this session.`,
       );
     }
   }
@@ -611,6 +645,7 @@ export async function getSessionCost(
 
   const loaded = ctx.tracker.loadedSkills();
   const workflows = ctx.tracker.loadedWorkflows();
+  const guides = ctx.tracker.loadedGuides();
   const events = ctx.tracker.events_();
   const summary = ctx.tracker.summary();
   const costCoverage = summarizeSessionCostCoverage(args);
@@ -624,7 +659,8 @@ export async function getSessionCost(
   const lines: string[] = [
     "# Session Telemetry",
     "",
-    "Exact LLM token usage depends on the host runtime. MCP-observed fields below are measured directly; token and cost fields carry an explicit provenance (host, agent-estimate, or unavailable) instead of a guessed placeholder.",
+    "Exact LLM token usage depends on the host runtime. MCP-observed fields below are measured directly; token and cost fields carry explicit provenance instead of guessed placeholders.",
+    "AGS consultation/body-return observations are limited to this MCP session. They do not establish fresh-worker delivery or observed edits, checks, or enforcement.",
     "",
     "| Metric | Value |",
     "|---|---|",
@@ -633,7 +669,8 @@ export async function getSessionCost(
     `| **Elapsed Seconds** | ${summary.elapsedSeconds} |`,
     `| **MCP Tool Calls** | ${summary.toolCalls} |`,
     `| **Skills Loaded** | ${loaded.length} |`,
-    `| **Workflows Loaded** | ${workflows.length} |`,
+    `| **Category Guide Bodies Returned** | ${guides.length} |`,
+    `| **Workflow Bodies Returned** | ${workflows.length} |`,
     `| **No-Match Calls** | ${summary.noMatchCalls} |`,
     `| **Model** | ${args.model ?? unavailableMsg} |`,
     `| **Prompt Tokens** | ${args.promptTokens ?? unavailableMsg} |`,
@@ -670,20 +707,18 @@ export async function getSessionCost(
     "",
     ...(loaded.length ? loaded.map((skill) => `- ${skill}`) : ["_(none)_"]),
     "",
-    "## Loaded Workflows",
-    "",
+    "## Returned Workflow Bodies",
     ...(workflows.length
       ? workflows.map((workflow) => `- ${workflow}`)
       : ["_(none)_"]),
     "",
+    "## Returned Category-Guide Bodies",
+    "",
+    ...(guides.length ? guides.map((guide) => `- ${guide}`) : ["_(none)_"]),
+    "",
     "## Tool Call Timeline",
     "",
-    ...(events.length
-      ? events.map(
-          (event) =>
-            `- ${event.at} — ${event.via}(${event.input.join(", ")}) → ${event.loaded.join(", ") || "(no match)"}`,
-        )
-      : ["_(none)_"]),
+    ...(events.length ? events.map(formatConsultationEvent) : ["_(none)_"]),
   ];
   return { content: [{ type: "text", text: lines.join("\n") }] };
 }
@@ -700,9 +735,9 @@ export async function listWorkflows(
   ctx.tracker.record({
     via: "list_workflows",
     input: [],
-    loaded: workflows.map((w) => `workflow/${w.name}`),
+    loaded: [],
+    discovered: workflows.map((workflow) => `workflow/${workflow.name}`),
   });
-
   if (workflows.length === 0) {
     return {
       content: [

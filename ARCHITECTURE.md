@@ -35,6 +35,22 @@ AI agents follow a three-step lookup:
 
 This replaces the previous flat index (all skills in one list) and reduces scan cost from O(n) to O(1).
 
+MCP routing keeps high-collision framework topics in qualified trigger phrases
+(for example `React profile`, `state in React`, and `SwiftUI @State`). Keyword
+inputs must equal or contain the complete declared trigger at word boundaries;
+bare words do not satisfy a qualified phrase through reverse containment.
+Routing does not assemble arbitrary separated words into a phrase match.
+Next.js DAL file triggers identify `lib/data.ts` or a `dal/**` directory, not
+generic `services` directories. Matcher/body-return evidence establishes
+selection in that MCP session, not delivery of complete standards to another
+worker.
+
+The MCP consultation ledger is process-local. Catalog discovery is separate
+from returned skill, workflow, and category-guide bodies; unique session totals
+and per-call count-only telemetry are different measurements. Audit/cost output
+does not certify edits, executed checks, enforcement, or outgoing worker-body
+delivery. Those require evidence at the actual host/runtime boundary.
+
 ## 2. Multi-Agent Compatibility (The "Integration Taxonomy")
 
 This project maintains a standardized bridge for multiple AI agents, each with varying levels of native support for hooks and context injection. The canonical per-agent capability matrix is maintained in `cli/src/capabilities/agentCapabilities.ts` and generated to [docs/agent-capabilities.md](docs/agent-capabilities.md).

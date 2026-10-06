@@ -196,9 +196,9 @@ export class SkillIndex {
 
   /**
    * Match keyword phrases against every skill's `triggers.keywords`.
-   * Case-insensitive: exact match ranks highest; otherwise a word-boundary
-   * substring match in either direction (partial keywords under 3 chars are
-   * ignored to avoid a short trigger matching inside an unrelated word).
+   * Case-insensitive: exact input matches rank highest; otherwise the complete
+   * declared trigger must occur in the input at word boundaries. Triggers
+   * shorter than three characters only match exactly.
    */
   matchKeywords(keywords: string[]): MatchResult[] {
     this.ensureLoaded();
@@ -229,7 +229,10 @@ export class SkillIndex {
     return [...ranked, ...this.expandComposites(results)];
   }
 
-  /** Exact match, else a word-boundary substring match in either direction (min 3 chars). */
+  /**
+   * Match exact input first, then complete declared triggers at input
+   * word boundaries.
+   */
   private matchKeyword(
     inputLowered: string[],
     triggerLc: string,
@@ -238,9 +241,6 @@ export class SkillIndex {
 
     for (const k of inputLowered) {
       if (triggerLc.length >= 3 && this.hasBoundaryMatch(k, triggerLc)) {
-        return { hit: true, exact: false };
-      }
-      if (k.length >= 3 && this.hasBoundaryMatch(triggerLc, k)) {
         return { hit: true, exact: false };
       }
     }

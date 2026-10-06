@@ -9,7 +9,8 @@ metadata:
     - async
     - await
     - actor
-    - Task
+    - Swift concurrency Task
+    - Swift Task
     - MainActor
 ---
 # Swift Concurrency

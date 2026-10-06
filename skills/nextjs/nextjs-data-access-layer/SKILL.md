@@ -5,7 +5,6 @@ metadata:
   triggers:
     files:
     - '**/lib/data.ts'
-    - '**/services/*.ts'
     - '**/dal/**'
     keywords:
     - DAL

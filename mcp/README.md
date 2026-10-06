@@ -2,7 +2,7 @@
 
 MCP server that lets any AI agent — Claude Code, Cursor, Antigravity, Kiro, Continue, Gemini CLI — load and audit skills from [agent-skills-standard](../README.md) via Model Context Protocol tool calls.
 
-Solves the **enforcement gap**: `AGENTS.md` and `_INDEX.md` are passive prompt context. Sub-agents in particular don't inherit them. This MCP exposes skill loading as explicit, auditable tool calls that work the same way across every MCP-compatible runtime.
+Makes standards consultation explicit: `AGENTS.md` and `_INDEX.md` are passive prompt context, while this MCP returns standards through auditable tool calls. Each agent or sub-agent must perform its own applicable lookup; parent-session consultation does not prove fresh-worker delivery or enforced behavior.
 
 **Current release:** `v0.5.0` — workflow-end telemetry helpers, markdown-first review continuity, runtime policy coverage, and host-runtime integration guidance for SDLC reporting.
 
@@ -28,12 +28,27 @@ This MCP follows the [Core Architecture](../ARCHITECTURE.md) inspired by **Rust 
 
 The server honours the same tier model as `agent-skills-standard`'s index generator: broad globs (`**/*.dart`) only match if the skill is the registered `base_language_skills` for that category. Everything else is demoted to keyword match.
 
+### Consultation is not enforcement
+
+`list_workflows` and `list_categories` record catalog discovery, not fetched
+bodies. `get_workflow` records returned workflow bodies; `get_category_guide`
+records a real category-guide body separately from `SKILL.md` bodies, and a
+missing guide counts neither. Session totals deduplicate body identities.
+Local count-only telemetry's `categories` field counts actual guide returns,
+not catalog listings.
+
+`audit_session_compliance` and `get_session_cost` describe observations in the
+current MCP process. They do not observe edits, executed checks, compliance with
+instructions, or delivery of full bodies into another worker's outgoing request.
+Host runtime evidence is required for those claims; a reset MCP process starts a
+new consultation ledger.
+
 ## Project policy (.ags/policy.json)
 
 When a project defines `.ags/policy.json`, the MCP server automatically reads it synchronously and re-reads it whenever the file's modification time changes.
 
 - **`load_skills_for_files`**: appends matching `protected_path` rules and `required_check` items under `## Project policy for these files`.
-- **`audit_session_compliance`**: appends `## Required checks for files touched this session` covering files loaded during the session.
+- **`audit_session_compliance`**: appends `## Policy-declared candidate checks for lookup paths` for paths supplied to skill lookups. These paths are not observed edits, and candidate checks are neither confirmed applicable nor recorded as executed.
 
 > [!NOTE]
 > Policy rules surfaced by the MCP are advisory and designed to prevent mistakes by cooperating agents; they are **not a security boundary**.
@@ -294,10 +309,10 @@ The agent reads `AGENTS.md` (maybe), walks the router (maybe), reads the matched
 | `common-best-practices` (function size, naming, guard clauses)         | ✅ Loaded via composite       | ❌ Almost never                       |
 | `common-api-design` (status codes, pagination)                         | ✅ Loaded via composite       | ❌ Almost never                       |
 | `common-security-standards` (input validation, auth)                   | ✅ Loaded via composite       | ❌ Almost never                       |
-| Provable audit log of what informed the code                           | ✅ `audit_session_compliance` | ❌ None                               |
-| Behavior in sub-agents (`tdd-implementer`, `architecture-guard`, etc.) | ✅ Same as orchestrator       | ❌ Worse — sub-agents inherit nothing |
+| Session-local record of standards body returns                        | ✅ `audit_session_compliance` | ❌ No MCP consultation record         |
+| Sub-agent standards delivery                                         | Each child must load its own standards | Depends on the host's context setup |
 
-That's the reason the MCP exists: the rules **automatically reach the working context** every time, in every runtime, including sub-agents.
+The MCP makes applicable standards available through explicit lookups. Whether a runtime invokes those lookups, delivers full bodies, and follows them requires separate host and behavioral evidence.
 
 ## Project resolution
 

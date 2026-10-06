@@ -15,6 +15,8 @@ import {
   listCategories,
   loadSkillsForFiles,
   loadSkillsForKeywords,
+  getWorkflow,
+  listWorkflows,
 } from "../src/tools";
 
 async function fixture(): Promise<{
@@ -260,7 +262,9 @@ describe("tools — happy path tracker", () => {
     expect(t).toContain(
       "| **Cost Status** | Partial - host usage or pricing fields missing |",
     );
-    expect(t.match(/unavailable \(host did not expose token usage\)/g)?.length).toBeGreaterThanOrEqual(6);
+    expect(
+      t.match(/unavailable \(host did not expose token usage\)/g)?.length,
+    ).toBeGreaterThanOrEqual(6);
     expect(t).not.toContain("[Agent: fill");
     expect(t).not.toContain("$0.00");
     expect(t).toContain(
@@ -268,6 +272,102 @@ describe("tools — happy path tracker", () => {
     );
     expect(t).toContain("load_skills_for_files");
     expect(t).toContain("get_session_cost");
+  });
+
+  it("counts discovered workflows only after their bodies are fetched", async () => {
+    const workflowsDir = path.join(f.root, ".agents", "workflows");
+    await fs.ensureDir(workflowsDir);
+    await fs.writeFile(
+      path.join(workflowsDir, "dev-fix.md"),
+      "---\ndescription: Bug fixing\n---\n# Dev Fix\nReproduce first.",
+    );
+    const ctx = await makeCtx(
+      path.join(f.root, "skills"),
+      { kind: "ready" },
+      f.root,
+    );
+
+    await listWorkflows({}, ctx);
+    const discovery = ctx.tracker
+      .events_()
+      .find((event) => event.via === "list_workflows");
+    expect(discovery?.input).toEqual([]);
+    expect(discovery?.loaded).toEqual([]);
+    expect(discovery?.discovered).toEqual(["workflow/dev-fix"]);
+    expect(ctx.tracker.summary().workflowsLoaded).toBe(0);
+    expect(ctx.tracker.loadedWorkflows()).toEqual([]);
+
+    await getWorkflow({ name: "dev-fix" }, ctx);
+    await getWorkflow({ name: "dev-fix" }, ctx);
+
+    expect(ctx.tracker.summary().workflowsLoaded).toBe(1);
+    expect(ctx.tracker.loadedWorkflows()).toEqual(["workflow/dev-fix"]);
+  });
+
+  it("does not count category discovery as loaded skill bodies", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+
+    await listCategories({}, ctx);
+    const discovery = ctx.tracker
+      .events_()
+      .find((event) => event.via === "list_categories");
+    expect(discovery?.input).toEqual([]);
+    expect(discovery?.loaded).toEqual([]);
+    expect(discovery?.discovered).toContain("category/flutter");
+
+    expect(ctx.tracker.summary().guidesLoaded).toBe(0);
+    expect(ctx.tracker.summary().skillsLoaded).toBe(0);
+  });
+
+  it("does not count a missing category guide as a loaded body", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+
+    await getCategoryGuide({ category: "quality-engineering" }, ctx);
+
+    expect(ctx.tracker.summary().skillsLoaded).toBe(0);
+    expect(ctx.tracker.loadedSkills()).toEqual([]);
+    expect(ctx.tracker.loadedGuides()).toEqual([]);
+    expect(ctx.tracker.summary().guidesLoaded).toBe(0);
+  });
+
+  it("counts returned category guides separately and uniquely", async () => {
+    const ctx = await makeCtx(path.join(f.root, "skills"));
+
+    await getCategoryGuide({ category: "flutter" }, ctx);
+    await getCategoryGuide({ category: "flutter" }, ctx);
+
+    expect(ctx.tracker.summary().skillsLoaded).toBe(0);
+    expect(ctx.tracker.loadedSkills()).toEqual([]);
+    expect(ctx.tracker.loadedGuides()).toEqual(["category/flutter"]);
+    expect(ctx.tracker.summary().guidesLoaded).toBe(1);
+  });
+
+  it("keeps AGS consultation observations local to the tracker session", async () => {
+    const workflowsDir = path.join(f.root, ".agents", "workflows");
+    await fs.ensureDir(workflowsDir);
+    await fs.writeFile(
+      path.join(workflowsDir, "dev-fix.md"),
+      "---\ndescription: Bug fixing\n---\n# Dev Fix\nReproduce first.",
+    );
+    const firstSession = await makeCtx(
+      path.join(f.root, "skills"),
+      { kind: "ready" },
+      f.root,
+    );
+    const nextSession = await makeCtx(
+      path.join(f.root, "skills"),
+      { kind: "ready" },
+      f.root,
+    );
+
+    await listWorkflows({}, firstSession);
+    await getWorkflow({ name: "dev-fix" }, firstSession);
+    expect(firstSession.tracker.loadedWorkflows()).toEqual([
+      "workflow/dev-fix",
+    ]);
+    expect(nextSession.tracker.loadedWorkflows()).toEqual([]);
+    expect(nextSession.tracker.events_()).toEqual([]);
+    expect(nextSession.tracker.summary().workflowsLoaded).toBe(0);
   });
 
   it("renders agent-estimate provenance with real numbers when tokens are hand-supplied", async () => {
@@ -393,27 +493,6 @@ describe("tools — happy path tracker", () => {
     );
   });
 
-  it("flags a coverage gap when a routed category never loads a skill", async () => {
-    // Extend the fixture with a category whose only skill has a narrow glob
-    // that the probed file cannot match, while the extension is still routed.
-    await fs.writeJson(path.join(f.root, "skills", "metadata.json"), {
-      file_routing: { dart: ["flutter"], kt: ["android"] },
-      broad_globs: ["**/*.dart"],
-      base_language_skills: { flutter: "flutter-language" },
-    });
-    await writeSkill(path.join(f.root, "skills"), "android", "android-narrow", {
-      files: ["**/*_only.kt"],
-      keywords: ["narrow"],
-    });
-
-    const ctx = await makeCtx(path.join(f.root, "skills"));
-    await loadSkillsForFiles({ files: ["src/Main.kt"] }, ctx);
-    const audit = await auditSessionCompliance({}, ctx);
-    const t = text(audit);
-    expect(t).toContain('Files with .kt route to "android"');
-    expect(t).toContain("no android skill was loaded this session");
-  });
-
   it("tracks get_skill misses without inflating telemetry no-match counts for cost calls", async () => {
     const ctx = await makeCtx(path.join(f.root, "skills"));
 
@@ -535,79 +614,6 @@ describe("tools — project policy integration", () => {
 
     expect(t).toContain("Project policy not loaded:");
     expect(t).not.toContain("## Project policy for these files");
-  });
-
-  it("audit_session_compliance lists required checks for files loaded earlier in the session", async () => {
-    const agsDir = path.join(policyFixture.root, ".ags");
-    await fs.mkdirp(agsDir);
-    await fs.writeJson(path.join(agsDir, "policy.json"), {
-      schema_version: 1,
-      rules: [
-        {
-          id: "check-dart",
-          kind: "required_check",
-          when_changed: ["lib/**"],
-          checks: ["flutter test"],
-          action: "warn",
-          reason: "Tests for Dart files",
-          source: { origin: "declared" },
-        },
-      ],
-    });
-
-    const ctx = await makeCtx(
-      path.join(policyFixture.root, "skills"),
-      { kind: "ready" },
-      policyFixture.root,
-    );
-
-    // Before any file load
-    const before = await auditSessionCompliance({}, ctx);
-    expect(text(before)).not.toContain(
-      "## Required checks for files touched this session",
-    );
-
-    // Load files
-    await loadSkillsForFiles({ files: ["lib/cart_bloc.dart"] }, ctx);
-
-    // After file load
-    const after = await auditSessionCompliance({}, ctx);
-    const t = text(after);
-    expect(t).toContain("## Required checks for files touched this session");
-    expect(t).toContain(
-      "- check-dart (warn) — Tests for Dart files: flutter test",
-    );
-  });
-
-  it("audit_session_compliance appends nothing for required checks when none apply", async () => {
-    const agsDir = path.join(policyFixture.root, ".ags");
-    await fs.mkdirp(agsDir);
-    await fs.writeJson(path.join(agsDir, "policy.json"), {
-      schema_version: 1,
-      rules: [
-        {
-          id: "check-go",
-          kind: "required_check",
-          when_changed: ["internal/**"],
-          checks: ["go test ./..."],
-          action: "warn",
-          reason: "Go tests",
-          source: { origin: "declared" },
-        },
-      ],
-    });
-
-    const ctx = await makeCtx(
-      path.join(policyFixture.root, "skills"),
-      { kind: "ready" },
-      policyFixture.root,
-    );
-
-    await loadSkillsForFiles({ files: ["lib/cart_bloc.dart"] }, ctx);
-    const after = await auditSessionCompliance({}, ctx);
-    expect(text(after)).not.toContain(
-      "## Required checks for files touched this session",
-    );
   });
 
   it("buildServer registers tools with advisory sentence in descriptions", async () => {

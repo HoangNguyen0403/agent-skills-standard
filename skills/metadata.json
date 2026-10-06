@@ -391,8 +391,8 @@
       "tag_prefix": "react-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 5536,
-        "avg_tokens_per_skill": 692,
+        "total_tokens": 5560,
+        "avg_tokens_per_skill": 695,
         "largest_skill": "react-testing (1311 tokens)"
       },
       "owners": [
@@ -463,8 +463,8 @@
       "tag_prefix": "nextjs-v",
       "token_metrics": {
         "total_skills": 18,
-        "total_tokens": 12144,
-        "avg_tokens_per_skill": 675,
+        "total_tokens": 12138,
+        "avg_tokens_per_skill": 674,
         "largest_skill": "nextjs-architecture (1040 tokens)"
       },
       "owners": [
@@ -687,8 +687,8 @@
       "tag_prefix": "swift-v",
       "token_metrics": {
         "total_skills": 8,
-        "total_tokens": 4655,
-        "avg_tokens_per_skill": 582,
+        "total_tokens": 4663,
+        "avg_tokens_per_skill": 583,
         "largest_skill": "swift-testing (801 tokens)"
       },
       "owners": [
@@ -711,7 +711,7 @@
       "tag_prefix": "ios-v",
       "token_metrics": {
         "total_skills": 15,
-        "total_tokens": 6594,
+        "total_tokens": 6601,
         "avg_tokens_per_skill": 440,
         "largest_skill": "ios-architecture (743 tokens)"
       },

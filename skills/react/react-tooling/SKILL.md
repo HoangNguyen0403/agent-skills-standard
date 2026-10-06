@@ -9,7 +9,9 @@ metadata:
     - devtool
     - bundle
     - strict mode
-    - profile
+    - React DevTools Profiler
+    - profile React
+    - React profile
 ---
 # React Tooling
 

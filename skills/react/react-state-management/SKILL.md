@@ -7,7 +7,8 @@ metadata:
     - '**/*.tsx'
     - '**/*.jsx'
     keywords:
-    - state
+    - React state management
+    - state in React
     - useReducer
     - context
     - store

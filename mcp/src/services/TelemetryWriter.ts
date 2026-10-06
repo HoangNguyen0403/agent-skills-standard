@@ -16,7 +16,7 @@ export interface TelemetryRecord {
   skills: Record<string, number>;
   /** Loads per `workflow/name`. */
   workflows: Record<string, number>;
-  /** Loads of category guides / listings per `category/<name>`. */
+  /** Actual returned category-guide bodies per `category/<name>`. */
   categories: Record<string, number>;
   /** Tool call counts, keyed by tool name. */
   callsByTool: Record<string, number>;
@@ -46,12 +46,11 @@ export function buildTelemetryRecord(
   const categories: Record<string, number> = {};
   for (const event of tracker.events_()) {
     for (const key of event.loaded) {
-      const bucket = key.startsWith("workflow/")
-        ? workflows
-        : key.startsWith("category/")
-          ? categories
-          : skills;
+      const bucket = key.startsWith("workflow/") ? workflows : skills;
       bucket[key] = (bucket[key] ?? 0) + 1;
+    }
+    for (const guide of event.loadedGuides ?? []) {
+      categories[guide] = (categories[guide] ?? 0) + 1;
     }
   }
   const summary = tracker.summary(now);
