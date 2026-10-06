@@ -363,13 +363,14 @@ _Date: 2026-10-05_
 4. Changes touching authentication, authorization, payments/financial flows, cryptographic primitives, or trust boundaries enforce an irreducible sensitive-change risk floor independent of arithmetic SNC scores.
 **Reason**: Prior specialist definitions suffered permission mismatch where file-writing roles were exported without write permissions or relied on advisory prose. Similarly, rigid workflow requirements forced unnecessary artifact ceremony on trivial bugfixes while arithmetic score averages risked under-reviewing security-critical changes.
 
-### ADR-019: Neutral Text-Evaluation Protocol (v4) and Executable Task Harness
+### ADR-019: Neutral Text-Evaluation Protocol and Executable Task Harness
 
 _Date: 2026-10-05_
 **Decision**:
-1. Introduce `neutral-skill-v4` for new text evaluations: baseline and with-skill workers receive identical task instructions, varying only in the presence of the skill payload. Answer-anchor and pressure-resistance coaching are removed.
-2. Historical v1/v3 transcripts and evaluation scores remain immutable and verifiable under their original evaluation semantics. Old protocol evidence cannot be relabeled or mixed into fresh neutral-protocol comparisons without explicit per-source provenance tracking.
-3. Deliver an executable task-evaluation harness (`evals:tasks`, `tsx scripts/evals/task-index.ts`) that executes actual code changes against temporary fixture workspaces with trusted out-of-workspace verifiers (testing pagination boundaries and cross-tenant authorization).
-4. The executable harness executes child processes with host user privileges and provides NO OS-level sandbox or container isolation. It is strictly intended for trusted operators executing nonproduction fixtures.
-5. Deterministic fixture checks verify harness execution plumbing; they do not represent live model capability sweeps. Unknown token and cost metrics remain null rather than guessed.
-**Reason**: Coached evaluation prompts distorted text-eval comparisons by providing task answers within the prompt itself. Text evals measure transcript-level assertion compliance, not end-to-end task execution. The executable pilot provides empirical task evaluation while honestly documenting safety, trust, and measurement boundaries.
+1. New text evaluations use `neutral-skill-v4`: baseline and with-skill workers receive identical task instructions, with only the skill payload differing. Historical v1/v3 evidence remains immutable and is never relabeled.
+2. Reports retain known protocol contributors and unresolved provenance independently. Unknown provenance is uncertainty, not proof of heterogeneity; physical-history presentation uses the complete physical run when available without rewriting history.
+3. The executable harness (`evals:tasks`, `tsx scripts/evals/task-index.ts`) runs code changes against temporary fixtures with trusted external verifiers.
+4. A verifier must emit a structured completed receipt through `TASK_EVAL_VERIFICATION_RESULT_PATH`. The runner validates status, unique checks, outcomes, evidence, counts, and exit-status agreement; a zero exit without a valid receipt is not success.
+5. POSIX cleanup waits for owned process-group quiescence and fails closed if it cannot be established. Windows descendant cleanup and deliberately detached sessions are outside this guarantee.
+6. Child processes use host user permissions and provide no OS-level sandbox. Receipts protect against accidental or incomplete verification, not hostile same-UID workers. Fixture checks are plumbing evidence, not live model benchmarks; unknown usage/cost remains null.
+**Reason**: Coached text prompts bias comparisons; exit-only task verification permits premature success; and collapsing unknown provenance or rewriting physical history overstates what the evidence proves.

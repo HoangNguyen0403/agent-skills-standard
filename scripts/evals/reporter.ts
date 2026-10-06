@@ -12,6 +12,7 @@ import { answerPath, loadManifest } from "./manifest";
 import {
   EvalsHistory,
   EvalsHistoryRecord,
+  EvidenceMode,
   InstructionVersion,
   RunResults,
   SkillResult,
@@ -260,55 +261,117 @@ function displayDelta(skill: SkillResult, run?: RunResults): string {
   return pct(skill.delta);
 }
 
-function evidenceMode(
-  run: RunResults,
-): "fresh" | "incremental" | "composite" | "unknown" {
+function evidenceMode(run: RunResults): EvidenceMode | "unknown" {
   if (run.metadata.evidenceMode) return run.metadata.evidenceMode;
   if (/composite/i.test(run.metadata.agent ?? "")) return "composite";
   return "unknown";
 }
 
+interface ProtocolFacts {
+  knownProtocols: Set<InstructionVersion>;
+  unresolvedContributorCount: number;
+  hasKnownHeterogeneity: boolean;
+}
+
+function classifyContributorProtocols(
+  protocols: Array<InstructionVersion | undefined>,
+): ProtocolFacts {
+  const knownProtocols = new Set(
+    protocols.filter(
+      (protocol): protocol is InstructionVersion => protocol !== undefined,
+    ),
+  );
+  return {
+    knownProtocols,
+    unresolvedContributorCount: protocols.filter(
+      (protocol) => protocol === undefined,
+    ).length,
+    hasKnownHeterogeneity: knownProtocols.size > 1,
+  };
+}
+
+function resolveRunLevelProtocol(
+  run: RunResults,
+): InstructionVersion | "mixed" | undefined {
+  if (run.metadata.protocolProvenance) return run.metadata.protocolProvenance;
+  const manifestPath = path.join(RUNS_DIR, run.runId, "manifest.json");
+  if (!fs.existsSync(manifestPath)) return undefined;
+  try {
+    const manifest = loadManifest(path.dirname(manifestPath));
+    return manifest.schemaVersion === 2
+      ? manifest.protocol?.instructionVersion
+      : "governing-skill-v1";
+  } catch {
+    return undefined;
+  }
+}
+
+function protocolFacts(
+  run: RunResults,
+  skills: SkillResult[] = run.skills,
+): ProtocolFacts {
+  if (run.provenance) {
+    return classifyContributorProtocols(
+      skills.map(
+        (skill) =>
+          run.provenance?.[`${skill.category}/${skill.skillName}`]?.protocol
+            ?.instructionVersion,
+      ),
+    );
+  }
+
+  const runProtocol = resolveRunLevelProtocol(run);
+  if (runProtocol === "mixed") {
+    return {
+      knownProtocols: new Set(),
+      unresolvedContributorCount: 0,
+      hasKnownHeterogeneity: true,
+    };
+  }
+  if (runProtocol) {
+    return {
+      knownProtocols: new Set([runProtocol]),
+      unresolvedContributorCount: 0,
+      hasKnownHeterogeneity: false,
+    };
+  }
+  return classifyContributorProtocols(skills.map(() => undefined));
+}
+
+function mergeProtocolFacts(facts: ProtocolFacts[]): ProtocolFacts {
+  const knownProtocols = new Set(
+    facts.flatMap((fact) => [...fact.knownProtocols]),
+  );
+  return {
+    knownProtocols,
+    unresolvedContributorCount: facts.reduce(
+      (total, fact) => total + fact.unresolvedContributorCount,
+      0,
+    ),
+    hasKnownHeterogeneity:
+      knownProtocols.size > 1 ||
+      facts.some((fact) => fact.hasKnownHeterogeneity),
+  };
+}
+
+function protocolLabel(
+  facts: ProtocolFacts,
+): InstructionVersion | "mixed" | "unknown" {
+  if (facts.hasKnownHeterogeneity) return "mixed";
+  if (facts.unresolvedContributorCount > 0) return "unknown";
+  return [...facts.knownProtocols][0] ?? "unknown";
+}
+
 export function resolveRunProtocol(
   run: RunResults,
 ): InstructionVersion | "mixed" | "unknown" {
-  if (run.metadata.protocolProvenance) return run.metadata.protocolProvenance;
-  if (run.provenance) {
-    const protos = new Set(
-      Object.values(run.provenance).map((p) => p.protocol.instructionVersion),
-    );
-    if (protos.size === 1) return [...protos][0] as InstructionVersion;
-    if (protos.size > 1) return "mixed";
-  }
-  const manifestPath = path.join(RUNS_DIR, run.runId, "manifest.json");
-  if (fs.existsSync(manifestPath)) {
-    try {
-      const manifest = loadManifest(path.dirname(manifestPath));
-      if (manifest.schemaVersion === 2) {
-        return manifest.protocol?.instructionVersion ?? "unknown";
-      }
-      return "governing-skill-v1";
-    } catch {
-      // fallback
-    }
-  }
-  return "unknown";
+  return protocolLabel(protocolFacts(run));
 }
 
 export function resolveCategoryProtocol(
   run: RunResults,
 ): InstructionVersion | "mixed" | "unknown" {
-  if (run.provenance) {
-    const protocols = new Set(
-      run.skills.flatMap((skill) => {
-        const key = `${skill.category}/${skill.skillName}`;
-        const protocol = run.provenance?.[key]?.protocol.instructionVersion;
-        return protocol ? [protocol] : [];
-      }),
-    );
-    if (protocols.size === 1) return [...protocols][0] as InstructionVersion;
-    if (protocols.size > 1) return "mixed";
-  }
-  return resolveRunProtocol(run);
+  return protocolLabel(protocolFacts(run));
 }
 
 export function resolveSkillProtocol(
@@ -317,15 +380,16 @@ export function resolveSkillProtocol(
 ): string {
   if (run?.provenance) {
     const key = `${skill.category}/${skill.skillName}`;
-    const p = run.provenance[key];
-    if (p?.protocol?.instructionVersion) return p.protocol.instructionVersion;
+    const protocol = run.provenance[key]?.protocol?.instructionVersion;
+    if (protocol) return protocol;
   }
   if (run) {
-    const proto = resolveRunProtocol(run);
-    if (proto !== "mixed" && proto !== "unknown") return proto;
+    const protocol = resolveRunProtocol(run);
+    if (protocol !== "mixed" && protocol !== "unknown") return protocol;
   }
   return "unknown";
 }
+
 
 export function buildEvalsReportMarkdown(
   allResults: RunResults[],
@@ -336,7 +400,7 @@ export function buildEvalsReportMarkdown(
     "# 🧪 Live Skill Evals Report",
     "",
     `> Generated: ${new Date().toISOString()}`,
-    "> Measured transcript-assertion evidence, not structural or executable task verification: outcome assertions are evaluated against transcripts from isolated evaluation workers. Baseline and with-skill arms are generated without tool execution; trigger arms receive only the skill name and description.",
+    "> Measured transcript-assertion evidence, not structural or executable task verification: outcome assertions are evaluated against transcripts from isolated evaluation workers. Workers are instructed not to use tools and have read-only filesystem capability, but neither tool-use prohibition nor tool invocation is host-enforced or retained here; tool-free execution is unverified. Trigger arms receive only the skill name and description.",
     "> Historical v1 runs remain readable through the compatibility adapter. v2 metrics report case pass rate, assertion pass rate, trigger recall, trigger specificity, and balanced trigger accuracy.",
     "> Activation metrics are omitted for legacy trigger evidence until a clean activation-evidence v2 run replaces it.",
     "",
@@ -386,18 +450,14 @@ export function buildEvalsReportMarkdown(
     allSkillResults.length > 0 &&
     strictReadyCount === allSkillResults.length &&
     freshEvidence;
-  const protocols = new Set(
-    [...latest.values()]
-      .map(resolveCategoryProtocol)
-      .filter((protocol) => protocol !== "unknown"),
+  const summaryProtocolFacts = mergeProtocolFacts(
+    [...latest.values()].map((run) => protocolFacts(run)),
   );
-  const protocolSummary =
-    protocols.size === 0
-      ? "unknown"
-      : protocols.size === 1
-        ? [...protocols][0]
-        : "mixed";
-  const hasMixedProtocols = protocols.has("mixed") || protocols.size > 1;
+  const hasUnknownProtocols =
+    summaryProtocolFacts.unresolvedContributorCount > 0;
+  const hasMixedProtocols =
+    summaryProtocolFacts.hasKnownHeterogeneity;
+  const protocolSummary = protocolLabel(summaryProtocolFacts);
 
   lines.push(
     "## 🔢 Executive Summary (latest complete partition per category)",
@@ -412,6 +472,7 @@ export function buildEvalsReportMarkdown(
     `| Activation readiness | **${activationReadyCount === allSkillResults.length ? "READY" : "NOT READY"}** |`,
     `| Evidence mode | **${modes.size === 1 ? [...modes][0] : "mixed"}** |`,
     `| Protocol provenance | **${protocolSummary}** |`,
+    `| Unresolved protocol contributors | **${summaryProtocolFacts.unresolvedContributorCount}** |`,
     `| Strict outcome-ready skills | **${outcomeReadyCount}/${allSkillResults.length}** |`,
     `| Activation-ready skills | **${activationReadyCount}/${allSkillResults.length}** |`,
     `| Strict release-ready skills | **${strictReadyCount}/${allSkillResults.length}** |`,
@@ -460,17 +521,34 @@ export function buildEvalsReportMarkdown(
       "",
     );
   }
+  if (hasUnknownProtocols) {
+    lines.push(
+      "> ⚠️ **Unresolved Protocol Provenance Notice**: At least one contributing skill has unresolved protocol provenance. This is uncertainty, not evidence that the contributor used a different protocol; protocol-specific aggregate comparisons cannot be certified.",
+      "",
+    );
+  }
 
   if (history && history.records.length > 0) {
+    const physicalRuns = new Map(
+      allResults.map((run) => [run.runId, run]),
+    );
     lines.push(
       "## 📜 Physical Run History",
       "",
-      "| Run | Category | Date | Skills | Baseline | With-Skill | Delta | Evidence | Protocol | Agent |",
-      "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+      "| Run | Category | Date | Skills | Baseline | With-Skill | Delta | Evidence | Protocol | Unresolved | Agent |",
+      "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     );
     for (const record of [...history.records].reverse()) {
+      const physicalRun = physicalRuns.get(record.runId);
+      const facts = physicalRun ? protocolFacts(physicalRun) : undefined;
+      const protocol = facts
+        ? protocolLabel(facts)
+        : (record.protocolProvenance ?? "historical");
+      const unresolvedCount = facts
+        ? String(facts.unresolvedContributorCount)
+        : "unknown";
       lines.push(
-        `| \`${record.runId}\` | ${record.category} | ${record.date.split("T")[0]} | ${record.skillCount} | ${pct(record.avgBaselinePassRate)} | ${pct(record.avgWithSkillPassRate)} | ${record.avgDelta >= 0 ? "+" : ""}${pct(record.avgDelta)} | ${record.evidenceMode ?? "unknown"} | ${record.protocolProvenance ?? "historical"} | ${record.agent ?? "n/a"} |`,
+        `| \`${record.runId}\` | ${record.category} | ${record.date.split("T")[0]} | ${record.skillCount} | ${pct(record.avgBaselinePassRate)} | ${pct(record.avgWithSkillPassRate)} | ${record.avgDelta >= 0 ? "+" : ""}${pct(record.avgDelta)} | ${record.evidenceMode ?? "unknown"} | ${protocol} | ${unresolvedCount} | ${record.agent ?? "n/a"} |`,
       );
     }
     lines.push("");

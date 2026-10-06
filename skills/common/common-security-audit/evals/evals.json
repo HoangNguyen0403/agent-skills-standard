@@ -45,6 +45,15 @@
           "value": "IDOR"
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Audit an executable authorization benchmark, not a production service. Its verifier checks cross-tenant read/update/delete and fresh-ID creation. A supposedly passing implementation forces the caller's tenant ID but createDocument then performs documents.set(docData.id, doc) without checking an existing record. A tenant-1 editor submits the ID of a tenant-2 document, overwrites it, and still passes every oracle check. Classify the benchmark defect without mislabeling the intentionally insecure starting fixture as a production breach.",
+      "expected_output": "[MAJOR] The authorization oracle misses a create-ID collision that destructively overwrites another tenant's resource. Why: A passing benchmark result does not establish tenant isolation across mutation paths. Add an adversarial collision check requiring preservation of the foreign document and a non-destructive create outcome; implementations must authorize existing identity or use tenant-qualified IDs. This is an oracle-integrity defect, not a demonstrated production exploit.",
+      "assertions": [
+        { "type": "contains", "value": "collision" },
+        { "type": "contains", "value": "tenant" }
+      ]
     }
   ],
   "should_not_trigger": [

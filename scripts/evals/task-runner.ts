@@ -37,8 +37,10 @@ import type {
   TaskSuiteSummary,
   TaskSummary,
   WorkerConfig,
+  VerificationReceipt,
 } from "./task-types";
 import { GUIDANCE_ARMS } from "./task-types";
+const VERIFICATION_RESULT_ENV = "TASK_EVAL_VERIFICATION_RESULT_PATH";
 
 // Maximum bytes captured per stream (stdout/stderr) before truncating to prevent memory exhaustion
 export const MAX_CAPTURE_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -83,7 +85,7 @@ export async function hashDirectory(dirPath: string): Promise<string> {
   const entries: Array<{ relativePath: string; hash: string }> = [];
 
   async function walk(currentDir: string): Promise<void> {
-    const items = await fs.readdir(currentDir, { withFileTypes: false });
+    const items = await fs.readdir(currentDir, { encoding: "utf8" });
     for (const itemName of items) {
       const fullPath = path.join(currentDir, itemName);
       const lstat = await fs.lstat(fullPath);
@@ -415,6 +417,80 @@ function redactCredentialValues(text: string, args: string[]): string {
   return redacted;
 }
 
+function validateVerificationReceipt(
+  value: unknown,
+  verifierExitCode: number | null,
+): { receipt: VerificationReceipt | null; error: string | null } {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return { receipt: null, error: "Verifier completion result must be an object." };
+  }
+  const candidate = value as Record<string, unknown>;
+  if (
+    candidate.schemaVersion !== 1 ||
+    candidate.status !== "completed" ||
+    !Array.isArray(candidate.checks) ||
+    candidate.checks.length === 0
+  ) {
+    return { receipt: null, error: "Verifier completion result is missing required completed evidence." };
+  }
+
+  const seenIds = new Set<string>();
+  let passedChecks = 0;
+  let failedChecks = 0;
+  const checks: VerificationReceipt["checks"] = [];
+  for (const check of candidate.checks) {
+    if (!check || typeof check !== "object" || Array.isArray(check)) {
+      return { receipt: null, error: "Verifier completion result contains a malformed check." };
+    }
+    const row = check as Record<string, unknown>;
+    if (
+      typeof row.id !== "string" ||
+      row.id.trim() === "" ||
+      typeof row.evidence !== "string" ||
+      row.evidence.trim() === "" ||
+      (row.outcome !== "passed" && row.outcome !== "failed")
+    ) {
+      return { receipt: null, error: "Verifier completion result contains incomplete check evidence." };
+    }
+    const checkId = row.id.trim();
+    if (seenIds.has(checkId)) {
+      return { receipt: null, error: `Verifier completion result repeats check '${checkId}'.` };
+    }
+    seenIds.add(checkId);
+    if (row.outcome === "passed") passedChecks++;
+    else failedChecks++;
+    checks.push({
+      id: checkId,
+      outcome: row.outcome,
+      evidence: row.evidence,
+    });
+  }
+
+  const totalChecks = checks.length;
+  if (
+    candidate.totalChecks !== totalChecks ||
+    candidate.passedChecks !== passedChecks ||
+    candidate.failedChecks !== failedChecks
+  ) {
+    return { receipt: null, error: "Verifier completion result counts do not match its checks." };
+  }
+  if (verifierExitCode === null || (failedChecks === 0) !== (verifierExitCode === 0)) {
+    return { receipt: null, error: "Verifier exit status disagrees with completed check results." };
+  }
+
+  return {
+    receipt: {
+      schemaVersion: 1,
+      status: "completed",
+      totalChecks,
+      passedChecks,
+      failedChecks,
+      checks,
+    },
+    error: null,
+  };
+}
+
 export function runBoundedProcess(options: {
   executable: string;
   args: string[];
@@ -423,7 +499,10 @@ export function runBoundedProcess(options: {
   stdinInput?: string;
   env?: NodeJS.ProcessEnv;
 }): Promise<BoundedProcessResult> {
-  const { promise, resolve } = Promise.withResolvers<BoundedProcessResult>();
+  let resolveProcess!: (result: BoundedProcessResult) => void;
+  const promise = new Promise<BoundedProcessResult>((resolve) => {
+    resolveProcess = resolve;
+  });
   const startTime = Date.now();
   let timedOut = false;
   let stdoutBuffer = "";
@@ -432,7 +511,7 @@ export function runBoundedProcess(options: {
   let stderrBytes = 0;
   let stdoutTruncated = false;
   let stderrTruncated = false;
-  let settled = false;
+  let normalCleanupStarted = false;
 
   // Filter environment to avoid secret leakage while preserving system essentials
   const safeEnv: NodeJS.ProcessEnv = {
@@ -457,7 +536,7 @@ export function runBoundedProcess(options: {
   } catch (err: unknown) {
     const durationMs = Date.now() - startTime;
     const message = err instanceof Error ? err.message : String(err);
-    resolve({
+    resolveProcess({
       exitCode: null,
       signal: null,
       stdout: "",
@@ -527,6 +606,7 @@ export function runBoundedProcess(options: {
     | undefined;
   let cleanupError: string | null = null;
 
+  let settled = false;
   const resolveResult = (
     code: number | null,
     signal: NodeJS.Signals | null,
@@ -541,7 +621,7 @@ export function runBoundedProcess(options: {
       child.stdout?.destroy();
       child.stderr?.destroy();
     }
-    resolve({
+    resolveProcess({
       exitCode: code,
       signal,
       stdout: stdoutBuffer,
@@ -559,16 +639,39 @@ export function runBoundedProcess(options: {
     signal: NodeJS.Signals | null,
     infraError: string | null = null,
   ) => {
-    if (settled) return;
+    if (settled || normalCleanupStarted) return;
     if (timedOut && !escalationComplete) {
       closeResult = { code, signal, infrastructureError: infraError };
       return;
     }
-    resolveResult(code, signal, infraError);
+    if (timedOut) {
+      resolveResult(code, signal, infraError);
+      return;
+    }
+
+    normalCleanupStarted = true;
+    clearTimeout(timeoutHandle);
+    if (!isPosix || !child.pid) {
+      resolveResult(code, signal, infraError);
+      return;
+    }
+
+    void (async () => {
+      const groupExited = await settleOwnedProcessGroup(child.pid as number);
+      resolveResult(
+        code,
+        signal,
+        infraError ?? (groupExited ? null : cleanupError ?? "Unable to establish owned process-group cleanup."),
+      );
+    })();
   };
 
-  const waitForProcessGroupExit = async (processGroupId: number): Promise<boolean> => {
-    const deadline = Date.now() + 5000;
+  const waitForProcessGroupExit = async (
+    processGroupId: number,
+    waitMs = 5000,
+    failOnTimeout = true,
+  ): Promise<boolean> => {
+    const deadline = Date.now() + waitMs;
     let permissionDenied = false;
     while (Date.now() < deadline) {
       try {
@@ -577,19 +680,47 @@ export function runBoundedProcess(options: {
         const code = (err as NodeJS.ErrnoException).code;
         if (code === "ESRCH") return true;
         if (code !== "EPERM") {
-          cleanupError = `Unable to inspect timed-out process group: ${String(err)}`;
+          cleanupError = `Unable to inspect owned process group: ${String(err)}`;
           return false;
         }
         permissionDenied = true;
       }
-      const { promise, resolve: resume } = Promise.withResolvers<void>();
-      setTimeout(resume, 25);
-      await promise;
+      await new Promise<void>((resume) => setTimeout(resume, 25));
     }
-    cleanupError = permissionDenied
-      ? "Timed-out process group remained inaccessible after SIGKILL."
-      : "Timed-out process group did not exit after SIGKILL.";
+    if (failOnTimeout) {
+      cleanupError = permissionDenied
+        ? "Owned process group remained inaccessible after SIGKILL."
+        : "Owned process group did not exit after SIGKILL.";
+    }
     return false;
+  };
+
+  const settleOwnedProcessGroup = async (processGroupId: number): Promise<boolean> => {
+    try {
+      process.kill(-processGroupId, 0);
+    } catch (err: unknown) {
+      if ((err as NodeJS.ErrnoException).code === "ESRCH") return true;
+      cleanupError = `Unable to inspect owned process group: ${String(err)}`;
+      return false;
+    }
+
+    try {
+      process.kill(-processGroupId, "SIGTERM");
+    } catch (err: unknown) {
+      if ((err as NodeJS.ErrnoException).code === "ESRCH") return true;
+      cleanupError = `Unable to terminate owned process group: ${String(err)}`;
+      return false;
+    }
+    if (await waitForProcessGroupExit(processGroupId, 1500, false)) return true;
+
+    try {
+      process.kill(-processGroupId, "SIGKILL");
+    } catch (err: unknown) {
+      if ((err as NodeJS.ErrnoException).code === "ESRCH") return true;
+      cleanupError = `Unable to kill owned process group: ${String(err)}`;
+      return false;
+    }
+    return waitForProcessGroupExit(processGroupId);
   };
 
   timeoutHandle = setTimeout(() => {
@@ -762,6 +893,7 @@ async function executeTaskRunFromFixture(
   const workerStderrPath = path.join(evidenceDir, "worker.stderr.log");
   const verifierStdoutPath = path.join(evidenceDir, "verifier.stdout.log");
   const verifierStderrPath = path.join(evidenceDir, "verifier.stderr.log");
+  const verificationResultPath = path.join(evidenceDir, "verification-result.json");
 
   const verifierScriptPath = task.verifier.args[0];
   const verifierResolvedArgs = task.verifier.args.map((arg) =>
@@ -804,6 +936,7 @@ async function executeTaskRunFromFixture(
     infrastructureError: null,
     durationMs: 0,
   };
+  let verificationResult: VerificationReceipt | null = null;
 
   try {
     try {
@@ -867,8 +1000,27 @@ async function executeTaskRunFromFixture(
             args: verifierResolvedArgs,
             cwd: manifestDir,
             timeoutMs: task.verifier.timeoutMs ?? 30000,
+            env: { [VERIFICATION_RESULT_ENV]: verificationResultPath },
           });
-          infrastructureError = verifierResult.infrastructureError;
+          if (verifierResult.infrastructureError) {
+            infrastructureError = verifierResult.infrastructureError;
+          } else {
+            try {
+              const rawResult = await fs.readJson(verificationResultPath);
+              const validated = validateVerificationReceipt(rawResult, verifierResult.exitCode);
+              verificationResult = validated.receipt;
+              if (validated.error) {
+                infrastructureError = validated.error;
+                verifierResult.infrastructureError = validated.error;
+                verifierResult.stderr = `${verifierResult.stderr}${validated.error}\n`;
+              }
+            } catch (err: unknown) {
+              const reason = err instanceof Error ? err.message : String(err);
+              infrastructureError = `Verifier completion result unavailable or invalid: ${reason}`;
+              verifierResult.infrastructureError = infrastructureError;
+              verifierResult.stderr = `${verifierResult.stderr}${infrastructureError}\n`;
+            }
+          }
         }
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
@@ -943,6 +1095,8 @@ async function executeTaskRunFromFixture(
     exitOutcomes.workerExitCode === 0 &&
     exitOutcomes.verifierExitCode === 0 &&
     !verifierTampered &&
+    verificationResult !== null &&
+    verificationResult.failedChecks === 0 &&
     !promptTampered &&
     infrastructureError === null;
 
@@ -958,6 +1112,7 @@ async function executeTaskRunFromFixture(
     workerStderr: path.relative(outputDir, workerStderrPath),
     verifierStdout: path.relative(outputDir, verifierStdoutPath),
     verifierStderr: path.relative(outputDir, verifierStderrPath),
+    verificationResult: path.relative(outputDir, verificationResultPath),
   };
 
   const completedAt = new Date().toISOString();
@@ -979,6 +1134,7 @@ async function executeTaskRunFromFixture(
     exitOutcomes,
     wallTimeMs,
     evidencePaths,
+    verificationResult,
     success,
     usage: null,
     cost: null,
@@ -1140,7 +1296,7 @@ export async function runTaskSuite(
       candidate: createEmptyArmSummary(),
     };
 
-    const byTask: Record<string, TaskSummary> = {};
+    const byTask = Object.create(null) as Record<string, TaskSummary>;
     for (const task of tasksToRun) {
       byTask[task.id] = {
         total: 0,

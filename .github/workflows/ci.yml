@@ -70,10 +70,12 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Run Unit Tests with Coverage
         run: pnpm test:cov
-      - name: Run Outcome/Trace Script Tests
-        run: pnpm test:outcome && pnpm test:trace
+      - name: Run Eval/Outcome/Trace Script Tests
+        run: pnpm test:evals && pnpm test:outcome && pnpm test:trace
       - name: Run E2E Tests
         run: pnpm test:e2e
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
   validate-skills:
     runs-on: ubuntu-latest

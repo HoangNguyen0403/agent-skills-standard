@@ -1,8 +1,8 @@
-<!-- ags: permissions not enforceable on Copilot; declared: risk_tier: L2 -->
 ---
 description: Classifies one failing E2E test from its artifacts, applies at most one allowed repair from the test-healing catalog, proves it with three sequential reruns and an unchanged assertion set, and returns a verdict with a route. Use per failure inside test-loop; never for production code changes.
 applyTo: '**/*'
 ---
+<!-- ags: permissions not enforceable on Copilot; declared: risk_tier: L2 -->
 
 # Specialist: Test Healer
 

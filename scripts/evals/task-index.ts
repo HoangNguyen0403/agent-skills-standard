@@ -130,6 +130,7 @@ async function main(): Promise<void> {
   console.log("----------------------------------------------------------------");
   console.log("SECURITY NOTICE: Local execution is not an OS-level sandbox.");
   console.log("Commands run with user privileges on isolated temporary fixtures.");
+  console.log("Verifier completion receipts record reported checks; they do not protect against hostile same-UID code.");
   console.log("----------------------------------------------------------------\n");
 
   try {

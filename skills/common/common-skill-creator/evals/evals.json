@@ -45,6 +45,15 @@
           "value": "80%"
         }
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Audit a project-local maintenance skill refocus. Its old non-slug name is replaced with a valid kebab-case name under .github/skills. The external installer scans agent skill directories and excludes metadata.internal: true; the public catalog must contain canonical registry skills only. The renamed local skill has no internal metadata and now appears as an extra installer entry. Keep the local maintenance role, but correct its distribution boundary.",
+      "expected_output": "Mark the repository-only maintenance skill metadata.internal: true so the installer excludes it. Preserve the valid name and canonical authoring references. Do not add it to the public registry expectation merely to silence discovery failure; verify actual installer discovery against the unchanged canonical catalog.",
+      "assertions": [
+        { "type": "contains", "value": "internal" },
+        { "type": "contains", "value": "installer" }
+      ]
     }
   ],
   "should_not_trigger": [

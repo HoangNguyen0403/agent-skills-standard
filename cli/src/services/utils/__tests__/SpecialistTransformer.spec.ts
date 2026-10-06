@@ -193,25 +193,6 @@ describe('SpecialistTransformer', () => {
       expect(result!.content).not.toContain('# ags:');
     });
 
-    it('prepends a visible warning comment on platforms that cannot express risk_tier/permissions', () => {
-      for (const agent of [
-        Agent.Cursor,
-        Agent.Copilot,
-        Agent.OpenCode,
-        Agent.Gemini,
-        Agent.Kiro,
-      ]) {
-        const result = SpecialistTransformer.transform(
-          withRiskTier('L2'),
-          agent,
-        );
-        expect(result!.content).toContain(
-          '<!-- ags: permissions not enforceable on',
-        );
-        expect(result!.content).toContain('risk_tier: L2');
-      }
-    });
-
     it('adds no warning comment on those platforms when nothing risk-relevant is declared', () => {
       const source = specialistSource('description: "reviews code"');
       for (const agent of [Agent.Cursor, Agent.Copilot, Agent.Gemini]) {
@@ -336,21 +317,36 @@ describe('SpecialistTransformer', () => {
       }
     });
 
-    it('preserves declared risk_tier L2 in comments on non-Codex platforms for canonical writers', () => {
+
+    it('keeps native YAML metadata parseable for permission-bearing specialist exports', () => {
       const source = loadCanonicalSpecialist('specialist-tdd-implementer');
-      for (const agent of [
-        Agent.Cursor,
-        Agent.Copilot,
-        Agent.OpenCode,
-        Agent.Gemini,
-        Agent.Kiro,
-      ]) {
+      const cases = [
+        { agent: Agent.Cursor, key: 'globs', value: ['**/*'] },
+        { agent: Agent.Copilot, key: 'applyTo', value: '**/*' },
+        { agent: Agent.OpenCode, key: 'mode', value: 'subagent' },
+        { agent: Agent.Gemini, key: 'kind', value: 'local' },
+        { agent: Agent.Kiro, key: 'name', value: 'tdd-implementer' },
+      ] as const;
+
+      for (const { agent, key, value } of cases) {
         const result = SpecialistTransformer.transform(source, agent);
+
         expect(result).not.toBeNull();
-        expect(result!.content).toContain(
+        expect(result!.content.startsWith('---\n')).toBe(true);
+        const frontmatterMatch = result!.content.match(
+          /^---\r?\n([\s\S]*?)\r?\n---\r?\n/,
+        );
+        expect(frontmatterMatch).not.toBeNull();
+        const metadata = yaml.load(frontmatterMatch![1]) as Record<
+          string,
+          unknown
+        >;
+        expect(metadata[key]).toEqual(value);
+        const warning = result!.content.slice(frontmatterMatch![0].length);
+        expect(warning).toContain(
           '<!-- ags: permissions not enforceable on',
         );
-        expect(result!.content).toContain('risk_tier: L2');
+        expect(warning).toContain('risk_tier: L2');
       }
     });
   });

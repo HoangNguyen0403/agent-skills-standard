@@ -138,7 +138,7 @@ export function isolatedInstruction(
   _kind?: "eval" | "pressure" | "trigger",
 ): string {
   const sections = [
-    "You are an isolated evaluation worker in text-only evaluation mode; output serves as transcript evidence. Do not inspect repository files, use tools, or infer hidden labels.",
+    "You are an isolated evaluation worker. Respond to the task using only the supplied prompt and skill content. Do not inspect repository files, use tools, or infer hidden labels. These are prompt instructions, not host-enforced tool restrictions; read-only filesystem capability does not prove tool-free execution.",
     "Return only the answer to the supplied task. Do not describe this instruction.",
     "Answer the concrete task directly. State assumptions instead of refusing because no repository context was supplied.",
     `\n# Task\n${prompt}`,
@@ -152,55 +152,55 @@ export function codexRunner(
   repoRoot: string,
   config = evalWorkerConfig(),
 ): EvalRunner {
-  return (prompt) => {
-    const { promise, resolve, reject } =
-      Promise.withResolvers<EvalRunnerResult>();
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "ags-eval-worker-"));
-    const outputPath = path.join(tempDir, "answer.md");
-    const startedAt = Date.now();
-    const execution = spawn(
-      "codex",
-      [
-        ...codexExecArgs(repoRoot, config),
-        "--output-last-message",
-        outputPath,
-        "-",
-      ],
-      { stdio: ["pipe", "pipe", "pipe"] },
-    );
-    let stderr = "";
-    let stdout = "";
-    execution.stderr.on("data", (chunk: Buffer) => {
-      stderr += chunk.toString();
-    });
-    execution.stdout.on("data", (chunk: Buffer) => {
-      stdout += chunk.toString();
-    });
-    execution.on("error", (error) => {
-      fs.removeSync(tempDir);
-      reject(error);
-    });
-    execution.on("close", (code) => {
-      try {
-        if (code !== 0) {
-          const quotaError = quotaPausedError(stderr);
-          if (quotaError) throw quotaError;
-          throw new Error(`Codex eval worker failed: ${stderr}`);
-        }
-        const answer = fs.readFileSync(outputPath, "utf8").trim();
-        if (!answer)
-          throw new Error("Codex eval worker returned no final answer.");
-        const usage = parseUsageFromJsonl(stdout, Date.now() - startedAt);
-        resolve({ answer, usage });
-      } catch (error) {
-        reject(error);
-      } finally {
+  return (prompt) =>
+    new Promise<EvalRunnerResult>((resolve, reject) => {
+      const tempDir = fs.mkdtempSync(
+        path.join(os.tmpdir(), "ags-eval-worker-"),
+      );
+      const outputPath = path.join(tempDir, "answer.md");
+      const startedAt = Date.now();
+      const execution = spawn(
+        "codex",
+        [
+          ...codexExecArgs(repoRoot, config),
+          "--output-last-message",
+          outputPath,
+          "-",
+        ],
+        { stdio: ["pipe", "pipe", "pipe"] },
+      );
+      let stderr = "";
+      let stdout = "";
+      execution.stderr.on("data", (chunk: Buffer) => {
+        stderr += chunk.toString();
+      });
+      execution.stdout.on("data", (chunk: Buffer) => {
+        stdout += chunk.toString();
+      });
+      execution.on("error", (error) => {
         fs.removeSync(tempDir);
-      }
+        reject(error);
+      });
+      execution.on("close", (code) => {
+        try {
+          if (code !== 0) {
+            const quotaError = quotaPausedError(stderr);
+            if (quotaError) throw quotaError;
+            throw new Error(`Codex eval worker failed: ${stderr}`);
+          }
+          const answer = fs.readFileSync(outputPath, "utf8").trim();
+          if (!answer)
+            throw new Error("Codex eval worker returned no final answer.");
+          const usage = parseUsageFromJsonl(stdout, Date.now() - startedAt);
+          resolve({ answer, usage });
+        } catch (error) {
+          reject(error);
+        } finally {
+          fs.removeSync(tempDir);
+        }
+      });
+      execution.stdin.end(prompt);
     });
-    execution.stdin.end(prompt);
-    return promise;
-  };
 }
 
 /** Execute only answer files not already reused from an immutable baseline. */
@@ -215,6 +215,14 @@ export async function executeMissingAnswers(
   },
 ): Promise<number> {
   const manifest = loadManifest(runDir);
+  if (
+    manifest.metadata.evidenceMode === "composite" ||
+    /composite immutable evidence/i.test(manifest.metadata.agent ?? "")
+  ) {
+    throw new Error(
+      `Cannot generate answers for immutable composite run '${manifest.runId}'. Create a fresh run to generate new evidence.`,
+    );
+  }
   const protocolVersion =
     manifest.schemaVersion === 2
       ? manifest.protocol?.instructionVersion
@@ -298,7 +306,9 @@ export async function executeMissingAnswers(
   const completedAnswerCount = countAnswerFiles(runDir);
   const evidenceMode =
     manifest.metadata.evidenceMode ??
-    (manifest.baselineRunId ? "incremental" : "fresh");
+    (manifest.schemaVersion === 2 && manifest.baselineRunId
+      ? "incremental"
+      : "fresh");
   const freshUsage = aggregateUsage(usageSamples, workerConfig.model);
   manifest.metadata = {
     ...manifest.metadata,

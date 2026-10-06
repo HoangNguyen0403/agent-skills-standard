@@ -20,7 +20,13 @@ import { auditEvalDefinitions } from "./quality";
 import { createBaselineRun, planBaseline } from "./impact";
 import { promoteCategoryBaseline } from "./promote";
 import { evaluateSkillReadiness } from "./readiness";
-import type { SkillResult } from "./types";
+import type {
+  EvalsHistory,
+  InstructionVersion,
+  RunResults,
+  SkillProvenance,
+  SkillResult,
+} from "./types";
 import { composeRuns } from "./compose";
 import { pruneV2Runs } from "./prune";
 import {
@@ -332,6 +338,272 @@ test("composition overlays selected skills, copies evidence, and records provena
     await cleanup();
   }
 });
+test("composition rejects a composite with a missing selected leaf before writing output", async () => {
+  const { root, cleanup } = await compositionFixture();
+  try {
+    const base = await makeCompleteRun(root, "base-v2.6.0");
+    const overlay = await makeCompleteRun(
+      root,
+      "overlay-v2.6.0",
+      new Set(["dart/dart-language"]),
+    );
+    const partial = composeRuns({
+      repoRoot: root,
+      baseRunId: base.manifest.runId,
+      overlayRunId: overlay.manifest.runId,
+      version: "2.6.0",
+      outputRunId: "partial-v2.6.0",
+      expectedSkillCount: 2,
+    });
+    const manifestPath = path.join(partial.runDir, "manifest.json");
+    const resultsPath = path.join(partial.runDir, "results.json");
+    const manifest = fs.readJsonSync(manifestPath);
+    const results = fs.readJsonSync(resultsPath);
+    delete manifest.provenance["dart/dart-tooling"];
+    delete results.provenance["dart/dart-tooling"];
+    fs.writeJsonSync(manifestPath, manifest, { spaces: 2 });
+    fs.writeJsonSync(resultsPath, results, { spaces: 2 });
+    assert.equal(verifyRun(partial.manifest.runId, { repoRoot: root }).ok, true);
+
+    const sourceDigests = (runDir: string): Record<string, string> =>
+      Object.fromEntries(
+        fs
+          .readdirSync(runDir, { recursive: true })
+          .map(String)
+          .filter((relative) =>
+            fs.statSync(path.join(runDir, relative)).isFile(),
+          )
+          .map((relative) => [
+            relative,
+            crypto
+              .createHash("sha256")
+              .update(fs.readFileSync(path.join(runDir, relative)))
+              .digest("hex"),
+          ]),
+      );
+    const before = [base.runDir, overlay.runDir, partial.runDir].map(
+      sourceDigests,
+    );
+    const outputRunId = "must-not-exist-v2.6.0";
+    assert.throws(() =>
+      composeRuns({
+        repoRoot: root,
+        baseRunId: partial.manifest.runId,
+        overlayRunId: overlay.manifest.runId,
+        version: "2.6.0",
+        outputRunId,
+        expectedSkillCount: 2,
+      }),
+    );
+    assert.equal(
+      fs.existsSync(path.join(root, "benchmarks", "evals", "runs", outputRunId)),
+      false,
+    );
+    assert.deepEqual(
+      [base.runDir, overlay.runDir, partial.runDir].map(sourceDigests),
+      before,
+    );
+  } finally {
+    await cleanup();
+  }
+});
+
+test("composition does not infer leaf provenance for a marked composite without a provenance map", async () => {
+  const { root, cleanup } = await compositionFixture();
+  try {
+    const base = await makeCompleteRun(root, "base-v2.6.0");
+    const overlay = await makeCompleteRun(
+      root,
+      "overlay-v2.6.0",
+      new Set(["dart/dart-language"]),
+    );
+    const composite = composeRuns({
+      repoRoot: root,
+      baseRunId: base.manifest.runId,
+      overlayRunId: overlay.manifest.runId,
+      version: "2.6.0",
+      outputRunId: "unmapped-composite-v2.6.0",
+      expectedSkillCount: 2,
+    });
+    const manifestPath = path.join(composite.runDir, "manifest.json");
+    const resultsPath = path.join(composite.runDir, "results.json");
+    const manifest = fs.readJsonSync(manifestPath);
+    const results = fs.readJsonSync(resultsPath);
+    delete manifest.provenance;
+    delete results.provenance;
+    fs.writeJsonSync(manifestPath, manifest, { spaces: 2 });
+    fs.writeJsonSync(resultsPath, results, { spaces: 2 });
+    assert.equal(verifyRun(composite.manifest.runId, { repoRoot: root }).ok, true);
+
+    assert.throws(() =>
+      composeRuns({
+        repoRoot: root,
+        baseRunId: composite.manifest.runId,
+        overlayRunId: overlay.manifest.runId,
+        version: "2.6.0",
+        outputRunId: "must-not-infer-v2.6.0",
+        expectedSkillCount: 2,
+      }),
+    );
+    assert.equal(
+      fs.existsSync(
+        path.join(
+          root,
+          "benchmarks",
+          "evals",
+          "runs",
+          "must-not-infer-v2.6.0",
+        ),
+      ),
+      false,
+    );
+  } finally {
+    await cleanup();
+  }
+});
+
+test("baseline planning reuses compatible evidence from a physical v4 run without leaf provenance", async () => {
+  const { root, cleanup } = await compositionFixture();
+  try {
+    const physical = await makeCompleteRun(root, "physical-v2.6.0");
+    const evalsPath = path.join(
+      root,
+      "skills",
+      "dart",
+      "dart-tooling",
+      "evals",
+      "evals.json",
+    );
+    const evals = fs.readJsonSync(evalsPath);
+    evals.evals[0].assertions = [
+      { type: "contains", value: "baseline" },
+    ];
+    fs.writeJsonSync(evalsPath, evals);
+    const plan = planBaseline("all", {
+      repoRoot: root,
+      baselineRunId: physical.manifest.runId,
+    });
+    const impact = plan.impacts.find((entry) => entry.key === "dart/dart-tooling");
+    assert.ok(impact, "expected dart/dart-tooling impact");
+    assert.equal(impact.outcome, "regrade");
+    assert.equal(impact.activation, "reuse");
+  } finally {
+    await cleanup();
+  }
+});
+
+test("baseline planning generates when a composite leaf protocol is unresolved", async () => {
+  const { root, cleanup } = await compositionFixture();
+  try {
+    const base = await makeCompleteRun(root, "base-v2.6.0");
+    const overlay = await makeCompleteRun(
+      root,
+      "overlay-v2.6.0",
+      new Set(["dart/dart-language"]),
+    );
+    const composite = composeRuns({
+      repoRoot: root,
+      baseRunId: base.manifest.runId,
+      overlayRunId: overlay.manifest.runId,
+      version: "2.6.0",
+      outputRunId: "partial-v2.6.0",
+      expectedSkillCount: 2,
+    });
+    fs.removeSync(base.runDir);
+    fs.removeSync(overlay.runDir);
+    const manifestPath = path.join(composite.runDir, "manifest.json");
+    const resultsPath = path.join(composite.runDir, "results.json");
+    const manifest = fs.readJsonSync(manifestPath);
+    const results = fs.readJsonSync(resultsPath);
+    delete manifest.provenance["dart/dart-tooling"];
+    delete results.provenance["dart/dart-tooling"];
+    fs.writeJsonSync(manifestPath, manifest, { spaces: 2 });
+    fs.writeJsonSync(resultsPath, results, { spaces: 2 });
+    assert.equal(verifyRun(composite.manifest.runId, { repoRoot: root }).ok, true);
+
+    const evalsPath = path.join(
+      root,
+      "skills",
+      "dart",
+      "dart-tooling",
+      "evals",
+      "evals.json",
+    );
+    const evals = fs.readJsonSync(evalsPath);
+    evals.evals[0].assertions = [
+      { type: "contains", value: "changed assertion" },
+    ];
+    fs.writeJsonSync(evalsPath, evals);
+
+    const plan = planBaseline("all", {
+      repoRoot: root,
+      baselineRunId: composite.manifest.runId,
+    });
+    const impact = plan.impacts.find((entry) => entry.key === "dart/dart-tooling");
+    assert.ok(impact, "expected dart/dart-tooling impact");
+    assert.equal(impact.outcome, "generate");
+    assert.equal(impact.activation, "generate");
+    assert.equal(impact.reuseBaselineOutcome, false);
+  } finally {
+    await cleanup();
+  }
+});
+
+test("baseline planning does not treat a composite with no provenance map as physical v4 evidence", async () => {
+  const { root, cleanup } = await compositionFixture();
+  try {
+    const base = await makeCompleteRun(root, "base-v2.6.0");
+    const overlay = await makeCompleteRun(
+      root,
+      "overlay-v2.6.0",
+      new Set(["dart/dart-language"]),
+    );
+    const composite = composeRuns({
+      repoRoot: root,
+      baseRunId: base.manifest.runId,
+      overlayRunId: overlay.manifest.runId,
+      version: "2.6.0",
+      outputRunId: "unmapped-composite-v2.6.0",
+      expectedSkillCount: 2,
+    });
+    fs.removeSync(base.runDir);
+    fs.removeSync(overlay.runDir);
+    const manifestPath = path.join(composite.runDir, "manifest.json");
+    const resultsPath = path.join(composite.runDir, "results.json");
+    const manifest = fs.readJsonSync(manifestPath);
+    const results = fs.readJsonSync(resultsPath);
+    delete manifest.provenance;
+    delete results.provenance;
+    fs.writeJsonSync(manifestPath, manifest, { spaces: 2 });
+    fs.writeJsonSync(resultsPath, results, { spaces: 2 });
+    assert.equal(verifyRun(composite.manifest.runId, { repoRoot: root }).ok, true);
+
+    const evalsPath = path.join(
+      root,
+      "skills",
+      "dart",
+      "dart-tooling",
+      "evals",
+      "evals.json",
+    );
+    const evals = fs.readJsonSync(evalsPath);
+    evals.evals[0].assertions = [
+      { type: "contains", value: "changed assertion" },
+    ];
+    fs.writeJsonSync(evalsPath, evals);
+    const plan = planBaseline("all", {
+      repoRoot: root,
+      baselineRunId: composite.manifest.runId,
+    });
+    const impact = plan.impacts.find((entry) => entry.key === "dart/dart-tooling");
+    assert.ok(impact, "expected dart/dart-tooling impact");
+    assert.equal(impact.outcome, "generate");
+    assert.equal(impact.activation, "generate");
+    assert.equal(impact.reuseBaselineOutcome, false);
+  } finally {
+    await cleanup();
+  }
+});
 
 test("composition upgrades a compatible historical base to the overlay protocol while recording provenance", async () => {
   const { root, cleanup } = await compositionFixture();
@@ -376,6 +648,66 @@ test("composition upgrades a compatible historical base to the overlay protocol 
     await cleanup();
   }
 });
+test("composite recovery refuses to regenerate a missing historical lane", async () => {
+  const { root, cleanup } = await compositionFixture();
+  try {
+    const base = await makeCompleteRun(root, "historical-base-v2.6.0");
+    const historicalManifestPath = path.join(base.runDir, "manifest.json");
+    const historicalManifest = fs.readJsonSync(historicalManifestPath);
+    historicalManifest.protocol.instructionVersion = "governing-skill-v1";
+    fs.writeJsonSync(historicalManifestPath, historicalManifest, { spaces: 2 });
+    const overlay = await makeCompleteRun(
+      root,
+      "current-overlay-v2.6.0",
+      new Set(["dart/dart-language"]),
+    );
+    const composite = composeRuns({
+      repoRoot: root,
+      baseRunId: base.manifest.runId,
+      overlayRunId: overlay.manifest.runId,
+      version: "2.6.0",
+      outputRunId: "immutable-composite-v2.6.0",
+      expectedSkillCount: 2,
+    });
+    const missingLane = path.join(
+      composite.runDir,
+      "answers",
+      "dart",
+      "dart-tooling",
+      "eval-1.baseline.md",
+    );
+    fs.removeSync(missingLane);
+    const manifestPath = path.join(composite.runDir, "manifest.json");
+    const manifestBefore = fs.readFileSync(manifestPath);
+    const resultsPath = path.join(composite.runDir, "results.json");
+    const resultsBefore = fs.readFileSync(resultsPath);
+    let runnerCalls = 0;
+
+    await assert.rejects(
+      executeMissingAnswers(composite.runDir, {
+        repoRoot: root,
+        runner: async () => {
+          runnerCalls += 1;
+          return "regenerated historical lane";
+        },
+      }),
+      /composite.*immutable|immutable.*composite/i,
+    );
+
+    assert.equal(runnerCalls, 0);
+    assert.equal(fs.existsSync(missingLane), false);
+    assert.deepEqual(fs.readFileSync(manifestPath), manifestBefore);
+    assert.deepEqual(fs.readFileSync(resultsPath), resultsBefore);
+    assert.equal(
+      composite.manifest.provenance?.["dart/dart-tooling"]?.protocol
+        .instructionVersion,
+      "governing-skill-v1",
+    );
+  } finally {
+    await cleanup();
+  }
+});
+
 
 test("composition accepts verified pre-evidenceMode v2 history", async () => {
   const { root, cleanup } = await compositionFixture();
@@ -769,6 +1101,265 @@ test("report distinguishes outcome readiness from activation readiness", () => {
   assert.match(report, /Outcome readiness.*NOT READY/s);
   assert.match(report, /Strict outcome-ready skills.*0\/1/);
   assert.match(report, /Activation-ready skills.*1\/1/);
+});
+
+function makeProtocolSkill(category: string, skillName: string): SkillResult {
+  return {
+    category,
+    skillName,
+    guardrailApplicable: false,
+    totalEvalCases: 1,
+    baselinePassRate: 1,
+    withSkillPassRate: 1,
+    delta: 0,
+    triggerPrecision: 1,
+    casePassRate: { baseline: 1, withSkill: 1 },
+    assertionPassRate: { baseline: 1, withSkill: 1 },
+    triggerRecall: 1,
+    triggerSpecificity: 1,
+    balancedTriggerAccuracy: 1,
+    scores: [],
+    incompleteArms: [],
+  };
+}
+
+function makeProtocolProvenance(
+  sourceRunId: string,
+  instructionVersion: InstructionVersion,
+): SkillProvenance {
+  return {
+    sourceRunId,
+    sourceHash: { skill: "skill-hash", evals: "evals-hash" },
+    protocol: {
+      instructionVersion,
+      isolation: "worker-per-arm",
+      baseline: "prompt-only",
+      withSkill: "prompt-plus-skill",
+      trigger: "name-description-only",
+    },
+    evidenceMode: "fresh",
+  };
+}
+
+function makeProtocolReportRun(
+  runId: string,
+  category: string,
+  scoredAt: string,
+  skills: SkillResult[],
+  provenance: Record<string, SkillProvenance>,
+): RunResults {
+  const categories = [...new Set(skills.map((skill) => skill.category))].sort();
+  return {
+    schemaVersion: 2,
+    runId,
+    category,
+    version: "1.0.0",
+    scoredAt,
+    metadata: {
+      evidenceMode: "composite",
+      protocolProvenance: "neutral-skill-v4",
+    },
+    scope: {
+      kind: category === "all" ? "all" : "category",
+      categories,
+    },
+    compromisedSkills: [],
+    provenance,
+    skills,
+  };
+}
+
+function tableRowCells(
+  report: string,
+  section: string,
+  firstCell: string,
+): string[] {
+  const sectionStart = report.indexOf(section);
+  assert.notEqual(sectionStart, -1, `missing report section ${section}`);
+  const row = report
+    .slice(sectionStart)
+    .split("\n")
+    .find((line) => {
+      if (!line.startsWith("|")) return false;
+      const cells = line
+        .split("|")
+        .slice(1, -1)
+        .map((cell) => cell.replaceAll("**", "").replaceAll("`", "").trim());
+      return cells[0] === firstCell;
+    });
+  assert.ok(row, `missing table row ${firstCell}`);
+  return row
+    .split("|")
+    .slice(1, -1)
+    .map((cell) => cell.replaceAll("**", "").replaceAll("`", "").trim());
+}
+
+test("report preserves mixed and unresolved provenance within one group", () => {
+  const report = buildEvalsReportMarkdown([
+    makeProtocolReportRun(
+      "group-partial-provenance",
+      "all",
+      "2099-01-01T00:00:00.000Z",
+      [
+        makeProtocolSkill("dart", "dart-v1"),
+        makeProtocolSkill("dart", "dart-v4"),
+        makeProtocolSkill("dart", "dart-unresolved"),
+      ],
+      {
+        "dart/dart-v1": makeProtocolProvenance(
+          "historical-v1",
+          "governing-skill-v1",
+        ),
+        "dart/dart-v4": makeProtocolProvenance(
+          "current-v4",
+          "neutral-skill-v4",
+        ),
+      },
+    ),
+  ]);
+
+  assert.equal(
+    tableRowCells(report, "## 🔢 Executive Summary", "Protocol provenance")[1],
+    "mixed",
+  );
+  assert.equal(
+    tableRowCells(
+      report,
+      "## 🔢 Executive Summary",
+      "Unresolved protocol contributors",
+    )[1],
+    "1",
+  );
+  assert.equal(
+    tableRowCells(report, "## 📋 Per-Skill Detail", "dart-unresolved")[2],
+    "unknown",
+  );
+});
+
+test("report unions known protocols across categories and retains unresolved contributors", () => {
+  const report = buildEvalsReportMarkdown([
+    makeProtocolReportRun(
+      "category-a-partial",
+      "angular",
+      "2099-01-01T00:00:00.000Z",
+      [
+        makeProtocolSkill("angular", "angular-v1"),
+        makeProtocolSkill("angular", "angular-unresolved"),
+      ],
+      {
+        "angular/angular-v1": makeProtocolProvenance(
+          "historical-v1",
+          "governing-skill-v1",
+        ),
+      },
+    ),
+    makeProtocolReportRun(
+      "category-b-known",
+      "dart",
+      "2099-01-02T00:00:00.000Z",
+      [makeProtocolSkill("dart", "dart-v4")],
+      {
+        "dart/dart-v4": makeProtocolProvenance(
+          "current-v4",
+          "neutral-skill-v4",
+        ),
+      },
+    ),
+  ]);
+
+  assert.equal(
+    tableRowCells(report, "## 🔢 Executive Summary", "Protocol provenance")[1],
+    "mixed",
+  );
+  assert.equal(
+    tableRowCells(
+      report,
+      "## 🔢 Executive Summary",
+      "Unresolved protocol contributors",
+    )[1],
+    "1",
+  );
+  assert.equal(
+    tableRowCells(report, "## 📦 Per-Category Results", "dart")[3],
+    "neutral-skill-v4",
+  );
+  assert.equal(
+    tableRowCells(report, "## 📋 Per-Skill Detail", "angular-v1")[2],
+    "governing-skill-v1",
+  );
+  assert.equal(
+    tableRowCells(report, "## 📋 Per-Skill Detail", "angular-unresolved")[2],
+    "unknown",
+  );
+});
+
+test("physical history uses complete-run provenance, not the selected category projection", () => {
+  const physicalRun = makeProtocolReportRun(
+    "physical-partial-run",
+    "all",
+    "2026-01-01T00:00:00.000Z",
+    [
+      makeProtocolSkill("angular", "angular-v1"),
+      makeProtocolSkill("angular", "angular-unresolved"),
+      makeProtocolSkill("dart", "dart-v4"),
+    ],
+    {
+      "angular/angular-v1": makeProtocolProvenance(
+        "historical-v1",
+        "governing-skill-v1",
+      ),
+      "dart/dart-v4": makeProtocolProvenance("current-v4", "neutral-skill-v4"),
+    },
+  );
+  const laterAngular = makeProtocolReportRun(
+    "later-angular-v4",
+    "angular",
+    "2099-01-01T00:00:00.000Z",
+    [makeProtocolSkill("angular", "angular-v4")],
+    {
+      "angular/angular-v4": makeProtocolProvenance(
+        "current-v4",
+        "neutral-skill-v4",
+      ),
+    },
+  );
+  const history: EvalsHistory = {
+    lastUpdated: physicalRun.scoredAt,
+    records: [
+      {
+        runId: physicalRun.runId,
+        category: "all",
+        version: physicalRun.version,
+        date: physicalRun.scoredAt,
+        skillCount: physicalRun.skills.length,
+        avgBaselinePassRate: 1,
+        avgWithSkillPassRate: 1,
+        avgDelta: 0,
+        protocolProvenance: "neutral-skill-v4",
+      },
+    ],
+  };
+  const historicalStateBefore = Buffer.from(
+    JSON.stringify({ physicalRun, history }),
+  );
+
+  const report = buildEvalsReportMarkdown([physicalRun, laterAngular], history);
+
+  assert.equal(
+    tableRowCells(report, "## 🔢 Executive Summary", "Protocol provenance")[1],
+    "neutral-skill-v4",
+  );
+  const historyRow = tableRowCells(
+    report,
+    "## 📜 Physical Run History",
+    physicalRun.runId,
+  );
+  assert.equal(historyRow[8], "mixed");
+  assert.equal(historyRow[9], "1");
+  assert.deepEqual(
+    Buffer.from(JSON.stringify({ physicalRun, history })),
+    historicalStateBefore,
+  );
 });
 
 test("report includes a residual matrix for failed non-baseline arms", () => {
@@ -2311,10 +2902,6 @@ test("isolatedInstruction and executeMissingAnswers use identical paired instruc
     "Pressure and eval cases must receive identical instructions without coaching",
   );
 
-  assert.match(
-    baselinePrompt,
-    /text-only evaluation mode; output serves as transcript evidence/i,
-  );
   assert.doesNotMatch(baselinePrompt, /Canonical response anchors/i);
   assert.doesNotMatch(baselinePrompt, /Remediation anchors/i);
   assert.doesNotMatch(baselinePrompt, /pressure-resistance/i);
@@ -2347,10 +2934,6 @@ test("isolatedInstruction and executeMissingAnswers use identical paired instruc
     });
     assert.ok(promptsSeen.baseline);
     assert.ok(promptsSeen.withSkill);
-    assert.match(
-      promptsSeen.baseline,
-      /text-only evaluation mode; output serves as transcript evidence/i,
-    );
     const loadedSkill = fs.readFileSync(
       path.join(root, "skills", "dart", "dart-tooling", "SKILL.md"),
       "utf8",

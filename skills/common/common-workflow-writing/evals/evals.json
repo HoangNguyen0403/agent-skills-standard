@@ -60,6 +60,29 @@
           "value": "runtime-specific"
         }
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "Apply an implementation-to-verification workflow to both cases. Case A: a routine code/test-only defect has an approved in-chat brief with expected behavior, decisions, and checks; it is not sensitive or governed. The existing verifier template asks for PRD/SRS trace updates and a walkthrough. The bug is fixed, but verification discovers unrelated behavior outside the approved brief. Case B: a governed authorization change crosses a sensitive trust boundary. State each case's implementation handoff, verification/evidence record, scope-drift handling, and required gates.",
+      "expected_output": "Case A: carry the approved brief and its acceptance criteria into verify-work, keep TDD, applicable test/driver lanes and before-failure/after-success proof, and hand off evidence location. Do not require new BRD/PRD/SRS, task-list, REQ/AC IDs, trace, or walkthrough; record results/evidence in chat or the task report. Do not silently accept unrelated behavior drift: route the scope decision to the owner and verify only after the contract is resolved. Case B: preserve governed PRD/SRS and task-list trace, stable IDs, decision history and updates; retain the sensitive minimum-medium/high risk floor, TDD, verification, required human approvals, independent review, and governed walkthrough/evidence.",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "chat or the task report"
+        },
+        {
+          "type": "contains",
+          "value": "before-failure/after-success"
+        },
+        {
+          "type": "contains",
+          "value": "route the scope decision to the owner"
+        },
+        {
+          "type": "contains",
+          "value": "independent review"
+        }
+      ]
     }
   ],
   "should_not_trigger": [

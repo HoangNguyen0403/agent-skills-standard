@@ -13,12 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Executable task-evaluation pilot (`evals:tasks`, `scripts/evals/task-index.ts`) comparing minimal, current, and candidate instruction treatments on bounded fixture tasks (pagination, authorization) with trusted out-of-workspace verifiers, process group cleanup, nonproduction execution notice (host user permissions, no OS sandbox), and null-unmetered usage/cost recording without claiming unmeasured model benchmarks.
-- Neutral text evaluation protocol (`neutral-skill-v4`) generating identical task prompts across baseline and with-skill arms with answer coaching removed, retaining immutable historical transcript verifiability without conflating past coached scores.
-
+- Executable task-evaluation pilot (`evals:tasks`) runs trusted fixture tasks with external verifiers, structured completion receipts, bounded POSIX owned-group cleanup, and explicit same-UID/no-OS-sandbox limits. Deterministic checks remain plumbing evidence, not live model benchmarks.
+- Neutral text evaluation protocol (`neutral-skill-v4`) governs new text evaluations; historical evidence remains immutable. Reports retain unresolved provenance separately and qualify physical-history presentation from complete-run evidence without rewriting historical records or percentages.
 ### Changed
 
-- Model-aware instruction modernization: updated core skills (`common-v2.8.4`) and SDLC workflows (`workflows-v1.1.2`) to replace mandatory per-tool rereads, rigid 10-turn/8k compaction, and fixed context limits with evidence freshness, runtime-managed compaction, and risk-sized review routing with sensitive-change floors.
+- Model-aware instruction modernization: updated core skills (`common-v2.8.4` → `common-v2.8.5`) and SDLC workflows (`workflows-v1.1.2` → `workflows-v1.1.3`) with evidence freshness, runtime-managed compaction, and risk-sized review routing with sensitive-change floors.
 - Specialist permission alignment (`specialists-v1.5.1`): declared explicit `risk_tier: L2` metadata for canonical file-writing specialists, projected to workspace-write permissions in Codex exports while retaining least-privilege read-only permissions for analysis and review roles.
 - Resolved local Copilot authoring duplication: refocused `.github/skills/skill-creator` as project-skill-maintenance for registry metadata, mirror generation, and release gates; retired its generic authoring references and linked to canonical `common-skill-creator` guidance.
 
@@ -27,12 +26,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Managed skill package files and ownership-writer operations refuse pre-existing symlinks below the project root before payload writes, reads, backups, or pruning; package resources across selected agents are checked before the first package write. This does not cover unrelated direct root-document writes or concurrent filesystem swaps.
 - Removed a cross-project environment and credential-handling reference from the reusable Playwright CLI skill and four tracked agent install mirrors.
 - SkillSpector static scan: reworded phrasing that matched Excessive-Agency and Memory-Poisoning heuristics without changing intended behavior. `common-decision-discipline` and `cyber-framework-mapping` no longer read as unconfirmed autonomous action; the 13 testing skills' `Permanent Rule Anchor IDs` heading (which the scanner's persistent-context-injection pattern flagged on the word "Permanent") is renamed `Core Rule Anchors` across `android`, `angular`, `flutter`, `golang`, `java`, `laravel`, `nestjs`, `php`, `python`, `react`, `react-native`, `spring-boot`, and `swift` testing skills. Risk score reduced from 27 to within the 25 threshold; 0 critical findings before and after.
+- Pagination verification now exercises a finite positive fractional page and checks normalization to page 1 and first-page data.
+- Composite evaluation composition preflights only the selected provenance leaf before output creation; unresolved composite leaves are not inferred from the envelope or treated as current reusable evidence. Physical runs without a provenance map retain their protocol fallback; no history/schema/export format changed.
+- Implementation workers return review requests and evidence to the orchestrator; only the orchestrator dispatches workers. Existing low-risk receiver behavior and governed/sensitive verification floors remain.
 
 ### Versions
 
-- **Common Skills**: `2.8.3` → `2.8.4`
-- **Specialists**: `1.5.0` → `1.5.1`
-- **Workflows**: `1.1.1` → `1.1.2`
+- **Common Skills**: `2.8.4` → `2.8.5`
+- **Specialists**: `1.5.1` (unchanged by this remediation)
+- **Workflows**: `1.1.2` → `1.1.3`
 ## [android-v1.5.1]
 
 **Category**: Quality-over-quantity test standards

@@ -10,36 +10,33 @@
  *   node verify-authorization.js <workspacePath>
  */
 
+const fs = require("node:fs");
 const path = require("node:path");
 const assert = require("node:assert/strict");
 
+const completionResultPath = process.env.TASK_EVAL_VERIFICATION_RESULT_PATH;
+
 const workspacePath = process.argv[2];
-if (!workspacePath) {
-  console.error("Usage: node verify-authorization.js <workspacePath>");
-  process.exit(1);
-}
-
-const modulePath = path.resolve(workspacePath, "src", "service.js");
-
+let setupFailure = null;
 let DocumentService;
 let AuthorizationError;
-try {
-  const mod = require(modulePath);
-  DocumentService = mod.DocumentService;
-  AuthorizationError = mod.AuthorizationError;
-  assert.equal(
-    typeof DocumentService,
-    "function",
-    "Module must export a 'DocumentService' class.",
-  );
-  assert.equal(
-    typeof AuthorizationError,
-    "function",
-    "Module must export an 'AuthorizationError' class.",
-  );
-} catch (err) {
-  console.error(`FAILED: Failed to load authorization service: ${err.message}`);
-  process.exit(1);
+if (!workspacePath) {
+  setupFailure = "Usage: node verify-authorization.js <workspacePath>";
+}
+if (!completionResultPath) {
+  setupFailure = "Missing TASK_EVAL_VERIFICATION_RESULT_PATH.";
+}
+if (!setupFailure) {
+  const modulePath = path.resolve(workspacePath, "src", "service.js");
+  try {
+    const mod = require(modulePath);
+    DocumentService = mod.DocumentService;
+    AuthorizationError = mod.AuthorizationError;
+    assert.equal(typeof DocumentService, "function", "Module must export a 'DocumentService' class.");
+    assert.equal(typeof AuthorizationError, "function", "Module must export an 'AuthorizationError' class.");
+  } catch (err) {
+    setupFailure = `Failed to load authorization service: ${err instanceof Error ? err.message : String(err)}`;
+  }
 }
 
 function isAuthError(err) {
@@ -178,6 +175,40 @@ const testCases = [
     },
   },
   {
+    name: "Adversarial: Existing foreign document ID cannot be overwritten by create",
+    run: () => {
+      const svc = createSeededService();
+      const editorT1 = { id: "e-collision", tenantId: "tenant-1", roles: ["editor"] };
+      const adminT1 = { id: "admin-1", tenantId: "tenant-1", roles: ["admin"] };
+      const adminT2 = { id: "admin-2", tenantId: "tenant-2", roles: ["admin"] };
+      const foreignDocumentBefore = svc.getDocument(adminT2, "doc-t2-public");
+      assert.ok(foreignDocumentBefore, "Foreign document must exist before the rejected create");
+      const foreignDocumentSnapshot = structuredClone(foreignDocumentBefore);
+
+      assert.throws(() => svc.createDocument(editorT1, {
+        id: "doc-t2-public",
+        tenantId: "tenant-1",
+        title: "Overwritten by tenant 1",
+        content: "collision",
+      }), Error, "Creating an existing foreign ID must be rejected");
+
+      const foreignDocument = svc.getDocument(adminT2, "doc-t2-public");
+      assert.deepEqual(
+        foreignDocument,
+        foreignDocumentSnapshot,
+        "Rejected collision must preserve the entire foreign document",
+      );
+      assert.equal(foreignDocument.title, "T2 Public");
+      assert.equal(foreignDocument.content, "Gamma");
+      assert.equal(foreignDocument.tenantId, "tenant-2");
+      assert.throws(
+        () => svc.getDocument(adminT1, "doc-t2-public"),
+        (err) => isAuthError(err),
+        "The colliding tenant must not gain access to the existing foreign document",
+      );
+    },
+  },
+  {
     name: "Adversarial: Tenant ID is immutable on update",
     run: () => {
       const svc = createSeededService();
@@ -215,6 +246,24 @@ const testCases = [
           `Cross-tenant document leak in list: found document belonging to ${doc.tenantId}`,
         );
       }
+      const expectedTenantOneIds = ["doc-t1-public", "doc-t1-secret"];
+      assert.deepEqual(
+        list.map((doc) => doc.id).sort(),
+        expectedTenantOneIds,
+        "Admin listing must include all and only tenant-1 documents, including restricted documents",
+      );
+      const editorT1 = { id: "e-list", tenantId: "tenant-1", roles: ["editor"] };
+      const editorList = svc.listDocuments(editorT1);
+      assert.deepEqual(
+        editorList.map((doc) => doc.id).sort(),
+        expectedTenantOneIds,
+        "Editor listing must include all and only tenant-1 documents, including restricted documents",
+      );
+      const viewerT1 = { id: "v-list", tenantId: "tenant-1", roles: ["viewer"] };
+      const viewerList = svc.listDocuments(viewerT1);
+      assert.ok(viewerList.some((doc) => doc.id === "doc-t1-public"));
+      assert.equal(viewerList.some((doc) => doc.id === "doc-t1-secret"), false);
+      assert.ok(viewerList.every((doc) => doc.tenantId === "tenant-1" && !doc.restricted));
     },
   },
   {
@@ -336,21 +385,54 @@ const testCases = [
   },
 ];
 
-let failed = 0;
-for (const tc of testCases) {
-  try {
-    tc.run();
-    console.log(`[PASS] ${tc.name}`);
-  } catch (err) {
-    failed++;
-    console.error(`[FAIL] ${tc.name}: ${err.message}`);
+const checks = [];
+if (setupFailure) {
+  checks.push({
+    id: "verifier-setup",
+    outcome: "failed",
+    evidence: setupFailure,
+  });
+  console.error(`[FAIL] Verifier setup: ${setupFailure}`);
+} else {
+  for (const tc of testCases) {
+    try {
+      tc.run();
+      checks.push({ id: tc.name, outcome: "passed", evidence: `${tc.name} passed.` });
+      console.log(`[PASS] ${tc.name}`);
+    } catch (err) {
+      const evidence = err instanceof Error ? err.message : String(err);
+      checks.push({ id: tc.name, outcome: "failed", evidence: `${tc.name}: ${evidence}` });
+      console.error(`[FAIL] ${tc.name}: ${evidence}`);
+    }
   }
 }
 
-if (failed > 0) {
-  console.error(`\nVerifier failed with ${failed} failed check(s).`);
-  process.exit(1);
+const totalChecks = checks.length;
+const passedChecks = checks.filter((check) => check.outcome === "passed").length;
+const failedChecks = totalChecks - passedChecks;
+if (completionResultPath) {
+  try {
+    fs.writeFileSync(completionResultPath, JSON.stringify({
+      schemaVersion: 1,
+      status: "completed",
+      totalChecks,
+      passedChecks,
+      failedChecks,
+      checks,
+    }, null, 2), { encoding: "utf8", flag: "wx", mode: 0o600 });
+  } catch (err) {
+    console.error(`Failed to write verifier completion result: ${err instanceof Error ? err.message : String(err)}`);
+    process.exitCode = 2;
+  }
 } else {
-  console.log(`\nVerifier succeeded: All ${testCases.length} checks passed.`);
-  process.exit(0);
+  console.error("Missing TASK_EVAL_VERIFICATION_RESULT_PATH; cannot record completion evidence.");
+  process.exitCode = 2;
+}
+
+if (failedChecks > 0) {
+  console.error(`\nVerifier failed with ${failedChecks} failed check(s).`);
+  process.exitCode = 1;
+} else if (process.exitCode !== 2) {
+  console.log(`\nVerifier succeeded: All ${totalChecks} checks passed.`);
+  process.exitCode = 0;
 }

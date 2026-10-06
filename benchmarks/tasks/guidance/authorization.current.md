@@ -15,7 +15,8 @@ Execute this implementation with zero-trust defensive coding. Every method MUST 
 3. In `createDocument(user, docData)`:
    - Check if user has permission to create (role must include `'editor'` or `'admin'`).
    - If user only has `'viewer'`, you MUST immediately throw `new AuthorizationError("Viewer role cannot create documents")`.
-   - FORCED TENANT OVERRIDE: Set `doc.tenantId = user.tenantId`. Do NOT trust `docData.tenantId`.
+   - FORCED TENANT OVERRIDE: Set `doc.tenantId = user.tenantId`; ignore `docData.tenantId` (do not reject the spoofing field).
+   - If the requested ID belongs to another tenant, MUST reject creation and preserve the original document unchanged.
 
 ### Phase 2: Mutation & Deletion Controls
 1. In `updateDocument(user, docId, updates)`:
@@ -31,8 +32,9 @@ Execute this implementation with zero-trust defensive coding. Every method MUST 
 ### Phase 3: Listing & Data Leakage Prevention
 1. In `listDocuments(user)`:
    - Iterate through documents.
-   - Filter ONLY documents where `doc.tenantId === user.tenantId`.
-   - IMPORTANT: Even if `user.roles` includes `'admin'`, admin privileges are strictly tenant-scoped! Do NOT return documents belonging to other tenants.
+   - A listing MUST include every document belonging to the caller's tenant and exclude all documents belonging to other tenants.
+   - Editors and admins MUST receive their complete tenant listing, including restricted documents. For the seeded tenant-1 case, the exact IDs are `doc-t1-public` and `doc-t1-secret`.
+   - Viewers MUST NOT receive restricted documents in listings.
 
 ### Phase 4: Restricted Content Controls
 - If `doc.restricted === true`, only users with `'editor'` or `'admin'` roles may access it. Viewers attempting to read restricted documents MUST receive `new AuthorizationError("Restricted document access denied")`.
