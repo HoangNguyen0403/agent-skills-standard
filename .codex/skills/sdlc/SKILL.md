@@ -38,14 +38,14 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Requirement trace health: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> test evidence`
    - SNC tier per `common-task-complexity-routing` or the scout `SNC:` line; label as inference until scouted.
 
-2. Choose next workflow (apply tie-break order when multiple bullets match: (1) workflow explicitly named by the operator or by the latest `recommended_next_workflow`, (2) production-incident/urgent-regression signals, (3) earliest missing artifact along the chain below — never skip forward past a gap, (4) cross-cutting audits only on request or as a pre-release gate):
-   - Unclear idea, missing business case, owner, or measurable value (Why lane), or unclear technical direction with no BRD/PRD for the slug (Direction lane) -> `brainstorm-feature`
+2. Choose next workflow (apply tie-break order when multiple bullets match: (1) workflow explicitly named by the operator or by the latest `recommended_next_workflow`, (2) production-incident/urgent-regression signals, (3) earliest missing artifact along the chain below — never skip forward past a gap, except sufficiently specified low-risk maintenance with an approved in-chat/brief contract, (4) cross-cutting audits only on request or as a pre-release gate):
+   - Unclear idea, missing business case, owner, or measurable value (Why lane), or unclear technical direction with no BRD/PRD for the slug (Direction lane; exempts routine low-risk maintenance) -> `brainstorm-feature`
    - BRD-lite exists or business direction is clear but product scope, priorities, acceptance criteria, rollout, or delivery plan are unclear (PRD / What, PM-owned planning) -> `plan-feature`
    - Scale, topology, capacity, or store choice unsettled, or an existing system needs an architecture audit -> `system-design-session`
    - PRD exists but technical behavior/contracts unclear (SRS/FRS / How) -> `design-solution`
    - Architecture, auth, trust boundaries, compliance controls, or agent/runtime safety need deeper technical validation -> `design-solution`
    - BRD-lite, PRD, or SRS/FRS exists but readiness unclear -> `implementation-readiness`
-   - Approved plan with BRD/PRD/SRS trace and testable ACs needs code -> `implement-feature`
+   - Approved plan with BRD/PRD/SRS trace and testable ACs, or sufficiently specified low-risk maintenance with an approved in-chat/brief contract, needs code -> `implement-feature`
    - Production incident or urgent regression -> `incident-hotfix`
    - Control-band breach or scheduled security-scan result needs tiered diagnosis -> `monitor-respond`
    - Bug ticket needs fix (non-urgent) -> `dev-fix`
@@ -64,13 +64,11 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Repo-wide health/debt question with no single feature in scope -> `codebase-review`
 
 3. Enforce handoff quality:
-   - BA output must include business objective, stakeholder/validation owner, AS-IS/TO-BE, SMART metric, scope fence, risks, assumptions, and BRD objective IDs.
-   - PM output must link each PRD requirement and AC to a BRD objective, name requirement owners/status/priority, define rollout/ops, and identify whether `design-solution` is required.
-   - IT Department handoff must include implementation owner candidates, affected repos/modules, test lanes, environments, release/rollback notes, and open blockers.
-   - Never route directly to implementation when BRD/PRD/SRS trace, owner, or testable ACs are missing; route to BA/PM/design first.
-   - This applies even when the request explicitly says "implement" or names a specific feature/module: if `docs/brd/` and `docs/prd/` have no matching `[slug]` for it yet, the FIRST slice dispatched must be a `brainstorm-feature` or `plan-feature` intake slice (owner `ba-agent`/`pm-agent`) — never an `implementation-readiness`/`design-solution`/`implement-feature` slice as slice-01. Missing repo roots, OAuth/client IDs, or session-policy decisions are a sign the BRD/PRD step was skipped, not questions to resolve inline in an implementation slice.
+   - Governed/high-risk delivery requires full traceability: BA output links business objectives; PM links requirements/ACs in `docs/prd/`; IT handoff defines architecture in `docs/srs/`.
+   - Low-risk maintenance exception: Sufficiently specified routine fixes, maintenance, or tasks with an approved in-chat/brief contract route directly to `dev-fix` or `implement-feature` without creating separate BRD/PRD/SRS files or restarting intake.
+   - Downstream specialist workers execute against assigned briefs and must not reload or repeat parent intake.
+   - Sensitive-change risk floor: Changes touching auth, payments, data integrity, secrets, or trust boundaries enforce minimum `tier=medium` (or `tier=high`), requiring `design-solution` and human approval before coding.
    - Keep payloads runtime-neutral; adapters may map them to task boards, MCP, Jira, GitHub, ADO, Zephyr, or local files.
-
 4. Set runtime state:
    - Interactive: ask max 3 blocking questions.
    - Autonomous/channel: continue only when required artifacts and owners are known; otherwise return BLOCKED.

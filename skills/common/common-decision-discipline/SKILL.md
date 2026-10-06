@@ -25,13 +25,16 @@ Trustworthy decisions are sized to the work, grounded in evidence, and approved 
 
 | SNC tier | Depth | Artifact |
 | --- | --- | --- |
-| `tier=low` (0-2) | Quick | Contract in chat, no file; `approval` in the Handoff Payload |
+| `tier=low` (0-2) | Quick | Contract in chat, no file; `approval` in Handoff Payload |
 | `tier=medium` (3-4) | Standard | Core brief file |
-| `tier=high` (5-6) | Deep | Full brief; decompose multi-subsystem ideas first; optional `specialist-architecture-guard` review |
+| `tier=high` (5-6) | Deep | Full brief; decompose multi-subsystem ideas first; architecture/security review |
 
-- Score with `common-task-complexity-routing`; label as inference until scouted. The tier only rises once work starts.
+- Score with `common-task-complexity-routing`; label as inference until scouted.
+- Downward complexity reassessment requires documented new evidence (e.g., scouted blast radius proves isolated scope), never to bypass unresolved risk, required approvals, or the sensitive-change risk floor.
+- **Sensitive-Change Risk Floor**: Auth, money, data integrity, or trust boundaries enforce minimum `tier=medium` regardless of arithmetic SNC total; non-zero novelty or spread (S≥1 or N≥1 with C=2) escalates to `tier=high`.
+- **Low-Risk Maintenance**: Sufficiently specified routine fixes or maintenance may use an in-chat contract rather than creating BRD/PRD/SRS files. Preserve full traceability for governed or high-risk delivery.
+- Downstream specialist workers execute against their assigned briefs; do not reload or repeat parent intake in specialists.
 - A symptom without a root cause routes to `dev-fix`; never compare fixes for an undiagnosed bug.
-
 ## 2. Shared Understanding
 
 - Draft first, then write back two lists: **You said** and **I assumed**. Allow one correction round.
@@ -63,7 +66,7 @@ Trustworthy decisions are sized to the work, grounded in evidence, and approved 
 - `approval: pending | approved(<who>, <YYYY-MM-DD>) | assumed-autonomous`.
 - Interactive: end with "Reply ok or corrections". An ok approves only the artifact presented.
 - Autonomous or channel mode without an interactive reply channel: set `assumed-autonomous` and continue; `tier=high` still blocks pending explicit human sign-off.
-
+- Irreversible actions (data destruction, schema drops, credential rotation, production deployment) strictly require explicit human sign-off.
 ## 7. Self-Review Before Handoff
 
 - Placeholders: TBD, TODO, empty sections.

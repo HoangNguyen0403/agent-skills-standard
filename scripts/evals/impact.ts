@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import * as path from "node:path";
-import { ROOT_DIR } from "./constants";
+import { CURRENT_INSTRUCTION_VERSION, ROOT_DIR } from "./constants";
 import {
   answerPath,
   buildManifest,
@@ -15,7 +15,7 @@ import {
 } from "./snapshot";
 import type { ManifestSkill, ManifestV2, RunInputSource } from "./types";
 
-const CURRENT_INSTRUCTION_VERSION = "governing-skill-v3" as const;
+
 
 export type EvidenceAction = "reuse" | "generate" | "regrade";
 
@@ -205,12 +205,13 @@ function compatibleEvidenceRun(
 ): BaselineRun | undefined {
   const current = readCurrentSource(repoRoot, skill);
   const currentParts = evalParts(current.evals);
+  const key = sourceKey(skill.category, skill.skillName);
   return completeBaselineRuns(repoRoot).find((run) => {
-    if (
-      run.manifest.protocol.instructionVersion !== CURRENT_INSTRUCTION_VERSION
-    )
-      return false;
-    const source = run.sources[sourceKey(skill.category, skill.skillName)];
+    const skillProtocol =
+      run.manifest.provenance?.[key]?.protocol.instructionVersion ??
+      run.manifest.protocol.instructionVersion;
+    if (skillProtocol !== CURRENT_INSTRUCTION_VERSION) return false;
+    const source = run.sources[key];
     if (
       !source ||
       source.hashes.skill !== current.hashes.skill ||
@@ -234,13 +235,14 @@ function compatibleActivationEvidenceRun(
 ): BaselineRun | undefined {
   const current = readCurrentSource(repoRoot, skill);
   const currentParts = evalParts(current.evals);
+  const key = sourceKey(skill.category, skill.skillName);
   return completeBaselineRuns(repoRoot).find((run) => {
-    if (
-      run.manifest.protocol.instructionVersion !== CURRENT_INSTRUCTION_VERSION
-    )
-      return false;
+    const skillProtocol =
+      run.manifest.provenance?.[key]?.protocol.instructionVersion ??
+      run.manifest.protocol.instructionVersion;
+    if (skillProtocol !== CURRENT_INSTRUCTION_VERSION) return false;
     if (run.manifest.activationEvidenceVersion !== 3) return false;
-    const source = run.sources[sourceKey(skill.category, skill.skillName)];
+    const source = run.sources[key];
     if (
       !source ||
       description(source.skillMarkdown) !== description(current.skillMarkdown)
@@ -263,12 +265,13 @@ export function planBaseline(
       !options.baselineRunId ||
       baselineKeys.has(sourceKey(skill.category, skill.skillName)),
   );
-  const protocolChanged =
-    baseline.manifest.protocol.instructionVersion !==
-    CURRENT_INSTRUCTION_VERSION;
   for (const skill of scopedSkills) {
     const key = sourceKey(skill.category, skill.skillName);
     const previous = baseline.sources[key];
+    const previousProtocol =
+      baseline.manifest.provenance?.[key]?.protocol.instructionVersion ??
+      baseline.manifest.protocol.instructionVersion;
+    const protocolChanged = previousProtocol !== CURRENT_INSTRUCTION_VERSION;
     if (!previous) {
       impacts.push({
         key,
@@ -405,7 +408,9 @@ export function createBaselineRun(
     if (
       candidate.manifest.category !== category ||
       candidate.manifest.baselineRunId !== plan.baselineRunId ||
-      candidate.manifest.scope?.kind !== "selective"
+      candidate.manifest.scope?.kind !== "selective" ||
+      candidate.manifest.protocol?.instructionVersion !==
+        CURRENT_INSTRUCTION_VERSION
     ) {
       return false;
     }
@@ -491,9 +496,15 @@ export function createBaselineRun(
     plan.impacts.every(
       (impact) => impact.outcome === "regrade" && impact.activation === "reuse",
     );
+  const evidenceMode: EvidenceMode =
+    reusedAnswers === 0
+      ? "fresh"
+      : regradeOnly
+        ? "regraded"
+        : "incremental";
   manifest.metadata = {
     ...manifest.metadata,
-    evidenceMode: regradeOnly ? "regraded" : "incremental",
+    evidenceMode,
     freshAnswerCount: manifest.metadata.freshAnswerCount ?? 0,
     reusedAnswerCount: reusedAnswers,
   };

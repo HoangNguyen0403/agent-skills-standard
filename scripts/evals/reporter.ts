@@ -12,6 +12,7 @@ import { answerPath, loadManifest } from "./manifest";
 import {
   EvalsHistory,
   EvalsHistoryRecord,
+  InstructionVersion,
   RunResults,
   SkillResult,
 } from "./types";
@@ -197,8 +198,12 @@ function syncHistoryAndArchive(allResults: RunResults[]): EvalsHistory {
       const mode = evidenceMode(run);
       if (existing && !existing.evidenceMode && mode !== "unknown")
         existing.evidenceMode = mode;
+      const proto = resolveRunProtocol(run);
+      if (existing && !existing.protocolProvenance && proto !== "unknown")
+        existing.protocolProvenance = proto;
       continue;
     }
+    const proto = resolveRunProtocol(run);
     history.records.push({
       runId: run.runId,
       category: run.category,
@@ -215,6 +220,7 @@ function syncHistoryAndArchive(allResults: RunResults[]): EvalsHistory {
       agent: run.metadata.agent,
       model: run.metadata.model,
       evidenceMode: run.metadata.evidenceMode,
+      protocolProvenance: proto !== "unknown" ? proto : undefined,
     });
   }
   history.records.sort(
@@ -262,6 +268,65 @@ function evidenceMode(
   return "unknown";
 }
 
+export function resolveRunProtocol(
+  run: RunResults,
+): InstructionVersion | "mixed" | "unknown" {
+  if (run.metadata.protocolProvenance) return run.metadata.protocolProvenance;
+  if (run.provenance) {
+    const protos = new Set(
+      Object.values(run.provenance).map((p) => p.protocol.instructionVersion),
+    );
+    if (protos.size === 1) return [...protos][0] as InstructionVersion;
+    if (protos.size > 1) return "mixed";
+  }
+  const manifestPath = path.join(RUNS_DIR, run.runId, "manifest.json");
+  if (fs.existsSync(manifestPath)) {
+    try {
+      const manifest = loadManifest(path.dirname(manifestPath));
+      if (manifest.schemaVersion === 2) {
+        return manifest.protocol?.instructionVersion ?? "unknown";
+      }
+      return "governing-skill-v1";
+    } catch {
+      // fallback
+    }
+  }
+  return "unknown";
+}
+
+export function resolveCategoryProtocol(
+  run: RunResults,
+): InstructionVersion | "mixed" | "unknown" {
+  if (run.provenance) {
+    const protocols = new Set(
+      run.skills.flatMap((skill) => {
+        const key = `${skill.category}/${skill.skillName}`;
+        const protocol = run.provenance?.[key]?.protocol.instructionVersion;
+        return protocol ? [protocol] : [];
+      }),
+    );
+    if (protocols.size === 1) return [...protocols][0] as InstructionVersion;
+    if (protocols.size > 1) return "mixed";
+  }
+  return resolveRunProtocol(run);
+}
+
+export function resolveSkillProtocol(
+  skill: SkillResult,
+  run?: RunResults,
+): string {
+  if (run?.provenance) {
+    const key = `${skill.category}/${skill.skillName}`;
+    const p = run.provenance[key];
+    if (p?.protocol?.instructionVersion) return p.protocol.instructionVersion;
+  }
+  if (run) {
+    const proto = resolveRunProtocol(run);
+    if (proto !== "mixed" && proto !== "unknown") return proto;
+  }
+  return "unknown";
+}
+
 export function buildEvalsReportMarkdown(
   allResults: RunResults[],
   history?: EvalsHistory,
@@ -271,7 +336,7 @@ export function buildEvalsReportMarkdown(
     "# 🧪 Live Skill Evals Report",
     "",
     `> Generated: ${new Date().toISOString()}`,
-    "> Measured, not structural: outcome assertions are evaluated against immutable run inputs. Baseline and with-skill arms are generated in isolated workers; trigger arms receive only the skill name and description.",
+    "> Measured transcript-assertion evidence, not structural or executable task verification: outcome assertions are evaluated against transcripts from isolated evaluation workers. Baseline and with-skill arms are generated without tool execution; trigger arms receive only the skill name and description.",
     "> Historical v1 runs remain readable through the compatibility adapter. v2 metrics report case pass rate, assertion pass rate, trigger recall, trigger specificity, and balanced trigger accuracy.",
     "> Activation metrics are omitted for legacy trigger evidence until a clean activation-evidence v2 run replaces it.",
     "",
@@ -321,6 +386,19 @@ export function buildEvalsReportMarkdown(
     allSkillResults.length > 0 &&
     strictReadyCount === allSkillResults.length &&
     freshEvidence;
+  const protocols = new Set(
+    [...latest.values()]
+      .map(resolveCategoryProtocol)
+      .filter((protocol) => protocol !== "unknown"),
+  );
+  const protocolSummary =
+    protocols.size === 0
+      ? "unknown"
+      : protocols.size === 1
+        ? [...protocols][0]
+        : "mixed";
+  const hasMixedProtocols = protocols.has("mixed") || protocols.size > 1;
+
   lines.push(
     "## 🔢 Executive Summary (latest complete partition per category)",
     "",
@@ -333,6 +411,7 @@ export function buildEvalsReportMarkdown(
     `| Outcome readiness | **${outcomeReadyCount === allSkillResults.length ? "READY" : "NOT READY"}** |`,
     `| Activation readiness | **${activationReadyCount === allSkillResults.length ? "READY" : "NOT READY"}** |`,
     `| Evidence mode | **${modes.size === 1 ? [...modes][0] : "mixed"}** |`,
+    `| Protocol provenance | **${protocolSummary}** |`,
     `| Strict outcome-ready skills | **${outcomeReadyCount}/${allSkillResults.length}** |`,
     `| Activation-ready skills | **${activationReadyCount}/${allSkillResults.length}** |`,
     `| Strict release-ready skills | **${strictReadyCount}/${allSkillResults.length}** |`,
@@ -375,17 +454,23 @@ export function buildEvalsReportMarkdown(
     `| Skills meeting ≥90% recall and specificity | **${triggerGate.filter((skill) => (skill.triggerRecall as number) >= 0.9 && (skill.triggerSpecificity as number) >= 0.9).length}/${triggerGate.length}** |`,
     "",
   );
+  if (hasMixedProtocols) {
+    lines.push(
+      "> ⚠️ **Cross-Protocol Composite Notice**: Current results combine evidence from multiple instruction protocol generations. Aggregate pass rates represent a heterogeneous composite, not a homogeneous comparison.",
+      "",
+    );
+  }
 
   if (history && history.records.length > 0) {
     lines.push(
       "## 📜 Physical Run History",
       "",
-      "| Run | Category | Date | Skills | Baseline | With-Skill | Delta | Evidence | Agent |",
-      "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+      "| Run | Category | Date | Skills | Baseline | With-Skill | Delta | Evidence | Protocol | Agent |",
+      "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     );
     for (const record of [...history.records].reverse()) {
       lines.push(
-        `| \`${record.runId}\` | ${record.category} | ${record.date.split("T")[0]} | ${record.skillCount} | ${pct(record.avgBaselinePassRate)} | ${pct(record.avgWithSkillPassRate)} | ${record.avgDelta >= 0 ? "+" : ""}${pct(record.avgDelta)} | ${record.evidenceMode ?? "unknown"} | ${record.agent ?? "n/a"} |`,
+        `| \`${record.runId}\` | ${record.category} | ${record.date.split("T")[0]} | ${record.skillCount} | ${pct(record.avgBaselinePassRate)} | ${pct(record.avgWithSkillPassRate)} | ${record.avgDelta >= 0 ? "+" : ""}${pct(record.avgDelta)} | ${record.evidenceMode ?? "unknown"} | ${record.protocolProvenance ?? "historical"} | ${record.agent ?? "n/a"} |`,
       );
     }
     lines.push("");
@@ -394,8 +479,8 @@ export function buildEvalsReportMarkdown(
   lines.push(
     "## 📦 Per-Category Results (latest complete partition)",
     "",
-    "| Category | Run | Scored | Skills | Baseline | With-Skill | Delta | Assertions | Trigger Recall | Trigger Specificity | Balanced Trigger |",
-    "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+    "| Category | Run | Scored | Protocol | Skills | Baseline | With-Skill | Delta | Assertions | Trigger Recall | Trigger Specificity | Balanced Trigger |",
+    "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
   );
   for (const [category, run] of [...latest.entries()].sort(([a], [b]) =>
     a.localeCompare(b),
@@ -408,7 +493,7 @@ export function buildEvalsReportMarkdown(
         )
       : [];
     lines.push(
-      `| ${category} | \`${run.runId}\` | ${run.scoredAt.split("T")[0]} | ${run.skills.length} | ${pct(avg(run.skills.map((skill) => skill.casePassRate?.baseline ?? skill.baselinePassRate)))} | ${pct(avg(run.skills.map((skill) => skill.casePassRate?.withSkill ?? skill.withSkillPassRate)))} | ${pct(avg(run.skills.filter((skill) => !isCompromised(skill, run)).map((skill) => skill.delta)))} | ${pct(avgOrNa(run.skills.map((skill) => skill.assertionPassRate?.withSkill)))} | ${pct(avgOrNa(triggerSkills.map((skill) => skill.triggerRecall)))} | ${pct(avgOrNa(triggerSkills.map((skill) => skill.triggerSpecificity)))} | ${pct(avgOrNa(triggerSkills.map((skill) => skill.balancedTriggerAccuracy)))} |`,
+      `| ${category} | \`${run.runId}\` | ${run.scoredAt.split("T")[0]} | ${resolveCategoryProtocol(run)} | ${run.skills.length} | ${pct(avg(run.skills.map((skill) => skill.casePassRate?.baseline ?? skill.baselinePassRate)))} | ${pct(avg(run.skills.map((skill) => skill.casePassRate?.withSkill ?? skill.withSkillPassRate)))} | ${pct(avg(run.skills.filter((skill) => !isCompromised(skill, run)).map((skill) => skill.delta)))} | ${pct(avgOrNa(run.skills.map((skill) => skill.assertionPassRate?.withSkill)))} | ${pct(avgOrNa(triggerSkills.map((skill) => skill.triggerRecall)))} | ${pct(avgOrNa(triggerSkills.map((skill) => skill.triggerSpecificity)))} | ${pct(avgOrNa(triggerSkills.map((skill) => skill.balancedTriggerAccuracy)))} |`,
     );
   }
   lines.push("");
@@ -416,8 +501,8 @@ export function buildEvalsReportMarkdown(
   lines.push(
     "## 📋 Per-Skill Detail (latest complete partition per category)",
     "",
-    "| Skill | Category | Baseline Cases | With-Skill Cases | Delta | With-Skill Assertions | Recall | Specificity | Balanced | Guardrail |",
-    "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+    "| Skill | Category | Protocol | Baseline Cases | With-Skill Cases | Delta | With-Skill Assertions | Recall | Specificity | Balanced | Guardrail |",
+    "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
   );
   for (const skill of [...allSkillResults].sort(
     (a, b) =>
@@ -429,10 +514,11 @@ export function buildEvalsReportMarkdown(
       ? activationEvidenceTrusted(sourceRun)
       : false;
     lines.push(
-      `| \`${skill.skillName}\` | ${skill.category} | ${pct(skill.casePassRate?.baseline ?? skill.baselinePassRate)} | ${pct(skill.casePassRate?.withSkill ?? skill.withSkillPassRate)} | ${displayDelta(skill, sourceRun)} | ${pct(skill.assertionPassRate?.withSkill)} | ${trustedActivation ? pct(skill.triggerRecall) : "n/a"} | ${trustedActivation ? pct(skill.triggerSpecificity ?? skill.triggerPrecision) : "n/a"} | ${trustedActivation ? pct(skill.balancedTriggerAccuracy) : "n/a"} | ${skill.guardrailApplicable ? "yes" : "no"} |`,
+      `| \`${skill.skillName}\` | ${skill.category} | ${resolveSkillProtocol(skill, sourceRun)} | ${pct(skill.casePassRate?.baseline ?? skill.baselinePassRate)} | ${pct(skill.casePassRate?.withSkill ?? skill.withSkillPassRate)} | ${displayDelta(skill, sourceRun)} | ${pct(skill.assertionPassRate?.withSkill)} | ${trustedActivation ? pct(skill.triggerRecall) : "n/a"} | ${trustedActivation ? pct(skill.triggerSpecificity ?? skill.triggerPrecision) : "n/a"} | ${trustedActivation ? pct(skill.balancedTriggerAccuracy) : "n/a"} | ${skill.guardrailApplicable ? "yes" : "no"} |`,
     );
   }
   lines.push("");
+
 
   const notReadySkills = allSkillResults.flatMap((skill) => {
     const run = sourceRuns.get(`${skill.category}/${skill.skillName}`);

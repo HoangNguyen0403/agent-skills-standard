@@ -2,6 +2,7 @@
 name: specialist-test-healer
 description: Classifies one failing E2E test from its artifacts, applies at most one allowed repair from the test-healing catalog, proves it with three sequential reruns and an unchanged assertion set, and returns a verdict with a route. Use per failure inside test-loop; never for production code changes.
 guardrail: true
+risk_tier: L2
 metadata:
   internal: true
   triggers:

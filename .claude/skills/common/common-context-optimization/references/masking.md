@@ -1,40 +1,48 @@
-# Observation Masking Patterns
+# Output Filtering & Artifact Patterns
 
-## Strategy: Extract & Collapse
+## Strategy: Filter at Source & Spill to Artifacts
 
-Avoid leaving 500 lines of JSON in context.
+Avoid loading hundreds of lines of raw tool output into context. Standard agent APIs are append-only; manage context at invocation time rather than assuming in-place history mutation.
 
-### 1. The "Read-Then-Refer" Pattern
+### 1. The Pre-Ingestion Filter Pattern
 
-**Context State A (Raw)**:
+Use targeted tools or proxies (`rtk`, line selectors, grep, jq) to filter before output enters context:
 
+**Unfiltered Command (Avoid)**:
 ```text
-TOOL_OUTPUT: [ ... 200 lines of file listing ... ]
-AGENT: I see the file is in /src/utils.
+COMMAND: ls -la src/components/
+TOOL_OUTPUT: [200 lines of file listing loaded into context]
 ```
 
-**Context State B (Masked)**:
-
+**Filtered Command (Preferred)**:
 ```text
-TOOL_OUTPUT: [Artifact: 200 files listed. Found: /src/utils]
-AGENT: I see the file is in /src/utils.
+COMMAND: rtk find src/components/ -name "*.tsx"
+TOOL_OUTPUT: [5 matches: src/components/AuthModal.tsx, ...]
+AGENT: Located relevant auth component.
 ```
 
-### 2. Failure Masking
+### 2. Artifact Spilling for Heavy Payloads
 
-If a tool fails 3 times, collapse the failures into one distinct error block.
+When a tool produces bulk data (logs, database dumps, large API responses), write to an artifact and reference it:
 
-**Raw**:
+**Spill to Artifact**:
+```text
+TOOL_CALL: run_query (returned 500 rows)
+TOOL_OUTPUT: [Wrote 500 rows to artifact://query-result.json (142 KB). Preview (first 2 rows): ...]
+AGENT: Inspected preview; loading specific row by key from artifact.
+```
 
-- Fail (Timeout)
-- Fail (Timeout)
-- Fail (Timeout)
+### 3. Failure Summarization
 
-**Masked**:
+Avoid repeating verbose failure traces across retries. Extract the distinct failure reason:
 
-- System: Tool failed 3x (Timeout). Agent gave up.
+**Summarized Failure**:
+```text
+TOOL_OUTPUT: [Command timed out after 3 retries: connection refused on 127.0.0.1:5432]
+AGENT: Database is unreachable; checking connection configuration before next attempt.
+```
+## Integration with Runtime Tooling
 
-## Automation
-
-- Agents should auto-mask outputs > 1000 tokens after the "Turn" is complete.
-- Never mask _during_ the reasoning step (you need to see it to understand it).
+- **Filter at source**: Use tools with built-in filtering (e.g. `rtk` CLI proxy, grep, line range selectors) to avoid loading massive payloads into the context window.
+- **Artifact spilling**: Write large payloads to external artifacts/files and include only a concise summary and file path in conversation history.
+- **Runtime-managed collapsing**: Where the host runtime supports automatic UI folding or artifact collapsing, leverage host-managed blocks rather than expecting in-place history mutation.

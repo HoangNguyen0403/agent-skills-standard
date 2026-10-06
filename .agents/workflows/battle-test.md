@@ -30,28 +30,25 @@ Run scans to detect format and structure violations.
 
 ---
 
-## Step 3 — Deep Audit & Scoring
+## Step 3 — Deep Audit & Evidence Classification
 
-Pick every P0 (CRITICAL) and a random sample of P1/P2 skills. Evaluate them against the **Grading Rubric** in:
-`<SKILLS>/common/common-skill-creator/references/rubric.md` when synced.
+Evaluate skills against `<SKILLS>/common/common-skill-creator/references/rubric.md`:
 
-1. **Trigger Accuracy**: File patterns + keywords?
-2. **Format Quality**: `**No X**: Do Y.` anti-patterns?
-3. **Verification**: Mandatory checklists?
-4. **Token Efficiency**: Under 100 lines? Imperative mood?
+1. **Structural Checks**: Line count (≤100), frontmatter schema, surgical triggers.
+2. **Textual Utility**: Actionability, procedural clarity; verify NO answer-anchor padding.
+3. **Executable Outcomes**: Runnable verification commands, deterministic test/verifier pass.
+4. **Rule Retirement & Ablation**: Identify retirement candidates via repeated ablation; preserve safety controls until deterministic runtime replacements exist.
 
 ---
 
 ## Step 4 — Scored Report
 
-**Scoring Algorithm**: Start at 100 points for each category. Apply deductions for findings (🔴-15 / 🟠-8 / 🟡-3 / 🔵-1).
+**Scoring Algorithm**: Start at 100 points for each category. Apply deductions for findings (🔴-15 / 🟠-8 / 🟡-3 / 🔵-1). Deduct for answer-anchor padding or bloated narrative.
 
 ### 📊 Report Format
 
 Output the report using the **Battle Test Report** and **Phased Plan** templates in:
 `<SKILLS>/common/common-skill-creator/references/rubric.md` when synced.
-
----
 
 ## Step 5 — Interactive Follow-up
 

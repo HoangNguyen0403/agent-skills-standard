@@ -1,6 +1,6 @@
 ---
 name: common-context-optimization
-description: Maximize context window efficiency, reduce latency, and prevent lost-in-middle issues through strategic masking and compaction. Use when token budgets are tight, tool outputs overflow the context, conversations drift from intent, or latency spikes from cache misses.
+description: Reduce context overhead from verbose tool outputs and preserve active task state as context fills through source-side filtering, artifact spill, and runtime-managed compaction. Use when tool outputs are too large or long sessions risk losing task state.
 metadata:
   triggers:
     files:
@@ -15,38 +15,32 @@ metadata:
 ## **Priority: P1 (HIGH)**
 
 
-## 1. Observation Masking (Noise Reduction)
+## 1. Observation Masking & Output Filtering (Noise Reduction)
 
-**Problem**: Large tool outputs (logs, JSON lists) overwhelm context and degrade reasoning.
-**Solution**: Replace raw output with semantic summaries _after_ consumption.
+**Problem**: Large tool outputs (verbose logs, large file reads, JSON dumps) fill context and degrade reasoning.
+**Solution**: Filter, truncate, or summarize tool outputs at ingestion.
 
-1. **Identify** outputs exceeding 50 lines or 1 KB.
-2. **Extract** critical data points immediately.
-3. **Mask** by rewriting history to replace raw data with summary placeholder.
+1. **Filter at source**: Use targeted tools, CLI flags, proxies (`rtk`), grep, line ranges, or specialized selectors to limit output volume before loading into context.
+2. **Spill to artifacts**: Write large payloads or logs to external files/artifacts and read only relevant extracts.
+3. **Summarize**: Ingest semantic facts and file references into conversation state rather than dumping raw multi-kilobyte output. Do not rely on unsupported history mutation in standard runtimes.
 4. **See** `references/masking.md` for patterns.
 
 See [implementation examples](references/implementation.md) for masking patterns.
 
-## 2. Context Compaction (State Preservation)
+## 2. Runtime-Managed Compaction (State Preservation)
 
-**Problem**: Long conversations drift from original intent.
-**Solution**: Recursive summarization that preserves _State_ over _Dialogue_.
+**Problem**: Long conversations drift from original intent as context fills.
+**Solution**: Runtime-managed compaction and state externalization that preserves _State_ over _Dialogue_.
 
-1. **Trigger** compaction every 10 turns or 8k tokens.
+1. **Trigger conditionally**: Trigger compaction when the host runtime indicates context exhaustion or at natural task/slice boundaries. Do not rely on fixed turn counts or hardcoded token limits.
 2. **Compact**:
- - **Keep**: User Goal, Active Task, Current Errors, Key Decisions.
- - **Drop**: Chat chit-chat, intermediate tool calls, corrected assumptions.
-3. **Format**: Update System Prompt or Memory File with compacted state.
+ - **Keep**: User Goal, Active Task, Current Errors, Key Decisions, Artifact Paths.
+ - **Drop**: Transient chit-chat, resolved tool failures, verbose intermediate command outputs.
+3. **Format**: Externalize compacted state into durable project tracking files (e.g., `progress.md`, task brief, memory file) rather than assuming in-place context rewriting.
 4. **See** `references/compaction.md` for algorithms.
 
 See [implementation examples](references/implementation.md) for compacted state format.
 
-## 3. KV-Cache Awareness (Latency)
-
-**Goal**: Maximize pre-fill cache hits.
-
-- **Static Prefix**: Enforce strict ordering — System -> Tools -> RAG -> User.
-- **Append-Only**: Never insert into middle of history; append new turns only.
 
 ## References
 
@@ -55,6 +49,6 @@ See [implementation examples](references/implementation.md) for compacted state 
 
 ## Anti-Patterns
 
-- **No raw tool dumps**: Mask large outputs immediately after extracting data.
-- **No unbounded growth**: Compact every 10 turns to preserve intent over dialogue.
-- **No middle insertions**: Append-only history maximizes KV cache hits.
+- **No raw tool dumps**: Filter outputs at invocation or spill to artifacts; do not flood context with raw bytes.
+- **No fixed-threshold compaction**: Rely on runtime signals and task boundaries, not rigid turn/token counters.
+- **No unsupported history mutation**: Standard LLM APIs are append-only; persist state in files rather than assuming retrospective history editing.

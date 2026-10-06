@@ -24,6 +24,7 @@ metadata:
 - **Evidence First**: Findings need file, AC, test, or diff evidence.
 - **Findings First**: Lead with risks, not summary.
 - **Review completeness**: Include test coverage and edge-case coverage even when CI is green or the requester asks for a quick review.
+- **Test-Review Evidence Gate**: Before flagging a `[MAJOR]` missing-test finding, apply [../common-tdd/references/quality-contract.md](../common-tdd/references/quality-contract.md): explicitly name (1) the changed business contract, (2) the concrete plausible fault escaping to consumers, and (3) proof that nearby or upstream suites do not already cover it. Verify one logical contract per test; multiple assertions are allowed for related aspects/side effects. Do NOT demand a test per public symbol, private method, or trivial getter/echo.
 
 ## Review Checklist (Mandatory)
 

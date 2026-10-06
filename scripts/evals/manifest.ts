@@ -3,6 +3,7 @@ import fs from "fs-extra";
 import * as path from "path";
 import { isGuardrailApplicable } from "../benchmark/utils";
 import {
+  CURRENT_INSTRUCTION_VERSION,
   MANIFEST_FILENAME,
   RESULTS_FILENAME,
   ROOT_DIR,
@@ -12,6 +13,7 @@ import { readCurrentSource, resourceFingerprint, sourceKey } from "./snapshot";
 import {
   Assertion,
   EvalCaseRef,
+  InstructionVersion,
   Manifest,
   ManifestSkill,
   ManifestV2,
@@ -334,7 +336,7 @@ export function buildManifest(
       categories: category === "all" ? categories : [category],
     },
     protocol: {
-      instructionVersion: "governing-skill-v3",
+      instructionVersion: CURRENT_INSTRUCTION_VERSION,
       isolation: "worker-per-arm",
       baseline: "prompt-only",
       withSkill: "prompt-plus-skill",
@@ -357,12 +359,27 @@ export function buildManifest(
 
 export function resumeManifest(
   runId: string,
-  options: { repoRoot?: string } = {},
+  options: {
+    repoRoot?: string;
+    expectedInstructionVersion?: InstructionVersion;
+  } = {},
 ): { manifest: Manifest; runDir: string } {
   const repoRoot = options.repoRoot ?? ROOT_DIR;
   const runDir = path.join(runDirectory(repoRoot), runId);
   if (!fs.existsSync(runDir)) throw new Error(`Run not found: ${runId}`);
-  return { manifest: loadManifest(runDir), runDir };
+  const manifest = loadManifest(runDir);
+  const protocolVersion =
+    manifest.schemaVersion === 2
+      ? manifest.protocol?.instructionVersion
+      : "governing-skill-v1";
+  const expected =
+    options.expectedInstructionVersion ?? CURRENT_INSTRUCTION_VERSION;
+  if (protocolVersion !== expected) {
+    throw new Error(
+      `Cannot resume run ${runId}: protocol version mismatch (expected ${expected}, found ${protocolVersion ?? "unknown"}). Historical runs cannot be resumed with new answer generation.`,
+    );
+  }
+  return { manifest, runDir };
 }
 
 /**

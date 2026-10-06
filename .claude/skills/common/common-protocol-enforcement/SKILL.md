@@ -25,34 +25,35 @@ Before declaring any task "done" or calling `notify_user`:
 
 1. **Adversarial Audit**: Search for Standard Defaults where project rules should exist.
 2. **Protocol Check**: Confirm active skills and workflows were loaded before writing.
-3. **Evidence Check**: Ask what command or artifact proves the completion claim.
+3. **Evidence Check**: Ask what observable command or artifact proves the completion claim.
 4. **Execution Bias Check**: Ask whether speed or convenience skipped a structural rule.
 
-## ** Post-Write Self-Scan**
+## Risk-Based Post-Write Self-Scan
 
-Immediately after tool call:
-
-- **Scan**: Read diff or file content.
+Trigger a post-write self-scan under specific risk or freshness conditions:
+- **Condition**: State freshness is uncertain, external modifications occurred, tool output indicated partial edits or conflicts, or changes touch sensitive paths (auth, security, payments, data integrity).
+- **Scan**: Inspect the diff or touched section rather than ritualistic re-reading of entire files.
 - **Match**: Check against `Anti-Patterns` in all active skills.
-- **Fix**: Re-edit immediately if violation detected.
+- **Fix**: Re-edit immediately if a violation is detected.
 
 ## Red Flags
 
-- **Stop if "done" appears before fresh verification**: No completion claim yet.
-- **Stop if you relied on memory instead of re-reading files**: Reload source of truth.
+- **Stop if "done" appears before fresh verification**: Require observable evidence (test output, diff check, diagnostic artifact).
+- **Stop if assuming stale file state is intact**: Verify source of truth when freshness is uncertain or tools signal ambiguity.
 - **Stop if the shortcut is "small enough to skip protocol"**: Small changes hide drift.
 
 ## Rationalization Prevention
 
 - **"The change is tiny"**: Tiny changes still violate guardrails.
 - **"The test passed earlier"**: Old evidence does not prove current state.
-- **"I know the pattern already"**: Load the active skill anyway.
+- **"I know the pattern already"**: Verify active project rules anyway.
 
 ## Anti-Patterns
 
-- **No "Done" Bias**: Functional success != Protocol success.
-- **No Reliance on Memory**: Always retrieval-led (Skill view_file) before write.
-- **No Skipping Protocols**: "Small changes" where most violations happen.
+- **No "Done" Bias**: Functional success does not equal protocol success without proof.
+- **No Unconditional Reread Loops**: Inspect diffs and files conditionally on risk and freshness, not on every tool call.
+- **No Skipping Protocols**: "Small changes" are where most violations happen.
+- **No Unobservable Completion**: Completion claims must be backed by executed commands or inspectable artifacts.
 
 ## Execution Bias Detection
 
@@ -62,20 +63,3 @@ Look for:
 - Hardcoded styles instead of design tokens.
 - Try-catch blocks without standard error handling.
 - Missing `Pre-Write Audit Log` in thoughts.
-
-## References
-
-## Canonical response anchors
-
-When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
-- active skill
-- active skills
-- reload
-
-- Additional task-grounded exact anchors: Pre-Write Audit; Standard Defaults; Anti-Patterns
-
-When reporting a UI or implementation self-scan, explicitly check for hardcoded styles and missing design tokens, and name the `Pre-Write Audit` evidence before accepting the result.
-
-## Remediation anchors
-
-- Remediation anchors: Pre-Write Audit, hardcoded styles, design tokens

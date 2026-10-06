@@ -82,6 +82,7 @@
     "evals:queue": "tsx scripts/evals/quality.ts queue",
     "evals:estimate": "tsx scripts/evals/index.ts estimate",
     "evals:gate": "tsx scripts/evals/index.ts gate",
+    "evals:tasks": "tsx scripts/evals/task-index.ts",
     "freshness:audit": "tsx scripts/freshness/index.ts audit",
     "freshness:check": "tsx scripts/freshness/index.ts check",
     "freshness:report": "tsx scripts/freshness/index.ts report",

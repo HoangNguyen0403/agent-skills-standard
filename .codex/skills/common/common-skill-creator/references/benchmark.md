@@ -22,7 +22,7 @@ For every `❌ FAIL` in the benchmark, identify the root cause:
 | Pattern missing    | No reference code          | Add to `references/` folder                 |
 | Skills conflict    | Two skills contradict      | Ensure P0 overrides P1                      |
 | Missing evals      | No `evals/evals.json`      | Create evals with ≥3 prompts, ≥2 assertions |
-| Low eval alignment | SKILL.md missing key terms | Add missing assertion values to SKILL.md    |
+| Low eval alignment | Rule ineffective or ambiguous | Clarify procedural logic; do not pad canned keywords |
 
 ## 3. Compliance Score Calculation
 
@@ -30,7 +30,18 @@ For every `❌ FAIL` in the benchmark, identify the root cause:
 - **After Score**: `(Matches / Total Assertions) * 100` = **Y%**
 - **Δ Delta**: **+Z%** 🚀
 
-## 4. Behavior Guardrail Coverage
+## 4. Evidence Classification & Ablation
+
+Distinguish three types of benchmark evidence:
+1. **Structural checks**: Line limits, schema validity, trigger patterns.
+2. **Textual transcript evidence**: Assertions scored on model text generation. Never pad canned keywords to game these scores.
+3. **Executable outcomes**: Verifier checks, exit codes, and deterministic behavior in fixture workspaces.
+
+### Rule Retirement & Ablation
+- **Candidate Identification**: A rule becomes a candidate for retirement when repeated, representative, risk-appropriate evaluations (including adversarial edge cases) show no regression when omitted.
+- **Safety Control Invariance**: Sparse or text-only evals never justify retiring safety boundaries, authorization gates, or sensitive-change risk floors. Retain host and safety controls until a verified deterministic runtime enforcement mechanism replaces them.
+- **Runtime Replacement**: Retire procedural rules only when deterministic runtime tooling (linters, static analysis, MCP enforcement) demonstrably takes over enforcement.
+## 5. Behavior Guardrail Coverage
 
 Use this only for guardrail-oriented skills such as TDD, debugging, verification, protocol, review, and workflow enforcement.
 

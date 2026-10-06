@@ -1,18 +1,26 @@
 # Live Skill Evals
 
-Live evals measure behavioral change, not skill-file size. The v2 protocol is:
+Live evals measure behavioral change, not skill-file size. The evaluation framework supports two complementary workflows: text-based skill evaluation and executable task evaluation.
 
-1. Build a category or aggregate manifest.
-2. Answer baseline and with-skill arms in isolated workers.
-3. Score only complete runs.
-4. Verify from the immutable `inputs.json` snapshot.
-5. Project aggregate runs into the newest complete category partitions.
+## Text Evaluation Protocols
+
+1. **Protocol Lineage**:
+   - `neutral-skill-v4` (Current): Newly generated text evaluations use this protocol. Both baseline and with-skill workers receive identical task instructions; only the skill payload is appended in the with-skill arm. Coached answer-anchors and pressure-resistance coaching phrases are removed to eliminate evaluation bias.
+   - `v1` / `v3` (Historical): Legacy protocols used in previous evaluations. Transcripts and manifests under these protocols are immutable and remain verifiable under their recorded scoring semantics. Historical coached evidence cannot be relabeled as v4 or silently merged into fresh neutral comparisons.
+2. **Transcript Evidence Limitations**:
+   - Text evals verify whether generated responses satisfy deterministic assertions (`contains`, `not_contains`, `regex`).
+   - They measure transcript-level compliance, serving as text evidence of instruction adherence rather than an end-to-end proof of software correctness or holistic model capability.
+3. **Execution Steps**:
+   - Build a category or aggregate manifest.
+   - Answer baseline and with-skill arms in isolated workers.
+   - Score only complete runs.
+   - Verify from the immutable `inputs.json` snapshot.
+   - Project aggregate runs into the newest complete category partitions.
 
 New v2 manifests use assertion-semantics-v2: Markdown formatting, line wrapping,
 and equivalent placeholder names do not fail a concrete assertion, while
 numeric/status/path literals remain exact. Historical manifests without this
 field retain literal v1 scoring semantics.
-
 ## Config-Change Gate
 
 Agent configuration is code. A diff that touches `skills/**`, `.agents/workflows/**`, or a hook
@@ -351,6 +359,72 @@ gate, and the evidence is one fresh run with no reused answers. Trigger
 accuracy cannot make a skill with weak with-skill cases release-ready.
 
 Known compromised baselines are surfaced in the manifest and have `n/a` baseline and delta metrics until clean reruns replace them.
+
+## Executable Task-Evaluation Pilot (`evals:tasks`)
+
+The executable harness evaluates agent performance empirically against executable fixture tasks, comparing minimal, current, and candidate instruction sets.
+
+### Command-Line Interface
+
+```bash
+# Basic invocation
+pnpm evals:tasks --manifest benchmarks/tasks/pilot.json --worker <path-to-worker.json> --output <new-output-dir>
+
+# Filter by split and set repetitions
+pnpm evals:tasks --manifest benchmarks/tasks/pilot.json --worker <path-to-worker.json> --output <new-output-dir> --split calibration --repeat 3
+
+# Keep workspaces for post-mortem inspection
+pnpm evals:tasks --manifest benchmarks/tasks/pilot.json --worker <path-to-worker.json> --output <new-output-dir> --keep-workspaces
+```
+
+Direct script invocation:
+```bash
+tsx scripts/evals/task-index.ts --manifest benchmarks/tasks/pilot.json --worker config/worker.json --output evals/runs/pilot-run-1
+```
+
+### Worker Configuration Contract
+
+Worker execution is governed by a trusted JSON configuration file:
+
+```json
+{
+  "executable": "/path/to/cli-or-agent-binary",
+  "args": ["exec", "--workspace", "{workspace}", "--prompt-file", "{promptFile}"],
+  "model": "gpt-5.4",
+  "effort": "high",
+  "timeoutMs": 60000
+}
+```
+
+- **Arguments & Substitution**: `{workspace}` and `{promptFile}` are the only supported string substitutions. Arguments are spawned directly without shell interpolation.
+- **Prompt Passing**: The prompt is written to `{promptFile}` and additionally streamed via standard input (stdin) for CLIs supporting piped input.
+- **Operator-Supplied Metadata**: `model` and `effort` are explicitly supplied by the operator in the worker configuration; they are recorded as factual configuration data and never guessed or inferred.
+- **Process Cleanup**: The harness signals the spawned process group on timeout (SIGTERM escalated to SIGKILL); note that process group signaling does not track descendants that explicitly detach into their own session or group, though the runner settles boundedly if a detached helper holds inherited capture pipes.
+
+### Task Manifests and Fixtures
+
+Pilot tasks test concrete software engineering problems under `benchmarks/tasks/`:
+- **Pagination Boundary Handling** (`benchmarks/tasks/fixtures/pagination`): Tests zero-based offset vs page-based limits, max-page clamping, empty result envelopes, and negative parameter handling.
+- **Cross-Tenant Authorization** (`benchmarks/tasks/fixtures/authorization`): Tests multi-tenant isolation, ensuring requests for another tenant's resources are rejected with a JavaScript `AuthorizationError` while authorized operations succeed.
+
+### Out-of-Workspace Trusted Verifiers
+
+- **Integrity**: Verifier executables live outside the writable fixture workspaces (`benchmarks/tasks/verifiers/`). Their SHA-256 hashes are verified before and after execution to detect lasting file tampering; because child processes run under the same host UID without OS-level permission isolation, this check cannot prevent a concurrent worker from transiently swapping binaries during execution.
+- **Independent Validation**: The runner never relies on worker self-reports or worker-written test assertions. Task success requires a clean worker exit (code 0 without timeout or infrastructure error) coupled with a passing exit code from the external verifier.
+
+### Security Notice: Nonproduction Trust Model
+
+> [!WARNING]
+> **NO OS-LEVEL SANDBOX**: Local task execution runs child processes with the host user's permissions and environment. The harness does NOT provide containerization, chroot, network namespaces, or OS-level sandboxing.
+> - Execute ONLY trusted worker configurations and review CLI commands before invocation.
+> - Run ONLY against isolated nonproduction fixture workspaces.
+> - Advisory markdown instructions within tasks or skills do not enforce runtime security boundaries; host-level enforcement is required.
+
+### Measurement Limits and Missing Model Benchmarks
+
+- **Plumbing Verification vs. Model Benchmarks**: Pilot fixture suites and unit test child-process runs verify runner plumbing, process group isolation, timeout handling, and verifier mechanics. They do **not** constitute live model capability sweeps.
+- **Independent Failure Classification**: Suite, arm, and task summaries distinguish total attempts, evaluated product runs, timeouts, and infrastructure errors. Efficacy pass rates evaluate product attempts only (`successful / evaluatedRuns`); when no valid product evidence exists (e.g. all attempts fail with infrastructure errors), pass rates are reported as `null` rather than a 0% product failure. Infrastructure errors (tampered verifier or evidence, spawn failures, cleanup failures) and process timeouts are tracked as independent execution outcomes and never conflated with candidate code defects.
+- **Null Cost and Token Metrics**: When worker execution does not expose verified token counts or dollar costs, usage fields are recorded as `null` rather than estimated or fabricated.
 
 ## Artifacts
 

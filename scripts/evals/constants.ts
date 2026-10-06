@@ -24,3 +24,12 @@ export const KNOWN_COMPROMISED_BASELINES = [
 
 /** Assertions requiring ALL to pass for a case to count as a pass. */
 export const TRIGGER_MARKER_REGEX = /^\s*TRIGGER:\s*(yes|no)\s*$/im;
+
+/** Current text-evaluation instruction generation protocol. */
+export const CURRENT_INSTRUCTION_VERSION = "neutral-skill-v4" as const;
+
+/** Historical generation protocols preserved for reading and verification. */
+export const HISTORICAL_INSTRUCTION_VERSIONS = [
+  "governing-skill-v1",
+  "governing-skill-v3",
+] as const;

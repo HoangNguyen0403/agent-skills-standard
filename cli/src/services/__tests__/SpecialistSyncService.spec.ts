@@ -298,6 +298,65 @@ Check OWASP.` as any,
     );
   });
 
+  it('should sync writing specialists with workspace-write and reviewers with read-only to Codex', async () => {
+    const specialistsDir = path.join(rootDir, 'skills/specialists');
+    vi.mocked(fs.pathExists).mockImplementation(
+      async (p: string) => p === specialistsDir || p.endsWith('SKILL.md'),
+    );
+    vi.mocked(fs.readdir).mockResolvedValue([
+      'specialist-tdd-implementer',
+      'specialist-security-reviewer',
+    ] as unknown as string[]);
+    vi.mocked(fs.readFile).mockImplementation(async (p: unknown) => {
+      const pathStr = typeof p === 'string' ? p : String(p);
+      if (pathStr.includes('specialist-tdd-implementer')) {
+        return `---
+name: specialist-tdd-implementer
+description: "TDD Implementer"
+risk_tier: L2
+---
+# Rules
+Implement tests.`;
+      }
+      return `---
+name: specialist-security-reviewer
+description: "Security Reviewer"
+---
+# Rules
+Review security.`;
+    });
+    vi.mocked(fs.statSync).mockReturnValue({ isDirectory: () => true } as unknown as Stats);
+
+    await service.syncSpecialists(rootDir, [Agent.Codex]);
+
+    const writerFile = path.join(
+      rootDir,
+      '.codex/agents/tdd-implementer.toml',
+    );
+    const reviewerFile = path.join(
+      rootDir,
+      '.codex/agents/security-reviewer.toml',
+    );
+
+    expect(fs.outputFile).toHaveBeenCalledWith(
+      writerFile,
+      expect.stringContaining('sandbox_mode = "workspace-write"'),
+    );
+    expect(fs.outputFile).toHaveBeenCalledWith(
+      writerFile,
+      expect.not.stringContaining('danger-full-access'),
+    );
+
+    expect(fs.outputFile).toHaveBeenCalledWith(
+      reviewerFile,
+      expect.stringContaining('sandbox_mode = "read-only"'),
+    );
+    expect(fs.outputFile).toHaveBeenCalledWith(
+      reviewerFile,
+      expect.not.stringContaining('sandbox_mode = "workspace-write"'),
+    );
+  });
+
   it('should sync specialists to OpenCode agents folder', async () => {
     const specialistsDir = path.join(rootDir, 'skills/specialists');
     vi.mocked(fs.pathExists).mockImplementation(

@@ -87,6 +87,12 @@ Requirement layering is explicit in the SDLC workflow names and outputs:
 - `implementation-readiness` and later phases enforce living traceability updates across BRD-lite -> PRD -> SRS/FRS -> verification evidence
 - Core SDLC outputs include an adapter-neutral Outcome Report (`feature_status`, `requirement_trace`, completed evidence, missing evidence, decision needed, recommended next workflow) so runtimes can report whether work is not started, requirements-ready, design-ready, partial, implemented, or blocked without embedding project-specific orchestration concepts.
 
+### Risk-Sized Workflow Routing and Sensitive Floors
+
+SDLC routing is calibrated by Spread/Novelty/Centrality (SNC) complexity tiers rather than ticket labels:
+- **Low-risk maintenance**: Sufficiently specified low-risk tasks may use an in-chat contract rather than requiring full BRD/PRD/SRS artifact sets, preventing process overhead on small fixes.
+- **Sensitive-change risk floor**: Changes touching authentication, authorization, payments/financial flows, cryptographic primitives, or core trust boundaries carry an irreducible risk floor independent of arithmetic SNC scores. They require rigorous verification and independent review before merge.
+
 ## 4. Hook-Based Transparency
 
 Inspired by **Rust Token Killer (RTK)**, we aim for a zero-trust, low-overhead context model. This means:
@@ -157,6 +163,31 @@ System-design methodology owns requirements, capacity, and the HLD → component
 Optional manifests bind scoped views through canonical identities, refinement, ownership, and relationship IDs. Validation reads only bounded regular local files under the manifest directory, compares captured hashes, and reports evidence requiring review without claiming production drift. Generated draw.io content baselines protect manual edits while allowing normal spec updates.
 
 System-design eval assertions are lexical smoke checks. The independent semantic rubric verifies calculations, mechanisms, failure outcomes, and justified simplicity; historical catalog scores are not rewritten to imply unmeasured improvement.
+
+### Specialist Permission Projection and Boundary Enforcement
+
+Specialists are native sub-agents isolated to focused lenses. For agents supporting explicit permission structures (such as Codex), permissions are mapped from canonical metadata:
+
+- **Canonical Metadata**: File-modifying specialists declare `risk_tier: L2` in `SKILL.md` frontmatter (e.g., `specialist-tdd-implementer`, `specialist-test-healer`, `specialist-testid-inserter`). Read-only review and analysis specialists omit write tiers and remain least-privilege.
+- **Codex Projection**: `SpecialistTransformer` projects `risk_tier: L2` (and L3) to `workspace-write` sandbox permissions, allowing necessary file edits without elevating to unrestricted full-system access (`danger-full-access`).
+- **Permission Projection vs. Unenforced Per-File Instructions**: Advisory markdown statements in system prompts or skill descriptions cannot enforce filesystem, process, or network boundaries on an LLM. Concrete least-privilege boundaries must be enforced at the host runtime level (sandbox controls, capability flags, and hook interceptors).
+
+### Evaluation Architecture: Neutral Protocol and Executable Task Harness
+
+Skill evaluation operates across two complementary modalities:
+
+1. **Neutral Text Evaluation Protocol (`neutral-skill-v4`)**:
+   - Compares baseline (minimal prompt) against with-skill arms using identical task instructions; only the skill payload differs in the with-skill arm.
+   - Eliminates answer-anchor and pressure-resistance coaching, ensuring measured differences reflect skill guidance rather than prompt hints.
+   - **Transcript Evidence Limitations**: Text evals measure regex and keyword matching in generated text. They provide transcript compliance evidence, not proof of complete software correctness or general model reasoning capability.
+   - **Immutable History and Protocol Provenance**: Historical runs generated under v1/v3 protocols remain immutable and verifiable under their original evaluation semantics. They cannot be relabeled as v4 or combined into fresh neutral-protocol comparisons without explicit per-source provenance tracking.
+
+2. **Executable Task-Evaluation Pilot (`evals:tasks`)**:
+   - A runnable harness (`tsx scripts/evals/task-index.ts`) for empirical evaluation of actual code changes against isolated fixture workspaces.
+   - **Worker Contract**: Accepts trusted JSON configuration specifying executable, argv, operator-supplied model ID, reasoning effort, and timeout. Arguments support explicit `{workspace}` and `{promptFile}` substitution plus stdin streaming without shell interpolation.
+   - **Out-of-Workspace Trusted Verifiers**: Tasks (such as pagination boundary handling and cross-tenant authorization with JavaScript `AuthorizationError`) run in temporary copies of minimal fixtures. Fixed verifier programs live strictly outside the workspace to verify consumer-visible behavior. Task success requires a clean worker exit combined with verifier pass. Pre/post SHA-256 hashing detects lasting file tampering, but because child processes run under the same host UID without OS-level sandboxing, it cannot prevent transient replacement during execution. Process group signaling escalates SIGTERM to SIGKILL on timeout; it does not track descendants that explicitly detach into their own session or group, though the runner settles boundedly if a detached helper holds inherited capture pipes.
+   - **Nonproduction Trust Model & Safety Notice**: The executable harness executes child processes with host user permissions and **does NOT provide an OS-level sandbox or container isolation**. It must be executed only with trusted worker commands and nonproduction test fixtures.
+   - **Missing Model Benchmarks & Failure Classification**: Pilot fixture suites and unit test child-process runs verify runner plumbing, process group isolation, and verifier mechanics; they do not represent live model capability sweeps. Unmetered token and cost metrics remain `null` rather than estimated. Total attempts, evaluated product runs, timeouts, and infrastructure errors are tracked independently; pass rates evaluate valid product attempts only and remain `null` when no product evidence exists, preventing infrastructure faults from being attributed to code quality.
 
 ## 6. Token Economy (Design Constraint)
 
@@ -321,3 +352,24 @@ _Date: 2026-09-27_
 _Date: 2026-09-28_
 **Decision**: Machine-checkable project policy rules live in `.ags/policy.json` (`schema_version: 1`), covering three rule kinds: `protected_path` (`paths`, action `block | warn`), `command` (`executables`, action `block | warn | rewrite`, `rewrite_to`), and `required_check` (`when_changed`, `checks`, action `block | warn`). `ags policy compile` scans project agent docs (`AGENTS.md`, `CLAUDE.md`) line-by-line to propose rules into `.ags/policy-candidates.json`; compiled rules can only `warn` or `rewrite` (never `block`). `ags policy adopt <id...>` activates candidate rules into `.ags/policy.json` after conflict validation. The PreToolUse hook (`HookService`) reads `.ags/policy.json` dependency-free; `block` rules only block when `AGS_HOOK_ENFORCE=1` is set (e.g. `ags hooks install --enforce`), otherwise issuing warnings (warning-first). The MCP server surfaces policy rules advisory-only next to loaded skills. `AGS_POLICY_BYPASS=1` turns decisions into `allow` and reports waived rules. Policy prevents mistakes by cooperating agents; it is not a security boundary.
 **Reason**: Agent instructions in markdown files (`AGENTS.md`, `CLAUDE.md`) are advisory and frequently ignored or forgotten during multi-step tasks. Turning deterministic rules into machine-checkable policy enables early warning and hook/MCP enforcement without introducing disruptive hard blocks by default or treating cooperating AI agents as malicious adversaries.
+
+### ADR-018: Specialist Permission Projection and Risk-Sized Workflows
+
+_Date: 2026-10-05_
+**Decision**:
+1. File-modifying specialists declare explicit `risk_tier: L2` metadata in `SKILL.md`. `SpecialistTransformer` projects L2/L3 tiers to `workspace-write` sandbox permissions in Codex agent exports (`.codex/agents`), while analysis and review specialists remain least-privilege read-only.
+2. Markdown instructions alone do not enforce security boundaries; real least-privilege enforcement requires host-level capability projection and runtime controls.
+3. SDLC workflows calibrate intake and review depth by SNC complexity tier. Routine low-risk tasks may use concise in-chat contracts rather than heavyweight PRD/SRS documents.
+4. Changes touching authentication, authorization, payments/financial flows, cryptographic primitives, or trust boundaries enforce an irreducible sensitive-change risk floor independent of arithmetic SNC scores.
+**Reason**: Prior specialist definitions suffered permission mismatch where file-writing roles were exported without write permissions or relied on advisory prose. Similarly, rigid workflow requirements forced unnecessary artifact ceremony on trivial bugfixes while arithmetic score averages risked under-reviewing security-critical changes.
+
+### ADR-019: Neutral Text-Evaluation Protocol (v4) and Executable Task Harness
+
+_Date: 2026-10-05_
+**Decision**:
+1. Introduce `neutral-skill-v4` for new text evaluations: baseline and with-skill workers receive identical task instructions, varying only in the presence of the skill payload. Answer-anchor and pressure-resistance coaching are removed.
+2. Historical v1/v3 transcripts and evaluation scores remain immutable and verifiable under their original evaluation semantics. Old protocol evidence cannot be relabeled or mixed into fresh neutral-protocol comparisons without explicit per-source provenance tracking.
+3. Deliver an executable task-evaluation harness (`evals:tasks`, `tsx scripts/evals/task-index.ts`) that executes actual code changes against temporary fixture workspaces with trusted out-of-workspace verifiers (testing pagination boundaries and cross-tenant authorization).
+4. The executable harness executes child processes with host user privileges and provides NO OS-level sandbox or container isolation. It is strictly intended for trusted operators executing nonproduction fixtures.
+5. Deterministic fixture checks verify harness execution plumbing; they do not represent live model capability sweeps. Unknown token and cost metrics remain null rather than guessed.
+**Reason**: Coached evaluation prompts distorted text-eval comparisons by providing task answers within the prompt itself. Text evals measure transcript-level assertion compliance, not end-to-end task execution. The executable pilot provides empirical task evaluation while honestly documenting safety, trust, and measurement boundaries.

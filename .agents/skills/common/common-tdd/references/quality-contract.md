@@ -16,9 +16,14 @@ The record is an agent handoff artifact, not a comment requirement inside test c
 
 ## Admission checks
 
+- Before proposing a new test, compare against the existing suite; discard if the behavior and fault are already covered by nearby or upstream tests.
+- For existing tests: never auto-delete on apparent static duplication alone. Recommending deletion requires proof of no unique behavioral contribution plus measured full-suite dynamic coverage/mutation impact; otherwise suggest review or refactoring.
 - Keep a case only when it detects a distinct fault, boundary, or contract rule.
 - Prefer public behavior and state transitions over private methods, call counts, or mock existence.
-- Use one logical behavior per test; multiple assertions are allowed when they prove the same contract and its required side effect.
+- Verify one logical contract per test; multiple assertions are allowed when verifying related aspects or outward side effects of that single contract.
+- Distinguish outward side effects from internal mock choreography: verify what the system produces or changes externally, not how collaborators are invoked internally.
+- Coverage percentages are diagnostic rather than admission gates; never write padding tests to hit an arbitrary target.
+- The Four Pillars (Protection against Regressions, Resistance to Refactoring, Fast Feedback, Maintainability) provide a qualitative reasoning framework, not a static numeric score (avoid inventing formulas like $P \times R \times F \times M$ per test without rigorous empirical measurement across all four dimensions).
 - Route cross-component behavior to integration/contract tests. Do not label a mock-heavy orchestration test as a unit test.
 - Use deterministic fixtures, explicit cleanup, and stable clocks/data. A test that passes only in one order is not evidence.
 

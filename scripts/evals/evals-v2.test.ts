@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import crypto from "node:crypto";
 import { mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -11,6 +12,7 @@ import {
   resolveRunId,
   resumeManifest,
 } from "./manifest";
+import { CURRENT_INSTRUCTION_VERSION } from "./constants";
 import { checkAssertion, scoreRun } from "./scorer";
 import { verifyRun } from "./verify";
 import { buildEvalsReportMarkdown, latestPerCategory } from "./reporter";
@@ -26,6 +28,7 @@ import {
   EvalQuotaPausedError,
   evalWorkerConfig,
   executeMissingAnswers,
+  isolatedInstruction,
 } from "./execute";
 
 test("eval workers explicitly pin the approved model and reasoning effort", () => {
@@ -330,7 +333,7 @@ test("composition overlays selected skills, copies evidence, and records provena
   }
 });
 
-test("composition upgrades a compatible historical base to the v3 overlay protocol", async () => {
+test("composition upgrades a compatible historical base to the overlay protocol while recording provenance", async () => {
   const { root, cleanup } = await compositionFixture();
   try {
     const base = await makeCompleteRun(root, "base-v2.6.0");
@@ -355,13 +358,20 @@ test("composition upgrades a compatible historical base to the v3 overlay protoc
 
     assert.equal(
       output.manifest.protocol.instructionVersion,
-      "governing-skill-v3",
+      CURRENT_INSTRUCTION_VERSION,
     );
     assert.equal(
       output.manifest.provenance?.["dart/dart-tooling"]?.protocol
         .instructionVersion,
       "governing-skill-v1",
     );
+    assert.equal(
+      output.manifest.provenance?.["dart/dart-language"]?.protocol
+        .instructionVersion,
+      CURRENT_INSTRUCTION_VERSION,
+    );
+    assert.equal(output.manifest.metadata.protocolProvenance, "mixed");
+    assert.equal(output.manifest.metadata.isHomogeneousProtocol, false);
   } finally {
     await cleanup();
   }
@@ -1806,6 +1816,550 @@ test("v2 verification binds scored source objects to raw skill and eval bytes", 
     outcome = verifyRun(manifest.runId, { repoRoot: root });
     assert.equal(outcome.ok, false);
     assert.match(outcome.reason ?? "", /raw eval snapshot mismatch/i);
+  } finally {
+    await cleanup();
+  }
+});
+
+test("resumeManifest and executeMissingAnswers reject historical protocol mismatches", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const { runDir, manifest } = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      now: new Date("2099-01-01T00:00:00.000Z"),
+    });
+    const manifestPath = path.join(runDir, "manifest.json");
+    const rawManifest = fs.readJsonSync(manifestPath);
+    rawManifest.protocol.instructionVersion = "governing-skill-v3";
+    fs.writeJsonSync(manifestPath, rawManifest, { spaces: 2 });
+
+    assert.throws(
+      () => resumeManifest(manifest.runId, { repoRoot: root }),
+      /protocol version mismatch.*governing-skill-v3/i,
+    );
+
+    await assert.rejects(
+      () =>
+        executeMissingAnswers(runDir, {
+          repoRoot: root,
+          runner: async () => "answer",
+        }),
+      /Cannot execute answers for protocol 'governing-skill-v3'/i,
+    );
+  } finally {
+    await cleanup();
+  }
+});
+
+test("planBaseline and evidence compatibility exclude historical coached answers from fresh neutral runs", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const initial = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      now: new Date("2099-01-01T00:00:00.000Z"),
+    });
+    const manifestPath = path.join(initial.runDir, "manifest.json");
+    const rawManifest = fs.readJsonSync(manifestPath);
+    rawManifest.protocol.instructionVersion = "governing-skill-v3";
+    fs.writeJsonSync(manifestPath, rawManifest, { spaces: 2 });
+
+    // Fill answers so run appears complete
+    for (const skill of initial.manifest.skills) {
+      for (const c of skill.cases) {
+        const arms: Array<"baseline" | "with-skill" | undefined> =
+          c.kind === "trigger" ? [undefined] : ["baseline", "with-skill"];
+        for (const arm of arms) {
+          const p = answerPath(initial.runDir, initial.manifest, skill, c.id, arm);
+          fs.ensureDirSync(path.dirname(p));
+          fs.writeFileSync(p, "answer\n");
+        }
+      }
+    }
+    scoreRun(initial.runDir, { repoRoot: root });
+
+    const plan = planBaseline("dart", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    for (const impact of plan.impacts) {
+      assert.equal(impact.outcome, "generate");
+      assert.equal(impact.activation, "generate");
+      assert.equal(impact.reuseBaselineOutcome, false);
+      assert.match(impact.reason, /generation protocol/i);
+    }
+
+    const baselineRun = createBaselineRun("dart", "9.9.9", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.equal(baselineRun.reusedAnswers, 0);
+    const createdManifest = loadManifest(baselineRun.runDir as string);
+    assert.equal(createdManifest.metadata.evidenceMode, "fresh");
+    assert.equal(createdManifest.protocol.instructionVersion, CURRENT_INSTRUCTION_VERSION);
+  } finally {
+    await cleanup();
+  }
+});
+
+test("promoteCategoryBaseline rejects promotion of historical protocol runs", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const { runDir, manifest } = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      now: new Date("2099-01-01T00:00:00.000Z"),
+    });
+    for (const skill of manifest.skills) {
+      for (const c of skill.cases) {
+        const arms: Array<"baseline" | "with-skill" | undefined> =
+          c.kind === "trigger" ? [undefined] : ["baseline", "with-skill"];
+        for (const arm of arms) {
+          const p = answerPath(runDir, manifest, skill, c.id, arm);
+          fs.ensureDirSync(path.dirname(p));
+          fs.writeFileSync(p, "answer mentions dart format\n");
+        }
+      }
+    }
+    scoreRun(runDir, { repoRoot: root });
+    const manifestPath = path.join(runDir, "manifest.json");
+    const rawManifest = fs.readJsonSync(manifestPath);
+    rawManifest.protocol.instructionVersion = "governing-skill-v3";
+    fs.writeJsonSync(manifestPath, rawManifest, { spaces: 2 });
+
+    assert.throws(
+      () =>
+        promoteCategoryBaseline(manifest.runId, "dart", "reviewer", "reason", {
+          repoRoot: root,
+        }),
+      /Promotion requires current generation protocol neutral-skill-v4/i,
+    );
+  } finally {
+    await cleanup();
+  }
+});
+test("createBaselineRun resumes only incomplete candidates with matching impacts, keys, and protocol", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    const initial = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      now: new Date("2099-01-01T00:00:00.000Z"),
+    });
+    for (const skill of initial.manifest.skills) {
+      for (const currentCase of skill.cases) {
+        const arms: Array<"baseline" | "with-skill" | undefined> =
+          currentCase.kind === "trigger"
+            ? [undefined]
+            : ["baseline", "with-skill"];
+        for (const arm of arms) {
+          const answer = answerPath(
+            initial.runDir,
+            initial.manifest,
+            skill,
+            currentCase.id,
+            arm,
+          );
+          fs.ensureDirSync(path.dirname(answer));
+          fs.writeFileSync(answer, "answer\n");
+        }
+      }
+    }
+    scoreRun(initial.runDir, { repoRoot: root });
+
+    await writeFile(
+      path.join(root, "skills", "dart", "dart-tooling", "evals", "evals.json"),
+      JSON.stringify({
+        evals: [
+          {
+            id: 1,
+            prompt: "How should this Dart code be formatted?",
+            assertions: [{ type: "contains", value: "changed answer" }],
+          },
+        ],
+        should_trigger: ["Format this Dart code with the project tool."],
+        should_not_trigger: ["Design a database migration."],
+      }),
+    );
+    const plan = planBaseline("dart", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.ok(plan.impacts.length > 0, "fixture must produce a candidate impact");
+
+    const mismatchedCandidate = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+      runId: "dart-incomplete-mismatched",
+      selectedSkills: new Set(),
+    });
+    const run1 = createBaselineRun("dart", "9.9.9", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.notEqual(run1.runId, mismatchedCandidate.manifest.runId);
+    if (run1.runDir) fs.removeSync(run1.runDir);
+
+    const historicalCandidate = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+      runId: "dart-incomplete-v3",
+      selectedSkills: new Set(plan.impacts.map((impact) => impact.key)),
+    });
+    const histPath = path.join(historicalCandidate.runDir, "manifest.json");
+    const histManifest = fs.readJsonSync(histPath);
+    histManifest.protocol.instructionVersion = "governing-skill-v3";
+    fs.writeJsonSync(histPath, histManifest, { spaces: 2 });
+    const run2 = createBaselineRun("dart", "9.9.9", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.notEqual(run2.runId, historicalCandidate.manifest.runId);
+    if (run2.runDir) fs.removeSync(run2.runDir);
+
+    const matchingCandidate = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+      runId: "dart-incomplete-matching",
+      selectedSkills: new Set(plan.impacts.map((impact) => impact.key)),
+    });
+    const run3 = createBaselineRun("dart", "9.9.9", {
+      repoRoot: root,
+      baselineRunId: initial.manifest.runId,
+    });
+    assert.equal(run3.resumed, true);
+    assert.equal(run3.runId, matchingCandidate.manifest.runId);
+  } finally {
+    await cleanup();
+  }
+});
+
+test("historical v1 and v3 runs remain readable and verifiable without mutation", async () => {
+  const { root, cleanup } = await fixture();
+  try {
+    // 1. Construct genuine v1 fixture (no schemaVersion, no inputs.json)
+    const v1RunId = "dart-v1.0.0-historical";
+    const v1Dir = path.join(root, "benchmarks", "evals", "runs", v1RunId);
+    const v1Skill = {
+      category: "dart",
+      skillName: "dart-tooling",
+      skillPath: "skills/dart/dart-tooling/SKILL.md",
+      guardrailApplicable: false,
+      cases: [
+        {
+          id: "eval-1",
+          kind: "eval" as const,
+          arms: { baseline: "done" as const, "with-skill": "done" as const },
+        },
+      ],
+    };
+    const v1Manifest = {
+      runId: v1RunId,
+      category: "dart",
+      version: "1.0.0",
+      metadata: { agent: "v1-agent" },
+      skills: [v1Skill],
+    };
+    const v1AnswersDir = path.join(v1Dir, "answers", "dart-tooling");
+    fs.ensureDirSync(v1AnswersDir);
+    const v1Transcript =
+      "Independent historical v1 answer transcript; no expected output was copied.";
+    fs.writeFileSync(
+      path.join(v1AnswersDir, "eval-1.baseline.md"),
+      v1Transcript,
+    );
+    fs.writeFileSync(
+      path.join(v1AnswersDir, "eval-1.with-skill.md"),
+      v1Transcript,
+    );
+    fs.writeJsonSync(path.join(v1Dir, "manifest.json"), v1Manifest, {
+      spaces: 2,
+    });
+    scoreRun(v1Dir, { repoRoot: root });
+
+    // 2. Construct genuine v3 fixture (schemaVersion 2, governing-skill-v3, inputs.json)
+    const v3RunId = "dart-v2.6.0-historical";
+    const { runDir: v3Dir, manifest: v3Built } = buildManifest("dart", "2.6.0", {
+      repoRoot: root,
+      runId: v3RunId,
+    });
+    for (const skill of v3Built.skills) {
+      for (const currentCase of skill.cases) {
+        const arms: Array<"baseline" | "with-skill" | undefined> =
+          currentCase.kind === "trigger"
+            ? [undefined]
+            : ["baseline", "with-skill"];
+        for (const arm of arms) {
+          const answer = answerPath(
+            v3Dir,
+            v3Built,
+            skill,
+            currentCase.id,
+            arm,
+          );
+          fs.ensureDirSync(path.dirname(answer));
+          const transcript =
+            currentCase.kind === "trigger"
+              ? `CASE: ${currentCase.id}\nTRIGGER: ${currentCase.expectedTrigger}\nIndependent historical v3 trigger transcript.`
+              : "Independent historical v3 answer transcript; no expected output was copied.";
+          fs.writeFileSync(answer, transcript);
+        }
+      }
+    }
+    const v3ManifestPath = path.join(v3Dir, "manifest.json");
+    const v3Raw = fs.readJsonSync(v3ManifestPath);
+    v3Raw.protocol.instructionVersion = "governing-skill-v3";
+    fs.writeJsonSync(v3ManifestPath, v3Raw, { spaces: 2 });
+    scoreRun(v3Dir, { repoRoot: root });
+
+    // Digest helper for asserting zero file mutations
+    const getFileDigests = (dir: string): Record<string, string> => {
+      const files = fs
+        .readdirSync(dir, { recursive: true })
+        .map(String)
+        .filter((f) => fs.statSync(path.join(dir, f)).isFile());
+      const result: Record<string, string> = {};
+      for (const file of files.sort()) {
+        result[file] = crypto
+          .createHash("sha256")
+          .update(fs.readFileSync(path.join(dir, file)))
+          .digest("hex");
+      }
+      return result;
+    };
+
+    // Record digests before verification
+    const v1Before = getFileDigests(v1Dir);
+    const v3Before = getFileDigests(v3Dir);
+
+    // Run nonwriting verifyRun on both
+    const v1Verify = verifyRun(v1RunId, { repoRoot: root });
+    assert.equal(v1Verify.ok, true, `v1 verifyRun failed: ${v1Verify.reason}`);
+
+    const v3Verify = verifyRun(v3RunId, { repoRoot: root });
+    assert.equal(v3Verify.ok, true, `v3 verifyRun failed: ${v3Verify.reason}`);
+
+    // Verify files remain byte-exact identical (zero mutation)
+    assert.deepEqual(
+      getFileDigests(v1Dir),
+      v1Before,
+      "v1 fixture files mutated during verifyRun",
+    );
+    assert.deepEqual(
+      getFileDigests(v3Dir),
+      v3Before,
+      "v3 fixture files mutated during verifyRun",
+    );
+
+    // Verify manifests still hold their historical protocol labels
+    const v1Loaded = loadManifest(v1Dir);
+    assert.equal(v1Loaded.schemaVersion, 1);
+    assert.equal(
+      Object.hasOwn(
+        fs.readJsonSync(path.join(v1Dir, "manifest.json")),
+        "schemaVersion",
+      ),
+      false,
+    );
+
+    const v3Loaded = loadManifest(v3Dir);
+    assert.equal(v3Loaded.protocol?.instructionVersion, "governing-skill-v3");
+  } finally {
+    await cleanup();
+  }
+});
+
+test("mixed composite reports source protocols per category and keep the notice outside the summary table", async () => {
+  const { root, cleanup } = await compositionFixture();
+  try {
+    const metadataPath = path.join(root, "skills", "metadata.json");
+    const metadata = fs.readJsonSync(metadataPath);
+    metadata.categories.angular = { version: "1.0.0", tag_prefix: "angular-v" };
+    fs.writeJsonSync(metadataPath, metadata, { spaces: 2 });
+    const angularSkillDir = path.join(root, "skills", "angular", "angular-tooling");
+    fs.ensureDirSync(path.join(angularSkillDir, "evals"));
+    fs.writeFileSync(
+      path.join(angularSkillDir, "SKILL.md"),
+      "---\nname: angular-tooling\ndescription: Angular tooling\n---\nUse Angular.\n",
+    );
+    fs.writeJsonSync(
+      path.join(angularSkillDir, "evals", "evals.json"),
+      {
+        evals: [
+          {
+            id: 1,
+            prompt: "Explain Angular tooling.",
+            assertions: [{ type: "contains", value: "answer" }],
+          },
+        ],
+      },
+    );
+
+    const base = await makeCompleteRun(root, "base-v2.6.0");
+    const baseManifestPath = path.join(base.runDir, "manifest.json");
+    const baseManifest = fs.readJsonSync(baseManifestPath);
+    baseManifest.protocol.instructionVersion = "governing-skill-v1";
+    fs.writeJsonSync(baseManifestPath, baseManifest, { spaces: 2 });
+    const overlay = await makeCompleteRun(
+      root,
+      "overlay-v2.6.0",
+      new Set(["dart/dart-language", "angular/angular-tooling"]),
+    );
+
+    const output = composeRuns({
+      repoRoot: root,
+      baseRunId: base.manifest.runId,
+      overlayRunId: overlay.manifest.runId,
+      version: "2.6.0",
+      outputRunId: "all-v2.6.0",
+      expectedSkillCount: 3,
+    });
+
+    const report = buildEvalsReportMarkdown([output.results]);
+    assert.match(
+      report,
+      /Measured transcript-assertion evidence, not structural or executable task verification/i,
+    );
+    assert.match(report, /Protocol provenance.*mixed/i);
+    assert.match(report, /Cross-Protocol Composite Notice/i);
+    assert.match(
+      report,
+      /Aggregate pass rates represent a heterogeneous composite, not a homogeneous comparison/i,
+    );
+    assert.match(report, /\| dart \| .* \| mixed \|/);
+    assert.match(report, /\| angular \| .* \| neutral-skill-v4 \|/);
+    assert.match(report, /dart-tooling.*governing-skill-v1/);
+    assert.match(report, /dart-language.*neutral-skill-v4/);
+    assert.match(report, /angular-tooling.*neutral-skill-v4/);
+
+    const summaryStart = report.indexOf("## 🔢 Executive Summary");
+    const summaryEnd = report.indexOf("## 📦 Per-Category Results", summaryStart);
+    const summary = report.slice(summaryStart, summaryEnd);
+    const lastSummaryRow = summary.indexOf("| Skills meeting ≥90% recall and specificity |");
+    const notice = summary.indexOf("> ⚠️ **Cross-Protocol Composite Notice**");
+    assert.ok(lastSummaryRow >= 0);
+    assert.ok(notice > lastSummaryRow, "notice must follow the complete summary table");
+    const neutralDartProvenance = Object.fromEntries(
+      Object.entries(output.results.provenance ?? {})
+        .filter(([key]) => key.startsWith("dart/"))
+        .map(([key, source]) => [
+          key,
+          {
+            ...source,
+            protocol: {
+              ...source.protocol,
+              instructionVersion: CURRENT_INSTRUCTION_VERSION,
+            },
+          },
+        ]),
+    );
+    const laterNeutralDart = {
+      ...output.results,
+      runId: "dart-neutral-later",
+      category: "dart",
+      scoredAt: "2099-01-01T00:00:00.000Z",
+      metadata: {
+        ...output.results.metadata,
+        protocolProvenance: CURRENT_INSTRUCTION_VERSION,
+      },
+      provenance: neutralDartProvenance,
+      skills: output.results.skills.filter((skill) => skill.category === "dart"),
+    };
+    const selectedReport = buildEvalsReportMarkdown(
+      [output.results, laterNeutralDart],
+      {
+        lastUpdated: laterNeutralDart.scoredAt,
+        records: [
+          {
+            runId: output.results.runId,
+            category: "all",
+            version: output.results.version,
+            date: output.results.scoredAt,
+            skillCount: output.results.skills.length,
+            avgBaselinePassRate: 0,
+            avgWithSkillPassRate: 0,
+            avgDelta: 0,
+            evidenceMode: "composite",
+            protocolProvenance: "mixed",
+          },
+        ],
+      },
+    );
+    assert.match(
+      selectedReport,
+      /Protocol provenance \| \*\*neutral-skill-v4\*\*/,
+    );
+    assert.doesNotMatch(selectedReport, /Cross-Protocol Composite Notice/);
+    assert.match(
+      selectedReport,
+      /\| `all-v2\.6\.0` \| all \| .* \| mixed \|/,
+      "physical history must retain the source composite's mixed protocol",
+    );
+  } finally {
+    await cleanup();
+  }
+});
+test("isolatedInstruction and executeMissingAnswers use identical paired instructions without anchor or pressure coaching", async () => {
+  const taskPrompt = "Format this code with 2 spaces indentation.";
+  const skillContent = "---\nname: dart-tooling\n---\nUse dart format.";
+
+  const baselinePrompt = isolatedInstruction(taskPrompt, undefined);
+  const withSkillPrompt = isolatedInstruction(taskPrompt, skillContent);
+  const pressureBaselinePrompt = isolatedInstruction(taskPrompt, undefined, "pressure");
+  const evalBaselinePrompt = isolatedInstruction(taskPrompt, undefined, "eval");
+
+  assert.equal(
+    pressureBaselinePrompt,
+    evalBaselinePrompt,
+    "Pressure and eval cases must receive identical instructions without coaching",
+  );
+
+  assert.match(
+    baselinePrompt,
+    /text-only evaluation mode; output serves as transcript evidence/i,
+  );
+  assert.doesNotMatch(baselinePrompt, /Canonical response anchors/i);
+  assert.doesNotMatch(baselinePrompt, /Remediation anchors/i);
+  assert.doesNotMatch(baselinePrompt, /pressure-resistance/i);
+  assert.doesNotMatch(baselinePrompt, /shortcut/i);
+
+  assert.equal(
+    withSkillPrompt,
+    `${baselinePrompt}\n\n# Loaded skill\n${skillContent}`,
+    "With-skill prompt must differ from baseline prompt ONLY by the loaded skill section",
+  );
+
+  // Verify with executeMissingAnswers and runner capture
+  const { root, cleanup } = await fixture();
+  try {
+    const { runDir, manifest } = buildManifest("dart", "9.9.9", {
+      repoRoot: root,
+      now: new Date("2099-01-01T00:00:00.000Z"),
+    });
+    const promptsSeen: Record<string, string> = {};
+    await executeMissingAnswers(runDir, {
+      repoRoot: root,
+      concurrency: 1,
+      runner: async (p) => {
+        if (p.includes("# Task\nHow should this Dart code be formatted?")) {
+          promptsSeen[p.includes("# Loaded skill") ? "withSkill" : "baseline"] =
+            p;
+        }
+        return "answer";
+      },
+    });
+    assert.ok(promptsSeen.baseline);
+    assert.ok(promptsSeen.withSkill);
+    assert.match(
+      promptsSeen.baseline,
+      /text-only evaluation mode; output serves as transcript evidence/i,
+    );
+    const loadedSkill = fs.readFileSync(
+      path.join(root, "skills", "dart", "dart-tooling", "SKILL.md"),
+      "utf8",
+    );
+    assert.equal(
+      promptsSeen.withSkill,
+      `${promptsSeen.baseline}\n\n# Loaded skill\n${loadedSkill}`,
+      "Runner with-skill prompt must append only the exact loaded skill section to the same-task baseline",
+    );
   } finally {
     await cleanup();
   }
