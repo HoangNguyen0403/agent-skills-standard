@@ -126,14 +126,19 @@ export class LockfileService {
     await fs.writeJson(file, out, { spaces: 2 });
   }
 
-  async readDisclosed(rootDir: string): Promise<Record<string, string[]> | undefined> {
+  async readDisclosed(
+    rootDir: string,
+  ): Promise<Record<string, string[]> | undefined> {
     const file = this.lockfilePath(rootDir);
     if (!(await fs.pathExists(file))) return undefined;
     const raw = await fs.readJson(file);
     return raw?.disclosed;
   }
 
-  async writeDisclosed(rootDir: string, disclosed: Record<string, string[]>): Promise<void> {
+  async writeDisclosed(
+    rootDir: string,
+    disclosed: Record<string, string[]>,
+  ): Promise<void> {
     const file = this.lockfilePath(rootDir);
     if (!(await fs.pathExists(file))) return;
     const raw = await fs.readJson(file);

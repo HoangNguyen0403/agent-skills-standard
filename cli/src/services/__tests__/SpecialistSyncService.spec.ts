@@ -325,14 +325,13 @@ description: "Security Reviewer"
 # Rules
 Review security.`;
     });
-    vi.mocked(fs.statSync).mockReturnValue({ isDirectory: () => true } as unknown as Stats);
+    vi.mocked(fs.statSync).mockReturnValue({
+      isDirectory: () => true,
+    } as unknown as Stats);
 
     await service.syncSpecialists(rootDir, [Agent.Codex]);
 
-    const writerFile = path.join(
-      rootDir,
-      '.codex/agents/tdd-implementer.toml',
-    );
+    const writerFile = path.join(rootDir, '.codex/agents/tdd-implementer.toml');
     const reviewerFile = path.join(
       rootDir,
       '.codex/agents/security-reviewer.toml',

@@ -69,7 +69,8 @@ export class SyncService {
   private writer: InstallWriter = new PassthroughWriter(process.cwd());
   private ownership: OwnershipWriter | null = null;
   private dryRun = false;
-  private cachedRegistryMetadata: RegistryMetadata | null | undefined = undefined;
+  private cachedRegistryMetadata: RegistryMetadata | null | undefined =
+    undefined;
   private resolvedRefs: ResolvedRefs | null = null;
   private manifestVerifiers: {
     skills: Record<string, ManifestVerifier>;
@@ -187,7 +188,10 @@ export class SyncService {
       (Array.isArray(config.workflows) && config.workflows.length === 0);
     const pruneEnabled = config.prune !== false;
     const categoryOf = (source: string) =>
-      source.replace(/^(skill|index):/, '').split('/')[0].split('@')[0];
+      source
+        .replace(/^(skill|index):/, '')
+        .split('/')[0]
+        .split('@')[0];
     const { plan, entries } = await this.ownership.finalize((_rel, e) => {
       if (!pruneEnabled) return false;
       if (!agents.has(e.agent)) return true;
@@ -318,27 +322,24 @@ export class SyncService {
       },
     );
 
-    const [
-      skillManifests,
-      workflowsManifest,
-      specialistsManifest,
-    ] = await Promise.all([
-      Promise.all(skillManifestPromises),
-      resolved.workflows.pinned
-        ? this.githubService.getReleaseManifest(
-            owner,
-            repo,
-            resolved.workflows.ref,
-          )
-        : Promise.resolve(null),
-      resolved.specialists.pinned
-        ? this.githubService.getReleaseManifest(
-            owner,
-            repo,
-            resolved.specialists.ref,
-          )
-        : Promise.resolve(null),
-    ]);
+    const [skillManifests, workflowsManifest, specialistsManifest] =
+      await Promise.all([
+        Promise.all(skillManifestPromises),
+        resolved.workflows.pinned
+          ? this.githubService.getReleaseManifest(
+              owner,
+              repo,
+              resolved.workflows.ref,
+            )
+          : Promise.resolve(null),
+        resolved.specialists.pinned
+          ? this.githubService.getReleaseManifest(
+              owner,
+              repo,
+              resolved.specialists.ref,
+            )
+          : Promise.resolve(null),
+      ]);
 
     this.manifestVerifiers.skills = {};
     for (const [cat, manifest] of skillManifests) {
@@ -396,7 +397,12 @@ export class SyncService {
       await this.cleanupOldFolders();
     }
     const agents = await this.resolveTargetAgents(config);
-    await this.skillSyncService.writeSkills(skills, config, agents, this.writer);
+    await this.skillSyncService.writeSkills(
+      skills,
+      config,
+      agents,
+      this.writer,
+    );
   }
 
   async assembleWorkflows(config: SkillConfig): Promise<CollectedSkill[]> {
@@ -439,12 +445,11 @@ export class SyncService {
 
     const ref =
       this.resolvedRefs?.specialists.ref || config.specialists_ref || 'main';
-    const specialists =
-      await this.specialistSyncService.assembleSpecialists(
-        config,
-        ref,
-        this.manifestVerifiers.specialists,
-      );
+    const specialists = await this.specialistSyncService.assembleSpecialists(
+      config,
+      ref,
+      this.manifestVerifiers.specialists,
+    );
     const count = await this.specialistSyncService.syncCollectedSpecialists(
       process.cwd(),
       agents,
@@ -551,7 +556,9 @@ export class SyncService {
             routerIndex,
           );
           if (updatedServerFiles.length > 0) {
-            console.log(pc.green('  ✅ server/AGENTS.md router index updated.'));
+            console.log(
+              pc.green('  ✅ server/AGENTS.md router index updated.'),
+            );
           } else {
             console.log(
               pc.yellow(

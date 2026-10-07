@@ -327,7 +327,9 @@ describe('PolicyCommand', () => {
       const cmd = createCommand();
       await cmd.check({});
       expect(exitCode).toBe(1);
-      expect(errors.join('\n')).toContain('One of --path, --command, or --diff is required.');
+      expect(errors.join('\n')).toContain(
+        'One of --path, --command, or --diff is required.',
+      );
 
       errors = [];
       logs = [];
@@ -338,7 +340,9 @@ describe('PolicyCommand', () => {
       expect(parsed.schema_version).toBe(1);
       expect(parsed.kind).toBe('policy.check');
       expect(parsed.data.ok).toBe(false);
-      expect(parsed.data.error).toContain('One of --path, --command, or --diff is required.');
+      expect(parsed.data.error).toContain(
+        'One of --path, --command, or --diff is required.',
+      );
     });
 
     // Test intent: outputs error message and exits 1 when policy fails to load in check command
@@ -657,9 +661,17 @@ describe('PolicyCommand', () => {
 
     // Test intent: reports success when no policy file exists in text and JSON modes
     it('reports no policy file present in text and JSON modes', async () => {
-      const emptyDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ags-policy-empty-'));
+      const emptyDir = await fs.mkdtemp(
+        path.join(os.tmpdir(), 'ags-policy-empty-'),
+      );
       try {
-        const cmd = new PolicyCommand(emptyDir, () => [], mockExit, mockLog, mockError);
+        const cmd = new PolicyCommand(
+          emptyDir,
+          () => [],
+          mockExit,
+          mockLog,
+          mockError,
+        );
         await cmd.validate({});
         expect(exitCode).toBeUndefined();
         expect(logs.join('\n')).toContain('No policy file present');

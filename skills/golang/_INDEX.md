@@ -20,6 +20,6 @@
 
 | Skill | Match when user mentions |
 | ----- | ----------------------- |
-| **golang-concurrency** | goroutine, go keyword, channel, mutex, waitgroup, context, errgroup, race condition |
+| **golang-concurrency** | goroutine, go keyword, channel, mutex, waitgroup, Go context, context in Go, context.Context, errgroup, race condition |
 
 > Load matched skills: `<SKILLS>/golang/<skill>/SKILL.md`. Load ALL that match — the tier model already filters irrelevant ones.

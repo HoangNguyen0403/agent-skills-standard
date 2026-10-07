@@ -243,11 +243,7 @@ export class DoctorService {
     if (problems.length > 0) {
       return check('lockfile', 'warn', problems.join('; '));
     }
-    return check(
-      'lockfile',
-      'ok',
-      `${checked} tracked file(s) match`,
-    );
+    return check('lockfile', 'ok', `${checked} tracked file(s) match`);
   }
 
   private async mcpCheck(

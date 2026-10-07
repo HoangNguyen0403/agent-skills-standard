@@ -92,7 +92,9 @@ describe('VerifyCommand', () => {
 
     expect(process.exitCode).toBe(1);
     const logged = logSpy.mock.calls.flat().join('\n');
-    expect(logged).toContain('~ .claude/skills/ts/SKILL.md (edited or tampered)');
+    expect(logged).toContain(
+      '~ .claude/skills/ts/SKILL.md (edited or tampered)',
+    );
     expect(logged).toContain('- .claude/skills/common/SKILL.md');
   });
 
@@ -130,7 +132,9 @@ describe('VerifyCommand', () => {
     await command.run();
 
     const logged = logSpy.mock.calls.flat().join('\n');
-    expect(logged).toContain('~ .claude/skills/ts/SKILL.md (edited or tampered)');
+    expect(logged).toContain(
+      '~ .claude/skills/ts/SKILL.md (edited or tampered)',
+    );
     expect(logged).not.toContain('  - ');
   });
 
@@ -274,11 +278,13 @@ describe('VerifyCommand', () => {
         checked: 1,
         result: { ok: true, mismatches: [], missing: [] },
       });
-      syncService.verifyAttestations = vi.fn().mockRejectedValue(
-        new Error(
-          'gh CLI not found; install GitHub CLI to verify attestations',
-        ),
-      );
+      syncService.verifyAttestations = vi
+        .fn()
+        .mockRejectedValue(
+          new Error(
+            'gh CLI not found; install GitHub CLI to verify attestations',
+          ),
+        );
 
       await command.run({ attestation: true });
 

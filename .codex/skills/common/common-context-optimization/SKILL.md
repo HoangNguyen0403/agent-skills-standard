@@ -1,54 +1,41 @@
 ---
 name: common-context-optimization
-description: Reduce context overhead from verbose tool outputs and preserve active task state as context fills through source-side filtering, artifact spill, and runtime-managed compaction. Use when tool outputs are too large or long sessions risk losing task state.
+description: Manage context and prompt-cache costs without losing task state. Use for context management, orchestration cost, token budgets, large tool outputs, cache misses, or long-running conversations.
 metadata:
   triggers:
     files:
-    - '*.log'
-    - 'chat-history.json'
+      - "*.log"
+      - "chat-history.json"
     keywords:
-    - reduce tokens
-    - optimize context
-    - summarize history
-    - clear output
+      - reduce tokens
+      - optimize context
+      - summarize history
+      - clear output
+      - context management
+      - prompt-cache
+      - prompt caching
+      - orchestration cost
 ---
+
 ## **Priority: P1 (HIGH)**
 
+## Workflow
 
-## 1. Observation Masking & Output Filtering (Noise Reduction)
-
-**Problem**: Large tool outputs (verbose logs, large file reads, JSON dumps) fill context and degrade reasoning.
-**Solution**: Filter, truncate, or summarize tool outputs at ingestion.
-
-1. **Filter at source**: Use targeted tools, CLI flags, proxies (`rtk`), grep, line ranges, or specialized selectors to limit output volume before loading into context.
-2. **Spill to artifacts**: Write large payloads or logs to external files/artifacts and read only relevant extracts.
-3. **Summarize**: Ingest semantic facts and file references into conversation state rather than dumping raw multi-kilobyte output. Do not rely on unsupported history mutation in standard runtimes.
-4. **See** `references/masking.md` for patterns.
-
-See [implementation examples](references/implementation.md) for masking patterns.
-
-## 2. Runtime-Managed Compaction (State Preservation)
-
-**Problem**: Long conversations drift from original intent as context fills.
-**Solution**: Runtime-managed compaction and state externalization that preserves _State_ over _Dialogue_.
-
-1. **Trigger conditionally**: Trigger compaction when the host runtime indicates context exhaustion or at natural task/slice boundaries. Do not rely on fixed turn counts or hardcoded token limits.
-2. **Compact**:
- - **Keep**: User Goal, Active Task, Current Errors, Key Decisions, Artifact Paths.
- - **Drop**: Transient chit-chat, resolved tool failures, verbose intermediate command outputs.
-3. **Format**: Externalize compacted state into durable project tracking files (e.g., `progress.md`, task brief, memory file) rather than assuming in-place context rewriting.
-4. **See** `references/compaction.md` for algorithms.
-
-See [implementation examples](references/implementation.md) for compacted state format.
-
-
-## References
-
-- [Observation Masking Patterns](references/masking.md)
-- [Compaction Algorithms](references/compaction.md)
+1. **Inspect** host capabilities; do not assume agents can rewrite history, prompts, or memory.
+2. **Project outputs** after consuming them: retain decisions, evidence, errors, and required values; point to complete logs/artifacts by stable reference.
+3. **Bound context** at host-supported boundaries. Carry goal, active slice, authority, decisions, blockers, evidence links, and next action; preserve a stable append-only prefix where supported.
+4. **Compact** only when useful and supported. Keep required details retrievable; never discard source evidence or rely on a fixed turn/token threshold.
+5. **Measure** cache reads, replayed input, and total actor cost across the whole task. Separate observed usage from estimates; no invoice, savings, or efficacy claims without evidence.
 
 ## Anti-Patterns
 
-- **No raw tool dumps**: Filter outputs at invocation or spill to artifacts; do not flood context with raw bytes.
-- **No fixed-threshold compaction**: Rely on runtime signals and task boundaries, not rigid turn/token counters.
-- **No unsupported history mutation**: Standard LLM APIs are append-only; persist state in files rather than assuming retrospective history editing.
+- **No history rewrite assumption**: Project outputs or create artifact references; use only host-supported controls.
+- **No fixed threshold**: Compact from observed context pressure and task needs, not a universal turn/token count.
+- **No evidence deletion**: Keep stable references to source outputs, decisions, and verification.
+- **No partial cost claim**: Include cache reads, replay, and total actor cost; label estimates.
+
+## References
+
+- [Compaction](references/compaction.md)
+- [Masking and output projection](references/masking.md)
+- [Implementation and cost measurement](references/implementation.md)

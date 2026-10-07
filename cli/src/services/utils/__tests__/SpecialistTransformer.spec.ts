@@ -317,7 +317,6 @@ describe('SpecialistTransformer', () => {
       }
     });
 
-
     it('keeps native YAML metadata parseable for permission-bearing specialist exports', () => {
       const source = loadCanonicalSpecialist('specialist-tdd-implementer');
       const cases = [
@@ -343,9 +342,7 @@ describe('SpecialistTransformer', () => {
         >;
         expect(metadata[key]).toEqual(value);
         const warning = result!.content.slice(frontmatterMatch![0].length);
-        expect(warning).toContain(
-          '<!-- ags: permissions not enforceable on',
-        );
+        expect(warning).toContain('<!-- ags: permissions not enforceable on');
         expect(warning).toContain('risk_tier: L2');
       }
     });

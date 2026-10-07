@@ -13,7 +13,7 @@
 | **ios-networking** | `**/*Service.swift`, `**/*API.swift`, `**/*Client.swift` | URLSession, Alamofire, Moya, URLRequest, URLComponents, Codable |
 | ios-notifications | `**/*Notification*.swift`, `**/*AppDelegate.swift` | UNUserNotificationCenter, APNS, UNNotificationRequest, deviceToken |
 | **ios-persistence** | `**/*.xcdatamodeld`, `**/*Model.swift` | PersistentContainer, FetchRequest, ManagedObject, Query, ModelContainer, Repository |
-| **ios-swiftui** | `**/*View.swift` | View, State, Binding, EnvironmentObject |
+| **ios-swiftui** | `**/*View.swift` | View, SwiftUI @State, SwiftUI State, Binding, EnvironmentObject |
 | **ios-ui-navigation** | `**/*View.swift`, `**/*.xib`, `**/*.storyboard` | NSLayoutConstraint, UIStackView, SnapKit, layoutSubviews |
 
 ## Keyword Match (only when user's request mentions these)

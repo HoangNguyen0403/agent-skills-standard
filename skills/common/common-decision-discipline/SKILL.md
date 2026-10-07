@@ -23,11 +23,11 @@ Trustworthy decisions are sized to the work, grounded in evidence, and approved 
 
 ## 1. Size The Work
 
-| SNC tier | Depth | Artifact |
-| --- | --- | --- |
-| `tier=low` (0-2) | Quick | Contract in chat, no file; `approval` in Handoff Payload |
-| `tier=medium` (3-4) | Standard | Core brief file |
-| `tier=high` (5-6) | Deep | Full brief; decompose multi-subsystem ideas first; architecture/security review |
+| SNC tier            | Depth    | Artifact                                                                                           |
+| ------------------- | -------- | -------------------------------------------------------------------------------------------------- |
+| `tier=low` (0-2)    | Quick    | Contract in chat, no file; `approval` in the Handoff Payload                                       |
+| `tier=medium` (3-4) | Standard | Core brief file                                                                                    |
+| `tier=high` (5-6)   | Deep     | Full brief; decompose multi-subsystem ideas first; optional `specialist-architecture-guard` review |
 
 - Score with `common-task-complexity-routing`; label as inference until scouted.
 - Downward complexity reassessment requires documented new evidence (e.g., scouted blast radius proves isolated scope), never to bypass unresolved risk, required approvals, or the sensitive-change risk floor.
@@ -66,17 +66,21 @@ Trustworthy decisions are sized to the work, grounded in evidence, and approved 
 - `approval: pending | approved(<who>, <YYYY-MM-DD>) | assumed-autonomous`.
 - Interactive: end with "Reply ok or corrections". An ok approves only the artifact presented.
 - Autonomous or channel mode without an interactive reply channel: set `assumed-autonomous` and continue; `tier=high` still blocks pending explicit human sign-off.
-- Irreversible actions (data destruction, schema drops, credential rotation, production deployment) strictly require explicit human sign-off.
-## 7. Self-Review Before Handoff
 
-- Placeholders: TBD, TODO, empty sections.
-- Contradictions between sections.
-- Scope: one plan, or needs splitting.
-- Ambiguity: a requirement with two readings; pick one and state it.
+## 7. Publication vs Activation
+
+- Record `repository_status` and `activation_status` separately; use `not_required` when activation is outside the contract.
+- Do not require an external VM/runtime artifact for approved repository-only publication unless the contract requires it.
+- After approval, continue through the accepted deliverable; do not ask to continue at each phase boundary.
+- Publication approval never grants merge, deploy, or runtime-change authority. Gate consequential actions on explicit matching approval and scope.
+
+## 8. Self-Review Before Handoff
+
+- Check placeholders (TBD, TODO), contradictions, multi-plan scope, and two-reading ambiguities.
 
 ## Red Flags
 
-Stop when thinking: "too simple to need a brief", "they said implement, so skip intake", "it's a bug, pick a fix", "list three options to look thorough", "ask again to be safe", "they approved the idea, so the plan is approved". Each is a rationalization, not a reason.
+Stop when thinking: "too simple to need a brief", "they said implement, so skip intake", "list three options to look thorough", "approval to publish means deploy". Each is a rationalization, not a reason.
 
 ## Anti-Patterns
 
@@ -84,6 +88,7 @@ Stop when thinking: "too simple to need a brief", "they said implement, so skip 
 - **No padded options**: never invent alternatives to reach three.
 - **No silent approval**: a brief without `approval` is incomplete.
 - **No reopened decisions**: settled facts are carried forward, not re-asked.
+- **No scope transfer**: publication approval does not authorize merge, deployment, or runtime activation.
 
 ## References
 

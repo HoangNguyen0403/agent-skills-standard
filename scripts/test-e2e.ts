@@ -54,6 +54,7 @@ async function main() {
         },
       },
       workflows: true, // Enable workflows for advanced sync test
+      workflows_ref: 'main',
     };
 
     await fs.writeJson(path.join(TEMP_DIR, '.skillsrc'), mockConfig, {

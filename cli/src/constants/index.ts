@@ -52,11 +52,7 @@ export const COMMON_SKILL_EXCLUDES: Record<
     'common-mobile-ux-core',
     'common-store-changelog',
   ],
-  mobile: [
-    'common-accessibility',
-    'common-api-design',
-    'common-observability',
-  ],
+  mobile: ['common-accessibility', 'common-api-design', 'common-observability'],
 };
 
 /**

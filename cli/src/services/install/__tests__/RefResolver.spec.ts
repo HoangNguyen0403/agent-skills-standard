@@ -33,12 +33,19 @@ describe('RefResolver', () => {
     };
 
     const github: Pick<GithubService, 'resolveCommit' | 'getRepoInfo'> = {
-      resolveCommit: vi.fn().mockImplementation((_o, _r, ref) => Promise.resolve(`commit-${ref}`)),
+      resolveCommit: vi
+        .fn()
+        .mockImplementation((_o, _r, ref) => Promise.resolve(`commit-${ref}`)),
       getRepoInfo: vi.fn(),
     };
 
     const resolver = new RefResolver(github);
-    const resolved = await resolver.resolve(config, 'owner', 'repo', sampleMeta);
+    const resolved = await resolver.resolve(
+      config,
+      'owner',
+      'repo',
+      sampleMeta,
+    );
 
     expect(resolved.workflows).toEqual({
       ref: 'workflows-v0.9.0',
@@ -57,12 +64,19 @@ describe('RefResolver', () => {
 
   it('resolves latest tags from registry metadata and generates newPins when pins are absent', async () => {
     const github: Pick<GithubService, 'resolveCommit' | 'getRepoInfo'> = {
-      resolveCommit: vi.fn().mockImplementation((_o, _r, ref) => Promise.resolve(`commit-${ref}`)),
+      resolveCommit: vi
+        .fn()
+        .mockImplementation((_o, _r, ref) => Promise.resolve(`commit-${ref}`)),
       getRepoInfo: vi.fn(),
     };
 
     const resolver = new RefResolver(github);
-    const resolved = await resolver.resolve(baseConfig, 'owner', 'repo', sampleMeta);
+    const resolved = await resolver.resolve(
+      baseConfig,
+      'owner',
+      'repo',
+      sampleMeta,
+    );
 
     expect(resolved.workflows).toEqual({
       ref: 'workflows-v1.2.0',
@@ -93,7 +107,12 @@ describe('RefResolver', () => {
     };
 
     const resolver = new RefResolver(github);
-    const resolved = await resolver.resolve(baseConfig, 'owner', 'repo', emptyMeta);
+    const resolved = await resolver.resolve(
+      baseConfig,
+      'owner',
+      'repo',
+      emptyMeta,
+    );
 
     expect(resolved.workflows).toEqual({
       ref: 'develop',
@@ -135,7 +154,12 @@ describe('RefResolver', () => {
     };
 
     const resolver = new RefResolver(github);
-    const resolved = await resolver.resolve(baseConfig, 'owner', 'repo', sampleMeta);
+    const resolved = await resolver.resolve(
+      baseConfig,
+      'owner',
+      'repo',
+      sampleMeta,
+    );
 
     expect(resolved.skills).toEqual({
       typescript: {

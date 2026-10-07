@@ -329,6 +329,39 @@ describe("SkillIndex — repository trigger routing", () => {
     expect(ids).toContain("react-state-management");
   });
 
+  it("routes ordinary context-cost intents without framework context false positives", () => {
+    for (const query of [
+      "optimize context",
+      "context management",
+      "prompt caching",
+      "orchestration cost",
+    ]) {
+      const ids = registryIndex
+        .matchKeywords([query])
+        .map((match) => match.skill.id);
+
+      expect(ids, query).toContain("common-context-optimization");
+      expect(ids, query).not.toContain("golang-concurrency");
+      expect(ids, query).not.toContain("react-state-management");
+    }
+  });
+
+  it("keeps qualified Go context queries on Go concurrency", () => {
+    const ids = registryIndex
+      .matchKeywords(["Go context"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("golang-concurrency");
+  });
+
+  it("keeps qualified React context queries on React state management", () => {
+    const ids = registryIndex
+      .matchKeywords(["React context"])
+      .map((match) => match.skill.id);
+
+    expect(ids).toContain("react-state-management");
+  });
+
   it("keeps a React component profiling request on React tooling", () => {
     const ids = registryIndex
       .matchKeywords(["profile React components"])

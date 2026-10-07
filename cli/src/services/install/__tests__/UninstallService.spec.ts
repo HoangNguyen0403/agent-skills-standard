@@ -101,7 +101,9 @@ describe('UninstallService', () => {
     await lockfileService.write(tempDir, lock);
 
     const svc = new UninstallService(mockDeps, lockfileService, backupService);
-    const plan = await svc.plan(tempDir, config, { categories: ['typescript'] });
+    const plan = await svc.plan(tempDir, config, {
+      categories: ['typescript'],
+    });
 
     expect(plan.remove.sort()).toEqual([
       '.claude/skills/typescript/SKILL.md',
@@ -127,8 +129,12 @@ describe('UninstallService', () => {
       expect(await fs.pathExists(path.join(tempDir, rel))).toBe(false);
     }
     // Verify common files still exist
-    expect(await fs.pathExists(path.join(tempDir, '.claude/skills/common/SKILL.md'))).toBe(true);
-    expect(await fs.pathExists(path.join(tempDir, '.codex/skills/common/SKILL.md'))).toBe(true);
+    expect(
+      await fs.pathExists(path.join(tempDir, '.claude/skills/common/SKILL.md')),
+    ).toBe(true);
+    expect(
+      await fs.pathExists(path.join(tempDir, '.codex/skills/common/SKILL.md')),
+    ).toBe(true);
 
     // Verify lockfile retained common entries
     const loaded = await lockfileService.load(tempDir, config.agents);
@@ -186,14 +192,26 @@ describe('UninstallService', () => {
     await svc.apply(tempDir, config, plan);
 
     expect(mockDeps.mcpUninstall).toHaveBeenCalledWith(tempDir, [Agent.Claude]);
-    expect(mockDeps.hooksUninstall).toHaveBeenCalledWith(tempDir, [Agent.Claude]);
+    expect(mockDeps.hooksUninstall).toHaveBeenCalledWith(tempDir, [
+      Agent.Claude,
+    ]);
     expect(mockDeps.clearAgentsIndex).not.toHaveBeenCalled();
 
-    expect(await fs.pathExists(path.join(tempDir, '.claude/skills/typescript/SKILL.md'))).toBe(false);
-    expect(await fs.pathExists(path.join(tempDir, '.codex/skills/typescript/SKILL.md'))).toBe(true);
+    expect(
+      await fs.pathExists(
+        path.join(tempDir, '.claude/skills/typescript/SKILL.md'),
+      ),
+    ).toBe(false);
+    expect(
+      await fs.pathExists(
+        path.join(tempDir, '.codex/skills/typescript/SKILL.md'),
+      ),
+    ).toBe(true);
 
     const loaded = await lockfileService.load(tempDir, config.agents);
-    expect(Object.keys(loaded.lock!.entries)).toEqual(['.codex/skills/typescript/SKILL.md']);
+    expect(Object.keys(loaded.lock!.entries)).toEqual([
+      '.codex/skills/typescript/SKILL.md',
+    ]);
   });
 
   it('3. edited owned file -> in keepEdited, byte-identical after apply, dropped from lock', async () => {
@@ -355,7 +373,9 @@ describe('UninstallService', () => {
     await lockfileService.write(tempDir, lock);
 
     const svc = new UninstallService(mockDeps, lockfileService, backupService);
-    const plan = await svc.plan(tempDir, config, { agents: [Agent.Antigravity] });
+    const plan = await svc.plan(tempDir, config, {
+      agents: [Agent.Antigravity],
+    });
 
     expect(plan.sharedKept).toEqual([rel]);
     expect(plan.remove).toEqual([]);
@@ -414,13 +434,19 @@ describe('UninstallService', () => {
     await lockfileService.write(tempDir, lock);
 
     const svc = new UninstallService(mockDeps, lockfileService, backupService);
-    const plan = await svc.plan(tempDir, config, { categories: ['typescript'] });
+    const plan = await svc.plan(tempDir, config, {
+      categories: ['typescript'],
+    });
     await svc.apply(tempDir, config, plan);
 
     // .claude/skills/typescript directory is removed
-    expect(await fs.pathExists(path.join(tempDir, '.claude/skills/typescript'))).toBe(false);
+    expect(
+      await fs.pathExists(path.join(tempDir, '.claude/skills/typescript')),
+    ).toBe(false);
     // .claude/skills remains
-    expect(await fs.pathExists(path.join(tempDir, '.claude/skills'))).toBe(true);
+    expect(await fs.pathExists(path.join(tempDir, '.claude/skills'))).toBe(
+      true,
+    );
   });
 
   // Test intent: removes only entries matching both agent and category when both are specified

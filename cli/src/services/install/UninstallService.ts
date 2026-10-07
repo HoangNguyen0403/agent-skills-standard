@@ -40,7 +40,10 @@ export interface UninstallDeps {
 }
 
 function categoryOf(source: string): string {
-  return source.replace(/^(skill|index):/, '').split('/')[0].split('@')[0];
+  return source
+    .replace(/^(skill|index):/, '')
+    .split('/')[0]
+    .split('@')[0];
 }
 
 export class UninstallService {
@@ -79,10 +82,14 @@ export class UninstallService {
   ): Promise<UninstallPlan> {
     const hasAll = !!selection.all;
     const hasAgents = !!(selection.agents && selection.agents.length > 0);
-    const hasCategories = !!(selection.categories && selection.categories.length > 0);
+    const hasCategories = !!(
+      selection.categories && selection.categories.length > 0
+    );
 
     if (!hasAll && !hasAgents && !hasCategories) {
-      throw new Error('Choose --all, --agent <agent>, or --category <category>');
+      throw new Error(
+        'Choose --all, --agent <agent>, or --category <category>',
+      );
     }
 
     if (hasAll && (hasAgents || hasCategories)) {
@@ -108,14 +115,14 @@ export class UninstallService {
 
     const integrations = {
       mcpAgents: hasAll
-        ? (config.agents || [])
+        ? config.agents || []
         : hasAgents && !hasCategories
-          ? (selection.agents || [])
+          ? selection.agents || []
           : [],
       hookAgents: hasAll
-        ? (config.agents || [])
+        ? config.agents || []
         : hasAgents && !hasCategories
-          ? (selection.agents || [])
+          ? selection.agents || []
           : [],
       clearAgentsIndex: hasAll,
     };

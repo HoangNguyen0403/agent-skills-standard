@@ -4,20 +4,21 @@ description: Select and implement local, global, and server state patterns in Re
 metadata:
   triggers:
     files:
-    - '**/*.tsx'
-    - '**/*.jsx'
+      - "**/*.tsx"
+      - "**/*.jsx"
     keywords:
-    - React state management
-    - state in React
-    - useReducer
-    - context
-    - store
-    - props
+      - React state management
+      - state in React
+      - useReducer
+      - React context
+      - context in React
+      - store
+      - props
 ---
+
 # React State Management
 
 ## **Priority: P0 (CRITICAL)**
-
 
 ## Implementation Guidelines
 
@@ -34,7 +35,13 @@ metadata:
 > **Boundary note**: `hooks` skill covers primitive API usage (`useMemo`, `useCallback` rules). This skill covers _architectural_ state decisions — which tool to use for which state scope.
 
 ```tsx
-function LikeButton({ postId, initialLiked }: { postId: string; initialLiked: boolean }) {
+function LikeButton({
+  postId,
+  initialLiked,
+}: {
+  postId: string;
+  initialLiked: boolean;
+}) {
   const [optimisticLiked, setOptimisticLiked] = useOptimistic(initialLiked);
   return (
     <button
@@ -43,7 +50,7 @@ function LikeButton({ postId, initialLiked }: { postId: string; initialLiked: bo
         await toggleLike(postId);
       }}
     >
-      {optimisticLiked ? 'Liked' : 'Like'}
+      {optimisticLiked ? "Liked" : "Like"}
     </button>
   );
 }

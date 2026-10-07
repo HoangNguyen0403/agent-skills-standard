@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type MockInstance,
+} from 'vitest';
 import { Agent } from '../../constants';
 import { SkillConfig } from '../../models/config';
 import { ConfigService } from '../../services/ConfigService';
@@ -54,7 +62,10 @@ describe('UninstallCommand', () => {
   });
 
   it('1. prints preview with counts, integrations, up to 10 paths, and +N more', async () => {
-    const paths = Array.from({ length: 12 }, (_, i) => `.claude/skills/s${i}/SKILL.md`);
+    const paths = Array.from(
+      { length: 12 },
+      (_, i) => `.claude/skills/s${i}/SKILL.md`,
+    );
     const plan: UninstallPlan = {
       remove: paths,
       keepEdited: ['.claude/skills/edited/SKILL.md'],
@@ -234,9 +245,7 @@ describe('UninstallCommand', () => {
     expect(logSpy).toHaveBeenCalledWith(
       expect.stringContaining('Invalid agent'),
     );
-    expect(logSpy).toHaveBeenCalledWith(
-      expect.stringContaining('claude'),
-    );
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('claude'));
   });
 
   // Test intent: catches and logs error when service planning fails and sets exitCode = 1

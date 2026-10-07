@@ -50,9 +50,11 @@
   "should_not_trigger": [
     "How do I connect to PostgreSQL in Go?",
     "Write a REST handler in Go",
-    "Set up golangci-lint for my project"
+    "Set up golangci-lint for my project",
+    "How can I optimize context management in agent orchestration to reduce prompt-cache cost?"
   ],
   "should_trigger": [
-    "I'm spawning goroutines inside a for loop to process orders in parallel. How do I make sure none of them leak?"
+    "I'm spawning goroutines inside a for loop to process orders in parallel. How do I make sure none of them leak?",
+    "How should I pass context.Context through a Go HTTP handler?"
   ]
 }
