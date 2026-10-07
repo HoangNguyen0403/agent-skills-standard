@@ -62,7 +62,7 @@ Trustworthy decisions are sized to the work, grounded in evidence, and approved 
 
 - `approval: pending | approved(<who>, <YYYY-MM-DD>) | assumed-autonomous`.
 - Interactive: end with "Reply ok or corrections". An ok approves only the artifact presented.
-- Autonomous or channel mode with no confirmation channel: set `assumed-autonomous` and continue. Readiness warns, and blocks only at `tier=high`.
+- Autonomous or channel mode without an interactive reply channel: set `assumed-autonomous` and continue; `tier=high` still blocks pending explicit human sign-off.
 
 ## 7. Self-Review Before Handoff
 
