@@ -101,7 +101,9 @@ export class UninstallCommand {
       console.log(`  MCP entries: ${plan.integrations.mcpAgents.join(', ')}`);
     }
     if (plan.integrations.hookAgents.length > 0) {
-      console.log(`  Hook registrations: ${plan.integrations.hookAgents.join(', ')}`);
+      console.log(
+        `  Hook registrations: ${plan.integrations.hookAgents.join(', ')}`,
+      );
     }
     if (plan.integrations.clearAgentsIndex) {
       console.log('  AGENTS.md index block: cleared');

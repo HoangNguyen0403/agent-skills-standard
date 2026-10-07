@@ -118,7 +118,9 @@ describe('SkillSyncService', () => {
     // beside a valid SKILL.md and the sync aborts before any write.
     it('rejects the whole package when the verifier rejects a reference file', async () => {
       const oldParse = GithubService.parseGitHubUrl;
-      GithubService.parseGitHubUrl = vi.fn().mockReturnValue({ owner: 'o', repo: 'r' });
+      GithubService.parseGitHubUrl = vi
+        .fn()
+        .mockReturnValue({ owner: 'o', repo: 'r' });
       const config = {
         registry: 'https://github.com/o/r',
         skills: { cat1: {} },
@@ -131,18 +133,26 @@ describe('SkillSyncService', () => {
       });
       mockGithubService.downloadFilesConcurrentBytes.mockResolvedValue({
         ok: [
-          { path: 'skills/cat1/s1/SKILL.md', content: Buffer.from('skill content') },
-          { path: 'skills/cat1/s1/references/guide.md', content: Buffer.from('bad guide') },
+          {
+            path: 'skills/cat1/s1/SKILL.md',
+            content: Buffer.from('skill content'),
+          },
+          {
+            path: 'skills/cat1/s1/references/guide.md',
+            content: Buffer.from('bad guide'),
+          },
         ],
         failed: [],
       });
 
       const fakeVerifier = {
-        check: vi.fn().mockImplementation((path: string) =>
-          path.includes('references/guide.md')
-            ? 'sha256 does not match release MANIFEST.json'
-            : null,
-        ),
+        check: vi
+          .fn()
+          .mockImplementation((path: string) =>
+            path.includes('references/guide.md')
+              ? 'sha256 does not match release MANIFEST.json'
+              : null,
+          ),
       };
 
       await expect(
@@ -155,7 +165,9 @@ describe('SkillSyncService', () => {
 
     it('rejects the package when the verifier rejects SKILL.md', async () => {
       const oldParse = GithubService.parseGitHubUrl;
-      GithubService.parseGitHubUrl = vi.fn().mockReturnValue({ owner: 'o', repo: 'r' });
+      GithubService.parseGitHubUrl = vi
+        .fn()
+        .mockReturnValue({ owner: 'o', repo: 'r' });
       const config = {
         registry: 'https://github.com/o/r',
         skills: { cat1: {} },
@@ -164,12 +176,19 @@ describe('SkillSyncService', () => {
         tree: [{ path: 'skills/cat1/s1/SKILL.md', type: 'blob' }],
       });
       mockGithubService.downloadFilesConcurrentBytes.mockResolvedValue({
-        ok: [{ path: 'skills/cat1/s1/SKILL.md', content: Buffer.from('tampered skill') }],
+        ok: [
+          {
+            path: 'skills/cat1/s1/SKILL.md',
+            content: Buffer.from('tampered skill'),
+          },
+        ],
         failed: [],
       });
 
       const fakeVerifier = {
-        check: vi.fn().mockReturnValue('sha256 does not match release MANIFEST.json'),
+        check: vi
+          .fn()
+          .mockReturnValue('sha256 does not match release MANIFEST.json'),
       };
 
       await expect(
@@ -184,7 +203,9 @@ describe('SkillSyncService', () => {
     // the manifest scope (skills/<category>); it must not fail a pinned sync.
     it('does not manifest-check repo-root LICENSE while still checking package files', async () => {
       const oldParse = GithubService.parseGitHubUrl;
-      GithubService.parseGitHubUrl = vi.fn().mockReturnValue({ owner: 'o', repo: 'r' });
+      GithubService.parseGitHubUrl = vi
+        .fn()
+        .mockReturnValue({ owner: 'o', repo: 'r' });
       const config = {
         registry: 'https://github.com/o/r',
         skills: { cat1: {} },
@@ -202,19 +223,27 @@ describe('SkillSyncService', () => {
         }),
       );
       const fakeVerifier = {
-        check: vi.fn().mockImplementation((p: string) =>
-          p === 'skills/cat1/s1/SKILL.md'
-            ? null
-            : 'not listed in release MANIFEST.json',
-        ),
+        check: vi
+          .fn()
+          .mockImplementation((p: string) =>
+            p === 'skills/cat1/s1/SKILL.md'
+              ? null
+              : 'not listed in release MANIFEST.json',
+          ),
       };
 
       const result = await skillSyncService.assembleSkills(['cat1'], config, {
         cat1: fakeVerifier as unknown as ManifestVerifier,
       });
 
-      expect(result[0].files.map((f) => f.name).sort()).toEqual(['LICENSE', 'SKILL.md']);
-      expect(fakeVerifier.check).not.toHaveBeenCalledWith('LICENSE', expect.anything());
+      expect(result[0].files.map((f) => f.name).sort()).toEqual([
+        'LICENSE',
+        'SKILL.md',
+      ]);
+      expect(fakeVerifier.check).not.toHaveBeenCalledWith(
+        'LICENSE',
+        expect.anything(),
+      );
       GithubService.parseGitHubUrl = oldParse;
     });
   });

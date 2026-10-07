@@ -28,6 +28,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Raised the MCP SDK dependency minimum to `1.31.0` and regenerated its lockfile to address [GHSA-6qxp-vccf-f47h](https://github.com/advisories/GHSA-6qxp-vccf-f47h) and clear the production dependency audit.
 - Moved the review-package maintainer regression suite to `scripts/skill-tests/common-subagent-driven-development/test_review_package.py`, outside canonical and generated skill packages. All 13 cases remain covered by CI; existing CLI versions no longer install this test, and runtime helpers are unchanged.
 
+- Streamable HTTP MCP POST handling now forwards Express-parsed `req.body` to the SDK transport, matching the installed SDK's `handleRequest(req, res, parsedBody)` contract and avoiding consumption of the request body twice.
+
+- `common-context-optimization` replaces unsupported agent-side history rewriting and fixed compaction thresholds with host-capability-aware output projection, stable artifact references, bounded handoffs, and measured cache/replay/total actor-cost guidance. `common-decision-discipline` and `implement-feature` distinguish repository publication from runtime activation, bind receipts and checks to settled revisions, and retain explicit authority gates. Context-routing triggers are framework-qualified with consumer-boundary regression coverage. Candidate evals add preventing and pressure cases; they do not establish live efficacy or promotion.
+
+- Consolidated dependency bumps across the workspace: updated `actions/upload-artifact` to v7 (#219), `actions/attest-build-provenance` to v4 (#220), NestJS minor/patch dependencies in `/server` (#221), and CLI/MCP/root tooling dependencies (#222). Added `pnpm.overrides` for `proxy-addr` (2.0.8) and `fast-copy` (4.1.0) to eliminate critical IP spoofing and moderate stack exhaustion advisories in `pnpm audit --prod`, and synchronized `pnpm-lock.yaml` across all workspace projects.
+
 ## [android-v1.5.1]
 
 **Category**: Quality-over-quantity test standards

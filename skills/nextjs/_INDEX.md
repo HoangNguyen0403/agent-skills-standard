@@ -9,7 +9,7 @@
 | nextjs-architecture | `src/features/**`, `src/entities/**`, `src/widgets/**` | FSD, Feature Sliced Design, slices, segments |
 | **nextjs-authentication** | `middleware.ts`, `**/auth.ts`, `**/login/page.tsx` | cookie, jwt, session, localstorage, auth |
 | nextjs-caching | `**/page.tsx`, `**/layout.tsx`, `**/action.ts` | unstable_cache, revalidateTag, Router Cache, Data Cache |
-| nextjs-data-access-layer | `**/lib/data.ts`, `**/services/*.ts`, `**/dal/**` | DAL, Data Access Layer, server-only, DTO |
+| nextjs-data-access-layer | `**/lib/data.ts`, `**/dal/**` | DAL, Data Access Layer, server-only, DTO |
 | **nextjs-data-fetching** | `**/service.ts` | fetch, revalidate, no-store, force-cache |
 | nextjs-i18n | `middleware.ts`, `app/[lang]/**`, `pages/[locale]/**`, `messages/*.json`, `next.config.js` | i18n, locale, translation, next-intl, react-intl, next-translate |
 | nextjs-optimization | `**/layout.tsx`, `**/page.tsx` | metadata, generateMetadata, next/image, next/font |

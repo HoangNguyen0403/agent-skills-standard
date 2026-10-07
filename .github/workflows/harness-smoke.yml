@@ -26,6 +26,6 @@ jobs:
       - run: npm install -g @openai/codex@0.157.1 opencode-ai@1.18.32
       - run: gh --version
       - run: pnpm harness:smoke --write
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with: { name: round-trip-results, path: docs/round-trip-results.md }

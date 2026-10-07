@@ -67,7 +67,7 @@ async function main() {
     // Handle MCP over HTTP (GET for SSE, POST for messages)
     // We map both the new standard endpoint and legacy endpoints to the same handler.
     const handleRequest = async (req: any, res: any) => {
-      await transport.handleRequest(req, res);
+      await transport.handleRequest(req, res, req.body);
     };
 
     app.all("/mcp", handleRequest);

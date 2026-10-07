@@ -1,20 +1,16 @@
-# Implementation Examples
+# Implementation and Cost Measurement
 
-## Observation Masking
+## Handoff Packet
 
-```text
-# Before (wastes ~800 tokens):
-[tool_output]: { ... 200 lines of JSON ... }
+Carry goal, deliverable, active slice, scope, authority, decisions, blockers, evidence links, and next action. Keep revision IDs and ownership explicit.
 
-# After masking (~30 tokens):
-[Reference: 3 users matched filter; oldest created 2024-01-15]
-```
+## Cost
 
-## Compacted State
+Measure separately, where the host exposes them:
 
-```text
-# Compacted state example:
-Goal: Fix auth timeout | Task: Retry logic in AuthService
-Decisions: Use exponential backoff (max 3 retries)
-Errors: 401 on token refresh after 30s idle
-```
+- Cache-read tokens/cost.
+- Replayed or uncached input.
+- Output and retry/replay cost.
+- Total actor/task cost across workers and handoffs.
+
+Report source, revision, measurement window, and limits. Mark missing telemetry as unknown; estimates are not invoice data or demonstrated savings.

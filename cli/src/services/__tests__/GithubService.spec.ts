@@ -401,7 +401,11 @@ describe('GithubService', () => {
         text: () => Promise.resolve(`  ${sha}\n`),
       } as Response);
 
-      const result = await githubService.resolveCommit('owner', 'repo', 'v1.0.0');
+      const result = await githubService.resolveCommit(
+        'owner',
+        'repo',
+        'v1.0.0',
+      );
       expect(result).toBe(sha);
       expect(fetch).toHaveBeenCalledWith(
         'https://api.github.com/repos/owner/repo/commits/v1.0.0',
@@ -419,16 +423,22 @@ describe('GithubService', () => {
         ok: false,
         status: 404,
       } as Response);
-      expect(await githubService.resolveCommit('owner', 'repo', 'v1.0.0')).toBeNull();
+      expect(
+        await githubService.resolveCommit('owner', 'repo', 'v1.0.0'),
+      ).toBeNull();
 
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         text: () => Promise.resolve('not-a-sha'),
       } as Response);
-      expect(await githubService.resolveCommit('owner', 'repo', 'v1.0.0')).toBeNull();
+      expect(
+        await githubService.resolveCommit('owner', 'repo', 'v1.0.0'),
+      ).toBeNull();
 
       vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
-      expect(await githubService.resolveCommit('owner', 'repo', 'v1.0.0')).toBeNull();
+      expect(
+        await githubService.resolveCommit('owner', 'repo', 'v1.0.0'),
+      ).toBeNull();
     });
   });
 
@@ -464,14 +474,18 @@ describe('GithubService', () => {
         ok: false,
         status: 404,
       } as Response);
-      expect(await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0')).toBeNull();
+      expect(
+        await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
+      ).toBeNull();
 
       // malformed JSON (res.json throws)
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.reject(new Error('Invalid JSON')),
       } as Response);
-      expect(await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0')).toBeNull();
+      expect(
+        await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
+      ).toBeNull();
 
       // schema_version !== 1
       vi.mocked(fetch).mockResolvedValueOnce({
@@ -484,7 +498,9 @@ describe('GithubService', () => {
             files: { 'foo.md': 'b'.repeat(64) },
           }),
       } as Response);
-      expect(await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0')).toBeNull();
+      expect(
+        await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
+      ).toBeNull();
 
       // files value not 64-hex
       vi.mocked(fetch).mockResolvedValueOnce({
@@ -497,11 +513,15 @@ describe('GithubService', () => {
             files: { 'foo.md': 'short' },
           }),
       } as Response);
-      expect(await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0')).toBeNull();
+      expect(
+        await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
+      ).toBeNull();
 
       // fetch throws
       vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
-      expect(await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0')).toBeNull();
+      expect(
+        await githubService.getReleaseManifest('owner', 'repo', 'v1.0.0'),
+      ).toBeNull();
     });
   });
 });

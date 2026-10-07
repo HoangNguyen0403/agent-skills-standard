@@ -12,7 +12,10 @@ export class RestoreCommand {
     this.backups = backups || new BackupService();
   }
 
-  async run(id: string | undefined, options: RestoreOptions = {}): Promise<void> {
+  async run(
+    id: string | undefined,
+    options: RestoreOptions = {},
+  ): Promise<void> {
     const cwd = process.cwd();
 
     if (options.list || !id) {

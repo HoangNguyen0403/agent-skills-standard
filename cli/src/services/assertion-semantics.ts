@@ -10,11 +10,7 @@
 export type AssertionSemanticsVersion = 1 | 2;
 
 export type AssertionType =
-  | 'contains'
-  | 'contains_any'
-  | 'not_contains'
-  | 'regex'
-  | 'file_reference';
+  'contains' | 'contains_any' | 'not_contains' | 'regex' | 'file_reference';
 
 export interface Assertion {
   type: AssertionType;

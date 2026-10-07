@@ -50,9 +50,11 @@
   "should_not_trigger": [
     "Configure Redis pub/sub for real-time notifications",
     "Write a Go goroutine pool",
-    "Set up a Kubernetes ingress controller"
+    "Set up a Kubernetes ingress controller",
+    "How can I optimize context management in agent orchestration to reduce prompt-cache cost?"
   ],
   "should_trigger": [
-    "I need to share user authentication state across my entire React app. Which state management should I use?"
+    "I need to share user authentication state across my entire React app. Which state management should I use?",
+    "How should I provide React context to share locale state across components?"
   ]
 }

@@ -326,7 +326,9 @@ describe('DoctorService', () => {
         ...CONFIG,
         mcp: { enabled: true, scope: 'user', prompted: true },
       }),
-      mcpStatus: vi.fn().mockResolvedValue([{ agent: Agent.Claude, user: true }]),
+      mcpStatus: vi
+        .fn()
+        .mockResolvedValue([{ agent: Agent.Claude, user: true }]),
     });
     const svc = new DoctorService(d);
     const checks = await svc.runChecks({ rootDir: root, offline: true });
@@ -342,8 +344,13 @@ describe('DoctorService', () => {
       mcpStatus: vi.fn().mockResolvedValue([]),
     });
     const svcEmpty = new DoctorService(dEmpty);
-    const checksEmpty = await svcEmpty.runChecks({ rootDir: root, offline: true });
-    expect(byName(checksEmpty, 'mcp').evidence).toContain('no MCP-capable agents');
+    const checksEmpty = await svcEmpty.runChecks({
+      rootDir: root,
+      offline: true,
+    });
+    expect(byName(checksEmpty, 'mcp').evidence).toContain(
+      'no MCP-capable agents',
+    );
   });
 
   // Test intent: skips hooks check gracefully when hook files contain no script or script does not exist on disk

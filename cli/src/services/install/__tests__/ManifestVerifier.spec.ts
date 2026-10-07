@@ -18,7 +18,9 @@ describe('ManifestVerifier', () => {
 
   it('returns null when manifest is null (no manifest present)', () => {
     const verifier = new ManifestVerifier(null);
-    expect(verifier.check('.agents/workflows/dev-fix.md', 'any content')).toBeNull();
+    expect(
+      verifier.check('.agents/workflows/dev-fix.md', 'any content'),
+    ).toBeNull();
   });
 
   it('returns null when file is listed and sha256 matches', () => {
@@ -35,14 +37,16 @@ describe('ManifestVerifier', () => {
 
   it('returns "sha256 does not match release MANIFEST.json" on content mismatch', () => {
     const verifier = new ManifestVerifier(sampleManifest);
-    expect(verifier.check('.agents/workflows/dev-fix.md', 'tampered content')).toBe(
-      'sha256 does not match release MANIFEST.json',
-    );
+    expect(
+      verifier.check('.agents/workflows/dev-fix.md', 'tampered content'),
+    ).toBe('sha256 does not match release MANIFEST.json');
   });
 
   it('normalizes paths with leading slashes or dots', () => {
     const verifier = new ManifestVerifier(sampleManifest);
-    expect(verifier.check('./.agents/workflows/dev-fix.md', content)).toBeNull();
+    expect(
+      verifier.check('./.agents/workflows/dev-fix.md', content),
+    ).toBeNull();
     expect(verifier.check('/.agents/workflows/dev-fix.md', content)).toBeNull();
   });
 });

@@ -99,7 +99,6 @@ export class AgentBridgeService {
         config.ruleFileName || `${fileNameBase}${config.ruleExtension}`,
       );
 
-
       let content = '';
 
       switch (config.frontmatterStyle) {

@@ -43,15 +43,30 @@ Skills are the core value of this project.
 
 1. **Draft**: Use `pnpm list-skills` or check `skills/metadata.json` to see existing categories.
 2. **Create**: Add your category folder in `skills/`.
-3. **Validate**: Ensure `SKILL.md` is under 500 tokens (check with `pnpm calculate-tokens`).
-4. **Reference**: Heavy content goes to `references/`.
-5. **Framework packs**: Large framework categories may add category-level `references/framework-map.md` for bundle-level guidance; keep `SKILL.md` files focused on decisions and verification.
-6. **Guardrail skills**: For TDD, debugging, review, verification, protocol, or workflow skills, add `pressure_scenarios`, `rationalizations`, `red_flags`, and behavior assertions to `evals/evals.json`.
-7. **Evidence first**: Do not tighten a guardrail skill without baseline or regression evidence for the behavior you are trying to change.
-8. **Public package boundary**: Do not ship project-specific environment, VPN, account-selection, or credential-handling recipes in a reusable skill or its `references/`. Keep private operational context in the consuming project; review generated agent mirrors before publishing.
-9. **Trigger precision**: Qualify high-collision framework topics instead of declaring bare workflow words such as `profile`, `state`, or `Task`; include relevant qualified variants when punctuation or word order differs. Do not add generic service-directory globs for framework-only skills. Protect unrelated workflow negatives, explicit framework positives, and each distinct narrow file route with public matcher regressions.
+3. **Validate**: Keep each canonical `SKILL.md` at or below 100 lines; verify token budget with `pnpm calculate-tokens`.
+4. **Reference**: Move detailed content to `references/`.
+5. **Framework packs**: Large framework categories may add category-level `references/framework-map.md`; keep skill files focused on decisions and verification.
+6. **Guardrail skills**: Add `pressure_scenarios`, `rationalizations`, `red_flags`, and behavior assertions to `evals/evals.json`.
+7. **Evidence first**: Retain applicable earlier cases, remove obsolete expectations, and add preventing cases for corrected behavior. Candidate fixtures are not live efficacy evidence.
+8. **Public package boundary**: Do not ship project-specific environment, VPN, account-selection, or credential-handling recipes in reusable skills or references.
+9. **Trigger precision**: Qualify collision-prone framework topics; retain unrelated workflow negatives and intended qualified positives. Test consumer routing, not metadata copies.
 
-### Cybersecurity packages and governed evolution
+## 4. Creating Workflows
+
+Workflows are portable SDLC procedures, not CLI commands. Keep canonical files in `.agents/workflows/*.md`; sync exports to each agent's native surface.
+
+Rules:
+
+1. Keep workflow files under 80 lines.
+2. Use the order: goal, steps, output template.
+3. Do not pre-fill example data.
+4. Put heavy examples or checklists in `references/`.
+5. Keep requirement naming explicit: BRD-lite (`brainstorm-feature`), PRD (`plan-feature`), SRS/FRS (`design-solution`).
+6. Add to `DEFAULT_WORKFLOWS` only for the standard SDLC spine; add canonical source at `.agents/workflows/<name>.md`.
+7. Core SDLC workflows expose `Runtime Contract`, `Handoff Payload`, `Blocking Questions`, and `Next Workflow`.
+8. Run `pnpm audit:sdlc` after changes.
+
+## 5. Cybersecurity packages and governed evolution
 
 - `cybersecurity` is opt-in, not part of default initialization. Select it in
   `.skillsrc` under `skills` with a reviewed immutable `ref`; before the first
@@ -77,22 +92,7 @@ Skills are the core value of this project.
   Resource changes invalidate skill-loaded evidence. Historical evidence remains
   readable but is not upgraded retroactively into whole-package proof.
 
-## 4. Creating Workflows
-
-Workflows are portable SDLC procedures, not CLI commands. Keep canonical files in `.agents/workflows/*.md`; the sync pipeline exports them into each agent's native surface.
-
-Rules:
-
-1. Keep workflow files under 80 lines.
-2. Use the order: goal, steps, output template.
-3. Do not pre-fill example data.
-4. Put heavy examples or checklists in `references/`.
-5. Keep requirement naming explicit for users: BRD-lite (`brainstorm-feature`), PRD (`plan-feature`), SRS/FRS (`design-solution`).
-6. Add the workflow to `DEFAULT_WORKFLOWS` only when it belongs in the standard SDLC spine, and add canonical source at `.agents/workflows/<name>.md`.
-7. Core SDLC workflows must expose `Runtime Contract`, `Handoff Payload`, `Blocking Questions`, and `Next Workflow` for interactive and channel-agent runtimes.
-8. Run `pnpm audit:sdlc` after changes.
-
-## 5. Default Init Standards
+## 6. Default Init Standards
 
 `ags init` should create a useful SDLC standards layer without requiring profile files.
 
@@ -108,7 +108,7 @@ Rules:
 8. New specialists must include `evals/evals.json`, strict budgets, structured output, and `No sub-agents`.
 9. Specialists and generated workflow skills set `metadata.internal: true` so skill installers (`npx skills`) don't offer them as installable skills.
 
-## 6. Quality Gates
+## 7. Quality Gates
 
 Run these before PR:
 
@@ -168,7 +168,7 @@ pnpm benchmark:report
 
 Guardrail-oriented skill changes should also verify that the benchmark report shows behavior coverage for the edited skills.
 
-## 7. Release Process
+## 8. Release Process
 
 We use specialized scripts for releasing components independently:
 

@@ -12,7 +12,12 @@ const HEADER_RE = /^\s*\[\[?\s*([^\]]+?)\s*\]\]?\s*(#.*)?$/;
 function normalizeKey(raw: string): string {
   return raw
     .split('.')
-    .map((s) => s.trim().replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1'))
+    .map((s) =>
+      s
+        .trim()
+        .replace(/^"(.*)"$/, '$1')
+        .replace(/^'(.*)'$/, '$1'),
+    )
     .join('.');
 }
 
@@ -39,13 +44,19 @@ function findOurRanges(lines: string[], name: string): Array<[number, number]> {
   return ranges;
 }
 
-function dropRanges(lines: string[], ranges: Array<[number, number]>): string[] {
+function dropRanges(
+  lines: string[],
+  ranges: Array<[number, number]>,
+): string[] {
   const out = [...lines];
   for (const [s, e] of [...ranges].reverse()) out.splice(s, e - s);
   return out;
 }
 
-export function renderTomlMcpServer(name: string, entry: McpServerEntry): string {
+export function renderTomlMcpServer(
+  name: string,
+  entry: McpServerEntry,
+): string {
   const args = entry.args.map((a) => `"${escapeTomlString(a)}"`).join(', ');
   return `[mcp_servers.${name}]\ncommand = "${escapeTomlString(entry.command)}"\nargs = [${args}]\n`;
 }
@@ -54,7 +65,10 @@ export function hasTomlMcpServer(content: string, name: string): boolean {
   return findOurRanges(content.split('\n'), name).length > 0;
 }
 
-export function removeTomlMcpServer(content: string, name: string): { content: string; removed: boolean } {
+export function removeTomlMcpServer(
+  content: string,
+  name: string,
+): { content: string; removed: boolean } {
   const lines = content.split('\n');
   const ranges = findOurRanges(lines, name);
   if (ranges.length === 0) return { content, removed: false };
@@ -78,5 +92,8 @@ export function upsertTomlMcpServer(
   let base = ranges.length ? dropRanges(lines, ranges).join('\n') : content;
   if (base.length > 0 && !base.endsWith('\n')) base += '\n';
   if (base.length > 0 && !base.endsWith('\n\n')) base += '\n';
-  return { content: base + rendered, action: ranges.length ? 'updated' : 'added' };
+  return {
+    content: base + rendered,
+    action: ranges.length ? 'updated' : 'added',
+  };
 }

@@ -70,3 +70,88 @@ I used minor version bumps for small additive workflow and skill guidance change
 
 ### ✅ Better Approach
 Classify the user-visible change by its actual impact and follow repository release conventions; use patch bumps for small compatible corrections, and align category/workflow metadata with the changelog.
+
+---
+
+## Agent Learning Log: Iteration #5
+
+**Date**: 2026-10-06 | **Task**: Resolve the bounded-worker deployment prerequisite.
+**Signal**: Session retrospective
+**Skills**: common/common-decision-discipline, common/common-session-retrospective
+**Scope**: project
+**Candidate**: bcd-runtime-prerequisite-communication | **Status**: proposed
+**Provenance**: BASE `1fb0537c339c1e135167f4c15ba603b8849da5bc`; deployment-choice exchange and `docs/srs/srs-provisioning-recommendation-bounded-context-delegation.md`.
+**Evaluation**: not-run
+**Review**: pending; no registry-maintenance or promotion authorization
+**Rollback**: not-applicable; proposal only
+
+### Mistake Made
+I repeatedly requested an Apple-entitled executable or alternative containment owner before presenting a plain-language provisioning recommendation. The user asked “what you need?” and selected “Unsure / neither available”; generic continuation replies could not resolve the technical prerequisite.
+
+### Pattern to Avoid
+- **No operator implementation quiz**: A missing deployment environment requires an evidence-backed recommendation and a bounded owner decision, not repeated requests for technical artifacts the owner may not possess.
+- **No ambiguous approval escalation**: A general “yes” does not authorize a new signed runtime, installation, account change or deployment.
+
+### Better Approach
+Explain the missing guarantee, present the smallest supported candidate with explicit unknowns, and distinguish recommendation approval from exact provisioning/qualification authority. Propose extending the existing decision-discipline examples with this scenario; preserve the security gate, and evaluate/review the proposal before any canonical skill change.
+
+### Trigger Miss
+```json
+{"skill":"common/common-decision-discipline","indirect_phrase":"what you need?","root_cause":"routing","source_revision":"1fb0537c339c1e135167f4c15ba603b8849da5bc","proposed_change":"Add a missing-environment prerequisite example that routes to an operator-answerable recommendation before requesting deployment artifacts.","status":"proposed"}
+```
+
+---
+
+## Agent Learning Log: Iteration #6
+
+**Date**: 2026-10-06 | **Task**: Open the ready AGS fixes PR.
+**Signal**: User correction
+**Skills**: common/common-decision-discipline, common/common-session-retrospective
+**Scope**: project
+**Candidate**: ags-publication-versus-activation-scope | **Status**: proposed
+**Provenance**: source revision `a9f7ba3bc1bbefceaf847334d9cce240261abd61`; user “i thought you just need to raise the PR” followed by explicit “Ready AGS fixes PR”; scoped PR #224 and local progress ledger.
+**Evaluation**: not-run
+**Review**: pending; PR code review is not approval of this procedure proposal
+**Rollback**: not-applicable; proposal only, excluded from PR
+
+### Mistake Made
+I treated runtime qualification and VM provisioning as prerequisites for opening an AGS repository fixes PR. The user wanted publication; the broader runtime remained a separate unfinished deliverable.
+
+### Pattern to Avoid
+- **No activation-as-publication prerequisite**: Host deployment gates apply to activation, not an independently verifiable repository fixes PR.
+- **No unrequested delivery expansion**: Blockers outside the selected deliverable must not redirect publication into environment procurement.
+
+### Better Approach
+Freeze the user-selected PR scope, prove its behavior and exact commit identity, then commit/push/open against the repository's actual default branch. Preserve excluded planning and runtime evidence locally; report incomplete activation separately. Propose a publication-versus-activation example in existing decision-discipline guidance; no canonical AGENTS.md, skill or approval-control changes without authorized evaluation and independent maintainer review.
+
+### Trigger Miss
+None established: applicable guidance was loaded; this was a workflow/scope application error, not a missing keyword alias.
+
+---
+
+## Agent Learning Log: Iteration #7
+
+**Date**: 2026-10-07 | **Task**: Audit coordinator cost, context replay and delivery friction.
+**Signal**: User correction
+**Skills**: common/common-context-optimization, common/common-session-retrospective
+**Scope**: project
+**Candidate**: ags-bounded-coordinator-context | **Status**: proposed
+**Provenance**: source revision `a9f7ba3bc1bbefceaf847334d9cce240261abd61`; `artifacts/runs/ags-session-retrospective/20261007T013618Z-metrics.json` and linked retrospective report. Historical cutoff excludes retrospective usage.
+**Evaluation**: not-run; historical accounting reconciled independently, no candidate/no-skill comparison
+**Review**: pending; no maintainer promotion authorization
+**Rollback**: not-applicable; canonical guidance/runtime settings unchanged
+
+### Mistake Made
+I delegated coding to Luna but retained hundreds of coordinator steps, detailed source/review material and repeated gates on Sol. Recorded coordinator cost was 60.0% of observed session estimates despite 96.1% cache-read input: high cache hit rate did not make the large repeated context economical.
+
+### Pattern to Avoid
+- **No worker-only savings claim**: Measure coordinator, reviewer, retry and auxiliary usage together.
+- **No cache-hit-as-efficiency proxy**: Track replay volume, context size, output and phase costs as well as hit rate.
+
+### Better Approach
+Use bounded phase packets, complete slice ownership, concise revision-bound receipts and deterministic check collection. Preserve required safety/independent review; rerun only evidence invalidated by the actual change. Extend existing context/implementation guidance through the report's held-out evaluations before promotion; permission/profile fixes belong to their host/account owners.
+
+### Trigger Miss
+```json
+{"skill":"common/common-context-optimization","indirect_phrase":"caching, context management, main-model cost","root_cause":"routing","source_revision":"a9f7ba3bc1bbefceaf847334d9cce240261abd61","proposed_change":"Add prompt-cache and orchestration-cost activation cases while retaining framework-context negative cases; reconcile history masking with append-only caching.","status":"proposed"}
+```

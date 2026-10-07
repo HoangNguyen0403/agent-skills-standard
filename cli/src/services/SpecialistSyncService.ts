@@ -51,7 +51,6 @@ export class SpecialistSyncService {
       );
       if (!content) continue;
 
-
       const rejection = verifier?.check(file.path, content);
       if (rejection) {
         console.log(pc.red(`    ❌ ${file.path} — ${rejection}`));

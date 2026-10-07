@@ -175,7 +175,9 @@ describe('AgentBridgeService', () => {
       const rootDir = '/root';
       vi.mocked(fs.pathExists).mockImplementation(async () => true);
       const fakeWriter = { write: vi.fn() };
-      await service.bridge(rootDir, [Agent.Claude], fakeWriter, { dryRun: true });
+      await service.bridge(rootDir, [Agent.Claude], fakeWriter, {
+        dryRun: true,
+      });
       expect(fs.outputFile).not.toHaveBeenCalled();
       expect(fs.appendFile).not.toHaveBeenCalled();
       expect(fakeWriter.write).not.toHaveBeenCalled();

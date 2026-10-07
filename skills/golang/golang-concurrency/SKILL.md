@@ -4,15 +4,18 @@ description: Write safe concurrent Go code with goroutines, channels, and contex
 metadata:
   triggers:
     keywords:
-    - goroutine
-    - go keyword
-    - channel
-    - mutex
-    - waitgroup
-    - context
-    - errgroup
-    - race condition
+      - goroutine
+      - go keyword
+      - channel
+      - mutex
+      - waitgroup
+      - Go context
+      - context in Go
+      - context.Context
+      - errgroup
+      - race condition
 ---
+
 # Golang Concurrency
 
 ## **Priority: P0 (CRITICAL)**

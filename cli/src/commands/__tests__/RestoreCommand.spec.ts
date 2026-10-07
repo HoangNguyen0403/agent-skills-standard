@@ -1,7 +1,15 @@
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
-import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type MockInstance,
+} from 'vitest';
 import { BackupService } from '../../services/install/BackupService';
 import { RestoreCommand } from '../restore';
 
@@ -68,7 +76,9 @@ describe('RestoreCommand', () => {
     await cmd.run(undefined, { list: true });
 
     expect(process.exitCode).toBeUndefined();
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('No backups found in .ags/backups'));
+    expect(logSpy).toHaveBeenCalledWith(
+      expect.stringContaining('No backups found in .ags/backups'),
+    );
   });
 
   it('restores a deleted file byte-identical and prints confirmation', async () => {
@@ -94,9 +104,13 @@ describe('RestoreCommand', () => {
     expect(await fs.pathExists(filePath)).toBe(true);
     expect(await fs.readFile(filePath, 'utf8')).toBe(originalContent);
 
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(`Restored 1 file(s) from ${id}`));
     expect(logSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Run ags verify to compare with .skills-lock.json'),
+      expect.stringContaining(`Restored 1 file(s) from ${id}`),
+    );
+    expect(logSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'Run ags verify to compare with .skills-lock.json',
+      ),
     );
   });
 

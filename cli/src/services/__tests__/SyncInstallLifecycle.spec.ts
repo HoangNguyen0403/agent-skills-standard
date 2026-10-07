@@ -152,9 +152,7 @@ describe('SyncInstallLifecycle', () => {
     const plan = await runSync(emptyConfig, []);
 
     expect(plan.pruned.length).toBe(2);
-    expect(plan.pruned).toContain(
-      '.claude/skills/typescript/ts-core/SKILL.md',
-    );
+    expect(plan.pruned).toContain('.claude/skills/typescript/ts-core/SKILL.md');
     expect(plan.pruned).toContain(
       '.claude/skills/typescript/ts-core/references/guide.md',
     );

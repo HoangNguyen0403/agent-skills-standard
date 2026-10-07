@@ -335,11 +335,7 @@ export class GithubService {
       const res = await fetch(url);
       if (!res.ok) return null;
       const data = (await res.json()) as unknown;
-      if (
-        typeof data !== 'object' ||
-        data === null ||
-        Array.isArray(data)
-      ) {
+      if (typeof data !== 'object' || data === null || Array.isArray(data)) {
         return null;
       }
       const record = data as Record<string, unknown>;

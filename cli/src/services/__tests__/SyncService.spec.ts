@@ -150,7 +150,9 @@ describe('SyncService', () => {
       .mockResolvedValue({ default_branch: 'main' });
     mockGithubService.getRawFile = vi.fn().mockResolvedValue('{}');
 
-    mockGithubService.resolveCommit = vi.fn().mockResolvedValue('1111111111111111111111111111111111111111');
+    mockGithubService.resolveCommit = vi
+      .fn()
+      .mockResolvedValue('1111111111111111111111111111111111111111');
     mockGithubService.getReleaseManifest = vi.fn().mockResolvedValue(null);
     vi.spyOn(console, 'log').mockImplementation(() => {});
   });
@@ -359,7 +361,6 @@ describe('SyncService', () => {
       );
     });
   });
-
 
   describe('assembleWorkflows', () => {
     it('should delegate to workflowSyncService for any agent', async () => {
@@ -1086,7 +1087,9 @@ describe('SyncService', () => {
         },
       });
       mockGithubService.getRawFile.mockResolvedValue(meta);
-      mockGithubService.resolveCommit.mockResolvedValue('1111111111111111111111111111111111111111');
+      mockGithubService.resolveCommit.mockResolvedValue(
+        '1111111111111111111111111111111111111111',
+      );
       mockGithubService.getReleaseManifest.mockResolvedValue({
         schema_version: 1,
         tag: 'workflows-v1.0.0',
@@ -1132,13 +1135,17 @@ describe('SyncService', () => {
         },
         migratedFromV1: false,
       });
-      mockGithubService.resolveCommit.mockResolvedValue('2222222222222222222222222222222222222222');
+      mockGithubService.resolveCommit.mockResolvedValue(
+        '2222222222222222222222222222222222222222',
+      );
 
       const logSpy = vi.spyOn(console, 'log');
       await syncService.resolvePins(config);
 
       expect(logSpy).toHaveBeenCalledWith(
-        expect.stringContaining('workflows@workflows-v1.0.0 moved: 1111111 → 2222222'),
+        expect.stringContaining(
+          'workflows@workflows-v1.0.0 moved: 1111111 → 2222222',
+        ),
       );
     });
 
@@ -1163,7 +1170,9 @@ describe('SyncService', () => {
         },
         migratedFromV1: false,
       });
-      mockGithubService.resolveCommit.mockResolvedValue('1111111111111111111111111111111111111111');
+      mockGithubService.resolveCommit.mockResolvedValue(
+        '1111111111111111111111111111111111111111',
+      );
 
       const logSpy = vi.spyOn(console, 'log');
       await syncService.resolvePins(config);
@@ -1179,9 +1188,14 @@ describe('SyncService', () => {
         workflows_ref: 'workflows-v1.0.0',
         skills: { common: { ref: 'common-v1.0.0' } },
       });
-      mockGithubService.resolveCommit.mockResolvedValue('3333333333333333333333333333333333333333');
+      mockGithubService.resolveCommit.mockResolvedValue(
+        '3333333333333333333333333333333333333333',
+      );
       const p = privatesOf(syncService);
-      p.lockfileService.load.mockResolvedValue({ lock: null, migratedFromV1: false });
+      p.lockfileService.load.mockResolvedValue({
+        lock: null,
+        migratedFromV1: false,
+      });
 
       await syncService.resolvePins(config);
       await syncService.beginInstall(config, { dryRun: false, force: [] });
@@ -1221,7 +1235,9 @@ describe('SyncService', () => {
         },
       });
       mockGithubService.getRawFile.mockResolvedValue(meta);
-      mockGithubService.resolveCommit.mockResolvedValue('1111111111111111111111111111111111111111');
+      mockGithubService.resolveCommit.mockResolvedValue(
+        '1111111111111111111111111111111111111111',
+      );
 
       await syncService.resolvePins(config);
       await syncService.assembleWorkflows(config);
@@ -1515,7 +1531,9 @@ describe('SyncService', () => {
           makeConfig({ registry: 'https://github.com/owner/repo' }),
           mockExecEnoent,
         ),
-      ).rejects.toThrow('gh CLI not found; install GitHub CLI to verify attestations');
+      ).rejects.toThrow(
+        'gh CLI not found; install GitHub CLI to verify attestations',
+      );
     });
 
     // Test intent: records failure detail when execution throws generic error
@@ -1573,9 +1591,15 @@ describe('SyncService', () => {
       const unfetchedContent = 'unfetched content';
 
       const specSha = createHash('sha256').update(specContent).digest('hex');
-      const bridgeSha = createHash('sha256').update(bridgeContent).digest('hex');
-      const orphanSha = createHash('sha256').update(orphanContent).digest('hex');
-      const unfetchedSha = createHash('sha256').update(unfetchedContent).digest('hex');
+      const bridgeSha = createHash('sha256')
+        .update(bridgeContent)
+        .digest('hex');
+      const orphanSha = createHash('sha256')
+        .update(orphanContent)
+        .digest('hex');
+      const unfetchedSha = createHash('sha256')
+        .update(unfetchedContent)
+        .digest('hex');
 
       const prevEntries = {
         'agent1/spec.md': {
@@ -1615,7 +1639,9 @@ describe('SyncService', () => {
       vi.mocked(fs.pathExists).mockImplementation(async (p) =>
         p.toString().endsWith('.md'),
       );
-      vi.mocked(fs.readdir).mockResolvedValue(['sibling-file.md'] as unknown as string[]);
+      vi.mocked(fs.readdir).mockResolvedValue([
+        'sibling-file.md',
+      ] as unknown as string[]);
       vi.mocked(fs.readFile).mockImplementation(async (p) => {
         const pStr = p.toString();
         if (pStr.includes('spec.md')) return specContent;
@@ -1638,7 +1664,9 @@ describe('SyncService', () => {
       // Unconfigured agent whose file was edited by user is kept as orphan
       expect(plan.keptOrphans).toEqual(['agent2/orphan.md']);
       // Unfetched group/category files are retained in lockfile entries
-      expect(privatesOf(syncService).lockfileService.write).toHaveBeenCalledWith(
+      expect(
+        privatesOf(syncService).lockfileService.write,
+      ).toHaveBeenCalledWith(
         process.cwd(),
         expect.objectContaining({
           entries: {
@@ -1674,7 +1702,9 @@ describe('SyncService', () => {
       });
       expect(plan.pruned).toEqual([]);
       expect(plan.keptOrphans).toEqual([]);
-      expect(privatesOf(syncService).lockfileService.write).toHaveBeenCalledWith(
+      expect(
+        privatesOf(syncService).lockfileService.write,
+      ).toHaveBeenCalledWith(
         process.cwd(),
         expect.objectContaining({
           entries: {
@@ -1697,7 +1727,9 @@ describe('SyncService', () => {
         workflows: [],
         specialistsOk: true,
       });
-      expect(privatesOf(syncService).lockfileService.write).not.toHaveBeenCalled();
+      expect(
+        privatesOf(syncService).lockfileService.write,
+      ).not.toHaveBeenCalled();
     });
 
     // Test intent: builds sources using default refs when resolvedRefs is not set
@@ -1716,7 +1748,9 @@ describe('SyncService', () => {
         workflows: [],
         specialistsOk: true,
       });
-      expect(privatesOf(syncService).lockfileService.write).toHaveBeenCalledWith(
+      expect(
+        privatesOf(syncService).lockfileService.write,
+      ).toHaveBeenCalledWith(
         process.cwd(),
         expect.objectContaining({
           sources: expect.objectContaining({
@@ -1753,5 +1787,5 @@ describe('SyncService', () => {
         expect.stringContaining('(dry-run) would update AGENTS.md'),
       );
     });
-});
+  });
 });

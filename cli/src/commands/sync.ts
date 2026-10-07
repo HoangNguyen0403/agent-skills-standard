@@ -111,9 +111,7 @@ export class SyncCommand {
         if (options.dryRun) {
           if (!options.json) {
             for (const [cat, ref] of Object.entries(updates)) {
-              console.log(
-                pc.gray(`  (dry-run) would offer: ${cat} -> ${ref}`),
-              );
+              console.log(pc.gray(`  (dry-run) would offer: ${cat} -> ${ref}`));
             }
           }
         } else {
@@ -125,9 +123,7 @@ export class SyncCommand {
                 : cat === 'specialists'
                   ? config.specialists_ref
                   : config.skills[cat]?.ref;
-            console.log(
-              pc.gray(`  - ${cat}: ${currentRef} -> ${ref}`),
-            );
+            console.log(pc.gray(`  - ${cat}: ${currentRef} -> ${ref}`));
           }
 
           let update = options.yes;
@@ -144,7 +140,8 @@ export class SyncCommand {
                 {
                   type: 'confirm',
                   name: 'update',
-                  message: 'Do you want to update .skillsrc with these versions?',
+                  message:
+                    'Do you want to update .skillsrc with these versions?',
                   default: true,
                 },
               ]);

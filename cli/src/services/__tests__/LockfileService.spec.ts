@@ -62,13 +62,17 @@ describe('LockfileService v2', () => {
       '.claude/skills/typescript/typescript-core/SKILL.md',
       '.claude/skills/typescript/typescript-core/references/a.md',
     ]);
-    expect(entries['.claude/skills/typescript/typescript-core/SKILL.md']).toEqual({
+    expect(
+      entries['.claude/skills/typescript/typescript-core/SKILL.md'],
+    ).toEqual({
       owner: 'skill',
       source: 'skill:typescript/typescript-core@typescript-v1.0.0',
       agent: 'claude',
       sha256: 'h1',
     });
-    expect(entries['.claude/skills/typescript/typescript-core/references/a.md']).toEqual({
+    expect(
+      entries['.claude/skills/typescript/typescript-core/references/a.md'],
+    ).toEqual({
       owner: 'skill',
       source: 'skill:typescript/typescript-core@typescript-v1.0.0',
       agent: 'claude',
@@ -117,7 +121,12 @@ describe('LockfileService v2', () => {
     expect(await service.readDisclosed(root)).toBeUndefined();
 
     // writeDisclosed on a v1 file keeps version: 1 content and adds disclosed
-    const v1Content = { version: 1, registry: 'r', generatedAt: 't', skills: {} };
+    const v1Content = {
+      version: 1,
+      registry: 'r',
+      generatedAt: 't',
+      skills: {},
+    };
     await fs.writeJson(path.join(root, LOCKFILE_NAME), v1Content);
     await service.writeDisclosed(root, { claude: ['hooks'] });
     const rawV1 = await fs.readJson(path.join(root, LOCKFILE_NAME));
@@ -156,7 +165,12 @@ describe('LockfileService v2', () => {
 
     const entries: Record<string, ManifestEntry> = {
       [fileA]: { owner: 'skill', source: 's', agent: 'claude', sha256: hashA },
-      [fileB]: { owner: 'skill', source: 's', agent: 'claude', sha256: hashBOrig },
+      [fileB]: {
+        owner: 'skill',
+        source: 's',
+        agent: 'claude',
+        sha256: hashBOrig,
+      },
       [fileC]: { owner: 'skill', source: 's', agent: 'claude', sha256: hashC },
       [fileD]: { owner: 'skill', source: 's', agent: 'cursor', sha256: hashD },
     };
@@ -168,13 +182,21 @@ describe('LockfileService v2', () => {
     expect(resultAll.missing).toEqual([fileC]);
 
     // Filtered to cursor: only fileD which matches
-    const resultCursor = await service.verifyEntries(root, entries, Agent.Cursor);
+    const resultCursor = await service.verifyEntries(
+      root,
+      entries,
+      Agent.Cursor,
+    );
     expect(resultCursor.ok).toBe(true);
     expect(resultCursor.mismatches).toEqual([]);
     expect(resultCursor.missing).toEqual([]);
 
     // Filtered to claude: fileB mismatches, fileC missing
-    const resultClaude = await service.verifyEntries(root, entries, Agent.Claude);
+    const resultClaude = await service.verifyEntries(
+      root,
+      entries,
+      Agent.Claude,
+    );
     expect(resultClaude.ok).toBe(false);
     expect(resultClaude.mismatches).toEqual([fileB]);
     expect(resultClaude.missing).toEqual([fileC]);

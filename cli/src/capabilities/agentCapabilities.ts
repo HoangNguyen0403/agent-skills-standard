@@ -11,12 +11,7 @@ import { Agent } from '../constants/enums';
  * - 'none':    Agent has no verified user-invoked command system
  */
 export type WorkflowFormat =
-  | 'native'
-  | 'command'
-  | 'toml'
-  | 'prompt'
-  | 'skill'
-  | 'none';
+  'native' | 'command' | 'toml' | 'prompt' | 'skill' | 'none';
 
 export type SpecialistFormat =
   | 'claude-md'
@@ -37,7 +32,10 @@ export interface McpSpec {
   key: string;
   shape: 'map' | 'list';
   format?: 'json' | 'toml';
-  legacyJson?: { projectFile: string | null; userFile: (home: string) => string | null };
+  legacyJson?: {
+    projectFile: string | null;
+    userFile: (home: string) => string | null;
+  };
 }
 
 export interface AgentDefinition {
@@ -468,7 +466,10 @@ export function disclosureLines(
     const unsupported = unsupportedSurfaces(def);
     next[agent] = unsupported;
     const prev = previous?.[agent];
-    if (unsupported.length > 0 && (!prev || prev.join(',') !== unsupported.join(','))) {
+    if (
+      unsupported.length > 0 &&
+      (!prev || prev.join(',') !== unsupported.join(','))
+    ) {
       lines.push(`${def.name}: ${unsupported.join(', ')} not supported`);
     }
   }

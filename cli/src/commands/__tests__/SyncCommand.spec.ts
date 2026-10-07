@@ -282,7 +282,9 @@ describe('SyncCommand', () => {
       }),
     );
     expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining('📌 Pinned workflows-v1.0.0, specialists-v2.0.0 in .skillsrc'),
+      expect.stringContaining(
+        '📌 Pinned workflows-v1.0.0, specialists-v2.0.0 in .skillsrc',
+      ),
     );
   });
 
@@ -302,7 +304,9 @@ describe('SyncCommand', () => {
 
     expect(mockConfigService.saveConfig).not.toHaveBeenCalled();
     expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining('(dry-run) would pin workflows-v1.0.0, specialists-v2.0.0 in .skillsrc'),
+      expect.stringContaining(
+        '(dry-run) would pin workflows-v1.0.0, specialists-v2.0.0 in .skillsrc',
+      ),
     );
   });
 

@@ -11,7 +11,7 @@
 | common-architecture-audit | `package.json`, `pubspec.yaml`, `go.mod`, `pom.xml`, `nest-cli.json` | architecture audit, code review, tech debt, logic leakage, refactor |
 | common-architecture-diagramming | `ARCHITECTURE.md`, `**/*.drawio`, `**/*.mermaid`, `docs/architecture/**` | diagram, c4, drawio, mermaid, erd, entity relationship, schema diagram, aws, architecture diagram, solution architecture, system context, deployment diagram |
 | **common-business-requirements** | `BRD.md`, `docs/brd/brd-*.md`, `specs/*.md` | create brd, business requirements, business case, stakeholder impact, as-is to to-be, roi justification |
-| common-context-optimization | `*.log`, `chat-history.json` | reduce tokens, optimize context, summarize history, clear output |
+| common-context-optimization | `*.log`, `chat-history.json` | reduce tokens, optimize context, summarize history, clear output, context management, prompt-cache, prompt caching, orchestration cost |
 | common-error-handling | `**/*.service.ts`, `**/*.handler.ts`, `**/*.controller.ts` | error handling, exception, try catch, error boundary, error response, error code, throw |
 | **common-feedback-reporter** | `SKILL.md`, `+common/common-learning-log` | skill violation, pre-write audit, audit violations |
 | common-learning-log | `AGENTS_LEARNING.md` | mistake, wrong, redo, correction, agent error, learning log |
