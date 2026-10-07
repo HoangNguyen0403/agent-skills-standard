@@ -1,7 +1,0 @@
-{
-  "name": "fixture-authorization",
-  "version": "1.0.0",
-  "description": "Minimal multi-tenant authorization fixture for task evaluation harness",
-  "main": "src/service.js",
-  "private": true
-}
