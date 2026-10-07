@@ -1,7 +1,0 @@
-{
-  "name": "fixture-pagination",
-  "version": "1.0.0",
-  "description": "Minimal pagination fixture for task evaluation harness",
-  "main": "src/paginate.js",
-  "private": true
-}

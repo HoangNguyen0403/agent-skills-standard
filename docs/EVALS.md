@@ -1,20 +1,18 @@
 # Live Skill Evals
 
-Live evals measure behavioral change, not skill-file size. The evaluation framework supports two complementary workflows: text-based skill evaluation and executable task evaluation.
+Live evals measure behavioral change, not skill-file size. The v2 protocol is:
 
-## Text Evaluation Protocols
-
-1. **Protocol lineage**:
-   - `neutral-skill-v4` governs new text evaluations. Baseline and with-skill arms receive identical task instructions; only the skill payload differs.
-   - Historical v1/v3 transcripts and manifests remain immutable and verifiable under their recorded scoring semantics. Do not relabel historical evidence or combine it into fresh neutral comparisons.
-   - Reports retain known protocol contributors and unresolved provenance separately. Unknown contributors are uncertainty, not proof of a mixed protocol; do not certify a known-only headline when unresolved contributors remain.
-2. **Evidence limits**: Text evaluations check deterministic transcript assertions. They are instruction-adherence evidence, not proof of software correctness, model capability, or tool-free execution. Prompt prohibitions and read-only filesystem settings do not prove that tools were unavailable or unused.
-3. **Execution**: Build a category or aggregate manifest, answer both arms in isolated workers, score complete runs, verify against immutable `inputs.json`, and project aggregate runs into the newest complete category partitions.
+1. Build a category or aggregate manifest.
+2. Answer baseline and with-skill arms in isolated workers.
+3. Score only complete runs.
+4. Verify from the immutable `inputs.json` snapshot.
+5. Project aggregate runs into the newest complete category partitions.
 
 New v2 manifests use assertion-semantics-v2: Markdown formatting, line wrapping,
 and equivalent placeholder names do not fail a concrete assertion, while
 numeric/status/path literals remain exact. Historical manifests without this
 field retain literal v1 scoring semantics.
+
 ## Config-Change Gate
 
 Agent configuration is code. A diff that touches `skills/**`, `.agents/workflows/**`, or a hook
@@ -354,72 +352,6 @@ accuracy cannot make a skill with weak with-skill cases release-ready.
 
 Known compromised baselines are surfaced in the manifest and have `n/a` baseline and delta metrics until clean reruns replace them.
 
-## Executable Task-Evaluation Pilot (`evals:tasks`)
-
-The executable harness evaluates agent performance empirically against executable fixture tasks, comparing minimal, current, and candidate instruction sets.
-
-### Command-Line Interface
-
-```bash
-# Basic invocation
-pnpm evals:tasks --manifest benchmarks/tasks/pilot.json --worker <path-to-worker.json> --output <new-output-dir>
-
-# Filter by split and set repetitions
-pnpm evals:tasks --manifest benchmarks/tasks/pilot.json --worker <path-to-worker.json> --output <new-output-dir> --split calibration --repeat 3
-
-# Keep workspaces for post-mortem inspection
-pnpm evals:tasks --manifest benchmarks/tasks/pilot.json --worker <path-to-worker.json> --output <new-output-dir> --keep-workspaces
-```
-
-Direct script invocation:
-```bash
-tsx scripts/evals/task-index.ts --manifest benchmarks/tasks/pilot.json --worker config/worker.json --output evals/runs/pilot-run-1
-```
-
-### Worker Configuration Contract
-
-Worker execution is governed by a trusted JSON configuration file:
-
-```json
-{
-  "executable": "/path/to/cli-or-agent-binary",
-  "args": ["exec", "--workspace", "{workspace}", "--prompt-file", "{promptFile}"],
-  "model": "gpt-5.4",
-  "effort": "high",
-  "timeoutMs": 60000
-}
-```
-
-- **Arguments & substitution**: `{workspace}` and `{promptFile}` are the only supported string substitutions. Arguments are spawned directly without shell interpolation.
-- **Prompt passing**: The prompt is written to `{promptFile}` and streamed on stdin for CLIs supporting piped input.
-- **Operator-supplied metadata**: `model` and `effort` are recorded as configured facts, not inferred values.
-- **Completion receipt**: The trusted verifier writes its completion receipt to the path in `TASK_EVAL_VERIFICATION_RESULT_PATH`. The runner independently validates the completed status, unique check IDs, explicit outcomes, evidence, recomputed counts, and agreement with verifier exit status. Missing, malformed, duplicate, incomplete, or inconsistent receipts are infrastructure failures. Valid failed checks remain evaluated product failures with their evidence preserved.
-- **Process cleanup**: On POSIX, the runner waits for its owned process group to settle on normal completion and performs bounded TERM/KILL cleanup on failure or timeout; inability to establish cleanup fails closed. Windows does not provide this descendant process-group guarantee. Deliberately detached sessions are outside the owned-group contract.
-
-### Task Manifests and Fixtures
-
-Pilot tasks test concrete software engineering problems under `benchmarks/tasks/`:
-- **Pagination boundary handling**: checks zero-based offsets, page limits, maximum-page clamping, empty results, and negative parameters.
-- **Cross-tenant authorization**: creation uses the authenticated tenant despite caller-supplied tenant values; foreign-ID collisions must not overwrite any foreign document state. Viewers omit restricted documents from lists and direct restricted reads are denied; editors and admins retain their complete same-tenant restricted listings and cannot access another tenant's documents.
-
-### Out-of-workspace trusted verifiers
-
-- **Integrity boundary**: Verifiers live outside writable fixture workspaces. Their hashes detect lasting changes, but same-UID workers can read or alter their environment and may race files. Completion receipts are integrity evidence, not an OS sandbox or defense against deliberately hostile same-UID code.
-- **Independent validation**: A clean worker exit alone is insufficient. The runner requires a valid completed verifier receipt and consistent verifier exit status. Infrastructure failures are not counted as candidate product failures.
-### Security notice: nonproduction trust model
-
-> [!WARNING]
-> **NO OS-LEVEL SANDBOX**: Child processes use the host user's permissions and environment. The harness does not provide containerization, chroot, network namespaces, or OS-level sandboxing.
-> - Execute only trusted worker configurations against isolated nonproduction fixtures.
-> - Markdown instructions and read-only filesystem configuration are advisory; they do not prove runtime tool restrictions.
-> - Owned process-group cleanup does not cover deliberately detached descendants or establish Windows descendant cleanup.
-
-### Measurement limits and missing model benchmarks
-
-- Deterministic fixture checks verify runner, receipt, cleanup, and verifier behavior; they are not live model capability sweeps.
-- Reports distinguish total attempts, evaluated product runs, timeouts, and infrastructure errors. Product pass rates use only evaluated runs; without valid product evidence the rate is `null`, not `0%`.
-- Unknown token and cost values remain `null`; they are never estimated or fabricated.
-
 ## Artifacts
 
 ```text
@@ -430,7 +362,7 @@ answers/...         # committed agent transcripts
 results.json        # generated v2 metrics; never hand-edit
 ```
 
-The root scripts, published CLI verifier, and MCP verifier share the v2 assertion-semantics path. v1 manifests/results remain readable through a compatibility adapter.
+The root scripts, published CLI verifier, and MCP verifier all use the same v2 path and assertion semantics. v1 manifests/results remain readable through a compatibility adapter.
 
 The matcher is duplicated in three places — `scripts/evals/scorer.ts`, `cli/src/services/assertion-semantics.ts`, and `mcp/src/services/assertion-semantics.ts` — because `mcp/tsconfig.json` pins `rootDir: src` and each package bundles independently. `scripts/evals/assertion-parity.test.ts` runs all three over a shared corpus under both semantics versions and fails if they diverge. Change all three together.
 
@@ -438,6 +370,6 @@ The matcher is duplicated in three places — `scripts/evals/scorer.ts`, `cli/sr
 
 Completed transcripts and generated scores remain immutable. Backfilled `inputs.json` snapshots make historical runs reproducible even if current skill or eval files change.
 
-`pnpm evals:report` retains physical runs in `benchmarks/evals/history.json` and `benchmarks/evals/archive/`, then projects an `all` run into category partitions before choosing the newest complete partition per category. Provenance summaries retain known protocols and unresolved contributors independently; physical-history protocol labels are qualified from the complete physical run when available. These are presentation changes only: historical runs, transcripts, results, and recorded percentages are not rewritten.
+`pnpm evals:report` retains every physical run in `benchmarks/evals/history.json` and `benchmarks/evals/archive/`, then projects an `all` run into its category partitions before selecting the newest complete partition per category.
 
 Do not publish a pending run, hand-edit scores, or edit exported workflow copies independently of `.agents/workflows/evals-run.md`.

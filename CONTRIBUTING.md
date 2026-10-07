@@ -6,7 +6,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ### Prequisites
 
-- Node.js v20+ (the supported runtime floor)
+- Node.js v18+
 - pnpm (v9+)
 
 ### Installation
@@ -90,8 +90,6 @@ Rules:
 6. Add the workflow to `DEFAULT_WORKFLOWS` only when it belongs in the standard SDLC spine, and add canonical source at `.agents/workflows/<name>.md`.
 7. Core SDLC workflows must expose `Runtime Contract`, `Handoff Payload`, `Blocking Questions`, and `Next Workflow` for interactive and channel-agent runtimes.
 8. Run `pnpm audit:sdlc` after changes.
-9. **Risk-sized routing**: Workflows must support risk-sized routing via SNC (Spread/Novelty/Centrality) tiers: sufficiently specified low-risk maintenance may use an in-chat delivery contract rather than requiring full BRD/PRD/SRS artifact sets.
-10. **Sensitive-change risk floor**: Changes touching authentication, authorization, payments/financial flows, cryptography, or security trust boundaries carry an irreducible risk floor independent of arithmetic SNC scores; they require rigorous verification and independent review.
 
 ## 5. Default Init Standards
 
@@ -108,13 +106,6 @@ Rules:
 7. Channel agents must continue only when required artifacts/owners are known; otherwise return BLOCKED with max 3 blocking questions.
 8. New specialists must include `evals/evals.json`, strict budgets, structured output, and `No sub-agents`.
 9. Specialists and generated workflow skills set `metadata.internal: true` so skill installers (`npx skills`) don't offer them as installable skills.
-10. File-modifying specialists must declare `risk_tier: L2` in `SKILL.md` frontmatter so exporters project `workspace-write` permissions. Analysis and review specialists omit write tiers and remain least-privilege read-only. Advisory markdown instructions cannot enforce runtime boundaries; concrete isolation depends on host runtime controls.
-
-Native YAML specialist exports must begin with `---`; advisory permission warnings belong after the closing frontmatter delimiter so native parsers can read the metadata. The warning describes policy but is not enforcement.
-
-Review-package collection uses a scoped alternate Git index to capture BASE-relative current bytes and symlink target text without mutating the caller's index or dereferencing symlinks. The package includes paths currently tracked in the caller's index, including staged new files later ignored by Git, and excludes ignored untracked files.
-
-For implementation and verification, preserve the low-risk in-chat brief/criteria/evidence handoff across `implement-feature` → `verify-work`; risk-sized evidence does not waive applicable tests or verification. Governed changes still require formal trace and sensitive changes retain their risk, approval, and independent-review floors. See `.agents/workflows/implement-feature.md` and `.agents/workflows/verify-work.md`.
 
 ## 6. Quality Gates
 
@@ -167,31 +158,6 @@ kept as historical evidence but cannot be promoted as release proof.
 
 Never hand-edit `results.json` or historical transcripts. New runs must be complete, must contain immutable `inputs.json`, and must use the canonical `.agents/workflows/evals-run.md` workflow; regenerate exported workflow copies from the canonical source.
 
-### Neutral Text-Evaluation Protocol (`neutral-skill-v4`)
-
-New text-evaluation generation uses the `neutral-skill-v4` protocol:
-- Both baseline and with-skill arms receive identical prompt instructions; only the skill payload differs in the with-skill arm.
-- Answer-anchor and pressure-resistance coaching phrases are removed to eliminate evaluation bias.
-- **Transcript evidence limitations**: Text evals measure regex/contains assertion matches in transcripts. They are transcript evidence, not end-to-end proofs of runtime correctness or holistic model intelligence.
-- **Immutable historical evidence**: Historical v1/v3 transcripts and manifests are immutable. Never relabel or silently mix historical coached runs into fresh neutral-protocol evaluations.
-
-### Executable Task-Evaluation Pilot (`evals:tasks`)
-
-For empirical verification of code changes against real fixtures:
-
-```bash
-# Run the executable task pilot
-pnpm evals:tasks --manifest benchmarks/tasks/pilot.json --worker <path-to-worker.json> --output <new-output-dir> [--repeat N] [--split calibration|holdout]
-```
-
-- Worker configuration JSON: `{ "executable": string, "args": string[], "model": string, "effort": string, "timeoutMs": number }`. Supports `{workspace}` and `{promptFile}` substitution without shell interpolation.
-- Tests code modifications on fixture workspaces (`benchmarks/tasks/fixtures/pagination`, `benchmarks/tasks/fixtures/authorization`) using external verifiers. Completion requires a structured verifier receipt checked by the outer runner, not exit status alone. Missing or inconsistent evidence is an infrastructure failure; genuine failed checks remain evaluated product failures with their evidence.
-- POSIX owned process-group cleanup is bounded and fails closed if quiescence cannot be established. Windows descendant cleanup and deliberately detached sessions are outside that guarantee.
-- **Security notice / nonproduction trust**: Child processes use host user permissions and environment; the harness provides no OS-level sandbox. Receipts are not a boundary against hostile same-UID code. Run only trusted configurations on nonproduction fixtures.
-- **Measurement limits**: Fixture suites and deterministic child-process checks verify runner plumbing, cleanup, and verifier behavior; they do not measure live model capability. Product pass rates exclude infrastructure errors and are `null` without valid product evidence. Unknown token/cost metrics remain `null`, not estimated.
-
-`scripts/evals/*.test.ts` runs in the Node 20 CI lane through `pnpm test:evals`; the CI script-test step runs `pnpm test:evals && pnpm test:outcome && pnpm test:trace`. Remote-sync CI continues to use the actual GitHub sync path with the workflow's read-only token, not a mock.
-
 For release candidates, also run:
 
 ```bash
@@ -211,6 +177,5 @@ We use specialized scripts for releasing components independently:
 - `pnpm release:manifest --tag <tag> [--out <file>]`: Rebuilds the deterministic `MANIFEST.json` locally for any release tag.
 
 When `.agents/workflows/**` changes, bump `releases.workflows.version` in `skills/metadata.json`. Every registry release publishes a `MANIFEST.json` containing sha256 checksums of all released files along with a GitHub build-provenance attestation.
-- When `skills/<category>/**` changes, bump `categories.<category>.version` (e.g. patch increment) and update `last_updated` in `skills/metadata.json`.
 
 Ensure you update `CHANGELOG.md` manually before running release scripts if significant features were added.
