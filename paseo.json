@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "validate": {
+      "command": "pnpm --filter ./cli validate"
+    },
+    "lint": {
+      "command": "pnpm -r lint:check"
+    },
+    "build": {
+      "command": "pnpm --filter ./cli build"
+    },
+    "test": {
+      "command": "pnpm test"
+    }
+  }
+}
