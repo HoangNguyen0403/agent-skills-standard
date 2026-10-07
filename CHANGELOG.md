@@ -9,13 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-**Category**: CLI Tool, Quality Engineering, Common, Cybersecurity, Testing Skills
+**Category**: CLI Tool, Quality Engineering, Common, Cybersecurity, Testing Skills, Specialists, Workflows, Evaluations, MCP Server
+
+### Changed
+
+- Modernized model-aware instruction and workflow guidance (`common-v2.8.5`, `workflows-v1.1.3`) with context applicability, evidence freshness, runtime-managed compaction, bounded worker ownership, and risk-sized review gates that retain sensitive-change verification floors.
+- Aligned specialist permissions (`specialists-v1.5.1`): file-writing roles use workspace-write permissions in Codex exports, while analysis and review roles remain read-only.
+- Refocused Copilot's repository-local skill-authoring guidance on registry maintenance instead of duplicating generic skill creation.
+- Adopted neutral paired text-evaluation instructions (`neutral-skill-v4`) and explicit history/provenance validation without rewriting historical evaluation records or scores.
 
 ### Fixed
 
 - Managed skill package files and ownership-writer operations refuse pre-existing symlinks below the project root before payload writes, reads, backups, or pruning; package resources across selected agents are checked before the first package write. This does not cover unrelated direct root-document writes or concurrent filesystem swaps.
 - Removed a cross-project environment and credential-handling reference from the reusable Playwright CLI skill and four tracked agent install mirrors.
 - SkillSpector static scan: reworded phrasing that matched Excessive-Agency and Memory-Poisoning heuristics without changing intended behavior. `common-decision-discipline` and `cyber-framework-mapping` no longer read as unconfirmed autonomous action; the 13 testing skills' `Permanent Rule Anchor IDs` heading (which the scanner's persistent-context-injection pattern flagged on the word "Permanent") is renamed `Core Rule Anchors` across `android`, `angular`, `flutter`, `golang`, `java`, `laravel`, `nestjs`, `php`, `python`, `react`, `react-native`, `spring-boot`, and `swift` testing skills. Risk score reduced from 27 to within the 25 threshold; 0 critical findings before and after.
+- Raised the MCP SDK dependency minimum to `1.31.0` and regenerated its lockfile to address [GHSA-6qxp-vccf-f47h](https://github.com/advisories/GHSA-6qxp-vccf-f47h) and clear the production dependency audit.
+- Moved the review-package maintainer regression suite to `scripts/skill-tests/common-subagent-driven-development/test_review_package.py`, outside canonical and generated skill packages. All 13 cases remain covered by CI; existing CLI versions no longer install this test, and runtime helpers are unchanged.
 
 ## [android-v1.5.1]
 
