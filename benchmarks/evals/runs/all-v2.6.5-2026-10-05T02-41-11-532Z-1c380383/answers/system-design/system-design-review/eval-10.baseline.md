@@ -1,0 +1,1 @@
+Handoff: Trusted, author-confirmed review with material finding F-RESTORE and maintainer write authorization. Initial plan-file creation failed before any file existed. No plan artifact, review link, or architecture-entry link was written. Treat the handoff as unsaved and unlinked; no retry was performed.

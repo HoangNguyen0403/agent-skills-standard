@@ -1,0 +1,1 @@
+Our checkout is slow and the team wants to rewrite it in Go with microservices. Thoughts?

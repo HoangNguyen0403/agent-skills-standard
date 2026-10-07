@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "run_id": "system-design-review-outcomes-implementation-readiness-20261005T015445Z",
+  "slug": "system-design-review-outcomes",
+  "workflow": "implementation-readiness",
+  "verdict": "BLOCKED",
+  "feature_status": "blocked",
+  "operator_profile": "technical",
+  "started_at": "2026-10-05T01:54:45Z",
+  "completed_at": "2026-10-05T01:56:18Z",
+  "ready_slices": [],
+  "prepared_slices": [
+    {
+      "name": "T1: workflow and skill handoff contract",
+      "owner_role": "workflow author, accountable to registry maintainer",
+      "scope": [
+        ".agents/workflows/review-system-design.md",
+        "skills/system-design/system-design-review/SKILL.md"
+      ],
+      "trace": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-005",
+        "AC-006",
+        "AC-007",
+        "SRS-001",
+        "SRS-002",
+        "SRS-003"
+      ],
+      "verification": "Writable, read-only, partial-write, proposed-only, and zero-action review replays per VER-001..007"
+    },
+    {
+      "name": "T2: behavioral regressions",
+      "owner_role": "independent QA/eval reviewer",
+      "scope": ["skills/system-design/system-design-review/evals/evals.json"],
+      "trace": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-005",
+        "AC-006",
+        "AC-007"
+      ],
+      "verification": "Focused eval preflight and fresh captured-case/counterexample run with independent semantic grading; redact case content before committing"
+    },
+    {
+      "name": "T3: release checks",
+      "owner_role": "registry release maintainer",
+      "scope": ["registry validation and exported workflow review"],
+      "trace": ["AC-003", "AC-004", "AC-005", "AC-006", "AC-007"],
+      "verification": "pnpm validate:all; pnpm audit:sdlc; pnpm check-alignment; focused pnpm evals:preflight; reviewed release revision"
+    }
+  ],
+  "blocking_gaps": [
+    {
+      "area": "implementation ownership",
+      "gap": "The PRD and SRS name only roles; no implementation owner has accepted T1 or T2.",
+      "owner_input_needed": "Registry maintainer assigns an accepted workflow author and independent QA/eval reviewer."
+    },
+    {
+      "area": "independent technical review",
+      "gap": "The operator approved the SRS, but the registry maintainer's separate architecture/contract review has not been evidenced.",
+      "owner_input_needed": "Registry maintainer records independent review of source-of-truth, conditional persistence, and zero-action contracts."
+    }
+  ],
+  "requirement_trace": {
+    "brd_objectives": ["BRD-OBJ-001"],
+    "requirements": ["REQ-001", "REQ-002", "REQ-003"],
+    "acceptance_criteria": [
+      "AC-001",
+      "AC-002",
+      "AC-003",
+      "AC-004",
+      "AC-005",
+      "AC-006",
+      "AC-007"
+    ],
+    "srs": ["SRS-001", "SRS-002", "SRS-003"]
+  },
+  "completed_evidence": [
+    "docs/brd/brd-system-design-review-outcomes.md: operator-approved direction brief",
+    "docs/prd/prd-system-design-review-outcomes.md: operator-approved first-slice PRD",
+    "docs/srs/srs-system-design-review-outcomes.md: operator-approved technical contract",
+    "docs/srs/srs-walkthrough-system-design-review-outcomes.md: VER-001..007 planned, not run",
+    "captured review available in a separate local worktree, not committed as a portable eval fixture"
+  ],
+  "missing_evidence": [
+    "implementation owner acceptance and independent registry maintainer review",
+    "behavioral eval fixture/replay and independent grading, required before claiming implementation success",
+    "source implementation and release approval"
+  ],
+  "decision_needed": [
+    "Registry maintainer names and accepts implementation owner and independent QA/eval reviewer, and independently reviews the SRS."
+  ],
+  "recommended_next_workflow": "plan-feature",
+  "cost": { "source": "unavailable" },
+  "agent": {
+    "identity": "omp readiness agent",
+    "model": "openai-codex/gpt-6-sol"
+  }
+}

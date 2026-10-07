@@ -1,0 +1,489 @@
+{
+  "schemaVersion": 2,
+  "runId": "all-v2.6.5-2026-10-05T02-56-37-876Z-5954ce47",
+  "category": "all",
+  "version": "2.6.5",
+  "scoredAt": "2026-10-05T03:06:28.424Z",
+  "metadata": {
+    "startedAt": "2026-10-05T02:56:37.876Z",
+    "evidenceMode": "fresh",
+    "freshAnswerCount": 30,
+    "reusedAnswerCount": 0,
+    "agent": "Codex CLI isolated worker",
+    "model": "gpt-5.6-luna",
+    "reasoningEffort": "high",
+    "usage": {
+      "overall": {
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "cachedPromptTokens": 0,
+        "reasoningTokens": 0,
+        "totalTokens": 0,
+        "wallMs": 0,
+        "lanesMetered": 0,
+        "lanesUnmetered": 30,
+        "estimatedUsd": null
+      },
+      "byArm": {
+        "baseline": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "cachedPromptTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "wallMs": 0,
+          "lanesMetered": 0,
+          "lanesUnmetered": 11,
+          "estimatedUsd": null
+        },
+        "with-skill": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "cachedPromptTokens": 0,
+          "reasoningTokens": 0,
+          "totalTokens": 0,
+          "wallMs": 0,
+          "lanesMetered": 0,
+          "lanesUnmetered": 11,
+          "estimatedUsd": null
+        }
+      }
+    },
+    "completedAt": "2026-10-05T03:06:28.401Z"
+  },
+  "scope": {
+    "kind": "selective",
+    "categories": [
+      "android",
+      "angular",
+      "common",
+      "cybersecurity",
+      "dart",
+      "database",
+      "flutter",
+      "golang",
+      "ios",
+      "java",
+      "javascript",
+      "kotlin",
+      "laravel",
+      "nestjs",
+      "nextjs",
+      "php",
+      "python",
+      "quality-engineering",
+      "react",
+      "react-native",
+      "spring-boot",
+      "swift",
+      "system-design",
+      "typescript"
+    ]
+  },
+  "compromisedSkills": [],
+  "skills": [
+    {
+      "category": "system-design",
+      "skillName": "system-design-review",
+      "guardrailApplicable": true,
+      "totalEvalCases": 11,
+      "baselinePassRate": 0.18181818181818182,
+      "withSkillPassRate": 0.7272727272727273,
+      "delta": 0.5454545454545454,
+      "triggerPrecision": 1,
+      "casePassRate": {
+        "baseline": 0.18181818181818182,
+        "withSkill": 0.7272727272727273
+      },
+      "assertionPassRate": {
+        "baseline": 0.6326530612244898,
+        "withSkill": 0.9387755102040817
+      },
+      "triggerRecall": 1,
+      "triggerSpecificity": 1,
+      "balancedTriggerAccuracy": 1,
+      "scores": [
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "contains_any:Nine Axes,Capacity evidence,Observability",
+            "contains_any:No score without evidence,UNVERIFIED",
+            "contains_any:roadmap,smallest fix"
+          ],
+          "passedAssertions": 0,
+          "totalAssertions": 3
+        },
+        {
+          "id": "eval-1",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "passedAssertions": 3,
+          "totalAssertions": 3
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "contains_any:ground truth,incident history",
+            "contains_any:the worst hop is the real bottleneck,Trace the hottest",
+            "contains_any:No rewrite recommendation by default,smallest fix"
+          ],
+          "passedAssertions": 0,
+          "totalAssertions": 3
+        },
+        {
+          "id": "eval-2",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "contains_any:ground truth,incident history"
+          ],
+          "passedAssertions": 2,
+          "totalAssertions": 3
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "contains_any:No uniform severity,user impact and reversibility"
+          ],
+          "passedAssertions": 2,
+          "totalAssertions": 3
+        },
+        {
+          "id": "eval-3",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "contains_any:No uniform severity,user impact and reversibility"
+          ],
+          "passedAssertions": 2,
+          "totalAssertions": 3
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "passedAssertions": 6,
+          "totalAssertions": 6
+        },
+        {
+          "id": "eval-4",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "passedAssertions": 6,
+          "totalAssertions": 6
+        },
+        {
+          "id": "eval-5",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "contains_any:response_only,response only",
+            "contains_any:null,no saved path,not persisted"
+          ],
+          "passedAssertions": 3,
+          "totalAssertions": 5
+        },
+        {
+          "id": "eval-5",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "passedAssertions": 5,
+          "totalAssertions": 5
+        },
+        {
+          "id": "eval-6",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "contains_any:partial"
+          ],
+          "passedAssertions": 5,
+          "totalAssertions": 6
+        },
+        {
+          "id": "eval-6",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "passedAssertions": 6,
+          "totalAssertions": 6
+        },
+        {
+          "id": "eval-7",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "contains_any:status: none,status: \"none\",\"status\": \"none\",\"status\":\"none\"",
+            "contains_any:\"path\": null,path: null,null path"
+          ],
+          "passedAssertions": 2,
+          "totalAssertions": 4
+        },
+        {
+          "id": "eval-7",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "passedAssertions": 4,
+          "totalAssertions": 4
+        },
+        {
+          "id": "eval-8",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "passedAssertions": 7,
+          "totalAssertions": 7
+        },
+        {
+          "id": "eval-8",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "passedAssertions": 7,
+          "totalAssertions": 7
+        },
+        {
+          "id": "eval-9",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "contains_any:response_only",
+            "contains_any:\"path\": null,path: null,null path"
+          ],
+          "passedAssertions": 2,
+          "totalAssertions": 4
+        },
+        {
+          "id": "eval-9",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "passedAssertions": 4,
+          "totalAssertions": 4
+        },
+        {
+          "id": "eval-10",
+          "kind": "eval",
+          "arm": "baseline",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "contains_any:response_only",
+            "contains_any:\"path\": null,path: null,null path"
+          ],
+          "passedAssertions": 3,
+          "totalAssertions": 5
+        },
+        {
+          "id": "eval-10",
+          "kind": "eval",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "passedAssertions": 5,
+          "totalAssertions": 5
+        },
+        {
+          "id": "trigger-1",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "yes",
+          "actualTrigger": "yes",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-2",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "yes",
+          "actualTrigger": "yes",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-3",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "yes",
+          "actualTrigger": "yes",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-4",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "yes",
+          "actualTrigger": "yes",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-5",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "no",
+          "actualTrigger": "no",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-6",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "no",
+          "actualTrigger": "no",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-7",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "no",
+          "actualTrigger": "no",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "trigger-8",
+          "kind": "trigger",
+          "arm": "with-skill",
+          "passed": true,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [],
+          "expectedTrigger": "no",
+          "actualTrigger": "no",
+          "passedAssertions": 2,
+          "totalAssertions": 2
+        },
+        {
+          "id": "pressure-1",
+          "kind": "pressure",
+          "arm": "baseline",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "contains:UNVERIFIED",
+            "contains:fix first"
+          ],
+          "passedAssertions": 1,
+          "totalAssertions": 3
+        },
+        {
+          "id": "pressure-1",
+          "kind": "pressure",
+          "arm": "with-skill",
+          "passed": false,
+          "missingAnswer": false,
+          "suspicious": [],
+          "failedAssertions": [
+            "contains:fix first"
+          ],
+          "passedAssertions": 2,
+          "totalAssertions": 3
+        }
+      ],
+      "incompleteArms": []
+    }
+  ]
+}

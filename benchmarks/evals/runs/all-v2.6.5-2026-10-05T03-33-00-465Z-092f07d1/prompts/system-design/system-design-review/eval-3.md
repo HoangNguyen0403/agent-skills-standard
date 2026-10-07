@@ -1,0 +1,1 @@
+It is a small internal admin tool at 100 requests per second. The reviewer failed it for having no multi-region failover.

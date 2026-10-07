@@ -1,0 +1,1 @@
+Initial-write failure counterexample: a trusted, author-confirmed review with material finding F-RESTORE has maintainer write authorization, but creating the plan file failed before any file existed. The review and architecture-entry links were not written. Report the handoff without retrying or pretending a saved artifact exists.

@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "validate": {
+      "command": "pnpm run validate"
+    },
+    "lint": {
+      "command": "pnpm run lint"
+    },
+    "build": {
+      "command": "pnpm run build"
+    },
+    "test": {
+      "command": "pnpm run test"
+    }
+  }
+}

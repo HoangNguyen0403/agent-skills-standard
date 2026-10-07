@@ -1,0 +1,1 @@
+Counterexample: the author-confirmed review has material findings F-JURISDICTION and F-CUTOVER as described here: privacy approval is still pending, and one of two client generations has not completed its authorization cutover. This session is read-only; no file can be created or linked. Return the action handoff in the response.

@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-22T07:37:22.484Z",
+  "lastUpdated": "2026-10-05T03:06:28.424Z",
   "records": [
     {
       "runId": "all-v2.6.0",
@@ -39,6 +39,32 @@
       "agent": "Codex CLI isolated worker",
       "model": "gpt-5.6-luna",
       "evidenceMode": "incremental"
+    },
+    {
+      "runId": "all-v2.6.5-2026-10-05T02-41-11-532Z-1c380383",
+      "category": "all",
+      "version": "2.6.5",
+      "date": "2026-10-05T02:49:08.852Z",
+      "skillCount": 1,
+      "avgBaselinePassRate": 0.09090909090909091,
+      "avgWithSkillPassRate": 0.7272727272727273,
+      "avgDelta": 0.6363636363636364,
+      "agent": "Codex CLI isolated worker",
+      "model": "gpt-5.6-luna",
+      "evidenceMode": "fresh"
+    },
+    {
+      "runId": "all-v2.6.5-2026-10-05T02-56-37-876Z-5954ce47",
+      "category": "all",
+      "version": "2.6.5",
+      "date": "2026-10-05T03:06:28.424Z",
+      "skillCount": 1,
+      "avgBaselinePassRate": 0.18181818181818182,
+      "avgWithSkillPassRate": 0.7272727272727273,
+      "avgDelta": 0.5454545454545454,
+      "agent": "Codex CLI isolated worker",
+      "model": "gpt-5.6-luna",
+      "evidenceMode": "fresh"
     }
   ]
 }

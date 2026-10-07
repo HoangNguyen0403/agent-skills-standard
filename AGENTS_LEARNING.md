@@ -70,3 +70,27 @@ I used minor version bumps for small additive workflow and skill guidance change
 
 ### ✅ Better Approach
 Classify the user-visible change by its actual impact and follow repository release conventions; use patch bumps for small compatible corrections, and align category/workflow metadata with the changelog.
+
+---
+
+## Agent Learning Log: Iteration #5
+
+**Date**: 2026-10-04 | **Task**: Plan improvements to system-design review outcomes
+**Signal**: Session retrospective
+**Skills**: system-design/system-design-review, system-design/system-design-methodology, common/common-architecture-diagramming
+**Scope**: registry
+**Candidate**: design-review-action-handoff-20261004 | **Status**: proposed
+**Provenance**: registry revision `1fb0537c`; prior Our Children review correction documented in a separate local worktree; proposal at `docs/brd/brd-system-design-review-outcomes.md`
+**Evaluation**: not-run
+**Review**: pending
+**Rollback**: not-applicable
+
+### ❌ Mistake Made
+The first Our Children review produced a score, findings and a short roadmap, but no owned, evidence-based closure plan. `.agents/workflows/review-system-design.md` requires a roadmap without specifying action ownership, dependencies, acceptance evidence, or persistence; its corresponding skill eval accepts a keyword hit as a smoke signal for actionability.
+
+### 🚫 Pattern to Avoid
+- **No score-only handoff**: a finding with no owner role, dependency, exit evidence, or tracked state cannot be independently closed.
+- **No vocabulary-as-outcome test**: a lexical mention of “roadmap” cannot prove the resulting plan can guide a maintainer.
+
+### ✅ Better Approach
+First revise the existing review workflow and skill to connect each material finding to a bounded action and verification gate, preserving read-only operation and no-action reviews. Replay the correction as an eval case and grade the resulting plan semantically before promoting the registry change; keep the candidate pending maintainer approval.

@@ -1,0 +1,1 @@
+Counterexample: this is an author-confirmed, narrow review with cited current evidence and no material corrective finding. The repository is read-only. Hand off the outcome; do not add a roadmap action just to fill a template.

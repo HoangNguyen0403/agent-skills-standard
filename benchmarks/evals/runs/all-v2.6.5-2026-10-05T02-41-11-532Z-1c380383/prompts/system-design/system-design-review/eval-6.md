@@ -1,0 +1,1 @@
+Counterexample: for an author-confirmed review, the action-plan file `architecture/reviews/improvement-plan-clinical-access.md` was actually written, but the review link update failed and the architecture-entry link was not made. The review has material findings F-JURISDICTION and F-RESTORE. Report the handoff state; do not retry or claim links you did not verify.
