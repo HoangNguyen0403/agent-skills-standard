@@ -9,4 +9,4 @@
  * no automated sync between the two (mirrors how skills/metadata.json
  * category versions are maintained today).
  */
-export const MCP_COMPATIBLE_VERSION = '0.6.0';
+export const MCP_COMPATIBLE_VERSION = '0.6.1';

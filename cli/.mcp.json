@@ -4,7 +4,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "agent-skills-standard-mcp@0.6.0"
+        "agent-skills-standard-mcp@0.6.1"
       ]
     }
   }
