@@ -1185,6 +1185,258 @@ describe("collectSessionJournal", () => {
     for (const identity of ["omp-1", "omp-2", "usage-1", "later-row-id"])
       expect(JSON.stringify(incompleteReport)).not.toContain(identity);
   });
+  it("redacts row identities from later provenance regardless of journal order", async () => {
+    const f = await fixture();
+    const firstPath = path.join(f.root, "past-identity.jsonl");
+    const secondPath = path.join(f.root, "later-provenance.jsonl");
+    const header = (id: string) => ({
+      type: "session",
+      version: 3,
+      id,
+      cwd: f.workspace,
+      timestamp: "2026-10-01T10:00:00.000Z",
+    });
+    const modelUsage = (
+      id: string,
+      purpose: string,
+      role: string,
+      input: number,
+    ) => ({
+      type: "model_usage",
+      id,
+      parentId: null,
+      timestamp: "2026-10-01T10:01:00.000Z",
+      purpose,
+      role,
+      api: "openai-responses",
+      provider: "provider-x",
+      model: "provider/tiny",
+      stopReason: "stop",
+      usage: {
+        input,
+        cacheRead: 0,
+        cacheWrite: 0,
+        output: 2,
+        totalTokens: input + 2,
+        cost: { total: 0.001 },
+      },
+    });
+    await fs.writeFile(
+      firstPath,
+      [header("omp-1"), modelUsage("past-row-id", "title", "tiny", 10)]
+        .map(JSON.stringify)
+        .join("\n") + "\n",
+    );
+    await fs.writeFile(
+      secondPath,
+      [
+        header("omp-2"),
+        modelUsage("later-row-id", "past-row-id", "past-row-id", 20),
+      ]
+        .map(JSON.stringify)
+        .join("\n") + "\n",
+    );
+    f.manifest.sessions = [
+      {
+        path: firstPath,
+        format: "omp",
+        role: "review",
+        attemptOutcome: "completed",
+      },
+      {
+        path: secondPath,
+        format: "omp",
+        role: "review",
+        attemptOutcome: "completed",
+      },
+    ];
+    f.manifest.expectedSessionIds = ["omp-1", "omp-2"];
+    await fs.writeFile(f.manifestPath, JSON.stringify(f.manifest));
+
+    for (const sessions of [
+      f.manifest.sessions,
+      [...f.manifest.sessions].reverse(),
+    ]) {
+      f.manifest.sessions = sessions;
+      await fs.writeFile(f.manifestPath, JSON.stringify(f.manifest));
+      const report = await collectSessionJournal(f.manifestPath);
+
+      expect(report.coverage).toMatchObject({
+        complete: true,
+        invalidUsageRecords: 0,
+        resourceLimitReached: false,
+      });
+      expect(JSON.stringify(report)).not.toContain("past-row-id");
+      expect(
+        report.groups.reduce(
+          (sum, group) => sum + (group.uncachedInputTokens ?? 0),
+          0,
+        ),
+      ).toBe(30);
+      expect(report.groups).toContainEqual(
+        expect.objectContaining({
+          nativePurpose: "title",
+          nativeModelRole: "tiny",
+          uncachedInputTokens: 10,
+        }),
+      );
+      expect(report.groups).toContainEqual(
+        expect.objectContaining({
+          nativePurpose: null,
+          nativeModelRole: null,
+          uncachedInputTokens: 20,
+        }),
+      );
+    }
+  });
+
+  it("continues accounting but withholds provenance when global identity membership exceeds its cap", async () => {
+    const f = await fixture();
+    const firstPath = path.join(f.root, "identity-cap.jsonl");
+    const secondPath = path.join(f.root, "after-identity-cap.jsonl");
+    const header = (id: string) => ({
+      type: "session",
+      version: 3,
+      id,
+      cwd: f.workspace,
+      timestamp: "2026-10-01T10:00:00.000Z",
+    });
+    const identities = Array.from({ length: 10_000 }, (_, index) => ({
+      type: "custom",
+      id: `row-${index}`,
+      timestamp: "2026-10-01T10:01:00.000Z",
+    }));
+    const usage = {
+      type: "model_usage",
+      id: "over-cap-row",
+      parentId: null,
+      timestamp: "2026-10-01T10:01:00.000Z",
+      purpose: "title",
+      role: "tiny",
+      api: "openai-responses",
+      provider: "provider-x",
+      model: "provider/tiny",
+      stopReason: "stop",
+      usage: {
+        input: 10,
+        cacheRead: 0,
+        cacheWrite: 0,
+        output: 2,
+        totalTokens: 12,
+        cost: { total: 0.001 },
+      },
+    };
+    await fs.writeFile(
+      firstPath,
+      [header("omp-1"), ...identities].map(JSON.stringify).join("\n") + "\n",
+    );
+    await fs.writeFile(
+      secondPath,
+      [header("omp-2"), usage].map(JSON.stringify).join("\n") + "\n",
+    );
+    f.manifest.sessions = [
+      {
+        path: firstPath,
+        format: "omp",
+        role: "review",
+        attemptOutcome: "completed",
+      },
+      {
+        path: secondPath,
+        format: "omp",
+        role: "review",
+        attemptOutcome: "completed",
+      },
+    ];
+    f.manifest.expectedSessionIds = ["omp-1", "omp-2"];
+    await fs.writeFile(f.manifestPath, JSON.stringify(f.manifest));
+
+    const report = await collectSessionJournal(f.manifestPath);
+
+    expect(report.coverage).toMatchObject({
+      complete: false,
+      invalidUsageRecords: 0,
+      resourceLimitReached: true,
+      sessionsWithUsage: 1,
+    });
+    expect(report.groups).toHaveLength(1);
+    expect(report.groups[0]).toMatchObject({
+      nativePurpose: null,
+      nativeModelRole: null,
+      messages: 0,
+      uncachedInputTokens: 10,
+      outputTokens: 2,
+      recordedCostEstimate: 0.001,
+    });
+  });
+
+  it("accepts valid usage after an invalid reserved ID, deduplicates replay, and rejects valid conflicts", async () => {
+    const f = await fixture();
+    const ompPath = path.join(f.root, "invalid-then-valid.jsonl");
+    f.manifest.sessions[0] = {
+      path: ompPath,
+      format: "omp",
+      role: "review",
+      attemptOutcome: "completed",
+    };
+    f.manifest.expectedSessionIds = ["omp-1"];
+    const header = {
+      type: "session",
+      version: 3,
+      id: "omp-1",
+      cwd: f.workspace,
+      timestamp: "2026-10-01T10:00:00.000Z",
+    };
+    const response = (output: number, cacheRead: number | string = 40) => ({
+      type: "message",
+      id: "retry-row-id",
+      parentId: null,
+      timestamp: "2026-10-01T10:02:00.000Z",
+      message: {
+        role: "assistant",
+        api: "openai-responses",
+        provider: "provider-x",
+        model: "model-omp",
+        timestamp: 1790858520000,
+        stopReason: "stop",
+        usage: {
+          input: 10,
+          output,
+          cacheRead,
+          cacheWrite: 10,
+          reasoningTokens: 1,
+          totalTokens: 50 + output,
+          cost: { total: 0.001 },
+        },
+      },
+    });
+    const malformed = response(2, "40");
+    await fs.writeFile(
+      ompPath,
+      [header, malformed, response(2), response(2), response(3)]
+        .map(JSON.stringify)
+        .join("\n") + "\n",
+    );
+    await fs.writeFile(f.manifestPath, JSON.stringify(f.manifest));
+
+    const report = await collectSessionJournal(f.manifestPath);
+
+    expect(report.coverage).toMatchObject({
+      complete: false,
+      invalidUsageRecords: 2,
+      sessionsWithUsage: 1,
+    });
+    expect(report.groups).toHaveLength(1);
+    expect(report.groups[0]).toMatchObject({
+      messages: 1,
+      uncachedInputTokens: 10,
+      cachedInputTokens: 40,
+      cacheWriteTokens: 10,
+      outputTokens: 2,
+      reasoningTokens: 1,
+      recordedCostEstimate: 0.001,
+    });
+  });
 
   it("preserves OMP orchestration buckets without mixing conversation counters", async () => {
     const f = await fixture();

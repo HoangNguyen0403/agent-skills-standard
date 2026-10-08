@@ -576,7 +576,7 @@ function mergeAggregates(target: Aggregate, source: Aggregate): void {
 function redactNativeIdentities(
   groups: Map<string, Aggregate>,
   expectedSessionIds: readonly string[],
-  nativeIdentities: ReadonlyMap<string, string | null>,
+  nativeIdentities: ReadonlySet<string>,
   provenanceComplete: boolean,
 ): Map<string, Aggregate> {
   const provenanceValues = new Set<string>();
@@ -591,7 +591,7 @@ function redactNativeIdentities(
   } else {
     for (const identity of expectedSessionIds)
       if (provenanceValues.has(identity)) redactedValues.add(identity);
-    for (const identity of nativeIdentities.keys())
+    for (const identity of nativeIdentities)
       if (provenanceValues.has(identity)) redactedValues.add(identity);
   }
   if (redactedValues.size === 0) return groups;
@@ -647,6 +647,7 @@ export async function collectSessionJournal(
   if (new Set(paths).size !== paths.length)
     throw new Error("Duplicate session paths are not allowed.");
   const selectedIds = new Set<string>();
+  const nativeIdentities = new Set<string>();
 
   let nativeProvenanceComplete = true;
   let groups = new Map<string, Aggregate>();
@@ -829,6 +830,14 @@ export async function collectSessionJournal(
             }
             trackedRows.set(identity, null);
           }
+          if (identity !== undefined && !nativeIdentities.has(identity)) {
+            if (nativeIdentities.size >= MAX_TRACKED_IDENTITIES) {
+              nativeProvenanceComplete = false;
+              coverage.resourceLimitReached = true;
+            } else {
+              nativeIdentities.add(identity);
+            }
+          }
           const messageRecord = object(row.message) ? row.message : null;
           const modelUsageRecord = row.type === "model_usage";
           if (
@@ -935,7 +944,11 @@ export async function collectSessionJournal(
             nativeModelRole,
           ]);
           const previousSignature = trackedRows.get(identity);
-          if (identityWasTracked) {
+          if (
+            identityWasTracked &&
+            previousSignature !== null &&
+            previousSignature !== undefined
+          ) {
             if (previousSignature !== signature)
               coverage.invalidUsageRecords += 1;
             continue;
@@ -968,7 +981,7 @@ export async function collectSessionJournal(
     groups = redactNativeIdentities(
       groups,
       manifest.expectedSessionIds,
-      trackedRows,
+      nativeIdentities,
       nativeProvenanceComplete,
     );
     for (const identity of trackedRows.keys()) trackedRows.set(identity, null);
@@ -1033,7 +1046,8 @@ export async function collectSessionJournal(
       "Caller-supplied inventory is a scope declaration, not proof of complete host activity. Missing expected actors and malformed, invalid, aborted, or no-usage sessions make coverage incomplete.",
       "Phase gaps and undeclared outcomes remain unattributed or unknown; elapsed session spans are not billed compute.",
       "Provider-unreported submetrics and native cost unavailable in session records remain unknown. OMP orchestration buckets are preserved independently when present; no rates or invoice totals are inferred.",
-      `Oversized records longer than ${MAX_LINE_CHARS} characters and journals exceeding ${MAX_TRACKED_IDENTITIES} tracked native identities stop accounting for that selected journal, set the resource-limit flag, and make coverage incomplete.`,
+      `Oversized records longer than ${MAX_LINE_CHARS} characters or selected journals exceeding ${MAX_TRACKED_IDENTITIES} tracked native identities stop accounting for that journal, set the resource-limit flag, and make coverage incomplete.`,
+      `Cross-journal OMP privacy membership is separately capped at ${MAX_TRACKED_IDENTITIES} distinct row identities; reaching that cap withholds all native provenance and sets resource-limited incomplete coverage while valid accounting continues.`,
       "Prompts, responses, credentials, filesystem paths, and native session identities are not included in reports.",
     ],
   };
