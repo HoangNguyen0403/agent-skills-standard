@@ -30,7 +30,7 @@ export async function runSessionJournalCli(
     "",
     `Window: ${report.window.startedAt} → ${report.window.completedAt}`,
     `Coverage: ${report.coverage.complete ? "complete within supplied journals" : "incomplete / uncertain"}`,
-    `Selected actors: ${report.coverage.selectedSessions}; expected: ${report.coverage.expectedSessions}; missing: ${report.coverage.missingSessions}; with usage: ${report.coverage.sessionsWithUsage}; malformed records: ${report.coverage.malformedLines}; invalid usage records: ${report.coverage.invalidUsageRecords}; aborted actors: ${report.coverage.abortedSessions}`,
+    `Selected actors: ${report.coverage.selectedSessions}; expected: ${report.coverage.expectedSessions}; missing: ${report.coverage.missingSessions}; with usage: ${report.coverage.sessionsWithUsage}; malformed records: ${report.coverage.malformedLines}; invalid usage records: ${report.coverage.invalidUsageRecords}; aborted actors: ${report.coverage.abortedSessions}; resource limit reached: ${report.coverage.resourceLimitReached}`,
     "",
     "| Role | Phase | Outcome | Model | Purpose | Events | Uncached input | Cached input | Cache write | Output | Reasoning | Auxiliary | Recorded cost |",
     "|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|",

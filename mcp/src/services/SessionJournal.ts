@@ -1,6 +1,6 @@
 import { createReadStream } from "node:fs";
 import { realpath, readFile } from "node:fs/promises";
-import { createInterface } from "node:readline";
+import { StringDecoder } from "node:string_decoder";
 import path from "node:path";
 
 export type SessionRole = "main" | "implementation" | "review" | "auxiliary";
@@ -54,6 +54,7 @@ export interface SessionJournalReport {
     malformedLines: number;
     invalidUsageRecords: number;
     abortedSessions: number;
+    resourceLimitReached: boolean;
     complete: boolean;
   };
   groups: SessionUsageGroup[];
@@ -81,6 +82,7 @@ interface Aggregate extends SessionUsageGroup {
 }
 
 const MAX_LINE_CHARS = 1_000_000;
+const MAX_TRACKED_IDENTITIES = 10_000;
 const PHASES: readonly SessionPhase[] = [
   "planning",
   "repair",
@@ -105,6 +107,70 @@ const MODEL_ID = /^[A-Za-z0-9._:/+@-]{1,128}$/;
 
 function object(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+async function* boundedLines(
+  stream: AsyncIterable<Buffer>,
+): AsyncGenerator<{ line: string | null; tooLong: boolean }> {
+  const decoder = new StringDecoder("utf8");
+  let fragments: string[] = [];
+  let length = 0;
+  let tooLong = false;
+
+  const append = (fragment: string): void => {
+    if (tooLong) return;
+    length += fragment.length;
+    if (length > MAX_LINE_CHARS) {
+      tooLong = true;
+      fragments = [];
+      length = 0;
+    } else if (fragment) fragments.push(fragment);
+  };
+  const finish = (): { line: string | null; tooLong: boolean } => {
+    const result = {
+      line: tooLong ? null : fragments.join("").replace(/\r$/, ""),
+      tooLong,
+    };
+    fragments = [];
+    length = 0;
+    tooLong = false;
+    return result;
+  };
+
+  for await (const chunk of stream) {
+    const text = decoder.write(chunk);
+    let start = 0;
+    for (
+      let index = text.indexOf("\n");
+      index !== -1;
+      index = text.indexOf("\n", start)
+    ) {
+      append(text.slice(start, index));
+      yield finish();
+      start = index + 1;
+    }
+    append(text.slice(start));
+  }
+
+  const trailing = decoder.end();
+  if (trailing) append(trailing);
+  if (length > 0 || fragments.length > 0 || tooLong) yield finish();
+}
+
+function safeModel(value: unknown): string | null {
+  if (
+    typeof value !== "string" ||
+    !MODEL_ID.test(value) ||
+    path.isAbsolute(value) ||
+    path.win32.isAbsolute(value) ||
+    value.includes("\\") ||
+    value.includes("://") ||
+    value.startsWith("~/") ||
+    value.split(/[\\/]/).includes("..") ||
+    value.split("/").length > 2
+  )
+    return null;
+  return value;
 }
 
 function timestamp(value: unknown, label: string): string {
@@ -235,8 +301,6 @@ function validCounters(value: unknown): value is Counters {
     )
       return false;
   }
-  if (value.cachedInput !== undefined && value.cachedInput > value.input)
-    return false;
   if (value.reasoning !== undefined && value.reasoning > value.output)
     return false;
   if (value.total !== undefined && value.total < value.input + value.output)
@@ -261,12 +325,15 @@ function codexCounters(value: unknown): Counters | null {
     reasoning_output_tokens: "reasoning",
     auxiliary_tokens: "auxiliary",
     total_tokens: "total",
-    estimated_cost: "cost",
-    cost_usd: "cost",
   } as const;
   for (const [source, target] of Object.entries(mapping))
     if (value[source] !== undefined) counters[target] = value[source];
   if (!validCounters(counters)) return null;
+  if (
+    counters.cachedInput !== undefined &&
+    counters.cachedInput > counters.input
+  )
+    return null;
   if (
     counters.total !== undefined &&
     counters.total !== counters.input + counters.output
@@ -419,6 +486,7 @@ export async function collectSessionJournal(
     malformedLines: 0,
     invalidUsageRecords: 0,
     abortedSessions: 0,
+    resourceLimitReached: false,
     complete: true,
   };
   for (
@@ -432,22 +500,29 @@ export async function collectSessionJournal(
     if (!actualPath)
       throw new Error("A manifest-selected file could not be opened.");
     let sessionId: string | null = null;
-    const stream = createReadStream(actualPath, { encoding: "utf8" });
-    const lines = createInterface({ input: stream, crlfDelay: Infinity });
+    const stream = createReadStream(actualPath);
     let previous: Counters | null = null;
     let model = "unreported";
     let used = false;
     let aborted = false;
     const responses = new Map<string, string>();
-    const draftResponseIds = new Set<string>();
     const codexRecords = new Map<string, string>();
+    const canTrackIdentity = (records: Map<string, string>, id: string) => {
+      if (records.has(id)) return true;
+      if (responses.size + codexRecords.size >= MAX_TRACKED_IDENTITIES) {
+        coverage.resourceLimitReached = true;
+        return false;
+      }
+      return true;
+    };
     try {
-      for await (const line of lines) {
-        if (!line.trim()) continue;
-        if (line.length > MAX_LINE_CHARS) {
+      for await (const { line, tooLong } of boundedLines(stream)) {
+        if (tooLong) {
           coverage.malformedLines += 1;
+          coverage.resourceLimitReached = true;
           continue;
         }
+        if (line === null || !line.trim()) continue;
         let row: unknown;
         try {
           row = JSON.parse(line);
@@ -506,26 +581,28 @@ export async function collectSessionJournal(
           time >= Date.parse(manifest.startedAt) &&
           time < Date.parse(manifest.completedAt);
         if (session.format === "codex") {
-          if (row.type === "turn_aborted" && inWindow) aborted = true;
+          if (
+            row.type === "event_msg" &&
+            object(row.payload) &&
+            row.payload.type === "turn_aborted" &&
+            inWindow
+          )
+            aborted = true;
           if (
             row.type === "turn_context" &&
             object(row.payload) &&
             typeof row.payload.model === "string"
           ) {
-            if (MODEL_ID.test(row.payload.model)) model = row.payload.model;
-            else {
-              model = "unreported";
-              coverage.invalidUsageRecords += 1;
-            }
+            model = safeModel(row.payload.model) ?? "unreported";
+            if (model === "unreported") coverage.invalidUsageRecords += 1;
           }
           if (
             row.type !== "event_msg" ||
             !object(row.payload) ||
-            row.payload.type !== "token_count" ||
-            !object(row.payload.info)
+            row.payload.type !== "token_count"
           )
             continue;
-          if (!Number.isFinite(time)) {
+          if (!Number.isFinite(time) || !object(row.payload.info)) {
             coverage.invalidUsageRecords += 1;
             continue;
           }
@@ -546,20 +623,24 @@ export async function collectSessionJournal(
             coverage.invalidUsageRecords += 1;
             continue;
           }
-          const identity = typeof row.id === "string" ? row.id : undefined;
+          const identity =
+            typeof row.id === "string" && row.id ? row.id : undefined;
           const signature = JSON.stringify([cumulative, last]);
           if (identity && codexRecords.has(identity)) {
             if (codexRecords.get(identity) !== signature)
               coverage.invalidUsageRecords += 1;
             continue;
           }
-          if (identity) codexRecords.set(identity, signature);
           const usage = cumulative ? delta(cumulative, previous) : last;
-          if (cumulative) previous = cumulative;
           if (!usage) {
             coverage.invalidUsageRecords += 1;
             continue;
           }
+          if (identity) {
+            if (!canTrackIdentity(codexRecords, identity)) break;
+            codexRecords.set(identity, signature);
+          }
+          if (cumulative) previous = cumulative;
           if (!inWindow) continue;
           addUsage(
             groups,
@@ -571,67 +652,74 @@ export async function collectSessionJournal(
           );
           used = true;
         } else {
+          const messageRecord = object(row.message) ? row.message : null;
+          if (
+            inWindow &&
+            ((row.type === "message" &&
+              messageRecord?.role === "assistant" &&
+              messageRecord.stopReason === "aborted") ||
+              (row.type === "model_usage" && row.stopReason === "aborted"))
+          )
+            aborted = true;
           if (
             row.type !== "message" ||
-            !object(row.message) ||
-            row.message.role !== "assistant"
+            !messageRecord ||
+            messageRecord.role !== "assistant"
           )
             continue;
-          const message = row.message;
-          const identity =
-            typeof row.id === "string" && row.id ? row.id : undefined;
-          if (row.isDraft === true || row.finalized === false) {
-            if (identity) draftResponseIds.add(identity);
-            else coverage.invalidUsageRecords += 1;
-            continue;
-          }
           if (!Number.isFinite(time)) {
             coverage.invalidUsageRecords += 1;
             continue;
           }
-          const nativeUsage = object(message.usage) ? message.usage : null;
-          if (!nativeUsage) {
-            if (identity) draftResponseIds.add(identity);
-            else coverage.invalidUsageRecords += 1;
+          const identity =
+            typeof row.id === "string" && row.id ? row.id : undefined;
+          if (!identity) {
+            coverage.invalidUsageRecords += 1;
             continue;
           }
-          const countersValue: Counters = {
-            input: nativeUsage.input as number,
-            output: nativeUsage.output as number,
-            ...(typeof nativeUsage.cacheRead === "number"
-              ? { cachedInput: nativeUsage.cacheRead }
-              : {}),
-            ...(typeof nativeUsage.cacheWrite === "number"
-              ? { cacheWrite: nativeUsage.cacheWrite }
-              : {}),
-            ...(typeof nativeUsage.reasoning === "number"
-              ? { reasoning: nativeUsage.reasoning }
-              : {}),
-            ...(typeof nativeUsage.totalTokens === "number"
-              ? { total: nativeUsage.totalTokens }
-              : {}),
-            ...(object(message.cost) && typeof message.cost.total === "number"
-              ? { cost: message.cost.total }
-              : {}),
+          const nativeUsage = object(messageRecord.usage)
+            ? messageRecord.usage
+            : null;
+          if (!nativeUsage) {
+            coverage.invalidUsageRecords += 1;
+            continue;
+          }
+          const countersValue: Record<string, unknown> = {
+            input: nativeUsage.input,
+            output: nativeUsage.output,
           };
+          const optionalFields = {
+            cacheRead: "cachedInput",
+            cacheWrite: "cacheWrite",
+            reasoningTokens: "reasoning",
+            totalTokens: "total",
+          } as const;
+          for (const [source, target] of Object.entries(optionalFields))
+            if (Object.hasOwn(nativeUsage, source))
+              countersValue[target] = nativeUsage[source];
+          if (Object.hasOwn(nativeUsage, "cost")) {
+            const nativeCost = nativeUsage.cost;
+            if (!object(nativeCost) || !Object.hasOwn(nativeCost, "total")) {
+              coverage.invalidUsageRecords += 1;
+              continue;
+            }
+            countersValue.cost = nativeCost.total;
+          }
           if (!validCounters(countersValue)) {
             coverage.invalidUsageRecords += 1;
             continue;
           }
-          const modelName =
-            typeof message.model === "string" && MODEL_ID.test(message.model)
-              ? message.model
-              : "unreported";
-          if (message.model !== undefined && modelName === "unreported")
+          const modelName = safeModel(messageRecord.model) ?? "unreported";
+          if (messageRecord.model !== undefined && modelName === "unreported")
             coverage.invalidUsageRecords += 1;
-          if (identity) draftResponseIds.delete(identity);
           const signature = JSON.stringify([modelName, countersValue]);
-          if (identity && responses.has(identity)) {
+          if (responses.has(identity)) {
             if (responses.get(identity) !== signature)
               coverage.invalidUsageRecords += 1;
             continue;
           }
-          if (identity) responses.set(identity, signature);
+          if (!canTrackIdentity(responses, identity)) break;
+          responses.set(identity, signature);
           if (!inWindow) continue;
           addUsage(
             groups,
@@ -645,9 +733,7 @@ export async function collectSessionJournal(
         }
       }
       if (sessionId === null) throw new Error("Native session file is empty.");
-      coverage.invalidUsageRecords += draftResponseIds.size;
     } finally {
-      lines.close();
       stream.destroy();
     }
     if (used) coverage.sessionsWithUsage += 1;
@@ -660,6 +746,7 @@ export async function collectSessionJournal(
     coverage.malformedLines === 0 &&
     coverage.invalidUsageRecords === 0 &&
     coverage.abortedSessions === 0 &&
+    !coverage.resourceLimitReached &&
     coverage.sessionsWithUsage === coverage.selectedSessions;
   const reportGroups = [...groups.values()]
     .map((group) => ({
@@ -697,7 +784,8 @@ export async function collectSessionJournal(
       "Only explicitly listed session files, expected identities, roles, workspace, and time bounds were read; other host activity is not measured.",
       "Caller-supplied inventory is a scope declaration, not proof of complete host activity. Missing expected actors and malformed, invalid, aborted, or no-usage sessions make coverage incomplete.",
       "Phase gaps and undeclared outcomes remain unattributed or unknown; elapsed session spans are not billed compute.",
-      "Provider-unreported submetrics and recorded costs remain unknown. Recorded cost estimates are reported as native evidence; no rates or invoice totals are inferred.",
+      "Provider-unreported submetrics and native cost unavailable in session records remain unknown. OMP recorded usage.cost.total is reported as native evidence; no rates or invoice totals are inferred.",
+      `Records longer than ${MAX_LINE_CHARS} characters and journals exceeding ${MAX_TRACKED_IDENTITIES} tracked native identities are truncated safely and make coverage incomplete.`,
       "Prompts, responses, credentials, filesystem paths, and native session identities are not included in reports.",
     ],
   };
