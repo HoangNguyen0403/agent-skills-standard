@@ -30,17 +30,22 @@ export interface SessionManifest {
 
 export interface SessionUsageGroup {
   role: SessionRole;
+  usageKind: "conversation" | "auxiliary";
   model: string;
   phase: SessionPhase | null;
   attemptOutcome: AttemptOutcome | null;
   auxiliaryPurpose: string | null;
+  nativePurpose: string | null;
+  nativeModelRole: string | null;
   messages: number;
   uncachedInputTokens: number | null;
   cachedInputTokens: number | null;
   cacheWriteTokens: number | null;
   outputTokens: number;
   reasoningTokens: number | null;
-  auxiliaryTokens: number | null;
+  orchestrationInputTokens: number | null;
+  orchestrationCacheReadTokens: number | null;
+  orchestrationOutputTokens: number | null;
   recordedCostEstimate: number | null;
 }
 
@@ -67,7 +72,9 @@ interface Counters {
   cacheWrite?: number;
   output: number;
   reasoning?: number;
-  auxiliary?: number;
+  orchestrationInput?: number;
+  orchestrationCacheRead?: number;
+  orchestrationOutput?: number;
   total?: number;
   cost?: number;
 }
@@ -77,7 +84,9 @@ interface Aggregate extends SessionUsageGroup {
   cacheKnown: boolean;
   cacheWriteKnown: boolean;
   reasoningKnown: boolean;
-  auxiliaryKnown: boolean;
+  orchestrationInputKnown: boolean;
+  orchestrationCacheReadKnown: boolean;
+  orchestrationOutputKnown: boolean;
   costKnown: boolean;
 }
 
@@ -291,7 +300,9 @@ function validCounters(value: unknown): value is Counters {
     "cacheWrite",
     "output",
     "reasoning",
-    "auxiliary",
+    "orchestrationInput",
+    "orchestrationCacheRead",
+    "orchestrationOutput",
     "total",
   ] as const) {
     const counter = value[key];
@@ -321,9 +332,9 @@ function codexCounters(value: unknown): Counters | null {
   const mapping = {
     input_tokens: "input",
     cached_input_tokens: "cachedInput",
+    cache_write_input_tokens: "cacheWrite",
     output_tokens: "output",
     reasoning_output_tokens: "reasoning",
-    auxiliary_tokens: "auxiliary",
     total_tokens: "total",
   } as const;
   for (const [source, target] of Object.entries(mapping))
@@ -379,12 +390,24 @@ function phaseFor(
 
 function aggregateKey(
   role: SessionRole,
+  usageKind: "conversation" | "auxiliary",
   model: string,
   phase: SessionPhase | null,
   outcome: AttemptOutcome | null,
   purpose: string | null,
+  nativePurpose: string | null,
+  nativeModelRole: string | null,
 ): string {
-  return JSON.stringify([role, model, phase, outcome, purpose]);
+  return JSON.stringify([
+    role,
+    usageKind,
+    model,
+    phase,
+    outcome,
+    purpose,
+    nativePurpose,
+    nativeModelRole,
+  ]);
 }
 
 function addUsage(
@@ -394,43 +417,62 @@ function addUsage(
   phase: SessionPhase | null,
   counters: Counters,
   codex: boolean,
+  options: {
+    usageKind?: "conversation" | "auxiliary";
+    nativePurpose?: string | null;
+    nativeModelRole?: string | null;
+    countMessage?: boolean;
+  } = {},
 ): void {
+  const role = session.role;
+  const usageKind = options.usageKind ?? "conversation";
   const purpose =
-    session.auxiliaryPurpose ??
-    (session.role === "auxiliary" ? "unspecified" : null);
+    session.auxiliaryPurpose ?? (role === "auxiliary" ? "unspecified" : null);
+  const nativePurpose = options.nativePurpose ?? null;
+  const nativeModelRole = options.nativeModelRole ?? null;
   const key = aggregateKey(
-    session.role,
+    role,
+    usageKind,
     model,
     phase,
     session.attemptOutcome,
     purpose,
+    nativePurpose,
+    nativeModelRole,
   );
   let group = groups.get(key);
   if (!group) {
     group = {
-      role: session.role,
+      role,
+      usageKind,
       model,
       phase,
       attemptOutcome: session.attemptOutcome,
       auxiliaryPurpose: purpose,
+      nativePurpose,
+      nativeModelRole,
       messages: 0,
       uncachedInputTokens: 0,
       cachedInputTokens: 0,
       cacheWriteTokens: 0,
       outputTokens: 0,
       reasoningTokens: 0,
-      auxiliaryTokens: 0,
+      orchestrationInputTokens: 0,
+      orchestrationCacheReadTokens: 0,
+      orchestrationOutputTokens: 0,
       recordedCostEstimate: 0,
       uncachedKnown: true,
       cacheKnown: true,
       cacheWriteKnown: true,
       reasoningKnown: true,
-      auxiliaryKnown: true,
+      orchestrationInputKnown: true,
+      orchestrationCacheReadKnown: true,
+      orchestrationOutputKnown: true,
       costKnown: true,
     };
     groups.set(key, group);
   }
-  group.messages += 1;
+  if (options.countMessage !== false) group.messages += 1;
   if (!codex)
     group.uncachedInputTokens =
       (group.uncachedInputTokens ?? 0) + counters.input;
@@ -447,9 +489,22 @@ function addUsage(
   if (counters.reasoning === undefined) group.reasoningKnown = false;
   else if (group.reasoningTokens !== null)
     group.reasoningTokens += counters.reasoning;
-  if (counters.auxiliary === undefined) group.auxiliaryKnown = false;
-  else if (group.auxiliaryTokens !== null)
-    group.auxiliaryTokens += counters.auxiliary;
+  if (counters.orchestrationInput === undefined)
+    group.orchestrationInputKnown = false;
+  else
+    group.orchestrationInputTokens =
+      (group.orchestrationInputTokens ?? 0) + counters.orchestrationInput;
+  if (counters.orchestrationCacheRead === undefined)
+    group.orchestrationCacheReadKnown = false;
+  else
+    group.orchestrationCacheReadTokens =
+      (group.orchestrationCacheReadTokens ?? 0) +
+      counters.orchestrationCacheRead;
+  if (counters.orchestrationOutput === undefined)
+    group.orchestrationOutputKnown = false;
+  else
+    group.orchestrationOutputTokens =
+      (group.orchestrationOutputTokens ?? 0) + counters.orchestrationOutput;
   if (counters.cost === undefined) group.costKnown = false;
   else if (group.recordedCostEstimate !== null)
     group.recordedCostEstimate += counters.cost;
@@ -506,10 +561,8 @@ export async function collectSessionJournal(
     let used = false;
     let aborted = false;
     const responses = new Map<string, string>();
-    const codexRecords = new Map<string, string>();
-    const canTrackIdentity = (records: Map<string, string>, id: string) => {
-      if (records.has(id)) return true;
-      if (responses.size + codexRecords.size >= MAX_TRACKED_IDENTITIES) {
+    const canTrackIdentity = () => {
+      if (responses.size >= MAX_TRACKED_IDENTITIES) {
         coverage.resourceLimitReached = true;
         return false;
       }
@@ -520,7 +573,7 @@ export async function collectSessionJournal(
         if (tooLong) {
           coverage.malformedLines += 1;
           coverage.resourceLimitReached = true;
-          continue;
+          break;
         }
         if (line === null || !line.trim()) continue;
         let row: unknown;
@@ -623,22 +676,10 @@ export async function collectSessionJournal(
             coverage.invalidUsageRecords += 1;
             continue;
           }
-          const identity =
-            typeof row.id === "string" && row.id ? row.id : undefined;
-          const signature = JSON.stringify([cumulative, last]);
-          if (identity && codexRecords.has(identity)) {
-            if (codexRecords.get(identity) !== signature)
-              coverage.invalidUsageRecords += 1;
-            continue;
-          }
           const usage = cumulative ? delta(cumulative, previous) : last;
           if (!usage) {
             coverage.invalidUsageRecords += 1;
             continue;
-          }
-          if (identity) {
-            if (!canTrackIdentity(codexRecords, identity)) break;
-            codexRecords.set(identity, signature);
           }
           if (cumulative) previous = cumulative;
           if (!inWindow) continue;
@@ -653,18 +694,18 @@ export async function collectSessionJournal(
           used = true;
         } else {
           const messageRecord = object(row.message) ? row.message : null;
+          const modelUsageRecord = row.type === "model_usage";
           if (
             inWindow &&
             ((row.type === "message" &&
               messageRecord?.role === "assistant" &&
               messageRecord.stopReason === "aborted") ||
-              (row.type === "model_usage" && row.stopReason === "aborted"))
+              (modelUsageRecord && row.stopReason === "aborted"))
           )
             aborted = true;
           if (
-            row.type !== "message" ||
-            !messageRecord ||
-            messageRecord.role !== "assistant"
+            !modelUsageRecord &&
+            !(row.type === "message" && messageRecord?.role === "assistant")
           )
             continue;
           if (!Number.isFinite(time)) {
@@ -677,8 +718,9 @@ export async function collectSessionJournal(
             coverage.invalidUsageRecords += 1;
             continue;
           }
-          const nativeUsage = object(messageRecord.usage)
-            ? messageRecord.usage
+          const usageRecord = modelUsageRecord ? row : messageRecord;
+          const nativeUsage = object(usageRecord?.usage)
+            ? usageRecord.usage
             : null;
           if (!nativeUsage) {
             coverage.invalidUsageRecords += 1;
@@ -697,6 +739,21 @@ export async function collectSessionJournal(
           for (const [source, target] of Object.entries(optionalFields))
             if (Object.hasOwn(nativeUsage, source))
               countersValue[target] = nativeUsage[source];
+          if (Object.hasOwn(nativeUsage, "orchestration")) {
+            const orchestration = nativeUsage.orchestration;
+            if (!object(orchestration)) {
+              coverage.invalidUsageRecords += 1;
+              continue;
+            }
+            const orchestrationFields = {
+              input: "orchestrationInput",
+              cacheRead: "orchestrationCacheRead",
+              output: "orchestrationOutput",
+            } as const;
+            for (const [source, target] of Object.entries(orchestrationFields))
+              if (Object.hasOwn(orchestration, source))
+                countersValue[target] = orchestration[source];
+          }
           if (Object.hasOwn(nativeUsage, "cost")) {
             const nativeCost = nativeUsage.cost;
             if (!object(nativeCost) || !Object.hasOwn(nativeCost, "total")) {
@@ -709,16 +766,46 @@ export async function collectSessionJournal(
             coverage.invalidUsageRecords += 1;
             continue;
           }
-          const modelName = safeModel(messageRecord.model) ?? "unreported";
-          if (messageRecord.model !== undefined && modelName === "unreported")
+          if (
+            modelUsageRecord &&
+            (typeof row.model !== "string" ||
+              typeof row.purpose !== "string" ||
+              (row.role !== undefined && typeof row.role !== "string"))
+          ) {
             coverage.invalidUsageRecords += 1;
-          const signature = JSON.stringify([modelName, countersValue]);
+            continue;
+          }
+          const modelName = safeModel(usageRecord?.model) ?? "unreported";
+          if (usageRecord?.model !== undefined && modelName === "unreported")
+            coverage.invalidUsageRecords += 1;
+          const nativePurpose =
+            modelUsageRecord && typeof row.purpose === "string"
+              ? row.purpose
+              : null;
+          const nativeModelRole =
+            modelUsageRecord && typeof row.role === "string" ? row.role : null;
+          if (
+            (nativePurpose !== null &&
+              !/^[A-Za-z0-9_-]{1,64}$/.test(nativePurpose)) ||
+            (nativeModelRole !== null &&
+              !/^[A-Za-z0-9_-]{1,64}$/.test(nativeModelRole))
+          ) {
+            coverage.invalidUsageRecords += 1;
+            continue;
+          }
+          const signature = JSON.stringify([
+            modelUsageRecord ? "model_usage" : "message",
+            modelName,
+            countersValue,
+            nativePurpose,
+            nativeModelRole,
+          ]);
           if (responses.has(identity)) {
             if (responses.get(identity) !== signature)
               coverage.invalidUsageRecords += 1;
             continue;
           }
-          if (!canTrackIdentity(responses, identity)) break;
+          if (!canTrackIdentity()) break;
           responses.set(identity, signature);
           if (!inWindow) continue;
           addUsage(
@@ -728,6 +815,14 @@ export async function collectSessionJournal(
             phaseFor(manifest, time),
             countersValue,
             false,
+            modelUsageRecord
+              ? {
+                  usageKind: "auxiliary",
+                  nativePurpose,
+                  nativeModelRole,
+                  countMessage: false,
+                }
+              : undefined,
           );
           used = true;
         }
@@ -751,10 +846,13 @@ export async function collectSessionJournal(
   const reportGroups = [...groups.values()]
     .map((group) => ({
       role: group.role,
+      usageKind: group.usageKind,
       model: group.model,
       phase: group.phase,
       attemptOutcome: group.attemptOutcome,
       auxiliaryPurpose: group.auxiliaryPurpose,
+      nativePurpose: group.nativePurpose,
+      nativeModelRole: group.nativeModelRole,
       messages: group.messages,
       uncachedInputTokens: group.uncachedKnown
         ? group.uncachedInputTokens
@@ -763,12 +861,21 @@ export async function collectSessionJournal(
       cacheWriteTokens: group.cacheWriteKnown ? group.cacheWriteTokens : null,
       outputTokens: group.outputTokens,
       reasoningTokens: group.reasoningKnown ? group.reasoningTokens : null,
-      auxiliaryTokens: group.auxiliaryKnown ? group.auxiliaryTokens : null,
+      orchestrationInputTokens: group.orchestrationInputKnown
+        ? group.orchestrationInputTokens
+        : null,
+      orchestrationCacheReadTokens: group.orchestrationCacheReadKnown
+        ? group.orchestrationCacheReadTokens
+        : null,
+      orchestrationOutputTokens: group.orchestrationOutputKnown
+        ? group.orchestrationOutputTokens
+        : null,
       recordedCostEstimate: group.costKnown ? group.recordedCostEstimate : null,
     }))
     .sort(
       (a, b) =>
         a.role.localeCompare(b.role) ||
+        a.usageKind.localeCompare(b.usageKind) ||
         a.model.localeCompare(b.model) ||
         (a.phase ?? "").localeCompare(b.phase ?? "") ||
         (a.attemptOutcome ?? "").localeCompare(b.attemptOutcome ?? ""),
@@ -784,8 +891,8 @@ export async function collectSessionJournal(
       "Only explicitly listed session files, expected identities, roles, workspace, and time bounds were read; other host activity is not measured.",
       "Caller-supplied inventory is a scope declaration, not proof of complete host activity. Missing expected actors and malformed, invalid, aborted, or no-usage sessions make coverage incomplete.",
       "Phase gaps and undeclared outcomes remain unattributed or unknown; elapsed session spans are not billed compute.",
-      "Provider-unreported submetrics and native cost unavailable in session records remain unknown. OMP recorded usage.cost.total is reported as native evidence; no rates or invoice totals are inferred.",
-      `Records longer than ${MAX_LINE_CHARS} characters and journals exceeding ${MAX_TRACKED_IDENTITIES} tracked native identities are truncated safely and make coverage incomplete.`,
+      "Provider-unreported submetrics and native cost unavailable in session records remain unknown. OMP orchestration buckets are preserved independently when present; no rates or invoice totals are inferred.",
+      `Oversized records longer than ${MAX_LINE_CHARS} characters and journals exceeding ${MAX_TRACKED_IDENTITIES} tracked native identities stop accounting for that selected journal, set the resource-limit flag, and make coverage incomplete.`,
       "Prompts, responses, credentials, filesystem paths, and native session identities are not included in reports.",
     ],
   };

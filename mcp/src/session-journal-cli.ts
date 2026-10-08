@@ -32,11 +32,11 @@ export async function runSessionJournalCli(
     `Coverage: ${report.coverage.complete ? "complete within supplied journals" : "incomplete / uncertain"}`,
     `Selected actors: ${report.coverage.selectedSessions}; expected: ${report.coverage.expectedSessions}; missing: ${report.coverage.missingSessions}; with usage: ${report.coverage.sessionsWithUsage}; malformed records: ${report.coverage.malformedLines}; invalid usage records: ${report.coverage.invalidUsageRecords}; aborted actors: ${report.coverage.abortedSessions}; resource limit reached: ${report.coverage.resourceLimitReached}`,
     "",
-    "| Role | Phase | Outcome | Model | Purpose | Events | Uncached input | Cached input | Cache write | Output | Reasoning | Auxiliary | Recorded cost |",
-    "|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+    "| Role | Usage kind | Phase | Outcome | Model | Purpose | Native role | Native purpose | Events | Uncached input | Cached input | Cache write | Output | Reasoning | Orchestration input | Orchestration cache read | Orchestration output | Recorded cost |",
+    "|---|---|---|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ...report.groups.map(
       (group) =>
-        `| ${group.role} | ${group.phase ?? "unknown"} | ${group.attemptOutcome ?? "unknown"} | ${group.model} | ${group.auxiliaryPurpose ?? "—"} | ${group.messages} | ${group.uncachedInputTokens} | ${group.cachedInputTokens ?? "unknown"} | ${group.cacheWriteTokens ?? "unknown"} | ${group.outputTokens} | ${group.reasoningTokens ?? "unknown"} | ${group.auxiliaryTokens ?? "unknown"} | ${group.recordedCostEstimate ?? "unknown"} |`,
+        `| ${group.role} | ${group.usageKind} | ${group.phase ?? "unknown"} | ${group.attemptOutcome ?? "unknown"} | ${group.model} | ${group.auxiliaryPurpose ?? "—"} | ${group.nativeModelRole ?? "—"} | ${group.nativePurpose ?? "—"} | ${group.messages} | ${group.uncachedInputTokens ?? "unknown"} | ${group.cachedInputTokens ?? "unknown"} | ${group.cacheWriteTokens ?? "unknown"} | ${group.outputTokens} | ${group.reasoningTokens ?? "unknown"} | ${group.orchestrationInputTokens ?? "unknown"} | ${group.orchestrationCacheReadTokens ?? "unknown"} | ${group.orchestrationOutputTokens ?? "unknown"} | ${group.recordedCostEstimate ?? "unknown"} |`,
     ),
     "",
     "## Limits",

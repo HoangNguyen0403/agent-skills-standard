@@ -83,7 +83,7 @@ node mcp/dist/index.js
 
 ### Native session accounting (MCP `0.7.0` source candidate)
 
-The candidate adds `ags-mcp-session-report --manifest <manifest.json> [--json]` for explicitly selected Codex JSONL and OMP v3 journals. It reports aggregate counters and inventory coverage only; it does not discover host activity or infer prices. See [`SESSION_REPORT.md`](SESSION_REPORT.md) for the manifest, counter semantics, unknown values, and privacy limits. Real-journal use remains subject to separate Personal-journal authorization.
+The candidate adds `ags-mcp-session-report --manifest <manifest.json> [--json]` for explicitly selected Codex JSONL and OMP v3 journals. It retains OMP model-usage calls and orchestration/cache-write buckets separately from transcript and conversation counters; absent submetrics stay unknown, and oversized journals stop at the first resource limit. It reports aggregate counters and inventory coverage only; it does not discover host activity or infer prices. See [`SESSION_REPORT.md`](SESSION_REPORT.md) for the manifest, counter semantics, unknown values, and privacy limits. Real-journal use remains subject to separate Personal-journal authorization.
 
 ## Configure your AI agent
 

@@ -74,29 +74,34 @@ function codexCumulative(
         total_token_usage: {
           input_tokens: input,
           cached_input_tokens: cached,
+          cache_write_input_tokens: 0,
           output_tokens: output,
           reasoning_output_tokens: 0,
-          auxiliary_tokens: 0,
+          total_tokens: input + output,
         },
       },
     },
   };
 }
 
-function codexEvent(timestamp: string, output: number, id?: string) {
+function codexEvent(
+  timestamp: string,
+  output: number,
+  includeCacheWrite = true,
+) {
   return {
     timestamp,
     type: "event_msg",
-    ...(id ? { id } : {}),
     payload: {
       type: "token_count",
       info: {
         last_token_usage: {
           input_tokens: 0,
           cached_input_tokens: 0,
+          ...(includeCacheWrite ? { cache_write_input_tokens: 0 } : {}),
           output_tokens: output,
           reasoning_output_tokens: 0,
-          auxiliary_tokens: 0,
+          total_tokens: output,
         },
       },
     },
@@ -158,16 +163,18 @@ describe("collectSessionJournal", () => {
             total_token_usage: {
               input_tokens: 150,
               cached_input_tokens: 30,
+              cache_write_input_tokens: 0,
               output_tokens: 15,
               reasoning_output_tokens: 0,
-              auxiliary_tokens: 0,
+              total_tokens: 165,
             },
             last_token_usage: {
               input_tokens: 50,
               cached_input_tokens: 10,
+              cache_write_input_tokens: 0,
               output_tokens: 5,
               reasoning_output_tokens: 0,
-              auxiliary_tokens: 0,
+              total_tokens: 55,
             },
           },
         },
@@ -357,7 +364,6 @@ describe("collectSessionJournal", () => {
       cacheWriteTokens: 10,
       outputTokens: 20,
       reasoningTokens: 5,
-      auxiliaryTokens: null,
       recordedCostEstimate: 0.0035,
     });
   });
@@ -830,26 +836,40 @@ describe("collectSessionJournal", () => {
       complete: false,
     });
 
+    f.manifest.sessions[0] = {
+      path: f.session,
+      format: "omp",
+      role: "implementation",
+      attemptOutcome: "completed",
+    };
+    f.manifest.expectedSessionIds = ["omp-1"];
     await save(f, [
       {
-        timestamp: "2026-10-01T09:58:00.000Z",
-        type: "session_meta",
-        payload: { id: "session-1", cwd: f.workspace },
+        type: "session",
+        version: 3,
+        id: "omp-1",
+        cwd: f.workspace,
+        timestamp: "2026-10-01T10:00:00.000Z",
       },
       ...Array.from({ length: 10_001 }, (_, index) => ({
+        type: "message",
+        id: `response-${index}`,
+        parentId: null,
         timestamp: "2026-10-01T10:01:00.000Z",
-        type: "event_msg",
-        id: `codex-${index}`,
-        payload: {
-          type: "token_count",
-          info: {
-            last_token_usage: {
-              input_tokens: 1,
-              cached_input_tokens: 0,
-              output_tokens: 1,
-              reasoning_output_tokens: 0,
-              auxiliary_tokens: 0,
-            },
+        message: {
+          role: "assistant",
+          api: "openai-responses",
+          provider: "provider-x",
+          model: "model-omp",
+          timestamp: 1790858460000,
+          stopReason: "stop",
+          usage: {
+            input: 1,
+            output: 1,
+            cacheRead: 0,
+            cacheWrite: 0,
+            totalTokens: 2,
+            cost: { total: 0 },
           },
         },
       })),
@@ -882,5 +902,440 @@ describe("collectSessionJournal", () => {
     await expect(collectSessionJournal(f.manifestPath)).rejects.toThrow(
       /ordered and non-overlapping/i,
     );
+  });
+  it("accounts OMP model_usage separately with native identity and provenance", async () => {
+    const f = await fixture();
+    const ompPath = path.join(f.root, "model-usage.jsonl");
+    f.manifest.sessions[0] = {
+      path: ompPath,
+      format: "omp",
+      role: "review",
+      attemptOutcome: "completed",
+    };
+    f.manifest.expectedSessionIds = ["omp-1"];
+    const header = {
+      type: "session",
+      version: 3,
+      id: "omp-1",
+      cwd: f.workspace,
+      timestamp: "2026-10-01T10:00:00.000Z",
+    };
+    const assistant = {
+      type: "message",
+      id: "response-1",
+      parentId: null,
+      timestamp: "2026-10-01T10:01:00.000Z",
+      message: {
+        role: "assistant",
+        api: "openai-responses",
+        provider: "provider-x",
+        model: "provider/main",
+        timestamp: 1790858460000,
+        stopReason: "stop",
+        usage: {
+          input: 10,
+          output: 4,
+          cacheRead: 0,
+          cacheWrite: 0,
+          totalTokens: 14,
+          cost: { total: 0.001 },
+        },
+      },
+    };
+    const modelUsage = {
+      type: "model_usage",
+      id: "usage-1",
+      parentId: "response-1",
+      timestamp: "2026-10-01T10:02:00.000Z",
+      purpose: "title",
+      role: "tiny",
+      api: "openai-responses",
+      provider: "provider-x",
+      model: "provider/tiny",
+      stopReason: "stop",
+      usage: {
+        input: 7,
+        cacheRead: 3,
+        cacheWrite: 0,
+        output: 2,
+        totalTokens: 12,
+        cost: { total: 0.0005 },
+      },
+    };
+    await fs.writeFile(
+      ompPath,
+      [header, assistant, modelUsage, modelUsage]
+        .map(JSON.stringify)
+        .join("\n") + "\n",
+    );
+    await fs.writeFile(f.manifestPath, JSON.stringify(f.manifest));
+    const report = await collectSessionJournal(f.manifestPath);
+    expect(report.coverage).toMatchObject({
+      complete: true,
+      invalidUsageRecords: 0,
+    });
+    expect(report.groups).toHaveLength(2);
+    expect(report.groups).toContainEqual(
+      expect.objectContaining({
+        role: "review",
+        model: "provider/main",
+        messages: 1,
+        outputTokens: 4,
+        recordedCostEstimate: 0.001,
+      }),
+    );
+    expect(report.groups).toContainEqual(
+      expect.objectContaining({
+        role: "review",
+        usageKind: "auxiliary",
+        nativePurpose: "title",
+        model: "provider/tiny",
+        messages: 0,
+        uncachedInputTokens: 7,
+        cachedInputTokens: 3,
+        outputTokens: 2,
+        recordedCostEstimate: 0.0005,
+      }),
+    );
+    const conflict = structuredClone(modelUsage);
+    conflict.usage.output = 3;
+    conflict.usage.totalTokens = 13;
+    await fs.writeFile(
+      ompPath,
+      [header, assistant, modelUsage, conflict].map(JSON.stringify).join("\n") +
+        "\n",
+    );
+    const conflicted = await collectSessionJournal(f.manifestPath);
+    expect(conflicted.coverage).toMatchObject({
+      complete: false,
+      invalidUsageRecords: 1,
+    });
+    expect(
+      conflicted.groups.find((group) => group.model === "provider/tiny")
+        ?.outputTokens,
+    ).toBe(2);
+  });
+
+  it("preserves OMP orchestration buckets without mixing conversation counters", async () => {
+    const f = await fixture();
+    const ompPath = path.join(f.root, "orchestration.jsonl");
+    f.manifest.sessions[0] = {
+      path: ompPath,
+      format: "omp",
+      role: "review",
+      attemptOutcome: "completed",
+    };
+    f.manifest.expectedSessionIds = ["omp-1"];
+    const header = {
+      type: "session",
+      version: 3,
+      id: "omp-1",
+      cwd: f.workspace,
+      timestamp: "2026-10-01T10:00:00.000Z",
+    };
+    const response = {
+      type: "message",
+      id: "response-1",
+      parentId: null,
+      timestamp: "2026-10-01T10:02:00.000Z",
+      message: {
+        role: "assistant",
+        api: "openai-responses",
+        provider: "provider-x",
+        model: "model-omp",
+        timestamp: 1790858520000,
+        stopReason: "stop",
+        usage: {
+          input: 10,
+          output: 2,
+          cacheRead: 40,
+          cacheWrite: 0,
+          totalTokens: 64,
+          cost: { total: 0.001 },
+          orchestration: { input: 7, cacheRead: 3, output: 2 },
+        },
+      },
+    };
+    await fs.writeFile(
+      ompPath,
+      [header, response, response].map(JSON.stringify).join("\n") + "\n",
+    );
+    await fs.writeFile(f.manifestPath, JSON.stringify(f.manifest));
+    const report = await collectSessionJournal(f.manifestPath);
+    expect(report.groups).toHaveLength(1);
+    expect(report.groups[0]).toMatchObject({
+      uncachedInputTokens: 10,
+      cachedInputTokens: 40,
+      outputTokens: 2,
+      orchestrationInputTokens: 7,
+      orchestrationCacheReadTokens: 3,
+      orchestrationOutputTokens: 2,
+    });
+    const conflict = structuredClone(response);
+    conflict.message.usage.orchestration.input = 8;
+    await fs.writeFile(
+      ompPath,
+      [header, response, conflict].map(JSON.stringify).join("\n") + "\n",
+    );
+    const conflicted = await collectSessionJournal(f.manifestPath);
+    expect(conflicted.coverage).toMatchObject({
+      complete: false,
+      invalidUsageRecords: 1,
+    });
+    expect(conflicted.groups[0]?.orchestrationInputTokens).toBe(7);
+  });
+
+  it("keeps absent OMP orchestration submetrics unknown", async () => {
+    const f = await fixture();
+    const ompPath = path.join(f.root, "unknown-orchestration.jsonl");
+    f.manifest.sessions[0] = {
+      path: ompPath,
+      format: "omp",
+      role: "review",
+      attemptOutcome: "completed",
+    };
+    f.manifest.expectedSessionIds = ["omp-1"];
+    await fs.writeFile(
+      ompPath,
+      [
+        {
+          type: "session",
+          version: 3,
+          id: "omp-1",
+          cwd: f.workspace,
+          timestamp: "2026-10-01T10:00:00.000Z",
+        },
+        {
+          type: "message",
+          id: "response-1",
+          parentId: null,
+          timestamp: "2026-10-01T10:02:00.000Z",
+          message: {
+            role: "assistant",
+            api: "openai-responses",
+            provider: "provider-x",
+            model: "model-omp",
+            timestamp: 1790858520000,
+            stopReason: "stop",
+            usage: {
+              input: 10,
+              output: 2,
+              cacheRead: 0,
+              cacheWrite: 0,
+              totalTokens: 19,
+              cost: { total: 0.001 },
+              orchestration: { input: 7 },
+            },
+          },
+        },
+      ]
+        .map(JSON.stringify)
+        .join("\n") + "\n",
+    );
+    await fs.writeFile(f.manifestPath, JSON.stringify(f.manifest));
+    const result = await collectSessionJournal(f.manifestPath);
+    expect(result.groups[0]).toMatchObject({
+      orchestrationInputTokens: 7,
+      orchestrationCacheReadTokens: null,
+      orchestrationOutputTokens: null,
+    });
+  });
+
+  it("deltas Codex cache-write snapshots and preserves distinct per-event usage", async () => {
+    const f = await fixture();
+    const cumulative = (
+      timestamp: string,
+      input: number,
+      cached: number,
+      output: number,
+      cacheWrite: number,
+    ) => ({
+      ...codexCumulative(timestamp, input, cached, output),
+      payload: {
+        type: "token_count",
+        info: {
+          total_token_usage: {
+            input_tokens: input,
+            cached_input_tokens: cached,
+            cache_write_input_tokens: cacheWrite,
+            output_tokens: output,
+            reasoning_output_tokens: 0,
+            total_tokens: input + output,
+          },
+        },
+      },
+    });
+    const perEvent = (timestamp: string, cacheWrite: number) => ({
+      ...codexEvent(timestamp, 2),
+      payload: {
+        type: "token_count",
+        info: {
+          last_token_usage: {
+            input_tokens: 0,
+            cached_input_tokens: 0,
+            cache_write_input_tokens: cacheWrite,
+            output_tokens: 2,
+            reasoning_output_tokens: 0,
+            total_tokens: 2,
+          },
+        },
+      },
+    });
+    await save(f, [
+      {
+        timestamp: "2026-10-01T09:58:00.000Z",
+        type: "session_meta",
+        payload: { id: "session-1", cwd: f.workspace },
+      },
+      cumulative("2026-10-01T09:59:00.000Z", 100, 20, 10, 5),
+      cumulative("2026-10-01T10:01:00.000Z", 150, 30, 15, 8),
+      cumulative("2026-10-01T10:02:00.000Z", 150, 30, 15, 8),
+      perEvent("2026-10-01T10:03:00.000Z", 4),
+      perEvent("2026-10-01T10:04:00.000Z", 4),
+    ]);
+    const report = await collectSessionJournal(f.manifestPath);
+    expect(report.groups[0]).toMatchObject({
+      uncachedInputTokens: 40,
+      cachedInputTokens: 10,
+      cacheWriteTokens: 11,
+      outputTokens: 9,
+    });
+  });
+
+  it("includes native OMP cache-write usage in replay conflict detection", async () => {
+    const f = await fixture();
+    const ompPath = path.join(f.root, "cache-write-conflict.jsonl");
+    f.manifest.sessions[0] = {
+      path: ompPath,
+      format: "omp",
+      role: "review",
+      attemptOutcome: "completed",
+    };
+    f.manifest.expectedSessionIds = ["omp-1"];
+    const header = {
+      type: "session",
+      version: 3,
+      id: "omp-1",
+      cwd: f.workspace,
+      timestamp: "2026-10-01T10:00:00.000Z",
+    };
+    const response = (cacheWrite: number) => ({
+      type: "message",
+      id: "response-1",
+      parentId: null,
+      timestamp: "2026-10-01T10:02:00.000Z",
+      message: {
+        role: "assistant",
+        api: "openai-responses",
+        provider: "provider-x",
+        model: "model-omp",
+        timestamp: 1790858520000,
+        stopReason: "stop",
+        usage: {
+          input: 10,
+          output: 2,
+          cacheRead: 40,
+          cacheWrite,
+          totalTokens: 52 + cacheWrite,
+          cost: { total: 0.001 },
+        },
+      },
+    });
+    await fs.writeFile(
+      ompPath,
+      [header, response(10), response(10), response(11)]
+        .map(JSON.stringify)
+        .join("\n") + "\n",
+    );
+    await fs.writeFile(f.manifestPath, JSON.stringify(f.manifest));
+    const report = await collectSessionJournal(f.manifestPath);
+    expect(report.coverage).toMatchObject({
+      complete: false,
+      invalidUsageRecords: 1,
+    });
+    expect(report.groups[0]).toMatchObject({
+      cacheWriteTokens: 10,
+      messages: 1,
+    });
+  });
+  it("leaves absent native Codex cache-write metrics unknown", async () => {
+    const f = await fixture();
+    await save(f, [
+      {
+        timestamp: "2026-10-01T09:58:00.000Z",
+        type: "session_meta",
+        payload: { id: "session-1", cwd: f.workspace },
+      },
+      codexEvent("2026-10-01T10:01:00.000Z", 3, false),
+    ]);
+    const report = await collectSessionJournal(f.manifestPath);
+    expect(report.coverage.complete).toBe(true);
+    expect(report.groups[0]).toMatchObject({
+      outputTokens: 3,
+      cacheWriteTokens: null,
+    });
+  });
+
+  it("stops the selected journal after an oversized middle record", async () => {
+    const f = await fixture();
+    const ompPath = path.join(f.root, "oversized-middle.jsonl");
+    f.manifest.sessions[0] = {
+      path: ompPath,
+      format: "omp",
+      role: "review",
+      attemptOutcome: "completed",
+    };
+    f.manifest.expectedSessionIds = ["omp-1"];
+    const header = {
+      type: "session",
+      version: 3,
+      id: "omp-1",
+      cwd: f.workspace,
+      timestamp: "2026-10-01T10:00:00.000Z",
+    };
+    const response = (id: string, t: string) => ({
+      type: "message",
+      id,
+      parentId: null,
+      timestamp: t,
+      message: {
+        role: "assistant",
+        api: "openai-responses",
+        provider: "provider-x",
+        model: "model-omp",
+        timestamp: Date.parse(t),
+        stopReason: "stop",
+        usage: {
+          input: 10,
+          output: 2,
+          cacheRead: 40,
+          cacheWrite: 0,
+          totalTokens: 52,
+          cost: { total: 0.001 },
+        },
+      },
+    });
+    await fs.writeFile(
+      ompPath,
+      `${[header, response("response-a", "2026-10-01T10:01:00.000Z")]
+        .map(JSON.stringify)
+        .join("\n")}\n${"x".repeat(1_000_001)}\n${JSON.stringify(
+        response("response-b", "2026-10-01T10:03:00.000Z"),
+      )}\n`,
+    );
+    await fs.writeFile(f.manifestPath, JSON.stringify(f.manifest));
+    const report = await collectSessionJournal(f.manifestPath);
+    expect(report.coverage).toMatchObject({
+      malformedLines: 1,
+      resourceLimitReached: true,
+      complete: false,
+    });
+    expect(report.groups).toHaveLength(1);
+    expect(report.groups[0]).toMatchObject({
+      messages: 1,
+      uncachedInputTokens: 10,
+      cachedInputTokens: 40,
+      outputTokens: 2,
+    });
   });
 });
