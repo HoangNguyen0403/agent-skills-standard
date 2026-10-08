@@ -9,35 +9,32 @@ Goal: Decide whether a planned change is ready for implementation or must return
 ## Steps
 
 1. Load artifacts:
-   - BRD-lite brief, PRD/story, SRS/FRS notes, UX/design links, implementation plan, test plan.
-   - Jira/GitHub/GitLab/ADO/Figma/Confluence MCP context when configured; otherwise use exported docs or local files.
+   - Load the task-linked approved brief/ticket, PRD/story or equivalent approved evidence, SRS/FRS when needed, UX/design evidence when relevant, implementation plan and test plan.
+   - Do not require a separate filename when an approved task record supplies the necessary information. A matching record and stable slug are required; unrelated documents and working-tree changes are not authority or approval.
 
 2. Check readiness:
-   - Brief has its lane contract (Why: business goal, stakeholder, AS-IS to TO-BE, measurable metric; Direction: outcome, constraints, non-goals, acceptance criteria) and `approval`: `approved` passes, `pending` blocks, `assumed-autonomous` warns and blocks only when `snc_tier=high`.
-   - ACs atomic, testable, scoped by platform/market/role where relevant.
-   - PRD has stable requirement IDs, AC IDs, owner, priority, status, and last-updated note.
-   - SRS/FRS identifies touched modules, API/data/interface changes, migrations, permissions, failure modes, and NFR thresholds.
-   - Requirement trace is complete: BRD objective -> PRD requirement -> SRS/FRS contract -> test lane.
-   - UX/design states cover loading, empty, error, permission, and responsive/mobile cases when UI changes.
-   - Test strategy maps ACs to unit, integration, E2E/mobile, security, and Zephyr/manual coverage.
+   - Approved task record supplies an outcome, constraints/non-goals, testable acceptance criteria, owner and approval; equivalent evidence is acceptable without a separate BRD/PRD/SRS file. `approval: approved` passes; `pending` blocks; `assumed-autonomous` warns and blocks only when `snc_tier=high`.
+   - ACs are atomic, testable, and scoped by platform/market/role where relevant.
+   - Available requirement/design evidence identifies affected modules and consequential API/data/interface/migration/permission/failure/NFR choices; unresolved sensitive or consequential choices route to technical design and human approval as applicable.
+   - Requirement trace links available business/product requirements to technical contracts and test lanes; do not invent a mandatory document-writing detour when approved evidence already establishes the needed contract.
+   - UX/design evidence covers loading, empty, error, permission, and responsive/mobile cases when UI changes.
+   - Test strategy maps ACs to available unit, integration, E2E/mobile, security, and Zephyr/manual lanes; record unavailable optional lanes as blockers on only the affected slices.
    - Tool prerequisites known: credentials, environments, feature flags, test data, MCP availability.
 
 3. Decide:
-   - READY: BA/PM/SRS/test prerequisites are present and implementation can start.
-   - BLOCKED: missing artifact, owner, unclear AC, missing design/architecture, unavailable environment, or unresolved risk.
-   - PARTIAL: only named slices can start; blocked slices have explicit owner/input.
-
+   - READY: approved evidence, owner, ACs, required design/approval and test prerequisites permit the named slice(s) to start.
+   - BLOCKED: required authority/approval, owner, unclear AC, consequential design, environment, or risk remains unresolved; do not recommend unconditional implementation.
+   - PARTIAL: name each independently bounded ready slice with owner, approval and verification lane; name each blocked slice with its owner, dependency/input and reason. Only ready slices may flow downstream.
 4. Route:
-   - For autonomous/channel mode, return READY only with named slices, owners, verification lanes, and available environments.
+   - For autonomous/channel mode, return READY only with named slices, owners, verification lanes, approval and available required environments.
    - READY -> `implement-feature` or `dev-fix`.
-   - BLOCKED -> `plan-feature` or `design-solution`.
-   - PARTIAL -> slice task list plus blockers.
+   - BLOCKED -> `plan-feature` or `design-solution`; do not emit an unconditional implementation recommendation.
+   - PARTIAL -> send only explicitly ready slices downstream with their blockers and owners; downstream execution cannot absorb blocked slices or claim their activation.
    - Write the run record to `artifacts/runs/[slug]/[compactISO]-implementation-readiness.json` when file writes are allowed.
 
 ## Runtime Contract
 - Use before implementation starts to gate go/no-go.
-- Required inputs: BRD-lite/PRD/SRS artifacts plus a test strategy to check against.
-- Return BLOCKED only when a required artifact, owner, AC, design, environment, or risk is unresolved.
+- Required inputs: a matching approved task record/ticket or equivalent evidence, owner, testable ACs and the design/test prerequisites applicable to each proposed slice. Separate BRD/PRD/SRS filenames are not required when the task record carries equivalent information.
 ## Handoff Payload
 - `slug`, verdict (READY/BLOCKED/PARTIAL), ready slices, blocking gaps, outcome report, next workflow.
 ## Blocking Questions

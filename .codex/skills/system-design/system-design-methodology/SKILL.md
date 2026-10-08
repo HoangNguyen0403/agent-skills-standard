@@ -59,7 +59,7 @@ Requirements before solutions. Never draw a full architecture before numbers jus
 
 ## Specialist Deep-Dive Contract
 
-- Have the user pick the 2-3 riskiest components, then send one specialist brief per component with profile, audience/question, workload/SLO/team/budget, invariant, scope, evidence status, and current HLD decision. The specialist does not re-run intake, add neighboring components, or invent numbers.
+Select zero, one or multiple dives only for unresolved consequential risks; no quota or invented risks. Each brief names its decision, specialist profile, audience/question, workload/SLO/team/budget, invariant, scope, evidence status and HLD decision. Omit dives without decision impact.
 - Require options with rejection reasons, the recommended LLD contract, failure timeline/recovery, verification hooks, and any ADR reversal trigger. Merge the result back into the HLD-to-LLD trace before scoring.
 
 ## Brownfield Path (review-existing mode)
