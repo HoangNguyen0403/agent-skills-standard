@@ -4,7 +4,7 @@ MCP server that lets any AI agent — Claude Code, Cursor, Antigravity, Kiro, Co
 
 Makes standards consultation explicit: `AGENTS.md` and `_INDEX.md` are passive prompt context, while this MCP returns standards through auditable tool calls. Each agent or sub-agent must perform its own applicable lookup; parent-session consultation does not prove fresh-worker delivery or enforced behavior.
 
-**Current release:** `v0.5.0` — workflow-end telemetry helpers, markdown-first review continuity, runtime policy coverage, and host-runtime integration guidance for SDLC reporting.
+**Current release:** `v0.6.1` — explicit consultation auditing, package-aligned security fixes, and supported streamable HTTP request handling.
 
 ## High-Density Architecture (Zero-Trust)
 
@@ -80,6 +80,10 @@ npx agent-skills-standard-mcp
 pnpm install && pnpm mcp:build
 node mcp/dist/index.js
 ```
+
+### Native session accounting (MCP `0.7.0` source candidate)
+
+The candidate adds `ags-mcp-session-report --manifest <manifest.json> [--json]` for explicitly selected Codex JSONL and OMP v3 journals. It reports aggregate counters and inventory coverage only; it does not discover host activity or infer prices. See [`SESSION_REPORT.md`](SESSION_REPORT.md) for the manifest, counter semantics, unknown values, and privacy limits. Real-journal use remains subject to separate Personal-journal authorization.
 
 ## Configure your AI agent
 

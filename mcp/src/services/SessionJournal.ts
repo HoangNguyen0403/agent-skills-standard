@@ -1,0 +1,704 @@
+import { createReadStream } from "node:fs";
+import { realpath, readFile } from "node:fs/promises";
+import { createInterface } from "node:readline";
+import path from "node:path";
+
+export type SessionRole = "main" | "implementation" | "review" | "auxiliary";
+export type SessionFormat = "codex" | "omp";
+export type AttemptOutcome = "completed" | "failed" | "retried" | "interrupted";
+export type SessionPhase =
+  "planning" | "repair" | "acceptance" | "analysis" | "delivery" | "auxiliary";
+
+export interface SessionManifest {
+  workspace: string;
+  startedAt: string;
+  completedAt: string;
+  sessions: Array<{
+    path: string;
+    format: SessionFormat;
+    role: SessionRole;
+    attemptOutcome: AttemptOutcome | null;
+    auxiliaryPurpose?: string;
+  }>;
+  expectedSessionIds: string[];
+  phaseWindows: Array<{
+    phase: SessionPhase;
+    startedAt: string;
+    completedAt: string;
+  }>;
+}
+
+export interface SessionUsageGroup {
+  role: SessionRole;
+  model: string;
+  phase: SessionPhase | null;
+  attemptOutcome: AttemptOutcome | null;
+  auxiliaryPurpose: string | null;
+  messages: number;
+  uncachedInputTokens: number | null;
+  cachedInputTokens: number | null;
+  cacheWriteTokens: number | null;
+  outputTokens: number;
+  reasoningTokens: number | null;
+  auxiliaryTokens: number | null;
+  recordedCostEstimate: number | null;
+}
+
+export interface SessionJournalReport {
+  window: { startedAt: string; completedAt: string };
+  coverage: {
+    selectedSessions: number;
+    expectedSessions: number;
+    missingSessions: number;
+    sessionsWithUsage: number;
+    malformedLines: number;
+    invalidUsageRecords: number;
+    abortedSessions: number;
+    complete: boolean;
+  };
+  groups: SessionUsageGroup[];
+  limitations: string[];
+}
+
+interface Counters {
+  input: number;
+  cachedInput?: number;
+  cacheWrite?: number;
+  output: number;
+  reasoning?: number;
+  auxiliary?: number;
+  total?: number;
+  cost?: number;
+}
+
+interface Aggregate extends SessionUsageGroup {
+  uncachedKnown: boolean;
+  cacheKnown: boolean;
+  cacheWriteKnown: boolean;
+  reasoningKnown: boolean;
+  auxiliaryKnown: boolean;
+  costKnown: boolean;
+}
+
+const MAX_LINE_CHARS = 1_000_000;
+const PHASES: readonly SessionPhase[] = [
+  "planning",
+  "repair",
+  "acceptance",
+  "analysis",
+  "delivery",
+  "auxiliary",
+];
+const OUTCOMES: readonly AttemptOutcome[] = [
+  "completed",
+  "failed",
+  "retried",
+  "interrupted",
+];
+const ROLES: readonly SessionRole[] = [
+  "main",
+  "implementation",
+  "review",
+  "auxiliary",
+];
+const MODEL_ID = /^[A-Za-z0-9._:/+@-]{1,128}$/;
+
+function object(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function timestamp(value: unknown, label: string): string {
+  if (typeof value !== "string" || !Number.isFinite(Date.parse(value)))
+    throw new Error(`Invalid ${label} timestamp in session manifest.`);
+  return new Date(value).toISOString();
+}
+
+function readManifest(value: unknown): SessionManifest {
+  if (
+    !object(value) ||
+    typeof value.workspace !== "string" ||
+    !value.workspace ||
+    !Array.isArray(value.sessions) ||
+    value.sessions.length === 0 ||
+    !Array.isArray(value.expectedSessionIds) ||
+    !Array.isArray(value.phaseWindows)
+  ) {
+    throw new Error(
+      "Session manifest must specify workspace, bounds, sessions, expectedSessionIds, and phaseWindows.",
+    );
+  }
+  const startedAt = timestamp(value.startedAt, "start");
+  const completedAt = timestamp(value.completedAt, "completion");
+  if (Date.parse(startedAt) >= Date.parse(completedAt))
+    throw new Error("Session manifest time bounds must be increasing.");
+  const sessions = value.sessions.map((entry) => {
+    if (
+      !object(entry) ||
+      typeof entry.path !== "string" ||
+      !entry.path ||
+      !["codex", "omp"].includes(String(entry.format)) ||
+      !ROLES.includes(entry.role as SessionRole)
+    )
+      throw new Error(
+        "Each manifest session requires an explicit path, supported format, and role.",
+      );
+    if (
+      entry.attemptOutcome !== null &&
+      !OUTCOMES.includes(entry.attemptOutcome as AttemptOutcome)
+    )
+      throw new Error(
+        "Session attemptOutcome must be a declared outcome or null.",
+      );
+    if (
+      entry.role === "auxiliary" &&
+      (typeof entry.auxiliaryPurpose !== "string" ||
+        !/^[A-Za-z0-9_-]{1,64}$/.test(entry.auxiliaryPurpose))
+    )
+      throw new Error("Auxiliary sessions require an auxiliaryPurpose label.");
+    if (entry.role !== "auxiliary" && entry.auxiliaryPurpose !== undefined)
+      throw new Error("auxiliaryPurpose is only valid for auxiliary sessions.");
+    return {
+      path: entry.path,
+      format: entry.format as SessionFormat,
+      role: entry.role as SessionRole,
+      attemptOutcome: entry.attemptOutcome as AttemptOutcome | null,
+      ...(typeof entry.auxiliaryPurpose === "string"
+        ? { auxiliaryPurpose: entry.auxiliaryPurpose }
+        : {}),
+    };
+  });
+  if (
+    value.expectedSessionIds.some((id) => typeof id !== "string" || !id) ||
+    new Set(value.expectedSessionIds).size !== value.expectedSessionIds.length
+  )
+    throw new Error(
+      "Expected session inventory must contain unique native identities.",
+    );
+  const phaseWindows = value.phaseWindows.map((entry) => {
+    if (!object(entry) || !PHASES.includes(entry.phase as SessionPhase))
+      throw new Error("Invalid declared phase window.");
+    const phaseStart = timestamp(entry.startedAt, "phase start");
+    const phaseEnd = timestamp(entry.completedAt, "phase completion");
+    if (
+      Date.parse(phaseStart) >= Date.parse(phaseEnd) ||
+      Date.parse(phaseStart) < Date.parse(startedAt) ||
+      Date.parse(phaseEnd) > Date.parse(completedAt)
+    )
+      throw new Error(
+        "Phase windows must be increasing and inside report bounds.",
+      );
+    return {
+      phase: entry.phase as SessionPhase,
+      startedAt: phaseStart,
+      completedAt: phaseEnd,
+    };
+  });
+  for (let index = 1; index < phaseWindows.length; index += 1) {
+    if (
+      Date.parse(phaseWindows[index - 1].startedAt) >
+        Date.parse(phaseWindows[index].startedAt) ||
+      Date.parse(phaseWindows[index - 1].completedAt) >
+        Date.parse(phaseWindows[index].startedAt)
+    )
+      throw new Error("Phase windows must be ordered and non-overlapping.");
+  }
+  return {
+    workspace: path.resolve(value.workspace),
+    startedAt,
+    completedAt,
+    sessions,
+    expectedSessionIds: value.expectedSessionIds as string[],
+    phaseWindows,
+  };
+}
+
+function validCounters(value: unknown): value is Counters {
+  if (
+    !object(value) ||
+    typeof value.input !== "number" ||
+    typeof value.output !== "number"
+  )
+    return false;
+  for (const key of [
+    "input",
+    "cachedInput",
+    "cacheWrite",
+    "output",
+    "reasoning",
+    "auxiliary",
+    "total",
+  ] as const) {
+    const counter = value[key];
+    if (
+      counter !== undefined &&
+      (!Number.isSafeInteger(counter) || counter < 0)
+    )
+      return false;
+  }
+  if (value.cachedInput !== undefined && value.cachedInput > value.input)
+    return false;
+  if (value.reasoning !== undefined && value.reasoning > value.output)
+    return false;
+  if (value.total !== undefined && value.total < value.input + value.output)
+    return false;
+  if (
+    value.cost !== undefined &&
+    (typeof value.cost !== "number" ||
+      !Number.isFinite(value.cost) ||
+      value.cost < 0)
+  )
+    return false;
+  return true;
+}
+
+function codexCounters(value: unknown): Counters | null {
+  if (!object(value)) return null;
+  const counters: Record<string, unknown> = {};
+  const mapping = {
+    input_tokens: "input",
+    cached_input_tokens: "cachedInput",
+    output_tokens: "output",
+    reasoning_output_tokens: "reasoning",
+    auxiliary_tokens: "auxiliary",
+    total_tokens: "total",
+    estimated_cost: "cost",
+    cost_usd: "cost",
+  } as const;
+  for (const [source, target] of Object.entries(mapping))
+    if (value[source] !== undefined) counters[target] = value[source];
+  if (!validCounters(counters)) return null;
+  if (
+    counters.total !== undefined &&
+    counters.total !== counters.input + counters.output
+  )
+    return null;
+  return counters;
+}
+
+function delta(current: Counters, previous: Counters | null): Counters | null {
+  const result: Counters = { input: current.input, output: current.output };
+  for (const key of [
+    "input",
+    "cachedInput",
+    "cacheWrite",
+    "output",
+    "reasoning",
+    "auxiliary",
+  ] as const) {
+    const now = current[key];
+    const before = previous?.[key];
+    if (now === undefined) continue;
+    if (previous === null) {
+      result[key] = now;
+    } else if (before !== undefined) {
+      if (now < before) return null;
+      result[key] = now - before;
+    }
+  }
+  return validCounters(result) ? result : null;
+}
+
+function phaseFor(
+  manifest: SessionManifest,
+  time: number,
+): SessionPhase | null {
+  const entry = manifest.phaseWindows.find(
+    (window) =>
+      time >= Date.parse(window.startedAt) &&
+      time < Date.parse(window.completedAt),
+  );
+  return entry?.phase ?? null;
+}
+
+function aggregateKey(
+  role: SessionRole,
+  model: string,
+  phase: SessionPhase | null,
+  outcome: AttemptOutcome | null,
+  purpose: string | null,
+): string {
+  return JSON.stringify([role, model, phase, outcome, purpose]);
+}
+
+function addUsage(
+  groups: Map<string, Aggregate>,
+  session: SessionManifest["sessions"][number],
+  model: string,
+  phase: SessionPhase | null,
+  counters: Counters,
+  codex: boolean,
+): void {
+  const purpose =
+    session.auxiliaryPurpose ??
+    (session.role === "auxiliary" ? "unspecified" : null);
+  const key = aggregateKey(
+    session.role,
+    model,
+    phase,
+    session.attemptOutcome,
+    purpose,
+  );
+  let group = groups.get(key);
+  if (!group) {
+    group = {
+      role: session.role,
+      model,
+      phase,
+      attemptOutcome: session.attemptOutcome,
+      auxiliaryPurpose: purpose,
+      messages: 0,
+      uncachedInputTokens: 0,
+      cachedInputTokens: 0,
+      cacheWriteTokens: 0,
+      outputTokens: 0,
+      reasoningTokens: 0,
+      auxiliaryTokens: 0,
+      recordedCostEstimate: 0,
+      uncachedKnown: true,
+      cacheKnown: true,
+      cacheWriteKnown: true,
+      reasoningKnown: true,
+      auxiliaryKnown: true,
+      costKnown: true,
+    };
+    groups.set(key, group);
+  }
+  group.messages += 1;
+  if (!codex)
+    group.uncachedInputTokens =
+      (group.uncachedInputTokens ?? 0) + counters.input;
+  else if (counters.cachedInput === undefined) group.uncachedKnown = false;
+  else if (group.uncachedInputTokens !== null)
+    group.uncachedInputTokens += counters.input - counters.cachedInput;
+  group.outputTokens += counters.output;
+  if (counters.cachedInput === undefined) group.cacheKnown = false;
+  else if (group.cachedInputTokens !== null)
+    group.cachedInputTokens += counters.cachedInput;
+  if (counters.cacheWrite === undefined) group.cacheWriteKnown = false;
+  else if (group.cacheWriteTokens !== null)
+    group.cacheWriteTokens += counters.cacheWrite;
+  if (counters.reasoning === undefined) group.reasoningKnown = false;
+  else if (group.reasoningTokens !== null)
+    group.reasoningTokens += counters.reasoning;
+  if (counters.auxiliary === undefined) group.auxiliaryKnown = false;
+  else if (group.auxiliaryTokens !== null)
+    group.auxiliaryTokens += counters.auxiliary;
+  if (counters.cost === undefined) group.costKnown = false;
+  else if (group.recordedCostEstimate !== null)
+    group.recordedCostEstimate += counters.cost;
+}
+
+export async function collectSessionJournal(
+  manifestPath: string,
+): Promise<SessionJournalReport> {
+  const manifestRealPath = await realpath(manifestPath).catch(() => null);
+  if (!manifestRealPath)
+    throw new Error("Session manifest could not be opened.");
+  let raw: unknown;
+  try {
+    raw = JSON.parse(await readFile(manifestRealPath, "utf8"));
+  } catch {
+    throw new Error("Session manifest is not valid JSON.");
+  }
+  const manifest = readManifest(raw);
+  const workspace = await realpath(manifest.workspace).catch(() => null);
+  if (!workspace) throw new Error("Manifest workspace does not exist.");
+  const manifestDir = path.dirname(manifestRealPath);
+  const paths = manifest.sessions.map((session) =>
+    path.resolve(manifestDir, session.path),
+  );
+  if (new Set(paths).size !== paths.length)
+    throw new Error("Duplicate session paths are not allowed.");
+  const selectedIds = new Set<string>();
+  const groups = new Map<string, Aggregate>();
+  const coverage = {
+    selectedSessions: manifest.sessions.length,
+    expectedSessions: manifest.expectedSessionIds.length,
+    missingSessions: 0,
+    sessionsWithUsage: 0,
+    malformedLines: 0,
+    invalidUsageRecords: 0,
+    abortedSessions: 0,
+    complete: true,
+  };
+  for (
+    let sessionIndex = 0;
+    sessionIndex < manifest.sessions.length;
+    sessionIndex += 1
+  ) {
+    const session = manifest.sessions[sessionIndex];
+    const file = paths[sessionIndex];
+    const actualPath = await realpath(file).catch(() => null);
+    if (!actualPath)
+      throw new Error("A manifest-selected file could not be opened.");
+    let sessionId: string | null = null;
+    const stream = createReadStream(actualPath, { encoding: "utf8" });
+    const lines = createInterface({ input: stream, crlfDelay: Infinity });
+    let previous: Counters | null = null;
+    let model = "unreported";
+    let used = false;
+    let aborted = false;
+    const responses = new Map<string, string>();
+    const draftResponseIds = new Set<string>();
+    const codexRecords = new Map<string, string>();
+    try {
+      for await (const line of lines) {
+        if (!line.trim()) continue;
+        if (line.length > MAX_LINE_CHARS) {
+          coverage.malformedLines += 1;
+          continue;
+        }
+        let row: unknown;
+        try {
+          row = JSON.parse(line);
+        } catch {
+          coverage.malformedLines += 1;
+          continue;
+        }
+        if (!object(row)) {
+          coverage.malformedLines += 1;
+          continue;
+        }
+        if (
+          sessionId === null &&
+          session.format === "omp" &&
+          row.type === "title"
+        )
+          continue;
+        if (sessionId === null) {
+          const codexHeader =
+            row.type === "session_meta" && object(row.payload)
+              ? row.payload
+              : null;
+          const ompHeader =
+            row.type === "session" && row.version === 3 ? row : null;
+          const nativeId =
+            session.format === "codex" ? codexHeader?.id : ompHeader?.id;
+          const nativeCwd =
+            session.format === "codex" ? codexHeader?.cwd : ompHeader?.cwd;
+          if (
+            typeof nativeId !== "string" ||
+            !nativeId ||
+            typeof nativeCwd !== "string"
+          )
+            throw new Error(
+              "Native session header does not match its declared format.",
+            );
+          const nativeWorkspace = await realpath(nativeCwd).catch(() => null);
+          if (nativeWorkspace !== workspace)
+            throw new Error("Native session workspace mismatch with manifest.");
+          if (selectedIds.has(nativeId))
+            throw new Error(
+              "Duplicate native session identities are not allowed.",
+            );
+          if (!manifest.expectedSessionIds.includes(nativeId))
+            throw new Error(
+              "Native session identity is not declared in expected inventory.",
+            );
+          selectedIds.add(nativeId);
+          sessionId = nativeId;
+          continue;
+        }
+        const time =
+          typeof row.timestamp === "string" ? Date.parse(row.timestamp) : NaN;
+        const inWindow =
+          Number.isFinite(time) &&
+          time >= Date.parse(manifest.startedAt) &&
+          time < Date.parse(manifest.completedAt);
+        if (session.format === "codex") {
+          if (row.type === "turn_aborted" && inWindow) aborted = true;
+          if (
+            row.type === "turn_context" &&
+            object(row.payload) &&
+            typeof row.payload.model === "string"
+          ) {
+            if (MODEL_ID.test(row.payload.model)) model = row.payload.model;
+            else {
+              model = "unreported";
+              coverage.invalidUsageRecords += 1;
+            }
+          }
+          if (
+            row.type !== "event_msg" ||
+            !object(row.payload) ||
+            row.payload.type !== "token_count" ||
+            !object(row.payload.info)
+          )
+            continue;
+          if (!Number.isFinite(time)) {
+            coverage.invalidUsageRecords += 1;
+            continue;
+          }
+          const info = row.payload.info;
+          const cumulative =
+            info.total_token_usage === undefined
+              ? null
+              : codexCounters(info.total_token_usage);
+          const last =
+            info.last_token_usage === undefined
+              ? null
+              : codexCounters(info.last_token_usage);
+          if (
+            (info.total_token_usage !== undefined && !cumulative) ||
+            (info.last_token_usage !== undefined && !last) ||
+            (!cumulative && !last)
+          ) {
+            coverage.invalidUsageRecords += 1;
+            continue;
+          }
+          const identity = typeof row.id === "string" ? row.id : undefined;
+          const signature = JSON.stringify([cumulative, last]);
+          if (identity && codexRecords.has(identity)) {
+            if (codexRecords.get(identity) !== signature)
+              coverage.invalidUsageRecords += 1;
+            continue;
+          }
+          if (identity) codexRecords.set(identity, signature);
+          const usage = cumulative ? delta(cumulative, previous) : last;
+          if (cumulative) previous = cumulative;
+          if (!usage) {
+            coverage.invalidUsageRecords += 1;
+            continue;
+          }
+          if (!inWindow) continue;
+          addUsage(
+            groups,
+            session,
+            model,
+            phaseFor(manifest, time),
+            usage,
+            true,
+          );
+          used = true;
+        } else {
+          if (
+            row.type !== "message" ||
+            !object(row.message) ||
+            row.message.role !== "assistant"
+          )
+            continue;
+          const message = row.message;
+          const identity =
+            typeof row.id === "string" && row.id ? row.id : undefined;
+          if (row.isDraft === true || row.finalized === false) {
+            if (identity) draftResponseIds.add(identity);
+            else coverage.invalidUsageRecords += 1;
+            continue;
+          }
+          if (!Number.isFinite(time)) {
+            coverage.invalidUsageRecords += 1;
+            continue;
+          }
+          const nativeUsage = object(message.usage) ? message.usage : null;
+          if (!nativeUsage) {
+            if (identity) draftResponseIds.add(identity);
+            else coverage.invalidUsageRecords += 1;
+            continue;
+          }
+          const countersValue: Counters = {
+            input: nativeUsage.input as number,
+            output: nativeUsage.output as number,
+            ...(typeof nativeUsage.cacheRead === "number"
+              ? { cachedInput: nativeUsage.cacheRead }
+              : {}),
+            ...(typeof nativeUsage.cacheWrite === "number"
+              ? { cacheWrite: nativeUsage.cacheWrite }
+              : {}),
+            ...(typeof nativeUsage.reasoning === "number"
+              ? { reasoning: nativeUsage.reasoning }
+              : {}),
+            ...(typeof nativeUsage.totalTokens === "number"
+              ? { total: nativeUsage.totalTokens }
+              : {}),
+            ...(object(message.cost) && typeof message.cost.total === "number"
+              ? { cost: message.cost.total }
+              : {}),
+          };
+          if (!validCounters(countersValue)) {
+            coverage.invalidUsageRecords += 1;
+            continue;
+          }
+          const modelName =
+            typeof message.model === "string" && MODEL_ID.test(message.model)
+              ? message.model
+              : "unreported";
+          if (message.model !== undefined && modelName === "unreported")
+            coverage.invalidUsageRecords += 1;
+          if (identity) draftResponseIds.delete(identity);
+          const signature = JSON.stringify([modelName, countersValue]);
+          if (identity && responses.has(identity)) {
+            if (responses.get(identity) !== signature)
+              coverage.invalidUsageRecords += 1;
+            continue;
+          }
+          if (identity) responses.set(identity, signature);
+          if (!inWindow) continue;
+          addUsage(
+            groups,
+            session,
+            modelName,
+            phaseFor(manifest, time),
+            countersValue,
+            false,
+          );
+          used = true;
+        }
+      }
+      if (sessionId === null) throw new Error("Native session file is empty.");
+      coverage.invalidUsageRecords += draftResponseIds.size;
+    } finally {
+      lines.close();
+      stream.destroy();
+    }
+    if (used) coverage.sessionsWithUsage += 1;
+    if (aborted) coverage.abortedSessions += 1;
+  }
+  coverage.missingSessions =
+    manifest.expectedSessionIds.length - selectedIds.size;
+  coverage.complete =
+    coverage.missingSessions === 0 &&
+    coverage.malformedLines === 0 &&
+    coverage.invalidUsageRecords === 0 &&
+    coverage.abortedSessions === 0 &&
+    coverage.sessionsWithUsage === coverage.selectedSessions;
+  const reportGroups = [...groups.values()]
+    .map((group) => ({
+      role: group.role,
+      model: group.model,
+      phase: group.phase,
+      attemptOutcome: group.attemptOutcome,
+      auxiliaryPurpose: group.auxiliaryPurpose,
+      messages: group.messages,
+      uncachedInputTokens: group.uncachedKnown
+        ? group.uncachedInputTokens
+        : null,
+      cachedInputTokens: group.cacheKnown ? group.cachedInputTokens : null,
+      cacheWriteTokens: group.cacheWriteKnown ? group.cacheWriteTokens : null,
+      outputTokens: group.outputTokens,
+      reasoningTokens: group.reasoningKnown ? group.reasoningTokens : null,
+      auxiliaryTokens: group.auxiliaryKnown ? group.auxiliaryTokens : null,
+      recordedCostEstimate: group.costKnown ? group.recordedCostEstimate : null,
+    }))
+    .sort(
+      (a, b) =>
+        a.role.localeCompare(b.role) ||
+        a.model.localeCompare(b.model) ||
+        (a.phase ?? "").localeCompare(b.phase ?? "") ||
+        (a.attemptOutcome ?? "").localeCompare(b.attemptOutcome ?? ""),
+    );
+  return {
+    window: {
+      startedAt: manifest.startedAt,
+      completedAt: manifest.completedAt,
+    },
+    coverage,
+    groups: reportGroups,
+    limitations: [
+      "Only explicitly listed session files, expected identities, roles, workspace, and time bounds were read; other host activity is not measured.",
+      "Caller-supplied inventory is a scope declaration, not proof of complete host activity. Missing expected actors and malformed, invalid, aborted, or no-usage sessions make coverage incomplete.",
+      "Phase gaps and undeclared outcomes remain unattributed or unknown; elapsed session spans are not billed compute.",
+      "Provider-unreported submetrics and recorded costs remain unknown. Recorded cost estimates are reported as native evidence; no rates or invoice totals are inferred.",
+      "Prompts, responses, credentials, filesystem paths, and native session identities are not included in reports.",
+    ],
+  };
+}

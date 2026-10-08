@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **MCP `0.7.0` candidate**: Added explicit-manifest Codex JSONL and OMP v3 session accounting, actor/phase/outcome coverage, nullable unknown metrics, and the packaged `ags-mcp-session-report` command. Real-journal authorization remains a separate acceptance gate.
+- **Common `2.8.7` candidate**: Added version-2 revision-, workspace-, dirty-identity-, and evidence-content-bound progress receipts. Declared owner pause remains metadata, not host enforcement.
+
 ## [cli-v2.6.6] / [mcp-v0.6.1] - 2026-10-07
 
 **Category**: CLI Tool, MCP Server, Dependency Security
