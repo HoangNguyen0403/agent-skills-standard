@@ -75,5 +75,5 @@ See [implementation examples](references/implementation.md) for dependency flow 
 ## Anti-Patterns
 
 - **No god classes**: Single Responsibility — one reason to change per module.
-- **No synchronous coupling**: Prefer events or queues for cross-service calls.
+- **No blanket synchronous-coupling ban**: choose synchronous, asynchronous, or hybrid communication from the boundary's consistency, latency, failure, and coupling requirements. A bounded synchronous transaction can protect an immediate invariant; independent notifications may remain asynchronous. State the trade-offs and failure behavior.
 - **No premature abstraction**: Design for current load; scale when proven needed.

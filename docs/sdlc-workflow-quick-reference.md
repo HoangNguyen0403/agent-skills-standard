@@ -31,6 +31,18 @@ Agent Skills Standard syncs workflows into each agent's native surface. Run `ags
 | Benchmark              | Is this skill behavior improving under pressure? | `skill-benchmark`         | Need scored quality comparison vs legacy constraints | benchmark report         |
 | Bug Verify             | Is the fixed bug gone in real flow?             | `verify-bug`               | Post-fix UAT validation against reproduce steps      | bug verification report  |
 
+## Approved Evidence And Readiness
+
+Use the task-linked approved brief/ticket and its stable slug. An unrelated newest document or working-tree change is not task authority or approval. Equivalent approved evidence can satisfy a requirement without a separate BRD/PRD/SRS filename.
+
+`plan-feature` owns outcome, scope, acceptance criteria, dependencies and provisional product slices; consequential architecture, API/data contracts, migrations and technical decisions route to `design-solution`.
+
+`implementation-readiness` returns READY only for named slices with owners, required approval and verification lanes. PARTIAL passes only named ready slices; blocked slices retain their owners and missing inputs and cannot be absorbed downstream. BLOCKED does not recommend unconditional implementation. Preserve the existing Outcome Report schema and `recommended_next_workflow`.
+
+## Guidance Release And Activation
+
+For workflow source changes, update `releases.workflows.version` once for the settled shared workflow bundle, then generate native mirrors. If a source change is rolled back, revert canonical sources and regenerate mirrors before consumers sync. A source revision or PR does not prove consumer installation or runtime activation; record source delivery and machine activation separately.
+
 ### Opt-in cybersecurity workflows
 
 Add the `cybersecurity` category with a reviewed ref and select these workflow

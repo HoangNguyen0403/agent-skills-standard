@@ -8,9 +8,9 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
 
 ## Steps
 1. Load context:
-   - Load baseline PRD section and search `docs/brd/` for the matching `[slug]`; if multiple candidates exist and intent is unclear, ask the user to choose/input the target slug.
+   - Load baseline PRD section and task-linked evidence with the stable slug; when intent is unclear, ask which matching ticket/brief is authoritative rather than selecting an unrelated recent document.
    - Load BRD-lite, ticket text, existing specs, repo patterns, `common-product-requirements`, `common-operator-profile`, `common-decision-discipline`, `quality-engineering-business-analysis`, and matched framework skills.
-   - Carry forward `operator_profile`, `lane`, `snc_tier`, `approval`, BRD objective IDs, SMART metric, scope fence, assumptions, evidence ledger, glossary, risks, and delivery context.
+   - Carry forward `operator_profile`, `lane`, `snc_tier`, `approval`, BRD objective IDs, SMART metric, scope fence, assumptions, evidence ledger, glossary, risks, and delivery context. Use the approved task record/ticket and stable slug; equivalent evidence is sufficient when it supplies the required information, regardless of whether a separate BRD/PRD/SRS filename exists.
 2. Interview:
    - Draft a provisional PRD direction from current context before asking.
    - Ask only for business logic, scope, constraints, and acceptance criteria that cannot be inferred.
@@ -31,9 +31,9 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
    - Mark unresolved blocking product decisions as blockers.
    - Include a RACI table for BA, PM, architect, backend, frontend, mobile, QA, release, and business/UAT approver when more than one delivery role is involved.
 4. Create implementation plan:
-   - Define components, contracts, data changes, migrations, risks, and verification.
-   - Slice work into fresh-context tasks.
-   - Map each task slice to requirement IDs, AC IDs, likely owner role, repo/module, expected artifact, and verification lane.
+   - Define product outcomes, acceptance criteria, dependencies, delivery risks and provisional owner-aligned slices.
+   - Keep unresolved architecture, API/data contracts, migrations, and other consequential technical choices explicit for `design-solution`; do not author technical design twice in the PM plan.
+   - Map each provisional task slice to requirement IDs, AC IDs, likely owner role, repo/module, expected artifact, and verification lane.
    - Estimate each slice (t-shirt size + confidence); roll up a delivery-window range in time/cost terms for `operator_profile=business`, points otherwise.
    - Identify whether `design-solution` is required before coding.
 5. Route:
