@@ -576,7 +576,7 @@ function mergeAggregates(target: Aggregate, source: Aggregate): void {
 function redactNativeIdentities(
   groups: Map<string, Aggregate>,
   expectedSessionIds: readonly string[],
-  nativeIdentityMaps: readonly Map<string, string | null>[],
+  nativeIdentities: ReadonlyMap<string, string | null>,
   provenanceComplete: boolean,
 ): Map<string, Aggregate> {
   const provenanceValues = new Set<string>();
@@ -591,9 +591,8 @@ function redactNativeIdentities(
   } else {
     for (const identity of expectedSessionIds)
       if (provenanceValues.has(identity)) redactedValues.add(identity);
-    for (const identities of nativeIdentityMaps)
-      for (const identity of identities.keys())
-        if (provenanceValues.has(identity)) redactedValues.add(identity);
+    for (const identity of nativeIdentities.keys())
+      if (provenanceValues.has(identity)) redactedValues.add(identity);
   }
   if (redactedValues.size === 0) return groups;
 
@@ -648,9 +647,9 @@ export async function collectSessionJournal(
   if (new Set(paths).size !== paths.length)
     throw new Error("Duplicate session paths are not allowed.");
   const selectedIds = new Set<string>();
-  const nativeIdentityMaps: Map<string, string | null>[] = [];
+
   let nativeProvenanceComplete = true;
-  const groups = new Map<string, Aggregate>();
+  let groups = new Map<string, Aggregate>();
   const coverage = {
     selectedSessions: manifest.sessions.length,
     expectedSessions: manifest.expectedSessionIds.length,
@@ -966,8 +965,13 @@ export async function collectSessionJournal(
     } finally {
       stream.destroy();
     }
+    groups = redactNativeIdentities(
+      groups,
+      manifest.expectedSessionIds,
+      trackedRows,
+      nativeProvenanceComplete,
+    );
     for (const identity of trackedRows.keys()) trackedRows.set(identity, null);
-    if (trackedRows.size > 0) nativeIdentityMaps.push(trackedRows);
     if (used) coverage.sessionsWithUsage += 1;
     if (aborted) coverage.abortedSessions += 1;
   }
@@ -980,13 +984,7 @@ export async function collectSessionJournal(
     coverage.abortedSessions === 0 &&
     !coverage.resourceLimitReached &&
     coverage.sessionsWithUsage === coverage.selectedSessions;
-  const reportableGroups = redactNativeIdentities(
-    groups,
-    manifest.expectedSessionIds,
-    nativeIdentityMaps,
-    nativeProvenanceComplete,
-  );
-  const reportGroups = [...reportableGroups.values()]
+  const reportGroups = [...groups.values()]
     .map((group) => ({
       role: group.role,
       usageKind: group.usageKind,
