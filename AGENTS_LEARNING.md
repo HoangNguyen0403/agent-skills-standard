@@ -155,3 +155,28 @@ Use bounded phase packets, complete slice ownership, concise revision-bound rece
 ```json
 {"skill":"common/common-context-optimization","indirect_phrase":"caching, context management, main-model cost","root_cause":"routing","source_revision":"a9f7ba3bc1bbefceaf847334d9cce240261abd61","proposed_change":"Add prompt-cache and orchestration-cost activation cases while retaining framework-context negative cases; reconcile history masking with append-only caching.","status":"proposed"}
 ```
+
+## Agent Learning Log: Iteration #8
+
+**Date**: 2026-10-08 | **Task**: Correct AGS accounting delta and native provenance behavior.
+**Signal**: Session retrospective
+**Skills**: implement-feature, typescript/typescript-language, common/common-tdd, common/common-session-retrospective, common/common-learning-log
+**Scope**: project
+**Candidate**: ags-per-journal-native-identity-redaction | **Status**: proposed
+**Provenance**: source revision `1276a9a6f19e7eb0c6bef242ca9ca391eca3673d`; `.superpowers/sdd/ags-accounting-implementation/tmp-evidence/correction-follow-up-final/verification.md`.
+**Evaluation**: not-run
+**Review**: pending; no guidance-maintenance or promotion authorization
+**Rollback**: not-applicable; proposal only
+
+### Mistake Made
+I initially retained a separate capped native-identity map for every selected OMP journal until final report grouping. The 10,000-ID per-journal limit did not bound aggregate retained identity state as selected-journal count grew. The active-session compliance audit also showed that repository skills had not been loaded before continuing source edits from carried-over context.
+
+### Pattern to Avoid
+- **No per-item cap mistaken for a total-state bound**: A capped map per item can still grow with the number of selected items.
+- **No carried-over skill-load assumptions**: Prior-session summaries do not establish current-session MCP compliance.
+
+### Better Approach
+At each selected-journal boundary, redact/re-key accumulated groups while only the current journal's capped identity map is live, then clear its signature values; keep cross-journal collision regressions. At session start, load the workflow and file-matched skills in the active MCP session before editing; verify with the compliance audit before handoff.
+
+### Trigger Miss
+None established: matching project skills were available and loaded once the audit gap was detected; the failure was procedure/timing, not a missing trigger alias.
