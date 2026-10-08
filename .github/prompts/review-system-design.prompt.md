@@ -19,9 +19,9 @@ Goal: Turn a provided design artifact into a confirmed model, then a scored verd
    - Probe for embedded structure before any vision pass; an exported image often carries the whole model.
    - Extract the design fact sheet: nodes, edges with a confidence mark each, boundaries, prose claims with their source, and an `UNRECOVERABLE` list.
 4. Confirm (gate):
-   - Redraw the confirmed fact sheet through `common-architecture-diagramming` only when a requested review needs a missing or inaccurate view; otherwise keep a complete text/table review without a diagram prerequisite. When redrawing, use the existing fact-sheet, evidence and render rules below.
-   - When a view is needed, cite numbered fact-sheet lines as `evidence: <path>:<positive line>` and retain original artifact/cell ID in that row. Documentary extraction uses `evidence_kind: document` and `evidence_confidence: documented`, not runtime proof. Low-confidence rows omit evidence and use `assumed` or `unverified`; never convert `UNRECOVERABLE` data into a metric. Capture cited source revision/digest per the diagram spec.
-   - The author confirms or corrects before any finding counts. Record contradictions between prose and diagram as findings.
+   - Confirm the fact sheet with the author before findings count. Render a normalized view only when the requested review needs a missing or inaccurate view; otherwise a complete confirmed text/table review is sufficient. When rendering, follow `common-architecture-diagramming` and the fact-sheet, evidence and render rules below.
+   - When a view is needed, cite numbered fact-sheet lines as `evidence: <path>:<positive line>` and retain original artifact/cell ID in that row. Documentary extraction uses `evidence_kind: document` and `evidence_confidence: documented`, not runtime proof. Low-confidence rows omit evidence and use `assumed` or `unverified`; never convert `UNRECOVERABLE` data into a metric. Capture cited source revision/digest per the diagram spec. When no view is required, mark the normalized diagram absent/not required with a reason.
+   - Extraction confidence is not review evidence. Record contradictions between prose and any selected view as findings rather than silently choosing one.
    - Autonomous or channel mode with no author reachable: cap every finding at `needs validation` and never issue a hard verdict on unconfirmed extraction.
 5. Elicit what no artifact carries:
    - Ask max 3 blocking questions per turn for scale, latency SLO, consistency needs, cost ceiling, and operating team.
@@ -46,7 +46,7 @@ Goal: Turn a provided design artifact into a confirmed model, then a scored verd
 
 ## Handoff Payload
 
-- `slug`, `operator_profile`, artifact class and provenance, design fact sheet, confirmation status, normalized diagram, capacity and NFR inputs with `ASSUMED` flags, scorecard, findings, risk register, next workflow.
+- `slug`, `operator_profile`, artifact class and provenance, design fact sheet, confirmation status, optional normalized diagram (or absent/not required with reason), capacity and NFR inputs with `ASSUMED` flags, scorecard, findings, risk register, next workflow.
 
 ## Blocking Questions
 
@@ -58,7 +58,7 @@ Goal: Turn a provided design artifact into a confirmed model, then a scored verd
 # Design Review: [Name]
 ## Artifact And Provenance
 ## Ingestion Class And Extraction Confidence
-## Normalized Design (re-drawn, .drawio + image)
+## Normalized Design (re-drawn only when required; otherwise absent/not required with reason)
 ## Confirmation Status
 ## Fact Sheet (nodes / edges / boundaries / UNRECOVERABLE)
 ## Elicited Inputs And Assumptions
@@ -70,7 +70,7 @@ Goal: Turn a provided design artifact into a confirmed model, then a scored verd
 ## Risk Register
 
 ## Outcome Report
-{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: review-system-design, feature_status: design_ready, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: system-design-session, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: review-system-design, feature_status: "[existing schema status supported by evidence; design_ready only for a sufficient proposed design]", started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: system-design-session, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 system-design-session | design-solution

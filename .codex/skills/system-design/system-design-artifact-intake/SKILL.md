@@ -20,7 +20,7 @@ metadata:
 
 ## **Priority: P1 (HIGH)**
 
-The artifact is not the design; the extracted fact sheet is. Never review what you have not provably read.
+The source artifact is not the design; its extracted fact sheet is. Never review what you have not provably read.
 
 ## Classify the Artifact First
 
@@ -55,12 +55,15 @@ Extract every artifact into the same shape before any judgment:
 4. An unlabeled arrow stays an unlabeled edge. Never infer a protocol from proximity.
 5. Request the source file when fidelity matters, and say why: the extraction is lossy and the review inherits every loss.
 
-## Re-draw to Confirm
+## Confirm and Render When Useful
 
-- Always render the fact sheet per `common-architecture-diagramming` (spec, validate, render, export) and show it: "this is the system I will review."
-- Confirmed rows cite numbered fact-sheet lines with `evidence_kind: document` and `evidence_confidence: documented`; retain original artifact/cell IDs in the fact sheet. This proves extraction provenance, not deployment. Capture source revision/digest per the diagram spec; low-confidence rows omit evidence and use `assumed` or `unverified`. Never invent an `UNRECOVERABLE` metric.
-- The author confirms or corrects before any finding counts. Extraction confidence is not review evidence.
-- Contradictions between prose and diagram are findings in themselves - surface them, do not silently pick one.
+- Keep the extracted fact sheet as the review basis. Render it per `common-architecture-diagramming` only when a requested view is missing or inaccurate, or when a diagram materially clarifies the review question; otherwise a confirmed text/table fact sheet is sufficient.
+- If no view is required, record the normalized diagram as absent/not required with a brief reason. Do not create a `.drawio` or image merely to satisfy an output slot.
+
+- The author confirms or corrects the fact sheet before findings count; extraction confidence is not review evidence.
+- Each confirmed row used in the review cites its source location and retains the original artifact/cell ID. Documentary citations use `evidence_kind: document` and `evidence_confidence: documented`; they establish provenance, not deployment.
+- When rendering a view, capture its source revision/digest per the diagram spec. Low-confidence rows omit citations and use `assumed` or `unverified`; never invent an `UNRECOVERABLE` metric.
+- Surface contradictions between prose and a selected view as findings rather than silently choosing one.
 
 ## Trust Rules
 

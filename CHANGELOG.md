@@ -12,13 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **SDLC workflows**: Bind routing to task-linked approved evidence, keep product planning separate from technical design, and make readiness handoffs explicitly slice-scoped with distinct source-ready and machine-activation states.
-- **System design**: Select specialist dives from unresolved consequential risks, make redraw conditional on a missing/inaccurate/requested view, qualify evidence and verdicts by proposed-design/implementation/operations scope, and choose sync/async boundaries from consistency and failure requirements.
-- **Evaluations**: Replace the fixed specialist-quota case and add semantic cases S1–S4 and D1–D6. Expected outputs and structured assertions are smoke checks, not independent semantic review results.
+- **System design**: Select specialist dives from unresolved consequential risks across linked references; make redraw conditional across intake and review outputs; qualify scorecard anchors, readiness and verdicts by evidence scope; choose sync/async boundaries from consistency and failure requirements.
+- **Evaluations**: Replace fixed-quota/label/optional-mechanism snapshots with invariant-focused cases; keep semantic acceptance separate from lexical smoke checks.
 
 ### Versions
 
 - **Workflows**: `1.1.4` → `1.1.5`
-- **System Design**: `1.2.1` → `1.2.2`
+- **System Design**: `1.2.2` → `1.2.3`
 
 ## [cli-v2.6.6] / [mcp-v0.6.1] - 2026-10-07
 

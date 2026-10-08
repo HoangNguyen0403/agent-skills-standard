@@ -25,11 +25,11 @@ Score claims against evidence appropriate to the declared review scope. A propos
 | --- | --- | --- |
 | Requirements | Functional, NFR, and out-of-scope written with owners | Only a feature description exists |
 | Capacity evidence | Peak QPS, storage, and bandwidth computed and current | Numbers absent or older than the last traffic change |
-| Redundancy | No SPOF; failover drilled with a measured RTO | Single instance or untested failover on a critical path |
+| Redundancy | Failure domains, recovery mechanisms and ownership fit the stated objective; proposals include validation criteria, operations claims require measured drills | Critical SPOF or no viable recovery for the stated objective |
 | Data scaling | Access patterns mapped, ownership single, growth path stated | One shared store, no growth plan, unbounded tables |
 | Caching | Hot read paths cached with TTL and invalidation defined | No cache on a proven hot path, or uninvalidatable cache |
-| Async offload | Slow and bursty work queued with drain rate and DLQ | Everything synchronous on the request path |
-| Observability | Traffic, error, latency, saturation instrumented with owned alerts | Logs only, or alerts with no runbook |
+| Async offload | Slow/bursty work is isolated when required by stated SLO or failure constraints, with bounded drain/recovery; bounded synchronous work is valid when it meets them | Required isolation is absent or synchronous coupling violates the stated constraints |
+| Observability | Signals, alert ownership, runbooks and validation fit the declared scope; operations claims require observed telemetry | No relevant signals, owner or response path for a material risk |
 | Rollout | Canary or flag with metric rollback trigger and reversible migrations | Big-bang deploy, irreversible migration |
 | Cost proportionality | Spend is sized to the traffic and the risk, and someone can state it | Topology bought for an imagined scale nobody measured |
 
