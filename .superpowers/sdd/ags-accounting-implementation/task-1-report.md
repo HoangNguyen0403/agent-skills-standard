@@ -26,3 +26,23 @@
 - MCP LSP query reported no language servers configured. No existing callers of the new APIs were present at the approved base to reference-check.
 - Root build reports an existing duplicate `pnpm` key in `package.json`; not changed. Early lint caught formatting issues, fixed before the passing final lint gate. An initial isolated binary smoke exposed an npm-symlink entrypoint guard bug; fixed to `require.main === module`, then rebuilt/repacked and reran both installed modes successfully.
 - No real or historical Personal/native journal was opened. The installed synthetic smoke is not journal-accounting acceptance: real Personal inventory/source authorization and W7 remain blocked. No independent reviewer ran; review and PR remain pending.
+
+## Corrective pass — settled source
+
+- Correction commit: `ed835999b6e14f9e886851cc8a073a2bda07a8b7` on `feat/native-session-report-checkpoint-receipts`. Candidate remains MCP 0.7.0; package/version metadata, generated mirrors, changelog, dependencies, lockfile, and common receipt component were not changed. Existing package scripts/bin already included the collector CLI.
+- F1: OMP `input` and `cacheRead` now validate as independent native buckets; Codex alone enforces cached-input ≤ input.
+- F2: malformed present OMP submetrics and Codex `token_count` events with missing/null info increment invalid usage and make coverage incomplete.
+- F3: OMP usage requires its native persisted message-row identity; missing identity is not billed.
+- F4: decreasing/invalid Codex cumulative records no longer rewind the last valid baseline; A/B/A/B reports one unique delta and incomplete coverage.
+- F5: pinned Codex 0.160.0 `TokenUsageInfo` contains no recorded-cost field. Removed unsupported `estimated_cost` / `cost_usd` decoding; Codex recorded cost remains unknown. OMP v18.6.1 `Usage.cost.total` is under `message.usage.cost`; preserve that recorded amount. OMP session entries have no `isDraft` / `finalized` discriminator, so no draft replacement semantics are claimed; usage-less records are incomplete.
+- F6: absolute, URI-like, traversal, backslash and multi-segment path-like model metadata becomes `unreported`; privacy regression checks the output itself.
+- F7: decoder follows pinned source schemas: Codex `event_msg` / `payload.type=turn_aborted`; OMP assistant `message.stopReason=aborted` and `model_usage.stopReason=aborted`. No shape was inferred from the original probes.
+- F8: replaced `readline` full-line allocation with a chunk-based `StringDecoder` reader that drops lines over 1,000,000 characters; replay state is capped at 10,000 IDs per selected journal. It stops accounting at the cap, sets `resourceLimitReached`, and never silently evicts identities. Consumer tests use an oversized newline-free record and 10,001 distinct IDs.
+- F9: conflicting finalized OMP test now uses two individually valid records (input=10/output=2/total=12 versus input=10/output=3/total=13); asserts one billed final plus incomplete conflict coverage.
+- Provenance: installed executables reported by `which` are OMP v18.6.1 and Codex CLI 0.160.0. Public pinned sources and exact limits are documented in `mcp/SESSION_REPORT.md`; no private journals or binary dumps were inspected.
+- RED/GREEN evidence and exact commands are retained in `.superpowers/sdd/ags-accounting-implementation/tmp-evidence/correction/settled/verification.md`. RED: 10 failures / 7 passes, including nine expected behavior failures; the F8 case in that first run was invalid because its fixture omitted the session header (`Native session file is empty.`), so it is not counted as F8 RED. Focused post-fix test: 17/17. Final MCP suite: 11 files / 168 tests; lint and formatting checks passed.
+- Settled package build/pack/install: final 0.7.0 tarball SHA-1 `f31420bf3aeacdce9c1c477d2bf742c700360a6c`; included `dist/session-journal-cli.js`. Isolated install added 104 packages. Installed human and JSON modes both exited 0; copied reviewer scenarios verified disjoint buckets, malformed/missing identity incompleteness, cumulative replay, model privacy, both native aborts, unknown Codex cost, and OMP recorded cost.
+
+## Remaining gate
+
+- No authorized real Personal journal or independent actor inventory was supplied or opened. Installed synthetic accounting is not real-journal acceptance; W7 remains externally blocked. Independent review and PR remain pending and were not performed by this implementation owner.
