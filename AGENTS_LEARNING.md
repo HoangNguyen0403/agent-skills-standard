@@ -155,3 +155,27 @@ Use bounded phase packets, complete slice ownership, concise revision-bound rece
 ```json
 {"skill":"common/common-context-optimization","indirect_phrase":"caching, context management, main-model cost","root_cause":"routing","source_revision":"a9f7ba3bc1bbefceaf847334d9cce240261abd61","proposed_change":"Add prompt-cache and orchestration-cost activation cases while retaining framework-context negative cases; reconcile history masking with append-only caching.","status":"proposed"}
 ```
+
+---
+
+## Agent Learning Log: Iteration #8
+
+**Date**: 2026-10-08 | **Task**: Correct W3 guidance after independent acceptance review
+**Signal**: User correction
+**Skills**: system-design/system-design-methodology, system-design/system-design-review, common/common-learning-log
+**Scope**: project
+**Candidate**: ags-w3-dependency-and-eval-clean-cutover | **Status**: proposed
+**Provenance**: source revision `47104bdc08537d68f60f6a4d3bf60e8b071166bb`; `.superpowers/sdd/ags-sdlc-implementation/task-review.md` findings I1–I4 and D1–D6 artifacts
+**Evaluation**: pending bounded post-correction checks and controller-owned re-exercise
+**Review**: pending; correction author does not self-approve
+**Rollback**: source version remains system-design `1.2.2` until correction metadata patch is committed
+
+### Mistake Made
+The W3 edits changed the headline skills but left linked guidance and scorecard anchors that contradicted risk-driven deep dives, conditional redraw, and lifecycle-qualified scoring. Several replacement eval assertions also prescribed a specific risk label, readiness status for sparse input, or optional async choice instead of the invariant.
+
+### Pattern to Avoid
+- **No entrypoint-only cutover**: A changed primary skill is not complete while a required linked reference still imposes the removed behavior.
+- **No lexical replacement contract**: Evaluation assertions must not turn acceptable labels or optional architecture choices into mandatory outputs.
+
+### Better Approach
+Trace every changed consumer through its required references, sibling skills, output templates, and scorecard before freezing. Align evidence anchors to declared lifecycle, keep production evidence mandatory only for operations claims, and assert behavioral invariants without prescribing names or optional mechanisms.

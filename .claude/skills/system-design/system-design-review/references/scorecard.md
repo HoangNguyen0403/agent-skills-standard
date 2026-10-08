@@ -9,9 +9,9 @@ Score each of the nine axes 0-10 using observable evidence only.
 | 0-2  | Absent   | No artifact, no metric, no owner                      |
 | 3-5  | Partial  | Exists for part of the system, stale, or undocumented |
 | 6-8  | Adequate | Covers the critical paths, documented, owned          |
-| 9-10 | Strong   | Covered, measured, drilled, and reviewed on a cadence |
+| 9-10 | Strong   | At declared scope: proposed mechanisms, owners and validation criteria are complete; implementation behavior is verified; operations are measured and drilled on a cadence |
 
-An unverifiable claim is not a 5. Score it against what is proven at the declared lifecycle scope; tag unsupported runtime/operational claims `UNVERIFIED`.
+Score against lifecycle-appropriate evidence. Missing production drills or telemetry withholds operations readiness; it does not by itself determine proposed-design quality.
 
 ## Weighting by System Profile
 
@@ -38,7 +38,7 @@ rollout and observability no matter how elegant the topology is.
 
 Declare one scope before scoring:
 
-- **Proposed design:** documented mechanisms, calculations and planned validation count as design evidence. Name runtime/operations evidence still unverified; do not claim operational readiness.
+- **Proposed design:** documented mechanisms, calculations and planned validation count as design evidence. Name runtime/operations evidence still unverified; missing design-shaping inputs or mechanisms remain explicit gaps and prevent a readiness claim when material.
 - **Implementation:** implementation evidence must establish that the design is realized; planned mechanisms alone are insufficient.
 - **Operations:** require production runtime/deployment evidence for operational claims, including measured SLO/telemetry and relevant failover/recovery exercises. Missing evidence withholds operations-readiness.
 
@@ -58,7 +58,7 @@ Keep lifecycle (`proposed|implemented|retired`), evidence kind (`code|document|r
 ## Scorecard
 | Axis | Score | Applicable? | Weight | Evidence | Gap |
 | --- | ---: | :---: | ---: | --- | --- |
-Raw applicable score: [n] / [10 × applicable-axis count]; Weighted score: [weighted n] / [10 × sum of applicable weights] - Profile: [profile] - Scope: [proposed design | implementation | operations] - Declared weights: [weighting axes and rationale] - Scope-qualified verdict: [design_ready | implementation readiness | operations readiness withheld/ready]
+Raw applicable score: [n] / [10 × applicable-axis count]; Weighted score: [weighted n] / [10 × sum of applicable weights] - Profile: [profile] - Scope: [proposed design | implementation | operations] - Declared weights: [weighting axes and rationale] - Scope-qualified conclusion: [existing feature_status and verdict supported by evidence; `design_ready` only for a sufficiently supported proposed design]
 
 ## Critical Path Trace
 [hop-by-hop, with the measured or estimated cost of each hop]
@@ -79,8 +79,8 @@ Raw applicable score: [n] / [10 × applicable-axis count]; Weighted score: [weig
 
 ## Verdict Guidance
 
-- **Ship**: no axis below 6 on a weighted-heavy axis, and no open critical finding.
-- **Fix first**: one or more weighted-heavy axes below 6, but the structure is sound.
+- **Readiness at declared scope:** evidence must support the claim; a score threshold alone is insufficient. For a proposed design, use existing `feature_status: design_ready` only when the design inputs and mechanisms are sufficient and no material design gap remains. Sparse facts require named missing design evidence, not an automatic readiness status. Implementation and operations claims require their corresponding evidence.
+- **Fix first:** material gaps at the declared scope remain open; route the smallest evidence-backed correction and withhold readiness until resolved.
 - **Redesign scope**: a structural constraint (ownership, partition key, sync coupling on the hot path)
   cannot be fixed without changing the topology.
 

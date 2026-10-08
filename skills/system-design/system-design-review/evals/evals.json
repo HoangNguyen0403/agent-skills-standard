@@ -114,13 +114,13 @@
     },
     {
       "id": 5,
-      "prompt": "Review this proposed booking design: 15 RPS, p95 target 300 ms, no double booking, PostgreSQL transaction/uniqueness control, bounded contention, idempotency, and planned failure/load tests. It is not deployed and has no production drill results. Return JSON with review_scope, feature_status, and operational_evidence_status.",
-      "expected_output": "Score documented mechanisms and planned validation as proposed-design evidence. Explicitly identify unverified operational lanes (for example, {\"review_scope\":\"proposed_design\",\"feature_status\":\"design_ready\",\"operational_evidence_status\":\"unverified\"}); do not issue a production-ready or deployment verdict.",
+      "prompt": "Review this sparse proposed booking design: target 15 RPS, no double booking, PostgreSQL transaction/uniqueness control and idempotency are stated. The owner, recovery behavior, capacity calculation, cost and rollout approach are not provided. It is not deployed and has no production drill results. Return JSON with review_scope and operational_evidence_status; describe any missing design evidence and make a readiness claim only if the available design inputs are sufficient.",
+      "expected_output": "Treat the stated mechanisms as proposed-design evidence, but do not invent missing design inputs or automatically claim proposed-design readiness from sparse facts. Keep absent production evidence unverified; proposed-design evidence does not establish operational readiness.",
       "assertions": [
         {
           "type": "regex",
-          "value": "\"review_scope\"\\s*:\\s*\"proposed_design\"[\\s\\S]*?\"feature_status\"\\s*:\\s*\"design_ready\"",
-          "description": "Checks proposed scope uses the existing design_ready status."
+          "value": "\"review_scope\"\\s*:\\s*\"proposed_design\"",
+          "description": "Checks the decision is qualified as proposed-design review."
         },
         {
           "type": "regex",
@@ -149,17 +149,17 @@
     {
       "id": 7,
       "prompt": "A booking confirmation needs immediate strong consistency; a later notification may fail independently. Return JSON with confirmation_boundary, notification_boundary, and notification_can_fail_independently.",
-      "expected_output": "A bounded synchronous transaction may validly preserve the immediate invariant; asynchronous notification is optional when justified (for example, {\"confirmation_boundary\":\"synchronous\",\"notification_boundary\":\"asynchronous\",\"notification_can_fail_independently\":true}). Explain trade-offs without a blanket synchronous-coupling ban.",
+      "expected_output": "A bounded synchronous transaction may preserve the immediate invariant. Choose a notification boundary from the stated consistency, latency and failure constraints; synchronous or asynchronous handling is valid if an independent notification failure cannot undo or delay confirmation.",
       "assertions": [
         {
           "type": "regex",
-          "value": "\"confirmation_boundary\"\\s*:\\s*\"synchronous\"[\\s\\S]*?\"notification_boundary\"\\s*:\\s*\"asynchronous\"",
-          "description": "Checks a justified hybrid boundary for strong confirmation and an independent notification."
+          "value": "\"confirmation_boundary\"\\s*:\\s*\"synchronous\"",
+          "description": "Checks the immediate strong-consistency boundary is preserved."
         },
         {
           "type": "regex",
           "value": "\"notification_can_fail_independently\"\\s*:\\s*true",
-          "description": "Checks notification failure does not invalidate the immediate confirmation."
+          "description": "Checks notification failure cannot invalidate the completed confirmation."
         }
       ]
     }
