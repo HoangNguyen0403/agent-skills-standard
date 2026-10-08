@@ -64,6 +64,7 @@ function codexCumulative(
   input: number,
   cached: number,
   output: number,
+  cacheWrite: number = 0,
 ) {
   return {
     timestamp,
@@ -74,7 +75,7 @@ function codexCumulative(
         total_token_usage: {
           input_tokens: input,
           cached_input_tokens: cached,
-          cache_write_input_tokens: 0,
+          cache_write_input_tokens: cacheWrite,
           output_tokens: output,
           reasoning_output_tokens: 0,
           total_tokens: input + output,
@@ -672,6 +673,37 @@ describe("collectSessionJournal", () => {
     });
     expect(result.coverage.invalidUsageRecords).toBe(1);
   });
+  it("rejects a cache-invalid Codex delta and recovers from the prior baseline", async () => {
+    const f = await fixture();
+    f.manifest.startedAt = "2026-10-01T10:00:00.000Z";
+    f.manifest.completedAt = "2026-10-01T10:05:00.000Z";
+    await save(f, [
+      {
+        timestamp: "2026-10-01T09:58:00.000Z",
+        type: "session_meta",
+        payload: { id: "session-1", cwd: f.workspace },
+      },
+      codexCumulative("2026-10-01T09:59:00.000Z", 100, 20, 10, 5),
+      codexCumulative("2026-10-01T10:01:00.000Z", 150, 80, 15, 8),
+      codexCumulative("2026-10-01T10:02:00.000Z", 160, 30, 17, 9),
+    ]);
+
+    const report = await collectSessionJournal(f.manifestPath);
+
+    expect(report.coverage).toMatchObject({
+      complete: false,
+      invalidUsageRecords: 1,
+    });
+    expect(report.groups).toHaveLength(1);
+    expect(report.groups[0]).toMatchObject({
+      messages: 1,
+      uncachedInputTokens: 50,
+      cachedInputTokens: 10,
+      cacheWriteTokens: 4,
+      outputTokens: 7,
+    });
+    expect(report.groups[0]?.uncachedInputTokens).toBeGreaterThanOrEqual(0);
+  });
 
   it("marks malformed Codex token-count envelopes incomplete", async () => {
     const f = await fixture();
@@ -1014,6 +1046,144 @@ describe("collectSessionJournal", () => {
       conflicted.groups.find((group) => group.model === "provider/tiny")
         ?.outputTokens,
     ).toBe(2);
+  });
+  it("redacts selected and cross-row identities from native model-usage labels", async () => {
+    const f = await fixture();
+    const firstPath = path.join(f.root, "first-usage.jsonl");
+    const secondPath = path.join(f.root, "second-usage.jsonl");
+    f.manifest.sessions = [
+      {
+        path: firstPath,
+        format: "omp",
+        role: "review",
+        attemptOutcome: "completed",
+      },
+      {
+        path: secondPath,
+        format: "omp",
+        role: "review",
+        attemptOutcome: "completed",
+      },
+    ];
+    f.manifest.expectedSessionIds = ["omp-1", "omp-2"];
+    const header = (id: string) => ({
+      type: "session",
+      version: 3,
+      id,
+      cwd: f.workspace,
+      timestamp: "2026-10-01T10:00:00.000Z",
+    });
+    const modelUsage = (
+      id: string,
+      purpose: string,
+      role: string,
+      input: number,
+    ) => ({
+      type: "model_usage",
+      id,
+      parentId: null,
+      timestamp: "2026-10-01T10:01:00.000Z",
+      purpose,
+      role,
+      api: "openai-responses",
+      provider: "provider-x",
+      model: "provider/tiny",
+      stopReason: "stop",
+      usage: {
+        input,
+        cacheRead: 0,
+        cacheWrite: 0,
+        output: 2,
+        totalTokens: input + 2,
+        cost: { total: 0.001 },
+      },
+    });
+    await fs.writeFile(
+      firstPath,
+      [
+        header("omp-1"),
+        modelUsage("usage-1", "omp-1", "usage-1", 10),
+        modelUsage("usage-2", "usage-1", "tiny", 20),
+        modelUsage("usage-3", "omp-2", "tiny", 30),
+        modelUsage("usage-4", "later-row-id", "tiny", 40),
+      ]
+        .map(JSON.stringify)
+        .join("\n") + "\n",
+    );
+    await fs.writeFile(
+      secondPath,
+      [header("omp-2"), modelUsage("later-row-id", "title", "tiny", 50)]
+        .map(JSON.stringify)
+        .join("\n") + "\n",
+    );
+    await fs.writeFile(f.manifestPath, JSON.stringify(f.manifest));
+
+    const report = await collectSessionJournal(f.manifestPath);
+    const serialized = JSON.stringify(report);
+
+    expect(report.coverage).toMatchObject({
+      complete: true,
+      invalidUsageRecords: 0,
+    });
+    expect(report.groups).toHaveLength(3);
+    for (const identity of [
+      "omp-1",
+      "omp-2",
+      "usage-1",
+      "usage-2",
+      "usage-3",
+      "usage-4",
+      "later-row-id",
+    ])
+      expect(serialized).not.toContain(identity);
+    expect(report.groups).toContainEqual(
+      expect.objectContaining({
+        usageKind: "auxiliary",
+        nativePurpose: null,
+        nativeModelRole: null,
+        uncachedInputTokens: 10,
+        outputTokens: 2,
+        recordedCostEstimate: 0.001,
+      }),
+    );
+    expect(report.groups).toContainEqual(
+      expect.objectContaining({
+        usageKind: "auxiliary",
+        nativePurpose: null,
+        nativeModelRole: "tiny",
+        uncachedInputTokens: 90,
+        outputTokens: 6,
+        recordedCostEstimate: 0.003,
+      }),
+    );
+    expect(report.groups).toContainEqual(
+      expect.objectContaining({
+        usageKind: "auxiliary",
+        nativePurpose: "title",
+        nativeModelRole: "tiny",
+        uncachedInputTokens: 50,
+        outputTokens: 2,
+        recordedCostEstimate: 0.001,
+      }),
+    );
+    await fs.appendFile(firstPath, "{malformed\n");
+    const incompleteReport = await collectSessionJournal(f.manifestPath);
+    expect(incompleteReport.coverage).toMatchObject({
+      complete: false,
+      malformedLines: 1,
+    });
+    expect(incompleteReport.groups).toHaveLength(1);
+    expect(incompleteReport.groups[0]).toMatchObject({
+      nativePurpose: null,
+      nativeModelRole: null,
+      uncachedInputTokens: 150,
+      cachedInputTokens: 0,
+      cacheWriteTokens: 0,
+      outputTokens: 10,
+      recordedCostEstimate: 0.005,
+    });
+    for (const identity of ["omp-1", "omp-2", "usage-1", "later-row-id"])
+      expect(JSON.stringify(incompleteReport)).not.toContain(identity);
   });
 
   it("preserves OMP orchestration buckets without mixing conversation counters", async () => {

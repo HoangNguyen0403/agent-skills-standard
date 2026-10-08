@@ -308,13 +308,18 @@ function validCounters(value: unknown): value is Counters {
     const counter = value[key];
     if (
       counter !== undefined &&
-      (!Number.isSafeInteger(counter) || counter < 0)
+      (typeof counter !== "number" ||
+        !Number.isSafeInteger(counter) ||
+        counter < 0)
     )
       return false;
   }
-  if (value.reasoning !== undefined && value.reasoning > value.output)
+  if (typeof value.reasoning === "number" && value.reasoning > value.output)
     return false;
-  if (value.total !== undefined && value.total < value.input + value.output)
+  if (
+    typeof value.total === "number" &&
+    value.total < value.input + value.output
+  )
     return false;
   if (
     value.cost !== undefined &&
@@ -361,7 +366,6 @@ function delta(current: Counters, previous: Counters | null): Counters | null {
     "cacheWrite",
     "output",
     "reasoning",
-    "auxiliary",
   ] as const) {
     const now = current[key];
     const before = previous?.[key];
@@ -510,6 +514,118 @@ function addUsage(
     group.recordedCostEstimate += counters.cost;
 }
 
+type AggregateKnownKey =
+  | "uncachedKnown"
+  | "cacheKnown"
+  | "cacheWriteKnown"
+  | "reasoningKnown"
+  | "orchestrationInputKnown"
+  | "orchestrationCacheReadKnown"
+  | "orchestrationOutputKnown"
+  | "costKnown";
+
+type AggregateValueKey =
+  | "uncachedInputTokens"
+  | "cachedInputTokens"
+  | "cacheWriteTokens"
+  | "reasoningTokens"
+  | "orchestrationInputTokens"
+  | "orchestrationCacheReadTokens"
+  | "orchestrationOutputTokens"
+  | "recordedCostEstimate";
+
+function mergeAggregateMetric<
+  K extends AggregateKnownKey,
+  V extends AggregateValueKey,
+>(target: Aggregate, source: Aggregate, knownKey: K, valueKey: V): void {
+  const known = target[knownKey] && source[knownKey];
+  target[knownKey] = known;
+  target[valueKey] = known
+    ? (target[valueKey] ?? 0) + (source[valueKey] ?? 0)
+    : null;
+}
+
+function mergeAggregates(target: Aggregate, source: Aggregate): void {
+  target.messages += source.messages;
+  target.outputTokens += source.outputTokens;
+  mergeAggregateMetric(target, source, "uncachedKnown", "uncachedInputTokens");
+  mergeAggregateMetric(target, source, "cacheKnown", "cachedInputTokens");
+  mergeAggregateMetric(target, source, "cacheWriteKnown", "cacheWriteTokens");
+  mergeAggregateMetric(target, source, "reasoningKnown", "reasoningTokens");
+  mergeAggregateMetric(
+    target,
+    source,
+    "orchestrationInputKnown",
+    "orchestrationInputTokens",
+  );
+  mergeAggregateMetric(
+    target,
+    source,
+    "orchestrationCacheReadKnown",
+    "orchestrationCacheReadTokens",
+  );
+  mergeAggregateMetric(
+    target,
+    source,
+    "orchestrationOutputKnown",
+    "orchestrationOutputTokens",
+  );
+  mergeAggregateMetric(target, source, "costKnown", "recordedCostEstimate");
+}
+
+function redactNativeIdentities(
+  groups: Map<string, Aggregate>,
+  expectedSessionIds: readonly string[],
+  nativeIdentityMaps: readonly Map<string, string | null>[],
+  provenanceComplete: boolean,
+): Map<string, Aggregate> {
+  const provenanceValues = new Set<string>();
+  for (const group of groups.values()) {
+    if (group.nativePurpose !== null) provenanceValues.add(group.nativePurpose);
+    if (group.nativeModelRole !== null)
+      provenanceValues.add(group.nativeModelRole);
+  }
+  const redactedValues = new Set<string>();
+  if (!provenanceComplete) {
+    for (const value of provenanceValues) redactedValues.add(value);
+  } else {
+    for (const identity of expectedSessionIds)
+      if (provenanceValues.has(identity)) redactedValues.add(identity);
+    for (const identities of nativeIdentityMaps)
+      for (const identity of identities.keys())
+        if (provenanceValues.has(identity)) redactedValues.add(identity);
+  }
+  if (redactedValues.size === 0) return groups;
+
+  const sanitizedGroups = new Map<string, Aggregate>();
+  for (const group of groups.values()) {
+    const nativePurpose =
+      group.nativePurpose !== null && redactedValues.has(group.nativePurpose)
+        ? null
+        : group.nativePurpose;
+    const nativeModelRole =
+      group.nativeModelRole !== null &&
+      redactedValues.has(group.nativeModelRole)
+        ? null
+        : group.nativeModelRole;
+    const key = aggregateKey(
+      group.role,
+      group.usageKind,
+      group.model,
+      group.phase,
+      group.attemptOutcome,
+      group.auxiliaryPurpose,
+      nativePurpose,
+      nativeModelRole,
+    );
+    const sanitized = { ...group, nativePurpose, nativeModelRole };
+    const existing = sanitizedGroups.get(key);
+    if (existing) mergeAggregates(existing, sanitized);
+    else sanitizedGroups.set(key, sanitized);
+  }
+  return sanitizedGroups;
+}
+
 export async function collectSessionJournal(
   manifestPath: string,
 ): Promise<SessionJournalReport> {
@@ -532,6 +648,8 @@ export async function collectSessionJournal(
   if (new Set(paths).size !== paths.length)
     throw new Error("Duplicate session paths are not allowed.");
   const selectedIds = new Set<string>();
+  const nativeIdentityMaps: Map<string, string | null>[] = [];
+  let nativeProvenanceComplete = true;
   const groups = new Map<string, Aggregate>();
   const coverage = {
     selectedSessions: manifest.sessions.length,
@@ -560,9 +678,9 @@ export async function collectSessionJournal(
     let model = "unreported";
     let used = false;
     let aborted = false;
-    const responses = new Map<string, string>();
+    const trackedRows = new Map<string, string | null>();
     const canTrackIdentity = () => {
-      if (responses.size >= MAX_TRACKED_IDENTITIES) {
+      if (trackedRows.size >= MAX_TRACKED_IDENTITIES) {
         coverage.resourceLimitReached = true;
         return false;
       }
@@ -571,6 +689,7 @@ export async function collectSessionJournal(
     try {
       for await (const { line, tooLong } of boundedLines(stream)) {
         if (tooLong) {
+          if (session.format === "omp") nativeProvenanceComplete = false;
           coverage.malformedLines += 1;
           coverage.resourceLimitReached = true;
           break;
@@ -580,11 +699,13 @@ export async function collectSessionJournal(
         try {
           row = JSON.parse(line);
         } catch {
+          if (session.format === "omp") nativeProvenanceComplete = false;
           coverage.malformedLines += 1;
           continue;
         }
         if (!object(row)) {
           coverage.malformedLines += 1;
+          if (session.format === "omp") nativeProvenanceComplete = false;
           continue;
         }
         if (
@@ -677,7 +798,12 @@ export async function collectSessionJournal(
             continue;
           }
           const usage = cumulative ? delta(cumulative, previous) : last;
-          if (!usage) {
+          if (
+            !usage ||
+            (cumulative !== null &&
+              usage.cachedInput !== undefined &&
+              usage.cachedInput > usage.input)
+          ) {
             coverage.invalidUsageRecords += 1;
             continue;
           }
@@ -693,6 +819,17 @@ export async function collectSessionJournal(
           );
           used = true;
         } else {
+          const identity =
+            typeof row.id === "string" && row.id ? row.id : undefined;
+          const identityWasTracked =
+            identity !== undefined && trackedRows.has(identity);
+          if (identity !== undefined && !identityWasTracked) {
+            if (!canTrackIdentity()) {
+              nativeProvenanceComplete = false;
+              break;
+            }
+            trackedRows.set(identity, null);
+          }
           const messageRecord = object(row.message) ? row.message : null;
           const modelUsageRecord = row.type === "model_usage";
           if (
@@ -712,8 +849,6 @@ export async function collectSessionJournal(
             coverage.invalidUsageRecords += 1;
             continue;
           }
-          const identity =
-            typeof row.id === "string" && row.id ? row.id : undefined;
           if (!identity) {
             coverage.invalidUsageRecords += 1;
             continue;
@@ -800,13 +935,13 @@ export async function collectSessionJournal(
             nativePurpose,
             nativeModelRole,
           ]);
-          if (responses.has(identity)) {
-            if (responses.get(identity) !== signature)
+          const previousSignature = trackedRows.get(identity);
+          if (identityWasTracked) {
+            if (previousSignature !== signature)
               coverage.invalidUsageRecords += 1;
             continue;
           }
-          if (!canTrackIdentity()) break;
-          responses.set(identity, signature);
+          trackedRows.set(identity, signature);
           if (!inWindow) continue;
           addUsage(
             groups,
@@ -831,6 +966,8 @@ export async function collectSessionJournal(
     } finally {
       stream.destroy();
     }
+    for (const identity of trackedRows.keys()) trackedRows.set(identity, null);
+    if (trackedRows.size > 0) nativeIdentityMaps.push(trackedRows);
     if (used) coverage.sessionsWithUsage += 1;
     if (aborted) coverage.abortedSessions += 1;
   }
@@ -843,7 +980,13 @@ export async function collectSessionJournal(
     coverage.abortedSessions === 0 &&
     !coverage.resourceLimitReached &&
     coverage.sessionsWithUsage === coverage.selectedSessions;
-  const reportGroups = [...groups.values()]
+  const reportableGroups = redactNativeIdentities(
+    groups,
+    manifest.expectedSessionIds,
+    nativeIdentityMaps,
+    nativeProvenanceComplete,
+  );
+  const reportGroups = [...reportableGroups.values()]
     .map((group) => ({
       role: group.role,
       usageKind: group.usageKind,

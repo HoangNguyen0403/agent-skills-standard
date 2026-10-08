@@ -32,7 +32,7 @@ export async function runSessionJournalCli(
     `Coverage: ${report.coverage.complete ? "complete within supplied journals" : "incomplete / uncertain"}`,
     `Selected actors: ${report.coverage.selectedSessions}; expected: ${report.coverage.expectedSessions}; missing: ${report.coverage.missingSessions}; with usage: ${report.coverage.sessionsWithUsage}; malformed records: ${report.coverage.malformedLines}; invalid usage records: ${report.coverage.invalidUsageRecords}; aborted actors: ${report.coverage.abortedSessions}; resource limit reached: ${report.coverage.resourceLimitReached}`,
     "",
-    "| Role | Usage kind | Phase | Outcome | Model | Purpose | Native role | Native purpose | Events | Uncached input | Cached input | Cache write | Output | Reasoning | Orchestration input | Orchestration cache read | Orchestration output | Recorded cost |",
+    "| Role | Usage kind | Phase | Outcome | Model | Purpose | Native role | Native purpose | Transcript messages | Uncached input | Cached input | Cache write | Output | Reasoning | Orchestration input | Orchestration cache read | Orchestration output | Recorded cost |",
     "|---|---|---|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ...report.groups.map(
       (group) =>
