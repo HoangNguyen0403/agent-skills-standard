@@ -26,7 +26,7 @@ in full-session depth, and a labeled assumption in quick-sketch depth.
 ## Phase 3 - High-Level Design
 
 - Entry: numbers confirmed.
-- Output: component list, API surface, data ownership map, diagrams per `common-architecture-diagramming`.
+- Output: component list, API surface, data ownership map, and any views needed to answer a named question; prose or tables are sufficient when no view adds decision value.
 - Method: begin with client, API, service, store. Add each further component with one line of the form
   `constraint -> component -> cost`, for example `120k read QPS on a 3k QPS store -> read-through cache -> stale reads up to TTL`.
 - Gate: user agrees to the component set before any diagram is rendered.
@@ -34,11 +34,11 @@ in full-session depth, and a labeled assumption in quick-sketch depth.
 ## Phase 4 - Deep Dives and Trade-offs
 
 - Entry: component set agreed.
-- Output: 2-3 deep dives, bottleneck list, SPOF list, rejected alternatives with reasons, ADRs, scorecard, next scaling step.
+- Output: zero or more risk-driven deep dives for unresolved consequential decisions, bottlenecks, SPOFs, rejected alternatives with reasons, ADRs, scorecard, and next scaling step.
 - Stage the design: what to build now, the seam that makes the next step cheap, and the metric threshold that triggers it.
 - Every ADR carries a reversal trigger: the observation that would make us revisit the decision. A decision with no reversal trigger is a decision nobody can revisit safely.
 - Deep-dive candidates: the highest-QPS path, the strongest consistency requirement, the largest data set, the least reversible choice.
-- Gate: scorecard from `system-design-review` reaches an agreed threshold, or gaps are recorded as follow-up work.
+- Gate: use an agreed, scope-appropriate scorecard threshold when the available design evidence is sufficient; otherwise record the missing design evidence and follow-up work without claiming readiness.
 
 ## Session Outputs
 
@@ -46,8 +46,8 @@ in full-session depth, and a labeled assumption in quick-sketch depth.
 | --- | --- | --- |
 | Requirement table | Phase 1 | design doc, downstream SRS |
 | Capacity numbers | Phase 2 | provisioning, cost model |
-| Component and data map | Phase 3 | diagrams, implementation plan |
-| Diagrams (.drawio + image) | Phase 3 | design doc, review-system-design, design-solution |
-| ADRs + reversal triggers | Phase 4 | future maintainers, review |
+| Component and data map | Phase 3 | design-solution, implementation plan |
+| Selected view, only when it answers a named question | Phase 3 | design doc, review-system-design, design-solution |
+| ADRs with reversal triggers | Phase 4 | future maintainers, review |
 | Staged plan (now / seam / trigger) | Phase 4 | roadmap, implementation sequencing |
 | Scorecard and risk register | Phase 4 | readiness gate, roadmap |

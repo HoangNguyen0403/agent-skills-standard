@@ -806,14 +806,14 @@
       ]
     },
     "system-design": {
-      "version": "1.2.1",
-      "last_updated": "2026-10-01",
+      "version": "1.2.3",
+      "last_updated": "2026-10-08",
       "tag_prefix": "system-design-v",
       "token_metrics": {
         "total_skills": 12,
-        "total_tokens": 13160,
-        "avg_tokens_per_skill": 1097,
-        "largest_skill": "system-design-methodology (1791 tokens)"
+        "total_tokens": 13478,
+        "avg_tokens_per_skill": 1123,
+        "largest_skill": "system-design-methodology (1788 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
@@ -850,7 +850,7 @@
   },
   "releases": {
     "workflows": {
-      "version": "1.1.4",
+      "version": "1.1.5",
       "tag_prefix": "workflows-v"
     }
   },

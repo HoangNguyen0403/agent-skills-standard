@@ -156,7 +156,33 @@ Use bounded phase packets, complete slice ownership, concise revision-bound rece
 {"skill":"common/common-context-optimization","indirect_phrase":"caching, context management, main-model cost","root_cause":"routing","source_revision":"a9f7ba3bc1bbefceaf847334d9cce240261abd61","proposed_change":"Add prompt-cache and orchestration-cost activation cases while retaining framework-context negative cases; reconcile history masking with append-only caching.","status":"proposed"}
 ```
 
+---
+
 ## Agent Learning Log: Iteration #8
+
+**Date**: 2026-10-08 | **Task**: Correct W3 guidance after independent acceptance review
+**Signal**: User correction
+**Skills**: system-design/system-design-methodology, system-design/system-design-review, common/common-learning-log
+**Scope**: project
+**Candidate**: ags-w3-dependency-and-eval-clean-cutover | **Status**: proposed
+**Provenance**: source revision `47104bdc08537d68f60f6a4d3bf60e8b071166bb`; `.superpowers/sdd/ags-sdlc-implementation/task-review.md` findings I1–I4 and D1–D6 artifacts
+**Evaluation**: pending bounded post-correction checks and controller-owned re-exercise
+**Review**: pending; correction author does not self-approve
+**Rollback**: source version remains system-design `1.2.2` until correction metadata patch is committed
+
+### Mistake Made
+The W3 edits changed the headline skills but left linked guidance and scorecard anchors that contradicted risk-driven deep dives, conditional redraw, and lifecycle-qualified scoring. Several replacement eval assertions also prescribed a specific risk label, readiness status for sparse input, or optional async choice instead of the invariant.
+
+### Pattern to Avoid
+- **No entrypoint-only cutover**: A changed primary skill is not complete while a required linked reference still imposes the removed behavior.
+- **No lexical replacement contract**: Evaluation assertions must not turn acceptable labels or optional architecture choices into mandatory outputs.
+
+### Better Approach
+Trace every changed consumer through its required references, sibling skills, output templates, and scorecard before freezing. Align evidence anchors to declared lifecycle, keep production evidence mandatory only for operations claims, and assert behavioral invariants without prescribing names or optional mechanisms.
+
+---
+
+## Agent Learning Log: Iteration #9
 
 **Date**: 2026-10-08 | **Task**: Correct AGS accounting delta and native provenance behavior.
 **Signal**: Session retrospective
@@ -180,3 +206,26 @@ At each selected-journal boundary, redact/re-key accumulated groups while only t
 
 ### Trigger Miss
 None established: matching project skills were available and loaded once the audit gap was detected; the failure was procedure/timing, not a missing trigger alias.
+
+---
+
+## Agent Learning Log: Iteration #10
+
+**Date**: 2026-10-08 | **Task**: Isolate scripts-disabled MCP package installation.
+**Signal**: User correction
+**Skills**: common/common-learning-log, common/common-session-retrospective
+**Scope**: project
+**Candidate**: ags-explicit-prefix-install-isolation | **Status**: proposed
+**Provenance**: source revision `e26f7831df558a9d2918a0ac29d2290ac91fbede`; `.superpowers/sdd/ags-accounting-implementation/task-implementation-invariants.md`.
+**Evaluation**: not-run
+**Review**: pending; no guidance-maintenance or promotion authorization
+**Rollback**: not-applicable; proposal only
+
+### Mistake Made
+I ran the scripts-disabled npm install from an isolated subdirectory without an explicit prefix. npm resolved the repository root package context and failed in Arborist; although no root files changed, the command did not enforce the requested install boundary.
+
+### Pattern to Avoid
+- **No cwd-only install isolation**: A nested current directory does not guarantee npm will confine dependency and lockfile writes there.
+
+### Better Approach
+Pass `--prefix <absolute-isolated-install-directory>` on package installation, keep `--ignore-scripts`, and verify the installed executable from that exact prefix before reporting the package smoke.

@@ -31,8 +31,8 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
    - For each chosen deep dive, create an LLD handoff (`REQ-* -> HLD-* -> CMP-* -> LLD-* -> VER-*`) covering the component contract, invariant, ordering/idempotency, failure/recovery, and verification. “Low-level design” is the same lane as LLD.
    - Render only selected views through `common-architecture-diagramming` when they answer named questions: use context/container, sequence, dataflow, deployment, or state as appropriate; prose or a table is sufficient otherwise. Carry `metric` and `constraint` only when stated, and leave them absent rather than inventing numbers. No doc yet (quick sketch, or writes disallowed): leave `evidence` absent and let the node render UNVERIFIED. Output only the selected `docs/architecture/[slug]-<type>.drawio` artifacts plus exported images. Phase map: `system-design-methodology/references/phase-deliverables.md`.
 6. Deep dive and decide:
-   - Dispatch the 2-3 riskiest components to `specialist-system-architect`, one brief each with profile, audience/question, workload, SLO, team/budget, invariant, scope, evidence status, and HLD decision.
-   - Require options with rejection reasons, an LLD contract, concrete adverse timeline/recovery, verification hooks, and an ADR reversal trigger. The specialist must not re-run intake or add machinery without a constraint.
+   - Select zero, one, or multiple deep dives from the unresolved consequential risks. Each selected dive must resolve a named decision; do not impose a minimum specialist count or invent work. Brief each selected specialist with profile, audience/question, workload, SLO, team/budget, invariant, scope, evidence status, and current HLD decision.
+   - Require options with rejection reasons, an LLD contract, concrete adverse timeline/recovery, verification hooks, and an ADR reversal trigger. Specialists must not re-run intake or add machinery without a constraint.
    - Merge the returned options, failure modes, and irreversible decisions; state bottlenecks, SPOFs, and rejected alternatives with reasons.
    - Write one ADR per irreversible decision, each with its reversal trigger; stage the plan as build now, enabling seam, and the metric threshold that triggers the next step.
    - Before producing independent post-decision docs/diagrams, list exact-file slices, acceptance checks, verification and integration owner; assign each bounded slice to the lowest-cost qualified configured executor where available. Keep decisions and final review with the lead.
@@ -79,7 +79,7 @@ Goal: Produce a capacity-justified architecture baseline that `design-solution` 
 ## Risk Register
 
 ## Outcome Report
-{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: system-design-session, feature_status: design_ready, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: design-solution, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
+{schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: system-design-session, feature_status: "[existing schema status supported by available design evidence; use design_ready only when requirements and proposed mechanisms are sufficient]", started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: design-solution, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
 
 ## Next Workflow
 design-solution | plan-feature

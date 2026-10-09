@@ -17,7 +17,7 @@ metadata:
 
 ## **Priority: P1 (HIGH)**
 
-Score against evidence, not intent. A claim with no number or artifact scores zero.
+Score claims against evidence appropriate to the declared review scope. A proposed design may support a design-readiness verdict through stated mechanisms and planned validation; it cannot claim operational readiness from plans alone. An implementation review requires implementation evidence; an operations claim requires production runtime/deployment evidence.
 
 ## Nine Axes (score each applicable axis 0-10)
 
@@ -25,11 +25,11 @@ Score against evidence, not intent. A claim with no number or artifact scores ze
 | --- | --- | --- |
 | Requirements | Functional, NFR, and out-of-scope written with owners | Only a feature description exists |
 | Capacity evidence | Peak QPS, storage, and bandwidth computed and current | Numbers absent or older than the last traffic change |
-| Redundancy | No SPOF; failover drilled with a measured RTO | Single instance or untested failover on a critical path |
+| Redundancy | Failure domains, recovery mechanisms and ownership fit the stated objective; proposals include validation criteria, operations claims require measured drills | Critical SPOF or no viable recovery for the stated objective |
 | Data scaling | Access patterns mapped, ownership single, growth path stated | One shared store, no growth plan, unbounded tables |
 | Caching | Hot read paths cached with TTL and invalidation defined | No cache on a proven hot path, or uninvalidatable cache |
-| Async offload | Slow and bursty work queued with drain rate and DLQ | Everything synchronous on the request path |
-| Observability | Traffic, error, latency, saturation instrumented with owned alerts | Logs only, or alerts with no runbook |
+| Async offload | Slow/bursty work is isolated when required by stated SLO or failure constraints, with bounded drain/recovery; bounded synchronous work is valid when it meets them | Required isolation is absent or synchronous coupling violates the stated constraints |
+| Observability | Signals, alert ownership, runbooks and validation fit the declared scope; operations claims require observed telemetry | No relevant signals, owner or response path for a material risk |
 | Rollout | Canary or flag with metric rollback trigger and reversible migrations | Big-bang deploy, irreversible migration |
 | Cost proportionality | Spend is sized to the traffic and the risk, and someone can state it | Topology bought for an imagined scale nobody measured |
 
@@ -43,11 +43,11 @@ Report each applicable axis with evidence and a declared profile weighting. Use 
 - Review HLD and LLD as one trace: requirements and shaping decisions must resolve into component ownership, contracts, verification, and a stated changed-constraint trigger. A diagram is optional when prose answers the question.
 - Separate lifecycle (`proposed|implemented|retired`), source kind (`code|document|runtime|deployment`), and evidence confidence (`unverified|assumed|documented|observed`). Code/document citations are `documented`, not deployment proof; runtime/deployment captures may be `observed`. `assumed` and `unverified` carry no citation; explicit citations require `evidence_kind`.
 
-## Independent Semantic Review
+## Scope-Qualified Semantic Review
 
 Lexical checks are smoke signals, not proof of a sound design. Apply the independent behavioral rubric in
-[semantic evaluation](references/semantic-evaluation.md) and record missing calculations, mechanisms,
-adverse timelines, invariants, or recovery as findings even when the expected vocabulary appears.
+[semantic evaluation](references/semantic-evaluation.md). Record missing calculations, mechanisms,
+adverse timelines, invariants, recovery, and scope-specific evidence as findings even when expected vocabulary appears.
 
 ## Review Method
 

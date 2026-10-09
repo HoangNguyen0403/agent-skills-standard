@@ -73,23 +73,18 @@
     },
     {
       "id": 3,
-      "prompt": "We have the component list agreed for our notification service. What comes next in the session?",
-      "expected_output": "Moves to deep dives on the 2-3 riskiest components, then bottlenecks, SPOFs, rejected alternatives, ADRs, and a design scorecard.",
+      "prompt": "All consequential choices for a minimal internal read-only lookup are resolved. Return JSON with deep_dives as an array and unresolved_decision as null unless you can identify a concrete unresolved consequential risk.",
+      "expected_output": "deep_dives is empty when no consequential risk remains; unresolved_decision is null, as in {\"deep_dives\":[],\"unresolved_decision\":null}. No specialist quota or risk is invented.",
       "assertions": [
         {
-          "type": "contains_any",
-          "value": ["Deep Dives", "riskiest components"],
-          "description": "Runs bounded deep dives rather than expanding everything"
+          "type": "regex",
+          "value": "\"deep_dives\"\\s*:\\s*\\[\\s*\\]",
+          "description": "Structured smoke check accepts no remaining dive for this resolved-risk case."
         },
         {
-          "type": "contains_any",
-          "value": ["bottlenecks", "SPOFs", "rejected alternatives"],
-          "description": "Closes with trade-off analysis"
-        },
-        {
-          "type": "contains_any",
-          "value": ["ADR", "system-design-review", "scorecard"],
-          "description": "Records decisions and scores the design"
+          "type": "regex",
+          "value": "\"unresolved_decision\"\\s*:\\s*null",
+          "description": "Checks the output separately records that no consequential decision remains."
         }
       ]
     },
@@ -212,6 +207,91 @@
           "type": "contains_any",
           "value": ["unavailable", "unknown cost", "cannot quantify savings"],
           "description": "Does not invent token or cost savings"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "An existing inventory service has exactly one unresolved consequential issue: atomic reservation under duplicate concurrent requests. All other architecture choices are approved. Return JSON with deep_dives and rationale.",
+      "expected_output": "Select one dive that addresses the supplied unresolved reservation decision; do not invent additional risks or impose a minimum specialist count. The rationale connects the focus to the duplicate-request failure or invariant. Equivalent risk wording is valid.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "\"deep_dives\"\\s*:\\s*\\[\\s*\"[^\"]+\"\\s*\\]",
+          "description": "Checks exactly one non-empty dive is selected for the one supplied consequential risk."
+        },
+        {
+          "type": "regex",
+          "value": "\"rationale\"\\s*:\\s*\"[^\"]+\"",
+          "description": "Checks the selected focus has an explicit rationale."
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Review an accurate text-only design enumerating actors, trust boundaries, data, interfaces and failure paths. No visual artifact was requested and no view is missing. Return JSON with redraw_required and review_complete.",
+      "expected_output": "Complete the semantic review without a redraw prerequisite (for example, {\"redraw_required\":false,\"review_complete\":true}). If a view is genuinely missing, identify that specific gap rather than inventing a diagram requirement.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "\"redraw_required\"\\s*:\\s*false",
+          "description": "Checks that complete text evidence does not trigger an unnecessary redraw."
+        },
+        {
+          "type": "regex",
+          "value": "\"review_complete\"\\s*:\\s*true",
+          "description": "Checks that the absent redraw prerequisite does not block the requested review."
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Review this sparse proposed booking design: target 15 RPS, no double booking, PostgreSQL transaction/uniqueness control and idempotency are stated. The owner, recovery behavior, capacity calculation, cost and rollout approach are not provided. It is not deployed and has no production drill results. Return JSON with review_scope and operational_evidence_status; describe any missing design evidence and make a readiness claim only if the available design inputs are sufficient.",
+      "expected_output": "Treat the stated mechanisms as proposed-design evidence, but do not invent the missing owner, recovery, capacity, cost or rollout details. Identify material missing design inputs and do not automatically claim proposed-design readiness from sparse facts. Keep absent production evidence unverified; proposed-design evidence does not establish operational readiness.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "\"review_scope\"\\s*:\\s*\"proposed_design\"",
+          "description": "Checks the decision is qualified as proposed-design review."
+        },
+        {
+          "type": "regex",
+          "value": "\"operational_evidence_status\"\\s*:\\s*\"unverified\"",
+          "description": "Checks absent production evidence remains explicitly unverified."
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "The same booking design is claimed to be operating production infrastructure, but it has no failover drill or measured production SLO evidence. Return JSON with review_scope, operations_ready, and missing_evidence; when evidence is absent, include `measured_production_slo` in missing_evidence.",
+      "expected_output": "Missing operational evidence prevents an operations-readiness claim. Keep `measured_production_slo` in missing_evidence; for example, {\"review_scope\":\"operations\",\"operations_ready\":false,\"missing_evidence\":[\"measured_production_slo\"]}. Do not reuse proposed-design readiness as operational acceptance.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "\"review_scope\"\\s*:\\s*\"operations\"[\\s\\S]*?\"operations_ready\"\\s*:\\s*false",
+          "description": "Checks operations scope cannot claim readiness without its missing evidence."
+        },
+        {
+          "type": "regex",
+          "value": "\"missing_evidence\"\\s*:\\s*\\[\\s*\"measured_production_slo\"",
+          "description": "Checks the absent operational SLO is retained as a concrete evidence gap."
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "A booking confirmation requires immediate strong consistency. A later notification may fail independently. Return JSON with confirmation_boundary, notification_boundary, and notification_can_fail_independently.",
+      "expected_output": "Use a bounded synchronous transaction if needed to preserve the immediate invariant. Choose the notification boundary from stated consistency, latency and failure constraints; it may be synchronous or asynchronous if independent failure cannot delay or undo confirmation. Do not apply a blanket synchronous-coupling ban.",
+      "assertions": [
+        {
+          "type": "regex",
+          "value": "\"confirmation_boundary\"\\s*:\\s*\"synchronous\"",
+          "description": "Checks the immediate strong-consistency boundary is preserved."
+        },
+        {
+          "type": "regex",
+          "value": "\"notification_can_fail_independently\"\\s*:\\s*true",
+          "description": "Checks notification failure cannot invalidate the completed confirmation."
         }
       ]
     }

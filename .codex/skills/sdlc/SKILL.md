@@ -28,7 +28,7 @@ Goal: Select the next native workflow without loading every workflow body, while
 
 1. Inspect state:
    - User request; infer `operator_profile` (business | hybrid | technical) per `common-operator-profile` and carry it in every Handoff Payload.
-   - Search `docs/brd/`, `docs/prd/`, and `docs/srs/` for a matching `[slug]`; if absent, use the newest BRD or `git status`. Slug = lowercase kebab-case, minted once at `brainstorm-feature`, reused verbatim downstream; never re-derived.
+   - Search for the requested task's linked brief/ticket using its stable slug; do not select an unrelated newest document or infer task authority/approval from `git status`. If no matching approved task record exists, identify the missing authority/input and route to the appropriate intake. Slug = lowercase kebab-case, minted once at `brainstorm-feature`, reused verbatim downstream; never re-derived.
    - If multiple candidates exist, list them and ask whether to focus, consolidate, or sequence.
    - Baseline reference: `common-software-requirements/references/requirements-standards-baseline.md` (ships with the skill)
    - Existing ticket, BRD-lite brief, PRD, SRS/FRS design, implementation plan, task list, walkthrough, UAT signoff, deployment report, release notes, and retro
@@ -38,7 +38,7 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Requirement trace health: `BRD-OBJ-* -> REQ-* -> AC-* -> SRS-* -> test evidence`
    - SNC tier per `common-task-complexity-routing` or the scout `SNC:` line; label as inference until scouted.
 
-2. Choose next workflow (apply tie-break order when multiple bullets match: (1) workflow explicitly named by the operator or by the latest `recommended_next_workflow`, (2) production-incident/urgent-regression signals, (3) earliest missing artifact along the chain below — never skip forward past a gap, except sufficiently specified low-risk maintenance with an approved in-chat/brief contract, (4) cross-cutting audits only on request or as a pre-release gate):
+2. Choose next workflow (apply tie-break order when multiple bullets match: (1) workflow explicitly named by the operator or latest `recommended_next_workflow`, (2) production-incident/urgent-regression signals, (3) earliest missing required decision or task-linked authority/input—not a missing document filename—except sufficiently specified low-risk maintenance with approved evidence, (4) cross-cutting audits only on request or as a pre-release gate):
    - Unclear idea, missing business case, owner, or measurable value (Why lane), or unclear technical direction with no BRD/PRD for the slug (Direction lane; exempts routine low-risk maintenance) -> `brainstorm-feature`
    - BRD-lite exists or business direction is clear but product scope, priorities, acceptance criteria, rollout, or delivery plan are unclear (PRD / What, PM-owned planning) -> `plan-feature`
    - Scale, topology, capacity, or store choice unsettled, or an existing system needs an architecture audit -> `system-design-session`

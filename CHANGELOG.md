@@ -14,6 +14,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **MCP `0.7.0` candidate**: Added explicit-manifest Codex JSONL and OMP v3 session accounting, including separately grouped OMP `model_usage`, preserved orchestration/cache-write buckets, Codex derived-delta containment with baseline recovery, order-independent cross-journal provenance redaction with a bounded global privacy-membership set, invalid-to-valid same-ID recovery with accepted-signature conflict detection, incomplete unknown metrics, and stop-on-limit behavior. Human output labels the transcript-message count accurately; packaged command is `ags-mcp-session-report`. Real-journal authorization remains a separate acceptance gate.
 - **Common `2.8.7` candidate**: Added version-2 revision-, workspace-, dirty-identity-, and evidence-content-bound progress receipts. Declared owner pause remains metadata, not host enforcement.
 
+### Changed
+
+- **SDLC workflows**: Bind routing to task-linked approved evidence, keep product planning separate from technical design, and make readiness handoffs explicitly slice-scoped with distinct source-ready and machine-activation states.
+- **System design**: Select specialist dives from unresolved consequential risks across linked references; make redraw conditional across intake and review outputs; qualify scorecard anchors, readiness and verdicts by evidence scope; choose sync/async boundaries from consistency and failure requirements.
+- **Evaluations**: Replace fixed-quota/label/optional-mechanism snapshots with invariant-focused cases; keep semantic acceptance separate from lexical smoke checks.
+
+### Versions
+
+- **Workflows**: `1.1.4` → `1.1.5`
+- **System Design**: `1.2.2` → `1.2.3`
+
 ## [cli-v2.6.6] / [mcp-v0.6.1] - 2026-10-07
 
 **Category**: CLI Tool, MCP Server, Dependency Security
