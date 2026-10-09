@@ -181,6 +181,8 @@ export PORT=8768
 npx agent-skills-standard-mcp
 ```
 
+HTTP mode is stateless. Each request uses a fresh MCP server and transport, so clients can initialize and then make subsequent tool calls without a server-side session.
+
 ### Usage Telemetry (Opt-In)
 
 Off by default. Set these to write a local, counts-only JSONL usage log (see `docs/FRESHNESS.md`):
