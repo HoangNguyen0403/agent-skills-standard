@@ -1,0 +1,116 @@
+/* action.module.css - M3-aligned common action button layout and metrics */
+
+.base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+  user-select: none;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+}
+
+.base:focus-visible {
+  outline: 3px solid var(--lime, #c7f36b);
+  outline-offset: 3px;
+}
+
+/* Primary lime button: dark ink text, 48-56px height, min 44px target */
+.primary {
+  composes: base;
+  background-color: var(--lime, #c7f36b);
+  color: var(--ink, #101312);
+  min-height: 48px;
+  height: 52px;
+}
+
+.primary:hover {
+  background-color: #bbf058;
+}
+
+/* Secondary dark/outline button */
+.secondary {
+  composes: base;
+  background-color: transparent;
+  color: var(--paper, #f5f2e9);
+  border-color: rgba(187, 195, 186, 0.4);
+  min-height: 48px;
+  height: 52px;
+}
+
+.secondary:hover {
+  border-color: var(--lime, #c7f36b);
+  color: var(--lime, #c7f36b);
+}
+
+/* Text-only action */
+.text {
+  composes: base;
+  background-color: transparent;
+  color: var(--paper, #f5f2e9);
+  min-height: 44px;
+  padding: 0 16px;
+}
+
+.text:hover {
+  color: var(--lime, #c7f36b);
+}
+
+/* Leading icon padding (e.g. Copy/Check): 16px icon-side, 24px label-side */
+.leading {
+  padding-left: 16px;
+  padding-right: 24px;
+}
+
+/* Trailing icon padding (e.g. Forward arrow): 24px label-side, 16px icon-side */
+.trailing {
+  padding-left: 24px;
+  padding-right: 16px;
+}
+
+.compact {
+  composes: base;
+  background-color: var(--lime, #c7f36b);
+  color: var(--ink, #101312);
+  min-height: 44px;
+  height: 44px;
+  padding: 0 16px;
+  font-size: 16px;
+}
+
+.compact:hover {
+  background-color: #bbf058;
+}
+
+.copyFixed {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  height: 48px;
+  min-height: 48px;
+  padding-left: 16px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+/* Icon element shrink guard */
+.icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}

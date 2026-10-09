@@ -2,3 +2,4 @@ packages:
   - 'cli'
   - 'server'
   - 'mcp'
+  - 'website'

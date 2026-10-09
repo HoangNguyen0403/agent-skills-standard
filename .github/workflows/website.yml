@@ -1,0 +1,128 @@
+name: Website CI
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      website: ${{ steps.filter.outputs.website }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Check for modified website files
+        id: filter
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "website=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          BASE="origin/${{ github.base_ref || 'main' }}"
+          git fetch --no-tags --depth=1 origin "${{ github.base_ref || 'main' }}"
+
+          CHANGED_FILES=$(git diff --name-only "$BASE"...HEAD)
+          echo "Changed files in PR:"
+          echo "$CHANGED_FILES"
+
+          if echo "$CHANGED_FILES" | grep -qE '^(website/|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|\.github/workflows/website\.yml)'; then
+            echo "Website or relevant root workspace configuration changed."
+            echo "website=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No website files changed."
+            echo "website=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  website-test-and-build:
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.website == 'true'
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22.x"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type Check Website
+        run: pnpm --filter @ags/website typecheck
+
+      - name: Lint Website
+        run: pnpm --filter @ags/website lint:check
+
+      - name: Run Unit Tests with Coverage
+        run: pnpm --filter @ags/website test:cov
+
+      - name: Build Static Export
+        run: pnpm --filter @ags/website build
+        env:
+          SITE_URL: "http://127.0.0.1:4321"
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter @ags/website exec playwright install --with-deps chromium
+
+      - name: Run Playwright E2E Tests
+        run: pnpm --filter @ags/website test:e2e
+        env:
+          CI: "true"
+
+      - name: Upload Test Results Artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-test-results
+          path: |
+            website/test-results
+          retention-days: 7
+
+  website-gate:
+    name: website-gate
+    runs-on: ubuntu-latest
+    needs: [detect-changes, website-test-and-build]
+    if: always()
+    steps:
+      - name: Evaluate Website Gate
+        run: |
+          DETECT_RESULT="${{ needs.detect-changes.result }}"
+          CHANGES="${{ needs.detect-changes.outputs.website }}"
+          BUILD_RESULT="${{ needs.website-test-and-build.result }}"
+
+          echo "detect-changes job result: $DETECT_RESULT"
+          echo "website change detected: $CHANGES"
+          echo "website-test-and-build job result: $BUILD_RESULT"
+
+          if [ "$DETECT_RESULT" != "success" ]; then
+            echo "❌ Change detection failed or was cancelled."
+            exit 1
+          fi
+
+          if [ "$CHANGES" = "true" ]; then
+            if [ "$BUILD_RESULT" = "success" ]; then
+              echo "✅ Website CI checks completed successfully."
+              exit 0
+            else
+              echo "❌ Website CI checks failed, cancelled, or did not run (result: $BUILD_RESULT)!"
+              exit 1
+            fi
+          elif [ "$CHANGES" = "false" ]; then
+            echo "ℹ️ Website CI skipped: PR does not contain website, root package.json, or workspace lockfile changes."
+            exit 0
+          else
+            echo "❌ Unknown or invalid changes output state: '$CHANGES'"
+            exit 1
+          fi

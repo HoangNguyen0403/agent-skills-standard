@@ -1,0 +1,1188 @@
+/* landing.module.css - Complete layout and editorial styling for AGS Landing */
+
+/* ==========================================================================
+   1. GLOBAL CONTAINERS, GRIDS & UTILITIES
+   ========================================================================== */
+
+.container {
+  max-width: var(--max-content-width, 1264px);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  outline: none;
+}
+
+/* Surface backgrounds */
+.darkSection {
+  background-color: var(--ink, #101312);
+  color: var(--paper, #f5f2e9);
+  position: relative;
+}
+
+.paperSection {
+  background-color: var(--paper, #f5f2e9);
+  color: var(--ink, #101312);
+  position: relative;
+}
+
+/* Section divider rules */
+.rule {
+  border: 0;
+  border-top: 1px solid rgba(187, 195, 186, 0.2);
+  width: 100%;
+  margin: 0;
+}
+
+.paperRule {
+  border: 0;
+  border-top: 1px solid rgba(16, 19, 18, 0.14);
+  width: 100%;
+  margin: 0;
+}
+
+/* Typography styles */
+.displayHeading {
+  font-family: var(--font-heading), "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: clamp(38px, 6vw, 76px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--paper, #f5f2e9);
+  text-wrap: balance;
+}
+
+.sectionHeading {
+  font-family: var(--font-heading), "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: clamp(32px, 4vw, 44px);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.subsectionHeading {
+  font-family: var(--font-heading), "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: clamp(20px, 2.5vw, 26px);
+  line-height: 1.25;
+  margin: 0;
+}
+
+.kicker {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 12px 0;
+}
+
+.kickerLime {
+  composes: kicker;
+  color: var(--lime, #c7f36b);
+}
+
+.kickerMuted {
+  composes: kicker;
+  color: var(--muted, #bbc3ba);
+}
+
+.kickerInk {
+  composes: kicker;
+  color: var(--ink, #101312);
+}
+
+.bodyText {
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 18px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .bodyText {
+    font-size: 16px;
+  }
+}
+
+.subtitle {
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: clamp(17px, 2vw, 20px);
+  line-height: 1.5;
+  color: var(--muted, #bbc3ba);
+  margin: 0;
+  max-width: 60ch;
+}
+
+.subtitleInk {
+  composes: subtitle;
+  color: rgba(16, 19, 18, 0.78);
+}
+
+/* In-page anchor targets with scroll-margin */
+.anchorTarget {
+  scroll-margin-top: 80px;
+  outline: none;
+}
+
+/* Accessible text links */
+.textLinkLime {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--lime, #c7f36b);
+  text-decoration: none;
+  min-height: 44px;
+  padding: 8px 0;
+  box-sizing: border-box;
+  transition: opacity 160ms ease;
+}
+
+.textLinkLime:hover {
+  text-decoration: underline;
+}
+
+.textLinkLime:focus-visible {
+  outline: 2px solid var(--lime, #c7f36b);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.textLinkPaper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--paper, #f5f2e9);
+  text-decoration: none;
+  min-height: 44px;
+  padding: 8px 0;
+  box-sizing: border-box;
+  transition: opacity 160ms ease;
+}
+
+.textLinkPaper:hover {
+  color: var(--lime, #c7f36b);
+  text-decoration: underline;
+}
+
+.textLinkPaper:focus-visible {
+  outline: 2px solid var(--lime, #c7f36b);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.textLinkInk {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink, #101312);
+  text-decoration: none;
+  min-height: 44px;
+  padding: 8px 0;
+  box-sizing: border-box;
+  transition: opacity 160ms ease;
+}
+
+.textLinkInk:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
+.textLinkInk:focus-visible {
+  outline: 2px solid var(--ink, #101312);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   2. HEADER
+   ========================================================================== */
+
+.header {
+  background-color: var(--ink, #101312);
+  border-bottom: 1px solid rgba(187, 195, 186, 0.2);
+  width: 100%;
+  position: relative;
+  z-index: 20;
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 72px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  min-width: 0;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-heading), "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--paper, #f5f2e9);
+  text-decoration: none;
+  min-height: 44px;
+  min-width: 44px;
+  user-select: none;
+}
+
+.wordmark:focus-visible {
+  outline: 2px solid var(--lime, #c7f36b);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.wordmarkGlyph {
+  color: var(--lime, #c7f36b);
+  font-family: var(--font-mono), monospace;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.desktopNav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desktopNavLink {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--muted, #bbc3ba);
+  text-decoration: none;
+  min-height: 44px;
+  padding: 8px 4px;
+  transition: color 160ms ease;
+}
+
+.desktopNavLink:hover {
+  color: var(--paper, #f5f2e9);
+}
+
+.desktopNavLink:focus-visible {
+  outline: 2px solid var(--lime, #c7f36b);
+  outline-offset: 3px;
+  border-radius: 4px;
+  color: var(--paper, #f5f2e9);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* Visibility switches: only one nav in tab order at any time */
+.desktopNavContainer {
+  display: flex;
+  align-items: center;
+}
+
+.mobileMenuContainer {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .desktopNavContainer {
+    display: none;
+  }
+
+  .headerActions {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+  }
+  .mobileMenuContainer {
+    display: flex;
+    flex: 1 1 0;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .headerInner {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    row-gap: 8px;
+  }
+
+  .wordmark {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .headerActions {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .mobileMenuContainer {
+    flex: 1 1 100%;
+  }
+}
+
+/* ==========================================================================
+   3. HERO SECTION
+   ========================================================================== */
+
+.heroSection {
+  padding-top: clamp(48px, 7vw, 84px);
+  padding-bottom: clamp(48px, 7vw, 80px);
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: clamp(32px, 5vw, 64px);
+  align-items: center;
+}
+
+@media (max-width: 960px) {
+  .heroGrid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 600px;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.microcopy {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  color: var(--muted, #bbc3ba);
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+}
+
+.heroAccent {
+  width: 48px;
+  height: 3px;
+  background-color: var(--lime, #c7f36b);
+  margin-bottom: -8px;
+  border-radius: 2px;
+}
+
+/* On mobile: CTA first, then Routing figure */
+.heroVisual {
+  width: 100%;
+}
+
+@media (max-width: 960px) {
+  .heroVisual {
+    order: 2;
+  }
+  .heroContent {
+    order: 1;
+  }
+}
+
+/* ==========================================================================
+   4. COMPATIBILITY SECTION
+   ========================================================================== */
+
+.compatibilitySection {
+  padding-top: 36px;
+  padding-bottom: 36px;
+  border-top: 1px solid rgba(187, 195, 186, 0.2);
+}
+
+.compatibilityInner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .compatibilityInner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.compatibilityLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.agentList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(16px, 3vw, 32px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agentItem {
+  font-family: var(--font-heading), "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: clamp(16px, 2vw, 19px);
+  color: var(--paper, #f5f2e9);
+  letter-spacing: -0.01em;
+}
+
+.compatibilityNotice {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  color: var(--muted, #bbc3ba);
+  text-decoration: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 160ms ease;
+}
+
+.compatibilityNotice:hover {
+  color: var(--paper, #f5f2e9);
+  text-decoration: underline;
+}
+
+.compatibilityContainer {
+  padding-top: 32px;
+}
+
+.compatibilityHeading {
+  font-size: clamp(24px, 3vw, 32px);
+}
+
+.headerSubtitle {
+  margin-top: 16px;
+}
+
+.cardBodyText {
+  color: rgba(16, 19, 18, 0.84);
+}
+.compatibilityNotice:focus-visible {
+  outline: 2px solid var(--lime, #c7f36b);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   5. PROBLEM & CHANGE SECTION (PAPER)
+   ========================================================================== */
+
+.problemSection {
+  padding-top: clamp(56px, 8vw, 84px);
+  padding-bottom: clamp(56px, 8vw, 84px);
+}
+
+.problemHeader {
+  margin-bottom: 48px;
+  max-width: 700px;
+}
+
+.problemGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 5vw, 64px);
+}
+
+@media (max-width: 768px) {
+  .problemGrid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+.problemCard {
+  border-top: 1px solid rgba(16, 19, 18, 0.16);
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pointList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pointItem {
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 18px;
+  line-height: 1.55;
+  color: rgba(16, 19, 18, 0.88);
+  position: relative;
+  padding-left: 20px;
+}
+
+.pointItem::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: rgba(16, 19, 18, 0.45);
+}
+
+/* ==========================================================================
+   6. SETUP / HOW IT WORKS SECTION (PAPER)
+   ========================================================================== */
+
+.setupSection {
+  padding-top: clamp(56px, 8vw, 84px);
+  padding-bottom: clamp(56px, 8vw, 84px);
+  border-top: 1px solid rgba(16, 19, 18, 0.14);
+}
+
+.setupHeader {
+  margin-bottom: 48px;
+  max-width: 720px;
+}
+
+.setupGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(24px, 3.5vw, 40px);
+}
+
+@media (max-width: 860px) {
+  .setupGrid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+.setupCard {
+  border-top: 1px solid rgba(16, 19, 18, 0.16);
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stepNumber {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--ink, #101312);
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   7. SKILL SPECIMEN SECTION (DARK)
+   ========================================================================== */
+
+.specimenSection {
+  padding-top: clamp(56px, 8vw, 84px);
+  padding-bottom: clamp(56px, 8vw, 84px);
+}
+
+.specimenGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: clamp(32px, 5vw, 64px);
+  align-items: flex-start;
+}
+
+@media (max-width: 960px) {
+  .specimenGrid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+.specimenIntro {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.specimenActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  margin-top: 8px;
+}
+
+.specimenPanel {
+  background-color: var(--panel, #1b231d);
+  border: 1px solid rgba(187, 195, 186, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.specimenPanelHeader {
+  background-color: rgba(16, 19, 18, 0.6);
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(187, 195, 186, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.specimenPath {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  color: var(--lime, #c7f36b);
+  word-break: break-all;
+}
+
+.specimenLabel {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  color: var(--muted, #bbc3ba);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.specimenBody {
+  padding: 24px;
+  margin: 0;
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--paper, #f5f2e9);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (max-width: 640px) {
+  .specimenBody {
+    font-size: 16px;
+    padding: 16px;
+  }
+}
+
+.specimenExcerptBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.specimenExcerptItem {
+  padding-left: 14px;
+  border-left: 2px solid rgba(199, 243, 107, 0.4);
+}
+
+.specimenRevision {
+  margin-top: 16px;
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  color: var(--muted, #bbc3ba);
+}
+
+.specimenRevision a {
+  color: var(--muted, #bbc3ba);
+  text-decoration: underline;
+}
+
+.specimenRevision a:hover {
+  color: var(--paper, #f5f2e9);
+}
+
+/* ==========================================================================
+   8. SDLC WORKFLOW SECTION (DARK)
+   ========================================================================== */
+
+.workflowSection {
+  padding-top: clamp(56px, 8vw, 84px);
+  padding-bottom: clamp(56px, 8vw, 84px);
+  border-top: 1px solid rgba(187, 195, 186, 0.2);
+}
+
+.workflowHeader {
+  margin-bottom: 48px;
+  max-width: 720px;
+}
+
+.workflowTrack {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  position: relative;
+  margin: 48px 0;
+}
+
+.workflowConnector {
+  position: absolute;
+  top: 11px;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background-color: rgba(104, 117, 84, 0.5);
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .workflowTrack {
+    flex-direction: column;
+    gap: 32px;
+    margin: 32px 0;
+    padding-left: 12px;
+  }
+
+  .workflowConnector {
+    top: 16px;
+    bottom: 16px;
+    left: 21px;
+    right: auto;
+    width: 2px;
+    height: auto;
+  }
+}
+
+.workflowStage {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .workflowStage {
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+  }
+}
+
+.workflowDot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--ink, #101312);
+  border: 2px solid var(--lime, #c7f36b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.workflowDotInner {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--lime, #c7f36b);
+}
+
+.workflowStageText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.workflowStageName {
+  font-family: var(--font-heading), "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--paper, #f5f2e9);
+}
+
+.workflowStageDesc {
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 16px;
+  color: var(--muted, #bbc3ba);
+}
+
+.workflowFooterLink {
+  margin-top: 24px;
+}
+
+/* ==========================================================================
+   9. CUSTOMIZATION SECTION (PAPER)
+   ========================================================================== */
+
+.customizationSection {
+  padding-top: clamp(56px, 8vw, 84px);
+  padding-bottom: clamp(56px, 8vw, 84px);
+}
+
+.customizationHeader {
+  margin-bottom: 48px;
+  max-width: 720px;
+}
+
+.customizationGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 5vw, 64px);
+}
+
+@media (max-width: 768px) {
+  .customizationGrid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+.customizationCard {
+  border-top: 1px solid rgba(16, 19, 18, 0.16);
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.codeLabel {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink, #101312);
+}
+
+.customizationActionWrapper {
+  margin-top: 36px;
+}
+
+/* ==========================================================================
+   10. EVIDENCE SECTION (PAPER)
+   ========================================================================== */
+
+.evidenceSection {
+  padding-top: clamp(56px, 8vw, 84px);
+  padding-bottom: clamp(56px, 8vw, 84px);
+  border-top: 1px solid rgba(16, 19, 18, 0.14);
+}
+
+.evidenceHeader {
+  margin-bottom: 48px;
+  max-width: 720px;
+}
+
+.evidenceGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 5vw, 64px);
+}
+
+@media (max-width: 768px) {
+  .evidenceGrid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+.evidenceCard {
+  border-top: 1px solid rgba(16, 19, 18, 0.16);
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.evidenceCaveat {
+  margin-top: 48px;
+  padding: 20px 24px;
+  background-color: rgba(16, 19, 18, 0.05);
+  border-left: 4px solid var(--ink, #101312);
+  border-radius: 4px;
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink, #101312);
+}
+
+.caveatLabel {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.caveatText {
+  margin: 0;
+}
+
+/* ==========================================================================
+   11. QUICK START SECTION (DARK)
+   ========================================================================== */
+
+.quickStartSection {
+  padding-top: clamp(56px, 8vw, 84px);
+  padding-bottom: clamp(56px, 8vw, 84px);
+}
+
+.quickStartHeader {
+  margin-bottom: 40px;
+  max-width: 720px;
+}
+
+.quickStartCommands {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.quickStartMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.quickStartPrereq {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  color: var(--muted, #bbc3ba);
+}
+
+/* ==========================================================================
+   12. FAQ SECTION (PAPER)
+   ========================================================================== */
+
+.faqSection {
+  padding-top: clamp(56px, 8vw, 84px);
+  padding-bottom: clamp(56px, 8vw, 84px);
+}
+
+.faqHeader {
+  margin-bottom: 40px;
+  max-width: 720px;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.faqItem {
+  border-top: 1px solid rgba(16, 19, 18, 0.14);
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.faqItem:last-child {
+  border-bottom: 1px solid rgba(16, 19, 18, 0.14);
+}
+
+.faqSummary {
+  font-family: var(--font-heading), "Space Grotesk", sans-serif;
+  font-size: clamp(19px, 2.5vw, 22px);
+  font-weight: 600;
+  color: var(--ink, #101312);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  list-style: none;
+  min-height: 44px;
+  user-select: none;
+  padding: 4px 0;
+}
+
+.faqSummary::-webkit-details-marker {
+  display: none;
+}
+
+.faqSummary:focus-visible {
+  outline: 2px solid var(--ink, #101312);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.faqToggleIcon {
+  font-family: var(--font-heading), "Space Grotesk", sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--ink, #101312);
+  margin-left: 16px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* Native toggle indicator +/- */
+.faqItem[open] .faqToggleIcon::before {
+  content: "−";
+}
+
+.faqItem:not([open]) .faqToggleIcon::before {
+  content: "+";
+}
+
+.faqAnswer {
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 18px;
+  line-height: 1.55;
+  color: rgba(16, 19, 18, 0.82);
+  margin: 12px 0 0 0;
+  max-width: 70ch;
+}
+
+/* ==========================================================================
+   13. COMMUNITY SECTION (DARK)
+   ========================================================================== */
+
+.communitySection {
+  padding-top: clamp(56px, 8vw, 84px);
+  padding-bottom: clamp(56px, 8vw, 84px);
+}
+
+.communityHeader {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.communityActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+  margin-top: 24px;
+}
+
+/* ==========================================================================
+   14. FOOTER
+   ========================================================================== */
+
+.footer {
+  background-color: var(--ink, #101312);
+  color: var(--paper, #f5f2e9);
+  border-top: 1px solid rgba(187, 195, 186, 0.2);
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+
+.footerInner {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.footerTop {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .footerTop {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.footerLinks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(16px, 3vw, 28px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footerLink {
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+  font-size: 16px;
+  color: var(--paper, #f5f2e9);
+  text-decoration: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  transition: color 160ms ease;
+}
+
+.footerLink:hover {
+  color: var(--lime, #c7f36b);
+}
+
+.footerLink:focus-visible {
+  outline: 2px solid var(--lime, #c7f36b);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.footerBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(187, 195, 186, 0.1);
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 14px;
+  color: var(--muted, #bbc3ba);
+}
+
+@media (max-width: 640px) {
+  .footerBottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

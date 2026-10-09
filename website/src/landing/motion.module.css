@@ -1,0 +1,365 @@
+/* motion.module.css - Bounded decorative motion styles for AGS Landing */
+
+/* ==========================================================================
+   1. HERO DECORATIVE ASSEMBLY
+   360–480ms decorative assembly, max 80ms stagger.
+   H1 and body text remain always visible.
+   ========================================================================== */
+
+.hero {
+  will-change: transform, opacity;
+}
+
+.hero[data-motion-state="running"] {
+  animation: heroAssembly 440ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero[data-motion-state="complete"] {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes heroAssembly {
+  0% {
+    opacity: 0.3;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   2. SECTION DIVIDER TRACE
+   320ms trace, decor figure translate <= 12px.
+   Readable content never initially opacity-zero.
+   ========================================================================== */
+
+.divider {
+  will-change: transform, opacity;
+}
+
+.divider[data-motion-state="running"] {
+  animation: dividerTrace 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.divider[data-motion-state="complete"] {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes dividerTrace {
+  0% {
+    opacity: 0.4;
+    transform: translateX(-12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ==========================================================================
+   3. SKILL SPECIMEN BORDER TRACE
+   280ms border trace; text never types/scrambles.
+   ========================================================================== */
+
+.skill {
+  will-change: border-color, box-shadow;
+}
+
+.skill[data-motion-state="running"] {
+  animation: skillBorderTrace 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.skill[data-motion-state="complete"] {
+  border-color: var(--lime, #c7f36b);
+}
+
+@keyframes skillBorderTrace {
+  0% {
+    border-color: rgba(199, 243, 107, 0.15);
+    box-shadow: 0 0 0 0 rgba(199, 243, 107, 0);
+  }
+  50% {
+    border-color: rgba(199, 243, 107, 0.8);
+    box-shadow: 0 0 8px 1px rgba(199, 243, 107, 0.25);
+  }
+  100% {
+    border-color: var(--lime, #c7f36b);
+    box-shadow: 0 0 0 0 rgba(199, 243, 107, 0);
+  }
+}
+
+/* ==========================================================================
+   4. SDLC WORKFLOW CONNECTOR TRACE
+   360ms connector trace (horizontal desktop / vertical mobile).
+   Operates on actual connector line element without hiding stage labels or text.
+   ========================================================================== */
+
+.workflow {
+  will-change: transform, opacity;
+  transform-origin: left center;
+}
+
+.workflow[data-motion-state="running"] {
+  animation: workflowTraceHorizontal 360ms cubic-bezier(0.16, 1, 0.3, 1)
+    forwards;
+}
+
+@media (max-width: 768px) {
+  .workflow {
+    transform-origin: top center;
+  }
+
+  .workflow[data-motion-state="running"] {
+    animation: workflowTraceVertical 360ms cubic-bezier(0.16, 1, 0.3, 1)
+      forwards;
+  }
+}
+
+.workflow[data-motion-state="complete"] {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes workflowTraceHorizontal {
+  0% {
+    opacity: 0.3;
+    transform: scaleX(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes workflowTraceVertical {
+  0% {
+    opacity: 0.3;
+    transform: scaleY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+/* ==========================================================================
+   5. ROUTING TECHNICAL PANEL & HIGHLIGHT
+   FIG01 technical panel, 560ms connector highlight on first entry / Replay.
+   Bounded figure 439px desktop, fluid mobile.
+   ========================================================================== */
+
+.routing {
+  position: relative;
+  width: 100%;
+  max-width: 439px;
+  background-color: var(--panel, #1b231d);
+  border: 1px solid rgba(187, 195, 186, 0.2);
+  border-radius: 8px;
+  padding: 24px;
+  box-sizing: border-box;
+  color: var(--paper, #f5f2e9);
+  overflow: hidden;
+  margin: 0;
+}
+
+.gridOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 8px;
+}
+
+.routingHeader {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(187, 195, 186, 0.2);
+  margin-bottom: 20px;
+}
+
+.routingFigBadge {
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--lime, #c7f36b);
+  letter-spacing: 0.05em;
+}
+
+.routingFigTitle {
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  font-size: 14px;
+  color: var(--muted, #bbc3ba);
+}
+
+.routingNodes {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.routingNode {
+  background: rgba(16, 19, 18, 0.6);
+  border: 1px solid rgba(187, 195, 186, 0.2);
+  border-radius: 4px;
+  padding: 14px 18px;
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+.routingNodeActive {
+  background: #24301d;
+  border: 1px solid var(--lime, #c7f36b);
+}
+
+.routingNodeTitle {
+  font-family: var(--font-body, "Source Sans 3", sans-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--paper, #f5f2e9);
+  margin: 0 0 4px 0;
+}
+
+.routingNodeTrigger {
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  font-size: 14px;
+  color: var(--muted, #bbc3ba);
+  margin: 0;
+}
+
+.routingNodeTriggerLime {
+  color: var(--lime, #c7f36b);
+}
+
+.routingConnector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 32px;
+  color: var(--lime, #c7f36b);
+}
+
+.routingConnectorLine {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 0;
+}
+
+.routing[data-motion-state="running"] .routingConnectorLine {
+  animation: connectorHighlight 560ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.routing[data-motion-state="complete"] .routingConnectorLine {
+  stroke-dashoffset: 0;
+  stroke: var(--lime, #c7f36b);
+}
+
+@keyframes connectorHighlight {
+  0% {
+    stroke-dashoffset: 60;
+    stroke: rgba(199, 243, 107, 0.2);
+  }
+  50% {
+    stroke: #c7f36b;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    stroke: var(--lime, #c7f36b);
+  }
+}
+
+.routingCaption {
+  position: relative;
+  z-index: 1;
+  margin-top: 20px;
+  font-family: var(--font-body, "Source Sans 3", sans-serif);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted, #bbc3ba);
+}
+
+.routingFootnote {
+  margin-top: 4px;
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  font-size: 14px;
+  color: rgba(187, 195, 186, 0.85);
+}
+
+.routingActionArea {
+  position: relative;
+  z-index: 1;
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  min-height: 48px;
+}
+
+.replayButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  height: 48px;
+  padding: 0 20px;
+  border-radius: 8px;
+  border: 1px solid var(--muted, #bbc3ba);
+  background: transparent;
+  color: var(--paper, #f5f2e9);
+  font-family: var(--font-body, "Source Sans 3", sans-serif);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+  box-sizing: border-box;
+}
+
+.replayButton:hover {
+  background-color: rgba(199, 243, 107, 0.1);
+  border-color: var(--lime, #c7f36b);
+  color: var(--lime, #c7f36b);
+}
+
+.replayButton:focus-visible {
+  outline: 3px solid var(--lime, #c7f36b);
+  outline-offset: 3px;
+}
+
+.replayPlaceholder {
+  min-height: 48px;
+  height: 48px;
+}
+
+/* ==========================================================================
+   REDUCED MOTION OVERRIDES
+   Remove decorative animations and reduce transitions to near-zero duration; keep content static and readable.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .hero,
+  .divider,
+  .skill,
+  .workflow,
+  .routing,
+  .hero *,
+  .divider *,
+  .skill *,
+  .workflow *,
+  .routing * {
+    animation: none !important;
+    transition-duration: 0.001ms !important;
+    transform: none !important;
+  }
+}
