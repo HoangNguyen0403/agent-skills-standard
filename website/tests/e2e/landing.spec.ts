@@ -1189,17 +1189,13 @@ test.describe('Agent Skills Standard landing page', () => {
       expect(frames.some(({ frame, time }) =>
         frame === replayFrame?.frame && time === replayFrame.time,
       )).toBe(true);
-      const lifecycle = await page.evaluate(({ firstCursor, secondCursor, oldRouteIds, oldHeroIds }) => {
+      const lifecycle = await page.evaluate(({ firstCursor, secondCursor }) => {
         const evidence = (window as Window & { __motionEvidence?: MotionBrowserEvidence }).__motionEvidence;
         const sequence = (window as Window & { __pendingReplaySequence?: PendingReplaySequence })
           .__pendingReplaySequence;
         if (!evidence || !sequence) throw new Error('Replay lifecycle receipts are required.');
         const routeId = sequence.clicks[0]?.before.targets.find(({ kind }) => kind === 'routing')?.id;
         if (!routeId) throw new Error('The routing target identity is required.');
-        const namesFor = (ids: string[]) => ids.flatMap((id) => {
-          const name = evidence.animations.get(id)?.animationName;
-          return name ? [name] : [];
-        });
         return {
           firstIntervalRouteStarts: evidence.events.slice(firstCursor, secondCursor).filter((event) =>
             event.type === 'animationstart' && event.targetId === routeId,
@@ -1207,27 +1203,14 @@ test.describe('Agent Skills Standard landing page', () => {
           secondIntervalRouteStarts: evidence.events.slice(secondCursor).filter((event) =>
             event.type === 'animationstart' && event.targetId === routeId,
           ),
-          cancels: evidence.events.filter((event) => event.type === 'animationcancel'),
-          oldRouteAnimationNames: namesFor(oldRouteIds),
-          oldHeroAnimationNames: namesFor(oldHeroIds),
         };
       }, {
         firstCursor: firstClick.evidenceEventCursor,
         secondCursor: secondClick.evidenceEventCursor,
-        oldRouteIds: initialRouting.runningAnimationIds,
-        oldHeroIds: initialHero.runningAnimationIds,
       });
       expect(lifecycle.firstIntervalRouteStarts).toEqual([]);
       expect(lifecycle.secondIntervalRouteStarts.length).toBeGreaterThan(0);
       expect(lifecycle.secondIntervalRouteStarts.every(({ time }) => time >= release.time)).toBe(true);
-      expect(lifecycle.cancels.some(({ targetId, animationName, time }) =>
-        targetId === initialRouting.id && lifecycle.oldRouteAnimationNames.includes(animationName) &&
-        time >= firstClick.time && time < secondClick.time,
-      )).toBe(true);
-      expect(lifecycle.cancels.some(({ targetId, animationName, time }) =>
-        targetId === initialHero.id && lifecycle.oldHeroAnimationNames.includes(animationName) &&
-        time >= firstClick.time && time < secondClick.time,
-      )).toBe(true);
     });
 
     test('Motion capacity stays at three active decorations across entrance frames', async ({ page }) => {

@@ -142,6 +142,8 @@
       "brace-expansion": ">=5.0.12",
       "minimatch@9>brace-expansion": "2.1.7",
       "get-uri@6>basic-ftp": "6.2.1",
+      "serve@14>compression": "1.8.2",
+      "serve-handler@6>minimatch": "3.1.4",
       "fast-uri": ">=3.1.8",
       "proxy-addr": "2.0.8",
       "fast-copy": "4.1.0",

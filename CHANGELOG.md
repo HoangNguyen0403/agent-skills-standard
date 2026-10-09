@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Website test dependencies**: Move to the Node 20-compatible Vitest 4.1.11 native worker pool to remove vulnerable Tinypool, upgrade Playwright to 1.55.1 for verified browser-installer certificates, and pin Lighthouse's `get-uri` FTP dependency to patched `basic-ftp` 6.2.1. Keep dependency review and production dependency audit enabled.
+- **Website verification tools**: Move to the Node 20-compatible Vitest 4.1.11 native worker pool to remove vulnerable Tinypool, upgrade Playwright to 1.55.1 for verified browser-installer certificates, and narrowly pin Lighthouse's FTP dependency to `basic-ftp` 6.2.1 and the local preview server to patched compression 1.8.2/minimatch 3.1.4. Keep dependency review and production dependency audit enabled. Retain exact animation-identity cancellation checks instead of duplicate CSS-event timestamp assumptions.
 - **MCP Streamable HTTP**: Create a fresh server and stateless transport for each request, allowing initialization to be followed by further calls while cleaning up request-scoped state. Stdio remains unchanged.
 
 ### Changed
