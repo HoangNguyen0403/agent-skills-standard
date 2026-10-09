@@ -1,0 +1,5 @@
+Copy Copied Retry Failed to copy command. Select and copy manually. Menu Close Open Skip to main content Start Over Replay Loading Ready Success Error
+npx agent-skills-standard@latest init
+npx agent-skills-standard@latest sync
+ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789
+.,;:!?…—–-‐‑‒―'’‘"“”()[]{}<>/\\|@#$%^&*_+=~`·•©®™←↑→↓↗↘−≥≤✓✕×

@@ -1,0 +1,26 @@
+# Cloudflare Pages Static Response Headers
+
+# Immutable caching for versioned Next.js static assets
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+# Standard assets (short/revalidating cache, not immutable)
+/og/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+  X-Content-Type-Options: nosniff
+
+/favicon*
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
+
+/icon*
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
+
+# HTML and document security headers (non-immutable, explicit nosniff, frame, referrer)
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()

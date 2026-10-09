@@ -1,0 +1,133 @@
+/* globals.css - Global CSS design tokens, reset, typography, and layout */
+
+:root {
+  --ink: #101312;
+  --paper: #f5f2e9;
+  --lime: #c7f36b;
+  --panel: #1b231d;
+  --muted: #bbc3ba;
+
+  --font-heading:
+    var(--ags-font-heading, "Space Grotesk"), -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  --font-body:
+    var(--ags-font-body, "Source Sans 3"), -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  --font-mono:
+    var(--ags-font-mono, "IBM Plex Mono"), ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, monospace;
+
+  --max-content-width: 1264px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--ink);
+  background-color: var(--ink);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--ink);
+  color: var(--paper);
+  overflow-x: hidden;
+}
+
+/* Accessibility: skip link */
+.skip-link {
+  position: absolute;
+  top: -999px;
+  left: 16px;
+  background-color: var(--lime);
+  color: var(--ink);
+  padding: 12px 20px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 16px;
+  z-index: 9999;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 16px;
+  outline: 3px solid var(--paper);
+  outline-offset: 2px;
+}
+
+/* Heading typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* Code and pre elements */
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  code,
+  pre,
+  kbd,
+  samp {
+    font-size: 16px;
+  }
+}
+
+/* Universal focus visibility */
+:focus-visible {
+  outline: 3px solid var(--lime);
+  outline-offset: 3px;
+}
+
+/* Links */
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* Reduced motion global overrides */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
