@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Website test dependencies**: Move to the Node 20-compatible Vitest 4.1.11 native worker pool to remove vulnerable Tinypool, and upgrade Playwright to 1.55.1 for verified browser-installer certificates. Keep dependency review and production dependency audit enabled.
 - **MCP Streamable HTTP**: Create a fresh server and stateless transport for each request, allowing initialization to be followed by further calls while cleaning up request-scoped state. Stdio remains unchanged.
 
 ### Changed
