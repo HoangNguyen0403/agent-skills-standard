@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js";
+import { createMcpHttpApp } from "./http";
 import { buildServer, SERVER_VERSION } from "./server";
 import { resolveConfig } from "./config";
 import { SessionTracker } from "./services/SessionTracker";
@@ -54,25 +53,10 @@ async function main() {
     );
   }
 
-  const server = await buildServer(config, { tracker });
-
   if (transportMode === "sse") {
-    // createMcpExpressApp handles DNS rebinding protection and localhost security by default.
-    const app = createMcpExpressApp();
+    // The HTTP app creates a fresh SDK server and stateless transport per request.
+    const app = createMcpHttpApp(config, tracker);
     const port = process.env.PORT || 8768;
-
-    const transport = new StreamableHTTPServerTransport();
-    await server.connect(transport);
-
-    // Handle MCP over HTTP (GET for SSE, POST for messages)
-    // We map both the new standard endpoint and legacy endpoints to the same handler.
-    const handleRequest = async (req: any, res: any) => {
-      await transport.handleRequest(req, res, req.body);
-    };
-
-    app.all("/mcp", handleRequest);
-    app.all("/sse", handleRequest);
-    app.all("/messages", handleRequest);
 
     app.listen(port, () => {
       process.stderr.write(`[ags-mcp] SSE server listening on port ${port}\n`);
@@ -87,6 +71,7 @@ async function main() {
       );
     });
   } else {
+    const server = await buildServer(config, { tracker });
     const transport = new StdioServerTransport();
     transport.onclose = flushOnce;
     await server.connect(transport);

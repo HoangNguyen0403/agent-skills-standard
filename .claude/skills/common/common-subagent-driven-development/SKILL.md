@@ -49,6 +49,8 @@ python3 skills/common/common-subagent-driven-development/scripts/sdd_workspace.p
 ```
 Track task completion in `<workspace>/progress.md` so work survives context compaction.
 
+Use the local version-2 explicit progress helper for revision/evidence-bound checkpoints; it does not enforce host pauses, authorization, or wakeups. See [Progress Receipts](references/progress-receipts.md).
+
 ## 4. The Task Loop
 
 For each task in the plan:
