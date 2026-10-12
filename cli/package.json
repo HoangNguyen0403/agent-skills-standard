@@ -50,8 +50,8 @@
     "cross-fetch": "^4.1.0",
     "dotenv": "^18.0.5",
     "fs-extra": "^11.4.1",
-    "inquirer": "^14.2.2",
-    "js-yaml": "^5.4.2",
+    "inquirer": "^14.2.3",
+    "js-yaml": "^5.4.3",
     "picocolors": "^1.0.0",
     "zod": "^4.6.5"
   },
