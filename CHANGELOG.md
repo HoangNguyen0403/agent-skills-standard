@@ -16,9 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Website verification tools**: Move to the Node 20-compatible Vitest 4.1.11 native worker pool to remove vulnerable Tinypool, upgrade Playwright to 1.55.1 for verified browser-installer certificates, and narrowly pin Lighthouse's FTP dependency to `basic-ftp` 6.2.1 and the local preview server to patched compression 1.8.2/minimatch 3.1.4. Keep dependency review and production dependency audit enabled. Retain exact animation-identity cancellation checks instead of duplicate CSS-event timestamp assumptions.
 - **MCP Streamable HTTP**: Create a fresh server and stateless transport for each request, allowing initialization to be followed by further calls while cleaning up request-scoped state. Stdio remains unchanged.
+- **Dependencies**: Bumped `inquirer` to 14.2.3, `js-yaml` to 5.4.3, and `pino-pretty` to 13.2.0 across cli, mcp, server, and root packages (combining PR #230 and PR #231); configured `allow-ghsas` in dependency review for unpatchable devDependency advisories GHSA-jmr9-qjv8-65gv and GHSA-7pqw-9j4j-h8q3 in website Lighthouse tooling.
 
 ### Changed
+
+- **Website**: Added a static Agent Skills Standard landing page with keyboard-scrollable native commands; corrected motion-controller disposal so stale observer callbacks cannot reactivate retired work; publication verification passed 63/63 Chromium browser cases and a three-run Lighthouse lab audit (median score 99).
 
 - **SDLC workflows**: Bind routing to task-linked approved evidence, keep product planning separate from technical design, and make readiness handoffs explicitly slice-scoped with distinct source-ready and machine-activation states.
 - **System design**: Select specialist dives from unresolved consequential risks across linked references; make redraw conditional across intake and review outputs; qualify scorecard anchors, readiness and verdicts by evidence scope; choose sync/async boundaries from consistency and failure requirements.
