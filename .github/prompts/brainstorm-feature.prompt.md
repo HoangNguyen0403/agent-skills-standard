@@ -9,18 +9,19 @@ Goal: Turn rough intent into an approved, evidence-backed brief sized to the tas
 ## Steps
 
 1. Frame:
-   - Load `common-decision-discipline`, `common-operator-profile`, `common-task-complexity-routing`; load `common-business-requirements` for the Why lane.
-   - Infer `operator_profile` (never ask). Score SNC: `tier=low` -> Quick (contract in chat, no file), `tier=medium` -> Standard, `tier=high` -> Deep. The tier only rises.
+   - Load `common-decision-discipline`, `common-operator-profile`, `common-task-complexity-routing`; load `common-business-requirements` for Why lane.
+   - Infer `operator_profile` (never ask). Score SNC: `tier=low` -> Quick (contract in chat, no file), `tier=medium` -> Standard, `tier=high` -> Deep. Tier only rises.
    - Lane: `business` -> Why (solution-free BRD-lite); `technical` or unclear technical direction -> Direction (delivery contract); `hybrid` -> both, compact.
-   - Bug symptom without a root cause -> stop and route to `dev-fix`. Multi-subsystem idea -> list slices, brainstorm the first only.
+   - Substantial feature discovery warrants a compact verb-object capability inventory; keep Why solution-free.
+   - Bug symptom without root cause -> stop and route to `dev-fix`. Multi-subsystem idea -> list slices, brainstorm first only.
 2. Ground:
-   - Read the smallest useful set of code, tests, docs, and existing `docs/brd|prd|srs` for the slug before any feasibility or AS-IS claim.
-   - Tag each claim in the Evidence ledger: `confirmed(<path>)`, `assumed`, or `unknown`.
-   - Draft a provisional brief, then write back "You said / I assumed" unless outcome, constraints, non-goals, and acceptance criteria are already stated.
+   - Read smallest useful set of code, tests, docs, and existing `docs/brd|prd|srs` before feasibility or AS-IS claims.
+   - Tag each claim in Evidence ledger: `confirmed(<path>)`, `assumed`, or `unknown`.
+   - Draft provisional brief; write back "You said / I assumed" unless outcome, constraints, non-goals, and ACs already stated.
 3. Decide:
-   - Ask only decisions that change the result, safety boundary, or public contract: max 3 per round, each with a recommended default and 2-3 options; never re-ask settled facts.
-   - Why lane options: build, buy, defer, do nothing. Direction lane: 0-3 technical option cards, only when a real choice exists.
-   - Recommend the smallest option that meets the contract; if a critical assumption is unresolved, the one cheapest to abandon.
+   - Ask only decisions changing result, safety boundary, or public contract: max 3 per round with recommended default and 2-3 options; never re-ask settled facts.
+   - Why lane options: build, buy, defer, do nothing. Direction lane: 0-3 technical option cards, only when real choice exists.
+   - Recommend smallest option meeting contract; if critical assumption unresolved, one cheapest to abandon.
    - For `operator_profile=business`, draft owner, SMART metric, and scope fence as one confirm-with-default round.
 4. Approve and hand off:
    - Self-review: placeholders, contradictions, scope, ambiguity.

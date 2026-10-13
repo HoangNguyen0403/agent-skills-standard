@@ -27,12 +27,12 @@ Goal: Produce a build-ready technical design with explicit boundaries, contracts
 ## Steps
 
 1. Load inputs:
-   - Load baseline SRS/FRS section, `common-software-requirements`, `common-decision-discipline` (option cards, evidence ledger), PRD or ticket, implementation plan, matched framework skills, architecture docs, and trace source `BRD-OBJ-* -> REQ-* -> AC-*`.
+   - Load baseline SRS/FRS section, `common-software-requirements`, `common-decision-discipline` (option cards, evidence ledger), PRD or ticket, implementation plan, matched framework skills, architecture docs, trace source `BRD-OBJ-* -> REQ-* -> AC-*`, and `common-product-requirements/references/requirements-modeling.md` from the owning package when modeling guidance applies; report excluded or unavailable resources without guessing.
 2. Define architecture:
-   - Name bounded contexts, module/data owners, and migration needs.
-   - Consume or create the HLD trace: requirements, audience, scope, shaping constraints, lifecycle status, ownership, failure domains, and decisions.
+   - Name bounded contexts, module/data owners, migration needs; select technical contracts/views without inventing product scope.
+   - Consume or create HLD trace: requirements, audience, scope, shaping constraints, lifecycle status, ownership, failure domains, decisions.
    - Define dependency direction, component RACI, and sync, async, or hybrid communication.
-   - Define early mock/schema contracts so frontend, mobile, and backend can start in parallel; create LLD contracts only for the components or flows that need them. Select a `container`, `sequence`, or other view only when it answers a named question through `common-architecture-diagramming` (`evidence` cites the SRS or system-design doc, `metric` comes from stated NFR thresholds). A diagram is not mandatory when prose or a table is precise enough; never fabricate a metric.
+   - Define early mock/schema contracts for parallel start; create LLD contracts only for components/flows needing them. Select `container`, `sequence`, or other views by question through `common-architecture-diagramming` or `requirements-modeling.md` (`evidence` cites SRS/system-design doc, `metric` from stated NFR thresholds). Views clarify interaction/lifecycle/order; diagrams not mandatory when prose or tables are precise enough; never fabricate metrics.
 3. Define contracts:
    - Functional flows (FRS): user/system steps, inputs/outputs, validations, and error states.
    - For complex flows, use one actor, one goal, one session; split normal course from alternatives and exceptions.

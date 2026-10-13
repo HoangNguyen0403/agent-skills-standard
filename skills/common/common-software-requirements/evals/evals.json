@@ -3,50 +3,54 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Write an SRS for checkout retry and idempotency behavior.",
-      "expected_output": "Define functional requirement IDs, interface contracts, failure modes, and NFR thresholds with verification mapping.",
+      "prompt": "Write technical specifications for checkout retry. Supplied facts: maximum 3 retries with exponential backoff; requests are idempotent on order_id; a duplicate idempotency key returns HTTP 409 Conflict. Use distinct neutral unpadded rows following RETRY|<operation>|<count>|<unit>|<strategy>, IDEMPOTENCY|<operation>|<key>|<duplicate-key behavior>, and RESPONSE|<condition>|<HTTP status>|<outcome>.",
+      "expected_output": "Preserve the retry count and strategy, order_id idempotency key, and HTTP 409 Conflict duplicate-key outcome:\nRETRY|checkout|3|retries|exponential backoff\nIDEMPOTENCY|checkout|order_id|duplicate key returns HTTP 409 Conflict\nRESPONSE|duplicate idempotency key|HTTP 409|Conflict",
       "assertions": [
         {
-          "type": "contains",
-          "value": "SRS"
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)RETRY\\|checkout\\|3\\|retries\\|exponential backoff(?:\\r?\\n|$)"
         },
         {
-          "type": "contains",
-          "value": "NFR"
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)IDEMPOTENCY\\|checkout\\|order_id\\|duplicate key returns HTTP 409 Conflict(?:\\r?\\n|$)"
         },
         {
-          "type": "contains",
-          "value": "verification"
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)RESPONSE\\|duplicate idempotency key\\|HTTP 409\\|Conflict(?:\\r?\\n|$)"
         }
       ]
     },
     {
       "id": 2,
-      "prompt": "Create technical requirements spec for API timeout fallback and event retries.",
-      "expected_output": "Capture trigger/input/output/error behavior, interfaces, thresholds, and requirement trace links.",
+      "prompt": "Create technical requirements for API timeout fallback. Supplied facts: the gateway timeout threshold is 2500ms; when that timeout occurs, use cached inventory and emit a warning log event. Use distinct neutral unpadded rows following TRIGGER|<source>|<condition>|<threshold>|<unit>, ACTION|<condition>|<fallback behavior>, and EVENT|<condition>|<event>|<emission behavior>.",
+      "expected_output": "Bind the 2500ms gateway timeout to cached-inventory fallback and warning-event emission:\nTRIGGER|gateway|timeout|2500|ms\nACTION|timeout|cached inventory fallback\nEVENT|timeout|warning log event|emitted",
       "assertions": [
         {
-          "type": "contains",
-          "value": "interface"
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)TRIGGER\\|gateway\\|timeout\\|2500\\|ms(?:\\r?\\n|$)"
         },
         {
-          "type": "contains",
-          "value": "error"
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)ACTION\\|timeout\\|cached inventory fallback(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)EVENT\\|timeout\\|warning log event\\|emitted(?:\\r?\\n|$)"
         }
       ]
     },
     {
       "id": 3,
-      "prompt": "Design the technical implementation, but the PRD has no AC IDs.",
-      "expected_output": "Block or route back to plan-feature instead of inventing scope; require REQ/AC IDs before SRS mapping and implementation readiness.",
+      "prompt": "Design technical implementation for order cancellation. Controlled facts: no behavioral acceptance criteria exist and implementation prerequisites have not been verified. Can engineering proceed with development? Use neutral unpadded rows following READINESS|<decision subject>|<verdict>|<authorization>|<basis> and NEXT|<subject>|<gate>|<required prerequisites>|<destination>.",
+      "expected_output": "Do not authorize implementation. Record the affected slice as not ready because behavioral acceptance criteria and verified prerequisites are absent; route to requirements/planning before development:\nREADINESS|order cancellation implementation|NOT READY|NOT AUTHORIZED|behavioral acceptance criteria and verified prerequisites absent\nNEXT|implementation|BLOCKED UNTIL|behavioral acceptance criteria and verified prerequisites|requirements/planning",
       "assertions": [
         {
-          "type": "contains",
-          "value": "AC"
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)READINESS\\|order cancellation implementation\\|NOT READY\\|NOT AUTHORIZED\\|behavioral acceptance criteria and verified prerequisites absent(?:\\r?\\n|$)"
         },
         {
-          "type": "contains",
-          "value": "plan-feature"
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)NEXT\\|implementation\\|BLOCKED UNTIL\\|behavioral acceptance criteria and verified prerequisites\\|requirements/planning(?:\\r?\\n|$)"
         }
       ]
     }

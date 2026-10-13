@@ -13,14 +13,13 @@ Goal: Decide whether a planned change is ready for implementation or must return
    - Do not require a separate filename when an approved task record supplies the necessary information. A matching record and stable slug are required; unrelated documents and working-tree changes are not authority or approval.
 
 2. Check readiness:
-   - Approved task record supplies an outcome, constraints/non-goals, testable acceptance criteria, owner and approval; equivalent evidence is acceptable without a separate BRD/PRD/SRS file. `approval: approved` passes; `pending` blocks; `assumed-autonomous` warns and blocks only when `snc_tier=high`.
-   - ACs are atomic, testable, and scoped by platform/market/role where relevant.
-   - Available requirement/design evidence identifies affected modules and consequential API/data/interface/migration/permission/failure/NFR choices; unresolved sensitive or consequential choices route to technical design and human approval as applicable.
-   - Requirement trace links available business/product requirements to technical contracts and test lanes; do not invent a mandatory document-writing detour when approved evidence already establishes the needed contract.
-   - UX/design evidence covers loading, empty, error, permission, and responsive/mobile cases when UI changes.
-   - Test strategy maps ACs to available unit, integration, E2E/mobile, security, and Zephyr/manual lanes; record unavailable optional lanes as blockers on only the affected slices.
-   - Tool prerequisites known: credentials, environments, feature flags, test data, MCP availability.
-
+   - Approved task record supplies outcome, constraints/non-goals, testable ACs, owner and approval; equivalent approved low-risk evidence suffices without separate BRD/PRD/SRS files. `approval: approved` passes; `pending` blocks; `assumed-autonomous` warns and blocks only when `snc_tier=high`. Sensitive trust-boundary changes still require applicable design/human floor.
+   - ACs have one observable behavior per AC across happy, edge, and error paths, with necessary preconditions; truth tables for interacting conditions. Examine scope coverage and conflicts before issuing READY or PARTIAL; consequential conflicts block affected slices with consequence, owner, and required input without inventing business/error policy.
+   - Available requirement/design evidence identifies affected modules and consequential API/data/interface/migration/permission/failure/NFR choices; unresolved sensitive or consequential choices route to technical design and human approval.
+   - Requirement trace links business/product requirements to technical contracts and test lanes; review affected contracts, ACs, approvals and evidence for change impact without restarting unchanged decisions or inventing document detours.
+   - UX/design evidence covers loading, empty, error, permission, responsive/mobile cases when UI changes.
+   - Test strategy maps ACs to available unit, integration, E2E/mobile, security, Zephyr/manual lanes; record unavailable optional lanes as blockers on only affected slices.
+   - Tool prerequisites known: credentials, environments, feature flags, test data, MCP availability. Schedulable delivery dependencies required; legitimate business or state loops are not delivery-dependency cycles, but unresolved behavioral, permission, environment, or scheduling prerequisites block affected slices.
 3. Decide:
    - READY: approved evidence, owner, ACs, required design/approval and test prerequisites permit the named slice(s) to start.
    - BLOCKED: required authority/approval, owner, unclear AC, consequential design, environment, or risk remains unresolved; do not recommend unconditional implementation.

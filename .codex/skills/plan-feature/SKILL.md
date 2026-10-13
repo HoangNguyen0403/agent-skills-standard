@@ -26,9 +26,10 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
 
 ## Steps
 1. Load context:
-   - Load baseline PRD section and task-linked evidence with the stable slug; when intent is unclear, ask which matching ticket/brief is authoritative rather than selecting an unrelated recent document.
-   - Load BRD-lite, ticket text, existing specs, repo patterns, `common-product-requirements`, `common-operator-profile`, `common-decision-discipline`, `quality-engineering-business-analysis`, and matched framework skills.
-   - Carry forward `operator_profile`, `lane`, `snc_tier`, `approval`, BRD objective IDs, SMART metric, scope fence, assumptions, evidence ledger, glossary, risks, and delivery context. Use the approved task record/ticket and stable slug; equivalent evidence is sufficient when it supplies the required information, regardless of whether a separate BRD/PRD/SRS filename exists.
+   - Load baseline PRD section and task-linked evidence with stable slug; when intent unclear, ask which matching ticket/brief is authoritative.
+   - Explicitly load `common-product-requirements` and its on-demand `references/requirements-modeling.md`; report truthfully if unavailable.
+   - Load BRD-lite, ticket text, existing specs, repo patterns, `common-operator-profile`, `common-decision-discipline`, `quality-engineering-business-analysis`, matched framework skills.
+   - Carry forward `operator_profile`, `lane`, `snc_tier`, `approval`, BRD objective IDs, SMART metric, scope fence, assumptions, evidence ledger, glossary, risks, delivery context. Equivalent approved evidence suffices without separate BRD/PRD/SRS filenames.
 2. Interview:
    - Draft a provisional PRD direction from current context before asking.
    - Ask only for business logic, scope, constraints, and acceptance criteria that cannot be inferred.
@@ -41,13 +42,12 @@ Goal: Produce a PM-owned decision-complete PRD, delivery plan, and IT Department
 3. Draft PRD:
    - Save to `docs/prd/prd-[slug].md` when file writes are allowed.
    - Keep "what" separate from "how".
-   - Add stable requirement IDs and AC IDs.
-   - Use Given/When/Then AC when behavior can be misread.
-   - Check user stories for specific persona, business value, INVEST, happy path, edge path, and negative path.
-   - Link each requirement back to BRD-lite business objective.
-   - Include risk categories, rollout/ops, decision log, analytics/telemetry, and changelog.
-   - Mark unresolved blocking product decisions as blockers.
-   - Include a RACI table for BA, PM, architect, backend, frontend, mobile, QA, release, and business/UAT approver when more than one delivery role is involved.
+   - Add stable `REQ-*` and `AC-*` IDs; link each requirement back to BRD-lite objective. One observable behavior per AC with necessary preconditions; truth tables for interacting conditions.
+   - For substantial scope, build capability inventory (verb-object, in-scope/deferred/excluded); one containment parent per node, shared rules referenced without duplicate definitions.
+   - Use Given/When/Then AC when behavior can be misread; check user stories for persona, value, INVEST, happy/edge/negative paths.
+   - Select views by question (process flow=order, decision table=rules, state=lifecycle) per `requirements-modeling.md`; prose/tables allowed, no mandatory UML.
+   - Include risk categories, rollout/ops, decision log, analytics/telemetry, changelog. Mark unresolved blocking product decisions as blockers (name slice, consequence, owner, input).
+   - Include RACI table for delivery roles when more than one role involved.
 4. Create implementation plan:
    - Define product outcomes, acceptance criteria, dependencies, delivery risks and provisional owner-aligned slices.
    - Keep unresolved architecture, API/data contracts, migrations, and other consequential technical choices explicit for `design-solution`; do not author technical design twice in the PM plan.

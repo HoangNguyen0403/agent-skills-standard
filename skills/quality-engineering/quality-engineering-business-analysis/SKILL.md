@@ -23,10 +23,10 @@ metadata:
 
 ## 1. Deep Investigation Protocol
 
-- **Atomic AC Decomposition**: Split **Acceptance Criteria (AC)** into **1-Condition** logic units (e.g., "User can X and Y" -> "User can X", "User can Y").
+- **Behavior-Based AC Decomposition**: Define **Acceptance Criteria (AC)** around **one observable behavior** per AC; multiple necessary preconditions are permitted. Do NOT split based solely on the word 'And' or condition counts.
 - **Variable Identification**: Extract all **Feature Toggles**, **Market Rules** (VN/MY/SG), and **User Roles**.
 - **Platform Parity**: Verify if logic applies to both **Web** and **Mobile**; Flag divergent behavior early.
-- **Truth Table Verification**: Map complex multi-condition logic to **Logic Truth Table**.
+- **Truth Table Verification**: Map interacting conditions to a **Logic Truth Table**; escalate policy decisions to owners rather than selecting business policy silently.
 
 ## 2. Dynamic Actor & Permission Mapping
 
@@ -43,13 +43,13 @@ metadata:
 ## 4. Anti-Patterns (Analysis)
 
 - **No Surface Reading**: investigate _implications_, don't restate.
-- **No Assumption**: Flag undefined states (e.g., Offline) as P0 blockers.
+- **No Unowned Unknowns**: Carry confirmed evidence and explicit non-critical assumptions. Consequential undefined states block only affected slices (naming owner, consequence, and required input); retain sensitive approval floors and PARTIAL readiness boundaries rather than blanket P0 blocking.
 - **No Loose Mapping**: Ensure AC aligns 100% with Technical Impact notes.
 
 ## 5. User Story Authoring Standards
 
 - **Story Structure**: Every story must use `As a [Actor], I want [Goal], so that [Value]`.
-- **AC Format**: Each AC must one `Given / When / Then` block — one condition per block.
+- **AC Format**: Each AC must use one `Given / When / Then` block representing one observable behavior; multiple necessary preconditions are permitted.
 - **Platform Tag**: Prefix each AC with `[WEB]`, `[MOBILE]`, or `[BOTH]` — never mix platforms in one AC block.
 - **Toggle Contract**: Each feature flag AC must name flag and state: `Toggle: <FlagName> = ON/OFF`.
 - **Market Isolation**: Any market-specific AC must prefixed `[Market: VN]`, `[Market: MY]`, etc.
@@ -62,16 +62,16 @@ See [User Story Template](references/user_story_template.md) for full authoring 
 
 - **No mixed-platform AC**: `[MOBILE ONLY]` buried inline hides parity gaps — use platform tags.
 - **No "to discuss"**: Replace with linked Jira ticket in `## Deferred`.
-- **No implicit toggle states**: Always declare both ON and OFF behavior per AC.
-- **No bundled AC**: "User sees X and Y and Z" → split into three separate AC blocks.
+- **No implicit toggle states**: Require applicable ON and OFF coverage across the story AC set; each individual AC names its own state (e.g., `Toggle: <FlagName> = ON`).
+- **No multi-behavior bundling**: Split distinct user actions/outcomes into separate AC blocks; do not split single behaviors with multiple preconditions.
 
 ## 7. Validation Checklist
 
 Run after authoring or reviewing any User Story before marking it ready for development:
 
 - [ ] Every AC `[WEB]`, `[MOBILE]`, or `[BOTH]` platform tag
-- [ ] Every toggle AC declares both `= ON` and `= OFF` states explicitly
-- [ ] No AC block contains more than one `And` condition (split if it )
+- [ ] Toggle features cover applicable ON and OFF states across the AC set (each individual AC naming its own state)
+- [ ] Each AC verifies one observable behavior (multiple necessary preconditions allowed; do not split solely on 'And')
 - [ ] No "to discuss" text anywhere — replaced by Jira link in `## Deferred`
 - [ ] Story `## In Scope`, `## Out of Scope`, and `## Deferred` sections
 - [ ] Story uses `As a / I want / So that` header

@@ -3,70 +3,54 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "The AC for TICK-1234 says 'User can view order history'. Analyze this requirement and identify all missing logic, actor permissions, and edge cases before we write test cases.",
-      "expected_output": "Atomic decomposition of AC into conditions (logged-in vs guest, empty state, pagination), actor matrix (Customer vs Sales Rep vs Admin with different visible orders), platform parity check (Web vs Mobile), edge cases (offline, no orders, expired session), flags undefined states as P0 blockers",
+      "prompt": "Evaluate readiness for TICK-1234 order history changes. Supplied facts: Slice A is caption-wrap on the order table, has approved behavioral AC TICK-1234-AC-1, owner Product Owner, and verification lane order-history component test. Slice B is a role-based order export permission check with undefined permission rules and no approved security design; Security Owner is responsible for supplying that design. Use records with no padding around |: SLICE|<slice>|<verdict>|owner=<owner>|verification=<evidence>|authorization=<permission>, or SLICE|<slice>|<verdict>|owner=<owner>|required-input=<input>|authorization=<permission> when verification is absent. Permitted verdict values are READY and BLOCKED; permission values are AUTHORIZED and NOT AUTHORIZED. Derive each slice's values from its facts; do not infer missing security policy.",
+      "expected_output": "Authorize only Slice A and retain its approved AC and test lane as verification evidence. Keep Slice B blocked and unauthorized, with Security Owner and the approved security design as required input.\nSLICE|A|READY|owner=Product Owner|verification=approved AC TICK-1234-AC-1; test lane=order-history component test|authorization=AUTHORIZED\nSLICE|B|BLOCKED|owner=Security Owner|required-input=approved security design|authorization=NOT AUTHORIZED",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Actor"
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)SLICE\\|A\\|READY\\|owner=Product Owner\\|verification=approved AC TICK-1234-AC-1; test lane=order-history component test\\|authorization=AUTHORIZED(?:\\r?\\n|$)"
         },
         {
-          "type": "contains",
-          "value": "Customer"
-        },
-        {
-          "type": "contains",
-          "value": "Sales"
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)SLICE\\|B\\|BLOCKED\\|owner=Security Owner\\|required-input=approved security design\\|authorization=NOT AUTHORIZED(?:\\r?\\n|$)"
         }
       ]
     },
     {
       "id": 2,
-      "prompt": "We have a feature toggle that controls whether the 'Reorder' button is visible. The AC says it shows when the toggle is ON and the order status is Delivered. Map all the logic combinations.",
-      "expected_output": "Truth table with toggle ON/OFF × order status (Delivered/Cancelled/Pending/etc) combinations, flag any undefined states, identify platform parity (same on Web and Mobile?), extract all actors who can see the button",
+      "prompt": "For this synthetic truth-table case, supplied facts are: ReorderFeature controls the Reorder button; the button is visible when the toggle is ON and order status is Delivered. Behavior for other statuses and when the toggle is OFF has not been decided. Product Owner owns those decisions. Map the toggle states against the Delivered and other-status categories, identifying evidence or unresolved required input for each cell. Use six-field records with no padding around |: CELL|<toggle>|status=<status>|outcome=<consumer-visible outcome or UNRESOLVED>|basis=<source fact or owner>|required-input=<input or NONE for a supplied known behavior>. This schema defines cell syntax only; derive every cell from the supplied facts.",
+      "expected_output": "Preserve the supplied visible outcome for ON/Delivered. Keep ON/other, OFF/Delivered and OFF/other unresolved with Product Owner and a distinct required input for each; do not invent OFF behavior.\nCELL|ReorderFeature=ON|status=Delivered|outcome=VISIBLE|basis=provided behavior|required-input=NONE\nCELL|ReorderFeature=ON|status=other|outcome=UNRESOLVED|basis=owner: Product Owner|required-input=approved behavior for non-Delivered statuses\nCELL|ReorderFeature=OFF|status=Delivered|outcome=UNRESOLVED|basis=owner: Product Owner|required-input=approved behavior when OFF for Delivered\nCELL|ReorderFeature=OFF|status=other|outcome=UNRESOLVED|basis=owner: Product Owner|required-input=approved behavior when OFF for other statuses",
       "assertions": [
         {
-          "type": "contains_any",
-          "value": [
-            "Truth",
-            "Truth table",
-            "| Toggle"
-          ]
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)CELL\\|ReorderFeature=ON\\|status=Delivered\\|outcome=VISIBLE\\|basis=provided behavior\\|required-input=NONE(?:\\r?\\n|$)"
         },
         {
-          "type": "contains",
-          "value": "Mobile"
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)CELL\\|ReorderFeature=ON\\|status=other\\|outcome=UNRESOLVED\\|basis=owner: Product Owner\\|required-input=approved behavior for non-Delivered statuses(?:\\r?\\n|$)"
         },
         {
-          "type": "contains_any",
-          "value": [
-            "Truth table",
-            "| Toggle",
-            "toggle"
-          ]
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)CELL\\|ReorderFeature=OFF\\|status=Delivered\\|outcome=UNRESOLVED\\|basis=owner: Product Owner\\|required-input=approved behavior when OFF for Delivered(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)CELL\\|ReorderFeature=OFF\\|status=other\\|outcome=UNRESOLVED\\|basis=owner: Product Owner\\|required-input=approved behavior when OFF for other statuses(?:\\r?\\n|$)"
         }
       ]
     },
     {
       "id": 3,
-      "prompt": "The Jira story says 'Only Market VN shows the invoice download button'. What impact analysis should I do before writing test cases?",
-      "expected_output": "Variable identification: Market (VN vs others), actor mapping (which roles can download), platform check (Web/Mobile parity), boundary analysis (what happens in MY/SG markets — hidden or error?), flag whether 'other markets' behavior is undefined",
+      "prompt": "The Jira story says 'Only Market VN shows the invoice download button'. What market boundary tags and non-VN behavior must be clarified before writing test cases?",
+      "expected_output": "Prefix AC with [Market: VN]. Clarify boundary behavior for non-VN markets (hidden vs disabled vs error) and ensure non-VN behavior is explicitly defined or raised as an open decision.",
       "assertions": [
         {
-          "type": "contains_any",
-          "value": [
-            "Variable",
-            "identify",
-            "impact analysis"
-          ]
+          "type": "contains",
+          "value": "Market: VN"
         },
         {
-          "type": "contains",
-          "value": "Market"
-        },
-        {
-          "type": "contains",
-          "value": "Mobile"
+          "type": "regex",
+          "value": "(?:non-VN|other market)"
         }
       ]
     },
@@ -118,23 +102,24 @@
     },
     {
       "id": 6,
-      "prompt": "The story has a VN-specific AC: 'VN {APP_NAME} users see a Tender Available tag'. How should this be written and what additional ACs are implied?",
-      "expected_output": "Mark AC with [Market: VN] prefix. Add implicit ACs: behavior for non-VN markets (tag hidden or not rendered), mandatory tender CTA label change to 'Buy with tender'. Platform tag [BOTH] or specify. Actor must be 'VN {APP_NAME} Customer'.",
+      "prompt": "Supplied story fact: VN users see a Tender Available tag on product cards. Actor role, CTA behavior, and non-VN treatment are unspecified. In this synthetic case Product Owner owns the actor-role and CTA questions; Market Owner owns non-VN treatment. Record the supplied fact and the remaining owned decisions using unpadded neutral schemas AC|<market boundary>|<supplied behavior> and DECISION|<open question>|<status>|<owner>|required input=<input>. Derive the decisions from the supplied facts; do not infer an actor or behavior.",
+      "expected_output": "Retain the VN-specific supplied tag behavior and separately record owned actor-role, CTA, and non-VN unknowns with required inputs.\nAC|Market: VN|Tender Available tag shown on product cards\nDECISION|actor role|UNRESOLVED|Product Owner|required input=approved actor role\nDECISION|CTA interaction|UNRESOLVED|Product Owner|required input=approved CTA interaction behavior\nDECISION|non-VN behavior|UNRESOLVED|Market Owner|required input=approved non-VN treatment",
       "assertions": [
         {
-          "type": "contains",
-          "value": "Market: VN"
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)AC\\|Market: VN\\|Tender Available tag shown on product cards(?:\\r?\\n|$)"
         },
         {
-          "type": "contains_any",
-          "value": [
-            "non-VN"
-          ],
-          "description": "Accepts the original or an equivalent skill-visible outcome"
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)DECISION\\|actor role\\|UNRESOLVED\\|Product Owner\\|required input=approved actor role(?:\\r?\\n|$)"
         },
         {
-          "type": "contains",
-          "value": "Actor"
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)DECISION\\|CTA interaction\\|UNRESOLVED\\|Product Owner\\|required input=approved CTA interaction behavior(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "(?:^|\\r?\\n)DECISION\\|non-VN behavior\\|UNRESOLVED\\|Market Owner\\|required input=approved non-VN treatment(?:\\r?\\n|$)"
         }
       ]
     }
