@@ -482,27 +482,27 @@
       ]
     },
     "common": {
-      "version": "2.8.7",
-      "last_updated": "2026-10-08",
+      "version": "2.8.8",
+      "last_updated": "2026-10-14",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 46,
-        "total_tokens": 39896,
-        "avg_tokens_per_skill": 867,
-        "largest_skill": "common-skill-creator (1693 tokens)"
+        "total_tokens": 40952,
+        "avg_tokens_per_skill": 890,
+        "largest_skill": "common-product-requirements (1740 tokens)"
       },
       "owners": [
         "HoangNguyen0403"
       ]
     },
     "quality-engineering": {
-      "version": "1.6.0",
-      "last_updated": "2026-09-14",
+      "version": "1.6.1",
+      "last_updated": "2026-10-14",
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 14,
-        "total_tokens": 11783,
-        "avg_tokens_per_skill": 842,
+        "total_tokens": 11956,
+        "avg_tokens_per_skill": 854,
         "largest_skill": "quality-engineering-zephyr-test-generation (1278 tokens)"
       },
       "owners": [
@@ -850,7 +850,7 @@
   },
   "releases": {
     "workflows": {
-      "version": "1.1.5",
+      "version": "1.1.6",
       "tag_prefix": "workflows-v"
     }
   },

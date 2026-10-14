@@ -10,6 +10,11 @@
 - **In Scope**: [Main outcomes]
 - **Out of Scope**: [Explicit exclusions]
 
+### Scope Tree / Capability Inventory (for substantial scope)
+<!-- Decompose into verb-object capabilities with one containment parent. Classify leaves as in_scope, deferred, or excluded. -->
+- [Capability Group]
+  - [Sub-capability]: in_scope | deferred | excluded [Linked REQ-ID or gap(ID, Owner, Input)]
+
 ## 2. Goals And Guardrails
 
 - **Primary Metric**: [metric + target + date]
@@ -45,6 +50,8 @@ _Strict format: As a [persona/role], I want to [Action], so that [Benefit]._
 - **Primary Flows**: [Step-by-step happy path]
 - **Alternate/Error Flows**: [Validation error, permission denied, timeout, empty state]
 - **Input/Output Boundaries**: [Key data in/out]
+- **Canonical Shared Rules**: [Single canonical definition for rules/functions referenced across multiple flows; flows reference by ID/name]
+- **Selected Views**: [Select view by question: process flow for order/responsibilities, decision table for interacting rules, state lifecycle for states, sequence for interactions. Diagrams optional when prose/tables suffice.]
 
 ## 7. Non-Functional Product Constraints
 
@@ -83,6 +90,14 @@ _Strict format: As a [persona/role], I want to [Action], so that [Benefit]._
 | ------------ | ------ | -------------- |
 | [YYYY-MM-DD] | [name] | [what changed] |
 
-## 13. Open Questions
+### Change Impact Analysis
+<!-- When requirements change, identify affected artifacts carrying existing IDs; do not reopen settled decisions. -->
+| Changed REQ | Affected ACs | Affected Contracts/Specs | Approvals / Evidence Needed |
+| ----------- | ------------ | ------------------------ | --------------------------- |
+| [REQ-xxx]   | [AC-xxx]     | [contract/spec]          | [approvals/test evidence]   |
 
-- [ ] [Question]
+## 13. Open Questions And Blocking Decisions
+
+
+- **Assumptions**: [testable non-critical assumptions; does not block progress]
+- **Blocking Decisions**: [Slice] | [Consequence] | [Owner] | [Required Input]
