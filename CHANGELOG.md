@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Requirements modeling**: Added canonical requirements modeling reference (`skills/common/common-product-requirements/references/requirements-modeling.md`) covering scope trees, process flows, decision tables, state models, and delivery dependency graphs.
 - **MCP `0.7.0` candidate**: Added explicit-manifest Codex JSONL and OMP v3 session accounting, including separately grouped OMP `model_usage`, preserved orchestration/cache-write buckets, Codex derived-delta containment with baseline recovery, order-independent cross-journal provenance redaction with a bounded global privacy-membership set, invalid-to-valid same-ID recovery with accepted-signature conflict detection, incomplete unknown metrics, and stop-on-limit behavior. Human output labels the transcript-message count accurately; packaged command is `ags-mcp-session-report`. Real-journal authorization remains a separate acceptance gate.
 - **Common `2.8.7` candidate**: Added version-2 revision-, workspace-, dirty-identity-, and evidence-content-bound progress receipts. Declared owner pause remains metadata, not host enforcement.
+- **Common `2.8.8` candidate**: Aligned requirements skills (`common-business-requirements`, `common-product-requirements`, `common-software-requirements`) with INVEST criteria, truth tables, and canonical requirements modeling reference.
+- **Quality Engineering `1.6.1` candidate**: Aligned `quality-engineering-business-analysis` with slice readiness checks and user story decision table truth matrices.
 ### Fixed
 
 - **Website verification tools**: Move to the Node 20-compatible Vitest 4.1.11 native worker pool to remove vulnerable Tinypool, upgrade Playwright to 1.55.1 for verified browser-installer certificates, and narrowly pin Lighthouse's FTP dependency to `basic-ftp` 6.2.1 and the local preview server to patched compression 1.8.2/minimatch 3.1.4. Keep dependency review and production dependency audit enabled. Retain exact animation-identity cancellation checks instead of duplicate CSS-event timestamp assumptions.
@@ -33,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Workflows**: `1.1.5` → `1.1.6`
 - **System Design**: `1.2.2` → `1.2.3`
+- **Common**: `2.8.7` → `2.8.8`
+- **Quality Engineering**: `1.6.0` → `1.6.1`
 ## [cli-v2.6.6] / [mcp-v0.6.1] - 2026-10-07
 
 **Category**: CLI Tool, MCP Server, Dependency Security

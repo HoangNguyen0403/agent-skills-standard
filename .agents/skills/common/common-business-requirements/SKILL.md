@@ -25,11 +25,11 @@ Frame the business "Why" before product or technical specs.
 ## 1. Discovery Workflow
 
 - Draft executive summary: purpose, outcome, sponsor, validation owner.
-- For vague "implement X" requests, draft BRD-lite first and ask only blocking BA questions with recommended defaults.
+- For vague "implement X" requests, draft BRD-lite first from supplied evidence; ask at most 3 consequential blocking questions with recommended defaults per `common-decision-discipline`. Never re-ask settled decisions.
 - Confirm business objective and success metric.
 - Identify sponsor, decision-maker, and impacted stakeholders.
 - Capture AS-IS process pain and TO-BE target state.
-- Define scope boundary, exclusions, assumptions, and constraints.
+- Define scope boundary, exclusions, assumptions, and constraints. Carry confirmed evidence and explicit non-critical assumptions; blocking unknowns name affected slice, consequence, owner, and required input—no unowned TBD at handoff.
 - Record value hypothesis: cost, revenue, risk, compliance, or cycle-time impact.
 - **Handoff Quality**: Identify the **Handoff Owner** (BA Lead) and the next accountable team member (Product Manager).
 - Add glossary terms when stakeholder or domain language can be misread.
@@ -49,15 +49,16 @@ Frame the business "Why" before product or technical specs.
 - Every objective has an owner and KPI target.
 - Every in-scope item has a rationale and out-of-scope pair.
 - Risk register includes mitigation owner.
-- Stakeholder approvals and unresolved decisions are explicit.
+- Stakeholder approvals and unresolved decisions are explicit; consequential unknowns block only affected slices.
 - Functional behavior is routed to PRD/SRS, not buried in BRD.
+- Sufficiently specified low-risk ticket maintenance may proceed with an in-chat contract without mandatory BRD document detours, provided it carries an accountable owner, approved scope fence, value rationale, and verification target.
 
 ## Anti-Patterns
 
 - No solution design in a Why-lane BRD; Direction-lane briefs record technical options per `common-decision-discipline`.
 - No vague goals ("improve efficiency") without baseline and target.
 - No missing owners for objectives or risks.
-- No coding or QA routing before the BA owner, value metric, and scope fence are clear.
+- No coding or QA routing before the accountable owner, value rationale/metric, and scope fence are clear (formal document artifacts may be omitted only with approved low-risk ticket equivalence).
 - No silent scope expansion after approval.
 - No jargon without glossary entry.
 

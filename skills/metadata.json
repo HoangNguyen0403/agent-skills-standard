@@ -482,8 +482,8 @@
       ]
     },
     "common": {
-      "version": "2.8.7",
-      "last_updated": "2026-10-08",
+      "version": "2.8.8",
+      "last_updated": "2026-10-14",
       "tag_prefix": "common-v",
       "token_metrics": {
         "total_skills": 46,
@@ -496,8 +496,8 @@
       ]
     },
     "quality-engineering": {
-      "version": "1.6.0",
-      "last_updated": "2026-09-14",
+      "version": "1.6.1",
+      "last_updated": "2026-10-14",
       "tag_prefix": "quality-engineering-v",
       "token_metrics": {
         "total_skills": 14,
