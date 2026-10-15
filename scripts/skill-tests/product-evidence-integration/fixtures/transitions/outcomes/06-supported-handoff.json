@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "run_id": "run-20261014-t06-06",
+  "slug": "supported-handoff",
+  "workflow": "validate-product",
+  "feature_status": "not_started",
+  "started_at": "2026-10-14T09:50:00Z",
+  "completed_at": "2026-10-14T09:55:00Z",
+  "requirement_trace": {
+    "brd_objectives": [
+      "BRD-OBJ-002"
+    ],
+    "requirements": [],
+    "acceptance_criteria": [],
+    "srs": []
+  },
+  "completed_evidence": [
+    "docs/product/supported-handoff/evidence.json#DEC-001:r1"
+  ],
+  "missing_evidence": [
+    "Commit-gate action eligibility (blocked by synthetic evidence and host approval gate)"
+  ],
+  "decision_needed": [
+    "Host reviews investment evidence and authorizes commit"
+  ],
+  "recommended_next_workflow": null,
+  "cost": {
+    "source": "unavailable"
+  },
+  "agent": {
+    "identity": "omp/google-antigravity/gemini-3.8-flash:medium",
+    "model": "gemini-3.8-flash"
+  }
+}

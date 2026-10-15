@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "run_id": "run-20261014-t06-03",
+  "slug": "invalidated-assumption",
+  "workflow": "validate-product",
+  "feature_status": "not_started",
+  "started_at": "2026-10-14T09:20:00Z",
+  "completed_at": "2026-10-14T09:25:00Z",
+  "requirement_trace": {
+    "brd_objectives": [],
+    "requirements": [],
+    "acceptance_criteria": [],
+    "srs": []
+  },
+  "completed_evidence": [
+    "docs/product/invalidated-assumption/evidence.json#EXP-001:r1"
+  ],
+  "missing_evidence": [],
+  "decision_needed": [
+    "Operator reviews refutation and approves defer / no-build"
+  ],
+  "recommended_next_workflow": "retro-learn",
+  "cost": {
+    "source": "unavailable"
+  },
+  "agent": {
+    "identity": "omp/google-antigravity/gemini-3.8-flash:medium",
+    "model": "gemini-3.8-flash"
+  }
+}

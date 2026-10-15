@@ -1,0 +1,692 @@
+{
+  "schema_version": 1,
+  "slug": "supported-handoff",
+  "product_id": "prod-006",
+  "revision": "r1",
+  "synthetic": true,
+  "updated_at": "2026-10-12T00:00:00Z",
+  "strategy_authority": "AUTH-000",
+  "strategy_gap": null,
+  "authorities": [
+    {
+      "id": "AUTH-000",
+      "domain": "strategy",
+      "locator": {
+        "kind": "local",
+        "path": "strat.md",
+        "sha256": "a5d095e8a2ce52851f9d1664ee6151976dd99c04a21d47d5a9a896768a39df08"
+      },
+      "revision": "sha256:a5d095e8a2ce52851f9d1664ee6151976dd99c04a21d47d5a9a896768a39df08",
+      "owner": "chief-product-officer",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "declared_ids": [],
+      "access": "available"
+    },
+    {
+      "id": "AUTH-001",
+      "domain": "business",
+      "locator": {
+        "kind": "local",
+        "path": "docs/brd/brd-conversion.md",
+        "sha256": "c02330c24b1b4d0c32468c594c760bdb96adcdedc156541c9019da8dd29f2535"
+      },
+      "revision": "sha256:c02330c24b1b4d0c32468c594c760bdb96adcdedc156541c9019da8dd29f2535",
+      "owner": "operator",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "declared_ids": [
+        "BRD-OBJ-002"
+      ],
+      "access": "available"
+    },
+    {
+      "id": "AUTH-002",
+      "domain": "authorization",
+      "locator": {
+        "kind": "local",
+        "path": "auth.md",
+        "sha256": "908787ccb8da09e4b386d65cc5b2080cbd8eb587208dbdc5989c2c1a443b6ea2"
+      },
+      "revision": "sha256:908787ccb8da09e4b386d65cc5b2080cbd8eb587208dbdc5989c2c1a443b6ea2",
+      "owner": "sponsor",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "declared_ids": [],
+      "access": "available"
+    }
+  ],
+  "authority_history": [],
+  "record_history": [],
+  "records": [
+    {
+      "id": "DEC-000",
+      "kind": "DEC",
+      "revision": "r1",
+      "owner": "sponsor",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "HYP-001",
+          "revision": "r1"
+        },
+        {
+          "id": "EXP-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "purpose": "learning",
+        "status": "recorded",
+        "outcome": "authorize",
+        "consumes": [
+          {
+            "id": "HYP-001",
+            "revision": "r1"
+          },
+          {
+            "id": "EXP-001",
+            "revision": "r1"
+          }
+        ],
+        "critical_claims": [],
+        "authority_id": "AUTH-002",
+        "authority_revision": "sha256:908787ccb8da09e4b386d65cc5b2080cbd8eb587208dbdc5989c2c1a443b6ea2",
+        "strategy_binding": null,
+        "artifact_bindings": [
+          {
+            "path": "auth.md",
+            "sha256": "908787ccb8da09e4b386d65cc5b2080cbd8eb587208dbdc5989c2c1a443b6ea2"
+          }
+        ],
+        "decided_at": "2026-10-02T00:00:00Z",
+        "rationale": "Authorized A/B testing",
+        "uncertainties": [],
+        "revisit_triggers": [
+          "test completes"
+        ],
+        "supersedes": null
+      }
+    },
+    {
+      "id": "SRC-001",
+      "kind": "SRC",
+      "revision": "r1",
+      "owner": "analytics",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "locator": {
+          "kind": "external",
+          "uri": "urn:synthetic:exp-results",
+          "snapshot_sha256": null
+        },
+        "origin": {
+          "publisher": "Telemetry",
+          "origin_id": "urn:synthetic:run-1",
+          "classification": "primary",
+          "revision": "run-r1",
+          "observed_at": "2026-10-10T00:00:00Z",
+          "scope": {
+            "segment": "enterprise-ops",
+            "geography": "global",
+            "window": {
+              "start": "2026-10-01T00:00:00Z",
+              "end": "2026-11-01T00:00:00Z"
+            }
+          }
+        },
+        "retrieved_at": "2026-10-11T00:00:00Z",
+        "privacy": {
+          "classification": "public",
+          "redaction": "none",
+          "access": "available"
+        },
+        "license": {
+          "identifier": "unknown",
+          "usage": "citation_only",
+          "restrictions": []
+        },
+        "status": "available",
+        "limitations": [
+          "Observed experiment data"
+        ]
+      }
+    },
+    {
+      "id": "CLM-001",
+      "kind": "CLM",
+      "revision": "r1",
+      "owner": "analytics",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "statement": "Simplified checkout improves completion",
+        "classification": "confirmed",
+        "sources": [
+          {
+            "id": "SRC-001",
+            "revision": "r1"
+          }
+        ],
+        "counterevidence": [],
+        "rationale": "Empirically supported by experiment",
+        "uncertainty": "Cohort variance < 2%",
+        "status": "supported",
+        "critical": true
+      }
+    },
+    {
+      "id": "OPP-001",
+      "kind": "OPP",
+      "revision": "r1",
+      "owner": "product-lead",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "CLM-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "problem": "Checkout friction",
+        "customer_job": "Fast purchase",
+        "claims": [
+          {
+            "id": "CLM-001",
+            "revision": "r1"
+          }
+        ],
+        "substitutes": [
+          "standard form"
+        ],
+        "alternatives": [
+          "defer"
+        ],
+        "status": "selected",
+        "rationale": "Validated opportunity"
+      }
+    },
+    {
+      "id": "MET-001",
+      "kind": "MET",
+      "revision": "r1",
+      "owner": "analytics",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "definition": "Checkout completion rate",
+        "unit": "ratio",
+        "denominator": "checkout starts",
+        "query": {
+          "id": "SRC-001",
+          "revision": "r1"
+        },
+        "query_revision": "run-r1",
+        "baseline": null,
+        "baseline_exception": null,
+        "comparison_window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        },
+        "eligibility": "Target shoppers",
+        "target": "0.65",
+        "guardrail": "payment errors < 0.005",
+        "measurement_owner": "analytics",
+        "review_trigger": "test completes",
+        "status": "observed"
+      }
+    },
+    {
+      "id": "HYP-001",
+      "kind": "HYP",
+      "revision": "r1",
+      "owner": "product-lead",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "OPP-001",
+          "revision": "r1"
+        },
+        {
+          "id": "MET-001",
+          "revision": "r1"
+        },
+        {
+          "id": "CLM-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "opportunity": {
+          "id": "OPP-001",
+          "revision": "r1"
+        },
+        "prediction": "Single-page checkout increases conversion to 65%",
+        "mechanism": "Reduced form fields",
+        "claims": [
+          {
+            "id": "CLM-001",
+            "revision": "r1"
+          }
+        ],
+        "primary_metric": {
+          "id": "MET-001",
+          "revision": "r1"
+        },
+        "disconfirmation": "Conversion <= 55%",
+        "status": "supported"
+      }
+    },
+    {
+      "id": "EXP-001",
+      "kind": "EXP",
+      "revision": "r1",
+      "owner": "analytics",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "HYP-001",
+          "revision": "r1"
+        },
+        {
+          "id": "MET-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "hypothesis": {
+          "id": "HYP-001",
+          "revision": "r1"
+        },
+        "method": "A/B test",
+        "eligibility": "Active shoppers",
+        "sample_plan": "1000 users",
+        "primary_metric": {
+          "id": "MET-001",
+          "revision": "r1"
+        },
+        "guardrails": [
+          {
+            "id": "MET-001",
+            "revision": "r1"
+          }
+        ],
+        "rules": {
+          "success": "rate >= 0.65",
+          "failure": "rate <= 0.55",
+          "inconclusive": "0.55 < rate < 0.65"
+        },
+        "bounds": {
+          "starts_at": "2026-10-02T00:00:00Z",
+          "ends_at": "2026-10-09T00:00:00Z",
+          "budget_cap": "100",
+          "currency": "USD",
+          "exposure_cap": 1000,
+          "stop_rules": [
+            "stop on errors"
+          ]
+        },
+        "authorization": null,
+        "status": "completed",
+        "result": {
+          "classification": "supported",
+          "sources": [
+            {
+              "id": "SRC-001",
+              "revision": "r1"
+            }
+          ],
+          "limitations": [
+            "Completed run with 0.68 rate"
+          ]
+        }
+      }
+    },
+    {
+      "id": "INV-001",
+      "kind": "INV",
+      "revision": "r1",
+      "owner": "product-lead",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "CLM-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "alternatives": [
+          {
+            "name": "do nothing",
+            "rationale": "forgoes 15% revenue"
+          },
+          {
+            "name": "build",
+            "rationale": "high positive ROI"
+          }
+        ],
+        "claims": [
+          {
+            "id": "CLM-001",
+            "revision": "r1"
+          }
+        ],
+        "financial_input": null,
+        "financial_result": null,
+        "nonmonetary": [
+          "Improves mobile buyer experience"
+        ],
+        "status": "reviewed",
+        "accounting_rationale": "Qualitative investment case reviewed"
+      }
+    },
+    {
+      "id": "DEC-001",
+      "kind": "DEC",
+      "revision": "r1",
+      "owner": "sponsor",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "OPP-001",
+          "revision": "r1"
+        },
+        {
+          "id": "HYP-001",
+          "revision": "r1"
+        },
+        {
+          "id": "EXP-001",
+          "revision": "r1"
+        },
+        {
+          "id": "INV-001",
+          "revision": "r1"
+        },
+        {
+          "id": "CLM-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "purpose": "investment",
+        "status": "recorded",
+        "outcome": "authorize",
+        "consumes": [
+          {
+            "id": "OPP-001",
+            "revision": "r1"
+          },
+          {
+            "id": "HYP-001",
+            "revision": "r1"
+          },
+          {
+            "id": "EXP-001",
+            "revision": "r1"
+          },
+          {
+            "id": "INV-001",
+            "revision": "r1"
+          }
+        ],
+        "critical_claims": [
+          {
+            "id": "CLM-001",
+            "revision": "r1"
+          }
+        ],
+        "authority_id": "AUTH-002",
+        "authority_revision": "sha256:908787ccb8da09e4b386d65cc5b2080cbd8eb587208dbdc5989c2c1a443b6ea2",
+        "strategy_binding": {
+          "authority_id": "AUTH-000",
+          "revision": "sha256:a5d095e8a2ce52851f9d1664ee6151976dd99c04a21d47d5a9a896768a39df08"
+        },
+        "artifact_bindings": [
+          {
+            "path": "auth.md",
+            "sha256": "908787ccb8da09e4b386d65cc5b2080cbd8eb587208dbdc5989c2c1a443b6ea2"
+          }
+        ],
+        "decided_at": "2026-10-11T12:00:00Z",
+        "rationale": "Authorized single-page checkout implementation based on supported test",
+        "uncertainties": [],
+        "revisit_triggers": [
+          "conversion falls below 60%"
+        ],
+        "supersedes": null
+      }
+    }
+  ],
+  "bridges": [
+    {
+      "record": {
+        "id": "DEC-001",
+        "revision": "r1"
+      },
+      "authority_id": "AUTH-001",
+      "authority_revision": "sha256:c02330c24b1b4d0c32468c594c760bdb96adcdedc156541c9019da8dd29f2535",
+      "ids": [
+        "BRD-OBJ-002"
+      ]
+    }
+  ],
+  "product_state": {
+    "value": "validated_for_scope",
+    "reason": "Supported experiment and authorized investment; ready for delivery",
+    "scope": {
+      "segment": "enterprise-ops",
+      "geography": "global",
+      "window": {
+        "start": "2026-10-01T00:00:00Z",
+        "end": "2026-11-01T00:00:00Z"
+      }
+    },
+    "hypotheses": [
+      {
+        "id": "HYP-001",
+        "revision": "r1"
+      }
+    ],
+    "decision": {
+      "id": "DEC-001",
+      "revision": "r1"
+    },
+    "assessed_at": "2026-10-12T00:00:00Z",
+    "history": [
+      {
+        "from": "unvalidated",
+        "to": "validating",
+        "at": "2026-10-02T00:00:00Z",
+        "reason": "Starting A/B test",
+        "decision": {
+          "id": "DEC-000",
+          "revision": "r1"
+        }
+      },
+      {
+        "from": "validating",
+        "to": "validated_for_scope",
+        "at": "2026-10-12T00:00:00Z",
+        "reason": "Test supported hypothesis and investment authorized",
+        "decision": {
+          "id": "DEC-001",
+          "revision": "r1"
+        }
+      }
+    ]
+  }
+}

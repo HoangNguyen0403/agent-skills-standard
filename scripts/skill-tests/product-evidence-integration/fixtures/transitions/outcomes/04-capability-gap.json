@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "run_id": "run-20261014-t06-04",
+  "slug": "capability-gap",
+  "workflow": "discover-product",
+  "feature_status": "not_started",
+  "started_at": "2026-10-14T09:30:00Z",
+  "completed_at": "2026-10-14T09:35:00Z",
+  "requirement_trace": {
+    "brd_objectives": [],
+    "requirements": [],
+    "acceptance_criteria": [],
+    "srs": []
+  },
+  "completed_evidence": [],
+  "missing_evidence": [
+    "Capability gap: common/common-product-evidence excluded; opt in at a reviewed ref and sync"
+  ],
+  "decision_needed": [
+    "Operator enables common/common-product-evidence in .skillsrc"
+  ],
+  "recommended_next_workflow": null,
+  "cost": {
+    "source": "unavailable"
+  },
+  "agent": {
+    "identity": "omp/google-antigravity/gemini-3.8-flash:medium",
+    "model": "gemini-3.8-flash"
+  }
+}

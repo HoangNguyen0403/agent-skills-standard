@@ -3355,7 +3355,7 @@ async function cliMain() {
   process.exit(0);
 }
 
-const isEntry = process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
+const isEntry = process.argv[1] && import.meta.url === pathToFileURL(fs.realpathSync(process.argv[1])).href;
 if (isEntry) {
   cliMain().catch(() => emitCliErrorEnvelope("INTERNAL_ERROR", "Unexpected fatal CLI error.", 4));
 }

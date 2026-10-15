@@ -1162,7 +1162,7 @@ function runCli() {
 // Check if run directly
 try {
   if (process.argv[1]) {
-    const entryUrl = pathToFileURL(process.argv[1]).href;
+    const entryUrl = pathToFileURL(fs.realpathSync(process.argv[1])).href;
     if (import.meta.url === entryUrl) {
       runCli();
     }

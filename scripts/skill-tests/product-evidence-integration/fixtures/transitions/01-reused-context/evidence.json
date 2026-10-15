@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "slug": "reused-context",
+  "product_id": "prod-001",
+  "revision": "r1",
+  "synthetic": true,
+  "updated_at": "2026-10-12T00:00:00Z",
+  "strategy_authority": null,
+  "strategy_gap": "Reused context under parent approval",
+  "authorities": [
+    {
+      "id": "AUTH-001",
+      "domain": "business",
+      "locator": {
+        "kind": "local",
+        "path": "docs/brd/brd-synthetic.md",
+        "sha256": "8a8f21a25b1799f44743c9faa798603d731c20f5c8f0cab271d15672c656a2cf"
+      },
+      "revision": "sha256:8a8f21a25b1799f44743c9faa798603d731c20f5c8f0cab271d15672c656a2cf",
+      "owner": "operator",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "declared_ids": [
+        "BRD-OBJ-001"
+      ],
+      "access": "available"
+    }
+  ],
+  "authority_history": [],
+  "record_history": [],
+  "records": [
+    {
+      "id": "SRC-001",
+      "kind": "SRC",
+      "revision": "r1",
+      "owner": "researcher",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "locator": {
+          "kind": "external",
+          "uri": "urn:synthetic:source-001",
+          "snapshot_sha256": null
+        },
+        "origin": {
+          "publisher": "Synthetic Analyst",
+          "origin_id": "urn:synthetic:orig-001",
+          "classification": "primary",
+          "revision": "pub-r1",
+          "observed_at": "2026-10-05T00:00:00Z",
+          "scope": {
+            "segment": "enterprise-ops",
+            "geography": "global",
+            "window": {
+              "start": "2026-10-01T00:00:00Z",
+              "end": "2026-11-01T00:00:00Z"
+            }
+          }
+        },
+        "retrieved_at": "2026-10-10T00:00:00Z",
+        "privacy": {
+          "classification": "public",
+          "redaction": "none",
+          "access": "available"
+        },
+        "license": {
+          "identifier": "unknown",
+          "usage": "citation_only",
+          "restrictions": []
+        },
+        "status": "available",
+        "limitations": [
+          "Synthetic test data"
+        ]
+      }
+    },
+    {
+      "id": "CLM-001",
+      "kind": "CLM",
+      "revision": "r1",
+      "owner": "researcher",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "SRC-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "statement": "Manual reconciliation introduces delay",
+        "classification": "confirmed",
+        "sources": [
+          {
+            "id": "SRC-001",
+            "revision": "r1"
+          }
+        ],
+        "counterevidence": [],
+        "rationale": "Confirmed in observation",
+        "uncertainty": "Minor variance across cohorts",
+        "status": "supported",
+        "critical": true
+      }
+    },
+    {
+      "id": "OPP-001",
+      "kind": "OPP",
+      "revision": "r1",
+      "owner": "strategist",
+      "scope": {
+        "segment": "enterprise-ops",
+        "geography": "global",
+        "window": {
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-11-01T00:00:00Z"
+        }
+      },
+      "depends_on": [
+        {
+          "id": "CLM-001",
+          "revision": "r1"
+        }
+      ],
+      "freshness": {
+        "status": "current",
+        "rationale": "Synthetic fixture",
+        "reviewed_at": "2026-10-10T00:00:00Z",
+        "expires_at": "2026-11-01T00:00:00Z",
+        "review_triggers": [
+          "fixture update"
+        ]
+      },
+      "data": {
+        "problem": "Reconciliation delay",
+        "customer_job": "Fast book closing",
+        "claims": [
+          {
+            "id": "CLM-001",
+            "revision": "r1"
+          }
+        ],
+        "substitutes": [
+          "spreadsheets"
+        ],
+        "alternatives": [
+          "defer"
+        ],
+        "status": "candidate",
+        "rationale": "High priority opportunity"
+      }
+    }
+  ],
+  "bridges": [
+    {
+      "record": {
+        "id": "OPP-001",
+        "revision": "r1"
+      },
+      "authority_id": "AUTH-001",
+      "authority_revision": "sha256:8a8f21a25b1799f44743c9faa798603d731c20f5c8f0cab271d15672c656a2cf",
+      "ids": [
+        "BRD-OBJ-001"
+      ]
+    }
+  ],
+  "product_state": {
+    "value": "unvalidated",
+    "reason": "Opportunity framed with approved business bridge; ready for planning",
+    "scope": {
+      "segment": "enterprise-ops",
+      "geography": "global",
+      "window": {
+        "start": "2026-10-01T00:00:00Z",
+        "end": "2026-11-01T00:00:00Z"
+      }
+    },
+    "hypotheses": [],
+    "decision": null,
+    "assessed_at": "2026-10-12T00:00:00Z",
+    "history": []
+  }
+}

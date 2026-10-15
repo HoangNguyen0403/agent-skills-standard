@@ -8,7 +8,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import os from "node:os";
 import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { validateProductEvidence as validateProductEvidenceRaw } from "../../../skills/common/common-product-evidence/scripts/validate-product-evidence.mjs";
 
@@ -2835,4 +2835,36 @@ test("14. External authority null snapshot is valid only when access is unavaila
   } finally {
     cleanupTempRoot(root);
   }
+});
+
+test("CLI invoked through a symlink executes the validator entrypoint", () => {
+  const { root, ledgerPath, ledger } = createResidualClosureFixture();
+  const symlinkPath = path.join(root, "validator-link.mjs");
+  try {
+    fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 2));
+    fs.symlinkSync(VALIDATOR_CLI, symlinkPath);
+    const args = [ledgerPath, "--authority-root", root, "--as-of", "2026-10-10T00:00:00Z", "--gate", "structural"];
+    const physical = spawnSync(process.execPath, [VALIDATOR_CLI, ...args], { encoding: "utf8" });
+    const linked = spawnSync(process.execPath, [symlinkPath, ...args], { encoding: "utf8" });
+
+    assert.equal(physical.status, 0, physical.stderr);
+    assert.equal(linked.status, physical.status, linked.stderr);
+    assert.equal(linked.stdout, physical.stdout);
+    assert.equal(linked.stderr, physical.stderr);
+    assert.equal(JSON.parse(linked.stdout).tool, "product-evidence-validator");
+  } finally {
+    cleanupTempRoot(root);
+  }
+});
+
+test("Importing the validator module does not invoke its CLI", () => {
+  const run = spawnSync(process.execPath, [
+    "--input-type=module",
+    "-e",
+    `await import(${JSON.stringify(pathToFileURL(VALIDATOR_CLI).href)}); process.stdout.write("IMPORT_ONLY\\n");`,
+  ], { encoding: "utf8" });
+
+  assert.equal(run.status, 0, run.stderr);
+  assert.equal(run.stdout, "IMPORT_ONLY\n");
+  assert.equal(run.stderr, "");
 });

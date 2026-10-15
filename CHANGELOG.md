@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Website verification tools**: Move to the Node 20-compatible Vitest 4.1.11 native worker pool to remove vulnerable Tinypool, upgrade Playwright to 1.55.1 for verified browser-installer certificates, and narrowly pin Lighthouse's FTP dependency to `basic-ftp` 6.2.1 and the local preview server to patched compression 1.8.2/minimatch 3.1.4. Keep dependency review and production dependency audit enabled. Retain exact animation-identity cancellation checks instead of duplicate CSS-event timestamp assumptions.
 - **Dependencies**: Bumped `inquirer` to 14.2.3, `js-yaml` to 5.4.3, and `pino-pretty` to 13.2.0 across cli, mcp, server, and root packages (combining PR #230 and PR #231); configured `allow-ghsas` in dependency review for unpatchable devDependency advisories GHSA-jmr9-qjv8-65gv and GHSA-7pqw-9j4j-h8q3 in website Lighthouse tooling.
+- **Product Evidence Resources**: Run the validator and investment calculator correctly through native-install symlinks by canonicalizing CLI entry paths; preserve side-effect-free library imports. Added symlink regressions and an offline installed-consumer CLI/MCP smoke harness.
 
 ### Changed
 

@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { evaluateInvestment } from "../../../skills/product-management/product-investment/scripts/evaluate-investment.mjs";
 
@@ -1089,6 +1089,34 @@ test("Scenario, item, horizon, and file-size limits accept the boundary and reje
       message: "Input file exceeds maximum size limit of 1 MiB."
     }]);
     assert.equal(rejected.stderr, "");
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test("CLI invoked through a symlink executes without changing import-only behavior", () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "pi-entry-test-"));
+  const symlinkPath = path.join(tmpDir, "calculator-link.mjs");
+  try {
+    const fixturePath = path.join(FIXTURES_DIR, "baseline-positive.json");
+    fs.symlinkSync(CALCULATOR_CLI, symlinkPath);
+    const physical = spawnSync(process.execPath, [CALCULATOR_CLI, fixturePath], { encoding: "utf8" });
+    const linked = spawnSync(process.execPath, [symlinkPath, fixturePath], { encoding: "utf8" });
+
+    assert.equal(physical.status, 0, physical.stderr);
+    assert.equal(linked.status, physical.status, linked.stderr);
+    assert.equal(linked.stdout, physical.stdout);
+    assert.equal(linked.stderr, physical.stderr);
+    assert.equal(JSON.parse(linked.stdout).tool, "investment-calculator");
+
+    const imported = spawnSync(process.execPath, [
+      "--input-type=module",
+      "-e",
+      `await import(${JSON.stringify(pathToFileURL(CALCULATOR_CLI).href)}); process.stdout.write("IMPORT_ONLY\\n");`,
+    ], { encoding: "utf8" });
+    assert.equal(imported.status, 0, imported.stderr);
+    assert.equal(imported.stdout, "IMPORT_ONLY\n");
+    assert.equal(imported.stderr, "");
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   }
