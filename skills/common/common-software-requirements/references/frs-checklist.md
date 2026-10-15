@@ -9,5 +9,5 @@
 - [ ] Normal course is separated from alternatives and exceptions.
 - [ ] External dependency behavior and timeouts are defined.
 - [ ] Permission and role constraints are included.
-- [ ] NFRs have numeric threshold and measurement method.
+- [ ] NFRs have numeric thresholds or categorical verifiable invariants (e.g. security/access controls) and measurement/verification methods.
 - [ ] Verification lane is mapped for each requirement.

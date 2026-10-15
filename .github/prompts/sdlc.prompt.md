@@ -1,13 +1,9 @@
 ---
 description: "Route a task to the next synced SDLC workflow based on current artifacts and repo state."
 ---
-
 # SDLC Router Workflow
-
 Goal: Select the next native workflow without loading every workflow body, while preserving a traceable BA -> PM -> IT Department handoff for offshore delivery.
-
 ## Steps
-
 1. Inspect state:
    - User request; infer `operator_profile` (business | hybrid | technical) per `common-operator-profile` and carry it in every Handoff Payload.
    - Search for the requested task's linked brief/ticket using its stable slug; do not select an unrelated newest document or infer task authority/approval from `git status`. If no matching approved task record exists, identify the missing authority/input and route to the appropriate intake. Slug = lowercase kebab-case, minted once at `brainstorm-feature`, reused verbatim downstream; never re-derived.
@@ -21,13 +17,12 @@ Goal: Select the next native workflow without loading every workflow body, while
    - SNC tier per `common-task-complexity-routing` or the scout `SNC:` line; label as inference until scouted.
 
 2. Choose next workflow (apply tie-break order when multiple bullets match: (1) workflow explicitly named by the operator or latest `recommended_next_workflow`, (2) production-incident/urgent-regression signals, (3) earliest missing required decision or task-linked authority/input—not a missing document filename—except sufficiently specified low-risk maintenance with approved evidence, (4) cross-cutting audits only on request or as a pre-release gate):
-   - Unclear idea, missing business case, owner, or measurable value (Why lane), or unclear technical direction with no BRD/PRD for the slug (Direction lane; exempts routine low-risk maintenance) -> `brainstorm-feature`
-   - BRD-lite exists or business direction is clear but product scope, priorities, acceptance criteria, rollout, or delivery plan are unclear (PRD / What, PM-owned planning) -> `plan-feature`
-   - Scale, topology, capacity, or store choice unsettled, or an existing system needs an architecture audit -> `system-design-session`
-   - PRD exists but technical behavior/contracts unclear (SRS/FRS / How) -> `design-solution`
-   - Architecture, auth, trust boundaries, compliance controls, or agent/runtime safety need deeper technical validation -> `design-solution`
-   - BRD-lite, PRD, or SRS/FRS exists but readiness unclear -> `implementation-readiness`
-   - Approved plan with BRD/PRD/SRS trace and testable ACs, or sufficiently specified low-risk maintenance with an approved in-chat/brief contract, needs code -> `implement-feature`
+   - Unclear idea, missing business case, owner, or measurable value (Why lane), or unclear technical direction without BRD/PRD (Direction lane; exempts routine low-risk maintenance) -> `brainstorm-feature`
+   - BRD-lite exists or business direction clear but product scope, priorities, ACs, rollout, delivery plan unclear -> `plan-feature` (explicitly loads `common-product-requirements` and on-demand `references/requirements-modeling.md`)
+   - Scale, topology, capacity, or store choice unsettled, or existing system needs architecture audit -> `system-design-session`
+   - PRD exists but technical behavior/contracts unclear (SRS/FRS / How), or auth/trust-boundary/sensitive validation needed -> `design-solution`
+   - BRD-lite, PRD, or SRS/FRS exists but readiness/change impact unclear -> `implementation-readiness`
+   - Approved plan with trace and testable ACs, or approved low-risk maintenance contract, needs code -> `implement-feature`
    - Production incident or urgent regression -> `incident-hotfix`
    - Control-band breach or scheduled security-scan result needs tiered diagnosis -> `monitor-respond`
    - Bug ticket needs fix (non-urgent) -> `dev-fix`
@@ -44,19 +39,18 @@ Goal: Select the next native workflow without loading every workflow body, while
    - Session ending with unfinished work or context handoff -> `session-report`
    - Deployed or communicated, capture standards/process lessons -> `retro-learn`
    - Repo-wide health/debt question with no single feature in scope -> `codebase-review`
-
 3. Enforce handoff quality:
    - Governed/high-risk delivery requires full traceability: BA output links business objectives; PM links requirements/ACs in `docs/prd/`; IT handoff defines architecture in `docs/srs/`.
-   - Low-risk maintenance exception: Sufficiently specified routine fixes, maintenance, or tasks with an approved in-chat/brief contract route directly to `dev-fix` or `implement-feature` without creating separate BRD/PRD/SRS files or restarting intake.
+   - Low-risk maintenance exception: Sufficiently specified routine fixes/maintenance with approved in-chat/brief contract route directly to `dev-fix` or `implement-feature` without creating separate BRD/PRD/SRS files or restarting intake; never waives behavioral ACs, owner, approval, scope fence, or verification lane.
    - Downstream specialist workers execute against assigned briefs and must not reload or repeat parent intake.
    - Sensitive-change risk floor: Changes touching auth, payments, data integrity, secrets, or trust boundaries enforce minimum `tier=medium` (or `tier=high`), requiring `design-solution` and human approval before coding.
+   - Change impact & scope gaps: Changing requirements review affected ACs, contracts, approvals, and evidence without reopening settled decisions; product scope gaps route to planning and technical contract uncertainty routes to design.
    - Keep payloads runtime-neutral; adapters may map them to task boards, MCP, Jira, GitHub, ADO, Zephyr, or local files.
 4. Set runtime state:
    - Interactive: ask max 3 blocking questions.
    - Autonomous/channel: continue only when required artifacts and owners are known; otherwise return BLOCKED.
    - Emit next workflow, handoff payload, verification command, and owner.
    - Tier drives autonomy: low -> autonomous + `fast` review; medium -> TDD + self-review + `deep` review; high -> plan-first HARD STOP, independent reviewers, human merge approval.
-
 ## Runtime Contract
 - Use to select the next workflow without loading every workflow body.
 - Required inputs: user request plus repo/artifact state.
@@ -65,29 +59,18 @@ Goal: Select the next native workflow without loading every workflow body, while
 - `slug`, `operator_profile`, `snc_tier`, `model_tier`, recommended workflow, requirement layer, handoff owner, required input, blocking gaps, offshore delivery notes.
 ## Blocking Questions
 - Ask max 3 at a time with a recommended default and 2-3 options.
-
 ## Output Template
-
 ```md
 # SDLC Route
-
 ## Recommended Workflow
-
 ## Requirement Layer
-
 ## Handoff Owner
-
 ## Required Input
-
 ## Blocking Gaps
-
 ## Offshore Delivery Notes
-
 ## Outcome Report
 {schema_version: 1, run_id: "[run-id]", slug: "[slug]", workflow: sdlc, feature_status: not_started, started_at: "[timestamp]", completed_at: "[timestamp]", requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}, completed_evidence: [], missing_evidence: [], decision_needed: [], recommended_next_workflow: brainstorm-feature, cost: {source: unavailable}, agent: {identity: "[agent-identity]", model: "[model]"}}
-
 ## Next Workflow
-
 ## Verification Command
 ## Cost Report
 Call `get_session_cost(workflow="sdlc")` before final handoff.

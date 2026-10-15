@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **MCP `0.7.0` candidate**: Added explicit-manifest Codex JSONL and OMP v3 session accounting, including separately grouped OMP `model_usage`, preserved orchestration/cache-write buckets, Codex derived-delta containment with baseline recovery, order-independent cross-journal provenance redaction with a bounded global privacy-membership set, invalid-to-valid same-ID recovery with accepted-signature conflict detection, incomplete unknown metrics, and stop-on-limit behavior. Human output labels the transcript-message count accurately; packaged command is `ags-mcp-session-report`. Real-journal authorization remains a separate acceptance gate.
 - **Common `2.8.7` candidate**: Added version-2 revision-, workspace-, dirty-identity-, and evidence-content-bound progress receipts. Declared owner pause remains metadata, not host enforcement.
+- **Requirements Modeling Guide**: Added `references/requirements-modeling.md` to `common-product-requirements` establishing on-demand guidance for verb-object capability scope trees (single containment parent; `in_scope`, `deferred`, `excluded` leaves), stop rules, canonical shared rules without duplicate definitions, question-driven view selection (diagrams optional when prose/tables suffice), low-risk ticket equivalence, sensitive-change risk floors, and scoped change-impact analysis preserving settled IDs.
 
 ### Fixed
 
@@ -20,7 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **SDLC workflows**: Bind routing to task-linked approved evidence, keep product planning separate from technical design, and make readiness handoffs explicitly slice-scoped with distinct source-ready and machine-activation states.
+- **SDLC workflows**: Updated `brainstorm-feature`, `plan-feature`, `design-solution`, `implementation-readiness`, and `sdlc` to reference on-demand requirements modeling, bind routing to task-linked approved evidence, keep product planning separate from technical design, enforce slice-scoped PARTIAL readiness with named owners/inputs, evaluate scope coverage and conflicts before READY/PARTIAL, distinguish legitimate loops from dependency cycles, and support low-risk maintenance tickets without mandatory document detours.
+- **Product requirements & Business analysis**: Integrated capability scope tree decomposition, canonical shared definitions without duplication, question-driven view selection, low-risk ticket equivalence preserving behavioral AC/owner/approval/verification lane, and scoped change-impact analysis preserving settled IDs.
 - **System design**: Select specialist dives from unresolved consequential risks across linked references; make redraw conditional across intake and review outputs; qualify scorecard anchors, readiness and verdicts by evidence scope; choose sync/async boundaries from consistency and failure requirements.
 - **Evaluations**: Replace fixed-quota/label/optional-mechanism snapshots with invariant-focused cases; keep semantic acceptance separate from lexical smoke checks.
 
@@ -28,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Workflows**: `1.1.4` → `1.1.5`
 - **System Design**: `1.2.2` → `1.2.3`
+- **Common Skills**: `2.8.7` → `2.8.8`
+- **Quality Engineering**: `1.6.0` → `1.6.1`
+- **Workflows**: `1.1.5` → `1.1.6`
 
 ## [cli-v2.6.6] / [mcp-v0.6.1] - 2026-10-07
 

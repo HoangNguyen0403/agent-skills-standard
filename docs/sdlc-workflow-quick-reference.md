@@ -39,6 +39,29 @@ Use the task-linked approved brief/ticket and its stable slug. An unrelated newe
 
 `implementation-readiness` returns READY only for named slices with owners, required approval and verification lanes. PARTIAL passes only named ready slices; blocked slices retain their owners and missing inputs and cannot be absorbed downstream. BLOCKED does not recommend unconditional implementation. Preserve the existing Outcome Report schema and `recommended_next_workflow`.
 
+### Question-Driven Modeling And Completeness
+
+For substantial scope, multi-actor workflows, interacting rules, or multiple delivery slices, load `common-product-requirements/references/requirements-modeling.md` on demand. Decompose capabilities using verb-object naming into a scope tree with single containment parents and explicit leaf classification (`in_scope`, `deferred`, `excluded`). Stop decomposition when actor, trigger, intended result, rules/exceptions, boundary, and verification permit estimation and assignment. Domain omissions (such as overdue handling or transaction rollback) must be raised as explicit scope decisions for owner disposition rather than silently omitted or implemented. Define shared rules and functions canonically once and reference them across flows without duplicate definitions.
+
+### Existing Diagram Capability Reuse
+
+Select structured representations and views strictly based on the question being addressed:
+- Scope tree: capability bounds and completeness.
+- Process flow: end-to-end responsibilities and step order (Mermaid flowchart).
+- Decision table: interacting rules and combinatorial conditions (markdown truth table).
+- State lifecycle: entity states and transitions (`state` spec in `common-architecture-diagramming`).
+- Sequence: call protocols and interaction order over time (`sequence` spec in `common-architecture-diagramming`).
+- Delivery graph: schedulable prerequisite dependencies (business loops != delivery-dependency cycles).
+
+Diagrams remain optional when markdown tables or prose answer the question precisely and unambiguously. Reuse existing diagram capabilities; no new renderer engine is required.
+
+### Low-Risk Evidence And Sensitive Floors
+
+Sufficiently specified routine fixes, maintenance, or single-component changes with approved evidence (approved ticket with behavioral AC, accountable owner, scope fence, approval, and verification lane) satisfy readiness without mandatory separate BRD/PRD/SRS files or full modeling detours. However, changes touching authentication, secrets, monetary flows, data integrity, or trust boundaries enforce sensitive minimum floors requiring technical design and human approval before coding.
+
+### Scoped Change Impact And Canonical Guidance
+
+When requirements change, trace affected ACs, contracts, approvals, and verification evidence carrying existing IDs (`BRD-OBJ-*`, `REQ-*`, `AC-*`, `SRS-*`); do not reopen settled decisions or unrelated requirements. Keep provider, account, profile, model, and workstation specifics in host planning records only, not canonical guidance.
 ## Guidance Release And Activation
 
 For workflow source changes, update `releases.workflows.version` once for the settled shared workflow bundle, then generate native mirrors. If a source change is rolled back, revert canonical sources and regenerate mirrors before consumers sync. A source revision or PR does not prove consumer installation or runtime activation; record source delivery and machine activation separately.
@@ -115,8 +138,8 @@ Authority concentrates at gates. Automation runs freely between them.
 Start with any practice that has no prerequisite, then follow the arrows.
 
 - No prerequisite: `common-agent-guardrails`, `brainstorm-feature`, `common-tdd` feedback loop, instruction-file hygiene.
-- `plan-feature`, `design-solution` <- a committed BRD-lite.
-- `implementation-readiness`, `implement-feature` <- PRD and SRS with testable ACs.
+- `plan-feature`, `design-solution` <- task-linked approved intent or product evidence (sufficiently specified low-risk maintenance with approved task tickets may proceed without a separate BRD-lite).
+- `implementation-readiness`, `implement-feature` <- behavioral ACs, accountable owner, approved scope fence, and verification lane plus applicable design/test prerequisites (supplied by PRD and SRS or an equivalent approved low-risk record, while preserving sensitive human/design floors and ready-only PARTIAL).
 - `code-review`, `review-ticket` <- `docs/review-policy.md` and the framework skills.
 - `evals-run` config gate <- eval definitions plus a stable command to run them.
 - `deploy-release` tiers <- guardrail approval gates and a rehearsed rollback.
@@ -225,8 +248,8 @@ Jira, GitHub, GitLab, Azure DevOps, Zephyr, and similar MCPs are optional integr
 When running workflows in sequence (e.g., `brainstorm` -> `plan` -> `implement`):
 
 1. **The Slug**: Workflows use a consistent `[slug]` in the filename (e.g., `brd-payment.md`, `prd-payment.md`).
-2. **Context Resolution**: If you don't specify the feature in your follow-up, the agent uses **Recency Bias**—it checks the most recently modified files in `docs/brd/`, `docs/prd/`, etc., or newly created files in `git status` to automatically re-anchor to your current task.
-3. **Multi-Doc Handling**: If multiple candidate slugs exist and the intent is ambiguous, the agent will ask: "I see `checkout` and `payment` files were recently modified. Which one are we planning?"
+2. **Context Resolution**: In follow-ups without an explicit feature name, the agent resolves context using the current task's established slug and its linked authoritative record. If the link is missing or ambiguous, the agent identifies the owned missing input or asks which matching record is authoritative; it never infers authority or approval from timestamps, `git status`, or the newest artifact.
+3. **Multi-Record Handling**: If multiple candidate task records exist and the intent is ambiguous, the agent asks which matching record or brief is authoritative rather than selecting automatically by file recency.
 
 ## Role Quick Reference
 

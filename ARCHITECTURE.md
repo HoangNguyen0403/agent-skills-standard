@@ -103,6 +103,15 @@ Requirement layering is explicit in the SDLC workflow names and outputs:
 - `implementation-readiness` and later phases enforce living traceability updates across BRD-lite -> PRD -> SRS/FRS -> verification evidence
 - Core SDLC outputs include an adapter-neutral Outcome Report (`feature_status`, `requirement_trace`, completed evidence, missing evidence, decision needed, recommended next workflow) so runtimes can report whether work is not started, requirements-ready, design-ready, partial, implemented, or blocked without embedding project-specific orchestration concepts.
 
+### Requirements Modeling & View Selection
+
+Complex feature discovery uses progressive disclosure: `common-product-requirements` loads `references/requirements-modeling.md` on demand for substantial scope, multi-actor flows, or interacting rules.
+
+1. **Scope Tree Decomposition**: Capabilities use active verb-object naming in a strict hierarchy with a single containment parent per node. Leaves are explicitly classified as `in_scope`, `deferred`, or `excluded`. Decomposition stops when actor, trigger, intended result, rules/exceptions, boundary, and verification permit estimation and assignment. Domain omissions must be raised as explicit scope decisions for owner disposition rather than silently omitted or implemented.
+2. **Canonical Shared Rules**: Logic invoked across multiple flows is defined canonically once; flows reference it by ID/name without duplicate definitions.
+3. **Question-Driven View Selection & Diagram Reuse**: Structured representations are chosen by the question addressed: scope tree for capabilities, process flow for order/responsibilities, decision table for interacting rules, state lifecycle for states, sequence for interactions, and delivery graph for schedulable work prerequisites. Diagrams remain optional when markdown tables or prose answer the question precisely and unambiguously. Diagramming reuses existing capabilities (`common-architecture-diagramming` for C4/sequence/state specs rendered to `.drawio`, inline Mermaid for markdown flowcharts); no new rendering engine is needed.
+4. **Low-Risk Equivalence & Sensitive Floors**: Approved maintenance tickets with behavioral AC, accountable owner, scope fence, approval, and verification lane satisfy readiness without mandatory document writing. However, changes touching authentication, secrets, monetary flows, data integrity, or trust boundaries enforce sensitive floors requiring technical design and human approval before coding.
+5. **Scoped Change Impact & Guidance Portability**: Changing requirements trace affected ACs, contracts, approvals, and verification evidence carrying existing IDs (`BRD-OBJ-*`, `REQ-*`, `AC-*`, `SRS-*`) without reopening settled decisions or unrelated requirements. Canonical guidance remains host-neutral; provider, account, profile, model, and machine specifics belong in host planning records only.
 ## 4. Hook-Based Transparency
 
 Inspired by **Rust Token Killer (RTK)**, we aim for a zero-trust, low-overhead context model. This means:
