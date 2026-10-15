@@ -46,11 +46,27 @@
       "assertions": [
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)READINESS\\|order cancellation implementation\\|NOT READY\\|NOT AUTHORIZED\\|behavioral acceptance criteria and verified prerequisites absent(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)READINESS\\|order cancellation implementation\\|NOT READY\\|NOT AUTHORIZED\\|(?=[^|\\r\\n]*\\bbehavioral acceptance criteria\\b)(?=[^|\\r\\n]*(?:absent|missing|unverified))[^|\\r\\n]*(?:\\r?\\n|$)"
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)NEXT\\|implementation\\|BLOCKED UNTIL\\|behavioral acceptance criteria and verified prerequisites\\|requirements/planning(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)NEXT\\|implementation\\|BLOCKED UNTIL\\|(?=[^|\\r\\n]*\\bbehavioral acceptance criteria\\b)(?=[^|\\r\\n]*\\bprerequisites\\b)[^|\\r\\n]+\\|requirements/planning(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)READINESS\\|order cancellation implementation\\|(?!NOT READY\\|NOT AUTHORIZED\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)NEXT\\|implementation\\|(?!BLOCKED UNTIL\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)READINESS\\|order cancellation implementation\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?READINESS\\|order cancellation implementation\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)NEXT\\|implementation\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?NEXT\\|implementation\\|)[\\s\\S]*$"
         }
       ]
     }

@@ -24,28 +24,20 @@ metadata:
 ## 1. Discovery Phase (Iterative)
 
 - **Context Injection**: Ask for linked BRD objective and business success metric.
-- **Gap Analysis**: Identify missing info. For substantial scope, build a verb-object scope tree (one containment parent; leaves: `in_scope`, `deferred`, `excluded`). Stop decomposition when actor, trigger, intended result, rules/exceptions, boundary, and verification permit estimation and assignment.
-- **Question Discipline**:
-  - Draft first from supplied evidence; ask at most 3 consequential questions per round per `common-decision-discipline`.
-  - Provide recommended defaults and 2–3 concrete options to reduce user friction.
-  - Never re-ask settled decisions or facts.
+- **Scope Gate**: For substantial scope, load [requirements modeling](references/requirements-modeling.md) for decomposition stop rules and completeness review; each in-scope leaf maps to a `REQ-*`/`AC-*` or owned gap.
+- **Question Discipline**: Draft from supplied evidence; ask at most 3 consequential questions per round (`common-decision-discipline`) with recommended defaults and 2–3 concrete options. Never re-ask settled facts.
 
 ## 2. Drafting Phase (System of Record)
 
-- **Filesystem**: Ensure `docs/prd/` exists.
-- **Load Template & Modeling**: Read `references/prd-template.md`. For substantial scope, load `references/requirements-modeling.md`.
-- **Slug Alignment**: Use the same `[slug]` from the source `docs/brd/brd-[slug].md` to maintain filename-level traceability.
-- **Fill & Evidence**: Map discovery answers to template. Carry confirmed evidence and explicit non-critical assumptions; blocking unknowns name affected slice, consequence, owner, and required input—no unowned TBD at handoff.
-- **Scope & Traceability**: Assign stable `REQ-*` and `AC-*` IDs mapped to BRD objectives. Every in-scope leaf links to REQ/AC or a named gap (`gap(<id>, <owner>, <input>)`). Define shared rules/functions canonically once and reference across flows without duplicate definitions.
-- **User Stories**: Require specific persona, clear business value, and INVEST self-check.
-- **Acceptance Criteria**: Use Given/When/Then for one observable behavior per AC across happy, edge, and negative paths; multiple necessary preconditions are permitted (do not split solely on 'And'). Interacting conditions use truth tables and owner decisions rather than selecting business policy silently.
-- **View Selection**: Select views by question: scope tree=capabilities; process flow=order/responsibilities; decision table=rules; state=lifecycle; sequence=interactions; delivery graph=work prerequisites. Diagrams optional when prose/tables suffice; reuse existing C4/state/sequence specs or Mermaid.
-- **Implementation Gate**: Do not hand off to engineering until each slice names behavioral AC, accountable owner, priority, and verification lane (using formal REQ-*/AC-* IDs or confirmed low-risk ticket equivalence).
-- **Handoff Quality & Change Impact**: Name requirement owners, status, rollout/ops. When requirements change, trace affected ACs/contracts/approvals/evidence carrying existing IDs; do not reopen settled decisions.
-- **Readiness Route**: Existing code without behavioral AC proof is partial/unverified; route through `implementation-readiness`. Bounded low-risk equivalence (approved ticket with behavioral AC, accountable owner, scope fence, approval, and verification lane) may replace separate PRD files and formal IDs; retain sensitive approval floors and slice-level PARTIAL boundaries.
+- **Filesystem**: Ensure `docs/prd/` exists. Write spec to `docs/prd/prd-[slug].md` preserving slug from `docs/brd/brd-[slug].md`.
+- **Templates & References**: Read `references/prd-template.md`. Load `references/requirements-modeling.md` on-demand for scope trees, decision tables, state/lifecycle, and change impact.
+- **Unknowns Classification**: Carry confirmed evidence (`confirmed(<source>)`) and explicit non-critical assumptions (`assumed(<hypothesis>)`). Blocking decisions (`blocked(<slice>, <owner>, <input>)`) name affected slice, consequence, owner, and required input—no unowned TBD at handoff.
+- **Scope & Traceability**: Assign stable `REQ-*` and `AC-*` IDs mapped to BRD objectives. Every in-scope leaf links to REQ/AC or an owned gap (`gap(<id>, <owner>, <input>)`). Define shared rules/functions canonically once; flows reference by ID/name without duplicate definitions.
+- **User Stories & ACs**: Require specific persona, business value, and INVEST check. Use Given/When/Then for one observable behavior per AC across happy, edge, and negative paths; multiple preconditions are permitted. Interacting conditions use truth tables and owner decisions rather than silently selecting policy.
+- **View Selection**: Choose a view that answers the open scope, behavior, or dependency question; use the shared requirements-modeling reference on demand. Diagrams remain optional when prose or tables are precise.
+- **Implementation Gate & Readiness**: Engineering handoff requires behavioral AC, accountable owner, priority, and verification lane per slice. Unverified code routes to `implementation-readiness`. Bounded low-risk equivalence (approved ticket with behavioral AC, accountable owner, scope fence, approval, verification lane) satisfies readiness without separate documents; sensitive changes still require technical design and explicit human/governance approval per [requirements modeling §1](references/requirements-modeling.md#1-applicability--sizing-gate).
+- **Change Impact**: When requirements change, trace affected ACs, downstream contracts, approvals, and verification evidence carrying existing IDs without reopening settled decisions.
 - **Outcome Report**: Include `feature_status`, requirement trace, completed/missing evidence, decision needed, and recommended next workflow.
-- **Living Spec**: Include analytics, risks, rollout, decisions, and changelog.
-- **Output**: Write to `docs/prd/prd-[slug].md`.
 
 ## 3. Verification Checklist (Mandatory)
 
@@ -84,6 +76,7 @@ metadata:
 ## Canonical response anchors
 
 When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+
 - Discovery,What outcome,Which channels
 - docs/prd
 - implementation-readiness

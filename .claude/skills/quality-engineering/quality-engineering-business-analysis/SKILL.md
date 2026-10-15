@@ -1,22 +1,23 @@
 ---
 name: quality-engineering-business-analysis
-description: 'Investigate requirements via atomic AC decomposition, actor/permission matrices, and truth-table edge cases; enforce User Story standards (scope fences, platform tags, toggles). Use when writing/reviewing Stories or AC with multi-condition logic, feature toggles, or market variants (VN/MY/SG).'
+description: "Investigate requirements via atomic AC decomposition, actor/permission matrices, and truth-table edge cases; enforce User Story standards (scope fences, platform tags, toggles). Use when writing/reviewing Stories or AC with multi-condition logic, feature toggles, or market variants (VN/MY/SG)."
 metadata:
   triggers:
     files:
-    - '**/user_story.md'
+      - "**/user_story.md"
     keywords:
-    - acceptance criteria
-    - AC
-    - business rules
-    - jira story
-    - toggle
-    - market
-    - write user story
-    - improve user story
-    - review story
-    - BA
+      - acceptance criteria
+      - AC
+      - business rules
+      - jira story
+      - toggle
+      - market
+      - write user story
+      - improve user story
+      - review story
+      - BA
 ---
+
 # Business Analysis Standards (Deep Analysis + Story Authoring)
 
 ## **Priority: P0 (CRITICAL)**
@@ -43,7 +44,7 @@ metadata:
 ## 4. Anti-Patterns (Analysis)
 
 - **No Surface Reading**: investigate _implications_, don't restate.
-- **No Unowned Unknowns**: Carry confirmed evidence and explicit non-critical assumptions. Consequential undefined states block only affected slices (naming owner, consequence, and required input); retain sensitive approval floors and PARTIAL readiness boundaries rather than blanket P0 blocking.
+- **No Unowned Unknowns**: Carry confirmed evidence and explicit non-critical assumptions. Consequential undefined states block only affected slices (naming owner, consequence, and required input); preserve PARTIAL readiness boundaries. Sensitive changes require technical design and explicit human/governance approval per [requirements modeling §1](../../common/common-product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate), not blanket P0 blocking.
 - **No Loose Mapping**: Ensure AC aligns 100% with Technical Impact notes.
 
 ## 5. User Story Authoring Standards
@@ -81,6 +82,7 @@ Run after authoring or reviewing any User Story before marking it ready for deve
 ## Canonical response anchors
 
 When this skill applies, preserve the following domain terminology or equivalent concrete examples in the answer when relevant:
+
 - Actor
 - Mobile
 - Variable

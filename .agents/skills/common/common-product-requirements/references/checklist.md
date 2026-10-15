@@ -20,8 +20,8 @@ Before finalizing the PRD, verify the following:
 - [ ] **Path Coverage**: Does each meaningful story cover happy, edge, and negative paths?
 - [ ] **INVEST**: Are stories independent, negotiable, valuable, estimable, small, and testable?
 - [ ] **Error Path**: Is there at least one requirement for error handling/failure states?
-
 - [ ] **View Selected by Question?**: Are views and diagrams selected based strictly on the question being addressed (scope tree=capabilities, process=order, decision table=rules, state=lifecycle, sequence=interactions), with prose/tables used when sufficient?
+
 ## Clarity
 
 - [ ] **No Tech Jargon in Stories**: User stories should be understandable by a non-technical PO.

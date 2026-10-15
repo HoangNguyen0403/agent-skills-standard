@@ -8,15 +8,23 @@
       "assertions": [
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)REQUIREMENT\\|notification-delivery\\|in-app\\|CONFIRMED\\|Product Owner\\|[^\\r\\n|]+(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)REQUIREMENT\\|notification-delivery\\|in-app\\|CONFIRMED\\|Product Owner\\|[^|\\r\\n]+(?:\\r?\\n|$)"
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)REQUIREMENT\\|notification-delivery\\|email\\|CONFIRMED\\|Product Owner\\|[^\\r\\n|]+(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)REQUIREMENT\\|notification-delivery\\|email\\|CONFIRMED\\|Product Owner\\|[^|\\r\\n]+(?:\\r?\\n|$)"
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)DECISION\\|quiet-hours\\|UNRESOLVED\\|Product Owner\\|required-input=approved quiet-hours policy(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)DECISION\\|quiet-hours\\|UNRESOLVED\\|Product Owner\\|required-input=[^|\\r\\n]*quiet-hours[^|\\r\\n]*(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DECISION\\|quiet-hours\\|(?!UNRESOLVED\\|Product Owner\\|required-input=[^|\\r\\n]*quiet-hours)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)DECISION\\|quiet-hours\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?DECISION\\|quiet-hours\\|)[\\s\\S]*$"
         }
       ]
     },
@@ -77,11 +85,27 @@
       "assertions": [
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)READINESS\\|feature completion\\|NOT READY\\|NOT AUTHORIZED\\|missing behavioral acceptance criteria\\|Product Owner(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)READINESS\\|feature completion\\|NOT READY\\|NOT AUTHORIZED\\|[^|\\r\\n]*(?:missing|absent)[^|\\r\\n]*behavioral acceptance criteria[^|\\r\\n]*\\|Product Owner(?:\\r?\\n|$)"
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)NEXT\\|ticket closure\\|BLOCKED UNTIL\\|behavioral acceptance criteria\\|PM planning\\|Product Owner(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)NEXT\\|ticket closure\\|BLOCKED UNTIL\\|[^|\\r\\n]*behavioral acceptance criteria[^|\\r\\n]*\\|PM planning\\|Product Owner(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)READINESS\\|feature completion\\|(?!NOT READY\\|NOT AUTHORIZED\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)NEXT\\|ticket closure\\|(?!BLOCKED UNTIL\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)READINESS\\|feature completion\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?READINESS\\|feature completion\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)NEXT\\|ticket closure\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?NEXT\\|ticket closure\\|)[\\s\\S]*$"
         }
       ]
     },
@@ -92,19 +116,43 @@
       "assertions": [
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)REQUIREMENT\\|role accountability\\|MISSING\\|named role/owner mapping(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)REQUIREMENT\\|role accountability\\|MISSING\\|[^|\\r\\n]*(?:role|owner|mapping)[^|\\r\\n]*(?:\\r?\\n|$)"
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)REQUIREMENT\\|validation ownership\\|MISSING\\|named validation owner(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)REQUIREMENT\\|validation ownership\\|MISSING\\|[^|\\r\\n]*validation owner[^|\\r\\n]*(?:\\r?\\n|$)"
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)REQUIREMENT\\|behavioral acceptance criteria\\|MISSING\\|approved observable criteria(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)REQUIREMENT\\|behavioral acceptance criteria\\|MISSING\\|[^|\\r\\n]*(?:behavioral|observable)[^|\\r\\n]*criteria[^|\\r\\n]*(?:\\r?\\n|$)"
         },
         {
           "type": "regex",
-          "value": "(?:^|\\r?\\n)GATE\\|development handoff\\|BLOCKED\\|role accountability, validation ownership, and behavioral acceptance criteria must be supplied(?:\\r?\\n|$)"
+          "value": "(?:^|\\r?\\n)GATE\\|development handoff\\|BLOCKED\\|(?=[^|\\r\\n]*\\brole accountability\\b)(?=[^|\\r\\n]*\\bvalidation ownership\\b)(?=[^|\\r\\n]*\\bbehavioral acceptance criteria\\b)[^|\\r\\n]+(?:\\r?\\n|$)"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)GATE\\|development handoff\\|(?!BLOCKED\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)GATE\\|development handoff\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?GATE\\|development handoff\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)REQUIREMENT\\|(?:role accountability|validation ownership|behavioral acceptance criteria)\\|(?!MISSING\\|)[^\\r\\n]*(?:\\r?\\n|$))[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)REQUIREMENT\\|role accountability\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?REQUIREMENT\\|role accountability\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)REQUIREMENT\\|validation ownership\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?REQUIREMENT\\|validation ownership\\|)[\\s\\S]*$"
+        },
+        {
+          "type": "regex",
+          "value": "^(?![\\s\\S]*(?:^|\\r?\\n)REQUIREMENT\\|behavioral acceptance criteria\\|[^\\r\\n]*\\r?\\n[\\s\\S]*?REQUIREMENT\\|behavioral acceptance criteria\\|)[\\s\\S]*$"
         }
       ]
     },

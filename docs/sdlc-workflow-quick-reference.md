@@ -2,34 +2,34 @@
 
 Agent Skills Standard syncs workflows into each agent's native surface. Run `ags sync`, then invoke the synced workflow from Claude, Codex, Cursor, Gemini, Copilot, Kiro, or another configured runtime.
 
-| Requirement Layer      | Core Question                                   | Workflow                   | Use When                                             | Primary Output           |
-| ---------------------- | ----------------------------------------------- | -------------------------- | ---------------------------------------------------- | ------------------------ |
-| Route                  | Which workflow now?                             | `sdlc`                     | Unsure what to run next                              | next workflow            |
-| BRD-lite / Direction   | Why are we doing this, and which way?           | `brainstorm-feature`       | Idea, business case, or technical direction unclear   | `docs/brd/brd-[slug].md` |
-| PRD                    | What are we building?                           | `plan-feature`             | Feature needs scope, requirements, and AC IDs        | `docs/prd/prd-[slug].md` |
-| Architecture           | How big and what shape?                         | `system-design-session`            | Scale, topology, or store choice is unsettled        | `docs/design/system-design-[slug].md` |
-| SRS/FRS                | How will it work technically?                   | `design-solution`          | Contracts, behavior, or architecture are unclear     | `docs/srs/srs-[slug].md` |
-| Readiness              | Are we ready to build?                          | `implementation-readiness` | BRD/PRD/SRS or test plan needs go/no-go              | readiness verdict        |
-| Build                  | Can we implement safely?                        | `implement-feature`        | Approved feature needs code                          | `docs/srs/srs-task-list-[slug].md` |
-| Test Loop              | Do we have executable, traced test coverage?    | `test-loop`                | ACs have E2E/mobile lanes without executable coverage | test suite + verdicts   |
-| Verify                 | Did we prove it with fresh evidence?            | `verify-work`              | Work is code-complete but unproven                   | `docs/srs/srs-walkthrough-[slug].md` |
-| UAT Signoff            | Does the business accept it?                    | `uat-signoff`               | `verify-work` PASS needs business acceptance before release | signoff decision  |
-| Trace                  | Is every requirement covered?                   | `traceability-audit`       | Pre-release or handoff needs evidence mapping        | traceability report      |
-| Release                | Is deployment safe?                             | `deploy-release`           | Verification passed and deployment is planned        | deployment report        |
-| Incident               | How do we stop harm right now?                  | `incident-hotfix`          | Production incident or urgent regression needs mitigate-first response | mitigation + handoff |
-| Maintain               | Is production still inside its control bands?   | `monitor-respond`          | Control band breached or a scheduled scan completed  | tiered response + routed intake |
-| Publish                | What do users need to know?                     | `publish-notes`            | Need release communication                           | release notes            |
-| Learn                  | How do we prevent repeat issues?                | `retro-learn`              | Need standards/process feedback loop                 | retro report             |
-| Session                | What happened in this delivery?                 | `session-report`           | Need concise run summary and follow-ups              | session report           |
-| Fix                    | How do we remediate a bug?                      | `dev-fix`                  | Bug ticket needs remediation                         | fix plan and evidence    |
-| Review                 | What risks are in this change?                  | `review-ticket`            | Ticket or complex change needs specialist fanout     | review verdict           |
-| Review (Design)        | Is this provided design sound?                  | `review-system-design`     | A diagram, doc, or IaC repo arrives for review       | scorecard + findings     |
-| Review (PR)            | Is this PR safe to merge?                       | `code-review`              | PR diff needs focused merge-risk review              | review findings          |
-| Review (Repo)          | What structural risks exist in the codebase?    | `codebase-review`          | Need broader architecture/quality scan               | prioritized findings     |
-| Security               | What exploitable risk exists now?               | `security-test`            | Need SAST/SCA/secrets or branch security checks      | security report          |
-| Security (Adversarial) | Can this be exploited in practice?              | `pentest`                  | Need PTES-aligned exploit validation                 | pentest report           |
-| Benchmark              | Is this skill behavior improving under pressure? | `skill-benchmark`         | Need scored quality comparison vs legacy constraints | benchmark report         |
-| Bug Verify             | Is the fixed bug gone in real flow?             | `verify-bug`               | Post-fix UAT validation against reproduce steps      | bug verification report  |
+| Requirement Layer      | Core Question                                    | Workflow                   | Use When                                                               | Primary Output                        |
+| ---------------------- | ------------------------------------------------ | -------------------------- | ---------------------------------------------------------------------- | ------------------------------------- |
+| Route                  | Which workflow now?                              | `sdlc`                     | Unsure what to run next                                                | next workflow                         |
+| BRD-lite / Direction   | Why are we doing this, and which way?            | `brainstorm-feature`       | Idea, business case, or technical direction unclear                    | `docs/brd/brd-[slug].md`              |
+| PRD                    | What are we building?                            | `plan-feature`             | Feature needs scope, requirements, and AC IDs                          | `docs/prd/prd-[slug].md`              |
+| Architecture           | How big and what shape?                          | `system-design-session`    | Scale, topology, or store choice is unsettled                          | `docs/design/system-design-[slug].md` |
+| SRS/FRS                | How will it work technically?                    | `design-solution`          | Contracts, behavior, or architecture are unclear                       | `docs/srs/srs-[slug].md`              |
+| Readiness              | Are we ready to build?                           | `implementation-readiness` | BRD/PRD/SRS or test plan needs go/no-go                                | readiness verdict                     |
+| Build                  | Can we implement safely?                         | `implement-feature`        | Approved feature needs code                                            | `docs/srs/srs-task-list-[slug].md`    |
+| Test Loop              | Do we have executable, traced test coverage?     | `test-loop`                | ACs have E2E/mobile lanes without executable coverage                  | test suite + verdicts                 |
+| Verify                 | Did we prove it with fresh evidence?             | `verify-work`              | Work is code-complete but unproven                                     | `docs/srs/srs-walkthrough-[slug].md`  |
+| UAT Signoff            | Does the business accept it?                     | `uat-signoff`              | `verify-work` PASS needs business acceptance before release            | signoff decision                      |
+| Trace                  | Is every requirement covered?                    | `traceability-audit`       | Pre-release or handoff needs evidence mapping                          | traceability report                   |
+| Release                | Is deployment safe?                              | `deploy-release`           | Verification passed and deployment is planned                          | deployment report                     |
+| Incident               | How do we stop harm right now?                   | `incident-hotfix`          | Production incident or urgent regression needs mitigate-first response | mitigation + handoff                  |
+| Maintain               | Is production still inside its control bands?    | `monitor-respond`          | Control band breached or a scheduled scan completed                    | tiered response + routed intake       |
+| Publish                | What do users need to know?                      | `publish-notes`            | Need release communication                                             | release notes                         |
+| Learn                  | How do we prevent repeat issues?                 | `retro-learn`              | Need standards/process feedback loop                                   | retro report                          |
+| Session                | What happened in this delivery?                  | `session-report`           | Need concise run summary and follow-ups                                | session report                        |
+| Fix                    | How do we remediate a bug?                       | `dev-fix`                  | Bug ticket needs remediation                                           | fix plan and evidence                 |
+| Review                 | What risks are in this change?                   | `review-ticket`            | Ticket or complex change needs specialist fanout                       | review verdict                        |
+| Review (Design)        | Is this provided design sound?                   | `review-system-design`     | A diagram, doc, or IaC repo arrives for review                         | scorecard + findings                  |
+| Review (PR)            | Is this PR safe to merge?                        | `code-review`              | PR diff needs focused merge-risk review                                | review findings                       |
+| Review (Repo)          | What structural risks exist in the codebase?     | `codebase-review`          | Need broader architecture/quality scan                                 | prioritized findings                  |
+| Security               | What exploitable risk exists now?                | `security-test`            | Need SAST/SCA/secrets or branch security checks                        | security report                       |
+| Security (Adversarial) | Can this be exploited in practice?               | `pentest`                  | Need PTES-aligned exploit validation                                   | pentest report                        |
+| Benchmark              | Is this skill behavior improving under pressure? | `skill-benchmark`          | Need scored quality comparison vs legacy constraints                   | benchmark report                      |
+| Bug Verify             | Is the fixed bug gone in real flow?              | `verify-bug`               | Post-fix UAT validation against reproduce steps                        | bug verification report               |
 
 ## Approved Evidence And Readiness
 
@@ -41,27 +41,16 @@ Use the task-linked approved brief/ticket and its stable slug. An unrelated newe
 
 ### Question-Driven Modeling And Completeness
 
-For substantial scope, multi-actor workflows, interacting rules, or multiple delivery slices, load `common-product-requirements/references/requirements-modeling.md` on demand. Decompose capabilities using verb-object naming into a scope tree with single containment parents and explicit leaf classification (`in_scope`, `deferred`, `excluded`). Stop decomposition when actor, trigger, intended result, rules/exceptions, boundary, and verification permit estimation and assignment. Domain omissions (such as overdue handling or transaction rollback) must be raised as explicit scope decisions for owner disposition rather than silently omitted or implemented. Define shared rules and functions canonically once and reference them across flows without duplicate definitions.
-
-### Existing Diagram Capability Reuse
-
-Select structured representations and views strictly based on the question being addressed:
-- Scope tree: capability bounds and completeness.
-- Process flow: end-to-end responsibilities and step order (Mermaid flowchart).
-- Decision table: interacting rules and combinatorial conditions (markdown truth table).
-- State lifecycle: entity states and transitions (`state` spec in `common-architecture-diagramming`).
-- Sequence: call protocols and interaction order over time (`sequence` spec in `common-architecture-diagramming`).
-- Delivery graph: schedulable prerequisite dependencies (business loops != delivery-dependency cycles).
-
-Diagrams remain optional when markdown tables or prose answer the question precisely and unambiguously. Reuse existing diagram capabilities; no new renderer engine is required.
+For substantial scope, multi-actor workflows, interacting rules, or multiple delivery slices, load `common-product-requirements/references/requirements-modeling.md` on demand for verb-object capability scope trees, stop rules, canonical shared definitions, question-driven view selection, and change impact.
 
 ### Low-Risk Evidence And Sensitive Floors
 
-Sufficiently specified routine fixes, maintenance, or single-component changes with approved evidence (approved ticket with behavioral AC, accountable owner, scope fence, approval, and verification lane) satisfy readiness without mandatory separate BRD/PRD/SRS files or full modeling detours. However, changes touching authentication, secrets, monetary flows, data integrity, or trust boundaries enforce sensitive minimum floors requiring technical design and human approval before coding.
+Sufficiently specified routine fixes or maintenance tickets with approved behavioral AC, accountable owner, scope fence, approval, and verification lane satisfy readiness without mandatory separate document files or full modeling detours. However, changes touching sensitive domains enforce the sensitive-change floor per `requirements-modeling.md` requiring technical design and human approval before coding.
 
 ### Scoped Change Impact And Canonical Guidance
 
-When requirements change, trace affected ACs, contracts, approvals, and verification evidence carrying existing IDs (`BRD-OBJ-*`, `REQ-*`, `AC-*`, `SRS-*`); do not reopen settled decisions or unrelated requirements. Keep provider, account, profile, model, and workstation specifics in host planning records only, not canonical guidance.
+When requirements change, trace affected ACs, contracts, approvals, and verification evidence carrying existing IDs without reopening settled decisions. Keep provider, account, profile, model, and workstation specifics in host planning records only, not canonical guidance.
+
 ## Guidance Release And Activation
 
 For workflow source changes, update `releases.workflows.version` once for the settled shared workflow bundle, then generate native mirrors. If a source change is rolled back, revert canonical sources and regenerate mirrors before consumers sync. A source revision or PR does not prove consumer installation or runtime activation; record source delivery and machine activation separately.
@@ -71,11 +60,11 @@ For workflow source changes, update `releases.workflows.version` once for the se
 Add the `cybersecurity` category with a reviewed ref and select these workflow
 names explicitly in `.skillsrc`; they are not added by default initialization.
 
-| Need | Workflow | Output |
-| --- | --- | --- |
-| White-team exercise control and adjudication | `cyber-exercise` | scoped plan, control log, independently adjudicated evidence |
-| Blue-team incident intake and containment readiness | `cyber-triage` | evidence-led triage, authorization gates and bounded next action |
-| Purple-team defensive validation | `cyber-purple-validation` | paired action/observation records and justified control outcome |
+| Need                                                | Workflow                  | Output                                                           |
+| --------------------------------------------------- | ------------------------- | ---------------------------------------------------------------- |
+| White-team exercise control and adjudication        | `cyber-exercise`          | scoped plan, control log, independently adjudicated evidence     |
+| Blue-team incident intake and containment readiness | `cyber-triage`            | evidence-led triage, authorization gates and bounded next action |
+| Purple-team defensive validation                    | `cyber-purple-validation` | paired action/observation records and justified control outcome  |
 
 Red-team planning/scoped-validation skills compose into `cyber-exercise`.
 Team color never grants permission. Unsupported runtime controls block live
@@ -87,10 +76,10 @@ compliance certification or evidence of production effectiveness.
 Select these workflow names explicitly in `.skillsrc`; they need the Google
 Stitch MCP server and are not added by default initialization.
 
-| Need | Workflow | Output |
-| --- | --- | --- |
-| Review and improve an existing Stitch design | `review-stitch-design` | six-axis scorecard, findings, variant screen ids, before/after |
-| Create a new Stitch design from a brief | `create-stitch-design` | linted DESIGN.md, design system, phone and tablet screens, review scorecard |
+| Need                                         | Workflow               | Output                                                                      |
+| -------------------------------------------- | ---------------------- | --------------------------------------------------------------------------- |
+| Review and improve an existing Stitch design | `review-stitch-design` | six-axis scorecard, findings, variant screen ids, before/after              |
+| Create a new Stitch design from a brief      | `create-stitch-design` | linted DESIGN.md, design system, phone and tablet screens, review scorecard |
 
 ## Native Runtime Surfaces
 
@@ -108,30 +97,30 @@ Published AI-native SDLC guidance names six stages and a chain of committed mark
 standard already covers that chain under requirement-layer names; the mapping below is for readers
 arriving with the other vocabulary. Do not rename our artifacts to match it.
 
-| Playbook stage | Playbook artifact | This standard | Our artifact |
-| -------------- | ----------------- | ------------- | ------------ |
-| Plan | `intent.md` | `brainstorm-feature` | `docs/brd/brd-[slug].md` |
-| Design | `spec.md` | `plan-feature`, `design-solution` | `docs/prd/prd-[slug].md`, `docs/srs/srs-[slug].md` |
-| Build | `plan.md` | `implementation-readiness`, `implement-feature` | readiness verdict, `docs/srs/srs-task-list-[slug].md` |
-| Test | test + eval evidence | `test-loop`, `verify-work`, `evals-run` | `docs/srs/srs-walkthrough-[slug].md`, eval run results |
-| Deploy | review policy + gates | `code-review`, `review-ticket`, `deploy-release` | `docs/review-policy.md`, deployment report |
-| Maintain | control bands, scans | `monitor-respond`, `incident-hotfix` | `docs/ops/bands.yaml`, `artifacts/security-review.md` |
-| Cross-cutting | metrics, guardrails | `common-sdlc-metrics`, `common-agent-guardrails` | `artifacts/sdlc-metrics.md`, guardrail policy |
+| Playbook stage | Playbook artifact     | This standard                                    | Our artifact                                           |
+| -------------- | --------------------- | ------------------------------------------------ | ------------------------------------------------------ |
+| Plan           | `intent.md`           | `brainstorm-feature`                             | `docs/brd/brd-[slug].md`                               |
+| Design         | `spec.md`             | `plan-feature`, `design-solution`                | `docs/prd/prd-[slug].md`, `docs/srs/srs-[slug].md`     |
+| Build          | `plan.md`             | `implementation-readiness`, `implement-feature`  | readiness verdict, `docs/srs/srs-task-list-[slug].md`  |
+| Test           | test + eval evidence  | `test-loop`, `verify-work`, `evals-run`          | `docs/srs/srs-walkthrough-[slug].md`, eval run results |
+| Deploy         | review policy + gates | `code-review`, `review-ticket`, `deploy-release` | `docs/review-policy.md`, deployment report             |
+| Maintain       | control bands, scans  | `monitor-respond`, `incident-hotfix`             | `docs/ops/bands.yaml`, `artifacts/security-review.md`  |
+| Cross-cutting  | metrics, guardrails   | `common-sdlc-metrics`, `common-agent-guardrails` | `artifacts/sdlc-metrics.md`, guardrail policy          |
 
 ## Role And Stage Ownership
 
 Authority concentrates at gates. Automation runs freely between them.
 
-| Role | Owns the decision at |
-| ---- | -------------------- |
-| Originator | raising the need; authors the BRD-lite input |
-| Product owner | accepting the BRD-lite and the PRD |
-| Technical lead | higher-risk design and plans; owns `docs/review-policy.md` |
-| Engineer | approving the implementation plan; addressing review findings |
-| Policy owner | signing off the standards a spec must satisfy; owns their skills |
-| Platform engineer | instruction files, guardrails, specialists, eval suite |
-| Release manager | authorizing the production release |
-| Security lead | scan cadence, finding triage, dismissal reasons |
+| Role              | Owns the decision at                                             |
+| ----------------- | ---------------------------------------------------------------- |
+| Originator        | raising the need; authors the BRD-lite input                     |
+| Product owner     | accepting the BRD-lite and the PRD                               |
+| Technical lead    | higher-risk design and plans; owns `docs/review-policy.md`       |
+| Engineer          | approving the implementation plan; addressing review findings    |
+| Policy owner      | signing off the standards a spec must satisfy; owns their skills |
+| Platform engineer | instruction files, guardrails, specialists, eval suite           |
+| Release manager   | authorizing the production release                               |
+| Security lead     | scan cadence, finding triage, dismissal reasons                  |
 
 ## Adoption Order
 
@@ -139,7 +128,7 @@ Start with any practice that has no prerequisite, then follow the arrows.
 
 - No prerequisite: `common-agent-guardrails`, `brainstorm-feature`, `common-tdd` feedback loop, instruction-file hygiene.
 - `plan-feature`, `design-solution` <- task-linked approved intent or product evidence (sufficiently specified low-risk maintenance with approved task tickets may proceed without a separate BRD-lite).
-- `implementation-readiness`, `implement-feature` <- behavioral ACs, accountable owner, approved scope fence, and verification lane plus applicable design/test prerequisites (supplied by PRD and SRS or an equivalent approved low-risk record, while preserving sensitive human/design floors and ready-only PARTIAL).
+- `implementation-readiness`, `implement-feature` <- behavioral ACs, accountable owner, approved scope fence, and verification lane plus applicable design/test prerequisites (supplied by PRD and SRS or an equivalent approved low-risk record); sensitive changes still require technical design and human/governance approval per [requirements modeling §1](../skills/common/common-product-requirements/references/requirements-modeling.md#1-applicability--sizing-gate), and PARTIAL authorizes ready slices only.
 - `code-review`, `review-ticket` <- `docs/review-policy.md` and the framework skills.
 - `evals-run` config gate <- eval definitions plus a stable command to run them.
 - `deploy-release` tiers <- guardrail approval gates and a rehearsed rollback.
@@ -173,13 +162,14 @@ workflow: "<workflow>"
 feature_status: not_started | requirements_ready | design_ready | partially_implemented | implemented | verified | released | blocked
 started_at: "<ISO-8601 UTC>"
 completed_at: "<ISO-8601 UTC>"
-requirement_trace: {brd_objectives: [], requirements: [], acceptance_criteria: [], srs: []}
+requirement_trace:
+  { brd_objectives: [], requirements: [], acceptance_criteria: [], srs: [] }
 completed_evidence: []
 missing_evidence: []
 decision_needed: []
 recommended_next_workflow: brainstorm-feature | plan-feature | design-solution | implementation-readiness | implement-feature | verify-work
-cost: {source: host | agent-estimate | unavailable}
-agent: {identity: "<omp/provider/model>", model: "<model>"}
+cost: { source: host | agent-estimate | unavailable }
+agent: { identity: "<omp/provider/model>", model: "<model>" }
 ```
 
 Generic task boards, MCP servers, Jira, GitHub, GitLab, Azure DevOps, Zephyr, and project-specific runtimes may map this payload to their own primitives. Canonical workflows must not require runtime-specific IDs, chat channels, containers, or filesystem mount paths.

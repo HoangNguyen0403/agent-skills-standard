@@ -1,0 +1,352 @@
+/* interaction.module.css - Styles for CopyCommand, MobileMenu, and interaction controls */
+
+/* ==========================================================================
+   CopyCommand Layout & States
+   ========================================================================== */
+
+.commandRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  background-color: var(--panel, #1b231d);
+  border: 1px solid rgba(187, 195, 186, 0.2);
+  border-radius: 8px;
+  padding: 16px 20px;
+  position: relative;
+  min-height: 228px;
+  box-sizing: border-box;
+}
+
+.commandContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 8px;
+}
+
+.commandPre {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  overflow-x: auto;
+  min-width: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.commandCode {
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--paper, #f5f2e9);
+  white-space: pre;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.statusSlot {
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+/* Control footprint container: fixed 120px across states and viewports */
+.controlArea {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex: 0 0 120px;
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+}
+
+/* Fixed 120x48px copy control footprint across all viewports and states */
+.copyButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  height: 48px;
+  min-height: 48px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  font-family: var(--font-body, "Source Sans 3", sans-serif);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  padding-left: 16px;
+  padding-right: 24px;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.copyButton:focus-visible {
+  outline: 3px solid var(--lime, #c7f36b);
+  outline-offset: 3px;
+}
+
+/* Idle state: outline styling */
+.copyIdle {
+  background-color: transparent;
+  border: 1px solid rgba(187, 195, 186, 0.4);
+  color: var(--paper, #f5f2e9);
+}
+
+.copyIdle:hover {
+  border-color: var(--lime, #c7f36b);
+  color: var(--lime, #c7f36b);
+}
+
+/* Pending state: disabled */
+.copyPending {
+  background-color: rgba(187, 195, 186, 0.1);
+  border: 1px solid rgba(187, 195, 186, 0.2);
+  color: var(--muted, #bbc3ba);
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+/* Copied state: success badge style */
+.copySuccess {
+  background-color: var(--lime, #c7f36b);
+  border: 1px solid var(--lime, #c7f36b);
+  color: var(--ink, #101312);
+  cursor: default;
+}
+
+/* Error/Retry state */
+.copyError {
+  background-color: rgba(255, 107, 107, 0.15);
+  border: 1px solid #ff6b6b;
+  color: #ffa8a8;
+}
+
+.copyError:hover {
+  background-color: rgba(255, 107, 107, 0.25);
+  border-color: #ffa8a8;
+  color: #fff;
+}
+
+/* Failure message and secondary Select button */
+.failureControls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.selectCommandButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px dashed rgba(187, 195, 186, 0.4);
+  border-radius: 6px;
+  color: var(--paper, #f5f2e9);
+  font-family: var(--font-body, "Source Sans 3", sans-serif);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.selectCommandButton:hover {
+  border-color: var(--lime, #c7f36b);
+  color: var(--lime, #c7f36b);
+}
+
+.selectCommandButton:focus-visible {
+  outline: 3px solid var(--lime, #c7f36b);
+  outline-offset: 3px;
+}
+
+.statusMessage {
+  font-family: var(--font-body, "Source Sans 3", sans-serif);
+  font-size: 16px;
+  line-height: 1.4;
+  color: #ffa8a8;
+  margin: 0;
+  max-width: 100%;
+}
+
+/* Visually hidden live region for screen readers */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* No-JS fallback placeholder matching 120x48px footprint */
+.noJsNotice {
+  display: inline-block;
+  width: 120px;
+  height: 48px;
+  user-select: none;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .commandRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 16px;
+    min-height: 300px;
+  }
+
+  .commandCode {
+    font-size: 16px;
+  }
+
+  .statusSlot {
+    width: 100%;
+  }
+
+  .controlArea {
+    align-items: flex-start;
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
+  }
+
+  .copyButton {
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
+  }
+}
+
+/* ==========================================================================
+   MobileMenu Layout & Navigation
+   ========================================================================== */
+
+.menuContainer {
+  position: relative;
+  display: block;
+}
+
+.menuDetails {
+  display: block;
+}
+
+/* Summary element behaving as interactive trigger */
+.menuSummary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 16px;
+  background-color: transparent;
+  border: 1px solid rgba(187, 195, 186, 0.3);
+  border-radius: 8px;
+  color: var(--paper, #f5f2e9);
+  font-family: var(--font-body, "Source Sans 3", sans-serif);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.menuSummary::-webkit-details-marker {
+  display: none;
+}
+
+.menuSummary:hover {
+  border-color: var(--lime, #c7f36b);
+  color: var(--lime, #c7f36b);
+}
+
+.menuSummary:focus-visible {
+  outline: 3px solid var(--lime, #c7f36b);
+  outline-offset: 3px;
+}
+
+/* Optional 18px SVG chevron rotation */
+.chevronIcon {
+  flex-shrink: 0;
+  transition: transform 200ms ease;
+}
+
+.menuDetails[open] .chevronIcon {
+  transform: rotate(180deg);
+}
+
+/* In-flow expanded navigation dropdown constrained to available space */
+.menuNav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 8px;
+  background-color: var(--panel, #1b231d);
+  border: 1px solid rgba(187, 195, 186, 0.25);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 260px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 860px) {
+  .menuNav {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  color: var(--paper, #f5f2e9);
+  font-family: var(--font-body, "Source Sans 3", sans-serif);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+  box-sizing: border-box;
+}
+
+.navLink:hover {
+  background-color: rgba(199, 243, 107, 0.1);
+  color: var(--lime, #c7f36b);
+}
+
+.navLink:focus-visible {
+  outline: 3px solid var(--lime, #c7f36b);
+  outline-offset: 2px;
+}
